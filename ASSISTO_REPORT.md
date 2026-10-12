@@ -8,8 +8,10 @@
 - 🔑 0.1 Asalify CI fix — **needs owner** (ready patch: `owner_actions/asalify_ci_fix.md`). আমি live Asalify রিপোতে commit করিনি (সেফটি রুল + গার্ডরেইল)। কারণ (বাংলা): `ci.yml` প্রতি push+PR-এ চলে, `concurrency` নেই (দ্রুত একাধিক push একসাথে পুরো জব চালায়, একটাও ক্যানসেল হয় না), আর `timeout-minutes` নেই (আটকে গেলে ডিফল্ট ৬ ঘণ্টা চলে) → একদিনেই ২০০০ মিনিট শেষ। ফিক্স: `concurrency(cancel-in-progress)` + `timeout-minutes:15` (শুধু ওই ২টা লাইন)।
 - ✅ 0.7 সিদ্ধান্ত: লোকাল Flutter বসানো হয়নি (ডিস্ক ≥9GB রাখতে); বদলে CI-তে `flutter analyze`+`test` ধাপ
 
-**Step A — ভাইরাল ওয়েব টুল (assisto.asalify.com, লগইন ছাড়া)**
-- ⏳ W1 CV স্কোর · ⏳ W2 স্ক্যাম চেকার · ⏳ W3 পাসপোর্ট/ভিসা ছবি · ⏳ W4 উৎসবের কার্ড
+**Step A — ভাইরাল ওয়েব টুল (assisto.asalify.com, লগইন ছাড়া) — ✅ লাইভ**
+- ✅ W1 CV স্কোর (/cv) · ✅ W2 স্ক্যাম চেকার (/scam) · ✅ W3 পাসপোর্ট/ভিসা ছবি (/photo) · ✅ W4 উৎসবের কার্ড (/festival)
+- বাংলা, মোবাইল-ফার্স্ট, লগইন ছাড়া, per-IP রেট লিমিট, শেয়ার কার্ড (1080+story), OG প্রিভিউ, "অ্যাপ নিন" লিংক
+- AI খরচ/ব্যবহার (key থাকলে, Haiku): W1 ≈ $0.005, W2 ≈ $0.0017; key ছাড়া $0 (নিয়ম-ভিত্তিক)
 
 **V1 — অ্যাপ + ব্যাকএন্ড (ফিচার ১–২১)**
 - ⏳ Part 2: (3) রিমাইন্ডার/নোট/To-Do · (2) Memory + "ভুলে যাও" · (20) autonomy/audit/undo · (21) sync/export/support

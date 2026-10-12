@@ -1,6 +1,7 @@
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-from .models import User, MemoryItem, AuditLog
+from .models import (User, MemoryItem, AuditLog, Reminder, Note, Todo,
+                     SourcePermission, SupportTicket)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -60,3 +61,40 @@ class AuditLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = AuditLog
         fields = ["id", "action", "detail", "created_at"]
+
+
+class ReminderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reminder
+        fields = ["id", "title", "notes", "due_at", "recurrence",
+                  "remind_before_min", "done", "source", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+
+class NoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Note
+        fields = ["id", "title", "body", "pinned", "source", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+
+class TodoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Todo
+        fields = ["id", "title", "done", "due_at", "source", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+
+class SourcePermissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SourcePermission
+        fields = ["id", "source", "enabled"]
+        read_only_fields = ["id"]
+
+
+class SupportTicketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SupportTicket
+        fields = ["id", "kind", "message", "screenshot", "app_version",
+                  "resolved", "reply", "created_at"]
+        read_only_fields = ["id", "resolved", "reply", "created_at"]

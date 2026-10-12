@@ -112,6 +112,83 @@ class AuditLog(models.Model):
         ordering = ["-created_at"]
 
 
+class Reminder(models.Model):
+    """Feature 3 — reminders / alarms / calendar, incl. recurring."""
+    REC_NONE, REC_DAILY, REC_WEEKLY, REC_MONTHLY, REC_YEARLY = (
+        "none", "daily", "weekly", "monthly", "yearly")
+    REC_CHOICES = [(REC_NONE, "একবার"), (REC_DAILY, "প্রতিদিন"), (REC_WEEKLY, "সাপ্তাহিক"),
+                   (REC_MONTHLY, "মাসিক"), (REC_YEARLY, "বার্ষিক")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reminders")
+    title = models.CharField(max_length=200)
+    notes = models.TextField(blank=True)
+    due_at = models.DateTimeField(null=True, blank=True)
+    recurrence = models.CharField(max_length=10, choices=REC_CHOICES, default=REC_NONE)
+    remind_before_min = models.IntegerField(default=0)
+    done = models.BooleanField(default=False)
+    source = models.CharField(max_length=8, default="manual")   # manual | ai
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["due_at", "-updated_at"]
+
+
+class Note(models.Model):
+    """Feature 3 — notes."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notes")
+    title = models.CharField(max_length=200, blank=True)
+    body = models.TextField(blank=True)
+    pinned = models.BooleanField(default=False)
+    source = models.CharField(max_length=8, default="manual")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-pinned", "-updated_at"]
+
+
+class Todo(models.Model):
+    """Feature 3 — to-do list."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="todos")
+    title = models.CharField(max_length=200)
+    done = models.BooleanField(default=False)
+    due_at = models.DateTimeField(null=True, blank=True)
+    source = models.CharField(max_length=8, default="manual")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["done", "-updated_at"]
+
+
+class SourcePermission(models.Model):
+    """Feature 20 — per-source capture permission (each source switchable)."""
+    SOURCES = [("photo", "ছবি"), ("share", "শেয়ার/ফরোয়ার্ড"), ("voice", "বাংলা ভয়েস"),
+               ("notification", "নোটিফিকেশন (bKash/ব্যাংক)")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="source_perms")
+    source = models.CharField(max_length=16)
+    enabled = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = [("user", "source")]
+
+
+class SupportTicket(models.Model):
+    """Feature 21 — in-app support chat + bug report (with optional screenshot)."""
+    KIND = [("support", "সাহায্য"), ("bug", "সমস্যা রিপোর্ট")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tickets")
+    kind = models.CharField(max_length=10, choices=KIND, default="support")
+    message = models.TextField()
+    screenshot = models.ImageField(upload_to="support/", null=True, blank=True)
+    app_version = models.CharField(max_length=24, blank=True)
+    resolved = models.BooleanField(default=False)
+    reply = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
 class AIUsage(models.Model):
     """Every AI call logged for cost tracking + daily budget kill-switch."""
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,

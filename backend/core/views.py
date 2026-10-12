@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import transaction
+from django.http import HttpResponse
 from django.utils import timezone
 
 from rest_framework import viewsets, status
@@ -9,11 +10,17 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import User, MemoryItem, AuditLog
+from datetime import timedelta
+
+from .models import (User, MemoryItem, AuditLog, Reminder, Note, Todo,
+                     SourcePermission, SupportTicket)
 from .serializers import (
     UserSerializer, RegisterSerializer, LoginSerializer,
-    MemoryItemSerializer, AuditLogSerializer,
+    MemoryItemSerializer, AuditLogSerializer, ReminderSerializer,
+    NoteSerializer, TodoSerializer, SourcePermissionSerializer,
+    SupportTicketSerializer,
 )
+from . import ai
 
 API_VERSION = "v1"
 BUILD_PART = 1  # which V1 part this backend serves
@@ -152,12 +159,211 @@ class MemoryViewSet(viewsets.ModelViewSet):
         instance.delete()
 
 
-# ---------- audit log ----------
+# ---------- synced collections (reminders / notes / todos) ----------
+
+class SyncedViewSet(viewsets.ModelViewSet):
+    """Per-user CRUD with audit logging and recoverable (undoable) deletes."""
+    kind = ""   # 'reminder' | 'note' | 'todo'
+
+    def get_queryset(self):
+        return self.model.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        obj = serializer.save(user=self.request.user, source=MemoryItem.SOURCE_MANUAL)
+        log(self.request.user, f"{self.kind}.create", id=obj.id)
+
+    def perform_update(self, serializer):
+        obj = serializer.save()
+        log(self.request.user, f"{self.kind}.update", id=obj.id)
+
+    def perform_destroy(self, instance):
+        data = self.get_serializer(instance).data
+        log(self.request.user, f"{self.kind}.delete", undo=data, kind=self.kind)
+        instance.delete()
+
+
+class ReminderViewSet(SyncedViewSet):
+    model = Reminder
+    kind = "reminder"
+    serializer_class = ReminderSerializer
+
+
+class NoteViewSet(SyncedViewSet):
+    model = Note
+    kind = "note"
+    serializer_class = NoteSerializer
+
+
+class TodoViewSet(SyncedViewSet):
+    model = Todo
+    kind = "todo"
+    serializer_class = TodoSerializer
+
+
+_UNDO_MAP = {
+    "reminder": (Reminder, ReminderSerializer),
+    "note": (Note, NoteSerializer),
+    "todo": (Todo, TodoSerializer),
+    "memory": (MemoryItem, MemoryItemSerializer),
+}
+
+
+class UndoView(APIView):
+    """Feature 20 — short undo: recreate the most recently deleted item."""
+    def post(self, request):
+        since = timezone.now() - timedelta(seconds=180)
+        candidates = (AuditLog.objects.filter(user=request.user, action__endswith=".delete",
+                                              created_at__gte=since).order_by("-created_at")[:10])
+        entry = next((e for e in candidates if not e.detail.get("undone")), None)
+        if not entry:
+            return Response({"detail": "ফিরিয়ে আনার মতো কিছু নেই।"},
+                            status=status.HTTP_404_NOT_FOUND)
+        kind = entry.detail.get("kind")
+        data = entry.detail.get("undo") or {}
+        model, ser = _UNDO_MAP.get(kind, (None, None))
+        if not model:
+            return Response({"detail": "সম্ভব নয়।"}, status=status.HTTP_400_BAD_REQUEST)
+        data.pop("id", None)
+        data.pop("created_at", None)
+        data.pop("updated_at", None)
+        obj = model.objects.create(user=request.user,
+                                   **{k: v for k, v in data.items()
+                                      if k in [f.name for f in model._meta.fields]})
+        entry.detail["undone"] = True
+        entry.save(update_fields=["detail"])
+        log(request.user, f"{kind}.undo", id=obj.id)
+        return Response({"restored": kind, "id": obj.id})
+
+
+# ---------- audit log / action center ----------
 
 class AuditListView(APIView):
     def get(self, request):
         qs = AuditLog.objects.filter(user=request.user)[:200]
         return Response(AuditLogSerializer(qs, many=True).data)
+
+
+# ---------- per-source permissions (feature 20) ----------
+
+class SourcePermissionView(APIView):
+    DEFAULTS = ["photo", "share", "voice", "notification"]
+
+    def get(self, request):
+        existing = {p.source: p.enabled for p in request.user.source_perms.all()}
+        out = [{"source": s, "enabled": existing.get(s, True)} for s in self.DEFAULTS]
+        return Response(out)
+
+    def post(self, request):
+        source = request.data.get("source")
+        enabled = bool(request.data.get("enabled", True))
+        if source not in self.DEFAULTS:
+            return Response({"detail": "invalid source"}, status=400)
+        obj, _ = SourcePermission.objects.update_or_create(
+            user=request.user, source=source, defaults={"enabled": enabled})
+        log(request.user, "source.toggle", source=source, enabled=enabled)
+        return Response(SourcePermissionSerializer(obj).data)
+
+
+# ---------- support / bug report (feature 21) ----------
+
+class SupportViewSet(viewsets.ModelViewSet):
+    serializer_class = SupportTicketSerializer
+
+    def get_queryset(self):
+        return SupportTicket.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        obj = serializer.save(user=self.request.user)
+        log(self.request.user, "support.create", kind=obj.kind)
+
+
+# ---------- AI status (needs-key state surfaced to the app) ----------
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def ai_status(request):
+    return Response(ai.status())
+
+
+# ---------- export: Excel / PDF (feature 21) ----------
+
+class ExportExcelView(APIView):
+    def get(self, request):
+        import io
+        from openpyxl import Workbook
+        u = request.user
+        wb = Workbook()
+        def sheet(title, headers, rows):
+            ws = wb.create_sheet(title)
+            ws.append(headers)
+            for r in rows:
+                ws.append(r)
+        wb.remove(wb.active)
+        sheet("Memory", ["Category", "Title", "Detail", "Source"],
+              [[m.category, m.title, m.detail, m.source] for m in u.memories.all()])
+        sheet("Reminders", ["Title", "Due", "Recurrence", "Done"],
+              [[r.title, str(r.due_at or ""), r.recurrence, r.done] for r in u.reminders.all()])
+        sheet("Notes", ["Title", "Body", "Pinned"],
+              [[n.title, n.body, n.pinned] for n in u.notes.all()])
+        sheet("Todos", ["Title", "Done", "Due"],
+              [[t.title, t.done, str(t.due_at or "")] for t in u.todos.all()])
+        buf = io.BytesIO()
+        wb.save(buf)
+        log(u, "export.excel")
+        resp = HttpResponse(buf.getvalue(),
+                            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        resp["Content-Disposition"] = 'attachment; filename="assisto-export.xlsx"'
+        return resp
+
+
+class ExportPdfView(APIView):
+    def get(self, request):
+        import io
+        from reportlab.lib.pagesizes import A4
+        from reportlab.pdfgen import canvas
+        from reportlab.pdfbase import pdfmetrics
+        from reportlab.pdfbase.ttfonts import TTFont
+        FONT = "Helvetica"
+        try:
+            if "Noto" not in pdfmetrics.getRegisteredFontNames():
+                pdfmetrics.registerFont(TTFont(
+                    "Noto", "/home/ubuntu/assisto/app/assets/fonts/NotoSansBengali.ttf"))
+            FONT = "Noto"   # note: reportlab lacks complex shaping; conjuncts imperfect
+        except Exception:
+            FONT = "Helvetica"
+        u = request.user
+        buf = io.BytesIO()
+        c = canvas.Canvas(buf, pagesize=A4)
+        w, h = A4
+        y = h - 50
+        c.setFont(FONT, 16)
+        c.drawString(40, y, "Assisto — My Data Export")
+        y -= 20
+        c.setFont(FONT, 9)
+        c.drawString(40, y, f"User: {u.name or u.username}")
+        y -= 25
+
+        def section(title, lines):
+            nonlocal y
+            if y < 80:
+                c.showPage(); y = h - 50
+            c.setFont(FONT, 12); c.drawString(40, y, title); y -= 16
+            c.setFont(FONT, 9)
+            for ln in lines:
+                if y < 60:
+                    c.showPage(); y = h - 50; c.setFont(FONT, 9)
+                c.drawString(48, y, ln[:110]); y -= 13
+            y -= 8
+
+        section("Reminders", [f"- {r.title} ({r.due_at or 'no date'})" for r in u.reminders.all()] or ["(none)"])
+        section("Notes", [f"- {n.title or n.body[:40]}" for n in u.notes.all()] or ["(none)"])
+        section("To-Do", [f"- [{'x' if t.done else ' '}] {t.title}" for t in u.todos.all()] or ["(none)"])
+        section("Memory", [f"- {m.title}" for m in u.memories.all()] or ["(none)"])
+        c.showPage(); c.save()
+        log(u, "export.pdf")
+        resp = HttpResponse(buf.getvalue(), content_type="application/pdf")
+        resp["Content-Disposition"] = 'attachment; filename="assisto-export.pdf"'
+        return resp
 
 
 # ---------- data export / delete (design: your data, exportable & deletable) ----------
