@@ -77,6 +77,32 @@ jobs:
           print("manifest patched: label=Assisto, INTERNET + REQUEST_INSTALL_PACKAGES")
           PY
 
+      - name: Enable core library desugaring (flutter_local_notifications)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          import os
+          kts = "android/app/build.gradle.kts"
+          gr = "android/app/build.gradle"
+          p, is_kts = (kts, True) if os.path.exists(kts) else (gr, False)
+          s = open(p).read()
+          if "coreLibraryDesugaring" not in s:
+              if is_kts:
+                  s = s.replace("compileOptions {",
+                      "compileOptions {\n        isCoreLibraryDesugaringEnabled = true", 1)
+                  s += ('\n\ndependencies {\n    coreLibraryDesugaring('
+                        '"com.android.tools:desugar_jdk_libs:2.1.4")\n}\n')
+              else:
+                  s = s.replace("compileOptions {",
+                      "compileOptions {\n        coreLibraryDesugaringEnabled true", 1)
+                  s += ("\n\ndependencies {\n    coreLibraryDesugaring "
+                        "'com.android.tools:desugar_jdk_libs:2.1.4'\n}\n")
+              open(p, "w").write(s)
+              print("desugaring enabled in", p)
+          else:
+              print("already enabled")
+          PY
+
       - name: Build release APK (arm64 only)
         working-directory: app
         run: |
