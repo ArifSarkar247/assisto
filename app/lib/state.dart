@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart' show ThemeMode, Locale;
 import 'package:flutter/foundation.dart';
@@ -84,19 +85,30 @@ class AppState extends ChangeNotifier {
   bool get loggedIn => api.token != null && user != null;
 
   Future<void> init() async {
-    await _loadPrefs();
-    final t = await _secure.read(key: 'token');
-    api.token = t;
-    memory = await db.allMemory();
-    for (final r in _repos) {
-      await r.load();
-    }
+    // Startup must ALWAYS finish (loading=false) even if storage/db/network
+    // misbehave — otherwise the app hangs on the splash spinner. Each piece is
+    // guarded independently so one failure never blocks the rest.
+    try {
+      await _loadPrefs();
+    } catch (_) {}
+    String? t;
+    try {
+      t = await _secure.read(key: 'token');
+      api.token = t;
+    } catch (_) {}
+    try {
+      memory = await db.allMemory();
+      for (final r in _repos) {
+        await r.load();
+      }
+    } catch (_) {}
     if (t != null) {
       try {
         user = await api.me();
-        await Background.start();
         await sync();
         _syncAll();
+        // Background poller must never block or crash startup.
+        unawaited(Background.start());
       } catch (e) {
         // offline or token issue — stay with whatever we have locally
         online = false;
@@ -121,7 +133,7 @@ class AppState extends ChangeNotifier {
     api.token = res.token;
     user = res.user;
     await _secure.write(key: 'token', value: res.token);
-    await Background.start();
+    unawaited(Background.start());
     await sync();
     _syncAll();
     notifyListeners();
@@ -133,7 +145,7 @@ class AppState extends ChangeNotifier {
     api.token = res.token;
     user = res.user;
     await _secure.write(key: 'token', value: res.token);
-    await Background.start();
+    unawaited(Background.start());
     await sync();
     _syncAll();
     notifyListeners();

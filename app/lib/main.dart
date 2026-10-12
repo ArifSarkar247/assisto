@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -12,17 +14,36 @@ import 'screens/home_screen.dart';
 import 'screens/language_picker_screen.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  Notifications.init();
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AppState()..init()),
-        ChangeNotifierProvider(create: (_) => Updater()..check()),
-      ],
-      child: const AssistoApp(),
-    ),
-  );
+  // Nothing in startup may crash the app. Every Dart error — sync, async, or
+  // framework — is caught here so the UI still opens; a broken feature degrades
+  // silently instead of taking the whole app down.
+  runZonedGuarded(() {
+    WidgetsFlutterBinding.ensureInitialized();
+
+    FlutterError.onError = (details) {
+      FlutterError.presentError(details);
+      if (kDebugMode) debugPrint('FlutterError: ${details.exceptionAsString()}');
+    };
+    PlatformDispatcher.instance.onError = (error, stack) {
+      debugPrint('Uncaught (platform): $error');
+      return true; // handled — do not crash
+    };
+
+    // Notifications init is fully self-guarded; fire-and-forget.
+    unawaited(Notifications.init());
+
+    runApp(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => AppState()..init()),
+          ChangeNotifierProvider(create: (_) => Updater()..check()),
+        ],
+        child: const AssistoApp(),
+      ),
+    );
+  }, (error, stack) {
+    debugPrint('Uncaught (zone): $error\n$stack');
+  });
 }
 
 class AssistoApp extends StatelessWidget {
