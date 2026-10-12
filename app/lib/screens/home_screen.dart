@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
+import '../updater.dart';
 import 'memory_screen.dart';
 import 'settings_screen.dart';
 
@@ -45,6 +46,7 @@ class _Dashboard extends StatelessWidget {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          const _UpdateBanner(),
           const SizedBox(height: 8),
           Text('আসসালামু আলাইকুম, $name',
               style: Theme.of(context).textTheme.headlineSmall),
@@ -90,6 +92,68 @@ class _Dashboard extends StatelessWidget {
           const SizedBox(height: 12),
           const _ComingSoonList(),
         ],
+      ),
+    );
+  }
+}
+
+class _UpdateBanner extends StatelessWidget {
+  const _UpdateBanner();
+  @override
+  Widget build(BuildContext context) {
+    final up = context.watch<Updater>();
+    if (up.available == null) return const SizedBox.shrink();
+    return Card(
+      color: const Color(0xFFFFF4D6),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.system_update, color: Color(0xFFB8860B)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text('নতুন আপডেট আছে',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold)),
+                ),
+                if (!up.downloading)
+                  IconButton(
+                      onPressed: up.dismiss,
+                      icon: const Icon(Icons.close, size: 18)),
+              ],
+            ),
+            if (up.available!.notes.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Text(up.available!.notes,
+                    style: const TextStyle(fontSize: 13)),
+              ),
+            if (up.downloading) ...[
+              const SizedBox(height: 6),
+              LinearProgressIndicator(
+                  value: up.progress > 0 ? up.progress : null),
+              const SizedBox(height: 4),
+              Text('ডাউনলোড হচ্ছে… ${(up.progress * 100).toStringAsFixed(0)}%',
+                  style: const TextStyle(fontSize: 12)),
+            ] else
+              Align(
+                alignment: Alignment.centerRight,
+                child: FilledButton.icon(
+                  onPressed: up.downloadAndInstall,
+                  icon: const Icon(Icons.download),
+                  label: const Text('আপডেট করুন'),
+                ),
+              ),
+            if (up.error != null)
+              Text('সমস্যা: ${up.error}',
+                  style: const TextStyle(color: Colors.red, fontSize: 12)),
+          ],
+        ),
       ),
     );
   }

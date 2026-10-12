@@ -33,6 +33,20 @@ def health(request):
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
+def app_latest(request):
+    """Latest installable APK info for the in-app updater. Fed by publish-apk.sh."""
+    import json
+    data = {"version_code": 0, "version_name": "", "apk_url": "", "notes": ""}
+    try:
+        with open(settings.APP_LATEST_FILE) as f:
+            data.update(json.load(f))
+    except Exception:
+        pass
+    return Response(data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
 def version(request):
     return Response({
         "app": "Assisto",

@@ -41,19 +41,67 @@ jobs:
         working-directory: app
         run: flutter pub get
 
-      - name: Build debug APK (installable / debug-signed)
+      - name: Generate launcher icons (adaptive)
+        working-directory: app
+        run: dart run flutter_launcher_icons
+
+      - name: Generate splash screen
+        working-directory: app
+        run: dart run flutter_native_splash:create
+
+      - name: Patch manifest (app name + permissions)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          import re
+          p = "android/app/src/main/AndroidManifest.xml"
+          s = open(p).read()
+          s = s.replace('android:label="assisto"', 'android:label="Assisto"')
+          perms = (
+              '\n    <uses-permission android:name="android.permission.INTERNET"/>'
+              '\n    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>\n'
+          )
+          if 'android.permission.INTERNET' not in s:
+              s = re.sub(r'(<manifest[^>]*>)', r'\1' + perms, s, count=1)
+          open(p, "w").write(s)
+          print("manifest patched: label=Assisto, INTERNET + REQUEST_INSTALL_PACKAGES")
+          PY
+
+      - name: Build release APK (arm64 only)
         working-directory: app
         run: |
           API_BASE="${{ github.event.inputs.api_base || 'https://assisto.asalify.com' }}"
-          flutter build apk --debug --dart-define=API_BASE="$API_BASE"
+          flutter build apk --release \
+            --target-platform=android-arm64 \
+            --build-number=${{ github.run_number }} \
+            --build-name=1.0.${{ github.run_number }} \
+            --dart-define=API_BASE="$API_BASE"
 
-      - name: Rename APK with build number
+      - name: Sign APK with permanent release key
         working-directory: app
+        env:
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KS_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
+          set -e
           mkdir -p out
-          cp build/app/outputs/flutter-apk/app-debug.apk \
-             "out/assisto-part1-build${{ github.run_number }}.apk"
+          echo "${{ secrets.ANDROID_KEYSTORE_B64 }}" | base64 -d > /tmp/ks.p12
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)
+          echo "build-tools: $BT"
+          SRC=build/app/outputs/flutter-apk/app-release.apk
+          "${BT}zipalign" -f -p 4 "$SRC" /tmp/aligned.apk
+          OUT="out/assisto-part2-build${{ github.run_number }}.apk"
+          "${BT}apksigner" sign \
+            --ks /tmp/ks.p12 --ks-type PKCS12 \
+            --ks-pass pass:"$KS_PASS" \
+            --ks-key-alias "$KS_ALIAS" \
+            --key-pass pass:"$KEY_PASS" \
+            --out "$OUT" /tmp/aligned.apk
+          "${BT}apksigner" verify --print-certs "$OUT" | head -5
+          rm -f /tmp/ks.p12 /tmp/aligned.apk
           ls -la out
+          echo "size: $(du -h "$OUT" | cut -f1)"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4

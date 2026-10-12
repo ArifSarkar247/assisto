@@ -9,6 +9,7 @@ router.register("memory", views.MemoryViewSet, basename="memory")
 urlpatterns = [
     path("health", views.health),
     path("version", views.version),
+    path("app/latest", views.app_latest),
 
     path("auth/register", views.RegisterView.as_view()),
     path("auth/login", views.LoginView.as_view()),

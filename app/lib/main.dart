@@ -2,19 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'state.dart';
+import 'updater.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => AppState()..init(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AppState()..init()),
+        ChangeNotifierProvider(create: (_) => Updater()..check()),
+      ],
       child: const AssistoApp(),
     ),
   );
 }
 
-const seed = Color(0xFF0E7C66); // Assisto green
+const seed = Color(0xFF0E7C66); // Assisto green accent
 
 class AssistoApp extends StatelessWidget {
   const AssistoApp({super.key});

@@ -72,6 +72,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 12),
+                  Center(
+                    child: Image.asset('assets/branding/logo.png',
+                        width: 108, height: 108),
+                  ),
+                  const SizedBox(height: 12),
                   Text('Assisto',
                       textAlign: TextAlign.center,
                       style: Theme.of(context)
@@ -145,13 +150,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Text(_register
                         ? 'আগে থেকেই অ্যাকাউন্ট আছে? লগইন করুন'
                         : 'নতুন? অ্যাকাউন্ট খুলুন'),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'OTP এখন বন্ধ — SMS প্রোভাইডার যুক্ত করা হয়নি। '
-                    'ফোন/ইমেইল ও পাসওয়ার্ড দিয়ে চলবে।',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                 ],
               ),

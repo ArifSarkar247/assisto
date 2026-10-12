@@ -30,6 +30,9 @@ ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost")
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", ASSISTO_BASE_URL)
 
 # Feature flags
+# Latest-APK metadata file (written by publish-apk.sh); powers /api/v1/app/latest
+APP_LATEST_FILE = os.getenv("APP_LATEST_FILE", str(BASE_DIR.parent / "app_latest.json"))
+
 SMS_ENABLED = env_bool("SMS_ENABLED", False)            # OTP designed, off until a provider exists
 AI_ENABLED = env_bool("AI_ENABLED", False)              # Life Scanner / briefing (Part 5)
 AI_API_KEY = os.getenv("AI_API_KEY", "")
