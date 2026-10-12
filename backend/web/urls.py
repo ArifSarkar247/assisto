@@ -1,9 +1,13 @@
 from django.urls import path
 from . import views
+from .integrations_admin import integrations_admin
 
 urlpatterns = [
     path("", views.landing),
     path("get", views.get_app),
+
+    # Owner-only Integrations admin (Django session auth)
+    path("owner/integrations", integrations_admin),
 
     path("cv", views.cv),
     path("cv/r", views.cv_share),
