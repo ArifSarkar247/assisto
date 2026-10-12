@@ -51,6 +51,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     autonomy_level = models.PositiveSmallIntegerField(
         choices=AUTONOMY_CHOICES, default=AUTONOMY_SUGGEST)
     language = models.CharField(max_length=8, default="bn")
+    referral_code = models.CharField(max_length=12, blank=True)   # feature 19 invite
+    referred_by = models.CharField(max_length=12, blank=True)
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

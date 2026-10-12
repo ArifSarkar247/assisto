@@ -17,4 +17,6 @@ urlpatterns = [
 
     path("festival", views.festival),
     path("festival/card.png", views.festival_card),
+
+    path("wrapped/card.png", views.wrapped_card),
 ]

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../state.dart';
 import '../updater.dart';
 import 'memory_screen.dart';
@@ -145,8 +146,66 @@ class _Dashboard extends StatelessWidget {
                   MaterialPageRoute(builder: (_) => const EmergencyScreen())))),
           ]),
           const SizedBox(height: 12),
+          const _WrappedCard(),
+          const SizedBox(height: 12),
           const _ComingSoonList(),
         ],
+      ),
+    );
+  }
+}
+
+class _WrappedCard extends StatefulWidget {
+  const _WrappedCard();
+  @override
+  State<_WrappedCard> createState() => _WrappedCardState();
+}
+
+class _WrappedCardState extends State<_WrappedCard> {
+  Map<String, dynamic>? _w;
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final w = await context.read<AppState>().api.wrapped();
+      if (mounted) setState(() => _w = w);
+    } catch (_) {}
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final w = _w;
+    if (w == null) return const SizedBox.shrink();
+    final badges = (w['badges'] as List?)?.cast<String>() ?? [];
+    return Card(
+      color: const Color(0xFF1A1442),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(w['title'] ?? 'আমার মাস',
+              style: const TextStyle(color: Color(0xFFFFE08A),
+                  fontWeight: FontWeight.bold, fontSize: 16)),
+          const SizedBox(height: 8),
+          for (final b in badges)
+            Padding(padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Text(b, style: const TextStyle(color: Colors.white))),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: () {
+                final url = w['card_url'];
+                if (url != null) launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+              },
+              icon: const Icon(Icons.share, color: Color(0xFFFFE08A)),
+              label: const Text('কার্ড শেয়ার', style: TextStyle(color: Color(0xFFFFE08A))),
+            ),
+          ),
+        ]),
       ),
     );
   }

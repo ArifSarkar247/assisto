@@ -610,6 +610,74 @@ class LifeScanView(APIView):
                         status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
+# ---------- Wrapped + invite (feature 19) ----------
+
+def _wrapped_badges(user):
+    today = timezone.localdate()
+    badges = []
+    # medicine adherence this month
+    from core.models import MedicineLog
+    taken = MedicineLog.objects.filter(medicine__user=user, taken=True,
+                                       date__year=today.year, date__month=today.month).count()
+    if taken > 0:
+        badges.append(f"💊 এ মাসে {taken} বার ওষুধ ঠিকমতো")
+    # tasks done
+    done = user.todos.filter(done=True).count()
+    if done > 0:
+        badges.append(f"✅ {done} টি কাজ শেষ")
+    # budgets kept
+    kept = 0
+    over = 0
+    from decimal import Decimal
+    month_exp = {}
+    for t in user.txns.filter(date__year=today.year, date__month=today.month, kind="expense"):
+        month_exp[t.category or ""] = month_exp.get(t.category or "", Decimal("0")) + t.amount
+    for b in user.budgets.all():
+        if b.monthly_limit and month_exp.get(b.category, Decimal("0")) <= b.monthly_limit:
+            kept += 1
+        else:
+            over += 1
+    if kept > 0 and over == 0:
+        badges.append("🎯 বাজেটে ছিলেন")
+    # savings progress
+    if user.goals.filter(saved_amount__gt=0).exists():
+        badges.append("🏦 সঞ্চয় চলছে")
+    # memories
+    mem = user.memories.count()
+    if mem > 0:
+        badges.append(f"🧠 {mem} টি তথ্য মনে রাখা")
+    if not badges:
+        badges.append("🌱 Assisto-তে যাত্রা শুরু")
+    return badges
+
+
+@api_view(["GET"])
+def wrapped(request):
+    today = timezone.localdate()
+    badges = _wrapped_badges(request.user)
+    from urllib.parse import urlencode
+    q = urlencode([("b", b) for b in badges])
+    return Response({
+        "title": f"{today.strftime('%B')} — আমার Assisto",
+        "badges": badges,
+        "card_url": f"{settings.ASSISTO_BASE_URL}/wrapped/card.png?{q}",
+        "note": "শেয়ার কার্ডে টাকার অঙ্ক থাকে না — শুধু ব্যাজ/শতাংশ।",
+    })
+
+
+class InviteView(APIView):
+    def get(self, request):
+        import secrets as _s
+        u = request.user
+        if not u.referral_code:
+            u.referral_code = _s.token_urlsafe(5).replace("_", "").replace("-", "")[:8].upper()
+            u.save(update_fields=["referral_code"])
+        invited = User.objects.filter(referred_by=u.referral_code).count()
+        return Response({"code": u.referral_code, "invited": invited,
+                         "share_text": f"Assisto অ্যাপে আমার রেফারেল কোড: {u.referral_code} — "
+                                       "assisto.asalify.com/get"})
+
+
 # ---------- AI status (needs-key state surfaced to the app) ----------
 
 @api_view(["GET"])

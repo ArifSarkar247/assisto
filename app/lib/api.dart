@@ -152,6 +152,18 @@ class ApiClient {
     if (r.statusCode != 204 && r.statusCode != 404) _fail(r);
   }
 
+  Future<Map<String, dynamic>> wrapped() async {
+    final r = await _c.get(AppConfig.api('/wrapped'), headers: _headers());
+    if (r.statusCode == 200) return jsonDecode(r.body) as Map<String, dynamic>;
+    _fail(r);
+  }
+
+  Future<Map<String, dynamic>> invite() async {
+    final r = await _c.get(AppConfig.api('/invite'), headers: _headers());
+    if (r.statusCode == 200) return jsonDecode(r.body) as Map<String, dynamic>;
+    _fail(r);
+  }
+
   Future<Map<String, dynamic>> briefing() async {
     final r = await _c.get(AppConfig.api('/briefing'), headers: _headers());
     if (r.statusCode == 200) return jsonDecode(r.body) as Map<String, dynamic>;

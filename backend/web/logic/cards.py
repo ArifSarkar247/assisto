@@ -143,3 +143,21 @@ def festival_card(key, name="", message="", story=False):
                      f["accent"], max_w=size[0] - 160)
     _footer(d, size)
     return _png(img)
+
+
+def wrapped_card(title, badges, story=False):
+    """Feature 19 — monthly Wrapped card. No money amounts, only badges."""
+    size = (1080, 1920) if story else (1080, 1080)
+    img = _vgrad(size, (26, 20, 74), (10, 24, 60))
+    d = ImageDraw.Draw(img)
+    cx = size[0] / 2
+    y = size[1] * (0.14 if story else 0.08)
+    y = _center_text(d, cx, y, title or "আমার মাস", font(80), (255, 224, 138),
+                     max_w=size[0] - 120)
+    y += 30
+    for b in badges[:6]:
+        y = _center_text(d, cx, y + 14, b, font(50), (235, 245, 255), max_w=size[0] - 140)
+    _center_text(d, cx, size[1] * (0.86 if story else 0.84),
+                 "Assisto দিয়ে তৈরি", font(44), (170, 200, 255))
+    _footer(d, size)
+    return _png(img)

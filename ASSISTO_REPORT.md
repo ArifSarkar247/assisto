@@ -23,8 +23,8 @@
 - ✅ Part 4 (money, build 17): (7) অ্যাকাউন্ট+আয়/খরচ+ব্যালেন্স · (8) মাসিক সারাংশ+বাজেট ৮০/১০০% সতর্ক+খাত-ভাগ · (9) ধার+রিমাইন্ডার খসড়া · (10) সঞ্চয় লক্ষ্য। APK: /dl/gqg-KB5U1AZpa_f1WseAIBAZ/assisto-part4-build17.apk · পাবলিক 14:40:45→প্রাইভেট 14:48:18 UTC (প্রথম চেষ্টাতেই বিল্ড)। বাকি: সাবস্ক্রিপশন UI, (11) বিল গাইড/পে (needs payment partner), নোটিফিকেশন-ক্যাপচার (needs follow-up)
 - 🔨 Part 5: ✅(12) ফ্যামিলি সদস্য + ওষুধ সময়সূচি + "খেয়েছি" কনফার্ম + রিফিল · ✅(13) ইন-অ্যাপ স্ক্যাম চেক · ✅(15) বাচ্চার স্কুল (ফি/পরীক্ষা/মিটিং) — APK বিল্ড চলছে। বাকি: মিস হলে সন্তানকে অ্যালার্ট (needs push/Firebase)
 - 🔨 Part 6: ✅(4) proactive alerts (ডক মেয়াদ/বাজেট/ধার/রিফিল — non-AI) · ✅(5) সকালের ব্রিফিং (non-AI; key পেলে AI ন্যারেটিভ) · 🔑(1) Life Scanner (needs AI key — needs-key state আছে) · 🔑(17) role-play · 🔑(18) মানসিক সাপোর্ট · ⏳(16) বাংলা ভয়েস (speech plugin — বিল্ড-ঝুঁকি, পরে)
-- ⏳ Part 7: (19) Wrapped/ব্যাজ/ফ্যামিলি কার্ড/invite
-- 🔨 AI layer (multi-provider, needs-key state) · Accessibility
+- 🔨 Part 7: ✅(19) মাসিক Wrapped কার্ড (ব্যাজ, টাকার অঙ্ক ছাড়া শেয়ার) + ইনভাইট কোড — APK বিল্ড চলছে। বাকি: 30-দিন চ্যালেঞ্জ UI, ফ্যামিলি "✅ ওষুধ খেয়েছেন" কার্ড (ব্যাকএন্ড লগ আছে)
+- ✅ AI layer: multi-provider (Anthropic), cheap/medium/strong রাউটিং, per-user limit, daily budget kill-switch, prompt-injection guard, needs-key state। key (ANTHROPIC_API_KEY) পেলে W1/W2/briefing/Life Scanner স্বয়ংক্রিয় চালু।
 
 **Owner-blocked (এগুলো আপনি দিলে চালু হবে):** ANTHROPIC_API_KEY (AI ফিচার) · GitHub billing (Nov 1 পর্যন্ত private বিল্ড বন্ধ) · Firebase (ক্রস-ডিভাইস push) · SMS/voice provider (কল/এসএমএস) · payment partner (বিল পে)
 

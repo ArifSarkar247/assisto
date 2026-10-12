@@ -207,6 +207,13 @@ def festival(request):
                   {"q": q, "festival": cardlogic.FESTIVALS.get(key, {})})
 
 
+def wrapped_card(request):
+    title = request.GET.get("title", "আমার মাস")[:40]
+    badges = [b[:60] for b in request.GET.getlist("b")][:6]
+    png = cardlogic.wrapped_card(title, badges, story=request.GET.get("story") == "1")
+    return HttpResponse(png, content_type="image/png")
+
+
 def festival_card(request):
     key = request.GET.get("f", "eid")
     name = request.GET.get("name", "")[:40]

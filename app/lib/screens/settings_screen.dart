@@ -69,6 +69,25 @@ class SettingsScreen extends StatelessWidget {
     }
   }
 
+  Future<void> _invite(BuildContext context) async {
+    final app = context.read<AppState>();
+    try {
+      final inv = await app.api.invite();
+      if (!context.mounted) return;
+      showDialog(context: context, builder: (_) => AlertDialog(
+        title: const Text('ইনভাইট কোড'),
+        content: Column(mainAxisSize: MainAxisSize.min, children: [
+          SelectableText(inv['code'] ?? '',
+              style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Text('${inv['invited'] ?? 0} জন যোগ দিয়েছেন'),
+          const SizedBox(height: 8),
+          SelectableText(inv['share_text'] ?? '', textAlign: TextAlign.center),
+        ]),
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('ঠিক আছে'))]));
+    } catch (_) {}
+  }
+
   Future<void> _deleteAccount(BuildContext context) async {
     final app = context.read<AppState>();
     final messenger = ScaffoldMessenger.of(context);
@@ -172,6 +191,11 @@ class SettingsScreen extends StatelessWidget {
             title: const Text('সাহায্য / সমস্যা রিপোর্ট'),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const SupportScreen())),
+          ),
+          ListTile(
+            leading: const Icon(Icons.card_giftcard_outlined),
+            title: const Text('বন্ধুদের ইনভাইট করুন'),
+            onTap: () => _invite(context),
           ),
           ListTile(
             leading: const Icon(Icons.delete_forever_outlined,
