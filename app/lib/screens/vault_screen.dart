@@ -110,11 +110,10 @@ class _VaultScreenState extends State<VaultScreen> {
   }
 
   Future<void> _add() async {
-    final picked = await FilePicker.platform.pickFiles(withData: false);
-    if (picked == null || picked.files.single.path == null) return;
-    final path = picked.files.single.path!;
-    final title = TextEditingController(
-        text: picked.files.single.name.split('.').first);
+    final picked = await FilePicker.pickFile();
+    if (picked == null || picked.path == null) return;
+    final path = picked.path!;
+    final title = TextEditingController(text: picked.name.split('.').first);
     String type = 'passport';
     DateTime? expiry;
     if (!mounted) return;
