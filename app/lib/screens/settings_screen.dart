@@ -9,6 +9,7 @@ import '../state.dart';
 import '../config.dart';
 import '../models.dart';
 import '../l10n/app_localizations.dart';
+import 'subscriptions_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -229,6 +230,13 @@ class SettingsScreen extends StatelessWidget {
             onTap: () => _downloadOpen(context, '/export/pdf', 'assisto-export.pdf'),
           ),
           const Divider(),
+          ListTile(
+            leading: const Icon(Icons.autorenew),
+            title: Text(t.subscriptions),
+            subtitle: Text(t.subscriptionsHint),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const SubscriptionsScreen())),
+          ),
           ListTile(
             leading: const Icon(Icons.tune),
             title: const Text('ইনপুট সোর্স অনুমতি'),

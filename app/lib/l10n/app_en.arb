@@ -48,6 +48,17 @@
   "close": "Close",
   "add": "Add",
 
+  "subscriptions": "Subscriptions",
+  "subscriptionsHint": "Track recurring bills so nothing surprises you.",
+  "subscriptionsEmpty": "No subscriptions yet. Add Netflix, internet, gym — I'll remind you before each is due.",
+  "monthlyTotal": "About {amount}/month",
+  "@monthlyTotal": { "placeholders": { "amount": {} } },
+  "addSubscription": "Add subscription",
+  "cycleMonthly": "Monthly",
+  "cycleYearly": "Yearly",
+  "nextDue": "Next due",
+  "amount": "Amount",
+
   "settingsTitle": "Settings",
   "settingsLanguage": "Language",
   "settingsAppearance": "Appearance",

@@ -46,6 +46,16 @@
   "close": "বন্ধ",
   "add": "যোগ করুন",
 
+  "subscriptions": "সাবস্ক্রিপশন",
+  "subscriptionsHint": "নিয়মিত বিল ট্র্যাক করুন — যেন হঠাৎ অবাক না হন।",
+  "subscriptionsEmpty": "এখনো কোনো সাবস্ক্রিপশন নেই। Netflix, ইন্টারনেট, জিম যোগ করুন — শেষ হওয়ার আগে মনে করিয়ে দেব।",
+  "monthlyTotal": "মাসে প্রায় {amount}",
+  "addSubscription": "সাবস্ক্রিপশন যোগ করুন",
+  "cycleMonthly": "মাসিক",
+  "cycleYearly": "বার্ষিক",
+  "nextDue": "পরবর্তী তারিখ",
+  "amount": "পরিমাণ",
+
   "settingsTitle": "সেটিংস",
   "settingsLanguage": "ভাষা",
   "settingsAppearance": "থিম",
