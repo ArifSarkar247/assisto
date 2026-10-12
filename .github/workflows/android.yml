@@ -138,7 +138,7 @@ jobs:
           echo "build-tools: $BT"
           SRC=build/app/outputs/flutter-apk/app-release.apk
           "${BT}zipalign" -f -p 4 "$SRC" /tmp/aligned.apk
-          OUT="out/assisto-part2-build${{ github.run_number }}.apk"
+          OUT="out/assisto-part3-build${{ github.run_number }}.apk"
           "${BT}apksigner" sign \
             --ks /tmp/ks.p12 --ks-type PKCS12 \
             --ks-pass pass:"$KS_PASS" \
