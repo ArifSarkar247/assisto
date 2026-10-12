@@ -1,0 +1,221 @@
+import 'dart:math';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'api.dart';
+import 'db.dart';
+import 'models.dart';
+
+class AppState extends ChangeNotifier {
+  final _secure = const FlutterSecureStorage();
+  final ApiClient api = ApiClient();
+  final LocalDb db = LocalDb.instance;
+
+  bool loading = true;
+  bool syncing = false;
+  bool online = true;
+  String? lastError;
+
+  AppUser? user;
+  List<MemoryItem> memory = [];
+
+  bool get loggedIn => api.token != null && user != null;
+
+  Future<void> init() async {
+    final t = await _secure.read(key: 'token');
+    api.token = t;
+    memory = await db.allMemory();
+    if (t != null) {
+      try {
+        user = await api.me();
+        await sync();
+      } catch (e) {
+        // offline or token issue — stay with whatever we have locally
+        online = false;
+        if (e is ApiException && e.status == 401) {
+          await _clearSession();
+        }
+      }
+    }
+    loading = false;
+    notifyListeners();
+  }
+
+  // ---------- auth ----------
+  Future<void> register({
+    required String name,
+    String? phone,
+    String? email,
+    required String password,
+  }) async {
+    final res = await api.register(
+        name: name, phone: phone, email: email, password: password);
+    api.token = res.token;
+    user = res.user;
+    await _secure.write(key: 'token', value: res.token);
+    await sync();
+    notifyListeners();
+  }
+
+  Future<void> login(
+      {required String identifier, required String password}) async {
+    final res = await api.login(identifier: identifier, password: password);
+    api.token = res.token;
+    user = res.user;
+    await _secure.write(key: 'token', value: res.token);
+    await sync();
+    notifyListeners();
+  }
+
+  Future<void> logout() async {
+    await api.logout();
+    await _clearSession();
+    await db.clearAll();
+    memory = [];
+    notifyListeners();
+  }
+
+  Future<void> _clearSession() async {
+    api.token = null;
+    user = null;
+    await _secure.delete(key: 'token');
+  }
+
+  Future<void> deleteAccount() async {
+    await api.deleteAccount();
+    await _clearSession();
+    await db.clearAll();
+    memory = [];
+    notifyListeners();
+  }
+
+  Future<void> setAutonomy(int level) async {
+    final prev = user;
+    if (prev == null) return;
+    try {
+      user = await api.updateProfile({'autonomy_level': level});
+    } catch (_) {
+      // keep local optimistic value offline
+      user = AppUser(
+          id: prev.id,
+          name: prev.name,
+          phone: prev.phone,
+          email: prev.email,
+          autonomyLevel: level,
+          language: prev.language);
+    }
+    notifyListeners();
+  }
+
+  // ---------- memory (offline-first) ----------
+  String _newId() =>
+      '${DateTime.now().microsecondsSinceEpoch}-${Random().nextInt(1 << 32)}';
+
+  Future<void> addMemory(
+      {required String title, String category = '', String detail = ''}) async {
+    final m = MemoryItem(
+      localId: _newId(),
+      title: title,
+      category: category,
+      detail: detail,
+      source: 'manual',
+      updatedAt: DateTime.now(),
+      pendingOp: 'create',
+    );
+    await db.upsert(m);
+    memory = await db.allMemory();
+    notifyListeners();
+    await sync();
+  }
+
+  Future<void> editMemory(MemoryItem m,
+      {required String title, String category = '', String detail = ''}) async {
+    m.title = title;
+    m.category = category;
+    m.detail = detail;
+    m.updatedAt = DateTime.now();
+    m.pendingOp = m.pendingOp == 'create' ? 'create' : 'update';
+    await db.upsert(m);
+    memory = await db.allMemory();
+    notifyListeners();
+    await sync();
+  }
+
+  Future<void> removeMemory(MemoryItem m) async {
+    if (m.serverId == null) {
+      // never synced — just drop it
+      await db.hardDelete(m.localId);
+    } else {
+      m.pendingOp = 'delete';
+      await db.upsert(m);
+    }
+    memory = await db.allMemory();
+    notifyListeners();
+    await sync();
+  }
+
+  /// Push local pending changes, then pull the server set. Best-effort; silently
+  /// stays offline-capable if the network is down.
+  Future<void> sync() async {
+    if (api.token == null || syncing) return;
+    syncing = true;
+    notifyListeners();
+    try {
+      for (final m in await db.pendingMemory()) {
+        if (m.pendingOp == 'create') {
+          final j = await api.createMemory(m.toServerJson());
+          m.serverId = j['id'] as int;
+          m.pendingOp = 'none';
+          await db.upsert(m);
+        } else if (m.pendingOp == 'update' && m.serverId != null) {
+          await api.updateMemory(m.serverId!, m.toServerJson());
+          m.pendingOp = 'none';
+          await db.upsert(m);
+        } else if (m.pendingOp == 'delete' && m.serverId != null) {
+          await api.deleteMemory(m.serverId!);
+          await db.hardDelete(m.localId);
+        }
+      }
+      final server = await api.listMemory();
+      final items = server
+          .map((j) => MemoryItem(
+                localId: 'srv-${j['id']}',
+                serverId: j['id'] as int,
+                category: (j['category'] ?? '') as String,
+                title: (j['title'] ?? '') as String,
+                detail: (j['detail'] ?? '') as String,
+                source: (j['source'] ?? 'manual') as String,
+                needsReview: (j['needs_review'] ?? false) as bool,
+                updatedAt: DateTime.tryParse(
+                        (j['updated_at'] ?? '') as String) ??
+                    DateTime.now(),
+                pendingOp: 'none',
+              ))
+          .toList();
+      await db.replaceSynced(items);
+      memory = await db.allMemory();
+      online = true;
+      lastError = null;
+    } catch (e) {
+      online = false;
+      lastError = e.toString();
+    } finally {
+      syncing = false;
+      notifyListeners();
+    }
+  }
+}
+
+/// Simple settings store (shared_preferences) for non-sensitive prefs.
+class Settings {
+  static Future<bool> getBool(String k, bool def) async {
+    final p = await SharedPreferences.getInstance();
+    return p.getBool(k) ?? def;
+  }
+
+  static Future<void> setBool(String k, bool v) async {
+    final p = await SharedPreferences.getInstance();
+    await p.setBool(k, v);
+  }
+}

@@ -1,0 +1,38 @@
+# Python / Django
+.venv/
+__pycache__/
+*.pyc
+backend/.env
+backend/db.sqlite3
+backend/staticfiles/
+backend/media/
+
+# Secrets / local
+*.env
+.env
+secrets/
+bin/
+apk_public/
+
+# Flutter
+app/.dart_tool/
+app/.flutter-plugins
+app/.flutter-plugins-dependencies
+app/build/
+app/.idea/
+app/android/.gradle/
+app/android/local.properties
+app/android/key.properties
+app/**/*.keystore
+app/**/*.jks
+
+# Spec (large binary, keep local only)
+ASSISTO_SPEC.pdf
+
+# OS
+.DS_Store
+
+# TLS / ACME (local, machine-specific — never commit)
+certs/
+acme_webroot/
+letsencrypt/
