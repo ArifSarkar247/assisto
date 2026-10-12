@@ -97,6 +97,10 @@ jobs:
           gr = "android/app/build.gradle"
           p, is_kts = (kts, True) if os.path.exists(kts) else (gr, False)
           s = open(p).read()
+          # Bump minSdk to 23 (required by file_picker / lifecycle / notifications)
+          import re as _re
+          s = _re.sub(r'minSdk(Version)?\s*=?\s*flutter\.minSdkVersion',
+                      'minSdk = 23' if is_kts else 'minSdkVersion 23', s)
           if "coreLibraryDesugaring" not in s:
               if is_kts:
                   s = s.replace("compileOptions {",
