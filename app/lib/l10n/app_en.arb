@@ -4,6 +4,15 @@
   "tagline": "Your personal AI agent",
   "assistantSubtitle": "Your assistant",
 
+  "update": "Update",
+  "updateAvailable": "Update available",
+  "newChat": "New chat",
+  "connectedApps": "Connected apps",
+  "inProgress": "In progress",
+  "menu": "Menu",
+  "welcomeHeadline": "Hi, I'm Assisto",
+  "welcomeBody": "Your personal assistant. Ask me in Bangla or English — text or voice.",
+
   "navHome": "Assisto",
   "navReminders": "Reminders",
   "navNotesTasks": "Notes/Tasks",

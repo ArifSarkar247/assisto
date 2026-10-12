@@ -5,10 +5,6 @@ import 'package:speech_to_text/speech_to_text.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
-import 'money_screen.dart';
-import 'vault_screen.dart';
-import 'family_screen.dart';
-import 'emergency_screen.dart';
 
 class _Msg {
   final bool user;
@@ -17,6 +13,8 @@ class _Msg {
   _Msg(this.user, this.text, [this.cards = const []]);
 }
 
+/// The heart of the app: a conversation with Assisto. The screen is only the
+/// thread — modules live in the drawer. Rich cards appear inline with actions.
 class AgentThreadScreen extends StatefulWidget {
   const AgentThreadScreen({super.key});
   @override
@@ -35,17 +33,17 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
 
   AppLocalizations get t => AppLocalizations.of(context);
 
-  List<String> get _suggestions => [
-        t.suggestionToday,
-        t.suggestionSpendMonth,
-        t.suggestionExpense,
-        t.suggestionMedicine,
+  List<(IconData, String)> get _suggestions => [
+        (Icons.wb_sunny_outlined, t.suggestionToday),
+        (Icons.query_stats_outlined, t.suggestionSpendMonth),
+        (Icons.receipt_long_outlined, t.suggestionExpense),
+        (Icons.medication_outlined, t.suggestionMedicine),
       ];
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _greet());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadAlerts());
   }
 
   @override
@@ -56,26 +54,33 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
     super.dispose();
   }
 
-  Future<void> _greet() async {
+  // Surface anything urgent proactively as the first assistant message. If
+  // nothing's urgent, the beautiful welcome state stays.
+  Future<void> _loadAlerts() async {
     final app = context.read<AppState>();
-    final name = app.user?.name.isNotEmpty == true ? app.user!.name : t.friend;
-    setState(() => _msgs.add(_Msg(false, '${t.greeting(name)}\n${t.greetingHelp}')));
     try {
       final alerts = await app.api.alertsList();
-      if (alerts.isNotEmpty && mounted) {
+      final urgent = alerts.where((a) => a['severity'] == 'high').toList();
+      if (urgent.isNotEmpty && mounted) {
         setState(() => _msgs.add(_Msg(false, t.urgentForYou,
-            alerts.map((a) => {'type': 'alert', 'title': a['text'],
-                'subtitle': '', 'severity': a['severity']}).toList())));
+            urgent
+                .map((a) => {
+                      'type': 'alert',
+                      'title': a['text'],
+                      'subtitle': '',
+                      'severity': a['severity']
+                    })
+                .toList())));
+        _toBottom();
       }
     } catch (_) {}
-    _toBottom();
   }
 
   void _toBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scroll.hasClients) {
         _scroll.animateTo(_scroll.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
+            duration: Motion.base, curve: Curves.easeOut);
       }
     });
   }
@@ -95,7 +100,6 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
       final r = await app.api.agent(text);
       final cards = ((r['cards'] ?? []) as List).cast<Map<String, dynamic>>();
       setState(() => _msgs.add(_Msg(false, r['reply'] ?? '', cards)));
-      // refresh offline repos so the new item appears in modules too
       app.reminders.sync();
       app.txns.sync();
       app.loans.sync();
@@ -107,7 +111,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
     }
   }
 
-  Future<void> _undo(Map<String, dynamic> card, int msgIndex) async {
+  Future<void> _undo(Map<String, dynamic> card) async {
     final app = context.read<AppState>();
     try {
       await app.api.deleteByModel(card['model'], card['id']);
@@ -147,9 +151,8 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
       return;
     }
     HapticFeedback.selectionClick();
-    final loc = context.read<AppState>().locale?.languageCode == 'en'
-        ? 'en_US'
-        : 'bn_BD';
+    final loc =
+        context.read<AppState>().locale?.languageCode == 'en' ? 'en_US' : 'bn_BD';
     setState(() => _listening = true);
     await _speech.listen(
       localeId: loc,
@@ -168,157 +171,147 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      _header(context),
-      _modulesBar(context),
       Expanded(
         child: _msgs.isEmpty
-            ? const SizedBox()
+            ? _welcome()
             : ListView.builder(
                 controller: _scroll,
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.sm),
                 itemCount: _msgs.length,
-                itemBuilder: (_, i) => _bubble(_msgs[i], i),
+                itemBuilder: (_, i) => _bubble(_msgs[i]),
               ),
       ),
-      _suggestionsRow(),
       _inputBar(),
     ]);
   }
 
-  Widget _header(BuildContext context) {
+  // ---------------- welcome / empty state ----------------
+  Widget _welcome() {
     final scheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xs),
-      child: Row(children: [
-        Container(
-          height: 36,
-          width: 36,
-          decoration: const BoxDecoration(
-            gradient: Brand.gradient,
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(Icons.psychology_alt_outlined,
-              color: Colors.white, size: 20),
-        ),
-        const SizedBox(width: Gap.md),
-        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text('Assisto',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
-          Row(children: [
-            Container(
-              height: 7,
-              width: 7,
-              decoration: const BoxDecoration(
-                  color: Brand.success, shape: BoxShape.circle),
-            ),
-            const SizedBox(width: 5),
-            Text(t.assistantSubtitle,
-                style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(Gap.xl, Gap.xxl, Gap.xl, Gap.md),
+      children: [
+        const SizedBox(height: Gap.xl),
+        Center(child: _logoMark(76)),
+        const SizedBox(height: Gap.lg),
+        Text(t.welcomeHeadline,
+            textAlign: TextAlign.center,
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.copyWith(fontWeight: FontWeight.w800)),
+        const SizedBox(height: Gap.sm),
+        Text(t.welcomeBody,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+        const SizedBox(height: Gap.xl),
+        for (final s in _suggestions) ...[
+          _suggestionCard(s.$1, s.$2),
+          const SizedBox(height: Gap.sm),
+        ],
+      ],
+    );
+  }
+
+  Widget _suggestionCard(IconData icon, String text) {
+    final scheme = Theme.of(context).colorScheme;
+    return Material(
+      color: scheme.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(Radii.md),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(Radii.md),
+        onTap: () => _send(text),
+        child: Padding(
+          padding: const EdgeInsets.all(Gap.lg),
+          child: Row(children: [
+            Icon(icon, size: 22, color: scheme.primary),
+            const SizedBox(width: Gap.md),
+            Expanded(
+                child: Text(text, style: const TextStyle(fontWeight: FontWeight.w500))),
+            Icon(Icons.north_east, size: 16, color: scheme.onSurfaceVariant),
           ]),
-        ]),
+        ),
+      ),
+    );
+  }
+
+  // ---------------- bubbles ----------------
+  Widget _bubble(_Msg m) {
+    final scheme = Theme.of(context).colorScheme;
+    final bubble = Container(
+      constraints:
+          BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.md),
+      decoration: BoxDecoration(
+        color: m.user ? scheme.primary : scheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.only(
+          topLeft: const Radius.circular(18),
+          topRight: const Radius.circular(18),
+          bottomLeft: Radius.circular(m.user ? 18 : 4),
+          bottomRight: Radius.circular(m.user ? 4 : 18),
+        ),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        if (m.text.isNotEmpty)
+          Text(m.text,
+              style: TextStyle(
+                  color: m.user ? Colors.white : scheme.onSurface, height: 1.4)),
+        for (final c in m.cards) _card(c),
+      ]),
+    );
+
+    if (m.user) {
+      return Align(
+        alignment: Alignment.centerRight,
+        child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: Gap.xs), child: bubble),
+      );
+    }
+    // assistant: avatar + bubble
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: Gap.xs),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        _logoMark(28),
+        const SizedBox(width: Gap.sm),
+        Flexible(child: bubble),
       ]),
     );
   }
 
-  Widget _modulesBar(BuildContext context) {
-    final mods = <(IconData, String, Color, Widget)>[
-      (Icons.account_balance_wallet_outlined, t.moduleMoney, Brand.gold, const MoneyScreen()),
-      (Icons.lock_outline, t.moduleVault, Brand.navy, const VaultScreen()),
-      (Icons.diversity_1_outlined, t.moduleFamily, Brand.cyan, const FamilyScreen()),
-      (Icons.emergency_outlined, t.moduleEmergency, Brand.danger, const EmergencyScreen()),
-    ];
-    return SizedBox(
-      height: 92,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
-        children: [
-          for (final m in mods)
-            Padding(
-              padding: const EdgeInsets.only(right: Gap.md),
-              child: InkWell(
-                onTap: () {
-                  HapticFeedback.selectionClick();
-                  _open(m.$4);
-                },
-                borderRadius: BorderRadius.circular(Radii.md),
-                child: SizedBox(
-                  width: 68,
-                  child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    Container(
-                      height: 52,
-                      width: 52,
-                      decoration: BoxDecoration(
-                        color: m.$3.withValues(alpha: 0.14),
-                        borderRadius: BorderRadius.circular(Radii.md),
-                      ),
-                      child: Icon(m.$1, color: m.$3, size: 26),
-                    ),
-                    const SizedBox(height: Gap.xs),
-                    Text(m.$2,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
-                  ]),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  void _open(Widget w) =>
-      Navigator.push(context, MaterialPageRoute(builder: (_) => w));
-
-  Widget _bubble(_Msg m, int i) {
+  Widget _card(Map<String, dynamic> c) {
     final scheme = Theme.of(context).colorScheme;
-    return Align(
-      alignment: m.user ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.82),
-        margin: const EdgeInsets.symmetric(vertical: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: m.user ? scheme.primary : scheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(16),
-            topRight: const Radius.circular(16),
-            bottomLeft: Radius.circular(m.user ? 16 : 4),
-            bottomRight: Radius.circular(m.user ? 4 : 16),
-          ),
-        ),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          if (m.text.isNotEmpty)
-            Text(m.text, style: TextStyle(color: m.user ? Colors.white : null)),
-          for (final c in m.cards) _card(c, i),
-        ]),
-      ),
-    );
-  }
-
-  Widget _card(Map<String, dynamic> c, int msgIndex) {
     final isAlert = c['type'] == 'alert';
     final sev = c['severity'];
+    final bg = isAlert
+        ? (sev == 'high'
+            ? scheme.errorContainer
+            : scheme.tertiaryContainer)
+        : scheme.surface;
+    final fg = isAlert
+        ? (sev == 'high' ? scheme.onErrorContainer : scheme.onTertiaryContainer)
+        : scheme.onSurface;
     return Container(
-      margin: const EdgeInsets.only(top: 8),
-      padding: const EdgeInsets.all(10),
+      margin: const EdgeInsets.only(top: Gap.sm),
+      padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: isAlert
-            ? (sev == 'high' ? const Color(0xFFFFE2E0) : const Color(0xFFFFF4D6))
-            : Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.black12),
+        color: bg,
+        borderRadius: BorderRadius.circular(Radii.sm),
+        border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(c['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.w600)),
+        Text(c['title'] ?? '',
+            style: TextStyle(fontWeight: FontWeight.w700, color: fg)),
         if ((c['subtitle'] ?? '').toString().isNotEmpty)
-          Text(c['subtitle'], style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(c['subtitle'],
+                style: TextStyle(fontSize: 12, color: fg.withValues(alpha: 0.75))),
+          ),
         if (c['undo'] == true)
           Align(
             alignment: Alignment.centerRight,
             child: TextButton.icon(
-              onPressed: () => _undo(c, msgIndex),
+              onPressed: () => _undo(c),
               icon: const Icon(Icons.undo, size: 16),
               label: Text(t.undo),
               style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
@@ -328,58 +321,57 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
     );
   }
 
-  Widget _suggestionsRow() {
-    return SizedBox(
-      height: 44,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        children: [
-          for (final s in _suggestions)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-              child: ActionChip(label: Text(s, style: const TextStyle(fontSize: 12)),
-                  onPressed: () => _send(s)),
-            ),
-        ],
-      ),
-    );
-  }
-
+  // ---------------- input ----------------
   Widget _inputBar() {
+    final scheme = Theme.of(context).colorScheme;
     return SafeArea(
       top: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(10, 4, 10, 8),
+        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, Gap.sm),
         child: Row(children: [
           Expanded(
             child: TextField(
               controller: _input,
               textInputAction: TextInputAction.send,
               onSubmitted: (_) => _send(),
+              minLines: 1,
+              maxLines: 4,
               decoration: InputDecoration(
                 hintText: _listening ? t.listening : t.inputHint,
                 filled: true,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                fillColor: scheme.surfaceContainerHighest,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.md),
                 border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none),
+                    borderRadius: BorderRadius.circular(Radii.pill),
+                    borderSide: BorderSide.none),
               ),
             ),
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: Gap.xs),
           IconButton(
             onPressed: _toggleMic,
             tooltip: t.listening,
             icon: Icon(_listening ? Icons.stop_circle : Icons.mic_none,
-                color: _listening ? Brand.danger : null),
+                color: _listening ? Brand.danger : scheme.onSurfaceVariant),
           ),
-          const SizedBox(width: 2),
           _sending
-              ? const Padding(padding: EdgeInsets.all(10),
-                  child: SizedBox(height: 22, width: 22, child: CircularProgressIndicator(strokeWidth: 2)))
-              : IconButton.filled(onPressed: () => _send(), icon: const Icon(Icons.send)),
+              ? const Padding(
+                  padding: EdgeInsets.all(10),
+                  child: SizedBox(
+                      height: 22,
+                      width: 22,
+                      child: CircularProgressIndicator(strokeWidth: 2)))
+              : IconButton.filled(
+                  onPressed: () => _send(), icon: const Icon(Icons.arrow_upward)),
         ]),
       ),
     );
   }
+
+  Widget _logoMark(double size) => ClipRRect(
+        borderRadius: BorderRadius.circular(size * 0.26),
+        child: Image.asset('assets/branding/new_logo.png',
+            width: size, height: size, fit: BoxFit.cover),
+      );
 }

@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
-import '../state.dart';
 import '../updater.dart';
-import 'memory_screen.dart';
-import 'settings_screen.dart';
-import 'reminders_screen.dart';
-import 'notes_todos_screen.dart';
-import 'vault_screen.dart';
-import 'emergency_screen.dart';
-import 'money_screen.dart';
-import 'family_screen.dart';
+import '../theme.dart';
 import 'agent_thread_screen.dart';
+import 'app_drawer.dart';
 import '../l10n/app_localizations.dart';
 
+/// The app is chat-first: the home is only the conversation. Everything else
+/// lives in the left drawer (opened via the ☰ button). No bottom nav.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
   @override
@@ -21,266 +15,42 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _tab = 0;
+  // Changing this key starts a fresh chat (New chat).
+  Key _threadKey = UniqueKey();
+
+  void _newChat() => setState(() => _threadKey = UniqueKey());
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final pages = const [
-      AgentThreadScreen(),
-      RemindersScreen(),
-      NotesTodosScreen(),
-      MemoryScreen(),
-      SettingsScreen(),
-    ];
     return Scaffold(
-      body: SafeArea(child: pages[_tab]),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _tab,
-        onDestinationSelected: (i) => setState(() => _tab = i),
-        destinations: [
-          NavigationDestination(
-              icon: const Icon(Icons.chat_bubble_outline), label: t.navHome),
-          NavigationDestination(
-              icon: const Icon(Icons.alarm_outlined), label: t.navReminders),
-          NavigationDestination(
-              icon: const Icon(Icons.checklist_outlined), label: t.navNotesTasks),
-          NavigationDestination(
-              icon: const Icon(Icons.psychology_outlined), label: t.navMemory),
-          NavigationDestination(
-              icon: const Icon(Icons.settings_outlined), label: t.navSettings),
+      appBar: AppBar(
+        titleSpacing: 0,
+        title: Row(children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.asset('assets/branding/new_logo.png',
+                width: 30, height: 30, fit: BoxFit.cover),
+          ),
+          const SizedBox(width: Gap.sm),
+          const Text('Assisto', style: TextStyle(fontWeight: FontWeight.w800)),
+        ]),
+        actions: [
+          IconButton(
+            tooltip: t.newChat,
+            onPressed: _newChat,
+            icon: const Icon(Icons.add_comment_outlined),
+          ),
+          const SizedBox(width: Gap.xs),
         ],
       ),
+      drawer: AppDrawer(onNewChat: _newChat),
+      body: Column(children: [
+        const _UpdateBanner(),
+        Expanded(child: AgentThreadScreen(key: _threadKey)),
+      ]),
     );
   }
-}
-
-class _Dashboard extends StatelessWidget {
-  const _Dashboard();
-
-  @override
-  Widget build(BuildContext context) {
-    final app = context.watch<AppState>();
-    final name = app.user?.name.isNotEmpty == true ? app.user!.name : 'বন্ধু';
-    return RefreshIndicator(
-      onRefresh: () => app.sync(),
-      child: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          const _UpdateBanner(),
-          const SizedBox(height: 8),
-          Text('আসসালামু আলাইকুম, $name',
-              style: Theme.of(context).textTheme.headlineSmall),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              Icon(app.online ? Icons.cloud_done_outlined : Icons.cloud_off,
-                  size: 16,
-                  color: app.online ? Colors.green : Colors.orange),
-              const SizedBox(width: 6),
-              Text(app.online ? 'অনলাইন — সব সেভ হয়েছে' : 'অফলাইন — ডাটা ফোনেই আছে',
-                  style: const TextStyle(fontSize: 12)),
-              if (app.syncing) ...[
-                const SizedBox(width: 8),
-                const SizedBox(
-                    height: 12,
-                    width: 12,
-                    child: CircularProgressIndicator(strokeWidth: 2)),
-              ],
-            ],
-          ),
-          const SizedBox(height: 16),
-          const _BriefingCard(),
-          const SizedBox(height: 4),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('AI আপনার জন্য যা মনে রাখছে',
-                      style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 8),
-                  Text(app.memory.isEmpty
-                      ? 'এখনো কিছু মনে রাখা হয়নি — "AI কী জানে" ট্যাবে যোগ করুন।'
-                      : '${app.memory.length} টি তথ্য সেভ আছে।'),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Card(
-            color: const Color(0xFF0E7C66),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(12),
-              onTap: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const MoneyScreen())),
-              child: const Padding(
-                padding: EdgeInsets.all(18),
-                child: Row(children: [
-                  Text('💰', style: TextStyle(fontSize: 30)),
-                  SizedBox(width: 14),
-                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('জীবনের হিসাব', style: TextStyle(color: Colors.white,
-                        fontSize: 18, fontWeight: FontWeight.bold)),
-                    Text('আয়, খরচ, বাজেট, ধার, সঞ্চয়', style: TextStyle(color: Colors.white70, fontSize: 13)),
-                  ])),
-                  Icon(Icons.chevron_right, color: Colors.white70),
-                ]),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(children: [
-            Expanded(child: _QuickCard(
-              emoji: '🔒', label: 'ডকুমেন্ট ভল্ট',
-              onTap: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const VaultScreen())))),
-            const SizedBox(width: 10),
-            Expanded(child: _QuickCard(
-              emoji: '👨‍👩‍👧', label: 'ফ্যামিলি কেয়ার',
-              onTap: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const FamilyScreen())))),
-            const SizedBox(width: 10),
-            Expanded(child: _QuickCard(
-              emoji: '🚑', label: 'ইমার্জেন্সি',
-              onTap: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const EmergencyScreen())))),
-          ]),
-          const SizedBox(height: 12),
-          const _WrappedCard(),
-        ],
-      ),
-    );
-  }
-}
-
-class _WrappedCard extends StatefulWidget {
-  const _WrappedCard();
-  @override
-  State<_WrappedCard> createState() => _WrappedCardState();
-}
-
-class _WrappedCardState extends State<_WrappedCard> {
-  Map<String, dynamic>? _w;
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    try {
-      final w = await context.read<AppState>().api.wrapped();
-      if (mounted) setState(() => _w = w);
-    } catch (_) {}
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final w = _w;
-    if (w == null) return const SizedBox.shrink();
-    final badges = (w['badges'] as List?)?.cast<String>() ?? [];
-    return Card(
-      color: const Color(0xFF1A1442),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(w['title'] ?? 'আমার মাস',
-              style: const TextStyle(color: Color(0xFFFFE08A),
-                  fontWeight: FontWeight.bold, fontSize: 16)),
-          const SizedBox(height: 8),
-          for (final b in badges)
-            Padding(padding: const EdgeInsets.symmetric(vertical: 2),
-                child: Text(b, style: const TextStyle(color: Colors.white))),
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton.icon(
-              onPressed: () {
-                final url = w['card_url'];
-                if (url != null) launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-              },
-              icon: const Icon(Icons.share, color: Color(0xFFFFE08A)),
-              label: const Text('কার্ড শেয়ার', style: TextStyle(color: Color(0xFFFFE08A))),
-            ),
-          ),
-        ]),
-      ),
-    );
-  }
-}
-
-class _BriefingCard extends StatefulWidget {
-  const _BriefingCard();
-  @override
-  State<_BriefingCard> createState() => _BriefingCardState();
-}
-
-class _BriefingCardState extends State<_BriefingCard> {
-  Map<String, dynamic>? _b;
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    try {
-      final b = await context.read<AppState>().api.briefing();
-      if (mounted) setState(() => _b = b);
-    } catch (_) {}
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final b = _b;
-    if (b == null) return const SizedBox.shrink();
-    final lines = (b['lines'] as List?)?.cast<String>() ?? [];
-    final aiText = b['ai_text'] as String?;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
-            const Text('✨ আজকের ব্রিফিং',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            const Spacer(),
-            IconButton(onPressed: _load, icon: const Icon(Icons.refresh, size: 18),
-                visualDensity: VisualDensity.compact),
-          ]),
-          if (aiText != null && aiText.isNotEmpty)
-            Text(aiText)
-          else
-            ...lines.map((l) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 1), child: Text(l))),
-        ]),
-      ),
-    );
-  }
-}
-
-class _QuickCard extends StatelessWidget {
-  final String emoji;
-  final String label;
-  final VoidCallback onTap;
-  const _QuickCard({required this.emoji, required this.label, required this.onTap});
-  @override
-  Widget build(BuildContext context) => Card(
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 10),
-            child: Column(children: [
-              Text(emoji, style: const TextStyle(fontSize: 30)),
-              const SizedBox(height: 6),
-              Text(label, textAlign: TextAlign.center,
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
-            ]),
-          ),
-        ),
-      );
 }
 
 class _UpdateBanner extends StatelessWidget {
@@ -289,55 +59,48 @@ class _UpdateBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final up = context.watch<Updater>();
     if (up.available == null) return const SizedBox.shrink();
-    return Card(
-      color: const Color(0xFFFFF4D6),
+    final scheme = Theme.of(context).colorScheme;
+    final t = AppLocalizations.of(context);
+    return Material(
+      color: scheme.primaryContainer,
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.sm, Gap.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                const Icon(Icons.system_update, color: Color(0xFFB8860B)),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text('নতুন আপডেট আছে',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.bold)),
-                ),
-                if (!up.downloading)
-                  IconButton(
-                      onPressed: up.dismiss,
-                      icon: const Icon(Icons.close, size: 18)),
-              ],
-            ),
-            if (up.available!.notes.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: Text(up.available!.notes,
-                    style: const TextStyle(fontSize: 13)),
+            Row(children: [
+              Icon(Icons.system_update, color: scheme.onPrimaryContainer, size: 20),
+              const SizedBox(width: Gap.sm),
+              Expanded(
+                child: Text(t.updateAvailable,
+                    style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: scheme.onPrimaryContainer)),
               ),
+              if (!up.downloading)
+                IconButton(
+                    onPressed: up.dismiss,
+                    visualDensity: VisualDensity.compact,
+                    icon: Icon(Icons.close, size: 18, color: scheme.onPrimaryContainer)),
+            ]),
             if (up.downloading) ...[
-              const SizedBox(height: 6),
-              LinearProgressIndicator(
-                  value: up.progress > 0 ? up.progress : null),
-              const SizedBox(height: 4),
-              Text('ডাউনলোড হচ্ছে… ${(up.progress * 100).toStringAsFixed(0)}%',
-                  style: const TextStyle(fontSize: 12)),
+              const SizedBox(height: Gap.xs),
+              LinearProgressIndicator(value: up.progress > 0 ? up.progress : null),
+              const SizedBox(height: Gap.xs),
+              Text('${(up.progress * 100).toStringAsFixed(0)}%',
+                  style: TextStyle(fontSize: 12, color: scheme.onPrimaryContainer)),
             ] else
               Align(
                 alignment: Alignment.centerRight,
                 child: FilledButton.icon(
                   onPressed: up.downloadAndInstall,
-                  icon: const Icon(Icons.download),
-                  label: const Text('আপডেট করুন'),
+                  icon: const Icon(Icons.download, size: 18),
+                  label: Text(t.update),
                 ),
               ),
             if (up.error != null)
-              Text('সমস্যা: ${up.error}',
-                  style: const TextStyle(color: Colors.red, fontSize: 12)),
+              Text('${up.error}',
+                  style: TextStyle(color: scheme.error, fontSize: 12)),
           ],
         ),
       ),

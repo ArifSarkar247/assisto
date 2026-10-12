@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'l10n/app_localizations.dart';
+import 'alerts_fg.dart';
 import 'state.dart';
 import 'theme.dart';
 import 'updater.dart';
@@ -76,8 +77,37 @@ class AssistoApp extends StatelessWidget {
   }
 }
 
-class _Root extends StatelessWidget {
+class _Root extends StatefulWidget {
   const _Root();
+  @override
+  State<_Root> createState() => _RootState();
+}
+
+class _RootState extends State<_Root> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    // First foreground poll shortly after launch.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _pollAlerts());
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Realme-safe proactive alerts: check every time the app comes forward.
+    if (state == AppLifecycleState.resumed) _pollAlerts();
+  }
+
+  void _pollAlerts() {
+    final app = context.read<AppState>();
+    if (app.loggedIn) unawaited(AlertPoller.poll(app.api));
+  }
 
   @override
   Widget build(BuildContext context) {

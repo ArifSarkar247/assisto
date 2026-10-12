@@ -4,6 +4,15 @@
   "tagline": "আপনার ব্যক্তিগত AI এজেন্ট",
   "assistantSubtitle": "আপনার সহকারী",
 
+  "update": "আপডেট করুন",
+  "updateAvailable": "নতুন আপডেট আছে",
+  "newChat": "নতুন চ্যাট",
+  "connectedApps": "সংযুক্ত অ্যাপ",
+  "inProgress": "চলমান কাজ",
+  "menu": "মেনু",
+  "welcomeHeadline": "আমি Assisto",
+  "welcomeBody": "আপনার ব্যক্তিগত সহকারী। বাংলা বা English-এ বলুন — লিখে বা বলে।",
+
   "navHome": "Assisto",
   "navReminders": "রিমাইন্ডার",
   "navNotesTasks": "নোট/কাজ",

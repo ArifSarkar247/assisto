@@ -75,10 +75,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   const SizedBox(height: 12),
                   Center(
-                    child: Image.asset('assets/branding/logo.png',
-                        width: 108, height: 108),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(26),
+                      child: Image.asset('assets/branding/new_logo.png',
+                          width: 104, height: 104, fit: BoxFit.cover),
+                    ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
                   Text('Assisto',
                       textAlign: TextAlign.center,
                       style: Theme.of(context)

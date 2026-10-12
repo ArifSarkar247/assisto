@@ -46,3 +46,8 @@ probe/
 
 # generated l10n (gen-l10n builds these in CI)
 app/lib/l10n/app_localizations*.dart
+
+# local Flutter SDK + render outputs (not committed)
+tools/
+screenshots/
+new-logo.png

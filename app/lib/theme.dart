@@ -8,22 +8,34 @@ import 'package:flutter/material.dart';
 class Brand {
   Brand._();
 
-  // Core brand colours (from the logo)
-  static const navy = Color(0xFF12325B); // deep brand navy
-  static const navyDeep = Color(0xFF0B1E39); // darker navy for gradients
-  static const gold = Color(0xFFE3A008); // the hand
-  static const cyan = Color(0xFF22B8CF); // the glowing brain
+  // Core brand colours — sampled from the logo (cyan → blue → purple on black).
+  static const cyan = Color(0xFF22D3EE); // sparkle / highlight
+  static const blue = Color(0xFF3B6EF6); // primary
+  static const blueDeep = Color(0xFF2347D9); // pressed / deep primary
+  static const purple = Color(0xFF9B4DF0); // tertiary / gradient tail
+  static const ink = Color(0xFF05060A); // logo black (splash/hero bg)
+
+  // Back-compat aliases (older code referenced navy/gold).
+  static const navy = blue;
+  static const gold = cyan;
 
   // Semantic
   static const success = Color(0xFF2E9E6B);
   static const warning = Color(0xFFE0A500);
-  static const danger = Color(0xFFD64545);
+  static const danger = Color(0xFFE0485A);
 
-  // Brand gradient (login / splash / hero surfaces)
+  // Brand gradient (login / splash / hero surfaces / logo tint)
   static const gradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [navyDeep, navy],
+    colors: [cyan, blue, purple],
+  );
+
+  // Dark hero backdrop gradient (splash / login behind the logo).
+  static const heroDark = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xFF0A0C14), ink],
   );
 }
 
@@ -64,13 +76,14 @@ class AssistoTheme {
   static ThemeData _build(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
     final scheme = ColorScheme.fromSeed(
-      seedColor: Brand.navy,
+      seedColor: Brand.blue,
       brightness: brightness,
     ).copyWith(
-      // keep the brand recognisable across both modes
-      primary: isDark ? const Color(0xFF8FB3E8) : Brand.navy,
-      secondary: Brand.gold,
-      tertiary: Brand.cyan,
+      // Brand across both modes: blue primary, cyan highlight, purple accent.
+      // Lightened in dark mode for AA contrast on dark surfaces.
+      primary: isDark ? const Color(0xFF6FA0FF) : Brand.blue,
+      secondary: isDark ? Brand.cyan : const Color(0xFF0E9FB8),
+      tertiary: isDark ? const Color(0xFFC08BFF) : Brand.purple,
       error: Brand.danger,
     );
 
