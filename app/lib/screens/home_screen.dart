@@ -11,6 +11,7 @@ import 'vault_screen.dart';
 import 'emergency_screen.dart';
 import 'money_screen.dart';
 import 'family_screen.dart';
+import 'agent_thread_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -24,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final pages = const [
-      _Dashboard(),
+      AgentThreadScreen(),
       RemindersScreen(),
       NotesTodosScreen(),
       MemoryScreen(),
@@ -36,7 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedIndex: _tab,
         onDestinationSelected: (i) => setState(() => _tab = i),
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), label: 'হোম'),
+          NavigationDestination(
+              icon: Icon(Icons.chat_bubble_outline), label: 'Assisto'),
           NavigationDestination(icon: Icon(Icons.alarm_outlined), label: 'রিমাইন্ডার'),
           NavigationDestination(icon: Icon(Icons.checklist_outlined), label: 'নোট/কাজ'),
           NavigationDestination(

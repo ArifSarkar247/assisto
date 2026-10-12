@@ -152,6 +152,31 @@ class ApiClient {
     if (r.statusCode != 204 && r.statusCode != 404) _fail(r);
   }
 
+  Future<Map<String, dynamic>> agent(String text) async {
+    final r = await _c.post(AppConfig.api('/agent'),
+        headers: _headers(), body: jsonEncode({'text': text}));
+    if (r.statusCode == 200) return jsonDecode(r.body) as Map<String, dynamic>;
+    _fail(r);
+  }
+
+  Future<List<Map<String, dynamic>>> alertsList() async {
+    final r = await _c.get(AppConfig.api('/alerts'), headers: _headers());
+    if (r.statusCode == 200) {
+      return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
+    }
+    _fail(r);
+  }
+
+  Future<void> deleteByModel(String model, int id) async {
+    const paths = {
+      'reminder': 'reminders', 'txn': 'transactions', 'loan': 'loans',
+      'medicine': 'medicines', 'memory': 'memory', 'note': 'notes', 'todo': 'todos',
+    };
+    final p = paths[model];
+    if (p == null) return;
+    await _c.delete(AppConfig.api('/$p/$id/'), headers: _headers());
+  }
+
   Future<Map<String, dynamic>> wrapped() async {
     final r = await _c.get(AppConfig.api('/wrapped'), headers: _headers());
     if (r.statusCode == 200) return jsonDecode(r.body) as Map<String, dynamic>;
