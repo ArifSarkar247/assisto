@@ -115,6 +115,16 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      - name: Dump merged AndroidManifest (what runs at startup)
+        working-directory: app
+        run: |
+          MANIFEST=$(find build -path '*/merged_manifest*/AndroidManifest.xml' -o -name 'AndroidManifest.xml' -path '*intermediates*' 2>/dev/null | head -1)
+          echo "merged manifest: $MANIFEST"
+          if [ -n "$MANIFEST" ]; then
+            echo "=== providers / services / receivers / application name ==="
+            grep -oE '<(provider|service|receiver|application)[^>]*' "$MANIFEST" | sed 's/android:[a-zA-Z]*=//g' | head -60 || true
+          fi
+
       - name: Run app on emulator + capture logcat
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -123,25 +133,34 @@ jobs:
           arch: x86_64
           profile: pixel_5
           disable-animations: true
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           working-directory: app
           script: |
             set -x
+            # wait for FULL boot, not just device connect
             adb wait-for-device
-            APK=build/app/outputs/flutter-apk/app-release.apk
-            adb install -r "$APK"
-            PKG=$(adb shell pm list packages | tr -d '\r' | grep -i assisto | sed 's/package://' | head -1)
+            for i in $(seq 1 60); do
+              [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ] && break
+              sleep 2
+            done
+            adb shell getprop sys.boot_completed
+            APK=$(ls build/app/outputs/flutter-apk/*.apk 2>/dev/null | head -1)
+            echo "APK=$APK"; ls -la build/app/outputs/flutter-apk/ || true
+            adb install -r -g "$APK"
+            PKG=$(adb shell pm list packages 2>/dev/null | tr -d '\r' | grep -i assisto | sed 's/package://' | head -1)
             echo "PACKAGE=$PKG"
-            adb logcat -c
-            adb shell monkey -p "$PKG" -c android.intent.category.LAUNCHER 1 || true
-            sleep 30
-            adb logcat -d > logcat-full.txt
+            adb logcat -c || true
+            adb shell am start -n "$PKG/.MainActivity" || adb shell monkey -p "$PKG" -c android.intent.category.LAUNCHER 1 || true
+            sleep 25
+            adb logcat -d > logcat-full.txt 2>&1
+            adb logcat -b crash -d >> logcat-full.txt 2>&1 || true
             echo "================= CRASH / ERROR LINES ================="
-            grep -nE "FATAL EXCEPTION|AndroidRuntime|Process.*assisto.*died|E/flutter|Caused by:|beginning of crash|Shutting down VM|UnsatisfiedLinkError|ClassNotFoundException|NoClassDefFound|RuntimeException" logcat-full.txt | head -120 || echo "(no crash-pattern lines found)"
+            grep -aE "FATAL EXCEPTION|AndroidRuntime|Process.*died|E flutter|E/flutter|Caused by:|beginning of crash|Shutting down VM|UnsatisfiedLinkError|ClassNotFoundException|NoClassDefFound|java.lang.RuntimeException|WorkManager|androidx.startup|androidx.work" logcat-full.txt | head -120 || echo "(no crash-pattern lines found)"
             echo "================= APP ALIVE? ================="
             if adb shell pidof "$PKG" >/dev/null 2>&1; then
-              echo "RESULT: APP RUNNING ✅"
+              echo "RESULT_APP_RUNNING_YES"
             else
-              echo "RESULT: APP NOT RUNNING ❌ (crashed or never started)"
+              echo "RESULT_APP_RUNNING_NO"
             fi
 
       - name: Upload logcat
