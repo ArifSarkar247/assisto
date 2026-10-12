@@ -73,8 +73,19 @@ jobs:
           )
           if 'android.permission.INTERNET' not in s:
               s = re.sub(r'(<manifest[^>]*>)', r'\1' + perms, s, count=1)
+          queries = (
+              '\n    <queries>'
+              '\n      <intent><action android:name="android.intent.action.DIAL"/>'
+              '<data android:scheme="tel"/></intent>'
+              '\n      <intent><action android:name="android.intent.action.SENDTO"/>'
+              '<data android:scheme="smsto"/></intent>'
+              '\n      <intent><action android:name="android.intent.action.VIEW"/></intent>'
+              '\n    </queries>\n'
+          )
+          if '<queries>' not in s:
+              s = re.sub(r'(<manifest[^>]*>)', r'\1' + queries, s, count=1)
           open(p, "w").write(s)
-          print("manifest patched: label=Assisto, INTERNET + REQUEST_INSTALL_PACKAGES")
+          print("manifest patched: label, permissions, queries")
           PY
 
       - name: Enable core library desugaring (flutter_local_notifications)

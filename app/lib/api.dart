@@ -187,6 +187,53 @@ class ApiClient {
     _fail(r);
   }
 
+  // ---- documents (vault) ----
+  Future<List<Map<String, dynamic>>> listDocuments() async {
+    final r = await _c.get(AppConfig.api('/documents/'), headers: _headers());
+    if (r.statusCode == 200) {
+      return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
+    }
+    _fail(r);
+  }
+
+  Future<void> uploadDocument({
+    required String title,
+    required String docType,
+    String? expiryDate,
+    String? note,
+    required String filePath,
+  }) async {
+    final req = http.MultipartRequest('POST', AppConfig.api('/documents/'));
+    if (token != null) req.headers['Authorization'] = 'Token $token';
+    req.fields['title'] = title;
+    req.fields['doc_type'] = docType;
+    if (expiryDate != null && expiryDate.isNotEmpty) req.fields['expiry_date'] = expiryDate;
+    if (note != null && note.isNotEmpty) req.fields['note'] = note;
+    req.files.add(await http.MultipartFile.fromPath('file', filePath));
+    final streamed = await req.send();
+    if (streamed.statusCode < 200 || streamed.statusCode >= 300) {
+      throw ApiException('ডকুমেন্ট আপলোড ব্যর্থ (${streamed.statusCode})', streamed.statusCode);
+    }
+  }
+
+  Future<void> deleteDocument(int id) async {
+    final r = await _c.delete(AppConfig.api('/documents/$id/'), headers: _headers());
+    if (r.statusCode != 204 && r.statusCode != 404) _fail(r);
+  }
+
+  // ---- emergency card ----
+  Future<Map<String, dynamic>> getEmergency() async {
+    final r = await _c.get(AppConfig.api('/emergency'), headers: _headers());
+    if (r.statusCode == 200) return jsonDecode(r.body) as Map<String, dynamic>;
+    _fail(r);
+  }
+
+  Future<void> putEmergency(Map<String, dynamic> body) async {
+    final r = await _c.put(AppConfig.api('/emergency'),
+        headers: _headers(), body: jsonEncode(body));
+    if (r.statusCode < 200 || r.statusCode >= 300) _fail(r);
+  }
+
   Future<List<int>> getBytes(String path) async {
     final r = await _c.get(AppConfig.api(path),
         headers: {if (token != null) 'Authorization': 'Token $token'});

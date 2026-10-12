@@ -6,6 +6,8 @@ import 'memory_screen.dart';
 import 'settings_screen.dart';
 import 'reminders_screen.dart';
 import 'notes_todos_screen.dart';
+import 'vault_screen.dart';
+import 'emergency_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -100,11 +102,46 @@ class _Dashboard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
+          Row(children: [
+            Expanded(child: _QuickCard(
+              emoji: '🔒', label: 'ডকুমেন্ট ভল্ট',
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const VaultScreen())))),
+            const SizedBox(width: 10),
+            Expanded(child: _QuickCard(
+              emoji: '🚑', label: 'ইমার্জেন্সি কার্ড',
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const EmergencyScreen())))),
+          ]),
+          const SizedBox(height: 12),
           const _ComingSoonList(),
         ],
       ),
     );
   }
+}
+
+class _QuickCard extends StatelessWidget {
+  final String emoji;
+  final String label;
+  final VoidCallback onTap;
+  const _QuickCard({required this.emoji, required this.label, required this.onTap});
+  @override
+  Widget build(BuildContext context) => Card(
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 10),
+            child: Column(children: [
+              Text(emoji, style: const TextStyle(fontSize: 30)),
+              const SizedBox(height: 6),
+              Text(label, textAlign: TextAlign.center,
+                  style: const TextStyle(fontWeight: FontWeight.w600)),
+            ]),
+          ),
+        ),
+      );
 }
 
 class _UpdateBanner extends StatelessWidget {
@@ -174,10 +211,9 @@ class _ComingSoonList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = const [
-      ['⏰', 'রিমাইন্ডার, নোট, ভল্ট', 'Part 2'],
-      ['💰', 'জীবনের হিসাব (আয়-খরচ-ধার)', 'Part 3'],
-      ['👨‍👩‍👧', 'ফ্যামিলি কেয়ার ও ওষুধ', 'Part 4'],
-      ['📷', 'Life Scanner (ছবি → AI)', 'Part 5 · AI key লাগবে'],
+      ['💰', 'জীবনের হিসাব (আয়-খরচ-ধার)', 'শিগগিরই'],
+      ['👨‍👩‍👧', 'ফ্যামিলি কেয়ার ও ওষুধ', 'শিগগিরই'],
+      ['📷', 'Life Scanner (ছবি → AI)', 'AI key লাগবে'],
     ];
     return Card(
       child: Column(
