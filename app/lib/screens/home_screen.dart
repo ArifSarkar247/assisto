@@ -95,13 +95,9 @@ class _Dashboard extends StatelessWidget {
                   Text('AI আপনার জন্য যা মনে রাখছে',
                       style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 8),
-                  Text('${app.memory.length} টি তথ্য সেভ আছে।'),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'এটা Part 1 (অ্যাপ শেল)। রিমাইন্ডার, ভল্ট, জীবনের হিসাব, '
-                    'ফ্যামিলি কেয়ার আর Life Scanner পরের ধাপে আসছে।',
-                    style: TextStyle(fontSize: 13, color: Colors.grey),
-                  ),
+                  Text(app.memory.isEmpty
+                      ? 'এখনো কিছু মনে রাখা হয়নি — "AI কী জানে" ট্যাবে যোগ করুন।'
+                      : '${app.memory.length} টি তথ্য সেভ আছে।'),
                 ],
               ),
             ),
@@ -147,8 +143,6 @@ class _Dashboard extends StatelessWidget {
           ]),
           const SizedBox(height: 12),
           const _WrappedCard(),
-          const SizedBox(height: 12),
-          const _ComingSoonList(),
         ],
       ),
     );
@@ -340,30 +334,6 @@ class _UpdateBanner extends StatelessWidget {
                   style: const TextStyle(color: Colors.red, fontSize: 12)),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _ComingSoonList extends StatelessWidget {
-  const _ComingSoonList();
-  @override
-  Widget build(BuildContext context) {
-    final items = const [
-      ['📷', 'Life Scanner (ছবি → AI)', 'AI key লাগবে'],
-      ['✨', 'সকালের ব্রিফিং ও প্ল্যান', 'AI key লাগবে'],
-    ];
-    return Card(
-      child: Column(
-        children: [
-          for (final it in items)
-            ListTile(
-              leading: Text(it[0], style: const TextStyle(fontSize: 22)),
-              title: Text(it[1]),
-              trailing: Chip(
-                  label: Text(it[2], style: const TextStyle(fontSize: 11))),
-            ),
-        ],
       ),
     );
   }

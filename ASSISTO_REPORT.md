@@ -47,7 +47,29 @@ Assisto এখন **লাইভ**: `https://assisto.asalify.com` — ৪টি 
 
 ---
 
-## 🔖 লাইভ চেকলিস্ট (resume এখান থেকে)
+## 🔖 মাস্টার প্ল্যান চেকলিস্ট (resume এখান থেকে — 2026-10-12 নতুন নির্দেশ)
+লেজেন্ড: ✅ done · 🔨 in progress · ⏳ todo · 🔑 needs owner · ⛔ not built (reason)
+
+**Part A — V1 finish/polish**
+- ⏳ A1 ভল্টে আসল অ্যাটাচমেন্ট (picker যা বিল্ড হয়) — probe repo-তে যাচাই আগে
+- ⏳ A2 বাংলা/English ভয়েস ইনপুট (on-device STT) — probe আগে
+- ⏳ A3 Notification Listener (bKash/ব্যাংক, OFF default, disclosure, রিভিউ কিউ) — probe আগে
+- ⏳ A4 SOS GPS শেয়ার (share sheet) — probe আগে
+- ⏳ A5 ফ্যামিলি অ্যালার্ট Firebase ছাড়া (WorkManager polling + local notif)
+- ⏳ A6 সাবস্ক্রিপশন UI, 30-দিন চ্যালেঞ্জ, ফ্যামিলি "ওষুধ খেয়েছেন" কার্ড, বাকি ⏳
+- 🔨 A7 সব developer/placeholder টেক্সট সরানো (হোম কার্ডসহ)
+
+**Part B — বাইলিঙ্গুয়াল (Bangla+English, Flutter i18n ARB, zero hard-coded)** ⏳
+**Part C — World-class redesign (conversation-first AI agent thread)** ⏳ (top priority)
+**Part D — V2+V3 (Appendix A 22–40), AI CRM; never-build items ⛔ design-doc only** ⏳
+**Testing — emulator smoke test (both languages, light/dark) + screenshots** ⏳
+
+### 🧭 পদ্ধতি (unattended, resumable)
+বিশাল স্কোপ — একাধিক সেশনে ছড়াবে। অগ্রাধিকার: A7 (দ্রুত বাগ) → plugin-probe repo (A1–A4 নিরাপদে যাচাই) → Part C-র agent-brain ব্যাকএন্ড (key ছাড়া rule-based) → thread UI → B (i18n) → বাকি A → D → testing। প্রতিটা অংশ শেষে commit + checklist আপডেট + (দরকারে) APK। plugin-probe repo: `ArifSarkar247/assisto-plugin-probe` (পাবলিক, minimal Flutter, Assisto কোড নেই)।
+
+---
+
+## 🔖 পুরোনো V1 চেকলিস্ট
 লেজেন্ড: ✅ done · 🔨 in progress · ⏳ todo · 🔑 needs owner (key/account) · ⛔ blocked
 
 **Phase 0**

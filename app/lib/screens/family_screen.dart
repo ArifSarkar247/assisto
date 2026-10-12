@@ -98,7 +98,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
           ].join('  ')),
         )),
       const Padding(padding: EdgeInsets.all(12),
-        child: Text('✅ "খেয়েছি" চাপলে কনফার্ম হবে। মিস হলে পরিবারকে জানানোর সুবিধা পরে আসছে।',
+        child: Text('✅ "খেয়েছি" চাপলে কনফার্ম হবে।',
             style: TextStyle(fontSize: 12, color: Colors.grey))),
     ]);
   }

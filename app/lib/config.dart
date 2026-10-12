@@ -6,7 +6,7 @@ class AppConfig {
     defaultValue: 'https://assisto.asalify.com',
   );
   static const String apiPrefix = '/api/v1';
-  static const String appVersionLabel = '1.0.0 · Part 1 (অ্যাপ শেল)';
+  static const String appVersionLabel = '1.0';
 
   static Uri api(String path) => Uri.parse('$apiBase$apiPrefix$path');
 }
