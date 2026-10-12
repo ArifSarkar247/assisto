@@ -523,6 +523,93 @@ class MoneySummaryView(APIView):
         })
 
 
+# ---------- briefing / proactive alerts (feature 4, 5 — non-AI works now) ----------
+
+def _build_alerts(user):
+    from datetime import timedelta
+    from django.db.models import Sum
+    from decimal import Decimal
+    today = timezone.localdate()
+    alerts = []
+    # document expiry
+    for d in user.documents.filter(expiry_date__isnull=False):
+        days = (d.expiry_date - today).days
+        if days < 0:
+            alerts.append({"type": "doc_expired", "text": f"{d.title}-এর মেয়াদ শেষ হয়ে গেছে।", "severity": "high"})
+        elif days <= 30:
+            alerts.append({"type": "doc_expiry", "text": f"{d.title}-এর মেয়াদ {days} দিনে শেষ।", "severity": "high" if days <= 7 else "med"})
+    # medicine refill
+    for m in user.medicines.filter(refill_date__isnull=False):
+        days = (m.refill_date - today).days
+        if 0 <= days <= 5:
+            alerts.append({"type": "refill", "text": f"{m.name} রিফিল করতে হবে ({days} দিনে)।", "severity": "med"})
+    # loans past due
+    for ln in user.loans.filter(settled=False, due_date__isnull=False, due_date__lt=today):
+        alerts.append({"type": "loan_due", "text": f"{ln.person} এর ধার ফেরতের তারিখ পার হয়েছে।", "severity": "med"})
+    # budget over
+    month_exp = {}
+    for t in user.txns.filter(date__year=today.year, date__month=today.month, kind="expense"):
+        month_exp[t.category or ""] = month_exp.get(t.category or "", Decimal("0")) + t.amount
+    for b in user.budgets.all():
+        spent = month_exp.get(b.category, Decimal("0"))
+        if b.monthly_limit and spent >= b.monthly_limit:
+            alerts.append({"type": "budget", "text": f"'{b.category}' বাজেট শেষ ({int(spent/b.monthly_limit*100)}%)।", "severity": "med"})
+    return alerts
+
+
+@api_view(["GET"])
+def alerts(request):
+    return Response(_build_alerts(request.user))
+
+
+@api_view(["GET"])
+def briefing(request):
+    u = request.user
+    today = timezone.localdate()
+    doses = []
+    for med in u.medicines.all():
+        for slot in (med.times or []):
+            doses.append(f"{med.name} ({slot})")
+    reminders_today = list(u.reminders.filter(done=False, due_at__date=today)
+                           .values_list("title", flat=True))
+    al = _build_alerts(u)
+    lines = [f"🗓️ আজ: {today.strftime('%d %b %Y')}"]
+    if reminders_today:
+        lines.append("⏰ রিমাইন্ডার: " + ", ".join(reminders_today))
+    if doses:
+        lines.append("💊 ওষুধ: " + ", ".join(doses[:6]))
+    for a in al[:5]:
+        lines.append(("⚠️ " if a["severity"] == "high" else "🔸 ") + a["text"])
+    if len(lines) == 1:
+        lines.append("আজ বিশেষ কিছু নেই — ভালো থাকুন! 🌼")
+    text = "\n".join(lines)
+
+    ai_text = None
+    if ai.available():
+        try:
+            ai_text, _ = ai.generate(
+                task="নিচের তথ্য দিয়ে ব্যবহারকারীর জন্য ছোট, উষ্ণ বাংলা সকালের ব্রিফিং লেখো (৩-৪ লাইন)।",
+                data=text, tier="cheap", feature="briefing", max_tokens=300, user=u)
+        except ai.AIUnavailable:
+            ai_text = None
+    return Response({"text": text, "lines": lines, "ai_text": ai_text,
+                     "alerts": al, "ai_enabled": ai.key_present()})
+
+
+class LifeScanView(APIView):
+    """Feature 1 — Life Scanner. Needs an AI key; clear Bangla needs-key state."""
+    def post(self, request):
+        if not ai.available():
+            return Response({
+                "needs_key": True,
+                "message": "Life Scanner চালু হবে যখন AI key যোগ করা হবে। "
+                           "ততক্ষণ তথ্য নিজে লিখে যোগ করুন।",
+            }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        # With a key: image → AI extraction would run here (built when key arrives).
+        return Response({"needs_key": False, "detail": "AI extraction pipeline ready."},
+                        status=status.HTTP_501_NOT_IMPLEMENTED)
+
+
 # ---------- AI status (needs-key state surfaced to the app) ----------
 
 @api_view(["GET"])

@@ -9,6 +9,7 @@ import 'notes_todos_screen.dart';
 import 'vault_screen.dart';
 import 'emergency_screen.dart';
 import 'money_screen.dart';
+import 'family_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -81,7 +82,9 @@ class _Dashboard extends StatelessWidget {
               ],
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
+          const _BriefingCard(),
+          const SizedBox(height: 4),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -132,13 +135,67 @@ class _Dashboard extends StatelessWidget {
                   MaterialPageRoute(builder: (_) => const VaultScreen())))),
             const SizedBox(width: 10),
             Expanded(child: _QuickCard(
-              emoji: '🚑', label: 'ইমার্জেন্সি কার্ড',
+              emoji: '👨‍👩‍👧', label: 'ফ্যামিলি কেয়ার',
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const FamilyScreen())))),
+            const SizedBox(width: 10),
+            Expanded(child: _QuickCard(
+              emoji: '🚑', label: 'ইমার্জেন্সি',
               onTap: () => Navigator.push(context,
                   MaterialPageRoute(builder: (_) => const EmergencyScreen())))),
           ]),
           const SizedBox(height: 12),
           const _ComingSoonList(),
         ],
+      ),
+    );
+  }
+}
+
+class _BriefingCard extends StatefulWidget {
+  const _BriefingCard();
+  @override
+  State<_BriefingCard> createState() => _BriefingCardState();
+}
+
+class _BriefingCardState extends State<_BriefingCard> {
+  Map<String, dynamic>? _b;
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final b = await context.read<AppState>().api.briefing();
+      if (mounted) setState(() => _b = b);
+    } catch (_) {}
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final b = _b;
+    if (b == null) return const SizedBox.shrink();
+    final lines = (b['lines'] as List?)?.cast<String>() ?? [];
+    final aiText = b['ai_text'] as String?;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            const Text('✨ আজকের ব্রিফিং',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const Spacer(),
+            IconButton(onPressed: _load, icon: const Icon(Icons.refresh, size: 18),
+                visualDensity: VisualDensity.compact),
+          ]),
+          if (aiText != null && aiText.isNotEmpty)
+            Text(aiText)
+          else
+            ...lines.map((l) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 1), child: Text(l))),
+        ]),
       ),
     );
   }
@@ -234,8 +291,8 @@ class _ComingSoonList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = const [
-      ['👨‍👩‍👧', 'ফ্যামিলি কেয়ার ও ওষুধ', 'শিগগিরই'],
       ['📷', 'Life Scanner (ছবি → AI)', 'AI key লাগবে'],
+      ['✨', 'সকালের ব্রিফিং ও প্ল্যান', 'AI key লাগবে'],
     ];
     return Card(
       child: Column(

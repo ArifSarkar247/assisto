@@ -152,6 +152,33 @@ class ApiClient {
     if (r.statusCode != 204 && r.statusCode != 404) _fail(r);
   }
 
+  Future<Map<String, dynamic>> briefing() async {
+    final r = await _c.get(AppConfig.api('/briefing'), headers: _headers());
+    if (r.statusCode == 200) return jsonDecode(r.body) as Map<String, dynamic>;
+    _fail(r);
+  }
+
+  Future<List<Map<String, dynamic>>> medicinesToday() async {
+    final r = await _c.get(AppConfig.api('/medicines/today'), headers: _headers());
+    if (r.statusCode == 200) {
+      return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
+    }
+    _fail(r);
+  }
+
+  Future<void> medicineTaken(int id, String slot, {bool taken = true}) async {
+    await _c.post(AppConfig.api('/medicines/$id/taken'),
+        headers: _headers(),
+        body: jsonEncode({'slot': slot, 'taken': taken}));
+  }
+
+  Future<Map<String, dynamic>> scamCheck(String message) async {
+    final r = await _c.post(AppConfig.api('/scam/check'),
+        headers: _headers(), body: jsonEncode({'message': message}));
+    if (r.statusCode == 200) return jsonDecode(r.body) as Map<String, dynamic>;
+    _fail(r);
+  }
+
   Future<Map<String, dynamic>> moneySummary() async {
     final r = await _c.get(AppConfig.api('/money/summary'), headers: _headers());
     if (r.statusCode == 200) return jsonDecode(r.body) as Map<String, dynamic>;
