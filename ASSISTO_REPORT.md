@@ -5,7 +5,7 @@
 ## 🧭 লাইভ রিজিউম-চেকলিস্ট (ফেজ ক্রম)
 
 - [x] **STEP 1** — সম্পূর্ণ ফিচার ম্যাট্রিক্স (নিচে) + এই চেকলিস্ট + "Decisions I made"
-- [ ] **P1 — Integrations Admin** (keystone): owner-only এনক্রিপ্টেড key store + সেটআপ গাইড + Test-connection; key এলে ফিচার অটো-চালু। *(কোনো key লাগে না — আগে এটাই)*
+- [x] **P1 — Integrations Admin** (keystone) ✅ **লাইভ**: `https://assisto.asalify.com/owner/integrations` — owner-only এনক্রিপ্টেড (Fernet) key store, ২১টি ইন্টিগ্রেশন কার্ড (bn/en গাইড + Save/Test + status), feature-flag (`integrations.is_enabled`), AI layer key store থেকে পড়ে; ২৫ backend test সবুজ; DB ব্যাকআপ নেওয়া। **owner login:** `/home/ubuntu/.assisto_secrets.env`-এ `OWNER_ADMIN_LOGIN`/`OWNER_ADMIN_PASSWORD` (লগইন করে পাসওয়ার্ড বদলান)।
 - [ ] **P2 — AI layer v2**: multi-provider (Anthropic/Gemini/OpenAI) + graceful degrade + "কিউতে আছে" + per-user limit + daily budget kill-switch + credit system + bill-template cache + batch night briefings
 - [ ] **P3 — Monetization**: Free/Premium(৳149)/Family(৳299)/প্রবাসী($4.99)/Business(৳1,999)/Founder/Annual(৳1,199) + ৳20–30 credit top-up + 7-day trial + rewarded-ad→1 scan + AdMob (non-personalized, কখনো vault/health/family/emergency/elderly/payment স্ক্রিনে নয়) + waitlist/invite gate
 - [ ] **P4 — Watcher engine (server-side)**: plain-code change-detection → AI only on change; RSS/official API/public page; robots.txt + terms মানা; Free 2/day, Premium 20 hourly. Watcher list: দাম কমা, কার্ড অফার, ফ্লাইট দাম, USD/BDT, সরকারি job circular, পরীক্ষার ফল, visa slot, বাবা-মায়ের জেলার বন্যা/ঝড়, news topic
@@ -192,6 +192,8 @@ Assisto এখন **লাইভ**: `https://assisto.asalify.com` — ৪টি 
 **Owner-blocked (এগুলো আপনি দিলে চালু হবে):** ANTHROPIC_API_KEY (AI ফিচার) · GitHub billing (Nov 1 পর্যন্ত private বিল্ড বন্ধ) · Firebase (ক্রস-ডিভাইস push) · SMS/voice provider (কল/এসএমএস) · payment partner (বিল পে)
 
 ## 🧭 Decisions I made (unattended run)
+- **Owner superuser bootstrap (P1):** মালিকের লগইন দরকার ছিল integrations পেজে; একটা ডেডিকেটেড superuser (`owner@assisto.local`) + র‍্যান্ডম strong পাসওয়ার্ড তৈরি করে `/home/ubuntu/.assisto_secrets.env`-এ (600) রাখলাম (`OWNER_ADMIN_LOGIN`/`OWNER_ADMIN_PASSWORD`)। মালিক লগইন করে পাসওয়ার্ড বদলাবেন। অ্যাপের সাধারণ ইউজার থেকে আলাদা।
+- **Integrations encryption:** Fernet; key `INTEGRATIONS_FERNET_KEY` secrets ফাইলে (600)। raw secret কখনো client-এ ফেরত/লগে যায় না; টেস্ট ছাড়া ইন্টিগ্রেশন "saved — প্রথম ব্যবহারে যাচাই" (সৎ, fake নয়)।
 - **চূড়ান্ত বিল্ড-অর্ডার (২০২৬-১০-১২):** P1 Integrations Admin আগে (keystone — key ছাড়া বানানো যায়, আর এটাই পরে সব key আনলক করে), তারপর P2 AI-layer, P3 monetization, P4 watcher, P5 voice, P6 V2, P7 business, P8 CRM, P9 V3, P10 Android-hardening, P11 iOS, P12 final। কারণ: আগে এমন সব কিছু যা key ছাড়া সম্পূর্ণ হয়; key-নির্ভর অংশ "🔑 Available when ___" state-এ থাকবে আর Integrations টেস্ট pass করলে অটো-চালু হবে।
 - **Flutter লোকাল বসানো হয়েছে** (`~/assisto/tools/flutter`, owner অনুমোদিত; ডিস্ক ≥8GB রাখা) → এখন `flutter analyze` + golden/স্ক্রিনশট টেস্ট লোকালি চলে; আর অন্ধ CI-ফ্লিপ লাগে না। (পুরোনো "Flutter বসাইনি" সিদ্ধান্ত বাতিল।)
 - **WorkManager বাদ, স্থায়ীভাবে:** ColorOS/Realme-তে androidx.work-এর startup ContentProvider লঞ্চেই ক্র্যাশ করত (owner-নিশ্চিত); ব্যাকগ্রাউন্ডও ওসব ফোনে throttled। ফ্যামিলি অ্যালার্ট এখন অ্যাপ খোলা/রিজিউমে `/alerts` পোল + লোকাল নোটিফিকেশন (dedup)। প্রকৃত push = Firebase (🔑)।
