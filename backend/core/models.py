@@ -161,6 +161,36 @@ class Todo(models.Model):
         ordering = ["done", "-updated_at"]
 
 
+class Document(models.Model):
+    """Feature 6 — document vault. Files are owner-only (served via an
+    auth-checked view, never public). PIN/biometric gate is client-side."""
+    TYPES = [("passport", "পাসপোর্ট"), ("nid", "NID"), ("licence", "ড্রাইভিং লাইসেন্স"),
+             ("certificate", "সার্টিফিকেট"), ("other", "অন্যান্য")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="documents")
+    title = models.CharField(max_length=200)
+    doc_type = models.CharField(max_length=16, choices=TYPES, default="other")
+    file = models.FileField(upload_to="vault/")
+    expiry_date = models.DateField(null=True, blank=True)
+    note = models.CharField(max_length=300, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["expiry_date", "-updated_at"]
+
+
+class EmergencyCard(models.Model):
+    """Feature 14 — emergency card (blood group, meds, allergies, contacts)."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="emergency")
+    blood_group = models.CharField(max_length=8, blank=True)
+    allergies = models.TextField(blank=True)
+    medicines = models.TextField(blank=True)
+    conditions = models.TextField(blank=True)
+    notes = models.TextField(blank=True)
+    contacts = models.JSONField(default=list, blank=True)  # [{name, phone, relation}]
+    updated_at = models.DateTimeField(auto_now=True)
+
+
 class SourcePermission(models.Model):
     """Feature 20 — per-source capture permission (each source switchable)."""
     SOURCES = [("photo", "ছবি"), ("share", "শেয়ার/ফরোয়ার্ড"), ("voice", "বাংলা ভয়েস"),

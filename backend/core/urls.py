@@ -9,6 +9,7 @@ router.register("reminders", views.ReminderViewSet, basename="reminder")
 router.register("notes", views.NoteViewSet, basename="note")
 router.register("todos", views.TodoViewSet, basename="todo")
 router.register("support", views.SupportViewSet, basename="support")
+router.register("documents", views.DocumentViewSet, basename="document")
 
 urlpatterns = [
     path("health", views.health),
@@ -25,6 +26,8 @@ urlpatterns = [
     path("audit", views.AuditListView.as_view()),
     path("undo", views.UndoView.as_view()),
     path("sources", views.SourcePermissionView.as_view()),
+    path("documents/<int:pk>/file", views.DocumentFileView.as_view()),
+    path("emergency", views.EmergencyCardView.as_view()),
     path("export", views.ExportView.as_view()),
     path("export/excel", views.ExportExcelView.as_view()),
     path("export/pdf", views.ExportPdfView.as_view()),

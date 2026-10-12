@@ -1,7 +1,7 @@
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from .models import (User, MemoryItem, AuditLog, Reminder, Note, Todo,
-                     SourcePermission, SupportTicket)
+                     SourcePermission, SupportTicket, Document, EmergencyCard)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -98,3 +98,25 @@ class SupportTicketSerializer(serializers.ModelSerializer):
         fields = ["id", "kind", "message", "screenshot", "app_version",
                   "resolved", "reply", "created_at"]
         read_only_fields = ["id", "resolved", "reply", "created_at"]
+
+
+class DocumentSerializer(serializers.ModelSerializer):
+    file_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Document
+        fields = ["id", "title", "doc_type", "file", "file_url", "expiry_date",
+                  "note", "created_at", "updated_at"]
+        read_only_fields = ["id", "file_url", "created_at", "updated_at"]
+        extra_kwargs = {"file": {"write_only": True, "required": True}}
+
+    def get_file_url(self, obj):
+        return f"/api/v1/documents/{obj.id}/file"
+
+
+class EmergencyCardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmergencyCard
+        fields = ["blood_group", "allergies", "medicines", "conditions",
+                  "notes", "contacts", "updated_at"]
+        read_only_fields = ["updated_at"]

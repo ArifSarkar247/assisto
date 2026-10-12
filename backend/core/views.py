@@ -13,12 +13,12 @@ from rest_framework.views import APIView
 from datetime import timedelta
 
 from .models import (User, MemoryItem, AuditLog, Reminder, Note, Todo,
-                     SourcePermission, SupportTicket)
+                     SourcePermission, SupportTicket, Document, EmergencyCard)
 from .serializers import (
     UserSerializer, RegisterSerializer, LoginSerializer,
     MemoryItemSerializer, AuditLogSerializer, ReminderSerializer,
     NoteSerializer, TodoSerializer, SourcePermissionSerializer,
-    SupportTicketSerializer,
+    SupportTicketSerializer, DocumentSerializer, EmergencyCardSerializer,
 )
 from . import ai
 
@@ -275,6 +275,50 @@ class SupportViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         obj = serializer.save(user=self.request.user)
         log(self.request.user, "support.create", kind=obj.kind)
+
+
+# ---------- document vault (feature 6) ----------
+
+class DocumentViewSet(viewsets.ModelViewSet):
+    serializer_class = DocumentSerializer
+    http_method_names = ["get", "post", "patch", "delete"]
+
+    def get_queryset(self):
+        return Document.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        obj = serializer.save(user=self.request.user)
+        log(self.request.user, "document.create", id=obj.id, title=obj.title)
+
+    def perform_destroy(self, instance):
+        log(self.request.user, "document.delete", title=instance.title)
+        instance.file.delete(save=False)
+        instance.delete()
+
+
+class DocumentFileView(APIView):
+    """Owner-only file stream — vault files are never publicly served."""
+    def get(self, request, pk):
+        from django.http import FileResponse, Http404
+        doc = Document.objects.filter(user=request.user, pk=pk).first()
+        if not doc or not doc.file:
+            raise Http404()
+        return FileResponse(doc.file.open("rb"))
+
+
+class EmergencyCardView(APIView):
+    """Feature 14 — one emergency card per user."""
+    def get(self, request):
+        card, _ = EmergencyCard.objects.get_or_create(user=request.user)
+        return Response(EmergencyCardSerializer(card).data)
+
+    def put(self, request):
+        card, _ = EmergencyCard.objects.get_or_create(user=request.user)
+        ser = EmergencyCardSerializer(card, data=request.data, partial=True)
+        ser.is_valid(raise_exception=True)
+        ser.save()
+        log(request.user, "emergency.update")
+        return Response(ser.data)
 
 
 # ---------- AI status (needs-key state surfaced to the app) ----------
