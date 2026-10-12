@@ -14,7 +14,7 @@
 - AI খরচ/ব্যবহার (key থাকলে, Haiku): W1 ≈ $0.005, W2 ≈ $0.0017; key ছাড়া $0 (নিয়ম-ভিত্তিক)
 
 **V1 — অ্যাপ + ব্যাকএন্ড (ফিচার ১–২১)**
-- ⏳ Part 2: (3) রিমাইন্ডার/নোট/To-Do · (2) Memory + "ভুলে যাও" · (20) autonomy/audit/undo · (21) sync/export/support
+- 🔨 Part 2: ✅(3) রিমাইন্ডার/নোট/To-Do (অফলাইন সিঙ্ক + লোকাল নোটিফিকেশন) · ✅(2) Memory + মুছে ফেলা · ✅(20) autonomy dial/audit log/undo/per-source permission · ✅(21) sync/export(JSON+Excel+PDF)/support+bug · APK বিল্ড চলছে
 - ⏳ Part 3: (6) ভল্ট + এক্সপায়ারি · (14) ইমার্জেন্সি কার্ড + SOS
 - ⏳ Part 4: (7) অ্যাকাউন্ট · (8) স্টেটমেন্ট/বাজেট · (9) ধার · (10) সঞ্চয়/সাবস্ক্রিপশন · (11) বিল গাইড
 - ⏳ Part 5: (12) ফ্যামিলি/ওষুধ · (13) স্ক্যাম অ্যালার্ট · (15) বাচ্চার স্কুল
@@ -27,6 +27,10 @@
 ## 🧭 Decisions I made (unattended run)
 - **0.7 Flutter লোকাল বসাইনি:** ডিস্ক ১১GB ফ্রি; Flutter ~২GB → ৯GB-র নিচে নামার ঝুঁকি (হার্ড রুল ≥9GB)। বদলে CI-তে `flutter analyze`/`test` ফেল-ফাস্ট ধাপ যোগ করছি।
 - **secrets ফাইল:** `/home/ubuntu/.assisto_secrets.env` (chmod 600) canonical; backend/.env ও GitHub secrets এর সাথে সিঙ্ক।
+- **রিমাইন্ডার নোটিফিকেশন:** exact-alarm পারমিশন এড়াতে `inexactAllowWhileIdle` মোডে শিডিউল (Play-নীতিসম্মত, বাড়তি পারমিশন লাগে না)। সব নোটিফিকেশন কল try/catch — ব্যর্থ হলেও অ্যাপ/রিমাইন্ডার অফলাইনে কাজ করে।
+- **PDF এক্সপোর্ট:** reportlab-এ জটিল বাংলা shaping নেই (যুক্তাক্ষর অসম্পূর্ণ দেখাতে পারে); পূর্ণ বাংলার জন্য **Excel এক্সপোর্ট** ব্যবহার করুন (সঠিক রেন্ডার)।
+- **Step A W3 (ছবি):** ব্যাকগ্রাউন্ড রিমুভাল (ভারী ML/ইমেজ-AI) যোগ করিনি — শুধু ক্রপ/রিসাইজ (CPU-লাইট, সৎ)। bg রিমুভাল পরে (needs image-AI key)।
+- **Step A AI:** key থাকলে W1/W2 উন্নত হয়; key ছাড়া নিয়ম-ভিত্তিক (সৎ)। AI daily budget kill-switch + per-user limit + prompt-injection guard আছে।
 
 ---
 
