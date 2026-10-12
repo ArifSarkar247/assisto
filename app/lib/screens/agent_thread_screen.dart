@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
+import '../theme.dart';
+import '../l10n/app_localizations.dart';
 import 'money_screen.dart';
 import 'vault_screen.dart';
 import 'family_screen.dart';
@@ -25,12 +28,14 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
   final List<_Msg> _msgs = [];
   bool _sending = false;
 
-  static const _suggestions = [
-    'আজ কী কী আছে?',
-    'এই মাসে কত খরচ?',
-    '৫০০ টাকা খরচ খাবার',
-    'কাল সকাল ৮টায় ওষুধ মনে করিয়ে দিও',
-  ];
+  AppLocalizations get t => AppLocalizations.of(context);
+
+  List<String> get _suggestions => [
+        t.suggestionToday,
+        t.suggestionSpendMonth,
+        t.suggestionExpense,
+        t.suggestionMedicine,
+      ];
 
   @override
   void initState() {
@@ -47,12 +52,12 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
 
   Future<void> _greet() async {
     final app = context.read<AppState>();
-    final name = app.user?.name.isNotEmpty == true ? app.user!.name : 'বন্ধু';
-    setState(() => _msgs.add(_Msg(false, 'আসসালামু আলাইকুম, $name 👋\nকী করে দিই? লিখে বলুন।')));
+    final name = app.user?.name.isNotEmpty == true ? app.user!.name : t.friend;
+    setState(() => _msgs.add(_Msg(false, '${t.greeting(name)}\n${t.greetingHelp}')));
     try {
       final alerts = await app.api.alertsList();
       if (alerts.isNotEmpty && mounted) {
-        setState(() => _msgs.add(_Msg(false, 'আপনার জন্য কিছু জরুরি:',
+        setState(() => _msgs.add(_Msg(false, t.urgentForYou,
             alerts.map((a) => {'type': 'alert', 'title': a['text'],
                 'subtitle': '', 'severity': a['severity']}).toList())));
       }
@@ -72,6 +77,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
   Future<void> _send([String? preset]) async {
     final text = (preset ?? _input.text).trim();
     if (text.isEmpty || _sending) return;
+    HapticFeedback.selectionClick();
     _input.clear();
     setState(() {
       _msgs.add(_Msg(true, text));
@@ -88,7 +94,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
       app.txns.sync();
       app.loans.sync();
     } catch (e) {
-      setState(() => _msgs.add(_Msg(false, 'দুঃখিত, এখন করা গেল না। পরে চেষ্টা করুন।')));
+      setState(() => _msgs.add(_Msg(false, t.sendFailed)));
     } finally {
       setState(() => _sending = false);
       _toBottom();
@@ -103,7 +109,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
       app.txns.sync();
       app.loans.sync();
       if (mounted) {
-        setState(() => _msgs.add(_Msg(false, 'ফিরিয়ে নিয়েছি ✓')));
+        setState(() => _msgs.add(_Msg(false, t.undone)));
         _toBottom();
       }
     } catch (_) {}
@@ -112,6 +118,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
+      _header(context),
       _modulesBar(context),
       Expanded(
         child: _msgs.isEmpty
@@ -128,35 +135,80 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
     ]);
   }
 
+  Widget _header(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xs),
+      child: Row(children: [
+        Container(
+          height: 36,
+          width: 36,
+          decoration: const BoxDecoration(
+            gradient: Brand.gradient,
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(Icons.psychology_alt_outlined,
+              color: Colors.white, size: 20),
+        ),
+        const SizedBox(width: Gap.md),
+        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const Text('Assisto',
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+          Row(children: [
+            Container(
+              height: 7,
+              width: 7,
+              decoration: const BoxDecoration(
+                  color: Brand.success, shape: BoxShape.circle),
+            ),
+            const SizedBox(width: 5),
+            Text(t.assistantSubtitle,
+                style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+          ]),
+        ]),
+      ]),
+    );
+  }
+
   Widget _modulesBar(BuildContext context) {
-    final mods = [
-      ['💰', 'হিসাব', () => _open(const MoneyScreen())],
-      ['🔒', 'ভল্ট', () => _open(const VaultScreen())],
-      ['👨‍👩‍👧', 'ফ্যামিলি', () => _open(const FamilyScreen())],
-      ['🚑', 'ইমার্জেন্সি', () => _open(const EmergencyScreen())],
+    final mods = <(IconData, String, Color, Widget)>[
+      (Icons.account_balance_wallet_outlined, t.moduleMoney, Brand.gold, const MoneyScreen()),
+      (Icons.lock_outline, t.moduleVault, Brand.navy, const VaultScreen()),
+      (Icons.diversity_1_outlined, t.moduleFamily, Brand.cyan, const FamilyScreen()),
+      (Icons.emergency_outlined, t.moduleEmergency, Brand.danger, const EmergencyScreen()),
     ];
     return SizedBox(
-      height: 76,
+      height: 92,
       child: ListView(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
         children: [
           for (final m in mods)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
+              padding: const EdgeInsets.only(right: Gap.md),
               child: InkWell(
-                onTap: m[2] as VoidCallback,
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  width: 72,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Text(m[0] as String, style: const TextStyle(fontSize: 22)),
-                    const SizedBox(height: 2),
-                    Text(m[1] as String, style: const TextStyle(fontSize: 11)),
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  _open(m.$4);
+                },
+                borderRadius: BorderRadius.circular(Radii.md),
+                child: SizedBox(
+                  width: 68,
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    Container(
+                      height: 52,
+                      width: 52,
+                      decoration: BoxDecoration(
+                        color: m.$3.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(Radii.md),
+                      ),
+                      child: Icon(m.$1, color: m.$3, size: 26),
+                    ),
+                    const SizedBox(height: Gap.xs),
+                    Text(m.$2,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
                   ]),
                 ),
               ),
@@ -218,7 +270,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
             child: TextButton.icon(
               onPressed: () => _undo(c, msgIndex),
               icon: const Icon(Icons.undo, size: 16),
-              label: const Text('ফিরিয়ে নিন'),
+              label: Text(t.undo),
               style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
             ),
           ),
@@ -256,7 +308,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
               textInputAction: TextInputAction.send,
               onSubmitted: (_) => _send(),
               decoration: InputDecoration(
-                hintText: 'Assisto-কে বলুন…',
+                hintText: t.inputHint,
                 filled: true,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 border: OutlineInputBorder(

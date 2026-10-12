@@ -18,6 +18,32 @@ class AppState extends ChangeNotifier {
   bool online = true;
   String? lastError;
 
+  // --- app-wide preferences (theme + language) ---
+  ThemeMode themeMode = ThemeMode.system;
+  Locale? locale; // null => first-launch not chosen yet / follow default
+
+  Future<void> setThemeMode(ThemeMode m) async {
+    themeMode = m;
+    await Settings.setString('theme_mode', m.name);
+    notifyListeners();
+  }
+
+  Future<void> setLocale(Locale? l) async {
+    locale = l;
+    await Settings.setString('locale', l?.languageCode ?? '');
+    notifyListeners();
+  }
+
+  Future<void> _loadPrefs() async {
+    final tm = await Settings.getString('theme_mode');
+    themeMode = ThemeMode.values.firstWhere(
+      (m) => m.name == tm,
+      orElse: () => ThemeMode.system,
+    );
+    final lc = await Settings.getString('locale');
+    locale = (lc != null && lc.isNotEmpty) ? Locale(lc) : null;
+  }
+
   AppUser? user;
   List<MemoryItem> memory = [];
 
@@ -56,6 +82,7 @@ class AppState extends ChangeNotifier {
   bool get loggedIn => api.token != null && user != null;
 
   Future<void> init() async {
+    await _loadPrefs();
     final t = await _secure.read(key: 'token');
     api.token = t;
     memory = await db.allMemory();
@@ -259,5 +286,15 @@ class Settings {
   static Future<void> setBool(String k, bool v) async {
     final p = await SharedPreferences.getInstance();
     await p.setBool(k, v);
+  }
+
+  static Future<String?> getString(String k) async {
+    final p = await SharedPreferences.getInstance();
+    return p.getString(k);
+  }
+
+  static Future<void> setString(String k, String v) async {
+    final p = await SharedPreferences.getInstance();
+    await p.setString(k, v);
   }
 }

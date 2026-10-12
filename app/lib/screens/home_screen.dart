@@ -12,6 +12,7 @@ import 'emergency_screen.dart';
 import 'money_screen.dart';
 import 'family_screen.dart';
 import 'agent_thread_screen.dart';
+import '../l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -24,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final pages = const [
       AgentThreadScreen(),
       RemindersScreen(),
@@ -36,15 +38,17 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _tab,
         onDestinationSelected: (i) => setState(() => _tab = i),
-        destinations: const [
+        destinations: [
           NavigationDestination(
-              icon: Icon(Icons.chat_bubble_outline), label: 'Assisto'),
-          NavigationDestination(icon: Icon(Icons.alarm_outlined), label: 'রিমাইন্ডার'),
-          NavigationDestination(icon: Icon(Icons.checklist_outlined), label: 'নোট/কাজ'),
+              icon: const Icon(Icons.chat_bubble_outline), label: t.navHome),
           NavigationDestination(
-              icon: Icon(Icons.psychology_outlined), label: 'AI জানে'),
+              icon: const Icon(Icons.alarm_outlined), label: t.navReminders),
           NavigationDestination(
-              icon: Icon(Icons.settings_outlined), label: 'সেটিংস'),
+              icon: const Icon(Icons.checklist_outlined), label: t.navNotesTasks),
+          NavigationDestination(
+              icon: const Icon(Icons.psychology_outlined), label: t.navMemory),
+          NavigationDestination(
+              icon: const Icon(Icons.settings_outlined), label: t.navSettings),
         ],
       ),
     );

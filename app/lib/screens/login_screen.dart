@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
+import '../l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -38,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       if (_register) {
         if (_phone.text.trim().isEmpty && _email.text.trim().isEmpty) {
-          throw 'ফোন নম্বর বা ইমেইল — অন্তত একটা দিন।';
+          throw AppLocalizations.of(context).needPhoneOrEmail;
         }
         await app.register(
           name: _name.text.trim(),
@@ -61,6 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -84,42 +86,38 @@ class _LoginScreenState extends State<LoginScreen> {
                           .headlineMedium
                           ?.copyWith(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  const Text('জীবন আপনি চালান, মনে রাখার দায়িত্ব আমার।',
-                      textAlign: TextAlign.center),
+                  Text(t.loginMotto, textAlign: TextAlign.center),
                   const SizedBox(height: 28),
-                  Text(_register ? 'নতুন অ্যাকাউন্ট' : 'লগইন',
+                  Text(_register ? t.register : t.login,
                       style: Theme.of(context).textTheme.titleLarge),
                   const SizedBox(height: 16),
                   if (_register) ...[
                     TextField(
                       controller: _name,
-                      decoration: const InputDecoration(labelText: 'নাম'),
+                      decoration: InputDecoration(labelText: t.name),
                     ),
                     const SizedBox(height: 12),
                     TextField(
                       controller: _phone,
                       keyboardType: TextInputType.phone,
-                      decoration: const InputDecoration(
-                          labelText: 'ফোন নম্বর (ঐচ্ছিক)'),
+                      decoration: InputDecoration(labelText: t.phoneOptional),
                     ),
                     const SizedBox(height: 12),
                     TextField(
                       controller: _email,
                       keyboardType: TextInputType.emailAddress,
-                      decoration:
-                          const InputDecoration(labelText: 'ইমেইল (ঐচ্ছিক)'),
+                      decoration: InputDecoration(labelText: t.emailOptional),
                     ),
                   ] else
                     TextField(
                       controller: _identifier,
-                      decoration: const InputDecoration(
-                          labelText: 'ফোন নম্বর বা ইমেইল'),
+                      decoration: InputDecoration(labelText: t.phoneOrEmail),
                     ),
                   const SizedBox(height: 12),
                   TextField(
                     controller: _password,
                     obscureText: true,
-                    decoration: const InputDecoration(labelText: 'পাসওয়ার্ড'),
+                    decoration: InputDecoration(labelText: t.password),
                   ),
                   if (_error != null) ...[
                     const SizedBox(height: 12),
@@ -136,7 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               height: 20,
                               width: 20,
                               child: CircularProgressIndicator(strokeWidth: 2))
-                          : Text(_register ? 'অ্যাকাউন্ট খুলুন' : 'লগইন করুন'),
+                          : Text(_register ? t.register : t.login),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -147,9 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               _register = !_register;
                               _error = null;
                             }),
-                    child: Text(_register
-                        ? 'আগে থেকেই অ্যাকাউন্ট আছে? লগইন করুন'
-                        : 'নতুন? অ্যাকাউন্ট খুলুন'),
+                    child: Text(_register ? t.haveAccount : t.noAccount),
                   ),
                 ],
               ),

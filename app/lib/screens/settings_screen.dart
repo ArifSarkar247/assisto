@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import '../state.dart';
 import '../config.dart';
 import '../models.dart';
+import '../l10n/app_localizations.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -121,10 +122,12 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AppState>();
+    final t = AppLocalizations.of(context);
     final u = app.user;
     final level = u?.autonomyLevel ?? 2;
+    final lang = app.locale?.languageCode ?? 'bn';
     return Scaffold(
-      appBar: AppBar(title: const Text('সেটিংস')),
+      appBar: AppBar(title: Text(t.settingsTitle)),
       body: ListView(
         children: [
           ListTile(
@@ -133,6 +136,53 @@ class SettingsScreen extends StatelessWidget {
             subtitle: Text([u?.phone, u?.email]
                 .where((e) => e != null && e.isNotEmpty)
                 .join(' · ')),
+          ),
+          const Divider(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: Text(t.settingsLanguage,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          RadioListTile<String>(
+            value: 'bn',
+            groupValue: lang,
+            onChanged: (v) => app.setLocale(const Locale('bn')),
+            title: Text(t.languageBangla),
+            dense: true,
+          ),
+          RadioListTile<String>(
+            value: 'en',
+            groupValue: lang,
+            onChanged: (v) => app.setLocale(const Locale('en')),
+            title: Text(t.languageEnglish),
+            dense: true,
+          ),
+          const Divider(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: Text(t.settingsAppearance,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          RadioListTile<ThemeMode>(
+            value: ThemeMode.system,
+            groupValue: app.themeMode,
+            onChanged: (v) => app.setThemeMode(v!),
+            title: Text(t.themeSystem),
+            dense: true,
+          ),
+          RadioListTile<ThemeMode>(
+            value: ThemeMode.light,
+            groupValue: app.themeMode,
+            onChanged: (v) => app.setThemeMode(v!),
+            title: Text(t.themeLight),
+            dense: true,
+          ),
+          RadioListTile<ThemeMode>(
+            value: ThemeMode.dark,
+            groupValue: app.themeMode,
+            onChanged: (v) => app.setThemeMode(v!),
+            title: Text(t.themeDark),
+            dense: true,
           ),
           const Divider(),
           const Padding(
