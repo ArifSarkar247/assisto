@@ -1,11 +1,6 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:open_filex/open_filex.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
 import '../state.dart';
 
@@ -33,7 +28,6 @@ class _VaultScreenState extends State<VaultScreen> {
   @override
   void initState() {
     super.initState();
-    // Block screenshots of the vault where supported (best-effort).
     _gate();
   }
 
@@ -77,7 +71,7 @@ class _VaultScreenState extends State<VaultScreen> {
     final ok = await showDialog<bool>(
       context: context, barrierDismissible: false,
       builder: (ctx) => StatefulBuilder(builder: (ctx, setD) => AlertDialog(
-        title: const Text('ভল্ট লক'),
+        title: const Text('ভল্ট লক 🔒'),
         content: TextField(
           controller: ctrl, obscureText: true, keyboardType: TextInputType.number,
           decoration: InputDecoration(labelText: 'PIN দিন', errorText: err),
@@ -110,19 +104,16 @@ class _VaultScreenState extends State<VaultScreen> {
   }
 
   Future<void> _add() async {
-    final picked = await FilePicker.pickFile();
-    if (picked == null || picked.path == null) return;
-    final path = picked.path!;
-    final title = TextEditingController(text: picked.name.split('.').first);
+    final title = TextEditingController();
+    final note = TextEditingController();
     String type = 'passport';
     DateTime? expiry;
-    if (!mounted) return;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => StatefulBuilder(builder: (ctx, setD) => AlertDialog(
         title: const Text('ডকুমেন্ট যোগ'),
         content: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
-          TextField(controller: title, decoration: const InputDecoration(labelText: 'নাম')),
+          TextField(controller: title, decoration: const InputDecoration(labelText: 'নাম *')),
           const SizedBox(height: 10),
           DropdownButtonFormField<String>(
             value: type,
@@ -134,7 +125,7 @@ class _VaultScreenState extends State<VaultScreen> {
           const SizedBox(height: 10),
           OutlinedButton.icon(
             icon: const Icon(Icons.event, size: 18),
-            label: Text(expiry == null ? 'মেয়াদ শেষের তারিখ (ঐচ্ছিক)'
+            label: Text(expiry == null ? 'মেয়াদ শেষের তারিখ'
                 : DateFormat('d MMM yyyy').format(expiry!)),
             onPressed: () async {
               final d = await showDatePicker(context: ctx, initialDate: DateTime.now(),
@@ -142,6 +133,8 @@ class _VaultScreenState extends State<VaultScreen> {
               if (d != null) setD(() => expiry = d);
             },
           ),
+          const SizedBox(height: 10),
+          TextField(controller: note, decoration: const InputDecoration(labelText: 'নোট (ঐচ্ছিক)')),
         ])),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('বাতিল')),
@@ -151,30 +144,15 @@ class _VaultScreenState extends State<VaultScreen> {
     );
     if (ok == true && title.text.trim().isNotEmpty) {
       try {
-        await context.read<AppState>().api.uploadDocument(
+        await context.read<AppState>().api.createDocument(
           title: title.text.trim(), docType: type,
           expiryDate: expiry != null ? DateFormat('yyyy-MM-dd').format(expiry!) : null,
-          filePath: path);
+          note: note.text.trim());
         await _load();
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
         }
-      }
-    }
-  }
-
-  Future<void> _view(Map<String, dynamic> doc) async {
-    try {
-      final bytes = await context.read<AppState>().api.getBytes('/documents/${doc['id']}/file');
-      final dir = await getTemporaryDirectory();
-      final name = (doc['title'] ?? 'doc').toString().replaceAll(RegExp(r'[^\w.-]'), '_');
-      final f = File('${dir.path}/$name');
-      await f.writeAsBytes(bytes);
-      await OpenFilex.open(f.path);
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('খোলা গেল না: $e')));
       }
     }
   }
@@ -190,7 +168,7 @@ class _VaultScreenState extends State<VaultScreen> {
     else if (days <= 7) { c = Colors.red; t = '$days দিনে শেষ'; }
     else if (days <= 30) { c = Colors.orange; t = '$days দিনে শেষ'; }
     else if (days <= 90) { c = const Color(0xFFB8860B); t = '$days দিনে শেষ'; }
-    else { return null; }
+    else { c = Colors.green; t = DateFormat('d MMM yyyy').format(d); }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(color: c.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),
@@ -211,12 +189,13 @@ class _VaultScreenState extends State<VaultScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('ডকুমেন্ট ভল্ট 🔒')),
       floatingActionButton: FloatingActionButton.extended(
-          onPressed: _add, icon: const Icon(Icons.upload_file), label: const Text('যোগ করুন')),
+          onPressed: _add, icon: const Icon(Icons.add), label: const Text('যোগ করুন')),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _docs.isEmpty
               ? const Center(child: Padding(padding: EdgeInsets.all(32),
-                  child: Text('কোনো ডকুমেন্ট নেই।\nপাসপোর্ট, NID, লাইসেন্স নিরাপদে রাখুন।',
+                  child: Text('কোনো ডকুমেন্ট নেই।\nপাসপোর্ট, NID, লাইসেন্সের মেয়াদ এখানে রাখুন — '
+                      'শেষ হওয়ার আগে মনে করিয়ে দেব।',
                       textAlign: TextAlign.center, style: TextStyle(color: Colors.grey))))
               : ListView(
                   padding: const EdgeInsets.fromLTRB(12, 12, 12, 88),
@@ -225,13 +204,12 @@ class _VaultScreenState extends State<VaultScreen> {
                       Card(child: ListTile(
                         leading: const Icon(Icons.description_outlined),
                         title: Text(doc['title'] ?? ''),
-                        subtitle: Row(children: [
-                          Text(_docTypes[doc['doc_type']] ?? ''),
-                          const SizedBox(width: 8),
-                          if (_expiryBadge(doc['expiry_date']) != null)
-                            _expiryBadge(doc['expiry_date'])!,
-                        ]),
-                        onTap: () => _view(doc),
+                        subtitle: Wrap(spacing: 8, crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(_docTypes[doc['doc_type']] ?? ''),
+                            if (_expiryBadge(doc['expiry_date']) != null)
+                              _expiryBadge(doc['expiry_date'])!,
+                          ]),
                         trailing: IconButton(
                           icon: const Icon(Icons.delete_outline),
                           onPressed: () async {

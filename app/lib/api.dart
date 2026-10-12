@@ -216,6 +216,23 @@ class ApiClient {
     }
   }
 
+  Future<void> createDocument({
+    required String title,
+    required String docType,
+    String? expiryDate,
+    String? note,
+  }) async {
+    final r = await _c.post(AppConfig.api('/documents/'),
+        headers: _headers(),
+        body: jsonEncode({
+          'title': title,
+          'doc_type': docType,
+          if (expiryDate != null && expiryDate.isNotEmpty) 'expiry_date': expiryDate,
+          if (note != null && note.isNotEmpty) 'note': note,
+        }));
+    if (r.statusCode < 200 || r.statusCode >= 300) _fail(r);
+  }
+
   Future<void> deleteDocument(int id) async {
     final r = await _c.delete(AppConfig.api('/documents/$id/'), headers: _headers());
     if (r.statusCode != 204 && r.statusCode != 404) _fail(r);

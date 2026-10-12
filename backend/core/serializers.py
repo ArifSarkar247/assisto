@@ -108,10 +108,10 @@ class DocumentSerializer(serializers.ModelSerializer):
         fields = ["id", "title", "doc_type", "file", "file_url", "expiry_date",
                   "note", "created_at", "updated_at"]
         read_only_fields = ["id", "file_url", "created_at", "updated_at"]
-        extra_kwargs = {"file": {"write_only": True, "required": True}}
+        extra_kwargs = {"file": {"write_only": True, "required": False}}
 
     def get_file_url(self, obj):
-        return f"/api/v1/documents/{obj.id}/file"
+        return f"/api/v1/documents/{obj.id}/file" if obj.file else None
 
 
 class EmergencyCardSerializer(serializers.ModelSerializer):

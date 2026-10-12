@@ -169,7 +169,7 @@ class Document(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="documents")
     title = models.CharField(max_length=200)
     doc_type = models.CharField(max_length=16, choices=TYPES, default="other")
-    file = models.FileField(upload_to="vault/")
+    file = models.FileField(upload_to="vault/", null=True, blank=True)
     expiry_date = models.DateField(null=True, blank=True)
     note = models.CharField(max_length=300, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
