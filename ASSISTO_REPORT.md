@@ -98,6 +98,8 @@ Assisto এখন **লাইভ**: `https://assisto.asalify.com` — ৪টি 
 **Owner-blocked (এগুলো আপনি দিলে চালু হবে):** ANTHROPIC_API_KEY (AI ফিচার) · GitHub billing (Nov 1 পর্যন্ত private বিল্ড বন্ধ) · Firebase (ক্রস-ডিভাইস push) · SMS/voice provider (কল/এসএমএস) · payment partner (বিল পে)
 
 ## 🧭 Decisions I made (unattended run)
+- **Asalify parallel edits (owner note 2026-10-12):** owner is editing Asalify in another session; services may restart briefly. টেন্যান্ট চেক ফেল করলে ৬০ সেকেন্ড অপেক্ষা করে আবার চেক — তবেই regression ধরা/rollback। নিজে থেকে Asalify-র কিছু ছোঁব না।
+- **plugin-probe repo:** ঝুঁকিপূর্ণ প্লাগইন (image_picker/geolocator/speech_to_text/workmanager/share_plus) আগে পাবলিক probe repo-তে রিলিজ-বিল্ড করে যাচাই, তারপর আসল অ্যাপে। probe পাবলিক + Assisto কোড নেই → সিক্রেট-স্ক্যান/ফ্লিপ লাগে না।
 - **0.7 Flutter লোকাল বসাইনি:** ডিস্ক ১১GB ফ্রি; Flutter ~২GB → ৯GB-র নিচে নামার ঝুঁকি (হার্ড রুল ≥9GB)। বদলে CI-তে `flutter analyze`/`test` ফেল-ফাস্ট ধাপ যোগ করছি।
 - **secrets ফাইল:** `/home/ubuntu/.assisto_secrets.env` (chmod 600) canonical; backend/.env ও GitHub secrets এর সাথে সিঙ্ক।
 - **রিমাইন্ডার নোটিফিকেশন:** exact-alarm পারমিশন এড়াতে `inexactAllowWhileIdle` মোডে শিডিউল (Play-নীতিসম্মত, বাড়তি পারমিশন লাগে না)। সব নোটিফিকেশন কল try/catch — ব্যর্থ হলেও অ্যাপ/রিমাইন্ডার অফলাইনে কাজ করে।

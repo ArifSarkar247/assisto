@@ -40,3 +40,6 @@ letsencrypt/
 db_backups/
 app_latest.json
 logo/out/
+
+# plugin-probe is its own separate repo
+probe/
