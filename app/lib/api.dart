@@ -152,6 +152,12 @@ class ApiClient {
     if (r.statusCode != 204 && r.statusCode != 404) _fail(r);
   }
 
+  Future<Map<String, dynamic>> moneySummary() async {
+    final r = await _c.get(AppConfig.api('/money/summary'), headers: _headers());
+    if (r.statusCode == 200) return jsonDecode(r.body) as Map<String, dynamic>;
+    _fail(r);
+  }
+
   Future<bool> undo() async {
     final r = await _c.post(AppConfig.api('/undo'), headers: _headers());
     return r.statusCode == 200;

@@ -8,6 +8,7 @@ import 'reminders_screen.dart';
 import 'notes_todos_screen.dart';
 import 'vault_screen.dart';
 import 'emergency_screen.dart';
+import 'money_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -98,6 +99,28 @@ class _Dashboard extends StatelessWidget {
                     style: TextStyle(fontSize: 13, color: Colors.grey),
                   ),
                 ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Card(
+            color: const Color(0xFF0E7C66),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const MoneyScreen())),
+              child: const Padding(
+                padding: EdgeInsets.all(18),
+                child: Row(children: [
+                  Text('💰', style: TextStyle(fontSize: 30)),
+                  SizedBox(width: 14),
+                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text('জীবনের হিসাব', style: TextStyle(color: Colors.white,
+                        fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text('আয়, খরচ, বাজেট, ধার, সঞ্চয়', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                  ])),
+                  Icon(Icons.chevron_right, color: Colors.white70),
+                ]),
               ),
             ),
           ),
@@ -211,7 +234,6 @@ class _ComingSoonList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = const [
-      ['💰', 'জীবনের হিসাব (আয়-খরচ-ধার)', 'শিগগিরই'],
       ['👨‍👩‍👧', 'ফ্যামিলি কেয়ার ও ওষুধ', 'শিগগিরই'],
       ['📷', 'Life Scanner (ছবি → AI)', 'AI key লাগবে'],
     ];

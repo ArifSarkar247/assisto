@@ -24,17 +24,25 @@ class AppState extends ChangeNotifier {
   late final SyncedRepo reminders = SyncedRepo('reminder', 'reminders', api, db);
   late final SyncedRepo notes = SyncedRepo('note', 'notes', api, db);
   late final SyncedRepo todos = SyncedRepo('todo', 'todos', api, db);
+  late final SyncedRepo accounts = SyncedRepo('account', 'accounts', api, db);
+  late final SyncedRepo txns = SyncedRepo('txn', 'transactions', api, db);
+  late final SyncedRepo budgets = SyncedRepo('budget', 'budgets', api, db);
+  late final SyncedRepo loans = SyncedRepo('loan', 'loans', api, db);
+  late final SyncedRepo goals = SyncedRepo('goal', 'goals', api, db);
+
+  List<SyncedRepo> get _repos =>
+      [reminders, notes, todos, accounts, txns, budgets, loans, goals];
 
   AppState() {
-    for (final r in [reminders, notes, todos]) {
+    for (final r in _repos) {
       r.addListener(notifyListeners);
     }
   }
 
   void _syncAll() {
-    reminders.sync();
-    notes.sync();
-    todos.sync();
+    for (final r in _repos) {
+      r.sync();
+    }
   }
 
   Future<bool> undoLast() async {
@@ -51,9 +59,9 @@ class AppState extends ChangeNotifier {
     final t = await _secure.read(key: 'token');
     api.token = t;
     memory = await db.allMemory();
-    await reminders.load();
-    await notes.load();
-    await todos.load();
+    for (final r in _repos) {
+      await r.load();
+    }
     if (t != null) {
       try {
         user = await api.me();
@@ -103,9 +111,9 @@ class AppState extends ChangeNotifier {
     await api.logout();
     await _clearSession();
     await db.clearAll();
-    await reminders.clear();
-    await notes.clear();
-    await todos.clear();
+    for (final r in _repos) {
+      await r.clear();
+    }
     memory = [];
     notifyListeners();
   }
