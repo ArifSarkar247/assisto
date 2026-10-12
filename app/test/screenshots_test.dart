@@ -16,12 +16,21 @@ import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/screens/login_screen.dart';
 import 'package:assisto/screens/language_picker_screen.dart';
 import 'package:assisto/screens/home_screen.dart';
+import 'package:assisto/screens/agent_thread_screen.dart';
 import 'package:assisto/screens/app_drawer.dart';
 import 'package:assisto/screens/settings_screen.dart';
 import 'package:assisto/screens/in_progress_screen.dart';
+import 'package:assisto/screens/money_screen.dart';
+import 'package:assisto/screens/vault_screen.dart';
+import 'package:assisto/screens/family_screen.dart';
+import 'package:assisto/screens/emergency_screen.dart';
+import 'package:assisto/screens/reminders_screen.dart';
+import 'package:assisto/screens/notes_todos_screen.dart';
+import 'package:assisto/screens/memory_screen.dart';
+import 'package:assisto/screens/subscriptions_screen.dart';
 
-/// Block ALL real network in the render harness — any screen that polls on
-/// open (e.g. /alerts) must fail fast, not stall the isolate.
+import 'fake_api.dart';
+
 class _NoNet extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? c) => _DeadClient();
@@ -37,13 +46,13 @@ const _outDir = '/home/ubuntu/assisto/screenshots';
 
 Future<void> _loadFont(String family, String path) async {
   final loader = FontLoader(family);
-  loader.addFont(
-      File(path).readAsBytes().then((b) => ByteData.view(b.buffer)));
+  loader.addFont(File(path).readAsBytes().then((b) => ByteData.view(b.buffer)));
   await loader.load();
 }
 
-AppState _stubState({required String lang}) {
+AppState _stub({required String lang, FakeMode mode = FakeMode.data}) {
   final s = AppState();
+  s.api = FakeApi(mode: mode, lang: lang);
   s.user = AppUser(
       id: 1,
       name: lang == 'bn' ? 'আরিফ' : 'Arif',
@@ -53,93 +62,157 @@ AppState _stubState({required String lang}) {
       language: lang);
   s.locale = Locale(lang);
   s.loading = false;
+  final bn = lang == 'bn';
+  if (mode == FakeMode.data) {
+    s.reminders.items = [
+      {'localId': 'r1', 'serverId': 1, 'pendingOp': 'none', 'data': {'title': bn ? 'বিদ্যুৎ বিল দিন' : 'Pay electricity bill', 'due_at': '2026-10-14T10:00:00', 'done': false, 'recurrence': 'none'}},
+      {'localId': 'r2', 'serverId': 2, 'pendingOp': 'none', 'data': {'title': bn ? 'ডাক্তার অ্যাপয়েন্টমেন্ট' : 'Doctor appointment', 'due_at': '2026-10-16T17:30:00', 'done': false, 'recurrence': 'none'}},
+    ];
+    s.notes.items = [
+      {'localId': 'n1', 'serverId': 3, 'pendingOp': 'none', 'data': {'title': bn ? 'বাজারের লিস্ট' : 'Market list', 'body': bn ? 'চাল, ডাল, তেল, ডিম' : 'Rice, lentils, oil, eggs', 'pinned': true}},
+    ];
+    s.todos.items = [
+      {'localId': 't1', 'serverId': 4, 'pendingOp': 'none', 'data': {'title': bn ? 'পাসপোর্ট রিনিউ' : 'Renew passport', 'done': false, 'due_at': null}},
+      {'localId': 't2', 'serverId': 5, 'pendingOp': 'none', 'data': {'title': bn ? 'গাড়ির কাগজ' : 'Car papers', 'done': true, 'due_at': null}},
+    ];
+    s.memory = [
+      MemoryItem(localId: 'm1', title: bn ? 'বাসার ওয়াইফাই পাসওয়ার্ড: ***' : 'Home wifi password: ***', category: bn ? 'ব্যক্তিগত' : 'Personal', detail: '', source: 'manual', needsReview: false, updatedAt: DateTime(2026, 10, 10), pendingOp: 'none'),
+      MemoryItem(localId: 'm2', title: bn ? 'গাড়ির ইন্স্যুরেন্স নভেম্বরে শেষ' : 'Car insurance ends in November', category: bn ? 'গুরুত্বপূর্ণ' : 'Important', detail: '', source: 'ai', needsReview: true, updatedAt: DateTime(2026, 10, 12), pendingOp: 'none'),
+    ];
+  }
   return s;
+}
+
+List<Map<String, dynamic>> _chat(String lang) {
+  final bn = lang == 'bn';
+  return [
+    {'user': true, 'text': bn ? '৫০০ টাকা খরচ খাবার' : '500 taka food expense'},
+    {'user': false, 'text': bn ? 'খরচ লিখে রেখেছি।' : 'Logged your expense.', 'cards': [
+      {'type': 'expense', 'title': '৳500 ${bn ? 'খাবার' : 'Food'}', 'subtitle': bn ? 'ক্যাশ' : 'Cash', 'model': 'txn', 'id': 1, 'undo': true}
+    ]},
+    {'user': true, 'text': bn ? 'কাল সকাল ৮টায় ওষুধ মনে করিয়ে দিও' : 'Remind me medicine tomorrow 8am'},
+    {'user': false, 'text': bn ? 'রিমাইন্ডার সেট করেছি।' : 'Reminder set.', 'cards': [
+      {'type': 'reminder', 'title': bn ? 'ওষুধ' : 'Medicine', 'subtitle': bn ? 'কাল ৮:০০' : 'Tomorrow 8:00', 'model': 'reminder', 'id': 2, 'undo': true}
+    ]},
+    {'user': true, 'text': bn ? 'রহিম ভাইকে ২০০০ টাকা bKash পাঠাও' : 'Send 2000 taka to Rahim via bKash'},
+    {'user': false, 'text': bn ? 'এটা বাইরের কাজ — আপনার অনুমোদন লাগবে:' : 'This is an external action — needs your approval:', 'cards': [
+      {'type': 'approval', 'title': bn ? 'bKash: রহিম — ৳2,000' : 'bKash: Rahim — ৳2,000', 'subtitle': bn ? 'অটোনমি: অনুমোদন নিয়ে। পাঠানোর আগে নিশ্চিত করুন।' : 'Autonomy: ask first. Confirm before sending.'}
+    ]},
+  ];
 }
 
 void main() {
   setUpAll(() async {
     HttpOverrides.global = _NoNet();
     await _loadFont('NotoSansBengali', 'assets/fonts/NotoSansBengali.ttf');
-    // Material icons + a Latin fallback so renders look real (not Ahem boxes).
-    final flutterRoot = Platform.environment['FLUTTER_ROOT'] ??
+    final root = Platform.environment['FLUTTER_ROOT'] ??
         '${Platform.environment['HOME']}/assisto/tools/flutter';
-    final icons =
-        '$flutterRoot/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf';
+    final icons = '$root/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf';
     if (File(icons).existsSync()) await _loadFont('MaterialIcons', icons);
     Directory(_outDir).createSync(recursive: true);
   });
 
-  final screens = <String, Widget Function(String)>{
-    'login': (_) => const LoginScreen(),
-    'language_picker': (_) => const LanguagePickerScreen(),
-    'home_welcome': (_) => const HomeScreen(),
-    'drawer': (_) => Scaffold(body: Row(children: [AppDrawer(onNewChat: () {})])),
-    'settings': (_) => const SettingsScreen(),
-    'in_progress': (_) => const InProgressScreen(),
+  // name -> (builder, mode, fullMatrix)
+  final specs = <String, ({Widget Function(String) build, FakeMode mode, bool full})>{
+    'login': (build: (_) => const LoginScreen(), mode: FakeMode.data, full: true),
+    'language_picker': (build: (_) => const LanguagePickerScreen(), mode: FakeMode.data, full: true),
+    'home_welcome': (build: (_) => const HomeScreen(), mode: FakeMode.data, full: true),
+    'chat': (build: (l) => Scaffold(appBar: AppBar(title: const Text('Assisto')), body: AgentThreadScreen(debugSeed: _chat(l))), mode: FakeMode.data, full: true),
+    'chat_voice': (build: (l) => Scaffold(appBar: AppBar(title: const Text('Assisto')), body: AgentThreadScreen(debugSeed: const [], debugListening: true)), mode: FakeMode.data, full: true),
+    'drawer': (build: (_) => Scaffold(body: Row(children: [AppDrawer(onNewChat: () {})])), mode: FakeMode.data, full: true),
+    'money': (build: (_) => const MoneyScreen(), mode: FakeMode.data, full: true),
+    'vault': (build: (_) => const VaultScreen(previewUnlocked: true), mode: FakeMode.data, full: true),
+    'family': (build: (_) => const FamilyScreen(), mode: FakeMode.data, full: true),
+    'emergency': (build: (_) => const EmergencyScreen(), mode: FakeMode.data, full: true),
+    'reminders': (build: (_) => const RemindersScreen(), mode: FakeMode.data, full: true),
+    'notes_tasks': (build: (_) => const NotesTodosScreen(), mode: FakeMode.data, full: true),
+    'memory': (build: (_) => const MemoryScreen(), mode: FakeMode.data, full: true),
+    'subscriptions': (build: (_) => const SubscriptionsScreen(), mode: FakeMode.data, full: true),
+    'connected_apps': (build: (_) => const SourcesScreen(), mode: FakeMode.data, full: true),
+    'in_progress': (build: (_) => const InProgressScreen(), mode: FakeMode.data, full: true),
+    'settings': (build: (_) => const SettingsScreen(), mode: FakeMode.data, full: true),
+    'support': (build: (_) => const SupportScreen(), mode: FakeMode.data, full: true),
+    // state variants (single representative each)
+    'subscriptions_empty': (build: (_) => const SubscriptionsScreen(), mode: FakeMode.empty, full: false),
+    'subscriptions_loading': (build: (_) => const SubscriptionsScreen(), mode: FakeMode.slow, full: false),
+    'subscriptions_error': (build: (_) => const SubscriptionsScreen(), mode: FakeMode.fail, full: false),
+    'vault_empty': (build: (_) => const VaultScreen(previewUnlocked: true), mode: FakeMode.empty, full: false),
+    'vault_error': (build: (_) => const VaultScreen(previewUnlocked: true), mode: FakeMode.fail, full: false),
   };
 
-  for (final lang in ['bn', 'en']) {
-    for (final brightness in [Brightness.light, Brightness.dark]) {
-      final mode = brightness == Brightness.light ? 'light' : 'dark';
-      screens.forEach((name, builder) {
-        testWidgets('shot $name $lang $mode', (tester) async {
-          await tester.binding.setSurfaceSize(const Size(390, 844));
-          final key = GlobalKey();
-          final app = _stubState(lang: lang);
-          await tester.pumpWidget(
-            MultiProvider(
-              providers: [
-                ChangeNotifierProvider<AppState>.value(value: app),
-                ChangeNotifierProvider<Updater>(create: (_) => Updater()),
-              ],
-              child: RepaintBoundary(
-                key: key,
-                child: MediaQuery(
-                  data: const MediaQueryData(size: Size(390, 844)),
-                  child: MaterialApp(
-                    debugShowCheckedModeBanner: false,
-                    locale: Locale(lang),
-                    supportedLocales: AppLocalizations.supportedLocales,
-                    localizationsDelegates: const [
-                      AppLocalizations.delegate,
-                      GlobalMaterialLocalizations.delegate,
-                      GlobalWidgetsLocalizations.delegate,
-                      GlobalCupertinoLocalizations.delegate,
-                    ],
-                    theme: AssistoTheme.light,
-                    darkTheme: AssistoTheme.dark,
-                    themeMode:
-                        brightness == Brightness.light ? ThemeMode.light : ThemeMode.dark,
-                    home: Builder(builder: (ctx) => builder(lang)),
-                  ),
-                ),
-              ),
-            ),
-          );
-          // Load real asset images (the logo) and capture — all in real async.
-          await tester.runAsync(() async {
-            for (final el in find.byType(Image).evaluate()) {
-              final img = el.widget as Image;
-              await precacheImage(img.image, el).timeout(
-                  const Duration(seconds: 5),
-                  onTimeout: () {});
-            }
-            await Future.delayed(const Duration(milliseconds: 200));
-          });
-          for (var i = 0; i < 4; i++) {
-            await tester.pump(const Duration(milliseconds: 60));
-          }
-          final boundary =
-              key.currentContext!.findRenderObject() as RenderRepaintBoundary;
-          final image = await tester.runAsync(
-              () => boundary.toImage(pixelRatio: 2.0)) as ui.Image;
-          final bytes = await tester.runAsync(
-              () => image.toByteData(format: ui.ImageByteFormat.png));
-          File('$_outDir/${name}_${lang}_$mode.png')
-              .writeAsBytesSync((bytes!).buffer.asUint8List());
-          image.dispose();
-        });
-      });
+  Future<void> shoot(WidgetTester tester, String name, String lang,
+      Brightness brightness, Widget screen, FakeMode mode) async {
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    final key = GlobalKey();
+    final app = _stub(lang: lang, mode: mode);
+    final mode2 = brightness == Brightness.light ? ThemeMode.light : ThemeMode.dark;
+    await tester.pumpWidget(MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AppState>.value(value: app),
+        ChangeNotifierProvider<Updater>(create: (_) => Updater()),
+      ],
+      child: RepaintBoundary(
+        key: key,
+        child: MediaQuery(
+          data: const MediaQueryData(size: Size(390, 844)),
+          child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            locale: Locale(lang),
+            supportedLocales: AppLocalizations.supportedLocales,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            theme: AssistoTheme.light,
+            darkTheme: AssistoTheme.dark,
+            themeMode: mode2,
+            home: Builder(builder: (_) => screen),
+          ),
+        ),
+      ),
+    ));
+    await tester.runAsync(() async {
+      for (final el in find.byType(Image).evaluate()) {
+        final img = el.widget as Image;
+        await precacheImage(img.image, el)
+            .timeout(const Duration(seconds: 5), onTimeout: () {});
+      }
+      await Future.delayed(const Duration(milliseconds: 250));
+    });
+    for (var i = 0; i < 4; i++) {
+      await tester.pump(const Duration(milliseconds: 60));
+    }
+    final boundary =
+        key.currentContext!.findRenderObject() as RenderRepaintBoundary;
+    final image =
+        await tester.runAsync(() => boundary.toImage(pixelRatio: 2.0)) as ui.Image;
+    final bytes =
+        await tester.runAsync(() => image.toByteData(format: ui.ImageByteFormat.png));
+    File('$_outDir/${name}_${lang}_${brightness == Brightness.light ? 'light' : 'dark'}.png')
+        .writeAsBytesSync(bytes!.buffer.asUint8List());
+    image.dispose();
+    // Drain any pending "slow load" timer so the test tears down cleanly.
+    if (mode == FakeMode.slow) {
+      await tester.runAsync(() => Future.delayed(const Duration(seconds: 2)));
+      await tester.pump();
     }
   }
+
+  specs.forEach((name, spec) {
+    final langs = ['bn', 'en'];
+    final brights = [Brightness.light, Brightness.dark];
+    for (final lang in langs) {
+      for (final b in brights) {
+        if (!spec.full && !(lang == 'en' && b == Brightness.light) &&
+            !(lang == 'bn' && b == Brightness.dark)) {
+          continue; // variants: only en-light + bn-dark
+        }
+        testWidgets('shot $name $lang ${b.name}', (tester) async {
+          await shoot(tester, name, lang, b, spec.build(lang), spec.mode);
+        });
+      }
+    }
+  });
 }

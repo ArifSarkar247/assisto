@@ -16,7 +16,9 @@ class InProgressScreen extends StatelessWidget {
     final app = context.watch<AppState>();
     final fmt = DateFormat('d MMM, h:mm a');
 
-    bool open(Map<String, dynamic> m) => m['done'] != true;
+    Map<String, dynamic> data(Map<String, dynamic> m) =>
+        (m['data'] as Map<String, dynamic>?) ?? const {};
+    bool open(Map<String, dynamic> m) => data(m)['done'] != true;
     final reminders = app.reminders.items.where(open).toList();
     final todos = app.todos.items.where(open).toList();
     final empty = reminders.isEmpty && todos.isEmpty;
@@ -33,10 +35,10 @@ class InProgressScreen extends StatelessWidget {
                   for (final r in reminders)
                     _tile(
                       context,
-                      r['title'] ?? '',
-                      r['due_at'] != null
+                      data(r)['title'] ?? '',
+                      data(r)['due_at'] != null
                           ? fmt.format(
-                              DateTime.tryParse(r['due_at'])?.toLocal() ??
+                              DateTime.tryParse(data(r)['due_at'])?.toLocal() ??
                                   DateTime.now())
                           : null,
                     ),
@@ -45,9 +47,9 @@ class InProgressScreen extends StatelessWidget {
                   const SizedBox(height: Gap.md),
                   _section(context, Icons.checklist_outlined, t.navNotesTasks),
                   for (final td in todos)
-                    _tile(context, td['title'] ?? '',
-                        td['due_at'] != null
-                            ? fmt.format(DateTime.tryParse(td['due_at'])?.toLocal() ??
+                    _tile(context, data(td)['title'] ?? '',
+                        data(td)['due_at'] != null
+                            ? fmt.format(DateTime.tryParse(data(td)['due_at'])?.toLocal() ??
                                 DateTime.now())
                             : null),
                 ],

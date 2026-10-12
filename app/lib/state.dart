@@ -13,7 +13,7 @@ import 'background.dart';
 
 class AppState extends ChangeNotifier {
   final _secure = const FlutterSecureStorage();
-  final ApiClient api = ApiClient();
+  ApiClient api = ApiClient(); // non-final so tests/previews can inject a fake
   final LocalDb db = LocalDb.instance;
 
   bool loading = true;

@@ -37,7 +37,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
     final ctrl = TextEditingController();
     final api = context.read<AppState>().api;
     await showDialog(context: context, builder: (ctx) => AlertDialog(
-      title: const Text('🛡️ স্ক্যাম চেকার'),
+      title: const Text('স্ক্যাম চেকার'),
       content: TextField(controller: ctrl, maxLines: 4,
           decoration: const InputDecoration(labelText: 'সন্দেহজনক মেসেজ পেস্ট করুন')),
       actions: [
@@ -94,11 +94,11 @@ class _FamilyScreenState extends State<FamilyScreen> {
           title: Text('${d['name']} · ${d['slot']}'),
           subtitle: Text([
             if ((d['dosage'] ?? '').toString().isNotEmpty) d['dosage'],
-            if (d['refill_date'] != null) '🔄 রিফিল: ${d['refill_date']}',
-          ].join('  ')),
+            if (d['refill_date'] != null) 'রিফিল: ${d['refill_date']}',
+          ].join('  ·  ')),
         )),
       const Padding(padding: EdgeInsets.all(12),
-        child: Text('✅ "খেয়েছি" চাপলে কনফার্ম হবে।',
+        child: Text('"খেয়েছি" চেক করলে কনফার্ম হবে।',
             style: TextStyle(fontSize: 12, color: Colors.grey))),
     ]);
   }
@@ -236,8 +236,11 @@ class _FamilyScreenState extends State<FamilyScreen> {
         : ListView(padding: const EdgeInsets.fromLTRB(12, 12, 12, 88), children: [
             for (final s in school)
               Card(child: ListTile(
-                leading: Text({'fee': '💵', 'exam': '📝', 'meeting': '👥'}[s['kind']] ?? '📌',
-                    style: const TextStyle(fontSize: 22)),
+                leading: Icon({
+                  'fee': Icons.payments_outlined,
+                  'exam': Icons.edit_note_outlined,
+                  'meeting': Icons.groups_outlined,
+                }[s['kind']] ?? Icons.push_pin_outlined),
                 title: Text(s['title'] ?? ''),
                 subtitle: Text([(s['child_name'] ?? ''), (s['date'] ?? '')]
                     .where((e) => e.toString().isNotEmpty).join(' · ')),

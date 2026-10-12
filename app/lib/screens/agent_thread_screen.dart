@@ -16,7 +16,12 @@ class _Msg {
 /// The heart of the app: a conversation with Assisto. The screen is only the
 /// thread — modules live in the drawer. Rich cards appear inline with actions.
 class AgentThreadScreen extends StatefulWidget {
-  const AgentThreadScreen({super.key});
+  /// Preview/screenshot seed: a list of {user: bool, text: String, cards: [...]}.
+  /// When set, the thread renders this conversation instead of polling alerts.
+  final List<Map<String, dynamic>>? debugSeed;
+  final bool debugListening;
+  const AgentThreadScreen(
+      {super.key, this.debugSeed, this.debugListening = false});
   @override
   State<AgentThreadScreen> createState() => _AgentThreadScreenState();
 }
@@ -43,6 +48,16 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.debugSeed != null) {
+      _listening = widget.debugListening;
+      for (final m in widget.debugSeed!) {
+        _msgs.add(_Msg(
+            m['user'] == true,
+            (m['text'] ?? '').toString(),
+            ((m['cards'] ?? []) as List).cast<Map<String, dynamic>>()));
+      }
+      return; // previews don't poll
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadAlerts());
   }
 
@@ -280,6 +295,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
 
   Widget _card(Map<String, dynamic> c) {
     final scheme = Theme.of(context).colorScheme;
+    if (c['type'] == 'approval') return _approvalCard(c);
     final isAlert = c['type'] == 'alert';
     final sev = c['severity'];
     final bg = isAlert
@@ -317,6 +333,52 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
               style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
             ),
           ),
+      ]),
+    );
+  }
+
+  Widget _approvalCard(Map<String, dynamic> c) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      margin: const EdgeInsets.only(top: Gap.sm),
+      padding: const EdgeInsets.all(Gap.md),
+      decoration: BoxDecoration(
+        color: scheme.primaryContainer.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(Radii.md),
+        border: Border.all(color: scheme.primary.withValues(alpha: 0.4)),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Icon(Icons.verified_user_outlined, size: 18, color: scheme.primary),
+          const SizedBox(width: Gap.sm),
+          Expanded(
+            child: Text(c['title'] ?? '',
+                style: TextStyle(
+                    fontWeight: FontWeight.w700, color: scheme.onSurface)),
+          ),
+        ]),
+        if ((c['subtitle'] ?? '').toString().isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 4, left: 26),
+            child: Text(c['subtitle'],
+                style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
+          ),
+        const SizedBox(height: Gap.sm),
+        Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+          FilledButton.icon(
+            onPressed: () {},
+            icon: const Icon(Icons.check, size: 18),
+            label: Text(t.approve),
+            style: FilledButton.styleFrom(
+                minimumSize: const Size(0, 38),
+                visualDensity: VisualDensity.compact),
+          ),
+          OutlinedButton(
+              onPressed: () {},
+              style: OutlinedButton.styleFrom(minimumSize: const Size(0, 38)),
+              child: Text(t.edit)),
+          TextButton(onPressed: () {}, child: Text(t.cancel)),
+        ]),
       ]),
     );
   }

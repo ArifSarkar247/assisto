@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import '../state.dart';
+import '../widgets/skeleton.dart';
 
 const _docTypes = {
   'passport': 'পাসপোর্ট',
@@ -17,7 +18,9 @@ const _docTypes = {
 };
 
 class VaultScreen extends StatefulWidget {
-  const VaultScreen({super.key});
+  /// Preview/screenshot: skip the PIN gate and load straight to the list.
+  final bool previewUnlocked;
+  const VaultScreen({super.key, this.previewUnlocked = false});
   @override
   State<VaultScreen> createState() => _VaultScreenState();
 }
@@ -28,11 +31,18 @@ class _VaultScreenState extends State<VaultScreen> {
   bool _checking = true;
   List<Map<String, dynamic>> _docs = [];
   bool _loading = false;
+  bool _error = false;
 
   @override
   void initState() {
     super.initState();
-    _gate();
+    if (widget.previewUnlocked) {
+      _unlocked = true;
+      _checking = false;
+      _load();
+    } else {
+      _gate();
+    }
   }
 
   Future<void> _gate() async {
@@ -75,7 +85,7 @@ class _VaultScreenState extends State<VaultScreen> {
     final ok = await showDialog<bool>(
       context: context, barrierDismissible: false,
       builder: (ctx) => StatefulBuilder(builder: (ctx, setD) => AlertDialog(
-        title: const Text('ভল্ট লক 🔒'),
+        title: const Text('ভল্ট লক'),
         content: TextField(
           controller: ctrl, obscureText: true, keyboardType: TextInputType.number,
           decoration: InputDecoration(labelText: 'PIN দিন', errorText: err),
@@ -100,10 +110,15 @@ class _VaultScreenState extends State<VaultScreen> {
   }
 
   Future<void> _load() async {
-    setState(() => _loading = true);
+    setState(() {
+      _loading = true;
+      _error = false;
+    });
     try {
       _docs = await context.read<AppState>().api.listDocuments();
-    } catch (_) {}
+    } catch (_) {
+      _error = true;
+    }
     if (mounted) setState(() => _loading = false);
   }
 
@@ -179,7 +194,7 @@ class _VaultScreenState extends State<VaultScreen> {
           OutlinedButton.icon(
             icon: Icon(filePath == null ? Icons.attach_file : Icons.check_circle,
                 size: 18, color: filePath == null ? null : Colors.green),
-            label: Text(filePath == null ? 'ছবি যুক্ত করুন (ক্যামেরা/গ্যালারি)' : 'ছবি যুক্ত ✓'),
+            label: Text(filePath == null ? 'ছবি যুক্ত করুন (ক্যামেরা/গ্যালারি)' : 'ছবি যুক্ত হয়েছে'),
             onPressed: () async {
               final p = await _pickImage();
               if (p != null) setD(() => filePath = p);
@@ -246,16 +261,27 @@ class _VaultScreenState extends State<VaultScreen> {
       );
     }
     return Scaffold(
-      appBar: AppBar(title: const Text('ডকুমেন্ট ভল্ট 🔒')),
+      appBar: AppBar(title: const Text('ডকুমেন্ট ভল্ট')),
       floatingActionButton: FloatingActionButton.extended(
           onPressed: _add, icon: const Icon(Icons.add), label: const Text('যোগ করুন')),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _docs.isEmpty
-              ? const Center(child: Padding(padding: EdgeInsets.all(32),
-                  child: Text('কোনো ডকুমেন্ট নেই।\nপাসপোর্ট, NID, লাইসেন্সের মেয়াদ এখানে রাখুন — '
-                      'শেষ হওয়ার আগে মনে করিয়ে দেব।',
-                      textAlign: TextAlign.center, style: TextStyle(color: Colors.grey))))
+          ? const SkeletonList()
+          : _error
+              ? StateMessage(
+                  icon: Icons.cloud_off,
+                  tint: Theme.of(context).colorScheme.error,
+                  title: 'লোড করা গেল না',
+                  message: 'ইন্টারনেট দেখে আবার চেষ্টা করুন।',
+                  action: FilledButton.tonalIcon(
+                      onPressed: _load,
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('আবার চেষ্টা')))
+              : _docs.isEmpty
+              ? const StateMessage(
+                  icon: Icons.folder_open_outlined,
+                  title: 'কোনো ডকুমেন্ট নেই',
+                  message: 'পাসপোর্ট, NID, লাইসেন্সের মেয়াদ এখানে রাখুন — '
+                      'শেষ হওয়ার আগে মনে করিয়ে দেব।')
               : ListView(
                   padding: const EdgeInsets.fromLTRB(12, 12, 12, 88),
                   children: [

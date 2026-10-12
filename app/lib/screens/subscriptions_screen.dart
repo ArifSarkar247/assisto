@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/skeleton.dart';
 
 class SubscriptionsScreen extends StatefulWidget {
   const SubscriptionsScreen({super.key});
@@ -14,6 +15,7 @@ class SubscriptionsScreen extends StatefulWidget {
 class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
   List<Map<String, dynamic>> _subs = [];
   bool _loading = true;
+  bool _error = false;
 
   @override
   void initState() {
@@ -22,9 +24,15 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
   }
 
   Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = false;
+    });
     try {
       _subs = await context.read<AppState>().api.listItems('subscriptions');
-    } catch (_) {}
+    } catch (_) {
+      _error = true;
+    }
     if (mounted) setState(() => _loading = false);
   }
 
@@ -113,17 +121,27 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
           icon: const Icon(Icons.add),
           label: Text(t.addSubscription)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _subs.isEmpty
-              ? Center(
-                  child: Padding(
-                  padding: const EdgeInsets.all(Gap.xxl),
-                  child: Text(t.subscriptionsEmpty,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                ))
-              : ListView(
+          ? const SkeletonList()
+          : _error
+              ? StateMessage(
+                  icon: Icons.cloud_off,
+                  tint: Theme.of(context).colorScheme.error,
+                  title: t.loadFailed,
+                  message: t.loadFailedBody,
+                  action: FilledButton.tonalIcon(
+                      onPressed: _load,
+                      icon: const Icon(Icons.refresh),
+                      label: Text(t.retry)))
+              : _subs.isEmpty
+                  ? StateMessage(
+                      icon: Icons.autorenew,
+                      title: t.subscriptions,
+                      message: t.subscriptionsEmpty,
+                      action: FilledButton.icon(
+                          onPressed: _add,
+                          icon: const Icon(Icons.add),
+                          label: Text(t.addSubscription)))
+                  : ListView(
                   padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 88),
                   children: [
                     Card(

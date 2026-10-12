@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../state.dart';
+import '../theme.dart';
 import '../sync_repo.dart';
 
 final _tk = NumberFormat('#,##,###.##', 'en');
@@ -81,13 +82,20 @@ class _SummaryTab extends StatelessWidget {
     final maxVal = cats.values.fold<double>(0,
         (p, v) => (double.tryParse('$v') ?? 0) > p ? (double.tryParse('$v') ?? 0) : p);
     return ListView(padding: const EdgeInsets.all(16), children: [
-      Card(color: const Color(0xFF0E7C66),
-        child: Padding(padding: const EdgeInsets.all(18), child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Container(
+        decoration: BoxDecoration(
+          gradient: Brand.gradient,
+          borderRadius: BorderRadius.circular(Radii.md),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const Text('মোট ব্যালেন্স', style: TextStyle(color: Colors.white70)),
             Text(_tkFmt(s['total_balance']),
-                style: const TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold)),
-          ]))),
+                style: const TextStyle(
+                    color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold)),
+          ]),
+        )),
       const SizedBox(height: 8),
       Row(children: [
         Expanded(child: _stat('এ মাসে আয়', _tkFmt(s['month_income']), Colors.green)),
@@ -315,10 +323,10 @@ class _BudgetsTab extends StatelessWidget {
                           : b['warn'] == 'near' ? Colors.orange : Colors.green),
                     if (b['warn'] == 'over')
                       const Padding(padding: EdgeInsets.only(top: 4),
-                        child: Text('⚠️ বাজেট শেষ!', style: TextStyle(color: Colors.red, fontSize: 12)))
+                        child: Text('বাজেট শেষ!', style: TextStyle(color: Colors.red, fontSize: 12)))
                     else if (b['warn'] == 'near')
                       const Padding(padding: EdgeInsets.only(top: 4),
-                        child: Text('⚠️ ৮০% পার', style: TextStyle(color: Colors.orange, fontSize: 12))),
+                        child: Text('৮০% পার', style: TextStyle(color: Colors.orange, fontSize: 12))),
                   ]))),
             ]),
     );

@@ -141,9 +141,9 @@ class RemindersScreen extends StatelessWidget {
                                 color: Colors.grey)
                             : null),
                     subtitle: Text([
-                      if (due != null) '⏰ ${fmt.format(due)}',
+                      if (due != null) fmt.format(due),
                       if ((d['recurrence'] ?? 'none') != 'none')
-                        '🔁 ${_recOptions[d['recurrence']]}',
+                        _recOptions[d['recurrence']] ?? '',
                       if ((d['notes'] ?? '').toString().isNotEmpty) d['notes'],
                     ].join('  ')),
                     trailing: PopupMenuButton<String>(

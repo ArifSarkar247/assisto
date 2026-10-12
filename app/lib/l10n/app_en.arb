@@ -54,6 +54,8 @@
   "approve": "Approve",
   "decline": "Decline",
   "retry": "Retry",
+  "loadFailed": "Couldn't load",
+  "loadFailedBody": "Check your connection and try again.",
   "close": "Close",
   "add": "Add",
 
