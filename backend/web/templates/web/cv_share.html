@@ -1,0 +1,18 @@
+{% extends "web/base.html" %}
+{% block title %}CV স্কোর {{ score }}/১০০ — Assisto{% endblock %}
+{% block og %}
+<meta property="og:title" content="আমার CV স্কোর {{ score }}/১০০ — তোমার কত?">
+<meta property="og:description" content="Assisto-তে ফ্রি CV স্কোর যাচাই করো।">
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}/cv/card.png?s={{ score }}">
+<meta property="og:type" content="website">
+{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="score">{{ score }}</div>
+  <div style="text-align:center" class="muted">কারো CV স্কোর ১০০-তে</div>
+</div>
+<div class="appcta">
+  <div style="font-weight:700">তোমার CV স্কোর কত?</div>
+  <a href="/cv">ফ্রি যাচাই করো →</a>
+</div>
+{% endblock %}

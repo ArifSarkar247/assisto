@@ -1,5 +1,33 @@
 # Assisto — অগ্রগতি রিপোর্ট
 
+## 🔖 লাইভ চেকলিস্ট (resume এখান থেকে)
+লেজেন্ড: ✅ done · 🔨 in progress · ⏳ todo · 🔑 needs owner (key/account) · ⛔ blocked
+
+**Phase 0**
+- ✅ 0.2 লোগো · 0.3 নাম+আইকন+স্প্ল্যাশ+লগইন · 0.4 সাইনিং কি · 0.5 ইন-অ্যাপ আপডেট · 0.6 arm64 APK
+- 🔑 0.1 Asalify CI fix — **needs owner** (ready patch: `owner_actions/asalify_ci_fix.md`). আমি live Asalify রিপোতে commit করিনি (সেফটি রুল + গার্ডরেইল)। কারণ (বাংলা): `ci.yml` প্রতি push+PR-এ চলে, `concurrency` নেই (দ্রুত একাধিক push একসাথে পুরো জব চালায়, একটাও ক্যানসেল হয় না), আর `timeout-minutes` নেই (আটকে গেলে ডিফল্ট ৬ ঘণ্টা চলে) → একদিনেই ২০০০ মিনিট শেষ। ফিক্স: `concurrency(cancel-in-progress)` + `timeout-minutes:15` (শুধু ওই ২টা লাইন)।
+- ✅ 0.7 সিদ্ধান্ত: লোকাল Flutter বসানো হয়নি (ডিস্ক ≥9GB রাখতে); বদলে CI-তে `flutter analyze`+`test` ধাপ
+
+**Step A — ভাইরাল ওয়েব টুল (assisto.asalify.com, লগইন ছাড়া)**
+- ⏳ W1 CV স্কোর · ⏳ W2 স্ক্যাম চেকার · ⏳ W3 পাসপোর্ট/ভিসা ছবি · ⏳ W4 উৎসবের কার্ড
+
+**V1 — অ্যাপ + ব্যাকএন্ড (ফিচার ১–২১)**
+- ⏳ Part 2: (3) রিমাইন্ডার/নোট/To-Do · (2) Memory + "ভুলে যাও" · (20) autonomy/audit/undo · (21) sync/export/support
+- ⏳ Part 3: (6) ভল্ট + এক্সপায়ারি · (14) ইমার্জেন্সি কার্ড + SOS
+- ⏳ Part 4: (7) অ্যাকাউন্ট · (8) স্টেটমেন্ট/বাজেট · (9) ধার · (10) সঞ্চয়/সাবস্ক্রিপশন · (11) বিল গাইড
+- ⏳ Part 5: (12) ফ্যামিলি/ওষুধ · (13) স্ক্যাম অ্যালার্ট · (15) বাচ্চার স্কুল
+- ⏳ Part 6: (1) Life Scanner · (4) proactive · (5) planner/briefing · (16) বাংলা ভয়েস · (17) role-play · (18) মানসিক সাপোর্ট
+- ⏳ Part 7: (19) Wrapped/ব্যাজ/ফ্যামিলি কার্ড/invite
+- 🔨 AI layer (multi-provider, needs-key state) · Accessibility
+
+**Owner-blocked (এগুলো আপনি দিলে চালু হবে):** ANTHROPIC_API_KEY (AI ফিচার) · GitHub billing (Nov 1 পর্যন্ত private বিল্ড বন্ধ) · Firebase (ক্রস-ডিভাইস push) · SMS/voice provider (কল/এসএমএস) · payment partner (বিল পে)
+
+## 🧭 Decisions I made (unattended run)
+- **0.7 Flutter লোকাল বসাইনি:** ডিস্ক ১১GB ফ্রি; Flutter ~২GB → ৯GB-র নিচে নামার ঝুঁকি (হার্ড রুল ≥9GB)। বদলে CI-তে `flutter analyze`/`test` ফেল-ফাস্ট ধাপ যোগ করছি।
+- **secrets ফাইল:** `/home/ubuntu/.assisto_secrets.env` (chmod 600) canonical; backend/.env ও GitHub secrets এর সাথে সিঙ্ক।
+
+---
+
 ## বাংলা সারসংক্ষেপ (সর্বশেষ: Part 1 ✅ সম্পন্ন)
 
 Assisto V1 অ্যাপ বানানো শুরু হয়েছে — Asalify থেকে **সম্পূর্ণ আলাদা**, লাইভ Asalify-তে কোনো প্রভাব ছাড়াই।

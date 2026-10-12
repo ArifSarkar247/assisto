@@ -112,6 +112,34 @@ class AuditLog(models.Model):
         ordering = ["-created_at"]
 
 
+class AIUsage(models.Model):
+    """Every AI call logged for cost tracking + daily budget kill-switch."""
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
+                             related_name="ai_usage")
+    feature = models.CharField(max_length=40)
+    model = models.CharField(max_length=40)
+    input_tokens = models.IntegerField(default=0)
+    output_tokens = models.IntegerField(default=0)
+    cost_usd = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["created_at"])]
+
+
+class ToolUsage(models.Model):
+    """Step A viral web tools — per-tool usage + cost (per hashed IP)."""
+    tool = models.CharField(max_length=8)        # w1..w4
+    ip_hash = models.CharField(max_length=64, blank=True)
+    used_ai = models.BooleanField(default=False)
+    cost_usd = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["tool", "created_at"]),
+                   models.Index(fields=["ip_hash", "created_at"])]
+
+
 class Device(models.Model):
     """For later push notifications (FCM). Stored per user."""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="devices")

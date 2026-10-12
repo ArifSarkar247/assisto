@@ -1,0 +1,15 @@
+{% extends "web/base.html" %}
+{% block title %}Assisto অ্যাপ নিন{% endblock %}
+{% block content %}
+<h1>📱 Assisto অ্যাপ</h1>
+<div class="card">
+  <p>Android ফোনে ইনস্টল করুন। রিমাইন্ডার, জীবনের হিসাব, ডকুমেন্ট ভল্ট, ফ্যামিলি কেয়ার — সব এক জায়গায়।</p>
+  {% if apk.apk_url %}
+    <a class="btn gold" href="{{ apk.apk_url }}">APK ডাউনলোড ({{ apk.version_name }})</a>
+    <p class="muted" style="margin-top:10px">ডাউনলোডের পর ফাইলটি খুলুন → "এই উৎস থেকে ইনস্টল" অনুমতি দিন → ইনস্টল। একবার ইনস্টল করলে অ্যাপই নতুন আপডেট জানাবে।</p>
+  {% else %}
+    <div class="warn">অ্যাপের লিংক শিগগিরই যোগ হবে।</div>
+  {% endif %}
+</div>
+<p style="text-align:center"><a href="/">← টুলে ফিরুন</a></p>
+{% endblock %}

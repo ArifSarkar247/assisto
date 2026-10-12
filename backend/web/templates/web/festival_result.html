@@ -1,0 +1,21 @@
+{% extends "web/base.html" %}
+{% block title %}{{ festival.title }} কার্ড — Assisto{% endblock %}
+{% block og %}
+<meta property="og:title" content="{{ festival.title }} — Assisto">
+<meta property="og:description" content="ফ্রি উৎসবের কার্ড বানান Assisto-তে।">
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}/festival/card.png?{{ q }}">
+{% endblock %}
+{% block content %}
+<div class="card" style="text-align:center">
+  <h2>{{ festival.title }}</h2>
+  <img class="result" src="/festival/card.png?{{ q }}" alt="কার্ড">
+  <div class="share" style="margin-top:12px">
+    <a class="fb" href="https://www.facebook.com/sharer/sharer.php?u={{ request.scheme }}://{{ request.get_host }}/festival/card.png?{{ q }}" target="_blank">Facebook</a>
+    <a class="wa" href="https://wa.me/?text={{ request.scheme }}://{{ request.get_host }}/festival/card.png?{{ q }}" target="_blank">WhatsApp</a>
+    <a class="dl" href="/festival/card.png?{{ q }}" download="assisto-card.png">ডাউনলোড</a>
+  </div>
+  <div style="margin-top:8px"><a class="muted" href="/festival/card.png?{{ q }}&story=1" download>স্টোরি সাইজ কার্ড</a></div>
+</div>
+<div class="appcta"><a href="/get">📱 আরও সুবিধা — অ্যাপ নিন</a></div>
+<p style="text-align:center"><a href="/festival">↺ আরেকটা কার্ড বানান</a></p>
+{% endblock %}

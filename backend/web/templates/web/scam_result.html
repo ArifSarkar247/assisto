@@ -1,0 +1,27 @@
+{% extends "web/base.html" %}
+{% block title %}{{ r.emoji }} {{ r.label }} — স্ক্যাম চেকার{% endblock %}
+{% block content %}
+<div class="card" style="text-align:center">
+  <div style="font-size:64px">{{ r.emoji }}</div>
+  <h1 style="margin:4px 0">{{ r.label }}</h1>
+  <div class="muted">ঝুঁকি স্কোর: {{ r.score }}/১০০</div>
+</div>
+
+<div class="card">
+  <h2>কেন এই সিদ্ধান্ত</h2>
+  <ul>{% for reason in r.reasons %}<li>{{ reason }}</li>{% endfor %}</ul>
+  <div class="warn">{{ r.advice }}</div>
+  {% if ai_note %}<div class="warn" style="margin-top:8px"><b>AI:</b> {{ ai_note }}</div>{% endif %}
+</div>
+
+<div class="card">
+  <b>পরিবারকে সাবধান করুন</b>
+  <div class="share">
+    <a class="fb" href="https://www.facebook.com/sharer/sharer.php?u={{ share_url|urlencode }}" target="_blank">Facebook</a>
+    <a class="wa" href="https://wa.me/?text={{ share_url|urlencode }}" target="_blank">WhatsApp</a>
+    <a class="dl" href="/scam/card.png?v={{ r.verdict }}" download="assisto-scam.png">কার্ড ডাউনলোড</a>
+  </div>
+</div>
+<div class="appcta"><a href="/get">📱 পরিবারের সুরক্ষায় অ্যাপ নিন</a></div>
+<p style="text-align:center"><a href="/scam">↺ আরেকটা মেসেজ যাচাই করুন</a></p>
+{% endblock %}

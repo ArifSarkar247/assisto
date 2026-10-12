@@ -1,0 +1,19 @@
+{% extends "web/base.html" %}
+{% block title %}পাসপোর্ট/ভিসা ছবি — Assisto{% endblock %}
+{% block content %}
+<h1>🪪 পাসপোর্ট / ভিসা / চাকরির ছবি</h1>
+<p class="muted">নিজের ছবি আপলোড করুন — সঠিক মাপে কেটে তৈরি করে দেব। শুধু আপনার নিজের ছবি ব্যবহার করুন।</p>
+{% if error %}<div class="err">{{ error }}</div>{% endif %}
+<form method="post" enctype="multipart/form-data" class="card">
+  {% csrf_token %}
+  <label>ছবি আপলোড করুন</label>
+  <input type="file" name="photo" accept="image/*" required>
+  <label>সাইজ বেছে নিন</label>
+  <select name="preset">
+    {% for key, p in presets.items %}<option value="{{ key }}">{{ p.0 }}</option>{% endfor %}
+  </select>
+  <div style="height:12px"></div>
+  <button class="btn" type="submit">ছবি বানান</button>
+  <p class="muted" style="margin-top:10px">টিপ: সোজা হয়ে, সাদা/হালকা ব্যাকগ্রাউন্ডে তোলা ছবি দিন। ব্যাকগ্রাউন্ড বদলানোর সুবিধা পরে যোগ হবে।</p>
+</form>
+{% endblock %}

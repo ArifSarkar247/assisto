@@ -1,0 +1,18 @@
+{% extends "web/base.html" %}
+{% block title %}{{ emoji }} {{ label }} — Assisto স্ক্যাম চেকার{% endblock %}
+{% block og %}
+<meta property="og:title" content="{{ emoji }} এই মেসেজটি {{ label }}">
+<meta property="og:description" content="সন্দেহজনক মেসেজ? Assisto-তে ফ্রি যাচাই করুন।">
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}/scam/card.png?v={{ v }}">
+<meta property="og:type" content="website">
+{% endblock %}
+{% block content %}
+<div class="card" style="text-align:center">
+  <div style="font-size:64px">{{ emoji }}</div>
+  <h1>{{ label }}</h1>
+</div>
+<div class="appcta">
+  <div style="font-weight:700">সন্দেহজনক মেসেজ পেয়েছেন?</div>
+  <a href="/scam">ফ্রি যাচাই করুন →</a>
+</div>
+{% endblock %}

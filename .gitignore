@@ -36,3 +36,7 @@ ASSISTO_SPEC.pdf
 certs/
 acme_webroot/
 letsencrypt/
+
+db_backups/
+app_latest.json
+logo/out/

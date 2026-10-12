@@ -9,6 +9,9 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
+# Canonical secrets file (chmod 600, never in git). Added keys (e.g.
+# ANTHROPIC_API_KEY) turn features on with just a service restart.
+load_dotenv("/home/ubuntu/.assisto_secrets.env", override=False)
 
 
 def env_bool(key, default=False):
@@ -34,9 +37,12 @@ CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", ASSISTO_BASE_URL)
 APP_LATEST_FILE = os.getenv("APP_LATEST_FILE", str(BASE_DIR.parent / "app_latest.json"))
 
 SMS_ENABLED = env_bool("SMS_ENABLED", False)            # OTP designed, off until a provider exists
-AI_ENABLED = env_bool("AI_ENABLED", False)              # Life Scanner / briefing (Part 5)
-AI_API_KEY = os.getenv("AI_API_KEY", "")
-AI_PROVIDER = os.getenv("AI_PROVIDER", "claude")
+# AI is ON automatically when a key is present (ANTHROPIC_API_KEY preferred).
+AI_API_KEY = os.getenv("ANTHROPIC_API_KEY", "") or os.getenv("AI_API_KEY", "")
+AI_ENABLED = bool(AI_API_KEY)
+AI_PROVIDER = os.getenv("AI_PROVIDER", "anthropic")
+AI_DAILY_BUDGET_USD = float(os.getenv("AI_DAILY_BUDGET_USD", "5"))   # kill-switch
+AI_USER_DAILY_LIMIT = int(os.getenv("AI_USER_DAILY_LIMIT", "40"))    # per-user/day calls
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -49,6 +55,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "corsheaders",
     "core",
+    "web",
 ]
 
 MIDDLEWARE = [

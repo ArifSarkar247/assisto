@@ -1,0 +1,14 @@
+{% extends "web/base.html" %}
+{% block title %}স্ক্যাম চেকার — Assisto{% endblock %}
+{% block content %}
+<h1>🛡️ স্ক্যাম চেকার</h1>
+<p class="muted">সন্দেহজনক SMS/মেসেজ পেস্ট করুন — প্রতারণার লক্ষণ আছে কিনা যাচাই করে দেব। ডাটা সেভ করা হয় না।</p>
+{% if error %}<div class="err">{{ error }}</div>{% endif %}
+<form method="post" class="card">
+  {% csrf_token %}
+  <label>মেসেজ পেস্ট করুন</label>
+  <textarea name="message" placeholder="যেমন: আপনি ৫০,০০০ টাকা জিতেছেন, PIN দিন..."></textarea>
+  <div style="height:12px"></div>
+  <button class="btn" type="submit">যাচাই করুন</button>
+</form>
+{% endblock %}
