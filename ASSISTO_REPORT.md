@@ -1,5 +1,60 @@
 # Assisto — অগ্রগতি রিপোর্ট
 
+> **চূড়ান্ত মাস্টার প্ল্যান চলছে (শুরু ১২ অক্টোবর ২০২৬)।** লক্ষ্য: দুই PDF-এর সব ফিচার শেষ করা, যেন মালিক শুধু একে একে API key/account যোগ করলেই সব চালু হয়। এই সেকশনটাই রিজিউম-অ্যাঙ্কর — সেশন থামলে এখান থেকে শুরু।
+
+## 🧭 লাইভ রিজিউম-চেকলিস্ট (ফেজ ক্রম)
+
+- [x] **STEP 1** — সম্পূর্ণ ফিচার ম্যাট্রিক্স (নিচে) + এই চেকলিস্ট + "Decisions I made"
+- [ ] **P1 — Integrations Admin** (keystone): owner-only এনক্রিপ্টেড key store + সেটআপ গাইড + Test-connection; key এলে ফিচার অটো-চালু। *(কোনো key লাগে না — আগে এটাই)*
+- [ ] **P2 — AI layer v2**: multi-provider (Anthropic/Gemini/OpenAI) + graceful degrade + "কিউতে আছে" + per-user limit + daily budget kill-switch + credit system + bill-template cache + batch night briefings
+- [ ] **P3 — Monetization**: Free/Premium(৳149)/Family(৳299)/প্রবাসী($4.99)/Business(৳1,999)/Founder/Annual(৳1,199) + ৳20–30 credit top-up + 7-day trial + rewarded-ad→1 scan + AdMob (non-personalized, কখনো vault/health/family/emergency/elderly/payment স্ক্রিনে নয়) + waitlist/invite gate
+- [ ] **P4 — Watcher engine (server-side)**: plain-code change-detection → AI only on change; RSS/official API/public page; robots.txt + terms মানা; Free 2/day, Premium 20 hourly. Watcher list: দাম কমা, কার্ড অফার, ফ্লাইট দাম, USD/BDT, সরকারি job circular, পরীক্ষার ফল, visa slot, বাবা-মায়ের জেলার বন্যা/ঝড়, news topic
+- [ ] **P5 — Voice assistant + extras A/B/C**: command table (গান→YouTube/Spotify deep link, call, alarm, WhatsApp draft, Maps, memory answers); favourite artists (YouTube RSS + Spotify); Nearby (Places→OSM fallback); system Assist + home-widget + optional wake-word (OFF)
+- [ ] **P6 — V2 features 22–32**: AI Inbox (red/yellow/green), email assistant, calendar sync, msg-read/keyword-draft, meeting→personal CRM, high-priority alerts, loan/EMI/investment/networth/zakat, approval auto-pay ladder (per-bill cap + stop-all), family joint/remittance/recharge alerts, health timeline, elderly simple mode, govt/religious guide, Agent Studio (Excel/letter/CV/caption)
+- [ ] **P7 — Business mode (33)**: WhatsApp Cloud API + email triage, catalog/stock replies, order capture→confirm→courier, follow-ups, human handoff, never-claim-human. *(Inside Asalify = ⛔ design-only; standalone in Assisto backend = build)*
+- [ ] **P8 — AI CRM Axon Dynamics (34, CRM_SPEC)**: separate multi-tenant web app in Assisto's OWN backend — omnichannel lead capture, lead scoring/routing, conversation-sync, predictive follow-up, auto demo/proposal, 1-click Axon ERP onboarding, predictive-forecast dashboard
+- [ ] **P9 — V3 features 35–40**: Agent Actions (travel, full auto-pay within limits, auto-recharge), nominee/family access, job hunter agent, Telegram bot builder (UI+API+sandbox design ⛔), meeting bots/smart home/partner platform, CRM-sell
+- [ ] **P10 — All-Android hardening**: Android 8–15, 320/360/412 dp + tablet, OEM battery-optimisation guidance per brand, runtime-permission reason screens, crash-proof startup, CI multi-API/size + screenshot matrix
+- [ ] **P11 — iOS-ready**: iOS project + permission strings (bn+en), Share Extension + Siri Shortcuts/App Intents, hide Android-only gracefully, unsigned iOS compile on macOS runner
+- [ ] **P12 — FINAL**: full gallery (every screen/dialog/state), latest APK via updater, iOS compile result, repo PRIVATE, Bangla-first summary + OWNER UNLOCK LIST (priority order)
+
+**প্রতি ফেজ শেষে:** backend tests + `flutter analyze` + widget/screenshot tests সবুজ → public ≤15 মিনিট (≤30 emulator/macOS) → private → ১২-টেন্যান্ট চেক (fail হলে 60s পরে re-check) → report আপডেট।
+
+## 📋 সম্পূর্ণ ফিচার ম্যাট্রিক্স (দুই PDF + মালিকের তালিকা + extras)
+
+স্ট্যাটাস: ✅ শেষ · 🔨 বানানো হচ্ছে/বাকি · 🔑 মালিকের key লাগবে · ⛔ এই সার্ভারে নয় (কারণ+আনলক)
+
+### ভাইরাল ওয়েব (W1–W4) — সব ✅ লাইভ
+W1 CV স্কোর · W2 স্ক্যাম চেকার · W3 পাসপোর্ট/ভিসা/জব ছবি · W4 উৎসব কার্ড
+
+### Appendix A — ব্যক্তিগত/পরিবার (1–21, V1) — সব ✅ (build 41)
+1✅ Life Scanner(non-AI অংশ; 🔑 AI narrative) · 2✅ Memory+"AI জানে" · 3✅ অ্যালার্ম/ক্যালেন্ডার/রিমাইন্ডার/নোট/To-Do · 4✅ Proactive alerts · 5✅ ব্রিফিং(non-AI; 🔑 AI narrative/রাতের সারাংশ) · 6✅ ভল্ট+মেয়াদ+ফাইল সংযুক্তি · 7✅ অ্যাকাউন্ট/আয়-খরচ(auto+manual) · 8✅ মাসিক সারাংশ/বাজেট/PDF-Excel · 9✅ ধার · 10✅ সঞ্চয় লক্ষ্য+সাবস্ক্রিপশন · 11🔨 বিল গাইড পূর্ণ ফিল্ড(company/account/meter/last date/late fee/MoM)+এক-ট্যাপ pay(🔑 payment) · 12✅ ফ্যামিলি ওষুধ+"খেয়েছি"(🔑 ভয়েস কল/SMS IVR) · 13✅ স্ক্যাম অ্যালার্ট · 14✅ ইমার্জেন্সি+SOS GPS · 15✅ স্কুল · 16✅ বাংলা ভয়েস(ইন-অ্যাপ) · 17🔑 পেশা রোল-প্লে(AI) · 18🔑 মানসিক সাপোর্ট(AI; ক্রাইসিসে হেল্পলাইন) · 19✅ Wrapped+ইনভাইট · 20✅ অটোনমি+অডিট+undo+per-source · 21✅ অফলাইন+এক্সপোর্ট/ডিলিট+সাপোর্ট
+
+### Appendix A — V2 (22–34)
+22🔨 AI Inbox(লাল/হলুদ/সবুজ)+ইমেইল সহকারী+ক্যালেন্ডার সিঙ্ক(🔑 Gmail OAuth) · 23🔨 মেসেজ পড়া+কিওয়ার্ড খসড়া/অটো-রিপ্লাই(🔑 notification listener/WhatsApp) · 24🔨 মিটিং→ব্যক্তিগত CRM+ক্লাস অ্যালার্ট · 25🔨 হাই-প্রায়োরিটি খবর/স্টক/watcher(P4) · 26🔨 ঋণ/EMI/বিনিয়োগ/net worth/যাকাত ক্যালকুলেটর · 27🔨 অনুমোদন-সাপেক্ষ auto-pay ladder(per-bill cap+stop-all)+ফ্যামিলি যৌথ+রেমিট্যান্স+রিচার্জ অ্যালার্ট(🔑 payment) · 28🔨 হেলথ টাইমলাইন+স্মার্টওয়াচ(🔑 Health Connect)+ডায়েট লগ · 29🔨 বয়স্ক সহজ মোড+দুর্বলতা সতর্কতা · 30🔨 সরকারি সেবা গাইড+ধর্মীয় রিমাইন্ডার · 31🔨 বাংলা ভয়েস ডিফল্ট অ্যাসিস্ট্যান্ট(Android)(P5) · 32🔨 Agent Studio: Excel/চিঠি/CV/ক্যাপশন(🔑 AI) · 33 Business mode(P7) · 34 AI CRM(P8)
+
+### Appendix A — V3 (35–40) + V4/Future (41–42)
+35🔨 Agent Actions(ট্রাভেল, লিমিটে পূর্ণ auto-pay, অটো-রিচার্জ)(🔑 payment) · 36🔨 নমিনি/ফ্যামিলি অ্যাক্সেস · 37🔨 জব হান্টার এজেন্ট(🔑 Gmail; কখনো Bdjobs/LinkedIn-এ অটো-apply নয়) · 38⛔ Telegram bot runtime(আলাদা sandbox সার্ভার লাগবে — UI/API/sandbox ডিজাইন বানাবো) + 🔨 ছবি টুল/ল্যান্ডিং পেজ · 39🔨 মিটিং বট/স্মার্ট হোম(🔑)/পার্টনার প্ল্যাটফর্ম · 40 CRM বিক্রি(P8-এর multi-tenant) · 41🔨 আরও ইন্টিগ্রেশন+iOS(P11) · 42⛔ Future(ন্যানো-সেন্সর/রোবট/ডিজিটাল টুইন/সীমাহীন auto-pay/therapist-level) — ডিজাইন নোট only
+
+### CRM_SPEC — Axon Dynamics (P8)
+1🔨 Omnichannel lead capture(🔑 WhatsApp/Meta/LinkedIn) · 2🔨 AI lead scoring+auto-route · 3🔨 conversation-sync+sentiment · 4🔨 predictive follow-up+draft · 5🔨 auto demo+proposal PDF · 6🔨 1-click Axon ERP onboarding(🔑 Axon ERP API) · +🔨 predictive-forecast dashboard
+
+### Monetization (§17 + ২৩-সেপ্ট) — P3
+🔨 Free/Premium ৳149/Family ৳299/প্রবাসী $4.99/Business ৳1,999/Founder/Annual ৳1,199 · 🔨 credit ৳20–30 top-up · 🔨 7-day full trial · 🔨 rewarded ad→1 scan(🔑 AdMob) · 🔨 Google Play Billing(🔑) · 🔨 bKash/Nagad/SSLCommerz/ekPay(🔑) · 🔨 waitlist/invite gate
+
+### Extras A–D
+A🔨 Voice assistant(গান deep-link/call/alarm/WhatsApp draft/Maps/memory; system Assist; widget; wake-word OFF) · B🔨 Favourite artists(YouTube RSS free + Spotify 🔑) · C🔨 Nearby(Google Places 🔑 → OSM fallback) · D🔨 Watcher engine server-side(P4)
+
+### Integrations Admin — P1 (keystone)
+🔨 Owner web admin: Anthropic/Gemini/OpenAI · Firebase · Google Places/Maps · Spotify · YouTube Data · AdMob · Play Billing · bKash/Nagad/SSLCommerz/ekPay · SMS gateway · IVR/voice · Gmail/Google OAuth · Meta WhatsApp/Messenger · courier · Health Connect · smart-home(Google Home/Tuya)। প্রতি কার্ড: কী আনলক + bn/en setup গাইড + paste + Test + status; key এনক্রিপ্টেড, কখনো ফেরত দেখানো হয় না; pass করলে ফিচার অটো-চালু।
+
+### Platform
+P10🔨 সব Android ফোন(8–15, 320/360/412+tablet, OEM battery guidance, runtime-perm reason, crash-proof) · P11🔨 iOS-ready(compile only; signing/TestFlight = 🔑 Apple Developer)
+
+### ⛔ এই সার্ভারে নয় (ডিজাইন বানাবো)
+- Business mode **Asalify-র ভেতরে** → আলাদা asalify সেশনে, এক টেস্ট-টেন্যান্টে flag-এর পিছনে ধাপে ধাপে করার প্ল্যান লিখব (standalone সংস্করণ Assisto backend-এ বানাবো)।
+- User-generated **Telegram bot runtime** → আলাদা sandbox সার্ভার লাগবে; UI+API+sandbox আর্কিটেকচার ডিজাইন করব, রানটাইম নয়।
+
 ## ✅ চূড়ান্ত সারসংক্ষেপ (Phase 0 + Step A + V1 শেষ)
 
 Assisto এখন **লাইভ**: `https://assisto.asalify.com` — ৪টি ফ্রি ওয়েব টুল (লগইন ছাড়া) + একটি পূর্ণ **Android অ্যাপ** (ব্যাকএন্ড Django+PostgreSQL)। Asalify-র ১২টি টেন্যান্ট প্রতিটি ডিপ্লয়ের আগে-পরে যাচাই করা হয়েছে — **কোনো প্রভাব পড়েনি**।
@@ -137,6 +192,13 @@ Assisto এখন **লাইভ**: `https://assisto.asalify.com` — ৪টি 
 **Owner-blocked (এগুলো আপনি দিলে চালু হবে):** ANTHROPIC_API_KEY (AI ফিচার) · GitHub billing (Nov 1 পর্যন্ত private বিল্ড বন্ধ) · Firebase (ক্রস-ডিভাইস push) · SMS/voice provider (কল/এসএমএস) · payment partner (বিল পে)
 
 ## 🧭 Decisions I made (unattended run)
+- **চূড়ান্ত বিল্ড-অর্ডার (২০২৬-১০-১২):** P1 Integrations Admin আগে (keystone — key ছাড়া বানানো যায়, আর এটাই পরে সব key আনলক করে), তারপর P2 AI-layer, P3 monetization, P4 watcher, P5 voice, P6 V2, P7 business, P8 CRM, P9 V3, P10 Android-hardening, P11 iOS, P12 final। কারণ: আগে এমন সব কিছু যা key ছাড়া সম্পূর্ণ হয়; key-নির্ভর অংশ "🔑 Available when ___" state-এ থাকবে আর Integrations টেস্ট pass করলে অটো-চালু হবে।
+- **Flutter লোকাল বসানো হয়েছে** (`~/assisto/tools/flutter`, owner অনুমোদিত; ডিস্ক ≥8GB রাখা) → এখন `flutter analyze` + golden/স্ক্রিনশট টেস্ট লোকালি চলে; আর অন্ধ CI-ফ্লিপ লাগে না। (পুরোনো "Flutter বসাইনি" সিদ্ধান্ত বাতিল।)
+- **WorkManager বাদ, স্থায়ীভাবে:** ColorOS/Realme-তে androidx.work-এর startup ContentProvider লঞ্চেই ক্র্যাশ করত (owner-নিশ্চিত); ব্যাকগ্রাউন্ডও ওসব ফোনে throttled। ফ্যামিলি অ্যালার্ট এখন অ্যাপ খোলা/রিজিউমে `/alerts` পোল + লোকাল নোটিফিকেশন (dedup)। প্রকৃত push = Firebase (🔑)।
+- **লোগো:** owner-এর নিজের ডিজাইন (`new-logo.png`) সরাসরি ব্যবহার ("use it as is"); adaptive fg কালো bg থেকে key করে ~64% safe-zone; brand palette cyan→blue→purple।
+- **গান/খবর/watcher ও কপিরাইট:** কখনো গানের কথা/আর্টিকেল/দীর্ঘ উদ্ধৃতি রিপ্রোডিউস করব না — শুধু **deep-link** (YouTube/Spotify) আর নিজের ছোট original summary; সোর্স robots.txt + terms মানব; অফিসিয়াল API/RSS/পাবলিক পেজ।
+- **Startup crash-proof:** `runZonedGuarded` + `FlutterError.onError` + `PlatformDispatcher.onError` + প্রতিটা init try/catch ও non-blocking; নতুন ঝুঁকিপূর্ণ প্লাগইন probe-repo-তে যাচাই ছাড়া startup ContentProvider যোগ করব না।
+- **(আপডেট) SOS GPS + ভল্ট ফাইল সংযুক্তি + ভয়েস ইনপুট — এখন যোগ করা হয়েছে** (build 31+, probe-যাচাইকৃত plugin দিয়ে)। নিচের পুরোনো "বাদ" নোটগুলো ইতিহাস।
 - **Asalify parallel edits (owner note 2026-10-12):** owner is editing Asalify in another session; services may restart briefly. টেন্যান্ট চেক ফেল করলে ৬০ সেকেন্ড অপেক্ষা করে আবার চেক — তবেই regression ধরা/rollback। নিজে থেকে Asalify-র কিছু ছোঁব না।
 - **plugin-probe repo:** ঝুঁকিপূর্ণ প্লাগইন (image_picker/geolocator/speech_to_text/workmanager/share_plus) আগে পাবলিক probe repo-তে রিলিজ-বিল্ড করে যাচাই, তারপর আসল অ্যাপে। probe পাবলিক + Assisto কোড নেই → সিক্রেট-স্ক্যান/ফ্লিপ লাগে না।
 - **0.7 Flutter লোকাল বসাইনি:** ডিস্ক ১১GB ফ্রি; Flutter ~২GB → ৯GB-র নিচে নামার ঝুঁকি (হার্ড রুল ≥9GB)। বদলে CI-তে `flutter analyze`/`test` ফেল-ফাস্ট ধাপ যোগ করছি।
