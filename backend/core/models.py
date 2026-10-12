@@ -161,6 +161,65 @@ class Todo(models.Model):
         ordering = ["done", "-updated_at"]
 
 
+class FamilyMember(models.Model):
+    """Feature 12 — family members (for medicine schedules, sharing)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="family")
+    name = models.CharField(max_length=80)
+    relation = models.CharField(max_length=40, blank=True)
+    phone = models.CharField(max_length=24, blank=True)
+    notes = models.CharField(max_length=200, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["name"]
+
+
+class Medicine(models.Model):
+    """Feature 12 — medicine schedule (self or a family member)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="medicines")
+    member = models.ForeignKey(FamilyMember, on_delete=models.CASCADE, null=True, blank=True,
+                               related_name="medicines")
+    name = models.CharField(max_length=120)
+    dosage = models.CharField(max_length=80, blank=True)
+    times = models.JSONField(default=list, blank=True)   # ["08:00","20:00"]
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    refill_date = models.DateField(null=True, blank=True)
+    notes = models.CharField(max_length=200, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at"]
+
+
+class MedicineLog(models.Model):
+    """'খেয়েছি' confirmation per dose."""
+    medicine = models.ForeignKey(Medicine, on_delete=models.CASCADE, related_name="logs")
+    date = models.DateField()
+    slot = models.CharField(max_length=5)   # "08:00"
+    taken = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("medicine", "date", "slot")]
+
+
+class SchoolItem(models.Model):
+    """Feature 15 — child's school fees / exams / meetings."""
+    KIND = [("fee", "ফি"), ("exam", "পরীক্ষা"), ("meeting", "মিটিং")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="school_items")
+    child_name = models.CharField(max_length=80, blank=True)
+    kind = models.CharField(max_length=8, choices=KIND, default="fee")
+    title = models.CharField(max_length=160)
+    date = models.DateField(null=True, blank=True)
+    amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    done = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["done", "date"]
+
+
 class Account(models.Model):
     """Feature 7 — money accounts. Never store any bank/bKash PIN or password."""
     TYPES = [("cash", "ক্যাশ"), ("bkash", "বিকাশ"), ("nagad", "নগদ"), ("rocket", "রকেট"),

@@ -16,6 +16,9 @@ router.register("budgets", views.BudgetViewSet, basename="budget")
 router.register("loans", views.LoanViewSet, basename="loan")
 router.register("goals", views.SavingsGoalViewSet, basename="goal")
 router.register("subscriptions", views.SubscriptionViewSet, basename="subscription")
+router.register("family", views.FamilyMemberViewSet, basename="family")
+router.register("medicines", views.MedicineViewSet, basename="medicine")
+router.register("school", views.SchoolItemViewSet, basename="school")
 
 urlpatterns = [
     path("health", views.health),
@@ -35,6 +38,9 @@ urlpatterns = [
     path("documents/<int:pk>/file", views.DocumentFileView.as_view()),
     path("emergency", views.EmergencyCardView.as_view()),
     path("money/summary", views.MoneySummaryView.as_view()),
+    path("medicines/<int:pk>/taken", views.MedicineTakenView.as_view()),
+    path("medicines/today", views.MedicineTodayView.as_view()),
+    path("scam/check", views.ScamCheckView.as_view()),
     path("export", views.ExportView.as_view()),
     path("export/excel", views.ExportExcelView.as_view()),
     path("export/pdf", views.ExportPdfView.as_view()),

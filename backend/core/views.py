@@ -324,6 +324,91 @@ class EmergencyCardView(APIView):
         return Response(ser.data)
 
 
+# ---------- family (features 12, 13, 15) ----------
+from .models import FamilyMember, Medicine, MedicineLog, SchoolItem  # noqa: E402
+from .serializers import (FamilyMemberSerializer, MedicineSerializer,  # noqa: E402
+                          SchoolItemSerializer)
+
+
+class FamilyMemberViewSet(viewsets.ModelViewSet):
+    serializer_class = FamilyMemberSerializer
+
+    def get_queryset(self):
+        return FamilyMember.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class MedicineViewSet(viewsets.ModelViewSet):
+    serializer_class = MedicineSerializer
+
+    def get_queryset(self):
+        return Medicine.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        obj = serializer.save(user=self.request.user)
+        log(self.request.user, "medicine.create", id=obj.id, name=obj.name)
+
+
+class MedicineTakenView(APIView):
+    """'খেয়েছি' confirmation for a dose."""
+    def post(self, request, pk):
+        med = Medicine.objects.filter(user=request.user, pk=pk).first()
+        if not med:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        date = request.data.get("date") or timezone.localdate().isoformat()
+        slot = request.data.get("slot", "")
+        taken = bool(request.data.get("taken", True))
+        obj, _ = MedicineLog.objects.update_or_create(
+            medicine=med, date=date, slot=slot, defaults={"taken": taken})
+        log(request.user, "medicine.taken", id=med.id, slot=slot)
+        return Response({"ok": True, "taken": obj.taken})
+
+
+class MedicineTodayView(APIView):
+    """Today's medicine doses with taken-status (for self + family)."""
+    def get(self, request):
+        today = timezone.localdate()
+        out = []
+        for med in Medicine.objects.filter(user=request.user):
+            if med.start_date and med.start_date > today:
+                continue
+            if med.end_date and med.end_date < today:
+                continue
+            taken_slots = set(MedicineLog.objects.filter(
+                medicine=med, date=today, taken=True).values_list("slot", flat=True))
+            for slot in (med.times or []):
+                out.append({"medicine_id": med.id, "name": med.name,
+                            "dosage": med.dosage, "member": med.member_id,
+                            "slot": slot, "taken": slot in taken_slots,
+                            "refill_date": med.refill_date.isoformat() if med.refill_date else None})
+        out.sort(key=lambda x: x["slot"])
+        return Response(out)
+
+
+class SchoolItemViewSet(viewsets.ModelViewSet):
+    serializer_class = SchoolItemSerializer
+
+    def get_queryset(self):
+        return SchoolItem.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class ScamCheckView(APIView):
+    """Feature 13 — in-app scam checker (rule-based; reuses the web logic)."""
+    def post(self, request):
+        from web.logic import scam as scamlogic
+        msg = request.data.get("message", "")
+        if not msg.strip():
+            return Response({"detail": "মেসেজ দিন।"}, status=400)
+        result = scamlogic.check_message(msg)
+        log(request.user, "scam.check", verdict=result["verdict"])
+        return Response(result)
+
+
 # ---------- money (features 7-11) ----------
 
 class OwnedViewSet(viewsets.ModelViewSet):

@@ -166,3 +166,29 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         model = Subscription
         fields = ["id", "name", "amount", "cycle", "next_due"]
         read_only_fields = ["id"]
+
+
+# ---------------- family (feature 12/15) ----------------
+from .models import FamilyMember, Medicine, MedicineLog, SchoolItem  # noqa: E402
+
+
+class FamilyMemberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FamilyMember
+        fields = ["id", "name", "relation", "phone", "notes"]
+        read_only_fields = ["id"]
+
+
+class MedicineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Medicine
+        fields = ["id", "member", "name", "dosage", "times", "start_date",
+                  "end_date", "refill_date", "notes", "updated_at"]
+        read_only_fields = ["id", "updated_at"]
+
+
+class SchoolItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SchoolItem
+        fields = ["id", "child_name", "kind", "title", "date", "amount", "done"]
+        read_only_fields = ["id"]
