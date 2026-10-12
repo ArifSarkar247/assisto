@@ -24,6 +24,11 @@ dependencies:
   file_picker: ^13.1.0
   url_launcher: ^6.3.0
 
+# win32 is a Windows-only transitive dep; we only build Android. file_picker 13
+# needs win32 ^6 while flutter_secure_storage pins ^5 — override to unblock pub.
+dependency_overrides:
+  win32: ^6.3.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
