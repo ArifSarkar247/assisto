@@ -161,6 +161,97 @@ class Todo(models.Model):
         ordering = ["done", "-updated_at"]
 
 
+class Account(models.Model):
+    """Feature 7 — money accounts. Never store any bank/bKash PIN or password."""
+    TYPES = [("cash", "ক্যাশ"), ("bkash", "বিকাশ"), ("nagad", "নগদ"), ("rocket", "রকেট"),
+             ("bank", "ব্যাংক"), ("card", "কার্ড")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="accounts")
+    name = models.CharField(max_length=80)
+    acc_type = models.CharField(max_length=10, choices=TYPES, default="cash")
+    opening_balance = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["name"]
+
+
+class Transaction(models.Model):
+    """Feature 7/8 — income / expense / transfer."""
+    INCOME, EXPENSE, TRANSFER = "income", "expense", "transfer"
+    KIND = [(INCOME, "আয়"), (EXPENSE, "খরচ"), (TRANSFER, "ট্রান্সফার")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="txns")
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name="txns")
+    to_account = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True, blank=True,
+                                   related_name="txns_in")
+    kind = models.CharField(max_length=10, choices=KIND, default=EXPENSE)
+    amount = models.DecimalField(max_digits=14, decimal_places=2)
+    category = models.CharField(max_length=60, blank=True)
+    note = models.CharField(max_length=200, blank=True)
+    date = models.DateField()
+    source = models.CharField(max_length=12, default="manual")  # manual|ai|notification
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-date", "-created_at"]
+
+
+class Budget(models.Model):
+    """Feature 8 — monthly budget per category, 80%/100% warnings."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="budgets")
+    category = models.CharField(max_length=60)
+    monthly_limit = models.DecimalField(max_digits=14, decimal_places=2)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [("user", "category")]
+
+
+class Loan(models.Model):
+    """Feature 9 — loans given / taken."""
+    GIVEN, TAKEN = "given", "taken"
+    KIND = [(GIVEN, "আমি দিয়েছি"), (TAKEN, "আমি নিয়েছি")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="loans")
+    kind = models.CharField(max_length=6, choices=KIND, default=GIVEN)
+    person = models.CharField(max_length=80)
+    amount = models.DecimalField(max_digits=14, decimal_places=2)
+    date = models.DateField(null=True, blank=True)
+    due_date = models.DateField(null=True, blank=True)
+    settled = models.BooleanField(default=False)
+    note = models.CharField(max_length=200, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["settled", "-updated_at"]
+
+
+class SavingsGoal(models.Model):
+    """Feature 10 — savings goals."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="goals")
+    title = models.CharField(max_length=120)
+    target_amount = models.DecimalField(max_digits=14, decimal_places=2)
+    saved_amount = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    due_date = models.DateField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at"]
+
+
+class Subscription(models.Model):
+    """Feature 10 — recurring subscriptions."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="subscriptions")
+    name = models.CharField(max_length=80)
+    amount = models.DecimalField(max_digits=14, decimal_places=2)
+    cycle = models.CharField(max_length=8, default="monthly")  # monthly|yearly
+    next_due = models.DateField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["next_due"]
+
+
 class Document(models.Model):
     """Feature 6 — document vault. Files are owner-only (served via an
     auth-checked view, never public). PIN/biometric gate is client-side."""

@@ -13,12 +13,15 @@ from rest_framework.views import APIView
 from datetime import timedelta
 
 from .models import (User, MemoryItem, AuditLog, Reminder, Note, Todo,
-                     SourcePermission, SupportTicket, Document, EmergencyCard)
+                     SourcePermission, SupportTicket, Document, EmergencyCard,
+                     Account, Transaction, Budget, Loan, SavingsGoal, Subscription)
 from .serializers import (
     UserSerializer, RegisterSerializer, LoginSerializer,
     MemoryItemSerializer, AuditLogSerializer, ReminderSerializer,
     NoteSerializer, TodoSerializer, SourcePermissionSerializer,
     SupportTicketSerializer, DocumentSerializer, EmergencyCardSerializer,
+    AccountSerializer, TransactionSerializer, BudgetSerializer, LoanSerializer,
+    SavingsGoalSerializer, SubscriptionSerializer,
 )
 from . import ai
 
@@ -319,6 +322,120 @@ class EmergencyCardView(APIView):
         ser.save()
         log(request.user, "emergency.update")
         return Response(ser.data)
+
+
+# ---------- money (features 7-11) ----------
+
+class OwnedViewSet(viewsets.ModelViewSet):
+    model = None
+    kind = ""
+
+    def get_queryset(self):
+        return self.model.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        obj = serializer.save(user=self.request.user)
+        log(self.request.user, f"{self.kind}.create", id=obj.id)
+
+    def perform_update(self, serializer):
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        log(self.request.user, f"{self.kind}.delete", id=instance.id)
+        instance.delete()
+
+
+class AccountViewSet(OwnedViewSet):
+    model = Account; kind = "account"; serializer_class = AccountSerializer
+
+
+class TransactionViewSet(OwnedViewSet):
+    model = Transaction; kind = "txn"; serializer_class = TransactionSerializer
+
+    def get_queryset(self):
+        qs = Transaction.objects.filter(user=self.request.user)
+        month = self.request.query_params.get("month")  # YYYY-MM
+        if month:
+            try:
+                y, m = month.split("-")
+                qs = qs.filter(date__year=int(y), date__month=int(m))
+            except Exception:
+                pass
+        return qs
+
+
+class BudgetViewSet(OwnedViewSet):
+    model = Budget; kind = "budget"; serializer_class = BudgetSerializer
+
+
+class LoanViewSet(OwnedViewSet):
+    model = Loan; kind = "loan"; serializer_class = LoanSerializer
+
+
+class SavingsGoalViewSet(OwnedViewSet):
+    model = SavingsGoal; kind = "goal"; serializer_class = SavingsGoalSerializer
+
+
+class SubscriptionViewSet(OwnedViewSet):
+    model = Subscription; kind = "subscription"; serializer_class = SubscriptionSerializer
+
+
+class MoneySummaryView(APIView):
+    """Balances, current-month income/expense/net, budget 80%/100% warnings."""
+    def get(self, request):
+        from django.db.models import Sum
+        from decimal import Decimal
+        u = request.user
+        now = timezone.localtime()
+        y, m = now.year, now.month
+
+        def dec(x):
+            return x or Decimal("0")
+
+        accounts = []
+        total_balance = Decimal("0")
+        for a in u.accounts.all():
+            inc = dec(a.txns.filter(kind="income").aggregate(s=Sum("amount"))["s"])
+            exp = dec(a.txns.filter(kind="expense").aggregate(s=Sum("amount"))["s"])
+            tout = dec(a.txns.filter(kind="transfer").aggregate(s=Sum("amount"))["s"])
+            tin = dec(a.txns_in.filter(kind="transfer").aggregate(s=Sum("amount"))["s"])
+            bal = a.opening_balance + inc - exp - tout + tin
+            total_balance += bal
+            accounts.append({"id": a.id, "name": a.name, "acc_type": a.acc_type,
+                             "balance": str(bal)})
+
+        month_txns = u.txns.filter(date__year=y, date__month=m)
+        m_income = dec(month_txns.filter(kind="income").aggregate(s=Sum("amount"))["s"])
+        m_expense = dec(month_txns.filter(kind="expense").aggregate(s=Sum("amount"))["s"])
+        by_cat = {}
+        for t in month_txns.filter(kind="expense"):
+            by_cat[t.category or "অন্যান্য"] = by_cat.get(t.category or "অন্যান্য", Decimal("0")) + t.amount
+
+        budgets = []
+        for b in u.budgets.all():
+            spent = by_cat.get(b.category, Decimal("0"))
+            pct = int(spent / b.monthly_limit * 100) if b.monthly_limit else 0
+            budgets.append({"category": b.category, "limit": str(b.monthly_limit),
+                            "spent": str(spent), "pct": pct,
+                            "warn": "over" if pct >= 100 else ("near" if pct >= 80 else "ok")})
+
+        loans_given = dec(u.loans.filter(kind="given", settled=False)
+                          .aggregate(s=Sum("amount"))["s"])
+        loans_taken = dec(u.loans.filter(kind="taken", settled=False)
+                          .aggregate(s=Sum("amount"))["s"])
+
+        return Response({
+            "month": f"{y}-{m:02d}",
+            "total_balance": str(total_balance),
+            "accounts": accounts,
+            "month_income": str(m_income),
+            "month_expense": str(m_expense),
+            "month_net": str(m_income - m_expense),
+            "expense_by_category": {k: str(v) for k, v in by_cat.items()},
+            "budgets": budgets,
+            "loans_given_outstanding": str(loans_given),
+            "loans_taken_outstanding": str(loans_taken),
+        })
 
 
 # ---------- AI status (needs-key state surfaced to the app) ----------

@@ -1,7 +1,8 @@
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from .models import (User, MemoryItem, AuditLog, Reminder, Note, Todo,
-                     SourcePermission, SupportTicket, Document, EmergencyCard)
+                     SourcePermission, SupportTicket, Document, EmergencyCard,
+                     Account, Transaction, Budget, Loan, SavingsGoal, Subscription)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -120,3 +121,48 @@ class EmergencyCardSerializer(serializers.ModelSerializer):
         fields = ["blood_group", "allergies", "medicines", "conditions",
                   "notes", "contacts", "updated_at"]
         read_only_fields = ["updated_at"]
+
+
+# ---------------- money (feature 7-11) ----------------
+class AccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Account
+        fields = ["id", "name", "acc_type", "opening_balance", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+
+class TransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transaction
+        fields = ["id", "account", "to_account", "kind", "amount", "category",
+                  "note", "date", "source", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+
+class BudgetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Budget
+        fields = ["id", "category", "monthly_limit"]
+        read_only_fields = ["id"]
+
+
+class LoanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Loan
+        fields = ["id", "kind", "person", "amount", "date", "due_date",
+                  "settled", "note"]
+        read_only_fields = ["id"]
+
+
+class SavingsGoalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SavingsGoal
+        fields = ["id", "title", "target_amount", "saved_amount", "due_date"]
+        read_only_fields = ["id"]
+
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscription
+        fields = ["id", "name", "amount", "cycle", "next_due"]
+        read_only_fields = ["id"]
