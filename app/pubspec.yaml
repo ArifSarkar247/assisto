@@ -24,6 +24,12 @@ dependencies:
   flutter_local_notifications: ^17.2.3
   timezone: ^0.9.4
   url_launcher: ^6.3.0
+  # Part A plugins (probe-validated to build together on release arm64)
+  image_picker: ^1.1.2        # vault attachments: camera / gallery
+  geolocator: ^13.0.1         # SOS GPS location
+  speech_to_text: ^7.0.0      # Bangla/English voice input
+  share_plus: ^10.0.2         # SOS share sheet / share-out
+  workmanager: ^0.6.0         # family alert polling (no Firebase)
 
 dev_dependencies:
   flutter_test:

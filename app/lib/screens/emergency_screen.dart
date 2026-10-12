@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:share_plus/share_plus.dart';
 import '../state.dart';
+import '../l10n/app_localizations.dart';
 
 class EmergencyScreen extends StatefulWidget {
   const EmergencyScreen({super.key});
@@ -95,6 +98,31 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     if (await canLaunchUrl(uri)) await launchUrl(uri);
   }
 
+  Future<void> _shareLocation() async {
+    final t = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      if (!await Geolocator.isLocationServiceEnabled()) {
+        messenger.showSnackBar(SnackBar(content: Text(t.locationOff)));
+        return;
+      }
+      var perm = await Geolocator.checkPermission();
+      if (perm == LocationPermission.denied) {
+        perm = await Geolocator.requestPermission();
+      }
+      if (perm == LocationPermission.denied ||
+          perm == LocationPermission.deniedForever) {
+        messenger.showSnackBar(SnackBar(content: Text(t.locationNeeded)));
+        return;
+      }
+      final pos = await Geolocator.getCurrentPosition();
+      final link = 'https://maps.google.com/?q=${pos.latitude},${pos.longitude}';
+      await Share.share(t.sosShareText(link));
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text('$e')));
+    }
+  }
+
   Future<void> _sos() async {
     if (_contacts.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -122,6 +150,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     if (_loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
+    final t = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: const Text('ইমার্জেন্সি কার্ড'), actions: [
         _saving
@@ -138,6 +167,15 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
             onPressed: _sos,
             icon: const Icon(Icons.sos, size: 28),
             label: const Text('SOS — জরুরি কল', style: TextStyle(fontSize: 18)),
+          ),
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: _shareLocation,
+            icon: const Icon(Icons.my_location),
+            label: Text(t.shareMyLocation),
           ),
         ),
         const SizedBox(height: 16),

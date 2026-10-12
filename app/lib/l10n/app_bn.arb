@@ -20,6 +20,8 @@
   "friend": "বন্ধু",
   "urgentForYou": "আপনার জন্য কিছু জরুরি:",
   "inputHint": "Assisto-কে বলুন…",
+  "micUnavailable": "এই ফোনে ভয়েস ইনপুট পাওয়া যাচ্ছে না।",
+  "listening": "শুনছি…",
   "sendFailed": "দুঃখিত, এখন করা গেল না। পরে চেষ্টা করুন।",
   "undone": "ফিরিয়ে নিয়েছি ✓",
   "undo": "ফিরিয়ে নিন",
@@ -28,6 +30,11 @@
   "suggestionSpendMonth": "এই মাসে কত খরচ?",
   "suggestionExpense": "৫০০ টাকা খরচ খাবার",
   "suggestionMedicine": "কাল সকাল ৮টায় ওষুধ মনে করিয়ে দিও",
+
+  "shareMyLocation": "আমার লোকেশন শেয়ার করুন",
+  "locationNeeded": "লোকেশন অনুমতি দরকার।",
+  "locationOff": "দয়া করে লোকেশন চালু করুন।",
+  "sosShareText": "🚨 জরুরি! আমি এখন এখানে আছি: {link}",
 
   "save": "সেভ",
   "cancel": "বাতিল",

@@ -1,7 +1,11 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:path_provider/path_provider.dart';
 import '../state.dart';
 
 const _docTypes = {
@@ -103,11 +107,49 @@ class _VaultScreenState extends State<VaultScreen> {
     if (mounted) setState(() => _loading = false);
   }
 
+  Future<String?> _pickImage() async {
+    final src = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          ListTile(
+            leading: const Icon(Icons.photo_camera_outlined),
+            title: const Text('ক্যামেরা'),
+            onTap: () => Navigator.pop(ctx, ImageSource.camera),
+          ),
+          ListTile(
+            leading: const Icon(Icons.photo_library_outlined),
+            title: const Text('গ্যালারি'),
+            onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+          ),
+        ]),
+      ),
+    );
+    if (src == null) return null;
+    final x = await ImagePicker().pickImage(source: src, imageQuality: 70);
+    return x?.path;
+  }
+
+  Future<void> _viewFile(int id, String title) async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final bytes = await context.read<AppState>().api.getBytes('/documents/$id/file');
+      final dir = await getTemporaryDirectory();
+      final f = File('${dir.path}/vault_$id.jpg');
+      await f.writeAsBytes(bytes);
+      await OpenFilex.open(f.path);
+    } catch (_) {
+      messenger.showSnackBar(
+          const SnackBar(content: Text('এই ডকুমেন্টে কোনো ফাইল সংযুক্ত নেই।')));
+    }
+  }
+
   Future<void> _add() async {
     final title = TextEditingController();
     final note = TextEditingController();
     String type = 'passport';
     DateTime? expiry;
+    String? filePath;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => StatefulBuilder(builder: (ctx, setD) => AlertDialog(
@@ -134,6 +176,16 @@ class _VaultScreenState extends State<VaultScreen> {
             },
           ),
           const SizedBox(height: 10),
+          OutlinedButton.icon(
+            icon: Icon(filePath == null ? Icons.attach_file : Icons.check_circle,
+                size: 18, color: filePath == null ? null : Colors.green),
+            label: Text(filePath == null ? 'ছবি যুক্ত করুন (ক্যামেরা/গ্যালারি)' : 'ছবি যুক্ত ✓'),
+            onPressed: () async {
+              final p = await _pickImage();
+              if (p != null) setD(() => filePath = p);
+            },
+          ),
+          const SizedBox(height: 10),
           TextField(controller: note, decoration: const InputDecoration(labelText: 'নোট (ঐচ্ছিক)')),
         ])),
         actions: [
@@ -144,10 +196,17 @@ class _VaultScreenState extends State<VaultScreen> {
     );
     if (ok == true && title.text.trim().isNotEmpty) {
       try {
-        await context.read<AppState>().api.createDocument(
-          title: title.text.trim(), docType: type,
-          expiryDate: expiry != null ? DateFormat('yyyy-MM-dd').format(expiry!) : null,
-          note: note.text.trim());
+        final expiryStr =
+            expiry != null ? DateFormat('yyyy-MM-dd').format(expiry!) : null;
+        if (filePath != null) {
+          await context.read<AppState>().api.uploadDocument(
+              title: title.text.trim(), docType: type,
+              expiryDate: expiryStr, note: note.text.trim(), filePath: filePath!);
+        } else {
+          await context.read<AppState>().api.createDocument(
+              title: title.text.trim(), docType: type,
+              expiryDate: expiryStr, note: note.text.trim());
+        }
         await _load();
       } catch (e) {
         if (mounted) {
@@ -210,12 +269,19 @@ class _VaultScreenState extends State<VaultScreen> {
                             if (_expiryBadge(doc['expiry_date']) != null)
                               _expiryBadge(doc['expiry_date'])!,
                           ]),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete_outline),
-                          onPressed: () async {
-                            await context.read<AppState>().api.deleteDocument(doc['id']);
-                            _load();
-                          }),
+                        trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                          if (doc['file_url'] != null)
+                            IconButton(
+                              icon: const Icon(Icons.visibility_outlined),
+                              tooltip: 'দেখুন',
+                              onPressed: () => _viewFile(doc['id'], doc['title'] ?? '')),
+                          IconButton(
+                            icon: const Icon(Icons.delete_outline),
+                            onPressed: () async {
+                              await context.read<AppState>().api.deleteDocument(doc['id']);
+                              _load();
+                            }),
+                        ]),
                       )),
                   ],
                 ),

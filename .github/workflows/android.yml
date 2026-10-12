@@ -69,7 +69,11 @@ jobs:
           s = s.replace('android:label="assisto"', 'android:label="Assisto"')
           perms = (
               '\n    <uses-permission android:name="android.permission.INTERNET"/>'
-              '\n    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>\n'
+              '\n    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>'
+              '\n    <uses-permission android:name="android.permission.RECORD_AUDIO"/>'
+              '\n    <uses-permission android:name="android.permission.CAMERA"/>'
+              '\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>'
+              '\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>\n'
           )
           if 'android.permission.INTERNET' not in s:
               s = re.sub(r'(<manifest[^>]*>)', r'\1' + perms, s, count=1)

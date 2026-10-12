@@ -60,4 +60,14 @@ class Notifications {
       await _plugin.cancel(idFor(localId));
     } catch (_) {}
   }
+
+  /// Show a notification immediately (used by the background family poller).
+  static Future<void> show(int id, String title, String body) async {
+    if (!_ready) return;
+    try {
+      await _plugin.show(id, title, body, _details);
+    } catch (e) {
+      if (kDebugMode) print('show failed: $e');
+    }
+  }
 }

@@ -21,6 +21,8 @@
   "friend": "friend",
   "urgentForYou": "A few urgent things for you:",
   "inputHint": "Tell Assisto…",
+  "micUnavailable": "Voice input isn't available on this device.",
+  "listening": "Listening…",
   "sendFailed": "Sorry, couldn't do that now. Please try again.",
   "undone": "Undone ✓",
   "undo": "Undo",
@@ -29,6 +31,12 @@
   "suggestionSpendMonth": "How much did I spend this month?",
   "suggestionExpense": "500 taka food expense",
   "suggestionMedicine": "Remind me medicine tomorrow 8 am",
+
+  "shareMyLocation": "Share my location",
+  "locationNeeded": "Location permission is needed.",
+  "locationOff": "Please turn on location.",
+  "sosShareText": "🚨 Emergency! I'm here right now: {link}",
+  "@sosShareText": { "placeholders": { "link": {} } },
 
   "save": "Save",
   "cancel": "Cancel",

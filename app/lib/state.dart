@@ -8,6 +8,7 @@ import 'api.dart';
 import 'db.dart';
 import 'models.dart';
 import 'sync_repo.dart';
+import 'background.dart';
 
 class AppState extends ChangeNotifier {
   final _secure = const FlutterSecureStorage();
@@ -93,6 +94,7 @@ class AppState extends ChangeNotifier {
     if (t != null) {
       try {
         user = await api.me();
+        await Background.start();
         await sync();
         _syncAll();
       } catch (e) {
@@ -119,6 +121,7 @@ class AppState extends ChangeNotifier {
     api.token = res.token;
     user = res.user;
     await _secure.write(key: 'token', value: res.token);
+    await Background.start();
     await sync();
     _syncAll();
     notifyListeners();
@@ -130,6 +133,7 @@ class AppState extends ChangeNotifier {
     api.token = res.token;
     user = res.user;
     await _secure.write(key: 'token', value: res.token);
+    await Background.start();
     await sync();
     _syncAll();
     notifyListeners();
@@ -150,6 +154,7 @@ class AppState extends ChangeNotifier {
     api.token = null;
     user = null;
     await _secure.delete(key: 'token');
+    await Background.stop();
   }
 
   Future<void> deleteAccount() async {

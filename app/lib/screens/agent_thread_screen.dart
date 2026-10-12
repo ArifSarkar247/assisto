@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
@@ -28,6 +29,10 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
   final List<_Msg> _msgs = [];
   bool _sending = false;
 
+  final SpeechToText _speech = SpeechToText();
+  bool _speechReady = false;
+  bool _listening = false;
+
   AppLocalizations get t => AppLocalizations.of(context);
 
   List<String> get _suggestions => [
@@ -45,6 +50,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
 
   @override
   void dispose() {
+    _speech.cancel();
     _input.dispose();
     _scroll.dispose();
     super.dispose();
@@ -113,6 +119,50 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
         _toBottom();
       }
     } catch (_) {}
+  }
+
+  Future<void> _toggleMic() async {
+    if (_listening) {
+      await _speech.stop();
+      if (mounted) setState(() => _listening = false);
+      return;
+    }
+    if (!_speechReady) {
+      _speechReady = await _speech.initialize(
+        onStatus: (s) {
+          if ((s == 'done' || s == 'notListening') && mounted) {
+            setState(() => _listening = false);
+          }
+        },
+        onError: (_) {
+          if (mounted) setState(() => _listening = false);
+        },
+      );
+    }
+    if (!_speechReady) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(t.micUnavailable)));
+      }
+      return;
+    }
+    HapticFeedback.selectionClick();
+    final loc = context.read<AppState>().locale?.languageCode == 'en'
+        ? 'en_US'
+        : 'bn_BD';
+    setState(() => _listening = true);
+    await _speech.listen(
+      localeId: loc,
+      onResult: (r) {
+        if (mounted) {
+          setState(() {
+            _input.text = r.recognizedWords;
+            _input.selection = TextSelection.fromPosition(
+                TextPosition(offset: _input.text.length));
+          });
+        }
+      },
+    );
   }
 
   @override
@@ -308,7 +358,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
               textInputAction: TextInputAction.send,
               onSubmitted: (_) => _send(),
               decoration: InputDecoration(
-                hintText: t.inputHint,
+                hintText: _listening ? t.listening : t.inputHint,
                 filled: true,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 border: OutlineInputBorder(
@@ -316,7 +366,14 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
               ),
             ),
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 4),
+          IconButton(
+            onPressed: _toggleMic,
+            tooltip: t.listening,
+            icon: Icon(_listening ? Icons.stop_circle : Icons.mic_none,
+                color: _listening ? Brand.danger : null),
+          ),
+          const SizedBox(width: 2),
           _sending
               ? const Padding(padding: EdgeInsets.all(10),
                   child: SizedBox(height: 22, width: 22, child: CircularProgressIndicator(strokeWidth: 2)))
