@@ -1,0 +1,142 @@
+"""
+Assisto agent brain — turns a Bangla/English message into intents + actions.
+Works WITHOUT an AI key (rule-based). When a key exists the view may enrich the
+reply with AI, but parsing/execution here never requires it.
+
+Safety: this only ever creates the user's OWN data (reminders, expenses, loans,
+medicines, memory). Anything external/sensitive is NOT executed here — the view
+returns an approval card instead (autonomy dial + audit log).
+"""
+import re
+from datetime import datetime, timedelta
+from decimal import Decimal, InvalidOperation
+
+_BN_DIGITS = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
+
+
+def _norm(s):
+    return (s or "").translate(_BN_DIGITS)
+
+
+def _amount(text):
+    m = re.search(r"(\d[\d,]*\.?\d*)", _norm(text).replace(",", ""))
+    if not m:
+        return None
+    try:
+        return Decimal(m.group(1))
+    except InvalidOperation:
+        return None
+
+
+def _time(text):
+    """Very small time parser: সকাল/দুপুর/বিকেল/সন্ধ্যা/রাত + N টা, or HH:MM."""
+    t = _norm(text)
+    now = datetime.now()
+    base = now
+    if "কাল" in text or "tomorrow" in text.lower():
+        base = now + timedelta(days=1)
+    m = re.search(r"(\d{1,2}):(\d{2})", t)
+    if m:
+        return base.replace(hour=int(m.group(1)), minute=int(m.group(2)),
+                            second=0, microsecond=0)
+    m = re.search(r"(\d{1,2})\s*টা", t)
+    if m:
+        h = int(m.group(1))
+        if any(w in text for w in ["বিকেল", "সন্ধ্যা", "রাত", "দুপুর"]) and h < 12:
+            h += 12
+        if "সকাল" in text and h == 12:
+            h = 0
+        return base.replace(hour=h % 24, minute=0, second=0, microsecond=0)
+    return None
+
+
+# intent keyword sets
+_EXPENSE = ["খরচ", "দিলাম", "কিনলাম", "খরচা", "spent", "paid", "bought", "expense"]
+_INCOME = ["আয়", "পেলাম", "বেতন", "ইনকাম", "income", "salary", "got paid", "received"]
+_LOAN_GIVE = ["ধার দিলাম", "ধার দিছি", "দিলাম ধার", "lent", "ধার দিয়েছি"]
+_LOAN_TAKE = ["ধার নিলাম", "ধার নিছি", "নিলাম ধার", "borrowed", "ধার নিয়েছি"]
+_REMIND = ["মনে করিয়ে", "রিমাইন্ডার", "মনে করাও", "remind", "alarm", "অ্যালার্ম"]
+_MEDICINE = ["ওষুধ", "medicine", "medication", "ওষূধ"]
+_REMEMBER = ["মনে রাখো", "মনে রেখো", "remember", "মনে রাখবে"]
+_QUERY_MONEY = ["কত টাকা", "ব্যালেন্স", "কত খরচ", "balance", "how much", "কত আছে"]
+_QUERY_TODAY = ["আজ কী", "আজকে কী", "today", "briefing", "ব্রিফিং", "কী কী আছে"]
+
+
+def _has(text, words):
+    low = text.lower()
+    return any(w in text or w in low for w in words)
+
+
+def parse(text):
+    """Return a dict describing the intent + extracted fields (no DB access)."""
+    text = (text or "").strip()
+    if not text:
+        return {"intent": "unknown"}
+
+    # queries first
+    if _has(text, _QUERY_TODAY):
+        return {"intent": "query_today"}
+    if _has(text, _QUERY_MONEY):
+        return {"intent": "query_money"}
+
+    amt = _amount(text)
+
+    if _has(text, _LOAN_GIVE) and amt is not None:
+        return {"intent": "loan", "kind": "given", "amount": str(amt),
+                "person": _person(text)}
+    if _has(text, _LOAN_TAKE) and amt is not None:
+        return {"intent": "loan", "kind": "taken", "amount": str(amt),
+                "person": _person(text)}
+    if _has(text, _INCOME) and amt is not None:
+        return {"intent": "income", "amount": str(amt), "category": _category(text)}
+    if _has(text, _EXPENSE) and amt is not None:
+        return {"intent": "expense", "amount": str(amt), "category": _category(text)}
+    if _has(text, _MEDICINE):
+        return {"intent": "medicine", "name": _clean_med(text), "due": _timestr(text)}
+    if _has(text, _REMIND):
+        return {"intent": "reminder", "title": _clean_remind(text),
+                "due": _timestr(text)}
+    if _has(text, _REMEMBER):
+        return {"intent": "memory", "title": _clean_remember(text)}
+    # bare "<amount> <something>" → treat as expense
+    if amt is not None:
+        return {"intent": "expense", "amount": str(amt), "category": _category(text)}
+    # otherwise store as a memory/note
+    return {"intent": "memory", "title": text}
+
+
+def _timestr(text):
+    t = _time(text)
+    return t.isoformat() if t else None
+
+
+def _person(text):
+    m = re.search(r"([ঀ-৿\w]+)\s*(ভাই|আপা|কে|র কাছে|-কে)", text)
+    return m.group(1) if m else ""
+
+
+def _category(text):
+    for c in ["খাবার", "খাওয়া", "যাতায়াত", "বাজার", "বিল", "রিচার্জ", "বাসা ভাড়া",
+              "ওষুধ", "কাপড়", "food", "transport", "bill", "rent", "grocery"]:
+        if c in text:
+            return c
+    return ""
+
+
+def _strip(text, words):
+    out = text
+    for w in words:
+        out = out.replace(w, "")
+    return re.sub(r"\s+", " ", out).strip(" ।,-")
+
+
+def _clean_remind(text):
+    return _strip(text, _REMIND + ["আমাকে", "দিও", "দাও", "me", "to"]) or "রিমাইন্ডার"
+
+
+def _clean_remember(text):
+    return _strip(text, _REMEMBER) or text
+
+
+def _clean_med(text):
+    return _strip(text, _MEDICINE + ["যোগ করো", "add", "খাওয়ার"]) or "ওষুধ"

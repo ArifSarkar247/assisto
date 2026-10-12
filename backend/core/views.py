@@ -678,6 +678,89 @@ class InviteView(APIView):
                                        "assisto.asalify.com/get"})
 
 
+# ---------- agent thread (conversation-first, rule-based; AI-optional) ----------
+
+class AgentView(APIView):
+    """Turns a Bangla/English message into an action + a thread card.
+    Only creates the user's OWN data; nothing external without a future
+    approval card. Works with no AI key."""
+    def post(self, request):
+        from . import agent as agent_brain
+        from decimal import Decimal
+        u = request.user
+        text = (request.data.get("text") or "").strip()
+        if not text:
+            return Response({"reply": "কিছু লিখুন বা বলুন।", "cards": []})
+        p = agent_brain.parse(text)
+        intent = p.get("intent")
+        cards = []
+        reply = ""
+
+        def ensure_account():
+            acc = u.accounts.first()
+            if not acc:
+                acc = Account.objects.create(user=u, name="ক্যাশ", acc_type="cash")
+            return acc
+
+        if intent == "reminder":
+            r = Reminder.objects.create(user=u, title=p["title"], source="ai",
+                due_at=p["due"], remind_before_min=0)
+            log(u, "agent.reminder", id=r.id)
+            reply = "রিমাইন্ডার সেট করেছি।"
+            cards.append({"type": "reminder", "title": p["title"],
+                          "subtitle": p.get("due") or "সময় ছাড়া",
+                          "model": "reminder", "id": r.id, "undo": True})
+        elif intent in ("expense", "income"):
+            acc = ensure_account()
+            t = Transaction.objects.create(user=u, account=acc, kind=intent,
+                amount=Decimal(p["amount"]), category=p.get("category", ""),
+                date=timezone.localdate(), source="ai")
+            log(u, f"agent.{intent}", id=t.id)
+            reply = ("খরচ" if intent == "expense" else "আয়") + " লিখে রেখেছি।"
+            cards.append({"type": intent, "title": f"৳{p['amount']} {p.get('category','')}".strip(),
+                          "subtitle": acc.name, "model": "txn", "id": t.id, "undo": True})
+        elif intent == "loan":
+            ln = Loan.objects.create(user=u, kind=p["kind"], person=p.get("person", ""),
+                amount=Decimal(p["amount"]))
+            log(u, "agent.loan", id=ln.id)
+            reply = "ধারের হিসাব রেখেছি।"
+            cards.append({"type": "loan", "title": f"{p.get('person','')} · ৳{p['amount']}",
+                          "subtitle": "দিয়েছি" if p["kind"] == "given" else "নিয়েছি",
+                          "model": "loan", "id": ln.id, "undo": True})
+        elif intent == "medicine":
+            med = Medicine.objects.create(user=u, name=p["name"],
+                times=[p["due"][11:16]] if p.get("due") else [])
+            log(u, "agent.medicine", id=med.id)
+            reply = "ওষুধ যোগ করেছি।"
+            cards.append({"type": "medicine", "title": p["name"],
+                          "subtitle": ", ".join(med.times) or "সময় দিন",
+                          "model": "medicine", "id": med.id, "undo": True})
+        elif intent == "memory":
+            m = MemoryItem.objects.create(user=u, title=p["title"], source="ai",
+                                          needs_review=True)
+            log(u, "agent.memory", id=m.id)
+            reply = "মনে রাখলাম।"
+            cards.append({"type": "memory", "title": p["title"],
+                          "subtitle": "AI ধরেছে · রিভিউ করুন",
+                          "model": "memory", "id": m.id, "undo": True})
+        elif intent == "query_money":
+            s = MoneySummaryView().get(request).data
+            reply = (f"মোট ব্যালেন্স ৳{s['total_balance']}। এ মাসে খরচ ৳{s['month_expense']}, "
+                     f"আয় ৳{s['month_income']}।")
+            cards.append({"type": "summary", "title": f"ব্যালেন্স ৳{s['total_balance']}",
+                          "subtitle": f"খরচ ৳{s['month_expense']} · আয় ৳{s['month_income']}"})
+        elif intent == "query_today":
+            b = briefing(request).data
+            reply = b["text"]
+        else:
+            reply = "বুঝতে পারিনি। যেমন বলুন: 'কাল সকাল ৮টায় ওষুধ মনে করিয়ে দিও' বা '৫০০ টাকা খরচ খাবার'।"
+
+        # Optional AI enrichment (never required)
+        ai_used = False
+        return Response({"reply": reply, "cards": cards, "intent": intent,
+                         "ai_used": ai_used, "ai_enabled": ai.key_present()})
+
+
 # ---------- AI status (needs-key state surfaced to the app) ----------
 
 @api_view(["GET"])

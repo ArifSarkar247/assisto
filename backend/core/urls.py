@@ -44,6 +44,7 @@ urlpatterns = [
     path("briefing", views.briefing),
     path("alerts", views.alerts),
     path("scan", views.LifeScanView.as_view()),
+    path("agent", views.AgentView.as_view()),
     path("wrapped", views.wrapped),
     path("invite", views.InviteView.as_view()),
     path("export", views.ExportView.as_view()),
