@@ -14,7 +14,9 @@
 - AI খরচ/ব্যবহার (key থাকলে, Haiku): W1 ≈ $0.005, W2 ≈ $0.0017; key ছাড়া $0 (নিয়ম-ভিত্তিক)
 
 **V1 — অ্যাপ + ব্যাকএন্ড (ফিচার ১–২১)**
-- 🔨 Part 2: ✅(3) রিমাইন্ডার/নোট/To-Do (অফলাইন সিঙ্ক + লোকাল নোটিফিকেশন) · ✅(2) Memory + মুছে ফেলা · ✅(20) autonomy dial/audit log/undo/per-source permission · ✅(21) sync/export(JSON+Excel+PDF)/support+bug · APK বিল্ড চলছে
+- ✅ Part 2 (build 6): (3) রিমাইন্ডার/নোট/To-Do অফলাইন সিঙ্ক + লোকাল নোটিফিকেশন · (2) Memory + মুছে ফেলা · (20) autonomy dial/audit log/undo/per-source permission · (21) sync/export(JSON+Excel+PDF)/support+bug
+  - 📱 APK: https://assisto.asalify.com/dl/THsEnWPn6oEEHRdIznFqsspf/assisto-part2-build6.apk (~21MB, signed) — অথবা পুরোনো অ্যাপে "নতুন আপডেট আছে" থেকে আপডেট
+  - রিপো পাবলিক: 13:17:54 UTC (19:17:54 BST) → প্রাইভেট: 13:32:37 UTC (19:32:37 BST)। হিস্ট্রি সিক্রেট-মুক্ত। (২বার ফিক্স: ডিফল্ট টেস্ট ফাইল + desugaring)
 - ⏳ Part 3: (6) ভল্ট + এক্সপায়ারি · (14) ইমার্জেন্সি কার্ড + SOS
 - ⏳ Part 4: (7) অ্যাকাউন্ট · (8) স্টেটমেন্ট/বাজেট · (9) ধার · (10) সঞ্চয়/সাবস্ক্রিপশন · (11) বিল গাইড
 - ⏳ Part 5: (12) ফ্যামিলি/ওষুধ · (13) স্ক্যাম অ্যালার্ট · (15) বাচ্চার স্কুল
