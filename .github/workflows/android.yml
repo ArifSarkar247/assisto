@@ -97,10 +97,14 @@ jobs:
           gr = "android/app/build.gradle"
           p, is_kts = (kts, True) if os.path.exists(kts) else (gr, False)
           s = open(p).read()
-          # Bump minSdk to 23 (required by file_picker / lifecycle / notifications)
+          # Force minSdk 23 (required by file_picker / lifecycle / notifications):
+          # strip any existing minSdk line, then inject into defaultConfig.
           import re as _re
-          s = _re.sub(r'minSdk(Version)?\s*=?\s*flutter\.minSdkVersion',
-                      'minSdk = 23' if is_kts else 'minSdkVersion 23', s)
+          s = _re.sub(r'\n[ \t]*minSdk[A-Za-z]*\s*=?[^\n]*', '', s)
+          inject = '\n        minSdk = 23' if is_kts else '\n        minSdkVersion 23'
+          s = s.replace('defaultConfig {', 'defaultConfig {' + inject, 1)
+          print("minSdk line now:",
+                [l.strip() for l in s.splitlines() if 'minSdk' in l])
           if "coreLibraryDesugaring" not in s:
               if is_kts:
                   s = s.replace("compileOptions {",
