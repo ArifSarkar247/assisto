@@ -4,6 +4,8 @@ import '../state.dart';
 import '../updater.dart';
 import 'memory_screen.dart';
 import 'settings_screen.dart';
+import 'reminders_screen.dart';
+import 'notes_todos_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,7 +18,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final pages = const [_Dashboard(), MemoryScreen(), SettingsScreen()];
+    final pages = const [
+      _Dashboard(),
+      RemindersScreen(),
+      NotesTodosScreen(),
+      MemoryScreen(),
+      SettingsScreen(),
+    ];
     return Scaffold(
       body: SafeArea(child: pages[_tab]),
       bottomNavigationBar: NavigationBar(
@@ -24,8 +32,10 @@ class _HomeScreenState extends State<HomeScreen> {
         onDestinationSelected: (i) => setState(() => _tab = i),
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home_outlined), label: 'হোম'),
+          NavigationDestination(icon: Icon(Icons.alarm_outlined), label: 'রিমাইন্ডার'),
+          NavigationDestination(icon: Icon(Icons.checklist_outlined), label: 'নোট/কাজ'),
           NavigationDestination(
-              icon: Icon(Icons.psychology_outlined), label: 'AI কী জানে'),
+              icon: Icon(Icons.psychology_outlined), label: 'AI জানে'),
           NavigationDestination(
               icon: Icon(Icons.settings_outlined), label: 'সেটিংস'),
         ],

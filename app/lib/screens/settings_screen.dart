@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:intl/intl.dart';
 
 import '../state.dart';
@@ -49,6 +50,20 @@ class SettingsScreen extends StatelessWidget {
       );
       messenger.showSnackBar(
           SnackBar(content: Text('সেভ হয়েছে: ${f.path}')));
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text('এক্সপোর্ট ব্যর্থ: $e')));
+    }
+  }
+
+  Future<void> _downloadOpen(BuildContext context, String path, String filename) async {
+    final app = context.read<AppState>();
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final bytes = await app.api.getBytes(path);
+      final dir = await getTemporaryDirectory();
+      final f = File('${dir.path}/$filename');
+      await f.writeAsBytes(bytes);
+      await OpenFilex.open(f.path);
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text('এক্সপোর্ট ব্যর্থ: $e')));
     }
@@ -133,6 +148,30 @@ class SettingsScreen extends StatelessWidget {
             title: const Text('আমার ডাটা এক্সপোর্ট'),
             subtitle: const Text('সব তথ্য JSON হিসেবে'),
             onTap: () => _export(context),
+          ),
+          ListTile(
+            leading: const Icon(Icons.table_chart_outlined),
+            title: const Text('Excel-এ এক্সপোর্ট'),
+            onTap: () => _downloadOpen(context, '/export/excel', 'assisto-export.xlsx'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.picture_as_pdf_outlined),
+            title: const Text('PDF-এ এক্সপোর্ট'),
+            onTap: () => _downloadOpen(context, '/export/pdf', 'assisto-export.pdf'),
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.tune),
+            title: const Text('ইনপুট সোর্স অনুমতি'),
+            subtitle: const Text('ছবি, শেয়ার, ভয়েস, নোটিফিকেশন — চালু/বন্ধ'),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const SourcesScreen())),
+          ),
+          ListTile(
+            leading: const Icon(Icons.support_agent_outlined),
+            title: const Text('সাহায্য / সমস্যা রিপোর্ট'),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const SupportScreen())),
           ),
           ListTile(
             leading: const Icon(Icons.delete_forever_outlined,
@@ -222,6 +261,154 @@ class _AuditScreenState extends State<AuditScreen> {
           );
         },
       ),
+    );
+  }
+}
+
+// ---------------- per-source permissions ----------------
+class SourcesScreen extends StatefulWidget {
+  const SourcesScreen({super.key});
+  @override
+  State<SourcesScreen> createState() => _SourcesScreenState();
+}
+
+class _SourcesScreenState extends State<SourcesScreen> {
+  List<Map<String, dynamic>> _sources = [];
+  bool _loading = true;
+  static const _labels = {
+    'photo': 'ছবি থেকে',
+    'share': 'শেয়ার/ফরোয়ার্ড',
+    'voice': 'বাংলা ভয়েস',
+    'notification': 'নোটিফিকেশন (bKash/ব্যাংক)',
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final s = await context.read<AppState>().api.sources();
+      setState(() {
+        _sources = s;
+        _loading = false;
+      });
+    } catch (_) {
+      setState(() => _loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final app = context.read<AppState>();
+    return Scaffold(
+      appBar: AppBar(title: const Text('ইনপুট সোর্স অনুমতি')),
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text('AI কোন কোন উৎস থেকে তথ্য নেবে — আপনি ঠিক করেন। '
+                      'যেকোনোটা বন্ধ রাখতে পারেন।',
+                      style: TextStyle(fontSize: 13, color: Colors.grey)),
+                ),
+                for (final s in _sources)
+                  SwitchListTile(
+                    title: Text(_labels[s['source']] ?? s['source']),
+                    value: s['enabled'] == true,
+                    onChanged: (v) async {
+                      setState(() => s['enabled'] = v);
+                      await app.api.toggleSource(s['source'], v);
+                    },
+                  ),
+              ],
+            ),
+    );
+  }
+}
+
+// ---------------- support / bug report ----------------
+class SupportScreen extends StatefulWidget {
+  const SupportScreen({super.key});
+  @override
+  State<SupportScreen> createState() => _SupportScreenState();
+}
+
+class _SupportScreenState extends State<SupportScreen> {
+  final _msg = TextEditingController();
+  String _kind = 'support';
+  bool _sending = false;
+  bool _sent = false;
+
+  @override
+  void dispose() {
+    _msg.dispose();
+    super.dispose();
+  }
+
+  Future<void> _send() async {
+    if (_msg.text.trim().isEmpty) return;
+    setState(() => _sending = true);
+    try {
+      await context.read<AppState>().api
+          .sendSupport(_kind, _msg.text.trim(), AppConfig.appVersionLabel);
+      setState(() => _sent = true);
+    } catch (_) {
+    } finally {
+      setState(() => _sending = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('সাহায্য / সমস্যা')),
+      body: _sent
+          ? const Center(
+              child: Padding(
+                padding: EdgeInsets.all(24),
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(Icons.check_circle, color: Colors.green, size: 56),
+                  SizedBox(height: 12),
+                  Text('ধন্যবাদ! আপনার বার্তা পেয়েছি।', textAlign: TextAlign.center),
+                ]),
+              ),
+            )
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                SegmentedButton<String>(
+                  segments: const [
+                    ButtonSegment(value: 'support', label: Text('সাহায্য')),
+                    ButtonSegment(value: 'bug', label: Text('সমস্যা')),
+                  ],
+                  selected: {_kind},
+                  onSelectionChanged: (s) => setState(() => _kind = s.first),
+                ),
+                const SizedBox(height: 14),
+                TextField(
+                  controller: _msg,
+                  maxLines: 6,
+                  decoration: const InputDecoration(
+                      labelText: 'আপনার বার্তা', alignLabelWithHint: true),
+                ),
+                const SizedBox(height: 14),
+                FilledButton(
+                  onPressed: _sending ? null : _send,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: _sending
+                        ? const SizedBox(
+                            height: 20, width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Text('পাঠান'),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }

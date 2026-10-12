@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'api.dart';
 import 'db.dart';
 import 'models.dart';
+import 'sync_repo.dart';
 
 class AppState extends ChangeNotifier {
   final _secure = const FlutterSecureStorage();
@@ -20,16 +21,44 @@ class AppState extends ChangeNotifier {
   AppUser? user;
   List<MemoryItem> memory = [];
 
+  late final SyncedRepo reminders = SyncedRepo('reminder', 'reminders', api, db);
+  late final SyncedRepo notes = SyncedRepo('note', 'notes', api, db);
+  late final SyncedRepo todos = SyncedRepo('todo', 'todos', api, db);
+
+  AppState() {
+    for (final r in [reminders, notes, todos]) {
+      r.addListener(notifyListeners);
+    }
+  }
+
+  void _syncAll() {
+    reminders.sync();
+    notes.sync();
+    todos.sync();
+  }
+
+  Future<bool> undoLast() async {
+    final ok = await api.undo();
+    if (ok) {
+      _syncAll();
+    }
+    return ok;
+  }
+
   bool get loggedIn => api.token != null && user != null;
 
   Future<void> init() async {
     final t = await _secure.read(key: 'token');
     api.token = t;
     memory = await db.allMemory();
+    await reminders.load();
+    await notes.load();
+    await todos.load();
     if (t != null) {
       try {
         user = await api.me();
         await sync();
+        _syncAll();
       } catch (e) {
         // offline or token issue — stay with whatever we have locally
         online = false;
@@ -55,6 +84,7 @@ class AppState extends ChangeNotifier {
     user = res.user;
     await _secure.write(key: 'token', value: res.token);
     await sync();
+    _syncAll();
     notifyListeners();
   }
 
@@ -65,6 +95,7 @@ class AppState extends ChangeNotifier {
     user = res.user;
     await _secure.write(key: 'token', value: res.token);
     await sync();
+    _syncAll();
     notifyListeners();
   }
 
@@ -72,6 +103,9 @@ class AppState extends ChangeNotifier {
     await api.logout();
     await _clearSession();
     await db.clearAll();
+    await reminders.clear();
+    await notes.clear();
+    await todos.clear();
     memory = [];
     notifyListeners();
   }

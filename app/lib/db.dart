@@ -18,7 +18,7 @@ class LocalDb {
     final path = p.join(dir, 'assisto.db');
     return openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: (d, v) async {
         await d.execute('''
           CREATE TABLE memory(
@@ -33,8 +33,70 @@ class LocalDb {
             pending_op TEXT
           )
         ''');
+        await _createRecords(d);
+      },
+      onUpgrade: (d, oldV, newV) async {
+        if (oldV < 2) await _createRecords(d);
       },
     );
+  }
+
+  Future<void> _createRecords(dynamic d) async {
+    // generic offline store for reminders/notes/todos (data = JSON string)
+    await d.execute('''
+      CREATE TABLE records(
+        entity TEXT,
+        local_id TEXT,
+        server_id INTEGER,
+        data TEXT,
+        updated_at TEXT,
+        pending_op TEXT,
+        PRIMARY KEY(entity, local_id)
+      )
+    ''');
+  }
+
+  // ---- generic records (reminders / notes / todos) ----
+  Future<List<Map<String, dynamic>>> recAll(String entity) async {
+    final d = await db;
+    return d.query('records',
+        where: "entity = ? AND pending_op != 'delete'",
+        whereArgs: [entity], orderBy: 'updated_at DESC');
+  }
+
+  Future<List<Map<String, dynamic>>> recPending(String entity) async {
+    final d = await db;
+    return d.query('records',
+        where: "entity = ? AND pending_op != 'none'", whereArgs: [entity]);
+  }
+
+  Future<void> recUpsert(String entity, Map<String, dynamic> row) async {
+    final d = await db;
+    row['entity'] = entity;
+    await d.insert('records', row, conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  Future<void> recHardDelete(String entity, String localId) async {
+    final d = await db;
+    await d.delete('records',
+        where: 'entity = ? AND local_id = ?', whereArgs: [entity, localId]);
+  }
+
+  Future<void> recReplaceSynced(String entity, List<Map<String, dynamic>> rows) async {
+    final d = await db;
+    await d.transaction((txn) async {
+      await txn.delete('records',
+          where: "entity = ? AND pending_op = 'none'", whereArgs: [entity]);
+      for (final row in rows) {
+        row['entity'] = entity;
+        final existing = await txn.query('records',
+            where: 'entity = ? AND server_id = ? AND pending_op != ?',
+            whereArgs: [entity, row['server_id'], 'none']);
+        if (existing.isEmpty) {
+          await txn.insert('records', row, conflictAlgorithm: ConflictAlgorithm.replace);
+        }
+      }
+    });
   }
 
   Future<List<MemoryItem>> allMemory() async {

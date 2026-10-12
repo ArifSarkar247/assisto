@@ -123,6 +123,59 @@ class ApiClient {
     if (r.statusCode != 204 && r.statusCode != 404) _fail(r);
   }
 
+  // ---- generic synced collections (reminders / notes / todos) ----
+  Future<List<Map<String, dynamic>>> listItems(String path) async {
+    final r = await _c.get(AppConfig.api('/$path/'), headers: _headers());
+    if (r.statusCode == 200) {
+      return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
+    }
+    _fail(r);
+  }
+
+  Future<Map<String, dynamic>> createItem(String path, Map<String, dynamic> body) async {
+    final r = await _c.post(AppConfig.api('/$path/'),
+        headers: _headers(), body: jsonEncode(body));
+    if (r.statusCode >= 200 && r.statusCode < 300) {
+      return jsonDecode(r.body) as Map<String, dynamic>;
+    }
+    _fail(r);
+  }
+
+  Future<void> updateItem(String path, int id, Map<String, dynamic> body) async {
+    final r = await _c.patch(AppConfig.api('/$path/$id/'),
+        headers: _headers(), body: jsonEncode(body));
+    if (r.statusCode < 200 || r.statusCode >= 300) _fail(r);
+  }
+
+  Future<void> deleteItem(String path, int id) async {
+    final r = await _c.delete(AppConfig.api('/$path/$id/'), headers: _headers());
+    if (r.statusCode != 204 && r.statusCode != 404) _fail(r);
+  }
+
+  Future<bool> undo() async {
+    final r = await _c.post(AppConfig.api('/undo'), headers: _headers());
+    return r.statusCode == 200;
+  }
+
+  Future<List<Map<String, dynamic>>> sources() async {
+    final r = await _c.get(AppConfig.api('/sources'), headers: _headers());
+    if (r.statusCode == 200) {
+      return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
+    }
+    _fail(r);
+  }
+
+  Future<void> toggleSource(String source, bool enabled) async {
+    await _c.post(AppConfig.api('/sources'),
+        headers: _headers(), body: jsonEncode({"source": source, "enabled": enabled}));
+  }
+
+  Future<void> sendSupport(String kind, String message, String appVersion) async {
+    await _c.post(AppConfig.api('/support/'),
+        headers: _headers(), body: jsonEncode(
+            {"kind": kind, "message": message, "app_version": appVersion}));
+  }
+
   // ---- audit / data ----
   Future<List<AuditEntry>> audit() async {
     final r = await _c.get(AppConfig.api('/audit'), headers: _headers());
@@ -131,6 +184,13 @@ class ApiClient {
           .map((e) => AuditEntry.fromJson(e as Map<String, dynamic>))
           .toList();
     }
+    _fail(r);
+  }
+
+  Future<List<int>> getBytes(String path) async {
+    final r = await _c.get(AppConfig.api(path),
+        headers: {if (token != null) 'Authorization': 'Token $token'});
+    if (r.statusCode == 200) return r.bodyBytes;
     _fail(r);
   }
 
