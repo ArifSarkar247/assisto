@@ -874,3 +874,47 @@ class DeleteAccountView(APIView):
             Token.objects.filter(user=u).delete()
             u.delete()  # cascades memories, audit, devices
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# ---------- Integrations admin (owner-only; keystone for adding keys later) ----
+class _OwnerOnly(APIView):
+    """Base: only the superuser (owner) may touch integrations. Audit-logged."""
+    def _deny(self, request):
+        if not (request.user and request.user.is_authenticated and request.user.is_superuser):
+            return Response({"detail": "owner only"}, status=status.HTTP_403_FORBIDDEN)
+        return None
+
+
+class IntegrationsListView(_OwnerOnly):
+    def get(self, request):
+        d = self._deny(request)
+        if d:
+            return d
+        from . import integrations
+        lang = request.query_params.get("lang", "bn")
+        return Response({"integrations": integrations.list_all(lang)})
+
+
+class IntegrationSaveView(_OwnerOnly):
+    def post(self, request, slug):
+        d = self._deny(request)
+        if d:
+            return d
+        from . import integrations
+        try:
+            integrations.save(slug, request.data or {})
+        except ValueError:
+            return Response({"detail": "unknown"}, status=status.HTTP_404_NOT_FOUND)
+        log(request.user, "integration.save", slug=slug)  # never log secret values
+        return Response({"ok": True})
+
+
+class IntegrationTestView(_OwnerOnly):
+    def post(self, request, slug):
+        d = self._deny(request)
+        if d:
+            return d
+        from . import integrations
+        status_, detail = integrations.test(slug)
+        log(request.user, "integration.test", slug=slug, result=status_)
+        return Response({"status": status_, "detail": detail})

@@ -42,8 +42,21 @@ class AIUnavailable(Exception):
         super().__init__(reason)
 
 
+def active_api_key():
+    """Prefer the owner-configured key in the Integrations store; fall back to
+    the environment. Returns '' if none."""
+    try:
+        from . import integrations
+        k = integrations.get("anthropic").get("api_key")
+        if k:
+            return k
+    except Exception:
+        pass
+    return settings.AI_API_KEY or ""
+
+
 def key_present():
-    return bool(settings.AI_API_KEY)
+    return bool(active_api_key())
 
 
 def _today_spend():
@@ -81,7 +94,7 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
         prompt += f"\n\n<data>\n{data}\n</data>"
 
     import anthropic
-    client = anthropic.Anthropic(api_key=settings.AI_API_KEY)
+    client = anthropic.Anthropic(api_key=active_api_key())
     resp = client.messages.create(
         model=model, max_tokens=max_tokens, system=system,
         messages=[{"role": "user", "content": prompt}],

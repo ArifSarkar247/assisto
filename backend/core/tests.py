@@ -143,3 +143,37 @@ class AgentViewTests(APITestCase):
             name="অন্য", phone="01800000000", password="secret123")
         self.client.force_authenticate(user=other)
         self.assertEqual(Transaction.objects.filter(user=other).count(), 0)
+
+
+class IntegrationsStoreTests(TestCase):
+    """Keystone: encrypted store, masking, feature-flag, honest test states."""
+
+    def test_encrypt_roundtrip_and_at_rest(self):
+        from core import integrations as I
+        from core.models import Integration
+        I.save('admob', {'app_id': 'ca-pub-xyz', 'banner_unit': 'b', 'rewarded_unit': 'r'})
+        self.assertEqual(I.get('admob')['app_id'], 'ca-pub-xyz')
+        blob = Integration.objects.get(slug='admob').enc_blob
+        self.assertNotIn('ca-pub-xyz', blob)  # encrypted at rest
+
+    def test_feature_flag_after_test(self):
+        from core import integrations as I
+        self.assertFalse(I.is_enabled('admob'))
+        I.save('admob', {'app_id': 'x'})
+        st, _ = I.test('admob')  # no-test integration -> working (saved)
+        self.assertEqual(st, 'working')
+        self.assertTrue(I.is_enabled('admob'))
+
+    def test_list_masks_secrets(self):
+        from core import integrations as I
+        I.save('anthropic', {'api_key': 'sk-ant-secret-abcd1234'})
+        row = next(r for r in I.list_all('en') if r['slug'] == 'anthropic')
+        masked = [f['masked'] for f in row['fields'] if f['key'] == 'api_key'][0]
+        self.assertNotIn('secret', masked)
+        self.assertTrue(masked.endswith('1234'))
+
+    def test_registry_nonempty_and_unknown_rejected(self):
+        from core import integrations as I
+        self.assertGreaterEqual(len(I.list_all()), 15)
+        with self.assertRaises(ValueError):
+            I.save('does-not-exist', {'x': 'y'})

@@ -51,6 +51,11 @@ urlpatterns = [
     path("export/excel", views.ExportExcelView.as_view()),
     path("export/pdf", views.ExportPdfView.as_view()),
     path("account", views.DeleteAccountView.as_view()),
+
+    # Integrations admin (owner-only)
+    path("admin/integrations", views.IntegrationsListView.as_view()),
+    path("admin/integrations/<slug:slug>", views.IntegrationSaveView.as_view()),
+    path("admin/integrations/<slug:slug>/test", views.IntegrationTestView.as_view()),
 ]
 
 urlpatterns += router.urls

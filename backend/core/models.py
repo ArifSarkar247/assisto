@@ -409,3 +409,22 @@ class Device(models.Model):
 
     class Meta:
         unique_together = [("user", "push_token")]
+
+
+class Integration(models.Model):
+    """Owner-configured external integration (AI/Maps/Billing/WhatsApp/...).
+
+    Credentials are stored ENCRYPTED (Fernet) in `enc_blob`; raw values are
+    never returned to the client. A feature switches on automatically once its
+    integration's status is 'working'.
+    """
+    STATUS = [("not_set", "not_set"), ("working", "working"), ("failing", "failing")]
+    slug = models.CharField(max_length=40, unique=True)
+    enc_blob = models.TextField(blank=True, default="")   # Fernet(JSON) of fields
+    status = models.CharField(max_length=10, choices=STATUS, default="not_set")
+    detail = models.CharField(max_length=300, blank=True, default="")  # last test msg
+    last_tested = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.slug} [{self.status}]"
