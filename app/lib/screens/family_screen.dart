@@ -108,6 +108,12 @@ class _FamilyScreenState extends State<FamilyScreen> {
     final dose = TextEditingController();
     final times = TextEditingController(text: '08:00, 20:00');
     final refill = TextEditingController();
+    // follow-up config (owner's requirement) — per-medicine, with defaults
+    final repeat = TextEditingController(text: '15');
+    final retries = TextEditingController(text: '2');
+    final caregiver = TextEditingController(text: '30');
+    final quietStart = TextEditingController();
+    final quietEnd = TextEditingController();
     final ok = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(
       title: const Text('ওষুধ যোগ'),
       content: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -117,6 +123,23 @@ class _FamilyScreenState extends State<FamilyScreen> {
             labelText: 'সময় (HH:MM, কমা দিয়ে)', hintText: '08:00, 20:00')),
         TextField(controller: refill, decoration: const InputDecoration(
             labelText: 'রিফিল তারিখ (YYYY-MM-DD, ঐচ্ছিক)')),
+        const Padding(padding: EdgeInsets.only(top: 12, bottom: 4),
+          child: Align(alignment: Alignment.centerLeft,
+            child: Text('রিমাইন্ডার ফলো-আপ / Reminder follow-up',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)))),
+        TextField(controller: repeat, keyboardType: TextInputType.number,
+            decoration: const InputDecoration(labelText: 'নিশ্চিত না করলে কত মিনিট পর আবার (ডিফল্ট ১৫)')),
+        TextField(controller: retries, keyboardType: TextInputType.number,
+            decoration: const InputDecoration(labelText: 'কতবার আবার মনে করাবে (ডিফল্ট ২)')),
+        TextField(controller: caregiver, keyboardType: TextInputType.number,
+            decoration: const InputDecoration(labelText: 'কত মিনিট পর সন্তানকে জানাবে (ডিফল্ট ৩০)')),
+        Row(children: [
+          Expanded(child: TextField(controller: quietStart,
+              decoration: const InputDecoration(labelText: 'নীরব শুরু (22:00)'))),
+          const SizedBox(width: 8),
+          Expanded(child: TextField(controller: quietEnd,
+              decoration: const InputDecoration(labelText: 'নীরব শেষ (07:00)'))),
+        ]),
       ])),
       actions: [
         TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('বাতিল')),
@@ -127,6 +150,11 @@ class _FamilyScreenState extends State<FamilyScreen> {
       await context.read<AppState>().api.createItem('medicines', {
         'name': name.text.trim(), 'dosage': dose.text.trim(), 'times': slots,
         if (refill.text.trim().isNotEmpty) 'refill_date': refill.text.trim(),
+        'followup_repeat_min': int.tryParse(repeat.text.trim()) ?? 15,
+        'followup_retries': int.tryParse(retries.text.trim()) ?? 2,
+        'caregiver_alert_min': int.tryParse(caregiver.text.trim()) ?? 30,
+        'quiet_start': quietStart.text.trim(),
+        'quiet_end': quietEnd.text.trim(),
       });
       _load();
     }
