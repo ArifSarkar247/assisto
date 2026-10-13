@@ -100,7 +100,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
                 ? Column(children: [
                     _line(t.crmMarkWon, '${winLoss['won'] ?? 0}'),
                     _line(t.crmMarkLost, '${winLoss['lost'] ?? 0}'),
-                    _line(t.crmWinRate, '${winLoss['win_rate'] ?? '—'}%'),
+                    _line(t.crmWinRate, winLoss['win_rate'] == null ? '—' : '${winLoss['win_rate']}%'),
                   ])
                 : Text(t.crmNotEnoughData, style: TextStyle(color: scheme.onSurfaceVariant)),
           ),

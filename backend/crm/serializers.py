@@ -95,6 +95,17 @@ class LeadSerializer(serializers.ModelSerializer):
                             "industry_display", "source_display",
                             "status_display", "created_at", "updated_at"]
 
+    def validate_status(self, value):
+        """The won/lost transitions must go through the dedicated mark_won /
+        mark_lost actions so the backing Deal, loss reason and audit trail stay
+        consistent (CRM_SPEC §6). A plain lead update may move the lead through
+        the EARLY stages only — it can never set 'won' or 'lost' directly."""
+        if value in ("won", "lost"):
+            raise serializers.ValidationError(
+                "won/lost শুধু mark_won / mark_lost দিয়ে সেট হয় / "
+                "Use the mark_won / mark_lost action to close a lead")
+        return value
+
 
 class CompanySerializer(serializers.ModelSerializer):
     class Meta:

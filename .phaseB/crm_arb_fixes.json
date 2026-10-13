@@ -1,0 +1,13 @@
+{
+  "crmQuickLaunchFailed": ["অ্যাপটি খোলা গেল না — ম্যানুয়ালি চেষ্টা করুন (কাজটি লগ হয়েছে)", "Couldn't open the app — try manually (the action was logged)"],
+  "crmMarkWonConfirm": ["এই লিডকে Won হিসেবে চিহ্নিত করবেন? এর ডিলটি পাইপলাইনে Won স্টেজে বন্ধ হবে।", "Mark this lead as Won? Its deal will be closed as Won in the pipeline."],
+  "crmWonErpHandoffPrompt": ["লিড Won হয়েছে। এখন কি Axon ERP ইমপ্লিমেন্টেশন টিমে হ্যান্ডঅফ পাঠাবেন?", "Lead marked Won. Hand this off to the Axon ERP implementation team now?"],
+  "crmWonSendToErp": ["ERP-তে পাঠান", "Send to ERP"],
+  "crmBuildQuote": ["কোটেশন তৈরি করুন", "Build quote"],
+  "crmNoProducts": ["প্রাইস বুকে কোনো প্রোডাক্ট নেই", "No products in the price book"],
+  "crmNoProductsHint": ["কোটেশন বানাতে মালিক প্রথমে প্রাইস বুকে প্রোডাক্ট ও দাম যোগ করবেন।", "The owner must add products and prices to the price book first."],
+  "crmSelectProducts": ["প্রোডাক্ট নির্বাচন করুন", "Select products"],
+  "crmQuoteTotals": ["মোট হিসাব", "Totals"],
+  "crmCreateProposal": ["প্রপোজাল তৈরি করুন", "Create proposal"],
+  "crmQuotePriceBookNote": ["সব দাম শুধুমাত্র মালিকের সেট করা প্রাইস বুক থেকে আসে — কোনো দাম বা ভ্যাট অনুমান করা হয় না।", "All prices come only from the owner-set price book — no price or VAT is invented."]
+}

@@ -38,9 +38,8 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
     });
     try {
       final api = CrmApi.of(context);
-      final leads = await api.leads(widget.org, q: '');
-      _lead = leads.firstWhere((l) => (l['id'] as num).toInt() == widget.leadId,
-          orElse: () => <String, dynamic>{});
+      // G3: retrieve the single lead directly instead of listing + firstWhere.
+      _lead = await api.lead(widget.leadId);
       _timeline = await api.leadTimeline(widget.leadId);
       _followup = await api.leadFollowup(widget.leadId);
     } catch (_) {
@@ -50,15 +49,21 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
   }
 
   Future<void> _quick(AppLocalizations t, String kind, String uri) async {
+    // Always log the quick action (CRM_SPEC: every tap is a timeline activity).
     try {
       await CrmApi.of(context).logAction(widget.leadId, kind);
     } catch (_) {}
+    // G8: if the dialer/WhatsApp/email app doesn't open, say so honestly —
+    // don't imply success by only showing "action logged".
+    bool launched = false;
     try {
-      await launchUrl(Uri.parse(uri), mode: LaunchMode.externalApplication);
+      launched = await launchUrl(Uri.parse(uri), mode: LaunchMode.externalApplication);
     } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.crmActionLogged)));
-      }
+      launched = false;
+    }
+    if (!launched && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(t.crmQuickLaunchFailed)));
     }
     _load();
   }
@@ -197,7 +202,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
           Row(children: [
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: () => _onboard(t),
+                onPressed: () => _markWon(t),
                 icon: const Icon(Icons.emoji_events_outlined),
                 label: Text(t.crmMarkWon),
               ),
@@ -246,7 +251,43 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
     );
   }
 
-  Future<void> _onboard(AppLocalizations t) async {
+  // G2: Mark Won = confirm → close the backing Deal as WON (server) → THEN
+  // offer the separate ERP handoff. Winning no longer happens as a silent
+  // side effect of the ERP stub.
+  Future<void> _markWon(AppLocalizations t) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t.crmMarkWon),
+        content: Text(t.crmMarkWonConfirm),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(t.crmMarkWon)),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    try {
+      await CrmApi.of(context).leadMarkWon(widget.leadId);
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+      return;
+    }
+    if (!mounted) return;
+    // Offer the ERP implementation handoff now that the lead is won.
+    _load();
+    final handoff = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t.crmMarkWon),
+        content: Text(t.crmWonErpHandoffPrompt),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.close)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(t.crmWonSendToErp)),
+        ],
+      ),
+    );
+    if (handoff != true) return;
     try {
       final r = await CrmApi.of(context).leadOnboard(widget.leadId);
       if (!mounted) return;
@@ -254,12 +295,10 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: Text(t.crmMarkWon),
           content: Text(msg.toString()),
           actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: Text(t.close))],
         ),
       );
-      _load();
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
     }
@@ -301,7 +340,10 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
     );
     if (ok == true && pick != null) {
       try {
-        await CrmApi.of(context).updateLead(widget.leadId, {'status': 'lost', 'notes': '${_lead!['notes'] ?? ''}\n[lost: $pick]'});
+        // G1: route through the server action — loss_reason is MANDATORY and is
+        // recorded on the backing Deal (reports.win_loss picks it up), not just
+        // appended to free-text notes.
+        await CrmApi.of(context).leadMarkLost(widget.leadId, pick!);
         _load();
       } catch (e) {
         if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));

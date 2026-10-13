@@ -39,6 +39,9 @@ class CrmApi {
       _c.createItem('crm/leads', body);
   Future<void> updateLead(int id, Map<String, dynamic> body) =>
       _c.updateItem('crm/leads', id, body);
+  // Retrieve a single lead (G3) — avoids loading the whole list + firstWhere.
+  Future<Map<String, dynamic>> lead(int id) =>
+      _c.getJson('/crm/leads/$id/');
   Future<Map<String, dynamic>> leadTimeline(int id) =>
       _c.getJson('/crm/leads/$id/timeline/');
   Future<Map<String, dynamic>> leadFollowup(int id) =>
@@ -47,6 +50,27 @@ class CrmApi {
       _c.postJson('/crm/leads/$id/proposal/', {'requirements': requirements});
   Future<Map<String, dynamic>> leadOnboard(int id) =>
       _c.postJson('/crm/leads/$id/onboard/');
+  // Close the lead's backing deal as WON (G2) — client confirms first.
+  Future<Map<String, dynamic>> leadMarkWon(int id) =>
+      _c.postJson('/crm/leads/$id/mark_won/');
+  // Close the lead's backing deal as LOST with a MANDATORY reason (G1).
+  Future<Map<String, dynamic>> leadMarkLost(int id, String lossReason,
+          {String lossNote = '', String competitor = ''}) =>
+      _c.postJson('/crm/leads/$id/mark_lost/', {
+        'loss_reason': lossReason,
+        'loss_note': lossNote,
+        'competitor': competitor,
+      });
+  // Quote builder (G6): build a Proposal from price-book selections.
+  Future<Map<String, dynamic>> leadQuote(int id, List<Map<String, dynamic>> selections,
+          {double discountPct = 0, double taxPct = 0, String requirements = '', String title = ''}) =>
+      _c.postJson('/crm/leads/$id/quote/', {
+        'selections': selections,
+        'discount_pct': discountPct,
+        'tax_pct': taxPct,
+        'requirements': requirements,
+        'title': title,
+      });
   Future<Map<String, dynamic>> logAction(int id, String kind,
           {String subject = '', String body = ''}) =>
       _c.postJson('/crm/leads/$id/log_action/',
