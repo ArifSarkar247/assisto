@@ -264,3 +264,23 @@ class WatcherP4Tests(TestCase):
         from core import watcher, plans
         u = User.objects.create_user(name="L", phone="01977777777", password="x123456")
         self.assertEqual(watcher.max_watchers(u), 2)
+
+
+class VoiceP5Tests(TestCase):
+    def test_voice_intents(self):
+        from core import agent
+        self.assertEqual(agent.parse("গান চালাও arijit singh")["intent"], "music")
+        self.assertEqual(agent.parse("রহিম কে কল করো")["intent"], "call")
+        self.assertEqual(agent.parse("গুলশান এ রাস্তা দেখাও")["intent"], "navigate")
+        n = agent.parse("কাছে ফার্মেসি কোথায়")
+        self.assertEqual(n["intent"], "nearby")
+        self.assertEqual(n["place_type"], "pharmacy")
+
+    def test_nearby_osm_fallback_structure(self):
+        from core import nearby
+        nearby._osm = lambda lat, lon, t, radius=2500: [
+            {"name": "Test Pharmacy", "distance_m": 120, "rating": None, "open_now": None,
+             "lat": lat, "lon": lon, "maps": "x", "address": ""}]
+        res, src = nearby.search(23.8, 90.4, "pharmacy")
+        self.assertEqual(src, "osm")
+        self.assertIsNone(res[0]["rating"])   # never invented

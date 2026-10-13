@@ -750,6 +750,39 @@ class AgentView(APIView):
             cards.append({"type": "memory", "title": p["title"],
                           "subtitle": "AI ধরেছে · রিভিউ করুন",
                           "model": "memory", "id": m.id, "undo": True})
+        elif intent == "music":
+            import urllib.parse as _up
+            q = (p.get("query") or "").strip()
+            yt = "https://www.youtube.com/results?search_query=" + _up.quote(q)
+            card = {"type": "music", "title": q or "গান", "subtitle": "চালাতে ট্যাপ করুন",
+                    "youtube": yt, "app_action": "open_url"}
+            from . import integrations as _ig
+            if _ig.is_enabled("spotify"):
+                card["spotify"] = "https://open.spotify.com/search/" + _up.quote(q)
+            reply = f"'{q}' খুঁজে দিলাম — চালাতে ট্যাপ করুন।"
+            cards.append(card)
+        elif intent == "navigate":
+            import urllib.parse as _up
+            place = (p.get("place") or "").strip()
+            cards.append({"type": "navigate", "title": place, "subtitle": "ম্যাপে খুলতে ট্যাপ",
+                          "maps": "https://www.google.com/maps/search/?api=1&query=" + _up.quote(place),
+                          "app_action": "open_url"})
+            reply = f"'{place}' ম্যাপে খুলতে ট্যাপ করুন।"
+        elif intent == "call":
+            name = (p.get("name") or "").strip()
+            phone = ""
+            card = (u.emergency_card.contacts if hasattr(u, "emergency_card") else [])
+            for c in (card or []):
+                if name and name in (c.get("name") or ""):
+                    phone = c.get("phone", "")
+            cards.append({"type": "call", "title": name or "কল", "phone": phone,
+                          "subtitle": "কল করতে ট্যাপ করুন (আপনি চাপলেই)", "app_action": "dial"})
+            reply = (f"{name}-কে কল করতে ট্যাপ করুন।" if phone
+                     else f"{name}-এর নম্বর পেলাম না; কন্টাক্ট থেকে বেছে নিন।")
+        elif intent == "nearby":
+            cards.append({"type": "nearby", "place_type": p.get("place_type", "restaurant"),
+                          "title": "আশেপাশে খুঁজছি…", "app_action": "nearby"})
+            reply = "আপনার লোকেশন নিয়ে আশেপাশে খুঁজছি…"
         elif intent == "query_money":
             s = MoneySummaryView().get(request).data
             reply = (f"মোট ব্যালেন্স ৳{s['total_balance']}। এ মাসে খরচ ৳{s['month_expense']}, "
@@ -987,3 +1020,43 @@ def watch_feed(request):
         {"id": h.id, "label": h.watcher.label, "kind": h.watcher.kind,
          "summary": h.summary, "severity": h.severity,
          "at": h.created_at.isoformat()} for h in hits]})
+
+
+# ---------- Nearby (extra C) + favourite artist (extra B) ----------
+@api_view(["GET"])
+def nearby(request):
+    from . import nearby as nb
+    try:
+        lat = float(request.query_params.get("lat"))
+        lon = float(request.query_params.get("lon"))
+    except (TypeError, ValueError):
+        return Response({"detail": "lat/lon required"}, status=400)
+    ptype = request.query_params.get("type", "restaurant")
+    results, source = nb.search(lat, lon, ptype)
+    log(request.user, "nearby", type=ptype, source=source, n=len(results))
+    return Response({"type": ptype, "source": source, "places": results})
+
+
+class FavouriteArtistView(APIView):
+    """Add a favourite artist. With a YouTube channel RSS URL we watch it (no
+    key); otherwise we store the name and surface a search deep-link until the
+    owner adds YouTube/Spotify."""
+    def post(self, request):
+        from .models import Watcher
+        from . import integrations
+        name = (request.data.get("name") or "").strip()
+        channel_rss = (request.data.get("channel_rss") or "").strip()
+        if not name:
+            return Response({"detail": "name required"}, status=400)
+        if channel_rss:
+            w, _ = Watcher.objects.get_or_create(
+                user=request.user, kind="rss", label=f"🎵 {name}",
+                defaults={"config": {"url": channel_rss}, "interval_min": 720})
+            return Response({"ok": True, "watching": True, "watcher_id": w.id})
+        import urllib.parse as up
+        return Response({
+            "ok": True, "watching": False,
+            "youtube_search": "https://www.youtube.com/results?search_query=" + up.quote(name),
+            "spotify_enabled": integrations.is_enabled("spotify"),
+            "msg": "চ্যানেল RSS দিলে নতুন গান watch করব; নাহলে সার্চ লিংক / add channel RSS to watch new releases",
+        })

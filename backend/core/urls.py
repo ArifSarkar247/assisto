@@ -63,6 +63,8 @@ urlpatterns = [
     path("credits/rewarded", views.RewardedAdView.as_view()),
     path("waitlist", views.WaitlistView.as_view()),
     path("watch/feed", views.watch_feed),
+    path("nearby", views.nearby),
+    path("artist/favourite", views.FavouriteArtistView.as_view()),
 ]
 
 urlpatterns += router.urls

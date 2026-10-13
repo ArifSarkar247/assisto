@@ -60,6 +60,18 @@ _MEDICINE = ["ওষুধ", "medicine", "medication", "ওষূধ"]
 _REMEMBER = ["মনে রাখো", "মনে রেখো", "remember", "মনে রাখবে"]
 _QUERY_MONEY = ["কত টাকা", "ব্যালেন্স", "কত খরচ", "balance", "how much", "কত আছে"]
 _QUERY_TODAY = ["আজ কী", "আজকে কী", "today", "briefing", "ব্রিফিং", "কী কী আছে"]
+# --- voice assistant commands (P5) ---
+_MUSIC = ["গান চালাও", "গান শোনাও", "গান বাজাও", "গান ছাড়ো", "play song", "play music", "play "]
+_CALL = ["কল করো", "ফোন করো", "কল দাও", "ফোন দাও", "call ", "ডায়াল"]
+_NAVIGATE = ["রাস্তা দেখাও", "নেভিগেট", "navigate", "কীভাবে যাব", "কিভাবে যাব", "যাওয়ার পথ", "directions"]
+_NEARBY = ["কাছে", "কাছাকাছি", "আশেপাশে", "nearby", "near me", "কোথায়"]
+_NEARBY_TYPES = {
+    "restaurant": ["রেস্টুরেন্ট", "খাবার", "restaurant", "hotel খাবার"],
+    "pharmacy": ["ফার্মেসি", "ওষুধের দোকান", "pharmacy", "medicine shop"],
+    "atm": ["atm", "এটিএম", "টাকা তোলা"],
+    "hospital": ["হাসপাতাল", "hospital", "clinic", "ক্লিনিক"],
+    "lodging": ["হোটেল", "মোটেল", "hotel", "motel", "থাকার"],
+}
 
 
 def _has(text, words):
@@ -78,6 +90,18 @@ def parse(text):
         return {"intent": "query_today"}
     if _has(text, _QUERY_MONEY):
         return {"intent": "query_money"}
+
+    # voice assistant commands (deep-links / app actions — never auto-send)
+    if _has(text, _NEARBY):
+        for ptype, words in _NEARBY_TYPES.items():
+            if _has(text, words):
+                return {"intent": "nearby", "place_type": ptype}
+    if _has(text, _MUSIC):
+        return {"intent": "music", "query": _strip(text, _MUSIC)}
+    if _has(text, _NAVIGATE):
+        return {"intent": "navigate", "place": _strip(text, _NAVIGATE + ["যাও", "to"])}
+    if _has(text, _CALL):
+        return {"intent": "call", "name": _strip(text, _CALL + ["কে", "-কে", "to"])}
 
     amt = _amount(text)
 
