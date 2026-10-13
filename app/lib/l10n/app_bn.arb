@@ -3,7 +3,6 @@
   "appName": "Assisto",
   "tagline": "আপনার ব্যক্তিগত AI এজেন্ট",
   "assistantSubtitle": "আপনার সহকারী",
-
   "update": "আপডেট করুন",
   "updateAvailable": "নতুন আপডেট আছে",
   "newChat": "নতুন চ্যাট",
@@ -12,13 +11,11 @@
   "menu": "মেনু",
   "welcomeHeadline": "আমি Assisto",
   "welcomeBody": "আপনার ব্যক্তিগত সহকারী। বাংলা বা English-এ বলুন — লিখে বা বলে।",
-
   "navHome": "Assisto",
   "navReminders": "রিমাইন্ডার",
   "navNotesTasks": "নোট/কাজ",
   "navMemory": "AI জানে",
   "navSettings": "সেটিংস",
-
   "financeTools": "ফিন্যান্স টুল",
   "planCredits": "প্ল্যান ও ক্রেডিট",
   "watchFeed": "ওয়াচ ফিড",
@@ -30,7 +27,6 @@
   "moduleVault": "ভল্ট",
   "moduleFamily": "ফ্যামিলি",
   "moduleEmergency": "ইমার্জেন্সি",
-
   "greeting": "আসসালামু আলাইকুম, {name}",
   "greetingHelp": "কী করে দিই? লিখে বলুন।",
   "friend": "বন্ধু",
@@ -41,17 +37,14 @@
   "sendFailed": "দুঃখিত, এখন করা গেল না। পরে চেষ্টা করুন।",
   "undone": "ফিরিয়ে নিয়েছি ✓",
   "undo": "ফিরিয়ে নিন",
-
   "suggestionToday": "আজ কী কী আছে?",
   "suggestionSpendMonth": "এই মাসে কত খরচ?",
   "suggestionExpense": "৫০০ টাকা খরচ খাবার",
   "suggestionMedicine": "কাল সকাল ৮টায় ওষুধ মনে করিয়ে দিও",
-
   "shareMyLocation": "আমার লোকেশন শেয়ার করুন",
   "locationNeeded": "লোকেশন অনুমতি দরকার।",
   "locationOff": "দয়া করে লোকেশন চালু করুন।",
   "sosShareText": "🚨 জরুরি! আমি এখন এখানে আছি: {link}",
-
   "save": "সেভ",
   "cancel": "বাতিল",
   "edit": "এডিট",
@@ -63,7 +56,6 @@
   "loadFailedBody": "ইন্টারনেট দেখে আবার চেষ্টা করুন।",
   "close": "বন্ধ",
   "add": "যোগ করুন",
-
   "subscriptions": "সাবস্ক্রিপশন",
   "subscriptionsHint": "নিয়মিত বিল ট্র্যাক করুন — যেন হঠাৎ অবাক না হন।",
   "subscriptionsEmpty": "এখনো কোনো সাবস্ক্রিপশন নেই। Netflix, ইন্টারনেট, জিম যোগ করুন — শেষ হওয়ার আগে মনে করিয়ে দেব।",
@@ -73,7 +65,6 @@
   "cycleYearly": "বার্ষিক",
   "nextDue": "পরবর্তী তারিখ",
   "amount": "পরিমাণ",
-
   "settingsTitle": "সেটিংস",
   "settingsLanguage": "ভাষা",
   "settingsAppearance": "থিম",
@@ -82,11 +73,9 @@
   "themeDark": "ডার্ক",
   "languageBangla": "বাংলা",
   "languageEnglish": "English",
-
   "chooseLanguage": "আপনার ভাষা বেছে নিন",
   "chooseLanguageSub": "পরে সেটিংস থেকে বদলাতে পারবেন।",
   "continueLabel": "এগিয়ে যান",
-
   "loginTitle": "স্বাগতম",
   "loginSubtitle": "চালিয়ে যেতে সাইন ইন করুন",
   "loginMotto": "জীবন আপনি চালান, মনে রাখার দায়িত্ব আমার।",
@@ -99,5 +88,8 @@
   "login": "লগ ইন",
   "register": "অ্যাকাউন্ট তৈরি",
   "noAccount": "অ্যাকাউন্ট নেই? রেজিস্টার করুন",
-  "haveAccount": "অ্যাকাউন্ট আছে? লগ ইন করুন"
+  "haveAccount": "অ্যাকাউন্ট আছে? লগ ইন করুন",
+  "jobHunter": "জব হান্টার",
+  "nominee": "নমিনি অ্যাক্সেস",
+  "crmContacts": "পরিচিতি (CRM)"
 }

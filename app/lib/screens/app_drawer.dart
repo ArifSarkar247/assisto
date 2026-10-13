@@ -18,6 +18,9 @@ import 'finance_screen.dart';
 import 'watch_feed_screen.dart';
 import 'agent_studio_screen.dart';
 import 'guide_screen.dart';
+import 'nominee_screen.dart';
+import 'jobs_screen.dart';
+import 'crm_contacts_screen.dart';
 
 /// Left sidebar — the app's navigation hub (modern AI-chat style). The main
 /// screen is only the chat; everything else lives here.
@@ -48,6 +51,8 @@ class AppDrawer extends StatelessWidget {
       (Icons.radar_outlined, t.watchFeed, const WatchFeedScreen()),
       (Icons.auto_awesome_outlined, t.agentStudio, const AgentStudioScreen()),
       (Icons.account_balance_outlined, t.serviceGuide, const GuideScreen()),
+      (Icons.work_outline, t.jobHunter, const JobsScreen()),
+      (Icons.shield_outlined, t.nominee, const NomineeScreen()),
       (Icons.pending_actions_outlined, t.inProgress, const InProgressScreen()),
     ];
 

@@ -3,7 +3,6 @@
   "appName": "Assisto",
   "tagline": "Your personal AI agent",
   "assistantSubtitle": "Your assistant",
-
   "update": "Update",
   "updateAvailable": "Update available",
   "newChat": "New chat",
@@ -12,13 +11,11 @@
   "menu": "Menu",
   "welcomeHeadline": "Hi, I'm Assisto",
   "welcomeBody": "Your personal assistant. Ask me in Bangla or English — text or voice.",
-
   "navHome": "Assisto",
   "navReminders": "Reminders",
   "navNotesTasks": "Notes/Tasks",
   "navMemory": "AI knows",
   "navSettings": "Settings",
-
   "financeTools": "Finance tools",
   "planCredits": "Plan & credits",
   "watchFeed": "Watch feed",
@@ -30,9 +27,12 @@
   "moduleVault": "Vault",
   "moduleFamily": "Family",
   "moduleEmergency": "Emergency",
-
   "greeting": "Assalamu alaikum, {name}",
-  "@greeting": { "placeholders": { "name": {} } },
+  "@greeting": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "greetingHelp": "How can I help? Just tell me.",
   "friend": "friend",
   "urgentForYou": "A few urgent things for you:",
@@ -42,18 +42,19 @@
   "sendFailed": "Sorry, couldn't do that now. Please try again.",
   "undone": "Undone ✓",
   "undo": "Undo",
-
   "suggestionToday": "What's on today?",
   "suggestionSpendMonth": "How much did I spend this month?",
   "suggestionExpense": "500 taka food expense",
   "suggestionMedicine": "Remind me medicine tomorrow 8 am",
-
   "shareMyLocation": "Share my location",
   "locationNeeded": "Location permission is needed.",
   "locationOff": "Please turn on location.",
   "sosShareText": "🚨 Emergency! I'm here right now: {link}",
-  "@sosShareText": { "placeholders": { "link": {} } },
-
+  "@sosShareText": {
+    "placeholders": {
+      "link": {}
+    }
+  },
   "save": "Save",
   "cancel": "Cancel",
   "edit": "Edit",
@@ -65,18 +66,20 @@
   "loadFailedBody": "Check your connection and try again.",
   "close": "Close",
   "add": "Add",
-
   "subscriptions": "Subscriptions",
   "subscriptionsHint": "Track recurring bills so nothing surprises you.",
   "subscriptionsEmpty": "No subscriptions yet. Add Netflix, internet, gym — I'll remind you before each is due.",
   "monthlyTotal": "About {amount}/month",
-  "@monthlyTotal": { "placeholders": { "amount": {} } },
+  "@monthlyTotal": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
   "addSubscription": "Add subscription",
   "cycleMonthly": "Monthly",
   "cycleYearly": "Yearly",
   "nextDue": "Next due",
   "amount": "Amount",
-
   "settingsTitle": "Settings",
   "settingsLanguage": "Language",
   "settingsAppearance": "Appearance",
@@ -85,11 +88,9 @@
   "themeDark": "Dark",
   "languageBangla": "বাংলা (Bangla)",
   "languageEnglish": "English",
-
   "chooseLanguage": "Choose your language",
   "chooseLanguageSub": "You can change this later in Settings.",
   "continueLabel": "Continue",
-
   "loginTitle": "Welcome",
   "loginSubtitle": "Sign in to continue",
   "loginMotto": "You run your life — remembering is my job.",
@@ -102,5 +103,8 @@
   "login": "Log in",
   "register": "Create account",
   "noAccount": "No account? Register",
-  "haveAccount": "Have an account? Log in"
+  "haveAccount": "Have an account? Log in",
+  "jobHunter": "Job hunter",
+  "nominee": "Nominee access",
+  "crmContacts": "Contacts (CRM)"
 }
