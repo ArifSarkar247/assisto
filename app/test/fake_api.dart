@@ -134,6 +134,12 @@ class FakeApi extends ApiClient {
         return _maybe([
           {'id': 101, 'total': '1200', 'status': 'new', 'customer_phone': '0171...'},
         ]);
+      case 'appointments':
+        return _maybe([
+          {'title': _bn ? 'ডাক্তারের অ্যাপয়েন্টমেন্ট' : 'Doctor appointment',
+           'start': '2099-01-01T10:00:00', 'duration_min': 30,
+           'place': _bn ? 'ল্যাবএইড' : 'Labaid', 'note': ''},
+        ]);
       default:
         return _maybe([]);
     }
@@ -622,12 +628,124 @@ class FakeApi extends ApiClient {
       if (mode == FakeMode.fail) _fail();
       return {'ok': true, 'id': 99, ...body};
     }
+    if (path == 'appointments') {
+      if (mode == FakeMode.fail) _fail();
+      return {'ok': true, ...body};
+    }
     return super.createItem(path, body);
   }
 
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
     await _slow();
+    // ===== Module 5 (P13+) stubs =====
+    if (path.startsWith('/health/tips')) {
+      if (mode == FakeMode.fail) _fail();
+      return {
+        'topics': [
+          {'id': 'dengue_mosquito', 'name': _bn ? 'ডেঙ্গু ও মশা' : 'Dengue & mosquitoes'},
+          {'id': 'nutrition', 'name': _bn ? 'পুষ্টি' : 'Nutrition'},
+        ],
+        'tips': mode == FakeMode.empty ? [] : [
+          {'id': 't1', 'topic': 'nutrition',
+           'title': _bn ? 'লবণ কম খান' : 'Cut down on salt',
+           'body': _bn ? 'দিনে ৫ গ্রামের কম লবণ রক্তচাপ নিয়ন্ত্রণে রাখে।' : 'Under 5g of salt a day helps control blood pressure.',
+           'source': 'WHO', 'source_name': _bn ? 'বিশ্ব স্বাস্থ্য সংস্থা (WHO)' : 'World Health Organization (WHO)'},
+        ],
+        'disclaimer': _bn ? 'এটি রোগ নির্ণয় নয়—সমস্যা থাকলে ডাক্তার দেখান।' : 'This is not a diagnosis — see a doctor if needed.',
+        'sources': [_bn ? 'DGHS' : 'DGHS', 'WHO'],
+      };
+    }
+    if (path.startsWith('/medicine-db/search')) {
+      if (mode == FakeMode.fail) _fail();
+      return {
+        'results': mode == FakeMode.empty ? [] : [
+          {'brand': 'Napa', 'generic': 'Paracetamol',
+           'uses': _bn ? 'জ্বর, ব্যথা' : 'Fever, pain',
+           'how_to_take': _bn ? 'প্রয়োজনে ১টি ট্যাবলেট' : '1 tablet as needed',
+           'alternatives': [{'brand': 'Ace', 'generic': 'Paracetamol'}]},
+        ],
+        'meta': {'source': 'sample', 'is_sample': true, 'count': 1,
+                 'sample_notice': _bn ? 'নমুনা তথ্য—DGDA ডাটা যুক্ত হলে পূর্ণ হবে।' : 'Sample data — full when DGDA data is added.',
+                 'switch_warning': _bn ? 'ডাক্তারের পরামর্শ ছাড়া ওষুধ বদলাবেন না।' : "Don't switch medicines without a doctor's advice."},
+      };
+    }
+    if (path.startsWith('/medicine-db/lookup')) {
+      return {'available': true, 'record': {
+        'brand': 'Napa', 'generic': 'Paracetamol',
+        'uses': _bn ? 'জ্বর, ব্যথা' : 'Fever, pain',
+        'alternatives': [{'brand': 'Ace', 'generic': 'Paracetamol'}]},
+        'meta': {'source': 'sample', 'is_sample': true}};
+    }
+    if (path.startsWith('/birthdays')) {
+      if (mode == FakeMode.fail) _fail();
+      final all = mode == FakeMode.empty ? [] : [
+        {'id': 1, 'name': _bn ? 'মা' : 'Mom', 'date': '1970-05-01', 'kind': 'birthday',
+         'lead_days': 1, 'days_until': 5, 'turning_age': 56},
+      ];
+      return {'upcoming': all, 'all': all,
+              'kinds': [
+                {'id': 'birthday', 'name': _bn ? 'জন্মদিন' : 'Birthday'},
+                {'id': 'anniversary', 'name': _bn ? 'বার্ষিকী' : 'Anniversary'},
+              ]};
+    }
+    if (path.startsWith('/dictionary/lookup')) {
+      if (mode == FakeMode.fail) _fail();
+      final q = Uri.parse('http://x$path').queryParameters['q'] ?? '';
+      if (q.isEmpty || mode == FakeMode.empty) {
+        return {'found': false, 'query': q, 'results': const [],
+                'is_sample': true, 'source': 'sample', 'needs_data': q.isNotEmpty};
+      }
+      return {'found': true, 'query': q, 'direction': 'en2bn',
+              'results': [{'bn': 'পানি', 'en': 'water', 'pos': 'noun', 'example': 'Drink water.'}],
+              'is_sample': true, 'source': 'sample', 'needs_data': false};
+    }
+    if (path.startsWith('/ramadan/times')) {
+      if (mode == FakeMode.fail) _fail();
+      return {'date': '2026-03-15', 'method': 'karachi',
+              'sehri_end': '04:42', 'fajr': '04:42', 'dhuhr': '12:05',
+              'asr': '15:30', 'iftar': '18:12', 'maghrib': '18:12', 'isha': '19:30'};
+    }
+    if (path.startsWith('/legal/')) {
+      return {'key': path.split('/').last,
+              'title': _bn ? 'গোপনীয়তা নীতি' : 'Privacy policy',
+              'draft': true,
+              'stamp': _bn ? 'খসড়া — মালিকের পর্যালোচনা প্রয়োজন' : 'DRAFT — TO REVIEW BY OWNER',
+              'last_updated': '2026-10-13',
+              'body': _bn ? 'এটি একটি খসড়া নীতিমালা।' : 'This is a draft policy.'};
+    }
+    if (path == '/legal' || path.startsWith('/legal?')) {
+      if (mode == FakeMode.fail) _fail();
+      return {'pages': mode == FakeMode.empty ? [] : [
+        {'key': 'privacy', 'title': _bn ? 'গোপনীয়তা নীতি' : 'Privacy policy',
+         'stamp': _bn ? 'খসড়া — মালিকের পর্যালোচনা প্রয়োজন' : 'DRAFT — TO REVIEW BY OWNER'},
+        {'key': 'terms', 'title': _bn ? 'ব্যবহারের শর্ত' : 'Terms of use',
+         'stamp': _bn ? 'খসড়া — মালিকের পর্যালোচনা প্রয়োজন' : 'DRAFT — TO REVIEW BY OWNER'},
+      ]};
+    }
+    if (path == '/unseen' || path.startsWith('/unseen?')) {
+      if (mode == FakeMode.fail) _fail();
+      return {'source': 'unseenbangladesh.com',
+              'attribution': _bn ? 'তথ্যসূত্র: unseenbangladesh.com ও উন্মুক্ত তথ্য।' : 'Sources: unseenbangladesh.com and open data.',
+              'destinations': mode == FakeMode.empty ? [] : [
+                {'name': _bn ? 'নিঝুম দ্বীপ' : 'Nijhum Dwip', 'region': _bn ? 'নোয়াখালী' : 'Noakhali',
+                 'best_season': _bn ? 'শীতকাল' : 'Winter', 'tip': _bn ? 'নৌকায় যান।' : 'Go by boat.',
+                 'source': 'unseenbangladesh.com'},
+              ],
+              'tips': mode == FakeMode.empty ? [] : [
+                _bn ? 'আগে থেকে থাকার ব্যবস্থা করুন।' : 'Book your stay ahead of time.',
+              ]};
+    }
+    if (path.startsWith('/circle/members') || path.startsWith('/circle/requests')) {
+      if (mode == FakeMode.fail) _fail();
+      return {'results': const []}; // friendly empty state
+    }
+    if (path.startsWith('/circle/') && path.contains('/messages')) {
+      return {'results': const []};
+    }
+    if (path.startsWith('/circle/invite')) {
+      return {'token': 'fake-token', 'qr': 'assisto://i/fake-token'};
+    }
     if (path.startsWith('/scam/library')) {
       if (mode == FakeMode.fail) _fail();
       final patterns = mode == FakeMode.empty ? [] : [
@@ -720,6 +838,58 @@ class FakeApi extends ApiClient {
 
   @override
   Future<Map<String, dynamic>> postJson(String path, [Map<String, dynamic> body = const {}]) async {
+    // ===== Module 5 (P13+) stubs =====
+    if (path.startsWith('/health/tips/emergency')) {
+      return {'emergency': false, 'matched': const [],
+              'action': _bn ? 'জরুরি লক্ষণ নেই—সমস্যা থাকলে ডাক্তার দেখান।' : 'No red flags — see a doctor if it persists.'};
+    }
+    if (path == '/birthdays') {
+      return {'id': 99, ...body};
+    }
+    if (path.endsWith('/delete') && path.startsWith('/birthdays/')) {
+      return {'ok': true};
+    }
+    if (path.startsWith('/birthdays/drafts')) {
+      return {'drafts': [
+        {'style': 'warm', 'text': _bn ? 'শুভ জন্মদিন!' : 'Happy birthday!'},
+        {'style': 'short', 'text': _bn ? 'শুভেচ্ছা রইল।' : 'Best wishes.'},
+      ], 'card': {'title': _bn ? 'শুভ জন্মদিন' : 'Happy birthday',
+                  'body': _bn ? 'সুস্থ ও সুখী থাকুন।' : 'Stay healthy and happy.'}};
+    }
+    if (path.startsWith('/ramadan/eid-card')) {
+      return {'text': _bn ? 'ঈদ মোবারক! — আপনার শুভাকাঙ্ক্ষী' : 'Eid Mubarak! — from a well-wisher'};
+    }
+    if (path.startsWith('/exam/watcher')) {
+      return {'id': 1, ...body};
+    }
+    if (path.startsWith('/auth/reset/request')) {
+      return {'message': _bn ? 'অ্যাকাউন্ট থাকলে একটি রিসেট লিংক পাঠানো হয়েছে।' : 'If an account exists, a reset link has been sent.'};
+    }
+    if (path.startsWith('/auth/reset/confirm')) {
+      return {'ok': true, 'message': _bn ? 'পাসওয়ার্ড পরিবর্তন হয়েছে।' : 'Password changed.'};
+    }
+    if (path.startsWith('/analytics/ingest')) {
+      return {'accepted': (body['events'] as List?)?.length ?? 0};
+    }
+    if (path.startsWith('/photo/plan')) {
+      final kind = body['kind'];
+      final ownPhoto = body['own_photo'] == true;
+      if (kind == 'document') {
+        return {'allowed': false, 'reason': 'document_blocked', 'path': 'device', 'ops': const [],
+                'message': _bn ? 'আইডি/দলিলের ছবি বদলানো হয় না।' : 'ID / document photos are never altered.'};
+      }
+      if (!ownPhoto) {
+        return {'allowed': false, 'reason': 'not_own', 'path': 'device', 'ops': const [],
+                'message': _bn ? 'শুধু নিজের ছবি এনহ্যান্স করা যাবে।' : 'You may only enhance your own photos.'};
+      }
+      return {'allowed': true, 'reason': 'ok', 'path': 'device',
+              'ops': (body['ops'] as List?) ?? const [],
+              'message': _bn ? 'এনহ্যান্স করা যাবে।' : 'Ready to enhance.'};
+    }
+    if (path.startsWith('/circle/')) {
+      // keys / request / act / sharing / report / messages — accept gracefully.
+      return {'ok': true, ...body};
+    }
     if (path.startsWith('/crm/extract')) {
       return {'ok': true, 'ai_available': false, 'phone': '01712345678', 'phones': [], 'whatsapp': '01712345678', 'email': 'buy@karim.com', 'company': 'Karim Garments Ltd', 'name': 'Karim'};
     }

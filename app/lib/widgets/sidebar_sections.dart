@@ -25,6 +25,19 @@ import '../screens/safety_screen.dart';
 import '../screens/plans_screen.dart';
 import '../screens/in_progress_screen.dart';
 import '../screens/settings_screen.dart'; // exports SourcesScreen (Connected apps)
+// module 5 (P13+)
+import '../screens/medicine_db_screen.dart';
+import '../screens/health_tips_screen.dart';
+import '../screens/birthdays_screen.dart';
+import '../screens/meetings_screen.dart';
+import '../screens/dictionary_screen.dart';
+import '../screens/ride_food_screen.dart';
+import '../screens/ramadan_screen.dart';
+import '../screens/exam_result_screen.dart';
+import '../screens/unseen_world_screen.dart';
+import '../screens/photo_enhance_screen.dart';
+import '../screens/circle_screen.dart';
+import '../screens/legal_screen.dart';
 
 /// One navigable module inside a sidebar section.
 class SidebarItem {
@@ -75,6 +88,8 @@ class SidebarSections {
     SidebarSection(Icons.diversity_1_outlined, (t) => t.sidebarFamily, [
       SidebarItem(Icons.diversity_1_outlined,
           (t) => t.moduleFamily, (_) => const FamilyScreen()),
+      SidebarItem(Icons.forum_outlined,
+          (t) => t.circleTitle, (_) => const CircleScreen()),
       SidebarItem(Icons.emergency_outlined,
           (t) => t.moduleEmergency, (_) => const EmergencyScreen()),
       SidebarItem(Icons.health_and_safety_outlined,
@@ -84,13 +99,31 @@ class SidebarSections {
     ]),
     SidebarSection(Icons.favorite_outline, (t) => t.sidebarHealth, [
       SidebarItem(Icons.medication_outlined,
-          (t) => t.sidebarMedicines, (_) => const FamilyScreen()),
+          (t) => t.medicineDbTitle, (_) => const MedicineDbScreen()),
+      SidebarItem(Icons.tips_and_updates_outlined,
+          (t) => t.healthTipsTitle, (_) => const HealthTipsScreen()),
+      SidebarItem(Icons.cake_outlined,
+          (t) => t.birthdaysTitle, (_) => const BirthdaysScreen()),
       SidebarItem(Icons.alarm_outlined,
           (t) => t.navReminders, (_) => const RemindersScreen()),
       SidebarItem(Icons.verified_user_outlined,
           (t) => t.scamTitle, (_) => const ScamScreen()),
     ]),
     SidebarSection(Icons.auto_awesome_outlined, (t) => t.sidebarLife, [
+      SidebarItem(Icons.event_outlined,
+          (t) => t.meetingsTitle, (_) => const MeetingsScreen()),
+      SidebarItem(Icons.menu_book_outlined,
+          (t) => t.dictionaryTitle, (_) => const DictionaryScreen()),
+      SidebarItem(Icons.local_taxi_outlined,
+          (t) => t.rideFoodTitle, (_) => const RideFoodScreen()),
+      SidebarItem(Icons.nightlight_outlined,
+          (t) => t.ramadanTitle, (_) => const RamadanScreen()),
+      SidebarItem(Icons.school_outlined,
+          (t) => t.examTitle, (_) => const ExamResultScreen()),
+      SidebarItem(Icons.travel_explore_outlined,
+          (t) => t.unseenTitle, (_) => const UnseenWorldScreen()),
+      SidebarItem(Icons.auto_fix_high_outlined,
+          (t) => t.photoTitle, (_) => const PhotoEnhanceScreen()),
       SidebarItem(Icons.checklist_outlined,
           (t) => t.navNotesTasks, (_) => const NotesTodosScreen()),
       SidebarItem(Icons.psychology_outlined,
@@ -125,6 +158,8 @@ class SidebarSections {
           (t) => t.planCredits, (_) => const PlansScreen()),
       SidebarItem(Icons.pending_actions_outlined,
           (t) => t.inProgress, (_) => const InProgressScreen()),
+      SidebarItem(Icons.gavel_outlined,
+          (t) => t.legalTitle, (_) => const LegalScreen()),
     ]),
   ];
 

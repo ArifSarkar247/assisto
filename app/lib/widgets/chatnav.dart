@@ -9,6 +9,19 @@ import '../screens/plans_screen.dart';
 import '../screens/scam_screen.dart';
 import '../screens/safety_screen.dart';
 import '../screens/crm/crm_home_screen.dart';
+// module 5 (P13+)
+import '../screens/medicine_db_screen.dart';
+import '../screens/health_tips_screen.dart';
+import '../screens/birthdays_screen.dart';
+import '../screens/meetings_screen.dart';
+import '../screens/dictionary_screen.dart';
+import '../screens/ride_food_screen.dart';
+import '../screens/ramadan_screen.dart';
+import '../screens/exam_result_screen.dart';
+import '../screens/unseen_world_screen.dart';
+import '../screens/photo_enhance_screen.dart';
+import '../screens/circle_screen.dart';
+import '../screens/legal_screen.dart';
 
 /// open-from-chat configuration (Phase B).
 ///
@@ -50,6 +63,19 @@ class ChatNav {
     'scam': (_) => const ScamScreen(),
     'safety': (_) => const SafetyScreen(),
     'crm': (_) => const CrmHomeScreen(),
+    // module 5 (P13+)
+    'medicine_db': (_) => const MedicineDbScreen(),
+    'health_tips': (_) => const HealthTipsScreen(),
+    'birthdays': (_) => const BirthdaysScreen(),
+    'meetings': (_) => const MeetingsScreen(),
+    'dictionary': (_) => const DictionaryScreen(),
+    'ride_food': (_) => const RideFoodScreen(),
+    'ramadan': (_) => const RamadanScreen(),
+    'exam': (_) => const ExamResultScreen(),
+    'unseen': (_) => const UnseenWorldScreen(),
+    'photo_enhance': (_) => const PhotoEnhanceScreen(),
+    'circle': (_) => const CircleScreen(),
+    'legal': (_) => const LegalScreen(),
   };
 
   /// Local ENGLISH subject vocabulary (ASCII only). Mirrors the English tokens
@@ -71,6 +97,19 @@ class ChatNav {
     'scam': ['scam check', 'scam', 'fraud'],
     'safety': ['safe arrival', 'safety', 'check-in', 'checkin'],
     'crm': ['sales crm', 'pipeline', 'leads', 'crm'],
+    // module 5 (P13+)
+    'medicine_db': ['medicine database', 'drug lookup', 'medicine info'],
+    'health_tips': ['health tips', 'health tip'],
+    'birthdays': ['birthdays', 'birthday', 'anniversary', 'memorable days'],
+    'meetings': ['meetings', 'meeting', 'appointments', 'appointment'],
+    'dictionary': ['dictionary', 'word meaning', 'translate word'],
+    'ride_food': ['ride', 'food', 'uber', 'pathao', 'foodpanda'],
+    'ramadan': ['ramadan', 'sehri', 'iftar', 'prayer times'],
+    'exam': ['exam result', 'result', 'exam'],
+    'unseen': ['unseen bangladesh', 'travel', 'destinations', 'tourism'],
+    'photo_enhance': ['enhance photo', 'photo enhance', 'improve photo'],
+    'circle': ['connected circle', 'circle', 'family chat'],
+    'legal': ['legal', 'privacy policy', 'terms', 'policies'],
   };
 
   /// English verbs marking an explicit "open the screen" intent, so a plain

@@ -2,6 +2,7 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from . import views
+from . import views_module5 as m5
 
 router = DefaultRouter()
 router.register("memory", views.MemoryViewSet, basename="memory")
@@ -104,6 +105,43 @@ urlpatterns = [
     path("webhook/whatsapp", views.WhatsAppWebhookView.as_view()),
     path("nominees/<int:pk>/activate", views.nominee_activate),
     path("jobs/<int:pk>/tailor", views.JobTailorView.as_view()),
+
+    # ===== Module 5 (P13+) =====
+    # Health
+    path("health/tips", m5.HealthTipsView.as_view()),
+    path("health/tips/emergency", m5.HealthEmergencyView.as_view()),
+    path("medicine-db/search", m5.MedicineDbSearchView.as_view()),
+    path("medicine-db/lookup", m5.MedicineDbLookupView.as_view()),
+    path("birthdays", m5.BirthdaysView.as_view()),
+    path("birthdays/drafts", m5.BirthdayDraftsView.as_view()),
+    path("birthdays/<int:pk>/delete", m5.BirthdayDeleteView.as_view()),
+    # Life
+    path("appointments/", m5.AppointmentsView.as_view()),
+    path("dictionary/lookup", m5.DictionaryLookupView.as_view()),
+    path("ramadan/times", m5.RamadanTimesView.as_view()),
+    path("ramadan/eid-card", m5.RamadanEidCardView.as_view()),
+    path("exam/watcher", m5.ExamWatcherView.as_view()),
+    # Launch gaps
+    path("auth/reset/request", m5.ResetRequestView.as_view()),
+    path("auth/reset/confirm", m5.ResetConfirmView.as_view()),
+    path("analytics/ingest", m5.AnalyticsIngestView.as_view()),
+    path("analytics/dashboard", m5.AnalyticsDashboardView.as_view()),
+    path("legal", m5.LegalIndexView.as_view()),
+    path("legal/<slug:key>", m5.LegalPageView.as_view()),
+    path("name/about", m5.NameAboutView.as_view()),
+    path("photo/plan", m5.PhotoPlanView.as_view()),
+    path("unseen", m5.UnseenView.as_view()),
+    # Connected Circle
+    path("circle/members", m5.CircleMembersView.as_view()),
+    path("circle/requests", m5.CircleRequestsView.as_view()),
+    path("circle/keys", m5.CircleKeysView.as_view()),
+    path("circle/request", m5.CircleRequestCreateView.as_view()),
+    path("circle/request/<int:pk>/act", m5.CircleRequestActView.as_view()),
+    path("circle/invite", m5.CircleInviteView.as_view()),
+    path("circle/<int:pk>/sharing", m5.CircleSharingView.as_view()),
+    path("circle/<int:pk>/report", m5.CircleReportView.as_view()),
+    path("circle/<int:pk>/messages", m5.CircleMessagesView.as_view()),
+    path("circle/<int:pk>/see/<slug:scope>", m5.CircleScopedReadView.as_view()),
 ]
 
 urlpatterns += router.urls

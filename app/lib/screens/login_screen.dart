@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../l10n/app_localizations.dart';
+import 'password_reset_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -150,6 +151,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             }),
                     child: Text(_register ? t.haveAccount : t.noAccount),
                   ),
+                  if (!_register)
+                    TextButton(
+                      onPressed: _busy
+                          ? null
+                          : () => Navigator.of(context).push(MaterialPageRoute(
+                              builder: (_) => const PasswordResetScreen())),
+                      child: Text(t.resetForgotLink),
+                    ),
                 ],
               ),
             ),

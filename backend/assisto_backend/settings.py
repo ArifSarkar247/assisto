@@ -123,8 +123,20 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {
         "anon": "30/min",
         "user": "240/min",
+        # Password-reset request/confirm: tight scope to blunt brute/enum/email-bomb.
+        "reset": "6/min",
     },
 }
+
+# Password-reset emails. No real SMTP wired yet → print to the console so dev/
+# tests never error; the reset endpoints always return a neutral response and
+# never block on the send succeeding.
+EMAIL_BACKEND = os.getenv(
+    "DJANGO_EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
+DEFAULT_FROM_EMAIL = os.getenv("DJANGO_FROM_EMAIL", "no-reply@asalify.com")
+# Analytics uid_hash HMAC key (falls back to SECRET_KEY; analytics fails closed
+# if neither is a real secret — see core/analytics.py).
+ANALYTICS_HMAC_KEY = os.getenv("ANALYTICS_HMAC_KEY", "")
 
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "Asia/Dhaka"

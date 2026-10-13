@@ -788,3 +788,155 @@ class CategoryCorrection(models.Model):
 
     class Meta:
         unique_together = [("user", "key")]
+
+
+# ===========================================================================
+# Module 5 (P13+) — Health / Life / Launch-gaps / Connected Circle
+# ===========================================================================
+
+class Birthday(models.Model):
+    """Birthdays & memorable days (Health module). Year<=1900 is a sentinel for
+    'unknown year' (we only remind on month/day then). Drafts are never auto-sent."""
+    KINDS = [("birthday", "birthday"), ("anniversary", "anniversary"),
+             ("death_anniversary", "death_anniversary"), ("memorable", "memorable")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="birthdays")
+    name = models.CharField(max_length=120)
+    date = models.DateField()                       # year<=1900 => unknown year
+    kind = models.CharField(max_length=20, choices=KINDS, default="birthday")
+    lead_days = models.PositiveSmallIntegerField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["date"]
+
+
+class Appointment(models.Model):
+    """Meetings / appointments (Life module). Not the CRM Meeting model — this
+    is the user's own calendar with reminders + 'leave now' travel estimates."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="appointments")
+    title = models.CharField(max_length=160)
+    start = models.DateTimeField()
+    duration_min = models.PositiveIntegerField(default=60)
+    place = models.CharField(max_length=200, blank=True, default="")
+    place_lat = models.FloatField(null=True, blank=True)
+    place_lng = models.FloatField(null=True, blank=True)
+    note = models.TextField(blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["start"]
+
+
+class ExamWatcher(models.Model):
+    """Exam-result watcher (Life module). Polls a PUBLIC url the user pasted —
+    never behind auth. result_ready stays a heads-up; we never fake a result."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="exam_watchers")
+    label = models.CharField(max_length=120, blank=True, default="")
+    url = models.URLField(blank=True, default="")
+    expected_date = models.DateField(null=True, blank=True)
+    roll = models.CharField(max_length=40, blank=True, default="")
+    board = models.CharField(max_length=40, blank=True, default="")
+    exam = models.CharField(max_length=40, blank=True, default="")
+    year = models.CharField(max_length=8, blank=True, default="")
+    last_snapshot = models.CharField(max_length=128, blank=True, default="")
+    consecutive_failures = models.PositiveIntegerField(default=0)
+    result_ready = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class PasswordResetToken(models.Model):
+    """Launch-gap A — password reset. We store only the sha256 HASH of the raw
+    token; single-use (`used`), short expiry; compare_digest on confirm."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reset_tokens")
+    token_hash = models.CharField(max_length=64, db_index=True)
+    channel = models.CharField(max_length=10, default="email")
+    expires_at = models.DateTimeField()
+    used = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class AnalyticsEvent(models.Model):
+    """Launch-gap — privacy-first product analytics. NO user FK by design: only
+    a salted HMAC uid_hash, an allow-listed event name, a day bucket and tiny
+    sanitised props. Consent-gated at ingest."""
+    uid_hash = models.CharField(max_length=32, db_index=True)
+    name = models.CharField(max_length=40)
+    day = models.DateField(db_index=True)
+    props = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class CircleMember(models.Model):
+    """Connected Circle — one relationship edge. public_key is the peer's
+    PUBLIC X25519 key (the private key never leaves the owner's device)."""
+    STATES = [("pending", "pending"), ("accepted", "accepted"),
+              ("declined", "declined"), ("blocked", "blocked")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="circle_members")
+    name = models.CharField(max_length=120, blank=True, default="")
+    relation = models.CharField(max_length=20, default="friend")
+    custom_label = models.CharField(max_length=60, blank=True, default="")
+    phone = models.CharField(max_length=40, blank=True, default="")
+    public_key = models.TextField(blank=True, default="")
+    key_id = models.CharField(max_length=64, blank=True, default="")
+    scheme = models.CharField(max_length=64, blank=True, default="")
+    state = models.CharField(max_length=10, choices=STATES, default="pending")
+    sharing = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class CircleMessage(models.Model):
+    """Connected Circle — a relayed message. The server stores the CIPHERTEXT
+    verbatim and NEVER a key; it cannot read this (nor can the server AI)."""
+    member = models.ForeignKey(CircleMember, on_delete=models.CASCADE, related_name="messages")
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="circle_sent")
+    recipient_ids = models.JSONField(default=list, blank=True)
+    content_type = models.CharField(max_length=16, default="text")
+    ciphertext = models.TextField(blank=True, default="")
+    nonce = models.CharField(max_length=128, blank=True, default="")
+    blob_ref = models.CharField(max_length=256, blank=True, default="")
+    sender_key_id = models.CharField(max_length=64, blank=True, default="")
+    scheme = models.CharField(max_length=64, blank=True, default="")
+    delivered_to = models.JSONField(default=list, blank=True)
+    read_by = models.JSONField(default=list, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+
+class CircleInvite(models.Model):
+    """Connected Circle — a single-use signed invite (phone/QR). `used` is the
+    DB enforcement of single-use (the token signature alone doesn't enforce it)."""
+    inviter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="circle_invites")
+    relation = models.CharField(max_length=20, default="friend")
+    token = models.CharField(max_length=256, db_index=True)
+    used = models.BooleanField(default=False)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class CircleReport(models.Model):
+    """Connected Circle — a safety report on a member (+optional auto-block)."""
+    reporter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="circle_reports")
+    target = models.ForeignKey(CircleMember, on_delete=models.CASCADE, related_name="reports")
+    reason = models.CharField(max_length=20, default="other")
+    note = models.TextField(blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]

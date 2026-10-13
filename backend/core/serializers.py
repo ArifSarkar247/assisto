@@ -384,3 +384,22 @@ class SchoolItemSerializer(serializers.ModelSerializer):
         model = SchoolItem
         fields = ["id", "child_name", "kind", "title", "date", "amount", "done"]
         read_only_fields = ["id"]
+
+
+# ---------------- module 5 (P13+) ----------------
+from .models import Birthday, Appointment  # noqa: E402
+
+
+class BirthdaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Birthday
+        fields = ["id", "name", "date", "kind", "lead_days", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+
+class AppointmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Appointment
+        fields = ["id", "title", "start", "duration_min", "place",
+                  "place_lat", "place_lng", "note", "created_at"]
+        read_only_fields = ["id", "created_at"]

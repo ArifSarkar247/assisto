@@ -743,3 +743,205 @@ class MedicineScenarioTests(APITestCase):
         # 20:00 + 30 min = 20:30, before 22:00 → not suppressed
         self.assertFalse(any(e["suppressed"] for e in esc["events"]))
         self.assertFalse(esc["push_ready"])  # cross-device needs Firebase key
+
+
+# ===========================================================================
+# Module 5 (P13+) — fold the pure-logic *_tests_snippets into real Django
+# TestCases. Each snippet module exposes test_* functions (plain asserts); we
+# generate one TestCase method per function so failures surface individually.
+# ===========================================================================
+import importlib  # noqa: E402
+
+
+def _make_snippet_case(module_path, class_name):
+    mod = importlib.import_module(module_path)
+    fns = {n: getattr(mod, n) for n in dir(mod)
+           if n.startswith("test_") and callable(getattr(mod, n))}
+
+    def _wrap(fn):
+        def method(self):
+            fn()
+        return method
+
+    attrs = {f"test_{name}": _wrap(fn) for name, fn in fns.items()}
+    return type(class_name, (TestCase,), attrs)
+
+
+HealthTipsSnippetTests = _make_snippet_case(
+    "core.logic.health_tips_tests_snippets", "HealthTipsSnippetTests")
+MedicineDbSnippetTests = _make_snippet_case(
+    "core.logic.medicine_db_tests_snippets", "MedicineDbSnippetTests")
+BirthdaysSnippetTests = _make_snippet_case(
+    "core.logic.birthdays_tests_snippets", "BirthdaysSnippetTests")
+MeetingsSnippetTests = _make_snippet_case(
+    "core.logic.meetings_tests_snippets", "MeetingsSnippetTests")
+DictionarySnippetTests = _make_snippet_case(
+    "core.logic.dictionary_tests_snippets", "DictionarySnippetTests")
+RamadanSnippetTests = _make_snippet_case(
+    "core.logic.ramadan_tests_snippets", "RamadanSnippetTests")
+ExamSnippetTests = _make_snippet_case(
+    "core.logic.exam_tests_snippets", "ExamSnippetTests")
+CircleSnippetTests = _make_snippet_case(
+    "core.logic.circle_tests_snippets", "CircleSnippetTests")
+LaunchGapsSnippetTests = _make_snippet_case(
+    "core.launch_gaps_tests_snippets", "LaunchGapsSnippetTests")
+
+
+# ---------------------------------------------------------------------------
+# Module 5 API wiring tests (endpoints + the CC enforcement reviewers flagged).
+# ---------------------------------------------------------------------------
+class Module5ApiTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(name="A", email="a@example.com",
+                                              password="pw-abc-123")
+        self.client.force_authenticate(self.user)
+
+    def test_health_and_medicine_and_unseen(self):
+        self.assertEqual(self.client.get("/api/v1/health/tips").status_code, 200)
+        r = self.client.get("/api/v1/medicine-db/search?q=para")
+        self.assertEqual(r.status_code, 200)
+        self.assertIn("meta", r.json())
+        self.assertEqual(self.client.get("/api/v1/unseen").status_code, 200)
+
+    def test_birthday_crud_and_drafts(self):
+        r = self.client.post("/api/v1/birthdays",
+                             {"name": "Ma", "date": "1970-05-01", "kind": "birthday"},
+                             format="json")
+        self.assertEqual(r.status_code, 201)
+        bid = r.json()["id"]
+        lst = self.client.get("/api/v1/birthdays").json()
+        self.assertTrue(any(o["id"] == bid for o in lst["all"]))
+        d = self.client.post("/api/v1/birthdays/drafts",
+                            {"name": "Ma", "kind": "birthday"}, format="json")
+        self.assertEqual(d.status_code, 200)
+        self.assertTrue(d.json()["drafts"])
+        self.assertEqual(
+            self.client.post(f"/api/v1/birthdays/{bid}/delete").status_code, 200)
+
+    def test_appointments_bulk_replace(self):
+        body = {"items": [
+            {"title": "Dentist", "start": "2099-01-01T10:00:00"},
+            {"title": "", "start": "2099-01-01T11:00:00"},  # dropped (no title)
+        ]}
+        r = self.client.post("/api/v1/appointments/", body, format="json")
+        self.assertEqual(r.status_code, 201)
+        got = self.client.get("/api/v1/appointments/").json()
+        self.assertEqual(len(got), 1)
+        self.assertEqual(got[0]["title"], "Dentist")
+
+    def test_dictionary_and_ramadan_and_exam(self):
+        self.assertEqual(
+            self.client.get("/api/v1/dictionary/lookup?q=water").status_code, 200)
+        rt = self.client.get("/api/v1/ramadan/times?lat=23.8&lon=90.4")
+        self.assertEqual(rt.status_code, 200)
+        self.assertIn("sehri_end", rt.json())
+        ew = self.client.post("/api/v1/exam/watcher",
+                            {"label": "SSC", "url": "https://x.example/r"},
+                            format="json")
+        self.assertEqual(ew.status_code, 201)
+
+    def test_reset_neutral_no_enumeration(self):
+        self.client.force_authenticate(None)
+        r1 = self.client.post("/api/v1/auth/reset/request",
+                            {"email": "a@example.com"}, format="json")
+        r2 = self.client.post("/api/v1/auth/reset/request",
+                            {"email": "nobody@example.com"}, format="json")
+        self.assertEqual(r1.status_code, 200)
+        # Same neutral message whether or not the account exists.
+        self.assertEqual(r1.json()["message"], r2.json()["message"])
+
+    def test_reset_confirm_single_use(self):
+        from .models import PasswordResetToken
+        from . import reset as R
+        from django.utils import timezone as tz
+        raw, token_hash = R.generate_token()
+        PasswordResetToken.objects.create(
+            user=self.user, token_hash=token_hash,
+            expires_at=R.expiry(tz.now()))
+        self.client.force_authenticate(None)
+        ok = self.client.post("/api/v1/auth/reset/confirm",
+                            {"token": raw, "password": "newpass123"}, format="json")
+        self.assertEqual(ok.status_code, 200)
+        # second use of the same token fails (single-use enforced via DB flag)
+        again = self.client.post("/api/v1/auth/reset/confirm",
+                            {"token": raw, "password": "newpass999"}, format="json")
+        self.assertEqual(again.status_code, 400)
+
+    def test_legal_and_name_public(self):
+        self.assertEqual(self.client.get("/api/v1/legal").status_code, 200)
+        self.assertEqual(self.client.get("/api/v1/legal/privacy").status_code, 200)
+        self.assertEqual(self.client.get("/api/v1/legal/nope").status_code, 404)
+        self.assertEqual(self.client.get("/api/v1/name/about").status_code, 200)
+
+    def test_photo_plan_honours_declared_document_kind(self):
+        # Even with own-photo attested, a DECLARED document is hard-blocked
+        # server-side (defence-in-depth — GAP-1).
+        r = self.client.post("/api/v1/photo/plan",
+                           {"kind": "document", "ops": ["denoise"], "own_photo": True},
+                           format="json")
+        self.assertEqual(r.status_code, 200)
+        self.assertFalse(r.json()["allowed"])
+        ok = self.client.post("/api/v1/photo/plan",
+                           {"kind": "personal", "ops": ["denoise"], "own_photo": True},
+                           format="json")
+        self.assertTrue(ok.json()["allowed"])
+
+    def test_analytics_ingest_hashes_and_no_pii(self):
+        r = self.client.post("/api/v1/analytics/ingest",
+                           {"events": [{"name": "app_open", "props": {"feature": "x"}}]},
+                           format="json")
+        self.assertEqual(r.status_code, 200)
+        from .models import AnalyticsEvent
+        ev = AnalyticsEvent.objects.first()
+        self.assertIsNotNone(ev)
+        self.assertNotEqual(ev.uid_hash, str(self.user.id))
+        self.assertEqual(len(ev.uid_hash), 32)
+
+    def test_circle_message_rejects_plaintext_envelope(self):
+        # add a member (accepted) then try to persist a non-ciphertext envelope.
+        m = self.client.post("/api/v1/circle/request",
+                          {"name": "B", "relation": "friend", "phone": "123"},
+                          format="json").json()
+        mid = m["id"]
+        self.client.post(f"/api/v1/circle/request/{mid}/act",
+                       {"event": "accept"}, format="json")
+        # forbidden plaintext field -> validate_envelope rejects before persist
+        bad = self.client.post(f"/api/v1/circle/{mid}/messages",
+                            {"content_type": "text", "plaintext": "hi",
+                             "recipient_ids": [mid]}, format="json")
+        self.assertEqual(bad.status_code, 400)
+        # valid ciphertext envelope persists
+        good = self.client.post(f"/api/v1/circle/{mid}/messages",
+                            {"content_type": "text", "ciphertext": "AAAA",
+                             "nonce": "BBBB", "recipient_ids": [mid]}, format="json")
+        self.assertEqual(good.status_code, 201)
+
+    def test_circle_report_auto_blocks(self):
+        m = self.client.post("/api/v1/circle/request",
+                          {"name": "C", "relation": "friend", "phone": "9"},
+                          format="json").json()
+        mid = m["id"]
+        self.client.post(f"/api/v1/circle/request/{mid}/act",
+                       {"event": "accept"}, format="json")
+        rep = self.client.post(f"/api/v1/circle/{mid}/report",
+                            {"reason": "harassment"}, format="json")
+        self.assertEqual(rep.status_code, 200)
+        self.assertTrue(rep.json()["auto_block"])
+        from .models import CircleMember
+        self.assertEqual(CircleMember.objects.get(pk=mid).state, "blocked")
+
+    def test_circle_scoped_read_gate(self):
+        m = self.client.post("/api/v1/circle/request",
+                          {"name": "D", "relation": "friend", "phone": "7"},
+                          format="json").json()
+        mid = m["id"]
+        self.client.post(f"/api/v1/circle/request/{mid}/act",
+                       {"event": "accept"}, format="json")
+        # friend default does NOT share medicines -> 403
+        denied = self.client.get(f"/api/v1/circle/{mid}/see/medicines")
+        self.assertEqual(denied.status_code, 403)
+        # grant it, then allowed
+        self.client.post(f"/api/v1/circle/{mid}/sharing",
+                       {"sharing": {"medicines": True}}, format="json")
+        allowed = self.client.get(f"/api/v1/circle/{mid}/see/medicines")
+        self.assertEqual(allowed.status_code, 200)

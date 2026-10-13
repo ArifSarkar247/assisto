@@ -1217,5 +1217,363 @@
   "youStayInControl": "You stay in control",
   "yourMessageLabel": "Your message",
   "yourPhoneBrand": "Your phone brand",
-  "zakat": "Zakat"
+  "zakat": "Zakat",
+  "healthTipsTitle": "Health tips",
+  "healthTipsSearchHint": "Search tips",
+  "healthTipsAllTopics": "All topics",
+  "healthTipsNoResults": "No tips found",
+  "healthTipsLoadError": "Couldn't load tips",
+  "healthTipsSourcesLine": "Sources: {sources}",
+  "@healthTipsSourcesLine": {
+    "placeholders": {
+      "sources": {
+        "type": "Object"
+      }
+    }
+  },
+  "healthTipSourceLine": "Source: {source}",
+  "@healthTipSourceLine": {
+    "placeholders": {
+      "source": {
+        "type": "Object"
+      }
+    }
+  },
+  "healthEmergencyCheckLabel": "Red-flag check (not a diagnosis)",
+  "healthEmergencyCheckHint": "Type a symptom, e.g. chest pain",
+  "healthEmergencyCheckButton": "Check",
+  "healthEmergencyNoRedFlags": "No red-flag signs found. See a doctor if the problem persists.",
+  "medicineDbTitle": "Medicine database",
+  "medicineDbSearchHint": "Search brand or generic",
+  "medicineDbIntroTitle": "Look up a medicine",
+  "medicineDbIntroBody": "Type a brand or generic name to see details and alternatives.",
+  "medicineDbUses": "Uses",
+  "medicineDbHowToTake": "How to take",
+  "medicineDbAlternativesTitle": "Alternatives ({count})",
+  "@medicineDbAlternativesTitle": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "medicineDbAlternativesNote": "Do not switch medicines without a doctor's or pharmacist's advice.",
+  "medicineDbLoadError": "Couldn't load data",
+  "medicineDbNeedsDataTitle": "Nothing found",
+  "medicineDbNeedsDataBody": "Available when DGDA data is added.",
+  "birthdaysTitle": "Birthdays & memorable days",
+  "birthdaysAdd": "Add",
+  "birthdaysEmptyTitle": "No days added yet",
+  "birthdaysEmptyBody": "Add a loved one's birthday or special day — we'll remind you ahead of time.",
+  "birthdaysLoadError": "Couldn't load",
+  "birthdayNameLabel": "Name",
+  "birthdayPickDate": "Pick a date",
+  "birthdayDateChosen": "Date: {date}",
+  "@birthdayDateChosen": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      }
+    }
+  },
+  "birthdayLeadDaysLabel": "Remind {days} day(s) before",
+  "@birthdayLeadDaysLabel": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "birthdaySaveError": "Couldn't save",
+  "birthdayToday": "Today",
+  "birthdayTomorrow": "Tomorrow",
+  "birthdayInDays": "In {days} days",
+  "@birthdayInDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "birthdayTurningAge": "turning {age}",
+  "@birthdayTurningAge": {
+    "placeholders": {
+      "age": {
+        "type": "Object"
+      }
+    }
+  },
+  "birthdayWishAction": "Wish",
+  "birthdayDraftsTitle": "Wish drafts",
+  "birthdayDraftsSubtitle": "Pick one to copy or share — nothing is sent automatically.",
+  "birthdayDraftError": "Couldn't create a draft",
+  "birthdayShare": "Share",
+  "meetingsTitle": "Meetings & appointments",
+  "meetingsAdd": "New meeting",
+  "meetingsEmptyTitle": "No meetings yet",
+  "meetingsEmptyBody": "Add a meeting or appointment — we'll remind you ahead of time.",
+  "meetingsFieldTitle": "Title",
+  "meetingsFieldPlace": "Place",
+  "meetingsFieldDuration": "Duration",
+  "meetingsFieldNote": "Note",
+  "meetingsMinutes": "{m} min",
+  "@meetingsMinutes": {
+    "placeholders": {
+      "m": {
+        "type": "Object"
+      }
+    }
+  },
+  "meetingsTitleRequired": "Please enter a title",
+  "meetingsConflict": "Overlaps with another meeting",
+  "leaveNowTravelTitle": "Travel time",
+  "leaveNowTravelHint": "Enter your best estimate in minutes — we never invent traffic.",
+  "leaveNowTravelLabel": "Minutes",
+  "leaveNowAddTravel": "Add travel time",
+  "leaveNowOpenMaps": "Directions in Maps",
+  "leaveNowGo": "Leave now",
+  "leaveNowIn": "Leave in {m} min",
+  "@leaveNowIn": {
+    "placeholders": {
+      "m": {
+        "type": "Object"
+      }
+    }
+  },
+  "leaveNowDirections": "Directions",
+  "dictionaryTitle": "Dictionary",
+  "dictionarySearchHint": "Search a word",
+  "dictionaryDirAuto": "Auto",
+  "dictionaryDirBnEn": "Bangla → English",
+  "dictionaryDirEnBn": "English → Bangla",
+  "dictionaryIntroTitle": "Look up a word",
+  "dictionaryIntroBody": "Type a Bangla or English word to see meaning and examples.",
+  "dictionaryNeedsOpenData": "The full dictionary is available when open-license data is added.",
+  "dictionaryNotFound": "No result for \"{q}\"",
+  "@dictionaryNotFound": {
+    "placeholders": {
+      "q": {
+        "type": "Object"
+      }
+    }
+  },
+  "dictionarySampleNote": "This is a small sample — common words only.",
+  "dictionarySourceNote": "Source: {src}",
+  "@dictionarySourceNote": {
+    "placeholders": {
+      "src": {
+        "type": "Object"
+      }
+    }
+  },
+  "rideFoodTitle": "Ride & food",
+  "rideFoodDeepLinkNote": "We open the provider's own app — we never show fake prices or info.",
+  "rideFoodDestLabel": "Destination or food",
+  "rideFoodDestHelper": "Enter a destination for a ride, or a restaurant/food to order.",
+  "rideFoodRideSection": "Ride",
+  "rideFoodFoodSection": "Food",
+  "rideFoodOpen": "Open",
+  "rideFoodOpenInApp": "Open in the provider's app",
+  "rideFoodInAppComing": "In-app booking is available when a partner is connected.",
+  "ramadanTitle": "Ramadan mode",
+  "ramadanRefresh": "Refresh times from location",
+  "ramadanLocationNeeded": "Location permission is needed to show times.",
+  "ramadanFetchFailed": "Couldn't fetch times. Try again later.",
+  "ramadanSehri": "Sehri ends",
+  "ramadanIftar": "Iftar",
+  "ramadanMethodNote": "Calculation method: {method} (astronomical estimate — local committee times may differ).",
+  "@ramadanMethodNote": {
+    "placeholders": {
+      "method": {
+        "type": "Object"
+      }
+    }
+  },
+  "ramadanFajr": "Fajr",
+  "ramadanDhuhr": "Dhuhr",
+  "ramadanAsr": "Asr",
+  "ramadanMaghrib": "Maghrib",
+  "ramadanIsha": "Isha",
+  "ramadanAlarmsSection": "Alarms",
+  "ramadanSehriWake": "Sehri wake-up alarm",
+  "ramadanSehriWakeValue": "{min} min before ({time})",
+  "@ramadanSehriWakeValue": {
+    "placeholders": {
+      "min": {
+        "type": "Object"
+      },
+      "time": {
+        "type": "Object"
+      }
+    }
+  },
+  "ramadanIftarAlert": "Iftar heads-up",
+  "ramadanIftarAlertValue": "{min} min before ({time})",
+  "@ramadanIftarAlertValue": {
+    "placeholders": {
+      "min": {
+        "type": "Object"
+      },
+      "time": {
+        "type": "Object"
+      }
+    }
+  },
+  "ramadanWakeCallComing": "A wake-up phone call for sehri is available when a telephony partner is connected.",
+  "ramadanZakat": "Zakat calculator",
+  "ramadanZakatSubtitle": "Uses the Finance zakat calculator.",
+  "ramadanZakatOpenFinance": "Open the zakat calculator in Finance.",
+  "ramadanEidSection": "Eid greeting & salami",
+  "eidGreeting": "Greeting",
+  "eidSalami": "Salami",
+  "eidToLabel": "To (recipient)",
+  "eidFromLabel": "From (sender)",
+  "eidAmountLabel": "Salami amount (৳)",
+  "eidGenerate": "Create a draft",
+  "eidDraftLabel": "Draft (editable)",
+  "eidEditableNote": "Edit and share it yourself — nothing is sent automatically.",
+  "eidShare": "Share",
+  "examTitle": "Exam result",
+  "examWatcherSection": "Result watcher",
+  "examLabelField": "Label (e.g. SSC 2026)",
+  "examUrlField": "Public result URL",
+  "examUrlHelper": "Public page only — we never look behind a login.",
+  "examUrlInvalid": "Enter a valid URL (http or https)",
+  "examUrlOrDateRequired": "Enter a URL or a date",
+  "examPickDate": "Pick an expected date",
+  "examExpectedOn": "Expected on {d}",
+  "@examExpectedOn": {
+    "placeholders": {
+      "d": {
+        "type": "Object"
+      }
+    }
+  },
+  "examWatch": "Start watching",
+  "examWatcherSaved": "Watcher saved",
+  "examWatcherSavedLocal": "Saved on this device",
+  "examWaiting": "Waiting for the result — {days} day(s) to go",
+  "@examWaiting": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "examTrafficSpikeNote": "Result sites get very busy on result day — try again shortly.",
+  "examCardSection": "Result card",
+  "examCardNote": "Built only from the details you enter.",
+  "examCardDefaultHeader": "Exam result",
+  "examFieldName": "Name",
+  "examFieldRoll": "Roll",
+  "examFieldBoard": "Board",
+  "examFieldGpa": "GPA/Result",
+  "examShareCard": "Share card",
+  "resetTitle": "Reset password",
+  "resetIntro": "Enter your account email — we'll send a reset link.",
+  "resetEmailLabel": "Email",
+  "resetSendLink": "Send reset link",
+  "resetNeutralSent": "If an account exists, a reset link has been sent.",
+  "resetSmsUnavailable": "SMS reset is available when an SMS gateway is added.",
+  "resetSecurityNote": "For security, we never reveal whether an account exists.",
+  "resetSetNewTitle": "Set a new password",
+  "resetSetNewIntro": "Enter your new password.",
+  "resetNewPassword": "New password",
+  "resetConfirmPassword": "Confirm password",
+  "resetPasswordHint": "Use at least 8 characters.",
+  "resetPasswordTooShort": "Password must be at least 8 characters",
+  "resetPasswordMismatch": "Passwords don't match",
+  "resetLinkInvalid": "This link is invalid or expired.",
+  "resetDoneMessage": "Password changed. You can now sign in.",
+  "resetBackToLogin": "Back to login",
+  "legalTitle": "Legal & policies",
+  "legalOffline": "Couldn't load. Check your connection and retry.",
+  "legalLastUpdated": "Last updated",
+  "photoTitle": "Enhance photo",
+  "photoNeverDocuments": "Your own ordinary photos only — never an ID or official document.",
+  "photoPickHint": "Pick a photo to begin",
+  "photoFromGallery": "From gallery",
+  "photoFromCamera": "From camera",
+  "photoConfirmOwn": "This is my own photo",
+  "photoConfirmNotDocument": "Photo type",
+  "photoKindPersonal": "Personal photo",
+  "photoKindDocument": "ID / document",
+  "photoOpsLabel": "Improvements (faithful, nothing fabricated)",
+  "photoOpDenoise": "Reduce noise",
+  "photoOpSharpen": "Sharpen",
+  "photoOpAutoLevels": "Auto levels",
+  "photoOpContrast": "Contrast",
+  "photoOpUpscale": "Upscale",
+  "photoCloudActive": "Higher-quality cloud processing is active.",
+  "photoCloudUnavailable": "Higher-quality cloud processing is available when a provider is connected — for now it runs on-device.",
+  "photoEnhanceButton": "Enhance",
+  "photoBlocked": "This isn't allowed for this photo.",
+  "photoOffline": "Couldn't do that now. Try again later.",
+  "photoReady": "Ready — enhancement can start.",
+  "unseenTitle": "Unseen Bangladesh",
+  "unseenOffline": "Couldn't load. Try again.",
+  "unseenDestinations": "Destinations",
+  "unseenBestSeason": "Best season",
+  "unseenTip": "Tip",
+  "unseenSource": "Source",
+  "unseenTravelTips": "Travel tips",
+  "circleTitle": "Connected circle",
+  "circleAdd": "Add",
+  "circleAddTitle": "Add to your circle",
+  "circleRelationQuestion": "What's the relationship?",
+  "circleCustomRelationHint": "Type the relationship",
+  "circlePhoneLabel": "Phone number",
+  "circleSendRequest": "Send request",
+  "circleQrInvite": "Invite by QR",
+  "circleNoContactUpload": "We never upload your contact list.",
+  "circleInviteUnavailable": "Couldn't create an invite link.",
+  "circlePendingRequests": "Pending requests",
+  "circleYourCircle": "Your circle",
+  "circleEmptyTitle": "Your circle is empty",
+  "circleEmptyBody": "Add loved ones — every message stays end-to-end encrypted.",
+  "circleBackendPending": "The circle is available once the server is connected.",
+  "circleAccept": "Accept",
+  "circleDecline": "Decline",
+  "circleBlock": "Block",
+  "circleReport": "Report",
+  "circleReported": "Report submitted",
+  "circleReportSpam": "Spam",
+  "circleReportHarassment": "Harassment",
+  "circleReportScam": "Scam",
+  "circleReportImpersonation": "Impersonation",
+  "circleReportOther": "Other",
+  "circleSharingTitle": "Who sees what",
+  "circleSharingHint": "Choose what this relation is allowed to see.",
+  "circleScopeMedicines": "Medicines",
+  "circleScopeLocation": "Location",
+  "circleScopeDocuments": "Documents",
+  "circleScopeMoney": "Money",
+  "circleScopeProfile": "Profile",
+  "circleRelFather": "Father",
+  "circleRelMother": "Mother",
+  "circleRelChild": "Child",
+  "circleRelHusband": "Husband",
+  "circleRelWife": "Wife",
+  "circleRelBrother": "Brother",
+  "circleRelSister": "Sister",
+  "circleRelRelative": "Relative",
+  "circleRelFriend": "Friend",
+  "circleRelColleague": "Colleague",
+  "circleRelCustom": "Custom",
+  "circleE2eBanner": "This chat is end-to-end encrypted — the server and its AI can't read it.",
+  "circleChatEmpty": "Start the conversation — every message stays encrypted.",
+  "circleMessageHint": "Message",
+  "circleDecryptFailed": "Couldn't decrypt this message.",
+  "circleKeyMissing": "This member's encryption key isn't available yet.",
+  "circleAttach": "Attach",
+  "circlePhoto": "Photo",
+  "circleVoiceNote": "Voice note",
+  "circleVideo": "Video",
+  "circleVoiceCall": "Voice call",
+  "circleMediaPhotoGated": "Sending photos is available when encrypted storage is enabled.",
+  "circleMediaVoiceGated": "Voice notes are available when encrypted storage is enabled.",
+  "circleMediaVideoGated": "Video is available when encrypted storage is enabled.",
+  "circleCallGated": "Voice calls are available when the call server is enabled.",
+  "circleComingSoon": "Coming soon.",
+  "resetForgotLink": "Forgot password?"
 }

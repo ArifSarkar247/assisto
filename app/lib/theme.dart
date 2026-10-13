@@ -53,6 +53,7 @@ class Gap {
 /// Corner radii.
 class Radii {
   Radii._();
+  static const xs = 4.0;
   static const sm = 10.0;
   static const md = 14.0;
   static const lg = 20.0;

@@ -886,5 +886,363 @@
   "youStayInControl": "আপনার হাতেই নিয়ন্ত্রণ",
   "yourMessageLabel": "আপনার বার্তা",
   "yourPhoneBrand": "আপনার ফোনের ব্র্যান্ড",
-  "zakat": "যাকাত"
+  "zakat": "যাকাত",
+  "healthTipsTitle": "স্বাস্থ্য টিপস",
+  "healthTipsSearchHint": "টিপস খুঁজুন",
+  "healthTipsAllTopics": "সব বিষয়",
+  "healthTipsNoResults": "কোনো টিপস পাওয়া যায়নি",
+  "healthTipsLoadError": "টিপস লোড করা যায়নি",
+  "healthTipsSourcesLine": "সূত্র: {sources}",
+  "@healthTipsSourcesLine": {
+    "placeholders": {
+      "sources": {
+        "type": "Object"
+      }
+    }
+  },
+  "healthTipSourceLine": "সূত্র: {source}",
+  "@healthTipSourceLine": {
+    "placeholders": {
+      "source": {
+        "type": "Object"
+      }
+    }
+  },
+  "healthEmergencyCheckLabel": "জরুরি লক্ষণ যাচাই (রোগ নির্ণয় নয়)",
+  "healthEmergencyCheckHint": "উপসর্গ লিখুন, যেমন বুকে ব্যথা",
+  "healthEmergencyCheckButton": "যাচাই করুন",
+  "healthEmergencyNoRedFlags": "কোনো জরুরি লক্ষণ পাওয়া যায়নি। সমস্যা থাকলে ডাক্তার দেখান।",
+  "medicineDbTitle": "ওষুধের তথ্যভান্ডার",
+  "medicineDbSearchHint": "ব্র্যান্ড বা জেনেরিক খুঁজুন",
+  "medicineDbIntroTitle": "ওষুধ খুঁজুন",
+  "medicineDbIntroBody": "ব্র্যান্ড বা জেনেরিক নাম লিখে ওষুধের তথ্য ও বিকল্প দেখুন।",
+  "medicineDbUses": "ব্যবহার",
+  "medicineDbHowToTake": "সেবনবিধি",
+  "medicineDbAlternativesTitle": "বিকল্প ({count})",
+  "@medicineDbAlternativesTitle": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "medicineDbAlternativesNote": "ডাক্তার/ফার্মাসিস্টের পরামর্শ ছাড়া ওষুধ বদলাবেন না।",
+  "medicineDbLoadError": "তথ্য লোড করা যায়নি",
+  "medicineDbNeedsDataTitle": "কিছু পাওয়া যায়নি",
+  "medicineDbNeedsDataBody": "চালু হবে যখন DGDA ডাটা যুক্ত হবে।",
+  "birthdaysTitle": "জন্মদিন ও স্মরণীয় দিন",
+  "birthdaysAdd": "নতুন যোগ করুন",
+  "birthdaysEmptyTitle": "কোনো দিন যোগ করা হয়নি",
+  "birthdaysEmptyBody": "প্রিয়জনের জন্মদিন বা বিশেষ দিন যোগ করুন—আগে থেকেই মনে করিয়ে দেব।",
+  "birthdaysLoadError": "লোড করা যায়নি",
+  "birthdayNameLabel": "নাম",
+  "birthdayPickDate": "তারিখ বাছুন",
+  "birthdayDateChosen": "তারিখ: {date}",
+  "@birthdayDateChosen": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      }
+    }
+  },
+  "birthdayLeadDaysLabel": "{days} দিন আগে মনে করিয়ে দাও",
+  "@birthdayLeadDaysLabel": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "birthdaySaveError": "সংরক্ষণ করা যায়নি",
+  "birthdayToday": "আজ",
+  "birthdayTomorrow": "আগামীকাল",
+  "birthdayInDays": "{days} দিন পর",
+  "@birthdayInDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "birthdayTurningAge": "{age} বছর হচ্ছে",
+  "@birthdayTurningAge": {
+    "placeholders": {
+      "age": {
+        "type": "Object"
+      }
+    }
+  },
+  "birthdayWishAction": "শুভেচ্ছা",
+  "birthdayDraftsTitle": "শুভেচ্ছার খসড়া",
+  "birthdayDraftsSubtitle": "বেছে নিয়ে কপি বা শেয়ার করুন—স্বয়ংক্রিয়ভাবে পাঠানো হবে না।",
+  "birthdayDraftError": "খসড়া তৈরি করা যায়নি",
+  "birthdayShare": "শেয়ার",
+  "meetingsTitle": "মিটিং ও অ্যাপয়েন্টমেন্ট",
+  "meetingsAdd": "নতুন মিটিং",
+  "meetingsEmptyTitle": "কোনো মিটিং নেই",
+  "meetingsEmptyBody": "মিটিং বা অ্যাপয়েন্টমেন্ট যোগ করুন—আগেভাগে মনে করিয়ে দেব।",
+  "meetingsFieldTitle": "বিষয়/শিরোনাম",
+  "meetingsFieldPlace": "স্থান",
+  "meetingsFieldDuration": "সময়কাল",
+  "meetingsFieldNote": "নোট",
+  "meetingsMinutes": "{m} মিনিট",
+  "@meetingsMinutes": {
+    "placeholders": {
+      "m": {
+        "type": "Object"
+      }
+    }
+  },
+  "meetingsTitleRequired": "শিরোনাম লিখুন",
+  "meetingsConflict": "সময় মিলে যাচ্ছে—আরেকটি মিটিংয়ের সাথে সংঘাত",
+  "leaveNowTravelTitle": "যাত্রার সময়",
+  "leaveNowTravelHint": "আনুমানিক কত মিনিট লাগবে লিখুন—আমরা নিজে থেকে ট্রাফিক অনুমান করি না।",
+  "leaveNowTravelLabel": "মিনিট",
+  "leaveNowAddTravel": "যাত্রার সময় যোগ করুন",
+  "leaveNowOpenMaps": "ম্যাপে দিকনির্দেশ",
+  "leaveNowGo": "এখনই রওনা দিন",
+  "leaveNowIn": "{m} মিনিট পর রওনা দিন",
+  "@leaveNowIn": {
+    "placeholders": {
+      "m": {
+        "type": "Object"
+      }
+    }
+  },
+  "leaveNowDirections": "দিকনির্দেশ",
+  "dictionaryTitle": "অভিধান",
+  "dictionarySearchHint": "শব্দ খুঁজুন",
+  "dictionaryDirAuto": "স্বয়ংক্রিয়",
+  "dictionaryDirBnEn": "বাংলা → English",
+  "dictionaryDirEnBn": "English → বাংলা",
+  "dictionaryIntroTitle": "শব্দের অর্থ খুঁজুন",
+  "dictionaryIntroBody": "বাংলা বা English শব্দ লিখুন—অর্থ ও উদাহরণ দেখুন।",
+  "dictionaryNeedsOpenData": "পূর্ণ অভিধান চালু হবে যখন উন্মুক্ত-লাইসেন্সের ডাটা যুক্ত হবে।",
+  "dictionaryNotFound": "\"{q}\" পাওয়া যায়নি",
+  "@dictionaryNotFound": {
+    "placeholders": {
+      "q": {
+        "type": "Object"
+      }
+    }
+  },
+  "dictionarySampleNote": "এটি একটি ছোট নমুনা—সাধারণ কিছু শব্দ শুধু।",
+  "dictionarySourceNote": "সূত্র: {src}",
+  "@dictionarySourceNote": {
+    "placeholders": {
+      "src": {
+        "type": "Object"
+      }
+    }
+  },
+  "rideFoodTitle": "রাইড ও খাবার",
+  "rideFoodDeepLinkNote": "আমরা সরাসরি প্রোভাইডারের অ্যাপ খুলি—কোনো নকল দাম বা তথ্য দেখাই না।",
+  "rideFoodDestLabel": "গন্তব্য বা খাবার",
+  "rideFoodDestHelper": "রাইডের জন্য গন্তব্য, খাবারের জন্য রেস্টুরেন্ট/খাবার লিখুন।",
+  "rideFoodRideSection": "রাইড",
+  "rideFoodFoodSection": "খাবার",
+  "rideFoodOpen": "খুলুন",
+  "rideFoodOpenInApp": "প্রোভাইডারের অ্যাপে খুলুন",
+  "rideFoodInAppComing": "অ্যাপের ভেতর বুকিং চালু হবে পার্টনার যুক্ত হলে।",
+  "ramadanTitle": "রমজান মোড",
+  "ramadanRefresh": "অবস্থান নিয়ে সময় হালনাগাদ করুন",
+  "ramadanLocationNeeded": "সময় দেখাতে অবস্থানের অনুমতি দরকার।",
+  "ramadanFetchFailed": "সময় আনা যায়নি। পরে চেষ্টা করুন।",
+  "ramadanSehri": "সেহরি শেষ",
+  "ramadanIftar": "ইফতার",
+  "ramadanMethodNote": "হিসাবের পদ্ধতি: {method} (জ্যোতির্বৈজ্ঞানিক অনুমান—স্থানীয় কমিটির সময় ভিন্ন হতে পারে)।",
+  "@ramadanMethodNote": {
+    "placeholders": {
+      "method": {
+        "type": "Object"
+      }
+    }
+  },
+  "ramadanFajr": "ফজর",
+  "ramadanDhuhr": "যোহর",
+  "ramadanAsr": "আসর",
+  "ramadanMaghrib": "মাগরিব",
+  "ramadanIsha": "এশা",
+  "ramadanAlarmsSection": "সতর্কতা",
+  "ramadanSehriWake": "সেহরির জন্য জাগানোর অ্যালার্ম",
+  "ramadanSehriWakeValue": "{min} মিনিট আগে ({time})",
+  "@ramadanSehriWakeValue": {
+    "placeholders": {
+      "min": {
+        "type": "Object"
+      },
+      "time": {
+        "type": "Object"
+      }
+    }
+  },
+  "ramadanIftarAlert": "ইফতারের আগাম সতর্কতা",
+  "ramadanIftarAlertValue": "{min} মিনিট আগে ({time})",
+  "@ramadanIftarAlertValue": {
+    "placeholders": {
+      "min": {
+        "type": "Object"
+      },
+      "time": {
+        "type": "Object"
+      }
+    }
+  },
+  "ramadanWakeCallComing": "সেহরির জন্য ফোন-কলে জাগানো চালু হবে টেলিফোনি পার্টনার যুক্ত হলে।",
+  "ramadanZakat": "যাকাত হিসাব",
+  "ramadanZakatSubtitle": "ফিন্যান্সের যাকাত হিসাব ব্যবহার করুন।",
+  "ramadanZakatOpenFinance": "ফিন্যান্স থেকে যাকাত হিসাব খুলুন।",
+  "ramadanEidSection": "ঈদের শুভেচ্ছা ও সালামি",
+  "eidGreeting": "শুভেচ্ছা",
+  "eidSalami": "সালামি",
+  "eidToLabel": "প্রাপক (কাকে)",
+  "eidFromLabel": "প্রেরক (কার পক্ষ থেকে)",
+  "eidAmountLabel": "সালামির পরিমাণ (৳)",
+  "eidGenerate": "খসড়া তৈরি করুন",
+  "eidDraftLabel": "খসড়া (সম্পাদনা করা যাবে)",
+  "eidEditableNote": "সম্পাদনা করে নিজে শেয়ার করুন—স্বয়ংক্রিয়ভাবে পাঠানো হবে না।",
+  "eidShare": "শেয়ার",
+  "examTitle": "পরীক্ষার ফলাফল",
+  "examWatcherSection": "ফলাফল পর্যবেক্ষণ",
+  "examLabelField": "নাম/লেবেল (যেমন SSC ২০২৬)",
+  "examUrlField": "সরকারি ফলাফলের ঠিকানা (URL)",
+  "examUrlHelper": "শুধু প্রকাশ্য পেজ—আমরা লগইনের পেছনে কিছু দেখি না।",
+  "examUrlInvalid": "সঠিক ঠিকানা দিন (http বা https)",
+  "examUrlOrDateRequired": "একটি ঠিকানা বা তারিখ দিন",
+  "examPickDate": "সম্ভাব্য তারিখ বাছুন",
+  "examExpectedOn": "সম্ভাব্য তারিখ: {d}",
+  "@examExpectedOn": {
+    "placeholders": {
+      "d": {
+        "type": "Object"
+      }
+    }
+  },
+  "examWatch": "পর্যবেক্ষণ শুরু করুন",
+  "examWatcherSaved": "পর্যবেক্ষণ সংরক্ষিত হয়েছে",
+  "examWatcherSavedLocal": "এই ডিভাইসে সংরক্ষিত হয়েছে",
+  "examWaiting": "ফলাফলের জন্য অপেক্ষা—আর {days} দিন",
+  "@examWaiting": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "examTrafficSpikeNote": "ফলাফলের দিনে সাইটে ভিড় বেশি থাকে—একটু পর আবার চেষ্টা করুন।",
+  "examCardSection": "ফলাফল কার্ড",
+  "examCardNote": "শুধু আপনার দেওয়া তথ্য দিয়ে কার্ড তৈরি হয়।",
+  "examCardDefaultHeader": "পরীক্ষার ফলাফল",
+  "examFieldName": "নাম",
+  "examFieldRoll": "রোল",
+  "examFieldBoard": "বোর্ড",
+  "examFieldGpa": "জিপিএ/ফলাফল",
+  "examShareCard": "কার্ড শেয়ার করুন",
+  "resetTitle": "পাসওয়ার্ড রিসেট",
+  "resetIntro": "আপনার অ্যাকাউন্টের ইমেইল দিন—রিসেট লিংক পাঠানো হবে।",
+  "resetEmailLabel": "ইমেইল",
+  "resetSendLink": "রিসেট লিংক পাঠান",
+  "resetNeutralSent": "অ্যাকাউন্ট থাকলে একটি রিসেট লিংক পাঠানো হয়েছে।",
+  "resetSmsUnavailable": "SMS দিয়ে রিসেট চালু হবে SMS গেটওয়ে যুক্ত হলে।",
+  "resetSecurityNote": "নিরাপত্তার জন্য অ্যাকাউন্ট আছে কি না তা আমরা জানাই না।",
+  "resetSetNewTitle": "নতুন পাসওয়ার্ড দিন",
+  "resetSetNewIntro": "আপনার নতুন পাসওয়ার্ড লিখুন।",
+  "resetNewPassword": "নতুন পাসওয়ার্ড",
+  "resetConfirmPassword": "পাসওয়ার্ড আবার লিখুন",
+  "resetPasswordHint": "কমপক্ষে ৮টি অক্ষর ব্যবহার করুন।",
+  "resetPasswordTooShort": "পাসওয়ার্ড কমপক্ষে ৮টি অক্ষরের হতে হবে",
+  "resetPasswordMismatch": "দুটি পাসওয়ার্ড মিলছে না",
+  "resetLinkInvalid": "লিংকটি ভুল বা মেয়াদোত্তীর্ণ।",
+  "resetDoneMessage": "পাসওয়ার্ড পরিবর্তন হয়েছে। এখন লগইন করুন।",
+  "resetBackToLogin": "লগইনে ফিরে যান",
+  "legalTitle": "আইনি ও নীতিমালা",
+  "legalOffline": "লোড করা যায়নি। সংযোগ দেখে আবার চেষ্টা করুন।",
+  "legalLastUpdated": "সর্বশেষ হালনাগাদ",
+  "photoTitle": "ছবি উন্নত করুন",
+  "photoNeverDocuments": "শুধু নিজের সাধারণ ছবি—কোনো আইডি বা দলিল নয়।",
+  "photoPickHint": "শুরু করতে একটি ছবি বাছুন",
+  "photoFromGallery": "গ্যালারি থেকে",
+  "photoFromCamera": "ক্যামেরা দিয়ে",
+  "photoConfirmOwn": "এটি আমার নিজের ছবি",
+  "photoConfirmNotDocument": "ছবির ধরন",
+  "photoKindPersonal": "সাধারণ ছবি",
+  "photoKindDocument": "আইডি/দলিল",
+  "photoOpsLabel": "যেসব উন্নতি (বিশ্বস্ত, বানানো নয়)",
+  "photoOpDenoise": "নয়েজ কমানো",
+  "photoOpSharpen": "শার্প করা",
+  "photoOpAutoLevels": "অটো-লেভেল",
+  "photoOpContrast": "কনট্রাস্ট",
+  "photoOpUpscale": "রেজল্যুশন বাড়ানো",
+  "photoCloudActive": "ক্লাউডে উন্নত প্রক্রিয়াকরণ চালু।",
+  "photoCloudUnavailable": "উন্নত ক্লাউড প্রক্রিয়াকরণ চালু হবে প্রোভাইডার যুক্ত হলে—এখন ডিভাইসেই হবে।",
+  "photoEnhanceButton": "উন্নত করুন",
+  "photoBlocked": "এই ছবিতে এটি করা যাবে না।",
+  "photoOffline": "এখন করা গেল না। পরে চেষ্টা করুন।",
+  "photoReady": "প্রস্তুত—উন্নত করা শুরু করা যাবে।",
+  "unseenTitle": "অদেখা বাংলাদেশ",
+  "unseenOffline": "লোড করা যায়নি। আবার চেষ্টা করুন।",
+  "unseenDestinations": "গন্তব্য",
+  "unseenBestSeason": "সেরা সময়",
+  "unseenTip": "পরামর্শ",
+  "unseenSource": "সূত্র",
+  "unseenTravelTips": "ভ্রমণ পরামর্শ",
+  "circleTitle": "পরিবার-বন্ধু সার্কেল",
+  "circleAdd": "যোগ করুন",
+  "circleAddTitle": "সার্কেলে যোগ করুন",
+  "circleRelationQuestion": "সম্পর্ক কী?",
+  "circleCustomRelationHint": "সম্পর্ক লিখুন",
+  "circlePhoneLabel": "ফোন নম্বর",
+  "circleSendRequest": "অনুরোধ পাঠান",
+  "circleQrInvite": "QR দিয়ে আমন্ত্রণ",
+  "circleNoContactUpload": "আমরা আপনার কনট্যাক্ট লিস্ট আপলোড করি না।",
+  "circleInviteUnavailable": "আমন্ত্রণ লিংক তৈরি করা যায়নি।",
+  "circlePendingRequests": "অপেক্ষমাণ অনুরোধ",
+  "circleYourCircle": "আপনার সার্কেল",
+  "circleEmptyTitle": "সার্কেল এখনো খালি",
+  "circleEmptyBody": "প্রিয়জনদের যোগ করুন—সব বার্তা এন্ড-টু-এন্ড এনক্রিপ্টেড থাকবে।",
+  "circleBackendPending": "সার্কেল চালু হবে সার্ভার সংযোগ হলে।",
+  "circleAccept": "গ্রহণ করুন",
+  "circleDecline": "প্রত্যাখ্যান করুন",
+  "circleBlock": "ব্লক করুন",
+  "circleReport": "রিপোর্ট করুন",
+  "circleReported": "রিপোর্ট জমা হয়েছে",
+  "circleReportSpam": "স্প্যাম",
+  "circleReportHarassment": "হয়রানি",
+  "circleReportScam": "প্রতারণা",
+  "circleReportImpersonation": "পরিচয় জালিয়াতি",
+  "circleReportOther": "অন্যান্য",
+  "circleSharingTitle": "কে কী দেখবে",
+  "circleSharingHint": "এই সম্পর্কের জন্য কোন তথ্য দেখানো যাবে তা বেছে নিন।",
+  "circleScopeMedicines": "ওষুধ",
+  "circleScopeLocation": "অবস্থান",
+  "circleScopeDocuments": "দলিলপত্র",
+  "circleScopeMoney": "টাকা-পয়সা",
+  "circleScopeProfile": "প্রোফাইল",
+  "circleRelFather": "বাবা",
+  "circleRelMother": "মা",
+  "circleRelChild": "সন্তান",
+  "circleRelHusband": "স্বামী",
+  "circleRelWife": "স্ত্রী",
+  "circleRelBrother": "ভাই",
+  "circleRelSister": "বোন",
+  "circleRelRelative": "আত্মীয়",
+  "circleRelFriend": "বন্ধু",
+  "circleRelColleague": "সহকর্মী",
+  "circleRelCustom": "অন্যান্য",
+  "circleE2eBanner": "এই চ্যাট এন্ড-টু-এন্ড এনক্রিপ্টেড—সার্ভার বা এর এআই কিছু পড়তে পারে না।",
+  "circleChatEmpty": "কথা শুরু করুন—সব বার্তা এনক্রিপ্টেড থাকবে।",
+  "circleMessageHint": "বার্তা লিখুন",
+  "circleDecryptFailed": "এই বার্তাটি ডিক্রিপ্ট করা যায়নি।",
+  "circleKeyMissing": "এই সদস্যের এনক্রিপশন কী এখনো পাওয়া যায়নি।",
+  "circleAttach": "যুক্ত করুন",
+  "circlePhoto": "ছবি",
+  "circleVoiceNote": "ভয়েস নোট",
+  "circleVideo": "ভিডিও",
+  "circleVoiceCall": "ভয়েস কল",
+  "circleMediaPhotoGated": "ছবি পাঠানো চালু হবে এনক্রিপ্টেড স্টোরেজ যুক্ত হলে।",
+  "circleMediaVoiceGated": "ভয়েস নোট চালু হবে এনক্রিপ্টেড স্টোরেজ যুক্ত হলে।",
+  "circleMediaVideoGated": "ভিডিও চালু হবে এনক্রিপ্টেড স্টোরেজ যুক্ত হলে।",
+  "circleCallGated": "ভয়েস কল চালু হবে কল সার্ভার যুক্ত হলে।",
+  "circleComingSoon": "শীঘ্রই আসছে।",
+  "resetForgotLink": "পাসওয়ার্ড ভুলে গেছেন?"
 }

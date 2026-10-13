@@ -450,4 +450,38 @@ class ApiClient {
     }
     _fail(r);
   }
+
+  // ---- module-5 launch gaps: password reset (neutral, no enumeration) ----
+  /// POST /auth/reset/request {email} -> {message} (always neutral).
+  Future<Map<String, dynamic>> requestPasswordReset(String email) =>
+      postJson('/auth/reset/request', {'email': email});
+
+  /// POST /auth/reset/confirm {token, password} -> {ok, message}.
+  Future<Map<String, dynamic>> confirmPasswordReset(
+          String token, String password) =>
+      postJson('/auth/reset/confirm', {'token': token, 'password': password});
+
+  // ---- module-5 launch gaps: legal viewer (DRAFT pages) ----
+  /// GET /legal -> [{key, title, stamp}, ...].
+  Future<List<Map<String, dynamic>>> legalIndex() async {
+    final r = await getJson('/legal');
+    return ((r['pages'] ?? r['index'] ?? []) as List)
+        .cast<Map<String, dynamic>>();
+  }
+
+  /// GET /legal/<key> -> {key, title, body, stamp, last_updated}.
+  Future<Map<String, dynamic>> legalPage(String key) => getJson('/legal/$key');
+
+  // ---- module-5 launch gaps: photo enhance (own photos only) ----
+  /// POST /photo/plan {kind, ops, own_photo} -> {allowed, path, message, ops}.
+  Future<Map<String, dynamic>> photoEnhancePlan({
+    required String kind,
+    required List<String> ops,
+    required bool ownPhoto,
+  }) =>
+      postJson('/photo/plan', {'kind': kind, 'ops': ops, 'own_photo': ownPhoto});
+
+  // ---- module-5 launch gaps: Unseen Bangladesh travel companion ----
+  /// GET /unseen -> {destinations[], tips[], attribution}.
+  Future<Map<String, dynamic>> unseenCompanion() => getJson('/unseen');
 }

@@ -49,6 +49,18 @@ import 'package:assisto/screens/battery_guidance_screen.dart';
 import 'package:assisto/screens/onboarding_screen.dart';
 import 'package:assisto/screens/scam_screen.dart';
 import 'package:assisto/screens/safety_screen.dart';
+import 'package:assisto/screens/health_tips_screen.dart';
+import 'package:assisto/screens/medicine_db_screen.dart';
+import 'package:assisto/screens/birthdays_screen.dart';
+import 'package:assisto/screens/meetings_screen.dart';
+import 'package:assisto/screens/dictionary_screen.dart';
+import 'package:assisto/screens/ride_food_screen.dart';
+import 'package:assisto/screens/ramadan_screen.dart';
+import 'package:assisto/screens/exam_result_screen.dart';
+import 'package:assisto/screens/circle_screen.dart';
+import 'package:assisto/screens/legal_screen.dart';
+import 'package:assisto/screens/photo_enhance_screen.dart';
+import 'package:assisto/screens/unseen_world_screen.dart';
 
 import 'fake_api.dart';
 
@@ -177,6 +189,19 @@ void main() {
     'battery_guidance': (build: (_) => const BatteryGuidanceScreen(), mode: FakeMode.data, full: true),
     'onboarding': (build: (_) => OnboardingScreen(onDone: () {}), mode: FakeMode.data, full: true),
     'support': (build: (_) => const SupportScreen(), mode: FakeMode.data, full: true),
+    // module 5 (P13+)
+    'health_tips': (build: (_) => const HealthTipsScreen(), mode: FakeMode.data, full: true),
+    'medicine_db': (build: (_) => const MedicineDbScreen(), mode: FakeMode.data, full: true),
+    'birthdays': (build: (_) => const BirthdaysScreen(), mode: FakeMode.data, full: true),
+    'meetings': (build: (_) => const MeetingsScreen(), mode: FakeMode.data, full: true),
+    'dictionary': (build: (_) => const DictionaryScreen(), mode: FakeMode.data, full: true),
+    'ride_food': (build: (_) => const RideFoodScreen(), mode: FakeMode.data, full: true),
+    'ramadan': (build: (_) => const RamadanScreen(), mode: FakeMode.data, full: true),
+    'exam': (build: (_) => const ExamResultScreen(), mode: FakeMode.data, full: true),
+    'circle': (build: (_) => const CircleScreen(), mode: FakeMode.data, full: true),
+    'legal': (build: (_) => const LegalScreen(), mode: FakeMode.data, full: true),
+    'photo_enhance': (build: (_) => const PhotoEnhanceScreen(), mode: FakeMode.data, full: true),
+    'unseen': (build: (_) => const UnseenWorldScreen(), mode: FakeMode.data, full: true),
     // state variants (single representative each)
     'subscriptions_empty': (build: (_) => const SubscriptionsScreen(), mode: FakeMode.empty, full: false),
     'subscriptions_loading': (build: (_) => const SubscriptionsScreen(), mode: FakeMode.slow, full: false),
