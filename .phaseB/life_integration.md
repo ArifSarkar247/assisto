@@ -7,3 +7,10 @@ NEW backend core/logic/: meetings.py, dictionary.py, ramadan.py, exam.py (+ *_te
 ## api.dart (optional; screens use generics): dictionaryLookup(q,dir), ramadanTimes(lat,lon), eidCard(body), examWatcher(body).
 ## drawer Life section += MeetingsScreen/DictionaryScreen/RideFoodScreen/RamadanScreen/ExamResultScreen (+5 imports) + ChatNav. fake_api stubs per report (dictionary/ramadan/exam have offline fallbacks).
 ## Licensing: dictionary OPEN-sample-only never Bangla Academy + needs-data state + load_dataset hook for open data; ride/food deep-link no fake prices; ramadan astro calc cited + committee-differ note + IVR key-gated; exam public-url-only no scrape-auth + traffic note; meetings travel-time user-supplied. PENDING reviewer.
+
+## LIFE REVIEWER = ADVANCED → fixes:
+- Bangla-in-dart flag = FALSE POSITIVE (doc-comments only; gate clean). No action.
+- SHIP-BLOCKER: ~92 life keys missing from BOTH app_en.arb AND app_bn.arb (agent gave en in its report a326a048 but never wrote them). FIX: SendMessage a326a048 for full {key:[bn,en]} JSON, OR author (en in agent report; translate bn). Parameterized: meetingsMinutes{m}, leaveNowIn{m}, dictionarySourceNote{src}, dictionaryNotFound{q}, ramadanMethodNote{method}, ramadanSehriWakeValue{min,time}, ramadanIftarAlertValue{min,time}, examExpectedOn{d}, examWaiting{days}.
+- LOW meetings_screen.dart:66,70 `(... ?? 60) as int` → `((...) as num).toInt()` (double round-trip crash).
+- LOW life_leave_now_card.dart:34 _travelMin ephemeral (resets on list rebuild) — persist per-appointment.
+- TRIVIAL ramadan.py:156 unused `noon` var — remove.
