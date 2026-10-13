@@ -8,6 +8,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 from core import ai
+from core.i18n import pick
 from core.models import User, NightBriefing
 from core.views import _build_alerts
 
@@ -28,22 +29,27 @@ class Command(BaseCommand):
             if NightBriefing.objects.filter(user=u, for_date=target).exists():
                 skipped += 1
                 continue
+            lang = getattr(u, "language", "bn")
             doses = [f"{m.name} ({s})" for m in u.medicines.all() for s in (m.times or [])]
             rem = list(u.reminders.filter(done=False).values_list("title", flat=True))[:6]
             al = _build_alerts(u)
             parts = []
             if rem:
-                parts.append("রিমাইন্ডার: " + ", ".join(rem))
+                parts.append(pick(lang, "রিমাইন্ডার: ", "Reminders: ") + ", ".join(rem))
             if doses:
-                parts.append("ওষুধ: " + ", ".join(doses[:6]))
+                parts.append(pick(lang, "ওষুধ: ", "Medicines: ") + ", ".join(doses[:6]))
             for a in al[:5]:
                 parts.append(a["text"])
-            data = "\n".join(parts) or "আজ বিশেষ কিছু নেই।"
+            data = "\n".join(parts) or pick(lang,
+                "আজ বিশেষ কিছু নেই।", "Nothing special today.")
             text, ai_used = "", False
             if ai.available():
                 try:
                     text, _ = ai.generate(
-                        task="নিচের তথ্য দিয়ে ছোট, উষ্ণ বাংলা সকালের ব্রিফিং লেখো (৩-৪ লাইন)।",
+                        task=pick(lang,
+                            "নিচের তথ্য দিয়ে ছোট, উষ্ণ বাংলা সকালের ব্রিফিং লেখো (৩-৪ লাইন)।",
+                            "Using the information below, write a short, warm morning "
+                            "briefing in English (3-4 lines)."),
                         data=data, tier="cheap", feature="briefing.batch",
                         max_tokens=300, user=u)
                     ai_used = True

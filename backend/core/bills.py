@@ -9,15 +9,21 @@ and a month-over-month comparison from the user's past bills.
 import json
 
 from . import ai
+from .i18n import pick
 from .models import BillTemplate, Transaction
 
 
-_TASK = (
-    "নিচের বিলের লেখা থেকে JSON বের করো: "
-    '{"biller":"","account_no":"","meter_no":"","amount":"","last_date":"",'
-    '"late_fee":"","where_to_pay":""}. '
-    "শুধু JSON দাও, আর কিছু না। অনুমান করো না — না পেলে ফাঁকা রাখো।"
-)
+def _task(lang):
+    return (
+        pick(lang,
+             "নিচের বিলের লেখা থেকে JSON বের করো: ",
+             "Extract JSON from the bill text below: ")
+        + '{"biller":"","account_no":"","meter_no":"","amount":"","last_date":"",'
+        + '"late_fee":"","where_to_pay":""}. '
+        + pick(lang,
+               "শুধু JSON দাও, আর কিছু না। অনুমান করো না — না পেলে ফাঁকা রাখো।",
+               "Return only JSON, nothing else. Do not guess — leave blank if not found.")
+    )
 
 
 def _month_over_month(user, biller, amount):
@@ -44,6 +50,7 @@ def _month_over_month(user, biller, amount):
 def parse_bill(user, raw_text, biller_hint=""):
     """Return (result_dict, used_ai, from_cache). Uses cache when the biller is
     already known — no AI on repeat scans."""
+    lang = getattr(user, "language", "bn")
     biller = (biller_hint or "").strip()
 
     # If we can identify the biller and have a template, reuse it (no AI).
@@ -61,7 +68,7 @@ def parse_bill(user, raw_text, biller_hint=""):
         return ({"needs_key": True}, False, False)
 
     try:
-        text, _ = ai.generate(task=_TASK, data=raw_text, tier="cheap",
+        text, _ = ai.generate(task=_task(lang), data=raw_text, tier="cheap",
                                feature="bill_guide", max_tokens=300, user=user)
     except ai.AIUnavailable:
         return ({"needs_key": True}, False, False)

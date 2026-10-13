@@ -14,6 +14,7 @@ class ApiException implements Exception {
 /// Thin REST client for the Assisto backend. Token auth (DRF).
 class ApiClient {
   String? token;
+  String? lang; // 'bn'|'en' -> Accept-Language (follows selected locale)
   final http.Client _c = http.Client();
 
   ApiClient({this.token});
@@ -21,6 +22,7 @@ class ApiClient {
   Map<String, String> _headers({bool json = true}) => {
         if (json) 'Content-Type': 'application/json',
         if (token != null) 'Authorization': 'Token $token',
+        'Accept-Language': lang ?? 'bn',
       };
 
   Never _fail(http.Response r) {

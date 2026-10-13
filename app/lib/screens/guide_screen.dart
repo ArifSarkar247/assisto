@@ -38,7 +38,6 @@ class _GuideScreenState extends State<GuideScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final en = context.watch<AppState>().locale?.languageCode == 'en';
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
@@ -58,17 +57,17 @@ class _GuideScreenState extends State<GuideScreen> {
                   for (final s in (_g?['services'] ?? []) as List)
                     Card(child: ExpansionTile(
                       leading: const Icon(Icons.description_outlined),
-                      title: Text((en ? s['name_en'] : s['name_bn']) ?? s['name_bn'] ?? ''),
+                      title: Text(s['name'] ?? ''),
                       subtitle: Text(s['portal'] ?? '',
                           style: TextStyle(fontSize: 12, color: scheme.primary)),
                       childrenPadding: const EdgeInsets.fromLTRB(Gap.xl, 0, Gap.lg, Gap.md),
                       children: [
-                        for (int i = 0; i < ((s['steps_bn'] ?? []) as List).length; i++)
+                        for (int i = 0; i < ((s['steps'] ?? []) as List).length; i++)
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 3),
-                              child: Text('${i + 1}. ${s['steps_bn'][i]}'),
+                              child: Text('${i + 1}. ${s['steps'][i]}'),
                             ),
                           ),
                       ],
@@ -80,7 +79,7 @@ class _GuideScreenState extends State<GuideScreen> {
                   for (final r in (_g?['religious'] ?? []) as List)
                     Card(child: ListTile(
                       leading: const Icon(Icons.favorite_outline),
-                      title: Text((en ? r['en'] : r['bn']) ?? r['bn'] ?? ''),
+                      title: Text(r['tip'] ?? ''),
                       dense: true,
                     )),
                 ]),

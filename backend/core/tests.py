@@ -370,3 +370,37 @@ class JobP9Tests(TestCase):
         u = User.objects.create_user(name="K", phone="01911113333", password="x123456")
         res = jobs.tailor_documents(u, "some job")
         self.assertTrue(res.get("needs_key"))   # no fake CV without a key
+
+
+class LocalizationTests(APITestCase):
+    """Backend user-facing strings must follow the selected language (bn/en)."""
+
+    def test_all_plans_bilingual(self):
+        from core import plans
+        for pid, spec in plans.PLANS.items():
+            for f in ("name_bn", "name_en", "desc_bn", "desc_en",
+                      "benefits_bn", "benefits_en"):
+                self.assertIn(f, spec, f"{pid} missing {f}")
+            self.assertTrue(spec["name_en"] and spec["desc_en"])
+            self.assertTrue(len(spec["benefits_en"]) == len(spec["benefits_bn"]))
+
+    def test_i18n_pick_and_reqlang(self):
+        from core.i18n import pick
+        self.assertEqual(pick("en", "বাংলা", "English"), "English")
+        self.assertEqual(pick("bn", "বাংলা", "English"), "বাংলা")
+
+    def test_plan_endpoint_follows_accept_language(self):
+        u = User.objects.create_user(name="LocTest", phone="01955500000", password="x123456")
+        self.client.force_authenticate(user=u)
+        en = self.client.get("/api/v1/me/plan", HTTP_ACCEPT_LANGUAGE="en")
+        bn = self.client.get("/api/v1/me/plan", HTTP_ACCEPT_LANGUAGE="bn")
+        self.assertEqual(en.json()["name"], "Free")
+        self.assertEqual(bn.json()["name"], "ফ্রি")
+
+    def test_guides_localized_both_languages(self):
+        from core.logic import guides
+        en = guides.localized("en")
+        self.assertTrue(en["services"])
+        for s in en["services"]:
+            self.assertIn("name", s)
+            self.assertNotRegex(str(s.get("steps", "")), r"[ঀ-৿]")

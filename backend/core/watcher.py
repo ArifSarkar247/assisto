@@ -16,6 +16,7 @@ from urllib.parse import urlparse
 from django.utils import timezone
 
 from . import ai
+from .i18n import pick
 
 _UA = "AssistoWatcher/1.0 (+https://assisto.asalify.com; polite)"
 MAX_WATCHERS = {"free": 2, "premium": 20, "family": 20, "probashi": 20,
@@ -92,7 +93,8 @@ def extract_value(w):
 
 
 def _note(w, old, new):
-    """Short ORIGINAL bilingual note — never source content."""
+    """Short ORIGINAL note in the user's language — never source content."""
+    lang = getattr(getattr(w, "user", None), "language", "bn")
     lbl = w.label
     if w.kind == "usd_bdt":
         try:
@@ -101,12 +103,20 @@ def _note(w, old, new):
         except ValueError:
             return f"{lbl}: USD/BDT = {new}"
     if w.kind in ("rss", "job", "exam", "visa", "news", "offer"):
-        return f"{lbl}: নতুন আপডেট — “{new[:120]}”"
+        return pick(lang,
+                    f"{lbl}: নতুন আপডেট — “{new[:120]}”",
+                    f"{lbl}: new update — “{new[:120]}”")
     if w.kind in ("price", "flight"):
-        return f"{lbl}: দামে পরিবর্তন হয়েছে — দেখে নিন।"
+        return pick(lang,
+                    f"{lbl}: দামে পরিবর্তন হয়েছে — দেখে নিন।",
+                    f"{lbl}: the price has changed — take a look.")
     if w.kind == "weather":
-        return f"{lbl}: আবহাওয়ার পরিবর্তন — সতর্ক থাকুন।"
-    return f"{lbl}: পরিবর্তন ধরা পড়েছে।"
+        return pick(lang,
+                    f"{lbl}: আবহাওয়ার পরিবর্তন — সতর্ক থাকুন।",
+                    f"{lbl}: weather change — stay alert.")
+    return pick(lang,
+                f"{lbl}: পরিবর্তন ধরা পড়েছে।",
+                f"{lbl}: a change was detected.")
 
 
 def check(w):

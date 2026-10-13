@@ -11,6 +11,8 @@ import re
 from datetime import datetime, timedelta
 from decimal import Decimal, InvalidOperation
 
+from .i18n import pick
+
 _BN_DIGITS = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
 
 
@@ -79,8 +81,13 @@ def _has(text, words):
     return any(w in text or w in low for w in words)
 
 
-def parse(text):
-    """Return a dict describing the intent + extracted fields (no DB access)."""
+def parse(text, lang="bn"):
+    """Return a dict describing the intent + extracted fields (no DB access).
+
+    `lang` ('bn'|'en') only affects the language of user-facing fallback
+    defaults (e.g. a reminder/medicine title when none could be extracted);
+    it never changes intent routing or extraction logic.
+    """
     text = (text or "").strip()
     if not text:
         return {"intent": "unknown"}
@@ -116,9 +123,9 @@ def parse(text):
     if _has(text, _EXPENSE) and amt is not None:
         return {"intent": "expense", "amount": str(amt), "category": _category(text)}
     if _has(text, _MEDICINE):
-        return {"intent": "medicine", "name": _clean_med(text), "due": _timestr(text)}
+        return {"intent": "medicine", "name": _clean_med(text, lang), "due": _timestr(text)}
     if _has(text, _REMIND):
-        return {"intent": "reminder", "title": _clean_remind(text),
+        return {"intent": "reminder", "title": _clean_remind(text, lang),
                 "due": _timestr(text)}
     if _has(text, _REMEMBER):
         return {"intent": "memory", "title": _clean_remember(text)}
@@ -154,13 +161,15 @@ def _strip(text, words):
     return re.sub(r"\s+", " ", out).strip(" ।,-")
 
 
-def _clean_remind(text):
-    return _strip(text, _REMIND + ["আমাকে", "দিও", "দাও", "me", "to"]) or "রিমাইন্ডার"
+def _clean_remind(text, lang="bn"):
+    return (_strip(text, _REMIND + ["আমাকে", "দিও", "দাও", "me", "to"])
+            or pick(lang, "রিমাইন্ডার", "Reminder"))
 
 
 def _clean_remember(text):
     return _strip(text, _REMEMBER) or text
 
 
-def _clean_med(text):
-    return _strip(text, _MEDICINE + ["যোগ করো", "add", "খাওয়ার"]) or "ওষুধ"
+def _clean_med(text, lang="bn"):
+    return (_strip(text, _MEDICINE + ["যোগ করো", "add", "খাওয়ার"])
+            or pick(lang, "ওষুধ", "Medicine"))

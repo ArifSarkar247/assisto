@@ -11,6 +11,7 @@ import urllib.parse
 import urllib.request
 
 from . import integrations
+from .i18n import pick
 
 _UA = "AssistoNearby/1.0 (+https://assisto.asalify.com)"
 _CACHE = {}        # (type,lat2,lon2) -> (ts, results)  tiny in-process cache
@@ -61,7 +62,7 @@ def _places(lat, lon, ptype, key):
     return sorted(out, key=lambda x: x["distance_m"] or 1e9)
 
 
-def _osm(lat, lon, ptype, radius=2500):
+def _osm(lat, lon, ptype, radius=2500, lang="bn"):
     if time.time() - _LAST_OSM[0] < 2:
         time.sleep(2)
     _LAST_OSM[0] = time.time()
@@ -76,7 +77,7 @@ def _osm(lat, lon, ptype, radius=2500):
         if not plat:
             continue
         out.append({
-            "name": tags.get("name", "(নামহীন)"),
+            "name": tags.get("name") or pick(lang, "(নামহীন)", "(unnamed)"),
             "address": ", ".join(filter(None, [tags.get("addr:road"), tags.get("addr:city")])),
             "distance_m": _haversine(lat, lon, plat, plon),
             "open_now": None,               # OSM has no reliable open-now
@@ -88,7 +89,10 @@ def _osm(lat, lon, ptype, radius=2500):
     return sorted(out, key=lambda x: x["distance_m"])[:12]
 
 
-def search(lat, lon, ptype):
+# NOTE for integrator: the nearby endpoint in core/views.py that calls
+# search(...) should pass lang=req_lang(request) so the OSM "(unnamed)"
+# placeholder follows the user's language.
+def search(lat, lon, ptype, lang="bn"):
     """Return (results, source). Uses Places if configured, else OSM."""
     ptype = ptype if ptype in _PLACES_TYPE else "restaurant"
     ckey = (ptype, round(lat, 3), round(lon, 3))
@@ -100,7 +104,7 @@ def search(lat, lon, ptype):
         if cfg.get("api_key") and integrations.is_enabled("google_places"):
             res = (_places(lat, lon, ptype, cfg["api_key"]), "places")
         else:
-            res = (_osm(lat, lon, ptype), "osm")
+            res = (_osm(lat, lon, ptype, lang=lang), "osm")
     except Exception:
         res = (_osm(lat, lon, ptype), "osm")
     _CACHE[ckey] = (time.time(), res)

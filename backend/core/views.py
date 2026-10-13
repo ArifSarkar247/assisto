@@ -25,6 +25,7 @@ from .serializers import (
     SavingsGoalSerializer, SubscriptionSerializer,
 )
 from . import ai
+from .i18n import req_lang, pick
 
 API_VERSION = "v1"
 BUILD_PART = 1  # which V1 part this backend serves
@@ -102,7 +103,9 @@ class LoginView(APIView):
                 or User.objects.filter(email=ident.lower()).first()
                 or User.objects.filter(username=ident).first())
         if not user or not user.check_password(password) or not user.is_active:
-            return Response({"detail": "ভুল তথ্য। আবার চেষ্টা করুন।"},
+            lang = req_lang(request)
+            return Response({"detail": pick(lang, "ভুল তথ্য। আবার চেষ্টা করুন।",
+                                            "Those details didn't match. Please try again.")},
                             status=status.HTTP_401_UNAUTHORIZED)
         token, _ = Token.objects.get_or_create(user=user)
         log(user, "account.login")
@@ -121,9 +124,13 @@ class OTPRequestView(APIView):
 
     def post(self, request):
         if not settings.SMS_ENABLED:
+            lang = req_lang(request)
             return Response(
-                {"detail": "OTP এখন বন্ধ — SMS প্রোভাইডার যুক্ত করা হয়নি। "
-                           "ফোন/ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন।",
+                {"detail": pick(lang,
+                                "OTP এখন বন্ধ — SMS প্রোভাইডার যুক্ত করা হয়নি। "
+                                "ফোন/ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন।",
+                                "OTP is off for now — no SMS provider is set up yet. "
+                                "Sign in with your phone/email and password."),
                  "sms_enabled": False},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
@@ -217,18 +224,21 @@ _UNDO_MAP = {
 class UndoView(APIView):
     """Feature 20 — short undo: recreate the most recently deleted item."""
     def post(self, request):
+        lang = req_lang(request)
         since = timezone.now() - timedelta(seconds=180)
         candidates = (AuditLog.objects.filter(user=request.user, action__endswith=".delete",
                                               created_at__gte=since).order_by("-created_at")[:10])
         entry = next((e for e in candidates if not e.detail.get("undone")), None)
         if not entry:
-            return Response({"detail": "ফিরিয়ে আনার মতো কিছু নেই।"},
+            return Response({"detail": pick(lang, "ফিরিয়ে আনার মতো কিছু নেই।",
+                                            "Nothing to undo.")},
                             status=status.HTTP_404_NOT_FOUND)
         kind = entry.detail.get("kind")
         data = entry.detail.get("undo") or {}
         model, ser = _UNDO_MAP.get(kind, (None, None))
         if not model:
-            return Response({"detail": "সম্ভব নয়।"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": pick(lang, "সম্ভব নয়।", "Can't undo this.")},
+                            status=status.HTTP_400_BAD_REQUEST)
         data.pop("id", None)
         data.pop("created_at", None)
         data.pop("updated_at", None)
@@ -263,7 +273,8 @@ class SourcePermissionView(APIView):
         source = request.data.get("source")
         enabled = bool(request.data.get("enabled", True))
         if source not in self.DEFAULTS:
-            return Response({"detail": "invalid source"}, status=400)
+            lang = req_lang(request)
+            return Response({"detail": pick(lang, "অবৈধ সোর্স।", "Invalid source.")}, status=400)
         obj, _ = SourcePermission.objects.update_or_create(
             user=request.user, source=source, defaults={"enabled": enabled})
         log(request.user, "source.toggle", source=source, enabled=enabled)
@@ -406,7 +417,8 @@ class ScamCheckView(APIView):
         from web.logic import scam as scamlogic
         msg = request.data.get("message", "")
         if not msg.strip():
-            return Response({"detail": "মেসেজ দিন।"}, status=400)
+            lang = req_lang(request)
+            return Response({"detail": pick(lang, "মেসেজ দিন।", "Please enter a message.")}, status=400)
         result = scamlogic.check_message(msg)
         log(request.user, "scam.check", verdict=result["verdict"])
         return Response(result)
@@ -528,7 +540,7 @@ class MoneySummaryView(APIView):
 
 # ---------- briefing / proactive alerts (feature 4, 5 — non-AI works now) ----------
 
-def _build_alerts(user):
+def _build_alerts(user, lang="bn"):
     from datetime import timedelta
     from django.db.models import Sum
     from decimal import Decimal
@@ -538,17 +550,29 @@ def _build_alerts(user):
     for d in user.documents.filter(expiry_date__isnull=False):
         days = (d.expiry_date - today).days
         if days < 0:
-            alerts.append({"type": "doc_expired", "text": f"{d.title}-এর মেয়াদ শেষ হয়ে গেছে।", "severity": "high"})
+            alerts.append({"type": "doc_expired",
+                           "text": pick(lang, f"{d.title}-এর মেয়াদ শেষ হয়ে গেছে।",
+                                        f"{d.title} has expired."),
+                           "severity": "high"})
         elif days <= 30:
-            alerts.append({"type": "doc_expiry", "text": f"{d.title}-এর মেয়াদ {days} দিনে শেষ।", "severity": "high" if days <= 7 else "med"})
+            alerts.append({"type": "doc_expiry",
+                           "text": pick(lang, f"{d.title}-এর মেয়াদ {days} দিনে শেষ।",
+                                        f"{d.title} expires in {days} days."),
+                           "severity": "high" if days <= 7 else "med"})
     # medicine refill
     for m in user.medicines.filter(refill_date__isnull=False):
         days = (m.refill_date - today).days
         if 0 <= days <= 5:
-            alerts.append({"type": "refill", "text": f"{m.name} রিফিল করতে হবে ({days} দিনে)।", "severity": "med"})
+            alerts.append({"type": "refill",
+                           "text": pick(lang, f"{m.name} রিফিল করতে হবে ({days} দিনে)।",
+                                        f"Time to refill {m.name} (in {days} days)."),
+                           "severity": "med"})
     # loans past due
     for ln in user.loans.filter(settled=False, due_date__isnull=False, due_date__lt=today):
-        alerts.append({"type": "loan_due", "text": f"{ln.person} এর ধার ফেরতের তারিখ পার হয়েছে।", "severity": "med"})
+        alerts.append({"type": "loan_due",
+                       "text": pick(lang, f"{ln.person} এর ধার ফেরতের তারিখ পার হয়েছে।",
+                                    f"The repayment date for {ln.person}'s loan has passed."),
+                       "severity": "med"})
     # budget over
     month_exp = {}
     for t in user.txns.filter(date__year=today.year, date__month=today.month, kind="expense"):
@@ -556,17 +580,22 @@ def _build_alerts(user):
     for b in user.budgets.all():
         spent = month_exp.get(b.category, Decimal("0"))
         if b.monthly_limit and spent >= b.monthly_limit:
-            alerts.append({"type": "budget", "text": f"'{b.category}' বাজেট শেষ ({int(spent/b.monthly_limit*100)}%)।", "severity": "med"})
+            pct = int(spent / b.monthly_limit * 100)
+            alerts.append({"type": "budget",
+                           "text": pick(lang, f"'{b.category}' বাজেট শেষ ({pct}%)।",
+                                        f"'{b.category}' budget is used up ({pct}%)."),
+                           "severity": "med"})
     return alerts
 
 
 @api_view(["GET"])
 def alerts(request):
-    return Response(_build_alerts(request.user))
+    return Response(_build_alerts(request.user, req_lang(request)))
 
 
 @api_view(["GET"])
 def briefing(request):
+    lang = req_lang(request)
     u = request.user
     today = timezone.localdate()
     doses = []
@@ -575,16 +604,18 @@ def briefing(request):
             doses.append(f"{med.name} ({slot})")
     reminders_today = list(u.reminders.filter(done=False, due_at__date=today)
                            .values_list("title", flat=True))
-    al = _build_alerts(u)
-    lines = [f"🗓️ আজ: {today.strftime('%d %b %Y')}"]
+    al = _build_alerts(u, lang)
+    lines = [pick(lang, f"🗓️ আজ: {today.strftime('%d %b %Y')}",
+                  f"🗓️ Today: {today.strftime('%d %b %Y')}")]
     if reminders_today:
-        lines.append("⏰ রিমাইন্ডার: " + ", ".join(reminders_today))
+        lines.append(pick(lang, "⏰ রিমাইন্ডার: ", "⏰ Reminders: ") + ", ".join(reminders_today))
     if doses:
-        lines.append("💊 ওষুধ: " + ", ".join(doses[:6]))
+        lines.append(pick(lang, "💊 ওষুধ: ", "💊 Medicines: ") + ", ".join(doses[:6]))
     for a in al[:5]:
         lines.append(("⚠️ " if a["severity"] == "high" else "🔸 ") + a["text"])
     if len(lines) == 1:
-        lines.append("আজ বিশেষ কিছু নেই — ভালো থাকুন! 🌼")
+        lines.append(pick(lang, "আজ বিশেষ কিছু নেই — ভালো থাকুন! 🌼",
+                          "Nothing special today — take care! 🌼"))
     text = "\n".join(lines)
 
     # Prefer the batch-generated night briefing (instant, no peak-time AI cost).
@@ -595,7 +626,9 @@ def briefing(request):
     elif ai.available():
         try:
             ai_text, _ = ai.generate(
-                task="নিচের তথ্য দিয়ে ব্যবহারকারীর জন্য ছোট, উষ্ণ বাংলা সকালের ব্রিফিং লেখো (৩-৪ লাইন)।",
+                task=pick(lang,
+                          "নিচের তথ্য দিয়ে ব্যবহারকারীর জন্য ছোট, উষ্ণ বাংলা সকালের ব্রিফিং লেখো (৩-৪ লাইন)। বাংলায় লেখো।",
+                          "Using the information below, write a short, warm morning briefing for the user (3-4 lines). Write in English."),
                 data=text, tier="cheap", feature="briefing", max_tokens=300, user=u)
         except ai.AIUnavailable:
             ai_text = None
@@ -606,11 +639,15 @@ def briefing(request):
 class LifeScanView(APIView):
     """Feature 1 — Life Scanner. Needs an AI key; clear Bangla needs-key state."""
     def post(self, request):
+        lang = req_lang(request)
         if not ai.available():
             return Response({
                 "needs_key": True,
-                "message": "Life Scanner চালু হবে যখন AI key যোগ করা হবে। "
-                           "ততক্ষণ তথ্য নিজে লিখে যোগ করুন।",
+                "message": pick(lang,
+                                "Life Scanner চালু হবে যখন AI key যোগ করা হবে। "
+                                "ততক্ষণ তথ্য নিজে লিখে যোগ করুন।",
+                                "Life Scanner turns on once an AI key is added. "
+                                "Until then, add your details manually."),
             }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         # With a key: image → AI extraction would run here (built when key arrives).
         return Response({"needs_key": False, "detail": "AI extraction pipeline ready."},
@@ -619,7 +656,7 @@ class LifeScanView(APIView):
 
 # ---------- Wrapped + invite (feature 19) ----------
 
-def _wrapped_badges(user):
+def _wrapped_badges(user, lang="bn"):
     today = timezone.localdate()
     badges = []
     # medicine adherence this month
@@ -627,11 +664,12 @@ def _wrapped_badges(user):
     taken = MedicineLog.objects.filter(medicine__user=user, taken=True,
                                        date__year=today.year, date__month=today.month).count()
     if taken > 0:
-        badges.append(f"💊 এ মাসে {taken} বার ওষুধ ঠিকমতো")
+        badges.append(pick(lang, f"💊 এ মাসে {taken} বার ওষুধ ঠিকমতো",
+                           f"💊 Took medicines on time {taken} times this month"))
     # tasks done
     done = user.todos.filter(done=True).count()
     if done > 0:
-        badges.append(f"✅ {done} টি কাজ শেষ")
+        badges.append(pick(lang, f"✅ {done} টি কাজ শেষ", f"✅ {done} tasks done"))
     # budgets kept
     kept = 0
     over = 0
@@ -645,44 +683,52 @@ def _wrapped_badges(user):
         else:
             over += 1
     if kept > 0 and over == 0:
-        badges.append("🎯 বাজেটে ছিলেন")
+        badges.append(pick(lang, "🎯 বাজেটে ছিলেন", "🎯 Stayed within budget"))
     # savings progress
     if user.goals.filter(saved_amount__gt=0).exists():
-        badges.append("🏦 সঞ্চয় চলছে")
+        badges.append(pick(lang, "🏦 সঞ্চয় চলছে", "🏦 Savings on track"))
     # memories
     mem = user.memories.count()
     if mem > 0:
-        badges.append(f"🧠 {mem} টি তথ্য মনে রাখা")
+        badges.append(pick(lang, f"🧠 {mem} টি তথ্য মনে রাখা",
+                           f"🧠 Remembered {mem} things for you"))
     if not badges:
-        badges.append("🌱 Assisto-তে যাত্রা শুরু")
+        badges.append(pick(lang, "🌱 Assisto-তে যাত্রা শুরু", "🌱 Your Assisto journey begins"))
     return badges
 
 
 @api_view(["GET"])
 def wrapped(request):
+    lang = req_lang(request)
     today = timezone.localdate()
-    badges = _wrapped_badges(request.user)
+    badges = _wrapped_badges(request.user, lang)
     from urllib.parse import urlencode
     q = urlencode([("b", b) for b in badges])
     return Response({
-        "title": f"{today.strftime('%B')} — আমার Assisto",
+        "title": pick(lang, f"{today.strftime('%B')} — আমার Assisto",
+                      f"{today.strftime('%B')} — My Assisto"),
         "badges": badges,
         "card_url": f"{settings.ASSISTO_BASE_URL}/wrapped/card.png?{q}",
-        "note": "শেয়ার কার্ডে টাকার অঙ্ক থাকে না — শুধু ব্যাজ/শতাংশ।",
+        "note": pick(lang, "শেয়ার কার্ডে টাকার অঙ্ক থাকে না — শুধু ব্যাজ/শতাংশ।",
+                     "The share card never shows amounts — only badges and percentages."),
     })
 
 
 class InviteView(APIView):
     def get(self, request):
         import secrets as _s
+        lang = req_lang(request)
         u = request.user
         if not u.referral_code:
             u.referral_code = _s.token_urlsafe(5).replace("_", "").replace("-", "")[:8].upper()
             u.save(update_fields=["referral_code"])
         invited = User.objects.filter(referred_by=u.referral_code).count()
         return Response({"code": u.referral_code, "invited": invited,
-                         "share_text": f"Assisto অ্যাপে আমার রেফারেল কোড: {u.referral_code} — "
-                                       "assisto.asalify.com/get"})
+                         "share_text": pick(lang,
+                                            f"Assisto অ্যাপে আমার রেফারেল কোড: {u.referral_code} — "
+                                            "assisto.asalify.com/get",
+                                            f"My Assisto referral code: {u.referral_code} — "
+                                            "assisto.asalify.com/get")})
 
 
 # ---------- agent thread (conversation-first, rule-based; AI-optional) ----------
@@ -694,11 +740,13 @@ class AgentView(APIView):
     def post(self, request):
         from . import agent as agent_brain
         from decimal import Decimal
+        lang = req_lang(request)
         u = request.user
         text = (request.data.get("text") or "").strip()
         if not text:
-            return Response({"reply": "কিছু লিখুন বা বলুন।", "cards": []})
-        p = agent_brain.parse(text)
+            return Response({"reply": pick(lang, "কিছু লিখুন বা বলুন।",
+                                           "Type or say something."), "cards": []})
+        p = agent_brain.parse(text, req_lang(request))
         intent = p.get("intent")
         cards = []
         reply = ""
@@ -713,9 +761,9 @@ class AgentView(APIView):
             r = Reminder.objects.create(user=u, title=p["title"], source="ai",
                 due_at=p["due"], remind_before_min=0)
             log(u, "agent.reminder", id=r.id)
-            reply = "রিমাইন্ডার সেট করেছি।"
+            reply = pick(lang, "রিমাইন্ডার সেট করেছি।", "Reminder set.")
             cards.append({"type": "reminder", "title": p["title"],
-                          "subtitle": p.get("due") or "সময় ছাড়া",
+                          "subtitle": p.get("due") or pick(lang, "সময় ছাড়া", "No time set"),
                           "model": "reminder", "id": r.id, "undo": True})
         elif intent in ("expense", "income"):
             acc = ensure_account()
@@ -723,51 +771,59 @@ class AgentView(APIView):
                 amount=Decimal(p["amount"]), category=p.get("category", ""),
                 date=timezone.localdate(), source="ai")
             log(u, f"agent.{intent}", id=t.id)
-            reply = ("খরচ" if intent == "expense" else "আয়") + " লিখে রেখেছি।"
+            reply = pick(lang,
+                         ("খরচ" if intent == "expense" else "আয়") + " লিখে রেখেছি।",
+                         ("Logged your expense." if intent == "expense" else "Logged your income."))
             cards.append({"type": intent, "title": f"৳{p['amount']} {p.get('category','')}".strip(),
                           "subtitle": acc.name, "model": "txn", "id": t.id, "undo": True})
         elif intent == "loan":
             ln = Loan.objects.create(user=u, kind=p["kind"], person=p.get("person", ""),
                 amount=Decimal(p["amount"]))
             log(u, "agent.loan", id=ln.id)
-            reply = "ধারের হিসাব রেখেছি।"
+            reply = pick(lang, "ধারের হিসাব রেখেছি।", "Loan recorded.")
             cards.append({"type": "loan", "title": f"{p.get('person','')} · ৳{p['amount']}",
-                          "subtitle": "দিয়েছি" if p["kind"] == "given" else "নিয়েছি",
+                          "subtitle": pick(lang, "দিয়েছি", "Lent") if p["kind"] == "given"
+                          else pick(lang, "নিয়েছি", "Borrowed"),
                           "model": "loan", "id": ln.id, "undo": True})
         elif intent == "medicine":
             med = Medicine.objects.create(user=u, name=p["name"],
                 times=[p["due"][11:16]] if p.get("due") else [])
             log(u, "agent.medicine", id=med.id)
-            reply = "ওষুধ যোগ করেছি।"
+            reply = pick(lang, "ওষুধ যোগ করেছি।", "Medicine added.")
             cards.append({"type": "medicine", "title": p["name"],
-                          "subtitle": ", ".join(med.times) or "সময় দিন",
+                          "subtitle": ", ".join(med.times) or pick(lang, "সময় দিন", "Add a time"),
                           "model": "medicine", "id": med.id, "undo": True})
         elif intent == "memory":
             m = MemoryItem.objects.create(user=u, title=p["title"], source="ai",
                                           needs_review=True)
             log(u, "agent.memory", id=m.id)
-            reply = "মনে রাখলাম।"
+            reply = pick(lang, "মনে রাখলাম।", "Noted and remembered.")
             cards.append({"type": "memory", "title": p["title"],
-                          "subtitle": "AI ধরেছে · রিভিউ করুন",
+                          "subtitle": pick(lang, "AI ধরেছে · রিভিউ করুন",
+                                           "Caught by AI · please review"),
                           "model": "memory", "id": m.id, "undo": True})
         elif intent == "music":
             import urllib.parse as _up
             q = (p.get("query") or "").strip()
             yt = "https://www.youtube.com/results?search_query=" + _up.quote(q)
-            card = {"type": "music", "title": q or "গান", "subtitle": "চালাতে ট্যাপ করুন",
+            card = {"type": "music", "title": q or pick(lang, "গান", "Music"),
+                    "subtitle": pick(lang, "চালাতে ট্যাপ করুন", "Tap to play"),
                     "youtube": yt, "app_action": "open_url"}
             from . import integrations as _ig
             if _ig.is_enabled("spotify"):
                 card["spotify"] = "https://open.spotify.com/search/" + _up.quote(q)
-            reply = f"'{q}' খুঁজে দিলাম — চালাতে ট্যাপ করুন।"
+            reply = pick(lang, f"'{q}' খুঁজে দিলাম — চালাতে ট্যাপ করুন।",
+                         f"Found '{q}' — tap to play.")
             cards.append(card)
         elif intent == "navigate":
             import urllib.parse as _up
             place = (p.get("place") or "").strip()
-            cards.append({"type": "navigate", "title": place, "subtitle": "ম্যাপে খুলতে ট্যাপ",
+            cards.append({"type": "navigate", "title": place,
+                          "subtitle": pick(lang, "ম্যাপে খুলতে ট্যাপ", "Tap to open in Maps"),
                           "maps": "https://www.google.com/maps/search/?api=1&query=" + _up.quote(place),
                           "app_action": "open_url"})
-            reply = f"'{place}' ম্যাপে খুলতে ট্যাপ করুন।"
+            reply = pick(lang, f"'{place}' ম্যাপে খুলতে ট্যাপ করুন।",
+                         f"Tap to open '{place}' in Maps.")
         elif intent == "call":
             name = (p.get("name") or "").strip()
             phone = ""
@@ -775,25 +831,40 @@ class AgentView(APIView):
             for c in (card or []):
                 if name and name in (c.get("name") or ""):
                     phone = c.get("phone", "")
-            cards.append({"type": "call", "title": name or "কল", "phone": phone,
-                          "subtitle": "কল করতে ট্যাপ করুন (আপনি চাপলেই)", "app_action": "dial"})
-            reply = (f"{name}-কে কল করতে ট্যাপ করুন।" if phone
-                     else f"{name}-এর নম্বর পেলাম না; কন্টাক্ট থেকে বেছে নিন।")
+            cards.append({"type": "call", "title": name or pick(lang, "কল", "Call"),
+                          "phone": phone,
+                          "subtitle": pick(lang, "কল করতে ট্যাপ করুন (আপনি চাপলেই)",
+                                           "Tap to call (only when you do)"),
+                          "app_action": "dial"})
+            reply = (pick(lang, f"{name}-কে কল করতে ট্যাপ করুন।", f"Tap to call {name}.") if phone
+                     else pick(lang, f"{name}-এর নম্বর পেলাম না; কন্টাক্ট থেকে বেছে নিন।",
+                               f"Couldn't find a number for {name}; pick one from your contacts."))
         elif intent == "nearby":
             cards.append({"type": "nearby", "place_type": p.get("place_type", "restaurant"),
-                          "title": "আশেপাশে খুঁজছি…", "app_action": "nearby"})
-            reply = "আপনার লোকেশন নিয়ে আশেপাশে খুঁজছি…"
+                          "title": pick(lang, "আশেপাশে খুঁজছি…", "Searching nearby…"),
+                          "app_action": "nearby"})
+            reply = pick(lang, "আপনার লোকেশন নিয়ে আশেপাশে খুঁজছি…",
+                         "Using your location to search nearby…")
         elif intent == "query_money":
             s = MoneySummaryView().get(request).data
-            reply = (f"মোট ব্যালেন্স ৳{s['total_balance']}। এ মাসে খরচ ৳{s['month_expense']}, "
-                     f"আয় ৳{s['month_income']}।")
-            cards.append({"type": "summary", "title": f"ব্যালেন্স ৳{s['total_balance']}",
-                          "subtitle": f"খরচ ৳{s['month_expense']} · আয় ৳{s['month_income']}"})
+            reply = pick(lang,
+                         f"মোট ব্যালেন্স ৳{s['total_balance']}। এ মাসে খরচ ৳{s['month_expense']}, "
+                         f"আয় ৳{s['month_income']}।",
+                         f"Total balance ৳{s['total_balance']}. This month: spent ৳{s['month_expense']}, "
+                         f"earned ৳{s['month_income']}.")
+            cards.append({"type": "summary",
+                          "title": pick(lang, f"ব্যালেন্স ৳{s['total_balance']}",
+                                        f"Balance ৳{s['total_balance']}"),
+                          "subtitle": pick(lang,
+                                           f"খরচ ৳{s['month_expense']} · আয় ৳{s['month_income']}",
+                                           f"Spent ৳{s['month_expense']} · Earned ৳{s['month_income']}")})
         elif intent == "query_today":
             b = briefing(request).data
             reply = b["text"]
         else:
-            reply = "বুঝতে পারিনি। যেমন বলুন: 'কাল সকাল ৮টায় ওষুধ মনে করিয়ে দিও' বা '৫০০ টাকা খরচ খাবার'।"
+            reply = pick(lang,
+                         "বুঝতে পারিনি। যেমন বলুন: 'কাল সকাল ৮টায় ওষুধ মনে করিয়ে দিও' বা '৫০০ টাকা খরচ খাবার'।",
+                         "I didn't catch that. Try: 'remind me to take my medicine at 8am tomorrow' or '500 taka spent on food'.")
 
         # Optional AI enrichment (never required)
         ai_used = False
@@ -964,7 +1035,8 @@ class IntegrationTestView(_OwnerOnly):
 class PlanView(APIView):
     def get(self, request):
         from . import plans
-        return Response(plans.entitlements(request.user))
+        from .i18n import req_lang
+        return Response(plans.entitlements(request.user, req_lang(request)))
 
 
 class RewardedAdView(APIView):
@@ -972,8 +1044,10 @@ class RewardedAdView(APIView):
     def post(self, request):
         from . import plans, integrations
         if not integrations.is_enabled("admob"):
+            lang = req_lang(request)
             return Response({"ok": False, "reason": "ads_not_configured",
-                             "msg": "চালু হবে যখন AdMob যোগ হবে / Available when AdMob is added"})
+                             "msg": pick(lang, "চালু হবে যখন AdMob যোগ হবে",
+                                         "Available when AdMob is added")})
         ok, remaining = plans.reward_ad(request.user)
         log(request.user, "credit.rewarded", granted=ok)
         return Response({"ok": ok, "remaining_today": remaining,
@@ -1004,8 +1078,10 @@ class WatcherViewSet(OwnedViewSet):
         n = self.model.objects.filter(user=self.request.user).count()
         if n >= wmod.max_watchers(self.request.user):
             from rest_framework.exceptions import ValidationError
+            lang = req_lang(self.request)
             raise ValidationError({"detail": "watcher_limit",
-                                   "msg": "প্ল্যানের ওয়াচার সীমা শেষ / watcher limit reached"})
+                                   "msg": pick(lang, "প্ল্যানের ওয়াচার সীমা শেষ",
+                                               "You've reached your plan's watcher limit")})
         obj = serializer.save(user=self.request.user)
         log(self.request.user, "watcher.create", id=obj.id)
 
@@ -1030,9 +1106,11 @@ def nearby(request):
         lat = float(request.query_params.get("lat"))
         lon = float(request.query_params.get("lon"))
     except (TypeError, ValueError):
-        return Response({"detail": "lat/lon required"}, status=400)
+        lang = req_lang(request)
+        return Response({"detail": pick(lang, "লোকেশন (lat/lon) দরকার।",
+                                        "Location (lat/lon) is required.")}, status=400)
     ptype = request.query_params.get("type", "restaurant")
-    results, source = nb.search(lat, lon, ptype)
+    results, source = nb.search(lat, lon, ptype, lang=req_lang(request))
     log(request.user, "nearby", type=ptype, source=source, n=len(results))
     return Response({"type": ptype, "source": source, "places": results})
 
@@ -1044,10 +1122,11 @@ class FavouriteArtistView(APIView):
     def post(self, request):
         from .models import Watcher
         from . import integrations
+        lang = req_lang(request)
         name = (request.data.get("name") or "").strip()
         channel_rss = (request.data.get("channel_rss") or "").strip()
         if not name:
-            return Response({"detail": "name required"}, status=400)
+            return Response({"detail": pick(lang, "নাম দিন।", "Please enter a name.")}, status=400)
         if channel_rss:
             w, _ = Watcher.objects.get_or_create(
                 user=request.user, kind="rss", label=f"🎵 {name}",
@@ -1058,7 +1137,9 @@ class FavouriteArtistView(APIView):
             "ok": True, "watching": False,
             "youtube_search": "https://www.youtube.com/results?search_query=" + up.quote(name),
             "spotify_enabled": integrations.is_enabled("spotify"),
-            "msg": "চ্যানেল RSS দিলে নতুন গান watch করব; নাহলে সার্চ লিংক / add channel RSS to watch new releases",
+            "msg": pick(lang,
+                        "চ্যানেল RSS দিলে নতুন গান ওয়াচ করব; নাহলে সার্চ লিংক দিচ্ছি।",
+                        "Add a channel RSS and I'll watch for new releases; otherwise here's a search link."),
         })
 
 
@@ -1087,7 +1168,7 @@ class FinanceView(APIView):
 @permission_classes([AllowAny])
 def govt_guide(request):
     from .logic import guides
-    return Response({"services": guides.GOVT_SERVICES, "religious": guides.RELIGIOUS_TIPS})
+    return Response(guides.localized(req_lang(request)))
 
 
 class ElderlyModeView(APIView):
@@ -1117,12 +1198,14 @@ class AutoPayRuleViewSet(OwnedViewSet):
 
     def list(self, request, *args, **kwargs):
         from . import integrations
+        lang = req_lang(request)
         resp = super().list(request, *args, **kwargs)
         # auto-pay EXECUTION needs a payment integration; be honest about it
         resp.data = {"rules": resp.data,
                      "can_execute": any(integrations.is_enabled(s) for s in
                                         ("bkash", "nagad", "sslcommerz", "ekpay")),
-                     "note": "পেমেন্ট মেথড যোগ করলে অটো-পে চালু হবে / auto-pay runs when a payment method is added"}
+                     "note": pick(lang, "পেমেন্ট মেথড যোগ করলে অটো-পে চালু হবে।",
+                                  "Auto-pay runs once a payment method is added.")}
         return resp
 
 
@@ -1136,11 +1219,16 @@ def autopay_stop_all(request):
 
 # ---------- Agent Studio (feature 32) ----------
 _STUDIO_TASKS = {
-    "letter": "ব্যবহারকারীর অনুরোধ অনুযায়ী একটি পেশাদার বাংলা চিঠি লেখো।",
-    "cv": "ব্যবহারকারীর তথ্য দিয়ে একটি পরিষ্কার CV বুলেট-পয়েন্টে লেখো।",
-    "caption": "ব্যবহারকারীর বিষয় অনুযায়ী ছোট আকর্ষণীয় সোশ্যাল ক্যাপশন (৩টি অপশন) লেখো।",
-    "excel": "ব্যবহারকারীর বর্ণনা অনুযায়ী সঠিক Excel/Google Sheets ফর্মুলা দাও, সংক্ষেপে বুঝিয়ে।",
-    "email": "ব্যবহারকারীর অনুরোধ অনুযায়ী একটি সংক্ষিপ্ত, ভদ্র ইমেইল খসড়া লেখো।",
+    "letter": ("ব্যবহারকারীর অনুরোধ অনুযায়ী একটি পেশাদার চিঠি লেখো। বাংলায় লেখো।",
+               "Write a professional letter based on the user's request. Write in English."),
+    "cv": ("ব্যবহারকারীর তথ্য দিয়ে একটি পরিষ্কার CV বুলেট-পয়েন্টে লেখো। বাংলায় লেখো।",
+           "Write a clean, bullet-point CV from the user's details. Write in English."),
+    "caption": ("ব্যবহারকারীর বিষয় অনুযায়ী ছোট আকর্ষণীয় সোশ্যাল ক্যাপশন (৩টি অপশন) লেখো। বাংলায় লেখো।",
+                "Write short, catchy social captions (3 options) for the user's topic. Write in English."),
+    "excel": ("ব্যবহারকারীর বর্ণনা অনুযায়ী সঠিক Excel/Google Sheets ফর্মুলা দাও, সংক্ষেপে বুঝিয়ে। বাংলায় লেখো।",
+              "Give the correct Excel/Google Sheets formula for the user's description, with a brief explanation. Write in English."),
+    "email": ("ব্যবহারকারীর অনুরোধ অনুযায়ী একটি সংক্ষিপ্ত, ভদ্র ইমেইল খসড়া লেখো। বাংলায় লেখো।",
+              "Draft a short, polite email based on the user's request. Write in English."),
 }
 
 
@@ -1148,21 +1236,24 @@ class AgentStudioView(APIView):
     """Generate an original document (letter/CV/caption/Excel formula/email).
     Needs an AI key → clean needs-key state otherwise."""
     def post(self, request):
+        lang = req_lang(request)
         kind = request.data.get("kind", "letter")
         prompt = (request.data.get("prompt") or "").strip()
         if not prompt:
-            return Response({"detail": "prompt required"}, status=400)
+            return Response({"detail": pick(lang, "প্রম্পট দিন।", "A prompt is required.")}, status=400)
         if not ai.available():
             return Response({"needs_key": True,
-                             "msg": "চালু হবে যখন AI key যোগ হবে / Available when an AI key is added"})
-        task = _STUDIO_TASKS.get(kind, _STUDIO_TASKS["letter"])
+                             "msg": pick(lang, "চালু হবে যখন AI key যোগ হবে।",
+                                         "Available when an AI key is added.")})
+        task = pick(lang, *_STUDIO_TASKS.get(kind, _STUDIO_TASKS["letter"]))
         try:
             text, _ = ai.generate(task=task, data=prompt, tier="medium",
                                    feature=f"studio.{kind}", max_tokens=900, user=request.user)
             return Response({"kind": kind, "text": text, "ai_used": True})
         except ai.AIUnavailable as e:
             return Response({"needs_key": e.reason == "no_key", "reason": e.reason,
-                             "msg": "এখন পারলাম না — একটু পরে / try again shortly"})
+                             "msg": pick(lang, "এখন পারলাম না — একটু পরে চেষ্টা করুন।",
+                                         "Couldn't do that right now — try again shortly.")})
 
 
 # ---------- AI Inbox (feature 22) — classify red/yellow/green ----------
@@ -1187,12 +1278,16 @@ class InboxView(APIView):
     the app passes in."""
     def get(self, request):
         from . import integrations
+        lang = req_lang(request)
         connected = integrations.is_enabled("google_oauth")
         return Response({
             "connected": connected,
             "msg": None if connected else
-            "চালু হবে যখন Gmail যোগ হবে / Available when Gmail is connected",
-            "legend": {"red": "জরুরি/অ্যাকশন", "yellow": "শীঘ্রই উত্তর", "green": "তথ্য"},
+            pick(lang, "চালু হবে যখন Gmail যোগ হবে।",
+                 "Available when Gmail is connected."),
+            "legend": {"red": pick(lang, "জরুরি/অ্যাকশন", "Urgent / action"),
+                       "yellow": pick(lang, "শীঘ্রই উত্তর", "Reply soon"),
+                       "green": pick(lang, "তথ্য", "FYI")},
         })
 
     def post(self, request):
@@ -1224,7 +1319,7 @@ class BusinessReplyView(APIView):
         text = (request.data.get("text") or "").strip()
         if not text:
             return Response({"detail": "text required"}, status=400)
-        reply, handoff, used_ai = business.reply_for(request.user, text)
+        reply, handoff, used_ai = business.reply_for(request.user, text, lang=req_lang(request))
         return Response({"reply": reply, "needs_handoff": handoff, "ai_used": used_ai})
 
 
@@ -1234,7 +1329,7 @@ class BusinessOrderCaptureView(APIView):
         text = (request.data.get("text") or "").strip()
         order, draft = business.capture_order(
             request.user, text, request.data.get("phone", ""),
-            request.data.get("channel", "manual"))
+            request.data.get("channel", "manual"), lang=req_lang(request))
         return Response({"order_id": order.id if order else None, "draft": draft})
 
 
@@ -1295,7 +1390,7 @@ class JobViewSet(OwnedViewSet):
         from . import jobs
         skills = jobs.user_skills(self.request.user)
         jd = serializer.validated_data.get("jd", "")
-        score, reason = jobs.match(jd, skills)
+        score, reason = jobs.match(jd, skills, lang=req_lang(self.request))
         obj = serializer.save(user=self.request.user, match_score=score,
                               match_reason=reason)
         log(self.request.user, "job.match", id=obj.id, score=score)
@@ -1307,18 +1402,23 @@ class JobTailorView(APIView):
     def post(self, request, pk):
         from .models import JobApplication
         from . import jobs, integrations
+        lang = req_lang(request)
         j = JobApplication.objects.filter(user=request.user, pk=pk).first()
         if not j:
-            return Response({"detail": "not found"}, status=404)
+            return Response({"detail": pick(lang, "খুঁজে পাওয়া যায়নি।", "Not found.")}, status=404)
         res = jobs.tailor_documents(request.user, j.jd,
-                                    extra=request.data.get("extra", ""))
+                                    extra=request.data.get("extra", ""), lang=req_lang(request))
         if res.get("cv_text"):
             j.cv_text = res["cv_text"]
             j.cover_letter = res.get("cover_letter", "")
             j.status = "drafted"
             j.save(update_fields=["cv_text", "cover_letter", "status"])
         res["can_send"] = integrations.is_enabled("google_oauth")
-        res["send_note"] = ("নিজের Gmail থেকে পাঠাতে Gmail যোগ করুন; অটো-apply কখনো নয়।"
+        res["send_note"] = (pick(lang,
+                                 "নিজের Gmail থেকে পাঠাতে Gmail যোগ করুন; অটো-অ্যাপ্লাই কখনো নয়।",
+                                 "Connect Gmail to send from your own account; never auto-apply.")
                             if not res["can_send"] else
-                            "আপনি অনুমোদন করলে নিজের Gmail থেকে পাঠানো যাবে (অটো-apply নয়)।")
+                            pick(lang,
+                                 "আপনি অনুমোদন করলে নিজের Gmail থেকে পাঠানো যাবে (অটো-অ্যাপ্লাই নয়)।",
+                                 "With your approval, this can be sent from your own Gmail (never auto-apply)."))
         return Response(res)

@@ -1,5 +1,6 @@
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
+from .i18n import pick, req_lang
 from .models import (User, MemoryItem, AuditLog, Reminder, Note, Todo,
                      SourcePermission, SupportTicket, Document, EmergencyCard,
                      Account, Transaction, Budget, Loan, SavingsGoal, Subscription)
@@ -20,14 +21,22 @@ class RegisterSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True, min_length=6)
 
     def validate(self, data):
+        request = self.context.get("request")
+        lang = req_lang(request) if request is not None else "bn"
         phone = (data.get("phone") or "").strip()
         email = (data.get("email") or "").strip().lower()
         if not phone and not email:
-            raise serializers.ValidationError("ফোন নম্বর বা ইমেইল — অন্তত একটা দিন।")
+            raise serializers.ValidationError(pick(lang,
+                "ফোন নম্বর বা ইমেইল — অন্তত একটা দিন।",
+                "Enter at least one — a phone number or an email."))
         if phone and User.objects.filter(phone=phone).exists():
-            raise serializers.ValidationError("এই ফোন নম্বর আগে থেকেই আছে।")
+            raise serializers.ValidationError(pick(lang,
+                "এই ফোন নম্বর আগে থেকেই আছে।",
+                "This phone number is already registered."))
         if email and User.objects.filter(email=email).exists():
-            raise serializers.ValidationError("এই ইমেইল আগে থেকেই আছে।")
+            raise serializers.ValidationError(pick(lang,
+                "এই ইমেইল আগে থেকেই আছে।",
+                "This email is already registered."))
         validate_password(data["password"])
         data["phone"] = phone or None
         data["email"] = email or None

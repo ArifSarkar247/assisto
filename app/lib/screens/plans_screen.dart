@@ -101,7 +101,7 @@ class _PlansScreenState extends State<PlansScreen> {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(t.currentPlan,
             style: const TextStyle(color: Colors.white70, fontSize: 12)),
-        Text('${p['name_bn'] ?? p['plan']}',
+        Text('${p['name'] ?? p['plan']}',
             style: const TextStyle(
                 color: Colors.white, fontSize: 26, fontWeight: FontWeight.w800)),
         if (trial)

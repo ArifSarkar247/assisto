@@ -269,18 +269,26 @@ class FakeApi extends ApiClient {
   @override
   Future<Map<String, dynamic>> guides() async => {
         'services': [
-          {'name_bn': 'NID (জাতীয় পরিচয়পত্র)', 'name_en': 'National ID', 'portal': 'services.nidw.gov.bd',
-           'steps_bn': ['অনলাইনে রেজিস্টার/লগইন', 'ফর্ম পূরণ + ছবি', 'ফি পরিশোধ', 'স্ট্যাটাস ট্র্যাক']},
-          {'name_bn': 'ই-পাসপোর্ট', 'name_en': 'e-Passport', 'portal': 'epassport.gov.bd',
-           'steps_bn': ['অনলাইন আবেদন', 'ফি পরিশোধ', 'বায়োমেট্রিক', 'ডেলিভারি ট্র্যাক']},
+          {'name': _bn ? 'NID (জাতীয় পরিচয়পত্র)' : 'National ID', 'portal': 'services.nidw.gov.bd',
+           'steps': _bn
+               ? ['অনলাইনে রেজিস্টার/লগইন', 'ফর্ম পূরণ + ছবি', 'ফি পরিশোধ', 'স্ট্যাটাস ট্র্যাক']
+               : ['Register/log in online', 'Fill the form + photo', 'Pay the fee', 'Track status']},
+          {'name': _bn ? 'ই-পাসপোর্ট' : 'e-Passport', 'portal': 'epassport.gov.bd',
+           'steps': _bn
+               ? ['অনলাইন আবেদন', 'ফি পরিশোধ', 'বায়োমেট্রিক', 'ডেলিভারি ট্র্যাক']
+               : ['Apply online', 'Pay the fee', 'Biometrics', 'Track delivery']},
         ],
         'religious': [
-          {'bn': 'নামাজের সময় রিমাইন্ডার সেট করি।', 'en': 'Set prayer-time reminders.'},
-          {'bn': 'যাকাত হিসাব করতে Finance → যাকাত।', 'en': 'Use Finance → Zakat.'},
+          {'tip': _bn ? 'নামাজের সময় রিমাইন্ডার সেট করি।' : 'Set prayer-time reminders.'},
+          {'tip': _bn ? 'যাকাত হিসাব করতে Finance → যাকাত।' : 'Use Finance → Zakat.'},
         ],
       };
 
   @override
-  Future<Map<String, dynamic>> inboxStatus() async =>
-      {'connected': false, 'legend': {'red': 'জরুরি', 'yellow': 'শীঘ্রই', 'green': 'তথ্য'}};
+  Future<Map<String, dynamic>> inboxStatus() async => {
+        'connected': false,
+        'legend': _bn
+            ? {'red': 'জরুরি', 'yellow': 'শীঘ্রই', 'green': 'তথ্য'}
+            : {'red': 'Urgent', 'yellow': 'Soon', 'green': 'Info'},
+      };
 }

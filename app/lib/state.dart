@@ -39,6 +39,7 @@ class AppState extends ChangeNotifier {
 
   Future<void> setLocale(Locale? l) async {
     locale = l;
+    api.lang = l?.languageCode;
     await Settings.setString('locale', l?.languageCode ?? '');
     notifyListeners();
   }
@@ -51,6 +52,7 @@ class AppState extends ChangeNotifier {
     );
     final lc = await Settings.getString('locale');
     locale = (lc != null && lc.isNotEmpty) ? Locale(lc) : null;
+    api.lang = locale?.languageCode;
     onboarded = await Settings.getBool('onboarded', false);
   }
 
