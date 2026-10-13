@@ -1,59 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../state.dart';
+import '../l10n/app_localizations.dart';
 import '../theme.dart';
 
-/// Shows a clear bilingual reason BEFORE a runtime permission is requested, so
-/// the user understands why (better grant rate, Play-policy friendly). Returns
-/// true if the user chose to continue.
-Future<bool> showPermissionReason(
-  BuildContext context, {
-  required IconData icon,
-  required String reasonBn,
-  required String reasonEn,
-}) async {
-  final en = context.read<AppState>().locale?.languageCode == 'en';
+/// The runtime permissions we show a reason for before requesting.
+enum PermKind { mic, location, camera }
+
+/// Shows a clear reason (in the user's language) BEFORE a runtime permission is
+/// requested, so the user understands why — better grant rate, Play-policy
+/// friendly. Returns true if the user chose to continue.
+Future<bool> showPermissionReason(BuildContext context, PermKind kind) async {
+  final t = AppLocalizations.of(context);
+  final (IconData icon, String reason) = switch (kind) {
+    PermKind.mic => (Icons.mic_none, t.permMic),
+    PermKind.location => (Icons.location_on_outlined, t.permLocation),
+    PermKind.camera => (Icons.photo_camera_outlined, t.permCamera),
+  };
   final ok = await showDialog<bool>(
     context: context,
     builder: (ctx) {
       final scheme = Theme.of(ctx).colorScheme;
       return AlertDialog(
         icon: Icon(icon, size: 36, color: scheme.primary),
-        content: Text(en ? reasonEn : reasonBn,
+        content: Text(reason,
             textAlign: TextAlign.center, style: const TextStyle(height: 1.4)),
         actionsAlignment: MainAxisAlignment.spaceBetween,
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: Text(en ? 'Not now' : 'এখন না')),
+              child: Text(t.notNow)),
           FilledButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: Text(en ? 'Continue' : 'চালিয়ে যান')),
+              child: Text(t.continueWord)),
         ],
       );
     },
   );
   return ok == true;
-}
-
-/// Common reasons (bn/en) reused across the app.
-class PermReasons {
-  PermReasons._();
-  static const mic = (
-    icon: Icons.mic_none,
-    bn: 'আপনি যা বলবেন তা লেখায় বদলাতে মাইক্রোফোন লাগবে। রেকর্ডিং সেভ হয় না।',
-    en: "I need the microphone to turn your speech into text. Nothing is recorded or stored."
-  );
-  static const location = (
-    icon: Icons.location_on_outlined,
-    bn: 'কাছের জায়গা খুঁজতে / জরুরি অবস্থায় লোকেশন শেয়ার করতে আপনার অবস্থান লাগবে।',
-    en: 'Your location is needed to find nearby places / share it in an emergency.'
-  );
-  static const camera = (
-    icon: Icons.photo_camera_outlined,
-    bn: 'ডকুমেন্ট/বিলের ছবি তুলতে ক্যামেরা লাগবে। ছবি শুধু আপনার কাছেই থাকে।',
-    en: 'The camera is needed to photograph a document/bill. Photos stay only with you.'
-  );
 }
 
 /// Small helper for a brand-styled empty permission prompt inside a screen.

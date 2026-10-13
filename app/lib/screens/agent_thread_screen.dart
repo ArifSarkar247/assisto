@@ -150,9 +150,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
       return;
     }
     if (!_speechReady) {
-      final okReason = await showPermissionReason(context,
-          icon: PermReasons.mic.icon,
-          reasonBn: PermReasons.mic.bn, reasonEn: PermReasons.mic.en);
+      final okReason = await showPermissionReason(context, PermKind.mic);
       if (!okReason || !mounted) return;
       _speechReady = await _speech.initialize(
         onStatus: (s) {

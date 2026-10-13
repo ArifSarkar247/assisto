@@ -143,9 +143,7 @@ class _VaultScreenState extends State<VaultScreen> {
     );
     if (src == null) return null;
     if (src == ImageSource.camera && mounted) {
-      if (!await showPermissionReason(context,
-          icon: PermReasons.camera.icon,
-          reasonBn: PermReasons.camera.bn, reasonEn: PermReasons.camera.en)) {
+      if (!await showPermissionReason(context, PermKind.camera)) {
         return null;
       }
     }

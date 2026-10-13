@@ -41,10 +41,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
       var perm = await Geolocator.checkPermission();
       if (perm == LocationPermission.denied) {
         if (mounted &&
-            !await showPermissionReason(context,
-                icon: PermReasons.location.icon,
-                reasonBn: PermReasons.location.bn,
-                reasonEn: PermReasons.location.en)) {
+            !await showPermissionReason(context, PermKind.location)) {
           throw 'perm';
         }
         perm = await Geolocator.requestPermission();
