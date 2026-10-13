@@ -18,3 +18,11 @@ Owned files in tree: backend/core/logic/scam.py, safety.py (+ *_tests_snippets 1
 ## fake_api: scamDetect/scamLibrary/govtGuides/safetyCheckinStart/safetyCheckinArrived/scamReportFamily stubs (both langs) — see agent report.
 
 ## Self-grade: vault advanced(9), scam advanced(9), safety advanced(8.5). PENDING premium reviewer.
+
+## VAULT/SCAM/SAFETY REVIEWER = GOOD → fixes (agent running):
+- P1 DATA LOSS: vault_doc_types.dart k=v;k=v|note encoding corrupts values w/ ; | = . FIX: store structured details as a JSON map sent in document payload field `details` (NOT note-encoded). INTEGRATOR: add Document.details = models.JSONField(default=dict, blank=True) + serializer field 'details' (migration). vault_screen reads item['details'] map + item['note'] free text.
+- P2 scam.py _despace_latin over-collapses ("c i d"→cid FP) → scope to known evasion keywords (otp/pin/cvv/password).
+- P2 scam.py: MFS-brand + "verify/যাচাই" combo should score above "safe".
+- P2 safety_checkin_card.dart: add 1-min Timer so on-time→grace→overdue updates live.
+- P2 SOS target: route through safety.sos_alert_targets (skip blank/primary-first) not raw contacts.first (safety_screen.dart, emergency_screen.dart).
+- P3 PIN attempt throttle (backlog).
