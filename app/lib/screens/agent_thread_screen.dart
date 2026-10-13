@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import 'nearby_screen.dart';
 
 class _Msg {
   final bool user;
@@ -293,9 +295,79 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
     );
   }
 
+  Future<void> _launch(String url, {bool external = true}) async {
+    try {
+      await launchUrl(Uri.parse(url),
+          mode: external ? LaunchMode.externalApplication : LaunchMode.platformDefault);
+    } catch (_) {}
+  }
+
+  Widget _actionCard(Map<String, dynamic> c, IconData icon, List<Widget> actions) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      margin: const EdgeInsets.only(top: Gap.sm),
+      padding: const EdgeInsets.all(Gap.md),
+      decoration: BoxDecoration(
+        color: scheme.surface,
+        borderRadius: BorderRadius.circular(Radii.sm),
+        border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.5)),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Icon(icon, size: 18, color: scheme.primary),
+          const SizedBox(width: Gap.sm),
+          Expanded(child: Text(c['title'] ?? '',
+              style: const TextStyle(fontWeight: FontWeight.w700))),
+        ]),
+        if ((c['subtitle'] ?? '').toString().isNotEmpty)
+          Padding(padding: const EdgeInsets.only(top: 2, left: 26),
+              child: Text(c['subtitle'],
+                  style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant))),
+        const SizedBox(height: Gap.sm),
+        Wrap(spacing: Gap.sm, children: actions),
+      ]),
+    );
+  }
+
   Widget _card(Map<String, dynamic> c) {
     final scheme = Theme.of(context).colorScheme;
     if (c['type'] == 'approval') return _approvalCard(c);
+    if (c['type'] == 'music') {
+      return _actionCard(c, Icons.music_note, [
+        FilledButton.icon(
+            onPressed: () => _launch(c['youtube'] ?? ''),
+            icon: const Icon(Icons.play_arrow, size: 18),
+            label: const Text('YouTube')),
+        if (c['spotify'] != null)
+          OutlinedButton(onPressed: () => _launch(c['spotify']), child: const Text('Spotify')),
+      ]);
+    }
+    if (c['type'] == 'navigate') {
+      return _actionCard(c, Icons.navigation_outlined, [
+        FilledButton.icon(
+            onPressed: () => _launch(c['maps'] ?? ''),
+            icon: const Icon(Icons.map_outlined, size: 18),
+            label: Text(t.open)),
+      ]);
+    }
+    if (c['type'] == 'call') {
+      final phone = (c['phone'] ?? '').toString();
+      return _actionCard(c, Icons.call, [
+        FilledButton.icon(
+            onPressed: phone.isEmpty ? null : () => _launch('tel:$phone', external: false),
+            icon: const Icon(Icons.call, size: 18),
+            label: Text(t.call)),
+      ]);
+    }
+    if (c['type'] == 'nearby') {
+      return _actionCard(c, Icons.place_outlined, [
+        FilledButton.icon(
+            onPressed: () => Navigator.push(context, MaterialPageRoute(
+                builder: (_) => NearbyScreen(placeType: c['place_type'] ?? 'restaurant'))),
+            icon: const Icon(Icons.search, size: 18),
+            label: Text(t.open)),
+      ]);
+    }
     final isAlert = c['type'] == 'alert';
     final sev = c['severity'];
     final bg = isAlert
