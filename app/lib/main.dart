@@ -13,6 +13,7 @@ import 'notifications.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/language_picker_screen.dart';
+import 'screens/onboarding_screen.dart';
 
 void main() {
   // Nothing in startup may crash the app. Every Dart error — sync, async, or
@@ -118,6 +119,10 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     if (app.locale == null) {
       return const LanguagePickerScreen();
     }
-    return app.loggedIn ? const HomeScreen() : const LoginScreen();
+    if (!app.loggedIn) return const LoginScreen();
+    if (!app.onboarded) {
+      return OnboardingScreen(onDone: app.markOnboarded);
+    }
+    return const HomeScreen();
   }
 }

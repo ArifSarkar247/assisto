@@ -24,6 +24,12 @@ class AppState extends ChangeNotifier {
   // --- app-wide preferences (theme + language) ---
   ThemeMode themeMode = ThemeMode.system;
   Locale? locale; // null => first-launch not chosen yet / follow default
+  bool onboarded = true; // shown once on first login
+
+  void markOnboarded() {
+    onboarded = true;
+    notifyListeners();
+  }
 
   Future<void> setThemeMode(ThemeMode m) async {
     themeMode = m;
@@ -45,6 +51,7 @@ class AppState extends ChangeNotifier {
     );
     final lc = await Settings.getString('locale');
     locale = (lc != null && lc.isNotEmpty) ? Locale(lc) : null;
+    onboarded = await Settings.getBool('onboarded', false);
   }
 
   AppUser? user;
