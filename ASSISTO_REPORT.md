@@ -2,6 +2,18 @@
 
 > **চূড়ান্ত মাস্টার প্ল্যান চলছে (শুরু ১২ অক্টোবর ২০২৬)।** লক্ষ্য: দুই PDF-এর সব ফিচার শেষ করা, যেন মালিক শুধু একে একে API key/account যোগ করলেই সব চালু হয়। এই সেকশনটাই রিজিউম-অ্যাঙ্কর — সেশন থামলে এখান থেকে শুরু।
 
+## 🚨 OWNER DIRECTIVE v2 + FAST MODE (১৩ অক্টোবর ২০২৬) — বর্তমান ক্রম
+
+নতুন ক্রম: (1) **STRICT LANGUAGE fix** → (2) advanced rebuild of every module (benchmarked, reviewer-passed) → (3) P13+ additions same standard → তারপর P11 iOS / P12. Verdict: অ্যাপ "basic" — premium depth দরকার; key ছাড়া যা বানানো যায় সব এখন; AI pipelines mock দিয়ে পূর্ণ।
+
+**PHASE A — STRICT LANGUAGE (single-agent, no parallel until gate green + APK shipped):**
+- [x] **Frontend DONE** — language gate CLEAN + wired into CI (`app/tool/lang_gate.py`: Bangla-in-Dart / ARB-key-parity / mixed-"/" → build fails). ALL hard-coded Bangla across 18 screens+widgets → ARB (**464 keys, bn+en balanced**). 14 inline-helper screens auto-converted; 7 read-only translator agents authored the rest; static/const maps (accounts/recurrence/autonomy/sources/doc-types/battery/perm-reasons) → build-time localized fns; `permission_reason` → `PermKind` enum. **0 analyze errors.** Dev tools (on-disk, gitignored `bin/`): arbify.py, arbify_b.py, fix_bn_dart.py, fix_const.py. Decision: **৳ (U+09F3) exempt** from gate (currency sign, valid both langs like `$`); `langPickBangla="বাংলা"` kept in en ARB (picker shows each language in its own script).
+- [ ] **Gallery both-langs render** (en+bn, light+dark) — leftover check → fix → re-render
+- [ ] **Ship APK** after language fix (frontend) via updater
+- [ ] **Backend user-facing localization** — every user-facing message key bn+en; seeded content both langs; test coverage
+
+**PHASE B — parallel team (6 worktrees; I=INTEGRATOR: merge, ARB-merge, migrations 1-at-a-time+DB backup, tests, gallery, APK). Premium reviewer (different agent) per module vs depth-standard + benchmark table (top 2–3 apps) + language rules + scenario tests; only reviewer-passed = "advanced". Ship APK per module.** Areas: (1) Medicine/family→Connected Circle (2) Money parser/budgets/loans/reports/net-worth (3) Reminders/memory NL-engine+vault+scam+safety (4) AI CRM web app (own Django app) (5) P13+ additions (6) Plans/paywall+onboarding+grouped sidebar+open-from-chat. Server: heavy jobs 1-at-a-time+lock; throttle on load/RAM/swap/Asalify slowness; ≥8GB disk; cleanup each build.
+
 ## 🧭 লাইভ রিজিউম-চেকলিস্ট (ফেজ ক্রম)
 
 - [x] **STEP 1** — সম্পূর্ণ ফিচার ম্যাট্রিক্স (নিচে) + এই চেকলিস্ট + "Decisions I made"
