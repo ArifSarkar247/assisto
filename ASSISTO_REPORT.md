@@ -2,6 +2,11 @@
 
 > **চূড়ান্ত মাস্টার প্ল্যান চলছে (শুরু ১২ অক্টোবর ২০২৬)।** লক্ষ্য: দুই PDF-এর সব ফিচার শেষ করা, যেন মালিক শুধু একে একে API key/account যোগ করলেই সব চালু হয়। এই সেকশনটাই রিজিউম-অ্যাঙ্কর — সেশন থামলে এখান থেকে শুরু।
 
+## 🧰 QUEUE (owner-approved, strict order)
+1. **Module 5 integration + APK** (executor a1fc1e42 running).
+2. **BUSINESS MODULE v2** — pocket business assistant; khata+selling FREE, AI sales assistant PAID; replace basic Business screen. Full spec: `.phaseB/BUSINESS_V2_PLAN.md`. Key safety: official WhatsApp Cloud API only (never personal/Business-app), minimum price enforced in CODE not AI, never hold money/no wallet, never copy TallyKhata, don't touch Asalify, all Meta/courier/payment/SMS keys owner-provided (build with mocks). Build order: small-shop+online-seller first. Scenario tests: 30-day shop month + 7-day online week. Ship APK on review pass.
+3. P14–P16 leftovers. 4. P11 iOS. 5. P12 FINAL.
+
 ## 🟢 OWNER PLATFORM ORDER (follow strictly)
 1) **Android** — build & finish EVERYTHING here first. 2) **iPhone**. 3) **Web app LAST** — do NOT build web UI for app features until Android+iPhone done. Exceptions (keep as-is): owner Integrations admin page + the 4 free web tools (CV score, scam checker, passport photo, festival cards). → reinforces CRM-in-app (web CRM pages left unlinked).
 
