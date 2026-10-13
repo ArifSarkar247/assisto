@@ -404,8 +404,15 @@ class MedicineViewSet(viewsets.ModelViewSet):
 
 class MedicineTakenView(APIView):
     """Record a dose outcome: taken (default), skipped, or undo.
-    Taken decrements inventory; undo restores it. Idempotent per (date, slot)."""
+    Taken decrements inventory; undo restores it. Idempotent per (date, slot)
+    for scheduled doses.
+
+    PRN (as-needed) meds (P4): the client posts slot 'prn' for a NEW event and
+    we stamp it 'prn-HH:MM:SS' so each painkiller can be logged many times/day,
+    each with its own time. To undo a specific PRN event the client posts that
+    exact 'prn-HH:MM:SS' slot with taken=false."""
     def post(self, request, pk):
+        from decimal import Decimal
         med = Medicine.objects.filter(user=request.user, pk=pk).first()
         if not med:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -413,6 +420,11 @@ class MedicineTakenView(APIView):
         slot = request.data.get("slot", "")
         skipped = bool(request.data.get("skipped", False))
         taken = False if skipped else bool(request.data.get("taken", True))
+
+        # A fresh PRN 'take' gets a unique timestamped slot so it never collides
+        # with an earlier event on the same day (unique_together stays valid).
+        if med.as_needed and slot == "prn" and taken:
+            slot = "prn-" + timezone.localtime().strftime("%H:%M:%S")
 
         prev = MedicineLog.objects.filter(medicine=med, date=the_date, slot=slot).first()
         was_taken = bool(prev and prev.taken)
@@ -423,18 +435,23 @@ class MedicineTakenView(APIView):
                       "at": timezone.now() if taken else None})
 
         # inventory: decrement on a fresh 'taken', restore on undo of a 'taken'.
+        # Decimal-safe so fractional doses (0.5 pill) work (P6).
         if med.stock_count is not None:
             if taken and not was_taken:
-                med.stock_count = mlogic.apply_dose_to_stock(med.stock_count, med.dose_qty)
+                med.stock_count = Decimal(str(
+                    mlogic.apply_dose_to_stock(med.stock_count, med.dose_qty)))
                 med.save(update_fields=["stock_count"])
             elif (not taken) and was_taken:
-                med.stock_count = med.stock_count + int(round(mlogic.pills_per_dose(med.dose_qty)))
+                med.stock_count = Decimal(str(
+                    mlogic.restore_dose_to_stock(med.stock_count, med.dose_qty)))
                 med.save(update_fields=["stock_count"])
 
         log(request.user, "medicine.taken" if taken else "medicine.skip",
             id=med.id, slot=slot)
         return Response({"ok": True, "taken": obj.taken, "skipped": obj.skipped,
-                         "stock_count": med.stock_count})
+                         "slot": slot,
+                         "stock_count": str(med.stock_count)
+                         if med.stock_count is not None else None})
 
 
 def _taken_set(med):
@@ -449,23 +466,43 @@ class MedicineTodayView(APIView):
         for med in Medicine.objects.filter(user=request.user).select_related("member"):
             slots = mlogic.scheduled_slots_for_day(
                 med.times, med.start_date, med.end_date, today, prn=med.as_needed)
-            if med.as_needed and not slots:
-                slots = ["prn"]
-            logs = {log.slot: log for log in med.logs.filter(date=today)}
+            today_logs = list(med.logs.filter(date=today))
+            logs = {log.slot: log for log in today_logs}
             dl = mlogic.days_left(med.stock_count, med.times, med.dose_qty,
-                                  prn=med.as_needed)
+                                  prn=med.as_needed, prn_per_day=med.prn_per_day)
+            base = {
+                "medicine_id": med.id, "name": med.name,
+                "dosage": med.dosage, "member": med.member_id,
+                "member_name": med.member.name if med.member else None,
+                "food_relation": med.food_relation, "days_left": dl,
+                "refill_date": med.refill_date.isoformat() if med.refill_date else None}
+            if med.as_needed:
+                # Each already-logged PRN event is its own (undoable) row...
+                prn_logs = sorted(
+                    (l for l in today_logs if l.slot.startswith("prn") and l.taken),
+                    key=lambda l: l.slot)
+                for lg in prn_logs:
+                    at = lg.slot[4:] if lg.slot.startswith("prn-") else ""
+                    row = dict(base)
+                    row.update({"slot": lg.slot, "prn": True, "taken": True,
+                                "skipped": False, "prn_at": at,
+                                "prn_count_today": len(prn_logs)})
+                    out.append(row)
+                # ...plus one 'log another' row so PRN can be taken again today.
+                row = dict(base)
+                row.update({"slot": "prn", "prn": True, "taken": False,
+                            "skipped": False, "prn_at": "",
+                            "prn_count_today": len(prn_logs)})
+                out.append(row)
+                continue
             for slot in slots:
                 lg = logs.get(slot)
-                out.append({
-                    "medicine_id": med.id, "name": med.name,
-                    "dosage": med.dosage, "member": med.member_id,
-                    "member_name": med.member.name if med.member else None,
-                    "slot": slot, "prn": med.as_needed and slot == "prn",
+                row = dict(base)
+                row.update({
+                    "slot": slot, "prn": False,
                     "taken": bool(lg and lg.taken),
-                    "skipped": bool(lg and lg.skipped),
-                    "food_relation": med.food_relation,
-                    "days_left": dl,
-                    "refill_date": med.refill_date.isoformat() if med.refill_date else None})
+                    "skipped": bool(lg and lg.skipped)})
+                out.append(row)
         out.sort(key=lambda x: x["slot"])
         return Response(out)
 
@@ -509,7 +546,8 @@ class MedicineHistoryView(APIView):
                 "member": med.member_id, "prn": med.as_needed,
                 "adherence_30d": pct, "taken": taken, "scheduled": sched,
                 "streak": mlogic.streak_days(med.times, med.start_date,
-                                             med.end_date, ts, today),
+                                             med.end_date, ts, today,
+                                             prn=med.as_needed),
                 "weeks": list(reversed(weeks))})
         overall, _, _ = mlogic.adherence(tot_sched, tot_taken)
         return Response({"overall": overall, "taken": tot_taken,
@@ -524,13 +562,16 @@ class CaregiverDashboardView(APIView):
         today = timezone.localdate()
         win_start = today - timedelta(days=29)
 
+        now_hhmm = timezone.localtime().strftime("%H:%M")
+
         def person_block(member, label, relation):
             meds = Medicine.objects.filter(user=request.user)
             meds = meds.filter(member=member) if member else meds.filter(member__isnull=True)
             due = taken = 0
             low_stock = []
             tot_taken = tot_sched = 0
-            next_due = None
+            next_due = None          # next pending slot still AFTER now
+            next_due_any = None      # earliest pending slot today (fallback if all past)
             for med in meds:
                 slots = mlogic.scheduled_slots_for_day(
                     med.times, med.start_date, med.end_date, today, prn=med.as_needed)
@@ -539,11 +580,18 @@ class CaregiverDashboardView(APIView):
                     due += 1
                     if logs.get(slot) and logs[slot].taken:
                         taken += 1
-                    elif next_due is None or slot < next_due:
+                        continue
+                    # pending dose: prefer the next slot strictly after 'now'...
+                    if slot >= now_hhmm and (next_due is None or slot < next_due):
                         next_due = slot
+                    # ...but still track the earliest pending slot as a fallback
+                    # when every remaining dose today is already in the past.
+                    if next_due_any is None or slot < next_due_any:
+                        next_due_any = slot
                 st, dl = mlogic.refill_warning(
                     med.stock_count, med.times, med.dose_qty,
-                    warn_days=med.refill_warn_days, prn=med.as_needed)
+                    warn_days=med.refill_warn_days, prn=med.as_needed,
+                    prn_per_day=med.prn_per_day)
                 if st in ("soon", "out"):
                     low_stock.append({"name": med.name, "days_left": dl, "status": st})
                 ts = _taken_set(med)
@@ -558,7 +606,8 @@ class CaregiverDashboardView(APIView):
                 "member": member.id if member else None,
                 "name": label, "relation": relation,
                 "doses_today": due, "taken_today": taken,
-                "pending_today": due - taken, "next_due": next_due,
+                "pending_today": due - taken,
+                "next_due": next_due or next_due_any,
                 "adherence_30d": adh, "low_stock": low_stock,
                 "has_meds": meds.exists()}
 
@@ -859,10 +908,18 @@ def _build_alerts(user, lang="bn"):
                            "text": pick(lang, f"{d.title}-এর মেয়াদ {days} দিনে শেষ।",
                                         f"{d.title} expires in {days} days."),
                            "severity": "high" if days <= 7 else "med"})
-    # medicine refill
-    for m in user.medicines.filter(refill_date__isnull=False):
-        days = (m.refill_date - today).days
-        if 0 <= days <= 5:
+    # medicine refill — fires from a manual refill_date OR, for stock-only
+    # users, a predicted run-out date derived from current stock + burn (P1).
+    for m in user.medicines.all():
+        days = None
+        if m.refill_date is not None:
+            days = (m.refill_date - today).days
+        else:
+            dl = mlogic.days_left(m.stock_count, m.times, m.dose_qty,
+                                  prn=m.as_needed, prn_per_day=m.prn_per_day)
+            if dl is not None:
+                days = dl
+        if days is not None and 0 <= days <= (m.refill_warn_days or 5):
             alerts.append({"type": "refill",
                            "text": pick(lang, f"{m.name} রিফিল করতে হবে ({days} দিনে)।",
                                         f"Time to refill {m.name} (in {days} days)."),

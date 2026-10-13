@@ -285,6 +285,7 @@ class MedicineSerializer(serializers.ModelSerializer):
     # derived, read-only insight fields (computed in to_representation)
     days_left = serializers.SerializerMethodField()
     refill_status = serializers.SerializerMethodField()
+    predicted_refill = serializers.SerializerMethodField()
     adherence_30d = serializers.SerializerMethodField()
 
     class Meta:
@@ -293,23 +294,38 @@ class MedicineSerializer(serializers.ModelSerializer):
                   "start_date", "end_date", "refill_date", "notes",
                   "food_relation", "dose_qty", "as_needed", "duration_days",
                   "taper", "stock_count", "refill_warn_days",
+                  "prn_per_day",
                   "followup_repeat_min", "followup_retries", "caregiver_alert_min",
                   "quiet_start", "quiet_end", "days_left", "refill_status",
-                  "adherence_30d", "updated_at"]
+                  "predicted_refill", "adherence_30d", "updated_at"]
         read_only_fields = ["id", "days_left", "refill_status",
-                            "adherence_30d", "updated_at"]
+                            "predicted_refill", "adherence_30d", "updated_at"]
 
     def get_days_left(self, obj):
         from .logic import medicine as mlogic
         return mlogic.days_left(obj.stock_count, obj.times, obj.dose_qty,
-                                prn=obj.as_needed)
+                                prn=obj.as_needed, prn_per_day=obj.prn_per_day)
 
     def get_refill_status(self, obj):
         from .logic import medicine as mlogic
         status, _ = mlogic.refill_warning(
             obj.stock_count, obj.times, obj.dose_qty,
-            warn_days=obj.refill_warn_days, prn=obj.as_needed)
+            warn_days=obj.refill_warn_days, prn=obj.as_needed,
+            prn_per_day=obj.prn_per_day)
         return status
+
+    def get_predicted_refill(self, obj):
+        """The run-out date predicted from current stock + burn rate (P1).
+        Falls back to the manually-set refill_date when stock isn't tracked."""
+        from .logic import medicine as mlogic
+        from django.utils import timezone
+        d = mlogic.predicted_refill_date(
+            obj.stock_count, obj.times, obj.dose_qty,
+            today=timezone.localdate(), prn=obj.as_needed,
+            prn_per_day=obj.prn_per_day)
+        if d is None:
+            return obj.refill_date.isoformat() if obj.refill_date else None
+        return d.isoformat()
 
     def get_adherence_30d(self, obj):
         from datetime import timedelta

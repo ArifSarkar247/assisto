@@ -454,6 +454,38 @@ class MedicineLogicTests(TestCase):
         self.assertEqual(mlogic.days_left(20, ["08:00", "20:00"], dose_qty=2), 5)
         self.assertEqual(mlogic.apply_dose_to_stock(10, dose_qty=2), 8)
 
+    def test_fractional_dose_stock(self):
+        # P6: dose_qty=0.5 must decrement half a pill, not 0 (old int-round bug).
+        self.assertEqual(mlogic.apply_dose_to_stock(10, dose_qty=0.5), 9.5)
+        self.assertEqual(mlogic.apply_dose_to_stock(0.5, dose_qty=0.5), 0.0)
+        # never below zero
+        self.assertEqual(mlogic.apply_dose_to_stock(0, dose_qty=0.5), 0.0)
+        # restore is the inverse
+        self.assertEqual(mlogic.restore_dose_to_stock(9.5, dose_qty=0.5), 10.0)
+        # half a pill once a day → 10 pills last 20 days
+        self.assertEqual(mlogic.days_left(10, ["08:00"], dose_qty=0.5), 20)
+
+    def test_predicted_refill_and_prn_burn(self):
+        # P1: run-out date from stock + burn
+        d = mlogic.predicted_refill_date(20, ["08:00", "20:00"],
+                                         today=date(2026, 1, 1))
+        self.assertEqual(d, date(2026, 1, 11))
+        # PRN with a per-day estimate burns stock too (but never schedules)
+        self.assertEqual(
+            mlogic.days_left(10, [], prn=True, prn_per_day=2), 5)
+        self.assertEqual(
+            mlogic.predicted_refill_date(10, [], today=date(2026, 1, 1),
+                                         prn=True, prn_per_day=2),
+            date(2026, 1, 6))
+        # PRN with no per-day estimate → no prediction
+        self.assertIsNone(mlogic.days_left(10, [], prn=True, prn_per_day=0))
+
+    def test_streak_prn_is_zero(self):
+        # PRN meds have no scheduled doses → streak is not meaningful.
+        self.assertEqual(
+            mlogic.streak_days([], None, None, set(),
+                               today=date(2026, 1, 10), prn=True), 0)
+
     def test_adherence_ratio(self):
         self.assertEqual(mlogic.adherence(10, 8)[0], 80)
         self.assertEqual(mlogic.adherence(0, 0)[0], 100)  # nothing scheduled
@@ -528,6 +560,77 @@ class MedicineApiTests(APITestCase):
         hist = self.client.get("/api/v1/medicines/history").json()
         # PRN contributes 0 scheduled → overall stays 100 with no other meds
         self.assertEqual(hist["overall"], 100)
+
+    def test_prn_can_be_logged_multiple_times_per_day(self):
+        # P4: a painkiller logged twice in one day → two distinct PRN events.
+        med = Medicine.objects.create(user=self.user, name="Painkiller",
+                                      times=[], as_needed=True,
+                                      stock_count=Decimal("10"), dose_qty=1)
+        r1 = self.client.post(f"/api/v1/medicines/{med.id}/taken",
+                              {"slot": "prn", "taken": True}, format="json")
+        r2 = self.client.post(f"/api/v1/medicines/{med.id}/taken",
+                              {"slot": "prn", "taken": True}, format="json")
+        self.assertEqual(r1.status_code, 200)
+        s1, s2 = r1.json()["slot"], r2.json()["slot"]
+        self.assertTrue(s1.startswith("prn-") and s2.startswith("prn-"))
+        # two separate rows (not a single unique_together collision)
+        self.assertEqual(
+            MedicineLog.objects.filter(medicine=med, taken=True).count(), 2)
+        # each logged event appears in today's list, plus a 'log another' row
+        today = self.client.get("/api/v1/medicines/today").json()
+        prn_rows = [d for d in today if d["medicine_id"] == med.id]
+        taken_rows = [d for d in prn_rows if d["taken"]]
+        open_rows = [d for d in prn_rows if d["slot"] == "prn"]
+        self.assertEqual(len(taken_rows), 2)
+        self.assertEqual(len(open_rows), 1)
+        # adherence still excludes PRN (0 scheduled → 100 overall)
+        hist = self.client.get("/api/v1/medicines/history").json()
+        self.assertEqual(hist["overall"], 100)
+
+    def test_fractional_dose_decrements_half_pill(self):
+        # P6: dose_qty=0.5 → stock 10 goes to 9.5, not 10.
+        med = Medicine.objects.create(user=self.user, name="HalfPill",
+                                      times=["08:00"], stock_count=Decimal("10"),
+                                      dose_qty=Decimal("0.5"))
+        r = self.client.post(f"/api/v1/medicines/{med.id}/taken",
+                             {"slot": "08:00", "taken": True}, format="json")
+        self.assertEqual(Decimal(r.json()["stock_count"]), Decimal("9.5"))
+        # undo restores to 10.0
+        r = self.client.post(f"/api/v1/medicines/{med.id}/taken",
+                             {"slot": "08:00", "taken": False}, format="json")
+        self.assertEqual(Decimal(r.json()["stock_count"]), Decimal("10.0"))
+
+    def test_predicted_refill_surfaced_in_serializer(self):
+        # P1: predicted_refill present even with no manual refill_date.
+        med = Medicine.objects.create(user=self.user, name="Pred",
+                                      times=["08:00", "20:00"],
+                                      stock_count=Decimal("20"), dose_qty=1)
+        body = self.client.get(f"/api/v1/medicines/{med.id}/").json()
+        self.assertIsNotNone(body["predicted_refill"])  # 20 pills, 2/day → +10d
+        self.assertEqual(body["days_left"], 10)
+
+    def test_stock_only_refill_alert_fires(self):
+        # P1: no refill_date, but low stock → refill alert still surfaces.
+        from core.views import _build_alerts
+        Medicine.objects.create(user=self.user, name="LowStock",
+                                times=["08:00", "20:00"],
+                                stock_count=Decimal("4"), dose_qty=1,
+                                refill_warn_days=5)   # 2 days left
+        alerts = _build_alerts(self.user, "en")
+        self.assertTrue(any(a["type"] == "refill" and "LowStock" in a["text"]
+                            for a in alerts))
+
+    def test_next_due_is_after_now(self):
+        # P6: next_due is the next pending slot AFTER the current time.
+        from django.utils import timezone
+        now = timezone.localtime()
+        past = (now - timedelta(hours=2)).strftime("%H:%M")
+        future = (now + timedelta(hours=2)).strftime("%H:%M")
+        Medicine.objects.create(user=self.user, name="TwoSlots",
+                                times=[past, future])
+        dash = self.client.get("/api/v1/medicines/caregiver").json()
+        me = next(p for p in dash["people"] if p["relation"] == "self")
+        self.assertEqual(me["next_due"], future)
 
     def test_escalation_endpoint(self):
         med = Medicine.objects.create(

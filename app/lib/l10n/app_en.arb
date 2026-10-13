@@ -45,6 +45,116 @@
       }
     }
   },
+  "@medCourseEnds": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      }
+    }
+  },
+  "@medDaysLeftValue": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "@medLowStockOne": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      },
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "@medNextDose": {
+    "placeholders": {
+      "slot": {
+        "type": "Object"
+      }
+    }
+  },
+  "@medOutOfStockOne": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "@medPredictedRefill": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      }
+    }
+  },
+  "@medStreakValue": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "@medTakenOfTotal": {
+    "placeholders": {
+      "taken": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "@medTakenScheduled": {
+    "placeholders": {
+      "taken": {
+        "type": "Object"
+      },
+      "scheduled": {
+        "type": "Object"
+      }
+    }
+  },
+  "@medWeekLabel": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "@moneyImportSelected": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "@moneyImported": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "@moneyLoanBalanceLabel": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "@moneyLoanPaidOf": {
+    "placeholders": {
+      "paid": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
   "@moneyOpeningBalanceLabel": {
     "placeholders": {
       "amount": {
@@ -67,6 +177,20 @@
       "person": {
         "type": "Object"
       },
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "@moneyReportFor": {
+    "placeholders": {
+      "month": {
+        "type": "Object"
+      }
+    }
+  },
+  "@moneyVsLastMonth": {
+    "placeholders": {
       "amount": {
         "type": "Object"
       }
@@ -336,6 +460,72 @@
   "makeCvCover": "Make CV/cover",
   "makeRemindersReliable": "Make reminders reliable",
   "manyPhonesKillBackgroundApps": "Many phones kill background apps to save battery, so reminders/alerts may not arrive. Exempt Assisto using the steps below.",
+  "medAddDoctor": "Add doctor",
+  "medAddPrescription": "Add prescription",
+  "medAdherence30d": "Adherence (30 days)",
+  "medAllDoneToday": "All doses taken today",
+  "medAsNeeded": "As needed (PRN)",
+  "medAsNeededShort": "PRN",
+  "medCaregiverEmpty": "Add medicines for yourself or a family member to see their daily status here.",
+  "medCaregiverTitle": "Who you care for",
+  "medCourseEnds": "Course ends {date}",
+  "medDaysLeftValue": "{days} days of stock left",
+  "medDiagnosisLabel": "Diagnosis",
+  "medDoctorLabel": "Doctor",
+  "medDoctorNameLabel": "Doctor's name",
+  "medDoctorPdf": "Doctor-visit PDF",
+  "medDoctorPdfSubtitle": "Current meds, schedule, adherence, recent changes",
+  "medDoseQtyLabel": "Pills per dose",
+  "medDosesTodayLabel": "Today's doses",
+  "medDurationLabel": "For how many days",
+  "medEditDoctor": "Edit doctor",
+  "medEditMedicineTitle": "Edit medicine",
+  "medEditMember": "Edit family member",
+  "medEditPrescription": "Edit prescription",
+  "medEscalationCaregiver": "Alert caregiver",
+  "medEscalationQuietNote": "Falls in quiet hours — deferred",
+  "medEscalationReminder": "Reminder",
+  "medEscalationReremind": "Re-remind",
+  "medEscalationTitle": "Missed-dose follow-up",
+  "medFoodAfter": "After food",
+  "medFoodAny": "Any time",
+  "medFoodBefore": "Before food",
+  "medFoodLabel": "With food",
+  "medFoodWith": "With food",
+  "medForSelf": "Myself",
+  "medForWhomLabel": "For whom",
+  "medHistoryEmpty": "Take some doses and your weekly adherence will show here.",
+  "medHistoryTitle": "Adherence history",
+  "medHospitalLabel": "Hospital / chamber",
+  "medLogAsNeeded": "Log as-needed dose",
+  "medLowStockHeading": "Running low",
+  "medLowStockOne": "{name}: {days} days left",
+  "medManageDoctors": "Doctors",
+  "medNextDose": "Next dose {slot}",
+  "medNoDoctor": "No doctor",
+  "medOutOfStockOne": "{name}: out of stock",
+  "medOverallAdherence": "Overall adherence",
+  "medPredictedRefill": "Runs out around {date}",
+  "medPrescriptionDateLabel": "Visit date (YYYY-MM-DD)",
+  "medPrescriptionMedsLabel": "Medicines (one per line)",
+  "medPrescriptionsEmpty": "Save a prescription to keep a timeline per doctor.",
+  "medPrescriptionsTitle": "Prescriptions",
+  "medPushGatedNote": "Cross-device alerts to the caregiver's phone are available when Firebase is added.",
+  "medSkip": "Skip",
+  "medSkipped": "Skipped",
+  "medSpecialtyLabel": "Specialty",
+  "medStockLabel": "Pills in stock",
+  "medStockUnknown": "Stock not tracked",
+  "medStreakValue": "{days}-day streak",
+  "medTabCaregiver": "Overview",
+  "medTabPrescriptions": "Prescriptions",
+  "medTakeNow": "Take",
+  "medTakenOfTotal": "{taken} of {total} taken",
+  "medTakenScheduled": "{taken} taken of {scheduled} scheduled",
+  "medUndo": "Undo",
+  "medViewEscalation": "Preview follow-up steps",
+  "medWeekLabel": "Week {n}",
+  "medWeeklyHeading": "Last 4 weeks",
   "medicineReminderFollowUp": "Medicine reminder follow-up",
   "memoryCategoryLabel": "Category (family, work, health...)",
   "memoryDetailLabel": "Details (optional)",
@@ -361,14 +551,26 @@
   "moneyAccTypeCash": "Cash",
   "moneyAccTypeNagad": "Nagad",
   "moneyAccTypeRocket": "Rocket",
+  "moneyAccountsCount": "Accounts",
   "moneyAccountsEmpty": "Add an account (Cash, bKash, Nagad, Bank...)",
+  "moneyAccountsEmptyHint": "Add your first account (cash, bKash, bank) to get started.",
   "moneyAddAccountFirst": "Add an account first (while online).",
   "moneyAddDeposit": "Add Deposit",
+  "moneyAddRepayment": "Add repayment",
+  "moneyAssets": "Assets",
+  "moneyBaseLimit": "Base limit",
+  "moneyBiggestExpense": "Biggest expense",
   "moneyBorrowed": "Borrowed",
   "moneyBudgetEmpty": "Add a budget (we will alert you at 80% and 100%).",
+  "moneyBudgetEmptyHint": "Set a monthly limit per category and we'll warn you before you overspend.",
   "moneyBudgetNear": "Over 80%",
   "moneyBudgetOver": "Budget exceeded!",
   "moneyBudgetSpendOffline": "Spending will appear when you are online.",
+  "moneyCarriedIn": "Carried in",
+  "moneyCarryForward": "Carries forward",
+  "moneyCategoryTrends": "Category trends",
+  "moneyDeleteConfirm": "Delete this?",
+  "moneyDeleted": "Deleted",
   "moneyExpenseBreakdown": "Expense Breakdown (This Month)",
   "moneyFieldAmountRequired": "Amount *",
   "moneyFieldCategory": "Category",
@@ -381,28 +583,66 @@
   "moneyFieldPersonName": "Person's Name",
   "moneyFieldTargetTaka": "Target (Taka)",
   "moneyFieldType": "Type",
+  "moneyFilterAll": "All",
+  "moneyImportDuplicate": "Duplicate",
+  "moneyImportHint": "Paste a bKash/Nagad/bank transaction SMS here and we'll read it for you.",
+  "moneyImportNothing": "No transactions found in that text.",
+  "moneyImportParse": "Read SMS",
+  "moneyImportPasteHint": "Paste SMS here",
+  "moneyImportSelected": "Import {count}",
+  "moneyImportTitle": "Import from SMS",
+  "moneyImportUnrecognised": "Not recognised",
+  "moneyImported": "{count} transactions added",
   "moneyKindExpense": "Expense",
   "moneyKindIncome": "Income",
   "moneyLent": "Lent",
+  "moneyLiabilities": "Liabilities",
+  "moneyLoanBalance": "Balance",
+  "moneyLoanBalanceLabel": "Balance {amount}",
   "moneyLoanGiven": "I lent",
+  "moneyLoanLedger": "Ledger",
+  "moneyLoanPaidOf": "{paid} paid of {total}",
+  "moneyLoanPrincipal": "Principal",
+  "moneyLoanRepayment": "Repayment",
+  "moneyLoanSettled": "Settled",
   "moneyLoanTaken": "I borrowed",
   "moneyLoansEmpty": "Keep track of who you lent to and who you borrowed from here.",
   "moneyLoansHeading": "Loans",
+  "moneyMarkSettled": "Mark settled",
   "moneyMonthExpense": "Expenses This Month",
   "moneyMonthIncome": "Income This Month",
   "moneyMonthNet": "Remaining This Month (Net)",
+  "moneyMonthlyFlow": "Monthly flow",
+  "moneyNetWorthLabel": "Net worth",
+  "moneyNetWorthOverTime": "Net worth over time",
+  "moneyNetWorthSubtitle": "Assets, receivables and liabilities",
+  "moneyNetWorthTitle": "Net worth",
   "moneyNewAccount": "New Account",
   "moneyNewBudget": "New Budget",
   "moneyNewLoan": "New Loan",
   "moneyNewTransaction": "New Transaction",
   "moneyNoTransactions": "No transactions yet.",
+  "moneyNoTransactionsHint": "Tap + below to add your first transaction.",
   "moneyOpeningBalanceLabel": "Opening: {amount}",
   "moneyOverview": "My Account overview",
+  "moneyReceivable": "Receivable",
+  "moneyRemaining": "Remaining",
   "moneyReminder": "Reminder",
   "moneyReminderDraft": "Reminder Draft",
   "moneyReminderGivenMsg": "Assalamu alaikum {person}, just a gentle reminder amid the busyness — it would help if you could return the {amount} Taka whenever convenient. Thank you.",
   "moneyReminderTakenMsg": "I owe {person} {amount} Taka — this needs to be repaid.",
+  "moneyReportExported": "Report exported",
+  "moneyReportFor": "Report for {month}",
+  "moneyReportTitle": "Monthly report",
+  "moneyRolloverHint": "Unused budget carries to next month.",
+  "moneyRolloverOff": "Rollover off",
+  "moneyRolloverOn": "Rollover on",
+  "moneyRolloverToggle": "Rollover",
   "moneySavingsGoal": "Savings Goal",
+  "moneySavingsRate": "Savings rate",
+  "moneySearchHint": "Search transactions",
+  "moneySplitPeopleHint": "Names, comma-separated (e.g. Rahim, Karim)",
+  "moneySplitToggle": "Split this expense",
   "moneySummaryOffline": "The summary will appear when you are online.",
   "moneyTabAccounts": "Accounts",
   "moneyTabBudget": "Budget",
@@ -411,6 +651,9 @@
   "moneyTitle": "My Account",
   "moneyTotalBalance": "Total Balance",
   "moneyTransactionFallback": "Transaction",
+  "moneyTrendsSubtitle": "Month-over-month and per-category",
+  "moneyTrendsTitle": "Trends",
+  "moneyVsLastMonth": "Last month {amount}",
   "monthlyTotal": "About {amount}/month",
   "n30Sec10MinDefault": "30 sec – 10 min (default 2 min)",
   "n500TakaFoodExpenseRemind": "\"500 taka food expense\", \"remind me medicine at 8\" — Bangla or English, text or voice.",
@@ -582,92 +825,5 @@
   "youStayInControl": "You stay in control",
   "yourMessageLabel": "Your message",
   "yourPhoneBrand": "Your phone brand",
-  "zakat": "Zakat",
-  "medTabCaregiver": "Overview",
-  "medTabPrescriptions": "Prescriptions",
-  "medCaregiverTitle": "Who you care for",
-  "medCaregiverEmpty": "Add medicines for yourself or a family member to see their daily status here.",
-  "medForSelf": "Myself",
-  "medDosesTodayLabel": "Today's doses",
-  "medTakenOfTotal": "{taken} of {total} taken",
-  "@medTakenOfTotal": {
-    "placeholders": {"taken": {"type": "Object"}, "total": {"type": "Object"}}
-  },
-  "medNextDose": "Next dose {slot}",
-  "@medNextDose": {
-    "placeholders": {"slot": {"type": "Object"}}
-  },
-  "medAllDoneToday": "All doses taken today",
-  "medAdherence30d": "Adherence (30 days)",
-  "medLowStockOne": "{name}: {days} days left",
-  "@medLowStockOne": {
-    "placeholders": {"name": {"type": "Object"}, "days": {"type": "Object"}}
-  },
-  "medOutOfStockOne": "{name}: out of stock",
-  "@medOutOfStockOne": {
-    "placeholders": {"name": {"type": "Object"}}
-  },
-  "medLowStockHeading": "Running low",
-  "medPushGatedNote": "Cross-device alerts to the caregiver's phone are available when Firebase is added.",
-  "medFoodBefore": "Before food",
-  "medFoodAfter": "After food",
-  "medFoodWith": "With food",
-  "medFoodAny": "Any time",
-  "medFoodLabel": "With food",
-  "medAsNeeded": "As needed (PRN)",
-  "medAsNeededShort": "PRN",
-  "medStockLabel": "Pills in stock",
-  "medDoseQtyLabel": "Pills per dose",
-  "medDurationLabel": "For how many days",
-  "medCourseEnds": "Course ends {date}",
-  "@medCourseEnds": {
-    "placeholders": {"date": {"type": "Object"}}
-  },
-  "medDaysLeftValue": "{days} days of stock left",
-  "@medDaysLeftValue": {
-    "placeholders": {"days": {"type": "Object"}}
-  },
-  "medForWhomLabel": "For whom",
-  "medTakeNow": "Take",
-  "medSkip": "Skip",
-  "medSkipped": "Skipped",
-  "medUndo": "Undo",
-  "medHistoryTitle": "Adherence history",
-  "medHistoryEmpty": "Take some doses and your weekly adherence will show here.",
-  "medOverallAdherence": "Overall adherence",
-  "medStreakValue": "{days}-day streak",
-  "@medStreakValue": {
-    "placeholders": {"days": {"type": "Object"}}
-  },
-  "medWeeklyHeading": "Last 4 weeks",
-  "medTakenScheduled": "{taken} taken of {scheduled} scheduled",
-  "@medTakenScheduled": {
-    "placeholders": {"taken": {"type": "Object"}, "scheduled": {"type": "Object"}}
-  },
-  "medWeekLabel": "Week {n}",
-  "@medWeekLabel": {
-    "placeholders": {"n": {"type": "Object"}}
-  },
-  "medEscalationTitle": "Missed-dose follow-up",
-  "medEscalationReminder": "Reminder",
-  "medEscalationReremind": "Re-remind",
-  "medEscalationCaregiver": "Alert caregiver",
-  "medEscalationQuietNote": "Falls in quiet hours — deferred",
-  "medViewEscalation": "Preview follow-up steps",
-  "medPrescriptionsTitle": "Prescriptions",
-  "medPrescriptionsEmpty": "Save a prescription to keep a timeline per doctor.",
-  "medAddPrescription": "Add prescription",
-  "medDoctorLabel": "Doctor",
-  "medDoctorNameLabel": "Doctor's name",
-  "medSpecialtyLabel": "Specialty",
-  "medHospitalLabel": "Hospital / chamber",
-  "medDiagnosisLabel": "Diagnosis",
-  "medPrescriptionDateLabel": "Visit date (YYYY-MM-DD)",
-  "medPrescriptionMedsLabel": "Medicines (one per line)",
-  "medDoctorPdf": "Doctor-visit PDF",
-  "medDoctorPdfSubtitle": "Current meds, schedule, adherence, recent changes",
-  "medManageDoctors": "Doctors",
-  "medAddDoctor": "Add doctor",
-  "medNoDoctor": "No doctor",
-  "medStockUnknown": "Stock not tracked"
+  "zakat": "Zakat"
 }

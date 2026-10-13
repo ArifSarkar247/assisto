@@ -103,10 +103,23 @@ def refill_warning(stock_count, times, dose_qty=1, warn_days=5, today=None,
 
 
 def apply_dose_to_stock(stock_count, dose_qty=1):
-    """Decrement inventory when a dose is taken; never below 0."""
+    """Decrement inventory when a dose is taken; never below 0.
+
+    Handles FRACTIONAL doses (e.g. dose_qty=0.5): stock is tracked as a float
+    so a half-pill dose decrements 0.5, not 0 (the old int(round(...)) bug).
+    Returns a float; callers persist to a DecimalField (P6)."""
     if stock_count is None:
         return None
-    return max(0, stock_count - int(round(pills_per_dose(dose_qty))))
+    rem = float(stock_count) - pills_per_dose(dose_qty)
+    return max(0.0, rem)
+
+
+def restore_dose_to_stock(stock_count, dose_qty=1):
+    """Inverse of apply_dose_to_stock — add a dose's units back on undo.
+    Fractional-safe. Returns a float."""
+    if stock_count is None:
+        return None
+    return float(stock_count) + pills_per_dose(dose_qty)
 
 
 # ---------------------------------------------------------------------------
@@ -143,13 +156,17 @@ def adherence_for_med(times, med_start, med_end, taken_set, window_start,
     return adherence(scheduled, taken)
 
 
-def streak_days(times, med_start, med_end, taken_set, today=None, lookback=60):
-    """Consecutive days (ending today) where every scheduled dose was taken."""
+def streak_days(times, med_start, med_end, taken_set, today=None, lookback=60,
+                prn=False):
+    """Consecutive days (ending today) where every scheduled dose was taken.
+    PRN meds have no scheduled doses → streak is always 0 (not meaningful)."""
+    if prn:
+        return 0
     today = today or date.today()
     streak = 0
     for i in range(lookback):
         day = today - timedelta(days=i)
-        slots = scheduled_slots_for_day(times, med_start, med_end, day)
+        slots = scheduled_slots_for_day(times, med_start, med_end, day, prn=prn)
         if not slots:
             # no scheduled doses that day — doesn't break a streak, doesn't add
             if i == 0:

@@ -394,6 +394,17 @@ class ApiClient {
   Future<Map<String, dynamic>> setElderly(bool v) =>
       postJson('/me/elderly', {'enabled': v});
   Future<Map<String, dynamic>> inboxStatus() => getJson('/inbox');
+
+  Future<Map<String, dynamic>> moneyTrends() => getJson('/money/trends');
+  Future<Map<String, dynamic>> moneyNetWorth() => getJson('/money/networth');
+  Future<Map<String, dynamic>> moneyBudgetDetail(String category) =>
+      getJson('/money/budget?category=${Uri.encodeQueryComponent(category)}');
+  Future<Map<String, dynamic>> moneyReport() => getJson('/money/report');
+  Future<Map<String, dynamic>> moneyParse(String text) =>
+      postJson('/money/parse', {'text': text});
+  Future<Map<String, dynamic>> moneyLearnCategory(String counterparty, String category) =>
+      postJson('/money/learn-category',
+          {'counterparty': counterparty, 'category': category});
   Future<Map<String, dynamic>> studio(String kind, String prompt) =>
       postJson('/studio', {'kind': kind, 'prompt': prompt});
 

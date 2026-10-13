@@ -141,7 +141,10 @@ _BAL_RX = re.compile(
     r"(?:bal(?:ance)?|avl\s*bal|available\s*balance)[:\s]*(?:tk|bdt|৳)?\s*([\d,]+(?:\.\d+)?)",
     re.I,
 )
-_REF_RX = re.compile(r"(?:trx\s*id|txn\s*id|trxid|txnid|ref(?:erence)?\s*(?:no)?)[:\s.]*([a-z0-9]{4,})", re.I)
+# TrxID / TxnID are the authoritative wallet references; prefer them over a
+# generic "Ref". Try the strong pattern first, then fall back.
+_TRXID_RX = re.compile(r"(?:trx\s*id|txn\s*id|trxid|txnid)[:\s.]*([a-z0-9]{4,})", re.I)
+_REF_RX = re.compile(r"(?:ref(?:erence)?\s*(?:no)?)[:\s.]*([a-z0-9]{4,})", re.I)
 _PHONE_RX = re.compile(r"\b(01[3-9]\d{8})\b")
 _ACC_RX = re.compile(r"A/C[:\s]*[xX*]*(\d{3,})", re.I)
 # "from NAME", "to NAME", "to MERCHANT" — stop at punctuation / currency / digits run.
@@ -177,12 +180,17 @@ def _parse_date(body):
 
 
 def _amounts(body):
-    """All amount tokens in order of appearance (value, start-index)."""
+    """All amount tokens in order of appearance (value, num_start, num_end).
+
+    `num_start`/`num_end` are the span of the NUMBER itself (not the currency
+    marker), so callers can test overlap against fee/balance number spans."""
     out = []
     for m in _AMOUNT_RX.finditer(normalize_digits(body or "")):
-        val = _to_decimal(m.group(1) or m.group(2))
+        # group(1) = "Tk 123" form, group(2) = "123 Tk" form; take whichever hit
+        gi = 1 if m.group(1) is not None else 2
+        val = _to_decimal(m.group(gi))
         if val is not None:
-            out.append((val, m.start()))
+            out.append((val, m.start(gi), m.end(gi)))
     return out
 
 
@@ -193,19 +201,37 @@ def parse_sms(body, sender=""):
     channel = detect_channel(sender, norm)
     txn_type = detect_type(norm)
 
-    fee = _to_decimal((_FEE_RX.search(norm) or [None, None])[1]) if _FEE_RX.search(norm) else None
-    bal = _to_decimal(_BAL_RX.search(norm).group(1)) if _BAL_RX.search(norm) else None
+    fee_m = _FEE_RX.search(norm)
+    bal_m = _BAL_RX.search(norm)
+    fee = _to_decimal(fee_m.group(1)) if fee_m else None
+    bal = _to_decimal(bal_m.group(1)) if bal_m else None
 
-    # amount = first currency token that is NOT the fee/balance value.
+    # amount = first currency token NOT inside the fee/balance capture spans.
+    # Selecting by POSITION (not by value) so a transaction amount that happens
+    # to equal the fee or balance (e.g. "Cash Out Tk 18.50 Fee Tk 18.50" or
+    # "received Tk 1000 ... Balance Tk 1000") is still picked up correctly.
+    skip_spans = []
+    if fee_m:
+        skip_spans.append(fee_m.span(1))
+    if bal_m:
+        skip_spans.append(bal_m.span(1))
+
+    def _overlaps_skip(num_start, num_end):
+        # True if this amount's number span overlaps a fee/balance number span.
+        for s, e in skip_spans:
+            if num_start < e and s < num_end:
+                return True
+        return False
+
     amount = None
-    for val, _ in _amounts(norm):
-        if (fee is not None and val == fee) or (bal is not None and val == bal):
+    for val, num_start, num_end in _amounts(norm):
+        if _overlaps_skip(num_start, num_end):
             continue
         amount = val
         break
 
     ref = None
-    rm = _REF_RX.search(norm)
+    rm = _TRXID_RX.search(norm) or _REF_RX.search(norm)
     if rm:
         ref = rm.group(1).upper()
 
@@ -264,7 +290,10 @@ _CATEGORY_RULES = [
     ("education", ["school", "college", "university", "tuition", "coaching",
                    "exam fee", "admission", "education"]),
     ("rent", ["rent", "bhara", "ভাড়া", "house rent", "flat"]),
-    ("sendmoney", ["send money", "cash out", "transfer", "received", "cash in"]),
+    # sendmoney = outgoing transfers only. Incoming-credit words ("received",
+    # "cash in", "add money") must NOT live here or a credit gets mislabelled
+    # as 'sendmoney'; credits fall through to the weak 'income' default instead.
+    ("sendmoney", ["send money", "cash out", "transfer"]),
 ]
 
 # default label when nothing matches
@@ -363,27 +392,50 @@ def _db_store_correction(key, category, user):
 # duplicate detection for the import-review flow
 # ---------------------------------------------------------------------------
 
-def txn_fingerprint(parsed):
-    """A stable key to dedupe the same SMS parsed/imported twice. Uses the ref
-    when present (most reliable), else channel+amount+date+counterparty."""
+def txn_fingerprint(parsed, seq=None):
+    """A stable key to dedupe the same SMS parsed/imported twice.
+
+    A real transaction ref (TrxID/TxnID/Ref) is authoritative, so ref-bearing
+    txns dedupe on the ref alone. Ref-less txns are intrinsically ambiguous:
+    two genuinely-distinct txns can share channel+amount+date+party+type (e.g.
+    paying the same shop the same amount twice in one day). Collapsing them
+    would silently drop a real txn, so for ref-less txns we append a per-batch
+    sequence index (`seq`) — identical-looking entries stay distinct and are
+    all kept. (Re-importing the exact same batch still re-derives the same
+    seq order, so true double-imports are caught by the caller's seen set.)"""
     if parsed.get("ref"):
         return "ref:" + str(parsed["ref"]).upper()
-    return "|".join([
+    base = "|".join([
         parsed.get("channel") or "",
         str(parsed.get("amount") or ""),
         parsed.get("date") or "",
         (parsed.get("counterparty") or "").lower(),
         parsed.get("type") or "",
     ])
+    if seq is not None:
+        base += "#" + str(seq)
+    return "noref:" + base
 
 
 def dedupe(parsed_list, seen_fingerprints=None):
     """Split a batch of parsed txns into (fresh, duplicates). `seen_fingerprints`
-    lets the caller pass fingerprints already imported previously."""
+    lets the caller pass fingerprints already imported previously.
+
+    Ref-less txns get a per-key sequence index so two distinct-but-identical
+    looking entries in the same batch are BOTH kept (only exact re-imports,
+    caught via `seen_fingerprints`, are treated as dupes)."""
     seen = set(seen_fingerprints or [])
+    noref_counts = {}
     fresh, dups = [], []
     for p in parsed_list:
-        fp = txn_fingerprint(p)
+        if p.get("ref"):
+            fp = txn_fingerprint(p)
+        else:
+            # disambiguate ref-less collisions within this batch
+            key = txn_fingerprint(p)
+            n = noref_counts.get(key, 0)
+            noref_counts[key] = n + 1
+            fp = txn_fingerprint(p, seq=n)
         if fp in seen:
             dups.append(p)
         else:

@@ -68,9 +68,9 @@ class FakeApi extends ApiClient {
         ]);
       case 'medicines':
         return _maybe([
-          {'id': 1, 'name': 'Napa', 'dosage': _bn ? '১টা' : '1 tab', 'times': ['08:00', '20:00'], 'refill_date': '2026-10-30', 'food_relation': 'after', 'as_needed': false, 'dose_qty': '1', 'stock_count': 6, 'days_left': 3, 'refill_status': 'soon', 'adherence_30d': 92},
-          {'id': 2, 'name': 'Losectil', 'dosage': _bn ? '১টা' : '1 tab', 'times': ['08:00'], 'refill_date': null, 'food_relation': 'before', 'as_needed': false, 'dose_qty': '1', 'stock_count': 40, 'days_left': 40, 'refill_status': 'ok', 'adherence_30d': 78},
-          {'id': 3, 'name': 'Sleeping aid', 'dosage': _bn ? 'প্রয়োজনে' : 'as needed', 'times': [], 'as_needed': true, 'dose_qty': '1', 'stock_count': null, 'days_left': null, 'refill_status': 'ok', 'adherence_30d': 100},
+          {'id': 1, 'name': 'Napa', 'dosage': _bn ? '১টা' : '1 tab', 'times': ['08:00', '20:00'], 'refill_date': '2026-10-30', 'food_relation': 'after', 'as_needed': false, 'dose_qty': '1', 'stock_count': '6', 'days_left': 3, 'refill_status': 'soon', 'predicted_refill': '2026-10-16', 'adherence_30d': 92},
+          {'id': 2, 'name': 'Losectil', 'dosage': _bn ? '১টা' : '1 tab', 'times': ['08:00'], 'refill_date': null, 'food_relation': 'before', 'as_needed': false, 'dose_qty': '1', 'stock_count': '40', 'days_left': 40, 'refill_status': 'ok', 'predicted_refill': '2026-11-22', 'adherence_30d': 78},
+          {'id': 3, 'name': 'Sleeping aid', 'dosage': _bn ? 'প্রয়োজনে' : 'as needed', 'times': [], 'as_needed': true, 'prn_per_day': 0, 'dose_qty': '1', 'stock_count': null, 'days_left': null, 'refill_status': 'ok', 'predicted_refill': null, 'adherence_30d': 100},
         ]);
       case 'doctors':
         return _maybe([
@@ -134,6 +134,9 @@ class FakeApi extends ApiClient {
         {'medicine_id': 1, 'name': 'Napa', 'slot': '08:00', 'taken': true, 'skipped': false, 'prn': false, 'dosage': _bn ? '১টা' : '1 tab', 'food_relation': 'after', 'member_name': _bn ? 'আম্মা' : 'Mother', 'days_left': 3, 'refill_date': '2026-10-30'},
         {'medicine_id': 1, 'name': 'Napa', 'slot': '20:00', 'taken': false, 'skipped': false, 'prn': false, 'dosage': _bn ? '১টা' : '1 tab', 'food_relation': 'after', 'member_name': _bn ? 'আম্মা' : 'Mother', 'days_left': 3, 'refill_date': '2026-10-30'},
         {'medicine_id': 2, 'name': 'Losectil', 'slot': '08:00', 'taken': false, 'skipped': false, 'prn': false, 'dosage': _bn ? '১টা' : '1 tab', 'food_relation': 'before', 'member_name': null, 'days_left': 40, 'refill_date': null},
+        // PRN: one already-logged event today + the open 'log another' row (P4).
+        {'medicine_id': 3, 'name': 'Sleeping aid', 'slot': 'prn-14:30:00', 'taken': true, 'skipped': false, 'prn': true, 'prn_at': '14:30:00', 'prn_count_today': 1, 'dosage': _bn ? '১টা' : '1 tab', 'food_relation': 'any', 'member_name': null, 'days_left': null, 'refill_date': null},
+        {'medicine_id': 3, 'name': 'Sleeping aid', 'slot': 'prn', 'taken': false, 'skipped': false, 'prn': true, 'prn_at': '', 'prn_count_today': 1, 'dosage': _bn ? '১টা' : '1 tab', 'food_relation': 'any', 'member_name': null, 'days_left': null, 'refill_date': null},
       ]);
 
   @override
@@ -357,4 +360,82 @@ class FakeApi extends ApiClient {
             ? {'red': 'জরুরি', 'yellow': 'শীঘ্রই', 'green': 'তথ্য'}
             : {'red': 'Urgent', 'yellow': 'Soon', 'green': 'Info'},
       };
+
+  @override
+  Future<Map<String, dynamic>> moneyTrends() async {
+    if (mode == FakeMode.fail) _fail();
+    if (mode == FakeMode.empty) return {'months': [], 'categories': []};
+    return {
+      'months': [
+        {'month': '2026-08', 'income': '25000', 'expense': '7000', 'net': '18000', 'delta': '0'},
+        {'month': '2026-09', 'income': '25000', 'expense': '9000', 'net': '16000', 'delta': '-2000'},
+        {'month': '2026-10', 'income': '25000', 'expense': '7600', 'net': '17400', 'delta': '1400'},
+      ],
+      'categories': [
+        {'category': _bn ? 'খাবার' : 'Food', 'current': '6400', 'previous': '4000', 'delta': '2400', 'up': true},
+        {'category': _bn ? 'যাতায়াত' : 'Transport', 'current': '1200', 'previous': '1500', 'delta': '-300', 'up': false},
+      ],
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> moneyNetWorth() async {
+    if (mode == FakeMode.fail) _fail();
+    if (mode == FakeMode.empty) {
+      return {'net_worth': '0', 'assets': '0', 'receivable': '0', 'liabilities': '0', 'series': []};
+    }
+    return {
+      'net_worth': '23000', 'assets': '20800', 'receivable': '2000', 'liabilities': '5000',
+      'series': [
+        {'month': '2026-08', 'net_worth': '18000', 'delta': '0'},
+        {'month': '2026-09', 'net_worth': '20500', 'delta': '2500'},
+        {'month': '2026-10', 'net_worth': '23000', 'delta': '2500'},
+      ],
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> moneyBudgetDetail(String category) async {
+    if (mode == FakeMode.fail) _fail();
+    return {
+      'category': category, 'rollover': true, 'carry_forward': '1600',
+      'months': [
+        {'month': '2026-08', 'base_limit': '8000', 'carried_in': '0', 'effective_limit': '8000', 'spent': '6400', 'remaining': '1600', 'state': 'ok', 'pct': 80},
+        {'month': '2026-09', 'base_limit': '8000', 'carried_in': '1600', 'effective_limit': '9600', 'spent': '9000', 'remaining': '600', 'state': 'near', 'pct': 94},
+        {'month': '2026-10', 'base_limit': '8000', 'carried_in': '600', 'effective_limit': '8600', 'spent': '7600', 'remaining': '1000', 'state': 'ok', 'pct': 88},
+      ],
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> moneyReport() async {
+    if (mode == FakeMode.fail) _fail();
+    return {
+      'month': '2026-10', 'income': '25000', 'expense': '7600', 'net': '17400', 'savings_rate': 70,
+      'by_category': [
+        {'category': _bn ? 'খাবার' : 'Food', 'amount': '6400'},
+        {'category': _bn ? 'যাতায়াত' : 'Transport', 'amount': '1200'},
+      ],
+      'budgets': [
+        {'category': _bn ? 'খাবার' : 'Food', 'limit': '8000', 'spent': '6400', 'state': 'ok', 'pct': 80},
+      ],
+      'biggest_expense': {'category': _bn ? 'খাবার' : 'Food', 'amount': '6400', 'date': '2026-10-05'},
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> moneyParse(String text) async {
+    if (mode == FakeMode.fail) _fail();
+    return {
+      'transactions': [
+        {'parsed': true, 'type': 'debit', 'amount': '500', 'channel': 'bkash', 'counterparty': 'Foodpanda', 'category_guess': _bn ? 'খাবার' : 'food', 'ref': '9F2A1B', 'date': '2026-10-12', 'duplicate': false, 'raw': 'Payment Tk 500 to Foodpanda. Bal Tk 1250 TrxID 9F2A1B'},
+        {'parsed': true, 'type': 'credit', 'amount': '25000', 'channel': 'bank', 'counterparty': 'ACME LTD', 'category_guess': _bn ? 'বেতন' : 'salary', 'ref': 'SAL10', 'date': '2026-10-01', 'duplicate': true, 'raw': 'A/C credited BDT 25000 Salary'},
+        {'parsed': false, 'raw': 'Your OTP is 123456'},
+      ],
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> moneyLearnCategory(String c, String cat) async => {};
+
 }

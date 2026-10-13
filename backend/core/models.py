@@ -246,11 +246,17 @@ class Medicine(models.Model):
     food_relation = models.CharField(max_length=8, choices=FOOD_CHOICES, default=FOOD_ANY)
     dose_qty = models.DecimalField(max_digits=6, decimal_places=2, default=1)  # units per dose
     as_needed = models.BooleanField(default=False)   # PRN — never counts against adherence
+    # Typical PRN doses/day — only used to estimate PRN burn for refill prediction
+    # (PRN never affects adherence). 0 → no stock prediction for a PRN med.
+    prn_per_day = models.PositiveIntegerField(default=0)
     duration_days = models.PositiveIntegerField(null=True, blank=True)  # "for 7 days"
     taper = models.JSONField(default=list, blank=True)  # [{from, to, dose_qty}] tapering plan
 
     # --- inventory ---
-    stock_count = models.IntegerField(null=True, blank=True)  # units on hand (pills)
+    # DecimalField (not Integer) so fractional doses (0.5 pill) decrement stock
+    # correctly — see logic.medicine.apply_dose_to_stock (P6).
+    stock_count = models.DecimalField(max_digits=8, decimal_places=2,
+                                      null=True, blank=True)  # units on hand (pills)
     refill_warn_days = models.PositiveIntegerField(default=5)  # warn when <= N days left
 
     # configurable follow-up (per medicine / per member) — applies to app
@@ -271,7 +277,10 @@ class MedicineLog(models.Model):
     absence of a row for a scheduled slot means 'missed' (not yet acted on)."""
     medicine = models.ForeignKey(Medicine, on_delete=models.CASCADE, related_name="logs")
     date = models.DateField()
-    slot = models.CharField(max_length=5)   # "08:00"  (or "prn" for as-needed)
+    # "08:00" for a scheduled slot; for an as-needed (PRN) med each event is
+    # logged as "prn-HH:MM:SS" so a painkiller can be logged many times/day
+    # (unique_together stays per-slot, but each PRN event has its own slot). (P4)
+    slot = models.CharField(max_length=12)
     taken = models.BooleanField(default=True)
     skipped = models.BooleanField(default=False)   # user chose to skip (not a miss)
     at = models.DateTimeField(null=True, blank=True)  # when actually taken

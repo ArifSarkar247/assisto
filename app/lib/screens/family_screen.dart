@@ -1,4 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:open_filex/open_filex.dart';
 import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
@@ -108,8 +111,11 @@ class _FamilyScreenState extends State<FamilyScreen> {
     final app = context.read<AppState>();
     final messenger = ScaffoldMessenger.of(context);
     try {
-      await app.api.getBytes('/medicines/doctor-pdf');
-      messenger.showSnackBar(SnackBar(content: Text(_t.medDoctorPdf)));
+      final bytes = await app.api.getBytes('/medicines/doctor-pdf');
+      final dir = await getTemporaryDirectory();
+      final f = File('${dir.path}/assisto-doctor-visit.pdf');
+      await f.writeAsBytes(bytes);
+      await OpenFilex.open(f.path);
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(_t.exportFailed(e))));
     }
@@ -174,6 +180,9 @@ class _FamilyScreenState extends State<FamilyScreen> {
     final taken = d['taken'] == true;
     final skipped = d['skipped'] == true;
     final prn = d['prn'] == true;
+    // A PRN 'log another' row is the one still untaken (slot == 'prn').
+    final prnLogAnother = prn && d['slot'] == 'prn';
+    final prnAt = (d['prn_at'] ?? '').toString();
     final api = context.read<AppState>().api;
     final subtitle = <String>[
       if ((d['dosage'] ?? '').toString().isNotEmpty) d['dosage'].toString(),
@@ -181,6 +190,12 @@ class _FamilyScreenState extends State<FamilyScreen> {
       if (d['member_name'] != null) '${_t.medForWhomLabel}: ${d['member_name']}',
       if (d['days_left'] != null) t.medDaysLeftValue(d['days_left']),
     ].join('  ·  ');
+    // PRN label: logged event shows its time; the open row says 'log as-needed'.
+    final doseLabel = prn
+        ? (prnLogAnother
+            ? t.medLogAsNeeded
+            : (prnAt.isNotEmpty ? '${t.medAsNeededShort} · $prnAt' : t.medAsNeededShort))
+        : d['slot'].toString();
 
     return Card(
       child: ListTile(
@@ -197,7 +212,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
               color: taken ? Brand.success : scheme.onSurfaceVariant),
         ),
         title: Row(children: [
-          Expanded(child: Text('${d['name']} · ${prn ? t.medAsNeededShort : d['slot']}')),
+          Expanded(child: Text('${d['name']} · $doseLabel')),
         ]),
         subtitle: subtitle.isEmpty ? null : Text(subtitle),
         trailing: taken
@@ -208,47 +223,61 @@ class _FamilyScreenState extends State<FamilyScreen> {
                 },
                 child: Text(t.medUndo))
             : Row(mainAxisSize: MainAxisSize.min, children: [
-                TextButton(
-                    onPressed: () async {
-                      await api.medicineTaken(d['medicine_id'], d['slot'], skipped: true);
-                      _load();
-                    },
-                    child: Text(t.medSkip)),
+                // PRN 'log another' row: just a logging action (no skip — PRN
+                // doses are not scheduled, so there's nothing to skip).
+                if (!prnLogAnother)
+                  TextButton(
+                      onPressed: () async {
+                        await api.medicineTaken(d['medicine_id'], d['slot'], skipped: true);
+                        _load();
+                      },
+                      child: Text(t.medSkip)),
                 FilledButton(
                     onPressed: () async {
                       await api.medicineTaken(d['medicine_id'], d['slot'], taken: true);
                       _load();
                     },
-                    child: Text(t.medTakeNow)),
+                    child: Text(prnLogAnother ? t.medLogAsNeeded : t.medTakeNow)),
               ]),
       ),
     );
   }
 
   // ---------------- MEDICINES ----------------
-  Future<void> _addMed() async {
-    final name = TextEditingController();
-    final dose = TextEditingController();
-    final times = TextEditingController(text: '08:00, 20:00');
-    final qty = TextEditingController(text: '1');
-    final stock = TextEditingController();
-    final duration = TextEditingController();
-    final refill = TextEditingController();
-    final repeat = TextEditingController(text: '15');
-    final retries = TextEditingController(text: '2');
-    final caregiverMin = TextEditingController(text: '30');
-    final quietStart = TextEditingController();
-    final quietEnd = TextEditingController();
-    String food = 'any';
-    bool prn = false;
-    int? memberId;
+  Future<void> _addMed({Map<String, dynamic>? existing}) async {
+    final editing = existing != null;
+    final name = TextEditingController(text: existing?['name']?.toString() ?? '');
+    final dose = TextEditingController(text: existing?['dosage']?.toString() ?? '');
+    final times = TextEditingController(
+        text: ((existing?['times'] as List?)?.join(', ')) ?? '08:00, 20:00');
+    final qty = TextEditingController(
+        text: existing?['dose_qty']?.toString() ?? '1');
+    final stock = TextEditingController(
+        text: existing?['stock_count']?.toString() ?? '');
+    final duration = TextEditingController(
+        text: existing?['duration_days']?.toString() ?? '');
+    final refill = TextEditingController(
+        text: existing?['refill_date']?.toString() ?? '');
+    final repeat = TextEditingController(
+        text: existing?['followup_repeat_min']?.toString() ?? '15');
+    final retries = TextEditingController(
+        text: existing?['followup_retries']?.toString() ?? '2');
+    final caregiverMin = TextEditingController(
+        text: existing?['caregiver_alert_min']?.toString() ?? '30');
+    final quietStart = TextEditingController(
+        text: existing?['quiet_start']?.toString() ?? '');
+    final quietEnd = TextEditingController(
+        text: existing?['quiet_end']?.toString() ?? '');
+    String food = existing?['food_relation']?.toString() ?? 'any';
+    bool prn = existing?['as_needed'] == true;
+    int? memberId = existing?['member'] as int?;
     final t = _t;
 
     final ok = await showDialog<bool>(
         context: context,
         builder: (ctx) => StatefulBuilder(
             builder: (ctx, setD) => AlertDialog(
-                  title: Text(t.familyAddMedicineTitle),
+                  title: Text(editing ? t.medEditMedicineTitle : t.familyAddMedicineTitle),
                   content: SingleChildScrollView(
                       child: Column(mainAxisSize: MainAxisSize.min, children: [
                     TextField(
@@ -362,24 +391,35 @@ class _FamilyScreenState extends State<FamilyScreen> {
       final slots = prn
           ? <String>[]
           : times.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
-      await context.read<AppState>().api.createItem('medicines', {
+      final body = <String, dynamic>{
         'name': name.text.trim(),
         'dosage': dose.text.trim(),
         'times': slots,
         'as_needed': prn,
         'food_relation': food,
         'dose_qty': qty.text.trim().isEmpty ? '1' : qty.text.trim(),
-        if (memberId != null) 'member': memberId,
-        if (stock.text.trim().isNotEmpty) 'stock_count': int.tryParse(stock.text.trim()),
-        if (duration.text.trim().isNotEmpty)
-          'duration_days': int.tryParse(duration.text.trim()),
-        if (refill.text.trim().isNotEmpty) 'refill_date': refill.text.trim(),
+        // send member on edit too so it can be cleared/changed
+        'member': memberId,
+        // clearable: send the key even when empty so the server unsets it
+        'stock_count':
+            stock.text.trim().isEmpty ? null : num.tryParse(stock.text.trim()),
+        'duration_days': duration.text.trim().isEmpty
+            ? null
+            : int.tryParse(duration.text.trim()),
+        'refill_date': refill.text.trim().isEmpty ? null : refill.text.trim(),
         'followup_repeat_min': int.tryParse(repeat.text.trim()) ?? 15,
         'followup_retries': int.tryParse(retries.text.trim()) ?? 2,
         'caregiver_alert_min': int.tryParse(caregiverMin.text.trim()) ?? 30,
         'quiet_start': quietStart.text.trim(),
         'quiet_end': quietEnd.text.trim(),
-      });
+      };
+      final api = context.read<AppState>().api;
+      // Editing keeps the MedicineLog history (delete would cascade it away).
+      if (editing) {
+        await api.updateItem('medicines', existing['id'] as int, body);
+      } else {
+        await api.createItem('medicines', body);
+      }
       _load();
     }
   }
@@ -504,6 +544,10 @@ class _FamilyScreenState extends State<FamilyScreen> {
                                 ? Brand.warning
                                 : Brand.danger)),
               IconButton(
+                  icon: const Icon(Icons.edit_outlined),
+                  tooltip: t.edit,
+                  onPressed: () => _addMed(existing: m)),
+              IconButton(
                   icon: const Icon(Icons.delete_outline),
                   onPressed: () async {
                     await context.read<AppState>().api.deleteItem('medicines', m['id']);
@@ -516,6 +560,17 @@ class _FamilyScreenState extends State<FamilyScreen> {
                 Icon(Icons.inventory_2_outlined, size: 16, color: stockColor),
                 const SizedBox(width: Gap.xs),
                 Text(stockText, style: TextStyle(color: stockColor)),
+              ]),
+            ],
+            if ((m['predicted_refill'] ?? '').toString().isNotEmpty) ...[
+              const SizedBox(height: Gap.xs),
+              Row(children: [
+                Icon(Icons.event_repeat_outlined,
+                    size: 16, color: scheme.onSurfaceVariant),
+                const SizedBox(width: Gap.xs),
+                Text(t.medPredictedRefill(m['predicted_refill'].toString()),
+                    style: TextStyle(
+                        fontSize: 13, color: scheme.onSurfaceVariant)),
               ]),
             ],
             const SizedBox(height: Gap.xs),
@@ -690,20 +745,28 @@ class _FamilyScreenState extends State<FamilyScreen> {
   }
 
   // ---------------- PRESCRIPTIONS ----------------
-  Future<void> _addPrescription() async {
+  Future<void> _addPrescription({Map<String, dynamic>? existing}) async {
     final t = _t;
-    final doctorName = TextEditingController();
-    final diagnosis = TextEditingController();
-    final date = TextEditingController();
-    final medsText = TextEditingController();
-    int? doctorId;
-    int? memberId;
+    final editing = existing != null;
+    final doctorName =
+        TextEditingController(text: existing?['doctor_name']?.toString() ?? '');
+    final diagnosis =
+        TextEditingController(text: existing?['diagnosis']?.toString() ?? '');
+    final date = TextEditingController(text: existing?['date']?.toString() ?? '');
+    final medsText = TextEditingController(
+        text: ((existing?['meds'] as List?)
+                ?.map((m) => (m is Map ? (m['name'] ?? '') : m).toString())
+                .where((e) => e.isNotEmpty)
+                .join('\n')) ??
+            '');
+    int? doctorId = existing?['doctor'] as int?;
+    int? memberId = existing?['member'] as int?;
 
     final ok = await showDialog<bool>(
         context: context,
         builder: (ctx) => StatefulBuilder(
             builder: (ctx, setD) => AlertDialog(
-                  title: Text(t.medAddPrescription),
+                  title: Text(editing ? t.medEditPrescription : t.medAddPrescription),
                   content: SingleChildScrollView(
                       child: Column(mainAxisSize: MainAxisSize.min, children: [
                     if (doctors.isNotEmpty)
@@ -758,29 +821,38 @@ class _FamilyScreenState extends State<FamilyScreen> {
           .where((e) => e.isNotEmpty)
           .map((e) => {'name': e})
           .toList();
-      await context.read<AppState>().api.createItem('prescriptions', {
-        if (doctorId != null) 'doctor': doctorId,
+      final body = <String, dynamic>{
+        'doctor': doctorId,
         if (doctorId == null && doctorName.text.trim().isNotEmpty)
           'doctor_name': doctorName.text.trim(),
-        if (memberId != null) 'member': memberId,
-        if (date.text.trim().isNotEmpty) 'date': date.text.trim(),
+        'member': memberId,
+        'date': date.text.trim().isEmpty ? null : date.text.trim(),
         'diagnosis': diagnosis.text.trim(),
         'meds': medsList,
-      });
+      };
+      final api = context.read<AppState>().api;
+      if (editing) {
+        await api.updateItem('prescriptions', existing['id'] as int, body);
+      } else {
+        await api.createItem('prescriptions', body);
+      }
       _load();
     }
   }
 
-  Future<void> _addDoctor() async {
+  Future<void> _addDoctor({Map<String, dynamic>? existing}) async {
     final t = _t;
-    final name = TextEditingController();
-    final specialty = TextEditingController();
-    final hospital = TextEditingController();
-    final phone = TextEditingController();
+    final editing = existing != null;
+    final name = TextEditingController(text: existing?['name']?.toString() ?? '');
+    final specialty =
+        TextEditingController(text: existing?['specialty']?.toString() ?? '');
+    final hospital =
+        TextEditingController(text: existing?['hospital']?.toString() ?? '');
+    final phone = TextEditingController(text: existing?['phone']?.toString() ?? '');
     final ok = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-              title: Text(t.medAddDoctor),
+              title: Text(editing ? t.medEditDoctor : t.medAddDoctor),
               content: Column(mainAxisSize: MainAxisSize.min, children: [
                 TextField(
                     controller: name,
@@ -804,12 +876,18 @@ class _FamilyScreenState extends State<FamilyScreen> {
               ],
             ));
     if (ok == true && name.text.trim().isNotEmpty) {
-      await context.read<AppState>().api.createItem('doctors', {
+      final body = {
         'name': name.text.trim(),
         'specialty': specialty.text.trim(),
         'hospital': hospital.text.trim(),
         'phone': phone.text.trim(),
-      });
+      };
+      final api = context.read<AppState>().api;
+      if (editing) {
+        await api.updateItem('doctors', existing['id'] as int, body);
+      } else {
+        await api.createItem('doctors', body);
+      }
       _load();
     }
   }
@@ -870,6 +948,10 @@ class _FamilyScreenState extends State<FamilyScreen> {
                 Text(p['date'].toString(),
                     style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
               IconButton(
+                  icon: const Icon(Icons.edit_outlined),
+                  tooltip: t.edit,
+                  onPressed: () => _addPrescription(existing: p)),
+              IconButton(
                   icon: const Icon(Icons.delete_outline),
                   onPressed: () async {
                     await context.read<AppState>().api.deleteItem('prescriptions', p['id']);
@@ -897,15 +979,16 @@ class _FamilyScreenState extends State<FamilyScreen> {
   }
 
   // ---------------- FAMILY MEMBERS ----------------
-  Future<void> _addMember() async {
+  Future<void> _addMember({Map<String, dynamic>? existing}) async {
     final t = _t;
-    final name = TextEditingController();
-    final rel = TextEditingController();
-    final phone = TextEditingController();
+    final editing = existing != null;
+    final name = TextEditingController(text: existing?['name']?.toString() ?? '');
+    final rel = TextEditingController(text: existing?['relation']?.toString() ?? '');
+    final phone = TextEditingController(text: existing?['phone']?.toString() ?? '');
     final ok = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-              title: Text(t.familyMemberTitle),
+              title: Text(editing ? t.medEditMember : t.familyMemberTitle),
               content: Column(mainAxisSize: MainAxisSize.min, children: [
                 TextField(controller: name, decoration: InputDecoration(labelText: t.name)),
                 TextField(
@@ -924,11 +1007,17 @@ class _FamilyScreenState extends State<FamilyScreen> {
               ],
             ));
     if (ok == true && name.text.trim().isNotEmpty) {
-      await context.read<AppState>().api.createItem('family', {
+      final body = {
         'name': name.text.trim(),
         'relation': rel.text.trim(),
         'phone': phone.text.trim()
-      });
+      };
+      final api = context.read<AppState>().api;
+      if (editing) {
+        await api.updateItem('family', existing['id'] as int, body);
+      } else {
+        await api.createItem('family', body);
+      }
       _load();
     }
   }
@@ -951,12 +1040,18 @@ class _FamilyScreenState extends State<FamilyScreen> {
                     subtitle: Text([(m['relation'] ?? ''), (m['phone'] ?? '')]
                         .where((e) => e.toString().isNotEmpty)
                         .join(' · ')),
-                    trailing: IconButton(
-                        icon: const Icon(Icons.delete_outline),
-                        onPressed: () async {
-                          await context.read<AppState>().api.deleteItem('family', m['id']);
-                          _load();
-                        }),
+                    trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                      IconButton(
+                          icon: const Icon(Icons.edit_outlined),
+                          tooltip: t.edit,
+                          onPressed: () => _addMember(existing: m)),
+                      IconButton(
+                          icon: const Icon(Icons.delete_outline),
+                          onPressed: () async {
+                            await context.read<AppState>().api.deleteItem('family', m['id']);
+                            _load();
+                          }),
+                    ]),
                   )),
               ]),
     );
