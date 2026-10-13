@@ -21,6 +21,14 @@
 ### Phase B disk + worktree protocol (owner DISK GUARD)
 Shared disk w/ LIVE Asalify; floor 8 GB, soft 8.5 GB. `bin/disk_guard.sh` before any worktree: cleanup if <8.5, refuse/reduce if <8. **No flutter build/pub get/test inside agent worktrees** — agents edit code only; the **integrator builds in the main tree** then `cleanup.sh`. Share one pub cache. Delete each worktree + its build dirs right after merging. Never touch Asalify or /home/ubuntu/asalify_backups/.
 
+
+### Phase B IN PROGRESS (3 agents, main-tree, code-only — integrator builds)
+- Agent 1 **Medicine & family care** (a34f0b07) — owns family_screen + new medicine widgets/screens + backend medicine models/logic/tests; commits when done.
+- Agent 2 **My Account / money** (a8ca5f4e) — owns money_screen + new money_*.dart + backend/core/logic/money_parse.py + money_engine.py (notif parser, recurring, split, loans w/ partial repay, budgets w/ rollover, trends, net worth, reports). Hands integrator: ARB keys, api methods, model fields, endpoints, fake_api. No git/migrations.
+- Agent 3 **AI CRM Axon Dynamics** (abad6efc) — owns backend/crm/* (models/views/urls/serializers/templates/static/logic) web app: pipelines/kanban, custom fields, dedup/merge, CSV/Excel, activities timeline, follow-up engine, lead scoring+reasons, proposal PDF (prices TO REVIEW BY OWNER), reports, roles, 30-day scenario. No git/migrations.
+- **Integrator (me) only**: shared files (core models.py/urls.py/views.py/serializers, app_drawer, ARB, api.dart, fake_api, settings, main.dart), migrations (DB backup first, one at a time), flutter analyze+gate+tests, gallery, per-module APK, cleanup after each build. Premium reviewer (separate agent) grades each module vs benchmark before "advanced".
+- **Stop-hook: BLOCKED by safety classifier** (self-modifying startup config / human-oversight). `bin/stop_guard.sh` built + tested (blocks normally; allows on .run_complete/.pause/.usage_limit/safety-valve 30-per-15min; logs to logs/stop_guard.log) — owner must wire it via /hooks or settings.json; watchdog remains the backup never-stop.
+
 ## 🧭 লাইভ রিজিউম-চেকলিস্ট (ফেজ ক্রম)
 
 - [x] **STEP 1** — সম্পূর্ণ ফিচার ম্যাট্রিক্স (নিচে) + এই চেকলিস্ট + "Decisions I made"
