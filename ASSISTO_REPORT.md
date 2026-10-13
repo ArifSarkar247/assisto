@@ -64,7 +64,7 @@ P10🔨 সব Android ফোন(8–15, 320/360/412+tablet, OEM battery guidanc
 
 Assisto এখন **লাইভ**: `https://assisto.asalify.com` — ৪টি ফ্রি ওয়েব টুল (লগইন ছাড়া) + একটি পূর্ণ **Android অ্যাপ** (ব্যাকএন্ড Django+PostgreSQL)। Asalify-র ১২টি টেন্যান্ট প্রতিটি ডিপ্লয়ের আগে-পরে যাচাই করা হয়েছে — **কোনো প্রভাব পড়েনি**।
 
-### 📱 সর্বশেষ APK (build 33): https://assisto.asalify.com/dl/FVa_s_zEeF0PbsRzuJGI_1Wn/assisto-part7-build33.apk
+### 📱 সর্বশেষ APK (build 43): https://assisto.asalify.com/dl/_r25tNmy08x7gFred_dv3LoX/assisto-part7-build43.apk
 লিংক খুলুন → ইনস্টল। একবার ইনস্টল করলে অ্যাপই "নতুন আপডেট আছে" দেখাবে — লিংক আর খুঁজতে হবে না। স্থায়ী কি দিয়ে সাইনড (আপডেট আন-ইনস্টল ছাড়াই বসে)।
 
 ---
@@ -297,4 +297,5 @@ V1 test APKs are **debug-signed** (installable now). Before Play Store we will g
 - ✅ api.dart methods for all P1–P9 endpoints + CRM.
 - ✅ Screens built+wired to drawer: Plans/Credits, Finance tools (zakat/EMI/net-worth/invest), Watch feed, Nearby (GPS), voice action-cards (music/navigate/call/nearby deep-links).
 - ✅ Batch 4: Agent Studio screen; Settings → Safety (accident/fall detection, configurable countdown 30s–10min) + medicine follow-up config (backend); accident/followup matrix corrected per owner.
+- ✅ **Build 43 লাইভ** (P10 interim): Plans/Finance/Watch/Nearby/voice-cards/Agent-Studio/Safety-settings সব অ্যাপে।
 - 🔨 Next P10 screens: Personal CRM (contacts/meetings), Business (catalog/orders/replies), Job hunter, Nominee, Govt guide, AI Inbox, Agent Studio; Android OEM battery-guidance + runtime-permission reason dialogs + responsive 320/360/412; then screenshot gallery + APK build.
