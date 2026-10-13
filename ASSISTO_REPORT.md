@@ -53,7 +53,10 @@ Shared disk w/ LIVE Asalify; floor 8 GB, soft 8.5 GB. `bin/disk_guard.sh` before
 - Build 58 shipping (ship4). Each agent hands ARB/api/model/endpoint/fake_api lists → integrator wires shared files + migrates + builds + reviewer per module.
 - NEXT round: module 5 (P13+ additions). Then P13-P16, P11 iOS, P12 FINAL.
 
-### ✅ Phase B ROUND-2 INTEGRATED + DEPLOYED (build 59 shipping)
+### ✅ Phase B ROUND-2 COMPLETE — build 59 LIVE + gallery
+APK: https://assisto.asalify.com/dl/zsUQT7bgXLj4zzAQbGFjiVQj/assisto-part7-build59.apk · Gallery (43 screens, 162 renders, bn/en): https://assisto.asalify.com/dl/shots-9jsQrCz_ENk/index.html · backend deployed (localized /plans, Asalify 200). NOTE ops: publish-apk cleanup deletes screenshots/ — render gallery AFTER publish, not concurrently.
+
+### Phase B ROUND-2 (detail)
 All 4 modules reviewer-passed→fixed→wired→GREEN (commit f7c49d1): plans/onboarding/grouped-sidebar/open-from-chat, vault/scam/safety (advanced), reminders/memory NL-engine (advanced, Dart↔Python golden parity), **CRM in-app Sales CRM** (advanced; Contacts renamed; Won/Lost close backing Deal + mandatory reason + audit; in-app quote builder; multi-tenant airtight — security-reviewed no IDOR). Integrator wired api methods + core migration 0018 (Reminder recurrence_rule/date_only/link, Document.details, SafetyCheckin, FamilyAlert) + crm migration 0003 (Lead fields) + endpoints (scam/library+report, safety/checkin, reminders/parse, memory/search, /plans localized, AgentView route) + grouped collapsible sidebar w/ search + Contacts/Sales CRM + open-from-chat. ARB 887 balanced, flutter analyze 0 errors, **lang gate CLEAN**, **90/90 backend tests**, crm_scenario PASS, 2 DB backups taken, service redeployed (health 200, /plans localized, Asalify 200). Known: 2 subscriptions_loading gallery shots flake (pre-existing FakeMode.slow teardown).
 NEXT: module 5 — P13+ additions (Connected Circle E2E; health tips; medicine DB lawful-source; birthdays; meetings; dictionary open-license; photo enhance; Unseen World; ride/food deep-links; Ramadan; exam-day; password reset; analytics; legal; name check). Then P11 iOS, P12 FINAL.
 
