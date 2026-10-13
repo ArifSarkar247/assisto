@@ -7,3 +7,9 @@ Endpoints (views+urls, req_lang): see agent table — health_tips.library/emerge
 fake_api: healthTips/healthEmergencyCheck/medicineDbSearch/medicineDbLookup/birthdaysList/birthdayCreate/birthdayDelete/birthdayDrafts stubs (bn/en) — see agent report.
 drawer Health section: MedicineDbScreen (t.medicineDbTitle, replace placeholder Medicines→FamilyScreen), HealthTipsScreen (t.healthTipsTitle), BirthdaysScreen (t.birthdaysTitle); keep Reminders+Scam. + ChatNav.
 Licensing: tips DGHS/WHO source-named never-diagnose; medicine DB DGDA-sample-only never DIMS/MedEx + switch-warning every record+alt + needs-data state; birthdays drafts never auto-send. PENDING reviewer.
+
+## HEALTH REVIEWER = GOOD(A-), no P0 → fixes:
+- P1 health_tips.py:265 emergency_check naive substring → WORD/TOKEN BOUNDARY match. Bangla "বিষ" matches "বিষয়"(topic)→false 999; English "stroke"⊂"strokeplay". Replace 3-char বিষ with phrase (বিষ খেয়েছে/বিষপান); Latin terms \b-bounded. Add regression tests.
+- P2 medicine_db.py set_source(DGDA) flips is_sample=False while _RECORDS still sample → only flip when real feed replaces _RECORDS (startup assertion).
+- P2 birthdays.py:101 turning_age negative for future birth-year (picker allows future) → clamp max(0,..) or reject future.
+- P3 dead medicineDbLookup (wire detail-tap or drop); short-query search min-length; show SAMPLE badge in intro state too.
