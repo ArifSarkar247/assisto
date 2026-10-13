@@ -310,3 +310,11 @@ class FinanceP6Tests(TestCase):
         r = finance.invest_projection(principal=10000, annual_rate_pct=10, years=1)
         self.assertTrue(r["estimate"])
         self.assertGreater(float(r["future_value"]), 10000)
+
+
+class InboxP6Tests(TestCase):
+    def test_triage_rules(self):
+        from core.views import classify_inbox_item
+        self.assertEqual(classify_inbox_item("URGENT: payment failed", ""), "red")
+        self.assertEqual(classify_inbox_item("Meeting reminder", "please reply"), "yellow")
+        self.assertEqual(classify_inbox_item("Newsletter", "monthly update"), "green")

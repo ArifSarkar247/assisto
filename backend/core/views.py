@@ -1132,3 +1132,72 @@ def autopay_stop_all(request):
     n = AutoPayRule.objects.filter(user=request.user).update(enabled=False)
     log(request.user, "autopay.stop_all", n=n)
     return Response({"stopped": n})
+
+
+# ---------- Agent Studio (feature 32) ----------
+_STUDIO_TASKS = {
+    "letter": "ব্যবহারকারীর অনুরোধ অনুযায়ী একটি পেশাদার বাংলা চিঠি লেখো।",
+    "cv": "ব্যবহারকারীর তথ্য দিয়ে একটি পরিষ্কার CV বুলেট-পয়েন্টে লেখো।",
+    "caption": "ব্যবহারকারীর বিষয় অনুযায়ী ছোট আকর্ষণীয় সোশ্যাল ক্যাপশন (৩টি অপশন) লেখো।",
+    "excel": "ব্যবহারকারীর বর্ণনা অনুযায়ী সঠিক Excel/Google Sheets ফর্মুলা দাও, সংক্ষেপে বুঝিয়ে।",
+    "email": "ব্যবহারকারীর অনুরোধ অনুযায়ী একটি সংক্ষিপ্ত, ভদ্র ইমেইল খসড়া লেখো।",
+}
+
+
+class AgentStudioView(APIView):
+    """Generate an original document (letter/CV/caption/Excel formula/email).
+    Needs an AI key → clean needs-key state otherwise."""
+    def post(self, request):
+        kind = request.data.get("kind", "letter")
+        prompt = (request.data.get("prompt") or "").strip()
+        if not prompt:
+            return Response({"detail": "prompt required"}, status=400)
+        if not ai.available():
+            return Response({"needs_key": True,
+                             "msg": "চালু হবে যখন AI key যোগ হবে / Available when an AI key is added"})
+        task = _STUDIO_TASKS.get(kind, _STUDIO_TASKS["letter"])
+        try:
+            text, _ = ai.generate(task=task, data=prompt, tier="medium",
+                                   feature=f"studio.{kind}", max_tokens=900, user=request.user)
+            return Response({"kind": kind, "text": text, "ai_used": True})
+        except ai.AIUnavailable as e:
+            return Response({"needs_key": e.reason == "no_key", "reason": e.reason,
+                             "msg": "এখন পারলাম না — একটু পরে / try again shortly"})
+
+
+# ---------- AI Inbox (feature 22) — classify red/yellow/green ----------
+def classify_inbox_item(subject, snippet):
+    """Rule-based triage (works without AI); red=urgent/action, yellow=reply
+    soon, green=fyi. AI can refine when a key + Gmail are connected."""
+    s = f"{subject} {snippet}".lower()
+    red = ["urgent", "asap", "overdue", "due today", "payment failed", "suspended",
+           "action required", "জরুরি", "আজকের মধ্যে", "বকেয়া", "বন্ধ"]
+    yellow = ["reply", "response needed", "waiting", "reminder", "follow up",
+              "invoice", "meeting", "উত্তর", "মিটিং", "রিমাইন্ডার"]
+    if any(w in s for w in red):
+        return "red"
+    if any(w in s for w in yellow):
+        return "yellow"
+    return "green"
+
+
+class InboxView(APIView):
+    """AI Inbox. Fetching email needs Gmail OAuth (🔑); this returns the clean
+    'Available when ___' state until connected, plus the classifier for items
+    the app passes in."""
+    def get(self, request):
+        from . import integrations
+        connected = integrations.is_enabled("google_oauth")
+        return Response({
+            "connected": connected,
+            "msg": None if connected else
+            "চালু হবে যখন Gmail যোগ হবে / Available when Gmail is connected",
+            "legend": {"red": "জরুরি/অ্যাকশন", "yellow": "শীঘ্রই উত্তর", "green": "তথ্য"},
+        })
+
+    def post(self, request):
+        items = request.data.get("items", []) or []
+        out = [{**it, "triage": classify_inbox_item(it.get("subject", ""),
+                                                     it.get("snippet", ""))}
+               for it in items[:100]]
+        return Response({"items": out})

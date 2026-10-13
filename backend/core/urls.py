@@ -72,6 +72,8 @@ urlpatterns = [
     path("guides", views.govt_guide),
     path("me/elderly", views.ElderlyModeView.as_view()),
     path("autopay/stop-all", views.autopay_stop_all),
+    path("studio", views.AgentStudioView.as_view()),
+    path("inbox", views.InboxView.as_view()),
 ]
 
 urlpatterns += router.urls
