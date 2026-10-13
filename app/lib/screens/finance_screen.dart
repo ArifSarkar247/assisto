@@ -31,19 +31,19 @@ class _FinanceScreenState extends State<FinanceScreen> {
         ),
         body: TabBarView(children: [
           _NetWorthTab(t: t),
-          _CalcTab(tool: 'zakat', t: t, fields: const [
-            ('cash', 'নগদ / Cash'), ('gold_value', 'স্বর্ণের দাম / Gold value'),
-            ('silver_value', 'রূপার দাম / Silver value'),
-            ('investments', 'বিনিয়োগ / Investments'),
-            ('debts', 'ঋণ / Debts'), ('nisab', 'নিসাব / Nisab')
-          ], resultKeys: const [('zakatable', 'জাকাতযোগ্য / Zakatable'), ('zakat_due', 'যাকাত / Zakat due')]),
-          _CalcTab(tool: 'emi', t: t, fields: const [
-            ('principal', 'মূল / Principal'), ('rate', 'সুদ %/yr'), ('months', 'মাস / Months')
-          ], resultKeys: const [('emi', 'মাসিক EMI'), ('total', 'মোট / Total'), ('interest', 'সুদ / Interest')]),
-          _CalcTab(tool: 'invest', t: t, fields: const [
-            ('principal', 'মূল / Principal'), ('rate', 'রিটার্ন %/yr'),
-            ('years', 'বছর / Years'), ('monthly_add', 'মাসিক যোগ / Monthly add')
-          ], resultKeys: const [('future_value', 'ভবিষ্যৎ মূল্য (আনুমানিক) / Future value (est.)')]),
+          _CalcTab(tool: 'zakat', t: t, fields: [
+            ('cash', AppLocalizations.of(context).moneyAccTypeCash), ('gold_value', AppLocalizations.of(context).financeFieldGoldValue),
+            ('silver_value', AppLocalizations.of(context).financeFieldSilverValue),
+            ('investments', AppLocalizations.of(context).financeFieldInvestments),
+            ('debts', AppLocalizations.of(context).financeFieldDebts), ('nisab', AppLocalizations.of(context).financeFieldNisab)
+          ], resultKeys: [('zakatable', AppLocalizations.of(context).financeResultZakatable), ('zakat_due', AppLocalizations.of(context).financeResultZakatDue)]),
+          _CalcTab(tool: 'emi', t: t, fields: [
+            ('principal', AppLocalizations.of(context).financeFieldPrincipal), ('rate', AppLocalizations.of(context).financeFieldInterestRate), ('months', AppLocalizations.of(context).financeFieldMonths)
+          ], resultKeys: [('emi', AppLocalizations.of(context).financeResultMonthlyEmi), ('total', AppLocalizations.of(context).financeResultTotal), ('interest', AppLocalizations.of(context).financeResultInterest)]),
+          _CalcTab(tool: 'invest', t: t, fields: [
+            ('principal', AppLocalizations.of(context).financeFieldPrincipal), ('rate', AppLocalizations.of(context).financeFieldReturnRate),
+            ('years', AppLocalizations.of(context).financeFieldYears), ('monthly_add', AppLocalizations.of(context).financeFieldMonthlyAdd)
+          ], resultKeys: [('future_value', AppLocalizations.of(context).financeResultFutureValue)]),
         ]),
       ),
     );

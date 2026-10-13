@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -34,7 +35,7 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
               ),
             ),
             const SizedBox(height: Gap.xl),
-            Text('আপনার ভাষা বেছে নিন',
+            Text(AppLocalizations.of(context).chooseLanguage,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: Gap.xs),
@@ -42,19 +43,19 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(color: scheme.onSurfaceVariant)),
             const SizedBox(height: Gap.xl),
-            _option('bn', 'বাংলা', 'Bangla'),
+            _option('bn', AppLocalizations.of(context).langPickBangla, 'Bangla'),
             const SizedBox(height: Gap.md),
-            _option('en', 'English', 'ইংরেজি'),
+            _option('en', 'English', AppLocalizations.of(context).languageEnglish),
             const Spacer(),
             FilledButton(
               onPressed: () =>
                   context.read<AppState>().setLocale(Locale(_code)),
-              child: Text(_code == 'bn' ? 'এগিয়ে যান' : 'Continue'),
+              child: Text(_code == 'bn' ? AppLocalizations.of(context).continueWord : 'Continue'),
             ),
             const SizedBox(height: Gap.xs),
             Text(
               _code == 'bn'
-                  ? 'পরে সেটিংস থেকে বদলাতে পারবেন।'
+                  ? AppLocalizations.of(context).chooseLanguageSub
                   : 'You can change this later in Settings.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),

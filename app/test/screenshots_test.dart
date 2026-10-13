@@ -140,7 +140,7 @@ void main() {
     'notes_tasks': (build: (_) => const NotesTodosScreen(), mode: FakeMode.data, full: true),
     'memory': (build: (_) => const MemoryScreen(), mode: FakeMode.data, full: true),
     'subscriptions': (build: (_) => const SubscriptionsScreen(), mode: FakeMode.data, full: true),
-    'connected_apps': (build: (_) => const SourcesScreen(), mode: FakeMode.data, full: true),
+    'connected_apps': (build: (_) => SourcesScreen(), mode: FakeMode.data, full: true),
     'in_progress': (build: (_) => const InProgressScreen(), mode: FakeMode.data, full: true),
     'settings': (build: (_) => const SettingsScreen(), mode: FakeMode.data, full: true),
     'plans': (build: (_) => const PlansScreen(), mode: FakeMode.data, full: true),

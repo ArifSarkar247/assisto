@@ -7,6 +7,85 @@
       }
     }
   },
+  "@emergencySosConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      },
+      "phone": {
+        "type": "Object"
+      }
+    }
+  },
+  "@exportFailed": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "@failed": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "@familyRefillValue": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      }
+    }
+  },
+  "@loadFailedOffline": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "@moneyOpeningBalanceLabel": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "@moneyReminderGivenMsg": {
+    "placeholders": {
+      "person": {
+        "type": "Object"
+      },
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "@moneyReminderTakenMsg": {
+    "placeholders": {
+      "person": {
+        "type": "Object"
+      },
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "@peopleJoinedCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "@savedToPath": {
+    "placeholders": {
+      "path": {
+        "type": "Object"
+      }
+    }
+  },
   "@scopeValue": {
     "placeholders": {
       "v": {
@@ -17,6 +96,23 @@
   "@timeToRespondValue": {
     "placeholders": {
       "label": {
+        "type": "Object"
+      }
+    }
+  },
+  "@vaultExpiresInDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "@versionServer": {
+    "placeholders": {
+      "version": {
+        "type": "Object"
+      },
+      "server": {
         "type": "Object"
       }
     }
@@ -45,20 +141,57 @@
   "approve": "Approve",
   "assets": "Assets",
   "assistantSubtitle": "Your assistant",
+  "auditEmpty": "No activity yet.",
+  "auditLogTile": "What the agent did (audit log)",
+  "auditScreenTitle": "What the agent did",
+  "autonomyApproveDesc": "Gets it ready, runs with a single approval",
+  "autonomyApproveTitle": "Do it with approval",
+  "autonomyAutoDesc": "Automatic for this specific task (never for money or external actions)",
+  "autonomyAutoTitle": "Do it automatically",
+  "autonomyDialHint": "You decide how much the AI does on its own.",
+  "autonomyDialTitle": "Autonomy level",
+  "autonomyRemindOnlyDesc": "Always asks before doing anything",
+  "autonomyRemindOnlyTitle": "Just remind me",
+  "autonomySuggestDesc": "Prepares the task, you tap to run it",
+  "autonomySuggestTitle": "Suggest actions",
   "availableWhenAnAiKey": "Available when an AI key is added (Integrations).",
   "availableWhenAnAiKey2": "Available when an AI key is added.",
   "availableWhenGmailIsConnected": "Available when Gmail is connected (Integrations).",
+  "batteryBrandGeneric": "General",
+  "batteryGenericStep1": "Settings → Apps → Assisto → Battery → set to \"Unrestricted\".",
+  "batteryGenericStep3": "Keep notification permission enabled.",
+  "batteryOneplusStep1": "Settings → Battery → Battery optimization → Assisto → \"Don't optimize\".",
+  "batteryOneplusStep2": "Settings → Apps → Assisto → Battery → Allow background.",
+  "batteryOppoStep1": "Settings → Battery → Assisto → Allow background activity + \"Don't optimize\".",
+  "batteryOppoStep2": "Startup Manager / Auto startup → turn on Assisto.",
+  "batteryOppoStep3": "Lock Assisto in Floating/Recent.",
+  "batteryRealmeStep1": "Settings → Battery → Assisto → Allow background activity, \"Don't optimize\".",
+  "batteryRealmeStep2": "Settings → Apps → Auto-launch → turn on Assisto.",
+  "batteryRealmeStep3": "Lock Assisto in Recent apps.",
+  "batterySamsungStep1": "Settings → Apps → Assisto → Battery → \"Unrestricted\".",
+  "batterySamsungStep2": "Settings → Battery → Background usage limits → make sure Assisto is not set to \"Sleeping/Deep sleeping\".",
+  "batterySamsungStep3": "Device care → Battery → make sure Assisto is not restricted.",
+  "batteryVivoStep1": "Settings → Battery → High background power consumption → allow Assisto.",
+  "batteryVivoStep3": "iManager → App manager → Autostart.",
+  "batteryXiaomiStep1": "Settings → Apps → Manage apps → Assisto → Battery saver → \"No restrictions\".",
+  "batteryXiaomiStep2": "Autostart → turn on Assisto.",
+  "batteryXiaomiStep3": "Lock Assisto in Recent apps so it isn't closed.",
+  "bugSegment": "Problem",
   "business": "Business",
   "calculate": "Calculate",
   "call": "Call",
+  "camera": "Camera",
   "cancel": "Cancel",
   "caption": "Caption",
   "careForFamily": "Care for family",
   "catalog": "Catalog",
   "changes": "Changes",
+  "checkInternetRetry": "Check your internet and try again.",
   "chooseLanguage": "Choose your language",
   "chooseLanguageSub": "You can change this later in Settings.",
   "close": "Close",
+  "commonDeleted": "Deleted",
+  "commonVerify": "Check",
   "company": "Company",
   "connectedApps": "Connected apps",
   "contact": "Contact",
@@ -75,12 +208,87 @@
   "dataIsNeverSoldIt": "Data is never sold; it asks before acting; works offline too.",
   "decline": "Decline",
   "delete": "Delete",
+  "deleteAccountConfirmBody": "All your data (memory, audit log) will be permanently deleted. This cannot be undone.",
+  "deleteAccountConfirmTitle": "Delete account?",
+  "deleteAccountTile": "Delete account and all data",
+  "docTypeCertificate": "Certificate",
+  "docTypeLicence": "Driving licence",
+  "docTypeOther": "Other",
+  "docTypePassport": "Passport",
   "edit": "Edit",
   "emailOptional": "Email (optional)",
+  "emergencyAddContactFirst": "Add an emergency contact first.",
+  "emergencyAllergies": "Allergies",
+  "emergencyBloodGroup": "Blood group",
   "emergencyCard": "Emergency card",
+  "emergencyConditions": "Conditions",
+  "emergencyContactTitle": "Emergency contact",
+  "emergencyFooterNote": "This information helps in an emergency. SOS only calls when you tap it — never on its own.",
+  "emergencyMedicines": "Regular medications",
+  "emergencyNo": "No",
+  "emergencySaved": "Saved",
+  "emergencySosButton": "SOS — Emergency call",
+  "emergencySosConfirm": "Call {name} ({phone})?",
+  "exportDataSubtitle": "All your information as JSON",
+  "exportDataTile": "Export my data",
+  "exportDialogTitle": "Export your data",
+  "exportExcelTile": "Export to Excel",
+  "exportFailed": "Export failed: {error}",
+  "exportPdfTile": "Export to PDF",
+  "failed": "Failed: {error}",
+  "familyAddMedicineTitle": "Add Medicine",
+  "familyAddMedicinesEmpty": "Add a medicine.",
+  "familyAddMemberEmpty": "Add a family member.",
+  "familyAddSchoolEmpty": "Add fees, exams, and meetings.",
+  "familyCareTitle": "Family Care",
+  "familyCaregiverAlertLabel": "Minutes before notifying the child (default 30)",
+  "familyCheckToConfirm": "Check \"Taken\" to confirm.",
+  "familyChildNameLabel": "Child's name",
+  "familyDateLabel": "Date (YYYY-MM-DD)",
+  "familyDescriptionLabel": "Description",
+  "familyDosageLabel": "Dosage (e.g. 1 tablet)",
+  "familyFollowupRepeatLabel": "Minutes before repeating if not confirmed (default 15)",
+  "familyFollowupRetriesLabel": "How many times to remind again (default 2)",
+  "familyKindExam": "Exam",
+  "familyKindFee": "Fee",
+  "familyKindMeeting": "Meeting",
+  "familyMedicineNameLabel": "Medicine name *",
+  "familyMemberTitle": "Family Member",
+  "familyNoDosesToday": "No medicine doses today.\nAdd them in the Medicines tab.",
+  "familyQuietEndLabel": "Quiet end (07:00)",
+  "familyQuietStartLabel": "Quiet start (22:00)",
+  "familyRefillDateLabel": "Refill date (YYYY-MM-DD, optional)",
+  "familyRefillValue": "Refill: {date}",
+  "familyRelationLabel": "Relationship",
+  "familyReminderFollowupHeading": "Reminder follow-up",
+  "familyScamCheckTooltip": "Scam check",
+  "familyScamCheckerTitle": "Scam Checker",
+  "familyScamPasteHint": "Paste the suspicious message",
+  "familySchoolTitle": "School",
+  "familyTabMedicines": "Medicines",
+  "familyTabToday": "Today's Medicines",
+  "familyTimesLabel": "Times (HH:MM, comma-separated)",
+  "financeFieldDebts": "Debts",
+  "financeFieldGoldValue": "Gold value",
+  "financeFieldInterestRate": "Interest %/yr",
+  "financeFieldInvestments": "Investments",
+  "financeFieldMonthlyAdd": "Monthly add",
+  "financeFieldMonths": "Months",
+  "financeFieldNisab": "Nisab",
+  "financeFieldPrincipal": "Principal",
+  "financeFieldReturnRate": "Return %/yr",
+  "financeFieldSilverValue": "Silver value",
+  "financeFieldYears": "Years",
+  "financeResultFutureValue": "Future value (est.)",
+  "financeResultInterest": "Interest",
+  "financeResultMonthlyEmi": "Monthly EMI",
+  "financeResultTotal": "Total",
+  "financeResultZakatDue": "Zakat due",
+  "financeResultZakatable": "Zakatable",
   "financeTools": "Finance tools",
   "freeTrialActive": "Free trial active",
   "friend": "friend",
+  "gallery": "Gallery",
   "generate": "Generate",
   "generated": "Generated",
   "getReply": "Get reply",
@@ -93,21 +301,30 @@
   "howAiTriages": "How AI triages",
   "iNeverAutoApplyYou": "I never auto-apply — you approve and send from your own email.",
   "inProgress": "In progress",
+  "inprogAllClear": "All clear",
+  "inprogNothingInProgress": "Nothing in progress right now.",
   "inputHint": "Tell Assisto…",
+  "inputSourceHint": "You decide which sources the AI takes information from. You can turn any of them off.",
+  "inputSourcePermissions": "Input source permissions",
+  "inputSourceSubtitle": "Photos, sharing, voice, notifications — turn on or off",
   "invest": "Invest",
+  "inviteCodeTitle": "Invite code",
+  "inviteFriendsTile": "Invite your friends",
   "job": "Job",
   "jobDescription": "Job description",
   "jobHunter": "Job hunter",
   "justStartChatting": "Just start chatting",
   "justTellMe": "Just tell me",
   "keepNotesOnPeopleYou": "Keep notes on people you meet — I'll remind you to follow up.",
-  "languageBangla": "বাংলা (Bangla)",
+  "langPickBangla": "বাংলা",
+  "languageBangla": "Bangla",
   "languageEnglish": "English",
   "letter": "Letter",
   "liabilities": "Liabilities",
   "listening": "Listening…",
   "loadFailed": "Couldn't load",
   "loadFailedBody": "Check your connection and try again.",
+  "loadFailedOffline": "Could not load (offline?)\n{error}",
   "locationNeeded": "Location permission is needed.",
   "locationNeeded2": "Location needed",
   "locationOff": "Please turn on location.",
@@ -115,10 +332,22 @@
   "loginMotto": "You run your life — remembering is my job.",
   "loginSubtitle": "Sign in to continue",
   "loginTitle": "Welcome",
+  "logout": "Log out",
   "makeCvCover": "Make CV/cover",
   "makeRemindersReliable": "Make reminders reliable",
   "manyPhonesKillBackgroundApps": "Many phones kill background apps to save battery, so reminders/alerts may not arrive. Exempt Assisto using the steps below.",
   "medicineReminderFollowUp": "Medicine reminder follow-up",
+  "memoryCategoryLabel": "Category (family, work, health...)",
+  "memoryDetailLabel": "Details (optional)",
+  "memoryEditItemTitle": "Edit note",
+  "memoryEmptyHint": "Tap \"Add\" below to ask AI to remember something — like \"Dad's blood pressure medicine at 8 AM\".",
+  "memoryEmptyTitle": "Nothing saved yet.",
+  "memoryNewItemTitle": "New note",
+  "memoryScreenTitle": "What AI knows",
+  "memoryTagAi": "AI detected",
+  "memoryTagManual": "Added by you",
+  "memoryTagSyncing": "Syncing…",
+  "memoryTitleLabel": "What should I remember? *",
   "menu": "Menu",
   "micUnavailable": "Voice input isn't available on this device.",
   "min": "min",
@@ -126,7 +355,61 @@
   "moduleFamily": "Family",
   "moduleMoney": "Money",
   "moduleVault": "Vault",
+  "moneyAccTypeBank": "Bank",
+  "moneyAccTypeBkash": "bKash",
+  "moneyAccTypeCard": "Card",
+  "moneyAccTypeCash": "Cash",
+  "moneyAccTypeNagad": "Nagad",
+  "moneyAccTypeRocket": "Rocket",
+  "moneyAccountsEmpty": "Add an account (Cash, bKash, Nagad, Bank...)",
+  "moneyAddAccountFirst": "Add an account first (while online).",
+  "moneyAddDeposit": "Add Deposit",
+  "moneyBorrowed": "Borrowed",
+  "moneyBudgetEmpty": "Add a budget (we will alert you at 80% and 100%).",
+  "moneyBudgetNear": "Over 80%",
+  "moneyBudgetOver": "Budget exceeded!",
+  "moneyBudgetSpendOffline": "Spending will appear when you are online.",
+  "moneyExpenseBreakdown": "Expense Breakdown (This Month)",
+  "moneyFieldAmountRequired": "Amount *",
+  "moneyFieldCategory": "Category",
+  "moneyFieldCategoryHint": "Category (Food, Transport...)",
+  "moneyFieldDepositAmount": "How much did you deposit",
+  "moneyFieldGoalPurpose": "What for",
+  "moneyFieldMonthlyLimit": "Monthly Limit",
+  "moneyFieldNoteOptional": "Note (optional)",
+  "moneyFieldOpeningBalance": "Opening Balance",
+  "moneyFieldPersonName": "Person's Name",
+  "moneyFieldTargetTaka": "Target (Taka)",
+  "moneyFieldType": "Type",
+  "moneyKindExpense": "Expense",
+  "moneyKindIncome": "Income",
+  "moneyLent": "Lent",
+  "moneyLoanGiven": "I lent",
+  "moneyLoanTaken": "I borrowed",
+  "moneyLoansEmpty": "Keep track of who you lent to and who you borrowed from here.",
+  "moneyLoansHeading": "Loans",
+  "moneyMonthExpense": "Expenses This Month",
+  "moneyMonthIncome": "Income This Month",
+  "moneyMonthNet": "Remaining This Month (Net)",
+  "moneyNewAccount": "New Account",
+  "moneyNewBudget": "New Budget",
+  "moneyNewLoan": "New Loan",
+  "moneyNewTransaction": "New Transaction",
+  "moneyNoTransactions": "No transactions yet.",
+  "moneyOpeningBalanceLabel": "Opening: {amount}",
   "moneyOverview": "Money overview",
+  "moneyReminder": "Reminder",
+  "moneyReminderDraft": "Reminder Draft",
+  "moneyReminderGivenMsg": "Assalamu alaikum {person}, just a gentle reminder amid the busyness — it would help if you could return the {amount} Taka whenever convenient. Thank you.",
+  "moneyReminderTakenMsg": "I owe {person} {amount} Taka — this needs to be repaid.",
+  "moneySavingsGoal": "Savings Goal",
+  "moneySummaryOffline": "The summary will appear when you are online.",
+  "moneyTabAccounts": "Accounts",
+  "moneyTabBudget": "Budget",
+  "moneyTabLoansSavings": "Loans and Savings",
+  "moneyTabSummary": "Summary",
+  "moneyTotalBalance": "Total Balance",
+  "moneyTransactionFallback": "Transaction",
   "monthlyTotal": "About {amount}/month",
   "n30Sec10MinDefault": "30 sec – 10 min (default 2 min)",
   "n500TakaFoodExpenseRemind": "\"500 taka food expense\", \"remind me medicine at 8\" — Bangla or English, text or voice.",
@@ -161,6 +444,13 @@
   "notNow": "Not now",
   "note": "Note",
   "noteExactMenuNamesVary": "Note: exact menu names vary slightly by phone/version.",
+  "notesBody": "Body",
+  "notesEmptyNotes": "No notes yet.",
+  "notesEmptyTasks": "No tasks yet.",
+  "notesNewTask": "New task",
+  "notesTabNotes": "Notes",
+  "notesTaskField": "Task",
+  "notesTitle": "Notes & Tasks",
   "nothingFound": "Nothing found",
   "ok": "OK",
   "onAStrongImpactAn": "On a strong impact, an alarm + vibration asks \"Are you OK?\". If no answer in time, it alerts your family with location, then offers a 999 call. (Uses a bit more battery)",
@@ -171,6 +461,8 @@
   "organization": "Organization",
   "parentsMedicinesSchoolEmergenciesAll": "Parents' medicines, school, emergencies — all in one place.",
   "password": "Password",
+  "peopleJoined": "people joined",
+  "peopleJoinedCount": "{count} people joined",
   "permCamera": "The camera is needed to photograph a document/bill. Photos stay only with you.",
   "permLocation": "Your location is needed to find nearby places / share it in an emergency.",
   "permMic": "I need the microphone to turn your speech into text. Nothing is recorded or stored.",
@@ -180,22 +472,39 @@
   "phoneOrEmail": "Phone or email",
   "planCredits": "Plan & credits",
   "plans": "Plans",
+  "plansCreditAdded": "✓ +1 credit added",
+  "plansDailyLimitReached": "Daily limit reached",
   "premium": "Premium",
   "premium5MembersVoiceCall": "Premium + 5 members + voice call",
   "premiumOneYear": "Premium, one year",
   "price": "Price",
   "priceDropsUsdRateNews": "Price drops, USD rate, news — I alert you on change.",
+  "privacyNotice": "Your data is never sold. Nothing leaves the app unless you share it. The AI is not a person — it is an AI assistant.",
   "purchasingTurnsOnWhenA": "Purchasing turns on when a payment method is added (Integrations).",
   "receivable": "Receivable",
   "redUrgentNeedsAction": "Red — urgent / needs action",
   "register": "Create account",
+  "reliableRemindersSubtitle": "Exempt from battery optimization (Samsung/Xiaomi/Realme…)",
+  "reliableRemindersTile": "Reliable reminders",
   "religiousReminders": "Religious reminders",
+  "remEditReminder": "Edit reminder",
+  "remEmpty": "No reminders yet.\nTap \"Add\".",
+  "remNewReminder": "New reminder",
+  "remNotesOptional": "Notes (optional)",
+  "remRecurDaily": "Daily",
+  "remRecurNone": "Once",
+  "remRecurWeekly": "Weekly",
+  "remRecurrence": "Repeat",
+  "remSetTime": "Set time",
+  "remWhatToRemind": "What should I remind you about? *",
   "replyTest": "Reply test",
   "retry": "Retry",
   "safety": "Safety",
   "save": "Save",
+  "savedToPath": "Saved: {path}",
   "scopeValue": "scope: {v}",
   "sec": "sec",
+  "send": "Send",
   "sendFailed": "Sorry, couldn't do that now. Please try again.",
   "serviceGuide": "Service guide",
   "setPerMedicineReRemind": "Set per medicine: re-remind after N min, how many times, alert the caregiver after M min, quiet hours — on each medicine in Family.",
@@ -205,6 +514,10 @@
   "shareMyLocation": "Share my location",
   "skip": "Skip",
   "sosShareText": "🚨 Emergency! I'm here right now: {link}",
+  "sourceNotification": "Notifications (bKash/bank)",
+  "sourcePhoto": "From photos",
+  "sourceShare": "Shared or forwarded content",
+  "sourceVoice": "Bangla voice",
   "startAddAFamilyMember": "Start — add a family member's medicine",
   "stock": "Stock",
   "subscriptions": "Subscriptions",
@@ -214,6 +527,10 @@
   "suggestionMedicine": "Remind me medicine tomorrow 8 am",
   "suggestionSpendMonth": "How much did I spend this month?",
   "suggestionToday": "What's on today?",
+  "supportReportTile": "Help / report a problem",
+  "supportScreenTitle": "Help / problem",
+  "supportSegment": "Help",
+  "supportThanks": "Thank you! We received your message.",
   "tagline": "Your personal AI agent",
   "themeDark": "Dark",
   "themeLight": "Light",
@@ -230,7 +547,28 @@
   "updateAvailable": "Update available",
   "urgentForYou": "A few urgent things for you:",
   "usdBdtRate": "USD/BDT rate",
+  "vaultAddDocument": "Add document",
+  "vaultAttachImage": "Add image (camera or gallery)",
+  "vaultEmptyMessage": "Keep passport, NID and licence expiry dates here — we'll remind you before they run out.",
+  "vaultEmptyTitle": "No documents yet",
+  "vaultEnterPinHint": "Enter PIN",
+  "vaultExpired": "Expired",
+  "vaultExpiresInDays": "Expires in {days} days",
+  "vaultExpiryDate": "Expiry date",
+  "vaultImageAttached": "Image added",
+  "vaultLockedMessage": "The vault is locked.",
+  "vaultLockedTitle": "Vault locked",
+  "vaultNameRequired": "Name *",
+  "vaultNoFileAttached": "No file is attached to this document.",
+  "vaultPinLengthHint": "4-6 digit PIN",
+  "vaultSetButton": "Set",
+  "vaultSetPinTitle": "Set a PIN for your vault",
+  "vaultTitle": "Document vault",
+  "vaultUnlockButton": "Unlock",
+  "vaultWrongPin": "Wrong PIN",
+  "versionServer": "Version {version}\nServer: {server}",
   "viaGoogle": "via Google",
+  "view": "View",
   "watchAnAd1Credit": "Watch an ad → 1 credit",
   "watchFeed": "Watch feed",
   "watchRate": "Watch rate",
@@ -238,7 +576,9 @@
   "welcomeHeadline": "Hi, I'm Assisto",
   "whatShouldIWriteDescribe": "What should I write? Describe it",
   "yellowReplySoon": "Yellow — reply soon",
+  "you": "You",
   "youStayInControl": "You stay in control",
+  "yourMessageLabel": "Your message",
   "yourPhoneBrand": "Your phone brand",
   "zakat": "Zakat"
 }

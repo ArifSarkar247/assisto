@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../models.dart';
@@ -15,36 +16,36 @@ class MemoryScreen extends StatelessWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(item == null ? 'নতুন তথ্য' : 'তথ্য সম্পাদনা'),
+        title: Text(item == null ? AppLocalizations.of(context).memoryNewItemTitle : AppLocalizations.of(context).memoryEditItemTitle),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                   controller: title,
-                  decoration: const InputDecoration(
-                      labelText: 'কী মনে রাখব? *')),
+                  decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context).memoryTitleLabel)),
               const SizedBox(height: 10),
               TextField(
                   controller: category,
-                  decoration: const InputDecoration(
-                      labelText: 'ধরন (পরিবার / কাজ / স্বাস্থ্য...)')),
+                  decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context).memoryCategoryLabel)),
               const SizedBox(height: 10),
               TextField(
                   controller: detail,
                   maxLines: 3,
                   decoration:
-                      const InputDecoration(labelText: 'বিস্তারিত (ঐচ্ছিক)')),
+                      InputDecoration(labelText: AppLocalizations.of(context).memoryDetailLabel)),
             ],
           ),
         ),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('বাতিল')),
+              child: Text(AppLocalizations.of(context).cancel)),
           FilledButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('সেভ')),
+              child: Text(AppLocalizations.of(context).save)),
         ],
       ),
     );
@@ -69,7 +70,7 @@ class MemoryScreen extends StatelessWidget {
     final app = context.watch<AppState>();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('AI কী জানে'),
+        title: Text(AppLocalizations.of(context).memoryScreenTitle),
         actions: [
           IconButton(
               onPressed: () => app.sync(),
@@ -79,7 +80,7 @@ class MemoryScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _edit(context),
         icon: const Icon(Icons.add),
-        label: const Text('যোগ করুন'),
+        label: Text(AppLocalizations.of(context).add),
       ),
       body: app.memory.isEmpty
           ? const _Empty()
@@ -102,10 +103,10 @@ class MemoryScreen extends StatelessWidget {
                           children: [
                             if (m.category.isNotEmpty)
                               _tag(m.category, Colors.blueGrey),
-                            _tag(m.isAi ? 'AI ধরেছে' : 'নিজে লিখেছেন',
+                            _tag(m.isAi ? AppLocalizations.of(context).memoryTagAi : AppLocalizations.of(context).memoryTagManual,
                                 m.isAi ? Colors.teal : Colors.indigo),
                             if (m.pendingOp != 'none')
-                              _tag('সিঙ্ক হচ্ছে…', Colors.orange),
+                              _tag(AppLocalizations.of(context).memoryTagSyncing, Colors.orange),
                           ],
                         ),
                       ],
@@ -116,9 +117,9 @@ class MemoryScreen extends StatelessWidget {
                         if (v == 'edit') _edit(context, item: m);
                         if (v == 'del') app.removeMemory(m);
                       },
-                      itemBuilder: (_) => const [
-                        PopupMenuItem(value: 'edit', child: Text('সম্পাদনা')),
-                        PopupMenuItem(value: 'del', child: Text('মুছে ফেলুন')),
+                      itemBuilder: (_) => [
+                        PopupMenuItem(value: 'edit', child: Text(AppLocalizations.of(context).edit)),
+                        PopupMenuItem(value: 'del', child: Text(AppLocalizations.of(context).delete)),
                       ],
                     ),
                   ),
@@ -141,7 +142,7 @@ class _Empty extends StatelessWidget {
   const _Empty();
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Padding(
         padding: EdgeInsets.all(32),
         child: Column(
@@ -149,12 +150,11 @@ class _Empty extends StatelessWidget {
           children: [
             Icon(Icons.psychology_outlined, size: 56, color: Colors.grey),
             SizedBox(height: 12),
-            Text('এখনো কিছু সেভ করা হয়নি।',
+            Text(AppLocalizations.of(context).memoryEmptyTitle,
                 style: TextStyle(fontSize: 16)),
             SizedBox(height: 6),
             Text(
-              'নিচের "যোগ করুন" চেপে AI-কে কিছু মনে রাখতে বলুন — '
-              'যেমন "আব্বুর প্রেশারের ওষুধ সকাল ৮টা"।',
+              AppLocalizations.of(context).memoryEmptyHint,
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey),
             ),

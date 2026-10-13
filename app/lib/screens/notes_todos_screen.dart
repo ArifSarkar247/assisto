@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 
@@ -10,8 +11,8 @@ class NotesTodosScreen extends StatelessWidget {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('নোট ও কাজ'),
-          bottom: const TabBar(tabs: [Tab(text: 'নোট'), Tab(text: 'To-Do')]),
+          title: Text(AppLocalizations.of(context).notesTitle),
+          bottom: TabBar(tabs: [Tab(text: AppLocalizations.of(context).notesTabNotes), Tab(text: 'To-Do')]),
         ),
         body: const TabBarView(children: [_NotesTab(), _TodosTab()]),
       ),
@@ -30,19 +31,19 @@ class _NotesTab extends StatelessWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(item == null ? 'নতুন নোট' : 'নোট এডিট'),
+        title: Text(item == null ? AppLocalizations.of(context).memoryNewItemTitle : AppLocalizations.of(context).memoryEditItemTitle),
         content: SingleChildScrollView(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             TextField(controller: title,
-                decoration: const InputDecoration(labelText: 'শিরোনাম')),
+                decoration: InputDecoration(labelText: AppLocalizations.of(context).title)),
             const SizedBox(height: 10),
             TextField(controller: body, maxLines: 5,
-                decoration: const InputDecoration(labelText: 'লেখা')),
+                decoration: InputDecoration(labelText: AppLocalizations.of(context).notesBody)),
           ]),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('বাতিল')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('সেভ')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(context).cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(AppLocalizations.of(context).save)),
         ],
       ),
     );
@@ -65,7 +66,7 @@ class _NotesTab extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
           onPressed: () => _edit(context), child: const Icon(Icons.add)),
       body: items.isEmpty
-          ? const Center(child: Text('কোনো নোট নেই।', style: TextStyle(color: Colors.grey)))
+          ? Center(child: Text(AppLocalizations.of(context).notesEmptyNotes, style: TextStyle(color: Colors.grey)))
           : ListView(
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 88),
               children: [
@@ -85,9 +86,9 @@ class _NotesTab extends StatelessWidget {
                         onPressed: () {
                           app.notes.remove(it);
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: const Text('মুছে ফেলা হয়েছে'),
+                            content: Text(AppLocalizations.of(context).commonDeleted),
                             action: SnackBarAction(
-                                label: 'ফিরিয়ে আনুন', onPressed: () => app.undoLast()),
+                                label: AppLocalizations.of(context).undo, onPressed: () => app.undoLast()),
                           ));
                         },
                       ),
@@ -108,12 +109,12 @@ class _TodosTab extends StatelessWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('নতুন কাজ'),
+        title: Text(AppLocalizations.of(context).notesNewTask),
         content: TextField(controller: title, autofocus: true,
-            decoration: const InputDecoration(labelText: 'কাজ')),
+            decoration: InputDecoration(labelText: AppLocalizations.of(context).notesTaskField)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('বাতিল')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('যোগ')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(context).cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(AppLocalizations.of(context).add)),
         ],
       ),
     );
@@ -130,7 +131,7 @@ class _TodosTab extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
           onPressed: () => _add(context), child: const Icon(Icons.add)),
       body: items.isEmpty
-          ? const Center(child: Text('কোনো কাজ নেই।', style: TextStyle(color: Colors.grey)))
+          ? Center(child: Text(AppLocalizations.of(context).notesEmptyTasks, style: TextStyle(color: Colors.grey)))
           : ListView(
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 88),
               children: [
@@ -148,9 +149,9 @@ class _TodosTab extends StatelessWidget {
                       onPressed: () {
                         app.todos.remove(it);
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: const Text('মুছে ফেলা হয়েছে'),
+                          content: Text(AppLocalizations.of(context).commonDeleted),
                           action: SnackBarAction(
-                              label: 'ফিরিয়ে আনুন', onPressed: () => app.undoLast()),
+                              label: AppLocalizations.of(context).undo, onPressed: () => app.undoLast()),
                         ));
                       },
                     ),

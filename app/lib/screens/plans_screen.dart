@@ -43,8 +43,8 @@ class _PlansScreenState extends State<PlansScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(r['ok'] == true
-                ? '✓ ১ ক্রেডিট যোগ হয়েছে / +1 credit'
-                : (r['msg'] ?? 'আজকের সীমা শেষ / daily limit reached').toString())));
+                ? AppLocalizations.of(context).plansCreditAdded
+                : (r['msg'] ?? AppLocalizations.of(context).plansDailyLimitReached).toString())));
       }
       await _load();
     } catch (_) {} finally {

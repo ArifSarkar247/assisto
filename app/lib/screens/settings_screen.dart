@@ -15,11 +15,11 @@ import 'battery_guidance_screen.dart';
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
-  static const _autonomy = {
-    1: ['শুধু মনে করাবে', 'কিছু করার আগে সবসময় জিজ্ঞেস করবে'],
-    2: ['পরামর্শ দেবে', 'কাজ সাজিয়ে দেবে, আপনি ট্যাপ করে চালাবেন'],
-    3: ['অনুমোদন নিয়ে করবে', 'তৈরি করে রাখবে, এক অনুমোদনে চলবে'],
-    4: ['নিজে করবে', 'এই নির্দিষ্ট কাজে অটো (টাকা/বাইরের কাজে কখনো নয়)'],
+  static Map<int, List<String>> _autonomy(AppLocalizations t) => {
+    1: [t.autonomyRemindOnlyTitle, t.autonomyRemindOnlyDesc],
+    2: [t.autonomySuggestTitle, t.autonomySuggestDesc],
+    3: [t.autonomyApproveTitle, t.autonomyApproveDesc],
+    4: [t.autonomyAutoTitle, t.autonomyAutoDesc],
   };
 
   Future<void> _export(BuildContext context) async {
@@ -34,7 +34,7 @@ class SettingsScreen extends StatelessWidget {
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          title: const Text('আপনার ডাটা এক্সপোর্ট'),
+          title: Text(AppLocalizations.of(context).exportDialogTitle),
           content: SizedBox(
             width: double.maxFinite,
             child: SingleChildScrollView(
@@ -47,14 +47,14 @@ class SettingsScreen extends StatelessWidget {
           actions: [
             TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('ঠিক আছে')),
+                child: Text(AppLocalizations.of(context).ok)),
           ],
         ),
       );
       messenger.showSnackBar(
-          SnackBar(content: Text('সেভ হয়েছে: ${f.path}')));
+          SnackBar(content: Text(AppLocalizations.of(context).savedToPath(f.path))));
     } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text('এক্সপোর্ট ব্যর্থ: $e')));
+      messenger.showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).exportFailed(e))));
     }
   }
 
@@ -68,7 +68,7 @@ class SettingsScreen extends StatelessWidget {
       await f.writeAsBytes(bytes);
       await OpenFilex.open(f.path);
     } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text('এক্সপোর্ট ব্যর্থ: $e')));
+      messenger.showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).exportFailed(e))));
     }
   }
 
@@ -78,16 +78,16 @@ class SettingsScreen extends StatelessWidget {
       final inv = await app.api.invite();
       if (!context.mounted) return;
       showDialog(context: context, builder: (_) => AlertDialog(
-        title: const Text('ইনভাইট কোড'),
+        title: Text(AppLocalizations.of(context).inviteCodeTitle),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
           SelectableText(inv['code'] ?? '',
               style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          Text('${inv['invited'] ?? 0} জন যোগ দিয়েছেন'),
+          Text(AppLocalizations.of(context).peopleJoinedCount(inv['invited'] ?? 0)),
           const SizedBox(height: 8),
           SelectableText(inv['share_text'] ?? '', textAlign: TextAlign.center),
         ]),
-        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('ঠিক আছে'))]));
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context).ok))]));
     } catch (_) {}
   }
 
@@ -97,18 +97,17 @@ class SettingsScreen extends StatelessWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('অ্যাকাউন্ট মুছে ফেলবেন?'),
-        content: const Text(
-            'আপনার সব ডাটা (মেমোরি, অডিট লগ) স্থায়ীভাবে মুছে যাবে। '
-            'এটা ফেরানো যাবে না।'),
+        title: Text(AppLocalizations.of(context).deleteAccountConfirmTitle),
+        content: Text(
+            AppLocalizations.of(context).deleteAccountConfirmBody),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('বাতিল')),
+              child: Text(AppLocalizations.of(context).cancel)),
           FilledButton(
               style: FilledButton.styleFrom(backgroundColor: Colors.red),
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('মুছে ফেলুন')),
+              child: Text(AppLocalizations.of(context).delete)),
         ],
       ),
     );
@@ -116,7 +115,7 @@ class SettingsScreen extends StatelessWidget {
       try {
         await app.deleteAccount();
       } catch (e) {
-        messenger.showSnackBar(SnackBar(content: Text('ব্যর্থ: $e')));
+        messenger.showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).failed(e))));
       }
     }
   }
@@ -134,7 +133,7 @@ class SettingsScreen extends StatelessWidget {
         children: [
           ListTile(
             leading: const CircleAvatar(child: Icon(Icons.person)),
-            title: Text(u?.name.isNotEmpty == true ? u!.name : 'আপনি'),
+            title: Text(u?.name.isNotEmpty == true ? u!.name : AppLocalizations.of(context).you),
             subtitle: Text([u?.phone, u?.email]
                 .where((e) => e != null && e.isNotEmpty)
                 .join(' · ')),
@@ -189,17 +188,17 @@ class SettingsScreen extends StatelessWidget {
           const Divider(),
           const _SafetySection(),
           const Divider(),
-          const Padding(
+          Padding(
             padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: Text('স্বাধীনতার ধাপ (Autonomy dial)',
+            child: Text(AppLocalizations.of(context).autonomyDialTitle,
                 style: TextStyle(fontWeight: FontWeight.bold)),
           ),
-          const Padding(
+          Padding(
             padding: EdgeInsets.fromLTRB(16, 2, 16, 4),
-            child: Text('AI কতটা নিজে করবে — আপনি ঠিক করেন।',
+            child: Text(AppLocalizations.of(context).autonomyDialHint,
                 style: TextStyle(fontSize: 12, color: Colors.grey)),
           ),
-          for (final e in _autonomy.entries)
+          for (final e in _autonomy(t).entries)
             RadioListTile<int>(
               value: e.key,
               groupValue: level,
@@ -212,24 +211,24 @@ class SettingsScreen extends StatelessWidget {
           const Divider(),
           ListTile(
             leading: const Icon(Icons.receipt_long_outlined),
-            title: const Text('এজেন্ট কী করেছে (অডিট লগ)'),
+            title: Text(AppLocalizations.of(context).auditLogTile),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const AuditScreen())),
           ),
           ListTile(
             leading: const Icon(Icons.download_outlined),
-            title: const Text('আমার ডাটা এক্সপোর্ট'),
-            subtitle: const Text('সব তথ্য JSON হিসেবে'),
+            title: Text(AppLocalizations.of(context).exportDataTile),
+            subtitle: Text(AppLocalizations.of(context).exportDataSubtitle),
             onTap: () => _export(context),
           ),
           ListTile(
             leading: const Icon(Icons.table_chart_outlined),
-            title: const Text('Excel-এ এক্সপোর্ট'),
+            title: Text(AppLocalizations.of(context).exportExcelTile),
             onTap: () => _downloadOpen(context, '/export/excel', 'assisto-export.xlsx'),
           ),
           ListTile(
             leading: const Icon(Icons.picture_as_pdf_outlined),
-            title: const Text('PDF-এ এক্সপোর্ট'),
+            title: Text(AppLocalizations.of(context).exportPdfTile),
             onTap: () => _downloadOpen(context, '/export/pdf', 'assisto-export.pdf'),
           ),
           const Divider(),
@@ -242,55 +241,54 @@ class SettingsScreen extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.battery_charging_full_outlined),
-            title: const Text('রিমাইন্ডার নির্ভরযোগ্য করুন / Reliable reminders'),
-            subtitle: const Text('ব্যাটারি অপটিমাইজেশন থেকে ছাড় (Samsung/Xiaomi/Realme…)'),
+            title: Text(AppLocalizations.of(context).reliableRemindersTile),
+            subtitle: Text(AppLocalizations.of(context).reliableRemindersSubtitle),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const BatteryGuidanceScreen())),
           ),
           ListTile(
             leading: const Icon(Icons.tune),
-            title: const Text('ইনপুট সোর্স অনুমতি'),
-            subtitle: const Text('ছবি, শেয়ার, ভয়েস, নোটিফিকেশন — চালু/বন্ধ'),
+            title: Text(AppLocalizations.of(context).inputSourcePermissions),
+            subtitle: Text(AppLocalizations.of(context).inputSourceSubtitle),
             onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const SourcesScreen())),
+                MaterialPageRoute(builder: (_) => SourcesScreen())),
           ),
           ListTile(
             leading: const Icon(Icons.support_agent_outlined),
-            title: const Text('সাহায্য / সমস্যা রিপোর্ট'),
+            title: Text(AppLocalizations.of(context).supportReportTile),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const SupportScreen())),
           ),
           ListTile(
             leading: const Icon(Icons.card_giftcard_outlined),
-            title: const Text('বন্ধুদের ইনভাইট করুন'),
+            title: Text(AppLocalizations.of(context).inviteFriendsTile),
             onTap: () => _invite(context),
           ),
           ListTile(
             leading: const Icon(Icons.delete_forever_outlined,
                 color: Colors.red),
-            title: const Text('অ্যাকাউন্ট ও সব ডাটা মুছে ফেলুন',
+            title: Text(AppLocalizations.of(context).deleteAccountTile,
                 style: TextStyle(color: Colors.red)),
             onTap: () => _deleteAccount(context),
           ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.logout),
-            title: const Text('লগআউট'),
+            title: Text(AppLocalizations.of(context).logout),
             onTap: () => app.logout(),
           ),
           const Divider(),
-          const Padding(
+          Padding(
             padding: EdgeInsets.all(16),
             child: Text(
-              'আপনার ডাটা বিক্রি হয় না। শেয়ার না করলে বাইরে কিছু যায় না। '
-              'AI মানুষ নয় — এটা একটা AI সহকারী।',
+              AppLocalizations.of(context).privacyNotice,
               style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
             child: Text(
-              'সংস্করণ ${AppConfig.appVersionLabel}\nসার্ভার: ${AppConfig.apiBase}',
+              AppLocalizations.of(context).versionServer(AppConfig.appVersionLabel, AppConfig.apiBase),
               style: const TextStyle(fontSize: 11, color: Colors.grey),
             ),
           ),
@@ -319,7 +317,7 @@ class _AuditScreenState extends State<AuditScreen> {
   Widget build(BuildContext context) {
     final fmt = DateFormat('d MMM, h:mm a');
     return Scaffold(
-      appBar: AppBar(title: const Text('এজেন্ট কী করেছে')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).auditScreenTitle)),
       body: FutureBuilder<List<AuditEntry>>(
         future: _future,
         builder: (ctx, snap) {
@@ -330,13 +328,13 @@ class _AuditScreenState extends State<AuditScreen> {
             return Center(
                 child: Padding(
               padding: const EdgeInsets.all(24),
-              child: Text('লোড করা গেল না (অফলাইন?)\n${snap.error}',
+              child: Text(AppLocalizations.of(context).loadFailedOffline(snap.error ?? ''),
                   textAlign: TextAlign.center),
             ));
           }
           final items = snap.data ?? [];
           if (items.isEmpty) {
-            return const Center(child: Text('এখনো কোনো কাজ নেই।'));
+            return Center(child: Text(AppLocalizations.of(context).auditEmpty));
           }
           return ListView.separated(
             itemCount: items.length,
@@ -359,7 +357,7 @@ class _AuditScreenState extends State<AuditScreen> {
 
 // ---------------- per-source permissions ----------------
 class SourcesScreen extends StatefulWidget {
-  const SourcesScreen({super.key});
+  SourcesScreen({super.key});
   @override
   State<SourcesScreen> createState() => _SourcesScreenState();
 }
@@ -367,11 +365,11 @@ class SourcesScreen extends StatefulWidget {
 class _SourcesScreenState extends State<SourcesScreen> {
   List<Map<String, dynamic>> _sources = [];
   bool _loading = true;
-  static const _labels = {
-    'photo': 'ছবি থেকে',
-    'share': 'শেয়ার/ফরোয়ার্ড',
-    'voice': 'বাংলা ভয়েস',
-    'notification': 'নোটিফিকেশন (bKash/ব্যাংক)',
+  static Map<String, String> _labels(AppLocalizations t) => {
+    'photo': t.sourcePhoto,
+    'share': t.sourceShare,
+    'voice': t.sourceVoice,
+    'notification': t.sourceNotification,
   };
 
   @override
@@ -396,20 +394,19 @@ class _SourcesScreenState extends State<SourcesScreen> {
   Widget build(BuildContext context) {
     final app = context.read<AppState>();
     return Scaffold(
-      appBar: AppBar(title: const Text('ইনপুট সোর্স অনুমতি')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).inputSourcePermissions)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
               children: [
-                const Padding(
+                Padding(
                   padding: EdgeInsets.all(16),
-                  child: Text('AI কোন কোন উৎস থেকে তথ্য নেবে — আপনি ঠিক করেন। '
-                      'যেকোনোটা বন্ধ রাখতে পারেন।',
+                  child: Text(AppLocalizations.of(context).inputSourceHint,
                       style: TextStyle(fontSize: 13, color: Colors.grey)),
                 ),
                 for (final s in _sources)
                   SwitchListTile(
-                    title: Text(_labels[s['source']] ?? s['source']),
+                    title: Text(_labels(AppLocalizations.of(context))[s['source']] ?? s['source']),
                     value: s['enabled'] == true,
                     onChanged: (v) async {
                       setState(() => s['enabled'] = v);
@@ -457,15 +454,15 @@ class _SupportScreenState extends State<SupportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('সাহায্য / সমস্যা')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).supportScreenTitle)),
       body: _sent
-          ? const Center(
+          ? Center(
               child: Padding(
                 padding: EdgeInsets.all(24),
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
                   Icon(Icons.check_circle, color: Colors.green, size: 56),
                   SizedBox(height: 12),
-                  Text('ধন্যবাদ! আপনার বার্তা পেয়েছি।', textAlign: TextAlign.center),
+                  Text(AppLocalizations.of(context).supportThanks, textAlign: TextAlign.center),
                 ]),
               ),
             )
@@ -473,9 +470,9 @@ class _SupportScreenState extends State<SupportScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 SegmentedButton<String>(
-                  segments: const [
-                    ButtonSegment(value: 'support', label: Text('সাহায্য')),
-                    ButtonSegment(value: 'bug', label: Text('সমস্যা')),
+                  segments: [
+                    ButtonSegment(value: 'support', label: Text(AppLocalizations.of(context).supportSegment)),
+                    ButtonSegment(value: 'bug', label: Text(AppLocalizations.of(context).bugSegment)),
                   ],
                   selected: {_kind},
                   onSelectionChanged: (s) => setState(() => _kind = s.first),
@@ -484,8 +481,8 @@ class _SupportScreenState extends State<SupportScreen> {
                 TextField(
                   controller: _msg,
                   maxLines: 6,
-                  decoration: const InputDecoration(
-                      labelText: 'আপনার বার্তা', alignLabelWithHint: true),
+                  decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context).yourMessageLabel, alignLabelWithHint: true),
                 ),
                 const SizedBox(height: 14),
                 FilledButton(
@@ -496,7 +493,7 @@ class _SupportScreenState extends State<SupportScreen> {
                         ? const SizedBox(
                             height: 20, width: 20,
                             child: CircularProgressIndicator(strokeWidth: 2))
-                        : const Text('পাঠান'),
+                        : Text(AppLocalizations.of(context).send),
                   ),
                 ),
               ],

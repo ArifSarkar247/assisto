@@ -56,7 +56,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
         'contacts': _contacts,
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('সেভ হয়েছে')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).emergencySaved)));
       }
     } catch (e) {
       if (mounted) {
@@ -74,16 +74,16 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('জরুরি যোগাযোগ'),
+        title: Text(AppLocalizations.of(context).emergencyContactTitle),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
-          TextField(controller: name, decoration: const InputDecoration(labelText: 'নাম')),
+          TextField(controller: name, decoration: InputDecoration(labelText: AppLocalizations.of(context).name)),
           TextField(controller: phone, keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(labelText: 'ফোন')),
-          TextField(controller: rel, decoration: const InputDecoration(labelText: 'সম্পর্ক')),
+              decoration: InputDecoration(labelText: AppLocalizations.of(context).phone)),
+          TextField(controller: rel, decoration: InputDecoration(labelText: AppLocalizations.of(context).familyRelationLabel)),
         ]),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('বাতিল')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('যোগ')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(context).cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(AppLocalizations.of(context).add)),
         ],
       ),
     );
@@ -126,19 +126,19 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
   Future<void> _sos() async {
     if (_contacts.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('আগে একটি জরুরি যোগাযোগ যোগ করুন।')));
+          SnackBar(content: Text(AppLocalizations.of(context).emergencyAddContactFirst)));
       return;
     }
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('SOS'),
-        content: Text('${_contacts.first['name']} (${_contacts.first['phone']}) কে কল করবেন?'),
+        content: Text(AppLocalizations.of(context).emergencySosConfirm(_contacts.first['name'], _contacts.first['phone'])),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('না')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(context).emergencyNo)),
           FilledButton(
               style: FilledButton.styleFrom(backgroundColor: Colors.red),
-              onPressed: () => Navigator.pop(ctx, true), child: const Text('কল করুন')),
+              onPressed: () => Navigator.pop(ctx, true), child: Text(AppLocalizations.of(context).call)),
         ],
       ),
     );
@@ -152,7 +152,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     }
     final t = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('ইমার্জেন্সি কার্ড'), actions: [
+      appBar: AppBar(title: Text(AppLocalizations.of(context).emergencyCard), actions: [
         _saving
             ? const Padding(padding: EdgeInsets.all(14),
                 child: SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2)))
@@ -166,7 +166,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                 backgroundColor: Colors.red, padding: const EdgeInsets.symmetric(vertical: 16)),
             onPressed: _sos,
             icon: const Icon(Icons.sos, size: 28),
-            label: const Text('SOS — জরুরি কল', style: TextStyle(fontSize: 18)),
+            label: Text(AppLocalizations.of(context).emergencySosButton, style: TextStyle(fontSize: 18)),
           ),
         ),
         const SizedBox(height: 10),
@@ -179,22 +179,22 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        TextField(controller: _blood, decoration: const InputDecoration(labelText: 'রক্তের গ্রুপ')),
+        TextField(controller: _blood, decoration: InputDecoration(labelText: AppLocalizations.of(context).emergencyBloodGroup)),
         const SizedBox(height: 10),
         TextField(controller: _allergies, maxLines: 2,
-            decoration: const InputDecoration(labelText: 'অ্যালার্জি')),
+            decoration: InputDecoration(labelText: AppLocalizations.of(context).emergencyAllergies)),
         const SizedBox(height: 10),
         TextField(controller: _meds, maxLines: 2,
-            decoration: const InputDecoration(labelText: 'নিয়মিত ওষুধ')),
+            decoration: InputDecoration(labelText: AppLocalizations.of(context).emergencyMedicines)),
         const SizedBox(height: 10),
         TextField(controller: _conditions, maxLines: 2,
-            decoration: const InputDecoration(labelText: 'রোগ/শারীরিক অবস্থা')),
+            decoration: InputDecoration(labelText: AppLocalizations.of(context).emergencyConditions)),
         const SizedBox(height: 18),
         Row(children: [
-          const Text('জরুরি যোগাযোগ', style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(AppLocalizations.of(context).emergencyContactTitle, style: TextStyle(fontWeight: FontWeight.bold)),
           const Spacer(),
           TextButton.icon(onPressed: _addContact,
-              icon: const Icon(Icons.add), label: const Text('যোগ')),
+              icon: const Icon(Icons.add), label: Text(AppLocalizations.of(context).add)),
         ]),
         for (int i = 0; i < _contacts.length; i++)
           Card(child: ListTile(
@@ -208,8 +208,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
             ]),
           )),
         const SizedBox(height: 20),
-        const Text('এই তথ্য জরুরি সময়ে কাজে লাগে। SOS শুধু আপনি চাপলে কল করে — '
-            'কখনো নিজে থেকে নয়।', style: TextStyle(fontSize: 12, color: Colors.grey)),
+        Text(AppLocalizations.of(context).emergencyFooterNote, style: TextStyle(fontSize: 12, color: Colors.grey)),
       ]),
     );
   }

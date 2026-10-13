@@ -32,10 +32,10 @@ class ApiClient {
       } else if (body is Map && body.isNotEmpty) {
         msg = body.values.first.toString();
       } else {
-        msg = 'সমস্যা হয়েছে (${r.statusCode})';
+        msg = 'Something went wrong (${r.statusCode})';
       }
     } catch (_) {
-      msg = 'সমস্যা হয়েছে (${r.statusCode})';
+      msg = 'Something went wrong (${r.statusCode})';
     }
     throw ApiException(msg, r.statusCode);
   }
@@ -282,7 +282,7 @@ class ApiClient {
     req.files.add(await http.MultipartFile.fromPath('file', filePath));
     final streamed = await req.send();
     if (streamed.statusCode < 200 || streamed.statusCode >= 300) {
-      throw ApiException('ডকুমেন্ট আপলোড ব্যর্থ (${streamed.statusCode})', streamed.statusCode);
+      throw ApiException('Document upload failed (${streamed.statusCode})', streamed.statusCode);
     }
   }
 

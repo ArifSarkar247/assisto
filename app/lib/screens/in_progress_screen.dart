@@ -5,7 +5,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 
-/// "In progress / চলমান কাজ" — everything still open: upcoming reminders and
+/// "In progress" — everything still open: upcoming reminders and
 /// unfinished to-dos, in one calm list.
 class InProgressScreen extends StatelessWidget {
   const InProgressScreen({super.key});
@@ -91,11 +91,11 @@ class _Empty extends StatelessWidget {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Icon(Icons.check_circle_outline, size: 56, color: scheme.primary),
           const SizedBox(height: Gap.md),
-          Text('সব গুছানো! / All clear',
+          Text(AppLocalizations.of(context).inprogAllClear,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: Gap.xs),
-          Text('এখন কোনো চলমান কাজ নেই।',
+          Text(AppLocalizations.of(context).inprogNothingInProgress,
               textAlign: TextAlign.center,
               style: TextStyle(color: scheme.onSurfaceVariant)),
         ]),

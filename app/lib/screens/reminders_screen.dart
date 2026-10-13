@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../state.dart';
 import '../notifications.dart';
 
-const _recOptions = {
-  'none': 'একবার',
-  'daily': 'প্রতিদিন',
-  'weekly': 'সাপ্তাহিক',
-  'monthly': 'মাসিক',
-  'yearly': 'বার্ষিক',
+Map<String, String> _recOptions(AppLocalizations t) => {
+  'none': t.remRecurNone,
+  'daily': t.remRecurDaily,
+  'weekly': t.remRecurWeekly,
+  'monthly': t.cycleMonthly,
+  'yearly': t.cycleYearly,
 };
 
 class RemindersScreen extends StatelessWidget {
@@ -28,21 +29,21 @@ class RemindersScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => StatefulBuilder(builder: (ctx, setD) {
         return AlertDialog(
-          title: Text(item == null ? 'নতুন রিমাইন্ডার' : 'রিমাইন্ডার এডিট'),
+          title: Text(item == null ? AppLocalizations.of(context).remNewReminder : AppLocalizations.of(context).remEditReminder),
           content: SingleChildScrollView(
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               TextField(controller: title,
-                  decoration: const InputDecoration(labelText: 'কী মনে করাব? *')),
+                  decoration: InputDecoration(labelText: AppLocalizations.of(context).remWhatToRemind)),
               const SizedBox(height: 10),
               TextField(controller: notes, maxLines: 2,
-                  decoration: const InputDecoration(labelText: 'নোট (ঐচ্ছিক)')),
+                  decoration: InputDecoration(labelText: AppLocalizations.of(context).remNotesOptional)),
               const SizedBox(height: 10),
               Row(children: [
                 Expanded(
                   child: OutlinedButton.icon(
                     icon: const Icon(Icons.schedule, size: 18),
                     label: Text(due == null
-                        ? 'সময় দিন'
+                        ? AppLocalizations.of(context).remSetTime
                         : DateFormat('d MMM, h:mm a').format(due!)),
                     onPressed: () async {
                       final d = await showDatePicker(
@@ -65,8 +66,8 @@ class RemindersScreen extends StatelessWidget {
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
                 value: rec,
-                decoration: const InputDecoration(labelText: 'পুনরাবৃত্তি'),
-                items: _recOptions.entries
+                decoration: InputDecoration(labelText: AppLocalizations.of(context).remRecurrence),
+                items: _recOptions(AppLocalizations.of(context)).entries
                     .map((e) => DropdownMenuItem(value: e.key, child: Text(e.value)))
                     .toList(),
                 onChanged: (v) => setD(() => rec = v ?? 'none'),
@@ -74,8 +75,8 @@ class RemindersScreen extends StatelessWidget {
             ]),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('বাতিল')),
-            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('সেভ')),
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(context).cancel)),
+            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(AppLocalizations.of(context).save)),
           ],
         );
       }),
@@ -108,14 +109,14 @@ class RemindersScreen extends StatelessWidget {
     final items = app.reminders.items;
     final fmt = DateFormat('d MMM, h:mm a');
     return Scaffold(
-      appBar: AppBar(title: const Text('রিমাইন্ডার'), actions: [
+      appBar: AppBar(title: Text(AppLocalizations.of(context).navReminders), actions: [
         IconButton(onPressed: () => app.reminders.sync(), icon: const Icon(Icons.sync)),
       ]),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _edit(context),
-        icon: const Icon(Icons.add_alarm), label: const Text('যোগ করুন')),
+        icon: const Icon(Icons.add_alarm), label: Text(AppLocalizations.of(context).add)),
       body: items.isEmpty
-          ? const _Empty(icon: Icons.alarm, text: 'কোনো রিমাইন্ডার নেই।\n"যোগ করুন" চাপুন।')
+          ? _Empty(icon: Icons.alarm, text: AppLocalizations.of(context).remEmpty)
           : ListView.separated(
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 88),
               itemCount: items.length,
@@ -143,7 +144,7 @@ class RemindersScreen extends StatelessWidget {
                     subtitle: Text([
                       if (due != null) fmt.format(due),
                       if ((d['recurrence'] ?? 'none') != 'none')
-                        _recOptions[d['recurrence']] ?? '',
+                        _recOptions(AppLocalizations.of(context))[d['recurrence']] ?? '',
                       if ((d['notes'] ?? '').toString().isNotEmpty) d['notes'],
                     ].join('  ')),
                     trailing: PopupMenuButton<String>(
@@ -151,9 +152,9 @@ class RemindersScreen extends StatelessWidget {
                         if (v == 'edit') _edit(context, item: it);
                         if (v == 'del') _del(context, it);
                       },
-                      itemBuilder: (_) => const [
-                        PopupMenuItem(value: 'edit', child: Text('এডিট')),
-                        PopupMenuItem(value: 'del', child: Text('মুছুন')),
+                      itemBuilder: (_) => [
+                        PopupMenuItem(value: 'edit', child: Text(AppLocalizations.of(context).edit)),
+                        PopupMenuItem(value: 'del', child: Text(AppLocalizations.of(context).delete)),
                       ],
                     ),
                   ),
@@ -168,8 +169,8 @@ class RemindersScreen extends StatelessWidget {
     Notifications.cancel(it['localId']);
     app.reminders.remove(it);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: const Text('মুছে ফেলা হয়েছে'),
-      action: SnackBarAction(label: 'ফিরিয়ে আনুন', onPressed: () => app.undoLast()),
+      content: Text(AppLocalizations.of(context).commonDeleted),
+      action: SnackBarAction(label: AppLocalizations.of(context).undo, onPressed: () => app.undoLast()),
     ));
   }
 }

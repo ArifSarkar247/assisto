@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
@@ -10,12 +11,12 @@ import '../state.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/permission_reason.dart';
 
-const _docTypes = {
-  'passport': 'পাসপোর্ট',
+Map<String, String> _docTypes(AppLocalizations t) => {
+  'passport': t.docTypePassport,
   'nid': 'NID',
-  'licence': 'ড্রাইভিং লাইসেন্স',
-  'certificate': 'সার্টিফিকেট',
-  'other': 'অন্যান্য',
+  'licence': t.docTypeLicence,
+  'certificate': t.docTypeCertificate,
+  'other': t.docTypeOther,
 };
 
 class VaultScreen extends StatefulWidget {
@@ -62,14 +63,14 @@ class _VaultScreenState extends State<VaultScreen> {
     final ok = await showDialog<bool>(
       context: context, barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        title: const Text('ভল্টের জন্য PIN দিন'),
+        title: Text(AppLocalizations.of(context).vaultSetPinTitle),
         content: TextField(
           controller: ctrl, obscureText: true, keyboardType: TextInputType.number,
           maxLength: 6,
-          decoration: const InputDecoration(labelText: '৪-৬ সংখ্যার PIN'),
+          decoration: InputDecoration(labelText: AppLocalizations.of(context).vaultPinLengthHint),
         ),
         actions: [FilledButton(
-            onPressed: () => Navigator.pop(ctx, true), child: const Text('সেট করুন'))],
+            onPressed: () => Navigator.pop(ctx, true), child: Text(AppLocalizations.of(context).vaultSetButton))],
       ),
     );
     if (ok == true && ctrl.text.length >= 4) {
@@ -86,20 +87,20 @@ class _VaultScreenState extends State<VaultScreen> {
     final ok = await showDialog<bool>(
       context: context, barrierDismissible: false,
       builder: (ctx) => StatefulBuilder(builder: (ctx, setD) => AlertDialog(
-        title: const Text('ভল্ট লক'),
+        title: Text(AppLocalizations.of(context).vaultLockedTitle),
         content: TextField(
           controller: ctrl, obscureText: true, keyboardType: TextInputType.number,
-          decoration: InputDecoration(labelText: 'PIN দিন', errorText: err),
+          decoration: InputDecoration(labelText: AppLocalizations.of(context).vaultEnterPinHint, errorText: err),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('বাতিল')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(context).cancel)),
           FilledButton(onPressed: () {
             if (ctrl.text == real) {
               Navigator.pop(ctx, true);
             } else {
-              setD(() => err = 'ভুল PIN');
+              setD(() => err = AppLocalizations.of(context).vaultWrongPin);
             }
-          }, child: const Text('খুলুন')),
+          }, child: Text(AppLocalizations.of(context).vaultUnlockButton)),
         ],
       )),
     );
@@ -130,12 +131,12 @@ class _VaultScreenState extends State<VaultScreen> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           ListTile(
             leading: const Icon(Icons.photo_camera_outlined),
-            title: const Text('ক্যামেরা'),
+            title: Text(AppLocalizations.of(context).camera),
             onTap: () => Navigator.pop(ctx, ImageSource.camera),
           ),
           ListTile(
             leading: const Icon(Icons.photo_library_outlined),
-            title: const Text('গ্যালারি'),
+            title: Text(AppLocalizations.of(context).gallery),
             onTap: () => Navigator.pop(ctx, ImageSource.gallery),
           ),
         ]),
@@ -161,7 +162,7 @@ class _VaultScreenState extends State<VaultScreen> {
       await OpenFilex.open(f.path);
     } catch (_) {
       messenger.showSnackBar(
-          const SnackBar(content: Text('এই ডকুমেন্টে কোনো ফাইল সংযুক্ত নেই।')));
+          SnackBar(content: Text(AppLocalizations.of(context).vaultNoFileAttached)));
     }
   }
 
@@ -174,21 +175,21 @@ class _VaultScreenState extends State<VaultScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => StatefulBuilder(builder: (ctx, setD) => AlertDialog(
-        title: const Text('ডকুমেন্ট যোগ'),
+        title: Text(AppLocalizations.of(context).vaultAddDocument),
         content: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
-          TextField(controller: title, decoration: const InputDecoration(labelText: 'নাম *')),
+          TextField(controller: title, decoration: InputDecoration(labelText: AppLocalizations.of(context).vaultNameRequired)),
           const SizedBox(height: 10),
           DropdownButtonFormField<String>(
             value: type,
-            decoration: const InputDecoration(labelText: 'ধরন'),
-            items: _docTypes.entries.map((e) =>
+            decoration: InputDecoration(labelText: AppLocalizations.of(context).moneyFieldType),
+            items: _docTypes(AppLocalizations.of(context)).entries.map((e) =>
                 DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
             onChanged: (v) => setD(() => type = v ?? 'other'),
           ),
           const SizedBox(height: 10),
           OutlinedButton.icon(
             icon: const Icon(Icons.event, size: 18),
-            label: Text(expiry == null ? 'মেয়াদ শেষের তারিখ'
+            label: Text(expiry == null ? AppLocalizations.of(context).vaultExpiryDate
                 : DateFormat('d MMM yyyy').format(expiry!)),
             onPressed: () async {
               final d = await showDatePicker(context: ctx, initialDate: DateTime.now(),
@@ -200,18 +201,18 @@ class _VaultScreenState extends State<VaultScreen> {
           OutlinedButton.icon(
             icon: Icon(filePath == null ? Icons.attach_file : Icons.check_circle,
                 size: 18, color: filePath == null ? null : Colors.green),
-            label: Text(filePath == null ? 'ছবি যুক্ত করুন (ক্যামেরা/গ্যালারি)' : 'ছবি যুক্ত হয়েছে'),
+            label: Text(filePath == null ? AppLocalizations.of(context).vaultAttachImage : AppLocalizations.of(context).vaultImageAttached),
             onPressed: () async {
               final p = await _pickImage();
               if (p != null) setD(() => filePath = p);
             },
           ),
           const SizedBox(height: 10),
-          TextField(controller: note, decoration: const InputDecoration(labelText: 'নোট (ঐচ্ছিক)')),
+          TextField(controller: note, decoration: InputDecoration(labelText: AppLocalizations.of(context).moneyFieldNoteOptional)),
         ])),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('বাতিল')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('সেভ')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(context).cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(AppLocalizations.of(context).save)),
         ],
       )),
     );
@@ -244,10 +245,10 @@ class _VaultScreenState extends State<VaultScreen> {
     final days = d.difference(DateTime.now()).inDays;
     Color c;
     String t;
-    if (days < 0) { c = Colors.red; t = 'মেয়াদ শেষ'; }
-    else if (days <= 7) { c = Colors.red; t = '$days দিনে শেষ'; }
-    else if (days <= 30) { c = Colors.orange; t = '$days দিনে শেষ'; }
-    else if (days <= 90) { c = const Color(0xFFB8860B); t = '$days দিনে শেষ'; }
+    if (days < 0) { c = Colors.red; t = AppLocalizations.of(context).vaultExpired; }
+    else if (days <= 7) { c = Colors.red; t = AppLocalizations.of(context).vaultExpiresInDays(days); }
+    else if (days <= 30) { c = Colors.orange; t = AppLocalizations.of(context).vaultExpiresInDays(days); }
+    else if (days <= 90) { c = const Color(0xFFB8860B); t = AppLocalizations.of(context).vaultExpiresInDays(days); }
     else { c = Colors.green; t = DateFormat('d MMM yyyy').format(d); }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -262,32 +263,31 @@ class _VaultScreenState extends State<VaultScreen> {
     }
     if (!_unlocked) {
       return Scaffold(
-        appBar: AppBar(title: const Text('ডকুমেন্ট ভল্ট')),
-        body: const Center(child: Text('ভল্ট লক করা।')),
+        appBar: AppBar(title: Text(AppLocalizations.of(context).vaultTitle)),
+        body: Center(child: Text(AppLocalizations.of(context).vaultLockedMessage)),
       );
     }
     return Scaffold(
-      appBar: AppBar(title: const Text('ডকুমেন্ট ভল্ট')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).vaultTitle)),
       floatingActionButton: FloatingActionButton.extended(
-          onPressed: _add, icon: const Icon(Icons.add), label: const Text('যোগ করুন')),
+          onPressed: _add, icon: const Icon(Icons.add), label: Text(AppLocalizations.of(context).add)),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off,
                   tint: Theme.of(context).colorScheme.error,
-                  title: 'লোড করা গেল না',
-                  message: 'ইন্টারনেট দেখে আবার চেষ্টা করুন।',
+                  title: AppLocalizations.of(context).loadFailed,
+                  message: AppLocalizations.of(context).checkInternetRetry,
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
                       icon: const Icon(Icons.refresh),
-                      label: const Text('আবার চেষ্টা')))
+                      label: Text(AppLocalizations.of(context).retry)))
               : _docs.isEmpty
-              ? const StateMessage(
+              ? StateMessage(
                   icon: Icons.folder_open_outlined,
-                  title: 'কোনো ডকুমেন্ট নেই',
-                  message: 'পাসপোর্ট, NID, লাইসেন্সের মেয়াদ এখানে রাখুন — '
-                      'শেষ হওয়ার আগে মনে করিয়ে দেব।')
+                  title: AppLocalizations.of(context).vaultEmptyTitle,
+                  message: AppLocalizations.of(context).vaultEmptyMessage)
               : ListView(
                   padding: const EdgeInsets.fromLTRB(12, 12, 12, 88),
                   children: [
@@ -297,7 +297,7 @@ class _VaultScreenState extends State<VaultScreen> {
                         title: Text(doc['title'] ?? ''),
                         subtitle: Wrap(spacing: 8, crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
-                            Text(_docTypes[doc['doc_type']] ?? ''),
+                            Text(_docTypes(AppLocalizations.of(context))[doc['doc_type']] ?? ''),
                             if (_expiryBadge(doc['expiry_date']) != null)
                               _expiryBadge(doc['expiry_date'])!,
                           ]),
@@ -305,7 +305,7 @@ class _VaultScreenState extends State<VaultScreen> {
                           if (doc['file_url'] != null)
                             IconButton(
                               icon: const Icon(Icons.visibility_outlined),
-                              tooltip: 'দেখুন',
+                              tooltip: AppLocalizations.of(context).view,
                               onPressed: () => _viewFile(doc['id'], doc['title'] ?? '')),
                           IconButton(
                             icon: const Icon(Icons.delete_outline),

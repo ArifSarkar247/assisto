@@ -29,7 +29,7 @@ class Notifications {
 
   static const _details = NotificationDetails(
     android: AndroidNotificationDetails(
-      'assisto_reminders', 'রিমাইন্ডার',
+      'assisto_reminders', 'Reminders',
       channelDescription: 'Assisto reminders',
       importance: Importance.max, priority: Priority.high,
     ),

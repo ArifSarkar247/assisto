@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../state.dart';
@@ -11,9 +12,9 @@ String _tkFmt(dynamic v) {
   return '৳${_tk.format(d)}';
 }
 
-const _accTypes = {
-  'cash': 'ক্যাশ', 'bkash': 'বিকাশ', 'nagad': 'নগদ', 'rocket': 'রকেট',
-  'bank': 'ব্যাংক', 'card': 'কার্ড',
+Map<String, String> _accTypes(AppLocalizations t) => {
+  'cash': t.moneyAccTypeCash, 'bkash': t.moneyAccTypeBkash, 'nagad': t.moneyAccTypeNagad, 'rocket': t.moneyAccTypeRocket,
+  'bank': t.moneyAccTypeBank, 'card': t.moneyAccTypeCard,
 };
 
 class MoneyScreen extends StatefulWidget {
@@ -48,11 +49,11 @@ class _MoneyScreenState extends State<MoneyScreen> {
       length: 5,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('জীবনের হিসাব'),
+          title: Text(AppLocalizations.of(context).moduleMoney),
           actions: [IconButton(onPressed: _refresh, icon: const Icon(Icons.sync))],
-          bottom: const TabBar(isScrollable: true, tabs: [
-            Tab(text: 'সারাংশ'), Tab(text: 'অ্যাকাউন্ট'), Tab(text: 'লেনদেন'),
-            Tab(text: 'বাজেট'), Tab(text: 'ধার/সঞ্চয়'),
+          bottom: TabBar(isScrollable: true, tabs: [
+            Tab(text: AppLocalizations.of(context).moneyTabSummary), Tab(text: AppLocalizations.of(context).moneyTabAccounts), Tab(text: AppLocalizations.of(context).moneyTransactionFallback),
+            Tab(text: AppLocalizations.of(context).moneyTabBudget), Tab(text: AppLocalizations.of(context).moneyTabLoansSavings),
           ]),
         ),
         body: TabBarView(children: [
@@ -75,7 +76,7 @@ class _SummaryTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = summary;
     if (s == null) {
-      return const Center(child: Text('অনলাইনে এলে সারাংশ দেখাবে।',
+      return Center(child: Text(AppLocalizations.of(context).moneySummaryOffline,
           style: TextStyle(color: Colors.grey)));
     }
     final cats = (s['expense_by_category'] as Map).cast<String, dynamic>();
@@ -90,7 +91,7 @@ class _SummaryTab extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(18),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text('মোট ব্যালেন্স', style: TextStyle(color: Colors.white70)),
+            Text(AppLocalizations.of(context).moneyTotalBalance, style: TextStyle(color: Colors.white70)),
             Text(_tkFmt(s['total_balance']),
                 style: const TextStyle(
                     color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold)),
@@ -98,16 +99,16 @@ class _SummaryTab extends StatelessWidget {
         )),
       const SizedBox(height: 8),
       Row(children: [
-        Expanded(child: _stat('এ মাসে আয়', _tkFmt(s['month_income']), Colors.green)),
+        Expanded(child: _stat(AppLocalizations.of(context).moneyMonthIncome, _tkFmt(s['month_income']), Colors.green)),
         const SizedBox(width: 8),
-        Expanded(child: _stat('এ মাসে খরচ', _tkFmt(s['month_expense']), Colors.red)),
+        Expanded(child: _stat(AppLocalizations.of(context).moneyMonthExpense, _tkFmt(s['month_expense']), Colors.red)),
       ]),
       const SizedBox(height: 8),
-      _stat('এ মাসে বাকি (নিট)', _tkFmt(s['month_net']),
+      _stat(AppLocalizations.of(context).moneyMonthNet, _tkFmt(s['month_net']),
           (double.tryParse('${s['month_net']}') ?? 0) >= 0 ? Colors.teal : Colors.red),
       const SizedBox(height: 16),
       if (cats.isNotEmpty) ...[
-        const Text('খরচের ভাগ (এ মাসে)', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text(AppLocalizations.of(context).moneyExpenseBreakdown, style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         for (final e in cats.entries)
           Padding(padding: const EdgeInsets.symmetric(vertical: 4), child: Column(
@@ -143,20 +144,20 @@ class _AccountsTab extends StatelessWidget {
     String type = 'cash';
     final ok = await showDialog<bool>(context: context,
       builder: (ctx) => StatefulBuilder(builder: (ctx, setD) => AlertDialog(
-        title: const Text('নতুন অ্যাকাউন্ট'),
+        title: Text(AppLocalizations.of(context).moneyNewAccount),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
-          TextField(controller: name, decoration: const InputDecoration(labelText: 'নাম')),
+          TextField(controller: name, decoration: InputDecoration(labelText: AppLocalizations.of(context).name)),
           DropdownButtonFormField<String>(value: type,
-            decoration: const InputDecoration(labelText: 'ধরন'),
-            items: _accTypes.entries.map((e) =>
+            decoration: InputDecoration(labelText: AppLocalizations.of(context).moneyFieldType),
+            items: _accTypes(AppLocalizations.of(context)).entries.map((e) =>
                 DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
             onChanged: (v) => setD(() => type = v ?? 'cash')),
           TextField(controller: bal, keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'শুরুর ব্যালেন্স')),
+            decoration: InputDecoration(labelText: AppLocalizations.of(context).moneyFieldOpeningBalance)),
         ]),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('বাতিল')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('সেভ')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(context).cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(AppLocalizations.of(context).save)),
         ])));
     if (ok == true && name.text.trim().isNotEmpty) {
       await app.accounts.add({'name': name.text.trim(), 'acc_type': type,
@@ -172,15 +173,15 @@ class _AccountsTab extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
           onPressed: () => _add(context), child: const Icon(Icons.add)),
       body: items.isEmpty
-          ? const Center(child: Text('অ্যাকাউন্ট যোগ করুন (ক্যাশ, বিকাশ, নগদ, ব্যাংক...)',
+          ? Center(child: Text(AppLocalizations.of(context).moneyAccountsEmpty,
               style: TextStyle(color: Colors.grey)))
           : ListView(padding: const EdgeInsets.fromLTRB(12, 12, 12, 88), children: [
               for (final it in items)
                 Card(child: ListTile(
                   leading: const Icon(Icons.account_balance_wallet_outlined),
                   title: Text(it['data']['name'] ?? ''),
-                  subtitle: Text(_accTypes[it['data']['acc_type']] ?? ''),
-                  trailing: Text('শুরু: ${_tkFmt(it['data']['opening_balance'])}',
+                  subtitle: Text(_accTypes(AppLocalizations.of(context))[it['data']['acc_type']] ?? ''),
+                  trailing: Text(AppLocalizations.of(context).moneyOpeningBalanceLabel(_tkFmt(it['data']['opening_balance'])),
                       style: const TextStyle(fontSize: 12)),
                   onLongPress: () => app.accounts.remove(it),
                 )),
@@ -199,7 +200,7 @@ class _TxnsTab extends StatelessWidget {
     final accs = app.accounts.items.where((a) => a['serverId'] != null).toList();
     if (accs.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('আগে একটি অ্যাকাউন্ট যোগ করুন (অনলাইনে)।')));
+          SnackBar(content: Text(AppLocalizations.of(context).moneyAddAccountFirst)));
       return;
     }
     final amount = TextEditingController();
@@ -210,26 +211,26 @@ class _TxnsTab extends StatelessWidget {
     DateTime date = DateTime.now();
     final ok = await showDialog<bool>(context: context,
       builder: (ctx) => StatefulBuilder(builder: (ctx, setD) => AlertDialog(
-        title: const Text('নতুন লেনদেন'),
+        title: Text(AppLocalizations.of(context).moneyNewTransaction),
         content: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
-          SegmentedButton<String>(segments: const [
-            ButtonSegment(value: 'expense', label: Text('খরচ')),
-            ButtonSegment(value: 'income', label: Text('আয়')),
+          SegmentedButton<String>(segments: [
+            ButtonSegment(value: 'expense', label: Text(AppLocalizations.of(context).moneyKindExpense)),
+            ButtonSegment(value: 'income', label: Text(AppLocalizations.of(context).moneyKindIncome)),
           ], selected: {kind}, onSelectionChanged: (s) => setD(() => kind = s.first)),
           const SizedBox(height: 8),
           TextField(controller: amount, keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'পরিমাণ *')),
+            decoration: InputDecoration(labelText: AppLocalizations.of(context).moneyFieldAmountRequired)),
           DropdownButtonFormField<int>(value: accId,
-            decoration: const InputDecoration(labelText: 'অ্যাকাউন্ট'),
+            decoration: InputDecoration(labelText: AppLocalizations.of(context).moneyTabAccounts),
             items: accs.map((a) => DropdownMenuItem<int>(
                 value: a['serverId'], child: Text(a['data']['name'] ?? ''))).toList(),
             onChanged: (v) => setD(() => accId = v ?? accId)),
-          TextField(controller: cat, decoration: const InputDecoration(labelText: 'খাত (খাবার, যাতায়াত...)')),
-          TextField(controller: note, decoration: const InputDecoration(labelText: 'নোট (ঐচ্ছিক)')),
+          TextField(controller: cat, decoration: InputDecoration(labelText: AppLocalizations.of(context).moneyFieldCategoryHint)),
+          TextField(controller: note, decoration: InputDecoration(labelText: AppLocalizations.of(context).moneyFieldNoteOptional)),
         ])),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('বাতিল')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('সেভ')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(context).cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(AppLocalizations.of(context).save)),
         ])));
     if (ok == true && (double.tryParse(amount.text.trim()) ?? 0) > 0) {
       await app.txns.add({'account': accId, 'kind': kind, 'amount': amount.text.trim(),
@@ -247,9 +248,9 @@ class _TxnsTab extends StatelessWidget {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
           onPressed: () => _add(context), icon: const Icon(Icons.add),
-          label: const Text('লেনদেন')),
+          label: Text(AppLocalizations.of(context).moneyTransactionFallback)),
       body: items.isEmpty
-          ? const Center(child: Text('কোনো লেনদেন নেই।', style: TextStyle(color: Colors.grey)))
+          ? Center(child: Text(AppLocalizations.of(context).moneyNoTransactions, style: TextStyle(color: Colors.grey)))
           : ListView(padding: const EdgeInsets.fromLTRB(12, 12, 12, 88), children: [
               for (final it in items)
                 Card(child: ListTile(
@@ -257,7 +258,7 @@ class _TxnsTab extends StatelessWidget {
                       ? Icons.arrow_downward : Icons.arrow_upward,
                       color: it['data']['kind'] == 'income' ? Colors.green : Colors.red),
                   title: Text(it['data']['category']?.toString().isNotEmpty == true
-                      ? it['data']['category'] : (it['data']['note'] ?? 'লেনদেন')),
+                      ? it['data']['category'] : (it['data']['note'] ?? AppLocalizations.of(context).moneyTransactionFallback)),
                   subtitle: Text(it['data']['date'] != null
                       ? fmt.format(DateTime.tryParse(it['data']['date']) ?? DateTime.now()) : ''),
                   trailing: Text(
@@ -282,15 +283,15 @@ class _BudgetsTab extends StatelessWidget {
     final lim = TextEditingController();
     final ok = await showDialog<bool>(context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('নতুন বাজেট'),
+        title: Text(AppLocalizations.of(context).moneyNewBudget),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
-          TextField(controller: cat, decoration: const InputDecoration(labelText: 'খাত')),
+          TextField(controller: cat, decoration: InputDecoration(labelText: AppLocalizations.of(context).moneyFieldCategory)),
           TextField(controller: lim, keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'মাসিক সীমা')),
+            decoration: InputDecoration(labelText: AppLocalizations.of(context).moneyFieldMonthlyLimit)),
         ]),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('বাতিল')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('সেভ')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(context).cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(AppLocalizations.of(context).save)),
         ]));
     if (ok == true && cat.text.trim().isNotEmpty) {
       await app.budgets.add({'category': cat.text.trim(), 'monthly_limit': lim.text.trim()});
@@ -306,8 +307,8 @@ class _BudgetsTab extends StatelessWidget {
           onPressed: () => _add(context), child: const Icon(Icons.add)),
       body: budgets.isEmpty
           ? Center(child: Text(app.budgets.items.isEmpty
-              ? 'বাজেট যোগ করুন (৮০% ও ১০০%-এ সতর্ক করব)।'
-              : 'অনলাইনে এলে খরচ দেখাবে।', style: const TextStyle(color: Colors.grey)))
+              ? AppLocalizations.of(context).moneyBudgetEmpty
+              : AppLocalizations.of(context).moneyBudgetSpendOffline, style: const TextStyle(color: Colors.grey)))
           : ListView(padding: const EdgeInsets.all(12), children: [
               for (final b in budgets)
                 Card(child: Padding(padding: const EdgeInsets.all(14), child: Column(
@@ -322,11 +323,11 @@ class _BudgetsTab extends StatelessWidget {
                       color: b['warn'] == 'over' ? Colors.red
                           : b['warn'] == 'near' ? Colors.orange : Colors.green),
                     if (b['warn'] == 'over')
-                      const Padding(padding: EdgeInsets.only(top: 4),
-                        child: Text('বাজেট শেষ!', style: TextStyle(color: Colors.red, fontSize: 12)))
+                      Padding(padding: EdgeInsets.only(top: 4),
+                        child: Text(AppLocalizations.of(context).moneyBudgetOver, style: TextStyle(color: Colors.red, fontSize: 12)))
                     else if (b['warn'] == 'near')
-                      const Padding(padding: EdgeInsets.only(top: 4),
-                        child: Text('৮০% পার', style: TextStyle(color: Colors.orange, fontSize: 12))),
+                      Padding(padding: EdgeInsets.only(top: 4),
+                        child: Text(AppLocalizations.of(context).moneyBudgetNear, style: TextStyle(color: Colors.orange, fontSize: 12))),
                   ]))),
             ]),
     );
@@ -342,33 +343,33 @@ class _LoansSavingsTab extends StatelessWidget {
     final app = context.watch<AppState>();
     return ListView(padding: const EdgeInsets.all(12), children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        const Text('ধার', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        Text(AppLocalizations.of(context).moneyLoansHeading, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         TextButton.icon(onPressed: () => _addLoan(context),
-            icon: const Icon(Icons.add), label: const Text('যোগ')),
+            icon: const Icon(Icons.add), label: Text(AppLocalizations.of(context).add)),
       ]),
       if (app.loans.items.isEmpty)
-        const Padding(padding: EdgeInsets.all(8),
-          child: Text('কাকে দিয়েছেন / কার কাছে নিয়েছেন — এখানে রাখুন।',
+        Padding(padding: EdgeInsets.all(8),
+          child: Text(AppLocalizations.of(context).moneyLoansEmpty,
               style: TextStyle(color: Colors.grey))),
       for (final it in app.loans.items)
         Card(child: ListTile(
           leading: Icon(it['data']['kind'] == 'given' ? Icons.call_made : Icons.call_received,
               color: it['data']['kind'] == 'given' ? Colors.orange : Colors.blue),
           title: Text('${it['data']['person']} · ${_tkFmt(it['data']['amount'])}'),
-          subtitle: Text(it['data']['kind'] == 'given' ? 'আমি দিয়েছি' : 'আমি নিয়েছি'),
+          subtitle: Text(it['data']['kind'] == 'given' ? AppLocalizations.of(context).moneyLoanGiven : AppLocalizations.of(context).moneyLoanTaken),
           trailing: Row(mainAxisSize: MainAxisSize.min, children: [
             if (it['data']['settled'] != true)
               TextButton(onPressed: () => _reminderDraft(context, it['data']),
-                  child: const Text('রিমাইন্ডার')),
+                  child: Text(AppLocalizations.of(context).moneyReminder)),
             Checkbox(value: it['data']['settled'] == true,
                 onChanged: (v) => app.loans.update(it, {'settled': v ?? false})),
           ]),
         )),
       const Divider(height: 28),
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        const Text('সঞ্চয় লক্ষ্য', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        Text(AppLocalizations.of(context).moneySavingsGoal, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         TextButton.icon(onPressed: () => _addGoal(context),
-            icon: const Icon(Icons.add), label: const Text('যোগ')),
+            icon: const Icon(Icons.add), label: Text(AppLocalizations.of(context).add)),
       ]),
       for (final it in app.goals.items)
         Card(child: Padding(padding: const EdgeInsets.all(14), child: Column(
@@ -384,7 +385,7 @@ class _LoansSavingsTab extends StatelessWidget {
                       (double.tryParse('${it['data']['target_amount']}') ?? 1)).clamp(0, 1)
                   : 0),
             Align(alignment: Alignment.centerRight, child: TextButton(
-              onPressed: () => _addToGoal(context, it), child: const Text('জমা যোগ'))),
+              onPressed: () => _addToGoal(context, it), child: Text(AppLocalizations.of(context).moneyAddDeposit))),
           ]))),
     ]);
   }
@@ -396,19 +397,19 @@ class _LoansSavingsTab extends StatelessWidget {
     String kind = 'given';
     final ok = await showDialog<bool>(context: context,
       builder: (ctx) => StatefulBuilder(builder: (ctx, setD) => AlertDialog(
-        title: const Text('নতুন ধার'),
+        title: Text(AppLocalizations.of(context).moneyNewLoan),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
-          SegmentedButton<String>(segments: const [
-            ButtonSegment(value: 'given', label: Text('দিয়েছি')),
-            ButtonSegment(value: 'taken', label: Text('নিয়েছি')),
+          SegmentedButton<String>(segments: [
+            ButtonSegment(value: 'given', label: Text(AppLocalizations.of(context).moneyLent)),
+            ButtonSegment(value: 'taken', label: Text(AppLocalizations.of(context).moneyBorrowed)),
           ], selected: {kind}, onSelectionChanged: (s) => setD(() => kind = s.first)),
-          TextField(controller: person, decoration: const InputDecoration(labelText: 'কার নাম')),
+          TextField(controller: person, decoration: InputDecoration(labelText: AppLocalizations.of(context).moneyFieldPersonName)),
           TextField(controller: amount, keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'পরিমাণ')),
+            decoration: InputDecoration(labelText: AppLocalizations.of(context).amount)),
         ]),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('বাতিল')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('সেভ')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(context).cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(AppLocalizations.of(context).save)),
         ])));
     if (ok == true && person.text.trim().isNotEmpty) {
       await app.loans.add({'kind': kind, 'person': person.text.trim(),
@@ -418,13 +419,12 @@ class _LoansSavingsTab extends StatelessWidget {
 
   void _reminderDraft(BuildContext context, Map data) {
     final msg = data['kind'] == 'given'
-        ? 'আসসালামু আলাইকুম ${data['person']} ভাই, একটু ব্যস্ততায় মনে করিয়ে দিচ্ছি — '
-            '${_tkFmt(data['amount'])} টাকা সুবিধামতো ফেরত দিলে উপকার হতো। ধন্যবাদ।'
-        : '${data['person']} এর কাছে আমার ${_tkFmt(data['amount'])} টাকা ধার আছে — ফেরত দিতে হবে।';
+        ? AppLocalizations.of(context).moneyReminderGivenMsg(data['person'], _tkFmt(data['amount']))
+        : AppLocalizations.of(context).moneyReminderTakenMsg(data['person'], _tkFmt(data['amount']));
     showDialog(context: context, builder: (_) => AlertDialog(
-      title: const Text('রিমাইন্ডার খসড়া'),
+      title: Text(AppLocalizations.of(context).moneyReminderDraft),
       content: SelectableText(msg),
-      actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('ঠিক আছে'))]));
+      actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context).ok))]));
   }
 
   Future<void> _addGoal(BuildContext context) async {
@@ -433,15 +433,15 @@ class _LoansSavingsTab extends StatelessWidget {
     final target = TextEditingController();
     final ok = await showDialog<bool>(context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('সঞ্চয় লক্ষ্য'),
+        title: Text(AppLocalizations.of(context).moneySavingsGoal),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
-          TextField(controller: title, decoration: const InputDecoration(labelText: 'কীসের জন্য')),
+          TextField(controller: title, decoration: InputDecoration(labelText: AppLocalizations.of(context).moneyFieldGoalPurpose)),
           TextField(controller: target, keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'লক্ষ্য (টাকা)')),
+            decoration: InputDecoration(labelText: AppLocalizations.of(context).moneyFieldTargetTaka)),
         ]),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('বাতিল')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('সেভ')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(context).cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(AppLocalizations.of(context).save)),
         ]));
     if (ok == true && title.text.trim().isNotEmpty) {
       await app.goals.add({'title': title.text.trim(),
@@ -454,12 +454,12 @@ class _LoansSavingsTab extends StatelessWidget {
     final add = TextEditingController();
     final ok = await showDialog<bool>(context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('জমা যোগ'),
+        title: Text(AppLocalizations.of(context).moneyAddDeposit),
         content: TextField(controller: add, keyboardType: TextInputType.number, autofocus: true,
-            decoration: const InputDecoration(labelText: 'কত জমা করলেন')),
+            decoration: InputDecoration(labelText: AppLocalizations.of(context).moneyFieldDepositAmount)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('বাতিল')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('যোগ')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(context).cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(AppLocalizations.of(context).add)),
         ]));
     if (ok == true) {
       final cur = double.tryParse('${it['data']['saved_amount']}') ?? 0;

@@ -15,9 +15,9 @@ import sys
 APP = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(__file__), "..")
 LIB = os.path.join(APP, "lib")
 L10N = os.path.join(LIB, "l10n")
-BN = re.compile(r"[ঀ-৿]")
+BN = re.compile(r"[\u0980-\u09F2\u09F4-\u09FF]")  # ৳ (U+09F3) currency sign allowed in both langs
 # a literal that has Bangla, then '/', then a Latin letter (combined label)
-MIXED = re.compile(r"[ঀ-৿][^\"']*?/[^\"']*?[A-Za-z]|[A-Za-z][^\"']*?/[^\"']*?[ঀ-৿]")
+MIXED = re.compile(r"[\u0980-\u09F2\u09F4-\u09FF][^\"']*?/[^\"']*?[A-Za-z]|[A-Za-z][^\"']*?/[^\"']*?[\u0980-\u09F2\u09F4-\u09FF]")  # ৳ exempt
 
 viol = []
 

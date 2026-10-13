@@ -43,7 +43,7 @@ class AppUser {
       };
 }
 
-/// A "AI কী জানে" memory item. Stored locally (offline-first) and synced to the
+/// A "What AI knows" memory item. Stored locally (offline-first) and synced to the
 /// backend. [source] marks AI-captured vs user-written (spec design #1).
 class MemoryItem {
   final String localId; // stable local key
