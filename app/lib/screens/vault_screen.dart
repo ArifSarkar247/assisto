@@ -272,17 +272,22 @@ class _VaultScreenState extends State<VaultScreen> {
       detailDates.forEach((k, v) {
         if (v != null) detailMap[k] = DateFormat('yyyy-MM-dd').format(v);
       });
-      final noteStr = encodeDetails(detailMap, free.text);
+      // Structured fields travel as a real map; the free text stays as note.
+      // Nothing is packed into a delimited string, so values with ';', '|' or
+      // '=' can no longer corrupt the record.
+      final cleaned = cleanDetails(detailMap);
+      final noteStr = free.text.trim();
       try {
         final expiryStr = expiry != null ? DateFormat('yyyy-MM-dd').format(expiry!) : null;
         if (filePath != null) {
-          await context.read<AppState>().api.uploadDocument(
+          await context.read<AppState>().api.uploadDocumentWithDetails(
               title: title.text.trim(), docType: type,
-              expiryDate: expiryStr, note: noteStr, filePath: filePath!);
+              expiryDate: expiryStr, details: cleaned, note: noteStr,
+              filePath: filePath!);
         } else {
-          await context.read<AppState>().api.createDocument(
+          await context.read<AppState>().api.createDocumentWithDetails(
               title: title.text.trim(), docType: type,
-              expiryDate: expiryStr, note: noteStr);
+              expiryDate: expiryStr, details: cleaned, note: noteStr);
         }
         await _load();
       } catch (e) {
@@ -297,7 +302,7 @@ class _VaultScreenState extends State<VaultScreen> {
   void _openDoc(Map<String, dynamic> doc) {
     final t = AppLocalizations.of(context);
     final dt = vaultTypeOf(doc['doc_type']);
-    final decoded = decodeDetails(doc['note']);
+    final decoded = readDocDetails(doc);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -433,7 +438,7 @@ class _VaultScreenState extends State<VaultScreen> {
     );
     if (confirm != true) return;
     try {
-      final decoded = decodeDetails(doc['note']);
+      final decoded = readDocDetails(doc);
       final buf = StringBuffer()
         ..writeln(doc['title'] ?? '')
         ..writeln(vaultTypeOf(doc['doc_type']).label(t));
@@ -464,7 +469,7 @@ class _VaultScreenState extends State<VaultScreen> {
         final matches = q.isEmpty
             ? <Map<String, dynamic>>[]
             : _docs.where((d) {
-                final decoded = decodeDetails(d['note']);
+                final decoded = readDocDetails(d);
                 final hay = [
                   d['title'] ?? '',
                   decoded.details.values.join(' '),
@@ -506,7 +511,7 @@ class _VaultScreenState extends State<VaultScreen> {
   }
 
   String _lookupPreview(Map<String, dynamic> d) {
-    final decoded = decodeDetails(d['note']);
+    final decoded = readDocDetails(d);
     if (decoded.details.containsKey('number')) return decoded.details['number']!;
     if (decoded.details.containsKey('policy_no')) return decoded.details['policy_no']!;
     return decoded.details.values.isNotEmpty ? decoded.details.values.first : (decoded.note);

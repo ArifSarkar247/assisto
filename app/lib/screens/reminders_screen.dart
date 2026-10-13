@@ -96,10 +96,10 @@ class RemindersScreen extends StatelessWidget {
         continue;
       }
       final next = nextFireOf(d, now);
-      if (next == null) {
-        noDate.add(it);
-      } else if (next.isBefore(now)) {
+      if (isOverdue(d, now)) {
         overdue.add(it);
+      } else if (next == null) {
+        noDate.add(it);
       } else if (next.year == now.year &&
           next.month == now.month &&
           next.day == now.day) {
@@ -116,7 +116,15 @@ class RemindersScreen extends StatelessWidget {
       return da.compareTo(db);
     }
 
-    overdue.sort(byNext);
+    int byOverdue(Map<String, dynamic> a, Map<String, dynamic> b) {
+      final da = overdueFireOf(a['data'], now);
+      final db = overdueFireOf(b['data'], now);
+      if (da == null) return 1;
+      if (db == null) return -1;
+      return da.compareTo(db);
+    }
+
+    overdue.sort(byOverdue);
     today.sort(byNext);
     upcoming.sort(byNext);
     return [
@@ -154,17 +162,48 @@ class RemindersScreen extends StatelessWidget {
   }
 }
 
-/// Shared next-fire computation used by the list and the cards.
+/// The stored anchor (due_at) as a local DateTime, or null.
+DateTime? _anchorOf(Map<String, dynamic> d) =>
+    d['due_at'] != null ? DateTime.tryParse(d['due_at'])?.toLocal() : null;
+
+/// Next UPCOMING fire (strictly after `now`), used to file a reminder under
+/// Today / Upcoming and to show its "when" chip. For a one-off that has already
+/// passed this returns the past instant (so an overdue one-off still shows its
+/// time); for a recurring reminder it returns the next future occurrence
+/// (a daily 08:00 reminder at 10:00 -> tomorrow 08:00, NOT today's past time).
 DateTime? nextFireOf(Map<String, dynamic> d, DateTime now) {
-  final anchor = d['due_at'] != null
-      ? DateTime.tryParse(d['due_at'])?.toLocal()
-      : null;
+  final anchor = _anchorOf(d);
   if (anchor == null) return null;
   final rule = _ruleFromData(d);
   if (rule == null) return anchor; // one-off keeps its instant (may be overdue)
-  // for a recurring reminder, show the upcoming occurrence
-  return nextOccurrence(anchor, rule, after: now.subtract(const Duration(days: 1)));
+  return nextOccurrence(anchor, rule, after: now);
 }
+
+/// Whether a reminder is genuinely overdue (needs action for a fire that
+/// already happened and was not acknowledged). Mirrors Python
+/// reminders_engine.is_overdue intent:
+///  - one-off: a past due_at that isn't done;
+///  - recurring: the acknowledgement pointer (due_at) is in the past AND a
+///    whole further occurrence has already elapsed since it — i.e. the user
+///    skipped at least one fire. A daily 08:00 reminder seen at 10:00 (due_at =
+///    today 08:00, next = tomorrow 08:00 > now) is therefore NOT overdue; it
+///    files under Today. A daily reminder whose pointer is yesterday 08:00
+///    (next after it = today 08:00 <= now) IS overdue.
+bool isOverdue(Map<String, dynamic> d, DateTime now) {
+  if (d['done'] == true) return false;
+  final anchor = _anchorOf(d);
+  if (anchor == null) return false;
+  final rule = _ruleFromData(d);
+  if (rule == null) return anchor.isBefore(now); // one-off past due
+  if (!anchor.isBefore(now)) return false; // pointer still in the future
+  final afterPointer = nextOccurrence(anchor, rule, after: anchor);
+  return afterPointer != null && !afterPointer.isAfter(now);
+}
+
+/// The missed instant to surface on an overdue card (the acknowledgement
+/// pointer), falling back to the next fire.
+DateTime? overdueFireOf(Map<String, dynamic> d, DateTime now) =>
+    _anchorOf(d) ?? nextFireOf(d, now);
 
 RecurrenceRule? _ruleFromData(Map<String, dynamic> d) {
   final raw = d['recurrence_rule'];
@@ -249,7 +288,9 @@ class _ReminderCard extends StatelessWidget {
     final d = item['data'] as Map<String, dynamic>;
     final done = d['done'] == true;
     final now = DateTime.now();
-    final next = nextFireOf(d, now);
+    // On an overdue card show the missed instant; otherwise the next fire.
+    final next =
+        group == 'overdue' ? overdueFireOf(d, now) : nextFireOf(d, now);
     final rule = _ruleFromData(d);
     final link = d['link'] is Map ? d['link'] as Map : null;
 

@@ -271,6 +271,78 @@ def test_last_occurrence():
     ok(last == datetime(2026, 10, 13, 8, 0), "last daily occ today 8am")
 
 
+def test_golden():
+    """Load reminders_golden.json and assert parse() matches every case.
+
+    This SAME json is also asserted by a Dart test against reminders_nlp.dart
+    (see note in the integrator report), so the Python engine and its Dart
+    mirror cannot silently drift apart.
+    """
+    import json
+    path = os.path.join(_HERE, "reminders_golden.json")
+    if not os.path.exists(path):
+        return  # golden file optional; skip cleanly if absent
+    with open(path, encoding="utf-8") as f:
+        cases = json.load(f)
+    ok(len(cases) > 0, "golden file has cases")
+    for case in cases:
+        text = case["input"]
+        now = datetime.fromisoformat(case["now"])
+        exp = case["expected"]
+        r = parse(text, now=now)
+        ok(r["datetime"] == exp["datetime"],
+           "golden datetime %r: got %r want %r" % (text, r["datetime"], exp["datetime"]))
+        ok(r["recurrence_rule"] == exp["recurrence_rule"],
+           "golden recurrence %r: got %r want %r"
+           % (text, r["recurrence_rule"], exp["recurrence_rule"]))
+        ok(r["clean_title"] == exp["clean_title"],
+           "golden clean_title %r: got %r want %r"
+           % (text, r["clean_title"], exp["clean_title"]))
+
+
+def test_clean_title_connectors():
+    # P2: dangling leading/trailing connectors stripped after date removal.
+    ok(parse("pay bill on 25/12", now=NOW)["clean_title"] == "pay bill",
+       "on-connector stripped")
+    ok(parse("call mom at 5pm", now=NOW)["clean_title"] == "call mom",
+       "at-connector stripped")
+    r = parse("২৫ তারিখে বিল দাও", now=NOW)
+    ok("তারিখ" not in r["clean_title"], "bn date-word stripped: %r" % r["clean_title"])
+
+
+def test_month_name_and_this_month():
+    # P2: month-name parsing + "এই মাসের N তারিখ"
+    r = parse("25 December trip", now=NOW)
+    ok(di(r["datetime"]).month == 12 and di(r["datetime"]).day == 25, "25 December")
+    r = parse("may 5 picnic", now=NOW)
+    ok(di(r["datetime"]).month == 5 and di(r["datetime"]).day == 5, "may 5")
+    r = parse("এই মাসের ২০ তারিখ পেমেন্ট", now=NOW)
+    ok(di(r["datetime"]).date() == date(2026, 10, 20), "this month day 20")
+
+
+def test_snooze_day_after():
+    # P1: পরশু (day-after) must be +2 days, not grouped into tonight.
+    due = datetime(2026, 10, 13, 9, 0)
+    t = eng.snooze(due, "পরশু", now=NOW)
+    ok(t.date() == date(2026, 10, 15), "পরশু snooze -> +2 days")
+    t = eng.snooze(due, "day after tomorrow", now=NOW)
+    ok(t.date() == date(2026, 10, 15), "day after tomorrow snooze -> +2")
+
+
+def test_interval_monthly_yearly():
+    # every-2-months / every-3-years respect interval in next_occurrence.
+    rule = {"freq": "monthly", "interval": 2, "weekday": None,
+            "day_of_month": 10, "month": None, "time": "09:00"}
+    anchor = datetime(2026, 1, 10, 9, 0)
+    nxt = eng.next_occurrence(anchor, rule, after=datetime(2026, 2, 1, 0, 0))
+    ok(nxt == datetime(2026, 3, 10, 9, 0), "every 2 months skips Feb: %r" % nxt)
+    rule = {"freq": "yearly", "interval": 3, "weekday": None,
+            "day_of_month": 1, "month": 1, "time": "09:00"}
+    anchor = datetime(2026, 1, 1, 9, 0)
+    nxt = eng.next_occurrence(anchor, rule, after=datetime(2026, 6, 1, 0, 0))
+    ok(nxt == datetime(2029, 1, 1, 9, 0), "every 3 years: %r" % nxt)
+
+
 def run():
     tests = [v for k, v in sorted(globals().items())
              if k.startswith("test_") and callable(v)]

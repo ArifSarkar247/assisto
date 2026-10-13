@@ -34,6 +34,17 @@ def test_sos_targets_order_skips_blank():
     assert [c["name"] for c in out] == ["A", "C"], out
 
 
+def test_sos_primary_skips_leading_blank():
+    # The app's SOS must dial the FIRST contact that has a phone, not blindly
+    # contacts[0]. Mirror: targets[0] when the leading entry is phoneless.
+    cs = [{"name": "NoPhone", "phone": "  "}, {"name": "Real", "phone": "01999"}]
+    out = S.sos_alert_targets(cs)
+    assert out and out[0]["name"] == "Real", out
+    # all-blank -> no callable target (app shows "add a contact")
+    assert S.sos_alert_targets([{"name": "X", "phone": ""}]) == []
+    assert S.sos_alert_targets([]) == []
+
+
 def test_fall_window_clamp_defaults():
     cfg = S.default_fall_config()
     assert cfg["window_seconds"] == 120

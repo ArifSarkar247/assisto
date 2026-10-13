@@ -279,6 +279,28 @@ String _typeLabel(AppLocalizations t, String? type) {
   }
 }
 
+// unit word for the "every N <unit>" interval control.
+String _intervalUnit(AppLocalizations t, String freq) {
+  switch (freq) {
+    case 'daily':
+      return t.remUnitDays;
+    case 'weekly':
+      return t.remUnitWeeks;
+    case 'monthly':
+      return t.remUnitMonths;
+    case 'yearly':
+      return t.remUnitYears;
+    default:
+      return '';
+  }
+}
+
+// 0=Mon..6=Sun -> locale weekday name (2024-01-01 was a Monday).
+String _weekdayLabel(int wd) {
+  final ref = DateTime(2024, 1, 1).add(Duration(days: wd));
+  return DateFormat('EEEE').format(ref);
+}
+
 // ---------------------------------------------------------------- full editor
 /// The structured create/edit dialog (recurrence picker, date/time, link).
 Future<void> editReminder(BuildContext context,
@@ -315,6 +337,29 @@ Future<void> editReminder(BuildContext context,
     context: context,
     builder: (ctx) => StatefulBuilder(builder: (ctx, setD) {
       String freq = rule?.freq ?? 'none';
+      int interval = rule?.interval ?? 1;
+      if (interval < 1) interval = 1;
+      int? weekday = rule?.weekday;
+      int? dom = rule?.dayOfMonth;
+      // rebuild the recurrence rule from the current picker state.
+      void rebuildRule() {
+        if (freq == 'none') {
+          rule = null;
+          return;
+        }
+        final tod = due != null
+            ? '${due!.hour.toString().padLeft(2, '0')}:${due!.minute.toString().padLeft(2, '0')}'
+            : null;
+        rule = RecurrenceRule(
+          freq: freq,
+          interval: interval,
+          weekday: freq == 'weekly' ? (weekday ?? ((due?.weekday ?? 1) - 1)) : null,
+          dayOfMonth: freq == 'monthly' ? (dom ?? due?.day ?? 1) : null,
+          month: freq == 'yearly' ? due?.month : null,
+          time: tod,
+        );
+      }
+
       return AlertDialog(
         title: Text(item == null ? t.remNewReminder : t.remEditReminder),
         content: SingleChildScrollView(
@@ -377,24 +422,67 @@ Future<void> editReminder(BuildContext context,
               ],
               onChanged: (v) => setD(() {
                 freq = v ?? 'none';
-                if (freq == 'none') {
-                  rule = null;
-                } else {
-                  final tod = due != null
-                      ? '${due!.hour.toString().padLeft(2, '0')}:${due!.minute.toString().padLeft(2, '0')}'
-                      : null;
-                  rule = RecurrenceRule(
-                    freq: freq,
-                    weekday: freq == 'weekly'
-                        ? (due?.weekday ?? 1) - 1
-                        : null,
-                    dayOfMonth: freq == 'monthly' ? due?.day : null,
-                    month: freq == 'yearly' ? due?.month : null,
-                    time: tod,
-                  );
-                }
+                rebuildRule();
               }),
             ),
+            // "Repeat every N <unit>" interval control (all recurring freqs).
+            if (freq != 'none') ...[
+              const SizedBox(height: Gap.sm),
+              Row(children: [
+                Text(t.remEveryLabel),
+                const SizedBox(width: Gap.sm),
+                SizedBox(
+                  width: 72,
+                  child: DropdownButtonFormField<int>(
+                    initialValue: interval.clamp(1, 12),
+                    isDense: true,
+                    decoration: const InputDecoration(isDense: true),
+                    items: [
+                      for (var n = 1; n <= 12; n++)
+                        DropdownMenuItem(value: n, child: Text('$n')),
+                    ],
+                    onChanged: (v) => setD(() {
+                      interval = v ?? 1;
+                      rebuildRule();
+                    }),
+                  ),
+                ),
+                const SizedBox(width: Gap.sm),
+                Flexible(child: Text(_intervalUnit(t, freq))),
+              ]),
+            ],
+            // weekly: which weekday
+            if (freq == 'weekly') ...[
+              const SizedBox(height: Gap.sm),
+              DropdownButtonFormField<int>(
+                initialValue: (weekday ?? ((due?.weekday ?? 1) - 1)).clamp(0, 6),
+                decoration: InputDecoration(labelText: t.remOnWeekday),
+                items: [
+                  for (var wd = 0; wd < 7; wd++)
+                    DropdownMenuItem(value: wd, child: Text(_weekdayLabel(wd))),
+                ],
+                onChanged: (v) => setD(() {
+                  weekday = v;
+                  rebuildRule();
+                }),
+              ),
+            ],
+            // monthly: which day of month
+            if (freq == 'monthly') ...[
+              const SizedBox(height: Gap.sm),
+              DropdownButtonFormField<int>(
+                initialValue: (dom ?? due?.day ?? 1).clamp(1, 31),
+                decoration: InputDecoration(labelText: t.remOnDayOfMonth),
+                items: [
+                  for (var d = 1; d <= 31; d++)
+                    DropdownMenuItem(value: d, child: Text('$d')),
+                ],
+                onChanged: (v) => setD(() {
+                  dom = v;
+                  rebuildRule();
+                }),
+              ),
+            ],
             const SizedBox(height: Gap.md),
             Align(
               alignment: Alignment.centerLeft,

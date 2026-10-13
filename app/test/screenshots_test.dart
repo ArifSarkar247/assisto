@@ -35,6 +35,11 @@ import 'package:assisto/screens/watch_feed_screen.dart';
 import 'package:assisto/screens/jobs_screen.dart';
 import 'package:assisto/screens/nominee_screen.dart';
 import 'package:assisto/screens/crm_contacts_screen.dart';
+import 'package:assisto/screens/crm/crm_today_screen.dart';
+import 'package:assisto/screens/crm/crm_leads_screen.dart';
+import 'package:assisto/screens/crm/crm_pipeline_screen.dart';
+import 'package:assisto/screens/crm/crm_dashboard_screen.dart';
+import 'package:assisto/screens/crm/crm_team_screen.dart';
 import 'package:assisto/screens/business_screen.dart';
 import 'package:assisto/screens/inbox_screen.dart';
 import 'package:assisto/screens/guide_screen.dart';
@@ -151,6 +156,11 @@ void main() {
     'jobs': (build: (_) => const JobsScreen(), mode: FakeMode.data, full: true),
     'nominee': (build: (_) => const NomineeScreen(), mode: FakeMode.data, full: true),
     'crm_contacts': (build: (_) => const CrmContactsScreen(), mode: FakeMode.data, full: true),
+    'crm_today': (build: (_) => Scaffold(appBar: AppBar(title: const Text('CRM')), body: const CrmTodayScreen(org: 1)), mode: FakeMode.data, full: true),
+    'crm_leads': (build: (_) => Scaffold(appBar: AppBar(title: const Text('CRM')), body: const CrmLeadsScreen(org: 1)), mode: FakeMode.data, full: true),
+    'crm_pipeline': (build: (_) => Scaffold(appBar: AppBar(title: const Text('CRM')), body: const CrmPipelineScreen(org: 1)), mode: FakeMode.data, full: true),
+    'crm_dashboard': (build: (_) => Scaffold(appBar: AppBar(title: const Text('CRM')), body: const CrmDashboardScreen(org: 1)), mode: FakeMode.data, full: true),
+    'crm_team': (build: (_) => Scaffold(appBar: AppBar(title: const Text('CRM')), body: const CrmTeamScreen(org: 1)), mode: FakeMode.data, full: true),
     'business': (build: (_) => const BusinessScreen(), mode: FakeMode.data, full: true),
     'inbox': (build: (_) => const InboxScreen(), mode: FakeMode.data, full: true),
     'guide': (build: (_) => const GuideScreen(), mode: FakeMode.data, full: true),

@@ -186,6 +186,11 @@ def snooze(current_due, text, now=None):
     low = normalize_digits(text or "").lower().strip()
 
     # ---- absolute-ish day jumps ----
+    # day-after-tomorrow ("পরশু") -> +2 days at the requested daypart (default 9)
+    if re.search(r"পরশু|day after tomorrow", low):
+        d = now.date() + timedelta(days=2)
+        hr = _part_hour(low, default=DEFAULT_HOUR)
+        return datetime(d.year, d.month, d.day, hr, 0)
     if re.search(r"tomorrow|আগামীকাল|আগামিকাল|\bকাল\b|\bkal\b", low):
         d = now.date() + timedelta(days=1)
         hr = _part_hour(low, default=8)  # tomorrow defaults to morning 8

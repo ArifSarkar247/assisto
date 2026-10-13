@@ -50,6 +50,32 @@ def test_bangla_digits_folded():
                for p in r["patterns"]), r
 
 
+def test_mfs_verify_number_not_safe():
+    # An MFS-brand message asking to 'verify/যাচাই' a number/account is a known
+    # credential-harvest tactic: it must never land at 'safe'. Previously a bare
+    # 'bKash: verify your number 017...' only scored the +10 MFS signal (safe);
+    # it must now be at LEAST 'suspicious' via the mfs_verify_phish signal.
+    for msg in ("bKash: verify your number 01712345678 now",
+                "নগদ: আপনার নম্বর ০১৭১২৩৪৫৬৭৮ যাচাই করুন"):
+        r = S.check_message(msg, "bn")
+        keys = {p["key"] for p in r["patterns"]}
+        assert "mfs_verify_phish" in keys, (msg, r)
+        assert r["verdict"] in ("suspicious", "scam"), (msg, r)
+        assert r["score"] >= 20, (msg, r)
+
+
+def test_spaced_cid_not_false_positive():
+    # 'c i d' must NOT be collapsed into 'cid' and falsely trip the police/CID
+    # impersonation rule. A benign spaced acronym on its own stays clean.
+    r = S.check_message("the c i d team will visit", "en")
+    keys = {p["key"] for p in r["patterns"]}
+    assert "impersonation_authority" not in keys, r
+    assert r["verdict"] == "safe", r
+    # but a genuine spaced-out evasion keyword IS still collapsed + detected
+    r2 = S.check_message("please share your p a s s w o r d", "en")
+    assert "pin_otp_request" in {p["key"] for p in r2["patterns"]}, r2
+
+
 def test_shortener_link_high_weight():
     r = S.check_message("Claim now http://bit.ly/win123", "en")
     keys = {p["key"] for p in r["patterns"]}

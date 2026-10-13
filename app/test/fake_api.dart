@@ -29,6 +29,7 @@ class FakeApi extends ApiClient {
   @override
   Future<List<Map<String, dynamic>>> listItems(String path) async {
     await _slow();
+    if (path.startsWith('crm/')) return _crmList(path);
     switch (path) {
       case 'subscriptions':
         return _maybe([
@@ -437,5 +438,199 @@ class FakeApi extends ApiClient {
 
   @override
   Future<Map<String, dynamic>> moneyLearnCategory(String c, String cat) async => {};
+
+  // ======================== Sales CRM demo data ========================
+  // Makes every in-app CRM screen render populated in the screenshot gallery.
+
+  List<Map<String, dynamic>> _crmLeads() => [
+        {
+          'id': 1, 'org': 1, 'name': _bn ? 'করিম গার্মেন্টস' : 'Karim Garments',
+          'company': _bn ? 'করিম গার্মেন্টস লিঃ' : 'Karim Garments Ltd',
+          'industry': 'rmg', 'industry_display': _bn ? 'গার্মেন্টস' : 'RMG',
+          'company_size': 600, 'source': 'whatsapp', 'source_display': 'WhatsApp',
+          'phone': '01712345678', 'whatsapp': '01712345678', 'email': 'buy@karim.com',
+          'designation': _bn ? 'ব্যবস্থাপক' : 'Manager', 'score': 95, 'priority': 'high',
+          'status': 'contacted', 'status_display': _bn ? 'যোগাযোগ হয়েছে' : 'Contacted',
+          'score_reason': 'industry_fit=25 + company_size=25 + buying_signals=50 = 95',
+          'required_modules': ['vat', 'hrm', 'inventory'],
+          'budget_range': '৳5-10L', 'timeline': _bn ? '৩ মাস' : '3 months',
+          'decision_maker': _bn ? 'এমডি' : 'MD', 'notes': _bn ? 'ভ্যাট কমপ্লায়েন্ট ইআরপি লাগবে' : 'Needs VAT-compliant ERP',
+          'next_follow_up': '2026-10-14',
+        },
+        {
+          'id': 2, 'org': 1, 'name': _bn ? 'ফার্মা কেয়ার' : 'Pharma Care',
+          'company': 'Pharma Care', 'industry': 'pharma', 'industry_display': _bn ? 'ফার্মা' : 'Pharma',
+          'company_size': 220, 'source': 'linkedin', 'source_display': 'LinkedIn',
+          'phone': '01812345678', 'whatsapp': '', 'email': 'info@pharmacare.com',
+          'designation': 'CTO', 'score': 72, 'priority': 'normal',
+          'status': 'demo', 'status_display': _bn ? 'ডেমো' : 'Demo',
+          'score_reason': 'industry_fit=22 + company_size=20 + buying_signals=30 = 72',
+          'required_modules': ['accounts', 'inventory'], 'budget_range': '', 'timeline': '',
+          'decision_maker': '', 'notes': '', 'next_follow_up': null,
+        },
+        {
+          'id': 3, 'org': 1, 'name': _bn ? 'শপ ৩৬৫' : 'Shop 365',
+          'company': 'Shop 365', 'industry': 'retail', 'industry_display': _bn ? 'রিটেইল' : 'Retail',
+          'company_size': 40, 'source': 'manual', 'source_display': _bn ? 'ম্যানুয়াল' : 'Manual',
+          'phone': '01912345678', 'whatsapp': '', 'email': '', 'designation': '',
+          'score': 34, 'priority': 'normal', 'status': 'new', 'status_display': _bn ? 'নতুন' : 'New',
+          'score_reason': 'industry_fit=18 + company_size=8 + buying_signals=10 = 36',
+          'required_modules': ['sales'], 'budget_range': '', 'timeline': '',
+          'decision_maker': '', 'notes': '', 'next_follow_up': '2026-10-13',
+        },
+      ];
+
+  List<Map<String, dynamic>> _crmStages() => [
+        {'id': 1, 'pipeline': 1, 'name': _bn ? 'নতুন' : 'New', 'order': 0, 'probability': 10, 'is_won': false, 'is_lost': false, 'stuck_after_days': 7},
+        {'id': 2, 'pipeline': 1, 'name': _bn ? 'যোগাযোগ' : 'Qualified', 'order': 1, 'probability': 25, 'is_won': false, 'is_lost': false, 'stuck_after_days': 10},
+        {'id': 3, 'pipeline': 1, 'name': _bn ? 'ডেমো' : 'Demo', 'order': 2, 'probability': 45, 'is_won': false, 'is_lost': false, 'stuck_after_days': 14},
+        {'id': 4, 'pipeline': 1, 'name': _bn ? 'প্রপোজাল' : 'Proposal', 'order': 3, 'probability': 65, 'is_won': false, 'is_lost': false, 'stuck_after_days': 14},
+        {'id': 5, 'pipeline': 1, 'name': _bn ? 'জিতেছি' : 'Won', 'order': 4, 'probability': 100, 'is_won': true, 'is_lost': false, 'stuck_after_days': 0},
+        {'id': 6, 'pipeline': 1, 'name': _bn ? 'হারিয়েছি' : 'Lost', 'order': 5, 'probability': 0, 'is_won': false, 'is_lost': true, 'stuck_after_days': 0},
+      ];
+
+  List<Map<String, dynamic>> _crmDeals() => [
+        {'id': 1, 'org': 1, 'title': 'Axon ERP — Karim Garments', 'stage': 2, 'stage_name': _bn ? 'যোগাযোগ' : 'Qualified', 'value': 1200000, 'probability': 25, 'expected_close': '2026-11-10', 'state': 'open', 'stage_entered_at': '2026-09-20T09:00:00', 'next_step': _bn ? 'ডেমো কল' : 'Demo call'},
+        {'id': 2, 'org': 1, 'title': 'Axon ERP — Pharma Care', 'stage': 3, 'stage_name': _bn ? 'ডেমো' : 'Demo', 'value': 650000, 'probability': 45, 'expected_close': '2026-11-20', 'state': 'open', 'stage_entered_at': '2026-10-10T09:00:00', 'next_step': ''},
+        {'id': 3, 'org': 1, 'title': 'Axon ERP — Shop 365', 'stage': 4, 'stage_name': _bn ? 'প্রপোজাল' : 'Proposal', 'value': 300000, 'probability': 65, 'expected_close': '2026-10-30', 'state': 'open', 'stage_entered_at': '2026-10-12T09:00:00', 'next_step': _bn ? 'প্রপোজাল পাঠাও' : 'Send proposal'},
+      ];
+
+  List<Map<String, dynamic>> _crmList(String path) {
+    if (mode == FakeMode.fail) _fail();
+    if (mode == FakeMode.empty) {
+      // Keep pipeline stages so the kanban still shows columns even when empty.
+      if (path.startsWith('crm/pipelines')) {
+        return [{'id': 1, 'org': 1, 'name': 'Axon Sales', 'is_default': true, 'stages': _crmStages()}];
+      }
+      return [];
+    }
+    if (path.startsWith('crm/orgs')) {
+      return [{'id': 1, 'name': _bn ? 'অ্যাক্সন সেলস' : 'Axon Sales', 'owner': 1}];
+    }
+    if (path.startsWith('crm/leads')) return _crmLeads();
+    if (path.startsWith('crm/pipelines')) {
+      return [{'id': 1, 'org': 1, 'name': 'Axon Sales', 'is_default': true, 'stages': _crmStages()}];
+    }
+    if (path.startsWith('crm/deals')) return _crmDeals();
+    if (path.startsWith('crm/members')) {
+      return [
+        {'id': 1, 'org': 1, 'user': 1, 'user_name': _bn ? 'আরিফ' : 'Arif', 'role': 'owner'},
+        {'id': 2, 'org': 1, 'user': 2, 'user_name': _bn ? 'নাদিয়া' : 'Nadia', 'role': 'sales'},
+      ];
+    }
+    if (path.startsWith('crm/routing-rules')) {
+      return [{'id': 1, 'org': 1, 'match_industry': 'rmg', 'match_source': '', 'assign_to': 2, 'active': true}];
+    }
+    if (path.startsWith('crm/products')) {
+      return [
+        {'id': 1, 'org': 1, 'sku': 'ERP-CORE', 'name': 'Axon ERP Core', 'unit_price': '250000', 'billing': 'one_time', 'price_reviewed': true, 'active': true},
+        {'id': 2, 'org': 1, 'sku': 'ERP-HR', 'name': 'HR & Payroll', 'unit_price': '80000', 'billing': 'one_time', 'price_reviewed': false, 'active': true},
+      ];
+    }
+    if (path.startsWith('crm/proposals')) {
+      return [
+        {'id': 1, 'lead': 1, 'version': 1, 'title': 'Axon ERP Proposal — Karim Garments', 'body': _bn ? 'আপনার প্রতিষ্ঠানের জন্য প্রস্তাবিত সমাধান...' : 'Proposed solution for your organisation...', 'status': 'draft', 'subtotal': 400000, 'discount_amount': 20000, 'discount_pct': 5, 'tax_pct': 0, 'tax_amount': 0, 'total': 380000, 'prices_reviewed': true},
+      ];
+    }
+    if (path.startsWith('crm/activities')) {
+      return [
+        {'id': 1, 'org': 1, 'kind': 'call', 'kind_display': _bn ? 'কল' : 'Call', 'subject': _bn ? 'প্রথম কল' : 'Intro call', 'body': '', 'actor_name': _bn ? 'আরিফ' : 'Arif', 'created_at': '2026-10-12T10:00:00'},
+      ];
+    }
+    return [];
+  }
+
+  @override
+  Future<Map<String, dynamic>> createItem(String path, Map<String, dynamic> body) async {
+    if (path.startsWith('crm/')) return {'id': 99, ...body};
+    return super.createItem(path, body);
+  }
+
+  @override
+  Future<Map<String, dynamic>> getJson(String path) async {
+    await _slow();
+    if (path.startsWith('/crm/today')) {
+      if (mode == FakeMode.fail) _fail();
+      final leads = mode == FakeMode.empty ? <Map<String, dynamic>>[] : _crmLeads().where((l) => (l['score'] as int) >= 90).toList();
+      return {
+        'ok': true,
+        'high_score_leads': leads,
+        'lead_followups': mode == FakeMode.empty ? [] : [
+          {'id': 3, 'name': _bn ? 'শপ ৩৬৫' : 'Shop 365', 'company': 'Shop 365', 'next_follow_up': '2026-10-13', 'priority': 'normal'},
+        ],
+        'overdue_next_steps': mode == FakeMode.empty ? [] : [
+          {'deal_id': 1, 'title': 'Axon ERP — Karim Garments', 'next_step': _bn ? 'ডেমো কল' : 'Demo call', 'due': '2026-10-11'},
+        ],
+        'missing_next_step': mode == FakeMode.empty ? [] : [
+          {'deal_id': 2, 'title': 'Axon ERP — Pharma Care'},
+        ],
+        'due_tasks': [],
+        'stuck_deals': mode == FakeMode.empty ? [] : [
+          {'deal_id': 1, 'title': 'Axon ERP — Karim Garments', 'stage': _bn ? 'যোগাযোগ' : 'Qualified', 'days': 23, 'threshold': 10},
+        ],
+      };
+    }
+    if (path.startsWith('/crm/dashboard')) {
+      if (mode == FakeMode.fail) _fail();
+      final thin = mode == FakeMode.empty;
+      return {
+        'ok': true,
+        'pipeline_value': thin ? 0 : 2150000,
+        'won_value': thin ? 0 : 1850000,
+        'status_counts': {'new': 1, 'contacted': 1, 'demo': 1, 'proposal': 0, 'won': 2, 'lost': 1},
+        'high_priority_leads': thin ? [] : _crmLeads().where((l) => l['priority'] == 'high').toList(),
+        'forecast': thin
+            ? {'has_data': false, 'message_bn': 'পর্যাপ্ত ডাটা নেই — পূর্বাভাসের জন্য অন্তত একটি চলমান ডিল দরকার।', 'message_en': 'Not enough data — a forecast needs at least one open deal.', 'weighted': 0, 'method': 'Σ(value × probability / 100) over open deals'}
+            : {'has_data': true, 'weighted': 622500, 'best_case': 2150000, 'commit': 300000, 'open_count': 3, 'commit_count': 1, 'method': 'Σ(value × probability / 100) over open deals'},
+        'win_loss': thin ? {'has_data': false} : {'has_data': true, 'won': 2, 'lost': 1, 'win_rate': 66.7},
+        'by_industry': thin ? {'has_data': false, 'rows': []} : {'has_data': true, 'rows': [
+          {'industry': 'rmg', 'count': 1, 'value': 1200000},
+          {'industry': 'pharma', 'count': 1, 'value': 650000},
+          {'industry': 'retail', 'count': 1, 'value': 300000},
+        ]},
+        'by_salesperson': thin ? {'has_data': false, 'rows': []} : {'has_data': true, 'rows': [
+          {'member_id': 1, 'name': _bn ? 'আরিফ' : 'Arif', 'role': 'owner', 'open': 2, 'won': 2, 'lost': 0, 'won_value': 1850000},
+          {'member_id': 2, 'name': _bn ? 'নাদিয়া' : 'Nadia', 'role': 'sales', 'open': 1, 'won': 0, 'lost': 1, 'won_value': 0},
+        ]},
+      };
+    }
+    if (path.contains('/timeline')) {
+      return {
+        'ok': true,
+        'insight': _bn ? '২ ইনবাউন্ড / ১ আউটবাউন্ড বার্তা; সর্বশেষ টোন: pos।' : '2 inbound / 1 outbound messages; last tone: pos.',
+        'messages': mode == FakeMode.empty ? [] : [
+          {'id': 1, 'direction': 'in', 'text': _bn ? 'ভ্যাট কমপ্লায়েন্ট ইআরপি লাগবে' : 'Need VAT-compliant ERP', 'sentiment': 'pos', 'at': '2026-10-10T09:00:00'},
+          {'id': 2, 'direction': 'out', 'text': _bn ? 'ডেমো সেট করছি।' : 'Setting up a demo.', 'sentiment': 'neu', 'at': '2026-10-10T10:00:00'},
+        ],
+        'activities': mode == FakeMode.empty ? [] : [
+          {'id': 1, 'kind': 'call', 'kind_display': _bn ? 'কল' : 'Call', 'subject': _bn ? 'প্রথম কল' : 'Intro call', 'body': '', 'created_at': '2026-10-12T10:00:00'},
+        ],
+      };
+    }
+    if (path.contains('/followup')) {
+      return {
+        'ok': true,
+        'suggested_contact_date': '2026-10-14',
+        'draft': _bn ? 'করিম গার্মেন্টস, Axon ERP নিয়ে আলোচনা করতে চাই।' : 'Karim Garments, we would love to discuss Axon ERP.',
+        'draft_source': 'template',
+      };
+    }
+    return super.getJson(path);
+  }
+
+  @override
+  Future<Map<String, dynamic>> postJson(String path, [Map<String, dynamic> body = const {}]) async {
+    if (path.startsWith('/crm/extract')) {
+      return {'ok': true, 'ai_available': false, 'phone': '01712345678', 'phones': [], 'whatsapp': '01712345678', 'email': 'buy@karim.com', 'company': 'Karim Garments Ltd', 'name': 'Karim'};
+    }
+    if (path.contains('/proposal/')) {
+      return {'ok': false, 'needs_key': true, 'message': _bn ? 'চালু হবে যখন AI key যোগ হবে' : 'Available when an AI key is added'};
+    }
+    if (path.contains('/onboard/')) {
+      return {'ok': false, 'message': _bn ? 'Axon ERP কানেক্ট হলে হ্যান্ড-অফ চালু হবে।' : 'Hand-off available when Axon ERP is connected.'};
+    }
+    if (path.startsWith('/crm/')) return {'ok': true, ...body};
+    return super.postJson(path, body);
+  }
 
 }

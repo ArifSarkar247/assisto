@@ -71,6 +71,8 @@ const _biTa = '\u099f\u09be'; // Ta (o'clock)
 const _biMinute = '\u09ae\u09bf\u09a8\u09bf\u099f'; // minit
 const _biHour = ['\u0998\u09a3\u09cd\u099f\u09be', '\u0998\u09a8\u09cd\u099f\u09be']; // ghonta
 const _biHalf = ['\u0986\u09a7\u09be', '\u0986\u09a7']; // adha
+const _biThisMonth = ['\u098f\u0987', '\u099a\u09b2\u09a4\u09bf']; // ei, cholti
+
 
 // day-part -> default hour; the bool marks PM-ish parts for bare-hour handling.
 const Map<String, List<Object>> _dayparts = {
@@ -104,6 +106,26 @@ const Map<String, int> _weekdays = {
   '\u099c\u09c1\u09ae\u09be': 4, // juma
   '\u09b6\u09a8\u09bf\u09ac\u09be\u09b0': 5, // shonibar
   '\u09b0\u09ac\u09bf\u09ac\u09be\u09b0': 6, // robibar
+};
+
+// month-name -> 1..12 (English + common Bangla Gregorian names)
+const Map<String, int> _months = {
+  'january': 1, 'jan': 1, 'february': 2, 'feb': 2, 'march': 3, 'mar': 3,
+  'april': 4, 'apr': 4, 'may': 5, 'june': 6, 'jun': 6, 'july': 7, 'jul': 7,
+  'august': 8, 'aug': 8, 'september': 9, 'sep': 9, 'sept': 9,
+  'october': 10, 'oct': 10, 'november': 11, 'nov': 11, 'december': 12, 'dec': 12,
+  '\u099c\u09be\u09a8\u09c1\u09af\u09bc\u09be\u09b0\u09bf': 1, // january
+  '\u09ab\u09c7\u09ac\u09cd\u09b0\u09c1\u09af\u09bc\u09be\u09b0\u09bf': 2, // february
+  '\u09ae\u09be\u09b0\u09cd\u099a': 3, // march
+  '\u098f\u09aa\u09cd\u09b0\u09bf\u09b2': 4, // april
+  '\u09ae\u09c7': 5, // may
+  '\u099c\u09c1\u09a8': 6, // june
+  '\u099c\u09c1\u09b2\u09be\u0987': 7, // july
+  '\u0986\u0997\u09b8\u09cd\u099f': 8, // august
+  '\u09b8\u09c7\u09aa\u09cd\u099f\u09c7\u09ae\u09cd\u09ac\u09b0': 9, // september
+  '\u0985\u0995\u09cd\u099f\u09cb\u09ac\u09b0': 10, // october
+  '\u09a8\u09ad\u09c7\u09ae\u09cd\u09ac\u09b0': 11, // november
+  '\u09a1\u09bf\u09b8\u09c7\u09ae\u09cd\u09ac\u09b0': 12, // december
 };
 
 String _normalizeDigits(String s) {
@@ -390,6 +412,34 @@ DateTime _nextDom(DateTime from, int dom) {
     final d = dom > _daysInMonth(nm.year, nm.month) ? _daysInMonth(nm.year, nm.month) : dom;
     return (DateTime(nm.year, nm.month, d), m.group(0)!, 0.9);
   }
+  // this month, day N: "ei/cholti masher N tarikh"
+  m = RegExp('(?:${_biThisMonth.join('|')})\\s*$_biMonthOf[^0-9]*(\\d{1,2})\\s*$_biDateWord')
+      .firstMatch(low);
+  if (m != null) {
+    final dom = int.parse(m.group(1)!);
+    final d = dom > _daysInMonth(now.year, now.month) ? _daysInMonth(now.year, now.month) : dom;
+    return (DateTime(now.year, now.month, d), m.group(0)!, 0.85);
+  }
+  // "<month name> N" (e.g. "may 5", bengali month + day)
+  m = RegExp('([a-z\u0980-\u09ff]+)\\s+(\\d{1,2})(?:\\s*$_biDateWord)?').firstMatch(low);
+  if (m != null && _months.containsKey(m.group(1))) {
+    final mo = _months[m.group(1)]!;
+    final dom = int.parse(m.group(2)!);
+    final y = now.year +
+        ((mo < now.month || (mo == now.month && dom < now.day)) ? 1 : 0);
+    final d = dom > _daysInMonth(y, mo) ? _daysInMonth(y, mo) : dom;
+    return (DateTime(y, mo, d), m.group(0)!, 0.85);
+  }
+  // "N <month name>" (e.g. "25 december", "N tarikh december")
+  m = RegExp('(\\d{1,2})\\s*(?:$_biDateWord\\s*)?([a-z\u0980-\u09ff]+)').firstMatch(low);
+  if (m != null && _months.containsKey(m.group(2))) {
+    final mo = _months[m.group(2)]!;
+    final dom = int.parse(m.group(1)!);
+    final y = now.year +
+        ((mo < now.month || (mo == now.month && dom < now.day)) ? 1 : 0);
+    final d = dom > _daysInMonth(y, mo) ? _daysInMonth(y, mo) : dom;
+    return (DateTime(y, mo, d), m.group(0)!, 0.85);
+  }
   // bare "N tarikh"
   m = RegExp('(\\d{1,2})\\s*$_biDateWord').firstMatch(low);
   if (m != null) {
@@ -450,6 +500,24 @@ String _cleanTitle(String raw, List<String> matched) {
   }
   out = out.replaceAll(RegExp(r'\s+'), ' ').trim();
   out = out.replaceAll(RegExp(r'^[,\-:;\u0964]+|[,\-:;\u0964]+$'), '').trim();
+  // drop dangling connectors left where a date/time phrase was removed:
+  //   "pay bill on 25/12" -> "pay bill on" -> "pay bill"
+  //   "call mom at 5pm"   -> "call mom at" -> "call mom"
+  //   Bangla connectors (longest-first): tarikhe, tarikh, te, e (\u-escaped).
+  const enConn = r'(?:at|on|by|to)';
+  // tarikhe | tarikh | te | e
+  const bnConn =
+      '(?:\u09a4\u09be\u09b0\u09bf\u0996\u09c7|\u09a4\u09be\u09b0\u09bf\u0996|\u09a4\u09c7|\u098f)';
+  const punct = '^[,\\-:;\u0964]+|[,\\-:;\u0964]+\$';
+  String prev = '';
+  while (prev != out) {
+    prev = out;
+    out = out.replaceAll(RegExp('\\s+$enConn\$', caseSensitive: false), '');
+    out = out.replaceAll(RegExp('^$enConn\\s+', caseSensitive: false), '');
+    out = out.replaceAll(RegExp('^$bnConn\\s+'), '');
+    out = out.replaceAll(RegExp('\\s+$bnConn\$'), '');
+    out = out.replaceAll(RegExp(punct), '').trim();
+  }
   return out.isEmpty ? _normalizeDigits(raw).trim() : out;
 }
 
@@ -484,7 +552,15 @@ DateTime? nextOccurrence(DateTime? anchor, RecurrenceRule? rule, {DateTime? afte
         final m = _addMonths(base, step);
         final day = dom > _daysInMonth(m.year, m.month) ? _daysInMonth(m.year, m.month) : dom;
         final cand = DateTime(m.year, m.month, day, h, mi);
-        if (cand.isAfter(after)) return cand;
+        if (cand.isAfter(after)) {
+          // respect interval: only every `interval` months from the anchor
+          if (interval > 1) {
+            final monthsFromAnchor =
+                (m.year - anchor.year) * 12 + (m.month - anchor.month);
+            if (monthsFromAnchor % interval != 0) continue;
+          }
+          return cand;
+        }
       }
       return null;
     case 'yearly':
@@ -493,7 +569,10 @@ DateTime? nextOccurrence(DateTime? anchor, RecurrenceRule? rule, {DateTime? afte
       for (var y = after.year; y < after.year + 20; y++) {
         final day = dom > _daysInMonth(y, mo) ? _daysInMonth(y, mo) : dom;
         final cand = DateTime(y, mo, day, h, mi);
-        if (cand.isAfter(after)) return cand;
+        if (cand.isAfter(after)) {
+          if (interval > 1 && (y - anchor.year) % interval != 0) continue;
+          return cand;
+        }
       }
       return null;
     default:
@@ -506,11 +585,16 @@ DateTime? nextOccurrence(DateTime? anchor, RecurrenceRule? rule, {DateTime? afte
 DateTime? snoozeReminder(DateTime? currentDue, String text, {DateTime? now}) {
   now = now ?? DateTime.now();
   final low = _normalizeDigits(text).toLowerCase().trim();
+  // day-after-tomorrow ("porshu") -> +2 days at the requested daypart (default 9)
+  if (low.contains(_biDayAfter) || low.contains('day after tomorrow')) {
+    final d = now.add(const Duration(days: 2));
+    return DateTime(d.year, d.month, d.day, _partHour(low, _defaultHour), 0);
+  }
   if (_biTomorrow.any(low.contains) || low.contains('tomorrow')) {
     final d = now.add(const Duration(days: 1));
     return DateTime(d.year, d.month, d.day, _partHour(low, 8), 0);
   }
-  if (low.contains('tonight') || low.contains(_biDayAfter)) {
+  if (low.contains('tonight')) {
     return DateTime(now.year, now.month, now.day, 21, 0);
   }
   if (low.contains('next week') ||

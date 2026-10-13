@@ -5,10 +5,10 @@ import '../l10n/app_localizations.dart';
 /// the type-specific fields it captures, a default expiry rule, and the
 /// matching govt-service guide key for renewal steps.
 ///
-/// Type-specific fields are stored inside the document `note` as a compact
-/// "key=value; key=value" string (the backend note field already exists), so
-/// no model change is required to ship. The integrator MAY later promote these
-/// to a JSONField (see MIGRATION NOTE in the report).
+/// Type-specific fields are stored in a dedicated `details` JSON map on the
+/// Document model (see MIGRATION NOTE in the report) and the user's free text
+/// stays in `note`. The two are NEVER packed into one delimited string, so a
+/// value containing ';', '|' or '=' can no longer corrupt the record.
 class VaultDocType {
   final String key;
   final IconData icon;
@@ -112,34 +112,67 @@ VaultDocType vaultTypeOf(String? key) =>
     kVaultDocTypes.firstWhere((d) => d.key == key,
         orElse: () => kVaultDocTypes.last);
 
-/// Encode type-specific fields into the note string: "k=v; k=v | freeNote".
-String encodeDetails(Map<String, String> details, String freeNote) {
-  final kv = details.entries
-      .where((e) => e.value.trim().isNotEmpty)
-      .map((e) => '${e.key}=${e.value.trim()}')
-      .join('; ');
-  if (kv.isEmpty) return freeNote.trim();
-  if (freeNote.trim().isEmpty) return kv;
-  return '$kv | ${freeNote.trim()}';
+/// Build the clean `details` map that is sent to the API as its own JSON
+/// field (never merged into `note`). Blank values are dropped.
+Map<String, String> cleanDetails(Map<String, String> details) {
+  final out = <String, String>{};
+  details.forEach((k, v) {
+    if (v.trim().isNotEmpty) out[k] = v.trim();
+  });
+  return out;
 }
 
-/// Decode the note string back into (details, freeNote).
-({Map<String, String> details, String note}) decodeDetails(String? raw) {
-  final s = (raw ?? '').trim();
-  if (s.isEmpty) return (details: <String, String>{}, note: '');
-  final parts = s.split('|');
-  final kvPart = parts.first.trim();
-  final free = parts.length > 1 ? parts.sublist(1).join('|').trim() : '';
-  final details = <String, String>{};
-  // only treat as structured if it looks like k=v pairs
-  if (kvPart.contains('=')) {
-    for (final chunk in kvPart.split(';')) {
-      final i = chunk.indexOf('=');
-      if (i > 0) {
-        details[chunk.substring(0, i).trim()] = chunk.substring(i + 1).trim();
-      }
-    }
-    return (details: details, note: free);
+/// Read a document's structured fields + free note out of the API item.
+///
+/// Source of truth is the separate `details` map (JSONField) and `note`
+/// string. For documents created by an OLDER build (which packed
+/// "k=v; k=v | freeNote" into `note` and had no `details`), we best-effort
+/// decode that legacy form ONCE for backward compatibility — but only when it
+/// unambiguously looks structured. If parsing is at all ambiguous we keep the
+/// entire original string as the free note so no data is ever lost.
+({Map<String, String> details, String note}) readDocDetails(
+    Map<String, dynamic> item) {
+  // Preferred: structured map stored separately.
+  final rawDetails = item['details'];
+  if (rawDetails is Map) {
+    final details = <String, String>{};
+    rawDetails.forEach((k, v) => details['$k'] = v == null ? '' : '$v');
+    final note = (item['note'] ?? '').toString();
+    return (details: details, note: note);
   }
-  return (details: <String, String>{}, note: s);
+  // Backward-compat: decode a legacy note, never losing data.
+  return _decodeLegacyNote(item['note']);
+}
+
+/// Legacy "k=v; k=v | freeNote" decoder kept only for old records.
+/// Conservative: a part is treated as structured ONLY if EVERY ';'-separated
+/// chunk before the first '|' is a clean "key=value" with a simple key
+/// (letters/digits/underscore) and no stray delimiters. Otherwise the whole
+/// raw string is returned verbatim as the free note.
+({Map<String, String> details, String note}) _decodeLegacyNote(dynamic raw) {
+  final s = (raw ?? '').toString().trim();
+  if (s.isEmpty) return (details: <String, String>{}, note: '');
+  final pipe = s.indexOf('|');
+  final kvPart = (pipe >= 0 ? s.substring(0, pipe) : s).trim();
+  final free = pipe >= 0 ? s.substring(pipe + 1).trim() : '';
+  if (!kvPart.contains('=')) {
+    return (details: <String, String>{}, note: s);
+  }
+  final details = <String, String>{};
+  final keyRe = RegExp(r'^[A-Za-z0-9_]+$');
+  for (final chunk in kvPart.split(';')) {
+    final c = chunk.trim();
+    if (c.isEmpty) continue;
+    final i = c.indexOf('=');
+    final key = i > 0 ? c.substring(0, i).trim() : '';
+    final val = i > 0 ? c.substring(i + 1).trim() : '';
+    // Ambiguous (no '=', bad key, or a '=' inside the value) => bail out and
+    // treat the ORIGINAL string as a plain note so nothing is lost.
+    if (i <= 0 || !keyRe.hasMatch(key) || val.contains('=')) {
+      return (details: <String, String>{}, note: s);
+    }
+    details[key] = val;
+  }
+  if (details.isEmpty) return (details: <String, String>{}, note: s);
+  return (details: details, note: free);
 }

@@ -125,8 +125,20 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     }
   }
 
+  /// Mirror core.logic.safety.sos_alert_targets: skip entries without a phone,
+  /// keep primary-first order. Returns the first callable contact.
+  Map<String, dynamic>? _firstCallable() {
+    for (final c in _contacts) {
+      if ((c['phone'] ?? '').toString().trim().isNotEmpty) return c;
+    }
+    return null;
+  }
+
   Future<void> _sos() async {
-    if (_contacts.isEmpty) {
+    // Never blindly dial _contacts.first — pick the first entry that has a
+    // non-empty phone number.
+    final primary = _firstCallable();
+    if (primary == null) {
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(AppLocalizations.of(context).emergencyAddContactFirst)));
       return;
@@ -135,7 +147,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('SOS'),
-        content: Text(AppLocalizations.of(context).emergencySosConfirm(_contacts.first['name'], _contacts.first['phone'])),
+        content: Text(AppLocalizations.of(context).emergencySosConfirm(primary['name'], primary['phone'])),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(context).emergencyNo)),
           FilledButton(
@@ -150,7 +162,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     final cd = int.tryParse(await Settings.getString('safety_sos_cd') ?? '') ?? 5;
     if (!mounted) return;
     final fire = await SafetySosCountdown.show(context, cd);
-    if (fire && mounted) _call(_contacts.first['phone']);
+    if (fire && mounted) _call(primary['phone'].toString());
   }
 
   @override

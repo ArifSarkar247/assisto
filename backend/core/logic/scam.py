@@ -49,10 +49,23 @@ def normalize(text):
     return t
 
 
+# Scammers space out only a handful of sensitive keywords ("o t p", "p i n")
+# to dodge naive filters. We collapse a spaced-out run ONLY when it spells one
+# of these known evasion keywords — so innocent spaced acronyms like "c i d"
+# (which is a legitimate signal word) are left untouched and don't false-match.
+_DESPACE_KEYWORDS = ["otp", "pin", "cvv", "password", "pwd"]
+# Build a regex that matches each keyword with a single space between letters,
+# e.g. "o t p", "p a s s w o r d" (word-bounded).
+_DESPACE_RE = re.compile(
+    r"\b(" + "|".join(" ".join(k) for k in _DESPACE_KEYWORDS) + r")\b")
+
+
 def _despace_latin(low):
     """Join 'o t p' / 'p i n' style spaced-out Latin letters so the keyword
-    regexes still fire. Only collapses single-letter gaps (<=1 char tokens)."""
-    return re.sub(r"\b(?:[a-z] ){2,}[a-z]\b", lambda m: m.group(0).replace(" ", ""), low)
+    regexes still fire — but ONLY for known evasion keywords (otp/pin/cvv/
+    password/pwd), never for arbitrary spaced Latin runs. This keeps 'c i d'
+    from being collapsed into 'cid' and falsely firing the impersonation rule."""
+    return _DESPACE_RE.sub(lambda m: m.group(0).replace(" ", ""), low)
 
 
 # ---------------------------------------------------------------------------
@@ -246,6 +259,22 @@ PATTERNS = [
         "signals": [r"verify your account", r"update your account", r"অ্যাকাউন্ট (ভেরিফাই|আপডেট|যাচাই)",
                     r"re[- ]?activate", r"পুনরায় চালু", r"kyc.*update", r"তথ্য হালনাগাদ"],
     },
+    {
+        "key": "mfs_verify_phish", "weight": 24, "level": "high",
+        "name_bn": "bKash/Nagad-এর নামে নম্বর/অ্যাকাউন্ট 'যাচাই' করতে বলা",
+        "name_en": "MFS-brand 'verify your number/account' phishing",
+        "why_bn": "bKash/Nagad/Rocket/Upay-এর নাম ভাঙিয়ে 'আপনার নম্বর/অ্যাকাউন্ট যাচাই "
+                  "করুন' বলা হয় — এটি তথ্য বা PIN/OTP হাতানোর ফাঁদ। আসল MFS এভাবে "
+                  "ফোনে/মেসেজে যাচাই করতে বলে না।",
+        "why_en": "Posing as bKash/Nagad/Rocket/Upay and telling you to 'verify your "
+                  "number/account' is a trap to harvest your details or PIN/OTP. A real "
+                  "MFS never asks you to verify like this by phone or message.",
+        "do_bn": "লিংকে বা মেসেজে কিছু যাচাই করবেন না। নিজের অফিসিয়াল অ্যাপ/হেল্পলাইনে "
+                 "নিজে যোগাযোগ করুন।",
+        "do_en": "Don't 'verify' anything via a message or link. Reach out yourself "
+                 "through the official app/helpline.",
+        "signals": [],  # dynamic: MFS brand + a verify-word targeting number/account
+    },
 ]
 
 PATTERN_INDEX = {p["key"]: p for p in PATTERNS}
@@ -268,6 +297,16 @@ def _dynamic_hits(low):
             # plain link — mild; still flag suspicious_link but low
             hits.add("suspicious_link")
             extra["suspicious_link"] = False
+    # MFS-brand impersonation asking to "verify/যাচাই" a number or account:
+    # brand + a verify-word + a number/account target. This is a known
+    # credential-harvest phishing tactic, so it should never land at 'safe'.
+    if any(m in low for m in MFS):
+        verify_word = re.search(r"verify|ভেরিফাই|যাচাই|confirm|নিশ্চিত", low)
+        target = re.search(
+            r"number|নম্বর|নাম্বার|account|অ্যাকাউন্ট|একাউন্ট|wallet|ওয়ালেট|\d{4,}",
+            low)
+        if verify_word and target:
+            hits.add("mfs_verify_phish")
     return hits, extra
 
 

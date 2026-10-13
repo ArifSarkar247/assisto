@@ -276,9 +276,34 @@ class _Ranked {
   _Ranked(this.item, this.score, this.matched);
 }
 
+// Question-framing stopwords (mirror of backend reminders_engine._MEMORY_STOP).
+// Bangla keywords are \u-escaped so no Bangla literal appears in this .dart file.
 const _memoryStop = {
   'what', 'did', 'i', 'tell', 'you', 'about', 'me', 'my', 'the', 'a', 'an',
-  'do', 'know', 'remember', 'said', 'was', 'is', 'of', 'for',
+  'do', 'know', 'remember', 'said', 'was', 'is', 'of',
+  '\u0986\u09ae\u09bf',
+  '\u09a4\u09cb\u09ae\u09be\u0995\u09c7',
+  '\u0986\u09aa\u09a8\u09be\u0995\u09c7',
+  '\u0995\u09c0',
+  '\u0995\u09bf',
+  '\u09ac\u09b2\u09c7\u099b\u09bf\u09b2\u09be\u09ae',
+  '\u09ac\u09b2\u09c7\u099b\u09bf',
+  '\u09b8\u09ae\u09cd\u09aa\u09b0\u09cd\u0995\u09c7',
+  '\u09a8\u09bf\u09af\u09bc\u09c7',
+  '\u09a4\u09c1\u09ae\u09bf',
+  '\u0986\u09aa\u09a8\u09bf',
+  '\u099c\u09be\u09a8\u09cb',
+  '\u099c\u09be\u09a8\u09c7\u09a8',
+  '\u0986\u09ae\u09be\u09b0',
+  '\u09ae\u09a8\u09c7',
+  '\u0986\u099b\u09c7',
+  '\u0995\u09c7',
+  '\u099f\u09be',
+  '\u09ac\u09bf\u09b7\u09af\u09bc\u09c7',
+  '\u09ac\u09cd\u09af\u09be\u09aa\u09be\u09b0\u09c7',
+  '\u0995\u09cb\u09a5\u09be\u09af\u09bc',
+  '\u0995\u0996\u09a8',
+  '\u0995\u09a4',
 };
 
 List<String> _tokens(String s) {

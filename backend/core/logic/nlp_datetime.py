@@ -473,6 +473,19 @@ def _clean_title(raw, matched):
     # tidy leftover connectors/punct
     out = re.sub(r"\s+", " ", out)
     out = out.strip(" ,।-:;।")
-    # drop dangling leading/trailing bangla relative particles
-    out = re.sub(r"^(?:এ|তে|এ)\s+", "", out)
+    # drop dangling connectors left where a date/time phrase was removed, e.g.
+    #   "pay bill on 25/12" -> "pay bill on " -> "pay bill"
+    #   "call mom at 5pm"   -> "call mom at "  -> "call mom"
+    #   "২৫ তারিখে বিল দাও" -> "তারিখে বিল দাও" -> "বিল দাও"
+    # English connectors are whole-word; Bangla particles may hang with/without space.
+    _EN_CONN = r"(?:at|on|by|to)"
+    _BN_CONN = r"(?:এ|তে|তারিখে|তারিখ)"
+    prev = None
+    while prev != out:
+        prev = out
+        out = re.sub(rf"\s+{_EN_CONN}$", "", out, flags=re.IGNORECASE)
+        out = re.sub(rf"^{_EN_CONN}\s+", "", out, flags=re.IGNORECASE)
+        out = re.sub(rf"^{_BN_CONN}\s+", "", out)
+        out = re.sub(rf"\s+{_BN_CONN}$", "", out)
+        out = out.strip(" ,।-:;।")
     return out.strip() or normalize_digits(raw).strip()

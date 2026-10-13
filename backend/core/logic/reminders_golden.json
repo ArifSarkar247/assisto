@@ -1,0 +1,228 @@
+[
+  {
+    "input": "আগামীকাল ডাক্তার দেখাতে যাব",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-14T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "ডাক্তার দেখাতে যাব"
+    }
+  },
+  {
+    "input": "৩ দিন পর বিল দিতে হবে",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-16T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "বিল দিতে হবে"
+    }
+  },
+  {
+    "input": "পরশু মিটিং",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-15T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "মিটিং"
+    }
+  },
+  {
+    "input": "আজকে রিপোর্ট জমা",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-13T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "রিপোর্ট জমা"
+    }
+  },
+  {
+    "input": "প্রতি শুক্রবার জুম্মা",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-16T09:00:00",
+      "recurrence_rule": {
+        "freq": "weekly",
+        "interval": 1,
+        "weekday": 4,
+        "day_of_month": null,
+        "month": null,
+        "time": null
+      },
+      "clean_title": "জুম্মা"
+    }
+  },
+  {
+    "input": "প্রতি মাসের ৫ তারিখ বাড়ি ভাড়া",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-11-05T09:00:00",
+      "recurrence_rule": {
+        "freq": "monthly",
+        "interval": 1,
+        "weekday": null,
+        "day_of_month": 5,
+        "month": null,
+        "time": null
+      },
+      "clean_title": "বাড়ি ভাড়া"
+    }
+  },
+  {
+    "input": "প্রতি মাসের ১ তারিখ সেলারি",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-11-01T09:00:00",
+      "recurrence_rule": {
+        "freq": "monthly",
+        "interval": 1,
+        "weekday": null,
+        "day_of_month": 1,
+        "month": null,
+        "time": null
+      },
+      "clean_title": "সেলারি"
+    }
+  },
+  {
+    "input": "আগামী মাসের ৫ তারিখ পরীক্ষা",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-11-05T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "পরীক্ষা"
+    }
+  },
+  {
+    "input": "এই মাসের ২০ তারিখ পেমেন্ট",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-20T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "পেমেন্ট"
+    }
+  },
+  {
+    "input": "next Friday 5pm meeting",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-16T17:00:00",
+      "recurrence_rule": null,
+      "clean_title": "next meeting"
+    }
+  },
+  {
+    "input": "every day at 7:30am gym",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-13T07:30:00",
+      "recurrence_rule": {
+        "freq": "daily",
+        "interval": 1,
+        "weekday": null,
+        "day_of_month": null,
+        "month": null,
+        "time": "07:30"
+      },
+      "clean_title": "gym"
+    }
+  },
+  {
+    "input": "in 3 days pay rent",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-16T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "pay rent"
+    }
+  },
+  {
+    "input": "remind me to call mom tomorrow morning",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-14T08:00:00",
+      "recurrence_rule": null,
+      "clean_title": "call mom"
+    }
+  },
+  {
+    "input": "pay bill on 25/12",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-12-25T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "pay bill"
+    }
+  },
+  {
+    "input": "call mom at 5pm",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-13T17:00:00",
+      "recurrence_rule": null,
+      "clean_title": "call mom"
+    }
+  },
+  {
+    "input": "25 December trip",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-12-25T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "trip"
+    }
+  },
+  {
+    "input": "ডিসেম্বর ৫ অনুষ্ঠান",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-12-05T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "অনুষ্ঠান"
+    }
+  },
+  {
+    "input": "may 5 picnic",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2027-05-05T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "picnic"
+    }
+  },
+  {
+    "input": "5/1/2027 trip",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2027-01-05T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "trip"
+    }
+  },
+  {
+    "input": "2pm lunch",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-13T14:00:00",
+      "recurrence_rule": null,
+      "clean_title": "lunch"
+    }
+  },
+  {
+    "input": "8am breakfast",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-14T08:00:00",
+      "recurrence_rule": null,
+      "clean_title": "breakfast"
+    }
+  },
+  {
+    "input": "২৫ তারিখে বিল দাও",
+    "now": "2026-10-13T10:00:00",
+    "expected": {
+      "datetime": "2026-10-25T09:00:00",
+      "recurrence_rule": null,
+      "clean_title": "বিল দাও"
+    }
+  }
+]

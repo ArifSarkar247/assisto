@@ -72,12 +72,24 @@ class _SafetyScreenState extends State<SafetyScreen> {
     }
   }
 
+  /// Mirror core.logic.safety.sos_alert_targets: skip entries without a phone,
+  /// keep the original (primary-first) order. Returns the first callable one.
+  Map<String, dynamic>? _firstCallable(List<Map<String, dynamic>> contacts) {
+    for (final c in contacts) {
+      if ((c['phone'] ?? '').toString().trim().isNotEmpty) return c;
+    }
+    return null;
+  }
+
   Future<void> _triggerSos() async {
     final t = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final contacts = await _contacts();
     if (!mounted) return;
-    if (contacts.isEmpty) {
+    // Pick the first contact that actually has a phone — never blindly dial
+    // contacts.first, which may be a blank/phoneless entry.
+    final primary = _firstCallable(contacts);
+    if (primary == null) {
       messenger.showSnackBar(SnackBar(content: Text(t.emergencyAddContactFirst)));
       return;
     }
@@ -85,8 +97,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
     if (!fire || !mounted) return;
     // share location best-effort, then call the primary contact
     await _shareLocationBestEffort();
-    final primary = contacts.first;
-    await _call(primary['phone']);
+    await _call(primary['phone'].toString());
   }
 
   Future<void> _shareLocationBestEffort() async {

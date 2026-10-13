@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
@@ -6,7 +7,11 @@ import '../l10n/app_localizations.dart';
 /// ETA with a live status (on-time / grace / overdue) mirroring
 /// core.logic.safety.checkin_status, and a big "arrived" button.
 /// When no check-in is active it offers to set one.
-class SafetyCheckinCard extends StatelessWidget {
+///
+/// A periodic timer re-renders the status every 60s so it advances
+/// on-time -> grace -> overdue while the screen stays open (mirrors the
+/// fall-preview timer pattern in safety_screen.dart).
+class SafetyCheckinCard extends StatefulWidget {
   final String? place;
   final DateTime? eta;
   final VoidCallback onSet;
@@ -23,8 +28,49 @@ class SafetyCheckinCard extends StatelessWidget {
   });
 
   @override
+  State<SafetyCheckinCard> createState() => _SafetyCheckinCardState();
+}
+
+class _SafetyCheckinCardState extends State<SafetyCheckinCard> {
+  Timer? _ticker;
+
+  @override
+  void initState() {
+    super.initState();
+    _syncTicker();
+  }
+
+  @override
+  void didUpdateWidget(covariant SafetyCheckinCard old) {
+    super.didUpdateWidget(old);
+    // Start ticking when a check-in becomes active, stop when it clears.
+    if (old.eta != widget.eta) _syncTicker();
+  }
+
+  void _syncTicker() {
+    _ticker?.cancel();
+    _ticker = null;
+    if (widget.eta != null) {
+      _ticker = Timer.periodic(const Duration(seconds: 60), (_) {
+        if (mounted) setState(() {}); // recompute the live status
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
+    final place = widget.place;
+    final eta = widget.eta;
+    final graceMinutes = widget.graceMinutes;
+    final onSet = widget.onSet;
+    final onArrived = widget.onArrived;
     if (eta == null) {
       return Card(
         child: ListTile(
