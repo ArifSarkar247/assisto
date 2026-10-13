@@ -308,3 +308,39 @@ V1 test APKs are **debug-signed** (installable now). Before Play Store we will g
 - ⚠️ **APK NOTE:** committed since build 43 (not yet shipped): Service guide, Settings→Safety (accident/fall + medicine follow-up), OEM battery-guidance → include in next P10 APK.
 - ✅ **P10 screens DONE (12 new, in drawer):** Finance, Plans/Credits, Watch feed, Nearby(GPS), Agent Studio, Service guide, Job hunter, Nominee, Personal CRM contacts, Business (catalog/orders/reply) + voice action-cards + Settings→Safety(accident) + OEM battery-guidance + medicine follow-up config. **Build 50 লাইভ** — সব ১৩টি নতুন স্ক্রিন (Business + AI Inbox সহ) অ্যাপে।
 - 🔨 **P10 remaining:** AI Inbox screen; runtime-permission reason dialogs (mic/location/camera/notification, bn/en); responsive 320/360/412+tablet polish; onboarding <60s + parent-linking; full screenshot gallery (every new screen+dialog+empty/loading/error, bn/en×light/dark) → review → final P10 APK. Then DEPTH AUDIT.
+
+## 🔎 DEPTH AUDIT (2026-10-13) — what really exists
+
+Legend: M=model · A=API · S=app screen · T=tests · K=works without a key. ✅ full · ◑ thin/partial · ➖ n/a · 🔑 needs key · 🔨 fixable-without-key (TODO)
+
+| Feature | M | A | S | T | K | Notes |
+|---|---|---|---|---|---|---|
+| Chat/agent NLU | ✅ | ✅ | ✅ | ✅ | ✅ | rule-based; solid |
+| Memory + "AI knows" | ✅ | ✅ | ✅ | ◑ | ✅ | solid |
+| Reminders/notes/todos | ✅ | ✅ | ✅ | ◑ | ✅ | offline-first |
+| Money (acct/txn/budget/loan/goal) | ✅ | ✅ | ✅ | ◑ | ✅ | solid |
+| Finance calc (zakat/EMI/networth/invest) | ➖ | ✅ | ✅ | ✅ | ✅ | pure compute |
+| Vault (+file attach) | ✅ | ✅ | ✅ | ◑ | ✅ | PIN+expiry+photo |
+| Family medicine + "খেয়েছি" | ✅ | ✅ | ✅ | ◑ | ✅ | solid |
+| **Medicine follow-up config** | ✅ | ✅ | ◑ | ➖ | ✅ | 🔨 fields in model/serializer + Settings note; **per-medicine form UI missing** |
+| Emergency + SOS GPS | ✅ | ✅ | ✅ | ➖ | ✅ | solid |
+| Subscriptions | ✅ | ✅ | ✅ | ➖ | ✅ | solid |
+| Scam check | ✅ | ✅ | ✅ | ➖ | ✅ | rule-based |
+| Watcher engine | ✅ | ✅ | ✅ | ✅ | ✅ | RSS/USD/weather no-key; Places/Spotify 🔑 |
+| Voice cmds (music/call/nav/nearby) | ➖ | ✅ | ✅ | ✅ | ✅ | deep-links; system-Assist/widget/wake-word ➖ not built (native) |
+| Nearby | ➖ | ✅ | ✅ | ✅ | ✅ | OSM no-key; Places 🔑 |
+| Personal CRM | ✅ | ✅ | ◑ | ➖ | ✅ | 🔨 contacts screen done; **meetings UI missing** |
+| Auto-pay ladder | ✅ | ✅ | ➖ | ➖ | ◑ | 🔨 backend+stop-all done; **no app screen**; exec 🔑 |
+| Elderly simple mode | ✅ | ✅ | ➖ | ➖ | ✅ | 🔨 flag only; **simplified-UI mode not built** |
+| Govt/religious guide | ➖ | ✅ | ✅ | ➖ | ✅ | original factual |
+| Agent Studio | ➖ | ✅ | ✅ | ➖ | 🔑 | needs-key state correct |
+| AI Inbox | ➖ | ✅ | ◑ | ✅ | ◑ | classify no-key; fetch 🔑 Gmail; screen thin until connected |
+| Business mode | ✅ | ✅ | ✅ | ✅ | ✅ | catalog replies no-key; WhatsApp send 🔑 |
+| AI CRM (Axon) | ✅ | ✅ | ➖ | ✅ | ◑ | 🔨 **no UI (API only)**; scoring no-key; proposal/ERP 🔑 |
+| Job hunter | ✅ | ✅ | ✅ | ✅ | ◑ | match no-key; tailor 🔑; Gmail-send 🔑 |
+| Nominee | ✅ | ✅ | ✅ | ➖ | ✅ | solid |
+| Monetization | ✅ | ✅ | ◑ | ✅ | ✅ | Plans screen; billing/AdMob/payment 🔑 |
+| Integrations Admin | ✅ | ✅ | ✅(web) | ✅ | ✅ | keystone; solid |
+| AI narrative/roleplay/mental/billAI/LifeScanner | ➖ | ✅ | ✅ | ◑ | 🔑 | needs-key states correct |
+
+**Fixable-without-key TODO (from audit):** (1) per-medicine follow-up config on the medicine add/edit form; (2) Personal CRM meetings UI; (3) Auto-pay ladder app screen; (4) Elderly simple-mode UI. **Bigger (plugin/native):** fall-detection sensors (settings done), system-Assist/widget/wake-word, notification-listener (bKash/bank), AI CRM web dashboard.
