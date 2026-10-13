@@ -28,6 +28,18 @@ import 'package:assisto/screens/reminders_screen.dart';
 import 'package:assisto/screens/notes_todos_screen.dart';
 import 'package:assisto/screens/memory_screen.dart';
 import 'package:assisto/screens/subscriptions_screen.dart';
+import 'package:assisto/screens/plans_screen.dart';
+import 'package:assisto/screens/finance_screen.dart';
+import 'package:assisto/screens/watch_feed_screen.dart';
+import 'package:assisto/screens/jobs_screen.dart';
+import 'package:assisto/screens/nominee_screen.dart';
+import 'package:assisto/screens/crm_contacts_screen.dart';
+import 'package:assisto/screens/business_screen.dart';
+import 'package:assisto/screens/inbox_screen.dart';
+import 'package:assisto/screens/guide_screen.dart';
+import 'package:assisto/screens/agent_studio_screen.dart';
+import 'package:assisto/screens/battery_guidance_screen.dart';
+import 'package:assisto/screens/onboarding_screen.dart';
 
 import 'fake_api.dart';
 
@@ -131,6 +143,18 @@ void main() {
     'connected_apps': (build: (_) => const SourcesScreen(), mode: FakeMode.data, full: true),
     'in_progress': (build: (_) => const InProgressScreen(), mode: FakeMode.data, full: true),
     'settings': (build: (_) => const SettingsScreen(), mode: FakeMode.data, full: true),
+    'plans': (build: (_) => const PlansScreen(), mode: FakeMode.data, full: true),
+    'finance': (build: (_) => const FinanceScreen(), mode: FakeMode.data, full: true),
+    'watch_feed': (build: (_) => const WatchFeedScreen(), mode: FakeMode.data, full: true),
+    'jobs': (build: (_) => const JobsScreen(), mode: FakeMode.data, full: true),
+    'nominee': (build: (_) => const NomineeScreen(), mode: FakeMode.data, full: true),
+    'crm_contacts': (build: (_) => const CrmContactsScreen(), mode: FakeMode.data, full: true),
+    'business': (build: (_) => const BusinessScreen(), mode: FakeMode.data, full: true),
+    'inbox': (build: (_) => const InboxScreen(), mode: FakeMode.data, full: true),
+    'guide': (build: (_) => const GuideScreen(), mode: FakeMode.data, full: true),
+    'agent_studio': (build: (_) => const AgentStudioScreen(), mode: FakeMode.data, full: true),
+    'battery_guidance': (build: (_) => const BatteryGuidanceScreen(), mode: FakeMode.data, full: true),
+    'onboarding': (build: (_) => OnboardingScreen(onDone: () {}), mode: FakeMode.data, full: true),
     'support': (build: (_) => const SupportScreen(), mode: FakeMode.data, full: true),
     // state variants (single representative each)
     'subscriptions_empty': (build: (_) => const SubscriptionsScreen(), mode: FakeMode.empty, full: false),

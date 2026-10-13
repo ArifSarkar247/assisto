@@ -87,6 +87,33 @@ class FakeApi extends ApiClient {
         return _maybe([
           {'id': 1, 'title': _bn ? 'পাসপোর্ট রিনিউ' : 'Renew passport', 'done': false, 'due_at': null},
         ]);
+      case 'watchers':
+        return _maybe([
+          {'id': 1, 'kind': 'usd_bdt', 'label': _bn ? 'USD/BDT রেট' : 'USD/BDT rate', 'last_value': '122.80'},
+          {'id': 2, 'kind': 'rss', 'label': _bn ? 'সরকারি job circular' : 'Govt job circular', 'last_value': ''},
+        ]);
+      case 'jobs':
+        return _maybe([
+          {'id': 1, 'title': 'Flutter Developer', 'company': 'TechBD', 'match_score': 82, 'match_reason': _bn ? 'ভালো মিল: flutter, dart, api' : 'Good match: flutter, dart, api', 'status': 'matched'},
+          {'id': 2, 'title': 'Backend Engineer', 'company': 'Shop365', 'match_score': 48, 'match_reason': _bn ? 'আংশিক মিল: python' : 'Partial match: python', 'status': 'matched'},
+        ]);
+      case 'nominees':
+        return _maybe([
+          {'id': 1, 'name': _bn ? 'ছেলে' : 'Son', 'contact': '01711111111', 'scope': 'emergency', 'activated': false},
+        ]);
+      case 'contacts':
+        return _maybe([
+          {'id': 1, 'name': _bn ? 'করিম সাহেব' : 'Mr Karim', 'phone': '01712345678', 'org': 'ABC Ltd', 'note': _bn ? 'আগামী সপ্তাহে কল' : 'Call next week'},
+        ]);
+      case 'products':
+        return _maybe([
+          {'id': 1, 'name': _bn ? 'পাঞ্জাবি' : 'Panjabi', 'price': '1200', 'stock': 8},
+          {'id': 2, 'name': _bn ? 'শাড়ি' : 'Saree', 'price': '2500', 'stock': 0},
+        ]);
+      case 'orders':
+        return _maybe([
+          {'id': 101, 'total': '1200', 'status': 'new', 'customer_phone': '0171...'},
+        ]);
       default:
         return _maybe([]);
     }
@@ -209,4 +236,51 @@ class FakeApi extends ApiClient {
 
   @override
   Future<List<int>> getBytes(String path) async => [];
+
+  @override
+  Future<Map<String, dynamic>> plan() async => {
+        'plan': 'premium', 'name_bn': _bn ? 'প্রিমিয়াম' : 'Premium',
+        'unlimited_ai': true, 'ads': false, 'credits': 0,
+        'trial_active': true, 'trial_until': '2026-10-20T00:00:00',
+      };
+
+  @override
+  Future<Map<String, dynamic>> finance(String tool, Map<String, dynamic> args) async {
+    if (tool == 'net_worth') {
+      return {'assets': '320000', 'receivable': '20000', 'liabilities': '50000', 'net_worth': '290000'};
+    }
+    if (tool == 'zakat') return {'zakatable': '400000', 'zakat_due': '10000.00', 'above_nisab': true};
+    if (tool == 'emi') return {'emi': '8884.88', 'total': '106618.56', 'interest': '6618.56', 'months': 12};
+    return {'future_value': '132000.00', 'invested': '120000.00', 'years': 1, 'estimate': true};
+  }
+
+  @override
+  Future<Map<String, dynamic>> watchFeed() async => {
+        'hits': mode == FakeMode.empty ? [] : [
+          {'id': 1, 'label': _bn ? 'USD/BDT রেট' : 'USD/BDT rate', 'kind': 'usd_bdt',
+           'summary': _bn ? 'USD/BDT 122.50 → 122.80 (↑)' : 'USD/BDT 122.50 → 122.80 (↑)',
+           'severity': 'info', 'at': '2026-10-13T09:00:00'},
+          {'id': 2, 'label': _bn ? 'সরকারি job circular' : 'Govt job circular', 'kind': 'rss',
+           'summary': _bn ? 'নতুন আপডেট — নিয়োগ বিজ্ঞপ্তি প্রকাশ' : 'New update — circular published',
+           'severity': 'high', 'at': '2026-10-13T08:30:00'},
+        ],
+      };
+
+  @override
+  Future<Map<String, dynamic>> guides() async => {
+        'services': [
+          {'name_bn': 'NID (জাতীয় পরিচয়পত্র)', 'name_en': 'National ID', 'portal': 'services.nidw.gov.bd',
+           'steps_bn': ['অনলাইনে রেজিস্টার/লগইন', 'ফর্ম পূরণ + ছবি', 'ফি পরিশোধ', 'স্ট্যাটাস ট্র্যাক']},
+          {'name_bn': 'ই-পাসপোর্ট', 'name_en': 'e-Passport', 'portal': 'epassport.gov.bd',
+           'steps_bn': ['অনলাইন আবেদন', 'ফি পরিশোধ', 'বায়োমেট্রিক', 'ডেলিভারি ট্র্যাক']},
+        ],
+        'religious': [
+          {'bn': 'নামাজের সময় রিমাইন্ডার সেট করি।', 'en': 'Set prayer-time reminders.'},
+          {'bn': 'যাকাত হিসাব করতে Finance → যাকাত।', 'en': 'Use Finance → Zakat.'},
+        ],
+      };
+
+  @override
+  Future<Map<String, dynamic>> inboxStatus() async =>
+      {'connected': false, 'legend': {'red': 'জরুরি', 'yellow': 'শীঘ্রই', 'green': 'তথ্য'}};
 }
