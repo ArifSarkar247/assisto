@@ -131,6 +131,11 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(title: Text(t.settingsTitle)),
       body: ListView(
         children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: Text(t.profileHeader,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+          ),
           ListTile(
             leading: const CircleAvatar(child: Icon(Icons.person)),
             title: Text(u?.name.isNotEmpty == true ? u!.name : AppLocalizations.of(context).you),
