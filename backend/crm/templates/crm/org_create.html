@@ -1,0 +1,14 @@
+<!doctype html><html lang="{{ lang }}"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ t.create_org }}</title>
+<style>body{background:#0a0c14;color:#e9ecf2;font-family:'Segoe UI',system-ui,'Noto Sans Bengali',sans-serif;
+display:flex;min-height:100vh;align-items:center;justify-content:center}
+.box{background:#12151e;border:1px solid #242a3a;border-radius:16px;padding:26px;width:360px}
+input{width:100%;padding:10px;border-radius:9px;border:1px solid #242a3a;background:#0e1119;color:#e9ecf2;margin-top:8px}
+button{width:100%;margin-top:16px;padding:11px;border:0;border-radius:9px;font-weight:800;color:#fff;
+background:linear-gradient(90deg,#3b6ef6,#9b4df0);cursor:pointer}</style></head><body>
+<form class="box" method="post">{% csrf_token %}
+ <h2>{{ t.create_org }}</h2>
+ <input name="name" placeholder="{{ t.company }}" autofocus>
+ <button>{{ t.create }}</button>
+</form></body></html>

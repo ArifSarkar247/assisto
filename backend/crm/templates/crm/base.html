@@ -1,0 +1,129 @@
+{% load crm_extras %}<!doctype html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ t.app_name }}{% block title %}{% endblock %}</title>
+<style>
+:root{
+ --bg:#0a0c14;--panel:#12151e;--card:#171a24;--line:#242a3a;--fg:#e9ecf2;
+ --mut:#9aa3b5;--blue:#3b6ef6;--cyan:#22d3ee;--purple:#9b4df0;
+ --ok:#2ecc8f;--bad:#ef5a6f;--warn:#f0ad2e;--chipbg:#1b2130;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Segoe UI',system-ui,'Noto Sans Bengali',Roboto,sans-serif;
+ background:var(--bg);color:var(--fg);font-size:14px;line-height:1.5}
+a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
+.layout{display:flex;min-height:100vh}
+.side{width:230px;background:var(--panel);border-right:1px solid var(--line);
+ padding:16px 10px;position:sticky;top:0;height:100vh;overflow:auto;flex:0 0 230px}
+.brand{font-weight:800;font-size:17px;padding:4px 10px 2px;
+ background:linear-gradient(90deg,var(--cyan),var(--blue),var(--purple));
+ -webkit-background-clip:text;background-clip:text;color:transparent}
+.brand small{display:block;color:var(--mut);font-size:11px;font-weight:600;
+ background:none;-webkit-text-fill-color:var(--mut)}
+.nav{margin-top:14px;display:flex;flex-direction:column;gap:2px}
+.nav a{display:block;color:var(--fg);padding:9px 12px;border-radius:9px;font-weight:600}
+.nav a:hover{background:var(--card);text-decoration:none}
+.nav a.on{background:linear-gradient(90deg,rgba(59,110,246,.22),rgba(155,77,240,.14));
+ color:#fff}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:12px;padding:12px 22px;border-bottom:1px solid var(--line);
+ background:var(--panel);flex-wrap:wrap}
+.top .sp{flex:1}
+.content{padding:22px;max-width:1240px;width:100%}
+select,input,textarea{background:#0e1119;border:1px solid var(--line);color:var(--fg);
+ border-radius:9px;padding:8px 10px;font:inherit;max-width:100%}
+textarea{width:100%;min-height:70px}
+label{display:block;font-size:12px;color:var(--mut);margin:10px 0 3px}
+.btn{display:inline-block;background:var(--blue);color:#fff;border:0;border-radius:9px;
+ padding:8px 15px;font-weight:700;cursor:pointer;font:inherit}
+.btn.sec{background:var(--chipbg);color:var(--fg);border:1px solid var(--line)}
+.btn.ok{background:var(--ok)}.btn.bad{background:var(--bad)}.btn.sm{padding:5px 10px;font-size:12px}
+h1{font-size:21px;margin:0 0 4px}h2{font-size:16px;margin:22px 0 10px}
+.sub{color:var(--mut);font-size:12px;margin:0 0 14px}
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.kpi{font-size:26px;font-weight:800;margin-top:4px}
+.kpi.grad{background:linear-gradient(90deg,var(--cyan),var(--blue),var(--purple));
+ -webkit-background-clip:text;background-clip:text;color:transparent}
+.muted{color:var(--mut)}.small{font-size:12px}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.4px;font-weight:700}
+.chip{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;
+ background:var(--chipbg);color:var(--mut)}
+.chip.high{background:rgba(239,90,111,.18);color:#ff9aa8}
+.chip.won{background:rgba(46,204,143,.18);color:#6ee7b4}
+.chip.lost{background:rgba(239,90,111,.18);color:#ff9aa8}
+.chip.warn{background:rgba(240,173,46,.18);color:#f7cd6e}
+.chip.ok{background:rgba(46,204,143,.18);color:#6ee7b4}
+.score{font-weight:800}.score.hot{color:#ff9aa8}.score.warm{color:#f7cd6e}
+.banner{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:12px 0}
+.banner.lock{background:rgba(155,77,240,.08);border-color:rgba(155,77,240,.35)}
+.banner.review{background:rgba(240,173,46,.08);border-color:rgba(240,173,46,.4);color:#f7cd6e}
+.flex{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.right{margin-left:auto}
+/* kanban */
+.board{display:flex;gap:12px;overflow-x:auto;padding-bottom:10px}
+.col{flex:0 0 250px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px}
+.col h3{margin:0 0 2px;font-size:13px}
+.col .meta{color:var(--mut);font-size:11px;margin-bottom:8px}
+.col.drop{outline:2px dashed var(--blue)}
+.dcard{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;
+ margin-bottom:8px;cursor:grab}
+.dcard:active{cursor:grabbing}
+.dcard .v{font-weight:800;color:#fff}
+.bar{height:7px;border-radius:5px;background:#0e1119;overflow:hidden;margin-top:6px}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--blue))}
+.tl{border-left:2px solid var(--line);padding-left:14px;margin-left:6px}
+.tl .ev{margin-bottom:14px;position:relative}
+.tl .ev:before{content:"";position:absolute;left:-21px;top:4px;width:9px;height:9px;
+ border-radius:50%;background:var(--blue)}
+@media print{.side,.top{display:none}.content{max-width:100%;padding:0}}
+</style>
+</head>
+<body>
+<div class="layout">
+ <aside class="side">
+   <div class="brand">{{ t.app_name }}<small>{{ t.tagline }}</small></div>
+   {% if org %}
+   <nav class="nav">
+     <a href="{% url 'crm_dashboard' %}" class="{% active request 'crm_dashboard' %}">{{ t.nav_dashboard }}</a>
+     <a href="{% url 'crm_pipeline' %}" class="{% active request 'crm_pipeline' %}">{{ t.nav_pipeline }}</a>
+     <a href="{% url 'crm_leads' %}" class="{% active request 'crm_leads' %}">{{ t.nav_leads }}</a>
+     <a href="{% url 'crm_deals' %}" class="{% active request 'crm_deals' %}">{{ t.nav_deals }}</a>
+     <a href="{% url 'crm_companies' %}" class="{% active request 'crm_companies' %}">{{ t.nav_companies }}</a>
+     <a href="{% url 'crm_contacts' %}" class="{% active request 'crm_contacts' %}">{{ t.nav_contacts }}</a>
+     <a href="{% url 'crm_activities' %}" class="{% active request 'crm_activities' %}">{{ t.nav_activities }}</a>
+     <a href="{% url 'crm_proposals' %}" class="{% active request 'crm_proposals' %}">{{ t.nav_proposals }}</a>
+     <a href="{% url 'crm_products' %}" class="{% active request 'crm_products' %}">{{ t.nav_products }}</a>
+     <a href="{% url 'crm_reports' %}" class="{% active request 'crm_reports' %}">{{ t.nav_reports }}</a>
+     <a href="{% url 'crm_duplicates' %}" class="{% active request 'crm_duplicates' %}">{{ t.nav_duplicates }}</a>
+     <a href="{% url 'crm_team' %}" class="{% active request 'crm_team' %}">{{ t.nav_team }}</a>
+     <a href="{% url 'crm_audit' %}" class="{% active request 'crm_audit' %}">{{ t.nav_audit }}</a>
+   </nav>
+   {% endif %}
+ </aside>
+ <div class="main">
+   <div class="top">
+     {% if orgs %}
+     <form method="get" style="margin:0">
+       <select name="org" onchange="this.form.submit()">
+         {% for o in orgs %}<option value="{{ o.id }}" {% if org and o.id == org.id %}selected{% endif %}>{{ o.name }}</option>{% endfor %}
+       </select>
+     </form>
+     {% endif %}
+     <span class="sp"></span>
+     {% if not ai_on %}<span class="chip warn">AI mock · {{ t.ai_locked }}</span>{% endif %}
+     <a class="btn sec sm" href="?lang={% if lang == 'bn' %}en{% else %}bn{% endif %}">{{ t.lang_toggle }}</a>
+     <a class="btn sec sm" href="{% url 'crm_logout' %}">{{ t.logout }}</a>
+   </div>
+   <div class="content">{% block content %}{% endblock %}</div>
+ </div>
+</div>
+{% block script %}{% endblock %}
+</body>
+</html>

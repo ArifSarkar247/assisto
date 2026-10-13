@@ -1,0 +1,55 @@
+{% extends "crm/base.html" %}{% load crm_extras %}
+{% block content %}
+<h1>{{ t.nav_reports }}</h1>
+<p class="sub">{% if lang == 'bn' %}সব রিপোর্ট বাস্তব ডাটা থেকে; ডাটা না থাকলে "{{ t.not_enough_data }}" দেখানো হয়।{% else %}All reports are from real data; when there's none we show "{{ t.not_enough_data }}".{% endif %}</p>
+
+<div class="banner"><span class="muted small">{{ t.method }}:</span> <code>{{ forecast.method }}</code> ·
+ {{ t.weighted_forecast }}: <b>{{ forecast.weighted|money }}</b></div>
+
+<div class="grid g2">
+ <div class="card"><h2 style="margin-top:0">{{ t.funnel }}</h2>
+   {% if funnel.has_data %}<table><tr><th>{{ t.stage }}</th><th>{% if lang == 'bn' %}পৌঁছেছে{% else %}Reached{% endif %}</th><th>{% if lang == 'bn' %}কনভার্সন{% else %}Conv.{% endif %}</th></tr>
+   {% for r in funnel.rows %}<tr><td>{{ r.stage }}</td><td>{{ r.reached }}</td>
+     <td>{% if r.conversion_from_prev != None %}{{ r.conversion_from_prev }}%{% else %}—{% endif %}</td></tr>{% endfor %}
+   </table>{% else %}<div class="muted">{{ t.not_enough_data }}</div>{% endif %}
+ </div>
+ <div class="card"><h2 style="margin-top:0">{{ t.win_loss }}</h2>
+   {% if win_loss.has_data %}
+     <div class="flex"><div class="kpi" style="color:var(--ok)">{{ win_loss.won }}</div><span class="muted">Won</span>
+       <div class="kpi" style="color:var(--bad);margin-left:18px">{{ win_loss.lost }}</div><span class="muted">Lost</span>
+       <span class="chip ok" style="margin-left:18px">{{ t.win_rate }} {{ win_loss.win_rate }}%</span></div>
+     <table style="margin-top:10px"><tr><th>{{ t.loss_reason }}</th><th>#</th></tr>
+     {% for r in win_loss.loss_reasons %}{% if r.count %}<tr><td>{{ r.label }}</td><td>{{ r.count }}</td></tr>{% endif %}{% endfor %}</table>
+   {% else %}<div class="muted">{{ t.not_enough_data }}</div>{% endif %}
+ </div>
+ <div class="card"><h2 style="margin-top:0">{{ t.sales_cycle }}</h2>
+   {% if sales_cycle.has_data %}<div class="kpi grad">{{ sales_cycle.avg_days }} <span style="font-size:14px">{{ t.avg_days }}</span></div>
+     <div class="muted small">n={{ sales_cycle.sample }}</div>
+   {% else %}<div class="muted">{{ t.not_enough_data }}</div>{% endif %}
+ </div>
+ <div class="card"><h2 style="margin-top:0">{{ t.source_attr }}</h2>
+   {% if source_attr.has_data %}<table><tr><th>{{ t.source }}</th><th>#</th><th>{{ t.value }}</th></tr>
+   {% for r in source_attr.rows %}<tr><td>{{ r.source }}</td><td>{{ r.count }}</td><td>{{ r.value|money }}</td></tr>{% endfor %}</table>
+   {% else %}<div class="muted">{{ t.not_enough_data }}</div>{% endif %}
+ </div>
+ <div class="card"><h2 style="margin-top:0">{{ t.by_industry }}</h2>
+   {% if by_industry.has_data %}<table><tr><th>{{ t.industry }}</th><th>#</th><th>{{ t.value }}</th></tr>
+   {% for r in by_industry.rows %}<tr><td>{{ r.industry }}</td><td>{{ r.count }}</td><td>{{ r.value|money }}</td></tr>{% endfor %}</table>
+   {% else %}<div class="muted">{{ t.not_enough_data }}</div>{% endif %}
+ </div>
+ <div class="card"><h2 style="margin-top:0">{{ t.leaderboard }}</h2>
+   {% if leaderboard.has_data %}<table><tr><th>{{ t.name }}</th><th>{{ t.nav_activities }}</th></tr>
+   {% for r in leaderboard.rows %}<tr><td>{{ r.name }}</td><td>{{ r.activities }}</td></tr>{% endfor %}</table>
+   {% else %}<div class="muted">{{ t.not_enough_data }}</div>{% endif %}
+ </div>
+</div>
+
+<div class="card"><h2 style="margin-top:0">{{ t.rep_perf }}</h2>
+ {% if rep_perf.has_data %}<table><tr><th>{{ t.name }}</th><th>{{ t.role }}</th><th>{{ t.open_deals }}</th><th>Won</th><th>Lost</th><th>{% if lang == 'bn' %}জেতা মূল্য{% else %}Won value{% endif %}</th><th>{{ t.target }}</th><th>{{ t.attainment }}</th></tr>
+ {% for r in rep_perf.rows %}<tr><td>{{ r.name }}</td><td class="muted small">{{ r.role }}</td>
+   <td>{{ r.open }}</td><td>{{ r.won }}</td><td>{{ r.lost }}</td><td>{{ r.won_value|money }}</td>
+   <td>{% if r.target %}{{ r.target|money }}{% else %}—{% endif %}</td>
+   <td>{% if r.attainment_pct != None %}<span class="chip {% if r.attainment_pct >= 100 %}ok{% else %}warn{% endif %}">{{ r.attainment_pct }}%</span>{% else %}—{% endif %}</td></tr>{% endfor %}
+ </table>{% else %}<div class="muted">{{ t.not_enough_data }}</div>{% endif %}
+</div>
+{% endblock %}

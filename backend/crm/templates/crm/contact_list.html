@@ -1,0 +1,26 @@
+{% extends "crm/base.html" %}{% load crm_extras %}
+{% block content %}
+<h1>{{ t.nav_contacts }}</h1>
+<div class="grid g2">
+ <div class="card"><table>
+   <tr><th>{{ t.name }}</th><th>{% if lang == 'bn' %}পদবি{% else %}Title{% endif %}</th><th>{{ t.company }}</th><th>{{ t.phone }}</th></tr>
+   {% for c in contacts %}
+   <tr><td><b>{{ c.name }}</b><div class="muted small">{{ c.email }}</div></td>
+     <td>{{ c.title }}</td><td>{{ c.company.name|default:"—" }}</td>
+     <td>{{ c.phone }} {% if c.whatsapp %}<a class="chip ok" target="_blank" href="https://wa.me/{{ c.whatsapp|cut:'+'|cut:' ' }}">WA</a>{% endif %}</td></tr>
+   {% empty %}<tr><td colspan="4" class="muted">{{ t.none_yet }}</td></tr>{% endfor %}
+ </table></div>
+ <div class="card">
+   <h2 style="margin-top:0">{{ t.add }}</h2>
+   <form method="post" action="{% url 'crm_contact_create' %}">{% csrf_token %}
+     <label>{{ t.name }}</label><input name="name" style="width:100%">
+     <label>{% if lang == 'bn' %}পদবি{% else %}Job title{% endif %}</label><input name="title">
+     <label>{{ t.company }}</label><select name="company"><option value="">—</option>{% for c in companies %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}</select>
+     <label>{{ t.phone }}</label><input name="phone">
+     <label>WhatsApp</label><input name="whatsapp">
+     <label>{{ t.email }}</label><input name="email" type="email">
+     <button class="btn sm" style="margin-top:12px">{{ t.add }}</button>
+   </form>
+ </div>
+</div>
+{% endblock %}

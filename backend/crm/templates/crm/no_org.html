@@ -1,0 +1,8 @@
+{% extends "crm/base.html" %}
+{% block content %}
+<div class="card" style="max-width:520px">
+ <h1>{{ t.app_name }}</h1>
+ <p class="muted">{{ t.no_org }}</p>
+ <a class="btn" href="{% url 'crm_org_create' %}">{{ t.create_org }}</a>
+</div>
+{% endblock %}

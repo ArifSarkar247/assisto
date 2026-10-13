@@ -1,0 +1,43 @@
+{% load crm_extras %}<!doctype html><html lang="{{ lang }}"><head><meta charset="utf-8">
+<title>{{ p.title }} v{{ p.version }}</title>
+<style>
+body{font-family:'Segoe UI','Noto Sans Bengali',sans-serif;color:#111;background:#fff;
+ max-width:780px;margin:24px auto;padding:0 24px;font-size:13px}
+.head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #3b6ef6;padding-bottom:12px}
+.brand{font-size:22px;font-weight:800;color:#3b6ef6}
+h1{font-size:18px;margin:18px 0 2px}.muted{color:#666}
+table{width:100%;border-collapse:collapse;margin:14px 0}
+th,td{border-bottom:1px solid #ddd;padding:8px;text-align:left}
+th{background:#f3f5fb;font-size:11px;text-transform:uppercase}
+.tot{max-width:320px;margin-left:auto}
+.review{background:#fff6e5;border:1px solid #f0ad2e;color:#9a6a00;padding:8px 10px;border-radius:8px;margin:10px 0}
+.print{position:fixed;top:12px;right:12px}
+@media print{.print{display:none}}
+</style></head><body>
+<button class="print" onclick="window.print()">{{ t.print_pdf }}</button>
+<div class="head">
+ <div><div class="brand">{{ org.name }}</div><div class="muted">Axon Dynamics CRM — {{ t.tagline }}</div></div>
+ <div style="text-align:right"><div class="muted">{% if lang == 'bn' %}কোটেশন{% else %}Quotation{% endif %}</div>
+   <b>#{{ p.id }} · v{{ p.version }}</b><div class="muted">{{ p.created_at|date:"d M Y" }}</div></div>
+</div>
+
+<h1>{{ p.title }}</h1>
+<div class="muted">{% if lang == 'bn' %}গ্রাহক{% else %}Customer{% endif %}: {{ p.lead.company|default:p.lead.name }}
+ {% if p.lead.email %}· {{ p.lead.email }}{% endif %} {% if p.lead.phone %}· {{ p.lead.phone }}{% endif %}</div>
+
+{% if not p.prices_reviewed %}<div class="review">⚠ {{ t.to_review }}</div>{% endif %}
+
+{% if p.requirements %}<p><b>{{ t.requirements }}:</b> {{ p.requirements }}</p>{% endif %}
+{% if p.body %}<div style="white-space:pre-wrap;margin:12px 0">{{ p.body }}</div>{% endif %}
+
+<table><tr><th>SKU</th><th>{{ t.name }}</th><th>{% if lang == 'bn' %}পরিমাণ{% else %}Qty{% endif %}</th><th>{% if lang == 'bn' %}দর{% else %}Unit{% endif %}</th><th>{% if lang == 'bn' %}মোট{% else %}Amount{% endif %}</th></tr>
+{% for li in p.line_items %}<tr><td>{{ li.sku }}</td><td>{{ li.label }}</td><td>{{ li.qty }}</td><td>{{ li.unit_price|money }}</td><td>{{ li.amount|money }}</td></tr>{% endfor %}
+</table>
+<table class="tot">
+ <tr><td>{{ t.subtotal }}</td><td style="text-align:right">{{ p.subtotal|money }}</td></tr>
+ <tr><td>{{ t.discount }} ({{ p.discount_pct }}%)</td><td style="text-align:right">−{{ p.discount_amount|money }}</td></tr>
+ <tr><td>{{ t.tax }} ({{ p.tax_pct }}%)</td><td style="text-align:right">{{ p.tax_amount|money }}</td></tr>
+ <tr><td><b>{{ t.total }}</b></td><td style="text-align:right"><b>{{ p.total|money }}</b></td></tr>
+</table>
+<p class="muted">{% if lang == 'bn' %}মূল্যসমূহ প্রাইস বুক থেকে নেওয়া; ভ্যাট/ট্যাক্স হার মালিক নির্ধারিত। এই কোটেশনটি একটি খসড়া।{% else %}Prices are from the price book; VAT/tax rate is owner-set. This quotation is a draft.{% endif %}</p>
+</body></html>

@@ -1,0 +1,26 @@
+{% extends "crm/base.html" %}{% load crm_extras %}
+{% block content %}
+<h1>{{ t.nav_team }}</h1>
+<div class="grid g2">
+ <div class="card"><h2 style="margin-top:0">{% if lang == 'bn' %}সদস্য{% else %}Members{% endif %}</h2>
+   <table><tr><th>{{ t.name }}</th><th>{{ t.role }}</th></tr>
+   {% for m in members %}<tr><td>{{ m.user.username }}</td><td><span class="chip">{{ m.get_role_display }}</span></td></tr>{% endfor %}</table>
+   {% if can_manage %}<form method="post" class="flex" style="margin-top:10px">{% csrf_token %}
+     <input type="hidden" name="add_member" value="1">
+     <input name="username" placeholder="{{ t.username }}">
+     <select name="role">{% for k,v in roles %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select>
+     <button class="btn sm">{{ t.add }}</button></form>{% endif %}
+ </div>
+ <div class="card"><h2 style="margin-top:0">{{ t.quota }} / {{ t.target }}</h2>
+   <table><tr><th>{{ t.name }}</th><th>{% if lang == 'bn' %}পিরিয়ড{% else %}Period{% endif %}</th><th>{{ t.target }}</th></tr>
+   {% for tg in targets %}<tr><td>{{ tg.member.user.username|default:"org" }}</td><td>{{ tg.period }}</td><td>{{ tg.amount|money }}</td></tr>
+   {% empty %}<tr><td colspan="3" class="muted">{{ t.none_yet }}</td></tr>{% endfor %}</table>
+   {% if can_manage %}<form method="post" style="margin-top:10px">{% csrf_token %}
+     <input type="hidden" name="set_target" value="1">
+     <div class="flex"><select name="member">{% for m in members %}<option value="{{ m.id }}">{{ m.user.username }}</option>{% endfor %}</select>
+       <input name="period" placeholder="2026-10" style="width:110px">
+       <input name="amount" type="number" placeholder="৳" style="width:140px">
+       <button class="btn sm">{{ t.save }}</button></div></form>{% endif %}
+ </div>
+</div>
+{% endblock %}

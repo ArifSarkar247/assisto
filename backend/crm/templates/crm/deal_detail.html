@@ -1,0 +1,91 @@
+{% extends "crm/base.html" %}{% load crm_extras %}
+{% block content %}
+<div class="flex" style="justify-content:space-between">
+ <div><h1>{{ deal.title }}</h1>
+   <p class="sub">{{ deal.company.name|default:"" }} · {{ deal.pipeline.name }} ·
+     {% if deal.state == 'won' %}<span class="chip won">Won</span>{% elif deal.state == 'lost' %}<span class="chip lost">Lost · {{ deal.get_loss_reason_display }}</span>{% else %}<span class="chip">{{ deal.stage.name }}</span>{% endif %}</p></div>
+ <a class="btn sec" href="{% url 'crm_pipeline' %}">← {{ t.nav_pipeline }}</a>
+</div>
+
+{% if loss_required %}<div class="banner review">⚠ {% if lang == 'bn' %}Lost করতে হলে কারণ দেওয়া বাধ্যতামূলক।{% else %}A loss reason is mandatory to mark this deal Lost.{% endif %}</div>{% endif %}
+{% if stuck %}<div class="banner review">⏳ {{ t.stuck_deals }}: {{ age }} {% if lang == 'bn' %}দিন ধরে এই স্টেজে{% else %}days in this stage{% endif %}</div>{% endif %}
+{% if not deal.next_step and deal.state == 'open' %}<div class="banner review">⚠ {% if lang == 'bn' %}এই ওপেন ডিলে পরবর্তী পদক্ষেপ নেই — যোগ করুন।{% else %}This open deal has no next step — add one.{% endif %}</div>{% endif %}
+
+<div class="grid g3">
+ <div class="card">
+   <div class="muted small">{{ t.value }}</div><div class="kpi grad">{{ deal.value|money }}</div>
+   <div class="muted small">{{ t.probability }}: {{ deal.probability }}% · {% if lang == 'bn' %}ওজনযুক্ত{% else %}weighted{% endif %} {{ deal.weighted_value|money }}</div>
+ </div>
+ <div class="card">
+   <form method="post" action="{% url 'crm_deal_update' deal.id %}">{% csrf_token %}
+     <label>{{ t.value }}</label><input name="value" value="{{ deal.value }}">
+     <label>{{ t.next_step }}</label><input name="next_step" value="{{ deal.next_step }}" style="width:100%">
+     <label>{{ t.next_step_due }}</label><input name="next_step_due" type="date" value="{{ deal.next_step_due|date:'Y-m-d' }}">
+     <label>{{ t.expected_close }}</label><input name="expected_close" type="date" value="{{ deal.expected_close|date:'Y-m-d' }}">
+     <button class="btn sm" style="margin-top:10px">{{ t.save }}</button>
+   </form>
+ </div>
+ <div class="card">
+   <label>{{ t.stage }}</label>
+   <form method="post" action="{% url 'crm_deal_stage' deal.id %}">{% csrf_token %}
+     <select name="stage" id="stg" onchange="toggleLoss()">
+       {% for s in stages %}<option value="{{ s.id }}" data-lost="{{ s.is_lost|yesno:'1,0' }}" {% if s.id == deal.stage_id %}selected{% endif %}>{{ s.name }}</option>{% endfor %}</select>
+     <div id="lossbox" style="display:none">
+       <label>{{ t.loss_reason }}</label><select name="loss_reason">
+         {% for k,v in loss_reasons %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select>
+       <label>{{ t.competitor }}</label><input name="competitor">
+       <label>{% if lang == 'bn' %}নোট{% else %}Note{% endif %}</label><input name="loss_note">
+     </div>
+     <button class="btn sm" style="margin-top:10px">{{ t.save }}</button>
+   </form>
+   {% if deal.state == 'won' %}
+   <form method="post" action="{% url 'crm_deal_onboard' deal.id %}" style="margin-top:10px">{% csrf_token %}
+     <button class="btn ok sm">{{ t.onboard_erp }}</button></form>{% endif %}
+ </div>
+</div>
+
+<div class="grid g2">
+ <div class="card">
+   <h2 style="margin-top:0">{{ t.timeline }}</h2>
+   <form method="post" action="{% url 'crm_activity_log' %}">{% csrf_token %}
+     <input type="hidden" name="deal" value="{{ deal.id }}">
+     <input type="hidden" name="next" value="{% url 'crm_deal_detail' deal.id %}">
+     <div class="flex"><select name="kind">
+       <option value="note">{{ t.log_note }}</option><option value="call">{{ t.log_call }}</option>
+       <option value="meeting">{{ t.log_meeting }}</option><option value="task">{{ t.add_task }}</option></select>
+       <input name="subject" placeholder="{% if lang == 'bn' %}বিষয়{% else %}subject{% endif %}" style="flex:1">
+       <input name="due_at" type="date"></div>
+     <textarea name="body"></textarea><button class="btn sm">{% if lang == 'bn' %}লগ{% else %}Log{% endif %}</button>
+   </form>
+   <div class="tl" style="margin-top:12px">
+   {% for a in activities %}
+     <div class="ev"><span class="chip">{{ a.get_kind_display }}</span> <b>{{ a.subject }}</b>
+       {% if a.kind == 'task' and not a.done %}<form method="post" action="{% url 'crm_activity_done' a.id %}" style="display:inline">{% csrf_token %}<input type="hidden" name="next" value="{% url 'crm_deal_detail' deal.id %}"><button class="btn sm ok">{{ t.mark_done }}</button></form>{% endif %}
+       <div>{{ a.body }}</div><div class="muted small">{{ a.actor.user.username|default:"" }} · {{ a.created_at|date:"d M H:i" }}</div></div>
+   {% empty %}<div class="muted">{{ t.none_yet }}</div>{% endfor %}
+   </div>
+ </div>
+ <div class="card">
+   <h2 style="margin-top:0">{{ t.nav_proposals }}</h2>
+   {% if deal.lead %}<a class="btn sm" href="{% url 'crm_proposal_build' deal.lead.id %}">+ {{ t.build_quote }}</a>{% endif %}
+   {% for p in proposals %}
+     <div class="flex" style="justify-content:space-between;border-bottom:1px solid var(--line);padding:6px 0">
+       <a href="{% url 'crm_proposal_detail' p.id %}">v{{ p.version }} · {{ p.total|money }}</a>
+       <span class="chip">{{ p.get_status_display }}</span></div>
+   {% empty %}<div class="muted">{{ t.none_yet }}</div>{% endfor %}
+
+   <h2>{% if lang == 'bn' %}কেডেন্স{% else %}Cadence{% endif %}</h2>
+   <form method="post" action="{% url 'crm_deal_enroll' deal.id %}" class="flex">{% csrf_token %}
+     <select name="cadence">{% for c in cadences %}<option value="{{ c.id }}">{{ c.name }}</option>{% empty %}<option value="">—</option>{% endfor %}</select>
+     <button class="btn sm sec">{% if lang == 'bn' %}এনরোল{% else %}Enroll{% endif %}</button></form>
+   <div class="muted small">{% if lang == 'bn' %}প্রতিটি ধাপ খসড়া টাস্ক — মানুষ অনুমোদন করে পাঠায়, অটো-সেন্ড নয়।{% else %}Each step is a draft task — a human approves & sends; nothing auto-sends.{% endif %}</div>
+ </div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+function toggleLoss(){const s=document.getElementById('stg').selectedOptions[0];
+ document.getElementById('lossbox').style.display=s.dataset.lost==='1'?'block':'none';}
+toggleLoss();
+</script>
+{% endblock %}

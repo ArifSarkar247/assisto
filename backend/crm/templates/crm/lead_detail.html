@@ -1,0 +1,95 @@
+{% extends "crm/base.html" %}{% load crm_extras %}
+{% block content %}
+<div class="flex" style="justify-content:space-between">
+ <div><h1>{{ lead.name|default:lead.company|default:"Lead" }}</h1>
+   <p class="sub">{{ lead.company }} · {{ lead.get_industry_display }} · {{ lead.get_source_display }}</p></div>
+ <a class="btn sec" href="{% url 'crm_leads' %}">← {{ t.back }}</a>
+</div>
+
+<div class="grid g3">
+ <div class="card">
+   <div class="muted small">{{ t.score }}</div>
+   <div class="kpi {% if lead.score >= 90 %}grad{% endif %}">{{ lead.score }}</div>
+   {% if lead.priority == 'high' %}<span class="chip high">{{ lead.get_priority_display }}</span>{% endif %}
+   <div class="muted small" style="margin-top:8px">{{ t.score_reason }}:</div>
+   <div class="small"><code>{{ lead.score_reason }}</code></div>
+ </div>
+ <div class="card">
+   <form method="post" action="{% url 'crm_lead_update' lead.id %}">{% csrf_token %}
+     <label>{{ t.status }}</label>
+     <select name="status">{% for k,v in statuses %}<option value="{{ k }}" {% if lead.status == k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select>
+     <label>{{ t.assigned_to }}</label>
+     <select name="assigned_to"><option value="">—</option>
+       {% for m in members %}<option value="{{ m.id }}" {% if lead.assigned_to_id == m.id %}selected{% endif %}>{{ m.user.username }}</option>{% endfor %}</select>
+     <button class="btn sm" style="margin-top:10px">{{ t.save }}</button>
+   </form>
+   <div class="muted small" style="margin-top:10px">{{ t.phone }}: {{ lead.phone|default:"—" }}<br>{{ t.email }}: {{ lead.email|default:"—" }}</div>
+ </div>
+ <div class="card">
+   <div class="muted small">{% if lang == 'bn' %}দ্রুত কাজ{% else %}Quick actions{% endif %}</div>
+   <div class="flex" style="margin-top:8px">
+     {% if lead.phone %}
+       <a class="btn sm ok" target="_blank" href="https://wa.me/{{ lead.phone|cut:'+'|cut:' ' }}">{{ t.whatsapp }}</a>
+       <a class="btn sm sec" href="tel:{{ lead.phone }}">{{ t.call }}</a>{% endif %}
+     {% if lead.email %}<a class="btn sm sec" href="mailto:{{ lead.email }}">{{ t.email }}</a>{% endif %}
+   </div>
+   <a class="btn" style="margin-top:12px" href="{% url 'crm_proposal_build' lead.id %}">{{ t.build_quote }}</a>
+ </div>
+</div>
+
+<!-- Predictive follow-up (spec §4) -->
+<div class="card">
+ <h2 style="margin-top:0">{{ t.next_step }} · {% if lang == 'bn' %}পরামর্শ{% else %}suggestion{% endif %}</h2>
+ <div class="muted small">{{ followup.note }} · {% if lang == 'bn' %}প্রস্তাবিত তারিখ{% else %}suggested date{% endif %}: <b>{{ followup.suggested_contact_date }}</b>
+   {% if followup.draft_source == 'template' %}<span class="chip warn">{{ t.ai_locked }}</span>{% endif %}</div>
+ <form method="post" action="{% url 'crm_lead_message' lead.id %}" style="margin-top:8px">{% csrf_token %}
+   <input type="hidden" name="direction" value="out">
+   <textarea name="text">{{ followup.draft }}</textarea>
+   <button class="btn sm" style="margin-top:8px">{% if lang == 'bn' %}আউটবাউন্ড হিসেবে লগ করুন{% else %}Log as outbound{% endif %}</button>
+ </form>
+</div>
+
+<div class="grid g2">
+ <div class="card">
+   <h2 style="margin-top:0">{{ t.timeline }}</h2>
+   <form method="post" action="{% url 'crm_activity_log' %}" style="margin-bottom:12px">{% csrf_token %}
+     <input type="hidden" name="lead" value="{{ lead.id }}">
+     <input type="hidden" name="next" value="{% url 'crm_lead_detail' lead.id %}">
+     <div class="flex">
+       <select name="kind"><option value="note">{{ t.log_note }}</option>
+         <option value="call">{{ t.log_call }}</option>
+         <option value="meeting">{{ t.log_meeting }}</option>
+         <option value="task">{{ t.add_task }}</option></select>
+       <input name="subject" placeholder="{% if lang == 'bn' %}বিষয়{% else %}subject{% endif %}" style="flex:1">
+     </div>
+     <textarea name="body" placeholder="{% if lang == 'bn' %}বিস্তারিত · @username দিয়ে মেনশন{% else %}details · @username to mention{% endif %}"></textarea>
+     <button class="btn sm">{% if lang == 'bn' %}লগ{% else %}Log{% endif %}</button>
+   </form>
+   <div class="tl">
+   {% for conv in conversations %}{% for m in conv.messages.all %}
+     <div class="ev"><span class="chip {% if m.direction == 'out' %}ok{% endif %}">{{ m.get_direction_display }}</span>
+       <span class="chip">{{ m.get_sentiment_display }}</span>
+       <div>{{ m.text }}</div><div class="muted small">{{ m.at|date:"d M H:i" }}</div></div>
+   {% endfor %}{% endfor %}
+   {% for a in activities %}
+     <div class="ev"><span class="chip">{{ a.get_kind_display }}</span>
+       <b>{{ a.subject }}</b><div>{{ a.body }}</div>
+       <div class="muted small">{{ a.actor.user.username|default:"" }} · {{ a.created_at|date:"d M H:i" }}</div></div>
+   {% empty %}{% endfor %}
+   </div>
+ </div>
+ <div class="card">
+   <h2 style="margin-top:0">{{ t.nav_proposals }}</h2>
+   {% for p in proposals %}
+     <div class="flex" style="justify-content:space-between;border-bottom:1px solid var(--line);padding:6px 0">
+       <a href="{% url 'crm_proposal_detail' p.id %}">v{{ p.version }} · {{ p.total|money }}</a>
+       <span class="chip">{{ p.get_status_display }}</span></div>
+   {% empty %}<div class="muted">{{ t.none_yet }}</div>{% endfor %}
+   <h2>{{ t.nav_deals }}</h2>
+   {% for d in deals %}
+     <div class="flex" style="justify-content:space-between;padding:6px 0">
+       <a href="{% url 'crm_deal_detail' d.id %}">{{ d.title }}</a><span>{{ d.value|money }}</span></div>
+   {% empty %}<div class="muted">{{ t.none_yet }}</div>{% endfor %}
+ </div>
+</div>
+{% endblock %}

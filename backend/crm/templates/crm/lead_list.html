@@ -1,0 +1,38 @@
+{% extends "crm/base.html" %}{% load crm_extras %}
+{% block content %}
+<div class="flex" style="justify-content:space-between">
+ <h1>{{ t.nav_leads }}</h1>
+ <div class="flex">
+   <a class="btn sec" href="{% url 'crm_lead_import' %}">CSV {{ t.add }}</a>
+   <a class="btn sec" href="{% url 'crm_lead_export' %}?fmt=csv">CSV ⬇</a>
+   <a class="btn sec" href="{% url 'crm_lead_export' %}?fmt=xlsx">Excel ⬇</a>
+   <a class="btn" href="{% url 'crm_lead_create' %}">+ {{ t.add }}</a>
+ </div>
+</div>
+<form method="get" class="flex card" style="margin-bottom:14px">
+ <input name="q" value="{{ q }}" placeholder="{{ t.search }}">
+ <select name="priority"><option value="">{{ t.priority }}</option>
+   <option value="high">{{ t.high_priority }}</option></select>
+ <select name="status"><option value="">{{ t.status }}</option>
+   {% for k,v in statuses %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select>
+ <button class="btn sec">{{ t.search }}</button>
+</form>
+<div class="card">
+<table>
+ <tr><th>{{ t.name }}</th><th>{{ t.industry }}</th><th>{{ t.source }}</th>
+   <th>{{ t.score }}</th><th>{{ t.priority }}</th><th>{{ t.status }}</th><th>{{ t.assigned_to }}</th></tr>
+ {% for l in leads %}
+ <tr>
+   <td><a href="{% url 'crm_lead_detail' l.id %}">{{ l.name|default:l.company|default:"—" }}</a>
+     <div class="muted small">{{ l.company }}</div></td>
+   <td>{{ l.get_industry_display }}</td>
+   <td><span class="chip">{{ l.get_source_display }}</span></td>
+   <td><span class="score {% if l.score >= 90 %}hot{% elif l.score >= 60 %}warm{% endif %}">{{ l.score }}</span></td>
+   <td>{% if l.priority == 'high' %}<span class="chip high">{{ l.get_priority_display }}</span>{% else %}<span class="chip">{{ l.get_priority_display }}</span>{% endif %}</td>
+   <td>{% if l.status == 'won' %}<span class="chip won">{% elif l.status == 'lost' %}<span class="chip lost">{% else %}<span class="chip">{% endif %}{{ l.get_status_display }}</span></td>
+   <td class="muted small">{{ l.assigned_to.user.username|default:"—" }}</td>
+ </tr>
+ {% empty %}<tr><td colspan="7" class="muted">{{ t.none_yet }}</td></tr>{% endfor %}
+</table>
+</div>
+{% endblock %}

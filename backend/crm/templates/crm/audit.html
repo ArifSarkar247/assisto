@@ -1,0 +1,14 @@
+{% extends "crm/base.html" %}
+{% block content %}
+<h1>{{ t.nav_audit }}</h1>
+<div class="card"><table>
+ <tr><th>{% if lang == 'bn' %}সময়{% else %}When{% endif %}</th><th>{% if lang == 'bn' %}কে{% else %}Who{% endif %}</th><th>{% if lang == 'bn' %}কাজ{% else %}Action{% endif %}</th><th>{% if lang == 'bn' %}বস্তু{% else %}Entity{% endif %}</th><th>{% if lang == 'bn' %}বিস্তারিত{% else %}Detail{% endif %}</th></tr>
+ {% for e in entries %}
+ <tr><td class="muted small">{{ e.at|date:"d M H:i" }}</td>
+   <td>{{ e.member.user.username|default:"—" }}</td>
+   <td><span class="chip">{{ e.action }}</span></td>
+   <td class="muted small">{{ e.entity }}</td>
+   <td class="small">{{ e.detail|truncatechars:70 }}</td></tr>
+ {% empty %}<tr><td colspan="5" class="muted">{{ t.none_yet }}</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

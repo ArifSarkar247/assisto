@@ -1,0 +1,16 @@
+{% extends "crm/base.html" %}
+{% block content %}
+<h1>{{ t.nav_leads }} · CSV {{ t.add }}</h1>
+<div class="card" style="max-width:620px">
+ <p class="muted small">{% if lang == 'bn' %}কলাম: name, company, industry, company_size, source, phone, email, status। একই ইমেইল/ফোন থাকলে ডুপ্লিকেট না বানিয়ে আপডেট হবে।{% else %}Columns: name, company, industry, company_size, source, phone, email, status. Rows matching an existing email/phone update instead of duplicating.{% endif %}</p>
+ <form method="post" enctype="multipart/form-data">{% csrf_token %}
+   <input type="file" name="file" accept=".csv">
+   <button class="btn" style="margin-left:8px">{{ t.add }}</button>
+ </form>
+ {% if summary %}
+ <div class="banner" style="margin-top:14px">
+   ✅ created: <b>{{ summary.created }}</b> · updated: <b>{{ summary.updated }}</b> · skipped: <b>{{ summary.skipped }}</b>
+ </div>
+ {% endif %}
+</div>
+{% endblock %}

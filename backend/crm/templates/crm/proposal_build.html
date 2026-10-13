@@ -1,0 +1,36 @@
+{% extends "crm/base.html" %}{% load crm_extras %}
+{% block content %}
+<h1>{{ t.build_quote }}</h1>
+<p class="sub">{{ lead.name|default:lead.company }} · {{ lead.get_industry_display }}</p>
+
+{% if not ai_on %}<div class="banner lock">🤖 {{ t.ai_locked }} — {% if lang == 'bn' %}প্রপোজালের টেক্সট AI লিখবে; এখন শুধু দাম ও কোটেশন তৈরি হবে (দাম প্রাইস বুক থেকে, কখনো আবিষ্কার নয়)।{% else %}AI will write the proposal narrative; for now the quotation (prices from the price book, never invented) is built.{% endif %}</div>{% endif %}
+
+<form method="post" class="card">{% csrf_token %}
+ <label>{% if lang == 'bn' %}প্রপোজাল শিরোনাম{% else %}Proposal title{% endif %}</label>
+ <input name="title" style="width:100%" placeholder="Axon ERP Proposal — {{ lead.company }}">
+ <label>{{ t.requirements }}</label>
+ <textarea name="requirements" placeholder="{% if lang == 'bn' %}গ্রাহকের প্রয়োজন লিখুন{% else %}Describe the customer need{% endif %}"></textarea>
+
+ <h2>{{ t.nav_products }}</h2>
+ <table>
+   <tr><th>SKU</th><th>{{ t.name }}</th><th>{% if lang == 'bn' %}দর{% else %}Unit{% endif %}</th><th>{% if lang == 'bn' %}পরিমাণ{% else %}Qty{% endif %}</th></tr>
+   {% for p in products %}
+   <tr><td>{{ p.sku }}</td>
+     <td>{{ p.name }} {% if not p.price_reviewed %}<span class="chip warn">{{ t.to_review }}</span>{% endif %}</td>
+     <td>{{ p.unit_price|money }} <span class="muted small">/{{ p.get_billing_display }}</span></td>
+     <td><input name="qty_{{ p.sku }}" type="number" min="0" value="0" style="width:70px"></td></tr>
+   {% empty %}<tr><td colspan="4" class="muted">{% if lang == 'bn' %}প্রাইস বুক খালি — Price book-এ প্রোডাক্ট যোগ করুন।{% else %}Price book empty — add products in Price book.{% endif %}</td></tr>{% endfor %}
+ </table>
+
+ <div class="grid g2" style="margin-top:12px">
+   <div><label>{{ t.discount }} %</label><input name="discount_pct" type="number" step="0.01" min="0" value="0">
+     <div class="muted small">{% if lang == 'bn' %}{{ threshold }}%-এর বেশি হলে ম্যানেজারের অনুমোদন লাগবে{% else %}Above {{ threshold }}% needs manager approval{% endif %}</div></div>
+   <div><label>{{ t.tax }} %</label><input name="tax_pct" type="number" step="0.01" min="0" value="0">
+     <div class="muted small banner review" style="padding:4px 8px">{{ t.to_review }} — {% if lang == 'bn' %}ভ্যাট/ট্যাক্স হার মালিক ঠিক করবেন (আমরা অনুমান করি না){% else %}owner sets the VAT/tax rate (we never assume it){% endif %}</div></div>
+ </div>
+
+ {% if ai_on %}<label><input type="checkbox" name="ai_draft" value="1"> {{ t.generate_ai }}</label>{% endif %}
+ <div style="margin-top:14px"><button class="btn">{{ t.build_quote }}</button>
+   <a class="btn sec" href="{% url 'crm_lead_detail' lead.id %}">{{ t.cancel }}</a></div>
+</form>
+{% endblock %}

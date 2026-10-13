@@ -1,0 +1,21 @@
+{% extends "crm/base.html" %}
+{% block content %}
+<h1>{{ t.nav_leads }} · {{ t.add }}</h1>
+<form method="post" class="card" style="max-width:620px">{% csrf_token %}
+ <div class="grid g2">
+   <div><label>{{ t.name }}</label><input name="name"></div>
+   <div><label>{{ t.company }}</label><input name="company"></div>
+   <div><label>{{ t.industry }}</label><select name="industry">
+     {% for k,v in industries %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select></div>
+   <div><label>{{ t.company_size }}</label><input name="company_size" type="number" min="0"></div>
+   <div><label>{{ t.source }}</label><select name="source">
+     {% for k,v in sources %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select></div>
+   <div><label>{{ t.phone }}</label><input name="phone"></div>
+   <div><label>{{ t.email }}</label><input name="email" type="email"></div>
+ </div>
+ <label>{% if lang == 'bn' %}প্রথম বার্তা / প্রয়োজন (স্কোরিং-এর জন্য){% else %}First message / need (used for scoring){% endif %}</label>
+ <textarea name="message"></textarea>
+ <div style="margin-top:14px"><button class="btn">{{ t.create }}</button>
+   <a class="btn sec" href="{% url 'crm_leads' %}">{{ t.cancel }}</a></div>
+</form>
+{% endblock %}

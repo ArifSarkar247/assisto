@@ -1,0 +1,28 @@
+{% extends "crm/base.html" %}{% load crm_extras %}
+{% block content %}
+<h1>{{ t.nav_companies }}</h1>
+<div class="grid g2">
+ <div class="card"><table>
+   <tr><th>{{ t.name }}</th><th>{{ t.industry }}</th><th>{{ t.company_size }}</th><th>{% if lang == 'bn' %}প্যারেন্ট{% else %}Parent{% endif %}</th></tr>
+   {% for c in companies %}
+   <tr><td><b>{{ c.name }}</b><div class="muted small">{{ c.phone }} {{ c.website }}</div></td>
+     <td>{{ c.get_industry_display }}</td><td>{{ c.size|default:"—" }}</td>
+     <td class="muted small">{{ c.parent.name|default:"—" }}</td></tr>
+   {% empty %}<tr><td colspan="4" class="muted">{{ t.none_yet }}</td></tr>{% endfor %}
+ </table></div>
+ <div class="card">
+   <h2 style="margin-top:0">{{ t.add }}</h2>
+   <form method="post" action="{% url 'crm_company_create' %}">{% csrf_token %}
+     <label>{{ t.name }}</label><input name="name" style="width:100%">
+     <label>{{ t.industry }}</label><select name="industry">{% for k,v in industries %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select>
+     <label>{{ t.company_size }}</label><input name="size" type="number" min="0">
+     <label>{% if lang == 'bn' %}প্যারেন্ট কোম্পানি (হায়ারার্কি){% else %}Parent company (hierarchy){% endif %}</label>
+     <select name="parent"><option value="">—</option>{% for c in companies %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}</select>
+     <label>{{ t.phone }}</label><input name="phone">
+     <label>Website</label><input name="website">
+     <label>{% if lang == 'bn' %}ঠিকানা{% else %}Address{% endif %}</label><input name="address" style="width:100%">
+     <button class="btn sm" style="margin-top:12px">{{ t.add }}</button>
+   </form>
+ </div>
+</div>
+{% endblock %}

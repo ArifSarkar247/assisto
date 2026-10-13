@@ -1,0 +1,14 @@
+{% extends "crm/base.html" %}
+{% block content %}
+<h1>{{ t.onboard_erp }}</h1>
+<p class="sub">{{ deal.title }}</p>
+{% if result.ok %}
+ <div class="banner" style="border-color:var(--ok)">✅ {% if lang == 'bn' %}Axon ERP-এ হ্যান্ড-অফ সফল{% else %}Handed off to Axon ERP{% endif %} (HTTP {{ result.status_code }})</div>
+{% elif result.needs_integration %}
+ <div class="banner lock">🔑 {{ result.message }}</div>
+ <p class="muted small">{% if lang == 'bn' %}মালিক Integrations-এ Axon ERP কানেক্ট করলে এটি স্বয়ংক্রিয়ভাবে চালু হবে।{% else %}This activates automatically once the owner connects Axon ERP in Integrations.{% endif %}</p>
+{% else %}
+ <div class="banner review">⚠ {{ result.message }}</div>
+{% endif %}
+<a class="btn sec" href="{% url 'crm_deal_detail' deal.id %}">← {{ t.back }}</a>
+{% endblock %}

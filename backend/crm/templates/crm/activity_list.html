@@ -1,0 +1,25 @@
+{% extends "crm/base.html" %}{% load crm_extras %}
+{% block content %}
+<div class="flex" style="justify-content:space-between">
+ <h1>{{ t.nav_activities }}</h1>
+ <a class="chip" href="?show=open_tasks">{% if lang == 'bn' %}খোলা টাস্ক{% else %}Open tasks{% endif %}</a>
+</div>
+{% if mentions %}
+<div class="card"><h2 style="margin-top:0">@ {% if lang == 'bn' %}আপনাকে মেনশন{% else %}You were mentioned{% endif %}</h2>
+ {% for m in mentions %}<div style="border-bottom:1px solid var(--line);padding:6px 0">
+   <b>{{ m.activity.subject }}</b> — {{ m.activity.body|truncatechars:80 }}
+   <div class="muted small">{{ m.created_at|date:"d M H:i" }}</div></div>{% endfor %}
+</div>{% endif %}
+<div class="card"><table>
+ <tr><th>{% if lang == 'bn' %}ধরন{% else %}Kind{% endif %}</th><th>{% if lang == 'bn' %}বিষয়{% else %}Subject{% endif %}</th><th>{% if lang == 'bn' %}কে{% else %}Who{% endif %}</th><th>{{ t.due }}</th><th></th></tr>
+ {% for a in activities %}
+ <tr><td><span class="chip">{{ a.get_kind_display }}</span></td>
+   <td>{{ a.subject|default:a.body|truncatechars:50 }}
+     {% if a.lead %}<a class="muted small" href="{% url 'crm_lead_detail' a.lead.id %}">· lead</a>{% endif %}
+     {% if a.deal %}<a class="muted small" href="{% url 'crm_deal_detail' a.deal.id %}">· deal</a>{% endif %}</td>
+   <td class="muted small">{{ a.actor.user.username|default:"—" }}</td>
+   <td class="muted small">{{ a.due_at|date:"d M"|default:"—" }}</td>
+   <td>{% if a.kind == 'task' and not a.done %}<form method="post" action="{% url 'crm_activity_done' a.id %}">{% csrf_token %}<input type="hidden" name="next" value="{% url 'crm_activities' %}"><button class="btn sm ok">{{ t.mark_done }}</button></form>{% elif a.done %}<span class="chip ok">✓</span>{% endif %}</td></tr>
+ {% empty %}<tr><td colspan="5" class="muted">{{ t.none_yet }}</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

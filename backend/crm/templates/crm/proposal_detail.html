@@ -1,0 +1,53 @@
+{% extends "crm/base.html" %}{% load crm_extras %}
+{% block content %}
+<div class="flex" style="justify-content:space-between">
+ <div><h1>{{ p.title }} <span class="chip">v{{ p.version }}</span></h1>
+   <p class="sub">{{ p.lead.company|default:p.lead.name }} · <span class="chip">{{ p.get_status_display }}</span></p></div>
+ <a class="btn sec" href="{% url 'crm_proposal_pdf' p.id %}" target="_blank">{{ t.print_pdf }}</a>
+</div>
+
+{% if not p.prices_reviewed %}<div class="banner review">⚠ {{ t.to_review }} — {% if lang == 'bn' %}এই কোটেশনের কিছু দাম এখনো মালিক পর্যালোচনা করেননি।{% else %}some prices in this quote are not yet owner-reviewed.{% endif %}</div>{% endif %}
+{% if p.discount_needs_approval and p.status != 'approved' and p.status != 'sent' %}<div class="banner review">⚠ {{ t.needs_approval }} — {% if lang == 'bn' %}ডিসকাউন্ট বেশি, ম্যানেজারের অনুমোদন ছাড়া পাঠানো যাবে না।{% else %}high discount, cannot send without manager approval.{% endif %}</div>{% endif %}
+
+{% if p.body %}<div class="card"><h2 style="margin-top:0">{% if lang == 'bn' %}প্রপোজাল{% else %}Proposal{% endif %}</h2>
+ <div style="white-space:pre-wrap">{{ p.body }}</div></div>
+{% elif not ai_on %}<div class="banner lock">🤖 {{ t.ai_locked }}</div>{% endif %}
+
+<div class="card">
+ <h2 style="margin-top:0">{% if lang == 'bn' %}লাইন আইটেম{% else %}Line items{% endif %}</h2>
+ <table><tr><th>SKU</th><th>{{ t.name }}</th><th>{% if lang == 'bn' %}পরিমাণ{% else %}Qty{% endif %}</th><th>{% if lang == 'bn' %}দর{% else %}Unit{% endif %}</th><th>{% if lang == 'bn' %}মোট{% else %}Amount{% endif %}</th></tr>
+ {% for li in p.line_items %}
+   <tr><td>{{ li.sku }}</td><td>{{ li.label }} {% if not li.price_reviewed %}<span class="chip warn">{{ t.to_review }}</span>{% endif %}</td>
+     <td>{{ li.qty }}</td><td>{{ li.unit_price|money }}</td><td>{{ li.amount|money }}</td></tr>
+ {% empty %}<tr><td colspan="5" class="muted">—</td></tr>{% endfor %}
+ </table>
+ <table style="max-width:360px;margin-left:auto;margin-top:10px">
+   <tr><td>{{ t.subtotal }}</td><td style="text-align:right">{{ p.subtotal|money }}</td></tr>
+   <tr><td>{{ t.discount }} ({{ p.discount_pct }}%)</td><td style="text-align:right">−{{ p.discount_amount|money }}</td></tr>
+   <tr><td>{{ t.tax }} ({{ p.tax_pct }}%)</td><td style="text-align:right">{{ p.tax_amount|money }}</td></tr>
+   <tr><td><b>{{ t.total }}</b></td><td style="text-align:right"><b class="kpi" style="font-size:18px">{{ p.total|money }}</b></td></tr>
+ </table>
+</div>
+
+<div class="card">
+ <h2 style="margin-top:0">{% if lang == 'bn' %}ওয়ার্কফ্লো{% else %}Workflow{% endif %}</h2>
+ <div class="flex">
+   {% if can_manage and p.discount_needs_approval and p.status != 'approved' %}
+     <form method="post" action="{% url 'crm_proposal_action' p.id %}">{% csrf_token %}<input type="hidden" name="action" value="approve"><button class="btn ok">{{ t.approve }}</button></form>{% endif %}
+   {% if p.discount_needs_approval and p.status != 'approved' %}
+     <button class="btn" type="button" disabled title="{% if lang == 'bn' %}ডিসকাউন্ট অনুমোদনের পর পাঠানো যাবে{% else %}can send after discount is approved{% endif %}">{{ t.send }}</button>
+   {% else %}
+     <form method="post" action="{% url 'crm_proposal_action' p.id %}">{% csrf_token %}<input type="hidden" name="action" value="send"><button class="btn">{{ t.send }}</button></form>
+   {% endif %}
+   <form method="post" action="{% url 'crm_proposal_action' p.id %}">{% csrf_token %}<input type="hidden" name="action" value="viewed"><button class="btn sec">{{ t.mark_viewed }}</button></form>
+   <form method="post" action="{% url 'crm_proposal_action' p.id %}">{% csrf_token %}<input type="hidden" name="action" value="accepted"><button class="btn ok">{{ t.mark_accepted }}</button></form>
+   <form method="post" action="{% url 'crm_proposal_action' p.id %}">{% csrf_token %}<input type="hidden" name="action" value="declined"><button class="btn bad">✗</button></form>
+ </div>
+ <div class="muted small" style="margin-top:10px">
+   {% if p.sent_at %}sent {{ p.sent_at|date:"d M H:i" }} · {% endif %}
+   {% if p.viewed_at %}viewed {{ p.viewed_at|date:"d M H:i" }} · {% endif %}
+   {% if p.accepted_at %}accepted {{ p.accepted_at|date:"d M H:i" }}{% endif %}
+ </div>
+</div>
+<a class="btn sec" href="{% url 'crm_lead_detail' p.lead.id %}">← {{ t.back }}</a>
+{% endblock %}

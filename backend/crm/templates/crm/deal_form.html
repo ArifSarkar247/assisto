@@ -1,0 +1,32 @@
+{% extends "crm/base.html" %}
+{% block content %}
+<h1>{{ t.nav_deals }} · {{ t.add }}</h1>
+<form method="post" class="card" style="max-width:640px">{% csrf_token %}
+ <label>{{ t.name }}</label><input name="title" style="width:100%">
+ <div class="grid g2">
+   <div><label>{{ t.nav_pipeline }}</label><select name="pipeline" id="pipe" onchange="syncStages()">
+     {% for p in pipelines %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select></div>
+   <div><label>{{ t.stage }}</label><select name="stage" id="stage"></select></div>
+   <div><label>{{ t.value }}</label><input name="value" type="number" step="0.01" min="0"></div>
+   <div><label>{{ t.probability }}</label><input name="probability" type="number" min="0" max="100"></div>
+   <div><label>{{ t.expected_close }}</label><input name="expected_close" type="date"></div>
+   <div><label>{{ t.source }}</label><select name="source">{% for k,v in sources %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select></div>
+   <div><label>{{ t.nav_leads }}</label><select name="lead"><option value="">—</option>
+     {% for l in leads %}<option value="{{ l.id }}">{{ l.name|default:l.company }}</option>{% endfor %}</select></div>
+   <div><label>{{ t.company }}</label><select name="company"><option value="">—</option>
+     {% for c in companies %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}</select></div>
+ </div>
+ <label>{{ t.next_step }}</label><input name="next_step" style="width:100%">
+ <label>{{ t.next_step_due }}</label><input name="next_step_due" type="date">
+ <div style="margin-top:14px"><button class="btn">{{ t.create }}</button>
+   <a class="btn sec" href="{% url 'crm_deals' %}">{{ t.cancel }}</a></div>
+</form>
+{% endblock %}
+{% block script %}
+<script>
+const PIPES={ {% for p in pipelines %}"{{ p.id }}":[{% for s in p.stages.all %}{id:{{ s.id }},name:"{{ s.name|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}]{% if not forloop.last %},{% endif %}{% endfor %} };
+function syncStages(){const pid=document.getElementById('pipe').value;const sel=document.getElementById('stage');
+ sel.innerHTML="";(PIPES[pid]||[]).forEach(s=>{const o=document.createElement('option');o.value=s.id;o.textContent=s.name;sel.appendChild(o);});}
+syncStages();
+</script>
+{% endblock %}

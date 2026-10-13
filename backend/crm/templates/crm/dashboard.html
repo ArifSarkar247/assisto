@@ -1,0 +1,97 @@
+{% extends "crm/base.html" %}{% load crm_extras %}
+{% block content %}
+<h1>{{ t.nav_dashboard }}</h1>
+<p class="sub">{{ org.name }}</p>
+
+<div class="grid g4">
+ <div class="card">
+   <div class="muted small">{{ t.weighted_forecast }}</div>
+   {% if forecast.has_data %}
+     <div class="kpi grad">{{ forecast.weighted|money }}</div>
+     <div class="muted small">{{ t.open_deals }}: {{ forecast.open_count }}</div>
+   {% else %}
+     <div class="kpi muted">—</div>
+     <div class="muted small">{{ t.not_enough_data }}</div>
+   {% endif %}
+ </div>
+ <div class="card">
+   <div class="muted small">{{ t.commit }}</div>
+   <div class="kpi">{{ forecast.commit|money }}</div>
+   <div class="muted small">{{ forecast.commit_count }} {{ t.open_deals }}</div>
+ </div>
+ <div class="card">
+   <div class="muted small">{{ t.best_case }}</div>
+   <div class="kpi">{{ forecast.best_case|money }}</div>
+ </div>
+ <div class="card">
+   <div class="muted small">{{ t.won_this_month }}</div>
+   <div class="kpi" style="color:var(--ok)">{{ won_month_value|money }}</div>
+   <div class="muted small">{{ won_month_count }} {{ t.nav_deals }}</div>
+ </div>
+</div>
+
+<div class="banner">
+ <span class="muted small">{{ t.method }}:</span> <code>{{ forecast.method }}</code>
+ — {% if lang == 'bn' %}{{ forecast.message_bn }}{% else %}{{ forecast.message_en }}{% endif %}
+</div>
+
+<div class="grid g2">
+ <div class="card">
+   <h2 style="margin-top:0">{{ t.high_priority }}</h2>
+   <table><tr><th>{{ t.name }}</th><th>{{ t.score }}</th><th>{{ t.status }}</th></tr>
+   {% for l in high_leads %}
+     <tr><td><a href="{% url 'crm_lead_detail' l.id %}">{{ l.name|default:l.company|default:"—" }}</a>
+       <div class="muted small">{{ l.company }}</div></td>
+       <td><span class="score hot">{{ l.score }}</span></td>
+       <td><span class="chip">{{ l.get_status_display }}</span></td></tr>
+   {% empty %}<tr><td colspan="3" class="muted">{{ t.none_yet }}</td></tr>{% endfor %}
+   </table>
+ </div>
+
+ <div class="card">
+   <h2 style="margin-top:0">{{ t.sla_breaches }}</h2>
+   <table><tr><th>{{ t.name }}</th><th>{{ t.phone }}</th><th>SLA</th></tr>
+   {% for l in sla_breaches %}
+     <tr><td><a href="{% url 'crm_lead_detail' l.id %}">{{ l.name|default:l.company }}</a></td>
+       <td>{{ l.phone }}</td><td><span class="chip high">{{ l.sla_due|date:"d M H:i" }}</span></td></tr>
+   {% empty %}<tr><td colspan="3" class="muted">{{ t.none_yet }}</td></tr>{% endfor %}
+   </table>
+ </div>
+</div>
+
+<div class="grid g3">
+ <div class="card">
+   <h2 style="margin-top:0">{{ t.stuck_deals }}</h2>
+   {% for s in stuck %}
+     <div class="flex" style="justify-content:space-between;border-bottom:1px solid var(--line);padding:6px 0">
+       <a href="{% url 'crm_deal_detail' s.deal_id %}">{{ s.title }}</a>
+       <span class="chip warn">{{ s.days }}d · {{ s.stage }}</span></div>
+   {% empty %}<div class="muted">{{ t.none_yet }}</div>{% endfor %}
+ </div>
+ <div class="card">
+   <h2 style="margin-top:0">{{ t.overdue }}</h2>
+   {% for o in overdue %}
+     <div class="flex" style="justify-content:space-between;border-bottom:1px solid var(--line);padding:6px 0">
+       <a href="{% url 'crm_deal_detail' o.deal_id %}">{{ o.title }}</a>
+       <span class="chip high">{{ o.due }}</span></div>
+   {% empty %}{% endfor %}
+   {% for m in missing_next %}
+     <div class="flex" style="justify-content:space-between;border-bottom:1px solid var(--line);padding:6px 0">
+       <a href="{% url 'crm_deal_detail' m.deal_id %}">{{ m.title }}</a>
+       <span class="chip warn">{{ t.next_step }} ✗</span></div>
+   {% empty %}{% endfor %}
+   {% if not overdue and not missing_next %}<div class="muted">{{ t.none_yet }}</div>{% endif %}
+ </div>
+ <div class="card">
+   <h2 style="margin-top:0">{{ t.my_tasks }}</h2>
+   {% for a in my_tasks %}
+     <form method="post" action="{% url 'crm_activity_done' a.id %}" class="flex"
+       style="justify-content:space-between;border-bottom:1px solid var(--line);padding:6px 0">
+       {% csrf_token %}<input type="hidden" name="next" value="{% url 'crm_dashboard' %}">
+       <span>{{ a.subject|default:a.body|truncatechars:40 }}
+         <span class="muted small">· {{ a.due_at|date:"d M" }}</span></span>
+       <button class="btn sm ok">{{ t.mark_done }}</button></form>
+   {% empty %}<div class="muted">{{ t.none_yet }}</div>{% endfor %}
+ </div>
+</div>
+{% endblock %}

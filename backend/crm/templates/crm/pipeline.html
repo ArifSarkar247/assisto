@@ -1,0 +1,58 @@
+{% extends "crm/base.html" %}{% load crm_extras %}
+{% block content %}
+<div class="flex" style="justify-content:space-between">
+ <div><h1>{{ t.nav_pipeline }}</h1><p class="sub">{{ pipeline.name }}</p></div>
+ <div class="flex">
+   {% if pipelines|length > 1 %}
+   <form method="get" style="margin:0"><select name="pipeline" onchange="this.form.submit()">
+     {% for p in pipelines %}<option value="{{ p.id }}" {% if p.id == pipeline.id %}selected{% endif %}>{{ p.name }}</option>{% endfor %}
+   </select></form>{% endif %}
+   <a class="btn" href="{% url 'crm_deal_create' %}">+ {{ t.nav_deals }}</a>
+ </div>
+</div>
+
+<div class="board" id="board">
+ {% for c in columns %}
+ <div class="col" data-stage="{{ c.stage.id }}"
+      ondragover="event.preventDefault();this.classList.add('drop')"
+      ondragleave="this.classList.remove('drop')"
+      ondrop="drop(event,{{ c.stage.id }},{{ c.stage.is_lost|yesno:'true,false' }})">
+   <h3>{{ c.stage.name }}</h3>
+   <div class="meta">{{ c.count }} · {{ c.value|money }} · {{ c.stage.probability }}%</div>
+   {% for row in c.deals %}
+     <div class="dcard" draggable="true" data-deal="{{ row.d.id }}"
+          ondragstart="drag(event,{{ row.d.id }})">
+       <a href="{% url 'crm_deal_detail' row.d.id %}">{{ row.d.title }}</a>
+       <div class="v">{{ row.d.value|money }}</div>
+       <div class="muted small">{{ row.d.company.name|default:"" }}
+         {% if row.d.owner %}· {{ row.d.owner.user.username }}{% endif %}</div>
+       {% if row.stuck %}<span class="chip warn">{{ t.stuck_deals }}: {{ row.age }}d</span>{% endif %}
+       {% if not row.d.next_step %}<span class="chip high">{{ t.next_step }} ✗</span>{% endif %}
+     </div>
+   {% empty %}<div class="muted small">{{ t.none_yet }}</div>{% endfor %}
+ </div>
+ {% endfor %}
+</div>
+
+<p class="muted small">↔ {% if lang == 'bn' %}কার্ড টেনে স্টেজ বদলান{% else %}Drag cards to change stage{% endif %}</p>
+{% endblock %}
+
+{% block script %}
+<script>
+const CSRF="{{ csrf_token }}";
+let DRAG=null;
+function drag(e,id){DRAG=id;}
+function drop(e,stage,isLost){
+ e.preventDefault();document.querySelectorAll('.col').forEach(c=>c.classList.remove('drop'));
+ if(!DRAG)return;
+ let loss="";
+ if(isLost){loss=prompt("{% if lang == 'bn' %}হারানোর কারণ লিখুন (বাধ্যতামূলক){% else %}Loss reason (required){% endif %}");
+   if(!loss){return;}}
+ const body=new URLSearchParams({deal:DRAG,stage:stage,loss_reason:isLost?"other":"",loss_note:loss||""});
+ fetch("{% url 'crm_deal_move' %}",{method:"POST",headers:{"X-CSRFToken":CSRF,
+   "Content-Type":"application/x-www-form-urlencoded"},body:body})
+  .then(r=>r.json()).then(j=>{if(j.ok){location.reload();}else{alert(JSON.stringify(j));}});
+ DRAG=null;
+}
+</script>
+{% endblock %}

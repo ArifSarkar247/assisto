@@ -1,0 +1,26 @@
+{% extends "crm/base.html" %}{% load crm_extras %}
+{% block content %}
+<div class="flex" style="justify-content:space-between">
+ <h1>{{ t.nav_deals }}</h1>
+ <a class="btn" href="{% url 'crm_deal_create' %}">+ {{ t.add }}</a>
+</div>
+<div class="flex" style="margin-bottom:12px">
+ <a class="chip" href="?state=open">{{ t.open_deals }}</a>
+ <a class="chip won" href="?state=won">Won</a>
+ <a class="chip lost" href="?state=lost">Lost</a>
+ <a class="chip" href="?">{% if lang == 'bn' %}সব{% else %}All{% endif %}</a>
+</div>
+<div class="card"><table>
+ <tr><th>{{ t.name }}</th><th>{{ t.stage }}</th><th>{{ t.value }}</th>
+   <th>{{ t.probability }}</th><th>{{ t.expected_close }}</th><th>{{ t.next_step }}</th><th>{{ t.assigned_to }}</th></tr>
+ {% for d in deals %}
+ <tr><td><a href="{% url 'crm_deal_detail' d.id %}">{{ d.title }}</a>
+   <div class="muted small">{{ d.company.name|default:"" }}</div></td>
+   <td>{% if d.state == 'won' %}<span class="chip won">{% elif d.state == 'lost' %}<span class="chip lost">{% else %}<span class="chip">{% endif %}{{ d.stage.name }}</span></td>
+   <td class="v">{{ d.value|money }}</td><td>{{ d.probability }}%</td>
+   <td>{{ d.expected_close|date:"d M Y"|default:"—" }}</td>
+   <td>{% if d.next_step %}{{ d.next_step|truncatechars:30 }}{% else %}<span class="chip high">✗</span>{% endif %}</td>
+   <td class="muted small">{{ d.owner.user.username|default:"—" }}</td></tr>
+ {% empty %}<tr><td colspan="7" class="muted">{{ t.none_yet }}</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

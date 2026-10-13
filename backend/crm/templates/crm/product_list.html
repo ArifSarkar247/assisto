@@ -1,0 +1,28 @@
+{% extends "crm/base.html" %}{% load crm_extras %}
+{% block content %}
+<h1>{{ t.nav_products }}</h1>
+<div class="banner review">{{ t.to_review }} — {% if lang == 'bn' %}প্রতিটি দাম মালিক নিজে বসাবেন ও "পর্যালোচিত" টিক দেবেন; CRM কখনো দাম আবিষ্কার করে না।{% else %}the owner enters each price and ticks "reviewed"; the CRM never invents a price.{% endif %}</div>
+<div class="grid g2">
+ <div class="card"><table>
+   <tr><th>SKU</th><th>{{ t.name }}</th><th>{% if lang == 'bn' %}দর{% else %}Price{% endif %}</th><th>{% if lang == 'bn' %}বিলিং{% else %}Billing{% endif %}</th><th></th></tr>
+   {% for p in products %}
+   <tr><td>{{ p.sku }}</td><td>{{ p.name }}</td><td>{{ p.unit_price|money }}</td>
+     <td class="muted small">{{ p.get_billing_display }}</td>
+     <td>{% if p.price_reviewed %}<span class="chip ok">✓</span>{% else %}<span class="chip warn">{{ t.to_review }}</span>{% endif %}</td></tr>
+   {% empty %}<tr><td colspan="5" class="muted">{{ t.none_yet }}</td></tr>{% endfor %}
+ </table></div>
+ {% if can_manage %}
+ <div class="card">
+   <h2 style="margin-top:0">{{ t.add }} / {{ t.edit }}</h2>
+   <form method="post">{% csrf_token %}
+     <label>SKU</label><input name="sku" required>
+     <label>{{ t.name }}</label><input name="name" style="width:100%">
+     <label>{% if lang == 'bn' %}বিবরণ{% else %}Description{% endif %}</label><textarea name="description"></textarea>
+     <label>{% if lang == 'bn' %}একক মূল্য (৳){% else %}Unit price (৳){% endif %}</label><input name="unit_price" type="number" step="0.01" min="0">
+     <label>{% if lang == 'bn' %}বিলিং{% else %}Billing{% endif %}</label><select name="billing">{% for k,v in billing %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select>
+     <label><input type="checkbox" name="price_reviewed" value="1"> {% if lang == 'bn' %}দাম পর্যালোচিত (মালিক নিশ্চিত){% else %}Price reviewed (owner confirmed){% endif %}</label>
+     <button class="btn sm" style="margin-top:12px">{{ t.save }}</button>
+   </form>
+ </div>{% endif %}
+</div>
+{% endblock %}
