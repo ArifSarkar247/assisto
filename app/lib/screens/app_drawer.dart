@@ -42,6 +42,7 @@ class AppDrawer extends StatelessWidget {
       (Icons.alarm_outlined, t.navReminders, const RemindersScreen()),
       (Icons.checklist_outlined, t.navNotesTasks, const NotesTodosScreen()),
       (Icons.psychology_outlined, t.navMemory, const MemoryScreen()),
+      (Icons.contacts_outlined, t.crmContacts, const CrmContactsScreen()),
       (Icons.autorenew, t.subscriptions, const SubscriptionsScreen()),
       (Icons.hub_outlined, t.connectedApps, const SourcesScreen()),
       (Icons.radar_outlined, t.watchFeed, const WatchFeedScreen()),
