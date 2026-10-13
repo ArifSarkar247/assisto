@@ -155,6 +155,11 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
         raise AIUnavailable("budget")
     if _user_over_limit(user):
         raise AIUnavailable("user_limit")
+    # Plan credits: unlimited plans pass; free/trial-expired need credits.
+    if user is not None:
+        from . import plans
+        if not plans.has_ai_quota(user):
+            raise AIUnavailable("credits")
 
     model = TIER_MODEL.get(tier, TIER_MODEL["cheap"])
     system = _INJECTION_GUARD + (("\n" + extra_system) if extra_system else "")
@@ -176,6 +181,9 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             cost = (itok * pin + otok * pout) / 1_000_000
             AIUsage.objects.create(user=user, feature=feature, model=used_model,
                                    input_tokens=itok, output_tokens=otok, cost_usd=cost)
+            if user is not None:
+                from . import plans
+                plans.consume_credit(user, note=feature or "ai")
             return text, cost
         except Exception as e:  # noqa: BLE001 — degrade to next provider
             last_err = e

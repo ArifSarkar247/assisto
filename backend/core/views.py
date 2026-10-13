@@ -15,7 +15,7 @@ from datetime import timedelta
 from .models import (User, MemoryItem, AuditLog, Reminder, Note, Todo,
                      SourcePermission, SupportTicket, Document, EmergencyCard,
                      Account, Transaction, Budget, Loan, SavingsGoal, Subscription,
-                     NightBriefing)
+                     NightBriefing, WaitlistEntry)
 from .serializers import (
     UserSerializer, RegisterSerializer, LoginSerializer,
     MemoryItemSerializer, AuditLogSerializer, ReminderSerializer,
@@ -81,6 +81,8 @@ class RegisterView(APIView):
         ser.is_valid(raise_exception=True)
         user = ser.save()
         token, _ = Token.objects.get_or_create(user=user)
+        from . import plans
+        plans.start_trial(user)   # 7-day full trial for new users
         log(user, "account.register")
         return Response(
             {"token": token.key, "user": UserSerializer(user).data},
@@ -923,3 +925,34 @@ class IntegrationTestView(_OwnerOnly):
         status_, detail = integrations.test(slug)
         log(request.user, "integration.test", slug=slug, result=status_)
         return Response({"status": status_, "detail": detail})
+
+
+# ---------- Monetization (P3) ----------
+class PlanView(APIView):
+    def get(self, request):
+        from . import plans
+        return Response(plans.entitlements(request.user))
+
+
+class RewardedAdView(APIView):
+    """App calls this after a rewarded ad finishes → +1 AI credit (daily cap)."""
+    def post(self, request):
+        from . import plans, integrations
+        if not integrations.is_enabled("admob"):
+            return Response({"ok": False, "reason": "ads_not_configured",
+                             "msg": "চালু হবে যখন AdMob যোগ হবে / Available when AdMob is added"})
+        ok, remaining = plans.reward_ad(request.user)
+        log(request.user, "credit.rewarded", granted=ok)
+        return Response({"ok": ok, "remaining_today": remaining,
+                         "credits": request.user.ai_credits})
+
+
+class WaitlistView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        contact = (request.data.get("contact") or "").strip()
+        if not contact:
+            return Response({"detail": "contact required"}, status=400)
+        obj, created = WaitlistEntry.objects.get_or_create(contact=contact)
+        return Response({"ok": True, "approved": obj.approved, "new": created})

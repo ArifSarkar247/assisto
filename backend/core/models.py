@@ -54,6 +54,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     referral_code = models.CharField(max_length=12, blank=True)   # feature 19 invite
     referred_by = models.CharField(max_length=12, blank=True)
 
+    # --- monetization (P3) ---
+    plan = models.CharField(max_length=16, default="free")        # see plans.PLANS
+    plan_until = models.DateTimeField(null=True, blank=True)      # paid plan expiry
+    trial_until = models.DateTimeField(null=True, blank=True)     # 7-day full trial
+    is_founder = models.BooleanField(default=False)
+    ai_credits = models.IntegerField(default=0)                  # consumable AI credits
+
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
@@ -455,3 +462,27 @@ class NightBriefing(models.Model):
     class Meta:
         unique_together = [("user", "for_date")]
         ordering = ["-for_date"]
+
+
+class CreditLedger(models.Model):
+    """Every AI-credit change (monthly grant, consume, rewarded-ad, top-up).
+    User.ai_credits is the running balance; this is the audit trail."""
+    REASONS = [("grant", "monthly grant"), ("consume", "consume"),
+               ("rewarded", "rewarded ad"), ("topup", "top-up"),
+               ("trial", "trial"), ("adjust", "adjust")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="credit_ledger")
+    delta = models.IntegerField()               # +grant / -consume
+    reason = models.CharField(max_length=12, choices=REASONS)
+    note = models.CharField(max_length=120, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class WaitlistEntry(models.Model):
+    """Viral-spike invite/waitlist gate. Approved entries may register."""
+    contact = models.CharField(max_length=120, unique=True)   # phone or email
+    invite_code = models.CharField(max_length=12, blank=True, default="")
+    approved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)

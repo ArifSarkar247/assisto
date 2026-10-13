@@ -207,3 +207,39 @@ class AILayerP2Tests(TestCase):
         res, used_ai, from_cache = bills.parse_bill(u, "some bill", biller_hint="WASA")
         self.assertTrue(res.get("needs_key"))          # no fake data without a key
         self.assertFalse(used_ai)
+
+
+class MonetizationP3Tests(TestCase):
+    def test_trial_gives_premium_entitlement(self):
+        from core import plans
+        u = User.objects.create_user(name="T", phone="01933333333", password="x123456")
+        plans.start_trial(u)
+        e = plans.entitlements(u)
+        self.assertEqual(e["plan"], "premium")
+        self.assertTrue(e["trial_active"])
+        self.assertFalse(e["ads"])
+
+    def test_free_plan_credit_consume_and_quota(self):
+        from core import plans
+        from django.utils import timezone
+        from datetime import timedelta
+        u = User.objects.create_user(name="F", phone="01944444444", password="x123456")
+        u.trial_until = timezone.now() - timedelta(days=1)  # expired trial -> free
+        u.save()
+        self.assertEqual(plans.effective_plan(u), "free")
+        plans.grant_monthly_if_due(u)
+        self.assertEqual(u.ai_credits, plans.PLANS["free"]["credits"])
+        self.assertTrue(plans.has_ai_quota(u))
+        before = u.ai_credits
+        plans.consume_credit(u)
+        u.refresh_from_db()
+        self.assertEqual(u.ai_credits, before - 1)
+
+    def test_rewarded_ad_daily_cap(self):
+        from core import plans
+        u = User.objects.create_user(name="R", phone="01955555555", password="x123456")
+        for _ in range(plans.REWARDED_DAILY_CAP):
+            ok, _ = plans.reward_ad(u)
+            self.assertTrue(ok)
+        ok, _ = plans.reward_ad(u)   # over cap
+        self.assertFalse(ok)

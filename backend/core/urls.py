@@ -56,6 +56,11 @@ urlpatterns = [
     path("admin/integrations", views.IntegrationsListView.as_view()),
     path("admin/integrations/<slug:slug>", views.IntegrationSaveView.as_view()),
     path("admin/integrations/<slug:slug>/test", views.IntegrationTestView.as_view()),
+
+    # Monetization (P3)
+    path("me/plan", views.PlanView.as_view()),
+    path("credits/rewarded", views.RewardedAdView.as_view()),
+    path("waitlist", views.WaitlistView.as_view()),
 ]
 
 urlpatterns += router.urls
