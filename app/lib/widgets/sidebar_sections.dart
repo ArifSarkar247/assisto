@@ -58,7 +58,8 @@ class SidebarSection {
 /// Grouped, collapsible sidebar layout (Phase B spec, for the integrator to
 /// wire into the integrator-owned `app_drawer.dart`).
 ///
-/// Sections (localized): Money, Family, Health, Life, Work, Business, Settings.
+/// Sections (localized): My Account, Family, Health, Daily Life, Work,
+/// Business, Settings. (Documents lives under Daily Life.)
 /// Every module here is ALSO reachable from chat (see [ChatNav]); the sidebar
 /// is the discovery surface, chat is the fast path.
 ///
@@ -82,8 +83,6 @@ class SidebarSections {
           (t) => t.financeTools, (_) => const FinanceScreen()),
       SidebarItem(Icons.autorenew,
           (t) => t.subscriptions, (_) => const SubscriptionsScreen()),
-      SidebarItem(Icons.lock_outline,
-          (t) => t.moduleVault, (_) => const VaultScreen()),
     ]),
     SidebarSection(Icons.diversity_1_outlined, (t) => t.sidebarFamily, [
       SidebarItem(Icons.diversity_1_outlined,
@@ -110,6 +109,8 @@ class SidebarSections {
           (t) => t.scamTitle, (_) => const ScamScreen()),
     ]),
     SidebarSection(Icons.auto_awesome_outlined, (t) => t.sidebarLife, [
+      SidebarItem(Icons.lock_outline,
+          (t) => t.moduleVault, (_) => const VaultScreen()),
       SidebarItem(Icons.event_outlined,
           (t) => t.meetingsTitle, (_) => const MeetingsScreen()),
       SidebarItem(Icons.menu_book_outlined,
@@ -163,13 +164,39 @@ class SidebarSections {
     ]),
   ];
 
+  /// ASCII-only search aliases (English back-compat / old names). Bangla aliases
+  /// are NOT listed here (language-gate forbids Bangla in Dart); Bangla searches
+  /// resolve directly against the localized section titles + item labels, which
+  /// already carry the Bangla text via ARB (the Bangla word for "account"
+  /// matches the "My Account" section/module, the Bangla word for "daily"
+  /// matches the "Daily Life" section title). Each alias maps to a
+  /// substring that appears in the English title/label it should surface.
+  ///   'money'     -> old section name, now "My Account"
+  ///   'life'      -> old section name, now "Daily Life"
+  ///   'sales crm' -> old module name, now "CRM"
+  static const Map<String, String> _searchAliases = {
+    'money': 'my account',
+    'life': 'daily life',
+    'sales crm': 'crm',
+    'sales': 'crm',
+  };
+
   /// Returns sections (with items) matching [query]. Empty query -> [all].
+  /// Matches against both the section TITLE (whole section surfaces) and each
+  /// item label. A few ASCII aliases ([_searchAliases]) keep old English names
+  /// like "money"/"life"/"sales crm" working after the rename.
   /// Integrator uses this for the sidebar search box.
   static List<SidebarSection> filter(AppLocalizations t, String query) {
-    final q = query.trim().toLowerCase();
+    var q = query.trim().toLowerCase();
     if (q.isEmpty) return all;
+    q = _searchAliases[q] ?? q;
     final out = <SidebarSection>[];
     for (final s in all) {
+      // Section-title hit surfaces the whole section.
+      if (s.title(t).toLowerCase().contains(q)) {
+        out.add(s);
+        continue;
+      }
       final hits = s.items
           .where((i) => i.label(t).toLowerCase().contains(q))
           .toList();

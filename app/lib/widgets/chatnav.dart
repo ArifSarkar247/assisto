@@ -83,8 +83,8 @@ class ChatNav {
   /// Longest phrase first (see [detectRoute]).
   static const Map<String, List<String>> _synonyms = {
     'money': [
-      'my account', 'money', 'finance', 'expense', 'expenses', 'budget',
-      'wallet',
+      'my account', 'account', 'money', 'finance', 'expense', 'expenses',
+      'budget', 'wallet',
     ],
     'documents': ['documents', 'docs', 'vault', 'papers', 'files'],
     'family': [

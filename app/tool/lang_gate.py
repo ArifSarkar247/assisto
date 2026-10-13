@@ -19,6 +19,15 @@ BN = re.compile(r"[\u0980-\u09F2\u09F4-\u09FF]")  # ৳ (U+09F3) currency sign a
 # a literal that has Bangla, then '/', then a Latin letter (combined label)
 MIXED = re.compile(r"[\u0980-\u09F2\u09F4-\u09FF][^\"']*?/[^\"']*?[A-Za-z]|[A-Za-z][^\"']*?/[^\"']*?[\u0980-\u09F2\u09F4-\u09FF]")  # ৳ exempt
 
+# Keys whose Bangla value is intentionally identical to its English value
+# because the label is a global product/brand name (treated like "bKash").
+# The gate's current rules (Bangla-in-dart / ARB-parity / mixed-"/") already
+# pass "CRM"=="CRM", but this allowlist records the owner-approved exception
+# explicitly so reviewers know it is deliberate, not an untranslated string.
+SAME_VALUE_ALLOWLIST = {
+    "crmTitle",  # "CRM" == "CRM" -- product name, not translated. (owner-approved)
+}
+
 viol = []
 
 # (a) + (c): scan Dart files outside l10n/

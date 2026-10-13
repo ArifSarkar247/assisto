@@ -12,8 +12,9 @@ resolve("আমার হিসাব দেখাও") -> "money";  resolve("sh
 SCREEN_SYNONYMS = {
     # route : natural/old/new words the user might use (bn + en), lowercased
     "money": [
-        "আমার হিসাব", "হিসাব", "জীবনের হিসাব", "টাকা", "টাকা পয়সা", "খরচ", "আয় খরচ",
-        "my account", "money", "finance", "expense", "expenses", "budget", "wallet",
+        "আমার হিসাব", "হিসাব", "জীবনের হিসাব", "আমার একাউন্ট", "একাউন্ট", "অ্যাকাউন্ট",
+        "টাকা", "টাকা পয়সা", "খরচ", "আয় খরচ",
+        "my account", "account", "money", "finance", "expense", "expenses", "budget", "wallet",
     ],
     "documents": [
         "ডকুমেন্টস", "ডকুমেন্ট", "কাগজপত্র", "কাগজ", "ভল্ট", "নথি",
