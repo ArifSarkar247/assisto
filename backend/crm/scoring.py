@@ -22,10 +22,12 @@ BUYING_SIGNALS = [
     # Bangla
     "দাম", "মূল্য", "ভ্যাট", "কম্পোনেন্ট", "মডিউল", "ইআরপি", "কোটেশন",
     "প্রাইস", "ডেমো", "প্রপোজাল", "কিনতে", "কিনব", "ইমপ্লিমেন্ট",
+    "লাগবে", "প্রয়োজন", "দরকার",   # expressing a need = strong buying intent
     # English
     "price", "pricing", "cost", "vat", "quote", "quotation", "erp",
     "module", "component", "demo", "proposal", "budget", "implement",
     "license", "subscription", "buy", "purchase",
+    "need", "require", "looking for",
 ]
 
 # Industry fit — target verticals from the spec get a head start.
@@ -94,9 +96,12 @@ def rule_sentiment(text):
     pos = ["agree", "interested", "yes", "great", "thanks", "ধন্যবাদ", "আগ্রহী",
            "ভালো", "হ্যাঁ", "চাই", "কিনব", "কথা বলি", "পরের সপ্তাহে", "demo",
            "proposal", "সময় দিন", "ঠিক আছে"]
+    # Note: bare "না" is intentionally NOT used — as a 2-char substring it would
+    # false-match inside neutral words (e.g. "আপনার"). We match specific
+    # negation phrases instead, which is both correct and honest.
     neg = ["no", "not interested", "expensive", "costly", "cancel", "never",
-           "বেশি দাম", "আগ্রহী নই", "লাগবে না", "বাদ", "সমস্যা", "খারাপ",
-           "দরকার নেই", "না"]
+           "বেশি দাম", "আগ্রহী নই", "লাগবে না", "বাদ দিন", "সমস্যা", "খারাপ",
+           "দরকার নেই", "নই", "চাই না"]
     if any(k in t for k in neg):
         return "neg"
     if any(k in t for k in pos):

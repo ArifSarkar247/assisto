@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "core",
     "web",
+    "crm",
 ]
 
 MIDDLEWARE = [
