@@ -64,7 +64,7 @@ P10🔨 সব Android ফোন(8–15, 320/360/412+tablet, OEM battery guidanc
 
 Assisto এখন **লাইভ**: `https://assisto.asalify.com` — ৪টি ফ্রি ওয়েব টুল (লগইন ছাড়া) + একটি পূর্ণ **Android অ্যাপ** (ব্যাকএন্ড Django+PostgreSQL)। Asalify-র ১২টি টেন্যান্ট প্রতিটি ডিপ্লয়ের আগে-পরে যাচাই করা হয়েছে — **কোনো প্রভাব পড়েনি**।
 
-### 📱 সর্বশেষ APK (build 47): https://assisto.asalify.com/dl/e2hJfi_ndO5n2rM8gr0NBqBV/assisto-part7-build47.apk
+### 📱 সর্বশেষ APK (build 50): https://assisto.asalify.com/dl/wSt0e-UT5xId8qUjEGrFKKmU/assisto-part7-build50.apk
 লিংক খুলুন → ইনস্টল। একবার ইনস্টল করলে অ্যাপই "নতুন আপডেট আছে" দেখাবে — লিংক আর খুঁজতে হবে না। স্থায়ী কি দিয়ে সাইনড (আপডেট আন-ইনস্টল ছাড়াই বসে)।
 
 ---
@@ -306,5 +306,5 @@ V1 test APKs are **debug-signed** (installable now). Before Play Store we will g
 - ✅ Batch 5: Govt-service + religious guide screen wired.
 - **P10 done so far (build 43 live):** 7 new drawer screens — Finance, Plans/Credits, Watch feed, Agent Studio, Service guide + Nearby (GPS) + voice action-cards (music/navigate/call/nearby) + Settings→Safety (accident/fall countdown 30s–10min) + medicine follow-up config (backend).
 - ⚠️ **APK NOTE:** committed since build 43 (not yet shipped): Service guide, Settings→Safety (accident/fall + medicine follow-up), OEM battery-guidance → include in next P10 APK.
-- ✅ **P10 screens DONE (12 new, in drawer):** Finance, Plans/Credits, Watch feed, Nearby(GPS), Agent Studio, Service guide, Job hunter, Nominee, Personal CRM contacts, Business (catalog/orders/reply) + voice action-cards + Settings→Safety(accident) + OEM battery-guidance + medicine follow-up config. Build 47 live (Business pending next APK).
+- ✅ **P10 screens DONE (12 new, in drawer):** Finance, Plans/Credits, Watch feed, Nearby(GPS), Agent Studio, Service guide, Job hunter, Nominee, Personal CRM contacts, Business (catalog/orders/reply) + voice action-cards + Settings→Safety(accident) + OEM battery-guidance + medicine follow-up config. **Build 50 লাইভ** — সব ১৩টি নতুন স্ক্রিন (Business + AI Inbox সহ) অ্যাপে।
 - 🔨 **P10 remaining:** AI Inbox screen; runtime-permission reason dialogs (mic/location/camera/notification, bn/en); responsive 320/360/412+tablet polish; onboarding <60s + parent-linking; full screenshot gallery (every new screen+dialog+empty/loading/error, bn/en×light/dark) → review → final P10 APK. Then DEPTH AUDIT.
