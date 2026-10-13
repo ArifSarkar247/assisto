@@ -8,8 +8,9 @@
 
 **PHASE A — STRICT LANGUAGE (single-agent, no parallel until gate green + APK shipped):**
 - [x] **Frontend DONE** — language gate CLEAN + wired into CI (`app/tool/lang_gate.py`: Bangla-in-Dart / ARB-key-parity / mixed-"/" → build fails). ALL hard-coded Bangla across 18 screens+widgets → ARB (**464 keys, bn+en balanced**). 14 inline-helper screens auto-converted; 7 read-only translator agents authored the rest; static/const maps (accounts/recurrence/autonomy/sources/doc-types/battery/perm-reasons) → build-time localized fns; `permission_reason` → `PermKind` enum. **0 analyze errors.** Dev tools (on-disk, gitignored `bin/`): arbify.py, arbify_b.py, fix_bn_dart.py, fix_const.py. Decision: **৳ (U+09F3) exempt** from gate (currency sign, valid both langs like `$`); `langPickBangla="বাংলা"` kept in en ARB (picker shows each language in its own script).
-- [ ] **Gallery both-langs render** (en+bn, light+dark) — leftover check → fix → re-render
-- [ ] **Ship APK** after language fix (frontend) via updater
+- [x] **Gallery both-langs render** — 35 screens × বাংলা/English × Light/Dark (130 renders): https://assisto.asalify.com/dl/shots-V0yyKIoE0PU/index.html
+- [x] **APK shipped** — build 55 (strict-language): .../dl/Am68srqH84PkZvvkRDpQw3jL/assisto-part7-build55.apk ; build 56 (owner naming v2) building/published via updater
+- [x] **Owner naming v2 applied** — Money→My Account/আমার হিসাব, Vault→Documents/ডকুমেন্টস, user area→Profile/প্রোফাইল; `backend/core/screen_synonyms.py` for open-from-chat synonyms.
 - [ ] **Backend user-facing localization** — every user-facing message key bn+en; seeded content both langs; test coverage
 
 **PHASE B — parallel team (6 worktrees; I=INTEGRATOR: merge, ARB-merge, migrations 1-at-a-time+DB backup, tests, gallery, APK). Premium reviewer (different agent) per module vs depth-standard + benchmark table (top 2–3 apps) + language rules + scenario tests; only reviewer-passed = "advanced". Ship APK per module.** Areas: (1) Medicine/family→Connected Circle (2) Money parser/budgets/loans/reports/net-worth (3) Reminders/memory NL-engine+vault+scam+safety (4) AI CRM web app (own Django app) (5) P13+ additions (6) Plans/paywall+onboarding+grouped sidebar+open-from-chat. Server: heavy jobs 1-at-a-time+lock; throttle on load/RAM/swap/Asalify slowness; ≥8GB disk; cleanup each build.
