@@ -178,8 +178,8 @@ ParsedReminder parseReminder(String text, {DateTime? now}) {
   bool dateOnly = true;
   int? hour, minute;
   if (tod != null) {
-    hour = tod[0];
-    minute = tod[1];
+    hour = tod[0] as int;
+    minute = tod[1] as int;
     matched.add(tod[2].toString());
     dateOnly = false;
     conf += 0.35;
@@ -440,8 +440,10 @@ DateTime _nextDom(DateTime from, int dom) {
     final d = dom > _daysInMonth(y, mo) ? _daysInMonth(y, mo) : dom;
     return (DateTime(y, mo, d), m.group(0)!, 0.85);
   }
-  // bare "N tarikh"
-  m = RegExp('(\\d{1,2})\\s*$_biDateWord').firstMatch(low);
+  // bare "N tarikh" (optional trailing "e" vowel sign U+09C7 -> "tarikhe"),
+  // matching the Python regex (\d{1,2})\s*<tarikh>(?:<e>)? so the whole date
+  // phrase is stripped from the title (no dangling connector left).
+  m = RegExp('(\\d{1,2})\\s*$_biDateWord(?:\u09c7)?').firstMatch(low);
   if (m != null) {
     return (_nextDom(now, int.parse(m.group(1)!)), m.group(0)!, 0.7);
   }

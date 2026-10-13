@@ -424,4 +424,30 @@ class ApiClient {
 
   // Auto-pay
   Future<Map<String, dynamic>> autopayStopAll() => postJson('/autopay/stop-all');
+
+  // ---- plans (public plan catalogue) ----
+  Future<List<Map<String, dynamic>>> plansPublic() async {
+    final r = await _c.get(AppConfig.api('/plans'), headers: _headers());
+    if (r.statusCode == 200) {
+      return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
+    }
+    _fail(r);
+  }
+
+  // ---- reminders NL parse (server-of-truth; UI also parses offline) ----
+  Future<Map<String, dynamic>> parseReminder(String text) =>
+      postJson('/reminders/parse', {'text': text});
+
+  // ---- memory semantic/keyword search ----
+  Future<List<Map<String, dynamic>>> searchMemoryApi(String q) async {
+    final r = await _c.get(
+        AppConfig.api('/memory/search?q=${Uri.encodeQueryComponent(q)}'),
+        headers: _headers());
+    if (r.statusCode == 200) {
+      final body = jsonDecode(r.body);
+      final list = body is Map ? (body['results'] ?? body['items'] ?? []) : body;
+      return (list as List).cast<Map<String, dynamic>>();
+    }
+    _fail(r);
+  }
 }

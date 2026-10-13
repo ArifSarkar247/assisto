@@ -6,6 +6,9 @@ import '../screens/family_screen.dart';
 import '../screens/emergency_screen.dart';
 import '../screens/reminders_screen.dart';
 import '../screens/plans_screen.dart';
+import '../screens/scam_screen.dart';
+import '../screens/safety_screen.dart';
+import '../screens/crm/crm_home_screen.dart';
 
 /// open-from-chat configuration (Phase B).
 ///
@@ -44,6 +47,9 @@ class ChatNav {
     'reminders': (_) => const RemindersScreen(),
     'emergency': (_) => const EmergencyScreen(),
     'plans': (_) => const PlansScreen(),
+    'scam': (_) => const ScamScreen(),
+    'safety': (_) => const SafetyScreen(),
+    'crm': (_) => const CrmHomeScreen(),
   };
 
   /// Local ENGLISH subject vocabulary (ASCII only). Mirrors the English tokens
@@ -62,6 +68,9 @@ class ChatNav {
     'reminders': ['reminders', 'reminder', 'remind me'],
     'emergency': ['emergency', 'sos', 'help'],
     'plans': ['plans', 'plan', 'premium', 'upgrade', 'subscribe', 'pricing'],
+    'scam': ['scam check', 'scam', 'fraud'],
+    'safety': ['safe arrival', 'safety', 'check-in', 'checkin'],
+    'crm': ['sales crm', 'pipeline', 'leads', 'crm'],
   };
 
   /// English verbs marking an explicit "open the screen" intent, so a plain

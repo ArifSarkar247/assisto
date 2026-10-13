@@ -88,7 +88,16 @@ class FakeApi extends ApiClient {
         ]);
       case 'reminders':
         return _maybe([
-          {'id': 1, 'title': _bn ? 'বিদ্যুৎ বিল' : 'Electricity bill', 'due_at': '2026-10-14T10:00:00', 'done': false},
+          {'id': 1, 'title': _bn ? 'বিদ্যুৎ বিল' : 'Electricity bill', 'due_at': '2026-11-05T10:00:00', 'done': false,
+           'recurrence': 'monthly', 'date_only': false,
+           'recurrence_rule': {'freq': 'monthly', 'interval': 1, 'day_of_month': 5, 'tod': '10:00'},
+           'link': {'type': 'subscription', 'id': 2, 'label': _bn ? 'ইন্টারনেট' : 'Internet'}},
+          {'id': 2, 'title': _bn ? 'ওষুধ খাও' : 'Take medicine', 'due_at': '2026-10-13T08:00:00', 'done': false,
+           'recurrence': 'daily', 'date_only': false,
+           'recurrence_rule': {'freq': 'daily', 'interval': 1, 'tod': '08:00'}, 'link': {}},
+          {'id': 3, 'title': _bn ? 'জন্মদিন' : 'Birthday', 'due_at': '2026-12-01T00:00:00', 'done': false,
+           'recurrence': 'yearly', 'date_only': true,
+           'recurrence_rule': {'freq': 'yearly', 'interval': 1}, 'link': {}},
         ]);
       case 'notes':
         return _maybe([
@@ -276,14 +285,32 @@ class FakeApi extends ApiClient {
       };
 
   @override
-  Future<Map<String, dynamic>> scamCheck(String message) async => {
-        'emoji': '⚠️',
-        'label': _bn ? 'সন্দেহজনক' : 'Suspicious',
-        'reasons': _bn
-            ? ['অজানা লিংক আছে', 'তাড়াহুড়ো করতে বলছে']
-            : ['Contains an unknown link', 'Creates urgency'],
-        'advice': _bn ? 'লিংকে ক্লিক করবেন না।' : "Don't tap the link.",
-      };
+  Future<Map<String, dynamic>> scamCheck(String message) async {
+    final patterns = [
+      {
+        'key': 'suspicious_link', 'level': 'high',
+        'name': _bn ? 'সন্দেহজনক লিংক' : 'Suspicious link',
+        'why': _bn ? 'অজানা শর্ট-লিংক আছে।' : 'Contains an unknown short link.',
+        'do': _bn ? 'লিংকে ক্লিক করবেন না।' : "Don't tap the link.",
+      },
+      {
+        'key': 'urgency', 'level': 'medium',
+        'name': _bn ? 'তাড়াহুড়ো' : 'Urgency pressure',
+        'why': _bn ? 'দ্রুত কাজ করতে চাপ দিচ্ছে।' : 'Pressures you to act fast.',
+        'do': _bn ? 'থামুন, যাচাই করুন।' : 'Pause and verify.',
+      },
+    ];
+    return {
+      'score': 68, 'verdict': 'scam', 'level': 'high', 'emoji': '⚠️',
+      'label': _bn ? 'প্রতারণা হতে পারে' : 'Likely a scam',
+      'patterns': patterns,
+      'reasons': [for (final p in patterns) p['name']],
+      'advice': _bn
+          ? 'PIN/OTP দেবেন না, টাকা পাঠাবেন না, লিংকে ক্লিক করবেন না।'
+          : "Don't share PIN/OTP, don't send money, don't tap links.",
+      'summary': _bn ? '২টি সতর্কতা-সংকেত মিলেছে।' : '2 warning signals matched.',
+    };
+  }
 
   @override
   Future<Map<String, dynamic>> invite() async => {
@@ -313,6 +340,49 @@ class FakeApi extends ApiClient {
         'unlimited_ai': true, 'ads': false, 'credits': 0,
         'trial_active': true, 'trial_until': '2026-10-20T00:00:00',
       };
+
+  @override
+  Future<List<Map<String, dynamic>>> plansPublic() async => _maybe([
+        {'id': 'free', 'name': _bn ? 'ফ্রি' : 'Free', 'price': 0, 'cur': 'BDT', 'period': 'mo',
+         'desc': _bn ? 'শুরু করার জন্য' : 'To get started',
+         'benefits': _bn ? ['নিরাপত্তা সবসময় ফ্রি', 'দিনে ৩টি AI ক্রেডিট'] : ['Safety always free', '3 AI credits/day'],
+         'unlimited_ai': false, 'ads': true, 'family': false},
+        {'id': 'premium', 'name': _bn ? 'প্রিমিয়াম' : 'Premium', 'price': 299, 'cur': 'BDT', 'period': 'mo',
+         'desc': _bn ? 'পুরো সহকারী' : 'The full assistant',
+         'benefits': _bn ? ['আনলিমিটেড AI', 'বিজ্ঞাপন নেই', 'পরিবারের জন্য'] : ['Unlimited AI', 'No ads', 'For your family'],
+         'unlimited_ai': true, 'ads': false, 'family': true},
+        {'id': 'annual', 'name': _bn ? 'বার্ষিক' : 'Annual', 'price': 2990, 'cur': 'BDT', 'period': 'yr',
+         'desc': _bn ? '২ মাস ফ্রি' : '2 months free',
+         'benefits': _bn ? ['প্রিমিয়ামের সব', '২ মাস সাশ্রয়'] : ['Everything in Premium', 'Save 2 months'],
+         'unlimited_ai': true, 'ads': false, 'family': true},
+        {'id': 'business', 'name': _bn ? 'বিজনেস' : 'Business', 'price': 999, 'cur': 'BDT', 'period': 'mo',
+         'desc': _bn ? 'দোকান ও সেলস' : 'Shop & sales',
+         'benefits': _bn ? ['বিজনেস মোড', 'সেলস CRM'] : ['Business mode', 'Sales CRM'],
+         'unlimited_ai': true, 'ads': false, 'family': true},
+      ]);
+
+  @override
+  Future<Map<String, dynamic>> parseReminder(String text) async => {
+        'title': text, 'datetime': '2026-10-14T10:00:00',
+        'date_only': false, 'recurrence_rule': {}, 'confidence': 0.6,
+      };
+
+  @override
+  Future<List<Map<String, dynamic>>> searchMemoryApi(String q) async => _maybe([
+        {'id': 1, 'title': _bn ? 'আম্মুর ওষুধ' : "Mom's medicine",
+         'detail': _bn ? 'সকাল ৮টায় Napa' : 'Napa at 8am',
+         'category': _bn ? 'স্বাস্থ্য' : 'Health', 'source': 'ai'},
+      ]);
+
+  @override
+  Future<List<Map<String, dynamic>>> listMemory() async => _maybe([
+        {'id': 1, 'title': _bn ? 'আম্মুর ওষুধ' : "Mom's medicine",
+         'detail': _bn ? 'সকাল ৮টায় Napa' : 'Napa at 8am',
+         'category': _bn ? 'স্বাস্থ্য' : 'Health', 'source': 'ai', 'needs_review': false},
+        {'id': 2, 'title': _bn ? 'গাড়ির নম্বর' : 'Car number',
+         'detail': 'DHAKA METRO GA 12-3456',
+         'category': _bn ? 'ব্যক্তিগত' : 'Personal', 'source': 'manual', 'needs_review': false},
+      ]);
 
   @override
   Future<Map<String, dynamic>> finance(String tool, Map<String, dynamic> args) async {
@@ -543,12 +613,42 @@ class FakeApi extends ApiClient {
   @override
   Future<Map<String, dynamic>> createItem(String path, Map<String, dynamic> body) async {
     if (path.startsWith('crm/')) return {'id': 99, ...body};
+    // vault / scam / safety module endpoints (used via the ScamSafetyApi
+    // extension: scamReportFamily, safetyCheckinStart, safetyCheckinArrived,
+    // createDocumentWithDetails).
+    if (path.startsWith('scam/report') ||
+        path.startsWith('safety/checkin') ||
+        path.startsWith('documents')) {
+      if (mode == FakeMode.fail) _fail();
+      return {'ok': true, 'id': 99, ...body};
+    }
     return super.createItem(path, body);
   }
 
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
     await _slow();
+    if (path.startsWith('/scam/library')) {
+      if (mode == FakeMode.fail) _fail();
+      final patterns = mode == FakeMode.empty ? [] : [
+        {'key': 'otp_phish', 'level': 'high',
+         'name': _bn ? 'OTP/পিন হাতানো' : 'OTP / PIN phishing',
+         'why': _bn ? 'OTP/PIN চায় — ব্যাংক কখনো চায় না।' : 'Asks for OTP/PIN — banks never do.',
+         'do': _bn ? 'কাউকে OTP/PIN দেবেন না।' : 'Never share OTP/PIN with anyone.'},
+        {'key': 'mfs_verify_phish', 'level': 'high',
+         'name': _bn ? 'bKash/Nagad যাচাই প্রতারণা' : 'bKash/Nagad verify scam',
+         'why': _bn ? 'অ্যাকাউন্ট যাচাইয়ের নামে তথ্য চায়।' : 'Asks to "verify" your MFS account.',
+         'do': _bn ? 'নিজের অ্যাপে যাচাই করুন।' : 'Verify only inside your own app.'},
+        {'key': 'lottery', 'level': 'medium',
+         'name': _bn ? 'লটারি/পুরস্কার' : 'Lottery / prize',
+         'why': _bn ? 'না-খেলা লটারিতে জেতা দেখায়।' : 'Claims you won a lottery you never entered.',
+         'do': _bn ? 'উপেক্ষা করুন।' : 'Ignore and delete.'},
+      ];
+      return {'patterns': patterns};
+    }
+    if (path.startsWith('/guides')) {
+      return guides();
+    }
     if (path.startsWith('/crm/today')) {
       if (mode == FakeMode.fail) _fail();
       final leads = mode == FakeMode.empty ? <Map<String, dynamic>>[] : _crmLeads().where((l) => (l['score'] as int) >= 90).toList();

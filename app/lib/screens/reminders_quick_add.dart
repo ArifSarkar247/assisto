@@ -486,7 +486,7 @@ Future<void> editReminder(BuildContext context,
             const SizedBox(height: Gap.md),
             Align(
               alignment: Alignment.centerLeft,
-              child: ActionChip(
+              child: InputChip(
                 avatar: Icon(
                     link == null ? Icons.add_link : Icons.link,
                     size: 18),

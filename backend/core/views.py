@@ -15,7 +15,7 @@ from datetime import timedelta
 from .models import (User, MemoryItem, AuditLog, Reminder, Note, Todo,
                      SourcePermission, SupportTicket, Document, EmergencyCard,
                      Account, Transaction, Budget, Loan, SavingsGoal, Subscription,
-                     NightBriefing, WaitlistEntry)
+                     NightBriefing, WaitlistEntry, SafetyCheckin, FamilyAlert)
 from .serializers import (
     UserSerializer, RegisterSerializer, LoginSerializer,
     MemoryItemSerializer, AuditLogSerializer, ReminderSerializer,
@@ -761,16 +761,125 @@ class SchoolItemViewSet(viewsets.ModelViewSet):
 
 
 class ScamCheckView(APIView):
-    """Feature 13 — in-app scam checker (rule-based; reuses the web logic)."""
+    """Feature 13 — in-app scam checker. Uses the richer core.logic.scam
+    contract (score/verdict/level/label/emoji/patterns[]/advice/summary). We
+    also project patterns[].name into a flat `reasons` list so the legacy
+    family-screen checker (which reads r['reasons']) stays working."""
     def post(self, request):
-        from web.logic import scam as scamlogic
+        from .logic import scam as scamlogic
+        lang = req_lang(request)
         msg = request.data.get("message", "")
-        if not msg.strip():
-            lang = req_lang(request)
+        if not (msg or "").strip():
             return Response({"detail": pick(lang, "মেসেজ দিন।", "Please enter a message.")}, status=400)
-        result = scamlogic.check_message(msg)
+        result = scamlogic.check_message(msg, lang)
+        # back-compat flat fields for the old family-screen UI
+        result.setdefault("reasons", [p.get("name", "") for p in result.get("patterns", [])])
         log(request.user, "scam.check", verdict=result["verdict"])
         return Response(result)
+
+
+class ScamLibraryView(APIView):
+    """GET /scam/library — the curated, localised 'learn the scams' catalogue."""
+    def get(self, request):
+        from .logic import scam as scamlogic
+        return Response({"patterns": scamlogic.library(req_lang(request))})
+
+
+class ScamReportView(APIView):
+    """POST /scam/report {message} — a family member reports a scam they got;
+    build a family alert and persist it so the family's /alerts poll shows it."""
+    def post(self, request):
+        from .logic import scam as scamlogic
+        lang = req_lang(request)
+        msg = (request.data.get("message") or "").strip()
+        if not msg:
+            return Response({"detail": pick(lang, "মেসেজ দিন।", "Please enter a message.")}, status=400)
+        u = request.user
+        result = scamlogic.check_message(msg, lang)
+        payload = scamlogic.family_alert_payload(u.name or u.username, result, lang)
+        FamilyAlert.objects.create(
+            user=u, kind=payload.get("kind", "scam_report"),
+            title=payload.get("title", ""), body=payload.get("body", ""),
+            severity="high", payload=payload)
+        log(u, "scam.report", verdict=result["verdict"])
+        return Response({"ok": True, "alert": payload})
+
+
+class SafetyCheckinView(APIView):
+    """POST /safety/checkin {place, eta} — start a safe-arrival check-in.
+    Supersedes any still-open check-in for this user (one active at a time)."""
+    def post(self, request):
+        from .logic import safety as safetylogic
+        lang = req_lang(request)
+        u = request.user
+        place = (request.data.get("place") or "").strip()
+        eta = safetylogic.parse_dt(request.data.get("eta"))
+        if eta is None:
+            return Response({"detail": pick(lang, "পৌঁছানোর সময় দিন।",
+                                            "Please provide an arrival time.")}, status=400)
+        u.checkins.filter(arrived=False).update(arrived=True,
+                                                arrived_at=timezone.now())
+        c = SafetyCheckin.objects.create(user=u, place=place, eta=eta, arrived=False)
+        log(u, "safety.checkin.start", id=c.id)
+        return Response({"ok": True, "id": c.id})
+
+
+class SafetyCheckinArrivedView(APIView):
+    """POST /safety/checkin/arrived — mark the active check-in arrived (clears
+    the pending overdue alert)."""
+    def post(self, request):
+        u = request.user
+        now = timezone.now()
+        n = u.checkins.filter(arrived=False).update(arrived=True, arrived_at=now)
+        # any overdue-checkin family alerts become stale -> dismiss them
+        u.family_alerts.filter(kind="checkin_overdue", dismissed=False).update(dismissed=True)
+        log(u, "safety.checkin.arrived", count=n)
+        return Response({"ok": True})
+
+
+class ReminderParseView(APIView):
+    """POST /reminders/parse {text} — server-of-truth NL parse (the app also
+    parses offline via the Dart mirror). Returns the structured fields the
+    quick-add sheet pre-fills."""
+    def post(self, request):
+        from .logic import nlp_datetime
+        lang = req_lang(request)
+        text = (request.data.get("text") or "").strip()
+        if not text:
+            return Response({"detail": pick(lang, "কিছু লিখুন।", "Type something.")}, status=400)
+        result = nlp_datetime.parse(text, lang=lang)
+        return Response({
+            "title": result.get("clean_title") or text,
+            "datetime": result.get("datetime"),   # ISO-8601 string or None
+            "date_only": bool(result.get("date_only", False)),
+            "recurrence_rule": result.get("recurrence_rule") or {},
+            "confidence": result.get("confidence", 0.0),
+        })
+
+
+class MemorySearchView(APIView):
+    """GET /memory/search?q= — keyword/fuzzy search over the user's MemoryItems
+    using the shared reminders_engine.search_memory ranker."""
+    def get(self, request):
+        from .logic import reminders_engine
+        q = (request.query_params.get("q") or "").strip()
+        items = [{"id": m.id, "title": m.title, "detail": m.detail,
+                  "category": m.category, "source": m.source}
+                 for m in request.user.memories.all()]
+        if not q:
+            return Response({"results": items[:10]})
+        ranked = reminders_engine.search_memory(q, items, limit=10)
+        return Response({"results": ranked})
+
+
+class PlansPublicView(APIView):
+    """GET /plans — the public plan catalogue (localised). No auth-specific
+    data; safe to show pre-upgrade."""
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        from . import plans
+        return Response(plans.plans_public(req_lang(request)))
 
 
 # ---------- money (features 7-11) ----------
@@ -895,6 +1004,20 @@ def _build_alerts(user, lang="bn"):
     from decimal import Decimal
     today = timezone.localdate()
     alerts = []
+    # family alerts (scam a member reported; surfaced via the foreground poll)
+    for fa in user.family_alerts.filter(dismissed=False)[:10]:
+        alerts.append({"type": fa.kind, "text": fa.body or fa.title,
+                       "title": fa.title, "severity": fa.severity or "high"})
+    # overdue safe-arrival check-ins — auto-build a family alert on poll
+    from .logic import safety as _safety
+    now_dt = timezone.now()
+    for c in user.checkins.filter(arrived=False, eta__isnull=False):
+        state, mins = _safety.checkin_status(c.eta, now=now_dt)
+        if state == "overdue":
+            pl = _safety.checkin_overdue_payload(
+                user.name or user.username, c.place, mins, lang)
+            alerts.append({"type": "checkin_overdue", "text": pl["body"],
+                           "title": pl["title"], "severity": "high"})
     # document expiry
     for d in user.documents.filter(expiry_date__isnull=False):
         days = (d.expiry_date - today).days
@@ -1225,7 +1348,12 @@ class AgentView(APIView):
 
         # Optional AI enrichment (never required)
         ai_used = False
+        # open-from-chat: resolve a screen route from the raw phrase (bn+en
+        # synonyms). The app navigates when this is non-null.
+        from . import screen_synonyms
+        route = screen_synonyms.resolve(text)
         return Response({"reply": reply, "cards": cards, "intent": intent,
+                         "route": route,
                          "ai_used": ai_used, "ai_enabled": ai.key_present()})
 
 

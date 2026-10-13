@@ -19,6 +19,9 @@ import '../screens/jobs_screen.dart';
 import '../screens/nearby_screen.dart';
 import '../screens/business_screen.dart';
 import '../screens/crm_contacts_screen.dart';
+import '../screens/crm/crm_home_screen.dart';
+import '../screens/scam_screen.dart';
+import '../screens/safety_screen.dart';
 import '../screens/plans_screen.dart';
 import '../screens/in_progress_screen.dart';
 import '../screens/settings_screen.dart'; // exports SourcesScreen (Connected apps)
@@ -74,6 +77,8 @@ class SidebarSections {
           (t) => t.moduleFamily, (_) => const FamilyScreen()),
       SidebarItem(Icons.emergency_outlined,
           (t) => t.moduleEmergency, (_) => const EmergencyScreen()),
+      SidebarItem(Icons.health_and_safety_outlined,
+          (t) => t.safetyTitle, (_) => const SafetyScreen()),
       SidebarItem(Icons.shield_outlined,
           (t) => t.nominee, (_) => const NomineeScreen()),
     ]),
@@ -82,6 +87,8 @@ class SidebarSections {
           (t) => t.sidebarMedicines, (_) => const FamilyScreen()),
       SidebarItem(Icons.alarm_outlined,
           (t) => t.navReminders, (_) => const RemindersScreen()),
+      SidebarItem(Icons.verified_user_outlined,
+          (t) => t.scamTitle, (_) => const ScamScreen()),
     ]),
     SidebarSection(Icons.auto_awesome_outlined, (t) => t.sidebarLife, [
       SidebarItem(Icons.checklist_outlined,
@@ -109,7 +116,9 @@ class SidebarSections {
       SidebarItem(Icons.storefront_outlined,
           (t) => t.business, (_) => const BusinessScreen()),
       SidebarItem(Icons.contacts_outlined,
-          (t) => t.crmContacts, (_) => const CrmContactsScreen()),
+          (t) => t.contactsTitle, (_) => const CrmContactsScreen()),
+      SidebarItem(Icons.insights_outlined,
+          (t) => t.crmTitle, (_) => const CrmHomeScreen()),
     ]),
     SidebarSection(Icons.settings_outlined, (t) => t.sidebarSettings, [
       SidebarItem(Icons.workspace_premium_outlined,

@@ -78,6 +78,7 @@ class ReminderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reminder
         fields = ["id", "title", "notes", "due_at", "recurrence",
+                  "recurrence_rule", "date_only", "link",
                   "remind_before_min", "done", "source", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at"]
 
@@ -113,13 +114,31 @@ class SupportTicketSerializer(serializers.ModelSerializer):
 
 class DocumentSerializer(serializers.ModelSerializer):
     file_url = serializers.SerializerMethodField()
+    # Accept `details` as a JSON object (JSON body) OR a JSON-encoded string
+    # (multipart upload can't nest objects). JSONField handles the object path;
+    # to_internal_value below json.loads()es the string path. Values with
+    # ; | = stay intact (vault P1 fix).
+    details = serializers.JSONField(required=False)
 
     class Meta:
         model = Document
         fields = ["id", "title", "doc_type", "file", "file_url", "expiry_date",
-                  "note", "created_at", "updated_at"]
+                  "note", "details", "created_at", "updated_at"]
         read_only_fields = ["id", "file_url", "created_at", "updated_at"]
         extra_kwargs = {"file": {"write_only": True, "required": False}}
+
+    def to_internal_value(self, data):
+        # Multipart form fields arrive as strings; decode a JSON-encoded `details`.
+        raw = data.get("details") if hasattr(data, "get") else None
+        if isinstance(raw, str) and raw.strip():
+            import json as _json
+            try:
+                decoded = _json.loads(raw)
+                data = data.copy() if hasattr(data, "copy") else dict(data)
+                data["details"] = decoded
+            except (ValueError, TypeError):
+                pass
+        return super().to_internal_value(data)
 
     def get_file_url(self, obj):
         return f"/api/v1/documents/{obj.id}/file" if obj.file else None

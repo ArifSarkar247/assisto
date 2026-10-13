@@ -136,6 +136,11 @@ class Reminder(models.Model):
     notes = models.TextField(blank=True)
     due_at = models.DateTimeField(null=True, blank=True)
     recurrence = models.CharField(max_length=10, choices=REC_CHOICES, default=REC_NONE)
+    # Rich recurrence rule from the NL parser (interval/weekday/day-of-month/anchor).
+    # Coexists with the simple `recurrence` enum above for back-compat.
+    recurrence_rule = models.JSONField(default=dict, blank=True)
+    date_only = models.BooleanField(default=False)   # all-day (no specific time)
+    link = models.JSONField(default=dict, blank=True)  # linked entity {type,id,label}
     remind_before_min = models.IntegerField(default=0)
     done = models.BooleanField(default=False)
     source = models.CharField(max_length=8, default="manual")   # manual | ai
@@ -413,6 +418,9 @@ class Document(models.Model):
     file = models.FileField(upload_to="vault/", null=True, blank=True)
     expiry_date = models.DateField(null=True, blank=True)
     note = models.CharField(max_length=300, blank=True)
+    # Type-specific structured fields (e.g. passport number, policy no.) kept as a
+    # real JSON map so values with ; | = are never corrupted (vault P1 fix).
+    details = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -736,6 +744,39 @@ class AutoPayRule(models.Model):
 
     class Meta:
         unique_together = [("user", "biller")]
+
+
+class SafetyCheckin(models.Model):
+    """Safe-arrival check-in (feature — family safety). The owner says where
+    they're going and by when; if they don't mark 'arrived' before the ETA +
+    grace, the family poll surfaces an overdue alert. One active check-in per
+    user at a time (we mark older ones arrived/closed when a new one starts)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="checkins")
+    place = models.CharField(max_length=160, blank=True, default="")
+    eta = models.DateTimeField(null=True, blank=True)
+    arrived = models.BooleanField(default=False)
+    arrived_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class FamilyAlert(models.Model):
+    """A persisted family-facing alert (scam report a member sent, an overdue
+    safe-arrival check-in, etc.). Surfaced by the foreground /alerts poll — the
+    Realme-safe replacement for background push (see MEMORY)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="family_alerts")
+    kind = models.CharField(max_length=24, default="scam_report")  # scam_report|checkin_overdue
+    title = models.CharField(max_length=160, blank=True, default="")
+    body = models.TextField(blank=True, default="")
+    severity = models.CharField(max_length=8, default="high")      # high|med|info
+    payload = models.JSONField(default=dict, blank=True)
+    dismissed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
 
 
 class CategoryCorrection(models.Model):

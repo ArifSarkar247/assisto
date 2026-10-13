@@ -96,6 +96,13 @@ class _PlansScreenState extends State<PlansScreen> {
     );
   }
 
+  /// Never render the literal "null": fall back name -> plan slug -> ''.
+  String _planLabel(Map<String, dynamic> p) {
+    final name = (p['name'] ?? '').toString();
+    if (name.isNotEmpty) return name;
+    return (p['plan'] ?? p['id'] ?? '').toString();
+  }
+
   Widget _body(AppLocalizations t, ColorScheme scheme) {
     final current = (_p?['plan'] ?? '').toString();
     // Paid plans, split so monthly/annual toggle can swap the premium card.
@@ -125,10 +132,29 @@ class _PlansScreenState extends State<PlansScreen> {
         if (annualPlan.isNotEmpty) _billingToggle(t, scheme),
       ]),
       const SizedBox(height: Gap.md),
-      for (final p in visible)
-        _planCard(t, scheme, p, highlighted: _isFeatured(p['id']), current: current),
-      for (final p in freePlan)
-        _planCard(t, scheme, p, highlighted: false, current: current),
+      if (_all.isEmpty)
+        // Success-but-empty: /plans returned []. Keep the current-plan + safety
+        // promise above; just say there's nothing else to show (no dead UI).
+        Container(
+          padding: const EdgeInsets.all(Gap.lg),
+          decoration: BoxDecoration(
+            color: scheme.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(Radii.md),
+            border: Border.all(color: scheme.outlineVariant),
+          ),
+          child: Row(children: [
+            Icon(Icons.info_outline, color: scheme.onSurfaceVariant),
+            const SizedBox(width: Gap.md),
+            Expanded(child: Text(t.plansEmptyState)),
+          ]),
+        )
+      else ...[
+        for (final p in visible)
+          _planCard(t, scheme, p,
+              highlighted: _isFeatured(p['id']), current: current),
+        for (final p in freePlan)
+          _planCard(t, scheme, p, highlighted: false, current: current),
+      ],
       const SizedBox(height: Gap.md),
       Text(t.purchasingTurnsOnWhenA,
           style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
@@ -167,7 +193,7 @@ class _PlansScreenState extends State<PlansScreen> {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(t.currentPlan,
             style: const TextStyle(color: Colors.white70, fontSize: 12)),
-        Text('${p['name'] ?? p['plan']}',
+        Text(_planLabel(p),
             style: const TextStyle(
                 color: Colors.white, fontSize: 26, fontWeight: FontWeight.w800)),
         if ((p['desc'] ?? '').toString().isNotEmpty)
@@ -261,7 +287,7 @@ class _PlansScreenState extends State<PlansScreen> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
-              child: Text('${p['name']}',
+              child: Text(_planLabel(p),
                   style: const TextStyle(
                       fontWeight: FontWeight.w800, fontSize: 17)),
             ),
@@ -324,7 +350,7 @@ class _PlansScreenState extends State<PlansScreen> {
                   backgroundColor: highlighted ? null : scheme.secondaryContainer,
                   foregroundColor:
                       highlighted ? null : scheme.onSecondaryContainer),
-              label: Text(t.plansChoose('${p['name']}')),
+              label: Text(t.plansChoose(_planLabel(p))),
             ),
         ]),
       ),

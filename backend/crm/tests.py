@@ -144,19 +144,36 @@ class ForecastHonestyTests(TestCase):
         CrmMember.objects.create(org=self.org, user=self.user,
                                  role=CrmMember.OWNER)
 
-    def test_forecast_zero_when_no_high_leads(self):
-        from .views import DashboardView
-        res = DashboardView._forecast(Lead.objects.filter(org=self.org))
-        self.assertTrue(res["is_estimate"])
-        self.assertEqual(res["estimated_closes_30d"], 0)
+    def test_forecast_zero_when_no_open_deals(self):
+        # No open deals → honest "not enough data", a zero weighted number, and
+        # the auditable method string. Nothing is invented.
+        from . import forecast as fc
+        from .models import Deal
+        res = fc.weighted_forecast(Deal.objects.filter(org=self.org))
+        self.assertTrue(res["ok"])
+        self.assertFalse(res["has_data"])
+        self.assertEqual(res["weighted"], 0.0)
+        self.assertEqual(res["open_count"], 0)
+        self.assertIn("Σ(value", res["method"])
 
     def test_forecast_from_real_pipeline(self):
-        from .views import DashboardView
-        logic.capture_lead(
-            org=self.org, source="whatsapp", contact={},
-            first_message="ভ্যাট কমপ্লায়েন্ট ইআরপি লাগবে, দাম ও মডিউল জানান",
-            industry="rmg", company_size=800)
-        res = DashboardView._forecast(Lead.objects.filter(org=self.org))
-        self.assertTrue(res["is_estimate"])
-        self.assertGreaterEqual(res["basis_leads"], 1)
-        self.assertGreater(res["estimated_closes_30d"], 0)
+        # Weighted pipeline = Σ(value × probability / 100) over OPEN deals only.
+        from decimal import Decimal
+        from . import pipeline as pl, forecast as fc
+        from .models import Deal
+        pipe = pl.ensure_default_pipeline(self.org)
+        stage = pipe.stages.first()
+        # two open deals + one won (won must NOT count toward the open forecast)
+        Deal.objects.create(org=self.org, title="A", pipeline=pipe, stage=stage,
+                            value=Decimal("1000000"), probability=25, state="open")
+        Deal.objects.create(org=self.org, title="B", pipeline=pipe, stage=stage,
+                            value=Decimal("400000"), probability=50, state="open")
+        Deal.objects.create(org=self.org, title="C (won)", pipeline=pipe,
+                            stage=stage, value=Decimal("900000"),
+                            probability=100, state="won")
+        res = fc.weighted_forecast(Deal.objects.filter(org=self.org))
+        self.assertTrue(res["has_data"])
+        self.assertEqual(res["open_count"], 2)
+        # 1,000,000×0.25 + 400,000×0.50 = 250,000 + 200,000 = 450,000
+        self.assertEqual(res["weighted"], 450000.0)
+        self.assertEqual(res["best_case"], 1400000.0)

@@ -7,6 +7,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/permission_reason.dart';
+import '../widgets/chatnav.dart';
 import 'nearby_screen.dart';
 
 class _Msg {
@@ -107,6 +108,15 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
     final text = (preset ?? _input.text).trim();
     if (text.isEmpty || _sending) return;
     HapticFeedback.selectionClick();
+
+    // open-from-chat, layer 1: English local fast-path (offline, zero latency).
+    // Requires an open-verb + known subject so normal data entry isn't hijacked.
+    final local = ChatNav.detectRoute(text);
+    if (local != null) {
+      _input.clear();
+      if (ChatNav.push(context, local)) return;
+    }
+
     _input.clear();
     setState(() {
       _msgs.add(_Msg(true, text));
@@ -116,6 +126,13 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
     final app = context.read<AppState>();
     try {
       final r = await app.api.agent(text);
+      // open-from-chat, layer 2: backend route (authoritative, bilingual —
+      // the only path that understands Bangla open-phrases). If it navigates,
+      // skip rendering a reply bubble.
+      if (mounted && ChatNav.push(context, r['route'] as String?)) {
+        setState(() => _sending = false);
+        return;
+      }
       final cards = ((r['cards'] ?? []) as List).cast<Map<String, dynamic>>();
       setState(() => _msgs.add(_Msg(false, r['reply'] ?? '', cards)));
       app.reminders.sync();
@@ -124,7 +141,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
     } catch (e) {
       setState(() => _msgs.add(_Msg(false, t.sendFailed)));
     } finally {
-      setState(() => _sending = false);
+      if (mounted) setState(() => _sending = false);
       _toBottom();
     }
   }

@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:assisto/state.dart';
 import 'package:assisto/models.dart';
@@ -46,6 +47,8 @@ import 'package:assisto/screens/guide_screen.dart';
 import 'package:assisto/screens/agent_studio_screen.dart';
 import 'package:assisto/screens/battery_guidance_screen.dart';
 import 'package:assisto/screens/onboarding_screen.dart';
+import 'package:assisto/screens/scam_screen.dart';
+import 'package:assisto/screens/safety_screen.dart';
 
 import 'fake_api.dart';
 
@@ -121,6 +124,10 @@ List<Map<String, dynamic>> _chat(String lang) {
 
 void main() {
   setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    // Screens like SafetyScreen/EmergencyScreen read SharedPreferences in
+    // initState; provide an in-memory store so the gallery renders them.
+    SharedPreferences.setMockInitialValues({});
     HttpOverrides.global = _NoNet();
     await _loadFont('NotoSansBengali', 'assets/fonts/NotoSansBengali.ttf');
     final root = Platform.environment['FLUTTER_ROOT'] ??
@@ -155,6 +162,8 @@ void main() {
     'watch_feed': (build: (_) => const WatchFeedScreen(), mode: FakeMode.data, full: true),
     'jobs': (build: (_) => const JobsScreen(), mode: FakeMode.data, full: true),
     'nominee': (build: (_) => const NomineeScreen(), mode: FakeMode.data, full: true),
+    'scam': (build: (_) => const ScamScreen(), mode: FakeMode.data, full: true),
+    'safety': (build: (_) => const SafetyScreen(), mode: FakeMode.data, full: true),
     'crm_contacts': (build: (_) => const CrmContactsScreen(), mode: FakeMode.data, full: true),
     'crm_today': (build: (_) => Scaffold(appBar: AppBar(title: const Text('CRM')), body: const CrmTodayScreen(org: 1)), mode: FakeMode.data, full: true),
     'crm_leads': (build: (_) => Scaffold(appBar: AppBar(title: const Text('CRM')), body: const CrmLeadsScreen(org: 1)), mode: FakeMode.data, full: true),
