@@ -2,6 +2,10 @@
 
 > **চূড়ান্ত মাস্টার প্ল্যান চলছে (শুরু ১২ অক্টোবর ২০২৬)।** লক্ষ্য: দুই PDF-এর সব ফিচার শেষ করা, যেন মালিক শুধু একে একে API key/account যোগ করলেই সব চালু হয়। এই সেকশনটাই রিজিউম-অ্যাঙ্কর — সেশন থামলে এখান থেকে শুরু।
 
+### ✅ Phase B MODULE 5 INTEGRATED + GREEN (build 60 shipping)
+commit c7f5b1f: 240 ARB keys (en==bn==1127), 9 models + migration 0019 (DB backup), endpoints w/ CC enforcement (validate_envelope/auto-block/can_see/invite-single-use) + reset rate-limit+neutral + analytics fail-closed + photo declared-kind, drawer(Health/Life/Family/Settings)+ChatNav+login forgot-password, fake_api+12 gallery screens, 220 backend tests + crm_scenario pass, flutter analyze 0, lang gate CLEAN, Asalify 200. Deployed (/legal localized). Deep-link assisto://reset/confirm NOT wired (needs native manifest+dep) — forgot-password primary path works; TODO native.
+NEXT per QUEUE: Business Module v2 (.phaseB/BUSINESS_V2_PLAN.md) → P14-P16 → P11 iOS → P12 FINAL.
+
 ## 🧰 QUEUE (owner-approved, strict order)
 1. **Module 5 integration + APK** (executor a1fc1e42 running).
 2. **BUSINESS MODULE v2** — pocket business assistant; khata+selling FREE, AI sales assistant PAID; replace basic Business screen. Full spec: `.phaseB/BUSINESS_V2_PLAN.md`. Key safety: official WhatsApp Cloud API only (never personal/Business-app), minimum price enforced in CODE not AI, never hold money/no wallet, never copy TallyKhata, don't touch Asalify, all Meta/courier/payment/SMS keys owner-provided (build with mocks). Build order: small-shop+online-seller first. Scenario tests: 30-day shop month + 7-day online week. Ship APK on review pass.
