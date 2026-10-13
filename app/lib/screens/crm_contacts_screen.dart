@@ -6,7 +6,9 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 
-/// Personal CRM (feature 24): people you meet, notes, follow-ups.
+/// Contacts (feature 24): a simple personal contact list — people you meet,
+/// notes, follow-ups. This is NOT the Sales CRM (that is a separate in-app
+/// module under screens/crm/). Kept deliberately simple.
 class CrmContactsScreen extends StatefulWidget {
   const CrmContactsScreen({super.key});
   @override
@@ -77,7 +79,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: Text(tr.crmContacts)),
+      appBar: AppBar(title: Text(tr.contactsTitle)),
       floatingActionButton: FloatingActionButton.extended(
           onPressed: () => _add(tr), icon: const Icon(Icons.person_add_alt),
           label: Text(tr.contact)),

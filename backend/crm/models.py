@@ -70,6 +70,19 @@ class Lead(models.Model):
     phone = models.CharField(max_length=32, blank=True)
     email = models.EmailField(blank=True)
 
+    # ----- rich manual-entry fields (CRM_SPEC: works WITHOUT AI) -----
+    # `phones` holds any extra phone numbers beyond `phone` (multi-phone entry);
+    # `phone` stays the primary for scoring/dupes. All optional, no AI needed.
+    phones = models.JSONField(default=list, blank=True)      # extra numbers
+    whatsapp = models.CharField(max_length=32, blank=True)
+    designation = models.CharField(max_length=120, blank=True)   # job title
+    required_modules = models.JSONField(default=list, blank=True)  # ["hrm","vat"...]
+    budget_range = models.CharField(max_length=80, blank=True)
+    timeline = models.CharField(max_length=80, blank=True)        # buying timeline
+    decision_maker = models.CharField(max_length=160, blank=True)
+    notes = models.TextField(blank=True)
+    next_follow_up = models.DateField(null=True, blank=True)
+
     score = models.PositiveSmallIntegerField(default=0)   # 0–100, deterministic
     priority = models.CharField(max_length=6, choices=PRIORITIES, default=NORMAL)
     status = models.CharField(max_length=10, choices=STATUSES, default="new")
