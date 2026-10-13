@@ -51,3 +51,7 @@ app/lib/l10n/app_localizations*.dart
 tools/
 screenshots/
 new-logo.png
+logs/
+watchdog.dryrun
+watchdog.state
+db_backups/
