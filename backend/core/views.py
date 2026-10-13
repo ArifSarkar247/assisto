@@ -956,3 +956,34 @@ class WaitlistView(APIView):
             return Response({"detail": "contact required"}, status=400)
         obj, created = WaitlistEntry.objects.get_or_create(contact=contact)
         return Response({"ok": True, "approved": obj.approved, "new": created})
+
+
+# ---------- Watcher engine (P4) ----------
+class WatcherViewSet(OwnedViewSet):
+    from .models import Watcher as _M
+    from .serializers import WatcherSerializer as _S
+    model = _M
+    kind = "watcher"
+    serializer_class = _S
+
+    def perform_create(self, serializer):
+        from . import watcher as wmod
+        n = self.model.objects.filter(user=self.request.user).count()
+        if n >= wmod.max_watchers(self.request.user):
+            from rest_framework.exceptions import ValidationError
+            raise ValidationError({"detail": "watcher_limit",
+                                   "msg": "প্ল্যানের ওয়াচার সীমা শেষ / watcher limit reached"})
+        obj = serializer.save(user=self.request.user)
+        log(self.request.user, "watcher.create", id=obj.id)
+
+
+@api_view(["GET"])
+def watch_feed(request):
+    """Recent change hits for the user's watchers (newest first)."""
+    from .models import WatchHit
+    hits = (WatchHit.objects.filter(watcher__user=request.user)
+            .select_related("watcher")[:50])
+    return Response({"hits": [
+        {"id": h.id, "label": h.watcher.label, "kind": h.watcher.kind,
+         "summary": h.summary, "severity": h.severity,
+         "at": h.created_at.isoformat()} for h in hits]})

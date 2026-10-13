@@ -19,6 +19,7 @@ router.register("subscriptions", views.SubscriptionViewSet, basename="subscripti
 router.register("family", views.FamilyMemberViewSet, basename="family")
 router.register("medicines", views.MedicineViewSet, basename="medicine")
 router.register("school", views.SchoolItemViewSet, basename="school")
+router.register("watchers", views.WatcherViewSet, basename="watcher")
 
 urlpatterns = [
     path("health", views.health),
@@ -61,6 +62,7 @@ urlpatterns = [
     path("me/plan", views.PlanView.as_view()),
     path("credits/rewarded", views.RewardedAdView.as_view()),
     path("waitlist", views.WaitlistView.as_view()),
+    path("watch/feed", views.watch_feed),
 ]
 
 urlpatterns += router.urls

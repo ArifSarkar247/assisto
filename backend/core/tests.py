@@ -243,3 +243,24 @@ class MonetizationP3Tests(TestCase):
             self.assertTrue(ok)
         ok, _ = plans.reward_ad(u)   # over cap
         self.assertFalse(ok)
+
+
+class WatcherP4Tests(TestCase):
+    def test_change_detection_ai_only_on_change(self):
+        from core import watcher
+        from core.models import Watcher, WatchHit
+        u = User.objects.create_user(name="W", phone="01966666666", password="x123456")
+        w = Watcher.objects.create(user=u, kind="usd_bdt", label="USD রেট", config={})
+        seq = iter(["122.50", "122.50", "123.10"])
+        watcher.extract_value = lambda _w: next(seq)   # patch: no network
+        self.assertIsNone(watcher.check(w))            # first = baseline, no hit
+        self.assertIsNone(watcher.check(w))            # unchanged, no hit
+        hit = watcher.check(w)                         # changed -> hit
+        self.assertIsNotNone(hit)
+        self.assertEqual(WatchHit.objects.filter(watcher=w).count(), 1)
+        self.assertIn("123.10", hit.new_value)
+
+    def test_plan_watcher_limit(self):
+        from core import watcher, plans
+        u = User.objects.create_user(name="L", phone="01977777777", password="x123456")
+        self.assertEqual(watcher.max_watchers(u), 2)

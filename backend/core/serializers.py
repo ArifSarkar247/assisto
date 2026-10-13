@@ -168,6 +168,15 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         read_only_fields = ["id"]
 
 
+class WatcherSerializer(serializers.ModelSerializer):
+    class Meta:
+        from .models import Watcher
+        model = Watcher
+        fields = ["id", "kind", "label", "config", "enabled", "interval_min",
+                  "last_checked", "last_value"]
+        read_only_fields = ["id", "last_checked", "last_value"]
+
+
 # ---------------- family (feature 12/15) ----------------
 from .models import FamilyMember, Medicine, MedicineLog, SchoolItem  # noqa: E402
 

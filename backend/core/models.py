@@ -486,3 +486,38 @@ class WaitlistEntry(models.Model):
     invite_code = models.CharField(max_length=12, blank=True, default="")
     approved = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Watcher(models.Model):
+    """A server-side watch on a public source (RSS/API/page). Plain-code change
+    detection first; AI summary only when something actually changes."""
+    KINDS = [("rss", "RSS/news"), ("page", "web page"), ("usd_bdt", "USD/BDT rate"),
+             ("price", "price drop"), ("job", "govt job circular"),
+             ("exam", "exam result"), ("visa", "visa slot"), ("weather", "weather"),
+             ("flight", "flight price"), ("offer", "card offer")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="watchers")
+    kind = models.CharField(max_length=12, choices=KINDS, default="rss")
+    label = models.CharField(max_length=120)
+    config = models.JSONField(default=dict, blank=True)   # {url, selector, query, district...}
+    enabled = models.BooleanField(default=True)
+    interval_min = models.PositiveIntegerField(default=360)  # min minutes between checks
+    last_checked = models.DateTimeField(null=True, blank=True)
+    last_hash = models.CharField(max_length=64, blank=True, default="")
+    last_value = models.CharField(max_length=200, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class WatchHit(models.Model):
+    """A detected change — short ORIGINAL summary only, never source content."""
+    watcher = models.ForeignKey(Watcher, on_delete=models.CASCADE, related_name="hits")
+    summary = models.CharField(max_length=300)
+    old_value = models.CharField(max_length=200, blank=True, default="")
+    new_value = models.CharField(max_length=200, blank=True, default="")
+    severity = models.CharField(max_length=8, default="info")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
