@@ -8,6 +8,7 @@ import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import '../state.dart';
 import '../widgets/skeleton.dart';
+import '../widgets/permission_reason.dart';
 
 const _docTypes = {
   'passport': 'পাসপোর্ট',
@@ -141,6 +142,13 @@ class _VaultScreenState extends State<VaultScreen> {
       ),
     );
     if (src == null) return null;
+    if (src == ImageSource.camera && mounted) {
+      if (!await showPermissionReason(context,
+          icon: PermReasons.camera.icon,
+          reasonBn: PermReasons.camera.bn, reasonEn: PermReasons.camera.en)) {
+        return null;
+      }
+    }
     final x = await ImagePicker().pickImage(source: src, imageQuality: 70);
     return x?.path;
   }

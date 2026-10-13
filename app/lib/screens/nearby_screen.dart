@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import '../widgets/permission_reason.dart';
 
 /// Nearby places (extra C). Gets GPS, asks the backend (Google Places → OSM
 /// fallback). Shows real data only — never invented ratings.
@@ -37,7 +38,16 @@ class _NearbyScreenState extends State<NearbyScreen> {
         throw 'location_off';
       }
       var perm = await Geolocator.checkPermission();
-      if (perm == LocationPermission.denied) perm = await Geolocator.requestPermission();
+      if (perm == LocationPermission.denied) {
+        if (mounted &&
+            !await showPermissionReason(context,
+                icon: PermReasons.location.icon,
+                reasonBn: PermReasons.location.bn,
+                reasonEn: PermReasons.location.en)) {
+          throw 'perm';
+        }
+        perm = await Geolocator.requestPermission();
+      }
       if (perm == LocationPermission.denied || perm == LocationPermission.deniedForever) {
         throw 'perm';
       }

@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/permission_reason.dart';
 import 'nearby_screen.dart';
 
 class _Msg {
@@ -149,6 +150,10 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
       return;
     }
     if (!_speechReady) {
+      final okReason = await showPermissionReason(context,
+          icon: PermReasons.mic.icon,
+          reasonBn: PermReasons.mic.bn, reasonEn: PermReasons.mic.en);
+      if (!okReason || !mounted) return;
       _speechReady = await _speech.initialize(
         onStatus: (s) {
           if ((s == 'done' || s == 'notListening') && mounted) {
