@@ -42,6 +42,14 @@ Shared disk w/ LIVE Asalify; floor 8 GB, soft 8.5 GB. `bin/disk_guard.sh` before
 - Integrator: migrations 0017 (core) + crm 0002 applied (2 DB backups taken); **90 backend tests green** (incl new); flutter 0 errors; **language gate CLEAN**; service redeployed (health 200, /crm/ 302, Asalify 200). **APK build 58 shipping.**
 - REMAINING Phase B: register money sub-screens + CRM web screenshots in gallery; re-render both-langs gallery; modules 4-6 (Reminders/memory NL-engine+vault+scam+safety; P13+ additions; Plans/onboarding/sidebar/open-from-chat). Then P13-P16, P11 iOS, P12 FINAL.
 
+### Phase B — ROUND 2 running (3 agents, code-only, hand integrator lists)
+- Gallery (round-1 advanced): https://assisto.asalify.com/dl/shots-6rWx8DSeAJM/index.html (36 screens, 134 renders, bn+en).
+- Agent ada293c7 — **Reminders & Memory NL-engine** (Bangla/Banglish NL date parser nlp_datetime.py, recurrence/snooze reminders_engine.py, linked entities, memory retrieval).
+- Agent aab2b537 — **Vault + Scam + Family safety** (type-specific vault+expiry+renewal+nominee-share+PIN lookup; scam.py BD scam-pattern library+detector+why+family alert; safety.py SOS/accident/arrival).
+- Agent a32ccfc9 — **Plans/paywall + Onboarding(<60s, parent-link<2min) + grouped Sidebar(spec for app_drawer) + open-from-chat(spec)**.
+- Build 58 shipping (ship4). Each agent hands ARB/api/model/endpoint/fake_api lists → integrator wires shared files + migrates + builds + reviewer per module.
+- NEXT round: module 5 (P13+ additions). Then P13-P16, P11 iOS, P12 FINAL.
+
 ## 🧭 লাইভ রিজিউম-চেকলিস্ট (ফেজ ক্রম)
 
 - [x] **STEP 1** — সম্পূর্ণ ফিচার ম্যাট্রিক্স (নিচে) + এই চেকলিস্ট + "Decisions I made"
