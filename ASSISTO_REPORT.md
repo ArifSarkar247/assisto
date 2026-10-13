@@ -35,6 +35,13 @@ Shared disk w/ LIVE Asalify; floor 8 GB, soft 8.5 GB. `bin/disk_guard.sh` before
 - **Integrator (me) only**: shared files (core models.py/urls.py/views.py/serializers, app_drawer, ARB, api.dart, fake_api, settings, main.dart), migrations (DB backup first, one at a time), flutter analyze+gate+tests, gallery, per-module APK, cleanup after each build. Premium reviewer (separate agent) grades each module vs benchmark before "advanced".
 - **Stop-hook: BLOCKED by safety classifier** (self-modifying startup config / human-oversight). `bin/stop_guard.sh` built + tested (blocks normally; allows on .run_complete/.pause/.usage_limit/safety-valve 30-per-15min; logs to logs/stop_guard.log) — owner must wire it via /hooks or settings.json; watchdog remains the backup never-stop.
 
+### Phase B — ROUND 1 INTEGRATED (medicine + money + CRM) ✅
+- **Medicine & family care** — advanced; reviewer GOOD→fixed→integrated. 6-tab Family Care, adherence/refill/escalation/caregiver/PDF/prescriptions, PRN multi-log, fractional stock. In build 58.
+- **My Account / money** — advanced; reviewer GOOD→fixed→integrated. SMS parser (bKash/Nagad/Rocket/Upay/bank)+learn, rollover budgets, loans w/ partial repay+ledger, split, trends, net worth+chart, monthly report+export, 6 endpoints. In build 58.
+- **AI CRM (Axon Dynamics)** — advanced; reviewer GOOD→**P0 security fixed** (cross-tenant IDOR org-scoped both layers + CSV/XLSX formula-injection escaped)→integrated. Web app at /crm/ (kanban, forecast, dedup/merge, CSV, cadences, quoting no-invented-prices, reports, roles). Scenario validated (20 leads/8 deals/40% win/forecast ৳1.71M).
+- Integrator: migrations 0017 (core) + crm 0002 applied (2 DB backups taken); **90 backend tests green** (incl new); flutter 0 errors; **language gate CLEAN**; service redeployed (health 200, /crm/ 302, Asalify 200). **APK build 58 shipping.**
+- REMAINING Phase B: register money sub-screens + CRM web screenshots in gallery; re-render both-langs gallery; modules 4-6 (Reminders/memory NL-engine+vault+scam+safety; P13+ additions; Plans/onboarding/sidebar/open-from-chat). Then P13-P16, P11 iOS, P12 FINAL.
+
 ## 🧭 লাইভ রিজিউম-চেকলিস্ট (ফেজ ক্রম)
 
 - [x] **STEP 1** — সম্পূর্ণ ফিচার ম্যাট্রিক্স (নিচে) + এই চেকলিস্ট + "Decisions I made"
