@@ -177,6 +177,14 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Patch profile fields (safety settings, elderly mode, etc.) via /me.
+  Future<void> saveProfile(Map<String, dynamic> fields) async {
+    try {
+      user = await api.updateProfile(fields);
+      notifyListeners();
+    } catch (_) {}
+  }
+
   Future<void> setAutonomy(int level) async {
     final prev = user;
     if (prev == null) return;

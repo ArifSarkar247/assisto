@@ -8,7 +8,8 @@ from .models import (User, MemoryItem, AuditLog, Reminder, Note, Todo,
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "name", "phone", "email", "autonomy_level", "language", "date_joined"]
+        fields = ["id", "name", "phone", "email", "autonomy_level", "language",
+                  "date_joined", "elderly_mode", "fall_detect", "fall_countdown_sec"]
         read_only_fields = ["id", "date_joined"]
 
 
@@ -252,7 +253,9 @@ class MedicineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Medicine
         fields = ["id", "member", "name", "dosage", "times", "start_date",
-                  "end_date", "refill_date", "notes", "updated_at"]
+                  "end_date", "refill_date", "notes", "followup_repeat_min",
+                  "followup_retries", "caregiver_alert_min", "quiet_start",
+                  "quiet_end", "updated_at"]
         read_only_fields = ["id", "updated_at"]
 
 

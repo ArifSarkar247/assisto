@@ -61,6 +61,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_founder = models.BooleanField(default=False)
     ai_credits = models.IntegerField(default=0)                  # consumable AI credits
     elderly_mode = models.BooleanField(default=False)            # feature 29 simple mode
+    # accident/fall detection (owner-configurable; OFF by default)
+    fall_detect = models.BooleanField(default=False)
+    fall_countdown_sec = models.PositiveIntegerField(default=120)  # 30–600s, default 2 min
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -196,6 +199,13 @@ class Medicine(models.Model):
     end_date = models.DateField(null=True, blank=True)
     refill_date = models.DateField(null=True, blank=True)
     notes = models.CharField(max_length=200, blank=True)
+    # configurable follow-up (per medicine / per member) — applies to app
+    # notifications now, and to IVR calls when that integration exists.
+    followup_repeat_min = models.PositiveIntegerField(default=15)  # re-remind after N min
+    followup_retries = models.PositiveIntegerField(default=2)      # how many re-reminds
+    caregiver_alert_min = models.PositiveIntegerField(default=30)  # alert child after M min
+    quiet_start = models.CharField(max_length=5, blank=True, default="")  # "22:00"
+    quiet_end = models.CharField(max_length=5, blank=True, default="")    # "07:00"
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

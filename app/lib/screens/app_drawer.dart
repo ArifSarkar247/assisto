@@ -16,6 +16,7 @@ import 'in_progress_screen.dart';
 import 'plans_screen.dart';
 import 'finance_screen.dart';
 import 'watch_feed_screen.dart';
+import 'agent_studio_screen.dart';
 
 /// Left sidebar — the app's navigation hub (modern AI-chat style). The main
 /// screen is only the chat; everything else lives here.
@@ -43,6 +44,7 @@ class AppDrawer extends StatelessWidget {
       (Icons.autorenew, t.subscriptions, const SubscriptionsScreen()),
       (Icons.hub_outlined, t.connectedApps, const SourcesScreen()),
       (Icons.radar_outlined, t.watchFeed, const WatchFeedScreen()),
+      (Icons.auto_awesome_outlined, t.agentStudio, const AgentStudioScreen()),
       (Icons.pending_actions_outlined, t.inProgress, const InProgressScreen()),
     ];
 

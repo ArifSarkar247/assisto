@@ -5,6 +5,9 @@ class AppUser {
   final String? email;
   final int autonomyLevel;
   final String language;
+  final bool elderlyMode;
+  final bool fallDetect;
+  final int fallCountdownSec;
 
   AppUser({
     required this.id,
@@ -13,6 +16,9 @@ class AppUser {
     this.email,
     required this.autonomyLevel,
     required this.language,
+    this.elderlyMode = false,
+    this.fallDetect = false,
+    this.fallCountdownSec = 120,
   });
 
   factory AppUser.fromJson(Map<String, dynamic> j) => AppUser(
@@ -22,6 +28,9 @@ class AppUser {
         email: j['email'] as String?,
         autonomyLevel: (j['autonomy_level'] ?? 2) as int,
         language: (j['language'] ?? 'bn') as String,
+        elderlyMode: (j['elderly_mode'] ?? false) as bool,
+        fallDetect: (j['fall_detect'] ?? false) as bool,
+        fallCountdownSec: (j['fall_countdown_sec'] ?? 120) as int,
       );
 
   Map<String, dynamic> toJson() => {
