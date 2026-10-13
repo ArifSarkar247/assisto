@@ -26,3 +26,9 @@ Owned files in tree: backend/core/logic/scam.py, safety.py (+ *_tests_snippets 1
 - P2 safety_checkin_card.dart: add 1-min Timer so on-time→grace→overdue updates live.
 - P2 SOS target: route through safety.sos_alert_targets (skip blank/primary-first) not raw contacts.first (safety_screen.dart, emergency_screen.dart).
 - P3 PIN attempt throttle (backlog).
+
+## VAULT/SCAM/SAFETY FIX DONE → ADVANCED (agent a69de8ba). 28 tests pass. Integrator at wire-time:
+- Add Document.details = JSONField(default=dict, blank=True) (+migration) + serializer 'details' field. JSON body path: native object. MULTIPART upload path: serializer must accept 'details' as a JSON-ENCODED STRING and json.loads it into the field. Read path returns details as object.
+- New api.dart methods used by vault_screen (fold from scam_safety_api.dart): createDocumentWithDetails(...), uploadDocumentWithDetails(...) [multipart, details= jsonEncode'd field]. Plus the earlier scamDetect/scamLibrary/scamReportFamily/govtGuides/safetyCheckinStart/safetyCheckinArrived.
+- No new ARB keys beyond vault_scam_safety_arb.json. scam.py added mfs_verify_phish pattern (bn/en).
+- Backward-compat: old note-packed docs decode once via _decodeLegacyNote (conservative, never loses data).
