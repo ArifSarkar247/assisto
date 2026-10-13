@@ -1201,3 +1201,63 @@ class InboxView(APIView):
                                                      it.get("snippet", ""))}
                for it in items[:100]]
         return Response({"items": out})
+
+
+# ---------- Business mode (feature 33) ----------
+class ProductViewSet(OwnedViewSet):
+    from .models import Product as _M
+    from .serializers import ProductSerializer as _S
+    model = _M; kind = "product"; serializer_class = _S
+
+
+class OrderViewSet(OwnedViewSet):
+    from .models import Order as _M
+    from .serializers import OrderSerializer as _S
+    model = _M; kind = "order"; serializer_class = _S
+
+
+class BusinessReplyView(APIView):
+    """Draft a reply to a customer message from the REAL catalog. Never sends
+    automatically here; the app/webhook decides. Honest handoff when unsure."""
+    def post(self, request):
+        from . import business
+        text = (request.data.get("text") or "").strip()
+        if not text:
+            return Response({"detail": "text required"}, status=400)
+        reply, handoff, used_ai = business.reply_for(request.user, text)
+        return Response({"reply": reply, "needs_handoff": handoff, "ai_used": used_ai})
+
+
+class BusinessOrderCaptureView(APIView):
+    def post(self, request):
+        from . import business
+        text = (request.data.get("text") or "").strip()
+        order, draft = business.capture_order(
+            request.user, text, request.data.get("phone", ""),
+            request.data.get("channel", "manual"))
+        return Response({"order_id": order.id if order else None, "draft": draft})
+
+
+class WhatsAppWebhookView(APIView):
+    """Meta WhatsApp Cloud webhook. Verification + inbound messages. Auto-reply
+    only runs if the owner enabled it AND WhatsApp is connected; otherwise we
+    just record. Sending back needs the integration (🔑)."""
+    permission_classes = [AllowAny]
+
+    def get(self, request):   # Meta webhook verification handshake
+        from . import integrations
+        cfg = integrations.get("whatsapp")
+        if (request.query_params.get("hub.mode") == "subscribe"
+                and request.query_params.get("hub.verify_token") == cfg.get("verify_token")):
+            return HttpResponse(request.query_params.get("hub.challenge", ""))
+        return HttpResponse("forbidden", status=403)
+
+    def post(self, request):
+        from . import integrations
+        if not integrations.is_enabled("whatsapp"):
+            return Response({"ok": True, "note": "whatsapp not connected"})
+        # Inbound handling (store + optional draft) would go here; sending a
+        # reply uses the Graph API with the stored token. Kept minimal + honest.
+        log(None if not request.user.is_authenticated else request.user,
+            "whatsapp.inbound")
+        return Response({"ok": True})

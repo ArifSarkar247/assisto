@@ -553,6 +553,53 @@ class Meeting(models.Model):
         ordering = ["-when", "-created_at"]
 
 
+class BusinessProfile(models.Model):
+    """Business mode (feature 33) — one per user who runs a shop. Replies use
+    the REAL catalog/stock/price only; the AI never claims to be human."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="business")
+    shop_name = models.CharField(max_length=120, blank=True, default="")
+    hours = models.CharField(max_length=120, blank=True, default="")
+    style_sample = models.TextField(blank=True, default="")   # learns owner's tone
+    auto_reply = models.BooleanField(default=False)           # off by default
+    handoff_note = models.CharField(max_length=200, blank=True, default="")
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class Product(models.Model):
+    """Catalog item — source of truth for price/stock (never invented)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="products")
+    name = models.CharField(max_length=160)
+    price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    stock = models.IntegerField(default=0)
+    sku = models.CharField(max_length=40, blank=True, default="")
+    description = models.TextField(blank=True, default="")
+    photo = models.ImageField(upload_to="catalog/", null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["name"]
+
+
+class Order(models.Model):
+    """Order capture → confirmation → courier (feature 33)."""
+    STATUS = [("new", "new"), ("confirmed", "confirmed"), ("packed", "packed"),
+              ("shipped", "shipped"), ("delivered", "delivered"), ("cancelled", "cancelled")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders")
+    customer_name = models.CharField(max_length=120, blank=True, default="")
+    customer_phone = models.CharField(max_length=40, blank=True, default="")
+    address = models.TextField(blank=True, default="")
+    items = models.JSONField(default=list, blank=True)     # [{name, qty, price}]
+    total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    status = models.CharField(max_length=12, choices=STATUS, default="new")
+    courier = models.CharField(max_length=40, blank=True, default="")
+    tracking = models.CharField(max_length=80, blank=True, default="")
+    channel = models.CharField(max_length=20, default="manual")  # whatsapp/messenger/manual
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
 class AutoPayRule(models.Model):
     """Approval-based auto-pay ladder (feature 27). Three steps, per-bill cap,
     and a global stop-all. Execution needs a payment integration (🔑); without

@@ -318,3 +318,37 @@ class InboxP6Tests(TestCase):
         self.assertEqual(classify_inbox_item("URGENT: payment failed", ""), "red")
         self.assertEqual(classify_inbox_item("Meeting reminder", "please reply"), "yellow")
         self.assertEqual(classify_inbox_item("Newsletter", "monthly update"), "green")
+
+
+class BusinessP7Tests(TestCase):
+    def setUp(self):
+        self.u = User.objects.create_user(name="Shop", phone="01988888888", password="x123456")
+
+    def test_reply_uses_real_catalog_no_ai(self):
+        from core import business
+        from core.models import Product
+        Product.objects.create(user=self.u, name="Panjabi", price=1200, stock=5)
+        reply, handoff, used_ai = business.reply_for(self.u, "panjabi er dam koto?")
+        self.assertFalse(used_ai)          # no AI key in tests
+        self.assertFalse(handoff)
+        self.assertIn("1200", reply)       # real price, not invented
+
+    def test_out_of_stock_is_honest(self):
+        from core import business
+        from core.models import Product
+        Product.objects.create(user=self.u, name="Saree", price=2000, stock=0)
+        reply, handoff, _ = business.reply_for(self.u, "saree ache?")
+        self.assertIn("স্টক", reply)
+
+    def test_no_match_hands_off(self):
+        from core import business
+        reply, handoff, _ = business.reply_for(self.u, "random unrelated question")
+        self.assertTrue(handoff)
+
+    def test_order_capture_creates_order(self):
+        from core import business
+        from core.models import Product, Order
+        Product.objects.create(user=self.u, name="Shirt", price=800, stock=3)
+        order, draft = business.capture_order(self.u, "ami shirt nebo")
+        self.assertIsNotNone(order)
+        self.assertEqual(Order.objects.filter(user=self.u).count(), 1)

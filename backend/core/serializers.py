@@ -201,6 +201,23 @@ class AutoPayRuleSerializer(serializers.ModelSerializer):
         read_only_fields = ["id"]
 
 
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        from .models import Product
+        model = Product
+        fields = ["id", "name", "price", "stock", "sku", "description", "updated_at"]
+        read_only_fields = ["id", "updated_at"]
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        from .models import Order
+        model = Order
+        fields = ["id", "customer_name", "customer_phone", "address", "items",
+                  "total", "status", "courier", "tracking", "channel", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+
 # ---------------- family (feature 12/15) ----------------
 from .models import FamilyMember, Medicine, MedicineLog, SchoolItem  # noqa: E402
 

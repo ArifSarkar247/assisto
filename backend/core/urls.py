@@ -23,6 +23,8 @@ router.register("watchers", views.WatcherViewSet, basename="watcher")
 router.register("contacts", views.ContactViewSet, basename="contact")
 router.register("meetings", views.MeetingViewSet, basename="meeting")
 router.register("autopay", views.AutoPayRuleViewSet, basename="autopay")
+router.register("products", views.ProductViewSet, basename="product")
+router.register("orders", views.OrderViewSet, basename="order")
 
 urlpatterns = [
     path("health", views.health),
@@ -74,6 +76,9 @@ urlpatterns = [
     path("autopay/stop-all", views.autopay_stop_all),
     path("studio", views.AgentStudioView.as_view()),
     path("inbox", views.InboxView.as_view()),
+    path("business/reply", views.BusinessReplyView.as_view()),
+    path("business/order", views.BusinessOrderCaptureView.as_view()),
+    path("webhook/whatsapp", views.WhatsAppWebhookView.as_view()),
 ]
 
 urlpatterns += router.urls
