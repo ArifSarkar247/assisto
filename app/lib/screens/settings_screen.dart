@@ -11,6 +11,8 @@ import '../models.dart';
 import '../l10n/app_localizations.dart';
 import 'subscriptions_screen.dart';
 import 'battery_guidance_screen.dart';
+import 'in_progress_screen.dart';
+import 'legal_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -257,6 +259,18 @@ class SettingsScreen extends StatelessWidget {
             subtitle: Text(AppLocalizations.of(context).inputSourceSubtitle),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => SourcesScreen())),
+          ),
+          ListTile(
+            leading: const Icon(Icons.pending_actions_outlined),
+            title: Text(AppLocalizations.of(context).inProgress),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const InProgressScreen())),
+          ),
+          ListTile(
+            leading: const Icon(Icons.gavel_outlined),
+            title: Text(AppLocalizations.of(context).legalTitle),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const LegalScreen())),
           ),
           ListTile(
             leading: const Icon(Icons.support_agent_outlined),

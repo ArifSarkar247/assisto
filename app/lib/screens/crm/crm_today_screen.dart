@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
-import '../../widgets/skeleton.dart';
 import 'crm_common.dart';
 import 'crm_lead_detail_screen.dart';
 
@@ -16,7 +15,8 @@ class CrmTodayScreen extends StatefulWidget {
 
 class _CrmTodayScreenState extends State<CrmTodayScreen> {
   Map<String, dynamic>? _data;
-  bool _loading = true, _error = false;
+  bool _loading = true;
+  CrmError? _error;
 
   @override
   void initState() {
@@ -27,12 +27,12 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
   Future<void> _load() async {
     setState(() {
       _loading = true;
-      _error = false;
+      _error = null;
     });
     try {
       _data = await CrmApi.of(context).today(widget.org);
-    } catch (_) {
-      _error = true;
+    } catch (e) {
+      _error = CrmError.from(e);
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -41,14 +41,9 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    if (_loading) return const SkeletonList();
-    if (_error) {
-      return StateMessage(
-          icon: Icons.cloud_off,
-          tint: scheme.error,
-          title: t.loadFailed,
-          action: FilledButton.tonalIcon(
-              onPressed: _load, icon: const Icon(Icons.refresh), label: Text(t.retry)));
+    if (_loading) return const CrmStateView.loading();
+    if (_error != null) {
+      return CrmStateView.error(error: _error!, title: t.loadFailed, onRetry: _load);
     }
     final d = _data ?? {};
     final high = (d['high_score_leads'] as List?)?.cast<Map<String, dynamic>>() ?? [];
@@ -63,7 +58,7 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
         onRefresh: _load,
         child: ListView(children: [
           const SizedBox(height: 80),
-          StateMessage(
+          CrmStateView.empty(
               icon: Icons.wb_sunny_outlined,
               title: t.crmTodayClear,
               message: t.crmTodayClearHint),

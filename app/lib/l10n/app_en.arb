@@ -1575,5 +1575,366 @@
   "circleMediaVideoGated": "Video is available when encrypted storage is enabled.",
   "circleCallGated": "Voice calls are available when the call server is enabled.",
   "circleComingSoon": "Coming soon.",
-  "resetForgotLink": "Forgot password?"
+  "resetForgotLink": "Forgot password?",
+  "circleActionReply": "Reply",
+  "circleActionForward": "Forward",
+  "circleActionStar": "Star",
+  "circleActionUnstar": "Unstar",
+  "circleActionPin": "Pin",
+  "circleActionUnpin": "Unpin",
+  "circleActionEdit": "Edit",
+  "circleActionDeleteMe": "Delete for me",
+  "circleActionDeleteEveryone": "Delete for everyone",
+  "circleActionSave": "Save",
+  "circleAttachGallery": "Gallery",
+  "circleAttachCamera": "Camera",
+  "circleAttachDocument": "Document",
+  "circleAttachContact": "Contact",
+  "circleAttachLocation": "Location",
+  "circleAttachLiveLocation": "Live location",
+  "circleLive15m": "15 minutes",
+  "circleLive1h": "1 hour",
+  "circleLive8h": "8 hours",
+  "circleCopied": "Copied",
+  "circleLinkCopied": "Link copied",
+  "circleEdited": "edited",
+  "circleEditing": "Editing",
+  "circleReplyingTo": "Replying to",
+  "circleDeletedPlaceholder": "This message was deleted.",
+  "circleForwarded": "Forwarded",
+  "circleForwardedMany": "Forwarded many times",
+  "circleForwardConfirm": "Forward this message into this chat?",
+  "circlePinLimit": "You can pin up to 3 messages in a chat.",
+  "circleTyping": "typing…",
+  "circleSearchInChat": "Search in chat",
+  "circleSearchAll": "Search all chats",
+  "circleSearchHint": "Search messages across your circle chats.",
+  "circleSearchNoResults": "No messages found.",
+  "circleShareLink": "Share link",
+  "circleMediaGenericGated": "Available when encrypted media storage is enabled.",
+  "circleFamilySubOptional": "Family role (optional)",
+  "circleFamilySubSibling": "Sibling",
+  "circleCallHistoryTitle": "Call history",
+  "circleCallHistoryEmpty": "No calls yet.",
+  "circleCallBackVoice": "Call back",
+  "circleCallBackVideo": "Video call back",
+  "circleCallRinging": "Ringing…",
+  "circleCallIncoming": "Incoming call",
+  "circleCallConnecting": "Connecting…",
+  "circleCallActive": "On call",
+  "circleCallEnded": "Call ended",
+  "circleCallMute": "Mute",
+  "circleCallSpeaker": "Speaker",
+  "circleCallCamera": "Camera",
+  "circleCallSwitchCamera": "Switch camera",
+  "circleCallLowData": "Low data",
+  "circleCallVideoPlaceholder": "Video runs while the app is open; it gets more reliable when the relay server is enabled.",
+  "circleCallTransportAppOpen": "Calls work now while the app is open. Ringing when closed arrives when push is enabled.",
+  "circleCallTransportPush": "You'll ring even when the app is closed. Reliability on hard networks arrives with the call server.",
+  "circleCallTransportFull": "Calling is fully live: rings when closed and the relay server is active.",
+  "circleCallVideoPremiumTitle": "Video calling is Premium",
+  "circleCallVideoPremiumBody": "Video calling needs Premium. Voice calls are free for everyone. You can also unlock it with referral points.",
+  "circleCallGetPremium": "Get Premium",
+  "circleCallUnlockWithPoints": "Unlock with points",
+  "circlePrivacyTitle": "Privacy & controls",
+  "circlePrivacySaved": "Privacy settings saved",
+  "circlePrivacyWhoCanSee": "Who can see",
+  "circlePrivacyLastSeen": "Last seen",
+  "circlePrivacyActiveStatus": "Active status",
+  "circlePrivacyProfilePhoto": "Profile photo",
+  "circlePrivacyAbout": "About",
+  "circlePrivacyStatusVisibility": "Status",
+  "circlePrivacyAudienceCircle": "My circle",
+  "circlePrivacyAudienceFamily": "Family",
+  "circlePrivacyAudienceNobody": "Nobody",
+  "circlePrivacyReceipts": "Read receipts & typing",
+  "circlePrivacyReadReceipts": "Read receipts",
+  "circlePrivacyReadReceiptsHint": "If off, you won't see others' read receipts either.",
+  "circlePrivacyTyping": "Typing indicator",
+  "circlePrivacyTypingHint": "If off, you won't see others typing either.",
+  "circlePrivacyIncomingCalls": "Who can call you",
+  "circlePrivacyDnd": "Do not disturb",
+  "circlePrivacyDndEnable": "Enable schedule",
+  "circlePrivacyDndHint": "Calls won't ring during these hours (still logged as missed).",
+  "circlePrivacyDndStart": "Start",
+  "circlePrivacyDndEnd": "End",
+  "circlePrivacyDndFamilyException": "Allow family",
+  "circlePrivacyDndFamilyExceptionHint": "Family calls still ring during Do Not Disturb.",
+  "circlePrivacyServerEnforcedNote": "These rules are enforced on the server — they cannot be bypassed.",
+  "circleCallPolicyEveryone": "Everyone in my circle",
+  "circleCallPolicyChosen": "Only chosen people",
+  "circleCallPolicyRelations": "Only chosen relationships",
+  "circleCallPolicyNobody": "Nobody",
+  "circleBlockExplainer": "Blocked people can't message, call, or see your status.",
+  "circleUnblock": "Unblock",
+  "circleRestrict": "Restrict",
+  "circleRestrictExplainer": "Messages go to a separate inbox with no notifications; calls won't ring.",
+  "circleUnrestrict": "Remove restriction",
+  "circleReportExplainer": "Report a problem; optionally attach recent messages and block.",
+  "referralTitle": "Referral points",
+  "referralBalanceLabel": "Your balance",
+  "referralPoints": "points",
+  "referralRedeemableDays": "= {days} Premium days",
+  "@referralRedeemableDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "referralRate": "{perDay} points = 1 Premium day",
+  "@referralRate": {
+    "placeholders": {
+      "perDay": {
+        "type": "Object"
+      }
+    }
+  },
+  "referralInvite": "Invite a friend",
+  "referralRedeem": "Redeem",
+  "referralHowTitle": "How it works",
+  "referralStep1": "Invite someone to your circle",
+  "referralStep2": "They install the app and sign up",
+  "referralStep3": "They accept your relationship invite",
+  "referralStep4": "You earn points — redeem them for Premium days",
+  "referralHistoryTitle": "Points history",
+  "referralHistoryEmpty": "No points yet. Invite a friend to get started.",
+  "referralShareMessage": "Join me on Assisto!",
+  "referralRedeemPickDays": "Choose how many Premium days to redeem.",
+  "referralRedeemDaysChosen": "{days} day(s)",
+  "@referralRedeemDaysChosen": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "referralRedeemCost": "Costs {cost} points",
+  "@referralRedeemCost": {
+    "placeholders": {
+      "cost": {
+        "type": "Object"
+      }
+    }
+  },
+  "referralRedeemConfirm": "Confirm",
+  "referralRedeemedDays": "{days} Premium day(s) added!",
+  "@referralRedeemedDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "referralRedeemFailed": "Couldn't redeem",
+  "referralRateReviewNote": "Point rates are under review and may change.",
+  "crmWelcomeTitle": "Welcome to your Sales CRM",
+  "crmWelcomeBody": "Capture leads, run your pipeline, and sell as a team — pick a way to get started.",
+  "crmStartOrg": "Start your CRM",
+  "crmStartOrgHint": "Tell us about your company — we'll set up a sample pipeline for you.",
+  "crmJoinTeam": "Join a team",
+  "crmJoinTeamHint": "Enter the invite code from your team.",
+  "crmCompanyName": "Company name",
+  "crmIndustry": "Industry",
+  "crmTeamSize": "Team size",
+  "crmTeamSizeSolo": "Just me",
+  "crmTeamSizeSmall": "2–5",
+  "crmTeamSizeMedium": "6–20",
+  "crmTeamSizeLarge": "20+",
+  "crmCreateOrg": "Create CRM",
+  "crmIndIt": "IT & Software",
+  "crmIndManufacturing": "Manufacturing",
+  "crmIndServices": "Services",
+  "crmInviteCode": "Invite code",
+  "crmInviteCodeHint": "Share this code with your teammates.",
+  "crmInviteCodeRequired": "Please enter an invite code.",
+  "crmOrgNameRequired": "Please enter a company name.",
+  "crmRefCode": "Ref code",
+  "crmDashboardRestricted": "Owners & managers only",
+  "crmDashboardRestrictedHint": "The financial dashboard is visible to owners and managers only.",
+  "journeyHubTitle": "Safe Journey",
+  "journeyHubDesc": "Start a journey and let loved ones watch you reach safely.",
+  "journeySection": "Safe Journey",
+  "journeyStartTitle": "Start a journey",
+  "journeyStartButton": "Start journey",
+  "journeyStartFailed": "Couldn't start the journey",
+  "journeyDestSection": "Destination",
+  "journeyDestLabel": "Where are you going?",
+  "journeyUseCurrent": "Use current location",
+  "journeyDestPinned": "Pinned location",
+  "journeyNeedDest": "Please add a destination.",
+  "journeyEtaSection": "Expected arrival",
+  "journeyEtaBy": "Arrive by {time}",
+  "@journeyEtaBy": {
+    "placeholders": {
+      "time": {
+        "type": "Object"
+      }
+    }
+  },
+  "journeyWatchersSection": "Who's watching",
+  "journeyNoWatchers": "No one in your circle yet. Add someone first.",
+  "journeyNeedWatcher": "Choose at least one watcher.",
+  "journeyRideSection": "Ride details (optional)",
+  "journeyModeLabel": "How are you traveling?",
+  "journeyModeCng": "CNG",
+  "journeyModeRickshaw": "Rickshaw",
+  "journeyModeCar": "Car",
+  "journeyModeBus": "Bus",
+  "journeyModeWalk": "Walking",
+  "journeyPlateLabel": "Number plate or ride info",
+  "journeyAdvancedSection": "More settings",
+  "journeyGraceLabel": "Wait {min} minutes past arrival time",
+  "@journeyGraceLabel": {
+    "placeholders": {
+      "min": {
+        "type": "Object"
+      }
+    }
+  },
+  "journeyRouteDeviation": "Alert on route deviation",
+  "journeyRouteDeviationDesc": "Loved ones are notified if you stray far off route.",
+  "journeyRetentionLabel": "Trip data auto-deletes after {h} hours",
+  "@journeyRetentionLabel": {
+    "placeholders": {
+      "h": {
+        "type": "Object"
+      }
+    }
+  },
+  "journeyRetentionNote": "Location is kept only during the trip; nothing remains on the server afterward.",
+  "journeyLiveTitle": "Journey in progress",
+  "journeyLiveFooter": "Location updates while the app is open. Live location ends when the journey stops.",
+  "journeyToward": "Toward {dest}",
+  "@journeyToward": {
+    "placeholders": {
+      "dest": {
+        "type": "Object"
+      }
+    }
+  },
+  "journeyId": "Journey #{id}",
+  "@journeyId": {
+    "placeholders": {
+      "id": {
+        "type": "Object"
+      }
+    }
+  },
+  "journeyLastFix": "Last location {at}",
+  "@journeyLastFix": {
+    "placeholders": {
+      "at": {
+        "type": "Object"
+      }
+    }
+  },
+  "journeyWatchingNotif": "Assisto is watching your journey",
+  "journeyImSafe": "I've arrived safely",
+  "journeyImOk": "I'm OK",
+  "journeyArrivedSafely": "Arrived safely. Journey complete.",
+  "journeyShareLink": "Share link",
+  "journeyShareLinkText": "Follow my journey live: {url}",
+  "@journeyShareLinkText": {
+    "placeholders": {
+      "url": {
+        "type": "Object"
+      }
+    }
+  },
+  "journeyStop": "Stop journey",
+  "journeyStopTitle": "Stop the journey?",
+  "journeyStopBody": "Live location will stop and the journey will end.",
+  "journeyStopConfirm": "Stop",
+  "journeyPrivacySection": "Privacy",
+  "journeyPrivacyStatement": "You control everything. Stop any time. Only the people you chose can see your location.",
+  "journeyAreYouOkTitle": "Are you OK?",
+  "journeyAreYouOkBody": "Your arrival time has passed. Let us know you're OK, otherwise your watchers will be alerted.",
+  "journeyNeedHelp": "I need help",
+  "journeySettingsTitle": "Safety settings",
+  "sosSection": "Emergency SOS",
+  "sosSentTitle": "Alert sent",
+  "sosSentBody": "Your watchers have been sent your location.",
+  "sosCallNow": "Call 999 now",
+  "sosCancelNeedsPin": "Enter your PIN to cancel.",
+  "sosNearestHelp": "Nearest help",
+  "sosNearestHelpLoading": "Finding nearby police and hospitals…",
+  "sosDistanceAway": "{m} m away",
+  "@sosDistanceAway": {
+    "placeholders": {
+      "m": {
+        "type": "Object"
+      }
+    }
+  },
+  "sosHelplines": "Helplines",
+  "sosPinTitle": "Enter PIN",
+  "sosPinLabel": "PIN",
+  "sosPinWrong": "Wrong PIN",
+  "sosSiren": "Sound siren",
+  "sosSirenDefault": "Default siren",
+  "sosSirenDefaultDesc": "A loud siren plays on SOS (toggle in settings).",
+  "duressSection": "Duress PIN",
+  "duressTitle": "Safety PIN",
+  "duressSubtitle": "A PIN is needed to stop a journey or cancel an SOS.",
+  "duressExplain": "Entering the separate duress PIN makes the screen look cancelled while silently sending an emergency alert and location to your watchers.",
+  "duressNormalPin": "Normal PIN",
+  "duressDuressPin": "Duress PIN",
+  "duressMustDiffer": "The duress PIN must differ from the normal PIN.",
+  "duressSetUp": "Set up PIN",
+  "duressSaved": "PIN saved",
+  "duressConfigured": "PIN is set",
+  "duressNotSet": "No PIN set yet",
+  "fakeCallTitle": "Fake call",
+  "fakeCallSetup": "Set up a fake call",
+  "fakeCallCaller": "Caller name",
+  "fakeCallDefaultName": "Mom",
+  "fakeCallStart": "Start fake call",
+  "fakeCallArmed": "Call rings in {sec} seconds",
+  "@fakeCallArmed": {
+    "placeholders": {
+      "sec": {
+        "type": "Object"
+      }
+    }
+  },
+  "fakeCallIncoming": "Incoming call",
+  "fakeCallAnswer": "Answer",
+  "fakeCallDecline": "Decline",
+  "fakeCallEnd": "End call",
+  "wellnessSection": "Wellness check",
+  "wellnessIntro": "If a parent living alone is inactive for a long time, their children are alerted.",
+  "wellnessEnable": "Enable wellness check",
+  "wellnessParentOptIn": "Parent's consent",
+  "wellnessParentOptInDesc": "This only turns on with the parent's own consent.",
+  "wellnessPeriod": "After {h} hours of inactivity",
+  "@wellnessPeriod": {
+    "placeholders": {
+      "h": {
+        "type": "Object"
+      }
+    }
+  },
+  "wellnessQuietHours": "Quiet hours (won't disturb at night)",
+  "sidebarRemindersMemory": "Reminders & Memory",
+  "sidebarSafety": "Safety",
+  "sidebarDaily": "Daily Life",
+  "sidebarMessages": "Messages",
+  "sidebarPlansPoints": "Plans & points",
+  "sidebarProfile": "Profile",
+  "sidebarConnectedApps": "Connected apps",
+  "sidebarBatteryGuidance": "Battery guidance",
+  "sosHooksSection": "Quick SOS triggers",
+  "sosHookPowerTitle": "Press power 5 times",
+  "sosHookPowerDesc": "Pressing power quickly 5 times fires a silent SOS.",
+  "sosHookShakeTitle": "Shake the phone",
+  "sosHookShakeDesc": "Shaking the phone hard triggers an SOS.",
+  "sosHookTileTitle": "Quick-settings tile",
+  "sosHookTileDesc": "One tap from the lock screen or quick settings.",
+  "sosHookWidgetTitle": "Home-screen widget",
+  "sosHookWidgetDesc": "Fire a quick SOS from a discreet widget.",
+  "sosHookServiceTitle": "Background service",
+  "sosHookServiceDesc": "Needed so journeys and SOS keep working when the app is closed.",
+  "sosHookGated": "Coming in a later update.",
+  "safetySosQuickCall": "Quick call"
 }

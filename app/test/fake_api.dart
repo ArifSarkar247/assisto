@@ -363,7 +363,7 @@ class FakeApi extends ApiClient {
          'unlimited_ai': true, 'ads': false, 'family': true},
         {'id': 'business', 'name': _bn ? 'বিজনেস' : 'Business', 'price': 999, 'cur': 'BDT', 'period': 'mo',
          'desc': _bn ? 'দোকান ও সেলস' : 'Shop & sales',
-         'benefits': _bn ? ['বিজনেস মোড', 'সেলস CRM'] : ['Business mode', 'Sales CRM'],
+         'benefits': _bn ? ['বিজনেস মোড', 'CRM'] : ['Business mode', 'CRM'],
          'unlimited_ai': true, 'ads': false, 'family': true},
       ]);
 
@@ -632,6 +632,12 @@ class FakeApi extends ApiClient {
       if (mode == FakeMode.fail) _fail();
       return {'ok': true, ...body};
     }
+    // build-61: Safe Journey createItem-based paths (no leading slash):
+    // journey/<id>/arrived|respond, journey/duress-pin, journey/routines,
+    // journey/wellness, journey/wellness/ping, journey/places, journey/where-are-you.
+    if (path.startsWith('journey/')) {
+      return {'ok': true, 'id': 1, ...body};
+    }
     return super.createItem(path, body);
   }
 
@@ -736,15 +742,83 @@ class FakeApi extends ApiClient {
                 _bn ? 'আগে থেকে থাকার ব্যবস্থা করুন।' : 'Book your stay ahead of time.',
               ]};
     }
-    if (path.startsWith('/circle/members') || path.startsWith('/circle/requests')) {
+    if (path.startsWith('/circle/requests')) {
       if (mode == FakeMode.fail) _fail();
       return {'results': const []}; // friendly empty state
+    }
+    if (path.startsWith('/circle/members')) {
+      if (mode == FakeMode.fail) _fail();
+      final members = mode == FakeMode.empty
+          ? const []
+          : [
+              {'id': 1, 'name': _bn ? 'Ammu' : 'Mom', 'phone': '01710000000', 'status': 'accepted', 'relation': 'mother'},
+            ];
+      // circle_screen reads results ?? members; journey_start reads members ?? accepted.
+      return {'results': members, 'members': members, 'accepted': members};
+    }
+    if (path.startsWith('/circle/calls')) {
+      if (mode == FakeMode.fail) _fail();
+      return {
+        'calls': mode == FakeMode.empty ? const [] : [
+          {'id': 1, 'kind': 'voice', 'state': 'ended', 'duration_sec': 65, 'mine': true, 'peer': _bn ? 'Ammu' : 'Mom', 'started_at': '2026-10-10T09:00:00Z'},
+        ],
+      };
+    }
+    if (path.startsWith('/circle/privacy')) {
+      if (mode == FakeMode.fail) _fail();
+      return {
+        'visibility': {
+          'last_seen': 'family', 'active_status': 'family', 'profile_photo': 'everyone',
+          'about': 'everyone', 'status': 'everyone',
+        },
+        'read_receipts': true, 'typing': true, 'call_policy': 'everyone',
+        'dnd_enabled': false, 'dnd_start': '22:00', 'dnd_end': '07:00',
+        'dnd_family_exception': true,
+      };
     }
     if (path.startsWith('/circle/') && path.contains('/messages')) {
       return {'results': const []};
     }
     if (path.startsWith('/circle/invite')) {
       return {'token': 'fake-token', 'qr': 'assisto://i/fake-token'};
+    }
+    // ===== build-61: referral + Safe Journey GET stubs =====
+    if (path.startsWith('/referral/balance')) {
+      if (mode == FakeMode.fail) _fail();
+      return {'points': 120, 'redeemable_days': 4, 'points_per_day': 25, 'min_redeem': 25, 'can_redeem': true, 'invite_link': 'https://assisto.app/i/abc'};
+    }
+    if (path.startsWith('/referral/history')) {
+      if (mode == FakeMode.fail) _fail();
+      return {'history': mode == FakeMode.empty ? const [] : [
+        {'kind': 'grant', 'points': 50, 'reason': 'referral_accept', 'label': _bn ? 'Referral' : 'Referral', 'created_at': '2026-10-01T10:00:00Z'},
+      ]};
+    }
+    if (path.startsWith('/journey/active')) {
+      if (mode == FakeMode.fail) _fail();
+      return const {}; // no active journey
+    }
+    if (path.contains('/web-link')) {
+      return {'url': 'https://assisto.app/j/tok', 'token': 'tok'};
+    }
+    if (path.startsWith('/journey/nearest-help')) {
+      return {
+        'police': [{'name': _bn ? 'Thana' : 'Police station', 'distance_m': 300}],
+        'hospital': [{'name': _bn ? 'Hospital' : 'Hospital', 'distance_m': 800}],
+      };
+    }
+    if (path.startsWith('/journey/places')) {
+      return {'places': mode == FakeMode.empty ? const [] : [
+        {'label': 'Home', 'name': _bn ? 'Home' : 'Home', 'lat': 23.8, 'lng': 90.4},
+      ]};
+    }
+    if (path.startsWith('/journey/wellness')) {
+      return {'enabled': false, 'parent_opt_in': false, 'period_hours': 12};
+    }
+    if (path.startsWith('/journey/routines')) {
+      return {'routines': const []};
+    }
+    if (path.contains('/timeline') && path.startsWith('/journey/')) {
+      return {'events': const [], 'locations': const []};
     }
     if (path.startsWith('/scam/library')) {
       if (mode == FakeMode.fail) _fail();
@@ -833,6 +907,9 @@ class FakeApi extends ApiClient {
         'draft_source': 'template',
       };
     }
+    if (path.startsWith('/circle/') || path.startsWith('/journey/') || path.startsWith('/referral/')) {
+      return const {}; // unmatched build-61 GET -> empty, never throw in gallery
+    }
     return super.getJson(path);
   }
 
@@ -886,9 +963,26 @@ class FakeApi extends ApiClient {
               'ops': (body['ops'] as List?) ?? const [],
               'message': _bn ? 'এনহ্যান্স করা যাবে।' : 'Ready to enhance.'};
     }
-    if (path.startsWith('/circle/')) {
-      // keys / request / act / sharing / report / messages — accept gracefully.
+    // build-61: place-call gate. Fake can't branch on free-caller video;
+    // always returns the allowed-voice shape.
+    if (path.startsWith('/circle/') && (path.endsWith('/call') || path.endsWith('/call/answer'))) {
+      return {'allowed': true, 'call_id': 1, 'kind': body['kind'] ?? 'voice'};
+    }
+    if (path.startsWith('/circle/privacy')) {
       return {'ok': true, ...body};
+    }
+    if (path.startsWith('/circle/')) {
+      // keys / request / act / sharing / report / messages / call events — accept gracefully.
+      return {'ok': true, ...body};
+    }
+    // build-61: Safe Journey POST stubs (postJson-based paths).
+    if (path.startsWith('/journey/start')) {
+      return {'id': 1, 'web_link': 'https://assisto.app/j/tok'};
+    }
+    if (path.startsWith('/journey/')) {
+      // /journey/<id>/location, /journey/<id>/stop, /journey/sos,
+      // /journey/where-are-you, etc. — accept gracefully.
+      return {'ok': true, 'status': 'active', ...body};
     }
     if (path.startsWith('/crm/extract')) {
       return {'ok': true, 'ai_available': false, 'phone': '01712345678', 'phones': [], 'whatsapp': '01712345678', 'email': 'buy@karim.com', 'company': 'Karim Garments Ltd', 'name': 'Karim'};

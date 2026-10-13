@@ -10,6 +10,12 @@ import '../l10n/app_localizations.dart';
 import '../widgets/safety_sos_countdown.dart';
 import '../widgets/safety_checkin_card.dart';
 import '../widgets/scam_safety_api.dart';
+import '../widgets/sos_button.dart';
+import 'journey_start_screen.dart';
+import 'journey_live_screen.dart';
+import 'journey_sos_screen.dart';
+import 'journey_settings_screen.dart';
+import '../widgets/journey_api.dart';
 
 /// Advanced family-safety hub (benchmarked vs Life360 / bSafe):
 ///   - SOS with a configurable countdown (so a mis-tap can be cancelled)
@@ -79,6 +85,21 @@ class _SafetyScreenState extends State<SafetyScreen> {
       if ((c['phone'] ?? '').toString().trim().isNotEmpty) return c;
     }
     return null;
+  }
+
+  /// Resume an in-progress journey if one exists, else open the start flow.
+  Future<void> _openJourney() async {
+    final navigator = Navigator.of(context);
+    int? activeId;
+    try {
+      final r = await context.read<AppState>().api.journeyActive();
+      if (r['status'] == 'active') activeId = (r['id'] as num?)?.toInt();
+    } catch (_) {}
+    if (!mounted) return;
+    navigator.push(MaterialPageRoute(
+        builder: (_) => activeId != null
+            ? JourneyLiveScreen(journeyId: activeId!)
+            : const JourneyStartScreen()));
   }
 
   Future<void> _triggerSos() async {
@@ -213,17 +234,63 @@ class _SafetyScreenState extends State<SafetyScreen> {
     }
     final t = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(t.safetyTitle)),
+      appBar: AppBar(title: Text(t.safetyTitle), actions: [
+        IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: t.journeySettingsTitle,
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const JourneySettingsScreen()))),
+      ]),
       body: ListView(padding: const EdgeInsets.all(16), children: [
-        // SOS
+        // ---- Safe Journey (top-priority feature) ----
+        Text(t.journeySection,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const SizedBox(height: 8),
+        Card(
+          color: const Color(0xFF1976D2).withOpacity(0.06),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [
+                const Icon(Icons.navigation, color: Color(0xFF1976D2)),
+                const SizedBox(width: 10),
+                Expanded(
+                    child: Text(t.journeyHubTitle,
+                        style: const TextStyle(fontWeight: FontWeight.w700))),
+              ]),
+              const SizedBox(height: 6),
+              Text(t.journeyHubDesc,
+                  style: const TextStyle(fontSize: 13, color: Colors.grey)),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14)),
+                  onPressed: _openJourney,
+                  icon: const Icon(Icons.navigation),
+                  label: Text(t.journeyStartButton),
+                ),
+              ),
+            ]),
+          ),
+        ),
+        const Divider(height: 28),
+
+        // ---- discreet SOS (full flow: nearest help + helplines + duress) ----
+        SosButton(
+          label: t.emergencySosButton,
+          onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => JourneySosScreen(countdownSeconds: _sosCountdown))),
+        ),
+        const SizedBox(height: 8),
+        // Legacy quick-call SOS (dials the first contact) kept as a fallback.
         SizedBox(
           width: double.infinity,
-          child: FilledButton.icon(
-            style: FilledButton.styleFrom(
-                backgroundColor: Colors.red, padding: const EdgeInsets.symmetric(vertical: 18)),
+          child: OutlinedButton.icon(
             onPressed: _triggerSos,
-            icon: const Icon(Icons.sos, size: 28),
-            label: Text(t.emergencySosButton, style: const TextStyle(fontSize: 18)),
+            icon: const Icon(Icons.call, size: 20),
+            label: Text(t.safetySosQuickCall),
           ),
         ),
         const SizedBox(height: 6),

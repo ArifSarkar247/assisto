@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
-import '../../widgets/skeleton.dart';
 import 'crm_common.dart';
+import 'crm_firstrun_screen.dart';
 import 'crm_today_screen.dart';
 import 'crm_leads_screen.dart';
 import 'crm_pipeline_screen.dart';
@@ -22,7 +21,8 @@ class CrmHomeScreen extends StatefulWidget {
 class _CrmHomeScreenState extends State<CrmHomeScreen> {
   List<Map<String, dynamic>> _orgs = [];
   int? _org;
-  bool _loading = true, _error = false;
+  bool _loading = true;
+  CrmError? _error;
 
   @override
   void initState() {
@@ -38,70 +38,43 @@ class _CrmHomeScreenState extends State<CrmHomeScreen> {
   Future<void> _load() async {
     setState(() {
       _loading = true;
-      _error = false;
+      _error = null;
     });
     try {
       _orgs = await CrmApi.of(context).orgs();
-      if (_orgs.isNotEmpty) _org = (_orgs.first['id'] as num).toInt();
-    } catch (_) {
-      _error = true;
+      if (_orgs.isNotEmpty) {
+        _org = (_orgs.first['id'] as num).toInt();
+      } else {
+        // No org/membership → first-run, NOT an error.
+        _org = null;
+      }
+    } catch (e) {
+      _error = CrmError.from(e);
     }
     if (mounted) setState(() => _loading = false);
-  }
-
-  Future<void> _createOrg(AppLocalizations t) async {
-    final ctl = TextEditingController();
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(t.crmNewOrg),
-        content: TextField(
-            controller: ctl,
-            decoration: InputDecoration(labelText: t.crmOrgName),
-            autofocus: true),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(t.create)),
-        ],
-      ),
-    );
-    if (ok == true && ctl.text.trim().isNotEmpty) {
-      await CrmApi.of(context).createOrg(ctl.text.trim());
-      await _load();
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
 
     if (_loading) {
-      return Scaffold(appBar: AppBar(title: Text(t.crmTitle)), body: const SkeletonList());
+      return Scaffold(
+          appBar: AppBar(title: Text(t.crmTitle)),
+          body: const CrmStateView.loading());
     }
-    if (_error) {
+    if (_error != null) {
       return Scaffold(
         appBar: AppBar(title: Text(t.crmTitle)),
-        body: StateMessage(
-            icon: Icons.cloud_off,
-            tint: scheme.error,
-            title: t.loadFailed,
-            action: FilledButton.tonalIcon(
-                onPressed: _load, icon: const Icon(Icons.refresh), label: Text(t.retry))),
+        body: CrmStateView.error(
+            error: _error!, title: t.loadFailed, onRetry: _load),
       );
     }
     if (_org == null) {
+      // FIRST-RUN: friendly welcome with "Start your CRM" / "Join a team".
       return Scaffold(
         appBar: AppBar(title: Text(t.crmTitle)),
-        body: StateMessage(
-          icon: Icons.hub_outlined,
-          title: t.crmNoOrg,
-          message: t.crmNoOrgHint,
-          action: FilledButton.icon(
-              onPressed: () => _createOrg(t),
-              icon: const Icon(Icons.add),
-              label: Text(t.crmNewOrg)),
-        ),
+        body: CrmFirstRunScreen(onReady: _load),
       );
     }
 

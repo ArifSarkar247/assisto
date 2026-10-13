@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
-import '../../widgets/skeleton.dart';
 import 'crm_common.dart';
 
 /// Dashboard (CRM_SPEC): pipeline value, weighted forecast WITH its method
@@ -16,7 +15,8 @@ class CrmDashboardScreen extends StatefulWidget {
 
 class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
   Map<String, dynamic>? _d;
-  bool _loading = true, _error = false;
+  bool _loading = true;
+  CrmError? _error;
 
   @override
   void initState() {
@@ -27,12 +27,12 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
   Future<void> _load() async {
     setState(() {
       _loading = true;
-      _error = false;
+      _error = null;
     });
     try {
       _d = await CrmApi.of(context).dashboard(widget.org);
-    } catch (_) {
-      _error = true;
+    } catch (e) {
+      _error = CrmError.from(e);
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -41,15 +41,23 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    if (_loading) return const SkeletonList();
-    if (_error) {
-      return StateMessage(
-          icon: Icons.cloud_off,
-          tint: scheme.error,
-          title: t.loadFailed,
-          action: FilledButton.tonalIcon(onPressed: _load, icon: const Icon(Icons.refresh), label: Text(t.retry)));
+    if (_loading) return const CrmStateView.loading();
+    if (_error != null) {
+      return CrmStateView.error(error: _error!, title: t.loadFailed, onRetry: _load);
     }
     final d = _d ?? {};
+    // Salesperson: the backend returns a clean restricted payload (no profit/
+    // forecast). Show a friendly panel, not an empty/broken dashboard.
+    if (d['restricted'] == true) {
+      final lang = Localizations.localeOf(context).languageCode;
+      return CrmStateView.empty(
+        icon: Icons.lock_outline,
+        title: t.crmDashboardRestricted,
+        message: lang == 'bn'
+            ? (d['message_bn'] ?? t.crmDashboardRestrictedHint).toString()
+            : (d['message_en'] ?? t.crmDashboardRestrictedHint).toString(),
+      );
+    }
     final forecast = (d['forecast'] as Map?)?.cast<String, dynamic>() ?? {};
     final winLoss = (d['win_loss'] as Map?)?.cast<String, dynamic>() ?? {};
     final byInd = (d['by_industry'] as Map?)?.cast<String, dynamic>() ?? {};

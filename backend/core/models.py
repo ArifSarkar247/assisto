@@ -890,6 +890,14 @@ class CircleMember(models.Model):
     scheme = models.CharField(max_length=64, blank=True, default="")
     state = models.CharField(max_length=10, choices=STATES, default="pending")
     sharing = models.JSONField(default=dict, blank=True)
+    # --- M1 calls/privacy member controls (server-enforced) ---
+    blocked = models.BooleanField(default=False)
+    restricted = models.BooleanField(default=False)
+    muted_until = models.DateTimeField(null=True, blank=True)
+    pinned = models.BooleanField(default=False)
+    chat_lock = models.JSONField(default=dict, blank=True)
+    archived = models.BooleanField(default=False)
+    video_unlocked = models.BooleanField(default=False)  # referral-points unlock
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -910,6 +918,20 @@ class CircleMessage(models.Model):
     scheme = models.CharField(max_length=64, blank=True, default="")
     delivered_to = models.JSONField(default=list, blank=True)
     read_by = models.JSONField(default=list, blank=True)
+    # --- M1 chat-core additions ---
+    reply_to = models.ForeignKey("self", null=True, blank=True,
+                                 on_delete=models.SET_NULL, related_name="replies")
+    reactions = models.JSONField(default=dict, blank=True)   # {member_id: emoji}
+    edited_at = models.DateTimeField(null=True, blank=True)
+    deleted = models.CharField(max_length=10, blank=True, default="")  # ''|'me'|'everyone'
+    hidden_for = models.JSONField(default=list, blank=True)  # member ids (delete-for-me)
+    starred_by = models.JSONField(default=list, blank=True)  # member ids
+    pinned = models.BooleanField(default=False)
+    forwarded = models.BooleanField(default=False)
+    forward_hops = models.IntegerField(default=0)
+    client_msg_id = models.CharField(max_length=64, blank=True, default="",
+                                     db_index=True)  # dedupe
+    link_preview = models.JSONField(null=True, blank=True)  # opaque {ciphertext,nonce}
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -921,6 +943,8 @@ class CircleInvite(models.Model):
     DB enforcement of single-use (the token signature alone doesn't enforce it)."""
     inviter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="circle_invites")
     relation = models.CharField(max_length=20, default="friend")
+    relation_code = models.CharField(max_length=20, blank=True, default="")
+    family_sub = models.CharField(max_length=20, blank=True, default="")  # optional family role
     token = models.CharField(max_length=256, db_index=True)
     used = models.BooleanField(default=False)
     expires_at = models.DateTimeField(null=True, blank=True)
@@ -940,3 +964,139 @@ class CircleReport(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+
+# ===========================================================================
+# Messenger M1 — calls, privacy, referral
+# ===========================================================================
+class CallRecord(models.Model):
+    """A voice/video call between two circle peers. Server stores metadata only
+    (no media). The video entitlement is gated server-side (circle_calls)."""
+    KINDS = [("voice", "voice"), ("video", "video")]
+    caller = models.ForeignKey(User, on_delete=models.CASCADE, related_name="calls_made")
+    callee = models.ForeignKey(User, on_delete=models.CASCADE, related_name="calls_received")
+    circle = models.ForeignKey(CircleMember, null=True, blank=True,
+                               on_delete=models.SET_NULL, related_name="calls")
+    kind = models.CharField(max_length=8, choices=KINDS, default="voice")
+    state = models.CharField(max_length=16, default="ringing")
+    started_at = models.DateTimeField(auto_now_add=True)
+    answered_at = models.DateTimeField(null=True, blank=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
+    duration_sec = models.IntegerField(default=0)
+    low_data = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-started_at"]
+
+
+class CirclePrivacy(models.Model):
+    """One privacy/controls row per user. Server-enforced (circle_privacy)."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="circle_privacy")
+    visibility = models.JSONField(default=dict, blank=True)  # {field: policy}
+    read_receipts = models.BooleanField(default=True)
+    typing = models.BooleanField(default=True)
+    call_policy = models.CharField(max_length=12, default="everyone")
+    call_allow_ids = models.JSONField(default=list, blank=True)
+    call_allow_relations = models.JSONField(default=list, blank=True)
+    dnd_enabled = models.BooleanField(default=False)
+    dnd_start = models.CharField(max_length=5, default="22:00")
+    dnd_end = models.CharField(max_length=5, default="07:00")
+    dnd_family_exception = models.BooleanField(default=True)
+
+
+class ReferralGrant(models.Model):
+    """Append-only referral points ledger. Balance = max(0, sum(points))."""
+    KINDS = [("grant", "grant"), ("clawback", "clawback"),
+             ("redeem", "redeem"), ("bonus", "bonus")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="referral_grants")
+    invitee = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                related_name="referral_as_invitee")
+    device_id = models.CharField(max_length=64, blank=True, default="")
+    kind = models.CharField(max_length=10, choices=KINDS, default="grant")
+    points = models.IntegerField(default=0)  # signed
+    reason = models.CharField(max_length=40, blank=True, default="")
+    reverses = models.IntegerField(null=True, blank=True)  # row id this clawback reverses
+    month = models.CharField(max_length=7, blank=True, default="")  # YYYY-MM
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "invitee"],
+                condition=models.Q(kind="grant"),
+                name="uniq_referral_grant_per_invitee"),
+        ]
+
+
+# ===========================================================================
+# Safe Journey & Personal Safety
+# ===========================================================================
+class Journey(models.Model):
+    """A Safe Journey. Location history auto-deletes after retention; NO server
+    location remains past expires_at (privacy item 18)."""
+    traveller = models.ForeignKey(User, on_delete=models.CASCADE, related_name="journeys")
+    origin = models.JSONField(null=True, blank=True)
+    destination = models.JSONField(default=dict, blank=True)
+    eta = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=16, default="active")
+    mode = models.CharField(max_length=16, blank=True, default="")
+    vehicle = models.JSONField(null=True, blank=True)
+    arrival_radius_m = models.IntegerField(default=120)
+    route_radius_m = models.IntegerField(default=500)
+    overdue_grace_min = models.IntegerField(default=10)
+    response_window_min = models.IntegerField(default=10)
+    route_deviation = models.BooleanField(default=False)
+    planned_route = models.JSONField(null=True, blank=True)
+    location_retention_hours = models.IntegerField(default=24)
+    expires_at = models.DateTimeField(null=True, blank=True)  # HARD CAP
+    last_location = models.JSONField(null=True, blank=True)
+    last_activity_at = models.DateTimeField(null=True, blank=True)
+    sos_active = models.BooleanField(default=False)
+    silent = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class JourneyWatcher(models.Model):
+    journey = models.ForeignKey(Journey, on_delete=models.CASCADE, related_name="watchers")
+    member = models.ForeignKey(CircleMember, on_delete=models.CASCADE, related_name="watching")
+
+    class Meta:
+        unique_together = [("journey", "member")]
+
+
+class SavedPlace(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="saved_places")
+    label = models.CharField(max_length=40, blank=True, default="")
+    name = models.CharField(max_length=160, blank=True, default="")
+    lat = models.FloatField(null=True, blank=True)
+    lng = models.FloatField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class WellnessWatch(models.Model):
+    """Parents-living-alone wellness check. Opt-in by parent (GATE)."""
+    parent = models.OneToOneField(User, on_delete=models.CASCADE, related_name="wellness_watch")
+    enabled = models.BooleanField(default=False)
+    parent_opt_in = models.BooleanField(default=False)  # arming GATE
+    period_hours = models.IntegerField(default=12)
+    response_window = models.IntegerField(default=120)  # minutes
+    quiet_start = models.CharField(max_length=5, default="22:00")
+    quiet_end = models.CharField(max_length=5, default="07:00")
+    watcher_ids = models.JSONField(default=list, blank=True)
+    last_activity_at = models.DateTimeField(null=True, blank=True)
+    prompt_sent_at = models.DateTimeField(null=True, blank=True)
+
+
+class DuressPin(models.Model):
+    """Hashed normal + duress PINs. Raw PIN is NEVER stored (safety_journey.hash_pin)."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="duress_pin")
+    normal_hash = models.CharField(max_length=128, blank=True, default="")
+    duress_hash = models.CharField(max_length=128, blank=True, default="")
+    salt = models.CharField(max_length=64, blank=True, default="")

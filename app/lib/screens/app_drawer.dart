@@ -5,13 +5,19 @@ import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/sidebar_sections.dart';
 import 'settings_screen.dart';
+import 'plans_screen.dart';
+import 'circle_screen.dart';
 
 /// Left sidebar — the app's navigation hub (modern AI-chat style). The main
 /// screen is only the chat; everything else lives here.
 ///
-/// Modules are grouped into collapsible [SidebarSections] (Money / Family /
-/// Health / Life / Work / Business / Settings) with a search box on top, so the
-/// long flat list is discoverable. Settings + profile stay pinned in the footer.
+/// Layout (owner-final, .phaseB/SIDEBAR_LAYOUT.md):
+///   TOP (always visible): New chat, Messages (Connected Circle), search box.
+///   SECTIONS: 8 collapsible [SidebarSections] (Reminders & Memory, My Account,
+///     Family, Safety, Health, Daily Life, Work, Business) — open/closed state
+///     is remembered across drawer opens.
+///   BOTTOM (pinned): Settings (In-progress / Connected apps / Battery / Legal
+///     live inside it), Plans & points, Profile.
 class AppDrawer extends StatefulWidget {
   final VoidCallback onNewChat;
   const AppDrawer({super.key, required this.onNewChat});
@@ -24,16 +30,19 @@ class _AppDrawerState extends State<AppDrawer> {
   final _searchCtrl = TextEditingController();
   String _q = '';
 
+  /// Persisted open/closed state per section id (survives drawer re-opens for
+  /// the app session). Defaults to collapsed.
+  static final Set<String> _expanded = <String>{};
+
   @override
   void dispose() {
     _searchCtrl.dispose();
     super.dispose();
   }
 
-  void _openItem(SidebarItem item) {
+  void _push(WidgetBuilder builder) {
     Navigator.pop(context);
-    Navigator.push(
-        context, MaterialPageRoute(builder: (ctx) => item.builder(ctx)));
+    Navigator.push(context, MaterialPageRoute(builder: builder));
   }
 
   @override
@@ -69,7 +78,7 @@ class _AppDrawerState extends State<AppDrawer> {
           ]),
         ),
         const SizedBox(height: Gap.sm),
-        // ---- new chat ----
+        // ---- TOP: new chat + messages ----
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: Gap.md),
           child: FilledButton.tonalIcon(
@@ -86,6 +95,12 @@ class _AppDrawerState extends State<AppDrawer> {
           ),
         ),
         const SizedBox(height: Gap.xs),
+        ListTile(
+          dense: true,
+          leading: Icon(Icons.forum_outlined, color: scheme.onSurfaceVariant),
+          title: Text(t.sidebarMessages),
+          onTap: () => _push((_) => const CircleScreen()),
+        ),
         // ---- search box ----
         Padding(
           padding: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, Gap.xs),
@@ -129,8 +144,19 @@ class _AppDrawerState extends State<AppDrawer> {
                   children: [
                     for (final s in sections)
                       ExpansionTile(
-                        key: PageStorageKey('sidebar_${s.title(t)}_$searching'),
-                        initiallyExpanded: searching,
+                        key: PageStorageKey('sidebar_${s.id}_$searching'),
+                        // Searching force-opens matches; otherwise honour the
+                        // remembered open/closed state.
+                        initiallyExpanded:
+                            searching || _expanded.contains(s.id),
+                        onExpansionChanged: (open) {
+                          if (searching) return;
+                          if (open) {
+                            _expanded.add(s.id);
+                          } else {
+                            _expanded.remove(s.id);
+                          }
+                        },
                         leading:
                             Icon(s.icon, color: scheme.onSurfaceVariant),
                         title: Text(s.title(t),
@@ -145,7 +171,7 @@ class _AppDrawerState extends State<AppDrawer> {
                                   color: scheme.onSurfaceVariant, size: 22),
                               title: Text(item.label(t)),
                               visualDensity: VisualDensity.compact,
-                              onTap: () => _openItem(item),
+                              onTap: () => _push(item.builder),
                             ),
                         ],
                       ),
@@ -153,15 +179,17 @@ class _AppDrawerState extends State<AppDrawer> {
                 ),
         ),
         const Divider(height: 1),
-        // ---- settings + profile ----
+        // ---- BOTTOM (pinned): Settings / Plans & points / Profile ----
         ListTile(
           leading: Icon(Icons.settings_outlined, color: scheme.onSurfaceVariant),
           title: Text(t.settingsTitle),
-          onTap: () {
-            Navigator.pop(context);
-            Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const SettingsScreen()));
-          },
+          onTap: () => _push((_) => const SettingsScreen()),
+        ),
+        ListTile(
+          leading: Icon(Icons.workspace_premium_outlined,
+              color: scheme.onSurfaceVariant),
+          title: Text(t.sidebarPlansPoints),
+          onTap: () => _push((_) => const PlansScreen()),
         ),
         ListTile(
           leading: CircleAvatar(
@@ -180,6 +208,7 @@ class _AppDrawerState extends State<AppDrawer> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
+          onTap: () => _push((_) => const SettingsScreen()),
         ),
         SizedBox(height: MediaQuery.of(context).padding.bottom + Gap.sm),
       ]),

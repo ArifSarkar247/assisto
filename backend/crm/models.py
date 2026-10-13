@@ -11,10 +11,38 @@ from django.conf import settings
 from django.db import models
 
 
+def _new_invite_code():
+    """A short, human-friendly, unambiguous join code (no 0/O/1/I/L). Used by a
+    teammate to join an existing org. Uniqueness is enforced at generation time
+    (see CrmOrg.rotate_invite_code / save)."""
+    import secrets
+    alphabet = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
+    return "".join(secrets.choice(alphabet) for _ in range(8))
+
+
 class CrmOrg(models.Model):
     """A sales organization / tenant. Everything else hangs off an org so the
     CRM is multi-tenant: one install can serve many independent sales teams."""
+    # Industry / team-size options for the first-run "Start your CRM" flow.
+    INDUSTRIES = [
+        ("rmg", "গার্মেন্টস / RMG"), ("pharma", "ফার্মা / Pharma"),
+        ("retail", "রিটেইল / Retail"), ("it", "আইটি / IT & Software"),
+        ("manufacturing", "ম্যানুফ্যাকচারিং / Manufacturing"),
+        ("services", "সার্ভিস / Services"), ("other", "অন্যান্য / Other"),
+    ]
+    TEAM_SIZES = [
+        ("solo", "১ জন / Just me"), ("small", "২–৫ জন / 2–5"),
+        ("medium", "৬–২০ জন / 6–20"), ("large", "২০+ / 20+"),
+    ]
     name = models.CharField(max_length=120)
+    industry = models.CharField(max_length=20, choices=INDUSTRIES, default="other",
+                                blank=True)
+    team_size = models.CharField(max_length=10, choices=TEAM_SIZES, default="small",
+                                 blank=True)
+    # Single-tenant join code a teammate enters to join as a member. Unique so a
+    # code resolves to exactly one org. Owner can rotate it.
+    invite_code = models.CharField(max_length=12, unique=True, blank=True,
+                                   default=_new_invite_code)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
                               related_name="crm_orgs")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -24,6 +52,26 @@ class CrmOrg(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        # Guarantee a unique invite code on first save (default may rarely clash).
+        if not self.invite_code:
+            self.invite_code = _new_invite_code()
+        if self._state.adding:
+            for _ in range(8):
+                if not CrmOrg.objects.filter(invite_code=self.invite_code).exists():
+                    break
+                self.invite_code = _new_invite_code()
+        super().save(*args, **kwargs)
+
+    def rotate_invite_code(self):
+        """Issue a fresh, unique join code (invalidates the old one)."""
+        code = _new_invite_code()
+        while CrmOrg.objects.filter(invite_code=code).exclude(pk=self.pk).exists():
+            code = _new_invite_code()
+        self.invite_code = code
+        self.save(update_fields=["invite_code"])
+        return code
 
 
 class CrmMember(models.Model):

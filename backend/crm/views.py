@@ -26,6 +26,7 @@ from rest_framework.views import APIView
 from django.db import transaction
 
 from . import logic, pipeline as pl, forecast as fc, reports as rp, cadence, quoting
+from . import errors as crm_errors
 from .models import (CrmOrg, CrmMember, Lead, Conversation, Message, Proposal,
                      Company, Contact, Pipeline, Stage, Deal, Activity,
                      Product, Territory, RoutingRule, AuditEntry)
@@ -35,6 +36,17 @@ from .serializers import (CrmOrgSerializer, CrmMemberSerializer, LeadSerializer,
                           ContactSerializer, PipelineSerializer, StageSerializer,
                           DealSerializer, ActivitySerializer, ProductSerializer,
                           TerritorySerializer, RoutingRuleSerializer)
+
+
+# --------------------------------------------------------------- error handling
+class CrmErrorMixin:
+    """Route every exception raised inside a CRM view through the CRM exception
+    handler so it gets a reference code that is ALSO written to the server log
+    (crm.errors.crm_exception_handler). Applied per-view so non-CRM apps are
+    untouched — the client shows the same code, support greps the log for it."""
+
+    def get_exception_handler(self):
+        return crm_errors.crm_exception_handler
 
 
 # --------------------------------------------------------------- helpers
@@ -84,7 +96,7 @@ def _ensure_deal_for(lead):
         owner=lead.assigned_to, source=lead.source)
 
 
-class _OrgScopedViewSet(viewsets.ModelViewSet):
+class _OrgScopedViewSet(CrmErrorMixin, viewsets.ModelViewSet):
     """Base for every org-owned model: queryset auto-scoped to the caller's
     memberships, writes verified against the `org` in the payload. This is the
     one place the multi-tenant rule lives, so no ViewSet can leak across tenants.
@@ -104,26 +116,78 @@ class _OrgScopedViewSet(viewsets.ModelViewSet):
 
 
 # --------------------------------------------------------------- orgs
-class CrmOrgViewSet(viewsets.ModelViewSet):
-    """Create/list the sales orgs (tenants) the user belongs to. Creating an org
-    seeds the creator as its owner member AND a default pipeline so the kanban
-    board works immediately."""
+class CrmOrgViewSet(CrmErrorMixin, viewsets.ModelViewSet):
+    """Create/list the sales orgs (tenants) the user belongs to.
+
+    FIRST-RUN "Start your company's CRM": POST /crm/orgs/ with
+    {name, industry, team_size} creates the org, seeds the creator as its OWNER
+    member AND a default pipeline + stages (pl.ensure_default_pipeline — the same
+    DEFAULT_STAGES the web org_create uses) so the kanban board works
+    immediately. A unique invite code is minted for the org (teammates join with
+    POST /crm/join). The invite code is owner-only (see `invite` below)."""
     serializer_class = CrmOrgSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return CrmOrg.objects.filter(id__in=_member_org_ids(self.request.user))
 
+    @transaction.atomic
     def perform_create(self, serializer):
         org = serializer.save(owner=self.request.user)
         CrmMember.objects.get_or_create(
             org=org, user=self.request.user,
             defaults={"role": CrmMember.OWNER})
+        # Seed a sample pipeline with the default stages so the new owner lands
+        # on a working board, not an empty one (reuse the web create logic).
         pl.ensure_default_pipeline(org)
+
+    # ----- owner-only invite code (GET to read, POST to rotate) -----
+    @action(detail=True, methods=["get", "post"])
+    def invite(self, request, pk=None):
+        """Read (GET) or rotate (POST) the org's team invite code. Owners and
+        managers only — a salesperson must not be able to pull the code and
+        recruit members. Scoped: get_object() already 404s for non-members, and
+        we additionally require manage rights."""
+        org = self.get_object()
+        member = _member_for(request.user, org.id)
+        if not _can_manage(member):
+            raise PermissionDenied(
+                "শুধু owner/manager ইনভাইট কোড দেখতে পারেন / "
+                "Only an owner or manager can view the invite code")
+        if request.method == "POST":
+            org.rotate_invite_code()
+        return Response({"ok": True, "org": org.id, "invite_code": org.invite_code})
+
+
+# --------------------------------------------------------------- join a team
+class JoinOrgView(CrmErrorMixin, APIView):
+    """FIRST-RUN "Join a team": POST /crm/join {code} → add the caller as a
+    SALES member of the org that owns that invite code. Idempotent (already a
+    member → returns the existing membership). No IDOR: the ONLY way in is a
+    valid code, and the joiner always lands as a plain salesperson — never owner
+    or manager."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        code = (request.data.get("code") or "").strip().upper()
+        if not code:
+            raise ValidationError(
+                {"code": "ইনভাইট কোড দিন / Enter an invite code"})
+        org = CrmOrg.objects.filter(invite_code=code).first()
+        if org is None:
+            raise ValidationError(
+                {"code": "কোডটি সঠিক নয় / That invite code is not valid"})
+        member, created = CrmMember.objects.get_or_create(
+            org=org, user=request.user,
+            defaults={"role": CrmMember.SALES})
+        return Response({
+            "ok": True, "joined": created, "org": CrmOrgSerializer(org).data,
+            "role": member.role,
+        })
 
 
 # --------------------------------------------------------------- leads
-class LeadViewSet(viewsets.ModelViewSet):
+class LeadViewSet(CrmErrorMixin, viewsets.ModelViewSet):
     """CRUD for leads, scoped to the user's orgs. Supports ?priority=, ?status=,
     ?industry=, ?org= and ?q= (name/company/phone search). Score/priority stay
     server-computed."""
@@ -339,7 +403,7 @@ class LeadViewSet(viewsets.ModelViewSet):
 
 
 # --------------------------------------------------------------- conversations
-class ConversationViewSet(viewsets.ReadOnlyModelViewSet):
+class ConversationViewSet(CrmErrorMixin, viewsets.ReadOnlyModelViewSet):
     """Read conversations + messages for the user's orgs (timeline view)."""
     serializer_class = ConversationSerializer
     permission_classes = [IsAuthenticated]
@@ -372,7 +436,7 @@ class PipelineViewSet(_OrgScopedViewSet):
         return qs
 
 
-class StageViewSet(viewsets.ModelViewSet):
+class StageViewSet(CrmErrorMixin, viewsets.ModelViewSet):
     """Stages are scoped via their pipeline's org."""
     serializer_class = StageSerializer
     permission_classes = [IsAuthenticated]
@@ -478,7 +542,7 @@ class ActivityViewSet(_OrgScopedViewSet):
 
 
 # --------------------------------------------------------------- team / routing
-class MemberViewSet(viewsets.ModelViewSet):
+class MemberViewSet(CrmErrorMixin, viewsets.ModelViewSet):
     """Team roster. Only owners/managers may add or change members; everyone in
     the org can read it (to pick an assignee)."""
     serializer_class = CrmMemberSerializer
@@ -531,7 +595,7 @@ class ProductViewSet(_OrgScopedViewSet):
 
 
 # --------------------------------------------------------------- proposals
-class ProposalViewSet(viewsets.ReadOnlyModelViewSet):
+class ProposalViewSet(CrmErrorMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = ProposalSerializer
     permission_classes = [IsAuthenticated]
 
@@ -586,7 +650,7 @@ class ProposalViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 # --------------------------------------------------------------- capture webhook
-class CaptureWebhookView(APIView):
+class CaptureWebhookView(CrmErrorMixin, APIView):
     """Omnichannel capture endpoint (spec §1). Gated on the WhatsApp/Messenger
     integration: if not connected, returns a clean needs-key state instead of
     accepting data — so the feature never pretends to be live."""
@@ -636,7 +700,7 @@ _COMPANY_HINT = re.compile(
     r"Enterprise|Trading|Fashions|Apparels)))", re.MULTILINE)
 
 
-class PasteExtractView(APIView):
+class PasteExtractView(CrmErrorMixin, APIView):
     """Rule-based paste extraction (CRM_SPEC: RICH MANUAL ENTRY without AI).
 
     POST {text} → best-effort {phone, phones, email, company, name} guesses,
@@ -703,7 +767,7 @@ class PasteExtractView(APIView):
 
 
 # --------------------------------------------------------------- Today feed
-class TodayView(APIView):
+class TodayView(CrmErrorMixin, APIView):
     """CRM_SPEC Today screen aggregation: follow-ups due/overdue, new high-score
     (90+) leads, stuck deals and suggested drafts — all from REAL data, scoped
     to the caller's org."""
@@ -753,10 +817,17 @@ class TodayView(APIView):
 
 
 # --------------------------------------------------------------- dashboard
-class DashboardView(APIView):
+class DashboardView(CrmErrorMixin, APIView):
     """Management view (spec §Dashboard): status counts, high-priority leads, an
     HONEST weighted forecast (from real open deals) and win/loss + by-industry +
-    by-salesperson reports. Thin data returns a clear "not enough data" state."""
+    by-salesperson reports. Thin data returns a clear "not enough data" state.
+
+    ROLE GATE: the dashboard is the MANAGEMENT financial view — pipeline value,
+    weighted forecast, won value, per-rep performance. A plain salesperson can
+    SELL but must not see the team's money/forecast: for a SALES member we
+    return a clean `restricted` state (NOT an error) instead of the financials,
+    so their client shows a friendly "ask your manager" panel rather than a
+    broken screen."""
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -765,6 +836,15 @@ class DashboardView(APIView):
         if not member:
             return Response({"ok": False, "reason": "forbidden",
                              "message": "Not a member of this org"}, status=403)
+
+        # Salesperson: no profit/forecast/cost. Honest restricted payload.
+        if member.role == CrmMember.SALES:
+            return Response({
+                "ok": True, "restricted": True,
+                "message_bn": "ড্যাশবোর্ডের আর্থিক তথ্য শুধু owner/manager দেখতে পারেন",
+                "message_en": "Financial dashboard is visible to owners and "
+                              "managers only",
+            })
 
         org = get_object_or_404(CrmOrg, id=org_id)
         leads = Lead.objects.filter(org_id=org_id)

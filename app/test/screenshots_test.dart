@@ -58,6 +58,19 @@ import 'package:assisto/screens/ride_food_screen.dart';
 import 'package:assisto/screens/ramadan_screen.dart';
 import 'package:assisto/screens/exam_result_screen.dart';
 import 'package:assisto/screens/circle_screen.dart';
+import 'package:assisto/screens/circle_chat_screen.dart';
+import 'package:assisto/screens/circle_call_screen.dart';
+import 'package:assisto/screens/circle_call_history_screen.dart';
+import 'package:assisto/screens/circle_privacy_screen.dart';
+import 'package:assisto/screens/circle_search_screen.dart';
+import 'package:assisto/screens/referral_screen.dart';
+import 'package:assisto/screens/journey_start_screen.dart';
+import 'package:assisto/screens/journey_live_screen.dart';
+import 'package:assisto/screens/journey_sos_screen.dart';
+import 'package:assisto/screens/journey_settings_screen.dart';
+import 'package:assisto/screens/journey_fake_call_screen.dart';
+import 'package:assisto/screens/crm/crm_firstrun_screen.dart';
+import 'package:assisto/crypto/e2e.dart';
 import 'package:assisto/screens/legal_screen.dart';
 import 'package:assisto/screens/photo_enhance_screen.dart';
 import 'package:assisto/screens/unseen_world_screen.dart';
@@ -134,6 +147,18 @@ List<Map<String, dynamic>> _chat(String lang) {
   ];
 }
 
+// Minimal E2E identity + circle member literals for build-61 chat/call/search.
+final IdentityKeyPair _identity = SoftwareE2E().generateIdentity();
+
+Map<String, dynamic> _circleMember(String lang) => {
+      'id': 1,
+      'name': lang == 'bn' ? 'Ammu' : 'Mom',
+      'phone': '01710000000',
+      'status': 'accepted',
+      'relation': 'mother',
+      'public_key': _identity.publicKeyB64,
+    };
+
 void main() {
   setUpAll(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
@@ -199,6 +224,20 @@ void main() {
     'ramadan': (build: (_) => const RamadanScreen(), mode: FakeMode.data, full: true),
     'exam': (build: (_) => const ExamResultScreen(), mode: FakeMode.data, full: true),
     'circle': (build: (_) => const CircleScreen(), mode: FakeMode.data, full: true),
+    // build-61: Connected Circle chat/call/privacy + Safe Journey + referral + CRM first-run
+    'circle_chat': (build: (l) => CircleChatScreen(member: _circleMember(l), identity: _identity), mode: FakeMode.data, full: true),
+    'circle_call': (build: (l) => CircleCallScreen(member: _circleMember(l), kind: 'voice'), mode: FakeMode.data, full: true),
+    'circle_call_history': (build: (_) => const CircleCallHistoryScreen(), mode: FakeMode.data, full: true),
+    'circle_privacy': (build: (_) => const CirclePrivacyScreen(), mode: FakeMode.data, full: true),
+    'circle_search': (build: (l) => CircleSearchScreen(members: [_circleMember(l)], identity: _identity), mode: FakeMode.data, full: true),
+    'referral': (build: (_) => const ReferralScreen(), mode: FakeMode.data, full: true),
+    'journey_start': (build: (_) => const JourneyStartScreen(), mode: FakeMode.data, full: true),
+    'journey_live': (build: (_) => const JourneyLiveScreen(journeyId: 1), mode: FakeMode.data, full: true),
+    'journey_sos': (build: (_) => const JourneySosScreen(journeyId: 1), mode: FakeMode.data, full: true),
+    'journey_settings': (build: (_) => const JourneySettingsScreen(), mode: FakeMode.data, full: true),
+    'journey_fake_call': (build: (l) => JourneyFakeCallScreen(caller: l == 'bn' ? 'Ammu' : 'Mom'), mode: FakeMode.data, full: true),
+    'crm_firstrun': (build: (_) => CrmFirstRunScreen(onReady: () async {}), mode: FakeMode.data, full: true),
+    'crm_firstrun_join': (build: (_) => CrmFirstRunScreen(onReady: () async {}, previewJoin: true), mode: FakeMode.data, full: true),
     'legal': (build: (_) => const LegalScreen(), mode: FakeMode.data, full: true),
     'photo_enhance': (build: (_) => const PhotoEnhanceScreen(), mode: FakeMode.data, full: true),
     'unseen': (build: (_) => const UnseenWorldScreen(), mode: FakeMode.data, full: true),

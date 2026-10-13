@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
-import '../../widgets/skeleton.dart';
 import 'crm_common.dart';
 
 /// Team screen (CRM_SPEC): roles (owner / manager / salesperson), assignment,
@@ -17,7 +16,9 @@ class CrmTeamScreen extends StatefulWidget {
 class _CrmTeamScreenState extends State<CrmTeamScreen> {
   List<Map<String, dynamic>> _members = [];
   List<Map<String, dynamic>> _rules = [];
-  bool _loading = true, _error = false;
+  String? _inviteCode; // owner/manager only; null if not permitted/available
+  bool _loading = true;
+  CrmError? _error;
 
   @override
   void initState() {
@@ -28,14 +29,22 @@ class _CrmTeamScreenState extends State<CrmTeamScreen> {
   Future<void> _load() async {
     setState(() {
       _loading = true;
-      _error = false;
+      _error = null;
     });
     try {
       final api = CrmApi.of(context);
       _members = await api.members(widget.org);
       _rules = await api.routingRules(widget.org);
+    } catch (e) {
+      _error = CrmError.from(e);
+    }
+    // Invite code is owner/manager-only (403 for sales). Best-effort: a failure
+    // here just hides the share card — it must not block the team screen.
+    try {
+      final r = await CrmApi.of(context).inviteCode(widget.org);
+      _inviteCode = (r['invite_code'] ?? '').toString();
     } catch (_) {
-      _error = true;
+      _inviteCode = null;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -55,18 +64,27 @@ class _CrmTeamScreenState extends State<CrmTeamScreen> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    if (_loading) return const SkeletonList();
-    if (_error) {
-      return StateMessage(
-          icon: Icons.cloud_off,
-          tint: scheme.error,
-          title: t.loadFailed,
-          action: FilledButton.tonalIcon(onPressed: _load, icon: const Icon(Icons.refresh), label: Text(t.retry)));
+    if (_loading) return const CrmStateView.loading();
+    if (_error != null) {
+      return CrmStateView.error(error: _error!, title: t.loadFailed, onRetry: _load);
     }
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.all(Gap.md), children: [
         NeedsKeyBanner(t.crmTeamAlertNote, icon: Icons.notifications_active_outlined),
+        // Invite code (owner/manager): share so teammates can "Join a team".
+        if (_inviteCode != null && _inviteCode!.isNotEmpty) ...[
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.vpn_key_outlined),
+              title: Text(t.crmInviteCode),
+              subtitle: Text(t.crmInviteCodeHint),
+              trailing: SelectableText(_inviteCode!,
+                  style: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1.2)),
+            ),
+          ),
+          const SizedBox(height: Gap.sm),
+        ],
         _sectionTitle(t.crmTeam),
         if (_members.isEmpty)
           Padding(padding: const EdgeInsets.all(Gap.md), child: Text(t.crmNoTeam))

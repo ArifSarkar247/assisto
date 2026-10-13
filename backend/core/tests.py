@@ -785,6 +785,19 @@ CircleSnippetTests = _make_snippet_case(
     "core.logic.circle_tests_snippets", "CircleSnippetTests")
 LaunchGapsSnippetTests = _make_snippet_case(
     "core.launch_gaps_tests_snippets", "LaunchGapsSnippetTests")
+# build-61 wave (Messenger M1 + Safe Journey)
+CircleMessagingSnippetTests = _make_snippet_case(
+    "core.logic.circle_messaging_tests_snippets", "CircleMessagingSnippetTests")
+CircleMediaSnippetTests = _make_snippet_case(
+    "core.logic.circle_media_tests_snippets", "CircleMediaSnippetTests")
+CircleCallsSnippetTests = _make_snippet_case(
+    "core.logic.circle_calls_tests_snippets", "CircleCallsSnippetTests")
+CirclePrivacySnippetTests = _make_snippet_case(
+    "core.logic.circle_privacy_tests_snippets", "CirclePrivacySnippetTests")
+ReferralSnippetTests = _make_snippet_case(
+    "core.logic.referral_tests_snippets", "ReferralSnippetTests")
+SafetyJourneySnippetTests = _make_snippet_case(
+    "core.logic.safety_journey_tests_snippets", "SafetyJourneySnippetTests")
 
 
 # ---------------------------------------------------------------------------
@@ -945,3 +958,113 @@ class Module5ApiTests(APITestCase):
                        {"sharing": {"medicines": True}}, format="json")
         allowed = self.client.get(f"/api/v1/circle/{mid}/see/medicines")
         self.assertEqual(allowed.status_code, 200)
+
+
+# ===========================================================================
+# build-61 wave API tests — referral, journey, calls (video gate), privacy.
+# ===========================================================================
+class Build61ApiTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(name="Mina", email="mina@example.com",
+                                              password="pw-abc-123")
+        self.client.force_authenticate(self.user)
+
+    def _accepted_member(self):
+        m = self.client.post("/api/v1/circle/request",
+                             {"name": "Ammu", "relation": "mother", "phone": "1"},
+                             format="json").json()
+        self.client.post(f"/api/v1/circle/request/{m['id']}/act",
+                         {"event": "accept"}, format="json")
+        return m["id"]
+
+    def test_referral_balance_history_redeem(self):
+        from .models import ReferralGrant
+        ReferralGrant.objects.create(user=self.user, kind="grant", points=100,
+                                     reason="referral_accept")
+        bal = self.client.get("/api/v1/referral/balance")
+        self.assertEqual(bal.status_code, 200)
+        self.assertEqual(bal.json()["points"], 100)
+        self.assertIn("invite_link", bal.json())
+        hist = self.client.get("/api/v1/referral/history")
+        self.assertEqual(hist.status_code, 200)
+        self.assertTrue(hist.json()["history"])
+        # redeem 50 points -> 2 Premium days (25/day), plan becomes premium.
+        red = self.client.post("/api/v1/referral/redeem", {"points": 50},
+                               format="json")
+        self.assertEqual(red.status_code, 200)
+        self.assertEqual(red.json()["days"], 2)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.plan, "premium")
+        self.assertIsNotNone(self.user.plan_until)
+
+    def test_video_call_gate_blocks_free_caller(self):
+        mid = self._accepted_member()
+        # free user: voice allowed, video requires premium (server-enforced).
+        voice = self.client.post(f"/api/v1/circle/{mid}/call", {"kind": "voice"},
+                                 format="json")
+        self.assertTrue(voice.json()["allowed"])
+        video = self.client.post(f"/api/v1/circle/{mid}/call", {"kind": "video"},
+                                 format="json")
+        self.assertFalse(video.json()["allowed"])
+        self.assertTrue(video.json()["upgrade_required"])
+
+    def test_privacy_roundtrip(self):
+        r = self.client.get("/api/v1/circle/privacy")
+        self.assertEqual(r.status_code, 200)
+        s = self.client.post("/api/v1/circle/privacy",
+                             {"read_receipts": False, "call_policy": "nobody"},
+                             format="json")
+        self.assertEqual(s.status_code, 200)
+        self.assertFalse(s.json()["read_receipts"])
+        self.assertEqual(s.json()["call_policy"], "nobody")
+
+    def test_journey_start_arrive_and_webtoken(self):
+        mid = self._accepted_member()
+        start = self.client.post("/api/v1/journey/start", {
+            "destination": {"name": "Office", "lat": 23.81, "lng": 90.41},
+            "eta": "2099-01-01T10:00:00Z", "watcher_ids": [mid],
+            "location_retention_hours": 24}, format="json")
+        self.assertEqual(start.status_code, 201)
+        jid = start.json()["id"]
+        self.assertIsNotNone(start.json()["web_link"])
+        active = self.client.get("/api/v1/journey/active")
+        self.assertEqual(active.json()["id"], jid)
+        link = self.client.get(f"/api/v1/journey/{jid}/web-link")
+        self.assertEqual(link.status_code, 200)
+        arr = self.client.post(f"/api/v1/journey/{jid}/arrived", {}, format="json")
+        self.assertEqual(arr.status_code, 200)
+
+    def test_duress_pin_rejects_equal_pins(self):
+        bad = self.client.post("/api/v1/journey/duress-pin",
+                               {"pin": "1234", "duress_pin": "1234"},
+                               format="json")
+        self.assertEqual(bad.status_code, 400)
+        ok = self.client.post("/api/v1/journey/duress-pin",
+                              {"pin": "1234", "duress_pin": "9999"},
+                              format="json")
+        self.assertEqual(ok.status_code, 200)
+
+    def test_wellness_requires_parent_opt_in(self):
+        # enabled stays False without parent_opt_in (arming GATE).
+        r = self.client.post("/api/v1/journey/wellness",
+                             {"enabled": True}, format="json")
+        self.assertFalse(r.json()["enabled"])
+        r2 = self.client.post("/api/v1/journey/wellness",
+                             {"enabled": True, "parent_opt_in": True},
+                             format="json")
+        self.assertTrue(r2.json()["enabled"])
+
+    def test_message_action_star_and_pin(self):
+        mid = self._accepted_member()
+        send = self.client.post(f"/api/v1/circle/{mid}/messages",
+                               {"ciphertext": "x", "nonce": "n",
+                                "sender_key_id": "k", "scheme": "s"},
+                               format="json")
+        self.assertEqual(send.status_code, 201)
+        msg_id = send.json()["id"]
+        star = self.client.post(f"/api/v1/circle/messages/{msg_id}/star", {},
+                               format="json")
+        self.assertTrue(star.json()["starred"])
+        pin = self.client.post(f"/api/v1/circle/messages/{msg_id}/pin", {},
+                              format="json")
+        self.assertTrue(pin.json()["pinned"])

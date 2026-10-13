@@ -31,6 +31,8 @@ urlpatterns = [
     path("capture", views.CaptureWebhookView.as_view()),
     # Rule-based paste extraction (no AI/scraping): POST {text} → field guesses.
     path("extract", views.PasteExtractView.as_view()),
+    # FIRST-RUN "Join a team": POST {code} → join an existing org as a member.
+    path("join", views.JoinOrgView.as_view()),
     # Today screen feed (?org=<id>): follow-ups, new 90+ leads, stuck deals.
     path("today", views.TodayView.as_view()),
     # Management dashboard (?org=<id>): counts + forecast + reports.

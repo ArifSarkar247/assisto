@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from . import views
 from . import views_module5 as m5
+from . import views_build61 as b61
 
 router = DefaultRouter()
 router.register("memory", views.MemoryViewSet, basename="memory")
@@ -142,6 +143,33 @@ urlpatterns = [
     path("circle/<int:pk>/report", m5.CircleReportView.as_view()),
     path("circle/<int:pk>/messages", m5.CircleMessagesView.as_view()),
     path("circle/<int:pk>/see/<slug:scope>", m5.CircleScopedReadView.as_view()),
+    path("circle/messages/<int:pk>/<slug:action>", m5.CircleMessageActionView.as_view()),
+    # --- build-61: Messenger M1 calls + privacy ---
+    path("circle/calls", b61.CircleCallsView.as_view()),
+    path("circle/<int:pk>/call", b61.CirclePlaceCallView.as_view()),
+    path("circle/<int:pk>/call/answer", b61.CircleAnswerCallView.as_view()),
+    path("circle/calls/<int:call_id>/event", b61.CircleCallEventView.as_view()),
+    path("circle/privacy", b61.CirclePrivacyView.as_view()),
+    path("circle/<int:pk>/controls", b61.CircleMemberControlsView.as_view()),
+    # --- build-61: referral points ---
+    path("referral/balance", b61.ReferralBalanceView.as_view()),
+    path("referral/history", b61.ReferralHistoryView.as_view()),
+    path("referral/redeem", b61.ReferralRedeemView.as_view()),
+    # --- build-61: Safe Journey ---
+    path("journey/start", b61.JourneyStartView.as_view()),
+    path("journey/active", b61.JourneyActiveView.as_view()),
+    path("journey/<int:pk>/location", b61.JourneyLocationView.as_view()),
+    path("journey/<int:pk>/arrived", b61.JourneyArrivedView.as_view()),
+    path("journey/<int:pk>/stop", b61.JourneyStopView.as_view()),
+    path("journey/<int:pk>/respond", b61.JourneyRespondView.as_view()),
+    path("journey/<int:pk>/web-link", b61.JourneyWebLinkView.as_view()),
+    path("journey/sos", b61.JourneySosView.as_view()),
+    path("journey/duress-pin", b61.JourneyDuressPinView.as_view()),
+    path("journey/nearest-help", b61.JourneyNearestHelpView.as_view()),
+    path("journey/places", b61.SavedPlacesView.as_view()),
+    path("journey/routines", b61.JourneyRoutinesView.as_view()),
+    path("journey/wellness", b61.WellnessView.as_view()),
+    path("journey/wellness/ping", b61.WellnessPingView.as_view()),
 ]
 
 urlpatterns += router.urls

@@ -6,7 +6,11 @@ import 'models.dart';
 class ApiException implements Exception {
   final String message;
   final int? status;
-  ApiException(this.message, [this.status]);
+
+  /// Server-supplied correlation reference (e.g. CRM error ref code). Parsed
+  /// from `body['ref']` in [ApiClient._fail] when present; null otherwise.
+  final String? ref;
+  ApiException(this.message, [this.status, this.ref]);
   @override
   String toString() => message;
 }
@@ -27,19 +31,28 @@ class ApiClient {
 
   Never _fail(http.Response r) {
     String msg;
+    String? ref;
     try {
       final body = jsonDecode(r.body);
-      if (body is Map && body['detail'] != null) {
-        msg = body['detail'].toString();
-      } else if (body is Map && body.isNotEmpty) {
-        msg = body.values.first.toString();
+      if (body is Map) {
+        if (body['ref'] != null) ref = body['ref'].toString();
+        if (body['detail'] != null) {
+          msg = body['detail'].toString();
+        } else if (body.isNotEmpty) {
+          // Prefer a human message field over the ref itself.
+          final firstMsg = body.entries
+              .firstWhere((e) => e.key != 'ref', orElse: () => body.entries.first);
+          msg = firstMsg.value.toString();
+        } else {
+          msg = 'Something went wrong (${r.statusCode})';
+        }
       } else {
         msg = 'Something went wrong (${r.statusCode})';
       }
     } catch (_) {
       msg = 'Something went wrong (${r.statusCode})';
     }
-    throw ApiException(msg, r.statusCode);
+    throw ApiException(msg, r.statusCode, ref);
   }
 
   Future<Map<String, dynamic>> _postJson(String path, Map body,
@@ -484,4 +497,48 @@ class ApiClient {
   // ---- module-5 launch gaps: Unseen Bangladesh travel companion ----
   /// GET /unseen -> {destinations[], tips[], attribution}.
   Future<Map<String, dynamic>> unseenCompanion() => getJson('/unseen');
+
+  // ---- M1: referral points ----
+  /// GET /referral/balance -> {points, redeemable_days, points_per_day,
+  /// min_redeem, can_redeem, invite_link?}.
+  Future<Map<String, dynamic>> referralBalance() => getJson('/referral/balance');
+
+  /// GET /referral/history -> {history:[{kind, points, reason, label,
+  /// created_at}, ...]}.
+  Future<Map<String, dynamic>> referralHistory() => getJson('/referral/history');
+
+  /// POST /referral/redeem {points} -> {ok, days, spent, points, ...}.
+  Future<Map<String, dynamic>> referralRedeem(int points) =>
+      postJson('/referral/redeem', {'points': points});
+
+  // ---- M1: Connected Circle calls ----
+  /// GET /circle/calls -> {calls:[...]}.
+  Future<Map<String, dynamic>> circleCalls() => getJson('/circle/calls');
+
+  /// POST /circle/<member>/call {kind} -> {allowed, upgrade_required?, call_id?,
+  /// ice?, transport?}. Server enforces the video plan gate.
+  Future<Map<String, dynamic>> circlePlaceCall(int memberId, String kind) =>
+      postJson('/circle/$memberId/call', {'kind': kind});
+
+  /// POST /circle/<member>/call/answer {kind} -> same shape as place-call.
+  Future<Map<String, dynamic>> circleAnswerCall(int memberId, String kind) =>
+      postJson('/circle/$memberId/call/answer', {'kind': kind});
+
+  /// POST /circle/calls/<id>/event {event} -> {state, duration_sec?}.
+  Future<Map<String, dynamic>> circleCallEvent(int callId, String event) =>
+      postJson('/circle/calls/$callId/event', {'event': event});
+
+  // ---- M1: Connected Circle privacy ----
+  /// GET /circle/privacy -> {visibility, read_receipts, typing, call_policy, ...}.
+  Future<Map<String, dynamic>> circlePrivacy() => getJson('/circle/privacy');
+
+  /// POST /circle/privacy {...} -> saved privacy config.
+  Future<Map<String, dynamic>> circleSetPrivacy(Map<String, dynamic> body) =>
+      postJson('/circle/privacy', body);
+
+  /// POST /circle/<member>/controls {blocked?, restricted?, muted_until?,
+  /// pinned?, archived?} -> updated member controls.
+  Future<Map<String, dynamic>> circleSetMemberControls(
+          int memberId, Map<String, dynamic> body) =>
+      postJson('/circle/$memberId/controls', body);
 }

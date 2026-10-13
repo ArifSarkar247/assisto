@@ -15,9 +15,13 @@ from .models import (CrmOrg, CrmMember, Lead, Conversation, Message, Proposal,
 
 
 class CrmOrgSerializer(serializers.ModelSerializer):
+    # industry / team_size are the first-run "Start your CRM" inputs. invite_code
+    # is deliberately NOT exposed here — it is owner-only and served through the
+    # dedicated /orgs/<id>/invite/ action, so a plain org read never leaks the
+    # team join code.
     class Meta:
         model = CrmOrg
-        fields = ["id", "name", "owner", "created_at"]
+        fields = ["id", "name", "industry", "team_size", "owner", "created_at"]
         read_only_fields = ["id", "owner", "created_at"]
 
 

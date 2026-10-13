@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
-import '../../widgets/skeleton.dart';
 import 'crm_common.dart';
 import 'crm_lead_form_screen.dart';
 import 'crm_proposal_screen.dart';
@@ -23,7 +22,8 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
   Map<String, dynamic>? _lead;
   Map<String, dynamic>? _timeline;
   Map<String, dynamic>? _followup;
-  bool _loading = true, _error = false;
+  bool _loading = true;
+  CrmError? _error;
 
   @override
   void initState() {
@@ -34,7 +34,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
   Future<void> _load() async {
     setState(() {
       _loading = true;
-      _error = false;
+      _error = null;
     });
     try {
       final api = CrmApi.of(context);
@@ -42,8 +42,8 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
       _lead = await api.lead(widget.leadId);
       _timeline = await api.leadTimeline(widget.leadId);
       _followup = await api.leadFollowup(widget.leadId);
-    } catch (_) {
-      _error = true;
+    } catch (e) {
+      _error = CrmError.from(e);
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -73,17 +73,15 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     if (_loading) {
-      return Scaffold(appBar: AppBar(title: Text(t.crmLead)), body: const SkeletonList());
+      return Scaffold(appBar: AppBar(title: Text(t.crmLead)), body: const CrmStateView.loading());
     }
-    if (_error || _lead == null || _lead!.isEmpty) {
+    if (_error != null || _lead == null || _lead!.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: Text(t.crmLead)),
-        body: StateMessage(
-            icon: Icons.cloud_off,
-            tint: scheme.error,
+        body: CrmStateView.error(
+            error: _error ?? CrmError(t.loadFailed, ''),
             title: t.loadFailed,
-            action: FilledButton.tonalIcon(
-                onPressed: _load, icon: const Icon(Icons.refresh), label: Text(t.retry))),
+            onRetry: _load),
       );
     }
     final l = _lead!;

@@ -54,6 +54,24 @@ SCREEN_SYNONYMS = {
                 "connected circle", "circle", "family chat"],
     "legal": ["আইনি", "গোপনীয়তা নীতি", "নীতিমালা", "ব্যবহারের শর্ত",
                "legal", "privacy policy", "terms", "policies"],
+    # ----- build-61 wave: every sidebar module is chat-openable -----
+    "subscriptions": ["সাবস্ক্রিপশন", "নিয়মিত বিল", "subscriptions", "subscription", "recurring"],
+    "finance": ["ফিন্যান্স টুল", "ঋণ", "সঞ্চয়", "finance tools", "loan", "savings", "calculator"],
+    "notes": ["নোট", "টাস্ক", "কাজের তালিকা", "notes", "tasks", "todo", "to-do", "note"],
+    "memory": ["মেমোরি", "এআই যা জানে", "মনে রাখা", "memory", "ai knows", "remember"],
+    "nominee": ["নমিনি", "উত্তরাধিকার", "nominee", "nominee access", "inheritance"],
+    "contacts": ["কন্টাক্টস", "কন্টাক্ট", "ফোনবুক", "contacts", "contact", "phonebook"],
+    "agent_studio": ["এজেন্ট স্টুডিও", "অটোমেশন", "agent studio", "agent", "automation"],
+    "jobs": ["চাকরি", "জব হান্টার", "ক্যারিয়ার", "jobs", "job hunter", "career", "cv"],
+    "inbox": ["এআই ইনবক্স", "ইনবক্স", "ai inbox", "inbox", "mail"],
+    "guide": ["সরকারি সেবা", "সেবা গাইড", "government service", "service guide", "guide"],
+    "nearby": ["কাছাকাছি", "আশেপাশে", "nearby", "around me", "places nearby"],
+    "watch_feed": ["ওয়াচ ফিড", "সতর্কতা ফিড", "watch feed", "alerts feed", "watch alerts"],
+    "business": ["ব্যবসা", "দোকান", "অর্ডার", "business", "shop", "store", "orders"],
+    "journey": ["নিরাপদ যাত্রা", "যাত্রা", "লাইভ লোকেশন", "safe journey", "journey", "track me", "live location"],
+    "referral": ["রেফারেল", "রেফার", "পয়েন্ট", "বন্ধু আমন্ত্রণ", "referral", "refer", "points", "invite friend"],
+    "circle_privacy": ["প্রাইভেসি", "কল প্রাইভেসি", "ব্লক", "circle privacy", "privacy controls", "block"],
+    "circle_calls": ["কল হিস্ট্রি", "কল লগ", "call history", "call log", "circle calls"],
     "vaultpin": [],  # reserved
 }
 

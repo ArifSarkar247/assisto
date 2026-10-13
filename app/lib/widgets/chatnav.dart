@@ -22,6 +22,24 @@ import '../screens/unseen_world_screen.dart';
 import '../screens/photo_enhance_screen.dart';
 import '../screens/circle_screen.dart';
 import '../screens/legal_screen.dart';
+// build-61 wave: remaining modules (every sidebar module is chat-openable)
+import '../screens/subscriptions_screen.dart';
+import '../screens/finance_screen.dart';
+import '../screens/notes_todos_screen.dart';
+import '../screens/memory_screen.dart';
+import '../screens/nominee_screen.dart';
+import '../screens/crm_contacts_screen.dart';
+import '../screens/agent_studio_screen.dart';
+import '../screens/jobs_screen.dart';
+import '../screens/inbox_screen.dart';
+import '../screens/guide_screen.dart';
+import '../screens/nearby_screen.dart';
+import '../screens/watch_feed_screen.dart';
+import '../screens/business_screen.dart';
+import '../screens/journey_start_screen.dart';
+import '../screens/referral_screen.dart';
+import '../screens/circle_privacy_screen.dart';
+import '../screens/circle_call_history_screen.dart';
 
 /// open-from-chat configuration (Phase B).
 ///
@@ -76,6 +94,24 @@ class ChatNav {
     'photo_enhance': (_) => const PhotoEnhanceScreen(),
     'circle': (_) => const CircleScreen(),
     'legal': (_) => const LegalScreen(),
+    // build-61 wave: remaining modules
+    'subscriptions': (_) => const SubscriptionsScreen(),
+    'finance': (_) => const FinanceScreen(),
+    'notes': (_) => const NotesTodosScreen(),
+    'memory': (_) => const MemoryScreen(),
+    'nominee': (_) => const NomineeScreen(),
+    'contacts': (_) => const CrmContactsScreen(),
+    'agent_studio': (_) => const AgentStudioScreen(),
+    'jobs': (_) => const JobsScreen(),
+    'inbox': (_) => const InboxScreen(),
+    'guide': (_) => const GuideScreen(),
+    'nearby': (_) => const NearbyScreen(),
+    'watch_feed': (_) => const WatchFeedScreen(),
+    'business': (_) => const BusinessScreen(),
+    'journey': (_) => const JourneyStartScreen(),
+    'referral': (_) => const ReferralScreen(),
+    'circle_privacy': (_) => const CirclePrivacyScreen(),
+    'circle_calls': (_) => const CircleCallHistoryScreen(),
   };
 
   /// Local ENGLISH subject vocabulary (ASCII only). Mirrors the English tokens
@@ -110,6 +146,24 @@ class ChatNav {
     'photo_enhance': ['enhance photo', 'photo enhance', 'improve photo'],
     'circle': ['connected circle', 'circle', 'family chat'],
     'legal': ['legal', 'privacy policy', 'terms', 'policies'],
+    // build-61 wave: remaining modules
+    'subscriptions': ['subscriptions', 'subscription', 'recurring'],
+    'finance': ['finance tools', 'loan', 'savings', 'calculator'],
+    'notes': ['notes', 'tasks', 'to-do', 'todo', 'note'],
+    'memory': ['memory', 'ai knows', 'remember'],
+    'nominee': ['nominee access', 'nominee', 'inheritance'],
+    'contacts': ['contacts', 'contact', 'phonebook'],
+    'agent_studio': ['agent studio', 'agent', 'automation'],
+    'jobs': ['job hunter', 'jobs', 'career'],
+    'inbox': ['ai inbox', 'inbox', 'mail'],
+    'guide': ['government service', 'service guide', 'guide'],
+    'nearby': ['nearby', 'around me', 'places nearby'],
+    'watch_feed': ['watch feed', 'alerts feed', 'watch alerts'],
+    'business': ['business', 'shop', 'store', 'orders'],
+    'journey': ['safe journey', 'journey', 'track me', 'live location'],
+    'referral': ['referral', 'refer', 'points', 'invite friend'],
+    'circle_privacy': ['circle privacy', 'privacy controls', 'block'],
+    'circle_calls': ['call history', 'call log', 'circle calls'],
   };
 
   /// English verbs marking an explicit "open the screen" intent, so a plain

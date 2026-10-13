@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
-import '../../widgets/skeleton.dart';
 import 'crm_common.dart';
 import 'crm_lead_detail_screen.dart';
 import 'crm_lead_form_screen.dart';
@@ -17,7 +16,8 @@ class CrmLeadsScreen extends StatefulWidget {
 
 class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
   List<Map<String, dynamic>> _list = [];
-  bool _loading = true, _error = false;
+  bool _loading = true;
+  CrmError? _error;
   String _q = '';
   String? _priority, _industry;
 
@@ -30,13 +30,13 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
   Future<void> _load() async {
     setState(() {
       _loading = true;
-      _error = false;
+      _error = null;
     });
     try {
       _list = await CrmApi.of(context)
           .leads(widget.org, priority: _priority, industry: _industry, q: _q);
-    } catch (_) {
-      _error = true;
+    } catch (e) {
+      _error = CrmError.from(e);
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -44,7 +44,6 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
@@ -101,18 +100,12 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
         ),
         Expanded(
           child: _loading
-              ? const SkeletonList()
-              : _error
-                  ? StateMessage(
-                      icon: Icons.cloud_off,
-                      tint: scheme.error,
-                      title: t.loadFailed,
-                      action: FilledButton.tonalIcon(
-                          onPressed: _load,
-                          icon: const Icon(Icons.refresh),
-                          label: Text(t.retry)))
+              ? const CrmStateView.loading()
+              : _error != null
+                  ? CrmStateView.error(
+                      error: _error!, title: t.loadFailed, onRetry: _load)
                   : _list.isEmpty
-                      ? StateMessage(
+                      ? CrmStateView.empty(
                           icon: Icons.people_outline,
                           title: t.crmNoLeads,
                           message: t.crmNoLeadsHint)

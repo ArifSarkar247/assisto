@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
-import '../../widgets/skeleton.dart';
 import 'crm_common.dart';
 
 /// Proposal screen (CRM_SPEC): build from requirement sheet + the configured
@@ -22,7 +21,8 @@ class CrmProposalScreen extends StatefulWidget {
 class _CrmProposalScreenState extends State<CrmProposalScreen> {
   List<Map<String, dynamic>> _proposals = [];
   List<Map<String, dynamic>> _products = [];
-  bool _loading = true, _error = false;
+  bool _loading = true;
+  CrmError? _error;
 
   @override
   void initState() {
@@ -33,14 +33,14 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
   Future<void> _load() async {
     setState(() {
       _loading = true;
-      _error = false;
+      _error = null;
     });
     try {
       final api = CrmApi.of(context);
       _proposals = await api.proposals(widget.org, lead: (widget.lead['id'] as num).toInt());
       _products = await api.products(widget.org);
-    } catch (_) {
-      _error = true;
+    } catch (e) {
+      _error = CrmError.from(e);
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -95,7 +95,6 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: Text(t.crmProposals)),
       floatingActionButton: FloatingActionButton.extended(
@@ -104,13 +103,9 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
         label: Text(t.crmDraftWithAi),
       ),
       body: _loading
-          ? const SkeletonList()
-          : _error
-              ? StateMessage(
-                  icon: Icons.cloud_off,
-                  tint: scheme.error,
-                  title: t.loadFailed,
-                  action: FilledButton.tonalIcon(onPressed: _load, icon: const Icon(Icons.refresh), label: Text(t.retry)))
+          ? const CrmStateView.loading()
+          : _error != null
+              ? CrmStateView.error(error: _error!, title: t.loadFailed, onRetry: _load)
               : ListView(padding: const EdgeInsets.all(Gap.md), children: [
                   // Price-book awareness note (never invent prices/tax).
                   if (_products.any((p) => p['price_reviewed'] != true))
@@ -123,7 +118,7 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
                   ),
                   const SizedBox(height: Gap.sm),
                   if (_proposals.isEmpty)
-                    StateMessage(icon: Icons.description_outlined, title: t.crmNoProposals, message: t.crmNoProposalsHint)
+                    CrmStateView.empty(icon: Icons.description_outlined, title: t.crmNoProposals, message: t.crmNoProposalsHint)
                   else
                     for (final p in _proposals) _proposalCard(t, p),
                 ]),
@@ -302,7 +297,7 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.crmBuildQuote)),
       body: _active.isEmpty
-          ? StateMessage(icon: Icons.inventory_2_outlined, title: t.crmNoProducts, message: t.crmNoProductsHint)
+          ? CrmStateView.empty(icon: Icons.inventory_2_outlined, title: t.crmNoProducts, message: t.crmNoProductsHint)
           : ListView(padding: const EdgeInsets.all(Gap.md), children: [
               if (!_allReviewed)
                 NeedsKeyBanner(t.crmPricesToReview, icon: Icons.price_change_outlined),

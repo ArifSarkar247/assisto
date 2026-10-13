@@ -10,9 +10,11 @@ import '../crypto/e2e.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/circle_invite_sheet.dart';
 import '../widgets/circle_relation.dart';
 import '../widgets/circle_sharing.dart';
 import 'circle_chat_screen.dart';
+import 'circle_search_screen.dart';
 
 /// Connected Circle — a relationship-scoped family/friends circle with
 /// end-to-end-encrypted messaging. This screen is the hub: it lists accepted
@@ -205,138 +207,53 @@ class _CircleScreenState extends State<CircleScreen> {
   }
 
   Future<void> _addFlow() async {
-    String relation = 'friend';
-    String custom = '';
-    final phoneCtrl = TextEditingController();
-    await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(
-          left: Gap.lg,
-          right: Gap.lg,
-          top: Gap.sm,
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + Gap.lg,
-        ),
-        child: StatefulBuilder(
-          builder: (ctx, setM) => Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(_t.circleAddTitle,
-                  style: Theme.of(ctx).textTheme.titleLarge),
-              const SizedBox(height: Gap.md),
-              Text(_t.circleRelationQuestion,
-                  style: Theme.of(ctx).textTheme.titleMedium),
-              const SizedBox(height: Gap.sm),
-              CircleRelationPicker(
-                selected: relation,
-                onSelected: (c) => setM(() => relation = c),
-              ),
-              if (relation == 'custom') ...[
-                const SizedBox(height: Gap.sm),
-                TextField(
-                  decoration:
-                      InputDecoration(hintText: _t.circleCustomRelationHint),
-                  onChanged: (v) => custom = v,
-                ),
-              ],
-              const SizedBox(height: Gap.lg),
-              TextField(
-                controller: phoneCtrl,
-                keyboardType: TextInputType.phone,
-                decoration: InputDecoration(
-                  labelText: _t.circlePhoneLabel,
-                  prefixIcon: const Icon(Icons.phone_outlined),
-                ),
-              ),
-              const SizedBox(height: Gap.md),
-              Row(
-                children: [
-                  Expanded(
-                    child: FilledButton.icon(
-                      icon: const Icon(Icons.send_outlined),
-                      label: Text(_t.circleSendRequest),
-                      onPressed: () async {
-                        final phone = phoneCtrl.text.trim();
-                        if (phone.isEmpty) return;
-                        try {
-                          await _api.postJson('/circle/request', {
-                            'phone': phone,
-                            'relation': relation,
-                            if (relation == 'custom') 'custom_label': custom,
-                          });
-                        } catch (_) {}
-                        if (ctx.mounted) Navigator.pop(ctx);
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: Gap.sm),
-                  OutlinedButton.icon(
-                    icon: const Icon(Icons.qr_code_2_outlined),
-                    label: Text(_t.circleQrInvite),
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      _showInviteQr(relation, custom);
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: Gap.sm),
-              Text(_t.circleNoContactUpload,
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
-            ],
-          ),
-        ),
-      ),
-    );
+    final choice = await showCircleInviteSheet(context);
+    if (choice == null || !mounted) return;
+    switch (choice.channel) {
+      case 'phone':
+        if (choice.phone.isEmpty) return;
+        try {
+          await _api.postJson('/circle/request', {
+            'phone': choice.phone,
+            'relation': choice.relation,
+            if (choice.relation == 'custom') 'custom_label': choice.custom,
+            if (choice.familySub != null) 'family_sub': choice.familySub,
+          });
+        } catch (_) {}
+        break;
+      case 'qr':
+      case 'link':
+        await _showInvite(choice);
+        break;
+    }
     await _load();
   }
 
-  Future<void> _showInviteQr(String relation, String custom) async {
+  /// Fetch a signed invite token/link and present it as a QR + copyable link
+  /// (or a share-link). Mirrors core/logic/circle.make_invite_token /
+  /// qr_payload (single-use enforced in the DB by the integrator).
+  Future<void> _showInvite(CircleInviteChoice choice) async {
     String? token;
     String? link;
     try {
-      final r = await _api.getJson('/circle/invite?relation=$relation');
+      var path = '/circle/invite?relation=${choice.relation}';
+      if (choice.familySub != null) path += '&family_sub=${choice.familySub}';
+      final r = await _api.getJson(path);
       token = r['token'] as String?;
-      link = r['qr'] as String? ?? r['link'] as String?;
+      link = r['link'] as String? ?? r['qr'] as String?;
     } catch (_) {}
     if (!mounted) return;
-    await showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(_t.circleQrInvite),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // A real QR image is drawn by the integrator with a qr widget; here
-            // we present the deep link + token so it works before that lands.
-            const Icon(Icons.qr_code_2, size: 96),
-            const SizedBox(height: Gap.md),
-            SelectableText(
-              link ?? token ?? _t.circleInviteUnavailable,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-        actions: [
-          if (link != null || token != null)
-            TextButton.icon(
-              icon: const Icon(Icons.copy_outlined),
-              label: Text(_t.copy),
-              onPressed: () {
-                Clipboard.setData(ClipboardData(text: link ?? token!));
-                Navigator.pop(ctx);
-              },
-            ),
-          TextButton(
-              onPressed: () => Navigator.pop(ctx), child: Text(_t.close)),
-        ],
-      ),
-    );
+    if (choice.channel == 'link' && (link != null || token != null)) {
+      // Share-link path: copy to clipboard (the integrator can wire a native
+      // share sheet). We reuse the invite dialog so the user also sees the QR.
+      await Clipboard.setData(ClipboardData(text: link ?? token!));
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(_t.circleLinkCopied)));
+      }
+    }
+    if (!mounted) return;
+    await showCircleInviteLink(context, link: link, token: token);
   }
 
   void _openChat(Map<String, dynamic> member) {
@@ -351,7 +268,25 @@ class _CircleScreenState extends State<CircleScreen> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: Text(_t.circleTitle)),
+      appBar: AppBar(
+        title: Text(_t.circleTitle),
+        actions: [
+          IconButton(
+            tooltip: _t.circleSearchAll,
+            icon: const Icon(Icons.search),
+            onPressed: _members.isEmpty
+                ? null
+                : () {
+                    final id = _identity;
+                    if (id == null) return;
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) =>
+                          CircleSearchScreen(members: _members, identity: id),
+                    ));
+                  },
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addFlow,
         icon: const Icon(Icons.person_add_alt_1_outlined),

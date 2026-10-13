@@ -1,0 +1,250 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../state.dart';
+import '../l10n/app_localizations.dart';
+import '../widgets/journey_api.dart';
+import '../widgets/sos_native_hooks.dart';
+
+/// Safe Journey settings (items 7, 8, 14, 16, 18). Hosts:
+///   - SOS countdown + siren default
+///   - Duress PIN setup (item 8) — normal PIN cancels, duress PIN fake-cancels
+///   - Wellness check for parents living alone (item 16) — parent opt-in gated
+///   - Routine commutes (item 14)
+///   - Privacy / auto-delete statement (item 18)
+///   - Honest "Available when ___" native trigger rows (item 7)
+class JourneySettingsScreen extends StatefulWidget {
+  const JourneySettingsScreen({super.key});
+  @override
+  State<JourneySettingsScreen> createState() => _JourneySettingsScreenState();
+}
+
+class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
+  int _sosCountdown = 5;
+  bool _sirenDefault = false;
+  bool _hasDuress = false;
+
+  // wellness
+  bool _wellnessEnabled = false;
+  bool _parentOptIn = false;
+  int _periodHours = 12;
+  String _quietStart = '22:00';
+  String _quietEnd = '07:00';
+
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    _sosCountdown =
+        int.tryParse(await Settings.getString('safety_sos_cd') ?? '') ?? 5;
+    _sirenDefault = await Settings.getBool('journey_siren', false);
+    _hasDuress = await Settings.getBool('journey_has_duress', false);
+    try {
+      final w = await context.read<AppState>().api.wellnessConfig();
+      _wellnessEnabled = w['enabled'] == true;
+      _parentOptIn = w['parent_opt_in'] == true;
+      _periodHours = (w['period_hours'] as num?)?.toInt() ?? 12;
+      _quietStart = (w['quiet_start'] ?? '22:00').toString();
+      _quietEnd = (w['quiet_end'] ?? '07:00').toString();
+    } catch (_) {}
+    if (mounted) setState(() => _loading = false);
+  }
+
+  Future<void> _saveWellness() async {
+    try {
+      await context.read<AppState>().api.saveWellnessConfig({
+        'enabled': _wellnessEnabled,
+        'parent_opt_in': _parentOptIn,
+        'period_hours': _periodHours,
+        'quiet_start': _quietStart,
+        'quiet_end': _quietEnd,
+      });
+    } catch (_) {}
+  }
+
+  Future<void> _setDuressPin() async {
+    final t = AppLocalizations.of(context);
+    final pin = TextEditingController();
+    final duress = TextEditingController();
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t.duressTitle),
+        content: Column(mainAxisSize: MainAxisSize.min, children: [
+          Text(t.duressExplain, style: const TextStyle(fontSize: 13)),
+          const SizedBox(height: 12),
+          TextField(
+              controller: pin,
+              obscureText: true,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: t.duressNormalPin)),
+          TextField(
+              controller: duress,
+              obscureText: true,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: t.duressDuressPin)),
+        ]),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true), child: Text(t.save)),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    final p = pin.text.trim();
+    final d = duress.text.trim();
+    final messenger = ScaffoldMessenger.of(context);
+    if (p.isEmpty || d.isEmpty || p == d) {
+      messenger.showSnackBar(SnackBar(content: Text(t.duressMustDiffer)));
+      return;
+    }
+    try {
+      await context.read<AppState>().api.setDuressPin(pin: p, duressPin: d);
+      await Settings.setBool('journey_has_duress', true);
+      setState(() => _hasDuress = true);
+      messenger.showSnackBar(SnackBar(content: Text(t.duressSaved)));
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(t.journeyStartFailed)));
+    }
+  }
+
+  Future<String> _pickTime(String current) async {
+    final parts = current.split(':');
+    final init = TimeOfDay(
+        hour: int.tryParse(parts.first) ?? 22,
+        minute: int.tryParse(parts.length > 1 ? parts[1] : '0') ?? 0);
+    final picked = await showTimePicker(context: context, initialTime: init);
+    if (picked == null) return current;
+    return '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    if (_loading) {
+      return Scaffold(
+          appBar: AppBar(title: Text(t.journeySettingsTitle)),
+          body: const Center(child: CircularProgressIndicator()));
+    }
+    return Scaffold(
+      appBar: AppBar(title: Text(t.journeySettingsTitle)),
+      body: ListView(padding: const EdgeInsets.all(16), children: [
+        // SOS
+        Text(t.sosSection,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(t.safetySosCountdownValue(_sosCountdown))),
+        Slider(
+            value: _sosCountdown.toDouble(),
+            min: 0,
+            max: 30,
+            divisions: 30,
+            label: '$_sosCountdown',
+            onChanged: (v) => setState(() => _sosCountdown = v.round()),
+            onChangeEnd: (v) =>
+                Settings.setString('safety_sos_cd', '${v.round()}')),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(t.sosSirenDefault),
+          subtitle: Text(t.sosSirenDefaultDesc),
+          value: _sirenDefault,
+          onChanged: (v) {
+            setState(() => _sirenDefault = v);
+            Settings.setBool('journey_siren', v);
+          },
+        ),
+        const Divider(height: 28),
+
+        // Duress PIN
+        Text(t.duressSection,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: Icon(_hasDuress ? Icons.lock : Icons.lock_open,
+              color: _hasDuress ? Colors.green : Colors.grey),
+          title: Text(_hasDuress ? t.duressConfigured : t.duressNotSet),
+          subtitle: Text(t.duressSubtitle),
+          trailing: TextButton(
+              onPressed: _setDuressPin,
+              child: Text(_hasDuress ? t.edit : t.duressSetUp)),
+        ),
+        const Divider(height: 28),
+
+        // Wellness check (parents living alone)
+        Text(t.wellnessSection,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        Text(t.wellnessIntro,
+            style: const TextStyle(fontSize: 13, color: Colors.grey)),
+        const SizedBox(height: 4),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(t.wellnessEnable),
+          value: _wellnessEnabled,
+          onChanged: (v) {
+            setState(() => _wellnessEnabled = v);
+            _saveWellness();
+          },
+        ),
+        if (_wellnessEnabled) ...[
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(t.wellnessParentOptIn),
+            subtitle: Text(t.wellnessParentOptInDesc),
+            value: _parentOptIn,
+            onChanged: (v) {
+              setState(() => _parentOptIn = v);
+              _saveWellness();
+            },
+          ),
+          ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(t.wellnessPeriod(_periodHours))),
+          Slider(
+              value: _periodHours.toDouble(),
+              min: 2,
+              max: 48,
+              divisions: 23,
+              label: '$_periodHours',
+              onChanged: (v) => setState(() => _periodHours = v.round()),
+              onChangeEnd: (_) => _saveWellness()),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(t.wellnessQuietHours),
+            subtitle: Text('$_quietStart – $_quietEnd'),
+            trailing: TextButton(
+              onPressed: () async {
+                final s = await _pickTime(_quietStart);
+                final e = await _pickTime(_quietEnd);
+                setState(() {
+                  _quietStart = s;
+                  _quietEnd = e;
+                });
+                _saveWellness();
+              },
+              child: Text(t.edit),
+            ),
+          ),
+        ],
+        const Divider(height: 28),
+
+        // native triggers — honest gating
+        const SosNativeHooksSection(),
+        const Divider(height: 28),
+
+        // privacy
+        Text(t.journeyPrivacySection,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const SizedBox(height: 6),
+        Text(t.journeyPrivacyStatement,
+            style: const TextStyle(fontSize: 13, color: Colors.grey)),
+      ]),
+    );
+  }
+}

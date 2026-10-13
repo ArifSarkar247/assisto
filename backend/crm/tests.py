@@ -177,3 +177,158 @@ class ForecastHonestyTests(TestCase):
         # 1,000,000×0.25 + 400,000×0.50 = 250,000 + 200,000 = 450,000
         self.assertEqual(res["weighted"], 450000.0)
         self.assertEqual(res["best_case"], 1400000.0)
+
+
+# ---------------------------------------------------------------------------
+# FIRST-RUN + role scoping + ref-code tests (the in-app CRM "never show a raw
+# couldn't-load" work). These drive the real DRF endpoints under /crm/ so they
+# cover the client first-run contract: a brand-new user sees orgs == [] (not an
+# error); an owner who creates an org gets a seeded pipeline with the default
+# stages and a working dashboard; a salesperson who joined via invite code can
+# sell but gets a restricted (not errored) financial dashboard.
+# Run with the rest of the suite: manage.py test crm  (the integrator runs it).
+# ---------------------------------------------------------------------------
+import logging
+
+from rest_framework.test import APITestCase
+
+from .models import Deal, Stage
+from . import errors as crm_errors
+from . import pipeline as pl
+
+
+class FirstRunApiTests(APITestCase):
+    """Brand-NEW user → GET /crm/orgs/ returns [] (first-run, NOT an error),
+    then 'Start your CRM' creates an org + owner membership + seeded stages."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(phone="0170000001", password="x12345")
+        self.client.force_authenticate(user=self.user)
+
+    def test_brand_new_user_has_no_orgs(self):
+        r = self.client.get("/api/v1/crm/orgs/")
+        self.assertEqual(r.status_code, 200)
+        # DRF list → [] (the client reads [] as first-run, never as an error).
+        self.assertEqual(list(r.data), [])
+
+    def test_start_crm_creates_org_owner_and_seeded_pipeline(self):
+        r = self.client.post("/api/v1/crm/orgs/",
+                             {"name": "Axon Sales", "industry": "rmg",
+                              "team_size": "small"}, format="json")
+        self.assertEqual(r.status_code, 201, r.data)
+        org = CrmOrg.objects.get(id=r.data["id"])
+        self.assertEqual(org.industry, "rmg")
+        # Creator is seeded as OWNER.
+        m = CrmMember.objects.get(org=org, user=self.user)
+        self.assertEqual(m.role, CrmMember.OWNER)
+        # A sample pipeline with the FULL set of default stages exists, incl. a
+        # Won and a Lost stage (so mark_won / mark_lost work immediately).
+        pipe = org.pipelines.filter(is_default=True).first()
+        self.assertIsNotNone(pipe)
+        self.assertEqual(pipe.stages.count(), len(pl.DEFAULT_STAGES))
+        self.assertTrue(pipe.stages.filter(is_won=True).exists())
+        self.assertTrue(pipe.stages.filter(is_lost=True).exists())
+        # The org now shows up in the user's list — first-run is over.
+        r2 = self.client.get("/api/v1/crm/orgs/")
+        self.assertEqual(len(r2.data), 1)
+        # A unique invite code was minted.
+        self.assertTrue(org.invite_code)
+        self.assertEqual(len(org.invite_code), 8)
+
+    def test_owner_dashboard_loads_after_create(self):
+        r = self.client.post("/api/v1/crm/orgs/", {"name": "Axon"}, format="json")
+        org_id = r.data["id"]
+        d = self.client.get(f"/api/v1/crm/dashboard?org={org_id}")
+        self.assertEqual(d.status_code, 200, d.data)
+        self.assertTrue(d.data["ok"])
+        # Owner is NOT restricted — sees the financial sections.
+        self.assertNotIn("restricted", d.data)
+        self.assertIn("forecast", d.data)
+        self.assertIn("pipeline_value", d.data)
+
+
+class JoinAndRoleTests(APITestCase):
+    """SALESPERSON joins via code → can sell (create/list leads) but cannot see
+    the profit/forecast dashboard (restricted, not errored). Owner-only invite."""
+
+    def setUp(self):
+        self.owner = User.objects.create_user(phone="0170000010", password="x12345")
+        self.rep = User.objects.create_user(phone="0170000011", password="x12345")
+        self.org = CrmOrg.objects.create(name="Axon Sales", owner=self.owner)
+        CrmMember.objects.create(org=self.org, user=self.owner, role=CrmMember.OWNER)
+        pl.ensure_default_pipeline(self.org)
+
+    def test_invite_code_is_owner_only(self):
+        # A non-member cannot read the invite code (scoped away → 404), and a
+        # salesperson member cannot either (403), only the owner can.
+        self.client.force_authenticate(user=self.rep)
+        r = self.client.get(f"/api/v1/crm/orgs/{self.org.id}/invite/")
+        self.assertIn(r.status_code, (403, 404))
+        self.client.force_authenticate(user=self.owner)
+        r2 = self.client.get(f"/api/v1/crm/orgs/{self.org.id}/invite/")
+        self.assertEqual(r2.status_code, 200, r2.data)
+        self.assertEqual(r2.data["invite_code"], self.org.invite_code)
+
+    def test_join_with_code_adds_salesperson(self):
+        self.client.force_authenticate(user=self.rep)
+        r = self.client.post("/api/v1/crm/join",
+                             {"code": self.org.invite_code}, format="json")
+        self.assertEqual(r.status_code, 200, r.data)
+        self.assertTrue(r.data["joined"])
+        m = CrmMember.objects.get(org=self.org, user=self.rep)
+        # Joiner always lands as plain SALES — never owner/manager (no privilege
+        # escalation via the join path).
+        self.assertEqual(m.role, CrmMember.SALES)
+
+    def test_join_with_bad_code_is_clean_validation_error_with_ref(self):
+        self.client.force_authenticate(user=self.rep)
+        r = self.client.post("/api/v1/crm/join", {"code": "NOPECODE"},
+                             format="json")
+        self.assertEqual(r.status_code, 400)
+        # Every CRM error carries a reference code the user can quote to support.
+        self.assertIn("ref", r.data)
+        self.assertEqual(len(r.data["ref"]), 6)
+
+    def test_salesperson_can_sell_but_dashboard_is_restricted(self):
+        CrmMember.objects.create(org=self.org, user=self.rep, role=CrmMember.SALES)
+        self.client.force_authenticate(user=self.rep)
+        # CAN sell: create + list leads.
+        c = self.client.post("/api/v1/crm/leads/",
+                             {"org": self.org.id, "name": "Prospect",
+                              "company": "ABC", "industry": "rmg"}, format="json")
+        self.assertIn(c.status_code, (200, 201), c.data)
+        lst = self.client.get(f"/api/v1/crm/leads/?org={self.org.id}")
+        self.assertEqual(lst.status_code, 200)
+        # CANNOT see profit/forecast: dashboard returns a restricted (not errored)
+        # payload with NO financial fields.
+        d = self.client.get(f"/api/v1/crm/dashboard?org={self.org.id}")
+        self.assertEqual(d.status_code, 200, d.data)
+        self.assertTrue(d.data.get("restricted"))
+        self.assertNotIn("pipeline_value", d.data)
+        self.assertNotIn("forecast", d.data)
+        self.assertNotIn("won_value", d.data)
+
+
+class RefCodeCorrelationTests(APITestCase):
+    """The ref code the client shows is the SAME one written to the server log,
+    so support can grep the log for a user-reported code and find the context."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(phone="0170000020", password="x12345")
+        self.client.force_authenticate(user=self.user)
+
+    def test_error_ref_is_logged_with_context(self):
+        with self.assertLogs("crm.errors", level="WARNING") as cm:
+            r = self.client.post("/api/v1/crm/join", {"code": ""}, format="json")
+        self.assertEqual(r.status_code, 400)
+        ref = r.data["ref"]
+        # The exact code the client received appears in a server log line.
+        joined = "\n".join(cm.output)
+        self.assertIn(ref, joined)
+        self.assertIn("ref=" + ref, joined)
+
+    def test_ref_code_shape(self):
+        code = crm_errors.ref_code()
+        self.assertEqual(len(code), 6)
+        # Unambiguous alphabet: never 0/O/1/I.
+        self.assertFalse(set(code) & set("01OI"))

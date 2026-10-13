@@ -197,5 +197,69 @@ def _purge_org(org):
     org.delete()
 
 
+def run_firstrun(cleanup=False):
+    """First-run + roles scenario (spec: never show a raw "couldn't load").
+
+    Asserts the three states the in-app CRM must handle:
+      1. BRAND-NEW user → no membership → _member_org_ids == [] (the client
+         reads this as first-run, NOT an error).
+      2. OWNER "starts their CRM" → org + owner membership + a seeded pipeline
+         whose default stages include a Won and a Lost stage (dashboard-ready).
+      3. SALESPERSON joins via the org invite code → lands as SALES (never
+         owner/manager), can be assigned leads, but is NOT shown the financial
+         dashboard (the DashboardView returns a restricted payload for SALES).
+    Plain asserts, isolated throwaway org. The integrator runs this, not us.
+    """
+    from .views import _member_org_ids, _can_manage
+    U = get_user_model()
+
+    def _mk(username, phone):
+        u = U.objects.filter(username=username).first()
+        if not u:
+            u = U.objects.create_user(name=username, phone=phone,
+                                      password="scenario-not-for-login")
+            u.username = username; u.save(update_fields=["username"])
+        return u
+
+    newbie = _mk("axon_firstrun_new", "01999000201")
+    owner = _mk("axon_firstrun_owner", "01999000202")
+    rep = _mk("axon_firstrun_rep", "01999000203")
+
+    # 1) brand-new user: no orgs → first-run, not an error
+    assert _member_org_ids(newbie) == [], "brand-new user must have zero orgs"
+
+    # 2) owner starts their CRM (mirrors CrmOrgViewSet.perform_create)
+    org = CrmOrg.objects.create(name="AXON Sales (firstrun)", owner=owner,
+                                industry="rmg", team_size="small")
+    CrmMember.objects.create(org=org, user=owner, role=CrmMember.OWNER)
+    pipe = pl.ensure_default_pipeline(org)
+    assert pipe.stages.count() == len(pl.DEFAULT_STAGES), "sample stages seeded"
+    assert pipe.stages.filter(is_won=True).exists(), "Won stage seeded"
+    assert pipe.stages.filter(is_lost=True).exists(), "Lost stage seeded"
+    assert org.invite_code and len(org.invite_code) == 8, "unique invite code"
+    owner_member = CrmMember.objects.get(org=org, user=owner)
+    assert _can_manage(owner_member), "owner can manage (see invite / dashboard)"
+
+    # 3) salesperson joins via code (mirrors JoinOrgView.post) → SALES role
+    found = CrmOrg.objects.filter(invite_code=org.invite_code).first()
+    assert found is not None and found.id == org.id, "code resolves to the org"
+    rep_member, created = CrmMember.objects.get_or_create(
+        org=org, user=rep, defaults={"role": CrmMember.SALES})
+    assert created and rep_member.role == CrmMember.SALES, "joiner is plain sales"
+    assert not _can_manage(rep_member), "salesperson cannot see profit/dashboard"
+
+    summary = {
+        "newbie_orgs": len(_member_org_ids(newbie)),
+        "owner_org": org.id, "invite_code": org.invite_code,
+        "seeded_stages": pipe.stages.count(),
+        "rep_role": rep_member.role,
+    }
+    if cleanup:
+        CrmMember.objects.filter(org=org).delete()
+        _purge_org(org)
+    return summary
+
+
 if __name__ == "__main__":  # pragma: no cover
     print(run())
+    print(run_firstrun())

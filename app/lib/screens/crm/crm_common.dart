@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../api.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/skeleton.dart';
 import '../../l10n/app_localizations.dart';
 
 /// Shared helpers for the in-app Sales CRM module. All CRM screens talk to the
@@ -18,8 +21,30 @@ class CrmApi {
 
   // ---- orgs / today / dashboard ----
   Future<List<Map<String, dynamic>>> orgs() => _c.listItems('crm/orgs');
-  Future<Map<String, dynamic>> createOrg(String name) =>
-      _c.createItem('crm/orgs', {'name': name});
+
+  /// FIRST-RUN "Start your company's CRM": creates a CrmOrg, makes the caller
+  /// OWNER and seeds a sample pipeline + default stages (server-side). `industry`
+  /// and `teamSize` are the stable option codes from the first-run form.
+  Future<Map<String, dynamic>> createOrg(String name,
+          {String? industry, String? teamSize}) =>
+      _c.createItem('crm/orgs', {
+        'name': name,
+        if (industry != null) 'industry': industry,
+        if (teamSize != null) 'team_size': teamSize,
+      });
+
+  /// FIRST-RUN "Join a team": join an existing org by its invite code.
+  Future<Map<String, dynamic>> joinOrg(String code) =>
+      _c.postJson('/crm/join', {'code': code.trim()});
+
+  /// Owner/manager: read the org's team invite code (to share with teammates).
+  Future<Map<String, dynamic>> inviteCode(int org) =>
+      _c.getJson('/crm/orgs/$org/invite/');
+
+  /// Owner/manager: rotate (re-issue) the org's invite code.
+  Future<Map<String, dynamic>> rotateInviteCode(int org) =>
+      _c.postJson('/crm/orgs/$org/invite/');
+
   Future<Map<String, dynamic>> today(int org) => _c.getJson('/crm/today?org=$org');
   Future<Map<String, dynamic>> dashboard(int org) =>
       _c.getJson('/crm/dashboard?org=$org');
@@ -124,6 +149,153 @@ class CrmApi {
   // ---- price book ----
   Future<List<Map<String, dynamic>>> products(int org) =>
       _c.listItems('crm/products?org=$org');
+}
+
+/// A CRM failure the UI can render honestly: a human message + a short 6-char
+/// REFERENCE CODE. The code is the SAME one the backend wrote to its error log
+/// (crm/errors.py), so a user can quote it to support and support can grep the
+/// server log for it. If the server didn't surface a code (older build / a
+/// pre-network failure like no connectivity) we mint a client-side code and log
+/// it locally via debugPrint so there is still something to correlate.
+class CrmError {
+  final String message;
+  final String ref;
+  final int? status;
+  CrmError(this.message, this.ref, {this.status});
+
+  static final _rand = Random();
+  // Unambiguous alphabet (no 0/O/1/I), matching the server's ref_code().
+  static const _alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  static String _clientRef() =>
+      List.generate(6, (_) => _alphabet[_rand.nextInt(_alphabet.length)]).join();
+
+  /// Build from any thrown error. Prefers the server's ref (carried on
+  /// ApiException via a dynamic `ref` getter the integrator adds in api.dart);
+  /// falls back to a locally-minted, locally-logged code.
+  factory CrmError.from(Object e) {
+    String? serverRef;
+    String message = e.toString();
+    int? status;
+    if (e is ApiException) {
+      status = e.status;
+      // `ref` is an optional field on ApiException (integrator adds it so the
+      // server's reference code flows through). Read it defensively so this
+      // file compiles whether or not that field exists yet.
+      try {
+        final dynamic dyn = e;
+        final r = dyn.ref;
+        if (r is String && r.isNotEmpty) serverRef = r;
+      } catch (_) {/* field not present on this build */}
+    }
+    if (serverRef != null) return CrmError(message, serverRef, status: status);
+    final local = _clientRef();
+    debugPrint('CRM error ref=$local (client) :: $message');
+    return CrmError(message, local, status: status);
+  }
+}
+
+/// A crafted CRM state view: LOADING (skeleton), EMPTY (friendly) or ERROR
+/// (with the reference code + a RETRY button). One widget so every CRM screen
+/// shows a consistent, localized, never-raw state. Pass exactly one of the
+/// named constructors.
+class CrmStateView extends StatelessWidget {
+  final _Kind _kind;
+  final IconData? icon;
+  final String? title;
+  final String? message;
+  final CrmError? error;
+  final VoidCallback? onRetry;
+  final Widget? action;
+  final int skeletonCount;
+
+  const CrmStateView._(this._kind,
+      {this.icon,
+      this.title,
+      this.message,
+      this.error,
+      this.onRetry,
+      this.action,
+      this.skeletonCount = 6});
+
+  /// Loading state — the standard shimmering skeleton list.
+  const CrmStateView.loading({int count = 6})
+      : this._(_Kind.loading, skeletonCount: count);
+
+  /// Empty state — friendly icon + title (+ optional hint / action).
+  const CrmStateView.empty({
+    required IconData icon,
+    required String title,
+    String? message,
+    Widget? action,
+  }) : this._(_Kind.empty,
+            icon: icon, title: title, message: message, action: action);
+
+  /// Error state — shows the reference code and a RETRY button.
+  const CrmStateView.error({
+    required CrmError error,
+    required String title,
+    VoidCallback? onRetry,
+  }) : this._(_Kind.error, error: error, title: title, onRetry: onRetry);
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    if (_kind == _Kind.loading) return SkeletonList(count: skeletonCount);
+    if (_kind == _Kind.empty) {
+      return StateMessage(
+          icon: icon!, title: title!, message: message, action: action);
+    }
+    // ---- error: message + reference code chip + retry ----
+    return StateMessage(
+      icon: Icons.cloud_off,
+      tint: scheme.error,
+      title: title ?? t.loadFailed,
+      message: error?.message,
+      action: Column(mainAxisSize: MainAxisSize.min, children: [
+        if (error != null && error!.ref.isNotEmpty) RefCodeChip(error!.ref),
+        if (onRetry != null) ...[
+          const SizedBox(height: Gap.md),
+          FilledButton.tonalIcon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh),
+              label: Text(t.retry)),
+        ],
+      ]),
+    );
+  }
+}
+
+enum _Kind { loading, empty, error }
+
+/// A small, copyable reference-code chip shown on every CRM error. Long-press /
+/// tap copies it so a user can send the exact code to support.
+class RefCodeChip extends StatelessWidget {
+  final String code;
+  const RefCodeChip(this.code, {super.key});
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(Radii.sm),
+      ),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Icon(Icons.tag, size: 14, color: scheme.onSurfaceVariant),
+        const SizedBox(width: 6),
+        Text('${t.crmRefCode}: ',
+            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+        SelectableText(code,
+            style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.0)),
+      ]),
+    );
+  }
 }
 
 /// Format a BDT amount with the taka sign (৳ is allowed in .dart).

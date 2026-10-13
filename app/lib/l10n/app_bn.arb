@@ -1244,5 +1244,366 @@
   "circleMediaVideoGated": "ভিডিও চালু হবে এনক্রিপ্টেড স্টোরেজ যুক্ত হলে।",
   "circleCallGated": "ভয়েস কল চালু হবে কল সার্ভার যুক্ত হলে।",
   "circleComingSoon": "শীঘ্রই আসছে।",
-  "resetForgotLink": "পাসওয়ার্ড ভুলে গেছেন?"
+  "resetForgotLink": "পাসওয়ার্ড ভুলে গেছেন?",
+  "circleActionReply": "রিপ্লাই",
+  "circleActionForward": "ফরোয়ার্ড",
+  "circleActionStar": "স্টার করুন",
+  "circleActionUnstar": "স্টার সরান",
+  "circleActionPin": "পিন করুন",
+  "circleActionUnpin": "পিন সরান",
+  "circleActionEdit": "এডিট করুন",
+  "circleActionDeleteMe": "আমার জন্য মুছুন",
+  "circleActionDeleteEveryone": "সবার জন্য মুছুন",
+  "circleActionSave": "সেভ করুন",
+  "circleAttachGallery": "গ্যালারি",
+  "circleAttachCamera": "ক্যামেরা",
+  "circleAttachDocument": "ডকুমেন্ট",
+  "circleAttachContact": "কন্টাক্ট",
+  "circleAttachLocation": "লোকেশন",
+  "circleAttachLiveLocation": "লাইভ লোকেশন",
+  "circleLive15m": "১৫ মিনিট",
+  "circleLive1h": "১ ঘণ্টা",
+  "circleLive8h": "৮ ঘণ্টা",
+  "circleCopied": "কপি হয়েছে",
+  "circleLinkCopied": "লিঙ্ক কপি হয়েছে",
+  "circleEdited": "এডিট করা",
+  "circleEditing": "এডিট করা হচ্ছে",
+  "circleReplyingTo": "রিপ্লাই দিচ্ছেন",
+  "circleDeletedPlaceholder": "এই মেসেজটি মুছে ফেলা হয়েছে।",
+  "circleForwarded": "ফরোয়ার্ড করা হয়েছে",
+  "circleForwardedMany": "বহুবার ফরোয়ার্ড করা হয়েছে",
+  "circleForwardConfirm": "এই মেসেজটি এই চ্যাটে ফরোয়ার্ড করবেন?",
+  "circlePinLimit": "একটি চ্যাটে সর্বোচ্চ ৩টি মেসেজ পিন করা যায়।",
+  "circleTyping": "টাইপ করছেন…",
+  "circleSearchInChat": "এই চ্যাটে খুঁজুন",
+  "circleSearchAll": "সব চ্যাটে খুঁজুন",
+  "circleSearchHint": "আপনার সার্কেলের চ্যাটে মেসেজ খুঁজুন।",
+  "circleSearchNoResults": "কোনো মেসেজ পাওয়া যায়নি।",
+  "circleShareLink": "লিঙ্ক শেয়ার",
+  "circleMediaGenericGated": "এনক্রিপ্টেড স্টোরেজ চালু হলে এই মিডিয়া পাঠানো যাবে।",
+  "circleFamilySubOptional": "পরিবারের সম্পর্ক (ঐচ্ছিক)",
+  "circleFamilySubSibling": "ভাই/বোন",
+  "circleCallHistoryTitle": "কল হিস্ট্রি",
+  "circleCallHistoryEmpty": "এখনো কোনো কল নেই।",
+  "circleCallBackVoice": "আবার ভয়েস কল",
+  "circleCallBackVideo": "আবার ভিডিও কল",
+  "circleCallRinging": "রিং হচ্ছে…",
+  "circleCallIncoming": "ইনকামিং কল",
+  "circleCallConnecting": "সংযোগ হচ্ছে…",
+  "circleCallActive": "কল চলছে",
+  "circleCallEnded": "কল শেষ",
+  "circleCallMute": "মিউট",
+  "circleCallSpeaker": "স্পিকার",
+  "circleCallCamera": "ক্যামেরা",
+  "circleCallSwitchCamera": "ক্যামেরা বদল",
+  "circleCallLowData": "কম ডেটা",
+  "circleCallVideoPlaceholder": "অ্যাপ খোলা থাকলে ভিডিও চলবে; সংযোগ সার্ভার চালু হলে আরও স্থিতিশীল হবে।",
+  "circleCallTransportAppOpen": "এখন অ্যাপ খোলা থাকলে কল কাজ করে। অ্যাপ বন্ধ থাকলে রিং আসবে পুশ চালু হলে।",
+  "circleCallTransportPush": "অ্যাপ বন্ধ থাকলেও রিং আসবে। কঠিন নেটওয়ার্কে স্থিতিশীলতা আসবে কল সার্ভার চালু হলে।",
+  "circleCallTransportFull": "কল সম্পূর্ণ চালু: অ্যাপ বন্ধ থাকলেও রিং আসবে এবং কল সার্ভার সক্রিয়।",
+  "circleCallVideoPremiumTitle": "ভিডিও কল প্রিমিয়াম সুবিধা",
+  "circleCallVideoPremiumBody": "ভিডিও কল করতে প্রিমিয়াম লাগবে। ভয়েস কল সবার জন্য ফ্রি। রেফারেল পয়েন্ট দিয়েও আনলক করা যায়।",
+  "circleCallGetPremium": "প্রিমিয়াম নিন",
+  "circleCallUnlockWithPoints": "পয়েন্ট দিয়ে আনলক করুন",
+  "circlePrivacyTitle": "প্রাইভেসি ও নিয়ন্ত্রণ",
+  "circlePrivacySaved": "প্রাইভেসি সেটিংস সংরক্ষিত হয়েছে",
+  "circlePrivacyWhoCanSee": "কে কী দেখতে পাবে",
+  "circlePrivacyLastSeen": "শেষ দেখা গেছে",
+  "circlePrivacyActiveStatus": "অনলাইন স্ট্যাটাস",
+  "circlePrivacyProfilePhoto": "প্রোফাইল ছবি",
+  "circlePrivacyAbout": "সম্পর্কে",
+  "circlePrivacyStatusVisibility": "স্ট্যাটাস",
+  "circlePrivacyAudienceCircle": "সার্কেল",
+  "circlePrivacyAudienceFamily": "পরিবার",
+  "circlePrivacyAudienceNobody": "কেউ নয়",
+  "circlePrivacyReceipts": "রিড রিসিপ্ট ও টাইপিং",
+  "circlePrivacyReadReceipts": "রিড রিসিপ্ট",
+  "circlePrivacyReadReceiptsHint": "বন্ধ করলে আপনি অন্যের রিড রিসিপ্টও দেখবেন না।",
+  "circlePrivacyTyping": "টাইপিং ইন্ডিকেটর",
+  "circlePrivacyTypingHint": "বন্ধ করলে আপনি অন্যের টাইপিংও দেখবেন না।",
+  "circlePrivacyIncomingCalls": "ইনকামিং কল কারা করতে পারবে",
+  "circlePrivacyDnd": "ডু নট ডিস্টার্ব",
+  "circlePrivacyDndEnable": "শিডিউল চালু করুন",
+  "circlePrivacyDndHint": "নির্দিষ্ট সময়ে কল রিং হবে না (মিসড কল তবুও লগ হবে)।",
+  "circlePrivacyDndStart": "শুরু",
+  "circlePrivacyDndEnd": "শেষ",
+  "circlePrivacyDndFamilyException": "পরিবারের জন্য ছাড়",
+  "circlePrivacyDndFamilyExceptionHint": "ডু নট ডিস্টার্ব চলাকালীনও পরিবারের কল রিং হবে।",
+  "circlePrivacyServerEnforcedNote": "এই নিয়মগুলো সার্ভারে প্রয়োগ হয় — কেউ এড়িয়ে যেতে পারে না।",
+  "circleCallPolicyEveryone": "সার্কেলের সবাই",
+  "circleCallPolicyChosen": "নির্বাচিত ব্যক্তিরা",
+  "circleCallPolicyRelations": "নির্বাচিত সম্পর্ক",
+  "circleCallPolicyNobody": "কেউ নয়",
+  "circleBlockExplainer": "ব্লক করলে তারা মেসেজ, কল বা আপনার স্ট্যাটাস দেখতে পারবে না।",
+  "circleUnblock": "আনব্লক",
+  "circleRestrict": "রেস্ট্রিক্ট",
+  "circleRestrictExplainer": "মেসেজ আলাদা ইনবক্সে যাবে, নোটিফিকেশন ছাড়া; কল রিং হবে না।",
+  "circleUnrestrict": "রেস্ট্রিক্ট সরান",
+  "circleReportExplainer": "সমস্যা জানান; চাইলে সাম্প্রতিক মেসেজ যুক্ত করে ব্লকও করতে পারেন।",
+  "referralTitle": "রেফারেল পয়েন্ট",
+  "referralBalanceLabel": "আপনার ব্যালেন্স",
+  "referralPoints": "পয়েন্ট",
+  "referralRedeemableDays": "= {days} প্রিমিয়াম দিন",
+  "@referralRedeemableDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "referralRate": "{perDay} পয়েন্ট = ১ প্রিমিয়াম দিন",
+  "@referralRate": {
+    "placeholders": {
+      "perDay": {
+        "type": "Object"
+      }
+    }
+  },
+  "referralInvite": "বন্ধুকে আমন্ত্রণ",
+  "referralRedeem": "রিডিম করুন",
+  "referralHowTitle": "যেভাবে কাজ করে",
+  "referralStep1": "আপনার সার্কেলে কাউকে আমন্ত্রণ জানান",
+  "referralStep2": "তারা অ্যাপ ইনস্টল করে সাইন আপ করেন",
+  "referralStep3": "তারা আপনার সম্পর্কের অনুরোধ গ্রহণ করেন",
+  "referralStep4": "আপনি পয়েন্ট পান — প্রিমিয়াম দিনে রিডিম করুন",
+  "referralHistoryTitle": "পয়েন্ট ইতিহাস",
+  "referralHistoryEmpty": "এখনও কোনো পয়েন্ট নেই। একজন বন্ধুকে আমন্ত্রণ জানিয়ে শুরু করুন।",
+  "referralShareMessage": "Assisto-তে আমার সাথে যুক্ত হোন!",
+  "referralRedeemPickDays": "কত দিন প্রিমিয়াম রিডিম করবেন বেছে নিন।",
+  "referralRedeemDaysChosen": "{days} দিন",
+  "@referralRedeemDaysChosen": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "referralRedeemCost": "খরচ: {cost} পয়েন্ট",
+  "@referralRedeemCost": {
+    "placeholders": {
+      "cost": {
+        "type": "Object"
+      }
+    }
+  },
+  "referralRedeemConfirm": "নিশ্চিত করুন",
+  "referralRedeemedDays": "{days} প্রিমিয়াম দিন যোগ হয়েছে!",
+  "@referralRedeemedDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "referralRedeemFailed": "রিডিম করা যায়নি",
+  "referralRateReviewNote": "পয়েন্ট রেট পর্যালোচনাধীন; পরে পরিবর্তন হতে পারে।",
+  "crmWelcomeTitle": "সেলস CRM-এ স্বাগতম",
+  "crmWelcomeBody": "লিড ধরুন, পাইপলাইন সাজান, টিমের সাথে বিক্রি করুন — শুরু করতে একটি পথ বেছে নিন।",
+  "crmStartOrg": "নিজের CRM শুরু করুন",
+  "crmStartOrgHint": "আপনার কোম্পানির তথ্য দিন — আমরা একটি নমুনা পাইপলাইন তৈরি করে দেব।",
+  "crmJoinTeam": "টিমে যোগ দিন",
+  "crmJoinTeamHint": "আপনার টিম থেকে পাওয়া ইনভাইট কোড দিন।",
+  "crmCompanyName": "কোম্পানির নাম",
+  "crmIndustry": "ইন্ডাস্ট্রি",
+  "crmTeamSize": "টিমের আকার",
+  "crmTeamSizeSolo": "১ জন",
+  "crmTeamSizeSmall": "২–৫ জন",
+  "crmTeamSizeMedium": "৬–২০ জন",
+  "crmTeamSizeLarge": "২০+",
+  "crmCreateOrg": "CRM তৈরি করুন",
+  "crmIndIt": "আইটি",
+  "crmIndManufacturing": "ম্যানুফ্যাকচারিং",
+  "crmIndServices": "সার্ভিস",
+  "crmInviteCode": "ইনভাইট কোড",
+  "crmInviteCodeHint": "টিমের সদস্যদের সাথে এই কোড শেয়ার করুন।",
+  "crmInviteCodeRequired": "একটি ইনভাইট কোড দিন।",
+  "crmOrgNameRequired": "কোম্পানির নাম দিন।",
+  "crmRefCode": "রেফ কোড",
+  "crmDashboardRestricted": "শুধু owner/manager-এর জন্য",
+  "crmDashboardRestrictedHint": "ড্যাশবোর্ডের আর্থিক তথ্য শুধু owner ও manager দেখতে পারেন।",
+  "journeyHubTitle": "নিরাপদ যাত্রা",
+  "journeyHubDesc": "যাত্রা শুরু করুন, প্রিয়জন আপনাকে নিরাপদে পৌঁছাতে দেখবে।",
+  "journeySection": "নিরাপদ যাত্রা",
+  "journeyStartTitle": "যাত্রা শুরু করুন",
+  "journeyStartButton": "যাত্রা শুরু করুন",
+  "journeyStartFailed": "যাত্রা শুরু করা যায়নি",
+  "journeyDestSection": "গন্তব্য",
+  "journeyDestLabel": "কোথায় যাচ্ছেন?",
+  "journeyUseCurrent": "বর্তমান অবস্থান দিন",
+  "journeyDestPinned": "পিন করা জায়গা",
+  "journeyNeedDest": "একটি গন্তব্য দিন।",
+  "journeyEtaSection": "পৌঁছানোর সময়",
+  "journeyEtaBy": "পৌঁছাব {time}-এর মধ্যে",
+  "@journeyEtaBy": {
+    "placeholders": {
+      "time": {
+        "type": "Object"
+      }
+    }
+  },
+  "journeyWatchersSection": "যারা দেখবে",
+  "journeyNoWatchers": "আপনার সার্কেলে কেউ নেই। আগে কাউকে যুক্ত করুন।",
+  "journeyNeedWatcher": "অন্তত একজনকে বেছে নিন।",
+  "journeyRideSection": "যানবাহনের তথ্য (ঐচ্ছিক)",
+  "journeyModeLabel": "কীভাবে যাচ্ছেন?",
+  "journeyModeCng": "সিএনজি",
+  "journeyModeRickshaw": "রিকশা",
+  "journeyModeCar": "গাড়ি",
+  "journeyModeBus": "বাস",
+  "journeyModeWalk": "হেঁটে",
+  "journeyPlateLabel": "নম্বর প্লেট বা রাইড তথ্য",
+  "journeyAdvancedSection": "আরও সেটিংস",
+  "journeyGraceLabel": "পৌঁছানোর পর {min} মিনিট অপেক্ষা করো",
+  "@journeyGraceLabel": {
+    "placeholders": {
+      "min": {
+        "type": "Object"
+      }
+    }
+  },
+  "journeyRouteDeviation": "পথ পরিবর্তনে সতর্কতা",
+  "journeyRouteDeviationDesc": "নির্ধারিত পথ থেকে অনেক দূরে গেলে প্রিয়জন জানবে।",
+  "journeyRetentionLabel": "যাত্রার তথ্য {h} ঘণ্টা পর মুছে যাবে",
+  "@journeyRetentionLabel": {
+    "placeholders": {
+      "h": {
+        "type": "Object"
+      }
+    }
+  },
+  "journeyRetentionNote": "যাত্রার লোকেশন শুধু যাত্রাকালে থাকে; এরপর সার্ভারে কিছু থাকে না।",
+  "journeyLiveTitle": "যাত্রা চলছে",
+  "journeyLiveFooter": "অ্যাপ খোলা থাকলে লোকেশন আপডেট হয়। যাত্রা শেষ হলে লাইভ লোকেশন বন্ধ হয়ে যাবে।",
+  "journeyToward": "{dest}-এর পথে",
+  "@journeyToward": {
+    "placeholders": {
+      "dest": {
+        "type": "Object"
+      }
+    }
+  },
+  "journeyId": "যাত্রা #{id}",
+  "@journeyId": {
+    "placeholders": {
+      "id": {
+        "type": "Object"
+      }
+    }
+  },
+  "journeyLastFix": "সর্বশেষ অবস্থান {at}",
+  "@journeyLastFix": {
+    "placeholders": {
+      "at": {
+        "type": "Object"
+      }
+    }
+  },
+  "journeyWatchingNotif": "Assisto আপনার যাত্রার দিকে খেয়াল রাখছে",
+  "journeyImSafe": "আমি নিরাপদে পৌঁছেছি",
+  "journeyImOk": "আমি ঠিক আছি",
+  "journeyArrivedSafely": "নিরাপদে পৌঁছেছেন। যাত্রা শেষ।",
+  "journeyShareLink": "লিঙ্ক শেয়ার করুন",
+  "journeyShareLinkText": "আমার যাত্রা লাইভ দেখুন: {url}",
+  "@journeyShareLinkText": {
+    "placeholders": {
+      "url": {
+        "type": "Object"
+      }
+    }
+  },
+  "journeyStop": "যাত্রা থামান",
+  "journeyStopTitle": "যাত্রা থামাবেন?",
+  "journeyStopBody": "লাইভ লোকেশন বন্ধ হবে এবং যাত্রা শেষ হবে।",
+  "journeyStopConfirm": "থামান",
+  "journeyPrivacySection": "গোপনীয়তা",
+  "journeyPrivacyStatement": "আপনিই সব নিয়ন্ত্রণ করেন। যেকোনো সময় থামাতে পারেন। লোকেশন শুধু আপনার বেছে নেওয়া মানুষই দেখে।",
+  "journeyAreYouOkTitle": "আপনি কি ঠিক আছেন?",
+  "journeyAreYouOkBody": "পৌঁছানোর সময় হয়ে গেছে। ঠিক থাকলে জানান, না হলে আপনার প্রিয়জনকে জানানো হবে।",
+  "journeyNeedHelp": "আমার সাহায্য দরকার",
+  "journeySettingsTitle": "নিরাপত্তা সেটিংস",
+  "sosSection": "জরুরি সাহায্য (SOS)",
+  "sosSentTitle": "সাহায্যের বার্তা পাঠানো হয়েছে",
+  "sosSentBody": "আপনার প্রিয়জনকে আপনার অবস্থান জানানো হয়েছে।",
+  "sosCallNow": "এখন ৯৯৯-এ কল করুন",
+  "sosCancelNeedsPin": "বাতিল করতে পিন দিন।",
+  "sosNearestHelp": "কাছের সাহায্য",
+  "sosNearestHelpLoading": "কাছের থানা ও হাসপাতাল খোঁজা হচ্ছে…",
+  "sosDistanceAway": "{m} মিটার দূরে",
+  "@sosDistanceAway": {
+    "placeholders": {
+      "m": {
+        "type": "Object"
+      }
+    }
+  },
+  "sosHelplines": "হেল্পলাইন",
+  "sosPinTitle": "পিন দিন",
+  "sosPinLabel": "পিন",
+  "sosPinWrong": "ভুল পিন",
+  "sosSiren": "সাইরেন বাজান",
+  "sosSirenDefault": "ডিফল্ট সাইরেন",
+  "sosSirenDefaultDesc": "SOS-এ জোরে সাইরেন বাজবে (সেটিংসে চালু/বন্ধ করা যায়)।",
+  "duressSection": "ডুরেস পিন",
+  "duressTitle": "নিরাপত্তা পিন",
+  "duressSubtitle": "যাত্রা থামাতে বা SOS বাতিল করতে পিন লাগে।",
+  "duressExplain": "আলাদা ডুরেস পিন দিলে স্ক্রিন বাতিল দেখাবে, কিন্তু চুপিসারে প্রিয়জনকে জরুরি বার্তা ও লোকেশন যাবে।",
+  "duressNormalPin": "সাধারণ পিন",
+  "duressDuressPin": "ডুরেস পিন",
+  "duressMustDiffer": "ডুরেস পিন সাধারণ পিন থেকে আলাদা হতে হবে।",
+  "duressSetUp": "পিন সেট করুন",
+  "duressSaved": "পিন সংরক্ষিত হয়েছে",
+  "duressConfigured": "পিন সেট করা আছে",
+  "duressNotSet": "এখনো পিন সেট করা হয়নি",
+  "fakeCallTitle": "নকল কল",
+  "fakeCallSetup": "নকল কল সেট করুন",
+  "fakeCallCaller": "কলারের নাম",
+  "fakeCallDefaultName": "মা",
+  "fakeCallStart": "নকল কল শুরু করুন",
+  "fakeCallArmed": "{sec} সেকেন্ডে কল আসবে",
+  "@fakeCallArmed": {
+    "placeholders": {
+      "sec": {
+        "type": "Object"
+      }
+    }
+  },
+  "fakeCallIncoming": "ইনকামিং কল",
+  "fakeCallAnswer": "ধরুন",
+  "fakeCallDecline": "কেটে দিন",
+  "fakeCallEnd": "কল শেষ করুন",
+  "wellnessSection": "সুস্থতা যাচাই",
+  "wellnessIntro": "বাবা-মা একা থাকলে দীর্ঘ সময় কোনো সাড়া না পেলে সন্তানদের জানানো হবে।",
+  "wellnessEnable": "সুস্থতা যাচাই চালু করুন",
+  "wellnessParentOptIn": "বাবা-মায়ের সম্মতি",
+  "wellnessParentOptInDesc": "শুধু বাবা-মা নিজে সম্মতি দিলেই এটি চালু হবে।",
+  "wellnessPeriod": "{h} ঘণ্টা নিষ্ক্রিয় থাকলে",
+  "@wellnessPeriod": {
+    "placeholders": {
+      "h": {
+        "type": "Object"
+      }
+    }
+  },
+  "wellnessQuietHours": "নীরব সময় (রাতে বিরক্ত করবে না)",
+  "sidebarRemindersMemory": "রিমাইন্ডার ও মেমোরি",
+  "sidebarSafety": "নিরাপত্তা",
+  "sidebarDaily": "দৈনন্দিন জীবন",
+  "sidebarMessages": "মেসেজ",
+  "sidebarPlansPoints": "প্ল্যান ও পয়েন্ট",
+  "sidebarProfile": "প্রোফাইল",
+  "sidebarConnectedApps": "কানেক্টেড অ্যাপ",
+  "sidebarBatteryGuidance": "ব্যাটারি গাইড",
+  "sosHooksSection": "দ্রুত SOS চালু করার উপায়",
+  "sosHookPowerTitle": "পাওয়ার বোতাম ৫ বার",
+  "sosHookPowerDesc": "পাওয়ার বোতাম দ্রুত ৫ বার চাপলে চুপিসারে SOS যাবে।",
+  "sosHookShakeTitle": "ফোন ঝাঁকান",
+  "sosHookShakeDesc": "ফোন জোরে ঝাঁকালে SOS চালু হবে।",
+  "sosHookTileTitle": "কুইক টাইল",
+  "sosHookTileDesc": "লক স্ক্রিন বা কুইক সেটিংস থেকে এক চাপে SOS।",
+  "sosHookWidgetTitle": "হোম স্ক্রিন উইজেট",
+  "sosHookWidgetDesc": "লুকানো উইজেট থেকে চট করে SOS পাঠান।",
+  "sosHookServiceTitle": "ব্যাকগ্রাউন্ড সেবা",
+  "sosHookServiceDesc": "অ্যাপ বন্ধ থাকলেও যাত্রা ও SOS কাজ করার জন্য দরকার।",
+  "sosHookGated": "পরবর্তী আপডেটে চালু হবে।",
+  "safetySosQuickCall": "দ্রুত কল"
 }

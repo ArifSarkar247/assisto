@@ -20,7 +20,8 @@ from rest_framework.views import APIView
 
 from .i18n import req_lang
 from .logic import (health_tips, medicine_db, birthdays as bdays,
-                    meetings, dictionary, ramadan, exam, circle)
+                    meetings, dictionary, ramadan, exam, circle,
+                    circle_messaging, circle_privacy)
 from . import analytics, reset as reset_logic, legal, photo, unseen, nmcheck
 from .models import (Birthday, Appointment, ExamWatcher, PasswordResetToken,
                      AnalyticsEvent, CircleMember, CircleMessage, CircleInvite,
@@ -439,11 +440,23 @@ class CircleRequestActView(APIView):
         if m is None:
             return Response({"detail": "not found"}, status=status.HTTP_404_NOT_FOUND)
         event = str((request.data or {}).get("event", ""))
+        prev_state = m.state
         new_state, changed = circle.apply_request_event(m.state, event)
         if not changed:
             return Response({"detail": "bad event"}, status=status.HTTP_400_BAD_REQUEST)
         m.state = new_state
         m.save(update_fields=["state"])
+        # Referral hook: award points when a relationship transitions to accepted.
+        if prev_state != "accepted" and new_state == "accepted":
+            try:
+                from .views_build61 import award_referral_on_accept
+                invitee_id = (request.data or {}).get("invitee_id")
+                if invitee_id:
+                    award_referral_on_accept(
+                        request.user.id, invitee_id,
+                        device_id=str((request.data or {}).get("device_id", "")))
+            except Exception:
+                pass  # referral is best-effort; never block the accept.
         return Response(_member_dict(m))
 
 
@@ -516,10 +529,38 @@ class CircleMessagesView(APIView):
         # Route to the member unless the client said otherwise.
         env.setdefault("recipient_ids", [m.id])
         # REVIEWER P1: the relay MUST prove the envelope is ciphertext-only
-        # before persisting. validate_envelope is unskippable here.
-        ok, reason = circle.validate_envelope(env)
+        # before persisting. The M1 validator extends the base contract with the
+        # reply/forward/delete/link-preview checks (all still ciphertext-only).
+        ok, reason = circle_messaging.validate_message_envelope(env)
         if not ok:
             return Response({"detail": reason}, status=status.HTTP_400_BAD_REQUEST)
+        # M1 send gate: both sides accepted + not blocked (circle-only).
+        blocked_either = bool(getattr(m, "blocked", False))
+        ok2, pre = circle_messaging.send_precheck(
+            m.state, "accepted", blocked_either=blocked_either,
+            restricted=bool(getattr(m, "restricted", False)))
+        if not ok2:
+            return Response({"detail": pre}, status=status.HTTP_403_FORBIDDEN)
+        # idempotent dedupe on (sender, client_msg_id).
+        cmid = str(env.get("client_msg_id", ""))[:64]
+        if cmid:
+            dup = CircleMessage.objects.filter(
+                sender=request.user, member=m, client_msg_id=cmid).first()
+            if dup is not None:
+                return Response({"id": dup.id, "ok": True, "deduped": True},
+                                status=status.HTTP_200_OK)
+        # Privacy relay decision (block -> drop, restrict -> quiet inbox).
+        decision = circle_privacy.deliver_decision(
+            {"id": request.user.id},
+            {"blocked": [m.id] if getattr(m, "blocked", False) else [],
+             "restricted": [m.id] if getattr(m, "restricted", False) else []})
+        if not decision["deliver"]:
+            return Response({"ok": True, "dropped": True,
+                             "reason": decision["reason"]},
+                            status=status.HTTP_200_OK)
+        notify = circle_privacy.should_notify(
+            {"muted": bool(getattr(m, "muted_until", None))}, decision["inbox"])
+        fh = int(env.get("forward_hops", 0) or 0)
         x = CircleMessage.objects.create(
             member=m, sender=request.user,
             recipient_ids=env.get("recipient_ids", []),
@@ -529,8 +570,85 @@ class CircleMessagesView(APIView):
             blob_ref=env.get("blob_ref", ""),
             sender_key_id=env.get("sender_key_id", ""),
             scheme=env.get("scheme", ""),
+            client_msg_id=cmid,
+            forwarded=bool(env.get("forwarded")),
+            forward_hops=fh,
+            link_preview=env.get("link_preview"),
         )
-        return Response({"id": x.id, "ok": True}, status=status.HTTP_201_CREATED)
+        return Response({"id": x.id, "ok": True, "inbox": decision["inbox"],
+                         "notify": notify},
+                        status=status.HTTP_201_CREATED)
+
+
+class CircleMessageActionView(APIView):
+    """POST /circle/messages/<id>/<action> -> react|star|pin|edit|delete.
+    All gates (edit-window, pin-cap, delete scope) run server-side."""
+    def post(self, request, pk, action):
+        x = CircleMessage.objects.filter(
+            pk=pk, member__user=request.user).first()
+        if x is None:
+            return Response({"detail": "not found"},
+                            status=status.HTTP_404_NOT_FOUND)
+        d = request.data or {}
+        mid = request.user.id
+        env = {
+            "id": x.id, "sender_id": x.sender_id, "created_at": x.created_at,
+            "reactions": x.reactions or {}, "starred_by": x.starred_by or [],
+            "deleted": x.deleted or "",
+        }
+        if action == "react":
+            emoji = str(d.get("emoji", ""))[:8]
+            if emoji:
+                env, _ = circle_messaging.add_reaction(env, mid, emoji)
+            else:
+                env, _ = circle_messaging.remove_reaction(env, mid)
+            x.reactions = env["reactions"]
+            x.save(update_fields=["reactions"])
+            return Response({"ok": True, "reactions": x.reactions})
+        if action == "star":
+            env, now_starred = circle_messaging.toggle_star(env, mid)
+            x.starred_by = env["starred_by"]
+            x.save(update_fields=["starred_by"])
+            return Response({"ok": True, "starred": now_starred})
+        if action == "pin":
+            pinned_count = CircleMessage.objects.filter(
+                member=x.member, pinned=True).exclude(pk=x.pk).count()
+            if not x.pinned and not circle_messaging.can_pin(
+                    [0] * pinned_count, x.id):
+                lang = req_lang(request)
+                return Response({"ok": False, "detail": "pin_cap"},
+                                status=status.HTTP_400_BAD_REQUEST)
+            x.pinned = not x.pinned
+            x.save(update_fields=["pinned"])
+            return Response({"ok": True, "pinned": x.pinned})
+        if action == "edit":
+            if x.sender_id != mid or not circle_messaging.can_edit(env, mid):
+                return Response({"ok": False, "detail": "edit_window"},
+                                status=status.HTTP_403_FORBIDDEN)
+            x.ciphertext = str(d.get("ciphertext", x.ciphertext))
+            x.nonce = str(d.get("nonce", x.nonce))
+            x.edited_at = timezone.now()
+            x.save(update_fields=["ciphertext", "nonce", "edited_at"])
+            return Response({"ok": True, "edited_at": x.edited_at.isoformat()})
+        if action == "delete":
+            scope = str(d.get("scope", "me"))
+            if scope == "everyone":
+                if x.sender_id != mid or not \
+                        circle_messaging.can_delete_for_everyone(env, mid):
+                    return Response({"ok": False, "detail": "delete_window"},
+                                    status=status.HTTP_403_FORBIDDEN)
+                x.deleted = "everyone"
+                x.ciphertext = ""
+                x.nonce = ""
+                x.save(update_fields=["deleted", "ciphertext", "nonce"])
+            else:
+                hidden = set(x.hidden_for or [])
+                hidden.add(mid)
+                x.hidden_for = list(hidden)
+                x.save(update_fields=["hidden_for"])
+            return Response({"ok": True, "deleted": x.deleted or "me"})
+        return Response({"detail": "unknown action"},
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 # ---------------------------------------------------------------------------
