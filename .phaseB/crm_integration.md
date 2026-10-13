@@ -18,3 +18,13 @@ NEW models: Company, Contact, Pipeline, Stage, Deal, Activity, Mention, Tag, Tag
 ## Scenario (verify): `python manage.py crm_scenario --cleanup` — 20 leads (RMG≥500→≥90/high), 8 deals, 4 proposals (subtotal 400000, 5%→380000, 15%→approval), 2 won/3 lost(reasons), forecast=Σ(value×prob/100), win-rate 40%.
 
 ## Integrator: makemigrations crm + migrate; run crm_scenario + crm tests; CRM web reviewer; add /crm/ web screens to gallery (desktop screenshots) at FINAL. openpyxl may be absent → Excel falls back to CSV (fine). No PDF lib → proposal PDF is print-to-PDF HTML (fine).
+
+## CRM REVIEWER = ADVANCED (no P0/security). Fixes (agent running; G5 done by integrator):
+- G1(P1) lead "Mark Lost" bypasses mandatory-reason: route through a server action that REQUIRES loss_reason + records Deal.loss_reason + audit (so reports.win_loss sees it); don't just append to notes/set status freely.
+- G2(P1) lead "Mark Won": add confirm dialog + CLOSE/create the backing Deal (Deal.state=won) so pipeline value/forecast/dashboard-won are correct; don't flip Lead.status as ERP-stub side effect.
+- G3(P2) crm_lead_detail fetches whole list+firstWhere → add CrmApi.lead(id)→GET /crm/leads/{id}/ (retrieve).
+- G4(P2) dashboard harden win_rate 'null%'.
+- G5(P2) crmMarkLost bn "Lost"→"হারিয়েছি" (DONE).
+- G6(P2 spec gap) build in-app QUOTE BUILDER: select Products from price book → line items → subtotal/tax/total → create proposal (quoting.make_quote). Reachable from proposal/lead detail.
+- G7(P3) TodayView filter by assigned_to=member for sales role (person-centric Today).
+- G8(P3) quick-action: surface launchUrl failure (don't show 'logged' when dialer/WhatsApp didn't open).
