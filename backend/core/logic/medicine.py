@@ -77,7 +77,7 @@ def days_left(stock_count, times, dose_qty=1, prn=False, prn_per_day=0):
         daily = doses_per_day(times) * per_dose
     if daily <= 0:
         return None
-    return int(stock_count // daily)
+    return int(float(stock_count) // daily)
 
 
 def predicted_refill_date(stock_count, times, dose_qty=1, today=None,

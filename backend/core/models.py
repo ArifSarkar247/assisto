@@ -335,6 +335,9 @@ class Transaction(models.Model):
     note = models.CharField(max_length=200, blank=True)
     date = models.DateField()
     source = models.CharField(max_length=12, default="manual")  # manual|ai|notification
+    ref = models.CharField(max_length=40, blank=True)       # wallet TrxID (dedupe)
+    split_with = models.JSONField(default=list, blank=True)
+    split_mode = models.CharField(max_length=10, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -347,6 +350,7 @@ class Budget(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="budgets")
     category = models.CharField(max_length=60)
     monthly_limit = models.DecimalField(max_digits=14, decimal_places=2)
+    rollover = models.BooleanField(default=False)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -365,6 +369,7 @@ class Loan(models.Model):
     due_date = models.DateField(null=True, blank=True)
     settled = models.BooleanField(default=False)
     note = models.CharField(max_length=200, blank=True)
+    repayments = models.JSONField(default=list, blank=True)  # [{"amount","date"}]
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -731,3 +736,14 @@ class AutoPayRule(models.Model):
 
     class Meta:
         unique_together = [("user", "biller")]
+
+
+class CategoryCorrection(models.Model):
+    """Per-user learned category for a parsed counterparty (improves the guesser)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="category_corrections")
+    key = models.CharField(max_length=120)
+    category = models.CharField(max_length=60)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [("user", "key")]

@@ -424,7 +424,7 @@ class MedicineTakenView(APIView):
         # A fresh PRN 'take' gets a unique timestamped slot so it never collides
         # with an earlier event on the same day (unique_together stays valid).
         if med.as_needed and slot == "prn" and taken:
-            slot = "prn-" + timezone.localtime().strftime("%H:%M:%S")
+            slot = "prn-%d" % (MedicineLog.objects.filter(medicine=med, date=the_date, slot__startswith="prn").count() + 1)
 
         prev = MedicineLog.objects.filter(medicine=med, date=the_date, slot=slot).first()
         was_taken = bool(prev and prev.taken)
@@ -450,7 +450,7 @@ class MedicineTakenView(APIView):
             id=med.id, slot=slot)
         return Response({"ok": True, "taken": obj.taken, "skipped": obj.skipped,
                          "slot": slot,
-                         "stock_count": str(med.stock_count)
+                         "stock_count": float(med.stock_count)
                          if med.stock_count is not None else None})
 
 
@@ -865,8 +865,8 @@ class MoneySummaryView(APIView):
             spent = by_cat.get(b.category, Decimal("0"))
             pct = int(spent / b.monthly_limit * 100) if b.monthly_limit else 0
             budgets.append({"category": b.category, "limit": str(b.monthly_limit),
-                            "spent": str(spent), "pct": pct,
-                            "warn": "over" if pct >= 100 else ("near" if pct >= 80 else "ok")})
+                            "spent": str(spent), "pct": pct, "rollover": b.rollover,
+                            "state": "over" if pct >= 100 else ("near" if pct >= 80 else "ok")})
 
         loans_given = dec(u.loans.filter(kind="given", settled=False)
                           .aggregate(s=Sum("amount"))["s"])
@@ -1779,3 +1779,171 @@ class JobTailorView(APIView):
                                  "আপনি অনুমোদন করলে নিজের Gmail থেকে পাঠানো যাবে (অটো-অ্যাপ্লাই নয়)।",
                                  "With your approval, this can be sent from your own Gmail (never auto-apply)."))
         return Response(res)
+
+
+def _json_decimals(obj):
+    from decimal import Decimal
+    if isinstance(obj, Decimal):
+        return str(obj)
+    if isinstance(obj, dict):
+        return {k: _json_decimals(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_json_decimals(v) for v in obj]
+    return obj
+
+
+# ---------- My Account (money) advanced endpoints (Phase B) ----------
+def _money_txns(user):
+    return [{"kind": t.kind, "amount": t.amount, "category": t.category,
+             "date": t.date, "account": t.account_id, "to_account": t.to_account_id}
+            for t in user.txns.all()]
+
+
+def _money_accounts(user):
+    from django.db.models import Sum
+    from decimal import Decimal
+    def dec(x): return x or Decimal("0")
+    out = []
+    for a in user.accounts.all():
+        inc = dec(a.txns.filter(kind="income").aggregate(s=Sum("amount"))["s"])
+        exp = dec(a.txns.filter(kind="expense").aggregate(s=Sum("amount"))["s"])
+        tout = dec(a.txns.filter(kind="transfer").aggregate(s=Sum("amount"))["s"])
+        tin = dec(a.txns_in.filter(kind="transfer").aggregate(s=Sum("amount"))["s"])
+        out.append({"balance": a.opening_balance + inc - exp - tout + tin})
+    return out
+
+
+def _money_loans(user):
+    return [{"amount": ln.amount, "kind": ln.kind, "repayments": ln.repayments or [],
+             "settled": ln.settled, "date": str(ln.date or "")}
+            for ln in user.loans.all()]
+
+
+class MoneyTrendsView(APIView):
+    def get(self, request):
+        from .logic import money_engine as me
+        txns = _money_txns(request.user)
+        cur = me.month_key(timezone.localdate())
+        return Response({
+            "months": [{k: (str(v) if k != "month" else v) for k, v in row.items()}
+                       for row in me.month_over_month(txns, 6)],
+            "categories": [{**r, "current": str(r["current"]), "previous": str(r["previous"]),
+                            "delta": str(r["delta"])}
+                           for r in me.category_trends(txns, cur)["categories"]],
+        })
+
+
+class MoneyNetWorthView(APIView):
+    def get(self, request):
+        from .logic import money_engine as me
+        from decimal import Decimal
+        accounts = _money_accounts(request.user)
+        loans = _money_loans(request.user)
+        nw = me.net_worth(accounts, loans)
+        # net-worth trajectory: back-cast from current net worth using monthly net flows
+        txns = _money_txns(request.user)
+        mom = me.month_over_month(txns, 6)
+        total_flow = sum((Decimal(str(r["net"])) for r in mom), Decimal("0"))
+        start = Decimal(str(nw["net_worth"])) - total_flow
+        running = start
+        snaps = []
+        for r in mom:
+            running = running + Decimal(str(r["net"]))
+            snaps.append({"month": r["month"], "net_worth": running})
+        series = [{"month": x["month"], "net_worth": str(x["net_worth"]), "delta": str(x["delta"])}
+                  for x in me.net_worth_series(snaps)]
+        return Response({k: str(v) for k, v in nw.items()} | {"series": series})
+
+
+class MoneyBudgetDetailView(APIView):
+    def get(self, request):
+        from .logic import money_engine as me
+        cat = request.query_params.get("category", "")
+        b = request.user.budgets.filter(category=cat).first()
+        if not b:
+            return Response({"detail": pick(req_lang(request), "বাজেট নেই", "No such budget")},
+                            status=status.HTTP_404_NOT_FOUND)
+        txns = _money_txns(request.user)
+        cur = me.month_key(timezone.localdate())
+        months = [me.month_key(me.add_months(me._as_date(cur + "-01"), -i)) for i in range(5, -1, -1)]
+        spend = {mk: me.category_spend(txns, mk).get(cat, me.ZERO) for mk in months}
+        rows = me.budget_with_rollover(cat, b.monthly_limit, spend, months, rollover=b.rollover)
+        out = [{k: (str(v) if k not in ("month", "state", "pct") else v) for k, v in r.items()}
+               for r in rows]
+        carry = out[-1].get("carry_forward", "0") if out else "0"
+        return Response({"category": cat, "rollover": b.rollover,
+                         "carry_forward": carry, "months": out})
+
+
+class MoneyReportView(APIView):
+    def get(self, request):
+        from .logic import money_engine as me
+        txns = _money_txns(request.user)
+        cur = me.month_key(timezone.localdate())
+        budgets = [{"category": b.category, "monthly_limit": b.monthly_limit}
+                   for b in request.user.budgets.all()]
+        rep = me.monthly_report(txns, cur, budgets=budgets)
+        return Response(_json_decimals(rep))
+
+
+class MoneyReportExportView(APIView):
+    def get(self, request, fmt="pdf"):
+        from .logic import money_engine as me
+        from django.http import HttpResponse
+        txns = _money_txns(request.user)
+        cur = me.month_key(timezone.localdate())
+        budgets = [{"category": b.category, "monthly_limit": b.monthly_limit}
+                   for b in request.user.budgets.all()]
+        rep = me.monthly_report(txns, cur, budgets=budgets)
+        lines = [f"Monthly report — {rep['month']}",
+                 f"Income: {rep['income']}  Expense: {rep['expense']}  Net: {rep['net']}",
+                 f"Savings rate: {rep['savings_rate']}%", "", "By category:"]
+        for r in rep["by_category"]:
+            lines.append(f"  {r['category']}: {r['amount']}")
+        if fmt == "xlsx":
+            try:
+                import io, openpyxl
+                wb = openpyxl.Workbook(); ws = wb.active; ws.title = "Report"
+                ws.append(["Month", rep["month"]]); ws.append(["Income", str(rep["income"])])
+                ws.append(["Expense", str(rep["expense"])]); ws.append(["Net", str(rep["net"])])
+                ws.append([]); ws.append(["Category", "Amount"])
+                for r in rep["by_category"]:
+                    ws.append([str(r["category"]), str(r["amount"])])
+                buf = io.BytesIO(); wb.save(buf)
+                return HttpResponse(buf.getvalue(),
+                    content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            except Exception:
+                return HttpResponse("\n".join(lines), content_type="text/csv")
+        try:
+            import io
+            from reportlab.pdfgen import canvas
+            buf = io.BytesIO(); c = canvas.Canvas(buf); y = 800
+            for ln in lines:
+                c.drawString(50, y, ln); y -= 18
+            c.showPage(); c.save()
+            return HttpResponse(buf.getvalue(), content_type="application/pdf")
+        except Exception:
+            return HttpResponse("\n".join(lines), content_type="text/plain")
+
+
+class MoneyParseView(APIView):
+    def post(self, request):
+        from .logic import money_parse as mp
+        text = request.data.get("text", "") or ""
+        msgs = [m for m in text.splitlines() if m.strip()] or [text]
+        parsed = mp.parse_batch(msgs)
+        seen = set(request.user.txns.exclude(ref="").values_list("ref", flat=True))
+        parsed = mp.dedupe(parsed, seen_fingerprints=None)
+        for p in parsed:
+            if p.get("ref") and p["ref"] in seen:
+                p["duplicate"] = True
+            p["amount"] = str(p["amount"]) if p.get("amount") is not None else None
+        return Response({"transactions": parsed})
+
+
+class MoneyLearnCategoryView(APIView):
+    def post(self, request):
+        from .logic import money_parse as mp
+        mp.learn_correction(request.data.get("counterparty", ""),
+                            request.data.get("category", ""), user=request.user)
+        return Response({"ok": True})

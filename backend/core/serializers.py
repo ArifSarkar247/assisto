@@ -145,23 +145,42 @@ class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
         fields = ["id", "account", "to_account", "kind", "amount", "category",
-                  "note", "date", "source", "created_at"]
+                  "note", "date", "source", "ref", "split_with", "split_mode", "created_at"]
         read_only_fields = ["id", "created_at"]
 
 
 class BudgetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Budget
-        fields = ["id", "category", "monthly_limit"]
+        fields = ["id", "category", "monthly_limit", "rollover"]
         read_only_fields = ["id"]
 
 
 class LoanSerializer(serializers.ModelSerializer):
+    balance = serializers.SerializerMethodField()
+    paid = serializers.SerializerMethodField()
+    progress_pct = serializers.SerializerMethodField()
+    ledger = serializers.SerializerMethodField()
+
     class Meta:
         model = Loan
         fields = ["id", "kind", "person", "amount", "date", "due_date",
-                  "settled", "note"]
-        read_only_fields = ["id"]
+                  "settled", "note", "repayments", "balance", "paid",
+                  "progress_pct", "ledger"]
+        read_only_fields = ["id", "balance", "paid", "progress_pct", "ledger"]
+
+    def _calc(self, obj):
+        from .logic import money_engine as me
+        return me.loan_balance({"amount": obj.amount, "kind": obj.kind,
+                                "repayments": obj.repayments or [],
+                                "settled": obj.settled, "date": str(obj.date or "")})
+
+    def get_balance(self, o): return str(self._calc(o)["balance"])
+    def get_paid(self, o): return str(self._calc(o)["paid"])
+    def get_progress_pct(self, o): return self._calc(o)["progress_pct"]
+    def get_ledger(self, o):
+        return [{**e, "amount": str(e["amount"]), "balance": str(e["balance"])}
+                for e in self._calc(o)["ledger"]]
 
 
 class SavingsGoalSerializer(serializers.ModelSerializer):
@@ -283,6 +302,7 @@ class PrescriptionSerializer(serializers.ModelSerializer):
 
 class MedicineSerializer(serializers.ModelSerializer):
     # derived, read-only insight fields (computed in to_representation)
+    stock_count = serializers.FloatField(allow_null=True, required=False)
     days_left = serializers.SerializerMethodField()
     refill_status = serializers.SerializerMethodField()
     predicted_refill = serializers.SerializerMethodField()
