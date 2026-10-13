@@ -55,3 +55,4 @@ logs/
 watchdog.dryrun
 watchdog.state
 db_backups/
+.worktrees/

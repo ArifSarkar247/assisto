@@ -17,6 +17,10 @@
 
 **PHASE B — parallel team (6 worktrees; I=INTEGRATOR: merge, ARB-merge, migrations 1-at-a-time+DB backup, tests, gallery, APK). Premium reviewer (different agent) per module vs depth-standard + benchmark table (top 2–3 apps) + language rules + scenario tests; only reviewer-passed = "advanced". Ship APK per module.** Areas: (1) Medicine/family→Connected Circle (2) Money parser/budgets/loans/reports/net-worth (3) Reminders/memory NL-engine+vault+scam+safety (4) AI CRM web app (own Django app) (5) P13+ additions (6) Plans/paywall+onboarding+grouped sidebar+open-from-chat. Server: heavy jobs 1-at-a-time+lock; throttle on load/RAM/swap/Asalify slowness; ≥8GB disk; cleanup each build.
 
+
+### Phase B disk + worktree protocol (owner DISK GUARD)
+Shared disk w/ LIVE Asalify; floor 8 GB, soft 8.5 GB. `bin/disk_guard.sh` before any worktree: cleanup if <8.5, refuse/reduce if <8. **No flutter build/pub get/test inside agent worktrees** — agents edit code only; the **integrator builds in the main tree** then `cleanup.sh`. Share one pub cache. Delete each worktree + its build dirs right after merging. Never touch Asalify or /home/ubuntu/asalify_backups/.
+
 ## 🧭 লাইভ রিজিউম-চেকলিস্ট (ফেজ ক্রম)
 
 - [x] **STEP 1** — সম্পূর্ণ ফিচার ম্যাট্রিক্স (নিচে) + এই চেকলিস্ট + "Decisions I made"
