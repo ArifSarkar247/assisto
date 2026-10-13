@@ -344,3 +344,8 @@ Legend: M=model · A=API · S=app screen · T=tests · K=works without a key. �
 | AI narrative/roleplay/mental/billAI/LifeScanner | ➖ | ✅ | ✅ | ◑ | 🔑 | needs-key states correct |
 
 **Fixable-without-key TODO (from audit):** (1) per-medicine follow-up config on the medicine add/edit form; (2) Personal CRM meetings UI; (3) Auto-pay ladder app screen; (4) Elderly simple-mode UI. **Bigger (plugin/native):** fall-detection sensors (settings done), system-Assist/widget/wake-word, notification-listener (bKash/bank), AI CRM web dashboard.
+
+<!-- DEPTH-AUDIT PROGRESS -->
+### Depth-audit fixes progress
+- ✅ (1) per-medicine follow-up config form (committed after build 53 → next APK).
+- 🔨 next (no key): (2) CRM meetings UI, (3) auto-pay ladder app screen, (4) elderly simple-mode UI → then P13 Connected Circle, P14 new features, P15 launch gaps, P16 seasonal, FINAL.
