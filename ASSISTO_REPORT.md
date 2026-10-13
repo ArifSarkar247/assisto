@@ -60,6 +60,13 @@ APK: https://assisto.asalify.com/dl/zsUQT7bgXLj4zzAQbGFjiVQj/assisto-part7-build
 All 4 modules reviewer-passed→fixed→wired→GREEN (commit f7c49d1): plans/onboarding/grouped-sidebar/open-from-chat, vault/scam/safety (advanced), reminders/memory NL-engine (advanced, Dart↔Python golden parity), **CRM in-app Sales CRM** (advanced; Contacts renamed; Won/Lost close backing Deal + mandatory reason + audit; in-app quote builder; multi-tenant airtight — security-reviewed no IDOR). Integrator wired api methods + core migration 0018 (Reminder recurrence_rule/date_only/link, Document.details, SafetyCheckin, FamilyAlert) + crm migration 0003 (Lead fields) + endpoints (scam/library+report, safety/checkin, reminders/parse, memory/search, /plans localized, AgentView route) + grouped collapsible sidebar w/ search + Contacts/Sales CRM + open-from-chat. ARB 887 balanced, flutter analyze 0 errors, **lang gate CLEAN**, **90/90 backend tests**, crm_scenario PASS, 2 DB backups taken, service redeployed (health 200, /plans localized, Asalify 200). Known: 2 subscriptions_loading gallery shots flake (pre-existing FakeMode.slow teardown).
 NEXT: module 5 — P13+ additions (Connected Circle E2E; health tips; medicine DB lawful-source; birthdays; meetings; dictionary open-license; photo enhance; Unseen World; ride/food deep-links; Ramadan; exam-day; password reset; analytics; legal; name check). Then P11 iOS, P12 FINAL.
 
+### Phase B MODULE 5 (P13+) running — 4 agents (code-only, hand integrator lists)
+- aa585ebf **Health**: tips (DGHS/WHO source-named, never diagnose), medicine DB (DGDA-only, NEVER DIMS/MedEx, switch-advice disclaimer, needs-data state), birthdays/memorable days (drafts).
+- a046f0d4 **Life**: meetings/appointments(+Leave-now), dictionary bn↔en (OPEN-license only, NEVER Bangla Academy, needs-data state), ride/food deep-links, Ramadan (location sehri/iftar+zakat+Eid cards), exam-result day.
+- a515a717 **Launch gaps**: password reset (email now/SMS key-gated, no enumeration), privacy analytics (OWN backend, no 3rd-party, D1/7/30+funnel), legal pages (DRAFT TO REVIEW BY OWNER), name/trademark check (owner_actions/name_check.md), photo enhance (own photos only, never IDs), Unseen World (unseenbangladesh.com+open).
+- ac08c7e3 **Connected Circle**: relationship graph+invite(phone/QR)+consent+block, E2E text via software fallback now (X25519+AEAD) w/ OpenMLS(Apache/MIT, NOT libsignal-AGPL) swap seam, server ciphertext-only, media/voice key-gated; owner_actions/connected_circle_e2e.md.
+Each → review → fix → batched integration (like round 2) → APK. Then P14-P16 leftovers, P11 iOS, P12 FINAL.
+
 ## 🧭 লাইভ রিজিউম-চেকলিস্ট (ফেজ ক্রম)
 
 - [x] **STEP 1** — সম্পূর্ণ ফিচার ম্যাট্রিক্স (নিচে) + এই চেকলিস্ট + "Decisions I made"
