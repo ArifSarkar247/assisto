@@ -25,6 +25,7 @@ SCREEN_SYNONYMS = {
     ],
     "reminders": ["রিমাইন্ডার", "মনে করিয়ে", "অ্যালার্ম", "reminder", "reminders", "remind me"],
     "emergency": ["ইমার্জেন্সি", "জরুরি", "sos", "emergency", "help"],
+    "plans": ["প্ল্যান", "প্রিমিয়াম", "আপগ্রেড", "সাবস্ক্রিপশন প্ল্যান", "plans", "premium", "upgrade", "pricing", "subscription plan"],
     "vaultpin": [],  # reserved
 }
 

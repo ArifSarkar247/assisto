@@ -24,3 +24,11 @@ Owned files in tree: app/lib/screens/plans_screen.dart (rebuilt), onboarding_scr
 ## fake_api: add plansPublic() stub (localized list mirroring plans_public); optionally add 'route' to agent() fake. (See agent report for body.)
 
 ## Self-grade: all advanced. PENDING plans reviewer.
+
+## PLANS REVIEWER = GOOD → integrator fixes to reach advanced:
+- Add @plansChoose placeholder metadata {name} when applying ARB (else codegen non-parameterized → compile fail). plans_screen uses t.plansChoose('<name>').
+- chatnav 'plans' route: backend screen_synonyms 'plans' entry ADDED (done) → symmetry ok.
+- plans_screen.dart:170 guard '${p['name'] ?? p['plan']}' → avoid literal "null".
+- plans_screen.dart ~109-135 add empty state when /plans returns [] (success-but-empty).
+- plans_screen current-plan match: _p?['plan'] vs card p['id'] — ensure /me/plan 'plan' == /plans 'id' (both are plan slugs; OK — verify at wire).
+- onboarding_screen.dart:58 _open nav mount — verify onboarding is a gate (not pushed route) so opened screen lands on home shell.
