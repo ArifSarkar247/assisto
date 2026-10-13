@@ -5,6 +5,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:share_plus/share_plus.dart';
 import '../state.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/safety_sos_countdown.dart';
+import 'safety_screen.dart';
 
 class EmergencyScreen extends StatefulWidget {
   const EmergencyScreen({super.key});
@@ -142,7 +144,13 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
         ],
       ),
     );
-    if (confirm == true) _call(_contacts.first['phone']);
+    if (confirm != true) return;
+    // configurable countdown (shared with the Safety screen) lets a mis-tap
+    // be cancelled before contacts are alerted.
+    final cd = int.tryParse(await Settings.getString('safety_sos_cd') ?? '') ?? 5;
+    if (!mounted) return;
+    final fire = await SafetySosCountdown.show(context, cd);
+    if (fire && mounted) _call(_contacts.first['phone']);
   }
 
   @override
@@ -176,6 +184,16 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
             onPressed: _shareLocation,
             icon: const Icon(Icons.my_location),
             label: Text(t.shareMyLocation),
+          ),
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const SafetyScreen())),
+            icon: const Icon(Icons.health_and_safety_outlined),
+            label: Text(t.safetyToolsButton),
           ),
         ),
         const SizedBox(height: 16),

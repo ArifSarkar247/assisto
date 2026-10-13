@@ -1,0 +1,136 @@
+import 'package:flutter/material.dart';
+
+import '../l10n/app_localizations.dart';
+import '../screens/money_screen.dart';
+import '../screens/finance_screen.dart';
+import '../screens/vault_screen.dart';
+import '../screens/subscriptions_screen.dart';
+import '../screens/family_screen.dart';
+import '../screens/emergency_screen.dart';
+import '../screens/nominee_screen.dart';
+import '../screens/reminders_screen.dart';
+import '../screens/notes_todos_screen.dart';
+import '../screens/memory_screen.dart';
+import '../screens/watch_feed_screen.dart';
+import '../screens/inbox_screen.dart';
+import '../screens/agent_studio_screen.dart';
+import '../screens/guide_screen.dart';
+import '../screens/jobs_screen.dart';
+import '../screens/nearby_screen.dart';
+import '../screens/business_screen.dart';
+import '../screens/crm_contacts_screen.dart';
+import '../screens/plans_screen.dart';
+import '../screens/in_progress_screen.dart';
+import '../screens/settings_screen.dart'; // exports SourcesScreen (Connected apps)
+
+/// One navigable module inside a sidebar section.
+class SidebarItem {
+  final IconData icon;
+  final String Function(AppLocalizations t) label;
+  final WidgetBuilder builder;
+  const SidebarItem(this.icon, this.label, this.builder);
+}
+
+/// A collapsible, titled group of modules in the sidebar.
+class SidebarSection {
+  final IconData icon;
+  final String Function(AppLocalizations t) title;
+  final List<SidebarItem> items;
+  const SidebarSection(this.icon, this.title, this.items);
+}
+
+/// Grouped, collapsible sidebar layout (Phase B spec, for the integrator to
+/// wire into the integrator-owned `app_drawer.dart`).
+///
+/// Sections (localized): Money, Family, Health, Life, Work, Business, Settings.
+/// Every module here is ALSO reachable from chat (see [ChatNav]); the sidebar
+/// is the discovery surface, chat is the fast path.
+///
+/// Usage by integrator (replacing the flat `modules` list in app_drawer):
+///   for (final s in SidebarSections.all)  -> render an ExpansionTile with
+///   s.title(t)/s.icon, children = s.items (ListTile -> push item.builder).
+///   Settings + Plans can stay in their own pinned footer if preferred; they
+///   are included here too so search covers them.
+///
+/// Search: filter items by `item.label(t).toLowerCase().contains(query)`;
+/// show only sections that still have matching items (see
+/// [SidebarSections.filter]).
+class SidebarSections {
+  SidebarSections._();
+
+  static final List<SidebarSection> all = [
+    SidebarSection(Icons.account_balance_wallet_outlined, (t) => t.sidebarMoney, [
+      SidebarItem(Icons.account_balance_wallet_outlined,
+          (t) => t.moduleMoney, (_) => const MoneyScreen()),
+      SidebarItem(Icons.calculate_outlined,
+          (t) => t.financeTools, (_) => const FinanceScreen()),
+      SidebarItem(Icons.autorenew,
+          (t) => t.subscriptions, (_) => const SubscriptionsScreen()),
+      SidebarItem(Icons.lock_outline,
+          (t) => t.moduleVault, (_) => const VaultScreen()),
+    ]),
+    SidebarSection(Icons.diversity_1_outlined, (t) => t.sidebarFamily, [
+      SidebarItem(Icons.diversity_1_outlined,
+          (t) => t.moduleFamily, (_) => const FamilyScreen()),
+      SidebarItem(Icons.emergency_outlined,
+          (t) => t.moduleEmergency, (_) => const EmergencyScreen()),
+      SidebarItem(Icons.shield_outlined,
+          (t) => t.nominee, (_) => const NomineeScreen()),
+    ]),
+    SidebarSection(Icons.favorite_outline, (t) => t.sidebarHealth, [
+      SidebarItem(Icons.medication_outlined,
+          (t) => t.sidebarMedicines, (_) => const FamilyScreen()),
+      SidebarItem(Icons.alarm_outlined,
+          (t) => t.navReminders, (_) => const RemindersScreen()),
+    ]),
+    SidebarSection(Icons.auto_awesome_outlined, (t) => t.sidebarLife, [
+      SidebarItem(Icons.checklist_outlined,
+          (t) => t.navNotesTasks, (_) => const NotesTodosScreen()),
+      SidebarItem(Icons.psychology_outlined,
+          (t) => t.navMemory, (_) => const MemoryScreen()),
+      SidebarItem(Icons.radar_outlined,
+          (t) => t.watchFeed, (_) => const WatchFeedScreen()),
+      SidebarItem(Icons.mark_email_unread_outlined,
+          (t) => t.aiInbox, (_) => const InboxScreen()),
+      SidebarItem(Icons.place_outlined,
+          (t) => t.sidebarNearby, (_) => const NearbyScreen()),
+    ]),
+    SidebarSection(Icons.work_outline, (t) => t.sidebarWork, [
+      SidebarItem(Icons.auto_awesome_outlined,
+          (t) => t.agentStudio, (_) => const AgentStudioScreen()),
+      SidebarItem(Icons.account_balance_outlined,
+          (t) => t.serviceGuide, (_) => const GuideScreen()),
+      SidebarItem(Icons.work_outline,
+          (t) => t.jobHunter, (_) => const JobsScreen()),
+      SidebarItem(Icons.hub_outlined,
+          (t) => t.connectedApps, (_) => SourcesScreen()),
+    ]),
+    SidebarSection(Icons.storefront_outlined, (t) => t.sidebarBusiness, [
+      SidebarItem(Icons.storefront_outlined,
+          (t) => t.business, (_) => const BusinessScreen()),
+      SidebarItem(Icons.contacts_outlined,
+          (t) => t.crmContacts, (_) => const CrmContactsScreen()),
+    ]),
+    SidebarSection(Icons.settings_outlined, (t) => t.sidebarSettings, [
+      SidebarItem(Icons.workspace_premium_outlined,
+          (t) => t.planCredits, (_) => const PlansScreen()),
+      SidebarItem(Icons.pending_actions_outlined,
+          (t) => t.inProgress, (_) => const InProgressScreen()),
+    ]),
+  ];
+
+  /// Returns sections (with items) matching [query]. Empty query -> [all].
+  /// Integrator uses this for the sidebar search box.
+  static List<SidebarSection> filter(AppLocalizations t, String query) {
+    final q = query.trim().toLowerCase();
+    if (q.isEmpty) return all;
+    final out = <SidebarSection>[];
+    for (final s in all) {
+      final hits = s.items
+          .where((i) => i.label(t).toLowerCase().contains(q))
+          .toList();
+      if (hits.isNotEmpty) out.add(SidebarSection(s.icon, s.title, hits));
+    }
+    return out;
+  }
+}

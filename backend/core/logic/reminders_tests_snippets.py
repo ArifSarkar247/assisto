@@ -1,0 +1,284 @@
+"""
+reminders_tests_snippets.py — pure-python self-tests for nlp_datetime +
+reminders_engine. NO Django, NO DB. Run directly:
+
+    python3 backend/core/logic/reminders_tests_snippets.py
+
+Every assert is a real scenario a Bangladeshi user would type (Bangla / English /
+Banglish, Bangla digits). `NOW` is fixed so results are deterministic.
+"""
+
+import os
+import sys
+import importlib.util
+from datetime import datetime, date
+
+# --- load the two modules without needing the Django package context ---------
+_HERE = os.path.dirname(os.path.abspath(__file__))
+
+
+def _load(name):
+    path = os.path.join(_HERE, name + ".py")
+    spec = importlib.util.spec_from_file_location("logic_" + name, path)
+    mod = importlib.util.module_from_spec(spec)
+    # register so reminders_engine's `from .nlp_datetime import ...` resolves:
+    sys.modules["logic_" + name] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+
+# reminders_engine does `from .nlp_datetime import ...`; emulate the package.
+import types
+_pkg = types.ModuleType("rpkg")
+_pkg.__path__ = [_HERE]
+sys.modules["rpkg"] = _pkg
+_ndt_spec = importlib.util.spec_from_file_location("rpkg.nlp_datetime",
+                                                   os.path.join(_HERE, "nlp_datetime.py"))
+nlp = importlib.util.module_from_spec(_ndt_spec)
+sys.modules["rpkg.nlp_datetime"] = nlp
+_ndt_spec.loader.exec_module(nlp)
+_eng_spec = importlib.util.spec_from_file_location("rpkg.reminders_engine",
+                                                   os.path.join(_HERE, "reminders_engine.py"))
+eng = importlib.util.module_from_spec(_eng_spec)
+sys.modules["rpkg.reminders_engine"] = eng
+_eng_spec.loader.exec_module(eng)
+
+parse = nlp.parse
+
+# Fixed reference time: Tuesday 13 Oct 2026, 10:00 (so weekday math is checkable).
+# (13 Oct 2026 is a Tuesday; the next Friday is 16 Oct.)
+NOW = datetime(2026, 10, 13, 10, 0, 0)
+
+_count = 0
+
+
+def ok(cond, msg):
+    global _count
+    _count += 1
+    assert cond, "FAIL: " + msg
+
+
+def di(iso):
+    return datetime.fromisoformat(iso) if iso else None
+
+
+# =========================================================== nlp_datetime
+def test_digits():
+    ok(nlp.normalize_digits("১২৩৪৫৬৭৮৯০") == "1234567890", "bn digits")
+    ok(nlp.normalize_digits(None) == "", "none digits")
+
+
+def test_relative_bn():
+    r = parse("আগামীকাল ডাক্তার দেখাতে যাব", now=NOW)
+    ok(di(r["datetime"]).date() == date(2026, 10, 14), "আগামীকাল -> +1 day")
+    ok(di(r["datetime"]).hour == nlp.DEFAULT_HOUR, "no time -> default 9am")
+    ok(r["date_only"] is True, "date_only when no clock")
+
+    r = parse("৩ দিন পর বিল দিতে হবে", now=NOW)
+    ok(di(r["datetime"]).date() == date(2026, 10, 16), "৩ দিন পর")
+
+    r = parse("পরশু মিটিং", now=NOW)
+    ok(di(r["datetime"]).date() == date(2026, 10, 15), "পরশু -> +2")
+
+    r = parse("আজকে রিপোর্ট জমা", now=NOW)
+    ok(di(r["datetime"]).date() == date(2026, 10, 13), "আজ -> today")
+
+
+def test_time_bn():
+    r = parse("প্রতিদিন সকাল ৮টা ওষুধ", now=NOW)
+    ok(r["recurrence_rule"]["freq"] == "daily", "প্রতিদিন -> daily")
+    ok(r["recurrence_rule"]["time"] == "08:00", "সকাল ৮টা -> 08:00")
+
+    r = parse("রাত ৯টা খবর দেখব", now=NOW)
+    # রাত makes bare 9টা -> 21:00
+    ok(di(r["datetime"]).hour == 21, "রাত ৯টা -> 21:00")
+
+    r = parse("বিকাল ৫টা চা", now=NOW)
+    ok(di(r["datetime"]).hour == 17, "বিকাল ৫টা -> 17:00")
+
+    r = parse("সকাল ৭টা ৩০ মিনিট দৌড়", now=NOW)
+    ok(di(r["datetime"]).hour == 7 and di(r["datetime"]).minute == 30, "৭টা ৩০ মিনিট")
+
+
+def test_weekly_bn():
+    r = parse("প্রতি শুক্রবার জুম্মা", now=NOW)
+    ok(r["recurrence_rule"]["freq"] == "weekly", "প্রতি শুক্রবার weekly")
+    ok(r["recurrence_rule"]["weekday"] == 4, "শুক্রবার -> 4 (Fri)")
+    ok(di(r["datetime"]).weekday() == 4, "anchor is a Friday")
+    # NOW is Tue 13 Oct; next Friday is 16 Oct
+    ok(di(r["datetime"]).date() == date(2026, 10, 16), "next Friday 16 Oct")
+
+
+def test_monthly_bn():
+    r = parse("প্রতি মাসের ৫ তারিখ বাড়ি ভাড়া", now=NOW)
+    ok(r["recurrence_rule"]["freq"] == "monthly", "monthly")
+    ok(r["recurrence_rule"]["day_of_month"] == 5, "dom 5")
+    # 5th already passed in Oct (now 13th) -> next is 5 Nov
+    ok(di(r["datetime"]).date() == date(2026, 11, 5), "next 5th -> Nov")
+
+    r = parse("প্রতি মাসের ১ তারিখ সেলারি", now=NOW)
+    ok(di(r["datetime"]).date() == date(2026, 11, 1), "1st -> Nov 1")
+
+
+def test_next_month_date():
+    r = parse("আগামী মাসের ৫ তারিখ পরীক্ষা", now=NOW)
+    ok(r["recurrence_rule"] is None, "one-off, not recurring")
+    ok(di(r["datetime"]).date() == date(2026, 11, 5), "next month day 5")
+
+
+def test_english():
+    r = parse("next Friday 5pm meeting", now=NOW)
+    ok(di(r["datetime"]).weekday() == 4, "next friday")
+    ok(di(r["datetime"]).hour == 17, "5pm -> 17:00")
+
+    r = parse("every day at 7:30am gym", now=NOW)
+    ok(r["recurrence_rule"]["freq"] == "daily", "every day daily")
+    ok(r["recurrence_rule"]["time"] == "07:30", "7:30am")
+
+    r = parse("in 3 days pay rent", now=NOW)
+    ok(di(r["datetime"]).date() == date(2026, 10, 16), "in 3 days")
+
+    r = parse("remind me to call mom tomorrow morning", now=NOW)
+    ok(di(r["datetime"]).date() == date(2026, 10, 14), "tomorrow")
+    ok(di(r["datetime"]).hour == 8, "morning -> 8")
+    ok("call mom" in r["clean_title"].lower(), "clean title keeps task: " + r["clean_title"])
+
+
+def test_explicit_date():
+    r = parse("25/12 christmas", now=NOW)
+    ok(di(r["datetime"]).month == 12 and di(r["datetime"]).day == 25, "25/12")
+    r = parse("5/1/2027 trip", now=NOW)
+    ok(di(r["datetime"]).year == 2027, "explicit year")
+
+
+def test_banglish():
+    r = parse("protidin sokal 8ta medicine", now=NOW)
+    # 'protidin' daily; '8ta' not matched (banglish time weak) but freq ok
+    ok(r["recurrence_rule"]["freq"] == "daily", "banglish protidin")
+    r = parse("next friday call", now=NOW)
+    ok(di(r["datetime"]).weekday() == 4, "banglish-ish english friday")
+
+
+def test_confidence_and_clean():
+    r = parse("just some random text", now=NOW)
+    ok(r["datetime"] is None, "no date -> None datetime")
+    ok(r["confidence"] == 0.0, "no match -> 0 confidence")
+    r = parse("প্রতি মাসের ৫ তারিখ সকাল ৯টা", now=NOW)
+    ok(r["confidence"] >= 0.8, "strong recurrence -> high confidence")
+
+
+def test_time_only_rolls_to_tomorrow():
+    # NOW is 10:00; "8am" already passed -> tomorrow
+    r = parse("8am breakfast", now=NOW)
+    ok(di(r["datetime"]).date() == date(2026, 10, 14), "8am past -> tomorrow")
+    # "2pm" still ahead today
+    r = parse("2pm lunch", now=NOW)
+    ok(di(r["datetime"]).date() == date(2026, 10, 13), "2pm today")
+
+
+# =========================================================== engine
+def test_next_occurrence():
+    rule = {"freq": "daily", "interval": 1, "weekday": None,
+            "day_of_month": None, "month": None, "time": "08:00"}
+    anchor = datetime(2026, 10, 13, 8, 0)
+    nxt = eng.next_occurrence(anchor, rule, after=NOW)  # NOW 10:00 -> tomorrow 8am
+    ok(nxt == datetime(2026, 10, 14, 8, 0), "daily next after today's pass")
+
+    rule = {"freq": "weekly", "interval": 1, "weekday": 4,
+            "day_of_month": None, "month": None, "time": "17:00"}
+    anchor = datetime(2026, 10, 16, 17, 0)
+    nxt = eng.next_occurrence(anchor, rule, after=datetime(2026, 10, 16, 18, 0))
+    ok(nxt == datetime(2026, 10, 23, 17, 0), "weekly +1 week")
+
+    rule = {"freq": "monthly", "interval": 1, "weekday": None,
+            "day_of_month": 31, "month": None, "time": "09:00"}
+    anchor = datetime(2026, 1, 31, 9, 0)
+    nxt = eng.next_occurrence(anchor, rule, after=datetime(2026, 2, 1, 0, 0))
+    ok(nxt == datetime(2026, 2, 28, 9, 0), "monthly clamps Feb (28)")
+
+
+def test_interval():
+    rule = {"freq": "daily", "interval": 3, "weekday": None,
+            "day_of_month": None, "month": None, "time": "09:00"}
+    anchor = datetime(2026, 10, 13, 9, 0)
+    nxt = eng.next_occurrence(anchor, rule, after=datetime(2026, 10, 13, 10, 0))
+    ok(nxt == datetime(2026, 10, 16, 9, 0), "every 3 days")
+
+
+def test_expand():
+    rule = {"freq": "weekly", "interval": 1, "weekday": 4,
+            "day_of_month": None, "month": None, "time": "17:00"}
+    anchor = datetime(2026, 10, 16, 17, 0)
+    occ = eng.expand(anchor, rule, start=NOW,
+                     end=datetime(2026, 11, 30, 23, 59), limit=10)
+    ok(len(occ) == 7, "Fridays 16 Oct..30 Nov = 7, got %d" % len(occ))
+    ok(occ[0] == datetime(2026, 10, 16, 17, 0), "first friday")
+    ok(all(d.weekday() == 4 for d in occ), "all fridays")
+
+
+def test_overdue():
+    anchor = datetime(2026, 10, 12, 9, 0)  # yesterday
+    ok(eng.is_overdue(anchor, None, done=False, now=NOW) is True, "one-off past overdue")
+    ok(eng.is_overdue(anchor, None, done=True, now=NOW) is False, "done not overdue")
+    future = datetime(2026, 10, 20, 9, 0)
+    ok(eng.is_overdue(future, None, now=NOW) is False, "future not overdue")
+
+
+def test_snooze():
+    due = datetime(2026, 10, 13, 9, 0)
+    ok(eng.snooze(due, "10 min", now=NOW) == datetime(2026, 10, 13, 10, 10), "10 min")
+    ok(eng.snooze(due, "১৫ মিনিট", now=NOW) == datetime(2026, 10, 13, 10, 15), "bn 15 min")
+    ok(eng.snooze(due, "আধা ঘণ্টা", now=NOW) == datetime(2026, 10, 13, 10, 30), "half hour bn")
+    ok(eng.snooze(due, "1 hour", now=NOW) == datetime(2026, 10, 13, 11, 0), "1 hour")
+    t = eng.snooze(due, "tomorrow morning", now=NOW)
+    ok(t == datetime(2026, 10, 14, 8, 0), "tomorrow morning -> 8am")
+    t = eng.snooze(due, "আগামীকাল", now=NOW)
+    ok(t.date() == date(2026, 10, 14), "bn tomorrow")
+    t = eng.snooze(due, "next week", now=NOW)
+    ok(t.date() == date(2026, 10, 20), "next week")
+    ok(eng.snooze(due, "gibberish xyz", now=NOW) is None, "unparseable -> None")
+
+
+def test_memory_search():
+    items = [
+        {"title": "আম্মুর ওষুধ", "detail": "Napa সকালে", "category": "স্বাস্থ্য"},
+        {"title": "Wifi password", "detail": "home router is abc123", "category": "tech"},
+        {"title": "গাড়ির নম্বর", "detail": "ঢাকা মেট্রো গ ১২৩৪", "category": "গাড়ি"},
+        {"title": "Doctor appointment", "detail": "Dr Rahman, Square", "category": "health"},
+    ]
+    res = eng.search_memory("আম্মুর ওষুধ সম্পর্কে কী বলেছিলাম?", items)
+    ok(res[0]["title"] == "আম্মুর ওষুধ", "memory top hit by title")
+    ok(res[0]["_score"] > 0, "scored")
+
+    res = eng.search_memory("what is the wifi password", items)
+    ok(res[0]["title"] == "Wifi password", "english memory hit")
+
+    res = eng.search_memory("doctor", items)
+    ok(any(r["title"] == "Doctor appointment" for r in res), "partial word doctor")
+
+    res = eng.search_memory("completely unrelated zzz", items)
+    ok(res == [], "no match -> empty")
+
+    q = eng.extract_memory_query("আমি তোমাকে গাড়ির নম্বর নিয়ে কী বলেছিলাম?")
+    ok("গাড়ির" in q and "নম্বর" in q, "query extraction strips framing: %r" % q)
+
+
+def test_last_occurrence():
+    rule = {"freq": "daily", "interval": 1, "weekday": None,
+            "day_of_month": None, "month": None, "time": "08:00"}
+    anchor = datetime(2026, 10, 1, 8, 0)
+    last = eng.last_occurrence(anchor, rule, at=NOW)  # NOW 13 Oct 10:00
+    ok(last == datetime(2026, 10, 13, 8, 0), "last daily occ today 8am")
+
+
+def run():
+    tests = [v for k, v in sorted(globals().items())
+             if k.startswith("test_") and callable(v)]
+    for t in tests:
+        t()
+    print("ALL PASS — %d assertions across %d tests" % (_count, len(tests)))
+    return _count
+
+
+if __name__ == "__main__":
+    run()

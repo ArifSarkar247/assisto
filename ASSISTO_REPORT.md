@@ -2,6 +2,9 @@
 
 > **চূড়ান্ত মাস্টার প্ল্যান চলছে (শুরু ১২ অক্টোবর ২০২৬)।** লক্ষ্য: দুই PDF-এর সব ফিচার শেষ করা, যেন মালিক শুধু একে একে API key/account যোগ করলেই সব চালু হয়। এই সেকশনটাই রিজিউম-অ্যাঙ্কর — সেশন থামলে এখান থেকে শুরু।
 
+## 🟢 OWNER PLATFORM ORDER (follow strictly)
+1) **Android** — build & finish EVERYTHING here first. 2) **iPhone**. 3) **Web app LAST** — do NOT build web UI for app features until Android+iPhone done. Exceptions (keep as-is): owner Integrations admin page + the 4 free web tools (CV score, scam checker, passport photo, festival cards). → reinforces CRM-in-app (web CRM pages left unlinked).
+
 ## 🚨 OWNER DIRECTIVE v2 + FAST MODE (১৩ অক্টোবর ২০২৬) — বর্তমান ক্রম
 
 নতুন ক্রম: (1) **STRICT LANGUAGE fix** → (2) advanced rebuild of every module (benchmarked, reviewer-passed) → (3) P13+ additions same standard → তারপর P11 iOS / P12. Verdict: অ্যাপ "basic" — premium depth দরকার; key ছাড়া যা বানানো যায় সব এখন; AI pipelines mock দিয়ে পূর্ণ।

@@ -7,17 +7,12 @@ import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../state.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/permission_reason.dart';
-
-Map<String, String> _docTypes(AppLocalizations t) => {
-  'passport': t.docTypePassport,
-  'nid': 'NID',
-  'licence': t.docTypeLicence,
-  'certificate': t.docTypeCertificate,
-  'other': t.docTypeOther,
-};
+import '../widgets/vault_doc_types.dart';
+import '../widgets/scam_safety_api.dart';
 
 class VaultScreen extends StatefulWidget {
   /// Preview/screenshot: skip the PIN gate and load straight to the list.
@@ -34,6 +29,7 @@ class _VaultScreenState extends State<VaultScreen> {
   List<Map<String, dynamic>> _docs = [];
   bool _loading = false;
   bool _error = false;
+  String _query = '';
 
   @override
   void initState() {
@@ -47,6 +43,7 @@ class _VaultScreenState extends State<VaultScreen> {
     }
   }
 
+  // ------------------------------------------------------------------ PIN gate
   Future<void> _gate() async {
     final pin = await _secure.read(key: 'vault_pin');
     setState(() => _checking = false);
@@ -111,6 +108,7 @@ class _VaultScreenState extends State<VaultScreen> {
     }
   }
 
+  // ------------------------------------------------------------------ data
   Future<void> _load() async {
     setState(() {
       _loading = true;
@@ -152,82 +150,139 @@ class _VaultScreenState extends State<VaultScreen> {
     return x?.path;
   }
 
-  Future<void> _viewFile(int id, String title) async {
+  Future<File?> _downloadFile(int id) async {
+    final bytes = await context.read<AppState>().api.getBytes('/documents/$id/file');
+    final dir = await getTemporaryDirectory();
+    final f = File('${dir.path}/vault_$id.jpg');
+    await f.writeAsBytes(bytes);
+    return f;
+  }
+
+  Future<void> _viewFile(int id) async {
     final messenger = ScaffoldMessenger.of(context);
     try {
-      final bytes = await context.read<AppState>().api.getBytes('/documents/$id/file');
-      final dir = await getTemporaryDirectory();
-      final f = File('${dir.path}/vault_$id.jpg');
-      await f.writeAsBytes(bytes);
-      await OpenFilex.open(f.path);
+      final f = await _downloadFile(id);
+      if (f != null) await OpenFilex.open(f.path);
     } catch (_) {
       messenger.showSnackBar(
           SnackBar(content: Text(AppLocalizations.of(context).vaultNoFileAttached)));
     }
   }
 
+  // ------------------------------------------------------------------ add/edit
   Future<void> _add() async {
     final title = TextEditingController();
-    final note = TextEditingController();
-    String type = 'passport';
+    final free = TextEditingController();
+    String type = 'nid';
     DateTime? expiry;
     String? filePath;
+    final details = <String, TextEditingController>{};
+    final detailDates = <String, DateTime?>{};
+
+    TextEditingController ctrlFor(String k) =>
+        details.putIfAbsent(k, () => TextEditingController());
+
     final ok = await showDialog<bool>(
       context: context,
-      builder: (ctx) => StatefulBuilder(builder: (ctx, setD) => AlertDialog(
-        title: Text(AppLocalizations.of(context).vaultAddDocument),
-        content: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
-          TextField(controller: title, decoration: InputDecoration(labelText: AppLocalizations.of(context).vaultNameRequired)),
-          const SizedBox(height: 10),
-          DropdownButtonFormField<String>(
-            value: type,
-            decoration: InputDecoration(labelText: AppLocalizations.of(context).moneyFieldType),
-            items: _docTypes(AppLocalizations.of(context)).entries.map((e) =>
-                DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
-            onChanged: (v) => setD(() => type = v ?? 'other'),
-          ),
-          const SizedBox(height: 10),
-          OutlinedButton.icon(
-            icon: const Icon(Icons.event, size: 18),
-            label: Text(expiry == null ? AppLocalizations.of(context).vaultExpiryDate
-                : DateFormat('d MMM yyyy').format(expiry!)),
-            onPressed: () async {
-              final d = await showDatePicker(context: ctx, initialDate: DateTime.now(),
-                  firstDate: DateTime(2000), lastDate: DateTime(2100));
-              if (d != null) setD(() => expiry = d);
-            },
-          ),
-          const SizedBox(height: 10),
-          OutlinedButton.icon(
-            icon: Icon(filePath == null ? Icons.attach_file : Icons.check_circle,
-                size: 18, color: filePath == null ? null : Colors.green),
-            label: Text(filePath == null ? AppLocalizations.of(context).vaultAttachImage : AppLocalizations.of(context).vaultImageAttached),
-            onPressed: () async {
-              final p = await _pickImage();
-              if (p != null) setD(() => filePath = p);
-            },
-          ),
-          const SizedBox(height: 10),
-          TextField(controller: note, decoration: InputDecoration(labelText: AppLocalizations.of(context).moneyFieldNoteOptional)),
-        ])),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(context).cancel)),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(AppLocalizations.of(context).save)),
-        ],
-      )),
+      builder: (ctx) => StatefulBuilder(builder: (ctx, setD) {
+        final t = AppLocalizations.of(ctx);
+        final dt = vaultTypeOf(type);
+        return AlertDialog(
+          title: Text(t.vaultAddDocument),
+          content: SingleChildScrollView(
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+            TextField(controller: title, decoration: InputDecoration(labelText: t.vaultNameRequired)),
+            const SizedBox(height: 10),
+            DropdownButtonFormField<String>(
+              value: type,
+              decoration: InputDecoration(labelText: t.moneyFieldType),
+              items: kVaultDocTypes.map((d) =>
+                  DropdownMenuItem(value: d.key,
+                      child: Row(children: [
+                        Icon(d.icon, size: 18), const SizedBox(width: 8), Text(d.label(t))
+                      ]))).toList(),
+              onChanged: (v) => setD(() => type = v ?? 'other'),
+            ),
+            const SizedBox(height: 10),
+            // type-specific fields
+            for (final f in dt.fields)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: f.isDate
+                    ? OutlinedButton.icon(
+                        icon: const Icon(Icons.event, size: 18),
+                        label: Text(detailDates[f.key] == null
+                            ? f.label(t)
+                            : '${f.label(t)}: ${DateFormat('d MMM yyyy').format(detailDates[f.key]!)}'),
+                        onPressed: () async {
+                          final d = await showDatePicker(context: ctx,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime(1950), lastDate: DateTime(2100));
+                          if (d != null) {
+                            setD(() {
+                              detailDates[f.key] = d;
+                              // auto-suggest expiry from issue/purchase date
+                              if (dt.defaultValidityYears != null &&
+                                  (f.key == 'issue_date' || f.key == 'purchase_date') &&
+                                  expiry == null) {
+                                expiry = DateTime(d.year + dt.defaultValidityYears!, d.month, d.day);
+                              }
+                            });
+                          }
+                        },
+                      )
+                    : TextField(
+                        controller: ctrlFor(f.key),
+                        decoration: InputDecoration(labelText: f.label(t)),
+                      ),
+              ),
+            OutlinedButton.icon(
+              icon: const Icon(Icons.event, size: 18),
+              label: Text(expiry == null ? t.vaultExpiryDate
+                  : '${t.vaultExpiryDate}: ${DateFormat('d MMM yyyy').format(expiry!)}'),
+              onPressed: () async {
+                final d = await showDatePicker(context: ctx, initialDate: expiry ?? DateTime.now(),
+                    firstDate: DateTime(2000), lastDate: DateTime(2100));
+                if (d != null) setD(() => expiry = d);
+              },
+            ),
+            const SizedBox(height: 10),
+            OutlinedButton.icon(
+              icon: Icon(filePath == null ? Icons.attach_file : Icons.check_circle,
+                  size: 18, color: filePath == null ? null : Colors.green),
+              label: Text(filePath == null ? t.vaultAttachImage : t.vaultImageAttached),
+              onPressed: () async {
+                final p = await _pickImage();
+                if (p != null) setD(() => filePath = p);
+              },
+            ),
+            const SizedBox(height: 10),
+            TextField(controller: free, decoration: InputDecoration(labelText: t.moneyFieldNoteOptional)),
+          ])),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
+            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(t.save)),
+          ],
+        );
+      }),
     );
     if (ok == true && title.text.trim().isNotEmpty) {
+      final detailMap = <String, String>{};
+      details.forEach((k, v) => detailMap[k] = v.text);
+      detailDates.forEach((k, v) {
+        if (v != null) detailMap[k] = DateFormat('yyyy-MM-dd').format(v);
+      });
+      final noteStr = encodeDetails(detailMap, free.text);
       try {
-        final expiryStr =
-            expiry != null ? DateFormat('yyyy-MM-dd').format(expiry!) : null;
+        final expiryStr = expiry != null ? DateFormat('yyyy-MM-dd').format(expiry!) : null;
         if (filePath != null) {
           await context.read<AppState>().api.uploadDocument(
               title: title.text.trim(), docType: type,
-              expiryDate: expiryStr, note: note.text.trim(), filePath: filePath!);
+              expiryDate: expiryStr, note: noteStr, filePath: filePath!);
         } else {
           await context.read<AppState>().api.createDocument(
               title: title.text.trim(), docType: type,
-              expiryDate: expiryStr, note: note.text.trim());
+              expiryDate: expiryStr, note: noteStr);
         }
         await _load();
       } catch (e) {
@@ -238,6 +293,226 @@ class _VaultScreenState extends State<VaultScreen> {
     }
   }
 
+  // ------------------------------------------------------------------ detail sheet
+  void _openDoc(Map<String, dynamic> doc) {
+    final t = AppLocalizations.of(context);
+    final dt = vaultTypeOf(doc['doc_type']);
+    final decoded = decodeDetails(doc['note']);
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (ctx) => DraggableScrollableSheet(
+        expand: false, initialChildSize: 0.6, maxChildSize: 0.9,
+        builder: (ctx, scroll) => ListView(controller: scroll,
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 24), children: [
+          Row(children: [
+            Icon(dt.icon, size: 26),
+            const SizedBox(width: 10),
+            Expanded(child: Text(doc['title'] ?? '',
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
+          ]),
+          const SizedBox(height: 4),
+          Text(dt.label(t), style: TextStyle(color: Colors.grey)),
+          const SizedBox(height: 14),
+          if (decoded.details.isNotEmpty)
+            for (final e in decoded.details.entries)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  SizedBox(width: 140, child: Text(_fieldLabel(t, dt, e.key),
+                      style: const TextStyle(fontWeight: FontWeight.w600))),
+                  Expanded(child: SelectableText(e.value)),
+                ]),
+              ),
+          if (doc['expiry_date'] != null) ...[
+            const SizedBox(height: 4),
+            Row(children: [
+              const Icon(Icons.event_busy, size: 18),
+              const SizedBox(width: 8),
+              Text('${t.vaultExpiryDate}: '),
+              if (_expiryBadge(doc['expiry_date']) != null) _expiryBadge(doc['expiry_date'])!,
+            ]),
+          ],
+          if (decoded.note.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Text(decoded.note),
+          ],
+          const SizedBox(height: 18),
+          Wrap(spacing: 8, runSpacing: 8, children: [
+            if (doc['file_url'] != null)
+              FilledButton.tonalIcon(
+                onPressed: () { Navigator.pop(ctx); _viewFile(doc['id']); },
+                icon: const Icon(Icons.visibility_outlined), label: Text(t.view)),
+            FilledButton.tonalIcon(
+              onPressed: () { Navigator.pop(ctx); _shareToNominee(doc); },
+              icon: const Icon(Icons.ios_share), label: Text(t.vaultShareToNominee)),
+            if (dt.guideKey != null)
+              FilledButton.tonalIcon(
+                onPressed: () { Navigator.pop(ctx); _showRenewal(dt); },
+                icon: const Icon(Icons.autorenew), label: Text(t.vaultRenewalSteps)),
+            OutlinedButton.icon(
+              onPressed: () async {
+                Navigator.pop(ctx);
+                await context.read<AppState>().api.deleteDocument(doc['id']);
+                _load();
+              },
+              icon: const Icon(Icons.delete_outline), label: Text(t.delete)),
+          ]),
+        ]),
+      ),
+    );
+  }
+
+  String _fieldLabel(AppLocalizations t, VaultDocType dt, String key) {
+    for (final f in dt.fields) {
+      if (f.key == key) return f.label(t);
+    }
+    // fall back to generic labels
+    return VaultField(key).label(t);
+  }
+
+  // ------------------------------------------------------------------ renewal
+  Future<void> _showRenewal(VaultDocType dt) async {
+    final t = AppLocalizations.of(context);
+    List<Map<String, dynamic>> services = [];
+    try {
+      services = await context.read<AppState>().api.govtGuides();
+    } catch (_) {}
+    if (!mounted) return;
+    Map<String, dynamic>? svc;
+    for (final s in services) {
+      if (s['key'] == dt.guideKey) { svc = s; break; }
+    }
+    showModalBottomSheet(
+      context: context, showDragHandle: true,
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(t.vaultRenewalSteps, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          if (svc == null)
+            Text(t.vaultRenewalUnavailable)
+          else ...[
+            if (svc['portal'] != null) ...[
+              Row(children: [
+                const Icon(Icons.public, size: 16), const SizedBox(width: 6),
+                SelectableText(svc['portal'].toString()),
+              ]),
+              const SizedBox(height: 10),
+            ],
+            for (int i = 0; i < ((svc['steps'] ?? []) as List).length; i++)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  CircleAvatar(radius: 11, child: Text('${i + 1}', style: const TextStyle(fontSize: 12))),
+                  const SizedBox(width: 10),
+                  Expanded(child: Text((svc['steps'] as List)[i].toString())),
+                ]),
+              ),
+          ],
+        ]),
+      ),
+    );
+  }
+
+  // ------------------------------------------------------------------ share
+  Future<void> _shareToNominee(Map<String, dynamic> doc) async {
+    final t = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t.vaultShareToNominee),
+        content: Text(t.vaultShareConfirm),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(t.vaultShareNow)),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    try {
+      final decoded = decodeDetails(doc['note']);
+      final buf = StringBuffer()
+        ..writeln(doc['title'] ?? '')
+        ..writeln(vaultTypeOf(doc['doc_type']).label(t));
+      decoded.details.forEach((k, v) =>
+          buf.writeln('${_fieldLabel(t, vaultTypeOf(doc['doc_type']), k)}: $v'));
+      if (doc['expiry_date'] != null) buf.writeln('${t.vaultExpiryDate}: ${doc['expiry_date']}');
+      if (doc['file_url'] != null) {
+        final f = await _downloadFile(doc['id']);
+        if (f != null) {
+          await Share.shareXFiles([XFile(f.path)], text: buf.toString());
+          return;
+        }
+      }
+      await Share.share(buf.toString());
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(t.vaultShareFailed)));
+    }
+  }
+
+  // ------------------------------------------------------------------ quick lookup
+  Future<void> _quickLookup() async {
+    final t = AppLocalizations.of(context);
+    final ctrl = TextEditingController();
+    await showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(builder: (ctx, setD) {
+        final q = ctrl.text.trim().toLowerCase();
+        final matches = q.isEmpty
+            ? <Map<String, dynamic>>[]
+            : _docs.where((d) {
+                final decoded = decodeDetails(d['note']);
+                final hay = [
+                  d['title'] ?? '',
+                  decoded.details.values.join(' '),
+                  decoded.note,
+                ].join(' ').toLowerCase();
+                return hay.contains(q);
+              }).toList();
+        return AlertDialog(
+          title: Text(t.vaultQuickLookup),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              TextField(
+                controller: ctrl, autofocus: true,
+                decoration: InputDecoration(hintText: t.vaultQuickLookupHint, prefixIcon: const Icon(Icons.search)),
+                onChanged: (_) => setD(() {}),
+              ),
+              const SizedBox(height: 8),
+              if (q.isNotEmpty && matches.isEmpty)
+                Text(t.vaultQuickLookupNone),
+              Flexible(
+                child: ListView(shrinkWrap: true, children: [
+                  for (final d in matches)
+                    ListTile(
+                      dense: true,
+                      leading: Icon(vaultTypeOf(d['doc_type']).icon, size: 20),
+                      title: Text(d['title'] ?? ''),
+                      subtitle: Text(_lookupPreview(d)),
+                      onTap: () { Navigator.pop(ctx); _openDoc(d); },
+                    ),
+                ]),
+              ),
+            ]),
+          ),
+          actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: Text(t.close))],
+        );
+      }),
+    );
+  }
+
+  String _lookupPreview(Map<String, dynamic> d) {
+    final decoded = decodeDetails(d['note']);
+    if (decoded.details.containsKey('number')) return decoded.details['number']!;
+    if (decoded.details.containsKey('policy_no')) return decoded.details['policy_no']!;
+    return decoded.details.values.isNotEmpty ? decoded.details.values.first : (decoded.note);
+  }
+
+  // ------------------------------------------------------------------ expiry badge
   Widget? _expiryBadge(String? iso) {
     if (iso == null) return null;
     final d = DateTime.tryParse(iso);
@@ -256,67 +531,67 @@ class _VaultScreenState extends State<VaultScreen> {
       child: Text(t, style: TextStyle(fontSize: 11, color: c)));
   }
 
+  // ------------------------------------------------------------------ build
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     if (_checking) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     if (!_unlocked) {
       return Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context).vaultTitle)),
-        body: Center(child: Text(AppLocalizations.of(context).vaultLockedMessage)),
+        appBar: AppBar(title: Text(t.vaultTitle)),
+        body: Center(child: Text(t.vaultLockedMessage)),
       );
     }
+    final filtered = _query.isEmpty
+        ? _docs
+        : _docs.where((d) => (d['title'] ?? '').toString().toLowerCase().contains(_query.toLowerCase())).toList();
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context).vaultTitle)),
+      appBar: AppBar(title: Text(t.vaultTitle), actions: [
+        IconButton(
+          icon: const Icon(Icons.search),
+          tooltip: t.vaultQuickLookup,
+          onPressed: _quickLookup,
+        ),
+      ]),
       floatingActionButton: FloatingActionButton.extended(
-          onPressed: _add, icon: const Icon(Icons.add), label: Text(AppLocalizations.of(context).add)),
+          onPressed: _add, icon: const Icon(Icons.add), label: Text(t.add)),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off,
                   tint: Theme.of(context).colorScheme.error,
-                  title: AppLocalizations.of(context).loadFailed,
-                  message: AppLocalizations.of(context).checkInternetRetry,
+                  title: t.loadFailed,
+                  message: t.checkInternetRetry,
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
                       icon: const Icon(Icons.refresh),
-                      label: Text(AppLocalizations.of(context).retry)))
+                      label: Text(t.retry)))
               : _docs.isEmpty
-              ? StateMessage(
-                  icon: Icons.folder_open_outlined,
-                  title: AppLocalizations.of(context).vaultEmptyTitle,
-                  message: AppLocalizations.of(context).vaultEmptyMessage)
-              : ListView(
-                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 88),
-                  children: [
-                    for (final doc in _docs)
-                      Card(child: ListTile(
-                        leading: const Icon(Icons.description_outlined),
-                        title: Text(doc['title'] ?? ''),
-                        subtitle: Wrap(spacing: 8, crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            Text(_docTypes(AppLocalizations.of(context))[doc['doc_type']] ?? ''),
-                            if (_expiryBadge(doc['expiry_date']) != null)
-                              _expiryBadge(doc['expiry_date'])!,
-                          ]),
-                        trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                          if (doc['file_url'] != null)
-                            IconButton(
-                              icon: const Icon(Icons.visibility_outlined),
-                              tooltip: AppLocalizations.of(context).view,
-                              onPressed: () => _viewFile(doc['id'], doc['title'] ?? '')),
-                          IconButton(
-                            icon: const Icon(Icons.delete_outline),
-                            onPressed: () async {
-                              await context.read<AppState>().api.deleteDocument(doc['id']);
-                              _load();
-                            }),
-                        ]),
-                      )),
-                  ],
-                ),
+                  ? StateMessage(
+                      icon: Icons.folder_open_outlined,
+                      title: t.vaultEmptyTitle,
+                      message: t.vaultEmptyMessage)
+                  : ListView(
+                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 88),
+                      children: [
+                        for (final doc in filtered)
+                          Card(child: ListTile(
+                            onTap: () => _openDoc(doc),
+                            leading: Icon(vaultTypeOf(doc['doc_type']).icon),
+                            title: Text(doc['title'] ?? ''),
+                            subtitle: Wrap(spacing: 8, crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                Text(vaultTypeOf(doc['doc_type']).label(t)),
+                                if (_expiryBadge(doc['expiry_date']) != null)
+                                  _expiryBadge(doc['expiry_date'])!,
+                              ]),
+                            trailing: const Icon(Icons.chevron_right),
+                          )),
+                      ],
+                    ),
     );
   }
 }
