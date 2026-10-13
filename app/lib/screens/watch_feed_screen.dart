@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../state.dart';
@@ -39,11 +40,11 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
     if (mounted) setState(() => _loading = false);
   }
 
-  Future<void> _addUsdWatcher(String Function(String, String) t) async {
+  Future<void> _addUsdWatcher(AppLocalizations t) async {
     try {
       await context.read<AppState>().api.createItem('watchers', {
         'kind': 'usd_bdt',
-        'label': t('USD/BDT রেট', 'USD/BDT rate'),
+        'label': t.usdBdtRate,
         'interval_min': 360,
       });
       await _load();
@@ -56,34 +57,32 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final en = context.watch<AppState>().locale?.languageCode == 'en';
-    String t(String bn, String e) => en ? e : bn;
+    final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final fmt = DateFormat('d MMM, h:mm a');
     return Scaffold(
-      appBar: AppBar(title: Text(t('ওয়াচ ফিড', 'Watch feed'))),
+      appBar: AppBar(title: Text(t.watchFeed)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _addUsdWatcher(t),
         icon: const Icon(Icons.add_alert_outlined),
-        label: Text(t('রেট ওয়াচ', 'Watch rate')),
+        label: Text(t.watchRate),
       ),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off, tint: scheme.error,
-                  title: t('লোড করা গেল না', "Couldn't load"),
+                  title: t.loadFailed,
                   action: FilledButton.tonalIcon(onPressed: _load,
-                      icon: const Icon(Icons.refresh), label: Text(t('আবার', 'Retry'))))
+                      icon: const Icon(Icons.refresh), label: Text(t.retry)))
               : (_hits.isEmpty && _watchers.isEmpty)
                   ? StateMessage(
                       icon: Icons.radar,
-                      title: t('কোনো ওয়াচার নেই', 'No watchers yet'),
-                      message: t('দাম কমা, USD রেট, খবর — পরিবর্তন হলে জানাব।',
-                          'Price drops, USD rate, news — I alert you on change.'))
+                      title: t.noWatchersYet,
+                      message: t.priceDropsUsdRateNews)
                   : ListView(padding: const EdgeInsets.all(Gap.md), children: [
                       if (_watchers.isNotEmpty) ...[
-                        Text(t('সক্রিয় ওয়াচার', 'Active watchers'),
+                        Text(t.activeWatchers,
                             style: const TextStyle(fontWeight: FontWeight.w700)),
                         const SizedBox(height: Gap.sm),
                         for (final w in _watchers)
@@ -102,11 +101,11 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
                           )),
                         const SizedBox(height: Gap.lg),
                       ],
-                      Text(t('পরিবর্তন', 'Changes'),
+                      Text(t.changes,
                           style: const TextStyle(fontWeight: FontWeight.w700)),
                       const SizedBox(height: Gap.sm),
                       if (_hits.isEmpty)
-                        Text(t('এখনো কোনো পরিবর্তন নেই।', 'No changes yet.'),
+                        Text(t.noChangesYet,
                             style: TextStyle(color: scheme.onSurfaceVariant)),
                       for (final h in _hits)
                         Card(child: ListTile(

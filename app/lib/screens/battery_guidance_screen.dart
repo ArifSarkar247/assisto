@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -62,27 +63,23 @@ class _BatteryGuidanceScreenState extends State<BatteryGuidanceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final en = context.watch<AppState>().locale?.languageCode == 'en';
-    String tr(String bn, String e) => en ? e : bn;
+    final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: Text(tr('রিমাইন্ডার নির্ভরযোগ্য করুন', 'Make reminders reliable'))),
+      appBar: AppBar(title: Text(tr.makeRemindersReliable)),
       body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
         Card(
           color: scheme.tertiaryContainer,
           child: Padding(
             padding: const EdgeInsets.all(Gap.lg),
             child: Text(
-              tr('অনেক ফোন ব্যাটারি বাঁচাতে অ্যাপ বন্ধ করে দেয়, তখন রিমাইন্ডার/অ্যালার্ট নাও আসতে পারে। '
-                  'নিচের ধাপে Assisto-কে ছাড় দিন।',
-                  'Many phones kill background apps to save battery, so reminders/alerts may not arrive. '
-                  'Exempt Assisto using the steps below.'),
+              tr.manyPhonesKillBackgroundApps,
               style: TextStyle(color: scheme.onTertiaryContainer),
             ),
           ),
         ),
         const SizedBox(height: Gap.lg),
-        Text(tr('আপনার ফোনের ব্র্যান্ড', 'Your phone brand'),
+        Text(tr.yourPhoneBrand,
             style: const TextStyle(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.sm),
         Wrap(spacing: Gap.sm, children: [
@@ -106,8 +103,7 @@ class _BatteryGuidanceScreenState extends State<BatteryGuidanceScreen> {
           ),
         const SizedBox(height: Gap.md),
         Text(
-          tr('দ্রষ্টব্য: ঠিক মেনু নাম ফোন/সংস্করণভেদে একটু আলাদা হতে পারে।',
-              'Note: exact menu names vary slightly by phone/version.'),
+          tr.noteExactMenuNamesVary,
           style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
         ),
       ]),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -35,34 +36,34 @@ class _NomineeScreenState extends State<NomineeScreen> {
     if (mounted) setState(() => _loading = false);
   }
 
-  Future<void> _add(String Function(String, String) tr) async {
+  Future<void> _add(AppLocalizations tr) async {
     final name = TextEditingController();
     final contact = TextEditingController();
     String scope = 'emergency';
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => StatefulBuilder(builder: (ctx, setD) => AlertDialog(
-            title: Text(tr('নমিনি যোগ', 'Add nominee')),
+            title: Text(tr.addNominee),
             content: Column(mainAxisSize: MainAxisSize.min, children: [
-              TextField(controller: name, decoration: InputDecoration(labelText: tr('নাম', 'Name'))),
+              TextField(controller: name, decoration: InputDecoration(labelText: tr.name)),
               TextField(controller: contact,
-                  decoration: InputDecoration(labelText: tr('ফোন/ইমেইল', 'Phone/email'))),
+                  decoration: InputDecoration(labelText: tr.phoneEmail)),
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
                 value: scope,
-                decoration: InputDecoration(labelText: tr('কী দেখতে পারবে', 'Access scope')),
+                decoration: InputDecoration(labelText: tr.accessScope),
                 items: [
-                  DropdownMenuItem(value: 'emergency', child: Text(tr('ইমার্জেন্সি কার্ড', 'Emergency card'))),
-                  DropdownMenuItem(value: 'vault', child: Text(tr('ভল্ট', 'Vault'))),
-                  DropdownMenuItem(value: 'money', child: Text(tr('টাকার সারাংশ', 'Money overview'))),
-                  DropdownMenuItem(value: 'all', child: Text(tr('সব', 'All'))),
+                  DropdownMenuItem(value: 'emergency', child: Text(tr.emergencyCard)),
+                  DropdownMenuItem(value: 'vault', child: Text(tr.moduleVault)),
+                  DropdownMenuItem(value: 'money', child: Text(tr.moneyOverview)),
+                  DropdownMenuItem(value: 'all', child: Text(tr.all)),
                 ],
                 onChanged: (v) => setD(() => scope = v ?? 'emergency'),
               ),
             ]),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('বাতিল', 'Cancel'))),
-              FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr('যোগ', 'Add'))),
+              TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr.cancel)),
+              FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr.add)),
             ],
           )),
     );
@@ -78,35 +79,32 @@ class _NomineeScreenState extends State<NomineeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final en = context.watch<AppState>().locale?.languageCode == 'en';
-    String tr(String bn, String e) => en ? e : bn;
+    final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: Text(tr('নমিনি / পারিবারিক অ্যাক্সেস', 'Nominee / family access'))),
+      appBar: AppBar(title: Text(tr.nomineeFamilyAccess)),
       floatingActionButton: FloatingActionButton.extended(
           onPressed: () => _add(tr),
           icon: const Icon(Icons.person_add_alt),
-          label: Text(tr('নমিনি', 'Nominee'))),
+          label: Text(tr.nominee2)),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off, tint: scheme.error,
-                  title: tr('লোড করা গেল না', "Couldn't load"),
+                  title: tr.loadFailed,
                   action: FilledButton.tonalIcon(onPressed: _load,
-                      icon: const Icon(Icons.refresh), label: Text(tr('আবার', 'Retry'))))
+                      icon: const Icon(Icons.refresh), label: Text(tr.retry)))
               : _list.isEmpty
                   ? StateMessage(
                       icon: Icons.family_restroom,
-                      title: tr('কোনো নমিনি নেই', 'No nominees yet'),
-                      message: tr('জরুরি অবস্থায় যাকে আপনার তথ্য দেখতে দেবেন, যোগ করুন।',
-                          'Add a trusted person who can access your info in an emergency.'))
+                      title: tr.noNomineesYet,
+                      message: tr.addATrustedPersonWho)
                   : ListView(padding: const EdgeInsets.all(Gap.md), children: [
                       Padding(
                         padding: const EdgeInsets.only(bottom: Gap.sm, left: 4),
                         child: Text(
-                            tr('অ্যাক্সেস শুধু আপনি চালু করলে খোলে — নীরবে কখনো নয়।',
-                                'Access opens only when you turn it on — never silently.'),
+                            tr.accessOpensOnlyWhenYou,
                             style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
                       ),
                       for (final n in _list)
@@ -120,8 +118,8 @@ class _NomineeScreenState extends State<NomineeScreen> {
                           title: Text(n['name'] ?? ''),
                           subtitle: Text([
                             n['contact'],
-                            tr('স্কোপ: ${n['scope']}', 'scope: ${n['scope']}'),
-                            n['activated'] == true ? tr('✓ অ্যাক্সেস খোলা', '✓ access open') : '',
+                            tr.scopeValue(n['scope']),
+                            n['activated'] == true ? tr.accessOpen : '',
                           ].where((e) => (e ?? '').toString().isNotEmpty).join(' · ')),
                           secondary: const Icon(Icons.shield_outlined),
                         )),

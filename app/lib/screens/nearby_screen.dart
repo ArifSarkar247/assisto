@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -64,34 +65,32 @@ class _NearbyScreenState extends State<NearbyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final en = context.watch<AppState>().locale?.languageCode == 'en';
-    String t(String bn, String e) => en ? e : bn;
+    final t = AppLocalizations.of(context);
     final titles = {
-      'restaurant': t('কাছে রেস্টুরেন্ট', 'Nearby restaurants'),
-      'pharmacy': t('কাছে ফার্মেসি', 'Nearby pharmacies'),
-      'atm': t('কাছে ATM', 'Nearby ATMs'),
-      'hospital': t('কাছে হাসপাতাল', 'Nearby hospitals'),
-      'lodging': t('কাছে হোটেল', 'Nearby hotels'),
+      'restaurant': t.nearbyRestaurants,
+      'pharmacy': t.nearbyPharmacies,
+      'atm': t.nearbyAtms,
+      'hospital': t.nearbyHospitals,
+      'lodging': t.nearbyHotels,
     };
     return Scaffold(
-      appBar: AppBar(title: Text(titles[widget.placeType] ?? t('আশেপাশে', 'Nearby'))),
+      appBar: AppBar(title: Text(titles[widget.placeType] ?? t.nearby)),
       body: _loading
           ? const SkeletonList()
           : _err != null
               ? StateMessage(
                   icon: Icons.location_off,
                   tint: Theme.of(context).colorScheme.error,
-                  title: t('লোকেশন লাগবে', 'Location needed'),
-                  message: t('লোকেশন চালু করে অনুমতি দিন।',
-                      'Turn on location and grant permission.'),
+                  title: t.locationNeeded2,
+                  message: t.turnOnLocationAndGrant,
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
                       icon: const Icon(Icons.refresh),
-                      label: Text(t('আবার', 'Retry'))))
+                      label: Text(t.retry)))
               : _places.isEmpty
                   ? StateMessage(
                       icon: Icons.search_off,
-                      title: t('কিছু পাওয়া যায়নি', 'Nothing found'))
+                      title: t.nothingFound)
                   : ListView(
                       padding: const EdgeInsets.all(Gap.md),
                       children: [
@@ -100,7 +99,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
                           child: Text(
                               _source == 'osm'
                                   ? 'OpenStreetMap'
-                                  : t('Google থেকে', 'via Google'),
+                                  : t.viaGoogle,
                               style: TextStyle(fontSize: 11,
                                   color: Theme.of(context).colorScheme.onSurfaceVariant)),
                         ),
@@ -110,7 +109,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
     );
   }
 
-  Widget _tile(dynamic p, String Function(String, String) t) {
+  Widget _tile(dynamic p, AppLocalizations t) {
     final dist = p['distance_m'];
     final open = p['open_now'];
     final phone = (p['phone'] ?? '').toString();
@@ -120,7 +119,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
         subtitle: Text([
           if (dist != null) '${(dist / 1000).toStringAsFixed(1)} km',
           if ((p['address'] ?? '').toString().isNotEmpty) p['address'],
-          if (open == true) t('এখন খোলা', 'Open now'),
+          if (open == true) t.openNow,
           if (p['rating'] != null) '★ ${p['rating']}',
         ].where((e) => e != null && e.toString().isNotEmpty).join(' · ')),
         trailing: Row(mainAxisSize: MainAxisSize.min, children: [

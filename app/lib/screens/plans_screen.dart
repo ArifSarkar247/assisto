@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -53,45 +54,43 @@ class _PlansScreenState extends State<PlansScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final en = context.watch<AppState>().locale?.languageCode == 'en';
-    String t(String bn, String e) => en ? e : bn;
+    final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: Text(t('প্ল্যান ও ক্রেডিট', 'Plan & credits'))),
+      appBar: AppBar(title: Text(t.planCredits)),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off,
                   tint: scheme.error,
-                  title: t('লোড করা গেল না', "Couldn't load"),
+                  title: t.loadFailed,
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
                       icon: const Icon(Icons.refresh),
-                      label: Text(t('আবার', 'Retry'))))
+                      label: Text(t.retry)))
               : ListView(padding: const EdgeInsets.all(Gap.lg), children: [
                   _currentCard(t),
                   const SizedBox(height: Gap.lg),
-                  Text(t('প্ল্যানসমূহ', 'Plans'),
+                  Text(t.plans,
                       style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
                   const SizedBox(height: Gap.sm),
-                  _plan('premium', t('প্রিমিয়াম', 'Premium'), '৳149/mo',
-                      t('আনলিমিটেড AI, বিজ্ঞাপন নেই', 'Unlimited AI, no ads')),
-                  _plan('family', t('ফ্যামিলি', 'Family'), '৳299/mo',
-                      t('প্রিমিয়াম + ৫ সদস্য + ভয়েস কল', 'Premium + 5 members + voice call')),
-                  _plan('annual', t('বার্ষিক', 'Annual'), '৳1,199/yr',
-                      t('প্রিমিয়াম, এক বছর', 'Premium, one year')),
+                  _plan('premium', t.premium, '৳149/mo',
+                      t.unlimitedAiNoAds),
+                  _plan('family', t.moduleFamily, '৳299/mo',
+                      t.premium5MembersVoiceCall),
+                  _plan('annual', t.annual, '৳1,199/yr',
+                      t.premiumOneYear),
                   const SizedBox(height: Gap.md),
                   Text(
-                    t('পেমেন্ট মেথড যোগ হলে কেনা যাবে (Integrations)।',
-                        'Purchasing turns on when a payment method is added (Integrations).'),
+                    t.purchasingTurnsOnWhenA,
                     style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
                   ),
                 ]),
     );
   }
 
-  Widget _currentCard(String Function(String, String) t) {
+  Widget _currentCard(AppLocalizations t) {
     final p = _p!;
     final credits = p['credits'] ?? 0;
     final trial = p['trial_active'] == true;
@@ -100,13 +99,13 @@ class _PlansScreenState extends State<PlansScreen> {
           gradient: Brand.gradient, borderRadius: BorderRadius.circular(Radii.lg)),
       padding: const EdgeInsets.all(Gap.xl),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(t('বর্তমান প্ল্যান', 'Current plan'),
+        Text(t.currentPlan,
             style: const TextStyle(color: Colors.white70, fontSize: 12)),
         Text('${p['name_bn'] ?? p['plan']}',
             style: const TextStyle(
                 color: Colors.white, fontSize: 26, fontWeight: FontWeight.w800)),
         if (trial)
-          Text(t('ফ্রি ট্রায়াল চলছে', 'Free trial active'),
+          Text(t.freeTrialActive,
               style: const TextStyle(color: Colors.white, fontSize: 12)),
         const SizedBox(height: Gap.md),
         Row(children: [
@@ -114,8 +113,8 @@ class _PlansScreenState extends State<PlansScreen> {
           const SizedBox(width: 6),
           Text(
               p['unlimited_ai'] == true
-                  ? t('আনলিমিটেড AI', 'Unlimited AI')
-                  : t('$credits AI ক্রেডিট', '$credits AI credits'),
+                  ? t.unlimitedAi
+                  : t.aiCreditsCount(credits),
               style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
         ]),
         if (p['unlimited_ai'] != true) ...[
@@ -123,7 +122,7 @@ class _PlansScreenState extends State<PlansScreen> {
           FilledButton.tonalIcon(
             onPressed: _busy ? null : _rewarded,
             icon: const Icon(Icons.ondemand_video, size: 18),
-            label: Text(t('বিজ্ঞাপন দেখে ১ ক্রেডিট', 'Watch an ad → 1 credit')),
+            label: Text(t.watchAnAd1Credit),
           ),
         ],
       ]),

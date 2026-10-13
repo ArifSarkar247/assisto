@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -31,8 +32,7 @@ class _InboxScreenState extends State<InboxScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final en = context.watch<AppState>().locale?.languageCode == 'en';
-    String tr(String bn, String e) => en ? e : bn;
+    final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final connected = _s?['connected'] == true;
     Widget legendRow(Color c, String label) => Padding(
@@ -44,7 +44,7 @@ class _InboxScreenState extends State<InboxScreen> {
           Text(label),
         ]));
     return Scaffold(
-      appBar: AppBar(title: Text(tr('AI ইনবক্স', 'AI Inbox'))),
+      appBar: AppBar(title: Text(tr.aiInbox)),
       body: _loading
           ? const SkeletonList()
           : ListView(padding: const EdgeInsets.all(Gap.lg), children: [
@@ -59,8 +59,7 @@ class _InboxScreenState extends State<InboxScreen> {
                       const SizedBox(width: Gap.md),
                       Expanded(
                         child: Text(
-                          tr('চালু হবে যখন Gmail যোগ হবে (Integrations)।',
-                              'Available when Gmail is connected (Integrations).'),
+                          tr.availableWhenGmailIsConnected,
                           style: TextStyle(color: scheme.onTertiaryContainer),
                         ),
                       ),
@@ -68,21 +67,20 @@ class _InboxScreenState extends State<InboxScreen> {
                   ),
                 ),
               const SizedBox(height: Gap.lg),
-              Text(tr('AI যেভাবে সাজাবে', 'How AI triages'),
+              Text(tr.howAiTriages,
                   style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
               const SizedBox(height: Gap.sm),
               Card(child: Padding(
                 padding: const EdgeInsets.all(Gap.lg),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  legendRow(const Color(0xFFE0485A), tr('লাল — জরুরি / অ্যাকশন লাগবে', 'Red — urgent / needs action')),
-                  legendRow(const Color(0xFFE0A500), tr('হলুদ — শীঘ্রই উত্তর দিন', 'Yellow — reply soon')),
-                  legendRow(const Color(0xFF2E9E6B), tr('সবুজ — শুধু তথ্য', 'Green — just info')),
+                  legendRow(const Color(0xFFE0485A), tr.redUrgentNeedsAction),
+                  legendRow(const Color(0xFFE0A500), tr.yellowReplySoon),
+                  legendRow(const Color(0xFF2E9E6B), tr.greenJustInfo),
                 ]),
               )),
               const SizedBox(height: Gap.md),
               Text(
-                tr('সংযুক্ত হলে আপনার ইমেইল এখানে এই রঙে সাজানো থাকবে; খসড়া উত্তরও বানিয়ে দেব।',
-                    'Once connected, your emails appear here colour-sorted, with draft replies.'),
+                tr.onceConnectedYourEmailsAppear,
                 style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
               ),
             ]),

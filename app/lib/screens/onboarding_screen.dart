@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -31,18 +32,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final en = context.watch<AppState>().locale?.languageCode == 'en';
-    String t(String bn, String e) => en ? e : bn;
+    final t = AppLocalizations.of(context);
     final slides = [
-      (Icons.chat_bubble_outline, t('শুধু বলুন', 'Just tell me'),
-          t('"৫০০ টাকা খরচ খাবার", "কাল ৮টায় ওষুধ মনে করিয়ে দিও" — বাংলা বা English, লিখে বা বলে।',
-              '"500 taka food expense", "remind me medicine at 8" — Bangla or English, text or voice.')),
-      (Icons.diversity_1_outlined, t('পরিবারের খেয়াল', 'Care for family'),
-          t('বাবা-মায়ের ওষুধের সময়, স্কুল, ইমার্জেন্সি — সব এক জায়গায়।',
-              "Parents' medicines, school, emergencies — all in one place.")),
-      (Icons.lock_outline, t('আপনার হাতেই নিয়ন্ত্রণ', 'You stay in control'),
-          t('ডাটা বিক্রি হয় না; কিছু করার আগে অনুমতি নেয়; অফলাইনেও চলে।',
-              'Data is never sold; it asks before acting; works offline too.')),
+      (Icons.chat_bubble_outline, t.justTellMe,
+          t.n500TakaFoodExpenseRemind),
+      (Icons.diversity_1_outlined, t.careForFamily,
+          t.parentsMedicinesSchoolEmergenciesAll),
+      (Icons.lock_outline, t.youStayInControl,
+          t.dataIsNeverSoldIt),
     ];
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
@@ -50,7 +47,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         child: Column(children: [
           Align(
             alignment: Alignment.topRight,
-            child: TextButton(onPressed: _finish, child: Text(t('এড়িয়ে যান', 'Skip'))),
+            child: TextButton(onPressed: _finish, child: Text(t.skip)),
           ),
           Expanded(
             child: PageView.builder(
@@ -102,7 +99,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   onPressed: () => _pc.nextPage(
                       duration: Motion.base, curve: Curves.easeOut),
                   style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
-                  child: Text(t('পরবর্তী', 'Next')),
+                  child: Text(t.next),
                 )
               else ...[
                 FilledButton.icon(
@@ -115,10 +112,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   },
                   icon: const Icon(Icons.medication_outlined),
                   style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
-                  label: Text(t('পরিবারের ওষুধ যোগ করে শুরু করি', "Start — add a family member's medicine")),
+                  label: Text(t.startAddAFamilyMember),
                 ),
                 const SizedBox(height: Gap.sm),
-                TextButton(onPressed: _finish, child: Text(t('শুধু চ্যাট শুরু করি', 'Just start chatting'))),
+                TextButton(onPressed: _finish, child: Text(t.justStartChatting)),
               ],
             ]),
           ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -11,23 +12,22 @@ class BusinessScreen extends StatelessWidget {
   const BusinessScreen({super.key});
   @override
   Widget build(BuildContext context) {
-    final en = context.watch<AppState>().locale?.languageCode == 'en';
-    String tr(String bn, String e) => en ? e : bn;
+    final tr = AppLocalizations.of(context);
     return DefaultTabController(
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(tr('বিজনেস', 'Business')),
+          title: Text(tr.business),
           bottom: TabBar(tabs: [
-            Tab(text: tr('ক্যাটালগ', 'Catalog')),
-            Tab(text: tr('অর্ডার', 'Orders')),
-            Tab(text: tr('রিপ্লাই টেস্ট', 'Reply test')),
+            Tab(text: tr.catalog),
+            Tab(text: tr.orders),
+            Tab(text: tr.replyTest),
           ]),
         ),
         body: TabBarView(children: [
           _CatalogTab(tr: tr),
           _SimpleList(path: 'orders', tr: tr, emptyIcon: Icons.receipt_long_outlined,
-              emptyTitle: tr('কোনো অর্ডার নেই', 'No orders yet'),
+              emptyTitle: tr.noOrdersYet,
               line: (o) => '#${o['id']} · ৳${o['total']} · ${o['status']}'),
           _ReplyTab(tr: tr),
         ]),
@@ -37,7 +37,7 @@ class BusinessScreen extends StatelessWidget {
 }
 
 class _CatalogTab extends StatefulWidget {
-  final String Function(String, String) tr;
+  final AppLocalizations tr;
   const _CatalogTab({required this.tr});
   @override
   State<_CatalogTab> createState() => _CatalogTabState();
@@ -67,17 +67,17 @@ class _CatalogTabState extends State<_CatalogTab> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(tr('পণ্য যোগ', 'Add product')),
+        title: Text(tr.addProduct),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
-          TextField(controller: name, decoration: InputDecoration(labelText: tr('নাম', 'Name'))),
+          TextField(controller: name, decoration: InputDecoration(labelText: tr.name)),
           TextField(controller: price, keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: tr('দাম', 'Price'))),
+              decoration: InputDecoration(labelText: tr.price)),
           TextField(controller: stock, keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: tr('স্টক', 'Stock'))),
+              decoration: InputDecoration(labelText: tr.stock)),
         ]),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('বাতিল', 'Cancel'))),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr('যোগ', 'Add'))),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr.cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr.add)),
         ],
       ),
     );
@@ -100,14 +100,13 @@ class _CatalogTabState extends State<_CatalogTab> {
           onPressed: _add, child: const Icon(Icons.add)),
       body: _items.isEmpty
           ? StateMessage(icon: Icons.inventory_2_outlined,
-              title: tr('কোনো পণ্য নেই', 'No products yet'),
-              message: tr('পণ্য যোগ করুন — গ্রাহকের প্রশ্নে সঠিক দাম/স্টক থেকে উত্তর দেব।',
-                  'Add products — replies use the real price/stock.'))
+              title: tr.noProductsYet,
+              message: tr.addProductsRepliesUseThe)
           : ListView(padding: const EdgeInsets.all(Gap.md), children: [
               for (final p in _items)
                 Card(child: ListTile(
                   title: Text(p['name'] ?? ''),
-                  subtitle: Text('${tr('স্টক', 'Stock')}: ${p['stock'] ?? 0}'),
+                  subtitle: Text('${tr.stock}: ${p['stock'] ?? 0}'),
                   trailing: Text('৳${p['price'] ?? 0}',
                       style: const TextStyle(fontWeight: FontWeight.w700)),
                 )),
@@ -118,7 +117,7 @@ class _CatalogTabState extends State<_CatalogTab> {
 
 class _SimpleList extends StatefulWidget {
   final String path;
-  final String Function(String, String) tr;
+  final AppLocalizations tr;
   final IconData emptyIcon;
   final String emptyTitle;
   final String Function(Map<String, dynamic>) line;
@@ -158,7 +157,7 @@ class _SimpleListState extends State<_SimpleList> {
 }
 
 class _ReplyTab extends StatefulWidget {
-  final String Function(String, String) tr;
+  final AppLocalizations tr;
   const _ReplyTab({required this.tr});
   @override
   State<_ReplyTab> createState() => _ReplyTabState();
@@ -184,14 +183,13 @@ class _ReplyTabState extends State<_ReplyTab> {
   Widget build(BuildContext context) {
     final tr = widget.tr;
     return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
-      Text(tr('গ্রাহকের একটা মেসেজ লিখুন — ক্যাটালগ থেকে উত্তর দেখুন।',
-          'Type a customer message — see the catalog-based reply.'),
+      Text(tr.typeACustomerMessageSee,
           style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant)),
       const SizedBox(height: Gap.md),
       TextField(controller: _msg, maxLines: 2,
-          decoration: InputDecoration(labelText: tr('গ্রাহকের মেসেজ', 'Customer message'))),
+          decoration: InputDecoration(labelText: tr.customerMessage)),
       const SizedBox(height: Gap.md),
-      FilledButton(onPressed: _busy ? null : _go, child: Text(tr('উত্তর দেখুন', 'Get reply'))),
+      FilledButton(onPressed: _busy ? null : _go, child: Text(tr.getReply)),
       if (_reply != null) ...[
         const SizedBox(height: Gap.lg),
         Card(
@@ -202,7 +200,7 @@ class _ReplyTabState extends State<_ReplyTab> {
             padding: const EdgeInsets.all(Gap.lg),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               if (_handoff)
-                Text(tr('🙋 মানুষকে হ্যান্ডওভার', 'Hand off to a human'),
+                Text(tr.handOffToAHuman,
                     style: const TextStyle(fontWeight: FontWeight.w700)),
               Text(_reply!),
             ]),

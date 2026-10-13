@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -15,18 +16,17 @@ class FinanceScreen extends StatefulWidget {
 class _FinanceScreenState extends State<FinanceScreen> {
   @override
   Widget build(BuildContext context) {
-    final en = context.watch<AppState>().locale?.languageCode == 'en';
-    String t(String bn, String e) => en ? e : bn;
+    final t = AppLocalizations.of(context);
     return DefaultTabController(
       length: 4,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(t('ফিন্যান্স টুল', 'Finance tools')),
+          title: Text(t.financeTools),
           bottom: TabBar(isScrollable: true, tabs: [
-            Tab(text: t('নেট ওয়ার্থ', 'Net worth')),
-            Tab(text: t('যাকাত', 'Zakat')),
+            Tab(text: t.netWorth),
+            Tab(text: t.zakat),
             Tab(text: 'EMI'),
-            Tab(text: t('বিনিয়োগ', 'Invest')),
+            Tab(text: t.invest),
           ]),
         ),
         body: TabBarView(children: [
@@ -51,7 +51,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
 }
 
 class _NetWorthTab extends StatefulWidget {
-  final String Function(String, String) t;
+  final AppLocalizations t;
   const _NetWorthTab({required this.t});
   @override
   State<_NetWorthTab> createState() => _NetWorthTabState();
@@ -85,11 +85,11 @@ class _NetWorthTabState extends State<_NetWorthTab> {
                 style: const TextStyle(fontWeight: FontWeight.w700))]));
     return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
       Card(child: Padding(padding: const EdgeInsets.all(Gap.lg), child: Column(children: [
-        row(t('সম্পদ', 'Assets'), r['assets']?.toString()),
-        row(t('পাওনা', 'Receivable'), r['receivable']?.toString()),
-        row(t('দায়', 'Liabilities'), r['liabilities']?.toString()),
+        row(t.assets, r['assets']?.toString()),
+        row(t.receivable, r['receivable']?.toString()),
+        row(t.liabilities, r['liabilities']?.toString()),
         const Divider(),
-        row(t('নেট ওয়ার্থ', 'Net worth'), r['net_worth']?.toString()),
+        row(t.netWorth, r['net_worth']?.toString()),
       ]))),
     ]);
   }
@@ -97,7 +97,7 @@ class _NetWorthTabState extends State<_NetWorthTab> {
 
 class _CalcTab extends StatefulWidget {
   final String tool;
-  final String Function(String, String) t;
+  final AppLocalizations t;
   final List<(String, String)> fields;
   final List<(String, String)> resultKeys;
   const _CalcTab({required this.tool, required this.t, required this.fields,
@@ -150,7 +150,7 @@ class _CalcTabState extends State<_CalcTab> {
         ),
       FilledButton(
         onPressed: _busy ? null : _calc,
-        child: Text(widget.t('হিসাব করুন', 'Calculate')),
+        child: Text(widget.t.calculate),
       ),
       if (_r != null) ...[
         const SizedBox(height: Gap.lg),

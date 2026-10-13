@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -38,20 +39,20 @@ class _GuideScreenState extends State<GuideScreen> {
   @override
   Widget build(BuildContext context) {
     final en = context.watch<AppState>().locale?.languageCode == 'en';
-    String tr(String bn, String e) => en ? e : bn;
+    final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: Text(tr('সেবা গাইড', 'Service guide'))),
+      appBar: AppBar(title: Text(tr.serviceGuide)),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off, tint: scheme.error,
-                  title: tr('লোড করা গেল না', "Couldn't load"),
+                  title: tr.loadFailed,
                   action: FilledButton.tonalIcon(onPressed: _load,
-                      icon: const Icon(Icons.refresh), label: Text(tr('আবার', 'Retry'))))
+                      icon: const Icon(Icons.refresh), label: Text(tr.retry)))
               : ListView(padding: const EdgeInsets.all(Gap.md), children: [
-                  Text(tr('সরকারি সেবা', 'Govt services'),
+                  Text(tr.govtServices,
                       style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
                   const SizedBox(height: Gap.sm),
                   for (final s in (_g?['services'] ?? []) as List)
@@ -73,7 +74,7 @@ class _GuideScreenState extends State<GuideScreen> {
                       ],
                     )),
                   const SizedBox(height: Gap.lg),
-                  Text(tr('ধর্মীয় রিমাইন্ডার', 'Religious reminders'),
+                  Text(tr.religiousReminders,
                       style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
                   const SizedBox(height: Gap.sm),
                   for (final r in (_g?['religious'] ?? []) as List)

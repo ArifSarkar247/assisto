@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../state.dart';
@@ -35,7 +36,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
     if (mounted) setState(() => _loading = false);
   }
 
-  Future<void> _add(String Function(String, String) tr) async {
+  Future<void> _add(AppLocalizations tr) async {
     final name = TextEditingController();
     final phone = TextEditingController();
     final org = TextEditingController();
@@ -43,20 +44,20 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(tr('যোগাযোগ যোগ', 'Add contact')),
+        title: Text(tr.addContact),
         content: SingleChildScrollView(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            TextField(controller: name, decoration: InputDecoration(labelText: tr('নাম', 'Name'))),
+            TextField(controller: name, decoration: InputDecoration(labelText: tr.name)),
             TextField(controller: phone, keyboardType: TextInputType.phone,
-                decoration: InputDecoration(labelText: tr('ফোন', 'Phone'))),
-            TextField(controller: org, decoration: InputDecoration(labelText: tr('প্রতিষ্ঠান', 'Organization'))),
+                decoration: InputDecoration(labelText: tr.phone)),
+            TextField(controller: org, decoration: InputDecoration(labelText: tr.organization)),
             TextField(controller: note, maxLines: 2,
-                decoration: InputDecoration(labelText: tr('নোট', 'Note'))),
+                decoration: InputDecoration(labelText: tr.note)),
           ]),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('বাতিল', 'Cancel'))),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr('যোগ', 'Add'))),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr.cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr.add)),
         ],
       ),
     );
@@ -73,26 +74,24 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final en = context.watch<AppState>().locale?.languageCode == 'en';
-    String tr(String bn, String e) => en ? e : bn;
+    final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: Text(tr('পরিচিতি (CRM)', 'Contacts (CRM)'))),
+      appBar: AppBar(title: Text(tr.crmContacts)),
       floatingActionButton: FloatingActionButton.extended(
           onPressed: () => _add(tr), icon: const Icon(Icons.person_add_alt),
-          label: Text(tr('যোগাযোগ', 'Contact'))),
+          label: Text(tr.contact)),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(icon: Icons.cloud_off, tint: scheme.error,
-                  title: tr('লোড করা গেল না', "Couldn't load"),
+                  title: tr.loadFailed,
                   action: FilledButton.tonalIcon(onPressed: _load,
-                      icon: const Icon(Icons.refresh), label: Text(tr('আবার', 'Retry'))))
+                      icon: const Icon(Icons.refresh), label: Text(tr.retry)))
               : _list.isEmpty
                   ? StateMessage(icon: Icons.contacts_outlined,
-                      title: tr('কোনো যোগাযোগ নেই', 'No contacts yet'),
-                      message: tr('যাদের সাথে দেখা হয় তাদের নোট রাখুন — ফলো-আপ মনে করিয়ে দেব।',
-                          'Keep notes on people you meet — I\'ll remind you to follow up.'))
+                      title: tr.noContactsYet,
+                      message: tr.keepNotesOnPeopleYou)
                   : ListView(padding: const EdgeInsets.all(Gap.md), children: [
                       for (final c in _list)
                         Card(child: ListTile(

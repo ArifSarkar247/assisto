@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
@@ -36,25 +37,25 @@ class _JobsScreenState extends State<JobsScreen> {
     if (mounted) setState(() => _loading = false);
   }
 
-  Future<void> _add(String Function(String, String) tr) async {
+  Future<void> _add(AppLocalizations tr) async {
     final title = TextEditingController();
     final company = TextEditingController();
     final jd = TextEditingController();
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(tr('চাকরি যোগ', 'Add job')),
+        title: Text(tr.addJob),
         content: SingleChildScrollView(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            TextField(controller: title, decoration: InputDecoration(labelText: tr('পদ', 'Title'))),
-            TextField(controller: company, decoration: InputDecoration(labelText: tr('কোম্পানি', 'Company'))),
+            TextField(controller: title, decoration: InputDecoration(labelText: tr.title)),
+            TextField(controller: company, decoration: InputDecoration(labelText: tr.company)),
             TextField(controller: jd, maxLines: 4,
-                decoration: InputDecoration(labelText: tr('চাকরির বিবরণ', 'Job description'))),
+                decoration: InputDecoration(labelText: tr.jobDescription)),
           ]),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('বাতিল', 'Cancel'))),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr('যোগ', 'Add'))),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr.cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr.add)),
         ],
       ),
     );
@@ -68,7 +69,7 @@ class _JobsScreenState extends State<JobsScreen> {
     }
   }
 
-  Future<void> _tailor(int id, String Function(String, String) tr) async {
+  Future<void> _tailor(int id, AppLocalizations tr) async {
     showDialog(context: context, barrierDismissible: false,
         builder: (_) => const Center(child: CircularProgressIndicator()));
     try {
@@ -77,25 +78,25 @@ class _JobsScreenState extends State<JobsScreen> {
       Navigator.pop(context);
       if (r['needs_key'] == true) {
         showDialog(context: context, builder: (_) => AlertDialog(
-          content: Text(tr('চালু হবে যখন AI key যোগ হবে।', 'Available when an AI key is added.')),
-          actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(tr('ঠিক আছে', 'OK')))]));
+          content: Text(tr.availableWhenAnAiKey2),
+          actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(tr.ok))]));
         return;
       }
       final cv = (r['cv_text'] ?? '').toString();
       final cover = (r['cover_letter'] ?? '').toString();
       showDialog(context: context, builder: (_) => AlertDialog(
-        title: Text(tr('তৈরি হয়েছে', 'Generated')),
+        title: Text(tr.generated),
         content: SizedBox(width: double.maxFinite, child: SingleChildScrollView(
-          child: SelectableText('CV:\n$cv\n\n${tr('কভার লেটার', 'Cover letter')}:\n$cover'))),
+          child: SelectableText('CV:\n$cv\n\n${tr.coverLetter}:\n$cover'))),
         actions: [
           TextButton(
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: 'CV:\n$cv\n\nCover:\n$cover'));
                 ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(tr('কপি হয়েছে', 'Copied'))));
+                    SnackBar(content: Text(tr.copied)));
               },
-              child: Text(tr('কপি', 'Copy'))),
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(tr('বন্ধ', 'Close'))),
+              child: Text(tr.copy)),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(tr.close)),
         ]));
       await _load();
     } catch (_) {
@@ -105,29 +106,26 @@ class _JobsScreenState extends State<JobsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final en = context.watch<AppState>().locale?.languageCode == 'en';
-    String tr(String bn, String e) => en ? e : bn;
+    final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: Text(tr('জব হান্টার', 'Job hunter'))),
+      appBar: AppBar(title: Text(tr.jobHunter)),
       floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => _add(tr), icon: const Icon(Icons.add), label: Text(tr('চাকরি', 'Job'))),
+          onPressed: () => _add(tr), icon: const Icon(Icons.add), label: Text(tr.job)),
       body: _loading
           ? const SkeletonList()
           : _error
               ? StateMessage(icon: Icons.cloud_off, tint: scheme.error,
-                  title: tr('লোড করা গেল না', "Couldn't load"),
+                  title: tr.loadFailed,
                   action: FilledButton.tonalIcon(onPressed: _load,
-                      icon: const Icon(Icons.refresh), label: Text(tr('আবার', 'Retry'))))
+                      icon: const Icon(Icons.refresh), label: Text(tr.retry)))
               : _jobs.isEmpty
                   ? StateMessage(icon: Icons.work_outline,
-                      title: tr('কোনো চাকরি নেই', 'No jobs yet'),
-                      message: tr('চাকরির বিবরণ যোগ করুন — আপনার দক্ষতার সাথে মিল দেখাব, CV বানিয়ে দেব।',
-                          'Add a job description — I score the match and draft a CV. You approve & send.'))
+                      title: tr.noJobsYet,
+                      message: tr.addAJobDescriptionI)
                   : ListView(padding: const EdgeInsets.all(Gap.md), children: [
                       Padding(padding: const EdgeInsets.only(bottom: Gap.sm, left: 4),
-                        child: Text(tr('কখনো নিজে থেকে আবেদন করি না — আপনি অনুমোদন করে নিজের মেইল থেকে পাঠান।',
-                            'I never auto-apply — you approve and send from your own email.'),
+                        child: Text(tr.iNeverAutoApplyYou,
                             style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant))),
                       for (final j in _jobs)
                         Card(child: ListTile(
@@ -143,7 +141,7 @@ class _JobsScreenState extends State<JobsScreen> {
                               maxLines: 2, overflow: TextOverflow.ellipsis),
                           trailing: IconButton(
                             icon: const Icon(Icons.auto_awesome),
-                            tooltip: tr('CV/কভার বানাও', 'Make CV/cover'),
+                            tooltip: tr.makeCvCover,
                             onPressed: () => _tailor(j['id'], tr),
                           ),
                         )),

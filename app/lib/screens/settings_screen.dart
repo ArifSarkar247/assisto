@@ -532,15 +532,15 @@ class _SafetySectionState extends State<_SafetySection> {
   @override
   Widget build(BuildContext context) {
     final en = context.watch<AppState>().locale?.languageCode == 'en';
-    String t(String bn, String e) => en ? e : bn;
+    final t = AppLocalizations.of(context);
     final mins = (_sec / 60);
     final label = _sec < 60
-        ? '${_sec.round()} ${t('সেকেন্ড', 'sec')}'
-        : '${mins.toStringAsFixed(mins % 1 == 0 ? 0 : 1)} ${t('মিনিট', 'min')}';
+        ? '${_sec.round()} ${t.sec}'
+        : '${mins.toStringAsFixed(mins % 1 == 0 ? 0 : 1)} ${t.min}';
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-        child: Text(t('নিরাপত্তা', 'Safety'),
+        child: Text(t.safety,
             style: const TextStyle(fontWeight: FontWeight.bold)),
       ),
       SwitchListTile(
@@ -549,14 +549,8 @@ class _SafetySectionState extends State<_SafetySection> {
           setState(() => _fall = v);
           _save();
         },
-        title: Text(t('দুর্ঘটনা/পড়ে যাওয়া শনাক্তকরণ', 'Accident / fall detection')),
-        subtitle: Text(t(
-            'জোরে ধাক্কা লাগলে অ্যালার্ম + ভাইব্রেশন দিয়ে জিজ্ঞেস করবে "আপনি ঠিক আছেন?"। '
-            'সময়ের মধ্যে উত্তর না দিলে পরিবারকে লোকেশনসহ জানাবে, তারপর ৯৯৯ কল করার সুযোগ দেবে। '
-            '(ব্যাটারি একটু বেশি লাগতে পারে)',
-            'On a strong impact, an alarm + vibration asks "Are you OK?". If no answer '
-            'in time, it alerts your family with location, then offers a 999 call. '
-            '(Uses a bit more battery)'),
+        title: Text(t.accidentFallDetection),
+        subtitle: Text(t.onAStrongImpactAn,
             style: const TextStyle(fontSize: 12)),
         isThreeLine: true,
       ),
@@ -564,7 +558,7 @@ class _SafetySectionState extends State<_SafetySection> {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(t('উত্তর দেওয়ার সময়: $label', 'Time to respond: $label'),
+            Text(t.timeToRespondValue(label),
                 style: const TextStyle(fontSize: 12)),
             Slider(
               value: _sec,
@@ -575,20 +569,15 @@ class _SafetySectionState extends State<_SafetySection> {
               onChanged: (v) => setState(() => _sec = v),
               onChangeEnd: (_) => _save(),
             ),
-            Text(t('৩০ সেকেন্ড – ১০ মিনিট (ডিফল্ট ২ মিনিট)',
-                '30 sec – 10 min (default 2 min)'),
+            Text(t.n30Sec10MinDefault,
                 style: TextStyle(fontSize: 11,
                     color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ]),
         ),
       ListTile(
         leading: const Icon(Icons.medication_outlined),
-        title: Text(t('ওষুধের রিমাইন্ডার ফলো-আপ', 'Medicine reminder follow-up')),
-        subtitle: Text(t(
-            'প্রতিটি ওষুধে আলাদা করে ঠিক করুন: কত পরে আবার মনে করাবে, কতবার, '
-            'কত পরে সন্তানকে জানাবে, নীরব সময় — ফ্যামিলি স্ক্রিনের ওষুধে।',
-            'Set per medicine: re-remind after N min, how many times, alert the '
-            'caregiver after M min, quiet hours — on each medicine in Family.'),
+        title: Text(t.medicineReminderFollowUp),
+        subtitle: Text(t.setPerMedicineReRemind,
             style: const TextStyle(fontSize: 12)),
         isThreeLine: true,
       ),

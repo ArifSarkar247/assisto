@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
@@ -24,7 +25,7 @@ class _AgentStudioScreenState extends State<AgentStudioScreen> {
     super.dispose();
   }
 
-  Future<void> _go(String Function(String, String) t) async {
+  Future<void> _go(AppLocalizations t) async {
     if (_prompt.text.trim().isEmpty) return;
     setState(() {
       _busy = true;
@@ -44,15 +45,14 @@ class _AgentStudioScreenState extends State<AgentStudioScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final en = context.watch<AppState>().locale?.languageCode == 'en';
-    String t(String bn, String e) => en ? e : bn;
+    final t = AppLocalizations.of(context);
     final kinds = {
-      'letter': t('চিঠি', 'Letter'), 'cv': 'CV', 'caption': t('ক্যাপশন', 'Caption'),
+      'letter': t.letter, 'cv': 'CV', 'caption': t.caption,
       'excel': 'Excel', 'email': 'Email',
     };
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: Text(t('এজেন্ট স্টুডিও', 'Agent Studio'))),
+      appBar: AppBar(title: Text(t.agentStudio)),
       body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
         Wrap(spacing: Gap.sm, children: [
           for (final e in kinds.entries)
@@ -67,7 +67,7 @@ class _AgentStudioScreenState extends State<AgentStudioScreen> {
           controller: _prompt,
           maxLines: 4,
           decoration: InputDecoration(
-            labelText: t('কী লিখব? বিস্তারিত বলুন', 'What should I write? Describe it'),
+            labelText: t.whatShouldIWriteDescribe,
             alignLabelWithHint: true,
           ),
         ),
@@ -77,7 +77,7 @@ class _AgentStudioScreenState extends State<AgentStudioScreen> {
           icon: _busy
               ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
               : const Icon(Icons.auto_awesome),
-          label: Text(t('তৈরি করুন', 'Generate')),
+          label: Text(t.generate),
         ),
         if (_needsKey) ...[
           const SizedBox(height: Gap.lg),
@@ -86,8 +86,7 @@ class _AgentStudioScreenState extends State<AgentStudioScreen> {
             child: Padding(
               padding: const EdgeInsets.all(Gap.lg),
               child: Text(
-                t('চালু হবে যখন AI key যোগ হবে (Integrations)।',
-                    'Available when an AI key is added (Integrations).'),
+                t.availableWhenAnAiKey,
                 style: TextStyle(color: scheme.onTertiaryContainer),
               ),
             ),
@@ -105,10 +104,10 @@ class _AgentStudioScreenState extends State<AgentStudioScreen> {
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: _result!));
                     ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(t('কপি হয়েছে', 'Copied'))));
+                        SnackBar(content: Text(t.copied)));
                   },
                   icon: const Icon(Icons.copy, size: 16),
-                  label: Text(t('কপি', 'Copy')),
+                  label: Text(t.copy),
                 ),
               ]),
             ),
