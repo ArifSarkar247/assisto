@@ -67,7 +67,9 @@ NEXT: module 5 — P13+ additions (Connected Circle E2E; health tips; medicine D
 - ac08c7e3 **Connected Circle**: relationship graph+invite(phone/QR)+consent+block, E2E text via software fallback now (X25519+AEAD) w/ OpenMLS(Apache/MIT, NOT libsignal-AGPL) swap seam, server ciphertext-only, media/voice key-gated; owner_actions/connected_circle_e2e.md.
 Each → review → fix → batched integration (like round 2) → APK. Then P14-P16 leftovers, P11 iOS, P12 FINAL.
 
-### ✅ Phase B MODULE 5 (P13+) — ALL 4 BUILT (pending reviews + batched integration)
+### ✅ Phase B MODULE 5 (P13+) — ALL 4 BUILT + REVIEWED (no licensing/safety P0)
+Verdicts: Launch-gaps ADVANCED, Life ADVANCED, Health GOOD(A-), Connected-Circle ADVANCED. Fix lists + integration-wiring reqs in .phaseB/*_integration.md. CC P1 = views must call validate_envelope/auto-block/can_see/invite-single-use. Code fixes pending (health emergency_check word-boundary + guards; life duration_min cast; launch-gaps photo-attestation + analytics fail-closed). ARB to author: life ~92, launch-gaps ~45, CC ~55 (swap [en,bn]); health ~41 ready.
+### (prev) ALL 4 BUILT
 - Launch-gaps A- · Health A- · Life A · Connected Circle 9/10. All code committed; specs in .phaseB/*_integration.md + *_arb.json.
 - INTEGRATION TODO (batched, like round 2): author missing bn ARB (Life en-only ~70; Launch-gaps ~45 names-only; Connected-Circle swap [en,bn]→[bn,en]); add models (Birthday, Appointment, ExamWatcher, PasswordResetToken, AnalyticsEvent, CircleMember/Message/Invite/Report) + migrate (DB backup); wire endpoints (health/medicine-db/birthdays, meetings/dictionary/ramadan/exam, reset/analytics/legal/photo/unseen, circle); fold api extensions; grouped-sidebar entries (Health: MedicineDb/HealthTips/Birthdays; Life: Meetings/Dictionary/RideFood/Ramadan/Exam/Unseen/PhotoEnhance; Family: Circle; Settings: Legal + reset link); ChatNav routes; fake_api stubs; VERIFY lang gate (meetings/leave-now flagged); gen-l10n → analyze 0 → gate CLEAN → tests → build+ship APK → gallery. Each module gets a premium reviewer first.
 - THEN: P14-P16 leftovers, P11 iOS, P12 FINAL.

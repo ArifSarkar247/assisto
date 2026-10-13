@@ -6,3 +6,10 @@ NEW: app/lib/screens/circle_screen.dart, circle_chat_screen.dart; widgets circle
 ## MIGRATION (core): CircleMember(user FK,name,relation,custom_label,phone,public_key text,key_id,scheme,state[pending|accepted|declined|blocked],sharing JSON default dict,created_at); CircleMessage(member FK,sender FK,recipient_ids JSON,content_type,ciphertext text,nonce,blob_ref,sender_key_id,scheme,delivered_to JSON,read_by JSON,created_at — store ciphertext verbatim); CircleInvite(inviter FK,relation,token,used bool,expires_at single-use); CircleReport(reporter FK,target FK,reason,note,created_at).
 ## Endpoints (views+urls): GET /circle/members, /circle/requests; POST /circle/keys (PUBLIC key only); POST /circle/request; POST /circle/request/<id>/act {event} (circle.apply_request_event); POST /circle/<id>/sharing; POST /circle/<id>/report; GET /circle/invite?relation= (make_invite_token+qr_payload); GET /circle/<id>/messages; POST /circle/<id>/messages (build_text_envelope+validate_envelope before persist).
 ## drawer Family section += CircleScreen (t.circleTitle) + import + ChatNav 'circle' + screen_synonyms. api.dart optional wrappers (screens use generics). fake_api: [] for members/requests (friendly empty state). Medicine-card hook: circle.quick_contact_actions(member,lang). PENDING reviewer.
+
+## CC REVIEWER = ADVANCED, NO P0 (crypto RFC-verified, server ciphertext-only). P1 = INTEGRATOR MUST WIRE (pure fns don't self-enforce):
+1. POST /circle/<id>/messages MUST call validate_envelope before persist (unskippable).
+2. report view MUST call apply_request_event(...,"block") when report_payload.auto_block true (auto-block is a flag only).
+3. scoped reads (medicines/location/money/documents) MUST gate on circle.can_see server-side before returning (client-trust otherwise).
+4. invite token single-use MUST be enforced via DB `used` flag (parse_invite_token doesn't enforce).
+P2 hardening: server_visible_fields strip is shallow (type-check allowed fields are scalars); don't oversell looks_like_plaintext. ARB apply [bn,en] (swap agent's [en,bn]); dedup circleScope* vs existing. No code-fix needed in module — all integration wiring.
