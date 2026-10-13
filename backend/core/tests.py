@@ -404,3 +404,239 @@ class LocalizationTests(APITestCase):
         for s in en["services"]:
             self.assertIn("name", s)
             self.assertNotRegex(str(s.get("steps", "")), r"[ঀ-৿]")
+
+
+# ---------------------------------------------------------------------------
+# Medicine & family-care module (Phase B) — pure logic + API + a 30-day scenario
+# ---------------------------------------------------------------------------
+from datetime import date, datetime, time, timedelta  # noqa: E402
+
+from core.logic import medicine as mlogic  # noqa: E402
+from core.models import FamilyMember, Medicine, MedicineLog, Doctor, Prescription  # noqa: E402
+
+
+class MedicineLogicTests(TestCase):
+    """Pure functions — no DB, no AI."""
+
+    def test_doses_per_day(self):
+        self.assertEqual(mlogic.doses_per_day(["08:00", "20:00"]), 2)
+        self.assertEqual(mlogic.doses_per_day([]), 0)
+        self.assertEqual(mlogic.doses_per_day(["08:00", "", "  "]), 1)
+
+    def test_active_on_course_window(self):
+        s, e = date(2026, 1, 1), date(2026, 1, 7)
+        self.assertTrue(mlogic.active_on(s, e, date(2026, 1, 1)))
+        self.assertTrue(mlogic.active_on(s, e, date(2026, 1, 7)))
+        self.assertFalse(mlogic.active_on(s, e, date(2026, 1, 8)))
+        self.assertFalse(mlogic.active_on(s, e, date(2025, 12, 31)))
+
+    def test_prn_never_scheduled(self):
+        self.assertEqual(
+            mlogic.scheduled_slots_for_day(["08:00"], None, None,
+                                           date(2026, 1, 1), prn=True), [])
+
+    def test_days_left_and_refill(self):
+        # 20 pills, 2/day → 10 days
+        self.assertEqual(mlogic.days_left(20, ["08:00", "20:00"]), 10)
+        d = mlogic.predicted_refill_date(20, ["08:00", "20:00"],
+                                         today=date(2026, 1, 1))
+        self.assertEqual(d, date(2026, 1, 11))
+        # open-ended (no schedule) → None
+        self.assertIsNone(mlogic.days_left(20, []))
+
+    def test_refill_warning_levels(self):
+        self.assertEqual(mlogic.refill_warning(20, ["08:00", "20:00"])[0], "ok")
+        self.assertEqual(mlogic.refill_warning(6, ["08:00", "20:00"])[0], "soon")  # 3 days
+        self.assertEqual(mlogic.refill_warning(0, ["08:00"])[0], "out")
+
+    def test_dose_qty_burn(self):
+        # 2 pills per dose, 2 doses/day = 4/day → 20 pills = 5 days
+        self.assertEqual(mlogic.days_left(20, ["08:00", "20:00"], dose_qty=2), 5)
+        self.assertEqual(mlogic.apply_dose_to_stock(10, dose_qty=2), 8)
+
+    def test_adherence_ratio(self):
+        self.assertEqual(mlogic.adherence(10, 8)[0], 80)
+        self.assertEqual(mlogic.adherence(0, 0)[0], 100)  # nothing scheduled
+
+    def test_quiet_hours_overnight_wrap(self):
+        self.assertTrue(mlogic.in_quiet_hours(time(23, 0), "22:00", "07:00"))
+        self.assertTrue(mlogic.in_quiet_hours(time(2, 0), "22:00", "07:00"))
+        self.assertFalse(mlogic.in_quiet_hours(time(12, 0), "22:00", "07:00"))
+        self.assertFalse(mlogic.in_quiet_hours(time(12, 0), "", ""))
+
+    def test_escalation_plan_ladder_and_quiet(self):
+        plan = mlogic.escalation_plan(
+            "23:00", followup_repeat_min=15, followup_retries=2,
+            caregiver_alert_min=30, quiet_start="22:00", quiet_end="07:00",
+            base_day=date(2026, 1, 1))
+        kinds = [e["kind"] for e in plan]
+        self.assertEqual(kinds, ["reminder", "reremind", "reremind", "caregiver_alert"])
+        # all land in quiet hours (after 22:00) → suppressed
+        self.assertTrue(all(e["suppressed"] for e in plan))
+        # a daytime dose is NOT suppressed
+        day = mlogic.escalation_plan("10:00", 15, 1, 30,
+                                     "22:00", "07:00", base_day=date(2026, 1, 1))
+        self.assertFalse(any(e["suppressed"] for e in day))
+
+    def test_next_escalation_action(self):
+        plan = mlogic.escalation_plan("10:00", 15, 2, 30, base_day=date(2026, 1, 1))
+        now = datetime(2026, 1, 1, 10, 40)  # past the 30-min caregiver mark
+        act = mlogic.next_escalation_action(plan, now, acknowledged=False)
+        self.assertEqual(act["kind"], "caregiver_alert")
+        # acknowledged → nothing fires
+        self.assertIsNone(mlogic.next_escalation_action(plan, now, acknowledged=True))
+
+
+class MedicineApiTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            name="Care", phone="01966600000", password="x123456")
+        self.client.force_authenticate(user=self.user)
+
+    def test_create_medicine_with_dose_semantics(self):
+        r = self.client.post("/api/v1/medicines/", {
+            "name": "Napa", "dosage": "1 tab", "times": ["08:00", "20:00"],
+            "food_relation": "after", "dose_qty": "1", "stock_count": 20,
+            "duration_days": 7}, format="json")
+        self.assertEqual(r.status_code, 201, r.content)
+        body = r.json()
+        self.assertEqual(body["days_left"], 10)
+        self.assertEqual(body["refill_status"], "ok")
+        self.assertEqual(body["food_relation"], "after")
+
+    def test_taken_decrements_inventory_and_undo_restores(self):
+        med = Medicine.objects.create(user=self.user, name="X",
+                                      times=["08:00"], stock_count=10, dose_qty=1)
+        r = self.client.post(f"/api/v1/medicines/{med.id}/taken",
+                             {"slot": "08:00", "taken": True}, format="json")
+        self.assertEqual(r.json()["stock_count"], 9)
+        # idempotent — taking same slot again does not double-decrement
+        self.client.post(f"/api/v1/medicines/{med.id}/taken",
+                        {"slot": "08:00", "taken": True}, format="json")
+        med.refresh_from_db()
+        self.assertEqual(med.stock_count, 9)
+        # undo restores
+        r = self.client.post(f"/api/v1/medicines/{med.id}/taken",
+                            {"slot": "08:00", "taken": False}, format="json")
+        self.assertEqual(r.json()["stock_count"], 10)
+
+    def test_prn_in_today_and_not_in_adherence(self):
+        Medicine.objects.create(user=self.user, name="PRN", times=[],
+                                as_needed=True)
+        today = self.client.get("/api/v1/medicines/today").json()
+        self.assertTrue(any(d["prn"] for d in today))
+        hist = self.client.get("/api/v1/medicines/history").json()
+        # PRN contributes 0 scheduled → overall stays 100 with no other meds
+        self.assertEqual(hist["overall"], 100)
+
+    def test_escalation_endpoint(self):
+        med = Medicine.objects.create(
+            user=self.user, name="E", times=["23:00"],
+            followup_repeat_min=15, followup_retries=2, caregiver_alert_min=30,
+            quiet_start="22:00", quiet_end="07:00")
+        r = self.client.get(f"/api/v1/medicines/{med.id}/escalation?slot=23:00")
+        self.assertEqual(r.status_code, 200)
+        self.assertFalse(r.json()["push_ready"])  # no Firebase key
+        self.assertTrue(all(e["suppressed"] for e in r.json()["events"]))
+
+    def test_caregiver_dashboard_multi_person(self):
+        mom = FamilyMember.objects.create(user=self.user, name="Ma", relation="mother")
+        Medicine.objects.create(user=self.user, member=mom, name="BP",
+                                times=["08:00"], stock_count=3, dose_qty=1)
+        Medicine.objects.create(user=self.user, name="Self med", times=["09:00"])
+        r = self.client.get("/api/v1/medicines/caregiver").json()
+        names = {p["relation"] for p in r["people"]}
+        self.assertIn("mother", names)
+        self.assertIn("self", names)
+        mblock = next(p for p in r["people"] if p["relation"] == "mother")
+        self.assertEqual(mblock["doses_today"], 1)
+        self.assertTrue(mblock["low_stock"])  # 3 pills, 1/day → soon
+
+    def test_doctor_pdf_renders(self):
+        doc = Doctor.objects.create(user=self.user, name="Dr Rahman",
+                                    specialty="Medicine")
+        Prescription.objects.create(user=self.user, doctor=doc,
+                                    date=date.today(), diagnosis="Fever",
+                                    meds=[{"name": "Napa", "times": ["08:00"]}])
+        Medicine.objects.create(user=self.user, name="Napa", times=["08:00"])
+        r = self.client.get("/api/v1/medicines/doctor-pdf")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r["Content-Type"], "application/pdf")
+        self.assertTrue(r.content[:4] == b"%PDF")
+
+    def test_prescription_per_doctor_filter(self):
+        d1 = Doctor.objects.create(user=self.user, name="A")
+        d2 = Doctor.objects.create(user=self.user, name="B")
+        Prescription.objects.create(user=self.user, doctor=d1, date=date.today())
+        Prescription.objects.create(user=self.user, doctor=d2, date=date.today())
+        r = self.client.get(f"/api/v1/prescriptions/?doctor={d1.id}").json()
+        self.assertEqual(len(r), 1)
+        self.assertEqual(r[0]["doctor_display"], "A")
+
+
+class MedicineScenarioTests(APITestCase):
+    """Simulate ~30 days of a parent's medicine use: some taken, some missed.
+    Asserts adherence %, refill prediction, and escalation all behave."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            name="Child", phone="01977700000", password="x123456")
+        self.client.force_authenticate(user=self.user)
+        self.mom = FamilyMember.objects.create(
+            user=self.user, name="Amma", relation="mother")
+
+    def test_thirty_day_adherence_refill_escalation(self):
+        today = date.today()
+        start = today - timedelta(days=29)
+        # BP med: twice a day, 2 pills/dose, started 30 days ago, 100 pills bought.
+        med = Medicine.objects.create(
+            user=self.user, member=self.mom, name="Amlodipine",
+            dosage="1 tab", times=["08:00", "20:00"], dose_qty=2,
+            start_date=start, stock_count=100, refill_warn_days=5,
+            followup_repeat_min=15, followup_retries=2, caregiver_alert_min=30,
+            quiet_start="22:00", quiet_end="07:00")
+
+        # 30 days * 2 slots = 60 scheduled doses. Miss every 5th morning dose.
+        taken = 0
+        for i in range(30):
+            day = start + timedelta(days=i)
+            for slot in ("08:00", "20:00"):
+                missed = (slot == "08:00" and i % 5 == 0)
+                if not missed:
+                    MedicineLog.objects.create(
+                        medicine=med, date=day, slot=slot, taken=True)
+                    taken += 1
+        # 30 days → 6 missed morning doses → 54/60 = 90%
+        self.assertEqual(taken, 54)
+
+        hist = self.client.get(
+            f"/api/v1/medicines/history?member={self.mom.id}").json()
+        self.assertEqual(hist["scheduled"], 60)
+        self.assertEqual(hist["taken"], 54)
+        self.assertEqual(hist["overall"], 90)
+        self.assertEqual(len(hist["medicines"][0]["weeks"]), 4)
+
+        # Refill prediction: 100 pills, 4/day → 25 days left from today.
+        ser = self.client.get(
+            f"/api/v1/medicines/?member={self.mom.id}").json()[0]
+        self.assertEqual(ser["days_left"], 25)
+        self.assertEqual(ser["refill_status"], "ok")
+        self.assertEqual(ser["adherence_30d"], 90)
+
+        # Drain stock to a low level, confirm 'soon' warning surfaces on dashboard.
+        med.stock_count = 12  # 3 days left at 4/day
+        med.save()
+        dash = self.client.get("/api/v1/medicines/caregiver").json()
+        mblock = next(p for p in dash["people"] if p["relation"] == "mother")
+        self.assertEqual(mblock["adherence_30d"], 90)
+        self.assertTrue(any(ls["status"] == "soon" for ls in mblock["low_stock"]))
+
+        # Escalation for the evening dose (20:00) — caregiver alert is NOT in
+        # quiet hours (quiet starts 22:00); reminder+reremind+alert all fire.
+        esc = self.client.get(
+            f"/api/v1/medicines/{med.id}/escalation?slot=20:00").json()
+        self.assertEqual([e["kind"] for e in esc["events"]],
+                         ["reminder", "reremind", "reremind", "caregiver_alert"])
+        # 20:00 + 30 min = 20:30, before 22:00 → not suppressed
+        self.assertFalse(any(e["suppressed"] for e in esc["events"]))
+        self.assertFalse(esc["push_ready"])  # cross-device needs Firebase key

@@ -23,6 +23,7 @@ import 'package:assisto/screens/in_progress_screen.dart';
 import 'package:assisto/screens/money_screen.dart';
 import 'package:assisto/screens/vault_screen.dart';
 import 'package:assisto/screens/family_screen.dart';
+import 'package:assisto/screens/medicine_history_screen.dart';
 import 'package:assisto/screens/emergency_screen.dart';
 import 'package:assisto/screens/reminders_screen.dart';
 import 'package:assisto/screens/notes_todos_screen.dart';
@@ -135,6 +136,7 @@ void main() {
     'money': (build: (_) => const MoneyScreen(), mode: FakeMode.data, full: true),
     'vault': (build: (_) => const VaultScreen(previewUnlocked: true), mode: FakeMode.data, full: true),
     'family': (build: (_) => const FamilyScreen(), mode: FakeMode.data, full: true),
+    'medicine_history': (build: (_) => const MedicineHistoryScreen(member: 'self'), mode: FakeMode.data, full: true),
     'emergency': (build: (_) => const EmergencyScreen(), mode: FakeMode.data, full: true),
     'reminders': (build: (_) => const RemindersScreen(), mode: FakeMode.data, full: true),
     'notes_tasks': (build: (_) => const NotesTodosScreen(), mode: FakeMode.data, full: true),

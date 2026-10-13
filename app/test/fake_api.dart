@@ -68,8 +68,18 @@ class FakeApi extends ApiClient {
         ]);
       case 'medicines':
         return _maybe([
-          {'id': 1, 'name': 'Napa', 'dosage': _bn ? '১টা' : '1 tab', 'times': ['08:00', '20:00'], 'refill_date': '2026-10-30'},
-          {'id': 2, 'name': 'Losectil', 'dosage': _bn ? '১টা' : '1 tab', 'times': ['08:00'], 'refill_date': null},
+          {'id': 1, 'name': 'Napa', 'dosage': _bn ? '১টা' : '1 tab', 'times': ['08:00', '20:00'], 'refill_date': '2026-10-30', 'food_relation': 'after', 'as_needed': false, 'dose_qty': '1', 'stock_count': 6, 'days_left': 3, 'refill_status': 'soon', 'adherence_30d': 92},
+          {'id': 2, 'name': 'Losectil', 'dosage': _bn ? '১টা' : '1 tab', 'times': ['08:00'], 'refill_date': null, 'food_relation': 'before', 'as_needed': false, 'dose_qty': '1', 'stock_count': 40, 'days_left': 40, 'refill_status': 'ok', 'adherence_30d': 78},
+          {'id': 3, 'name': 'Sleeping aid', 'dosage': _bn ? 'প্রয়োজনে' : 'as needed', 'times': [], 'as_needed': true, 'dose_qty': '1', 'stock_count': null, 'days_left': null, 'refill_status': 'ok', 'adherence_30d': 100},
+        ]);
+      case 'doctors':
+        return _maybe([
+          {'id': 1, 'name': _bn ? 'ডা. রহমান' : 'Dr Rahman', 'specialty': _bn ? 'মেডিসিন' : 'Medicine', 'hospital': _bn ? 'স্কয়ার হাসপাতাল' : 'Square Hospital', 'phone': '01710000000'},
+        ]);
+      case 'prescriptions':
+        return _maybe([
+          {'id': 1, 'doctor': 1, 'doctor_display': _bn ? 'ডা. রহমান' : 'Dr Rahman', 'member': 1, 'date': '2026-10-05', 'diagnosis': _bn ? 'উচ্চ রক্তচাপ' : 'Hypertension', 'meds': [{'name': 'Amlodipine 5mg'}, {'name': 'Napa'}]},
+          {'id': 2, 'doctor': 1, 'doctor_display': _bn ? 'ডা. রহমান' : 'Dr Rahman', 'member': null, 'date': '2026-09-20', 'diagnosis': _bn ? 'গ্যাস্ট্রিক' : 'Gastric', 'meds': [{'name': 'Losectil'}]},
         ]);
       case 'school':
         return _maybe([
@@ -121,10 +131,66 @@ class FakeApi extends ApiClient {
 
   @override
   Future<List<Map<String, dynamic>>> medicinesToday() async => _maybe([
-        {'medicine_id': 1, 'name': 'Napa', 'slot': '08:00', 'taken': true, 'dosage': _bn ? '১টা' : '1 tab', 'refill_date': '2026-10-30'},
-        {'medicine_id': 1, 'name': 'Napa', 'slot': '20:00', 'taken': false, 'dosage': _bn ? '১টা' : '1 tab', 'refill_date': '2026-10-30'},
-        {'medicine_id': 2, 'name': 'Losectil', 'slot': '08:00', 'taken': false, 'dosage': _bn ? '১টা' : '1 tab', 'refill_date': null},
+        {'medicine_id': 1, 'name': 'Napa', 'slot': '08:00', 'taken': true, 'skipped': false, 'prn': false, 'dosage': _bn ? '১টা' : '1 tab', 'food_relation': 'after', 'member_name': _bn ? 'আম্মা' : 'Mother', 'days_left': 3, 'refill_date': '2026-10-30'},
+        {'medicine_id': 1, 'name': 'Napa', 'slot': '20:00', 'taken': false, 'skipped': false, 'prn': false, 'dosage': _bn ? '১টা' : '1 tab', 'food_relation': 'after', 'member_name': _bn ? 'আম্মা' : 'Mother', 'days_left': 3, 'refill_date': '2026-10-30'},
+        {'medicine_id': 2, 'name': 'Losectil', 'slot': '08:00', 'taken': false, 'skipped': false, 'prn': false, 'dosage': _bn ? '১টা' : '1 tab', 'food_relation': 'before', 'member_name': null, 'days_left': 40, 'refill_date': null},
       ]);
+
+  @override
+  Future<Map<String, dynamic>> medicineHistory({String? member}) async {
+    if (mode == FakeMode.fail) _fail();
+    if (mode == FakeMode.empty) {
+      return {'overall': 100, 'taken': 0, 'scheduled': 0, 'medicines': []};
+    }
+    List<Map<String, dynamic>> weeks(List<int> p) => [
+          for (int i = 0; i < p.length; i++)
+            {'start': '2026-09-${15 + i * 7}', 'end': '2026-09-${21 + i * 7}', 'pct': p[i]}
+        ];
+    return {
+      'overall': 88,
+      'taken': 106,
+      'scheduled': 120,
+      'medicines': [
+        {'id': 1, 'name': 'Napa', 'member': 1, 'prn': false, 'adherence_30d': 92, 'taken': 55, 'scheduled': 60, 'streak': 4, 'weeks': weeks([80, 90, 100, 95])},
+        {'id': 2, 'name': 'Losectil', 'member': null, 'prn': false, 'adherence_30d': 78, 'taken': 23, 'scheduled': 30, 'streak': 0, 'weeks': weeks([70, 60, 90, 85])},
+        {'id': 3, 'name': 'Sleeping aid', 'member': 1, 'prn': true, 'adherence_30d': 100, 'taken': 0, 'scheduled': 0, 'streak': 0, 'weeks': weeks([0, 0, 0, 0])},
+      ],
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> caregiverDashboard() async {
+    if (mode == FakeMode.fail) _fail();
+    if (mode == FakeMode.empty) return {'people': [], 'push_ready': false};
+    return {
+      'push_ready': false,
+      'people': [
+        {
+          'member': null, 'name': _bn ? 'আমি' : 'Me', 'relation': 'self',
+          'doses_today': 1, 'taken_today': 0, 'pending_today': 1, 'next_due': '08:00',
+          'adherence_30d': 78, 'low_stock': [], 'has_meds': true,
+        },
+        {
+          'member': 1, 'name': _bn ? 'আম্মা' : 'Mother', 'relation': _bn ? 'মা' : 'mother',
+          'doses_today': 2, 'taken_today': 1, 'pending_today': 1, 'next_due': '20:00',
+          'adherence_30d': 92, 'has_meds': true,
+          'low_stock': [{'name': 'Napa', 'days_left': 3, 'status': 'soon'}],
+        },
+      ],
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> medicineEscalation(int id, {String? slot}) async => {
+        'slot': slot ?? '20:00',
+        'push_ready': false,
+        'events': [
+          {'kind': 'reminder', 'at': '20:00', 'suppressed': false},
+          {'kind': 'reremind', 'at': '20:15', 'suppressed': false},
+          {'kind': 'reremind', 'at': '20:30', 'suppressed': false},
+          {'kind': 'caregiver_alert', 'at': '20:30', 'suppressed': false},
+        ],
+      };
 
   @override
   Future<Map<String, dynamic>> getEmergency() async {

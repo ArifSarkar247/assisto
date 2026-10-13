@@ -582,5 +582,92 @@
   "youStayInControl": "You stay in control",
   "yourMessageLabel": "Your message",
   "yourPhoneBrand": "Your phone brand",
-  "zakat": "Zakat"
+  "zakat": "Zakat",
+  "medTabCaregiver": "Overview",
+  "medTabPrescriptions": "Prescriptions",
+  "medCaregiverTitle": "Who you care for",
+  "medCaregiverEmpty": "Add medicines for yourself or a family member to see their daily status here.",
+  "medForSelf": "Myself",
+  "medDosesTodayLabel": "Today's doses",
+  "medTakenOfTotal": "{taken} of {total} taken",
+  "@medTakenOfTotal": {
+    "placeholders": {"taken": {"type": "Object"}, "total": {"type": "Object"}}
+  },
+  "medNextDose": "Next dose {slot}",
+  "@medNextDose": {
+    "placeholders": {"slot": {"type": "Object"}}
+  },
+  "medAllDoneToday": "All doses taken today",
+  "medAdherence30d": "Adherence (30 days)",
+  "medLowStockOne": "{name}: {days} days left",
+  "@medLowStockOne": {
+    "placeholders": {"name": {"type": "Object"}, "days": {"type": "Object"}}
+  },
+  "medOutOfStockOne": "{name}: out of stock",
+  "@medOutOfStockOne": {
+    "placeholders": {"name": {"type": "Object"}}
+  },
+  "medLowStockHeading": "Running low",
+  "medPushGatedNote": "Cross-device alerts to the caregiver's phone are available when Firebase is added.",
+  "medFoodBefore": "Before food",
+  "medFoodAfter": "After food",
+  "medFoodWith": "With food",
+  "medFoodAny": "Any time",
+  "medFoodLabel": "With food",
+  "medAsNeeded": "As needed (PRN)",
+  "medAsNeededShort": "PRN",
+  "medStockLabel": "Pills in stock",
+  "medDoseQtyLabel": "Pills per dose",
+  "medDurationLabel": "For how many days",
+  "medCourseEnds": "Course ends {date}",
+  "@medCourseEnds": {
+    "placeholders": {"date": {"type": "Object"}}
+  },
+  "medDaysLeftValue": "{days} days of stock left",
+  "@medDaysLeftValue": {
+    "placeholders": {"days": {"type": "Object"}}
+  },
+  "medForWhomLabel": "For whom",
+  "medTakeNow": "Take",
+  "medSkip": "Skip",
+  "medSkipped": "Skipped",
+  "medUndo": "Undo",
+  "medHistoryTitle": "Adherence history",
+  "medHistoryEmpty": "Take some doses and your weekly adherence will show here.",
+  "medOverallAdherence": "Overall adherence",
+  "medStreakValue": "{days}-day streak",
+  "@medStreakValue": {
+    "placeholders": {"days": {"type": "Object"}}
+  },
+  "medWeeklyHeading": "Last 4 weeks",
+  "medTakenScheduled": "{taken} taken of {scheduled} scheduled",
+  "@medTakenScheduled": {
+    "placeholders": {"taken": {"type": "Object"}, "scheduled": {"type": "Object"}}
+  },
+  "medWeekLabel": "Week {n}",
+  "@medWeekLabel": {
+    "placeholders": {"n": {"type": "Object"}}
+  },
+  "medEscalationTitle": "Missed-dose follow-up",
+  "medEscalationReminder": "Reminder",
+  "medEscalationReremind": "Re-remind",
+  "medEscalationCaregiver": "Alert caregiver",
+  "medEscalationQuietNote": "Falls in quiet hours — deferred",
+  "medViewEscalation": "Preview follow-up steps",
+  "medPrescriptionsTitle": "Prescriptions",
+  "medPrescriptionsEmpty": "Save a prescription to keep a timeline per doctor.",
+  "medAddPrescription": "Add prescription",
+  "medDoctorLabel": "Doctor",
+  "medDoctorNameLabel": "Doctor's name",
+  "medSpecialtyLabel": "Specialty",
+  "medHospitalLabel": "Hospital / chamber",
+  "medDiagnosisLabel": "Diagnosis",
+  "medPrescriptionDateLabel": "Visit date (YYYY-MM-DD)",
+  "medPrescriptionMedsLabel": "Medicines (one per line)",
+  "medDoctorPdf": "Doctor-visit PDF",
+  "medDoctorPdfSubtitle": "Current meds, schedule, adherence, recent changes",
+  "medManageDoctors": "Doctors",
+  "medAddDoctor": "Add doctor",
+  "medNoDoctor": "No doctor",
+  "medStockUnknown": "Stock not tracked"
 }

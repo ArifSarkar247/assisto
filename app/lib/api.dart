@@ -205,11 +205,22 @@ class ApiClient {
     _fail(r);
   }
 
-  Future<void> medicineTaken(int id, String slot, {bool taken = true}) async {
+  Future<void> medicineTaken(int id, String slot,
+      {bool taken = true, bool skipped = false}) async {
     await _c.post(AppConfig.api('/medicines/$id/taken'),
         headers: _headers(),
-        body: jsonEncode({'slot': slot, 'taken': taken}));
+        body: jsonEncode({'slot': slot, 'taken': taken, 'skipped': skipped}));
   }
+
+  // ---- medicine: adherence history, caregiver dashboard, escalation ----
+  Future<Map<String, dynamic>> medicineHistory({String? member}) =>
+      getJson('/medicines/history${member != null ? '?member=$member' : ''}');
+
+  Future<Map<String, dynamic>> caregiverDashboard() =>
+      getJson('/medicines/caregiver');
+
+  Future<Map<String, dynamic>> medicineEscalation(int id, {String? slot}) =>
+      getJson('/medicines/$id/escalation${slot != null ? '?slot=$slot' : ''}');
 
   Future<Map<String, dynamic>> scamCheck(String message) async {
     final r = await _c.post(AppConfig.api('/scam/check'),

@@ -187,11 +187,53 @@ class FamilyMember(models.Model):
         ordering = ["name"]
 
 
+class Doctor(models.Model):
+    """A prescribing doctor — lets us group prescriptions into a timeline."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="doctors")
+    name = models.CharField(max_length=120)
+    specialty = models.CharField(max_length=120, blank=True, default="")
+    hospital = models.CharField(max_length=160, blank=True, default="")
+    phone = models.CharField(max_length=40, blank=True, default="")
+    notes = models.CharField(max_length=300, blank=True, default="")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["name"]
+
+
+class Prescription(models.Model):
+    """A visit's prescription (feature 12) — doctor + date + the medicines
+    advised. Builds a per-doctor history timeline and feeds the doctor-visit
+    PDF summary. Medicines created from it can back-link via Medicine.prescription."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="prescriptions")
+    member = models.ForeignKey("FamilyMember", on_delete=models.CASCADE, null=True,
+                               blank=True, related_name="prescriptions")
+    doctor = models.ForeignKey(Doctor, on_delete=models.SET_NULL, null=True, blank=True,
+                               related_name="prescriptions")
+    doctor_name = models.CharField(max_length=120, blank=True, default="")  # free-text fallback
+    date = models.DateField(null=True, blank=True)
+    diagnosis = models.CharField(max_length=300, blank=True, default="")
+    # meds advised: [{name, dosage, times:[..], days}]
+    meds = models.JSONField(default=list, blank=True)
+    notes = models.TextField(blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-date", "-created_at"]
+
+
 class Medicine(models.Model):
     """Feature 12 — medicine schedule (self or a family member)."""
+    # Dose relative to food (খাওয়ার আগে/পরে) — Bangladeshi caregivers rely on this.
+    FOOD_ANY, FOOD_BEFORE, FOOD_AFTER, FOOD_WITH = "any", "before", "after", "with"
+    FOOD_CHOICES = [(FOOD_ANY, "any"), (FOOD_BEFORE, "before food"),
+                    (FOOD_AFTER, "after food"), (FOOD_WITH, "with food")]
+
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="medicines")
     member = models.ForeignKey(FamilyMember, on_delete=models.CASCADE, null=True, blank=True,
                                related_name="medicines")
+    prescription = models.ForeignKey(Prescription, on_delete=models.SET_NULL, null=True,
+                                     blank=True, related_name="medicines")
     name = models.CharField(max_length=120)
     dosage = models.CharField(max_length=80, blank=True)
     times = models.JSONField(default=list, blank=True)   # ["08:00","20:00"]
@@ -199,6 +241,18 @@ class Medicine(models.Model):
     end_date = models.DateField(null=True, blank=True)
     refill_date = models.DateField(null=True, blank=True)
     notes = models.CharField(max_length=200, blank=True)
+
+    # --- dose semantics (advanced) ---
+    food_relation = models.CharField(max_length=8, choices=FOOD_CHOICES, default=FOOD_ANY)
+    dose_qty = models.DecimalField(max_digits=6, decimal_places=2, default=1)  # units per dose
+    as_needed = models.BooleanField(default=False)   # PRN — never counts against adherence
+    duration_days = models.PositiveIntegerField(null=True, blank=True)  # "for 7 days"
+    taper = models.JSONField(default=list, blank=True)  # [{from, to, dose_qty}] tapering plan
+
+    # --- inventory ---
+    stock_count = models.IntegerField(null=True, blank=True)  # units on hand (pills)
+    refill_warn_days = models.PositiveIntegerField(default=5)  # warn when <= N days left
+
     # configurable follow-up (per medicine / per member) — applies to app
     # notifications now, and to IVR calls when that integration exists.
     followup_repeat_min = models.PositiveIntegerField(default=15)  # re-remind after N min
@@ -213,11 +267,14 @@ class Medicine(models.Model):
 
 
 class MedicineLog(models.Model):
-    """'খেয়েছি' confirmation per dose."""
+    """Per-dose outcome. `taken=False` + a row means an explicitly-skipped dose;
+    absence of a row for a scheduled slot means 'missed' (not yet acted on)."""
     medicine = models.ForeignKey(Medicine, on_delete=models.CASCADE, related_name="logs")
     date = models.DateField()
-    slot = models.CharField(max_length=5)   # "08:00"
+    slot = models.CharField(max_length=5)   # "08:00"  (or "prn" for as-needed)
     taken = models.BooleanField(default=True)
+    skipped = models.BooleanField(default=False)   # user chose to skip (not a miss)
+    at = models.DateTimeField(null=True, blank=True)  # when actually taken
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

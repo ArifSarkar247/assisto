@@ -18,6 +18,8 @@ router.register("goals", views.SavingsGoalViewSet, basename="goal")
 router.register("subscriptions", views.SubscriptionViewSet, basename="subscription")
 router.register("family", views.FamilyMemberViewSet, basename="family")
 router.register("medicines", views.MedicineViewSet, basename="medicine")
+router.register("doctors", views.DoctorViewSet, basename="doctor")
+router.register("prescriptions", views.PrescriptionViewSet, basename="prescription")
 router.register("school", views.SchoolItemViewSet, basename="school")
 router.register("watchers", views.WatcherViewSet, basename="watcher")
 router.register("contacts", views.ContactViewSet, basename="contact")
@@ -47,7 +49,11 @@ urlpatterns = [
     path("emergency", views.EmergencyCardView.as_view()),
     path("money/summary", views.MoneySummaryView.as_view()),
     path("medicines/<int:pk>/taken", views.MedicineTakenView.as_view()),
+    path("medicines/<int:pk>/escalation", views.MedicineEscalationView.as_view()),
     path("medicines/today", views.MedicineTodayView.as_view()),
+    path("medicines/history", views.MedicineHistoryView.as_view()),
+    path("medicines/caregiver", views.CaregiverDashboardView.as_view()),
+    path("medicines/doctor-pdf", views.DoctorVisitPdfView.as_view()),
     path("scam/check", views.ScamCheckView.as_view()),
     path("briefing", views.briefing),
     path("alerts", views.alerts),

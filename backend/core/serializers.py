@@ -248,7 +248,8 @@ class JobApplicationSerializer(serializers.ModelSerializer):
 
 
 # ---------------- family (feature 12/15) ----------------
-from .models import FamilyMember, Medicine, MedicineLog, SchoolItem  # noqa: E402
+from .models import (FamilyMember, Medicine, MedicineLog, SchoolItem,  # noqa: E402
+                     Doctor, Prescription)
 
 
 class FamilyMemberSerializer(serializers.ModelSerializer):
@@ -258,14 +259,69 @@ class FamilyMemberSerializer(serializers.ModelSerializer):
         read_only_fields = ["id"]
 
 
+class DoctorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Doctor
+        fields = ["id", "name", "specialty", "hospital", "phone", "notes", "updated_at"]
+        read_only_fields = ["id", "updated_at"]
+
+
+class PrescriptionSerializer(serializers.ModelSerializer):
+    doctor_display = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Prescription
+        fields = ["id", "member", "doctor", "doctor_name", "doctor_display",
+                  "date", "diagnosis", "meds", "notes", "created_at"]
+        read_only_fields = ["id", "doctor_display", "created_at"]
+
+    def get_doctor_display(self, obj):
+        if obj.doctor_id and obj.doctor:
+            return obj.doctor.name
+        return obj.doctor_name or ""
+
+
 class MedicineSerializer(serializers.ModelSerializer):
+    # derived, read-only insight fields (computed in to_representation)
+    days_left = serializers.SerializerMethodField()
+    refill_status = serializers.SerializerMethodField()
+    adherence_30d = serializers.SerializerMethodField()
+
     class Meta:
         model = Medicine
-        fields = ["id", "member", "name", "dosage", "times", "start_date",
-                  "end_date", "refill_date", "notes", "followup_repeat_min",
-                  "followup_retries", "caregiver_alert_min", "quiet_start",
-                  "quiet_end", "updated_at"]
-        read_only_fields = ["id", "updated_at"]
+        fields = ["id", "member", "prescription", "name", "dosage", "times",
+                  "start_date", "end_date", "refill_date", "notes",
+                  "food_relation", "dose_qty", "as_needed", "duration_days",
+                  "taper", "stock_count", "refill_warn_days",
+                  "followup_repeat_min", "followup_retries", "caregiver_alert_min",
+                  "quiet_start", "quiet_end", "days_left", "refill_status",
+                  "adherence_30d", "updated_at"]
+        read_only_fields = ["id", "days_left", "refill_status",
+                            "adherence_30d", "updated_at"]
+
+    def get_days_left(self, obj):
+        from .logic import medicine as mlogic
+        return mlogic.days_left(obj.stock_count, obj.times, obj.dose_qty,
+                                prn=obj.as_needed)
+
+    def get_refill_status(self, obj):
+        from .logic import medicine as mlogic
+        status, _ = mlogic.refill_warning(
+            obj.stock_count, obj.times, obj.dose_qty,
+            warn_days=obj.refill_warn_days, prn=obj.as_needed)
+        return status
+
+    def get_adherence_30d(self, obj):
+        from datetime import timedelta
+        from django.utils import timezone
+        from .logic import medicine as mlogic
+        today = timezone.localdate()
+        taken_set = {(log.date.isoformat(), log.slot) for log in
+                     obj.logs.filter(taken=True)}
+        pct, _, _ = mlogic.adherence_for_med(
+            obj.times, obj.start_date, obj.end_date, taken_set,
+            today - timedelta(days=29), today, prn=obj.as_needed)
+        return pct
 
 
 class SchoolItemSerializer(serializers.ModelSerializer):

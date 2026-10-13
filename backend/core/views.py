@@ -339,9 +339,12 @@ class EmergencyCardView(APIView):
 
 
 # ---------- family (features 12, 13, 15) ----------
-from .models import FamilyMember, Medicine, MedicineLog, SchoolItem  # noqa: E402
+from .models import (FamilyMember, Medicine, MedicineLog, SchoolItem,  # noqa: E402
+                     Doctor, Prescription)
 from .serializers import (FamilyMemberSerializer, MedicineSerializer,  # noqa: E402
-                          SchoolItemSerializer)
+                          SchoolItemSerializer, DoctorSerializer,
+                          PrescriptionSerializer)
+from .logic import medicine as mlogic  # noqa: E402
 
 
 class FamilyMemberViewSet(viewsets.ModelViewSet):
@@ -354,11 +357,45 @@ class FamilyMemberViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 
+class DoctorViewSet(viewsets.ModelViewSet):
+    serializer_class = DoctorSerializer
+
+    def get_queryset(self):
+        return Doctor.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class PrescriptionViewSet(viewsets.ModelViewSet):
+    serializer_class = PrescriptionSerializer
+
+    def get_queryset(self):
+        qs = Prescription.objects.filter(user=self.request.user)
+        doctor = self.request.query_params.get("doctor")
+        member = self.request.query_params.get("member")
+        if doctor:
+            qs = qs.filter(doctor_id=doctor)
+        if member:
+            qs = qs.filter(member_id=member)
+        return qs
+
+    def perform_create(self, serializer):
+        obj = serializer.save(user=self.request.user)
+        log(self.request.user, "prescription.create", id=obj.id)
+
+
 class MedicineViewSet(viewsets.ModelViewSet):
     serializer_class = MedicineSerializer
 
     def get_queryset(self):
-        return Medicine.objects.filter(user=self.request.user)
+        qs = Medicine.objects.filter(user=self.request.user)
+        member = self.request.query_params.get("member")
+        if member == "self":
+            qs = qs.filter(member__isnull=True)
+        elif member:
+            qs = qs.filter(member_id=member)
+        return qs
 
     def perform_create(self, serializer):
         obj = serializer.save(user=self.request.user)
@@ -366,39 +403,302 @@ class MedicineViewSet(viewsets.ModelViewSet):
 
 
 class MedicineTakenView(APIView):
-    """'খেয়েছি' confirmation for a dose."""
+    """Record a dose outcome: taken (default), skipped, or undo.
+    Taken decrements inventory; undo restores it. Idempotent per (date, slot)."""
     def post(self, request, pk):
         med = Medicine.objects.filter(user=request.user, pk=pk).first()
         if not med:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        date = request.data.get("date") or timezone.localdate().isoformat()
+        the_date = request.data.get("date") or timezone.localdate().isoformat()
         slot = request.data.get("slot", "")
-        taken = bool(request.data.get("taken", True))
+        skipped = bool(request.data.get("skipped", False))
+        taken = False if skipped else bool(request.data.get("taken", True))
+
+        prev = MedicineLog.objects.filter(medicine=med, date=the_date, slot=slot).first()
+        was_taken = bool(prev and prev.taken)
+
         obj, _ = MedicineLog.objects.update_or_create(
-            medicine=med, date=date, slot=slot, defaults={"taken": taken})
-        log(request.user, "medicine.taken", id=med.id, slot=slot)
-        return Response({"ok": True, "taken": obj.taken})
+            medicine=med, date=the_date, slot=slot,
+            defaults={"taken": taken, "skipped": skipped,
+                      "at": timezone.now() if taken else None})
+
+        # inventory: decrement on a fresh 'taken', restore on undo of a 'taken'.
+        if med.stock_count is not None:
+            if taken and not was_taken:
+                med.stock_count = mlogic.apply_dose_to_stock(med.stock_count, med.dose_qty)
+                med.save(update_fields=["stock_count"])
+            elif (not taken) and was_taken:
+                med.stock_count = med.stock_count + int(round(mlogic.pills_per_dose(med.dose_qty)))
+                med.save(update_fields=["stock_count"])
+
+        log(request.user, "medicine.taken" if taken else "medicine.skip",
+            id=med.id, slot=slot)
+        return Response({"ok": True, "taken": obj.taken, "skipped": obj.skipped,
+                         "stock_count": med.stock_count})
+
+
+def _taken_set(med):
+    return {(log.date.isoformat(), log.slot) for log in med.logs.filter(taken=True)}
 
 
 class MedicineTodayView(APIView):
-    """Today's medicine doses with taken-status (for self + family)."""
+    """Today's medicine doses with taken-status + dose semantics (self + family)."""
     def get(self, request):
         today = timezone.localdate()
         out = []
-        for med in Medicine.objects.filter(user=request.user):
-            if med.start_date and med.start_date > today:
-                continue
-            if med.end_date and med.end_date < today:
-                continue
-            taken_slots = set(MedicineLog.objects.filter(
-                medicine=med, date=today, taken=True).values_list("slot", flat=True))
-            for slot in (med.times or []):
-                out.append({"medicine_id": med.id, "name": med.name,
-                            "dosage": med.dosage, "member": med.member_id,
-                            "slot": slot, "taken": slot in taken_slots,
-                            "refill_date": med.refill_date.isoformat() if med.refill_date else None})
+        for med in Medicine.objects.filter(user=request.user).select_related("member"):
+            slots = mlogic.scheduled_slots_for_day(
+                med.times, med.start_date, med.end_date, today, prn=med.as_needed)
+            if med.as_needed and not slots:
+                slots = ["prn"]
+            logs = {log.slot: log for log in med.logs.filter(date=today)}
+            dl = mlogic.days_left(med.stock_count, med.times, med.dose_qty,
+                                  prn=med.as_needed)
+            for slot in slots:
+                lg = logs.get(slot)
+                out.append({
+                    "medicine_id": med.id, "name": med.name,
+                    "dosage": med.dosage, "member": med.member_id,
+                    "member_name": med.member.name if med.member else None,
+                    "slot": slot, "prn": med.as_needed and slot == "prn",
+                    "taken": bool(lg and lg.taken),
+                    "skipped": bool(lg and lg.skipped),
+                    "food_relation": med.food_relation,
+                    "days_left": dl,
+                    "refill_date": med.refill_date.isoformat() if med.refill_date else None})
         out.sort(key=lambda x: x["slot"])
         return Response(out)
+
+
+class MedicineHistoryView(APIView):
+    """Adherence history: overall + per-medicine, weekly buckets + 30-day %.
+    ?member=<id|self> optional filter."""
+    def get(self, request):
+        from datetime import timedelta
+        today = timezone.localdate()
+        win_start = today - timedelta(days=29)
+        meds = Medicine.objects.filter(user=request.user)
+        member = request.query_params.get("member")
+        if member == "self":
+            meds = meds.filter(member__isnull=True)
+        elif member:
+            meds = meds.filter(member_id=member)
+
+        per_med = []
+        tot_taken = tot_sched = 0
+        for med in meds:
+            ts = _taken_set(med)
+            pct, taken, sched = mlogic.adherence_for_med(
+                med.times, med.start_date, med.end_date, ts,
+                win_start, today, prn=med.as_needed)
+            if not med.as_needed:
+                tot_taken += taken
+                tot_sched += sched
+            # 4 weekly buckets
+            weeks = []
+            for w in range(4):
+                ws = today - timedelta(days=7 * (w + 1) - 1)
+                we = today - timedelta(days=7 * w)
+                wp, _, _ = mlogic.adherence_for_med(
+                    med.times, med.start_date, med.end_date, ts, ws, we,
+                    prn=med.as_needed)
+                weeks.append({"start": ws.isoformat(), "end": we.isoformat(),
+                              "pct": wp})
+            per_med.append({
+                "id": med.id, "name": med.name,
+                "member": med.member_id, "prn": med.as_needed,
+                "adherence_30d": pct, "taken": taken, "scheduled": sched,
+                "streak": mlogic.streak_days(med.times, med.start_date,
+                                             med.end_date, ts, today),
+                "weeks": list(reversed(weeks))})
+        overall, _, _ = mlogic.adherence(tot_sched, tot_taken)
+        return Response({"overall": overall, "taken": tot_taken,
+                         "scheduled": tot_sched, "medicines": per_med})
+
+
+class CaregiverDashboardView(APIView):
+    """One-glance status per cared-for person (self + each family member):
+    today's dose status, 30-day adherence, and low-stock medicines."""
+    def get(self, request):
+        from datetime import timedelta
+        today = timezone.localdate()
+        win_start = today - timedelta(days=29)
+
+        def person_block(member, label, relation):
+            meds = Medicine.objects.filter(user=request.user)
+            meds = meds.filter(member=member) if member else meds.filter(member__isnull=True)
+            due = taken = 0
+            low_stock = []
+            tot_taken = tot_sched = 0
+            next_due = None
+            for med in meds:
+                slots = mlogic.scheduled_slots_for_day(
+                    med.times, med.start_date, med.end_date, today, prn=med.as_needed)
+                logs = {l.slot: l for l in med.logs.filter(date=today)}
+                for slot in slots:
+                    due += 1
+                    if logs.get(slot) and logs[slot].taken:
+                        taken += 1
+                    elif next_due is None or slot < next_due:
+                        next_due = slot
+                st, dl = mlogic.refill_warning(
+                    med.stock_count, med.times, med.dose_qty,
+                    warn_days=med.refill_warn_days, prn=med.as_needed)
+                if st in ("soon", "out"):
+                    low_stock.append({"name": med.name, "days_left": dl, "status": st})
+                ts = _taken_set(med)
+                _, t, s = mlogic.adherence_for_med(
+                    med.times, med.start_date, med.end_date, ts,
+                    win_start, today, prn=med.as_needed)
+                if not med.as_needed:
+                    tot_taken += t
+                    tot_sched += s
+            adh, _, _ = mlogic.adherence(tot_sched, tot_taken)
+            return {
+                "member": member.id if member else None,
+                "name": label, "relation": relation,
+                "doses_today": due, "taken_today": taken,
+                "pending_today": due - taken, "next_due": next_due,
+                "adherence_30d": adh, "low_stock": low_stock,
+                "has_meds": meds.exists()}
+
+        u = request.user
+        blocks = [person_block(None, u.name or u.username, "self")]
+        for m in FamilyMember.objects.filter(user=u):
+            blocks.append(person_block(m, m.name, m.relation))
+        blocks = [b for b in blocks if b["has_meds"]]
+        # push-gate: cross-device caregiver alerts need Firebase.
+        from . import integrations as _ig
+        push_ready = False
+        try:
+            push_ready = _ig.is_enabled("firebase")
+        except Exception:
+            push_ready = False
+        return Response({"people": blocks, "push_ready": push_ready})
+
+
+class MedicineEscalationView(APIView):
+    """Preview the missed-dose escalation ladder for a medicine's dose, so the
+    caregiver can see exactly when each reminder/alert would fire (and which
+    land in quiet hours). Cross-device delivery is key-gated (push_ready)."""
+    def get(self, request, pk):
+        med = Medicine.objects.filter(user=request.user, pk=pk).first()
+        if not med:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        slot = request.query_params.get("slot") or (med.times[0] if med.times else "08:00")
+        plan = mlogic.escalation_plan(
+            slot, med.followup_repeat_min, med.followup_retries,
+            med.caregiver_alert_min, med.quiet_start, med.quiet_end,
+            base_day=timezone.localdate())
+        events = [{"kind": e["kind"], "at": e["at"].strftime("%H:%M"),
+                   "suppressed": e["suppressed"]} for e in plan]
+        from . import integrations as _ig
+        try:
+            push_ready = _ig.is_enabled("firebase")
+        except Exception:
+            push_ready = False
+        return Response({"slot": slot, "events": events, "push_ready": push_ready})
+
+
+class DoctorVisitPdfView(APIView):
+    """Doctor-visit summary PDF: current meds + schedule, 30-day adherence,
+    recent prescription changes. ?member=<id|self> scopes to one person."""
+    def get(self, request):
+        import io
+        from datetime import timedelta
+        from reportlab.lib.pagesizes import A4
+        from reportlab.pdfgen import canvas
+        from reportlab.pdfbase import pdfmetrics
+        from reportlab.pdfbase.ttfonts import TTFont
+        FONT = "Helvetica"
+        try:
+            if "Noto" not in pdfmetrics.getRegisteredFontNames():
+                pdfmetrics.registerFont(TTFont(
+                    "Noto", "/home/ubuntu/assisto/app/assets/fonts/NotoSansBengali.ttf"))
+            FONT = "Noto"
+        except Exception:
+            FONT = "Helvetica"
+
+        u = request.user
+        lang = req_lang(request)
+        member = request.query_params.get("member")
+        meds = Medicine.objects.filter(user=u)
+        person = u.name or u.username
+        if member and member != "self":
+            fm = FamilyMember.objects.filter(user=u, pk=member).first()
+            meds = meds.filter(member=fm)
+            if fm:
+                person = fm.name
+        elif member == "self":
+            meds = meds.filter(member__isnull=True)
+
+        today = timezone.localdate()
+        buf = io.BytesIO()
+        c = canvas.Canvas(buf, pagesize=A4)
+        w, h = A4
+        y = h - 50
+        c.setFont(FONT, 16)
+        c.drawString(40, y, pick(lang, "Assisto — ডাক্তার ভিজিট সারাংশ",
+                                 "Assisto — Doctor Visit Summary")); y -= 20
+        c.setFont(FONT, 9)
+        c.drawString(40, y, pick(lang, "রোগী: ", "Patient: ") + person); y -= 12
+        c.drawString(40, y, pick(lang, "তারিখ: ", "Date: ") + today.isoformat()); y -= 22
+
+        def line(txt, indent=48, size=9):
+            nonlocal y
+            if y < 60:
+                c.showPage(); y = h - 50; c.setFont(FONT, size)
+            c.setFont(FONT, size); c.drawString(indent, y, txt[:120]); y -= 13
+
+        def heading(txt):
+            nonlocal y
+            if y < 80:
+                c.showPage(); y = h - 50
+            y -= 4; c.setFont(FONT, 12); c.drawString(40, y, txt); y -= 16
+
+        heading(pick(lang, "বর্তমান ওষুধ ও সময়সূচি", "Current Medicines & Schedule"))
+        food_map = {"before": pick(lang, "খাওয়ার আগে", "before food"),
+                    "after": pick(lang, "খাওয়ার পরে", "after food"),
+                    "with": pick(lang, "খাওয়ার সাথে", "with food"),
+                    "any": ""}
+        if not meds.exists():
+            line(pick(lang, "(কোনো ওষুধ নেই)", "(none)"))
+        for med in meds:
+            ts = _taken_set(med)
+            adh, _, _ = mlogic.adherence_for_med(
+                med.times, med.start_date, med.end_date, ts,
+                today - timedelta(days=29), today, prn=med.as_needed)
+            sched = pick(lang, "প্রয়োজনে", "as needed") if med.as_needed \
+                else ", ".join(med.times or [])
+            food = food_map.get(med.food_relation, "")
+            bits = [b for b in [med.dosage, sched, food] if b]
+            line(f"- {med.name}: " + " | ".join(bits))
+            line(pick(lang, f"  মেনে চলা (৩০ দিন): {adh}%",
+                      f"  Adherence (30d): {adh}%"), indent=56)
+            if med.end_date:
+                line(pick(lang, f"  কোর্স শেষ: {med.end_date.isoformat()}",
+                          f"  Course ends: {med.end_date.isoformat()}"), indent=56)
+
+        heading(pick(lang, "সাম্প্রতিক প্রেসক্রিপশন", "Recent Prescriptions"))
+        pres = Prescription.objects.filter(user=u)
+        if member and member != "self":
+            pres = pres.filter(member_id=member)
+        pres = pres[:8]
+        if not pres:
+            line(pick(lang, "(কোনো প্রেসক্রিপশন নেই)", "(none)"))
+        for p in pres:
+            doc = p.doctor.name if p.doctor_id and p.doctor else p.doctor_name
+            d = p.date.isoformat() if p.date else "?"
+            line(f"- {d} · {doc or '-'}: {p.diagnosis or ''}")
+            for m in (p.meds or [])[:6]:
+                nm = m.get("name", "") if isinstance(m, dict) else str(m)
+                line(f"    · {nm}", indent=60)
+
+        c.showPage(); c.save()
+        log(u, "export.doctor_pdf", member=member or "self")
+        resp = HttpResponse(buf.getvalue(), content_type="application/pdf")
+        resp["Content-Disposition"] = 'attachment; filename="assisto-doctor-visit.pdf"'
+        return resp
 
 
 class SchoolItemViewSet(viewsets.ModelViewSet):
