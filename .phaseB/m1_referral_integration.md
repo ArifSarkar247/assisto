@@ -1,0 +1,8 @@
+# Messenger M1 — Referral points — integrator TODO (agent abd0d25c, 9/10, 18 tests)
+NEW: backend/core/logic/referral.py (+ referral_tests_snippets 18 pass); app/lib/screens/referral_screen.dart; widgets referral_balance_card.dart, referral_history_tile.dart.
+ARB: apply .phaseB/referral_arb.json (22 keys). Parameterized: referralRedeemableDays{days}, referralRate{perDay}, referralRedeemDaysChosen{days}, referralRedeemCost{cost}, referralRedeemedDays{days}.
+OWNER-REVIEW constants in referral.py: POINTS_PER_REFERRAL=50, WELCOME_BONUS_POINTS=20, POINTS_PER_PREMIUM_DAY=25, MIN_REDEEM_POINTS=25, MONTHLY_REFERRAL_CAP=20, MAX_REDEEM_DAYS=400.
+MIGRATION (core): ReferralGrant ledger (inviter/user FK, invitee FK null, device_id, kind[grant/clawback/redeem/bonus], points signed Int, reason, reverses self/int, month Char7, created_at). Balance=max(0,sum(points)) per user. Add DB unique constraint on (inviter,invitee) grant for accept-idempotency.
+Endpoints: GET /referral/balance → referral.referral_summary(ledger,user,lang)+invite_link(circle make_invite_token+qr_payload); GET /referral/history; POST /referral/redeem {points} → referral.redeem → persist row + apply res['days'] Premium via plans.py (extend user.plan_until, plan='premium' if free). api.dart: referralBalance/referralHistory/referralRedeem.
+HOOK (agent A owns invite-accept): at accept success call referral.award_for_accept(inviter_id,invitee_id,device_id,phone_verified,inviter_active,invitee_active,sms_gate_enabled=settings.SMS_ENABLED,ledger=...) → if ok persist grant(+bonus), bump balance.
+Plans/Profile: add tile → ReferralScreen. fake_api: referralBalance/History/Redeem stubs. PENDING reviewer (as part of M1).
