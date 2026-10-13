@@ -296,4 +296,5 @@ V1 test APKs are **debug-signed** (installable now). Before Play Store we will g
 ### P10 app-UI progress (checkpoint)
 - ✅ api.dart methods for all P1–P9 endpoints + CRM.
 - ✅ Screens built+wired to drawer: Plans/Credits, Finance tools (zakat/EMI/net-worth/invest), Watch feed, Nearby (GPS), voice action-cards (music/navigate/call/nearby deep-links).
+- ✅ Batch 4: Agent Studio screen; Settings → Safety (accident/fall detection, configurable countdown 30s–10min) + medicine follow-up config (backend); accident/followup matrix corrected per owner.
 - 🔨 Next P10 screens: Personal CRM (contacts/meetings), Business (catalog/orders/replies), Job hunter, Nominee, Govt guide, AI Inbox, Agent Studio; Android OEM battery-guidance + runtime-permission reason dialogs + responsive 320/360/412; then screenshot gallery + APK build.
