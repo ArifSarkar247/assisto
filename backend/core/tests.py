@@ -177,3 +177,33 @@ class IntegrationsStoreTests(TestCase):
         self.assertGreaterEqual(len(I.list_all()), 15)
         with self.assertRaises(ValueError):
             I.save('does-not-exist', {'x': 'y'})
+
+
+class AILayerP2Tests(TestCase):
+    """Multi-provider selection + graceful degrade + bill-template cache."""
+
+    def test_no_provider_raises_no_key(self):
+        from core import ai
+        self.assertEqual(ai._providers(), [])          # no keys configured in tests
+        self.assertFalse(ai.available())
+        with self.assertRaises(ai.AIUnavailable) as c:
+            ai.generate(task="hi", user=None)
+        self.assertEqual(c.exception.reason, "no_key")
+
+    def test_bill_cache_second_scan_no_ai(self):
+        from core import bills
+        from core.models import BillTemplate
+        u = User.objects.create_user(name="B", phone="01911111111", password="x123456")
+        BillTemplate.objects.create(user=u, biller="DPDC",
+                                    fields={"account_no": "123", "amount": "850", "where_to_pay": "bKash"})
+        res, used_ai, from_cache = bills.parse_bill(u, "raw bill text", biller_hint="DPDC")
+        self.assertFalse(used_ai)
+        self.assertTrue(from_cache)
+        self.assertEqual(res["account_no"], "123")
+
+    def test_bill_first_scan_without_key_is_honest(self):
+        from core import bills
+        u = User.objects.create_user(name="C", phone="01922222222", password="x123456")
+        res, used_ai, from_cache = bills.parse_bill(u, "some bill", biller_hint="WASA")
+        self.assertTrue(res.get("needs_key"))          # no fake data without a key
+        self.assertFalse(used_ai)

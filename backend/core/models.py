@@ -428,3 +428,30 @@ class Integration(models.Model):
 
     def __str__(self):
         return f"{self.slug} [{self.status}]"
+
+
+class BillTemplate(models.Model):
+    """Cached parse of a biller's bill layout so the SECOND scan of the same
+    biller needs no AI. Keyed per user + biller."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bill_templates")
+    biller = models.CharField(max_length=80)                 # e.g. 'DPDC', 'WASA'
+    fields = models.JSONField(default=dict, blank=True)      # company/account/meter/where/last_date...
+    uses = models.PositiveIntegerField(default=1)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [("user", "biller")]
+
+
+class NightBriefing(models.Model):
+    """Batch-generated-at-night briefing so the morning open is instant + cheap
+    (no live AI call at peak)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="night_briefings")
+    for_date = models.DateField()
+    text = models.TextField(blank=True, default="")
+    ai_used = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("user", "for_date")]
+        ordering = ["-for_date"]

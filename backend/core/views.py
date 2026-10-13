@@ -14,7 +14,8 @@ from datetime import timedelta
 
 from .models import (User, MemoryItem, AuditLog, Reminder, Note, Todo,
                      SourcePermission, SupportTicket, Document, EmergencyCard,
-                     Account, Transaction, Budget, Loan, SavingsGoal, Subscription)
+                     Account, Transaction, Budget, Loan, SavingsGoal, Subscription,
+                     NightBriefing)
 from .serializers import (
     UserSerializer, RegisterSerializer, LoginSerializer,
     MemoryItemSerializer, AuditLogSerializer, ReminderSerializer,
@@ -584,8 +585,12 @@ def briefing(request):
         lines.append("আজ বিশেষ কিছু নেই — ভালো থাকুন! 🌼")
     text = "\n".join(lines)
 
+    # Prefer the batch-generated night briefing (instant, no peak-time AI cost).
     ai_text = None
-    if ai.available():
+    cached = NightBriefing.objects.filter(user=u, for_date=today).first()
+    if cached and cached.text:
+        ai_text = cached.text
+    elif ai.available():
         try:
             ai_text, _ = ai.generate(
                 task="নিচের তথ্য দিয়ে ব্যবহারকারীর জন্য ছোট, উষ্ণ বাংলা সকালের ব্রিফিং লেখো (৩-৪ লাইন)।",
