@@ -13,3 +13,5 @@ NEW: app/lib/screens/circle_screen.dart, circle_chat_screen.dart; widgets circle
 3. scoped reads (medicines/location/money/documents) MUST gate on circle.can_see server-side before returning (client-trust otherwise).
 4. invite token single-use MUST be enforced via DB `used` flag (parse_invite_token doesn't enforce).
 P2 hardening: server_visible_fields strip is shallow (type-check allowed fields are scalars); don't oversell looks_like_plaintext. ARB apply [bn,en] (swap agent's [en,bn]); dedup circleScope* vs existing. No code-fix needed in module — all integration wiring.
+
+## SUPERSEDED by .phaseB/CONNECTED_CIRCLE_MESSENGER.md — this module-5 circle is now the FOUNDATION for Messenger M1 (extend, don't treat as final).

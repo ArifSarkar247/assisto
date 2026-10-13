@@ -6,10 +6,12 @@
 commit c7f5b1f: 240 ARB keys (en==bn==1127), 9 models + migration 0019 (DB backup), endpoints w/ CC enforcement (validate_envelope/auto-block/can_see/invite-single-use) + reset rate-limit+neutral + analytics fail-closed + photo declared-kind, drawer(Health/Life/Family/Settings)+ChatNav+login forgot-password, fake_api+12 gallery screens, 220 backend tests + crm_scenario pass, flutter analyze 0, lang gate CLEAN, Asalify 200. Deployed (/legal localized). Deep-link assisto://reset/confirm NOT wired (needs native manifest+dep) — forgot-password primary path works; TODO native.
 NEXT per QUEUE: Business Module v2 (.phaseB/BUSINESS_V2_PLAN.md) → P14-P16 → P11 iOS → P12 FINAL.
 
-## 🧰 QUEUE (owner-approved, strict order)
-1. **Module 5 integration + APK** (executor a1fc1e42 running).
-2. **BUSINESS MODULE v2** — pocket business assistant; khata+selling FREE, AI sales assistant PAID; replace basic Business screen. Full spec: `.phaseB/BUSINESS_V2_PLAN.md`. Key safety: official WhatsApp Cloud API only (never personal/Business-app), minimum price enforced in CODE not AI, never hold money/no wallet, never copy TallyKhata, don't touch Asalify, all Meta/courier/payment/SMS keys owner-provided (build with mocks). Build order: small-shop+online-seller first. Scenario tests: 30-day shop month + 7-day online week. Ship APK on review pass.
-3. P14–P16 leftovers. 4. P11 iOS. 5. P12 FINAL.
+## 🧰 QUEUE (owner-approved, strict order; latest spec wins)
+1. **Module 5 integration + APK** — DONE/shipping (build 60).
+2. **CONNECTED CIRCLE MESSENGER M1** — full WhatsApp/Messenger-class 1:1 messaging+media+voice(free)/video(Premium gated)+privacy controls+invites+referral points; "ship with the Module-5 wave" → next APK (build 61). Extends module-5 circle foundation; supersedes earlier CC. Spec: `.phaseB/CONNECTED_CIRCLE_MESSENGER.md`. (build 60 already flying w/o M1 → M1 ships as the immediate next APK.)
+3. **Messenger M2** (right after M1): groups, status/stories, extras (disappearing/view-once/stickers/translation/backup/@Assisto). APK after M2.
+4. **BUSINESS MODULE v2** — `.phaseB/BUSINESS_V2_PLAN.md`.
+5. P14–P16 leftovers. 6. P11 iOS. 7. Messenger M3 (SFU group video — needs separate server). 8. P12 FINAL.
 
 ## 🟢 OWNER PLATFORM ORDER (follow strictly)
 1) **Android** — build & finish EVERYTHING here first. 2) **iPhone**. 3) **Web app LAST** — do NOT build web UI for app features until Android+iPhone done. Exceptions (keep as-is): owner Integrations admin page + the 4 free web tools (CV score, scam checker, passport photo, festival cards). → reinforces CRM-in-app (web CRM pages left unlinked).
