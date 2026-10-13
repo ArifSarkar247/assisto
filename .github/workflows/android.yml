@@ -51,6 +51,10 @@ jobs:
             echo "::error::Dart analysis found errors"; exit 1; fi
           echo "no errors"
 
+      - name: Strict language gate (no mixed/hard-coded UI strings)
+        working-directory: app
+        run: python3 tool/lang_gate.py
+
       - name: Generate launcher icons (adaptive)
         working-directory: app
         run: dart run flutter_launcher_icons
