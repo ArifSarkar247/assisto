@@ -10,6 +10,7 @@ import '../config.dart';
 import '../models.dart';
 import '../l10n/app_localizations.dart';
 import 'subscriptions_screen.dart';
+import 'battery_guidance_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -238,6 +239,13 @@ class SettingsScreen extends StatelessWidget {
             subtitle: Text(t.subscriptionsHint),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const SubscriptionsScreen())),
+          ),
+          ListTile(
+            leading: const Icon(Icons.battery_charging_full_outlined),
+            title: const Text('রিমাইন্ডার নির্ভরযোগ্য করুন / Reliable reminders'),
+            subtitle: const Text('ব্যাটারি অপটিমাইজেশন থেকে ছাড় (Samsung/Xiaomi/Realme…)'),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const BatteryGuidanceScreen())),
           ),
           ListTile(
             leading: const Icon(Icons.tune),
