@@ -13,6 +13,8 @@ import 'memory_screen.dart';
 import 'subscriptions_screen.dart';
 import 'settings_screen.dart';
 import 'in_progress_screen.dart';
+import 'plans_screen.dart';
+import 'finance_screen.dart';
 
 /// Left sidebar — the app's navigation hub (modern AI-chat style). The main
 /// screen is only the chat; everything else lives here.
@@ -29,6 +31,8 @@ class AppDrawer extends StatelessWidget {
 
     final modules = <(IconData, String, Widget)>[
       (Icons.account_balance_wallet_outlined, t.moduleMoney, const MoneyScreen()),
+      (Icons.calculate_outlined, t.financeTools, const FinanceScreen()),
+      (Icons.workspace_premium_outlined, t.planCredits, const PlansScreen()),
       (Icons.lock_outline, t.moduleVault, const VaultScreen()),
       (Icons.diversity_1_outlined, t.moduleFamily, const FamilyScreen()),
       (Icons.emergency_outlined, t.moduleEmergency, const EmergencyScreen()),

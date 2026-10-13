@@ -338,4 +338,66 @@ class ApiClient {
     final r = await _c.delete(AppConfig.api('/account'), headers: _headers());
     if (r.statusCode != 204) _fail(r);
   }
+
+  // ---------- P10 generic helpers for new endpoints ----------
+  Future<Map<String, dynamic>> getJson(String path) async {
+    final r = await _c.get(AppConfig.api(path), headers: _headers());
+    if (r.statusCode == 200) return jsonDecode(r.body) as Map<String, dynamic>;
+    _fail(r);
+  }
+
+  Future<Map<String, dynamic>> postJson(String path,
+      [Map<String, dynamic> body = const {}]) async {
+    final r = await _c.post(AppConfig.api(path),
+        headers: _headers(), body: jsonEncode(body));
+    if (r.statusCode >= 200 && r.statusCode < 300) {
+      return r.body.isEmpty ? {} : jsonDecode(r.body) as Map<String, dynamic>;
+    }
+    _fail(r);
+  }
+
+  // Monetization
+  Future<Map<String, dynamic>> plan() => getJson('/me/plan');
+  Future<Map<String, dynamic>> rewardedAd() => postJson('/credits/rewarded');
+  Future<Map<String, dynamic>> joinWaitlist(String contact) =>
+      postJson('/waitlist', {'contact': contact});
+
+  // Watcher
+  Future<Map<String, dynamic>> watchFeed() => getJson('/watch/feed');
+
+  // Nearby + music/artist (voice)
+  Future<Map<String, dynamic>> nearby(double lat, double lon, String type) =>
+      getJson('/nearby?lat=$lat&lon=$lon&type=$type');
+  Future<Map<String, dynamic>> favouriteArtist(String name,
+          {String channelRss = ''}) =>
+      postJson('/artist/favourite', {'name': name, 'channel_rss': channelRss});
+
+  // Finance tools
+  Future<Map<String, dynamic>> finance(String tool, Map<String, dynamic> args) =>
+      postJson('/finance', {'tool': tool, ...args});
+
+  // Guides, elderly, inbox, studio
+  Future<Map<String, dynamic>> guides() => getJson('/guides');
+  Future<Map<String, dynamic>> setElderly(bool v) =>
+      postJson('/me/elderly', {'enabled': v});
+  Future<Map<String, dynamic>> inboxStatus() => getJson('/inbox');
+  Future<Map<String, dynamic>> studio(String kind, String prompt) =>
+      postJson('/studio', {'kind': kind, 'prompt': prompt});
+
+  // Business mode
+  Future<Map<String, dynamic>> businessReply(String text) =>
+      postJson('/business/reply', {'text': text});
+  Future<Map<String, dynamic>> businessOrder(String text) =>
+      postJson('/business/order', {'text': text});
+
+  // Job hunter
+  Future<Map<String, dynamic>> jobTailor(int id, {String extra = ''}) =>
+      postJson('/jobs/$id/tailor', {'extra': extra});
+
+  // Nominee
+  Future<Map<String, dynamic>> nomineeActivate(int id, bool on) =>
+      postJson('/nominees/$id/activate', {'activated': on});
+
+  // Auto-pay
+  Future<Map<String, dynamic>> autopayStopAll() => postJson('/autopay/stop-all');
 }
