@@ -291,3 +291,9 @@ All URLs come from ONE setting: backend `ASSISTO_BASE_URL`, app `--dart-define=A
 
 ### Signing (for later, before Play Store)
 V1 test APKs are **debug-signed** (installable now). Before Play Store we will generate a **release keystore**, back it up safely (you hold it), and add it to CI as encrypted secrets.
+
+<!-- P10-PROGRESS -->
+### P10 app-UI progress (checkpoint)
+- ✅ api.dart methods for all P1–P9 endpoints + CRM.
+- ✅ Screens built+wired to drawer: Plans/Credits, Finance tools (zakat/EMI/net-worth/invest), Watch feed, Nearby (GPS), voice action-cards (music/navigate/call/nearby deep-links).
+- 🔨 Next P10 screens: Personal CRM (contacts/meetings), Business (catalog/orders/replies), Job hunter, Nominee, Govt guide, AI Inbox, Agent Studio; Android OEM battery-guidance + runtime-permission reason dialogs + responsive 320/360/412; then screenshot gallery + APK build.
