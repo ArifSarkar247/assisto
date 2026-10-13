@@ -284,3 +284,29 @@ class VoiceP5Tests(TestCase):
         res, src = nearby.search(23.8, 90.4, "pharmacy")
         self.assertEqual(src, "osm")
         self.assertIsNone(res[0]["rating"])   # never invented
+
+
+class FinanceP6Tests(TestCase):
+    def test_zakat_2_5_percent(self):
+        from core import finance
+        r = finance.zakat(cash=100000, gold_value=0, debts=0, nisab=0)
+        self.assertEqual(r["zakat_due"], "2500.00")
+
+    def test_zakat_below_nisab(self):
+        from core import finance
+        r = finance.zakat(cash=1000, nisab=100000)
+        self.assertFalse(r["above_nisab"])
+        self.assertEqual(r["zakat_due"], "0")
+
+    def test_emi_formula(self):
+        from core import finance
+        r = finance.emi(principal=100000, annual_rate_pct=12, months=12)
+        # ~8884.88/month for 100k @12% over 12m
+        self.assertTrue(8800 < float(r["emi"]) < 8950)
+        self.assertEqual(r["months"], 12)
+
+    def test_invest_projection_is_estimate(self):
+        from core import finance
+        r = finance.invest_projection(principal=10000, annual_rate_pct=10, years=1)
+        self.assertTrue(r["estimate"])
+        self.assertGreater(float(r["future_value"]), 10000)

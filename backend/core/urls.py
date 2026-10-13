@@ -20,6 +20,9 @@ router.register("family", views.FamilyMemberViewSet, basename="family")
 router.register("medicines", views.MedicineViewSet, basename="medicine")
 router.register("school", views.SchoolItemViewSet, basename="school")
 router.register("watchers", views.WatcherViewSet, basename="watcher")
+router.register("contacts", views.ContactViewSet, basename="contact")
+router.register("meetings", views.MeetingViewSet, basename="meeting")
+router.register("autopay", views.AutoPayRuleViewSet, basename="autopay")
 
 urlpatterns = [
     path("health", views.health),
@@ -65,6 +68,10 @@ urlpatterns = [
     path("watch/feed", views.watch_feed),
     path("nearby", views.nearby),
     path("artist/favourite", views.FavouriteArtistView.as_view()),
+    path("finance", views.FinanceView.as_view()),
+    path("guides", views.govt_guide),
+    path("me/elderly", views.ElderlyModeView.as_view()),
+    path("autopay/stop-all", views.autopay_stop_all),
 ]
 
 urlpatterns += router.urls

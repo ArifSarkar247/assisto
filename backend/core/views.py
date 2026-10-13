@@ -1060,3 +1060,75 @@ class FavouriteArtistView(APIView):
             "spotify_enabled": integrations.is_enabled("spotify"),
             "msg": "চ্যানেল RSS দিলে নতুন গান watch করব; নাহলে সার্চ লিংক / add channel RSS to watch new releases",
         })
+
+
+# ---------- Finance toolkit (feature 26) ----------
+class FinanceView(APIView):
+    def post(self, request):
+        from . import finance
+        tool = request.data.get("tool")
+        d = request.data
+        if tool == "net_worth":
+            return Response(finance.net_worth(request.user))
+        if tool == "zakat":
+            return Response(finance.zakat(d.get("cash"), d.get("gold_value"),
+                            d.get("silver_value"), d.get("investments"),
+                            d.get("debts"), d.get("nisab")))
+        if tool == "emi":
+            return Response(finance.emi(d.get("principal"), d.get("rate"), d.get("months")))
+        if tool == "invest":
+            return Response(finance.invest_projection(d.get("principal"), d.get("rate"),
+                            d.get("years"), d.get("monthly_add", 0)))
+        return Response({"detail": "unknown tool"}, status=400)
+
+
+# ---------- Govt service + religious guide (feature 30) ----------
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def govt_guide(request):
+    from .logic import guides
+    return Response({"services": guides.GOVT_SERVICES, "religious": guides.RELIGIOUS_TIPS})
+
+
+class ElderlyModeView(APIView):
+    def post(self, request):
+        request.user.elderly_mode = bool(request.data.get("enabled"))
+        request.user.save(update_fields=["elderly_mode"])
+        return Response({"elderly_mode": request.user.elderly_mode})
+
+
+# ---------- Personal CRM (feature 24) + auto-pay ladder (feature 27) ----------
+class ContactViewSet(OwnedViewSet):
+    from .models import Contact as _M
+    from .serializers import ContactSerializer as _S
+    model = _M; kind = "contact"; serializer_class = _S
+
+
+class MeetingViewSet(OwnedViewSet):
+    from .models import Meeting as _M
+    from .serializers import MeetingSerializer as _S
+    model = _M; kind = "meeting"; serializer_class = _S
+
+
+class AutoPayRuleViewSet(OwnedViewSet):
+    from .models import AutoPayRule as _M
+    from .serializers import AutoPayRuleSerializer as _S
+    model = _M; kind = "autopay"; serializer_class = _S
+
+    def list(self, request, *args, **kwargs):
+        from . import integrations
+        resp = super().list(request, *args, **kwargs)
+        # auto-pay EXECUTION needs a payment integration; be honest about it
+        resp.data = {"rules": resp.data,
+                     "can_execute": any(integrations.is_enabled(s) for s in
+                                        ("bkash", "nagad", "sslcommerz", "ekpay")),
+                     "note": "পেমেন্ট মেথড যোগ করলে অটো-পে চালু হবে / auto-pay runs when a payment method is added"}
+        return resp
+
+
+@api_view(["POST"])
+def autopay_stop_all(request):
+    from .models import AutoPayRule
+    n = AutoPayRule.objects.filter(user=request.user).update(enabled=False)
+    log(request.user, "autopay.stop_all", n=n)
+    return Response({"stopped": n})

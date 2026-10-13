@@ -177,6 +177,30 @@ class WatcherSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "last_checked", "last_value"]
 
 
+class ContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        from .models import Contact
+        model = Contact
+        fields = ["id", "name", "phone", "org", "note", "tags", "next_followup"]
+        read_only_fields = ["id"]
+
+
+class MeetingSerializer(serializers.ModelSerializer):
+    class Meta:
+        from .models import Meeting
+        model = Meeting
+        fields = ["id", "contact", "title", "when", "summary"]
+        read_only_fields = ["id"]
+
+
+class AutoPayRuleSerializer(serializers.ModelSerializer):
+    class Meta:
+        from .models import AutoPayRule
+        model = AutoPayRule
+        fields = ["id", "biller", "step", "max_amount", "enabled"]
+        read_only_fields = ["id"]
+
+
 # ---------------- family (feature 12/15) ----------------
 from .models import FamilyMember, Medicine, MedicineLog, SchoolItem  # noqa: E402
 

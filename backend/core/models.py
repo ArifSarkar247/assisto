@@ -60,6 +60,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     trial_until = models.DateTimeField(null=True, blank=True)     # 7-day full trial
     is_founder = models.BooleanField(default=False)
     ai_credits = models.IntegerField(default=0)                  # consumable AI credits
+    elderly_mode = models.BooleanField(default=False)            # feature 29 simple mode
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -521,3 +522,49 @@ class WatchHit(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+
+class Contact(models.Model):
+    """Personal CRM (feature 24) — people the user meets, notes, follow-ups."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="contacts")
+    name = models.CharField(max_length=120)
+    phone = models.CharField(max_length=40, blank=True, default="")
+    org = models.CharField(max_length=120, blank=True, default="")
+    note = models.TextField(blank=True, default="")
+    tags = models.JSONField(default=list, blank=True)
+    next_followup = models.DateField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at"]
+
+
+class Meeting(models.Model):
+    """A meeting/interaction — feeds the personal CRM + class/meeting alerts."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="meetings")
+    contact = models.ForeignKey(Contact, null=True, blank=True,
+                                on_delete=models.SET_NULL, related_name="meetings")
+    title = models.CharField(max_length=160)
+    when = models.DateTimeField(null=True, blank=True)
+    summary = models.TextField(blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-when", "-created_at"]
+
+
+class AutoPayRule(models.Model):
+    """Approval-based auto-pay ladder (feature 27). Three steps, per-bill cap,
+    and a global stop-all. Execution needs a payment integration (🔑); without
+    it, rules are saved and show 'Available when a payment method is added'."""
+    STEPS = [("notify", "just notify"), ("prepare", "prepare + 1-tap approve"),
+             ("auto_capped", "auto within cap")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="autopay_rules")
+    biller = models.CharField(max_length=80)
+    step = models.CharField(max_length=12, choices=STEPS, default="notify")
+    max_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    enabled = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [("user", "biller")]
