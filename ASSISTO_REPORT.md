@@ -7,7 +7,7 @@ commit c7f5b1f: 240 ARB keys (en==bn==1127), 9 models + migration 0019 (DB backu
 NEXT per QUEUE: Business Module v2 (.phaseB/BUSINESS_V2_PLAN.md) → P14-P16 → P11 iOS → P12 FINAL.
 
 ## 🧰 QUEUE (owner-approved, strict order; latest spec wins)
-1. **Module 5 integration + APK** — DONE/shipping (build 60).
+1. **Module 5** — ✅ SHIPPED: build 60 https://assisto.asalify.com/dl/UVz34YgZLAT1TQWnEiS8xde7/assisto-part7-build60.apk · gallery 210 renders https://assisto.asalify.com/dl/shots-zoVBH5jGapg/index.html · deployed, Asalify 200.
 2. **CONNECTED CIRCLE MESSENGER M1** — full WhatsApp/Messenger-class 1:1 messaging+media+voice(free)/video(Premium gated)+privacy controls+invites+referral points; "ship with the Module-5 wave" → next APK (build 61). Extends module-5 circle foundation; supersedes earlier CC. Spec: `.phaseB/CONNECTED_CIRCLE_MESSENGER.md`. (build 60 already flying w/o M1 → M1 ships as the immediate next APK.)
 3. **Messenger M2** (right after M1): groups, status/stories, extras (disappearing/view-once/stickers/translation/backup/@Assisto). APK after M2.
 4. **BUSINESS MODULE v2** — `.phaseB/BUSINESS_V2_PLAN.md`.
