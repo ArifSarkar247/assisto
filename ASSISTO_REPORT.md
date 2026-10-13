@@ -14,6 +14,10 @@ Authoritative layout: `.phaseB/SIDEBAR_LAYOUT.md` — 10 groups (New chat/Messag
 - TODO (app, build 61): CRM first-run when no org ("Start your company's CRM" / "Join a team") + empty/loading/error states + reference codes; naming (Money section header → My Account/আমার হিসাব; Documents → Daily Life section; Life → Daily Life/দৈনন্দিন জীবন; Sales CRM → "CRM" both langs + lang-gate exception); synonyms/onboarding/gallery.
 ### Messenger M1 + Safe Journey — ALL AGENTS DONE (referral+calls/privacy+chat-core+safe-journey); specs in .phaseB/. Pending: reviews + batched integration → build 61.
 
+### ✅ BUILD 61 INTEGRATED + GREEN (shipping) — Messenger M1 + Safe Journey + owner fixes
+commit a613c46: EXACT 8-section sidebar (persisted open/closed, 18 chat routes+synonyms, search, In-progress/Connected/Battery/Legal in Settings), Messenger M1 (referral+calls/privacy+chat-core ~90% WA text parity, server-enforced video-gate/privacy/circle-only), Safe Journey (all 19 items, 999+109, duress-PIN, wellness opt-in, expiring web page), CRM first-run+error-states+ref-codes, naming (My Account/Daily Life/CRM). ARB en==bn==1383, migrations core 0020 + crm 0004 (DB backup), flutter analyze 0, lang gate CLEAN, 388 backend tests + crm_scenario + run_firstrun pass, Asalify 200. Deployed (crm/referral/journey endpoints live). Native (foreground service, power/shake/tile, FCM, WebRTC TURN, blob media) key-gated per spec.
+NEXT per QUEUE: Messenger M2 → Business v2 → P14-P16 → iOS → M3 → FINAL.
+
 ## 🧰 QUEUE (owner-approved, strict order; latest spec wins)
 1. **Module 5** — ✅ SHIPPED: build 60 https://assisto.asalify.com/dl/UVz34YgZLAT1TQWnEiS8xde7/assisto-part7-build60.apk · gallery 210 renders https://assisto.asalify.com/dl/shots-zoVBH5jGapg/index.html · deployed, Asalify 200.
 2. **CONNECTED CIRCLE MESSENGER M1** — full WhatsApp/Messenger-class 1:1 messaging+media+voice(free)/video(Premium gated)+privacy controls+invites+referral points; "ship with the Module-5 wave" → next APK (build 61). Extends module-5 circle foundation; supersedes earlier CC. Spec: `.phaseB/CONNECTED_CIRCLE_MESSENGER.md`. (build 60 already flying w/o M1 → M1 ships as the immediate next APK.)
