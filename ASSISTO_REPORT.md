@@ -6,6 +6,11 @@
 commit c7f5b1f: 240 ARB keys (en==bn==1127), 9 models + migration 0019 (DB backup), endpoints w/ CC enforcement (validate_envelope/auto-block/can_see/invite-single-use) + reset rate-limit+neutral + analytics fail-closed + photo declared-kind, drawer(Health/Life/Family/Settings)+ChatNav+login forgot-password, fake_api+12 gallery screens, 220 backend tests + crm_scenario pass, flutter analyze 0, lang gate CLEAN, Asalify 200. Deployed (/legal localized). Deep-link assisto://reset/confirm NOT wired (needs native manifest+dep) — forgot-password primary path works; TODO native.
 NEXT per QUEUE: Business Module v2 (.phaseB/BUSINESS_V2_PLAN.md) → P14-P16 → P11 iOS → P12 FINAL.
 
+### OWNER FIXES — in progress
+- **CRM root cause FOUND + FIXED (backend, deployed live):** CRM DRF API was mounted only at `/api/crm/` but the Flutter app calls `/api/v1/crm/orgs/` → every CRM call 404'd → "couldn't load". Added `path("api/v1/crm/", include("crm.urls"))` + redeployed → now 401/authed. Owner's build 59/60 phone CRM loads again (for users with an org). Evidence: journalctl showed repeated `GET /api/v1/crm/orgs/ 404` from Dart client.
+- TODO (app, build 61): CRM first-run when no org ("Start your company's CRM" / "Join a team") + empty/loading/error states + reference codes; naming (Money section header → My Account/আমার হিসাব; Documents → Daily Life section; Life → Daily Life/দৈনন্দিন জীবন; Sales CRM → "CRM" both langs + lang-gate exception); synonyms/onboarding/gallery.
+### Messenger M1 + Safe Journey — ALL AGENTS DONE (referral+calls/privacy+chat-core+safe-journey); specs in .phaseB/. Pending: reviews + batched integration → build 61.
+
 ## 🧰 QUEUE (owner-approved, strict order; latest spec wins)
 1. **Module 5** — ✅ SHIPPED: build 60 https://assisto.asalify.com/dl/UVz34YgZLAT1TQWnEiS8xde7/assisto-part7-build60.apk · gallery 210 renders https://assisto.asalify.com/dl/shots-zoVBH5jGapg/index.html · deployed, Asalify 200.
 2. **CONNECTED CIRCLE MESSENGER M1** — full WhatsApp/Messenger-class 1:1 messaging+media+voice(free)/video(Premium gated)+privacy controls+invites+referral points; "ship with the Module-5 wave" → next APK (build 61). Extends module-5 circle foundation; supersedes earlier CC. Spec: `.phaseB/CONNECTED_CIRCLE_MESSENGER.md`. (build 60 already flying w/o M1 → M1 ships as the immediate next APK.)
