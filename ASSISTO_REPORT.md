@@ -14,7 +14,8 @@ Authoritative layout: `.phaseB/SIDEBAR_LAYOUT.md` — 10 groups (New chat/Messag
 - TODO (app, build 61): CRM first-run when no org ("Start your company's CRM" / "Join a team") + empty/loading/error states + reference codes; naming (Money section header → My Account/আমার হিসাব; Documents → Daily Life section; Life → Daily Life/দৈনন্দিন জীবন; Sales CRM → "CRM" both langs + lang-gate exception); synonyms/onboarding/gallery.
 ### Messenger M1 + Safe Journey — ALL AGENTS DONE (referral+calls/privacy+chat-core+safe-journey); specs in .phaseB/. Pending: reviews + batched integration → build 61.
 
-### ✅ BUILD 61 INTEGRATED + GREEN (shipping) — Messenger M1 + Safe Journey + owner fixes
+### ✅ BUILD 61 SHIPPED: https://assisto.asalify.com/dl/uJPilPpXepnFxFJNHvNjXzZN/assisto-part7-build61.apk · gallery(68 screens,262) https://assisto.asalify.com/dl/shots-BuLRJBQj6L4/index.html · deployed, Asalify 200. (first CI attempt hit a transient NDK-download flake; rerun succeeded.)
+### BUILD 61 — Messenger M1 + Safe Journey + owner fixes
 commit a613c46: EXACT 8-section sidebar (persisted open/closed, 18 chat routes+synonyms, search, In-progress/Connected/Battery/Legal in Settings), Messenger M1 (referral+calls/privacy+chat-core ~90% WA text parity, server-enforced video-gate/privacy/circle-only), Safe Journey (all 19 items, 999+109, duress-PIN, wellness opt-in, expiring web page), CRM first-run+error-states+ref-codes, naming (My Account/Daily Life/CRM). ARB en==bn==1383, migrations core 0020 + crm 0004 (DB backup), flutter analyze 0, lang gate CLEAN, 388 backend tests + crm_scenario + run_firstrun pass, Asalify 200. Deployed (crm/referral/journey endpoints live). Native (foreground service, power/shake/tile, FCM, WebRTC TURN, blob media) key-gated per spec.
 NEXT per QUEUE: Messenger M2 → Business v2 → P14-P16 → iOS → M3 → FINAL.
 
