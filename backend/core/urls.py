@@ -25,6 +25,8 @@ router.register("meetings", views.MeetingViewSet, basename="meeting")
 router.register("autopay", views.AutoPayRuleViewSet, basename="autopay")
 router.register("products", views.ProductViewSet, basename="product")
 router.register("orders", views.OrderViewSet, basename="order")
+router.register("nominees", views.NomineeViewSet, basename="nominee")
+router.register("jobs", views.JobViewSet, basename="job")
 
 urlpatterns = [
     path("health", views.health),
@@ -79,6 +81,8 @@ urlpatterns = [
     path("business/reply", views.BusinessReplyView.as_view()),
     path("business/order", views.BusinessOrderCaptureView.as_view()),
     path("webhook/whatsapp", views.WhatsAppWebhookView.as_view()),
+    path("nominees/<int:pk>/activate", views.nominee_activate),
+    path("jobs/<int:pk>/tailor", views.JobTailorView.as_view()),
 ]
 
 urlpatterns += router.urls

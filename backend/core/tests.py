@@ -352,3 +352,21 @@ class BusinessP7Tests(TestCase):
         order, draft = business.capture_order(self.u, "ami shirt nebo")
         self.assertIsNotNone(order)
         self.assertEqual(Order.objects.filter(user=self.u).count(), 1)
+
+
+class JobP9Tests(TestCase):
+    def test_job_match_from_own_skills(self):
+        from core import jobs
+        from core.models import MemoryItem
+        u = User.objects.create_user(name="J", phone="01911112222", password="x123456")
+        MemoryItem.objects.create(user=u, title="Python Django backend developer", source="manual")
+        skills = jobs.user_skills(u)
+        score, reason = jobs.match("Looking for a Python Django backend developer", skills)
+        self.assertGreater(score, 40)
+        self.assertIn("python", reason.lower())
+
+    def test_tailor_needs_key_without_ai(self):
+        from core import jobs
+        u = User.objects.create_user(name="K", phone="01911113333", password="x123456")
+        res = jobs.tailor_documents(u, "some job")
+        self.assertTrue(res.get("needs_key"))   # no fake CV without a key

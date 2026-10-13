@@ -218,6 +218,25 @@ class OrderSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+class NomineeSerializer(serializers.ModelSerializer):
+    class Meta:
+        from .models import Nominee
+        model = Nominee
+        fields = ["id", "name", "contact", "scope", "inactivity_days",
+                  "activated", "activated_at"]
+        read_only_fields = ["id", "activated", "activated_at"]
+
+
+class JobApplicationSerializer(serializers.ModelSerializer):
+    class Meta:
+        from .models import JobApplication
+        model = JobApplication
+        fields = ["id", "title", "company", "source", "jd", "match_score",
+                  "match_reason", "cv_text", "cover_letter", "status",
+                  "applied_at", "followup_at", "created_at"]
+        read_only_fields = ["id", "match_score", "match_reason", "created_at"]
+
+
 # ---------------- family (feature 12/15) ----------------
 from .models import FamilyMember, Medicine, MedicineLog, SchoolItem  # noqa: E402
 

@@ -465,6 +465,46 @@ class NightBriefing(models.Model):
         ordering = ["-for_date"]
 
 
+class Nominee(models.Model):
+    """Nominee / family access (feature 36). A trusted person who can access
+    specified data if the owner is inactive for N days or declares an emergency.
+    Access is explicit, scoped, and audit-logged — never silent."""
+    SCOPES = [("emergency", "emergency card"), ("vault", "document vault"),
+              ("money", "money overview"), ("all", "all")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="nominees")
+    name = models.CharField(max_length=120)
+    contact = models.CharField(max_length=120)        # phone/email of nominee
+    scope = models.CharField(max_length=12, choices=SCOPES, default="emergency")
+    inactivity_days = models.PositiveIntegerField(default=30)
+    activated = models.BooleanField(default=False)    # access currently open
+    activated_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class JobApplication(models.Model):
+    """Job hunter agent (feature 37). Tracks matched jobs, tailored docs, and
+    follow-ups. NEVER auto-applies (esp. Bdjobs/LinkedIn) — the user approves
+    and sends from their own Gmail."""
+    STATUS = [("matched", "matched"), ("drafted", "drafted"), ("applied", "applied"),
+              ("followup", "follow-up due"), ("replied", "replied"), ("closed", "closed")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="job_apps")
+    title = models.CharField(max_length=160)
+    company = models.CharField(max_length=160, blank=True, default="")
+    source = models.CharField(max_length=40, blank=True, default="")
+    jd = models.TextField(blank=True, default="")              # job description (input)
+    match_score = models.PositiveSmallIntegerField(default=0)  # 0-100, computed
+    match_reason = models.CharField(max_length=300, blank=True, default="")
+    cv_text = models.TextField(blank=True, default="")
+    cover_letter = models.TextField(blank=True, default="")
+    status = models.CharField(max_length=12, choices=STATUS, default="matched")
+    applied_at = models.DateTimeField(null=True, blank=True)
+    followup_at = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-match_score", "-created_at"]
+
+
 class CreditLedger(models.Model):
     """Every AI-credit change (monthly grant, consume, rewarded-ad, top-up).
     User.ai_credits is the running balance; this is the audit trail."""

@@ -1261,3 +1261,64 @@ class WhatsAppWebhookView(APIView):
         log(None if not request.user.is_authenticated else request.user,
             "whatsapp.inbound")
         return Response({"ok": True})
+
+
+# ---------- Nominee / family access (feature 36) ----------
+class NomineeViewSet(OwnedViewSet):
+    from .models import Nominee as _M
+    from .serializers import NomineeSerializer as _S
+    model = _M; kind = "nominee"; serializer_class = _S
+
+
+@api_view(["POST"])
+def nominee_activate(request, pk):
+    """Owner explicitly opens nominee access (e.g. during an emergency). Scoped,
+    audit-logged, reversible — never silent."""
+    from .models import Nominee
+    n = Nominee.objects.filter(user=request.user, pk=pk).first()
+    if not n:
+        return Response({"detail": "not found"}, status=404)
+    n.activated = bool(request.data.get("activated", True))
+    n.activated_at = timezone.now() if n.activated else None
+    n.save(update_fields=["activated", "activated_at"])
+    log(request.user, "nominee.activate", id=n.id, on=n.activated)
+    return Response({"id": n.id, "activated": n.activated})
+
+
+# ---------- Job hunter agent (feature 37) ----------
+class JobViewSet(OwnedViewSet):
+    from .models import JobApplication as _M
+    from .serializers import JobApplicationSerializer as _S
+    model = _M; kind = "job"; serializer_class = _S
+
+    def perform_create(self, serializer):
+        from . import jobs
+        skills = jobs.user_skills(self.request.user)
+        jd = serializer.validated_data.get("jd", "")
+        score, reason = jobs.match(jd, skills)
+        obj = serializer.save(user=self.request.user, match_score=score,
+                              match_reason=reason)
+        log(self.request.user, "job.match", id=obj.id, score=score)
+
+
+class JobTailorView(APIView):
+    """Generate a tailored CV + cover letter for a job (AI; needs-key state).
+    Never auto-applies — returns drafts for the user to approve + send."""
+    def post(self, request, pk):
+        from .models import JobApplication
+        from . import jobs, integrations
+        j = JobApplication.objects.filter(user=request.user, pk=pk).first()
+        if not j:
+            return Response({"detail": "not found"}, status=404)
+        res = jobs.tailor_documents(request.user, j.jd,
+                                    extra=request.data.get("extra", ""))
+        if res.get("cv_text"):
+            j.cv_text = res["cv_text"]
+            j.cover_letter = res.get("cover_letter", "")
+            j.status = "drafted"
+            j.save(update_fields=["cv_text", "cover_letter", "status"])
+        res["can_send"] = integrations.is_enabled("google_oauth")
+        res["send_note"] = ("নিজের Gmail থেকে পাঠাতে Gmail যোগ করুন; অটো-apply কখনো নয়।"
+                            if not res["can_send"] else
+                            "আপনি অনুমোদন করলে নিজের Gmail থেকে পাঠানো যাবে (অটো-apply নয়)।")
+        return Response(res)
