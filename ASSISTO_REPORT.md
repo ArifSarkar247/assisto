@@ -64,7 +64,7 @@ P10🔨 সব Android ফোন(8–15, 320/360/412+tablet, OEM battery guidanc
 
 Assisto এখন **লাইভ**: `https://assisto.asalify.com` — ৪টি ফ্রি ওয়েব টুল (লগইন ছাড়া) + একটি পূর্ণ **Android অ্যাপ** (ব্যাকএন্ড Django+PostgreSQL)। Asalify-র ১২টি টেন্যান্ট প্রতিটি ডিপ্লয়ের আগে-পরে যাচাই করা হয়েছে — **কোনো প্রভাব পড়েনি**।
 
-### 📱 সর্বশেষ APK (build 43): https://assisto.asalify.com/dl/_r25tNmy08x7gFred_dv3LoX/assisto-part7-build43.apk
+### 📱 সর্বশেষ APK (build 47): https://assisto.asalify.com/dl/e2hJfi_ndO5n2rM8gr0NBqBV/assisto-part7-build47.apk
 লিংক খুলুন → ইনস্টল। একবার ইনস্টল করলে অ্যাপই "নতুন আপডেট আছে" দেখাবে — লিংক আর খুঁজতে হবে না। স্থায়ী কি দিয়ে সাইনড (আপডেট আন-ইনস্টল ছাড়াই বসে)।
 
 ---
@@ -195,6 +195,11 @@ Assisto এখন **লাইভ**: `https://assisto.asalify.com` — ৪টি 
 - ✅ AI layer: multi-provider (Anthropic), cheap/medium/strong রাউটিং, per-user limit, daily budget kill-switch, prompt-injection guard, needs-key state। key (ANTHROPIC_API_KEY) পেলে W1/W2/briefing/Life Scanner স্বয়ংক্রিয় চালু।
 
 **Owner-blocked (এগুলো আপনি দিলে চালু হবে):** ANTHROPIC_API_KEY (AI ফিচার) · GitHub billing (Nov 1 পর্যন্ত private বিল্ড বন্ধ) · Firebase (ক্রস-ডিভাইস push) · SMS/voice provider (কল/এসএমএস) · payment partner (বিল পে)
+
+## ✅ Ops (2026-10-13)
+- **Watchdog FIXED**: bottom-12-line + ❯-cursor/"Do you want" detection (not scrollback numbers/keywords); 5-min cron; tested idle→send, dialog/working→skip, false-positive→IDLE. `bin/watchdog.sh --test <files>`.
+- **Disk**: `bin/cleanup.sh` (app/build, backups>5, APKs>3, old galleries, temp — never Asalify) wired into publish-apk.sh + daily 3:30 cron. <!-- WATCHDOG+DISK DONE -->
+- **Build 47 লাইভ**: + Service guide, Settings→Safety (accident countdown), OEM battery-guidance, Nominee, Job hunter, Personal CRM contacts — সব drawer-এ।
 
 ## 🧭 Decisions I made (unattended run)
 - **Owner superuser bootstrap (P1):** মালিকের লগইন দরকার ছিল integrations পেজে; একটা ডেডিকেটেড superuser (`owner@assisto.local`) + র‍্যান্ডম strong পাসওয়ার্ড তৈরি করে `/home/ubuntu/.assisto_secrets.env`-এ (600) রাখলাম (`OWNER_ADMIN_LOGIN`/`OWNER_ADMIN_PASSWORD`)। মালিক লগইন করে পাসওয়ার্ড বদলাবেন। অ্যাপের সাধারণ ইউজার থেকে আলাদা।
