@@ -1,5 +1,5 @@
 # MODULE 5 (P13+) BATCHED INTEGRATION — continuation recipe
-All 4 modules built+reviewed (no P0). Code fixes running: agent a5978c21 (health emergency_check/set_source/turning_age; life duration_min cast/noon/travel-persist; launch-gaps photo-kind/analytics-fail-closed). Verify when it reports.
+All 4 modules built+reviewed (no P0). Code fixes running: agent a5978c21 (health emergency_check/set_source/turning_age; life duration_min cast/noon/travel-persist; launch-gaps photo-kind/analytics-fail-closed). DONE (a5978c21): all applied, tests green (health_tips 14, medicine_db 13, birthdays 17). NOTE: launch-gaps ARB now also needs photoKindPersonal/photoKindDocument (SegmentedButton).
 
 ## 1. ARB (author/collect [bn,en], then merge into app_en.arb+app_bn.arb, gen-l10n)
 - health_arb.json READY (41). 
