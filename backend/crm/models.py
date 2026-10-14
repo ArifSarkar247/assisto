@@ -39,6 +39,10 @@ class CrmOrg(models.Model):
                                 blank=True)
     team_size = models.CharField(max_length=10, choices=TEAM_SIZES, default="small",
                                  blank=True)
+    # Persisted fair round-robin cursor for lead auto-assignment. The view passes
+    # it to logic_team.round_robin_pick(member_ids, cursor) and saves the returned
+    # cursor so assignment stays fair + deterministic across requests (no RNG).
+    round_robin_cursor = models.IntegerField(default=0)
     # Single-tenant join code a teammate enters to join as a member. Unique so a
     # code resolves to exactly one org. Owner can rotate it.
     invite_code = models.CharField(max_length=12, unique=True, blank=True,
@@ -237,6 +241,16 @@ class Proposal(models.Model):
 
     status = models.CharField(max_length=10, choices=STATUSES, default=DRAFT)
     discount_needs_approval = models.BooleanField(default=False)
+    # Advanced quotes (§6): owner-set validity window + manager discount approval
+    # gate + one-way convert-to-order marker. Drives logic_quote.is_expired /
+    # days_left (issued = created_at.date().toordinal()).
+    valid_days = models.PositiveSmallIntegerField(null=True, blank=True)
+    discount_approved = models.BooleanField(default=False)
+    discount_approved_by = models.ForeignKey(
+        CrmMember, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="discount_approved_proposals")
+    discount_approved_at = models.DateTimeField(null=True, blank=True)
+    converted_order_id = models.IntegerField(null=True, blank=True)  # one-way
     approved_by = models.ForeignKey(CrmMember, on_delete=models.SET_NULL, null=True,
                                     blank=True, related_name="approved_proposals")
     approved_at = models.DateTimeField(null=True, blank=True)
@@ -294,8 +308,21 @@ class Contact(models.Model):
     org = models.ForeignKey(CrmOrg, on_delete=models.CASCADE, related_name="contacts")
     company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True,
                                 blank=True, related_name="contacts")
+    # Buying role in the account (Company 360). `title` is free text; `role` is
+    # the explicit, persisted decision-role the UI chips read (no inference).
+    DECISION_MAKER, INFLUENCER, FINANCE, CHAMPION, USER_ROLE, OTHER_ROLE = (
+        "decision_maker", "influencer", "finance", "champion", "user", "other")
+    ROLES = [
+        (DECISION_MAKER, "সিদ্ধান্তদাতা / Decision maker"),
+        (INFLUENCER, "প্রভাবক / Influencer"),
+        (FINANCE, "ফাইন্যান্স / Finance"),
+        (CHAMPION, "চ্যাম্পিয়ন / Champion"),
+        (USER_ROLE, "ব্যবহারকারী / User"),
+        (OTHER_ROLE, "অন্যান্য / Other"),
+    ]
     name = models.CharField(max_length=160)
     title = models.CharField(max_length=120, blank=True)   # job title
+    role = models.CharField(max_length=16, choices=ROLES, default=OTHER_ROLE)
     phone = models.CharField(max_length=32, blank=True)
     email = models.EmailField(blank=True)
     whatsapp = models.CharField(max_length=32, blank=True)
@@ -535,6 +562,8 @@ class RoutingRule(models.Model):
     order = models.PositiveSmallIntegerField(default=0)
     match_industry = models.CharField(max_length=16, blank=True)
     match_source = models.CharField(max_length=10, blank=True)
+    # Region match for logic_team.route_by_rules(region=...); blank = any region.
+    match_region = models.CharField(max_length=120, blank=True, default="")
     min_company_size = models.PositiveIntegerField(default=0)
     assign_to = models.ForeignKey(CrmMember, on_delete=models.CASCADE, null=True,
                                   blank=True, related_name="routing_rules")
@@ -554,6 +583,10 @@ class Target(models.Model):
     period = models.CharField(max_length=7)   # "2026-10" (month) or "2026-Q4"
     amount = models.DecimalField(max_digits=14, decimal_places=2, default=0)  # BDT won target
     deals_target = models.PositiveSmallIntegerField(default=0)
+    # Snapshot written when the owner finalises a period — computed by the
+    # config-driven commission engine (logic_team.commission), never invented.
+    commission_paid = models.DecimalField(max_digits=14, decimal_places=2,
+                                          default=0)
 
     class Meta:
         unique_together = [("org", "member", "period")]
@@ -681,3 +714,243 @@ class WhatsAppOptIn(models.Model):
 
     def __str__(self):
         return f"wa-optin lead#{self.lead_id} ({'in' if self.opted_in else 'out'})"
+
+
+# =====================================================================
+# ADVANCED QUOTES / AFTER-SALE (§6/§7) — all money in INTEGER POISHA
+# (1 BDT = 100 poisha) to match logic_quote / logic_aftersale. Dates are
+# real DateFields; the views pass date.toordinal() to the pure logic.
+# All org-scoped; prices/tax/commission are NEVER invented (owner inputs).
+# =====================================================================
+
+
+class QuoteAcceptance(models.Model):
+    """Tokenized, session-less customer acceptance link for a Proposal version.
+
+    One row per quote version. State advances ONLY via
+    logic_quote.acceptance_transition (issued→viewed→accepted/declined, or
+    revoked/expired). The token is from logic_quote.make_acceptance_token (the
+    integrator swaps in django.core.signing.Signer for production)."""
+    ISSUED, VIEWED, ACCEPTED, DECLINED, REVOKED, EXPIRED = (
+        "issued", "viewed", "accepted", "declined", "revoked", "expired")
+    proposal = models.OneToOneField(Proposal, on_delete=models.CASCADE,
+                                    related_name="acceptance")
+    token = models.CharField(max_length=64, unique=True)
+    state = models.CharField(max_length=12, default=ISSUED)
+    viewed_at = models.DateTimeField(null=True, blank=True)
+    decided_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"acceptance q{self.proposal_id} ({self.state})"
+
+
+class Order(models.Model):
+    """An order converted FROM an accepted quote. The order carries the quote's
+    total verbatim (integer poisha) — it is NEVER re-priced here."""
+    org = models.ForeignKey(CrmOrg, on_delete=models.CASCADE, related_name="orders")
+    lead = models.ForeignKey(Lead, on_delete=models.SET_NULL, null=True, blank=True,
+                             related_name="orders")
+    deal = models.ForeignKey(Deal, on_delete=models.SET_NULL, null=True, blank=True,
+                             related_name="orders")
+    source_proposal = models.ForeignKey(Proposal, on_delete=models.SET_NULL,
+                                        null=True, blank=True, related_name="orders")
+    total_poisha = models.BigIntegerField(default=0)   # carried, not re-priced
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["org", "-created_at"])]
+
+    def __str__(self):
+        return f"Order #{self.pk} (৳{self.total_poisha/100:.2f})"
+
+
+class Installment(models.Model):
+    """One scheduled installment of an order's total. Built by
+    logic_aftersale.build_installment_schedule (exact split; remainder on the
+    last seq). `collected_poisha` is the running tally via apply_collection."""
+    SCHEDULED, PARTIAL, COLLECTED, OVERPAID = (
+        "scheduled", "partial", "collected", "overpaid")
+    order = models.ForeignKey(Order, on_delete=models.CASCADE,
+                              related_name="installments")
+    seq = models.PositiveSmallIntegerField()                 # 1-based
+    amount_poisha = models.BigIntegerField()                 # booked amount
+    due_date = models.DateField()
+    collected_poisha = models.BigIntegerField(default=0)
+    status = models.CharField(max_length=10, default=SCHEDULED)
+
+    class Meta:
+        ordering = ["order", "seq"]
+        unique_together = [("order", "seq")]
+
+
+class Collection(models.Model):
+    """One payment recorded against an installment (ledger/audit row). Method is
+    cash/cheque/bank only — logic_aftersale.apply_collection rejects others."""
+    CASH, CHEQUE, BANK = "cash", "cheque", "bank"
+    METHODS = [(CASH, "নগদ / Cash"), (CHEQUE, "চেক / Cheque"),
+               (BANK, "ব্যাংক / Bank")]
+    installment = models.ForeignKey(Installment, on_delete=models.CASCADE,
+                                    related_name="collections")
+    amount_poisha = models.BigIntegerField()                 # >= 0, never faked
+    method = models.CharField(max_length=6, choices=METHODS)
+    reference = models.CharField(max_length=64, blank=True)  # cheque/txn no.
+    collected_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-collected_at"]
+
+
+class AMC(models.Model):
+    """Annual maintenance / renewal contract. Renewal day =
+    logic_aftersale.amc_renewal_ordinal(start, term_days); state from
+    renewal_status. Reminders surface foreground on app open/resume (WorkManager
+    is banned per memory)."""
+    org = models.ForeignKey(CrmOrg, on_delete=models.CASCADE, related_name="amcs")
+    company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True,
+                                blank=True, related_name="amcs")
+    order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True,
+                              blank=True, related_name="amcs")
+    title = models.CharField(max_length=200)
+    start_date = models.DateField()
+    term_days = models.PositiveIntegerField(default=365)
+    reminder_lead_days = models.PositiveSmallIntegerField(default=30)
+    last_renewed_at = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["start_date"]
+        indexes = [models.Index(fields=["org", "start_date"])]
+
+    def __str__(self):
+        return self.title
+
+
+class Complaint(models.Model):
+    """Support complaint log + state machine + SLA. State advances ONLY via
+    logic_aftersale.complaint_transition; SLA from complaint_sla(priority,
+    opened_ord, today_ord, state)."""
+    OPEN, ACKNOWLEDGED, IN_PROGRESS, RESOLVED, CLOSED, CANCELLED = (
+        "open", "acknowledged", "in_progress", "resolved", "closed", "cancelled")
+    URGENT, HIGH, NORMAL, LOW = "urgent", "high", "normal", "low"
+    PRIORITIES = [(URGENT, "জরুরি / Urgent"), (HIGH, "উচ্চ / High"),
+                  (NORMAL, "সাধারণ / Normal"), (LOW, "নিম্ন / Low")]
+    org = models.ForeignKey(CrmOrg, on_delete=models.CASCADE,
+                            related_name="complaints")
+    company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True,
+                                blank=True, related_name="complaints")
+    lead = models.ForeignKey(Lead, on_delete=models.SET_NULL, null=True,
+                             blank=True, related_name="complaints")
+    subject = models.CharField(max_length=200)
+    details = models.TextField(blank=True)
+    priority = models.CharField(max_length=8, choices=PRIORITIES, default=NORMAL)
+    state = models.CharField(max_length=14, default=OPEN)
+    opened_at = models.DateTimeField(auto_now_add=True)       # SLA clock start
+    resolved_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-opened_at"]
+        indexes = [models.Index(fields=["org", "state"])]
+
+    def __str__(self):
+        return self.subject
+
+
+class ErpHandoff(models.Model):
+    """Axon ERP implementation hand-off record (DESIGN / LINK ONLY — never posts
+    to Asalify/ERP). State advances ONLY via logic_aftersale.handoff_transition;
+    with no ERP link connected the state is reported as needs_erp_link."""
+    NOT_STARTED, PREPARING, SUBMITTED, ACCEPTED, REJECTED, COMPLETED = (
+        "not_started", "preparing", "submitted", "accepted", "rejected",
+        "completed")
+    deal = models.OneToOneField(Deal, on_delete=models.CASCADE,
+                                related_name="erp_handoff")
+    company_name = models.CharField(max_length=200)
+    module_codes = models.JSONField(default=list, blank=True)
+    order_total_poisha = models.BigIntegerField(default=0)
+    state = models.CharField(max_length=12, default=NOT_STARTED)
+    erp_link_connected = models.BooleanField(default=False)   # gate
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"erp-handoff deal#{self.deal_id} ({self.state})"
+
+
+# =====================================================================
+# TEAM / AUTOMATION (#8/#11) — commission config, owner automation rules
+# + idempotency markers. Commission is CONFIG-DRIVEN (no baked numbers).
+# =====================================================================
+
+
+class CommissionRule(models.Model):
+    """Owner-defined commission config, one per org. The JSON shape maps 1:1 to
+    logic_team.commission(won, config). NO rate is baked in — kind='none' or a
+    zero rate yields config_set=False ("owner must set")."""
+    NONE, FLAT, TIERED = "none", "flat", "tiered"
+    org = models.OneToOneField(CrmOrg, on_delete=models.CASCADE,
+                               related_name="commission_rule")
+    kind = models.CharField(max_length=10, default=NONE)
+    flat_pct = models.DecimalField(max_digits=6, decimal_places=3, default=0)
+    tiers = models.JSONField(default=list, blank=True)   # [{"upto":amt|null,"pct":n}]
+    per_deal_bonus = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    updated_by = models.ForeignKey(CrmMember, on_delete=models.SET_NULL,
+                                   null=True, blank=True,
+                                   related_name="commission_rules")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def as_config(self):
+        """The dict logic_team.commission consumes."""
+        return {
+            "kind": self.kind,
+            "flat_pct": self.flat_pct,
+            "tiers": self.tiers or [],
+            "per_deal_bonus": self.per_deal_bonus,
+        }
+
+    def __str__(self):
+        return f"commission[{self.org_id}] {self.kind}"
+
+
+class AutomationRule(models.Model):
+    """Owner trigger→condition→delay→action rule (#11). Validated by
+    logic_automation.validate_rule; evaluated by due_actions. Actions are
+    create-task / draft / notify only — nothing auto-sends to a customer."""
+    org = models.ForeignKey(CrmOrg, on_delete=models.CASCADE,
+                            related_name="automation_rules")
+    name = models.CharField(max_length=120, blank=True)
+    trigger = models.CharField(max_length=24)            # logic_automation.KNOWN_TRIGGERS
+    condition = models.JSONField(default=dict, blank=True)
+    delay_days = models.PositiveSmallIntegerField(default=0)
+    action = models.JSONField(default=dict)              # {"kind":..., "subject":...}
+    active = models.BooleanField(default=True)
+    created_by = models.ForeignKey(CrmMember, on_delete=models.SET_NULL,
+                                   null=True, blank=True,
+                                   related_name="automation_rules")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["id"]
+        indexes = [models.Index(fields=["org", "active"])]
+
+    def __str__(self):
+        return self.name or f"rule#{self.pk} ({self.trigger})"
+
+
+class AutomationFire(models.Model):
+    """Idempotency marker: one row per (rule, entity, due_at) the evaluator has
+    acted on, so re-running due_actions() never double-creates a task.
+    logic_automation is intentionally memoryless; this table is the memory."""
+    rule = models.ForeignKey(AutomationRule, on_delete=models.CASCADE,
+                             related_name="fires")
+    entity_kind = models.CharField(max_length=8)         # "deal" | "lead"
+    entity_id = models.PositiveIntegerField()
+    due_at = models.DateTimeField()
+    created_activity = models.ForeignKey(Activity, on_delete=models.SET_NULL,
+                                         null=True, blank=True,
+                                         related_name="automation_fires")
+    fired_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("rule", "entity_kind", "entity_id", "due_at")]

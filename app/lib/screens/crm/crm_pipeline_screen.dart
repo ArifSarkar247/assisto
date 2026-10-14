@@ -1,3 +1,4 @@
+import 'crm_erp_handoff_screen.dart';
 import 'package:flutter/material.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
@@ -188,7 +189,14 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
       data: d,
       feedback: Material(color: Colors.transparent, child: SizedBox(width: 240, child: card)),
       childWhenDragging: Opacity(opacity: 0.4, child: card),
-      child: card,
+      // Tap a deal → ERP implementation hand-off (Axon); long-press still drags.
+      child: GestureDetector(
+        onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (_) => CrmErpHandoffScreen(org: widget.org, deal: d))),
+        child: card,
+      ),
     );
   }
 

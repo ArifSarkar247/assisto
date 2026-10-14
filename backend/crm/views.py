@@ -19,7 +19,7 @@ from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, ValidationError
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -28,17 +28,29 @@ from django.db import transaction
 from . import logic, pipeline as pl, forecast as fc, reports as rp, cadence, quoting
 from . import errors as crm_errors
 from . import whatsapp as wa
+from . import dupes
+from . import logic_quote as lq, logic_aftersale as la, logic_team as lt
+from . import logic_automation as lauto, logic_capture as lcap
 from .models import (CrmOrg, CrmMember, Lead, Conversation, Message, Proposal,
                      Company, Contact, Pipeline, Stage, Deal, Activity,
                      Product, Territory, RoutingRule, AuditEntry,
-                     WhatsAppTemplate, WhatsAppOptIn)
+                     WhatsAppTemplate, WhatsAppOptIn,
+                     Tag, TaggedItem, CustomFieldDef, QuoteAcceptance, Order,
+                     Installment, Collection, AMC, Complaint, ErpHandoff,
+                     Target, CommissionRule, AutomationRule, AutomationFire)
 from .serializers import (CrmOrgSerializer, CrmMemberSerializer, LeadSerializer,
                           ConversationSerializer, MessageSerializer,
                           ProposalSerializer, CompanySerializer,
                           ContactSerializer, PipelineSerializer, StageSerializer,
                           DealSerializer, ActivitySerializer, ProductSerializer,
                           TerritorySerializer, RoutingRuleSerializer,
-                          WhatsAppTemplateSerializer)
+                          WhatsAppTemplateSerializer,
+                          TagSerializer, TaggedItemSerializer,
+                          CustomFieldDefSerializer, OrderSerializer,
+                          InstallmentSerializer, AMCSerializer,
+                          ComplaintSerializer, ErpHandoffSerializer,
+                          TargetSerializer, CommissionRuleSerializer,
+                          AutomationRuleSerializer)
 
 
 # --------------------------------------------------------------- error handling
@@ -581,10 +593,44 @@ class CompanyViewSet(_OrgScopedViewSet):
     model = Company
     serializer_class = CompanySerializer
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.request.query_params.get("org"):
+            qs = qs.filter(org_id=self.request.query_params["org"])
+        return qs
+
+    @action(detail=True, methods=["get"])
+    def timeline(self, request, pk=None):
+        """Company 360 account timeline: every activity on the company, its
+        contacts and its deals, newest first. Mirrors LeadViewSet.timeline so the
+        app no longer has to assemble it client-side (integration gap #2)."""
+        from django.db.models import Q
+        company = self.get_object()
+        acts = (Activity.objects.filter(org_id=company.org_id)
+                .filter(Q(company=company)
+                        | Q(contact__company=company)
+                        | Q(deal__company=company))
+                .distinct().order_by("-created_at"))
+        return Response({
+            "ok": True,
+            "company": company.id,
+            "activities": ActivitySerializer(
+                acts, many=True, context={"request": request}).data,
+        })
+
 
 class ContactViewSet(_OrgScopedViewSet):
     model = Contact
     serializer_class = ContactSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        p = self.request.query_params
+        if p.get("org"):
+            qs = qs.filter(org_id=p["org"])
+        if p.get("company"):
+            qs = qs.filter(company_id=p["company"])
+        return qs
 
 
 # --------------------------------------------------------------- pipelines / stages
@@ -628,6 +674,8 @@ class DealViewSet(_OrgScopedViewSet):
             qs = qs.filter(pipeline_id=p["pipeline"])
         if p.get("state"):
             qs = qs.filter(state=p["state"])
+        if p.get("company"):
+            qs = qs.filter(company_id=p["company"])
         return qs
 
     # ----- drag a deal to a new stage (kanban) -----
@@ -686,6 +734,10 @@ class ActivityViewSet(_OrgScopedViewSet):
             qs = qs.filter(lead_id=p["lead"])
         if p.get("deal"):
             qs = qs.filter(deal_id=p["deal"])
+        if p.get("contact"):
+            qs = qs.filter(contact_id=p["contact"])
+        if p.get("company"):
+            qs = qs.filter(company_id=p["company"])
         if p.get("open_tasks"):
             qs = qs.filter(kind=Activity.TASK, done=False)
         return qs
@@ -904,6 +956,162 @@ class ProposalViewSet(CrmErrorMixin, viewsets.ReadOnlyModelViewSet):
             entity=f"proposal#{prop.id}")
         return Response(ProposalSerializer(prop).data)
 
+    # ======================= ADVANCED QUOTES (§6) =======================
+    # All calls route through logic_quote (lq); the view never re-implements a
+    # price, tax or gate rule. Money is integer poisha in the logic layer.
+
+    @staticmethod
+    def _issued_ord(prop):
+        return prop.created_at.date().toordinal()
+
+    @staticmethod
+    def _quote_poisha(prop):
+        """Integer-poisha snapshot of a proposal for the logic layer. Prefers
+        per-line unit_poisha (new, drift-free); falls back to the Decimal total
+        (* 100) for legacy rows — never invents a price."""
+        total = int(round(float(prop.total or 0) * 100))
+        return {
+            "id": prop.id, "version": prop.version, "lead_id": prop.lead_id,
+            "title": prop.title, "line_items": prop.line_items or [],
+            "subtotal_poisha": int(round(float(prop.subtotal or 0) * 100)),
+            "discount_poisha": int(round(float(prop.discount_amount or 0) * 100)),
+            "discount_pct": str(prop.discount_pct or 0),
+            "tax_poisha": int(round(float(prop.tax_amount or 0) * 100)),
+            "tax_pct": str(prop.tax_pct or 0),
+            "total_poisha": total,
+            "prices_reviewed": prop.prices_reviewed,
+            "tax_review_required": False,
+        }
+
+    def _version_row(self, prop, today_ord):
+        exp = lq.is_expired(self._issued_ord(prop), prop.valid_days, today_ord)
+        dl = lq.days_left(self._issued_ord(prop), prop.valid_days, today_ord)
+        return {
+            "id": prop.id, "version": prop.version, "title": prop.title,
+            "status": prop.status,
+            "total_poisha": int(round(float(prop.total or 0) * 100)),
+            "prices_reviewed": prop.prices_reviewed,
+            "discount_needs_approval": prop.discount_needs_approval,
+            "discount_approved": prop.discount_approved,
+            "valid_days": prop.valid_days, "is_expired": exp, "days_left": dl,
+        }
+
+    @action(detail=True, methods=["get"])
+    def diff(self, request, pk=None):
+        """Structured diff vs the previous version of the same lead's quote."""
+        prop = self.get_object()
+        prev = (Proposal.objects.filter(lead_id=prop.lead_id,
+                                        version__lt=prop.version)
+                .order_by("-version").first())
+        if not prev:
+            return Response({"ok": True, "diff": None,
+                             "note": "no earlier version / প্রথম সংস্করণ"})
+        d = lq.version_diff(self._quote_poisha(prev), self._quote_poisha(prop))
+        return Response({"ok": True, "diff": d})
+
+    @action(detail=True, methods=["post"])
+    def validity(self, request, pk=None):
+        """Owner-set validity window (days). null = no expiry."""
+        prop = self.get_object()
+        _require_member(request.user, prop.lead.org_id)
+        vd = request.data.get("valid_days")
+        prop.valid_days = int(vd) if vd not in (None, "") else None
+        prop.save(update_fields=["valid_days"])
+        today_ord = timezone.now().date().toordinal()
+        return Response({"ok": True, **self._version_row(prop, today_ord),
+                         "valid_until_ordinal": lq.validity_until(
+                             self._issued_ord(prop), prop.valid_days)})
+
+    @action(detail=True, methods=["post"])
+    def request_discount_approval(self, request, pk=None):
+        """Flag that an above-threshold discount needs a manager's approval."""
+        prop = self.get_object()
+        _require_member(request.user, prop.lead.org_id)
+        needs = lq.discount_needs_approval(prop.discount_pct or 0)
+        prop.discount_needs_approval = needs
+        if needs:
+            prop.status = Proposal.PENDING
+        prop.save(update_fields=["discount_needs_approval", "status"])
+        return Response({"ok": True, "discount_needs_approval": needs,
+                         "status": prop.status})
+
+    @action(detail=True, methods=["post"])
+    def approve_discount(self, request, pk=None):
+        """Manager approves the above-threshold discount (server-authoritative)."""
+        prop = self.get_object()
+        member = _member_for(request.user, prop.lead.org_id)
+        if not _can_manage(member):
+            raise PermissionDenied("শুধু owner/manager ডিসকাউন্ট অনুমোদন করতে পারেন / "
+                                   "Only owner/manager can approve a discount")
+        prop.discount_approved = True
+        prop.discount_approved_by = member
+        prop.discount_approved_at = timezone.now()
+        prop.save(update_fields=["discount_approved", "discount_approved_by",
+                                 "discount_approved_at"])
+        AuditEntry.objects.create(org=prop.lead.org, member=member,
+                                  action="proposal.discount_approved",
+                                  entity=f"proposal#{prop.id}")
+        return Response({"ok": True, "discount_approved": True})
+
+    @action(detail=True, methods=["get"])
+    def pdf_model(self, request, pk=None):
+        """Structured branded-PDF model + honest `rendered` flag (no PDF lib →
+        preview, never a faked final PDF)."""
+        prop = self.get_object()
+        org = prop.lead.org
+        brand = {"name": org.name, "logo_ref": "", "address": "", "color": ""}
+        model = lq.build_pdf_model(quote=self._quote_poisha(prop),
+                                   org_brand=brand, pdf_lib_available=False)
+        return Response({"ok": True, "pdf_model": model})
+
+    @action(detail=True, methods=["get"])
+    def acceptance_link(self, request, pk=None):
+        """Tokenized customer acceptance link (creates the QuoteAcceptance if
+        absent). The token is from logic_quote.make_acceptance_token."""
+        prop = self.get_object()
+        acc = getattr(prop, "acceptance", None)
+        if acc is None:
+            token = lq.make_acceptance_token(quote_id=prop.id,
+                                             version=prop.version,
+                                             salt=str(prop.lead.org_id))
+            acc = QuoteAcceptance.objects.create(proposal=prop, token=token)
+        return Response({"ok": True, "token": acc.token,
+                         "url": f"/api/crm/accept/{acc.token}/",
+                         "link_state": acc.state})
+
+    @action(detail=True, methods=["post"])
+    def convert_to_order(self, request, pk=None):
+        """Convert an ACCEPTED, non-expired quote into an Order (one-way). Gate is
+        logic_quote.can_convert_to_order; the order carries the quote total
+        verbatim (no re-pricing)."""
+        prop = self.get_object()
+        member = _require_member(request.user, prop.lead.org_id)
+        acc = getattr(prop, "acceptance", None)
+        link_state = acc.state if acc else "issued"
+        today_ord = timezone.now().date().toordinal()
+        exp = lq.is_expired(self._issued_ord(prop), prop.valid_days, today_ord)
+        gate = lq.can_convert_to_order(status=prop.status, link_state=link_state,
+                                       is_expired_flag=exp)
+        if not gate["can_convert"]:
+            raise ValidationError({"blockers": gate["blockers"]})
+        if prop.converted_order_id:
+            return Response({"ok": True, "order": prop.converted_order_id,
+                             "note": "already converted / আগেই রূপান্তরিত"})
+        snap = self._quote_poisha(prop)
+        payload = lq.build_order_payload(quote=snap, accepted_ordinal=today_ord)
+        order = Order.objects.create(
+            org=prop.lead.org, lead=prop.lead_id and prop.lead,
+            deal=prop.deal, source_proposal=prop,
+            total_poisha=payload["total_poisha"])
+        prop.converted_order_id = order.id
+        prop.save(update_fields=["converted_order_id"])
+        AuditEntry.objects.create(org=prop.lead.org, member=member,
+                                  action="proposal.convert_to_order",
+                                  entity=f"proposal#{prop.id}",
+                                  detail=f"order#{order.id}")
+        return Response({"ok": True, "order": OrderSerializer(order).data,
+                         "payload": payload})
+
 
 # --------------------------------------------------------------- capture webhook
 class CaptureWebhookView(CrmErrorMixin, APIView):
@@ -1121,6 +1329,12 @@ class DashboardView(CrmErrorMixin, APIView):
         won_month = float(deals.filter(state="won").aggregate(
             s=Sum("value"))["s"] or 0)
 
+        # SURFACE the already-computed reports the screen needs (integration gap
+        # #8): funnel drop-off, average sales-cycle, source attribution, activity
+        # leaderboard + win-rate-by-source. All from reports.py (REAL data).
+        default_pipeline = pl.ensure_default_pipeline(org)
+        activities = Activity.objects.filter(org_id=org_id)
+
         return Response({
             "ok": True,
             "status_counts": counts,
@@ -1131,4 +1345,808 @@ class DashboardView(CrmErrorMixin, APIView):
             "win_loss": rp.win_loss(deals),
             "by_industry": rp.pipeline_by_industry(deals),
             "by_salesperson": rp.rep_performance(org, deals),
+            # newly surfaced reports:
+            "funnel": rp.funnel(default_pipeline, deals),
+            "sales_cycle": rp.sales_cycle(deals),
+            "source_attribution": rp.source_attribution(deals),
+            "win_rate_by_source": rp.win_rate_by_source(deals),
+            "activity_leaderboard": rp.activity_leaderboard(org, activities),
         })
+
+
+# =====================================================================
+# COMPANY 360 — tags + custom-field definitions (served, integration #4/#5)
+# =====================================================================
+class TagViewSet(_OrgScopedViewSet):
+    """Org-scoped tags/segments. The Companies screen's tag-filter chips read
+    this list (previously the models had no route)."""
+    model = Tag
+    serializer_class = TagSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.request.query_params.get("org"):
+            qs = qs.filter(org_id=self.request.query_params["org"])
+        return qs
+
+
+class TaggedItemViewSet(CrmErrorMixin, viewsets.ModelViewSet):
+    """Tag links to a lead/company/contact/deal. Scoped via the tag's org."""
+    serializer_class = TaggedItemSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        qs = TaggedItem.objects.filter(
+            tag__org_id__in=_member_org_ids(self.request.user))
+        p = self.request.query_params
+        for key in ("lead", "company", "contact", "deal"):
+            if p.get(key):
+                qs = qs.filter(**{f"{key}_id": p[key]})
+        return qs
+
+    def perform_create(self, serializer):
+        tag = serializer.validated_data.get("tag")
+        _require_member(self.request.user, tag.org_id)
+        serializer.save()
+
+
+class CustomFieldDefViewSet(_OrgScopedViewSet):
+    """Admin-defined custom-field DEFINITIONS (label/type/options/order) so the
+    360 Overview can label + type-format custom values, not show raw keys."""
+    model = CustomFieldDef
+    serializer_class = CustomFieldDefSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        p = self.request.query_params
+        if p.get("org"):
+            qs = qs.filter(org_id=p["org"])
+        if p.get("entity"):
+            qs = qs.filter(entity=p["entity"])
+        return qs
+
+
+# =====================================================================
+# PUBLIC tokenized quote acceptance page (§6) — the ONE session-less endpoint.
+# Validates the token server-side; never trusts client state.
+# =====================================================================
+class QuoteAcceptView(CrmErrorMixin, APIView):
+    """GET/POST crm/accept/{token}/ — the mock customer acceptance link.
+
+    GET records a 'view'; POST {action: accept|decline} records the decision.
+    State advances ONLY via logic_quote.acceptance_transition, so the server
+    never records a bogus acceptance even if the client lies."""
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def _resolve(self, token):
+        return get_object_or_404(QuoteAcceptance, token=token)
+
+    def _payload(self, acc):
+        prop = acc.proposal
+        today_ord = timezone.now().date().toordinal()
+        issued = prop.created_at.date().toordinal()
+        exp = lq.is_expired(issued, prop.valid_days, today_ord)
+        return {
+            "ok": True, "state": acc.state,
+            "quote": {"id": prop.id, "version": prop.version,
+                      "title": prop.title,
+                      "total_poisha": int(round(float(prop.total or 0) * 100)),
+                      "is_expired": exp},
+            "can_accept": lq.can_accept(link_state=acc.state,
+                                        is_expired_flag=exp),
+        }
+
+    def get(self, request, token=None):
+        acc = self._resolve(token)
+        if acc.state == QuoteAcceptance.ISSUED:
+            try:
+                acc.state = lq.acceptance_transition(acc.state, "view")
+                acc.viewed_at = timezone.now()
+                acc.save(update_fields=["state", "viewed_at"])
+            except ValueError:
+                pass
+        return Response(self._payload(acc))
+
+    def post(self, request, token=None):
+        acc = self._resolve(token)
+        action_name = request.data.get("action")   # accept | decline
+        if action_name not in ("accept", "decline"):
+            raise ValidationError({"action": "accept বা decline / accept or decline"})
+        try:
+            acc.state = lq.acceptance_transition(acc.state, action_name)
+        except ValueError as e:
+            raise ValidationError({"state": str(e)})
+        acc.decided_at = timezone.now()
+        acc.save(update_fields=["state", "decided_at"])
+        # Mirror onto the proposal status so the CRM side stays consistent.
+        prop = acc.proposal
+        if acc.state == QuoteAcceptance.ACCEPTED:
+            prop.status = Proposal.ACCEPTED
+            prop.accepted_at = timezone.now()
+            prop.save(update_fields=["status", "accepted_at"])
+        elif acc.state == QuoteAcceptance.DECLINED:
+            prop.status = Proposal.DECLINED
+            prop.save(update_fields=["status"])
+        return Response(self._payload(acc))
+
+
+# =====================================================================
+# AFTER-SALE (§7): orders, installments/collections, AMC, complaints,
+# upsell, ERP hand-off. Money is integer poisha; dates -> toordinal() at
+# the view edge; every rule call routes through logic_aftersale (la).
+# =====================================================================
+class OrderViewSet(_OrgScopedViewSet):
+    model = Order
+    serializer_class = OrderSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        p = self.request.query_params
+        if p.get("org"):
+            qs = qs.filter(org_id=p["org"])
+        if p.get("deal"):
+            qs = qs.filter(deal_id=p["deal"])
+        return qs
+
+    @action(detail=True, methods=["post"])
+    def build_schedule(self, request, pk=None):
+        """Create an installment schedule for the order (exact split via
+        logic_aftersale.build_installment_schedule). Idempotent: refuses if a
+        schedule already exists."""
+        order = self.get_object()
+        _require_member(request.user, order.org_id)
+        if order.installments.exists():
+            raise ValidationError({"schedule": "already built / আগেই তৈরি"})
+        count = int(request.data.get("count") or 1)
+        interval = int(request.data.get("interval_days") or 30)
+        first_due = request.data.get("first_due_date")
+        from datetime import date
+        first_due_ord = (date.fromisoformat(first_due).toordinal()
+                         if first_due else timezone.now().date().toordinal())
+        schedule = la.build_installment_schedule(
+            order.total_poisha, count, first_due_ord, interval_days=interval)
+        rows = []
+        for s in schedule:
+            inst = Installment.objects.create(
+                order=order, seq=s["seq"], amount_poisha=s["amount_poisha"],
+                due_date=date.fromordinal(s["due_ordinal"]))
+            rows.append(inst)
+        return Response({"ok": True, "installments": InstallmentSerializer(
+            rows, many=True).data})
+
+
+class InstallmentViewSet(CrmErrorMixin, viewsets.ReadOnlyModelViewSet):
+    """Installments of an order. Collections post to the `collect` action, which
+    routes through logic_aftersale.apply_collection (cash/cheque/bank only)."""
+    serializer_class = InstallmentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        qs = Installment.objects.filter(
+            order__org_id__in=_member_org_ids(self.request.user))
+        p = self.request.query_params
+        if p.get("org"):
+            qs = qs.filter(order__org_id=p["org"])
+        if p.get("order"):
+            qs = qs.filter(order_id=p["order"])
+        return qs
+
+    @action(detail=True, methods=["post"])
+    def collect(self, request, pk=None):
+        """Record a payment against this installment (writes a Collection row)."""
+        inst = self.get_object()
+        member = _require_member(request.user, inst.order.org_id)
+        amount = int(request.data.get("amount_poisha") or 0)
+        method = request.data.get("method")
+        reference = (request.data.get("reference") or "")[:64]
+        current = {"amount_poisha": inst.amount_poisha,
+                   "collected_poisha": inst.collected_poisha}
+        try:
+            updated = la.apply_collection(current, amount, method)
+        except ValueError as e:
+            raise ValidationError({"collection": str(e)})
+        inst.collected_poisha = updated["collected_poisha"]
+        inst.status = updated["status"]
+        inst.save(update_fields=["collected_poisha", "status"])
+        Collection.objects.create(installment=inst, amount_poisha=amount,
+                                  method=method, reference=reference)
+        AuditEntry.objects.create(org=inst.order.org, member=member,
+                                  action="installment.collect",
+                                  entity=f"installment#{inst.id}",
+                                  detail=f"{amount}p {method}")
+        return Response(InstallmentSerializer(inst).data)
+
+
+class CollectionSummaryView(CrmErrorMixin, APIView):
+    """GET crm/collections/summary?org=&order= — booked vs collected rollup via
+    logic_aftersale.collection_summary (booked/collected/outstanding/overdue)."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        org_id = request.query_params.get("org")
+        _require_member(request.user, org_id)
+        order_id = request.query_params.get("order")
+        qs = Installment.objects.filter(order__org_id=org_id)
+        if order_id:
+            qs = qs.filter(order_id=order_id)
+        today_ord = timezone.now().date().toordinal()
+        schedule = [{"amount_poisha": i.amount_poisha,
+                     "collected_poisha": i.collected_poisha,
+                     "due_ordinal": i.due_date.toordinal()} for i in qs]
+        return Response({"ok": True, **la.collection_summary(schedule, today_ord)})
+
+
+class AMCViewSet(_OrgScopedViewSet):
+    """Annual maintenance / renewal contracts. Each row's live state comes from
+    logic_aftersale.renewal_status; renew/schedule_reminder route through the
+    logic too (no invented dates)."""
+    model = AMC
+    serializer_class = AMCSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.request.query_params.get("org"):
+            qs = qs.filter(org_id=self.request.query_params["org"])
+        return qs
+
+    def list(self, request, *args, **kwargs):
+        today_ord = timezone.now().date().toordinal()
+        want_state = request.query_params.get("status")
+        rows = []
+        for amc in self.filter_queryset(self.get_queryset()):
+            renew_ord = la.amc_renewal_ordinal(amc.start_date.toordinal(),
+                                               amc.term_days)
+            st = la.renewal_status(renew_ord, today_ord, amc.reminder_lead_days)
+            row = {"id": amc.id, "company": amc.company_id, "title": amc.title,
+                   "state": st["state"], "days_to_renewal": st["days_to_renewal"]}
+            if want_state and st["state"] != want_state:
+                continue
+            rows.append(row)
+        return Response({"ok": True, "rows": rows})
+
+    @action(detail=True, methods=["post"])
+    def schedule_reminder(self, request, pk=None):
+        """Fire-day ordinals for renewal reminders (foreground on app open —
+        WorkManager is banned per memory). The app persists these locally."""
+        amc = self.get_object()
+        _require_member(request.user, amc.org_id)
+        renew_ord = la.amc_renewal_ordinal(amc.start_date.toordinal(),
+                                           amc.term_days)
+        fire_ords = la.reminder_schedule(renew_ord)
+        from datetime import date
+        return Response({"ok": True, "fire_dates": [date.fromordinal(o).isoformat()
+                                                    for o in fire_ords]})
+
+    @action(detail=True, methods=["post"])
+    def renew(self, request, pk=None):
+        """Roll the contract forward one term; stamp last_renewed_at."""
+        amc = self.get_object()
+        _require_member(request.user, amc.org_id)
+        term = int(request.data.get("term_days") or amc.term_days)
+        from datetime import date
+        new_start_ord = la.amc_renewal_ordinal(amc.start_date.toordinal(), term)
+        amc.last_renewed_at = amc.start_date
+        amc.start_date = date.fromordinal(new_start_ord)
+        amc.term_days = term
+        amc.save(update_fields=["start_date", "term_days", "last_renewed_at"])
+        return Response(AMCSerializer(amc).data)
+
+
+class ComplaintViewSet(_OrgScopedViewSet):
+    """Complaint log + state machine + SLA. transition routes through
+    logic_aftersale.complaint_transition; each row carries its SLA state."""
+    model = Complaint
+    serializer_class = ComplaintSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        p = self.request.query_params
+        if p.get("org"):
+            qs = qs.filter(org_id=p["org"])
+        if p.get("state"):
+            qs = qs.filter(state=p["state"])
+        return qs
+
+    def list(self, request, *args, **kwargs):
+        today_ord = timezone.now().date().toordinal()
+        rows = []
+        for c in self.filter_queryset(self.get_queryset()):
+            sla = la.complaint_sla(c.priority, c.opened_at.date().toordinal(),
+                                   today_ord, c.state)
+            rows.append({"id": c.id, "subject": c.subject, "details": c.details,
+                         "state": c.state, "priority": c.priority,
+                         "sla_breached": sla["breached"],
+                         "days_left": sla["days_left"]})
+        return Response({"ok": True, "rows": rows})
+
+    @action(detail=True, methods=["post"])
+    def transition(self, request, pk=None):
+        c = self.get_object()
+        member = _require_member(request.user, c.org_id)
+        try:
+            c.state = la.complaint_transition(c.state, request.data.get("action"))
+        except ValueError as e:
+            raise ValidationError({"action": str(e)})
+        if c.state == Complaint.RESOLVED:
+            c.resolved_at = timezone.now()
+        c.save(update_fields=["state", "resolved_at"])
+        AuditEntry.objects.create(org=c.org, member=member,
+                                  action=f"complaint.{request.data.get('action')}",
+                                  entity=f"complaint#{c.id}")
+        return Response(ComplaintSerializer(c).data)
+
+
+class UpsellView(CrmErrorMixin, APIView):
+    """GET crm/upsell?org=&company=&lead= — honest upsell signals (no price).
+    Owned modules come from the account's accepted proposals; catalog from the
+    price book. SUPPRESSED when there is an outstanding balance."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        org_id = request.query_params.get("org")
+        _require_member(request.user, org_id)
+        company_id = request.query_params.get("company")
+        lead_id = request.query_params.get("lead")
+
+        # Owned module codes: required_modules on accepted-proposal leads.
+        owned = set()
+        acc_props = Proposal.objects.filter(lead__org_id=org_id,
+                                            status=Proposal.ACCEPTED)
+        if lead_id:
+            acc_props = acc_props.filter(lead_id=lead_id)
+        elif company_id:
+            acc_props = acc_props.filter(lead__company_rec_id=company_id)
+        for p in acc_props.select_related("lead"):
+            for m in (p.lead.required_modules or []):
+                owned.add(m)
+
+        catalog = list(Product.objects.filter(org_id=org_id, active=True)
+                       .values_list("sku", flat=True))
+
+        # Outstanding across the account's orders.
+        outstanding = 0
+        today_ord = timezone.now().date().toordinal()
+        order_qs = Order.objects.filter(org_id=org_id)
+        if lead_id:
+            order_qs = order_qs.filter(lead_id=lead_id)
+        for o in order_qs:
+            sched = [{"amount_poisha": i.amount_poisha,
+                      "collected_poisha": i.collected_poisha,
+                      "due_ordinal": i.due_date.toordinal()}
+                     for i in o.installments.all()]
+            outstanding += la.collection_summary(sched, today_ord)["outstanding_poisha"]
+
+        # AMC state (most urgent) for the company, if any.
+        amc_state = None
+        if company_id:
+            for amc in AMC.objects.filter(org_id=org_id, company_id=company_id):
+                renew_ord = la.amc_renewal_ordinal(amc.start_date.toordinal(),
+                                                   amc.term_days)
+                amc_state = la.renewal_status(renew_ord, today_ord,
+                                              amc.reminder_lead_days)["state"]
+                break
+
+        out = la.upsell_signals(owned_module_codes=list(owned),
+                                catalog_module_codes=catalog,
+                                amc_state=amc_state,
+                                outstanding_poisha=outstanding)
+        return Response({"ok": True, **out})
+
+
+class ErpHandoffView(CrmErrorMixin, APIView):
+    """GET/POST crm/deals/{deal}/erp_handoff/ (+ /transition/). DESIGN/LINK ONLY
+    — never posts to Asalify/ERP. State advances via
+    logic_aftersale.handoff_transition; with no ERP link the state is reported
+    as needs_erp_link."""
+    permission_classes = [IsAuthenticated]
+
+    def _deal(self, request, deal_id):
+        deal = get_object_or_404(
+            Deal, id=deal_id, org_id__in=_member_org_ids(request.user))
+        return deal
+
+    def _record(self, deal):
+        ho, _ = ErpHandoff.objects.get_or_create(
+            deal=deal, defaults={
+                "company_name": deal.company.name if deal.company else deal.title,
+                "module_codes": [],
+                "order_total_poisha": int(round(float(deal.value or 0) * 100))})
+        rec = la.build_handoff_record(
+            deal_id=deal.id, company_name=ho.company_name,
+            module_codes=ho.module_codes,
+            order_total_poisha=ho.order_total_poisha,
+            erp_link_connected=ho.erp_link_connected)
+        rec["state"] = ho.state   # persisted state wins over the fresh default
+        return ho, rec
+
+    def get(self, request, deal=None):
+        d = self._deal(request, deal)
+        _, rec = self._record(d)
+        return Response({"ok": True, **rec})
+
+    def post(self, request, deal=None):
+        d = self._deal(request, deal)
+        member = _require_member(request.user, d.org_id)
+        ho, _ = self._record(d)
+        action_name = request.data.get("action")
+        try:
+            ho.state = la.handoff_transition(ho.state, action_name)
+        except ValueError as e:
+            raise ValidationError({"action": str(e)})
+        ho.save(update_fields=["state", "updated_at"])
+        AuditEntry.objects.create(org=d.org, member=member,
+                                  action=f"erp_handoff.{action_name}",
+                                  entity=f"deal#{d.id}")
+        _, rec = self._record(d)
+        return Response({"ok": True, **rec})
+
+
+# =====================================================================
+# TEAM (#8): targets, leaderboard, commission config. Commission + targets
+# are CONFIG-DRIVEN — no baked numbers; empty config -> OWNER_MUST_SET.
+# =====================================================================
+def _member_name(m):
+    u = m.user
+    return getattr(u, "name", None) or getattr(u, "username", None) or str(m.user_id)
+
+
+class TargetViewSet(CrmErrorMixin, viewsets.ModelViewSet):
+    """Sales targets/quotas. Each row's progress comes from
+    logic_team.target_progress (owner-set amount; no target -> target_set=False).
+    Writes are owner/manager only; upsert on (org, member, period)."""
+    serializer_class = TargetSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        qs = Target.objects.filter(
+            org_id__in=_member_org_ids(self.request.user)).select_related(
+            "member__user")
+        p = self.request.query_params
+        if p.get("org"):
+            qs = qs.filter(org_id=p["org"])
+        if p.get("period"):
+            qs = qs.filter(period=p["period"])
+        return qs
+
+    def list(self, request, *args, **kwargs):
+        rows = []
+        for t in self.filter_queryset(self.get_queryset()):
+            won = Deal.objects.filter(org_id=t.org_id, owner=t.member,
+                                      state="won").aggregate(s=Sum("value"))["s"] or 0
+            deals_won = Deal.objects.filter(org_id=t.org_id, owner=t.member,
+                                            state="won").count()
+            prog = lt.target_progress(t.amount, won, deals_target=t.deals_target,
+                                      deals_won=deals_won)
+            rows.append({
+                "id": t.id, "member": t.member_id,
+                "member_name": _member_name(t.member) if t.member else None,
+                "period": t.period, "target_amount": prog["target_amount"],
+                "deals_target": t.deals_target, "won_amount": prog["won_amount"],
+                "pct": prog.get("pct"), "attained": prog.get("attained"),
+                "on_pace": prog.get("on_pace"), "target_set": prog["target_set"],
+                "note": prog.get("note")})
+        return Response({"ok": True, "rows": rows})
+
+    def perform_create(self, serializer):
+        org = serializer.validated_data.get("org")
+        member = _require_member(self.request.user, org)
+        if not _can_manage(member):
+            raise PermissionDenied("শুধু owner/manager টার্গেট সেট করতে পারেন / "
+                                   "Only owner/manager can set targets")
+        data = serializer.validated_data
+        # Upsert on (org, member, period).
+        existing = Target.objects.filter(
+            org=org, member=data.get("member"), period=data.get("period")).first()
+        if existing:
+            existing.amount = data.get("amount", existing.amount)
+            existing.deals_target = data.get("deals_target", existing.deals_target)
+            existing.save(update_fields=["amount", "deals_target"])
+            serializer.instance = existing
+        else:
+            serializer.save()
+
+
+class LeaderboardView(CrmErrorMixin, APIView):
+    """GET crm/leaderboard/?org=&period= — activity leaderboard ranked by
+    logic_team.leaderboard (dense ranks, deterministic ties)."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        org_id = request.query_params.get("org")
+        _require_member(request.user, org_id)
+        members = CrmMember.objects.filter(org_id=org_id).select_related("user")
+        rows = []
+        for m in members:
+            acts = Activity.objects.filter(org_id=org_id, actor=m)
+            won = Deal.objects.filter(org_id=org_id, owner=m, state="won")
+            rows.append({
+                "member_id": m.id, "name": _member_name(m),
+                "calls": acts.filter(kind=Activity.CALL).count(),
+                "meetings": acts.filter(kind=Activity.MEETING).count(),
+                "proposals": Proposal.objects.filter(
+                    lead__org_id=org_id, created_by=m).count(),
+                "deals_won": won.count(),
+                "won_amount": float(won.aggregate(s=Sum("value"))["s"] or 0)})
+        ranked = lt.leaderboard(rows)
+        return Response({"ok": True, "rows": ranked})
+
+
+class CommissionConfigView(CrmErrorMixin, APIView):
+    """GET/POST crm/commission-config/?org= — owner-defined commission config +
+    a per-member preview via logic_team.commission. NO baked numbers: an unset
+    config yields config_set=False ("owner must set"). Writes owner/manager only."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        org_id = request.query_params.get("org")
+        _require_member(request.user, org_id)
+        rule = CommissionRule.objects.filter(org_id=org_id).first()
+        config = rule.as_config() if rule else {"kind": "none", "flat_pct": 0,
+                                                "tiers": [], "per_deal_bonus": 0}
+        preview = []
+        for m in CrmMember.objects.filter(org_id=org_id).select_related("user"):
+            won_qs = Deal.objects.filter(org_id=org_id, owner=m, state="won")
+            won = float(won_qs.aggregate(s=Sum("value"))["s"] or 0)
+            comm = lt.commission(won, config, deals_won=won_qs.count())
+            preview.append({"member_name": _member_name(m), "won_amount": won,
+                            "payout": comm["payout"],
+                            "config_set": comm["config_set"],
+                            "note": comm.get("note")})
+        return Response({"ok": True, "config": config, "preview": preview})
+
+    def post(self, request):
+        org_id = request.data.get("org")
+        member = _require_member(request.user, org_id)
+        if not _can_manage(member):
+            raise PermissionDenied("শুধু owner/manager কমিশন সেট করতে পারেন / "
+                                   "Only owner/manager can configure commission")
+        cfg = request.data.get("config") or {}
+        kind = cfg.get("kind", "none")
+        if kind not in ("none", "flat", "tiered"):
+            raise ValidationError({"kind": "none/flat/tiered"})
+        org = get_object_or_404(CrmOrg, id=org_id)
+        rule, _ = CommissionRule.objects.get_or_create(org=org)
+        rule.kind = kind
+        rule.flat_pct = cfg.get("flat_pct", 0) or 0
+        rule.tiers = cfg.get("tiers") or []
+        rule.per_deal_bonus = cfg.get("per_deal_bonus", 0) or 0
+        rule.updated_by = member
+        rule.save()
+        return Response(CommissionRuleSerializer(rule).data)
+
+
+# =====================================================================
+# AUTOMATION (#11): owner rules CRUD + an evaluator endpoint that calls
+# logic_automation.due_actions. Actions are create-task/draft/notify only —
+# nothing auto-sends to a customer. AutomationFire keeps it idempotent.
+# =====================================================================
+class AutomationRuleViewSet(_OrgScopedViewSet):
+    model = AutomationRule
+    serializer_class = AutomationRuleSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.request.query_params.get("org"):
+            qs = qs.filter(org_id=self.request.query_params["org"])
+        return qs
+
+    def _validate(self, data):
+        problems = lauto.validate_rule({
+            "trigger": data.get("trigger"), "action": data.get("action"),
+            "delay_days": data.get("delay_days", 0)})
+        if problems:
+            raise ValidationError({"rule": problems})
+
+    def perform_create(self, serializer):
+        org = serializer.validated_data.get("org")
+        member = _require_member(self.request.user, org)
+        if not _can_manage(member):
+            raise PermissionDenied("শুধু owner/manager অটোমেশন সেট করতে পারেন / "
+                                   "Only owner/manager can configure automation")
+        self._validate(serializer.validated_data)
+        serializer.save(created_by=member)
+
+    def perform_update(self, serializer):
+        self._validate({**serializer.instance.__dict__,
+                        **serializer.validated_data})
+        serializer.save()
+
+    @action(detail=True, methods=["post"])
+    def delete(self, request, pk=None):
+        rule = self.get_object()
+        member = _require_member(request.user, rule.org_id)
+        if not _can_manage(member):
+            raise PermissionDenied("শুধু owner/manager মুছতে পারেন / "
+                                   "Only owner/manager can delete")
+        rule.delete()
+        return Response({"ok": True})
+
+
+class AutomationEvaluateView(CrmErrorMixin, APIView):
+    """POST crm/automation-rules/evaluate/ {org} — build events from the Activity
+    timeline, call logic_automation.due_actions, and create the due actions as
+    Activities (task/draft/notify), guarded by AutomationFire for idempotency.
+    Nothing auto-sends to a customer (review-first)."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        org_id = request.data.get("org")
+        member = _require_member(request.user, org_id)
+        if not _can_manage(member):
+            raise PermissionDenied("শুধু owner/manager চালাতে পারেন / "
+                                   "Only owner/manager can run the evaluator")
+        rules = [{"id": r.id, "trigger": r.trigger, "condition": r.condition,
+                  "delay_days": r.delay_days, "action": r.action,
+                  "active": r.active}
+                 for r in AutomationRule.objects.filter(org_id=org_id, active=True)]
+
+        # Build a simple event timeline from the audit log + activities.
+        events = []
+        for a in AuditEntry.objects.filter(org_id=org_id).order_by("at")[:2000]:
+            etype = None
+            if a.action == "deal.stage_change":
+                etype = "deal_stage_changed"
+            elif a.action.startswith("proposal.sent"):
+                etype = "proposal_sent"
+            if not etype:
+                continue
+            ent_id = None
+            if "#" in a.entity:
+                try:
+                    ent_id = int(a.entity.split("#")[1])
+                except (ValueError, IndexError):
+                    ent_id = None
+            events.append({"type": etype, "at": a.at, "deal_id": ent_id})
+
+        now = timezone.now()
+        due = lauto.due_actions(rules, events, now)
+        created, skipped = [], 0
+        for item in due:
+            ent = item["entity"]
+            if ent["id"] is None:
+                continue
+            marker, is_new = AutomationFire.objects.get_or_create(
+                rule_id=item["rule_id"], entity_kind=ent["kind"],
+                entity_id=ent["id"], due_at=item["due_at"])
+            if not is_new:
+                skipped += 1
+                continue
+            act = item["action"]
+            activity = Activity.objects.create(
+                org_id=org_id, kind=Activity.TASK,
+                subject=(act.get("subject") or "Automation task")[:240],
+                body=(act.get("body") or "")[:4000],
+                deal_id=ent["id"] if ent["kind"] == "deal" else None,
+                lead_id=ent["id"] if ent["kind"] == "lead" else None,
+                actor=member, due_at=item["due_at"])
+            marker.created_activity = activity
+            marker.save(update_fields=["created_activity"])
+            created.append(activity.id)
+        return Response({"ok": True, "created": created, "skipped": skipped,
+                         "due_count": len(due)})
+
+
+# =====================================================================
+# CAPTURE / dedupe (#1): card parse, form intake, duplicates, merge preview +
+# merge. All route through logic_capture (lcap); OCR is KEY-GATED. The merge
+# PRESERVES all activities (merge_plan guard before dupes.merge_leads writes).
+# =====================================================================
+def _ocr_has_key():
+    try:
+        from django.conf import settings
+        return bool(getattr(settings, "OCR_API_KEY", None))
+    except Exception:
+        return False
+
+
+class CaptureCardView(CrmErrorMixin, APIView):
+    """POST crm/capture/card {org, text} — parse already-OCR'd/typed card text
+    into a lead draft (logic_capture.card_parse, key-gated) + dedupe check."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        org_id = request.data.get("org")
+        _require_member(request.user, org_id)
+        text = request.data.get("text") or ""
+        parsed = lcap.card_parse(text, has_ocr_key=_ocr_has_key())
+        existing = [{"id": l.id, "name": l.name, "company": l.company,
+                     "phone": l.phone, "email": l.email}
+                    for l in Lead.objects.filter(org_id=org_id)]
+        dup_of = lcap.is_duplicate_of(parsed.get("draft", {}), existing)
+        return Response({"available": parsed["available"],
+                         "needs_key": parsed["needs_key"],
+                         "draft": parsed.get("draft", {}),
+                         "found": parsed.get("found", []),
+                         "duplicate_of": dup_of})
+
+
+class CaptureFormView(CrmErrorMixin, APIView):
+    """POST crm/capture/form {org, payload} — normalise a web-form submission
+    into a clean lead draft (logic_capture.form_intake); unmapped fields shown."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        org_id = request.data.get("org")
+        _require_member(request.user, org_id)
+        payload = request.data.get("payload") or {}
+        out = lcap.form_intake(payload)
+        return Response(out)
+
+
+class CaptureDuplicatesView(CrmErrorMixin, APIView):
+    """GET crm/capture/duplicates/?org= — duplicate lead groups + the leads in
+    them (logic_capture.find_duplicates)."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        org_id = request.query_params.get("org")
+        _require_member(request.user, org_id)
+        leads = [{"id": l.id, "name": l.name, "company": l.company,
+                  "phone": l.phone, "email": l.email}
+                 for l in Lead.objects.filter(org_id=org_id)]
+        groups = lcap.find_duplicates(leads)
+        in_group = {lid for g in groups for lid in g["lead_ids"]}
+        return Response({"ok": True, "groups": groups,
+                         "leads": [l for l in leads if l["id"] in in_group]})
+
+
+def _lead_merge_dict(lead):
+    """Build the merge-plan dict for a lead incl. child activity ids so the
+    no-loss guard (merge_plan) can be checked before any DB write."""
+    return {
+        "id": lead.id, "name": lead.name, "company": lead.company,
+        "phone": lead.phone, "email": lead.email, "whatsapp": lead.whatsapp,
+        "designation": lead.designation, "notes": lead.notes,
+        "activities": list(lead.activities.values_list("id", flat=True)),
+        "conversations": list(lead.conversations.values_list("id", flat=True)),
+        "deals": list(lead.deals.values_list("id", flat=True)),
+        "proposals": list(lead.proposals.values_list("id", flat=True)),
+    }
+
+
+class CaptureMergePreviewView(CrmErrorMixin, APIView):
+    """POST crm/capture/merge_preview {org, survivor, duplicates} — the merge
+    PLAN (no DB write) incl. activity_count_before/after (logic_capture.merge_plan)."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        org_id = request.data.get("org")
+        _require_member(request.user, org_id)
+        survivor = get_object_or_404(Lead, id=request.data.get("survivor"),
+                                     org_id=org_id)
+        dup_ids = request.data.get("duplicates") or []
+        dups = list(Lead.objects.filter(org_id=org_id, id__in=dup_ids)
+                    .exclude(id=survivor.id))
+        plan = lcap.merge_plan(_lead_merge_dict(survivor),
+                               [_lead_merge_dict(d) for d in dups])
+        return Response({"ok": True, **plan})
+
+
+class CaptureMergeView(CrmErrorMixin, APIView):
+    """POST crm/capture/merge {org, survivor, duplicates} — validate the plan
+    (activity_count_before == after) then reuse dupes.merge_leads, which
+    re-points conversations/activities/deals/proposals and deletes the dups. The
+    merge PRESERVES all activities (guard trips before any write)."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        org_id = request.data.get("org")
+        member = _require_member(request.user, org_id)
+        org = get_object_or_404(CrmOrg, id=org_id)
+        survivor = get_object_or_404(Lead, id=request.data.get("survivor"),
+                                     org_id=org_id)
+        dup_ids = request.data.get("duplicates") or []
+        dups = list(Lead.objects.filter(org_id=org_id, id__in=dup_ids)
+                    .exclude(id=survivor.id))
+        plan = lcap.merge_plan(_lead_merge_dict(survivor),
+                               [_lead_merge_dict(d) for d in dups])
+        if plan["activity_count_before"] != plan["activity_count_after"]:
+            raise ValidationError({"merge": "activity-loss guard tripped — refused"})
+        with transaction.atomic():
+            result = dupes.merge_leads(survivor.id,
+                                       [d.id for d in dups], org)
+        AuditEntry.objects.create(org=org, member=member, action="lead.merge",
+                                  entity=f"lead#{survivor.id}",
+                                  detail=f"merged {plan['delete_ids']}")
+        return Response({"ok": True, "survivor": result.id})

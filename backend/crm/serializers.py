@@ -11,7 +11,10 @@ from rest_framework import serializers
 
 from .models import (CrmOrg, CrmMember, Lead, Conversation, Message, Proposal,
                      Company, Contact, Pipeline, Stage, Deal, Activity,
-                     Product, Territory, RoutingRule, WhatsAppTemplate)
+                     Product, Territory, RoutingRule, WhatsAppTemplate,
+                     Tag, TaggedItem, CustomFieldDef, Order, Installment,
+                     AMC, Complaint, ErpHandoff, Target, CommissionRule,
+                     AutomationRule)
 
 
 class CrmOrgSerializer(serializers.ModelSerializer):
@@ -112,21 +115,27 @@ class LeadSerializer(serializers.ModelSerializer):
 
 
 class CompanySerializer(serializers.ModelSerializer):
+    industry_display = serializers.CharField(source="get_industry_display",
+                                             read_only=True)
+
     class Meta:
         model = Company
-        fields = ["id", "org", "name", "parent", "industry", "size", "website",
-                  "phone", "address", "territory", "owner", "custom",
-                  "created_at", "updated_at"]
-        read_only_fields = ["id", "created_at", "updated_at"]
+        fields = ["id", "org", "name", "parent", "industry", "industry_display",
+                  "size", "website", "phone", "address", "territory", "owner",
+                  "custom", "created_at", "updated_at"]
+        read_only_fields = ["id", "industry_display", "created_at", "updated_at"]
 
 
 class ContactSerializer(serializers.ModelSerializer):
+    role_display = serializers.CharField(source="get_role_display", read_only=True)
+
     class Meta:
         model = Contact
-        fields = ["id", "org", "company", "name", "title", "phone", "email",
+        fields = ["id", "org", "company", "name", "title", "role",
+                  "role_display", "phone", "email",
                   "whatsapp", "is_primary", "owner", "custom",
                   "created_at", "updated_at"]
-        read_only_fields = ["id", "created_at", "updated_at"]
+        read_only_fields = ["id", "role_display", "created_at", "updated_at"]
 
 
 class StageSerializer(serializers.ModelSerializer):
@@ -174,14 +183,18 @@ class DealSerializer(serializers.ModelSerializer):
 class ActivitySerializer(serializers.ModelSerializer):
     kind_display = serializers.CharField(source="get_kind_display", read_only=True)
     actor_name = serializers.SerializerMethodField()
+    # Documents tab (Company 360): surface the attachment + a download URL so the
+    # client can link to the file, not just flag that one exists.
+    attachment_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Activity
         fields = ["id", "org", "kind", "kind_display", "subject", "body",
                   "deal", "lead", "contact", "company", "due_at", "done",
-                  "done_at", "actor", "actor_name", "created_at"]
-        read_only_fields = ["id", "kind_display", "actor_name", "done_at",
-                            "created_at"]
+                  "done_at", "attachment", "attachment_url",
+                  "actor", "actor_name", "created_at"]
+        read_only_fields = ["id", "kind_display", "actor_name", "attachment_url",
+                            "done_at", "created_at"]
 
     def get_actor_name(self, obj):
         if not obj.actor:
@@ -189,6 +202,16 @@ class ActivitySerializer(serializers.ModelSerializer):
         u = obj.actor.user
         return (getattr(u, "name", None) or getattr(u, "username", None)
                 or str(obj.actor.user_id))
+
+    def get_attachment_url(self, obj):
+        if not obj.attachment:
+            return None
+        try:
+            url = obj.attachment.url
+        except Exception:
+            return None
+        request = self.context.get("request")
+        return request.build_absolute_uri(url) if request else url
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -210,7 +233,8 @@ class RoutingRuleSerializer(serializers.ModelSerializer):
     class Meta:
         model = RoutingRule
         fields = ["id", "org", "order", "match_industry", "match_source",
-                  "min_company_size", "assign_to", "territory", "active"]
+                  "match_region", "min_company_size", "assign_to", "territory",
+                  "active"]
         read_only_fields = ["id"]
 
 
@@ -221,4 +245,110 @@ class WhatsAppTemplateSerializer(serializers.ModelSerializer):
         model = WhatsAppTemplate
         fields = ["id", "org", "name", "meta_name", "language", "body",
                   "approved", "active", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+
+# ------------------------------------------------- Company 360: tags + defs
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ["id", "org", "name", "color"]
+        read_only_fields = ["id"]
+
+
+class TaggedItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaggedItem
+        fields = ["id", "tag", "lead", "company", "contact", "deal"]
+        read_only_fields = ["id"]
+
+
+class CustomFieldDefSerializer(serializers.ModelSerializer):
+    field_type_display = serializers.CharField(source="get_field_type_display",
+                                               read_only=True)
+    entity_display = serializers.CharField(source="get_entity_display",
+                                           read_only=True)
+
+    class Meta:
+        model = CustomFieldDef
+        fields = ["id", "org", "entity", "entity_display", "key", "label",
+                  "field_type", "field_type_display", "options", "order"]
+        read_only_fields = ["id", "entity_display", "field_type_display"]
+
+
+# ------------------------------------------------- after-sale (§7) serializers
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ["id", "org", "lead", "deal", "source_proposal",
+                  "total_poisha", "created_at"]
+        # The total is carried from the accepted quote, never set by the client.
+        read_only_fields = ["id", "total_poisha", "created_at"]
+
+
+class InstallmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Installment
+        fields = ["id", "order", "seq", "amount_poisha", "due_date",
+                  "collected_poisha", "status"]
+        # Amounts/status are server-authoritative (built + updated by the logic).
+        read_only_fields = ["id", "seq", "amount_poisha", "collected_poisha",
+                            "status"]
+
+
+class AMCSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AMC
+        fields = ["id", "org", "company", "order", "title", "start_date",
+                  "term_days", "reminder_lead_days", "last_renewed_at",
+                  "created_at"]
+        read_only_fields = ["id", "last_renewed_at", "created_at"]
+
+
+class ComplaintSerializer(serializers.ModelSerializer):
+    priority_display = serializers.CharField(source="get_priority_display",
+                                             read_only=True)
+
+    class Meta:
+        model = Complaint
+        fields = ["id", "org", "company", "lead", "subject", "details",
+                  "priority", "priority_display", "state", "opened_at",
+                  "resolved_at"]
+        # State transitions go through the dedicated action; never set directly.
+        read_only_fields = ["id", "priority_display", "state", "opened_at",
+                            "resolved_at"]
+
+
+class ErpHandoffSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ErpHandoff
+        fields = ["id", "deal", "company_name", "module_codes",
+                  "order_total_poisha", "state", "erp_link_connected",
+                  "created_at", "updated_at"]
+        read_only_fields = ["id", "state", "created_at", "updated_at"]
+
+
+# ------------------------------------------------- team (#8) serializers
+class TargetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Target
+        fields = ["id", "org", "member", "period", "amount", "deals_target",
+                  "commission_paid"]
+        # commission_paid is a snapshot written by the engine, never by client.
+        read_only_fields = ["id", "commission_paid"]
+
+
+class CommissionRuleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CommissionRule
+        fields = ["id", "org", "kind", "flat_pct", "tiers", "per_deal_bonus",
+                  "updated_at"]
+        read_only_fields = ["id", "updated_at"]
+
+
+class AutomationRuleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AutomationRule
+        fields = ["id", "org", "name", "trigger", "condition", "delay_days",
+                  "action", "active", "created_at"]
         read_only_fields = ["id", "created_at"]

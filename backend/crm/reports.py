@@ -104,6 +104,31 @@ def source_attribution(deals_qs):
     return {"has_data": bool(data), "rows": data}
 
 
+def win_rate_by_source(deals_qs):
+    """Win RATE per source = won / (won + lost) closed deals of that source.
+
+    Distinct from source_attribution (which gives WON revenue/count only): this
+    exposes how EFFECTIVE each channel is at closing, not just how much it
+    brought in. Open deals are not yet decided and are excluded. All from real
+    data; `win_rate_pct` is None when a source has no closed deals yet.
+    """
+    rows = {}
+    for d in deals_qs.filter(state__in=["won", "lost"]).values(
+            "source", "state").annotate(n=Count("id")):
+        r = rows.setdefault(d["source"], {"source": d["source"],
+                                          "won": 0, "lost": 0})
+        r[d["state"]] = d["n"]
+    out = []
+    for r in rows.values():
+        closed = r["won"] + r["lost"]
+        r["closed"] = closed
+        r["win_rate_pct"] = (round(r["won"] / closed * 100.0, 1)
+                             if closed else None)
+        out.append(r)
+    out.sort(key=lambda x: -(x["win_rate_pct"] or -1))
+    return {"has_data": bool(out), "rows": out}
+
+
 def pipeline_by_industry(deals_qs):
     """Open pipeline value grouped by company industry."""
     out = {}

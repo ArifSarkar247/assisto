@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import 'crm_common.dart';
 import 'crm_lead_form_screen.dart';
 import 'crm_proposal_screen.dart';
+import 'crm_proposal_advanced_screen.dart';
 import 'crm_whatsapp_sheet.dart';
 
 /// Lead/Deal detail (CRM_SPEC): smart profile, score WITH reasons, full timeline
@@ -208,6 +209,14 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
                 MaterialPageRoute(builder: (_) => CrmProposalScreen(org: widget.org, lead: l))),
             icon: const Icon(Icons.description_outlined),
             label: Text(t.crmProposals),
+          ),
+          const SizedBox(height: Gap.sm),
+          OutlinedButton.icon(
+            onPressed: () => Navigator.push(context,
+                MaterialPageRoute(
+                    builder: (_) => CrmProposalAdvancedScreen(org: widget.org, lead: l))),
+            icon: const Icon(Icons.auto_awesome_motion_outlined),
+            label: Text(t.crmQuoteVersions),
           ),
           // ---- Won / Lost actions ----
           const SizedBox(height: Gap.sm),

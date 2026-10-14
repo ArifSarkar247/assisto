@@ -27,8 +27,42 @@ router.register("territories", views.TerritoryViewSet, basename="crm-territory")
 router.register("products", views.ProductViewSet, basename="crm-product")
 router.register("wa-templates", views.WhatsAppTemplateViewSet,
                 basename="crm-wa-template")
+# Company 360: tags + custom-field definitions (now served).
+router.register("tags", views.TagViewSet, basename="crm-tag")
+router.register("tagged-items", views.TaggedItemViewSet, basename="crm-tagged")
+router.register("custom-fields", views.CustomFieldDefViewSet,
+                basename="crm-customfield")
+# After-sale (§7): orders, installments, AMC, complaints.
+router.register("orders", views.OrderViewSet, basename="crm-order")
+router.register("installments", views.InstallmentViewSet,
+                basename="crm-installment")
+router.register("amcs", views.AMCViewSet, basename="crm-amc")
+router.register("complaints", views.ComplaintViewSet, basename="crm-complaint")
+# Team (#8): targets. Automation (#11): rules.
+router.register("targets", views.TargetViewSet, basename="crm-target")
+router.register("automation-rules", views.AutomationRuleViewSet,
+                basename="crm-automation")
 
 urlpatterns = [
+    # ---- advanced quotes (§6): public tokenized acceptance page (session-less).
+    path("accept/<str:token>/", views.QuoteAcceptView.as_view()),
+    # ---- after-sale (§7) aggregation endpoints ----
+    path("collections/summary", views.CollectionSummaryView.as_view()),
+    path("upsell", views.UpsellView.as_view()),
+    path("deals/<int:deal>/erp_handoff/", views.ErpHandoffView.as_view()),
+    path("deals/<int:deal>/erp_handoff/transition/",
+         views.ErpHandoffView.as_view()),
+    # ---- team (#8) ----
+    path("leaderboard/", views.LeaderboardView.as_view()),
+    path("commission-config/", views.CommissionConfigView.as_view()),
+    # ---- automation (#11) evaluator ----
+    path("automation-rules/evaluate/", views.AutomationEvaluateView.as_view()),
+    # ---- capture / dedupe (#1) ----
+    path("capture/card", views.CaptureCardView.as_view()),
+    path("capture/form", views.CaptureFormView.as_view()),
+    path("capture/duplicates/", views.CaptureDuplicatesView.as_view()),
+    path("capture/merge_preview", views.CaptureMergePreviewView.as_view()),
+    path("capture/merge", views.CaptureMergeView.as_view()),
     # Opt-in bulk WhatsApp send to a filtered lead set (official Cloud API only,
     # MOCK + key-gated, fans out to individual 1:1 sends — never a group).
     path("whatsapp/bulk", views.WhatsAppBulkSendView.as_view()),

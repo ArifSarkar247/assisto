@@ -812,6 +812,23 @@ class Module5ApiTests(APITestCase):
                                               password="pw-abc-123")
         self.client.force_authenticate(self.user)
 
+    def _accepted_member(self, name, relation, phone):
+        # Real accepted relationship: sender sends to a peer account, the
+        # RECEIVER accepts their incoming mirror (senders cannot accept their
+        # own outgoing request), which converges the sender's row to accepted.
+        peer = User.objects.create_user(name=name, phone=phone,
+                                        password="pw-peer-002")
+        m = self.client.post("/api/v1/circle/request",
+                             {"name": name, "relation": relation, "phone": phone},
+                             format="json").json()
+        from .models import CircleMember
+        incoming = CircleMember.objects.get(user=peer, direction="incoming")
+        self.client.force_authenticate(peer)
+        self.client.post(f"/api/v1/circle/request/{incoming.pk}/act",
+                         {"event": "accept"}, format="json")
+        self.client.force_authenticate(self.user)
+        return m["id"]
+
     def test_health_and_medicine_and_unseen(self):
         self.assertEqual(self.client.get("/api/v1/health/tips").status_code, 200)
         r = self.client.get("/api/v1/medicine-db/search?q=para")
@@ -915,12 +932,7 @@ class Module5ApiTests(APITestCase):
 
     def test_circle_message_rejects_plaintext_envelope(self):
         # add a member (accepted) then try to persist a non-ciphertext envelope.
-        m = self.client.post("/api/v1/circle/request",
-                          {"name": "B", "relation": "friend", "phone": "123"},
-                          format="json").json()
-        mid = m["id"]
-        self.client.post(f"/api/v1/circle/request/{mid}/act",
-                       {"event": "accept"}, format="json")
+        mid = self._accepted_member("B", "friend", "123")
         # forbidden plaintext field -> validate_envelope rejects before persist
         bad = self.client.post(f"/api/v1/circle/{mid}/messages",
                             {"content_type": "text", "plaintext": "hi",
@@ -947,12 +959,7 @@ class Module5ApiTests(APITestCase):
         self.assertEqual(CircleMember.objects.get(pk=mid).state, "blocked")
 
     def test_circle_scoped_read_gate(self):
-        m = self.client.post("/api/v1/circle/request",
-                          {"name": "D", "relation": "friend", "phone": "7"},
-                          format="json").json()
-        mid = m["id"]
-        self.client.post(f"/api/v1/circle/request/{mid}/act",
-                       {"event": "accept"}, format="json")
+        mid = self._accepted_member("D", "friend", "7")
         # friend default does NOT share medicines -> 403
         denied = self.client.get(f"/api/v1/circle/{mid}/see/medicines")
         self.assertEqual(denied.status_code, 403)
@@ -973,11 +980,21 @@ class Build61ApiTests(APITestCase):
         self.client.force_authenticate(self.user)
 
     def _accepted_member(self):
+        # Build a real accepted relationship the way the accept flow does:
+        # sender creates an OUTGOING request to a peer account, the RECEIVER
+        # accepts their INCOMING mirror, which converges the sender's row to
+        # accepted. (Senders may not accept their own outgoing request.)
+        peer = User.objects.create_user(name="Ammu", phone="1",
+                                        password="pw-peer-001")
         m = self.client.post("/api/v1/circle/request",
                              {"name": "Ammu", "relation": "mother", "phone": "1"},
                              format="json").json()
-        self.client.post(f"/api/v1/circle/request/{m['id']}/act",
+        from .models import CircleMember
+        incoming = CircleMember.objects.get(user=peer, direction="incoming")
+        self.client.force_authenticate(peer)
+        self.client.post(f"/api/v1/circle/request/{incoming.pk}/act",
                          {"event": "accept"}, format="json")
+        self.client.force_authenticate(self.user)
         return m["id"]
 
     def test_referral_balance_history_redeem(self):
