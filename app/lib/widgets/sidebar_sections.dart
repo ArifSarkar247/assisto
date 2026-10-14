@@ -26,6 +26,8 @@ import '../screens/health_tips_screen.dart';
 import '../screens/vault_screen.dart';
 import '../screens/guide_screen.dart';
 import '../screens/nearby_screen.dart';
+import '../screens/ride_food_screen.dart';
+import '../screens/fall_detect_screen.dart';
 import '../screens/unseen_world_screen.dart';
 import '../screens/dictionary_screen.dart';
 import '../screens/ramadan_screen.dart';
@@ -129,6 +131,9 @@ class SidebarSections {
       SidebarItem(Icons.verified_user_outlined, (t) => t.scamTitle,
           (_) => const ScamScreen(),
           synonyms: ['scam', 'fraud', 'protection']),
+      SidebarItem(Icons.monitor_heart_outlined, (t) => t.fallDetectTitle,
+          (_) => const FallDetectScreen(),
+          synonyms: ['fall', 'fall detection', 'accident', 'elderly safety']),
     ]),
     // 5. Health
     SidebarSection('health', Icons.favorite_outline, (t) => t.sidebarHealth, [
@@ -169,6 +174,9 @@ class SidebarSections {
       SidebarItem(Icons.auto_fix_high_outlined, (t) => t.photoTitle,
           (_) => const PhotoEnhanceScreen(),
           synonyms: ['photo', 'enhance', 'image']),
+      SidebarItem(Icons.directions_car_outlined, (t) => t.rideFoodTitle,
+          (_) => const RideFoodScreen(),
+          synonyms: ['ride', 'food', 'uber', 'pathao', 'foodpanda', 'delivery']),
     ]),
     // 7. Work
     SidebarSection('work', Icons.work_outline, (t) => t.sidebarWork, [

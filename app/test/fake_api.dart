@@ -645,6 +645,68 @@ class FakeApi extends ApiClient {
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
     await _slow();
+    // ===== P14-P16 gap stubs =====
+    if (path == '/analytics/dashboard') {
+      if (mode == FakeMode.fail) _fail();
+      if (mode == FakeMode.empty) {
+        return {
+          'retention': {
+            'd1': {'eligible': 0, 'returned': 0, 'pct': 0.0},
+            'd7': {'eligible': 0, 'returned': 0, 'pct': 0.0},
+            'd30': {'eligible': 0, 'returned': 0, 'pct': 0.0},
+            'new_users': 0,
+          },
+          'invites': {'sent': 0, 'accepted': 0, 'accept_rate_pct': 0.0},
+          'paid_funnel': {
+            'viewed': 0, 'started': 0, 'completed': 0,
+            'view_to_start_pct': 0.0, 'start_to_paid_pct': 0.0, 'view_to_paid_pct': 0.0,
+          },
+          'top_features': <Map<String, dynamic>>[],
+          'total_events': 0,
+        };
+      }
+      return {
+        'retention': {
+          'd1': {'eligible': 120, 'returned': 78, 'pct': 65.0},
+          'd7': {'eligible': 120, 'returned': 48, 'pct': 40.0},
+          'd30': {'eligible': 90, 'returned': 27, 'pct': 30.0},
+          'new_users': 34,
+        },
+        'invites': {'sent': 210, 'accepted': 132, 'accept_rate_pct': 62.9},
+        'paid_funnel': {
+          'viewed': 500, 'started': 180, 'completed': 54,
+          'view_to_start_pct': 36.0, 'start_to_paid_pct': 30.0, 'view_to_paid_pct': 10.8,
+        },
+        'top_features': [
+          {'feature': 'reminders', 'users': 142},
+          {'feature': 'money', 'users': 118},
+          {'feature': 'family', 'users': 73},
+        ],
+        'total_events': 8432,
+      };
+    }
+    if (path.startsWith('/name/about')) {
+      if (mode == FakeMode.fail) _fail();
+      if (mode == FakeMode.empty) return {};
+      return {
+        'name': 'Assisto',
+        'meaning': _bn
+            ? "'Assisto' অর্থ সহায়তা করা — অ্যাপের উদ্দেশ্যকেই তুলে ধরে।"
+            : "'Assisto' means to assist — reflecting the app's purpose.",
+        'classes': [
+          {'class': 9, 'note': _bn ? 'সফটওয়্যার, মোবাইল অ্যাপ' : 'Software, mobile apps'},
+          {'class': 42, 'note': _bn ? 'SaaS, সফটওয়্যার ডেভেলপমেন্ট' : 'SaaS, software development'},
+        ],
+        'checklist': [
+          _bn ? 'BD DPDT ট্রেডমার্ক ডাটাবেসে নামটি সার্চ করুন।' : 'Search the name in the BD DPDT database.',
+          _bn ? 'একজন ট্রেডমার্ক আইনজীবীর সাথে পরামর্শ করুন।' : 'Consult a trademark attorney before filing.',
+        ],
+        'status': _bn ? 'গবেষণা চলমান — ছাড়পত্র দাবি করা হয়নি।' : 'Research pending — no clearance claimed.',
+        'disclaimer': _bn
+            ? 'এটি একটি গবেষণা চেকলিস্ট মাত্র — আইনি ছাড়পত্র নয়।'
+            : 'This is a research checklist only — not legal clearance.',
+      };
+    }
     // ===== Module 5 (P13+) stubs =====
     if (path.startsWith('/health/tips')) {
       if (mode == FakeMode.fail) _fail();

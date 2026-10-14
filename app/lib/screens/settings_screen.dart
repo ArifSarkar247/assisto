@@ -9,6 +9,8 @@ import '../state.dart';
 import '../config.dart';
 import '../models.dart';
 import '../l10n/app_localizations.dart';
+import 'owner_analytics_screen.dart';
+import 'name_about_screen.dart';
 import 'subscriptions_screen.dart';
 import 'battery_guidance_screen.dart';
 import 'in_progress_screen.dart';
@@ -221,6 +223,18 @@ class SettingsScreen extends StatelessWidget {
             title: Text(AppLocalizations.of(context).auditLogTile),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const AuditScreen())),
+          ),
+          ListTile(
+            leading: const Icon(Icons.insights_outlined),
+            title: Text(AppLocalizations.of(context).analyticsTitle),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const OwnerAnalyticsScreen())),
+          ),
+          ListTile(
+            leading: const Icon(Icons.badge_outlined),
+            title: Text(AppLocalizations.of(context).nameAboutTitle),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const NameAboutScreen())),
           ),
           ListTile(
             leading: const Icon(Icons.download_outlined),

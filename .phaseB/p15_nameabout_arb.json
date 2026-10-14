@@ -1,0 +1,15 @@
+{
+  "nameAboutTitle": ["নাম সম্পর্কে", "About the name"],
+  "nameAboutNameLabel": ["অ্যাপের নাম", "App name"],
+  "nameAboutDisclaimerTitle": ["এটি আইনি ছাড়পত্র নয়", "This is not legal clearance"],
+  "nameAboutDisclaimer": ["এই তথ্য শুধুমাত্র জানানোর জন্য—এটি ট্রেডমার্ক ছাড়পত্র বা আইনি পরামর্শ নয়। নাম চূড়ান্ত বা নিবন্ধন করার আগে অবশ্যই একজন ট্রেডমার্ক আইনজীবীর সাথে পরামর্শ করুন।", "This information is for your awareness only — it is not a trademark clearance and not legal advice. Always consult a trademark attorney before finalising or registering the name."],
+  "nameAboutStatusLabel": ["বর্তমান অবস্থা", "Current status"],
+  "nameAboutClassesLabel": ["প্রাসঙ্গিক ট্রেডমার্ক শ্রেণি", "Relevant trademark classes"],
+  "nameAboutClassLabel": ["শ্রেণি {n}", "Class {n}"],
+  "nameAboutChecklistLabel": ["মালিকের করণীয় চেকলিস্ট", "Owner research checklist"],
+  "nameAboutChecklistHint": ["নাম নিশ্চিত করার আগে নিচের ধাপগুলো সম্পন্ন করতে হবে।", "Complete these steps before confirming the name."],
+  "nameAboutErrorTitle": ["তথ্য আনা গেল না", "Couldn't load"],
+  "nameAboutErrorBody": ["সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।", "Check your connection and try again."],
+  "nameAboutEmptyTitle": ["কোনো তথ্য নেই", "Nothing to show"],
+  "nameAboutEmptyBody": ["নাম সম্পর্কিত তথ্য এখনো পাওয়া যায়নি।", "Name information isn't available yet."]
+}

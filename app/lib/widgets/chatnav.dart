@@ -16,6 +16,9 @@ import '../screens/birthdays_screen.dart';
 import '../screens/meetings_screen.dart';
 import '../screens/dictionary_screen.dart';
 import '../screens/ride_food_screen.dart';
+import '../screens/fall_detect_screen.dart';
+import '../screens/owner_analytics_screen.dart';
+import '../screens/name_about_screen.dart';
 import '../screens/ramadan_screen.dart';
 import '../screens/exam_result_screen.dart';
 import '../screens/unseen_world_screen.dart';
@@ -88,6 +91,9 @@ class ChatNav {
     'meetings': (_) => const MeetingsScreen(),
     'dictionary': (_) => const DictionaryScreen(),
     'ride_food': (_) => const RideFoodScreen(),
+    'fall_detect': (_) => const FallDetectScreen(),
+    'analytics': (_) => const OwnerAnalyticsScreen(),
+    'name_about': (_) => const NameAboutScreen(),
     'ramadan': (_) => const RamadanScreen(),
     'exam': (_) => const ExamResultScreen(),
     'unseen': (_) => const UnseenWorldScreen(),

@@ -1,0 +1,36 @@
+{
+  "analyticsTitle":              ["অ্যানালিটিক্স", "Analytics"],
+  "analyticsSubtitle":           ["আমাদের নিজস্ব সার্ভারে হিসাব করা, কোনো বাইরের ট্র্যাকার ছাড়াই", "Computed on our own server, with no third-party trackers"],
+  "analyticsErrorTitle":         ["হিসাব আনা গেল না", "Couldn't load analytics"],
+  "analyticsErrorBody":          ["সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।", "Check your connection and try again."],
+  "analyticsRetry":              ["আবার চেষ্টা করুন", "Try again"],
+  "analyticsOwnerOnlyTitle":     ["শুধু মালিকের জন্য", "Owner only"],
+  "analyticsOwnerOnlyBody":      ["এই ড্যাশবোর্ড শুধু অ্যাপের মালিক দেখতে পারেন।", "This dashboard is only visible to the app owner."],
+  "analyticsEmptyTitle":         ["এখনো কোনো তথ্য নেই", "No data yet"],
+  "analyticsEmptyBody":          ["ব্যবহারকারীরা অ্যাপ ব্যবহার শুরু করলে এখানে হিসাব দেখা যাবে।", "Metrics will appear here once people start using the app."],
+
+  "analyticsRetentionSection":   ["ধরে রাখা (রিটেনশন)", "Retention"],
+  "analyticsRetentionHint":      ["নতুন ব্যবহারকারীদের কত অংশ পরে ফিরে আসে", "Share of new users who came back later"],
+  "analyticsRetentionD1":        ["১ম দিন", "Day 1"],
+  "analyticsRetentionD7":        ["৭ম দিন", "Day 7"],
+  "analyticsRetentionD30":       ["৩০তম দিন", "Day 30"],
+  "analyticsNewUsers":           ["নতুন ব্যবহারকারী", "New users"],
+
+  "analyticsInvitesSection":     ["আমন্ত্রণ", "Invites"],
+  "analyticsInvitesSent":        ["পাঠানো আমন্ত্রণ", "Invites sent"],
+  "analyticsInvitesAccepted":    ["গৃহীত আমন্ত্রণ", "Invites accepted"],
+  "analyticsInvitesRate":        ["গ্রহণের হার", "Acceptance rate"],
+
+  "analyticsFunnelSection":      ["ফ্রি থেকে পেইড ফানেল", "Free to paid funnel"],
+  "analyticsFunnelHint":         ["প্রতিটি ধাপে আলাদা ব্যবহারকারীর সংখ্যা", "Distinct users at each stage"],
+  "analyticsFunnelViewed":       ["প্ল্যান দেখেছেন", "Viewed plans"],
+  "analyticsFunnelStarted":      ["আপগ্রেড শুরু করেছেন", "Started upgrade"],
+  "analyticsFunnelCompleted":    ["পেইড হয়েছেন", "Became paid"],
+  "analyticsViewToPaid":         ["দেখা থেকে পেইড", "Viewed to paid"],
+
+  "analyticsFeaturesSection":    ["জনপ্রিয় ফিচার", "Top features"],
+  "analyticsFeaturesHint":       ["আলাদা ব্যবহারকারীর সংখ্যা অনুযায়ী", "Ranked by distinct users"],
+  "analyticsFeatureUsers":       ["জন ব্যবহারকারী", "users"],
+
+  "analyticsTotalEvents":        ["মোট ইভেন্ট", "Total events"]
+}
