@@ -21,6 +21,12 @@ import '../screens/mess_accounting_screen.dart';
 import '../screens/expense_split_screen.dart';
 import '../screens/samity_screen.dart';
 import '../screens/landlord_tenant_screen.dart';
+import '../screens/blood_donor_screen.dart';
+import '../screens/prepaid_meter_screen.dart';
+import '../screens/qurbani_screen.dart';
+import '../screens/probashi_screen.dart';
+import '../screens/student_corner_screen.dart';
+import '../screens/wedding_events_screen.dart';
 // family & safety (merged per SPEC v2.1 §4)
 import '../screens/family_screen.dart';
 import '../screens/nominee_screen.dart';
@@ -167,6 +173,10 @@ class SidebarSections {
       SidebarItem(Icons.home_work_outlined, (t) => t.rentTitle,
           (_) => const LandlordTenantScreen(),
           synonyms: ['rent', 'landlord', 'tenant', 'bari', 'house rent']),
+      // #193 Prepaid electricity & gas meter tracker.
+      SidebarItem(Icons.electric_meter_outlined, (t) => t.meterTitle,
+          (_) => const PrepaidMeterScreen(),
+          synonyms: ['meter', 'prepaid', 'electricity', 'gas', 'recharge', 'token']),
     ]),
     // 3. Family & Safety — merged per SPEC v2.1 §4 (Family + Safety → one group).
     // Contacts moved OUT to its own "Contacts & Profile" section (item 4).
@@ -197,6 +207,10 @@ class SidebarSections {
           (_) => const DisasterAlertsScreen(),
           synonyms: ['disaster', 'cyclone', 'flood', 'warning', 'earthquake',
               'weather warning']),
+      // #188 Blood-donor network (community registry; donor contact opt-in).
+      SidebarItem(Icons.bloodtype_outlined, (t) => t.bloodTitle,
+          (_) => const BloodDonorScreen(),
+          synonyms: ['blood', 'donor', 'donate', 'blood group', 'rokto']),
     ]),
     // 4. Contacts — single-item section. Profile was REMOVED here (OWNER UI FIX
     // v2 §4–5): Profile is NOT a module, it lives as a card at the top of
@@ -248,6 +262,19 @@ class SidebarSections {
       SidebarItem(Icons.directions_car_outlined, (t) => t.rideFoodTitle,
           (_) => const RideFoodScreen(),
           synonyms: ['ride', 'food', 'uber', 'pathao', 'foodpanda', 'delivery']),
+      // Section-20 life modules (SPEC v2.1 §20) — Daily Life group.
+      SidebarItem(Icons.school_outlined, (t) => t.studentTitle,
+          (_) => const StudentCornerScreen(),
+          synonyms: ['student', 'routine', 'cgpa', 'gpa', 'assignment', 'exam']),
+      SidebarItem(Icons.celebration_outlined, (t) => t.weddingTitle,
+          (_) => const WeddingEventsScreen(),
+          synonyms: ['wedding', 'event', 'guest', 'biye', 'party', 'anniversary']),
+      SidebarItem(Icons.mosque_outlined, (t) => t.qurbaniTitle,
+          (_) => const QurbaniScreen(),
+          synonyms: ['qurbani', 'eid', 'korbani', 'sacrifice', 'animal share']),
+      SidebarItem(Icons.flight_takeoff_outlined, (t) => t.probashiTitle,
+          (_) => const ProbashiScreen(),
+          synonyms: ['probashi', 'expat', 'remittance', 'abroad', 'foreign']),
     ]),
     // 7. Work
     SidebarSection('work', Icons.work_outline, (t) => t.sidebarWork, [

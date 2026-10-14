@@ -25,6 +25,12 @@ import 'package:assisto/screens/messenger/contact_info_screen.dart';
 import 'package:assisto/screens/notification_centre_screen.dart';
 import 'package:assisto/screens/messenger/messenger_profile_screen.dart';
 import 'package:assisto/screens/messenger/contacts_screen.dart';
+import 'package:assisto/screens/blood_donor_screen.dart';
+import 'package:assisto/screens/prepaid_meter_screen.dart';
+import 'package:assisto/screens/qurbani_screen.dart';
+import 'package:assisto/screens/probashi_screen.dart';
+import 'package:assisto/screens/student_corner_screen.dart';
+import 'package:assisto/screens/wedding_events_screen.dart';
 import 'package:assisto/screens/task_manager_screen.dart';
 import 'package:assisto/screens/mess_accounting_screen.dart';
 import 'package:assisto/screens/expense_split_screen.dart';
@@ -221,6 +227,12 @@ void main() {
     'notification_centre': (build: (_) => const NotificationCentreScreen(), mode: FakeMode.data, full: true),
     'msgr_profile': (build: (_) => const MessengerProfileScreen(), mode: FakeMode.data, full: true),
     'contacts': (build: (_) => const ContactsScreen(), mode: FakeMode.data, full: true),
+    'blood': (build: (_) => const BloodDonorScreen(), mode: FakeMode.data, full: true),
+    'meter': (build: (_) => const PrepaidMeterScreen(), mode: FakeMode.data, full: true),
+    'qurbani': (build: (_) => const QurbaniScreen(), mode: FakeMode.data, full: true),
+    'probashi': (build: (_) => const ProbashiScreen(), mode: FakeMode.data, full: true),
+    'student': (build: (_) => const StudentCornerScreen(), mode: FakeMode.data, full: true),
+    'wedding': (build: (_) => const WeddingEventsScreen(), mode: FakeMode.data, full: true),
     'task_mgr': (build: (_) => const TaskManagerScreen(), mode: FakeMode.data, full: true),
     'mess_acct': (build: (_) => const MessAccountingScreen(), mode: FakeMode.data, full: true),
     'expense_split': (build: (_) => const ExpenseSplitScreen(), mode: FakeMode.data, full: true),

@@ -1,0 +1,12 @@
+[watch] run 38619873997
+
+- "The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748"
+build-apk: .github#1
+
+BUILD_OK
+Watching run 38619873997 ...
+Run Build Assisto APK (38619873997) has already completed with 'success'
+APK_URL=https://assisto.asalify.com/dl/PTtP_Bt_eq2lLOsOC58fEqhY/assisto-part7-build83.apk
+VERSION_CODE=83
+SHIP_RESULT=done
+vis=PUBLIC

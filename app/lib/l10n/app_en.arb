@@ -8383,5 +8383,663 @@
     }
   },
   "rentNoArrearsTitle": "No arrears",
-  "rentNoArrearsBody": "Every rent in this window is paid. You're all caught up."
+  "rentNoArrearsBody": "Every rent in this window is paid. You're all caught up.",
+  "bloodTitle": "Blood donors",
+  "bloodWelcomeTitle": "Start your blood-donor list",
+  "bloodWelcomeBody": "Add the blood donors in your family, friends and community — then find them fast by blood group and area when it matters. This is your own list, not a public directory.",
+  "bloodLoadError": "Couldn't load your donor list. Please try again.",
+  "bloodRegisterDonor": "Add donor",
+  "bloodEditDonor": "Edit donor",
+  "bloodSaved": "Saved",
+  "bloodTabRegistry": "List",
+  "bloodTabSearch": "Search",
+  "bloodStatTotal": "Total donors",
+  "bloodStatAvailable": "Available now",
+  "bloodStatEligible": "Eligible now",
+  "bloodDonorName": "Donor's name",
+  "bloodGroupLabel": "Blood group",
+  "bloodAreaLabel": "Area",
+  "bloodAreaHint": "e.g. Mirpur, Dhaka",
+  "bloodLastDonation": "Last donation date",
+  "bloodLastDonationNone": "Not known (optional)",
+  "bloodAvailabilityLabel": "Availability",
+  "bloodAvailable": "Available",
+  "bloodPaused": "Paused",
+  "bloodUnavailable": "Unavailable",
+  "bloodShareContact": "Allow sharing phone number",
+  "bloodShareContactHint": "If off, this donor's number is never shown to anyone in search.",
+  "bloodPhone": "Phone number",
+  "bloodContactHidden": "Contact hidden — donor hasn't shared a number",
+  "bloodEligibleNow": "Eligible now",
+  "bloodHistoryUnknown": "Last donation unknown",
+  "bloodNextEligible": "Next eligible: {date}",
+  "@bloodNextEligible": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      }
+    }
+  },
+  "bloodRestingDays": "{days} days to rest",
+  "@bloodRestingDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "bloodSearchGroup": "Blood group",
+  "bloodAnyGroup": "Any group",
+  "bloodSearchArea": "Search by area",
+  "bloodFilterAvailable": "Available only",
+  "bloodFilterEligible": "Eligible only",
+  "bloodResultCount": "{count} donors found",
+  "@bloodResultCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "bloodNoneFoundTitle": "No donors found",
+  "bloodNoneFoundBody": "Nobody in your list matches this group or area. Change the filters, or add a new donor.",
+  "bloodPrivacyNote": "This is your own / community list. A phone number is shown only when that donor opted in to share it.",
+  "meterTitle": "Prepaid meters",
+  "meterWelcomeTitle": "Add your meters",
+  "meterWelcomeBody": "Add your prepaid electricity or gas meter, jot down each recharge token — and the app estimates when the balance may run out. All figures are estimates from your data; the app buys no token.",
+  "meterLoadError": "Couldn't load your meters. Please try again.",
+  "meterAddMeter": "Add meter",
+  "meterEditMeter": "Edit meter",
+  "meterSaved": "Saved",
+  "meterName": "Meter name",
+  "meterNameHint": "e.g. Home electricity",
+  "meterKindLabel": "Type",
+  "meterKindElec": "Electricity",
+  "meterKindGas": "Gas",
+  "meterCurrentReading": "Current balance",
+  "meterCurrentReadingHint": "What the meter shows now",
+  "meterReadingOptional": "Balance is optional — if left blank, we estimate from the last recharge.",
+  "meterLogRecharge": "Log recharge",
+  "meterRechargeAmount": "Token amount",
+  "meterRechargeDate": "Recharge date",
+  "meterEstBalance": "Estimated balance",
+  "meterStateOk": "OK",
+  "meterStateLow": "Running low",
+  "meterStateEmpty": "Empty",
+  "meterStateUnknown": "Can't estimate",
+  "meterDaysUnknown": "Log more recharges to see an estimate",
+  "meterRanOut": "Balance has run out",
+  "meterRateUnknown": "Usage rate not known yet",
+  "meterHistory": "History",
+  "meterHistoryTitle": "{name} — recharge history",
+  "@meterHistoryTitle": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "meterNoRecharges": "No recharges logged yet.",
+  "meterDeleteTitle": "Delete meter?",
+  "meterDeleteBody": "\"{name}\" and all its recharges will be removed.",
+  "@meterDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "meterTrackerNote": "All figures are estimates from your data — there is no live meter link. The app buys no token and holds no money.",
+  "meterDaysLeft": "About {days} days left",
+  "@meterDaysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "meterRatePerDay": "≈ {rate}/day",
+  "@meterRatePerDay": {
+    "placeholders": {
+      "rate": {
+        "type": "Object"
+      }
+    }
+  },
+  "meterRunsOutOn": "May run out on {date}",
+  "@meterRunsOutOn": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      }
+    }
+  },
+  "meterTotalRecharged": "Recharged {amount} total",
+  "@meterTotalRecharged": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "studentTitle": "Student corner",
+  "studentLoadError": "Couldn't load your data. Check your connection and try again.",
+  "studentWelcomeTitle": "Keep your studies organised",
+  "studentWelcomeBody": "Class routine, assignment and exam dates, CGPA calculator and study goals — all in one place. Add a course to begin.",
+  "studentUntitled": "Untitled",
+  "studentDeleteTitle": "Delete this?",
+  "studentTabRoutine": "Routine",
+  "studentTabTracker": "Tracker",
+  "studentTabCgpa": "CGPA",
+  "studentTabGoals": "Goals",
+  "studentAddPeriod": "Add class",
+  "studentEditPeriod": "Edit class",
+  "studentRoutineEmptyTitle": "No routine yet",
+  "studentRoutineEmptyBody": "Add your weekly classes — they'll be grouped by day and flagged if two overlap.",
+  "studentDayLabel": "Day",
+  "studentSubjectLabel": "Subject",
+  "studentStartLabel": "Start",
+  "studentEndLabel": "End",
+  "studentRoomLabel": "Room (optional)",
+  "studentNoTime": "No time set",
+  "studentDeletePeriodBody": "This class will be removed from your routine.",
+  "studentDaySat": "Saturday",
+  "studentDaySun": "Sunday",
+  "studentDayMon": "Monday",
+  "studentDayTue": "Tuesday",
+  "studentDayWed": "Wednesday",
+  "studentDayThu": "Thursday",
+  "studentDayFri": "Friday",
+  "studentDayOther": "Other",
+  "studentAddAssignment": "Add assignment",
+  "studentEditAssignment": "Edit assignment",
+  "studentTrackerEmptyTitle": "Nothing to track yet",
+  "studentTrackerEmptyBody": "Add assignments or exams with due dates — you'll see clearly what's coming up and what's overdue.",
+  "studentTitleLabel": "Task name",
+  "studentTitleRequired": "Please enter a name",
+  "studentKindAssignment": "Assignment",
+  "studentKindExam": "Exam",
+  "studentNoDue": "No due date",
+  "studentDueToday": "Due today",
+  "studentStateDone": "Done",
+  "studentDeleteAssignmentBody": "This item will be deleted.",
+  "studentOverdueBanner": "{count} overdue",
+  "@studentOverdueBanner": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "studentOverdueDays": "{days}d overdue",
+  "@studentOverdueDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "studentDueInDays": "In {days}d",
+  "@studentDueInDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "studentAddCourse": "Add course",
+  "studentEditCourse": "Edit course",
+  "studentCgpaLabel": "Your CGPA",
+  "studentCgpaNoGrade": "No grade entered yet",
+  "studentCgpaEmptyTitle": "Add your courses",
+  "studentCgpaEmptyBody": "Enter each course's credits and grade — your credit-weighted CGPA is calculated transparently.",
+  "studentCourseTitleLabel": "Course name",
+  "studentCreditLabel": "Credits",
+  "studentCreditInvalid": "Credits must be greater than 0",
+  "studentGradeLabel": "Grade",
+  "studentDeleteCourseBody": "This course will be removed from the calculation.",
+  "studentCourseMath": "{letter} ({point}) × {credit} cr = {contribution}",
+  "@studentCourseMath": {
+    "placeholders": {
+      "contribution": {
+        "type": "Object"
+      },
+      "credit": {
+        "type": "Object"
+      },
+      "letter": {
+        "type": "Object"
+      },
+      "point": {
+        "type": "Object"
+      }
+    }
+  },
+  "studentCourseNoGrade": "{credit} cr · no grade (not counted)",
+  "@studentCourseNoGrade": {
+    "placeholders": {
+      "credit": {
+        "type": "Object"
+      }
+    }
+  },
+  "studentCreditsSummary": "{credits} credits · {band}",
+  "@studentCreditsSummary": {
+    "placeholders": {
+      "band": {
+        "type": "Object"
+      },
+      "credits": {
+        "type": "Object"
+      }
+    }
+  },
+  "studentBandOutstanding": "Outstanding",
+  "studentBandVeryGood": "Very good",
+  "studentBandSatisfactory": "Satisfactory",
+  "studentBandNeedsImprovement": "Needs improvement",
+  "studentFormulaTitle": "How this is calculated",
+  "studentFormulaBody": "CGPA = sum of (grade point × credit) ÷ total credits = {quality} ÷ {credits} = {cgpa}",
+  "@studentFormulaBody": {
+    "placeholders": {
+      "cgpa": {
+        "type": "Object"
+      },
+      "credits": {
+        "type": "Object"
+      },
+      "quality": {
+        "type": "Object"
+      }
+    }
+  },
+  "studentScaleTitle": "Grading scale (Bangladesh 4.00)",
+  "studentScaleSubtitle": "UGC Uniform Grading System",
+  "studentScaleMarks": "Marks (%)",
+  "studentScaleGrade": "Grade",
+  "studentScalePoint": "Point",
+  "studentAddGoal": "Add goal",
+  "studentGoalLabel": "Study goal",
+  "studentGoalsEmptyTitle": "No goals yet",
+  "studentGoalsEmptyBody": "Write small study goals and tick them off — you'll see your progress at a glance.",
+  "studentGoalProgress": "{done}/{total} done",
+  "@studentGoalProgress": {
+    "placeholders": {
+      "done": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "studentDeleteGoalBody": "This goal will be deleted.",
+  "weddingTitle": "Wedding & events",
+  "weddingLoadError": "Couldn't load your data. Check your connection and try again.",
+  "weddingWelcomeTitle": "Plan your big event",
+  "weddingWelcomeBody": "Guest list, budget, task and vendor checklist, and a countdown — all in one place. Set your event date to begin.",
+  "weddingSetEvent": "Set event",
+  "weddingEventNameLabel": "Event name",
+  "weddingNoDate": "Set a date",
+  "weddingDeleteTitle": "Delete this?",
+  "weddingYourEvent": "Your event",
+  "weddingTabOverview": "Overview",
+  "weddingTabGuests": "Guests",
+  "weddingTabBudget": "Budget",
+  "weddingTabTasks": "Tasks",
+  "weddingToday": "Today!",
+  "weddingDone": "Done",
+  "weddingBigDay": "The big day is today!",
+  "weddingDaysToGo": "{days} days to go",
+  "@weddingDaysToGo": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "weddingDaysAgo": "{days} days ago",
+  "@weddingDaysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "weddingSetDatePrompt": "Set the event date",
+  "weddingConfirmedGuests": "Confirmed guests",
+  "weddingExpectedGuests": "Up to {count} expected",
+  "@weddingExpectedGuests": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "weddingOpenTasks": "Open tasks",
+  "weddingNoOverdue": "Nothing overdue",
+  "weddingOverdueTasks": "{count} overdue",
+  "@weddingOverdueTasks": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "weddingBudgetSnapshot": "Budget snapshot",
+  "weddingEstimated": "Estimated",
+  "weddingActual": "Actual",
+  "weddingRemaining": "Remaining",
+  "weddingOverBy": "Over budget by {amount}",
+  "@weddingOverBy": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "weddingNoMoneyNote": "Assisto holds no money — it only adds up the amounts you enter.",
+  "weddingAddGuest": "Add guest",
+  "weddingEditGuest": "Edit guest",
+  "weddingGuestsEmptyTitle": "No guests yet",
+  "weddingGuestsEmptyBody": "Add guests and mark their RSVP (yes/no/maybe) — confirmed head counts help you size the catering.",
+  "weddingGuestNameLabel": "Guest name",
+  "weddingUnnamed": "Unnamed",
+  "weddingNameRequired": "Please enter a name",
+  "weddingDuplicateName": "A guest with this name already exists",
+  "weddingRsvpLabel": "RSVP",
+  "weddingRsvpYes": "Yes",
+  "weddingRsvpNo": "No",
+  "weddingRsvpMaybe": "Maybe",
+  "weddingRsvpInvited": "Invited",
+  "weddingPlusOnesLabel": "Plus ones (count)",
+  "weddingPlusOnes": "+{count} guests",
+  "@weddingPlusOnes": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "weddingDeleteGuestBody": "This guest will be removed from the list.",
+  "weddingAddBudget": "Add budget item",
+  "weddingEditBudget": "Edit budget item",
+  "weddingBudgetEmptyTitle": "No budget yet",
+  "weddingBudgetEmptyBody": "Add categories like venue, food and decor with estimated vs actual costs — you'll get an honest warning if you go over.",
+  "weddingCategoryLabel": "Category",
+  "weddingEstimatedLabel": "Estimated (৳)",
+  "weddingActualLabel": "Actual (৳)",
+  "weddingEstVsAct": "Est {estimated} · actual {actual}",
+  "@weddingEstVsAct": {
+    "placeholders": {
+      "actual": {
+        "type": "Object"
+      },
+      "estimated": {
+        "type": "Object"
+      }
+    }
+  },
+  "weddingRemainingAmt": "{amount} remaining",
+  "@weddingRemainingAmt": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "weddingDeleteBudgetBody": "This budget item will be deleted.",
+  "weddingCatVenue": "Venue / community centre",
+  "weddingCatFood": "Food / catering",
+  "weddingCatDecor": "Decoration / stage",
+  "weddingCatPhotography": "Photography / video",
+  "weddingCatAttire": "Attire / jewellery",
+  "weddingCatGifts": "Gifts / tatto",
+  "weddingCatTransport": "Transport",
+  "weddingCatOther": "Other",
+  "weddingAddTask": "Add task",
+  "weddingEditTask": "Edit task",
+  "weddingTasksEmptyTitle": "No tasks yet",
+  "weddingTasksEmptyBody": "Add what needs doing — vendor bookings, cards, jewellery — with dates, and overdue items are shown honestly.",
+  "weddingTaskTitleLabel": "Task name",
+  "weddingTaskTitleRequired": "Please enter a task name",
+  "weddingVendorLabel": "Vendor (optional)",
+  "weddingUntitledTask": "Untitled task",
+  "weddingNoDue": "No due date",
+  "weddingDueToday": "Due today",
+  "weddingStateDone": "Done",
+  "weddingOverdueDays": "{days}d overdue",
+  "@weddingOverdueDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "weddingDueInDays": "In {days}d",
+  "@weddingDueInDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "weddingOverdueBanner": "{count} overdue",
+  "@weddingOverdueBanner": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "weddingDeleteTaskBody": "This task will be deleted.",
+  "saved": "Saved",
+  "qurbaniTitle": "Qurbani & Eid planner",
+  "qurbaniWelcomeTitle": "Plan your Qurbani",
+  "qurbaniWelcomeBody": "Track the animal, the shareholders and split the cost fairly. The app holds no money — it just makes planning easy.",
+  "qurbaniLoadError": "Could not load your Qurbani plans. Check your connection and try again.",
+  "qurbaniNewPlan": "New plan",
+  "qurbaniEditPlan": "Edit plan",
+  "qurbaniSwitchPlan": "Switch plan",
+  "qurbaniTabAnimal": "Animal & shares",
+  "qurbaniTabMeat": "Meat",
+  "qurbaniTabChecklist": "Checklist",
+  "qurbaniAnimal": "Animal",
+  "qurbaniAnimalCow": "Cow",
+  "qurbaniAnimalBuffalo": "Buffalo",
+  "qurbaniAnimalCamel": "Camel",
+  "qurbaniAnimalGoat": "Goat",
+  "qurbaniAnimalSheep": "Sheep",
+  "qurbaniTotalCost": "Total cost",
+  "qurbaniCostPerShare": "Cost per share",
+  "qurbaniCollected": "Collected",
+  "qurbaniCostRequired": "Please enter the animal's total cost.",
+  "qurbaniTotalSharesLabel": "Total shares",
+  "qurbaniSingleShareNote": "A goat or sheep is one person's full Qurbani — a single share.",
+  "qurbaniSharesTakenOfTotal": "{taken} of {total} shares taken",
+  "@qurbaniSharesTakenOfTotal": {
+    "placeholders": {
+      "taken": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "qurbaniSharesFree": "{n} shares still free",
+  "@qurbaniSharesFree": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "qurbaniAllSharesTaken": "All shares are taken",
+  "qurbaniSharesCount": "{n} shares",
+  "@qurbaniSharesCount": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "qurbaniParticipants": "Shareholders",
+  "qurbaniAddParticipant": "Add shareholder",
+  "qurbaniEditParticipant": "Edit shareholder",
+  "qurbaniParticipantName": "Name",
+  "qurbaniShares": "Shares",
+  "qurbaniNameRequired": "Please enter a name.",
+  "qurbaniNoParticipantsTitle": "No shareholders yet",
+  "qurbaniNoParticipantsBody": "Add the people sharing this Qurbani — the cost splits automatically.",
+  "qurbaniRemoveParticipantTitle": "Remove shareholder?",
+  "qurbaniRemoveParticipantBody": "{name} will be removed from the list. The cost will be re-split among the rest.",
+  "@qurbaniRemoveParticipantBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "qurbaniMeatTitle": "Meat distribution plan",
+  "qurbaniMeatTotal": "Total meat",
+  "qurbaniMeatNotSet": "Not set yet",
+  "qurbaniMeatNeutralNote": "By custom the meat is split three ways — family, relatives and the poor. You can adjust the proportions.",
+  "qurbaniMeatWelcomeTitle": "Set the meat weight",
+  "qurbaniMeatWelcomeBody": "Enter the total kilograms of meat — the app will split it exactly into three parts.",
+  "qurbaniSetMeatWeight": "Set weight",
+  "qurbaniDistributionWeights": "Distribution ratio",
+  "qurbaniPartFamily": "Family",
+  "qurbaniPartRelatives": "Relatives",
+  "qurbaniPartPoor": "The poor",
+  "qurbaniChecklistProgress": "Preparation {pct}% done",
+  "@qurbaniChecklistProgress": {
+    "placeholders": {
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "qurbaniStepAnimalChosen": "Animal chosen",
+  "qurbaniStepSharesFilled": "All shares filled",
+  "qurbaniStepCostCollected": "Everyone's money collected",
+  "qurbaniStepButcherBooked": "Butcher booked",
+  "qurbaniStepStorageReady": "Storage ready",
+  "qurbaniStepDistribution": "Meat distributed",
+  "probashiTitle": "Probashi corner",
+  "probashiLoadError": "Could not load your data. Check your connection and try again.",
+  "probashiTabRemit": "Remittance log",
+  "probashiTabClock": "Clock",
+  "probashiTabDocs": "Documents",
+  "probashiRemitWelcomeTitle": "Keep a log of money sent home",
+  "probashiRemitWelcomeBody": "Each time you send, record the amount, rate and date — the app works out how much reached home. It never sends or holds money.",
+  "probashiLogSend": "Log a send",
+  "probashiEditRemit": "Edit entry",
+  "probashiAmountSent": "Amount sent (foreign currency)",
+  "probashiAmountHelper": "The amount in the currency you sent.",
+  "probashiRate": "Rate (BDT per unit)",
+  "probashiRateHelper": "You enter the rate yourself — the app sets no rate.",
+  "probashiDate": "Date",
+  "probashiPickDate": "Pick date",
+  "probashiAmountRequired": "Please enter the amount sent.",
+  "probashiRateRequired": "Please enter the rate.",
+  "probashiTotals": "Totals",
+  "probashiTotalSent": "Total sent",
+  "probashiTotalReceived": "Total received home",
+  "probashiEffectiveRate": "Effective average rate",
+  "probashiHistory": "Transfer history",
+  "probashiSentReceived": "Sent {amount} → {bdt}",
+  "@probashiSentReceived": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      },
+      "bdt": {
+        "type": "Object"
+      }
+    }
+  },
+  "probashiRateOnDate": "Rate {rate} · {date}",
+  "@probashiRateOnDate": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      },
+      "rate": {
+        "type": "Object"
+      }
+    }
+  },
+  "probashiNeverHolds": "The app sends and holds no money — it only keeps a record of what you sent.",
+  "probashiDeleteRemitTitle": "Delete entry?",
+  "probashiDeleteRemitBody": "This remittance entry will be permanently removed.",
+  "probashiAbroad": "Abroad",
+  "probashiHome": "Home",
+  "probashiSameTime": "Same time in both places",
+  "probashiHomeAhead": "Bangladesh is {h}h ahead",
+  "@probashiHomeAhead": {
+    "placeholders": {
+      "h": {
+        "type": "Object"
+      }
+    }
+  },
+  "probashiHomeBehind": "Bangladesh is {h}h behind",
+  "@probashiHomeBehind": {
+    "placeholders": {
+      "h": {
+        "type": "Object"
+      }
+    }
+  },
+  "probashiAbroadZone": "Abroad time zone",
+  "probashiChangeZone": "Change",
+  "probashiClockNote": "Bangladesh is always UTC+6:00 (no daylight saving). Pick your abroad zone to compare both clocks.",
+  "probashiDocsWelcomeTitle": "Track your important documents",
+  "probashiDocsWelcomeBody": "Record the expiry of your passport, visa, ticket and more — the app shows the days left. Automatic reminders are not wired yet.",
+  "probashiAddDoc": "Add document",
+  "probashiEditDoc": "Edit document",
+  "probashiDocKind": "Kind",
+  "probashiDocLabel": "Label (optional)",
+  "probashiDocLabelHelper": "Leave blank to show the kind's name.",
+  "probashiDocNumber": "Number (optional)",
+  "probashiExpiryDate": "Expiry date",
+  "probashiNoExpiry": "No expiry date set",
+  "probashiDocPassport": "Passport",
+  "probashiDocVisa": "Visa",
+  "probashiDocTicket": "Air ticket",
+  "probashiDocNid": "National ID",
+  "probashiDocWorkPermit": "Work permit",
+  "probashiDocInsurance": "Insurance",
+  "probashiDocOther": "Other",
+  "probashiStatExpired": "Expired",
+  "probashiStatExpiring": "Expiring soon",
+  "probashiStatValid": "Valid",
+  "probashiExpiredAgo": "Expired {n} days ago",
+  "@probashiExpiredAgo": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "probashiExpiresIn": "Expires in {n} days",
+  "@probashiExpiresIn": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "probashiValidDays": "Valid for {n} more days",
+  "@probashiValidDays": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "probashiDocsNote": "You enter the expiry dates; the app only shows the days left. Automatic reminders are not wired yet.",
+  "probashiDeleteDocTitle": "Delete document?",
+  "probashiDeleteDocBody": "This document will be permanently removed from the list."
 }

@@ -787,3 +787,13 @@ NOTHING basic may remain.
 - Gates: en=bn=5552, 997 backend tests OK, analyze 0, lang gate clean, mig 0033. Gallery: ai_knowledge + msg_privacy reviewed (fixed label clipping).
 - ** MILESTONE: all 43 good→advanced (D4-D10) DONE. MASTER ORDER step 5 "nothing basic remains" satisfied for the graded set.**
 - NEXT = Wave E (v2.1-new ~79): Section 14 PA Secretary Mode (23), AI-core additions, Daily-Life additions, standalone modules (task-manager, lost-stolen-phone, call-transcription, mock-interview), Section 20. Then Step 6 (self-hosted SFU+TURN M3 + Telegram sandbox), Step 7 (P14-16 + iOS + FINAL). 13 owner-blocked remain key-gated (mock/sandbox + Integrations wire).
+
+## BUILD 83 — Wave E batch 2 (pushed f66b459) 2026-10-14 — 5 no-key modules
+- #21 Task manager (Work) + Section-20: #182 mess, #183 split, #184 samity, #185 landlord-tenant (My Account). All fully functional (no key). 15 generic collections via type()-built ViewSet family reusing PaCollectionItem (no migration). +76 tests (1200 total). analyze 0, lang gate clean, en=bn=6052.
+- Generic-collection pattern established: new no-key modules just add collection names to GENERIC_COLLECTIONS + sidebar entry. Mechanical integrate.
+
+## WAVE E PROGRESS (running tally)
+- DONE: PA core (6: #103/104/105/108/111/115), batch2 (5: #21/182/183/184/185).
+- IN FLIGHT (batch3, build 84): #188 blood donor, #193 prepaid meter, #190 qurbani, #191 probashi, #192 student corner, #189 wedding.
+- NEXT Wave E: Section-20 remaining (#186 domestic staff, #187 doctor serial[key], #194 area community, #195 AI call[key], #196 widget/watch[native], #197 encrypted backup[key], #198 security checkup, #199 farmer mode, #200 accessibility, #201 trust page); Daily-Life (#29-36 mostly key-gated→mock); Health (#69-72); AI-core (#7/13/14/15/17/18/6 mostly key→mock); standalone (#27/51/79/80/92/130/131/132/144/145/173/171/172); PA key-gated layer (#106/107/109/110/112/113/114/116-125 as mock).
+- Then Step 6 (SFU/TURN M3 + Telegram sandbox), Step 7 (P14-16 + iOS + FINAL), 13 owner-blocked (key-gated mock + Integrations wire).

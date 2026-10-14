@@ -7086,5 +7086,663 @@
     }
   },
   "rentNoArrearsTitle": "কোনো বকেয়া নেই",
-  "rentNoArrearsBody": "এই সময়ের মধ্যে সব ভাড়া পরিশোধিত। সব হালনাগাদ আছে।"
+  "rentNoArrearsBody": "এই সময়ের মধ্যে সব ভাড়া পরিশোধিত। সব হালনাগাদ আছে।",
+  "bloodTitle": "রক্তদাতা নেটওয়ার্ক",
+  "bloodWelcomeTitle": "আপনার রক্তদাতা তালিকা শুরু করুন",
+  "bloodWelcomeBody": "পরিবার, বন্ধু ও কমিউনিটির রক্তদাতাদের এখানে যোগ করুন — জরুরি সময়ে রক্তের গ্রুপ ও এলাকা দিয়ে দ্রুত খুঁজে নিন। এটি আপনার নিজের তালিকা, কোনো পাবলিক ডিরেক্টরি নয়।",
+  "bloodLoadError": "রক্তদাতা তালিকা লোড করা যায়নি। আবার চেষ্টা করুন।",
+  "bloodRegisterDonor": "দাতা যোগ করুন",
+  "bloodEditDonor": "দাতার তথ্য সম্পাদনা",
+  "bloodSaved": "সংরক্ষণ হয়েছে",
+  "bloodTabRegistry": "তালিকা",
+  "bloodTabSearch": "খুঁজুন",
+  "bloodStatTotal": "মোট দাতা",
+  "bloodStatAvailable": "এখন প্রস্তুত",
+  "bloodStatEligible": "দিতে পারবেন",
+  "bloodDonorName": "দাতার নাম",
+  "bloodGroupLabel": "রক্তের গ্রুপ",
+  "bloodAreaLabel": "এলাকা",
+  "bloodAreaHint": "যেমন: মিরপুর, ঢাকা",
+  "bloodLastDonation": "শেষ রক্তদানের তারিখ",
+  "bloodLastDonationNone": "জানা নেই (ঐচ্ছিক)",
+  "bloodAvailabilityLabel": "রক্ত দিতে প্রস্তুত?",
+  "bloodAvailable": "প্রস্তুত",
+  "bloodPaused": "সাময়িক বিরতি",
+  "bloodUnavailable": "এখন নয়",
+  "bloodShareContact": "ফোন নম্বর শেয়ার করতে সম্মতি",
+  "bloodShareContactHint": "চালু না থাকলে খোঁজার সময় কাউকে এই দাতার নম্বর দেখানো হবে না।",
+  "bloodPhone": "ফোন নম্বর",
+  "bloodContactHidden": "যোগাযোগ গোপন — দাতা নম্বর শেয়ার করেননি",
+  "bloodEligibleNow": "এখন দিতে পারবেন",
+  "bloodHistoryUnknown": "শেষ দানের তারিখ অজানা",
+  "bloodNextEligible": "পরবর্তী সম্ভাব্য তারিখ: {date}",
+  "@bloodNextEligible": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      }
+    }
+  },
+  "bloodRestingDays": "আরও {days} দিন বিশ্রাম",
+  "@bloodRestingDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "bloodSearchGroup": "রক্তের গ্রুপ",
+  "bloodAnyGroup": "যেকোনো গ্রুপ",
+  "bloodSearchArea": "এলাকা দিয়ে খুঁজুন",
+  "bloodFilterAvailable": "শুধু প্রস্তুত",
+  "bloodFilterEligible": "শুধু যারা দিতে পারবেন",
+  "bloodResultCount": "{count} জন দাতা পাওয়া গেছে",
+  "@bloodResultCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "bloodNoneFoundTitle": "কোনো দাতা পাওয়া যায়নি",
+  "bloodNoneFoundBody": "এই গ্রুপ বা এলাকার সাথে মেলে এমন কেউ আপনার তালিকায় নেই। ফিল্টার বদলান বা নতুন দাতা যোগ করুন।",
+  "bloodPrivacyNote": "এটি আপনার নিজের/কমিউনিটির তালিকা। ফোন নম্বর শুধু তখনই দেখানো হয় যখন দাতা নিজে শেয়ার করতে সম্মতি দিয়েছেন।",
+  "meterTitle": "প্রিপেইড মিটার",
+  "meterWelcomeTitle": "আপনার মিটার যোগ করুন",
+  "meterWelcomeBody": "বিদ্যুৎ বা গ্যাসের প্রিপেইড মিটার যোগ করুন, রিচার্জ টোকেন লিখে রাখুন — আর অ্যাপ হিসাব করে বলবে ব্যালান্স কবে শেষ হতে পারে। সব হিসাব আপনার দেওয়া তথ্য থেকে অনুমান; অ্যাপ কোনো টোকেন কেনে না।",
+  "meterLoadError": "মিটারের তথ্য লোড করা যায়নি। আবার চেষ্টা করুন।",
+  "meterAddMeter": "মিটার যোগ করুন",
+  "meterEditMeter": "মিটার সম্পাদনা",
+  "meterSaved": "সংরক্ষণ হয়েছে",
+  "meterName": "মিটারের নাম",
+  "meterNameHint": "যেমন: বাসার বিদ্যুৎ",
+  "meterKindLabel": "ধরন",
+  "meterKindElec": "বিদ্যুৎ",
+  "meterKindGas": "গ্যাস",
+  "meterCurrentReading": "বর্তমান ব্যালান্স",
+  "meterCurrentReadingHint": "মিটারে এখন যা দেখাচ্ছে",
+  "meterReadingOptional": "ব্যালান্স ঐচ্ছিক — না দিলে শেষ রিচার্জ থেকে অনুমান করা হবে।",
+  "meterLogRecharge": "রিচার্জ লিখুন",
+  "meterRechargeAmount": "টোকেনের পরিমাণ",
+  "meterRechargeDate": "রিচার্জের তারিখ",
+  "meterEstBalance": "আনুমানিক ব্যালান্স",
+  "meterStateOk": "ঠিক আছে",
+  "meterStateLow": "প্রায় শেষ",
+  "meterStateEmpty": "শেষ",
+  "meterStateUnknown": "অনুমান সম্ভব নয়",
+  "meterDaysUnknown": "আরও রিচার্জ লিখলে অনুমান দেখা যাবে",
+  "meterRanOut": "ব্যালান্স শেষ হয়ে গেছে",
+  "meterRateUnknown": "খরচের হার এখনো অজানা",
+  "meterHistory": "ইতিহাস",
+  "meterHistoryTitle": "{name} — রিচার্জ ইতিহাস",
+  "@meterHistoryTitle": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "meterNoRecharges": "এখনো কোনো রিচার্জ লেখা হয়নি।",
+  "meterDeleteTitle": "মিটার মুছবেন?",
+  "meterDeleteBody": "\"{name}\" এবং এর সব রিচার্জ মুছে যাবে।",
+  "@meterDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "meterTrackerNote": "সব সংখ্যা আপনার দেওয়া তথ্য থেকে অনুমান — কোনো লাইভ মিটার সংযোগ নেই। অ্যাপ টোকেন কেনে না বা টাকা রাখে না।",
+  "meterDaysLeft": "আনুমানিক {days} দিন বাকি",
+  "@meterDaysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "meterRatePerDay": "দৈনিক ≈ {rate}",
+  "@meterRatePerDay": {
+    "placeholders": {
+      "rate": {
+        "type": "Object"
+      }
+    }
+  },
+  "meterRunsOutOn": "শেষ হতে পারে {date}",
+  "@meterRunsOutOn": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      }
+    }
+  },
+  "meterTotalRecharged": "মোট রিচার্জ {amount}",
+  "@meterTotalRecharged": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "studentTitle": "স্টুডেন্ট কর্নার",
+  "studentLoadError": "আপনার তথ্য আনা যায়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "studentWelcomeTitle": "পড়াশোনা গুছিয়ে রাখুন",
+  "studentWelcomeBody": "ক্লাস রুটিন, অ্যাসাইনমেন্ট ও পরীক্ষার তারিখ, সিজিপিএ হিসাব আর পড়ার লক্ষ্য — সব এক জায়গায়। শুরু করতে একটি কোর্স যোগ করুন।",
+  "studentUntitled": "শিরোনামহীন",
+  "studentDeleteTitle": "মুছে ফেলবেন?",
+  "studentTabRoutine": "রুটিন",
+  "studentTabTracker": "ট্র্যাকার",
+  "studentTabCgpa": "সিজিপিএ",
+  "studentTabGoals": "লক্ষ্য",
+  "studentAddPeriod": "ক্লাস যোগ করুন",
+  "studentEditPeriod": "ক্লাস সম্পাদনা",
+  "studentRoutineEmptyTitle": "রুটিন এখনো খালি",
+  "studentRoutineEmptyBody": "সপ্তাহের ক্লাসগুলো যোগ করুন — দিন অনুযায়ী সাজানো থাকবে, সময়ে মিল থাকলে সতর্ক করবে।",
+  "studentDayLabel": "দিন",
+  "studentSubjectLabel": "বিষয়",
+  "studentStartLabel": "শুরু",
+  "studentEndLabel": "শেষ",
+  "studentRoomLabel": "রুম (ঐচ্ছিক)",
+  "studentNoTime": "সময় নেই",
+  "studentDeletePeriodBody": "এই ক্লাসটি রুটিন থেকে মুছে ফেলা হবে।",
+  "studentDaySat": "শনিবার",
+  "studentDaySun": "রবিবার",
+  "studentDayMon": "সোমবার",
+  "studentDayTue": "মঙ্গলবার",
+  "studentDayWed": "বুধবার",
+  "studentDayThu": "বৃহস্পতিবার",
+  "studentDayFri": "শুক্রবার",
+  "studentDayOther": "অন্যান্য",
+  "studentAddAssignment": "অ্যাসাইনমেন্ট যোগ করুন",
+  "studentEditAssignment": "অ্যাসাইনমেন্ট সম্পাদনা",
+  "studentTrackerEmptyTitle": "কোনো কাজ নেই",
+  "studentTrackerEmptyBody": "অ্যাসাইনমেন্ট বা পরীক্ষা তারিখসহ যোগ করুন — কোনটি আগে জমা দিতে হবে আর কোনটির সময় পেরিয়ে গেছে, তা স্পষ্ট দেখাবে।",
+  "studentTitleLabel": "কাজের নাম",
+  "studentTitleRequired": "নাম লিখুন",
+  "studentKindAssignment": "অ্যাসাইনমেন্ট",
+  "studentKindExam": "পরীক্ষা",
+  "studentNoDue": "তারিখ নেই",
+  "studentDueToday": "আজই জমা",
+  "studentStateDone": "সম্পন্ন",
+  "studentDeleteAssignmentBody": "এই কাজটি মুছে ফেলা হবে।",
+  "studentOverdueBanner": "{count}টি কাজের সময় পেরিয়ে গেছে",
+  "@studentOverdueBanner": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "studentOverdueDays": "{days} দিন পেরিয়েছে",
+  "@studentOverdueDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "studentDueInDays": "আর {days} দিন",
+  "@studentDueInDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "studentAddCourse": "কোর্স যোগ করুন",
+  "studentEditCourse": "কোর্স সম্পাদনা",
+  "studentCgpaLabel": "আপনার সিজিপিএ",
+  "studentCgpaNoGrade": "এখনো কোনো গ্রেড দেওয়া হয়নি",
+  "studentCgpaEmptyTitle": "কোর্স যোগ করুন",
+  "studentCgpaEmptyBody": "প্রতিটি কোর্সের ক্রেডিট আর গ্রেড লিখুন — ক্রেডিট-ভারিত সিজিপিএ স্বচ্ছভাবে হিসাব করে দেখাবে।",
+  "studentCourseTitleLabel": "কোর্সের নাম",
+  "studentCreditLabel": "ক্রেডিট",
+  "studentCreditInvalid": "ক্রেডিট ০-এর বেশি হতে হবে",
+  "studentGradeLabel": "গ্রেড",
+  "studentDeleteCourseBody": "এই কোর্সটি হিসাব থেকে মুছে ফেলা হবে।",
+  "studentCourseMath": "{letter} ({point}) × {credit} ক্রেডিট = {contribution}",
+  "@studentCourseMath": {
+    "placeholders": {
+      "contribution": {
+        "type": "Object"
+      },
+      "credit": {
+        "type": "Object"
+      },
+      "letter": {
+        "type": "Object"
+      },
+      "point": {
+        "type": "Object"
+      }
+    }
+  },
+  "studentCourseNoGrade": "{credit} ক্রেডিট · গ্রেড নেই (হিসাবে ধরা হয়নি)",
+  "@studentCourseNoGrade": {
+    "placeholders": {
+      "credit": {
+        "type": "Object"
+      }
+    }
+  },
+  "studentCreditsSummary": "{credits} ক্রেডিট · {band}",
+  "@studentCreditsSummary": {
+    "placeholders": {
+      "band": {
+        "type": "Object"
+      },
+      "credits": {
+        "type": "Object"
+      }
+    }
+  },
+  "studentBandOutstanding": "অসাধারণ",
+  "studentBandVeryGood": "ভালো",
+  "studentBandSatisfactory": "স্বাভাবিক",
+  "studentBandNeedsImprovement": "উন্নতি প্রয়োজন",
+  "studentFormulaTitle": "হিসাবটা যেভাবে",
+  "studentFormulaBody": "সিজিপিএ = (গ্রেড পয়েন্ট × ক্রেডিট)-এর যোগফল ÷ মোট ক্রেডিট = {quality} ÷ {credits} = {cgpa}",
+  "@studentFormulaBody": {
+    "placeholders": {
+      "cgpa": {
+        "type": "Object"
+      },
+      "credits": {
+        "type": "Object"
+      },
+      "quality": {
+        "type": "Object"
+      }
+    }
+  },
+  "studentScaleTitle": "গ্রেডিং স্কেল (বাংলাদেশ ৪.০০)",
+  "studentScaleSubtitle": "ইউজিসি অভিন্ন গ্রেডিং পদ্ধতি",
+  "studentScaleMarks": "নম্বর (%)",
+  "studentScaleGrade": "গ্রেড",
+  "studentScalePoint": "পয়েন্ট",
+  "studentAddGoal": "লক্ষ্য যোগ করুন",
+  "studentGoalLabel": "পড়ার লক্ষ্য",
+  "studentGoalsEmptyTitle": "কোনো লক্ষ্য নেই",
+  "studentGoalsEmptyBody": "ছোট ছোট পড়ার লক্ষ্য লিখে রাখুন আর শেষ হলে টিক দিন — অগ্রগতি চোখের সামনে থাকবে।",
+  "studentGoalProgress": "{done}/{total} সম্পন্ন",
+  "@studentGoalProgress": {
+    "placeholders": {
+      "done": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "studentDeleteGoalBody": "এই লক্ষ্যটি মুছে ফেলা হবে।",
+  "weddingTitle": "বিয়ে ও অনুষ্ঠান",
+  "weddingLoadError": "আপনার তথ্য আনা যায়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "weddingWelcomeTitle": "আপনার অনুষ্ঠান পরিকল্পনা করুন",
+  "weddingWelcomeBody": "অতিথি তালিকা, বাজেট, কাজ ও ভেন্ডরের চেকলিস্ট আর অনুষ্ঠানের দিন গণনা — সব এক জায়গায়। শুরু করতে অনুষ্ঠানের তারিখ দিন।",
+  "weddingSetEvent": "অনুষ্ঠান সেট করুন",
+  "weddingEventNameLabel": "অনুষ্ঠানের নাম",
+  "weddingNoDate": "তারিখ দিন",
+  "weddingDeleteTitle": "মুছে ফেলবেন?",
+  "weddingYourEvent": "আপনার অনুষ্ঠান",
+  "weddingTabOverview": "সংক্ষিপ্ত",
+  "weddingTabGuests": "অতিথি",
+  "weddingTabBudget": "বাজেট",
+  "weddingTabTasks": "কাজ",
+  "weddingToday": "আজ!",
+  "weddingDone": "শেষ",
+  "weddingBigDay": "আজই অনুষ্ঠানের দিন!",
+  "weddingDaysToGo": "আর {days} দিন বাকি",
+  "@weddingDaysToGo": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "weddingDaysAgo": "{days} দিন আগে হয়ে গেছে",
+  "@weddingDaysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "weddingSetDatePrompt": "অনুষ্ঠানের তারিখ দিন",
+  "weddingConfirmedGuests": "নিশ্চিত অতিথি",
+  "weddingExpectedGuests": "সম্ভাব্য {count} জন",
+  "@weddingExpectedGuests": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "weddingOpenTasks": "বাকি কাজ",
+  "weddingNoOverdue": "সময় পেরোনো কিছু নেই",
+  "weddingOverdueTasks": "{count}টি সময় পেরিয়েছে",
+  "@weddingOverdueTasks": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "weddingBudgetSnapshot": "বাজেট সংক্ষেপ",
+  "weddingEstimated": "আনুমানিক",
+  "weddingActual": "প্রকৃত খরচ",
+  "weddingRemaining": "বাকি আছে",
+  "weddingOverBy": "বাজেট {amount} বেশি হয়ে গেছে",
+  "@weddingOverBy": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "weddingNoMoneyNote": "অ্যাসিস্টো কোনো টাকা রাখে না — এটি শুধু আপনার লেখা হিসাব যোগ করে।",
+  "weddingAddGuest": "অতিথি যোগ করুন",
+  "weddingEditGuest": "অতিথি সম্পাদনা",
+  "weddingGuestsEmptyTitle": "কোনো অতিথি নেই",
+  "weddingGuestsEmptyBody": "অতিথিদের যোগ করে তাদের উপস্থিতি (হ্যাঁ/না/হয়তো) চিহ্নিত করুন — নিশ্চিত মাথা গুনে ক্যাটারিং ঠিক করতে পারবেন।",
+  "weddingGuestNameLabel": "অতিথির নাম",
+  "weddingUnnamed": "নামহীন",
+  "weddingNameRequired": "নাম লিখুন",
+  "weddingDuplicateName": "এই নামে একজন অতিথি আগেই আছেন",
+  "weddingRsvpLabel": "উপস্থিতি",
+  "weddingRsvpYes": "আসবেন",
+  "weddingRsvpNo": "আসবেন না",
+  "weddingRsvpMaybe": "হয়তো",
+  "weddingRsvpInvited": "আমন্ত্রিত",
+  "weddingPlusOnesLabel": "সঙ্গে আসবেন (সংখ্যা)",
+  "weddingPlusOnes": "+{count} জন সঙ্গে",
+  "@weddingPlusOnes": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "weddingDeleteGuestBody": "এই অতিথিকে তালিকা থেকে মুছে ফেলা হবে।",
+  "weddingAddBudget": "খরচ যোগ করুন",
+  "weddingEditBudget": "খরচ সম্পাদনা",
+  "weddingBudgetEmptyTitle": "বাজেট খালি",
+  "weddingBudgetEmptyBody": "ভেন্যু, খাবার, সাজসজ্জার মতো খাত ধরে আনুমানিক ও প্রকৃত খরচ লিখুন — বাজেট ছাড়িয়ে গেলে সৎভাবে সতর্ক করবে।",
+  "weddingCategoryLabel": "খাত",
+  "weddingEstimatedLabel": "আনুমানিক (৳)",
+  "weddingActualLabel": "প্রকৃত খরচ (৳)",
+  "weddingEstVsAct": "আনুমানিক {estimated} · প্রকৃত {actual}",
+  "@weddingEstVsAct": {
+    "placeholders": {
+      "actual": {
+        "type": "Object"
+      },
+      "estimated": {
+        "type": "Object"
+      }
+    }
+  },
+  "weddingRemainingAmt": "বাকি {amount}",
+  "@weddingRemainingAmt": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "weddingDeleteBudgetBody": "এই খরচের খাতটি মুছে ফেলা হবে।",
+  "weddingCatVenue": "ভেন্যু / কমিউনিটি সেন্টার",
+  "weddingCatFood": "খাবার / ক্যাটারিং",
+  "weddingCatDecor": "সাজসজ্জা / স্টেজ",
+  "weddingCatPhotography": "ফটোগ্রাফি / ভিডিও",
+  "weddingCatAttire": "পোশাক / গয়না",
+  "weddingCatGifts": "উপহার / তত্ত্ব",
+  "weddingCatTransport": "যাতায়াত",
+  "weddingCatOther": "অন্যান্য",
+  "weddingAddTask": "কাজ যোগ করুন",
+  "weddingEditTask": "কাজ সম্পাদনা",
+  "weddingTasksEmptyTitle": "কোনো কাজ নেই",
+  "weddingTasksEmptyBody": "ভেন্ডর বুকিং, কার্ড ছাপা, গয়না আনা — যা করতে হবে তারিখসহ লিখে রাখুন, সময় পেরোলে সৎভাবে দেখাবে।",
+  "weddingTaskTitleLabel": "কাজের নাম",
+  "weddingTaskTitleRequired": "কাজের নাম লিখুন",
+  "weddingVendorLabel": "ভেন্ডর (ঐচ্ছিক)",
+  "weddingUntitledTask": "শিরোনামহীন কাজ",
+  "weddingNoDue": "তারিখ নেই",
+  "weddingDueToday": "আজই করতে হবে",
+  "weddingStateDone": "সম্পন্ন",
+  "weddingOverdueDays": "{days} দিন পেরিয়েছে",
+  "@weddingOverdueDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "weddingDueInDays": "আর {days} দিন",
+  "@weddingDueInDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "weddingOverdueBanner": "{count}টি কাজের সময় পেরিয়ে গেছে",
+  "@weddingOverdueBanner": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "weddingDeleteTaskBody": "এই কাজটি মুছে ফেলা হবে।",
+  "saved": "সংরক্ষিত হয়েছে",
+  "qurbaniTitle": "কোরবানি ও ঈদ পরিকল্পনা",
+  "qurbaniWelcomeTitle": "কোরবানির পরিকল্পনা শুরু করুন",
+  "qurbaniWelcomeBody": "পশু, অংশীদার ও খরচ ঠিকঠাক ভাগ করে নিন। অ্যাপ কোনো টাকা রাখে না — শুধু হিসাব সহজ করে।",
+  "qurbaniLoadError": "কোরবানির পরিকল্পনা আনা যায়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "qurbaniNewPlan": "নতুন পরিকল্পনা",
+  "qurbaniEditPlan": "পরিকল্পনা সম্পাদনা",
+  "qurbaniSwitchPlan": "পরিকল্পনা বদলান",
+  "qurbaniTabAnimal": "পশু ও অংশ",
+  "qurbaniTabMeat": "মাংস বণ্টন",
+  "qurbaniTabChecklist": "চেকলিস্ট",
+  "qurbaniAnimal": "পশু",
+  "qurbaniAnimalCow": "গরু",
+  "qurbaniAnimalBuffalo": "মহিষ",
+  "qurbaniAnimalCamel": "উট",
+  "qurbaniAnimalGoat": "ছাগল",
+  "qurbaniAnimalSheep": "ভেড়া",
+  "qurbaniTotalCost": "মোট খরচ",
+  "qurbaniCostPerShare": "প্রতি অংশের খরচ",
+  "qurbaniCollected": "জমা হয়েছে",
+  "qurbaniCostRequired": "দয়া করে পশুর মোট খরচ লিখুন।",
+  "qurbaniTotalSharesLabel": "মোট অংশ",
+  "qurbaniSingleShareNote": "ছাগল বা ভেড়া একজনের পূর্ণ কোরবানি — এক অংশ।",
+  "qurbaniSharesTakenOfTotal": "{total} অংশের মধ্যে {taken}টি নেওয়া হয়েছে",
+  "@qurbaniSharesTakenOfTotal": {
+    "placeholders": {
+      "taken": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "qurbaniSharesFree": "{n}টি অংশ বাকি আছে",
+  "@qurbaniSharesFree": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "qurbaniAllSharesTaken": "সব অংশ নেওয়া হয়ে গেছে",
+  "qurbaniSharesCount": "{n}টি অংশ",
+  "@qurbaniSharesCount": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "qurbaniParticipants": "অংশীদার",
+  "qurbaniAddParticipant": "অংশীদার যোগ করুন",
+  "qurbaniEditParticipant": "অংশীদার সম্পাদনা",
+  "qurbaniParticipantName": "নাম",
+  "qurbaniShares": "অংশ",
+  "qurbaniNameRequired": "দয়া করে একটি নাম লিখুন।",
+  "qurbaniNoParticipantsTitle": "এখনো কোনো অংশীদার নেই",
+  "qurbaniNoParticipantsBody": "যারা এই কোরবানিতে অংশ নিচ্ছেন তাদের যোগ করুন — খরচ নিজে থেকেই ভাগ হয়ে যাবে।",
+  "qurbaniRemoveParticipantTitle": "অংশীদার সরাবেন?",
+  "qurbaniRemoveParticipantBody": "{name} কে তালিকা থেকে সরানো হবে। খরচ বাকিদের মধ্যে আবার ভাগ হবে।",
+  "@qurbaniRemoveParticipantBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "qurbaniMeatTitle": "মাংস বণ্টন পরিকল্পনা",
+  "qurbaniMeatTotal": "মোট মাংস",
+  "qurbaniMeatNotSet": "এখনো দেওয়া হয়নি",
+  "qurbaniMeatNeutralNote": "প্রথাগতভাবে মাংস তিন ভাগে ভাগ করা হয় — পরিবার, আত্মীয় ও গরিব-মিসকিন। আপনি অনুপাত বদলাতে পারেন।",
+  "qurbaniMeatWelcomeTitle": "মাংসের ওজন দিন",
+  "qurbaniMeatWelcomeBody": "মোট কত কেজি মাংস হলো তা লিখুন — অ্যাপ তিন ভাগে ঠিকঠাক বণ্টন দেখিয়ে দেবে।",
+  "qurbaniSetMeatWeight": "ওজন দিন",
+  "qurbaniDistributionWeights": "বণ্টনের অনুপাত",
+  "qurbaniPartFamily": "পরিবার",
+  "qurbaniPartRelatives": "আত্মীয়স্বজন",
+  "qurbaniPartPoor": "গরিব-মিসকিন",
+  "qurbaniChecklistProgress": "প্রস্তুতি {pct}% সম্পন্ন",
+  "@qurbaniChecklistProgress": {
+    "placeholders": {
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "qurbaniStepAnimalChosen": "পশু ঠিক করা হয়েছে",
+  "qurbaniStepSharesFilled": "সব অংশীদার যোগ হয়েছে",
+  "qurbaniStepCostCollected": "সবার টাকা জমা হয়েছে",
+  "qurbaniStepButcherBooked": "কসাই ঠিক করা হয়েছে",
+  "qurbaniStepStorageReady": "মাংস রাখার ব্যবস্থা প্রস্তুত",
+  "qurbaniStepDistribution": "মাংস বিলি করা হয়েছে",
+  "probashiTitle": "প্রবাসী কর্নার",
+  "probashiLoadError": "তথ্য আনা যায়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "probashiTabRemit": "রেমিট্যান্স খাতা",
+  "probashiTabClock": "সময়",
+  "probashiTabDocs": "কাগজপত্র",
+  "probashiRemitWelcomeTitle": "দেশে পাঠানো টাকার হিসাব রাখুন",
+  "probashiRemitWelcomeBody": "প্রতিবার পাঠানোর সময় পরিমাণ, রেট ও তারিখ লিখে রাখুন — অ্যাপ দেশে কত টাকা পৌঁছাল তা হিসাব করে দেবে। অ্যাপ কোনো টাকা পাঠায় না বা রাখে না।",
+  "probashiLogSend": "পাঠানো যোগ করুন",
+  "probashiEditRemit": "এন্ট্রি সম্পাদনা",
+  "probashiAmountSent": "পাঠানো পরিমাণ (বিদেশি মুদ্রা)",
+  "probashiAmountHelper": "আপনি যে মুদ্রায় পাঠিয়েছেন তার পরিমাণ।",
+  "probashiRate": "রেট (প্রতি এককে টাকা)",
+  "probashiRateHelper": "আপনি নিজে রেট লেখেন — অ্যাপ কোনো রেট ঠিক করে না।",
+  "probashiDate": "তারিখ",
+  "probashiPickDate": "তারিখ বাছুন",
+  "probashiAmountRequired": "দয়া করে পাঠানো পরিমাণ লিখুন।",
+  "probashiRateRequired": "দয়া করে রেট লিখুন।",
+  "probashiTotals": "মোট হিসাব",
+  "probashiTotalSent": "মোট পাঠানো",
+  "probashiTotalReceived": "দেশে মোট পৌঁছেছে",
+  "probashiEffectiveRate": "গড় কার্যকর রেট",
+  "probashiHistory": "লেনদেনের তালিকা",
+  "probashiSentReceived": "{amount} পাঠানো → {bdt}",
+  "@probashiSentReceived": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      },
+      "bdt": {
+        "type": "Object"
+      }
+    }
+  },
+  "probashiRateOnDate": "রেট {rate} · {date}",
+  "@probashiRateOnDate": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      },
+      "rate": {
+        "type": "Object"
+      }
+    }
+  },
+  "probashiNeverHolds": "অ্যাপ কোনো টাকা পাঠায় না বা রাখে না — এটি শুধু আপনার পাঠানো টাকার হিসাব রাখে।",
+  "probashiDeleteRemitTitle": "এন্ট্রি মুছবেন?",
+  "probashiDeleteRemitBody": "এই রেমিট্যান্স এন্ট্রিটি স্থায়ীভাবে মুছে যাবে।",
+  "probashiAbroad": "প্রবাসে",
+  "probashiHome": "দেশে",
+  "probashiSameTime": "দুই জায়গায় একই সময়",
+  "probashiHomeAhead": "বাংলাদেশ {h} ঘণ্টা এগিয়ে",
+  "@probashiHomeAhead": {
+    "placeholders": {
+      "h": {
+        "type": "Object"
+      }
+    }
+  },
+  "probashiHomeBehind": "বাংলাদেশ {h} ঘণ্টা পিছিয়ে",
+  "@probashiHomeBehind": {
+    "placeholders": {
+      "h": {
+        "type": "Object"
+      }
+    }
+  },
+  "probashiAbroadZone": "প্রবাসের সময় অঞ্চল",
+  "probashiChangeZone": "বদলান",
+  "probashiClockNote": "বাংলাদেশ সবসময় UTC+৬:০০ (ডেলাইট সেভিং নেই)। প্রবাসের অঞ্চল বাছলে দুই ঘড়িই মিলিয়ে দেখানো হবে।",
+  "probashiDocsWelcomeTitle": "জরুরি কাগজপত্রের মেয়াদ দেখুন",
+  "probashiDocsWelcomeBody": "পাসপোর্ট, ভিসা, টিকিট ইত্যাদির মেয়াদ লিখে রাখুন — অ্যাপ দেখাবে আর কত দিন বাকি। স্বয়ংক্রিয় রিমাইন্ডার এখনো চালু নয়।",
+  "probashiAddDoc": "কাগজ যোগ করুন",
+  "probashiEditDoc": "কাগজ সম্পাদনা",
+  "probashiDocKind": "ধরন",
+  "probashiDocLabel": "নাম (ঐচ্ছিক)",
+  "probashiDocLabelHelper": "ফাঁকা রাখলে ধরন অনুযায়ী নাম দেখানো হবে।",
+  "probashiDocNumber": "নম্বর (ঐচ্ছিক)",
+  "probashiExpiryDate": "মেয়াদ শেষের তারিখ",
+  "probashiNoExpiry": "মেয়াদের তারিখ দেওয়া নেই",
+  "probashiDocPassport": "পাসপোর্ট",
+  "probashiDocVisa": "ভিসা",
+  "probashiDocTicket": "বিমান টিকিট",
+  "probashiDocNid": "জাতীয় পরিচয়পত্র",
+  "probashiDocWorkPermit": "ওয়ার্ক পারমিট",
+  "probashiDocInsurance": "বিমা",
+  "probashiDocOther": "অন্যান্য",
+  "probashiStatExpired": "মেয়াদোত্তীর্ণ",
+  "probashiStatExpiring": "শীঘ্রই শেষ",
+  "probashiStatValid": "বৈধ",
+  "probashiExpiredAgo": "{n} দিন আগে মেয়াদ শেষ",
+  "@probashiExpiredAgo": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "probashiExpiresIn": "{n} দিনে মেয়াদ শেষ",
+  "@probashiExpiresIn": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "probashiValidDays": "আরও {n} দিন বৈধ",
+  "@probashiValidDays": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "probashiDocsNote": "মেয়াদের তারিখ আপনি লেখেন; অ্যাপ শুধু কত দিন বাকি তা দেখায়। স্বয়ংক্রিয় রিমাইন্ডার এখনো চালু নয়।",
+  "probashiDeleteDocTitle": "কাগজ মুছবেন?",
+  "probashiDeleteDocBody": "এই কাগজটি তালিকা থেকে স্থায়ীভাবে মুছে যাবে।"
 }

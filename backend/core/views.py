@@ -1833,6 +1833,18 @@ GENERIC_COLLECTIONS = [
     "samity_groups", "samity_members", "samity_contributions", "samity_payouts",
     # #185 Landlord-tenant
     "rent_units", "rent_payments",
+    # #188 Blood-donor network
+    "blood/donors",
+    # #193 Prepaid meter
+    "meter/meters", "meter/recharges",
+    # #190 Qurbani & Eid
+    "qurbani/plans", "qurbani/participants",
+    # #191 Probashi corner
+    "probashi/remittances", "probashi/docs",
+    # #192 Student corner
+    "student/routine", "student/assignments", "student/courses", "student/goals",
+    # #189 Wedding & events
+    "wedding/event", "wedding/guests", "wedding/budget", "wedding/tasks",
 ]
 GENERIC_COLLECTION_VIEWSETS = {
     name: type(

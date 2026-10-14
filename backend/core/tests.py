@@ -821,6 +821,17 @@ AgentStudioSnippetTests = _make_snippet_case(
 # hashtags/emoji, share intent. Key-free; never auto-posts.
 SocialComposeSnippetTests = _make_snippet_case(
     "core.logic.social_tests_snippets", "SocialComposeSnippetTests")
+# Qurbani & Eid planner (#190, §20) — deterministic share/cost math (no drift),
+# three-part meat distribution (traditional split, neutral), checklist progress.
+# Pure, holds no money/animal. Mirror of app/lib/screens/qurbani_screen.dart.
+QurbaniSnippetTests = _make_snippet_case(
+    "core.logic.qurbani_tests_snippets", "QurbaniSnippetTests")
+# Probashi corner (#191, §20) — remittance log totals/effective-rate,
+# deterministic time-zone pair (time passed in, no live clock), document
+# expiry from a passed-in today (reminder seam documented, not wired). Pure,
+# holds no money. Mirror of app/lib/screens/probashi_screen.dart.
+ProbashiSnippetTests = _make_snippet_case(
+    "core.logic.probashi_tests_snippets", "ProbashiSnippetTests")
 # In-chat AI helper (#97, §21) — deterministic MOCK summarise-thread /
 # translate-message / adjust-tone. Key-free, honest marker on every result;
 # translate honestly needs the key-gated route and never fabricates a
@@ -840,6 +851,15 @@ MessAccountingSnippetTests = _make_snippet_case(
     "core.logic.mess_accounting_tests_snippets", "MessAccountingSnippetTests")
 ExpenseSplitSnippetTests = _make_snippet_case(
     "core.logic.expense_split_tests_snippets", "ExpenseSplitSnippetTests")
+# Blood-donor network (#188, §20) + Electricity & gas prepaid-meter tracker
+# (#193, §20) — pure deterministic eligibility date-math / privacy-safe donor
+# search + integer-poisha consumption projection & low-balance warning. No DB,
+# no AI, no external key, no money-holding. Conservative donor-contact opt-in.
+# Mirrors app/lib/screens/blood_donor_screen.dart + prepaid_meter_screen.dart.
+BloodDonorSnippetTests = _make_snippet_case(
+    "core.logic.blood_donor_tests_snippets", "BloodDonorSnippetTests")
+PrepaidMeterSnippetTests = _make_snippet_case(
+    "core.logic.prepaid_meter_tests_snippets", "PrepaidMeterSnippetTests")
 # Payment / auto-pay ladder (advanced §21) — deterministic escalation engine for
 # receivables (chase dues) + payables (bill/EMI reminders). Never holds money,
 # never auto-charges; `pay_key` is gated on a licensed payment key.
@@ -939,6 +959,17 @@ SamitySnippetTests = _make_snippet_case(
     "core.logic.samity_tests_snippets", "SamitySnippetTests")
 LandlordTenantSnippetTests = _make_snippet_case(
     "core.logic.landlord_tenant_tests_snippets", "LandlordTenantSnippetTests")
+# Student corner (#192, §20) + Wedding & events (#189, §20) — pure deterministic
+# tools: credit-weighted CGPA on the UGC Bangladeshi 4.00 scale (transparent
+# per-course math, F counts in credits), class-routine grouping with honest
+# overlap flags, assignment/task overdue from a passed-in `now`, event-budget
+# estimated-vs-actual with an honest over-budget warning (integer poisha), guest
+# RSVP head-count, and a reproducible countdown. No DB/AI/clock; holds no money.
+# Persist via generic owned collections (see .phaseB/up_studwed_integration.md).
+StudentCornerSnippetTests = _make_snippet_case(
+    "core.logic.student_corner_tests_snippets", "StudentCornerSnippetTests")
+WeddingEventsSnippetTests = _make_snippet_case(
+    "core.logic.wedding_events_tests_snippets", "WeddingEventsSnippetTests")
 
 
 # ---------------------------------------------------------------------------
