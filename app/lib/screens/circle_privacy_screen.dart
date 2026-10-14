@@ -31,6 +31,7 @@ class CirclePrivacyScreen extends StatefulWidget {
 
 class _CirclePrivacyScreenState extends State<CirclePrivacyScreen> {
   bool _loading = true;
+  bool _errored = false; // honest state: a load failure isn't shown as "saved"
   bool _dirty = false;
 
   // Visibility policy per field (everyone / family / nobody).
@@ -59,6 +60,10 @@ class _CirclePrivacyScreenState extends State<CirclePrivacyScreen> {
   AppLocalizations get _t => AppLocalizations.of(context);
 
   Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _errored = false;
+    });
     try {
       final r = await _api.getJson('/circle/privacy');
       final vis = (r['visibility'] as Map?)?.cast<String, dynamic>() ?? {};
@@ -74,7 +79,10 @@ class _CirclePrivacyScreenState extends State<CirclePrivacyScreen> {
       _dndStart = _parseTime('${cp['dnd_start'] ?? '22:00'}', _dndStart);
       _dndEnd = _parseTime('${cp['dnd_end'] ?? '07:00'}', _dndEnd);
     } catch (_) {
-      // keep safe defaults
+      // HONEST state (§21): show an error + Retry. We must NOT silently present
+      // the safe defaults as if they were the owner's real saved policy — that
+      // could mislead them into thinking a stricter setting is already active.
+      _errored = true;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -106,12 +114,54 @@ class _CirclePrivacyScreenState extends State<CirclePrivacyScreen> {
     };
     try {
       await _api.postJson('/circle/privacy', body);
-    } catch (_) {}
+    } catch (_) {
+      // HONEST error (§21): never claim "saved" when it wasn't. Keep the form
+      // dirty so the user can retry the save.
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(_t.circlePrivacySaveFailed)));
+      }
+      return;
+    }
     if (mounted) {
       setState(() => _dirty = false);
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(_t.circlePrivacySaved)));
     }
+  }
+
+  /// Confirm-gate (§21) before switching INTO a restrictive incoming-call
+  /// policy from `everyone` — nobody/chosen/relations mean calls can be missed.
+  Future<void> _onCallPolicyChanged(String v) async {
+    final restrictive = v == CirclePrivacyCodes.callsNobody ||
+        v == CirclePrivacyCodes.callsChosen ||
+        v == CirclePrivacyCodes.callsRelations;
+    final tighteningFromEveryone =
+        restrictive && _callPolicy == CirclePrivacyCodes.callsEveryone;
+    if (tighteningFromEveryone) {
+      final body = v == CirclePrivacyCodes.callsNobody
+          ? _t.circleCallNobodyConfirm
+          : _t.circleCallRestrictConfirm;
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(_t.circlePrivacyIncomingCalls),
+          content: Text(body),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(_t.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(_t.circlePrivacyConfirm),
+            ),
+          ],
+        ),
+      );
+      if (ok != true) return;
+    }
+    _mark(() => _callPolicy = v);
   }
 
   void _mark(VoidCallback change) => setState(() {
@@ -132,7 +182,32 @@ class _CirclePrivacyScreenState extends State<CirclePrivacyScreen> {
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : ListView(
+          : _errored
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(Gap.xxl),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.cloud_off_outlined,
+                            size: 48, color: scheme.outline),
+                        const SizedBox(height: Gap.md),
+                        Text(
+                          _t.circlePrivacyLoadFailed,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: scheme.onSurfaceVariant),
+                        ),
+                        const SizedBox(height: Gap.lg),
+                        FilledButton.tonalIcon(
+                          onPressed: _load,
+                          icon: const Icon(Icons.refresh),
+                          label: Text(_t.retry),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : ListView(
               padding: const EdgeInsets.only(bottom: Gap.xxl),
               children: [
                 _sectionHeader(_t.circlePrivacyWhoCanSee, scheme),
@@ -162,7 +237,7 @@ class _CirclePrivacyScreenState extends State<CirclePrivacyScreen> {
                 _sectionHeader(_t.circlePrivacyIncomingCalls, scheme),
                 CircleCallPolicySelector(
                   value: _callPolicy,
-                  onChanged: (v) => _mark(() => _callPolicy = v),
+                  onChanged: _onCallPolicyChanged,
                 ),
                 const Divider(),
                 _sectionHeader(_t.circlePrivacyDnd, scheme),

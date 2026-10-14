@@ -169,22 +169,26 @@ def upgrade_prompt(lang="bn"):
 # accepts / declines; either side may hang up.  Terminal states carry an outcome
 # used by call history (missed / answered / declined / canceled / failed).
 
-CALL_RINGING = "ringing"        # offer sent, awaiting answer
-CALL_CONNECTING = "connecting"  # answered, media negotiating
-CALL_ACTIVE = "active"          # media flowing
-CALL_ENDED = "ended"            # normal hang-up after being active
-CALL_MISSED = "missed"          # callee never answered (rang out)
-CALL_DECLINED = "declined"      # callee actively declined
-CALL_CANCELED = "canceled"      # caller hung up before answer
-CALL_FAILED = "failed"          # transport/negotiation failure
+CALL_RINGING = "ringing"          # offer sent, awaiting answer
+CALL_CONNECTING = "connecting"    # answered, media negotiating
+CALL_ACTIVE = "active"            # media flowing
+CALL_RECONNECTING = "reconnecting"  # media dropped mid-call, ICE restarting
+CALL_ENDED = "ended"              # normal hang-up after being active
+CALL_MISSED = "missed"            # callee never answered (rang out)
+CALL_DECLINED = "declined"        # callee actively declined
+CALL_CANCELED = "canceled"        # caller hung up before answer
+CALL_FAILED = "failed"            # transport/negotiation failure
 
 CALL_STATES = {
-    CALL_RINGING, CALL_CONNECTING, CALL_ACTIVE, CALL_ENDED,
+    CALL_RINGING, CALL_CONNECTING, CALL_ACTIVE, CALL_RECONNECTING, CALL_ENDED,
     CALL_MISSED, CALL_DECLINED, CALL_CANCELED, CALL_FAILED,
 }
 _TERMINAL = {CALL_ENDED, CALL_MISSED, CALL_DECLINED, CALL_CANCELED, CALL_FAILED}
 
 # current -> {event: next}.  Events name an actor action or a timeout.
+#   reconnect -> media dropped; the client restarts ICE while the call stays up
+#                (duration keeps counting from answered_at).
+#   connected -> media recovered, back to active.
 _CALL_TRANSITIONS = {
     CALL_RINGING: {
         "answer": CALL_CONNECTING,
@@ -199,8 +203,14 @@ _CALL_TRANSITIONS = {
         "fail": CALL_FAILED,
     },
     CALL_ACTIVE: {
+        "reconnect": CALL_RECONNECTING,  # ICE dropped mid-call
         "hangup": CALL_ENDED,
         "fail": CALL_FAILED,
+    },
+    CALL_RECONNECTING: {
+        "connected": CALL_ACTIVE,        # media recovered
+        "hangup": CALL_ENDED,
+        "fail": CALL_FAILED,             # gave up reconnecting
     },
 }
 
@@ -217,6 +227,29 @@ def apply_call_event(state, event):
 
 def is_terminal(state):
     return state in _TERMINAL
+
+
+def is_connected(state):
+    """Media is (or was momentarily) flowing — the duration clock runs here."""
+    return state in (CALL_ACTIVE, CALL_RECONNECTING)
+
+
+def live_status_label(state, outgoing, lang="bn"):
+    """Localized status line for the IN-CALL screen (non-history).  Covers every
+    live-flow state the UI must render: ringing/connecting/active/reconnecting/
+    ended/failed.  History rows use call_outcome_label() instead."""
+    if state == CALL_RINGING:
+        return pick(lang, "রিং হচ্ছে…", "Ringing…") if outgoing \
+            else pick(lang, "ইনকামিং কল", "Incoming call")
+    if state == CALL_CONNECTING:
+        return pick(lang, "সংযোগ হচ্ছে…", "Connecting…")
+    if state == CALL_ACTIVE:
+        return pick(lang, "কথা হচ্ছে", "Connected")
+    if state == CALL_RECONNECTING:
+        return pick(lang, "আবার সংযোগ হচ্ছে…", "Reconnecting…")
+    if state == CALL_FAILED:
+        return pick(lang, "কল ব্যর্থ হয়েছে", "Call failed")
+    return pick(lang, "কল শেষ", "Call ended")
 
 
 def is_missed(state):

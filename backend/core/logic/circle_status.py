@@ -557,6 +557,81 @@ def remaining_label(status, now=None, lang="bn"):
 
 
 # ---------------------------------------------------------------------------
+# Reviewer-pass (§21): conservative default + HONEST tray state
+# ---------------------------------------------------------------------------
+# §21 requires: a conservative privacy default, a viewer list that respects
+# privacy, and HONEST states (a load error is never silently shown as "empty").
+
+def conservative_default_visibility():
+    """A STRICTER default than `default_visibility()` for first-time posters who
+    have not yet chosen an audience: FAMILY ONLY.  A status is personal; the
+    reviewer-pass rule is "status limited" by default.  The composer offers the
+    full everyone/family/chosen/except choice, but the pre-selected safe option
+    is family-only so nothing ever over-shares on a tap-through.  Pure; the
+    existing `default_visibility()` (circle) is left untouched for callers that
+    rely on it."""
+    return {"mode": AUD_FAMILY, "allow_ids": [], "except_ids": []}
+
+
+# Honest tray states — the UI renders exactly one of these; an ERROR is NEVER
+# conflated with EMPTY (the silent-empty-on-failure anti-pattern §21 forbids).
+TRAY_LOADING = "loading"
+TRAY_ERROR = "error"
+TRAY_EMPTY = "empty"
+TRAY_READY = "ready"
+
+
+def tray_state(entries, loaded=True, errored=False):
+    """Resolve the honest tray state the status screen must render.
+
+      errored     -> TRAY_ERROR  (show message + Retry; NOT "no updates")
+      not loaded  -> TRAY_LOADING
+      no entries  -> TRAY_EMPTY   (honest: genuinely nothing to show)
+      otherwise   -> TRAY_READY
+    """
+    if errored:
+        return TRAY_ERROR
+    if not loaded:
+        return TRAY_LOADING
+    if not (entries or []):
+        return TRAY_EMPTY
+    return TRAY_READY
+
+
+def tray_state_label(state, lang="bn"):
+    """Localized copy for an honest tray state (error/empty)."""
+    labels = {
+        TRAY_ERROR: ("স্ট্যাটাস লোড করা যায়নি।", "Couldn’t load updates."),
+        TRAY_EMPTY: ("এখনও কোনো নতুন আপডেট নেই।", "No recent updates yet."),
+        TRAY_LOADING: ("লোড হচ্ছে…", "Loading…"),
+        TRAY_READY: ("", ""),
+    }
+    bn, en = labels.get(state, labels[TRAY_EMPTY])
+    return pick(lang, bn, en)
+
+
+def expired_notice(lang="bn"):
+    """Honest copy for a viewer that opened a status which has since expired —
+    never a blank black screen, never stale content."""
+    return pick(lang, "এই স্ট্যাটাসের মেয়াদ শেষ হয়ে গেছে।",
+                "This status has expired.")
+
+
+def mute_confirm(author_name="", lang="bn"):
+    """Confirm-gate copy before muting an author's status (a reversible but
+    surprising action — §21 wants a confirm on anything a user may not expect).
+    The author is never notified; say so honestly."""
+    name = (author_name or "").strip()
+    if name:
+        bn = f"{name}-এর স্ট্যাটাস আর আপনার ট্রেতে দেখাবে না। তাদের জানানো হবে না।"
+        en = f"{name}’s status will stop showing in your tray. They won’t be told."
+    else:
+        bn = "এই ব্যক্তির স্ট্যাটাস আর আপনার ট্রেতে দেখাবে না। তাদের জানানো হবে না।"
+        en = "This person’s status will stop showing in your tray. They won’t be told."
+    return pick(lang, bn, en)
+
+
+# ---------------------------------------------------------------------------
 # helpers
 # ---------------------------------------------------------------------------
 

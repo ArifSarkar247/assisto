@@ -2397,3 +2397,25 @@ class AdminFlagState(models.Model):
     state = models.JSONField(default=dict, blank=True)     # {flag_id: bool}
     audit = models.JSONField(default=list, blank=True)     # [{flag, old, new, ...}]
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class ChatOrganiseState(models.Model):
+    """#87 CHAT ORGANISE (SPEC v2.1 §21) — PER-USER per-chat pin/archive/mute.
+    The viewer's own organisation; it never leaks to or affects the peer and
+    carries NO message content (E2E ciphertext-only preserved). All enforcement
+    (pin cap, archive-clears-pin, mute expiry) runs via core.logic.msg_organise;
+    this row just persists the result so organise survives a reload / new device.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="chat_organise")
+    chat_kind = models.CharField(max_length=16, default="member")  # member|group|community|channel
+    chat_id = models.CharField(max_length=64)                      # opaque chat ref
+    pinned = models.BooleanField(default=False)
+    pin_at = models.DateTimeField(null=True, blank=True)
+    archived = models.BooleanField(default=False)
+    mute_until = models.DateTimeField(null=True, blank=True)       # null + muted marker == "always"
+    muted_duration = models.CharField(max_length=8, null=True, blank=True)  # 8h|1w|always
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("user", "chat_kind", "chat_id")

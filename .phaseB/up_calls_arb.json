@@ -1,0 +1,13 @@
+{
+  "_comment": "Connected Circle CALLS reviewer-pass to Section-21 advanced (features #89 voice / #90 video). bn+en pairs for the integrator to fold into app_bn.arb / app_en.arb then run gen-l10n. NO parameterized keys here: the live call duration is rendered client-side as digit-only mm:ss / h:mm:ss (no localizable string). All keys are NEW (the live-state labels circleCallRinging/Incoming/Connecting/Active/Ended already exist in the ARB and are reused unchanged).",
+
+  "circleCallReconnecting":   ["আবার সংযোগ হচ্ছে…", "Reconnecting…"],
+  "circleCallFailed":         ["কল ব্যর্থ হয়েছে", "Call failed"],
+  "circleCallRetry":          ["আবার চেষ্টা করুন", "Try again"],
+
+  "circleCallRelayConnected": ["সংযোগ হয়েছে (রিলে)", "Media connected (relay)"],
+  "circleCallRelayDropped":   ["সংযোগ পড়ে গেছে", "Media dropped"],
+  "circleCallRelayFailed":    ["সংযোগ ব্যর্থ", "Media failed"],
+
+  "_params": {}
+}

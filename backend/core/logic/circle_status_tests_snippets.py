@@ -282,6 +282,45 @@ def test_labels_bilingual():
     assert ST.kind_label(ST.STATUS_VIDEO, "en") == "Video"
 
 
+# ---- reviewer-pass (§21): conservative default + honest tray state ----
+
+def test_conservative_default_is_family():
+    d = ST.conservative_default_visibility()
+    assert d["mode"] == ST.AUD_FAMILY
+    assert d["allow_ids"] == [] and d["except_ids"] == []
+    # the original circle default is left untouched
+    assert ST.default_visibility()["mode"] == ST.AUD_EVERYONE
+
+
+def test_tray_state_error_not_conflated_with_empty():
+    # a load error is NEVER shown as "empty"
+    assert ST.tray_state([], loaded=True, errored=True) == ST.TRAY_ERROR
+    assert ST.tray_state([], loaded=False) == ST.TRAY_LOADING
+    assert ST.tray_state([], loaded=True) == ST.TRAY_EMPTY
+    assert ST.tray_state([{"author_id": 2}], loaded=True) == ST.TRAY_READY
+    # error wins even if entries somehow present
+    assert ST.tray_state([{"author_id": 2}], errored=True) == ST.TRAY_ERROR
+
+
+def test_tray_state_label_bilingual():
+    assert ST.tray_state_label(ST.TRAY_ERROR, "en").startswith("Couldn")
+    assert "আপডেট" in ST.tray_state_label(ST.TRAY_EMPTY, "bn")
+    assert ST.tray_state_label(ST.TRAY_READY, "en") == ""
+
+
+def test_expired_notice_bilingual():
+    assert ST.expired_notice("en") == "This status has expired."
+    assert "মেয়াদ" in ST.expired_notice("bn")
+
+
+def test_mute_confirm_names_author_and_promises_silence():
+    msg = ST.mute_confirm("Rafi", "en")
+    assert "Rafi" in msg and "won’t be told" in msg
+    assert "Rafi" in ST.mute_confirm("Rafi", "bn")
+    # no name -> generic, still honest about not notifying
+    assert "won’t be told" in ST.mute_confirm("", "en")
+
+
 def run_all():
     import inspect
     fns = [v for k, v in sorted(globals().items())

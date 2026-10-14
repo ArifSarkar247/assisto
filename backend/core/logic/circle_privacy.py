@@ -491,6 +491,63 @@ def mute_label(duration, lang="bn"):
 
 
 # ---------------------------------------------------------------------------
+# Reviewer-pass (§21): conservative call default, honest load state, confirm gate
+# ---------------------------------------------------------------------------
+# §21 requires conservative defaults (the owner's phone number / reachability is
+# private by default), an HONEST load state (a settings fetch failure is NEVER
+# shown as if the defaults were the user's real saved choice), and a confirm gate
+# on a destructive choice ("Nobody can call me" means every call is missed).
+
+def call_policy_label_hint(policy, lang="bn"):
+    """A one-line HONEST consequence hint under each call-policy option, so the
+    owner understands what they are choosing (not just the label)."""
+    hints = {
+        CALLS_EVERYONE: ("আপনার সার্কেলের যেকেউ কল করতে পারবেন।",
+                         "Anyone in your circle can call you."),
+        CALLS_CHOSEN: ("শুধু নির্বাচিত ব্যক্তিরা কল করতে পারবেন।",
+                       "Only people you choose can call you."),
+        CALLS_RELATIONS: ("শুধু নির্বাচিত সম্পর্কের লোক কল করতে পারবেন।",
+                          "Only chosen relationships can call you."),
+        CALLS_NOBODY: ("কেউ কল করতে পারবেন না; সব কল মিসড হিসেবে জমা হবে।",
+                       "No one can call you; every call is logged as missed."),
+    }
+    bn, en = hints.get(policy, hints[CALLS_EVERYONE])
+    return pick(lang, bn, en)
+
+
+def call_policy_is_restrictive(policy):
+    """True for a policy that could cause the owner to MISS calls they expect
+    (nobody / chosen / relations).  The UI shows a confirm gate before saving a
+    switch INTO one of these from `everyone`."""
+    return normalize_call_privacy({"policy": policy})["policy"] in (
+        CALLS_NOBODY, CALLS_CHOSEN, CALLS_RELATIONS)
+
+
+def call_policy_confirm(policy, lang="bn"):
+    """Confirm-gate copy before committing a restrictive incoming-call policy.
+    Returns None for a non-restrictive policy (no gate needed)."""
+    pol = normalize_call_privacy({"policy": policy})["policy"]
+    if not call_policy_is_restrictive(pol):
+        return None
+    if pol == CALLS_NOBODY:
+        return pick(lang,
+                    "কেউ আপনাকে কল করতে পারবেন না। পরিবারও নয়। নিশ্চিত?",
+                    "No one will be able to call you — not even family. Are you sure?")
+    return pick(lang,
+                "শুধু আপনার বেছে নেওয়া লোকজনই কল করতে পারবেন। বাকি কল মিসড হবে। নিশ্চিত?",
+                "Only the people you pick can call you; the rest are missed. Are you sure?")
+
+
+def privacy_load_failed_notice(lang="bn"):
+    """Honest copy when the privacy settings could not be loaded.  The screen
+    shows this + a Retry instead of pretending the safe defaults are the owner's
+    real saved choices (which could mislead them into thinking a stricter policy
+    is active than really is)."""
+    return pick(lang, "সেটিংস লোড করা যায়নি। আবার চেষ্টা করুন।",
+                "Couldn’t load your settings. Please retry.")
+
+
+# ---------------------------------------------------------------------------
 # helpers
 # ---------------------------------------------------------------------------
 

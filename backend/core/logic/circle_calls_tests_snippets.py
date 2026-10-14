@@ -207,6 +207,54 @@ def test_ice_config_turn_gated():
     assert len(cfg2["iceServers"]) == 2
 
 
+# ---- reconnecting state (Section-21 advanced call-flow) ----
+
+def test_call_fsm_reconnect_path():
+    # active -> reconnect -> reconnecting, then recover back to active.
+    s, ch = CC.apply_call_event(CC.CALL_ACTIVE, "reconnect")
+    assert s == CC.CALL_RECONNECTING and ch is True
+    s, ch = CC.apply_call_event(CC.CALL_RECONNECTING, "connected")
+    assert s == CC.CALL_ACTIVE and ch is True
+
+
+def test_call_fsm_reconnect_then_fail_or_hangup():
+    assert CC.apply_call_event(CC.CALL_RECONNECTING, "fail")[0] == CC.CALL_FAILED
+    assert CC.apply_call_event(CC.CALL_RECONNECTING, "hangup")[0] == CC.CALL_ENDED
+
+
+def test_reconnecting_not_terminal_but_connected():
+    assert CC.is_terminal(CC.CALL_RECONNECTING) is False
+    assert CC.is_connected(CC.CALL_RECONNECTING) is True
+    assert CC.is_connected(CC.CALL_ACTIVE) is True
+    assert CC.is_connected(CC.CALL_RINGING) is False
+
+
+def test_duration_survives_reconnect():
+    t0 = datetime(2026, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
+    rec = CC.new_call_record("c1", 1, 2, "voice", started_at=t0)
+    rec = CC.finalize_call(rec, "answer", at=t0 + timedelta(seconds=2))
+    rec = CC.finalize_call(rec, "connected", at=t0 + timedelta(seconds=3))
+    rec = CC.finalize_call(rec, "reconnect", at=t0 + timedelta(seconds=20))
+    assert rec["state"] == CC.CALL_RECONNECTING
+    rec = CC.finalize_call(rec, "connected", at=t0 + timedelta(seconds=25))
+    rec = CC.finalize_call(rec, "hangup", at=t0 + timedelta(seconds=62))
+    assert rec["state"] == CC.CALL_ENDED
+    # duration from answered_at (t0+2) to end (t0+62) = 60s, unbroken.
+    assert rec["duration_sec"] == 60
+
+
+def test_live_status_label_covers_all_states():
+    for st in (CC.CALL_RINGING, CC.CALL_CONNECTING, CC.CALL_ACTIVE,
+               CC.CALL_RECONNECTING, CC.CALL_FAILED, CC.CALL_ENDED):
+        bn = CC.live_status_label(st, outgoing=True, lang="bn")
+        en = CC.live_status_label(st, outgoing=True, lang="en")
+        assert bn and en and bn != en
+    # incoming ringing differs from outgoing ringing
+    out = CC.live_status_label(CC.CALL_RINGING, outgoing=True, lang="en")
+    inc = CC.live_status_label(CC.CALL_RINGING, outgoing=False, lang="en")
+    assert out != inc and "Incoming" in inc
+
+
 def run_all():
     import inspect
     fns = [v for k, v in sorted(globals().items())

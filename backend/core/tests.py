@@ -796,6 +796,10 @@ CircleCallsSnippetTests = _make_snippet_case(
     "core.logic.circle_calls_tests_snippets", "CircleCallsSnippetTests")
 CirclePrivacySnippetTests = _make_snippet_case(
     "core.logic.circle_privacy_tests_snippets", "CirclePrivacySnippetTests")
+# Status / Stories (#88, §21) — per-viewer visibility, 24h expiry, viewer list
+# (reciprocal receipts), honest tray/expired states, conservative default.
+CircleStatusSnippetTests = _make_snippet_case(
+    "core.logic.circle_status_tests_snippets", "CircleStatusSnippetTests")
 ReferralSnippetTests = _make_snippet_case(
     "core.logic.referral_tests_snippets", "ReferralSnippetTests")
 SafetyJourneySnippetTests = _make_snippet_case(
@@ -852,6 +856,11 @@ FamilySharingSnippetTests = _make_snippet_case(
 # clock, no money; the owner/superuser console classifies every flip through it.
 AdminFlagsSnippetTests = _make_snippet_case(
     "core.logic.admin_flags_tests_snippets", "AdminFlagsSnippetTests")
+# Messenger chat-organise + message-action gates (reviewer-pass #86/#87, §21) —
+# pure pin-cap/ordering, archive partition, duration-mute expiry, honest chat
+# search state, and the edit/delete-scope/forward-hop gates. No DB, no AI.
+MsgOrganiseSnippetTests = _make_snippet_case(
+    "core.logic.msg_organise_tests_snippets", "MsgOrganiseSnippetTests")
 
 
 # ---------------------------------------------------------------------------

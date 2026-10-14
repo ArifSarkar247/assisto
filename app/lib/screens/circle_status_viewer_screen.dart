@@ -233,6 +233,35 @@ class _CircleStatusViewerScreenState extends State<CircleStatusViewerScreen> {
   }
 
   Future<void> _mute() async {
+    // Confirm gate (§21): muting is surprising — gate it, and be honest that the
+    // author is never notified. Pause the auto-advance while the dialog is open.
+    _advance?.cancel();
+    setState(() => _paused = true);
+    final s = AppLocalizations.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(s.statusMute),
+        content: Text(s.statusMuteConfirm(widget.authorName)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(s.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(s.statusMute),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) {
+      if (mounted) {
+        setState(() => _paused = false);
+        _scheduleAdvance();
+      }
+      return;
+    }
     try {
       await _api.muteStatusAuthor(widget.authorId, on: true);
     } catch (_) {}

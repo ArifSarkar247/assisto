@@ -33,12 +33,19 @@ class MsgrHubChatList extends StatefulWidget {
 }
 
 class _MsgrHubChatListState extends State<MsgrHubChatList> {
+  // Pin cap — mirrors msg_organise.PIN_CAP_PER_USER (server-enforced).
+  static const int _pinCap = 5;
+
   bool _loading = true;
   String _query = '';
 
   /// Active filter: a built-in id ('all'|'unread'|'favourites'|'groups') or a
   /// custom list id prefixed 'list:'.
   String _filter = 'all';
+
+  /// When true the list shows the ARCHIVED chats (an unarchive view) instead of
+  /// the active list. Toggled from the "Archived (n)" banner.
+  bool _showArchived = false;
 
   List<Map<String, dynamic>> _chats = [];
   List<Map<String, dynamic>> _lists = [];
@@ -102,13 +109,28 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     }
   }
 
-  List<Map<String, dynamic>> get _visible {
+  bool _isArchived(Map<String, dynamic> c) => c['archived'] == true;
+  bool _isPinned(Map<String, dynamic> c) => c['pinned'] == true;
+  int _pinnedCount() => _chats.where(_isPinned).length;
+
+  String _foldedQuery() {
     var q = _query.trim().toLowerCase();
     // "Ask Assisto" prefix → strip it; the remaining text filters the list
     // (the agent handoff lands later — we never dead-end the tap).
     if (q.startsWith('ask assisto')) q = q.substring('ask assisto'.length).trim();
+    return q;
+  }
 
-    var list = _chats.where(_matchesFilter).toList();
+  /// The chats visible in the CURRENT view (active vs archived), after the
+  /// filter chip + the search query, ordered with pinned chats floated to the
+  /// top (by pin time) then the rest by recent activity — mirrors
+  /// msg_organise.order_chat_list.
+  List<Map<String, dynamic>> get _visible {
+    final q = _foldedQuery();
+    var list = _chats
+        .where((c) => _isArchived(c) == _showArchived)
+        .where(_matchesFilter)
+        .toList();
     if (q.isNotEmpty) {
       list = list.where((c) {
         final name = '${_memberOf(c)['name'] ?? ''}'.toLowerCase();
@@ -116,16 +138,40 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
         return name.contains(q) || last.contains(q);
       }).toList();
     }
-    list.sort((a, b) {
+
+    int activityCmp(Map<String, dynamic> a, Map<String, dynamic> b) {
       final ta = DateTime.tryParse('${a['at'] ?? ''}');
       final tb = DateTime.tryParse('${b['at'] ?? ''}');
       if (ta == null && tb == null) return 0;
       if (ta == null) return 1;
       if (tb == null) return -1;
       return tb.compareTo(ta);
-    });
-    return list;
+    }
+
+    // Pinning is disabled in the archived view (a chat can't be both).
+    if (_showArchived) {
+      list.sort(activityCmp);
+      return list;
+    }
+    final pinned = list.where(_isPinned).toList()
+      ..sort((a, b) {
+        final pa = DateTime.tryParse('${a['pin_at'] ?? ''}');
+        final pb = DateTime.tryParse('${b['pin_at'] ?? ''}');
+        if (pa == null && pb == null) return 0;
+        if (pa == null) return 1; // unknown pin time sinks below known ones
+        if (pb == null) return -1;
+        return pa.compareTo(pb); // earliest-pinned at the very top
+      });
+    final rest = list.where((c) => !_isPinned(c)).toList()..sort(activityCmp);
+    return [...pinned, ...rest];
   }
+
+  int get _archivedCount => _chats.where(_isArchived).length;
+
+  /// True when the user is actively searching but nothing matched — drives a
+  /// no-results state distinct from an empty list (mirrors the server
+  /// msg_organise.search_chats 'no_results' state).
+  bool get _isNoResults => _foldedQuery().isNotEmpty && _visible.isEmpty;
 
   void _openChat(Map<String, dynamic> c) {
     final identity = widget.identity;
@@ -139,16 +185,176 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
         .then((_) => _load());
   }
 
+  // -------------------------------------------------------------------------
+  // Chat organise (#87): pin / archive / mute — per-row long-press sheet.
+  // Every action updates optimistically then posts; a failure keeps the honest
+  // local state and never crashes (offline-safe, like the rest of the hub).
+  // -------------------------------------------------------------------------
+  int? _chatId(Map<String, dynamic> c) =>
+      (c['id'] is int) ? c['id'] as int : int.tryParse('${c['id'] ?? ''}');
+
+  Future<void> _togglePin(Map<String, dynamic> c) async {
+    final pinning = !_isPinned(c);
+    if (pinning && _pinnedCount() >= _pinCap) {
+      _toast(_t.msgrChatPinLimit);
+      return;
+    }
+    setState(() {
+      c['pinned'] = pinning;
+      c['pin_at'] = pinning ? DateTime.now().toUtc().toIso8601String() : null;
+    });
+    final id = _chatId(c);
+    if (id == null) return;
+    try {
+      await _api.postJson('messenger/chats/$id/pin', {'pinned': pinning});
+    } catch (_) {}
+  }
+
+  Future<void> _toggleArchive(Map<String, dynamic> c) async {
+    final archiving = !_isArchived(c);
+    setState(() {
+      c['archived'] = archiving;
+      if (archiving) {
+        c['pinned'] = false; // a chat can't be both pinned-to-top and archived
+        c['pin_at'] = null;
+      }
+    });
+    _toast(archiving ? _t.msgrChatArchived : _t.msgrChatUnarchived);
+    final id = _chatId(c);
+    if (id == null) return;
+    try {
+      await _api.postJson('messenger/chats/$id/archive', {'archived': archiving});
+    } catch (_) {}
+  }
+
+  Future<void> _muteChat(Map<String, dynamic> c) async {
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) {
+        final t = _t;
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xs),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(t.msgrChatMute,
+                      style: Theme.of(ctx).textTheme.titleMedium),
+                ),
+              ),
+              ListTile(title: Text(t.msgrChatMute8h), onTap: () => Navigator.pop(ctx, '8h')),
+              ListTile(title: Text(t.msgrChatMute1w), onTap: () => Navigator.pop(ctx, '1w')),
+              ListTile(title: Text(t.msgrChatMuteAlways), onTap: () => Navigator.pop(ctx, 'always')),
+            ],
+          ),
+        );
+      },
+    );
+    if (choice == null || !mounted) return;
+    setState(() => c['muted'] = true);
+    _toast(_t.msgrChatMuted);
+    final id = _chatId(c);
+    if (id == null) return;
+    try {
+      await _api.postJson('messenger/chats/$id/mute', {'duration': choice});
+    } catch (_) {}
+  }
+
+  Future<void> _unmuteChat(Map<String, dynamic> c) async {
+    setState(() => c['muted'] = false);
+    _toast(_t.msgrChatUnmuted);
+    final id = _chatId(c);
+    if (id == null) return;
+    try {
+      await _api.postJson('messenger/chats/$id/mute', {'duration': 'off'});
+    } catch (_) {}
+  }
+
+  Future<void> _markRead(Map<String, dynamic> c) async {
+    setState(() => c['unread'] = 0);
+    final id = _chatId(c);
+    if (id == null) return;
+    try {
+      await _api.postJson('messenger/chats/$id/read');
+    } catch (_) {}
+  }
+
+  void _toast(String msg) => ScaffoldMessenger.of(context)
+      .showSnackBar(SnackBar(content: Text(msg)));
+
+  Future<void> _organiseSheet(Map<String, dynamic> c) async {
+    final t = _t;
+    final muted = c['muted'] == true;
+    final pinned = _isPinned(c);
+    final archived = _isArchived(c);
+    final unread = (c['unread'] as int?) ?? 0;
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!archived)
+              ListTile(
+                leading: Icon(pinned ? Icons.push_pin : Icons.push_pin_outlined),
+                title: Text(pinned ? t.msgrChatUnpin : t.msgrChatPin),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _togglePin(c);
+                },
+              ),
+            if (!archived)
+              ListTile(
+                leading: Icon(muted
+                    ? Icons.notifications_active_outlined
+                    : Icons.notifications_off_outlined),
+                title: Text(muted ? t.msgrChatUnmute : t.msgrChatMute),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  muted ? _unmuteChat(c) : _muteChat(c);
+                },
+              ),
+            if (unread > 0 && !archived)
+              ListTile(
+                leading: const Icon(Icons.mark_chat_read_outlined),
+                title: Text(t.msgrChatMarkRead),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _markRead(c);
+                },
+              ),
+            ListTile(
+              leading: Icon(
+                  archived ? Icons.unarchive_outlined : Icons.archive_outlined),
+              title: Text(archived ? t.msgrChatUnarchive : t.msgrChatArchive),
+              onTap: () {
+                Navigator.pop(ctx);
+                _toggleArchive(c);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_loading) return const Center(child: CircularProgressIndicator());
     final visible = _visible;
     return Column(children: [
       _searchBar(),
-      _chipsRow(),
+      if (!_showArchived) _chipsRow(),
+      if (_showArchived) _archivedHeader(),
+      if (!_showArchived && _foldedQuery().isEmpty && _archivedCount > 0)
+        _archivedBanner(),
       Expanded(
         child: visible.isEmpty
-            ? _empty()
+            ? (_isNoResults ? _noResults() : _empty())
             : RefreshIndicator(
                 onRefresh: _load,
                 child: ListView.separated(
@@ -158,6 +364,66 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
                   itemBuilder: (_, i) => _row(visible[i]),
                 ),
               ),
+      ),
+    ]);
+  }
+
+  /// The archived-view header: a back affordance + title (the user is inside
+  /// the archived list, not the main one).
+  Widget _archivedHeader() {
+    final t = _t;
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
+      child: ListTile(
+        dense: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+          onPressed: () => setState(() => _showArchived = false),
+        ),
+        title: Text(t.msgrChatArchivedTitle,
+            style: Theme.of(context).textTheme.titleMedium),
+      ),
+    );
+  }
+
+  /// The "Archived (n)" banner on the main list that opens the archived view.
+  Widget _archivedBanner() {
+    final scheme = Theme.of(context).colorScheme;
+    return InkWell(
+      onTap: () => setState(() => _showArchived = true),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: 12),
+        child: Row(children: [
+          Icon(Icons.archive_outlined, size: 20, color: scheme.onSurfaceVariant),
+          const SizedBox(width: Gap.md),
+          Expanded(
+            child: Text(_t.msgrChatArchived,
+                style: const TextStyle(fontWeight: FontWeight.w600)),
+          ),
+          _CountPill(count: _archivedCount),
+        ]),
+      ),
+    );
+  }
+
+  Widget _noResults() {
+    final scheme = Theme.of(context).colorScheme;
+    final t = _t;
+    return ListView(children: [
+      const SizedBox(height: 72),
+      Icon(Icons.search_off_outlined,
+          size: 56, color: scheme.primary.withValues(alpha: 0.7)),
+      const SizedBox(height: Gap.md),
+      Center(
+        child: Text(t.msgrChatSearchNoResultsTitle,
+            style: Theme.of(context).textTheme.titleMedium),
+      ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(Gap.xl, Gap.sm, Gap.xl, 0),
+        child: Text(t.msgrChatSearchNoResultsBody,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
       ),
     ]);
   }
@@ -207,18 +473,21 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
   Widget _empty() {
     final scheme = Theme.of(context).colorScheme;
     final t = _t;
+    final archived = _showArchived;
     return ListView(children: [
       const SizedBox(height: 72),
-      Icon(Icons.forum_outlined,
+      Icon(archived ? Icons.archive_outlined : Icons.forum_outlined,
           size: 56, color: scheme.primary.withValues(alpha: 0.7)),
       const SizedBox(height: Gap.md),
       Center(
-        child: Text(t.msgrChatsEmptyTitle,
+        child: Text(
+            archived ? t.msgrChatArchivedEmptyTitle : t.msgrChatsEmptyTitle,
             style: Theme.of(context).textTheme.titleMedium),
       ),
       Padding(
         padding: const EdgeInsets.fromLTRB(Gap.xl, Gap.sm, Gap.xl, 0),
-        child: Text(t.msgrChatsEmptyBody,
+        child: Text(
+            archived ? t.msgrChatArchivedEmptyBody : t.msgrChatsEmptyBody,
             textAlign: TextAlign.center,
             style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
       ),
@@ -232,9 +501,12 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     final name = '${m['name'] ?? ''}';
     final unread = (c['unread'] as int?) ?? 0;
     final preview = '${c['last_text'] ?? ''}';
+    final pinned = _isPinned(c);
+    final muted = c['muted'] == true;
 
     return InkWell(
       onTap: () => _openChat(c),
+      onLongPress: () => _organiseSheet(c),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: 10),
         child: Row(children: [
@@ -263,6 +535,19 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
               ],
             ),
           ),
+          // Trailing cluster: mute + pin glyphs, then the unread badge. Each is
+          // an honest state reflection of the chat's organise flags.
+          if (muted)
+            Padding(
+              padding: const EdgeInsets.only(left: Gap.sm),
+              child: Icon(Icons.notifications_off,
+                  size: 16, color: scheme.onSurfaceVariant),
+            ),
+          if (pinned)
+            Padding(
+              padding: const EdgeInsets.only(left: Gap.xs),
+              child: Icon(Icons.push_pin, size: 16, color: scheme.primary),
+            ),
           if (unread > 0)
             Padding(
               padding: const EdgeInsets.only(left: Gap.sm),
@@ -271,6 +556,43 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
         ]),
       ),
     );
+  }
+}
+
+/// A neutral count pill (archived count) — brand-neutral surface, our own glyph.
+class _CountPill extends StatelessWidget {
+  final int count;
+  const _CountPill({required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final bn = Localizations.localeOf(context).languageCode == 'bn';
+    final label = _bn(count > 99 ? '99+' : '$count', bn);
+    return Container(
+      constraints: const BoxConstraints(minWidth: 20),
+      height: 20,
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      decoration: BoxDecoration(
+          color: scheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(Radii.pill)),
+      alignment: Alignment.center,
+      child: Text(label,
+          style: TextStyle(
+              color: scheme.onSurfaceVariant,
+              fontSize: 11,
+              fontWeight: FontWeight.w700)),
+    );
+  }
+
+  String _bn(String ascii, bool bn) {
+    if (!bn) return ascii;
+    const bnZero = 0x09E6;
+    final b = StringBuffer();
+    for (final cu in ascii.codeUnits) {
+      b.writeCharCode(cu >= 0x30 && cu <= 0x39 ? bnZero + (cu - 0x30) : cu);
+    }
+    return b.toString();
   }
 }
 

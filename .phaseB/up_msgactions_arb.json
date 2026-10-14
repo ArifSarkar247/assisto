@@ -1,0 +1,21 @@
+{
+  "msgrMsgDeleteMeConfirm": ["এই মেসেজটি শুধু আপনার কাছ থেকে মুছে যাবে; অন্যজনের কাছে থেকে যাবে।", "This message is removed just for you; the other person still keeps it."],
+  "msgrMsgDeleteEveryoneConfirm": ["এই মেসেজটি দু'দিক থেকেই মুছে যাবে — এটি আর ফেরানো যাবে না।", "This message is removed for everyone — this cannot be undone."],
+  "msgrMsgDeletedMe": ["আপনার কাছ থেকে মেসেজ মুছে ফেলা হয়েছে।", "Message removed for you."],
+  "msgrMsgDeletedEveryone": ["সবার কাছ থেকে মেসেজ মুছে ফেলা হয়েছে।", "Message removed for everyone."],
+  "msgrChatPin": ["চ্যাট পিন করুন", "Pin chat"],
+  "msgrChatUnpin": ["পিন সরান", "Unpin chat"],
+  "msgrChatPinLimit": ["সর্বোচ্চ ৫টি চ্যাট পিন করা যায়। আগে একটি পিন সরান।", "You can pin up to 5 chats. Unpin one first."],
+  "msgrChatArchive": ["আর্কাইভ করুন", "Archive"],
+  "msgrChatUnarchive": ["আর্কাইভ থেকে ফেরান", "Unarchive"],
+  "msgrChatArchived": ["আর্কাইভ করা", "Archived"],
+  "msgrChatUnarchived": ["চ্যাট আর্কাইভ থেকে ফেরানো হয়েছে।", "Chat restored from archive."],
+  "msgrChatArchivedTitle": ["আর্কাইভ করা চ্যাট", "Archived chats"],
+  "msgrChatArchivedEmptyTitle": ["কোনো আর্কাইভ করা চ্যাট নেই", "No archived chats"],
+  "msgrChatArchivedEmptyBody": ["যে চ্যাটগুলো আপনি আর্কাইভ করবেন সেগুলো এখানে দেখা যাবে।", "Chats you archive will show up here."],
+  "msgrChatUnmute": ["আনমিউট করুন", "Unmute"],
+  "msgrChatUnmuted": ["এই চ্যাট আনমিউট করা হয়েছে।", "This chat is unmuted."],
+  "msgrChatMarkRead": ["পঠিত হিসেবে চিহ্নিত করুন", "Mark as read"],
+  "msgrChatSearchNoResultsTitle": ["কিছু পাওয়া যায়নি", "Nothing found"],
+  "msgrChatSearchNoResultsBody": ["অন্য নাম বা শব্দ দিয়ে আবার খুঁজে দেখুন।", "Try searching with a different name or word."]
+}

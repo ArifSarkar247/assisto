@@ -267,6 +267,11 @@ urlpatterns = [
     path("unseen", m5.UnseenView.as_view()),
     # Connected Circle
     path("circle/members", m5.CircleMembersView.as_view()),
+    # #87 Chat organise (per-user pin/archive/mute/read)
+    path("messenger/chats/<int:pk>/pin", m5.ChatPinView.as_view()),
+    path("messenger/chats/<int:pk>/archive", m5.ChatArchiveView.as_view()),
+    path("messenger/chats/<int:pk>/mute", m5.ChatMuteView.as_view()),
+    path("messenger/chats/<int:pk>/read", m5.ChatReadView.as_view()),
     path("circle/requests", m5.CircleRequestsView.as_view()),
     path("circle/keys", m5.CircleKeysView.as_view()),
     path("circle/request", m5.CircleRequestCreateView.as_view()),

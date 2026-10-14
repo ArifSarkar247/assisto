@@ -385,11 +385,48 @@ class _CircleChatScreenState extends State<CircleChatScreen> {
         });
         break;
       case CircleMsgAction.deleteMe:
-        await _delete(m, 'me');
+        await _confirmAndDelete(m, 'me');
         break;
       case CircleMsgAction.deleteEveryone:
-        await _delete(m, 'everyone');
+        await _confirmAndDelete(m, 'everyone');
         break;
+    }
+  }
+
+  /// Confirm gate for a single-message delete (reviewer-pass #86: every
+  /// destructive action confirms). 'everyone' is the stronger, irreversible
+  /// tombstone — it uses the danger-coloured confirm + its own copy.
+  Future<void> _confirmAndDelete(CircleMessage m, String scope) async {
+    final everyone = scope == 'everyone';
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(everyone
+            ? _t.circleActionDeleteEveryone
+            : _t.circleActionDeleteMe),
+        content: Text(everyone
+            ? _t.msgrMsgDeleteEveryoneConfirm
+            : _t.msgrMsgDeleteMeConfirm),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(_t.cancel)),
+          FilledButton(
+            style: everyone
+                ? FilledButton.styleFrom(
+                    backgroundColor: Theme.of(ctx).colorScheme.error,
+                    foregroundColor: Theme.of(ctx).colorScheme.onError)
+                : null,
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(_t.delete),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    await _delete(m, scope);
+    if (mounted) {
+      _toast(everyone ? _t.msgrMsgDeletedEveryone : _t.msgrMsgDeletedMe);
     }
   }
 

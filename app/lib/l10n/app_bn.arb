@@ -5940,5 +5940,45 @@
   "grpMediaCached": "ডিভাইসে সংরক্ষিত",
   "grpMediaDownloadAgain": "আবার ডাউনলোড করুন",
   "circleActionDownload": "ডাউনলোড করুন",
-  "circleMediaSavingSoon": "এনক্রিপ্টেড স্টোরেজ চালু হলে সংরক্ষণ করা যাবে।"
+  "circleMediaSavingSoon": "এনক্রিপ্টেড স্টোরেজ চালু হলে সংরক্ষণ করা যাবে।",
+  "circleCallReconnecting": "আবার সংযোগ হচ্ছে…",
+  "circleCallFailed": "কল ব্যর্থ হয়েছে",
+  "circleCallRetry": "আবার চেষ্টা করুন",
+  "circleCallRelayConnected": "সংযোগ হয়েছে (রিলে)",
+  "circleCallRelayDropped": "সংযোগ পড়ে গেছে",
+  "circleCallRelayFailed": "সংযোগ ব্যর্থ",
+  "statusLoadFailed": "স্ট্যাটাস লোড করা যায়নি।",
+  "statusPostFailed": "স্ট্যাটাস পোস্ট করা যায়নি। আবার চেষ্টা করুন।",
+  "statusMuteConfirm": "{name}-এর স্ট্যাটাস আর আপনার ট্রেতে দেখাবে না। তাদের জানানো হবে না।",
+  "@statusMuteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "circlePrivacyLoadFailed": "সেটিংস লোড করা যায়নি। আবার চেষ্টা করুন।",
+  "circlePrivacySaveFailed": "সেভ করা যায়নি। আবার চেষ্টা করুন।",
+  "circlePrivacyConfirm": "নিশ্চিত করুন",
+  "circleCallNobodyConfirm": "কেউ আপনাকে কল করতে পারবেন না। পরিবারও নয়। সব কল মিসড হিসেবে জমা হবে। নিশ্চিত?",
+  "circleCallRestrictConfirm": "শুধু আপনার বেছে নেওয়া লোকজনই কল করতে পারবেন। বাকি কল মিসড হবে। নিশ্চিত?",
+  "msgrMsgDeleteMeConfirm": "এই মেসেজটি শুধু আপনার কাছ থেকে মুছে যাবে; অন্যজনের কাছে থেকে যাবে।",
+  "msgrMsgDeleteEveryoneConfirm": "এই মেসেজটি দু'দিক থেকেই মুছে যাবে — এটি আর ফেরানো যাবে না।",
+  "msgrMsgDeletedMe": "আপনার কাছ থেকে মেসেজ মুছে ফেলা হয়েছে।",
+  "msgrMsgDeletedEveryone": "সবার কাছ থেকে মেসেজ মুছে ফেলা হয়েছে।",
+  "msgrChatPin": "চ্যাট পিন করুন",
+  "msgrChatUnpin": "পিন সরান",
+  "msgrChatPinLimit": "সর্বোচ্চ ৫টি চ্যাট পিন করা যায়। আগে একটি পিন সরান।",
+  "msgrChatArchive": "আর্কাইভ করুন",
+  "msgrChatUnarchive": "আর্কাইভ থেকে ফেরান",
+  "msgrChatArchived": "আর্কাইভ করা",
+  "msgrChatUnarchived": "চ্যাট আর্কাইভ থেকে ফেরানো হয়েছে।",
+  "msgrChatArchivedTitle": "আর্কাইভ করা চ্যাট",
+  "msgrChatArchivedEmptyTitle": "কোনো আর্কাইভ করা চ্যাট নেই",
+  "msgrChatArchivedEmptyBody": "যে চ্যাটগুলো আপনি আর্কাইভ করবেন সেগুলো এখানে দেখা যাবে।",
+  "msgrChatUnmute": "আনমিউট করুন",
+  "msgrChatUnmuted": "এই চ্যাট আনমিউট করা হয়েছে।",
+  "msgrChatMarkRead": "পঠিত হিসেবে চিহ্নিত করুন",
+  "msgrChatSearchNoResultsTitle": "কিছু পাওয়া যায়নি",
+  "msgrChatSearchNoResultsBody": "অন্য নাম বা শব্দ দিয়ে আবার খুঁজে দেখুন।"
 }

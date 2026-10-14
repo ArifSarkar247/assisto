@@ -83,8 +83,10 @@ class _CircleStatusComposerScreenState
     } catch (_) {
       if (mounted) {
         setState(() => _posting = false);
+        // HONEST error (§21): say the post failed — not the unrelated
+        // "no updates" copy — and keep the typed text so nothing is lost.
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context).statusNoUpdates)),
+          SnackBar(content: Text(AppLocalizations.of(context).statusPostFailed)),
         );
       }
     }

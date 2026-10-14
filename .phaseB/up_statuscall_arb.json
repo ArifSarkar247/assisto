@@ -1,0 +1,15 @@
+{
+  "statusLoadFailed": ["স্ট্যাটাস লোড করা যায়নি।", "Couldn’t load updates."],
+  "statusPostFailed": ["স্ট্যাটাস পোস্ট করা যায়নি। আবার চেষ্টা করুন।", "Couldn’t post your status. Please try again."],
+  "statusMuteConfirm": ["{name}-এর স্ট্যাটাস আর আপনার ট্রেতে দেখাবে না। তাদের জানানো হবে না।", "{name}’s status will stop showing in your tray. They won’t be told."],
+
+  "circlePrivacyLoadFailed": ["সেটিংস লোড করা যায়নি। আবার চেষ্টা করুন।", "Couldn’t load your settings. Please retry."],
+  "circlePrivacySaveFailed": ["সেভ করা যায়নি। আবার চেষ্টা করুন।", "Couldn’t save. Please try again."],
+  "circlePrivacyConfirm": ["নিশ্চিত করুন", "Confirm"],
+  "circleCallNobodyConfirm": ["কেউ আপনাকে কল করতে পারবেন না। পরিবারও নয়। সব কল মিসড হিসেবে জমা হবে। নিশ্চিত?", "No one will be able to call you — not even family. Every call is logged as missed. Are you sure?"],
+  "circleCallRestrictConfirm": ["শুধু আপনার বেছে নেওয়া লোকজনই কল করতে পারবেন। বাকি কল মিসড হবে। নিশ্চিত?", "Only the people you pick can call you; the rest are missed. Are you sure?"],
+
+  "_params": {
+    "statusMuteConfirm": ["name"]
+  }
+}

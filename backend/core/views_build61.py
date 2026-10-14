@@ -208,10 +208,16 @@ class CircleCallsView(APIView):
             caller=request.user) | CallRecord.objects.filter(callee=request.user)
         out = []
         for r in rows.distinct()[:100]:
+            outgoing = r.caller_id == request.user.id
             out.append({
                 "id": r.id, "kind": r.kind, "state": r.state,
                 "duration_sec": r.duration_sec,
-                "mine": r.caller_id == request.user.id,
+                # Formatted mm:ss for a completed (answered) call; blank for
+                # missed/declined so the row shows the outcome instead.
+                "duration": (CC.format_duration(r.duration_sec, lang)
+                             if r.duration_sec else ""),
+                "mine": outgoing,
+                "outgoing": outgoing,
                 "outcome": CC.call_outcome_label(
                     {"state": r.state, "caller_id": r.caller_id,
                      "duration_sec": r.duration_sec}, request.user.id, lang),

@@ -770,3 +770,9 @@ NOTHING basic may remain.
 - Gates: en=bn=5265, 773 backend tests OK, analyze 0, lang gate clean. Gallery 7 screens×bn/en×light/dark reviewed (clean, no clip, honest states).
 - LESSON applied next time: build each batch before launching the next to avoid working-tree intermingling (D7 ref_* widgets referenced unmerged ARB during D6 build).
 - Progression: good→advanced count ~ +6 (referral/social/admin-users/admin-mod + D6 family/contacts/profile bits). Remaining good batches: D8-D10 (messenger good-bits), then Wave E (v2.1-new).
+
+## BUILD 79 — D8 (pushed d3ced6d, run 38606798432) 2026-10-14
+- D8 (6 good→advanced): #178 cost kill-switch/flags (AdminFlagState mig 0031, /admin/flags[/flip] owner-gated, confirm gate + append-only audit), #179 server-address swap (config surface, probe, revert), #180 in-app update (GET /app/latest, external store open, fail-closed), #181 in-app support center (tickets+FAQ+contact), #84 group chat + #85 media share (reviewer-pass: error/retry, confirm gates, resend, download/cache).
+- Gates: en=bn=5430, 813 backend tests OK, analyze 0, lang gate clean. Gallery: support-center/app-update/cost-flags/server-addr reviewed; fixed admin error-state to friendly localized body (no raw exception).
+- CORRECT PROCESS this batch: waited for ALL 3 D8 agents before integrating/building (no overlap with next batch). settings_screen.dart concurrently edited by 2 agents — merged cleanly (verified analyze 0).
+- Remaining good: D9 (messenger: msg actions, chat organise, status, voice/video call, call settings) + D10 (community, channel, msg requests, messenger privacy, in-chat AI, AI-knows-me page). Then Wave E (v2.1-new ~79).

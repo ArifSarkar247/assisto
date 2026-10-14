@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -52,14 +54,21 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   late bool _cameraOn;
   late bool _lowData;
 
-  // Call-record state mirror (ringing -> connecting -> active -> ended).
+  // Call-record state mirror. Mirrors core/logic/circle_calls CALL_* states:
+  // ringing -> connecting -> active (<-> reconnecting) -> ended, plus failed.
   String _state = 'ringing';
   String? _callId;
   bool _starting = true;
   bool _blockedByGate = false;
+
+  // Live call duration (counts while active/reconnecting), mirrors the
+  // server-side duration measured from answered_at.
   DateTime? _answeredAt;
+  Timer? _ticker;
+  Duration _elapsed = Duration.zero;
 
   bool get _isVideo => widget.kind == 'video';
+  bool get _isConnected => _state == 'active' || _state == 'reconnecting';
 
   @override
   void initState() {
@@ -69,6 +78,12 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     _cameraOn = _isVideo;
     _lowData = false;
     _start();
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
   }
 
   ApiClient get _api => context.read<AppState>().api;
@@ -91,10 +106,13 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
         return;
       }
       _callId = '${r['call_id'] ?? r['id'] ?? ''}';
-      // Integrator: here, open the RTCPeerConnection with r['ice'] servers
-      // (core/logic/circle_calls.ice_config) and exchange offer/answer via the
-      // relay. Until flutter_webrtc is wired, we simulate a connecting state so
-      // the UI + controls + call-record flow are exercisable.
+      // SFU/TURN SEAM: here the integrator opens the RTCPeerConnection with
+      // r['ice'] servers (core/logic/circle_calls.ice_config) and exchanges the
+      // offer/answer through the relay; onIceConnectionState drives
+      // _markConnecting / _markActive / _markReconnecting / _markFailed. Until
+      // flutter_webrtc + the self-hosted SFU/TURN are wired, we model the
+      // relay-connect flow so the UI + controls + call-record states are
+      // exercisable WITHOUT faking a media stream.
       if (mounted) {
         setState(() {
           _starting = false;
@@ -102,12 +120,12 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
         });
       }
     } catch (_) {
-      // Offline / not wired — show ringing so the UI is navigable; a real call
-      // would surface a failure after a timeout.
+      // Offline / relay unreachable — surface an honest failure the user can
+      // retry, rather than pretending the call connected.
       if (mounted) {
         setState(() {
           _starting = false;
-          _state = 'ringing';
+          _state = 'failed';
         });
       }
     }
@@ -122,9 +140,56 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     } catch (_) {}
   }
 
+  /// Media connected (ICE connected) — start the live duration clock. Called by
+  /// the integrator from onIceConnectionState==connected.
+  void _markActive() {
+    _event('connected');
+    _answeredAt ??= DateTime.now();
+    _ticker?.cancel();
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted || _answeredAt == null) return;
+      setState(() => _elapsed = DateTime.now().difference(_answeredAt!));
+    });
+    if (mounted) setState(() => _state = 'active');
+  }
+
+  /// ICE dropped mid-call — the clock keeps running while ICE restarts.
+  void _markReconnecting() {
+    _event('reconnect');
+    if (mounted) setState(() => _state = 'reconnecting');
+  }
+
+  /// Transport/negotiation failure — stop the clock, offer a retry.
+  void _markFailed() {
+    _event('fail');
+    _ticker?.cancel();
+    if (mounted) setState(() => _state = 'failed');
+  }
+
+  void _retry() {
+    setState(() {
+      _starting = true;
+      _state = 'ringing';
+      _callId = null;
+      _answeredAt = null;
+      _elapsed = Duration.zero;
+    });
+    _start();
+  }
+
   void _hangup() {
-    _event(_state == 'active' ? 'hangup' : 'cancel');
+    _ticker?.cancel();
+    _event(_isConnected ? 'hangup' : 'cancel');
     if (mounted) Navigator.of(context).pop();
+  }
+
+  String _fmtElapsed() {
+    final s = _elapsed.inSeconds;
+    final h = s ~/ 3600;
+    final m = (s % 3600) ~/ 60;
+    final sec = s % 60;
+    String two(int n) => n.toString().padLeft(2, '0');
+    return h > 0 ? '$h:${two(m)}:${two(sec)}' : '$m:${two(sec)}';
   }
 
   @override
@@ -169,14 +234,77 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(_isVideo ? Icons.videocam : Icons.call,
-                            size: 16, color: scheme.onSurfaceVariant),
+                        Icon(_state == 'failed'
+                                ? Icons.error_outline
+                                : _isVideo
+                                    ? Icons.videocam
+                                    : Icons.call,
+                            size: 16,
+                            color: _state == 'failed'
+                                ? scheme.error
+                                : scheme.onSurfaceVariant),
                         const SizedBox(width: Gap.xs),
                         Text(_statusLabel(),
-                            style: TextStyle(color: scheme.onSurfaceVariant)),
+                            style: TextStyle(
+                                color: _state == 'failed'
+                                    ? scheme.error
+                                    : scheme.onSurfaceVariant)),
                       ],
                     ),
-                    if (_isVideo) ...[
+                    // Live duration while media is flowing (counts through a
+                    // mid-call reconnect, like the server-side record).
+                    if (_isConnected && _answeredAt != null) ...[
+                      const SizedBox(height: Gap.xs),
+                      Text(_fmtElapsed(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(
+                                  color: scheme.onSurface,
+                                  fontWeight: FontWeight.w600)),
+                    ],
+                    if (_state == 'failed') ...[
+                      const SizedBox(height: Gap.lg),
+                      FilledButton.tonalIcon(
+                        icon: const Icon(Icons.refresh),
+                        label: Text(_t.circleCallRetry),
+                        onPressed: _retry,
+                      ),
+                    ],
+                    // SFU/TURN SEAM (dev affordance): until flutter_webrtc +
+                    // the self-hosted SFU/TURN are wired, these map the ICE
+                    // connection-state callbacks the integrator will attach:
+                    //   onIceConnectionState==connected    -> _markActive()
+                    //   ==disconnected/checking (mid-call) -> _markReconnecting()
+                    //   ==failed                           -> _markFailed()
+                    // They drive the real call-record events server-side. The
+                    // screen never fabricates a media stream; it only models the
+                    // state the real transport will report.
+                    if (!_starting &&
+                        (_state == 'ringing' ||
+                            _state == 'connecting' ||
+                            _isConnected)) ...[
+                      const SizedBox(height: Gap.lg),
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: Gap.sm,
+                        children: [
+                          if (!_isConnected)
+                            TextButton(
+                                onPressed: _markActive,
+                                child: Text(_t.circleCallRelayConnected)),
+                          if (_state == 'active')
+                            TextButton(
+                                onPressed: _markReconnecting,
+                                child: Text(_t.circleCallRelayDropped)),
+                          if (_isConnected)
+                            TextButton(
+                                onPressed: _markFailed,
+                                child: Text(_t.circleCallRelayFailed)),
+                        ],
+                      ),
+                    ],
+                    if (_isVideo && _state != 'failed') ...[
                       const SizedBox(height: Gap.lg),
                       Text(_t.circleCallVideoPlaceholder,
                           textAlign: TextAlign.center,
@@ -221,6 +349,10 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
         return _t.circleCallConnecting;
       case 'active':
         return _t.circleCallActive;
+      case 'reconnecting':
+        return _t.circleCallReconnecting;
+      case 'failed':
+        return _t.circleCallFailed;
       default:
         return _t.circleCallEnded;
     }

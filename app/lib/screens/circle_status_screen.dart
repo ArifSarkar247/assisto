@@ -49,6 +49,7 @@ class CircleStatusScreen extends StatefulWidget {
 
 class _CircleStatusScreenState extends State<CircleStatusScreen> {
   bool _loading = true;
+  bool _errored = false; // honest state: a load failure is NOT shown as "empty"
   List<Map<String, dynamic>> _entries = [];
   Map<String, dynamic>? _mine;
 
@@ -68,15 +69,20 @@ class _CircleStatusScreenState extends State<CircleStatusScreen> {
   }
 
   Future<void> _load() async {
-    setState(() => _loading = true);
+    setState(() {
+      _loading = true;
+      _errored = false;
+    });
     try {
       final r = await _api.statusTray();
       _entries = ((r['entries'] ?? []) as List).cast<Map<String, dynamic>>();
       _mine = (r['mine'] as Map?)?.cast<String, dynamic>();
     } catch (_) {
-      // leave empty; surface the welcome/empty state
+      // HONEST state (§21): a fetch failure is an ERROR, never a silent "no
+      // updates" — the empty tray must mean "genuinely nothing", not "offline".
       _entries = [];
       _mine = null;
+      _errored = true;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -144,7 +150,9 @@ class _CircleStatusScreenState extends State<CircleStatusScreen> {
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
+          : _errored
+              ? _ErrorRetry(message: s.statusLoadFailed, onRetry: _load)
+              : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
                 children: [
@@ -202,6 +210,43 @@ class _CircleStatusScreenState extends State<CircleStatusScreen> {
                 ],
               ),
             ),
+    );
+  }
+}
+
+/// Honest error state with a Retry (§21): shown when the tray failed to load,
+/// so an empty tray is never confused with an offline/error one.
+class _ErrorRetry extends StatelessWidget {
+  final String message;
+  final Future<void> Function() onRetry;
+  const _ErrorRetry({required this.message, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    final s = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.xxl),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.cloud_off_outlined, size: 48, color: scheme.outline),
+            const SizedBox(height: Gap.md),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: scheme.onSurfaceVariant),
+            ),
+            const SizedBox(height: Gap.lg),
+            FilledButton.tonalIcon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh),
+              label: Text(s.retry),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

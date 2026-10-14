@@ -7237,5 +7237,45 @@
   "grpMediaCached": "Saved on device",
   "grpMediaDownloadAgain": "Download again",
   "circleActionDownload": "Download",
-  "circleMediaSavingSoon": "Saving will work when encrypted storage is enabled."
+  "circleMediaSavingSoon": "Saving will work when encrypted storage is enabled.",
+  "circleCallReconnecting": "Reconnecting…",
+  "circleCallFailed": "Call failed",
+  "circleCallRetry": "Try again",
+  "circleCallRelayConnected": "Media connected (relay)",
+  "circleCallRelayDropped": "Media dropped",
+  "circleCallRelayFailed": "Media failed",
+  "statusLoadFailed": "Couldn’t load updates.",
+  "statusPostFailed": "Couldn’t post your status. Please try again.",
+  "statusMuteConfirm": "{name}’s status will stop showing in your tray. They won’t be told.",
+  "@statusMuteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "circlePrivacyLoadFailed": "Couldn’t load your settings. Please retry.",
+  "circlePrivacySaveFailed": "Couldn’t save. Please try again.",
+  "circlePrivacyConfirm": "Confirm",
+  "circleCallNobodyConfirm": "No one will be able to call you — not even family. Every call is logged as missed. Are you sure?",
+  "circleCallRestrictConfirm": "Only the people you pick can call you; the rest are missed. Are you sure?",
+  "msgrMsgDeleteMeConfirm": "This message is removed just for you; the other person still keeps it.",
+  "msgrMsgDeleteEveryoneConfirm": "This message is removed for everyone — this cannot be undone.",
+  "msgrMsgDeletedMe": "Message removed for you.",
+  "msgrMsgDeletedEveryone": "Message removed for everyone.",
+  "msgrChatPin": "Pin chat",
+  "msgrChatUnpin": "Unpin chat",
+  "msgrChatPinLimit": "You can pin up to 5 chats. Unpin one first.",
+  "msgrChatArchive": "Archive",
+  "msgrChatUnarchive": "Unarchive",
+  "msgrChatArchived": "Archived",
+  "msgrChatUnarchived": "Chat restored from archive.",
+  "msgrChatArchivedTitle": "Archived chats",
+  "msgrChatArchivedEmptyTitle": "No archived chats",
+  "msgrChatArchivedEmptyBody": "Chats you archive will show up here.",
+  "msgrChatUnmute": "Unmute",
+  "msgrChatUnmuted": "This chat is unmuted.",
+  "msgrChatMarkRead": "Mark as read",
+  "msgrChatSearchNoResultsTitle": "Nothing found",
+  "msgrChatSearchNoResultsBody": "Try searching with a different name or word."
 }

@@ -415,12 +415,122 @@ def _member_dict(m):
     }
 
 
+def _organise_map(user):
+    """#87 — the viewer's per-chat organise state keyed by str(chat_id) for the
+    'member' chat kind. Mute is reported HONESTLY via msg_organise.is_muted so a
+    lapsed timed-mute never shows a stale badge."""
+    from .models import ChatOrganiseState
+    from .logic import msg_organise as MO
+    out = {}
+    for s in ChatOrganiseState.objects.filter(user=user, chat_kind="member"):
+        muted = MO.is_muted({
+            "mute_until": s.mute_until.isoformat() if s.mute_until else None,
+            "duration": s.muted_duration,
+            "muted_at": s.updated_at.isoformat(),
+        }) if (s.mute_until or s.muted_duration) else False
+        out[str(s.chat_id)] = {
+            "pinned": s.pinned,
+            "pin_at": s.pin_at.isoformat() if s.pin_at else None,
+            "archived": s.archived,
+            "muted": muted,
+        }
+    return out
+
+
 class CircleMembersView(APIView):
     def get(self, request):
         # BUG 3 FIX: a person is in "Your circle" ONLY once accepted. Pending
         # (incoming OR outgoing) must NOT appear here.
         rows = CircleMember.objects.filter(user=request.user, state="accepted")
-        return Response({"results": [_member_dict(m) for m in rows]})
+        org = _organise_map(request.user)
+        out = []
+        for m in rows:
+            d = _member_dict(m)
+            d.update(org.get(str(m.id), {
+                "pinned": False, "pin_at": None, "archived": False, "muted": False}))
+            out.append(d)
+        return Response({"results": out})
+
+
+class _OrganiseBase(APIView):
+    """#87 Chat organise — PER-USER pin/archive/mute/read. Enforcement runs
+    SERVER-SIDE via core.logic.msg_organise; state persists in ChatOrganiseState
+    so organise survives a reload / new device. Carries NO message content."""
+    @staticmethod
+    def _row(user, chat_id):
+        from .models import ChatOrganiseState
+        row, _ = ChatOrganiseState.objects.get_or_create(
+            user=user, chat_kind="member", chat_id=str(chat_id))
+        return row
+
+
+class ChatPinView(_OrganiseBase):
+    def post(self, request, pk):
+        from .models import ChatOrganiseState
+        from .logic import msg_organise as MO
+        want = bool((request.data or {}).get("pinned", True))
+        row = self._row(request.user, pk)
+        pinned_count = ChatOrganiseState.objects.filter(
+            user=request.user, chat_kind="member", pinned=True).count()
+        ok, reason = MO.can_pin_chat(pinned_count, row.pinned)
+        if want and not ok:
+            return Response({"ok": False, "code": reason},
+                            status=status.HTTP_400_BAD_REQUEST)
+        row.pinned = want
+        row.pin_at = timezone.now() if want else None
+        if want:
+            row.archived = False  # a chat can't be both pinned-to-top and archived
+        row.save()
+        return Response({"ok": True, "pinned": row.pinned})
+
+
+class ChatArchiveView(_OrganiseBase):
+    def post(self, request, pk):
+        want = bool((request.data or {}).get("archived", True))
+        row = self._row(request.user, pk)
+        row.archived = want
+        if want:  # archiving clears the pin (set_archived semantics)
+            row.pinned = False
+            row.pin_at = None
+        row.save()
+        return Response({"ok": True, "archived": row.archived})
+
+
+class ChatMuteView(_OrganiseBase):
+    def post(self, request, pk):
+        from .logic import msg_organise as MO
+        from django.utils.dateparse import parse_datetime
+        dur = str((request.data or {}).get("duration", "8h"))
+        row = self._row(request.user, pk)
+        if dur == "off":
+            row.mute_until = None
+            row.muted_duration = None
+            row.save()
+            return Response({"ok": True, "muted": False})
+        rec = MO.build_mute(str(pk), dur)
+        until = rec["mute_until"]
+        row.mute_until = parse_datetime(until) if until else None
+        row.muted_duration = rec["duration"]
+        row.save()
+        return Response({"ok": True, "muted": True, "duration": rec["duration"]})
+
+
+class ChatReadView(APIView):
+    """Mark every message in this 1:1 chat read by the viewer (adds the viewer
+    to CircleMessage.read_by). Honest: no-op if nothing is unread."""
+    def post(self, request, pk):
+        from .models import CircleMessage
+        uid = request.user.id
+        n = 0
+        for msg in CircleMessage.objects.filter(member_id=pk).exclude(
+                sender_id=uid):
+            rb = list(msg.read_by or [])
+            if uid not in rb:
+                rb.append(uid)
+                msg.read_by = rb
+                msg.save(update_fields=["read_by"])
+                n += 1
+        return Response({"ok": True, "marked": n})
 
 
 class CircleRequestsView(APIView):

@@ -273,6 +273,39 @@ def test_labels_bilingual():
     assert P.mute_label(P.MUTE_8H, "en") == "8 hours"
 
 
+# ---- reviewer-pass (§21): honest call hints + confirm gate + load state ----
+
+def test_call_policy_hint_bilingual():
+    assert "circle" in P.call_policy_label_hint(P.CALLS_EVERYONE, "en")
+    assert "missed" in P.call_policy_label_hint(P.CALLS_NOBODY, "en")
+    assert "মিসড" in P.call_policy_label_hint(P.CALLS_NOBODY, "bn")
+
+
+def test_call_policy_restrictive_flag():
+    assert P.call_policy_is_restrictive(P.CALLS_EVERYONE) is False
+    assert P.call_policy_is_restrictive(P.CALLS_NOBODY) is True
+    assert P.call_policy_is_restrictive(P.CALLS_CHOSEN) is True
+    assert P.call_policy_is_restrictive(P.CALLS_RELATIONS) is True
+    # garbage normalizes to everyone -> not restrictive
+    assert P.call_policy_is_restrictive("bogus") is False
+
+
+def test_call_policy_confirm_gate():
+    # no gate for the permissive default
+    assert P.call_policy_confirm(P.CALLS_EVERYONE) is None
+    # nobody -> mentions family explicitly (every call missed)
+    nobody = P.call_policy_confirm(P.CALLS_NOBODY, "en")
+    assert nobody is not None and "family" in nobody
+    assert "পরিবার" in P.call_policy_confirm(P.CALLS_NOBODY, "bn")
+    # chosen/relations -> a confirm, different copy
+    assert P.call_policy_confirm(P.CALLS_CHOSEN, "en") is not None
+
+
+def test_privacy_load_failed_notice_bilingual():
+    assert P.privacy_load_failed_notice("en").startswith("Couldn")
+    assert "লোড" in P.privacy_load_failed_notice("bn")
+
+
 def run_all():
     import inspect
     fns = [v for k, v in sorted(globals().items())
