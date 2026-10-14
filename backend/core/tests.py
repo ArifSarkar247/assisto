@@ -810,6 +810,11 @@ JobHunterSnippetTests = _make_snippet_case(
 # Agent Studio (advanced §21) — deterministic WHEN/IF/THEN automation engine.
 AgentStudioSnippetTests = _make_snippet_case(
     "core.logic.agent_studio_tests_snippets", "AgentStudioSnippetTests")
+# Payment / auto-pay ladder (advanced §21) — deterministic escalation engine for
+# receivables (chase dues) + payables (bill/EMI reminders). Never holds money,
+# never auto-charges; `pay_key` is gated on a licensed payment key.
+PaymentLadderSnippetTests = _make_snippet_case(
+    "core.logic.payment_ladder_tests_snippets", "PaymentLadderSnippetTests")
 
 
 # ---------------------------------------------------------------------------

@@ -30,6 +30,7 @@ import '../screens/legal_screen.dart';
 // build-61 wave: remaining modules (every sidebar module is chat-openable)
 import '../screens/subscriptions_screen.dart';
 import '../screens/finance_screen.dart';
+import '../screens/payment_ladder_screen.dart';
 import '../screens/notes_todos_screen.dart';
 import '../screens/memory_screen.dart';
 import '../screens/nominee_screen.dart';
@@ -112,6 +113,7 @@ class ChatNav {
     // build-61 wave: remaining modules
     'subscriptions': (_) => const SubscriptionsScreen(),
     'finance': (_) => const FinanceScreen(),
+    'payment_ladder': (_) => const PaymentLadderScreen(),
     'notes': (_) => const NotesTodosScreen(),
     'memory': (_) => const MemoryScreen(),
     'nominee': (_) => const NomineeScreen(),
@@ -167,6 +169,8 @@ class ChatNav {
     // build-61 wave: remaining modules
     'subscriptions': ['subscriptions', 'subscription', 'recurring'],
     'finance': ['finance tools', 'loan', 'savings', 'calculator'],
+    'payment_ladder': ['payment ladder', 'ladder', 'collection', 'auto-pay',
+        'tagada'],
     'notes': ['notes', 'tasks', 'to-do', 'todo', 'note'],
     'memory': ['memory', 'ai knows', 'remember'],
     'nominee': ['nominee access', 'nominee', 'inheritance'],

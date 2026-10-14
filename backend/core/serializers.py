@@ -279,6 +279,48 @@ class AutoPayRuleSerializer(serializers.ModelSerializer):
         read_only_fields = ["id"]
 
 
+class PaymentDebtSerializer(serializers.ModelSerializer):
+    """Payment-ladder debt row (SPEC v2.1 §21). Exposes the debt fields + nested
+    `ladder`. On save it validates the ladder with the pure engine and maps the
+    returned codes to localised messages. HARD RULE: any auto_charge/auto_pay step
+    is rejected (`no_auto_charge`) — there is no auto-charge action in the
+    vocabulary; the engine never holds or moves money on its own."""
+    class Meta:
+        from .models import PaymentDebt
+        model = PaymentDebt
+        fields = ["id", "kind", "party", "amount_poisha", "paid_poisha",
+                  "due_date", "recurring_days", "paused", "ladder",
+                  "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+    def validate_ladder(self, value):
+        from .logic import payment_ladder as PL
+        ladder = dict(value or {})
+        # The viewset fixes `kind` per collection; mirror it onto the ladder so
+        # the engine's bad_kind check passes for a valid ladder.
+        view = self.context.get("view")
+        if view is not None and getattr(view, "kind_value", None):
+            ladder.setdefault("kind", view.kind_value)
+        request = self.context.get("request")
+        lang = req_lang(request) if request is not None else "bn"
+        msgs = {
+            "bad_kind": ("ল্যাডারের ধরন ভুল।", "Invalid ladder kind."),
+            "no_steps": ("অন্তত একটি ধাপ দিন।", "Add at least one step."),
+            "bad_step": ("একটি ধাপের তথ্য ভুল।", "A step is malformed."),
+            "bad_channel": ("অজানা চ্যানেল।", "Unknown channel."),
+            "duplicate_offset": ("দুটি ধাপের সময় একই।",
+                                 "Two steps share the same timing."),
+            # Never-auto-charge invariant — rejected server-side, always.
+            "no_auto_charge": ("অটো-চার্জ অনুমোদিত নয়।",
+                               "Auto-charge is not allowed."),
+        }
+        problems = PL.validate_ladder(ladder)
+        if problems:
+            raise serializers.ValidationError(
+                [pick(lang, *msgs.get(p, (p, p))) for p in problems])
+        return value
+
+
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         from .models import Product

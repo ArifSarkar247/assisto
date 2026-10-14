@@ -1702,6 +1702,51 @@ def autopay_stop_all(request):
     return Response({"stopped": n})
 
 
+# ---------- payment / auto-pay LADDER (SPEC v2.1 §21) ----------
+# Two owner-scoped collections backing the ladder screen's two tabs. A single
+# PaymentDebt table backs both; `kind` is fixed per viewset (filtered on read,
+# forced on create — the client never picks the collection's kind). The nested
+# `ladder` is validated by the serializer via core.logic.payment_ladder, which
+# rejects any auto_charge/auto_pay step. The engine holds no money and never
+# auto-charges; a real payment is key-gated and happens outside the app.
+
+class _LadderViewSet(OwnedViewSet):
+    from .models import PaymentDebt as _M
+    from .serializers import PaymentDebtSerializer as _S
+    model = _M; serializer_class = _S
+    kind_value = "receivable"   # overridden per subclass
+
+    def get_queryset(self):
+        return self.model.objects.filter(
+            user=self.request.user, kind=self.kind_value)
+
+    def perform_create(self, serializer):
+        obj = serializer.save(user=self.request.user, kind=self.kind_value)
+        log(self.request.user, f"{self.kind}.create", id=obj.id)
+
+    def perform_update(self, serializer):
+        # kind is fixed per collection — never let an update move a row across tabs.
+        serializer.save(kind=self.kind_value)
+
+
+class LadderReceivableViewSet(_LadderViewSet):
+    kind = "ladder_receivable"; kind_value = "receivable"
+
+
+class LadderPayableViewSet(_LadderViewSet):
+    kind = "ladder_payable"; kind_value = "payable"
+
+
+@api_view(["POST"])
+def ladder_stop_all(request):
+    """Global snooze: pause every one of the user's ladder debts (both tabs).
+    Mirrors autopay/stop-all. Pausing silences escalation; it moves no money."""
+    from .models import PaymentDebt
+    n = PaymentDebt.objects.filter(user=request.user).update(paused=True)
+    log(request.user, "ladder.stop_all", n=n)
+    return Response({"stopped": n})
+
+
 # ---------- Agent Studio (feature 32) ----------
 _STUDIO_TASKS = {
     "letter": ("ব্যবহারকারীর অনুরোধ অনুযায়ী একটি পেশাদার চিঠি লেখো। বাংলায় লেখো।",

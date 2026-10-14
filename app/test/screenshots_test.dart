@@ -23,6 +23,8 @@ import 'package:assisto/screens/messenger/messenger_home_screen.dart';
 import 'package:assisto/screens/messenger/messenger_settings_screen.dart';
 import 'package:assisto/screens/messenger/contact_info_screen.dart';
 import 'package:assisto/screens/notification_centre_screen.dart';
+import 'package:assisto/screens/elderly_home_screen.dart';
+import 'package:assisto/screens/payment_ladder_screen.dart';
 import 'package:assisto/screens/settings_screen.dart';
 import 'package:assisto/screens/in_progress_screen.dart';
 import 'package:assisto/screens/money_screen.dart';
@@ -184,6 +186,8 @@ void main() {
     'language_picker': (build: (_) => const LanguagePickerScreen(), mode: FakeMode.data, full: true),
     'home_welcome': (build: (_) => const HomeScreen(), mode: FakeMode.data, full: true),
     'notification_centre': (build: (_) => const NotificationCentreScreen(), mode: FakeMode.data, full: true),
+    'payment_ladder': (build: (_) => const PaymentLadderScreen(), mode: FakeMode.data, full: true),
+    'elderly_home': (build: (_) => const ElderlyHomeScreen(), mode: FakeMode.data, full: true),
     'chat': (build: (l) => Scaffold(appBar: AppBar(title: const Text('Assisto')), body: AgentThreadScreen(debugSeed: _chat(l))), mode: FakeMode.data, full: true),
     'chat_voice': (build: (l) => Scaffold(appBar: AppBar(title: const Text('Assisto')), body: AgentThreadScreen(debugSeed: const [], debugListening: true)), mode: FakeMode.data, full: true),
     'drawer': (build: (_) => Scaffold(body: Row(children: [AppDrawer(onNewChat: () {})])), mode: FakeMode.data, full: true),

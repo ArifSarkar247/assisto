@@ -1,0 +1,52 @@
+{
+  "elderlyHomeTitle": ["সহজ মোড", "Simple mode"],
+
+  "elderlyToggleTitle": ["সহজ মোড (বয়স্কদের জন্য)", "Simple mode (for elders)"],
+  "elderlyToggleSubtitle": ["বড় লেখা, বড় বোতাম, শুধু দরকারি কাজ", "Large text, big buttons, only the essentials"],
+
+  "elderlyEnterConfirmTitle": ["সহজ মোড চালু করবেন?", "Turn on simple mode?"],
+  "elderlyEnterConfirmBody": ["হোম স্ক্রিন বড় লেখা ও বড় বোতামে বদলে যাবে। যেকোনো সময় আবার সাধারণ মোডে ফিরতে পারবেন।", "Your home screen will switch to large text and big buttons. You can go back to the normal mode any time."],
+  "elderlyEnterConfirmCta": ["চালু করুন", "Turn on"],
+
+  "elderlyExitConfirmTitle": ["সহজ মোড বন্ধ করবেন?", "Turn off simple mode?"],
+  "elderlyExitConfirmBody": ["সাধারণ হোম স্ক্রিনে ফিরে যাবেন। যেকোনো সময় আবার সহজ মোড চালু করা যাবে।", "You'll return to the normal home screen. You can turn simple mode back on any time."],
+  "elderlyExitConfirmCta": ["বন্ধ করুন", "Turn off"],
+
+  "elderlyExitCta": ["সহজ মোড বন্ধ", "Exit simple"],
+
+  "elderlyPermissionTitle": ["অভিভাবকের অনুমতি", "Parent's permission"],
+  "elderlyPermissionBody": ["আপনি অন্য একজন (যেমন আপনার মা/বাবা) এর জন্য সহজ মোড চালু করছেন। চালিয়ে যাওয়ার আগে অনুগ্রহ করে নিশ্চিত করুন যে আপনি তাঁর স্পষ্ট অনুমতি নিয়েছেন।", "You're turning on simple mode for someone else (such as a parent). Please confirm you have their explicit permission before continuing."],
+  "elderlyPermissionConfirm": ["অনুমতি আছে, চালু করুন", "I have their permission"],
+  "elderlyPermissionDecline": ["বাতিল", "Cancel"],
+
+  "elderlyTileSos": ["জরুরি সাহায্য", "Emergency help"],
+  "elderlyTileSosSub": ["এক চাপে পরিবার ও ৯৯৯-এ জানান", "One tap alerts family and 999"],
+
+  "elderlyTileCall": ["পরিবারকে কল", "Call family"],
+  "elderlyTileMeds": ["আমার ওষুধ", "My medicines"],
+  "elderlyTileMessages": ["বার্তা", "Messages"],
+  "elderlyTileMoney": ["টাকা", "Money"],
+  "elderlyTileHelp": ["সাহায্য", "Help"],
+  "elderlyTileHelpSub": ["কীভাবে ব্যবহার করবেন জেনে নিন", "Learn how to use the app"],
+
+  "elderlyMedsDue": ["আজ {count}টি ওষুধ বাকি", "{count} due today"],
+  "elderlyMedsNoneDue": ["আজ সব ওষুধ শেষ", "All taken today"],
+
+  "elderlyCallSubAdd": ["একজন কে যোগ করুন", "Add someone"],
+  "elderlyCallSubCount": ["{count} জন সংরক্ষিত", "{count} saved"],
+  "elderlyChooseWhoToCall": ["কাকে কল করবেন?", "Who do you want to call?"],
+  "elderlyFamilyGeneric": ["পরিবার", "Family"],
+
+  "elderlyCallConfirmTitle": ["{who}-কে কল করবেন?", "Call {who}?"],
+  "elderlyCallConfirmBody": ["এখনই {who}-কে ফোন করা হবে।", "This will call {who} now."],
+  "elderlyCallNow": ["এখন কল করুন", "Call now"],
+
+  "elderlyNoContactTitle": ["কোনো পরিবারের নম্বর নেই", "No family number yet"],
+  "elderlyNoContactBody": ["কল করতে আগে একজন পরিবারের সদস্যের নম্বর যোগ করুন।", "Add a family member's number first so you can call them."],
+  "elderlyAddContactCta": ["নম্বর যোগ করুন", "Add a number"],
+
+  "elderlyVoice": ["কথা বলে বলুন", "Speak to ask"],
+
+  "elderlyOffline": ["এখন ইন্টারনেট নেই — সর্বশেষ তথ্য দেখানো হচ্ছে।", "You're offline — showing the latest saved information."],
+  "elderlyLoadError": ["তথ্য আনা যায়নি। আবার চেষ্টা করুন।", "Couldn't load your information. Please try again."]
+}

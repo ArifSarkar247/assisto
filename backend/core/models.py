@@ -2289,3 +2289,38 @@ class SuggestionState(models.Model):
     served_date = models.DateField(null=True, blank=True)
     served_prev_keys = models.JSONField(default=list, blank=True)  # the day before
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class PaymentDebt(models.Model):
+    """Payment / auto-pay LADDER debt row (SPEC v2.1 §21). A single table backs
+    both tabs of the ladder UI; `kind` is fixed per collection (the two viewsets
+    filter it). Money is INTEGER POISHA throughout (never float, never a stored
+    balance — the engine custodies no money).
+
+    The escalation `ladder` (ordered steps, each with offset_days / action /
+    channel + stop_on_payment + has_payment_key) is stored as JSON so it matches
+    the deterministic shape `core.logic.payment_ladder` validates and keeps the
+    migration light. HARD RULES (enforced structurally, see the serializer):
+      • Never hold money (no balance field).
+      • Never auto-charge (serializer rejects any auto_charge/auto_pay step).
+      • Paying a payable is KEY-GATED — the engine downgrades pay_key→pay_manual
+        without the owner's own licensed payment key.
+    """
+    KINDS = [("receivable", "owed to me"), ("payable", "I owe")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="payment_debts")
+    kind = models.CharField(max_length=10, choices=KINDS, default="receivable")
+    party = models.CharField(max_length=120)
+    amount_poisha = models.BigIntegerField(default=0)   # integer poisha (no float)
+    paid_poisha = models.BigIntegerField(default=0)
+    due_date = models.DateField(null=True, blank=True)
+    recurring_days = models.PositiveIntegerField(default=0)  # >0 ⇒ repeating bill
+    paused = models.BooleanField(default=False)
+    # Ladder config as emitted by the builder; the engine reads
+    # ladder["has_payment_key"] / ladder["steps"] / ladder["stop_on_payment"].
+    ladder = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["due_date", "id"]

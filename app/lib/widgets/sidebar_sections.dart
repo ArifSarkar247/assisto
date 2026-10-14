@@ -11,6 +11,7 @@ import '../screens/memory_screen.dart';
 import '../screens/money_screen.dart';
 import '../screens/subscriptions_screen.dart';
 import '../screens/finance_screen.dart';
+import '../screens/payment_ladder_screen.dart';
 // family & safety (merged per SPEC v2.1 §4)
 import '../screens/family_screen.dart';
 import '../screens/nominee_screen.dart';
@@ -123,6 +124,11 @@ class SidebarSections {
       SidebarItem(Icons.calculate_outlined, (t) => t.financeTools,
           (_) => const FinanceScreen(),
           synonyms: ['finance', 'loan', 'savings', 'calculator']),
+      // Payment / auto-pay LADDER (SPEC v2.1 §21): escalating collection/auto-pay
+      // reminders. Never holds money, never auto-charges — key-gated payments.
+      SidebarItem(Icons.stairs_outlined, (t) => t.plTitle,
+          (_) => const PaymentLadderScreen(),
+          synonyms: ['payment', 'ladder', 'collection', 'auto-pay', 'tagada']),
     ]),
     // 3. Family & Safety — merged per SPEC v2.1 §4 (Family + Safety → one group).
     // Contacts moved OUT to its own "Contacts & Profile" section (item 4).

@@ -141,6 +141,71 @@ class FakeApi extends ApiClient {
            'start': '2099-01-01T10:00:00', 'duration_min': 30,
            'place': _bn ? 'ল্যাবএইড' : 'Labaid', 'note': ''},
         ]);
+      // Payment / auto-pay LADDER (SPEC §21). Money is INTEGER POISHA. Each row
+      // carries its debt fields + a nested escalating `ladder` (steps keyed by
+      // offset_days from the due date; negative = before due, for payable
+      // heads-ups). No auto_charge/auto_pay actions — the engine never charges.
+      case 'ladder-receivable':
+        return _maybe([
+          {
+            'id': 1, 'kind': 'receivable',
+            'party': _bn ? 'রহিম স্টোর' : 'Rahim Store',
+            'amount_poisha': 600000, 'paid_poisha': 200000,  // ৳6000, ৳2000 paid
+            'due_date': '2026-10-10', 'recurring_days': 0, 'paused': false,
+            'ladder': {
+              'stop_on_payment': true, 'has_payment_key': false,
+              'steps': [
+                {'offset_days': 0, 'action': 'remind_gentle', 'channel': 'in_app'},
+                {'offset_days': 3, 'action': 'remind_firm', 'channel': 'whatsapp_share'},
+                {'offset_days': 7, 'action': 'final_notice', 'channel': 'sms'},
+                {'offset_days': 14, 'action': 'escalate_owner', 'channel': 'in_app'},
+              ],
+            },
+          },
+          {
+            'id': 2, 'kind': 'receivable',
+            'party': _bn ? 'করিম ভাই' : 'Karim Bhai',
+            'amount_poisha': 150000, 'paid_poisha': 0,  // ৳1500
+            'due_date': '2026-10-25', 'recurring_days': 0, 'paused': false,
+            'ladder': {
+              'stop_on_payment': true, 'has_payment_key': false,
+              'steps': [
+                {'offset_days': 0, 'action': 'remind_gentle', 'channel': 'in_app'},
+                {'offset_days': 5, 'action': 'remind_firm', 'channel': 'whatsapp_share'},
+              ],
+            },
+          },
+        ]);
+      case 'ladder-payable':
+        return _maybe([
+          {
+            'id': 3, 'kind': 'payable',
+            'party': _bn ? 'বিদ্যুৎ বিল' : 'Electricity bill',
+            'amount_poisha': 128000, 'paid_poisha': 0,  // ৳1280
+            'due_date': '2026-10-20', 'recurring_days': 30, 'paused': false,
+            'ladder': {
+              'stop_on_payment': true, 'has_payment_key': false,
+              'steps': [
+                {'offset_days': -3, 'action': 'remind_gentle', 'channel': 'in_app'},
+                {'offset_days': 0, 'action': 'pay_manual', 'channel': 'in_app'},
+                {'offset_days': 3, 'action': 'remind_firm', 'channel': 'sms'},
+              ],
+            },
+          },
+          {
+            'id': 4, 'kind': 'payable',
+            'party': _bn ? 'বাইক EMI' : 'Bike EMI',
+            'amount_poisha': 850000, 'paid_poisha': 0,  // ৳8500
+            'due_date': '2026-11-05', 'recurring_days': 30, 'paused': true,
+            'ladder': {
+              'stop_on_payment': true, 'has_payment_key': true,
+              'steps': [
+                {'offset_days': -2, 'action': 'remind_gentle', 'channel': 'in_app'},
+                {'offset_days': 0, 'action': 'pay_key', 'channel': 'in_app'},
+              ],
+            },
+          },
+        ]);
       default:
         return _maybe([]);
     }

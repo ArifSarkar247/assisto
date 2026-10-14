@@ -34,6 +34,11 @@ router.register("products", views.ProductViewSet, basename="product")
 router.register("orders", views.OrderViewSet, basename="order")
 router.register("nominees", views.NomineeViewSet, basename="nominee")
 router.register("jobs", views.JobViewSet, basename="job")
+# Payment / auto-pay LADDER (SPEC v2.1 §21) — one table, two kind-filtered tabs.
+router.register("ladder-receivable", views.LadderReceivableViewSet,
+                basename="ladder-receivable")
+router.register("ladder-payable", views.LadderPayableViewSet,
+                basename="ladder-payable")
 
 urlpatterns = [
     path("health", views.health),
@@ -114,6 +119,7 @@ urlpatterns = [
     path("guides", views.govt_guide),
     path("me/elderly", views.ElderlyModeView.as_view()),
     path("autopay/stop-all", views.autopay_stop_all),
+    path("ladder/stop-all", views.ladder_stop_all),
     path("studio", views.AgentStudioView.as_view()),
     path("inbox", views.InboxView.as_view()),
     path("business/reply", views.BusinessReplyView.as_view()),

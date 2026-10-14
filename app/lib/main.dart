@@ -14,6 +14,8 @@ import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/language_picker_screen.dart';
 import 'screens/onboarding_screen.dart';
+import 'screens/elderly_home_screen.dart';
+import 'widgets/elderly_mode.dart';
 
 void main() {
   // Nothing in startup may crash the app. Every Dart error — sync, async, or
@@ -85,6 +87,14 @@ class _Root extends StatefulWidget {
 }
 
 class _RootState extends State<_Root> with WidgetsBindingObserver {
+  // Elderly simple-mode route-swap (SPEC §29). The LOCAL `elderly_mode` flag is
+  // the router's source of truth (works offline); resolved once we know the user
+  // is past login/onboarding, and re-resolved on resume (so the Settings toggle
+  // takes effect). When ON we render ElderlyHomeScreen instead of HomeScreen;
+  // its onExit flips our local state straight back to the normal chat home.
+  bool _elderly = false;
+  bool _resolving = false; // in-flight guard so builds don't stack reads
+
   @override
   void initState() {
     super.initState();
@@ -102,12 +112,27 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // Realme-safe proactive alerts: check every time the app comes forward.
-    if (state == AppLifecycleState.resumed) _pollAlerts();
+    if (state == AppLifecycleState.resumed) {
+      _pollAlerts();
+      // Re-pick up a flag change made while backgrounded (or in Settings).
+      _resolveElderly();
+    }
   }
 
   void _pollAlerts() {
     final app = context.read<AppState>();
     if (app.loggedIn) unawaited(AlertPoller.poll(app.api));
+  }
+
+  void _resolveElderly() {
+    if (_resolving) return;
+    _resolving = true;
+    final app = context.read<AppState>();
+    EldersModeController.resolveForRouting(app).whenComplete(() {
+      _resolving = false;
+    }).then((v) {
+      if (mounted && v != _elderly) setState(() => _elderly = v);
+    });
   }
 
   @override
@@ -122,6 +147,12 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     if (!app.loggedIn) return const LoginScreen();
     if (!app.onboarded) {
       return OnboardingScreen(onDone: app.markOnboarded);
+    }
+    // Only resolve the home swap once we're past login + onboarding, so the
+    // normal startup flow is never disturbed.
+    _resolveElderly();
+    if (_elderly) {
+      return ElderlyHomeScreen(onExit: () => setState(() => _elderly = false));
     }
     return const HomeScreen();
   }

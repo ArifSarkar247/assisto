@@ -4853,5 +4853,220 @@
   "notifErrorTitle": "Couldn't load",
   "notifErrorBody": "Something went wrong. Please try again.",
   "notifRetry": "Retry",
-  "notifActionFailed": "That didn't work. Please try again."
+  "notifActionFailed": "That didn't work. Please try again.",
+  "plTitle": "Payment Ladder",
+  "plSubtitle": "Step-by-step reminders to collect dues and pay bills",
+  "plTabReceivable": "Owed to me",
+  "plTabPayable": "I owe",
+  "plLoading": "Loading your ladders…",
+  "plLoadFailed": "Couldn't load",
+  "plLoadFailedBody": "Check your connection and try again.",
+  "plRetry": "Retry",
+  "plOffline": "You're offline — showing the last saved data.",
+  "plEmptyReceivableTitle": "No dues to collect",
+  "plEmptyReceivableBody": "Add a ladder for money people owe you — we'll remind them politely, step by step.",
+  "plEmptyPayableTitle": "No bills to pay",
+  "plEmptyPayablebody": "Add a bill or EMI — we'll remind you to pay on time.",
+  "plAddReceivable": "Add a due",
+  "plAddPayable": "Add a bill",
+  "plNewLadder": "New ladder",
+  "plEditLadder": "Edit ladder",
+  "plHeroReceivable": "Total owed to you",
+  "plHeroPayable": "Total you owe",
+  "plHeroNet": "Net position",
+  "plActionDueCount": "{count} steps due now",
+  "@plActionDueCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "plNoActionDue": "Nothing due right now.",
+  "plSectionDueNow": "Due now",
+  "plSectionAll": "All ladders",
+  "plParty": "Who",
+  "plPartyHintReceivable": "Name of who owes you",
+  "plPartyHintPayable": "Who you must pay",
+  "plAmount": "Amount",
+  "plAmountHint": "Total amount",
+  "plPaid": "Paid so far",
+  "plOutstanding": "{amount} left",
+  "@plOutstanding": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "plDueDate": "Due date",
+  "plPickDate": "Pick a date",
+  "plRecurring": "Repeats every N days",
+  "plRecurringHint": "For repeating bills (0 = one-time)",
+  "plStopOnPayment": "Stop when paid",
+  "plSteps": "Steps",
+  "plStepN": "Step {n}",
+  "@plStepN": {
+    "placeholders": {
+      "n": {}
+    }
+  },
+  "plAddStep": "Add a step",
+  "plRemoveStep": "Remove step",
+  "plUseDefault": "Use the suggested steps",
+  "plOffsetDays": "Timing",
+  "plOffsetOnDue": "On the due date",
+  "plOffsetAfter": "{n} days after",
+  "@plOffsetAfter": {
+    "placeholders": {
+      "n": {}
+    }
+  },
+  "plOffsetBefore": "{n} days before",
+  "@plOffsetBefore": {
+    "placeholders": {
+      "n": {}
+    }
+  },
+  "plChannel": "Channel",
+  "plChannelInApp": "In-app notification",
+  "plChannelWhatsapp": "Share on WhatsApp",
+  "plChannelSms": "SMS from your SIM",
+  "plActionLabel": "Action",
+  "plActRemindGentle": "Gentle reminder",
+  "plActRemindFirm": "Firmer reminder",
+  "plActFinalNotice": "Final notice",
+  "plActEscalateOwner": "Notify co-owner",
+  "plActPauseService": "Pause service",
+  "plActHeadsUp": "Heads-up",
+  "plActDueToday": "Due today",
+  "plActOverdue": "Overdue",
+  "plActFinalWarning": "Final warning",
+  "plActPayManual": "Pay in your own wallet",
+  "plActPayKey": "Pay via partner key",
+  "plStepDueBadge": "Now",
+  "plStepPast": "Done",
+  "plStepUpcoming": "Upcoming",
+  "plNextIn": "Next step in {n} days",
+  "@plNextIn": {
+    "placeholders": {
+      "n": {}
+    }
+  },
+  "plDaysOverdue": "{n} days overdue",
+  "@plDaysOverdue": {
+    "placeholders": {
+      "n": {}
+    }
+  },
+  "plDueToday": "Due today",
+  "plDueInDays": "Due in {n} days",
+  "@plDueInDays": {
+    "placeholders": {
+      "n": {}
+    }
+  },
+  "plDoAction": "Do this step",
+  "plShareWhatsapp": "Share on WhatsApp",
+  "plShareSms": "Open SMS",
+  "plShareHint": "Your own app opens — you press Send yourself.",
+  "plMsgReceivable": "{party}, you have {amount} due. Please pay when you can. Thank you.",
+  "@plMsgReceivable": {
+    "placeholders": {
+      "amount": {},
+      "party": {}
+    }
+  },
+  "plMsgPayable": "Reminder to pay {party} {amount}.",
+  "@plMsgPayable": {
+    "placeholders": {
+      "amount": {},
+      "party": {}
+    }
+  },
+  "plMarkPaid": "Mark paid",
+  "plMarkPaidBody": "Mark {amount} from {party} as paid?",
+  "@plMarkPaidBody": {
+    "placeholders": {
+      "amount": {},
+      "party": {}
+    }
+  },
+  "plMarkedPaid": "{party} marked paid.",
+  "@plMarkedPaid": {
+    "placeholders": {
+      "party": {}
+    }
+  },
+  "plRecordPartial": "Record a part payment",
+  "plPause": "Snooze",
+  "plResume": "Resume",
+  "plPaused": "Snoozed",
+  "plDelete": "Delete",
+  "plDeleteTitle": "Delete ladder?",
+  "plDeleteBody": "This will remove the ladder for {party}.",
+  "@plDeleteBody": {
+    "placeholders": {
+      "party": {}
+    }
+  },
+  "plSave": "Save",
+  "plCancel": "Cancel",
+  "plValidation": "Enter a name, a valid amount and at least one step.",
+  "plNoMoneyBanner": "Assisto never holds your money or auto-charges — it only reminds and helps you share.",
+  "plKeyGatedBanner": "Direct pay works only when you add your own licensed bKash/Nagad key. Otherwise your own wallet app opens.",
+  "plFooterHint": "Payments go through your own bKash/Nagad or a licensed partner — Assisto never holds money.",
+  "elderlyHomeTitle": "Simple mode",
+  "elderlyToggleTitle": "Simple mode (for elders)",
+  "elderlyToggleSubtitle": "Large text, big buttons, only the essentials",
+  "elderlyEnterConfirmTitle": "Turn on simple mode?",
+  "elderlyEnterConfirmBody": "Your home screen will switch to large text and big buttons. You can go back to the normal mode any time.",
+  "elderlyEnterConfirmCta": "Turn on",
+  "elderlyExitConfirmTitle": "Turn off simple mode?",
+  "elderlyExitConfirmBody": "You'll return to the normal home screen. You can turn simple mode back on any time.",
+  "elderlyExitConfirmCta": "Turn off",
+  "elderlyExitCta": "Exit simple",
+  "elderlyPermissionTitle": "Parent's permission",
+  "elderlyPermissionBody": "You're turning on simple mode for someone else (such as a parent). Please confirm you have their explicit permission before continuing.",
+  "elderlyPermissionConfirm": "I have their permission",
+  "elderlyPermissionDecline": "Cancel",
+  "elderlyTileSos": "Emergency help",
+  "elderlyTileSosSub": "One tap alerts family and 999",
+  "elderlyTileCall": "Call family",
+  "elderlyTileMeds": "My medicines",
+  "elderlyTileMessages": "Messages",
+  "elderlyTileMoney": "Money",
+  "elderlyTileHelp": "Help",
+  "elderlyTileHelpSub": "Learn how to use the app",
+  "elderlyMedsDue": "{count} due today",
+  "@elderlyMedsDue": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "elderlyMedsNoneDue": "All taken today",
+  "elderlyCallSubAdd": "Add someone",
+  "elderlyCallSubCount": "{count} saved",
+  "@elderlyCallSubCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "elderlyChooseWhoToCall": "Who do you want to call?",
+  "elderlyFamilyGeneric": "Family",
+  "elderlyCallConfirmTitle": "Call {who}?",
+  "@elderlyCallConfirmTitle": {
+    "placeholders": {
+      "who": {}
+    }
+  },
+  "elderlyCallConfirmBody": "This will call {who} now.",
+  "@elderlyCallConfirmBody": {
+    "placeholders": {
+      "who": {}
+    }
+  },
+  "elderlyCallNow": "Call now",
+  "elderlyNoContactTitle": "No family number yet",
+  "elderlyNoContactBody": "Add a family member's number first so you can call them.",
+  "elderlyAddContactCta": "Add a number",
+  "elderlyVoice": "Speak to ask",
+  "elderlyOffline": "You're offline — showing the latest saved information.",
+  "elderlyLoadError": "Couldn't load your information. Please try again."
 }

@@ -10,6 +10,7 @@ import '../config.dart';
 import '../models.dart';
 import '../messenger_admin_api.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/elderly_mode.dart';
 import 'owner_analytics_screen.dart';
 import 'name_about_screen.dart';
 import 'subscriptions_screen.dart';
@@ -229,6 +230,15 @@ class SettingsScreen extends StatelessWidget {
             onChanged: (v) => app.setThemeMode(v!),
             title: Text(t.themeDark),
             dense: true,
+          ),
+          const Divider(),
+          // Elderly simple-mode toggle (SPEC §29). Sits near Appearance/Safety
+          // (accessibility). Turning ON runs the parent-permission gate + an
+          // enter confirm; OFF runs an exit confirm. Popping to root makes the
+          // root route-swap re-resolve so the new home shows immediately.
+          ElderlyModeTile(
+            onChanged: (_) =>
+                Navigator.of(context).popUntil((r) => r.isFirst),
           ),
           const Divider(),
           const _SafetySection(),
