@@ -163,6 +163,47 @@ class AuditLog(models.Model):
         ordering = ["-created_at"]
 
 
+class PendingAction(models.Model):
+    """Action Center (SPEC v2.1 §21, feature #9) — an action the AI has PREPARED
+    and is holding for the user's approval under autonomy level 3 ("do it with
+    approval"). It is NEVER executed until approved; rejecting discards it, and
+    approving it writes an AuditLog row exactly as a direct action would.
+
+    AUTONOMY SEAM (where the queue gets populated — the AI itself is NOT built
+    here; this only models the hand-off): anywhere the agent is about to take a
+    non-trivial action it branches on `user.autonomy_level` —
+      1 remind-only  -> don't act, just remind.
+      2 suggest      -> surface a tappable suggestion (current behaviour).
+      3 approve      -> create a PendingAction(kind=<audit action key>,
+                        payload=<how to run it>) instead of running; it appears
+                        in the Action Center WAITING tab.
+      4 auto         -> run now + log(...) (never money/external without a prior
+                        per-case opt-in).
+    Approving merges any user edit into `payload`, marks the row done, and logs
+    the matching AuditLog action so the DONE tab / audit trail stays truthful."""
+    PENDING, APPROVED, REJECTED, DONE = "pending", "approved", "rejected", "done"
+    STATUS_CHOICES = [(PENDING, "pending"), (APPROVED, "approved"),
+                      (REJECTED, "rejected"), (DONE, "done")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="pending_actions")
+    # Dotted action key, SAME vocabulary as AuditLog.action (e.g. agent.reminder,
+    # message.send). The app parses module/icon/label from it; serialised as
+    # `action` to the client.
+    kind = models.CharField(max_length=80)
+    module = models.CharField(max_length=24, blank=True)
+    title = models.CharField(max_length=200)
+    summary = models.TextField(blank=True)            # e.g. drafted message body
+    autonomy_level = models.PositiveSmallIntegerField(default=3)
+    payload = models.JSONField(default=dict, blank=True)   # how to run it
+    status = models.CharField(max_length=9, choices=STATUS_CHOICES,
+                              default=PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+    acted_at = models.DateTimeField(null=True, blank=True)  # approved/rejected at
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
 class Reminder(models.Model):
     """Feature 3 — reminders / alarms / calendar, incl. recurring."""
     REC_NONE, REC_DAILY, REC_WEEKLY, REC_MONTHLY, REC_YEARLY = (

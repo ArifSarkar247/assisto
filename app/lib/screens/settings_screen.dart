@@ -11,6 +11,9 @@ import '../models.dart';
 import '../messenger_admin_api.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/elderly_mode.dart';
+import '../widgets/settings_language.dart';
+import '../widgets/settings_theme.dart';
+import '../widgets/settings_autonomy.dart';
 import 'owner_analytics_screen.dart';
 import 'name_about_screen.dart';
 import 'subscriptions_screen.dart';
@@ -20,16 +23,13 @@ import 'legal_screen.dart';
 import 'messenger/admin_moderation_screen.dart';
 import 'messenger/admin_users_screen.dart';
 import 'messenger/moderation_policy_screen.dart';
+// Wave-D batch-4: Action Center (replaces the old audit tile target) + Offline.
+import 'action_center_screen.dart';
+import 'offline_status_screen.dart';
+import '../widgets/offline_strings.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
-
-  static Map<int, List<String>> _autonomy(AppLocalizations t) => {
-    1: [t.autonomyRemindOnlyTitle, t.autonomyRemindOnlyDesc],
-    2: [t.autonomySuggestTitle, t.autonomySuggestDesc],
-    3: [t.autonomyApproveTitle, t.autonomyApproveDesc],
-    4: [t.autonomyAutoTitle, t.autonomyAutoDesc],
-  };
 
   Future<void> _export(BuildContext context) async {
     final app = context.read<AppState>();
@@ -134,8 +134,6 @@ class SettingsScreen extends StatelessWidget {
     final app = context.watch<AppState>();
     final t = AppLocalizations.of(context);
     final u = app.user;
-    final level = u?.autonomyLevel ?? 2;
-    final lang = app.locale?.languageCode ?? 'bn';
     return Scaffold(
       appBar: AppBar(title: Text(t.settingsTitle)),
       body: ListView(
@@ -185,52 +183,9 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
           const Divider(),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: Text(t.settingsLanguage,
-                style: const TextStyle(fontWeight: FontWeight.bold)),
-          ),
-          RadioListTile<String>(
-            value: 'bn',
-            groupValue: lang,
-            onChanged: (v) => app.setLocale(const Locale('bn')),
-            title: Text(t.languageBangla),
-            dense: true,
-          ),
-          RadioListTile<String>(
-            value: 'en',
-            groupValue: lang,
-            onChanged: (v) => app.setLocale(const Locale('en')),
-            title: Text(t.languageEnglish),
-            dense: true,
-          ),
+          const SettingsLanguageSection(),
           const Divider(),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: Text(t.settingsAppearance,
-                style: const TextStyle(fontWeight: FontWeight.bold)),
-          ),
-          RadioListTile<ThemeMode>(
-            value: ThemeMode.system,
-            groupValue: app.themeMode,
-            onChanged: (v) => app.setThemeMode(v!),
-            title: Text(t.themeSystem),
-            dense: true,
-          ),
-          RadioListTile<ThemeMode>(
-            value: ThemeMode.light,
-            groupValue: app.themeMode,
-            onChanged: (v) => app.setThemeMode(v!),
-            title: Text(t.themeLight),
-            dense: true,
-          ),
-          RadioListTile<ThemeMode>(
-            value: ThemeMode.dark,
-            groupValue: app.themeMode,
-            onChanged: (v) => app.setThemeMode(v!),
-            title: Text(t.themeDark),
-            dense: true,
-          ),
+          const SettingsThemeSection(),
           const Divider(),
           // Elderly simple-mode toggle (SPEC §29). Sits near Appearance/Safety
           // (accessibility). Turning ON runs the parent-permission gate + an
@@ -243,32 +198,24 @@ class SettingsScreen extends StatelessWidget {
           const Divider(),
           const _SafetySection(),
           const Divider(),
-          Padding(
-            padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: Text(AppLocalizations.of(context).autonomyDialTitle,
-                style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(16, 2, 16, 4),
-            child: Text(AppLocalizations.of(context).autonomyDialHint,
-                style: TextStyle(fontSize: 12, color: Colors.grey)),
-          ),
-          for (final e in _autonomy(t).entries)
-            RadioListTile<int>(
-              value: e.key,
-              groupValue: level,
-              onChanged: (v) => app.setAutonomy(v!),
-              title: Text(e.value[0]),
-              subtitle: Text(e.value[1],
-                  style: const TextStyle(fontSize: 12)),
-              dense: true,
-            ),
+          const SettingsAutonomySection(),
           const Divider(),
+          // Wave-D batch-4: the audit-log tile now opens the ADVANCED Action
+          // Center (Pending approvals + Done/audit log, autonomy-tied). The
+          // Action Center's Done tab reads the same GET /audit source the old
+          // AuditScreen used, so this is a strict superset — no lost function.
           ListTile(
             leading: const Icon(Icons.receipt_long_outlined),
             title: Text(AppLocalizations.of(context).auditLogTile),
             onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const AuditScreen())),
+                MaterialPageRoute(builder: (_) => const ActionCenterScreen())),
+          ),
+          ListTile(
+            leading: const Icon(Icons.cloud_off_outlined),
+            title: Text(oStr(context, 'offTitle')),
+            subtitle: Text(oStr(context, 'offAvailableOffline')),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const OfflineStatusScreen())),
           ),
           ListTile(
             leading: const Icon(Icons.insights_outlined),

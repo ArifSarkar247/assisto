@@ -23,6 +23,9 @@ import 'package:assisto/screens/messenger/messenger_home_screen.dart';
 import 'package:assisto/screens/messenger/messenger_settings_screen.dart';
 import 'package:assisto/screens/messenger/contact_info_screen.dart';
 import 'package:assisto/screens/notification_centre_screen.dart';
+import 'package:assisto/screens/offline_status_screen.dart';
+import 'package:assisto/screens/disaster_alerts_screen.dart';
+import 'package:assisto/screens/action_center_screen.dart';
 import 'package:assisto/screens/owner_analytics_screen.dart';
 import 'package:assisto/screens/name_about_screen.dart';
 import 'package:assisto/screens/password_reset_screen.dart';
@@ -190,6 +193,9 @@ void main() {
     'language_picker': (build: (_) => const LanguagePickerScreen(), mode: FakeMode.data, full: true),
     'home_welcome': (build: (_) => const HomeScreen(), mode: FakeMode.data, full: true),
     'notification_centre': (build: (_) => const NotificationCentreScreen(), mode: FakeMode.data, full: true),
+    'action_center': (build: (_) => const ActionCenterScreen(), mode: FakeMode.data, full: true),
+    'disaster_alerts': (build: (_) => const DisasterAlertsScreen(), mode: FakeMode.data, full: true),
+    'offline_status': (build: (_) => const OfflineStatusScreen(), mode: FakeMode.data, full: true),
     'safe_arrival': (build: (_) => const SafeArrivalScreen(), mode: FakeMode.data, full: true),
     'password_reset': (build: (_) => const PasswordResetScreen(), mode: FakeMode.data, full: true),
     'name_about': (build: (_) => const NameAboutScreen(), mode: FakeMode.data, full: true),

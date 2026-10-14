@@ -54,6 +54,11 @@ urlpatterns = [
     path("me", views.MeView.as_view()),
     path("audit", views.AuditListView.as_view()),
     path("undo", views.UndoView.as_view()),
+    # Action Center (SPEC v2.1 §21, feature #9) — pending-approval queue + log.
+    path("actions/pending", views.PendingActionsView.as_view()),
+    path("actions/<int:pk>/approve", views.PendingActionApproveView.as_view()),
+    path("actions/<int:pk>/reject", views.PendingActionRejectView.as_view()),
+    path("actions/log", views.ActionLogView.as_view()),
     path("sources", views.SourcePermissionView.as_view()),
     path("documents/<int:pk>/file", views.DocumentFileView.as_view()),
     path("emergency", views.EmergencyCardView.as_view()),

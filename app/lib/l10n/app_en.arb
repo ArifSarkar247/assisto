@@ -5887,5 +5887,286 @@
   "onbWinJourneySub": "Share your trip; family is alerted if you don't arrive.",
   "onbWinJourneyTitle": "Set a safe journey",
   "onbWinMedicineSub": "Set it once; they get a nudge every day.",
-  "onbWinMedicineTitle": "Add a parent's medicine reminder"
+  "onbWinMedicineTitle": "Add a parent's medicine reminder",
+  "languageCurrentLabel": "Current: {lang}",
+  "@languageCurrentLabel": {
+    "placeholders": {
+      "lang": {}
+    }
+  },
+  "languageAppliesNote": "The whole app follows this one choice — all Bangla or all English, never mixed.",
+  "autonomyPerModuleHint": "You can override this level separately for each module.",
+  "autonomyInControlNote": "You're always in control — the AI never moves money or takes outside actions without your okay.",
+  "themeFollowSystemNote": "'System' follows your phone's light/dark setting automatically; changes apply instantly.",
+  "offTitle": "Offline & data",
+  "offStatusOnline": "Online",
+  "offStatusOffline": "Offline",
+  "offStatusOnlineSub": "Connected — your changes are syncing now.",
+  "offStatusOfflineSub": "No internet — showing saved copies; will sync when back online.",
+  "offAvailableOffline": "These modules work offline",
+  "offWorksOffline": "Works offline",
+  "offCached": "Cached",
+  "offNotCached": "Not cached yet",
+  "offPureLocal": "Always offline — no data to store",
+  "offStale": "May be out of date",
+  "offNeverSynced": "Never synced",
+  "offSyncedJustNow": "Synced just now",
+  "offSyncedMinutes": "Synced {n} min ago",
+  "@offSyncedMinutes": {
+    "placeholders": {
+      "n": {}
+    }
+  },
+  "offSyncedHours": "Synced {n} h ago",
+  "@offSyncedHours": {
+    "placeholders": {
+      "n": {}
+    }
+  },
+  "offSyncedDays": "Synced {n} d ago",
+  "@offSyncedDays": {
+    "placeholders": {
+      "n": {}
+    }
+  },
+  "offDataUsage": "Data usage",
+  "offDataUsageNote": "Offline copies live on your phone; mobile data is used only when syncing.",
+  "offTotalCached": "Total cached: {size}",
+  "@offTotalCached": {
+    "placeholders": {
+      "size": {}
+    }
+  },
+  "offClear": "Clear",
+  "offClearAll": "Clear all caches",
+  "offCleared": "Offline copy cleared",
+  "offClearedAll": "All offline copies cleared",
+  "offClearQ": "Clear this module’s offline copy? It will re-download when you are online.",
+  "offClearAllQ": "Clear every module’s offline copy? Nothing on the server is deleted.",
+  "offNothingToClear": "Nothing to clear",
+  "offServerSafeNote": "Clearing a cache removes only the on-phone copy; nothing on the server is touched.",
+  "offModNotes": "Notes",
+  "offModContacts": "Contacts",
+  "offModReminders": "Reminders",
+  "offModSupplyList": "Supply list",
+  "offModTodo": "To-do",
+  "offModDictionary": "Dictionary",
+  "offModMedicineDb": "Medicine info",
+  "offModHealthTips": "Health tips",
+  "offModFinanceCalc": "Finance calculators",
+  "disTitle": "Disaster alerts",
+  "disSubtitle": "Official weather & disaster warnings",
+  "disRefresh": "Refresh",
+  "disRetry": "Retry",
+  "disErrorTitle": "Couldn't load alerts",
+  "disErrorBody": "Check your connection and try again.",
+  "disKindCyclone": "Cyclone",
+  "disKindFlood": "Flood",
+  "disKindHeat": "Heatwave",
+  "disKindEarthquake": "Earthquake",
+  "disSevInfo": "Info",
+  "disSevAdvisory": "Advisory",
+  "disSevWarning": "Warning",
+  "disSevSevere": "Severe",
+  "disSevExtreme": "Extreme",
+  "disChipSignal": "Signal no. {n}",
+  "@disChipSignal": {
+    "placeholders": {
+      "n": {}
+    }
+  },
+  "disChipFlood": "{n} m above danger level",
+  "@disChipFlood": {
+    "placeholders": {
+      "n": {}
+    }
+  },
+  "disChipHeat": "{n}°C",
+  "@disChipHeat": {
+    "placeholders": {
+      "n": {}
+    }
+  },
+  "disSourceLine": "Source: {source}",
+  "@disSourceLine": {
+    "placeholders": {
+      "source": {}
+    }
+  },
+  "disFeedNoKeyTitle": "Official feed not connected",
+  "disFeedNoKeyBody": "Connect an official feed (BMD/FFWC) to show live warnings. The examples below are NOT live alerts. Call 1090 for live information.",
+  "disFeedEmptyTitle": "No active warnings right now",
+  "disFeedEmptyBody": "The official feed reports no warnings at the moment. Anything new will appear here.",
+  "disFeedActiveTitle": "Active warnings in effect",
+  "disFeedActiveBody": "The warnings below come from the official feed. Follow the instructions.",
+  "disActiveTitle": "Active warnings",
+  "disSampleSectionTitle": "Example warnings (not live)",
+  "disSampleBadge": "Example",
+  "disSampleCycloneArea": "Coastal districts",
+  "disSampleCycloneTitle": "Danger signal No. 7",
+  "disSampleCycloneBody": "This is a sample. Check BMD or 1090 for real signals.",
+  "disSampleFloodArea": "Northern river basins",
+  "disSampleFloodTitle": "0.6 m above danger level",
+  "disSampleFloodBody": "This is a sample. Check FFWC for real water levels.",
+  "disSampleHeatArea": "Dhaka & western regions",
+  "disSampleHeatTitle": "Severe heatwave ~40.5°C",
+  "disSampleHeatBody": "This is a sample. Check BMD for the real forecast.",
+  "disSampleSourceBmd": "BMD (sample)",
+  "disSampleSourceFfwc": "FFWC (sample)",
+  "disWhatToDo": "What to do",
+  "disShare": "Share",
+  "disStepsTitle": "{kind}: what to do",
+  "@disStepsTitle": {
+    "placeholders": {
+      "kind": {}
+    }
+  },
+  "disNotSafetyGuarantee": "This is not a guarantee of safety • call 999 in an emergency.",
+  "disStepsSourceDisaster": "DDM / BDRCS / BMD",
+  "disStepsSourceHeat": "DGHS / BMD",
+  "disStepCyc1": "Follow official signals and instructions; ignore rumours.",
+  "disStepCyc2": "On a danger or great-danger signal, move quickly to the nearest cyclone shelter.",
+  "disStepCyc3": "Carry dry food, drinking water, medicines and important documents.",
+  "disStepCyc4": "Switch off the main power and gas before leaving home.",
+  "disStepCyc5": "Call 999 in an emergency; call 1090 for weather information.",
+  "disStepFld1": "Watch FFWC water levels against the danger level regularly.",
+  "disStepFld2": "Keep documents, medicines and dry food in a waterproof bag, raised high.",
+  "disStepFld3": "Do not walk or drive through flood water.",
+  "disStepFld4": "Boil or purify drinking water; stay away from wires and sockets.",
+  "disStepFld5": "Call 999 in an emergency; call 1090 for the forecast.",
+  "disStepHot1": "Avoid going out in the sun between 12pm and 3pm.",
+  "disStepHot2": "Drink water and oral saline often, even if you aren't thirsty.",
+  "disStepHot3": "Wear light-coloured, loose cotton clothes; use an umbrella or cap.",
+  "disStepHot4": "Keep children, the elderly and the unwell in shade and cool places.",
+  "disStepHot5": "If someone faints or vomits, cool them in shade and call 999.",
+  "disStepEq1": "When shaking starts: Drop, take cover under a sturdy table, and Hold on.",
+  "disStepEq2": "Stay away from windows, glass and heavy furniture; never use a lift.",
+  "disStepEq3": "When the shaking stops, leave calmly for open ground.",
+  "disStepEq4": "Expect aftershocks; do not re-enter a damaged building.",
+  "disStepEq5": "If you smell gas, turn it off; if trapped, make noise for help; call 999.",
+  "disFamilyTitle": "Where your family are",
+  "disFamilyHint": "We match your circle members' areas against live warning areas.",
+  "disFamilyNone": "Add family members to see who is in an affected area.",
+  "disFamilyAllSafe": "No family members are in an affected area right now.",
+  "disFamilyInArea": "{area} — {sev}: {kind}",
+  "@disFamilyInArea": {
+    "placeholders": {
+      "area": {},
+      "kind": {},
+      "sev": {}
+    }
+  },
+  "disOpenFamily": "Open family",
+  "disSafetyLibTitle": "Safety steps library",
+  "disPrepTitle": "Preparedness checklist",
+  "disPrepSource": "DDM / BDRCS",
+  "disPrep1": "Go-bag: dry food, drinking water, oral saline.",
+  "disPrep2": "Torch, spare batteries and a power bank.",
+  "disPrep3": "First-aid kit and your regular medicines.",
+  "disPrep4": "Copies of key documents in a waterproof bag (NID, deeds).",
+  "disPrep5": "Some cash and a list of emergency contact numbers.",
+  "disPrep6": "Agree a family meeting point and nearest shelter in advance.",
+  "disPrep7": "Save the hotlines: 999 and disaster forecast 1090.",
+  "disContactsTitle": "Emergency contacts",
+  "disContactsSource": "Source: 999 (NTMC) • 1090 (BMD/DDM) — toll-free",
+  "disHotlineNational": "National Emergency",
+  "disHotlineNationalNote": "Police • Fire • Ambulance (toll-free, 24/7)",
+  "disHotlineDisaster": "Disaster warning",
+  "disHotlineDisasterNote": "Weather & disaster forecast (toll-free)",
+  "disShareHeader": "DISASTER ALERT",
+  "disShareHeaderSample": "DISASTER ALERT (example — not live)",
+  "disShareArea": "Area: {area}",
+  "@disShareArea": {
+    "placeholders": {
+      "area": {}
+    }
+  },
+  "disShareHotlines": "Emergency: {emergency} • Forecast: {disaster}",
+  "@disShareHotlines": {
+    "placeholders": {
+      "disaster": {},
+      "emergency": {}
+    }
+  },
+  "disOfficialOnlyFooter": "Official sources only (BMD • FFWC • DDM). Never a fabricated warning.",
+  "actionCenterTitle": "Action center",
+  "actionTabPending": "Waiting",
+  "actionTabDone": "Done",
+  "actionTransparencyTitle": "You're in control",
+  "actionTransparencyBody": "Assisto only acts within your autonomy setting. You're on \"{level}\" — nothing happens beyond that without you.",
+  "@actionTransparencyBody": {
+    "placeholders": {
+      "level": {
+        "type": "Object"
+      }
+    }
+  },
+  "actionOpenAutonomy": "Change autonomy level",
+  "actionAutonomyHint": "Open Settings to change your autonomy level.",
+  "actionApprove": "Approve",
+  "actionApproveRun": "Approve & run",
+  "actionReject": "Reject",
+  "actionEdit": "Edit",
+  "actionCancel": "Cancel",
+  "actionUndo": "Undo",
+  "actionQueuedBecause": "Waiting for your approval because you're on \"{level}\".",
+  "@actionQueuedBecause": {
+    "placeholders": {
+      "level": {
+        "type": "Object"
+      }
+    }
+  },
+  "actionEditFieldLabel": "Review before it's sent",
+  "actionEditHint": "Edit the text Assisto prepared…",
+  "actionEditReadOnly": "Approving will run this exactly as shown. Nothing has happened yet.",
+  "actionPendingEmptyTitle": "Nothing waiting",
+  "actionPendingEmptyBody": "Assisto has nothing prepared for your approval right now. Anything it wants to do that needs a yes will appear here first.",
+  "actionDoneEmptyTitle": "No actions yet",
+  "actionDoneEmptyBody": "When Assisto does something for you — a reminder fired, a draft prepared, a note saved — it's logged here so you can see exactly what happened.",
+  "actionFilterAll": "All",
+  "actionFilterEmptyTitle": "Nothing in this filter",
+  "actionFilterEmptyBody": "No logged actions match this module. Try \"All\".",
+  "actionErrorTitle": "Couldn't load",
+  "actionApprovedSnack": "Approved — Assisto ran it.",
+  "actionRejectedSnack": "Rejected — Assisto won't do it.",
+  "actionUndoneSnack": "Undone — the item was restored.",
+  "actionNothingToUndo": "Too late to undo this one, or it can't be reversed.",
+  "actionFailedSnack": "Couldn't complete that: {error}",
+  "@actionFailedSnack": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "actionModuleAgent": "AI agent",
+  "actionModuleReminders": "Reminders",
+  "actionModuleMessages": "Messages",
+  "actionModuleMemory": "Memory",
+  "actionModuleMoney": "Money",
+  "actionModuleHealth": "Health",
+  "actionModuleSafety": "Safety",
+  "actionModuleDocuments": "Documents",
+  "actionModuleNominee": "Nominee",
+  "actionModuleJobs": "Jobs",
+  "actionModuleAccount": "Account",
+  "actionModuleIntegrations": "Integrations",
+  "actionModuleOther": "Other",
+  "actionLabelReminderSet": "Reminder set",
+  "actionLabelMemorySaved": "Saved to memory",
+  "actionLabelMemoryUpdated": "Memory updated",
+  "actionLabelMemoryDeleted": "Memory deleted",
+  "actionLabelMedicineLogged": "Medicine added",
+  "actionLabelMedicineTaken": "Medicine marked taken",
+  "actionLabelLoanLogged": "Loan recorded",
+  "actionLabelScamChecked": "Scam check run",
+  "actionLabelScamReported": "Scam reported",
+  "actionLabelExported": "Data exported",
+  "actionLabelDocSaved": "Document saved",
+  "actionLabelDocDeleted": "Document deleted",
+  "actionLabelCheckinStart": "Safe-arrival started",
+  "actionLabelCheckinArrived": "Marked arrived safely",
+  "actionLabelProfileUpdated": "Profile updated",
+  "actionLabelSourceToggled": "Source permission changed"
 }

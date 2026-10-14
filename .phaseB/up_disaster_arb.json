@@ -1,0 +1,112 @@
+{
+  "disTitle": ["দুর্যোগ সতর্কতা", "Disaster alerts"],
+  "disSubtitle": ["সরকারি আবহাওয়া ও দুর্যোগ সতর্কতা", "Official weather & disaster warnings"],
+  "disRefresh": ["রিফ্রেশ", "Refresh"],
+  "disRetry": ["আবার চেষ্টা করুন", "Retry"],
+  "disErrorTitle": ["সতর্কতা আনা গেল না", "Couldn't load alerts"],
+  "disErrorBody": ["সংযোগ দেখে আবার চেষ্টা করুন।", "Check your connection and try again."],
+
+  "disKindCyclone": ["ঘূর্ণিঝড়", "Cyclone"],
+  "disKindFlood": ["বন্যা", "Flood"],
+  "disKindHeat": ["তাপপ্রবাহ", "Heatwave"],
+  "disKindEarthquake": ["ভূমিকম্প", "Earthquake"],
+
+  "disSevInfo": ["তথ্য", "Info"],
+  "disSevAdvisory": ["সতর্কতা", "Advisory"],
+  "disSevWarning": ["সাবধান সংকেত", "Warning"],
+  "disSevSevere": ["তীব্র", "Severe"],
+  "disSevExtreme": ["চরম", "Extreme"],
+
+  "disChipSignal": ["সংকেত নং {n}", "Signal no. {n}"],
+  "disChipFlood": ["বিপৎসীমার {n} মি উপরে", "{n} m above danger level"],
+  "disChipHeat": ["{n}°সে", "{n}°C"],
+
+  "disSourceLine": ["সূত্র: {source}", "Source: {source}"],
+
+  "disFeedNoKeyTitle": ["সরকারি ফিড সংযুক্ত নয়", "Official feed not connected"],
+  "disFeedNoKeyBody": ["সরাসরি সতর্কতা দেখাতে সরকারি ফিড (BMD/FFWC) সংযুক্ত করতে হবে। নিচে উদাহরণ দেখানো হয়েছে—এগুলো সরাসরি সতর্কতা নয়। জরুরি তথ্যে ১০৯০-এ কল করুন।", "Connect an official feed (BMD/FFWC) to show live warnings. The examples below are NOT live alerts. Call 1090 for live information."],
+  "disFeedEmptyTitle": ["এখন কোনো সক্রিয় সতর্কতা নেই", "No active warnings right now"],
+  "disFeedEmptyBody": ["সরকারি ফিড অনুযায়ী এই মুহূর্তে কোনো সতর্কতা নেই। পরিস্থিতি বদলালে এখানে দেখা যাবে।", "The official feed reports no warnings at the moment. Anything new will appear here."],
+  "disFeedActiveTitle": ["সক্রিয় সতর্কতা রয়েছে", "Active warnings in effect"],
+  "disFeedActiveBody": ["নিচের সতর্কতাগুলো সরকারি ফিড থেকে এসেছে। নির্দেশ মেনে চলুন।", "The warnings below come from the official feed. Follow the instructions."],
+
+  "disActiveTitle": ["সক্রিয় সতর্কতা", "Active warnings"],
+  "disSampleSectionTitle": ["উদাহরণ সতর্কতা (সরাসরি নয়)", "Example warnings (not live)"],
+  "disSampleBadge": ["উদাহরণ", "Example"],
+
+  "disSampleCycloneArea": ["উপকূলীয় জেলাসমূহ", "Coastal districts"],
+  "disSampleCycloneTitle": ["বিপদ সংকেত নং ৭", "Danger signal No. 7"],
+  "disSampleCycloneBody": ["এটি একটি নমুনা। প্রকৃত সংকেতের জন্য BMD বা ১০৯০ দেখুন।", "This is a sample. Check BMD or 1090 for real signals."],
+  "disSampleFloodArea": ["উত্তরাঞ্চলের নদী অববাহিকা", "Northern river basins"],
+  "disSampleFloodTitle": ["বিপৎসীমার ০.৬ মি উপরে", "0.6 m above danger level"],
+  "disSampleFloodBody": ["এটি একটি নমুনা। প্রকৃত পানির স্তরের জন্য FFWC দেখুন।", "This is a sample. Check FFWC for real water levels."],
+  "disSampleHeatArea": ["ঢাকা ও পশ্চিমাঞ্চল", "Dhaka & western regions"],
+  "disSampleHeatTitle": ["তীব্র তাপপ্রবাহ ~৪০.৫°সে", "Severe heatwave ~40.5°C"],
+  "disSampleHeatBody": ["এটি একটি নমুনা। প্রকৃত পূর্বাভাসের জন্য BMD দেখুন।", "This is a sample. Check BMD for the real forecast."],
+  "disSampleSourceBmd": ["BMD (উদাহরণ)", "BMD (sample)"],
+  "disSampleSourceFfwc": ["FFWC (উদাহরণ)", "FFWC (sample)"],
+
+  "disWhatToDo": ["করণীয়", "What to do"],
+  "disShare": ["শেয়ার", "Share"],
+  "disStepsTitle": ["{kind}: করণীয়", "{kind}: what to do"],
+  "disNotSafetyGuarantee": ["এটি নিরাপত্তার নিশ্চয়তা নয় • জরুরি হলে ৯৯৯-এ কল করুন।", "This is not a guarantee of safety • call 999 in an emergency."],
+  "disStepsSourceDisaster": ["দুর্যোগ ব্যবস্থাপনা অধিদপ্তর / রেড ক্রিসেন্ট / BMD", "DDM / BDRCS / BMD"],
+  "disStepsSourceHeat": ["স্বাস্থ্য অধিদপ্তর (DGHS) / BMD", "DGHS / BMD"],
+
+  "disStepCyc1": ["সরকারি সংকেত ও নির্দেশ মেনে চলুন; গুজবে কান দেবেন না।", "Follow official signals and instructions; ignore rumours."],
+  "disStepCyc2": ["বিপদ/মহাবিপদ সংকেতে দ্রুত নিকটস্থ ঘূর্ণিঝড় আশ্রয়কেন্দ্রে যান।", "On a danger or great-danger signal, move quickly to the nearest cyclone shelter."],
+  "disStepCyc3": ["শুকনো খাবার, খাওয়ার পানি, ওষুধ ও জরুরি কাগজপত্র সঙ্গে নিন।", "Carry dry food, drinking water, medicines and important documents."],
+  "disStepCyc4": ["বিদ্যুৎ ও গ্যাসের মূল সংযোগ বন্ধ করে ঘর ছাড়ুন।", "Switch off the main power and gas before leaving home."],
+  "disStepCyc5": ["জরুরি প্রয়োজনে ৯৯৯, আবহাওয়া তথ্যে ১০৯০-এ কল করুন।", "Call 999 in an emergency; call 1090 for weather information."],
+
+  "disStepFld1": ["FFWC-এর পানির স্তর ও বিপৎসীমার তথ্য নিয়মিত দেখুন।", "Watch FFWC water levels against the danger level regularly."],
+  "disStepFld2": ["কাগজ, ওষুধ ও শুকনো খাবার পানিরোধী ব্যাগে উঁচুতে রাখুন।", "Keep documents, medicines and dry food in a waterproof bag, raised high."],
+  "disStepFld3": ["বন্যার পানিতে হাঁটা বা গাড়ি চালানো থেকে বিরত থাকুন।", "Do not walk or drive through flood water."],
+  "disStepFld4": ["খাওয়ার পানি ফুটিয়ে বা বিশুদ্ধ করে পান করুন; তার-সকেট থেকে দূরে থাকুন।", "Boil or purify drinking water; stay away from wires and sockets."],
+  "disStepFld5": ["জরুরি প্রয়োজনে ৯৯৯, পূর্বাভাসে ১০৯০-এ কল করুন।", "Call 999 in an emergency; call 1090 for the forecast."],
+
+  "disStepHot1": ["দুপুর ১২টা–৩টা রোদে বাইরে যাওয়া এড়িয়ে চলুন।", "Avoid going out in the sun between 12pm and 3pm."],
+  "disStepHot2": ["বারবার পানি ও খাবার স্যালাইন পান করুন; তৃষ্ণা না পেলেও।", "Drink water and oral saline often, even if you aren't thirsty."],
+  "disStepHot3": ["হালকা রঙের ঢিলা সুতির কাপড় পরুন, ছাতা/টুপি ব্যবহার করুন।", "Wear light-coloured, loose cotton clothes; use an umbrella or cap."],
+  "disStepHot4": ["শিশু, বৃদ্ধ ও অসুস্থদের ছায়া ও ঠান্ডা স্থানে রাখুন।", "Keep children, the elderly and the unwell in shade and cool places."],
+  "disStepHot5": ["মাথা ঘোরা/বমি/জ্ঞান হারালে ছায়ায় নিয়ে ঠান্ডা করুন, ৯৯৯-এ কল করুন।", "If someone faints or vomits, cool them in shade and call 999."],
+
+  "disStepEq1": ["কাঁপুনি শুরু হলে: নিচু হোন, মজবুত টেবিলের নিচে আশ্রয় নিন, ধরে রাখুন।", "When shaking starts: Drop, take cover under a sturdy table, and Hold on."],
+  "disStepEq2": ["জানালা, কাচ ও ভারী আসবাব থেকে দূরে থাকুন; লিফট ব্যবহার করবেন না।", "Stay away from windows, glass and heavy furniture; never use a lift."],
+  "disStepEq3": ["কাঁপুনি থামলে শান্তভাবে খোলা জায়গায় বেরিয়ে যান।", "When the shaking stops, leave calmly for open ground."],
+  "disStepEq4": ["আফটারশকের জন্য প্রস্তুত থাকুন; ক্ষতিগ্রস্ত ভবনে ঢুকবেন না।", "Expect aftershocks; do not re-enter a damaged building."],
+  "disStepEq5": ["গ্যাসের গন্ধ পেলে সংযোগ বন্ধ করুন; আটকা পড়লে শব্দ করে সাহায্য চান; ৯৯৯-এ কল করুন।", "If you smell gas, turn it off; if trapped, make noise for help; call 999."],
+
+  "disFamilyTitle": ["পরিবার কোথায় আছে", "Where your family are"],
+  "disFamilyHint": ["সরাসরি সতর্কতার এলাকার সাথে পরিবারের এলাকা মিলিয়ে দেখা হয় (সার্কেল থেকে)।", "We match your circle members' areas against live warning areas."],
+  "disFamilyNone": ["পরিবারের সদস্য যোগ করুন—তাহলে কে ঝুঁকির এলাকায় আছে দেখা যাবে।", "Add family members to see who is in an affected area."],
+  "disFamilyAllSafe": ["পরিবারের কেউ এখন ঝুঁকির এলাকায় নেই।", "No family members are in an affected area right now."],
+  "disFamilyInArea": ["{area} — {sev}: {kind}", "{area} — {sev}: {kind}"],
+  "disOpenFamily": ["পরিবার খুলুন", "Open family"],
+
+  "disSafetyLibTitle": ["করণীয় নির্দেশিকা", "Safety steps library"],
+
+  "disPrepTitle": ["প্রস্তুতি তালিকা", "Preparedness checklist"],
+  "disPrepSource": ["দুর্যোগ ব্যবস্থাপনা অধিদপ্তর / রেড ক্রিসেন্ট", "DDM / BDRCS"],
+  "disPrep1": ["জরুরি ব্যাগ: শুকনো খাবার, খাওয়ার পানি, খাবার স্যালাইন।", "Go-bag: dry food, drinking water, oral saline."],
+  "disPrep2": ["টর্চলাইট, বাড়তি ব্যাটারি ও পাওয়ার ব্যাংক।", "Torch, spare batteries and a power bank."],
+  "disPrep3": ["প্রাথমিক চিকিৎসার বাক্স ও নিয়মিত ওষুধ।", "First-aid kit and your regular medicines."],
+  "disPrep4": ["জরুরি কাগজপত্রের কপি পানিরোধী ব্যাগে (NID, দলিল)।", "Copies of key documents in a waterproof bag (NID, deeds)."],
+  "disPrep5": ["কিছু নগদ টাকা ও জরুরি যোগাযোগ নম্বরের তালিকা।", "Some cash and a list of emergency contact numbers."],
+  "disPrep6": ["পরিবারের মিলনস্থল ও নিকটস্থ আশ্রয়কেন্দ্র আগেই ঠিক করুন।", "Agree a family meeting point and nearest shelter in advance."],
+  "disPrep7": ["জরুরি নম্বর সংরক্ষণ: ৯৯৯ ও দুর্যোগ পূর্বাভাস ১০৯০।", "Save the hotlines: 999 and disaster forecast 1090."],
+
+  "disContactsTitle": ["জরুরি যোগাযোগ", "Emergency contacts"],
+  "disContactsSource": ["সূত্র: ৯৯৯ (NTMC) • ১০৯০ (BMD/DDM) — টোল-ফ্রি", "Source: 999 (NTMC) • 1090 (BMD/DDM) — toll-free"],
+  "disHotlineNational": ["জাতীয় জরুরি সেবা", "National Emergency"],
+  "disHotlineNationalNote": ["পুলিশ • ফায়ার • অ্যাম্বুলেন্স (টোল-ফ্রি, ২৪/৭)", "Police • Fire • Ambulance (toll-free, 24/7)"],
+  "disHotlineDisaster": ["দুর্যোগ পূর্বাভাস", "Disaster warning"],
+  "disHotlineDisasterNote": ["আবহাওয়া ও দুর্যোগ পূর্বাভাস (টোল-ফ্রি)", "Weather & disaster forecast (toll-free)"],
+
+  "disShareHeader": ["দুর্যোগ সতর্কতা", "DISASTER ALERT"],
+  "disShareHeaderSample": ["দুর্যোগ সতর্কতা (উদাহরণ — সরাসরি নয়)", "DISASTER ALERT (example — not live)"],
+  "disShareArea": ["এলাকা: {area}", "Area: {area}"],
+  "disShareHotlines": ["জরুরি: {emergency} • পূর্বাভাস: {disaster}", "Emergency: {emergency} • Forecast: {disaster}"],
+
+  "disOfficialOnlyFooter": ["শুধু সরকারি সূত্র (BMD • FFWC • দুর্যোগ ব্যবস্থাপনা অধিদপ্তর)। কখনো বানানো সতর্কতা নয়।", "Official sources only (BMD • FFWC • DDM). Never a fabricated warning."]
+}

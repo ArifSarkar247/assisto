@@ -18,6 +18,7 @@ import '../screens/nominee_screen.dart';
 import '../screens/journey_start_screen.dart';
 import '../screens/emergency_screen.dart';
 import '../screens/scam_screen.dart';
+import '../screens/disaster_alerts_screen.dart';
 // contacts (own section per SPEC v2.1 §4; Profile moved to Settings per
 // OWNER UI FIX v2 §4 — Profile is not a module)
 import '../screens/crm_contacts_screen.dart';
@@ -152,6 +153,13 @@ class SidebarSections {
       SidebarItem(Icons.monitor_heart_outlined, (t) => t.fallDetectTitle,
           (_) => const FallDetectScreen(),
           synonyms: ['fall', 'fall detection', 'accident', 'elderly safety']),
+      // Wave-D batch-4: BD-specific disaster & weather warnings (cyclone / flood
+      // / heatwave / earthquake), official sources only. Also chat-openable via
+      // ChatNav route 'disaster'.
+      SidebarItem(Icons.cyclone, (t) => t.disTitle,
+          (_) => const DisasterAlertsScreen(),
+          synonyms: ['disaster', 'cyclone', 'flood', 'warning', 'earthquake',
+              'weather warning']),
     ]),
     // 4. Contacts — single-item section. Profile was REMOVED here (OWNER UI FIX
     // v2 §4–5): Profile is NOT a module, it lives as a card at the top of

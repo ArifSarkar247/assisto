@@ -46,6 +46,10 @@ import '../screens/journey_start_screen.dart';
 import '../screens/referral_screen.dart';
 import '../screens/circle_privacy_screen.dart';
 import '../screens/circle_call_history_screen.dart';
+// Wave-D batch-4: Action Center, Disaster alerts, Offline & data
+import '../screens/action_center_screen.dart';
+import '../screens/disaster_alerts_screen.dart';
+import '../screens/offline_status_screen.dart';
 
 /// open-from-chat configuration (Phase B).
 ///
@@ -129,6 +133,12 @@ class ChatNav {
     'referral': (_) => const ReferralScreen(),
     'circle_privacy': (_) => const CirclePrivacyScreen(),
     'circle_calls': (_) => const CircleCallHistoryScreen(),
+    // Wave-D batch-4: Action Center (transparency/audit), Disaster alerts,
+    // Offline & data. Each is also reachable from Settings / the sidebar, so
+    // none is a dead screen.
+    'action_center': (_) => const ActionCenterScreen(),
+    'disaster': (_) => const DisasterAlertsScreen(),
+    'offline': (_) => const OfflineStatusScreen(),
   };
 
   /// Local ENGLISH subject vocabulary (ASCII only). Mirrors the English tokens
@@ -186,6 +196,12 @@ class ChatNav {
     'referral': ['referral', 'refer', 'points', 'invite friend'],
     'circle_privacy': ['circle privacy', 'privacy controls', 'block'],
     'circle_calls': ['call history', 'call log', 'circle calls'],
+    // Wave-D batch-4
+    'action_center': ['action center', 'action centre', 'audit log', 'audit',
+        'what did you do', 'approvals', 'pending actions'],
+    'disaster': ['disaster alerts', 'disaster', 'cyclone', 'flood', 'warning',
+        'weather warning', 'earthquake'],
+    'offline': ['offline', 'offline data', 'cache', 'data usage', 'clear cache'],
   };
 
   /// English verbs marking an explicit "open the screen" intent, so a plain

@@ -12,8 +12,8 @@ from rest_framework.views import APIView
 
 from datetime import timedelta
 
-from .models import (User, MemoryItem, AuditLog, Reminder, Note, Todo,
-                     SourcePermission, SupportTicket, Document, EmergencyCard,
+from .models import (User, MemoryItem, AuditLog, PendingAction, Reminder, Note,
+                     Todo, SourcePermission, SupportTicket, Document, EmergencyCard,
                      Account, Transaction, Budget, Loan, SavingsGoal, Subscription,
                      NightBriefing, WaitlistEntry, SafetyCheckin, FamilyAlert)
 from .serializers import (
@@ -254,6 +254,89 @@ class UndoView(APIView):
 # ---------- audit log / action center ----------
 
 class AuditListView(APIView):
+    def get(self, request):
+        qs = AuditLog.objects.filter(user=request.user)[:200]
+        return Response(AuditLogSerializer(qs, many=True).data)
+
+
+# ---------- Action Center: pending-approval queue (SPEC v2.1 §21, feature #9) ----------
+
+def _pending_json(p):
+    """Serialise a PendingAction to the shape the app's PendingAction.fromJson
+    expects: kind -> action, payload -> detail. Owner-scoped by the caller."""
+    return {
+        "id": p.id,
+        "action": p.kind,
+        "module": p.module,
+        "title": p.title,
+        "summary": p.summary,
+        "autonomy_level": p.autonomy_level,
+        "created_at": p.created_at.isoformat(),
+        "detail": p.payload or {},
+    }
+
+
+class PendingActionsView(APIView):
+    """GET /actions/pending -> {pending:[...]} — only the current user's rows
+    still waiting for approval. Owner-scoped; never leaks another user's queue.
+    The app degrades to an empty 'nothing waiting' list if this is absent."""
+    def get(self, request):
+        qs = PendingAction.objects.filter(user=request.user,
+                                          status=PendingAction.PENDING)
+        return Response({"pending": [_pending_json(p) for p in qs]})
+
+
+class PendingActionApproveView(APIView):
+    """POST /actions/<id>/approve {edit?} -> {ok, done:{...}}.
+
+    Merges the user's edit (a tweak to a draftable field) into the prepared
+    payload, marks the row done, and writes the matching AuditLog row so the
+    DONE tab / audit trail reflects it. The ACTUAL execution of side-effecting
+    kinds (sending a message, etc.) is the AI/module executor's job — this view
+    owns the approval + audit seam only, which is what makes the action truthful
+    and undoable. Returns the merged payload as `done` so the UI can confirm."""
+    def post(self, request, pk):
+        lang = req_lang(request)
+        p = PendingAction.objects.filter(user=request.user, pk=pk).first()
+        if not p or p.status != PendingAction.PENDING:
+            return Response({"detail": pick(lang, "অপেক্ষমাণ কিছু নেই।",
+                                            "Nothing pending here.")}, status=404)
+        edit = request.data.get("edit") or {}
+        if isinstance(edit, dict) and edit:
+            payload = dict(p.payload or {})
+            payload.update(edit)
+            p.payload = payload
+        p.status = PendingAction.DONE
+        p.acted_at = timezone.now()
+        p.save(update_fields=["payload", "status", "acted_at"])
+        # Audit trail uses the SAME dotted key the direct action would.
+        log(request.user, p.kind, pending_id=p.id, title=p.title,
+            payload=p.payload or {})
+        return Response({"ok": True, "done": {"id": p.id, "action": p.kind,
+                                              "payload": p.payload or {}}})
+
+
+class PendingActionRejectView(APIView):
+    """POST /actions/<id>/reject {reason?} -> {ok}. Discards a prepared action;
+    the rejection itself is audit-logged (action=`<kind>.reject`)."""
+    def post(self, request, pk):
+        lang = req_lang(request)
+        p = PendingAction.objects.filter(user=request.user, pk=pk).first()
+        if not p or p.status != PendingAction.PENDING:
+            return Response({"detail": pick(lang, "অপেক্ষমাণ কিছু নেই।",
+                                            "Nothing pending here.")}, status=404)
+        reason = (request.data.get("reason") or "").strip()
+        p.status = PendingAction.REJECTED
+        p.acted_at = timezone.now()
+        p.save(update_fields=["status", "acted_at"])
+        log(request.user, f"{p.kind}.reject", pending_id=p.id, reason=reason)
+        return Response({"ok": True})
+
+
+class ActionLogView(APIView):
+    """GET /actions/log -> the DONE / audit list. Alias of the existing audit
+    log (AuditLog is the single source of truth for 'what happened'), kept so the
+    Action Center has a cohesive /actions/* surface. Owner-scoped, newest-first."""
     def get(self, request):
         qs = AuditLog.objects.filter(user=request.user)[:200]
         return Response(AuditLogSerializer(qs, many=True).data)

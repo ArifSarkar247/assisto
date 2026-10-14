@@ -1,0 +1,17 @@
+{
+  "_comment": "Assisto AI-CORE SETTINGS good-bits -> ADVANCED (SPEC v2.1 §21). Three sections upgraded in app/lib/screens/settings_screen.dart via new widgets app/lib/widgets/settings_language.dart (#2 strict language split), app/lib/widgets/settings_theme.dart (#19 dark/light), app/lib/widgets/settings_autonomy.dart (#8 autonomy dial). {key:[bn,en]} -> [0] merge into app/lib/l10n/app_bn.arb, [1] into app/lib/l10n/app_en.arb, then run `flutter gen-l10n`. NEW keys only (5). REUSED existing keys (already in both ARBs — do NOT re-add): settingsLanguage, settingsAppearance, languageBangla, languageEnglish, themeSystem, themeLight, themeDark, autonomyDialTitle, autonomyDialHint, autonomyRemindOnlyTitle, autonomyRemindOnlyDesc, autonomySuggestTitle, autonomySuggestDesc, autonomyApproveTitle, autonomyApproveDesc, autonomyAutoTitle, autonomyAutoDesc. Strict language split: NO mixed bn/en anywhere; the two native script labels (বাংলা / English) are intentional self-names shown in BOTH modes and live in .dart as proper-noun constants, not translatable copy.",
+
+  "languageCurrentLabel": ["এখন: {lang}", "Current: {lang}"],
+  "@languageCurrentLabel": {
+    "description": "Current-language indicator chip in the Language settings section. {lang} is the active language's own name.",
+    "placeholders": { "lang": { "type": "String" } }
+  },
+
+  "languageAppliesNote": ["আপনার এই পছন্দ অনুযায়ী পুরো অ্যাপ এক ভাষাতেই চলবে — বাংলা বা ইংরেজি, মিশ্র নয়।", "The whole app follows this one choice — all Bangla or all English, never mixed."],
+
+  "autonomyPerModuleHint": ["প্রতিটি মডিউলে আলাদা করেও এই মাত্রা বদলে নিতে পারবেন।", "You can override this level separately for each module."],
+
+  "autonomyInControlNote": ["যেকোনো সময় নিয়ন্ত্রণ আপনার হাতেই — AI কখনো টাকা বা বাইরের কাজ আপনার অনুমতি ছাড়া করবে না।", "You're always in control — the AI never moves money or takes outside actions without your okay."],
+
+  "themeFollowSystemNote": ["‘সিস্টেম’ বাছলে আপনার ফোনের থিম অনুযায়ী আলো/অন্ধকার নিজে থেকেই বদলাবে; পরিবর্তন সঙ্গে সঙ্গে দেখবেন।", "'System' follows your phone's light/dark setting automatically; changes apply instantly."]
+}

@@ -715,3 +715,19 @@ NOTHING basic may remain.
 - REMAINING WAVE D (~43): watch-feed/nominee/journey good-bits + messenger/CRM/business/circle/safety good-bits + security-doc + fall-detect-polish + misc (full list SPEC_V21_AUDIT.md). Batch ~6.
 - THEN WAVE E (~79 v2.1 new), Step 6 (SFU+TURN M3 + aws_ports.md + Telegram sandbox), Step 7 (P14-16/iOS/FINAL).
 - Builds through 74. 590→604 tests. migrations through 0028. ship_watch.sh exit-code fixed. All green.
+
+- BUILD 75 SHIPPED 2026-10-14: https://assisto.asalify.com/dl/VoX5RSEtALGIxY5nuVPuv97-/assisto-part7-build75.apk (Wave D batch 3: Safe-arrival, Onboarding, Legal, Password-reset, Name/TM-about, Analytics → advanced). 626 tests, analyze 0, gate clean. 18/61. Gallery: https://assisto.asalify.com/dl/shots-waved3-W5577S0suAI/index.html
+
+## WAVE D PROGRESS + remaining map (2026-10-14, after build 75)
+- ✅ 18/61 good→advanced shipped (builds 73,74,75). + all 28 basic→advanced (build 68) + 2 not-built (build 72) + 4 web tools (Wave C).
+- Audit-refresh agent a118cab → .phaseB/REMAINING_BELOW_ADVANCED.md: exact remaining good (~43), remaining v2.1-new (~79 Wave E), 13 owner-blocked + recommended disjoint batches of 6.
+- NEXT: Wave D batches 4..N (remaining good, ~6 each) from that list → then WAVE E (~79 new: Sec14 PA/AI-core/DailyLife/standalone/Sec20) → Step 6 (SFU+TURN M3 self-hosted hard-caps + aws_ports.md + Telegram sandbox) → Step 7 (P14-16/iOS/FINAL).
+- INTEGRATION PATTERN (proven): 6 agents emit up_<mod>_arb.json → merge → if getter-coverage gaps or temp-strings-tables (pStr/aStr) → launch 1 reconcile agent (grep-driven coverage + swap temp→AppLocalizations) → gen-l10n→analyze 0→gate→tests→gallery→build. Watch localeName collision (built-in getter, don't add as ARB key). ship_watch.sh exit-code FIXED. Transient NDK ZipFile failure → gh run rerun --failed.
+- State: en=bn=4560, 626 tests, migrations through 0028, builds through 75. All green. Asalify 200, disk ~8.6G, repo PUBLIC (owner-managed).
+
+## WAVE D BATCH 4 (D4, 2026-10-14, after build 75) — AI-core good-bits
+- REMAINING_BELOW_ADVANCED.md: 43 good left (batches D4-D10), ~79 Wave E, 13 owner-blocked (AI-key dominates).
+- D4 agents (4, disjoint): settings-bundle a6e906 (#2 lang-split + #8 autonomy-dial + #19 dark/light), action-center aa53c2 (#9 pending+audit, autonomy-tied, new action_center_screen), disaster-alerts afa1c4 (#44 BMD/FFWC official-only, 1090/999, feed-key-gated, new disaster_alerts_screen), offline-first aacfc3 (#12 reusable OfflineCache helper + offline_status_screen).
+- AFTER D4: merge arb + wire new screens (action_center/disaster/offline → settings or sidebar + chatnav routes) + reconcile getter-coverage if needed + gen-l10n→analyze 0→gate→tests→gallery→build. →~22/61.
+- NEXT D5 (Reminders&Money good-bits: #22 calendar&notes, #50 budget, #60 tax&zakat, #61 family-accounting, #62 money-voice, #63 monthly-wrapped — SEQUENCE D5 before D6, family_screen.dart shared). Then D6-D10 → Wave E (~79) → Step 6 (SFU+TURN M3 + aws_ports.md + Telegram sandbox) → Step 7 (P14-16/iOS/FINAL).
+- Builds through 75. en=bn=4560. 626 tests. All green. Repo PUBLIC. disk 8.6G.
