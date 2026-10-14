@@ -30,6 +30,12 @@ import '../screens/wedding_events_screen.dart';
 import '../screens/domestic_staff_screen.dart';
 import '../screens/savings_challenge_screen.dart';
 import '../screens/farmer_mode_screen.dart';
+import '../screens/health_timeline_screen.dart';
+import '../screens/wellness_tracker_screen.dart';
+import '../screens/daily_challenges_screen.dart';
+import '../screens/saved_items_screen.dart';
+import '../screens/kid_school_screen.dart';
+import '../screens/fitness_partner_screen.dart';
 // family & safety (merged per SPEC v2.1 §4)
 import '../screens/family_screen.dart';
 import '../screens/nominee_screen.dart';
@@ -129,6 +135,10 @@ class SidebarSections {
       SidebarItem(Icons.psychology_outlined, (t) => t.navMemory,
           (_) => const MemoryScreen(),
           synonyms: ['memory', 'ai knows', 'remember']),
+      // #18 Saved / bookmarks — universal save surface.
+      SidebarItem(Icons.bookmark_outline, (t) => t.savedTitle,
+          (_) => const SavedItemsScreen(),
+          synonyms: ['saved', 'bookmark', 'bookmarks', 'star', 'keep']),
     ]),
     // 2. My Account
     SidebarSection('my_account', Icons.account_balance_wallet_outlined,
@@ -221,6 +231,10 @@ class SidebarSections {
       SidebarItem(Icons.bloodtype_outlined, (t) => t.bloodTitle,
           (_) => const BloodDonorScreen(),
           synonyms: ['blood', 'donor', 'donate', 'blood group', 'rokto']),
+      // #27 Kid's school corner — notices → fees / exams / PTM per child.
+      SidebarItem(Icons.school_outlined, (t) => t.kidTitle,
+          (_) => const KidSchoolScreen(),
+          synonyms: ['kid', 'child', 'school', 'fees', 'exam', 'ptm', 'notice']),
     ]),
     // 4. Contacts — single-item section. Profile was REMOVED here (OWNER UI FIX
     // v2 §4–5): Profile is NOT a module, it lives as a card at the top of
@@ -289,6 +303,19 @@ class SidebarSections {
       SidebarItem(Icons.agriculture_outlined, (t) => t.farmerTitle,
           (_) => const FarmerModeScreen(),
           synonyms: ['farmer', 'village', 'crop', 'livestock', 'krishi', 'chash']),
+      // Health §10: #69 timeline + #71 wellness; #173 challenges; #72 fitness.
+      SidebarItem(Icons.timeline_outlined, (t) => t.htlTitle,
+          (_) => const HealthTimelineScreen(),
+          synonyms: ['health', 'timeline', 'record', 'history', 'medical']),
+      SidebarItem(Icons.local_drink_outlined, (t) => t.wellTitle,
+          (_) => const WellnessTrackerScreen(),
+          synonyms: ['wellness', 'water', 'sleep', 'diet', 'tracker']),
+      SidebarItem(Icons.fitness_center_outlined, (t) => t.fitTitle,
+          (_) => const FitnessPartnerScreen(),
+          synonyms: ['fitness', 'workout', 'exercise', 'steps', 'gym']),
+      SidebarItem(Icons.quiz_outlined, (t) => t.chalTitle,
+          (_) => const DailyChallengesScreen(),
+          synonyms: ['challenge', 'quiz', 'daily', 'streak', 'game']),
     ]),
     // 7. Work
     SidebarSection('work', Icons.work_outline, (t) => t.sidebarWork, [

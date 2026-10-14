@@ -25,6 +25,12 @@ import 'package:assisto/screens/messenger/contact_info_screen.dart';
 import 'package:assisto/screens/notification_centre_screen.dart';
 import 'package:assisto/screens/messenger/messenger_profile_screen.dart';
 import 'package:assisto/screens/messenger/contacts_screen.dart';
+import 'package:assisto/screens/health_timeline_screen.dart';
+import 'package:assisto/screens/wellness_tracker_screen.dart';
+import 'package:assisto/screens/daily_challenges_screen.dart';
+import 'package:assisto/screens/saved_items_screen.dart';
+import 'package:assisto/screens/kid_school_screen.dart';
+import 'package:assisto/screens/fitness_partner_screen.dart';
 import 'package:assisto/screens/domestic_staff_screen.dart';
 import 'package:assisto/screens/savings_challenge_screen.dart';
 import 'package:assisto/screens/security_checkup_screen.dart';
@@ -232,6 +238,12 @@ void main() {
     'notification_centre': (build: (_) => const NotificationCentreScreen(), mode: FakeMode.data, full: true),
     'msgr_profile': (build: (_) => const MessengerProfileScreen(), mode: FakeMode.data, full: true),
     'contacts': (build: (_) => const ContactsScreen(), mode: FakeMode.data, full: true),
+    'health_tl': (build: (_) => const HealthTimelineScreen(), mode: FakeMode.data, full: true),
+    'wellness': (build: (_) => const WellnessTrackerScreen(), mode: FakeMode.data, full: true),
+    'challenges': (build: (_) => const DailyChallengesScreen(), mode: FakeMode.data, full: true),
+    'saved': (build: (_) => const SavedItemsScreen(), mode: FakeMode.data, full: true),
+    'kid': (build: (_) => const KidSchoolScreen(), mode: FakeMode.data, full: true),
+    'fitness': (build: (_) => const FitnessPartnerScreen(), mode: FakeMode.data, full: true),
     'staff': (build: (_) => const DomesticStaffScreen(), mode: FakeMode.data, full: true),
     'savings': (build: (_) => const SavingsChallengeScreen(), mode: FakeMode.data, full: true),
     'security': (build: (_) => const SecurityCheckupScreen(), mode: FakeMode.data, full: true),

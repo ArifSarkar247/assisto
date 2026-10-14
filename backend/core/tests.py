@@ -997,6 +997,37 @@ DomesticStaffSnippetTests = _make_snippet_case(
     "core.logic.domestic_staff_tests_snippets", "DomesticStaffSnippetTests")
 SavingsChallengeSnippetTests = _make_snippet_case(
     "core.logic.savings_challenge_tests_snippets", "SavingsChallengeSnippetTests")
+# Health timeline (#69, §10, advanced) + Water/sleep/diet tracker (#71, §10,
+# advanced). Pure deterministic RECORD/TRACKER logic (chronological grouping;
+# goal-progress, 7-day trend, honest streaks — time passed in). Never diagnose;
+# "not medical advice" disclaimer returned. No DB, no AI, no external key.
+# Mirrors app/lib/screens/health_timeline_screen.dart + wellness_tracker_screen.
+HealthTimelineSnippetTests = _make_snippet_case(
+    "core.logic.health_timeline_tests_snippets", "HealthTimelineSnippetTests")
+WellnessTrackerSnippetTests = _make_snippet_case(
+    "core.logic.wellness_tracker_tests_snippets", "WellnessTrackerSnippetTests")
+# Kid's school corner (#27, §21 advanced) + Fitness partner (#72, §21 advanced) —
+# pure deterministic logic: manual notice keyword→type routing (fee/exam/ptm/
+# event/other, parent-confirmed, NO AI/scan), honest upcoming/overdue per child
+# from a passed-in `now`, a documented reminder seam; and gentle non-medical
+# fitness goal/workout progress, weekly summary + streak, honest behind/on-track/
+# ahead status — AI coaching only as a documented key-gated seam (NOT built).
+# No DB, no AI, no clock, no money-holding. Mirror the Dart engines in
+# app/lib/screens/kid_school_screen.dart + fitness_partner_screen.dart.
+KidSchoolSnippetTests = _make_snippet_case(
+    "core.logic.kid_school_tests_snippets", "KidSchoolSnippetTests")
+FitnessPartnerSnippetTests = _make_snippet_case(
+    "core.logic.fitness_partner_tests_snippets", "FitnessPartnerSnippetTests")
+# Daily challenges / quiz (#173, §21) — deterministic date->bank rotation (same
+# day => same item), accurate bilingual Q&A bank (finance/health/safety/general),
+# quiz scoring + streak + points summary. Points COUNT only; redemption to
+# Premium is the documented referral seam (holds no money). Saved / bookmarks
+# (#18, §21) — pure search / tag + kind filter / recent-sort / honest empty vs
+# no-results states; cross-app "save this" via make_item + 'saved/items'.
+DailyChallengesSnippetTests = _make_snippet_case(
+    "core.logic.daily_challenges_tests_snippets", "DailyChallengesSnippetTests")
+SavedItemsSnippetTests = _make_snippet_case(
+    "core.logic.saved_items_tests_snippets", "SavedItemsSnippetTests")
 
 
 # ---------------------------------------------------------------------------

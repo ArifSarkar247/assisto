@@ -1851,6 +1851,13 @@ GENERIC_COLLECTIONS = [
     "farmer/records", "farmer/livestock",
     # #186 Domestic staff + #171 Savings challenge
     "staff/people", "staff/payments", "savechal/plans", "savechal/deposits",
+    # #69 Health timeline + #71 Wellness tracker
+    "health/timeline", "wellness/logs",
+    # #173 Daily challenges + #18 Saved/bookmarks
+    "challenges/progress", "saved/items",
+    # #27 Kid's school corner + #72 Fitness partner
+    "kid/children", "kid/notices",
+    "fitness/goals", "fitness/workouts", "fitness/weighins",
 ]
 GENERIC_COLLECTION_VIEWSETS = {
     name: type(

@@ -1,0 +1,687 @@
+{
+  "_params": {
+    "chalCorrectToast": [
+      "points"
+    ],
+    "chalWrongToast": [
+      "points"
+    ],
+    "chalTaskDone": [
+      "points"
+    ],
+    "savedAllTag": [
+      "count"
+    ],
+    "savedDeleteBody": [
+      "title"
+    ]
+  },
+  "chalBankFinEmergencyFundQ": [
+    "জরুরি তহবিল হিসেবে সাধারণত কত মাসের খরচ জমানোর পরামর্শ দেওয়া হয়?",
+    "An emergency fund is commonly suggested to cover how many months of expenses?"
+  ],
+  "chalBankFinEmergencyFundX": [
+    "৩–৬ মাসের খরচ হাতে থাকলে চাকরি হারানো বা হঠাৎ অসুখের ধাক্কা সামলানো সহজ হয়। এটি সাধারণ নির্দেশনা, ব্যক্তিগত পরামর্শ নয়।",
+    "Keeping 3–6 months of expenses helps absorb a job loss or sudden illness. This is general guidance, not personal advice."
+  ],
+  "chalBankFinEmergencyFundO0": [
+    "১ সপ্তাহ",
+    "1 week"
+  ],
+  "chalBankFinEmergencyFundO1": [
+    "৩–৬ মাস",
+    "3–6 months"
+  ],
+  "chalBankFinEmergencyFundO2": [
+    "১০ বছর",
+    "10 years"
+  ],
+  "chalBankFinEmergencyFundO3": [
+    "কোনো দরকার নেই",
+    "No need at all"
+  ],
+  "chalBankFinInterestCompoundQ": [
+    "চক্রবৃদ্ধি সুদ কীভাবে কাজ করে?",
+    "How does compound interest work?"
+  ],
+  "chalBankFinInterestCompoundX": [
+    "চক্রবৃদ্ধিতে জমা সুদ মূলের সাথে যোগ হয়, তাই পরের বার আগের সুদের উপরও সুদ আসে — সময়ের সাথে তা দ্রুত বাড়ে।",
+    "With compounding, earned interest is added to the principal, so later interest is calculated on the interest too — it grows faster over time."
+  ],
+  "chalBankFinInterestCompoundO0": [
+    "শুধু মূল টাকার উপর সুদ",
+    "Interest only on the original amount"
+  ],
+  "chalBankFinInterestCompoundO1": [
+    "সুদের উপরও সুদ জমে",
+    "Interest earns interest over time"
+  ],
+  "chalBankFinInterestCompoundO2": [
+    "সুদ কখনো বাড়ে না",
+    "Interest never grows"
+  ],
+  "chalBankFinInterestCompoundO3": [
+    "সুদ মানেই লোকসান",
+    "Interest always means loss"
+  ],
+  "chalBankFinBudget503020Q": [
+    "৫০/৩০/২০ বাজেট নিয়মে ২০% ভাগটি কিসের জন্য?",
+    "In the 50/30/20 budgeting rule, the 20% is for what?"
+  ],
+  "chalBankFinBudget503020X": [
+    "৫০% প্রয়োজন, ৩০% শখ, আর ২০% সঞ্চয় ও ঋণ পরিশোধে — একটি সহজ কাঠামো, বাধ্যতামূলক নয়।",
+    "50% needs, 30% wants, and 20% to savings and debt repayment — a simple framework, not a rule you must follow."
+  ],
+  "chalBankFinBudget503020O0": [
+    "বিলাসিতা",
+    "Luxury only"
+  ],
+  "chalBankFinBudget503020O1": [
+    "প্রয়োজনীয় খরচ",
+    "Needs"
+  ],
+  "chalBankFinBudget503020O2": [
+    "সঞ্চয় ও ঋণ শোধ",
+    "Savings and paying off debt"
+  ],
+  "chalBankFinBudget503020O3": [
+    "বিনোদন",
+    "Entertainment"
+  ],
+  "chalBankFinInflationQ": [
+    "মূল্যস্ফীতি (inflation) আপনার টাকার উপর কী প্রভাব ফেলে?",
+    "What does inflation do to the value of your money?"
+  ],
+  "chalBankFinInflationX": [
+    "মূল্যস্ফীতিতে জিনিসের দাম বাড়ে, তাই একই টাকায় কম জিনিস কেনা যায় — অর্থাৎ টাকার ক্রয়ক্ষমতা কমে।",
+    "Inflation raises prices, so the same money buys fewer things — its purchasing power falls."
+  ],
+  "chalBankFinInflationO0": [
+    "ক্রয়ক্ষমতা কমায়",
+    "Reduces its purchasing power"
+  ],
+  "chalBankFinInflationO1": [
+    "ক্রয়ক্ষমতা বাড়ায়",
+    "Increases its purchasing power"
+  ],
+  "chalBankFinInflationO2": [
+    "কোনো প্রভাব নেই",
+    "Has no effect"
+  ],
+  "chalBankFinInflationO3": [
+    "টাকা দ্বিগুণ করে",
+    "Doubles your money"
+  ],
+  "chalBankFinSaveTaskQ": [
+    "আজকের চ্যালেঞ্জ: আজ একটি অপ্রয়োজনীয় খরচ এড়িয়ে সেই টাকাটা আলাদা করে রাখুন।",
+    "Today's challenge: skip one non-essential purchase today and set that money aside."
+  ],
+  "chalBankFinSaveTaskX": [
+    "ছোট ছোট সঞ্চয় জমে বড় হয়। কত বাঁচালেন তা নিজের সঞ্চয় চ্যালেঞ্জে যোগ করতে পারেন।",
+    "Small savings add up. You can log what you saved in your Savings Challenge."
+  ],
+  "chalBankHealthWaterQ": [
+    "সুস্থ থাকার সাধারণ পরামর্শ অনুযায়ী দিনে কেমন পানি পান করা ভালো?",
+    "For general wellbeing, which habit is usually recommended for water?"
+  ],
+  "chalBankHealthWaterX": [
+    "প্রয়োজন ব্যক্তিভেদে আলাদা, তবে সারাদিন নিয়মিত পর্যাপ্ত পানি পান করা সাধারণভাবে ভালো। এটি সাধারণ তথ্য, চিকিৎসা পরামর্শ নয়।",
+    "Needs vary by person, but drinking enough water regularly through the day is generally good. This is general info, not medical advice."
+  ],
+  "chalBankHealthWaterO0": [
+    "একদমই না",
+    "None at all"
+  ],
+  "chalBankHealthWaterO1": [
+    "পর্যাপ্ত পানি, তৃষ্ণা অনুযায়ী নিয়মিত",
+    "Enough water, regularly, as you feel thirsty"
+  ],
+  "chalBankHealthWaterO2": [
+    "শুধু চা-কফি",
+    "Only tea and coffee"
+  ],
+  "chalBankHealthWaterO3": [
+    "দিনে একবার",
+    "Just once a day"
+  ],
+  "chalBankHealthHandwashQ": [
+    "রোগ ছড়ানো ঠেকাতে সাবান দিয়ে হাত ধোয়া কমপক্ষে কতক্ষণ করা উচিত?",
+    "To help prevent illness spreading, you should wash hands with soap for at least how long?"
+  ],
+  "chalBankHealthHandwashX": [
+    "অন্তত ২০ সেকেন্ড সাবান দিয়ে হাত ঘষে ধোয়া জীবাণু কমাতে কার্যকর — খাওয়ার আগে ও টয়লেটের পরে বিশেষভাবে।",
+    "Scrubbing with soap for at least 20 seconds effectively removes germs — especially before eating and after the toilet."
+  ],
+  "chalBankHealthHandwashO0": [
+    "২ সেকেন্ড",
+    "2 seconds"
+  ],
+  "chalBankHealthHandwashO1": [
+    "২০ সেকেন্ড",
+    "20 seconds"
+  ],
+  "chalBankHealthHandwashO2": [
+    "৫ মিনিট",
+    "5 minutes"
+  ],
+  "chalBankHealthHandwashO3": [
+    "ধোয়ার দরকার নেই",
+    "No need to wash"
+  ],
+  "chalBankHealthSleepQ": [
+    "প্রাপ্তবয়স্কদের জন্য সাধারণভাবে রাতে কত ঘণ্টা ঘুম পরামর্শ দেওয়া হয়?",
+    "How many hours of sleep per night are generally suggested for adults?"
+  ],
+  "chalBankHealthSleepX": [
+    "বেশিরভাগ প্রাপ্তবয়স্কের জন্য রাতে ৭–৯ ঘণ্টা ঘুম সাধারণভাবে পরামর্শ দেওয়া হয়। ব্যক্তিভেদে ভিন্ন হতে পারে।",
+    "Most adults are generally advised to get 7–9 hours a night. Individual needs can differ."
+  ],
+  "chalBankHealthSleepO0": [
+    "২–৩ ঘণ্টা",
+    "2–3 hours"
+  ],
+  "chalBankHealthSleepO1": [
+    "৭–৯ ঘণ্টা",
+    "7–9 hours"
+  ],
+  "chalBankHealthSleepO2": [
+    "১২ ঘণ্টা",
+    "12 hours"
+  ],
+  "chalBankHealthSleepO3": [
+    "ঘুমের দরকার নেই",
+    "No sleep needed"
+  ],
+  "chalBankHealthSaltQ": [
+    "রক্তচাপ নিয়ন্ত্রণে রাখতে সাধারণভাবে কোনটি সহায়ক?",
+    "Which habit generally helps keep blood pressure in check?"
+  ],
+  "chalBankHealthSaltX": [
+    "পরিমিত লবণ, নিয়মিত হাঁটাচলা ও ওজন নিয়ন্ত্রণ সাধারণভাবে রক্তচাপের জন্য ভালো। সমস্যা থাকলে ডাক্তারের পরামর্শ নিন।",
+    "Moderate salt, regular walking and a healthy weight are generally good for blood pressure. See a doctor if you have concerns."
+  ],
+  "chalBankHealthSaltO0": [
+    "অতিরিক্ত লবণ খাওয়া",
+    "Eating a lot of extra salt"
+  ],
+  "chalBankHealthSaltO1": [
+    "পরিমিত লবণ ও নিয়মিত হাঁটা",
+    "Moderate salt and regular walking"
+  ],
+  "chalBankHealthSaltO2": [
+    "ধূমপান",
+    "Smoking"
+  ],
+  "chalBankHealthSaltO3": [
+    "রাত জাগা",
+    "Staying up late"
+  ],
+  "chalBankHealthWalkTaskQ": [
+    "আজকের চ্যালেঞ্জ: আজ অন্তত ১৫ মিনিট হাঁটুন।",
+    "Today's challenge: take at least a 15-minute walk today."
+  ],
+  "chalBankHealthWalkTaskX": [
+    "অল্প হাঁটাও শরীর ও মনের জন্য ভালো। নিজের সুবিধামতো সময়ে করুন।",
+    "Even a short walk is good for body and mind. Do it whenever suits you."
+  ],
+  "chalBankSafePasswordQ": [
+    "কোনটি সবচেয়ে নিরাপদ পাসওয়ার্ড অভ্যাস?",
+    "Which is the safest password habit?"
+  ],
+  "chalBankSafePasswordX": [
+    "প্রতিটি গুরুত্বপূর্ণ অ্যাকাউন্টে আলাদা শক্ত পাসওয়ার্ড রাখলে একটি ফাঁস হলেও বাকিগুলো সুরক্ষিত থাকে। পাসওয়ার্ড ম্যানেজার সাহায্য করে।",
+    "A unique strong password per important account means one leak doesn't expose the rest. A password manager helps."
+  ],
+  "chalBankSafePasswordO0": [
+    "সব জায়গায় একই পাসওয়ার্ড",
+    "The same password everywhere"
+  ],
+  "chalBankSafePasswordO1": [
+    "প্রতিটি গুরুত্বপূর্ণ অ্যাকাউন্টে আলাদা, শক্ত পাসওয়ার্ড",
+    "A different, strong password for each important account"
+  ],
+  "chalBankSafePasswordO2": [
+    "পাসওয়ার্ড লিখে দেয়ালে টাঙানো",
+    "Writing it on the wall"
+  ],
+  "chalBankSafePasswordO3": [
+    "নাম ও জন্মসাল",
+    "Your name and birth year"
+  ],
+  "chalBankSafeOtpQ": [
+    "কেউ ফোন করে আপনার OTP/ভেরিফিকেশন কোড চাইলে কী করবেন?",
+    "Someone calls asking for your OTP / verification code. What should you do?"
+  ],
+  "chalBankSafeOtpX": [
+    "ব্যাংক বা কোনো আসল প্রতিষ্ঠান কখনো OTP চায় না। OTP শেয়ার করলে অ্যাকাউন্ট খালি হয়ে যেতে পারে — কখনো দেবেন না।",
+    "No real bank or company ever asks for your OTP. Sharing it can empty your account — never give it out."
+  ],
+  "chalBankSafeOtpO0": [
+    "দিয়ে দেবেন",
+    "Share it with them"
+  ],
+  "chalBankSafeOtpO1": [
+    "কখনোই শেয়ার করবেন না",
+    "Never share it"
+  ],
+  "chalBankSafeOtpO2": [
+    "শুধু আত্মীয় হলে দেবেন",
+    "Share only if they say they're a relative"
+  ],
+  "chalBankSafeOtpO3": [
+    "SMS-এ ফরোয়ার্ড করবেন",
+    "Forward it over SMS"
+  ],
+  "chalBankSafe2faQ": [
+    "টু-ফ্যাক্টর অথেনটিকেশন (2FA) কী করে?",
+    "What does two-factor authentication (2FA) do?"
+  ],
+  "chalBankSafe2faX": [
+    "2FA চালু থাকলে পাসওয়ার্ড জানলেও দ্বিতীয় কোড ছাড়া কেউ ঢুকতে পারে না — গুরুত্বপূর্ণ অ্যাকাউন্টে চালু রাখা ভালো।",
+    "With 2FA on, even someone who knows your password can't log in without the second code — worth enabling on important accounts."
+  ],
+  "chalBankSafe2faO0": [
+    "পাসওয়ার্ড মুছে দেয়",
+    "Deletes your password"
+  ],
+  "chalBankSafe2faO1": [
+    "পাসওয়ার্ডের পাশাপাশি দ্বিতীয় একটি ধাপ যোগ করে",
+    "Adds a second step on top of your password"
+  ],
+  "chalBankSafe2faO2": [
+    "ইন্টারনেট দ্রুত করে",
+    "Makes the internet faster"
+  ],
+  "chalBankSafe2faO3": [
+    "অ্যাকাউন্ট পাবলিক করে",
+    "Makes your account public"
+  ],
+  "chalBankSafeLinkQ": [
+    "'আপনি পুরস্কার জিতেছেন, লিংকে ক্লিক করুন' — এমন SMS পেলে কী করবেন?",
+    "You get an SMS: 'You won a prize, click this link.' What should you do?"
+  ],
+  "chalBankSafeLinkX": [
+    "অপ্রত্যাশিত পুরস্কারের লিংক প্রায়ই প্রতারণা (ফিশিং)। ক্লিক করলে তথ্য বা টাকা খোয়া যেতে পারে — মুছে ফেলাই নিরাপদ।",
+    "Unexpected prize links are usually scams (phishing). Clicking can steal your data or money — deleting is the safe move."
+  ],
+  "chalBankSafeLinkO0": [
+    "দ্রুত ক্লিক করবেন",
+    "Click it quickly"
+  ],
+  "chalBankSafeLinkO1": [
+    "ক্লিক না করে মুছে দেবেন",
+    "Don't click — delete it"
+  ],
+  "chalBankSafeLinkO2": [
+    "ব্যাংক তথ্য দেবেন",
+    "Reply with bank details"
+  ],
+  "chalBankSafeLinkO3": [
+    "সবাইকে ফরোয়ার্ড করবেন",
+    "Forward it to everyone"
+  ],
+  "chalBankSafeBackupTaskQ": [
+    "আজকের চ্যালেঞ্জ: আপনার ফোনের গুরুত্বপূর্ণ ছবি/ফাইল আজ একবার ব্যাকআপ করে রাখুন।",
+    "Today's challenge: back up your phone's important photos/files once today."
+  ],
+  "chalBankSafeBackupTaskX": [
+    "ফোন হারালে বা নষ্ট হলে ব্যাকআপ থাকলে তথ্য থেকে যায়। Vault-এ গুরুত্বপূর্ণ নথি রাখতে পারেন।",
+    "A backup keeps your data if the phone is lost or breaks. You can keep important documents in Vault."
+  ],
+  "chalBankGenBdCapitalQ": [
+    "বাংলাদেশের রাজধানী কোনটি?",
+    "What is the capital of Bangladesh?"
+  ],
+  "chalBankGenBdCapitalX": [
+    "ঢাকা বাংলাদেশের রাজধানী ও সবচেয়ে বড় শহর।",
+    "Dhaka is the capital and largest city of Bangladesh."
+  ],
+  "chalBankGenBdCapitalO0": [
+    "চট্টগ্রাম",
+    "Chattogram"
+  ],
+  "chalBankGenBdCapitalO1": [
+    "ঢাকা",
+    "Dhaka"
+  ],
+  "chalBankGenBdCapitalO2": [
+    "খুলনা",
+    "Khulna"
+  ],
+  "chalBankGenBdCapitalO3": [
+    "রাজশাহী",
+    "Rajshahi"
+  ],
+  "chalBankGenLanguageDayQ": [
+    "আন্তর্জাতিক মাতৃভাষা দিবস কবে পালিত হয়?",
+    "When is International Mother Language Day observed?"
+  ],
+  "chalBankGenLanguageDayX": [
+    "একুশে ফেব্রুয়ারি ভাষা আন্দোলনের স্মরণে আন্তর্জাতিক মাতৃভাষা দিবস হিসেবে স্বীকৃত।",
+    "21 February is recognised as International Mother Language Day, honouring the Language Movement."
+  ],
+  "chalBankGenLanguageDayO0": [
+    "২১ ফেব্রুয়ারি",
+    "21 February"
+  ],
+  "chalBankGenLanguageDayO1": [
+    "১৬ ডিসেম্বর",
+    "16 December"
+  ],
+  "chalBankGenLanguageDayO2": [
+    "২৬ মার্চ",
+    "26 March"
+  ],
+  "chalBankGenLanguageDayO3": [
+    "১ জানুয়ারি",
+    "1 January"
+  ],
+  "chalBankGenWaterBoilQ": [
+    "সমুদ্রপৃষ্ঠে বিশুদ্ধ পানি কত ডিগ্রি সেলসিয়াসে ফোটে?",
+    "At sea level, pure water boils at what temperature (°C)?"
+  ],
+  "chalBankGenWaterBoilX": [
+    "সমুদ্রপৃষ্ঠের স্বাভাবিক চাপে বিশুদ্ধ পানি ১০০° সেলসিয়াসে ফোটে; উঁচু জায়গায় তা একটু কম।",
+    "At normal sea-level pressure, pure water boils at 100 °C; at high altitude it's a bit lower."
+  ],
+  "chalBankGenWaterBoilO0": [
+    "৫০°",
+    "50°"
+  ],
+  "chalBankGenWaterBoilO1": [
+    "১০০°",
+    "100°"
+  ],
+  "chalBankGenWaterBoilO2": [
+    "২০০°",
+    "200°"
+  ],
+  "chalBankGenWaterBoilO3": [
+    "০°",
+    "0°"
+  ],
+  "chalBankGenContinentsQ": [
+    "পৃথিবীতে মহাদেশ কয়টি?",
+    "How many continents are there on Earth?"
+  ],
+  "chalBankGenContinentsX": [
+    "সাধারণভাবে পৃথিবীকে ৭টি মহাদেশে ভাগ করা হয়: এশিয়া, আফ্রিকা, ইউরোপ, উত্তর আমেরিকা, দক্ষিণ আমেরিকা, অস্ট্রেলিয়া ও অ্যান্টার্কটিকা।",
+    "The Earth is commonly divided into 7 continents: Asia, Africa, Europe, North America, South America, Australia and Antarctica."
+  ],
+  "chalBankGenContinentsO0": [
+    "৫টি",
+    "5"
+  ],
+  "chalBankGenContinentsO1": [
+    "৭টি",
+    "7"
+  ],
+  "chalBankGenContinentsO2": [
+    "১০টি",
+    "10"
+  ],
+  "chalBankGenContinentsO3": [
+    "৩টি",
+    "3"
+  ],
+  "chalBankGenLearnTaskQ": [
+    "আজকের চ্যালেঞ্জ: আজ নতুন একটি শব্দ বা তথ্য শিখে কাউকে শেখান।",
+    "Today's challenge: learn one new word or fact today and teach it to someone."
+  ],
+  "chalBankGenLearnTaskX": [
+    "শেখা জিনিস কাউকে শেখালে তা ভালো মনে থাকে। ছোট কিছু হলেও চলবে।",
+    "Teaching what you learn helps you remember it. Even something small counts."
+  ],
+  "chalBankFinScamInvestQ": [
+    "'নিশ্চিত দ্বিগুণ লাভ, কোনো ঝুঁকি নেই' — এমন বিনিয়োগের প্রস্তাব সাধারণত কী?",
+    "'Guaranteed double returns, zero risk' investment offers are usually what?"
+  ],
+  "chalBankFinScamInvestX": [
+    "কোনো আসল বিনিয়োগ 'ঝুঁকিহীন নিশ্চিত দ্বিগুণ লাভ' দেয় না। এমন প্রতিশ্রুতি প্রায় সবসময়ই প্রতারণা।",
+    "No genuine investment offers 'risk-free guaranteed doubling'. Such promises are almost always scams."
+  ],
+  "chalBankFinScamInvestO0": [
+    "দারুণ সুযোগ",
+    "A great opportunity"
+  ],
+  "chalBankFinScamInvestO1": [
+    "প্রতারণার লক্ষণ",
+    "A sign of a scam"
+  ],
+  "chalBankFinScamInvestO2": [
+    "সরকারি স্কিম",
+    "A government scheme"
+  ],
+  "chalBankFinScamInvestO3": [
+    "ব্যাংকের অফার",
+    "A normal bank offer"
+  ],
+  "chalTitle": [
+    "দৈনিক চ্যালেঞ্জ",
+    "Daily challenge"
+  ],
+  "chalLoadError": [
+    "চ্যালেঞ্জ লোড করা যায়নি। আবার চেষ্টা করুন।",
+    "Couldn't load your challenges. Please try again."
+  ],
+  "chalWelcomeTitle": [
+    "প্রতিদিন একটি নতুন চ্যালেঞ্জ",
+    "A fresh challenge every day"
+  ],
+  "chalWelcomeBody": [
+    "প্রতিদিন একটি করে কুইজ বা ছোট কাজ — অর্থ, স্বাস্থ্য, নিরাপত্তা ও সাধারণ জ্ঞান নিয়ে। উত্তর দিন, স্ট্রিক গড়ুন, পয়েন্ট জমান।",
+    "One quiz or small task each day — on money, health, safety and general knowledge. Answer it, build a streak, and earn points."
+  ],
+  "chalNoneTitle": [
+    "আজকের জন্য কোনো চ্যালেঞ্জ নেই",
+    "No challenge for today"
+  ],
+  "chalNoneBody": [
+    "একটি সমস্যার কারণে আজকের চ্যালেঞ্জ দেখানো যাচ্ছে না। কাল আবার দেখুন।",
+    "We couldn't show today's challenge. Please check back tomorrow."
+  ],
+  "chalStreak": [
+    "স্ট্রিক",
+    "Streak"
+  ],
+  "chalPoints": [
+    "পয়েন্ট",
+    "Points"
+  ],
+  "chalDone": [
+    "সম্পন্ন",
+    "Done"
+  ],
+  "chalKindQuiz": [
+    "কুইজ",
+    "Quiz"
+  ],
+  "chalKindTask": [
+    "কাজ",
+    "Task"
+  ],
+  "chalCatFinance": [
+    "অর্থ",
+    "Money"
+  ],
+  "chalCatHealth": [
+    "স্বাস্থ্য",
+    "Health"
+  ],
+  "chalCatSafety": [
+    "নিরাপত্তা",
+    "Safety"
+  ],
+  "chalCatGeneral": [
+    "সাধারণ জ্ঞান",
+    "General"
+  ],
+  "chalSubmitAnswer": [
+    "উত্তর জমা দিন",
+    "Submit answer"
+  ],
+  "chalMarkDone": [
+    "সম্পন্ন করেছি",
+    "Mark as done"
+  ],
+  "chalTaskHint": [
+    "আজ এই কাজটি করে ফেলুন, তারপর এখানে সম্পন্ন চিহ্নিত করুন।",
+    "Do this today, then mark it done here."
+  ],
+  "chalTaskCompleted": [
+    "সম্পন্ন হয়েছে। দারুণ কাজ!",
+    "Completed. Well done!"
+  ],
+  "chalWhy": [
+    "কেন",
+    "Why"
+  ],
+  "chalHistory": [
+    "ইতিহাস",
+    "History"
+  ],
+  "chalHistoryEmptyTitle": [
+    "এখনো কিছু সম্পন্ন করেননি",
+    "Nothing completed yet"
+  ],
+  "chalHistoryEmptyBody": [
+    "আপনি কোনো চ্যালেঞ্জ সম্পন্ন করলে তা এখানে দেখা যাবে।",
+    "Challenges you complete will show up here."
+  ],
+  "chalCorrectToast": [
+    "সঠিক উত্তর! +{points} পয়েন্ট",
+    "Correct! +{points} points"
+  ],
+  "chalWrongToast": [
+    "এবার হলো না, তবু চেষ্টার জন্য +{points} পয়েন্ট",
+    "Not this time — but +{points} points for trying"
+  ],
+  "chalTaskDone": [
+    "দারুণ! +{points} পয়েন্ট",
+    "Nice! +{points} points"
+  ],
+  "chalPointsNote": [
+    "পয়েন্ট শুধু উৎসাহের জন্য গণনা করা হয় — এটি কোনো টাকা নয়। রেফারেল পয়েন্টের সাথে মিলিয়ে পরে প্রিমিয়াম দিনে রূপান্তর করা যেতে পারে।",
+    "Points are counted for motivation — they are not money. They share the same points as referrals and may later convert to Premium days."
+  ],
+  "savedTitle": [
+    "সংরক্ষিত",
+    "Saved"
+  ],
+  "savedLoadError": [
+    "সংরক্ষিত জিনিস লোড করা যায়নি। আবার চেষ্টা করুন।",
+    "Couldn't load your saved items. Please try again."
+  ],
+  "savedAdd": [
+    "সংরক্ষণ করুন",
+    "Save item"
+  ],
+  "savedEdit": [
+    "সম্পাদনা করুন",
+    "Edit item"
+  ],
+  "savedWelcomeTitle": [
+    "এখনো কিছু সংরক্ষণ করেননি",
+    "Nothing saved yet"
+  ],
+  "savedWelcomeBody": [
+    "গুরুত্বপূর্ণ নোট, উত্তর, নথি বা লিংক এখানে সংরক্ষণ করে রাখুন — শিরোনাম, নোট ও ট্যাগসহ। পরে সহজে খুঁজে পাবেন।",
+    "Keep important notes, answers, documents or links here — with a title, note and tag. Find them easily later."
+  ],
+  "savedSearchHint": [
+    "সংরক্ষিত জিনিসে খুঁজুন",
+    "Search your saved items"
+  ],
+  "savedAllTag": [
+    "সব ({count})",
+    "All ({count})"
+  ],
+  "savedNoResultsTitle": [
+    "কিছু পাওয়া যায়নি",
+    "No matches"
+  ],
+  "savedNoResultsBody": [
+    "আপনার খোঁজা বা ফিল্টারের সাথে কোনো সংরক্ষিত জিনিস মেলেনি।",
+    "No saved items match your search or filter."
+  ],
+  "savedClearFilters": [
+    "ফিল্টার মুছুন",
+    "Clear filters"
+  ],
+  "savedKindLabel": [
+    "ধরন",
+    "Type"
+  ],
+  "savedKindNote": [
+    "নোট",
+    "Note"
+  ],
+  "savedKindAnswer": [
+    "উত্তর",
+    "Answer"
+  ],
+  "savedKindDoc": [
+    "নথি",
+    "Document"
+  ],
+  "savedKindLink": [
+    "লিংক",
+    "Link"
+  ],
+  "savedTitleLabel": [
+    "শিরোনাম",
+    "Title"
+  ],
+  "savedTitleHint": [
+    "ছোট একটি নাম দিন",
+    "Give it a short name"
+  ],
+  "savedNoteLabel": [
+    "নোট (ঐচ্ছিক)",
+    "Note (optional)"
+  ],
+  "savedNoteHint": [
+    "বিস্তারিত বা সংরক্ষিত লেখা এখানে লিখুন",
+    "Add details or the saved text here"
+  ],
+  "savedTagLabel": [
+    "ট্যাগ (ঐচ্ছিক)",
+    "Tag (optional)"
+  ],
+  "savedTagHint": [
+    "যেমন: অর্থ, স্বাস্থ্য",
+    "e.g. money, health"
+  ],
+  "savedLinkLabel": [
+    "লিংক",
+    "Link"
+  ],
+  "savedLinkHint": [
+    "https://…",
+    "https://…"
+  ],
+  "savedDocLabel": [
+    "নথির রেফারেন্স",
+    "Document reference"
+  ],
+  "savedDocHint": [
+    "নথির নাম বা আইডি",
+    "Document name or id"
+  ],
+  "savedSaved": [
+    "সংরক্ষণ করা হয়েছে।",
+    "Saved."
+  ],
+  "savedDeleted": [
+    "মুছে ফেলা হয়েছে।",
+    "Deleted."
+  ],
+  "savedDeleteTitle": [
+    "মুছে ফেলবেন?",
+    "Delete this?"
+  ],
+  "savedDeleteBody": [
+    "\"{title}\" মুছে ফেলা হবে। এটি ফেরানো যাবে না।",
+    "\"{title}\" will be deleted. This can't be undone."
+  ]
+}

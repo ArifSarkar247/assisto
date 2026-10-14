@@ -8113,5 +8113,595 @@
       }
     }
   },
-  "trustTileSub": "Assisto কী করে — আর কী কখনো করে না"
+  "trustTileSub": "Assisto কী করে — আর কী কখনো করে না",
+  "htlTitle": "স্বাস্থ্য টাইমলাইন",
+  "htlWelcomeTitle": "আপনার স্বাস্থ্য রেকর্ড শুরু করুন",
+  "htlWelcomeBody": "ডাক্তার দেখানো, টেস্ট রিপোর্ট, প্রেসক্রিপশন, টিকা, উপসর্গ বা হাসপাতালে ভর্তি — সব এক জায়গায় তারিখসহ লিখে রাখুন। পরে সহজে খুঁজে বের করতে পারবেন। এটি শুধু আপনার রেকর্ড, কোনো চিকিৎসা পরামর্শ নয়।",
+  "htlLoadError": "আপনার টাইমলাইন লোড করা যায়নি। আবার চেষ্টা করুন।",
+  "htlAddEvent": "ঘটনা যোগ করুন",
+  "htlEditEvent": "ঘটনা সম্পাদনা",
+  "htlSaved": "সংরক্ষণ হয়েছে",
+  "htlDeleted": "মুছে ফেলা হয়েছে",
+  "htlDeleteTitle": "এই ঘটনা মুছবেন?",
+  "htlDeleteBody": "এই রেকর্ডটি আপনার টাইমলাইন থেকে স্থায়ীভাবে মুছে যাবে।",
+  "htlSearchHint": "ঘটনা, ডাক্তার বা জায়গা খুঁজুন",
+  "htlGroupByCategory": "ধরন অনুযায়ী দেখুন",
+  "htlGroupByMonth": "মাস অনুযায়ী দেখুন",
+  "htlUndated": "তারিখ ছাড়া",
+  "htlNoneMatchTitle": "কিছু মিলল না",
+  "htlNoneMatchBody": "এই ফিল্টারে কোনো ঘটনা নেই। ফিল্টার মুছে আবার দেখুন।",
+  "htlClearFilters": "ফিল্টার মুছুন",
+  "htlCategory": "ধরন",
+  "htlCatVisit": "ডাক্তার দেখানো",
+  "htlCatTest": "টেস্ট রিপোর্ট",
+  "htlCatPrescription": "প্রেসক্রিপশন",
+  "htlCatVaccination": "টিকা",
+  "htlCatSymptom": "উপসর্গ",
+  "htlCatHospitalization": "হাসপাতালে ভর্তি",
+  "htlCatOther": "অন্যান্য",
+  "htlEventTitle": "শিরোনাম",
+  "htlEventTitleHint": "যেমন রক্তের সুগার পরীক্ষা",
+  "htlEventDate": "তারিখ",
+  "htlNoDate": "তারিখ দেওয়া হয়নি",
+  "htlDoctor": "ডাক্তার (ঐচ্ছিক)",
+  "htlPlace": "জায়গা (ঐচ্ছিক)",
+  "htlNotes": "নোট",
+  "htlNotesHint": "ফলাফল, পরামর্শ বা অন্য বিবরণ",
+  "htlDisclaimer": "এটি শুধু আপনার স্বাস্থ্য রেকর্ড — কোনো চিকিৎসা পরামর্শ নয়। সিদ্ধান্তের জন্য ডাক্তারের সঙ্গে কথা বলুন।",
+  "wellTitle": "পানি, ঘুম ও খাবার",
+  "wellWelcomeTitle": "আজকের সুস্থতা লিখে রাখুন",
+  "wellWelcomeBody": "প্রতিদিন কত গ্লাস পানি খেলেন, কত ঘণ্টা ঘুমালেন আর কী খেলেন — সহজে লিখে রাখুন। লক্ষ্য আপনার নিজের, আর অগ্রগতি দেখুন রিং ও সাত দিনের চার্টে। এটি একটি ব্যক্তিগত ট্র্যাকার, চিকিৎসা পরামর্শ নয়।",
+  "wellLoadError": "আপনার তথ্য লোড করা যায়নি। আবার চেষ্টা করুন।",
+  "wellLogToday": "আজকেরটা লিখুন",
+  "wellEditToday": "আজকেরটা সম্পাদনা",
+  "wellSaved": "সংরক্ষণ হয়েছে",
+  "wellToday": "আজ",
+  "wellNotLoggedYet": "এখনো লেখা হয়নি",
+  "wellWater": "পানি",
+  "wellSleep": "ঘুম",
+  "wellWaterGoal": "পানির লক্ষ্য",
+  "wellSleepGoal": "ঘুমের লক্ষ্য",
+  "wellWaterStreak": "পানির ধারা",
+  "wellSleepStreak": "ঘুমের ধারা",
+  "wellTrend7d": "গত ৭ দিন",
+  "wellTrendEmpty": "গত ৭ দিনে কিছু লেখা হয়নি। আজ থেকে শুরু করুন।",
+  "wellDietToday": "আজকের খাবার",
+  "wellDietNotes": "খাবারের নোট",
+  "wellDietHint": "যেমন সকালে ভাত-ডিম, দুপুরে মাছ-ভাত",
+  "wellPhotoSeam": "খাবারের ছবি থেকে স্বয়ংক্রিয় শনাক্তকরণ পরে যুক্ত হবে।",
+  "wellDisclaimer": "এটি একটি ব্যক্তিগত ট্র্যাকার — কোনো চিকিৎসা পরামর্শ নয়। লক্ষ্য আপনার নিজের; প্রয়োজনে ডাক্তারের সঙ্গে কথা বলুন।",
+  "wellGlasses": "{count} গ্লাস",
+  "@wellGlasses": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "wellGlassesOf": "{value}/{goal} গ্লাস",
+  "@wellGlassesOf": {
+    "placeholders": {
+      "goal": {
+        "type": "Object"
+      },
+      "value": {
+        "type": "Object"
+      }
+    }
+  },
+  "wellHours": "{hours} ঘণ্টা",
+  "@wellHours": {
+    "placeholders": {
+      "hours": {
+        "type": "Object"
+      }
+    }
+  },
+  "wellHoursOf": "{value}/{goal} ঘণ্টা",
+  "@wellHoursOf": {
+    "placeholders": {
+      "goal": {
+        "type": "Object"
+      },
+      "value": {
+        "type": "Object"
+      }
+    }
+  },
+  "wellDaysCount": "{count} দিন",
+  "@wellDaysCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "wellBestStreak": "সেরা: {best} দিন",
+  "@wellBestStreak": {
+    "placeholders": {
+      "best": {
+        "type": "Object"
+      }
+    }
+  },
+  "wellGoalDays": "{count}/{total} দিন লক্ষ্যে",
+  "@wellGoalDays": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "wellTrendAverages": "গড়: {water} গ্লাস পানি, {sleep} ঘণ্টা ঘুম",
+  "@wellTrendAverages": {
+    "placeholders": {
+      "sleep": {
+        "type": "Object"
+      },
+      "water": {
+        "type": "Object"
+      }
+    }
+  },
+  "chalBankFinEmergencyFundQ": "জরুরি তহবিল হিসেবে সাধারণত কত মাসের খরচ জমানোর পরামর্শ দেওয়া হয়?",
+  "chalBankFinEmergencyFundX": "৩–৬ মাসের খরচ হাতে থাকলে চাকরি হারানো বা হঠাৎ অসুখের ধাক্কা সামলানো সহজ হয়। এটি সাধারণ নির্দেশনা, ব্যক্তিগত পরামর্শ নয়।",
+  "chalBankFinEmergencyFundO0": "১ সপ্তাহ",
+  "chalBankFinEmergencyFundO1": "৩–৬ মাস",
+  "chalBankFinEmergencyFundO2": "১০ বছর",
+  "chalBankFinEmergencyFundO3": "কোনো দরকার নেই",
+  "chalBankFinInterestCompoundQ": "চক্রবৃদ্ধি সুদ কীভাবে কাজ করে?",
+  "chalBankFinInterestCompoundX": "চক্রবৃদ্ধিতে জমা সুদ মূলের সাথে যোগ হয়, তাই পরের বার আগের সুদের উপরও সুদ আসে — সময়ের সাথে তা দ্রুত বাড়ে।",
+  "chalBankFinInterestCompoundO0": "শুধু মূল টাকার উপর সুদ",
+  "chalBankFinInterestCompoundO1": "সুদের উপরও সুদ জমে",
+  "chalBankFinInterestCompoundO2": "সুদ কখনো বাড়ে না",
+  "chalBankFinInterestCompoundO3": "সুদ মানেই লোকসান",
+  "chalBankFinBudget503020Q": "৫০/৩০/২০ বাজেট নিয়মে ২০% ভাগটি কিসের জন্য?",
+  "chalBankFinBudget503020X": "৫০% প্রয়োজন, ৩০% শখ, আর ২০% সঞ্চয় ও ঋণ পরিশোধে — একটি সহজ কাঠামো, বাধ্যতামূলক নয়।",
+  "chalBankFinBudget503020O0": "বিলাসিতা",
+  "chalBankFinBudget503020O1": "প্রয়োজনীয় খরচ",
+  "chalBankFinBudget503020O2": "সঞ্চয় ও ঋণ শোধ",
+  "chalBankFinBudget503020O3": "বিনোদন",
+  "chalBankFinInflationQ": "মূল্যস্ফীতি (inflation) আপনার টাকার উপর কী প্রভাব ফেলে?",
+  "chalBankFinInflationX": "মূল্যস্ফীতিতে জিনিসের দাম বাড়ে, তাই একই টাকায় কম জিনিস কেনা যায় — অর্থাৎ টাকার ক্রয়ক্ষমতা কমে।",
+  "chalBankFinInflationO0": "ক্রয়ক্ষমতা কমায়",
+  "chalBankFinInflationO1": "ক্রয়ক্ষমতা বাড়ায়",
+  "chalBankFinInflationO2": "কোনো প্রভাব নেই",
+  "chalBankFinInflationO3": "টাকা দ্বিগুণ করে",
+  "chalBankFinSaveTaskQ": "আজকের চ্যালেঞ্জ: আজ একটি অপ্রয়োজনীয় খরচ এড়িয়ে সেই টাকাটা আলাদা করে রাখুন।",
+  "chalBankFinSaveTaskX": "ছোট ছোট সঞ্চয় জমে বড় হয়। কত বাঁচালেন তা নিজের সঞ্চয় চ্যালেঞ্জে যোগ করতে পারেন।",
+  "chalBankHealthWaterQ": "সুস্থ থাকার সাধারণ পরামর্শ অনুযায়ী দিনে কেমন পানি পান করা ভালো?",
+  "chalBankHealthWaterX": "প্রয়োজন ব্যক্তিভেদে আলাদা, তবে সারাদিন নিয়মিত পর্যাপ্ত পানি পান করা সাধারণভাবে ভালো। এটি সাধারণ তথ্য, চিকিৎসা পরামর্শ নয়।",
+  "chalBankHealthWaterO0": "একদমই না",
+  "chalBankHealthWaterO1": "পর্যাপ্ত পানি, তৃষ্ণা অনুযায়ী নিয়মিত",
+  "chalBankHealthWaterO2": "শুধু চা-কফি",
+  "chalBankHealthWaterO3": "দিনে একবার",
+  "chalBankHealthHandwashQ": "রোগ ছড়ানো ঠেকাতে সাবান দিয়ে হাত ধোয়া কমপক্ষে কতক্ষণ করা উচিত?",
+  "chalBankHealthHandwashX": "অন্তত ২০ সেকেন্ড সাবান দিয়ে হাত ঘষে ধোয়া জীবাণু কমাতে কার্যকর — খাওয়ার আগে ও টয়লেটের পরে বিশেষভাবে।",
+  "chalBankHealthHandwashO0": "২ সেকেন্ড",
+  "chalBankHealthHandwashO1": "২০ সেকেন্ড",
+  "chalBankHealthHandwashO2": "৫ মিনিট",
+  "chalBankHealthHandwashO3": "ধোয়ার দরকার নেই",
+  "chalBankHealthSleepQ": "প্রাপ্তবয়স্কদের জন্য সাধারণভাবে রাতে কত ঘণ্টা ঘুম পরামর্শ দেওয়া হয়?",
+  "chalBankHealthSleepX": "বেশিরভাগ প্রাপ্তবয়স্কের জন্য রাতে ৭–৯ ঘণ্টা ঘুম সাধারণভাবে পরামর্শ দেওয়া হয়। ব্যক্তিভেদে ভিন্ন হতে পারে।",
+  "chalBankHealthSleepO0": "২–৩ ঘণ্টা",
+  "chalBankHealthSleepO1": "৭–৯ ঘণ্টা",
+  "chalBankHealthSleepO2": "১২ ঘণ্টা",
+  "chalBankHealthSleepO3": "ঘুমের দরকার নেই",
+  "chalBankHealthSaltQ": "রক্তচাপ নিয়ন্ত্রণে রাখতে সাধারণভাবে কোনটি সহায়ক?",
+  "chalBankHealthSaltX": "পরিমিত লবণ, নিয়মিত হাঁটাচলা ও ওজন নিয়ন্ত্রণ সাধারণভাবে রক্তচাপের জন্য ভালো। সমস্যা থাকলে ডাক্তারের পরামর্শ নিন।",
+  "chalBankHealthSaltO0": "অতিরিক্ত লবণ খাওয়া",
+  "chalBankHealthSaltO1": "পরিমিত লবণ ও নিয়মিত হাঁটা",
+  "chalBankHealthSaltO2": "ধূমপান",
+  "chalBankHealthSaltO3": "রাত জাগা",
+  "chalBankHealthWalkTaskQ": "আজকের চ্যালেঞ্জ: আজ অন্তত ১৫ মিনিট হাঁটুন।",
+  "chalBankHealthWalkTaskX": "অল্প হাঁটাও শরীর ও মনের জন্য ভালো। নিজের সুবিধামতো সময়ে করুন।",
+  "chalBankSafePasswordQ": "কোনটি সবচেয়ে নিরাপদ পাসওয়ার্ড অভ্যাস?",
+  "chalBankSafePasswordX": "প্রতিটি গুরুত্বপূর্ণ অ্যাকাউন্টে আলাদা শক্ত পাসওয়ার্ড রাখলে একটি ফাঁস হলেও বাকিগুলো সুরক্ষিত থাকে। পাসওয়ার্ড ম্যানেজার সাহায্য করে।",
+  "chalBankSafePasswordO0": "সব জায়গায় একই পাসওয়ার্ড",
+  "chalBankSafePasswordO1": "প্রতিটি গুরুত্বপূর্ণ অ্যাকাউন্টে আলাদা, শক্ত পাসওয়ার্ড",
+  "chalBankSafePasswordO2": "পাসওয়ার্ড লিখে দেয়ালে টাঙানো",
+  "chalBankSafePasswordO3": "নাম ও জন্মসাল",
+  "chalBankSafeOtpQ": "কেউ ফোন করে আপনার OTP/ভেরিফিকেশন কোড চাইলে কী করবেন?",
+  "chalBankSafeOtpX": "ব্যাংক বা কোনো আসল প্রতিষ্ঠান কখনো OTP চায় না। OTP শেয়ার করলে অ্যাকাউন্ট খালি হয়ে যেতে পারে — কখনো দেবেন না।",
+  "chalBankSafeOtpO0": "দিয়ে দেবেন",
+  "chalBankSafeOtpO1": "কখনোই শেয়ার করবেন না",
+  "chalBankSafeOtpO2": "শুধু আত্মীয় হলে দেবেন",
+  "chalBankSafeOtpO3": "SMS-এ ফরোয়ার্ড করবেন",
+  "chalBankSafe2faQ": "টু-ফ্যাক্টর অথেনটিকেশন (2FA) কী করে?",
+  "chalBankSafe2faX": "2FA চালু থাকলে পাসওয়ার্ড জানলেও দ্বিতীয় কোড ছাড়া কেউ ঢুকতে পারে না — গুরুত্বপূর্ণ অ্যাকাউন্টে চালু রাখা ভালো।",
+  "chalBankSafe2faO0": "পাসওয়ার্ড মুছে দেয়",
+  "chalBankSafe2faO1": "পাসওয়ার্ডের পাশাপাশি দ্বিতীয় একটি ধাপ যোগ করে",
+  "chalBankSafe2faO2": "ইন্টারনেট দ্রুত করে",
+  "chalBankSafe2faO3": "অ্যাকাউন্ট পাবলিক করে",
+  "chalBankSafeLinkQ": "'আপনি পুরস্কার জিতেছেন, লিংকে ক্লিক করুন' — এমন SMS পেলে কী করবেন?",
+  "chalBankSafeLinkX": "অপ্রত্যাশিত পুরস্কারের লিংক প্রায়ই প্রতারণা (ফিশিং)। ক্লিক করলে তথ্য বা টাকা খোয়া যেতে পারে — মুছে ফেলাই নিরাপদ।",
+  "chalBankSafeLinkO0": "দ্রুত ক্লিক করবেন",
+  "chalBankSafeLinkO1": "ক্লিক না করে মুছে দেবেন",
+  "chalBankSafeLinkO2": "ব্যাংক তথ্য দেবেন",
+  "chalBankSafeLinkO3": "সবাইকে ফরোয়ার্ড করবেন",
+  "chalBankSafeBackupTaskQ": "আজকের চ্যালেঞ্জ: আপনার ফোনের গুরুত্বপূর্ণ ছবি/ফাইল আজ একবার ব্যাকআপ করে রাখুন।",
+  "chalBankSafeBackupTaskX": "ফোন হারালে বা নষ্ট হলে ব্যাকআপ থাকলে তথ্য থেকে যায়। Vault-এ গুরুত্বপূর্ণ নথি রাখতে পারেন।",
+  "chalBankGenBdCapitalQ": "বাংলাদেশের রাজধানী কোনটি?",
+  "chalBankGenBdCapitalX": "ঢাকা বাংলাদেশের রাজধানী ও সবচেয়ে বড় শহর।",
+  "chalBankGenBdCapitalO0": "চট্টগ্রাম",
+  "chalBankGenBdCapitalO1": "ঢাকা",
+  "chalBankGenBdCapitalO2": "খুলনা",
+  "chalBankGenBdCapitalO3": "রাজশাহী",
+  "chalBankGenLanguageDayQ": "আন্তর্জাতিক মাতৃভাষা দিবস কবে পালিত হয়?",
+  "chalBankGenLanguageDayX": "একুশে ফেব্রুয়ারি ভাষা আন্দোলনের স্মরণে আন্তর্জাতিক মাতৃভাষা দিবস হিসেবে স্বীকৃত।",
+  "chalBankGenLanguageDayO0": "২১ ফেব্রুয়ারি",
+  "chalBankGenLanguageDayO1": "১৬ ডিসেম্বর",
+  "chalBankGenLanguageDayO2": "২৬ মার্চ",
+  "chalBankGenLanguageDayO3": "১ জানুয়ারি",
+  "chalBankGenWaterBoilQ": "সমুদ্রপৃষ্ঠে বিশুদ্ধ পানি কত ডিগ্রি সেলসিয়াসে ফোটে?",
+  "chalBankGenWaterBoilX": "সমুদ্রপৃষ্ঠের স্বাভাবিক চাপে বিশুদ্ধ পানি ১০০° সেলসিয়াসে ফোটে; উঁচু জায়গায় তা একটু কম।",
+  "chalBankGenWaterBoilO0": "৫০°",
+  "chalBankGenWaterBoilO1": "১০০°",
+  "chalBankGenWaterBoilO2": "২০০°",
+  "chalBankGenWaterBoilO3": "০°",
+  "chalBankGenContinentsQ": "পৃথিবীতে মহাদেশ কয়টি?",
+  "chalBankGenContinentsX": "সাধারণভাবে পৃথিবীকে ৭টি মহাদেশে ভাগ করা হয়: এশিয়া, আফ্রিকা, ইউরোপ, উত্তর আমেরিকা, দক্ষিণ আমেরিকা, অস্ট্রেলিয়া ও অ্যান্টার্কটিকা।",
+  "chalBankGenContinentsO0": "৫টি",
+  "chalBankGenContinentsO1": "৭টি",
+  "chalBankGenContinentsO2": "১০টি",
+  "chalBankGenContinentsO3": "৩টি",
+  "chalBankGenLearnTaskQ": "আজকের চ্যালেঞ্জ: আজ নতুন একটি শব্দ বা তথ্য শিখে কাউকে শেখান।",
+  "chalBankGenLearnTaskX": "শেখা জিনিস কাউকে শেখালে তা ভালো মনে থাকে। ছোট কিছু হলেও চলবে।",
+  "chalBankFinScamInvestQ": "'নিশ্চিত দ্বিগুণ লাভ, কোনো ঝুঁকি নেই' — এমন বিনিয়োগের প্রস্তাব সাধারণত কী?",
+  "chalBankFinScamInvestX": "কোনো আসল বিনিয়োগ 'ঝুঁকিহীন নিশ্চিত দ্বিগুণ লাভ' দেয় না। এমন প্রতিশ্রুতি প্রায় সবসময়ই প্রতারণা।",
+  "chalBankFinScamInvestO0": "দারুণ সুযোগ",
+  "chalBankFinScamInvestO1": "প্রতারণার লক্ষণ",
+  "chalBankFinScamInvestO2": "সরকারি স্কিম",
+  "chalBankFinScamInvestO3": "ব্যাংকের অফার",
+  "chalTitle": "দৈনিক চ্যালেঞ্জ",
+  "chalLoadError": "চ্যালেঞ্জ লোড করা যায়নি। আবার চেষ্টা করুন।",
+  "chalWelcomeTitle": "প্রতিদিন একটি নতুন চ্যালেঞ্জ",
+  "chalWelcomeBody": "প্রতিদিন একটি করে কুইজ বা ছোট কাজ — অর্থ, স্বাস্থ্য, নিরাপত্তা ও সাধারণ জ্ঞান নিয়ে। উত্তর দিন, স্ট্রিক গড়ুন, পয়েন্ট জমান।",
+  "chalNoneTitle": "আজকের জন্য কোনো চ্যালেঞ্জ নেই",
+  "chalNoneBody": "একটি সমস্যার কারণে আজকের চ্যালেঞ্জ দেখানো যাচ্ছে না। কাল আবার দেখুন।",
+  "chalStreak": "স্ট্রিক",
+  "chalPoints": "পয়েন্ট",
+  "chalDone": "সম্পন্ন",
+  "chalKindQuiz": "কুইজ",
+  "chalKindTask": "কাজ",
+  "chalCatFinance": "অর্থ",
+  "chalCatHealth": "স্বাস্থ্য",
+  "chalCatSafety": "নিরাপত্তা",
+  "chalCatGeneral": "সাধারণ জ্ঞান",
+  "chalSubmitAnswer": "উত্তর জমা দিন",
+  "chalMarkDone": "সম্পন্ন করেছি",
+  "chalTaskHint": "আজ এই কাজটি করে ফেলুন, তারপর এখানে সম্পন্ন চিহ্নিত করুন।",
+  "chalTaskCompleted": "সম্পন্ন হয়েছে। দারুণ কাজ!",
+  "chalWhy": "কেন",
+  "chalHistory": "ইতিহাস",
+  "chalHistoryEmptyTitle": "এখনো কিছু সম্পন্ন করেননি",
+  "chalHistoryEmptyBody": "আপনি কোনো চ্যালেঞ্জ সম্পন্ন করলে তা এখানে দেখা যাবে।",
+  "chalCorrectToast": "সঠিক উত্তর! +{points} পয়েন্ট",
+  "@chalCorrectToast": {
+    "placeholders": {
+      "points": {
+        "type": "Object"
+      }
+    }
+  },
+  "chalWrongToast": "এবার হলো না, তবু চেষ্টার জন্য +{points} পয়েন্ট",
+  "@chalWrongToast": {
+    "placeholders": {
+      "points": {
+        "type": "Object"
+      }
+    }
+  },
+  "chalTaskDone": "দারুণ! +{points} পয়েন্ট",
+  "@chalTaskDone": {
+    "placeholders": {
+      "points": {
+        "type": "Object"
+      }
+    }
+  },
+  "chalPointsNote": "পয়েন্ট শুধু উৎসাহের জন্য গণনা করা হয় — এটি কোনো টাকা নয়। রেফারেল পয়েন্টের সাথে মিলিয়ে পরে প্রিমিয়াম দিনে রূপান্তর করা যেতে পারে।",
+  "savedTitle": "সংরক্ষিত",
+  "savedLoadError": "সংরক্ষিত জিনিস লোড করা যায়নি। আবার চেষ্টা করুন।",
+  "savedAdd": "সংরক্ষণ করুন",
+  "savedEdit": "সম্পাদনা করুন",
+  "savedWelcomeTitle": "এখনো কিছু সংরক্ষণ করেননি",
+  "savedWelcomeBody": "গুরুত্বপূর্ণ নোট, উত্তর, নথি বা লিংক এখানে সংরক্ষণ করে রাখুন — শিরোনাম, নোট ও ট্যাগসহ। পরে সহজে খুঁজে পাবেন।",
+  "savedSearchHint": "সংরক্ষিত জিনিসে খুঁজুন",
+  "savedAllTag": "সব ({count})",
+  "@savedAllTag": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "savedNoResultsTitle": "কিছু পাওয়া যায়নি",
+  "savedNoResultsBody": "আপনার খোঁজা বা ফিল্টারের সাথে কোনো সংরক্ষিত জিনিস মেলেনি।",
+  "savedClearFilters": "ফিল্টার মুছুন",
+  "savedKindLabel": "ধরন",
+  "savedKindNote": "নোট",
+  "savedKindAnswer": "উত্তর",
+  "savedKindDoc": "নথি",
+  "savedKindLink": "লিংক",
+  "savedTitleLabel": "শিরোনাম",
+  "savedTitleHint": "ছোট একটি নাম দিন",
+  "savedNoteLabel": "নোট (ঐচ্ছিক)",
+  "savedNoteHint": "বিস্তারিত বা সংরক্ষিত লেখা এখানে লিখুন",
+  "savedTagLabel": "ট্যাগ (ঐচ্ছিক)",
+  "savedTagHint": "যেমন: অর্থ, স্বাস্থ্য",
+  "savedLinkLabel": "লিংক",
+  "savedLinkHint": "https://…",
+  "savedDocLabel": "নথির রেফারেন্স",
+  "savedDocHint": "নথির নাম বা আইডি",
+  "savedSaved": "সংরক্ষণ করা হয়েছে।",
+  "savedDeleted": "মুছে ফেলা হয়েছে।",
+  "savedDeleteTitle": "মুছে ফেলবেন?",
+  "savedDeleteBody": "\"{title}\" মুছে ফেলা হবে। এটি ফেরানো যাবে না।",
+  "@savedDeleteBody": {
+    "placeholders": {
+      "title": {
+        "type": "Object"
+      }
+    }
+  },
+  "kidTitle": "স্কুল কর্নার",
+  "kidLoadError": "আপনার তথ্য আনা যায়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "kidWelcomeTitle": "সন্তানের স্কুল গুছিয়ে রাখুন",
+  "kidWelcomeBody": "স্কুলের নোটিশ লিখে রাখুন — ফি, পরীক্ষা, অভিভাবক সভা আর অনুষ্ঠান আলাদা করে সাজানো থাকবে, আর কোনটা কবে তা মনে করিয়ে দেবে। শুরু করতে একটি সন্তানের নাম যোগ করুন।",
+  "kidAddChild": "সন্তান যোগ করুন",
+  "kidSaved": "সংরক্ষণ হয়েছে",
+  "kidPrivacyNote": "শুধু আপনিই এই তথ্য দেখেন। সন্তানের শুধু নাম ও ক্লাস রাখা হয় — আর কিছু লাগে না।",
+  "kidChildName": "সন্তানের নাম",
+  "kidChildNameHint": "যেমন: রুমি",
+  "kidChildClass": "ক্লাস (ঐচ্ছিক)",
+  "kidChildClassHint": "যেমন: তৃতীয় শ্রেণি",
+  "kidOverdueBanner": "{count}টি কাজের সময় পেরিয়ে গেছে",
+  "@kidOverdueBanner": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "kidOverdueShort": "{count} বকেয়া",
+  "@kidOverdueShort": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "kidOpenShort": "{count} বাকি",
+  "@kidOpenShort": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "kidOverdueDays": "{days} দিন পেরিয়ে গেছে",
+  "@kidOverdueDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "kidDueInDays": "আর {days} দিন",
+  "@kidDueInDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "kidDueToday": "আজই শেষ দিন",
+  "kidNoDate": "কোনো তারিখ দেওয়া নেই",
+  "kidAddNotice": "নোটিশ যোগ করুন",
+  "kidNoticeHelp": "স্কুল থেকে পাওয়া নোটিশটি লিখুন ও ধরন বেছে নিন। লেখা দেখে অ্যাপ একটি ধরন সাজেস্ট করবে — আপনি চাইলে বদলাতে পারবেন।",
+  "kidNoticeTitle": "নোটিশের শিরোনাম",
+  "kidNoticeTitleHint": "যেমন: মাসিক বেতন",
+  "kidNoticeBody": "বিস্তারিত (ঐচ্ছিক)",
+  "kidNoticeBodyHint": "নোটিশে আর যা লেখা আছে",
+  "kidNoticeType": "ধরন",
+  "kidTypeSuggested": "\"{keyword}\" শব্দ দেখে সাজেস্ট করা হলো",
+  "@kidTypeSuggested": {
+    "placeholders": {
+      "keyword": {
+        "type": "Object"
+      }
+    }
+  },
+  "kidTypeFee": "ফি",
+  "kidTypeExam": "পরীক্ষা",
+  "kidTypePtm": "অভিভাবক সভা",
+  "kidTypeEvent": "অনুষ্ঠান",
+  "kidTypeOther": "অন্যান্য",
+  "kidFeeAmount": "ফি-র পরিমাণ",
+  "kidDueDate": "শেষ তারিখ",
+  "kidNoticeDate": "তারিখ",
+  "kidDateHint": "যেমন: 2026-02-10",
+  "kidDateOptional": "তারিখ না দিলেও চলবে — তখন এটি আপকামিং তালিকায় আসবে না।",
+  "kidMarkDone": "সম্পন্ন হিসেবে চিহ্নিত করুন",
+  "kidMarkUndone": "আবার বাকি হিসেবে রাখুন",
+  "kidChipFees": "ফি {count}",
+  "@kidChipFees": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "kidChipExams": "পরীক্ষা {count}",
+  "@kidChipExams": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "kidChipPtm": "সভা {count}",
+  "@kidChipPtm": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "kidChipEvents": "অনুষ্ঠান {count}",
+  "@kidChipEvents": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "kidNoNoticesTitle": "এখনো কোনো নোটিশ নেই",
+  "kidNoNoticesBody": "স্কুল থেকে কোনো নোটিশ পেলে এখানে যোগ করুন — ফি, পরীক্ষা বা সভা।",
+  "kidReminderNote": "শেষ তারিখগুলো এই স্ক্রিনেই দেখানো হয়। এখনো আলাদা নোটিফিকেশন রিমাইন্ডার চালু নয়।",
+  "kidDeleteChildTitle": "সন্তানকে সরাবেন?",
+  "kidDeleteChildBody": "{name}-এর সব নোটিশসহ তথ্য মুছে যাবে। এটি ফেরানো যাবে না।",
+  "@kidDeleteChildBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "fitTitle": "ফিটনেস সঙ্গী",
+  "fitLoadError": "আপনার তথ্য আনা যায়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "fitWelcomeTitle": "ছোট একটি লক্ষ্য দিয়ে শুরু করুন",
+  "fitWelcomeBody": "সপ্তাহে ক'দিন ব্যায়াম, দৈনিক পদক্ষেপ, নাকি ওজনের লক্ষ্য — যেকোনো একটি বেছে নিন। এটি চিকিৎসা পরামর্শ নয়, শুধু নিজের অগ্রগতি সহজভাবে দেখার সঙ্গী।",
+  "fitSetGoal": "লক্ষ্য ঠিক করুন",
+  "fitChangeGoal": "লক্ষ্য বদলান",
+  "fitSaved": "সংরক্ষণ হয়েছে",
+  "fitNonMedicalNote": "এটি কোনো চিকিৎসা পরামর্শ নয়। নিজের গতিতে, আনন্দ নিয়ে চালিয়ে যান এবং শরীরের কথা শুনুন।",
+  "fitGoalType": "লক্ষ্যের ধরন",
+  "fitGoalHelp": "একসাথে একটি লক্ষ্যই সবচেয়ে সহজ। পরে যেকোনো সময় বদলানো যাবে।",
+  "fitKindWorkoutDays": "সপ্তাহে ব্যায়ামের দিন",
+  "fitKindSteps": "দৈনিক পদক্ষেপ",
+  "fitKindWeight": "ওজনের লক্ষ্য",
+  "fitUnitDays": "দিন",
+  "fitUnitSteps": "পদক্ষেপ",
+  "fitUnitKg": "কেজি",
+  "fitTargetLabel": "লক্ষ্য ({unit})",
+  "@fitTargetLabel": {
+    "placeholders": {
+      "unit": {
+        "type": "Object"
+      }
+    }
+  },
+  "fitDaysHelper": "সপ্তাহে ১ থেকে ৭ দিনের মধ্যে বেছে নিন।",
+  "fitWeightTargetHelper": "যে ওজনে পৌঁছাতে চান (কেজি)।",
+  "fitStartWeight": "এখনকার ওজন",
+  "fitStartDate": "শুরুর তারিখ",
+  "fitDateHint": "যেমন: 2026-02-10",
+  "fitLogWorkout": "ব্যায়াম লিখুন",
+  "fitWorkoutType": "ব্যায়ামের ধরন",
+  "fitTypeWalk": "হাঁটা",
+  "fitTypeRun": "দৌড়",
+  "fitTypeCycle": "সাইক্লিং",
+  "fitTypeGym": "জিম",
+  "fitTypeYoga": "যোগব্যায়াম",
+  "fitTypeSport": "খেলাধুলা",
+  "fitTypeOther": "অন্যান্য",
+  "fitDurationMinutes": "সময় (মিনিট)",
+  "fitStepsLabel": "পদক্ষেপ",
+  "fitCaloriesOptional": "ক্যালরি (ঐচ্ছিক)",
+  "fitCaloriesHelper": "আপনি জানলে লিখুন — অ্যাপ নিজে থেকে ক্যালরি অনুমান করে না।",
+  "fitDate": "তারিখ",
+  "fitDaysOfTarget": "৭ দিনে {done} / {target} দিন",
+  "@fitDaysOfTarget": {
+    "placeholders": {
+      "done": {
+        "type": "Object"
+      },
+      "target": {
+        "type": "Object"
+      }
+    }
+  },
+  "fitStepsOfTarget": "{done} / {target} পদক্ষেপ",
+  "@fitStepsOfTarget": {
+    "placeholders": {
+      "done": {
+        "type": "Object"
+      },
+      "target": {
+        "type": "Object"
+      }
+    }
+  },
+  "fitWeightOfTarget": "{current} / {target} কেজি",
+  "@fitWeightOfTarget": {
+    "placeholders": {
+      "current": {
+        "type": "Object"
+      },
+      "target": {
+        "type": "Object"
+      }
+    }
+  },
+  "fitThisWeek": "এই সপ্তাহ",
+  "fitMinutesLabel": "মিনিট",
+  "fitStreak": "টানা দিন",
+  "fitSessions": "{count} বার",
+  "@fitSessions": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "fitDays": "{count} দিন",
+  "@fitDays": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "fitMinutes": "{minutes} মিনিট",
+  "@fitMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "Object"
+      }
+    }
+  },
+  "fitCalories": "{calories} ক্যালরি",
+  "@fitCalories": {
+    "placeholders": {
+      "calories": {
+        "type": "Object"
+      }
+    }
+  },
+  "fitStepsShort": "{steps} পদক্ষেপ",
+  "@fitStepsShort": {
+    "placeholders": {
+      "steps": {
+        "type": "Object"
+      }
+    }
+  },
+  "fitRecentWorkouts": "সাম্প্রতিক ব্যায়াম",
+  "fitNoWorkoutsYet": "এখনো কোনো ব্যায়াম লেখা হয়নি। প্রথমটি যোগ করুন!",
+  "fitStatusNotStarted": "এখনো শুরু হয়নি",
+  "fitStatusBehind": "একটু পিছিয়ে",
+  "fitStatusOnTrack": "ঠিক পথে",
+  "fitStatusAhead": "দারুণ এগিয়ে",
+  "fitStatusReached": "লক্ষ্য পূরণ!",
+  "fitCoachingSeam": "ব্যক্তিগত এআই কোচিং ঐচ্ছিক ও কি-নির্ভর; কি ছাড়াও পুরো ট্র্যাকার কাজ করে।",
+  "fitTipNotStarted": "ছোট একটা লক্ষ্য দিয়ে শুরু করুন — সপ্তাহে ৩ দিন হাঁটাও দারুণ।",
+  "fitTipBehind": "কোনো সমস্যা নেই — আজ অল্প সময়ের একটা সহজ ব্যায়ামই যথেষ্ট।",
+  "fitTipOnTrack": "সুন্দর ছন্দে আছেন। এই ধারাটা ধরে রাখুন।",
+  "fitTipAhead": "দারুণ করছেন! নিজের শরীরের কথা শুনে বিশ্রামও নিন।",
+  "fitTipReached": "অভিনন্দন, লক্ষ্য পূরণ! চাইলে নতুন একটা মৃদু লক্ষ্য দিন।"
 }

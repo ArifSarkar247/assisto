@@ -9410,5 +9410,595 @@
       }
     }
   },
-  "trustTileSub": "What Assisto does — and never does"
+  "trustTileSub": "What Assisto does — and never does",
+  "htlTitle": "Health timeline",
+  "htlWelcomeTitle": "Start your health record",
+  "htlWelcomeBody": "Keep every doctor visit, test result, prescription, vaccination, symptom or hospital stay in one place with its date — easy to find later. This is only your record, not medical advice.",
+  "htlLoadError": "Couldn't load your timeline. Please try again.",
+  "htlAddEvent": "Add event",
+  "htlEditEvent": "Edit event",
+  "htlSaved": "Saved",
+  "htlDeleted": "Deleted",
+  "htlDeleteTitle": "Delete this event?",
+  "htlDeleteBody": "This record will be permanently removed from your timeline.",
+  "htlSearchHint": "Search events, doctor or place",
+  "htlGroupByCategory": "Group by category",
+  "htlGroupByMonth": "Group by month",
+  "htlUndated": "Undated",
+  "htlNoneMatchTitle": "Nothing matches",
+  "htlNoneMatchBody": "No events match this filter. Clear the filters to see all.",
+  "htlClearFilters": "Clear filters",
+  "htlCategory": "Category",
+  "htlCatVisit": "Doctor visit",
+  "htlCatTest": "Test result",
+  "htlCatPrescription": "Prescription",
+  "htlCatVaccination": "Vaccination",
+  "htlCatSymptom": "Symptom",
+  "htlCatHospitalization": "Hospitalization",
+  "htlCatOther": "Other",
+  "htlEventTitle": "Title",
+  "htlEventTitleHint": "e.g. blood sugar test",
+  "htlEventDate": "Date",
+  "htlNoDate": "No date",
+  "htlDoctor": "Doctor (optional)",
+  "htlPlace": "Place (optional)",
+  "htlNotes": "Notes",
+  "htlNotesHint": "Results, advice or other details",
+  "htlDisclaimer": "This is only your health record — not medical advice. Please consult a doctor for any decision.",
+  "wellTitle": "Water, sleep & diet",
+  "wellWelcomeTitle": "Track your wellness today",
+  "wellWelcomeBody": "Jot down how many glasses of water you drank, how long you slept and what you ate each day. Set your own goals and watch your progress as rings and a 7-day chart. This is a personal tracker, not medical advice.",
+  "wellLoadError": "Couldn't load your logs. Please try again.",
+  "wellLogToday": "Log today",
+  "wellEditToday": "Edit today",
+  "wellSaved": "Saved",
+  "wellToday": "Today",
+  "wellNotLoggedYet": "Not logged yet",
+  "wellWater": "Water",
+  "wellSleep": "Sleep",
+  "wellWaterGoal": "Water goal",
+  "wellSleepGoal": "Sleep goal",
+  "wellWaterStreak": "Water streak",
+  "wellSleepStreak": "Sleep streak",
+  "wellTrend7d": "Last 7 days",
+  "wellTrendEmpty": "Nothing logged in the last 7 days. Start today.",
+  "wellDietToday": "Today's diet",
+  "wellDietNotes": "Diet notes",
+  "wellDietHint": "e.g. rice & egg for breakfast, fish & rice for lunch",
+  "wellPhotoSeam": "Reading a meal from a photo will come later.",
+  "wellDisclaimer": "This is a personal tracker — not medical advice. The goals are your own; please consult a doctor if needed.",
+  "wellGlasses": "{count} glasses",
+  "@wellGlasses": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "wellGlassesOf": "{value}/{goal} glasses",
+  "@wellGlassesOf": {
+    "placeholders": {
+      "goal": {
+        "type": "Object"
+      },
+      "value": {
+        "type": "Object"
+      }
+    }
+  },
+  "wellHours": "{hours} h",
+  "@wellHours": {
+    "placeholders": {
+      "hours": {
+        "type": "Object"
+      }
+    }
+  },
+  "wellHoursOf": "{value}/{goal} h",
+  "@wellHoursOf": {
+    "placeholders": {
+      "goal": {
+        "type": "Object"
+      },
+      "value": {
+        "type": "Object"
+      }
+    }
+  },
+  "wellDaysCount": "{count} days",
+  "@wellDaysCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "wellBestStreak": "Best: {best} days",
+  "@wellBestStreak": {
+    "placeholders": {
+      "best": {
+        "type": "Object"
+      }
+    }
+  },
+  "wellGoalDays": "{count}/{total} days on goal",
+  "@wellGoalDays": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "wellTrendAverages": "Average: {water} glasses water, {sleep} h sleep",
+  "@wellTrendAverages": {
+    "placeholders": {
+      "sleep": {
+        "type": "Object"
+      },
+      "water": {
+        "type": "Object"
+      }
+    }
+  },
+  "chalBankFinEmergencyFundQ": "An emergency fund is commonly suggested to cover how many months of expenses?",
+  "chalBankFinEmergencyFundX": "Keeping 3–6 months of expenses helps absorb a job loss or sudden illness. This is general guidance, not personal advice.",
+  "chalBankFinEmergencyFundO0": "1 week",
+  "chalBankFinEmergencyFundO1": "3–6 months",
+  "chalBankFinEmergencyFundO2": "10 years",
+  "chalBankFinEmergencyFundO3": "No need at all",
+  "chalBankFinInterestCompoundQ": "How does compound interest work?",
+  "chalBankFinInterestCompoundX": "With compounding, earned interest is added to the principal, so later interest is calculated on the interest too — it grows faster over time.",
+  "chalBankFinInterestCompoundO0": "Interest only on the original amount",
+  "chalBankFinInterestCompoundO1": "Interest earns interest over time",
+  "chalBankFinInterestCompoundO2": "Interest never grows",
+  "chalBankFinInterestCompoundO3": "Interest always means loss",
+  "chalBankFinBudget503020Q": "In the 50/30/20 budgeting rule, the 20% is for what?",
+  "chalBankFinBudget503020X": "50% needs, 30% wants, and 20% to savings and debt repayment — a simple framework, not a rule you must follow.",
+  "chalBankFinBudget503020O0": "Luxury only",
+  "chalBankFinBudget503020O1": "Needs",
+  "chalBankFinBudget503020O2": "Savings and paying off debt",
+  "chalBankFinBudget503020O3": "Entertainment",
+  "chalBankFinInflationQ": "What does inflation do to the value of your money?",
+  "chalBankFinInflationX": "Inflation raises prices, so the same money buys fewer things — its purchasing power falls.",
+  "chalBankFinInflationO0": "Reduces its purchasing power",
+  "chalBankFinInflationO1": "Increases its purchasing power",
+  "chalBankFinInflationO2": "Has no effect",
+  "chalBankFinInflationO3": "Doubles your money",
+  "chalBankFinSaveTaskQ": "Today's challenge: skip one non-essential purchase today and set that money aside.",
+  "chalBankFinSaveTaskX": "Small savings add up. You can log what you saved in your Savings Challenge.",
+  "chalBankHealthWaterQ": "For general wellbeing, which habit is usually recommended for water?",
+  "chalBankHealthWaterX": "Needs vary by person, but drinking enough water regularly through the day is generally good. This is general info, not medical advice.",
+  "chalBankHealthWaterO0": "None at all",
+  "chalBankHealthWaterO1": "Enough water, regularly, as you feel thirsty",
+  "chalBankHealthWaterO2": "Only tea and coffee",
+  "chalBankHealthWaterO3": "Just once a day",
+  "chalBankHealthHandwashQ": "To help prevent illness spreading, you should wash hands with soap for at least how long?",
+  "chalBankHealthHandwashX": "Scrubbing with soap for at least 20 seconds effectively removes germs — especially before eating and after the toilet.",
+  "chalBankHealthHandwashO0": "2 seconds",
+  "chalBankHealthHandwashO1": "20 seconds",
+  "chalBankHealthHandwashO2": "5 minutes",
+  "chalBankHealthHandwashO3": "No need to wash",
+  "chalBankHealthSleepQ": "How many hours of sleep per night are generally suggested for adults?",
+  "chalBankHealthSleepX": "Most adults are generally advised to get 7–9 hours a night. Individual needs can differ.",
+  "chalBankHealthSleepO0": "2–3 hours",
+  "chalBankHealthSleepO1": "7–9 hours",
+  "chalBankHealthSleepO2": "12 hours",
+  "chalBankHealthSleepO3": "No sleep needed",
+  "chalBankHealthSaltQ": "Which habit generally helps keep blood pressure in check?",
+  "chalBankHealthSaltX": "Moderate salt, regular walking and a healthy weight are generally good for blood pressure. See a doctor if you have concerns.",
+  "chalBankHealthSaltO0": "Eating a lot of extra salt",
+  "chalBankHealthSaltO1": "Moderate salt and regular walking",
+  "chalBankHealthSaltO2": "Smoking",
+  "chalBankHealthSaltO3": "Staying up late",
+  "chalBankHealthWalkTaskQ": "Today's challenge: take at least a 15-minute walk today.",
+  "chalBankHealthWalkTaskX": "Even a short walk is good for body and mind. Do it whenever suits you.",
+  "chalBankSafePasswordQ": "Which is the safest password habit?",
+  "chalBankSafePasswordX": "A unique strong password per important account means one leak doesn't expose the rest. A password manager helps.",
+  "chalBankSafePasswordO0": "The same password everywhere",
+  "chalBankSafePasswordO1": "A different, strong password for each important account",
+  "chalBankSafePasswordO2": "Writing it on the wall",
+  "chalBankSafePasswordO3": "Your name and birth year",
+  "chalBankSafeOtpQ": "Someone calls asking for your OTP / verification code. What should you do?",
+  "chalBankSafeOtpX": "No real bank or company ever asks for your OTP. Sharing it can empty your account — never give it out.",
+  "chalBankSafeOtpO0": "Share it with them",
+  "chalBankSafeOtpO1": "Never share it",
+  "chalBankSafeOtpO2": "Share only if they say they're a relative",
+  "chalBankSafeOtpO3": "Forward it over SMS",
+  "chalBankSafe2faQ": "What does two-factor authentication (2FA) do?",
+  "chalBankSafe2faX": "With 2FA on, even someone who knows your password can't log in without the second code — worth enabling on important accounts.",
+  "chalBankSafe2faO0": "Deletes your password",
+  "chalBankSafe2faO1": "Adds a second step on top of your password",
+  "chalBankSafe2faO2": "Makes the internet faster",
+  "chalBankSafe2faO3": "Makes your account public",
+  "chalBankSafeLinkQ": "You get an SMS: 'You won a prize, click this link.' What should you do?",
+  "chalBankSafeLinkX": "Unexpected prize links are usually scams (phishing). Clicking can steal your data or money — deleting is the safe move.",
+  "chalBankSafeLinkO0": "Click it quickly",
+  "chalBankSafeLinkO1": "Don't click — delete it",
+  "chalBankSafeLinkO2": "Reply with bank details",
+  "chalBankSafeLinkO3": "Forward it to everyone",
+  "chalBankSafeBackupTaskQ": "Today's challenge: back up your phone's important photos/files once today.",
+  "chalBankSafeBackupTaskX": "A backup keeps your data if the phone is lost or breaks. You can keep important documents in Vault.",
+  "chalBankGenBdCapitalQ": "What is the capital of Bangladesh?",
+  "chalBankGenBdCapitalX": "Dhaka is the capital and largest city of Bangladesh.",
+  "chalBankGenBdCapitalO0": "Chattogram",
+  "chalBankGenBdCapitalO1": "Dhaka",
+  "chalBankGenBdCapitalO2": "Khulna",
+  "chalBankGenBdCapitalO3": "Rajshahi",
+  "chalBankGenLanguageDayQ": "When is International Mother Language Day observed?",
+  "chalBankGenLanguageDayX": "21 February is recognised as International Mother Language Day, honouring the Language Movement.",
+  "chalBankGenLanguageDayO0": "21 February",
+  "chalBankGenLanguageDayO1": "16 December",
+  "chalBankGenLanguageDayO2": "26 March",
+  "chalBankGenLanguageDayO3": "1 January",
+  "chalBankGenWaterBoilQ": "At sea level, pure water boils at what temperature (°C)?",
+  "chalBankGenWaterBoilX": "At normal sea-level pressure, pure water boils at 100 °C; at high altitude it's a bit lower.",
+  "chalBankGenWaterBoilO0": "50°",
+  "chalBankGenWaterBoilO1": "100°",
+  "chalBankGenWaterBoilO2": "200°",
+  "chalBankGenWaterBoilO3": "0°",
+  "chalBankGenContinentsQ": "How many continents are there on Earth?",
+  "chalBankGenContinentsX": "The Earth is commonly divided into 7 continents: Asia, Africa, Europe, North America, South America, Australia and Antarctica.",
+  "chalBankGenContinentsO0": "5",
+  "chalBankGenContinentsO1": "7",
+  "chalBankGenContinentsO2": "10",
+  "chalBankGenContinentsO3": "3",
+  "chalBankGenLearnTaskQ": "Today's challenge: learn one new word or fact today and teach it to someone.",
+  "chalBankGenLearnTaskX": "Teaching what you learn helps you remember it. Even something small counts.",
+  "chalBankFinScamInvestQ": "'Guaranteed double returns, zero risk' investment offers are usually what?",
+  "chalBankFinScamInvestX": "No genuine investment offers 'risk-free guaranteed doubling'. Such promises are almost always scams.",
+  "chalBankFinScamInvestO0": "A great opportunity",
+  "chalBankFinScamInvestO1": "A sign of a scam",
+  "chalBankFinScamInvestO2": "A government scheme",
+  "chalBankFinScamInvestO3": "A normal bank offer",
+  "chalTitle": "Daily challenge",
+  "chalLoadError": "Couldn't load your challenges. Please try again.",
+  "chalWelcomeTitle": "A fresh challenge every day",
+  "chalWelcomeBody": "One quiz or small task each day — on money, health, safety and general knowledge. Answer it, build a streak, and earn points.",
+  "chalNoneTitle": "No challenge for today",
+  "chalNoneBody": "We couldn't show today's challenge. Please check back tomorrow.",
+  "chalStreak": "Streak",
+  "chalPoints": "Points",
+  "chalDone": "Done",
+  "chalKindQuiz": "Quiz",
+  "chalKindTask": "Task",
+  "chalCatFinance": "Money",
+  "chalCatHealth": "Health",
+  "chalCatSafety": "Safety",
+  "chalCatGeneral": "General",
+  "chalSubmitAnswer": "Submit answer",
+  "chalMarkDone": "Mark as done",
+  "chalTaskHint": "Do this today, then mark it done here.",
+  "chalTaskCompleted": "Completed. Well done!",
+  "chalWhy": "Why",
+  "chalHistory": "History",
+  "chalHistoryEmptyTitle": "Nothing completed yet",
+  "chalHistoryEmptyBody": "Challenges you complete will show up here.",
+  "chalCorrectToast": "Correct! +{points} points",
+  "@chalCorrectToast": {
+    "placeholders": {
+      "points": {
+        "type": "Object"
+      }
+    }
+  },
+  "chalWrongToast": "Not this time — but +{points} points for trying",
+  "@chalWrongToast": {
+    "placeholders": {
+      "points": {
+        "type": "Object"
+      }
+    }
+  },
+  "chalTaskDone": "Nice! +{points} points",
+  "@chalTaskDone": {
+    "placeholders": {
+      "points": {
+        "type": "Object"
+      }
+    }
+  },
+  "chalPointsNote": "Points are counted for motivation — they are not money. They share the same points as referrals and may later convert to Premium days.",
+  "savedTitle": "Saved",
+  "savedLoadError": "Couldn't load your saved items. Please try again.",
+  "savedAdd": "Save item",
+  "savedEdit": "Edit item",
+  "savedWelcomeTitle": "Nothing saved yet",
+  "savedWelcomeBody": "Keep important notes, answers, documents or links here — with a title, note and tag. Find them easily later.",
+  "savedSearchHint": "Search your saved items",
+  "savedAllTag": "All ({count})",
+  "@savedAllTag": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "savedNoResultsTitle": "No matches",
+  "savedNoResultsBody": "No saved items match your search or filter.",
+  "savedClearFilters": "Clear filters",
+  "savedKindLabel": "Type",
+  "savedKindNote": "Note",
+  "savedKindAnswer": "Answer",
+  "savedKindDoc": "Document",
+  "savedKindLink": "Link",
+  "savedTitleLabel": "Title",
+  "savedTitleHint": "Give it a short name",
+  "savedNoteLabel": "Note (optional)",
+  "savedNoteHint": "Add details or the saved text here",
+  "savedTagLabel": "Tag (optional)",
+  "savedTagHint": "e.g. money, health",
+  "savedLinkLabel": "Link",
+  "savedLinkHint": "https://…",
+  "savedDocLabel": "Document reference",
+  "savedDocHint": "Document name or id",
+  "savedSaved": "Saved.",
+  "savedDeleted": "Deleted.",
+  "savedDeleteTitle": "Delete this?",
+  "savedDeleteBody": "\"{title}\" will be deleted. This can't be undone.",
+  "@savedDeleteBody": {
+    "placeholders": {
+      "title": {
+        "type": "Object"
+      }
+    }
+  },
+  "kidTitle": "School corner",
+  "kidLoadError": "Couldn't load your data. Check your connection and try again.",
+  "kidWelcomeTitle": "Keep your child's school life organised",
+  "kidWelcomeBody": "Jot down school notices — fees, exams, parents' meetings and events get sorted out, with honest due dates. Add a child to begin.",
+  "kidAddChild": "Add child",
+  "kidSaved": "Saved",
+  "kidPrivacyNote": "Only you can see this. We keep just your child's name and class — nothing more is needed.",
+  "kidChildName": "Child's name",
+  "kidChildNameHint": "e.g. Rumi",
+  "kidChildClass": "Class (optional)",
+  "kidChildClassHint": "e.g. Class 3",
+  "kidOverdueBanner": "{count} item(s) are overdue",
+  "@kidOverdueBanner": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "kidOverdueShort": "{count} overdue",
+  "@kidOverdueShort": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "kidOpenShort": "{count} open",
+  "@kidOpenShort": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "kidOverdueDays": "{days} day(s) overdue",
+  "@kidOverdueDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "kidDueInDays": "in {days} day(s)",
+  "@kidDueInDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "kidDueToday": "Due today",
+  "kidNoDate": "No date set",
+  "kidAddNotice": "Add notice",
+  "kidNoticeHelp": "Type the notice you got from school and pick its type. The app suggests a type from the words — you can always change it.",
+  "kidNoticeTitle": "Notice title",
+  "kidNoticeTitleHint": "e.g. Monthly tuition fee",
+  "kidNoticeBody": "Details (optional)",
+  "kidNoticeBodyHint": "Anything else the notice says",
+  "kidNoticeType": "Type",
+  "kidTypeSuggested": "Suggested from the word \"{keyword}\"",
+  "@kidTypeSuggested": {
+    "placeholders": {
+      "keyword": {
+        "type": "Object"
+      }
+    }
+  },
+  "kidTypeFee": "Fee",
+  "kidTypeExam": "Exam",
+  "kidTypePtm": "Parents' meeting",
+  "kidTypeEvent": "Event",
+  "kidTypeOther": "Other",
+  "kidFeeAmount": "Fee amount",
+  "kidDueDate": "Due date",
+  "kidNoticeDate": "Date",
+  "kidDateHint": "e.g. 2026-02-10",
+  "kidDateOptional": "A date is optional — without one it won't appear in upcoming items.",
+  "kidMarkDone": "Mark done",
+  "kidMarkUndone": "Mark not done",
+  "kidChipFees": "Fees {count}",
+  "@kidChipFees": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "kidChipExams": "Exams {count}",
+  "@kidChipExams": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "kidChipPtm": "Meetings {count}",
+  "@kidChipPtm": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "kidChipEvents": "Events {count}",
+  "@kidChipEvents": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "kidNoNoticesTitle": "No notices yet",
+  "kidNoNoticesBody": "Add a notice from school here — a fee, an exam or a meeting.",
+  "kidReminderNote": "Due dates are shown on this screen. Separate notification reminders aren't switched on yet.",
+  "kidDeleteChildTitle": "Remove this child?",
+  "kidDeleteChildBody": "This removes {name} and all their notices. This can't be undone.",
+  "@kidDeleteChildBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "fitTitle": "Fitness partner",
+  "fitLoadError": "Couldn't load your data. Check your connection and try again.",
+  "fitWelcomeTitle": "Start with one small goal",
+  "fitWelcomeBody": "Pick one — workout days a week, daily steps, or a weight goal. This isn't medical advice; it's a gentle companion to see your own progress.",
+  "fitSetGoal": "Set a goal",
+  "fitChangeGoal": "Change goal",
+  "fitSaved": "Saved",
+  "fitNonMedicalNote": "This is not medical advice. Go at your own pace, enjoy it, and listen to your body.",
+  "fitGoalType": "Goal type",
+  "fitGoalHelp": "One goal at a time is easiest. You can change it anytime later.",
+  "fitKindWorkoutDays": "Workout days / week",
+  "fitKindSteps": "Daily steps",
+  "fitKindWeight": "Weight goal",
+  "fitUnitDays": "days",
+  "fitUnitSteps": "steps",
+  "fitUnitKg": "kg",
+  "fitTargetLabel": "Target ({unit})",
+  "@fitTargetLabel": {
+    "placeholders": {
+      "unit": {
+        "type": "Object"
+      }
+    }
+  },
+  "fitDaysHelper": "Choose between 1 and 7 days a week.",
+  "fitWeightTargetHelper": "The weight you'd like to reach (kg).",
+  "fitStartWeight": "Current weight",
+  "fitStartDate": "Start date",
+  "fitDateHint": "e.g. 2026-02-10",
+  "fitLogWorkout": "Log workout",
+  "fitWorkoutType": "Workout type",
+  "fitTypeWalk": "Walking",
+  "fitTypeRun": "Running",
+  "fitTypeCycle": "Cycling",
+  "fitTypeGym": "Gym",
+  "fitTypeYoga": "Yoga",
+  "fitTypeSport": "Sport",
+  "fitTypeOther": "Other",
+  "fitDurationMinutes": "Duration (minutes)",
+  "fitStepsLabel": "Steps",
+  "fitCaloriesOptional": "Calories (optional)",
+  "fitCaloriesHelper": "Enter it if you know it — the app never estimates calories for you.",
+  "fitDate": "Date",
+  "fitDaysOfTarget": "{done} of {target} days",
+  "@fitDaysOfTarget": {
+    "placeholders": {
+      "done": {
+        "type": "Object"
+      },
+      "target": {
+        "type": "Object"
+      }
+    }
+  },
+  "fitStepsOfTarget": "{done} of {target} steps",
+  "@fitStepsOfTarget": {
+    "placeholders": {
+      "done": {
+        "type": "Object"
+      },
+      "target": {
+        "type": "Object"
+      }
+    }
+  },
+  "fitWeightOfTarget": "{current} of {target} kg",
+  "@fitWeightOfTarget": {
+    "placeholders": {
+      "current": {
+        "type": "Object"
+      },
+      "target": {
+        "type": "Object"
+      }
+    }
+  },
+  "fitThisWeek": "This week",
+  "fitMinutesLabel": "Minutes",
+  "fitStreak": "Streak",
+  "fitSessions": "{count} session(s)",
+  "@fitSessions": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "fitDays": "{count} day(s)",
+  "@fitDays": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "fitMinutes": "{minutes} min",
+  "@fitMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "Object"
+      }
+    }
+  },
+  "fitCalories": "{calories} cal",
+  "@fitCalories": {
+    "placeholders": {
+      "calories": {
+        "type": "Object"
+      }
+    }
+  },
+  "fitStepsShort": "{steps} steps",
+  "@fitStepsShort": {
+    "placeholders": {
+      "steps": {
+        "type": "Object"
+      }
+    }
+  },
+  "fitRecentWorkouts": "Recent workouts",
+  "fitNoWorkoutsYet": "No workouts logged yet. Add your first!",
+  "fitStatusNotStarted": "Not started yet",
+  "fitStatusBehind": "A little behind",
+  "fitStatusOnTrack": "On track",
+  "fitStatusAhead": "Ahead — great going",
+  "fitStatusReached": "Goal reached!",
+  "fitCoachingSeam": "Personalised AI coaching is optional and key-gated; the full tracker works without any key.",
+  "fitTipNotStarted": "Start with a small goal — even a 3-day walking week is great.",
+  "fitTipBehind": "No worries — a short, easy session today is enough to get back.",
+  "fitTipOnTrack": "Nice rhythm. Keep this gentle pace going.",
+  "fitTipAhead": "Doing great! Remember to rest and listen to your body too.",
+  "fitTipReached": "Congratulations on reaching your goal! Set a new gentle one if you like."
 }
