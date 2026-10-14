@@ -1,40 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/life_leave_now_card.dart';
+import '../widgets/meet_model.dart';
 
-/// Meetings / appointments (module-5 "Life"). Benchmarked vs Google / Apple
-/// Calendar + Calendly:
-///   - schedule a meeting (title, time, place, duration, note)
-///   - reminders before it fire (1 day + 1 hour by default)
-///   - "Leave now" (bn label via l10n): with a best-effort travel estimate the user
-///     types (we never invent traffic), we compute when to leave + a Maps
-///     directions deep-link.
+/// Meetings / appointments (module-5 "Life") — ADVANCED (SPEC v2.1 §21).
 ///
-/// Logic mirrors core.logic.meetings (reminder_times / leave_now_phase /
-/// conflicts). Appointments persist locally and sync to the backend
-/// `appointments` collection (integrator wires the model — see report).
+/// Benchmarked vs Google / Apple Calendar + Calendly:
+///   - create (title, when, where+coords, with-whom, note, reminder lead-times,
+///     recurrence) via a rich editor
+///   - calendar/agenda views: Day / Week / Month / List, upcoming & past
+///   - reminders REUSE the shared reminders engine (recurrence + lead offsets
+///     flow through meetings.appointment_reminders -> reminders_engine)
+///   - "Leave now" (bn via l10n) with an HONEST key-gated travel estimate
+///     (Maps 🔑 — no key wired -> static mock ETA flagged as an estimate; we
+///     never fake live traffic) + Maps directions deep-link
+///   - conflict (overlap) detection, invite/share, mark done / cancel / reopen.
+///
+/// Logic mirrors core.logic.meetings. All Bangla is codepoints/ARB only
+/// (meet_model.dart) — zero Bangla glyphs in this file.
 class MeetingsScreen extends StatefulWidget {
   const MeetingsScreen({super.key});
   @override
   State<MeetingsScreen> createState() => _MeetingsScreenState();
 }
 
+enum _View { list, day, week, month }
+
 class _MeetingsScreenState extends State<MeetingsScreen> {
   bool _loading = true;
+  bool _error = false;
+  bool _offline = false;
   List<Map<String, dynamic>> _appts = [];
 
-  // Entered travel estimate per appointment, keyed by a stable appointment key,
-  // so a list rebuild (add/delete/reschedule) does NOT reset what the user
-  // typed into the "Leave now" card. Owned by the parent (the cards are
-  // rebuilt stateless children).
-  final Map<String, int> _travelMinByAppt = {};
+  _View _view = _View.list;
+  bool _showPast = false;
+  DateTime _anchor = DateTime.now();
 
-  // Stable-enough key for an appointment map (no server id is present): start
-  // time + title uniquely identify a row within the local list.
+  // Entered travel estimate per appointment (survives list rebuilds).
+  final Map<String, int> _travelMinByAppt = {};
   String _apptKey(Map<String, dynamic> a) => '${a['start']}|${a['title'] ?? ''}';
 
   @override
@@ -46,51 +54,37 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
   AppState get _app => context.read<AppState>();
 
   Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = false;
+    });
     try {
       final rows = await _app.api.listItems('appointments');
-      _appts = rows.map((r) => (r['data'] as Map<String, dynamic>?) ?? r).toList();
+      _appts =
+          rows.map((r) => (r['data'] as Map<String, dynamic>?) ?? r).toList();
+      _offline = false;
     } catch (_) {
-      _appts = [];
-    }
-    if (mounted) setState(() => _loading = false);
-  }
-
-  // Mirror meetings.upcoming: future only, sorted ascending.
-  List<Map<String, dynamic>> get _upcoming {
-    final now = DateTime.now();
-    final list = _appts.where((a) {
-      final s = DateTime.tryParse('${a['start']}');
-      return s != null && s.isAfter(now);
-    }).toList()
-      ..sort((a, b) => DateTime.parse('${a['start']}')
-          .compareTo(DateTime.parse('${b['start']}')));
-    return list;
-  }
-
-  // Mirror meetings.conflicts: index pairs whose [start,end) ranges overlap.
-  Set<int> _conflictingIds(List<Map<String, dynamic>> list) {
-    final out = <int>{};
-    for (var i = 0; i < list.length; i++) {
-      final si = DateTime.tryParse('${list[i]['start']}');
-      if (si == null) continue;
-      final ei = si.add(Duration(minutes: ((list[i]['duration_min'] ?? 60) as num).toInt()));
-      for (var j = i + 1; j < list.length; j++) {
-        final sj = DateTime.tryParse('${list[j]['start']}');
-        if (sj == null) continue;
-        final ej = sj.add(Duration(minutes: ((list[j]['duration_min'] ?? 60) as num).toInt()));
-        if (si.isBefore(ej) && sj.isBefore(ei)) {
-          out.add(i);
-          out.add(j);
-        }
+      // Keep whatever we already had so the user isn't stranded; flag the state.
+      if (_appts.isNotEmpty) {
+        _offline = true;
+      } else {
+        _error = true;
       }
     }
-    return out;
+    if (mounted) setState(() => _loading = false);
   }
 
   Future<void> _save() async {
     try {
       await _app.api.createItem('appointments', {'items': _appts});
-    } catch (_) {}
+      if (mounted && _offline) setState(() => _offline = false);
+    } catch (_) {
+      if (mounted) {
+        setState(() => _offline = true);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(mStr(context, 'mSavedOffline'))));
+      }
+    }
   }
 
   Future<void> _add() async {
@@ -105,95 +99,502 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
     }
   }
 
+  Future<void> _edit(Map<String, dynamic> a) async {
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => _AppointmentEditor(existing: a),
+    );
+    if (result != null) {
+      setState(() =>
+          _appts = _appts.map((x) => identical(x, a) ? result : x).toList());
+      await _save();
+    }
+  }
+
   Future<void> _delete(Map<String, dynamic> a) async {
-    setState(() => _appts = _appts.where((x) => x != a).toList());
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        content: Text(mStr(ctx, 'mDeleteQ')),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(AppLocalizations.of(ctx).cancel)),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(AppLocalizations.of(ctx).delete)),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    setState(() => _appts = _appts.where((x) => !identical(x, a)).toList());
     await _save();
+    if (mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(mStr(context, 'mDeleted'))));
+    }
+  }
+
+  Future<void> _setStatus(Map<String, dynamic> a, String status) async {
+    setState(() => _appts = _appts
+        .map((x) => identical(x, a) ? {...x, 'status': status} : x)
+        .toList());
+    await _save();
+  }
+
+  Future<void> _share(Map<String, dynamic> a) async {
+    await Share.share(shareText(context, a));
+  }
+
+  int? _travelFor(Map<String, dynamic> a) {
+    final key = _apptKey(a);
+    if (_travelMinByAppt.containsKey(key)) return _travelMinByAppt[key];
+    // HONEST key-gated default: with no Maps key wired we seed the mock ETA so
+    // "Leave now" is usable; the card labels it an estimate (never live).
+    final e = travelEta(
+      place: '${a['place'] ?? ''}',
+      lat: (a['place_lat'] as num?)?.toDouble(),
+      lng: (a['place_lng'] as num?)?.toDouble(),
+    );
+    return e.source == 'none' ? null : e.etaMin;
   }
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    if (_loading) {
-      return Scaffold(
-        appBar: AppBar(title: Text(t.meetingsTitle)),
-        body: const Center(child: CircularProgressIndicator()),
-      );
-    }
-    final list = _upcoming;
-    final conflicts = _conflictingIds(list);
-    final fmt = DateFormat('EEE d MMM, h:mm a');
     return Scaffold(
-      appBar: AppBar(title: Text(t.meetingsTitle)),
+      appBar: AppBar(
+        title: Text(t.meetingsTitle),
+        actions: [
+          IconButton(
+            tooltip: mStr(context, _showPast ? 'mUpcoming' : 'mPast'),
+            icon: Icon(_showPast ? Icons.upcoming_outlined : Icons.history),
+            onPressed: () => setState(() => _showPast = !_showPast),
+          ),
+        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: _ViewSwitcher(
+            view: _view,
+            onChanged: (v) => setState(() => _view = v),
+          ),
+        ),
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _add,
         icon: const Icon(Icons.add),
         label: Text(t.meetingsAdd),
       ),
-      body: list.isEmpty
-          ? _Empty(t: t, onAdd: _add)
-          : ListView.separated(
-              padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
-              itemCount: list.length,
-              separatorBuilder: (_, __) => const SizedBox(height: Gap.sm),
-              itemBuilder: (ctx, i) {
-                final a = list[i];
-                final start = DateTime.parse('${a['start']}');
-                final key = _apptKey(a);
-                return _MeetingCard(
-                  title: '${a['title']}',
-                  whenLabel: fmt.format(start),
-                  place: '${a['place'] ?? ''}',
-                  note: '${a['note'] ?? ''}',
-                  start: start,
-                  placeLat: (a['place_lat'] as num?)?.toDouble(),
-                  placeLng: (a['place_lng'] as num?)?.toDouble(),
-                  conflict: conflicts.contains(i),
-                  onDelete: () => _delete(a),
-                  travelMin: _travelMinByAppt[key],
-                  onTravelChanged: (m) => setState(() {
-                    if (m == null) {
-                      _travelMinByAppt.remove(key);
-                    } else {
-                      _travelMinByAppt[key] = m;
-                    }
-                  }),
-                );
-              },
+      body: _body(t),
+    );
+  }
+
+  Widget _body(AppLocalizations t) {
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_error) {
+      return _ErrorState(onRetry: _load);
+    }
+    final part = _partition();
+    final list = _showPast ? part.past : part.upcoming;
+    final conflicts = conflictIndices(list);
+
+    final banner = _offline
+        ? Container(
+            width: double.infinity,
+            color: Brand.warning.withOpacity(0.15),
+            padding: const EdgeInsets.symmetric(
+                horizontal: Gap.md, vertical: Gap.sm),
+            child: Row(children: [
+              const Icon(Icons.cloud_off, size: 16, color: Color(0xFF8A6D00)),
+              const SizedBox(width: Gap.sm),
+              Expanded(
+                child: Text(mStr(context, 'mOffline'),
+                    style: const TextStyle(
+                        fontSize: 12, color: Color(0xFF8A6D00))),
+              ),
+            ]),
+          )
+        : const SizedBox.shrink();
+
+    final content = _view == _View.list
+        ? _buildList(list, conflicts)
+        : _buildCalendar(_activeAppts());
+
+    return Column(children: [banner, Expanded(child: content)]);
+  }
+
+  // Active (non-cancelled) appointments for calendar scopes.
+  List<Map<String, dynamic>> _activeAppts() =>
+      _appts.where((a) => statusOf(a) != kStatusCancelled).toList();
+
+  ({List<Map<String, dynamic>> upcoming, List<Map<String, dynamic>> past})
+      _partition() {
+    final now = DateTime.now();
+    final up = <MapEntry<DateTime, Map<String, dynamic>>>[];
+    final past = <MapEntry<DateTime, Map<String, dynamic>>>[];
+    for (final a in _appts) {
+      // Cancelled meetings drop out of both lists (mirrors meetings.partition).
+      if (statusOf(a) == kStatusCancelled) continue;
+      final ns = nextStart(a, after: now);
+      if (ns == null) continue;
+      (ns.isBefore(now) ? past : up).add(MapEntry(ns, a));
+    }
+    up.sort((a, b) => a.key.compareTo(b.key));
+    past.sort((a, b) => b.key.compareTo(a.key));
+    return (
+      upcoming: up.map((e) => e.value).toList(),
+      past: past.map((e) => e.value).toList(),
+    );
+  }
+
+  Widget _buildList(
+      List<Map<String, dynamic>> list, Set<int> conflicts) {
+    if (list.isEmpty) {
+      return _showPast
+          ? _EmptyPast()
+          : _Empty(t: AppLocalizations.of(context), onAdd: _add);
+    }
+    final fmt = DateFormat('EEE d MMM, h:mm a');
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+      itemCount: list.length + 1,
+      separatorBuilder: (_, __) => const SizedBox(height: Gap.sm),
+      itemBuilder: (ctx, i) {
+        if (i == 0) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: Gap.xs),
+            child: Text(mStrNum(ctx, 'mCount', list.length),
+                style: TextStyle(
+                    color: Theme.of(ctx).colorScheme.outline, fontSize: 12)),
+          );
+        }
+        final a = list[i - 1];
+        final start = nextStart(a) ?? DateTime.now();
+        return _MeetingCard(
+          appt: a,
+          whenLabel: fmt.format(start),
+          start: start,
+          conflict: conflicts.contains(i - 1),
+          past: _showPast,
+          travelMin: _travelFor(a),
+          onTravelChanged: (m) => setState(() {
+            final key = _apptKey(a);
+            if (m == null) {
+              _travelMinByAppt.remove(key);
+            } else {
+              _travelMinByAppt[key] = m;
+            }
+          }),
+          onDelete: () => _delete(a),
+          onEdit: () => _edit(a),
+          onShare: () => _share(a),
+          onStatus: (s) => _setStatus(a, s),
+        );
+      },
+    );
+  }
+
+  // Day/Week/Month agenda: group active appts into the window's days.
+  Widget _buildCalendar(List<Map<String, dynamic>> active) {
+    final buckets = _agenda(active, _view, _anchor);
+    return Column(children: [
+      _AnchorBar(
+        view: _view,
+        anchor: _anchor,
+        onPrev: () => setState(() => _anchor = _shiftAnchor(-1)),
+        onNext: () => setState(() => _anchor = _shiftAnchor(1)),
+        onToday: () => setState(() => _anchor = DateTime.now()),
+      ),
+      Expanded(
+        child: buckets.isEmpty
+            ? Center(
+                child: Text(mStr(context, 'mNoneToday'),
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.outline)),
+              )
+            : ListView(
+                padding:
+                    const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+                children: [
+                  for (final b in buckets) ...[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: Gap.xs),
+                      child: Text(_dayHeader(b.date),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 15)),
+                    ),
+                    for (final a in b.items)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: Gap.sm),
+                        child: _AgendaRow(
+                          appt: a,
+                          onTap: () => _edit(a),
+                        ),
+                      ),
+                  ],
+                ],
+              ),
+      ),
+    ]);
+  }
+
+  DateTime _shiftAnchor(int dir) {
+    switch (_view) {
+      case _View.week:
+        return _anchor.add(Duration(days: 7 * dir));
+      case _View.month:
+        return DateTime(_anchor.year, _anchor.month + dir, 1);
+      case _View.day:
+      default:
+        return _anchor.add(Duration(days: dir));
+    }
+  }
+
+  // Mirrors meetings.agenda (expands recurrence into each window day).
+  List<({DateTime date, List<Map<String, dynamic>> items})> _agenda(
+      List<Map<String, dynamic>> active, _View view, DateTime anchor) {
+    DateTime start, end;
+    if (view == _View.week) {
+      start = DateTime(anchor.year, anchor.month, anchor.day)
+          .subtract(Duration(days: anchor.weekday - 1));
+      end = start.add(const Duration(days: 7));
+    } else if (view == _View.month) {
+      start = DateTime(anchor.year, anchor.month, 1);
+      end = DateTime(anchor.year, anchor.month + 1, 1);
+    } else {
+      start = DateTime(anchor.year, anchor.month, anchor.day);
+      end = start.add(const Duration(days: 1));
+    }
+    final map = <DateTime, List<MapEntry<DateTime, Map<String, dynamic>>>>{};
+    for (final a in active) {
+      final s = DateTime.tryParse('${a['start']}');
+      if (s == null) continue;
+      final r = a['recurrence'];
+      final occs = <DateTime>[];
+      if (r is Map && r['freq'] != null) {
+        var cursor = start.subtract(const Duration(seconds: 1));
+        for (var i = 0; i < 100; i++) {
+          final nx = nextOccurrence(s, r, after: cursor);
+          if (nx == null || !nx.isBefore(end)) break;
+          if (!nx.isBefore(start)) occs.add(nx);
+          cursor = nx;
+        }
+      } else if (!s.isBefore(start) && s.isBefore(end)) {
+        occs.add(s);
+      }
+      for (final occ in occs) {
+        final day = DateTime(occ.year, occ.month, occ.day);
+        map.putIfAbsent(day, () => []).add(MapEntry(occ, a));
+      }
+    }
+    final days = map.keys.toList()..sort();
+    return [
+      for (final d in days)
+        (
+          date: d,
+          items: (map[d]!..sort((x, y) => x.key.compareTo(y.key)))
+              .map((e) => e.value)
+              .toList(),
+        ),
+    ];
+  }
+
+  String _dayHeader(DateTime d) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final day = DateTime(d.year, d.month, d.day);
+    if (day == today) return mStr(context, 'mToday');
+    if (day == today.add(const Duration(days: 1))) {
+      return mStr(context, 'mTomorrow');
+    }
+    return DateFormat('EEE d MMM').format(d);
+  }
+}
+
+// ===========================================================================
+// view switcher + anchor bar
+// ===========================================================================
+class _ViewSwitcher extends StatelessWidget {
+  final _View view;
+  final ValueChanged<_View> onChanged;
+  const _ViewSwitcher({required this.view, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final items = <(_View, String)>[
+      (_View.list, mStr(context, 'mViewAgenda')),
+      (_View.day, mStr(context, 'mViewDay')),
+      (_View.week, mStr(context, 'mViewWeek')),
+      (_View.month, mStr(context, 'mViewMonth')),
+    ];
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, Gap.sm),
+      child: Row(
+        children: [
+          for (final it in items)
+            Padding(
+              padding: const EdgeInsets.only(right: Gap.sm),
+              child: ChoiceChip(
+                label: Text(it.$2),
+                selected: view == it.$1,
+                onSelected: (_) => onChanged(it.$1),
+              ),
             ),
+        ],
+      ),
     );
   }
 }
 
+class _AnchorBar extends StatelessWidget {
+  final _View view;
+  final DateTime anchor;
+  final VoidCallback onPrev;
+  final VoidCallback onNext;
+  final VoidCallback onToday;
+  const _AnchorBar({
+    required this.view,
+    required this.anchor,
+    required this.onPrev,
+    required this.onNext,
+    required this.onToday,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    String label;
+    if (view == _View.month) {
+      label = DateFormat('MMMM yyyy').format(anchor);
+    } else if (view == _View.week) {
+      final start = anchor.subtract(Duration(days: anchor.weekday - 1));
+      final end = start.add(const Duration(days: 6));
+      label =
+          '${DateFormat('d MMM').format(start)} – ${DateFormat('d MMM').format(end)}';
+    } else {
+      label = DateFormat('EEE d MMM').format(anchor);
+    }
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
+      child: Row(children: [
+        IconButton(
+            tooltip: 'Previous',
+            icon: const Icon(Icons.chevron_left),
+            onPressed: onPrev),
+        Expanded(
+          child: Text(label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.w600)),
+        ),
+        IconButton(
+            tooltip: 'Next',
+            icon: const Icon(Icons.chevron_right),
+            onPressed: onNext),
+        TextButton(onPressed: onToday, child: Text(mStr(context, 'mToday'))),
+      ]),
+    );
+  }
+}
+
+// ===========================================================================
+// agenda row (compact, calendar views)
+// ===========================================================================
+class _AgendaRow extends StatelessWidget {
+  final Map<String, dynamic> appt;
+  final VoidCallback onTap;
+  const _AgendaRow({required this.appt, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final s = DateTime.tryParse('${appt['start']}');
+    final time = s == null ? '' : DateFormat('h:mm a').format(s);
+    final done = statusOf(appt) == kStatusDone;
+    final recurring = freqOf(appt) != kFreqNone;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.all(Gap.sm),
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerHighest.withOpacity(0.5),
+          borderRadius: BorderRadius.circular(10),
+          border: Border(left: BorderSide(color: scheme.primary, width: 3)),
+        ),
+        child: Row(children: [
+          SizedBox(
+            width: 64,
+            child: Text(time,
+                style: TextStyle(
+                    color: scheme.primary,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12)),
+          ),
+          Expanded(
+            child: Text('${appt['title']}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                    decoration: done ? TextDecoration.lineThrough : null,
+                    color: done ? scheme.outline : null)),
+          ),
+          if (recurring)
+            Icon(Icons.repeat, size: 14, color: scheme.outline),
+        ]),
+      ),
+    );
+  }
+}
+
+// ===========================================================================
+// full meeting card (list view)
+// ===========================================================================
 class _MeetingCard extends StatelessWidget {
-  final String title;
+  final Map<String, dynamic> appt;
   final String whenLabel;
-  final String place;
-  final String note;
   final DateTime start;
-  final double? placeLat;
-  final double? placeLng;
   final bool conflict;
-  final VoidCallback onDelete;
+  final bool past;
   final int? travelMin;
   final ValueChanged<int?> onTravelChanged;
+  final VoidCallback onDelete;
+  final VoidCallback onEdit;
+  final VoidCallback onShare;
+  final ValueChanged<String> onStatus;
   const _MeetingCard({
-    required this.title,
+    required this.appt,
     required this.whenLabel,
-    required this.place,
-    required this.note,
     required this.start,
-    required this.placeLat,
-    required this.placeLng,
     required this.conflict,
-    required this.onDelete,
+    required this.past,
     required this.travelMin,
     required this.onTravelChanged,
+    required this.onDelete,
+    required this.onEdit,
+    required this.onShare,
+    required this.onStatus,
   });
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
+    final place = '${appt['place'] ?? ''}'.trim();
+    final note = '${appt['note'] ?? ''}'.trim();
+    final people = withList(appt);
+    final status = statusOf(appt);
+    final done = status == kStatusDone;
+    final recurring = freqOf(appt) != kFreqNone;
+    final hasEta = travelEta(
+          place: place,
+          lat: (appt['place_lat'] as num?)?.toDouble(),
+          lng: (appt['place_lng'] as num?)?.toDouble(),
+        ).source ==
+        'mock';
+
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
@@ -201,26 +602,57 @@ class _MeetingCard extends StatelessWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
-              child: Text(title,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              child: Text('${appt['title']}',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    decoration: done ? TextDecoration.lineThrough : null,
+                    color: done ? scheme.outline : null,
+                  )),
             ),
-            IconButton(
-              visualDensity: VisualDensity.compact,
-              icon: const Icon(Icons.delete_outline, size: 20),
-              onPressed: onDelete,
+            if (done)
+              _Chip(
+                  label: mStr(context, 'mStatusDone'),
+                  color: Brand.success,
+                  icon: Icons.check_circle),
+            _OverflowMenu(
+              done: done,
+              onEdit: onEdit,
+              onShare: onShare,
+              onDelete: onDelete,
+              onStatus: onStatus,
             ),
           ]),
           Row(children: [
             Icon(Icons.schedule, size: 15, color: scheme.primary),
             const SizedBox(width: 6),
-            Text(whenLabel, style: TextStyle(color: scheme.primary)),
+            Expanded(
+                child: Text(whenLabel, style: TextStyle(color: scheme.primary))),
+            if (recurring) ...[
+              const SizedBox(width: 6),
+              Icon(Icons.repeat, size: 14, color: scheme.outline),
+              const SizedBox(width: 2),
+              Text(freqLabel(context, freqOf(appt)),
+                  style: TextStyle(fontSize: 11, color: scheme.outline)),
+            ],
           ]),
           if (place.isNotEmpty) ...[
             const SizedBox(height: 4),
             Row(children: [
-              const Icon(Icons.place_outlined, size: 15, color: Colors.grey),
+              Icon(Icons.place_outlined, size: 15, color: scheme.outline),
               const SizedBox(width: 6),
-              Expanded(child: Text(place, style: const TextStyle(color: Colors.grey))),
+              Expanded(
+                  child: Text(place, style: TextStyle(color: scheme.outline))),
+            ]),
+          ],
+          if (people.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Icon(Icons.group_outlined, size: 15, color: scheme.outline),
+              const SizedBox(width: 6),
+              Expanded(
+                  child: Text('${mStr(context, "mWith")}: ${people.join(", ")}',
+                      style: TextStyle(color: scheme.outline, fontSize: 13))),
             ]),
           ],
           if (note.isNotEmpty) ...[
@@ -230,54 +662,204 @@ class _MeetingCard extends StatelessWidget {
           if (conflict) ...[
             const SizedBox(height: 6),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: Brand.warning.withOpacity(0.15),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Row(mainAxisSize: MainAxisSize.min, children: [
-                const Icon(Icons.warning_amber_rounded, size: 15, color: Color(0xFF8A6D00)),
+                const Icon(Icons.warning_amber_rounded,
+                    size: 15, color: Color(0xFF8A6D00)),
                 const SizedBox(width: 6),
-                Text(t.meetingsConflict,
-                    style: const TextStyle(fontSize: 12, color: Color(0xFF8A6D00))),
+                Flexible(
+                  child: Text(t.meetingsConflict,
+                      style: const TextStyle(
+                          fontSize: 12, color: Color(0xFF8A6D00))),
+                ),
               ]),
             ),
           ],
-          const SizedBox(height: Gap.sm),
-          LifeLeaveNowCard(
-            start: start,
-            placeName: place.isEmpty ? null : place,
-            placeLat: placeLat,
-            placeLng: placeLng,
-            travelMin: travelMin,
-            onTravelChanged: onTravelChanged,
-          ),
+          if (!past && !done) ...[
+            const SizedBox(height: Gap.sm),
+            LifeLeaveNowCard(
+              start: start,
+              placeName: place.isEmpty ? null : place,
+              placeLat: (appt['place_lat'] as num?)?.toDouble(),
+              placeLng: (appt['place_lng'] as num?)?.toDouble(),
+              travelMin: travelMin,
+              onTravelChanged: onTravelChanged,
+            ),
+            if (hasEta)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(mStr(context, 'mEtaMockNote'),
+                    style: TextStyle(
+                        fontSize: 11,
+                        fontStyle: FontStyle.italic,
+                        color: scheme.outline)),
+              ),
+          ],
         ]),
       ),
     );
   }
 }
 
-/// Bottom-sheet editor for a new appointment. Mirrors
-/// meetings.normalise_appointment (title + start required, duration clamped).
+class _Chip extends StatelessWidget {
+  final String label;
+  final Color color;
+  final IconData icon;
+  const _Chip({required this.label, required this.color, required this.icon});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(right: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Icon(icon, size: 13, color: color),
+        const SizedBox(width: 4),
+        Text(label,
+            style: TextStyle(
+                fontSize: 11, color: color, fontWeight: FontWeight.w600)),
+      ]),
+    );
+  }
+}
+
+class _OverflowMenu extends StatelessWidget {
+  final bool done;
+  final VoidCallback onEdit;
+  final VoidCallback onShare;
+  final VoidCallback onDelete;
+  final ValueChanged<String> onStatus;
+  const _OverflowMenu({
+    required this.done,
+    required this.onEdit,
+    required this.onShare,
+    required this.onDelete,
+    required this.onStatus,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return PopupMenuButton<String>(
+      tooltip: '',
+      icon: const Icon(Icons.more_vert, size: 20),
+      onSelected: (v) {
+        switch (v) {
+          case 'edit':
+            onEdit();
+            break;
+          case 'share':
+            onShare();
+            break;
+          case 'done':
+            onStatus(kStatusDone);
+            break;
+          case 'reopen':
+            onStatus(kStatusScheduled);
+            break;
+          case 'cancel':
+            onStatus(kStatusCancelled);
+            break;
+          case 'delete':
+            onDelete();
+            break;
+        }
+      },
+      itemBuilder: (ctx) => [
+        PopupMenuItem(
+            value: 'edit',
+            child: _Row(Icons.edit_outlined, t.edit)),
+        PopupMenuItem(
+            value: 'share',
+            child: _Row(Icons.ios_share, mStr(ctx, 'mShare'))),
+        if (done)
+          PopupMenuItem(
+              value: 'reopen',
+              child: _Row(Icons.undo, mStr(ctx, 'mReopen')))
+        else
+          PopupMenuItem(
+              value: 'done',
+              child: _Row(Icons.check_circle_outline, mStr(ctx, 'mMarkDone'))),
+        PopupMenuItem(
+            value: 'cancel',
+            child: _Row(Icons.event_busy, mStr(ctx, 'mMarkCancelled'))),
+        PopupMenuItem(
+            value: 'delete',
+            child: _Row(Icons.delete_outline, t.delete)),
+      ],
+    );
+  }
+}
+
+class _Row extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  const _Row(this.icon, this.label);
+  @override
+  Widget build(BuildContext context) => Row(children: [
+        Icon(icon, size: 18),
+        const SizedBox(width: Gap.sm),
+        Text(label),
+      ]);
+}
+
+// ===========================================================================
+// editor
+// ===========================================================================
 class _AppointmentEditor extends StatefulWidget {
-  const _AppointmentEditor();
+  final Map<String, dynamic>? existing;
+  const _AppointmentEditor({this.existing});
   @override
   State<_AppointmentEditor> createState() => _AppointmentEditorState();
 }
 
 class _AppointmentEditorState extends State<_AppointmentEditor> {
-  final _title = TextEditingController();
-  final _place = TextEditingController();
-  final _note = TextEditingController();
-  DateTime _date = DateTime.now().add(const Duration(days: 1));
-  TimeOfDay _time = const TimeOfDay(hour: 10, minute: 0);
+  late final TextEditingController _title;
+  late final TextEditingController _place;
+  late final TextEditingController _with;
+  late final TextEditingController _note;
+  late DateTime _date;
+  late TimeOfDay _time;
   int _duration = 60;
+  late Set<int> _leads;
+  String _freq = kFreqNone;
+
+  @override
+  void initState() {
+    super.initState();
+    final e = widget.existing;
+    _title = TextEditingController(text: '${e?['title'] ?? ''}');
+    _place = TextEditingController(text: '${e?['place'] ?? ''}');
+    _with = TextEditingController(
+        text: e == null ? '' : withList(e).join(', '));
+    _note = TextEditingController(text: '${e?['note'] ?? ''}');
+    final s = e == null
+        ? DateTime.now().add(const Duration(days: 1))
+        : (DateTime.tryParse('${e['start']}') ??
+            DateTime.now().add(const Duration(days: 1)));
+    _date = s;
+    _time = TimeOfDay(hour: s.hour, minute: s.minute);
+    _duration = ((e?['duration_min'] ?? 60) as num).toInt().clamp(15, 240);
+    final raw = (e?['reminder_offsets'] as List?)
+        ?.map((x) => (x as num).toInt())
+        .toList();
+    _leads = {...(raw == null || raw.isEmpty ? kDefaultLeads : raw)};
+    _freq = e == null ? kFreqNone : freqOf(e);
+  }
 
   @override
   void dispose() {
     _title.dispose();
     _place.dispose();
+    _with.dispose();
     _note.dispose();
     super.dispose();
   }
@@ -292,13 +874,23 @@ class _AppointmentEditorState extends State<_AppointmentEditor> {
           .showSnackBar(SnackBar(content: Text(t.meetingsTitleRequired)));
       return;
     }
-    Navigator.pop(context, {
+    final out = <String, dynamic>{
       'title': _title.text.trim(),
       'start': _start.toIso8601String(),
       'duration_min': _duration.clamp(5, 1440),
       'place': _place.text.trim(),
       'note': _note.text.trim(),
-    });
+      'with': parseWith(_with.text),
+      'reminder_offsets': cleanOffsets(_leads),
+      'recurrence': recurrenceFor(_freq, _start),
+      'status': widget.existing?['status'] ?? kStatusScheduled,
+    };
+    // Preserve coords if we're editing an entry that had them.
+    if (widget.existing?['place_lat'] != null) {
+      out['place_lat'] = widget.existing!['place_lat'];
+      out['place_lng'] = widget.existing!['place_lng'];
+    }
+    Navigator.pop(context, out);
   }
 
   @override
@@ -312,78 +904,139 @@ class _AppointmentEditorState extends State<_AppointmentEditor> {
         top: Gap.lg,
         bottom: MediaQuery.of(context).viewInsets.bottom + Gap.lg,
       ),
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Text(t.meetingsAdd, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-        const SizedBox(height: Gap.md),
-        TextField(
-          controller: _title,
-          decoration: InputDecoration(labelText: t.meetingsFieldTitle),
-          textCapitalization: TextCapitalization.sentences,
-        ),
-        const SizedBox(height: Gap.sm),
-        Row(children: [
-          Expanded(
-            child: OutlinedButton.icon(
-              icon: const Icon(Icons.calendar_today, size: 16),
-              label: Text(df.format(_date)),
-              onPressed: () async {
-                final d = await showDatePicker(
-                  context: context,
-                  initialDate: _date,
-                  firstDate: DateTime.now().subtract(const Duration(days: 1)),
-                  lastDate: DateTime.now().add(const Duration(days: 730)),
-                );
-                if (d != null) setState(() => _date = d);
-              },
+      child: SingleChildScrollView(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Text(t.meetingsAdd,
+              style:
+                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          const SizedBox(height: Gap.md),
+          TextField(
+            controller: _title,
+            decoration: InputDecoration(labelText: t.meetingsFieldTitle),
+            textCapitalization: TextCapitalization.sentences,
+          ),
+          const SizedBox(height: Gap.sm),
+          Row(children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.calendar_today, size: 16),
+                label: Text(df.format(_date)),
+                onPressed: () async {
+                  final d = await showDatePicker(
+                    context: context,
+                    initialDate: _date,
+                    firstDate:
+                        DateTime.now().subtract(const Duration(days: 1)),
+                    lastDate: DateTime.now().add(const Duration(days: 730)),
+                  );
+                  if (d != null) setState(() => _date = d);
+                },
+              ),
+            ),
+            const SizedBox(width: Gap.sm),
+            Expanded(
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.schedule, size: 16),
+                label: Text(_time.format(context)),
+                onPressed: () async {
+                  final p =
+                      await showTimePicker(context: context, initialTime: _time);
+                  if (p != null) setState(() => _time = p);
+                },
+              ),
+            ),
+          ]),
+          const SizedBox(height: Gap.sm),
+          TextField(
+            controller: _place,
+            decoration: InputDecoration(labelText: t.meetingsFieldPlace),
+          ),
+          const SizedBox(height: Gap.sm),
+          TextField(
+            controller: _with,
+            decoration: InputDecoration(
+              labelText: mStr(context, 'mWith'),
+              hintText: mStr(context, 'mWithHint'),
             ),
           ),
-          const SizedBox(width: Gap.sm),
-          Expanded(
-            child: OutlinedButton.icon(
-              icon: const Icon(Icons.schedule, size: 16),
-              label: Text(_time.format(context)),
-              onPressed: () async {
-                final p = await showTimePicker(context: context, initialTime: _time);
-                if (p != null) setState(() => _time = p);
-              },
+          const SizedBox(height: Gap.sm),
+          Row(children: [
+            Text(t.meetingsFieldDuration),
+            Expanded(
+              child: Slider(
+                value: _duration.toDouble(),
+                min: 15,
+                max: 240,
+                divisions: 15,
+                label: '$_duration',
+                onChanged: (v) => setState(() => _duration = v.round()),
+              ),
             ),
+            Text(t.meetingsMinutes(_duration)),
+          ]),
+          TextField(
+            controller: _note,
+            decoration: InputDecoration(labelText: t.meetingsFieldNote),
+            maxLines: 2,
+          ),
+          const SizedBox(height: Gap.md),
+          // Repeat
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(mStr(context, 'mRecurrence'),
+                style: const TextStyle(fontWeight: FontWeight.w600)),
+          ),
+          const SizedBox(height: Gap.xs),
+          Wrap(
+            spacing: Gap.sm,
+            children: [
+              for (final f in kFreqOrder)
+                ChoiceChip(
+                  label: Text(freqLabel(context, f)),
+                  selected: _freq == f,
+                  onSelected: (_) => setState(() => _freq = f),
+                ),
+            ],
+          ),
+          const SizedBox(height: Gap.md),
+          // Reminder lead-times (reuse reminders engine on the backend).
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(mStr(context, 'mReminderLead'),
+                style: const TextStyle(fontWeight: FontWeight.w600)),
+          ),
+          const SizedBox(height: Gap.xs),
+          Wrap(
+            spacing: Gap.sm,
+            children: [
+              for (final lead in kLeadOptions)
+                FilterChip(
+                  label: Text(leadLabel(context, lead)),
+                  selected: _leads.contains(lead),
+                  onSelected: (sel) => setState(() {
+                    if (sel) {
+                      _leads.add(lead);
+                    } else {
+                      _leads.remove(lead);
+                    }
+                  }),
+                ),
+            ],
+          ),
+          const SizedBox(height: Gap.lg),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(onPressed: _submit, child: Text(t.save)),
           ),
         ]),
-        const SizedBox(height: Gap.sm),
-        TextField(
-          controller: _place,
-          decoration: InputDecoration(labelText: t.meetingsFieldPlace),
-        ),
-        const SizedBox(height: Gap.sm),
-        Row(children: [
-          Text(t.meetingsFieldDuration),
-          Expanded(
-            child: Slider(
-              value: _duration.toDouble(),
-              min: 15,
-              max: 240,
-              divisions: 15,
-              label: '$_duration',
-              onChanged: (v) => setState(() => _duration = v.round()),
-            ),
-          ),
-          Text(t.meetingsMinutes(_duration)),
-        ]),
-        TextField(
-          controller: _note,
-          decoration: InputDecoration(labelText: t.meetingsFieldNote),
-          maxLines: 2,
-        ),
-        const SizedBox(height: Gap.md),
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton(onPressed: _submit, child: Text(t.save)),
-        ),
-      ]),
+      ),
     );
   }
 }
 
+// ===========================================================================
+// empty / error states
+// ===========================================================================
 class _Empty extends StatelessWidget {
   final AppLocalizations t;
   final VoidCallback onAdd;
@@ -394,19 +1047,66 @@ class _Empty extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.xl),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(Icons.event_available_outlined, size: 56, color: Colors.grey),
+          const Icon(Icons.event_available_outlined,
+              size: 56, color: Colors.grey),
           const SizedBox(height: Gap.md),
           Text(t.meetingsEmptyTitle,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              style:
+                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(height: Gap.xs),
           Text(t.meetingsEmptyBody,
-              textAlign: TextAlign.center, style: const TextStyle(color: Colors.grey)),
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.grey)),
           const SizedBox(height: Gap.lg),
           FilledButton.icon(
             onPressed: onAdd,
             icon: const Icon(Icons.add),
-            label: Text(t.meetingsAdd),
+            label: Text(mStr(context, 'mAddFirst')),
+          ),
+        ]),
+      ),
+    );
+  }
+}
+
+class _EmptyPast extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.xl),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          const Icon(Icons.history, size: 48, color: Colors.grey),
+          const SizedBox(height: Gap.md),
+          Text(mStr(context, 'mPast'),
+              style: TextStyle(color: Theme.of(context).colorScheme.outline)),
+        ]),
+      ),
+    );
+  }
+}
+
+class _ErrorState extends StatelessWidget {
+  final VoidCallback onRetry;
+  const _ErrorState({required this.onRetry});
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.xl),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          const Icon(Icons.error_outline, size: 48, color: Brand.danger),
+          const SizedBox(height: Gap.md),
+          Text(mStr(context, 'mLoadError'),
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.w600)),
+          const SizedBox(height: Gap.md),
+          FilledButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(Icons.refresh),
+            label: Text(t.retry),
           ),
         ]),
       ),

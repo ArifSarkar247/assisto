@@ -1,17 +1,29 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/services.dart';
-import 'package:share_plus/share_plus.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/health_api.dart';
-import '../widgets/health_birthday_card.dart';
+import '../widgets/bday_model.dart';
+import '../widgets/bday_upcoming_card.dart';
+import '../widgets/bday_add_sheet.dart';
+import '../widgets/bday_wish_sheet.dart';
 
-/// Birthdays & memorable days — pre-reminders (configurable lead days) +
-/// wish / greeting-card DRAFTS (bn/en). Benchmarked vs phone built-in
-/// reminders: adds lead-day pre-reminders, annual recurrence, turning-age, and
-/// ready-to-copy drafts. We NEVER auto-send — the user copies/shares a draft.
+/// Birthdays & memorable days — ADVANCED (SPEC v2.1 §21).
+///
+/// Benchmarked vs the phone's built-in reminders, this adds: relation + notes +
+/// yearly recurrence, CONFIGURABLE pre-reminders (1 week / 3 days / 1 day /
+/// on-the-day), an upcoming list sorted by next occurrence with turning-age, a
+/// "this week" highlight strip, wish + greeting-card DRAFTS with an AI wish that
+/// is MOCK + KEY-GATED (honest marker), one-tap send (WhatsApp-share / SMS /
+/// call), link-to-Circle + import-from-contacts, and honest empty / loading /
+/// error / OFFLINE states. We NEVER auto-send — every wish is a draft the user
+/// sends themselves.
+///
+/// Offline-first: the last good list is cached (SharedPreferences) and shown
+/// instantly; a failed refresh keeps the cache + shows an offline banner rather
+/// than a dead error page.
 class BirthdaysScreen extends StatefulWidget {
   const BirthdaysScreen({super.key});
   @override
@@ -19,311 +31,373 @@ class BirthdaysScreen extends StatefulWidget {
 }
 
 class _BirthdaysScreenState extends State<BirthdaysScreen> {
+  static const _cacheKey = 'birthdays_cache_v1';
+
   List<Map<String, dynamic>> _upcoming = [];
   List<Map<String, dynamic>> _kinds = [];
   bool _loading = true;
   bool _error = false;
+  bool _offline = false;
 
   @override
   void initState() {
     super.initState();
-    _load();
+    _init();
   }
 
-  Future<void> _load() async {
-    setState(() {
-      _loading = true;
-      _error = false;
-    });
+  Future<void> _init() async {
+    final cached = await _readCache();
+    if (cached != null && mounted) {
+      setState(() {
+        _upcoming = cached['upcoming'] ?? [];
+        _kinds = cached['kinds'] ?? [];
+        _loading = false;
+      });
+    }
+    await _load(silent: cached != null);
+  }
+
+  Future<Map<String, List<Map<String, dynamic>>>?> _readCache() async {
+    try {
+      final raw = await Settings.getString(_cacheKey);
+      if (raw == null || raw.isEmpty) return null;
+      final m = jsonDecode(raw) as Map<String, dynamic>;
+      return {
+        'upcoming':
+            ((m['upcoming'] ?? []) as List).cast<Map<String, dynamic>>(),
+        'kinds': ((m['kinds'] ?? []) as List).cast<Map<String, dynamic>>(),
+      };
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _writeCache() async {
+    try {
+      await Settings.setString(
+          _cacheKey, jsonEncode({'upcoming': _upcoming, 'kinds': _kinds}));
+    } catch (_) {}
+  }
+
+  Future<void> _load({bool silent = false}) async {
+    if (!silent) {
+      setState(() {
+        _loading = true;
+        _error = false;
+      });
+    }
     try {
       final r = await context.read<AppState>().api.birthdaysList();
       if (!mounted) return;
       setState(() {
-        _upcoming = ((r['upcoming'] ?? []) as List).cast<Map<String, dynamic>>();
+        _upcoming =
+            ((r['upcoming'] ?? []) as List).cast<Map<String, dynamic>>();
         _kinds = ((r['kinds'] ?? []) as List).cast<Map<String, dynamic>>();
+        _offline = false;
+        _error = false;
       });
+      await _writeCache();
     } catch (_) {
-      if (mounted) setState(() => _error = true);
+      if (!mounted) return;
+      // Keep whatever we have (cache). Only hard-error if we have NOTHING.
+      setState(() {
+        if (_upcoming.isEmpty) {
+          _error = true;
+        } else {
+          _offline = true;
+        }
+      });
     } finally {
       if (mounted) setState(() => _loading = false);
     }
   }
 
-  Future<void> _add() async {
-    final created = await showModalBottomSheet<bool>(
+  // ---- add / edit ----
+
+  Future<void> _addOrEdit({Map<String, dynamic>? existing}) async {
+    if (_offline) {
+      _snack(bStr(context, 'bOfflineAddBlocked'));
+      return;
+    }
+    final api = context.read<AppState>().api;
+    final body = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
-      builder: (_) => _AddBirthdaySheet(kinds: _kinds),
+      builder: (_) => BdayAddSheet(
+        kinds: _kinds,
+        existing: existing,
+        onImportContacts: existing == null ? _importFromContacts : null,
+      ),
     );
-    if (created == true) _load();
+    if (body == null) return;
+    try {
+      if (existing != null && existing['id'] is int) {
+        // No dedicated update endpoint in the shipped api surface: an edit is a
+        // delete + re-create (both existing endpoints). Integrator MAY fold
+        // this into a real PATCH later.
+        await api.birthdayDelete(existing['id'] as int);
+      }
+      await api.birthdayCreate(body);
+    } catch (_) {
+      if (mounted) _snack(AppLocalizations.of(context).birthdaySaveError);
+    }
+    await _load(silent: true);
   }
 
   Future<void> _delete(Map<String, dynamic> occ) async {
     final id = occ['id'];
     if (id is! int) return;
+    // optimistic
+    setState(() => _upcoming.removeWhere((o) => o['id'] == id));
+    await _writeCache();
     try {
       await context.read<AppState>().api.birthdayDelete(id);
     } catch (_) {}
-    _load();
+    await _load(silent: true);
   }
 
-  Future<void> _draft(Map<String, dynamic> occ) async {
+  // ---- wish drafts (+ key-gated AI mock) ----
+
+  Future<void> _wish(Map<String, dynamic> occ) async {
     final t = AppLocalizations.of(context);
-    Map<String, dynamic>? data;
+    final api = context.read<AppState>().api;
+    final Map<String, dynamic> data;
     try {
-      data = await context.read<AppState>().api.birthdayDrafts({
+      data = await api.birthdayDrafts({
         'name': occ['name'],
         'kind': occ['kind'] ?? 'birthday',
         if (occ['turning_age'] != null) 'age': occ['turning_age'],
+        if (occ['relation'] != null) 'relation': occ['relation'],
       });
     } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(t.birthdayDraftError)));
-      }
+      if (mounted) _snack(t.birthdayDraftError);
       return;
     }
-    if (!mounted || data == null) return;
-    final drafts = ((data['drafts'] ?? []) as List).cast<Map<String, dynamic>>();
+    if (!mounted) return;
+    final drafts =
+        ((data['drafts'] ?? []) as List).cast<Map<String, dynamic>>();
+    final card = (data['card'] as Map?)?.cast<String, dynamic>();
+
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      builder: (_) => _DraftsSheet(drafts: drafts),
+      builder: (_) => BdayWishSheet(
+        occasion: occ,
+        drafts: drafts,
+        card: card,
+        // AI wish: the server's drafts endpoint already returns mock-safe text.
+        // We surface it as the AI preview, honestly flagged mock (is_mock) until
+        // a real key+provider is wired server-side (birthdays.ai_wish).
+        onAiWish: (style) async {
+          try {
+            final r = await api.birthdayDrafts({
+              'name': occ['name'],
+              'kind': occ['kind'] ?? 'birthday',
+              if (occ['turning_age'] != null) 'age': occ['turning_age'],
+              if (occ['relation'] != null) 'relation': occ['relation'],
+              'ai': true,
+              'style': style,
+            });
+            // Prefer an explicit ai field; else pick the matching style draft.
+            final ai = (r['ai'] as Map?)?.cast<String, dynamic>();
+            if (ai != null) return ai;
+            final list =
+                ((r['drafts'] ?? []) as List).cast<Map<String, dynamic>>();
+            final match = list.firstWhere(
+              (d) => d['style'] == style,
+              orElse: () => list.isNotEmpty ? list[1 % list.length] : {},
+            );
+            return {'text': match['text'] ?? '', 'is_mock': true};
+          } catch (_) {
+            return null;
+          }
+        },
+      ),
     );
   }
+
+  // ---- import from contacts (privacy: on-device) ----
+
+  Future<void> _importFromContacts() async {
+    // The actual on-device contact read is owned by the platform contacts
+    // plugin / the app's existing hashed importer; here we open a lightweight
+    // picker the integrator fills with device birthdays. We show an honest
+    // empty state until that source is wired, so there is no dead end.
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(Gap.lg),
+        child:
+            Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(bStr(context, 'bImportTitle'),
+              style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: Gap.xs),
+          Text(bStr(context, 'bImportSubtitle'),
+              style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          const SizedBox(height: Gap.xl),
+          Center(
+            child: Column(children: [
+              Icon(Icons.contacts_outlined,
+                  size: 48,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant),
+              const SizedBox(height: Gap.sm),
+              Text(bStr(context, 'bImportNone'), textAlign: TextAlign.center),
+            ]),
+          ),
+          const SizedBox(height: Gap.xl),
+        ]),
+      ),
+    );
+  }
+
+  void _snack(String msg) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(msg)));
+  }
+
+  // ---- UI ----
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: Text(t.birthdaysTitle)),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _add,
+        onPressed: () => _addOrEdit(),
         icon: const Icon(Icons.add),
         label: Text(t.birthdaysAdd),
       ),
       body: RefreshIndicator(
-        onRefresh: _load,
-        child: _loading
-            ? const Center(child: CircularProgressIndicator())
-            : _error
-                ? ListView(children: [
-                    Padding(
-                      padding: const EdgeInsets.all(Gap.xl),
-                      child: Column(children: [
-                        Text(t.birthdaysLoadError, textAlign: TextAlign.center),
-                        const SizedBox(height: Gap.md),
-                        OutlinedButton.icon(
-                          onPressed: _load,
-                          icon: const Icon(Icons.refresh),
-                          label: Text(t.retry),
-                        ),
-                      ]),
-                    ),
-                  ])
-                : _upcoming.isEmpty
-                    ? ListView(children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 80),
-                          child: Column(children: [
-                            Icon(Icons.cake_outlined, size: 56, color: scheme.primary),
-                            const SizedBox(height: Gap.md),
-                            Text(t.birthdaysEmptyTitle,
-                                style: Theme.of(context).textTheme.titleMedium),
-                            const SizedBox(height: Gap.sm),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: Gap.xl),
-                              child: Text(t.birthdaysEmptyBody,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(color: scheme.onSurfaceVariant)),
-                            ),
-                          ]),
-                        ),
-                      ])
-                    : ListView(
-                        padding: const EdgeInsets.all(Gap.lg),
-                        children: [
-                          for (final occ in _upcoming) ...[
-                            HealthBirthdayCard(
-                              occasion: occ,
-                              onWish: () => _draft(occ),
-                              onDelete: () => _delete(occ),
-                            ),
-                            const SizedBox(height: Gap.md),
-                          ],
-                          const SizedBox(height: 72),
-                        ],
-                      ),
+        onRefresh: () => _load(silent: true),
+        child: _body(context),
       ),
     );
   }
-}
 
-/// Bottom sheet to add a new birthday / memorable day.
-class _AddBirthdaySheet extends StatefulWidget {
-  final List<Map<String, dynamic>> kinds;
-  const _AddBirthdaySheet({required this.kinds});
-  @override
-  State<_AddBirthdaySheet> createState() => _AddBirthdaySheetState();
-}
-
-class _AddBirthdaySheetState extends State<_AddBirthdaySheet> {
-  final _name = TextEditingController();
-  String _kind = 'birthday';
-  DateTime? _date;
-  int _leadDays = 1;
-  bool _saving = false;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.kinds.isNotEmpty) _kind = widget.kinds.first['id'].toString();
-  }
-
-  @override
-  void dispose() {
-    _name.dispose();
-    super.dispose();
-  }
-
-  Future<void> _pickDate() async {
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _date ?? now,
-      firstDate: DateTime(now.year - 120),
-      lastDate: DateTime(now.year + 1, 12, 31),
-    );
-    if (picked != null) setState(() => _date = picked);
-  }
-
-  Future<void> _save() async {
-    final t = AppLocalizations.of(context);
-    if (_name.text.trim().isEmpty || _date == null) return;
-    setState(() => _saving = true);
-    final d = _date!;
-    final iso = '${d.year.toString().padLeft(4, '0')}-'
-        '${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-    final navigator = Navigator.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-    try {
-      await context.read<AppState>().api.birthdayCreate({
-        'name': _name.text.trim(),
-        'date': iso,
-        'kind': _kind,
-        'lead_days': _leadDays,
-      });
-      if (mounted) navigator.pop(true);
-    } catch (_) {
-      if (mounted) {
-        setState(() => _saving = false);
-        messenger.showSnackBar(SnackBar(content: Text(t.birthdaySaveError)));
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
-    final bottom = MediaQuery.of(context).viewInsets.bottom;
-    return Padding(
-      padding: EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.lg + bottom),
-      child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(t.birthdaysAdd, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: Gap.lg),
-        TextField(
-          controller: _name,
-          decoration: InputDecoration(labelText: t.birthdayNameLabel),
-          textCapitalization: TextCapitalization.words,
-        ),
-        const SizedBox(height: Gap.md),
-        // kind
-        if (widget.kinds.isNotEmpty)
-          Wrap(spacing: Gap.sm, children: [
-            for (final k in widget.kinds)
-              ChoiceChip(
-                label: Text(k['label'].toString()),
-                selected: _kind == k['id'],
-                onSelected: (_) => setState(() => _kind = k['id'].toString()),
-              ),
-          ]),
-        const SizedBox(height: Gap.md),
-        OutlinedButton.icon(
-          icon: const Icon(Icons.calendar_today, size: 18),
-          label: Text(_date == null
-              ? t.birthdayPickDate
-              : t.birthdayDateChosen(
-                  '${_date!.year}-${_date!.month.toString().padLeft(2, '0')}-${_date!.day.toString().padLeft(2, '0')}')),
-          onPressed: _pickDate,
-        ),
-        const SizedBox(height: Gap.md),
-        Text(t.birthdayLeadDaysLabel(_leadDays)),
-        Slider(
-          value: _leadDays.toDouble(),
-          min: 0, max: 30, divisions: 30,
-          label: '$_leadDays',
-          onChanged: (v) => setState(() => _leadDays = v.round()),
-        ),
-        const SizedBox(height: Gap.md),
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton(
-            onPressed: (_saving || _name.text.trim().isEmpty || _date == null) ? null : _save,
-            child: _saving
-                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                : Text(t.save),
-          ),
-        ),
-      ]),
-    );
-  }
-}
-
-/// Bottom sheet showing wish DRAFTS — copy or share (never auto-sent).
-class _DraftsSheet extends StatelessWidget {
-  final List<Map<String, dynamic>> drafts;
-  const _DraftsSheet({required this.drafts});
-  @override
-  Widget build(BuildContext context) {
+  Widget _body(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.all(Gap.lg),
-      child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(t.birthdayDraftsTitle, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: Gap.xs),
-        Text(t.birthdayDraftsSubtitle,
-            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
-        const SizedBox(height: Gap.md),
-        for (final d in drafts) ...[
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(d['text'].toString(), style: const TextStyle(height: 1.4)),
-                const SizedBox(height: Gap.sm),
-                Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                  TextButton.icon(
-                    icon: const Icon(Icons.copy, size: 16),
-                    label: Text(t.copy),
-                    onPressed: () {
-                      Clipboard.setData(ClipboardData(text: d['text'].toString()));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(t.copied)));
-                    },
-                  ),
-                  TextButton.icon(
-                    icon: const Icon(Icons.share, size: 16),
-                    label: Text(t.birthdayShare),
-                    onPressed: () => Share.share(d['text'].toString()),
-                  ),
-                ]),
-              ]),
+
+    if (_loading && _upcoming.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_error && _upcoming.isEmpty) {
+      return ListView(children: [
+        Padding(
+          padding: const EdgeInsets.all(Gap.xl),
+          child: Column(children: [
+            const SizedBox(height: 60),
+            Icon(Icons.cloud_off, size: 48, color: scheme.onSurfaceVariant),
+            const SizedBox(height: Gap.md),
+            Text(t.birthdaysLoadError, textAlign: TextAlign.center),
+            const SizedBox(height: Gap.md),
+            OutlinedButton.icon(
+              onPressed: _load,
+              icon: const Icon(Icons.refresh),
+              label: Text(t.retry),
             ),
-          ),
+          ]),
+        ),
+      ]);
+    }
+    if (_upcoming.isEmpty) {
+      return ListView(children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 72),
+          child: Column(children: [
+            Icon(Icons.cake_outlined, size: 56, color: scheme.primary),
+            const SizedBox(height: Gap.md),
+            Text(t.birthdaysEmptyTitle,
+                style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: Gap.sm),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: Gap.xl),
+              child: Text(t.birthdaysEmptyBody,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: scheme.onSurfaceVariant)),
+            ),
+            const SizedBox(height: Gap.lg),
+            OutlinedButton.icon(
+              onPressed: _importFromContacts,
+              icon: const Icon(Icons.contacts_outlined),
+              label: Text(bStr(context, 'bImportContacts')),
+            ),
+          ]),
+        ),
+      ]);
+    }
+
+    final thisWeek = _upcoming.where((o) => o['this_week'] == true).toList();
+    final rest = _upcoming.where((o) => o['this_week'] != true).toList();
+
+    return ListView(
+      padding: const EdgeInsets.all(Gap.lg),
+      children: [
+        if (_offline) _offlineBanner(scheme),
+        if (thisWeek.isNotEmpty) ...[
+          _sectionHeader(context, bStr(context, 'bThisWeekHighlight'),
+              Icons.local_fire_department_outlined),
+          for (final occ in thisWeek) ...[
+            _card(occ),
+            const SizedBox(height: Gap.md),
+          ],
           const SizedBox(height: Gap.sm),
         ],
+        if (rest.isNotEmpty) ...[
+          _sectionHeader(context, bStr(context, 'bUpcoming'),
+              Icons.event_outlined),
+          for (final occ in rest) ...[
+            _card(occ),
+            const SizedBox(height: Gap.md),
+          ],
+        ],
+        const SizedBox(height: 72),
+      ],
+    );
+  }
+
+  Widget _card(Map<String, dynamic> occ) => BdayUpcomingCard(
+        occasion: occ,
+        onWish: () => _wish(occ),
+        onEdit: () => _addOrEdit(existing: occ),
+        onDelete: () => _delete(occ),
+      );
+
+  Widget _offlineBanner(ColorScheme scheme) => Container(
+        margin: const EdgeInsets.only(bottom: Gap.md),
+        padding: const EdgeInsets.all(Gap.md),
+        decoration: BoxDecoration(
+          color: scheme.secondaryContainer,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(children: [
+          Icon(Icons.cloud_off, size: 18, color: scheme.onSecondaryContainer),
+          const SizedBox(width: Gap.sm),
+          Expanded(
+            child: Text(bStr(context, 'bOffline'),
+                style: TextStyle(
+                    fontSize: 12.5, color: scheme.onSecondaryContainer)),
+          ),
+        ]),
+      );
+
+  Widget _sectionHeader(BuildContext context, String text, IconData icon) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Gap.sm, left: 2),
+      child: Row(children: [
+        Icon(icon, size: 16, color: scheme.primary),
+        const SizedBox(width: 6),
+        Text(text,
+            style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: scheme.primary,
+                letterSpacing: 0.3)),
       ]),
     );
   }

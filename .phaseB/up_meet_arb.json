@@ -1,0 +1,189 @@
+{
+  "_comment": "Meetings/Appointments (MeetingsScreen ADVANCED, SPEC v2.1 §21). New ARB keys {key:[bn,en]} to merge into app_bn.arb/app_en.arb at next sync. The app ships these strings TODAY via a local bilingual table in app/lib/widgets/meet_model.dart (Bangla as \\u codepoints — ZERO Bangla glyphs in any .dart); keep this file and that table in sync. The 'm' prefix matches the keys in that table. '{m}' is an int slot (meeting count / ETA minutes) filled via mStrNum.",
+  "_reused": "REUSED existing ARB getters (NOT re-emitted): meetingsTitle, meetingsAdd, meetingsEmptyTitle, meetingsEmptyBody, meetingsFieldTitle, meetingsFieldPlace, meetingsFieldDuration, meetingsFieldNote, meetingsMinutes, meetingsTitleRequired, meetingsConflict, leaveNow* (in LifeLeaveNowCard), save, cancel, edit, delete, retry.",
+  "_integration": "BACKEND: core/logic/meetings.py (edited) now carries normalise_appointment with with/reminder_offsets/recurrence/status; next_start + appointment_reminders REUSE core/logic/reminders_engine.next_occurrence/expand (one recurrence engine for meetings & reminders); partition (upcoming/past, excl. cancelled); agenda (day/week/month buckets, recurrence-expanded); travel_eta (HONEST key-gated: no Maps key -> source='mock' fixed MOCK_ETA_MIN=25, never fake live traffic; integrator swaps Distance-Matrix when a key is wired -> source='live'); share_text (invite body). INTEGRATOR: expose an /appointments endpoint storing the normalised shape; on save, schedule notifications at appointment_reminders(appt) + the leave_now nudge via the existing reminders/notifications pipeline (reminder_payload/leave_now_payload already bilingual). Maps ETA stays mock until GOOGLE_MAPS key is configured. APP: screen + meet_model.dart own all UI; no api.dart/models/urls/sidebar edits were made — the screen reads/writes via the existing generic listItems/createItem('appointments').",
+  "mWith": [
+    "কার সাথে",
+    "With"
+  ],
+  "mWithHint": [
+    "নাম যোগ করুন (কমা দিয়ে আলাদা)",
+    "Add names (comma separated)"
+  ],
+  "mReminderLead": [
+    "মনে করানোর সময়",
+    "Remind me"
+  ],
+  "mRecurrence": [
+    "পুনরাবৃত্তি",
+    "Repeat"
+  ],
+  "mRepeatNone": [
+    "একবার",
+    "Once"
+  ],
+  "mRepeatDaily": [
+    "প্রতিদিন",
+    "Daily"
+  ],
+  "mRepeatWeekly": [
+    "প্রতি সপ্তাহে",
+    "Weekly"
+  ],
+  "mRepeatMonthly": [
+    "প্রতি মাসে",
+    "Monthly"
+  ],
+  "mRepeatYearly": [
+    "প্রতি বছর",
+    "Yearly"
+  ],
+  "mLead1Day": [
+    "১ দিন আগে",
+    "1 day before"
+  ],
+  "mLead1Hour": [
+    "১ ঘণ্টা আগে",
+    "1 hour before"
+  ],
+  "mLead30Min": [
+    "৩০ মিনিট আগে",
+    "30 min before"
+  ],
+  "mLead10Min": [
+    "১০ মিনিট আগে",
+    "10 min before"
+  ],
+  "mLeadAtTime": [
+    "ঠিক সময়ে",
+    "At start time"
+  ],
+  "mViewDay": [
+    "দিন",
+    "Day"
+  ],
+  "mViewWeek": [
+    "সপ্তাহ",
+    "Week"
+  ],
+  "mViewMonth": [
+    "মাস",
+    "Month"
+  ],
+  "mViewAgenda": [
+    "তালিকা",
+    "List"
+  ],
+  "mUpcoming": [
+    "আসন্ন",
+    "Upcoming"
+  ],
+  "mPast": [
+    "অতীত",
+    "Past"
+  ],
+  "mToday": [
+    "আজ",
+    "Today"
+  ],
+  "mTomorrow": [
+    "আগামীকাল",
+    "Tomorrow"
+  ],
+  "mNoneToday": [
+    "এই দিনে কোনো মিটিং নেই",
+    "No meetings this day"
+  ],
+  "mStatusDone": [
+    "সম্পন্ন",
+    "Done"
+  ],
+  "mStatusCancelled": [
+    "বাতিল",
+    "Cancelled"
+  ],
+  "mStatusScheduled": [
+    "নির্ধারিত",
+    "Scheduled"
+  ],
+  "mMarkDone": [
+    "সম্পন্ন চিহ্নিত করুন",
+    "Mark done"
+  ],
+  "mMarkCancelled": [
+    "বাতিল করুন",
+    "Cancel meeting"
+  ],
+  "mReopen": [
+    "পুনরায় চালু করুন",
+    "Reopen"
+  ],
+  "mShare": [
+    "বিবরণ শেয়ার করুন",
+    "Share details"
+  ],
+  "mInvite": [
+    "আমন্ত্রণ পাঠান",
+    "Send invite"
+  ],
+  "mShareWhen": [
+    "কবে",
+    "When"
+  ],
+  "mShareWhere": [
+    "কোথায়",
+    "Where"
+  ],
+  "mShareWith": [
+    "কার সাথে",
+    "With"
+  ],
+  "mLoadError": [
+    "মিটিং আনা যায়নি",
+    "Could not load meetings"
+  ],
+  "mOffline": [
+    "অফলাইন—সংরক্ষিত তালিকা দেখানো হচ্ছে",
+    "Offline — showing your saved list"
+  ],
+  "mSavedOffline": [
+    "অফলাইনে সংরক্ষিত, পরে সিঙ্ক হবে",
+    "Saved offline — will sync later"
+  ],
+  "mDeleteQ": [
+    "এই মিটিং মুছবেন?",
+    "Delete this meeting?"
+  ],
+  "mDeleted": [
+    "মিটিং মুছে ফেলা হয়েছে",
+    "Meeting deleted"
+  ],
+  "mEtaEstimate": [
+    "আনুমানিক {m} মিনিট",
+    "About {m} min"
+  ],
+  "mEtaMockNote": [
+    "আনুমানিক—ম্যাপস কি যুক্ত হলে সঠিক হবে",
+    "Estimate — exact when a Maps key is added"
+  ],
+  "mEtaGetEstimate": [
+    "যাত্রার সময় অনুমান",
+    "Estimate travel time"
+  ],
+  "mRecurringBadge": [
+    "পুনরাবৃত্ত",
+    "Repeats"
+  ],
+  "mAllDay": [
+    "সারাদিন",
+    "All day"
+  ],
+  "mCount": [
+    "{m}টি মিটিং",
+    "{m} meetings"
+  ],
+  "mAddFirst": [
+    "প্রথম মিটিং যোগ করুন",
+    "Add your first meeting"
+  ]
+}

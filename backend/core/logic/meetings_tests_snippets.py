@@ -100,6 +100,102 @@ def test_payloads_bilingual():
     assert ln["kind"] == "appointment_leave_now" and "15 min" in ln["body"]
 
 
+def test_normalise_advanced_fields():
+    ok, data = M.normalise_appointment({
+        "title": "Standup", "start": "2026-01-01T10:00",
+        "with": [" Rahim ", "Karim", "Rahim", ""],  # trim + dedupe + drop empty
+        "reminder_offsets": [60, 60, "bad", -5, 15],  # dedupe + drop junk/neg
+        "recurrence": {"freq": "weekly", "interval": "1", "weekday": 2},
+        "status": "DONE",
+    })
+    assert ok
+    assert data["with"] == ["Rahim", "Karim"], data["with"]
+    assert data["reminder_offsets"] == [60, 15], data["reminder_offsets"]
+    assert data["recurrence"]["freq"] == "weekly"
+    assert data["recurrence"]["weekday"] == 2
+    assert data["status"] == M.STATUS_DONE
+    # garbage recurrence + offsets fall back
+    ok2, d2 = M.normalise_appointment(
+        {"title": "x", "start": "2026-01-01T10:00",
+         "recurrence": {"freq": "fortnightly"}, "reminder_offsets": []})
+    assert d2["recurrence"] is None
+    assert d2["reminder_offsets"] == list(M.DEFAULT_REMINDER_OFFSETS)
+    assert d2["status"] == M.STATUS_SCHEDULED
+
+
+def test_clean_status():
+    assert M.clean_status("cancelled") == M.STATUS_CANCELLED
+    assert M.clean_status("nonsense") == M.STATUS_SCHEDULED
+    assert M.clean_status(None) == M.STATUS_SCHEDULED
+
+
+def test_next_start_recurring_reuses_engine():
+    # A weekly-Wed meeting whose stored start is in the past -> next_start is a
+    # future Wednesday (recurrence math delegated to reminders_engine).
+    appt = {"title": "W", "start": "2026-01-07T10:00",  # 2026-01-07 is a Wed
+            "recurrence": {"freq": "weekly", "weekday": 2}}
+    now = datetime(2026, 1, 20, 9, 0)  # a Tuesday
+    ns = M.next_start(appt, after=now)
+    assert ns.weekday() == 2 and ns > now, ns
+    # one-off: next_start is just the stored start
+    oneoff = {"title": "O", "start": "2026-05-01T10:00"}
+    assert M.next_start(oneoff) == datetime(2026, 5, 1, 10, 0)
+
+
+def test_appointment_reminders_honor_offsets_and_recurrence():
+    appt = {"title": "W", "start": "2026-01-07T10:00",
+            "recurrence": {"freq": "weekly", "weekday": 2},
+            "reminder_offsets": [60]}
+    now = datetime(2026, 1, 20, 9, 0)
+    times = M.appointment_reminders(appt, now=now)
+    ns = M.next_start(appt, after=now)
+    assert times == [ns - timedelta(minutes=60)], times
+
+
+def test_travel_eta_key_gated_honest():
+    # no destination -> none
+    assert M.travel_eta()["source"] == "none"
+    # destination but no key -> honest mock, NOT live
+    m = M.travel_eta(place="Clinic")
+    assert m["source"] == "mock" and m["eta_min"] == M.MOCK_ETA_MIN
+    # with a key the integrator returns live; our stub still mock until wired,
+    # but the contract is: a key must never yield source=="none" for a dest.
+    k = M.travel_eta(lat=23.8, lng=90.4, maps_key="fake")
+    assert k["eta_min"] is not None and k["source"] in ("mock", "live")
+
+
+def test_partition_upcoming_past_excludes_cancelled():
+    now = datetime(2026, 1, 10, 12, 0)
+    appts = [
+        {"title": "past", "start": "2026-01-01T10:00"},
+        {"title": "soon", "start": "2026-01-15T10:00"},
+        {"title": "dead", "start": "2026-01-20T10:00", "status": "cancelled"},
+    ]
+    p = M.partition(appts, now=now)
+    assert [a["title"] for a in p["upcoming"]] == ["soon"]
+    assert [a["title"] for a in p["past"]] == ["past"]
+
+
+def test_agenda_groups_by_day_and_expands_recurrence():
+    # weekly meeting on Mondays, month scope -> appears on each Monday.
+    appts = [{"title": "wk", "start": "2026-02-02T09:00",  # Mon 2026-02-02
+              "recurrence": {"freq": "weekly", "weekday": 0}}]
+    ag = M.agenda(appts, scope="month", anchor="2026-02-10", now=datetime(2026, 2, 1))
+    days = [b["date"] for b in ag]
+    # Mondays in Feb 2026: 2, 9, 16, 23
+    assert days == ["2026-02-02", "2026-02-09", "2026-02-16", "2026-02-23"], days
+
+
+def test_share_text_bilingual():
+    appt = {"title": "Doctor", "start": "2026-01-01T10:00", "place": "Clinic",
+            "with": ["Rahim"], "note": "bring reports"}
+    en = M.share_text(appt, "en")
+    assert "Doctor" in en and "When:" in en and "Where: Clinic" in en
+    assert "With: Rahim" in en and "bring reports" in en
+    bn = M.share_text(appt, "bn")
+    assert "Doctor" in bn and "কবে" in bn  # 'কবে'
+
+
 def run_all():
     import inspect
     fns = [v for k, v in sorted(globals().items())

@@ -1,0 +1,37 @@
+{
+  "_comment": "Assisto MEDICINE DATABASE (drug lookup) ADVANCED upgrade (SPEC v2.1 §21). {key:[bn,en]} -> camelCase getters. ICU {count} placeholder on medicineDbAlternativesTitle is ALREADY in app_*.arb (reused, not redefined here). NO Bangla literals live in any .dart (Bangla digits render at runtime from codepoints U+09E6..U+09EF). Merge bn -> app_bn.arb (index [0]), en -> app_en.arb (index [1]), then `flutter gen-l10n`. All keys are NEW (the existing medicineDb* keys are reused unchanged). No api.dart / models / urls / sidebar edits.",
+
+  "medicineDbTabSearch": ["খুঁজুন", "Search"],
+  "medicineDbTabSaved": ["সংরক্ষিত", "Saved"],
+  "medicineDbTabRecent": ["সাম্প্রতিক", "Recent"],
+
+  "medicineDbGeneric": ["জেনেরিক", "Generic"],
+  "medicineDbSideEffects": ["পার্শ্বপ্রতিক্রিয়া", "Side-effects"],
+  "medicineDbPrecautions": ["সাবধানতা", "Precautions"],
+  "medicineDbInteractions": ["অন্য ওষুধের সঙ্গে প্রতিক্রিয়া", "Interactions"],
+
+  "medicineDbCheaper": ["সস্তা", "Cheaper"],
+  "medicineDbDearer": ["বেশি দাম", "Dearer"],
+  "medicineDbSamePrice": ["সমান দাম", "Same price"],
+
+  "medicineDbSave": ["সংরক্ষণ করুন", "Save"],
+  "medicineDbRemoveSave": ["সংরক্ষণ বাতিল", "Remove from saved"],
+  "medicineDbSaved": ["সংরক্ষিত হয়েছে", "Saved"],
+  "medicineDbRemovedSaved": ["সংরক্ষণ থেকে সরানো হয়েছে", "Removed from saved"],
+  "medicineDbShare": ["শেয়ার করুন", "Share"],
+
+  "medicineDbSavedEmptyTitle": ["এখনও কিছু সংরক্ষণ করেননি", "Nothing saved yet"],
+  "medicineDbSavedEmptyBody": ["কোনো ওষুধের কার্ডে তারা আইকনে ট্যাপ করে পরে দেখার জন্য সংরক্ষণ করুন।", "Tap the star on any drug card to save it for later — available offline."],
+  "medicineDbRecentEmptyTitle": ["কোনো সাম্প্রতিক ওষুধ নেই", "No recent medicines"],
+  "medicineDbRecentEmptyBody": ["আপনি যে ওষুধগুলো দেখবেন সেগুলো এখানে জমা হবে — ইন্টারনেট ছাড়াও।", "Medicines you view appear here — even offline."],
+  "medicineDbClearRecent": ["সাম্প্রতিক মুছুন", "Clear recent"],
+
+  "medicineDbOfflineBanner": ["ইন্টারনেট নেই — আগে দেখা তথ্য দেখানো হচ্ছে।", "You're offline — showing previously viewed data."],
+  "medicineDbOfflineCached": ["অফলাইন ক্যাশ থেকে", "From offline cache"],
+  "medicineDbOfflineNoCache": ["এই ওষুধটি আগে দেখা হয়নি, তাই অফলাইনে দেখানো যাচ্ছে না। ইন্টারনেট এলে আবার চেষ্টা করুন।", "This medicine wasn't viewed before, so it can't be shown offline. Try again when you're online."],
+
+  "medicineDbReportTitle": ["ভুল তথ্য জানান", "Report wrong info"],
+  "medicineDbReportHint": ["কোন তথ্যটি ভুল বা অসম্পূর্ণ মনে হচ্ছে লিখুন (যেমন দাম, ব্র্যান্ড, শক্তি)।", "Describe what looks wrong or missing (e.g. price, brand, strength)."],
+  "medicineDbReportSend": ["জমা দিন", "Submit"],
+  "medicineDbReportThanks": ["ধন্যবাদ — রিপোর্টটি জমা হয়েছে। আমরা DGDA/লাইসেন্সড উৎসের সঙ্গে মিলিয়ে দেখব।", "Thanks — your report is noted. We'll cross-check it against DGDA/licensed sources."]
+}

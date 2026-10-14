@@ -113,6 +113,59 @@ def test_price_display_has_taka_and_unit():
     assert "৳" in d, d
 
 
+def test_every_record_has_detail_fields():
+    for rec in M._RECORDS:
+        assert rec.get("side_bn") and rec.get("side_en"), rec
+        assert rec.get("precaution_bn") and rec.get("precaution_en"), rec
+
+
+def test_lookup_exposes_detail_fields():
+    _reset()
+    r = M.lookup("Napa", "en")
+    assert r["side_effects"], r
+    assert r["precautions"], r
+    assert r["interactions"] and r["interactions"]["text"], r
+
+
+def test_search_includes_detail_and_alternatives():
+    # search rows now carry full detail so the app can cache for offline view
+    r = M.search("losectil", "en")
+    assert r and r[0].get("side_effects"), r
+    assert "alternatives" in r[0], r[0]
+
+
+def test_interactions_note_is_source_noted_and_honest():
+    note = M.interactions_note("Paracetamol", "en")
+    assert note["text"] and note["source_note"], note
+    assert "not a full interaction check" in note["source_note"].lower(), note
+    assert note["has_note"] is True, note
+    # unknown generic -> honest fallback, still source-noted, has_note False
+    unk = M.interactions_note("zzzznogeneric", "en")
+    assert unk["has_note"] is False, unk
+    assert unk["source_note"], unk
+
+
+def test_source_label_never_claims_dgda_on_sample():
+    _reset()
+    lbl = M.source_label("en")
+    assert "not a dgda" in lbl.lower() or "sample" in lbl.lower(), lbl
+    m = M.meta("en")
+    assert m["source_label"] == lbl, m
+
+
+def test_report_wrong_info_validates_and_acknowledges():
+    ok = M.report_wrong_info("Napa", "price looks off", "en")
+    assert ok["ok"] is True, ok
+    assert ok["known_record"] is True, ok
+    assert ok["message"], ok
+    # unknown brand still accepted (lets users flag gaps)
+    gap = M.report_wrong_info("SomeNewBrand", "missing", "en")
+    assert gap["ok"] is True and gap["known_record"] is False, gap
+    # empty -> rejected honestly
+    bad = M.report_wrong_info("", "", "en")
+    assert bad["ok"] is False, bad
+
+
 def run_all():
     import inspect
     fns = [v for k, v in sorted(globals().items())

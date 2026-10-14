@@ -37,33 +37,102 @@ SOURCE_LABEL_DEFAULT = "sample"  # demo sample; real data sets its own label
 # Kept intentionally tiny; it exists to demo the UI, not to be a dictionary.
 # ---------------------------------------------------------------------------
 
+# Each entry MAY carry (all open / hand-written, generic common words):
+#   bn, en            — canonical headwords (required)
+#   pos               — part of speech
+#   example           — a short generic example sentence (hand-written)
+#   ipa               — a light pronunciation note for the EN side (common ARPAbet-
+#                       free approximation; NOT copied from any proprietary source)
+#   syn / ant         — synonyms / antonyms (EN side, generic common words)
+# These extra fields are optional; older/real datasets without them still work.
 SAMPLE_ENTRIES = [
-    {"bn": "পানি", "en": "water", "pos": "noun"},
-    {"bn": "বই", "en": "book", "pos": "noun"},
-    {"bn": "ঘর", "en": "house", "pos": "noun"},
-    {"bn": "খাবার", "en": "food", "pos": "noun"},
-    {"bn": "বন্ধু", "en": "friend", "pos": "noun"},
-    {"bn": "ভালো", "en": "good", "pos": "adjective"},
-    {"bn": "খারাপ", "en": "bad", "pos": "adjective"},
-    {"bn": "বড়", "en": "big", "pos": "adjective"},
-    {"bn": "ছোট", "en": "small", "pos": "adjective"},
-    {"bn": "যাওয়া", "en": "go", "pos": "verb"},
-    {"bn": "আসা", "en": "come", "pos": "verb"},
-    {"bn": "খাওয়া", "en": "eat", "pos": "verb"},
-    {"bn": "দিন", "en": "day", "pos": "noun"},
-    {"bn": "রাত", "en": "night", "pos": "noun"},
-    {"bn": "সময়", "en": "time", "pos": "noun"},
-    {"bn": "টাকা", "en": "money", "pos": "noun"},
-    {"bn": "কাজ", "en": "work", "pos": "noun"},
-    {"bn": "ভালোবাসা", "en": "love", "pos": "noun"},
-    {"bn": "সাহায্য", "en": "help", "pos": "noun"},
-    {"bn": "ধন্যবাদ", "en": "thanks", "pos": "noun"},
+    {"bn": "পানি", "en": "water", "pos": "noun", "ipa": "ˈwɔːtər",
+     "example": "She drank a glass of water.", "syn": ["H2O"], "ant": []},
+    {"bn": "বই", "en": "book", "pos": "noun", "ipa": "bʊk",
+     "example": "I read a good book.", "syn": ["volume", "text"], "ant": []},
+    {"bn": "ঘর", "en": "house", "pos": "noun", "ipa": "haʊs",
+     "example": "They built a new house.", "syn": ["home", "dwelling"], "ant": []},
+    {"bn": "খাবার", "en": "food", "pos": "noun", "ipa": "fuːd",
+     "example": "The food was delicious.", "syn": ["meal"], "ant": []},
+    {"bn": "বন্ধু", "en": "friend", "pos": "noun", "ipa": "frɛnd",
+     "example": "He is my best friend.", "syn": ["companion", "mate"],
+     "ant": ["enemy", "foe"]},
+    {"bn": "ভালো", "en": "good", "pos": "adjective", "ipa": "ɡʊd",
+     "example": "This is a good idea.", "syn": ["fine", "nice"],
+     "ant": ["bad", "poor"]},
+    {"bn": "খারাপ", "en": "bad", "pos": "adjective", "ipa": "bæd",
+     "example": "The weather is bad today.", "syn": ["poor", "awful"],
+     "ant": ["good", "fine"]},
+    {"bn": "বড়", "en": "big", "pos": "adjective", "ipa": "bɪɡ",
+     "example": "That is a big tree.", "syn": ["large", "huge"],
+     "ant": ["small", "little"]},
+    {"bn": "ছোট", "en": "small", "pos": "adjective", "ipa": "smɔːl",
+     "example": "A small cup of tea.", "syn": ["little", "tiny"],
+     "ant": ["big", "large"]},
+    {"bn": "যাওয়া", "en": "go", "pos": "verb", "ipa": "ɡoʊ",
+     "example": "Let us go home.", "syn": ["move", "leave"],
+     "ant": ["stay", "come"]},
+    {"bn": "আসা", "en": "come", "pos": "verb", "ipa": "kʌm",
+     "example": "Please come here.", "syn": ["arrive", "approach"],
+     "ant": ["go", "leave"]},
+    {"bn": "খাওয়া", "en": "eat", "pos": "verb", "ipa": "iːt",
+     "example": "We eat rice daily.", "syn": ["consume"], "ant": ["fast"]},
+    {"bn": "দিন", "en": "day", "pos": "noun", "ipa": "deɪ",
+     "example": "It was a long day.", "syn": ["daytime"], "ant": ["night"]},
+    {"bn": "রাত", "en": "night", "pos": "noun", "ipa": "naɪt",
+     "example": "The night was cold.", "syn": ["nighttime"], "ant": ["day"]},
+    {"bn": "সময়", "en": "time", "pos": "noun", "ipa": "taɪm",
+     "example": "We have little time.", "syn": ["period", "moment"], "ant": []},
+    {"bn": "টাকা", "en": "money", "pos": "noun", "ipa": "ˈmʌni",
+     "example": "He saved some money.", "syn": ["cash", "funds"], "ant": []},
+    {"bn": "কাজ", "en": "work", "pos": "noun", "ipa": "wɜːrk",
+     "example": "She started her work.", "syn": ["job", "labour"],
+     "ant": ["rest", "play"]},
+    {"bn": "ভালোবাসা", "en": "love", "pos": "noun", "ipa": "lʌv",
+     "example": "Love is powerful.", "syn": ["affection"], "ant": ["hate"]},
+    {"bn": "সাহায্য", "en": "help", "pos": "noun", "ipa": "hɛlp",
+     "example": "Thank you for your help.", "syn": ["aid", "support"], "ant": []},
+    {"bn": "ধন্যবাদ", "en": "thanks", "pos": "noun", "ipa": "θæŋks",
+     "example": "Many thanks for coming.", "syn": ["gratitude"], "ant": []},
 ]
 
 # Module-level active dataset; starts as the sample. load_dataset() swaps it.
 _ENTRIES = list(SAMPLE_ENTRIES)
 _SOURCE_LABEL = SOURCE_LABEL_DEFAULT
 _IS_SAMPLE = True
+
+
+def _as_list(v):
+    """Coerce a syn/ant field to a clean list of non-empty strings."""
+    if isinstance(v, str):
+        v = [p for p in re.split(r"[;,]", v)]
+    out = []
+    for x in (v or []):
+        s = str(x).strip()
+        if s and s not in out:
+            out.append(s)
+    return out
+
+
+def _shape(e, bn=None, en=None):
+    """Normalise one raw entry into the full advanced shape.
+
+    Guarantees every optional advanced field (pos, example, ipa, syn, ant)
+    exists so the UI can render uniformly. Datasets that omit a field just get
+    an empty value — we never fabricate meanings, examples or pronunciation.
+    """
+    e = e or {}
+    bn = bn if bn is not None else str(e.get("bn", "")).strip()
+    en = en if en is not None else str(e.get("en", "")).strip()
+    return {
+        "bn": bn,
+        "en": en,
+        "pos": str(e.get("pos", "")).strip(),
+        "example": str(e.get("example", "")).strip(),
+        "ipa": str(e.get("ipa", "")).strip(),
+        "syn": _as_list(e.get("syn")),
+        "ant": _as_list(e.get("ant")),
+    }
 
 
 def load_dataset(entries, source_label):
@@ -82,11 +151,7 @@ def load_dataset(entries, source_label):
         en = str((e or {}).get("en", "")).strip()
         if not bn or not en:
             continue
-        cleaned.append({
-            "bn": bn, "en": en,
-            "pos": str((e or {}).get("pos", "")).strip(),
-            "example": str((e or {}).get("example", "")).strip(),
-        })
+        cleaned.append(_shape(e, bn, en))
     _ENTRIES = cleaned
     _SOURCE_LABEL = str(source_label or "open-dataset")
     _IS_SAMPLE = False
@@ -138,7 +203,9 @@ def lookup(query, direction="auto"):
     direction: 'bn2en', 'en2bn', or 'auto' (detect from script).
     Returns a dict:
       {'found': bool, 'query': str, 'direction': str,
-       'results': [ {bn, en, pos, example}, ... ],
+       'results': [ {bn, en, pos, example, ipa, syn[], ant[]}, ... ],
+       'suggestions': [ shaped entries ],  # autocomplete for the query
+       'word_of_the_day': shaped entry,    # stable per calendar day
        'is_sample': bool, 'source': str,
        'needs_data': bool, 'needs_data_key': str|None}
 
@@ -159,16 +226,22 @@ def lookup(query, direction="auto"):
         results = exact + prefix
     found = len(results) > 0
     needs = (not found) and _IS_SAMPLE
-    return {
+    payload = {
         "found": found,
         "query": str(query or ""),
         "direction": direction,
-        "results": [dict(r) for r in results],
+        "results": [_shape(r) for r in results],
         "is_sample": _IS_SAMPLE,
         "source": _SOURCE_LABEL,
         "needs_data": needs,
         "needs_data_key": NEEDS_DATA_KEY if needs else None,
     }
+    # Autocomplete for the query (source side). Empty for an empty query.
+    payload["suggestions"] = suggestions(query, direction=direction, limit=8)
+    # Word of the day travels on every response so the UI (incl. its empty
+    # intro state) can show + offline-cache it without a second endpoint.
+    payload["word_of_the_day"] = word_of_the_day()
+    return payload
 
 
 def suggestions(prefix, direction="auto", limit=8):
@@ -183,9 +256,32 @@ def suggestions(prefix, direction="auto", limit=8):
     if direction == "auto":
         direction = "bn2en" if detect_lang(prefix) == "bn" else "en2bn"
     src = "bn" if direction == "bn2en" else "en"
-    out = [dict(e) for e in _ENTRIES if _norm(e.get(src)).startswith(q)]
+    out = [_shape(e) for e in _ENTRIES if _norm(e.get(src)).startswith(q)]
     out.sort(key=lambda e: _norm(e.get(src)))
     return out[:limit]
+
+
+def word_of_the_day(day=None):
+    """A deterministic "word of the day" drawn from the active dataset.
+
+    `day`: a date-like object with .toordinal(), or None for today. The same day
+    always yields the same word (stable across requests) so the UI can cache it
+    offline. Returns a shaped entry dict, or {} if the dataset is empty.
+    Never fabricates — only picks from already-loaded open/sample entries.
+    """
+    if not _ENTRIES:
+        return {}
+    if day is None:
+        import datetime
+        day = datetime.date.today()
+    try:
+        idx = int(day.toordinal()) % len(_ENTRIES)
+    except Exception:
+        idx = 0
+    e = _shape(_ENTRIES[idx])
+    e["is_sample"] = _IS_SAMPLE
+    e["source"] = _SOURCE_LABEL
+    return e
 
 
 def needs_data_message(lang="bn"):

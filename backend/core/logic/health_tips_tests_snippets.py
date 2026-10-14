@@ -13,7 +13,7 @@ def test_every_tip_bilingual_and_sourced():
     for t in H.TIPS:
         assert t["title_bn"] and t["title_en"], t
         assert t["body_bn"] and t["body_en"], t
-        assert t["source"] in (H.SOURCE_DGHS, H.SOURCE_WHO), t
+        assert t["source"] in (H.SOURCE_DGHS, H.SOURCE_WHO, H.SOURCE_IEDCR), t
         # topic must be a known topic
         assert any(top["id"] == t["topic"] for top in H.TOPICS), t
 
@@ -23,10 +23,12 @@ def test_library_shape_both_langs():
         lib = H.library(lang)
         assert lib["topics"] and lib["tips"], lib
         assert lib["disclaimer"], lib
-        assert len(lib["sources"]) == 2, lib
-        # every localised tip carries a source_name
+        assert len(lib["sources"]) == 3, lib  # DGHS, WHO, IEDCR
+        assert "seasonal" in lib, lib
+        # every localised tip carries a source_name AND a review date
         for tip in lib["tips"]:
             assert tip["source_name"], tip
+            assert tip["reviewed"], tip
             assert tip["title"] and tip["body"], tip
 
 
@@ -107,6 +109,51 @@ def test_tip_by_id():
 def test_source_names_localised():
     assert "WHO" in H.source_name(H.SOURCE_WHO, "en")
     assert "DGHS" in H.source_name(H.SOURCE_DGHS, "en")
+    assert "IEDCR" in H.source_name(H.SOURCE_IEDCR, "en")
+    assert "IEDCR" in H.source_name(H.SOURCE_IEDCR, "bn")
+
+
+# ---- ADVANCED (v2.1) ----
+
+def test_iedcr_source_present():
+    # the IEDCR-sourced dengue-surveillance tip exists and is source-named.
+    t = H.tip_by_id("dengue_surveillance", "en")
+    assert t and t["source"] == H.SOURCE_IEDCR, t
+    assert "IEDCR" in t["source_name"], t
+
+
+def test_seasonal_by_month():
+    # dengue is in season Jun–Nov; not in Feb.
+    aug = [s["id"] for s in H.seasonal("en", month=8)]
+    assert "dengue" in aug and "flood" in aug, aug
+    feb = [s["id"] for s in H.seasonal("en", month=2)]
+    assert "dengue" not in feb, feb
+    assert "winter" in feb, feb
+    # every seasonal highlight is source-named with a review date
+    for lang in ("bn", "en"):
+        for s in H.seasonal(lang, month=8):
+            assert s["source_name"] and s["reviewed"] and s["title"] and s["body"], s
+
+
+def test_seasonal_suppressed_during_search():
+    lib = H.library("en", query="salt", month=8)
+    assert lib["seasonal"] == [], lib  # search stays focused on results
+
+
+def test_symptom_awareness_is_not_diagnosis():
+    # awareness notes are "see a doctor if…" guidance, never a diagnosis.
+    t = H.tip_by_id("dengue_warning", "en")
+    assert "awareness" in t, t
+    aw = t["awareness"].lower()
+    assert ("see a doctor" in aw) or ("999" in aw), aw
+    # a tip without an awareness note must not fabricate one.
+    assert "awareness" not in H.tip_by_id("handwash", "en")
+
+
+def test_reviewed_date_format():
+    import re
+    t = H.tip_by_id("handwash", "en")
+    assert re.match(r"^\d{4}-\d{2}$", t["reviewed"]), t
 
 
 def run_all():

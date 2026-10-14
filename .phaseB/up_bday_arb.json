@@ -1,0 +1,198 @@
+{
+  "bKindBirthday": [
+    "জন্মদিন",
+    "Birthday"
+  ],
+  "bKindAnniversary": [
+    "বিবাহবার্ষিকী",
+    "Anniversary"
+  ],
+  "bKindDeath": [
+    "মৃত্যুবার্ষিকী",
+    "Remembrance day"
+  ],
+  "bKindMemorable": [
+    "স্মরণীয় দিন",
+    "Memorable day"
+  ],
+  "bThisWeek": [
+    "এই সপ্তাহে",
+    "This week"
+  ],
+  "bUpcoming": [
+    "আসছে",
+    "Upcoming"
+  ],
+  "bAllOccasions": [
+    "সব দিন",
+    "All days"
+  ],
+  "bThisWeekHighlight": [
+    "এই সপ্তাহের বিশেষ দিন",
+    "This week's special days"
+  ],
+  "bEdit": [
+    "সম্পাদনা",
+    "Edit"
+  ],
+  "bRelationLabel": [
+    "সম্পর্ক (ঐচ্ছিক)",
+    "Relation (optional)"
+  ],
+  "bNotesLabel": [
+    "নোট (ঐচ্ছিক)",
+    "Notes (optional)"
+  ],
+  "bYearly": [
+    "প্রতি বছর ফিরে আসে",
+    "Repeats every year"
+  ],
+  "bPreReminders": [
+    "আগাম মনে করিয়ে দাও",
+    "Pre-reminders"
+  ],
+  "bRemind1Week": [
+    "১ সপ্তাহ আগে",
+    "1 week before"
+  ],
+  "bRemind3Days": [
+    "৩ দিন আগে",
+    "3 days before"
+  ],
+  "bRemind1Day": [
+    "১ দিন আগে",
+    "1 day before"
+  ],
+  "bRemindOnDay": [
+    "ঐ দিনে",
+    "On the day"
+  ],
+  "bPhoneLabel": [
+    "ফোন (এক-ট্যাপ শুভেচ্ছার জন্য)",
+    "Phone (for one-tap wish)"
+  ],
+  "bRelMom": [
+    "মা",
+    "Mom"
+  ],
+  "bRelDad": [
+    "বাবা",
+    "Dad"
+  ],
+  "bRelSpouse": [
+    "সঙ্গী",
+    "Spouse"
+  ],
+  "bRelChild": [
+    "সন্তান",
+    "Child"
+  ],
+  "bRelSibling": [
+    "ভাই/বোন",
+    "Sibling"
+  ],
+  "bRelFriend": [
+    "বন্ধু",
+    "Friend"
+  ],
+  "bRelColleague": [
+    "সহকর্মী",
+    "Colleague"
+  ],
+  "bImportContacts": [
+    "কন্টাক্ট থেকে আনুন",
+    "Import from contacts"
+  ],
+  "bImportTitle": [
+    "কন্টাক্ট থেকে জন্মদিন",
+    "Birthdays from contacts"
+  ],
+  "bImportSubtitle": [
+    "জন্মদিন আছে এমন কন্টাক্ট বেছে যোগ করুন—ফোন থেকেই, নিরাপদে।",
+    "Pick contacts that have a birthday — on-device, privately."
+  ],
+  "bImportNone": [
+    "জন্মদিন সহ কোনো কন্টাক্ট পাওয়া যায়নি।",
+    "No contacts with a birthday found."
+  ],
+  "bImportAdd": [
+    "যোগ করুন",
+    "Add"
+  ],
+  "bLinkCircle": [
+    "সার্কেলে যুক্ত করুন",
+    "Link to Circle"
+  ],
+  "bLinked": [
+    "সার্কেলে যুক্ত",
+    "Linked in Circle"
+  ],
+  "bWishTitle": [
+    "শুভেচ্ছা পাঠান",
+    "Send a wish"
+  ],
+  "bWishSubtitle": [
+    "খসড়া বেছে পাঠান—স্বয়ংক্রিয়ভাবে পাঠানো হবে না।",
+    "Pick a draft and send — nothing is sent automatically."
+  ],
+  "bAiWish": [
+    "AI শুভেচ্ছা",
+    "AI wish"
+  ],
+  "bAiPreview": [
+    "AI প্রিভিউ (কী ছাড়া মক)",
+    "AI preview (mock, no key)"
+  ],
+  "bAiGenerate": [
+    "AI দিয়ে লিখুন",
+    "Write with AI"
+  ],
+  "bCardTitle": [
+    "শুভেচ্ছা কার্ড",
+    "Greeting card"
+  ],
+  "bStyleShort": [
+    "ছোট",
+    "Short"
+  ],
+  "bStyleWarm": [
+    "আন্তরিক",
+    "Warm"
+  ],
+  "bStyleFormal": [
+    "আনুষ্ঠানিক",
+    "Formal"
+  ],
+  "bSendWhatsApp": [
+    "হোয়াটসঅ্যাপ",
+    "WhatsApp"
+  ],
+  "bSendSms": [
+    "এসএমএস",
+    "SMS"
+  ],
+  "bSendCall": [
+    "কল",
+    "Call"
+  ],
+  "bOffline": [
+    "অফলাইন—সর্বশেষ সংরক্ষিত দিনগুলো দেখানো হচ্ছে।",
+    "Offline — showing your saved days."
+  ],
+  "bOfflineAddBlocked": [
+    "অফলাইনে নতুন দিন যোগ করা যাবে না।",
+    "Can't add a new day while offline."
+  ],
+  "bSendOpenError": [
+    "অ্যাপটি খোলা গেল না।",
+    "Couldn't open the app."
+  ],
+  "bAgeLabel": [
+    "{age} বছর হচ্ছে",
+    "turning {age}"
+  ],
+  "bYearsLabel": [
+    "{years} বছর পূর্ণ হচ্ছে",
+    "{years} years"
+  ]
+}

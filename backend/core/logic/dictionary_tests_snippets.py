@@ -80,6 +80,58 @@ def test_needs_data_message_bilingual():
     assert "ওপেন অভিধান" in D.needs_data_message("bn")
 
 
+def test_entries_carry_advanced_fields():
+    _reset()
+    r = D.lookup("water")
+    e = r["results"][0]
+    # every advanced field is always present (shaped), even if empty
+    for k in ("bn", "en", "pos", "example", "ipa", "syn", "ant"):
+        assert k in e
+    assert e["ipa"] and e["example"]           # water has both (hand-written)
+    assert isinstance(e["syn"], list) and isinstance(e["ant"], list)
+
+
+def test_synonyms_antonyms_open_sample():
+    _reset()
+    r = D.lookup("good")
+    e = r["results"][0]
+    assert "bad" in e["ant"]                    # generic open antonym
+    assert e["syn"]                             # has synonyms
+
+
+def test_lookup_bundles_suggestions_and_wotd():
+    _reset()
+    r = D.lookup("b", direction="en2bn")
+    assert isinstance(r["suggestions"], list) and r["suggestions"]
+    assert all("bn" in s and "en" in s for s in r["suggestions"])
+    wotd = r["word_of_the_day"]
+    assert wotd and "bn" in wotd and "en" in wotd
+
+
+def test_word_of_the_day_is_stable_per_day():
+    _reset()
+    import datetime
+    d1 = datetime.date(2026, 10, 14)
+    a = D.word_of_the_day(d1)
+    b = D.word_of_the_day(d1)
+    assert a == b                               # same day -> same word
+    c = D.word_of_the_day(datetime.date(2026, 10, 15))
+    # different ordinal -> may differ; at minimum the picker is deterministic
+    assert isinstance(c, dict) and "en" in c
+
+
+def test_shape_coerces_string_syn_ant():
+    _reset()
+    n = D.load_dataset(
+        [{"bn": "আগুন", "en": "fire", "syn": "flame; blaze", "ant": "water"}],
+        "open-test")
+    assert n == 1
+    e = D.lookup("fire", direction="en2bn")["results"][0]
+    assert "flame" in e["syn"] and "blaze" in e["syn"]
+    assert e["ant"] == ["water"]
+    _reset()
+
+
 def run_all():
     import inspect
     fns = [v for k, v in sorted(globals().items())

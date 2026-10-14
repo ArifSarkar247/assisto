@@ -1,0 +1,12 @@
+{
+  "htipsSeasonalTitle": ["মৌসুমি সতর্কতা", "Seasonal highlights"],
+  "htipsSourceDateLine": ["সূত্র: {source} • যাচাই: {date}", "Source: {source} • reviewed {date}"],
+  "htipsWhenToSeeDoctor": ["কখন ডাক্তার দেখাবেন (রোগ নির্ণয় নয়)", "When to see a doctor (not a diagnosis)"],
+  "htipsNotMedicalAdvice": ["এটি চিকিৎসা পরামর্শ নয় • জরুরি হলে ৯৯৯", "Not medical advice • emergency? call 999"],
+  "htipsSave": ["সংরক্ষণ", "Save"],
+  "htipsSaved": ["সংরক্ষিত", "Saved"],
+  "htipsSavedFilter": ["সংরক্ষিত", "Saved"],
+  "htipsNoSaved": ["এখনো কোনো টিপস সংরক্ষণ করা হয়নি। পছন্দের টিপসে 'সংরক্ষণ' চাপুন।", "No saved tips yet. Tap 'Save' on a tip you want to keep."],
+  "htipsShare": ["শেয়ার", "Share"],
+  "htipsCopied": ["কপি করা হয়েছে", "Copied"]
+}

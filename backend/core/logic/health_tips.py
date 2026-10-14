@@ -29,6 +29,13 @@ def pick(lang, bn, en):
 # Named, trusted sources. The UI shows source + a short disclaimer on every tip.
 SOURCE_DGHS = "DGHS"   # Directorate General of Health Services, Bangladesh
 SOURCE_WHO = "WHO"     # World Health Organization
+SOURCE_IEDCR = "IEDCR" # Institute of Epidemiology, Disease Control and Research, BD
+
+# Each curated tip carries a review date (YYYY-MM): the month the paraphrased
+# guidance was last checked against its named source. The UI shows it so users
+# can see the guidance is current. This is a content-review date, not a live
+# feed — tips stay deterministic and offline-safe.
+REVIEWED = "2026-10"
 
 
 # ---------------------------------------------------------------------------
@@ -47,6 +54,36 @@ TOPICS = [
     {"id": "elderly", "bn": "বয়স্কদের যত্ন", "en": "Elderly care", "icon": "elderly"},
     {"id": "emergency", "bn": "জরুরি অবস্থা", "en": "Emergencies", "icon": "emergency"},
 ]
+
+# Seasonal highlights — BD-specific. Each highlight names which calendar months
+# it is "in season" for, a short awareness line, the topic it links to, and its
+# named source. `seasonal()` returns only the highlights active for the given
+# month (defaults to the current month), so the UI can surface e.g. the dengue
+# banner during the monsoon / post-monsoon peak. Still educational, never a
+# diagnosis.
+SEASONS = [
+    {"id": "dengue", "topic": "dengue_mosquito", "source": SOURCE_DGHS,
+     "months": [6, 7, 8, 9, 10, 11],  # monsoon → post-monsoon dengue peak
+     "title_bn": "ডেঙ্গুর মৌসুম", "title_en": "Dengue season",
+     "body_bn": "এখন ডেঙ্গুর প্রকোপ বেশি। ৩ দিনে একবার জমা পানি ফেলুন, মশারি ব্যবহার করুন; জ্বরের সাথে তীব্র পেটে ব্যথা বা রক্তক্ষরণে দ্রুত ডাক্তার দেখান।",
+     "body_en": "Dengue is at its peak now. Empty standing water every 3 days and use a mosquito net; with fever plus severe abdominal pain or bleeding, see a doctor quickly."},
+    {"id": "heat", "topic": "hydration", "source": SOURCE_DGHS,
+     "months": [3, 4, 5, 6],  # pre-monsoon heat
+     "title_bn": "গরমে সতর্কতা", "title_en": "Heat-wave care",
+     "body_bn": "তীব্র গরমে বেশি পানি ও খাবার স্যালাইন খান, দুপুরের রোদ এড়িয়ে চলুন। মাথা ঘোরা, বমি বা জ্ঞান হারালে দ্রুত ডাক্তার দেখান।",
+     "body_en": "In extreme heat drink more water and ORS and avoid the midday sun. If there is dizziness, vomiting or fainting, see a doctor quickly."},
+    {"id": "winter", "topic": "general", "source": SOURCE_DGHS,
+     "months": [11, 12, 1, 2],  # winter respiratory / cold
+     "title_bn": "শীতের যত্ন", "title_en": "Winter care",
+     "body_bn": "শীতে সর্দি-কাশি ও শ্বাসকষ্ট বাড়ে। গরম কাপড় পরুন, শিশু ও বয়স্কদের উষ্ণ রাখুন; শ্বাসকষ্ট বাড়লে ডাক্তার দেখান।",
+     "body_en": "Colds, coughs and breathing trouble rise in winter. Wear warm clothes, keep children and the elderly warm; if breathing worsens, see a doctor."},
+    {"id": "flood", "topic": "hydration", "source": SOURCE_DGHS,
+     "months": [7, 8, 9],  # flood season — waterborne disease
+     "title_bn": "বন্যা ও পানিবাহিত রোগ", "title_en": "Floods & waterborne illness",
+     "body_bn": "বন্যায় ডায়রিয়া ও পানিবাহিত রোগ বাড়ে। পানি ফুটিয়ে পান করুন, খাবার ঢেকে রাখুন, হাত ধোয়া নিশ্চিত করুন।",
+     "body_en": "Floods raise diarrhoea and waterborne illness. Drink boiled water, keep food covered, and make sure to wash hands."},
+]
+
 
 # emergency red-flag symptom terms (bn + en, lowercased). Matching ANY of these
 # NEVER yields a diagnosis — it yields the "call 999 / see a doctor" action.
@@ -113,7 +150,9 @@ TIPS = [
     {"id": "ors_diarrhea", "topic": "hydration", "source": SOURCE_DGHS,
      "title_bn": "ডায়রিয়ায় খাবার স্যালাইন", "title_en": "ORS for diarrhoea",
      "body_bn": "ডায়রিয়া হলে প্রতিবার পাতলা পায়খানার পর খাবার স্যালাইন (ORS) খাওয়ান। রক্ত বা টানা বমি হলে দ্রুত ডাক্তার দেখান।",
-     "body_en": "For diarrhoea, give oral rehydration salts (ORS) after each loose stool. If there is blood or constant vomiting, see a doctor quickly."},
+     "body_en": "For diarrhoea, give oral rehydration salts (ORS) after each loose stool. If there is blood or constant vomiting, see a doctor quickly.",
+     "aware_bn": "রোগ নির্ণয় নয়—পায়খানায় রক্ত, টানা বমি, প্রস্রাব কমে যাওয়া বা শিশুর নিস্তেজ ভাব দেখলে দ্রুত ডাক্তার দেখান।",
+     "aware_en": "Not a diagnosis — see a doctor quickly if there is blood in the stool, constant vomiting, very little urine, or a child who is unusually drowsy."},
 
     # ---- hygiene ----
     {"id": "handwash", "topic": "hygiene", "source": SOURCE_WHO,
@@ -143,7 +182,13 @@ TIPS = [
     {"id": "dengue_warning", "topic": "dengue_mosquito", "source": SOURCE_DGHS,
      "title_bn": "ডেঙ্গুর বিপদ-চিহ্ন", "title_en": "Dengue warning signs",
      "body_bn": "জ্বরের সাথে তীব্র পেটে ব্যথা, বারবার বমি, রক্তক্ষরণ বা খুব দুর্বলতা দেখা দিলে দেরি না করে ডাক্তার দেখান।",
-     "body_en": "With fever, if there is severe abdominal pain, repeated vomiting, bleeding or extreme weakness, see a doctor without delay."},
+     "body_en": "With fever, if there is severe abdominal pain, repeated vomiting, bleeding or extreme weakness, see a doctor without delay.",
+     "aware_bn": "এটি রোগ নির্ণয় নয়। উপরের লক্ষণের যেকোনো একটি থাকলে দেরি না করে ডাক্তার দেখান বা ৯৯৯-এ কল করুন।",
+     "aware_en": "This is not a diagnosis. If any of the signs above appear, see a doctor without delay or call 999."},
+    {"id": "dengue_surveillance", "topic": "dengue_mosquito", "source": SOURCE_IEDCR,
+     "title_bn": "এলাকায় ডেঙ্গুর প্রকোপ জেনে রাখুন", "title_en": "Know the dengue situation locally",
+     "body_bn": "বর্ষা ও তার পরের মাসগুলোতে ডেঙ্গুর প্রকোপ বাড়ে। IEDCR-এর নিয়মিত বুলেটিন অনুসরণ করুন এবং জ্বর হলে বাড়তি সতর্ক থাকুন।",
+     "body_en": "Dengue rises during and after the monsoon. Follow IEDCR's regular bulletins and be extra careful with any fever in this season."},
 
     # ---- diabetes & blood pressure ----
     {"id": "bp_check", "topic": "diabetes_bp", "source": SOURCE_WHO,
@@ -159,7 +204,9 @@ TIPS = [
     {"id": "talk_stress", "topic": "mental", "source": SOURCE_WHO,
      "title_bn": "চাপ নিয়ে কথা বলুন", "title_en": "Talk about stress",
      "body_bn": "দুশ্চিন্তা বা মন খারাপ দীর্ঘস্থায়ী হলে বিশ্বস্ত কারও সাথে কথা বলুন। প্রয়োজনে পেশাদার সাহায্য নিন—এতে লজ্জা নেই।",
-     "body_en": "If worry or low mood lasts a long time, talk to someone you trust. Seek professional help if needed — there is no shame in it."},
+     "body_en": "If worry or low mood lasts a long time, talk to someone you trust. Seek professional help if needed — there is no shame in it.",
+     "aware_bn": "রোগ নির্ণয় নয়—নিজের বা অন্যের ক্ষতি করার চিন্তা এলে এখনই বিশ্বস্ত কারও সাথে কথা বলুন বা ৯৯৯-এ কল করুন।",
+     "aware_en": "Not a diagnosis — if thoughts of harming yourself or others appear, talk to someone you trust right away or call 999."},
     {"id": "screen_breaks", "topic": "mental", "source": SOURCE_WHO,
      "title_bn": "বিশ্রাম ও ভারসাম্য", "title_en": "Rest and balance",
      "body_bn": "কাজের ফাঁকে বিরতি নিন, পরিবারের সাথে সময় কাটান এবং ঘুম ঠিক রাখুন—মানসিক স্বাস্থ্যের জন্য জরুরি।",
@@ -193,6 +240,10 @@ def source_name(source, lang="bn"):
         return pick(lang, "স্বাস্থ্য অধিদপ্তর (DGHS)", "Directorate General of Health Services (DGHS)")
     if source == SOURCE_WHO:
         return pick(lang, "বিশ্ব স্বাস্থ্য সংস্থা (WHO)", "World Health Organization (WHO)")
+    if source == SOURCE_IEDCR:
+        return pick(lang,
+                    "রোগতত্ত্ব, রোগ নিয়ন্ত্রণ ও গবেষণা ইনস্টিটিউট (IEDCR)",
+                    "Institute of Epidemiology, Disease Control and Research (IEDCR)")
     return source
 
 
@@ -219,14 +270,21 @@ def topics(lang="bn"):
 
 
 def _localize_tip(tip, lang):
-    return {
+    out = {
         "id": tip["id"],
         "topic": tip["topic"],
         "source": tip["source"],
         "source_name": source_name(tip["source"], lang),
+        "reviewed": tip.get("reviewed", REVIEWED),
         "title": pick(lang, tip["title_bn"], tip["title_en"]),
         "body": pick(lang, tip["body_bn"], tip["body_en"]),
     }
+    # Optional symptom-awareness note ("see a doctor if…"). NOT a diagnosis —
+    # it only tells the reader when to seek care. Only present on tips that
+    # carry one so the UI can render a distinct "when to see a doctor" block.
+    if tip.get("aware_bn") or tip.get("aware_en"):
+        out["awareness"] = pick(lang, tip.get("aware_bn", ""), tip.get("aware_en", ""))
+    return out
 
 
 def tips(lang="bn", topic=None, query=None):
@@ -241,6 +299,29 @@ def tips(lang="bn", topic=None, query=None):
         if q and q not in lt["title"].lower() and q not in lt["body"].lower():
             continue
         out.append(lt)
+    return out
+
+
+def seasonal(lang="bn", month=None):
+    """Localised seasonal highlights active for `month` (1–12; defaults to the
+    current month). Shape per item: {id, topic, source, source_name, reviewed,
+    title, body}. Educational awareness only — never a diagnosis."""
+    if month is None:
+        import datetime
+        month = datetime.date.today().month
+    out = []
+    for s in SEASONS:
+        if month not in s["months"]:
+            continue
+        out.append({
+            "id": s["id"],
+            "topic": s["topic"],
+            "source": s["source"],
+            "source_name": source_name(s["source"], lang),
+            "reviewed": REVIEWED,
+            "title": pick(lang, s["title_bn"], s["title_en"]),
+            "body": pick(lang, s["body_bn"], s["body_en"]),
+        })
     return out
 
 
@@ -303,12 +384,23 @@ def emergency_check(text, lang="bn"):
     return {"emergency": False, "matched": [], "action": ""}
 
 
-def library(lang="bn", topic=None, query=None):
+def library(lang="bn", topic=None, query=None, month=None):
     """Full localised payload for the Health-Tips screen.
-    Shape: {topics, tips, disclaimer, sources}."""
+    Shape: {topics, tips, seasonal, disclaimer, sources}.
+
+    `seasonal` is the list of highlights active this month (dengue / heat /
+    winter / flood) — shown only when NOT filtering by a search query, so a
+    search stays focused on its results. Backward-compatible: existing callers
+    that ignore `seasonal` keep working."""
+    show_seasonal = not (query and query.strip())
     return {
         "topics": topics(lang),
         "tips": tips(lang, topic=topic, query=query),
+        "seasonal": seasonal(lang, month=month) if show_seasonal else [],
         "disclaimer": disclaimer(lang),
-        "sources": [source_name(SOURCE_DGHS, lang), source_name(SOURCE_WHO, lang)],
+        "sources": [
+            source_name(SOURCE_DGHS, lang),
+            source_name(SOURCE_WHO, lang),
+            source_name(SOURCE_IEDCR, lang),
+        ],
     }

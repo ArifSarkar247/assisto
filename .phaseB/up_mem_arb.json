@@ -1,0 +1,57 @@
+{
+  "_comment": "ARB source for Memory (AI knows about me) GOOD->ADVANCED, SPEC v2.1 §21. Each key: [bn, en] (bn = index 0, en = index 1 — both filled, never mixed). Merge into app/lib/l10n/app_bn.arb (bn) + app_en.arb (en) then gen-l10n. Reused existing keys (NOT redefined here): add, all, cancel, close, commonDeleted, delete, edit, retry, save, undo, memoryScreenTitle, memorySearchHint, memoryEmptyTitle, memoryEmptyHint, memoryNoResultsTitle, memoryNoResultsHint, memoryNewItemTitle, memoryEditItemTitle, memoryTitleLabel, memoryDetailLabel, memoryCategoryLabel, memoryTagAi, memoryTagManual, memoryTagSyncing.",
+
+  "memSync": ["সিঙ্ক করুন", "Sync"],
+  "memActions": ["অপশন", "Options"],
+  "memAddFirst": ["প্রথম তথ্য যোগ করুন", "Add your first note"],
+
+  "memCatFamily": ["পরিবার", "Family"],
+  "memCatHealth": ["স্বাস্থ্য", "Health"],
+  "memCatPreferences": ["পছন্দ", "Preferences"],
+  "memCatWork": ["কাজ", "Work"],
+  "memCatDates": ["গুরুত্বপূর্ণ তারিখ", "Important dates"],
+  "memCatOther": ["অন্যান্য", "Other"],
+
+  "memPrivacyControls": ["প্রাইভেসি নিয়ন্ত্রণ", "Privacy controls"],
+  "memPrivacyExplain": ["কোনটা মনে রাখব আর কোনটা এআই-কে দেব, আপনি ঠিক করবেন।", "You decide what is kept and what the AI may use."],
+  "memPrivacyExclude": ["এআই থেকে বাদ দিন", "Exclude from AI"],
+  "memPrivacyExcludeHint": ["এটি সেভ থাকবে, কিন্তু এআই কখনো এটি ব্যবহার করবে না।", "Kept here, but the AI will never use it to help you."],
+  "memPrivacyExcludeShort": ["এআই-তে নয়", "Not for AI"],
+  "memPrivacySensitive": ["সংবেদনশীল", "Sensitive"],
+  "memPrivacySensitiveHint": ["স্বাস্থ্য বা আর্থিক তথ্য — বাড়তি যত্নে রাখা হয়।", "Health or money info — handled with extra care."],
+  "memPrivacyPrivate": ["ব্যক্তিগত", "Private"],
+  "memPrivacyPrivateHint": ["তালিকায় লুকানো থাকবে, শুধু 'ব্যক্তিগত দেখান' চালু করলে দেখা যাবে।", "Hidden from the list unless you turn on 'Show private'."],
+
+  "memShowPrivate": ["ব্যক্তিগত দেখান", "Show private items"],
+  "memNoResultsPrivate": ["কিছু তথ্য ব্যক্তিগত হিসেবে লুকানো আছে — 'ব্যক্তিগত দেখান' চালু করুন।", "Some items are hidden as private — turn on 'Show private'."],
+
+  "memConsentTitle": ["এআই এটি মনে রাখতে চায়", "The AI wants to remember this"],
+  "memConsentAsk": ["আপনার অনুমতি ছাড়া এটি সেভ হবে না।", "Nothing is saved without your permission."],
+  "memConsentYes": ["মনে রাখুন", "Remember it"],
+  "memConsentNo": ["না, থাক", "No, discard"],
+  "memConsentSample": ["আপনি সকালে চা পছন্দ করেন।", "You prefer tea in the morning."],
+  "memConsentSaved": ["সেভ করা হয়েছে।", "Saved to memory."],
+
+  "memDataRights": ["আপনার তথ্য", "Your data"],
+  "memExport": ["তথ্য রপ্তানি করুন", "Export my data"],
+  "memExportHeader": ["Assisto যা আমার সম্পর্কে জানে", "What Assisto knows about me"],
+  "memExportCopied": ["সব তথ্য কপি করা হয়েছে — যেকোনো জায়গায় পেস্ট বা সেভ করতে পারেন।", "Everything was copied — paste or save it anywhere you like."],
+
+  "memClearAll": ["সব মুছে ফেলুন", "Clear everything"],
+  "memClearAllBody": ["Assisto আপনার সম্পর্কে যা যা মনে রেখেছে সব স্থায়ীভাবে মুছে যাবে। এটি ফেরানো যাবে না।", "Everything Assisto remembers about you will be permanently deleted. This cannot be undone."],
+  "memClearAllConfirm": ["সব মুছুন", "Delete all"],
+  "memClearAllDone": ["সব তথ্য মুছে ফেলা হয়েছে।", "All memory cleared."],
+
+  "memErrorTitle": ["তথ্য আনা গেল না", "Couldn't load your memory"],
+  "memErrorBody": ["ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।", "Check your connection and try again."],
+  "memOfflineBanner": ["আপনি অফলাইন — পরিবর্তন সংযোগ ফিরলে সিঙ্ক হবে।", "You're offline — changes will sync when you're back online."],
+
+  "memTransparencyTitle": ["Assisto আমার সম্পর্কে যা জানে", "What Assisto knows about me"],
+  "memTransparencyIntro": ["এখানে স্পষ্টভাবে দেখানো হলো কী মনে রাখা হয়েছে এবং কতটা এআই-কে দেওয়া হয়। সব কিছু আপনার নিয়ন্ত্রণে।", "Here's exactly what is remembered and how much reaches the AI. All of it is in your control."],
+  "memTransparencyByCat": ["বিভাগ অনুযায়ী", "By category"],
+  "memStatTotal": ["মোট তথ্য", "Total notes"],
+  "memStatAi": ["এআই ধরেছে (অনুমতি নিয়ে)", "AI-learned (with consent)"],
+  "memStatSharedAi": ["এআই ব্যবহার করতে পারে", "The AI may use"],
+  "memStatExcluded": ["এআই থেকে বাদ", "Excluded from AI"],
+  "memTransparencyPromise": ["আপনার অনুমতি ছাড়া Assisto কিছু মনে রাখে না বা বাইরে পাঠায় না।", "Assisto never remembers or shares anything without your permission."]
+}

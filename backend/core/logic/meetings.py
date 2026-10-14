@@ -21,6 +21,11 @@ unknown we degrade gracefully (no "leave now", just the time reminders).
 """
 from datetime import datetime, timedelta
 
+# Recurrence is delegated to the shared reminders engine so meetings and
+# reminders agree on "every Monday / monthly on the 3rd" semantics. We import
+# lazily inside the functions that need it to keep this module import-light and
+# avoid a hard cycle if the engine ever imports back.
+
 
 def pick(lang, bn, en):
     return en if lang == "en" else bn
@@ -55,6 +60,77 @@ def clamp_duration(minutes):
     return max(DURATION_MIN, min(DURATION_MAX, m))
 
 
+# Lifecycle status of a meeting. Mirrored in the Flutter model.
+STATUS_SCHEDULED = "scheduled"
+STATUS_DONE = "done"
+STATUS_CANCELLED = "cancelled"
+STATUSES = (STATUS_SCHEDULED, STATUS_DONE, STATUS_CANCELLED)
+
+
+def clean_status(v):
+    v = str(v or STATUS_SCHEDULED).strip().lower()
+    return v if v in STATUSES else STATUS_SCHEDULED
+
+
+def clean_offsets(offsets):
+    """Normalise reminder lead-time offsets (minutes-before-start).
+
+    De-duplicates, drops negatives/garbage, sorts descending (earliest reminder
+    first). Falls back to DEFAULT_REMINDER_OFFSETS when nothing valid is given.
+    """
+    if offsets is None:
+        return list(DEFAULT_REMINDER_OFFSETS)
+    seen = set()
+    out = []
+    for o in offsets:
+        try:
+            m = int(o)
+        except (TypeError, ValueError):
+            continue
+        if m < 0 or m in seen:
+            continue
+        seen.add(m)
+        out.append(m)
+    if not out:
+        return list(DEFAULT_REMINDER_OFFSETS)
+    return sorted(out, reverse=True)
+
+
+def clean_contacts(raw):
+    """With-whom list: keep non-empty, de-duplicated display names (strings)."""
+    out = []
+    seen = set()
+    for c in (raw or []):
+        name = str(c).strip()
+        if not name or name in seen:
+            continue
+        seen.add(name)
+        out.append(name)
+    return out
+
+
+def clean_recurrence(rule):
+    """Pass a recurrence dict through the shared reminders-engine shape.
+
+    Accepts None (one-off) or a dict understood by reminders_engine
+    (freq: daily/weekly/monthly/yearly, interval, weekday/day_of_month/month,
+    hour/minute). Unknown/garbage -> None (one-off). We never invent a rule.
+    """
+    if not rule:
+        return None
+    freq = str(rule.get("freq", "")).strip().lower()
+    if freq not in ("daily", "weekly", "monthly", "yearly"):
+        return None
+    out = {"freq": freq, "interval": max(1, int(rule.get("interval") or 1))}
+    for k in ("weekday", "day_of_month", "month", "hour", "minute"):
+        if rule.get(k) is not None:
+            try:
+                out[k] = int(rule[k])
+            except (TypeError, ValueError):
+                pass
+    return out
+
+
 def normalise_appointment(payload):
     """Clean a raw appointment dict into a stored shape.
 
@@ -77,6 +153,10 @@ def normalise_appointment(payload):
         "place_lat": payload.get("place_lat"),
         "place_lng": payload.get("place_lng"),
         "note": str(payload.get("note", "")).strip(),
+        "with": clean_contacts(payload.get("with")),
+        "reminder_offsets": clean_offsets(payload.get("reminder_offsets")),
+        "recurrence": clean_recurrence(payload.get("recurrence")),
+        "status": clean_status(payload.get("status")),
     }
     return True, out
 
@@ -127,6 +207,41 @@ def reminder_times(start, offsets_min=None, now=None):
         seen.add(key)
         out.append(t)
     return sorted(out)
+
+
+def next_start(appointment, after=None):
+    """The next concrete start of a (possibly recurring) appointment.
+
+    Reuses reminders_engine.next_occurrence so recurrence semantics live in ONE
+    place. One-off (no recurrence) -> its start if still in the future, else the
+    stored start (so past one-offs still render in "past"). Returns a datetime
+    or None.
+    """
+    start = parse_dt(appointment.get("start"))
+    if start is None:
+        return None
+    rule = appointment.get("recurrence")
+    if not rule:
+        return start
+    from core.logic import reminders_engine as RE
+
+    after = after or datetime.now()
+    if (start.tzinfo is None) != (after.tzinfo is None):
+        start = start.replace(tzinfo=None)
+        after = after.replace(tzinfo=None)
+    nxt = RE.next_occurrence(start, rule, after=after)
+    return nxt or start
+
+
+def appointment_reminders(appointment, now=None):
+    """Reminder fire-times for an appointment, honouring its own lead offsets
+    AND recurrence. For a recurring meeting the offsets apply to the NEXT
+    occurrence. Delegates the recurrence math to reminders_engine (reuse)."""
+    ns = next_start(appointment, after=now)
+    if ns is None:
+        return []
+    return reminder_times(ns, offsets_min=appointment.get("reminder_offsets"),
+                          now=now)
 
 
 # ---------------------------------------------------------------------------
@@ -191,6 +306,30 @@ def maps_dir_url(place=None, lat=None, lng=None):
         return ("https://www.google.com/maps/dir/?api=1&destination="
                 + quote(str(place)))
     return None
+
+
+# A deterministic, HONEST stand-in ETA (minutes) for the demo path when NO
+# Google Maps key is wired. We do NOT pretend this is live traffic — the caller
+# flags source="mock" so the UI shows "estimate — live when Maps key is added".
+MOCK_ETA_MIN = 25
+
+
+def travel_eta(place=None, lat=None, lng=None, maps_key=None):
+    """Return a travel-time estimate dict, honestly key-gated.
+
+    With a real Maps key the integrator swaps in the Distance-Matrix call and
+    returns source="live". WITHOUT a key we return a fixed MOCK_ETA_MIN and
+    source="mock" so the app can label it as an estimate (never fake traffic).
+    No destination at all -> source="none", eta_min=None.
+    """
+    has_dest = (lat is not None and lng is not None) or bool(place)
+    if not has_dest:
+        return {"eta_min": None, "source": "none"}
+    if maps_key:
+        # Integrator: real Distance-Matrix lookup goes here; must set
+        # source="live". Until wired we fall through to the honest mock.
+        pass
+    return {"eta_min": MOCK_ETA_MIN, "source": "mock"}
 
 
 # ---------------------------------------------------------------------------
@@ -259,6 +398,118 @@ def conflicts(appointments):
             if sp < eq and sq < ep:
                 out.append(tuple(sorted((ip, iq))))
     return sorted(set(out))
+
+
+def is_active(a):
+    """A meeting still 'counts' for agenda/conflicts unless cancelled."""
+    return clean_status(a.get("status")) != STATUS_CANCELLED
+
+
+def partition(appointments, now=None):
+    """Split into ('upcoming', 'past') by each item's NEXT start.
+
+    Cancelled items are excluded from both. Upcoming is ascending; past is
+    descending (most-recent first). Recurrence-aware via next_start.
+    """
+    now = now or datetime.now()
+    up, past = [], []
+    for a in (appointments or []):
+        if not is_active(a):
+            continue
+        ns = next_start(a, after=now)
+        if ns is None:
+            continue
+        n = now
+        if (ns.tzinfo is None) != (n.tzinfo is None):
+            ns = ns.replace(tzinfo=None)
+            n = n.replace(tzinfo=None)
+        (up if ns >= n else past).append((ns, a))
+    up.sort(key=lambda x: x[0])
+    past.sort(key=lambda x: x[0], reverse=True)
+    return {"upcoming": [a for _, a in up], "past": [a for _, a in past]}
+
+
+def agenda(appointments, scope="day", anchor=None, now=None):
+    """Group active appointments into day/week/month buckets for a calendar.
+
+    scope: 'day' | 'week' | 'month'. anchor: the reference date (defaults today).
+    Returns a sorted list of {date: 'YYYY-MM-DD', items: [...]} for days that
+    actually have meetings within the window. Recurrence is expanded via
+    reminders_engine so a weekly meeting appears on each day it recurs.
+    """
+    from core.logic import reminders_engine as RE
+
+    now = now or datetime.now()
+    anchor = parse_dt(anchor) or now
+    if scope == "day":
+        start = datetime(anchor.year, anchor.month, anchor.day)
+        end = start + timedelta(days=1) - timedelta(seconds=1)
+    elif scope == "week":
+        start = datetime(anchor.year, anchor.month, anchor.day) - \
+            timedelta(days=anchor.weekday())
+        end = start + timedelta(days=7) - timedelta(seconds=1)
+    else:  # month
+        start = datetime(anchor.year, anchor.month, 1)
+        nm = _add_months(start.date(), 1)
+        end = datetime(nm.year, nm.month, 1) - timedelta(seconds=1)
+
+    buckets = {}
+    for a in (appointments or []):
+        if not is_active(a):
+            continue
+        s = parse_dt(a.get("start"))
+        if s is None:
+            continue
+        s = s.replace(tzinfo=None) if s.tzinfo else s
+        rule = a.get("recurrence")
+        occs = RE.expand(s, rule, start=start, end=end) if rule else (
+            [s] if start <= s <= end else [])
+        for occ in occs:
+            key = occ.strftime("%Y-%m-%d")
+            buckets.setdefault(key, []).append((occ, a))
+    out = []
+    for key in sorted(buckets):
+        items = [a for _, a in sorted(buckets[key], key=lambda x: x[0])]
+        out.append({"date": key, "items": items})
+    return out
+
+
+def _add_months(d, n):
+    from datetime import date
+    m = d.month - 1 + n
+    y = d.year + m // 12
+    return date(y, m % 12 + 1, 1)
+
+
+# ---------------------------------------------------------------------------
+# invite / share
+# ---------------------------------------------------------------------------
+
+def share_text(appointment, lang="bn"):
+    """A plain-text, shareable summary of a meeting (invite body). Bilingual.
+
+    No glyphs leak into the app: the app builds its own localized copy; this is
+    for backend-side share/notify. Includes title, when, place, with-whom, note.
+    """
+    a = appointment or {}
+    title = str(a.get("title", "")).strip()
+    s = parse_dt(a.get("start"))
+    when = s.strftime("%Y-%m-%d %H:%M") if s else ""
+    place = str(a.get("place", "")).strip()
+    people = clean_contacts(a.get("with"))
+    note = str(a.get("note", "")).strip()
+    lines = [title]
+    lines.append(pick(lang, f"কবে: {when}", f"When: {when}"))
+    if place:
+        lines.append(pick(lang, f"কোথায়: {place}",
+                          f"Where: {place}"))
+    if people:
+        who = ", ".join(people)
+        lines.append(pick(lang, f"কার সাথে: {who}",
+                          f"With: {who}"))
+    if note:
+        lines.append(note)
+    return "\n".join(l for l in lines if l)
 
 
 # ---------------------------------------------------------------------------

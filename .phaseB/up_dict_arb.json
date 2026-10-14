@@ -1,0 +1,62 @@
+{
+  "_comment": "Assisto DICTIONARY (feature 39) ADVANCED upgrade. {key:[bn,en]} -> camelCase getters after gen-l10n. Snake-case {q}/{src}/{n} are ICU placeholders. The dictionary CONTENT (bn headwords, examples, synonyms, pronunciation) comes from the backend open-license/sample dataset and is rendered at runtime — it is NOT in this file. These keys are UI CHROME only. Bangla digits are rendered at runtime from codepoints in Dart (no Bangla literals in .dart). LICENSING: open-license data ONLY; NEVER Bangla Academy or any proprietary dictionary. Merge [0]->app_bn.arb, [1]->app_en.arb, then flutter gen-l10n.",
+
+  "dictWordOfTheDay": ["আজকের শব্দ", "Word of the day"],
+  "dictTabSearch": ["খোঁজ", "Search"],
+  "dictTabSaved": ["সংরক্ষিত", "Saved"],
+  "dictTabHistory": ["ইতিহাস", "History"],
+
+  "dictRecentlySearched": ["সম্প্রতি খোঁজা", "Recently searched"],
+  "dictSearchHistory": ["খোঁজার ইতিহাস", "Search history"],
+  "dictClearHistory": ["ইতিহাস মুছুন", "Clear history"],
+  "dictHistoryEmptyTitle": ["এখনও কিছু খোঁজা হয়নি", "Nothing searched yet"],
+  "dictHistoryEmptyBody": ["আপনি যে শব্দগুলো খুঁজবেন সেগুলো এখানে জমা হবে — অফলাইনেও দেখা যাবে।", "Words you look up will collect here — viewable offline too."],
+
+  "dictSaved": ["সংরক্ষিত শব্দ", "Saved words"],
+  "dictSavedEmptyTitle": ["কোনো শব্দ সংরক্ষণ করা হয়নি", "No saved words yet"],
+  "dictSavedEmptyBody": ["যেকোনো অর্থের পাশে তারায় চাপ দিয়ে শব্দ সংরক্ষণ করুন।", "Tap the star on any result to save a word for later."],
+  "dictSave": ["সংরক্ষণ করুন", "Save"],
+  "dictSavedDone": ["সংরক্ষিত হয়েছে", "Saved"],
+  "dictRemoveSaved": ["সংরক্ষণ থেকে সরান", "Remove from saved"],
+
+  "dictPartOfSpeech": ["পদ", "Part of speech"],
+  "dictExample": ["উদাহরণ", "Example"],
+  "dictSynonyms": ["সমার্থক শব্দ", "Synonyms"],
+  "dictAntonyms": ["বিপরীত শব্দ", "Antonyms"],
+  "dictPronunciation": ["উচ্চারণ", "Pronunciation"],
+  "dictPronunciationNote": ["উচ্চারণ একটি আনুমানিক নির্দেশনা মাত্র।", "Pronunciation is an approximate guide only."],
+
+  "dictCopy": ["কপি করুন", "Copy"],
+  "dictCopied": ["কপি হয়েছে", "Copied"],
+  "dictShare": ["শেয়ার করুন", "Share"],
+
+  "dictOfflineBannerCached": ["অফলাইন — আগে দেখা শব্দ থেকে দেখানো হচ্ছে।", "Offline — showing from words you looked up before."],
+  "dictOfflineNoCache": ["অফলাইন এবং এই শব্দটি আগে দেখা হয়নি", "Offline, and this word was not looked up before"],
+  "dictOfflineNoCacheBody": ["ইন্টারনেট ফিরলে আবার খুঁজুন। আগে দেখা শব্দগুলো অফলাইনেও পাওয়া যায়।", "Try again when you are back online. Words you looked up earlier are available offline."],
+
+  "dictErrorTitle": ["শব্দটি আনা গেল না", "Could not fetch the word"],
+  "dictErrorBody": ["একটু পরে আবার চেষ্টা করুন।", "Please try again in a moment."],
+  "dictRetry": ["আবার চেষ্টা করুন", "Retry"],
+
+  "dictSuggestions": ["পরামর্শ", "Suggestions"],
+  "dictOpenLicenceBadge": ["ওপেন-লাইসেন্স ডাটা", "Open-license data"],
+  "dictSampleBadge": ["নমুনা", "Sample"],
+
+  "dictShareTemplate": ["{bn} — {en}\n{detail}\n— Assisto অভিধান (ওপেন-লাইসেন্স ডাটা)", "{bn} — {en}\n{detail}\n— Assisto Dictionary (open-license data)"],
+  "@dictShareTemplate": {
+    "placeholders": {
+      "bn": {"type": "Object"},
+      "en": {"type": "Object"},
+      "detail": {"type": "Object"}
+    }
+  },
+
+  "dictSavedCount": ["{n}টি সংরক্ষিত শব্দ", "{n} saved words"],
+  "@dictSavedCount": {
+    "placeholders": {
+      "n": {"type": "Object"}
+    }
+  },
+
+  "dictSpeakHint": ["শুনতে চাপুন", "Tap to hear"]
+}

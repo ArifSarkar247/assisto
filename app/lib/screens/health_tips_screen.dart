@@ -4,13 +4,19 @@ import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/health_api.dart';
-import '../widgets/health_tip_card.dart';
+import '../widgets/htips_tip_card.dart';
+import '../widgets/htips_seasonal.dart';
+import '../widgets/htips_store.dart';
 
-/// Health-tips library — trusted public-health guidance (DGHS / WHO), grouped by
-/// topic, every tip SOURCE-NAMED. Benchmarked vs the SAFE subset of
-/// Ada / WebMD symptom triage: we NEVER diagnose. An optional "red-flag check"
+/// ADVANCED Health-tips library — trusted public-health guidance
+/// (DGHS / WHO / IEDCR), grouped by topic, every tip SOURCE-NAMED and dated.
+/// Over the GOOD version it adds: BD-specific SEASONAL highlights (dengue /
+/// heat / winter / flood), per-tip SAVE (bookmark) + a "saved-only" filter,
+/// SHARE (safety notice travels with the text), and a symptom-AWARENESS block
+/// per tip ("when to see a doctor"). We NEVER diagnose: an optional red-flag
 /// box scans free text and, on an emergency term, surfaces the fixed
-/// "call 999 / see a doctor" action — never a diagnosis.
+/// "call 999 / see a doctor" action — never a diagnosis. The non-diagnostic
+/// "not medical advice" notice + 999 call-to-action are always present.
 class HealthTipsScreen extends StatefulWidget {
   const HealthTipsScreen({super.key});
   @override
@@ -23,9 +29,13 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
 
   List<Map<String, dynamic>> _topics = [];
   List<Map<String, dynamic>> _tips = [];
+  List<Map<String, dynamic>> _seasonal = [];
   String _disclaimer = '';
   List<String> _sources = [];
   String? _activeTopic;
+
+  Set<String> _savedIds = {};
+  bool _savedOnly = false;
 
   bool _loading = true;
   bool _error = false;
@@ -36,6 +46,7 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
   @override
   void initState() {
     super.initState();
+    _loadSaved();
     _load();
   }
 
@@ -44,6 +55,11 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
     _search.dispose();
     _emergencyText.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadSaved() async {
+    final ids = await HtipsStore.savedIds();
+    if (mounted) setState(() => _savedIds = ids);
   }
 
   Future<void> _load() async {
@@ -58,6 +74,7 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
       setState(() {
         _topics = ((r['topics'] ?? []) as List).cast<Map<String, dynamic>>();
         _tips = ((r['tips'] ?? []) as List).cast<Map<String, dynamic>>();
+        _seasonal = ((r['seasonal'] ?? []) as List).cast<Map<String, dynamic>>();
         _disclaimer = (r['disclaimer'] ?? '').toString();
         _sources = ((r['sources'] ?? []) as List).map((e) => e.toString()).toList();
       });
@@ -66,6 +83,26 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  Future<void> _toggleSave(String id) async {
+    final nowSaved = await HtipsStore.toggle(id);
+    if (!mounted) return;
+    setState(() {
+      if (nowSaved) {
+        _savedIds.add(id);
+      } else {
+        _savedIds.remove(id);
+      }
+    });
+  }
+
+  void _openTopic(String topicId) {
+    setState(() {
+      _activeTopic = topicId;
+      _savedOnly = false;
+    });
+    _load();
   }
 
   Future<void> _checkEmergency() async {
@@ -93,6 +130,12 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
+
+    // "saved-only" is a client-side filter over whatever the backend returned.
+    final visibleTips = _savedOnly
+        ? _tips.where((tip) => _savedIds.contains((tip['id'] ?? '').toString())).toList()
+        : _tips;
+
     return Scaffold(
       appBar: AppBar(title: Text(t.healthTipsTitle)),
       body: RefreshIndicator(
@@ -129,6 +172,12 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
           ),
           const SizedBox(height: Gap.lg),
 
+          // seasonal highlights (dengue / heat / winter / flood) — current month
+          if (_seasonal.isNotEmpty) ...[
+            HtipsSeasonal(highlights: _seasonal, onOpenTopic: _openTopic),
+            const SizedBox(height: Gap.lg),
+          ],
+
           // search
           TextField(
             controller: _search,
@@ -141,27 +190,35 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
           ),
           const SizedBox(height: Gap.md),
 
-          // topic chips
-          if (_topics.isNotEmpty)
-            Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+          // topic chips + "saved" filter
+          Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+            ChoiceChip(
+              label: Text(t.healthTipsAllTopics),
+              selected: _activeTopic == null,
+              onSelected: (_) {
+                setState(() => _activeTopic = null);
+                _load();
+              },
+            ),
+            for (final top in _topics)
               ChoiceChip(
-                label: Text(t.healthTipsAllTopics),
-                selected: _activeTopic == null,
+                label: Text(top['label'].toString()),
+                selected: _activeTopic == top['id'],
                 onSelected: (_) {
-                  setState(() => _activeTopic = null);
+                  setState(() => _activeTopic = top['id'].toString());
                   _load();
                 },
               ),
-              for (final top in _topics)
-                ChoiceChip(
-                  label: Text(top['label'].toString()),
-                  selected: _activeTopic == top['id'],
-                  onSelected: (_) {
-                    setState(() => _activeTopic = top['id'].toString());
-                    _load();
-                  },
-                ),
-            ]),
+            FilterChip(
+              avatar: Icon(
+                _savedOnly ? Icons.bookmark : Icons.bookmark_border,
+                size: 16,
+              ),
+              label: Text(t.htipsSavedFilter),
+              selected: _savedOnly,
+              onSelected: (v) => setState(() => _savedOnly = v),
+            ),
+          ]),
           const SizedBox(height: Gap.lg),
 
           if (_loading)
@@ -169,15 +226,21 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
                 padding: EdgeInsets.all(Gap.xl), child: CircularProgressIndicator()))
           else if (_error)
             _ErrorRetry(message: t.healthTipsLoadError, onRetry: _load)
-          else if (_tips.isEmpty)
+          else if (visibleTips.isEmpty)
             Padding(
               padding: const EdgeInsets.all(Gap.xl),
-              child: Center(child: Text(t.healthTipsNoResults,
+              child: Center(child: Text(
+                  _savedOnly ? t.htipsNoSaved : t.healthTipsNoResults,
+                  textAlign: TextAlign.center,
                   style: TextStyle(color: scheme.onSurfaceVariant))),
             )
           else
-            for (final tip in _tips) ...[
-              HealthTipCard(tip: tip),
+            for (final tip in visibleTips) ...[
+              HtipsTipCard(
+                tip: tip,
+                saved: _savedIds.contains((tip['id'] ?? '').toString()),
+                onToggleSave: () => _toggleSave((tip['id'] ?? '').toString()),
+              ),
               const SizedBox(height: Gap.md),
             ],
 

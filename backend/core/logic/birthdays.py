@@ -152,25 +152,58 @@ def should_remind_today(occasion_date, lead_days=LEAD_DAYS_DEFAULT, today=None):
     return today in reminder_dates(occasion_date, lead_days=lead_days, today=today)
 
 
-def upcoming(occasions, within_days=30, today=None):
+THIS_WEEK_DAYS = 7           # "this week" highlight window (inclusive)
+
+
+def kind_label(kind_id, lang="bn"):
+    k = _kind(kind_id)
+    return pick(lang, k["bn"], k["en"])
+
+
+def upcoming(occasions, within_days=30, today=None, lang="bn"):
     """Sort+filter a list of occasion dicts to those occurring within
-    `within_days`. Each occasion: {name, date, kind, lead_days?}.
-    Returns augmented dicts with days_until / next_date / turning_age, sorted by
-    soonest first."""
+    `within_days`. Each occasion: {name, date, kind, lead_days?, relation?,
+    notes?, yearly?}.
+
+    Returns augmented dicts with days_until / next_date / turning_age /
+    kind_label / this_week (True when the occurrence is within THIS_WEEK_DAYS),
+    sorted by soonest first. `yearly` defaults True; a non-yearly occasion that
+    has already passed this calendar year is dropped (one-off events only fire
+    once)."""
     today = today or date.today()
     out = []
     for occ in occasions or []:
+        yearly = occ.get("yearly", True)
         du = days_until(occ.get("date"), today=today)
         if du is None or du > within_days:
             continue
+        nxt = next_occurrence(occ.get("date"), today=today)
+        if not yearly:
+            # A one-off: only valid if its ORIGINAL date is today-or-future.
+            d0 = parse_date(occ.get("date"))
+            if d0 is None or d0 < today:
+                continue
+            du = (d0 - today).days
+            if du > within_days:
+                continue
+            nxt = d0
         out.append({
             **occ,
             "days_until": du,
-            "next_date": next_occurrence(occ.get("date"), today=today).isoformat(),
-            "turning_age": turning_age(occ.get("date"), today=today),
+            "next_date": nxt.isoformat(),
+            "turning_age": turning_age(occ.get("date"), today=today) if yearly else None,
+            "kind_label": kind_label(occ.get("kind", "birthday"), lang),
+            "this_week": du <= THIS_WEEK_DAYS,
         })
     out.sort(key=lambda o: o["days_until"])
     return out
+
+
+def this_week(occasions, today=None, lang="bn"):
+    """Just the occasions whose next occurrence is within THIS_WEEK_DAYS —
+    the 'this week' highlight strip."""
+    return [o for o in upcoming(occasions, within_days=THIS_WEEK_DAYS,
+                                today=today, lang=lang)]
 
 
 # ---------------------------------------------------------------------------
@@ -185,15 +218,27 @@ def _age_clause(kind_id, age, lang):
     return pick(lang, f" {age}তম জন্মদিনের", f" on your {age}th birthday")
 
 
+def _relation_prefix(relation, lang):
+    """A short, warm relation-aware salutation prefix, e.g. 'প্রিয় মা' / 'Dear Mom'.
+    `relation` is free text (already localised by the caller/picker); empty when
+    none is set. Returns '' when no relation so drafts stay clean."""
+    rel = (relation or "").strip()
+    if not rel:
+        return ""
+    return pick(lang, f"প্রিয় {rel}, ", f"Dear {rel}, ")
+
+
 def wish_drafts(name, kind_id="birthday", age=None, lang="bn", relation=None):
     """Return a list of ready-to-copy wish DRAFTS (short → warm → formal) for an
     occasion. The user picks one and sends it themselves — never auto-sent.
 
     `age` (optional) personalises birthday/anniversary wishes. `relation`
-    (optional, free text) is woven in when provided.
+    (optional, free text) is woven into the FORMAL draft when provided so the
+    other two stay short/shareable.
     """
     nm = (name or "").strip() or pick(lang, "প্রিয়জন", "friend")
     age_clause = _age_clause(kind_id, age, lang)
+    rel_prefix = _relation_prefix(relation, lang)
 
     if kind_id == "anniversary":
         bn = [
@@ -240,7 +285,15 @@ def wish_drafts(name, kind_id="birthday", age=None, lang="bn", relation=None):
             f"Dear {nm}, warm wishes{age_clause}. Wishing you a wonderful year ahead.",
         ]
 
-    drafts = bn if lang != "en" else en
+    drafts = list(bn if lang != "en" else en)
+    # Weave the relation into the FORMAL (3rd) draft only, and only when it is
+    # not already personalised with "প্রিয়/Dear" (avoid double "Dear Dear").
+    if rel_prefix and len(drafts) >= 3:
+        formal = drafts[2]
+        starts_dear = formal.startswith(pick(lang, "প্রিয়", "Dear"))
+        if not starts_dear:
+            drafts[2] = rel_prefix + formal[:1].lower() + formal[1:] if lang == "en" \
+                else rel_prefix + formal
     styles = ["short", "warm", "formal"]
     return [{"style": styles[i], "text": drafts[i]} for i in range(len(drafts))]
 
@@ -285,3 +338,149 @@ def reminder_payload(name, kind_id, days_until_val, lang="bn"):
         "title": pick(lang, "স্মরণীয় দিনের মনে করিয়ে দেওয়া", "Memorable-day reminder"),
         "body": body,
     }
+
+
+# ---------------------------------------------------------------------------
+# AI wish — MOCK by default, KEY-GATED for a real model (never auto-sent)
+# ---------------------------------------------------------------------------
+# Mirrors the house pattern (business_ai.default_mock_provider / ai_inbox): the
+# default provider is a deterministic MOCK that works fully offline and with no
+# key. A real LLM provider is a drop-in that only runs when ai_key_available is
+# True. Either way the output is a DRAFT the user copies/sends — never auto-sent.
+
+def default_ai_wish_provider(prompt):
+    """Deterministic MOCK 'AI' wish provider (the default).
+
+    Contract for ANY provider (mock or real): receives a `prompt` dict with
+      {"lang","name","kind","age","relation","style"} and returns
+      {"text": str, "source": "ai_mock"|"ai"}. This mock simply picks the
+      matching handcrafted draft so the pipeline proves out with no key. A real,
+      key-gated provider returns source "ai" and may vary the wording."""
+    lang = prompt.get("lang", "bn")
+    drafts = wish_drafts(prompt.get("name"), prompt.get("kind", "birthday"),
+                         age=prompt.get("age"), lang=lang,
+                         relation=prompt.get("relation"))
+    want = prompt.get("style", "warm")
+    text = next((d["text"] for d in drafts if d["style"] == want), drafts[1]["text"])
+    return {"text": text, "source": "ai_mock"}
+
+
+def ai_wish(name, kind_id="birthday", age=None, lang="bn", relation=None,
+            style="warm", ai_key_available=False, provider=None):
+    """Produce ONE 'AI-assisted' wish DRAFT. With no key (default) this returns
+    the deterministic mock, flagged source='ai_mock' and ai_required=True so the
+    UI can show an honest 'AI preview (no key)' marker. When ai_key_available is
+    True a real `provider` (if supplied) is used; otherwise the mock still runs.
+    NEVER auto-sent."""
+    prompt = {"lang": lang, "name": name, "kind": kind_id, "age": age,
+              "relation": relation, "style": style}
+    prov = provider if (ai_key_available and callable(provider)) else default_ai_wish_provider
+    out = prov(prompt)
+    text = (out or {}).get("text", "")
+    real = ai_key_available and callable(provider)
+    return {
+        "text": text,
+        "source": "ai" if real else "ai_mock",
+        "ai_required": True,       # this surface is an AI feature
+        "is_mock": not real,       # honest marker: true until a key+provider wired
+        "auto_sent": False,
+    }
+
+
+# ---------------------------------------------------------------------------
+# ONE-TAP SEND — URI builders (WhatsApp-share / SMS / call). Never a gateway:
+# each opens the native app with text prefilled; the USER presses send.
+# ---------------------------------------------------------------------------
+
+def _uri_encode(s):
+    out = []
+    safe = "-_.~"
+    for ch in (s or ""):
+        if ch.isalnum() or ch in safe:
+            out.append(ch)
+        else:
+            for b in ch.encode("utf-8"):
+                out.append(f"%{b:02X}")
+    return "".join(out)
+
+
+def _digits(s):
+    return "".join(ch for ch in (s or "") if ch.isdigit())
+
+
+def send_actions(draft_text, phone=None, lang="bn"):
+    """Descriptors for the one-tap send row for a chosen wish DRAFT.
+
+    Returns only the actions that are possible: WhatsApp-share is always offered
+    (share sheet works without a number); SMS/call need a phone. Each is a URI
+    the UI launches — nothing is sent automatically (auto_sent=False)."""
+    actions = []
+    text = draft_text or ""
+    if phone and _digits(phone):
+        intl = phone.strip() if phone.strip().startswith("+") else "+" + _digits(phone)
+        wa = "https://wa.me/" + _digits(intl) + "?text=" + _uri_encode(text)
+        actions.append({"kind": "whatsapp", "uri": wa,
+                        "label": pick(lang, "হোয়াটসঅ্যাপ", "WhatsApp"), "auto_sent": False})
+        actions.append({"kind": "sms", "uri": "sms:" + phone.strip() + "?body=" + _uri_encode(text),
+                        "label": pick(lang, "এসএমএস", "SMS"), "auto_sent": False})
+        actions.append({"kind": "call", "uri": "tel:" + phone.strip(),
+                        "label": pick(lang, "কল", "Call"), "auto_sent": False})
+    else:
+        # No linked phone: WhatsApp SHARE sheet (no recipient) + generic share.
+        actions.append({"kind": "whatsapp", "uri": "https://wa.me/?text=" + _uri_encode(text),
+                        "label": pick(lang, "হোয়াটসঅ্যাপ", "WhatsApp"), "auto_sent": False})
+    actions.append({"kind": "share", "uri": "", "label": pick(lang, "শেয়ার", "Share"),
+                    "auto_sent": False})
+    return actions
+
+
+# ---------------------------------------------------------------------------
+# LINK to Circle / IMPORT from contacts (thin, privacy-safe pass-throughs)
+# ---------------------------------------------------------------------------
+# Linking a memorable day to a Circle contact lets reminders/one-tap-send reach
+# the right person. Import reuses the SAME on-device hashed matcher the rest of
+# the app uses — raw numbers never leave the device; only matched contacts that
+# the user confirms become occasions.
+
+def link_occasion_to_contact(occasion, *, contact_id, phone=None, relation=None):
+    """Patch that links a memorable-day occasion to a phonebook/Circle contact so
+    one-tap-send knows the number. Returns a dict to merge onto the occasion."""
+    patch = {"linked_contact_id": int(contact_id)}
+    if phone:
+        patch["phone"] = str(phone).strip()
+    if relation:
+        patch["relation"] = str(relation).strip()
+    return patch
+
+
+def import_occasions_from_contacts(contacts, lang="bn"):
+    """Turn a list of (already-on-device, user-confirmed) contact dicts that
+    carry a `birthday` into draft occasions ready to confirm + save. Contacts
+    without a birthday are skipped. PRIVACY: this operates only on contacts the
+    caller already holds locally — no numbers are sent to any server here."""
+    drafts = []
+    for c in contacts or []:
+        bday = c.get("birthday") or c.get("date")
+        d = parse_date(bday)
+        if d is None:
+            continue
+        drafts.append({
+            "name": (c.get("name") or "").strip(),
+            "date": d.isoformat(),
+            "kind": "birthday",
+            "lead_days": [7, 1, 0],
+            "yearly": True,
+            "relation": c.get("relation") or "",
+            "phone": _best_phone(c),
+            "linked_contact_id": c.get("id"),
+            "source": "contacts_import",
+        })
+    return drafts
+
+
+def _best_phone(c):
+    phones = c.get("phones")
+    if isinstance(phones, (list, tuple)) and phones:
+        return str(phones[0]).strip()
+    p = c.get("phone")
+    return str(p).strip() if p else ""

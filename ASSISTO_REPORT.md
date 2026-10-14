@@ -688,3 +688,10 @@ NOTHING basic may remain.
 - AFTER agent: cd backend && manage.py test web + check 0 → restart (deploy web, NO APK) → curl the 4 pages 200. Web gallery optional (they're web pages, not app@360dp).
 - THEN WAVE D: 61 "good"→advanced (memory, meetings, birthdays, plans, health tips, medicine DB, dictionary, photo, unseen, ride/food, ramadan, safe-arrival, exam, password-reset, analytics, fall-detect, name-about, legal, onboarding, + messenger/CRM/business good-bits, etc. — full list in SPEC_V21_AUDIT.md). Section-21 gate + gallery + reviewer each. Then WAVE E (~79 v2.1 new: Sec14 PA/AI-core/DailyLife/standalone/Sec20). Then Step 6 (SFU+TURN M3 + aws_ports.md + Telegram sandbox), Step 7 (P14-16/iOS/FINAL).
 - Builds shipped through 72 (Wave B). No module basic/not-built. en=bn=3893, migrations through 0028.
+
+## WAVE D (2026-10-14, after Wave C web tools) — 61 good→advanced, BATCH 1
+- ✅ Wave C done+deployed: 4 web tools advanced (36 tests, pages 200 bn+en, commit 1332b65).
+- WAVE D BATCH 1 agents (good→advanced, Section-21, emit up_<mod>_arb.json + integration note): medicine-db ac4b2c (DGDA-only/never-DIMS-MedEx/alt-swap-warning), health-tips ab3f57 (DGHS/WHO source-named/not-medical-advice/999), dictionary a1ecbe (open-license/never-Bangla-Academy), meetings a47693 (+Leave-now Maps-gated), birthdays ac902e (pre-reminders+wish/card drafts), memory a36605 (transparent+privacy+consent+export).
+- AFTER batch: merge arb + wire backend + gen-l10n→analyze 0→gate→tests→gallery→build+3-line-Bangla. Then WAVE D BATCH 2..N (remaining ~55 good: plans, photo, unseen, ride/food, ramadan, safe-arrival, exam, password-reset, analytics, fall-detect, name-about, legal, onboarding + messenger/CRM/business good-bits — full list SPEC_V21_AUDIT.md). Batch ~6 each.
+- THEN WAVE E (~79 v2.1 new: Sec14 PA/AI-core/DailyLife/standalone/Sec20). THEN Step 6 (SFU+TURN M3 self-hosted hard-caps + aws_ports.md + Telegram sandbox), Step 7 (P14-16/iOS/FINAL).
+- Builds through 72. en=bn=3893. migrations through 0028. All green.
