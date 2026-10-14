@@ -1,0 +1,27 @@
+{% extends "web/base.html" %}
+{% block title %}{{ T.m30_h }} — Assisto{% endblock %}
+{% block content %}
+<h1>{{ T.m30_h }}</h1>
+<p class="muted">{{ T.m30_lead }}</p>
+{% if error %}<div class="err">{{ error }}</div>{% endif %}
+<form method="post" class="card">
+  {% csrf_token %}
+  <label>{{ T.m30_shop }}</label>
+  <input type="text" name="shop" maxlength="40" required
+         placeholder="{% if lang == 'en' %}e.g. Arif Tea Stall{% else %}যেমন: আরিফ টি স্টল{% endif %}">
+  <label>{{ T.m30_tag }}</label>
+  <input type="text" name="tagline" maxlength="60"
+         placeholder="{% if lang == 'en' %}e.g. Fresh every morning{% else %}যেমন: প্রতিদিন তাজা{% endif %}">
+  <label>{{ T.m30_items }}</label>
+  <textarea name="items" style="min-height:120px" placeholder="{{ T.m30_items_ph }}"></textarea>
+  <label>{{ T.m30_phone }}</label>
+  <input type="text" name="phone" maxlength="20"
+         placeholder="{% if lang == 'en' %}e.g. 01712-345678{% else %}যেমন: ০১৭১২-৩৪৫৬৭৮{% endif %}">
+  <label>{{ T.m30_theme }}</label>
+  <select name="theme">
+    {% for key, name in themes %}<option value="{{ key }}">{{ name }}</option>{% endfor %}
+  </select>
+  <div style="height:12px"></div>
+  <button class="btn gold" type="submit">{{ T.m30_btn }}</button>
+</form>
+{% endblock %}

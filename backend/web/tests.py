@@ -8,6 +8,7 @@ from web.logic import cv as cvlogic
 from web.logic import scam as scamlogic
 from web.logic import cards as cardlogic
 from web.logic import photo as photologic
+from web.logic import made30 as made30logic
 
 
 # ---------------- W1: CV scoring ----------------
@@ -155,6 +156,52 @@ class CardTests(TestCase):
         self.assertEqual(im.size, (1080, 1920))
 
 
+# ---------------- W5: Made in 30 seconds (instant shop poster) ----------------
+class Made30Tests(TestCase):
+    def test_parse_items_basic(self):
+        items = made30logic.parse_items("Tea - 10 Tk\nSamosa - 15")
+        self.assertEqual(items[0][0], "Tea")
+        self.assertEqual(len(items), 2)
+
+    def test_parse_items_multiple_separators(self):
+        items = made30logic.parse_items("Tea : 10\nCoffee = 50\nCake | 120")
+        self.assertEqual(len(items), 3)
+        self.assertEqual(items[1][0], "Coffee")
+
+    def test_parse_items_price_optional(self):
+        items = made30logic.parse_items("Just a product name")
+        self.assertEqual(items, [("Just a product name", "")])
+
+    def test_parse_items_capped(self):
+        items = made30logic.parse_items("\n".join(f"item{i} - {i}" for i in range(50)))
+        self.assertLessEqual(len(items), made30logic.MAX_ITEMS)
+
+    def test_parse_items_skips_blank(self):
+        self.assertEqual(made30logic.parse_items("\n\n   \n"), [])
+
+    def test_poster_png_both_langs(self):
+        items = [("চা", "১০৳"), ("Coffee", "50")]
+        for lang in ("bn", "en"):
+            png = made30logic.poster_card("Arif Tea Stall", tagline="Fresh daily",
+                                          items=items, phone="01712345678",
+                                          theme="ocean", lang=lang)
+            self.assertEqual(png[1:4], b"PNG")
+
+    def test_poster_all_themes_render(self):
+        for key in made30logic.THEMES:
+            png = made30logic.poster_card("Shop", items=[("x", "1")], theme=key)
+            self.assertEqual(png[:4][1:4], b"PNG")
+
+    def test_poster_story_size(self):
+        png = made30logic.poster_card("Shop", story=True)
+        im = Image.open(io.BytesIO(png))
+        self.assertEqual(im.size, (1080, 1920))
+
+    def test_poster_no_items_still_renders(self):
+        png = made30logic.poster_card("Open Shop", theme="royal", lang="bn")
+        self.assertEqual(png[1:4], b"PNG")
+
+
 # ---------------- Views: smoke (bn/en) ----------------
 class ViewTests(TestCase):
     def setUp(self):
@@ -168,7 +215,7 @@ class ViewTests(TestCase):
 
     def test_all_pages_en(self):
         for url in ["/cv?lang=en", "/scam?lang=en", "/photo?lang=en",
-                    "/festival?lang=en", "/get?lang=en"]:
+                    "/festival?lang=en", "/made30?lang=en", "/get?lang=en"]:
             self.assertEqual(self.c.get(url).status_code, 200, url)
 
     def test_photo_en_has_bg_note(self):
@@ -211,3 +258,24 @@ class ViewTests(TestCase):
     def test_scam_card_endpoint(self):
         r = self.c.get("/scam/card.png?v=scam&lang=en")
         self.assertEqual(r.status_code, 200)
+
+    def test_made30_post_bn(self):
+        r = self.c.post("/made30", {"shop": "আরিফ টি স্টল",
+                                    "items": "চা - ১০৳\nকফি - ৫০৳", "theme": "fresh"})
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, "/made30/card.png")
+
+    def test_made30_post_en(self):
+        r = self.c.post("/made30?lang=en", {"shop": "Arif Tea Stall",
+                                            "items": "Tea - 10", "theme": "ocean"})
+        self.assertEqual(r.status_code, 200)
+
+    def test_made30_empty_shop_errors(self):
+        r = self.c.post("/made30?lang=en", {"shop": "", "items": "Tea - 10"})
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, "shop / page name")
+
+    def test_made30_card_endpoint(self):
+        r = self.c.get("/made30/card.png?shop=Shop&i=Tea|10&theme=sunset&lang=en")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r["Content-Type"], "image/png")

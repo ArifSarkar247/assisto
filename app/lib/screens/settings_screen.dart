@@ -37,6 +37,7 @@ import 'support_center_screen.dart';
 // Section-20 advanced: accessibility mode (#200) + digital security check-up (#198).
 import 'accessibility_mode_screen.dart';
 import 'trust_page_screen.dart';
+import 'encrypted_backup_screen.dart';
 import 'security_checkup_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -267,6 +268,15 @@ class SettingsScreen extends StatelessWidget {
             title: Text(AppLocalizations.of(context).exportDataTile),
             subtitle: Text(AppLocalizations.of(context).exportDataSubtitle),
             onTap: () => _export(context),
+          ),
+          // #197 Encrypted backup & phone transfer — passphrase-encrypted bundle
+          // (reuses the SoftwareE2E crypto); local works no-key, Drive = seam.
+          ListTile(
+            leading: const Icon(Icons.enhanced_encryption_outlined),
+            title: Text(AppLocalizations.of(context).bkTitle),
+            subtitle: Text(AppLocalizations.of(context).bkTileSub),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const EncryptedBackupScreen())),
           ),
           ListTile(
             leading: const Icon(Icons.table_chart_outlined),

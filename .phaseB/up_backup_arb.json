@@ -1,0 +1,80 @@
+{
+  "bkTitle": ["এনক্রিপ্টেড ব্যাকআপ ও ফোন ট্রান্সফার", "Encrypted backup & phone transfer"],
+  "bkTabBackup": ["ব্যাকআপ", "Backup"],
+  "bkTabRestore": ["রিস্টোর", "Restore"],
+  "bkTabTransfer": ["ফোন ট্রান্সফার", "Phone transfer"],
+
+  "bkBackupHeroTitle": ["আপনার তথ্যের নিরাপদ কপি", "A safe copy of your data"],
+  "bkBackupHeroBody": ["আপনার ডেটা একটি পাসফ্রেজ দিয়ে এই ফোনেই এনক্রিপ্ট করা হয়। এনক্রিপ্ট করা ফাইলটি আপনি সেভ বা শেয়ার করতে পারবেন — পাসফ্রেজ ছাড়া কেউ, এমনকি আমরাও, এটি খুলতে পারব না।", "Your data is encrypted right here on this phone with a passphrase. You can save or share the encrypted file — without the passphrase no one, not even us, can open it."],
+
+  "bkPassWarning": ["পাসফ্রেজটি নিরাপদে রাখুন। পাসফ্রেজ ছাড়া এই ব্যাকআপ আর কখনও খোলা যাবে না — আমরাও তা উদ্ধার করতে পারব না।", "Keep your passphrase safe. Without it this backup can never be opened — not even by us."],
+
+  "bkChoosePass": ["একটি পাসফ্রেজ দিন", "Choose a passphrase"],
+  "bkPassLabel": ["পাসফ্রেজ", "Passphrase"],
+  "bkPassConfirmLabel": ["পাসফ্রেজ আবার লিখুন", "Confirm passphrase"],
+  "bkPassHelper": ["অন্তত ৮ অক্ষর। এমন কিছু বেছে নিন যা আপনি মনে রাখবেন কিন্তু অন্যে অনুমান করতে পারবে না।", "At least 8 characters. Pick something you'll remember but others can't guess."],
+
+  "bkCreateBtn": ["এনক্রিপ্টেড ব্যাকআপ তৈরি করুন", "Create encrypted backup"],
+  "bkEncrypting": ["এনক্রিপ্ট করা হচ্ছে…", "Encrypting…"],
+
+  "bkReadyTitle": ["ব্যাকআপ প্রস্তুত", "Backup ready"],
+  "bkReadyMeta": ["এনক্রিপ্টেড আকার {size}। এখন সেভ বা শেয়ার করুন।", "Encrypted size {size}. Save or share it now."],
+  "bkReadyMetaItems": ["{count}টি আইটেম, এনক্রিপ্টেড আকার {size}। এখন সেভ বা শেয়ার করুন।", "{count} items, encrypted size {size}. Save or share it now."],
+
+  "bkTransferCodeLabel": ["ট্রান্সফার কোড", "Transfer code"],
+  "bkTransferCodeHint": ["এই কোডটি অন্য ফোনে মুখে বলে দিন — এটি কোনো চাবি নয়, শুধু যাচাই করে দুই ফোনে একই ব্যাকআপ এসেছে কিনা।", "Read this code out to the other phone — it's not a key, it only confirms both phones got the exact same backup."],
+
+  "bkSaveBtn": ["ফোনে সেভ করুন", "Save to phone"],
+  "bkShareBtn": ["শেয়ার করুন", "Share"],
+  "bkMakeAnother": ["আরেকটি ব্যাকআপ তৈরি করুন", "Make another backup"],
+  "bkSavedTo": ["সেভ হয়েছে: {path}", "Saved: {path}"],
+  "bkShareNote": ["Assisto-র এনক্রিপ্টেড ব্যাকআপ। খুলতে পাসফ্রেজ লাগবে — তা আলাদাভাবে জেনে নিন।", "Assisto encrypted backup. The passphrase is needed to open it — get it separately."],
+  "bkCopy": ["কপি", "Copy"],
+  "bkCopied": ["কপি হয়েছে", "Copied"],
+
+  "bkErrPassShort": ["পাসফ্রেজ অন্তত ৮ অক্ষরের হতে হবে।", "The passphrase must be at least 8 characters."],
+  "bkErrPassMismatch": ["দুটি পাসফ্রেজ মিলছে না।", "The two passphrases don't match."],
+  "bkErrExport": ["আপনার ডেটা আনতে সমস্যা হয়েছে। ইন্টারনেট দেখে আবার চেষ্টা করুন।", "Couldn't fetch your data. Check your connection and try again."],
+  "bkErrSave": ["ফাইল সেভ করা যায়নি।", "Couldn't save the file."],
+
+  "bkRestoreHeroTitle": ["ব্যাকআপ থেকে ফিরিয়ে আনুন", "Restore from a backup"],
+  "bkRestoreHeroBody": ["একটি এনক্রিপ্টেড ব্যাকআপ এবং তার পাসফ্রেজ দিন। পাসফ্রেজ ভুল হলে স্পষ্ট করে জানানো হবে — চুপচাপ ভুল কিছু হবে না।", "Provide an encrypted backup and its passphrase. A wrong passphrase is reported clearly — nothing fails silently."],
+
+  "bkPasteBundle": ["ব্যাকআপ পেস্ট করুন", "Paste the backup"],
+  "bkLoadLast": ["শেষ সেভটি আনুন", "Load last saved"],
+  "bkBundleHint": ["এনক্রিপ্টেড ব্যাকআপের লেখা এখানে পেস্ট করুন অথবা শেষ সেভটি আনুন।", "Paste the encrypted backup text here, or load the last saved one."],
+  "bkNoSavedBundle": ["এই ফোনে সেভ করা কোনো ব্যাকআপ পাওয়া যায়নি।", "No saved backup was found on this phone."],
+  "bkRestoreBtn": ["ডিক্রিপ্ট করুন", "Decrypt"],
+  "bkDecrypting": ["ডিক্রিপ্ট করা হচ্ছে…", "Decrypting…"],
+
+  "bkRestoreOk": ["সফলভাবে ডিক্রিপ্ট হয়েছে।", "Decrypted successfully."],
+  "bkRestoreOkItems": ["সফলভাবে ডিক্রিপ্ট হয়েছে — {count}টি আইটেম পাওয়া গেছে।", "Decrypted successfully — {count} items found."],
+  "bkRestorePreview": ["পূর্বরূপ", "Preview"],
+
+  "bkErrNoBundle": ["প্রথমে একটি ব্যাকআপ পেস্ট করুন বা আনুন।", "Paste or load a backup first."],
+  "bkErrNoPass": ["পাসফ্রেজ দিন।", "Enter the passphrase."],
+  "bkErrWrongPass": ["পাসফ্রেজ ভুল, অথবা ফাইলটি নষ্ট/পরিবর্তিত। ডিক্রিপ্ট করা যায়নি।", "Wrong passphrase, or the file is damaged/altered. Couldn't decrypt."],
+  "bkErrIntegrity": ["ডিক্রিপ্ট হলেও তথ্যের অখণ্ডতা মিলছে না — ফাইলটি নষ্ট হতে পারে।", "Decrypted, but the integrity check failed — the file may be corrupted."],
+  "bkErrBadBundle": ["এটি বৈধ Assisto ব্যাকআপ নয়।", "This isn't a valid Assisto backup."],
+
+  "bkTransferHeroTitle": ["পুরনো ফোন থেকে নতুন ফোনে", "From your old phone to the new one"],
+  "bkTransferHeroBody": ["একই এনক্রিপ্টেড ব্যাকআপ অন্য ফোনে পাঠান। ফাইলটি আপনার পছন্দের উপায়ে পাঠান, আর কোড ও পাসফ্রেজ আলাদাভাবে জানিয়ে দিন।", "Send the same encrypted backup to the other phone. Move the file however you like, and share the code and passphrase separately."],
+
+  "bkTransferHowTitle": ["যেভাবে কাজ করে", "How it works"],
+  "bkTransferStep1": ["পুরনো ফোনে একটি এনক্রিপ্টেড ব্যাকআপ তৈরি করুন।", "On the old phone, create an encrypted backup."],
+  "bkTransferStep2": ["এনক্রিপ্ট করা ফাইলটি নতুন ফোনে পাঠান — শেয়ার, কেবল বা Nearby Share দিয়ে।", "Send the encrypted file to the new phone — via share, cable or Nearby Share."],
+  "bkTransferStep3": ["ট্রান্সফার কোড ও পাসফ্রেজ মুখে বলে দিন (মেসেজে পাঠাবেন না)।", "Tell them the transfer code and passphrase out loud (don't message them)."],
+  "bkTransferStep4": ["নতুন ফোনে রিস্টোর ট্যাবে ফাইলটি দিয়ে পাসফ্রেজ লিখে ফিরিয়ে আনুন।", "On the new phone, open the Restore tab, add the file and enter the passphrase."],
+  "bkTransferHonest": ["এটি কোনো জাদুকরী ক্লাউড সিঙ্ক নয়। ফাইলটি আপনি নিজেই পাঠান; কোড শুধু যাচাই করে, আর পাসফ্রেজ ছাড়া ডেটা খোলে না।", "This is not a magic cloud sync. You move the file yourself; the code only verifies, and nothing opens without the passphrase."],
+
+  "bkCloudTitle": ["ক্লাউড ব্যাকআপ", "Cloud backup"],
+  "bkCloudCardTitle": ["Google Drive-এ স্বয়ংক্রিয় ব্যাকআপ", "Automatic backup to Google Drive"],
+  "bkCloudBody": ["চাইলে এনক্রিপ্টেড ব্যাকআপ স্বয়ংক্রিয়ভাবে আপনার Google Drive-এ রাখা যাবে। এর জন্য Google Drive সংযোগ দরকার, যা এখনও চালু করা হয়নি।", "Optionally, your encrypted backup can be stored automatically in your Google Drive. This needs a Google Drive connection, which isn't set up yet."],
+  "bkCloudConnect": ["Google Drive সংযোগ করুন", "Connect Google Drive"],
+  "bkCloudNotConfigured": ["Google Drive সংযোগ এখনও চালু হয়নি। ততক্ষণ স্থানীয় এনক্রিপ্টেড ব্যাকআপ পুরোপুরি কাজ করে।", "Google Drive connection isn't enabled yet. Until then, local encrypted backup works fully."],
+  "bkCloudSeamNote": ["স্থানীয় এনক্রিপ্টেড ব্যাকআপ কোনো সংযোগ ছাড়াই এখনই কাজ করে।", "Local encrypted backup already works with no connection needed."],
+
+  "bkBytes": ["{n} বাইট", "{n} B"],
+  "bkKib": ["{v} কিলোবাইট", "{v} KB"],
+  "bkMib": ["{v} মেগাবাইট", "{v} MB"]
+}

@@ -25,6 +25,7 @@ import 'package:assisto/screens/messenger/contact_info_screen.dart';
 import 'package:assisto/screens/notification_centre_screen.dart';
 import 'package:assisto/screens/messenger/messenger_profile_screen.dart';
 import 'package:assisto/screens/messenger/contacts_screen.dart';
+import 'package:assisto/screens/encrypted_backup_screen.dart';
 import 'package:assisto/screens/voice_mood_screen.dart';
 import 'package:assisto/screens/proactive_ai_screen.dart';
 import 'package:assisto/screens/area_community_screen.dart';
@@ -260,6 +261,7 @@ void main() {
     'notification_centre': (build: (_) => const NotificationCentreScreen(), mode: FakeMode.data, full: true),
     'msgr_profile': (build: (_) => const MessengerProfileScreen(), mode: FakeMode.data, full: true),
     'contacts': (build: (_) => const ContactsScreen(), mode: FakeMode.data, full: true),
+    'enc_backup': (build: (_) => const EncryptedBackupScreen(), mode: FakeMode.data, full: true),
     'mood': (build: (_) => const VoiceMoodScreen(), mode: FakeMode.data, full: true),
     'proactive': (build: (_) => const ProactiveAiScreen(), mode: FakeMode.data, full: true),
     'area': (build: (_) => const AreaCommunityScreen(), mode: FakeMode.data, full: true),

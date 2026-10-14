@@ -831,6 +831,13 @@ AgentStudioSnippetTests = _make_snippet_case(
 # hashtags/emoji, share intent. Key-free; never auto-posts.
 SocialComposeSnippetTests = _make_snippet_case(
     "core.logic.social_tests_snippets", "SocialComposeSnippetTests")
+# Encrypted backup & phone transfer (#197, advanced §21) — PURE manifest /
+# checksum / integrity / chunk / transfer-code bookkeeping. NO crypto or secrets
+# here: encryption is on-device (app/lib/crypto/e2e.dart PBKDF2 + ChaCha20-
+# Poly1305). Phone transfer is honest (encrypted file + out-of-band code);
+# Google-Drive cloud backup is a documented key-gated seam (never fakes a sync).
+BackupTransferSnippetTests = _make_snippet_case(
+    "core.logic.backup_transfer_tests_snippets", "BackupTransferSnippetTests")
 # Qurbani & Eid planner (#190, §20) — deterministic share/cost math (no drift),
 # three-part meat distribution (traditional split, neutral), checklist progress.
 # Pure, holds no money/animal. Mirror of app/lib/screens/qurbani_screen.dart.

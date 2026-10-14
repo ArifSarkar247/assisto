@@ -809,3 +809,13 @@ NOTHING basic may remain.
 - Pattern holds: generic collections (no migration), sidebar entries, screenshot-reviewed. ARB en=bn=7347, 1611 tests. Fixed a latent tz bug (plans.reward_ad → localdate) in build82.
 - IN FLIGHT (batch7, build88): #17 quick-tools, #7 morning/night brief, #130 blog writer, #29 doc scanner, #92 transcription, #35 travel planner (all key-gated mock).
 - Wave E remaining after b7: PA key-gated layer (#106/107/109/110/112-114/116-125), AI-core (#13 voice-live/#14 voice-clone/#15 voice-mood/#6 proactive), remaining Section-20 (#187/194/195/196/197), standalone (#27-done/#51-done/#79/#80/#92-done/#144/#145/#172), native (#70/#79/#80/#196). Then Step 6 (SFU/TURN M3 + Telegram sandbox), Step 7 (P14-16 + iOS + FINAL), 13 owner-blocked.
+
+## WAVE E STATUS AFTER BUILD 91 (6da76c5) — software-buildable items essentially DONE
+- Shipped Wave E (builds 82-91, 64 items): PA Secretary §14 COMPLETE (23), Section-20 (~18), health §10 (#69/70-partial/71/72), AI-core (#7/15/17/18/6 + quick-tools), Daily-Life (#29/30/34/35/36), standalone (#21/27/51/92/130/131/132/144/145/171/173), key-gated-AI-as-mock (contract/cost/interview/language/spending/price/blog/doc/transcription/travel), #187/#194.
+- ARB en=bn=8523; backend tests 1998; ~115 generic collections (one PaCollectionItem model, no per-feature migrations); builds 82-91 all green; Asalify 200 throughout.
+- REMAINING Wave E (~8, all NATIVE or LIVE-INFRA — do NOT fit the Flutter/Django mock pattern cleanly; need real device/platform work):
+  * #13 voice-live conversation [live-voice+AI], #14 voice clone [voice-clone key], #195 AI phone call [AI voice] — live audio pipelines.
+  * #196 widget & watch [native home-screen widget + wearOS], #70 smartwatch [Health Connect native], #79 voice SOS hands-free [native], #80 lost/stolen [native device-admin] — platform channels / native plugins + real-device testing.
+  * #197 encrypted backup & phone transfer [Drive OAuth], #172 "made in 30s" [web growth tool].
+- THEN: Step 6 (self-hosted SFU+TURN M3 on this server + hard caps + owner_actions/aws_ports.md + Telegram bot sandbox) — server infra. Step 7 (P14-16 leftovers + iOS prep + P12 FINAL). 13 owner-blocked already shipped as key-gated mock; flip live when owner adds keys.
+- RECOMMENDATION: native/infra items need real-device or server-provisioning work (and some owner decisions, e.g. SFU host/region, Drive OAuth app). Next best autonomous step = Step 6 server infra (self-host SFU+TURN + Telegram sandbox) which IS doable on this server, OR build the native items as stub-screens-with-documented-native-seam (lower value). Surfaced to owner for direction.

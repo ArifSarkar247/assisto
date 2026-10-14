@@ -22,5 +22,8 @@ urlpatterns = [
     path("festival", views.festival),
     path("festival/card.png", views.festival_card),
 
+    path("made30", views.made30),
+    path("made30/card.png", views.made30_card),
+
     path("wrapped/card.png", views.wrapped_card),
 ]

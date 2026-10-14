@@ -15,6 +15,7 @@ from .logic import cv as cvlogic
 from .logic import scam as scamlogic
 from .logic import cards as cardlogic
 from .logic import photo as photologic
+from .logic import made30 as made30logic
 
 RATE_PER_HOUR = 40  # per tool, per IP
 
@@ -112,6 +113,18 @@ UI = {
         "fest_msg": "বার্তা (ঐচ্ছিক)",
         "fest_btn": "কার্ড বানান",
         "fest_cta": "📱 আরও সুবিধা — অ্যাপ নিন",
+        # Made in 30s — instant shop poster
+        "m30_h": "⚡ ৩০ সেকেন্ডে পোস্টার",
+        "m30_lead": "দোকান/পেজের নাম, কয়েকটি পণ্যের দাম লিখুন — সাথে সাথে শেয়ার করার মতো সুন্দর পোস্টার পাবেন। লগইন লাগবে না, ডাটা সেভ হয় না।",
+        "m30_shop": "দোকান / পেজের নাম",
+        "m30_tag": "ট্যাগলাইন (ঐচ্ছিক)",
+        "m30_items": "পণ্য ও দাম (প্রতি লাইনে একটি: নাম - দাম)",
+        "m30_items_ph": "চা - ১০৳\nসিঙ্গারা - ১৫৳\nকফি - ৫০৳",
+        "m30_phone": "মোবাইল / অর্ডার নম্বর (ঐচ্ছিক)",
+        "m30_theme": "রঙ",
+        "m30_btn": "পোস্টার বানান",
+        "m30_empty": "দোকান / পেজের নাম লিখুন।",
+        "m30_cta": "📱 ব্যবসা চালান Assisto অ্যাপে — খাতা, রিমাইন্ডার, গ্রাহক",
     },
     "en": {
         "get_app": "📱 Get the Assisto app",
@@ -161,6 +174,17 @@ UI = {
         "fest_msg": "Message (optional)",
         "fest_btn": "Make card",
         "fest_cta": "📱 Get the Assisto app",
+        "m30_h": "⚡ Poster in 30 seconds",
+        "m30_lead": "Type your shop / page name and a few items with prices — instantly get a clean, shareable poster. No login, nothing saved.",
+        "m30_shop": "Shop / page name",
+        "m30_tag": "Tagline (optional)",
+        "m30_items": "Items & prices (one per line: name - price)",
+        "m30_items_ph": "Tea - 10 Tk\nSamosa - 15 Tk\nCoffee - 50 Tk",
+        "m30_phone": "Mobile / order number (optional)",
+        "m30_theme": "Colour",
+        "m30_btn": "Make poster",
+        "m30_empty": "Please enter a shop / page name.",
+        "m30_cta": "📱 Run your business in the Assisto app — ledger, reminders, customers",
     },
 }
 
@@ -361,4 +385,53 @@ def festival_card(request):
     msg = request.GET.get("msg", "")[:120]
     png = cardlogic.festival_card(key, name, msg, story=request.GET.get("story") == "1",
                                   lang=_lang(request))
+    return HttpResponse(png, content_type="image/png")
+
+
+# ---------------- W5: Made in 30 seconds (instant shop poster) ----------------
+@require_http_methods(["GET", "POST"])
+def made30(request):
+    lang = _lang(request)
+    themes = [(k, (t["name_bn"] if lang == "bn" else t["name_en"]))
+              for k, t in made30logic.THEMES.items()]
+    if request.method == "GET":
+        return render(request, "web/made30.html", _ctx(request, themes=themes))
+    ok, h = _rate_ok(request, "w5")
+    if not ok:
+        return _rate_limited_page(request)
+    shop = request.POST.get("shop", "").strip()[:made30logic.NAME_MAX]
+    if not shop:
+        return render(request, "web/made30.html",
+                      _ctx(request, error=UI[lang]["m30_empty"], themes=themes))
+    tagline = request.POST.get("tagline", "").strip()[:made30logic.TAG_MAX]
+    phone = request.POST.get("phone", "").strip()[:20]
+    theme = request.POST.get("theme", made30logic.DEFAULT_THEME)
+    if theme not in made30logic.THEMES:
+        theme = made30logic.DEFAULT_THEME
+    items = made30logic.parse_items(request.POST.get("items", ""), lang=lang)
+    _log("w5", h)
+    from urllib.parse import urlencode
+    pairs = [("shop", shop), ("tag", tagline), ("phone", phone),
+             ("theme", theme), ("lang", lang)]
+    for name, price in items:
+        pairs.append(("i", name + ("|" + price if price else "")))
+    q = urlencode(pairs)
+    return render(request, "web/made30_result.html", _ctx(request, q=q, title=shop))
+
+
+def made30_card(request):
+    lang = _lang(request)
+    shop = request.GET.get("shop", "")[:made30logic.NAME_MAX]
+    tagline = request.GET.get("tag", "")[:made30logic.TAG_MAX]
+    phone = request.GET.get("phone", "")[:20]
+    theme = request.GET.get("theme", made30logic.DEFAULT_THEME)
+    items = []
+    for raw in request.GET.getlist("i")[:made30logic.MAX_ITEMS]:
+        name, _, price = raw.partition("|")
+        name = name.strip()[:made30logic.ITEM_NAME_MAX]
+        if name:
+            items.append((name, price.strip()[:made30logic.PRICE_MAX]))
+    png = made30logic.poster_card(shop, tagline=tagline, items=items, phone=phone,
+                                  theme=theme, story=request.GET.get("story") == "1",
+                                  lang=lang)
     return HttpResponse(png, content_type="image/png")

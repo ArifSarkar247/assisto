@@ -12575,5 +12575,120 @@
         "type": "Object"
       }
     }
-  }
+  },
+  "bkTitle": "Encrypted backup & phone transfer",
+  "bkTabBackup": "Backup",
+  "bkTabRestore": "Restore",
+  "bkTabTransfer": "Phone transfer",
+  "bkBackupHeroTitle": "A safe copy of your data",
+  "bkBackupHeroBody": "Your data is encrypted right here on this phone with a passphrase. You can save or share the encrypted file — without the passphrase no one, not even us, can open it.",
+  "bkPassWarning": "Keep your passphrase safe. Without it this backup can never be opened — not even by us.",
+  "bkChoosePass": "Choose a passphrase",
+  "bkPassLabel": "Passphrase",
+  "bkPassConfirmLabel": "Confirm passphrase",
+  "bkPassHelper": "At least 8 characters. Pick something you'll remember but others can't guess.",
+  "bkCreateBtn": "Create encrypted backup",
+  "bkEncrypting": "Encrypting…",
+  "bkReadyTitle": "Backup ready",
+  "bkReadyMeta": "Encrypted size {size}. Save or share it now.",
+  "@bkReadyMeta": {
+    "placeholders": {
+      "size": {
+        "type": "Object"
+      }
+    }
+  },
+  "bkReadyMetaItems": "{count} items, encrypted size {size}. Save or share it now.",
+  "@bkReadyMetaItems": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      },
+      "size": {
+        "type": "Object"
+      }
+    }
+  },
+  "bkTransferCodeLabel": "Transfer code",
+  "bkTransferCodeHint": "Read this code out to the other phone — it's not a key, it only confirms both phones got the exact same backup.",
+  "bkSaveBtn": "Save to phone",
+  "bkShareBtn": "Share",
+  "bkMakeAnother": "Make another backup",
+  "bkSavedTo": "Saved: {path}",
+  "@bkSavedTo": {
+    "placeholders": {
+      "path": {
+        "type": "Object"
+      }
+    }
+  },
+  "bkShareNote": "Assisto encrypted backup. The passphrase is needed to open it — get it separately.",
+  "bkCopy": "Copy",
+  "bkCopied": "Copied",
+  "bkErrPassShort": "The passphrase must be at least 8 characters.",
+  "bkErrPassMismatch": "The two passphrases don't match.",
+  "bkErrExport": "Couldn't fetch your data. Check your connection and try again.",
+  "bkErrSave": "Couldn't save the file.",
+  "bkRestoreHeroTitle": "Restore from a backup",
+  "bkRestoreHeroBody": "Provide an encrypted backup and its passphrase. A wrong passphrase is reported clearly — nothing fails silently.",
+  "bkPasteBundle": "Paste the backup",
+  "bkLoadLast": "Load last saved",
+  "bkBundleHint": "Paste the encrypted backup text here, or load the last saved one.",
+  "bkNoSavedBundle": "No saved backup was found on this phone.",
+  "bkRestoreBtn": "Decrypt",
+  "bkDecrypting": "Decrypting…",
+  "bkRestoreOk": "Decrypted successfully.",
+  "bkRestoreOkItems": "Decrypted successfully — {count} items found.",
+  "@bkRestoreOkItems": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "bkRestorePreview": "Preview",
+  "bkErrNoBundle": "Paste or load a backup first.",
+  "bkErrNoPass": "Enter the passphrase.",
+  "bkErrWrongPass": "Wrong passphrase, or the file is damaged/altered. Couldn't decrypt.",
+  "bkErrIntegrity": "Decrypted, but the integrity check failed — the file may be corrupted.",
+  "bkErrBadBundle": "This isn't a valid Assisto backup.",
+  "bkTransferHeroTitle": "From your old phone to the new one",
+  "bkTransferHeroBody": "Send the same encrypted backup to the other phone. Move the file however you like, and share the code and passphrase separately.",
+  "bkTransferHowTitle": "How it works",
+  "bkTransferStep1": "On the old phone, create an encrypted backup.",
+  "bkTransferStep2": "Send the encrypted file to the new phone — via share, cable or Nearby Share.",
+  "bkTransferStep3": "Tell them the transfer code and passphrase out loud (don't message them).",
+  "bkTransferStep4": "On the new phone, open the Restore tab, add the file and enter the passphrase.",
+  "bkTransferHonest": "This is not a magic cloud sync. You move the file yourself; the code only verifies, and nothing opens without the passphrase.",
+  "bkCloudTitle": "Cloud backup",
+  "bkCloudCardTitle": "Automatic backup to Google Drive",
+  "bkCloudBody": "Optionally, your encrypted backup can be stored automatically in your Google Drive. This needs a Google Drive connection, which isn't set up yet.",
+  "bkCloudConnect": "Connect Google Drive",
+  "bkCloudNotConfigured": "Google Drive connection isn't enabled yet. Until then, local encrypted backup works fully.",
+  "bkCloudSeamNote": "Local encrypted backup already works with no connection needed.",
+  "bkBytes": "{n} B",
+  "@bkBytes": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "bkKib": "{v} KB",
+  "@bkKib": {
+    "placeholders": {
+      "v": {
+        "type": "Object"
+      }
+    }
+  },
+  "bkMib": "{v} MB",
+  "@bkMib": {
+    "placeholders": {
+      "v": {
+        "type": "Object"
+      }
+    }
+  },
+  "bkTileSub": "Passphrase-encrypted backup & phone transfer"
 }
