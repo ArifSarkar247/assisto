@@ -69,10 +69,48 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
 
+    # --- avatar (Step 3 Messenger). Needed by circle cards + messenger profile +
+    # community member cards + the admin user projection (public field only).
+    # Either an uploaded image OR an external URL (photo_link); photo_url picks
+    # whichever is set so the existing circle _resolve_peer keeps working. ---
+    photo = models.ImageField(upload_to="avatars/", null=True, blank=True)
+    photo_link = models.URLField(blank=True, default="")   # external avatar URL
+
+    # --- Messenger communities privacy/consent settings (msg_community). ---
+    # show_phone: opt-in to reveal my number on community member cards (default OFF).
+    # communities_who_can_msg: who may start a chat with me across communities.
+    show_phone = models.BooleanField(default=False)
+    communities_who_can_msg = models.CharField(max_length=10, default="everyone")  # everyone|nobody
+
+    # --- Moderation / owner-admin PUBLIC fields (msg_moderation). These are the
+    # ONLY account-status fields the admin user projection exposes; message
+    # contents + contacts are NEVER surfaced (admin_user_projection allow-list). ---
+    account_status = models.CharField(max_length=10, default="active")  # active|suspended|banned
+    report_count = models.PositiveIntegerField(default=0)
+    app_version = models.CharField(max_length=24, blank=True, default="")
+    last_active = models.DateTimeField(null=True, blank=True)
+
+    # --- Owner switch for PUBLIC surfaces (channels/communities). Spec line 22
+    # deferred these "owner decision later"; they ship behind this flag, which
+    # only the platform owner (superuser) may flip ON for approved test accounts.
+    # Default OFF — a normal account cannot create public channels/communities. ---
+    public_surfaces_enabled = models.BooleanField(default=False)
+
     objects = UserManager()
 
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = []
+
+    @property
+    def photo_url(self):
+        """Resolve a display URL for this user's avatar (uploaded file first,
+        else the external link). Safe to read even with no request context."""
+        if self.photo:
+            try:
+                return self.photo.url
+            except Exception:
+                return ""
+        return self.photo_link or ""
 
     def __str__(self):
         return self.name or self.username
@@ -1734,3 +1772,354 @@ class OwnerWallet(models.Model):
     merchant_number = models.CharField(max_length=40, blank=True, default="")
     merchant_name = models.CharField(max_length=120, blank=True, default="")
     updated_at = models.DateTimeField(auto_now=True)
+
+
+# ===========================================================================
+# Messenger STEP 3 — CONTACTS & INVITES + personal CONNECTION REQUEST.
+# Server authority: core/logic/msg_contacts.py (builds on core.logic.circle).
+# ===========================================================================
+class UserPhoneHash(models.Model):
+    """The ONLY place a phone hash is stored, and ONLY for verified real users.
+    Computed once at phone-verify with msg_contacts.hash_phone over the server-
+    wide match salt. Non-users' hashes are NEVER written anywhere (match_contacts
+    is a pure, zero-storage set intersection)."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="phone_hash")
+    phone_hash = models.CharField(max_length=32, unique=True, db_index=True)
+    salt_version = models.CharField(max_length=8, default="v1")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class ConnectionRequest(models.Model):
+    """A personal connection request (messenger). Reuses the circle request state
+    machine + the 2b fix via msg_contacts.act_on_connection_request. `note` is the
+    ONE optional pre-accept note; `note_used` is the one-note budget flag enforced
+    by can_send_before_accept. Unique (requester,target) while pending."""
+    STATES = [("pending", "pending"), ("accepted", "accepted"),
+              ("declined", "declined"), ("blocked", "blocked")]
+    requester = models.ForeignKey(User, on_delete=models.CASCADE,
+                                  related_name="connection_requests_sent")
+    target = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name="connection_requests_recv")
+    relation = models.CharField(max_length=20, default="friend")
+    custom_label = models.CharField(max_length=60, blank=True, default="")
+    note = models.CharField(max_length=280, blank=True, default="")
+    note_used = models.BooleanField(default=False)
+    state = models.CharField(max_length=10, choices=STATES, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["requester", "target"],
+                condition=models.Q(state="pending"),
+                name="uniq_pending_connection_request"),
+        ]
+
+
+class InviteOutbound(models.Model):
+    """Audit of an invite the user created (never auto-sent by the server).
+    channel: in_app | share_link | sms_own_sim. `token` reuses
+    circle.make_invite_token for share-link / SMS deep links."""
+    CHANNELS = [("in_app", "in_app"), ("share_link", "share_link"),
+                ("sms_own_sim", "sms_own_sim")]
+    inviter = models.ForeignKey(User, on_delete=models.CASCADE,
+                                related_name="invites_outbound")
+    channel = models.CharField(max_length=16, choices=CHANNELS, default="in_app")
+    token = models.CharField(max_length=256, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+# ===========================================================================
+# Messenger STEP 3 — COMMUNITIES.  Server authority: core/logic/msg_community.py
+# (reuses circle_groups roles/announcements/size + circle REQ_* states).
+# ===========================================================================
+class Community(models.Model):
+    """An umbrella of groups. Seeded with exactly one announcements group that is
+    never deletable (new_community). Public communities require the creator's
+    owner-switch User.public_surfaces_enabled."""
+    creator = models.ForeignKey(User, on_delete=models.CASCADE,
+                                related_name="communities")
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, default="")
+    photo_ref = models.CharField(max_length=256, blank=True, default="")
+    is_public = models.BooleanField(default=False)   # gated by owner switch
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class CommunityGroup(models.Model):
+    """A group under a community. Exactly one kind=announcements per community
+    (seeded, announcements_only forever, never deleted). join_mode open|request."""
+    KINDS = [("announcements", "announcements"), ("topic", "topic")]
+    JOIN = [("open", "open"), ("request", "request")]
+    community = models.ForeignKey(Community, on_delete=models.CASCADE,
+                                  related_name="groups")
+    creator = models.ForeignKey(User, on_delete=models.CASCADE,
+                                related_name="community_groups")
+    kind = models.CharField(max_length=14, choices=KINDS, default="topic")
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, default="")
+    photo_ref = models.CharField(max_length=256, blank=True, default="")
+    join_mode = models.CharField(max_length=8, choices=JOIN, default="request")
+    size_limit = models.IntegerField(default=256)
+    announcements_only = models.BooleanField(default=False)
+    rules = models.TextField(blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+
+class CommunityMember(models.Model):
+    """Membership edge (role admin|member, status active|left|removed)."""
+    ROLES = [("admin", "admin"), ("member", "member")]
+    STATES = [("active", "active"), ("left", "left"), ("removed", "removed")]
+    community = models.ForeignKey(Community, on_delete=models.CASCADE,
+                                  related_name="members")
+    group = models.ForeignKey(CommunityGroup, on_delete=models.CASCADE,
+                              related_name="members")
+    member = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name="community_memberships")
+    role = models.CharField(max_length=8, choices=ROLES, default="member")
+    status = models.CharField(max_length=8, choices=STATES, default="active")
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("group", "member")]
+        ordering = ["joined_at"]
+
+
+class CommunityJoinRequest(models.Model):
+    """A request-join FSM row (apply_join_event): pending->approved|rejected|
+    cancelled. Admin approves via can_approve_join."""
+    STATES = [("pending", "pending"), ("approved", "approved"),
+              ("rejected", "rejected"), ("cancelled", "cancelled")]
+    group = models.ForeignKey(CommunityGroup, on_delete=models.CASCADE,
+                              related_name="join_requests")
+    requester = models.ForeignKey(User, on_delete=models.CASCADE,
+                                  related_name="community_join_requests")
+    state = models.CharField(max_length=10, choices=STATES, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class CommunityMessageRequest(models.Model):
+    """A first message from someone OUTSIDE the recipient's circle (can_direct_
+    message route=message_request). Stores CIPHERTEXT ONLY — server never reads
+    the body. FSM via apply_msgreq_event. Rate-limited per sender (check_msgreq_
+    rate) before creation."""
+    STATES = [("pending", "pending"), ("accepted", "accepted"),
+              ("declined", "declined"), ("blocked", "blocked")]
+    sender = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name="community_msgreqs_sent")
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE,
+                                  related_name="community_msgreqs_recv")
+    community = models.ForeignKey(Community, null=True, blank=True,
+                                  on_delete=models.SET_NULL,
+                                  related_name="message_requests")
+    state = models.CharField(max_length=10, choices=STATES, default="pending")
+    first_ciphertext = models.TextField(blank=True, default="")   # opaque
+    first_nonce = models.CharField(max_length=256, blank=True, default="")
+    sender_key_id = models.CharField(max_length=64, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+# ===========================================================================
+# Messenger STEP 3 — CHANNELS (one-to-many broadcast, NOT E2E / plaintext).
+# Server authority: core/logic/msg_channel.py.
+# ===========================================================================
+class Channel(models.Model):
+    """A broadcast channel. Content is PLAINTEXT + moderatable (NOT E2E). Public
+    channels require the owner's public_surfaces_enabled switch. verified /
+    verified_by / follower_count are SERVER-ONLY (never writable via profile edit;
+    sanitize_profile_edit strips them)."""
+    LIST = [("public", "public"), ("private", "private")]
+    VERIF = [("none", "none"), ("pending", "pending"), ("verified", "verified")]
+    owner = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name="channels")
+    name = models.CharField(max_length=80)
+    handle = models.CharField(max_length=32, unique=True)
+    description = models.CharField(max_length=500, blank=True, default="")
+    photo_ref = models.CharField(max_length=256, blank=True, default="")
+    category = models.CharField(max_length=20, default="other")
+    language = models.CharField(max_length=8, default="other")   # bn|en|other
+    list_visibility = models.CharField(max_length=8, choices=LIST, default="private")
+    verified = models.BooleanField(default=False)                # SERVER-ONLY
+    verified_by = models.ForeignKey(User, null=True, blank=True,
+                                    on_delete=models.SET_NULL,
+                                    related_name="channels_verified")  # operator
+    verification_state = models.CharField(max_length=10, choices=VERIF, default="none")
+    follower_count = models.IntegerField(default=0)              # == COUNT(followers)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class ChannelAdmin(models.Model):
+    """A channel admin (mirrors admin_ids; cap MAX_ADMINS=20). OWNER appoints."""
+    channel = models.ForeignKey(Channel, on_delete=models.CASCADE,
+                                related_name="admins")
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="channel_admin_of")
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("channel", "user")]
+
+
+class ChannelFollower(models.Model):
+    """A follower. visibility DEFAULTS to count_only — a count_only follower is
+    NEVER returned in any listing (serialize_follower_list) but ALWAYS counted.
+    follower_count == COUNT(followers) incl. count_only."""
+    VIS = [("show", "show"), ("count_only", "count_only")]
+    channel = models.ForeignKey(Channel, on_delete=models.CASCADE,
+                                related_name="followers")
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="channel_follows")
+    visibility = models.CharField(max_length=10, choices=VIS, default="count_only")
+    muted = models.BooleanField(default=False)
+    followed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("channel", "user")]
+
+
+class ChannelPost(models.Model):
+    """A channel post. PLAINTEXT, moderatable, NOT E2E — e2e is forced False with
+    a DB CHECK so a post can NEVER be routed through the ciphertext relay.
+    reactions is an AGGREGATE {emoji:count} only (never per-reactor rows)."""
+    KINDS = [("text", "text"), ("photo", "photo"), ("video", "video"),
+             ("link", "link"), ("poll", "poll")]
+    channel = models.ForeignKey(Channel, on_delete=models.CASCADE,
+                                related_name="posts")
+    author = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name="channel_posts")
+    kind = models.CharField(max_length=8, choices=KINDS, default="text")
+    e2e = models.BooleanField(default=False)   # CHECK forces False (not E2E)
+    content_scheme = models.CharField(max_length=40, default="plaintext-moderatable-v1")
+    text = models.TextField(blank=True, default="")
+    media_refs = models.JSONField(default=list, blank=True)
+    link_url = models.CharField(max_length=2048, blank=True, default="")
+    poll = models.ForeignKey("ChannelPoll", null=True, blank=True,
+                             on_delete=models.SET_NULL, related_name="posts")
+    reactions = models.JSONField(default=dict, blank=True)   # {emoji: count}
+    views = models.IntegerField(default=0)
+    pinned = models.BooleanField(default=False)
+    deleted = models.BooleanField(default=False)
+    content_status = models.CharField(max_length=10, default="visible")  # moderation
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.CheckConstraint(check=models.Q(e2e=False),
+                                   name="channel_post_not_e2e"),
+        ]
+
+
+class ChannelPoll(models.Model):
+    """A channel poll. PLAINTEXT labels (channels are public). Tally BY INDEX."""
+    channel = models.ForeignKey(Channel, on_delete=models.CASCADE,
+                                related_name="polls")
+    question = models.CharField(max_length=300, blank=True, default="")
+    options = models.JSONField(default=list, blank=True)   # plaintext labels
+    option_count = models.IntegerField(default=2)
+    multi = models.BooleanField(default=False)
+    closed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class ChannelPollVote(models.Model):
+    """One voter's choice set (indices). Re-vote replaces (apply_vote)."""
+    poll = models.ForeignKey(ChannelPoll, on_delete=models.CASCADE,
+                             related_name="votes")
+    voter = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name="channel_poll_votes")
+    choices = models.JSONField(default=list, blank=True)   # list[int]
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("poll", "voter")]
+
+
+class ChannelVerificationRequest(models.Model):
+    """Audit of a verification request (request_verification: owner->pending)."""
+    STATES = [("none", "none"), ("pending", "pending"), ("verified", "verified")]
+    channel = models.ForeignKey(Channel, on_delete=models.CASCADE,
+                                related_name="verification_requests")
+    state = models.CharField(max_length=10, choices=STATES, default="pending")
+    requested_at = models.DateTimeField(auto_now_add=True)
+
+
+# ===========================================================================
+# Messenger STEP 3 — MODERATION + OWNER-ADMIN (public surfaces only).
+# Server authority: core/logic/msg_moderation.py. Admin NEVER sees message
+# contents or contacts (admin_user_projection allow-list).
+# ===========================================================================
+class ModerationReport(models.Model):
+    """A member's report on a public target. `valid` comes from build_report."""
+    reporter = models.ForeignKey(User, null=True, blank=True,
+                                 on_delete=models.SET_NULL,
+                                 related_name="moderation_reports")
+    target_kind = models.CharField(max_length=12)   # channel/post/community/group/person
+    target_id = models.CharField(max_length=64)
+    categories = models.JSONField(default=list, blank=True)
+    note = models.TextField(blank=True, default="")
+    valid = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["target_kind", "target_id"])]
+
+
+class ModerationItem(models.Model):
+    """The review-queue item for a moderated target (evaluate_report +
+    apply_admin_action). legal_retention flags records kept for legally-required
+    reporting of illegal content."""
+    target_kind = models.CharField(max_length=12)
+    target_id = models.CharField(max_length=64)
+    categories = models.JSONField(default=list, blank=True)
+    severe = models.BooleanField(default=False)
+    content_status = models.CharField(max_length=10, default="visible")  # visible/hidden/removed/restored
+    queue_state = models.CharField(max_length=14, default="queued")      # queued/under_appeal/resolved
+    legal_retention = models.BooleanField(default=False)
+    report_count = models.IntegerField(default=1)
+    decision = models.CharField(max_length=16, blank=True, default="")
+    opened_at = models.DateTimeField(auto_now_add=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-opened_at"]
+        indexes = [models.Index(fields=["target_kind", "target_id"]),
+                   models.Index(fields=["queue_state"])]
+
+
+class ModerationAudit(models.Model):
+    """APPEND-ONLY audit of every admin/appeal action (build_audit_entry). Never
+    edited or deleted. Retained for legally-required reporting where flagged."""
+    actor = models.ForeignKey(User, null=True, blank=True,
+                              on_delete=models.SET_NULL,
+                              related_name="moderation_audit")
+    action = models.CharField(max_length=20)
+    target_kind = models.CharField(max_length=12, blank=True, default="")
+    target_id = models.CharField(max_length=64, blank=True, default="")
+    reason = models.TextField(blank=True, default="")
+    extra = models.JSONField(default=dict, blank=True)   # new_status/reset_sessions/queue_item/legal_retention
+    at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-at"]

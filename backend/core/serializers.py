@@ -7,11 +7,20 @@ from .models import (User, MemoryItem, AuditLog, Reminder, Note, Todo,
 
 
 class UserSerializer(serializers.ModelSerializer):
+    # Resolved avatar URL (uploaded file or external link); read-only.
+    photo_url = serializers.ReadOnlyField()
+
     class Meta:
         model = User
         fields = ["id", "name", "phone", "email", "autonomy_level", "language",
-                  "date_joined", "elderly_mode", "fall_detect", "fall_countdown_sec"]
-        read_only_fields = ["id", "date_joined"]
+                  "date_joined", "elderly_mode", "fall_detect", "fall_countdown_sec",
+                  # Step 3 Messenger profile fields
+                  "photo", "photo_link", "photo_url",
+                  "show_phone", "communities_who_can_msg",
+                  "public_surfaces_enabled"]
+        read_only_fields = ["id", "date_joined", "photo_url",
+                            # owner-only switch: never self-set via profile PUT
+                            "public_surfaces_enabled"]
 
 
 class RegisterSerializer(serializers.Serializer):

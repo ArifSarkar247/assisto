@@ -6,6 +6,7 @@ from . import views_module5 as m5
 from . import views_build61 as b61
 from . import views_m2 as m2
 from . import business_views as bz
+from . import views_messenger as msg
 
 router = DefaultRouter()
 router.register("memory", views.MemoryViewSet, basename="memory")
@@ -284,6 +285,78 @@ urlpatterns = [
     path("journey/routines", b61.JourneyRoutinesView.as_view()),
     path("journey/wellness", b61.WellnessView.as_view()),
     path("journey/wellness/ping", b61.WellnessPingView.as_view()),
+
+    # ===== Messenger STEP 3 =====
+    # 1. Contacts & invites + personal connection request (msg_contacts)
+    path("messenger/contacts/match", msg.ContactsMatchView.as_view()),
+    path("messenger/contacts/contract", msg.ContactHashingContractView.as_view()),
+    path("messenger/invite/existing", msg.InviteExistingView.as_view()),
+    path("messenger/invite/share-link", msg.InviteShareLinkView.as_view()),
+    path("messenger/invite/sms", msg.InviteSmsView.as_view()),
+    path("messenger/request", msg.ConnectionRequestCreateView.as_view()),
+    path("messenger/request/<int:pk>/act", msg.ConnectionRequestActView.as_view()),
+    path("messenger/request/<int:pk>/message",
+         msg.ConnectionRequestMessageView.as_view()),
+    path("messenger/request/<int:pk>/report",
+         msg.ConnectionRequestReportView.as_view()),
+
+    # 2. Communities (msg_community)
+    path("community/create", msg.CommunityCreateView.as_view()),
+    path("community/<int:pk>/group/create", msg.CommunityGroupCreateView.as_view()),
+    path("community/group/<int:pk>", msg.CommunityGroupPatchView.as_view()),
+    path("community/<int:pk>/groups", msg.CommunityGroupsListView.as_view()),
+    path("community/group/<int:pk>/join", msg.CommunityGroupJoinView.as_view()),
+    path("community/join-request/<int:pk>/<slug:action>",
+         msg.CommunityJoinRequestActView.as_view()),
+    path("community/group/<int:pk>/member/<int:uid>/remove",
+         msg.CommunityMemberRemoveView.as_view()),
+    path("community/group/<int:pk>/post", msg.CommunityGroupPostView.as_view()),
+    path("community/<int:pk>/members", msg.CommunityMembersView.as_view()),
+    path("me/show-phone", msg.MeShowPhoneView.as_view()),
+    path("me/communities-who-can-msg", msg.MeWhoCanMsgView.as_view()),
+    path("community/message", msg.CommunityMessageView.as_view()),
+    path("community/message-request/<int:pk>/<slug:action>",
+         msg.CommunityMsgReqActView.as_view()),
+    path("community/message-request/<int:pk>/report",
+         msg.CommunityMsgReqReportView.as_view()),
+    path("community/call", msg.CommunityCallView.as_view()),
+
+    # 3. Channels (msg_channel) — NOT E2E; follower privacy enforced
+    path("channels", msg.ChannelsView.as_view()),
+    path("channels/<int:pk>", msg.ChannelDetailView.as_view()),
+    path("channels/<int:pk>/admins", msg.ChannelAdminsView.as_view()),
+    path("channels/<int:pk>/follow", msg.ChannelFollowView.as_view()),
+    path("channels/<int:pk>/unfollow", msg.ChannelUnfollowView.as_view()),
+    path("channels/<int:pk>/mute", msg.ChannelMuteView.as_view()),
+    path("channels/<int:pk>/my-visibility", msg.ChannelMyVisibilityView.as_view()),
+    path("channels/<int:pk>/list-visibility",
+         msg.ChannelListVisibilityView.as_view()),
+    path("channels/<int:pk>/followers", msg.ChannelFollowersView.as_view()),
+    path("channels/<int:pk>/posts", msg.ChannelPostsView.as_view()),
+    path("channels/<int:pk>/posts/<int:pid>/react",
+         msg.ChannelPostReactView.as_view()),
+    path("channels/<int:pk>/posts/<int:pid>/view",
+         msg.ChannelPostViewView.as_view()),
+    path("channels/<int:pk>/posts/<int:pid>/pin",
+         msg.ChannelPostPinView.as_view()),
+    path("channels/<int:pk>/polls", msg.ChannelPollsView.as_view()),
+    path("channels/<int:pk>/polls/<int:poll_id>/<slug:action>",
+         msg.ChannelPollActView.as_view()),
+    path("channels/<int:pk>/analytics", msg.ChannelAnalyticsView.as_view()),
+    path("channels/<int:pk>/verify/request",
+         msg.ChannelVerifyRequestView.as_view()),
+    path("channels/<int:pk>/share-link", msg.ChannelShareLinkView.as_view()),
+    path("admin/channels/<int:pk>/verify/<slug:action>",
+         msg.ChannelVerifyGrantView.as_view()),
+
+    # 4. Moderation + owner-admin (msg_moderation) — public surfaces only
+    path("moderation/report", msg.ModerationReportView.as_view()),
+    path("moderation/<int:pk>/appeal", msg.ModerationAppealView.as_view()),
+    path("admin/moderation/queue", msg.AdminQueueView.as_view()),
+    path("admin/moderation/<int:pk>/action", msg.AdminItemActionView.as_view()),
+    path("admin/moderation/<int:pk>/reopen", msg.AdminItemReopenView.as_view()),
+    path("admin/users", msg.AdminUsersView.as_view()),
+    path("admin/users/<int:pk>/action", msg.AdminUserActionView.as_view()),
 ]
 
 urlpatterns += router.urls
