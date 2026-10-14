@@ -3290,5 +3290,8 @@
   "settingsMsgrAdminTools": "মডারেশন টুল",
   "settingsMsgrAdminToolsSub": "রিপোর্ট পর্যালোচনা ও ব্যবহারকারী ব্যবস্থাপনা (শুধু অপারেটর)।",
   "settingsMsgrUsers": "ব্যবহারকারী",
-  "settingsMsgrPolicies": "নীতিমালা"
+  "settingsMsgrPolicies": "নীতিমালা",
+  "sidebarFamilySafety": "পরিবার ও নিরাপত্তা",
+  "sidebarContactsProfile": "কন্টাক্টস ও প্রোফাইল",
+  "sidebarPaSecretary": "পিএ সেক্রেটারি (শীঘ্রই আসছে)"
 }

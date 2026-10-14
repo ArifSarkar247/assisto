@@ -340,6 +340,8 @@ urlpatterns = [
     path("channels/<int:pk>/posts/<int:pid>/pin",
          msg.ChannelPostPinView.as_view()),
     path("channels/<int:pk>/polls", msg.ChannelPollsView.as_view()),
+    path("channels/<int:pk>/polls/<int:poll_id>/tally",
+         msg.ChannelPollTallyView.as_view()),
     path("channels/<int:pk>/polls/<int:poll_id>/<slug:action>",
          msg.ChannelPollActView.as_view()),
     path("channels/<int:pk>/analytics", msg.ChannelAnalyticsView.as_view()),
@@ -353,9 +355,11 @@ urlpatterns = [
     path("moderation/report", msg.ModerationReportView.as_view()),
     path("moderation/<int:pk>/appeal", msg.ModerationAppealView.as_view()),
     path("admin/moderation/queue", msg.AdminQueueView.as_view()),
+    path("admin/moderation/<int:pk>", msg.AdminItemDetailView.as_view()),
     path("admin/moderation/<int:pk>/action", msg.AdminItemActionView.as_view()),
     path("admin/moderation/<int:pk>/reopen", msg.AdminItemReopenView.as_view()),
     path("admin/users", msg.AdminUsersView.as_view()),
+    path("admin/users/<int:pk>/public", msg.AdminUserPublicView.as_view()),
     path("admin/users/<int:pk>/action", msg.AdminUserActionView.as_view()),
 ]
 

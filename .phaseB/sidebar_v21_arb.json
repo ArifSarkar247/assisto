@@ -1,0 +1,6 @@
+{
+  "_note": "New ARB keys for the SPEC v2.1 §4 sidebar restructure. Format: {key: [bn, en]}. Integrator merges these into app_bn.arb (first value) and app_en.arb (second value). Reused existing keys (NOT emitted here, already present in both arbs): sidebarProfile, contactsTitle, moduleFamily, nominee, journeyHubTitle, moduleEmergency, scamTitle, fallDetectTitle, medicineDbTitle, healthTipsTitle, sidebarLife, sidebarWork, agentStudio, jobHunter, aiInbox. Obsolete-but-untouched: sidebarFamily, sidebarSafety, sidebarHealth (no longer referenced by the sidebar; left in arbs for other callers).",
+  "sidebarFamilySafety": ["পরিবার ও নিরাপত্তা", "Family & Safety"],
+  "sidebarContactsProfile": ["কন্টাক্টস ও প্রোফাইল", "Contacts & Profile"],
+  "sidebarPaSecretary": ["পিএ সেক্রেটারি (শীঘ্রই আসছে)", "PA Secretary (coming soon)"]
+}

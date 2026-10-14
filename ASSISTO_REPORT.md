@@ -629,3 +629,13 @@ NOTHING basic may remain.
 - Plan GATES correct (text+voice free, video premium caller-pays, SafeJourney/SOS free, referral→premium). Legal: gaps are unbuilt-feature banners (add when building those).
 - Messenger v3 Flutter integration DONE: 426 arb merged (en=bn=3068), patchJson added +4 edit calls, shell tabs wired, admin gated behind moderationWhoAmI, policy links in Settings. analyze 0, gate clean. 5 missing-GET backend endpoints flagged (fixing now).
 - BUILD ORDER (§3, Section-21 gate): 6 basic → payment ladder + elderly mode → 4 web tools → all good → v2.1 new (~79). Interleave w/ queue. Key-gated=mock/sandbox+Integrations-admin+owner_actions.
+
+## IN FLIGHT (2026-10-14, commit 27135a7): messenger-5GET af451c + sidebar§4 ab41f6
+- After both: gen-l10n→analyze 0→gate→backend tests→deploy→commit. Then BUILD WAVES per §3 (Section-21 gate, each reviewer-passed, gallery bn/en×light/dark):
+  WAVE A: 6 basic→advanced (voice-cmd, contacts/personal-CRM, govt-guide, agent-studio, AI-inbox, job-hunter).
+  WAVE B: payment ladder screen + elderly simple-mode UI (not-built).
+  WAVE C: 4 web tools → advanced.
+  WAVE D: all "good"→advanced (61 items incl memory, meetings, birthdays, plans, health tips, medicine DB, dictionary, photo, unseen, ride/food, ramadan, safe-arrival, exam, password-reset, analytics, fall-detect, name-about, legal, onboarding, security-doc, + messenger good bits).
+  WAVE E: v2.1 NEW ~79 — Sec14 PA mode(23), AI-core(9), Daily-Life(6: doc scanner/contract analyzer/market radar/travel/service-finder/cost-time), Health(5), standalone(11: task mgr/spending/water-sleep-diet/fitness/voice-SOS/lost-stolen-phone/call-transcription/blog-script/mock-interview/language-partner/supplier-dir/demand-map/quiz), Sec20(20). All key-gated=mock/sandbox+Integrations-admin+owner_actions.
+- Also queued (master order): Step 6 SFU+TURN M3 self-hosted (hard caps) + aws_ports.md + Telegram bot sandbox; Step 7 P14-16/iOS/FINAL.
+- APK BLOCKED (public-flip→disabled): owner must send owner_actions/github_support_message.md to GitHub or enable paid private Actions minutes. All committed+pushed private through 27135a7. Everything builds+tests+deploys locally.

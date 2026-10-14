@@ -4050,5 +4050,8 @@
   "settingsMsgrAdminTools": "Moderation tools",
   "settingsMsgrAdminToolsSub": "Review reports and manage users (operators only).",
   "settingsMsgrUsers": "Users",
-  "settingsMsgrPolicies": "Policies"
+  "settingsMsgrPolicies": "Policies",
+  "sidebarFamilySafety": "Family & Safety",
+  "sidebarContactsProfile": "Contacts & Profile",
+  "sidebarPaSecretary": "PA Secretary (coming soon)"
 }

@@ -618,8 +618,14 @@ class MeShowPhoneView(APIView):
 
 
 class MeWhoCanMsgView(APIView):
-    """PATCH /api/me/communities-who-can-msg {mode in everyone|nobody} -> stored,
-    read by can_direct_message."""
+    """GET/PATCH /api/me/communities-who-can-msg. GET -> the caller's current
+    setting (own row only). PATCH {mode in everyone|nobody} -> stored, read by
+    can_direct_message."""
+
+    def get(self, request):
+        mode = mcom.normalize_who_can_msg(
+            getattr(request.user, "communities_who_can_msg", None))
+        return Response({"communities_who_can_msg": mode})
 
     def patch(self, request):
         mode = mcom.normalize_who_can_msg((request.data or {}).get("mode"))
@@ -867,8 +873,22 @@ class ChannelDetailView(APIView):
 
 
 class ChannelAdminsView(APIView):
-    """POST /channels/<id>/admins {action, user_id} -> add_admin/remove_admin
-    (OWNER-only)."""
+    """GET/POST /channels/<id>/admins. GET -> list the channel's admins (owner/
+    admin scoped). POST {action, user_id} -> add_admin/remove_admin (OWNER-only)."""
+
+    def get(self, request, pk):
+        ch = Channel.objects.filter(pk=pk).first()
+        if ch is None:
+            return _notfound()
+        chd = _channel_dict(ch)
+        if mch.role_of(chd, request.user.id) not in (
+                mch.ROLE_OWNER, mch.ROLE_ADMIN):
+            return _forbidden("admins_denied")
+        admin_ids = chd["admin_ids"]
+        users = {u.id: u for u in User.objects.filter(pk__in=admin_ids)}
+        results = [_public_user_descriptor(users[uid])
+                   for uid in admin_ids if uid in users]
+        return Response({"owner_id": ch.owner_id, "results": results})
 
     def post(self, request, pk):
         ch = Channel.objects.filter(pk=pk).first()
@@ -1146,6 +1166,20 @@ class ChannelPollActView(APIView):
         return _badreq("unknown action")
 
 
+class ChannelPollTallyView(APIView):
+    """GET /channels/<id>/polls/<poll_id>/tally -> tally_poll by index (counts
+    only; never per-voter rows). Scoped to the poll's channel."""
+
+    def get(self, request, pk, poll_id):
+        poll = ChannelPoll.objects.filter(pk=poll_id, channel_id=pk).first()
+        if poll is None:
+            return _notfound()
+        pd = {"option_count": poll.option_count, "multi": poll.multi,
+              "closed": poll.closed}
+        votes = {v.voter_id: v.choices for v in poll.votes.all()}
+        return Response(mch.tally_poll(pd, votes))
+
+
 class ChannelAnalyticsView(APIView):
     """GET /channels/<id>/analytics -> channel_analytics (COUNTS ONLY,
     contains_pii=False). Owner/admin only."""
@@ -1333,6 +1367,23 @@ class AdminQueueView(APIView):
                 "decision": i.decision, "opened_at": i.opened_at.isoformat()}
 
 
+class AdminItemDetailView(APIView):
+    """GET /api/admin/moderation/<item> -> the single queue item detail (operator/
+    owner-gated; reuses the queue item serialization). Audited like the queue."""
+
+    def get(self, request, pk):
+        if not _is_operator(request):
+            return _forbidden("admin_only")
+        item = ModerationItem.objects.filter(pk=pk).first()
+        if item is None:
+            return _notfound()
+        ModerationAudit.objects.create(
+            actor=request.user, action="view_item",
+            target_kind=item.target_kind, target_id=str(item.target_id),
+            reason="admin item viewed", extra={"queue_item": item.id})
+        return Response(AdminQueueView._dict(item))
+
+
 class AdminItemActionView(APIView):
     """POST /api/admin/moderation/<item>/action {action, reason} ->
     apply_admin_action. reason REQUIRED; writes an append-only audit."""
@@ -1463,6 +1514,34 @@ class AdminUsersView(APIView):
             actor=request.user, action="view_users",
             reason="admin users listed", extra={"count": len(rows)})
         return Response({"results": rows})
+
+
+class AdminUserPublicView(APIView):
+    """GET /api/admin/users/<id>/public -> the single-user admin PUBLIC projection
+    via admin_user_projection (operator/owner-gated; audited). Built from the SAME
+    public allow-list as the list view — message contents and contacts are NEVER
+    read into it, so they can never leak."""
+
+    def get(self, request, pk):
+        if not _is_operator(request):
+            return _forbidden("admin_only")
+        u = User.objects.filter(pk=pk).first()
+        if u is None:
+            return _notfound()
+        # PUBLIC-field dict only — identical allow-list to AdminUsersView.
+        raw = {"id": u.id, "name": u.name, "phone": u.phone,
+               "photo_url": u.photo_url,
+               "signup_date": u.date_joined.isoformat() if u.date_joined else None,
+               "plan": u.plan,
+               "last_active": u.last_active.isoformat() if u.last_active else None,
+               "app_version": u.app_version, "report_count": u.report_count,
+               "status": u.account_status}
+        row = mmod.admin_user_projection(raw)
+        ModerationAudit.objects.create(
+            actor=request.user, action="view_user",
+            target_kind=mmod.T_PERSON, target_id=str(u.id),
+            reason="admin user viewed", extra={"user_id": u.id})
+        return Response(row)
 
 
 class AdminUserActionView(APIView):

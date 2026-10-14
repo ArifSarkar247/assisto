@@ -11,15 +11,16 @@ import '../screens/memory_screen.dart';
 import '../screens/money_screen.dart';
 import '../screens/subscriptions_screen.dart';
 import '../screens/finance_screen.dart';
-// family
+// family & safety (merged per SPEC v2.1 §4)
 import '../screens/family_screen.dart';
-import '../screens/crm_contacts_screen.dart';
 import '../screens/nominee_screen.dart';
-// safety
 import '../screens/journey_start_screen.dart';
 import '../screens/emergency_screen.dart';
 import '../screens/scam_screen.dart';
-// health
+// contacts & profile (own section per SPEC v2.1 §4)
+import '../screens/crm_contacts_screen.dart';
+import '../screens/settings_screen.dart';
+// health info — folded into daily life per SPEC v2.1 §4
 import '../screens/medicine_db_screen.dart';
 import '../screens/health_tips_screen.dart';
 // daily life
@@ -38,6 +39,8 @@ import '../screens/photo_enhance_screen.dart';
 import '../screens/agent_studio_screen.dart';
 import '../screens/jobs_screen.dart';
 import '../screens/inbox_screen.dart';
+// PA Secretary (SPEC §14) not built yet — placeholder routes to InProgressScreen
+import '../screens/in_progress_screen.dart';
 // business
 import '../screens/business_screen.dart';
 import '../screens/crm/crm_home_screen.dart';
@@ -68,11 +71,15 @@ class SidebarSection {
   const SidebarSection(this.id, this.icon, this.title, this.items);
 }
 
-/// Grouped, collapsible sidebar layout — the EXACT owner-final regroup
-/// (.phaseB/SIDEBAR_LAYOUT.md). 8 collapsible sections; the top (New chat /
-/// Messages / search) and the bottom (Settings / Plans & points / Profile) are
-/// rendered by `app_drawer.dart`. Each module appears in exactly ONE place and
-/// is ALSO openable from chat via ChatNav + screen_synonyms.
+/// Grouped, collapsible sidebar layout — restructured to SPEC v2.1 §4
+/// (owner-confirmed §4 supersedes the old 10-group / SIDEBAR_LAYOUT.md order).
+/// 8 collapsible sections: Messages (pinned top) · Reminders & Memory ·
+/// My Account · Family & Safety (merged) · Contacts & Profile · Daily Life
+/// (health info folded in) · Work (+ PA Secretary) · Business (+CRM). The top
+/// (New chat / Messages / search) and bottom (Settings / Plans & points /
+/// Profile) chrome are rendered by `app_drawer.dart`. Each module appears in
+/// exactly ONE place and is ALSO openable from chat via ChatNav +
+/// screen_synonyms.
 class SidebarSections {
   SidebarSections._();
 
@@ -117,21 +124,16 @@ class SidebarSections {
           (_) => const FinanceScreen(),
           synonyms: ['finance', 'loan', 'savings', 'calculator']),
     ]),
-    // 3. Family
-    SidebarSection('family', Icons.diversity_1_outlined, (t) => t.sidebarFamily, [
+    // 3. Family & Safety — merged per SPEC v2.1 §4 (Family + Safety → one group).
+    // Contacts moved OUT to its own "Contacts & Profile" section (item 4).
+    SidebarSection('family_safety', Icons.diversity_1_outlined,
+        (t) => t.sidebarFamilySafety, [
       SidebarItem(Icons.diversity_1_outlined, (t) => t.moduleFamily,
           (_) => const FamilyScreen(),
           synonyms: ['family', 'care', 'medicine schedule', 'elderly']),
-      SidebarItem(Icons.contacts_outlined, (t) => t.contactsTitle,
-          (_) => const CrmContactsScreen(),
-          synonyms: ['contact', 'phonebook']),
       SidebarItem(Icons.shield_outlined, (t) => t.nominee,
           (_) => const NomineeScreen(),
           synonyms: ['nominee', 'access', 'inheritance']),
-    ]),
-    // 4. Safety
-    SidebarSection('safety', Icons.health_and_safety_outlined,
-        (t) => t.sidebarSafety, [
       SidebarItem(Icons.navigation_outlined, (t) => t.journeyHubTitle,
           (_) => const JourneyStartScreen(),
           synonyms: ['safe journey', 'journey', 'travel', 'sos', 'track']),
@@ -145,18 +147,28 @@ class SidebarSections {
           (_) => const FallDetectScreen(),
           synonyms: ['fall', 'fall detection', 'accident', 'elderly safety']),
     ]),
-    // 5. Health
-    SidebarSection('health', Icons.favorite_outline, (t) => t.sidebarHealth, [
+    // 4. Contacts & Profile — own section per SPEC v2.1 §4. Contacts lives here
+    // (moved out of Family). Profile opens the profile/account screen; the
+    // app_drawer bottom also renders Profile — this is the in-sidebar link.
+    SidebarSection('contacts_profile', Icons.contacts_outlined,
+        (t) => t.sidebarContactsProfile, [
+      SidebarItem(Icons.contacts_outlined, (t) => t.contactsTitle,
+          (_) => const CrmContactsScreen(),
+          synonyms: ['contact', 'phonebook', 'crm']),
+      SidebarItem(Icons.person_outline, (t) => t.sidebarProfile,
+          (_) => const SettingsScreen(),
+          synonyms: ['profile', 'account', 'referral', 'invite']),
+    ]),
+    // 5. Daily Life — Health info (medicine DB, health tips) folded in per
+    // SPEC v2.1 §4 (standalone Health section removed).
+    SidebarSection('daily_life', Icons.auto_awesome_outlined,
+        (t) => t.sidebarLife, [
       SidebarItem(Icons.medication_outlined, (t) => t.medicineDbTitle,
           (_) => const MedicineDbScreen(),
           synonyms: ['medicine', 'drug', 'pharmacy']),
       SidebarItem(Icons.tips_and_updates_outlined, (t) => t.healthTipsTitle,
           (_) => const HealthTipsScreen(),
           synonyms: ['health', 'tips', 'wellness']),
-    ]),
-    // 6. Daily Life
-    SidebarSection('daily_life', Icons.auto_awesome_outlined,
-        (t) => t.sidebarLife, [
       SidebarItem(Icons.lock_outline, (t) => t.moduleVault,
           (_) => const VaultScreen(),
           synonyms: ['document', 'vault', 'file', 'nid', 'passport']),
@@ -199,6 +211,13 @@ class SidebarSections {
       SidebarItem(Icons.mark_email_unread_outlined, (t) => t.aiInbox,
           (_) => const InboxScreen(),
           synonyms: ['inbox', 'ai inbox', 'mail']),
+      // PA Secretary — SPEC §14 / §4. PA mode is NOT built yet, so this routes
+      // to InProgressScreen as a "coming soon" placeholder (label carries the
+      // coming-soon wording). Re-point the builder to the real PA screen when
+      // Section 14 ships; the group structure already matches §4.
+      SidebarItem(Icons.support_agent_outlined, (t) => t.sidebarPaSecretary,
+          (_) => const InProgressScreen(),
+          synonyms: ['pa', 'secretary', 'personal assistant', 'pa mode']),
     ]),
     // 8. Business
     SidebarSection('business', Icons.storefront_outlined,
