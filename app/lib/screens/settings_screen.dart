@@ -139,17 +139,49 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(title: Text(t.settingsTitle)),
       body: ListView(
         children: [
+          // Prominent profile card at the very TOP (OWNER UI FIX v2 §4) — the
+          // profile card was removed from the sidebar; it lives here and in the
+          // Messenger hub-settings.
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-            child: Text(t.profileHeader,
-                style: const TextStyle(fontWeight: FontWeight.bold)),
-          ),
-          ListTile(
-            leading: const CircleAvatar(child: Icon(Icons.person)),
-            title: Text(u?.name.isNotEmpty == true ? u!.name : AppLocalizations.of(context).you),
-            subtitle: Text([u?.phone, u?.email]
-                .where((e) => e != null && e.isNotEmpty)
-                .join(' · ')),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Card(
+              clipBehavior: Clip.antiAlias,
+              child: ListTile(
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                leading: CircleAvatar(
+                  radius: 28,
+                  backgroundColor:
+                      Theme.of(context).colorScheme.primaryContainer,
+                  child: Text(
+                    (u?.name.isNotEmpty == true ? u!.name[0] : 'A')
+                        .toUpperCase(),
+                    style: TextStyle(
+                        color:
+                            Theme.of(context).colorScheme.onPrimaryContainer,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 22),
+                  ),
+                ),
+                title: Text(
+                    u?.name.isNotEmpty == true
+                        ? u!.name
+                        : AppLocalizations.of(context).you,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w700, fontSize: 17),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis),
+                subtitle: Text(
+                    [u?.phone, u?.email]
+                        .where((e) => e != null && e.isNotEmpty)
+                        .join(' · '),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis),
+                trailing: const Icon(Icons.badge_outlined),
+                onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const NameAboutScreen())),
+              ),
+            ),
           ),
           const Divider(),
           Padding(

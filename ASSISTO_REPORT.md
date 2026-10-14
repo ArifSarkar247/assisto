@@ -649,3 +649,5 @@ NOTHING basic may remain.
 - BUILD 67 SHIPPED 2026-10-14: https://assisto.asalify.com/dl/BG_8jfTEj4m035BwHGfucFAz/assisto-part7-build67.apk (batched: P14-16 + batch-1 upgrades + full CRM + Circle fix + Messenger v3 + sidebar §4). run 38547307994 success, no disabled/403, asalify 200. Repo PUBLIC — owner to make private. NEXT WINDOW batch: Wave A (6 upgrades, done, uncommitted) + Waves B-E.
 
 - BUILD 68 SHIPPED 2026-10-14: https://assisto.asalify.com/dl/ZJKPyRRtg6jWzaFA7BLA2w6D/assisto-part7-build68.apk (Wave A — last 6 basic→advanced: Contacts/Personal-CRM, Govt guide, Agent Studio, AI Inbox, Job Hunter, Voice. NO MODULE BASIC). 497 tests, analyze 0, gate clean, asalify 200, repo PUBLIC. NEXT: Waves B (payment ladder+elderly) → C (4 web tools) → D (good→advanced) → E (v2.1 new).
+
+- BUILD 69 SHIPPED 2026-10-14: https://assisto.asalify.com/dl/vS8zXFQh1lrbgGGCVNCLUQrg/assisto-part7-build69.apk (owner UI fixes: single Messages + My Circle group, unpinned Settings/Plans/profile into one scroll list, all tab labels one-line @360dp). analyze 0, gate clean, asalify 200. Gallery: https://assisto.asalify.com/dl/shots-ui-IeZFfryhkTI/index.html

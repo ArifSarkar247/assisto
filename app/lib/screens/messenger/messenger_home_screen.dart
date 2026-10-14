@@ -11,12 +11,14 @@ import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/msgr_chat_list.dart';
 import '../circle_call_history_screen.dart';
+import '../circle_screen.dart';
 import '../circle_status_screen.dart';
 import 'channel_list_screen.dart';
 import 'community_list_screen.dart';
 import 'contacts_screen.dart';
 import 'discover_screen.dart';
 import 'messenger_profile_screen.dart';
+import 'messenger_settings_screen.dart';
 
 /// The Assisto Messenger hub — the home of everything chat. Opened from the
 /// "Messages" entry at the top of the sidebar and from the `messages` ChatNav
@@ -123,17 +125,42 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
       .push(MaterialPageRoute(builder: (_) => const ContactsScreen()))
       .then((_) => _bootstrap());
 
+  /// People / add-member / connected-circle flow (OWNER UI FIX v2 §2) — opens
+  /// the Connected Circle hub (add member · contacts · groups · new chat).
+  void _openPeople() => Navigator.of(context)
+      .push(MaterialPageRoute(builder: (_) => const CircleScreen()))
+      .then((_) => _bootstrap());
+
+  /// Hub ⋮ overflow → WhatsApp-style hub Settings (Account · Privacy · Chats …).
+  void _openSettings() => Navigator.of(context)
+      .push(MaterialPageRoute(builder: (_) => const MessengerSettingsScreen()))
+      .then((_) => _bootstrap());
+
   @override
   Widget build(BuildContext context) {
     final t = _t;
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.msgrTitle),
+        title: Text(t.sidebarMyCircle),
         actions: [
+          IconButton(
+            tooltip: t.msgrPeopleTooltip,
+            icon: const Icon(Icons.group_add_outlined),
+            onPressed: _openPeople,
+          ),
           IconButton(
             tooltip: t.msgrProfileTitle,
             icon: const Icon(Icons.manage_accounts_outlined),
             onPressed: _openProfile,
+          ),
+          PopupMenuButton<String>(
+            tooltip: t.msgrMoreTooltip,
+            onSelected: (v) {
+              if (v == 'settings') _openSettings();
+            },
+            itemBuilder: (_) => [
+              PopupMenuItem(value: 'settings', child: Text(t.msgrSettingsTitle)),
+            ],
           ),
         ],
       ),

@@ -17,9 +17,9 @@ import '../screens/nominee_screen.dart';
 import '../screens/journey_start_screen.dart';
 import '../screens/emergency_screen.dart';
 import '../screens/scam_screen.dart';
-// contacts & profile (own section per SPEC v2.1 §4)
+// contacts (own section per SPEC v2.1 §4; Profile moved to Settings per
+// OWNER UI FIX v2 §4 — Profile is not a module)
 import '../screens/crm_contacts_screen.dart';
-import '../screens/settings_screen.dart';
 // health info — folded into daily life per SPEC v2.1 §4
 import '../screens/medicine_db_screen.dart';
 import '../screens/health_tips_screen.dart';
@@ -44,11 +44,11 @@ import '../screens/in_progress_screen.dart';
 // business
 import '../screens/business_screen.dart';
 import '../screens/crm/crm_home_screen.dart';
-// my circle — the Messenger hub lives at the TOP of the sidebar (app_drawer
-// quick-link). The sidebar group below carries the circle-management screens.
-import '../screens/circle_screen.dart';
-import '../screens/circle_privacy_screen.dart';
-import '../screens/circle_call_history_screen.dart';
+// NOTE: the former "My Circle" sidebar group (Connected circle / Circle privacy
+// / Circle calls) was DELETED per OWNER UI FIX v2 §2 — those circle-management
+// functions now live INSIDE the Messenger hub (people icon, ⋮ hub-settings,
+// Calls tab). The hub itself is the single "My Circle" entry at the top of
+// app_drawer.dart.
 
 /// One navigable module inside a sidebar section.
 class SidebarItem {
@@ -74,37 +74,24 @@ class SidebarSection {
   const SidebarSection(this.id, this.icon, this.title, this.items);
 }
 
-/// Grouped, collapsible sidebar layout — restructured to SPEC v2.1 §4
-/// (owner-confirmed §4 supersedes the old 10-group / SIDEBAR_LAYOUT.md order).
-/// 8 collapsible sections: My Circle (top) · Reminders & Memory ·
-/// My Account · Family & Safety (merged) · Contacts & Profile · Daily Life
-/// (health info folded in) · Work (+ PA Secretary) · Business (+CRM). The top
-/// chrome (New chat / Messages hub quick-link / search) plus the profile card,
-/// Settings and Plans & points all live INLINE in the one scroll list rendered
-/// by `app_drawer.dart` (nothing pinned). Each module appears in
-/// exactly ONE place and is ALSO openable from chat via ChatNav +
-/// screen_synonyms.
+/// Grouped, collapsible sidebar layout — OWNER UI FIX v2: ONE ENTRY PER MODULE,
+/// no feature sub-entries. 7 collapsible sections: Reminders & Memory ·
+/// My Account · Family & Safety (merged) · Contacts · Daily Life (health info
+/// folded in) · Work (+ PA Secretary) · Business (+CRM). The Messenger hub
+/// ("My Circle") is the single top quick-link in `app_drawer.dart` (NOT a
+/// section); circle management lives inside that hub. The top chrome (New chat /
+/// My Circle hub quick-link / search), Settings and Plans & points live INLINE
+/// in the one scroll list rendered by `app_drawer.dart` (nothing pinned; no
+/// profile card). Each module appears in exactly ONE place and is ALSO openable
+/// from chat via ChatNav + screen_synonyms.
 class SidebarSections {
   SidebarSections._();
 
   static final List<SidebarSection> all = [
-    // 0. My Circle — the circle-management group (Connected Circle · Circle
-    // privacy · Circle calls). The Messenger hub (Chats · Updates · Communities
-    // · Calls) is reachable ONLY from the top quick-link in app_drawer.dart, so
-    // it is NOT listed here (every destination appears exactly once). Our own
-    // wording/icons — original identity, never a WhatsApp/Meta copy.
-    SidebarSection('my_circle', Icons.diversity_3_outlined,
-        (t) => t.sidebarMyCircle, [
-      SidebarItem(Icons.diversity_3_outlined, (t) => t.circleTitle,
-          (_) => const CircleScreen(),
-          synonyms: ['circle', 'connected circle', 'family circle', 'members']),
-      SidebarItem(Icons.privacy_tip_outlined, (t) => t.circlePrivacyTitle,
-          (_) => const CirclePrivacyScreen(),
-          synonyms: ['circle privacy', 'privacy', 'controls', 'who can see']),
-      SidebarItem(Icons.call_outlined, (t) => t.circleCallsTitle,
-          (_) => const CircleCallHistoryScreen(),
-          synonyms: ['circle calls', 'call history', 'calls', 'missed call']),
-    ]),
+    // ONE-ENTRY-PER-MODULE (OWNER UI FIX v2 §5): the Messenger hub ("My Circle")
+    // is the single top quick-link in app_drawer.dart and is intentionally NOT
+    // a sidebar section. Connected circle / Circle privacy / Circle calls are
+    // features of that hub, not standalone modules, so they are NOT listed here.
     // 1. Reminders & Memory
     SidebarSection('reminders_memory', Icons.notifications_active_outlined,
         (t) => t.sidebarRemindersMemory, [
@@ -160,17 +147,15 @@ class SidebarSections {
           (_) => const FallDetectScreen(),
           synonyms: ['fall', 'fall detection', 'accident', 'elderly safety']),
     ]),
-    // 4. Contacts & Profile — own section per SPEC v2.1 §4. Contacts lives here
-    // (moved out of Family). Profile opens the profile/account screen; the
-    // app_drawer bottom also renders Profile — this is the in-sidebar link.
-    SidebarSection('contacts_profile', Icons.contacts_outlined,
-        (t) => t.sidebarContactsProfile, [
+    // 4. Contacts — single-item section. Profile was REMOVED here (OWNER UI FIX
+    // v2 §4–5): Profile is NOT a module, it lives as a card at the top of
+    // SettingsScreen and in the Messenger hub-settings. Contacts remains a
+    // real module and keeps its own entry.
+    SidebarSection('contacts', Icons.contacts_outlined,
+        (t) => t.contactsTitle, [
       SidebarItem(Icons.contacts_outlined, (t) => t.contactsTitle,
           (_) => const CrmContactsScreen(),
           synonyms: ['contact', 'phonebook', 'crm']),
-      SidebarItem(Icons.person_outline, (t) => t.sidebarProfile,
-          (_) => const SettingsScreen(),
-          synonyms: ['profile', 'account', 'referral', 'invite']),
     ]),
     // 5. Daily Life — Health info (medicine DB, health tips) folded in per
     // SPEC v2.1 §4 (standalone Health section removed).

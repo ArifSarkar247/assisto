@@ -1,0 +1,29 @@
+{
+  "msgrPeopleTooltip": ["সদস্য ও সার্কেল", "People & circle"],
+  "msgrMoreTooltip": ["আরও", "More"],
+  "msgrSettingsTitle": ["সেটিংস", "Settings"],
+
+  "msgrSetAccount": ["অ্যাকাউন্ট", "Account"],
+  "msgrSetAccountSub": ["নিরাপত্তা, তথ্য, অ্যাকাউন্ট মুছুন", "Security, data, delete account"],
+
+  "msgrSetPrivacy": ["প্রাইভেসি", "Privacy"],
+  "msgrSetPrivacySub": ["লাস্ট সিন, অনলাইন, রিড রিসিট, কে দেখতে পারবে", "Last seen, online, read receipts, who can see"],
+
+  "msgrSetChats": ["চ্যাট", "Chats"],
+  "msgrSetChatsSub": ["আপনার কথোপকথন", "Your conversations"],
+
+  "msgrSetNotifications": ["নোটিফিকেশন", "Notifications"],
+  "msgrSetNotificationsSub": ["মেসেজ ও কল অ্যালার্ট", "Message and call alerts"],
+
+  "msgrSetLinkedDevices": ["লিঙ্ক করা ডিভাইস", "Linked devices"],
+  "msgrSetLinkedDevicesSub": ["শীঘ্রই আসছে", "Coming soon"],
+
+  "msgrSetStarred": ["তারকাচিহ্নিত মেসেজ", "Starred messages"],
+  "msgrSetStarredSub": ["শীঘ্রই আসছে", "Coming soon"],
+
+  "msgrSetNewGroup": ["নতুন গ্রুপ", "New group"],
+  "msgrSetNewGroupSub": ["সার্কেল থেকে একটি গ্রুপ তৈরি করুন", "Create a group from your circle"],
+
+  "msgrSetNewCommunity": ["নতুন কমিউনিটি", "New community"],
+  "msgrSetNewCommunitySub": ["একটি কমিউনিটি শুরু করুন", "Start a community"]
+}

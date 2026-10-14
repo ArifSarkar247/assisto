@@ -20,6 +20,7 @@ import 'package:assisto/screens/home_screen.dart';
 import 'package:assisto/screens/agent_thread_screen.dart';
 import 'package:assisto/screens/app_drawer.dart';
 import 'package:assisto/screens/messenger/messenger_home_screen.dart';
+import 'package:assisto/screens/messenger/messenger_settings_screen.dart';
 import 'package:assisto/screens/settings_screen.dart';
 import 'package:assisto/screens/in_progress_screen.dart';
 import 'package:assisto/screens/money_screen.dart';
@@ -185,6 +186,7 @@ void main() {
     'drawer': (build: (_) => Scaffold(body: Row(children: [AppDrawer(onNewChat: () {})])), mode: FakeMode.data, full: true),
     'drawer_bottom': (build: (_) => Scaffold(body: Row(children: [AppDrawer(onNewChat: () {})])), mode: FakeMode.data, full: true),
     'messenger': (build: (_) => const MessengerHomeScreen(), mode: FakeMode.data, full: true),
+    'messenger_settings': (build: (_) => const MessengerSettingsScreen(), mode: FakeMode.data, full: true),
     'money': (build: (_) => const MoneyScreen(), mode: FakeMode.data, full: true),
     'vault': (build: (_) => const VaultScreen(previewUnlocked: true), mode: FakeMode.data, full: true),
     'family': (build: (_) => const FamilyScreen(), mode: FakeMode.data, full: true),

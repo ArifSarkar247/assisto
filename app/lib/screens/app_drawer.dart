@@ -51,8 +51,7 @@ class _AppDrawerState extends State<AppDrawer> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final app = context.watch<AppState>();
-    final u = app.user;
+    context.watch<AppState>();
 
     final searching = _q.trim().isNotEmpty;
     final sections = SidebarSections.filter(t, _q);
@@ -80,28 +79,11 @@ class _AppDrawerState extends State<AppDrawer> {
           ]),
         ),
         const SizedBox(height: Gap.sm),
-        // ---- TOP of scroll: profile card (moved up from the old pinned
-        // bottom) under the logo for a cleaner layout ----
-        ListTile(
-          leading: CircleAvatar(
-            radius: 16,
-            backgroundColor: scheme.primaryContainer,
-            child: Text(
-              (u?.name.isNotEmpty == true ? u!.name[0] : 'A').toUpperCase(),
-              style: TextStyle(
-                  color: scheme.onPrimaryContainer, fontWeight: FontWeight.w700),
-            ),
-          ),
-          title: Text(u?.name.isNotEmpty == true ? u!.name : 'Assisto',
-              maxLines: 1, overflow: TextOverflow.ellipsis),
-          subtitle: Text(
-            [u?.phone, u?.email].where((e) => e != null && e!.isNotEmpty).join(' · '),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          onTap: () => _push((_) => const SettingsScreen()),
-        ),
-        // ---- new chat + Messages hub quick-link ----
+        // Profile card REMOVED from the sidebar (OWNER UI FIX v2 §4) — the
+        // profile now lives as a card at the top of SettingsScreen and in the
+        // Messenger hub-settings. The sidebar opens straight into the quick
+        // actions below.
+        // ---- new chat + My Circle hub quick-link ----
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: Gap.md),
           child: FilledButton.tonalIcon(
@@ -119,11 +101,14 @@ class _AppDrawerState extends State<AppDrawer> {
         ),
         const SizedBox(height: Gap.xs),
         // The ONLY entry point to the Messenger hub (Chats · Updates ·
-        // Communities · Calls). The "My Circle" sidebar group is separate.
+        // Communities · Calls). Labelled "My Circle" — the old expandable
+        // "My Circle" sidebar group is gone; circle management (people,
+        // privacy, calls) now lives INSIDE the hub (OWNER UI FIX v2 §1–2).
         ListTile(
           dense: true,
-          leading: Icon(Icons.forum_outlined, color: scheme.onSurfaceVariant),
-          title: Text(t.msgrTitle),
+          leading: Icon(Icons.diversity_3_outlined,
+              color: scheme.onSurfaceVariant),
+          title: Text(t.sidebarMyCircle),
           onTap: () => _push((_) => const MessengerHomeScreen()),
         ),
         // ---- search box ----
