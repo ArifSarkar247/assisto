@@ -204,6 +204,79 @@ def test_eviction_plan_prefers_cleanable_then_oldest():
         assert "old_undelivered" in plan
 
 
+# ---- send-state machine (§21 honest states) ----
+
+def test_send_state_happy_path():
+    s, a = "queued", 0
+    s, a = MD.next_send_state(s, "start", a)
+    assert s == "uploading"
+    s, a = MD.next_send_state(s, "progress", a)
+    assert s == "uploading"
+    s, a = MD.next_send_state(s, "done", a)
+    assert s == "sent" and a == 0
+    # sent is terminal: further events are no-ops
+    assert MD.next_send_state(s, "error", a) == ("sent", 0)
+
+
+def test_send_state_error_then_retry():
+    s, a = MD.next_send_state("uploading", "error", 0)
+    assert s == "failed" and a == 1
+    assert MD.is_retryable_send(s, a) is True
+    s2, a2 = MD.next_send_state(s, "retry", a)
+    assert s2 == "queued" and a2 == 1  # retry re-queues, keeps attempt count
+
+
+def test_send_state_retry_exhausts():
+    assert MD.is_retryable_send("failed", 5, max_attempts=5) is False
+    # retry at the ceiling is a no-op (stops nagging)
+    assert MD.next_send_state("failed", "retry", 5, max_attempts=5) == ("failed", 5)
+    # cannot retry a non-failed state
+    assert MD.is_retryable_send("uploading", 0) is False
+
+
+def test_send_state_cancel_and_illegal():
+    assert MD.next_send_state("uploading", "cancel", 0) == ("canceled", 0)
+    assert MD.can_transition_send("sent", "uploading") is False
+    # unknown event is a no-op
+    assert MD.next_send_state("queued", "bogus", 2) == ("queued", 2)
+
+
+def test_send_state_labels_bilingual():
+    assert MD.send_state_label("failed", "en") == "Not sent"
+    assert MD.send_state_label("uploading", "bn") == "আপলোড হচ্ছে"
+
+
+def test_upload_progress_pct_clamped():
+    assert MD.upload_progress_pct(0, 0) == 0        # unknown total -> 0, not NaN
+    assert MD.upload_progress_pct(50, 100) == 50
+    assert MD.upload_progress_pct(999, 100) == 100  # clamped
+    assert MD.upload_progress_pct(1, 3) == 33
+
+
+# ---- pre-send guards (size + type + duration) ----
+
+def test_precheck_blocks_when_gated():
+    # storage is key-gated in tests -> any media pick is blocked with a reason
+    ok, reason = MD.precheck_media_send("photo", 1 * MD.MB, lang="en")
+    assert ok is False and reason is not None
+
+
+def test_precheck_reasons_are_localized_strings():
+    ok, reason = MD.precheck_media_send("document", 1 * MD.MB, ext="exe", lang="bn")
+    assert ok is False and isinstance(reason, str) and reason
+
+
+# ---- offline cache classifier ----
+
+def test_cache_status_gated_when_storage_off():
+    assert MD.cache_status({"kind": "photo"}) == "gated"
+
+
+def test_cache_status_labels_bilingual():
+    assert MD.cache_status_label("downloadable", "en") == "Tap to download"
+    assert MD.cache_status_label("cached", "bn") == "ডিভাইসে সংরক্ষিত"
+
+
 def run_all():
     import inspect
     fns = [v for k, v in sorted(globals().items())

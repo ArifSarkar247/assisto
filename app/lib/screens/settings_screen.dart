@@ -22,6 +22,8 @@ import 'in_progress_screen.dart';
 import 'legal_screen.dart';
 import 'messenger/admin_moderation_screen.dart';
 import 'messenger/admin_users_screen.dart';
+import 'admin/cost_flags_screen.dart';
+import 'admin/server_address_screen.dart';
 import 'messenger/moderation_policy_screen.dart';
 import 'messenger/messenger_profile_screen.dart';
 import '../widgets/msgr_avatar.dart';
@@ -29,6 +31,9 @@ import '../widgets/msgr_avatar.dart';
 import 'action_center_screen.dart';
 import 'offline_status_screen.dart';
 import '../widgets/offline_strings.dart';
+// Section-21 support surfaces: in-app update check (#180) + support center (#181).
+import 'app_update_screen.dart';
+import 'support_center_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -282,7 +287,14 @@ class SettingsScreen extends StatelessWidget {
             leading: const Icon(Icons.support_agent_outlined),
             title: Text(AppLocalizations.of(context).supportReportTile),
             onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const SupportScreen())),
+                MaterialPageRoute(builder: (_) => const SupportCenterScreen())),
+          ),
+          ListTile(
+            leading: const Icon(Icons.system_update_outlined),
+            title: Text(AppLocalizations.of(context).updateTile),
+            subtitle: Text(AppLocalizations.of(context).updateTileSubtitle),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const AppUpdateScreen())),
           ),
           ListTile(
             leading: const Icon(Icons.card_giftcard_outlined),
@@ -379,6 +391,20 @@ class _MsgrSettingsSectionState extends State<_MsgrSettingsSection> {
             leading: const Icon(Icons.manage_accounts_outlined),
             title: Text(t.settingsMsgrUsers),
             onTap: () => _open(const AdminUsersScreen()),
+          ),
+          // #178 Cost kill-switch & feature flags (owner/superuser).
+          ListTile(
+            leading: const Icon(Icons.toggle_on_outlined),
+            title: Text(t.costFlagsTile),
+            subtitle: Text(t.costFlagsTileSub),
+            onTap: () => _open(const CostFlagsScreen()),
+          ),
+          // #179 Server-address swap (owner/admin).
+          ListTile(
+            leading: const Icon(Icons.dns_outlined),
+            title: Text(t.srvTile),
+            subtitle: Text(t.srvTileSub),
+            onTap: () => _open(const ServerAddressScreen()),
           ),
         ],
         // Policies — visible to everyone.

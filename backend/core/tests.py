@@ -817,6 +817,11 @@ AgentStudioSnippetTests = _make_snippet_case(
 # hashtags/emoji, share intent. Key-free; never auto-posts.
 SocialComposeSnippetTests = _make_snippet_case(
     "core.logic.social_tests_snippets", "SocialComposeSnippetTests")
+# In-app updater (#180, §21) — pure version-compare helper. Fail-closed: never
+# claims an update on ambiguous/garbage input; never returns a url unless an
+# update is genuinely available and the link is a usable http(s) one.
+AppUpdateSnippetTests = _make_snippet_case(
+    "core.logic.app_update_tests_snippets", "AppUpdateSnippetTests")
 # Payment / auto-pay ladder (advanced §21) — deterministic escalation engine for
 # receivables (chase dues) + payables (bill/EMI reminders). Never holds money,
 # never auto-charges; `pay_key` is gated on a licensed payment key.
@@ -842,6 +847,11 @@ MoneyEngineSnippetTests = _make_snippet_case(
 # two-timezone math, remittance reminder (never a wallet).
 FamilySharingSnippetTests = _make_snippet_case(
     "core.logic.family_sharing_tests_snippets", "FamilySharingSnippetTests")
+# Cost kill-switch & feature flags (admin, advanced §21 #178) — deterministic
+# flag catalog + confirm-gate + append-only audit builder. Pure: no DB, no
+# clock, no money; the owner/superuser console classifies every flip through it.
+AdminFlagsSnippetTests = _make_snippet_case(
+    "core.logic.admin_flags_tests_snippets", "AdminFlagsSnippetTests")
 
 
 # ---------------------------------------------------------------------------

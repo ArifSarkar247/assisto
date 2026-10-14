@@ -66,7 +66,11 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   List<Map<String, dynamic>> _messages = [];
   List<Map<String, dynamic>> _members = [];
   bool _loading = true;
+  bool _loadFailed = false; // §21 honest load error + retry
   bool _sending = false;
+  // §21 failed-send: the last text that could not be sent, kept so the user can
+  // resend without retyping. Null when the last send succeeded.
+  String? _failedText;
   Map<String, dynamic>? _replyTo;
 
   // Group ⋮ driven UI modes.
@@ -104,6 +108,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   bool get _canPost => !_announcementsOnly || _myRole == 'admin';
 
   Future<void> _load() async {
+    if (mounted && !_loading) setState(() => _loading = true);
     try {
       final mem = await _api.getJson('/circle/groups/$_groupId/members');
       _members = ((mem['results'] ?? mem['members'] ?? []) as List)
@@ -111,9 +116,11 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       final msg = await _api.getJson('/circle/groups/$_groupId/messages');
       _messages = ((msg['results'] ?? msg['messages'] ?? []) as List)
           .cast<Map<String, dynamic>>();
+      _loadFailed = false;
     } catch (_) {
-      _members = [];
-      _messages = [];
+      // Keep any already-loaded messages visible; only flag the error so the
+      // UI can offer Retry instead of silently showing an empty chat.
+      _loadFailed = _messages.isEmpty;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -143,10 +150,18 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   /// Encrypt [plaintext] ONCE PER RECIPIENT (fallback fan-out) and POST a single
   /// envelope with a per_recipient ciphertext map. The server stores ciphertext
   /// only. Mirrors core/logic/circle_groups.build_group_fanout.
-  Future<void> _send() async {
-    final text = _input.text.trim();
+  Future<void> _send({String? resendText}) async {
+    final text = resendText ?? _input.text.trim();
     if (text.isEmpty || _sending || !_canPost) return;
-    setState(() => _sending = true);
+    // §21: if there is no one to encrypt to, say so instead of a silent no-op.
+    if (_recipients.isEmpty) {
+      _toast(_t.grpNoRecipients);
+      return;
+    }
+    setState(() {
+      _sending = true;
+      _failedText = null;
+    });
     final perRecipient = <String, dynamic>{};
     final recipientIds = <int>[];
     for (final r in _recipients) {
@@ -166,6 +181,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       } catch (_) {}
     }
     final mentions = _parseMentions(text);
+    var ok = true;
     try {
       await _api.postJson('/circle/groups/$_groupId/messages', {
         'recipient_ids': recipientIds,
@@ -176,11 +192,20 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         if (_replyTo != null) 'reply_to': '${_replyTo!['id']}',
         'client_msg_id': DateTime.now().microsecondsSinceEpoch.toString(),
       });
-    } catch (_) {}
-    _input.clear();
-    _replyTo = null;
+    } catch (_) {
+      ok = false;
+    }
+    if (ok) {
+      _input.clear();
+      _replyTo = null;
+      _failedText = null;
+    } else {
+      // §21 honest failed-send: keep the text so the user can resend, and
+      // surface a failure banner (rendered above the composer).
+      _failedText = text;
+    }
     if (mounted) setState(() => _sending = false);
-    await _load();
+    if (ok) await _load();
   }
 
   /// Parse @mentions into MEMBER IDS (never names leave the device as plaintext
@@ -669,13 +694,36 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       });
 
   Future<void> _deleteSelected() async {
+    if (_selected.isEmpty) return;
+    // §21 confirm gate: deleting messages is destructive.
+    final count = _selected.length;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(_t.grpConfirmDeleteMsgsTitle),
+        content: Text(_t.grpConfirmDeleteMsgsBody('$count')),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(_t.cancel)),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(_t.grpConfirmDelete)),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    var failed = 0;
     for (final id in _selected) {
       try {
         await _api
             .postJson('/circle/groups/$_groupId/messages/$id/delete', {});
-      } catch (_) {}
+      } catch (_) {
+        failed++;
+      }
     }
     _exitSelect();
+    if (failed > 0) _toast(_t.grpActionFailed);
     await _load();
   }
 
@@ -788,16 +836,84 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
               : _normalAppBar(),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                if (pinned.isNotEmpty && !_searching && !_selecting)
-                  _pinnedBar(pinned),
-                Expanded(child: _messageList()),
-                if (_replyTo != null && !_searching && !_selecting)
-                  _replyPreview(),
-                if (!_searching && !_selecting) _composer(),
-              ],
+          : _loadFailed
+              ? _errorRetry()
+              : Column(
+                  children: [
+                    if (pinned.isNotEmpty && !_searching && !_selecting)
+                      _pinnedBar(pinned),
+                    Expanded(child: _messageList()),
+                    if (_failedText != null && !_searching && !_selecting)
+                      _failedSendBanner(),
+                    if (_replyTo != null && !_searching && !_selecting)
+                      _replyPreview(),
+                    if (!_searching && !_selecting) _composer(),
+                  ],
+                ),
+    );
+  }
+
+  /// §21 load error: honest message + Retry (keeps any messages already shown).
+  Widget _errorRetry() {
+    final scheme = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.xl),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.cloud_off_outlined,
+                size: 48, color: scheme.onSurfaceVariant),
+            const SizedBox(height: Gap.md),
+            Text(_t.circleBackendPending,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: scheme.onSurfaceVariant)),
+            const SizedBox(height: Gap.lg),
+            FilledButton.icon(
+              icon: const Icon(Icons.refresh),
+              onPressed: _load,
+              label: Text(_t.grpRetry),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// §21 failed-send banner: shown when the last send failed. Offers Resend
+  /// (re-encrypts + re-posts the kept text) so a transient failure is recoverable.
+  Widget _failedSendBanner() {
+    final scheme = Theme.of(context).colorScheme;
+    final text = _failedText ?? '';
+    return Material(
+      color: scheme.errorContainer,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+            horizontal: Gap.lg, vertical: Gap.sm),
+        child: Row(
+          children: [
+            Icon(Icons.error_outline,
+                size: 18, color: scheme.onErrorContainer),
+            const SizedBox(width: Gap.sm),
+            Expanded(
+              child: Text(_t.grpSendFailed,
+                  style: TextStyle(color: scheme.onErrorContainer)),
+            ),
+            TextButton(
+              onPressed: _sending
+                  ? null
+                  : () => _send(resendText: text),
+              child: Text(_t.grpSendRetry),
+            ),
+            IconButton(
+              tooltip: _t.close,
+              icon: Icon(Icons.close,
+                  size: 18, color: scheme.onErrorContainer),
+              onPressed: () => setState(() => _failedText = null),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

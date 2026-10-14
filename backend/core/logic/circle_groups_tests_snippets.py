@@ -477,6 +477,47 @@ def test_notifications_bilingual():
     assert "প্রিমিয়াম" in G.group_call_upgrade_prompt("bn")["title"]
 
 
+# ---- §21 destructive confirm copy ----
+
+def test_confirm_copy_has_three_parts_bilingual():
+    for action in ("leave", "remove", "demote", "delete_messages",
+                   "clear_chat", "report"):
+        en = G.confirm_copy(action, lang="en")
+        bn = G.confirm_copy(action, lang="bn")
+        assert en["title"] and en["body"] is not None and en["confirm"]
+        assert bn["title"] and bn["confirm"]
+        assert en["title"] != bn["title"]  # actually localized
+
+
+def test_confirm_copy_personalizes_name():
+    en = G.confirm_copy("remove", name="Rahim", lang="en")
+    assert "Rahim" in en["body"]
+    bn = G.confirm_copy("remove", name="রহিম", lang="bn")
+    assert "রহিম" in bn["body"]
+    assert G.confirm_copy("remove", lang="en")["body"]  # no name -> generic
+
+
+def test_confirm_copy_unknown_action_safe_default():
+    c = G.confirm_copy("bogus", lang="en")
+    assert c["title"] and c["confirm"]
+
+
+# ---- §21 roster state classifier ----
+
+def test_roster_state_precedence():
+    assert G.roster_state([], loaded=False, failed=True) == "error"
+    assert G.roster_state([], loaded=False) == "loading"
+    assert G.roster_state([], loaded=True) == "empty"
+    assert G.roster_state([{"id": 1}], loaded=True) == "ready"
+    assert G.roster_state([{"id": 1}], loaded=True, failed=True) == "error"
+
+
+def test_roster_notices_bilingual():
+    assert G.roster_empty_notice("en") and G.roster_empty_notice("bn")
+    assert "Try again" in G.roster_error_notice("en")
+    assert G.roster_empty_notice("en") != G.roster_empty_notice("bn")
+
+
 def run_all():
     import inspect
     fns = [v for k, v in sorted(globals().items())

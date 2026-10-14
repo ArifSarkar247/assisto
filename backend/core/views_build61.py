@@ -56,6 +56,65 @@ class ReferralBalanceView(APIView):
         return Response(summary)
 
 
+class _FlagsBase(APIView):
+    """#178 Cost kill-switch & feature flags — OWNER-only. State + append-only
+    audit persist in AdminFlagState(key='global'); all validation / confirm-gate
+    / audit construction run SERVER-SIDE via core.logic.admin_flags (the client
+    mirror is advisory only). A non-owner gets 403; the console then degrades to
+    its owner-only state."""
+    @staticmethod
+    def _owner(request):
+        u = request.user
+        return bool(u and u.is_authenticated and u.is_superuser)
+
+    @staticmethod
+    def _row():
+        from .models import AdminFlagState
+        row, _ = AdminFlagState.objects.get_or_create(key="global")
+        return row
+
+    @staticmethod
+    def _snapshot(row):
+        from .logic import admin_flags as AF
+        state = AF.normalize_state(row.state)
+        flags = [dict(c, value=state[c["id"]]) for c in AF.catalog()]
+        return {"flags": flags, "audit": row.audit, "summary": AF.summarize(state),
+                "can_manage": True}
+
+
+class AdminFlagsView(_FlagsBase):
+    def get(self, request):
+        if not self._owner(request):
+            return Response({"can_manage": False},
+                            status=status.HTTP_403_FORBIDDEN)
+        if request.query_params.get("probe"):
+            return Response({"can_manage": True})
+        return Response(self._snapshot(self._row()))
+
+
+class AdminFlagsFlipView(_FlagsBase):
+    def post(self, request):
+        if not self._owner(request):
+            return Response({"can_manage": False},
+                            status=status.HTTP_403_FORBIDDEN)
+        from .logic import admin_flags as AF
+        d = request.data or {}
+        flag = d.get("flag")
+        value = d.get("value")
+        reason = d.get("reason", "")
+        row = self._row()
+        res = AF.apply_flip(row.state, flag, value,
+                            actor=request.user.id, reason=reason,
+                            at_iso=timezone.now().isoformat())
+        if not res["ok"]:
+            return Response({"ok": False, "problems": res["problems"]},
+                            status=status.HTTP_400_BAD_REQUEST)
+        row.state = res["state"]
+        row.audit = ([res["audit"]] + list(row.audit or []))[:200]  # newest-first, capped
+        row.save(update_fields=["state", "audit", "updated_at"])
+        return Response(self._snapshot(row))
+
+
 class ReferralHistoryView(APIView):
     def get(self, request):
         lang = req_lang(request)

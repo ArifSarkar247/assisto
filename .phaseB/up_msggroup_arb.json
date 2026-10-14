@@ -1,0 +1,32 @@
+{
+  "grpRetry": ["আবার চেষ্টা করুন", "Try again"],
+  "grpRosterEmpty": ["এখনও কোনো সদস্য নেই।", "No members yet."],
+  "grpInfoLoadError": ["গ্রুপের তথ্য আনা যায়নি।", "Could not load group info."],
+  "grpConfirmRemoveTitle": ["সদস্য সরাবেন?", "Remove member?"],
+  "grpConfirmRemoveBody": ["{name}-কে গ্রুপ থেকে সরানো হবে।", "{name} will be removed from the group."],
+  "grpConfirmRemove": ["সরান", "Remove"],
+  "grpConfirmDemoteTitle": ["অ্যাডমিন সরাবেন?", "Remove as admin?"],
+  "grpConfirmDemoteBody": ["{name} আর অ্যাডমিন থাকবেন না।", "{name} will no longer be an admin."],
+  "grpConfirmDemote": ["সরান", "Remove"],
+  "grpConfirmDeleteMsgsTitle": ["বার্তা মুছবেন?", "Delete messages?"],
+  "grpConfirmDeleteMsgsBody": ["নির্বাচিত {n}টি বার্তা মুছে ফেলা হবে।", "The {n} selected messages will be deleted."],
+  "grpConfirmDelete": ["মুছুন", "Delete"],
+  "grpActionFailed": ["কাজটি সম্পন্ন হয়নি। আবার চেষ্টা করুন।", "That did not go through. Try again."],
+  "grpGroupSaved": ["গ্রুপের তথ্য সংরক্ষিত হয়েছে।", "Group info saved."],
+  "grpAddMembersResult": ["{added} জন যোগ হয়েছে, {failed} জন যোগ হয়নি।", "{added} added, {failed} could not be added."],
+  "grpSendFailed": ["বার্তা পাঠানো যায়নি।", "Message not sent."],
+  "grpSendRetry": ["আবার পাঠান", "Resend"],
+  "grpNoRecipients": ["এই গ্রুপে পাঠানোর মতো কেউ নেই।", "No one to send to in this group."],
+  "grpMediaLoadFailed": ["গ্রুপ মিডিয়া আনা যায়নি।", "Could not load group media."],
+  "grpMediaDownload": ["ডাউনলোড করতে ট্যাপ করুন", "Tap to download"],
+  "grpMediaCached": ["ডিভাইসে সংরক্ষিত", "Saved on device"],
+  "grpMediaDownloadAgain": ["আবার ডাউনলোড করুন", "Download again"],
+  "circleActionDownload": ["ডাউনলোড করুন", "Download"],
+  "circleMediaSavingSoon": ["এনক্রিপ্টেড স্টোরেজ চালু হলে সংরক্ষণ করা যাবে।", "Saving will work when encrypted storage is enabled."],
+  "_params": {
+    "grpConfirmRemoveBody": {"name": "String"},
+    "grpConfirmDemoteBody": {"name": "String"},
+    "grpConfirmDeleteMsgsBody": {"n": "String"},
+    "grpAddMembersResult": {"added": "String", "failed": "String"}
+  }
+}

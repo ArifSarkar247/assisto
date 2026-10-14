@@ -1,0 +1,130 @@
+{
+  "_params": {
+    "flagEnableTitle": ["label"],
+    "flagDisableTitle": ["label"],
+    "flagEnabledToast": ["label"],
+    "flagDisabledToast": ["label"],
+    "flagConfirmEnableCost": ["label"],
+    "flagConfirmDisableCost": ["label"],
+    "flagConfirmDisableFeature": ["label"],
+    "flagConfirmGeneric": ["label"],
+    "flagFlipFailed": ["error"],
+    "flagSummaryCostLine": ["on", "total"],
+    "flagSummaryFeaturesOff": ["n"],
+    "flagAuditEnabled": ["label"],
+    "flagAuditDisabled": ["label"],
+    "flagAuditMeta": ["actor", "when"],
+    "srvConfirmBody": ["url"],
+    "srvRevertBody": ["url"],
+    "srvProbeUnreachable": ["status"],
+    "srvProbeLatency": ["ms"]
+  },
+
+  "refresh": ["রিফ্রেশ", "Refresh"],
+
+  "costFlagsTile": ["খরচ নিয়ন্ত্রণ ও ফিচার সুইচ", "Cost controls & feature switches"],
+  "costFlagsTileSub": ["খরচ-ঝুঁকিপূর্ণ সেবা বন্ধ/চালু করুন, ফিচার টগল করুন", "Kill costly services, toggle features"],
+  "costFlagsTitle": ["খরচ কিল-সুইচ ও ফিচার ফ্ল্যাগ", "Cost kill-switch & feature flags"],
+
+  "flagKillSwitchNote": ["কিল-সুইচ শুধু একটি সক্ষমতা চালু/বন্ধ করে — এটি কখনও টাকা ধরে রাখে না বা দাম হিসাব করে না। খরচ বন্ধ করা নিরাপদ দিক; চালু করলে খরচ হতে পারে।", "A kill switch only turns a capability on or off — it never holds money or computes a price. Turning spend off is the safe direction; turning it on can cost money."],
+
+  "flagGroupAi": ["এআই সেবা", "AI services"],
+  "flagGroupMessaging": ["বার্তা পাঠানো", "Messaging"],
+  "flagGroupMedia": ["মিডিয়া প্রসেসিং", "Media processing"],
+  "flagGroupLocation": ["অবস্থান ও মানচিত্র", "Location & maps"],
+  "flagGroupFeatures": ["ফিচার", "Features"],
+  "flagGroupOps": ["পরিচালনা", "Operations"],
+
+  "flagAiDrafting": ["এআই দিয়ে খসড়া তৈরি", "AI drafting"],
+  "flagAiInboxSummary": ["এআই ইনবক্স সারাংশ", "AI inbox summary"],
+  "flagAiScamCheck": ["এআই প্রতারণা যাচাই", "AI scam check"],
+  "flagSmsFanout": ["এসএমএস পাঠানো", "SMS sending"],
+  "flagPushFanout": ["পুশ নোটিফিকেশন পাঠানো", "Push notifications"],
+  "flagCloudPhotoEnhance": ["ক্লাউডে ছবি উন্নত করা", "Cloud photo enhance"],
+  "flagMapsGeocoding": ["মানচিত্র ও ঠিকানা খোঁজা", "Maps & geocoding"],
+  "flagMessengerPublic": ["পাবলিক মেসেঞ্জার", "Public Messenger"],
+  "flagBusinessCrm": ["ব্যবসা সিআরএম", "Business CRM"],
+  "flagFamilySharing": ["পরিবারের সাথে শেয়ার", "Family sharing"],
+  "flagNewSignups": ["নতুন সাইন-আপ", "New sign-ups"],
+
+  "flagCostTag": ["খরচ-ঝুঁকি", "cost"],
+  "flagPillSpending": ["চালু — খরচ হচ্ছে", "On — spending"],
+  "flagPillOff": ["বন্ধ", "Off"],
+  "flagPillOn": ["চালু", "On"],
+  "flagPillDisabled": ["সবার জন্য বন্ধ", "Disabled for everyone"],
+
+  "flagEnableTitle": ["“{label}” চালু করবেন?", "Turn on “{label}”?"],
+  "flagDisableTitle": ["“{label}” বন্ধ করবেন?", "Turn off “{label}”?"],
+  "flagEnabledToast": ["“{label}” চালু করা হয়েছে", "“{label}” turned on"],
+  "flagDisabledToast": ["“{label}” বন্ধ করা হয়েছে", "“{label}” turned off"],
+
+  "flagConfirmEnableCost": ["“{label}” চালু করলে এই সেবাটি আবার টাকা খরচ করতে পারে। নিশ্চিত হলে একটি কারণ লিখুন।", "Turning “{label}” on can start spending money again on this service. Type a reason to confirm."],
+  "flagConfirmDisableCost": ["“{label}” বন্ধ করলে এই খরচ থামবে, কিন্তু এর উপর নির্ভরশীল ফিচার কাজ নাও করতে পারে। একটি কারণ লিখুন।", "Turning “{label}” off stops this spend, but features that rely on it may stop working. Type a reason."],
+  "flagConfirmDisableFeature": ["“{label}” বন্ধ করলে এটি সব ব্যবহারকারীর জন্য বন্ধ হয়ে যাবে। একটি কারণ লিখুন।", "Turning “{label}” off disables it for every user. Type a reason."],
+  "flagConfirmGeneric": ["“{label}” পরিবর্তন করবেন? একটি কারণ লিখুন।", "Change “{label}”? Type a reason."],
+
+  "flagReasonLabel": ["কারণ (বাধ্যতামূলক)", "Reason (required)"],
+  "flagReasonHint": ["যেমন: বিল বেড়ে যাওয়ায় সাময়িক বন্ধ", "e.g. temporarily off due to a bill spike"],
+  "flagAuditedNote": ["এই পরিবর্তন অডিট লগে স্থায়ীভাবে রাখা হবে — কে, কখন, কেন।", "This change is kept permanently in the audit log — who, when, and why."],
+  "flagConfirmFlip": ["নিশ্চিত করুন", "Confirm"],
+
+  "flagFlipFailed": ["পরিবর্তন করা যায়নি: {error}", "Couldn't apply the change: {error}"],
+
+  "flagSummaryCostLine": ["{total}টির মধ্যে {on}টি খরচ-সুইচ চালু আছে", "{on} of {total} cost switches are on"],
+  "flagSummaryAllFeaturesOn": ["সব ফিচার চালু আছে", "All features are on"],
+  "flagSummaryFeaturesOff": ["{n}টি ফিচার বন্ধ আছে", "{n} features are off"],
+
+  "flagAuditTitle": ["অডিট লগ", "Audit trail"],
+  "flagAuditAppendOnly": ["শুধু যোগ হয় — কোনো সারি সম্পাদনা বা মোছা যায় না।", "Append-only — rows can't be edited or deleted."],
+  "flagAuditEmpty": ["এখনও কোনো পরিবর্তন হয়নি।", "No changes yet."],
+  "flagAuditEnabled": ["“{label}” চালু করা হয়েছে", "Turned on “{label}”"],
+  "flagAuditDisabled": ["“{label}” বন্ধ করা হয়েছে", "Turned off “{label}”"],
+  "flagAuditMeta": ["{actor} · {when}", "{actor} · {when}"],
+
+  "flagEmptyTitle": ["কোনো ফ্ল্যাগ নেই", "No flags"],
+  "flagEmptyBody": ["সার্ভার থেকে কোনো ফিচার ফ্ল্যাগ পাওয়া যায়নি।", "The server returned no feature flags."],
+  "flagLoadErrorTitle": ["লোড করা যায়নি", "Couldn't load"],
+  "flagLoadErrorBody": ["ফ্ল্যাগগুলো আনা যায়নি — ইন্টারনেট দেখে আবার চেষ্টা করুন।", "Couldn't fetch the flags — check your connection and retry."],
+  "flagOwnerOnlyTitle": ["শুধু মালিকের জন্য", "Owner only"],
+  "flagOwnerOnlyBody": ["এই কনসোলটি শুধু মালিক/সুপার-ইউজার খুলতে পারেন।", "Only the owner/superuser can open this console."],
+
+  "srvTile": ["সার্ভার ঠিকানা পরিবর্তন", "Server address"],
+  "srvTileSub": ["অ্যাপকে অন্য ব্যাকএন্ডে নির্দেশ করুন (উন্নত)", "Point the app at another backend (advanced)"],
+  "srvTitle": ["সার্ভার ঠিকানা পরিবর্তন", "Server address swap"],
+
+  "srvCurrentDefault": ["এখন: ডিফল্ট সার্ভার", "Now: default server"],
+  "srvCurrentCustom": ["এখন: কাস্টম সার্ভার", "Now: custom server"],
+
+  "srvNewLabel": ["নতুন সার্ভার ঠিকানা", "New server address"],
+  "srvHint": ["https://example.com", "https://example.com"],
+
+  "srvTestButton": ["সংযোগ পরীক্ষা", "Test connection"],
+  "srvSaveButton": ["সংরক্ষণ", "Save"],
+  "srvSaveConfirm": ["পরিবর্তন করুন", "Switch"],
+  "srvRevertButton": ["ডিফল্টে ফিরে যান", "Revert to default"],
+  "srvRevertConfirm": ["ফিরে যান", "Revert"],
+
+  "srvProbeIdle": ["এখনও পরীক্ষা করা হয়নি", "Not checked yet"],
+  "srvProbeChecking": ["পরীক্ষা করা হচ্ছে…", "Checking…"],
+  "srvProbeReachable": ["সার্ভারে পৌঁছানো গেছে", "Server reachable"],
+  "srvProbeLatency": ["রাউন্ড-ট্রিপ {ms} মিলিসেকেন্ড", "Round-trip {ms} ms"],
+  "srvProbeUnreachable": ["সাড়া দিয়েছে, কিন্তু সঠিক ব্যাকএন্ড নয় (স্ট্যাটাস {status})", "Responded, but not a valid backend (status {status})"],
+  "srvProbeError": ["পৌঁছানো যায়নি — ঠিকানা বা ইন্টারনেট দেখুন", "Unreachable — check the address or your connection"],
+
+  "srvErrEmpty": ["ঠিকানা লিখুন", "Enter an address"],
+  "srvErrScheme": ["ঠিকানা http:// বা https:// দিয়ে শুরু হতে হবে", "Address must start with http:// or https://"],
+  "srvErrHost": ["একটি বৈধ হোস্ট লিখুন", "Enter a valid host"],
+  "srvErrPath": ["শুধু মূল ঠিকানা দিন — কোনো পথ বা প্যারামিটার নয়", "Give only the base — no path or parameters"],
+  "srvErrParse": ["ঠিকানাটি বোঝা গেল না", "Couldn't understand the address"],
+
+  "srvConfirmTitle": ["সার্ভার পরিবর্তন করবেন?", "Switch server?"],
+  "srvConfirmBody": ["অ্যাপটি এখন থেকে এই ঠিকানায় সব অনুরোধ পাঠাবে:\n{url}", "The app will send all requests to:\n{url}"],
+  "srvConfirmUnverified": ["এই সার্ভারে এখনও পৌঁছানো যায়নি। তবুও সংরক্ষণ করবেন?", "This server isn't confirmed reachable yet. Save anyway?"],
+  "srvSavedToast": ["সার্ভার ঠিকানা সংরক্ষণ করা হয়েছে", "Server address saved"],
+
+  "srvRevertTitle": ["ডিফল্টে ফিরে যাবেন?", "Revert to default?"],
+  "srvRevertBody": ["অ্যাপটি আবার শিপড ডিফল্ট সার্ভারে ফিরে যাবে:\n{url}", "The app will return to the shipped default server:\n{url}"],
+  "srvRevertedToast": ["ডিফল্ট সার্ভারে ফিরে যাওয়া হয়েছে", "Reverted to the default server"],
+
+  "srvApplyNote": ["সংরক্ষণ করলে ঠিকানাটি নিরাপদে রাখা হয়। নতুন ঠিকানাটি কার্যকর হয় অ্যাপ পুনরায় চালু করার পর (অথবা ইন্টিগ্রেটরের এক-লাইন ওয়্যারিংয়ের পর)। ডিফল্টে ফিরে যাওয়া সবসময় এক ট্যাপ দূরে।", "Saving stores the address safely. The new address takes effect after an app relaunch (or the integrator's one-line wiring). Reverting to the default is always one tap away."]
+}

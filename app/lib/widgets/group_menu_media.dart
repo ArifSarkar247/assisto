@@ -25,7 +25,8 @@ class GroupMediaScreen extends StatefulWidget {
 
 class _GroupMediaScreenState extends State<GroupMediaScreen> {
   bool _loading = true;
-  bool _backendReady = true;
+  bool _backendReady = true; // false => key-gated backend pending (honest empty)
+  bool _loadFailed = false; // true => transient fetch error (offer Retry)
   List<Map<String, dynamic>> _items = [];
 
   ApiClient get _api => context.read<AppState>().api;
@@ -38,16 +39,33 @@ class _GroupMediaScreenState extends State<GroupMediaScreen> {
   }
 
   Future<void> _load() async {
+    if (mounted) setState(() {
+      _loading = true;
+      _loadFailed = false;
+    });
     try {
       final r = await _api.getJson('/circle/groups/${widget.groupId}/media');
       _items = ((r['items'] ?? r['results'] ?? []) as List)
           .cast<Map<String, dynamic>>();
-      _backendReady = true;
+      // A 'backend_ready:false' marker means storage is still key-gated (an
+      // honest pending-empty, not an error). Anything else that throws is a
+      // real fetch error -> Retry.
+      _backendReady = r['backend_ready'] != false;
+      _loadFailed = false;
     } catch (_) {
-      _backendReady = false;
-      _items = [];
+      _loadFailed = true;
     }
     if (mounted) setState(() => _loading = false);
+  }
+
+  /// Per-item cache/download affordance label. Mirrors
+  /// core/logic/circle_media.cache_status: a gated blob shows "available when
+  /// storage is on"; a real blob shows "saved on device" / "tap to download".
+  String _cacheLabel(Map<String, dynamic> m) {
+    if (m['cached_locally'] == true) return _t.grpMediaCached;
+    if (m['cache_expired'] == true) return _t.grpMediaDownloadAgain;
+    if (_backendReady) return _t.grpMediaDownload;
+    return _t.grpMediaGated;
   }
 
   IconData _iconFor(String kind) {
@@ -71,20 +89,22 @@ class _GroupMediaScreenState extends State<GroupMediaScreen> {
       appBar: AppBar(title: Text(_t.grpMenuGroupMedia)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : _items.isEmpty
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(Gap.xl),
-                    child: Text(
-                      _backendReady
-                          ? _t.grpMediaEmpty
-                          : _t.circleBackendPending,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: scheme.onSurfaceVariant),
-                    ),
-                  ),
-                )
-              : GridView.builder(
+          : _loadFailed
+              ? _errorRetry(scheme)
+              : _items.isEmpty
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(Gap.xl),
+                        child: Text(
+                          _backendReady
+                              ? _t.grpMediaEmpty
+                              : _t.circleBackendPending,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: scheme.onSurfaceVariant),
+                        ),
+                      ),
+                    )
+                  : GridView.builder(
                   padding: const EdgeInsets.all(Gap.md),
                   gridDelegate:
                       const SliverGridDelegateWithFixedCrossAxisCount(
@@ -122,13 +142,28 @@ class _GroupMediaScreenState extends State<GroupMediaScreen> {
                                         color: scheme.onSurfaceVariant)),
                           ],
                           const SizedBox(height: Gap.xs),
-                          Text(_t.grpMediaGated,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelSmall
-                                  ?.copyWith(color: scheme.outline)),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                m['cached_locally'] == true
+                                    ? Icons.download_done_outlined
+                                    : Icons.download_outlined,
+                                size: 12,
+                                color: scheme.outline,
+                              ),
+                              const SizedBox(width: Gap.xs),
+                              Flexible(
+                                child: Text(_cacheLabel(m),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelSmall
+                                        ?.copyWith(color: scheme.outline)),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     );
@@ -136,4 +171,28 @@ class _GroupMediaScreenState extends State<GroupMediaScreen> {
                 ),
     );
   }
+
+  /// §21 error state for the media grid: honest message + Retry.
+  Widget _errorRetry(ColorScheme scheme) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(Gap.xl),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.cloud_off_outlined,
+                  size: 48, color: scheme.onSurfaceVariant),
+              const SizedBox(height: Gap.md),
+              Text(_t.grpMediaLoadFailed,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: scheme.onSurfaceVariant)),
+              const SizedBox(height: Gap.lg),
+              FilledButton.icon(
+                icon: const Icon(Icons.refresh),
+                onPressed: _load,
+                label: Text(_t.grpRetry),
+              ),
+            ],
+          ),
+        ),
+      );
 }

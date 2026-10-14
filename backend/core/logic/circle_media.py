@@ -408,6 +408,161 @@ def media_gate_notice(kind, lang="bn"):
 
 
 # ---------------------------------------------------------------------------
+# Media SEND-STATE machine (§21 honest states) — queued → uploading → sent,
+# with a terminal `failed` that is RETRYABLE.  Pure + deterministic: the client
+# drives the state locally for each outgoing media item, the server re-derives
+# delivered/sent from blob delivery.  No side effects, no DB.
+# ---------------------------------------------------------------------------
+
+# Canonical outgoing-media states (a media message's lifecycle on the sender).
+SEND_STATES = ("queued", "uploading", "sent", "failed", "canceled")
+# States a user may retry from (only a hard failure is retryable; an in-flight
+# upload is NOT — the client must cancel first).
+RETRYABLE_STATES = ("failed",)
+# Terminal states (no further automatic transition).
+TERMINAL_STATES = ("sent", "canceled")
+
+# Allowed forward transitions.  A retry moves failed -> queued.
+_SEND_TRANSITIONS = {
+    "queued": {"uploading", "failed", "canceled"},
+    "uploading": {"sent", "failed", "canceled"},
+    "failed": {"queued", "canceled"},      # queued == retry
+    "sent": set(),
+    "canceled": set(),
+}
+
+
+def can_transition_send(current, nxt):
+    """True if `current` -> `nxt` is a legal outgoing-media transition."""
+    return nxt in _SEND_TRANSITIONS.get(current, set())
+
+
+def is_retryable_send(state, attempts=0, max_attempts=5):
+    """A media send may be retried only from a hard `failed` state and while
+    under the attempt ceiling (so a permanently broken blob stops nagging)."""
+    return state in RETRYABLE_STATES and int(attempts) < int(max_attempts)
+
+
+def next_send_state(current, event, attempts=0, max_attempts=5):
+    """Advance the send state machine on an [event] ∈
+    {start, progress, done, error, retry, cancel}.  Returns (state, attempts).
+    Unknown/illegal events are a no-op (returns the input unchanged) so a flaky
+    client never lands in an impossible state."""
+    attempts = int(attempts)
+    if event == "start" and can_transition_send(current, "uploading"):
+        return "uploading", attempts
+    if event == "progress":
+        return (current if current == "uploading" else current), attempts
+    if event == "done" and can_transition_send(current, "sent"):
+        return "sent", attempts
+    if event == "error" and can_transition_send(current, "failed"):
+        return "failed", attempts + 1
+    if event == "retry":
+        if is_retryable_send(current, attempts, max_attempts) and \
+                can_transition_send(current, "queued"):
+            return "queued", attempts
+        return current, attempts  # exhausted / not failed -> stay put
+    if event == "cancel" and can_transition_send(current, "canceled"):
+        return "canceled", attempts
+    return current, attempts
+
+
+def send_state_label(state, lang="bn"):
+    """Localized short label for an outgoing-media send state."""
+    labels = {
+        "queued": ("অপেক্ষমাণ", "Queued"),
+        "uploading": ("আপলোড হচ্ছে", "Uploading"),
+        "sent": ("পাঠানো হয়েছে", "Sent"),
+        "failed": ("পাঠানো যায়নি", "Not sent"),
+        "canceled": ("বাতিল করা হয়েছে", "Canceled"),
+    }
+    bn, en = labels.get(state, (state, state))
+    return pick(lang, bn, en)
+
+
+def upload_progress_pct(sent_bytes, total_bytes):
+    """Clamp an upload progress fraction to an integer 0..100.  Returns 0 for a
+    zero/unknown total (honest 'starting' rather than a NaN or a fake 100)."""
+    total = int(total_bytes or 0)
+    if total <= 0:
+        return 0
+    pct = int(round((int(sent_bytes or 0) / total) * 100))
+    return max(0, min(100, pct))
+
+
+# ---------------------------------------------------------------------------
+# Pre-send GUARDS (size + type) — one call the client runs before it even
+# starts encrypting, so an oversized/unsupported pick fails fast with a reason.
+# ---------------------------------------------------------------------------
+
+def precheck_media_send(kind, nbytes, hd=False, ext=None, duration_sec=None,
+                        lang="bn"):
+    """Validate a media pick BEFORE upload.  Returns (ok, reason|None).
+    Enforces: (1) the key-gate, (2) per-kind size cap, (3) supported document
+    extension, (4) voice/video duration caps.  `reason` is localized and safe to
+    show verbatim; None means clear-to-send."""
+    gate = media_gate_notice(kind, lang=lang)
+    if gate is not None:
+        return False, gate
+    size_reason = size_reject_reason(kind, nbytes, hd=hd, lang=lang)
+    if size_reason is not None:
+        return False, size_reason
+    if kind == "document" and ext is not None and not is_supported_document(ext):
+        return False, pick(lang,
+                           "এই ধরনের ফাইল সমর্থিত নয়।",
+                           "This file type is not supported.")
+    if kind == "voice" and duration_sec is not None and \
+            not voice_within_limit(duration_sec):
+        return False, pick(lang,
+                           "ভয়েস নোট অনেক লম্বা।",
+                           "Voice note is too long.")
+    if kind == "video" and duration_sec is not None and \
+            not video_within_limit(duration_sec):
+        return False, pick(lang,
+                           "ভিডিওটি অনেক লম্বা।",
+                           "Video is too long.")
+    return True, None
+
+
+# ---------------------------------------------------------------------------
+# OFFLINE-CACHE status — a received media blob is either cached on this device,
+# downloadable, or (while storage is gated) unavailable.  Pure classifier the
+# recipient's chat uses to render the download / cached / gated affordance.
+# ---------------------------------------------------------------------------
+
+def cache_status(blob, now=None):
+    """Classify a RECEIVED media blob for the recipient UI.  blob keys:
+    {kind, cached_locally?, local_expires_at?, byte_size?}.  Returns one of
+    'gated' | 'cached' | 'expired' | 'downloadable'.
+      - gated:        encrypted storage not enabled yet (no real blob).
+      - cached:       decrypted bytes present locally and not expired.
+      - expired:      was cached but the local copy aged out (re-download).
+      - downloadable: available on the relay, not yet pulled to this device."""
+    kind = (blob or {}).get("kind", "photo")
+    if media_gate_notice(kind) is not None:
+        return "gated"
+    if (blob or {}).get("cached_locally"):
+        exp = _as_dt((blob or {}).get("local_expires_at"))
+        if exp is not None:
+            now = now or datetime.now(timezone.utc)
+            if now >= exp:
+                return "expired"
+        return "cached"
+    return "downloadable"
+
+
+def cache_status_label(status, lang="bn"):
+    labels = {
+        "gated": ("স্টোরেজ চালু হলে পাওয়া যাবে", "Available when storage is on"),
+        "cached": ("ডিভাইসে সংরক্ষিত", "Saved on device"),
+        "expired": ("আবার ডাউনলোড করুন", "Download again"),
+        "downloadable": ("ডাউনলোড করতে ট্যাপ করুন", "Tap to download"),
+    }
+    bn, en = labels.get(status, (status, status))
+    return pick(lang, bn, en)
+
+
+# ---------------------------------------------------------------------------
 # helpers
 # ---------------------------------------------------------------------------
 

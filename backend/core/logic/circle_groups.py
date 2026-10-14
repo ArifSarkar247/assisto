@@ -849,6 +849,103 @@ def role_label(role, lang="bn"):
 
 
 # ---------------------------------------------------------------------------
+# §21 DESTRUCTIVE-ACTION confirm copy — the exact confirm text each gate needs,
+# so the client never shows a destructive button without a matching, honest,
+# bilingual confirmation prompt.  Pure strings; no side effects.
+# ---------------------------------------------------------------------------
+
+def confirm_copy(action, name="", lang="bn"):
+    """Return {title, body, confirm} for a destructive group action.
+    action ∈ {leave, remove, demote, delete_messages, clear_chat, report}.
+    `name` personalizes remove/demote (the target member)."""
+    n = name or ""
+    table = {
+        "leave": (
+            ("গ্রুপ ছেড়ে যাবেন?", "Leave group?"),
+            ("আপনি আর এই গ্রুপে বার্তা পাবেন না।",
+             "You will stop receiving messages from this group."),
+            ("ছেড়ে যান", "Leave"),
+        ),
+        "remove": (
+            ("সদস্য সরাবেন?", "Remove member?"),
+            (f"{n}-কে গ্রুপ থেকে সরানো হবে।" if n else "এই সদস্যকে গ্রুপ থেকে সরানো হবে।",
+             f"{n} will be removed from the group." if n else "This member will be removed."),
+            ("সরান", "Remove"),
+        ),
+        "demote": (
+            ("অ্যাডমিন সরাবেন?", "Remove as admin?"),
+            (f"{n} আর অ্যাডমিন থাকবেন না।" if n else "এই সদস্য আর অ্যাডমিন থাকবেন না।",
+             f"{n} will no longer be an admin." if n else "This member will no longer be an admin."),
+            ("সরান", "Remove"),
+        ),
+        "delete_messages": (
+            ("বার্তা মুছবেন?", "Delete messages?"),
+            ("নির্বাচিত বার্তাগুলো মুছে ফেলা হবে।",
+             "The selected messages will be deleted."),
+            ("মুছুন", "Delete"),
+        ),
+        "clear_chat": (
+            ("চ্যাট খালি করবেন?", "Clear chat?"),
+            ("এই গ্রুপের সব বার্তা এই ডিভাইস থেকে মুছে যাবে।",
+             "All messages in this group will be cleared from this device."),
+            ("খালি করুন", "Clear"),
+        ),
+        "report": (
+            ("গ্রুপ রিপোর্ট করবেন?", "Report group?"),
+            ("আমাদের মডারেশন দল এটি পর্যালোচনা করবে।",
+             "Our moderation team will review this."),
+            ("রিপোর্ট করুন", "Report"),
+        ),
+    }
+    title, body, confirm = table.get(
+        action,
+        (("নিশ্চিত?", "Are you sure?"), ("", ""), ("নিশ্চিত করুন", "Confirm")),
+    )
+    return {
+        "title": pick(lang, *title),
+        "body": pick(lang, *body),
+        "confirm": pick(lang, *confirm),
+    }
+
+
+# ---------------------------------------------------------------------------
+# §21 ROSTER-STATE classifier — the honest load/empty/error contract the
+# member-list UI renders.  Pure: maps a fetch outcome to one state so the UI
+# never shows a blank screen or a half-loaded list without an explanation.
+# ---------------------------------------------------------------------------
+
+ROSTER_STATES = ("loading", "error", "empty", "ready")
+
+
+def roster_state(members, loaded=True, failed=False):
+    """Classify a member-roster fetch for the UI.
+      - 'error'   : the fetch failed (show retry),
+      - 'loading' : not loaded yet (show spinner),
+      - 'empty'   : loaded, zero members (honest empty, not a silent blank),
+      - 'ready'   : loaded with ≥1 member.
+    Precedence: error > loading > empty > ready."""
+    if failed:
+        return "error"
+    if not loaded:
+        return "loading"
+    if not members:
+        return "empty"
+    return "ready"
+
+
+def roster_empty_notice(lang="bn"):
+    return pick(lang,
+                "এখনও কোনো সদস্য নেই।",
+                "No members yet.")
+
+
+def roster_error_notice(lang="bn"):
+    return pick(lang,
+                "সদস্য তালিকা আনা যায়নি। আবার চেষ্টা করুন।",
+                "Could not load members. Try again.")
+
+
+# ---------------------------------------------------------------------------
 # helpers
 # ---------------------------------------------------------------------------
 

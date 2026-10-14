@@ -6885,5 +6885,357 @@
   "msgrModAuditAppendOnlyNote": "This log is append-only — entries can't be edited or deleted.",
   "msgrModAppealOpenTitle": "Appeal awaiting review",
   "msgrModAppealOpenBody": "The user has appealed this decision. Re-decide, or reopen it for review.",
-  "msgrModAppealRecordsNote": "A human reviewer will re-read your appeal. The decision and its reason are written to an append-only audit log; records of illegal content are kept for legally-required reporting."
+  "msgrModAppealRecordsNote": "A human reviewer will re-read your appeal. The decision and its reason are written to an append-only audit log; records of illegal content are kept for legally-required reporting.",
+  "updateTile": "Check for app update",
+  "updateTileSubtitle": "See if a newer version is available",
+  "updateTitle": "App update",
+  "updateChecking": "Checking for updates…",
+  "updateAvailableTitle": "An update is available",
+  "updateVersionLine": "{v} → {n}",
+  "@updateVersionLine": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      },
+      "v": {
+        "type": "Object"
+      }
+    }
+  },
+  "updateWhatsNew": "What's new in this update",
+  "updateManualNotice": "Nothing downloads or installs without you. Tapping below opens the download page/store — you take it from there.",
+  "updateDownloadAction": "Download update",
+  "updateLater": "Maybe later",
+  "updateOpenFailed": "Couldn't open the download page. Please try again later.",
+  "updateUpToDateTitle": "You're up to date",
+  "updateUpToDateBody": "Version {v} is the latest. We'll let you know when there's something new.",
+  "@updateUpToDateBody": {
+    "placeholders": {
+      "v": {
+        "type": "Object"
+      }
+    }
+  },
+  "updateCheckAgain": "Check again",
+  "updateCheckFailedTitle": "Couldn't check for updates",
+  "updateCheckFailedBody": "Check your internet connection and try again.",
+  "updateRetry": "Retry",
+  "supportCenterTitle": "Help & support",
+  "supportTabGetHelp": "Get help",
+  "supportTabMyTickets": "My tickets",
+  "supportNewRequest": "Send a new request",
+  "supportCatHelp": "General help",
+  "supportCatBug": "Report a bug",
+  "supportCatAccount": "Account",
+  "supportCatPayment": "Payment",
+  "supportMessageLabel": "Your message",
+  "supportMessageHint": "Describe what's going wrong",
+  "supportSend": "Send",
+  "supportSending": "Sending…",
+  "supportSendFailed": "Couldn't send: {v}",
+  "@supportSendFailed": {
+    "placeholders": {
+      "v": {
+        "type": "Object"
+      }
+    }
+  },
+  "supportSentTitle": "Request sent",
+  "supportSentBody": "Thanks. We'll look into it and reply — track the status under 'My tickets'.",
+  "supportSendAnother": "Send another",
+  "supportSelfHelp": "Self-help",
+  "supportFaqRemindersQ": "Why aren't my reminders arriving on time?",
+  "supportFaqRemindersA": "In your phone's battery settings, set Assisto to 'unrestricted/don't optimize'. See Settings → Reliable reminders.",
+  "supportFaqBackupQ": "How do I back up or export my data?",
+  "supportFaqBackupA": "From Settings → Export data you can take all your data as JSON, Excel or PDF.",
+  "supportFaqAccountQ": "Can I delete my account?",
+  "supportFaqAccountA": "Yes. 'Delete account' is at the very bottom of Settings — it's permanent, so take care.",
+  "supportContactTitle": "Contact us",
+  "supportContactEmailTitle": "Email us",
+  "supportContactEmail": "support@assisto.app",
+  "supportContactFailed": "Couldn't open your email app.",
+  "supportContactLegal": "Terms & privacy",
+  "supportKindHelp": "Help",
+  "supportKindBug": "Bug",
+  "supportReplyLabel": "Our reply",
+  "supportStatusOpen": "Open",
+  "supportStatusAnswered": "Answered",
+  "supportStatusResolved": "Resolved",
+  "supportTicketsEmptyTitle": "No tickets yet",
+  "supportTicketsEmptyBody": "When you send a help request, it'll show here with its status.",
+  "supportTicketsErrorTitle": "Couldn't load your tickets",
+  "supportTicketsErrorBody": "Check your internet connection and try again.",
+  "refresh": "Refresh",
+  "costFlagsTile": "Cost controls & feature switches",
+  "costFlagsTileSub": "Kill costly services, toggle features",
+  "costFlagsTitle": "Cost kill-switch & feature flags",
+  "flagKillSwitchNote": "A kill switch only turns a capability on or off — it never holds money or computes a price. Turning spend off is the safe direction; turning it on can cost money.",
+  "flagGroupAi": "AI services",
+  "flagGroupMessaging": "Messaging",
+  "flagGroupMedia": "Media processing",
+  "flagGroupLocation": "Location & maps",
+  "flagGroupFeatures": "Features",
+  "flagGroupOps": "Operations",
+  "flagAiDrafting": "AI drafting",
+  "flagAiInboxSummary": "AI inbox summary",
+  "flagAiScamCheck": "AI scam check",
+  "flagSmsFanout": "SMS sending",
+  "flagPushFanout": "Push notifications",
+  "flagCloudPhotoEnhance": "Cloud photo enhance",
+  "flagMapsGeocoding": "Maps & geocoding",
+  "flagMessengerPublic": "Public Messenger",
+  "flagBusinessCrm": "Business CRM",
+  "flagFamilySharing": "Family sharing",
+  "flagNewSignups": "New sign-ups",
+  "flagCostTag": "cost",
+  "flagPillSpending": "On — spending",
+  "flagPillOff": "Off",
+  "flagPillOn": "On",
+  "flagPillDisabled": "Disabled for everyone",
+  "flagEnableTitle": "Turn on “{label}”?",
+  "@flagEnableTitle": {
+    "placeholders": {
+      "label": {
+        "type": "Object"
+      }
+    }
+  },
+  "flagDisableTitle": "Turn off “{label}”?",
+  "@flagDisableTitle": {
+    "placeholders": {
+      "label": {
+        "type": "Object"
+      }
+    }
+  },
+  "flagEnabledToast": "“{label}” turned on",
+  "@flagEnabledToast": {
+    "placeholders": {
+      "label": {
+        "type": "Object"
+      }
+    }
+  },
+  "flagDisabledToast": "“{label}” turned off",
+  "@flagDisabledToast": {
+    "placeholders": {
+      "label": {
+        "type": "Object"
+      }
+    }
+  },
+  "flagConfirmEnableCost": "Turning “{label}” on can start spending money again on this service. Type a reason to confirm.",
+  "@flagConfirmEnableCost": {
+    "placeholders": {
+      "label": {
+        "type": "Object"
+      }
+    }
+  },
+  "flagConfirmDisableCost": "Turning “{label}” off stops this spend, but features that rely on it may stop working. Type a reason.",
+  "@flagConfirmDisableCost": {
+    "placeholders": {
+      "label": {
+        "type": "Object"
+      }
+    }
+  },
+  "flagConfirmDisableFeature": "Turning “{label}” off disables it for every user. Type a reason.",
+  "@flagConfirmDisableFeature": {
+    "placeholders": {
+      "label": {
+        "type": "Object"
+      }
+    }
+  },
+  "flagConfirmGeneric": "Change “{label}”? Type a reason.",
+  "@flagConfirmGeneric": {
+    "placeholders": {
+      "label": {
+        "type": "Object"
+      }
+    }
+  },
+  "flagReasonLabel": "Reason (required)",
+  "flagReasonHint": "e.g. temporarily off due to a bill spike",
+  "flagAuditedNote": "This change is kept permanently in the audit log — who, when, and why.",
+  "flagConfirmFlip": "Confirm",
+  "flagFlipFailed": "Couldn't apply the change: {error}",
+  "@flagFlipFailed": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "flagSummaryCostLine": "{on} of {total} cost switches are on",
+  "@flagSummaryCostLine": {
+    "placeholders": {
+      "on": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "flagSummaryAllFeaturesOn": "All features are on",
+  "flagSummaryFeaturesOff": "{n} features are off",
+  "@flagSummaryFeaturesOff": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "flagAuditTitle": "Audit trail",
+  "flagAuditAppendOnly": "Append-only — rows can't be edited or deleted.",
+  "flagAuditEmpty": "No changes yet.",
+  "flagAuditEnabled": "Turned on “{label}”",
+  "@flagAuditEnabled": {
+    "placeholders": {
+      "label": {
+        "type": "Object"
+      }
+    }
+  },
+  "flagAuditDisabled": "Turned off “{label}”",
+  "@flagAuditDisabled": {
+    "placeholders": {
+      "label": {
+        "type": "Object"
+      }
+    }
+  },
+  "flagAuditMeta": "{actor} · {when}",
+  "@flagAuditMeta": {
+    "placeholders": {
+      "actor": {
+        "type": "Object"
+      },
+      "when": {
+        "type": "Object"
+      }
+    }
+  },
+  "flagEmptyTitle": "No flags",
+  "flagEmptyBody": "The server returned no feature flags.",
+  "flagLoadErrorTitle": "Couldn't load",
+  "flagLoadErrorBody": "Couldn't fetch the flags — check your connection and retry.",
+  "flagOwnerOnlyTitle": "Owner only",
+  "flagOwnerOnlyBody": "Only the owner/superuser can open this console.",
+  "srvTile": "Server address",
+  "srvTileSub": "Point the app at another backend (advanced)",
+  "srvTitle": "Server address swap",
+  "srvCurrentDefault": "Now: default server",
+  "srvCurrentCustom": "Now: custom server",
+  "srvNewLabel": "New server address",
+  "srvHint": "https://example.com",
+  "srvTestButton": "Test connection",
+  "srvSaveButton": "Save",
+  "srvSaveConfirm": "Switch",
+  "srvRevertButton": "Revert to default",
+  "srvRevertConfirm": "Revert",
+  "srvProbeIdle": "Not checked yet",
+  "srvProbeChecking": "Checking…",
+  "srvProbeReachable": "Server reachable",
+  "srvProbeLatency": "Round-trip {ms} ms",
+  "@srvProbeLatency": {
+    "placeholders": {
+      "ms": {
+        "type": "Object"
+      }
+    }
+  },
+  "srvProbeUnreachable": "Responded, but not a valid backend (status {status})",
+  "@srvProbeUnreachable": {
+    "placeholders": {
+      "status": {
+        "type": "Object"
+      }
+    }
+  },
+  "srvProbeError": "Unreachable — check the address or your connection",
+  "srvErrEmpty": "Enter an address",
+  "srvErrScheme": "Address must start with http:// or https://",
+  "srvErrHost": "Enter a valid host",
+  "srvErrPath": "Give only the base — no path or parameters",
+  "srvErrParse": "Couldn't understand the address",
+  "srvConfirmTitle": "Switch server?",
+  "srvConfirmBody": "The app will send all requests to:\n{url}",
+  "@srvConfirmBody": {
+    "placeholders": {
+      "url": {
+        "type": "Object"
+      }
+    }
+  },
+  "srvConfirmUnverified": "This server isn't confirmed reachable yet. Save anyway?",
+  "srvSavedToast": "Server address saved",
+  "srvRevertTitle": "Revert to default?",
+  "srvRevertBody": "The app will return to the shipped default server:\n{url}",
+  "@srvRevertBody": {
+    "placeholders": {
+      "url": {
+        "type": "Object"
+      }
+    }
+  },
+  "srvRevertedToast": "Reverted to the default server",
+  "srvApplyNote": "Saving stores the address safely. The new address takes effect after an app relaunch (or the integrator's one-line wiring). Reverting to the default is always one tap away.",
+  "grpRetry": "Try again",
+  "grpRosterEmpty": "No members yet.",
+  "grpInfoLoadError": "Could not load group info.",
+  "grpConfirmRemoveTitle": "Remove member?",
+  "grpConfirmRemoveBody": "{name} will be removed from the group.",
+  "@grpConfirmRemoveBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "grpConfirmRemove": "Remove",
+  "grpConfirmDemoteTitle": "Remove as admin?",
+  "grpConfirmDemoteBody": "{name} will no longer be an admin.",
+  "@grpConfirmDemoteBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "grpConfirmDemote": "Remove",
+  "grpConfirmDeleteMsgsTitle": "Delete messages?",
+  "grpConfirmDeleteMsgsBody": "The {n} selected messages will be deleted.",
+  "@grpConfirmDeleteMsgsBody": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "grpConfirmDelete": "Delete",
+  "grpActionFailed": "That did not go through. Try again.",
+  "grpGroupSaved": "Group info saved.",
+  "grpAddMembersResult": "{added} added, {failed} could not be added.",
+  "@grpAddMembersResult": {
+    "placeholders": {
+      "added": {
+        "type": "Object"
+      },
+      "failed": {
+        "type": "Object"
+      }
+    }
+  },
+  "grpSendFailed": "Message not sent.",
+  "grpSendRetry": "Resend",
+  "grpNoRecipients": "No one to send to in this group.",
+  "grpMediaLoadFailed": "Could not load group media.",
+  "grpMediaDownload": "Tap to download",
+  "grpMediaCached": "Saved on device",
+  "grpMediaDownloadAgain": "Download again",
+  "circleActionDownload": "Download",
+  "circleMediaSavingSoon": "Saving will work when encrypted storage is enabled."
 }

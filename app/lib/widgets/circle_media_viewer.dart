@@ -16,13 +16,22 @@ class MediaViewerItem {
   final String caption; // decrypted caption (may be empty)
   final bool isVideo;
   final bool gated; // storage not yet enabled
+  // §21 download/cache affordance. When [bytes] is null but the item is NOT
+  // gated, it is on the relay and [onDownload] pulls + decrypts it on-device.
+  final VoidCallback? onDownload;
+  final bool cachedLocally; // decrypted copy already on this device
   const MediaViewerItem({
     required this.id,
     this.bytes,
     this.caption = '',
     this.isVideo = false,
     this.gated = false,
+    this.onDownload,
+    this.cachedLocally = false,
   });
+
+  /// Needs a download tap: not gated, nothing decrypted yet, and a puller wired.
+  bool get needsDownload => !gated && bytes == null && onDownload != null;
 }
 
 class CircleMediaViewer extends StatefulWidget {
@@ -65,10 +74,15 @@ class _CircleMediaViewerState extends State<CircleMediaViewer> {
         actions: [
           IconButton(
             tooltip: t.circleActionSave,
-            icon: const Icon(Icons.download_outlined),
-            onPressed: item == null || item.gated || item.bytes == null
+            icon: const Icon(Icons.save_alt_outlined),
+            // §21 honest disabled-reason: a gated item can't be saved yet, so
+            // instead of a dead-disabled icon, tap explains why.
+            onPressed: item == null
                 ? null
-                : () => widget.onSave?.call(item),
+                : (item.gated || item.bytes == null)
+                    ? () => ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(t.circleMediaSavingSoon)))
+                    : () => widget.onSave?.call(item),
           ),
           IconButton(
             tooltip: t.circleActionForward,
@@ -90,7 +104,24 @@ class _CircleMediaViewerState extends State<CircleMediaViewer> {
 
   Widget _page(MediaViewerItem item, AppLocalizations t) {
     Widget content;
-    if (item.gated || item.bytes == null) {
+    if (item.needsDownload) {
+      // §21 download affordance: on the relay but not yet on this device.
+      content = Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.cloud_download_outlined,
+                color: Colors.white70, size: 56),
+            const SizedBox(height: Gap.md),
+            FilledButton.icon(
+              icon: const Icon(Icons.download_outlined),
+              onPressed: item.onDownload,
+              label: Text(t.circleActionDownload),
+            ),
+          ],
+        ),
+      );
+    } else if (item.gated || item.bytes == null) {
       content = Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,

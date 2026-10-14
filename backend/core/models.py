@@ -2382,3 +2382,18 @@ class FamilySharing(models.Model):
     grants = models.JSONField(default=dict, blank=True)   # {member_id: [items]}
     audit = models.JSONField(default=list, blank=True)     # [{action, at, ...}]
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class AdminFlagState(models.Model):
+    """#178 COST KILL-SWITCH & FEATURE FLAGS (SPEC v2.1 §21) — platform-wide,
+    owner-only. A single row (key='global') persists the current flag state +
+    an append-only audit trail. All validation / confirm-gate / audit-entry
+    construction lives in core.logic.admin_flags (pure); this row only stores
+    what that engine returns, so the owner's flips survive restarts.
+
+    state — {flag_id: bool}; normalized by the logic layer against the CATALOG.
+    audit — newest-first list of make_audit_entry(...) rows (capped)."""
+    key = models.CharField(max_length=32, unique=True, default="global")
+    state = models.JSONField(default=dict, blank=True)     # {flag_id: bool}
+    audit = models.JSONField(default=list, blank=True)     # [{flag, old, new, ...}]
+    updated_at = models.DateTimeField(auto_now=True)

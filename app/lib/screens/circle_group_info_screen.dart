@@ -42,6 +42,8 @@ class CircleGroupInfoScreen extends StatefulWidget {
 
 class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
   bool _loading = true;
+  bool _loadFailed = false; // §21: honest error+retry on the roster fetch
+  bool _busy = false; // a destructive/edit action is in-flight (blocks taps)
   List<Map<String, dynamic>> _members = [];
   late Map<String, dynamic> _group;
 
@@ -62,14 +64,42 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
       _members.where((m) => '${m['role']}' == 'admin').length;
 
   Future<void> _load() async {
+    if (mounted) setState(() {
+      _loading = true;
+      _loadFailed = false;
+    });
     try {
       final r = await _api.getJson('/circle/groups/$_groupId/members');
       _members = ((r['results'] ?? r['members'] ?? []) as List)
           .cast<Map<String, dynamic>>();
       final g = await _api.getJson('/circle/groups/$_groupId');
       if (g.isNotEmpty) _group = {..._group, ...g};
-    } catch (_) {}
+      _loadFailed = false;
+    } catch (_) {
+      _loadFailed = true;
+    }
     if (mounted) setState(() => _loading = false);
+  }
+
+  void _toast(String msg) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
+
+  /// Run a mutating action with an honest busy gate + failure toast. Returns
+  /// true on success so callers can decide whether to reload.
+  Future<bool> _run(Future<void> Function() action) async {
+    if (_busy) return false;
+    setState(() => _busy = true);
+    var ok = true;
+    try {
+      await action();
+    } catch (_) {
+      ok = false;
+    }
+    if (mounted) setState(() => _busy = false);
+    if (!ok) _toast(_t.grpActionFailed);
+    return ok;
   }
 
   Future<void> _editInfo() async {
@@ -110,22 +140,28 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
       ),
     );
     if (ok != true) return;
-    try {
+    final done = await _run(() async {
       await _api.postJson('/circle/groups/$_groupId', {
         'name': nameC.text.trim(),
         'description': descC.text.trim(),
       });
-    } catch (_) {}
-    await _load();
+    });
+    if (done) {
+      _toast(_t.grpGroupSaved);
+      await _load();
+    }
   }
 
   Future<void> _toggleAnnouncements(bool on) async {
     if (!_isAdmin) return;
-    try {
+    final prev = _group['announcements_only'] == true;
+    setState(() => _group['announcements_only'] = on);
+    final done = await _run(() async {
       await _api
           .postJson('/circle/groups/$_groupId/announcements', {'on': on});
-    } catch (_) {}
-    setState(() => _group['announcements_only'] = on);
+    });
+    // Revert the optimistic toggle on failure so the UI stays honest.
+    if (!done && mounted) setState(() => _group['announcements_only'] = prev);
   }
 
   Future<void> _editSizeLimit() async {
@@ -155,11 +191,11 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
     if (ok != true) return;
     final v = int.tryParse(c.text.trim());
     if (v == null || v < 1) return;
-    try {
+    final done = await _run(() async {
       await _api
           .postJson('/circle/groups/$_groupId/size-limit', {'size_limit': v});
-    } catch (_) {}
-    await _load();
+    });
+    if (done) await _load();
   }
 
   Future<void> _addMembers() async {
@@ -183,21 +219,71 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
       builder: (ctx) => _AddMembersSheet(candidates: candidates),
     );
     if (picked == null || picked.isEmpty) return;
+    if (_busy) return;
+    setState(() => _busy = true);
+    var added = 0;
+    var failed = 0;
     for (final id in picked) {
       try {
         await _api
             .postJson('/circle/groups/$_groupId/members', {'member_id': id});
-      } catch (_) {}
+        added++;
+      } catch (_) {
+        failed++;
+      }
     }
+    if (mounted) setState(() => _busy = false);
+    // §21: honest result — never pretend every add succeeded.
+    _toast(_t.grpAddMembersResult('$added', '$failed'));
     await _load();
   }
 
+  /// Member management. REMOVE and DEMOTE are destructive → confirm first
+  /// (§21 confirm gate). PROMOTE is additive and needs no gate.
   Future<void> _memberAction(Map<String, dynamic> m, String event) async {
-    try {
+    if (event == 'remove' || event == 'demote') {
+      final name = '${m['name'] ?? ''}';
+      final confirmed = await _confirmDestructive(
+        title:
+            event == 'remove' ? _t.grpConfirmRemoveTitle : _t.grpConfirmDemoteTitle,
+        body: event == 'remove'
+            ? _t.grpConfirmRemoveBody(name)
+            : _t.grpConfirmDemoteBody(name),
+        confirmLabel:
+            event == 'remove' ? _t.grpConfirmRemove : _t.grpConfirmDemote,
+      );
+      if (confirmed != true) return;
+    }
+    final done = await _run(() async {
       await _api.postJson(
           '/circle/groups/$_groupId/members/${_idOf(m)}', {'event': event});
-    } catch (_) {}
-    await _load();
+    });
+    if (done) await _load();
+  }
+
+  /// Shared destructive-action confirm dialog (mirrors
+  /// core/logic/circle_groups.confirm_copy so copy stays consistent with the
+  /// server-side gate).
+  Future<bool?> _confirmDestructive({
+    required String title,
+    required String body,
+    required String confirmLabel,
+  }) {
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Text(body),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(_t.cancel)),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(confirmLabel)),
+        ],
+      ),
+    );
   }
 
   Future<void> _inviteLink() async {
@@ -206,12 +292,13 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
       final link = r['link'] as String? ?? r['token'] as String?;
       if (link != null) {
         await Clipboard.setData(ClipboardData(text: link));
-        if (mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(_t.circleLinkCopied)));
-        }
+        _toast(_t.circleLinkCopied);
+      } else {
+        _toast(_t.circleBackendPending);
       }
-    } catch (_) {}
+    } catch (_) {
+      _toast(_t.circleBackendPending);
+    }
   }
 
   Future<void> _leave() async {
@@ -231,10 +318,14 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
       ),
     );
     if (ok != true) return;
-    try {
-      await _api.postJson('/circle/groups/$_groupId/leave', {});
-    } catch (_) {}
-    if (mounted) Navigator.of(context).pop();
+    final done = await _run(() async {
+      final r = await _api.postJson('/circle/groups/$_groupId/leave', {});
+      // LAST-ADMIN protection: server refuses when I'm the last admin.
+      if (r['allowed'] == false || r['left'] == false) {
+        throw StateError('last_admin');
+      }
+    });
+    if (done && mounted) Navigator.of(context).pop();
   }
 
   Future<void> _report() async {
@@ -261,14 +352,11 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
       ),
     );
     if (reason == null) return;
-    try {
+    final done = await _run(() async {
       await _api
           .postJson('/circle/groups/$_groupId/report', {'reason': reason});
-    } catch (_) {}
-    if (mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(_t.circleReported)));
-    }
+    });
+    if (done) _toast(_t.circleReported);
   }
 
   String _reportLabel(String r) {
@@ -309,7 +397,48 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : ListView(
+          : _loadFailed
+              ? _errorRetry(scheme)
+              : Stack(
+                  children: [
+                    _content(scheme),
+                    if (_busy)
+                      const Positioned.fill(
+                        child: ColoredBox(
+                          color: Color(0x33000000),
+                          child: Center(child: CircularProgressIndicator()),
+                        ),
+                      ),
+                  ],
+                ),
+    );
+  }
+
+  /// §21 error state: an honest message + a Retry that re-runs the fetch.
+  Widget _errorRetry(ColorScheme scheme) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(Gap.xl),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.cloud_off_outlined,
+                  size: 48, color: scheme.onSurfaceVariant),
+              const SizedBox(height: Gap.md),
+              Text(_t.grpInfoLoadError,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: scheme.onSurfaceVariant)),
+              const SizedBox(height: Gap.lg),
+              FilledButton.icon(
+                icon: const Icon(Icons.refresh),
+                onPressed: _load,
+                label: Text(_t.grpRetry),
+              ),
+            ],
+          ),
+        ),
+      );
+
+  Widget _content(ColorScheme scheme) => ListView(
               children: [
                 _header(scheme),
                 const Divider(),
@@ -359,15 +488,24 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
                     ],
                   ),
                 ),
-                for (final m in _members)
-                  CircleGroupMemberTile(
-                    member: m,
-                    viewerIsAdmin: _isAdmin,
-                    adminCount: _adminCount,
-                    onPromote: () => _memberAction(m, 'promote'),
-                    onDemote: () => _memberAction(m, 'demote'),
-                    onRemove: () => _memberAction(m, 'remove'),
-                  ),
+                if (_members.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: Gap.lg, vertical: Gap.xl),
+                    child: Text(_t.grpRosterEmpty,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: scheme.onSurfaceVariant)),
+                  )
+                else
+                  for (final m in _members)
+                    CircleGroupMemberTile(
+                      member: m,
+                      viewerIsAdmin: _isAdmin,
+                      adminCount: _adminCount,
+                      onPromote: () => _memberAction(m, 'promote'),
+                      onDemote: () => _memberAction(m, 'demote'),
+                      onRemove: () => _memberAction(m, 'remove'),
+                    ),
                 const Divider(),
                 ListTile(
                   leading: Icon(Icons.flag_outlined, color: Brand.warning),
@@ -382,9 +520,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
                 ),
                 const SizedBox(height: Gap.xl),
               ],
-            ),
-    );
-  }
+            );
 
   Widget _header(ColorScheme scheme) => Padding(
         padding: const EdgeInsets.all(Gap.xl),
