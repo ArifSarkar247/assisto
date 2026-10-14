@@ -155,6 +155,77 @@ def test_emergency_card_text_omits_empty():
     assert S.emergency_card_text(None, "en").startswith("EMERGENCY CARD")
 
 
+# ---- safe-arrival ADVANCED (§21) ----
+
+def test_remind_lead_clamp():
+    assert S.clamp_remind_lead(999) == S.ARRIVAL_REMIND_LEAD_MAX
+    assert S.clamp_remind_lead(-5) == S.ARRIVAL_REMIND_LEAD_MIN
+    assert S.clamp_remind_lead("x") == S.ARRIVAL_REMIND_LEAD_DEFAULT
+
+
+def test_checkin_reminder_due_window():
+    eta = datetime(2026, 1, 1, 18, 0)
+    # 20 min before, lead 10 -> not yet
+    assert S.checkin_reminder_due(eta, now=eta - timedelta(minutes=20), lead_minutes=10) is False
+    # 5 min before -> inside the window
+    assert S.checkin_reminder_due(eta, now=eta - timedelta(minutes=5), lead_minutes=10) is True
+    # exactly at eta -> still due
+    assert S.checkin_reminder_due(eta, now=eta, lead_minutes=10) is True
+    # already arrived -> never nudge
+    assert S.checkin_reminder_due(eta, now=eta - timedelta(minutes=5), arrived=True) is False
+
+
+def test_countdown_parts_before_and_overdue():
+    eta = datetime(2026, 1, 1, 18, 0)
+    before = S.countdown_parts(eta, now=eta - timedelta(minutes=95))
+    assert before["overdue"] is False and before["hours"] == 1 and before["minutes"] == 35
+    late = S.countdown_parts(eta, now=eta + timedelta(minutes=12))
+    assert late["overdue"] is True and late["total_minutes"] == 12
+    assert S.countdown_parts("bad", now=eta)["total_minutes"] == 0
+
+
+def test_night_mode_tightens_grace():
+    assert S.is_night_time(datetime(2026, 1, 1, 22, 0)) is True
+    assert S.is_night_time(datetime(2026, 1, 1, 3, 0)) is True
+    assert S.is_night_time(datetime(2026, 1, 1, 13, 0)) is False
+    night_eta = datetime(2026, 1, 1, 22, 30)
+    assert S.effective_grace(night_eta, night_mode=True, grace_minutes=15) == S.NIGHT_GRACE_MINUTES
+    assert S.effective_grace(night_eta, night_mode=False, grace_minutes=15) == 15
+    day_eta = datetime(2026, 1, 1, 13, 0)
+    assert S.effective_grace(day_eta, night_mode=True, grace_minutes=15) == 15
+
+
+def test_escalation_carries_location_and_duress():
+    p = S.checkin_escalation("Rahim", "College", 20,
+                             last_location={"lat": 23.8, "lng": 90.4, "at": "x"},
+                             lang="en")
+    assert p["kind"] == "checkin_overdue"
+    assert "maps.google.com/?q=23.8,90.4" in p["body"]
+    assert p["maps_link"].endswith("23.8,90.4")
+    assert p["duress"] is False and p["silent"] is False
+    # no location -> no maps link, still a valid alert
+    p2 = S.checkin_escalation("Rahim", None, 5, last_location=None, lang="en")
+    assert p2["maps_link"] is None and "Last location" not in p2["body"]
+    # duress -> silent escalation
+    pd = S.checkin_escalation("Rahim", "Home", 1, duress=True, lang="en")
+    assert pd["duress"] is True and pd["silent"] is True and pd["severity"] == "high"
+
+
+def test_routine_eta_and_alert():
+    now = datetime(2026, 1, 1, 21, 15)   # 9:15 pm
+    eta = S.routine_checkin_eta("21:00", now=now)
+    assert eta == datetime(2026, 1, 1, 21, 0)
+    assert S.routine_checkin_eta("bad", now=now) is None
+    # 'home by 9pm', now 9:15pm, night mode (grace 7) -> overdue+grace passed -> alert
+    assert S.routine_should_alert("21:00", now=now, night_mode=True) is True
+    # arrived -> never
+    assert S.routine_should_alert("21:00", now=now, arrived=True) is True or \
+           S.routine_should_alert("21:00", now=now, arrived=True) is False  # arrived short-circuits
+    assert S.routine_should_alert("21:00", now=now, arrived=True) is False
+    # well before deadline -> no alert
+    assert S.routine_should_alert("23:00", now=now, night_mode=True) is False
+
+
 def run_all():
     import inspect
     fns = [v for k, v in sorted(globals().items())

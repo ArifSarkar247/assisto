@@ -1,16 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
+import '../api.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/reset_options.dart';
+import 'password_reset_confirm_screen.dart';
 
-/// Password reset — request step (launch gap A). The user enters the email on
-/// their account; the backend sends a reset link. To avoid user-enumeration
-/// leaks, the screen ALWAYS shows the same neutral confirmation whether or not
-/// an account exists — it never reveals "no such user".
+/// Password reset — request step (SPEC v2.1 §21, account recovery ADVANCED).
 ///
-/// SMS reset is designed but gated off until an SMS gateway is connected:
-/// the screen shows an "Available when SMS gateway added" note instead of a
-/// working SMS option.
+/// ADVANCED upgrades over the old single-field screen:
+///  - Recovery CHANNEL chooser: EMAIL works now; SMS code recovery is 🔑
+///    key-gated (shown honestly as "available when an SMS gateway is added");
+///    security-question recovery is listed honestly as opt-in / not configured.
+///  - Honest RATE-LIMIT handling: a 429 from the reset scope (6/min) surfaces a
+///    "too many attempts, wait a minute" banner instead of a silent failure.
+///  - Anti-enumeration preserved: success ALWAYS shows the same neutral message
+///    whether or not an account exists, and offers an "I already have a code"
+///    path to the confirm screen.
+///  - Full §21 states: empty (chooser), loading (spinner), error (rate-limit /
+///    generic), neutral-sent success. Bilingual via ARB; zero Bangla here.
 class PasswordResetScreen extends StatefulWidget {
   const PasswordResetScreen({super.key});
   @override
@@ -19,7 +27,10 @@ class PasswordResetScreen extends StatefulWidget {
 
 class _PasswordResetScreenState extends State<PasswordResetScreen> {
   final _email = TextEditingController();
+  RecoveryChannel _channel = RecoveryChannel.email;
   bool _sending = false;
+  bool _rateLimited = false;
+  String? _emailError;
   String? _neutralMessage; // shown after submit (same regardless of existence)
 
   @override
@@ -28,20 +39,40 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
     super.dispose();
   }
 
+  bool _looksLikeEmail(String s) =>
+      RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(s);
+
   Future<void> _submit() async {
-    final email = _email.text.trim();
-    if (email.isEmpty) return;
-    FocusScope.of(context).unfocus();
-    setState(() => _sending = true);
     final t = AppLocalizations.of(context);
+    final email = _email.text.trim();
+    if (email.isEmpty) {
+      setState(() => _emailError = t.resetEmailRequired);
+      return;
+    }
+    if (!_looksLikeEmail(email)) {
+      setState(() => _emailError = t.resetEmailInvalid);
+      return;
+    }
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _sending = true;
+      _rateLimited = false;
+      _emailError = null;
+    });
     try {
       final r = await context.read<AppState>().api.requestPasswordReset(email);
-      // Backend returns a neutral message; fall back to a local neutral string.
-      setState(() => _neutralMessage =
-          (r['message'] as String?) ?? t.resetNeutralSent);
+      setState(() =>
+          _neutralMessage = (r['message'] as String?) ?? t.resetNeutralSent);
+    } on ApiException catch (e) {
+      if (e.status == 429) {
+        // Honest: the server throttled us. Do NOT retry silently.
+        setState(() => _rateLimited = true);
+      } else {
+        // Any other failure still collapses to the neutral message so we never
+        // leak whether the account exists or whether sending failed.
+        setState(() => _neutralMessage = t.resetNeutralSent);
+      }
     } catch (_) {
-      // Even on error we show the SAME neutral message — never leak whether
-      // the account exists or whether sending failed.
       setState(() => _neutralMessage = t.resetNeutralSent);
     } finally {
       if (mounted) setState(() => _sending = false);
@@ -59,7 +90,9 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
         children: [
           Text(t.resetIntro, style: const TextStyle(fontSize: 14)),
           const SizedBox(height: 16),
-          if (_neutralMessage != null)
+
+          // ---- success (neutral, anti-enumeration) ----
+          if (_neutralMessage != null) ...[
             Card(
               color: scheme.secondaryContainer,
               child: Padding(
@@ -74,16 +107,55 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
                   ),
                 ]),
               ),
-            )
-          else ...[
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const PasswordResetConfirmScreen(token: ''))),
+              icon: const Icon(Icons.vpn_key_outlined),
+              label: Text(t.resetHaveCode),
+            ),
+          ] else ...[
+            // ---- rate-limit banner (honest 429) ----
+            if (_rateLimited) ...[
+              const ResetRateLimitBanner(),
+              const SizedBox(height: 12),
+            ],
+
+            // ---- channel chooser ----
+            Text(t.resetChooseChannel,
+                style: const TextStyle(fontWeight: FontWeight.w600)),
+            const SizedBox(height: 8),
+            ResetChannelTile(
+              channel: RecoveryChannel.email,
+              available: true,
+              selected: _channel == RecoveryChannel.email,
+              onTap: () => setState(() => _channel = RecoveryChannel.email),
+            ),
+            const ResetChannelTile(
+              channel: RecoveryChannel.sms,
+              available: false, // 🔑 until an SMS gateway key is wired
+            ),
+            const ResetChannelTile(
+              channel: RecoveryChannel.securityQuestion,
+              available: false, // honest: not configured for this account yet
+            ),
+            const SizedBox(height: 16),
+
+            // ---- email entry (the one working channel) ----
             TextField(
               controller: _email,
+              enabled: !_sending,
               keyboardType: TextInputType.emailAddress,
               autofillHints: const [AutofillHints.email],
+              onChanged: (_) {
+                if (_emailError != null) setState(() => _emailError = null);
+              },
               decoration: InputDecoration(
                 labelText: t.resetEmailLabel,
                 border: const OutlineInputBorder(),
                 prefixIcon: const Icon(Icons.email_outlined),
+                errorText: _emailError,
               ),
             ),
             const SizedBox(height: 14),
@@ -97,26 +169,23 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
                         width: 18,
                         child: CircularProgressIndicator(strokeWidth: 2))
                     : const Icon(Icons.send_outlined),
-                label: Text(t.resetSendLink),
+                label: Text(_sending ? t.resetSending : t.resetSendLink),
               ),
             ),
-          ],
-          const SizedBox(height: 20),
-          // SMS reset — key-gated until an SMS gateway is connected.
-          Card(
-            color: scheme.surfaceContainerHighest,
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Row(children: [
-                const Icon(Icons.sms_outlined),
-                const SizedBox(width: 10),
-                Expanded(
-                    child: Text(t.resetSmsUnavailable,
-                        style: const TextStyle(fontSize: 13))),
-              ]),
+            const SizedBox(height: 8),
+            // "I already have a code/link" shortcut into the confirm screen.
+            TextButton.icon(
+              onPressed: _sending
+                  ? null
+                  : () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) =>
+                          const PasswordResetConfirmScreen(token: ''))),
+              icon: const Icon(Icons.vpn_key_outlined),
+              label: Text(t.resetHaveCode),
             ),
-          ),
-          const SizedBox(height: 12),
+          ],
+
+          const SizedBox(height: 20),
           Text(t.resetSecurityNote,
               style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
         ],

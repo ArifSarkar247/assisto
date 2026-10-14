@@ -1,41 +1,64 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:url_launcher/url_launcher.dart';
-import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/onb_common.dart';
+import '../widgets/onb_role.dart';
+import '../widgets/onb_first_win.dart';
+import '../widgets/onb_permissions.dart';
+import '../widgets/onb_link_parent.dart';
 import 'family_screen.dart';
 import 'money_screen.dart';
 import 'vault_screen.dart';
+import 'journey_start_screen.dart';
 
-/// First-run onboarding — the "why install" surface.
+/// First-run ADVANCED onboarding — a <60s "wow" that teaches the main features
+/// through a quick interactive flow (SPEC v2.1 §21).
 ///
-/// Benchmarked against fast-"aha" onboarding (Duolingo / Notion): skippable,
-/// bilingual, three steps:
-///   1. Three quick value slides (what Assisto does).
-///   2. "Pick one thing to try now" — a real win in under 60s (add a parent's
-///      medicine / scan a bill / log an expense). Tapping jumps straight into
-///      the real screen, so value is immediate, not simulated.
-///   3. "Link a parent in under 2 minutes" — enter a phone, then invite by
-///      call / SMS / copy-link (QR-ready). IVR for feature phones is key-gated
-///      with a clean "Available when ___" state.
+/// FLOW (skippable + resumable, with progress dots):
+///   0. Welcome + LANGUAGE   — pick bn/en up front (sets the app locale).
+///   1. WHO ARE YOU          — self / elderly parent / family / business.
+///   2. PERMISSIONS, HONESTLY— every permission + exactly WHY (nothing granted).
+///   3. FIRST WIN            — one REAL task, recommended per role (medicine /
+///                             scan a bill / safe-journey / expense). Tapping a
+///                             tile opens the live screen, so value is genuine.
+///   4. LINK A PARENT        — phone + relation → invite by call / SMS (own-SIM)
+///                             / QR. IVR for feature phones is 🔑 key-gated and
+///                             shown honestly as "Available when ___".
 ///
-/// `onboarded` flag is set when the user finishes OR skips, so it shows once.
+/// RESUMABLE: the current step index is persisted; on relaunch (before the user
+/// finished) we offer "Continue vs Start over". FINISH or SKIP sets `onboarded`
+/// so it shows once.
+///
+/// Strict per-page language; ZERO Bangla in this file (all via AppLocalizations).
 class OnboardingScreen extends StatefulWidget {
   final VoidCallback onDone;
-  const OnboardingScreen({super.key, required this.onDone});
+
+  /// Whether the owner has connected an IVR/voice-call provider. The integrator
+  /// wires this from the live integrations status (see up_onb_integration note);
+  /// default false keeps the honest key-gated state.
+  final bool ivrEnabled;
+  const OnboardingScreen({super.key, required this.onDone, this.ivrEnabled = false});
+
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
+  static const _resumeKey = 'onb_step';
+  static const _steps = 5; // welcome+lang, who, perms, first-win, link-parent
+
   final _pc = PageController();
   int _page = 0;
+  OnbRole? _role;
+  bool _checkedResume = false;
 
-  // Total pages = 3 intro slides + 1 "try now" + 1 "link a parent".
-  static const _intro = 3;
-  static const _pages = _intro + 2;
+  @override
+  void initState() {
+    super.initState();
+    _maybeResume();
+  }
 
   @override
   void dispose() {
@@ -43,15 +66,55 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.dispose();
   }
 
+  /// If a previous run saved a step past the first, offer to continue there.
+  Future<void> _maybeResume() async {
+    final saved = int.tryParse(await Settings.getString(_resumeKey) ?? '') ?? 0;
+    if (!mounted) return;
+    setState(() => _checkedResume = true);
+    if (saved <= 0 || saved >= _steps) return;
+    final t = AppLocalizations.of(context);
+    final resume = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t.onbResumeTitle),
+        content: Text(t.onbResumeBody),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(t.onbResumeRestart)),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(t.onbResumeContinue)),
+        ],
+      ),
+    );
+    if (resume == true && mounted) {
+      _go(saved);
+    } else {
+      await Settings.setString(_resumeKey, '0');
+    }
+  }
+
+  void _go(int page) {
+    setState(() => _page = page);
+    _pc.jumpToPage(page);
+    Settings.setString(_resumeKey, '$page');
+  }
+
+  Future<void> _next() async {
+    final n = (_page + 1).clamp(0, _steps - 1);
+    await Settings.setString(_resumeKey, '$n');
+    _pc.nextPage(duration: Motion.base, curve: Curves.easeOut);
+  }
+
   Future<void> _finish() async {
     await Settings.setBool('onboarded', true);
+    await Settings.setString(_resumeKey, '0');
+    if (mounted) context.read<AppState>().markOnboarded();
     widget.onDone();
   }
 
-  void _next() =>
-      _pc.nextPage(duration: Motion.base, curve: Curves.easeOut);
-
-  /// Mark onboarded, then open a real screen so the win is genuine.
+  /// Mark onboarded, then open a real screen so the win is genuine (not a demo).
   Future<void> _open(Widget screen) async {
     await _finish();
     if (mounted) {
@@ -59,10 +122,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
+  void _openWin(OnbWin win) {
+    final screen = switch (win) {
+      OnbWin.medicine => const FamilyScreen(),
+      OnbWin.bill => const VaultScreen(),
+      OnbWin.journey => const JourneyStartScreen(),
+      OnbWin.expense => const MoneyScreen(),
+    };
+    _open(screen);
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
+
+    // Loading state while we read the resume flag (avoids a flash of page 0).
+    if (!_checkedResume) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return Scaffold(
       body: SafeArea(
         child: Column(children: [
@@ -73,20 +152,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           Expanded(
             child: PageView(
               controller: _pc,
-              onPageChanged: (i) => setState(() => _page = i),
+              onPageChanged: (i) {
+                setState(() => _page = i);
+                Settings.setString(_resumeKey, '$i');
+              },
               children: [
-                _introSlide(t, scheme, Icons.chat_bubble_outline,
-                    t.justTellMe, t.n500TakaFoodExpenseRemind),
-                _introSlide(t, scheme, Icons.diversity_1_outlined,
-                    t.careForFamily, t.parentsMedicinesSchoolEmergenciesAll),
-                _introSlide(t, scheme, Icons.lock_outline,
-                    t.youStayInControl, t.dataIsNeverSoldIt),
-                _tryNow(t, scheme),
-                _linkParent(t, scheme),
+                _welcomeLang(t, scheme),
+                OnbRoleStep(
+                    selected: _role, onPick: (r) => setState(() => _role = r)),
+                const OnbPermissions(),
+                OnbFirstWin(role: _role, onPick: _openWin),
+                OnbLinkParent(
+                  ivrEnabled: widget.ivrEnabled,
+                  onOpenFamily: () => _open(const FamilyScreen()),
+                  onSkip: _finish,
+                ),
               ],
             ),
           ),
-          _dots(scheme),
+          Padding(
+            padding: const EdgeInsets.only(bottom: Gap.sm),
+            child: Text(t.onbProgressStep(_page + 1, _steps),
+                style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+          ),
+          OnbDots(count: _steps, index: _page),
           const SizedBox(height: Gap.lg),
           Padding(
             padding: const EdgeInsets.fromLTRB(Gap.xl, 0, Gap.xl, Gap.lg),
@@ -98,300 +187,60 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _footer(AppLocalizations t) {
-    // Intro slides -> Next. Try-now and link-parent screens carry their own
-    // CTAs, so the footer just offers "continue / finish".
-    if (_page < _intro) {
-      return FilledButton(
-        onPressed: _next,
-        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
-        child: Text(t.next),
-      );
-    }
-    if (_page == _intro) {
+    // First-win and link-parent steps carry their own CTAs, so the footer there
+    // just offers "start chatting". Earlier steps advance with Next; the role
+    // step requires a pick before Next lights up.
+    if (_page == 3) {
       return TextButton(onPressed: _next, child: Text(t.onbMaybeLater));
     }
-    return TextButton(onPressed: _finish, child: Text(t.justStartChatting));
-  }
-
-  Widget _dots(ColorScheme scheme) =>
-      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        for (int i = 0; i < _pages; i++)
-          AnimatedContainer(
-            duration: Motion.fast,
-            margin: const EdgeInsets.all(3),
-            height: 8,
-            width: _page == i ? 22 : 8,
-            decoration: BoxDecoration(
-              color: _page == i ? scheme.primary : scheme.outlineVariant,
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-      ]);
-
-  Widget _introSlide(AppLocalizations t, ColorScheme scheme, IconData icon,
-      String title, String body) {
-    return Padding(
-      padding: const EdgeInsets.all(Gap.xxl),
-      child:
-          Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Container(
-          height: 96,
-          width: 96,
-          decoration:
-              const BoxDecoration(gradient: Brand.gradient, shape: BoxShape.circle),
-          child: Icon(icon, size: 46, color: Colors.white),
-        ),
-        const SizedBox(height: Gap.xl),
-        Text(title,
-            textAlign: TextAlign.center,
-            style: Theme.of(context)
-                .textTheme
-                .headlineSmall
-                ?.copyWith(fontWeight: FontWeight.w800)),
-        const SizedBox(height: Gap.md),
-        Text(body,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.5)),
-      ]),
-    );
-  }
-
-  // ---- Step: try one real thing now (the <60s "wow") ----
-  Widget _tryNow(AppLocalizations t, ColorScheme scheme) {
-    final actions = <(IconData, String, String, Widget)>[
-      (
-        Icons.medication_outlined,
-        t.onbTryMedicineTitle,
-        t.onbTryMedicineSub,
-        const FamilyScreen()
-      ),
-      (
-        Icons.receipt_long_outlined,
-        t.onbTryBillTitle,
-        t.onbTryBillSub,
-        const VaultScreen()
-      ),
-      (
-        Icons.payments_outlined,
-        t.onbTryExpenseTitle,
-        t.onbTryExpenseSub,
-        const MoneyScreen()
-      ),
-    ];
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(Gap.xl, Gap.lg, Gap.xl, Gap.lg),
-      children: [
-        Text(t.onbTryNowTitle,
-            textAlign: TextAlign.center,
-            style: Theme.of(context)
-                .textTheme
-                .headlineSmall
-                ?.copyWith(fontWeight: FontWeight.w800)),
-        const SizedBox(height: Gap.xs),
-        Text(t.onbTryNowSub,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
-        const SizedBox(height: Gap.xl),
-        for (final a in actions)
-          Padding(
-            padding: const EdgeInsets.only(bottom: Gap.md),
-            child: _actionTile(scheme, a.$1, a.$2, a.$3, () => _open(a.$4)),
-          ),
-      ],
-    );
-  }
-
-  Widget _actionTile(ColorScheme scheme, IconData icon, String title,
-      String sub, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(Radii.md),
-      child: Container(
-        padding: const EdgeInsets.all(Gap.lg),
-        decoration: BoxDecoration(
-          color: scheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(Radii.md),
-          border: Border.all(color: scheme.outlineVariant),
-        ),
-        child: Row(children: [
-          Container(
-            height: 44,
-            width: 44,
-            decoration: BoxDecoration(
-                color: scheme.primaryContainer,
-                borderRadius: BorderRadius.circular(Radii.sm)),
-            child: Icon(icon, color: scheme.onPrimaryContainer),
-          ),
-          const SizedBox(width: Gap.md),
-          Expanded(
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(title,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
-              const SizedBox(height: 2),
-              Text(sub,
-                  style:
-                      TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
-            ]),
-          ),
-          Icon(Icons.chevron_right, color: scheme.onSurfaceVariant),
-        ]),
-      ),
-    );
-  }
-
-  // ---- Step: link a parent in under 2 minutes ----
-  Widget _linkParent(AppLocalizations t, ColorScheme scheme) =>
-      _LinkParentStep(onOpenFamily: () => _open(const FamilyScreen()));
-}
-
-/// Enter a parent's phone, then invite them by call / SMS / copy-link. IVR for
-/// feature phones is key-gated ("Available when ___"). Kept stateful + separate
-/// so the phone field has its own controller lifecycle.
-class _LinkParentStep extends StatefulWidget {
-  final VoidCallback onOpenFamily;
-  const _LinkParentStep({required this.onOpenFamily});
-  @override
-  State<_LinkParentStep> createState() => _LinkParentStepState();
-}
-
-class _LinkParentStepState extends State<_LinkParentStep> {
-  final _phone = TextEditingController();
-  bool get _hasPhone => _phone.text.trim().length >= 6;
-
-  @override
-  void dispose() {
-    _phone.dispose();
-    super.dispose();
-  }
-
-  String get _number => _phone.text.trim().replaceAll(' ', '');
-
-  String _invite(AppLocalizations t) => t.onbInviteMessage;
-
-  Future<void> _tel() async {
-    final uri = Uri.parse('tel:$_number');
-    if (await canLaunchUrl(uri)) await launchUrl(uri);
-  }
-
-  Future<void> _sms(AppLocalizations t) async {
-    final uri =
-        Uri.parse('sms:$_number?body=${Uri.encodeComponent(_invite(t))}');
-    if (await canLaunchUrl(uri)) await launchUrl(uri);
-  }
-
-  Future<void> _copy(AppLocalizations t) async {
-    await Clipboard.setData(ClipboardData(text: _invite(t)));
-    if (mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(t.onbInviteCopied)));
+    if (_page == 4) {
+      return TextButton(onPressed: _finish, child: Text(t.justStartChatting));
     }
+    final canNext = _page != 1 || _role != null;
+    return FilledButton(
+      onPressed: canNext ? _next : null,
+      style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+      child: Text(t.next),
+    );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
+  // ---- Step 0: welcome + language (strict language switch up front) ----
+  Widget _welcomeLang(AppLocalizations t, ColorScheme scheme) {
+    final app = context.watch<AppState>();
+    final current = app.locale?.languageCode;
     return ListView(
       padding: const EdgeInsets.fromLTRB(Gap.xl, Gap.lg, Gap.xl, Gap.lg),
       children: [
-        Icon(Icons.favorite, size: 40, color: scheme.primary),
-        const SizedBox(height: Gap.sm),
-        Text(t.onbLinkParentTitle,
-            textAlign: TextAlign.center,
-            style: Theme.of(context)
-                .textTheme
-                .headlineSmall
-                ?.copyWith(fontWeight: FontWeight.w800)),
+        OnbHeader(
+          icon: Icons.auto_awesome,
+          title: t.onbWelcomeTitle,
+          subtitle: t.onbWelcomeSub,
+        ),
+        const SizedBox(height: Gap.xl),
+        Text(t.onbLangStepTitle,
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
         const SizedBox(height: Gap.xs),
-        Text(t.onbLinkParentSub,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
-        const SizedBox(height: Gap.xl),
-        TextField(
-          controller: _phone,
-          keyboardType: TextInputType.phone,
-          onChanged: (_) => setState(() {}),
-          decoration: InputDecoration(
-            labelText: t.onbParentPhoneLabel,
-            prefixIcon: const Icon(Icons.phone_outlined),
-          ),
-        ),
-        const SizedBox(height: Gap.lg),
-        Row(children: [
-          Expanded(
-            child: _inviteBtn(scheme, Icons.call_outlined, t.onbInviteCall,
-                _hasPhone ? _tel : null),
-          ),
-          const SizedBox(width: Gap.sm),
-          Expanded(
-            child: _inviteBtn(scheme, Icons.sms_outlined, t.onbInviteSms,
-                _hasPhone ? () => _sms(t) : null),
-          ),
-          const SizedBox(width: Gap.sm),
-          Expanded(
-            child: _inviteBtn(scheme, Icons.link_outlined, t.onbInviteCopy,
-                () => _copy(t)),
-          ),
-        ]),
-        const SizedBox(height: Gap.lg),
-        // QR invite (ready; renders the same invite text as a scannable code
-        // once the invite-link endpoint is live). Shown as a gated affordance.
-        _gatedRow(scheme, Icons.qr_code_2_outlined, t.onbInviteQr,
-            t.onbAvailableWhenInvites),
+        Text(t.onbLangStepSub,
+            style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+        const SizedBox(height: Gap.md),
+        _langTile(scheme, 'bn', t.languageBangla, current == 'bn'),
         const SizedBox(height: Gap.sm),
-        // IVR call for feature phones — key-gated.
-        _gatedRow(scheme, Icons.phone_in_talk_outlined, t.onbInviteIvr,
-            t.onbAvailableWhenIvr),
-        const SizedBox(height: Gap.xl),
-        FilledButton.icon(
-          onPressed: widget.onOpenFamily,
-          icon: const Icon(Icons.diversity_1_outlined),
-          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
-          label: Text(t.onbManageFamily),
-        ),
+        _langTile(scheme, 'en', t.languageEnglish, current == 'en'),
       ],
     );
   }
 
-  Widget _inviteBtn(
-      ColorScheme scheme, IconData icon, String label, VoidCallback? onTap) {
-    return OutlinedButton(
-      onPressed: onTap,
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: Gap.md),
-        minimumSize: const Size.fromHeight(64),
-      ),
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Icon(icon, size: 20),
-        const SizedBox(height: 4),
-        Text(label, style: const TextStyle(fontSize: 12)),
-      ]),
-    );
-  }
-
-  /// A "coming soon" affordance with a clean "Available when ___" explanation.
-  Widget _gatedRow(
-      ColorScheme scheme, IconData icon, String label, String whenText) {
-    return Container(
-      padding: const EdgeInsets.all(Gap.md),
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(Radii.md),
-      ),
-      child: Row(children: [
-        Icon(icon, size: 20, color: scheme.onSurfaceVariant),
-        const SizedBox(width: Gap.md),
-        Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-            Text(whenText,
-                style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
-          ]),
-        ),
-        Icon(Icons.lock_clock_outlined,
-            size: 18, color: scheme.onSurfaceVariant),
-      ]),
+  Widget _langTile(
+      ColorScheme scheme, String code, String label, bool selected) {
+    final t = AppLocalizations.of(context);
+    return OnbChoiceTile(
+      icon: Icons.translate_outlined,
+      // `label` is the native language name from the ARB (languageBangla /
+      // languageEnglish) — a localized value, not a hardcoded literal here.
+      title: label,
+      subtitle: t.chooseLanguage,
+      selected: selected,
+      onTap: () => context.read<AppState>().setLocale(Locale(code)),
     );
   }
 }

@@ -1,0 +1,87 @@
+{
+  "_comment": "NEW ARB keys for the ADVANCED 'About the Assisto name' / trademark surface (SPEC v2.1 §21). INTEGRATION: merge the `en` map into app/lib/l10n/app_en.arb and the `bn` map into app/lib/l10n/app_bn.arb, add the @-metadata blocks in `placeholders_meta` to app_en.arb (this project keeps @-metadata in app_en.arb only — see existing nameAboutClassLabel), then run l10n codegen (flutter gen-l10n / build). EXISTING nameAbout* keys (nameAboutTitle, nameAboutNameLabel, nameAboutDisclaimerTitle, nameAboutDisclaimer, nameAboutStatusLabel, nameAboutClassesLabel, nameAboutClassLabel, nameAboutChecklistLabel, nameAboutChecklistHint, nameAboutError*/Empty*) are REUSED and NOT redefined here. Reused shared keys: retry, copy, copied. ZERO Bangla lives in any .dart file — every Bangla string is here. CRITICAL copy rule: nothing claims the name is cleared/available/registered; the disclaimer ('informational only — NOT legal trademark clearance / not legal advice') and the 'research pending — no clearance claimed' status are intentional and must not be softened.",
+  "placeholders_meta": {
+    "nameAboutStepsProgress": {
+      "placeholders": {
+        "done": {
+          "type": "Object"
+        },
+        "total": {
+          "type": "Object"
+        }
+      }
+    }
+  },
+  "en": {
+    "nameAboutDisclaimerShort": "Informational only — NOT legal trademark clearance.",
+    "nameAboutStatusPending": "Trademark research pending — no clearance is claimed. The name is not confirmed as available or registered.",
+    "nameAboutStoryTitle": "Meaning & brand story",
+    "nameAboutStoryBody": "The name was chosen to signal a helpful, everyday assistant for Bangladesh — short, easy to say in both Bangla and English, and easy to spell. The brand story and look are our own; this note explains the thinking, not any legal right to the name.",
+    "nameAboutClassesHint": "Trademarks are registered per category (Nice class). For an assistant app, classes 9 and 42 are the primary ones; 35 and 38 may also apply depending on the features offered.",
+    "nameAboutClassPrimary": "Primary",
+    "nameAboutStepsProgress": "{done} of {total}",
+    "nameAboutChecklistDone": "Ticking every step does NOT mean the name is cleared. These ticks are only your personal reminder — nothing is saved or sent. Only a qualified trademark attorney can advise whether the name is safe to use or register.",
+    "nameAboutStepDpdt": "Search 'Assisto' in the Bangladesh DPDT (Department of Patents, Designs and Trademarks) trademark database.",
+    "nameAboutStepClasses": "Search again within each relevant Nice class (9, 42, 35, 38) separately.",
+    "nameAboutStepGlobal": "Search the WIPO Global Brand Database (and USPTO / EUIPO) for international conflicts.",
+    "nameAboutStepStores": "Check Google Play and the Apple App Store for apps already using the name 'Assisto'.",
+    "nameAboutStepDomain": "Check whether the domain and social handles (assisto.*) are available.",
+    "nameAboutStepAttorney": "Consult a licensed trademark attorney before filing or finalising the name.",
+    "nameAboutSourcesTitle": "Where to check (official sources)",
+    "nameAboutSourcesBody": "These are the official places to run a real search. We do not run the search for you and we do not interpret the results — opening a link shows you the source, not an answer.",
+    "nameAboutSourceDpdt": "Bangladesh DPDT — official trademark portal",
+    "nameAboutSourceWipo": "WIPO Global Brand Database",
+    "nameAboutOpenFailed": "Couldn't open the link. It has been copied so you can paste it into your browser.",
+    "nameAboutOfflineTitle": "You're offline",
+    "nameAboutOfflineBody": "This note needs a connection to load. The source links above still require a browser and internet.",
+    "nameAboutFaqTitle": "Frequently asked questions",
+    "nameAboutFaqClearedQ": "Is the name 'Assisto' legally cleared?",
+    "nameAboutFaqClearedA": "No. This screen is informational only. No clearance is claimed and no search has been verified by a lawyer. Treat the name as unconfirmed until a trademark attorney advises otherwise.",
+    "nameAboutFaqWhyClassesQ": "Why do classes 9 and 42 matter?",
+    "nameAboutFaqWhyClassesA": "Trademarks are registered by category. Class 9 covers software and mobile apps, and class 42 covers software-as-a-service and development — the two that matter most for an assistant app. Classes 35 and 38 may also apply for business or messaging features.",
+    "nameAboutFaqSearchQ": "How do I search the Bangladesh trademark database?",
+    "nameAboutFaqSearchA": "Open the official DPDT portal linked below, go to the trademark search, and look up 'Assisto' in each relevant class. Record what you find — a match in your class is a warning sign to raise with an attorney.",
+    "nameAboutFaqAttorneyQ": "Do I really need a trademark attorney?",
+    "nameAboutFaqAttorneyA": "Yes, before you register or rely on the name commercially. A search can miss similar marks, phonetic conflicts and prior rights that only a professional can assess. This app cannot give legal advice.",
+    "nameAboutFaqGlobalQ": "What about outside Bangladesh?",
+    "nameAboutFaqGlobalA": "Trademarks are territorial. If you plan to launch in other countries, search the WIPO Global Brand Database and the relevant national offices (such as USPTO or EUIPO) as well.",
+    "nameAboutFaqChangeQ": "What if the name turns out to be taken?",
+    "nameAboutFaqChangeA": "Then it's better to learn that now. You can adjust the name, add a distinctive element, or choose a different class strategy with your attorney before investing further in the brand."
+  },
+  "bn": {
+    "nameAboutDisclaimerShort": "কেবল তথ্যের জন্য — আইনি ট্রেডমার্ক ছাড়পত্র নয়।",
+    "nameAboutStatusPending": "ট্রেডমার্ক গবেষণা চলমান — কোনো ছাড়পত্র দাবি করা হয়নি। নামটি পাওয়া যাচ্ছে বা নিবন্ধিত — এমন নিশ্চিত করা হয়নি।",
+    "nameAboutStoryTitle": "অর্থ ও ব্র্যান্ড গল্প",
+    "nameAboutStoryBody": "বাংলাদেশের জন্য একটি সহায়ক, প্রতিদিনের সহকারী বোঝাতে এই নামটি বেছে নেওয়া হয়েছে — সংক্ষিপ্ত, বাংলা ও ইংরেজি দুই ভাষাতেই বলা ও বানান সহজ। ব্র্যান্ড গল্প ও লুক আমাদের নিজস্ব; এই নোটটি চিন্তাভাবনা ব্যাখ্যা করে, নামের কোনো আইনি অধিকার নয়।",
+    "nameAboutClassesHint": "ট্রেডমার্ক শ্রেণি অনুসারে (Nice শ্রেণি) নিবন্ধিত হয়। সহকারী অ্যাপের জন্য শ্রেণি ৯ ও ৪২ প্রধান; ফিচারের উপর ভিত্তি করে ৩৫ ও ৩৮ও প্রযোজ্য হতে পারে।",
+    "nameAboutClassPrimary": "প্রধান",
+    "nameAboutStepsProgress": "{total}-এর মধ্যে {done}",
+    "nameAboutChecklistDone": "সব ধাপ টিক দিলেও তার অর্থ এই নয় যে নামটি ছাড়প্রাপ্ত। এই টিকগুলো শুধু আপনার নিজস্ব স্মারক — কিছুই সংরক্ষণ বা পাঠানো হয় না। নামটি ব্যবহার বা নিবন্ধন নিরাপদ কিনা তা কেবল একজন যোগ্য ট্রেডমার্ক আইনজীবী বলতে পারেন।",
+    "nameAboutStepDpdt": "বাংলাদেশ DPDT (পেটেন্ট, ডিজাইন ও ট্রেডমার্ক অধিদপ্তর) ট্রেডমার্ক ডাটাবেসে 'Assisto' সার্চ করুন।",
+    "nameAboutStepClasses": "প্রাসঙ্গিক প্রতিটি Nice শ্রেণিতে (৯, ৪২, ৩৫, ৩৮) আলাদাভাবে আবার সার্চ করুন।",
+    "nameAboutStepGlobal": "আন্তর্জাতিক দ্বন্দ্বের জন্য WIPO Global Brand Database (এবং USPTO / EUIPO) সার্চ করুন।",
+    "nameAboutStepStores": "Google Play ও Apple App Store-এ 'Assisto' নামে ইতিমধ্যে কোনো অ্যাপ আছে কিনা দেখুন।",
+    "nameAboutStepDomain": "ডোমেইন ও সোশ্যাল হ্যান্ডল (assisto.*) পাওয়া যায় কিনা পরীক্ষা করুন।",
+    "nameAboutStepAttorney": "ফাইল করা বা নাম চূড়ান্ত করার আগে একজন লাইসেন্সপ্রাপ্ত ট্রেডমার্ক আইনজীবীর সাথে পরামর্শ করুন।",
+    "nameAboutSourcesTitle": "কোথায় যাচাই করবেন (অফিশিয়াল সোর্স)",
+    "nameAboutSourcesBody": "বাস্তব সার্চ চালানোর অফিশিয়াল জায়গা এগুলো। আমরা আপনার জন্য সার্চ করি না এবং ফলাফল ব্যাখ্যাও করি না — লিংক খুললে আপনি উৎসটি দেখবেন, কোনো উত্তর নয়।",
+    "nameAboutSourceDpdt": "বাংলাদেশ DPDT — অফিশিয়াল ট্রেডমার্ক পোর্টাল",
+    "nameAboutSourceWipo": "WIPO Global Brand Database",
+    "nameAboutOpenFailed": "লিংকটি খোলা গেল না। এটি কপি করা হয়েছে — ব্রাউজারে পেস্ট করুন।",
+    "nameAboutOfflineTitle": "আপনি অফলাইনে",
+    "nameAboutOfflineBody": "এই নোটটি লোড করতে ইন্টারনেট প্রয়োজন। উপরের সোর্স লিংকগুলোও ব্রাউজার ও ইন্টারনেট চায়।",
+    "nameAboutFaqTitle": "সাধারণ জিজ্ঞাসা",
+    "nameAboutFaqClearedQ": "'Assisto' নামটি কি আইনিভাবে ছাড়প্রাপ্ত?",
+    "nameAboutFaqClearedA": "না। এই স্ক্রিনটি কেবল তথ্যের জন্য। কোনো ছাড়পত্র দাবি করা হয়নি এবং কোনো সার্চ আইনজীবী দ্বারা যাচাই করা হয়নি। আইনজীবী নিশ্চিত না করা পর্যন্ত নামটি অনিশ্চিত ভাবুন।",
+    "nameAboutFaqWhyClassesQ": "শ্রেণি ৯ ও ৪২ কেন গুরুত্বপূর্ণ?",
+    "nameAboutFaqWhyClassesA": "ট্রেডমার্ক শ্রেণি অনুসারে নিবন্ধিত হয়। শ্রেণি ৯ সফটওয়্যার ও মোবাইল অ্যাপ, এবং শ্রেণি ৪২ SaaS ও ডেভেলপমেন্ট কভার করে — সহকারী অ্যাপের জন্য এই দুটি সবচেয়ে গুরুত্বপূর্ণ। ব্যবসা বা মেসেজিং ফিচারের জন্য শ্রেণি ৩৫ ও ৩৮ও প্রযোজ্য হতে পারে।",
+    "nameAboutFaqSearchQ": "বাংলাদেশের ট্রেডমার্ক ডাটাবেসে কীভাবে সার্চ করব?",
+    "nameAboutFaqSearchA": "নিচের অফিশিয়াল DPDT পোর্টাল খুলুন, ট্রেডমার্ক সার্চে যান এবং প্রতিটি প্রাসঙ্গিক শ্রেণিতে 'Assisto' খুঁজুন। যা পান তা লিখে রাখুন — আপনার শ্রেণিতে মিল পেলে তা আইনজীবীকে জানানোর মতো সতর্কতাসংকেত।",
+    "nameAboutFaqAttorneyQ": "আমার কি সত্যিই ট্রেডমার্ক আইনজীবী প্রয়োজন?",
+    "nameAboutFaqAttorneyA": "হ্যাঁ — নিবন্ধন বা বাণিজ্যিকভাবে নাম ব্যবহারের আগে। একটি সার্চ সমান মার্ক, উচ্চারণগত দ্বন্দ্ব ও আগের অধিকার মিস করতে পারে, যা কেবল একজন পেশাদার বিচার করতে পারেন। এই অ্যাপ আইনি পরামর্শ দিতে পারে না।",
+    "nameAboutFaqGlobalQ": "বাংলাদেশের বাইরের ক্ষেত্রে কী?",
+    "nameAboutFaqGlobalA": "ট্রেডমার্ক অঞ্চলভিত্তিক। অন্য দেশে চালুর পরিকল্পনা থাকলে WIPO Global Brand Database ও সংশ্লিষ্ট জাতীয় অফিসগুলোও (যেমন USPTO বা EUIPO) সার্চ করুন।",
+    "nameAboutFaqChangeQ": "নামটি আগে থেকেই নেওয়া হলে কী হবে?",
+    "nameAboutFaqChangeA": "তাহলে এখনই জানা ভালো। ব্র্যান্ডে আরও বিনিয়োগের আগে আপনি আইনজীবীর সাথে নাম সামান্য বদলাতে, স্বতন্ত্র উপাদান যোগ করতে, বা ভিন্ন শ্রেণি-কৌশল বেছে নিতে পারেন।"
+  }
+}

@@ -705,3 +705,13 @@ NOTHING basic may remain.
 - REMAINING WAVE D (~49): safe-arrival, password-reset, analytics-dashboard, fall-detect(good-bits), name-about, legal, onboarding, + messenger/CRM/business/safety/circle good-bits (full list SPEC_V21_AUDIT.md). Batch ~6 each.
 - THEN WAVE E (~79 v2.1 new: Sec14 PA/AI-core/DailyLife/standalone/Sec20). THEN Step 6 (SFU+TURN M3 self-hosted + aws_ports.md + Telegram sandbox), Step 7 (P14-16/iOS/FINAL).
 - Builds through 73. en=bn=4106. 590 tests. migrations through 0028. All green.
+
+- BUILD 74 SHIPPED 2026-10-14: https://assisto.asalify.com/dl/G2b6U14EqGGYXxM0gGSk0nUp/assisto-part7-build74.apk (Wave D batch 2: Plans, Photo Enhance, Unseen World, Ride/Food, Ramadan, Exam → advanced). Build failed once on transient NDK glitch, rerun OK. ship_watch.sh exit-code bug fixed. 604 tests, analyze 0. 12/61. Gallery: https://assisto.asalify.com/dl/shots-waved2-i-UkQoZINws/index.html
+
+## WAVE D BATCH 3 (2026-10-14, after build 74) — good→advanced, 6 more
+- ✅ Batches 1-2 shipped (builds 73,74): 12/61. en=bn=4357, 604 tests.
+- BATCH 3 agents: safe-arrival ac8f02 (missed→family+location, reuse safety-journey, routine), onboarding a44ec9 (<60s first-win, parent-link QR/SMS/IVR-gated), legal a54c1f (policy centre, all DRAFT owner/lawyer-review, Sec22 disclaimers, data-rights), password-reset a210ac (email-now/SMS-key-gated, rate-limited, token-single-use, strength-meter), name-about ae1c7c (not-legal-clearance disclaimer prominent), analytics a8fd6c (our-backend-only/no-3rd-party/no-PII, owner-only, numbers-from-backend).
+- AFTER batch: merge arb (watch for getter-coverage gaps → reconcile if needed) + gen-l10n→analyze 0→gate→tests→gallery→build+3-line. 18/61.
+- REMAINING WAVE D (~43): watch-feed/nominee/journey good-bits + messenger/CRM/business/circle/safety good-bits + security-doc + fall-detect-polish + misc (full list SPEC_V21_AUDIT.md). Batch ~6.
+- THEN WAVE E (~79 v2.1 new), Step 6 (SFU+TURN M3 + aws_ports.md + Telegram sandbox), Step 7 (P14-16/iOS/FINAL).
+- Builds through 74. 590→604 tests. migrations through 0028. ship_watch.sh exit-code fixed. All green.

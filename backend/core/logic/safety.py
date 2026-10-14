@@ -177,6 +177,154 @@ def should_alert_checkin(expected_arrival, now=None, arrived=False, grace_minute
 
 
 # ---------------------------------------------------------------------------
+# safe-arrival ADVANCED (SPEC v2.1 §21)  — pure, deterministic, unit-testable.
+# Everything below REUSES the Safe Journey / family-alert machinery (watchers =
+# circle member ids, duress PIN, last_location, routine scheduling in
+# safety_journey.py). It adds the check-in-specific pieces the GOOD card lacked:
+# a pre-arrival REMINDER to check in, an explicit ESCALATION payload that
+# carries the last known LOCATION, a daily-commute ROUTINE "home by TIME" rule,
+# a live-COUNTDOWN formatter, and a women's-NIGHT-SAFETY flag.
+# ---------------------------------------------------------------------------
+
+# How long BEFORE the expected time we nudge the user to check in. The nudge is
+# a local reminder only — it never alerts anyone.
+ARRIVAL_REMIND_LEAD_DEFAULT = 10      # minutes before eta
+ARRIVAL_REMIND_LEAD_MIN = 0
+ARRIVAL_REMIND_LEAD_MAX = 60
+
+
+def clamp_remind_lead(minutes):
+    try:
+        m = int(minutes)
+    except (TypeError, ValueError):
+        return ARRIVAL_REMIND_LEAD_DEFAULT
+    return max(ARRIVAL_REMIND_LEAD_MIN, min(ARRIVAL_REMIND_LEAD_MAX, m))
+
+
+def checkin_reminder_due(expected_arrival, now=None, arrived=False,
+                         lead_minutes=ARRIVAL_REMIND_LEAD_DEFAULT):
+    """True once we're inside the pre-arrival window (lead_minutes before eta,
+    through the eta itself) and the user still hasn't tapped 'arrived'. Used to
+    pop a gentle 'about to be there? tap arrived' nudge — NOT an alert."""
+    if arrived:
+        return False
+    eta = parse_dt(expected_arrival)
+    if eta is None:
+        return False
+    now = now or datetime.now()
+    if (eta.tzinfo is None) != (now.tzinfo is None):
+        eta = eta.replace(tzinfo=None)
+        now = now.replace(tzinfo=None)
+    lead = clamp_remind_lead(lead_minutes)
+    window_start = eta - timedelta(minutes=lead)
+    return window_start <= now <= eta
+
+
+def countdown_parts(expected_arrival, now=None):
+    """Live countdown to the expected time, as a signed dict the UI renders.
+    {'overdue': bool, 'hours': int, 'minutes': int, 'total_minutes': int}.
+    When overdue, the values describe how LATE it is."""
+    eta = parse_dt(expected_arrival)
+    if eta is None:
+        return {"overdue": False, "hours": 0, "minutes": 0, "total_minutes": 0}
+    now = now or datetime.now()
+    if (eta.tzinfo is None) != (now.tzinfo is None):
+        eta = eta.replace(tzinfo=None)
+        now = now.replace(tzinfo=None)
+    secs = (eta - now).total_seconds()
+    overdue = secs < 0
+    total_min = int(abs(secs) // 60)
+    return {"overdue": overdue, "hours": total_min // 60,
+            "minutes": total_min % 60, "total_minutes": total_min}
+
+
+# --- women's night-safety framing -----------------------------------------
+# A check-in that starts in the night window is tagged so the UI can surface the
+# women's-safety framing (nothing changes server-side; it only chooses copy and,
+# if the user opts in, a tighter default grace).
+NIGHT_START_HOUR = 20     # 8 pm
+NIGHT_END_HOUR = 6        # 6 am
+NIGHT_GRACE_MINUTES = 7   # tighter grace for night check-ins
+
+
+def is_night_time(dt=None):
+    dt = dt or datetime.now()
+    h = dt.hour
+    return h >= NIGHT_START_HOUR or h < NIGHT_END_HOUR
+
+
+def effective_grace(expected_arrival, night_mode=False,
+                    grace_minutes=ARRIVAL_GRACE_DEFAULT):
+    """Grace the check-in should use. Night-safety mode tightens it so family is
+    alerted sooner if a late-night arrival isn't confirmed."""
+    eta = parse_dt(expected_arrival)
+    if night_mode and eta is not None and is_night_time(eta):
+        return min(int(grace_minutes), NIGHT_GRACE_MINUTES)
+    return int(grace_minutes)
+
+
+# --- escalation (REUSES the family alert + last-location machinery) --------
+
+def checkin_escalation(person_name, place_name, minutes_overdue,
+                       last_location=None, duress=False, lang="bn"):
+    """The payload pushed to the chosen family (circle) watchers when a check-in
+    goes overdue. Extends checkin_overdue_payload() with the last known LOCATION
+    (reusing the Safe Journey last_location shape {lat,lng,at}) and a maps link,
+    and carries a `duress` flag so a duress-cancelled check-in still escalates
+    silently. The integrator pushes this exactly like a journey overdue alert."""
+    base = checkin_overdue_payload(person_name, place_name, minutes_overdue, lang)
+    maps_link = None
+    loc = last_location or {}
+    lat, lng = loc.get("lat"), loc.get("lng")
+    if lat is not None and lng is not None:
+        maps_link = f"https://maps.google.com/?q={lat},{lng}"
+        base["body"] += pick(lang, f" সর্বশেষ অবস্থান: {maps_link}",
+                             f" Last location: {maps_link}")
+    base.update({
+        "maps_link": maps_link,
+        "last_location": last_location or None,
+        "duress": bool(duress),
+        # duress check-ins escalate at HIGH + silent, never showing 'arrived' on
+        # the traveller's screen (mirrors safety_journey.duress_outcome).
+        "severity": "high",
+        "silent": bool(duress),
+    })
+    return base
+
+
+# --- recurring routine: "alert if I'm not home by TIME" --------------------
+# A daily-commute routine reuses safety_journey.routine_due() for the schedule;
+# this helper layers the check-in semantics: once the routine fires for a day it
+# arms an auto check-in whose eta is today's `by_time`, which then follows the
+# normal on_time -> grace -> overdue -> ALERT path above.
+
+def routine_checkin_eta(by_time, now=None):
+    """Today's expected-arrival datetime for a recurring 'home by <by_time>'
+    routine. by_time is 'HH:MM'. If that time has already passed today the
+    routine is for a FUTURE day, so returns today's instant anyway (caller pairs
+    this with safety_journey.routine_due to decide the right day)."""
+    now = now or datetime.now()
+    try:
+        hh, mm = [int(x) for x in str(by_time).split(":")[:2]]
+    except (ValueError, TypeError):
+        return None
+    return now.replace(hour=max(0, min(23, hh)), minute=max(0, min(59, mm)),
+                       second=0, microsecond=0)
+
+
+def routine_should_alert(by_time, now=None, arrived=False, night_mode=False,
+                         grace_minutes=ARRIVAL_GRACE_DEFAULT):
+    """For an ARMED daily routine (e.g. 'alert if not home by 9pm'): has the
+    deadline-plus-grace passed with no check-in? Reuses checkin_status so the
+    routine and one-off check-ins share identical overdue semantics."""
+    eta = routine_checkin_eta(by_time, now=now)
+    if eta is None:
+        return False
+    grace = effective_grace(eta, night_mode=night_mode, grace_minutes=grace_minutes)
+    return should_alert_checkin(eta, now=now, arrived=arrived, grace_minutes=grace)
+
+
+# ---------------------------------------------------------------------------
 # optional geofence (auto-confirm arrival when a location fix is available)
 # ---------------------------------------------------------------------------
 

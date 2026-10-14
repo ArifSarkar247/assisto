@@ -247,6 +247,128 @@ def paid_funnel(events):
     }
 
 
+def _day_span(events):
+    """(min_day, max_day) as dates over all events that carry a day, else
+    (None, None). Used to build dense daily trend series with honest gaps."""
+    days = [date.fromisoformat(e["day"]) for e in events if e["day"]]
+    if not days:
+        return None, None
+    return min(days), max(days)
+
+
+def active_users(events, window_days=30):
+    """DAU / WAU / MAU plus a dense daily-active-users trend series.
+
+    "Active" = any app_open / session_start on a day. DAU is the most recent
+    day in the data; WAU / MAU are distinct users active within the trailing
+    7 / 30 day windows ending on that most-recent day. The `series` is a dense
+    list of {day, users} for the trailing `window_days` (zero-filled so the
+    client can draw an honest sparkline with real gaps, never interpolated).
+
+    All counts are distinct uid_hash — PII-free. If there is no activity we
+    return zeros and an empty series so the client shows a "no data yet" state
+    rather than a fabricated line."""
+    evs = _as_dicts(events)
+    # uid_hash active on each day.
+    by_day = {}
+    for e in evs:
+        if e["name"] not in ("app_open", "session_start"):
+            continue
+        if not e["uid_hash"] or not e["day"]:
+            continue
+        by_day.setdefault(e["day"], set()).add(e["uid_hash"])
+
+    if not by_day:
+        return {"dau": 0, "wau": 0, "mau": 0, "series": []}
+
+    last = max(date.fromisoformat(d) for d in by_day)
+
+    def _window(n):
+        seen = set()
+        for i in range(n):
+            day = (last - timedelta(days=i)).isoformat()
+            seen |= by_day.get(day, set())
+        return len(seen)
+
+    dau = len(by_day.get(last.isoformat(), set()))
+    wau = _window(7)
+    mau = _window(30)
+
+    # Dense trailing series (oldest -> newest) for the sparkline.
+    series = []
+    for i in range(window_days - 1, -1, -1):
+        day = (last - timedelta(days=i)).isoformat()
+        series.append({"day": day, "users": len(by_day.get(day, set()))})
+
+    return {"dau": dau, "wau": wau, "mau": mau, "series": series}
+
+
+def daily_series(events, name_set, window_days=30):
+    """Dense trailing per-day COUNT series for a set of event names (e.g. new
+    signups). Zero-filled, oldest -> newest. Honest: real zeros, no smoothing."""
+    evs = _as_dicts(events)
+    by_day = {}
+    for e in evs:
+        if e["name"] in name_set and e["day"]:
+            by_day[e["day"]] = by_day.get(e["day"], 0) + 1
+    if not by_day:
+        return []
+    last = max(date.fromisoformat(d) for d in by_day)
+    out = []
+    for i in range(window_days - 1, -1, -1):
+        day = (last - timedelta(days=i)).isoformat()
+        out.append({"day": day, "count": by_day.get(day, 0)})
+    return out
+
+
+# Owner-configurable monthly price per plan (minor currency unit agnostic — the
+# number is whatever the owner sets). We NEVER invent revenue: if a plan has no
+# configured price, its revenue is reported as null (client shows an estimate /
+# unknown badge instead of a fabricated figure).
+def revenue_by_plan(events, price_map=None):
+    """Plan breakdown of PAID users (distinct uid_hash with upgrade_completed),
+    grouped by the sanitised `plan` prop. Revenue is counts x configured price;
+    when a price is unknown it stays null so nothing is fabricated.
+
+    Returns {"plans": [{"plan","paid_users","price","revenue"}...],
+             "total_paid_users": int, "total_revenue": int|null,
+             "revenue_known": bool}. total_revenue is null unless EVERY present
+    plan has a configured price (otherwise any sum would be a guess)."""
+    evs = _as_dicts(events)
+    price_map = price_map or {}
+    by_plan = {}
+    for e in evs:
+        if e["name"] != "upgrade_completed" or not e["uid_hash"]:
+            continue
+        plan = (e["props"] or {}).get("plan") or "unspecified"
+        by_plan.setdefault(plan, set()).add(e["uid_hash"])
+
+    plans = []
+    total_users = 0
+    total_rev = 0
+    all_priced = True
+    for plan in sorted(by_plan, key=lambda p: (-len(by_plan[p]), p)):
+        users = len(by_plan[plan])
+        total_users += users
+        price = price_map.get(plan)
+        if price is None:
+            all_priced = False
+            rev = None
+        else:
+            rev = users * price
+            total_rev += rev
+        plans.append({"plan": plan, "paid_users": users,
+                      "price": price, "revenue": rev})
+
+    revenue_known = bool(plans) and all_priced
+    return {
+        "plans": plans,
+        "total_paid_users": total_users,
+        "total_revenue": total_rev if revenue_known else None,
+        "revenue_known": revenue_known,
+    }
+
+
 def feature_usage(events, top=10):
     """Most-used features (from feature_used events' 'feature' prop), by distinct
     users — a privacy-safe popularity ranking for the owner dashboard."""
@@ -264,12 +386,35 @@ def feature_usage(events, top=10):
     return [{"feature": f, "users": n} for f, n in ranked[:top]]
 
 
-def dashboard(events):
-    """One call the owner-admin view can render. Pure aggregation, no PII."""
+def dashboard(events, price_map=None, window_days=30):
+    """One call the owner-admin view can render. Pure aggregation, no PII.
+
+    ADVANCED payload (superset of the original — all existing keys preserved so
+    the signature stays `dashboard(rows)`-compatible for the unchanged view):
+      - active:        DAU / WAU / MAU + dense daily-active trend series
+      - signups_series: dense daily new-signup counts (trend sparkline)
+      - revenue:       plan breakdown; revenue null unless priced (no guessing)
+      - range:         {start, end} actual day span of the data (honest window)
+    Everything is distinct-user / count aggregation; no names, phones, emails.
+    `price_map` is owner-configured ({plan: monthly_price}); omit it and revenue
+    is reported as unknown rather than fabricated."""
+    evs = _as_dicts(events)
+    start, end = _day_span(evs)
     return {
-        "retention": retention(events),
-        "invites": invites(events),
-        "paid_funnel": paid_funnel(events),
-        "top_features": feature_usage(events),
-        "total_events": len(_as_dicts(events)),
+        "retention": retention(evs),
+        "invites": invites(evs),
+        "paid_funnel": paid_funnel(evs),
+        "top_features": feature_usage(evs),
+        "active": active_users(evs, window_days=window_days),
+        "signups_series": daily_series(
+            evs,
+            ("onboarding_complete",),
+            window_days=window_days,
+        ),
+        "revenue": revenue_by_plan(evs, price_map=price_map),
+        "range": {
+            "start": start.isoformat() if start else None,
+            "end": end.isoformat() if end else None,
+        },
+        "total_events": len(evs),
     }

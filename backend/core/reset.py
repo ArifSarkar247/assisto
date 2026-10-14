@@ -106,7 +106,9 @@ def reset_link(base_url, raw_token):
 
 # --- password strength (reused on confirm) ---------------------------------
 def validate_password(pw, lang="bn"):
-    """Return (ok, message). Minimal, locale-aware strength rule."""
+    """Return (ok, message). Minimal, locale-aware strength FLOOR. This is the
+    authoritative rule the confirm endpoint enforces; the app's strength meter
+    only mirrors it for a fast offline hint."""
     pw = pw or ""
     if len(pw) < 8:
         return False, pick(lang, "পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।",
@@ -115,6 +117,61 @@ def validate_password(pw, lang="bn"):
         return False, pick(lang, "পাসওয়ার্ডে অক্ষর ও সংখ্যা উভয়ই রাখুন।",
                            "Use both letters and numbers in your password.")
     return True, pick(lang, "ঠিক আছে", "OK")
+
+
+# strength LEVELS mirrored by the Flutter meter (reset_strength_meter.dart).
+STRENGTH_WEAK = "weak"
+STRENGTH_FAIR = "fair"
+STRENGTH_GOOD = "good"
+STRENGTH_STRONG = "strong"
+
+
+def score_password(pw):
+    """Pure strength score, kept in lock-step with the app's PwScore.of(). Returns
+    a level string ('weak'|'fair'|'good'|'strong'). 'weak' means below the floor
+    that validate_password() rejects; 'fair'+ means the floor is met. Used by the
+    strength meter and reusable for a change-password (logged-in) flow."""
+    pw = pw or ""
+    if not pw:
+        return STRENGTH_WEAK
+    import re
+    has_lower = bool(re.search(r"[a-z]", pw))
+    has_upper = bool(re.search(r"[A-Z]", pw))
+    has_digit = bool(re.search(r"[0-9]", pw))
+    has_symbol = bool(re.search(r"[^A-Za-z0-9]", pw))
+    long_enough = len(pw) >= 8
+    very_long = len(pw) >= 12
+    mixes = (has_lower or has_upper) and has_digit
+    if not long_enough or not mixes:
+        return STRENGTH_WEAK
+    classes = sum([has_lower, has_upper, has_digit, has_symbol])
+    if very_long and classes >= 3:
+        return STRENGTH_STRONG
+    if (very_long and classes >= 2) or (long_enough and classes >= 3):
+        return STRENGTH_GOOD
+    return STRENGTH_FAIR
+
+
+def should_revoke_sessions(request_data):
+    """Whether a successful reset/change should sign out all other devices.
+    Secure default: True. The integrator calls this and, when True, deletes the
+    user's auth Token(s) (see MIGRATION/INTEGRATION NOTE) so any session an
+    attacker may hold is invalidated. Network-free: just reads the flag."""
+    data = request_data or {}
+    val = data.get("revoke_sessions", True)
+    if isinstance(val, str):
+        return val.strip().lower() not in ("false", "0", "no", "")
+    return bool(val)
+
+
+def change_password_check(current_ok, new_pw, lang="bn"):
+    """Reusable validator for a logged-in change-password flow. `current_ok` is
+    whether the supplied CURRENT password verified (the view checks that against
+    the hash; this module never sees stored secrets). Returns (ok, message)."""
+    if not current_ok:
+        return False, pick(lang, "বর্তমান পাসওয়ার্ড মেলেনি।",
+                           "Your current password is incorrect.")
+    return validate_password(new_pw, lang)
 
 
 def check_token(stored_hash, raw_token, expires_at, now, used):

@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
+import '../screens/safe_arrival_screen.dart';
+import 'arrival_model.dart';
 
 /// Safe-arrival check-in card. When a check-in is active it shows the place +
 /// ETA with a live status (on-time / grace / overdue) mirroring
@@ -73,12 +75,15 @@ class _SafetyCheckinCardState extends State<SafetyCheckinCard> {
     final onArrived = widget.onArrived;
     if (eta == null) {
       return Card(
-        child: ListTile(
-          leading: const Icon(Icons.pin_drop_outlined),
-          title: Text(t.safetyCheckinNone),
-          subtitle: Text(t.safetyCheckinNoneDesc),
-          trailing: FilledButton.tonal(onPressed: onSet, child: Text(t.safetyCheckinSet)),
-        ),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          ListTile(
+            leading: const Icon(Icons.pin_drop_outlined),
+            title: Text(t.safetyCheckinNone),
+            subtitle: Text(t.safetyCheckinNoneDesc),
+            trailing: FilledButton.tonal(onPressed: onSet, child: Text(t.safetyCheckinSet)),
+          ),
+          _advancedLink(context),
+        ]),
       );
     }
 
@@ -133,8 +138,21 @@ class _SafetyCheckinCardState extends State<SafetyCheckinCard> {
             const SizedBox(width: 8),
             TextButton(onPressed: onSet, child: Text(t.edit)),
           ]),
+          _advancedLink(context),
         ]),
       ),
     );
   }
+
+  /// Entry into the ADVANCED safe-arrival screen (who-to-alert, live countdown,
+  /// escalation-with-location, recurring routine, night-safety, duress, history).
+  Widget _advancedLink(BuildContext context) => Align(
+        alignment: Alignment.centerLeft,
+        child: TextButton.icon(
+          icon: const Icon(Icons.open_in_new, size: 16),
+          label: Text(AppLocalizations.of(context).aSetButton),
+          onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const SafeArrivalScreen())),
+        ),
+      );
 }

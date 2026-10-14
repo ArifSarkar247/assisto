@@ -1,0 +1,9 @@
+{
+  "_comment": "Assisto LEGAL / POLICY CENTRE (launch gap C) GOOD -> ADVANCED upgrade, SPEC v2.1 §21/§22. {key:[bn,en]} -> camelCase getters after `flutter gen-l10n`. Merge [0] -> app/lib/l10n/app_bn.arb, [1] -> app/lib/l10n/app_en.arb, then run gen-l10n. These keys are UI CHROME ONLY. ALL legal COPY (page titles, section headings/bodies, the DRAFT stamp, contact line, last-updated) is backend DATA served bilingually from backend/core/legal.py via Accept-Language and rendered at runtime -> zero Bangla string literals in any .dart. Reused existing keys (already in both ARBs, do NOT re-add): legalTitle, legalOffline, legalLastUpdated, retry, copied, search, close, contact.",
+
+  "legalSearchHint": ["নীতিমালায় খুঁজুন", "Search policies"],
+  "legalClearSearch": ["খোঁজ মুছুন", "Clear search"],
+  "legalLoading": ["নীতিমালা লোড হচ্ছে…", "Loading policies…"],
+  "legalNoResults": ["এই খোঁজে কিছু পাওয়া যায়নি।", "Nothing matched your search."],
+  "legalCopyPage": ["এই পৃষ্ঠাটি কপি করুন", "Copy this page"]
+}

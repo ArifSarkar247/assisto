@@ -1,0 +1,39 @@
+{
+  "_note": "SPEC v2.1 §21 — password reset / account recovery ADVANCED. NEW l10n keys only (merge_arb.py adds missing keys; existing reset* keys are left untouched). Format: key -> [bn, en]. resetStrengthSemantics is parameterized ({label}).",
+
+  "resetChooseChannel": ["কীভাবে রিসেট করতে চান", "How do you want to reset?"],
+  "resetChannelEmail": ["ইমেইলে লিংক পাঠান", "Email me a link"],
+  "resetChannelEmailReady": ["এখনই পাওয়া যায়—আপনার ইমেইলে একটি রিসেট লিংক পাঠানো হবে।", "Available now — we'll send a reset link to your email."],
+  "resetChannelSms": ["এসএমএসে কোড পাঠান", "Text me a code"],
+  "resetChannelSecurityQ": ["নিরাপত্তা প্রশ্ন", "Security question"],
+  "resetChannelSecurityQNote": ["আপনি নিরাপত্তা প্রশ্ন সেট করলে পাওয়া যাবে।", "Available once you've set up a security question."],
+  "resetChannelLockedTip": ["এই উপায়টি এখনো চালু হয়নি।", "This option isn't available yet."],
+
+  "resetEmailRequired": ["ইমেইল লিখুন।", "Please enter your email."],
+  "resetEmailInvalid": ["সঠিক ইমেইল ঠিকানা লিখুন।", "Enter a valid email address."],
+  "resetSending": ["পাঠানো হচ্ছে…", "Sending…"],
+  "resetHaveCode": ["আমার কাছে কোড/লিংক আছে", "I already have a code or link"],
+
+  "resetTooManyAttempts": ["অনেকবার চেষ্টা হয়েছে। এক মিনিট পরে আবার চেষ্টা করুন।", "Too many attempts. Please wait a minute and try again."],
+
+  "resetCodeLabel": ["রিসেট কোড বা লিংক", "Reset code or link"],
+  "resetCodeHelper": ["ইমেইলে পাওয়া কোড বা লিংক এখানে পেস্ট করুন।", "Paste the code or link from your email here."],
+  "resetCodeRequired": ["কোড বা লিংক লিখুন।", "Enter the code or link."],
+  "resetSaving": ["সংরক্ষণ হচ্ছে…", "Saving…"],
+  "resetShow": ["দেখান", "Show"],
+  "resetHide": ["লুকান", "Hide"],
+  "resetRequestNew": ["নতুন লিংক চেয়ে নিন", "Request a new link"],
+
+  "resetSignOutAll": ["সব ডিভাইস থেকে সাইন আউট করুন", "Sign out of all devices"],
+  "resetSignOutAllNote": ["রিসেট সফল হলে অন্য যেকোনো সেশন বন্ধ করে দেওয়া হবে—সন্দেহ থাকলে চালু রাখুন।", "Any other session is ended when the reset succeeds — keep this on if you're unsure."],
+  "resetDoneSignedOut": ["পাসওয়ার্ড পরিবর্তন হয়েছে এবং সব ডিভাইস থেকে সাইন আউট করা হয়েছে। এখন লগইন করুন।", "Password changed and you're signed out of all devices. You can log in now."],
+
+  "resetStrengthHint": ["কমপক্ষে ৮ অক্ষর, অক্ষর ও সংখ্যা মিশিয়ে দিন।", "At least 8 characters, mixing letters and numbers."],
+  "resetStrengthWeak": ["দুর্বল", "Weak"],
+  "resetStrengthFair": ["মোটামুটি", "Fair"],
+  "resetStrengthGood": ["ভালো", "Good"],
+  "resetStrengthStrong": ["শক্তিশালী", "Strong"],
+  "resetStrengthOkFloor": ["ন্যূনতম শর্ত পূরণ হয়েছে", "meets the minimum"],
+  "resetStrengthBelowFloor": ["আরও শক্ত করুন", "make it stronger"],
+  "resetStrengthSemantics": ["পাসওয়ার্ডের শক্তি: {label}", "Password strength: {label}"]
+}

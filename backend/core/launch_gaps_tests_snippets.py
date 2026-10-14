@@ -75,7 +75,48 @@ def test_analytics_funnels():
     assert pf["view_to_paid_pct"] == 50.0
     d = analytics.dashboard(evs)
     assert set(d) == {"retention", "invites", "paid_funnel", "top_features",
+                      "active", "signups_series", "revenue", "range",
                       "total_events"}
+
+
+def test_analytics_active_users_and_series():
+    f = date(2026, 3, 1)
+    evs = [
+        {"uid_hash": "A", "name": "app_open", "day": f.isoformat()},
+        {"uid_hash": "B", "name": "app_open", "day": f.isoformat()},
+        # most-recent day = f+2, only A active -> DAU 1
+        {"uid_hash": "A", "name": "session_start",
+         "day": (f + timedelta(days=2)).isoformat()},
+    ]
+    a = analytics.active_users(evs, window_days=7)
+    assert a["dau"] == 1, a            # only A on the last day
+    assert a["wau"] == 2 and a["mau"] == 2  # A+B within trailing windows
+    assert len(a["series"]) == 7       # dense, zero-filled
+    assert a["series"][-1] == {"day": (f + timedelta(days=2)).isoformat(),
+                               "users": 1}
+    # honest empty state -> zeros, empty series (no fabricated line)
+    empty = analytics.active_users([])
+    assert empty == {"dau": 0, "wau": 0, "mau": 0, "series": []}
+
+
+def test_analytics_revenue_no_fabrication():
+    evs = [
+        {"uid_hash": "A", "name": "upgrade_completed", "props": {"plan": "pro"}},
+        {"uid_hash": "B", "name": "upgrade_completed", "props": {"plan": "pro"}},
+        {"uid_hash": "C", "name": "upgrade_completed", "props": {"plan": "max"}},
+    ]
+    # no prices configured -> revenue stays unknown, never guessed
+    r0 = analytics.revenue_by_plan(evs)
+    assert r0["total_paid_users"] == 3
+    assert r0["total_revenue"] is None and r0["revenue_known"] is False
+    assert all(p["revenue"] is None for p in r0["plans"])
+    # fully priced -> honest revenue = distinct users x price
+    r1 = analytics.revenue_by_plan(evs, price_map={"pro": 100, "max": 300})
+    assert r1["revenue_known"] is True
+    assert r1["total_revenue"] == 2 * 100 + 1 * 300
+    # partially priced -> total stays null (a partial sum would mislead)
+    r2 = analytics.revenue_by_plan(evs, price_map={"pro": 100})
+    assert r2["revenue_known"] is False and r2["total_revenue"] is None
 
 
 # ----------------------------- reset ---------------------------------------
@@ -112,17 +153,97 @@ def test_reset_no_enumeration_and_strength():
     assert ok
 
 
+def test_reset_advanced_strength_and_sessions():
+    # ADVANCED: score_password mirrors the app's PwScore floor + grading.
+    assert reset.score_password("") == reset.STRENGTH_WEAK
+    assert reset.score_password("short1") == reset.STRENGTH_WEAK   # < 8
+    assert reset.score_password("abcdefghij") == reset.STRENGTH_WEAK  # no digit
+    assert reset.score_password("12345678") == reset.STRENGTH_WEAK   # no letter
+    assert reset.score_password("abcd1234") == reset.STRENGTH_FAIR   # 8, 2 classes
+    assert reset.score_password("Abcd1234") == reset.STRENGTH_GOOD   # 8, 3 classes
+    assert reset.score_password("abcd12345678") == reset.STRENGTH_GOOD  # 12, 2 classes
+    assert reset.score_password("Abcd12345678") == reset.STRENGTH_STRONG  # 12, 3 classes
+    assert reset.score_password("Abcd1234!xyz") == reset.STRENGTH_STRONG  # 12, 4 classes
+    # strength grading never contradicts the authoritative floor
+    for pw in ("abcd1234", "Abcd12345678", "Abcd1234!xyz"):
+        ok, _ = reset.validate_password(pw, "en")
+        assert ok and reset.score_password(pw) != reset.STRENGTH_WEAK
+    ok, _ = reset.validate_password("short1", "en")
+    assert not ok and reset.score_password("short1") == reset.STRENGTH_WEAK
+
+    # "sign out all devices": secure default ON, honestly parses the flag.
+    assert reset.should_revoke_sessions(None) is True          # default
+    assert reset.should_revoke_sessions({}) is True
+    assert reset.should_revoke_sessions({"revoke_sessions": False}) is False
+    assert reset.should_revoke_sessions({"revoke_sessions": "false"}) is False
+    assert reset.should_revoke_sessions({"revoke_sessions": True}) is True
+
+    # change-password (logged-in) reuse: wrong current pw blocks regardless of
+    # how strong the new one is; correct current pw falls back to the floor.
+    ok, _ = reset.change_password_check(False, "Abcd1234!xyz", "en")
+    assert not ok
+    ok, _ = reset.change_password_check(True, "weak", "en")
+    assert not ok     # new pw below floor
+    ok, _ = reset.change_password_check(True, "abcd1234", "en")
+    assert ok
+
+
 # ----------------------------- legal ---------------------------------------
 def test_legal_draft_stamped_both_langs():
+    # §22: every page is a DRAFT and stamped "to be reviewed by owner/lawyer"
+    # in BOTH languages — no page may present unreviewed legal text as final.
     for lang in ("bn", "en"):
         for key in legal.PAGES:
             p = legal.page(key, lang)
             assert p["draft"] is True
             assert p["stamp"] == (legal.DRAFT_STAMP_BN if lang == "bn"
                                   else legal.DRAFT_STAMP_EN)
+            # structured sections + back-compat flat body + metadata present
+            assert p["sections"] and all(s["heading"] and s["body"]
+                                         for s in p["sections"])
             assert p["body"]
+            assert p["last_updated"] == legal.LAST_UPDATED
+            assert p["contact"]
     assert legal.page("nope", "en") is None
     assert len(legal.index("en")) == len(legal.PAGES)
+    # the advanced centre grew from 4 → 9 pages
+    assert len(legal.PAGES) == 9
+
+
+def test_legal_advanced_pages_present():
+    expected = {"privacy", "terms", "health_disclaimer", "community_guidelines",
+                "content_policy", "data_safety", "age_note", "data_rights",
+                "admin_transparency"}
+    assert set(legal.PAGES) == expected
+    # index titles are non-empty and bilingual (differ bn vs en)
+    for en, bn in zip(legal.index("en"), legal.index("bn")):
+        assert en["title"] and bn["title"]
+    # 18+ note actually says 18
+    assert "18" in legal.page("age_note", "en")["body"]
+
+
+def test_legal_mandatory_disclaimers_present():
+    # §22 — the four mandatory disclaimers must be present (both languages),
+    # each on its owning page. They live in MANDATORY_DISCLAIMERS so they can
+    # never be silently dropped.
+    assert set(legal.MANDATORY_DISCLAIMERS) == {
+        "not_medical_advice", "not_legal_advice", "never_hold_money",
+        "data_rights"}
+    for lang in ("bn", "en"):
+        idx = 0 if lang == "bn" else 1
+        med = legal.MANDATORY_DISCLAIMERS["not_medical_advice"][idx]
+        leg = legal.MANDATORY_DISCLAIMERS["not_legal_advice"][idx]
+        money = legal.MANDATORY_DISCLAIMERS["never_hold_money"][idx]
+        rights = legal.MANDATORY_DISCLAIMERS["data_rights"][idx]
+        # not-medical-advice on the health page
+        assert med in legal.page("health_disclaimer", lang)["body"]
+        # never-hold-money on the terms page
+        assert money in legal.page("terms", lang)["body"]
+        # data-rights on the privacy + dedicated data-rights pages
+        assert rights in legal.page("privacy", lang)["body"]
+        assert rights in legal.page("data_rights", lang)["body"]
+        # not-legal-advice is a real, non-empty disclaimer string
+        assert leg
 
 
 # ----------------------------- nmcheck -------------------------------------

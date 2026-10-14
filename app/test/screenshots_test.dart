@@ -23,6 +23,10 @@ import 'package:assisto/screens/messenger/messenger_home_screen.dart';
 import 'package:assisto/screens/messenger/messenger_settings_screen.dart';
 import 'package:assisto/screens/messenger/contact_info_screen.dart';
 import 'package:assisto/screens/notification_centre_screen.dart';
+import 'package:assisto/screens/owner_analytics_screen.dart';
+import 'package:assisto/screens/name_about_screen.dart';
+import 'package:assisto/screens/password_reset_screen.dart';
+import 'package:assisto/screens/safe_arrival_screen.dart';
 import 'package:assisto/screens/elderly_home_screen.dart';
 import 'package:assisto/screens/payment_ladder_screen.dart';
 import 'package:assisto/screens/settings_screen.dart';
@@ -186,6 +190,10 @@ void main() {
     'language_picker': (build: (_) => const LanguagePickerScreen(), mode: FakeMode.data, full: true),
     'home_welcome': (build: (_) => const HomeScreen(), mode: FakeMode.data, full: true),
     'notification_centre': (build: (_) => const NotificationCentreScreen(), mode: FakeMode.data, full: true),
+    'safe_arrival': (build: (_) => const SafeArrivalScreen(), mode: FakeMode.data, full: true),
+    'password_reset': (build: (_) => const PasswordResetScreen(), mode: FakeMode.data, full: true),
+    'name_about': (build: (_) => const NameAboutScreen(), mode: FakeMode.data, full: true),
+    'owner_analytics': (build: (_) => const OwnerAnalyticsScreen(), mode: FakeMode.data, full: true),
     'payment_ladder': (build: (_) => const PaymentLadderScreen(), mode: FakeMode.data, full: true),
     'elderly_home': (build: (_) => const ElderlyHomeScreen(), mode: FakeMode.data, full: true),
     'chat': (build: (l) => Scaffold(appBar: AppBar(title: const Text('Assisto')), body: AgentThreadScreen(debugSeed: _chat(l))), mode: FakeMode.data, full: true),

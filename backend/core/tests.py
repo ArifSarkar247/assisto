@@ -783,6 +783,8 @@ ExamSnippetTests = _make_snippet_case(
     "core.logic.exam_tests_snippets", "ExamSnippetTests")
 CircleSnippetTests = _make_snippet_case(
     "core.logic.circle_tests_snippets", "CircleSnippetTests")
+ParentLinkSnippetTests = _make_snippet_case(
+    "core.logic.parent_link_tests_snippets", "ParentLinkSnippetTests")
 LaunchGapsSnippetTests = _make_snippet_case(
     "core.launch_gaps_tests_snippets", "LaunchGapsSnippetTests")
 # build-61 wave (Messenger M1 + Safe Journey)

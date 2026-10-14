@@ -1,0 +1,35 @@
+{
+  "_comment": "Owner Analytics ADVANCED (SPEC v2.1 §21). NEW keys only — merge into app_bn.arb/app_en.arb alongside existing analytics* keys (p15_analytics_arb.json). Format: [bn, en]. No PII, no third-party trackers; all copy describes OUR-backend-only aggregates and honest estimate/no-data states.",
+
+  "analyticsExport":             ["রপ্তানি (CSV)", "Export (CSV)"],
+  "analyticsExportCopied":       ["CSV ক্লিপবোর্ডে কপি হয়েছে", "CSV copied to clipboard"],
+  "analyticsCsvMetric":          ["মেট্রিক", "Metric"],
+  "analyticsCsvValue":           ["মান", "Value"],
+
+  "analyticsDataRange":          ["তথ্যের সময়কাল", "Data range"],
+  "analyticsRangeAll":           ["সব", "All"],
+  "analyticsRange7d":            ["৭ দিন", "7 days"],
+  "analyticsRange30d":           ["৩০ দিন", "30 days"],
+  "analyticsRange90d":           ["৯০ দিন", "90 days"],
+
+  "analyticsActiveSection":      ["সক্রিয় ব্যবহারকারী", "Active users"],
+  "analyticsActiveHint":         ["দৈনিক, সাপ্তাহিক ও মাসিক আলাদা ব্যবহারকারী", "Distinct users daily, weekly and monthly"],
+  "analyticsDau":                ["দৈনিক সক্রিয় (DAU)", "Daily active (DAU)"],
+  "analyticsWau":                ["সাপ্তাহিক সক্রিয় (WAU)", "Weekly active (WAU)"],
+  "analyticsMau":                ["মাসিক সক্রিয় (MAU)", "Monthly active (MAU)"],
+  "analyticsActiveTrend":        ["সক্রিয় ব্যবহারকারীর ধারা", "Active users trend"],
+  "analyticsNoTrend":            ["এই সময়কালে দেখানোর মতো ধারা নেই", "No trend to show for this range"],
+
+  "analyticsSignupsSection":     ["নতুন সাইন-আপ", "New sign-ups"],
+  "analyticsSignupsHint":        ["প্রতিদিন অনবোর্ডিং সম্পন্ন করা নতুন ব্যবহারকারী", "New users completing onboarding each day"],
+  "analyticsSignupsTrend":       ["সাইন-আপ ধারা", "Sign-ups trend"],
+
+  "analyticsRetentionD1Base":    ["১ম দিনের দল", "Day 1 cohort"],
+
+  "analyticsRevenueSection":     ["আয় ও প্ল্যান", "Revenue and plans"],
+  "analyticsRevenueHint":        ["প্ল্যান অনুযায়ী পেইড ব্যবহারকারী; দাম না থাকলে আয় অনুমান হিসেবে দেখানো হয় না", "Paid users by plan; revenue is not shown unless real prices are configured"],
+  "analyticsPaidUsers":          ["পেইড ব্যবহারকারী", "Paid users"],
+  "analyticsRevenueTotal":       ["মোট আয়", "Total revenue"],
+  "analyticsRevenueUnknown":     ["আয় হিসাব করা যায়নি (দাম নির্ধারিত নয়)", "Revenue unavailable (no prices set)"],
+  "analyticsNoRevenue":          ["এখনো কোনো পেইড ব্যবহারকারী নেই", "No paid users yet"]
+}
