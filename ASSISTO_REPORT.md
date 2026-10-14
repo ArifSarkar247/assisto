@@ -460,3 +460,16 @@ Legend: M=model · A=API · S=app screen · T=tests · K=works without a key. �
 - SHIP: ship9.sh (flip public→push→watch→flip private via trap→publish-apk). Gallery deferred (disk 8.8G, ~0.8G over floor; APK build is CI-side/0 local disk).
 - TODOs carried: Groups @-picker; Extras translate/transcribe UI (wire in chat screen — flag owner, G2); scheduled-send worker + status expiry cron (backend workers); linked-devices native.
 - QUEUE NEXT: Business v2 → P14-P16 → iOS → Messenger M3 (SFU) → FINAL.
+
+- BUILD 62 SHIPPED 2026-10-14: https://assisto.asalify.com/dl/oWUf90ztPY2wp0enQjh8yHr8/assisto-part7-build62.apk (Messenger M2 live). asalify 200, private, disk 8.8G. NEXT: Business v2.
+
+## BUSINESS v2 — build state (2026-10-14, resume anchor)
+- Logic DONE (pure, passing): business_khata.py(29t), business_selling.py(39t,7 min-price), business_ai.py(49t,11 min-price+3 no-wallet+3 no-personal-WA). Specs+ARB in .phaseB/biz_{khata,selling,ai}_{integration.md,arb.json}.
+- Backend wiring DONE: models.py (+BusinessStaff, extend Product/Order, +ProductVariant/Category/Customer/Sale/SaleLine/Expense/KhataParty/KhataEntry/CashboxDay/CashEntry/TagadaSchedule/ChatThread/Message/CourierShipment/OwnerPolicy/BargainRule/OwnerWallet; money=poisha BigInt), business_views.py (gates: min-price 422, staff redact, never-hold-money, PersonalWhatsAppBanned→400, paid→402, key-gated mocks, resolve_business multi-tenant), urls. manage.py check 0. NO migration authored yet.
+- Flutter DONE: screens/business/{business_hub,business_setup,khata,cashbox,products,quick_sell,customers,reports,ai_assistant,bargain_rules,orders,business_plans,payments}.dart + business_{khata,selling,ai}_api.dart extensions + widgets business_ui/business_extras. business_screen.dart→thin wrapper to hub (keeps chatnav/sidebar routes). CART IS CLIENT-HELD (stateless). Prices TBD (no hardcoded). 
+- RECONCILE IN FLIGHT: a47cbb36=Flutter ARB coverage(grep-driven)+stateless-cart+fake_api+import TODO; a172682=2 scenario tests (business_scenarios.py run_all).
+- INTEGRATOR NEXT: DB backup→makemigrations core→migrate→gen-l10n→flutter analyze(0 err, fix loop w/ agent)→lang gate CLEAN→backend 388 tests+117 logic+scenarios→ship build 63→(gallery if disk)→deploy→tenants. KNOWN: file_picker dep deferred (image-picker placeholder); translate/transcribe live keys mocked.
+- QUEUE AFTER 63: P14-P16 → iOS → Messenger M3(SFU) → FINAL.
+
+## BUILD 63 — Business v2 GREEN, shipping (2026-10-14)
+- Migration 0022 applied (DB backed up). analyze 0 err, lang gate clean (fixed 4 Bangla-in-dart: comments→en, bn-digit const→codepoints). 388 Django + 117 biz logic + 200 scenario checks pass. Route reconcile: all 52 Flutter business paths resolve (added profiles/orders/ai-threads/bargain-rules/policies/cashbox-opening/receipt.pdf; stripped trailing slashes; tagada/single/<id>; cart remove POST). Backend deployed, all biz endpoints 401, Asalify 200.

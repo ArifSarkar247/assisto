@@ -1,0 +1,637 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../l10n/app_localizations.dart';
+import '../../state.dart';
+import '../../theme.dart';
+import '../../business_khata_api.dart';
+import '../../widgets/skeleton.dart';
+import 'business_common.dart';
+import 'business_setup_screen.dart';
+import 'khata_screen.dart';
+import 'cashbox_screen.dart';
+// Sibling-agent screens (selling + AI, already present at integration). These
+// take a businessId / handle their own gating. See the routing contract in the
+// integrator report.
+import 'products_screen.dart';
+import 'quick_sell_screen.dart';
+import 'orders_screen.dart';
+import 'customers_screen.dart';
+import 'payments_screen.dart';
+import 'ai_assistant_screen.dart';
+
+/// Business HUB — the new home for Assisto Business v2 (replaces the old
+/// name/price/stock business screen). Shows the selected business, a switcher
+/// when the user owns several, and cards into Khata, Selling, Reports, Cashbox,
+/// AI Assistant (Premium-locked when unpaid) and Setup. First run routes
+/// straight into setup. Everything is bilingual via ARB; dynamic business
+/// fields come from the server.
+class BusinessHubScreen extends StatefulWidget {
+  const BusinessHubScreen({super.key});
+  @override
+  State<BusinessHubScreen> createState() => _BusinessHubScreenState();
+}
+
+class _BusinessHubScreenState extends State<BusinessHubScreen> {
+  List<Map<String, dynamic>> _businesses = [];
+  Map<String, dynamic>? _selected;
+  bool _loading = true;
+  bool _error = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = false;
+    });
+    try {
+      final r = await context.read<AppState>().api.businessList();
+      _businesses =
+          ((r['businesses'] ?? []) as List).cast<Map<String, dynamic>>();
+      final selId = r['selected_id'];
+      _selected = _businesses.isEmpty
+          ? null
+          : _businesses.firstWhere(
+              (b) => b['id'] == selId,
+              orElse: () => _businesses.first,
+            );
+    } catch (_) {
+      _error = true;
+    }
+    if (mounted) setState(() => _loading = false);
+  }
+
+  Future<void> _openSetup({bool addMore = false}) async {
+    final created = await Navigator.of(context).push<bool>(MaterialPageRoute(
+      builder: (_) => const BusinessSetupScreen(),
+    ));
+    if (created == true) await _load();
+  }
+
+  Future<void> _switch(Map<String, dynamic> b) async {
+    final id = (b['id'] as num?)?.toInt();
+    if (id == null) return;
+    setState(() => _selected = b);
+    try {
+      await context.read<AppState>().api.businessSelect(id);
+    } catch (_) {}
+  }
+
+  void _showSwitcher() {
+    final t = AppLocalizations.of(context);
+    showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.sm),
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(t.businessSwitch,
+                  style: Theme.of(ctx).textTheme.titleMedium),
+            ),
+          ),
+          for (final b in _businesses)
+            ListTile(
+              leading: _TypeAvatar(type: (b['type'] ?? '').toString()),
+              title: Text((b['name'] ?? '').toString()),
+              subtitle: Text(_typeLabel(t, (b['type'] ?? '').toString())),
+              trailing: b['id'] == _selected?['id']
+                  ? Icon(Icons.check_circle, color: Theme.of(ctx).colorScheme.primary)
+                  : null,
+              onTap: () {
+                Navigator.pop(ctx);
+                _switch(b);
+              },
+            ),
+          const Divider(height: 1),
+          ListTile(
+            leading: const Icon(Icons.add_business_outlined),
+            title: Text(t.businessAddAnother),
+            onTap: () {
+              Navigator.pop(ctx);
+              _openSetup(addMore: true);
+            },
+          ),
+          const SizedBox(height: Gap.sm),
+        ]),
+      ),
+    );
+  }
+
+  void _showSelling(int bizId) {
+    final t = AppLocalizations.of(context);
+    showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.sm),
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(t.businessSelling,
+                  style: Theme.of(ctx).textTheme.titleMedium),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.flash_on_outlined),
+            title: Text(t.sellQuickSell),
+            onTap: () {
+              Navigator.pop(ctx);
+              _go(QuickSellScreen(businessId: bizId));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.inventory_2_outlined),
+            title: Text(t.sellProducts),
+            onTap: () {
+              Navigator.pop(ctx);
+              _go(ProductsScreen(businessId: bizId));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.receipt_long_outlined),
+            title: Text(t.sellOrders),
+            onTap: () {
+              Navigator.pop(ctx);
+              _go(const OrdersScreen());
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.people_outline),
+            title: Text(t.sellCustomers),
+            onTap: () {
+              Navigator.pop(ctx);
+              _go(CustomersScreen(businessId: bizId));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.qr_code_2_outlined),
+            title: Text(t.sellPayments),
+            onTap: () {
+              Navigator.pop(ctx);
+              _go(const PaymentsScreen());
+            },
+          ),
+          const SizedBox(height: Gap.sm),
+        ]),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    if (_loading) {
+      return Scaffold(
+        appBar: AppBar(title: Text(t.business)),
+        body: const SkeletonList(),
+      );
+    }
+    if (_error) {
+      return Scaffold(
+        appBar: AppBar(title: Text(t.business)),
+        body: StateMessage(
+          icon: Icons.cloud_off_outlined,
+          title: t.business,
+          message: t.businessLoadFailed,
+          action: FilledButton(onPressed: _load, child: Text(t.retry)),
+        ),
+      );
+    }
+    if (_businesses.isEmpty || _selected == null) {
+      return Scaffold(
+        appBar: AppBar(title: Text(t.business)),
+        body: StateMessage(
+          icon: Icons.storefront_outlined,
+          title: t.businessWelcomeTitle,
+          message: t.businessWelcomeBody,
+          action: FilledButton.icon(
+            icon: const Icon(Icons.add),
+            onPressed: () => _openSetup(),
+            label: Text(t.businessCreateFirst),
+          ),
+        ),
+      );
+    }
+    return _buildHub(context, t, _selected!);
+  }
+
+  Widget _buildHub(
+      BuildContext context, AppLocalizations t, Map<String, dynamic> biz) {
+    final scheme = Theme.of(context).colorScheme;
+    final premium = biz['is_premium'] == true;
+    final role = (biz['role'] ?? 'owner').toString();
+    final isStaff = role == 'staff';
+    final bizId = (biz['id'] as num?)?.toInt() ?? 0;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(t.business),
+        actions: [
+          IconButton(
+            tooltip: t.businessSetupTitle,
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () => _openSetup(),
+          ),
+        ],
+      ),
+      body: RefreshIndicator(
+        onRefresh: _load,
+        child: ListView(
+          padding: const EdgeInsets.all(Gap.lg),
+          children: [
+            // Selected business + switcher.
+            BrandBand(
+              child: Row(children: [
+                _TypeAvatar(
+                    type: (biz['type'] ?? '').toString(), onGradient: true),
+                const SizedBox(width: Gap.md),
+                Expanded(
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text((biz['name'] ?? '').toString(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w700, fontSize: 18)),
+                        const SizedBox(height: 2),
+                        Text(_typeLabel(t, (biz['type'] ?? '').toString()),
+                            style: const TextStyle(fontSize: 13)),
+                      ]),
+                ),
+                if (_businesses.length > 1)
+                  TextButton.icon(
+                    style: TextButton.styleFrom(foregroundColor: Colors.white),
+                    icon: const Icon(Icons.unfold_more, size: 18),
+                    label: Text(t.businessSwitch),
+                    onPressed: _showSwitcher,
+                  )
+                else
+                  IconButton(
+                    tooltip: t.businessAddAnother,
+                    icon: const Icon(Icons.add_business_outlined),
+                    onPressed: () => _openSetup(addMore: true),
+                  ),
+              ]),
+            ),
+            const SizedBox(height: Gap.lg),
+
+            // Net-position snapshot (receivable vs payable).
+            _NetPositionCard(businessId: bizId, isStaff: isStaff),
+            const SizedBox(height: Gap.lg),
+
+            Text(t.businessManage,
+                style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: Gap.md),
+
+            _HubCard(
+              icon: Icons.menu_book_outlined,
+              tint: scheme.primary,
+              title: t.khataTitle,
+              subtitle: t.businessKhataSub,
+              onTap: () => _go(KhataScreen(business: biz)),
+            ),
+            const SizedBox(height: Gap.md),
+            _HubCard(
+              icon: Icons.point_of_sale_outlined,
+              tint: scheme.secondary,
+              title: t.businessSelling,
+              subtitle: t.businessSellingSub,
+              onTap: () => _showSelling(bizId),
+            ),
+            const SizedBox(height: Gap.md),
+            _HubCard(
+              icon: Icons.account_balance_wallet_outlined,
+              tint: Brand.success,
+              title: t.cashboxTitle,
+              subtitle: t.businessCashboxSub,
+              onTap: () => _go(CashboxScreen(business: biz)),
+            ),
+            if (!isStaff) ...[
+              const SizedBox(height: Gap.md),
+              _HubCard(
+                icon: Icons.insights_outlined,
+                tint: scheme.tertiary,
+                title: t.businessReports,
+                subtitle: t.businessReportsSub,
+                onTap: () => _go(const _ReportsPlaceholderScreen()),
+              ),
+            ],
+            const SizedBox(height: Gap.md),
+            // AI assistant handles its own Premium gate + upgrade screen; the
+            // hub just shows the Premium badge when the business is unpaid.
+            _HubCard(
+              icon: Icons.smart_toy_outlined,
+              tint: Brand.purple,
+              title: t.businessAiAssistant,
+              subtitle: t.businessAiAssistantSub,
+              locked: !premium,
+              lockedLabel: t.premium,
+              onTap: () => _go(const AiAssistantScreen()),
+            ),
+            const SizedBox(height: Gap.md),
+            _HubCard(
+              icon: Icons.tune_outlined,
+              tint: scheme.onSurfaceVariant,
+              title: t.businessSetupTitle,
+              subtitle: t.businessSetupSub,
+              onTap: () => _openSetup(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _go(Widget screen) async {
+    await Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => screen));
+    if (mounted) _load();
+  }
+
+  String _typeLabel(AppLocalizations t, String type) {
+    switch (type) {
+      case 'online_seller':
+        return t.bizTypeOnlineSeller;
+      case 'small_shop':
+        return t.bizTypeSmallShop;
+      case 'service':
+        return t.bizTypeService;
+      case 'food':
+        return t.bizTypeFood;
+      case 'wholesaler':
+        return t.bizTypeWholesaler;
+      case 'b2b':
+        return t.bizTypeB2b;
+      default:
+        return t.business;
+    }
+  }
+}
+
+/// Net position header: total receivable vs payable, net + ahead/behind.
+class _NetPositionCard extends StatefulWidget {
+  final int businessId;
+  final bool isStaff;
+  const _NetPositionCard({required this.businessId, required this.isStaff});
+  @override
+  State<_NetPositionCard> createState() => _NetPositionCardState();
+}
+
+class _NetPositionCardState extends State<_NetPositionCard> {
+  Map<String, dynamic>? _np;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      _np = await context
+          .read<AppState>()
+          .api
+          .khataNetPosition(widget.businessId);
+    } catch (_) {}
+    if (mounted) setState(() => _loading = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    if (_loading) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(Gap.lg),
+          child: Skeleton(width: 180, height: 16),
+        ),
+      );
+    }
+    final np = _np ?? const {};
+    final ahead = np['ahead'] == true;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.lg),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(t.netPositionTitle,
+              style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: Gap.md),
+          Row(children: [
+            Expanded(
+              child: _Stat(
+                label: t.netReceivable,
+                value: pair(context, np['receivable_display'], fallback: '৳0'),
+                color: Brand.success,
+              ),
+            ),
+            if (!widget.isStaff)
+              Expanded(
+                child: _Stat(
+                  label: t.netPayable,
+                  value: pair(context, np['payable_display'], fallback: '৳0'),
+                  color: Brand.danger,
+                ),
+              ),
+          ]),
+          if (!widget.isStaff) ...[
+            const Divider(height: Gap.xl),
+            Row(children: [
+              Icon(ahead ? Icons.trending_up : Icons.trending_down,
+                  color: ahead ? Brand.success : Brand.danger, size: 20),
+              const SizedBox(width: Gap.sm),
+              Expanded(
+                child: Text(
+                  '${ahead ? t.netYouAreAhead : t.netYouAreBehind} · ${pair(context, np['net_display'], fallback: '৳0')}',
+                  style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: ahead ? Brand.success : scheme.onSurface),
+                ),
+              ),
+            ]),
+          ],
+        ]),
+      ),
+    );
+  }
+}
+
+class _Stat extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+  const _Stat({required this.label, required this.value, required this.color});
+  @override
+  Widget build(BuildContext context) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text(label,
+          style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context).colorScheme.onSurfaceVariant)),
+      const SizedBox(height: 2),
+      Text(value,
+          style: TextStyle(
+              fontSize: 18, fontWeight: FontWeight.w700, color: color)),
+    ]);
+  }
+}
+
+class _HubCard extends StatelessWidget {
+  final IconData icon;
+  final Color tint;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+  final bool locked;
+  final String? lockedLabel;
+  const _HubCard({
+    required this.icon,
+    required this.tint,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+    this.locked = false,
+    this.lockedLabel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(Radii.md),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(Gap.lg),
+          child: Row(children: [
+            Container(
+              height: 46,
+              width: 46,
+              decoration: BoxDecoration(
+                color: tint.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(Radii.sm),
+              ),
+              child: Icon(icon, color: tint),
+            ),
+            const SizedBox(width: Gap.md),
+            Expanded(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(children: [
+                      Flexible(
+                        child: Text(title,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w700)),
+                      ),
+                      if (locked) ...[
+                        const SizedBox(width: Gap.sm),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: Gap.sm, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Brand.purple.withValues(alpha: 0.16),
+                            borderRadius: BorderRadius.circular(Radii.pill),
+                          ),
+                          child: Row(mainAxisSize: MainAxisSize.min, children: [
+                            const Icon(Icons.workspace_premium,
+                                size: 13, color: Brand.purple),
+                            const SizedBox(width: 3),
+                            Text(lockedLabel ?? '',
+                                style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: Brand.purple)),
+                          ]),
+                        ),
+                      ],
+                    ]),
+                    const SizedBox(height: 2),
+                    Text(subtitle,
+                        style: TextStyle(
+                            fontSize: 13, color: scheme.onSurfaceVariant)),
+                  ]),
+            ),
+            Icon(locked ? Icons.lock_outline : Icons.chevron_right,
+                color: scheme.onSurfaceVariant),
+          ]),
+        ),
+      ),
+    );
+  }
+}
+
+/// Small round icon representing the business type.
+class _TypeAvatar extends StatelessWidget {
+  final String type;
+  final bool onGradient;
+  const _TypeAvatar({required this.type, this.onGradient = false});
+
+  IconData get _icon {
+    switch (type) {
+      case 'online_seller':
+        return Icons.shopping_bag_outlined;
+      case 'small_shop':
+        return Icons.storefront_outlined;
+      case 'service':
+        return Icons.handyman_outlined;
+      case 'food':
+        return Icons.restaurant_outlined;
+      case 'wholesaler':
+        return Icons.warehouse_outlined;
+      case 'b2b':
+        return Icons.business_center_outlined;
+      default:
+        return Icons.store_outlined;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      height: 46,
+      width: 46,
+      decoration: BoxDecoration(
+        color: onGradient
+            ? Colors.white.withValues(alpha: 0.22)
+            : scheme.secondaryContainer,
+        shape: BoxShape.circle,
+      ),
+      child: Icon(_icon,
+          color: onGradient ? Colors.white : scheme.onSecondaryContainer),
+    );
+  }
+}
+
+/// Reports is a FREE feature (plan §3) owned by a sibling agent; its screen is
+/// not wired yet. Until the integrator routes the real reports screen here, we
+/// show an honest "coming soon" state rather than a dead card.
+class _ReportsPlaceholderScreen extends StatelessWidget {
+  const _ReportsPlaceholderScreen();
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return Scaffold(
+      appBar: AppBar(title: Text(t.businessReports)),
+      body: StateMessage(
+        icon: Icons.insights_outlined,
+        title: t.businessReports,
+        message: t.businessReportsSoon,
+      ),
+    );
+  }
+}

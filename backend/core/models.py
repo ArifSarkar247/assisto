@@ -695,24 +695,47 @@ class BusinessProfile(models.Model):
 
 
 class Product(models.Model):
-    """Catalog item — source of truth for price/stock (never invented)."""
+    """Catalog item — source of truth for price/stock (never invented).
+
+    Business v2 selling (§3): `price` is the SELLING price; `min_price` is the
+    bargaining floor (sales below it are impossible — enforced in the pure layer
+    `business_selling`); `cost_price` is owner-only (staff-redacted)."""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="products")
+    # Business v2: a user may own several businesses (plan §1). Nullable so
+    # existing single-shop rows are safe.
+    business = models.ForeignKey("BusinessProfile", null=True, blank=True,
+                                 on_delete=models.CASCADE, related_name="products")
     name = models.CharField(max_length=160)
+    category = models.CharField(max_length=80, blank=True, default="")
     price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    min_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)   # bargaining floor
+    cost_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)  # owner-only
     stock = models.IntegerField(default=0)
+    low_stock_at = models.IntegerField(default=3)
     sku = models.CharField(max_length=40, blank=True, default="")
+    barcode = models.CharField(max_length=64, blank=True, default="", db_index=True)
     description = models.TextField(blank=True, default="")
     photo = models.ImageField(upload_to="catalog/", null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["name"]
+        indexes = [
+            models.Index(fields=["user", "category"]),
+            models.Index(fields=["user", "barcode"]),
+            models.Index(fields=["user", "sku"]),
+        ]
 
 
 class Order(models.Model):
-    """Order capture → confirmation → courier (feature 33)."""
+    """Order capture → confirmation → courier (feature 33 + Business v2 AI §4).
+
+    State machine (business_ai.advance_order): new→confirmed→packed→shipped→
+    delivered/returned/cancelled. `courier_live` is False for a MOCK booking
+    (no courier key configured yet)."""
     STATUS = [("new", "new"), ("confirmed", "confirmed"), ("packed", "packed"),
-              ("shipped", "shipped"), ("delivered", "delivered"), ("cancelled", "cancelled")]
+              ("shipped", "shipped"), ("delivered", "delivered"),
+              ("returned", "returned"), ("cancelled", "cancelled")]
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders")
     customer_name = models.CharField(max_length=120, blank=True, default="")
     customer_phone = models.CharField(max_length=40, blank=True, default="")
@@ -720,8 +743,10 @@ class Order(models.Model):
     items = models.JSONField(default=list, blank=True)     # [{name, qty, price}]
     total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     status = models.CharField(max_length=12, choices=STATUS, default="new")
+    payment = models.CharField(max_length=12, default="cod")     # feeds cod_amount()
     courier = models.CharField(max_length=40, blank=True, default="")
     tracking = models.CharField(max_length=80, blank=True, default="")
+    courier_live = models.BooleanField(default=False)            # False = mock booking
     channel = models.CharField(max_length=20, default="manual")  # whatsapp/messenger/manual
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -1340,3 +1365,323 @@ class LinkedDevice(models.Model):
 
     class Meta:
         ordering = ["-linked_at"]
+
+
+# ===========================================================================
+# Business v2 — SELLING (§3). Pure logic: core/logic/business_selling.py.
+# ALL money as integer POISHA (1 taka = 100 poisha). No floats.
+# ===========================================================================
+
+class BusinessStaff(models.Model):
+    """A staff membership edge: a User who may operate ONE business they do not
+    own. role=staff can sell/ring up sales + see customer receivables + cashbox,
+    but NEVER cost/profit/min-price nor the supplier-payables book (enforced by
+    business_selling.redact_for_role + owner-only gates in business_views).
+    The business owner is always implicitly role=owner (no row needed)."""
+    ROLES = [("owner", "owner"), ("staff", "staff")]
+    business = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE,
+                                 related_name="staff")
+    member = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name="business_memberships")
+    role = models.CharField(max_length=8, choices=ROLES, default="staff")
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("business", "member")]
+        indexes = [models.Index(fields=["member", "active"])]
+
+
+class ProductVariant(models.Model):
+    """Size/colour combo of a Product. vkey from business_selling.variant_key()."""
+    product = models.ForeignKey(Product, on_delete=models.CASCADE,
+                                related_name="variants")
+    vkey = models.CharField(max_length=120)         # '__base__' when no size/colour
+    size = models.CharField(max_length=80, blank=True, default="")
+    colour = models.CharField(max_length=80, blank=True, default="")
+    sell_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    cost_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    min_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    stock = models.IntegerField(default=0)
+    barcode = models.CharField(max_length=64, blank=True, default="", db_index=True)
+    low_stock_at = models.IntegerField(default=3)
+
+    class Meta:
+        unique_together = [("product", "vkey")]
+        indexes = [models.Index(fields=["product", "vkey"])]
+
+
+class Category(models.Model):
+    """Convenience grouping for the catalog (per business)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="product_categories")
+    business = models.ForeignKey(BusinessProfile, null=True, blank=True,
+                                 on_delete=models.CASCADE, related_name="categories")
+    name = models.CharField(max_length=80)
+
+    class Meta:
+        unique_together = [("user", "business", "name")]
+
+
+class Customer(models.Model):
+    """A sales customer (distinct from KhataParty — this one buys at the till).
+    phone_key is the normalised dedupe key (business_selling.normalize_phone)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="sale_customers")
+    business = models.ForeignKey(BusinessProfile, null=True, blank=True,
+                                 on_delete=models.CASCADE, related_name="customers")
+    name = models.CharField(max_length=120, blank=True, default="")
+    phone = models.CharField(max_length=40, blank=True, default="")
+    phone_key = models.CharField(max_length=40, blank=True, default="", db_index=True)
+    address = models.TextField(blank=True, default="")
+    area = models.CharField(max_length=80, blank=True, default="")
+    notes = models.TextField(blank=True, default="")
+    vip = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # blank phone_key allowed for many rows; a real phone_key is unique/biz.
+        unique_together = [("user", "business", "phone_key")]
+
+
+class Sale(models.Model):
+    """A completed checkout (business_selling.checkout). Money in POISHA."""
+    PAY = [("cash", "cash"), ("bkash", "bkash"), ("nagad", "nagad"), ("due", "due")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sales")
+    business = models.ForeignKey(BusinessProfile, null=True, blank=True,
+                                 on_delete=models.CASCADE, related_name="sales")
+    customer = models.ForeignKey(Customer, null=True, blank=True,
+                                 on_delete=models.SET_NULL, related_name="sales")
+    staff = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                              related_name="rung_sales")  # who rang it up (role audit)
+    subtotal = models.BigIntegerField(default=0)      # poisha
+    discount = models.BigIntegerField(default=0)
+    total = models.BigIntegerField(default=0)
+    paid = models.BigIntegerField(default=0)
+    change = models.BigIntegerField(default=0)
+    due = models.BigIntegerField(default=0)
+    profit = models.BigIntegerField(default=0)        # owner-only (redacted for staff)
+    payment_method = models.CharField(max_length=10, choices=PAY, default="cash")
+    discount_clamped = models.BooleanField(default=False)  # a discount hit the min floor
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["user", "created_at"]),
+            models.Index(fields=["business", "created_at"]),
+            models.Index(fields=["customer", "created_at"]),
+        ]
+
+
+class SaleLine(models.Model):
+    """One line of a Sale. Money in POISHA."""
+    sale = models.ForeignKey(Sale, on_delete=models.CASCADE, related_name="lines")
+    product = models.ForeignKey(Product, null=True, blank=True,
+                                on_delete=models.SET_NULL, related_name="sale_lines")
+    variant = models.ForeignKey(ProductVariant, null=True, blank=True,
+                                on_delete=models.SET_NULL, related_name="sale_lines")
+    product_name = models.CharField(max_length=160)
+    size = models.CharField(max_length=80, blank=True, default="")
+    colour = models.CharField(max_length=80, blank=True, default="")
+    qty = models.IntegerField(default=1)
+    unit_price = models.BigIntegerField(default=0)    # poisha, charged
+    min_price = models.BigIntegerField(default=0)     # owner-only
+    cost_price = models.BigIntegerField(default=0)    # owner-only
+    sell_price = models.BigIntegerField(default=0)    # list
+
+
+class Expense(models.Model):
+    """A business expense — feeds net-profit-after-expenses. Money in POISHA."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="business_expenses")
+    business = models.ForeignKey(BusinessProfile, null=True, blank=True,
+                                 on_delete=models.CASCADE, related_name="expenses")
+    amount = models.BigIntegerField(default=0)        # poisha
+    category = models.CharField(max_length=80, blank=True, default="")
+    note = models.CharField(max_length=200, blank=True, default="")
+    date = models.DateField(db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-date", "-created_at"]
+
+
+# ===========================================================================
+# Business v2 — DIGITAL KHATA + CASHBOX. Pure: core/logic/business_khata.py.
+# All money as integer POISHA.
+# ===========================================================================
+
+class KhataParty(models.Model):
+    """A customer or supplier in one business's books. The supplier book exposes
+    cost → it is OWNER-ONLY (staff blocked in business_views)."""
+    BOOK = [("customer", "customer"), ("supplier", "supplier")]
+    business = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE,
+                                 related_name="khata_parties")
+    book = models.CharField(max_length=10, choices=BOOK)
+    name = models.CharField(max_length=120)
+    phone = models.CharField(max_length=40, blank=True, default="")
+    area = models.CharField(max_length=80, blank=True, default="")
+    note = models.TextField(blank=True, default="")
+    vip = models.BooleanField(default=False)
+    archived = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["business", "book"]),
+                   models.Index(fields=["business", "phone"])]
+
+
+class KhataEntry(models.Model):
+    """One ledger line. direction is owner-POV ('gave'|'got'). amount_poisha>0."""
+    DIRECTION = [("gave", "gave"), ("got", "got")]
+    party = models.ForeignKey(KhataParty, on_delete=models.CASCADE,
+                              related_name="entries")
+    direction = models.CharField(max_length=4, choices=DIRECTION)
+    amount_poisha = models.BigIntegerField()          # always > 0
+    note = models.CharField(max_length=200, blank=True, default="")
+    bill_photo = models.ImageField(upload_to="khata_bills/", null=True, blank=True)
+    at = models.DateTimeField()                        # owner-supplied event time
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["at", "id"]
+        indexes = [models.Index(fields=["party", "at"])]
+
+
+class CashboxDay(models.Model):
+    """One business day's drawer. Reconciliation writes counted_poisha."""
+    business = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE,
+                                 related_name="cashbox_days")
+    day = models.DateField()
+    opening_poisha = models.BigIntegerField(default=0)
+    counted_poisha = models.BigIntegerField(null=True, blank=True)  # set at reconcile
+    reconciled_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("business", "day")]
+        indexes = [models.Index(fields=["business", "day"])]
+
+
+class CashEntry(models.Model):
+    KIND = [("in", "in"), ("out", "out")]
+    day = models.ForeignKey(CashboxDay, on_delete=models.CASCADE,
+                            related_name="entries")
+    kind = models.CharField(max_length=3, choices=KIND)
+    amount_poisha = models.BigIntegerField()          # > 0
+    note = models.CharField(max_length=200, blank=True, default="")
+    ref = models.CharField(max_length=60, blank=True, default="")   # e.g. order id
+    at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["at", "id"]
+
+
+class TagadaSchedule(models.Model):
+    """A recurring reminder for one party. The pure layer only compares next_at
+    to `now`; the view advances next_at after firing."""
+    party = models.ForeignKey(KhataParty, on_delete=models.CASCADE,
+                              related_name="tagada_schedules")
+    preset = models.CharField(max_length=16, default="reminder")  # polite/reminder/firm/thanks
+    channel = models.CharField(max_length=20, default="whatsapp_share")  # or 'sms'
+    next_at = models.DateTimeField()
+    interval_days = models.IntegerField(default=7)
+    enabled = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+# ===========================================================================
+# Business v2 — AI SALES ASSISTANT (§4). Pure: core/logic/business_ai.py.
+# ===========================================================================
+
+class ChatThread(models.Model):
+    """One customer conversation on an OFFICIAL channel (Cloud API / Messenger).
+    last_inbound_at → epoch for business_ai.within_service_window()."""
+    CHANNELS = [("whatsapp_cloud", "whatsapp_cloud"), ("messenger", "messenger")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="chat_threads")
+    business = models.ForeignKey(BusinessProfile, null=True, blank=True,
+                                 on_delete=models.CASCADE, related_name="chat_threads")
+    customer_phone = models.CharField(max_length=40, blank=True, default="")
+    channel = models.CharField(max_length=20, choices=CHANNELS, default="whatsapp_cloud")
+    last_inbound_at = models.DateTimeField(null=True, blank=True)
+    owner_takeover = models.BooleanField(default=False)
+    lang = models.CharField(max_length=2, default="bn")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["user", "customer_phone"])]
+
+
+class Message(models.Model):
+    """One message in a ChatThread. is_ai=True never claims humanity."""
+    DIRECTION = [("in", "in"), ("out", "out")]
+    thread = models.ForeignKey(ChatThread, on_delete=models.CASCADE,
+                               related_name="messages")
+    direction = models.CharField(max_length=3, choices=DIRECTION)
+    text = models.TextField(blank=True, default="")
+    is_ai = models.BooleanField(default=False)
+    confidence = models.FloatField(default=0.0)
+    needs_human = models.BooleanField(default=False)
+    handoff_reason = models.CharField(max_length=40, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at", "id"]
+
+
+class CourierShipment(models.Model):
+    """Filled by business_ai.book_courier_mock(). live=False until a courier key
+    exists (we NEVER fabricate a real booking)."""
+    COURIERS = [("pathao", "pathao"), ("steadfast", "steadfast"), ("redx", "redx")]
+    order = models.ForeignKey(Order, on_delete=models.CASCADE,
+                              related_name="shipments")
+    courier = models.CharField(max_length=20, choices=COURIERS)
+    tracking = models.CharField(max_length=80, blank=True, default="")
+    live = models.BooleanField(default=False)
+    cod_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class OwnerPolicy(models.Model):
+    """Shop delivery/returns/hours policy → business_ai.build_context()."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="owner_policies")
+    business = models.ForeignKey(BusinessProfile, null=True, blank=True,
+                                 on_delete=models.CASCADE, related_name="policies")
+    delivery_inside = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    delivery_outside = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    free_delivery_over = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    returns = models.TextField(blank=True, default="")
+    hours = models.CharField(max_length=160, blank=True, default="")
+    payment_note = models.TextField(blank=True, default="")
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class BargainRule(models.Model):
+    """Per-product bargaining ladder. min_price lives on Product (the enforced
+    floor); here we store the allowed discount ladder + bundle rules that feed
+    business_ai.negotiate()."""
+    product = models.ForeignKey(Product, on_delete=models.CASCADE,
+                                related_name="bargain_rules")
+    discount_steps = models.JSONField(default=list, blank=True)  # [pct|amount, ...]
+    free_delivery_over = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    bundle_min_qty = models.IntegerField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class OwnerWallet(models.Model):
+    """A POINTER to the owner's OWN bKash/Nagad merchant. NEVER a balance — we
+    never hold funds (business_ai.merchant_qr_descriptor holds_funds=False)."""
+    PROVIDERS = [("bkash", "bkash"), ("nagad", "nagad")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="owner_wallets")
+    business = models.ForeignKey(BusinessProfile, null=True, blank=True,
+                                 on_delete=models.CASCADE, related_name="wallets")
+    provider = models.CharField(max_length=10, choices=PROVIDERS)
+    merchant_number = models.CharField(max_length=40, blank=True, default="")
+    merchant_name = models.CharField(max_length=120, blank=True, default="")
+    updated_at = models.DateTimeField(auto_now=True)

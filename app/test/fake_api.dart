@@ -1,4 +1,5 @@
 import 'package:assisto/api.dart';
+import 'package:assisto/business_selling_api.dart';
 import 'package:assisto/models.dart';
 
 enum FakeMode { data, empty, fail, slow }
@@ -980,7 +981,275 @@ class FakeApi extends ApiClient {
     if (path.startsWith('/circle/') || path.startsWith('/journey/') || path.startsWith('/referral/')) {
       return const {}; // unmatched build-61 GET -> empty, never throw in gallery
     }
+    // ===== Business v2 (khata / selling / AI) GET stubs =====
+    final biz = _businessGet(path);
+    if (biz != null) return biz;
     return super.getJson(path);
+  }
+
+  // ---------------------------------------------------------- Business v2
+  //
+  // Money is integer POISHA. Display/status strings arrive as {bn,en} pairs the
+  // screens render via `pair(context, ...)`. Owner responses carry cost/min/
+  // profit; STAFF-redacted variants omit those keys entirely (the client treats
+  // a missing cost/min as "redacted"). `role` is present where screens branch.
+
+  bool get _staff => false; // gallery runs as owner; staff redaction shown via variant below
+
+  Map<String, dynamic> _pair(String bn, String en) => {'bn': bn, 'en': en};
+
+  List<Map<String, dynamic>> _bizProducts() => [
+        {
+          'id': 1, 'name': _bn ? 'পাঞ্জাবি' : 'Panjabi', 'category': _bn ? 'পোশাক' : 'Clothing',
+          'sku': 'PANJ-01', 'barcode': '8900000000017', 'photo': '',
+          'price': 120000, 'sell_price': 120000, 'cost_price': 80000, 'min_price': 100000,
+          'stock': 8, 'profit': 40000, 'margin': 33, 'role': 'owner',
+          'variants': [
+            // owner sees cost/min; keys present
+            {'id': 11, 'size': 'M', 'colour': _bn ? 'নীল' : 'Blue', 'stock': 5,
+             'sell_price': 120000, 'cost_price': 80000, 'min_price': 100000},
+            {'id': 12, 'size': 'L', 'colour': _bn ? 'সাদা' : 'White', 'stock': 3,
+             'sell_price': 125000, 'cost_price': 82000, 'min_price': 105000},
+          ],
+        },
+        {
+          // STAFF-redacted row: cost_price / min_price / profit / margin ABSENT.
+          'id': 2, 'name': _bn ? 'শাড়ি' : 'Saree', 'category': _bn ? 'পোশাক' : 'Clothing',
+          'sku': 'SAR-02', 'barcode': '8900000000024', 'photo': '',
+          'price': 250000, 'sell_price': 250000, 'stock': 0, 'role': 'staff',
+          'variants': [
+            {'id': 21, 'size': '', 'colour': _bn ? 'লাল' : 'Red', 'stock': 0, 'sell_price': 250000},
+          ],
+        },
+      ];
+
+  List<Map<String, dynamic>> _bizParties(String book) => [
+        {
+          'id': 1, 'name': _bn ? 'করিম স্টোর' : 'Karim Store', 'phone': '01712345678',
+          'area': _bn ? 'মিরপুর' : 'Mirpur', 'vip': true, 'book': book,
+          'balance_poisha': 150000, 'balance_display': _pair('৳1,500', '৳1,500'),
+          'balance_status': _pair('বাকি', 'Due'),
+        },
+        {
+          'id': 2, 'name': _bn ? 'রহিম ট্রেডার্স' : 'Rahim Traders', 'phone': '01812345678',
+          'area': _bn ? 'ধানমন্ডি' : 'Dhanmondi', 'vip': false, 'book': book,
+          'balance_poisha': 0, 'balance_display': _pair('৳0', '৳0'),
+          'balance_status': _pair('পরিশোধিত', 'Settled'),
+        },
+      ];
+
+  Map<String, dynamic> _bizNetPosition() => {
+        'receivable_poisha': 150000, 'receivable_display': _pair('৳1,500', '৳1,500'),
+        'payable_poisha': 90000, 'payable_display': _pair('৳900', '৳900'),
+        'customer_advances_display': _pair('৳0', '৳0'),
+        'supplier_advances_display': _pair('৳0', '৳0'),
+        'net_poisha': 60000, 'net_display': _pair('৳600', '৳600'),
+        'ahead': true,
+      };
+
+  Map<String, dynamic> _bizCashbox(String day) => {
+        'day': day, 'reconciled': false,
+        'opening_poisha': 500000, 'opening_display': _pair('৳5,000', '৳5,000'),
+        'total_in_poisha': 320000, 'total_in_display': _pair('৳3,200', '৳3,200'),
+        'total_out_poisha': 120000, 'total_out_display': _pair('৳1,200', '৳1,200'),
+        'expected_poisha': 700000, 'expected_display': _pair('৳7,000', '৳7,000'),
+        'counted_poisha': 700000, 'counted_display': _pair('৳7,000', '৳7,000'),
+        'variance_poisha': 0, 'variance_display': _pair('৳0', '৳0'),
+        'variance_status': _pair('মিলে গেছে', 'Balanced'),
+        'entries': mode == FakeMode.empty ? const [] : [
+          {'id': 1, 'kind': 'in', 'amount_display': _pair('৳3,200', '৳3,200'),
+           'note': _bn ? 'নগদ বিক্রি' : 'Cash sales', 'at_display': _pair('সকাল ১০টা', '10:00 AM')},
+          {'id': 2, 'kind': 'out', 'amount_display': _pair('৳1,200', '৳1,200'),
+           'note': _bn ? 'সরবরাহকারীকে' : 'To supplier', 'at_display': _pair('দুপুর ২টা', '2:00 PM')},
+        ],
+      };
+
+  List<Map<String, dynamic>> _bizOrders() => [
+        {
+          'id': 101, 'status': 'new', 'customer_name': _bn ? 'নাদিয়া' : 'Nadia',
+          'customer_phone': '01712345678', 'total': 240000, 'items': 2,
+          'cod_amount': 240000, 'courier': 'pathao', 'courier_live': false, 'tracking': '',
+          'line': _bn ? 'অর্ডার #101: অর্ডার নেওয়া হয়েছে' : 'Order #101: order received',
+        },
+        {
+          'id': 102, 'status': 'shipped', 'customer_name': _bn ? 'সুমন' : 'Sumon',
+          'customer_phone': '01812345678', 'total': 125000, 'items': 1,
+          'cod_amount': 125000, 'courier': 'steadfast', 'courier_live': false,
+          'tracking': 'SF-998877',
+          'line': _bn ? 'অর্ডার #102: কুরিয়ারে পাঠানো হয়েছে' : 'Order #102: shipped via courier',
+        },
+      ];
+
+  List<Map<String, dynamic>> _bizThreads() => [
+        {
+          'id': 1, 'customer_name': _bn ? 'নাদিয়া' : 'Nadia', 'channel': 'whatsapp',
+          'needs_human': true, 'is_ai': true,
+          'last_text': _bn ? 'দাম কি একটু কমানো যাবে?' : 'Can you lower the price a bit?',
+        },
+        {
+          'id': 2, 'customer_name': _bn ? 'সুমন' : 'Sumon', 'channel': 'messenger',
+          'needs_human': false, 'is_ai': true,
+          'last_text': _bn ? 'ধন্যবাদ!' : 'Thanks!',
+        },
+      ];
+
+  Map<String, dynamic>? _businessGet(String path) {
+    if (!path.startsWith('/business/') && !path.startsWith('business/')) return null;
+    if (mode == FakeMode.fail) _fail();
+    final p = path.startsWith('/') ? path.substring(1) : path; // drop leading slash
+    final bare = p.split('?').first; // strip query
+
+    // profiles
+    if (bare == 'business/profiles') {
+      return {'profiles': mode == FakeMode.empty ? const [] : [
+        {'id': 1, 'name': _bn ? 'আমার দোকান' : 'My Shop', 'type': 'small_shop',
+         'role': 'owner', 'has_staff': true, 'pay_method': 'bkash', 'pay_number': '01712345678'},
+      ], 'role': 'owner'};
+    }
+    // products
+    if (bare == 'business/products/' || bare == 'business/products') {
+      return {'products': mode == FakeMode.empty ? const [] : _bizProducts(), 'role': 'owner'};
+    }
+    if (RegExp(r'^business/products/\d+/?$').hasMatch(bare)) {
+      return {..._bizProducts().first, 'role': 'owner'};
+    }
+    // cart (client-held) — GET is just an empty seed; screen seeds locally.
+    if (bare == 'business/cart/' || bare == 'business/cart') {
+      return {'lines': const [], 'subtotal': 0, 'discount': 0, 'total': 0};
+    }
+    // customers
+    if (bare == 'business/customers/' || bare == 'business/customers') {
+      return {'customers': mode == FakeMode.empty ? const [] : [
+        {'id': 1, 'name': _bn ? 'নাদিয়া' : 'Nadia', 'phone': '01712345678',
+         'area': _bn ? 'মিরপুর' : 'Mirpur', 'address': '', 'vip': true,
+         'dues_display': _pair('৳500', '৳500')},
+      ], 'role': 'owner'};
+    }
+    if (RegExp(r'business/customers/.+/history/?$').hasMatch(bare)) {
+      return {
+        'customer': {'name': _bn ? 'নাদিয়া' : 'Nadia', 'phone': '01712345678'},
+        'dues_display': _pair('৳500', '৳500'),
+        'purchases': mode == FakeMode.empty ? const [] : [
+          {'id': 1, 'total_display': _pair('৳1,200', '৳1,200'), 'at_display': _pair('১২ অক্টো', '12 Oct')},
+        ],
+      };
+    }
+    // khata
+    if (bare == 'business/khata/parties') {
+      final book = Uri.parse('http://x/$path').queryParameters['book'] ?? 'customer';
+      return {'parties': mode == FakeMode.empty ? const [] : _bizParties(book), 'role': 'owner'};
+    }
+    if (bare == 'business/khata/net-position') {
+      return _bizNetPosition();
+    }
+    if (RegExp(r'business/khata/parties/\d+/statement$').hasMatch(bare)) {
+      return {
+        'opening_display': _pair('৳0', '৳0'), 'closing_display': _pair('৳1,500', '৳1,500'),
+        'total_gave_display': _pair('৳2,000', '৳2,000'),
+        'total_got_display': _pair('৳500', '৳500'),
+        'rows': mode == FakeMode.empty ? const [] : [
+          {'date': '2026-10-01', 'particulars': _bn ? 'বিক্রি' : 'Sale',
+           'debit_display': _pair('৳2,000', '৳2,000'), 'credit_display': _pair('', ''),
+           'balance_display': _pair('৳2,000', '৳2,000')},
+          {'date': '2026-10-10', 'particulars': _bn ? 'পরিশোধ' : 'Payment',
+           'debit_display': _pair('', ''), 'credit_display': _pair('৳500', '৳500'),
+           'balance_display': _pair('৳1,500', '৳1,500')},
+        ],
+      };
+    }
+    if (bare == 'business/khata/tagada/schedule') {
+      return {'reminders': mode == FakeMode.empty ? const [] : [
+        {'id': 1, 'name': _bn ? 'করিম স্টোর' : 'Karim Store', 'tone': 'polite',
+         'amount_display': _pair('৳1,500', '৳1,500'), 'sms': false, 'whatsapp': true},
+      ]};
+    }
+    // cashbox
+    if (RegExp(r'business/cashbox/[^/]+/entries$').hasMatch(bare)) {
+      final day = bare.split('/')[2];
+      return {'entries': _bizCashbox(day)['entries']};
+    }
+    if (RegExp(r'^business/cashbox/[^/?]+$').hasMatch(bare)) {
+      final day = bare.split('/')[2];
+      return _bizCashbox(day);
+    }
+    // reports
+    if (bare == 'business/reports/' || bare == 'business/reports') {
+      return {
+        'period': 'daily', 'role': 'owner',
+        'total_sales': 365000, 'sales': 365000, 'profit': 120000, 'net_profit': 95000,
+        'expenses': 25000,
+        'by_payment': [
+          {'method': 'cash', 'amount': 200000}, {'method': 'bkash', 'amount': 165000},
+        ],
+        'by_payment_method': [
+          {'method': 'cash', 'amount': 200000}, {'method': 'bkash', 'amount': 165000},
+        ],
+        'top_products': [
+          {'name': _bn ? 'পাঞ্জাবি' : 'Panjabi', 'qty': 3, 'amount': 360000},
+        ],
+        'top_customers': [
+          {'name': _bn ? 'নাদিয়া' : 'Nadia', 'amount': 240000},
+        ],
+      };
+    }
+    // AI
+    if (bare == 'business/ai/threads') {
+      return {'threads': mode == FakeMode.empty ? const [] : _bizThreads(), 'role': 'owner'};
+    }
+    if (RegExp(r'^business/ai/threads/\d+$').hasMatch(bare)) {
+      return {
+        'id': int.tryParse(bare.split('/').last) ?? 1,
+        'owner_takeover': false,
+        'messages': mode == FakeMode.empty ? const [] : [
+          {'id': 1, 'direction': 'in', 'is_ai': false,
+           'text': _bn ? 'দাম কত?' : 'What is the price?', 'at_display': _pair('সকাল ৯টা', '9:00 AM')},
+          {'id': 2, 'direction': 'out', 'is_ai': true, 'confidence': 0.82,
+           'text': _bn ? 'পাঞ্জাবি ৳1,200।' : 'Panjabi is ৳1,200.', 'at_display': _pair('সকাল ৯টা', '9:01 AM')},
+        ],
+      };
+    }
+    if (bare == 'business/ai/channels') {
+      return {'connected': false, 'whatsapp': false, 'messenger': false,
+              'whatsapp_cloud': false, 'needs_key': true};
+    }
+    if (bare == 'business/ai/insights') {
+      return {'insights': mode == FakeMode.empty ? const [] : [
+        {'kind': 'sales_down', 'text': _bn ? 'পাঞ্জাবি বিক্রি ১৫% কমেছে।' : 'Panjabi sales down 15%.'},
+      ]};
+    }
+    // bargain
+    if (bare == 'business/bargain/rules') {
+      return {'rules': mode == FakeMode.empty ? const [] : [
+        {'id': 1, 'product_id': 1, 'product_name': _bn ? 'পাঞ্জাবি' : 'Panjabi',
+         'list_price': 120000, 'min_price': 100000, 'discount_steps': '5,10',
+         'free_delivery_over': 200000, 'bundle_min_qty': 3, 'tone': _bn ? 'ভদ্র' : 'Polite'},
+      ], 'role': 'owner'};
+    }
+    if (RegExp(r'^business/bargain/rules/\d+$').hasMatch(bare)) {
+      return {'id': 1, 'product_id': 1, 'product_name': _bn ? 'পাঞ্জাবি' : 'Panjabi',
+              'list_price': 120000, 'min_price': 100000, 'discount_steps': '5,10',
+              'free_delivery_over': 200000, 'bundle_min_qty': 3, 'tone': _bn ? 'ভদ্র' : 'Polite'};
+    }
+    // orders
+    if (bare == 'business/orders') {
+      return {'orders': mode == FakeMode.empty ? const [] : _bizOrders(), 'role': 'owner'};
+    }
+    if (RegExp(r'^business/orders/\d+$').hasMatch(bare)) {
+      return _bizOrders().first;
+    }
+    // payments
+    if (bare == 'business/payments/qr') {
+      return {'provider': 'bkash', 'merchant_number': '01712345678',
+              'merchant_name': _bn ? 'আমার দোকান' : 'My Shop', 'url': ''};
+    }
+    if (bare == 'business/payments/link') {
+      return {'needs_key': true, 'url': '', 'provider': 'partner'};
+    }
+    // policies
+    if (bare == 'business/policies') {
+      return {'policies': const []};
+    }
+    return const {}; // unmatched business GET -> empty, never throw in gallery
   }
 
   @override
@@ -1064,7 +1333,209 @@ class FakeApi extends ApiClient {
       return {'ok': false, 'message': _bn ? 'Axon ERP কানেক্ট হলে হ্যান্ড-অফ চালু হবে।' : 'Hand-off available when Axon ERP is connected.'};
     }
     if (path.startsWith('/crm/')) return {'ok': true, ...body};
+    // ===== Business v2 POST stubs =====
+    final biz = _businessPost(path, body);
+    if (biz != null) return biz;
     return super.postJson(path, body);
+  }
+
+  // Stateless cart: take the client cart under `cart`, return the updated cart
+  // under `cart`. A sentinel below-min unit price (1 poisha / "0.01") triggers a
+  // 422 `below_min`; a discount preview sets `discount_clamped: true`.
+  Map<String, dynamic>? _businessPost(String path, Map<String, dynamic> body) {
+    if (!path.startsWith('/business/') && !path.startsWith('business/')) return null;
+    if (mode == FakeMode.fail) _fail();
+    final p = (path.startsWith('/') ? path.substring(1) : path).split('?').first;
+
+    Map<String, dynamic> cartIn() {
+      final c = body['cart'];
+      return c is Map ? c.cast<String, dynamic>() : <String, dynamic>{};
+    }
+    Map<String, dynamic> wrapCart(Map<String, dynamic> cart,
+            [Map<String, dynamic>? line]) =>
+        {'cart': cart, if (line != null) 'line': line};
+
+    bool isBelowMinSentinel() {
+      final up = body['unit_price']?.toString();
+      return up == '0.01' || up == '1' || up == '0'; // sentinel below-min input
+    }
+
+    // ---- cart/add/ ----
+    if (p == 'business/cart/add/') {
+      if (isBelowMinSentinel()) {
+        throw BelowMinException(
+            _bn ? 'ন্যূনতম মূল্যের নিচে বিক্রি করা যাবে না' : 'Cannot sell below the minimum price',
+            'below_min');
+      }
+      final cart = cartIn();
+      final lines = ((cart['lines'] ?? const []) as List).cast<Map<String, dynamic>>().toList();
+      final line = {
+        'id': lines.length + 1, 'product': body['product'], 'variant': body['variant'],
+        'product_name': _bn ? 'পাঞ্জাবি' : 'Panjabi', 'size': 'M', 'colour': _bn ? 'নীল' : 'Blue',
+        'qty': body['qty'] ?? 1, 'unit_price': 120000, 'min_price': 100000,
+      };
+      lines.add(line);
+      final subtotal = lines.fold<int>(0, (a, l) =>
+          a + ((l['unit_price'] ?? 0) as int) * ((l['qty'] ?? 1) as num).toInt());
+      return wrapCart({'lines': lines, 'subtotal': subtotal, 'discount': 0, 'total': subtotal}, line);
+    }
+    // ---- cart/line/{id}/price/ ----
+    if (RegExp(r'^business/cart/line/\d+/price/$').hasMatch(p)) {
+      if (isBelowMinSentinel()) {
+        throw BelowMinException(
+            _bn ? 'ন্যূনতম মূল্যের নিচে বিক্রি করা যাবে না' : 'Cannot sell below the minimum price',
+            'below_min');
+      }
+      final cart = cartIn();
+      return wrapCart(cart);
+    }
+    // ---- cart/line/{id}/qty/ , /remove/ ----
+    if (RegExp(r'^business/cart/line/\d+/(qty|remove)/$').hasMatch(p)) {
+      final id = int.tryParse(p.split('/')[3]) ?? 0;
+      final cart = cartIn();
+      var lines = ((cart['lines'] ?? const []) as List).cast<Map<String, dynamic>>().toList();
+      if (p.endsWith('/remove/')) {
+        lines = lines.where((l) => l['id'] != id).toList();
+      } else {
+        for (final l in lines) {
+          if (l['id'] == id) l['qty'] = body['qty'] ?? l['qty'];
+        }
+      }
+      final subtotal = lines.fold<int>(0, (a, l) =>
+          a + ((l['unit_price'] ?? 0) as int) * ((l['qty'] ?? 1) as num).toInt());
+      return wrapCart({'lines': lines, 'subtotal': subtotal, 'discount': 0, 'total': subtotal});
+    }
+    // ---- cart/discount/preview/ (clamped, NOT a 422) ----
+    if (p == 'business/cart/discount/preview/') {
+      final cart = cartIn();
+      final subtotal = poishaOf(cart['subtotal'] ?? cart['total']);
+      const discount = 5000; // clamped to the min floor
+      return {
+        'cart': {...cart, 'discount': discount, 'total': (subtotal - discount).clamp(0, 1 << 62)},
+        'discount_clamped': true,
+      };
+    }
+    // ---- sales/checkout/ ----
+    if (p == 'business/sales/checkout/') {
+      final cart = cartIn();
+      final total = poishaOf(cart['total'] ?? cart['subtotal']);
+      final paid = int.tryParse(((body['paid'] ?? '0').toString().replaceAll('.', ''))) ?? total;
+      return {
+        'id': 5001, 'role': 'owner', 'payment_method': body['payment_method'],
+        'lines': ((cart['lines'] ?? const []) as List),
+        'subtotal': poishaOf(cart['subtotal'] ?? cart['total']),
+        'discount': poishaOf(cart['discount']),
+        'total': total,
+        'change': (paid - total).clamp(0, 1 << 62),
+        'due': (total - paid).clamp(0, 1 << 62),
+        'discount_clamped': false,
+      };
+    }
+    // ---- profiles select / create ----
+    if (p == 'business/profiles' || p == 'business/profiles/select') {
+      return {'id': 1, 'role': 'owner', ...body};
+    }
+    // ---- products create / update / variants ----
+    if (p == 'business/products/' || RegExp(r'^business/products/\d+/$').hasMatch(p)) {
+      return {'id': 1, 'role': 'owner', ...body};
+    }
+    if (RegExp(r'^business/products/\d+/variants/$').hasMatch(p)) {
+      return {'id': 31, ...body};
+    }
+    if (p == 'business/products/import/') {
+      return {
+        'products': [
+          {'name': _bn ? 'নতুন পণ্য' : 'New product', 'sell_price': 50000, 'stock': 10},
+        ],
+        'bad_rows': const [], 'conflicts': const [],
+      };
+    }
+    // ---- customers save / dedupe ----
+    if (p == 'business/customers/') return {'id': 1, 'role': 'owner', ...body};
+    if (p == 'business/customers/dedupe/') return {'merged': 0};
+    // ---- khata entries / payments / tagada ----
+    if (RegExp(r'^business/khata/parties(/\d+/(entries|payment))?$').hasMatch(p)) {
+      return {
+        'id': 99, 'role': 'owner',
+        'balance_display': _pair('৳1,500', '৳1,500'),
+        'balance_status': _pair('বাকি', 'Due'),
+        'entry_added_message': _pair(
+            _bn ? 'করিম স্টোর, আপনার খাতায় ৳1,500 বাকি যোগ হলো।' : 'Karim Store, ৳1,500 was added to your due.',
+            'Karim Store, ৳1,500 was added to your due.'),
+        ...body,
+      };
+    }
+    if (p.startsWith('business/khata/tagada/')) {
+      return {'ok': true, 'count': 1, 'sms': false, 'whatsapp': true, ...body};
+    }
+    // ---- cashbox opening / reconcile ----
+    if (RegExp(r'^business/cashbox/[^/]+/(opening|reconcile)$').hasMatch(p)) {
+      final day = p.split('/')[2];
+      final cb = _bizCashbox(day);
+      if (p.endsWith('/reconcile')) cb['reconciled'] = true;
+      return cb;
+    }
+    // ---- orders advance / parcel ----
+    if (RegExp(r'^business/orders/\d+/advance$').hasMatch(p)) {
+      return {..._bizOrders().first, 'status': body['status'] ?? 'confirmed'};
+    }
+    if (RegExp(r'^business/orders/\d+/parcel$').hasMatch(p)) {
+      return {
+        'courier_live': false, 'tracking': 'SF-998877',
+        'line': _bn ? 'অর্ডার #101: কুরিয়ারে পাঠানো হয়েছে' : 'Order #101: shipped via courier',
+      };
+    }
+    // ---- AI reply / send / takeover / bargain / disclose / voice / paper / payment-match / morning ----
+    if (p == 'business/ai/reply' || RegExp(r'^business/ai/threads/\d+/send$').hasMatch(p)) {
+      return {
+        'text': _bn ? 'পাঞ্জাবি ৳1,200। ফ্রি ডেলিভারি সহ।' : 'Panjabi is ৳1,200 with free delivery.',
+        'confidence': 0.82, 'needs_human': false, 'handoff_reason': '',
+        'is_ai': true,
+        'disclosure': _pair(_bn ? 'আমি দোকানের এআই সহকারী।' : "I'm the shop's AI assistant.",
+            "I'm the shop's AI assistant."),
+      };
+    }
+    if (RegExp(r'^business/ai/threads/\d+/takeover$').hasMatch(p)) {
+      return {'owner_takeover': true};
+    }
+    if (p == 'business/ai/bargain') {
+      return {
+        'text': _bn ? 'সর্বোচ্চ ছাড় দিয়ে ৳1,100।' : 'Best I can do is ৳1,100.',
+        'price': 110000, 'confidence': 0.7, 'needs_human': false,
+      };
+    }
+    if (p == 'business/ai/disclose') {
+      return {'disclosure': _pair(
+          _bn ? 'আমি দোকানের এআই সহকারী।' : "I'm the shop's AI assistant.",
+          "I'm the shop's AI assistant.")};
+    }
+    if (p == 'business/ai/voice-entry' || p == 'business/ai/paper-khata') {
+      return {'draft': true, 'count': 2, 'entries': const []};
+    }
+    if (p == 'business/ai/match-payment') {
+      return {'matched': true, 'name': _bn ? 'নাদিয়া' : 'Nadia', 'amount_display': _pair('৳500', '৳500')};
+    }
+    if (p == 'business/ai/morning-summary') {
+      return {'text': _bn ? 'সুপ্রভাত! ৩ মেসেজ, ২ অর্ডার।' : 'Good morning! 3 messages, 2 orders.'};
+    }
+    // ---- bargain rules upsert ----
+    if (p.startsWith('business/bargain/rules')) {
+      return {'id': 1, 'role': 'owner', ...body};
+    }
+    // ---- payments qr/link, outbound, webhook, policies ----
+    if (p == 'business/payments/qr') return {'provider': 'bkash', 'merchant_number': '01712345678', ...body};
+    if (p == 'business/payments/link') return {'needs_key': true, 'url': ''};
+    if (p == 'business/policies') return {'ok': true, ...body};
+    return {'ok': true, ...body}; // unmatched business POST -> accept gracefully
+  }
+
+  @override
+  Future<void> deleteItem(String path, int id) async {
+    if (path.startsWith('business/') || path.startsWith('/business/')) {
+      if (mode == FakeMode.fail) _fail();
+      return; // business deletes succeed silently in the gallery
+    }
+    return super.deleteItem(path, id);
   }
 
 }

@@ -5,6 +5,7 @@ from . import views
 from . import views_module5 as m5
 from . import views_build61 as b61
 from . import views_m2 as m2
+from . import business_views as bz
 
 router = DefaultRouter()
 router.register("memory", views.MemoryViewSet, basename="memory")
@@ -105,6 +106,77 @@ urlpatterns = [
     path("business/reply", views.BusinessReplyView.as_view()),
     path("business/order", views.BusinessOrderCaptureView.as_view()),
     path("webhook/whatsapp", views.WhatsAppWebhookView.as_view()),
+
+    # ===== Business v2 (Phase B) — khata + selling + AI assistant =====
+    # BUSINESS PROFILES (§1) — list / create / select
+    path("business/profiles", bz.ProfilesView.as_view()),
+    path("business/profiles/select", bz.ProfileSelectView.as_view()),
+
+    # SELLING (§3) — catalog, quick-sell cart, checkout, customers, reports
+    path("business/products", bz.ProductsView.as_view()),
+    path("business/products/<int:pk>", bz.ProductDetailView.as_view()),
+    path("business/products/import", bz.ProductImportView.as_view()),
+    path("business/products/<int:pk>/variants", bz.ProductVariantView.as_view()),
+    path("business/cart/add", bz.CartAddView.as_view()),
+    path("business/cart/line/<int:line_id>/price", bz.CartSetPriceView.as_view()),
+    path("business/cart/line/<int:line_id>/qty", bz.CartSetQtyView.as_view()),
+    path("business/cart/line/<int:line_id>", bz.CartRemoveView.as_view()),
+    path("business/cart/line/<int:line_id>/remove", bz.CartRemovePostView.as_view()),
+    path("business/cart/discount/preview", bz.CartDiscountPreviewView.as_view()),
+    path("business/sales/checkout", bz.CheckoutView.as_view()),
+    path("business/sales/<int:pk>/receipt", bz.ReceiptView.as_view()),
+    path("business/sales/<int:pk>/receipt.pdf", bz.ReceiptPdfView.as_view()),
+    path("business/customers", bz.CustomersView.as_view()),
+    path("business/customers/dedupe", bz.CustomerDedupeView.as_view()),
+    path("business/customers/<str:phone>/history", bz.CustomerHistoryView.as_view()),
+    path("business/reports", bz.ReportsView.as_view()),
+    path("business/reports/bank-loan", bz.BankLoanReportView.as_view()),
+
+    # KHATA + CASHBOX
+    path("business/khata/parties", bz.KhataPartiesView.as_view()),
+    path("business/khata/parties/<int:pk>/statement", bz.KhataStatementView.as_view()),
+    path("business/khata/parties/<int:pk>/statement.pdf", bz.KhataStatementPdfView.as_view()),
+    path("business/khata/parties/<int:pk>/entries", bz.KhataEntryView.as_view()),
+    path("business/khata/parties/<int:pk>/payment", bz.KhataPaymentView.as_view()),
+    path("business/khata/net-position", bz.KhataNetPositionView.as_view()),
+    path("business/khata/tagada/single/<int:pk>", bz.TagadaSingleView.as_view()),
+    path("business/khata/tagada/bulk", bz.TagadaBulkView.as_view()),
+    path("business/khata/tagada/schedule", bz.TagadaScheduleView.as_view()),
+    path("business/cashbox/<str:day>", bz.CashboxView.as_view()),
+    path("business/cashbox/<str:day>/opening", bz.CashboxOpeningView.as_view()),
+    path("business/cashbox/<str:day>/entries", bz.CashboxEntryView.as_view()),
+    path("business/cashbox/<str:day>/reconcile", bz.CashboxReconcileView.as_view()),
+
+    # AI SALES ASSISTANT (§4) — PAID + key-gated
+    path("business/ai/reply", bz.AiReplyView.as_view()),
+    path("business/ai/bargain", bz.AiBargainView.as_view()),
+    path("business/ai/disclose", bz.AiDiscloseView.as_view()),
+    path("business/ai/morning-summary", bz.MorningSummaryView.as_view()),
+    path("business/ai/voice-entry", bz.VoiceEntryView.as_view()),
+    path("business/ai/paper-khata", bz.PaperKhataView.as_view()),
+    path("business/ai/match-payment", bz.MatchPaymentView.as_view()),
+    path("business/ai/insights", bz.InsightsView.as_view()),
+    # AI chat inbox + channels (official platforms only; PAID + key-gated)
+    path("business/ai/channels", bz.AiChannelsView.as_view()),
+    path("business/ai/threads", bz.AiThreadsView.as_view()),
+    path("business/ai/threads/<int:pk>", bz.AiThreadDetailView.as_view()),
+    path("business/ai/threads/<int:pk>/send", bz.AiThreadSendView.as_view()),
+    path("business/ai/threads/<int:pk>/takeover", bz.AiThreadTakeoverView.as_view()),
+    # per-product bargaining ladders (PAID; min_price read-only floor)
+    path("business/bargain/rules", bz.BargainRulesView.as_view()),
+    path("business/bargain/rules/<int:pk>", bz.BargainRuleSaveView.as_view()),
+    # shop policies (FREE; feeds AI context)
+    path("business/policies", bz.PoliciesView.as_view()),
+    # orders list + detail (FREE, scoped)
+    path("business/orders", bz.OrdersListView.as_view()),
+    path("business/orders/<int:pk>", bz.OrderDetailView.as_view()),
+    path("business/orders/<int:pk>/advance", bz.OrderAdvanceView.as_view()),
+    path("business/orders/<int:pk>/parcel", bz.OrderParcelView.as_view()),
+    path("business/outbound/plan", bz.OutboundPlanView.as_view()),
+    path("business/webhook/send", bz.WebhookSendView.as_view()),
+    path("business/webhook/incoming", bz.WebhookIncomingView.as_view()),
+    path("business/payments/qr", bz.MerchantQrView.as_view()),
+    path("business/payments/link", bz.PaymentLinkView.as_view()),
     path("nominees/<int:pk>/activate", views.nominee_activate),
     path("jobs/<int:pk>/tailor", views.JobTailorView.as_view()),
 

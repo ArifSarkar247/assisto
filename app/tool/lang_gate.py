@@ -27,6 +27,8 @@ MIXED = re.compile(r"[\u0980-\u09F2\u09F4-\u09FF][^\"']*?/[^\"']*?[A-Za-z]|[A-Za
 SAME_VALUE_ALLOWLIST = {
     "crmTitle",  # "CRM" == "CRM" -- product name, not translated. (owner-approved)
     "circleExtrasAssistoTitle",  # "@Assisto" == "@Assisto" -- product handle, not translated.
+    "bizChannelWhatsapp",  # "WhatsApp" == "WhatsApp" -- global brand name, not translated.
+    "bizChannelMessenger",  # "Messenger" == "Messenger" -- global brand name, not translated.
 }
 
 viol = []

@@ -1,0 +1,44 @@
+{
+  "disclosure_short":        ["আমি দোকানের এআই সহকারী।", "I'm the shop's AI assistant."],
+  "disclosure_full":         ["আমি একজন মানুষ নই — আমি এই দোকানের এআই সহকারী। প্রয়োজনে দোকানের মালিক নিজে উত্তর দেবেন।", "I'm not a human — I'm this shop's AI assistant. The owner will step in when needed."],
+  "greeting":                ["আসসালামু আলাইকুম! স্বাগতম। কী সাহায্য করতে পারি?", "Hello! Welcome. How can I help?"],
+  "not_sure":                ["আমি নিশ্চিত নই, একজন দেখে জানাবে।", "I'm not sure — someone will check."],
+
+  "bargain_defer":           ["আমি মালিকের সাথে কথা বলে জানাচ্ছি।", "I'll check with the owner."],
+  "bargain_accept_list":     ["ধন্যবাদ! {name} ৳{price}-এ কনফার্ম করছি।", "Thank you! Confirming {name} at ৳{price}."],
+  "bargain_accept_offer":    ["ঠিক আছে, {name} ৳{price}-এ দিতে পারি।", "Alright, I can do {name} at ৳{price}."],
+  "bargain_counter":         ["সর্বোচ্চ ছাড় দিয়ে {name} ৳{price}-এ দিতে পারি।", "Best I can do on {name} is ৳{price}."],
+  "bargain_free_delivery":   [" ফ্রি ডেলিভারি সহ।", " with free delivery."],
+
+  "handoff_angry":           ["দুঃখিত অসুবিধার জন্য। আমি এখনই দোকানের একজনকে যুক্ত করছি।", "Sorry for the trouble. I'm bringing in someone from the shop now."],
+  "handoff_refund":          ["রিটার্ন/রিফান্ডের জন্য দোকানের একজন আপনাকে সাহায্য করবেন।", "For returns/refunds a team member will assist you."],
+  "handoff_big_order":       ["বড় অর্ডারের জন্য মালিক নিজে কথা বলবেন।", "For a large order the owner will speak with you directly."],
+  "handoff_low_confidence":  ["আমি নিশ্চিত নই — দোকানের একজন শীঘ্রই জানাবেন।", "I'm not certain — someone from the shop will reply shortly."],
+
+  "parcel_new":              ["অর্ডার নেওয়া হয়েছে", "order received"],
+  "parcel_confirmed":        ["কনফার্ম হয়েছে", "confirmed"],
+  "parcel_packed":           ["প্যাক করা হয়েছে", "packed"],
+  "parcel_shipped":          ["কুরিয়ারে পাঠানো হয়েছে", "shipped via courier"],
+  "parcel_delivered":        ["ডেলিভারি সম্পন্ন", "delivered"],
+  "parcel_returned":         ["ফেরত এসেছে", "returned"],
+  "parcel_cancelled":        ["বাতিল হয়েছে", "cancelled"],
+  "parcel_line":             ["অর্ডার #{id}: {status}", "Order #{id}: {status}"],
+  "parcel_tracking":         [" ({courier} ট্র্যাকিং: {tracking})", " ({courier} tracking: {tracking})"],
+
+  "courier_mock_note":       ["মক বুকিং — লাইভ করতে কুরিয়ার কী দরকার।", "Mock booking — a courier key is required to go live."],
+
+  "morning_summary":         ["সুপ্রভাত! রাতারাতি: {msgs} মেসেজ, {orders} অর্ডার, {need}টি আপনার নজর চায়।", "Good morning! Overnight: {msgs} messages, {orders} orders, {need} need you."],
+
+  "voice_draft_ready":       ["খসড়া তৈরি — যাচাই করে সেভ করুন।", "Draft ready — review and save."],
+  "paper_khata_found":       ["{count}টি এন্ট্রি পাওয়া গেছে — যাচাই করুন।", "Found {count} entries — please review."],
+  "payment_match_confirm":   ["{name} ৳{amount} পাঠিয়েছে — খাতা থেকে বাদ দেব?", "{name} sent ৳{amount} — deduct from the ledger?"],
+  "payment_no_match":        ["মিল পাওয়া যায়নি — ম্যানুয়ালি দেখুন।", "No match found — please review manually."],
+
+  "insight_sales_down":      ["{name} বিক্রি {pct}% কমেছে।", "{name} sales down {pct}%."],
+  "insight_old_due":         ["{name}-এর বাকি {age} দিন পুরনো।", "{name}'s due is {age} days old."],
+
+  "bank_loan_disclaimer":    ["শুধুমাত্র বিক্রির তথ্য — আমরা কোনো ঋণ দিই না, ক্রেডিট স্কোর করি না।", "Sales data only — we do NOT lend money or do credit scoring."],
+
+  "pay_merchant_label":      ["{provider} মার্চেন্টে সরাসরি পরিশোধ করুন।", "Pay directly to the {provider} merchant."],
+  "pay_link_label":          ["লাইসেন্সপ্রাপ্ত পার্টনারের মাধ্যমে পরিশোধ করুন।", "Pay via our licensed payment partner."]
+}
