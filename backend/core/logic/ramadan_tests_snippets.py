@@ -90,6 +90,63 @@ def test_payloads():
     assert R.WAKE_IVR_AVAILABLE is False  # key-gated
 
 
+def test_ramadan_calendar():
+    cal = R.ramadan_calendar(date(2026, 2, 18), today=date(2026, 2, 20))
+    assert len(cal) == 30
+    assert cal[0]["day"] == 1 and cal[0]["date"] == "2026-02-18"
+    assert cal[0]["phase"] == "past"
+    assert cal[2]["is_today"] is True and cal[2]["phase"] == "today"
+    assert cal[3]["phase"] == "future"
+    assert R.ramadan_calendar(None) == []
+
+
+def test_minutes_until():
+    assert R.minutes_until("04:00", "03:00") == 60
+    assert R.minutes_until("03:00", "04:00") == 23 * 60  # wraps to tomorrow
+    assert R.minutes_until("18:10", "18:10") == 0
+    assert R.minutes_until("bad", "03:00") is None
+
+
+def test_nisab_value():
+    v = R.nisab_value(gold_price_per_gram=10000, silver_price_per_gram=120)
+    # silver default (lower monetary): 612.36 * 120 = 73483.20
+    assert v["nisab"] == "73483.20"
+    assert v["gold_nisab"] == "874800.00"
+    assert v["basis"] == "silver"
+    g = R.nisab_value(gold_price_per_gram=10000, silver_price_per_gram=120,
+                      prefer="gold")
+    assert g["nisab"] == "874800.00"
+    # zero prices -> zero (UI falls back to manual nisab)
+    assert R.nisab_value()["nisab"] == "0.00"
+
+
+def test_fasting_stats():
+    s = R.fasting_stats([1, 2, 2, 3, 99])  # dedup + drop out-of-range
+    assert s["kept"] == 3 and s["total"] == 30 and s["days"] == [1, 2, 3]
+    assert R.fasting_stats([])["kept"] == 0
+
+
+def test_salami_tracker_total():
+    r = R.salami_tracker_total([
+        {"name": "A", "amount": "200", "direction": "given"},
+        {"name": "B", "amount": "500", "direction": "received"},
+        {"name": "C", "amount": "100", "direction": "given"},
+    ])
+    assert r["given"] == "300.00" and r["received"] == "500.00"
+    assert r["net"] == "200.00"
+    assert r["given_count"] == 2 and r["received_count"] == 1
+    assert R.salami_tracker_total([])["net"] == "0.00"
+
+
+def test_duas_source_noted():
+    ds = R.duas("en")
+    assert len(ds) == 3
+    for d in ds:
+        assert d["arabic"] and d["source"] and d["meaning"]
+    # bn meanings differ from en (localised), arabic identical
+    assert R.duas("bn")[0]["arabic"] == ds[0]["arabic"]
+
+
 def run_all():
     import inspect
     fns = [v for k, v in sorted(globals().items())

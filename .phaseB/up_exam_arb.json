@@ -1,0 +1,233 @@
+{
+  "examFieldExam": [
+    "পরীক্ষা",
+    "Exam"
+  ],
+  "examFieldReg": [
+    "রেজি. নম্বর",
+    "Reg. no."
+  ],
+  "examFieldYear": [
+    "সাল",
+    "Year"
+  ],
+  "examFieldGrade": [
+    "গ্রেড",
+    "Grade"
+  ],
+  "examBoardDhaka": [
+    "ঢাকা",
+    "Dhaka"
+  ],
+  "examBoardRajshahi": [
+    "রাজশাহী",
+    "Rajshahi"
+  ],
+  "examBoardChattogram": [
+    "চট্টগ্রাম",
+    "Chattogram"
+  ],
+  "examBoardKhulna": [
+    "খুলনা",
+    "Khulna"
+  ],
+  "examBoardBarishal": [
+    "বরিশাল",
+    "Barishal"
+  ],
+  "examBoardSylhet": [
+    "সিলেট",
+    "Sylhet"
+  ],
+  "examBoardCumilla": [
+    "কুমিল্লা",
+    "Cumilla"
+  ],
+  "examBoardDinajpur": [
+    "দিনাজপুর",
+    "Dinajpur"
+  ],
+  "examBoardMymensingh": [
+    "ময়মনসিংহ",
+    "Mymensingh"
+  ],
+  "examBoardMadrasah": [
+    "মাদ্রাসা",
+    "Madrasah"
+  ],
+  "examBoardTechnical": [
+    "কারিগরি",
+    "Technical"
+  ],
+  "examTypeSsc": [
+    "এসএসসি",
+    "SSC"
+  ],
+  "examTypeHsc": [
+    "এইচএসসি",
+    "HSC"
+  ],
+  "examTypeJsc": [
+    "জেএসসি",
+    "JSC"
+  ],
+  "examTypePsc": [
+    "পিইসি/পিএসসি",
+    "PSC"
+  ],
+  "examTypeDakhil": [
+    "দাখিল",
+    "Dakhil"
+  ],
+  "examTypeAlim": [
+    "আলিম",
+    "Alim"
+  ],
+  "examCheckSection": [
+    "ফল দেখুন",
+    "Check your result"
+  ],
+  "examCheckOfficial": [
+    "অফিশিয়াল বোর্ড সাইটে দেখুন",
+    "Check on the official board site"
+  ],
+  "examOfficialOnlyNote": [
+    "ফল কেবল অফিশিয়াল বোর্ড সাইটেই দেখা যায়। অ্যাসিস্টো কোনো ফল সংগ্রহ বা তৈরি করে না—শুধু অফিশিয়াল সাইট খুলে দেয়।",
+    "Results are only ever shown on the official board site. Assisto never fetches or creates a result — it just opens the official site for you."
+  ],
+  "examCouldNotOpen": [
+    "ব্রাউজার খোলা গেল না।",
+    "Couldn't open the browser."
+  ],
+  "examUrlNotOfficial": [
+    "এই লিংকটি অফিশিয়াল বোর্ড সাইট নয়—সতর্ক থাকুন।",
+    "This link is not an official board site — be careful."
+  ],
+  "examSaving": [
+    "সংরক্ষণ হচ্ছে…",
+    "Saving…"
+  ],
+  "examStudentsSection": [
+    "একাধিক শিক্ষার্থী",
+    "Multiple students"
+  ],
+  "examStudentsNote": [
+    "অভিভাবক বা শিক্ষকের জন্য—একসাথে কয়েকজনের ফলের জন্য নজর রাখুন। শুধু নাম ও রোল রাখা হয়, কোনো ফল নয়।",
+    "For parents or teachers — watch several results at once. Only names and rolls are kept, never a result."
+  ],
+  "examAddStudent": [
+    "শিক্ষার্থী যোগ করুন",
+    "Add student"
+  ],
+  "examRemoveStudent": [
+    "সরান",
+    "Remove"
+  ],
+  "examStudentLabel": [
+    "নাম/লেবেল",
+    "Name/label"
+  ],
+  "examWatchSummary": [
+    "{count} জন শিক্ষার্থীর ফলের জন্য নজর রাখা হচ্ছে। ফল কেবল অফিশিয়াল সাইটেই দেখা যাবে।",
+    "Watching results for {count} student(s). Results are only ever shown on the official site."
+  ],
+  "@examWatchSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "examExplainerSection": [
+    "জিপিএ ও গ্রেড বোঝা",
+    "Understand GPA & grades"
+  ],
+  "examGradeScaleTitle": [
+    "বোর্ডের গ্রেডিং স্কেল দেখুন",
+    "See the board grading scale"
+  ],
+  "examGradeScaleNote": [
+    "এটি বোর্ডের সাধারণ গ্রেডিং স্কেল—কারও নিজস্ব ফল নয়।",
+    "This is the board's standard grading scale — not anyone's result."
+  ],
+  "examColGrade": [
+    "গ্রেড",
+    "Grade"
+  ],
+  "examColGp": [
+    "জিপি",
+    "GP"
+  ],
+  "examColMarks": [
+    "নম্বর",
+    "Marks"
+  ],
+  "examYourGpaBand": [
+    "আপনার জিপিএ {gpa} — {band}",
+    "Your GPA {gpa} — {band}"
+  ],
+  "@examYourGpaBand": {
+    "placeholders": {
+      "gpa": {
+        "type": "String"
+      },
+      "band": {
+        "type": "String"
+      }
+    }
+  },
+  "examBandOutstanding": [
+    "চমৎকার (A+)",
+    "Outstanding (A+)"
+  ],
+  "examBandVeryGood": [
+    "খুব ভালো",
+    "Very good"
+  ],
+  "examBandGood": [
+    "ভালো",
+    "Good"
+  ],
+  "examBandSatisfactory": [
+    "সন্তোষজনক",
+    "Satisfactory"
+  ],
+  "examBandPassed": [
+    "উত্তীর্ণ",
+    "Passed"
+  ],
+  "examBandDidNotPass": [
+    "অকৃতকার্য",
+    "Did not pass"
+  ],
+  "examCountdownDue": [
+    "ফল প্রকাশের সময় হয়ে গেছে",
+    "Result is due now"
+  ],
+  "examCountdownLeft": [
+    "আর {days} দিন {hours} ঘণ্টা বাকি",
+    "{days}d {hours}h to go"
+  ],
+  "@examCountdownLeft": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "examCardEnteredFootnote": [
+    "আপনার দেওয়া তথ্য থেকে তৈরি—অফিশিয়াল ফল নয়।",
+    "Built from details you entered — not an official result."
+  ],
+  "examCardCopied": [
+    "কার্ড কপি করা হয়েছে।",
+    "Card copied."
+  ],
+  "examCardEmptyHint": [
+    "নিচে আপনার ফলের তথ্য লিখলে এখানে কার্ড তৈরি হবে।",
+    "Type your result details below to build the card."
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "ramadanUntilSehri": ["সেহরি শেষ হতে বাকি", "Until Sehri"],
+  "ramadanUntilIftar": ["ইফতার হতে বাকি", "Until Iftar"],
+
+  "ramadanCalendarTitle": ["রমজান ক্যালেন্ডার", "Ramadan calendar"],
+  "ramadanSetStart": ["শুরুর দিন", "Set start day"],
+  "ramadanChangeStart": ["শুরু বদলান", "Change start"],
+  "ramadanSetStartHint": ["চাঁদ দেখা দেশভেদে আলাদা হয়, তাই রমজানের প্রথম রোজার দিনটি আপনি নিজে নির্বাচন করুন।", "Moon-sighting varies by country — pick the date of your first fast yourself."],
+  "ramadanNotRunning": ["এই তারিখটি রমজানের ৩০ দিনের মধ্যে নেই।", "This date is outside the 30 days of Ramadan."],
+  "ramadanDayOf": ["রমজানের {day} নম্বর দিন, মোট {total}", "Day {day} of {total}"],
+
+  "ramadanFastingTitle": ["রোজার হিসাব", "Fasting tracker"],
+  "ramadanFastingHint": ["যে দিনগুলোতে রোজা রেখেছেন সেগুলোতে ট্যাপ করুন। হিসাব শুধু আপনার দেওয়া তথ্যে।", "Tap the days you fasted. The count is only what you mark — nothing is auto-filled."],
+  "ramadanFastingCount": ["{kept}/{total}", "{kept}/{total}"],
+
+  "ramadanZakatRateNote": ["যাকাত = নিসাব-এর সমান বা বেশি যাকাতযোগ্য সম্পদের ২.৫%। সব অঙ্ক আপনার দেওয়া।", "Zakat = 2.5% of zakatable wealth at or above nisab. Every amount is entered by you."],
+  "ramadanZakatCash": ["নগদ ও ব্যাংক (টাকা)", "Cash & bank (Tk)"],
+  "ramadanZakatGold": ["সোনার মূল্য (টাকা)", "Gold value (Tk)"],
+  "ramadanZakatSilver": ["রুপার মূল্য (টাকা)", "Silver value (Tk)"],
+  "ramadanZakatInvest": ["বিনিয়োগ (টাকা)", "Investments (Tk)"],
+  "ramadanZakatDebts": ["দেনা / বাদযোগ্য (টাকা)", "Debts / deductible (Tk)"],
+  "ramadanZakatNisab": ["নিসাব সীমা (টাকা)", "Nisab threshold (Tk)"],
+  "ramadanNisabNote": ["নিসাব: ৮৭.৪৮ গ্রাম সোনা বা ৬১২.৩৬ গ্রাম রুপার মূল্য (শাস্ত্রসম্মত)। বর্তমান দর আপনি বসান — আমরা দাম অনুমান করি না।", "Nisab: value of 87.48 g gold or 612.36 g silver (classical fiqh). You enter today's price — we never guess bullion rates."],
+  "ramadanZakatCalc": ["যাকাত হিসাব করুন", "Calculate zakat"],
+  "ramadanZakatZakatable": ["যাকাতযোগ্য সম্পদ: {amount} টাকা", "Zakatable wealth: {amount} Tk"],
+  "ramadanZakatDue": ["প্রদেয় যাকাত: {amount} টাকা", "Zakat due: {amount} Tk"],
+  "ramadanBelowNisab": ["সম্পদ নিসাবের নিচে — এই হিসাবে যাকাত ফরজ নয়।", "Wealth is below nisab — no zakat is due on this input."],
+
+  "ramadanDuasTitle": ["রমজানের দোয়া", "Ramadan duas"],
+  "ramadanDuasSourceNote": ["প্রতিটি দোয়ার সাথে হাদিস-সূত্র উল্লেখ করা হয়েছে। এটি তথ্যসূত্র, কোনো ফতোয়া নয়।", "Each dua is shown with its hadith source. This is a reference, not a religious ruling."],
+  "ramadanDuaSehriTitle": ["সেহরি / রোজার নিয়ত", "Intention for fasting (Sehri)"],
+  "ramadanDuaSehriMeaning": ["আমি রমজান মাসের আগামীকালের রোজার নিয়ত করলাম।", "I intend to keep tomorrow's fast of the month of Ramadan."],
+  "ramadanDuaIftarTitle": ["ইফতারের দোয়া", "Dua at Iftar"],
+  "ramadanDuaIftarMeaning": ["পিপাসা দূর হলো, শিরা-উপশিরা সিক্ত হলো এবং ইনশাআল্লাহ সওয়াব নির্ধারিত হলো।", "The thirst is gone, the veins are moistened, and the reward is confirmed, if Allah wills."],
+  "ramadanDuaQadrTitle": ["লাইলাতুল কদরের দোয়া", "Dua for Laylat al-Qadr"],
+  "ramadanDuaQadrMeaning": ["হে আল্লাহ, আপনি ক্ষমাশীল, ক্ষমা করতে ভালোবাসেন; তাই আমাকে ক্ষমা করুন।", "O Allah, You are Pardoning and love to pardon, so pardon me."],
+
+  "ramadanSalamiTitle": ["সালামি হিসাব", "Eid salami tracker"],
+  "ramadanSalamiAdd": ["সালামি যোগ করুন", "Add salami"],
+  "ramadanSalamiName": ["নাম", "Name"],
+  "ramadanSalamiAmount": ["পরিমাণ (টাকা)", "Amount (Tk)"],
+  "ramadanSalamiGiven": ["দিয়েছি", "Given"],
+  "ramadanSalamiReceived": ["পেয়েছি", "Received"],
+  "ramadanSalamiNet": ["মোট হিসাব", "Net"],
+  "ramadanSalamiSave": ["সংরক্ষণ", "Save"],
+  "ramadanSalamiEmpty": ["এখনো কোনো সালামি যোগ করা হয়নি। অঙ্ক আপনার দেওয়া — আমরা টাকা স্থানান্তর করি না।", "No salami added yet. Amounts are yours to enter — we never move money."],
+  "ramadanCancel": ["বাতিল", "Cancel"]
+}

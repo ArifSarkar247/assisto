@@ -695,3 +695,13 @@ NOTHING basic may remain.
 - AFTER batch: merge arb + wire backend + gen-l10n→analyze 0→gate→tests→gallery→build+3-line-Bangla. Then WAVE D BATCH 2..N (remaining ~55 good: plans, photo, unseen, ride/food, ramadan, safe-arrival, exam, password-reset, analytics, fall-detect, name-about, legal, onboarding + messenger/CRM/business good-bits — full list SPEC_V21_AUDIT.md). Batch ~6 each.
 - THEN WAVE E (~79 v2.1 new: Sec14 PA/AI-core/DailyLife/standalone/Sec20). THEN Step 6 (SFU+TURN M3 self-hosted hard-caps + aws_ports.md + Telegram sandbox), Step 7 (P14-16/iOS/FINAL).
 - Builds through 72. en=bn=3893. migrations through 0028. All green.
+
+- BUILD 73 SHIPPED 2026-10-14: https://assisto.asalify.com/dl/3mFE8ndd7MC1XIxfN2gDud_w/assisto-part7-build73.apk (Wave D batch 1: Medicine DB, Health Tips, Dictionary, Meetings, Birthdays, Memory → advanced). 590 tests, analyze 0, gate clean. Gallery: https://assisto.asalify.com/dl/shots-waved1-QJIGO0TEXuc/index.html
+
+## WAVE D BATCH 2 (2026-10-14, after build 73) — good→advanced, 6 more
+- ✅ Batch 1 shipped (build 73): medicine-db, health-tips, dictionary, meetings, birthdays, memory. 6/61.
+- BATCH 2 agents: plans(ab1370, prices unchanged ৳149/299/1199, gates Sec25), photo-enhance(a37801, own-photos/never-IDs/AI-key-gated), unseen-world(unseenbangladesh.com+open-data/source-noted), ride-food(deep-link-only/fares-approx), ramadan(prayer-method-stated/zakat-2.5%/IVR-key-gated), exam(official-source-only/never-fabricate).
+- AFTER batch: merge arb + gen-l10n→analyze 0→gate→tests→gallery→build+3-line-Bangla. 12/61 after batch 2.
+- REMAINING WAVE D (~49): safe-arrival, password-reset, analytics-dashboard, fall-detect(good-bits), name-about, legal, onboarding, + messenger/CRM/business/safety/circle good-bits (full list SPEC_V21_AUDIT.md). Batch ~6 each.
+- THEN WAVE E (~79 v2.1 new: Sec14 PA/AI-core/DailyLife/standalone/Sec20). THEN Step 6 (SFU+TURN M3 self-hosted + aws_ports.md + Telegram sandbox), Step 7 (P14-16/iOS/FINAL).
+- Builds through 73. en=bn=4106. 590 tests. migrations through 0028. All green.

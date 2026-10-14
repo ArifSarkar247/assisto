@@ -155,16 +155,59 @@ def test_photo_blocks_documents_and_fabrication():
     assert p["path"] in ("device", "cloud")
 
 
+def test_photo_advanced_presets_and_ai_honest():
+    # ADVANCED presets are faithful bundles; none reuses a forbidden op.
+    ps = photo.presets("en")
+    ids = {p["id"] for p in ps}
+    assert {"document", "portrait", "passport"} <= ids
+    for p in ps:
+        assert p["label"]  # localized, non-empty
+        for a in p["adjustments"]:
+            assert a in photo.BASIC_ADJUSTMENTS
+            assert a not in photo._FORBIDDEN_OPS
+    # Passport/ID preset links OUT to the web tool — it never edits identity.
+    passport = next(p for p in ps if p["id"] == "passport")
+    assert passport["web_tool"] is True and passport["ai"] is False
+
+    # AI ops are reported HONESTLY: always key-gated, availability mirrors the
+    # real provider wiring (no provider in tests -> available False, no fake).
+    ops = photo.ai_ops("en")
+    assert {o["op"] for o in ops} == set(photo.AI_OPS)
+    assert all(o["requires_key"] is True for o in ops)
+    assert all(o["available"] == photo.cloud_available() for o in ops)
+    # background_replace stays forbidden on the FAITHFUL (non-AI) plan path.
+    assert "background_replace" in photo._FORBIDDEN_OPS
+    blocked = photo.plan("personal", ["background_replace"], own_photo=True)
+    assert not blocked["allowed"] and blocked["reason"] == "forbidden_op"
+
+
+def test_photo_advanced_scenario():
+    # Real-world: a user cleans up their OWN holiday photo with the portrait
+    # preset's faithful knobs; plan allows it, device path, no fabrication.
+    portrait = next(p for p in photo.presets("en") if p["id"] == "portrait")
+    p = photo.plan("personal", ["denoise", "sharpen"], own_photo=True, lang="en")
+    assert p["allowed"] and p["reason"] == "ok"
+    assert all(a in photo.BASIC_ADJUSTMENTS for a in portrait["adjustments"])
+    # The same user then tries AI upscale with no key -> honest, not faked.
+    assert all(not o["available"] or photo.cloud_available()
+               for o in photo.ai_ops("en"))
+
+
 # ------------------------------ unseen -------------------------------------
 def test_unseen_sourced_and_filterable():
     c = unseen.companion("en")
     assert c["source"] == "unseenbangladesh.com"
-    assert all(d["source"] == "unseenbangladesh.com" for d in c["destinations"])
+    # ADVANCED: honest multi-source — owner site + open data, every item sourced.
+    allowed = {"unseenbangladesh.com", "Wikivoyage / open data"}
+    assert c["destinations"]
+    assert all(d["source"] in allowed for d in c["destinations"])
     assert unseen.destination("sajek", "en")["name"] == "Sajek Valley"
     assert unseen.destination("nope", "en") is None
     syl = unseen.destinations("en", region="Sylhet")
     assert syl and all(d["region"] == "Sylhet" for d in syl)
     assert unseen.destinations("en", query="nijhum")
+    # Costs are approximate + never a live/invented exact price.
+    assert all(d.get("cost_approx") is True for d in c["destinations"])
 
 
 def _run():

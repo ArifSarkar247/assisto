@@ -205,4 +205,235 @@ def result_ready_payload(label, lang="bn"):
         "body": pick(lang,
             f"{label} এর ফল প্রকাশিত হয়েছে বলে মনে হচ্ছে — দেখে নিন।",
             f"The {label} result appears to be published — check it now."),
+        "source_only": True,  # the user still confirms on the official site
     }
+
+
+# ===========================================================================
+# ADVANCED (SPEC v2.1 §21)
+# ===========================================================================
+#
+# Hard, non-negotiable rule for everything below: we NEVER invent, infer,
+# guess, or pre-fill a RESULT (GPA/grade/pass-fail). The only place a real
+# result can come from is the OFFICIAL board site, opened by the user. This
+# module can:
+#   - name the official board + its canonical PUBLIC portal (a fixed registry),
+#   - tell the user WHEN results are expected and count down to it,
+#   - detect that the official page CHANGED and nudge the user to go look,
+#   - explain the GPA/grade scale (public, factual — not the user's result),
+#   - manage MANY watches (a parent/teacher with several students),
+# and that is the whole of it. No scraping behind auth, no fabricated result.
+
+# ---------------------------------------------------------------------------
+# official board registry (the ONLY sanctioned result sources)
+# ---------------------------------------------------------------------------
+
+# The single official public portal for board (SSC/HSC/JSC/etc.) results.
+OFFICIAL_RESULTS_PORTAL = "https://eboardresults.com/en/ebr.app/home/"
+# Education Board Bangladesh canonical domains we trust as "official".
+OFFICIAL_RESULT_DOMAINS = (
+    "educationboardresults.gov.bd",
+    "eboardresults.com",
+    "results.ebaube.gov.bd",
+)
+
+# General boards (board exams). `code` is the stable key; `portal` is the
+# official public result portal for that board (all route via eboardresults).
+BOARDS = [
+    {"code": "dhaka", "bn": "ঢাকা", "en": "Dhaka"},
+    {"code": "rajshahi", "bn": "রাজশাহী", "en": "Rajshahi"},
+    {"code": "chittagong", "bn": "চট্টগ্রাম", "en": "Chattogram"},
+    {"code": "khulna", "bn": "খুলনা", "en": "Khulna"},
+    {"code": "barisal", "bn": "বরিশাল", "en": "Barishal"},
+    {"code": "sylhet", "bn": "সিলেট", "en": "Sylhet"},
+    {"code": "comilla", "bn": "কুমিল্লা", "en": "Cumilla"},
+    {"code": "dinajpur", "bn": "দিনাজপুর", "en": "Dinajpur"},
+    {"code": "mymensingh", "bn": "ময়মনসিংহ", "en": "Mymensingh"},
+    {"code": "madrasah", "bn": "মাদ্রাসা", "en": "Madrasah"},
+    {"code": "technical", "bn": "কারিগরি", "en": "Technical"},
+]
+
+# Public exams the board portal serves.
+EXAM_TYPES = [
+    {"code": "ssc", "bn": "এসএসসি", "en": "SSC"},
+    {"code": "hsc", "bn": "এইচএসসি", "en": "HSC"},
+    {"code": "jsc", "bn": "জেএসসি", "en": "JSC"},
+    {"code": "psc", "bn": "পিইসি/পিএসসি", "en": "PSC"},
+    {"code": "dakhil", "bn": "দাখিল", "en": "Dakhil"},
+    {"code": "alim", "bn": "আলিম", "en": "Alim"},
+]
+
+
+def boards(lang="bn"):
+    return [{"code": b["code"], "name": pick(lang, b["bn"], b["en"])}
+            for b in BOARDS]
+
+
+def exam_types(lang="bn"):
+    return [{"code": e["code"], "name": pick(lang, e["bn"], e["en"])}
+            for e in EXAM_TYPES]
+
+
+def is_official_result_url(url):
+    """True only for the sanctioned official board domains. We use this to flag
+    any user-pasted URL that is NOT official, so we never pretend a random page
+    is a result source."""
+    u = str(url or "").strip().lower()
+    if not (u.startswith("http://") or u.startswith("https://")):
+        return False
+    for dom in OFFICIAL_RESULT_DOMAINS:
+        if ("://" + dom) in u or ("." + dom) in u or ("/" + dom) in u:
+            return True
+    return False
+
+
+def official_check_target(board=None, exam=None):
+    """The OFFICIAL destination the user should open to CHECK a result.
+
+    We deep-link honestly to the public board portal — we do NOT fetch and
+    render the result ourselves (that would mean scraping / possibly faking).
+    Returns the canonical portal + a human note that the result is shown ONLY
+    on the official site.
+    """
+    return {
+        "url": OFFICIAL_RESULTS_PORTAL,
+        "domains": list(OFFICIAL_RESULT_DOMAINS),
+        "board": str(board or "").strip(),
+        "exam": str(exam or "").strip(),
+        "official_only": True,
+    }
+
+
+# ---------------------------------------------------------------------------
+# countdown to expected result date
+# ---------------------------------------------------------------------------
+
+def countdown(expected_date, now=None):
+    """Days/hours until the expected result date (never fabricates a result).
+
+    Returns dict: {days, hours, past (bool), total_hours}. On/after the date,
+    past=True and the UI switches to the traffic-spike + check-official flow.
+    """
+    exp = parse_dt(expected_date)
+    now = now or datetime.now()
+    if exp is None:
+        return {"days": None, "hours": None, "past": False, "total_hours": None}
+    if (exp.tzinfo is None) != (now.tzinfo is None):
+        exp = exp.replace(tzinfo=None)
+        now = now.replace(tzinfo=None)
+    delta = exp - now
+    secs = delta.total_seconds()
+    if secs <= 0:
+        return {"days": 0, "hours": 0, "past": True, "total_hours": 0}
+    total_h = int(secs // 3600)
+    return {
+        "days": total_h // 24,
+        "hours": total_h % 24,
+        "past": False,
+        "total_hours": total_h,
+    }
+
+
+# ---------------------------------------------------------------------------
+# GPA / grade explainer (PUBLIC facts — NOT the user's result)
+# ---------------------------------------------------------------------------
+
+# The standard BD board letter-grade scale (GPA out of 5.0). This is public
+# reference data, identical for everyone — it is NOT a student's result.
+GRADE_SCALE = [
+    {"grade": "A+", "gp": "5.00", "min": 80, "max": 100},
+    {"grade": "A", "gp": "4.00", "min": 70, "max": 79},
+    {"grade": "A-", "gp": "3.50", "min": 60, "max": 69},
+    {"grade": "B", "gp": "3.00", "min": 50, "max": 59},
+    {"grade": "C", "gp": "2.00", "min": 40, "max": 49},
+    {"grade": "D", "gp": "1.00", "min": 33, "max": 39},
+    {"grade": "F", "gp": "0.00", "min": 0, "max": 32},
+]
+
+
+def grade_scale(lang="bn"):
+    """The public letter-grade ↔ grade-point ↔ marks scale."""
+    return {
+        "scale": [dict(row) for row in GRADE_SCALE],
+        "note": pick(lang,
+            "এটি বোর্ডের সাধারণ গ্রেডিং স্কেল — কারও নিজস্ব ফল নয়।",
+            "This is the board's standard grading scale — not anyone's result."),
+    }
+
+
+def explain_gpa(gpa, lang="bn"):
+    """Explain what a GPA VALUE THE USER TYPED means on the public scale.
+
+    We only interpret a number the user supplies (e.g. from their own result
+    slip). We never produce a GPA. Returns None for blank/invalid input.
+    """
+    try:
+        v = float(str(gpa).strip())
+    except (TypeError, ValueError):
+        return None
+    if v < 0 or v > 5:
+        return None
+    if v >= 5.0:
+        band = pick(lang, "চমৎকার (A+)", "Outstanding (A+)")
+    elif v >= 4.0:
+        band = pick(lang, "খুব ভালো", "Very good")
+    elif v >= 3.0:
+        band = pick(lang, "ভালো", "Good")
+    elif v >= 2.0:
+        band = pick(lang, "সন্তোষজনক", "Satisfactory")
+    elif v >= 1.0:
+        band = pick(lang, "উত্তীর্ণ", "Passed")
+    else:
+        band = pick(lang, "অকৃতকার্য", "Did not pass")
+    return {
+        "gpa": f"{v:.2f}",
+        "band": band,
+        "scale_note": pick(lang,
+            "জিপিএ ৫.০০-এর স্কেলে।", "On the 5.00 GPA scale."),
+        "from_user": True,  # interpreting the user's own typed value
+    }
+
+
+# ---------------------------------------------------------------------------
+# multi-student watch (a parent / teacher with several students)
+# ---------------------------------------------------------------------------
+
+def normalise_students(items):
+    """Validate a list of students to watch (parent/teacher use-case).
+
+    Each student needs at least a label or roll; result fields are NEVER
+    pre-filled. Returns (ok, list_or_error_key). Caps the list to keep the
+    result-day polling load sane.
+    """
+    items = items or []
+    if not isinstance(items, (list, tuple)):
+        return False, "students_invalid"
+    out = []
+    for it in items:
+        it = it or {}
+        label = str(it.get("label", "")).strip()
+        roll = str(it.get("roll", "")).strip()
+        if not label and not roll:
+            continue
+        out.append({
+            "label": label or roll,
+            "roll": roll,
+            "reg": str(it.get("reg", "")).strip(),
+            "board": str(it.get("board", "")).strip(),
+            "exam": str(it.get("exam", "")).strip(),
+        })
+    if not out:
+        return False, "students_empty"
+    if len(out) > 25:
+        out = out[:25]
+    return True, out
+
+
+def watch_summary(students, lang="bn"):
+    """One honest line for a multi-student watch — counts only, no results."""
+    n = len(students or [])
+    return pick(lang,
+        f"{n} জন শিক্ষার্থীর ফলের জন্য নজর রাখা হচ্ছে। ফল কেবল অফিশিয়াল "
+        "সাইটেই দেখা যাবে।",
+        f"Watching results for {n} student(s). Results are only ever shown "
+        "on the official site.")

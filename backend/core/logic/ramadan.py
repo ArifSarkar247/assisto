@@ -336,6 +336,210 @@ def ramadan_day(start_date, today=None):
 # bilingual payloads
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# Ramadan calendar (30 days from a user/owner-supplied start date) — ADVANCED
+# ---------------------------------------------------------------------------
+
+RAMADAN_MAX_DAYS = 30  # Ramadan is 29 or 30 days; moon-sighting decides day 29/30.
+
+
+def ramadan_calendar(start_date, length=RAMADAN_MAX_DAYS, today=None):
+    """A Ramadan calendar: one entry per fasting day from `start_date`.
+
+    start_date is USER/OWNER supplied (moon-sighting varies by country — we never
+    hard-code it). Returns a list of {day, date(ISO), is_today, phase} where phase
+    is 'past'|'today'|'future'. Empty list if no start date. No prayer times here
+    (those are computed per-day from location by prayer_times)."""
+    def _d(v):
+        if isinstance(v, date) and not isinstance(v, datetime):
+            return v
+        if isinstance(v, datetime):
+            return v.date()
+        try:
+            return date.fromisoformat(str(v))
+        except (ValueError, TypeError):
+            return None
+    s = _d(start_date)
+    if s is None:
+        return []
+    t = _d(today) or date.today()
+    n = max(1, min(int(length or RAMADAN_MAX_DAYS), RAMADAN_MAX_DAYS))
+    out = []
+    for i in range(n):
+        d = s + timedelta(days=i)
+        if d < t:
+            phase = "past"
+        elif d == t:
+            phase = "today"
+        else:
+            phase = "future"
+        out.append({"day": i + 1, "date": d.isoformat(),
+                    "is_today": d == t, "phase": phase})
+    return out
+
+
+# ---------------------------------------------------------------------------
+# Sehri / Iftar countdown (minutes remaining; pure, UI ticks the seconds)
+# ---------------------------------------------------------------------------
+
+def minutes_until(target_hhmm, now_hhmm):
+    """Whole minutes from now_hhmm until the next occurrence of target_hhmm.
+    Both HH:MM (24h). If target already passed today, counts to tomorrow.
+    Returns int in [0, 1440) or None on bad input."""
+    def _m(s):
+        try:
+            h, m = map(int, str(s).split(":"))
+            if not (0 <= h < 24 and 0 <= m < 60):
+                return None
+            return h * 60 + m
+        except (ValueError, AttributeError):
+            return None
+    tgt, now = _m(target_hhmm), _m(now_hhmm)
+    if tgt is None or now is None:
+        return None
+    return (tgt - now) % (24 * 60)
+
+
+# ---------------------------------------------------------------------------
+# zakat nisab helper — nisab from user/owner-entered bullion PRICE + weight
+# ---------------------------------------------------------------------------
+
+# Nisab thresholds (classical, Sahih sources / fiqh consensus):
+#   gold nisab  = 87.48 g  (7.5 tola / 20 mithqal)
+#   silver nisab = 612.36 g (52.5 tola / 200 dirham)
+# The lower of the two monetary values is the nisab most scholars recommend for
+# the poor's benefit. We NEVER guess bullion prices — the per-gram price is a
+# user/owner input. Source: classical fiqh (hadith of 200 dirhams / 20 dinars).
+NISAB_GOLD_GRAMS = 87.48
+NISAB_SILVER_GRAMS = 612.36
+
+
+def nisab_value(gold_price_per_gram=0, silver_price_per_gram=0, prefer="silver"):
+    """Monetary nisab from USER-ENTERED per-gram prices. Returns the chosen
+    threshold (silver by default — lower, more cautious) or the gold threshold.
+    Returns Decimal-string. 0 prices -> '0' (UI then asks for a manual nisab)."""
+    from decimal import Decimal
+
+    def _d(v):
+        try:
+            return Decimal(str(v if v not in (None, "") else "0"))
+        except Exception:
+            return Decimal("0")
+    gold = _d(gold_price_per_gram) * Decimal(str(NISAB_GOLD_GRAMS))
+    silver = _d(silver_price_per_gram) * Decimal(str(NISAB_SILVER_GRAMS))
+    if prefer == "gold":
+        chosen = gold
+    else:
+        chosen = silver if silver > 0 else gold
+    return {
+        "nisab": str(chosen.quantize(Decimal("0.01"))),
+        "gold_nisab": str(gold.quantize(Decimal("0.01"))),
+        "silver_nisab": str(silver.quantize(Decimal("0.01"))),
+        "gold_grams": NISAB_GOLD_GRAMS,
+        "silver_grams": NISAB_SILVER_GRAMS,
+        "basis": prefer,
+    }
+
+
+# ---------------------------------------------------------------------------
+# fasting tracker + salami tracker aggregates (entries are user-entered)
+# ---------------------------------------------------------------------------
+
+def fasting_stats(kept_days, total_days=RAMADAN_MAX_DAYS):
+    """Summarise a fasting log. `kept_days` is an iterable of day-numbers the
+    user marked fasted. Pure counting — nothing invented."""
+    try:
+        kept = {int(x) for x in kept_days if 1 <= int(x) <= int(total_days)}
+    except (TypeError, ValueError):
+        kept = set()
+    total = max(1, min(int(total_days or RAMADAN_MAX_DAYS), RAMADAN_MAX_DAYS))
+    return {"kept": len(kept), "total": total,
+            "missed_so_far": 0, "days": sorted(kept)}
+
+
+def salami_tracker_total(entries):
+    """Sum an Eid salami (eidi) log. Each entry {name, amount, direction} where
+    direction is 'given'|'received'. Amounts are USER-ENTERED (we never move
+    money). Returns given/received/net as Decimal-strings + counts."""
+    from decimal import Decimal
+
+    def _d(v):
+        try:
+            return Decimal(str(v if v not in (None, "") else "0"))
+        except Exception:
+            return Decimal("0")
+    given = Decimal("0")
+    received = Decimal("0")
+    gc = rc = 0
+    for e in entries or []:
+        amt = _d((e or {}).get("amount"))
+        if (e or {}).get("direction") == "received":
+            received += amt
+            rc += 1
+        else:
+            given += amt
+            gc += 1
+    return {
+        "given": str(given.quantize(Decimal("0.01"))),
+        "received": str(received.quantize(Decimal("0.01"))),
+        "net": str((received - given).quantize(Decimal("0.01"))),
+        "given_count": gc, "received_count": rc,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Duas — authentic, SOURCE-NOTED. Arabic kept as data (never in .dart source).
+# Sources are the standard Sahih collections; cited per dua. Bangla/English are
+# meanings, not scripture. We present these as references, not religious rulings.
+# ---------------------------------------------------------------------------
+
+DUAS = [
+    {
+        "key": "sehri_intent",
+        "title_bn": "সেহরি / রোজার নিয়ত",
+        "title_en": "Intention for fasting (Sehri)",
+        "arabic": "وَبِصَوْمِ غَدٍ نَّوَيْتُ مِنْ شَهْرِ رَمَضَانَ",
+        "meaning_bn": "আমি রমজান মাসের আগামীকালের রোজার নিয়ত করলাম।",
+        "meaning_en": "I intend to keep tomorrow's fast of the month of Ramadan.",
+        "source": "Sunan Abi Dawud 2454 (reported intention of fasting)",
+    },
+    {
+        "key": "iftar",
+        "title_bn": "ইফতারের দোয়া",
+        "title_en": "Dua at Iftar (breaking fast)",
+        "arabic": "ذَهَبَ الظَّمَأُ وَابْتَلَّتِ الْعُرُوقُ وَثَبَتَ الْأَجْرُ إِنْ شَاءَ اللَّهُ",
+        "meaning_bn": "পিপাসা দূর হলো, শিরা-উপশিরা সিক্ত হলো এবং ইনশাআল্লাহ সওয়াব নির্ধারিত হলো।",
+        "meaning_en": "The thirst is gone, the veins are moistened, and the reward is "
+                      "confirmed, if Allah wills.",
+        "source": "Sunan Abi Dawud 2357 (Hasan)",
+    },
+    {
+        "key": "laylat_qadr",
+        "title_bn": "লাইলাতুল কদরের দোয়া",
+        "title_en": "Dua for Laylat al-Qadr",
+        "arabic": "اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي",
+        "meaning_bn": "হে আল্লাহ, আপনি ক্ষমাশীল, ক্ষমা করতে ভালোবাসেন; তাই আমাকে ক্ষমা করুন।",
+        "meaning_en": "O Allah, You are Pardoning and love to pardon, so pardon me.",
+        "source": "Sunan al-Tirmidhi 3513 (Sahih)",
+    },
+]
+
+
+def duas(lang="bn"):
+    """Return the source-noted dua list localised (meaning only; Arabic verbatim
+    and each with its collection reference). Pure data; no AI, no invention."""
+    out = []
+    for d in DUAS:
+        out.append({
+            "key": d["key"],
+            "title": pick(lang, d["title_bn"], d["title_en"]),
+            "arabic": d["arabic"],
+            "meaning": pick(lang, d["meaning_bn"], d["meaning_en"]),
+            "source": d["source"],
+        })
+    return out
+
+
 def sehri_payload(sehri_end_hhmm, lang="bn"):
     return {
         "kind": "sehri_wake",

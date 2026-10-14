@@ -2,18 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:share_plus/share_plus.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/exam_board_picker.dart';
+import '../widgets/exam_gpa_explainer.dart';
+import '../widgets/exam_result_card.dart';
+import '../widgets/exam_student_watch.dart';
 
-/// Exam-result day (module-5 "Life").
+/// ADVANCED exam-result module (SPEC v2.1 §21) for BD board/university results
+/// (SSC / HSC / JSC / PSC / Dakhil / Alim …).
 ///
-///   - A WATCHER for a user-provided PUBLIC result URL and/or expected date.
-///     We never scrape behind auth; the backend polls only the public page the
-///     user pasted. On result day we show a traffic-spike note instead of
-///     faking a result (results sites get hammered).
-///   - A shareable result CARD built ONLY from values the user enters.
+/// OFFICIAL-SOURCE-ONLY, NEVER-FABRICATE guarantees (the whole point):
+///   - A result-day WATCHER (exam + roll + board + reg + expected date). On
+///     result day it NEVER shows a fabricated result; it shows an honest
+///     traffic-spike note and a button that opens the OFFICIAL board site.
+///   - CHECK RESULT opens the official educationboardresults / eboardresults
+///     portal in the browser. Assisto does not scrape it or render a result.
+///   - A pasted URL that is NOT an official board domain is flagged, not trusted.
+///   - A shareable festival-style result CARD built ONLY from values the user
+///     types off their own slip, with an "entered by you" footnote.
+///   - A GPA / grade EXPLAINER using the board's PUBLIC scale (not a result).
+///   - A COUNTDOWN to the expected result date.
+///   - MULTI-STUDENT watch for parents / teachers.
 ///
 /// Mirrors core.logic.exam.
 class ExamResultScreen extends StatefulWidget {
@@ -23,28 +34,49 @@ class ExamResultScreen extends StatefulWidget {
 }
 
 class _ExamResultScreenState extends State<ExamResultScreen> {
+  // watcher
   final _label = TextEditingController();
   final _url = TextEditingController();
-  DateTime? _expected;
-
-  // result card fields (user-entered only)
-  final _name = TextEditingController();
+  final _reg = TextEditingController();
   final _roll = TextEditingController();
-  final _board = TextEditingController();
+  String? _exam;
+  String? _board;
+  DateTime? _expected;
+  bool _saving = false;
+
+  // result card (user-entered only)
+  final _name = TextEditingController();
+  final _year = TextEditingController();
+  final _cardRoll = TextEditingController();
   final _gpa = TextEditingController();
+  final _grade = TextEditingController();
+
+  // multi-student watch
+  final List<ExamStudent> _students = [ExamStudent()];
+
+  @override
+  void initState() {
+    super.initState();
+    // Live preview of the share card + GPA band as the user types.
+    for (final c in [_name, _year, _cardRoll, _gpa, _grade, _label, _url, _roll, _reg]) {
+      c.addListener(_onEdit);
+    }
+  }
+
+  void _onEdit() {
+    if (mounted) setState(() {});
+  }
 
   @override
   void dispose() {
-    _label.dispose();
-    _url.dispose();
-    _name.dispose();
-    _roll.dispose();
-    _board.dispose();
-    _gpa.dispose();
+    for (final c in [
+      _label, _url, _reg, _roll, _name, _year, _cardRoll, _gpa, _grade
+    ]) {
+      c.dispose();
+    }
     super.dispose();
   }
 
-  // Mirror exam.watcher_phase.
   ({String state, int days}) _phase() {
     final exp = _expected;
     if (exp == null) return (state: 'watching', days: 0);
@@ -66,17 +98,31 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
       messenger.showSnackBar(SnackBar(content: Text(t.examUrlOrDateRequired)));
       return;
     }
+    // Honest: if they pasted a non-official URL, say so (but still allow it).
+    if (url.isNotEmpty && !isOfficialResultUrl(url)) {
+      messenger.showSnackBar(SnackBar(content: Text(t.examUrlNotOfficial)));
+    }
+    final students = _students
+        .where((s) => !s.isBlank)
+        .map((s) => s.toJson())
+        .toList();
+    setState(() => _saving = true);
     try {
       await context.read<AppState>().api.postJson('/exam/watcher', {
         'label': _label.text.trim(),
         'url': url,
         'expected_date': _expected?.toIso8601String(),
         'roll': _roll.text.trim(),
-        'board': _board.text.trim(),
+        'reg': _reg.text.trim(),
+        'board': _board ?? '',
+        'exam': _exam ?? '',
+        'students': students,
       });
       messenger.showSnackBar(SnackBar(content: Text(t.examWatcherSaved)));
     } catch (_) {
       messenger.showSnackBar(SnackBar(content: Text(t.examWatcherSavedLocal)));
+    } finally {
+      if (mounted) setState(() => _saving = false);
     }
   }
 
@@ -89,35 +135,50 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
     }
   }
 
-  // Mirror exam.result_card (English rendering; server builds the locale copy).
-  String _buildCard() {
-    final t = AppLocalizations.of(context);
-    final lines = <String>[];
-    final header = _label.text.trim().isEmpty ? t.examCardDefaultHeader : _label.text.trim();
-    lines.add(header);
-    if (_name.text.trim().isNotEmpty) lines.add('${t.examFieldName}: ${_name.text.trim()}');
-    if (_roll.text.trim().isNotEmpty) lines.add('${t.examFieldRoll}: ${_roll.text.trim()}');
-    if (_board.text.trim().isNotEmpty) lines.add('${t.examFieldBoard}: ${_board.text.trim()}');
-    if (_gpa.text.trim().isNotEmpty) lines.add('${t.examFieldGpa}: ${_gpa.text.trim()}');
-    return lines.join('\n');
-  }
-
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final phase = _phase();
     final df = DateFormat('d MMM yyyy');
+    final urlText = _url.text.trim();
+    final urlFlag = urlText.isNotEmpty && !isOfficialResultUrl(urlText);
+
     return Scaffold(
       appBar: AppBar(title: Text(t.examTitle)),
       body: ListView(
         padding: const EdgeInsets.all(Gap.md),
         children: [
-          // watcher setup
+          // ---- result-day watcher -------------------------------------
           _sectionTitle(t.examWatcherSection),
+          const SizedBox(height: Gap.sm),
+          ExamBoardPicker(
+            exam: _exam,
+            board: _board,
+            onExam: (v) => setState(() => _exam = v),
+            onBoard: (v) => setState(() => _board = v),
+          ),
+          const SizedBox(height: Gap.sm),
+          Row(children: [
+            Expanded(
+              child: TextField(
+                controller: _roll,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: t.examFieldRoll, isDense: true),
+              ),
+            ),
+            const SizedBox(width: Gap.sm),
+            Expanded(
+              child: TextField(
+                controller: _reg,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: t.examFieldReg, isDense: true),
+              ),
+            ),
+          ]),
           const SizedBox(height: Gap.sm),
           TextField(
             controller: _label,
-            decoration: InputDecoration(labelText: t.examLabelField, border: const OutlineInputBorder()),
+            decoration: InputDecoration(labelText: t.examLabelField, isDense: true),
           ),
           const SizedBox(height: Gap.sm),
           TextField(
@@ -126,13 +187,17 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
             decoration: InputDecoration(
               labelText: t.examUrlField,
               helperText: t.examUrlHelper,
-              border: const OutlineInputBorder(),
+              isDense: true,
               suffixIcon: IconButton(
                 icon: const Icon(Icons.open_in_new),
                 onPressed: _openUrl,
               ),
             ),
           ),
+          if (urlFlag) ...[
+            const SizedBox(height: Gap.xs),
+            _banner(Icons.info_outline, Brand.warning, t.examUrlNotOfficial),
+          ],
           const SizedBox(height: Gap.sm),
           OutlinedButton.icon(
             icon: const Icon(Icons.calendar_today, size: 16),
@@ -149,13 +214,25 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
               if (d != null) setState(() => _expected = d);
             },
           ),
+          if (_expected != null && phase.state == 'waiting') ...[
+            const SizedBox(height: Gap.sm),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: ExamCountdownChip(expected: _expected!),
+            ),
+          ],
           const SizedBox(height: Gap.sm),
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              icon: const Icon(Icons.notifications_active_outlined),
-              label: Text(t.examWatch),
-              onPressed: _saveWatcher,
+              icon: _saving
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Icon(Icons.notifications_active_outlined),
+              label: Text(_saving ? t.examSaving : t.examWatch),
+              onPressed: _saving ? null : _saveWatcher,
             ),
           ),
           const SizedBox(height: Gap.sm),
@@ -163,29 +240,89 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
 
           const Divider(height: Gap.xl),
 
-          // result card
+          // ---- check on the official site -----------------------------
+          _sectionTitle(t.examCheckSection),
+          const SizedBox(height: Gap.sm),
+          const ExamOfficialCheck(),
+
+          const Divider(height: Gap.xl),
+
+          // ---- multi-student watch ------------------------------------
+          _sectionTitle(t.examStudentsSection),
+          const SizedBox(height: Gap.xs),
+          Text(t.examStudentsNote,
+              style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          const SizedBox(height: Gap.sm),
+          ExamStudentWatch(
+            students: _students,
+            onAdd: () => setState(() => _students.add(ExamStudent())),
+            onRemove: (i) => setState(() => _students.removeAt(i)),
+            onChanged: (i, l, r) {
+              _students[i].label = l;
+              _students[i].roll = r;
+              setState(() {});
+            },
+          ),
+
+          const Divider(height: Gap.xl),
+
+          // ---- GPA / grade explainer ----------------------------------
+          _sectionTitle(t.examExplainerSection),
+          const SizedBox(height: Gap.sm),
+          ExamGpaExplainer(enteredGpa: _gpa.text),
+
+          const Divider(height: Gap.xl),
+
+          // ---- shareable result card (user-entered only) --------------
           _sectionTitle(t.examCardSection),
           const SizedBox(height: Gap.xs),
-          Text(t.examCardNote, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          Text(t.examCardNote,
+              style: const TextStyle(fontSize: 12, color: Colors.grey)),
           const SizedBox(height: Gap.sm),
           TextField(controller: _name, decoration: InputDecoration(labelText: t.examFieldName, isDense: true)),
           const SizedBox(height: Gap.xs),
-          TextField(controller: _roll, decoration: InputDecoration(labelText: t.examFieldRoll, isDense: true)),
-          const SizedBox(height: Gap.xs),
-          TextField(controller: _board, decoration: InputDecoration(labelText: t.examFieldBoard, isDense: true)),
-          const SizedBox(height: Gap.xs),
-          TextField(controller: _gpa, decoration: InputDecoration(labelText: t.examFieldGpa, isDense: true)),
-          const SizedBox(height: Gap.sm),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              icon: const Icon(Icons.share, size: 16),
-              label: Text(t.examShareCard),
-              onPressed: () {
-                final text = _buildCard();
-                Share.share(text);
-              },
+          Row(children: [
+            Expanded(
+              child: TextField(
+                controller: _cardRoll,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: t.examFieldRoll, isDense: true),
+              ),
             ),
+            const SizedBox(width: Gap.sm),
+            Expanded(
+              child: TextField(
+                controller: _year,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: t.examFieldYear, isDense: true),
+              ),
+            ),
+          ]),
+          const SizedBox(height: Gap.xs),
+          Row(children: [
+            Expanded(
+              child: TextField(
+                controller: _gpa,
+                decoration: InputDecoration(labelText: t.examFieldGpa, isDense: true),
+              ),
+            ),
+            const SizedBox(width: Gap.sm),
+            Expanded(
+              child: TextField(
+                controller: _grade,
+                decoration: InputDecoration(labelText: t.examFieldGrade, isDense: true),
+              ),
+            ),
+          ]),
+          const SizedBox(height: Gap.md),
+          ExamResultCard(
+            name: _name.text,
+            examCode: _exam ?? '',
+            boardCode: _board ?? '',
+            year: _year.text,
+            roll: _cardRoll.text,
+            gpa: _gpa.text,
+            grade: _grade.text,
           ),
         ],
       ),
@@ -194,8 +331,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
 
   Widget _phaseBanner(AppLocalizations t, ({String state, int days}) phase) {
     if (phase.state == 'waiting') {
-      return _banner(Icons.schedule, Brand.blue,
-          t.examWaiting(phase.days));
+      return _banner(Icons.schedule, Brand.blue, t.examWaiting(phase.days));
     }
     // watching / result day -> traffic-spike note (honest, no fake result)
     return _banner(Icons.warning_amber_rounded, Brand.warning, t.examTrafficSpikeNote);

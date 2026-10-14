@@ -28,6 +28,58 @@ _BLOCKED_KINDS = {"document", "id_card", "passport", "certificate", "nid",
 _FORBIDDEN_OPS = {"generate", "inpaint", "outpaint", "add_object", "remove_object",
                   "face_swap", "beautify_reshape", "background_replace"}
 
+# ADVANCED (SPEC v2.1 §21): faithful on-device adjustments the app exposes as
+# sliders/buttons. These are NON-generative, identity-safe transforms only.
+BASIC_ADJUSTMENTS = ("brightness", "contrast", "saturation", "sharpness",
+                     "rotate", "straighten", "crop", "resize")
+
+# AI-enhance operations. These require an image-AI key and are surfaced
+# key-gated + HONEST (no fake result). 'background_replace' is also a
+# fabricating op and stays in _FORBIDDEN_OPS for the faithful plan() path.
+AI_OPS = ("upscale", "denoise", "background_replace")
+
+# Named preset bundles = ordinary faithful adjustments under a friendly label.
+# `web_tool` presets DON'T edit pixels here — they link to the exact-size web
+# passport tool (crop/resize only, never identity). `ai` marks key-gated.
+_PRESETS = {
+    "document": {"adjustments": ["contrast", "sharpness", "brightness"],
+                 "web_tool": False, "ai": False},
+    "portrait": {"adjustments": ["brightness", "saturation", "sharpness"],
+                 "web_tool": False, "ai": False},
+    "passport": {"adjustments": ["crop", "resize"],
+                 "web_tool": True, "ai": False},
+}
+
+
+def presets(lang="bn"):
+    """Faithful preset bundles for the ADVANCED editor. Pure metadata — the
+    actual pixel work is the same non-generative adjustments done on-device."""
+    labels = {
+        "document": pick(lang, "ডকুমেন্ট স্ক্যান", "Document scan"),
+        "portrait": pick(lang, "পোর্ট্রেট", "Portrait"),
+        "passport": pick(lang, "পাসপোর্ট / আইডি সাইজ", "Passport / ID size"),
+    }
+    out = []
+    for key, meta in _PRESETS.items():
+        out.append({"id": key, "label": labels[key],
+                    "adjustments": list(meta["adjustments"]),
+                    "web_tool": meta["web_tool"], "ai": meta["ai"]})
+    return out
+
+
+def ai_ops(lang="bn"):
+    """AI-enhance options, reported HONESTLY as key-gated. `available` reflects
+    whether an image-AI provider is actually wired — never a fake 'ready'."""
+    avail = cloud_available()
+    labels = {
+        "upscale": pick(lang, "AI আপস্কেল", "AI upscale"),
+        "denoise": pick(lang, "AI ডিনয়েজ", "AI denoise"),
+        "background_replace": pick(lang, "ব্যাকগ্রাউন্ড পরিষ্কার",
+                                   "Background cleanup"),
+    }
+    return [{"op": o, "label": labels[o], "requires_key": True,
+             "available": avail} for o in AI_OPS]
+
 
 def is_document(kind):
     return (kind or "").strip().lower() in _BLOCKED_KINDS

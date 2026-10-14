@@ -1,19 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
-import '../widgets/life_provider_tile.dart';
+import '../widgets/ride_deeplink.dart';
+import '../widgets/ride_store.dart';
+import '../widgets/ride_widgets.dart';
 
-/// Ride & food (module-5 "Life"). We DEEP-LINK each provider's own app with the
-/// trip/order pre-filled where their URL scheme allows — we NEVER show fake
-/// prices or availability, and in-app booking is key-gated/partner (shown as a
-/// clearly-marked "coming" chip).
+/// Ride & food (module-5 "Life") — ADVANCED (SPEC v2.1 §21).
 ///
-/// Ride: Uber (universal link with pickup/drop), Pathao (app/site).
-/// Food: foodpanda (search/app link).
+/// This screen is a DEEP-LINK LAUNCHER. For each provider (Uber, Pathao,
+/// foodpanda, Pathao Food…) we open the provider's OWN app with the trip /
+/// food search prefilled where their universal link allows, and we show a
+/// best-effort "installed?" chip. If the app isn't installed, the https link
+/// opens the provider's site in a browser (graceful fallback).
 ///
-/// If a provider app isn't installed, the https universal link opens its site
-/// in the browser (graceful fallback).
+/// We NEVER:
+///  • book a trip or place an order (in-app booking = 🤝 "not now", shown as a
+///    clearly-marked deferred note — opening the provider app is the path),
+///  • take payment,
+///  • invent a fare (any fare note is honestly marked "approx / in their app").
+///
+/// Advanced adds: saved places (home/work/custom) to prefill a drop-off,
+/// recent trips, and saved restaurants/cravings for one-tap reorder — all
+/// stored locally (SharedPreferences via [RideStore]); no backend endpoint.
 class RideFoodScreen extends StatefulWidget {
   const RideFoodScreen({super.key});
   @override
@@ -21,38 +29,109 @@ class RideFoodScreen extends StatefulWidget {
 }
 
 class _RideFoodScreenState extends State<RideFoodScreen> {
-  final _drop = TextEditingController();
+  final _store = RideStore();
+  final _dest = TextEditingController();
+  final _food = TextEditingController();
+
+  bool _loading = true;
+  String? _error; // shown in RideError when a launch could not be handed off
+
+  List<SavedPlace> _places = const [];
+  List<String> _trips = const [];
+  List<SavedCraving> _cravings = const [];
+  final Map<String, InstallState> _install = {}; // providerId -> state
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
 
   @override
   void dispose() {
-    _drop.dispose();
+    _dest.dispose();
+    _food.dispose();
     super.dispose();
   }
 
-  Future<void> _open(String url) async {
-    final uri = Uri.parse(url);
-    try {
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
+  Future<void> _load() async {
+    setState(() => _loading = true);
+    final places = await _store.places();
+    final trips = await _store.recentTrips();
+    final cravings = await _store.cravings();
+    // Best-effort install probes for every provider in the catalog.
+    for (final p in [
+      ...RideDeepLink.rideProviders,
+      ...RideDeepLink.foodProviders,
+    ]) {
+      _install[p.id] = await RideDeepLink.installState(p);
+    }
+    if (!mounted) return;
+    setState(() {
+      _places = places;
+      _trips = trips;
+      _cravings = cravings;
+      _loading = false;
+    });
+  }
+
+  // ---- actions -----------------------------------------------------------
+  Future<void> _openRide(RideProvider p) async {
+    final drop = _dest.text.trim();
+    final ok = await RideDeepLink.open(RideDeepLink.urlFor(p, drop: drop));
+    if (!mounted) return;
+    if (ok) {
+      if (drop.isNotEmpty) {
+        final trips = await _store.pushTrip(drop);
+        if (mounted) setState(() => _trips = trips);
       }
-    } catch (_) {}
+      setState(() => _error = null);
+    } else {
+      setState(() => _error = AppLocalizations.of(context).rideFoodOpenFailed);
+    }
   }
 
-  // --- deep links (provider's own; drop-off prefilled when supported) ---
-  String _uberUrl() {
-    final drop = _drop.text.trim();
-    // Uber universal link; action=setPickup, drop prefilled as a free-text nickname.
-    final base = 'https://m.uber.com/ul/?action=setPickup&pickup=my_location';
-    if (drop.isEmpty) return base;
-    return '$base&dropoff[nickname]=${Uri.encodeComponent(drop)}';
+  Future<void> _openFood(RideProvider p) async {
+    final q = _food.text.trim();
+    final ok = await RideDeepLink.open(RideDeepLink.urlFor(p, drop: q));
+    if (!mounted) return;
+    setState(() => _error = ok ? null : AppLocalizations.of(context).rideFoodOpenFailed);
   }
 
-  String _pathaoUrl() => 'https://pathao.com/';
+  Future<void> _saveDest(String kind) async {
+    final addr = _dest.text.trim();
+    final t = AppLocalizations.of(context);
+    if (addr.isEmpty) return;
+    final label = kind == SavedPlace.home
+        ? t.rideFoodPlaceHome
+        : kind == SavedPlace.work
+            ? t.rideFoodPlaceWork
+            : addr;
+    final places = await _store.savePlace(
+        SavedPlace(kind: kind, label: label, address: addr));
+    if (mounted) setState(() => _places = places);
+  }
 
-  String _foodpandaUrl() {
-    final q = _drop.text.trim(); // reuse the field as a food search when on food
-    if (q.isEmpty) return 'https://www.foodpanda.com.bd/';
-    return 'https://www.foodpanda.com.bd/restaurants?q=${Uri.encodeComponent(q)}';
+  Future<void> _removePlace(SavedPlace p) async {
+    final places = await _store.removePlace(p);
+    if (mounted) setState(() => _places = places);
+  }
+
+  Future<void> _saveCraving() async {
+    final q = _food.text.trim();
+    if (q.isEmpty) return;
+    final list = await _store.saveCraving(q);
+    if (mounted) setState(() => _cravings = list);
+  }
+
+  Future<void> _removeCraving(SavedCraving c) async {
+    final list = await _store.removeCraving(c);
+    if (mounted) setState(() => _cravings = list);
+  }
+
+  Future<void> _clearTrips() async {
+    final list = await _store.clearTrips();
+    if (mounted) setState(() => _trips = list);
   }
 
   @override
@@ -63,88 +142,178 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
       body: ListView(
         padding: const EdgeInsets.all(Gap.md),
         children: [
-          Container(
-            padding: const EdgeInsets.all(Gap.md),
-            decoration: BoxDecoration(
-              color: Brand.blue.withOpacity(0.07),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(children: [
-              const Icon(Icons.open_in_new, size: 18, color: Brand.blue),
-              const SizedBox(width: Gap.sm),
-              Expanded(
-                child: Text(t.rideFoodDeepLinkNote,
-                    style: const TextStyle(fontSize: 12, color: Brand.blue)),
-              ),
-            ]),
-          ),
+          const RideHonestNote(),
+          if (_error != null) ...[
+            const SizedBox(height: Gap.sm),
+            RideError(message: _error!, onRetry: () => setState(() => _error = null)),
+          ],
           const SizedBox(height: Gap.md),
+
+          // ======================= RIDE =======================
+          RideSectionHeader(icon: Icons.local_taxi_outlined, label: t.rideFoodRideSection),
           TextField(
-            controller: _drop,
+            controller: _dest,
+            textInputAction: TextInputAction.done,
             decoration: InputDecoration(
               labelText: t.rideFoodDestLabel,
               helperText: t.rideFoodDestHelper,
               prefixIcon: const Icon(Icons.place_outlined),
               border: const OutlineInputBorder(),
             ),
-            onChanged: (_) => setState(() {}),
           ),
-          const SizedBox(height: Gap.lg),
-
-          // ---- Ride ----
-          _sectionHeader(context, Icons.local_taxi_outlined, t.rideFoodRideSection),
-          LifeProviderTile(
-            icon: Icons.directions_car_filled_outlined,
-            name: 'Uber',
-            subtitle: t.rideFoodOpenInApp,
-            onOpen: () => _open(_uberUrl()),
-          ),
-          LifeProviderTile(
-            icon: Icons.two_wheeler_outlined,
-            name: 'Pathao',
-            subtitle: t.rideFoodOpenInApp,
-            onOpen: () => _open(_pathaoUrl()),
-          ),
-          const SizedBox(height: Gap.lg),
-
-          // ---- Food ----
-          _sectionHeader(context, Icons.fastfood_outlined, t.rideFoodFoodSection),
-          LifeProviderTile(
-            icon: Icons.delivery_dining_outlined,
-            name: 'foodpanda',
-            subtitle: t.rideFoodOpenInApp,
-            onOpen: () => _open(_foodpandaUrl()),
-          ),
-          const SizedBox(height: Gap.lg),
-
-          // ---- in-app booking (key-gated) ----
-          Container(
-            padding: const EdgeInsets.all(Gap.md),
-            decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.10),
-              borderRadius: BorderRadius.circular(10),
+          const SizedBox(height: Gap.xs),
+          // save current destination as home/work/custom
+          Wrap(spacing: Gap.xs, children: [
+            ActionChip(
+              avatar: const Icon(Icons.home_outlined, size: 18),
+              label: Text(t.rideFoodSaveAsHome),
+              onPressed: () => _saveDest(SavedPlace.home),
             ),
-            child: Row(children: [
-              const Icon(Icons.hourglass_empty, size: 18, color: Colors.grey),
-              const SizedBox(width: Gap.sm),
-              Expanded(
-                child: Text(t.rideFoodInAppComing,
-                    style: const TextStyle(fontSize: 12, color: Colors.grey)),
+            ActionChip(
+              avatar: const Icon(Icons.work_outline, size: 18),
+              label: Text(t.rideFoodSaveAsWork),
+              onPressed: () => _saveDest(SavedPlace.work),
+            ),
+            ActionChip(
+              avatar: const Icon(Icons.bookmark_add_outlined, size: 18),
+              label: Text(t.rideFoodSavePlace),
+              onPressed: () => _saveDest(SavedPlace.other),
+            ),
+          ]),
+
+          // saved places
+          const SizedBox(height: Gap.sm),
+          _subLabel(context, t.rideFoodSavedPlaces),
+          if (_loading)
+            const RideLoading()
+          else if (_places.isEmpty)
+            RideEmpty(icon: Icons.bookmark_border, message: t.rideFoodNoPlaces)
+          else
+            Wrap(
+              spacing: Gap.xs,
+              runSpacing: Gap.xs,
+              children: [
+                for (final p in _places)
+                  RidePlaceChip(
+                    place: p,
+                    onUse: () => setState(() => _dest.text = p.address),
+                    onRemove: () => _removePlace(p),
+                  ),
+              ],
+            ),
+
+          // recent trips
+          const SizedBox(height: Gap.sm),
+          _subLabel(context, t.rideFoodRecentTrips, onClear: _trips.isEmpty ? null : _clearTrips),
+          if (_loading)
+            const RideLoading()
+          else if (_trips.isEmpty)
+            RideEmpty(icon: Icons.history, message: t.rideFoodNoTrips)
+          else
+            Wrap(
+              spacing: Gap.xs,
+              runSpacing: Gap.xs,
+              children: [
+                for (final trip in _trips)
+                  RideQuickChip(
+                    label: trip,
+                    icon: Icons.history,
+                    onUse: () => setState(() => _dest.text = trip),
+                  ),
+              ],
+            ),
+
+          // fare honesty + providers
+          const SizedBox(height: Gap.sm),
+          const RideFareNote(),
+          if (_loading)
+            const RideLoading()
+          else
+            for (final p in RideDeepLink.rideProviders)
+              RideProviderTile(
+                provider: p,
+                install: _install[p.id] ?? InstallState.unknown,
+                onOpen: () => _openRide(p),
               ),
-            ]),
+
+          const SizedBox(height: Gap.lg),
+
+          // ======================= FOOD =======================
+          RideSectionHeader(icon: Icons.fastfood_outlined, label: t.rideFoodFoodSection),
+          TextField(
+            controller: _food,
+            textInputAction: TextInputAction.done,
+            decoration: InputDecoration(
+              labelText: t.rideFoodFoodLabel,
+              helperText: t.rideFoodFoodHelper,
+              prefixIcon: const Icon(Icons.restaurant_outlined),
+              border: const OutlineInputBorder(),
+            ),
           ),
+          const SizedBox(height: Gap.xs),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: ActionChip(
+              avatar: const Icon(Icons.favorite_border, size: 18),
+              label: Text(t.rideFoodSaveCraving),
+              onPressed: _saveCraving,
+            ),
+          ),
+
+          // saved restaurants / cravings (reorder shortcut)
+          const SizedBox(height: Gap.sm),
+          _subLabel(context, t.rideFoodSavedCravings),
+          if (_loading)
+            const RideLoading()
+          else if (_cravings.isEmpty)
+            RideEmpty(icon: Icons.favorite_border, message: t.rideFoodNoCravings)
+          else
+            Wrap(
+              spacing: Gap.xs,
+              runSpacing: Gap.xs,
+              children: [
+                for (final c in _cravings)
+                  RideQuickChip(
+                    label: c.query,
+                    icon: Icons.restaurant,
+                    onUse: () => setState(() => _food.text = c.query),
+                    onRemove: () => _removeCraving(c),
+                  ),
+              ],
+            ),
+
+          const SizedBox(height: Gap.sm),
+          if (_loading)
+            const RideLoading()
+          else
+            for (final p in RideDeepLink.foodProviders)
+              RideProviderTile(
+                provider: p,
+                install: _install[p.id] ?? InstallState.unknown,
+                onOpen: () => _openFood(p),
+              ),
+
+          const SizedBox(height: Gap.lg),
+          const RideInAppComingNote(),
         ],
       ),
     );
   }
 
-  Widget _sectionHeader(BuildContext context, IconData icon, String label) {
+  Widget _subLabel(BuildContext context, String text, {VoidCallback? onClear}) {
+    final t = AppLocalizations.of(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: Gap.sm),
+      padding: const EdgeInsets.only(bottom: Gap.xs, top: Gap.xs),
       child: Row(children: [
-        Icon(icon, size: 18, color: Theme.of(context).colorScheme.primary),
-        const SizedBox(width: Gap.sm),
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+        Expanded(
+          child: Text(text,
+              style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        ),
+        if (onClear != null)
+          TextButton(onPressed: onClear, child: Text(t.rideFoodClear)),
       ]),
     );
   }

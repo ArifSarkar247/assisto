@@ -1,0 +1,198 @@
+{
+  "phHeadAdjust": [
+    "বেসিক সমন্বয়",
+    "Basic adjustments"
+  ],
+  "phHeadPresets": [
+    "প্রিসেট",
+    "Presets"
+  ],
+  "phHeadCompare": [
+    "আগে / পরে",
+    "Before / after"
+  ],
+  "phHeadAi": [
+    "AI এনহ্যান্স",
+    "AI enhance"
+  ],
+  "phBrightness": [
+    "উজ্জ্বলতা",
+    "Brightness"
+  ],
+  "phContrast": [
+    "কনট্রাস্ট",
+    "Contrast"
+  ],
+  "phSaturation": [
+    "রঙের গাঢ়তা",
+    "Saturation"
+  ],
+  "phSharpness": [
+    "শার্পনেস",
+    "Sharpness"
+  ],
+  "phRotate": [
+    "ঘুরান",
+    "Rotate"
+  ],
+  "phStraighten": [
+    "সোজা করুন",
+    "Straighten"
+  ],
+  "phCropSquare": [
+    "স্কোয়ার ক্রপ",
+    "Square crop"
+  ],
+  "phCropFree": [
+    "ফ্রি (মূল)",
+    "Free (original)"
+  ],
+  "phReset": [
+    "রিসেট",
+    "Reset"
+  ],
+  "phAutoFix": [
+    "অটো-ফিক্স",
+    "Auto-fix"
+  ],
+  "phPresetDoc": [
+    "ডকুমেন্ট স্ক্যান",
+    "Document scan"
+  ],
+  "phPresetDocDesc": [
+    "পড়ার মতো পরিষ্কার, কনট্রাস্ট বাড়ানো (নিজের কাগজ, আইডি নয়)",
+    "Crisp, high-contrast like a page (your own paper, not an ID)"
+  ],
+  "phPresetPortrait": [
+    "পোর্ট্রেট",
+    "Portrait"
+  ],
+  "phPresetPortraitDesc": [
+    "নরম আলো, স্বাভাবিক রঙ",
+    "Soft light, natural tones"
+  ],
+  "phPresetPassport": [
+    "পাসপোর্ট / আইডি সাইজ",
+    "Passport / ID size"
+  ],
+  "phPresetPassportDesc": [
+    "নির্দিষ্ট মাপের ছবি — ওয়েব টুলে খোলে",
+    "Exact-size photo — opens in the web tool"
+  ],
+  "phPresetPassportOpen": [
+    "ওয়েব টুল খোলুন",
+    "Open web tool"
+  ],
+  "phPresetApplied": [
+    "প্রিসেট প্রয়োগ করা হয়েছে",
+    "Preset applied"
+  ],
+  "phBefore": [
+    "আগে",
+    "Before"
+  ],
+  "phAfter": [
+    "পরে",
+    "After"
+  ],
+  "phHoldToCompare": [
+    "চেপে ধরে মূল ছবি দেখুন",
+    "Press & hold to see the original"
+  ],
+  "phSlideToCompare": [
+    "স্লাইড করে তুলনা করুন",
+    "Slide to compare"
+  ],
+  "phAiUpscale": [
+    "AI আপস্কেল (রেজল্যুশন)",
+    "AI upscale (resolution)"
+  ],
+  "phAiDenoise": [
+    "AI ডিনয়েজ",
+    "AI denoise"
+  ],
+  "phAiBg": [
+    "ব্যাকগ্রাউন্ড পরিষ্কার",
+    "Background cleanup"
+  ],
+  "phAiGatedTitle": [
+    "AI এনহ্যান্স এখনো চালু নয়",
+    "AI enhance is not active yet"
+  ],
+  "phAiGatedBody": [
+    "আপস্কেল / ডিনয়েজ / ব্যাকগ্রাউন্ড এডিটের জন্য একটি ইমেজ-AI কী লাগে। কী যুক্ত হলে এখানে চালু হবে — আমরা কখনো নকল ফল দেখাই না।",
+    "Upscale / denoise / background edits need an image-AI key. This turns on here once a key is added — we never show a fake result."
+  ],
+  "phAiActive": [
+    "AI এনহ্যান্স চালু — প্রক্রিয়া শুরু হবে",
+    "AI enhance active — processing can start"
+  ],
+  "phKeyBadge": [
+    "কী লাগবে",
+    "Key needed"
+  ],
+  "phSave": [
+    "সেভ",
+    "Save"
+  ],
+  "phShare": [
+    "শেয়ার",
+    "Share"
+  ],
+  "phSaved": [
+    "ছবি সেভ হয়েছে",
+    "Photo saved"
+  ],
+  "phSaveFailed": [
+    "সেভ করা গেল না",
+    "Couldn’t save"
+  ],
+  "phBatchNote": [
+    "একাধিক ছবি একসাথে (ব্যাচ) শীঘ্রই — এখন একটি করে করুন",
+    "Batch (many at once) is coming — do one photo at a time for now"
+  ],
+  "phNeverIds": [
+    "আমরা কখনো আইডি বা পরিচয় বদলাই না — কেবল নিজের ছবি, মুখ অবিকৃত থাকে",
+    "We never alter IDs or identity — your own photos only, the face stays untouched"
+  ],
+  "phEmptyTitle": [
+    "কোনো ছবি নেই",
+    "No photo yet"
+  ],
+  "phEmptyBody": [
+    "গ্যালারি বা ক্যামেরা থেকে নিজের একটি ছবি বাছুন",
+    "Pick one of your own photos from the gallery or camera"
+  ],
+  "phLoading": [
+    "প্রক্রিয়া হচ্ছে…",
+    "Working…"
+  ],
+  "phErrorProcess": [
+    "ছবিটি প্রক্রিয়া করা গেল না। আবার চেষ্টা করুন।",
+    "Couldn’t process the photo. Please try again."
+  ],
+  "phRetry": [
+    "আবার",
+    "Retry"
+  ],
+  "phPermTitle": [
+    "অনুমতি দরকার",
+    "Permission needed"
+  ],
+  "phPermBody": [
+    "ছবি বাছতে গ্যালারি / ক্যামেরা অনুমতি দরকার। ছবি কেবল আপনার কাছেই থাকে।",
+    "Gallery / camera permission is needed to pick a photo. Photos stay only with you."
+  ],
+  "phOpenSettings": [
+    "সেটিংস খোলুন",
+    "Open settings"
+  ],
+  "phChangePhoto": [
+    "ছবি বদলান",
+    "Change photo"
+  ],
+  "phExportHint": [
+    "সেভ / শেয়ার করলে এখনকার ফল রপ্তানি হবে",
+    "Saving / sharing exports the current result"
+  ]
+}

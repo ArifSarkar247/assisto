@@ -80,6 +80,74 @@ def test_result_card_user_values_only():
 def test_result_ready_payload():
     p = E.result_ready_payload("SSC", "en")
     assert p["kind"] == "exam_result_ready" and "SSC" in p["body"]
+    assert p["source_only"] is True  # never asserts the actual result
+
+
+# --- ADVANCED (v2.1 §21) ---------------------------------------------------
+
+def test_boards_and_exam_types_bilingual():
+    bn = E.boards("bn")
+    en = E.boards("en")
+    assert any(b["code"] == "dhaka" for b in bn)
+    dhaka_bn = [b for b in bn if b["code"] == "dhaka"][0]["name"]
+    dhaka_en = [b for b in en if b["code"] == "dhaka"][0]["name"]
+    assert dhaka_bn == "ঢাকা" and dhaka_en == "Dhaka"
+    codes = {e["code"] for e in E.exam_types("en")}
+    assert {"ssc", "hsc", "jsc", "psc"} <= codes
+
+
+def test_is_official_result_url():
+    assert E.is_official_result_url(
+        "https://www.educationboardresults.gov.bd/") is True
+    assert E.is_official_result_url("https://eboardresults.com/en/") is True
+    # a random (possibly fake) site is NOT treated as an official source
+    assert E.is_official_result_url("https://fast-ssc-results.example.com") is False
+    assert E.is_official_result_url("ftp://x") is False
+
+
+def test_official_check_target_is_official_only():
+    tgt = E.official_check_target(board="dhaka", exam="ssc")
+    assert tgt["official_only"] is True
+    assert E.is_official_result_url(tgt["url"])
+    # never carries or fabricates a result value
+    assert "gpa" not in tgt and "grade" not in tgt and "result" not in tgt
+
+
+def test_countdown():
+    now = datetime(2026, 5, 1, 10, 0)
+    c = E.countdown("2026-05-04T10:00", now=now)
+    assert c["days"] == 3 and c["past"] is False
+    past = E.countdown("2026-04-30T10:00", now=now)
+    assert past["past"] is True
+    assert E.countdown(None)["days"] is None
+
+
+def test_grade_scale_and_explain_gpa():
+    sc = E.grade_scale("en")
+    assert sc["scale"][0]["grade"] == "A+" and sc["scale"][0]["gp"] == "5.00"
+    # explains ONLY a user-typed value; never produces one
+    ex = E.explain_gpa("5.00", "en")
+    assert ex["from_user"] is True and "A+" in ex["band"] and ex["gpa"] == "5.00"
+    assert E.explain_gpa("3.5", "bn")["band"]  # non-empty band
+    assert E.explain_gpa("", "en") is None
+    assert E.explain_gpa("9.9", "en") is None  # out of range
+
+
+def test_multi_student_watch():
+    ok, data = E.normalise_students([
+        {"label": " Rahim ", "roll": "123", "board": "dhaka"},
+        {"label": "", "roll": ""},  # dropped
+        {"roll": "456"},            # label defaults to roll
+    ])
+    assert ok and len(data) == 2
+    assert data[0]["label"] == "Rahim" and data[1]["label"] == "456"
+    bad, err = E.normalise_students([{"label": "", "roll": ""}])
+    assert not bad and err == "students_empty"
+    cap_ok, capped = E.normalise_students(
+        [{"roll": str(i)} for i in range(40)])
+    assert cap_ok and len(capped) == 25
+    line = E.watch_summary(data, "en")
+    assert "2 student" in line and "official site" in line
 
 
 def run_all():

@@ -5,6 +5,12 @@ import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/life_eid_card.dart';
+import '../widgets/ramadan_countdown.dart';
+import '../widgets/ramadan_calendar.dart';
+import '../widgets/ramadan_zakat.dart';
+import '../widgets/ramadan_fasting_tracker.dart';
+import '../widgets/ramadan_salami_tracker.dart';
+import '../widgets/ramadan_duas.dart';
 
 /// Ramadan mode (module-5 "Life"). Benchmarked vs a SAFE subset of Muslim Pro.
 ///
@@ -112,12 +118,37 @@ class _RamadanScreenState extends State<RamadanScreen> {
               children: [
                 if (_error == 'location') _errorBox(t.ramadanLocationNeeded),
                 if (_error == 'fetch') _errorBox(t.ramadanFetchFailed),
-                if (_times != null) ..._timesSection(t),
+                if (_times != null) ...[
+                  RamadanCountdown(
+                    sehriEnd: '${_times!['sehri_end'] ?? '--:--'}',
+                    iftar: '${_times!['iftar'] ?? '--:--'}',
+                  ),
+                  const SizedBox(height: Gap.md),
+                  ..._timesSection(t),
+                ],
                 const SizedBox(height: Gap.lg),
-                _zakatTile(t),
+
+                // Ramadan calendar — day N of 30 (user-supplied start).
+                const RamadanCalendar(),
+                const SizedBox(height: Gap.md),
+
+                // Fasting tracker (user-marked, local).
+                const RamadanFastingTracker(),
+                const SizedBox(height: Gap.md),
+
+                // Zakat calculator — inline, 2.5% + nisab, user-entered amounts.
+                const RamadanZakat(),
+                const SizedBox(height: Gap.md),
+
+                // Source-noted authentic duas.
+                const RamadanDuas(),
                 const Divider(height: Gap.xl),
+
+                // Eid: salami tracker + greeting / salami card drafts.
                 _sectionTitle(t.ramadanEidSection),
                 const SizedBox(height: Gap.sm),
+                const RamadanSalamiTracker(),
+                const SizedBox(height: Gap.md),
                 const LifeEidCard(),
               ],
             ),
@@ -243,22 +274,6 @@ class _RamadanScreenState extends State<RamadanScreen> {
         Text(label),
         Text(time, style: const TextStyle(fontWeight: FontWeight.w600)),
       ]),
-    );
-  }
-
-  Widget _zakatTile(AppLocalizations t) {
-    return Card(
-      margin: EdgeInsets.zero,
-      child: ListTile(
-        leading: const Icon(Icons.volunteer_activism_outlined, color: Brand.blue),
-        title: Text(t.ramadanZakat),
-        subtitle: Text(t.ramadanZakatSubtitle),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: () {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(t.ramadanZakatOpenFinance)));
-        },
-      ),
     );
   }
 
