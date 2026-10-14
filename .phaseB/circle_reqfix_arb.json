@@ -1,0 +1,11 @@
+{
+  "_comment": "Connected Circle relationship-request fix. Format: [bn, en]. Integrator: merge into app/lib/l10n/app_bn.arb + app_en.arb (do NOT edit those directly). All 8 keys are NEW (none collide with existing circle* keys).",
+  "circleRequestsSection": ["রিকোয়েস্ট", "Requests"],
+  "circleSentRequests": ["পাঠানো অনুরোধ", "Sent requests"],
+  "circleSent": ["পাঠানো হয়েছে", "Sent"],
+  "circleRequestLabel": ["রিকোয়েস্ট", "Request"],
+  "circleCancelRequest": ["বাতিল", "Cancel"],
+  "circleSomeone": ["একজন", "Someone"],
+  "circleRequestNoteLabel": ["একটি বার্তা (ঐচ্ছিক)", "A note (optional)"],
+  "circleRequestNoteHint": ["যেমন: আমি রহিম, আপনার পুরোনো সহকর্মী।", "e.g. Hi, it's Rahim from work."]
+}

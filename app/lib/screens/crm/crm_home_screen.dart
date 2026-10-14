@@ -6,7 +6,13 @@ import 'crm_today_screen.dart';
 import 'crm_leads_screen.dart';
 import 'crm_pipeline_screen.dart';
 import 'crm_dashboard_screen.dart';
+import 'crm_companies_screen.dart';
+import 'crm_reports_screen.dart';
 import 'crm_team_screen.dart';
+import 'crm_team_advanced_screen.dart';
+import 'crm_aftersale_screen.dart';
+import 'crm_automation_screen.dart';
+import 'crm_capture_screen.dart';
 
 /// Root of the in-app Sales CRM. Picks (or creates) a sales org, then shows the
 /// CRM workspace: Today / Leads / Pipeline / Dashboard / Team as inner tabs.
@@ -82,9 +88,15 @@ class _CrmHomeScreenState extends State<CrmHomeScreen> {
     final tabs = [
       (icon: Icons.today_outlined, label: t.crmTabToday, child: CrmTodayScreen(org: org)),
       (icon: Icons.people_alt_outlined, label: t.crmTabLeads, child: CrmLeadsScreen(org: org)),
+      (icon: Icons.domain_outlined, label: t.crmTabCompanies, child: CrmCompaniesScreen(org: org)),
       (icon: Icons.view_kanban_outlined, label: t.crmTabPipeline, child: CrmPipelineScreen(org: org)),
       (icon: Icons.insights_outlined, label: t.crmTabDashboard, child: CrmDashboardScreen(org: org)),
+      (icon: Icons.bar_chart_outlined, label: t.crmTabReports, child: CrmReportsScreen(org: org)),
       (icon: Icons.groups_outlined, label: t.crmTabTeam, child: CrmTeamScreen(org: org)),
+      (icon: Icons.add_box_outlined, label: t.crmCapture, child: CrmCaptureScreen(org: org)),
+      (icon: Icons.support_agent_outlined, label: t.crmAfterSale, child: CrmAfterSaleScreen(org: org)),
+      (icon: Icons.leaderboard_outlined, label: t.crmTeamManage, child: CrmTeamAdvancedScreen(org: org)),
+      (icon: Icons.bolt_outlined, label: t.crmAutomation, child: CrmAutomationScreen(org: org)),
     ];
 
     return DefaultTabController(

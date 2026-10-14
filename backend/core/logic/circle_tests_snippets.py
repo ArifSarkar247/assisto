@@ -62,6 +62,96 @@ def test_request_illegal_transition_noop():
     assert ch is False
 
 
+# ---- request direction: sender cancel-only vs receiver accept/decline ----
+
+def test_request_actions_outgoing_is_cancel_only():
+    # OUTGOING (I sent it): Cancel only — never Accept/Decline.
+    acts = C.request_actions(C.DIR_OUTGOING)
+    assert acts == ["cancel"]
+    assert "accept" not in acts and "decline" not in acts
+
+
+def test_request_actions_incoming_is_accept_decline():
+    # INCOMING (sent to me): Accept + Decline.
+    acts = C.request_actions(C.DIR_INCOMING)
+    assert "accept" in acts and "decline" in acts
+    assert "cancel" not in acts
+
+
+def test_sender_cannot_accept_own_request():
+    # (a) The sender accepting/declining their OWN outgoing request is rejected.
+    ok, why = C.can_act_on_request(C.DIR_OUTGOING, "accept")
+    assert ok is False and "sender" in why
+    ok, _ = C.can_act_on_request(C.DIR_OUTGOING, "decline")
+    assert ok is False
+    # ...but the sender may cancel.
+    assert C.can_act_on_request(C.DIR_OUTGOING, "cancel")[0] is True
+
+
+def test_only_receiver_can_accept():
+    # (b) Only the RECEIVER (incoming) may accept/decline.
+    assert C.can_act_on_request(C.DIR_INCOMING, "accept")[0] is True
+    assert C.can_act_on_request(C.DIR_INCOMING, "decline")[0] is True
+    # receiver cannot "cancel" (that's the sender's verb)
+    assert C.can_act_on_request(C.DIR_INCOMING, "cancel")[0] is False
+    # block is a safety valve allowed from either side
+    assert C.can_act_on_request(C.DIR_INCOMING, "block")[0] is True
+    assert C.can_act_on_request(C.DIR_OUTGOING, "block")[0] is True
+
+
+def test_pending_is_not_a_circle_member():
+    # (c) A pending request (either direction) is NOT a circle member.
+    assert C.is_circle_member(C.REQ_PENDING) is False
+    assert C.is_circle_member(C.REQ_DECLINED) is False
+    assert C.is_circle_member(C.REQ_BLOCKED) is False
+    assert C.is_circle_member(C.REQ_ACCEPTED) is True
+    # And it must not surface as a member in either party's serialized request.
+    out = C.serialize_request(
+        {"id": 1, "relation": "friend", "state": C.REQ_PENDING},
+        direction=C.DIR_OUTGOING, display_name="Rahim")
+    inc = C.serialize_request(
+        {"id": 2, "relation": "child", "state": C.REQ_PENDING},
+        direction=C.DIR_INCOMING, display_name="Karim")
+    assert out["is_member"] is False and inc["is_member"] is False
+
+
+def test_serialized_request_exposes_correct_actions():
+    # (d) Outgoing exposes cancel-only; incoming exposes accept/decline.
+    out = C.serialize_request(
+        {"id": 1, "relation": "friend", "state": C.REQ_PENDING},
+        direction=C.DIR_OUTGOING, display_name="Rahim", lang="en")
+    assert out["actions"] == ["cancel"]
+    assert out["status_label"] == "Sent"
+    inc = C.serialize_request(
+        {"id": 2, "relation": "child", "state": C.REQ_PENDING},
+        direction=C.DIR_INCOMING, display_name="Karim", lang="en")
+    assert "accept" in inc["actions"] and "decline" in inc["actions"]
+    assert inc["status_label"] == "Request"
+
+
+def test_serialized_request_has_other_party_name_and_photo():
+    # (e) The other party's name + photo are present in the serialized request.
+    r = C.serialize_request(
+        {"id": 7, "relation": "father", "state": C.REQ_PENDING,
+         "note": "Assalamu alaikum", "created_at": "2026-10-14T10:00:00+00:00"},
+        direction=C.DIR_INCOMING, display_name="Abdul Karim",
+        photo="https://cdn/x.jpg", lang="en")
+    assert r["name"] == "Abdul Karim"
+    assert r["display_name"] == "Abdul Karim"
+    assert r["photo"] == "https://cdn/x.jpg"
+    assert r["relation_label"] == "Father"
+    assert r["note"] == "Assalamu alaikum"
+    assert r["created_at"] == "2026-10-14T10:00:00+00:00"
+    # name must never collapse to empty/"?" when a display name is resolved
+    assert r["name"].strip() != "" and r["name"] != "?"
+
+
+def test_direction_normalizes_and_defaults_outgoing():
+    assert C.normalize_direction("INCOMING") == C.DIR_INCOMING
+    assert C.normalize_direction("garbage") == C.DIR_OUTGOING
+    assert C.normalize_direction(None) == C.DIR_OUTGOING
+
+
 def test_can_message_requires_mutual_accept():
     assert C.can_message(C.REQ_ACCEPTED, C.REQ_ACCEPTED) is True
     assert C.can_message(C.REQ_ACCEPTED, C.REQ_PENDING) is False

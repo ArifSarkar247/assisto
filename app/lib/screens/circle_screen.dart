@@ -57,6 +57,27 @@ class _CircleScreenState extends State<CircleScreen> {
   ApiClient get _api => context.read<AppState>().api;
   AppLocalizations get _t => AppLocalizations.of(context);
 
+  bool _isIncoming(Map<String, dynamic> r) {
+    final dir = '${r['direction'] ?? ''}';
+    if (dir == 'incoming') return true;
+    if (dir == 'outgoing') return false;
+    // Fallback for older payloads: only incoming exposes an accept action.
+    final actions =
+        ((r['actions'] as List?) ?? const []).map((e) => '$e').toList();
+    return actions.contains('accept');
+  }
+
+  // Pending requests sent TO me (accept/decline) vs sent BY me (cancel only).
+  List<Map<String, dynamic>> get _incoming =>
+      _requests.where(_isIncoming).toList();
+  List<Map<String, dynamic>> get _outgoing =>
+      _requests.where((r) => !_isIncoming(r)).toList();
+  // Defence-in-depth: only accepted edges are circle members (server already
+  // returns accepted-only, but never render a pending row as a member).
+  List<Map<String, dynamic>> get _acceptedMembers => _members
+      .where((m) => '${m['state'] ?? 'accepted'}' == 'accepted')
+      .toList();
+
   Future<void> _bootstrap() async {
     await _ensureIdentity();
     await _load();
@@ -220,6 +241,7 @@ class _CircleScreenState extends State<CircleScreen> {
             'relation': choice.relation,
             if (choice.relation == 'custom') 'custom_label': choice.custom,
             if (choice.familySub != null) 'family_sub': choice.familySub,
+            if (choice.note.isNotEmpty) 'note': choice.note,
           });
         } catch (_) {}
         break;
@@ -331,13 +353,19 @@ class _CircleScreenState extends State<CircleScreen> {
               child: ListView(
                 padding: const EdgeInsets.only(bottom: 96),
                 children: [
-                  if (_requests.isNotEmpty) ...[
-                    _sectionHeader(_t.circlePendingRequests),
-                    for (final r in _requests) _requestTile(r),
+                  // INCOMING requests (sent to me) — accept/decline here.
+                  if (_incoming.isNotEmpty) ...[
+                    _sectionHeader(_t.circleRequestsSection),
+                    for (final r in _incoming) _requestTile(r),
+                  ],
+                  // OUTGOING requests (I sent) — status "Sent" + cancel only.
+                  if (_outgoing.isNotEmpty) ...[
+                    _sectionHeader(_t.circleSentRequests),
+                    for (final r in _outgoing) _requestTile(r),
                   ],
                   _sectionHeader(_t.circleYourCircle),
-                  if (_members.isEmpty) _emptyState(scheme),
-                  for (final m in _members) _memberTile(m),
+                  if (_acceptedMembers.isEmpty) _emptyState(scheme),
+                  for (final m in _acceptedMembers) _memberTile(m),
                 ],
               ),
             ),
@@ -374,37 +402,102 @@ class _CircleScreenState extends State<CircleScreen> {
       );
 
   Widget _requestTile(Map<String, dynamic> r) {
-    final name = '${r['name'] ?? r['sender_name'] ?? ''}';
+    // Resolve the OTHER party's display name/photo (sender for incoming,
+    // recipient for outgoing) — the server sends display_name so it never "?".
+    final name =
+        '${r['display_name'] ?? r['name'] ?? r['sender_name'] ?? ''}'.trim();
     final relation = '${r['relation'] ?? 'friend'}';
+    final photo = '${r['photo'] ?? ''}';
+    final note = '${r['note'] ?? ''}'.trim();
+    // The server tells us the direction + allowed actions; the UI is a pure
+    // function of that — the sender NEVER gets accept/decline.
+    final direction = '${r['direction'] ?? 'outgoing'}';
+    final actions = ((r['actions'] as List?) ?? const [])
+        .map((e) => '$e')
+        .toList();
+    final isIncoming = direction == 'incoming' || actions.contains('accept');
+    final scheme = Theme.of(context).colorScheme;
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CircleAvatar(child: Text(_initial(name))),
-            const SizedBox(width: Gap.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            Row(
+              children: [
+                CircleAvatar(
+                  backgroundImage:
+                      photo.isNotEmpty ? NetworkImage(photo) : null,
+                  child: photo.isEmpty ? Text(_initial(name)) : null,
+                ),
+                const SizedBox(width: Gap.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name.isEmpty ? _t.circleSomeone : name,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      Text(CircleRelation.labelFor(_t, relation,
+                          custom: r['custom_label'] as String?)),
+                    ],
+                  ),
+                ),
+                // Status chip: outgoing reads "Sent", incoming reads "Request".
+                Chip(
+                  visualDensity: VisualDensity.compact,
+                  label: Text(
+                    '${r['status_label'] ?? (isIncoming ? _t.circleRequestLabel : _t.circleSent)}',
+                  ),
+                ),
+              ],
+            ),
+            if (note.isNotEmpty) ...[
+              const SizedBox(height: Gap.sm),
+              Container(
+                padding: const EdgeInsets.all(Gap.sm),
+                decoration: BoxDecoration(
+                  color: scheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(Radii.sm),
+                ),
+                child: Text('"$note"',
+                    style: TextStyle(color: scheme.onSurfaceVariant)),
+              ),
+            ],
+            const SizedBox(height: Gap.sm),
+            if (isIncoming)
+              // INCOMING (sent to me): Accept / Decline.
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text(name, style: Theme.of(context).textTheme.titleMedium),
-                  Text(CircleRelation.labelFor(_t, relation,
-                      custom: r['custom_label'] as String?)),
+                  TextButton(
+                    onPressed: () => _act(r, 'decline'),
+                    child: Text(_t.circleDecline),
+                  ),
+                  const SizedBox(width: Gap.sm),
+                  FilledButton.icon(
+                    icon: const Icon(Icons.check, size: 18),
+                    label: Text(_t.circleAccept),
+                    style: FilledButton.styleFrom(
+                        backgroundColor: Brand.success),
+                    onPressed: () => _act(r, 'accept'),
+                  ),
+                ],
+              )
+            else
+              // OUTGOING (I sent it): Cancel only — NEVER accept/decline.
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.close, size: 18),
+                    label: Text(_t.circleCancelRequest),
+                    onPressed: () => _act(r, 'cancel'),
+                  ),
                 ],
               ),
-            ),
-            IconButton(
-              tooltip: _t.circleAccept,
-              icon: const Icon(Icons.check_circle_outline),
-              color: Brand.success,
-              onPressed: () => _act(r, 'accept'),
-            ),
-            IconButton(
-              tooltip: _t.circleDecline,
-              icon: const Icon(Icons.cancel_outlined),
-              onPressed: () => _act(r, 'decline'),
-            ),
           ],
         ),
       ),

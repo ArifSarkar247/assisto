@@ -948,6 +948,17 @@ class CircleMember(models.Model):
     relation = models.CharField(max_length=20, default="friend")
     custom_label = models.CharField(max_length=60, blank=True, default="")
     phone = models.CharField(max_length=40, blank=True, default="")
+    # --- request direction + optional pre-acceptance note (relationship-request fix) ---
+    # direction: this row, relative to `user`. "outgoing" = user SENT the request
+    # (may only cancel); "incoming" = someone sent it TO user (may accept/decline).
+    # Every historical row was created by its owner, so "outgoing" is the safe
+    # default/backfill. peer_user links the OTHER party's account so the card can
+    # show their real display name + photo instead of "?".
+    direction = models.CharField(max_length=10, default="outgoing")
+    note = models.TextField(blank=True, default="")  # one optional pre-accept note
+    peer_user = models.ForeignKey(User, null=True, blank=True,
+                                  on_delete=models.SET_NULL,
+                                  related_name="circle_incoming_edges")
     public_key = models.TextField(blank=True, default="")
     key_id = models.CharField(max_length=64, blank=True, default="")
     scheme = models.CharField(max_length=64, blank=True, default="")

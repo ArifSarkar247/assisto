@@ -146,6 +146,108 @@ def apply_request_event(state, event):
     return nxt, True
 
 
+# Request direction (whose row is this, relative to the viewer).
+#   OUTGOING: I created / sent this request  -> I may only CANCEL it.
+#   INCOMING: it was sent TO me               -> I may ACCEPT or DECLINE it.
+DIR_OUTGOING = "outgoing"
+DIR_INCOMING = "incoming"
+
+
+def normalize_direction(direction):
+    d = (direction or "").strip().lower()
+    return d if d in (DIR_OUTGOING, DIR_INCOMING) else DIR_OUTGOING
+
+
+def request_actions(direction):
+    """The action codes the viewer is allowed to take on a PENDING request,
+    given its direction.  The sender (outgoing) can ONLY cancel; the receiver
+    (incoming) can accept or decline.  Accept/decline is NEVER offered to the
+    sender.  Returned as a list the serializer hands to the UI so the client
+    cannot invent a button the server will reject."""
+    if normalize_direction(direction) == DIR_INCOMING:
+        return ["accept", "decline"]
+    return ["cancel"]
+
+
+def can_act_on_request(direction, event):
+    """SERVER AUTHORIZATION GUARD for /circle/request/<id>/act.  Returns
+    (allowed, reason).  Enforces, independent of client state:
+      - the RECEIVER (incoming) may accept/decline/block only;
+      - the SENDER (outgoing) may cancel/block only — NEVER accept/decline
+        (a user accepting their own outgoing request is forbidden → 403);
+      - block is allowed from either side (safety valve)."""
+    direction = normalize_direction(direction)
+    event = (event or "").strip().lower()
+    if event == "block":
+        return True, "ok"
+    if direction == DIR_INCOMING:
+        if event in ("accept", "decline"):
+            return True, "ok"
+        return False, "receiver may only accept or decline"
+    # outgoing / sender
+    if event == "cancel":
+        return True, "ok"
+    if event in ("accept", "decline"):
+        return False, "the sender cannot accept or decline their own request"
+    return False, "not allowed for the sender"
+
+
+def is_circle_member(state):
+    """A person is part of 'Your circle' ONLY once the request is ACCEPTED.
+    Pending (incoming OR outgoing), declined and blocked edges are NOT members
+    and must not appear as circle members anywhere."""
+    return state == REQ_ACCEPTED
+
+
+def request_status_label(direction, lang="bn"):
+    """Short status chip for a PENDING request in the viewer's language.
+    Outgoing reads 'Sent'; incoming reads 'Request'."""
+    if normalize_direction(direction) == DIR_INCOMING:
+        return pick(lang, "রিকোয়েস্ট", "Request")
+    return pick(lang, "পাঠানো হয়েছে", "Sent")
+
+
+def serialize_request(row, *, direction, display_name="", photo="",
+                      lang="bn", other_name=None):
+    """Build the request payload the client renders for a PENDING edge.
+
+    `row` is a dict/obj-like with: id, relation, custom_label, state, note,
+    created_at.  `display_name`/`photo` are the OTHER party resolved from their
+    user account (sender for an incoming request, recipient for an outgoing one)
+    so the card never shows '?'.  Exposes `actions` (cancel-only vs
+    accept/decline) so the UI is a pure function of the server's decision."""
+    def g(k, default=""):
+        if isinstance(row, dict):
+            return row.get(k, default)
+        return getattr(row, k, default)
+
+    direction = normalize_direction(direction)
+    rel = g("relation", "friend")
+    name = (display_name or other_name or g("name") or "").strip()
+    created = g("created_at") or g("requested_at")
+    if created is not None and not isinstance(created, str):
+        try:
+            created = created.isoformat()
+        except Exception:
+            created = str(created)
+    return {
+        "id": g("id"),
+        "direction": direction,
+        "name": name,                      # the OTHER party's display name
+        "display_name": name,
+        "photo": photo or "",              # the OTHER party's photo (may be "")
+        "relation": rel,
+        "relation_label": relation_label(rel, lang, g("custom_label")),
+        "custom_label": g("custom_label"),
+        "note": (g("note") or "")[:500],   # their ONE optional pre-accept note
+        "state": g("state", REQ_PENDING),
+        "created_at": created,
+        "status_label": request_status_label(direction, lang),
+        "actions": request_actions(direction),
+        "is_member": is_circle_member(g("state", REQ_PENDING)),
+    }
+
+
 def can_message(state_a, state_b=None, blocked_either=False):
     """Two members may exchange messages iff BOTH sides are 'accepted' and
     neither has blocked.  state_b defaults to state_a for a single mutual row."""

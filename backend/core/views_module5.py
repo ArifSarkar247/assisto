@@ -385,9 +385,30 @@ class UnseenView(APIView):
 # Connected Circle
 # ===========================================================================
 
+User = get_user_model()
+
+
+def _resolve_peer(m):
+    """Resolve the OTHER party's display name + photo for a circle edge.
+    Prefers the linked peer_user account; falls back to the phone number; and
+    finally to whatever name was captured on the row.  photo is "" today
+    (the User model has no photo field yet — see MIGRATION NOTE in the report)."""
+    name, photo = (m.name or "").strip(), ""
+    peer = getattr(m, "peer_user", None)
+    if peer is None and (m.phone or "").strip():
+        peer = User.objects.filter(phone=m.phone.strip()).first()
+    if peer is not None:
+        name = (getattr(peer, "name", "") or "").strip() or name or peer.username
+        photo = getattr(peer, "photo_url", "") or ""
+    return name, photo
+
+
 def _member_dict(m):
+    name, photo = _resolve_peer(m)
     return {
-        "id": m.id, "name": m.name, "relation": m.relation,
+        "id": m.id, "name": name, "display_name": name, "photo": photo,
+        "relation": m.relation,
+        "relation_label": circle.relation_label(m.relation, "bn", m.custom_label),
         "custom_label": m.custom_label, "state": m.state,
         "public_key": m.public_key, "key_id": m.key_id, "scheme": m.scheme,
         "sharing": m.sharing or {},
@@ -396,15 +417,23 @@ def _member_dict(m):
 
 class CircleMembersView(APIView):
     def get(self, request):
-        rows = CircleMember.objects.filter(
-            user=request.user, state__in=["accepted", "pending"])
+        # BUG 3 FIX: a person is in "Your circle" ONLY once accepted. Pending
+        # (incoming OR outgoing) must NOT appear here.
+        rows = CircleMember.objects.filter(user=request.user, state="accepted")
         return Response({"results": [_member_dict(m) for m in rows]})
 
 
 class CircleRequestsView(APIView):
     def get(self, request):
+        lang = req_lang(request)
         rows = CircleMember.objects.filter(user=request.user, state="pending")
-        return Response({"results": [_member_dict(m) for m in rows]})
+        out = []
+        for m in rows:
+            name, photo = _resolve_peer(m)
+            out.append(circle.serialize_request(
+                m, direction=getattr(m, "direction", "outgoing"),
+                display_name=name, photo=photo, lang=lang))
+        return Response({"results": out})
 
 
 class CircleKeysView(APIView):
@@ -422,15 +451,38 @@ class CircleKeysView(APIView):
 class CircleRequestCreateView(APIView):
     def post(self, request):
         data = request.data or {}
+        phone = str(data.get("phone", "")).strip()[:40]
+        relation = circle.normalize_relation(data.get("relation", "friend"))
+        note = str(data.get("note", "")).strip()[:500]  # ONE optional pre-accept note
+        peer = User.objects.filter(phone=phone).first() if phone else None
+        # The SENDER's own row is OUTGOING (can only cancel it).
         m = CircleMember.objects.create(
             user=request.user,
             name=str(data.get("name", "")).strip()[:120],
-            relation=circle.normalize_relation(data.get("relation", "friend")),
+            relation=relation,
             custom_label=str(data.get("custom_label", "")).strip()[:60],
-            phone=str(data.get("phone", "")).strip()[:40],
+            phone=phone,
+            direction="outgoing",
+            note=note,
+            peer_user=peer,
             state="pending",
-            sharing=circle.default_sharing(data.get("relation", "friend")),
+            sharing=circle.default_sharing(relation),
         )
+        # Mirror an INCOMING row on the recipient's side so they get accept/
+        # decline (and see WHO sent it). Only when the recipient has an account.
+        if peer is not None and peer.id != request.user.id:
+            CircleMember.objects.get_or_create(
+                user=peer, peer_user=request.user, direction="incoming",
+                state="pending",
+                defaults={
+                    "name": (getattr(request.user, "name", "") or "").strip(),
+                    "phone": (getattr(request.user, "phone", "") or "")[:40],
+                    "relation": circle.reciprocal_relation(relation),
+                    "note": note,
+                    "sharing": circle.default_sharing(
+                        circle.reciprocal_relation(relation)),
+                },
+            )
         return Response(_member_dict(m), status=status.HTTP_201_CREATED)
 
 
@@ -440,12 +492,33 @@ class CircleRequestActView(APIView):
         if m is None:
             return Response({"detail": "not found"}, status=status.HTTP_404_NOT_FOUND)
         event = str((request.data or {}).get("event", ""))
+        # BUG 2 FIX + server authorization: only the RECEIVER (incoming) may
+        # accept/decline; the SENDER (outgoing) may only cancel. A user trying to
+        # accept/decline their OWN outgoing request is rejected with 403.
+        allowed, reason = circle.can_act_on_request(
+            getattr(m, "direction", "outgoing"), event)
+        if not allowed:
+            return Response({"detail": reason},
+                            status=status.HTTP_403_FORBIDDEN)
         prev_state = m.state
         new_state, changed = circle.apply_request_event(m.state, event)
         if not changed:
             return Response({"detail": "bad event"}, status=status.HTTP_400_BAD_REQUEST)
         m.state = new_state
         m.save(update_fields=["state"])
+        # Mirror the accept/decline onto the sender's OUTGOING row (if linked) so
+        # both sides converge: accept -> both accepted; decline -> sender's row
+        # declined too.
+        if event in ("accept", "decline") and getattr(m, "peer_user_id", None):
+            mirror = CircleMember.objects.filter(
+                user_id=m.peer_user_id, peer_user=request.user,
+                direction="outgoing").first()
+            if mirror is not None:
+                mstate, mchanged = circle.apply_request_event(
+                    mirror.state, event if event == "decline" else "accept")
+                if mchanged:
+                    mirror.state = mstate
+                    mirror.save(update_fields=["state"])
         # Referral hook: award points when a relationship transitions to accepted.
         if prev_state != "accepted" and new_state == "accepted":
             try:

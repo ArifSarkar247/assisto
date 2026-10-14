@@ -13,12 +13,14 @@ class CircleInviteChoice {
   final String? familySub; // optional: father|mother|child|sibling|other
   final String channel; // phone | qr | link
   final String phone; // when channel == phone
+  final String note; // ONE optional pre-acceptance text note
   const CircleInviteChoice({
     required this.relation,
     required this.channel,
     this.custom = '',
     this.familySub,
     this.phone = '',
+    this.note = '',
   });
 }
 
@@ -53,10 +55,12 @@ class _InviteComposerState extends State<_InviteComposer> {
   String _custom = '';
   String? _familySub;
   final _phone = TextEditingController();
+  final _note = TextEditingController();
 
   @override
   void dispose() {
     _phone.dispose();
+    _note.dispose();
     super.dispose();
   }
 
@@ -72,6 +76,7 @@ class _InviteComposerState extends State<_InviteComposer> {
         familySub: _familySub,
         channel: channel,
         phone: _phone.text.trim(),
+        note: _note.text.trim(),
       ),
     );
   }
@@ -143,6 +148,20 @@ class _InviteComposerState extends State<_InviteComposer> {
               decoration: InputDecoration(
                 labelText: t.circlePhoneLabel,
                 prefixIcon: const Icon(Icons.phone_outlined),
+              ),
+            ),
+            const SizedBox(height: Gap.md),
+            // ONE optional pre-acceptance note — shown to the recipient on the
+            // request card. Never required.
+            TextField(
+              controller: _note,
+              maxLength: 200,
+              maxLines: 2,
+              minLines: 1,
+              decoration: InputDecoration(
+                labelText: t.circleRequestNoteLabel,
+                hintText: t.circleRequestNoteHint,
+                prefixIcon: const Icon(Icons.edit_note_outlined),
               ),
             ),
             const SizedBox(height: Gap.md),

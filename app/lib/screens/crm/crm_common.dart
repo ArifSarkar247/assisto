@@ -124,11 +124,28 @@ class CrmApi {
       _c.postJson('/crm/deals/$id/set_next_step/',
           {'next_step': step, 'next_step_due': due});
 
+  // ---- companies / contacts (Company/Contact 360) ----
+  // Both ViewSets are org-scoped on the server. There is NO ?company filter on
+  // the contact/deal/activity viewsets yet, so the 360 screen fetches the org
+  // set once and groups client-side (see crm_company360_integration.md).
+  Future<List<Map<String, dynamic>>> companies(int org) =>
+      _c.listItems('crm/companies?org=$org');
+  Future<Map<String, dynamic>> company(int id) =>
+      _c.getJson('/crm/companies/$id/');
+  Future<List<Map<String, dynamic>>> contacts(int org) =>
+      _c.listItems('crm/contacts?org=$org');
+
   // ---- activities ----
-  Future<List<Map<String, dynamic>>> activities(int org, {int? lead, int? deal}) {
+  // `company`/`contact` params are sent HOPEFULLY — the server ignores unknown
+  // query keys, so when the backend adds the filter this starts narrowing
+  // automatically; until then the 360 screen filters the org set client-side.
+  Future<List<Map<String, dynamic>>> activities(int org,
+      {int? lead, int? deal, int? company, int? contact}) {
     final sb = StringBuffer('crm/activities?org=$org');
     if (lead != null) sb.write('&lead=$lead');
     if (deal != null) sb.write('&deal=$deal');
+    if (company != null) sb.write('&company=$company');
+    if (contact != null) sb.write('&contact=$contact');
     return _c.listItems(sb.toString());
   }
   Future<Map<String, dynamic>> createActivity(Map<String, dynamic> body) =>
