@@ -1818,6 +1818,32 @@ class PaScheduleViewSet(PaCollectionViewSet):
     collection = "schedule"; kind = "pa_schedule"
 
 
+# Wave E generic per-user JSON collections (task manager #21 + Section-20 money
+# modules #182/#183/#184/#185). All reuse the PaCollectionItem flexible store +
+# flatten serializer — one ViewSet class per collection, user-scoped by the
+# PaCollectionViewSet base. Built via type() to avoid 15 identical class blocks.
+GENERIC_COLLECTIONS = [
+    # #21 Task manager
+    "tasks_projects", "tasks_items",
+    # #182 Mess accounting
+    "mess/members", "mess/meals", "mess/bazar", "mess/deposits", "mess/charges",
+    # #183 Expense splitting
+    "split/people", "split/expenses",
+    # #184 Samity / committee
+    "samity_groups", "samity_members", "samity_contributions", "samity_payouts",
+    # #185 Landlord-tenant
+    "rent_units", "rent_payments",
+]
+GENERIC_COLLECTION_VIEWSETS = {
+    name: type(
+        "GenCol_" + name.replace("/", "_") + "ViewSet",
+        (PaCollectionViewSet,),
+        {"collection": name, "kind": name.replace("/", "_")},
+    )
+    for name in GENERIC_COLLECTIONS
+}
+
+
 class AutoPayRuleViewSet(OwnedViewSet):
     from .models import AutoPayRule as _M
     from .serializers import AutoPayRuleSerializer as _S

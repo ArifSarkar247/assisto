@@ -6567,5 +6567,524 @@
         "type": "Object"
       }
     }
-  }
+  },
+  "tmTitle": "টাস্ক ম্যানেজার",
+  "tmProjects": "প্রজেক্ট",
+  "tmNewProject": "নতুন প্রজেক্ট",
+  "tmEditProject": "প্রজেক্ট সম্পাদনা",
+  "tmProjectName": "প্রজেক্টের নাম",
+  "tmProjectNameHint": "যেমন, ঘর সাজানো",
+  "tmProjectDesc": "বিবরণ (ঐচ্ছিক)",
+  "tmDeleteProjectQ": "প্রজেক্ট মুছবেন?",
+  "tmDeleteProjectBody": "এই প্রজেক্টের সব টাস্কও মুছে যাবে। এটি ফিরিয়ে আনা যাবে না।",
+  "tmProjectSaved": "প্রজেক্ট সংরক্ষিত হয়েছে",
+  "tmProjectDeleted": "প্রজেক্ট মুছে ফেলা হয়েছে",
+  "tmWelcomeTitle": "কাজ গুছিয়ে রাখুন",
+  "tmWelcomeBody": "একটি প্রজেক্ট দিয়ে শুরু করুন, তারপর টাস্ক যোগ করে বোর্ডে সাজান।",
+  "tmCreateFirstProject": "প্রথম প্রজেক্ট তৈরি করুন",
+  "tmTasks": "টাস্ক",
+  "tmNewTask": "নতুন টাস্ক",
+  "tmEditTask": "টাস্ক সম্পাদনা",
+  "tmTaskTitle": "টাস্কের নাম",
+  "tmTaskTitleHint": "কি করতে হবে?",
+  "tmTaskDesc": "বিবরণ (ঐচ্ছিক)",
+  "tmAssignee": "দায়িত্ব",
+  "tmAssigneeHint": "নাম লিখুন বা সার্কেল সদস্য বেছে নিন",
+  "tmUnassigned": "কাউকে দেওয়া হয়নি",
+  "tmDueDate": "শেষ তারিখ",
+  "tmNoDue": "কোনো শেষ তারিখ নেই",
+  "tmPriority": "অগ্রাধিকার",
+  "tmProgress": "অগ্রগতি",
+  "tmStatus": "অবস্থা",
+  "tmDeleteTaskQ": "টাস্ক মুছবেন?",
+  "tmTaskSaved": "টাস্ক সংরক্ষিত হয়েছে",
+  "tmTaskDeleted": "টাস্ক মুছে ফেলা হয়েছে",
+  "tmNoTasksYet": "এখনো কোনো টাস্ক নেই",
+  "tmNoTasksBody": "এই প্রজেক্টে প্রথম টাস্ক যোগ করুন।",
+  "tmNoMatch": "কোনো টাস্ক মেলেনি",
+  "tmNoMatchBody": "ফিল্টার বদলে আবার দেখুন।",
+  "tmStatusTodo": "করতে হবে",
+  "tmStatusDoing": "চলছে",
+  "tmStatusDone": "হয়েছে",
+  "tmPriorityUrgent": "জরুরি",
+  "tmPriorityHigh": "উচ্চ",
+  "tmPriorityNormal": "সাধারণ",
+  "tmPriorityLow": "কম",
+  "tmViewBoard": "বোর্ড",
+  "tmViewList": "তালিকা",
+  "tmMoveTo": "সরান",
+  "tmFilter": "ফিল্টার",
+  "tmAll": "সব",
+  "tmByStatus": "অবস্থা অনুযায়ী",
+  "tmByAssignee": "দায়িত্ব অনুযায়ী",
+  "tmClearFilters": "ফিল্টার মুছুন",
+  "tmOverdue": "মেয়াদ পেরিয়েছে",
+  "tmDueToday": "আজ শেষ তারিখ",
+  "tmPercentDone": "{n}% শেষ",
+  "@tmPercentDone": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "tmSummaryLine": "{n}টি টাস্ক",
+  "@tmSummaryLine": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "tmOverdueCount": "{n}টি মেয়াদোত্তীর্ণ",
+  "@tmOverdueCount": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "tmSave": "সংরক্ষণ",
+  "tmCancel": "বাতিল",
+  "tmDelete": "মুছুন",
+  "tmEdit": "সম্পাদনা",
+  "tmRetry": "আবার চেষ্টা",
+  "tmLoadFailed": "লোড করা যায়নি",
+  "tmLoadFailedBody": "ইন্টারনেট পরীক্ষা করে আবার চেষ্টা করুন।",
+  "tmTitleRequired": "নাম দিতে হবে",
+  "tmNameRequired": "নাম দিতে হবে",
+  "tmPickDate": "তারিখ বেছে নিন",
+  "tmSavedOffline": "অফলাইনে সংরক্ষিত",
+  "tmOffline": "অফলাইন — সংরক্ষিত তথ্য দেখানো হচ্ছে",
+  "messTitle": "মেস ও ব্যাচেলর হিসাব",
+  "messLoadError": "হিসাব লোড করা গেল না। আবার চেষ্টা করুন।",
+  "messWelcomeTitle": "আপনার মেস তৈরি করুন",
+  "messWelcomeBody": "সদস্য যোগ করে শুরু করুন। তারপর মিল, বাজার আর জমা লিখলে অ্যাপ মিল-রেট আর প্রত্যেকের পাওনা নিখুঁতভাবে হিসাব করবে — অ্যাপ কোনো টাকা রাখে না।",
+  "messTabMembers": "সদস্য",
+  "messTabEntries": "এন্ট্রি",
+  "messTabSummary": "হিসাব",
+  "messAddMember": "সদস্য যোগ করুন",
+  "messMemberName": "সদস্যের নাম",
+  "messDuplicateName": "এই নামে একজন সদস্য আগেই আছে।",
+  "messMealsCount": "মিল: {count}",
+  "@messMealsCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "messDeleteMemberTitle": "সদস্য মুছবেন?",
+  "messDeleteMemberBody": "{name}-কে এই মেস থেকে মুছে ফেলা হবে। এই কাজ ফেরানো যাবে না।",
+  "@messDeleteMemberBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "messSaved": "সংরক্ষণ হয়েছে",
+  "messMealsSection": "এই মাসের মিল",
+  "messMealsSectionHint": "প্রত্যেক সদস্যের মোট মিল সংখ্যা। অর্ধেক মিল দিতে ০.৫ লিখুন।",
+  "messMealsFor": "{name}-এর মিল",
+  "@messMealsFor": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "messMealsHint": "যেমন ৩০ বা ২৮.৫",
+  "messBazarSection": "বাজার খরচ",
+  "messBazarSectionHint": "মেসের জন্য করা বাজার/মার্কেটের খরচ। এগুলো মিল-রেট হিসাবে যায়।",
+  "messBazarGeneric": "বাজার",
+  "messDepositsSection": "জমা (মেস ফান্ডে)",
+  "messDepositsSectionHint": "প্রত্যেক সদস্য ম্যানেজারকে যত টাকা জমা দিয়েছেন।",
+  "messChargesSection": "অন্যান্য খরচ",
+  "messChargesSectionHint": "বাসা ভাড়া, গ্যাস, বিদ্যুৎ, জরিমানা ইত্যাদি। সাধারণ খরচ সবার মধ্যে সমানভাবে ভাগ হবে।",
+  "messChargeCommon": "সবার (সমান ভাগ)",
+  "messAddEntry": "এন্ট্রি যোগ করুন",
+  "messNoEntriesYet": "এখনও কোনো এন্ট্রি নেই।",
+  "messMember": "সদস্য",
+  "messAmount": "পরিমাণ",
+  "messEntryTitle": "বিবরণ (ঐচ্ছিক)",
+  "messEntryTitleHint": "যেমন চাল, মাছ, সবজি",
+  "messSummaryEmptyTitle": "হিসাবের জন্য তথ্য দরকার",
+  "messSummaryEmptyBody": "মিল-রেট আর পাওনা দেখাতে কিছু বাজার খরচ ও জমা যোগ করুন।",
+  "messMealRate": "মিল-রেট (প্রতি মিল)",
+  "messTotalBazar": "মোট বাজার",
+  "messTotalMeals": "মোট মিল",
+  "messTotalDeposits": "মোট জমা",
+  "messPerMember": "সদস্যভিত্তিক হিসাব",
+  "messMeals": "মিল",
+  "messMealCost": "মিল খরচ",
+  "messDeposits": "জমা",
+  "messOtherCharges": "অন্যান্য",
+  "messGetsBack": "ফেরত পাবে",
+  "messOwes": "দেবে",
+  "messClear": "পরিষ্কার",
+  "messNoMoneyNote": "সব হিসাব আপনার দেওয়া তথ্য থেকে নিখুঁতভাবে করা — অ্যাপ কোনো টাকা রাখে না, শুধু প্রত্যেকের হিসাব দেখায়।",
+  "splitTitle": "খরচ ভাগাভাগি",
+  "splitLoadError": "গ্রুপ লোড করা গেল না। আবার চেষ্টা করুন।",
+  "splitWelcomeTitle": "একটি গ্রুপ তৈরি করুন",
+  "splitWelcomeBody": "যারা খরচ ভাগ করবেন তাদের যোগ করুন। তারপর শেয়ার করা খরচ লিখলে অ্যাপ কে কাকে কত দেবে তার সবচেয়ে সহজ হিসাব বের করবে — অ্যাপ কোনো টাকা রাখে না।",
+  "splitTabPeople": "সদস্য",
+  "splitTabExpenses": "খরচ",
+  "splitTabSettle": "মেটানো",
+  "splitAddPerson": "সদস্য যোগ করুন",
+  "splitPersonName": "নাম",
+  "splitDuplicateName": "এই নামে একজন আগেই আছে।",
+  "splitDeletePersonTitle": "সদস্য মুছবেন?",
+  "splitDeletePersonBody": "{name}-কে এই গ্রুপ থেকে মুছে ফেলা হবে। এই কাজ ফেরানো যাবে না।",
+  "@splitDeletePersonBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "splitSaved": "সংরক্ষণ হয়েছে",
+  "splitAddExpense": "খরচ যোগ করুন",
+  "splitEditExpense": "খরচ সম্পাদনা",
+  "splitNoExpensesTitle": "এখনও কোনো খরচ নেই",
+  "splitNoExpensesBody": "কে দিয়েছে আর কীভাবে ভাগ হবে — একটি শেয়ার করা খরচ যোগ করুন।",
+  "splitExpenseGeneric": "খরচ",
+  "splitExpenseTitle": "বিবরণ (ঐচ্ছিক)",
+  "splitExpenseTitleHint": "যেমন দুপুরের খাবার, উবার, বাজার",
+  "splitPaidBy": "কে দিয়েছে",
+  "splitPaidBySplit": "{name} দিয়েছে · {mode}",
+  "@splitPaidBySplit": {
+    "placeholders": {
+      "mode": {
+        "type": "Object"
+      },
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "splitHowToSplit": "কীভাবে ভাগ হবে",
+  "splitModeEqual": "সমানভাবে",
+  "splitModeShares": "অংশ অনুযায়ী",
+  "splitModeExact": "নির্দিষ্ট টাকা",
+  "splitAmount": "মোট পরিমাণ",
+  "splitSplitBetween": "যাদের মধ্যে ভাগ হবে",
+  "splitSharesHint": "প্রত্যেকের অংশের একক লিখুন (যেমন ২ = দ্বিগুণ)।",
+  "splitShareUnits": "একক",
+  "splitExactHint": "প্রত্যেকে ঠিক কত টাকার অংশ, তা লিখুন।",
+  "splitExactTotal": "মোট: {total}",
+  "@splitExactTotal": {
+    "placeholders": {
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "splitDeleteExpenseTitle": "খরচ মুছবেন?",
+  "splitDeleteExpenseBody": "এই খরচটি মুছে ফেলা হবে। এই কাজ ফেরানো যাবে না।",
+  "splitSettleEmptyTitle": "মেটানোর কিছু নেই",
+  "splitSettleEmptyBody": "মেটানোর হিসাব দেখাতে কিছু খরচ যোগ করুন।",
+  "splitTotalSpent": "মোট খরচ",
+  "splitBalances": "সদস্যভিত্তিক হিসাব",
+  "splitPaidShare": "দিয়েছে {paid} · অংশ {share}",
+  "@splitPaidShare": {
+    "placeholders": {
+      "paid": {
+        "type": "Object"
+      },
+      "share": {
+        "type": "Object"
+      }
+    }
+  },
+  "splitIsOwed": "পাবে",
+  "splitOwes": "দেবে",
+  "splitClear": "পরিষ্কার",
+  "splitSettleUp": "মেটানোর সহজ উপায়",
+  "splitSettleUpHint": "সবচেয়ে কম লেনদেনে সবার হিসাব মিটিয়ে ফেলার পরামর্শ।",
+  "splitAllSettled": "সবাই পরিষ্কার — কিছু দেওয়ার নেই।",
+  "splitPaysText": "{from} → {to} কে দেবে",
+  "@splitPaysText": {
+    "placeholders": {
+      "from": {
+        "type": "Object"
+      },
+      "to": {
+        "type": "Object"
+      }
+    }
+  },
+  "splitNoMoneyNote": "খরচ সমানভাবে বা ভাগ অনুযায়ী ভাগ করা হয়েছে; অ্যাপ কোনো টাকা রাখে না — এটি শুধু কে কাকে কত দেবে তা দেখায়।",
+  "commonOffline": "অফলাইন — সর্বশেষ সংরক্ষিত তথ্য দেখানো হচ্ছে",
+  "commonLoadFailedBody": "তথ্য আনা যায়নি। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।",
+  "monthJan": "জানুয়ারি",
+  "monthFeb": "ফেব্রুয়ারি",
+  "monthMar": "মার্চ",
+  "monthApr": "এপ্রিল",
+  "monthMay": "মে",
+  "monthJun": "জুন",
+  "monthJul": "জুলাই",
+  "monthAug": "আগস্ট",
+  "monthSep": "সেপ্টেম্বর",
+  "monthOct": "অক্টোবর",
+  "monthNov": "নভেম্বর",
+  "monthDec": "ডিসেম্বর",
+  "samityTitle": "সমিতি",
+  "samityNew": "নতুন সমিতি",
+  "samityEdit": "সমিতি সম্পাদনা",
+  "samityLoadFailed": "সমিতির তথ্য আনা যায়নি",
+  "samityEmptyTitle": "এখনো কোনো সমিতি নেই",
+  "samityEmptyBody": "সদস্য, মাসিক চাঁদা আর পালাক্রমে কে টাকা পাবেন — সব এক জায়গায় স্বচ্ছভাবে রাখুন। অ্যাপ শুধু হিসাব রাখে, কখনো টাকা ধরে রাখে না।",
+  "samityNoMoneyBanner": "অ্যাপ শুধু হিসাব রাখে — কখনো টাকা জমা রাখে না বা স্থানান্তর করে না। টাকা সদস্যরা নিজেরাই হাতে হাতে দেন।",
+  "samityFieldName": "সমিতির নাম",
+  "samityFieldAmount": "জনপ্রতি চাঁদা",
+  "samityFieldAmountHint": "প্রতি চক্রে প্রত্যেক সদস্য যত টাকা দেবেন",
+  "samityFieldPeriod": "চক্রের সময়কাল",
+  "samityPeriodWeekly": "সাপ্তাহিক",
+  "samityPeriodBiweekly": "পাক্ষিক",
+  "samityPeriodMonthly": "মাসিক",
+  "samityPerMemberChip": "জনপ্রতি {amount}",
+  "@samityPerMemberChip": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "samityMembersChip": "{count} জন সদস্য",
+  "@samityMembersChip": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "samityDeleteTitle": "সমিতি মুছবেন?",
+  "samityDeleteBody": "\"{name}\" মুছে ফেললে এর সব সদস্য, চাঁদা আর পালার হিসাব চলে যাবে। এটি ফেরানো যাবে না।",
+  "@samityDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "samityNeedMembersTitle": "অন্তত দুজন সদস্য যোগ করুন",
+  "samityNeedMembersBody": "পালাক্রম আর হিসাব শুরু করতে একটি সমিতিতে কমপক্ষে দুজন সদস্য লাগবে।",
+  "samityAddMember": "সদস্য যোগ",
+  "samityMemberName": "সদস্যের নাম",
+  "samityRemoveMemberTitle": "সদস্য সরাবেন?",
+  "samityRemoveMemberBody": "\"{name}\"-কে এই সমিতি থেকে সরানো হবে। এটি ফেরানো যাবে না।",
+  "@samityRemoveMemberBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "samityCycleOf": "চক্র {cycle} / {total}",
+  "@samityCycleOf": {
+    "placeholders": {
+      "cycle": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "samityCollectedThisCycle": "এই চক্রে জমা হয়েছে",
+  "samityExpectedLabel": "মোট দরকার {amount}",
+  "@samityExpectedLabel": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "samityPendingLabel": "বাকি {amount}",
+  "@samityPendingLabel": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "samityPaidCount": "{paid} / {total} জন চাঁদা দিয়েছেন",
+  "@samityPaidCount": {
+    "placeholders": {
+      "paid": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "samityTurnLabel": "এই চক্রে পাবেন",
+  "samityHandedOver": "হস্তান্তর হয়েছে",
+  "samityRecordPayout": "হস্তান্তর লিখুন",
+  "samityRecordPayoutTitle": "হস্তান্তর নিশ্চিত করুন",
+  "samityRecordPayoutBody": "{name} চক্র {cycle}-এ জমানো টাকা হাতে পেয়েছেন — এটি কি লিখে রাখব? অ্যাপ কোনো টাকা পাঠায় না, শুধু রেকর্ড রাখে।",
+  "@samityRecordPayoutBody": {
+    "placeholders": {
+      "cycle": {
+        "type": "Object"
+      },
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "samityConfirmHandover": "হ্যাঁ, লিখে রাখুন",
+  "samityNextTurn": "পরের পালা: {name}",
+  "@samityNextTurn": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "samityRoundComplete": "এই রাউন্ডে সবাই একবার করে পেয়ে গেছেন।",
+  "samityWhoPaidThisCycle": "এই চক্রে কে চাঁদা দিয়েছেন",
+  "samityPaidFull": "দিয়েছেন {amount}",
+  "@samityPaidFull": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "samityDueAmount": "বাকি {amount}",
+  "@samityDueAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "samityRotationOrder": "পালাক্রমের তালিকা",
+  "samityReceived": "পেয়েছেন",
+  "rentTitle": "বাড়ি ভাড়া",
+  "rentTabThisMonth": "এই মাস",
+  "rentTabArrears": "বকেয়া",
+  "rentLoadFailed": "ভাড়ার তথ্য আনা যায়নি",
+  "rentNoMoneyBanner": "অ্যাপ শুধু ভাড়ার হিসাব রাখে — কখনো টাকা জমা রাখে না বা নেয় না। ভাড়া আপনি নিজের মতো করে আদায় করেন।",
+  "rentEmptyTitle": "এখনো কোনো ইউনিট নেই",
+  "rentEmptyBody": "ফ্ল্যাট, রুম বা দোকান যোগ করুন — তারপর প্রতি মাসে কে ভাড়া দিয়েছেন আর কার বাকি, সব স্বচ্ছভাবে দেখা যাবে।",
+  "rentAddUnit": "ইউনিট যোগ",
+  "rentNewUnit": "নতুন ইউনিট",
+  "rentEditUnit": "ইউনিট সম্পাদনা",
+  "rentDeleteUnitTitle": "ইউনিট মুছবেন?",
+  "rentDeleteUnitBody": "\"{label}\" আর এর সব ভাড়ার রেকর্ড মুছে যাবে। এটি ফেরানো যাবে না।",
+  "@rentDeleteUnitBody": {
+    "placeholders": {
+      "label": {
+        "type": "Object"
+      }
+    }
+  },
+  "rentFieldLabel": "ইউনিটের নাম",
+  "rentFieldTenant": "ভাড়াটিয়ার নাম",
+  "rentFieldRent": "মাসিক ভাড়া",
+  "rentUtilities": "ইউটিলিটি ভাগ",
+  "rentUtilitiesHint": "পানি, গ্যাস, সার্ভিস চার্জের মতো খরচ — প্রতিটির জন্য নির্দিষ্ট টাকা দিন। মোট ভাড়ার সাথে যোগ হবে।",
+  "rentAddUtility": "ইউটিলিটি যোগ",
+  "rentUtilityName": "নাম",
+  "rentUtilityAmount": "টাকা",
+  "rentCollectedThisMonth": "এই মাসে আদায় হয়েছে",
+  "rentBilledLabel": "মোট বিল {amount}",
+  "@rentBilledLabel": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "rentDueLabel": "বাকি {amount}",
+  "@rentDueLabel": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "rentStatusCounts": "{paid} পরিশোধিত · {partial} আংশিক · {due} বাকি",
+  "@rentStatusCounts": {
+    "placeholders": {
+      "due": {
+        "type": "Object"
+      },
+      "paid": {
+        "type": "Object"
+      },
+      "partial": {
+        "type": "Object"
+      }
+    }
+  },
+  "rentStatusPaid": "পরিশোধিত",
+  "rentStatusPartial": "আংশিক",
+  "rentStatusDue": "বাকি",
+  "rentBillPaid": "{paid} / {bill} পরিশোধ",
+  "@rentBillPaid": {
+    "placeholders": {
+      "bill": {
+        "type": "Object"
+      },
+      "paid": {
+        "type": "Object"
+      }
+    }
+  },
+  "rentBaseRent": "মূল ভাড়া",
+  "rentMonthlyBill": "মাসিক মোট বিল",
+  "rentOutstanding": "বাকি",
+  "rentCredit": "জমা উদ্বৃত্ত",
+  "rentRecordPayment": "ভাড়া জমা লিখুন",
+  "rentRecordFor": "{label} — {month}",
+  "@rentRecordFor": {
+    "placeholders": {
+      "label": {
+        "type": "Object"
+      },
+      "month": {
+        "type": "Object"
+      }
+    }
+  },
+  "rentPaidAmount": "জমার পরিমাণ",
+  "rentReceiptNote": "রসিদের নোট",
+  "rentReceiptNoteHint": "যেমন: নগদে বুঝে পেলাম",
+  "rentMethod": "মাধ্যম",
+  "rentMethodCash": "নগদ",
+  "rentMethodBkash": "বিকাশ",
+  "rentMethodNagad": "নগদ (অ্যাপ)",
+  "rentMethodBank": "ব্যাংক",
+  "rentMethodOther": "অন্যান্য",
+  "rentSavePayment": "জমা রাখুন",
+  "rentPaymentRecorded": "ভাড়া জমার রেকর্ড রাখা হয়েছে",
+  "rentArrearsEmptyTitle": "দেখানোর মতো বকেয়া নেই",
+  "rentArrearsEmptyBody": "প্রথমে একটি ইউনিট যোগ করুন — তারপর কয়েক মাসের বকেয়া হিসাব এখানে দেখা যাবে।",
+  "rentArrearsWindow": "{from} – {to}",
+  "@rentArrearsWindow": {
+    "placeholders": {
+      "from": {
+        "type": "Object"
+      },
+      "to": {
+        "type": "Object"
+      }
+    }
+  },
+  "rentTotalArrears": "মোট বকেয়া",
+  "rentMonthsInArrears": "{count} মাসের বকেয়া",
+  "@rentMonthsInArrears": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "rentNoArrearsTitle": "কোনো বকেয়া নেই",
+  "rentNoArrearsBody": "এই সময়ের মধ্যে সব ভাড়া পরিশোধিত। সব হালনাগাদ আছে।"
 }

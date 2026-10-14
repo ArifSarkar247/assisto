@@ -832,6 +832,14 @@ InChatAiSnippetTests = _make_snippet_case(
 # update is genuinely available and the link is a usable http(s) one.
 AppUpdateSnippetTests = _make_snippet_case(
     "core.logic.app_update_tests_snippets", "AppUpdateSnippetTests")
+# Mess & bachelor accounting (#182, §20) + Expense splitting (#183, §20) —
+# pure deterministic meal-rate / dues / split / debt-simplification math. All
+# integer poisha, exact (shares sum to total; nets sum to 0); holds no money.
+# Mirrors app/lib/screens/mess_accounting_screen.dart + expense_split_screen.dart.
+MessAccountingSnippetTests = _make_snippet_case(
+    "core.logic.mess_accounting_tests_snippets", "MessAccountingSnippetTests")
+ExpenseSplitSnippetTests = _make_snippet_case(
+    "core.logic.expense_split_tests_snippets", "ExpenseSplitSnippetTests")
 # Payment / auto-pay ladder (advanced §21) — deterministic escalation engine for
 # receivables (chase dues) + payables (bill/EMI reminders). Never holds money,
 # never auto-charges; `pay_key` is gated on a licensed payment key.
@@ -912,6 +920,25 @@ PaDelegateSnippetTests = _make_snippet_case(
     "core.logic.pa_delegate_tests_snippets", "PaDelegateSnippetTests")
 PaTasksSnippetTests = _make_snippet_case(
     "core.logic.pa_tasks_tests_snippets", "PaTasksSnippetTests")
+# Task Manager (#21, §21 ADVANCED) — projects + board engine. Pure, no DB/AI/
+# clock (now passed in): normalize/validate, honest overdue, deterministic
+# ordering + board bucketing, status-move (done⇄active progress honesty),
+# status/assignee filters, per-project progress rollups. Backed by two owner-
+# scoped REST collections (see up_taskmgr_integration.md); mirrors
+# app/lib/screens/task_manager_screen.dart.
+TaskManagerSnippetTests = _make_snippet_case(
+    "core.logic.task_manager_tests_snippets", "TaskManagerSnippetTests")
+# Section-20 thin modules (advanced §21): Samity/committee (#184) — rotating-
+# savings tracker (members, per-cycle contributions, payout rotation, honest
+# collected/pending); Landlord-tenant (#185) — rent/utility-share tracking,
+# paid/due per month, receipt note, arrears. Both PURE, deterministic, hold no
+# money (holds_money/charges_money constant False); mirrors of samity_engine.dart
+# / rent_engine.dart. Persist via generic owned collections (see
+# .phaseB/up_samityrent_integration.md).
+SamitySnippetTests = _make_snippet_case(
+    "core.logic.samity_tests_snippets", "SamitySnippetTests")
+LandlordTenantSnippetTests = _make_snippet_case(
+    "core.logic.landlord_tenant_tests_snippets", "LandlordTenantSnippetTests")
 
 
 # ---------------------------------------------------------------------------

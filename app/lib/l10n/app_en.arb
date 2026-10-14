@@ -7864,5 +7864,524 @@
         "type": "Object"
       }
     }
-  }
+  },
+  "tmTitle": "Task Manager",
+  "tmProjects": "Projects",
+  "tmNewProject": "New project",
+  "tmEditProject": "Edit project",
+  "tmProjectName": "Project name",
+  "tmProjectNameHint": "e.g. Home renovation",
+  "tmProjectDesc": "Description (optional)",
+  "tmDeleteProjectQ": "Delete project?",
+  "tmDeleteProjectBody": "All tasks in this project will be deleted too. This cannot be undone.",
+  "tmProjectSaved": "Project saved",
+  "tmProjectDeleted": "Project deleted",
+  "tmWelcomeTitle": "Organise your work",
+  "tmWelcomeBody": "Start with a project, then add tasks and track them on a board.",
+  "tmCreateFirstProject": "Create your first project",
+  "tmTasks": "Tasks",
+  "tmNewTask": "New task",
+  "tmEditTask": "Edit task",
+  "tmTaskTitle": "Task title",
+  "tmTaskTitleHint": "What needs doing?",
+  "tmTaskDesc": "Details (optional)",
+  "tmAssignee": "Assignee",
+  "tmAssigneeHint": "Type a name or pick a Circle member",
+  "tmUnassigned": "Unassigned",
+  "tmDueDate": "Due date",
+  "tmNoDue": "No due date",
+  "tmPriority": "Priority",
+  "tmProgress": "Progress",
+  "tmStatus": "Status",
+  "tmDeleteTaskQ": "Delete task?",
+  "tmTaskSaved": "Task saved",
+  "tmTaskDeleted": "Task deleted",
+  "tmNoTasksYet": "No tasks yet",
+  "tmNoTasksBody": "Add the first task to this project.",
+  "tmNoMatch": "No matching tasks",
+  "tmNoMatchBody": "Try changing the filters.",
+  "tmStatusTodo": "To-do",
+  "tmStatusDoing": "Doing",
+  "tmStatusDone": "Done",
+  "tmPriorityUrgent": "Urgent",
+  "tmPriorityHigh": "High",
+  "tmPriorityNormal": "Normal",
+  "tmPriorityLow": "Low",
+  "tmViewBoard": "Board",
+  "tmViewList": "List",
+  "tmMoveTo": "Move to",
+  "tmFilter": "Filter",
+  "tmAll": "All",
+  "tmByStatus": "By status",
+  "tmByAssignee": "By assignee",
+  "tmClearFilters": "Clear filters",
+  "tmOverdue": "Overdue",
+  "tmDueToday": "Due today",
+  "tmPercentDone": "{n}% done",
+  "@tmPercentDone": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "tmSummaryLine": "{n} tasks",
+  "@tmSummaryLine": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "tmOverdueCount": "{n} overdue",
+  "@tmOverdueCount": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "tmSave": "Save",
+  "tmCancel": "Cancel",
+  "tmDelete": "Delete",
+  "tmEdit": "Edit",
+  "tmRetry": "Retry",
+  "tmLoadFailed": "Could not load",
+  "tmLoadFailedBody": "Check your connection and try again.",
+  "tmTitleRequired": "A title is required",
+  "tmNameRequired": "A name is required",
+  "tmPickDate": "Pick a date",
+  "tmSavedOffline": "Saved offline",
+  "tmOffline": "Offline — showing saved data",
+  "messTitle": "Mess & bachelor accounting",
+  "messLoadError": "Couldn't load the mess accounts. Please try again.",
+  "messWelcomeTitle": "Set up your mess",
+  "messWelcomeBody": "Start by adding members. Then log meals, bazar and deposits — the app computes the meal rate and everyone's balance exactly. It holds no money.",
+  "messTabMembers": "Members",
+  "messTabEntries": "Entries",
+  "messTabSummary": "Summary",
+  "messAddMember": "Add member",
+  "messMemberName": "Member name",
+  "messDuplicateName": "A member with this name already exists.",
+  "messMealsCount": "Meals: {count}",
+  "@messMealsCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "messDeleteMemberTitle": "Remove member?",
+  "messDeleteMemberBody": "{name} will be removed from this mess. This can't be undone.",
+  "@messDeleteMemberBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "messSaved": "Saved",
+  "messMealsSection": "Meals this month",
+  "messMealsSectionHint": "Each member's total meal count. Use 0.5 for half-meals.",
+  "messMealsFor": "Meals for {name}",
+  "@messMealsFor": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "messMealsHint": "e.g. 30 or 28.5",
+  "messBazarSection": "Bazar expenses",
+  "messBazarSectionHint": "Market buys made for the mess. These feed the meal rate.",
+  "messBazarGeneric": "Bazar",
+  "messDepositsSection": "Deposits (to the mess fund)",
+  "messDepositsSectionHint": "How much each member deposited to the manager.",
+  "messChargesSection": "Other charges",
+  "messChargesSectionHint": "House rent, gas, utility, fines, etc. 'Everyone' charges split equally.",
+  "messChargeCommon": "Everyone (split equally)",
+  "messAddEntry": "Add entry",
+  "messNoEntriesYet": "No entries yet.",
+  "messMember": "Member",
+  "messAmount": "Amount",
+  "messEntryTitle": "Description (optional)",
+  "messEntryTitleHint": "e.g. rice, fish, vegetables",
+  "messSummaryEmptyTitle": "Nothing to compute yet",
+  "messSummaryEmptyBody": "Add some bazar expenses and deposits to see the meal rate and balances.",
+  "messMealRate": "Meal rate (per meal)",
+  "messTotalBazar": "Total bazar",
+  "messTotalMeals": "Total meals",
+  "messTotalDeposits": "Total deposits",
+  "messPerMember": "Per-member balance",
+  "messMeals": "Meals",
+  "messMealCost": "Meal cost",
+  "messDeposits": "Deposits",
+  "messOtherCharges": "Other",
+  "messGetsBack": "Gets back",
+  "messOwes": "Owes",
+  "messClear": "Settled",
+  "messNoMoneyNote": "Computed exactly from the counts you entered — the app holds no money, it only shows each member's number.",
+  "splitTitle": "Split expenses",
+  "splitLoadError": "Couldn't load the group. Please try again.",
+  "splitWelcomeTitle": "Start a group",
+  "splitWelcomeBody": "Add the people who share costs. Then log shared expenses and the app works out the simplest way to settle up. It holds no money.",
+  "splitTabPeople": "People",
+  "splitTabExpenses": "Expenses",
+  "splitTabSettle": "Settle up",
+  "splitAddPerson": "Add person",
+  "splitPersonName": "Name",
+  "splitDuplicateName": "Someone with this name already exists.",
+  "splitDeletePersonTitle": "Remove person?",
+  "splitDeletePersonBody": "{name} will be removed from this group. This can't be undone.",
+  "@splitDeletePersonBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "splitSaved": "Saved",
+  "splitAddExpense": "Add expense",
+  "splitEditExpense": "Edit expense",
+  "splitNoExpensesTitle": "No expenses yet",
+  "splitNoExpensesBody": "Add a shared expense: who paid, and how it splits.",
+  "splitExpenseGeneric": "Expense",
+  "splitExpenseTitle": "Description (optional)",
+  "splitExpenseTitleHint": "e.g. lunch, Uber, groceries",
+  "splitPaidBy": "Paid by",
+  "splitPaidBySplit": "Paid by {name} · {mode}",
+  "@splitPaidBySplit": {
+    "placeholders": {
+      "mode": {
+        "type": "Object"
+      },
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "splitHowToSplit": "How to split",
+  "splitModeEqual": "Equally",
+  "splitModeShares": "By shares",
+  "splitModeExact": "Exact amounts",
+  "splitAmount": "Total amount",
+  "splitSplitBetween": "Split between",
+  "splitSharesHint": "Set each person's share units (e.g. 2 = double).",
+  "splitShareUnits": "Units",
+  "splitExactHint": "Type exactly how much each person's share is.",
+  "splitExactTotal": "Total: {total}",
+  "@splitExactTotal": {
+    "placeholders": {
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "splitDeleteExpenseTitle": "Delete expense?",
+  "splitDeleteExpenseBody": "This expense will be deleted. This can't be undone.",
+  "splitSettleEmptyTitle": "Nothing to settle",
+  "splitSettleEmptyBody": "Add some expenses to see the settle-up plan.",
+  "splitTotalSpent": "Total spent",
+  "splitBalances": "Balances",
+  "splitPaidShare": "Paid {paid} · share {share}",
+  "@splitPaidShare": {
+    "placeholders": {
+      "paid": {
+        "type": "Object"
+      },
+      "share": {
+        "type": "Object"
+      }
+    }
+  },
+  "splitIsOwed": "Is owed",
+  "splitOwes": "Owes",
+  "splitClear": "Settled",
+  "splitSettleUp": "Simplest settle-up",
+  "splitSettleUpHint": "The fewest transfers to clear everyone's balance.",
+  "splitAllSettled": "Everyone's settled — nothing to pay.",
+  "splitPaysText": "{from} pays {to}",
+  "@splitPaysText": {
+    "placeholders": {
+      "from": {
+        "type": "Object"
+      },
+      "to": {
+        "type": "Object"
+      }
+    }
+  },
+  "splitNoMoneyNote": "Expenses split equally or by share; the app holds no money — it only shows who should pay whom.",
+  "commonOffline": "Offline — showing the last saved data",
+  "commonLoadFailedBody": "Couldn't load. Check your connection and try again.",
+  "monthJan": "January",
+  "monthFeb": "February",
+  "monthMar": "March",
+  "monthApr": "April",
+  "monthMay": "May",
+  "monthJun": "June",
+  "monthJul": "July",
+  "monthAug": "August",
+  "monthSep": "September",
+  "monthOct": "October",
+  "monthNov": "November",
+  "monthDec": "December",
+  "samityTitle": "Samity",
+  "samityNew": "New samity",
+  "samityEdit": "Edit samity",
+  "samityLoadFailed": "Couldn't load your samity",
+  "samityEmptyTitle": "No samity yet",
+  "samityEmptyBody": "Keep members, each cycle's contribution, and whose turn it is to receive — all in one transparent place. The app only tracks; it never holds money.",
+  "samityNoMoneyBanner": "The app only keeps the record — it never holds or transfers money. Members hand over the pot themselves.",
+  "samityFieldName": "Samity name",
+  "samityFieldAmount": "Contribution per member",
+  "samityFieldAmountHint": "What each member pays every cycle",
+  "samityFieldPeriod": "Cycle period",
+  "samityPeriodWeekly": "Weekly",
+  "samityPeriodBiweekly": "Every two weeks",
+  "samityPeriodMonthly": "Monthly",
+  "samityPerMemberChip": "{amount} each",
+  "@samityPerMemberChip": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "samityMembersChip": "{count} members",
+  "@samityMembersChip": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "samityDeleteTitle": "Delete samity?",
+  "samityDeleteBody": "Deleting \"{name}\" removes all its members, contributions and rotation records. This can't be undone.",
+  "@samityDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "samityNeedMembersTitle": "Add at least two members",
+  "samityNeedMembersBody": "A samity needs at least two members before the rotation and tracking can begin.",
+  "samityAddMember": "Add member",
+  "samityMemberName": "Member name",
+  "samityRemoveMemberTitle": "Remove member?",
+  "samityRemoveMemberBody": "\"{name}\" will be removed from this samity. This can't be undone.",
+  "@samityRemoveMemberBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "samityCycleOf": "Cycle {cycle} of {total}",
+  "@samityCycleOf": {
+    "placeholders": {
+      "cycle": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "samityCollectedThisCycle": "Collected this cycle",
+  "samityExpectedLabel": "{amount} expected",
+  "@samityExpectedLabel": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "samityPendingLabel": "{amount} pending",
+  "@samityPendingLabel": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "samityPaidCount": "{paid} of {total} members have paid",
+  "@samityPaidCount": {
+    "placeholders": {
+      "paid": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "samityTurnLabel": "Receives this cycle",
+  "samityHandedOver": "Handed over",
+  "samityRecordPayout": "Record payout",
+  "samityRecordPayoutTitle": "Confirm hand-over",
+  "samityRecordPayoutBody": "Recording that {name} received the cycle {cycle} pot by hand. The app sends no money; it only keeps the record.",
+  "@samityRecordPayoutBody": {
+    "placeholders": {
+      "cycle": {
+        "type": "Object"
+      },
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "samityConfirmHandover": "Yes, record it",
+  "samityNextTurn": "Next turn: {name}",
+  "@samityNextTurn": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "samityRoundComplete": "Everyone has received once this round.",
+  "samityWhoPaidThisCycle": "Who has paid this cycle",
+  "samityPaidFull": "Paid {amount}",
+  "@samityPaidFull": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "samityDueAmount": "{amount} due",
+  "@samityDueAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "samityRotationOrder": "Rotation order",
+  "samityReceived": "Received",
+  "rentTitle": "House rent",
+  "rentTabThisMonth": "This month",
+  "rentTabArrears": "Arrears",
+  "rentLoadFailed": "Couldn't load your rent data",
+  "rentNoMoneyBanner": "The app only tracks rent — it never holds or collects money. You receive rent your own way.",
+  "rentEmptyTitle": "No units yet",
+  "rentEmptyBody": "Add a flat, room or shop — then see each month who has paid and who is due, all transparently.",
+  "rentAddUnit": "Add unit",
+  "rentNewUnit": "New unit",
+  "rentEditUnit": "Edit unit",
+  "rentDeleteUnitTitle": "Delete unit?",
+  "rentDeleteUnitBody": "\"{label}\" and all its rent records will be removed. This can't be undone.",
+  "@rentDeleteUnitBody": {
+    "placeholders": {
+      "label": {
+        "type": "Object"
+      }
+    }
+  },
+  "rentFieldLabel": "Unit name",
+  "rentFieldTenant": "Tenant name",
+  "rentFieldRent": "Monthly rent",
+  "rentUtilities": "Utility shares",
+  "rentUtilitiesHint": "Costs like water, gas or service charge — give a fixed amount for each. They add to the monthly bill.",
+  "rentAddUtility": "Add utility",
+  "rentUtilityName": "Name",
+  "rentUtilityAmount": "Amount",
+  "rentCollectedThisMonth": "Collected this month",
+  "rentBilledLabel": "{amount} billed",
+  "@rentBilledLabel": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "rentDueLabel": "{amount} due",
+  "@rentDueLabel": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "rentStatusCounts": "{paid} paid · {partial} partial · {due} due",
+  "@rentStatusCounts": {
+    "placeholders": {
+      "due": {
+        "type": "Object"
+      },
+      "paid": {
+        "type": "Object"
+      },
+      "partial": {
+        "type": "Object"
+      }
+    }
+  },
+  "rentStatusPaid": "Paid",
+  "rentStatusPartial": "Partial",
+  "rentStatusDue": "Due",
+  "rentBillPaid": "{paid} of {bill} paid",
+  "@rentBillPaid": {
+    "placeholders": {
+      "bill": {
+        "type": "Object"
+      },
+      "paid": {
+        "type": "Object"
+      }
+    }
+  },
+  "rentBaseRent": "Base rent",
+  "rentMonthlyBill": "Monthly bill",
+  "rentOutstanding": "Outstanding",
+  "rentCredit": "Credit",
+  "rentRecordPayment": "Record payment",
+  "rentRecordFor": "{label} — {month}",
+  "@rentRecordFor": {
+    "placeholders": {
+      "label": {
+        "type": "Object"
+      },
+      "month": {
+        "type": "Object"
+      }
+    }
+  },
+  "rentPaidAmount": "Amount paid",
+  "rentReceiptNote": "Receipt note",
+  "rentReceiptNoteHint": "e.g. received in cash, in hand",
+  "rentMethod": "Method",
+  "rentMethodCash": "Cash",
+  "rentMethodBkash": "bKash",
+  "rentMethodNagad": "Nagad",
+  "rentMethodBank": "Bank",
+  "rentMethodOther": "Other",
+  "rentSavePayment": "Save payment",
+  "rentPaymentRecorded": "Payment recorded",
+  "rentArrearsEmptyTitle": "Nothing to show yet",
+  "rentArrearsEmptyBody": "Add a unit first — then a few months of arrears will show up here.",
+  "rentArrearsWindow": "{from} – {to}",
+  "@rentArrearsWindow": {
+    "placeholders": {
+      "from": {
+        "type": "Object"
+      },
+      "to": {
+        "type": "Object"
+      }
+    }
+  },
+  "rentTotalArrears": "Total arrears",
+  "rentMonthsInArrears": "{count} months in arrears",
+  "@rentMonthsInArrears": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "rentNoArrearsTitle": "No arrears",
+  "rentNoArrearsBody": "Every rent in this window is paid. You're all caught up."
 }

@@ -16,6 +16,11 @@ import '../screens/money_voice_screen.dart';
 import '../screens/subscriptions_screen.dart';
 import '../screens/finance_screen.dart';
 import '../screens/payment_ladder_screen.dart';
+import '../screens/task_manager_screen.dart';
+import '../screens/mess_accounting_screen.dart';
+import '../screens/expense_split_screen.dart';
+import '../screens/samity_screen.dart';
+import '../screens/landlord_tenant_screen.dart';
 // family & safety (merged per SPEC v2.1 §4)
 import '../screens/family_screen.dart';
 import '../screens/nominee_screen.dart';
@@ -149,6 +154,19 @@ class SidebarSections {
       SidebarItem(Icons.stairs_outlined, (t) => t.plTitle,
           (_) => const PaymentLadderScreen(),
           synonyms: ['payment', 'ladder', 'collection', 'auto-pay', 'tagada']),
+      // Section-20 money modules (SPEC v2.1 §20) — thin, on the Money foundation.
+      SidebarItem(Icons.restaurant_outlined, (t) => t.messTitle,
+          (_) => const MessAccountingScreen(),
+          synonyms: ['mess', 'bachelor', 'meal', 'bazar', 'manager']),
+      SidebarItem(Icons.groups_outlined, (t) => t.splitTitle,
+          (_) => const ExpenseSplitScreen(),
+          synonyms: ['split', 'splitwise', 'share', 'settle', 'group expense']),
+      SidebarItem(Icons.savings_outlined, (t) => t.samityTitle,
+          (_) => const SamityScreen(),
+          synonyms: ['samity', 'committee', 'rosca', 'rotating savings']),
+      SidebarItem(Icons.home_work_outlined, (t) => t.rentTitle,
+          (_) => const LandlordTenantScreen(),
+          synonyms: ['rent', 'landlord', 'tenant', 'bari', 'house rent']),
     ]),
     // 3. Family & Safety — merged per SPEC v2.1 §4 (Family + Safety → one group).
     // Contacts moved OUT to its own "Contacts & Profile" section (item 4).
@@ -236,6 +254,10 @@ class SidebarSections {
       SidebarItem(Icons.auto_awesome_outlined, (t) => t.agentStudio,
           (_) => const AgentStudioScreen(),
           synonyms: ['agent', 'studio', 'automation']),
+      // #21 Task manager — projects / board / assign / progress.
+      SidebarItem(Icons.view_kanban_outlined, (t) => t.tmTitle,
+          (_) => const TaskManagerScreen(),
+          synonyms: ['task', 'project', 'board', 'kanban', 'assign', 'progress']),
       SidebarItem(Icons.work_outline, (t) => t.jobHunter,
           (_) => const JobsScreen(),
           synonyms: ['job', 'hunter', 'career', 'cv']),

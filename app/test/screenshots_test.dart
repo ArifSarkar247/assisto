@@ -25,6 +25,11 @@ import 'package:assisto/screens/messenger/contact_info_screen.dart';
 import 'package:assisto/screens/notification_centre_screen.dart';
 import 'package:assisto/screens/messenger/messenger_profile_screen.dart';
 import 'package:assisto/screens/messenger/contacts_screen.dart';
+import 'package:assisto/screens/task_manager_screen.dart';
+import 'package:assisto/screens/mess_accounting_screen.dart';
+import 'package:assisto/screens/expense_split_screen.dart';
+import 'package:assisto/screens/samity_screen.dart';
+import 'package:assisto/screens/landlord_tenant_screen.dart';
 import 'package:assisto/screens/pa/pa_hub_screen.dart';
 import 'package:assisto/screens/pa/pa_schedule_screen.dart';
 import 'package:assisto/screens/pa/visitor_filter_screen.dart';
@@ -216,6 +221,11 @@ void main() {
     'notification_centre': (build: (_) => const NotificationCentreScreen(), mode: FakeMode.data, full: true),
     'msgr_profile': (build: (_) => const MessengerProfileScreen(), mode: FakeMode.data, full: true),
     'contacts': (build: (_) => const ContactsScreen(), mode: FakeMode.data, full: true),
+    'task_mgr': (build: (_) => const TaskManagerScreen(), mode: FakeMode.data, full: true),
+    'mess_acct': (build: (_) => const MessAccountingScreen(), mode: FakeMode.data, full: true),
+    'expense_split': (build: (_) => const ExpenseSplitScreen(), mode: FakeMode.data, full: true),
+    'samity': (build: (_) => const SamityScreen(), mode: FakeMode.data, full: true),
+    'landlord': (build: (_) => const LandlordTenantScreen(), mode: FakeMode.data, full: true),
     'pa_hub': (build: (_) => const PaHubScreen(), mode: FakeMode.data, full: true),
     'pa_schedule': (build: (_) => const PaScheduleScreen(), mode: FakeMode.data, full: true),
     'pa_visitor': (build: (_) => const VisitorFilterScreen(), mode: FakeMode.data, full: true),

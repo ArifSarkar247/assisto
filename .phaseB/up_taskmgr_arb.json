@@ -1,0 +1,86 @@
+{
+  "_comment": "Task Manager (#21, SPEC v2.1 §21 ADVANCED). NEW ARB keys {key:[bn,en]} to merge into app_bn.arb/app_en.arb at next sync. The app ships these strings TODAY via a local bilingual table in app/lib/widgets/task_manager_model.dart (Bangla as \\u codepoints — ZERO Bangla glyphs in any .dart). Keep this file and that table in sync. The 'tm' prefix matches the table keys. Parameterized keys are listed in _params with their placeholders ({n}=locale-formatted integer).",
+
+  "_params": {
+    "tmPercentDone": ["{n}"],
+    "tmSummaryLine": ["{n}"],
+    "tmOverdueCount": ["{n}"]
+  },
+
+  "tmTitle": ["টাস্ক ম্যানেজার", "Task Manager"],
+  "tmProjects": ["প্রজেক্ট", "Projects"],
+
+  "tmNewProject": ["নতুন প্রজেক্ট", "New project"],
+  "tmEditProject": ["প্রজেক্ট সম্পাদনা", "Edit project"],
+  "tmProjectName": ["প্রজেক্টের নাম", "Project name"],
+  "tmProjectNameHint": ["যেমন, ঘর সাজানো", "e.g. Home renovation"],
+  "tmProjectDesc": ["বিবরণ (ঐচ্ছিক)", "Description (optional)"],
+  "tmDeleteProjectQ": ["প্রজেক্ট মুছবেন?", "Delete project?"],
+  "tmDeleteProjectBody": ["এই প্রজেক্টের সব টাস্কও মুছে যাবে। এটি ফিরিয়ে আনা যাবে না।", "All tasks in this project will be deleted too. This cannot be undone."],
+  "tmProjectSaved": ["প্রজেক্ট সংরক্ষিত হয়েছে", "Project saved"],
+  "tmProjectDeleted": ["প্রজেক্ট মুছে ফেলা হয়েছে", "Project deleted"],
+
+  "tmWelcomeTitle": ["কাজ গুছিয়ে রাখুন", "Organise your work"],
+  "tmWelcomeBody": ["একটি প্রজেক্ট দিয়ে শুরু করুন, তারপর টাস্ক যোগ করে বোর্ডে সাজান।", "Start with a project, then add tasks and track them on a board."],
+  "tmCreateFirstProject": ["প্রথম প্রজেক্ট তৈরি করুন", "Create your first project"],
+
+  "tmTasks": ["টাস্ক", "Tasks"],
+  "tmNewTask": ["নতুন টাস্ক", "New task"],
+  "tmEditTask": ["টাস্ক সম্পাদনা", "Edit task"],
+  "tmTaskTitle": ["টাস্কের নাম", "Task title"],
+  "tmTaskTitleHint": ["কি করতে হবে?", "What needs doing?"],
+  "tmTaskDesc": ["বিবরণ (ঐচ্ছিক)", "Details (optional)"],
+  "tmAssignee": ["দায়িত্ব", "Assignee"],
+  "tmAssigneeHint": ["নাম লিখুন বা সার্কেল সদস্য বেছে নিন", "Type a name or pick a Circle member"],
+  "tmUnassigned": ["কাউকে দেওয়া হয়নি", "Unassigned"],
+  "tmDueDate": ["শেষ তারিখ", "Due date"],
+  "tmNoDue": ["কোনো শেষ তারিখ নেই", "No due date"],
+  "tmPriority": ["অগ্রাধিকার", "Priority"],
+  "tmProgress": ["অগ্রগতি", "Progress"],
+  "tmStatus": ["অবস্থা", "Status"],
+  "tmDeleteTaskQ": ["টাস্ক মুছবেন?", "Delete task?"],
+  "tmTaskSaved": ["টাস্ক সংরক্ষিত হয়েছে", "Task saved"],
+  "tmTaskDeleted": ["টাস্ক মুছে ফেলা হয়েছে", "Task deleted"],
+  "tmNoTasksYet": ["এখনো কোনো টাস্ক নেই", "No tasks yet"],
+  "tmNoTasksBody": ["এই প্রজেক্টে প্রথম টাস্ক যোগ করুন।", "Add the first task to this project."],
+  "tmNoMatch": ["কোনো টাস্ক মেলেনি", "No matching tasks"],
+  "tmNoMatchBody": ["ফিল্টার বদলে আবার দেখুন।", "Try changing the filters."],
+
+  "tmStatusTodo": ["করতে হবে", "To-do"],
+  "tmStatusDoing": ["চলছে", "Doing"],
+  "tmStatusDone": ["হয়েছে", "Done"],
+
+  "tmPriorityUrgent": ["জরুরি", "Urgent"],
+  "tmPriorityHigh": ["উচ্চ", "High"],
+  "tmPriorityNormal": ["সাধারণ", "Normal"],
+  "tmPriorityLow": ["কম", "Low"],
+
+  "tmViewBoard": ["বোর্ড", "Board"],
+  "tmViewList": ["তালিকা", "List"],
+  "tmMoveTo": ["সরান", "Move to"],
+
+  "tmFilter": ["ফিল্টার", "Filter"],
+  "tmAll": ["সব", "All"],
+  "tmByStatus": ["অবস্থা অনুযায়ী", "By status"],
+  "tmByAssignee": ["দায়িত্ব অনুযায়ী", "By assignee"],
+  "tmClearFilters": ["ফিল্টার মুছুন", "Clear filters"],
+
+  "tmOverdue": ["মেয়াদ পেরিয়েছে", "Overdue"],
+  "tmDueToday": ["আজ শেষ তারিখ", "Due today"],
+  "tmPercentDone": ["{n}% শেষ", "{n}% done"],
+  "tmSummaryLine": ["{n}টি টাস্ক", "{n} tasks"],
+  "tmOverdueCount": ["{n}টি মেয়াদোত্তীর্ণ", "{n} overdue"],
+
+  "tmSave": ["সংরক্ষণ", "Save"],
+  "tmCancel": ["বাতিল", "Cancel"],
+  "tmDelete": ["মুছুন", "Delete"],
+  "tmEdit": ["সম্পাদনা", "Edit"],
+  "tmRetry": ["আবার চেষ্টা", "Retry"],
+  "tmLoadFailed": ["লোড করা যায়নি", "Could not load"],
+  "tmLoadFailedBody": ["ইন্টারনেট পরীক্ষা করে আবার চেষ্টা করুন।", "Check your connection and try again."],
+  "tmTitleRequired": ["নাম দিতে হবে", "A title is required"],
+  "tmNameRequired": ["নাম দিতে হবে", "A name is required"],
+  "tmPickDate": ["তারিখ বেছে নিন", "Pick a date"],
+  "tmSavedOffline": ["অফলাইনে সংরক্ষিত", "Saved offline"],
+  "tmOffline": ["অফলাইন — সংরক্ষিত তথ্য দেখানো হচ্ছে", "Offline — showing saved data"]
+}
