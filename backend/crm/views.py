@@ -27,15 +27,18 @@ from django.db import transaction
 
 from . import logic, pipeline as pl, forecast as fc, reports as rp, cadence, quoting
 from . import errors as crm_errors
+from . import whatsapp as wa
 from .models import (CrmOrg, CrmMember, Lead, Conversation, Message, Proposal,
                      Company, Contact, Pipeline, Stage, Deal, Activity,
-                     Product, Territory, RoutingRule, AuditEntry)
+                     Product, Territory, RoutingRule, AuditEntry,
+                     WhatsAppTemplate, WhatsAppOptIn)
 from .serializers import (CrmOrgSerializer, CrmMemberSerializer, LeadSerializer,
                           ConversationSerializer, MessageSerializer,
                           ProposalSerializer, CompanySerializer,
                           ContactSerializer, PipelineSerializer, StageSerializer,
                           DealSerializer, ActivitySerializer, ProductSerializer,
-                          TerritorySerializer, RoutingRuleSerializer)
+                          TerritorySerializer, RoutingRuleSerializer,
+                          WhatsAppTemplateSerializer)
 
 
 # --------------------------------------------------------------- error handling
@@ -71,6 +74,42 @@ def _require_member(user, org):
     if not member:
         raise PermissionDenied("আপনি এই org-এর সদস্য নন / Not a member of this org")
     return member
+
+
+# --------------------------------------------------------------- WhatsApp helpers
+def _wa_has_key():
+    """True only when the owner has CONNECTED the official Meta WhatsApp Cloud
+    integration (status='working'). Until then every live send is MOCKED and the
+    client shows the key-gated "connect WhatsApp Business" state."""
+    try:
+        from core import integrations
+        return integrations.is_enabled("whatsapp")
+    except Exception:
+        return False
+
+
+def _wa_optin(lead):
+    """The lead's WhatsApp opt-in / service-window row (created lazily)."""
+    row, _ = WhatsAppOptIn.objects.get_or_create(lead=lead)
+    return row
+
+
+def _wa_dest(lead):
+    """Preferred WhatsApp destination for a lead: its whatsapp number, else the
+    primary phone. Digits only (E.164-ish) — the Cloud API wants a bare number."""
+    return wa.normalize_wa_number(lead.whatsapp or lead.phone or "")
+
+
+def _log_wa_activity(lead, member, direction, text):
+    """AUTO-LOG a WhatsApp send/receive onto the lead's timeline as an Activity
+    (kind='whatsapp'). This is the KEY VALUE of the integration — every comm is
+    recorded without the rep writing notes. Reuses the existing Activity model;
+    no new log table is needed."""
+    arrow = "→" if direction == "out" else "←"
+    return Activity.objects.create(
+        org=lead.org, kind=Activity.WHATSAPP, lead=lead, actor=member,
+        subject=f"WhatsApp {arrow}",
+        body=(text or "")[:4000])
 
 
 def _backing_deal(lead):
@@ -401,6 +440,130 @@ class LeadViewSet(CrmErrorMixin, viewsets.ModelViewSet):
             body=(request.data.get("body") or "")[:4000])
         return Response(ActivitySerializer(act).data)
 
+    # ----- WhatsApp opt-in / service-window status for this lead -----
+    @action(detail=True, methods=["get"])
+    def whatsapp_status(self, request, pk=None):
+        """Honest WhatsApp state for the lead-detail sheet: whether the owner has
+        connected the official Cloud API (needs_key), the lead's opt-in flag and
+        whether we are inside the 24h free-form window. Drives the UI's gated vs
+        send states — never pretends to be live."""
+        lead = self.get_object()
+        row = _wa_optin(lead)
+        now_ts = timezone.now().timestamp()
+        last_ts = row.last_inbound_at.timestamp() if row.last_inbound_at else None
+        return Response({
+            "ok": True,
+            "org": lead.org_id,
+            "has_key": _wa_has_key(),
+            "opted_in": row.opted_in,
+            "in_window": wa.within_service_window(last_ts, now_ts),
+            "last_inbound_at": row.last_inbound_at,
+            "to": _wa_dest(lead),
+            "window_hours": wa.SERVICE_WINDOW_HOURS,
+        })
+
+    # ----- set the lead's WhatsApp opt-in flag (consent) -----
+    @action(detail=True, methods=["post"])
+    def whatsapp_optin(self, request, pk=None):
+        """Record the lead's WhatsApp consent. Opt-in is REQUIRED before any
+        send (1:1 or bulk). Owner/rep sets this from the lead sheet once the lead
+        has agreed to be contacted on WhatsApp."""
+        lead = self.get_object()
+        row = _wa_optin(lead)
+        row.opted_in = bool(request.data.get("opted_in", True))
+        row.opted_in_at = timezone.now() if row.opted_in else None
+        row.save(update_fields=["opted_in", "opted_in_at"])
+        return Response({"ok": True, "opted_in": row.opted_in})
+
+    # ----- SEND a WhatsApp message/template from the CRM (MOCK + key-gated) -----
+    @action(detail=True, methods=["post"])
+    def whatsapp_send(self, request, pk=None):
+        """Send a WhatsApp message to the lead via the OFFICIAL Business Cloud
+        API — NEVER personal WhatsApp (whatsapp.plan_send guards the channel).
+
+        LIVE SEND IS MOCKED + KEY-GATED: with no Meta key connected we return a
+        'needs_key' / drafted state (we never fake a delivery). When the 24h
+        service window has lapsed, a free-form text is refused and an approved
+        PAID template is required.
+
+        Regardless of live vs mock, the attempt is AUTO-LOGGED onto the lead's
+        timeline as a whatsapp Activity (the key value). Body: {text?} for a
+        free-form message, or {template_id, params[]} for a template."""
+        lead = self.get_object()
+        member = _member_for(request.user, lead.org_id)
+        row = _wa_optin(lead)
+        now_ts = timezone.now().timestamp()
+        last_ts = row.last_inbound_at.timestamp() if row.last_inbound_at else None
+
+        text = (request.data.get("text") or "")[:4000]
+        template_name = None
+        template_body = None
+        template_params = request.data.get("params") or []
+        tpl_id = request.data.get("template_id")
+        if tpl_id:
+            tpl = get_object_or_404(WhatsAppTemplate, id=tpl_id, org=lead.org)
+            template_name = tpl.meta_name or tpl.name
+            template_body = tpl.body
+            # An unapproved template can never be sent outside the 24h window.
+            if not tpl.approved and not wa.within_service_window(last_ts, now_ts):
+                return Response({
+                    "ok": False, "state": "template_not_approved",
+                    "message": "টেমপ্লেট Meta-তে অনুমোদিত নয় / "
+                               "Template is not approved in Meta yet",
+                }, status=409)
+
+        try:
+            plan = wa.plan_send(
+                last_inbound_ts=last_ts, now_ts=now_ts, has_key=_wa_has_key(),
+                opted_in=row.opted_in, text=text, template_name=template_name,
+                template_body=template_body, template_params=template_params,
+                to=_wa_dest(lead))
+        except wa.PersonalWhatsAppBanned as e:   # defensive — never reachable
+            raise ValidationError({"channel": str(e)})
+
+        if not plan.get("allowed"):
+            # opt-out or outside-window-without-template: refuse honestly.
+            return Response({"ok": False, "state": plan["state"],
+                             "reason": plan.get("reason")}, status=409)
+
+        # AUTO-LOG the outbound on the timeline (mock or live — a real attempt).
+        rendered = plan.get("rendered") or ""
+        act = _log_wa_activity(lead, member, "out", rendered)
+        return Response({
+            "ok": True,
+            "state": plan["state"],           # 'queued' (key) or 'needs_key'
+            "mode": plan["mode"],
+            "paid_template": plan["paid_template"],
+            "rendered": rendered,
+            "activity": ActivitySerializer(act).data,
+            # Graph request descriptor the integrator POSTs once the key is live.
+            # Returned for transparency; the live POST happens server-side later.
+            "send": plan.get("send"),
+        })
+
+    # ----- RECEIVE an inbound WhatsApp message (webhook relay) -----
+    @action(detail=True, methods=["post"])
+    def whatsapp_receive(self, request, pk=None):
+        """Record an INBOUND WhatsApp message for the lead (fed by the official
+        Cloud API webhook relay). Stamps the 24h window, implies opt-in, and
+        AUTO-LOGS the message as a whatsapp Activity + a Conversation Message so
+        the reply shows up on the same timeline as outbound sends."""
+        lead = self.get_object()
+        member = _member_for(request.user, lead.org_id)
+        text = (request.data.get("text") or "")[:8000]
+        row = _wa_optin(lead)
+        with transaction.atomic():
+            row.last_inbound_at = timezone.now()
+            if not row.opted_in:
+                row.opted_in = True       # inbound = implicit consent to reply
+                row.opted_in_at = row.last_inbound_at
+            row.save(update_fields=["last_inbound_at", "opted_in", "opted_in_at"])
+            act = _log_wa_activity(lead, member, "in", text)
+            conv = lead.conversations.first() or Conversation.objects.create(
+                lead=lead, channel="whatsapp")
+            logic.add_message(conv, Message.IN, text)
+        return Response({"ok": True, "activity": ActivitySerializer(act).data})
+
 
 # --------------------------------------------------------------- conversations
 class ConversationViewSet(CrmErrorMixin, viewsets.ReadOnlyModelViewSet):
@@ -592,6 +755,99 @@ class ProductViewSet(_OrgScopedViewSet):
         if self.request.query_params.get("org"):
             qs = qs.filter(org_id=self.request.query_params["org"])
         return qs
+
+
+# --------------------------------------------------------------- WhatsApp templates
+class WhatsAppTemplateViewSet(_OrgScopedViewSet):
+    """Owner-defined WhatsApp message templates (list + create + use). `body` is
+    text the OWNER wrote — the CRM never invents template content. Templates are
+    referenced by id from lead.whatsapp_send and the bulk-send endpoint."""
+    model = WhatsAppTemplate
+    serializer_class = WhatsAppTemplateSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.request.query_params.get("org"):
+            qs = qs.filter(org_id=self.request.query_params["org"])
+        if self.request.query_params.get("active"):
+            qs = qs.filter(active=True)
+        return qs
+
+
+# --------------------------------------------------------------- WhatsApp bulk send
+class WhatsAppBulkSendView(CrmErrorMixin, APIView):
+    """Opt-in bulk WhatsApp send to a FILTERED lead set (CRM_SPEC §5).
+
+    POST {org, template_id?, text?, params[]?, lead_ids[]? | filters} →
+
+      * Respects the OPT-IN flag: leads that haven't opted in are skipped.
+      * Respects the 24h service window + paid-template rule: outside the window
+        a free-form text is refused per-lead; an approved template is required.
+      * FANS OUT TO INDIVIDUAL 1:1 SENDS — never a WhatsApp group (ToS + spec).
+      * MOCK + key-gated: with no Meta key every send is 'needs_key' (drafted),
+        never a faked delivery. Each allowed attempt is AUTO-LOGGED as a
+        whatsapp Activity on that lead's timeline.
+
+    Official WhatsApp Business Cloud API ONLY (whatsapp.plan_send guards the
+    channel; personal WhatsApp is refused)."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        org_id = request.data.get("org")
+        member = _require_member(request.user, org_id)
+        if not _can_manage(member):
+            raise PermissionDenied("শুধু owner/manager বাল্ক পাঠাতে পারেন / "
+                                   "Only owner/manager can bulk-send")
+
+        # Resolve the filtered lead set (explicit ids OR status/priority filter).
+        qs = Lead.objects.filter(org_id=org_id).exclude(
+            status__in=["won", "lost"])
+        ids = request.data.get("lead_ids")
+        if isinstance(ids, list) and ids:
+            qs = qs.filter(id__in=ids)
+        else:
+            if request.data.get("status"):
+                qs = qs.filter(status=request.data["status"])
+            if request.data.get("priority"):
+                qs = qs.filter(priority=request.data["priority"])
+            if request.data.get("industry"):
+                qs = qs.filter(industry=request.data["industry"])
+        leads = list(qs[:500])   # hard cap — a bulk send is not unbounded
+
+        template_name = None
+        template_body = None
+        tpl_id = request.data.get("template_id")
+        if tpl_id:
+            tpl = get_object_or_404(WhatsAppTemplate, id=tpl_id, org_id=org_id)
+            template_name = tpl.meta_name or tpl.name
+            template_body = tpl.body
+
+        now_ts = timezone.now().timestamp()
+        has_key = _wa_has_key()
+        text = (request.data.get("text") or "")[:4000]
+        params = request.data.get("params") or []
+
+        rows = []
+        for lead in leads:
+            row = _wa_optin(lead)
+            last_ts = (row.last_inbound_at.timestamp()
+                       if row.last_inbound_at else None)
+            rows.append({"id": lead.id, "to": _wa_dest(lead),
+                         "opted_in": row.opted_in, "last_inbound_ts": last_ts,
+                         "_lead": lead})
+
+        plan = wa.bulk_fanout_plan(
+            leads=[{k: v for k, v in r.items() if k != "_lead"} for r in rows],
+            now_ts=now_ts, has_key=has_key, template_name=template_name,
+            template_body=template_body, template_params=params, text=text)
+
+        # AUTO-LOG each allowed (queued/needs_key) attempt on its timeline.
+        by_id = {r["id"]: r["_lead"] for r in rows}
+        for res in plan["results"]:
+            if res["allowed"] and res["state"] in ("queued", "needs_key"):
+                _log_wa_activity(by_id[res["lead"]], member, "out",
+                                 res.get("rendered") or "")
+        return Response(plan)
 
 
 # --------------------------------------------------------------- proposals

@@ -11,7 +11,7 @@ from rest_framework import serializers
 
 from .models import (CrmOrg, CrmMember, Lead, Conversation, Message, Proposal,
                      Company, Contact, Pipeline, Stage, Deal, Activity,
-                     Product, Territory, RoutingRule)
+                     Product, Territory, RoutingRule, WhatsAppTemplate)
 
 
 class CrmOrgSerializer(serializers.ModelSerializer):
@@ -212,3 +212,13 @@ class RoutingRuleSerializer(serializers.ModelSerializer):
         fields = ["id", "org", "order", "match_industry", "match_source",
                   "min_company_size", "assign_to", "territory", "active"]
         read_only_fields = ["id"]
+
+
+class WhatsAppTemplateSerializer(serializers.ModelSerializer):
+    # Owner-defined templates. `body` is the owner's own copy — the CRM never
+    # invents template content, so nothing here is server-generated.
+    class Meta:
+        model = WhatsAppTemplate
+        fields = ["id", "org", "name", "meta_name", "language", "body",
+                  "approved", "active", "created_at"]
+        read_only_fields = ["id", "created_at"]

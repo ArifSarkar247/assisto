@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import 'crm_common.dart';
 import 'crm_lead_form_screen.dart';
 import 'crm_proposal_screen.dart';
+import 'crm_whatsapp_sheet.dart';
 
 /// Lead/Deal detail (CRM_SPEC): smart profile, score WITH reasons, full timeline
 /// (messages / calls / meetings / notes / AI summaries / sentiment), next step,
@@ -66,6 +67,17 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
           SnackBar(content: Text(t.crmQuickLaunchFailed)));
     }
     _load();
+  }
+
+  // Open the WhatsApp Business Cloud API sheet. A send there is auto-logged on
+  // the server, so we refresh the timeline when it returns true.
+  Future<void> _openWhatsApp(Map<String, dynamic> l) async {
+    final name = (l['name']?.toString().isNotEmpty == true
+        ? l['name']
+        : (l['company'] ?? '')).toString();
+    final sent = await CrmWhatsAppSheet.show(context,
+        leadId: widget.leadId, leadName: name);
+    if (sent == true) _load();
   }
 
   @override
@@ -144,8 +156,10 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
             Expanded(child: _action(t.crmCall, Icons.call, phone.isNotEmpty,
                 () => _quick(t, 'call', 'tel:$phone'))),
             const SizedBox(width: Gap.sm),
+            // WhatsApp now opens the official Business Cloud API sheet (send +
+            // auto-log + key-gated state) — NOT a wa.me personal deep-link.
             Expanded(child: _action('WhatsApp', Icons.chat, (wa.isNotEmpty || phone.isNotEmpty),
-                () => _quick(t, 'whatsapp', 'https://wa.me/${(wa.isNotEmpty ? wa : phone).replaceAll(RegExp(r"[^0-9]"), "")}'))),
+                () => _openWhatsApp(l))),
             const SizedBox(width: Gap.sm),
             Expanded(child: _action(t.email, Icons.mail_outline, email.isNotEmpty,
                 () => _quick(t, 'email', 'mailto:$email'))),

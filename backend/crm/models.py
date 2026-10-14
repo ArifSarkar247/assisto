@@ -625,3 +625,59 @@ class AuditEntry(models.Model):
     class Meta:
         ordering = ["-at"]
         indexes = [models.Index(fields=["org", "-at"])]
+
+
+# =====================================================================
+# WHATSAPP (official Business Cloud API ONLY) — templates + per-lead
+# opt-in / service-window state. Sending is MOCKED + key-gated in
+# whatsapp.py / views; every send & receive is auto-logged as an Activity
+# (kind="whatsapp"), so no new "message log" table is needed — the Activity
+# timeline IS the comms log (the key value of the integration).
+# =====================================================================
+
+
+class WhatsAppTemplate(models.Model):
+    """An OWNER-DEFINED WhatsApp message template, scoped to an org.
+
+    `body` is text the owner wrote themselves; the CRM never invents template
+    copy. {{1}}, {{2}}… placeholders are filled from caller-supplied params at
+    send time (whatsapp.render_template). `meta_name` is the name the template
+    is registered under in the Meta Business Manager — required for a PAID
+    template send OUTSIDE the 24h window (Cloud API rule)."""
+    org = models.ForeignKey(CrmOrg, on_delete=models.CASCADE,
+                            related_name="wa_templates")
+    name = models.CharField(max_length=120)             # human label in-app
+    meta_name = models.CharField(max_length=120, blank=True)  # Meta-registered name
+    language = models.CharField(max_length=8, default="bn")   # bn / en
+    body = models.TextField()                           # owner-written copy
+    # Whether this template was APPROVED in Meta Business Manager. Only an
+    # approved template may be sent outside the 24h service window.
+    approved = models.BooleanField(default=False)
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name"]
+        unique_together = [("org", "name")]
+
+    def __str__(self):
+        return self.name
+
+
+class WhatsAppOptIn(models.Model):
+    """Per-lead WhatsApp consent + service-window tracking.
+
+    `opted_in` gates ALL sends (bulk and 1:1) — a lead that hasn't opted in is
+    never messaged. `last_inbound_at` is stamped every time the lead sends us a
+    message (webhook/receive); it drives the 24h free-form window. One row per
+    lead (OneToOne) keeps the lead table clean and additive."""
+    lead = models.OneToOneField(Lead, on_delete=models.CASCADE,
+                                related_name="wa_optin")
+    opted_in = models.BooleanField(default=False)
+    opted_in_at = models.DateTimeField(null=True, blank=True)
+    # Stamp of the lead's most recent INBOUND WhatsApp message (drives the 24h
+    # customer-service window for free-form replies).
+    last_inbound_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"wa-optin lead#{self.lead_id} ({'in' if self.opted_in else 'out'})"

@@ -25,8 +25,13 @@ router.register("members", views.MemberViewSet, basename="crm-member")
 router.register("routing-rules", views.RoutingRuleViewSet, basename="crm-routing")
 router.register("territories", views.TerritoryViewSet, basename="crm-territory")
 router.register("products", views.ProductViewSet, basename="crm-product")
+router.register("wa-templates", views.WhatsAppTemplateViewSet,
+                basename="crm-wa-template")
 
 urlpatterns = [
+    # Opt-in bulk WhatsApp send to a filtered lead set (official Cloud API only,
+    # MOCK + key-gated, fans out to individual 1:1 sends — never a group).
+    path("whatsapp/bulk", views.WhatsAppBulkSendView.as_view()),
     # Omnichannel capture webhook (gated on WhatsApp integration).
     path("capture", views.CaptureWebhookView.as_view()),
     # Rule-based paste extraction (no AI/scraping): POST {text} → field guesses.

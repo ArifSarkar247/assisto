@@ -190,7 +190,7 @@ class ForecastHonestyTests(TestCase):
 # ---------------------------------------------------------------------------
 import logging
 
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APITransactionTestCase
 
 from .models import Deal, Stage
 from . import errors as crm_errors
@@ -332,3 +332,163 @@ class RefCodeCorrelationTests(APITestCase):
         self.assertEqual(len(code), 6)
         # Unambiguous alphabet: never 0/O/1/I.
         self.assertFalse(set(code) & set("01OI"))
+
+
+# =====================================================================
+# WhatsApp integration (official Cloud API only; MOCK + key-gated) — PURE LOGIC
+# tests run with NO Meta key and NO network.
+# =====================================================================
+from . import whatsapp as _wa
+
+
+class WhatsAppLogicTests(TestCase):
+    """render_template, 24h-window rule, opt-in filter, bulk fan-out, and the
+    official-channel guard — all deterministic, no network."""
+
+    def test_render_template_fills_owner_params_only(self):
+        # {{1}}/{{2}} are filled; the CRM never invents copy, and an unfilled
+        # placeholder stays visible (honest) rather than silently blanked.
+        body = "হ্যালো {{1}}, আপনার {{2}} রেডি।"
+        out = _wa.render_template(body, ["করিম", "কোটেশন"])
+        self.assertEqual(out, "হ্যালো করিম, আপনার কোটেশন রেডি।")
+        self.assertIn("{{2}}", _wa.render_template(body, ["করিম"]))
+
+    def test_within_24h_window_allows_freeform(self):
+        now = 1_000_000.0
+        self.assertTrue(_wa.within_service_window(now - 3600, now))      # 1h ago
+        self.assertFalse(_wa.within_service_window(now - 25 * 3600, now))  # 25h
+        self.assertFalse(_wa.within_service_window(None, now))            # never
+
+    def test_optout_lead_is_blocked(self):
+        p = _wa.plan_send(last_inbound_ts=1.0, now_ts=2.0, has_key=True,
+                          opted_in=False, text="hi", to="8801712345678")
+        self.assertEqual(p["state"], "blocked_optout")
+        self.assertFalse(p["allowed"])
+
+    def test_outside_window_requires_template(self):
+        now = 1_000_000.0
+        # No template + stale window → needs_template (free-form refused).
+        p = _wa.plan_send(last_inbound_ts=now - 48 * 3600, now_ts=now,
+                          has_key=True, opted_in=True, text="hi", to="88017")
+        self.assertEqual(p["state"], "needs_template")
+        # With an approved paid template it is allowed (queued when key present).
+        p2 = _wa.plan_send(last_inbound_ts=now - 48 * 3600, now_ts=now,
+                           has_key=True, opted_in=True, template_name="reorder",
+                           template_body="পুনরায় অর্ডার {{1}}",
+                           template_params=["করিম"], to="88017")
+        self.assertEqual(p2["state"], "queued")
+        self.assertTrue(p2["paid_template"])
+        self.assertEqual(p2["rendered"], "পুনরায় অর্ডার করিম")
+
+    def test_no_key_is_needs_key_never_fake_delivery(self):
+        p = _wa.plan_send(last_inbound_ts=1.0, now_ts=2.0, has_key=False,
+                          opted_in=True, text="hi", to="88017")
+        self.assertEqual(p["state"], "needs_key")   # drafted, NOT 'delivered'
+        self.assertTrue(p["allowed"])
+
+    def test_personal_whatsapp_is_banned(self):
+        with self.assertRaises(_wa.PersonalWhatsAppBanned):
+            _wa.guard_channel("whatsapp_personal")
+
+    def test_bulk_fanout_is_individual_and_respects_optin(self):
+        now = 1_000_000.0
+        leads = [
+            {"id": 1, "to": "88017", "opted_in": True, "last_inbound_ts": now - 3600},
+            {"id": 2, "to": "88018", "opted_in": False, "last_inbound_ts": now - 3600},
+            {"id": 3, "to": "88019", "opted_in": True, "last_inbound_ts": now - 48 * 3600},
+        ]
+        plan = _wa.bulk_fanout_plan(leads=leads, now_ts=now, has_key=False,
+                                    text="update")
+        self.assertEqual(plan["fanout"], "individual")   # never a group
+        self.assertEqual(plan["counts"]["needs_key"], 1)       # in-window, opted
+        self.assertEqual(plan["counts"]["blocked_optout"], 1)  # opt-out skipped
+        self.assertEqual(plan["counts"]["needs_template"], 1)  # stale window
+
+
+class WhatsAppEndpointTests(APITransactionTestCase):
+    """End-to-end: with NO Meta key a send returns a drafted 'needs_key' state
+    (never a faked delivery) AND is auto-logged as a whatsapp Activity.
+
+    The two new WhatsApp models ship WITHOUT an authored migration (the
+    integrator runs `makemigrations crm`). So the test DB won't have their
+    tables yet — we create them TRANSIENTLY in setUp with the schema editor
+    (and drop them in tearDown) so the endpoints can be verified without us
+    authoring a migration file. This mirrors exactly what the generated
+    migration will do. We use a TRANSACTION test case so the schema editor is
+    not fighting an open class-level atomic block (SQLite restriction)."""
+
+    _wa_models = None
+
+    def _wa_schema(self, create):
+        from django.db import connection
+        from .models import WhatsAppTemplate, WhatsAppOptIn
+        self._wa_models = [WhatsAppTemplate, WhatsAppOptIn]
+        existing = connection.introspection.table_names()
+        connection.disable_constraint_checking()
+        try:
+            with connection.schema_editor() as se:
+                models = self._wa_models if create else list(reversed(self._wa_models))
+                for m in models:
+                    present = m._meta.db_table in existing
+                    if create and not present:
+                        se.create_model(m)
+                    elif not create and present:
+                        try:
+                            se.delete_model(m)
+                        except Exception:
+                            pass
+        finally:
+            connection.enable_constraint_checking()
+
+    def setUp(self):
+        self._wa_schema(create=True)
+        self.user = User.objects.create_user(phone="0173333333", password="x12345")
+        self.client.force_authenticate(user=self.user)
+        self.org = CrmOrg.objects.create(name="Axon", owner=self.user)
+        CrmMember.objects.create(org=self.org, user=self.user,
+                                 role=CrmMember.OWNER)
+        self.lead = Lead.objects.create(org=self.org, name="Karim",
+                                        phone="01712345678", whatsapp="01712345678")
+
+    def tearDown(self):
+        self._wa_schema(create=False)
+
+    def test_send_needs_key_and_auto_logs_activity(self):
+        # Opt the lead in + stamp an inbound so we are inside the 24h window.
+        self.client.post(f"/api/v1/crm/leads/{self.lead.id}/whatsapp_optin/",
+                         {"opted_in": True}, format="json")
+        self.client.post(f"/api/v1/crm/leads/{self.lead.id}/whatsapp_receive/",
+                         {"text": "দাম কত?"}, format="json")
+        from .models import Activity, WhatsAppOptIn
+        r = self.client.post(f"/api/v1/crm/leads/{self.lead.id}/whatsapp_send/",
+                            {"text": "ধন্যবাদ, কোটেশন পাঠাচ্ছি"}, format="json")
+        self.assertEqual(r.status_code, 200, r.data)
+        # No Meta key in tests → honest drafted state, NEVER 'delivered'.
+        self.assertEqual(r.data["state"], "needs_key")
+        self.assertEqual(r.data["mode"], "freeform")
+        # The outbound was AUTO-LOGGED on the timeline as a whatsapp activity.
+        self.assertTrue(Activity.objects.filter(
+            lead=self.lead, kind=Activity.WHATSAPP).exists())
+        # Inbound receive stamped the window + implied opt-in.
+        row = WhatsAppOptIn.objects.get(lead=self.lead)
+        self.assertTrue(row.opted_in)
+        self.assertIsNotNone(row.last_inbound_at)
+
+    def test_optout_lead_send_refused(self):
+        r = self.client.post(f"/api/v1/crm/leads/{self.lead.id}/whatsapp_send/",
+                            {"text": "hi"}, format="json")
+        self.assertEqual(r.status_code, 409)
+        self.assertEqual(r.data["state"], "blocked_optout")
+
+    def test_bulk_fans_out_individually_opt_in_only(self):
+        other = Lead.objects.create(org=self.org, name="Rahim",
+                                    phone="01811111111")
+        # Opt in only the first lead (inside window via receive).
+        self.client.post(f"/api/v1/crm/leads/{self.lead.id}/whatsapp_receive/",
+                         {"text": "hi"}, format="json")
+        r = self.client.post("/api/v1/crm/whatsapp/bulk",
+                            {"org": self.org.id, "text": "update"}, format="json")
+        self.assertEqual(r.status_code, 200, r.data)
+        self.assertEqual(r.data["fanout"], "individual")   # never a group
+        self.assertEqual(r.data["counts"]["needs_key"], 1)       # opted-in lead
+        self.assertEqual(r.data["counts"]["blocked_optout"], 1)  # other lead

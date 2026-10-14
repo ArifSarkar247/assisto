@@ -1,0 +1,19 @@
+{
+  "crmWaConnectPrompt": ["অফিসিয়াল WhatsApp Business যুক্ত হলে সরাসরি পাঠানো চালু হবে — এখন খসড়া তৈরি হবে।", "Direct sending turns on when the official WhatsApp Business account is connected — for now messages are drafted."],
+  "crmWaOptIn": ["WhatsApp-এ যোগাযোগের সম্মতি", "Opted in to WhatsApp"],
+  "crmWaOptInHint": ["পাঠানোর আগে লিডের সম্মতি দরকার।", "The lead must consent before any message is sent."],
+  "crmWaInWindow": ["২৪ ঘণ্টার উইন্ডোর ভেতরে — ফ্রি-ফর্ম মেসেজ পাঠানো যাবে।", "Inside the 24-hour window — a free-form message is allowed."],
+  "crmWaOutWindow": ["২৪ ঘণ্টার উইন্ডো শেষ — শুধু অনুমোদিত টেমপ্লেট পাঠানো যাবে।", "The 24-hour window has lapsed — only an approved template may be sent."],
+  "crmWaOutWindowHint": ["ফ্রি-ফর্ম এখন বন্ধ — একটি টেমপ্লেট বেছে নিন।", "Free-form is unavailable now — pick a template."],
+  "crmWaTemplate": ["টেমপ্লেট", "Template"],
+  "crmWaFreeForm": ["ফ্রি-ফর্ম মেসেজ", "Free-form message"],
+  "crmWaMessage": ["মেসেজ", "Message"],
+  "crmWaSend": ["WhatsApp-এ পাঠান", "Send on WhatsApp"],
+  "crmWaSendDraft": ["খসড়া সারিবদ্ধ করুন", "Queue draft"],
+  "crmWaQueued": ["মেসেজ পাঠানোর জন্য সারিবদ্ধ হয়েছে।", "Message queued for sending."],
+  "crmWaDraftedNeedsKey": ["খসড়া সংরক্ষিত — WhatsApp Business যুক্ত হলে পাঠানো হবে।", "Draft saved — it will be sent once WhatsApp Business is connected."],
+  "crmWaDrafted": ["খসড়া সংরক্ষিত হয়েছে।", "Draft saved."],
+  "crmWaAutoLogNote": ["প্রতিটি মেসেজ লিডের টাইমলাইনে স্বয়ংক্রিয়ভাবে লগ হয়।", "Every message is auto-logged on the lead's timeline."],
+  "crmWaBulkTitle": ["বাল্ক WhatsApp পাঠান", "Bulk WhatsApp send"],
+  "crmWaBulkHint": ["শুধু সম্মতি দেওয়া লিডকে আলাদা করে পাঠানো হয় — কোনো গ্রুপ নয়।", "Only opted-in leads are messaged individually — never a group."]
+}

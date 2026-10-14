@@ -149,6 +149,43 @@ class CrmApi {
   // ---- price book ----
   Future<List<Map<String, dynamic>>> products(int org) =>
       _c.listItems('crm/products?org=$org');
+
+  // ---- WhatsApp (official Business Cloud API only; MOCK + key-gated) ----
+  // Honest state for the lead sheet: has_key (owner connected Meta Cloud API),
+  // opted_in, in_window (24h free-form window). Never pretends to be live.
+  Future<Map<String, dynamic>> whatsappStatus(int leadId) =>
+      _c.getJson('/crm/leads/$leadId/whatsapp_status/');
+  // Record the lead's WhatsApp consent (required before any send).
+  Future<Map<String, dynamic>> whatsappOptIn(int leadId, bool optedIn) =>
+      _c.postJson('/crm/leads/$leadId/whatsapp_optin/', {'opted_in': optedIn});
+  // Send a WhatsApp message/template from the CRM. With no Meta key the server
+  // returns state='needs_key' (drafted) — never a faked delivery. Either way the
+  // send is auto-logged on the lead timeline as a whatsapp activity.
+  Future<Map<String, dynamic>> whatsappSend(int leadId,
+          {String? text, int? templateId, List<String> params = const []}) =>
+      _c.postJson('/crm/leads/$leadId/whatsapp_send/', {
+        if (text != null) 'text': text,
+        if (templateId != null) 'template_id': templateId,
+        if (params.isNotEmpty) 'params': params,
+      });
+  // Owner-defined WhatsApp templates (list + use). Body is owner-written copy;
+  // the CRM never invents template content.
+  Future<List<Map<String, dynamic>>> waTemplates(int org) =>
+      _c.listItems('crm/wa-templates?org=$org&active=1');
+  // Opt-in bulk send to a filtered lead set — fans out to individual 1:1 sends,
+  // never a group (server enforces opt-in + 24h-window + paid-template rules).
+  Future<Map<String, dynamic>> whatsappBulk(int org,
+          {String? text, int? templateId, List<String> params = const [],
+          List<int> leadIds = const [], String? status, String? priority}) =>
+      _c.postJson('/crm/whatsapp/bulk', {
+        'org': org,
+        if (text != null) 'text': text,
+        if (templateId != null) 'template_id': templateId,
+        if (params.isNotEmpty) 'params': params,
+        if (leadIds.isNotEmpty) 'lead_ids': leadIds,
+        if (status != null) 'status': status,
+        if (priority != null) 'priority': priority,
+      });
 }
 
 /// A CRM failure the UI can render honestly: a human message + a short 6-char

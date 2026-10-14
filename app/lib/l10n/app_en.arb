@@ -3089,5 +3089,22 @@
   "nearbyLocationBanner": "Distance is hidden without location — showing a sample list.",
   "nearbyEnable": "Enable",
   "nearbyNoFavourites": "No saved places yet",
-  "nearbyNoFavouritesHint": "Tap the star on a place to save it here."
+  "nearbyNoFavouritesHint": "Tap the star on a place to save it here.",
+  "crmWaConnectPrompt": "Direct sending turns on when the official WhatsApp Business account is connected — for now messages are drafted.",
+  "crmWaOptIn": "Opted in to WhatsApp",
+  "crmWaOptInHint": "The lead must consent before any message is sent.",
+  "crmWaInWindow": "Inside the 24-hour window — a free-form message is allowed.",
+  "crmWaOutWindow": "The 24-hour window has lapsed — only an approved template may be sent.",
+  "crmWaOutWindowHint": "Free-form is unavailable now — pick a template.",
+  "crmWaTemplate": "Template",
+  "crmWaFreeForm": "Free-form message",
+  "crmWaMessage": "Message",
+  "crmWaSend": "Send on WhatsApp",
+  "crmWaSendDraft": "Queue draft",
+  "crmWaQueued": "Message queued for sending.",
+  "crmWaDraftedNeedsKey": "Draft saved — it will be sent once WhatsApp Business is connected.",
+  "crmWaDrafted": "Draft saved.",
+  "crmWaAutoLogNote": "Every message is auto-logged on the lead's timeline.",
+  "crmWaBulkTitle": "Bulk WhatsApp send",
+  "crmWaBulkHint": "Only opted-in leads are messaged individually — never a group."
 }
