@@ -2222,3 +2222,70 @@ class ModerationAudit(models.Model):
 
     class Meta:
         ordering = ["-at"]
+
+
+# ===========================================================================
+# HOME NOTIFICATION CENTRE + DYNAMIC SUGGESTION ENGINE
+#   Pure logic lives in core.logic.notif_centre + core.logic.suggestions.
+#   These models are the persistence/sync layer the endpoints read/write.
+#   (NO migration authored here — the integrator runs makemigrations.)
+# ===========================================================================
+
+class NotifEvent(models.Model):
+    """A persisted notification-centre event ("something happened") — circle /
+    community / channel requests + activity, family alerts, scam/watch alerts,
+    business/CRM events, security logins, plan/points, app updates.
+
+    CHAT MESSAGES ARE NEVER STORED HERE — they drive the My Circle unread count
+    (CircleMessage.read_by), not the notification centre. The feed builder also
+    drops any chat-typed row defensively.
+
+    Reuses existing alert data where present (FamilyAlert, WatchHit, …) — the
+    view merges those live rows with these persisted events into one feed, so
+    this table only needs to hold events that have no other home."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="notif_events")
+    type = models.CharField(max_length=24, default="app_update")  # notif_centre.NOTIF_TYPES
+    title_bn = models.CharField(max_length=200, blank=True, default="")
+    title_en = models.CharField(max_length=200, blank=True, default="")
+    body_bn = models.TextField(blank=True, default="")
+    body_en = models.TextField(blank=True, default="")
+    route = models.CharField(max_length=40, blank=True, default="")
+    seen = models.BooleanField(default=False)
+    meta = models.JSONField(default=dict, blank=True)
+    at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["-at"]
+        indexes = [models.Index(fields=["user", "seen"]),
+                   models.Index(fields=["user", "type"])]
+
+
+class NotifSettings(models.Model):
+    """Per-user, per-type notification toggles. `enabled` is a {type: bool} map;
+    a missing type defaults to ON (opt-out). The feed + unseen count both
+    respect this (notif_centre.type_enabled)."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="notif_settings")
+    enabled = models.JSONField(default=dict, blank=True)   # {type: bool}
+    read_all_at = models.DateTimeField(null=True, blank=True)  # bulk mark-read watermark
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class SuggestionState(models.Model):
+    """Per-user learn-from-use state for the home suggestion cards.
+
+    taps/ignores  — {prompt_key_or_kind: count} tallies that raise/drop prompts.
+    suppressed    — keys the user long-pressed "don't show".
+    served_today  — the 4 keys last served + the date (so we know yesterday's set
+                    for the no-repeat-two-days rule).
+    All pure-engine inputs; no AI involved."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="suggestion_state")
+    taps = models.JSONField(default=dict, blank=True)
+    ignores = models.JSONField(default=dict, blank=True)
+    suppressed = models.JSONField(default=list, blank=True)
+    served_keys = models.JSONField(default=list, blank=True)   # last served 4
+    served_date = models.DateField(null=True, blank=True)
+    served_prev_keys = models.JSONField(default=list, blank=True)  # the day before
+    updated_at = models.DateTimeField(auto_now=True)

@@ -4787,5 +4787,71 @@
   "channelInfo": "Channel info",
   "channelReport": "Report channel",
   "channelRequestVerify": "Request verification",
-  "channelVerifyRequested": "Verification requested"
+  "channelVerifyRequested": "Verification requested",
+  "homeMyCircle": "My Circle",
+  "homeNotifications": "Notifications",
+  "homeSuggestionsTitle": "For you",
+  "homeRefreshSuggestions": "Refresh suggestions",
+  "homeDontShow": "Don't show this",
+  "homeSuggestionsEmpty": "No suggestions right now",
+  "homeSuggestionsError": "Couldn't load suggestions",
+  "homeRetry": "Retry",
+  "notifCentreTitle": "Notifications",
+  "notifTabReminders": "Reminders",
+  "notifTabNotifications": "Notifications",
+  "notifSectionToday": "Today",
+  "notifSectionUpcoming": "Upcoming",
+  "notifSectionMissed": "Missed",
+  "notifDone": "Done",
+  "notifSnooze": "Snooze",
+  "notifOpen": "Open",
+  "notifSnooze15m": "In 15 minutes",
+  "notifSnooze1h": "In 1 hour",
+  "notifSnoozeTomorrow": "Tomorrow",
+  "notifSnoozeCustom": "Pick a time…",
+  "notifSnoozed": "We'll remind you later",
+  "notifReminderFallbackTitle": "Reminder",
+  "notifRemindersAllClear": "All clear",
+  "notifRemindersAllClearBody": "You have no reminders right now.",
+  "notifFilterAll": "All",
+  "notifMarkAllRead": "Mark all read",
+  "notifTypeCircle": "Circle",
+  "notifTypeCommunity": "Community",
+  "notifTypeChannel": "Channel",
+  "notifTypeFamily": "Family",
+  "notifTypeScam": "Scam alert",
+  "notifTypeWatch": "Watch feed",
+  "notifTypeBusiness": "Business",
+  "notifTypeCrm": "CRM",
+  "notifTypeSecurity": "Security",
+  "notifTypePlan": "Plan",
+  "notifTypePoints": "Points",
+  "notifTypeUpdate": "App update",
+  "notifTypeOther": "Other",
+  "notifJustNow": "Just now",
+  "notifMinutesAgo": "{n}m ago",
+  "@notifMinutesAgo": {
+    "placeholders": {
+      "n": {}
+    }
+  },
+  "notifHoursAgo": "{n}h ago",
+  "@notifHoursAgo": {
+    "placeholders": {
+      "n": {}
+    }
+  },
+  "notifDaysAgo": "{n}d ago",
+  "@notifDaysAgo": {
+    "placeholders": {
+      "n": {}
+    }
+  },
+  "notifFeedEmpty": "No notifications",
+  "notifFeedEmptyBody": "New activity will show up here.",
+  "notifOfflineNote": "Offline — showing saved",
+  "notifErrorTitle": "Couldn't load",
+  "notifErrorBody": "Something went wrong. Please try again.",
+  "notifRetry": "Retry",
+  "notifActionFailed": "That didn't work. Please try again."
 }

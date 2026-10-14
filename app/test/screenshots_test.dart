@@ -21,6 +21,8 @@ import 'package:assisto/screens/agent_thread_screen.dart';
 import 'package:assisto/screens/app_drawer.dart';
 import 'package:assisto/screens/messenger/messenger_home_screen.dart';
 import 'package:assisto/screens/messenger/messenger_settings_screen.dart';
+import 'package:assisto/screens/messenger/contact_info_screen.dart';
+import 'package:assisto/screens/notification_centre_screen.dart';
 import 'package:assisto/screens/settings_screen.dart';
 import 'package:assisto/screens/in_progress_screen.dart';
 import 'package:assisto/screens/money_screen.dart';
@@ -181,12 +183,16 @@ void main() {
     'login': (build: (_) => const LoginScreen(), mode: FakeMode.data, full: true),
     'language_picker': (build: (_) => const LanguagePickerScreen(), mode: FakeMode.data, full: true),
     'home_welcome': (build: (_) => const HomeScreen(), mode: FakeMode.data, full: true),
+    'notification_centre': (build: (_) => const NotificationCentreScreen(), mode: FakeMode.data, full: true),
     'chat': (build: (l) => Scaffold(appBar: AppBar(title: const Text('Assisto')), body: AgentThreadScreen(debugSeed: _chat(l))), mode: FakeMode.data, full: true),
     'chat_voice': (build: (l) => Scaffold(appBar: AppBar(title: const Text('Assisto')), body: AgentThreadScreen(debugSeed: const [], debugListening: true)), mode: FakeMode.data, full: true),
     'drawer': (build: (_) => Scaffold(body: Row(children: [AppDrawer(onNewChat: () {})])), mode: FakeMode.data, full: true),
     'drawer_bottom': (build: (_) => Scaffold(body: Row(children: [AppDrawer(onNewChat: () {})])), mode: FakeMode.data, full: true),
     'messenger': (build: (_) => const MessengerHomeScreen(), mode: FakeMode.data, full: true),
     'messenger_settings': (build: (_) => const MessengerSettingsScreen(), mode: FakeMode.data, full: true),
+    'contact_info': (build: (l) => ContactInfoScreen(member: _circleMember(l)), mode: FakeMode.data, full: true),
+    'messenger_menu': (build: (_) => const MessengerHomeScreen(), mode: FakeMode.data, full: true),
+    'circle_chat_menu': (build: (l) => CircleChatScreen(member: _circleMember(l), identity: _identity), mode: FakeMode.data, full: true),
     'money': (build: (_) => const MoneyScreen(), mode: FakeMode.data, full: true),
     'vault': (build: (_) => const VaultScreen(previewUnlocked: true), mode: FakeMode.data, full: true),
     'family': (build: (_) => const FamilyScreen(), mode: FakeMode.data, full: true),
@@ -298,6 +304,12 @@ void main() {
     });
     for (var i = 0; i < 4; i++) {
       await tester.pump(const Duration(milliseconds: 60));
+    }
+    if (name.endsWith('_menu')) {
+      try {
+        final mv = find.byIcon(Icons.more_vert);
+        if (mv.evaluate().isNotEmpty) { await tester.tap(mv.first); await tester.pumpAndSettle(const Duration(milliseconds: 300)); }
+      } catch (_) {}
     }
     final boundary =
         key.currentContext!.findRenderObject() as RenderRepaintBoundary;

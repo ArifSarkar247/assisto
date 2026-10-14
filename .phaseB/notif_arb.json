@@ -1,0 +1,58 @@
+{
+  "_comment": "Assisto NOTIFICATION CENTRE (the bell screen). Format: [bn, en]. Integrator: merge into app/lib/l10n/app_bn.arb + app_en.arb (do NOT edit those directly), then regenerate app_localizations.dart. All keys are NEW (notif* namespace — none collide with watch*/circle*/crm*). camelCase. Dynamic reminder/feed titles+bodies are NOT here — they arrive from the API as {bn,en} pairs. Placeholder keys (notifMinutesAgo/notifHoursAgo/notifDaysAgo) take a single {n} count argument (String, pre-localised digits).",
+
+  "notifCentreTitle": ["নোটিফিকেশন", "Notifications"],
+  "notifTabReminders": ["রিমাইন্ডার", "Reminders"],
+  "notifTabNotifications": ["নোটিফিকেশন", "Notifications"],
+
+  "notifSectionToday": ["আজ", "Today"],
+  "notifSectionUpcoming": ["আসন্ন", "Upcoming"],
+  "notifSectionMissed": ["মিস হয়েছে", "Missed"],
+
+  "notifDone": ["সম্পন্ন", "Done"],
+  "notifSnooze": ["পরে মনে করান", "Snooze"],
+  "notifOpen": ["খুলুন", "Open"],
+
+  "notifSnooze15m": ["১৫ মিনিট পর", "In 15 minutes"],
+  "notifSnooze1h": ["১ ঘণ্টা পর", "In 1 hour"],
+  "notifSnoozeTomorrow": ["আগামীকাল", "Tomorrow"],
+  "notifSnoozeCustom": ["সময় বেছে নিন…", "Pick a time…"],
+  "notifSnoozed": ["পরে মনে করিয়ে দেওয়া হবে", "We'll remind you later"],
+
+  "notifReminderFallbackTitle": ["রিমাইন্ডার", "Reminder"],
+
+  "notifRemindersAllClear": ["সব ঠিক আছে", "All clear"],
+  "notifRemindersAllClearBody": ["এই মুহূর্তে কোনো রিমাইন্ডার নেই।", "You have no reminders right now."],
+
+  "notifFilterAll": ["সব", "All"],
+  "notifMarkAllRead": ["সব পড়া হয়েছে", "Mark all read"],
+
+  "notifTypeCircle": ["সার্কেল", "Circle"],
+  "notifTypeCommunity": ["কমিউনিটি", "Community"],
+  "notifTypeChannel": ["চ্যানেল", "Channel"],
+  "notifTypeFamily": ["পরিবার", "Family"],
+  "notifTypeScam": ["স্ক্যাম সতর্কতা", "Scam alert"],
+  "notifTypeWatch": ["ওয়াচ ফিড", "Watch feed"],
+  "notifTypeBusiness": ["ব্যবসা", "Business"],
+  "notifTypeCrm": ["সিআরএম", "CRM"],
+  "notifTypeSecurity": ["নিরাপত্তা", "Security"],
+  "notifTypePlan": ["প্ল্যান", "Plan"],
+  "notifTypePoints": ["পয়েন্ট", "Points"],
+  "notifTypeUpdate": ["অ্যাপ আপডেট", "App update"],
+  "notifTypeOther": ["অন্যান্য", "Other"],
+
+  "notifJustNow": ["এইমাত্র", "Just now"],
+  "notifMinutesAgo": ["{n} মিনিট আগে", "{n}m ago"],
+  "notifHoursAgo": ["{n} ঘণ্টা আগে", "{n}h ago"],
+  "notifDaysAgo": ["{n} দিন আগে", "{n}d ago"],
+
+  "notifFeedEmpty": ["কোনো নোটিফিকেশন নেই", "No notifications"],
+  "notifFeedEmptyBody": ["নতুন কিছু এলে এখানে দেখতে পাবেন।", "New activity will show up here."],
+
+  "notifOfflineNote": ["অফলাইন — সংরক্ষিত তথ্য দেখানো হচ্ছে", "Offline — showing saved"],
+
+  "notifErrorTitle": ["লোড করা যায়নি", "Couldn't load"],
+  "notifErrorBody": ["কিছু একটা সমস্যা হয়েছে। আবার চেষ্টা করুন।", "Something went wrong. Please try again."],
+  "notifRetry": ["আবার চেষ্টা করুন", "Retry"],
+  "notifActionFailed": ["কাজটি সম্পন্ন করা যায়নি। আবার চেষ্টা করুন।", "That didn't work. Please try again."]
+}

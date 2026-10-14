@@ -77,6 +77,18 @@ urlpatterns = [
     path("plans", views.PlansPublicView.as_view()),
     path("briefing", views.briefing),
     path("alerts", views.alerts),
+
+    # ---- home notification centre + dynamic suggestions ----
+    path("notif/reminders", views.notif_reminders),
+    path("notif/reminders/<str:item_id>/snooze", views.notif_reminder_snooze),
+    path("notif/feed", views.notif_feed),
+    path("notif/read-all", views.notif_read_all),
+    path("notif/<str:item_id>/seen", views.notif_seen),
+    path("home/suggestions", views.home_suggestions),
+    path("home/suggestions/dismiss", views.home_suggestions_dismiss),
+    path("home/suggestions/tap", views.home_suggestions_tap),
+    path("home/badges", views.home_badges),
+
     path("scan", views.LifeScanView.as_view()),
     path("agent", views.AgentView.as_view()),
     path("wrapped", views.wrapped),

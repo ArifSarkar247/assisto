@@ -645,6 +645,37 @@ class FakeApi extends ApiClient {
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
     await _slow();
+    // ===== Home / Notification centre stubs =====
+    if (path == '/home/badges') return {'my_circle_unread': 3, 'notif_unseen': 5};
+    if (path.startsWith('/home/suggestions')) {
+      if (mode == FakeMode.fail) _fail();
+      final b = _bn;
+      return {'lang': b ? 'bn' : 'en', 'prompts': [
+        {'key':'medicine_due','text': b?'আম্মুর ওষুধের সময় হয়েছে — রেকর্ড করুন':'Record Mom\'s medicine (due now)','route':'family'},
+        {'key':'pay_bill','text': b?'বিদ্যুৎ বিল ৳৮৫০ আজ শেষ তারিখ':'Electricity bill ৳850 due today','route':'money'},
+        {'key':'birthday','text': b?'রহিমের জন্মদিন আগামীকাল — শুভেচ্ছা পাঠান':'Rahim\'s birthday tomorrow — send a wish','route':'birthdays'},
+        {'key':'morning','text': b?'সকালের সারসংক্ষেপ দেখুন':'See your morning briefing','route':'watch_feed'},
+      ]};
+    }
+    if (path.startsWith('/notif/reminders')) {
+      if (mode == FakeMode.fail) _fail();
+      final b=_bn;
+      Map<String,dynamic> it(id,ttl_bn,ttl_en,sec,route)=>{'id':id,'source_module':route,'title':{'bn':ttl_bn,'en':ttl_en},'when':'2026-10-14T18:00:00','section':sec,'route':route,'actions':['done','snooze','open']};
+      return {'now':'2026-10-14T09:00:00','snooze_options':['15m','1h','tomorrow','custom'],'counts':{'today':2,'upcoming':1,'missed':1},'sections':{
+        'missed':[it('reminder:1','গতকালের ওষুধ মিস','Missed yesterday\'s medicine','missed','family')],
+        'today':[it('reminder:2','দুপুরের ওষুধ','Noon medicine','today','family'),it('sub:3','নেটফ্লিক্স নবায়ন ৳৫০০','Netflix renews ৳500','today','subscriptions')],
+        'upcoming':[it('meeting:4','ক্লায়েন্ট মিটিং','Client meeting','upcoming','meetings')]}};
+    }
+    if (path.startsWith('/notif/feed')) {
+      if (mode == FakeMode.fail) _fail();
+      final b=_bn;
+      Map<String,dynamic> ev(id,type,title,bd_bn,bd_en,seen,route)=>{'id':id,'type':type,'title':{'bn':title,'en':title},'body':{'bn':bd_bn,'en':bd_en},'at':'2026-10-14T08:30:00','seen':seen,'route':route};
+      return {'unseen':3,'types':['circle_request','family_alert','business','security'],'items':[
+        ev('notif:1','circle_request',b?'নতুন সার্কেল রিকোয়েস্ট':'New circle request','করিম যুক্ত হতে চান','Karim wants to connect',false,'circle'),
+        ev('notif:2','family_alert',b?'পরিবার সতর্কতা':'Family alert','আম্মু ওষুধ মিস করেছেন','Mom missed a dose',false,'family'),
+        ev('notif:3','business',b?'নতুন অর্ডার':'New order','৩টি নতুন অর্ডার','3 new orders',true,'business'),
+        ev('notif:4','security',b?'নতুন ডিভাইস লগইন':'New device login','নতুন ফোন থেকে লগইন','Login from a new phone',true,'settings')]};
+    }
     // ===== P14-P16 gap stubs =====
     if (path == '/analytics/dashboard') {
       if (mode == FakeMode.fail) _fail();

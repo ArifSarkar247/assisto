@@ -2285,3 +2285,440 @@ class MoneyLearnCategoryView(APIView):
         mp.learn_correction(request.data.get("counterparty", ""),
                             request.data.get("category", ""), user=request.user)
         return Response({"ok": True})
+
+
+# ===========================================================================
+# HOME NOTIFICATION CENTRE + DYNAMIC SUGGESTIONS
+#   Pure engines: core.logic.notif_centre + core.logic.suggestions.
+#   The views here only COLLECT the user's live rows and hand them to the
+#   engines — all classification/ranking/snooze math stays pure & tested.
+# ===========================================================================
+from datetime import datetime, time as _time
+from .logic import notif_centre as _nc
+from .logic import suggestions as _sg
+
+
+def _dt(d):
+    """date -> aware-naive datetime at midnight; pass datetimes through. The
+    engines work in naive local time (we feed them timezone.localtime())."""
+    if d is None:
+        return None
+    if isinstance(d, datetime):
+        return timezone.localtime(d).replace(tzinfo=None) if timezone.is_aware(d) else d
+    return datetime(d.year, d.month, d.day)
+
+
+def _collect_reminders(user, now, lang="bn"):
+    """Aggregate every TIME-BOUND row the user owns into the raw shape
+    notif_centre.build_reminders expects. Pure data gathering only."""
+    from .logic import medicine as _mlogic
+    today = now.date()
+    items = []
+
+    # 1) reminders / alarms / calendar
+    for r in user.reminders.filter(done=False):
+        items.append({
+            "id": f"reminder:{r.id}", "source_module": "reminder",
+            "title": {"bn": r.title, "en": r.title},
+            "when": _dt(r.due_at), "done": r.done,
+            "meta": {"recurrence": r.recurrence},
+        })
+
+    # 2) to-dos (with a due date)
+    for t in user.todos.filter(done=False, due_at__isnull=False):
+        items.append({
+            "id": f"todo:{t.id}", "source_module": "todo",
+            "title": {"bn": t.title, "en": t.title}, "when": _dt(t.due_at),
+        })
+
+    # 3) medicine doses — today's slots as concrete datetimes
+    for m in user.medicines.all():
+        if m.as_needed:
+            continue
+        if m.start_date and today < m.start_date:
+            continue
+        if m.end_date and today > m.end_date:
+            continue
+        for slot in (m.times or []):
+            try:
+                h, mn = str(slot).split(":")
+                when = datetime(today.year, today.month, today.day, int(h), int(mn))
+            except Exception:
+                continue
+            items.append({
+                "id": f"medicine:{m.id}:{slot}", "source_module": "medicine",
+                "title": {"bn": f"{m.name} ({slot})", "en": f"{m.name} ({slot})"},
+                "when": when, "meta": {"dosage": m.dosage, "member_id": m.member_id},
+            })
+
+    # 4) bills / subscriptions due
+    for s in user.subscriptions.filter(next_due__isnull=False):
+        items.append({
+            "id": f"subscription:{s.id}", "source_module": "subscription",
+            "title": {"bn": f"{s.name} বিল", "en": f"{s.name} bill"},
+            "when": _dt(s.next_due), "meta": {"amount": str(s.amount)},
+        })
+
+    # 5) meetings / appointments
+    for mt in user.meetings.filter(when__isnull=False):
+        items.append({
+            "id": f"meeting:{mt.id}", "source_module": "meeting",
+            "title": {"bn": mt.title, "en": mt.title}, "when": _dt(mt.when),
+        })
+    for ap in user.appointments.all():
+        items.append({
+            "id": f"appointment:{ap.id}", "source_module": "appointment",
+            "title": {"bn": ap.title, "en": ap.title}, "when": _dt(ap.start),
+            "meta": {"place": ap.place},
+        })
+
+    # 6) birthdays / memorable days — next occurrence this/next year
+    for b in user.birthdays.all():
+        try:
+            occ = b.date.replace(year=today.year)
+            if occ < today:
+                occ = b.date.replace(year=today.year + 1)
+        except ValueError:
+            continue
+        items.append({
+            "id": f"birthday:{b.id}", "source_module": "birthday",
+            "title": {"bn": f"{b.name} — {b.get_kind_display()}",
+                      "en": f"{b.name} — {b.kind}"},
+            "when": _dt(occ),
+        })
+
+    # 7) document expiry
+    for d in user.documents.filter(expiry_date__isnull=False):
+        items.append({
+            "id": f"document:{d.id}", "source_module": "document",
+            "title": {"bn": f"{d.title} মেয়াদ", "en": f"{d.title} expiry"},
+            "when": _dt(d.expiry_date),
+        })
+
+    # 8) loan / EMI returns (unsettled, with a due date)
+    for ln in user.loans.filter(settled=False, due_date__isnull=False):
+        items.append({
+            "id": f"loan:{ln.id}", "source_module": "loan",
+            "title": {"bn": f"{ln.person} — ধার ফেরত", "en": f"{ln.person} — loan return"},
+            "when": _dt(ln.due_date), "meta": {"amount": str(ln.amount)},
+        })
+
+    return items
+
+
+def _notif_settings(user):
+    """The user's per-type enabled map (empty = all on)."""
+    from .models import NotifSettings
+    ns = NotifSettings.objects.filter(user=user).first()
+    return (ns.enabled if ns else {}) or {}
+
+
+def _collect_events(user, lang="bn"):
+    """Gather notification-centre events: persisted NotifEvent rows PLUS live
+    rows reused from existing alert sources (FamilyAlert). CHAT is never here."""
+    events = []
+    # persisted events
+    for e in user.notif_events.all()[:200]:
+        events.append({
+            "id": f"notif:{e.id}", "type": e.type,
+            "title": {"bn": e.title_bn, "en": e.title_en},
+            "body": {"bn": e.body_bn, "en": e.body_en},
+            "at": _dt(e.at), "seen": e.seen, "route": e.route or None,
+            "meta": e.meta,
+        })
+    # reuse existing family alerts (missed medicine / safe-journey / scam relays)
+    for fa in user.family_alerts.filter(dismissed=False)[:50]:
+        etype = _nc.TYPE_FAMILY_ALERT
+        k = (fa.kind or "")
+        if "scam" in k:
+            etype = _nc.TYPE_SCAM
+        elif "checkin" in k or "journey" in k or "arrived" in k:
+            etype = _nc.TYPE_SAFE_JOURNEY
+        elif "sos" in k:
+            etype = _nc.TYPE_SOS
+        events.append({
+            "id": f"familyalert:{fa.id}", "type": etype,
+            "title": {"bn": fa.title, "en": fa.title},
+            "body": {"bn": fa.body, "en": fa.body},
+            "at": _dt(fa.created_at), "seen": False,
+            "meta": {"severity": fa.severity, "source": "family_alert"},
+        })
+    return events
+
+
+def _chat_unread(user):
+    """My Circle unread CHAT count — incoming CircleMessages the user hasn't
+    read. This is the ONLY place chat is counted; it never enters the notif
+    centre feed."""
+    from .models import CircleMessage
+    uid = user.id
+    n = 0
+    qs = (CircleMessage.objects.filter(member__user=user)
+          .exclude(sender=user).exclude(deleted="everyone"))
+    for m in qs.only("read_by").iterator():
+        if uid not in (m.read_by or []):
+            n += 1
+    return n
+
+
+@api_view(["GET"])
+def notif_reminders(request):
+    """GET notif/reminders — the Today / Upcoming / Missed reminders feed."""
+    lang = req_lang(request)
+    now = timezone.localtime().replace(tzinfo=None)
+    raw = _collect_reminders(request.user, now, lang)
+    feed = _nc.build_reminders(raw, now)
+    counts = {s: len(feed[s]) for s in _nc.SECTIONS}
+    return Response({
+        "now": now.isoformat(),
+        "sections": feed,
+        "counts": counts,
+        "snooze_options": list(_nc.SNOOZE_PRESETS),
+    })
+
+
+@api_view(["POST"])
+def notif_reminder_snooze(request, item_id):
+    """POST notif/reminders/<id>/snooze {option: 15m|1h|tomorrow|custom, custom}
+    → returns the new fire time. If the id is a real Reminder (reminder:<pk>)
+    its due_at is persisted; other sources just echo the computed time (the
+    client reschedules its own local notification)."""
+    now = timezone.localtime().replace(tzinfo=None)
+    option = request.data.get("option", "")
+    custom = request.data.get("custom")
+    new_dt = _nc.snooze_until(option, now, custom=custom)
+    if new_dt is None:
+        return Response({"ok": False, "error": "bad_option"},
+                        status=status.HTTP_400_BAD_REQUEST)
+    persisted = False
+    if str(item_id).startswith("reminder:"):
+        try:
+            pk = int(str(item_id).split(":", 1)[1])
+            r = request.user.reminders.filter(pk=pk).first()
+            if r:
+                r.due_at = timezone.make_aware(new_dt) if timezone.is_naive(new_dt) else new_dt
+                r.done = False
+                r.save(update_fields=["due_at", "done", "updated_at"])
+                persisted = True
+        except (ValueError, IndexError):
+            pass
+    return Response({"ok": True, "id": item_id, "when": new_dt.isoformat(),
+                     "persisted": persisted})
+
+
+@api_view(["GET"])
+def notif_feed(request):
+    """GET notif/feed[?type=] — notifications (events that happened). Chat
+    excluded; disabled types filtered; newest first."""
+    lang = req_lang(request)
+    type_filter = request.GET.get("type") or None
+    settings_enabled = _notif_settings(request.user)
+    events = _collect_events(request.user, lang)
+    feed = _nc.build_feed(events, settings_enabled=settings_enabled,
+                          type_filter=type_filter)
+    return Response({
+        "items": feed,
+        "unseen": _nc.unseen_count(events, settings_enabled=settings_enabled),
+        "types": list(_nc.NOTIF_TYPES),
+    })
+
+
+@api_view(["POST"])
+def notif_seen(request, item_id):
+    """POST notif/<id>/seen — mark one notification seen. Persists for stored
+    NotifEvent rows; family-alert rows are dismissed (their natural 'seen')."""
+    sid = str(item_id)
+    if sid.startswith("notif:"):
+        pk = sid.split(":", 1)[1]
+        n = request.user.notif_events.filter(pk=pk).first()
+        if n and not n.seen:
+            n.seen = True
+            n.save(update_fields=["seen"])
+        return Response({"ok": True, "id": sid})
+    if sid.startswith("familyalert:"):
+        pk = sid.split(":", 1)[1]
+        request.user.family_alerts.filter(pk=pk).update(dismissed=True)
+        return Response({"ok": True, "id": sid})
+    return Response({"ok": True, "id": sid})
+
+
+@api_view(["POST"])
+def notif_read_all(request):
+    """POST notif/read-all — mark every notification seen. Idempotent."""
+    from .models import NotifSettings
+    marked = request.user.notif_events.filter(seen=False).update(seen=True)
+    request.user.family_alerts.filter(dismissed=False).update(dismissed=True)
+    ns, _ = NotifSettings.objects.get_or_create(user=request.user)
+    ns.read_all_at = timezone.now()
+    ns.save(update_fields=["read_all_at", "updated_at"])
+    return Response({"ok": True, "marked": marked})
+
+
+# ---------------------------------------------------------------- suggestions
+
+def _suggestion_context(user, now):
+    """Build the rule-based context dict the suggestion engine scores against.
+    Pure gathering — all the judgement lives in the engine."""
+    from .logic import medicine as _mlogic
+    from decimal import Decimal
+    today = now.date()
+
+    # new user: no reminders, no money, no medicine, no circle yet
+    has_data = (user.reminders.exists() or user.medicines.exists()
+                or user.txns.exists() or user.subscriptions.exists())
+    new_user = not has_data
+
+    # missed medicine: a scheduled slot earlier today with no log for it
+    missed_medicine = False
+    for m in user.medicines.all():
+        if m.as_needed:
+            continue
+        for slot in (m.times or []):
+            try:
+                h, mn = str(slot).split(":")
+            except Exception:
+                continue
+            slot_t = _time(int(h), int(mn))
+            if slot_t <= now.time():
+                taken = m.logs.filter(taken_at__date=today).exists() \
+                    if hasattr(m, "logs") else False
+                if not taken:
+                    missed_medicine = True
+                    break
+        if missed_medicine:
+            break
+
+    due_bills = (user.subscriptions.filter(next_due__lte=today).exists()
+                 or user.subscriptions.filter(next_due=today).exists())
+    recent_spending = user.txns.filter(date__gte=today - timedelta(days=7),
+                                       kind="expense").exists()
+    unfinished_tasks = user.todos.filter(done=False).exists()
+
+    upcoming_birthday = False
+    for b in user.birthdays.all():
+        try:
+            occ = b.date.replace(year=today.year)
+            if occ < today:
+                occ = b.date.replace(year=today.year + 1)
+            if 0 <= (occ - today).days <= 7:
+                upcoming_birthday = True
+                break
+        except ValueError:
+            continue
+
+    active_modules = []
+    if hasattr(user, "business"):
+        try:
+            if user.business:
+                active_modules.append("business")
+        except Exception:
+            pass
+    # CRM activity: any meetings/contacts
+    if user.meetings.exists() or user.orders.exists():
+        if "business" not in active_modules:
+            active_modules.append("business")
+
+    season = None  # integrator can wire ramadan/eid calendar; None = off for now
+
+    return {
+        "new_user": new_user,
+        "missed_medicine": missed_medicine,
+        "due_bills": due_bills,
+        "recent_spending": recent_spending,
+        "unfinished_tasks": unfinished_tasks,
+        "upcoming_birthday": upcoming_birthday,
+        "active_modules": active_modules,
+        "season": season,
+    }
+
+
+def _suggestion_history(user, today):
+    from .models import SuggestionState
+    st = SuggestionState.objects.filter(user=user).first()
+    if not st:
+        return {}, None
+    served_yesterday = []
+    if st.served_date and st.served_date != today:
+        served_yesterday = st.served_keys or []
+    return {
+        "taps": st.taps or {},
+        "ignores": st.ignores or {},
+        "suppressed": st.suppressed or [],
+        "served_yesterday": served_yesterday,
+        "current": st.served_keys or [] if st.served_date == today else [],
+    }, st
+
+
+@api_view(["GET"])
+def home_suggestions(request):
+    """GET home/suggestions?lang=bn|en — the 4 dynamic home prompt cards.
+    STRICT language: returns prompts in the requested language only."""
+    from .models import SuggestionState
+    lang = request.GET.get("lang") or req_lang(request)
+    lang = "en" if lang == "en" else "bn"
+    now = timezone.localtime().replace(tzinfo=None)
+    today = now.date()
+    ctx = _suggestion_context(request.user, now)
+    hist, st = _suggestion_history(request.user, today)
+    refresh = request.GET.get("refresh") in ("1", "true", "yes")
+    prompts = _sg.suggest(lang, now, context=ctx, history=hist, refresh=refresh)
+
+    # record what we served today (for no-repeat-two-days next time)
+    keys = [p["key"] for p in prompts]
+    if st is None:
+        st = SuggestionState.objects.create(user=request.user)
+    if st.served_date != today:
+        st.served_prev_keys = st.served_keys or []
+    st.served_keys = keys
+    st.served_date = today
+    st.save(update_fields=["served_keys", "served_prev_keys", "served_date", "updated_at"])
+
+    return Response({"lang": lang, "prompts": prompts})
+
+
+@api_view(["POST"])
+def home_suggestions_dismiss(request):
+    """POST home/suggestions/dismiss {key} — long-press 'don't show this again'.
+    Suppresses the key permanently + records an ignore for learn-from-use."""
+    from .models import SuggestionState
+    key = request.data.get("key", "")
+    if not key:
+        return Response({"ok": False, "error": "key_required"},
+                        status=status.HTTP_400_BAD_REQUEST)
+    st, _ = SuggestionState.objects.get_or_create(user=request.user)
+    sup = list(st.suppressed or [])
+    if key not in sup:
+        sup.append(key)
+    st.suppressed = sup
+    ign = dict(st.ignores or {})
+    ign[key] = ign.get(key, 0) + 1
+    st.ignores = ign
+    st.save(update_fields=["suppressed", "ignores", "updated_at"])
+    return Response({"ok": True, "suppressed": sup})
+
+
+@api_view(["POST"])
+def home_suggestions_tap(request):
+    """POST home/suggestions/tap {key} — record a tap so learn-from-use raises
+    this prompt type. (Optional companion to dismiss; wired for completeness.)"""
+    from .models import SuggestionState
+    key = request.data.get("key", "")
+    if not key:
+        return Response({"ok": False, "error": "key_required"},
+                        status=status.HTTP_400_BAD_REQUEST)
+    st, _ = SuggestionState.objects.get_or_create(user=request.user)
+    taps = dict(st.taps or {})
+    taps[key] = taps.get(key, 0) + 1
+    st.taps = taps
+    st.save(update_fields=["taps", "updated_at"])
+    return Response({"ok": True})
+
+
+@api_view(["GET"])
+def home_badges(request):
+    """GET home/badges — the two home badge counts:
+       my_circle_unread (chat messages) + notif_unseen (notification centre)."""
+    settings_enabled = _notif_settings(request.user)
+    events = _collect_events(request.user, req_lang(request))
+    chat_unread = _chat_unread(request.user)
+    return Response(_nc.badges(chat_unread, events, settings_enabled=settings_enabled))

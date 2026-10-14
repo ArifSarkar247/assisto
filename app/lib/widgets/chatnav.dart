@@ -25,6 +25,7 @@ import '../screens/unseen_world_screen.dart';
 import '../screens/photo_enhance_screen.dart';
 import '../screens/circle_screen.dart';
 import '../screens/messenger/messenger_home_screen.dart';
+import '../screens/notification_centre_screen.dart';
 import '../screens/legal_screen.dart';
 // build-61 wave: remaining modules (every sidebar module is chat-openable)
 import '../screens/subscriptions_screen.dart';
@@ -102,6 +103,7 @@ class ChatNav {
     'circle': (_) => const CircleScreen(),
     // Messenger hub (Step 3): Chats · Updates · Communities · Calls.
     'messages': (_) => const MessengerHomeScreen(),
+    'notifications': (_) => const NotificationCentreScreen(),
     // M2: Groups + Status live inside the Circle hub (they need the loaded
     // on-device identity + members-with-public_key), so chat-open lands there.
     'groups': (_) => const CircleScreen(),

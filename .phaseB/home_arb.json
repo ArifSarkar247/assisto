@@ -1,0 +1,10 @@
+{
+  "homeMyCircle": ["আমার সার্কেল", "My Circle"],
+  "homeNotifications": ["নোটিফিকেশন", "Notifications"],
+  "homeSuggestionsTitle": ["আপনার জন্য", "For you"],
+  "homeRefreshSuggestions": ["নতুন পরামর্শ", "Refresh suggestions"],
+  "homeDontShow": ["এটি আর দেখাবেন না", "Don't show this"],
+  "homeSuggestionsEmpty": ["এখন কোনো পরামর্শ নেই", "No suggestions right now"],
+  "homeSuggestionsError": ["পরামর্শ লোড করা গেল না", "Couldn't load suggestions"],
+  "homeRetry": ["আবার চেষ্টা করুন", "Retry"]
+}
