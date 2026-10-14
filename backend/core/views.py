@@ -1858,6 +1858,12 @@ GENERIC_COLLECTIONS = [
     # #27 Kid's school corner + #72 Fitness partner
     "kid/children", "kid/notices",
     "fitness/goals", "fitness/workouts", "fitness/weighins",
+    # #30 Contract analyzer + #36 Cost/time estimator (§8, advanced)
+    "contract/analyses", "estimate/projects",
+    # #51 AI spending advice + #34 Market price radar (key-gated mock)
+    "spending/notes", "price/logs",
+    # #131 Mock interview + #132 Language-learning partner (key-gated mock)
+    "interview/sessions", "langlearn/progress",
 ]
 GENERIC_COLLECTION_VIEWSETS = {
     name: type(

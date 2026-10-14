@@ -25,6 +25,12 @@ import 'package:assisto/screens/messenger/contact_info_screen.dart';
 import 'package:assisto/screens/notification_centre_screen.dart';
 import 'package:assisto/screens/messenger/messenger_profile_screen.dart';
 import 'package:assisto/screens/messenger/contacts_screen.dart';
+import 'package:assisto/screens/contract_analyzer_screen.dart';
+import 'package:assisto/screens/cost_estimator_screen.dart';
+import 'package:assisto/screens/mock_interview_screen.dart';
+import 'package:assisto/screens/language_partner_screen.dart';
+import 'package:assisto/screens/spending_advice_screen.dart';
+import 'package:assisto/screens/price_radar_screen.dart';
 import 'package:assisto/screens/health_timeline_screen.dart';
 import 'package:assisto/screens/wellness_tracker_screen.dart';
 import 'package:assisto/screens/daily_challenges_screen.dart';
@@ -238,6 +244,12 @@ void main() {
     'notification_centre': (build: (_) => const NotificationCentreScreen(), mode: FakeMode.data, full: true),
     'msgr_profile': (build: (_) => const MessengerProfileScreen(), mode: FakeMode.data, full: true),
     'contacts': (build: (_) => const ContactsScreen(), mode: FakeMode.data, full: true),
+    'contract': (build: (_) => const ContractAnalyzerScreen(), mode: FakeMode.data, full: true),
+    'cost_est': (build: (_) => const CostEstimatorScreen(), mode: FakeMode.data, full: true),
+    'mock_iv': (build: (_) => const MockInterviewScreen(), mode: FakeMode.data, full: true),
+    'lang_partner': (build: (_) => const LanguagePartnerScreen(), mode: FakeMode.data, full: true),
+    'spending': (build: (_) => const SpendingAdviceScreen(), mode: FakeMode.data, full: true),
+    'price_radar': (build: (_) => const PriceRadarScreen(), mode: FakeMode.data, full: true),
     'health_tl': (build: (_) => const HealthTimelineScreen(), mode: FakeMode.data, full: true),
     'wellness': (build: (_) => const WellnessTrackerScreen(), mode: FakeMode.data, full: true),
     'challenges': (build: (_) => const DailyChallengesScreen(), mode: FakeMode.data, full: true),

@@ -97,3 +97,6 @@ Keep this file in sync with `core/integrations.py::REGISTRY` — one row per slu
 - Honest states only: a card is CONNECTED only when its last test did not fail
   (or it is a save-only integration marked active on save and verified on first
   use); otherwise NOT CONNECTED / NOT WORKING.
+
+## price_feed (NEW — #34 Market price radar live prices)
+Status: NOT in registry yet (honest — no live feed). The price radar works fully as a MANUAL tracker now. To enable LIVE market prices (#34), the owner picks a market-data provider and a `price_feed` key is added to the Integrations registry; the radar's documented seam then flips to live. Until then, only user-logged prices are shown — never fabricated quotes.

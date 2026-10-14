@@ -10000,5 +10000,605 @@
   "fitTipBehind": "No worries — a short, easy session today is enough to get back.",
   "fitTipOnTrack": "Nice rhythm. Keep this gentle pace going.",
   "fitTipAhead": "Doing great! Remember to rest and listen to your body too.",
-  "fitTipReached": "Congratulations on reaching your goal! Set a new gentle one if you like."
+  "fitTipReached": "Congratulations on reaching your goal! Set a new gentle one if you like.",
+  "caTitle": "Contract analyzer",
+  "caTabAnalyze": "Analyze",
+  "caTabSaved": "Saved",
+  "caTitleLabel": "Title (optional)",
+  "caTitleHint": "e.g. House rental agreement",
+  "caTextLabel": "Paste the contract text",
+  "caTextHint": "Paste the full text of the contract, lease, loan or terms here",
+  "caAnalyze": "Analyze",
+  "caMarker": "AI-generated — review",
+  "caMarkerSub": "This is a review helper, not a lawyer. Consult a professional before deciding.",
+  "caFlagsTitle": "Flagged clauses",
+  "caNoFlags": "No common risk clauses found. Still read the full contract yourself.",
+  "caSeverityHigh": "High",
+  "caSeverityMedium": "Medium",
+  "caSeverityLow": "Low",
+  "caClauseAutoRenewal": "Auto-renewal",
+  "caClausePenalty": "Penalty / fine",
+  "caClauseLockIn": "Lock-in / minimum term",
+  "caClauseTermination": "One-sided termination",
+  "caClauseHiddenFees": "Hidden or extra fees",
+  "caClauseJurisdiction": "Jurisdiction / arbitration",
+  "caClauseAutoDebit": "Auto-debit",
+  "caClauseLiability": "Liability waiver",
+  "caClauseDataSharing": "Data sharing",
+  "caClausePriceIncrease": "Price increase",
+  "caChecklistTitle": "Things to verify before signing",
+  "caCheckParties": "Both parties' names and identities are correct",
+  "caCheckDates": "Start/end dates and the term",
+  "caCheckPayment": "Payment amount, schedule and method",
+  "caCheckExit": "How and with how much notice you can exit",
+  "caCheckSignatures": "Signatures, witnesses and dates are present",
+  "caCheckRenewal": "Whether renewal is automatic and how to stop it",
+  "caCheckPenalty": "The penalty amount and when it applies",
+  "caCheckLockIn": "The lock-in period and cost of leaving early",
+  "caCheckTermination": "When and how the other side can terminate",
+  "caCheckFees": "Whether all extra charges are stated upfront",
+  "caCheckJurisdiction": "Which court/arbitration handles disputes",
+  "caCheckAutoDebit": "How to stop or cap any auto-debit",
+  "caCheckLiability": "Who is liable if something goes wrong",
+  "caCheckData": "Who your data is shared with and why",
+  "caCheckPrice": "Price-increase terms and advance notice",
+  "caDeeperTitle": "Deeper AI analysis",
+  "caDeeperBody": "A clause-by-clause read of the full contract needs an AI key the owner can add in Integrations. The rule-based analysis above works fully without a key.",
+  "caDisclaimer": "This is not legal advice. It only flags common risk clauses; consult a lawyer or professional before deciding.",
+  "caUntitled": "Untitled",
+  "caSaved": "Analysis saved",
+  "caDeleted": "Deleted",
+  "caCopied": "Checklist copied",
+  "caErrEmpty": "Paste the contract text first",
+  "caErrTooShort": "The text is too short to analyze",
+  "caErrSave": "Could not save, please try again",
+  "caLoadError": "Could not load saved analyses",
+  "caEmptyTitle": "No analyses yet",
+  "caEmptyBody": "Paste any contract or terms to flag risk clauses. This is a review helper, not a lawyer.",
+  "ceTitle": "Cost & time estimator",
+  "ceTabEstimate": "Estimate",
+  "ceTabSaved": "Saved",
+  "ceNameLabel": "Project name (optional)",
+  "ceNameHint": "e.g. Kitchen renovation",
+  "ceMarker": "AI-generated — review",
+  "ceMarkerSub": "This adds up the numbers you enter; it invents no prices. Verify before finalizing a budget.",
+  "ceComponents": "Components / steps",
+  "ceComponentN": "Component {index}",
+  "@ceComponentN": {
+    "placeholders": {
+      "index": {
+        "type": "Object"
+      }
+    }
+  },
+  "ceItemName": "Name",
+  "ceQty": "Qty",
+  "ceUnitCost": "Unit cost",
+  "ceMinEach": "Min each",
+  "ceAddComponent": "Add component",
+  "ceContingency": "Contingency buffer: {pct}%",
+  "@ceContingency": {
+    "placeholders": {
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "ceContingencyLine": "Contingency ({pct}%)",
+  "@ceContingencyLine": {
+    "placeholders": {
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "ceSubtotal": "Subtotal",
+  "ceTotalCost": "Total cost",
+  "ceTotalTime": "Total time",
+  "ceBand": "Rough range",
+  "ceDays": "{n}d",
+  "@ceDays": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "ceHours": "{n}h",
+  "@ceHours": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "ceMinutes": "{n}m",
+  "@ceMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "ceComponentsCount": "{count} components",
+  "@ceComponentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "ceAiTitle": "AI estimate for unknowns",
+  "ceAiBody": "When a price or duration is unknown, a smart AI estimate needs an AI key the owner can add in Integrations. The estimate from your own numbers works fully without a key.",
+  "ceDisclaimer": "This is not financial advice or a quote; it is a planning helper only. Real prices may differ from the market.",
+  "ceUntitled": "Untitled",
+  "ceSaved": "Project saved",
+  "ceDeleted": "Deleted",
+  "ceCopied": "Estimate copied",
+  "ceErrEmpty": "Add at least one component first",
+  "ceErrSave": "Could not save, please try again",
+  "ceLoadError": "Could not load saved projects",
+  "ceEmptyTitle": "No projects yet",
+  "ceEmptyBody": "Add components to estimate cost and time, then save.",
+  "spendTitle": "AI spending insights",
+  "spendLoadError": "Couldn't load your spending data. Please try again.",
+  "spendWelcomeTitle": "Understand your spending",
+  "spendWelcomeBody": "Enter each category's total spend (like Food, Transport). We'll show simple observations from only the numbers you enter — this is not financial advice.",
+  "spendAddCategory": "Add category",
+  "spendEditCategory": "Edit category",
+  "spendDeleteTitle": "Delete category?",
+  "spendDeleteBody": "This category entry will be removed. Continue?",
+  "spendDisclaimer": "These are general observations about the numbers you entered — not financial advice. Decisions are yours.",
+  "spendTotalSpent": "Total spend",
+  "spendVsPrevious": "{amount} ({pct}%) vs last month",
+  "@spendVsPrevious": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      },
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendObservations": "Observations",
+  "spendByCategory": "By category",
+  "spendShareChip": "{pct}% of spend",
+  "@spendShareChip": {
+    "placeholders": {
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendBudgetChip": "Budget {budget}",
+  "@spendBudgetChip": {
+    "placeholders": {
+      "budget": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendOverBudgetChip": "{amount} over budget",
+  "@spendOverBudgetChip": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendChangeChip": "Change {amount} ({pct}%)",
+  "@spendChangeChip": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      },
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendNotEnoughTitle": "Not enough data yet",
+  "spendNotEnoughBody": "Add a spend amount to at least one category to see observations.",
+  "spendObsTopCategory": "Your top category is {category}: {amount}, {pct}% of total spend.",
+  "@spendObsTopCategory": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      },
+      "category": {
+        "type": "Object"
+      },
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendObsBigShare": "{category} alone is {pct}% of your total spend.",
+  "@spendObsBigShare": {
+    "placeholders": {
+      "category": {
+        "type": "Object"
+      },
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendObsMomUp": "Total spend is up {pct}% ({amount}) vs last month.",
+  "@spendObsMomUp": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      },
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendObsMomDown": "Total spend is down {pct}% ({amount}) vs last month.",
+  "@spendObsMomDown": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      },
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendObsMomFlat": "Total spend is about the same as last month.",
+  "spendObsMoverUp": "Biggest increase is {category}: up {amount} ({pct}%).",
+  "@spendObsMoverUp": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      },
+      "category": {
+        "type": "Object"
+      },
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendObsMoverDown": "Biggest drop is {category}: down {amount} ({pct}%).",
+  "@spendObsMoverDown": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      },
+      "category": {
+        "type": "Object"
+      },
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendObsOverBudget": "{category} is {amount} over your {budget} budget.",
+  "@spendObsOverBudget": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      },
+      "budget": {
+        "type": "Object"
+      },
+      "category": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendObsSavingsPointer": "If you're looking to save, the biggest slice is {category} at {pct}% of spend.",
+  "@spendObsSavingsPointer": {
+    "placeholders": {
+      "category": {
+        "type": "Object"
+      },
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendEntryNote": "Enter summary totals only — we never create transactions for you.",
+  "spendFieldCategory": "Category name",
+  "spendFieldAmount": "This period's total spend",
+  "spendFieldBudget": "Monthly budget (optional)",
+  "spendFieldBudgetHelp": "Your own limit — we'll flag if you go over.",
+  "spendFieldPrevious": "Last period's spend (optional)",
+  "spendFieldPreviousHelp": "To show the month-over-month change.",
+  "spendAiSeamTitle": "A written AI summary",
+  "spendAiSeamBody": "A written, detailed AI summary turns on when the owner connects an AI key (Anthropic) in Integrations. Until then, the observations above work with no key.",
+  "priceTitle": "Market price radar",
+  "priceLoadError": "Couldn't load your price logs. Please try again.",
+  "priceWelcomeTitle": "Keep an eye on prices",
+  "priceWelcomeBody": "Log the items whose prices you want to track — item, ৳ price, date, market. We show the trend from your own logged prices. No fake live prices.",
+  "priceLogPrice": "Log price",
+  "priceEditLog": "Edit price log",
+  "priceDeleteTitle": "Delete this price log?",
+  "priceDeleteBody": "This price entry will be removed. Continue?",
+  "priceManualNote": "These are your own logged prices — not a live market feed.",
+  "priceOneLogOnly": "Add another price to see a trend",
+  "priceStatHigh": "High",
+  "priceStatLow": "Low",
+  "priceStatAvg": "Average",
+  "priceStatLogs": "Logs",
+  "priceMixedUnitsWarn": "This item is logged in more than one unit — prices across units aren't directly comparable.",
+  "priceNoDate": "No date",
+  "priceLogAtMarket": "{date} · {market}",
+  "@priceLogAtMarket": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      },
+      "market": {
+        "type": "Object"
+      }
+    }
+  },
+  "priceFieldItem": "Item name",
+  "priceFieldPrice": "Price",
+  "priceFieldUnit": "Unit",
+  "priceFieldDate": "Date",
+  "priceFieldMarket": "Market (optional)",
+  "priceFieldMarketHelp": "e.g. Karwan Bazar, local shop.",
+  "priceUnitKg": "kg",
+  "priceUnitG": "g",
+  "priceUnitLitre": "litre",
+  "priceUnitMl": "ml",
+  "priceUnitPiece": "piece",
+  "priceUnitDozen": "dozen",
+  "priceUnitBag": "bag",
+  "priceUnitOther": "other",
+  "priceFeedSeamTitle": "Live market prices",
+  "priceFeedSeamBody": "Live, real-time market prices turn on when the owner connects a market-data key. Until then, only your own logged prices are shown — we never show fake live prices.",
+  "miTitle": "Mock interview",
+  "miWelcomeTitle": "Practise for your interview",
+  "miWelcomeBody": "Pick a topic, get one question at a time, type your answer — you'll get instant rule-based feedback and a model-answer outline. Works fully without any AI key.",
+  "miStart": "Start",
+  "miPickCategory": "Pick a topic",
+  "miCatJob": "Job / general",
+  "miCatHr": "HR / behavioural",
+  "miCatTechnical": "Technical basics",
+  "miCatViva": "Viva / academic",
+  "miLoadError": "Could not load your sessions.",
+  "miQuestionLabel": "Question",
+  "miProgressLabel": "{done}/{total} questions practised",
+  "@miProgressLabel": {
+    "placeholders": {
+      "done": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "miSessionAsked": "{count} question(s) this session",
+  "@miSessionAsked": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "miAnswerLabel": "Your answer",
+  "miAnswerHint": "Type your answer here (or speak-to-text)…",
+  "miGetFeedback": "Get feedback",
+  "miNextQuestion": "Next question",
+  "miShowOutline": "Model-answer outline",
+  "miOutlineTitle": "Model-answer outline (a guide)",
+  "miOutlineNote": "This is a study guide — not a single 'correct answer'.",
+  "miFeedbackTitle": "Feedback",
+  "miFbMarker": "Rule-based check — not an AI grade",
+  "miWordsCount": "{count} words",
+  "@miWordsCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "miCoveragePct": "Keyword coverage {pct}%",
+  "@miCoveragePct": {
+    "placeholders": {
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "miLevelTooShort": "A bit short",
+  "miLevelOk": "Okay",
+  "miLevelStrong": "Strong answer",
+  "miTipLonger": "Add a little more detail — include a concrete example.",
+  "miTipCoverKeywords": "Try to touch these key ideas:",
+  "miTipStructure": "Give it structure — opening, key points, close (e.g. STAR).",
+  "miTipStrong": "Nicely done — clear and well-structured.",
+  "miTipOk": "Good start — one example would make it stronger.",
+  "miMatchedLabel": "Covered",
+  "miMissingLabel": "Missing",
+  "miLiveSeamTitle": "Live AI interviewer",
+  "miLiveSeamBody": "Connect an AI key and a live AI interviewer can read your answer, ask follow-ups and give a richer critique. Without a key, the rule-based practice above works fully.",
+  "miSaveSession": "Save session",
+  "miSessionSaved": "Session saved",
+  "miHistoryTitle": "Session history",
+  "miNoHistory": "No saved sessions yet.",
+  "miSelfScore": "Self-score (1–5)",
+  "miChangeCategory": "Change topic",
+  "miQ_job_tellme": "Tell me about yourself.",
+  "miO_job_tellme": "Current role → relevant experience → one core skill → why it fits this job. Keep it to 30–60 seconds.",
+  "miQ_job_strength": "What is your greatest strength?",
+  "miO_job_strength": "Name one strength → give a concrete example → the result it produced. Prove it, don't just claim it.",
+  "miQ_job_weakness": "What is a weakness, and what are you doing about it?",
+  "miO_job_weakness": "One honest (not deal-breaking) weakness → the concrete steps you take to improve → a sign of progress.",
+  "miQ_job_why": "Why do you want to work here?",
+  "miO_job_why": "One specific thing about the company → how it matches you → what you will contribute.",
+  "miQ_job_fiveyears": "Where do you see yourself in five years?",
+  "miO_job_fiveyears": "Realistic growth → which skills you'll build → how it ties back to this role. Avoid wild claims.",
+  "miQ_hr_conflict": "Describe a conflict with a coworker and how you handled it.",
+  "miO_hr_conflict": "Situation → Task → Action → Result (STAR). Focus on how you resolved it, not on blaming anyone.",
+  "miQ_hr_pressure": "Tell me about a time you worked under pressure.",
+  "miO_hr_pressure": "What caused the pressure → how you prioritised → stayed calm → the result (STAR).",
+  "miQ_hr_mistake": "Tell me about a mistake you made and what you learned.",
+  "miO_hr_mistake": "Own the mistake → how you fixed it → what you learned → what you changed afterwards.",
+  "miQ_hr_teamwork": "Give an example of successful teamwork.",
+  "miO_hr_teamwork": "The team goal → your specific role → how you communicated → the shared result.",
+  "miQ_hr_salary": "What are your salary expectations?",
+  "miO_hr_salary": "Give a researched range → show some flexibility → note you're open to the full package, not just base pay.",
+  "miQ_tech_variable": "What is the difference between a variable and a constant?",
+  "miO_tech_variable": "A variable's value can change; a constant's value is fixed once set. Give a small code example.",
+  "miQ_tech_loop": "What is the difference between a for loop and a while loop?",
+  "miO_tech_loop": "for usually runs a known number of times; while runs while a condition holds. Say when you'd pick each.",
+  "miQ_tech_sql": "What is a database (SQL) and why is it used?",
+  "miO_tech_sql": "Stores structured data in tables → fetched with queries → relations between tables. Give a simple example.",
+  "miQ_tech_api": "What is an API? Explain in simple terms.",
+  "miO_tech_api": "A contract letting two programs talk → send a request, get a response → a real example (a weather API).",
+  "miQ_tech_debug": "How do you approach finding a bug?",
+  "miO_tech_debug": "Reproduce it → read logs/prints → isolate to a small part → fix, then test it stays fixed.",
+  "miQ_viva_project": "Briefly state the main objective of your project.",
+  "miO_viva_project": "What problem it solves → your approach → the main result → one limitation.",
+  "miQ_viva_tools": "Which tools/technologies did you use, and why?",
+  "miO_viva_tools": "Name each tool → why you chose it → what the alternative was.",
+  "miQ_viva_challenge": "What was the biggest challenge in your project?",
+  "miO_viva_challenge": "The challenge → how you overcame it → what you learned.",
+  "miQ_viva_improve": "What would you improve in the project with more time?",
+  "miO_viva_improve": "One honest limitation → one specific improvement → why it would matter.",
+  "lpTitle": "Language partner",
+  "lpWelcomeTitle": "Practise Bangla ↔ English",
+  "lpWelcomeBody": "Built-in decks of everyday words and phrases, flashcards (spaced repetition), pronunciation hints and short quizzes. Works fully without any AI key.",
+  "lpStart": "Start",
+  "lpLoadError": "Could not load your progress.",
+  "lpPickDeck": "Pick a deck",
+  "lpDeckGreetings": "Greetings",
+  "lpDeckDaily": "Daily life",
+  "lpDeckTravel": "Travel",
+  "lpDeckShopping": "Shopping",
+  "lpDeckNumbers": "Numbers",
+  "lpDirectionLabel": "Direction",
+  "lpDirBn2En": "Bangla → English",
+  "lpDirEn2Bn": "English → Bangla",
+  "lpFlashcards": "Flashcards",
+  "lpQuiz": "Quiz",
+  "lpDueCount": "{count} card(s) due for review today",
+  "@lpDueCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "lpNoDue": "No cards due today — nicely done!",
+  "lpDeckProgress": "{started}/{total} cards started",
+  "@lpDeckProgress": {
+    "placeholders": {
+      "started": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "lpMasteredCount": "{count} card(s) mastered",
+  "@lpMasteredCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "lpTapToReveal": "Tap to reveal the answer",
+  "lpPronHint": "Pronunciation hint",
+  "lpHintMarker": "Approximate romanised hint — not exact phonetics",
+  "lpGotIt": "Got it",
+  "lpMissedIt": "Missed it",
+  "lpNextReview": "Next review in {days} day(s)",
+  "@lpNextReview": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "lpResetToReview": "You'll see this again soon",
+  "lpBoxLabel": "Level {box}/5",
+  "@lpBoxLabel": {
+    "placeholders": {
+      "box": {
+        "type": "Object"
+      }
+    }
+  },
+  "lpDeckDone": "Today's review is done!",
+  "lpStartQuiz": "Start quiz",
+  "lpQuizScore": "{correct} of {total} correct",
+  "@lpQuizScore": {
+    "placeholders": {
+      "correct": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "lpQuizDone": "Quiz complete",
+  "lpQuizReview": "Review the ones you missed",
+  "lpCorrect": "Correct!",
+  "lpWrong": "Not quite",
+  "lpNext": "Next",
+  "lpFinish": "Finish",
+  "lpSaved": "Progress saved",
+  "lpLiveSeamTitle": "Live conversation practice",
+  "lpLiveSeamBody": "Connect an AI key and a live AI partner can chat back and gently correct you. Without a key, the decks, flashcards and quizzes all work fully.",
+  "lpChangeDeck": "Change deck",
+  "lpC_g_hello_bn": "হ্যালো",
+  "lpC_g_hello_en": "Hello",
+  "lpC_g_howareyou_bn": "কেমন আছেন?",
+  "lpC_g_howareyou_en": "How are you?",
+  "lpC_g_fine_bn": "আমি ভালো আছি",
+  "lpC_g_fine_en": "I am fine",
+  "lpC_g_thanks_bn": "ধন্যবাদ",
+  "lpC_g_thanks_en": "Thank you",
+  "lpC_g_welcome_bn": "স্বাগতম",
+  "lpC_g_welcome_en": "Welcome",
+  "lpC_d_water_bn": "পানি",
+  "lpC_d_water_en": "Water",
+  "lpC_d_food_bn": "খাবার",
+  "lpC_d_food_en": "Food",
+  "lpC_d_rice_bn": "ভাত",
+  "lpC_d_rice_en": "Rice",
+  "lpC_d_sleep_bn": "ঘুম",
+  "lpC_d_sleep_en": "Sleep",
+  "lpC_d_today_bn": "আজ",
+  "lpC_d_today_en": "Today",
+  "lpC_t_where_bn": "কোথায়?",
+  "lpC_t_where_en": "Where?",
+  "lpC_t_howmuch_bn": "কত দূর?",
+  "lpC_t_howmuch_en": "How far?",
+  "lpC_t_left_bn": "বাম",
+  "lpC_t_left_en": "Left",
+  "lpC_t_right_bn": "ডান",
+  "lpC_t_right_en": "Right",
+  "lpC_t_stop_bn": "থামুন",
+  "lpC_t_stop_en": "Stop",
+  "lpC_s_price_bn": "দাম কত?",
+  "lpC_s_price_en": "What's the price?",
+  "lpC_s_expensive_bn": "অনেক দাম",
+  "lpC_s_expensive_en": "Too expensive",
+  "lpC_s_buy_bn": "আমি কিনব",
+  "lpC_s_buy_en": "I will buy",
+  "lpC_s_bag_bn": "ব্যাগ",
+  "lpC_s_bag_en": "Bag",
+  "lpC_n_one_bn": "এক",
+  "lpC_n_one_en": "One",
+  "lpC_n_two_bn": "দুই",
+  "lpC_n_two_en": "Two",
+  "lpC_n_three_bn": "তিন",
+  "lpC_n_three_en": "Three",
+  "lpC_n_ten_bn": "দশ",
+  "lpC_n_ten_en": "Ten",
+  "lpC_n_hundred_bn": "একশ",
+  "lpC_n_hundred_en": "Hundred"
 }

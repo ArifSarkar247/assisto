@@ -36,6 +36,12 @@ import '../screens/daily_challenges_screen.dart';
 import '../screens/saved_items_screen.dart';
 import '../screens/kid_school_screen.dart';
 import '../screens/fitness_partner_screen.dart';
+import '../screens/contract_analyzer_screen.dart';
+import '../screens/cost_estimator_screen.dart';
+import '../screens/mock_interview_screen.dart';
+import '../screens/language_partner_screen.dart';
+import '../screens/spending_advice_screen.dart';
+import '../screens/price_radar_screen.dart';
 // family & safety (merged per SPEC v2.1 §4)
 import '../screens/family_screen.dart';
 import '../screens/nominee_screen.dart';
@@ -197,6 +203,13 @@ class SidebarSections {
       SidebarItem(Icons.emoji_events_outlined, (t) => t.savechalTitle,
           (_) => const SavingsChallengeScreen(),
           synonyms: ['savings', 'challenge', 'save', '52 week', 'streak']),
+      // #51 AI spending advice (key-gated mock) + #34 market price radar.
+      SidebarItem(Icons.insights_outlined, (t) => t.spendTitle,
+          (_) => const SpendingAdviceScreen(),
+          synonyms: ['spending', 'advice', 'insights', 'ai money', 'analysis']),
+      SidebarItem(Icons.trending_up_outlined, (t) => t.priceTitle,
+          (_) => const PriceRadarScreen(),
+          synonyms: ['price', 'radar', 'market', 'bazar', 'rate']),
     ]),
     // 3. Family & Safety — merged per SPEC v2.1 §4 (Family + Safety → one group).
     // Contacts moved OUT to its own "Contacts & Profile" section (item 4).
@@ -316,6 +329,13 @@ class SidebarSections {
       SidebarItem(Icons.quiz_outlined, (t) => t.chalTitle,
           (_) => const DailyChallengesScreen(),
           synonyms: ['challenge', 'quiz', 'daily', 'streak', 'game']),
+      // #30 Contract analyzer + #132 language-learning partner (key-gated mock).
+      SidebarItem(Icons.gavel_outlined, (t) => t.caTitle,
+          (_) => const ContractAnalyzerScreen(),
+          synonyms: ['contract', 'agreement', 'analyze', 'clause', 'legal helper']),
+      SidebarItem(Icons.translate_outlined, (t) => t.lpTitle,
+          (_) => const LanguagePartnerScreen(),
+          synonyms: ['language', 'learn', 'english', 'vocabulary', 'practice']),
     ]),
     // 7. Work
     SidebarSection('work', Icons.work_outline, (t) => t.sidebarWork, [
@@ -326,6 +346,13 @@ class SidebarSections {
       SidebarItem(Icons.view_kanban_outlined, (t) => t.tmTitle,
           (_) => const TaskManagerScreen(),
           synonyms: ['task', 'project', 'board', 'kanban', 'assign', 'progress']),
+      // #36 Cost/time estimator + #131 mock interview (key-gated mock).
+      SidebarItem(Icons.calculate_outlined, (t) => t.ceTitle,
+          (_) => const CostEstimatorScreen(),
+          synonyms: ['estimate', 'cost', 'time', 'quote', 'budget estimate']),
+      SidebarItem(Icons.record_voice_over_outlined, (t) => t.miTitle,
+          (_) => const MockInterviewScreen(),
+          synonyms: ['interview', 'mock', 'practice', 'job prep', 'viva']),
       SidebarItem(Icons.work_outline, (t) => t.jobHunter,
           (_) => const JobsScreen(),
           synonyms: ['job', 'hunter', 'career', 'cv']),

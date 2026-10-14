@@ -8703,5 +8703,605 @@
   "fitTipBehind": "কোনো সমস্যা নেই — আজ অল্প সময়ের একটা সহজ ব্যায়ামই যথেষ্ট।",
   "fitTipOnTrack": "সুন্দর ছন্দে আছেন। এই ধারাটা ধরে রাখুন।",
   "fitTipAhead": "দারুণ করছেন! নিজের শরীরের কথা শুনে বিশ্রামও নিন।",
-  "fitTipReached": "অভিনন্দন, লক্ষ্য পূরণ! চাইলে নতুন একটা মৃদু লক্ষ্য দিন।"
+  "fitTipReached": "অভিনন্দন, লক্ষ্য পূরণ! চাইলে নতুন একটা মৃদু লক্ষ্য দিন।",
+  "caTitle": "চুক্তি বিশ্লেষক",
+  "caTabAnalyze": "বিশ্লেষণ",
+  "caTabSaved": "সংরক্ষিত",
+  "caTitleLabel": "শিরোনাম (ঐচ্ছিক)",
+  "caTitleHint": "যেমন: বাসা ভাড়ার চুক্তি",
+  "caTextLabel": "চুক্তির লেখা পেস্ট করুন",
+  "caTextHint": "চুক্তি, লিজ, ঋণ বা শর্তাবলির পুরো লেখা এখানে পেস্ট করুন",
+  "caAnalyze": "বিশ্লেষণ করুন",
+  "caMarker": "AI-তৈরি — যাচাই করুন",
+  "caMarkerSub": "এটি একটি রিভিউ সহায়ক, আইনজীবী নয়। সিদ্ধান্তের আগে একজন পেশাদারের পরামর্শ নিন।",
+  "caFlagsTitle": "চিহ্নিত ধারা",
+  "caNoFlags": "সাধারণ ঝুঁকির ধারা পাওয়া যায়নি। তবুও পুরো চুক্তি নিজে পড়ে দেখুন।",
+  "caSeverityHigh": "উচ্চ",
+  "caSeverityMedium": "মাঝারি",
+  "caSeverityLow": "নিম্ন",
+  "caClauseAutoRenewal": "স্বয়ংক্রিয় নবায়ন",
+  "caClausePenalty": "জরিমানা / দণ্ড",
+  "caClauseLockIn": "লক-ইন / বাধ্যতামূলক মেয়াদ",
+  "caClauseTermination": "একতরফা বাতিলের শর্ত",
+  "caClauseHiddenFees": "লুকানো বা অতিরিক্ত ফি",
+  "caClauseJurisdiction": "আদালতের এখতিয়ার / সালিশ",
+  "caClauseAutoDebit": "স্বয়ংক্রিয় ডেবিট",
+  "caClauseLiability": "দায় অস্বীকার",
+  "caClauseDataSharing": "তথ্য শেয়ারিং",
+  "caClausePriceIncrease": "মূল্য বৃদ্ধির শর্ত",
+  "caChecklistTitle": "সই করার আগে যা যাচাই করবেন",
+  "caCheckParties": "দুই পক্ষের নাম ও পরিচয় সঠিক কিনা",
+  "caCheckDates": "শুরু ও শেষের তারিখ এবং মেয়াদ",
+  "caCheckPayment": "পরিশোধের পরিমাণ, সময় ও পদ্ধতি",
+  "caCheckExit": "কীভাবে ও কত নোটিশে বেরিয়ে আসা যাবে",
+  "caCheckSignatures": "সই, সাক্ষী ও তারিখ আছে কিনা",
+  "caCheckRenewal": "নবায়ন স্বয়ংক্রিয় কিনা, বন্ধ করার উপায়",
+  "caCheckPenalty": "জরিমানার পরিমাণ ও কোন ক্ষেত্রে প্রযোজ্য",
+  "caCheckLockIn": "লক-ইন মেয়াদ ও আগে বের হলে খরচ",
+  "caCheckTermination": "অপর পক্ষ কখন ও কীভাবে বাতিল করতে পারে",
+  "caCheckFees": "সব অতিরিক্ত চার্জ আগে থেকে লেখা আছে কিনা",
+  "caCheckJurisdiction": "বিরোধ হলে কোন আদালত/সালিশে যাবে",
+  "caCheckAutoDebit": "স্বয়ংক্রিয় ডেবিট বন্ধ বা সীমিত করার উপায়",
+  "caCheckLiability": "ক্ষতি হলে কে দায়ী থাকবে",
+  "caCheckData": "আপনার তথ্য কার সাথে ও কেন শেয়ার হবে",
+  "caCheckPrice": "দাম বাড়ানোর শর্ত ও আগাম নোটিশ",
+  "caDeeperTitle": "আরও গভীর AI বিশ্লেষণ",
+  "caDeeperBody": "পুরো চুক্তি প্রসঙ্গসহ ধারা-ধরে পড়তে একটি AI কি দরকার, যা মালিক Integrations-এ যোগ করতে পারেন। কি ছাড়াও উপরের নিয়ম-ভিত্তিক বিশ্লেষণ সম্পূর্ণ কাজ করে।",
+  "caDisclaimer": "এটি আইনি পরামর্শ নয়। এটি শুধু সাধারণ ঝুঁকির ধারা চিহ্নিত করে; প্রকৃত সিদ্ধান্তের আগে একজন আইনজীবী বা পেশাদারের পরামর্শ নিন।",
+  "caUntitled": "শিরোনামহীন",
+  "caSaved": "বিশ্লেষণ সংরক্ষিত হয়েছে",
+  "caDeleted": "মুছে ফেলা হয়েছে",
+  "caCopied": "চেকলিস্ট কপি হয়েছে",
+  "caErrEmpty": "আগে চুক্তির লেখা পেস্ট করুন",
+  "caErrTooShort": "লেখাটি বিশ্লেষণের জন্য খুব ছোট",
+  "caErrSave": "সংরক্ষণ করা যায়নি, আবার চেষ্টা করুন",
+  "caLoadError": "সংরক্ষিত বিশ্লেষণ লোড করা যায়নি",
+  "caEmptyTitle": "এখনো কোনো বিশ্লেষণ নেই",
+  "caEmptyBody": "যেকোনো চুক্তি বা শর্তাবলি পেস্ট করে ঝুঁকির ধারা চিহ্নিত করুন। এটি একটি রিভিউ সহায়ক, আইনজীবী নয়।",
+  "ceTitle": "খরচ ও সময় হিসাব",
+  "ceTabEstimate": "হিসাব",
+  "ceTabSaved": "সংরক্ষিত",
+  "ceNameLabel": "প্রকল্পের নাম (ঐচ্ছিক)",
+  "ceNameHint": "যেমন: রান্নাঘর সংস্কার",
+  "ceMarker": "AI-তৈরি — যাচাই করুন",
+  "ceMarkerSub": "এটি আপনার দেওয়া সংখ্যা যোগ করে; কোনো দাম নিজে বানায় না। চূড়ান্ত বাজেটের আগে যাচাই করুন।",
+  "ceComponents": "উপাদান / ধাপ",
+  "ceComponentN": "উপাদান {index}",
+  "@ceComponentN": {
+    "placeholders": {
+      "index": {
+        "type": "Object"
+      }
+    }
+  },
+  "ceItemName": "নাম",
+  "ceQty": "পরিমাণ",
+  "ceUnitCost": "একক দাম",
+  "ceMinEach": "মিনিট/একক",
+  "ceAddComponent": "উপাদান যোগ করুন",
+  "ceContingency": "অনিশ্চয়তা বাফার: {pct}%",
+  "@ceContingency": {
+    "placeholders": {
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "ceContingencyLine": "অনিশ্চয়তা ({pct}%)",
+  "@ceContingencyLine": {
+    "placeholders": {
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "ceSubtotal": "উপমোট",
+  "ceTotalCost": "মোট খরচ",
+  "ceTotalTime": "মোট সময়",
+  "ceBand": "আনুমানিক সীমা",
+  "ceDays": "{n} দিন",
+  "@ceDays": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "ceHours": "{n} ঘণ্টা",
+  "@ceHours": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "ceMinutes": "{n} মিনিট",
+  "@ceMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "ceComponentsCount": "{count}টি উপাদান",
+  "@ceComponentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "ceAiTitle": "অজানা উপাদানের জন্য AI হিসাব",
+  "ceAiBody": "কোনো দাম বা সময় জানা না থাকলে একটি স্মার্ট AI হিসাবের জন্য একটি AI কি দরকার, যা মালিক Integrations-এ যোগ করতে পারেন। আপনার দেওয়া সংখ্যা দিয়ে হিসাব কি ছাড়াও সম্পূর্ণ কাজ করে।",
+  "ceDisclaimer": "এটি আর্থিক পরামর্শ বা কোটেশন নয়; শুধু একটি পরিকল্পনা সহায়ক। আসল দাম বাজার অনুযায়ী ভিন্ন হতে পারে।",
+  "ceUntitled": "শিরোনামহীন",
+  "ceSaved": "প্রকল্প সংরক্ষিত হয়েছে",
+  "ceDeleted": "মুছে ফেলা হয়েছে",
+  "ceCopied": "হিসাব কপি হয়েছে",
+  "ceErrEmpty": "আগে অন্তত একটি উপাদান যোগ করুন",
+  "ceErrSave": "সংরক্ষণ করা যায়নি, আবার চেষ্টা করুন",
+  "ceLoadError": "সংরক্ষিত প্রকল্প লোড করা যায়নি",
+  "ceEmptyTitle": "এখনো কোনো প্রকল্প নেই",
+  "ceEmptyBody": "উপাদান যোগ করে খরচ ও সময় হিসাব করুন, তারপর সংরক্ষণ করুন।",
+  "spendTitle": "এআই খরচ পর্যবেক্ষণ",
+  "spendLoadError": "আপনার খরচের তথ্য লোড করা গেল না। আবার চেষ্টা করুন।",
+  "spendWelcomeTitle": "আপনার খরচ বুঝে নিন",
+  "spendWelcomeBody": "প্রতিটি খাতের মোট খরচ লিখুন (যেমন খাবার, যাতায়াত)। আমরা শুধু আপনার দেওয়া সংখ্যা থেকেই সহজ কিছু পর্যবেক্ষণ দেখাব — এটি আর্থিক পরামর্শ নয়।",
+  "spendAddCategory": "খাত যোগ করুন",
+  "spendEditCategory": "খাত সম্পাদনা",
+  "spendDeleteTitle": "খাত মুছবেন?",
+  "spendDeleteBody": "এই খাতের লেখা তথ্য মুছে যাবে। চালিয়ে যাবেন?",
+  "spendDisclaimer": "এগুলো আপনার দেওয়া সংখ্যা নিয়ে সাধারণ পর্যবেক্ষণ — আর্থিক পরামর্শ নয়। সিদ্ধান্ত আপনার।",
+  "spendTotalSpent": "মোট খরচ",
+  "spendVsPrevious": "আগের মাসের চেয়ে {amount} ({pct}%)",
+  "@spendVsPrevious": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      },
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendObservations": "পর্যবেক্ষণ",
+  "spendByCategory": "খাত অনুযায়ী",
+  "spendShareChip": "মোট খরচের {pct}%",
+  "@spendShareChip": {
+    "placeholders": {
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendBudgetChip": "বাজেট {budget}",
+  "@spendBudgetChip": {
+    "placeholders": {
+      "budget": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendOverBudgetChip": "বাজেটের বেশি {amount}",
+  "@spendOverBudgetChip": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendChangeChip": "পরিবর্তন {amount} ({pct}%)",
+  "@spendChangeChip": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      },
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendNotEnoughTitle": "এখনো যথেষ্ট তথ্য নেই",
+  "spendNotEnoughBody": "পর্যবেক্ষণ দেখাতে অন্তত একটি খাতে খরচের পরিমাণ লিখুন।",
+  "spendObsTopCategory": "সবচেয়ে বেশি খরচ {category}-এ: {amount}, মোট খরচের {pct}%।",
+  "@spendObsTopCategory": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      },
+      "category": {
+        "type": "Object"
+      },
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendObsBigShare": "{category} একাই মোট খরচের {pct}% নিচ্ছে।",
+  "@spendObsBigShare": {
+    "placeholders": {
+      "category": {
+        "type": "Object"
+      },
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendObsMomUp": "আগের মাসের চেয়ে মোট খরচ {pct}% ({amount}) বেড়েছে।",
+  "@spendObsMomUp": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      },
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendObsMomDown": "আগের মাসের চেয়ে মোট খরচ {pct}% ({amount}) কমেছে।",
+  "@spendObsMomDown": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      },
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendObsMomFlat": "আগের মাসের তুলনায় মোট খরচ প্রায় একই আছে।",
+  "spendObsMoverUp": "সবচেয়ে বেশি বেড়েছে {category}: {amount} ({pct}%) বেশি।",
+  "@spendObsMoverUp": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      },
+      "category": {
+        "type": "Object"
+      },
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendObsMoverDown": "সবচেয়ে বেশি কমেছে {category}: {amount} ({pct}%) কম।",
+  "@spendObsMoverDown": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      },
+      "category": {
+        "type": "Object"
+      },
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendObsOverBudget": "{category} আপনার বাজেট {budget} ছাড়িয়ে {amount} বেশি হয়েছে।",
+  "@spendObsOverBudget": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      },
+      "budget": {
+        "type": "Object"
+      },
+      "category": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendObsSavingsPointer": "সঞ্চয়ের সুযোগ খুঁজলে বড় অংশটি দেখুন — {category} মোট খরচের {pct}%।",
+  "@spendObsSavingsPointer": {
+    "placeholders": {
+      "category": {
+        "type": "Object"
+      },
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "spendEntryNote": "শুধু মোট সংখ্যা লিখুন — আমরা কোনো লেনদেন নিজে থেকে তৈরি করি না।",
+  "spendFieldCategory": "খাতের নাম",
+  "spendFieldAmount": "এই মাসের মোট খরচ",
+  "spendFieldBudget": "মাসিক বাজেট (ঐচ্ছিক)",
+  "spendFieldBudgetHelp": "আপনার নিজের ঠিক করা সীমা — বেশি হলে আমরা জানাব।",
+  "spendFieldPrevious": "আগের মাসের খরচ (ঐচ্ছিক)",
+  "spendFieldPreviousHelp": "মাস-থেকে-মাস পরিবর্তন দেখাতে।",
+  "spendAiSeamTitle": "লেখা আকারে এআই সারাংশ",
+  "spendAiSeamBody": "লেখা আকারে বিস্তারিত এআই সারাংশের জন্য মালিক Integrations-এ একটি এআই কি (Anthropic) যুক্ত করলে এটি চালু হবে। ততক্ষণ উপরের পর্যবেক্ষণগুলোই কি ছাড়া কাজ করে।",
+  "priceTitle": "বাজার দাম রাডার",
+  "priceLoadError": "আপনার দামের তালিকা লোড করা গেল না। আবার চেষ্টা করুন।",
+  "priceWelcomeTitle": "দামের উপর নজর রাখুন",
+  "priceWelcomeBody": "যে জিনিসগুলোর দাম মনে রাখতে চান সেগুলো লিখে রাখুন — পণ্য, ৳ দাম, তারিখ, বাজার। আমরা আপনার লেখা দাম থেকেই প্রবণতা দেখাব। কোনো ভুয়া লাইভ দাম নয়।",
+  "priceLogPrice": "দাম লিখুন",
+  "priceEditLog": "দাম সম্পাদনা",
+  "priceDeleteTitle": "এই দামের এন্ট্রি মুছবেন?",
+  "priceDeleteBody": "এই দামের এন্ট্রিটি মুছে যাবে। চালিয়ে যাবেন?",
+  "priceManualNote": "এগুলো আপনার নিজের লেখা দাম — কোনো লাইভ বাজার ফিড নয়।",
+  "priceOneLogOnly": "প্রবণতার জন্য আরেকটি দাম লিখুন",
+  "priceStatHigh": "সর্বোচ্চ",
+  "priceStatLow": "সর্বনিম্ন",
+  "priceStatAvg": "গড়",
+  "priceStatLogs": "এন্ট্রি",
+  "priceMixedUnitsWarn": "এই পণ্যটি একাধিক এককে লেখা আছে — ভিন্ন এককের দাম সরাসরি তুলনাযোগ্য নয়।",
+  "priceNoDate": "তারিখ নেই",
+  "priceLogAtMarket": "{date} · {market}",
+  "@priceLogAtMarket": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      },
+      "market": {
+        "type": "Object"
+      }
+    }
+  },
+  "priceFieldItem": "পণ্যের নাম",
+  "priceFieldPrice": "দাম",
+  "priceFieldUnit": "একক",
+  "priceFieldDate": "তারিখ",
+  "priceFieldMarket": "বাজার (ঐচ্ছিক)",
+  "priceFieldMarketHelp": "যেমন কারওয়ান বাজার, স্থানীয় দোকান।",
+  "priceUnitKg": "কেজি",
+  "priceUnitG": "গ্রাম",
+  "priceUnitLitre": "লিটার",
+  "priceUnitMl": "মি.লি.",
+  "priceUnitPiece": "পিস",
+  "priceUnitDozen": "ডজন",
+  "priceUnitBag": "বস্তা",
+  "priceUnitOther": "অন্যান্য",
+  "priceFeedSeamTitle": "লাইভ বাজার দাম",
+  "priceFeedSeamBody": "রিয়েল-টাইম বাজার দাম দেখাতে মালিক একটি মার্কেট-ডেটা কি যুক্ত করলে এটি চালু হবে। ততক্ষণ শুধু আপনার নিজের লেখা দামই দেখানো হয় — আমরা কখনো ভুয়া লাইভ দাম দেখাই না।",
+  "miTitle": "মক ইন্টারভিউ",
+  "miWelcomeTitle": "ইন্টারভিউয়ের জন্য প্র্যাকটিস করুন",
+  "miWelcomeBody": "একটি বিষয় বেছে নিন, একটি করে প্রশ্ন আসবে, উত্তর লিখুন — তাৎক্ষণিক নিয়ম-ভিত্তিক ফিডব্যাক ও একটি মডেল-উত্তরের কাঠামো পাবেন। কোনো AI কি ছাড়াই পুরোটা কাজ করে।",
+  "miStart": "শুরু করুন",
+  "miPickCategory": "বিষয় বেছে নিন",
+  "miCatJob": "চাকরি / সাধারণ",
+  "miCatHr": "HR / আচরণগত",
+  "miCatTechnical": "টেকনিক্যাল বেসিক",
+  "miCatViva": "ভাইভা / একাডেমিক",
+  "miLoadError": "সেশন লোড করা যায়নি।",
+  "miQuestionLabel": "প্রশ্ন",
+  "miProgressLabel": "{done}/{total} প্রশ্ন অনুশীলন হয়েছে",
+  "@miProgressLabel": {
+    "placeholders": {
+      "done": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "miSessionAsked": "এই সেশনে {count}টি প্রশ্ন",
+  "@miSessionAsked": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "miAnswerLabel": "আপনার উত্তর",
+  "miAnswerHint": "এখানে উত্তর লিখুন (বা বলে লিখুন)…",
+  "miGetFeedback": "ফিডব্যাক দেখুন",
+  "miNextQuestion": "পরের প্রশ্ন",
+  "miShowOutline": "মডেল-উত্তরের কাঠামো",
+  "miOutlineTitle": "মডেল-উত্তরের কাঠামো (গাইড)",
+  "miOutlineNote": "এটি একটি স্টাডি গাইড — কোনো 'সঠিক উত্তর' নয়।",
+  "miFeedbackTitle": "ফিডব্যাক",
+  "miFbMarker": "নিয়ম-ভিত্তিক যাচাই — এটি AI গ্রেড নয়",
+  "miWordsCount": "{count}টি শব্দ",
+  "@miWordsCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "miCoveragePct": "কীওয়ার্ড কভারেজ {pct}%",
+  "@miCoveragePct": {
+    "placeholders": {
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "miLevelTooShort": "উত্তরটি একটু ছোট",
+  "miLevelOk": "ঠিক আছে",
+  "miLevelStrong": "শক্তিশালী উত্তর",
+  "miTipLonger": "আরেকটু বিস্তারিত বলুন — একটি উদাহরণ যোগ করুন।",
+  "miTipCoverKeywords": "এই মূল ধারণাগুলো ছুঁয়ে যান:",
+  "miTipStructure": "গঠন দিন — শুরু, মূল পয়েন্ট, শেষ (যেমন STAR)।",
+  "miTipStrong": "দারুণ — পরিষ্কার ও গঠিত উত্তর।",
+  "miTipOk": "ভালো শুরু — একটি উদাহরণ দিলে আরও শক্তিশালী হবে।",
+  "miMatchedLabel": "ছোঁয়া হয়েছে",
+  "miMissingLabel": "বাদ পড়েছে",
+  "miLiveSeamTitle": "লাইভ AI ইন্টারভিউয়ার",
+  "miLiveSeamBody": "একটি AI কি যুক্ত করলে একজন লাইভ AI ইন্টারভিউয়ার আপনার উত্তর পড়ে ফলো-আপ প্রশ্ন ও বিস্তারিত পর্যালোচনা দিতে পারবে। কি ছাড়া উপরের নিয়ম-ভিত্তিক প্র্যাকটিস পুরোপুরি চলে।",
+  "miSaveSession": "সেশন সেভ করুন",
+  "miSessionSaved": "সেশন সেভ হয়েছে",
+  "miHistoryTitle": "সেশন ইতিহাস",
+  "miNoHistory": "এখনো কোনো সেশন সেভ হয়নি।",
+  "miSelfScore": "নিজের স্কোর (১–৫)",
+  "miChangeCategory": "বিষয় বদলান",
+  "miQ_job_tellme": "নিজের সম্পর্কে কিছু বলুন।",
+  "miO_job_tellme": "বর্তমান ভূমিকা → প্রাসঙ্গিক অভিজ্ঞতা → একটি মূল দক্ষতা → এই পদের সাথে কেন মানানসই। সংক্ষিপ্ত রাখুন (৩০–৬০ সেকেন্ড)।",
+  "miQ_job_strength": "আপনার সবচেয়ে বড় শক্তি কী?",
+  "miO_job_strength": "একটি শক্তি নাম দিন → একটি বাস্তব উদাহরণ → তা থেকে পাওয়া ফল। সাধারণ কথা নয়, একটি প্রমাণ দিন।",
+  "miQ_job_weakness": "আপনার একটি দুর্বলতা কী, এবং আপনি তা নিয়ে কী করছেন?",
+  "miO_job_weakness": "একটি সত্য (কিন্তু চাকরি-ধ্বংসী নয়) দুর্বলতা → তা ঠিক করতে আপনি কী করছেন → অগ্রগতির একটি চিহ্ন।",
+  "miQ_job_why": "আপনি কেন এই কোম্পানিতে কাজ করতে চান?",
+  "miO_job_why": "কোম্পানি সম্পর্কে একটি নির্দিষ্ট তথ্য → তা আপনার সাথে কীভাবে মেলে → আপনি কী অবদান রাখবেন।",
+  "miQ_job_fiveyears": "পাঁচ বছর পর নিজেকে কোথায় দেখতে চান?",
+  "miO_job_fiveyears": "বাস্তবসম্মত বৃদ্ধি → কোন দক্ষতা গড়বেন → তা এই পদের সাথে কীভাবে সংযুক্ত। অতিরঞ্জিত নয়।",
+  "miQ_hr_conflict": "সহকর্মীর সাথে মতবিরোধের একটি উদাহরণ দিন এবং আপনি কীভাবে তা সামলেছেন।",
+  "miO_hr_conflict": "পরিস্থিতি (S) → কাজ (T) → আপনি কী করলেন (A) → ফল (R)। দোষারোপ নয়, সমাধানে মনোযোগ।",
+  "miQ_hr_pressure": "চাপের মধ্যে কাজ করার একটি সময়ের কথা বলুন।",
+  "miO_hr_pressure": "চাপের উৎস → আপনি কীভাবে অগ্রাধিকার দিলেন → শান্ত থাকলেন → ফল।",
+  "miQ_hr_mistake": "আপনার একটি ভুল এবং তা থেকে আপনি কী শিখেছেন তা বলুন।",
+  "miO_hr_mistake": "দায়িত্ব স্বীকার → আপনি কীভাবে ঠিক করলেন → কী শিখলেন → পরে কী বদলালেন।",
+  "miQ_hr_teamwork": "দলগত কাজের একটি সফল উদাহরণ দিন।",
+  "miO_hr_teamwork": "দলের লক্ষ্য → আপনার ভূমিকা → যোগাযোগ → যৌথ ফল।",
+  "miQ_hr_salary": "আপনার প্রত্যাশিত বেতন কত?",
+  "miO_hr_salary": "একটি যুক্তিসঙ্গত পরিসর (গবেষণার ভিত্তিতে) → নমনীয়তা দেখান → পুরো প্যাকেজ বিবেচনায় খোলা।",
+  "miQ_tech_variable": "ভেরিয়েবল এবং কনস্ট্যান্টের মধ্যে পার্থক্য কী?",
+  "miO_tech_variable": "ভেরিয়েবলের মান পরিবর্তন করা যায়; কনস্ট্যান্টের মান একবার সেট হলে স্থির থাকে। উদাহরণ দিন।",
+  "miQ_tech_loop": "for লুপ এবং while লুপের মধ্যে পার্থক্য কী?",
+  "miO_tech_loop": "for সাধারণত জানা সংখ্যক বার চলে; while শর্ত সত্য থাকা পর্যন্ত চলে। কখন কোনটি ব্যবহার করবেন বলুন।",
+  "miQ_tech_sql": "একটি ডাটাবেস (SQL) কী এবং কেন ব্যবহার করা হয়?",
+  "miO_tech_sql": "কাঠামোবদ্ধ টেবিলে ডেটা সংরক্ষণ → query দিয়ে খোঁজা → টেবিলের মধ্যে সম্পর্ক। একটি সহজ উদাহরণ।",
+  "miQ_tech_api": "API কী? সহজ ভাষায় ব্যাখ্যা করুন।",
+  "miO_tech_api": "দুই সফটওয়্যারের মধ্যে কথা বলার চুক্তি → request পাঠান, response পান → একটি বাস্তব উদাহরণ (আবহাওয়া API)।",
+  "miQ_tech_debug": "একটি বাগ খুঁজে বের করতে আপনি কীভাবে এগোবেন?",
+  "miO_tech_debug": "সমস্যাটি পুনরায় ঘটান → লগ/প্রিন্ট দেখুন → ছোট অংশে আলাদা করুন → ঠিক করে টেস্ট করুন।",
+  "miQ_viva_project": "আপনার প্রজেক্টের মূল উদ্দেশ্য সংক্ষেপে বলুন।",
+  "miO_viva_project": "কোন সমস্যা সমাধান করে → আপনার পদ্ধতি → মূল ফল → সীমাবদ্ধতা।",
+  "miQ_viva_tools": "আপনি কোন টুল/প্রযুক্তি ব্যবহার করেছেন এবং কেন?",
+  "miO_viva_tools": "প্রতিটি টুল নাম দিন → কেন বেছে নিলেন → বিকল্প কী ছিল।",
+  "miQ_viva_challenge": "প্রজেক্টে সবচেয়ে বড় চ্যালেঞ্জ কী ছিল?",
+  "miO_viva_challenge": "চ্যালেঞ্জটি → আপনি কীভাবে কাটিয়ে উঠলেন → কী শিখলেন।",
+  "miQ_viva_improve": "আরও সময় পেলে প্রজেক্টে কী উন্নতি করতেন?",
+  "miO_viva_improve": "একটি সৎ সীমাবদ্ধতা → একটি নির্দিষ্ট উন্নতি → তা কেন গুরুত্বপূর্ণ।",
+  "lpTitle": "ভাষা শেখার সঙ্গী",
+  "lpWelcomeTitle": "বাংলা ↔ ইংরেজি প্র্যাকটিস করুন",
+  "lpWelcomeBody": "রোজকার শব্দ ও বাক্যের বিল্ট-ইন ডেক, ফ্ল্যাশকার্ড (স্পেসড-রিপিটিশন), উচ্চারণের ইঙ্গিত ও ছোট কুইজ। কোনো AI কি ছাড়াই পুরোটা চলে।",
+  "lpStart": "শুরু করুন",
+  "lpLoadError": "অগ্রগতি লোড করা যায়নি।",
+  "lpPickDeck": "ডেক বেছে নিন",
+  "lpDeckGreetings": "সম্ভাষণ",
+  "lpDeckDaily": "দৈনন্দিন জীবন",
+  "lpDeckTravel": "ভ্রমণ",
+  "lpDeckShopping": "কেনাকাটা",
+  "lpDeckNumbers": "সংখ্যা",
+  "lpDirectionLabel": "দিক",
+  "lpDirBn2En": "বাংলা → ইংরেজি",
+  "lpDirEn2Bn": "ইংরেজি → বাংলা",
+  "lpFlashcards": "ফ্ল্যাশকার্ড",
+  "lpQuiz": "কুইজ",
+  "lpDueCount": "আজ {count}টি কার্ড রিভিউয়ের জন্য প্রস্তুত",
+  "@lpDueCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "lpNoDue": "আজ কোনো কার্ড রিভিউ বাকি নেই — দারুণ!",
+  "lpDeckProgress": "{started}/{total} কার্ড শুরু হয়েছে",
+  "@lpDeckProgress": {
+    "placeholders": {
+      "started": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "lpMasteredCount": "{count}টি কার্ড আয়ত্ত হয়েছে",
+  "@lpMasteredCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "lpTapToReveal": "উত্তর দেখতে ট্যাপ করুন",
+  "lpPronHint": "উচ্চারণ ইঙ্গিত",
+  "lpHintMarker": "আনুমানিক রোমান উচ্চারণ — নির্ভুল ধ্বনি-লিপি নয়",
+  "lpGotIt": "পেরেছি",
+  "lpMissedIt": "পারিনি",
+  "lpNextReview": "পরের রিভিউ {days} দিন পর",
+  "@lpNextReview": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "lpResetToReview": "আবার শীঘ্রই দেখানো হবে",
+  "lpBoxLabel": "লেভেল {box}/৫",
+  "@lpBoxLabel": {
+    "placeholders": {
+      "box": {
+        "type": "Object"
+      }
+    }
+  },
+  "lpDeckDone": "আজকের রিভিউ শেষ!",
+  "lpStartQuiz": "কুইজ শুরু করুন",
+  "lpQuizScore": "{correct}/{total} সঠিক",
+  "@lpQuizScore": {
+    "placeholders": {
+      "correct": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "lpQuizDone": "কুইজ শেষ",
+  "lpQuizReview": "যেগুলো ভুল হয়েছে আবার দেখুন",
+  "lpCorrect": "সঠিক!",
+  "lpWrong": "ভুল",
+  "lpNext": "পরের",
+  "lpFinish": "শেষ করুন",
+  "lpSaved": "অগ্রগতি সেভ হয়েছে",
+  "lpLiveSeamTitle": "লাইভ কথোপকথন প্র্যাকটিস",
+  "lpLiveSeamBody": "একটি AI কি যুক্ত করলে একজন লাইভ AI সঙ্গী আপনার সাথে কথা চালিয়ে নরমভাবে ভুল শুধরে দিতে পারবে। কি ছাড়া ডেক, ফ্ল্যাশকার্ড ও কুইজ পুরোপুরি চলে।",
+  "lpChangeDeck": "ডেক বদলান",
+  "lpC_g_hello_bn": "হ্যালো",
+  "lpC_g_hello_en": "Hello",
+  "lpC_g_howareyou_bn": "কেমন আছেন?",
+  "lpC_g_howareyou_en": "How are you?",
+  "lpC_g_fine_bn": "আমি ভালো আছি",
+  "lpC_g_fine_en": "I am fine",
+  "lpC_g_thanks_bn": "ধন্যবাদ",
+  "lpC_g_thanks_en": "Thank you",
+  "lpC_g_welcome_bn": "স্বাগতম",
+  "lpC_g_welcome_en": "Welcome",
+  "lpC_d_water_bn": "পানি",
+  "lpC_d_water_en": "Water",
+  "lpC_d_food_bn": "খাবার",
+  "lpC_d_food_en": "Food",
+  "lpC_d_rice_bn": "ভাত",
+  "lpC_d_rice_en": "Rice",
+  "lpC_d_sleep_bn": "ঘুম",
+  "lpC_d_sleep_en": "Sleep",
+  "lpC_d_today_bn": "আজ",
+  "lpC_d_today_en": "Today",
+  "lpC_t_where_bn": "কোথায়?",
+  "lpC_t_where_en": "Where?",
+  "lpC_t_howmuch_bn": "কত দূর?",
+  "lpC_t_howmuch_en": "How far?",
+  "lpC_t_left_bn": "বাম",
+  "lpC_t_left_en": "Left",
+  "lpC_t_right_bn": "ডান",
+  "lpC_t_right_en": "Right",
+  "lpC_t_stop_bn": "থামুন",
+  "lpC_t_stop_en": "Stop",
+  "lpC_s_price_bn": "দাম কত?",
+  "lpC_s_price_en": "What's the price?",
+  "lpC_s_expensive_bn": "অনেক দাম",
+  "lpC_s_expensive_en": "Too expensive",
+  "lpC_s_buy_bn": "আমি কিনব",
+  "lpC_s_buy_en": "I will buy",
+  "lpC_s_bag_bn": "ব্যাগ",
+  "lpC_s_bag_en": "Bag",
+  "lpC_n_one_bn": "এক",
+  "lpC_n_one_en": "One",
+  "lpC_n_two_bn": "দুই",
+  "lpC_n_two_en": "Two",
+  "lpC_n_three_bn": "তিন",
+  "lpC_n_three_en": "Three",
+  "lpC_n_ten_bn": "দশ",
+  "lpC_n_ten_en": "Ten",
+  "lpC_n_hundred_bn": "একশ",
+  "lpC_n_hundred_en": "Hundred"
 }

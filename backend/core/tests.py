@@ -838,11 +838,31 @@ ProbashiSnippetTests = _make_snippet_case(
 # translation. Never auto-sends. Mirror of app/lib/widgets/in_chat_ai_engine.dart.
 InChatAiSnippetTests = _make_snippet_case(
     "core.logic.in_chat_ai_tests_snippets", "InChatAiSnippetTests")
+# Mock interview (#131, §21) + Language-learning partner (#132, §21), both
+# ADVANCED & KEY-GATED. Pure deterministic engines: a bilingual question bank +
+# rule-based (NOT AI) feedback rubric + model-answer outlines; a bilingual deck
+# + Leitner spaced-repetition (clock passed in) + deterministic quizzes. Each
+# has a documented key-gated live-AI seam (ai_required=True, never fabricates).
+# Mirror of app/lib/screens/mock_interview_screen.dart + language_partner_screen.dart.
+MockInterviewSnippetTests = _make_snippet_case(
+    "core.logic.mock_interview_tests_snippets", "MockInterviewSnippetTests")
+LanguagePartnerSnippetTests = _make_snippet_case(
+    "core.logic.language_partner_tests_snippets", "LanguagePartnerSnippetTests")
 # In-app updater (#180, §21) — pure version-compare helper. Fail-closed: never
 # claims an update on ambiguous/garbage input; never returns a url unless an
 # update is genuinely available and the link is a usable http(s) one.
 AppUpdateSnippetTests = _make_snippet_case(
     "core.logic.app_update_tests_snippets", "AppUpdateSnippetTests")
+# Contract / agreement analyzer (#30, §8) + Cost / time estimator (#36, §8),
+# both ADVANCED. Pure deterministic engines: rule-based risk-clause detection
+# (bn+en seeds, worst-first, review-helper never legal advice) and integer-
+# poisha cost/time math (no float drift). Both carry honest mock/disclaimer
+# flags and a documented key-gated AI seam (Integrations `anthropic`). Mirror
+# of app/lib/screens/contract_analyzer_screen.dart + cost_estimator_screen.dart.
+ContractAnalyzerSnippetTests = _make_snippet_case(
+    "core.logic.contract_analyzer_tests_snippets", "ContractAnalyzerSnippetTests")
+CostEstimatorSnippetTests = _make_snippet_case(
+    "core.logic.cost_estimator_tests_snippets", "CostEstimatorSnippetTests")
 # Mess & bachelor accounting (#182, §20) + Expense splitting (#183, §20) —
 # pure deterministic meal-rate / dues / split / debt-simplification math. All
 # integer poisha, exact (shares sum to total; nets sum to 0); holds no money.
@@ -1028,6 +1048,23 @@ DailyChallengesSnippetTests = _make_snippet_case(
     "core.logic.daily_challenges_tests_snippets", "DailyChallengesSnippetTests")
 SavedItemsSnippetTests = _make_snippet_case(
     "core.logic.saved_items_tests_snippets", "SavedItemsSnippetTests")
+# AI spending advice (#51, §21) — deterministic, rule-based OBSERVATIONS over
+# the user's OWN summarised category totals (top category, share of spend,
+# month-over-month change, overspend vs the user's budgets, factual savings
+# pointer). NEVER financial advice (advice=False + disclaimer_key); never
+# invents transactions. Deeper written AI advice is the documented, key-gated
+# ai_seam (Integrations: anthropic / core.ai.generate). Pure, holds no money.
+# Mirror of app/lib/screens/spending_advice_screen.dart.
+SpendingAdviceSnippetTests = _make_snippet_case(
+    "core.logic.spending_advice_tests_snippets", "SpendingAdviceSnippetTests")
+# Market price radar (#34, §21) — manual bazar/material price tracker over the
+# user's OWN logged prices (item, ৳, date, market): per-item trend, high/low/avg,
+# %-change between the two latest logs. NEVER fabricates a live price; a live
+# market-data feed is the documented, key-gated feed_seam (no price-feed key in
+# the REGISTRY yet). Pure, holds no money. Mirror of
+# app/lib/screens/price_radar_screen.dart.
+PriceRadarSnippetTests = _make_snippet_case(
+    "core.logic.price_radar_tests_snippets", "PriceRadarSnippetTests")
 
 
 # ---------------------------------------------------------------------------
