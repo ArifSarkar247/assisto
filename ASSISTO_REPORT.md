@@ -803,3 +803,9 @@ NOTHING basic may remain.
 - Wave E DONE so far: PA core(6) + batch2(5) + batch3(6) = 17. Builds 82/83/84.
 - IN FLIGHT (batch4, build85): #186 domestic staff, #171 savings challenge, #198 security checkup, #200 accessibility mode, #199 farmer mode, #201 trust page.
 - Generic-collection integrate is now fully mechanical: merge ARBs → append collection names to GENERIC_COLLECTIONS in core/views.py → add sidebar entries → test/gallery/build. No migration for generic-collection modules.
+
+## BUILDS 85-87 — Wave E batches 4-6 (36 items total through build 87)
+- b4 (build85): staff/savings/security/a11y/farmer/trust. b5 (build86): health-timeline/wellness/challenges/saved/kid/fitness. b6 (build87): contract/cost/mock-interview/language-partner/spending/price-radar (key-gated AI → deterministic mock, honest markers).
+- Pattern holds: generic collections (no migration), sidebar entries, screenshot-reviewed. ARB en=bn=7347, 1611 tests. Fixed a latent tz bug (plans.reward_ad → localdate) in build82.
+- IN FLIGHT (batch7, build88): #17 quick-tools, #7 morning/night brief, #130 blog writer, #29 doc scanner, #92 transcription, #35 travel planner (all key-gated mock).
+- Wave E remaining after b7: PA key-gated layer (#106/107/109/110/112-114/116-125), AI-core (#13 voice-live/#14 voice-clone/#15 voice-mood/#6 proactive), remaining Section-20 (#187/194/195/196/197), standalone (#27-done/#51-done/#79/#80/#92-done/#144/#145/#172), native (#70/#79/#80/#196). Then Step 6 (SFU/TURN M3 + Telegram sandbox), Step 7 (P14-16 + iOS + FINAL), 13 owner-blocked.

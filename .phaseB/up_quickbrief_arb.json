@@ -1,0 +1,81 @@
+{
+  "_params": {
+    "dbCompletion": ["pct", "done", "total"]
+  },
+
+  "qtTitle": ["কুইক টুলস", "Quick tools"],
+  "qtAiMarker": ["AI-এর তৈরি ফলাফল — ব্যবহারের আগে পড়ে দেখুন।", "AI-generated — review before you use it."],
+  "qtNeverSends": ["Assisto নিজে থেকে কিছু পাঠায় না — আপনি নিজে কপি বা শেয়ার করবেন।", "Assisto never sends anything for you — you copy or share it yourself."],
+
+  "qtInputLabel": ["আপনার লেখা", "Your text"],
+  "qtInputHint": ["এখানে লিখুন বা পেস্ট করুন", "Type or paste here"],
+
+  "qtToolLabel": ["কোন টুল?", "Which tool?"],
+  "qtActionSummarise": ["সারসংক্ষেপ", "Summarise"],
+  "qtActionGrammar": ["বানান ও যতিচিহ্ন ঠিক করুন", "Fix grammar"],
+  "qtActionTranslate": ["অনুবাদ", "Translate"],
+  "qtActionTone": ["সুর বদলান", "Change tone"],
+  "qtActionShareable": ["শেয়ারযোগ্য করুন", "Make shareable"],
+
+  "qtToneLabel": ["সুর", "Tone"],
+  "qtTonePolite": ["ভদ্র", "Polite"],
+  "qtToneShorter": ["সংক্ষিপ্ত", "Shorter"],
+  "qtToneWarmer": ["উষ্ণ", "Warmer"],
+  "qtToneFirmer": ["দৃঢ়", "Firmer"],
+  "qtToneFormal": ["আনুষ্ঠানিক", "Formal"],
+
+  "qtDirLabel": ["অনুবাদের দিক", "Direction"],
+  "qtDirAuto": ["স্বয়ংক্রিয়", "Auto"],
+  "qtDirBnEn": ["বাংলা → ইংরেজি", "Bangla → English"],
+  "qtDirEnBn": ["ইংরেজি → বাংলা", "English → Bangla"],
+
+  "qtRun": ["চালান", "Run"],
+  "qtResultLabel": ["ফলাফল", "Result"],
+  "qtResultEmpty": ["কোনো ফলাফল নেই।", "No result."],
+  "qtPhraseFallbackNote": ["এটি একটি পরিচিত বাক্যাংশের তৈরি অনুবাদ। পুরো বাক্য অনুবাদের জন্য AI key যোগ করুন।", "This is a built-in common-phrase translation. Add an AI key for full-sentence translation."],
+
+  "qtTranslateNeedsKeyTitle": ["সত্যিকারের অনুবাদের জন্য AI key দরকার", "A real translation needs an AI key"],
+  "qtTranslateNeedsKeyBody": ["আমরা কিছু পরিচিত বাক্যাংশ key ছাড়াই অনুবাদ করতে পারি, কিন্তু পুরো বাক্য অনুবাদের জন্য একটি AI key যোগ করুন (Integrations → Anthropic)। আমরা কখনো ভুয়া অনুবাদ বানিয়ে দেখাই না।", "We can translate a few common phrases without a key, but a full-sentence translation needs an AI key (Integrations → Anthropic). We never fabricate a translation."],
+
+  "qtErrEmpty": ["আগে কিছু লেখা দিন।", "Enter some text first."],
+  "qtErrTone": ["সুর বেছে নিন।", "Pick a tone."],
+  "qtErrDirection": ["অনুবাদের দিক বেছে নিন।", "Pick a direction."],
+
+  "qtPhraseHello": ["হ্যালো", "হ্যালো"],
+  "qtPhraseThankYou": ["ধন্যবাদ", "ধন্যবাদ"],
+  "qtPhraseGoodMorning": ["সুপ্রভাত", "সুপ্রভাত"],
+  "qtPhraseGoodNight": ["শুভ রাত্রি", "শুভ রাত্রি"],
+  "qtPhraseHowAreYou": ["কেমন আছেন", "কেমন আছেন"],
+  "qtPhraseYes": ["হ্যাঁ", "হ্যাঁ"],
+  "qtPhraseNo": ["না", "না"],
+  "qtPhraseSorry": ["দুঃখিত", "দুঃখিত"],
+  "qtPhraseWelcome": ["স্বাগতম", "স্বাগতম"],
+
+  "dbTitle": ["দৈনিক ব্রিফ", "Daily brief"],
+  "dbTabMorning": ["সকালের ব্রিফ", "Morning"],
+  "dbTabNight": ["রাতের সারসংক্ষেপ", "Night"],
+
+  "dbMorningHeading": ["আজ যা সামনে আছে", "What's ahead today"],
+  "dbNightHeading": ["আজকের দিনটি", "Your day"],
+  "dbMorningEmpty": ["আজ নির্ধারিত কিছু নেই — দিনটি ভালো কাটুক!", "Nothing scheduled today — have a good one!"],
+  "dbNightEmpty": ["আজ কিছু নির্ধারিত ছিল না।", "Nothing was scheduled today."],
+
+  "dbSecOverdue": ["বকেয়া — আগে এটি দেখুন", "Overdue — needs you first"],
+  "dbSecToday": ["আজ", "Today"],
+  "dbSecTomorrow": ["আগামীকাল", "Tomorrow"],
+  "dbSecDone": ["সম্পন্ন হয়েছে", "Done"],
+  "dbSecOpen": ["এখনো বাকি", "Still open"],
+  "dbNothing": ["নির্ধারিত কিছু নেই", "Nothing scheduled"],
+
+  "dbKindReminder": ["রিমাইন্ডার", "Reminder"],
+  "dbKindPayment": ["পেমেন্ট", "Payment"],
+  "dbKindBirthday": ["জন্মদিন", "Birthday"],
+  "dbKindEvent": ["ইভেন্ট", "Event"],
+
+  "dbCompletion": ["{total} টির মধ্যে {done} টি সম্পন্ন ({pct}%)", "{done} of {total} done ({pct}%)"],
+
+  "dbWeatherNeedsKey": ["সকালের ব্রিফে আবহাওয়া দেখতে একটি weather key যোগ করুন (Integrations)। আমরা কখনো ভুয়া আবহাওয়া দেখাই না।", "Add a weather key (Integrations) to see the forecast here. We never fabricate weather."],
+  "dbNewsNeedsKey": ["রাতের সারসংক্ষেপে শিরোনাম দেখতে একটি news key যোগ করুন (Integrations)। আমরা কখনো ভুয়া খবর দেখাই না।", "Add a news key (Integrations) to see headlines here. We never fabricate news."],
+
+  "dbLoadError": ["ব্রিফ লোড করা গেল না।", "Couldn't load the brief."]
+}

@@ -9303,5 +9303,303 @@
   "lpC_n_ten_bn": "দশ",
   "lpC_n_ten_en": "Ten",
   "lpC_n_hundred_bn": "একশ",
-  "lpC_n_hundred_en": "Hundred"
+  "lpC_n_hundred_en": "Hundred",
+  "bwTitle": "ব্লগ ও স্ক্রিপ্ট লেখা",
+  "bwTabCompose": "লিখুন",
+  "bwTabSaved": "সংরক্ষিত",
+  "bwFormat": "ধরন",
+  "bwFmtBlog": "ব্লগ পোস্ট",
+  "bwFmtScript": "ভিডিও স্ক্রিপ্ট",
+  "bwFmtCaption": "ক্যাপশন",
+  "bwFmtOutline": "আউটলাইন",
+  "bwTopic": "বিষয়",
+  "bwTopicHint": "যেমন: ঘরে বসে ফ্রিল্যান্সিং শুরু করা",
+  "bwTone": "সুর",
+  "bwToneInformative": "তথ্যমূলক",
+  "bwToneCasual": "সহজ-সরল",
+  "bwTonePersuasive": "অনুপ্রেরণামূলক",
+  "bwToneStorytelling": "গল্পের ঢঙে",
+  "bwToneProfessional": "পেশাদার",
+  "bwLength": "দৈর্ঘ্য",
+  "bwLenShort": "ছোট",
+  "bwLenMedium": "মাঝারি",
+  "bwLenLong": "বড়",
+  "bwLanguage": "ভাষা",
+  "bwLangBn": "বাংলা",
+  "bwLangBanglish": "বাংলিশ",
+  "bwLangEn": "ইংরেজি",
+  "bwGenerate": "খসড়া তৈরি করুন",
+  "bwRegenerate": "আবার তৈরি করুন",
+  "bwDraft": "খসড়া",
+  "bwPlaceholderHint": "বন্ধনীর [...] অংশগুলো আপনার নিজের কথায় পূরণ করুন।",
+  "bwShare": "শেয়ার",
+  "bwSaved": "খসড়া সংরক্ষিত হয়েছে",
+  "bwLoadError": "খসড়া আনা যায়নি — ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "bwSavedEmptyTitle": "এখনো কোনো সংরক্ষিত খসড়া নেই",
+  "bwSavedEmptyBody": "একটি খসড়া তৈরি করে সংরক্ষণ করুন — পরে সম্পাদনা বা কপি করতে পারবেন।",
+  "bwAiMarker": "AI-তৈরি খসড়া — পাঠানোর আগে পড়ে দেখুন",
+  "bwNeverAutoPost": "এটি একটি টেমপ্লেট কাঠামো; অ্যাসিস্টো নিজে থেকে কোথাও পোস্ট করে না।",
+  "bwFullAiTitle": "পুরো AI খসড়া চান?",
+  "bwFullAiBody": "একটি AI কি যুক্ত করলে (সেটিংস → ইন্টিগ্রেশন → Anthropic) আপনার ভাষায় সম্পূর্ণ লেখা খসড়া পাওয়া যাবে।",
+  "bwProblemTopic": "একটি বিষয় লিখুন।",
+  "bwProblemFormat": "একটি ধরন বেছে নিন।",
+  "bwProblemGeneric": "ইনপুট ঠিক করে আবার চেষ্টা করুন।",
+  "dsTitle": "ডকুমেন্ট স্ক্যানার",
+  "dsAddTitle": "ডকুমেন্ট যোগ করুন",
+  "dsEditTitle": "ডকুমেন্ট সম্পাদনা",
+  "dsFieldTitle": "শিরোনাম",
+  "dsFieldTitleHint": "যেমন: জুন মাসের বিদ্যুৎ বিল",
+  "dsNotes": "নোট",
+  "dsType": "ধরন",
+  "dsTypeNid": "এনআইডি",
+  "dsTypePassport": "পাসপোর্ট",
+  "dsTypeCertificate": "সার্টিফিকেট",
+  "dsTypeBill": "বিল",
+  "dsTypeReceipt": "রসিদ",
+  "dsTypeOther": "অন্যান্য",
+  "dsAddImage": "ছবি যোগ করুন",
+  "dsChangeImage": "ছবি বদলান",
+  "dsImageAttached": "ছবি যুক্ত হয়েছে",
+  "dsFilterAll": "সব",
+  "dsSearchHint": "শিরোনাম বা নোটে খুঁজুন",
+  "dsSaved": "ডকুমেন্ট সংরক্ষিত হয়েছে",
+  "dsTitleRequired": "একটি শিরোনাম দিন।",
+  "dsLoadError": "ডকুমেন্ট আনা যায়নি — ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "dsEmptyTitle": "এখনো কোনো ডকুমেন্ট নেই",
+  "dsEmptyBody": "প্রথম ডকুমেন্ট যোগ করুন — ছবি তুলে বা হাতে লিখে গুছিয়ে রাখুন ও ট্যাগ দিন।",
+  "dsNoMatchTitle": "কিছু পাওয়া যায়নি",
+  "dsNoMatchBody": "ফিল্টার বা খোঁজার শব্দ বদলে আবার দেখুন।",
+  "dsOcrLockedTitle": "লেখা স্বয়ংক্রিয়ভাবে পড়তে চান?",
+  "dsOcrLockedBody": "একটি OCR কি যুক্ত করলে (সেটিংস → ইন্টিগ্রেশন → OCR) ছবি থেকে লেখা নিজে থেকে পড়া যাবে। কি ছাড়া ডকুমেন্ট হাতে গুছিয়ে রাখা যায়।",
+  "dsOcrReadyTitle": "লেখা স্বয়ংক্রিয়ভাবে পড়া যাবে",
+  "dsOcrReadyBody": "OCR কি যুক্ত আছে — সংরক্ষণের পর ছবি থেকে লেখা পড়া যাবে।",
+  "tnTitle": "কল ও ভয়েস নোট",
+  "tnWelcomeTitle": "ভয়েস নোট গুছিয়ে রাখুন",
+  "tnWelcomeBody": "একটি এন্ট্রি যোগ করুন — শিরোনাম, সময়কাল, তারিখ — আর নিজে হাতে ট্রান্সক্রিপ্ট ও নোট লিখুন। সার্চ করে যেকোনো নোট খুঁজে নিন। কোনো কি ছাড়াই পুরোটা কাজ করে।",
+  "tnAddNote": "নোট যোগ করুন",
+  "tnEditNote": "নোট সম্পাদনা",
+  "tnLoadError": "আপনার নোটগুলো লোড করা যায়নি।",
+  "tnSearchHint": "শিরোনাম, ট্রান্সক্রিপ্ট বা নোটে খুঁজুন…",
+  "tnNoResultsTitle": "কিছু পাওয়া যায়নি",
+  "tnNoResultsBody": "অন্য শব্দ দিয়ে খুঁজে দেখুন।",
+  "tnStatCount": "নোট",
+  "tnStatDuration": "মোট সময়",
+  "tnStatTranscribed": "ট্রান্সক্রাইব হয়েছে",
+  "tnNoTranscript": "ট্রান্সক্রিপ্ট নেই",
+  "tnSourceManual": "আপনার টাইপ করা",
+  "tnSourceAuto": "অটো ট্রান্সক্রিপ্ট",
+  "tnSttSeamTitle": "অটো ট্রান্সক্রিপশন (একটি কি দরকার)",
+  "tnSttSeamBody": "অডিও থেকে স্বয়ংক্রিয়ভাবে লেখা তৈরি করতে একটি স্পিচ-টু-টেক্সট কি যুক্ত করুন। কি ছাড়া আমরা কখনো ট্রান্সক্রিপ্ট বানিয়ে দিই না — আপনি নিজে টাইপ করতে পারেন।",
+  "tnDeleteTitle": "নোট মুছবেন?",
+  "tnDeleteBody": "এই ভয়েস নোট ও তার ট্রান্সক্রিপ্ট মুছে ফেলা হবে। এটি ফেরানো যাবে না।",
+  "tnTitleRequired": "একটি শিরোনাম দিন।",
+  "tnFieldTitle": "শিরোনাম",
+  "tnFieldMinutes": "মিনিট",
+  "tnFieldSeconds": "সেকেন্ড",
+  "tnFieldDate": "তারিখ",
+  "tnFieldAudioRef": "অডিও রেফারেন্স (ঐচ্ছিক)",
+  "tnAudioRefHelp": "রেকর্ডিং ফাইলের নাম বা আইডি। অ্যাপ অডিও ফাইল নিজে সংরক্ষণ করে না — এখানে শুধু একটি রেফারেন্স রাখা হয়।",
+  "tnConsentLabel": "কল রেকর্ড করার সম্মতি আছে",
+  "tnConsentBody": "কল রেকর্ড করা স্থানীয় আইন ও সব পক্ষের সম্মতির অধীন। নিশ্চিত হয়ে তবেই টিক দিন।",
+  "tnFieldTranscript": "ট্রান্সক্রিপ্ট (আপনি লিখুন)",
+  "tnTranscriptHelp": "নিজে হাতে ট্রান্সক্রিপ্ট লিখুন বা সম্পাদনা করুন। এটি 'আপনার টাইপ করা' হিসেবে চিহ্নিত থাকবে।",
+  "tnFieldNotes": "নোট (ঐচ্ছিক)",
+  "tvTitle": "ভ্রমণ পরিকল্পনা",
+  "tvWelcomeTitle": "আপনার পরের ট্রিপ সাজান",
+  "tvWelcomeBody": "গন্তব্য ও তারিখ দিয়ে একটি ট্রিপ তৈরি করুন — তারপর দিনভিত্তিক পরিকল্পনা, প্যাকিং চেকলিস্ট আর ৳ বাজেট যোগ করুন। কাউন্টডাউনও দেখাবে। কোনো কি ছাড়াই পুরোটা কাজ করে।",
+  "tvNewTrip": "নতুন ট্রিপ",
+  "tvEditTrip": "ট্রিপ সম্পাদনা",
+  "tvLoadError": "আপনার ট্রিপ লোড করা যায়নি।",
+  "tvDaysCount": "{days} দিন",
+  "@tvDaysCount": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "tvCountdown": "আর {days} দিন বাকি",
+  "@tvCountdown": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "tvOngoing": "চলছে — আর {days} দিন",
+  "@tvOngoing": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "tvPast": "{days} দিন আগে শেষ হয়েছে",
+  "@tvPast": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "tvFieldDestination": "গন্তব্য",
+  "tvFieldStart": "শুরুর তারিখ",
+  "tvFieldEnd": "শেষের তারিখ",
+  "tvDestRequired": "একটি গন্তব্য দিন।",
+  "tvTabItinerary": "পরিকল্পনা",
+  "tvTabPacking": "প্যাকিং",
+  "tvTabBudget": "বাজেট",
+  "tvAddDay": "দিন যোগ করুন",
+  "tvEditDay": "দিন সম্পাদনা",
+  "tvDayN": "দিন {n}",
+  "@tvDayN": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "tvFieldDayNum": "দিন",
+  "tvFieldDayTitle": "দিনের শিরোনাম (ঐচ্ছিক)",
+  "tvItinerarySummary": "{days} দিন · মোট {activities}টি কার্যক্রম",
+  "@tvItinerarySummary": {
+    "placeholders": {
+      "activities": {
+        "type": "Object"
+      },
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "tvNoDaysTitle": "এখনো কোনো দিন নেই",
+  "tvNoDaysBody": "প্রতিটি দিনের জন্য কার্যক্রম ও জায়গা যোগ করে পরিকল্পনা সাজান।",
+  "tvNoActivities": "কোনো কার্যক্রম যোগ করা হয়নি",
+  "tvActivitiesLabel": "কার্যক্রম",
+  "tvAddActivity": "কার্যক্রম যোগ করুন",
+  "tvActivityWhat": "কী করবেন",
+  "tvActivityTime": "সময় (ঐচ্ছিক)",
+  "tvActivityPlace": "জায়গা (ঐচ্ছিক)",
+  "tvAddPacking": "আইটেম যোগ করুন",
+  "tvPackingItem": "প্যাকিং আইটেম",
+  "tvPackingProgress": "{checked}/{total} প্যাক হয়েছে",
+  "@tvPackingProgress": {
+    "placeholders": {
+      "checked": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "tvNoPackingTitle": "প্যাকিং লিস্ট খালি",
+  "tvNoPackingBody": "যা যা নিতে হবে যোগ করুন আর টিক দিয়ে গুছিয়ে ফেলুন।",
+  "tvAddBudget": "বাজেট লাইন যোগ করুন",
+  "tvEditBudget": "বাজেট সম্পাদনা",
+  "tvFieldCategory": "খাত",
+  "tvFieldEstimate": "আনুমানিক",
+  "tvFieldActual": "প্রকৃত",
+  "tvBudgetEstimateNote": "এগুলো আপনার নিজের অনুমান — অ্যাপ কখনো লাইভ দাম এনে দেয় না।",
+  "tvBudgetEstimated": "আনুমানিক",
+  "tvBudgetActual": "প্রকৃত",
+  "tvBudgetRemaining": "বাকি",
+  "tvBudgetLine": "অনুমান {estimate} · খরচ {actual}",
+  "@tvBudgetLine": {
+    "placeholders": {
+      "actual": {
+        "type": "Object"
+      },
+      "estimate": {
+        "type": "Object"
+      }
+    }
+  },
+  "tvOverspent": "বাজেট ছাড়িয়ে গেছে",
+  "tvNoBudgetTitle": "এখনো কোনো বাজেট নেই",
+  "tvNoBudgetBody": "খাত ধরে আনুমানিক ও প্রকৃত খরচ যোগ করে বাজেট গড়ুন।",
+  "tvCatTransport": "যাতায়াত",
+  "tvCatStay": "থাকা",
+  "tvCatFood": "খাবার",
+  "tvCatActivities": "কার্যক্রম",
+  "tvCatShopping": "কেনাকাটা",
+  "tvCatOther": "অন্যান্য",
+  "tvAiSeamTitle": "AI পরিকল্পনা পরামর্শ (একটি কি দরকার)",
+  "tvAiSeamBody": "গন্তব্য ও দিনের সংখ্যা থেকে পরিকল্পনার পরামর্শ পেতে একটি AI কি যুক্ত করুন। কি ছাড়া আমরা কখনো কার্যক্রম বা জায়গা বানিয়ে দিই না।",
+  "tvBookingSeamTitle": "লাইভ বুকিং ও দাম (একটি কি দরকার)",
+  "tvBookingSeamBody": "ফ্লাইট/হোটেলের লাইভ দাম ও বুকিংয়ের জন্য একটি বুকিং কি যুক্ত করুন। কি ছাড়া অ্যাপ কখনো দাম বা বুকিং বানায় না, কোনো টাকা রাখে না — যে দাম দেখছেন তা আপনার নিজের অনুমান।",
+  "qtTitle": "কুইক টুলস",
+  "qtAiMarker": "AI-এর তৈরি ফলাফল — ব্যবহারের আগে পড়ে দেখুন।",
+  "qtNeverSends": "Assisto নিজে থেকে কিছু পাঠায় না — আপনি নিজে কপি বা শেয়ার করবেন।",
+  "qtInputLabel": "আপনার লেখা",
+  "qtInputHint": "এখানে লিখুন বা পেস্ট করুন",
+  "qtToolLabel": "কোন টুল?",
+  "qtActionSummarise": "সারসংক্ষেপ",
+  "qtActionGrammar": "বানান ও যতিচিহ্ন ঠিক করুন",
+  "qtActionTranslate": "অনুবাদ",
+  "qtActionTone": "সুর বদলান",
+  "qtActionShareable": "শেয়ারযোগ্য করুন",
+  "qtToneLabel": "সুর",
+  "qtTonePolite": "ভদ্র",
+  "qtToneShorter": "সংক্ষিপ্ত",
+  "qtToneWarmer": "উষ্ণ",
+  "qtToneFirmer": "দৃঢ়",
+  "qtToneFormal": "আনুষ্ঠানিক",
+  "qtDirLabel": "অনুবাদের দিক",
+  "qtDirAuto": "স্বয়ংক্রিয়",
+  "qtDirBnEn": "বাংলা → ইংরেজি",
+  "qtDirEnBn": "ইংরেজি → বাংলা",
+  "qtRun": "চালান",
+  "qtResultLabel": "ফলাফল",
+  "qtResultEmpty": "কোনো ফলাফল নেই।",
+  "qtPhraseFallbackNote": "এটি একটি পরিচিত বাক্যাংশের তৈরি অনুবাদ। পুরো বাক্য অনুবাদের জন্য AI key যোগ করুন।",
+  "qtTranslateNeedsKeyTitle": "সত্যিকারের অনুবাদের জন্য AI key দরকার",
+  "qtTranslateNeedsKeyBody": "আমরা কিছু পরিচিত বাক্যাংশ key ছাড়াই অনুবাদ করতে পারি, কিন্তু পুরো বাক্য অনুবাদের জন্য একটি AI key যোগ করুন (Integrations → Anthropic)। আমরা কখনো ভুয়া অনুবাদ বানিয়ে দেখাই না।",
+  "qtErrEmpty": "আগে কিছু লেখা দিন।",
+  "qtErrTone": "সুর বেছে নিন।",
+  "qtErrDirection": "অনুবাদের দিক বেছে নিন।",
+  "qtPhraseHello": "হ্যালো",
+  "qtPhraseThankYou": "ধন্যবাদ",
+  "qtPhraseGoodMorning": "সুপ্রভাত",
+  "qtPhraseGoodNight": "শুভ রাত্রি",
+  "qtPhraseHowAreYou": "কেমন আছেন",
+  "qtPhraseYes": "হ্যাঁ",
+  "qtPhraseNo": "না",
+  "qtPhraseSorry": "দুঃখিত",
+  "qtPhraseWelcome": "স্বাগতম",
+  "dbTitle": "দৈনিক ব্রিফ",
+  "dbTabMorning": "সকালের ব্রিফ",
+  "dbTabNight": "রাতের সারসংক্ষেপ",
+  "dbMorningHeading": "আজ যা সামনে আছে",
+  "dbNightHeading": "আজকের দিনটি",
+  "dbMorningEmpty": "আজ নির্ধারিত কিছু নেই — দিনটি ভালো কাটুক!",
+  "dbNightEmpty": "আজ কিছু নির্ধারিত ছিল না।",
+  "dbSecOverdue": "বকেয়া — আগে এটি দেখুন",
+  "dbSecToday": "আজ",
+  "dbSecTomorrow": "আগামীকাল",
+  "dbSecDone": "সম্পন্ন হয়েছে",
+  "dbSecOpen": "এখনো বাকি",
+  "dbNothing": "নির্ধারিত কিছু নেই",
+  "dbKindReminder": "রিমাইন্ডার",
+  "dbKindPayment": "পেমেন্ট",
+  "dbKindBirthday": "জন্মদিন",
+  "dbKindEvent": "ইভেন্ট",
+  "dbCompletion": "{total} টির মধ্যে {done} টি সম্পন্ন ({pct}%)",
+  "@dbCompletion": {
+    "placeholders": {
+      "done": {
+        "type": "Object"
+      },
+      "pct": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "dbWeatherNeedsKey": "সকালের ব্রিফে আবহাওয়া দেখতে একটি weather key যোগ করুন (Integrations)। আমরা কখনো ভুয়া আবহাওয়া দেখাই না।",
+  "dbNewsNeedsKey": "রাতের সারসংক্ষেপে শিরোনাম দেখতে একটি news key যোগ করুন (Integrations)। আমরা কখনো ভুয়া খবর দেখাই না।",
+  "dbLoadError": "ব্রিফ লোড করা গেল না।",
+  "share": "শেয়ার"
 }

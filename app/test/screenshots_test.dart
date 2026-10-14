@@ -25,6 +25,12 @@ import 'package:assisto/screens/messenger/contact_info_screen.dart';
 import 'package:assisto/screens/notification_centre_screen.dart';
 import 'package:assisto/screens/messenger/messenger_profile_screen.dart';
 import 'package:assisto/screens/messenger/contacts_screen.dart';
+import 'package:assisto/screens/quick_tools_screen.dart';
+import 'package:assisto/screens/daily_brief_screen.dart';
+import 'package:assisto/screens/blog_writer_screen.dart';
+import 'package:assisto/screens/doc_scanner_screen.dart';
+import 'package:assisto/screens/transcription_screen.dart';
+import 'package:assisto/screens/travel_planner_screen.dart';
 import 'package:assisto/screens/contract_analyzer_screen.dart';
 import 'package:assisto/screens/cost_estimator_screen.dart';
 import 'package:assisto/screens/mock_interview_screen.dart';
@@ -244,6 +250,12 @@ void main() {
     'notification_centre': (build: (_) => const NotificationCentreScreen(), mode: FakeMode.data, full: true),
     'msgr_profile': (build: (_) => const MessengerProfileScreen(), mode: FakeMode.data, full: true),
     'contacts': (build: (_) => const ContactsScreen(), mode: FakeMode.data, full: true),
+    'quick_tools': (build: (_) => const QuickToolsScreen(), mode: FakeMode.data, full: true),
+    'daily_brief': (build: (_) => const DailyBriefScreen(), mode: FakeMode.data, full: true),
+    'blog': (build: (_) => const BlogWriterScreen(), mode: FakeMode.data, full: true),
+    'doc_scan': (build: (_) => const DocScannerScreen(), mode: FakeMode.data, full: true),
+    'transcribe': (build: (_) => const TranscriptionScreen(), mode: FakeMode.data, full: true),
+    'travel': (build: (_) => const TravelPlannerScreen(), mode: FakeMode.data, full: true),
     'contract': (build: (_) => const ContractAnalyzerScreen(), mode: FakeMode.data, full: true),
     'cost_est': (build: (_) => const CostEstimatorScreen(), mode: FakeMode.data, full: true),
     'mock_iv': (build: (_) => const MockInterviewScreen(), mode: FakeMode.data, full: true),

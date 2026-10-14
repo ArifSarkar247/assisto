@@ -1065,6 +1065,46 @@ SpendingAdviceSnippetTests = _make_snippet_case(
 # app/lib/screens/price_radar_screen.dart.
 PriceRadarSnippetTests = _make_snippet_case(
     "core.logic.price_radar_tests_snippets", "PriceRadarSnippetTests")
+# Blog & script writing (#130, §21, ADVANCED) + Document scanner / organiser
+# (#29, §21, ADVANCED). Both pure, deterministic, key-free: a template-assembled
+# blog/script/caption/outline scaffold (placeholder prompts, never fabricated
+# facts) and a manual document organiser (tag/type/search/filter). AI and OCR
+# are honest, documented key-gated seams (Integrations `anthropic` / `ocr`) —
+# the mock never fabricates AI text or extracted OCR text. Mirrors of
+# app/lib/screens/blog_writer_screen.dart + doc_scanner_screen.dart.
+BlogWriterSnippetTests = _make_snippet_case(
+    "core.logic.blog_writer_tests_snippets", "BlogWriterSnippetTests")
+DocScannerSnippetTests = _make_snippet_case(
+    "core.logic.doc_scanner_tests_snippets", "DocScannerSnippetTests")
+# Call & voice-note transcription organiser (#92, §21, ADVANCED, KEY-GATED) +
+# Travel planner (#35, §21, ADVANCED, KEY-GATED). Both pure, deterministic,
+# key-free organisers: a voice-note store (normalize/search/stats + manual
+# transcript, never fabricated) and a trip planner (inclusive date math,
+# passed-in-today countdown, integer-poisha estimated-vs-actual budget with no
+# drift, packing %, itinerary counts). Auto speech-to-text, AI itinerary
+# suggestions, and live booking/prices are honest documented key-gated seams
+# (Integrations `transcription` / `anthropic` / booking) — the engines never
+# fabricate a transcript, a suggestion, a price, or a booking. Mirrors of
+# app/lib/screens/transcription_screen.dart + travel_planner_screen.dart.
+TranscriptionSnippetTests = _make_snippet_case(
+    "core.logic.transcription_tests_snippets", "TranscriptionSnippetTests")
+TravelPlannerSnippetTests = _make_snippet_case(
+    "core.logic.travel_planner_tests_snippets", "TravelPlannerSnippetTests")
+# Quick tools (#17, §6, built to §21) + Morning brief & night summary (#7, §6,
+# built to §21). Both pure, deterministic, key-free. Quick tools is a toolbox
+# over entered text (extractive summarise / rule-based grammar fix / honest
+# translate with a tiny common-phrase fallback / template tone-change /
+# make-shareable) — every result an honest MOCK, translate never fabricates a
+# sentence translation (key-gated `anthropic` seam via ai_plan()). The daily
+# brief assembles a morning + night card DETERMINISTICALLY from the user's OWN
+# data (reminders / payments / birthdays / events), inventing nothing; weather
+# & news are honest key-gated placeholders (Integrations `weather` / `news`),
+# never fabricated. Mirrors of app/lib/screens/quick_tools_screen.dart +
+# daily_brief_screen.dart.
+QuickToolsSnippetTests = _make_snippet_case(
+    "core.logic.quick_tools_tests_snippets", "QuickToolsSnippetTests")
+DailyBriefSnippetTests = _make_snippet_case(
+    "core.logic.daily_brief_tests_snippets", "DailyBriefSnippetTests")
 
 
 # ---------------------------------------------------------------------------

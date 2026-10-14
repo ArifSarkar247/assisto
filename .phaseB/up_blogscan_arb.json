@@ -1,0 +1,93 @@
+{
+  "_comment": "Blog & script writing (#130, BlogWriterScreen) + Document scanner/organiser (#29, DocScannerScreen) — ADVANCED, §21. New ARB keys {key:[bn,en]} to merge into app_bn.arb/app_en.arb at next sync. Both screens are KEY-GATED mocks: a deterministic template scaffold (AI full-draft is key-gated via Integrations `anthropic`) and a manual document organiser (OCR auto-read is key-gated via Integrations `ocr`). ZERO Bangla literals live in .dart — every string below is an AppLocalizations getter. REUSED existing getters (NOT re-emitted): copy, copied, save, delete, cancel, retry, loadFailed, saveFailed, commonDeleted, camera, gallery. ৳ not used here. bw* = blog writer (39 keys), ds* = doc scanner (28 keys). Total 67.",
+
+  "bwTitle": ["ব্লগ ও স্ক্রিপ্ট লেখা", "Blog & script writing"],
+  "bwTabCompose": ["লিখুন", "Compose"],
+  "bwTabSaved": ["সংরক্ষিত", "Saved"],
+
+  "bwFormat": ["ধরন", "Format"],
+  "bwFmtBlog": ["ব্লগ পোস্ট", "Blog post"],
+  "bwFmtScript": ["ভিডিও স্ক্রিপ্ট", "Video script"],
+  "bwFmtCaption": ["ক্যাপশন", "Caption"],
+  "bwFmtOutline": ["আউটলাইন", "Outline"],
+
+  "bwTopic": ["বিষয়", "Topic"],
+  "bwTopicHint": ["যেমন: ঘরে বসে ফ্রিল্যান্সিং শুরু করা", "e.g. starting freelancing from home"],
+
+  "bwTone": ["সুর", "Tone"],
+  "bwToneInformative": ["তথ্যমূলক", "Informative"],
+  "bwToneCasual": ["সহজ-সরল", "Casual"],
+  "bwTonePersuasive": ["অনুপ্রেরণামূলক", "Persuasive"],
+  "bwToneStorytelling": ["গল্পের ঢঙে", "Storytelling"],
+  "bwToneProfessional": ["পেশাদার", "Professional"],
+
+  "bwLength": ["দৈর্ঘ্য", "Length"],
+  "bwLenShort": ["ছোট", "Short"],
+  "bwLenMedium": ["মাঝারি", "Medium"],
+  "bwLenLong": ["বড়", "Long"],
+
+  "bwLanguage": ["ভাষা", "Language"],
+  "bwLangBn": ["বাংলা", "Bangla"],
+  "bwLangBanglish": ["বাংলিশ", "Banglish"],
+  "bwLangEn": ["ইংরেজি", "English"],
+
+  "bwGenerate": ["খসড়া তৈরি করুন", "Create a draft"],
+  "bwRegenerate": ["আবার তৈরি করুন", "Regenerate"],
+
+  "bwDraft": ["খসড়া", "Draft"],
+  "bwPlaceholderHint": ["বন্ধনীর [...] অংশগুলো আপনার নিজের কথায় পূরণ করুন।", "Fill in the [...] placeholders in your own words."],
+
+  "bwShare": ["শেয়ার", "Share"],
+
+  "bwSaved": ["খসড়া সংরক্ষিত হয়েছে", "Draft saved"],
+  "bwLoadError": ["খসড়া আনা যায়নি — ইন্টারনেট দেখে আবার চেষ্টা করুন।", "Couldn't load drafts — check your internet and retry."],
+  "bwSavedEmptyTitle": ["এখনো কোনো সংরক্ষিত খসড়া নেই", "No saved drafts yet"],
+  "bwSavedEmptyBody": ["একটি খসড়া তৈরি করে সংরক্ষণ করুন — পরে সম্পাদনা বা কপি করতে পারবেন।", "Create a draft and save it — you can edit or copy it later."],
+
+  "bwAiMarker": ["AI-তৈরি খসড়া — পাঠানোর আগে পড়ে দেখুন", "AI-generated draft — review before use"],
+  "bwNeverAutoPost": ["এটি একটি টেমপ্লেট কাঠামো; অ্যাসিস্টো নিজে থেকে কোথাও পোস্ট করে না।", "This is a template scaffold; Assisto never posts anywhere on its own."],
+
+  "bwFullAiTitle": ["পুরো AI খসড়া চান?", "Want a full AI draft?"],
+  "bwFullAiBody": ["একটি AI কি যুক্ত করলে (সেটিংস → ইন্টিগ্রেশন → Anthropic) আপনার ভাষায় সম্পূর্ণ লেখা খসড়া পাওয়া যাবে।", "Connect an AI key (Settings → Integrations → Anthropic) to get a fully written draft in your language."],
+
+  "bwProblemTopic": ["একটি বিষয় লিখুন।", "Please enter a topic."],
+  "bwProblemFormat": ["একটি ধরন বেছে নিন।", "Please pick a format."],
+  "bwProblemGeneric": ["ইনপুট ঠিক করে আবার চেষ্টা করুন।", "Please fix the input and retry."],
+
+  "dsTitle": ["ডকুমেন্ট স্ক্যানার", "Document scanner"],
+  "dsAddTitle": ["ডকুমেন্ট যোগ করুন", "Add document"],
+  "dsEditTitle": ["ডকুমেন্ট সম্পাদনা", "Edit document"],
+
+  "dsFieldTitle": ["শিরোনাম", "Title"],
+  "dsFieldTitleHint": ["যেমন: জুন মাসের বিদ্যুৎ বিল", "e.g. June electricity bill"],
+  "dsNotes": ["নোট", "Notes"],
+
+  "dsType": ["ধরন", "Type"],
+  "dsTypeNid": ["এনআইডি", "NID"],
+  "dsTypePassport": ["পাসপোর্ট", "Passport"],
+  "dsTypeCertificate": ["সার্টিফিকেট", "Certificate"],
+  "dsTypeBill": ["বিল", "Bill"],
+  "dsTypeReceipt": ["রসিদ", "Receipt"],
+  "dsTypeOther": ["অন্যান্য", "Other"],
+
+  "dsAddImage": ["ছবি যোগ করুন", "Add image"],
+  "dsChangeImage": ["ছবি বদলান", "Change image"],
+  "dsImageAttached": ["ছবি যুক্ত হয়েছে", "Image attached"],
+
+  "dsFilterAll": ["সব", "All"],
+  "dsSearchHint": ["শিরোনাম বা নোটে খুঁজুন", "Search title or notes"],
+
+  "dsSaved": ["ডকুমেন্ট সংরক্ষিত হয়েছে", "Document saved"],
+  "dsTitleRequired": ["একটি শিরোনাম দিন।", "Please enter a title."],
+  "dsLoadError": ["ডকুমেন্ট আনা যায়নি — ইন্টারনেট দেখে আবার চেষ্টা করুন।", "Couldn't load documents — check your internet and retry."],
+
+  "dsEmptyTitle": ["এখনো কোনো ডকুমেন্ট নেই", "No documents yet"],
+  "dsEmptyBody": ["প্রথম ডকুমেন্ট যোগ করুন — ছবি তুলে বা হাতে লিখে গুছিয়ে রাখুন ও ট্যাগ দিন।", "Add your first document — capture a photo or enter it manually, then organise and tag it."],
+  "dsNoMatchTitle": ["কিছু পাওয়া যায়নি", "Nothing found"],
+  "dsNoMatchBody": ["ফিল্টার বা খোঁজার শব্দ বদলে আবার দেখুন।", "Try a different filter or search term."],
+
+  "dsOcrLockedTitle": ["লেখা স্বয়ংক্রিয়ভাবে পড়তে চান?", "Want text read automatically?"],
+  "dsOcrLockedBody": ["একটি OCR কি যুক্ত করলে (সেটিংস → ইন্টিগ্রেশন → OCR) ছবি থেকে লেখা নিজে থেকে পড়া যাবে। কি ছাড়া ডকুমেন্ট হাতে গুছিয়ে রাখা যায়।", "Connect an OCR key (Settings → Integrations → OCR) to auto-read text from the image. Without a key you can still organise documents manually."],
+  "dsOcrReadyTitle": ["লেখা স্বয়ংক্রিয়ভাবে পড়া যাবে", "Text can be read automatically"],
+  "dsOcrReadyBody": ["OCR কি যুক্ত আছে — সংরক্ষণের পর ছবি থেকে লেখা পড়া যাবে।", "OCR key is connected — text can be read from the image after you save."]
+}

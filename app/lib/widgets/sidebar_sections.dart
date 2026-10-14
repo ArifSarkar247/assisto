@@ -42,6 +42,12 @@ import '../screens/mock_interview_screen.dart';
 import '../screens/language_partner_screen.dart';
 import '../screens/spending_advice_screen.dart';
 import '../screens/price_radar_screen.dart';
+import '../screens/quick_tools_screen.dart';
+import '../screens/daily_brief_screen.dart';
+import '../screens/blog_writer_screen.dart';
+import '../screens/doc_scanner_screen.dart';
+import '../screens/transcription_screen.dart';
+import '../screens/travel_planner_screen.dart';
 // family & safety (merged per SPEC v2.1 §4)
 import '../screens/family_screen.dart';
 import '../screens/nominee_screen.dart';
@@ -336,6 +342,20 @@ class SidebarSections {
       SidebarItem(Icons.translate_outlined, (t) => t.lpTitle,
           (_) => const LanguagePartnerScreen(),
           synonyms: ['language', 'learn', 'english', 'vocabulary', 'practice']),
+      // §6/§8 key-gated-mock: #7 daily brief, #29 doc scanner, #92 transcription,
+      // #35 travel planner.
+      SidebarItem(Icons.wb_sunny_outlined, (t) => t.dbTitle,
+          (_) => const DailyBriefScreen(),
+          synonyms: ['brief', 'morning', 'night', 'digest', 'summary', 'today']),
+      SidebarItem(Icons.document_scanner_outlined, (t) => t.dsTitle,
+          (_) => const DocScannerScreen(),
+          synonyms: ['document', 'scan', 'scanner', 'nid', 'passport', 'ocr']),
+      SidebarItem(Icons.graphic_eq_outlined, (t) => t.tnTitle,
+          (_) => const TranscriptionScreen(),
+          synonyms: ['transcription', 'voice note', 'transcribe', 'recording']),
+      SidebarItem(Icons.luggage_outlined, (t) => t.tvTitle,
+          (_) => const TravelPlannerScreen(),
+          synonyms: ['travel', 'trip', 'itinerary', 'tour', 'journey', 'vacation']),
     ]),
     // 7. Work
     SidebarSection('work', Icons.work_outline, (t) => t.sidebarWork, [
@@ -353,6 +373,13 @@ class SidebarSections {
       SidebarItem(Icons.record_voice_over_outlined, (t) => t.miTitle,
           (_) => const MockInterviewScreen(),
           synonyms: ['interview', 'mock', 'practice', 'job prep', 'viva']),
+      // #17 Quick tools + #130 blog & script writer (key-gated AI mock).
+      SidebarItem(Icons.bolt_outlined, (t) => t.qtTitle,
+          (_) => const QuickToolsScreen(),
+          synonyms: ['quick', 'tools', 'summarise', 'grammar', 'translate', 'tone']),
+      SidebarItem(Icons.article_outlined, (t) => t.bwTitle,
+          (_) => const BlogWriterScreen(),
+          synonyms: ['blog', 'script', 'writing', 'post', 'caption', 'draft']),
       SidebarItem(Icons.work_outline, (t) => t.jobHunter,
           (_) => const JobsScreen(),
           synonyms: ['job', 'hunter', 'career', 'cv']),

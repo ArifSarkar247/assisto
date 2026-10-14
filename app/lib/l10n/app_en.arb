@@ -10600,5 +10600,303 @@
   "lpC_n_ten_bn": "দশ",
   "lpC_n_ten_en": "Ten",
   "lpC_n_hundred_bn": "একশ",
-  "lpC_n_hundred_en": "Hundred"
+  "lpC_n_hundred_en": "Hundred",
+  "bwTitle": "Blog & script writing",
+  "bwTabCompose": "Compose",
+  "bwTabSaved": "Saved",
+  "bwFormat": "Format",
+  "bwFmtBlog": "Blog post",
+  "bwFmtScript": "Video script",
+  "bwFmtCaption": "Caption",
+  "bwFmtOutline": "Outline",
+  "bwTopic": "Topic",
+  "bwTopicHint": "e.g. starting freelancing from home",
+  "bwTone": "Tone",
+  "bwToneInformative": "Informative",
+  "bwToneCasual": "Casual",
+  "bwTonePersuasive": "Persuasive",
+  "bwToneStorytelling": "Storytelling",
+  "bwToneProfessional": "Professional",
+  "bwLength": "Length",
+  "bwLenShort": "Short",
+  "bwLenMedium": "Medium",
+  "bwLenLong": "Long",
+  "bwLanguage": "Language",
+  "bwLangBn": "Bangla",
+  "bwLangBanglish": "Banglish",
+  "bwLangEn": "English",
+  "bwGenerate": "Create a draft",
+  "bwRegenerate": "Regenerate",
+  "bwDraft": "Draft",
+  "bwPlaceholderHint": "Fill in the [...] placeholders in your own words.",
+  "bwShare": "Share",
+  "bwSaved": "Draft saved",
+  "bwLoadError": "Couldn't load drafts — check your internet and retry.",
+  "bwSavedEmptyTitle": "No saved drafts yet",
+  "bwSavedEmptyBody": "Create a draft and save it — you can edit or copy it later.",
+  "bwAiMarker": "AI-generated draft — review before use",
+  "bwNeverAutoPost": "This is a template scaffold; Assisto never posts anywhere on its own.",
+  "bwFullAiTitle": "Want a full AI draft?",
+  "bwFullAiBody": "Connect an AI key (Settings → Integrations → Anthropic) to get a fully written draft in your language.",
+  "bwProblemTopic": "Please enter a topic.",
+  "bwProblemFormat": "Please pick a format.",
+  "bwProblemGeneric": "Please fix the input and retry.",
+  "dsTitle": "Document scanner",
+  "dsAddTitle": "Add document",
+  "dsEditTitle": "Edit document",
+  "dsFieldTitle": "Title",
+  "dsFieldTitleHint": "e.g. June electricity bill",
+  "dsNotes": "Notes",
+  "dsType": "Type",
+  "dsTypeNid": "NID",
+  "dsTypePassport": "Passport",
+  "dsTypeCertificate": "Certificate",
+  "dsTypeBill": "Bill",
+  "dsTypeReceipt": "Receipt",
+  "dsTypeOther": "Other",
+  "dsAddImage": "Add image",
+  "dsChangeImage": "Change image",
+  "dsImageAttached": "Image attached",
+  "dsFilterAll": "All",
+  "dsSearchHint": "Search title or notes",
+  "dsSaved": "Document saved",
+  "dsTitleRequired": "Please enter a title.",
+  "dsLoadError": "Couldn't load documents — check your internet and retry.",
+  "dsEmptyTitle": "No documents yet",
+  "dsEmptyBody": "Add your first document — capture a photo or enter it manually, then organise and tag it.",
+  "dsNoMatchTitle": "Nothing found",
+  "dsNoMatchBody": "Try a different filter or search term.",
+  "dsOcrLockedTitle": "Want text read automatically?",
+  "dsOcrLockedBody": "Connect an OCR key (Settings → Integrations → OCR) to auto-read text from the image. Without a key you can still organise documents manually.",
+  "dsOcrReadyTitle": "Text can be read automatically",
+  "dsOcrReadyBody": "OCR key is connected — text can be read from the image after you save.",
+  "tnTitle": "Calls & voice notes",
+  "tnWelcomeTitle": "Organise your voice notes",
+  "tnWelcomeBody": "Add an entry — title, duration, date — and type a transcript and notes by hand. Search to find any note. Works fully without any key.",
+  "tnAddNote": "Add note",
+  "tnEditNote": "Edit note",
+  "tnLoadError": "Could not load your notes.",
+  "tnSearchHint": "Search title, transcript or notes…",
+  "tnNoResultsTitle": "Nothing found",
+  "tnNoResultsBody": "Try a different search term.",
+  "tnStatCount": "Notes",
+  "tnStatDuration": "Total time",
+  "tnStatTranscribed": "Transcribed",
+  "tnNoTranscript": "No transcript",
+  "tnSourceManual": "Typed by you",
+  "tnSourceAuto": "Auto transcript",
+  "tnSttSeamTitle": "Auto-transcription (needs a key)",
+  "tnSttSeamBody": "Connect a speech-to-text key to auto-transcribe audio. Without a key we never fabricate a transcript — you can type one yourself.",
+  "tnDeleteTitle": "Delete note?",
+  "tnDeleteBody": "This voice note and its transcript will be removed. This cannot be undone.",
+  "tnTitleRequired": "Please enter a title.",
+  "tnFieldTitle": "Title",
+  "tnFieldMinutes": "Minutes",
+  "tnFieldSeconds": "Seconds",
+  "tnFieldDate": "Date",
+  "tnFieldAudioRef": "Audio reference (optional)",
+  "tnAudioRefHelp": "A recording file name or id. The app doesn't store the audio itself — only a reference here.",
+  "tnConsentLabel": "I have consent to record this call",
+  "tnConsentBody": "Recording a call is subject to local law and all-party consent. Tick only if you're sure.",
+  "tnFieldTranscript": "Transcript (type it)",
+  "tnTranscriptHelp": "Type or edit the transcript by hand. It is marked 'typed by you'.",
+  "tnFieldNotes": "Notes (optional)",
+  "tvTitle": "Travel planner",
+  "tvWelcomeTitle": "Plan your next trip",
+  "tvWelcomeBody": "Create a trip with a destination and dates — then add a day-by-day plan, a packing checklist and a ৳ budget. You'll see a countdown too. Works fully without any key.",
+  "tvNewTrip": "New trip",
+  "tvEditTrip": "Edit trip",
+  "tvLoadError": "Could not load your trips.",
+  "tvDaysCount": "{days} days",
+  "@tvDaysCount": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "tvCountdown": "{days} days to go",
+  "@tvCountdown": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "tvOngoing": "Ongoing — {days} days left",
+  "@tvOngoing": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "tvPast": "Ended {days} days ago",
+  "@tvPast": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "tvFieldDestination": "Destination",
+  "tvFieldStart": "Start date",
+  "tvFieldEnd": "End date",
+  "tvDestRequired": "Please enter a destination.",
+  "tvTabItinerary": "Itinerary",
+  "tvTabPacking": "Packing",
+  "tvTabBudget": "Budget",
+  "tvAddDay": "Add a day",
+  "tvEditDay": "Edit day",
+  "tvDayN": "Day {n}",
+  "@tvDayN": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "tvFieldDayNum": "Day",
+  "tvFieldDayTitle": "Day title (optional)",
+  "tvItinerarySummary": "{days} days · {activities} activities total",
+  "@tvItinerarySummary": {
+    "placeholders": {
+      "activities": {
+        "type": "Object"
+      },
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "tvNoDaysTitle": "No days yet",
+  "tvNoDaysBody": "Build your plan by adding activities and places for each day.",
+  "tvNoActivities": "No activities added",
+  "tvActivitiesLabel": "Activities",
+  "tvAddActivity": "Add activity",
+  "tvActivityWhat": "What",
+  "tvActivityTime": "Time (optional)",
+  "tvActivityPlace": "Place (optional)",
+  "tvAddPacking": "Add item",
+  "tvPackingItem": "Packing item",
+  "tvPackingProgress": "{checked}/{total} packed",
+  "@tvPackingProgress": {
+    "placeholders": {
+      "checked": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "tvNoPackingTitle": "Packing list is empty",
+  "tvNoPackingBody": "Add what you need to pack and tick items off.",
+  "tvAddBudget": "Add budget line",
+  "tvEditBudget": "Edit budget",
+  "tvFieldCategory": "Category",
+  "tvFieldEstimate": "Estimated",
+  "tvFieldActual": "Actual",
+  "tvBudgetEstimateNote": "These are your own estimates — the app never fetches live prices.",
+  "tvBudgetEstimated": "Estimated",
+  "tvBudgetActual": "Actual",
+  "tvBudgetRemaining": "Remaining",
+  "tvBudgetLine": "Est. {estimate} · spent {actual}",
+  "@tvBudgetLine": {
+    "placeholders": {
+      "actual": {
+        "type": "Object"
+      },
+      "estimate": {
+        "type": "Object"
+      }
+    }
+  },
+  "tvOverspent": "You're over budget",
+  "tvNoBudgetTitle": "No budget yet",
+  "tvNoBudgetBody": "Build a budget by adding estimated and actual amounts per category.",
+  "tvCatTransport": "Transport",
+  "tvCatStay": "Stay",
+  "tvCatFood": "Food",
+  "tvCatActivities": "Activities",
+  "tvCatShopping": "Shopping",
+  "tvCatOther": "Other",
+  "tvAiSeamTitle": "AI itinerary suggestions (needs a key)",
+  "tvAiSeamBody": "Connect an AI key to get itinerary suggestions from your destination and days. Without a key we never fabricate activities or places.",
+  "tvBookingSeamTitle": "Live booking & prices (needs a key)",
+  "tvBookingSeamBody": "Connect a booking key for live flight/hotel prices and booking. Without a key the app never fabricates prices or bookings and never holds money — any price you see is your own estimate.",
+  "qtTitle": "Quick tools",
+  "qtAiMarker": "AI-generated — review before you use it.",
+  "qtNeverSends": "Assisto never sends anything for you — you copy or share it yourself.",
+  "qtInputLabel": "Your text",
+  "qtInputHint": "Type or paste here",
+  "qtToolLabel": "Which tool?",
+  "qtActionSummarise": "Summarise",
+  "qtActionGrammar": "Fix grammar",
+  "qtActionTranslate": "Translate",
+  "qtActionTone": "Change tone",
+  "qtActionShareable": "Make shareable",
+  "qtToneLabel": "Tone",
+  "qtTonePolite": "Polite",
+  "qtToneShorter": "Shorter",
+  "qtToneWarmer": "Warmer",
+  "qtToneFirmer": "Firmer",
+  "qtToneFormal": "Formal",
+  "qtDirLabel": "Direction",
+  "qtDirAuto": "Auto",
+  "qtDirBnEn": "Bangla → English",
+  "qtDirEnBn": "English → Bangla",
+  "qtRun": "Run",
+  "qtResultLabel": "Result",
+  "qtResultEmpty": "No result.",
+  "qtPhraseFallbackNote": "This is a built-in common-phrase translation. Add an AI key for full-sentence translation.",
+  "qtTranslateNeedsKeyTitle": "A real translation needs an AI key",
+  "qtTranslateNeedsKeyBody": "We can translate a few common phrases without a key, but a full-sentence translation needs an AI key (Integrations → Anthropic). We never fabricate a translation.",
+  "qtErrEmpty": "Enter some text first.",
+  "qtErrTone": "Pick a tone.",
+  "qtErrDirection": "Pick a direction.",
+  "qtPhraseHello": "হ্যালো",
+  "qtPhraseThankYou": "ধন্যবাদ",
+  "qtPhraseGoodMorning": "সুপ্রভাত",
+  "qtPhraseGoodNight": "শুভ রাত্রি",
+  "qtPhraseHowAreYou": "কেমন আছেন",
+  "qtPhraseYes": "হ্যাঁ",
+  "qtPhraseNo": "না",
+  "qtPhraseSorry": "দুঃখিত",
+  "qtPhraseWelcome": "স্বাগতম",
+  "dbTitle": "Daily brief",
+  "dbTabMorning": "Morning",
+  "dbTabNight": "Night",
+  "dbMorningHeading": "What's ahead today",
+  "dbNightHeading": "Your day",
+  "dbMorningEmpty": "Nothing scheduled today — have a good one!",
+  "dbNightEmpty": "Nothing was scheduled today.",
+  "dbSecOverdue": "Overdue — needs you first",
+  "dbSecToday": "Today",
+  "dbSecTomorrow": "Tomorrow",
+  "dbSecDone": "Done",
+  "dbSecOpen": "Still open",
+  "dbNothing": "Nothing scheduled",
+  "dbKindReminder": "Reminder",
+  "dbKindPayment": "Payment",
+  "dbKindBirthday": "Birthday",
+  "dbKindEvent": "Event",
+  "dbCompletion": "{done} of {total} done ({pct}%)",
+  "@dbCompletion": {
+    "placeholders": {
+      "done": {
+        "type": "Object"
+      },
+      "pct": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "dbWeatherNeedsKey": "Add a weather key (Integrations) to see the forecast here. We never fabricate weather.",
+  "dbNewsNeedsKey": "Add a news key (Integrations) to see headlines here. We never fabricate news.",
+  "dbLoadError": "Couldn't load the brief.",
+  "share": "Share"
 }

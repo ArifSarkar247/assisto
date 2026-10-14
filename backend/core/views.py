@@ -1864,6 +1864,14 @@ GENERIC_COLLECTIONS = [
     "spending/notes", "price/logs",
     # #131 Mock interview + #132 Language-learning partner (key-gated mock)
     "interview/sessions", "langlearn/progress",
+    # #92 Call & voice-note transcription (key-gated STT) + #35 Travel planner
+    # (key-gated AI itinerary / booking) — deterministic organisers, key-free.
+    "transcribe/notes",
+    "travel/trips", "travel/days", "travel/budget", "travel/packing",
+    # #130 Blog writer + #29 Doc scanner (key-gated AI/OCR mock)
+    "blog/drafts", "docscan/items",
+    # #17 Quick tools + #7 Daily brief (key-gated AI mock)
+    "quicktools/saved", "brief/prefs",
 ]
 GENERIC_COLLECTION_VIEWSETS = {
     name: type(
