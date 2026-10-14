@@ -763,3 +763,10 @@ NOTHING basic may remain.
 - D7 launched in parallel (disjoint files BUT working-tree now holds D6 + finished D7-referral + in-flight D7-others) → referral's ref_* widgets reference unmerged ref* ARB → analyze errors (expected). DECISION: wait all D7, merge D6+D7 ARBs together + reconcile, ONE combined build (D6+D7 = ~10 items, →~40/61).
 - D7 agents: referral a5bc82 (DONE, ref_* on disk), social a1f6ce, admin aa97a1 (#174/#175), integrations a0cea7 (#176). When all 4 report: merge up_{referral,social,admin,integrations,fambundle-already,profile-already,contactmatch-already}_arb.json → reconcile getter-coverage + any temp-strings → gen-l10n→analyze 0→gate→tests→gallery→build. #177 admin-analytics = verify-or-drop (owner-analytics shipped build 75).
 - LESSON: don't launch next batch in parallel before current batch BUILDS — intermingles tree. Future: build each batch before launching next (or accept combined builds).
+
+## BUILD 78 — D6+D7 (pushed a5f52a9, run 38602939085) 2026-10-14
+- D6: FamilySharing (mig 0030) + consent/grant/revoke/audit; messenger contact-info + profile; contact match.
+- D7: Referral #102 advanced (3-tab, progress→Premium-days, redeem confirm, share card, honest leaderboard, audit; GET /referral/balance→advanced_summary superset). Social #135 composer (platform/tone/length/lang, char caps, AI honest marker, never auto-posts, deterministic mock key-gated). Admin #174/#175 (severity-first queue, privacy notes, appeals, append-only audit). Integrations #176 web owner page (KEY STATUS dashboard, registry 21→28, masked, how-to-connect).
+- Gates: en=bn=5265, 773 backend tests OK, analyze 0, lang gate clean. Gallery 7 screens×bn/en×light/dark reviewed (clean, no clip, honest states).
+- LESSON applied next time: build each batch before launching the next to avoid working-tree intermingling (D7 ref_* widgets referenced unmerged ARB during D6 build).
+- Progression: good→advanced count ~ +6 (referral/social/admin-users/admin-mod + D6 family/contacts/profile bits). Remaining good batches: D8-D10 (messenger good-bits), then Wave E (v2.1-new).
