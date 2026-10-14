@@ -18,13 +18,24 @@ from core.logic.msg_contacts import (
     ERR_DAILY_LIMIT,
     ERR_RELATION_REQUIRED,
     ERR_SELF_REQUEST,
+    MSG_REQ_ACCEPT,
+    MSG_REQ_BLOCK,
+    MSG_REQ_DECLINE,
+    MSG_REQ_REPORT,
     REQUEST_NOTE_MAX,
+    WHO_MSG_CIRCLE,
+    WHO_MSG_EVERYONE,
+    WHO_MSG_NOBODY,
     act_on_connection_request,
+    act_on_message_request,
+    apply_message_request_action,
     block_or_report_on_request,
     build_connection_request,
     can_send_before_accept,
     can_send_request,
     connection_request_actions,
+    default_phone_hidden,
+    default_who_can_message,
     hash_contacts_clientside,
     hash_phone,
     hashing_contract,
@@ -33,10 +44,17 @@ from core.logic.msg_contacts import (
     invite_non_user_sms,
     is_connected,
     match_contacts,
+    message_privacy_load_failed_notice,
+    message_request_routing,
     normalize_e164,
+    normalize_who_can_message,
     pre_accept_message_count_ok,
     privacy_disclosure,
     requests_sent_last_24h,
+    who_can_message_confirm,
+    who_can_message_hint,
+    who_can_message_label,
+    who_can_message_loosening,
 )
 
 SALT = "server-wide-match-salt-REVIEW"
@@ -273,6 +291,126 @@ def test_privacy_disclosure_invariants():
        "contract + disclosure agree: non-users retained nowhere")
     ok("raw_numbers" in hc["upload_never_contains"],
        "contract + disclosure agree: raw numbers never uploaded")
+
+
+# ---------------------------------------------------------------------------
+# MESSAGE REQUESTS (#95) + MESSAGE-LEVEL PRIVACY (#96) — §21 reviewer-pass
+# ---------------------------------------------------------------------------
+
+def test_conservative_message_defaults():
+    # who-can-message defaults to the SAFEST (circle only), never open DM.
+    ok(default_who_can_message() == WHO_MSG_CIRCLE, "default = my_circle (safe)")
+    # phone number hidden from non-contacts by default.
+    ok(default_phone_hidden() is True, "phone hidden from non-contacts by default")
+    # normalization fails CLOSED to the safe default on garbage.
+    ok(normalize_who_can_message("garbage") == WHO_MSG_CIRCLE, "bad -> safe default")
+    ok(normalize_who_can_message("EVERYONE") == WHO_MSG_EVERYONE, "case-insensitive")
+    ok(normalize_who_can_message("") == WHO_MSG_CIRCLE, "blank -> safe default")
+
+
+def test_stranger_gate_holds_in_requests_never_notifies():
+    # a circle member flows through the normal inbox and may notify.
+    r = message_request_routing(is_circle_member_already=True, is_blocked=False,
+                                who_can_message=WHO_MSG_CIRCLE)
+    ok(r["inbox"] == "normal" and r["notify"] is True, "member -> normal inbox + notify")
+    ok(r["accepted"] is True, "member path is trusted")
+    # a STRANGER under the default is HELD in requests and NEVER notifies.
+    s = message_request_routing(is_circle_member_already=False, is_blocked=False,
+                                who_can_message=WHO_MSG_CIRCLE)
+    ok(s["inbox"] == "requests", "stranger -> requests inbox")
+    ok(s["notify"] is False, "stranger NEVER notifies before accept")
+    ok(s["accepted"] is False, "stranger not auto-accepted")
+    # 'everyone' still routes strangers to requests first (no direct DM).
+    e = message_request_routing(is_circle_member_already=False, is_blocked=False,
+                                who_can_message=WHO_MSG_EVERYONE)
+    ok(e["inbox"] == "requests" and e["notify"] is False,
+       "everyone still holds strangers in requests, no notify")
+
+
+def test_stranger_gate_refuses_nobody_and_blocked():
+    # nobody policy: strangers refused outright (dropped, nothing written).
+    n = message_request_routing(is_circle_member_already=False, is_blocked=False,
+                                who_can_message=WHO_MSG_NOBODY)
+    ok(n["inbox"] is None and n["reason"] == "strangers_refused", "nobody refuses strangers")
+    # a blocked sender is always dropped regardless of policy.
+    b = message_request_routing(is_circle_member_already=False, is_blocked=True,
+                                who_can_message=WHO_MSG_EVERYONE)
+    ok(b["inbox"] is None and b["reason"] == "blocked" and b["notify"] is False,
+       "blocked sender dropped even under everyone")
+
+
+def test_message_request_action_validation_fail_closed():
+    ok(act_on_message_request("accept")[0], "accept valid")
+    ok(act_on_message_request("DECLINE")[1] == "decline", "normalized lowercase")
+    ok(not act_on_message_request("nuke")[0], "unknown action refused (fail-closed)")
+    ok(not act_on_message_request("")[0], "blank action refused")
+
+
+def test_apply_accept_promotes_without_blocking():
+    res = apply_message_request_action({"blocked": []}, 55, MSG_REQ_ACCEPT, lang="en")
+    ok(res["ok"], "accept ok")
+    ok(res["directive"]["promote"] is True, "accept promotes sender")
+    ok(55 not in res["blocked"], "accept does NOT block")
+
+
+def test_apply_decline_is_silent_not_block():
+    res = apply_message_request_action({"blocked": []}, 55, MSG_REQ_DECLINE, lang="en")
+    ok(res["directive"]["drop"] is True, "decline drops the held request")
+    ok(res["directive"]["block"] is False, "decline does NOT block")
+    ok(res["directive"]["notify_sender"] is False, "decline is silent to sender")
+    ok(55 not in res["blocked"], "declined sender not in blocked set")
+
+
+def test_apply_block_adds_to_blocked_set():
+    res = apply_message_request_action({"blocked": [7]}, 55, MSG_REQ_BLOCK, lang="en")
+    ok(55 in res["blocked"], "block adds sender to blocked set")
+    ok(7 in res["blocked"], "existing blocks preserved")
+    ok(res["directive"]["drop"] is True, "block drops the held request")
+
+
+def test_apply_report_harsh_reason_autoblocks():
+    # harassment is a harsh reason -> auto-block even though action is 'report'.
+    res = apply_message_request_action({"blocked": []}, 55, MSG_REQ_REPORT,
+                                       reason="harassment", lang="en")
+    ok(res["directive"]["kind"] == "connection_request_action", "reuses shared report builder")
+    ok(res["directive"]["block"] is True, "harassment report auto-blocks")
+    ok(55 in res["blocked"], "auto-blocked sender in blocked set")
+    # a plain spam report does NOT auto-block.
+    res2 = apply_message_request_action({"blocked": []}, 55, MSG_REQ_REPORT,
+                                        reason="spam", lang="en")
+    ok(res2["directive"]["block"] is False, "spam report does not auto-block")
+    ok(55 not in res2["blocked"], "spam report leaves sender unblocked")
+
+
+def test_apply_invalid_action_is_noop():
+    res = apply_message_request_action({"blocked": [9]}, 55, "nuke", lang="en")
+    ok(res["ok"] is False, "invalid action refused")
+    ok(res["blocked"] == [9], "invalid action leaves blocked set untouched")
+    ok(res["directive"] is None, "invalid action emits no directive")
+
+
+def test_who_can_message_loosening_confirm_gate():
+    # loosening (stricter -> looser) must be flagged; tightening need not.
+    ok(who_can_message_loosening(WHO_MSG_CIRCLE, WHO_MSG_EVERYONE), "circle->everyone loosens")
+    ok(who_can_message_loosening(WHO_MSG_NOBODY, WHO_MSG_CIRCLE), "nobody->circle loosens")
+    ok(not who_can_message_loosening(WHO_MSG_EVERYONE, WHO_MSG_CIRCLE), "everyone->circle tightens")
+    ok(not who_can_message_loosening(WHO_MSG_CIRCLE, WHO_MSG_CIRCLE), "same is not loosening")
+    # confirm copy exists for loosened targets, None for the safest.
+    ok(who_can_message_confirm(WHO_MSG_EVERYONE, "en"), "everyone needs a confirm")
+    ok(who_can_message_confirm(WHO_MSG_CIRCLE, "en"), "circle needs a confirm")
+    ok(who_can_message_confirm(WHO_MSG_NOBODY, "en") is None, "nobody (safest) needs no confirm")
+
+
+def test_message_privacy_bilingual_labels_and_honest_notice():
+    for lang in ("bn", "en"):
+        for pol in (WHO_MSG_CIRCLE, WHO_MSG_EVERYONE, WHO_MSG_NOBODY):
+            ok(bool(who_can_message_label(pol, lang)), f"{lang} label {pol}")
+            ok(bool(who_can_message_hint(pol, lang)), f"{lang} hint {pol}")
+        ok(bool(message_privacy_load_failed_notice(lang)), f"{lang} honest load-failed notice")
+    # EN label distinguishes the three policies.
+    labels = {who_can_message_label(p, "en") for p in
+              (WHO_MSG_CIRCLE, WHO_MSG_EVERYONE, WHO_MSG_NOBODY)}
+    ok(len(labels) == 3, "three distinct who-can-message labels")
 
 
 # ---------------------------------------------------------------------------

@@ -30,6 +30,7 @@ class ChannelListScreen extends StatefulWidget {
 class _ChannelListScreenState extends State<ChannelListScreen> {
   bool _loading = true;
   bool _backendReady = true;
+  bool _loadError = false;
   List<Map<String, dynamic>> _following = [];
   List<Map<String, dynamic>> _suggested = [];
   final _busy = <int>{};
@@ -43,6 +44,11 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
     _load();
   }
 
+  void _toast(String msg) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
+
   Future<void> _load() async {
     setState(() => _loading = true);
     try {
@@ -52,8 +58,15 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
       _suggested =
           ((j['suggested'] ?? []) as List).cast<Map<String, dynamic>>();
       _backendReady = true;
+      _loadError = false;
+    } on ApiException {
+      _backendReady = true;
+      _loadError = true;
+      _following = [];
+      _suggested = [];
     } catch (_) {
       _backendReady = false;
+      _loadError = false;
       _following = [];
       _suggested = [];
     }
@@ -64,6 +77,27 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
     final id = (ch['id'] as num?)?.toInt();
     if (id == null) return;
     final following = ch['my_following'] == true;
+    // §21 confirm gate for the destructive side (unfollow).
+    if (following) {
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(_t.channelUnfollowTitle),
+          content: Text(_t.channelUnfollowConfirm('${ch['name'] ?? ''}')),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(_t.channelCancel)),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: Brand.danger),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(_t.channelUnfollow),
+            ),
+          ],
+        ),
+      );
+      if (ok != true) return;
+    }
     setState(() => _busy.add(id));
     try {
       final updated = following
@@ -78,11 +112,8 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
       ));
       await _load();
       if (c.isEmpty) return;
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$e')));
-      }
+    } catch (_) {
+      _toast(_t.channelActionFailed);
     } finally {
       if (mounted) setState(() => _busy.remove(id));
     }
@@ -148,6 +179,23 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
   }
 
   Widget _body(AppLocalizations t) {
+    if (_loadError && _following.isEmpty && _suggested.isEmpty) {
+      return ListView(
+        children: [
+          const SizedBox(height: Gap.xxl * 2),
+          MsgrEmptyState(
+            icon: Icons.cloud_off_outlined,
+            title: t.channelLoadError,
+            body: t.channelsBackendSoon,
+            action: FilledButton.icon(
+              onPressed: _load,
+              icon: const Icon(Icons.refresh),
+              label: Text(t.retry),
+            ),
+          ),
+        ],
+      );
+    }
     if (_following.isEmpty && _suggested.isEmpty) {
       return ListView(
         children: [
@@ -263,10 +311,10 @@ class _CreateChannelSheetState extends State<_CreateChannelSheet> {
         Navigator.of(context)
             .pop((created['channel'] ?? created).cast<String, dynamic>());
       }
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(AppLocalizations.of(context).channelActionFailed)));
       }
     } finally {
       if (mounted) setState(() => _saving = false);

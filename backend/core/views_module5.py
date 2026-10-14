@@ -533,6 +533,83 @@ class ChatReadView(APIView):
         return Response({"ok": True, "marked": n})
 
 
+class MessagePrivacyView(APIView):
+    """#96 Message-level privacy — who-can-message + phone-hidden. Conservative
+    defaults (my_circle / hidden), persisted on CirclePrivacy; the normalize
+    helper fails closed to the safe default. The message RELAY enforces the gate
+    via msg_contacts.message_request_routing before persisting a stranger msg."""
+    def _row(self, user):
+        from .models import CirclePrivacy
+        from .logic import msg_contacts as MC
+        row, created = CirclePrivacy.objects.get_or_create(user=user)
+        if created:
+            row.who_can_message = MC.default_who_can_message()
+            row.phone_hidden = MC.default_phone_hidden()
+            row.save(update_fields=["who_can_message", "phone_hidden"])
+        return row
+
+    def get(self, request):
+        row = self._row(request.user)
+        return Response({"who_can_message": row.who_can_message,
+                         "phone_hidden": bool(row.phone_hidden)})
+
+    def post(self, request):
+        from .logic import msg_contacts as MC
+        d = request.data or {}
+        row = self._row(request.user)
+        row.who_can_message = MC.normalize_who_can_message(d.get("who_can_message"))
+        if "phone_hidden" in d:
+            row.phone_hidden = bool(d.get("phone_hidden"))
+        row.save(update_fields=["who_can_message", "phone_hidden"])
+        return Response({"ok": True, "who_can_message": row.who_can_message,
+                         "phone_hidden": bool(row.phone_hidden)})
+
+
+class CircleBlockedView(APIView):
+    """#95 GET /circle/blocked — the viewer's blocked members (unblock reuses
+    the existing /circle/<id>/controls {blocked:false})."""
+    def get(self, request):
+        rows = CircleMember.objects.filter(user=request.user, blocked=True)
+        out = []
+        for m in rows:
+            name, photo = _resolve_peer(m)
+            out.append({"id": m.id, "name": name, "phone": m.phone, "photo": photo})
+        return Response({"blocked": out})
+
+
+class CircleMessageRequestsView(APIView):
+    """#95 Message requests from non-contacts. GET returns the held requests
+    inbox (honestly empty until the relay routing seam lands — strangers are
+    routed here with NO notify by message_request_routing). POST <id> applies
+    accept/decline/block/report via msg_contacts.apply_message_request_action."""
+    def get(self, request):
+        # No stranger-message store yet; the relay seam (message_request_routing)
+        # will populate this. Honest empty rather than fabricated rows.
+        return Response({"requests": []})
+
+    def post(self, request, pk):
+        from .logic import msg_contacts as MC
+        lang = req_lang(request)
+        d = request.data or {}
+        action = str(d.get("action", "")).strip()
+        reason = str(d.get("reason", "harassment")).strip() or "harassment"
+        # Resolve against the sender's member row (if one exists) so block/report
+        # actually persists the block; accept/decline are honest no-op directives.
+        member = CircleMember.objects.filter(user=request.user, id=pk).first()
+        owner_state = {"blocked": []}
+        res = MC.apply_message_request_action(
+            owner_state, pk, action, reason=reason,
+            note=str(d.get("note", "")), lang=lang)
+        if not res.get("ok"):
+            return Response({"ok": False}, status=status.HTTP_400_BAD_REQUEST)
+        directive = res.get("directive") or {}
+        if member is not None and directive.get("block"):
+            member.blocked = True
+            member.save(update_fields=["blocked"])
+        return Response({"ok": True, "action": res.get("action"),
+                         "message": res.get("message", "")})
+
+
 class CircleRequestsView(APIView):
     def get(self, request):
         lang = req_lang(request)

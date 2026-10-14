@@ -7277,5 +7277,164 @@
   "msgrChatUnmuted": "This chat is unmuted.",
   "msgrChatMarkRead": "Mark as read",
   "msgrChatSearchNoResultsTitle": "Nothing found",
-  "msgrChatSearchNoResultsBody": "Try searching with a different name or word."
+  "msgrChatSearchNoResultsBody": "Try searching with a different name or word.",
+  "msgrSetPrivacyMessageDefaults": "Who can message & number",
+  "msgrSetPrivacyMessageDefaultsSub": "Choose who can message you and whether your number stays hidden.",
+  "msgrMsgPrivacyTitle": "Message privacy",
+  "msgrMsgPrivacyWhoSection": "Who can message me",
+  "msgrMsgPrivacyPhoneSection": "Phone number",
+  "msgrMsgPrivacyPhoneHidden": "Hide my number from non-contacts",
+  "msgrMsgPrivacyPhoneHiddenHint": "People outside your circle see your name, not your number. On by default for safety.",
+  "msgrMsgPrivacyLoadFailed": "Couldn’t load your settings. Please retry.",
+  "msgrMsgPrivacySaved": "Message privacy saved.",
+  "msgrMsgPrivacySaveFailed": "Couldn’t save. Please retry.",
+  "msgrMsgPrivacyConfirmTitle": "Please confirm",
+  "msgrMsgPrivacyLoosenConfirmEveryone": "Anyone will be able to message you. Strangers still go to requests first. Are you sure?",
+  "msgrMsgPrivacyLoosenConfirmCircle": "People outside your circle will be able to send requests. Are you sure?",
+  "msgrMsgPrivacyServerNote": "These rules are enforced on the server: a stranger’s message never notifies until you accept.",
+  "msgrMsgWhoCircle": "My circle only",
+  "msgrMsgWhoCircleHint": "People in your circle can message directly; a stranger’s first message waits in a separate requests box, with no notification.",
+  "msgrMsgWhoEveryone": "Everyone (strangers go to requests)",
+  "msgrMsgWhoEveryoneHint": "Anyone can message, but strangers still land in requests first; nothing notifies until you accept.",
+  "msgrMsgWhoNobody": "Nobody (circle only)",
+  "msgrMsgWhoNobodyHint": "Strangers can’t message you at all; only your circle can.",
+  "msgrSetRequestBlock": "Block",
+  "msgrSetRequestReport": "Report",
+  "msgrSetRequestMore": "More",
+  "msgrSetRequestBlockConfirmTitle": "Block this person?",
+  "msgrSetRequestBlockConfirm": "{name} will be blocked. They can no longer message or call you, and won’t be told.",
+  "@msgrSetRequestBlockConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "msgrSetRequestReportedToast": "Report submitted.",
+  "msgrSetRequestActionFailed": "Couldn’t complete that. Please retry.",
+  "msgrSetRequestsLoadFailed": "Couldn’t load requests. Please retry.",
+  "msgrSetRequestsEmptyHint": "When someone outside your circle messages you, it will appear here.",
+  "msgrSetBlockedLoadFailed": "Couldn’t load your blocked list. Please retry.",
+  "msgrSetUnblockConfirmTitle": "Unblock?",
+  "msgrSetUnblockConfirm": "{name} will be unblocked. They can message and call you again.",
+  "@msgrSetUnblockConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "msgrSetUnblockFailed": "Couldn’t unblock. Please retry.",
+  "inChatAiTitle": "Chat AI helper",
+  "inChatAiIntro": "Works only on messages opened on this device. Results are AI-generated drafts — review before use. It never sends on its own.",
+  "inChatAiSummarise": "Summarise thread",
+  "inChatAiTranslate": "Translate message",
+  "inChatAiTone": "Adjust tone",
+  "inChatAiTonePolite": "Polite",
+  "inChatAiToneShorter": "Shorter",
+  "inChatAiToneWarmer": "Warmer",
+  "inChatAiToneFirmer": "Firmer",
+  "inChatAiToneFormal": "Formal",
+  "inChatAiTextLabel": "Text to work on",
+  "inChatAiToneLabel": "Choose a tone",
+  "inChatAiGenerate": "Generate",
+  "inChatAiThreadEmpty": "No messages to summarise yet.",
+  "inChatAiThreadCount": "Looked at {count} messages",
+  "@inChatAiThreadCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "inChatAiTextMissing": "Enter some text first.",
+  "inChatAiWhoYou": "You",
+  "inChatAiWhoThem": "Them",
+  "inChatAiTranslateBnEn": "Bangla to English",
+  "inChatAiTranslateEnBn": "English to Bangla",
+  "inChatAiTranslateSource": "Original text",
+  "inChatAiNeedsKey": "A real translation needs the AI key. This app never shows a made-up translation.",
+  "inChatAiMarker": "AI-generated — review",
+  "inChatAiCopied": "Copied",
+  "inChatAiCopy": "Copy",
+  "inChatAiInsert": "Insert",
+  "inChatAiNeverSends": "\"Insert\" only drops the text into the composer — you review before sending.",
+  "aiKnowTitle": "What AI knows about me",
+  "aiKnowIntro": "Everything the assistant has stored about you. See where each item came from, delete items one by one, or clear everything.",
+  "aiKnowEmptyTitle": "Nothing stored yet",
+  "aiKnowEmptyBody": "The assistant hasn't remembered anything about you yet. Items appear here when you add them or approve what it learns.",
+  "aiKnowSourceAi": "The AI learned this — with your consent.",
+  "aiKnowSourceManual": "You added this yourself.",
+  "communityApproveConfirm": "Approve {name} to join this group?",
+  "@communityApproveConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "communityRejectConfirm": "Reject {name}'s join request? They can request again later.",
+  "@communityRejectConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "communityRemoveMember": "Remove",
+  "communityRemoveMemberTitle": "Remove member?",
+  "communityRemoveMemberConfirm": "Remove {name} from this community?",
+  "@communityRemoveMemberConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "communityRemoveLastAdmin": "The last admin can't be removed. Make someone else an admin first.",
+  "communityLoadError": "Couldn't load. Please try again.",
+  "communityRulesTitle": "Group rules",
+  "communityRulesEmpty": "No rules have been added to this group yet.",
+  "communityViewRules": "View rules",
+  "communityDeclineTitle": "Decline request?",
+  "communityDeclineConfirm": "Decline {name}'s message request? They won't be notified.",
+  "@communityDeclineConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "communityBlockTitle": "Block?",
+  "communityBlockConfirm": "Block {name}? They won't be able to message you again.",
+  "@communityBlockConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "channelActionFailed": "Couldn't complete that. Please try again.",
+  "channelLoadError": "Couldn't load the channel. Please try again.",
+  "channelUnfollowTitle": "Unfollow?",
+  "channelUnfollowConfirm": "Unfollow {name}? You'll stop getting new posts.",
+  "@channelUnfollowConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "channelRemoveAdmin": "Remove admin",
+  "channelRemoveAdminTitle": "Remove admin?",
+  "channelRemoveAdminConfirm": "Remove {name}'s admin access?",
+  "@channelRemoveAdminConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "channelUnpinTitle": "Unpin post?",
+  "channelUnpinConfirm": "This post will no longer be pinned to the top."
 }

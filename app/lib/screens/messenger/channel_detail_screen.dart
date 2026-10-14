@@ -45,6 +45,7 @@ class ChannelDetailScreen extends StatefulWidget {
 class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
   bool _loading = true;
   bool _backendReady = true;
+  bool _loadError = false;
   Map<String, dynamic> _channel = {};
   List<Map<String, dynamic>> _posts = [];
   final _viewed = <int>{};
@@ -69,11 +70,21 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
       _channel = (j['channel'] ?? {}).cast<String, dynamic>();
       _posts = ((j['posts'] ?? []) as List).cast<Map<String, dynamic>>();
       _backendReady = true;
+      _loadError = false;
       _recordViews();
+    } on ApiException {
+      _backendReady = true;
+      _loadError = true;
     } catch (_) {
       _backendReady = false;
+      _loadError = false;
     }
     if (mounted) setState(() => _loading = false);
+  }
+
+  void _toast(String msg) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   // Record a view once per post (aggregate; the server stores no viewer id).
@@ -99,11 +110,8 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
           _posts[i] = {..._posts[i], ...updated};
         }
       });
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$e')));
-      }
+    } catch (_) {
+      _toast(_t.channelActionFailed);
     }
   }
 
@@ -121,11 +129,8 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
           _posts[i] = {..._posts[i], 'poll': {...?poll, ...updated}};
         }
       });
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$e')));
-      }
+    } catch (_) {
+      _toast(_t.channelActionFailed);
     }
   }
 
@@ -135,18 +140,36 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
       final j = await _api.channelSetMuted(widget.channelId, !muted);
       _channel = (j['channel'] ?? _channel).cast<String, dynamic>();
       if (mounted) setState(() {});
-    } catch (_) {}
+    } catch (_) {
+      _toast(_t.channelActionFailed);
+    }
   }
 
   Future<void> _unfollow() async {
+    // §21 destructive-action confirm gate: unfollowing leaves the channel.
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(_t.channelUnfollowTitle),
+        content: Text(_t.channelUnfollowConfirm('${_channel['name'] ?? ''}')),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(_t.channelCancel)),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Brand.danger),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(_t.channelUnfollow),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
     try {
       await _api.channelUnfollow(widget.channelId);
       if (mounted) Navigator.of(context).pop();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$e')));
-      }
+    } catch (_) {
+      _toast(_t.channelActionFailed);
     }
   }
 
@@ -156,11 +179,8 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
       final url = '${j['url'] ?? ''}';
       if (url.isEmpty) return;
       await Share.share(url);
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$e')));
-      }
+    } catch (_) {
+      _toast(_t.channelActionFailed);
     }
   }
 
@@ -176,11 +196,8 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
       _channel = (j['channel'] ?? _channel).cast<String, dynamic>();
       _channel['my_visibility'] = chosen;
       if (mounted) setState(() {});
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$e')));
-      }
+    } catch (_) {
+      _toast(_t.channelActionFailed);
     }
   }
 
@@ -230,11 +247,8 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(_t.channelVerifyRequested)));
       }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$e')));
-      }
+    } catch (_) {
+      _toast(_t.channelActionFailed);
     }
   }
 
@@ -309,7 +323,27 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(onRefresh: _load, child: _body(t)),
+          : _loadError
+              ? RefreshIndicator(onRefresh: _load, child: _errorRetry(t))
+              : RefreshIndicator(onRefresh: _load, child: _body(t)),
+    );
+  }
+
+  Widget _errorRetry(AppLocalizations t) {
+    return ListView(
+      children: [
+        const SizedBox(height: Gap.xxl * 2),
+        MsgrEmptyState(
+          icon: Icons.cloud_off_outlined,
+          title: t.channelLoadError,
+          body: t.channelsBackendSoon,
+          action: FilledButton.icon(
+            onPressed: _load,
+            icon: const Icon(Icons.refresh),
+            label: Text(t.retry),
+          ),
+        ),
+      ],
     );
   }
 
@@ -459,11 +493,8 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 content: Text(t.channelFollowedCountOnlyToast)));
           }
-        } catch (e) {
-          if (mounted) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text('$e')));
-          }
+        } catch (_) {
+          _toast(t.channelActionFailed);
         }
       },
       icon: const Icon(Icons.add),

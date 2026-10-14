@@ -18,6 +18,7 @@ import '../widgets/circle_bubble.dart';
 import '../widgets/circle_media_viewer.dart';
 import '../widgets/circle_message_actions.dart';
 import '../widgets/circle_relation.dart';
+import '../widgets/in_chat_ai_sheet.dart';
 import 'circle_call_screen.dart';
 import 'circle_extras_hub_screen.dart';
 import 'messenger/contact_info_screen.dart';
@@ -675,7 +676,7 @@ class _CircleChatScreenState extends State<CircleChatScreen> {
         await _newGroupCall();
         break;
       case ChatMenuAction.summarise:
-        _aiExtra(_t.msgrChatSummarise);
+        await _openInChatAi();
         break;
       case ChatMenuAction.makeReminder:
         _aiExtra(_t.msgrChatMakeReminder);
@@ -962,6 +963,29 @@ class _CircleChatScreenState extends State<CircleChatScreen> {
         ],
       ),
     );
+  }
+
+  // ---- In-chat AI helper (#97, bounded MOCK, key-gated honest) ------------
+  //
+  // One bounded entry (⋮ → Summarise opens the helper). Offers summarise-thread
+  // / translate-message / adjust-tone over text DECRYPTED on THIS device. Each
+  // result is a deterministic MOCK (in_chat_ai_engine.dart) carrying an honest
+  // "AI-generated — review" marker; translate honestly shows the "needs AI key"
+  // state and never fabricates a translation. The helper NEVER auto-sends — it
+  // only returns text to INSERT into the composer for the user to send.
+  Future<void> _openInChatAi() async {
+    final seed = _input.text.trim();
+    final insert = await showInChatAiSheet(
+      context,
+      decryptedRecent: _lastFiveDecrypted(),
+      seedText: seed.isEmpty ? null : seed,
+    );
+    if (insert == null || insert.isEmpty || !mounted) return;
+    // INSERT only — never auto-send. The user reviews + taps send themselves.
+    setState(() {
+      _input.text = insert;
+      _input.selection = TextSelection.collapsed(offset: insert.length);
+    });
   }
 
   // ---- Report (sends the LAST 5 decrypted messages to moderation) ---------

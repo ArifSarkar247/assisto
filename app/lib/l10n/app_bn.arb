@@ -5980,5 +5980,164 @@
   "msgrChatUnmuted": "এই চ্যাট আনমিউট করা হয়েছে।",
   "msgrChatMarkRead": "পঠিত হিসেবে চিহ্নিত করুন",
   "msgrChatSearchNoResultsTitle": "কিছু পাওয়া যায়নি",
-  "msgrChatSearchNoResultsBody": "অন্য নাম বা শব্দ দিয়ে আবার খুঁজে দেখুন।"
+  "msgrChatSearchNoResultsBody": "অন্য নাম বা শব্দ দিয়ে আবার খুঁজে দেখুন।",
+  "msgrSetPrivacyMessageDefaults": "মেসেজ করার অনুমতি ও নম্বর",
+  "msgrSetPrivacyMessageDefaultsSub": "কে আপনাকে মেসেজ করতে পারবে ও ফোন নম্বর লুকানো থাকবে কিনা তা ঠিক করুন।",
+  "msgrMsgPrivacyTitle": "মেসেজ গোপনীয়তা",
+  "msgrMsgPrivacyWhoSection": "কে আমাকে মেসেজ করতে পারবে",
+  "msgrMsgPrivacyPhoneSection": "ফোন নম্বর",
+  "msgrMsgPrivacyPhoneHidden": "অপরিচিতদের কাছে নম্বর লুকিয়ে রাখুন",
+  "msgrMsgPrivacyPhoneHiddenHint": "আপনার সার্কেলের বাইরের কেউ আপনার নাম দেখবে, ফোন নম্বর নয়। নিরাপদ হিসেবে এটি চালু থাকে।",
+  "msgrMsgPrivacyLoadFailed": "সেটিংস লোড করা যায়নি। আবার চেষ্টা করুন।",
+  "msgrMsgPrivacySaved": "মেসেজ গোপনীয়তা সংরক্ষণ হয়েছে।",
+  "msgrMsgPrivacySaveFailed": "সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
+  "msgrMsgPrivacyConfirmTitle": "নিশ্চিত করুন",
+  "msgrMsgPrivacyLoosenConfirmEveryone": "যে কেউ আপনাকে মেসেজ পাঠাতে পারবেন। অপরিচিতদের মেসেজ এখনও আলাদা অনুরোধ বক্সে যাবে। নিশ্চিত?",
+  "msgrMsgPrivacyLoosenConfirmCircle": "আপনার সার্কেলের বাইরের লোকজন অনুরোধ পাঠাতে পারবেন। নিশ্চিত?",
+  "msgrMsgPrivacyServerNote": "এই নিয়মগুলো সার্ভারে প্রয়োগ হয়: আপনি গ্রহণ না করা পর্যন্ত অপরিচিত কারও মেসেজ নোটিফিকেশন দেবে না।",
+  "msgrMsgWhoCircle": "শুধু আমার সার্কেল",
+  "msgrMsgWhoCircleHint": "আপনার সার্কেলের লোকজন সরাসরি মেসেজ করতে পারবেন; অপরিচিতদের প্রথম মেসেজ নোটিফিকেশন ছাড়াই আলাদা অনুরোধ বক্সে জমা হবে।",
+  "msgrMsgWhoEveryone": "সবাই (অপরিচিতরা অনুরোধে যাবে)",
+  "msgrMsgWhoEveryoneHint": "যে কেউ মেসেজ পাঠাতে পারবেন, তবে অপরিচিতদের মেসেজও আগে অনুরোধ বক্সে যাবে; গ্রহণ না করা পর্যন্ত কোনো নোটিফিকেশন আসবে না।",
+  "msgrMsgWhoNobody": "কেউ নয় (শুধু সার্কেল)",
+  "msgrMsgWhoNobodyHint": "অপরিচিত কেউ মেসেজ পাঠাতে পারবেন না; শুধু আপনার সার্কেলই মেসেজ করতে পারবে।",
+  "msgrSetRequestBlock": "ব্লক করুন",
+  "msgrSetRequestReport": "রিপোর্ট করুন",
+  "msgrSetRequestMore": "আরও",
+  "msgrSetRequestBlockConfirmTitle": "এই ব্যক্তিকে ব্লক করবেন?",
+  "msgrSetRequestBlockConfirm": "{name}-কে ব্লক করা হবে। তারা আর আপনাকে মেসেজ বা কল করতে পারবে না, এবং জানতেও পারবে না।",
+  "@msgrSetRequestBlockConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "msgrSetRequestReportedToast": "রিপোর্ট জমা হয়েছে।",
+  "msgrSetRequestActionFailed": "কাজটি সম্পন্ন করা যায়নি। আবার চেষ্টা করুন।",
+  "msgrSetRequestsLoadFailed": "অনুরোধগুলো লোড করা যায়নি। আবার চেষ্টা করুন।",
+  "msgrSetRequestsEmptyHint": "আপনার সার্কেলের বাইরের কেউ মেসেজ করলে তা এখানে দেখা যাবে।",
+  "msgrSetBlockedLoadFailed": "ব্লক তালিকা লোড করা যায়নি। আবার চেষ্টা করুন।",
+  "msgrSetUnblockConfirmTitle": "আনব্লক করবেন?",
+  "msgrSetUnblockConfirm": "{name}-কে আনব্লক করা হবে। তারা আবার আপনাকে মেসেজ ও কল করতে পারবে।",
+  "@msgrSetUnblockConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "msgrSetUnblockFailed": "আনব্লক করা যায়নি। আবার চেষ্টা করুন।",
+  "inChatAiTitle": "চ্যাট এআই সহায়ক",
+  "inChatAiIntro": "শুধু এই ডিভাইসে খোলা বার্তাগুলোর উপর কাজ করে। ফলাফল এআই-নির্মিত খসড়া — পাঠানোর আগে দেখে নিন। কখনও নিজে থেকে পাঠায় না।",
+  "inChatAiSummarise": "থ্রেড সারাংশ",
+  "inChatAiTranslate": "বার্তা অনুবাদ",
+  "inChatAiTone": "সুর বদলান",
+  "inChatAiTonePolite": "ভদ্র",
+  "inChatAiToneShorter": "সংক্ষিপ্ত",
+  "inChatAiToneWarmer": "উষ্ণ",
+  "inChatAiToneFirmer": "দৃঢ়",
+  "inChatAiToneFormal": "আনুষ্ঠানিক",
+  "inChatAiTextLabel": "যে লেখাটি বদলাতে চান",
+  "inChatAiToneLabel": "সুর বেছে নিন",
+  "inChatAiGenerate": "তৈরি করুন",
+  "inChatAiThreadEmpty": "সারাংশ করার মতো কোনো বার্তা নেই।",
+  "inChatAiThreadCount": "{count}টি বার্তা দেখা হয়েছে",
+  "@inChatAiThreadCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "inChatAiTextMissing": "প্রথমে কিছু লেখা দিন।",
+  "inChatAiWhoYou": "আপনি",
+  "inChatAiWhoThem": "তিনি",
+  "inChatAiTranslateBnEn": "বাংলা থেকে ইংরেজি",
+  "inChatAiTranslateEnBn": "ইংরেজি থেকে বাংলা",
+  "inChatAiTranslateSource": "মূল লেখা",
+  "inChatAiNeedsKey": "সত্যিকারের অনুবাদের জন্য এআই কী প্রয়োজন। এই অ্যাপ কখনও ভুয়া অনুবাদ দেখায় না।",
+  "inChatAiMarker": "এআই-নির্মিত — ব্যবহারের আগে দেখে নিন",
+  "inChatAiCopied": "কপি হয়েছে",
+  "inChatAiCopy": "কপি",
+  "inChatAiInsert": "লেখায় বসান",
+  "inChatAiNeverSends": "\"লেখায় বসান\" শুধু কম্পোজারে লেখাটি রাখে — পাঠানোর আগে আপনি দেখে নিন।",
+  "aiKnowTitle": "এআই আমার সম্পর্কে যা জানে",
+  "aiKnowIntro": "সহায়ক আপনার সম্পর্কে যা সংরক্ষণ করেছে তার পুরোটা এখানে। প্রতিটি তথ্য কোথা থেকে এসেছে তা দেখুন, একটি করে মুছুন, অথবা সব মুছে ফেলুন।",
+  "aiKnowEmptyTitle": "এখনো কিছু জানা নেই",
+  "aiKnowEmptyBody": "সহায়ক এখনো আপনার সম্পর্কে কিছু মনে রাখেনি। আপনি তথ্য যোগ করলে অথবা অনুমতি দিলে এখানে তা দেখাবে।",
+  "aiKnowSourceAi": "এটি এআই শিখেছে — আপনার অনুমতিতে।",
+  "aiKnowSourceManual": "এটি আপনি নিজে যোগ করেছেন।",
+  "communityApproveConfirm": "{name}-কে এই গ্রুপে যোগ দেওয়ার অনুমতি দেবেন?",
+  "@communityApproveConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "communityRejectConfirm": "{name}-এর যোগদানের অনুরোধ বাতিল করবেন? তিনি আবার অনুরোধ পাঠাতে পারবেন।",
+  "@communityRejectConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "communityRemoveMember": "সরান",
+  "communityRemoveMemberTitle": "সদস্য সরাবেন?",
+  "communityRemoveMemberConfirm": "{name}-কে এই কমিউনিটি থেকে সরিয়ে দেবেন?",
+  "@communityRemoveMemberConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "communityRemoveLastAdmin": "শেষ অ্যাডমিনকে সরানো যায় না। আগে আরেকজন অ্যাডমিন করুন।",
+  "communityLoadError": "লোড করা যায়নি। আবার চেষ্টা করুন।",
+  "communityRulesTitle": "গ্রুপের নিয়ম",
+  "communityRulesEmpty": "এই গ্রুপে এখনো কোনো নিয়ম যোগ করা হয়নি।",
+  "communityViewRules": "নিয়ম দেখুন",
+  "communityDeclineTitle": "অনুরোধ প্রত্যাখ্যান করবেন?",
+  "communityDeclineConfirm": "{name}-এর মেসেজ রিকোয়েস্ট প্রত্যাখ্যান করবেন? তাঁকে জানানো হবে না।",
+  "@communityDeclineConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "communityBlockTitle": "ব্লক করবেন?",
+  "communityBlockConfirm": "{name}-কে ব্লক করবেন? তিনি আর আপনাকে মেসেজ করতে পারবেন না।",
+  "@communityBlockConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "channelActionFailed": "কাজটি সম্পন্ন করা যায়নি। আবার চেষ্টা করুন।",
+  "channelLoadError": "চ্যানেল লোড করা যায়নি। আবার চেষ্টা করুন।",
+  "channelUnfollowTitle": "আনফলো করবেন?",
+  "channelUnfollowConfirm": "{name} আনফলো করবেন? আপনি আর নতুন পোস্ট পাবেন না।",
+  "@channelUnfollowConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "channelRemoveAdmin": "অ্যাডমিন সরান",
+  "channelRemoveAdminTitle": "অ্যাডমিন সরাবেন?",
+  "channelRemoveAdminConfirm": "{name}-এর অ্যাডমিন অধিকার সরিয়ে নেবেন?",
+  "@channelRemoveAdminConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "channelUnpinTitle": "পিন খুলবেন?",
+  "channelUnpinConfirm": "এই পোস্টটি উপরে পিন করা থাকবে না।"
 }

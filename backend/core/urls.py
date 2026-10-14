@@ -272,6 +272,11 @@ urlpatterns = [
     path("messenger/chats/<int:pk>/archive", m5.ChatArchiveView.as_view()),
     path("messenger/chats/<int:pk>/mute", m5.ChatMuteView.as_view()),
     path("messenger/chats/<int:pk>/read", m5.ChatReadView.as_view()),
+    # #95/#96 message requests + message-level privacy
+    path("circle/settings/message-privacy", m5.MessagePrivacyView.as_view()),
+    path("circle/blocked", m5.CircleBlockedView.as_view()),
+    path("circle/message-requests", m5.CircleMessageRequestsView.as_view()),
+    path("circle/message-requests/<int:pk>", m5.CircleMessageRequestsView.as_view()),
     path("circle/requests", m5.CircleRequestsView.as_view()),
     path("circle/keys", m5.CircleKeysView.as_view()),
     path("circle/request", m5.CircleRequestCreateView.as_view()),

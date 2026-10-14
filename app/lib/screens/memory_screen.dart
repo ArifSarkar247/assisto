@@ -8,6 +8,7 @@ import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/mem_privacy.dart';
 import '../widgets/mem_widgets.dart';
+import 'ai_knowledge_screen.dart';
 
 /// Memory — "What Assisto knows about me" (SPEC v2.1 §21, ADVANCED).
 ///
@@ -101,16 +102,15 @@ class _MemoryScreenState extends State<MemoryScreen> {
 
     final hiddenPrivate =
         all.where((m) => _flagsFor(m).private).length;
-    final excludedCount =
-        all.where((m) => _flagsFor(m).excludeFromAi).length;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(t.memoryScreenTitle),
         actions: [
           IconButton(
-            tooltip: t.memTransparencyTitle,
-            onPressed: () => _openTransparency(context, all, excludedCount),
+            tooltip: t.aiKnowTitle,
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const AiKnowledgeScreen())),
             icon: const Icon(Icons.visibility_outlined),
           ),
           IconButton(
@@ -683,115 +683,6 @@ class _MemoryScreenState extends State<MemoryScreen> {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(t.memClearAllDone)));
   }
-
-  // ---- transparency: "what Assisto knows about me" -------------------------
-  void _openTransparency(
-      BuildContext context, List<MemoryItem> all, int excluded) {
-    final t = AppLocalizations.of(context);
-    final byCat = <MemCat, int>{};
-    for (final m in all) {
-      final c = MemCategories.bucket(m.category);
-      byCat[c] = (byCat[c] ?? 0) + 1;
-    }
-    final aiCount = all.where((m) => m.isAi).length;
-    final sharedWithAi =
-        all.where((m) => !_flagsFor(m).excludeFromAi).length;
-
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (ctx) => DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 0.7,
-        maxChildSize: 0.95,
-        builder: (ctx, scroll) => ListView(
-          controller: scroll,
-          padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.xl),
-          children: [
-            Row(children: [
-              const Icon(Icons.visibility_outlined, color: Brand.blue),
-              const SizedBox(width: Gap.sm),
-              Expanded(
-                child: Text(t.memTransparencyTitle,
-                    style: Theme.of(ctx).textTheme.titleLarge),
-              ),
-            ]),
-            const SizedBox(height: Gap.sm),
-            Text(t.memTransparencyIntro,
-                style: TextStyle(
-                    color: Theme.of(ctx).colorScheme.onSurfaceVariant,
-                    height: 1.4)),
-            const SizedBox(height: Gap.lg),
-            _statRow(ctx, Icons.inventory_2_outlined, Brand.blue,
-                t.memStatTotal, '${all.length}'),
-            _statRow(ctx, Icons.auto_awesome, Brand.cyan, t.memStatAi,
-                '$aiCount'),
-            _statRow(ctx, Icons.cloud_done_outlined, Brand.purple,
-                t.memStatSharedAi, '$sharedWithAi'),
-            _statRow(ctx, Icons.visibility_off_outlined, Brand.danger,
-                t.memStatExcluded, '$excluded'),
-            const Divider(height: Gap.xl),
-            Text(t.memTransparencyByCat,
-                style: Theme.of(ctx).textTheme.titleMedium),
-            const SizedBox(height: Gap.sm),
-            if (all.isEmpty)
-              Text(t.memoryEmptyTitle,
-                  style: TextStyle(
-                      color: Theme.of(ctx).colorScheme.onSurfaceVariant))
-            else
-              for (final c in MemCategories.order)
-                if ((byCat[c] ?? 0) > 0)
-                  ListTile(
-                    dense: true,
-                    contentPadding: EdgeInsets.zero,
-                    leading: Icon(MemCategories.icon(c),
-                        color: MemCategories.color(c)),
-                    title: Text(memCatLabel(t, c)),
-                    trailing: Text('${byCat[c]}',
-                        style:
-                            const TextStyle(fontWeight: FontWeight.w700)),
-                  ),
-            const SizedBox(height: Gap.md),
-            Container(
-              padding: const EdgeInsets.all(Gap.md),
-              decoration: BoxDecoration(
-                color: Brand.cyan.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(Radii.md),
-              ),
-              child: Row(children: [
-                const Icon(Icons.verified_user_outlined,
-                    size: 18, color: Brand.cyan),
-                const SizedBox(width: Gap.sm),
-                Expanded(
-                  child: Text(t.memTransparencyPromise,
-                      style: const TextStyle(fontSize: 13, height: 1.4)),
-                ),
-              ]),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _statRow(BuildContext ctx, IconData icon, Color color, String label,
-          String value) =>
-      Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
-        child: Row(children: [
-          CircleAvatar(
-            radius: 16,
-            backgroundColor: color.withValues(alpha: 0.14),
-            child: Icon(icon, size: 18, color: color),
-          ),
-          const SizedBox(width: Gap.md),
-          Expanded(child: Text(label)),
-          Text(value,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w700, fontSize: 16)),
-        ]),
-      );
 }
 
 // ---------------------------------------------------------------- search

@@ -94,12 +94,43 @@ extension MessengerSettingsApi on ApiClient {
   Future<Map<String, dynamic>> messageRequests() =>
       getJson('/circle/message-requests');
 
-  /// POST /circle/message-requests/<id> {action: accept|decline|block}
-  /// -> {ok}.
+  /// POST /circle/message-requests/<id>
+  /// {action: accept|decline|block|report, reason?, also_block?} -> {ok}.
+  /// The server resolves the action through
+  /// core.logic.msg_contacts.apply_message_request_action (silent decline,
+  /// harsh-reason auto-block); the client only states its request.
   // TODO(backend): no `messenger/message-requests/<id>` route exists; degrades
   // to an honest error until the server endpoint lands.
-  Future<Map<String, dynamic>> messageRequestAct(String id, String action) =>
-      postJson('/circle/message-requests/$id', {'action': action});
+  Future<Map<String, dynamic>> messageRequestAct(
+    String id,
+    String action, {
+    String? reason,
+    bool? alsoBlock,
+  }) =>
+      postJson('/circle/message-requests/$id', {
+        'action': action,
+        if (reason != null && reason.isNotEmpty) 'reason': reason,
+        if (alsoBlock != null) 'also_block': alsoBlock,
+      });
+
+  /// GET /circle/settings/message-privacy
+  /// -> {who_can_message: my_circle|everyone|nobody, phone_hidden: bool}.
+  /// Conservative defaults are enforced SERVER-SIDE
+  /// (core.logic.msg_contacts.default_who_can_message / default_phone_hidden);
+  /// on a load failure the screen shows an HONEST retry rather than presenting
+  /// the defaults as the owner's real saved choice.
+  // TODO(backend): no `messenger/settings/message-privacy` route exists;
+  // degrades to an honest load-failed/retry state until the server lands.
+  Future<Map<String, dynamic>> messagePrivacy() =>
+      getJson('/circle/settings/message-privacy');
+
+  /// POST /circle/settings/message-privacy {who_can_message, phone_hidden}
+  /// -> {ok}. The server re-validates + fails closed to the safe default on
+  /// garbage (normalize_who_can_message).
+  // TODO(backend): no `messenger/settings/message-privacy` route exists;
+  // degrades to an honest error until the server lands.
+  Future<Map<String, dynamic>> setMessagePrivacy(Map<String, dynamic> body) =>
+      postJson('/circle/settings/message-privacy', body);
 
   // ==========================================================================
   // NOTIFICATIONS + CALLS prefs (device + server mirror)

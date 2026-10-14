@@ -821,6 +821,12 @@ AgentStudioSnippetTests = _make_snippet_case(
 # hashtags/emoji, share intent. Key-free; never auto-posts.
 SocialComposeSnippetTests = _make_snippet_case(
     "core.logic.social_tests_snippets", "SocialComposeSnippetTests")
+# In-chat AI helper (#97, §21) — deterministic MOCK summarise-thread /
+# translate-message / adjust-tone. Key-free, honest marker on every result;
+# translate honestly needs the key-gated route and never fabricates a
+# translation. Never auto-sends. Mirror of app/lib/widgets/in_chat_ai_engine.dart.
+InChatAiSnippetTests = _make_snippet_case(
+    "core.logic.in_chat_ai_tests_snippets", "InChatAiSnippetTests")
 # In-app updater (#180, §21) — pure version-compare helper. Fail-closed: never
 # claims an update on ambiguous/garbage input; never returns a url unless an
 # update is genuinely available and the link is a usable http(s) one.
@@ -861,6 +867,24 @@ AdminFlagsSnippetTests = _make_snippet_case(
 # search state, and the edit/delete-scope/forward-hop gates. No DB, no AI.
 MsgOrganiseSnippetTests = _make_snippet_case(
     "core.logic.msg_organise_tests_snippets", "MsgOrganiseSnippetTests")
+# Message requests (#95) + message-level privacy (#96, §21 reviewer-pass) —
+# pure stranger-gate routing (held-in-requests, never notifies), accept/decline/
+# block/report resolution (silent decline, harsh-reason auto-block), and the
+# conservative who-can-message / phone-hidden defaults + loosening confirm gate.
+# No DB, no AI. Lives alongside the existing contacts/invite/connection logic.
+MsgContactsSnippetTests = _make_snippet_case(
+    "core.logic.msg_contacts_tests_snippets", "MsgContactsSnippetTests")
+# Messenger COMMUNITIES (#93, §21) + CHANNELS (#94, §21) — pure server-side
+# authority behind the reviewer-pass UI. Community: join FSM, admin approve/
+# remove gates (non-admin refused, last-admin protected), message-request FSM +
+# consent flow + rate limit, phone-hidden-by-default. Channel: follower privacy
+# with count_only as the DEFAULT (never listed, even to the owner), a verified
+# badge that requires a RECORDED operator approver (a forged flag reads as NOT
+# verified), PII-free analytics, and the NOT-E2E guards. No DB, no AI.
+MsgCommunitySnippetTests = _make_snippet_case(
+    "core.logic.msg_community_tests_snippets", "MsgCommunitySnippetTests")
+MsgChannelSnippetTests = _make_snippet_case(
+    "core.logic.msg_channel_tests_snippets", "MsgChannelSnippetTests")
 
 
 # ---------------------------------------------------------------------------

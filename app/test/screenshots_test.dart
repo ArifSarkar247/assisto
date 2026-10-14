@@ -25,6 +25,8 @@ import 'package:assisto/screens/messenger/contact_info_screen.dart';
 import 'package:assisto/screens/notification_centre_screen.dart';
 import 'package:assisto/screens/messenger/messenger_profile_screen.dart';
 import 'package:assisto/screens/messenger/contacts_screen.dart';
+import 'package:assisto/screens/messenger/msgr_set_privacy_screen.dart';
+import 'package:assisto/screens/ai_knowledge_screen.dart';
 import 'package:assisto/screens/admin/cost_flags_screen.dart';
 import 'package:assisto/screens/admin/server_address_screen.dart';
 import 'package:assisto/screens/app_update_screen.dart';
@@ -208,6 +210,8 @@ void main() {
     'notification_centre': (build: (_) => const NotificationCentreScreen(), mode: FakeMode.data, full: true),
     'msgr_profile': (build: (_) => const MessengerProfileScreen(), mode: FakeMode.data, full: true),
     'contacts': (build: (_) => const ContactsScreen(), mode: FakeMode.data, full: true),
+    'msg_privacy': (build: (_) => const MsgrSetMessagePrivacyScreen(), mode: FakeMode.data, full: true),
+    'ai_knowledge': (build: (_) => const AiKnowledgeScreen(), mode: FakeMode.data, full: true),
     'cost_flags': (build: (_) => const CostFlagsScreen(), mode: FakeMode.data, full: true),
     'server_addr': (build: (_) => const ServerAddressScreen(), mode: FakeMode.data, full: true),
     'app_update': (build: (_) => const AppUpdateScreen(), mode: FakeMode.data, full: true),

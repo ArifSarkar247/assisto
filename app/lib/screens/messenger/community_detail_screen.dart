@@ -44,6 +44,7 @@ class CommunityDetailScreen extends StatefulWidget {
 class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
   bool _loading = true;
   bool _backendReady = true;
+  bool _loadError = false;
   Map<String, dynamic>? _announcements;
   List<Map<String, dynamic>> _topics = [];
 
@@ -62,6 +63,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
   bool get _isAdmin => widget.community['viewer_role'] == 'admin';
 
   Future<void> _load() async {
+    if (mounted) setState(() => _loading = true);
     try {
       final r = await _api.communityGroups(_cid);
       final joined =
@@ -79,8 +81,18 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
       _joinRequests =
           ((r['join_requests'] ?? const []) as List).cast<Map<String, dynamic>>();
       _backendReady = true;
+      _loadError = false;
+    } on ApiException {
+      // A real request reached the server but failed — honest, retryable error.
+      _backendReady = true;
+      _loadError = true;
+      _announcements = null;
+      _topics = [];
+      _joinRequests = [];
     } catch (_) {
+      // No backend yet (offline / not wired) — friendly pending state.
       _backendReady = false;
+      _loadError = false;
       _announcements = null;
       _topics = [];
       _joinRequests = [];
@@ -89,17 +101,64 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
   }
 
   Future<void> _approve(Map<String, dynamic> req) async {
+    final name = '${req['requester_name'] ?? ''}';
+    final ok = await _confirm(
+      title: _t.communityApprove,
+      message: _t.communityApproveConfirm(name),
+      confirmLabel: _t.communityApprove,
+    );
+    if (ok != true) return;
     try {
       await _api.joinRequestApprove('${req['id']}');
-    } catch (_) {}
+    } catch (_) {
+      _toast(_t.communityActionFailed);
+    }
     await _load();
   }
 
   Future<void> _reject(Map<String, dynamic> req) async {
+    final name = '${req['requester_name'] ?? ''}';
+    final ok = await _confirm(
+      title: _t.communityReject,
+      message: _t.communityRejectConfirm(name),
+      confirmLabel: _t.communityReject,
+      destructive: true,
+    );
+    if (ok != true) return;
     try {
       await _api.joinRequestReject('${req['id']}');
-    } catch (_) {}
+    } catch (_) {
+      _toast(_t.communityActionFailed);
+    }
     await _load();
+  }
+
+  /// Shared confirm gate for destructive / consequential actions (§21).
+  Future<bool?> _confirm({
+    required String title,
+    required String message,
+    required String confirmLabel,
+    bool destructive = false,
+  }) {
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(_t.cancel)),
+          FilledButton(
+            style: destructive
+                ? FilledButton.styleFrom(backgroundColor: Brand.danger)
+                : null,
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(confirmLabel),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _editRules(Map<String, dynamic> group) async {
@@ -308,7 +367,9 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
+          : _loadError
+              ? _errorRetry(scheme)
+              : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
                 padding: const EdgeInsets.only(bottom: Gap.xxl),
@@ -401,20 +462,26 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
               ],
             )
           : null,
-      trailing: _isAdmin
-          ? PopupMenuButton<String>(
-              tooltip: _t.communityAdminControls,
-              onSelected: (v) {
-                if (v == 'rules') _editRules(g);
-                if (v == 'size') _editSizeLimit(g);
-              },
-              itemBuilder: (_) => [
-                PopupMenuItem(value: 'rules', child: Text(_t.communitySetRules)),
-                PopupMenuItem(
-                    value: 'size', child: Text(_t.communitySetSizeLimit)),
-              ],
-            )
-          : null,
+      trailing: PopupMenuButton<String>(
+        tooltip:
+            _isAdmin ? _t.communityAdminControls : _t.communityViewRules,
+        onSelected: (v) {
+          if (v == 'view_rules') _viewRules(g);
+          if (v == 'rules') _editRules(g);
+          if (v == 'size') _editSizeLimit(g);
+        },
+        itemBuilder: (_) => [
+          // Every member can READ the rules.
+          PopupMenuItem(
+              value: 'view_rules', child: Text(_t.communityViewRules)),
+          // Admin-only edit controls.
+          if (_isAdmin)
+            PopupMenuItem(value: 'rules', child: Text(_t.communitySetRules)),
+          if (_isAdmin)
+            PopupMenuItem(
+                value: 'size', child: Text(_t.communitySetSizeLimit)),
+        ],
+      ),
     );
   }
 
@@ -423,4 +490,66 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
         child: Text(_t.communityBackendPending,
             style: TextStyle(color: scheme.onSurfaceVariant)),
       );
+
+  /// Honest, retryable error state (§21): a real request failed — never hide it
+  /// behind an empty list.
+  Widget _errorRetry(ColorScheme scheme) => ListView(
+        children: [
+          const SizedBox(height: Gap.xxl * 2),
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(Gap.xl),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.cloud_off_outlined,
+                      size: 56, color: scheme.onSurfaceVariant),
+                  const SizedBox(height: Gap.md),
+                  Text(_t.communityLoadError,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: Gap.lg),
+                  FilledButton.icon(
+                    onPressed: _load,
+                    icon: const Icon(Icons.refresh),
+                    label: Text(_t.retry),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+
+  /// Read-only rules viewer — every member (not only admins) can READ the
+  /// group's rules; admins additionally get the edit control elsewhere.
+  void _viewRules(Map<String, dynamic> group) {
+    final rules = '${group['rules'] ?? ''}'.trim();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(_t.communityRulesTitle),
+        content: SingleChildScrollView(
+          child: Text(
+            rules.isEmpty ? _t.communityRulesEmpty : rules,
+            style: rules.isEmpty
+                ? TextStyle(color: Theme.of(ctx).colorScheme.onSurfaceVariant)
+                : null,
+          ),
+        ),
+        actions: [
+          if (_isAdmin)
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                _editRules(group);
+              },
+              child: Text(_t.communitySetRules),
+            ),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: Text(_t.close)),
+        ],
+      ),
+    );
+  }
 }

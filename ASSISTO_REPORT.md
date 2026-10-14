@@ -776,3 +776,8 @@ NOTHING basic may remain.
 - Gates: en=bn=5430, 813 backend tests OK, analyze 0, lang gate clean. Gallery: support-center/app-update/cost-flags/server-addr reviewed; fixed admin error-state to friendly localized body (no raw exception).
 - CORRECT PROCESS this batch: waited for ALL 3 D8 agents before integrating/building (no overlap with next batch). settings_screen.dart concurrently edited by 2 agents — merged cleanly (verified analyze 0).
 - Remaining good: D9 (messenger: msg actions, chat organise, status, voice/video call, call settings) + D10 (community, channel, msg requests, messenger privacy, in-chat AI, AI-knows-me page). Then Wave E (v2.1-new ~79).
+
+## BUILD 80 — D9 (pushed f1a1d04, run 38608937341) 2026-10-14
+- D9 (6 good→advanced): #86 message actions (confirm-gated delete, edit/forward gates), #87 chat organise (pin/archive/mute/read + search no-results; ChatOrganiseState mig 0032 + 4 endpoints messenger/chats/<id>/{pin,archive,mute,read} enforced via msg_organise; /circle/members returns organise flags), #88 status (honest error tray, family-only default), #91 call settings (who-can-call + confirm), #89 voice (free) + #90 video (premium caller-pays, server-gated; reconnecting/failed states, SFU/TURN seam).
+- Gates: en=bn=5463, 877 backend tests OK, analyze 0, lang gate clean, mig 0032. Gallery: circle_privacy/call/chat reviewed.
+- D10 launched in parallel (tree clean post-commit): #93 community, #94 channel, #95 msg-requests, #96 messenger-privacy (non-overlap w/ D9), #97 in-chat-AI (mock key-gated), #5 AI-knows-me page. → completes the 43 remaining good→advanced (D4-D10).

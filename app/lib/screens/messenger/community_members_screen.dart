@@ -48,6 +48,7 @@ class CommunityMembersScreen extends StatefulWidget {
 class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
   bool _loading = true;
   bool _backendReady = true;
+  bool _loadError = false;
   List<Map<String, dynamic>> _members = [];
   final _e2e = SoftwareE2E();
 
@@ -64,13 +65,20 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
   int? get _myId => context.read<AppState>().user?.id;
 
   Future<void> _load() async {
+    if (mounted) setState(() => _loading = true);
     try {
       final r = await _api.communityMembers(_cid);
       _members = ((r['results'] ?? r['members'] ?? const []) as List)
           .cast<Map<String, dynamic>>();
       _backendReady = true;
+      _loadError = false;
+    } on ApiException {
+      _backendReady = true;
+      _loadError = true;
+      _members = [];
     } catch (_) {
       _backendReady = false;
+      _loadError = false;
       _members = [];
     }
     if (mounted) setState(() => _loading = false);
@@ -182,10 +190,36 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
     // server protects the last admin (can_remove_community_member).
     final groupId = '${member['group_id'] ?? widget.community['announcements_group_id'] ?? ''}';
     if (groupId.isEmpty) return;
+    final name = '${member['name'] ?? ''}';
+    // §21 destructive-action confirm gate.
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(_t.communityRemoveMemberTitle),
+        content: Text(_t.communityRemoveMemberConfirm(name)),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(_t.cancel)),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Brand.danger),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(_t.communityRemoveMember),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
     try {
-      await _api.communityMemberRemove(
+      final r = await _api.communityMemberRemove(
           groupId, '${member['member_id'] ?? member['id']}');
-    } catch (_) {}
+      // Last-admin protection surfaces as a refusal — tell the admin honestly.
+      if (r['removed'] == false || r['allowed'] == false) {
+        _info(_t.communityRemoveLastAdmin);
+      }
+    } catch (_) {
+      _info(_t.communityActionFailed);
+    }
     await _load();
   }
 
@@ -202,7 +236,9 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
       appBar: AppBar(title: Text(_t.communityMembersTitle)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
+          : _loadError
+              ? _errorRetry(scheme)
+              : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
                 padding: const EdgeInsets.only(bottom: Gap.xxl),
@@ -241,6 +277,34 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
             ),
     );
   }
+
+  Widget _errorRetry(ColorScheme scheme) => ListView(
+        children: [
+          const SizedBox(height: Gap.xxl * 2),
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(Gap.xl),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.cloud_off_outlined,
+                      size: 56, color: scheme.onSurfaceVariant),
+                  const SizedBox(height: Gap.md),
+                  Text(_t.communityLoadError,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: Gap.lg),
+                  FilledButton.icon(
+                    onPressed: _load,
+                    icon: const Icon(Icons.refresh),
+                    label: Text(_t.retry),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
 
   Widget _tile(Map<String, dynamic> m) {
     final memberId = m['member_id'] ?? m['id'];

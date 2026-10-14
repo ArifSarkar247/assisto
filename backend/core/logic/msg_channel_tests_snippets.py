@@ -403,6 +403,56 @@ def test_share_link_roundtrip():
     assert C.parse_share_link("https://evil.test") is None
 
 
+# ─────────────── reviewer-pass §21 (#94) — UI-relied invariants ────────────
+
+def test_rp_new_follower_count_only_is_the_default():
+    # #94 reviewer-pass: the follower toast ("you now follow, count-only") must
+    # match the server default. A brand-new follower is count_only with NO
+    # explicit choice.
+    ch = _channel()
+    ch2, roster, rec = C.follow(ch, {}, user_id=42)
+    assert rec["visibility"] == C.VIS_COUNT_ONLY
+    assert C.is_count_only(rec) is True
+    # ...and such a follower is NEVER listed, even to the owner.
+    out = C.serialize_follower_list(ch2, roster, viewer_id=ch2["owner_id"])
+    assert out["count"] == 1
+    assert out["followers"] == []
+    assert out["hidden_count_only"] == 1
+
+
+def test_rp_unfollow_decrements_count_and_drops_from_list():
+    # The UI unfollow (now behind a confirm gate) must actually leave: count
+    # drops and the row disappears from any listing.
+    ch = _channel()
+    ch, roster, _ = C.follow(ch, {}, user_id=7)
+    roster = {7: C.set_follower_visibility(roster[7], C.VIS_SHOW)}
+    ch = dict(ch); ch["follower_count"] = C.follower_count(followers=roster)
+    ch, roster, removed = C.unfollow(ch, roster, 7)
+    assert removed is True
+    assert C.follower_count(followers=roster) == 0
+
+
+def test_rp_verified_badge_requires_recorded_operator():
+    # The UI shows MsgrVerifiedBadge only on is_verified(). A forged flag with no
+    # operator approver must read as NOT verified so the badge never lies.
+    forged = _channel(verified=True, verified_by=None)
+    assert C.is_verified(forged) is False
+    legit = _channel(verified=True, verified_by=999)
+    assert C.is_verified(legit) is True
+
+
+def test_rp_analytics_carry_no_pii():
+    # The admin Analytics tab renders counts only; assert the payload says so and
+    # carries no per-follower field.
+    ch = _channel()
+    post, _, _ = C.new_post(1, ch, author_id=100, kind=C.POST_TEXT, text="hi")
+    post = C.record_view(C.add_reaction(post, "👍"))
+    a = C.channel_analytics(ch, [post], follower_count_series=[("d1", 1), ("d2", 3)])
+    assert a["contains_pii"] is False
+    assert "followers" not in a and "viewers" not in a
+    assert a["follower_growth"]["net"] == 2
+
+
 # ───────────────────────────── runner ─────────────────────────────────────
 
 def run_all():

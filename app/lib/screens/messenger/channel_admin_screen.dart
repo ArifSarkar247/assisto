@@ -136,14 +136,34 @@ class _PostsTabState extends State<_PostsTab> {
   }
 
   Future<void> _togglePin(int postId, bool pinned) async {
+    // Unpinning removes the highlighted post from the top — confirm it (§21).
+    if (!pinned) {
+      final t = AppLocalizations.of(context);
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(t.channelUnpinTitle),
+          content: Text(t.channelUnpinConfirm),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(t.channelCancel)),
+            FilledButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(t.channelUnpin)),
+          ],
+        ),
+      );
+      if (ok != true) return;
+    }
     try {
       await _api.channelPinPost(
           id: widget.channelId, postId: postId, pinned: pinned);
       widget.onChanged();
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.of(context).channelActionFailed)));
       }
     }
   }
@@ -239,10 +259,10 @@ class _PostComposerSheetState extends State<_PostComposerSheet> {
         // media_refs would be attached after an upload step; not simulated here.
       );
       if (mounted) Navigator.of(context).pop(true);
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.of(context).channelActionFailed)));
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -431,10 +451,10 @@ class _ProfileTabState extends State<_ProfileTab> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(AppLocalizations.of(context).channelProfileSaved)));
       }
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.of(context).channelActionFailed)));
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -452,10 +472,10 @@ class _ProfileTabState extends State<_ProfileTab> {
             content:
                 Text(AppLocalizations.of(context).channelVerificationPending)));
       }
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.of(context).channelActionFailed)));
       }
     }
   }
@@ -592,10 +612,10 @@ class _FollowerListVisibilityState extends State<_FollowerListVisibility> {
     try {
       await _api.channelListVisibility(_id, v);
       widget.onChanged();
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.of(context).channelActionFailed)));
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -804,23 +824,43 @@ class _AdminsTabState extends State<_AdminsTab> {
       await _api.channelSetAdmin(id: _id, userId: userId, action: 'add');
       await _load();
       widget.onChanged();
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.of(context).channelActionFailed)));
       }
     }
   }
 
-  Future<void> _remove(int userId) async {
+  Future<void> _remove(int userId, String name) async {
+    final t = AppLocalizations.of(context);
+    // §21 destructive-action confirm gate.
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t.channelRemoveAdminTitle),
+        content: Text(t.channelRemoveAdminConfirm(name)),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(t.channelCancel)),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Brand.danger),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(t.channelRemoveAdmin),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
     try {
       await _api.channelSetAdmin(id: _id, userId: userId, action: 'remove');
       await _load();
       widget.onChanged();
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.of(context).channelActionFailed)));
       }
     }
   }
@@ -846,8 +886,9 @@ class _AdminsTabState extends State<_AdminsTab> {
               trailing: (widget.isOwner && a['is_owner'] != true)
                   ? IconButton(
                       icon: const Icon(Icons.remove_circle_outline),
-                      onPressed: () =>
-                          _remove((a['user_id'] as num).toInt()),
+                      onPressed: () => _remove(
+                          (a['user_id'] as num).toInt(),
+                          '${a['name'] ?? a['user_id'] ?? ''}'),
                     )
                   : null,
             ),

@@ -1,0 +1,37 @@
+{
+  "_comment": "Reviewer-pass §21 keys for #93 Community + #94 Channel screens. Format: {\"key\":[\"<bn>\",\"<en>\"]}. Parameterized keys list placeholders in _params. Do NOT edit app_en.arb/app_bn.arb directly; the integrator merges these.",
+  "_params": {
+    "communityApproveConfirm": ["name"],
+    "communityRejectConfirm": ["name"],
+    "communityRemoveMemberConfirm": ["name"],
+    "communityDeclineConfirm": ["name"],
+    "communityBlockConfirm": ["name"],
+    "channelUnfollowConfirm": ["name"],
+    "channelRemoveAdminConfirm": ["name"]
+  },
+
+  "communityApproveConfirm": ["{name}-কে এই গ্রুপে যোগ দেওয়ার অনুমতি দেবেন?", "Approve {name} to join this group?"],
+  "communityRejectConfirm": ["{name}-এর যোগদানের অনুরোধ বাতিল করবেন? তিনি আবার অনুরোধ পাঠাতে পারবেন।", "Reject {name}'s join request? They can request again later."],
+  "communityRemoveMember": ["সরান", "Remove"],
+  "communityRemoveMemberTitle": ["সদস্য সরাবেন?", "Remove member?"],
+  "communityRemoveMemberConfirm": ["{name}-কে এই কমিউনিটি থেকে সরিয়ে দেবেন?", "Remove {name} from this community?"],
+  "communityRemoveLastAdmin": ["শেষ অ্যাডমিনকে সরানো যায় না। আগে আরেকজন অ্যাডমিন করুন।", "The last admin can't be removed. Make someone else an admin first."],
+  "communityLoadError": ["লোড করা যায়নি। আবার চেষ্টা করুন।", "Couldn't load. Please try again."],
+  "communityRulesTitle": ["গ্রুপের নিয়ম", "Group rules"],
+  "communityRulesEmpty": ["এই গ্রুপে এখনো কোনো নিয়ম যোগ করা হয়নি।", "No rules have been added to this group yet."],
+  "communityViewRules": ["নিয়ম দেখুন", "View rules"],
+  "communityDeclineTitle": ["অনুরোধ প্রত্যাখ্যান করবেন?", "Decline request?"],
+  "communityDeclineConfirm": ["{name}-এর মেসেজ রিকোয়েস্ট প্রত্যাখ্যান করবেন? তাঁকে জানানো হবে না।", "Decline {name}'s message request? They won't be notified."],
+  "communityBlockTitle": ["ব্লক করবেন?", "Block?"],
+  "communityBlockConfirm": ["{name}-কে ব্লক করবেন? তিনি আর আপনাকে মেসেজ করতে পারবেন না।", "Block {name}? They won't be able to message you again."],
+
+  "channelActionFailed": ["কাজটি সম্পন্ন করা যায়নি। আবার চেষ্টা করুন।", "Couldn't complete that. Please try again."],
+  "channelLoadError": ["চ্যানেল লোড করা যায়নি। আবার চেষ্টা করুন।", "Couldn't load the channel. Please try again."],
+  "channelUnfollowTitle": ["আনফলো করবেন?", "Unfollow?"],
+  "channelUnfollowConfirm": ["{name} আনফলো করবেন? আপনি আর নতুন পোস্ট পাবেন না।", "Unfollow {name}? You'll stop getting new posts."],
+  "channelRemoveAdmin": ["অ্যাডমিন সরান", "Remove admin"],
+  "channelRemoveAdminTitle": ["অ্যাডমিন সরাবেন?", "Remove admin?"],
+  "channelRemoveAdminConfirm": ["{name}-এর অ্যাডমিন অধিকার সরিয়ে নেবেন?", "Remove {name}'s admin access?"],
+  "channelUnpinTitle": ["পিন খুলবেন?", "Unpin post?"],
+  "channelUnpinConfirm": ["এই পোস্টটি উপরে পিন করা থাকবে না।", "This post will no longer be pinned to the top."]
+}

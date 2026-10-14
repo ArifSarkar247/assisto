@@ -1162,6 +1162,11 @@ class CirclePrivacy(models.Model):
     dnd_start = models.CharField(max_length=5, default="22:00")
     dnd_end = models.CharField(max_length=5, default="07:00")
     dnd_family_exception = models.BooleanField(default=True)
+    # #95/#96 message-level privacy (conservative defaults). who_can_message
+    # gates strangers (my_circle = strangers routed to a no-notify requests
+    # inbox); phone_hidden keeps the number private by default.
+    who_can_message = models.CharField(max_length=12, default="my_circle")
+    phone_hidden = models.BooleanField(default=True)
 
 
 class ReferralGrant(models.Model):

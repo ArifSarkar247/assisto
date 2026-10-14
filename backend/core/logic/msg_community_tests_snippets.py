@@ -316,6 +316,52 @@ def test_labels_bilingual():
     assert "member of" in C.join_approved_notification("General", "en")["body"]
 
 
+# ─────────────── reviewer-pass §21 (#93) — UI-relied gate reasons ──────────
+
+def test_rp_remove_self_is_leave_not_remove():
+    # The members screen now confirms a remove; the server must still treat
+    # "remove myself" as a leave, never a remove.
+    r = C.can_remove_community_member("admin", "member", target_is_actor=True)
+    assert r["allowed"] is False and r["reason"] == "use_leave"
+
+
+def test_rp_cannot_remove_last_admin():
+    # The members-screen honest refusal ("make someone else an admin first")
+    # must correspond to the server's last_admin guard.
+    r = C.can_remove_community_member("admin", "admin", target_is_actor=False,
+                                      admin_count=1)
+    assert r["allowed"] is False and r["reason"] == "last_admin"
+    r2 = C.can_remove_community_member("admin", "admin", target_is_actor=False,
+                                       admin_count=2)
+    assert r2["allowed"] is True
+
+
+def test_rp_non_admin_cannot_approve_or_remove():
+    # Approve/Reject controls are admin-only; a non-admin is refused server-side
+    # even if a client rendered the control.
+    assert C.can_approve_join("member", 0)["allowed"] is False
+    assert C.can_remove_community_member("member", "member")["allowed"] is False
+
+
+def test_rp_approve_refused_when_full_or_not_pending():
+    full = C.can_approve_join("admin", current_size=256,
+                              group_size_limit=256, request_state=C.JOIN_PENDING)
+    assert full["allowed"] is False and full["reason"] == "group_full"
+    done = C.can_approve_join("admin", current_size=0,
+                              request_state=C.JOIN_APPROVED)
+    assert done["allowed"] is False and done["reason"] == "not_pending"
+
+
+def test_rp_block_is_terminal_for_sender():
+    # The message-requests screen now confirms Block. After block the sender
+    # cannot re-open a direct chat via a stale accepted-request state.
+    state, changed = C.apply_msgreq_event(C.MSGREQ_PENDING, "block")
+    assert changed is True and state == C.MSGREQ_BLOCKED
+    r = C.can_direct_message(rel_state=None, prior_request_state=None,
+                             blocked_either=True)
+    assert r["allowed"] is False and r["calls_allowed"] is False
+
+
 def run_all():
     import inspect
     fns = [v for k, v in sorted(globals().items())

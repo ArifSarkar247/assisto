@@ -42,6 +42,7 @@ class _CommunityMessageRequestsScreenState
     extends State<CommunityMessageRequestsScreen> {
   bool _loading = true;
   bool _backendReady = true;
+  bool _loadError = false;
   List<Map<String, dynamic>> _requests = [];
   final _e2e = SoftwareE2E();
 
@@ -55,14 +56,21 @@ class _CommunityMessageRequestsScreenState
   AppLocalizations get _t => AppLocalizations.of(context);
 
   Future<void> _load() async {
+    if (mounted) setState(() => _loading = true);
     try {
       // The listing is a plain GET; the server returns pending requests only.
       final r = await _api.getJson('/community/message-requests');
       _requests = ((r['results'] ?? r['requests'] ?? const []) as List)
           .cast<Map<String, dynamic>>();
       _backendReady = true;
+      _loadError = false;
+    } on ApiException {
+      _backendReady = true;
+      _loadError = true;
+      _requests = [];
     } catch (_) {
       _backendReady = false;
+      _loadError = false;
       _requests = [];
     }
     if (mounted) setState(() => _loading = false);
@@ -117,17 +125,64 @@ class _CommunityMessageRequestsScreenState
   }
 
   Future<void> _decline(Map<String, dynamic> req) async {
+    final name = '${req['sender_name'] ?? ''}';
+    final ok = await _confirm(
+      title: _t.communityDeclineTitle,
+      message: _t.communityDeclineConfirm(name),
+      confirmLabel: _t.communityRequestDecline,
+    );
+    if (ok != true) return;
     try {
       await _api.messageRequestDecline('${req['id']}');
-    } catch (_) {}
+    } catch (_) {
+      _info(_t.communityActionFailed);
+    }
     await _load();
   }
 
   Future<void> _block(Map<String, dynamic> req) async {
+    final name = '${req['sender_name'] ?? ''}';
+    final ok = await _confirm(
+      title: _t.communityBlockTitle,
+      message: _t.communityBlockConfirm(name),
+      confirmLabel: _t.communityRequestBlock,
+      destructive: true,
+    );
+    if (ok != true) return;
     try {
       await _api.messageRequestBlock('${req['id']}');
-    } catch (_) {}
+    } catch (_) {
+      _info(_t.communityActionFailed);
+    }
     await _load();
+  }
+
+  /// Shared §21 confirm gate for destructive / consequential request actions.
+  Future<bool?> _confirm({
+    required String title,
+    required String message,
+    required String confirmLabel,
+    bool destructive = false,
+  }) {
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(_t.cancel)),
+          FilledButton(
+            style: destructive
+                ? FilledButton.styleFrom(backgroundColor: Brand.danger)
+                : null,
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(confirmLabel),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _report(Map<String, dynamic> req) async {
@@ -207,7 +262,9 @@ class _CommunityMessageRequestsScreenState
       appBar: AppBar(title: Text(_t.communityRequestsTitle)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
+          : _loadError
+              ? _errorRetry(scheme)
+              : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
                 padding: const EdgeInsets.only(bottom: Gap.xxl),
@@ -229,6 +286,34 @@ class _CommunityMessageRequestsScreenState
             ),
     );
   }
+
+  Widget _errorRetry(ColorScheme scheme) => ListView(
+        children: [
+          const SizedBox(height: Gap.xxl * 2),
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(Gap.xl),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.cloud_off_outlined,
+                      size: 56, color: scheme.onSurfaceVariant),
+                  const SizedBox(height: Gap.md),
+                  Text(_t.communityLoadError,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: Gap.lg),
+                  FilledButton.icon(
+                    onPressed: _load,
+                    icon: const Icon(Icons.refresh),
+                    label: Text(_t.retry),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
 
   Widget _emptyState(ColorScheme scheme) => Padding(
         padding: const EdgeInsets.all(Gap.xl),
