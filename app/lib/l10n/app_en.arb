@@ -11369,5 +11369,851 @@
   "paResearchExportEmpty": "Nothing to export yet.",
   "paResearchIncludeSources": "Include sources",
   "paResearchCopy": "Copy",
-  "paResearchCopied": "Outline copied."
+  "paResearchCopied": "Outline copied.",
+  "paBoardTitle": "Board meeting pack",
+  "paBoardNew": "New pack",
+  "paBoardEdit": "Edit pack",
+  "paBoardOpen": "Open",
+  "paBoardWelcomeTitle": "Build your board packs here",
+  "paBoardWelcomeBody": "Pull the agenda, documents, attendee list and resolutions into one tidy, numbered pack. Add your first pack to begin.",
+  "paBoardLoadError": "Couldn't load your packs.",
+  "paBoardDeleteTitle": "Delete pack?",
+  "paBoardDeleteBody": "“{title}” will be removed. This can't be undone.",
+  "@paBoardDeleteBody": {
+    "placeholders": {
+      "title": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBoardTitleField": "Meeting / pack title",
+  "paBoardDateField": "Date",
+  "paBoardDateHelp": "Shown exactly as you type it — we never invent a date.",
+  "paBoardQuorumField": "Quorum",
+  "paBoardSecAgenda": "Agenda",
+  "paBoardSecDocuments": "Documents",
+  "paBoardSecAttendees": "Attendees",
+  "paBoardSecResolutions": "Resolutions",
+  "paBoardSectionEmpty": "nothing added yet",
+  "paBoardAddAgenda": "Add agenda item",
+  "paBoardAddDocument": "Add document",
+  "paBoardAddAttendee": "Add attendee",
+  "paBoardAddResolution": "Add resolution",
+  "paBoardAgendaItemField": "Agenda item",
+  "paBoardPresenterField": "Presenter (optional)",
+  "paBoardMinutesField": "Minutes",
+  "paBoardDocRefField": "Ref.",
+  "paBoardDocTitleField": "Document title",
+  "paBoardAttendeeNameField": "Name",
+  "paBoardAttendeeRoleField": "Role (optional)",
+  "paBoardResolutionField": "Resolution text",
+  "paBoardProposerField": "Proposer (optional)",
+  "paBoardSeconderField": "Seconder (optional)",
+  "paBoardStatusPresent": "Present",
+  "paBoardStatusApology": "Apology",
+  "paBoardStatusAbsent": "Absent",
+  "paBoardAgendaCount": "{n} agenda",
+  "@paBoardAgendaCount": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBoardResCount": "{n} resolutions",
+  "@paBoardResCount": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBoardRollupAttendance": "Attendance (present/apology/absent): {breakdown}",
+  "@paBoardRollupAttendance": {
+    "placeholders": {
+      "breakdown": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBoardQuorumMet": "Quorum met ({count})",
+  "@paBoardQuorumMet": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBoardQuorumShort": "Quorum not met ({count})",
+  "@paBoardQuorumShort": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBoardToVote": "{n} resolutions to vote",
+  "@paBoardToVote": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBoardTotalMinutes": "Total time: {n} min",
+  "@paBoardTotalMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBoardPreviewLabel": "Pack preview",
+  "paBoardPreviewEmpty": "Add a title and at least one agenda item to see the pack here.",
+  "paBoardNeedTitle": "Please add a title.",
+  "paBoardNeedAgenda": "Add at least one agenda item.",
+  "paBoardAiSeamTitle": "AI assist — connect an AI key",
+  "paBoardAiSeamBody": "With an AI key connected (Integrations → Anthropic), an executive summary can be drafted from this pack by AI. For now the structure and counts are built automatically and the words are your own — we never invent facts.",
+  "paDeptTitle": "Departmental update",
+  "paDeptNew": "New update",
+  "paDeptEdit": "Edit update",
+  "paDeptOpen": "Open",
+  "paDeptWelcomeTitle": "Collect each department's update here",
+  "paDeptWelcomeBody": "Add each department's highlights, blockers and key metrics — we'll roll them up into one combined summary automatically. Add your first department's update to begin.",
+  "paDeptLoadError": "Couldn't load the updates.",
+  "paDeptDeleteTitle": "Delete update?",
+  "paDeptDeleteBody": "The update for “{dept}” will be removed. This can't be undone.",
+  "@paDeptDeleteBody": {
+    "placeholders": {
+      "dept": {
+        "type": "Object"
+      }
+    }
+  },
+  "paDeptNameField": "Department name",
+  "paDeptLeadField": "Department lead (optional)",
+  "paDeptHighlightsField": "Highlights",
+  "paDeptBlockersField": "Blockers",
+  "paDeptLinesHelp": "One point per line.",
+  "paDeptUnnamed": "Unnamed department",
+  "paDeptNone": "none reported",
+  "paDeptSecHighlights": "Highlights",
+  "paDeptSecBlockers": "Blockers",
+  "paDeptSecMetrics": "Metrics",
+  "paDeptMetricHelp": "Label and value are shown exactly as you type them — we do no arithmetic.",
+  "paDeptMetricLabelField": "Label",
+  "paDeptMetricValueField": "Value",
+  "paDeptAddMetric": "Add metric",
+  "paDeptMetricReportedNote": "Metric values are reported as entered — never computed or inferred.",
+  "paDeptBlockedBadge": "Blocked",
+  "paDeptRollupTitle": "Rolled-up summary",
+  "paDeptRollReporting": "{n} departments reporting",
+  "@paDeptRollReporting": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paDeptRollBlocked": "{n} blocked",
+  "@paDeptRollBlocked": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paDeptRollClear": "no blockers reported",
+  "paDeptRollHighlights": "{n} highlights",
+  "@paDeptRollHighlights": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paDeptRollBlockers": "{n} blockers",
+  "@paDeptRollBlockers": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paDeptNeedName": "Please add a department name.",
+  "paDeptAiSeamTitle": "AI assist — connect an AI key",
+  "paDeptAiSeamBody": "With an AI key connected (Integrations → Anthropic), a synthesised narrative can be drafted from these updates by AI. For now the counting and grouping are automatic and the words are your own — we never invent facts.",
+  "paVipTitle": "VIP & stakeholders",
+  "paVipNew": "New contact",
+  "paVipEdit": "Edit contact",
+  "paVipOpen": "Open",
+  "paVipWelcomeTitle": "Keep your key relationships here",
+  "paVipWelcomeBody": "Track VIPs and stakeholders with their organisation, tier and last/next-touch dates — we'll flag who is overdue for a follow-up. Add your first contact to begin.",
+  "paVipLoadError": "Couldn't load your contacts.",
+  "paVipDeleteTitle": "Delete contact?",
+  "paVipDeleteBody": "“{name}” will be removed along with its notes and log. This can't be undone.",
+  "@paVipDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "paVipNameField": "Name",
+  "paVipOrgField": "Organisation (optional)",
+  "paVipTierLabel": "Relationship tier",
+  "paVipTierStrategic": "Strategic",
+  "paVipTierKey": "Key",
+  "paVipTierStandard": "Standard",
+  "paVipLastTouchField": "Last touch",
+  "paVipNextTouchField": "Next touch",
+  "paVipDateHelp": "Format: YYYY-MM-DD (e.g. 2026-10-14).",
+  "paVipCadenceField": "Follow-up cadence (days)",
+  "paVipCadenceHelp": "If you leave next-touch blank, it's derived from last-touch + these days.",
+  "paVipPrivateSection": "Private details",
+  "paVipNotesField": "Private notes",
+  "paVipNotesHelp": "These notes stay on this contact only — never shown in any summary or share.",
+  "paVipLogTitle": "Interaction log",
+  "paVipLogDateField": "Date",
+  "paVipLogNoteField": "What happened",
+  "paVipAddLog": "Add entry",
+  "paVipPrivacyNote": "Notes and the interaction log are sensitive — kept only on your saved record, never in any roll-up.",
+  "paVipNeedName": "Please add a contact name.",
+  "paVipBannerOverdue": "{n} overdue for follow-up",
+  "@paVipBannerOverdue": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paVipBannerDueSoon": "{n} due soon",
+  "@paVipBannerDueSoon": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paVipStatusOverdue": "Overdue by {n} days",
+  "@paVipStatusOverdue": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paVipStatusDueToday": "Due today",
+  "paVipStatusDueSoon": "Due in {n} days",
+  "@paVipStatusDueSoon": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paVipStatusOnTrack": "Next touch {date}",
+  "@paVipStatusOnTrack": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      }
+    }
+  },
+  "paVipStatusOnTrackPlain": "On track",
+  "paVipStatusNoDate": "No date set",
+  "starDealsTitle": "Deals & offers",
+  "starDealsLoadError": "Could not load the deals pipeline.",
+  "starDealsWelcomeTitle": "No brand deals yet",
+  "starDealsWelcomeBody": "Track brand & endorsement deals by hand — value, stage (negotiating→signed→delivered→paid), deliverables and deadline. No money is held here; it only tracks.",
+  "starDealsAdd": "New deal",
+  "starDealsEdit": "Edit deal",
+  "starDealsBrandField": "Brand name",
+  "starDealsValueField": "Value (৳)",
+  "starDealsStageLabel": "Stage",
+  "starDealsStageNegotiating": "Negotiating",
+  "starDealsStageSigned": "Signed",
+  "starDealsStageDelivered": "Delivered",
+  "starDealsStagePaid": "Paid",
+  "starDealsDeliverablesField": "Deliverables",
+  "starDealsDeliverablesHelper": "One per line (or separate with commas).",
+  "starDealsDeadlineField": "Deadline",
+  "starDealsNoteField": "Note",
+  "starDealsPipeline": "Pipeline",
+  "starDealsTotalValue": "Total value",
+  "starDealsExpectedValue": "Expected (weighted)",
+  "starDealsPaidValue": "Received (paid)",
+  "starDealsExpectedNote": "\"Expected\" is a stage-weighted estimate — not cash in hand.",
+  "starDealsNoHold": "This tool holds and moves no money — it only tracks the values you type.",
+  "starDealsOverdue": "{count} deal(s) past deadline",
+  "@starDealsOverdue": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "starDealsDeadline": "Deadline: {date}",
+  "@starDealsDeadline": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      }
+    }
+  },
+  "starDealsDeadlineOverdue": "Overdue: {date}",
+  "@starDealsDeadlineOverdue": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      }
+    }
+  },
+  "starDealsAdvance": "Move to {next}",
+  "@starDealsAdvance": {
+    "placeholders": {
+      "next": {
+        "type": "Object"
+      }
+    }
+  },
+  "starDealsFullyPaid": "Fully paid & settled",
+  "starDealsDeleteTitle": "Delete deal?",
+  "starDealsDeleteBody": "The deal with \"{brand}\" will be removed. This cannot be undone.",
+  "@starDealsDeleteBody": {
+    "placeholders": {
+      "brand": {
+        "type": "Object"
+      }
+    }
+  },
+  "prPressTitle": "PR & press",
+  "prPressLoadError": "Could not load the press tracker.",
+  "prPressTabCoverage": "Coverage",
+  "prPressTabInterviews": "Interviews",
+  "prPressTabTalkingPoints": "Talking points",
+  "prPressAdd": "Add",
+  "prPressAddCoverage": "New coverage",
+  "prPressAddInterview": "New interview",
+  "prPressAddPoint": "New talking point",
+  "prPressEdit": "Edit",
+  "prPressWelcomeTitle": "No coverage logged yet",
+  "prPressWelcomeBody": "Track media coverage by hand — outlet, type, date, sentiment and link. Nothing is fetched; you set the sentiment yourself.",
+  "prPressRollup": "Coverage summary",
+  "prPressSentPositive": "Positive {count}",
+  "@prPressSentPositive": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "prPressSentNeutral": "Neutral {count}",
+  "@prPressSentNeutral": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "prPressSentNegative": "Negative {count}",
+  "@prPressSentNegative": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "prPressNetPositive": "Net sentiment: +{net} (more positive)",
+  "@prPressNetPositive": {
+    "placeholders": {
+      "net": {
+        "type": "Object"
+      }
+    }
+  },
+  "prPressNetNegative": "Net sentiment: −{net} (more negative)",
+  "@prPressNetNegative": {
+    "placeholders": {
+      "net": {
+        "type": "Object"
+      }
+    }
+  },
+  "prPressTypeLabel": "Type",
+  "prPressTypePrint": "Print",
+  "prPressTypeOnline": "Online",
+  "prPressTypeTv": "TV",
+  "prPressTypeRadio": "Radio",
+  "prPressTypeSocial": "Social",
+  "prPressSentimentLabel": "Sentiment",
+  "prPressSentimentPositive": "Positive",
+  "prPressSentimentNeutral": "Neutral",
+  "prPressSentimentNegative": "Negative",
+  "prPressOutletField": "Outlet / media",
+  "prPressDateField": "Date",
+  "prPressLinkField": "Link",
+  "prPressTopicField": "Topic",
+  "prPressAtField": "Date & time",
+  "prPressPlaceField": "Place",
+  "prPressNoteField": "Note",
+  "prPressPointField": "Talking point",
+  "prPressNoInterviewsTitle": "No interviews yet",
+  "prPressNoInterviewsBody": "Add upcoming interviews — outlet, topic, time and place.",
+  "prPressNoPointsTitle": "No talking points yet",
+  "prPressNoPointsBody": "Keep key messages and talking points ready for interviews.",
+  "prPressUpcoming": "Upcoming ({count})",
+  "@prPressUpcoming": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "prPressPast": "Past ({count})",
+  "@prPressPast": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "socialInboxTitle": "Social inbox",
+  "socialInboxLoadError": "Could not load the inbox.",
+  "socialInboxWelcomeTitle": "Triage the messages that matter",
+  "socialInboxWelcomeBody": "Log important DMs & mentions from any platform in one place — platform, from, message, priority and status. Works as a manual board with no key.",
+  "socialInboxAdd": "New item",
+  "socialInboxEdit": "Edit item",
+  "socialInboxStatOpen": "Open {count}",
+  "@socialInboxStatOpen": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "socialInboxStatUrgent": "Urgent {count}",
+  "@socialInboxStatUrgent": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "socialInboxHideHandled": "Hide handled",
+  "socialInboxAllClearTitle": "All caught up",
+  "socialInboxAllClearBody": "No open items right now.",
+  "socialInboxPlatformLabel": "Platform",
+  "socialInboxPlatInstagram": "Instagram",
+  "socialInboxPlatFacebook": "Facebook",
+  "socialInboxPlatMessenger": "Messenger",
+  "socialInboxPlatTwitter": "X / Twitter",
+  "socialInboxPlatYoutube": "YouTube",
+  "socialInboxPlatOther": "Other",
+  "socialInboxFromField": "From (handle)",
+  "socialInboxMessageField": "Message",
+  "socialInboxPriorityLabel": "Priority",
+  "socialInboxPriorityUrgent": "Urgent",
+  "socialInboxPriorityNormal": "Normal",
+  "socialInboxPriorityLow": "Low",
+  "socialInboxAtField": "Date & time",
+  "socialInboxMarkReplied": "Mark replied",
+  "socialInboxStatusReplied": "Replied",
+  "socialInboxStatusArchived": "Archived",
+  "socialInboxArchive": "Archive",
+  "socialInboxReopen": "Reopen",
+  "socialInboxConnectTitle": "Connect your Page / Instagram",
+  "socialInboxConnectBody": "To pull live DMs & mentions directly, connect your own Instagram and Facebook Page accounts in Integrations. Until then this works as a manual triage board.",
+  "socialInboxConnectKeys": "Needs: instagram + messenger (Facebook Page) keys — via the Meta Graph API.",
+  "socialInboxNeverFabricate": "We never fabricate a DM or a sender — nothing is fetched until you connect.",
+  "shootTitle": "Shooting & concert logistics",
+  "shootLoadError": "Could not load the call-sheet.",
+  "shootWelcomeTitle": "No call-sheet yet",
+  "shootWelcomeBody": "Build the whole event-day call-sheet by hand — schedule, wardrobe & equipment checklist, and crew/cast contacts. No key needed.",
+  "shootNewSheet": "New call-sheet",
+  "shootEditSheet": "Edit call-sheet",
+  "shootTitleField": "Call-sheet title",
+  "shootDateField": "Date",
+  "shootCallTimeField": "Call time",
+  "shootCallTimeValue": "Call {time}",
+  "@shootCallTimeValue": {
+    "placeholders": {
+      "time": {
+        "type": "Object"
+      }
+    }
+  },
+  "shootLocationField": "Location",
+  "shootSchedule": "Schedule",
+  "shootNoBlocks": "No time blocks added yet.",
+  "shootBlockFormTitle": "Schedule block",
+  "shootBlockLabelField": "Block label",
+  "shootBlockKindLabel": "Kind",
+  "shootBlockScene": "Scene",
+  "shootBlockSoundcheck": "Soundcheck",
+  "shootBlockSet": "Set",
+  "shootBlockBreak": "Break",
+  "shootBlockTravel": "Travel",
+  "shootBlockOther": "Other",
+  "shootStartField": "Start",
+  "shootEndField": "End",
+  "shootChecklistProgress": "Checklist {checked}/{total} ({pct}%)",
+  "@shootChecklistProgress": {
+    "placeholders": {
+      "checked": {
+        "type": "Object"
+      },
+      "pct": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "shootNoChecks": "No checklist items yet.",
+  "shootCheckFormTitle": "Checklist item",
+  "shootCheckKindLabel": "List",
+  "shootCheckWardrobe": "Wardrobe",
+  "shootCheckEquipment": "Equipment",
+  "shootCheckPrep": "Prep",
+  "shootCheckLabelField": "Item label",
+  "shootContacts": "Contacts (crew/cast)",
+  "shootNoContacts": "No contacts added yet.",
+  "shootContactFormTitle": "Contact",
+  "shootContactNameField": "Name",
+  "shootContactRoleField": "Role",
+  "shootContactPhoneField": "Phone",
+  "lifestyleTitle": "Lifestyle",
+  "lifestyleLoadError": "Could not load lifestyle data.",
+  "lifestyleTabAppts": "Appointments",
+  "lifestyleTabPrefs": "Preferences",
+  "lifestyleTabRoutines": "Routines",
+  "lifestyleAdd": "Add",
+  "lifestyleEdit": "Edit",
+  "lifestyleAddAppt": "New appointment",
+  "lifestyleAddPref": "New preference",
+  "lifestyleAddRoutine": "New routine",
+  "lifestyleWelcomeTitle": "Keep personal life in order",
+  "lifestyleWelcomeBody": "Organise salon, gym, wellness and stylist appointments. Everything stays on this device only — nothing is shared or published.",
+  "lifestyleCategoryLabel": "Category",
+  "lifestyleCatSalon": "Salon",
+  "lifestyleCatGym": "Gym",
+  "lifestyleCatWellness": "Wellness",
+  "lifestyleCatStylist": "Stylist",
+  "lifestyleCatSpa": "Spa",
+  "lifestyleCatOther": "Other",
+  "lifestyleApptTitleField": "Appointment title",
+  "lifestylePlaceField": "Place",
+  "lifestyleAtField": "Date & time",
+  "lifestyleNoteField": "Note",
+  "lifestyleUpcoming": "Upcoming ({count})",
+  "@lifestyleUpcoming": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "lifestylePast": "Past ({count})",
+  "@lifestylePast": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "lifestylePrivacyNote": "This is private data — it stays on this device only, never shared or location-tracked.",
+  "lifestyleNoPrefsTitle": "No preferences yet",
+  "lifestyleNoPrefsBody": "Keep standing preferences (e.g. diet, wardrobe, travel) — grouped by topic.",
+  "lifestyleNoRoutinesTitle": "No routines yet",
+  "lifestyleNoRoutinesBody": "Lay out the daily routine by slot — morning to night.",
+  "lifestyleTopicField": "Topic",
+  "lifestyleTopicGeneral": "General",
+  "lifestylePrefTextField": "Preference",
+  "lifestyleSlotLabel": "Slot",
+  "lifestyleSlotMorning": "Morning",
+  "lifestyleSlotAfternoon": "Afternoon",
+  "lifestyleSlotEvening": "Evening",
+  "lifestyleSlotNight": "Night",
+  "lifestyleRoutineLabelField": "Routine label",
+  "lifestyleTimeField": "Time",
+  "paBizTitle": "Business travel & events",
+  "paBizLoadError": "Couldn't load your events. Check your connection and try again.",
+  "paBizNewEvent": "New event",
+  "paBizWelcomeTitle": "Coordinate the team's travel & events",
+  "paBizWelcomeBody": "Plan a company event, line up every attendee's travel, build the agenda and budget, and track logistics — all in one place. Nothing is booked here; you enter the details.",
+  "paBizCountdown": "{days} days to go",
+  "@paBizCountdown": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBizToday": "Today",
+  "paBizPast": "{days} days ago",
+  "@paBizPast": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBizDaysCount": "{days}-day event",
+  "@paBizDaysCount": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBizAttendeesHeader": "Attendees & travel",
+  "paBizNoAttendees": "No attendees yet. Add the people travelling to this event.",
+  "paBizRollupTotal": "{count} total",
+  "@paBizRollupTotal": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBizRollupConfirmed": "{count} confirmed",
+  "@paBizRollupConfirmed": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBizRollupPending": "{count} to arrange",
+  "@paBizRollupPending": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBizAgendaHeader": "Agenda",
+  "paBizNoAgenda": "No agenda items yet.",
+  "paBizBudgetHeader": "Budget (estimated vs actual)",
+  "paBizNoBudget": "No budget lines yet. Add estimated and actual costs.",
+  "paBizBudgetDisclaimer": "Every ৳ figure is an estimate you typed. Assisto books nothing, prices nothing and holds no money.",
+  "paBizChecklistHeader": "Logistics checklist",
+  "paBizNoTasks": "No logistics tasks yet.",
+  "paBizChecklistProgress": "{done}/{total} done",
+  "@paBizChecklistProgress": {
+    "placeholders": {
+      "done": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBizSummaryButton": "Printable event summary",
+  "paBizEventNameLabel": "Event name",
+  "paBizDateLabel": "Date",
+  "paBizEndLabel": "End date (optional)",
+  "paBizVenueLabel": "Venue",
+  "paBizCityLabel": "City",
+  "paBizNoteLabel": "Note",
+  "paBizNameRequired": "Please enter an event name.",
+  "paBizAttendeeNameLabel": "Attendee name",
+  "paBizAttendeeRoleLabel": "Role / designation",
+  "paBizAttendeeNameRequired": "Please enter the attendee's name.",
+  "paBizModeLabel": "Travel mode",
+  "paBizModeFlight": "Flight",
+  "paBizModeTrain": "Train",
+  "paBizModeCar": "Car",
+  "paBizModeBus": "Bus",
+  "paBizModeLaunch": "Launch",
+  "paBizModeLocal": "Local / own",
+  "paBizFromLabel": "Travelling from",
+  "paBizDepartLabel": "Departure",
+  "paBizRefFieldLabel": "Booking / PNR reference",
+  "paBizRefHelper": "A reference you or the agent already booked. Assisto never books or prices anything.",
+  "paBizRefLabel": "Ref {ref}",
+  "@paBizRefLabel": {
+    "placeholders": {
+      "ref": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBizCostLabel": "Travel cost (estimate)",
+  "paBizCostHelper": "Your manual estimate — not a quoted price.",
+  "paBizStatusLabel": "Arrangement status",
+  "paBizArrPending": "To arrange",
+  "paBizArrBooked": "Booked",
+  "paBizArrConfirmed": "Confirmed",
+  "paBizArrCancelled": "Cancelled",
+  "paBizAgendaTitleLabel": "Session title",
+  "paBizAgendaAtLabel": "Time",
+  "paBizAgendaSpeakerLabel": "Speaker / lead",
+  "paBizBudgetLabelLabel": "Line item",
+  "paBizCategoryLabel": "Category",
+  "paBizCatTravel": "Travel",
+  "paBizCatVenue": "Venue",
+  "paBizCatLodging": "Lodging",
+  "paBizCatCatering": "Catering",
+  "paBizCatMaterials": "Materials",
+  "paBizCatOther": "Other",
+  "paBizEstimatedLabel": "Estimated",
+  "paBizActualLabel": "Actual",
+  "paBizEstVsAct": "Est {estimated} · Act {actual}",
+  "@paBizEstVsAct": {
+    "placeholders": {
+      "actual": {
+        "type": "Object"
+      },
+      "estimated": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBizTotalEstimated": "Total estimated",
+  "paBizTotalActual": "Total actual",
+  "paBizTotalVariance": "Variance",
+  "paBizTravelEstimate": "Attendee travel (est.)",
+  "paBizGrandEstimate": "Grand estimate",
+  "paBizTaskLabel": "Logistics task",
+  "paBizBookingSeamTitle": "Live booking needs a booking key",
+  "paBizBookingSeamBody": "Searching real flights, hotels or venues and holding a real price needs a connected booking provider. Until then you coordinate by hand — Assisto never invents a flight, price or confirmation, and holds no money.",
+  "paProjTitle": "Project tracking",
+  "paProjLoadError": "Couldn't load your projects. Check your connection and try again.",
+  "paProjNewProject": "New project",
+  "paProjWelcomeTitle": "Track the projects you oversee",
+  "paProjWelcomeBody": "Add the projects the boss watches, set each one's owner, status and progress, record milestones and risks — and see an at-a-glance portfolio of what's on track, at risk and overdue.",
+  "paProjPortfolioTitle": "Portfolio",
+  "paProjPortfolioCount": "{count} projects",
+  "@paProjPortfolioCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paProjStatOnTrack": "{count} on track",
+  "@paProjStatOnTrack": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paProjStatAtRisk": "{count} at risk",
+  "@paProjStatAtRisk": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paProjStatOverdue": "{count} overdue",
+  "@paProjStatOverdue": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paProjStatDone": "{count} done",
+  "@paProjStatDone": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paProjStatCancelled": "{count} cancelled",
+  "@paProjStatCancelled": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paProjAvgProgress": "{percent}% avg",
+  "@paProjAvgProgress": {
+    "placeholders": {
+      "percent": {
+        "type": "Object"
+      }
+    }
+  },
+  "paProjAiSeamTitle": "Written status update needs an AI key",
+  "paProjAiSeamBody": "A written, boss-ready summary of these projects needs a connected AI key. Until then Assisto shows the live roll-up above and never fabricates a status narrative.",
+  "paProjHealthOnTrack": "On track",
+  "paProjHealthAtRisk": "At risk",
+  "paProjHealthOverdue": "Overdue",
+  "paProjHealthDone": "Done",
+  "paProjHealthCancelled": "Cancelled",
+  "paProjOwnerPrefix": "Owner: {owner}",
+  "@paProjOwnerPrefix": {
+    "placeholders": {
+      "owner": {
+        "type": "Object"
+      }
+    }
+  },
+  "paProjDueIn": "Due in {days}d",
+  "@paProjDueIn": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "paProjDueToday": "Due today",
+  "paProjDueOverdue": "{days}d overdue",
+  "@paProjDueOverdue": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "paProjNameLabel": "Project name",
+  "paProjOwnerLabel": "Owner",
+  "paProjStatusFieldLabel": "Status",
+  "paProjStatusPlanned": "Planned",
+  "paProjStatusActive": "Active",
+  "paProjStatusOnHold": "On hold",
+  "paProjStatusDone": "Done",
+  "paProjStatusCancelled": "Cancelled",
+  "paProjPercentLabel": "Progress",
+  "paProjDueLabel": "Due date",
+  "paProjNoteLabel": "Note",
+  "paProjNameRequired": "Please enter a project name.",
+  "paProjMilestonesHeader": "Milestones",
+  "paProjNoMilestones": "No milestones yet. Add the key dates for this project.",
+  "paProjMsProgress": "{done}/{total} done",
+  "@paProjMsProgress": {
+    "placeholders": {
+      "done": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "paProjMsTitleLabel": "Milestone title",
+  "paProjMsDateLabel": "Target date",
+  "paProjMsStatusLabel": "Status",
+  "paProjMsPending": "Pending",
+  "paProjMsDone": "Done",
+  "paProjMsMissed": "Missed",
+  "paProjRisksHeader": "Risks & issues",
+  "paProjNoRisks": "No risks logged yet.",
+  "paProjRiskLabelLabel": "Risk or issue",
+  "paProjSeverityLabel": "Severity",
+  "paProjSevLow": "Low",
+  "paProjSevMed": "Medium",
+  "paProjSevHigh": "High",
+  "paProjRiskStatusLabel": "Resolved",
+  "paProjRiskOpen": "Open",
+  "paProjRiskClosed": "Closed"
 }

@@ -849,6 +849,20 @@ PaCallEmailSnippetTests = _make_snippet_case(
     "core.logic.pa_callemail_tests_snippets", "PaCallEmailSnippetTests")
 PaLettersSnippetTests = _make_snippet_case(
     "core.logic.pa_letters_tests_snippets", "PaLettersSnippetTests")
+# PA Secretary Mode · CORPORATE tier (§14 #116/#117/#118), ADVANCED. Pure
+# deterministic engines: a board-meeting pack assembler (agenda/documents/
+# attendees/resolutions + counted quorum & roll-ups), a departmental-update
+# roll-up (highlights/blockers/metrics counted; metrics reported never computed),
+# and a VIP & stakeholder tracker (overdue/due-soon/on-track from a passed-in
+# `now`; privacy roll-up never leaks notes/log). Honest MOCK markers; documented
+# key-gated AI-draft seams (ai_required, never fabricates); conservative privacy.
+# Mirror board_pack_screen.dart / dept_update_screen.dart / vip_stakeholder_screen.dart.
+PaBoardSnippetTests = _make_snippet_case(
+    "core.logic.pa_board_tests_snippets", "PaBoardSnippetTests")
+PaDeptSnippetTests = _make_snippet_case(
+    "core.logic.pa_dept_tests_snippets", "PaDeptSnippetTests")
+PaVipSnippetTests = _make_snippet_case(
+    "core.logic.pa_vip_tests_snippets", "PaVipSnippetTests")
 # Mock interview (#131, §21) + Language-learning partner (#132, §21), both
 # ADVANCED & KEY-GATED. Pure deterministic engines: a bilingual question bank +
 # rule-based (NOT AI) feedback rubric + model-answer outlines; a bilingual deck
@@ -976,6 +990,12 @@ PaTasksSnippetTests = _make_snippet_case(
 PaFilingSnippetTests = _make_snippet_case("core.logic.pa_filing_tests_snippets", "PaFilingSnippetTests"); PaMinutesSnippetTests = _make_snippet_case("core.logic.pa_minutes_tests_snippets", "PaMinutesSnippetTests")
 # PA travel & itinerary (#112) + expense voucher (#113) + research & presentation (#114), §14 ADVANCED §21 — pure deterministic builders; honest key-gated booking/OCR/AI seams.
 PaTravelSnippetTests = _make_snippet_case("core.logic.pa_travel_tests_snippets", "PaTravelSnippetTests"); PaExpenseSnippetTests = _make_snippet_case("core.logic.pa_expense_tests_snippets", "PaExpenseSnippetTests"); PaResearchSnippetTests = _make_snippet_case("core.logic.pa_research_tests_snippets", "PaResearchSnippetTests")
+# PA Secretary — CELEBRITY/STAR tier (§14 #121 brand-deal pipeline + #122 PR &
+# press tracker + #123 unified social-inbox DM triage + #124 shoot/concert
+# call-sheet + #125 personal lifestyle manager), ADVANCED §21 — pure deterministic
+# engines; no DB/clock(now passed in)/AI; honest key-gated seams (IG+FB-Page DM
+# fetch #123, opt-in reminders #125); holds no money; conservative privacy.
+PaDealsSnippetTests = _make_snippet_case("core.logic.pa_deals_tests_snippets", "PaDealsSnippetTests"); PaPrSnippetTests = _make_snippet_case("core.logic.pa_pr_tests_snippets", "PaPrSnippetTests"); PaSocialInboxSnippetTests = _make_snippet_case("core.logic.pa_socialinbox_tests_snippets", "PaSocialInboxSnippetTests"); PaShootSnippetTests = _make_snippet_case("core.logic.pa_shoot_tests_snippets", "PaShootSnippetTests"); PaLifestyleSnippetTests = _make_snippet_case("core.logic.pa_lifestyle_tests_snippets", "PaLifestyleSnippetTests")
 # Task Manager (#21, §21 ADVANCED) — projects + board engine. Pure, no DB/AI/
 # clock (now passed in): normalize/validate, honest overdue, deterministic
 # ordering + board bucketing, status-move (done⇄active progress honesty),
@@ -1121,6 +1141,13 @@ QuickToolsSnippetTests = _make_snippet_case(
     "core.logic.quick_tools_tests_snippets", "QuickToolsSnippetTests")
 DailyBriefSnippetTests = _make_snippet_case(
     "core.logic.daily_brief_tests_snippets", "DailyBriefSnippetTests")
+# PA CORPORATE tier (§14 #119 business travel & events + #120 project tracking)
+# — pure deterministic event/travel/budget assembly & project/portfolio rollup
+# (overdue from a passed-in `now`); honest {required, mock} booking/AI seams.
+PaBizTravelSnippetTests = _make_snippet_case(
+    "core.logic.pa_biztravel_tests_snippets", "PaBizTravelSnippetTests")
+PaProjectsSnippetTests = _make_snippet_case(
+    "core.logic.pa_projects_tests_snippets", "PaProjectsSnippetTests")
 
 
 # ---------------------------------------------------------------------------

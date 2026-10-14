@@ -14,6 +14,16 @@ import 'meeting_minutes_screen.dart';
 import 'pa_travel_screen.dart';
 import 'expense_voucher_screen.dart';
 import 'research_prep_screen.dart';
+import 'board_pack_screen.dart';
+import 'dept_update_screen.dart';
+import 'vip_stakeholder_screen.dart';
+import 'biz_travel_events_screen.dart';
+import 'project_tracking_screen.dart';
+import 'star_deals_screen.dart';
+import 'pr_press_screen.dart';
+import 'social_inbox_screen.dart';
+import 'shoot_logistics_screen.dart';
+import 'lifestyle_screen.dart';
 
 /// PA Secretary Mode hub (SPEC v2.1 §14 / §4 Work group) — the single sidebar
 /// entry point for the six PA tools. Each tile reuses the destination screen's
@@ -55,6 +65,28 @@ class PaHubScreen extends StatelessWidget {
           (_) => const ExpenseVoucherScreen()),
       _PaTool(Icons.insert_chart_outlined, t.paResearchTitle,
           (_) => const ResearchPrepScreen()),
+      // Corporate tier (§14 #116-120).
+      _PaTool(Icons.dashboard_customize_outlined, t.paBoardTitle,
+          (_) => const BoardPackScreen()),
+      _PaTool(Icons.summarize_outlined, t.paDeptTitle,
+          (_) => const DeptUpdateScreen()),
+      _PaTool(Icons.stars_outlined, t.paVipTitle,
+          (_) => const VipStakeholderScreen()),
+      _PaTool(Icons.business_center_outlined, t.paBizTitle,
+          (_) => const BizTravelEventsScreen()),
+      _PaTool(Icons.account_tree_outlined, t.paProjTitle,
+          (_) => const ProjectTrackingScreen()),
+      // Celebrity / star tier (§14 #121-125).
+      _PaTool(Icons.handshake_outlined, t.starDealsTitle,
+          (_) => const StarDealsScreen()),
+      _PaTool(Icons.campaign_outlined, t.prPressTitle,
+          (_) => const PrPressScreen()),
+      _PaTool(Icons.forum_outlined, t.socialInboxTitle,
+          (_) => const SocialInboxScreen()),
+      _PaTool(Icons.movie_outlined, t.shootTitle,
+          (_) => const ShootLogisticsScreen()),
+      _PaTool(Icons.spa_outlined, t.lifestyleTitle,
+          (_) => const LifestyleScreen()),
     ];
 
     return Scaffold(

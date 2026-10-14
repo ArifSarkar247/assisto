@@ -1876,6 +1876,35 @@ GENERIC_COLLECTIONS = [
     "pa/callemail", "pa/letters",
     "pa/filing", "pa/minutes", "pa/actionitems",
     "pa/travel", "pa/vouchers", "pa/research",
+    # PA CORPORATE tier (§14 #119 business travel & events + #120 projects) —
+    # deterministic, key-free; honest booking/AI seams.
+    #   pa/bizevents     — event header + agenda/budget/task child rows, each
+    #                      tagged {kind:'event'|'agenda'|'budget'|'task'};
+    #                      children carry {event_id}.
+    #   pa/bizattendees  — attendee + per-person travel rows {event_id}.
+    #   pa/projects      — project header + risk child rows, tagged
+    #                      {kind:'project'|'risk'}; risks carry {project_id}.
+    #   pa/milestones    — milestone rows {project_id}.
+    "pa/bizevents", "pa/bizattendees",
+    "pa/projects", "pa/milestones",
+    # PA Secretary — CORPORATE tier A (§14 #116/#117/#118) — mock, deterministic.
+    "pa/board", "pa/deptupdates", "pa/vip",
+    # PA Secretary — CELEBRITY/STAR tier (§14 #121/#122/#123/#124/#125) — mock,
+    # deterministic; holds no money; conservative privacy; honest key-gated seams.
+    #   star/deals       — brand-deal pipeline rows (brand, value ৳, stage,
+    #                      deliverables[], deadline, note). Tracks only.
+    #   star/press       — coverage + interview rows, tagged
+    #                      {kind:'coverage'|'interview'|'talkingpoint'}.
+    #   star/socialinbox — manual DM/mention triage rows (platform, from_handle,
+    #                      message, priority, status, at). LIVE fetch is a
+    #                      key-gated seam (instagram + messenger/FB-Page keys).
+    #   star/callsheets  — call-sheet header + child rows, tagged
+    #                      {kind:'sheet'|'block'|'contact'|'check'}; children
+    #                      carry {sheet_id}.
+    #   star/lifestyle   — appointment/preference/routine rows, tagged
+    #                      {kind:'appt'|'pref'|'routine'}. On-device only.
+    "star/deals", "star/press", "star/socialinbox",
+    "star/callsheets", "star/lifestyle",
 ]
 GENERIC_COLLECTION_VIEWSETS = {
     name: type(

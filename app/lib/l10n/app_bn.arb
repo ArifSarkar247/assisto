@@ -10072,5 +10072,851 @@
   "paResearchExportEmpty": "এক্সপোর্ট করার মতো কিছু নেই।",
   "paResearchIncludeSources": "সূত্র যোগ করুন",
   "paResearchCopy": "কপি করুন",
-  "paResearchCopied": "আউটলাইন কপি হয়েছে।"
+  "paResearchCopied": "আউটলাইন কপি হয়েছে।",
+  "paBoardTitle": "বোর্ড মিটিং প্যাক",
+  "paBoardNew": "নতুন প্যাক",
+  "paBoardEdit": "প্যাক সম্পাদনা",
+  "paBoardOpen": "খুলুন",
+  "paBoardWelcomeTitle": "বোর্ড মিটিংয়ের প্যাক এখানে সাজান",
+  "paBoardWelcomeBody": "আলোচ্যসূচি, নথি, উপস্থিতির তালিকা ও ভোটের প্রস্তাব এক জায়গায় গুছিয়ে একটি পরিপাটি প্যাক তৈরি করুন। শুরু করতে প্রথম প্যাকটি যোগ করুন।",
+  "paBoardLoadError": "প্যাকের তালিকা লোড করা গেল না।",
+  "paBoardDeleteTitle": "প্যাক মুছবেন?",
+  "paBoardDeleteBody": "“{title}” প্যাকটি মুছে ফেলা হবে। এটি ফেরানো যাবে না।",
+  "@paBoardDeleteBody": {
+    "placeholders": {
+      "title": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBoardTitleField": "মিটিং/প্যাকের শিরোনাম",
+  "paBoardDateField": "তারিখ",
+  "paBoardDateHelp": "যেভাবে লিখবেন সেভাবেই দেখানো হবে — আমরা কোনো তারিখ বানাই না।",
+  "paBoardQuorumField": "কোরাম",
+  "paBoardSecAgenda": "আলোচ্যসূচি",
+  "paBoardSecDocuments": "নথিপত্র",
+  "paBoardSecAttendees": "উপস্থিতি",
+  "paBoardSecResolutions": "প্রস্তাবসমূহ",
+  "paBoardSectionEmpty": "এখনো কিছু যোগ করা হয়নি",
+  "paBoardAddAgenda": "আলোচ্য বিষয় যোগ করুন",
+  "paBoardAddDocument": "নথি যোগ করুন",
+  "paBoardAddAttendee": "অংশগ্রহণকারী যোগ করুন",
+  "paBoardAddResolution": "প্রস্তাব যোগ করুন",
+  "paBoardAgendaItemField": "আলোচ্য বিষয়",
+  "paBoardPresenterField": "উপস্থাপক (ঐচ্ছিক)",
+  "paBoardMinutesField": "মিনিট",
+  "paBoardDocRefField": "রেফ.",
+  "paBoardDocTitleField": "নথির শিরোনাম",
+  "paBoardAttendeeNameField": "নাম",
+  "paBoardAttendeeRoleField": "পদবি (ঐচ্ছিক)",
+  "paBoardResolutionField": "প্রস্তাবের বিবরণ",
+  "paBoardProposerField": "প্রস্তাবক (ঐচ্ছিক)",
+  "paBoardSeconderField": "সমর্থক (ঐচ্ছিক)",
+  "paBoardStatusPresent": "উপস্থিত",
+  "paBoardStatusApology": "অনুপস্থিতির বার্তা",
+  "paBoardStatusAbsent": "অনুপস্থিত",
+  "paBoardAgendaCount": "{n}টি আলোচ্য",
+  "@paBoardAgendaCount": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBoardResCount": "{n}টি প্রস্তাব",
+  "@paBoardResCount": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBoardRollupAttendance": "উপস্থিতি (উপস্থিত/বার্তা/অনুপস্থিত): {breakdown}",
+  "@paBoardRollupAttendance": {
+    "placeholders": {
+      "breakdown": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBoardQuorumMet": "কোরাম পূর্ণ হয়েছে ({count})",
+  "@paBoardQuorumMet": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBoardQuorumShort": "কোরাম পূর্ণ হয়নি ({count})",
+  "@paBoardQuorumShort": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBoardToVote": "{n}টি প্রস্তাব ভোটের জন্য",
+  "@paBoardToVote": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBoardTotalMinutes": "মোট সময়: {n} মিনিট",
+  "@paBoardTotalMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBoardPreviewLabel": "প্যাকের প্রিভিউ",
+  "paBoardPreviewEmpty": "শিরোনাম ও অন্তত একটি আলোচ্য বিষয় দিলে এখানে প্যাকটি দেখা যাবে।",
+  "paBoardNeedTitle": "একটি শিরোনাম দিন।",
+  "paBoardNeedAgenda": "অন্তত একটি আলোচ্য বিষয় যোগ করুন।",
+  "paBoardAiSeamTitle": "AI সহায়তা — একটি AI কি যুক্ত করুন",
+  "paBoardAiSeamBody": "একটি AI কি (Integrations → Anthropic) যুক্ত থাকলে এই প্যাক থেকে একটি নির্বাহী সারসংক্ষেপ AI দিয়ে লেখানো যাবে। এখন কাঠামো ও গণনা স্বয়ংক্রিয়ভাবে তৈরি হয়, লেখা আপনার নিজের — আমরা কোনো তথ্য বানাই না।",
+  "paDeptTitle": "বিভাগীয় আপডেট",
+  "paDeptNew": "নতুন আপডেট",
+  "paDeptEdit": "আপডেট সম্পাদনা",
+  "paDeptOpen": "খুলুন",
+  "paDeptWelcomeTitle": "বিভাগগুলোর আপডেট এখানে জমা করুন",
+  "paDeptWelcomeBody": "প্রতিটি বিভাগের অগ্রগতি, বাধা ও মূল সংখ্যাগুলো যোগ করুন — আমরা স্বয়ংক্রিয়ভাবে একটি সমন্বিত সারসংক্ষেপ তৈরি করে দেব। শুরু করতে প্রথম বিভাগের আপডেট যোগ করুন।",
+  "paDeptLoadError": "আপডেটের তালিকা লোড করা গেল না।",
+  "paDeptDeleteTitle": "আপডেট মুছবেন?",
+  "paDeptDeleteBody": "“{dept}” বিভাগের আপডেটটি মুছে ফেলা হবে। এটি ফেরানো যাবে না।",
+  "@paDeptDeleteBody": {
+    "placeholders": {
+      "dept": {
+        "type": "Object"
+      }
+    }
+  },
+  "paDeptNameField": "বিভাগের নাম",
+  "paDeptLeadField": "বিভাগীয় প্রধান (ঐচ্ছিক)",
+  "paDeptHighlightsField": "অগ্রগতি / অর্জন",
+  "paDeptBlockersField": "বাধা / সমস্যা",
+  "paDeptLinesHelp": "প্রতি লাইনে একটি পয়েন্ট লিখুন।",
+  "paDeptUnnamed": "নামহীন বিভাগ",
+  "paDeptNone": "কিছু জানানো হয়নি",
+  "paDeptSecHighlights": "অগ্রগতি",
+  "paDeptSecBlockers": "বাধা",
+  "paDeptSecMetrics": "মূল সংখ্যা",
+  "paDeptMetricHelp": "লেবেল ও মান যেভাবে লিখবেন সেভাবেই দেখানো হবে — আমরা কোনো হিসাব করি না।",
+  "paDeptMetricLabelField": "লেবেল",
+  "paDeptMetricValueField": "মান",
+  "paDeptAddMetric": "সংখ্যা যোগ করুন",
+  "paDeptMetricReportedNote": "মানগুলো যেভাবে দেওয়া হয়েছে সেভাবেই রিপোর্ট করা হয় — কখনো হিসাব করা বা অনুমান করা হয় না।",
+  "paDeptBlockedBadge": "আটকে আছে",
+  "paDeptRollupTitle": "সমন্বিত সারসংক্ষেপ",
+  "paDeptRollReporting": "{n}টি বিভাগ রিপোর্ট করেছে",
+  "@paDeptRollReporting": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paDeptRollBlocked": "{n}টি বিভাগ আটকে আছে",
+  "@paDeptRollBlocked": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paDeptRollClear": "কোনো বাধা জানানো হয়নি",
+  "paDeptRollHighlights": "মোট {n}টি অগ্রগতি",
+  "@paDeptRollHighlights": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paDeptRollBlockers": "মোট {n}টি বাধা",
+  "@paDeptRollBlockers": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paDeptNeedName": "বিভাগের নাম দিন।",
+  "paDeptAiSeamTitle": "AI সহায়তা — একটি AI কি যুক্ত করুন",
+  "paDeptAiSeamBody": "একটি AI কি (Integrations → Anthropic) যুক্ত থাকলে এই আপডেটগুলো থেকে একটি সমন্বিত বিবরণী AI দিয়ে লেখানো যাবে। এখন গণনা ও গোছানো স্বয়ংক্রিয়, লেখা আপনার নিজের — আমরা কোনো তথ্য বানাই না।",
+  "paVipTitle": "ভিআইপি ও স্টেকহোল্ডার",
+  "paVipNew": "নতুন পরিচিতি",
+  "paVipEdit": "পরিচিতি সম্পাদনা",
+  "paVipOpen": "খুলুন",
+  "paVipWelcomeTitle": "গুরুত্বপূর্ণ সম্পর্কগুলো এখানে রাখুন",
+  "paVipWelcomeBody": "ভিআইপি ও স্টেকহোল্ডারদের নাম, প্রতিষ্ঠান, গুরুত্বের স্তর এবং সর্বশেষ ও পরবর্তী যোগাযোগের তারিখ রাখুন — কার সঙ্গে যোগাযোগের সময় পেরিয়ে গেছে তা আমরা মনে করিয়ে দেব। শুরু করতে প্রথম পরিচিতিটি যোগ করুন।",
+  "paVipLoadError": "পরিচিতির তালিকা লোড করা গেল না।",
+  "paVipDeleteTitle": "পরিচিতি মুছবেন?",
+  "paVipDeleteBody": "“{name}” পরিচিতিটি নোট ও লগসহ মুছে ফেলা হবে। এটি ফেরানো যাবে না।",
+  "@paVipDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "paVipNameField": "নাম",
+  "paVipOrgField": "প্রতিষ্ঠান (ঐচ্ছিক)",
+  "paVipTierLabel": "গুরুত্বের স্তর",
+  "paVipTierStrategic": "কৌশলগত",
+  "paVipTierKey": "গুরুত্বপূর্ণ",
+  "paVipTierStandard": "সাধারণ",
+  "paVipLastTouchField": "সর্বশেষ যোগাযোগ",
+  "paVipNextTouchField": "পরবর্তী যোগাযোগ",
+  "paVipDateHelp": "ফরম্যাট: YYYY-MM-DD (যেমন 2026-10-14)।",
+  "paVipCadenceField": "ফলো-আপের বিরতি (দিন)",
+  "paVipCadenceHelp": "পরবর্তী যোগাযোগের তারিখ না দিলে সর্বশেষ যোগাযোগ + এই দিনসংখ্যা দিয়ে হিসাব করা হয়।",
+  "paVipPrivateSection": "ব্যক্তিগত তথ্য",
+  "paVipNotesField": "গোপন নোট",
+  "paVipNotesHelp": "এই নোট কেবল এই পরিচিতির সঙ্গে থাকে — কোনো সারসংক্ষেপ বা শেয়ারে কখনো দেখানো হয় না।",
+  "paVipLogTitle": "যোগাযোগের ইতিহাস",
+  "paVipLogDateField": "তারিখ",
+  "paVipLogNoteField": "কী হয়েছিল",
+  "paVipAddLog": "ঘটনা যোগ করুন",
+  "paVipPrivacyNote": "নোট ও যোগাযোগের ইতিহাস স্পর্শকাতর — কেবল আপনার সংরক্ষিত রেকর্ডে থাকে, কোনো সারসংক্ষেপে নয়।",
+  "paVipNeedName": "পরিচিতির নাম দিন।",
+  "paVipBannerOverdue": "{n} জনের সঙ্গে যোগাযোগের সময় পেরিয়ে গেছে",
+  "@paVipBannerOverdue": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paVipBannerDueSoon": "{n} জনের যোগাযোগ শীঘ্রই প্রয়োজন",
+  "@paVipBannerDueSoon": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paVipStatusOverdue": "{n} দিন পেরিয়ে গেছে",
+  "@paVipStatusOverdue": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paVipStatusDueToday": "আজই যোগাযোগ করুন",
+  "paVipStatusDueSoon": "{n} দিনে যোগাযোগ করুন",
+  "@paVipStatusDueSoon": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paVipStatusOnTrack": "পরবর্তী যোগাযোগ {date}",
+  "@paVipStatusOnTrack": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      }
+    }
+  },
+  "paVipStatusOnTrackPlain": "সময়মতো আছে",
+  "paVipStatusNoDate": "কোনো তারিখ নির্ধারণ করা হয়নি",
+  "starDealsTitle": "ডিল ও অফার",
+  "starDealsLoadError": "ডিল পাইপলাইন লোড করা যায়নি।",
+  "starDealsWelcomeTitle": "এখনো কোনো ব্র্যান্ড ডিল নেই",
+  "starDealsWelcomeBody": "ব্র্যান্ড ও এনডোর্সমেন্ট ডিল হাতে ট্র্যাক করুন—মূল্য, ধাপ (আলোচনা→সই→ডেলিভারি→পেমেন্ট), ডেলিভারেবল আর ডেডলাইন। এখানে কোনো টাকা রাখা হয় না; শুধু হিসাব রাখা হয়।",
+  "starDealsAdd": "নতুন ডিল",
+  "starDealsEdit": "ডিল সম্পাদনা",
+  "starDealsBrandField": "ব্র্যান্ডের নাম",
+  "starDealsValueField": "মূল্য (৳)",
+  "starDealsStageLabel": "ধাপ",
+  "starDealsStageNegotiating": "আলোচনা চলছে",
+  "starDealsStageSigned": "সই হয়েছে",
+  "starDealsStageDelivered": "ডেলিভার হয়েছে",
+  "starDealsStagePaid": "পেমেন্ট হয়েছে",
+  "starDealsDeliverablesField": "ডেলিভারেবল",
+  "starDealsDeliverablesHelper": "প্রতি লাইনে একটি (অথবা কমা দিয়ে আলাদা করুন)।",
+  "starDealsDeadlineField": "ডেডলাইন",
+  "starDealsNoteField": "নোট",
+  "starDealsPipeline": "পাইপলাইন",
+  "starDealsTotalValue": "মোট মূল্য",
+  "starDealsExpectedValue": "সম্ভাব্য (ভারযুক্ত)",
+  "starDealsPaidValue": "পেমেন্ট পাওয়া গেছে",
+  "starDealsExpectedNote": "\"সম্ভাব্য\" ধাপ অনুযায়ী একটি আনুমানিক হিসাব—এটি হাতে-পাওয়া টাকা নয়।",
+  "starDealsNoHold": "এই টুল কোনো টাকা রাখে না বা সরায় না—শুধু আপনার লেখা মূল্যের হিসাব রাখে।",
+  "starDealsOverdue": "{count}টি ডিলের ডেডলাইন পেরিয়ে গেছে",
+  "@starDealsOverdue": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "starDealsDeadline": "ডেডলাইন: {date}",
+  "@starDealsDeadline": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      }
+    }
+  },
+  "starDealsDeadlineOverdue": "ডেডলাইন পেরিয়েছে: {date}",
+  "@starDealsDeadlineOverdue": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      }
+    }
+  },
+  "starDealsAdvance": "{next}-এ এগিয়ে নিন",
+  "@starDealsAdvance": {
+    "placeholders": {
+      "next": {
+        "type": "Object"
+      }
+    }
+  },
+  "starDealsFullyPaid": "সম্পূর্ণ পেমেন্ট হয়ে গেছে",
+  "starDealsDeleteTitle": "ডিল মুছবেন?",
+  "starDealsDeleteBody": "\"{brand}\" ডিলটি মুছে ফেলা হবে। এটি ফেরানো যাবে না।",
+  "@starDealsDeleteBody": {
+    "placeholders": {
+      "brand": {
+        "type": "Object"
+      }
+    }
+  },
+  "prPressTitle": "পিআর ও প্রেস",
+  "prPressLoadError": "প্রেস ট্র্যাকার লোড করা যায়নি।",
+  "prPressTabCoverage": "কভারেজ",
+  "prPressTabInterviews": "ইন্টারভিউ",
+  "prPressTabTalkingPoints": "টকিং পয়েন্ট",
+  "prPressAdd": "যোগ করুন",
+  "prPressAddCoverage": "নতুন কভারেজ",
+  "prPressAddInterview": "নতুন ইন্টারভিউ",
+  "prPressAddPoint": "নতুন টকিং পয়েন্ট",
+  "prPressEdit": "সম্পাদনা",
+  "prPressWelcomeTitle": "এখনো কোনো কভারেজ যোগ হয়নি",
+  "prPressWelcomeBody": "মিডিয়া কভারেজ হাতে ট্র্যাক করুন—আউটলেট, ধরন, তারিখ, অনুভূতি আর লিংক। কিছুই নিজে থেকে আনা হয় না; অনুভূতি আপনি নিজে ঠিক করেন।",
+  "prPressRollup": "কভারেজ সারসংক্ষেপ",
+  "prPressSentPositive": "ইতিবাচক {count}",
+  "@prPressSentPositive": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "prPressSentNeutral": "নিরপেক্ষ {count}",
+  "@prPressSentNeutral": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "prPressSentNegative": "নেতিবাচক {count}",
+  "@prPressSentNegative": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "prPressNetPositive": "মোট অনুভূতি: +{net} (বেশি ইতিবাচক)",
+  "@prPressNetPositive": {
+    "placeholders": {
+      "net": {
+        "type": "Object"
+      }
+    }
+  },
+  "prPressNetNegative": "মোট অনুভূতি: −{net} (বেশি নেতিবাচক)",
+  "@prPressNetNegative": {
+    "placeholders": {
+      "net": {
+        "type": "Object"
+      }
+    }
+  },
+  "prPressTypeLabel": "ধরন",
+  "prPressTypePrint": "প্রিন্ট",
+  "prPressTypeOnline": "অনলাইন",
+  "prPressTypeTv": "টিভি",
+  "prPressTypeRadio": "রেডিও",
+  "prPressTypeSocial": "সোশ্যাল",
+  "prPressSentimentLabel": "অনুভূতি",
+  "prPressSentimentPositive": "ইতিবাচক",
+  "prPressSentimentNeutral": "নিরপেক্ষ",
+  "prPressSentimentNegative": "নেতিবাচক",
+  "prPressOutletField": "আউটলেট / মিডিয়া",
+  "prPressDateField": "তারিখ",
+  "prPressLinkField": "লিংক",
+  "prPressTopicField": "বিষয়",
+  "prPressAtField": "সময়",
+  "prPressPlaceField": "স্থান",
+  "prPressNoteField": "নোট",
+  "prPressPointField": "টকিং পয়েন্ট",
+  "prPressNoInterviewsTitle": "কোনো ইন্টারভিউ নেই",
+  "prPressNoInterviewsBody": "আসন্ন ইন্টারভিউ যোগ করুন—আউটলেট, বিষয়, সময় আর স্থান।",
+  "prPressNoPointsTitle": "কোনো টকিং পয়েন্ট নেই",
+  "prPressNoPointsBody": "সাক্ষাৎকারের জন্য মূল বার্তা ও টকিং পয়েন্ট লিখে রাখুন।",
+  "prPressUpcoming": "আসন্ন ({count})",
+  "@prPressUpcoming": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "prPressPast": "অতীত ({count})",
+  "@prPressPast": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "socialInboxTitle": "সোশ্যাল ইনবক্স",
+  "socialInboxLoadError": "ইনবক্স লোড করা যায়নি।",
+  "socialInboxWelcomeTitle": "গুরুত্বপূর্ণ বার্তা সাজিয়ে রাখুন",
+  "socialInboxWelcomeBody": "বিভিন্ন প্ল্যাটফর্মের গুরুত্বপূর্ণ DM ও মেনশন এক জায়গায় লিখে রাখুন—প্ল্যাটফর্ম, কে পাঠিয়েছে, বার্তা, অগ্রাধিকার ও অবস্থা। কোনো কি ছাড়াই ম্যানুয়াল বোর্ড হিসেবে চলে।",
+  "socialInboxAdd": "নতুন বার্তা",
+  "socialInboxEdit": "বার্তা সম্পাদনা",
+  "socialInboxStatOpen": "খোলা {count}",
+  "@socialInboxStatOpen": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "socialInboxStatUrgent": "জরুরি {count}",
+  "@socialInboxStatUrgent": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "socialInboxHideHandled": "সামলানো লুকান",
+  "socialInboxAllClearTitle": "সব সামলানো হয়েছে",
+  "socialInboxAllClearBody": "এই মুহূর্তে কোনো খোলা বার্তা নেই।",
+  "socialInboxPlatformLabel": "প্ল্যাটফর্ম",
+  "socialInboxPlatInstagram": "ইনস্টাগ্রাম",
+  "socialInboxPlatFacebook": "ফেসবুক",
+  "socialInboxPlatMessenger": "মেসেঞ্জার",
+  "socialInboxPlatTwitter": "এক্স / টুইটার",
+  "socialInboxPlatYoutube": "ইউটিউব",
+  "socialInboxPlatOther": "অন্যান্য",
+  "socialInboxFromField": "কে পাঠিয়েছে (হ্যান্ডেল)",
+  "socialInboxMessageField": "বার্তা",
+  "socialInboxPriorityLabel": "অগ্রাধিকার",
+  "socialInboxPriorityUrgent": "জরুরি",
+  "socialInboxPriorityNormal": "সাধারণ",
+  "socialInboxPriorityLow": "কম",
+  "socialInboxAtField": "সময়",
+  "socialInboxMarkReplied": "উত্তর দেওয়া হয়েছে",
+  "socialInboxStatusReplied": "উত্তর দেওয়া হয়েছে",
+  "socialInboxStatusArchived": "আর্কাইভ করা হয়েছে",
+  "socialInboxArchive": "আর্কাইভ",
+  "socialInboxReopen": "আবার খুলুন",
+  "socialInboxConnectTitle": "আপনার পেজ / ইনস্টাগ্রাম যুক্ত করুন",
+  "socialInboxConnectBody": "লাইভ DM ও মেনশন সরাসরি আনতে হলে আপনার নিজের Instagram ও Facebook Page অ্যাকাউন্ট Integrations-এ যুক্ত করতে হবে। যুক্ত না থাকলে এটি একটি ম্যানুয়াল ট্রায়াজ বোর্ড হিসেবেই চলে।",
+  "socialInboxConnectKeys": "প্রয়োজন: instagram + messenger (ফেসবুক পেজ) কি—Meta Graph API-এর মাধ্যমে।",
+  "socialInboxNeverFabricate": "আমরা কখনো কোনো DM বা প্রেরক বানাই না—যুক্ত না থাকলে কিছুই আনা হয় না।",
+  "shootTitle": "শুটিং ও কনসার্ট লজিস্টিকস",
+  "shootLoadError": "কল-শিট লোড করা যায়নি।",
+  "shootWelcomeTitle": "এখনো কোনো কল-শিট নেই",
+  "shootWelcomeBody": "ইভেন্টের দিনের পুরো কল-শিট হাতে তৈরি করুন—সময়সূচি, পোশাক ও সরঞ্জামের চেকলিস্ট, আর ক্রু/কাস্টের যোগাযোগ। কোনো কি লাগে না।",
+  "shootNewSheet": "নতুন কল-শিট",
+  "shootEditSheet": "কল-শিট সম্পাদনা",
+  "shootTitleField": "কল-শিটের নাম",
+  "shootDateField": "তারিখ",
+  "shootCallTimeField": "কল-টাইম",
+  "shootCallTimeValue": "কল-টাইম {time}",
+  "@shootCallTimeValue": {
+    "placeholders": {
+      "time": {
+        "type": "Object"
+      }
+    }
+  },
+  "shootLocationField": "স্থান / লোকেশন",
+  "shootSchedule": "সময়সূচি",
+  "shootNoBlocks": "এখনো কোনো সময়-ব্লক যোগ হয়নি।",
+  "shootBlockFormTitle": "সময়-ব্লক",
+  "shootBlockLabelField": "ব্লকের নাম",
+  "shootBlockKindLabel": "ধরন",
+  "shootBlockScene": "দৃশ্য",
+  "shootBlockSoundcheck": "সাউন্ডচেক",
+  "shootBlockSet": "সেট / পরিবেশনা",
+  "shootBlockBreak": "বিরতি",
+  "shootBlockTravel": "যাতায়াত",
+  "shootBlockOther": "অন্যান্য",
+  "shootStartField": "শুরু",
+  "shootEndField": "শেষ",
+  "shootChecklistProgress": "চেকলিস্ট {checked}/{total} ({pct}%)",
+  "@shootChecklistProgress": {
+    "placeholders": {
+      "checked": {
+        "type": "Object"
+      },
+      "pct": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "shootNoChecks": "এখনো কোনো চেকলিস্ট আইটেম নেই।",
+  "shootCheckFormTitle": "চেকলিস্ট আইটেম",
+  "shootCheckKindLabel": "তালিকা",
+  "shootCheckWardrobe": "পোশাক",
+  "shootCheckEquipment": "সরঞ্জাম",
+  "shootCheckPrep": "প্রস্তুতি",
+  "shootCheckLabelField": "আইটেমের নাম",
+  "shootContacts": "যোগাযোগ (ক্রু/কাস্ট)",
+  "shootNoContacts": "এখনো কোনো যোগাযোগ যোগ হয়নি।",
+  "shootContactFormTitle": "যোগাযোগ",
+  "shootContactNameField": "নাম",
+  "shootContactRoleField": "ভূমিকা",
+  "shootContactPhoneField": "ফোন",
+  "lifestyleTitle": "লাইফস্টাইল",
+  "lifestyleLoadError": "লাইফস্টাইল তথ্য লোড করা যায়নি।",
+  "lifestyleTabAppts": "অ্যাপয়েন্টমেন্ট",
+  "lifestyleTabPrefs": "পছন্দ",
+  "lifestyleTabRoutines": "রুটিন",
+  "lifestyleAdd": "যোগ করুন",
+  "lifestyleEdit": "সম্পাদনা",
+  "lifestyleAddAppt": "নতুন অ্যাপয়েন্টমেন্ট",
+  "lifestyleAddPref": "নতুন পছন্দ",
+  "lifestyleAddRoutine": "নতুন রুটিন",
+  "lifestyleWelcomeTitle": "ব্যক্তিগত লাইফস্টাইল গুছিয়ে রাখুন",
+  "lifestyleWelcomeBody": "সালঁ, জিম, ওয়েলনেস ও স্টাইলিস্টের অ্যাপয়েন্টমেন্ট গুছিয়ে রাখুন। সব তথ্য শুধু এই ডিভাইসেই থাকে—কিছুই শেয়ার বা প্রকাশ হয় না।",
+  "lifestyleCategoryLabel": "ধরন",
+  "lifestyleCatSalon": "সালঁ",
+  "lifestyleCatGym": "জিম",
+  "lifestyleCatWellness": "ওয়েলনেস",
+  "lifestyleCatStylist": "স্টাইলিস্ট",
+  "lifestyleCatSpa": "স্পা",
+  "lifestyleCatOther": "অন্যান্য",
+  "lifestyleApptTitleField": "অ্যাপয়েন্টমেন্টের নাম",
+  "lifestylePlaceField": "স্থান",
+  "lifestyleAtField": "সময়",
+  "lifestyleNoteField": "নোট",
+  "lifestyleUpcoming": "আসন্ন ({count})",
+  "@lifestyleUpcoming": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "lifestylePast": "অতীত ({count})",
+  "@lifestylePast": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "lifestylePrivacyNote": "এই তথ্য একান্ত ব্যক্তিগত—শুধু এই ডিভাইসেই থাকে, কখনো শেয়ার বা লোকেশন ট্র্যাক করা হয় না।",
+  "lifestyleNoPrefsTitle": "কোনো পছন্দ লেখা নেই",
+  "lifestyleNoPrefsBody": "স্থায়ী পছন্দ লিখে রাখুন (যেমন খাদ্য, পোশাক, ভ্রমণ)—বিষয় অনুযায়ী সাজানো থাকবে।",
+  "lifestyleNoRoutinesTitle": "কোনো রুটিন নেই",
+  "lifestyleNoRoutinesBody": "প্রতিদিনের রুটিন সময় অনুযায়ী সাজিয়ে রাখুন—সকাল থেকে রাত।",
+  "lifestyleTopicField": "বিষয়",
+  "lifestyleTopicGeneral": "সাধারণ",
+  "lifestylePrefTextField": "পছন্দের বিবরণ",
+  "lifestyleSlotLabel": "সময়ভাগ",
+  "lifestyleSlotMorning": "সকাল",
+  "lifestyleSlotAfternoon": "দুপুর",
+  "lifestyleSlotEvening": "সন্ধ্যা",
+  "lifestyleSlotNight": "রাত",
+  "lifestyleRoutineLabelField": "রুটিনের নাম",
+  "lifestyleTimeField": "সময়",
+  "paBizTitle": "ব্যবসায়িক ভ্রমণ ও ইভেন্ট",
+  "paBizLoadError": "আপনার ইভেন্টগুলো লোড করা গেল না। সংযোগ দেখে আবার চেষ্টা করুন।",
+  "paBizNewEvent": "নতুন ইভেন্ট",
+  "paBizWelcomeTitle": "টিমের ভ্রমণ ও ইভেন্ট সমন্বয় করুন",
+  "paBizWelcomeBody": "কোম্পানির ইভেন্ট পরিকল্পনা করুন, প্রত্যেক অংশগ্রহণকারীর ভ্রমণ ঠিক করুন, এজেন্ডা ও বাজেট তৈরি করুন এবং লজিস্টিকস ট্র্যাক করুন — সব এক জায়গায়। এখানে কিছুই বুক হয় না; তথ্য আপনি দেন।",
+  "paBizCountdown": "আর {days} দিন বাকি",
+  "@paBizCountdown": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBizToday": "আজ",
+  "paBizPast": "{days} দিন আগে",
+  "@paBizPast": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBizDaysCount": "{days} দিনের ইভেন্ট",
+  "@paBizDaysCount": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBizAttendeesHeader": "অংশগ্রহণকারী ও ভ্রমণ",
+  "paBizNoAttendees": "এখনো কোনো অংশগ্রহণকারী নেই। যারা এই ইভেন্টে যাবেন তাঁদের যোগ করুন।",
+  "paBizRollupTotal": "মোট {count}",
+  "@paBizRollupTotal": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBizRollupConfirmed": "{count} জন নিশ্চিত",
+  "@paBizRollupConfirmed": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBizRollupPending": "{count} জন বাকি",
+  "@paBizRollupPending": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBizAgendaHeader": "এজেন্ডা",
+  "paBizNoAgenda": "এখনো কোনো এজেন্ডা নেই।",
+  "paBizBudgetHeader": "বাজেট (আনুমানিক বনাম প্রকৃত)",
+  "paBizNoBudget": "এখনো কোনো বাজেট লাইন নেই। আনুমানিক ও প্রকৃত খরচ যোগ করুন।",
+  "paBizBudgetDisclaimer": "প্রতিটি ৳ অঙ্ক আপনার দেওয়া আনুমানিক হিসাব। Assisto কিছু বুক করে না, দাম বলে না এবং কোনো টাকা রাখে না।",
+  "paBizChecklistHeader": "লজিস্টিকস চেকলিস্ট",
+  "paBizNoTasks": "এখনো কোনো লজিস্টিকস কাজ নেই।",
+  "paBizChecklistProgress": "{total}-এর মধ্যে {done} সম্পন্ন",
+  "@paBizChecklistProgress": {
+    "placeholders": {
+      "done": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBizSummaryButton": "প্রিন্টযোগ্য ইভেন্ট সারসংক্ষেপ",
+  "paBizEventNameLabel": "ইভেন্টের নাম",
+  "paBizDateLabel": "তারিখ",
+  "paBizEndLabel": "শেষ তারিখ (ঐচ্ছিক)",
+  "paBizVenueLabel": "ভেন্যু",
+  "paBizCityLabel": "শহর",
+  "paBizNoteLabel": "নোট",
+  "paBizNameRequired": "অনুগ্রহ করে ইভেন্টের নাম দিন।",
+  "paBizAttendeeNameLabel": "অংশগ্রহণকারীর নাম",
+  "paBizAttendeeRoleLabel": "পদবি / ভূমিকা",
+  "paBizAttendeeNameRequired": "অনুগ্রহ করে অংশগ্রহণকারীর নাম দিন।",
+  "paBizModeLabel": "যাতায়াতের মাধ্যম",
+  "paBizModeFlight": "ফ্লাইট",
+  "paBizModeTrain": "ট্রেন",
+  "paBizModeCar": "গাড়ি",
+  "paBizModeBus": "বাস",
+  "paBizModeLaunch": "লঞ্চ",
+  "paBizModeLocal": "স্থানীয় / নিজ ব্যবস্থা",
+  "paBizFromLabel": "যেখান থেকে যাবেন",
+  "paBizDepartLabel": "রওনা",
+  "paBizRefFieldLabel": "বুকিং / PNR রেফারেন্স",
+  "paBizRefHelper": "আপনি বা এজেন্ট ইতিমধ্যে বুক করেছেন এমন একটি রেফারেন্স। Assisto কখনো নিজে বুক বা দাম নির্ধারণ করে না।",
+  "paBizRefLabel": "রেফ {ref}",
+  "@paBizRefLabel": {
+    "placeholders": {
+      "ref": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBizCostLabel": "ভ্রমণ খরচ (আনুমানিক)",
+  "paBizCostHelper": "আপনার নিজের আনুমানিক হিসাব — কোনো উদ্ধৃত দাম নয়।",
+  "paBizStatusLabel": "ব্যবস্থার অবস্থা",
+  "paBizArrPending": "ব্যবস্থা বাকি",
+  "paBizArrBooked": "বুক হয়েছে",
+  "paBizArrConfirmed": "নিশ্চিত",
+  "paBizArrCancelled": "বাতিল",
+  "paBizAgendaTitleLabel": "সেশনের শিরোনাম",
+  "paBizAgendaAtLabel": "সময়",
+  "paBizAgendaSpeakerLabel": "বক্তা / দায়িত্বপ্রাপ্ত",
+  "paBizBudgetLabelLabel": "খরচের খাত",
+  "paBizCategoryLabel": "বিভাগ",
+  "paBizCatTravel": "ভ্রমণ",
+  "paBizCatVenue": "ভেন্যু",
+  "paBizCatLodging": "আবাসন",
+  "paBizCatCatering": "খাবার",
+  "paBizCatMaterials": "সামগ্রী",
+  "paBizCatOther": "অন্যান্য",
+  "paBizEstimatedLabel": "আনুমানিক",
+  "paBizActualLabel": "প্রকৃত",
+  "paBizEstVsAct": "আনু. {estimated} · প্রকৃত {actual}",
+  "@paBizEstVsAct": {
+    "placeholders": {
+      "actual": {
+        "type": "Object"
+      },
+      "estimated": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBizTotalEstimated": "মোট আনুমানিক",
+  "paBizTotalActual": "মোট প্রকৃত",
+  "paBizTotalVariance": "পার্থক্য",
+  "paBizTravelEstimate": "অংশগ্রহণকারীদের ভ্রমণ (আনু.)",
+  "paBizGrandEstimate": "সর্বমোট আনুমানিক",
+  "paBizTaskLabel": "লজিস্টিকস কাজ",
+  "paBizBookingSeamTitle": "লাইভ বুকিংয়ের জন্য একটি বুকিং কি লাগবে",
+  "paBizBookingSeamBody": "প্রকৃত ফ্লাইট, হোটেল বা ভেন্যু খোঁজা ও প্রকৃত দাম ধরে রাখতে একটি সংযুক্ত বুকিং প্রোভাইডার লাগে। ততক্ষণ আপনি হাতে সমন্বয় করেন — Assisto কখনো ফ্লাইট, দাম বা নিশ্চিতকরণ বানায় না এবং কোনো টাকা রাখে না।",
+  "paProjTitle": "প্রজেক্ট ট্র্যাকিং",
+  "paProjLoadError": "আপনার প্রজেক্টগুলো লোড করা গেল না। সংযোগ দেখে আবার চেষ্টা করুন।",
+  "paProjNewProject": "নতুন প্রজেক্ট",
+  "paProjWelcomeTitle": "আপনি যে প্রজেক্টগুলো দেখভাল করেন সেগুলো ট্র্যাক করুন",
+  "paProjWelcomeBody": "বস যেসব প্রজেক্ট দেখেন সেগুলো যোগ করুন, প্রতিটির মালিক, অবস্থা ও অগ্রগতি ঠিক করুন, মাইলস্টোন ও ঝুঁকি লিপিবদ্ধ করুন — আর এক নজরে দেখুন কোনটি ঠিক পথে, কোনটি ঝুঁকিতে এবং কোনটি সময় পেরিয়ে গেছে।",
+  "paProjPortfolioTitle": "পোর্টফোলিও",
+  "paProjPortfolioCount": "{count}টি প্রজেক্ট",
+  "@paProjPortfolioCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paProjStatOnTrack": "{count}টি ঠিক পথে",
+  "@paProjStatOnTrack": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paProjStatAtRisk": "{count}টি ঝুঁকিতে",
+  "@paProjStatAtRisk": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paProjStatOverdue": "{count}টি সময় পেরিয়েছে",
+  "@paProjStatOverdue": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paProjStatDone": "{count}টি সম্পন্ন",
+  "@paProjStatDone": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paProjStatCancelled": "{count}টি বাতিল",
+  "@paProjStatCancelled": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paProjAvgProgress": "গড় {percent}%",
+  "@paProjAvgProgress": {
+    "placeholders": {
+      "percent": {
+        "type": "Object"
+      }
+    }
+  },
+  "paProjAiSeamTitle": "লিখিত স্ট্যাটাস আপডেটের জন্য একটি AI কি লাগবে",
+  "paProjAiSeamBody": "এই প্রজেক্টগুলোর বস-উপযোগী লিখিত সারসংক্ষেপের জন্য একটি সংযুক্ত AI কি লাগে। ততক্ষণ Assisto উপরের লাইভ হিসাব দেখায় এবং কখনো স্ট্যাটাসের বিবরণ বানায় না।",
+  "paProjHealthOnTrack": "ঠিক পথে",
+  "paProjHealthAtRisk": "ঝুঁকিতে",
+  "paProjHealthOverdue": "সময় পেরিয়েছে",
+  "paProjHealthDone": "সম্পন্ন",
+  "paProjHealthCancelled": "বাতিল",
+  "paProjOwnerPrefix": "মালিক: {owner}",
+  "@paProjOwnerPrefix": {
+    "placeholders": {
+      "owner": {
+        "type": "Object"
+      }
+    }
+  },
+  "paProjDueIn": "আর {days} দিন বাকি",
+  "@paProjDueIn": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "paProjDueToday": "আজ শেষ দিন",
+  "paProjDueOverdue": "{days} দিন পেরিয়েছে",
+  "@paProjDueOverdue": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "paProjNameLabel": "প্রজেক্টের নাম",
+  "paProjOwnerLabel": "মালিক",
+  "paProjStatusFieldLabel": "অবস্থা",
+  "paProjStatusPlanned": "পরিকল্পিত",
+  "paProjStatusActive": "চলমান",
+  "paProjStatusOnHold": "স্থগিত",
+  "paProjStatusDone": "সম্পন্ন",
+  "paProjStatusCancelled": "বাতিল",
+  "paProjPercentLabel": "অগ্রগতি",
+  "paProjDueLabel": "শেষ তারিখ",
+  "paProjNoteLabel": "নোট",
+  "paProjNameRequired": "অনুগ্রহ করে প্রজেক্টের নাম দিন।",
+  "paProjMilestonesHeader": "মাইলস্টোন",
+  "paProjNoMilestones": "এখনো কোনো মাইলস্টোন নেই। এই প্রজেক্টের গুরুত্বপূর্ণ তারিখগুলো যোগ করুন।",
+  "paProjMsProgress": "{total}-এর মধ্যে {done} সম্পন্ন",
+  "@paProjMsProgress": {
+    "placeholders": {
+      "done": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "paProjMsTitleLabel": "মাইলস্টোনের শিরোনাম",
+  "paProjMsDateLabel": "লক্ষ্য তারিখ",
+  "paProjMsStatusLabel": "অবস্থা",
+  "paProjMsPending": "বাকি",
+  "paProjMsDone": "সম্পন্ন",
+  "paProjMsMissed": "মিস হয়েছে",
+  "paProjRisksHeader": "ঝুঁকি ও সমস্যা",
+  "paProjNoRisks": "এখনো কোনো ঝুঁকি লেখা হয়নি।",
+  "paProjRiskLabelLabel": "ঝুঁকি বা সমস্যা",
+  "paProjSeverityLabel": "তীব্রতা",
+  "paProjSevLow": "কম",
+  "paProjSevMed": "মাঝারি",
+  "paProjSevHigh": "বেশি",
+  "paProjRiskStatusLabel": "সমাধান হয়েছে",
+  "paProjRiskOpen": "খোলা",
+  "paProjRiskClosed": "বন্ধ"
 }
