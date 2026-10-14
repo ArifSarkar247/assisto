@@ -14,7 +14,9 @@ import '../widgets/circle_invite_sheet.dart';
 import '../widgets/circle_relation.dart';
 import '../widgets/circle_sharing.dart';
 import 'circle_chat_screen.dart';
+import 'circle_group_list_screen.dart';
 import 'circle_search_screen.dart';
+import 'circle_status_screen.dart';
 
 /// Connected Circle — a relationship-scoped family/friends circle with
 /// end-to-end-encrypted messaging. This screen is the hub: it lists accepted
@@ -264,6 +266,26 @@ class _CircleScreenState extends State<CircleScreen> {
     ));
   }
 
+  /// Open the Status/Stories tray, reusing the loaded identity + members
+  /// (members carry public_key for per-peer encryption).
+  void _openStatus() {
+    final id = _identity;
+    if (id == null) return;
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => CircleStatusScreen(identity: id, members: _members),
+    ));
+  }
+
+  /// Open the Groups list, reusing the loaded identity + circle members.
+  void _openGroups() {
+    final id = _identity;
+    if (id == null) return;
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) =>
+          CircleGroupListScreen(identity: id, circleMembers: _members),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -271,6 +293,16 @@ class _CircleScreenState extends State<CircleScreen> {
       appBar: AppBar(
         title: Text(_t.circleTitle),
         actions: [
+          IconButton(
+            tooltip: _t.statusTitle,
+            icon: const Icon(Icons.auto_awesome_outlined),
+            onPressed: _openStatus,
+          ),
+          IconButton(
+            tooltip: _t.circleGroupsTitle,
+            icon: const Icon(Icons.groups_outlined),
+            onPressed: _openGroups,
+          ),
           IconButton(
             tooltip: _t.circleSearchAll,
             icon: const Icon(Icons.search),

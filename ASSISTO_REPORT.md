@@ -447,3 +447,16 @@ Legend: M=model · A=API · S=app screen · T=tests · K=works without a key. �
 ### Depth-audit fixes progress
 - ✅ (1) per-medicine follow-up config form (committed after build 53 → next APK).
 - 🔨 next (no key): (2) CRM meetings UI, (3) auto-pay ladder app screen, (4) elderly simple-mode UI → then P13 Connected Circle, P14 new features, P15 launch gaps, P16 seasonal, FINAL.
+
+## M2 STATUS (resume anchor, 2026-10-14)
+- M2 reviews DONE: Groups=ADVANCED (55/55, P0 probes pass; P1 serializer-id + poll options_ct = integrator endpoint obligations), Status=A- (obligations: named_viewers on /mine, /view guard — pinned in m2_status_integration.md), Extras=A- (G1 broadcast fan-out no shared id, G2 translate/transcribe UI deferred to chat screen → flag owner).
+- M2 integration-wiring agents LAUNCHED: backend(a09591bd)=models+endpoints+gates; flutter(ab968bc0)=ARB merge(177 keys)+temp-strings swaps+api+sidebar+dart fixes. Agents edit only; integrator runs build pipeline.
+- NEXT after both report: DB backup → makemigrations core → migrate → gen-l10n → analyze 0 → gate CLEAN → tests → crm_scenario → ship build 62 → gallery → deploy → 12-tenant. Then QUEUE: Business v2 → P14-P16 → iOS → M3 → FINAL.
+
+## BUILD 62 — Messenger M2 integrated GREEN (2026-10-14)
+- Reviews: Groups ADVANCED, Status A-, Extras A- (all approved). Contracts reconciled (views_m2 accepts client E2E shapes: group msg per_recipient lift, poll per-recipient question_ct/options_ct maps→index tally, broadcast sends[]→N individual 1:1 no shared id).
+- Backend: models.py (CircleGroup/Member/GroupPoll/PollVote, CircleStatus/StatusView/StatusMute, ChatSettings/ScheduledMessage/BroadcastList/UserSticker/ChatBackup/LinkedDevice; CircleMessage +group/per_recipient/mentions/announcement, member nullable), migration 0021 applied (DB backed up pre-migrate). views_m2.py endpoints under api/v1/circle/* with gates: can_add_member/can_redeem_invite (circle-only), validate_group_envelope, can_post, named_viewers-only on /mine, /view visibility+expiry guard, poll index-only tally, broadcast per-recipient individual rows. manage.py check 0. Backend restarted, deployed, Asalify 200.
+- Flutter: 176 M2 ARB keys merged (en/bn balanced 1559 each), temp strings (circle_status_strings/circle_extras_strings) swapped→AppLocalizations + deleted, api.dart +34 methods, Groups+Status entries on CircleScreen + chat routes, review polish (my_member_id decrypt, no cross-recipient fallback, poll shape, exact-match mentions, view-once persisted, broadcast fan-out). gen-l10n ok, flutter analyze 0 ERRORS (65 pre-existing info/warn baseline), lang gate CLEAN, 388 backend tests + 113 M2 snippets pass.
+- SHIP: ship9.sh (flip public→push→watch→flip private via trap→publish-apk). Gallery deferred (disk 8.8G, ~0.8G over floor; APK build is CI-side/0 local disk).
+- TODOs carried: Groups @-picker; Extras translate/transcribe UI (wire in chat screen — flag owner, G2); scheduled-send worker + status expiry cron (backend workers); linked-devices native.
+- QUEUE NEXT: Business v2 → P14-P16 → iOS → Messenger M3 (SFU) → FINAL.

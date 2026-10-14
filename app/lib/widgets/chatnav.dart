@@ -93,6 +93,10 @@ class ChatNav {
     'unseen': (_) => const UnseenWorldScreen(),
     'photo_enhance': (_) => const PhotoEnhanceScreen(),
     'circle': (_) => const CircleScreen(),
+    // M2: Groups + Status live inside the Circle hub (they need the loaded
+    // on-device identity + members-with-public_key), so chat-open lands there.
+    'groups': (_) => const CircleScreen(),
+    'status': (_) => const CircleScreen(),
     'legal': (_) => const LegalScreen(),
     // build-61 wave: remaining modules
     'subscriptions': (_) => const SubscriptionsScreen(),
@@ -145,6 +149,8 @@ class ChatNav {
     'unseen': ['unseen bangladesh', 'travel', 'destinations', 'tourism'],
     'photo_enhance': ['enhance photo', 'photo enhance', 'improve photo'],
     'circle': ['connected circle', 'circle', 'family chat'],
+    'groups': ['groups', 'group chat', 'group'],
+    'status': ['status', 'story', 'stories', 'status updates'],
     'legal': ['legal', 'privacy policy', 'terms', 'policies'],
     // build-61 wave: remaining modules
     'subscriptions': ['subscriptions', 'subscription', 'recurring'],

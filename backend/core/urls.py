@@ -4,6 +4,7 @@ from rest_framework.routers import DefaultRouter
 from . import views
 from . import views_module5 as m5
 from . import views_build61 as b61
+from . import views_m2 as m2
 
 router = DefaultRouter()
 router.register("memory", views.MemoryViewSet, basename="memory")
@@ -151,6 +152,44 @@ urlpatterns = [
     path("circle/calls/<int:call_id>/event", b61.CircleCallEventView.as_view()),
     path("circle/privacy", b61.CirclePrivacyView.as_view()),
     path("circle/<int:pk>/controls", b61.CircleMemberControlsView.as_view()),
+    # --- M2: Groups (item 7) ---
+    path("circle/groups", m2.CircleGroupsView.as_view()),
+    path("circle/groups/messages/<int:mid>/<slug:action>",
+         m2.CircleGroupMessageActionView.as_view()),
+    path("circle/groups/polls/<int:pid>/<slug:action>",
+         m2.CircleGroupPollActionView.as_view()),
+    path("circle/groups/<int:pk>", m2.CircleGroupDetailView.as_view()),
+    path("circle/groups/<int:pk>/members", m2.CircleGroupMembersView.as_view()),
+    path("circle/groups/<int:pk>/members/<int:mid>/<slug:event>",
+         m2.CircleGroupMemberActionView.as_view()),
+    path("circle/groups/<int:pk>/messages", m2.CircleGroupMessagesView.as_view()),
+    path("circle/groups/<int:pk>/polls", m2.CircleGroupPollsView.as_view()),
+    path("circle/groups/<int:pk>/invite", m2.CircleGroupInviteView.as_view()),
+    path("circle/groups/<int:pk>/leave", m2.CircleGroupLeaveView.as_view()),
+    path("circle/groups/<int:pk>/report", m2.CircleGroupReportView.as_view()),
+    path("circle/groups/<int:pk>/call", m2.CircleGroupCallView.as_view()),
+    # catch-all for single-segment group settings — MUST be last of the
+    # circle/groups/<pk>/<x> routes so the literals above win.
+    path("circle/groups/<int:pk>/<slug:setting>",
+         m2.CircleGroupSettingsView.as_view()),  # announcements | size-limit
+    # --- M2: Status / Stories (item 8) ---
+    path("circle/status", m2.CircleStatusView.as_view()),
+    path("circle/status/mine", m2.CircleStatusMineView.as_view()),
+    path("circle/status/mute", m2.CircleStatusMuteView.as_view()),
+    path("circle/status/author/<int:uid>", m2.CircleStatusAuthorView.as_view()),
+    path("circle/status/<int:pk>/view", m2.CircleStatusViewView.as_view()),
+    path("circle/status/<int:pk>/reply", m2.CircleStatusReplyView.as_view()),
+    # --- M2: Extras (items 9 + 10) ---
+    path("circle/broadcast", m2.CircleBroadcastView.as_view()),
+    path("circle/backup", m2.CircleBackupView.as_view()),
+    path("circle/devices", m2.CircleDevicesView.as_view()),
+    path("circle/devices/link", m2.CircleDeviceLinkView.as_view()),
+    path("circle/devices/<str:device_id>/revoke",
+         m2.CircleDeviceRevokeView.as_view()),
+    path("circle/scheduled/<int:pk>/cancel",
+         m2.CircleScheduledCancelView.as_view()),
+    path("circle/<int:pk>/settings", m2.CircleChatSettingsView.as_view()),
+    path("circle/<int:pk>/scheduled", m2.CircleScheduledView.as_view()),
     # --- build-61: referral points ---
     path("referral/balance", b61.ReferralBalanceView.as_view()),
     path("referral/history", b61.ReferralHistoryView.as_view()),

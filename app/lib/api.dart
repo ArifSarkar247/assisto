@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'config.dart';
+import 'crypto/e2e.dart';
 import 'models.dart';
 
 class ApiException implements Exception {
@@ -541,4 +542,223 @@ class ApiClient {
   Future<Map<String, dynamic>> circleSetMemberControls(
           int memberId, Map<String, dynamic> body) =>
       postJson('/circle/$memberId/controls', body);
+
+  // ==========================================================================
+  // M2: Connected Circle messenger — GROUPS (item 7)
+  // Server is the authority (core/logic/circle_groups.py); every endpoint
+  // re-enforces membership + role. All message/poll bodies are E2E ciphertext
+  // fanned out per-recipient — the server never sees plaintext.
+  // ==========================================================================
+
+  /// GET /circle/groups -> {groups:[{id, name, member_count, pinned_count,
+  /// announcements_only, my_role, ...}]}.
+  Future<Map<String, dynamic>> circleGroups() => getJson('/circle/groups');
+
+  /// POST /circle/groups {name, description?, member_ids[], announcements_only?}
+  /// -> the created group. Members must be in the caller's circle.
+  Future<Map<String, dynamic>> circleCreateGroup(Map<String, dynamic> body) =>
+      postJson('/circle/groups', body);
+
+  /// GET /circle/groups/<id> -> {id, name, description, announcements_only,
+  /// size_limit, my_role, ...} (sanitize_group_info).
+  Future<Map<String, dynamic>> circleGroup(int groupId) =>
+      getJson('/circle/groups/$groupId');
+
+  /// POST /circle/groups/<id> {name?, description?} -> updated group info.
+  Future<Map<String, dynamic>> circleEditGroup(
+          int groupId, Map<String, dynamic> body) =>
+      postJson('/circle/groups/$groupId', body);
+
+  /// GET /circle/groups/<id>/members -> {members:[{id, name, role, public_key,
+  /// key_id, is_self, my_member_id, my_role}]} resolved per viewer.
+  Future<Map<String, dynamic>> circleGroupMembers(int groupId) =>
+      getJson('/circle/groups/$groupId/members');
+
+  /// POST /circle/groups/<id>/members {member_id} -> add a circle member
+  /// (server gates via can_add_member). Returns the updated roster.
+  Future<Map<String, dynamic>> circleGroupAddMember(int groupId, int memberId) =>
+      postJson('/circle/groups/$groupId/members', {'member_id': memberId});
+
+  /// POST /circle/groups/<id>/members/<m> {event: remove|promote|demote}
+  /// -> applies the membership/role event (server re-checks actor role).
+  Future<Map<String, dynamic>> circleGroupMemberEvent(
+          int groupId, int memberId, String event) =>
+      postJson('/circle/groups/$groupId/members/$memberId', {'event': event});
+
+  /// GET /circle/groups/<id>/messages -> {results:[{id, sender_id, per_recipient,
+  /// mentions?, announcement, pinned, created_at, ...}]}.
+  Future<Map<String, dynamic>> circleGroupMessages(int groupId) =>
+      getJson('/circle/groups/$groupId/messages');
+
+  /// POST /circle/groups/<id>/messages {per_recipient:{<member_id>:envelope},
+  /// mentions?:[member_id], reply_to?} -> the stored message descriptor.
+  /// The body carries a PER-RECIPIENT fan-out map (one sealed envelope per
+  /// member id), never a shared plaintext; mentions are member IDs, not names.
+  Future<Map<String, dynamic>> circleGroupSendMessage(
+          int groupId, Map<String, dynamic> body) =>
+      postJson('/circle/groups/$groupId/messages', body);
+
+  /// POST /circle/groups/<id>/messages/<mid>/pin {pinned} -> admin pin/unpin
+  /// (server caps at 5). Returns the updated message.
+  Future<Map<String, dynamic>> circleGroupPinMessage(
+          int groupId, int messageId, bool pinned) =>
+      postJson('/circle/groups/$groupId/messages/$messageId/pin',
+          {'pinned': pinned});
+
+  /// POST /circle/groups/<id>/polls {question_ct:{<mid>:env}, options_ct:
+  /// {<mid>:[env,...]}, multi} -> created poll. Question + each option are
+  /// per-recipient ciphertexts; the backend stores them index-aligned and
+  /// tallies by option index (never reads text).
+  Future<Map<String, dynamic>> circleGroupCreatePoll(
+          int groupId, Map<String, dynamic> body) =>
+      postJson('/circle/groups/$groupId/polls', body);
+
+  /// POST /circle/groups/<id>/polls/<pid>/vote {choices:[index,...]} -> tally.
+  /// A re-vote replaces the voter's previous choices.
+  Future<Map<String, dynamic>> circleGroupVotePoll(
+          int groupId, int pollId, List<int> choices) =>
+      postJson('/circle/groups/$groupId/polls/$pollId/vote',
+          {'choices': choices});
+
+  /// POST /circle/groups/<id>/announcements {on} -> toggle announcements-only.
+  Future<Map<String, dynamic>> circleGroupSetAnnouncements(
+          int groupId, bool on) =>
+      postJson('/circle/groups/$groupId/announcements', {'on': on});
+
+  /// POST /circle/groups/<id>/size-limit {size_limit} -> clamped limit.
+  Future<Map<String, dynamic>> circleGroupSetSizeLimit(
+          int groupId, int sizeLimit) =>
+      postJson('/circle/groups/$groupId/size-limit', {'size_limit': sizeLimit});
+
+  /// GET /circle/groups/<id>/invite -> {token, link}. Redeeming is circle-gated.
+  Future<Map<String, dynamic>> circleGroupInvite(int groupId) =>
+      getJson('/circle/groups/$groupId/invite');
+
+  /// POST /circle/groups/<id>/leave {} -> leaving (dissolves if last admin).
+  Future<Map<String, dynamic>> circleGroupLeave(int groupId) =>
+      postJson('/circle/groups/$groupId/leave', const {});
+
+  /// POST /circle/groups/<id>/report {reason} -> acknowledged report.
+  Future<Map<String, dynamic>> circleGroupReport(int groupId, String reason) =>
+      postJson('/circle/groups/$groupId/report', {'reason': reason});
+
+  /// POST /circle/groups/<id>/call {kind: voice|video} -> {allowed,
+  /// upgrade_required?, call_id?}. Server gates group video on Premium
+  /// (can_place_group_call reuses circle_calls.can_place_call).
+  Future<Map<String, dynamic>> circleGroupStartCall(int groupId, String kind) =>
+      postJson('/circle/groups/$groupId/call', {'kind': kind});
+
+  // ==========================================================================
+  // M2: Connected Circle messenger — STATUS / STORIES (item 8)
+  // (Folded from the former CircleStatusApi extension.)
+  // Everything is E2E / ciphertext-only; the server resolves visibility,
+  // viewer list and 24h expiry without reading content.
+  // ==========================================================================
+
+  /// POST /circle/status {kind:text, visibility{mode,allow_ids,except_ids},
+  /// ...ciphertext} -> created status (id, created_at, expires_at). The backend
+  /// validates ciphertext-only (validate_status_meta) and stamps 24h expiry.
+  Future<Map<String, dynamic>> postTextStatus({
+    required Ciphertext ciphertext,
+    required Map<String, dynamic> visibility,
+  }) =>
+      postJson('/circle/status', {
+        'kind': 'text',
+        'visibility': visibility,
+        ...ciphertext.toEnvelopeFields(),
+      });
+
+  /// GET /circle/status -> {mine?, entries:[{author_id, author{}, count,
+  /// has_unseen, latest_at}]} grouped per author (unseen first).
+  Future<Map<String, dynamic>> statusTray() => getJson('/circle/status');
+
+  /// GET /circle/status/mine -> {statuses:[{id, kind, ...ciphertext,
+  /// views:[{viewer, at, anonymous}], viewer_count}]}. Server serializes only
+  /// named (non-anonymous) viewers plus an anonymous count.
+  Future<Map<String, dynamic>> myStatuses() => getJson('/circle/status/mine');
+
+  /// GET /circle/status/author/<id> -> {statuses:[...]} the caller may view
+  /// (visibility resolved server-side).
+  Future<Map<String, dynamic>> authorStatuses(int authorId) =>
+      getJson('/circle/status/author/$authorId');
+
+  /// POST /circle/status/<id>/view {} -> record a view. Server re-checks
+  /// can_view_status + is_active and honours the reciprocal read-receipt rule.
+  Future<void> viewStatus(String statusId) =>
+      postJson('/circle/status/$statusId/view', const {});
+
+  /// POST /circle/status/mute {author_id, on} -> mute/unmute an author.
+  Future<void> muteStatusAuthor(int authorId, {bool on = true}) =>
+      postJson('/circle/status/mute', {'author_id': authorId, 'on': on});
+
+  /// POST /circle/status/<id>/reply {author_id, ...ciphertext} -> reply
+  /// privately: builds a 1:1 relay envelope (never stored on the status).
+  Future<void> replyToStatus({
+    required String statusId,
+    required int authorId,
+    required Ciphertext ciphertext,
+  }) =>
+      postJson('/circle/status/$statusId/reply', {
+        'author_id': authorId,
+        ...ciphertext.toEnvelopeFields(),
+      });
+
+  // ==========================================================================
+  // M2: Connected Circle messenger — EXTRAS (items 9 + 10)
+  // Per-chat settings, scheduled messages, broadcast fan-out, encrypted
+  // backup/restore, linked devices. All opaque to the server.
+  // ==========================================================================
+
+  /// GET /circle/<peer>/settings -> {disappearing_sec} (only server-side field).
+  Future<Map<String, dynamic>> circleChatSettings(int peerId) =>
+      getJson('/circle/$peerId/settings');
+
+  /// POST /circle/<peer>/settings {disappearing_sec} -> persisted settings.
+  Future<Map<String, dynamic>> setCircleChatSettings(
+          int peerId, Map<String, dynamic> body) =>
+      postJson('/circle/$peerId/settings', body);
+
+  /// GET /circle/<peer>/scheduled -> {results:[{id, send_at, status, ...}]}.
+  Future<Map<String, dynamic>> listScheduled(int peerId) =>
+      getJson('/circle/$peerId/scheduled');
+
+  /// POST /circle/<peer>/scheduled {client_msg_id, send_at, envelope} ->
+  /// queued message (opaque envelope; the cron worker sends it at send_at).
+  Future<Map<String, dynamic>> scheduleMessage(
+          int peerId, Map<String, dynamic> body) =>
+      postJson('/circle/$peerId/scheduled', body);
+
+  /// POST /circle/scheduled/<id>/cancel {} -> cancel a pending scheduled send.
+  Future<Map<String, dynamic>> cancelScheduled(int scheduledId) =>
+      postJson('/circle/scheduled/$scheduledId/cancel', const {});
+
+  /// POST /circle/broadcast {sends:[{peer_id, client_msg_id, envelope}, ...]}
+  /// -> N INDIVIDUAL private sends (per-recipient fan-out, distinct
+  /// client_msg_ids). This is NOT a group: recipients are never linked
+  /// server-side and never see each other (review G1).
+  Future<Map<String, dynamic>> broadcast(List<Map<String, dynamic>> sends) =>
+      postJson('/circle/broadcast', {'sends': sends});
+
+  /// GET /circle/backup -> {backup?:{v, created_at, ...ciphertext, salt, iters,
+  /// message_count, recovery_hint, size_bytes}}. Opaque; restore is client-side.
+  Future<Map<String, dynamic>> getChatBackup() => getJson('/circle/backup');
+
+  /// POST /circle/backup {v, scheme, ciphertext, nonce, salt, iters,
+  /// message_count, recovery_hint?, size_bytes} -> stored (secrets rejected by
+  /// validate_backup_envelope).
+  Future<Map<String, dynamic>> putChatBackup(Map<String, dynamic> envelope) =>
+      postJson('/circle/backup', envelope);
+
+  /// GET /circle/devices -> {devices:[{id, device_id, platform, role, name,
+  /// linked_at, revoked}]}.
+  Future<Map<String, dynamic>> listDevices() => getJson('/circle/devices');
+
+  /// POST /circle/devices/link {device_id, platform, public_key_id, name} ->
+  /// a linked device record.
+  Future<Map<String, dynamic>> linkDevice(Map<String, dynamic> body) =>
+      postJson('/circle/devices/link', body);
+
+  /// POST /circle/devices/<id>/revoke {} -> revoke a linked device.
+  Future<Map<String, dynamic>> revokeDevice(int deviceId) =>
+      postJson('/circle/devices/$deviceId/revoke', const {});
 }

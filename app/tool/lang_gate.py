@@ -26,6 +26,7 @@ MIXED = re.compile(r"[\u0980-\u09F2\u09F4-\u09FF][^\"']*?/[^\"']*?[A-Za-z]|[A-Za
 # explicitly so reviewers know it is deliberate, not an untranslated string.
 SAME_VALUE_ALLOWLIST = {
     "crmTitle",  # "CRM" == "CRM" -- product name, not translated. (owner-approved)
+    "circleExtrasAssistoTitle",  # "@Assisto" == "@Assisto" -- product handle, not translated.
 }
 
 viol = []

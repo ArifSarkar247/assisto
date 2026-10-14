@@ -907,7 +907,8 @@ class CircleMember(models.Model):
 class CircleMessage(models.Model):
     """Connected Circle — a relayed message. The server stores the CIPHERTEXT
     verbatim and NEVER a key; it cannot read this (nor can the server AI)."""
-    member = models.ForeignKey(CircleMember, on_delete=models.CASCADE, related_name="messages")
+    member = models.ForeignKey(CircleMember, null=True, blank=True,
+                               on_delete=models.CASCADE, related_name="messages")
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="circle_sent")
     recipient_ids = models.JSONField(default=list, blank=True)
     content_type = models.CharField(max_length=16, default="text")
@@ -932,6 +933,12 @@ class CircleMessage(models.Model):
     client_msg_id = models.CharField(max_length=64, blank=True, default="",
                                      db_index=True)  # dedupe
     link_preview = models.JSONField(null=True, blank=True)  # opaque {ciphertext,nonce}
+    # --- M2 groups additions (1:1 messages keep group null; never breaks 1:1) ---
+    group = models.ForeignKey("CircleGroup", null=True, blank=True,
+                              on_delete=models.CASCADE, related_name="messages")
+    per_recipient = models.JSONField(null=True, blank=True)  # opaque fan-out map
+    mentions = models.JSONField(null=True, blank=True)       # list[int] member ids
+    announcement = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -1100,3 +1107,236 @@ class DuressPin(models.Model):
     normal_hash = models.CharField(max_length=128, blank=True, default="")
     duress_hash = models.CharField(max_length=128, blank=True, default="")
     salt = models.CharField(max_length=64, blank=True, default="")
+
+
+# ===========================================================================
+# Messenger M2 — Groups (item 7). Server authority is core/logic/circle_groups.
+# Members are a SUBSET of the creator's/admins' circle (circle-only, enforced in
+# the views). The server stores CIPHERTEXT ONLY — same E2E contract as 1:1.
+# ===========================================================================
+class CircleGroup(models.Model):
+    """A group chat. The creator is seeded as the first admin. `size_limit` is
+    configurable per group (clamped by circle_groups.clamp_size_limit)."""
+    creator = models.ForeignKey(User, on_delete=models.CASCADE,
+                                related_name="circle_groups")
+    name = models.CharField(max_length=100, default="")
+    description = models.TextField(blank=True, default="")
+    photo_ref = models.CharField(max_length=256, blank=True, default="")  # enc blob ref
+    size_limit = models.IntegerField(default=256)
+    announcements_only = models.BooleanField(default=False)
+    pinned_ids = models.JSONField(default=list, blank=True)  # group-scoped pins (cap 5)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class CircleGroupMember(models.Model):
+    """Membership edge. `member` is the actual peer User so the roster can expose
+    a stable id + per-viewer public key. role admin|member; status FSM
+    active|left|removed (circle_groups.apply_membership_event)."""
+    ROLES = [("admin", "admin"), ("member", "member")]
+    STATES = [("active", "active"), ("left", "left"), ("removed", "removed")]
+    group = models.ForeignKey(CircleGroup, on_delete=models.CASCADE,
+                              related_name="members")
+    member = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name="group_memberships")
+    role = models.CharField(max_length=8, choices=ROLES, default="member")
+    status = models.CharField(max_length=8, choices=STATES, default="active")
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("group", "member")]
+        ordering = ["joined_at"]
+
+
+class GroupPoll(models.Model):
+    """A poll. question_ct / options_ct are OPAQUE ciphertext (server never reads
+    labels); votes reference options by INDEX only (circle_groups.tally_poll)."""
+    group = models.ForeignKey(CircleGroup, on_delete=models.CASCADE,
+                              related_name="polls")
+    author = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name="group_polls")
+    option_count = models.IntegerField(default=2)
+    multi = models.BooleanField(default=False)
+    closed = models.BooleanField(default=False)
+    question_ct = models.JSONField(default=dict, blank=True)   # opaque
+    options_ct = models.JSONField(default=list, blank=True)    # opaque [ct, ...]
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class PollVote(models.Model):
+    """One voter's choice set on a poll. A re-vote REPLACES the row's choices."""
+    poll = models.ForeignKey(GroupPoll, on_delete=models.CASCADE,
+                             related_name="votes")
+    voter = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name="poll_votes")
+    choices = models.JSONField(default=list, blank=True)  # list[int] option indices
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("poll", "voter")]
+
+
+# ===========================================================================
+# Messenger M2 — Status / Stories (item 8). Server authority is
+# core/logic/circle_status. CIPHERTEXT ONLY; auto-expires after 24h.
+# ===========================================================================
+class CircleStatus(models.Model):
+    """A 24-hour status/story. TEXT is inline ciphertext; PHOTO/VIDEO carry a
+    blob_ref + ciphertext metadata (key-gated like M1 media). expires_at is
+    indexed (= created + 24h via circle_status.expiry_for) for cheap cleanup."""
+    KINDS = [("text", "text"), ("photo", "photo"), ("video", "video")]
+    author = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name="circle_statuses")
+    kind = models.CharField(max_length=8, choices=KINDS, default="text")
+    # text status: inline ciphertext
+    ciphertext = models.TextField(blank=True, default="")
+    nonce = models.CharField(max_length=128, blank=True, default="")
+    scheme = models.CharField(max_length=64, blank=True, default="")
+    sender_key_id = models.CharField(max_length=64, blank=True, default="")
+    # photo/video status: opaque blob + ciphertext metadata
+    blob_ref = models.CharField(max_length=256, blank=True, default="")
+    meta = models.JSONField(default=dict, blank=True)  # full validated status meta
+    visibility = models.JSONField(default=dict, blank=True)  # {mode,allow_ids,except_ids}
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(db_index=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class StatusView(models.Model):
+    """Who saw a status. A viewer with read-receipts OFF is counted but marked
+    anonymous so the author can never name them (circle_status.record_view)."""
+    status = models.ForeignKey(CircleStatus, on_delete=models.CASCADE,
+                               related_name="views")
+    viewer = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name="status_views")
+    anonymous = models.BooleanField(default=False)
+    at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("status", "viewer")]
+
+
+class StatusMute(models.Model):
+    """Muter hides an author's status from their tray (no unfriend/notify)."""
+    muter = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name="status_mutes")
+    author = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name="status_muted_by")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("muter", "author")]
+
+
+# ===========================================================================
+# Messenger M2 — Extras (items 9 + 10). Server authority is
+# core/logic/circle_extras. All ciphertext/meta fields are OPAQUE.
+# ===========================================================================
+class ChatSettings(models.Model):
+    """Per-chat settings. Only `disappearing_sec` is server-enforced (purge /
+    hide timer); wallpaper/theme are presentation prefs the client may sync."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="chat_settings")
+    peer = models.ForeignKey(CircleMember, on_delete=models.CASCADE,
+                             related_name="chat_settings")
+    disappearing_sec = models.IntegerField(default=0)  # 0/86400/604800/7776000
+    wallpaper = models.CharField(max_length=40, blank=True, default="default")
+    wallpaper_blob_ref = models.CharField(max_length=256, blank=True, default="")
+    theme = models.CharField(max_length=16, blank=True, default="system")
+    bubble_scheme = models.CharField(max_length=64, blank=True, default="")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [("user", "peer")]
+
+
+class ScheduledMessage(models.Model):
+    """A client-composed, ALREADY-ENCRYPTED envelope stored opaque until send_at.
+    The server never holds future plaintext (validate_backup/forbidden-keys)."""
+    STATES = [("pending", "pending"), ("sent", "sent"),
+              ("cancelled", "cancelled"), ("failed", "failed")]
+    sender = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name="scheduled_messages")
+    peer = models.ForeignKey(CircleMember, on_delete=models.CASCADE,
+                             related_name="scheduled_messages")
+    client_msg_id = models.CharField(max_length=64, db_index=True)
+    send_at = models.DateTimeField(db_index=True)
+    status = models.CharField(max_length=10, choices=STATES, default="pending")
+    attempt = models.IntegerField(default=0)
+    envelope = models.JSONField(default=dict, blank=True)  # opaque ciphertext envelope
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("sender", "client_msg_id")]
+        ordering = ["send_at"]
+
+
+class BroadcastList(models.Model):
+    """A convenience grouping ON THE SENDER's side only. Sends fan out to N
+    INDIVIDUAL 1:1 messages — recipients are NEVER linked server-side."""
+    owner = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name="broadcast_lists")
+    name = models.CharField(max_length=120, blank=True, default="")
+    member_ids = models.JSONField(default=list, blank=True)  # CircleMember ids
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class UserSticker(models.Model):
+    """A user-made sticker from the user's OWN photo — stored as an encrypted
+    media blob ref only (key-gated). Built-in packs live in code (STICKER_PACKS)."""
+    owner = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name="user_stickers")
+    blob_ref = models.CharField(max_length=256, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class ChatBackup(models.Model):
+    """An encrypted chat backup envelope. The recovery code / key is NEVER stored
+    (validate_backup_envelope rejects secrets) — only the sealed blob + KDF meta."""
+    owner = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name="chat_backups")
+    v = models.IntegerField(default=1)
+    scheme = models.CharField(max_length=64, blank=True, default="")
+    ciphertext = models.TextField(blank=True, default="")
+    nonce = models.CharField(max_length=256, blank=True, default="")
+    salt = models.CharField(max_length=256, blank=True, default="")
+    iters = models.IntegerField(default=0)
+    message_count = models.IntegerField(default=0)
+    recovery_hint = models.CharField(max_length=200, blank=True, default="")
+    size_bytes = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class LinkedDevice(models.Model):
+    """A companion device registry row. The server stores ONLY a public key id +
+    non-secret meta — never a private key (item 10; design in linked_devices.md)."""
+    PLATFORMS = [("android", "android"), ("ios", "ios"), ("web", "web")]
+    ROLES = [("primary", "primary"), ("linked", "linked")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="linked_devices")
+    device_id = models.CharField(max_length=128, unique=True)
+    platform = models.CharField(max_length=10, choices=PLATFORMS, default="android")
+    role = models.CharField(max_length=8, choices=ROLES, default="linked")
+    public_key_id = models.CharField(max_length=64, blank=True, default="")
+    name = models.CharField(max_length=120, blank=True, default="")
+    linked_at = models.DateTimeField(auto_now_add=True)
+    revoked = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-linked_at"]

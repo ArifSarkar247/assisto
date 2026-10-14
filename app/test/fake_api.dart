@@ -779,6 +779,76 @@ class FakeApi extends ApiClient {
     if (path.startsWith('/circle/') && path.contains('/messages')) {
       return {'results': const []};
     }
+    // ===== M2: Groups / Status / Extras GET stubs =====
+    if (path.startsWith('/circle/groups/') && path.contains('/members')) {
+      if (mode == FakeMode.fail) _fail();
+      final members = mode == FakeMode.empty ? const [] : [
+        {'id': 0, 'name': _bn ? 'আমি' : 'Me', 'role': 'admin', 'is_self': true,
+         'my_member_id': 0, 'my_role': 'admin', 'public_key': '', 'key_id': 'k0'},
+        {'id': 1, 'name': _bn ? 'Ammu' : 'Mom', 'role': 'member', 'is_self': false,
+         'my_member_id': 0, 'my_role': 'admin', 'public_key': 'AA==', 'key_id': 'k1'},
+      ];
+      return {'members': members, 'my_role': 'admin', 'my_member_id': 0};
+    }
+    if (path.startsWith('/circle/groups/') && path.endsWith('/invite')) {
+      return {'token': 'fake-group-token', 'link': 'assisto://g/fake-group-token'};
+    }
+    if (RegExp(r'^/circle/groups/\d+$').hasMatch(path)) {
+      return {'id': int.tryParse(path.split('/').last) ?? 1,
+              'name': _bn ? 'পরিবার' : 'Family', 'description': '',
+              'announcements_only': false, 'size_limit': 256,
+              'my_role': 'admin', 'member_count': 2};
+    }
+    if (path == '/circle/groups' || path.startsWith('/circle/groups?')) {
+      if (mode == FakeMode.fail) _fail();
+      return {'groups': mode == FakeMode.empty ? const [] : [
+        {'id': 1, 'name': _bn ? 'পরিবার' : 'Family', 'member_count': 4,
+         'pinned_count': 1, 'announcements_only': false, 'my_role': 'admin'},
+      ]};
+    }
+    if (path == '/circle/status/mine') {
+      return {'statuses': mode == FakeMode.empty ? const [] : [
+        {'id': 10, 'kind': 'text', 'created_at': '2026-10-14T08:00:00Z',
+         'expires_at': '2026-10-15T08:00:00Z', 'viewer_count': 2,
+         'views': [{'viewer': _bn ? 'Ammu' : 'Mom', 'at': '2026-10-14T09:00:00Z', 'anonymous': false}]},
+      ], 'viewer_count': 2};
+    }
+    if (path.startsWith('/circle/status/author/')) {
+      return {'statuses': mode == FakeMode.empty ? const [] : [
+        {'id': 11, 'kind': 'text', 'created_at': '2026-10-14T07:00:00Z',
+         'expires_at': '2026-10-15T07:00:00Z'},
+      ]};
+    }
+    if (path == '/circle/status' || path.startsWith('/circle/status?')) {
+      if (mode == FakeMode.fail) _fail();
+      return {
+        'mine': mode == FakeMode.empty ? null : {'count': 1},
+        'entries': mode == FakeMode.empty ? const [] : [
+          {'author_id': 1, 'author': {'id': 1, 'name': _bn ? 'Ammu' : 'Mom'},
+           'count': 2, 'has_unseen': true, 'latest_at': '2026-10-14T08:00:00Z'},
+        ],
+      };
+    }
+    if (path.endsWith('/settings') && path.startsWith('/circle/')) {
+      return {'disappearing_sec': 0};
+    }
+    if (path.endsWith('/scheduled') && path.startsWith('/circle/')) {
+      return {'results': mode == FakeMode.empty ? const [] : [
+        {'id': 1, 'send_at': '2026-10-20T09:00:00Z', 'status': 'pending'},
+      ]};
+    }
+    if (path == '/circle/backup') {
+      return {'backup': mode == FakeMode.empty ? null : {
+        'v': 1, 'created_at': '2026-10-13T10:00:00Z', 'message_count': 42,
+        'recovery_hint': _bn ? 'নীল নোটবুক' : 'blue notebook', 'size_bytes': 10240}};
+    }
+    if (path == '/circle/devices') {
+      return {'devices': [
+        {'id': 1, 'device_id': 'this', 'platform': 'android',
+         'role': 'primary', 'name': _bn ? 'এই ফোন' : 'This phone',
+         'linked_at': '2026-10-01T10:00:00Z', 'revoked': false},
+      ]};
+    }
     if (path.startsWith('/circle/invite')) {
       return {'token': 'fake-token', 'qr': 'assisto://i/fake-token'};
     }

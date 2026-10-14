@@ -1936,5 +1936,258 @@
   "sosHookServiceTitle": "Background service",
   "sosHookServiceDesc": "Needed so journeys and SOS keep working when the app is closed.",
   "sosHookGated": "Coming in a later update.",
-  "safetySosQuickCall": "Quick call"
+  "safetySosQuickCall": "Quick call",
+  "circleReply": "Reply",
+  "circleGroupsTitle": "Groups",
+  "circleGroupCreate": "Create group",
+  "circleGroupsEmptyTitle": "No groups yet",
+  "circleGroupsEmptyBody": "Create a group with members of your circle.",
+  "circleGroupMemberCount": "{count} members",
+  "@circleGroupMemberCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "circleGroupAnnouncementsOnly": "Announcements only",
+  "circleGroupAnnouncementsHint": "When on, only admins can post.",
+  "circleGroupName": "Group name",
+  "circleGroupDescription": "Description",
+  "circleGroupAddMembers": "Add members",
+  "circleGroupNoCircleMembers": "No circle members to add.",
+  "circleGroupVoiceCall": "Group voice call",
+  "circleGroupVideoCall": "Group video call",
+  "circleGroupInfo": "Group info",
+  "circleGroupCallStarting": "Starting call…",
+  "circleGroupVideoPremiumTitle": "Group video is Premium",
+  "circleGroupVideoPremiumBody": "Starting a group video call needs Premium. Group voice calls are free for everyone.",
+  "circleGroupGetPremium": "Get Premium",
+  "circleGroupCreatePoll": "Create poll",
+  "circleGroupPinnedCount": "{count} pinned",
+  "@circleGroupPinnedCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "circleGroupNoMessages": "No messages yet. Start the conversation.",
+  "circleGroupOnlyAdminsPost": "Only admins can post in this group.",
+  "circleGroupMessageHint": "Message",
+  "circleGroupPin": "Pin",
+  "circleGroupUnpin": "Unpin",
+  "circleGroupPollQuestion": "Question",
+  "circleGroupPollOption": "Option {n}",
+  "@circleGroupPollOption": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "circleGroupPollAddOption": "Add option",
+  "circleGroupPollMultiSelect": "Allow multiple answers",
+  "circleGroupPollSend": "Send poll",
+  "circleGroupPollClosed": "Closed",
+  "circleGroupPollVotes": "{count} votes",
+  "@circleGroupPollVotes": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "circleGroupEditInfo": "Edit info",
+  "circleGroupSizeLimit": "Member limit",
+  "circleGroupInviteLink": "Invite link",
+  "circleGroupInviteLinkHint": "Only circle members can join via the link.",
+  "circleGroupLeave": "Leave group",
+  "circleGroupLeaveConfirm": "Are you sure you want to leave this group?",
+  "circleGroupReport": "Report group",
+  "circleGroupPromote": "Make admin",
+  "circleGroupDemote": "Dismiss as admin",
+  "circleGroupRemove": "Remove",
+  "circleGroupRoleAdmin": "Admin",
+  "circleGroupRoleMember": "Member",
+  "statusTitle": "Status",
+  "statusMine": "My status",
+  "statusRecentUpdates": "Recent updates",
+  "statusViewedUpdates": "Viewed updates",
+  "statusNoUpdates": "No updates yet.",
+  "statusTapToAdd": "Share a moment with your circle.",
+  "statusAdd": "Add status",
+  "statusText": "Text",
+  "statusPhoto": "Photo",
+  "statusVideo": "Video",
+  "statusTypeSomething": "Type something...",
+  "statusPost": "Post",
+  "statusExpiresIn24h": "Disappears automatically after 24 hours.",
+  "statusEncrypted": "End-to-end encrypted — the server can never read it.",
+  "statusWhoCanSee": "Who can see this",
+  "statusAudienceEveryone": "My circle",
+  "statusAudienceFamily": "Family only",
+  "statusAudienceChosen": "Only chosen people",
+  "statusAudienceExcept": "All except...",
+  "statusChoosePeople": "Choose people",
+  "statusExcludePeople": "Hide from",
+  "statusDone": "Done",
+  "statusViewers": "Viewed by",
+  "statusNoViewsYet": "No views yet.",
+  "statusSeenBy": "Seen by {n}",
+  "@statusSeenBy": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "statusReceiptsOff": "Some have receipts off",
+  "statusReplyPrivately": "Reply privately",
+  "statusSendReply": "Send reply",
+  "statusMute": "Mute status",
+  "statusUnmute": "Unmute",
+  "statusMuted": "This person's status is muted.",
+  "statusDelete": "Delete",
+  "statusHoursLeft": "{h}h left",
+  "@statusHoursLeft": {
+    "placeholders": {
+      "h": {
+        "type": "String"
+      }
+    }
+  },
+  "statusMinsLeft": "{m}m left",
+  "@statusMinsLeft": {
+    "placeholders": {
+      "m": {
+        "type": "String"
+      }
+    }
+  },
+  "statusExpired": "Expired",
+  "statusMediaGated": "Available when encrypted media storage is enabled.",
+  "circleExtrasHubTitle": "Chat extras",
+  "circleExtrasHubSubtitle": "Tools for this chat — timers, wallpaper, stickers, backup and more.",
+  "circleExtrasDisappearing": "Disappearing messages",
+  "circleExtrasDisappearingHint": "New messages in this chat vanish after the timer. The clock starts when a message is sent.",
+  "circleExtrasTimerOff": "Off",
+  "circleExtrasTimer24h": "24 hours",
+  "circleExtrasTimer7d": "7 days",
+  "circleExtrasTimer90d": "90 days",
+  "circleExtrasViewOnce": "View once",
+  "circleExtrasViewOnceHint": "Photos and videos can be opened once, then they are gone. Screenshots cannot be fully prevented.",
+  "circleExtrasWallpaper": "Wallpaper",
+  "circleExtrasWallpaperHint": "Chosen on this device only. Nothing is uploaded.",
+  "circleExtrasChatTheme": "Chat theme",
+  "circleExtrasFromMyPhoto": "From my photo",
+  "circleExtrasWpDefault": "Default",
+  "circleExtrasWpCyanBlue": "Cyan to Blue",
+  "circleExtrasWpBluePurple": "Blue to Purple",
+  "circleExtrasWpNightInk": "Night Ink",
+  "circleExtrasWpPaperWarm": "Warm Paper",
+  "circleExtrasWpForestCalm": "Calm Forest",
+  "circleExtrasThemeSystem": "System",
+  "circleExtrasThemeLight": "Light",
+  "circleExtrasThemeDark": "Dark",
+  "circleExtrasStickers": "Stickers",
+  "circleExtrasStickerPacks": "Sticker packs",
+  "circleExtrasMakeSticker": "Make a sticker from my photo",
+  "circleExtrasStickerGated": "Stickers from your own photos are available when encrypted media storage is enabled.",
+  "circleExtrasPackHearts": "Assisto Hearts",
+  "circleExtrasPackFaces": "Assisto Faces",
+  "circleExtrasPackBangla": "Bangla Expressions",
+  "circleExtrasGifTitle": "GIFs",
+  "circleExtrasGifSearchHint": "Search GIFs",
+  "circleExtrasGifGated": "GIF search is available when the owner adds a Tenor or GIPHY key.",
+  "circleExtrasGifNoResults": "No GIFs found.",
+  "circleExtrasGifFamilySafe": "Family-safe results only.",
+  "circleExtrasTranscribe": "Transcribe voice note",
+  "circleExtrasTranscribeGated": "Voice-note transcription is available when the on-device model is added.",
+  "circleExtrasTranscribing": "Transcribing on your device...",
+  "circleExtrasTranslate": "Translate",
+  "circleExtrasTranslateToBn": "Translate to Bangla",
+  "circleExtrasTranslateToEn": "Translate to English",
+  "circleExtrasTranslateGated": "Message translation is available when the owner adds an AI key.",
+  "circleExtrasScheduled": "Scheduled messages",
+  "circleExtrasScheduleTitle": "Schedule a message",
+  "circleExtrasScheduleHint": "Write it now, we send it at the chosen time. It is encrypted now and queued if you are offline.",
+  "circleExtrasPickDateTime": "Pick date and time",
+  "circleExtrasScheduleTooSoon": "Pick a time at least a minute from now.",
+  "circleExtrasScheduleTooFar": "Pick a time within the next year.",
+  "circleExtrasNoScheduled": "No scheduled messages.",
+  "circleExtrasScheduledSaved": "Message scheduled.",
+  "circleExtrasStatusPending": "Sends {at}",
+  "@circleExtrasStatusPending": {
+    "placeholders": {
+      "at": {
+        "type": "String"
+      }
+    }
+  },
+  "circleExtrasBroadcast": "Broadcast list",
+  "circleExtrasBroadcastHint": "Send privately to many people at once. Each person gets a normal private chat — they never see each other.",
+  "circleExtrasChooseRecipients": "Choose recipients",
+  "circleExtrasBroadcastNotGroup": "This is not a group. Recipients stay private.",
+  "circleExtrasBroadcastEmpty": "Choose at least one circle member.",
+  "circleExtrasBroadcastSent": "Sent privately to {n} people.",
+  "@circleExtrasBroadcastSent": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "circleExtrasSend": "Send",
+  "circleExtrasAssistoTitle": "@Assisto",
+  "circleExtrasAssistoHint": "Turn this message into a reminder, expense, or event. Everything is read on your device only — never sent to a server.",
+  "circleExtrasAssistoNone": "Nothing to turn into an action here.",
+  "circleExtrasMakeReminder": "Create reminder",
+  "circleExtrasMakeEvent": "Create event",
+  "circleExtrasMakeExpense": "Add as expense",
+  "circleExtrasCreate": "Create",
+  "circleExtrasBackup": "Encrypted chat backup",
+  "circleExtrasBackupHint": "Your chats are sealed with a recovery code. The server stores only the locked blob and never sees your code.",
+  "circleExtrasCreateBackup": "Create backup",
+  "circleExtrasRecoveryCode": "Recovery code",
+  "circleExtrasRecoveryCodeHint": "Write this down. Without it, the backup cannot be opened — not even by us.",
+  "circleExtrasRecoveryHintLabel": "Reminder note (optional, not secret)",
+  "circleExtrasRestore": "Restore on a new phone",
+  "circleExtrasRestoreHint": "Enter your recovery code to restore chats.",
+  "circleExtrasRestoreFailed": "Wrong code, or the backup is damaged.",
+  "circleExtrasRestoreOk": "Chats restored.",
+  "circleExtrasBackupDone": "Backed up {n} messages.",
+  "@circleExtrasBackupDone": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "circleExtrasCopyCode": "Copy code",
+  "circleExtrasCopied": "Copied.",
+  "circleExtrasExportChat": "Export this chat",
+  "circleExtrasExportHint": "Save a readable copy to a file. It is decrypted on your device — the server is never involved.",
+  "circleExtrasExportAsText": "Export as text",
+  "circleExtrasExportAsJson": "Export as data file",
+  "circleExtrasExportReady": "Prepared {n} messages.",
+  "@circleExtrasExportReady": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "circleExtrasLinkedDevices": "Linked devices",
+  "circleExtrasLinkedDevicesHint": "Use Assisto on your other devices. Each device keeps its own key — the server never holds one.",
+  "circleExtrasThisDevice": "This device",
+  "circleExtrasLinkDevice": "Link a device",
+  "circleExtrasWebAfterMobile": "A web client comes after Android and iPhone. It is not available yet.",
+  "circleExtrasRevokeDevice": "Remove device",
+  "circleExtrasScanToLink": "Scan this code on the new device to link it.",
+  "circleExtrasSave": "Save",
+  "circleExtrasClose": "Close",
+  "circleExtrasDone": "Done",
+  "circleExtrasOnDeviceOnly": "On this device only.",
+  "circleExtrasE2eNote": "End-to-end encrypted — the server can never read this."
 }
