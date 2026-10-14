@@ -1,0 +1,166 @@
+{
+  "_note": "Monthly Money Wrapped (feature #63, SPEC v2.1 §21) — NEW ARB keys to merge into app/lib/l10n/app_en.arb and app/lib/l10n/app_bn.arb, then regenerate localizations (flutter gen-l10n, which the integrator runs — NOT done here). 53 message keys total. Placeholder metadata (@key blocks) is included for the 8 parameterized messages; the integrator inserts each @-block alongside its key in BOTH arb files (the bn values use Bangla script; bn placeholder @-blocks are identical to en and live only in app_en.arb by repo convention — keep them where the existing money @-blocks live). All amounts/dates are substituted at runtime via tkFmt/DateFormat in Dart; these strings contain NO currency numbers.",
+  "count": 53,
+
+  "app_en.arb": {
+    "wrappedTitle": "Money Wrapped",
+    "wrappedIntroCaption": "Your month in money",
+    "wrappedShare": "Share this card",
+    "wrappedShareCaption": "My Money Wrapped — {month}",
+    "@wrappedShareCaption": {
+      "placeholders": { "month": { "type": "String" } }
+    },
+    "wrappedShareTextOnly": "Shared as text (image wasn't ready).",
+
+    "wrappedErrorTitle": "Couldn't load your Wrapped",
+    "wrappedErrorHint": "Check your connection and try again.",
+    "wrappedEmptyTitle": "Not enough data yet",
+    "wrappedEmptyHint": "Add at least {need} transactions this month to unlock your Wrapped. You have {have} so far.",
+    "@wrappedEmptyHint": {
+      "placeholders": {
+        "need": { "type": "int" },
+        "have": { "type": "int" }
+      }
+    },
+
+    "wrappedSpentEyebrow": "Total spent",
+    "wrappedSpentCaption": "went out this month",
+
+    "wrappedEarnedEyebrow": "Total earned",
+    "wrappedEarnedTitle": "You brought in",
+    "wrappedSavedNote": "You saved {amount}",
+    "@wrappedSavedNote": {
+      "placeholders": { "amount": { "type": "String" } }
+    },
+
+    "wrappedSavingsEyebrow": "Savings rate",
+    "wrappedSavingsTitle": "You kept",
+    "wrappedSavingsCaption": "of everything that came in",
+
+    "wrappedTopCategoryEyebrow": "Top category",
+    "wrappedTopCategoryNote": "your biggest spending area",
+
+    "wrappedBiggestEyebrow": "Biggest expense",
+    "wrappedBiggestTitle": "Your biggest buy",
+    "wrappedBiggestNote": "on {date}",
+    "@wrappedBiggestNote": {
+      "placeholders": { "date": { "type": "String" } }
+    },
+
+    "wrappedTrendEyebrow": "Vs last month",
+    "wrappedTrendTitle": "Your spending",
+    "wrappedTrendUp": "You spent more than last month.",
+    "wrappedTrendDown": "You spent less than last month. Nice.",
+
+    "wrappedNoSpendEyebrow": "No-spend days",
+    "wrappedNoSpendTitle": "No-spend days",
+    "wrappedNoSpendNote": "out of {days} days",
+    "@wrappedNoSpendNote": {
+      "placeholders": { "days": { "type": "int" } }
+    },
+
+    "wrappedFactsEyebrow": "Fun facts",
+    "wrappedFactCategories": "{count} categories",
+    "@wrappedFactCategories": {
+      "placeholders": { "count": { "type": "int" } }
+    },
+    "wrappedFactTxns": "{count} transactions",
+    "@wrappedFactTxns": {
+      "placeholders": { "count": { "type": "int" } }
+    },
+    "wrappedFactBusiest": "Busiest: {date} · {amount}",
+    "@wrappedFactBusiest": {
+      "placeholders": {
+        "date": { "type": "String" },
+        "amount": { "type": "String" }
+      }
+    },
+
+    "wrappedPersonaEyebrow": "Your money personality",
+    "wrappedPersonaLead": "This month you were a",
+    "wrappedPersonaSuperSaver": "Super Saver",
+    "wrappedPersonaSuperSaverBlurb": "You kept a big slice of what you earned. Future you says thanks.",
+    "wrappedPersonaBigSpender": "Big Spender",
+    "wrappedPersonaBigSpenderBlurb": "You spent more than you earned this month. Worth a look.",
+    "wrappedPersonaMinimalist": "Mindful Minimalist",
+    "wrappedPersonaMinimalistBlurb": "Plenty of no-spend days. Calm and intentional.",
+    "wrappedPersonaFoodie": "Foodie",
+    "wrappedPersonaFoodieBlurb": "Food was your top spend. Tasty choices.",
+    "wrappedPersonaTreatYourself": "Treat Yourself",
+    "wrappedPersonaTreatYourselfBlurb": "Shopping led the way this month. You earned it.",
+    "wrappedPersonaOnTheMove": "Always On The Move",
+    "wrappedPersonaOnTheMoveBlurb": "Transport topped your spending. Places to be.",
+    "wrappedPersonaBalancer": "Steady Balancer",
+    "wrappedPersonaBalancerBlurb": "A healthy balance of earning, spending and saving.",
+    "wrappedPersonaQuiet": "Quiet Month",
+    "wrappedPersonaQuietBlurb": "A slow month on the money front.",
+    "wrappedPersonaEveryday": "Everyday Spender",
+    "wrappedPersonaEverydayBlurb": "A steady, ordinary month of day-to-day spending."
+  },
+
+  "app_bn.arb": {
+    "wrappedTitle": "মাসের মানি র্যাপড",
+    "wrappedIntroCaption": "টাকায় আপনার মাস",
+    "wrappedShare": "এই কার্ড শেয়ার করুন",
+    "wrappedShareCaption": "আমার মানি র্যাপড — {month}",
+    "wrappedShareTextOnly": "টেক্সট হিসেবে শেয়ার করা হয়েছে (ছবি তৈরি হয়নি)।",
+
+    "wrappedErrorTitle": "র্যাপড লোড করা যায়নি",
+    "wrappedErrorHint": "ইন্টারনেট যাচাই করে আবার চেষ্টা করুন।",
+    "wrappedEmptyTitle": "এখনও পর্যাপ্ত তথ্য নেই",
+    "wrappedEmptyHint": "র্যাপড দেখতে এ মাসে কমপক্ষে {need}টি লেনদেন যোগ করুন। এখন আছে {have}টি।",
+
+    "wrappedSpentEyebrow": "মোট খরচ",
+    "wrappedSpentCaption": "এই মাসে খরচ হয়েছে",
+
+    "wrappedEarnedEyebrow": "মোট আয়",
+    "wrappedEarnedTitle": "আপনি আয় করেছেন",
+    "wrappedSavedNote": "আপনি সাশ্রয় করেছেন {amount}",
+
+    "wrappedSavingsEyebrow": "সাশ্রয়ের হার",
+    "wrappedSavingsTitle": "আপনি রেখেছেন",
+    "wrappedSavingsCaption": "যা আয় হয়েছিল তার",
+
+    "wrappedTopCategoryEyebrow": "শীর্ষ ক্যাটাগরি",
+    "wrappedTopCategoryNote": "আপনার সবচেয়ে বেশি খরচের খাত",
+
+    "wrappedBiggestEyebrow": "সবচেয়ে বড় খরচ",
+    "wrappedBiggestTitle": "সবচেয়ে বড় কেনাকাটা",
+    "wrappedBiggestNote": "{date} তারিখে",
+
+    "wrappedTrendEyebrow": "গত মাসের তুলনায়",
+    "wrappedTrendTitle": "আপনার খরচ",
+    "wrappedTrendUp": "গত মাসের চেয়ে বেশি খরচ করেছেন।",
+    "wrappedTrendDown": "গত মাসের চেয়ে কম খরচ করেছেন। দারুন।",
+
+    "wrappedNoSpendEyebrow": "খরচহীন দিন",
+    "wrappedNoSpendTitle": "খরচহীন দিন",
+    "wrappedNoSpendNote": "{days} দিনের মধ্যে",
+
+    "wrappedFactsEyebrow": "মজার তথ্য",
+    "wrappedFactCategories": "{count}টি ক্যাটাগরি",
+    "wrappedFactTxns": "{count}টি লেনদেন",
+    "wrappedFactBusiest": "সবচেয়ে ব্যস্ত: {date} · {amount}",
+
+    "wrappedPersonaEyebrow": "আপনার মানি পার্সনালিটি",
+    "wrappedPersonaLead": "এ মাসে আপনি ছিলেন",
+    "wrappedPersonaSuperSaver": "সুপার সেভার",
+    "wrappedPersonaSuperSaverBlurb": "আয়ের বড় অংশ সাশ্রয় করেছেন। ভবিষ্যতের আপনি খুশি।",
+    "wrappedPersonaBigSpender": "বিগ স্পেন্ডার",
+    "wrappedPersonaBigSpenderBlurb": "এ মাসে আয়ের চেয়ে বেশি খরচ করেছেন। একটু নজর দিন।",
+    "wrappedPersonaMinimalist": "মাইন্ডফুল মিনিমালিস্ট",
+    "wrappedPersonaMinimalistBlurb": "অনেক খরচহীন দিন। শান্ত ও পরিকল্পিত।",
+    "wrappedPersonaFoodie": "ফুডি",
+    "wrappedPersonaFoodieBlurb": "খাবারে সবচেয়ে বেশি খরচ। মজার পছন্দ।",
+    "wrappedPersonaTreatYourself": "ট্রিট ইয়রসেলফ",
+    "wrappedPersonaTreatYourselfBlurb": "এ মাসে কেনাকাটায় এগিয়ে। আপনি পারেন।",
+    "wrappedPersonaOnTheMove": "অলওয়েজ অন দ্য মুভ",
+    "wrappedPersonaOnTheMoveBlurb": "যাতায়াতে সবচেয়ে বেশি খরচ। অনেক জায়গায় যাওয়া।",
+    "wrappedPersonaBalancer": "স্টেডি ব্যালান্সার",
+    "wrappedPersonaBalancerBlurb": "আয়, খরচ ও সাশ্রয়ের সুস্থ ভারসাম্য।",
+    "wrappedPersonaQuiet": "কোয়েট মাস",
+    "wrappedPersonaQuietBlurb": "টাকার দিক থেকে শান্ত একটি মাস।",
+    "wrappedPersonaEveryday": "এভরিডে স্পেন্ডার",
+    "wrappedPersonaEverydayBlurb": "প্রতিদিনের খরচে স্থিতিশীল একটি সাধারণ মাস।"
+  }
+}

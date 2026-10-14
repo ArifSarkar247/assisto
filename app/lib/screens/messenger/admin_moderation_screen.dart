@@ -6,22 +6,30 @@ import '../../l10n/app_localizations.dart';
 import '../../messenger_admin_api.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/admin_filter_bar.dart';
+import '../../widgets/admin_notes.dart';
 import '../../widgets/msgr_mod_action_dialog.dart';
 import '../../widgets/skeleton.dart';
 
-/// ADMIN moderation review queue (operator / owner only).
+/// ADMIN moderation review queue (operator / owner only) — SPEC v2.1 §21 #175,
+/// ADVANCED.
 ///
-/// Each queued item shows its reason(s), report count, severity and status.
-/// One-tap Remove / Restore / Warn / Suspend / Ban — every action requires a
-/// MANDATORY written reason (via [MsgrModActionDialog]) that the backend
-/// audits. Resolved items can be reopened. Tapping an item opens its detail
-/// with the full append-only audit trail.
+/// A reviewer-grade queue: items are grouped by severity so severe /
+/// auto-hidden content surfaces FIRST, each card shows its reports / reasons /
+/// count / legal flag, and one tap opens the full item with an append-only
+/// audit timeline. One-tap Remove / Restore / Warn / Suspend / Ban — every
+/// action requires a MANDATORY written reason (via [MsgrModActionDialog]) that
+/// the backend audits; resolved items can be reopened and appeals reviewed.
+/// Filters (all / severe / legal / appeals), a sort picker, an honest result
+/// count, and a standing "records kept for legally-required reporting" note
+/// complete the surface.
 ///
 /// This screen governs PUBLIC surfaces only. It never shows — and the API
-/// never returns — message contents or contact lists. Honest states throughout
-/// (loading / empty / error / admins-only). Original Assisto identity; all copy
-/// via AppLocalizations (no Bangla in source). Gate the entry point on the
-/// user's operator/owner flag; the backend also enforces 403.
+/// never returns — message contents or contact lists ([AdminPrivacyNote]).
+/// Honest states throughout (loading / empty / error / admins-only). Original
+/// Assisto identity; all copy via [AppLocalizations] (no Bangla in source).
+/// The entry point is gated on the user's operator/owner flag; the backend
+/// also enforces 403 (surfaced as the admins-only state).
 class AdminModerationScreen extends StatefulWidget {
   const AdminModerationScreen({super.key});
 
@@ -31,12 +39,11 @@ class AdminModerationScreen extends StatefulWidget {
 
 enum _Status { loading, ok, error, adminsOnly }
 
-const _filters = <String>['all', 'severe', 'legal', 'appeals'];
-
 class _AdminModerationScreenState extends State<AdminModerationScreen> {
   _Status _status = _Status.loading;
   List<Map<String, dynamic>> _items = const [];
   String _filter = 'all';
+  String _sort = 'severity';
 
   @override
   void initState() {
@@ -71,16 +78,57 @@ class _AdminModerationScreenState extends State<AdminModerationScreen> {
     _load();
   }
 
-  String _filterLabel(AppLocalizations t, String f) {
-    switch (f) {
-      case 'severe':
-        return t.msgrModFilterSevere;
-      case 'legal':
-        return t.msgrModFilterLegal;
-      case 'appeals':
-        return t.msgrModFilterAppeals;
+  // Order within the queue. "severity" keeps severe/auto-hidden on top (the
+  // owner-required reviewer order); the others are plain stable sorts.
+  List<Map<String, dynamic>> get _sorted {
+    final rows = List<Map<String, dynamic>>.from(_items);
+    int reports(Map<String, dynamic> m) =>
+        (m['report_count'] as num?)?.toInt() ?? 0;
+    bool severe(Map<String, dynamic> m) => m['severe'] == true;
+    bool hidden(Map<String, dynamic> m) =>
+        (m['content_status'] ?? '') == 'hidden';
+    int rank(Map<String, dynamic> m) =>
+        severe(m) ? 0 : (hidden(m) ? 1 : 2);
+    rows.sort((a, b) {
+      switch (_sort) {
+        case 'reports':
+          return reports(b).compareTo(reports(a));
+        case 'recent':
+          return (b['opened_at'] ?? '')
+              .toString()
+              .compareTo((a['opened_at'] ?? '').toString());
+        default: // severity: severe -> auto-hidden -> rest, then by reports.
+          final r = rank(a).compareTo(rank(b));
+          return r != 0 ? r : reports(b).compareTo(reports(a));
+      }
+    });
+    return rows;
+  }
+
+  Future<void> _openSort() async {
+    final t = AppLocalizations.of(context);
+    final v = await AdminSortSheet.show(
+      context,
+      title: t.msgrModSortTitle,
+      selected: _sort,
+      options: [
+        AdminChoice('severity', t.msgrModSortSeverity,
+            icon: Icons.priority_high),
+        AdminChoice('reports', t.msgrModSortReports, icon: Icons.flag_outlined),
+        AdminChoice('recent', t.msgrModSortRecent, icon: Icons.schedule),
+      ],
+    );
+    if (v != null && v != _sort) setState(() => _sort = v);
+  }
+
+  String _sortLabel(AppLocalizations t) {
+    switch (_sort) {
+      case 'reports':
+        return t.msgrModSortReports;
+      case 'recent':
+        return t.msgrModSortRecent;
       default:
-        return t.msgrModFilterAll;
+        return t.msgrModSortSeverity;
     }
   }
 
@@ -99,30 +147,41 @@ class _AdminModerationScreenState extends State<AdminModerationScreen> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
+    final List<Map<String, dynamic>> rows =
+        _status == _Status.ok ? _sorted : const [];
+    // Split so a visible "severe first" subheader can anchor the queue.
+    final severe = rows.where((m) => m['severe'] == true).toList();
+    final rest = rows.where((m) => m['severe'] != true).toList();
+
     return Scaffold(
       appBar: AppBar(title: Text(t.msgrModQueueTitle)),
       body: Column(
         children: [
-          // Standing privacy guarantee — admins never see message contents.
-          _PrivacyBanner(text: t.msgrModAdminPrivacyNote),
-          SizedBox(
-            height: 48,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
-              children: [
-                for (final f in _filters)
-                  Padding(
-                    padding: const EdgeInsets.only(right: Gap.sm),
-                    child: ChoiceChip(
-                      label: Text(_filterLabel(t, f)),
-                      selected: _filter == f,
-                      onSelected: (_) => _setFilter(f),
-                    ),
-                  ),
-              ],
-            ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 0),
+            child: AdminPrivacyNote(text: t.msgrModAdminPrivacyNote),
           ),
+          const SizedBox(height: Gap.sm),
+          AdminFilterRail(
+            selected: _filter,
+            onSelected: _setFilter,
+            choices: [
+              AdminChoice('all', t.msgrModFilterAll),
+              AdminChoice('severe', t.msgrModFilterSevere,
+                  icon: Icons.priority_high),
+              AdminChoice('legal', t.msgrModFilterLegal,
+                  icon: Icons.account_balance_outlined),
+              AdminChoice('appeals', t.msgrModFilterAppeals,
+                  icon: Icons.gavel_outlined),
+            ],
+          ),
+          if (_status == _Status.ok)
+            AdminListHeader(
+              countLabel: t.msgrModResultsCount(
+                  _digits(rows.length.toString(), t.localeName)),
+              sortLabel: _sortLabel(t),
+              onSort: _openSort,
+            ),
           const Divider(height: 1),
           Expanded(
             child: switch (_status) {
@@ -141,7 +200,7 @@ class _AdminModerationScreenState extends State<AdminModerationScreen> {
                   action: FilledButton.tonal(
                       onPressed: _load, child: Text(t.msgrModRetry)),
                 ),
-              _Status.ok => _items.isEmpty
+              _Status.ok => rows.isEmpty
                   ? RefreshIndicator(
                       onRefresh: _load,
                       child: ListView(children: [
@@ -157,15 +216,39 @@ class _AdminModerationScreenState extends State<AdminModerationScreen> {
                     )
                   : RefreshIndicator(
                       onRefresh: _load,
-                      child: ListView.separated(
+                      child: ListView(
                         padding: const EdgeInsets.all(Gap.lg),
-                        itemCount: _items.length,
-                        separatorBuilder: (_, __) =>
-                            const SizedBox(height: Gap.md),
-                        itemBuilder: (_, i) => _QueueCard(
-                          item: _items[i],
-                          onTap: () => _openItem(_items[i]),
-                        ),
+                        children: [
+                          if (_sort == 'severity' && severe.isNotEmpty) ...[
+                            _GroupHeader(
+                              icon: Icons.gpp_maybe,
+                              color: Brand.danger,
+                              label: t.msgrModGroupSevere,
+                            ),
+                            const SizedBox(height: Gap.sm),
+                            for (final it in severe) ...[
+                              _QueueCard(item: it, onTap: () => _openItem(it)),
+                              const SizedBox(height: Gap.md),
+                            ],
+                            if (rest.isNotEmpty) ...[
+                              _GroupHeader(
+                                icon: Icons.flag_outlined,
+                                color:
+                                    Theme.of(context).colorScheme.onSurfaceVariant,
+                                label: t.msgrModGroupOther,
+                              ),
+                              const SizedBox(height: Gap.sm),
+                            ],
+                            for (final it in rest) ...[
+                              _QueueCard(item: it, onTap: () => _openItem(it)),
+                              const SizedBox(height: Gap.md),
+                            ],
+                          ] else
+                            for (final it in rows) ...[
+                              _QueueCard(item: it, onTap: () => _openItem(it)),
+                              const SizedBox(height: Gap.md),
+                            ],
+                        ],
                       ),
                     ),
             },
@@ -173,6 +256,25 @@ class _AdminModerationScreenState extends State<AdminModerationScreen> {
         ],
       ),
     );
+  }
+}
+
+class _GroupHeader extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String label;
+  const _GroupHeader(
+      {required this.icon, required this.color, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(children: [
+      Icon(icon, size: 16, color: color),
+      const SizedBox(width: 6),
+      Text(label,
+          style: TextStyle(
+              color: color, fontWeight: FontWeight.w800, fontSize: 13)),
+    ]);
   }
 }
 
@@ -262,6 +364,9 @@ class _AdminModerationItemScreenState extends State<AdminModerationItemScreen> {
         }
         _busy = false;
       });
+      final t = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(t.msgrModActionDone(label))));
       _load();
     } on ApiException catch (e) {
       if (!mounted) return;
@@ -288,6 +393,8 @@ class _AdminModerationItemScreenState extends State<AdminModerationItemScreen> {
       if (!mounted) return;
       _changed = true;
       setState(() => _busy = false);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(t.msgrModActionDone(t.msgrModReopen))));
       _load();
     } on ApiException catch (e) {
       if (!mounted) return;
@@ -301,7 +408,10 @@ class _AdminModerationItemScreenState extends State<AdminModerationItemScreen> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final resolved = (_item['queue_state'] ?? '') == 'resolved';
+    final queueState = (_item['queue_state'] ?? '').toString();
+    final resolved = queueState == 'resolved';
+    final underAppeal = queueState == 'under_appeal';
+    final legal = _item['legal_retention'] == true;
 
     return Scaffold(
       appBar: AppBar(title: Text(t.msgrModItemTitle)),
@@ -316,8 +426,16 @@ class _AdminModerationItemScreenState extends State<AdminModerationItemScreen> {
                 padding: const EdgeInsets.all(Gap.lg),
                 children: [
                   _QueueCard(item: _item, dense: false),
-                  const SizedBox(height: Gap.lg),
-                  _PrivacyBanner(text: t.msgrModAdminPrivacyNote),
+                  const SizedBox(height: Gap.md),
+                  if (underAppeal) ...[
+                    _AppealBanner(t: t),
+                    const SizedBox(height: Gap.md),
+                  ],
+                  AdminPrivacyNote(text: t.msgrModAdminPrivacyNote),
+                  if (legal) ...[
+                    const SizedBox(height: Gap.sm),
+                    AdminLegalNote(text: t.msgrModLegalRetentionNote),
+                  ],
                   const SizedBox(height: Gap.lg),
                   Text(t.msgrModActionsSection,
                       style: Theme.of(context)
@@ -356,7 +474,7 @@ class _AdminModerationItemScreenState extends State<AdminModerationItemScreen> {
                         _act('ban', t.msgrModActionBan, t.msgrModActionBanDesc,
                             destructive: true);
                       }),
-                      if (resolved)
+                      if (resolved || underAppeal)
                         _actionBtn(Icons.refresh, t.msgrModReopen,
                             scheme.primary, _reopen),
                     ],
@@ -370,17 +488,31 @@ class _AdminModerationItemScreenState extends State<AdminModerationItemScreen> {
                     Text(_error!, style: const TextStyle(color: Brand.danger)),
                   ],
                   const SizedBox(height: Gap.xl),
-                  Text(t.msgrModAuditSection,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w800)),
+                  Row(children: [
+                    Text(t.msgrModAuditSection,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w800)),
+                    const SizedBox(width: Gap.sm),
+                    Icon(Icons.lock_clock_outlined,
+                        size: 16, color: scheme.onSurfaceVariant),
+                  ]),
+                  const SizedBox(height: Gap.xs),
+                  Text(t.msgrModAuditAppendOnlyNote,
+                      style: TextStyle(
+                          color: scheme.onSurfaceVariant, fontSize: 12)),
                   const SizedBox(height: Gap.sm),
                   if (_audit.isEmpty)
                     Text(t.msgrModAuditEmpty,
                         style: TextStyle(color: scheme.onSurfaceVariant))
                   else
-                    for (final a in _audit) _AuditRow(entry: a),
+                    for (int i = 0; i < _audit.length; i++)
+                      _AuditTimeline(
+                        entry: _audit[i],
+                        isFirst: i == 0,
+                        isLast: i == _audit.length - 1,
+                      ),
                 ],
               ),
       ),
@@ -397,6 +529,44 @@ class _AdminModerationItemScreenState extends State<AdminModerationItemScreen> {
         foregroundColor: color,
         side: BorderSide(color: color.withValues(alpha: 0.5)),
       ),
+    );
+  }
+}
+
+/// Shown at the top of an item that a user has appealed — prompts the reviewer
+/// to re-decide (the "appeals review + reopen" half of §175).
+class _AppealBanner extends StatelessWidget {
+  final AppLocalizations t;
+  const _AppealBanner({required this.t});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(Gap.md),
+      decoration: BoxDecoration(
+        color: scheme.tertiaryContainer.withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(Radii.md),
+        border: Border.all(color: scheme.tertiary.withValues(alpha: 0.4)),
+      ),
+      child: Row(children: [
+        Icon(Icons.gavel_outlined, size: 18, color: scheme.tertiary),
+        const SizedBox(width: Gap.sm),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(t.msgrModAppealOpenTitle,
+                  style: const TextStyle(fontWeight: FontWeight.w800)),
+              const SizedBox(height: 2),
+              Text(t.msgrModAppealOpenBody,
+                  style: TextStyle(
+                      color: scheme.onSurface, fontSize: 12.5, height: 1.35)),
+            ],
+          ),
+        ),
+      ]),
     );
   }
 }
@@ -486,6 +656,7 @@ class _QueueCard extends StatelessWidget {
           color: severe
               ? Brand.danger.withValues(alpha: 0.5)
               : scheme.outlineVariant,
+          width: severe ? 1.5 : 1,
         ),
       ),
       child: Column(
@@ -572,9 +743,14 @@ class _QueueCard extends StatelessWidget {
   }
 }
 
-class _AuditRow extends StatelessWidget {
+/// Audit row rendered on the shared [AdminTimelineEntry] rail, with a
+/// per-action icon/colour so a reviewer can scan the history at a glance.
+class _AuditTimeline extends StatelessWidget {
   final Map<String, dynamic> entry;
-  const _AuditRow({required this.entry});
+  final bool isFirst;
+  final bool isLast;
+  const _AuditTimeline(
+      {required this.entry, required this.isFirst, required this.isLast});
 
   @override
   Widget build(BuildContext context) {
@@ -584,75 +760,40 @@ class _AuditRow extends StatelessWidget {
     final reason = (entry['reason'] ?? '').toString();
     final at = (entry['at'] ?? entry['created_at'] ?? '').toString();
     final actor = (entry['actor'] ?? entry['actor_id'] ?? '').toString();
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: Gap.sm),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            margin: const EdgeInsets.only(top: 4),
-            width: 8,
-            height: 8,
-            decoration:
-                BoxDecoration(color: scheme.primary, shape: BoxShape.circle),
-          ),
-          const SizedBox(width: Gap.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(msgrModActionPastLabel(t, action),
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
-                if (reason.isNotEmpty)
-                  Text(reason,
-                      style: TextStyle(
-                          color: scheme.onSurfaceVariant, height: 1.35)),
-                const SizedBox(height: 2),
-                Text(
-                  [
-                    if (actor.isNotEmpty) t.msgrModAuditActor(actor),
-                    if (at.isNotEmpty) at,
-                  ].join(' · '),
-                  style:
-                      TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+    final visual = _visual(action, scheme);
+    return AdminTimelineEntry(
+      icon: visual.icon,
+      color: visual.color,
+      title: msgrModActionPastLabel(t, action),
+      reason: reason,
+      meta: [
+        if (actor.isNotEmpty) t.msgrModAuditActor(actor),
+        if (at.isNotEmpty) at,
+      ].join(' · '),
+      isFirst: isFirst,
+      isLast: isLast,
     );
   }
-}
 
-class _PrivacyBanner extends StatelessWidget {
-  final String text;
-  const _PrivacyBanner({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      margin: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.md),
-      padding: const EdgeInsets.all(Gap.md),
-      decoration: BoxDecoration(
-        color: scheme.secondaryContainer.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(Radii.md),
-      ),
-      child: Row(children: [
-        Icon(Icons.lock_outline, size: 18, color: scheme.secondary),
-        const SizedBox(width: Gap.sm),
-        Expanded(
-          child: Text(
-            text,
-            style: TextStyle(
-                color: scheme.onSecondaryContainer,
-                fontSize: 12.5,
-                height: 1.35),
-          ),
-        ),
-      ]),
-    );
+  ({IconData icon, Color color}) _visual(String action, ColorScheme scheme) {
+    switch (action) {
+      case 'remove':
+      case 'ban':
+        return (icon: Icons.block, color: Brand.danger);
+      case 'restore':
+        return (icon: Icons.restore_outlined, color: Brand.success);
+      case 'warn':
+      case 'suspend':
+        return (icon: Icons.warning_amber_outlined, color: Brand.warning);
+      case 'appeal':
+        return (icon: Icons.gavel_outlined, color: scheme.tertiary);
+      case 'reopen':
+        return (icon: Icons.refresh, color: scheme.primary);
+      case 'report':
+        return (icon: Icons.flag_outlined, color: scheme.onSurfaceVariant);
+      default:
+        return (icon: Icons.circle, color: scheme.primary);
+    }
   }
 }
 

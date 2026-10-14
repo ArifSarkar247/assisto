@@ -6,21 +6,28 @@ import '../../l10n/app_localizations.dart';
 import '../../messenger_admin_api.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/admin_filter_bar.dart';
+import '../../widgets/admin_notes.dart';
 import '../../widgets/msgr_mod_action_dialog.dart';
 import '../../widgets/skeleton.dart';
 
-/// ADMIN users directory (OWNER only).
+/// ADMIN users directory (OWNER only) — SPEC v2.1 §21 #174, ADVANCED.
 ///
 /// List / search users by the ALLOWED PUBLIC fields ONLY: name, phone, photo,
-/// signup date, plan, last active, app version, report count, status. Actions:
-/// suspend / unsuspend / reset-sessions / ban, each with a MANDATORY reason.
-/// A user detail also lists their PUBLIC channels/communities.
+/// signup date, plan, last active, app version, report count, status. The
+/// directory adds a reviewer-grade control surface: free-text search, status +
+/// plan + report-count filters, a sort picker (recent / most-reported / name),
+/// an honest result-count header, and client-side pagination ("show more") so
+/// large result sets stay responsive. Per-user detail shows the public
+/// projection plus the user's PUBLIC channels/communities, and the actions
+/// suspend / unsuspend / reset-sessions / ban each demand a MANDATORY reason
+/// with a confirm step; every action is audited.
 ///
 /// HARD PRIVACY GUARANTEE (reflected in the UI): admins never see — and the API
 /// never returns or requests — message contents or contact lists. A visible
-/// note states this. Original Assisto identity; all copy via AppLocalizations
-/// (no Bangla in source). Gate the entry point on the owner flag; the backend
-/// also enforces 403.
+/// [AdminPrivacyNote] states this. Original Assisto identity; all copy via
+/// [AppLocalizations] (no Bangla in source). The entry point is gated on the
+/// owner flag; the backend also enforces 403 (surfaced as the owner-only state).
 class AdminUsersScreen extends StatefulWidget {
   const AdminUsersScreen({super.key});
 
@@ -30,13 +37,17 @@ class AdminUsersScreen extends StatefulWidget {
 
 enum _Status { loading, ok, error, adminsOnly }
 
-const _statusFilters = <String>['all', 'active', 'suspended', 'banned'];
+const _pageSize = 20;
 
 class _AdminUsersScreenState extends State<AdminUsersScreen> {
   _Status _status = _Status.loading;
   List<Map<String, dynamic>> _users = const [];
   final _search = TextEditingController();
   String _statusFilter = 'all';
+  String _plan = 'all';
+  bool _reportedOnly = false;
+  String _sort = 'recent';
+  int _shown = _pageSize;
 
   @override
   void initState() {
@@ -61,6 +72,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       setState(() {
         _users =
             ((r['users'] as List?) ?? const []).cast<Map<String, dynamic>>();
+        _shown = _pageSize;
         _status = _Status.ok;
       });
     } on ApiException catch (e) {
@@ -73,23 +85,130 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     }
   }
 
+  // ---- derived view (client-side plan/reports filter + sort + paginate) ----
+
+  List<Map<String, dynamic>> get _visible {
+    var rows = _users.where((u) {
+      if (_plan != 'all' && (u['plan'] ?? '').toString() != _plan) return false;
+      if (_reportedOnly && ((u['report_count'] as num?)?.toInt() ?? 0) <= 0) {
+        return false;
+      }
+      return true;
+    }).toList();
+    rows.sort((a, b) {
+      switch (_sort) {
+        case 'reports':
+          return ((b['report_count'] as num?)?.toInt() ?? 0)
+              .compareTo((a['report_count'] as num?)?.toInt() ?? 0);
+        case 'name':
+          return (a['name'] ?? '')
+              .toString()
+              .toLowerCase()
+              .compareTo((b['name'] ?? '').toString().toLowerCase());
+        default: // recent — by last_active desc (string ISO sorts correctly)
+          return (b['last_active'] ?? '')
+              .toString()
+              .compareTo((a['last_active'] ?? '').toString());
+      }
+    });
+    return rows;
+  }
+
+  Set<String> get _plans {
+    final s = <String>{};
+    for (final u in _users) {
+      final p = (u['plan'] ?? '').toString();
+      if (p.isNotEmpty) s.add(p);
+    }
+    return s;
+  }
+
   void _setStatusFilter(String f) {
     if (_statusFilter == f) return;
     setState(() => _statusFilter = f);
-    _load();
+    _load(); // status is a server-side filter
   }
 
-  String _statusFilterLabel(AppLocalizations t, String f) {
-    switch (f) {
-      case 'active':
-        return t.msgrModUserStatusActive;
-      case 'suspended':
-        return t.msgrModUserStatusSuspended;
-      case 'banned':
-        return t.msgrModUserStatusBanned;
-      default:
-        return t.msgrModFilterAll;
-    }
+  Future<void> _openSort() async {
+    final t = AppLocalizations.of(context);
+    final v = await AdminSortSheet.show(
+      context,
+      title: t.msgrModSortTitle,
+      selected: _sort,
+      options: [
+        AdminChoice('recent', t.msgrModSortRecent, icon: Icons.schedule),
+        AdminChoice('reports', t.msgrModSortReports, icon: Icons.flag_outlined),
+        AdminChoice('name', t.msgrModSortName, icon: Icons.sort_by_alpha),
+      ],
+    );
+    if (v != null && v != _sort) setState(() => _sort = v);
+  }
+
+  Future<void> _openFilters() async {
+    final t = AppLocalizations.of(context);
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheet) => SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(t.msgrModFiltersTitle,
+                    style: Theme.of(ctx)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w800)),
+                const SizedBox(height: Gap.md),
+                Text(t.msgrModUserPlan('').trim(),
+                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                const SizedBox(height: Gap.xs),
+                Wrap(spacing: Gap.sm, children: [
+                  ChoiceChip(
+                    label: Text(t.msgrModFilterAll),
+                    selected: _plan == 'all',
+                    onSelected: (_) => setSheet(() => _plan = 'all'),
+                  ),
+                  for (final p in _plans)
+                    ChoiceChip(
+                      label: Text(p),
+                      selected: _plan == p,
+                      onSelected: (_) => setSheet(() => _plan = p),
+                    ),
+                ]),
+                const SizedBox(height: Gap.md),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  value: _reportedOnly,
+                  title: Text(t.msgrModFilterReportedOnly),
+                  onChanged: (v) => setSheet(() => _reportedOnly = v),
+                ),
+                const SizedBox(height: Gap.sm),
+                Row(children: [
+                  TextButton(
+                    onPressed: () => setSheet(() {
+                      _plan = 'all';
+                      _reportedOnly = false;
+                    }),
+                    child: Text(t.msgrModFiltersReset),
+                  ),
+                  const Spacer(),
+                  FilledButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    child: Text(t.msgrModFiltersApply),
+                  ),
+                ]),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    if (mounted) setState(() {});
   }
 
   Future<void> _openUser(Map<String, dynamic> u) async {
@@ -102,10 +221,25 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     if (changed == true) _load();
   }
 
+  String _sortLabel(AppLocalizations t) {
+    switch (_sort) {
+      case 'reports':
+        return t.msgrModSortReports;
+      case 'name':
+        return t.msgrModSortName;
+      default:
+        return t.msgrModSortRecent;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
+    final List<Map<String, dynamic>> visible =
+        _status == _Status.ok ? _visible : const [];
+    final activeFilters =
+        (_plan != 'all' ? 1 : 0) + (_reportedOnly ? 1 : 0);
     return Scaffold(
       appBar: AppBar(title: Text(t.msgrModUsersTitle)),
       body: Column(
@@ -119,53 +253,56 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.search),
                 hintText: t.msgrModUsersSearchHint,
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.tune),
-                  onPressed: _load,
-                ),
-              ),
-            ),
-          ),
-          SizedBox(
-            height: 44,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
-              children: [
-                for (final f in _statusFilters)
-                  Padding(
-                    padding: const EdgeInsets.only(right: Gap.sm),
-                    child: ChoiceChip(
-                      label: Text(_statusFilterLabel(t, f)),
-                      selected: _statusFilter == f,
-                      onSelected: (_) => _setStatusFilter(f),
+                suffixIcon: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (_search.text.isNotEmpty)
+                      IconButton(
+                        tooltip: t.msgrModClear,
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          _search.clear();
+                          _load();
+                        },
+                      ),
+                    Badge(
+                      isLabelVisible: activeFilters > 0,
+                      label: Text('$activeFilters'),
+                      child: IconButton(
+                        tooltip: t.msgrModFiltersTitle,
+                        icon: const Icon(Icons.tune),
+                        onPressed: _openFilters,
+                      ),
                     ),
-                  ),
-              ],
-            ),
-          ),
-          // Visible, standing guarantee that admins never see private data.
-          Container(
-            margin: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.sm),
-            padding: const EdgeInsets.all(Gap.md),
-            decoration: BoxDecoration(
-              color: scheme.secondaryContainer.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(Radii.md),
-            ),
-            child: Row(children: [
-              Icon(Icons.lock_outline, size: 18, color: scheme.secondary),
-              const SizedBox(width: Gap.sm),
-              Expanded(
-                child: Text(
-                  t.msgrModUsersPrivacyNote,
-                  style: TextStyle(
-                      color: scheme.onSecondaryContainer,
-                      fontSize: 12.5,
-                      height: 1.35),
+                  ],
                 ),
               ),
-            ]),
+            ),
           ),
+          AdminFilterRail(
+            selected: _statusFilter,
+            onSelected: _setStatusFilter,
+            choices: [
+              AdminChoice('all', t.msgrModFilterAll),
+              AdminChoice('active', t.msgrModUserStatusActive,
+                  icon: Icons.check_circle_outline),
+              AdminChoice('suspended', t.msgrModUserStatusSuspended,
+                  icon: Icons.pause_circle_outline),
+              AdminChoice('banned', t.msgrModUserStatusBanned,
+                  icon: Icons.block),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, 0),
+            child: AdminPrivacyNote(text: t.msgrModUsersPrivacyNote),
+          ),
+          if (_status == _Status.ok)
+            AdminListHeader(
+              countLabel:
+                  t.msgrModResultsCount(_digits(visible.length.toString(), t.localeName)),
+              sortLabel: _sortLabel(t),
+              onSort: _openSort,
+            ),
           const Divider(height: 1),
           Expanded(
             child: switch (_status) {
@@ -184,7 +321,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                   action: FilledButton.tonal(
                       onPressed: _load, child: Text(t.msgrModRetry)),
                 ),
-              _Status.ok => _users.isEmpty
+              _Status.ok => visible.isEmpty
                   ? RefreshIndicator(
                       onRefresh: _load,
                       child: ListView(children: [
@@ -202,13 +339,30 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                       onRefresh: _load,
                       child: ListView.separated(
                         padding: const EdgeInsets.all(Gap.lg),
-                        itemCount: _users.length,
+                        itemCount: (visible.length > _shown ? _shown : visible.length) +
+                            (visible.length > _shown ? 1 : 0),
                         separatorBuilder: (_, __) =>
                             const SizedBox(height: Gap.sm),
-                        itemBuilder: (_, i) => _UserCard(
-                          user: _users[i],
-                          onTap: () => _openUser(_users[i]),
-                        ),
+                        itemBuilder: (_, i) {
+                          final limit = visible.length > _shown ? _shown : visible.length;
+                          if (i >= limit) {
+                            return Center(
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: Gap.sm),
+                                child: OutlinedButton.icon(
+                                  onPressed: () =>
+                                      setState(() => _shown += _pageSize),
+                                  icon: const Icon(Icons.expand_more),
+                                  label: Text(t.msgrModShowMore),
+                                ),
+                              ),
+                            );
+                          }
+                          return _UserCard(
+                            user: visible[i],
+                            onTap: () => _openUser(visible[i]),
+                          );
+                        },
                       ),
                     ),
             },
@@ -241,6 +395,7 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
   bool _busy = false;
   bool _changed = false;
   bool _publicLoading = true;
+  bool _publicError = false;
   List<Map<String, dynamic>> _channels = const [];
   List<Map<String, dynamic>> _communities = const [];
 
@@ -252,6 +407,10 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
   }
 
   Future<void> _loadPublic() async {
+    setState(() {
+      _publicLoading = true;
+      _publicError = false;
+    });
     try {
       final r =
           await context.read<AppState>().api.adminUserPublic(widget.userId);
@@ -265,7 +424,10 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
       });
     } catch (_) {
       if (!mounted) return;
-      setState(() => _publicLoading = false);
+      setState(() {
+        _publicLoading = false;
+        _publicError = true;
+      });
     }
   }
 
@@ -292,6 +454,9 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
         }
         _busy = false;
       });
+      final t = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(t.msgrModActionDone(label))));
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
@@ -319,6 +484,8 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
           padding: const EdgeInsets.all(Gap.lg),
           children: [
             _UserCard(user: _user, dense: false),
+            const SizedBox(height: Gap.md),
+            AdminPrivacyNote(text: t.msgrModUsersPrivacyNote),
             const SizedBox(height: Gap.lg),
 
             Text(t.msgrModActionsSection,
@@ -373,6 +540,15 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
             const SizedBox(height: Gap.sm),
             if (_publicLoading)
               const SkeletonList(count: 3)
+            else if (_publicError)
+              Row(children: [
+                Expanded(
+                  child: Text(t.msgrModErrorBody,
+                      style: TextStyle(color: scheme.onSurfaceVariant)),
+                ),
+                TextButton(
+                    onPressed: _loadPublic, child: Text(t.msgrModRetry)),
+              ])
             else if (_channels.isEmpty && _communities.isEmpty)
               Text(t.msgrModUserNoPublic,
                   style: TextStyle(color: scheme.onSurfaceVariant))
@@ -463,7 +639,11 @@ class _UserCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(Radii.md),
-        border: Border.all(color: scheme.outlineVariant),
+        border: Border.all(
+          color: reports > 0 && dense
+              ? Brand.warning.withValues(alpha: 0.4)
+              : scheme.outlineVariant,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

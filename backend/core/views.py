@@ -3023,3 +3023,133 @@ def home_badges(request):
     events = _collect_events(request.user, req_lang(request))
     chat_unread = _chat_unread(request.user)
     return Response(_nc.badges(chat_unread, events, settings_enabled=settings_enabled))
+
+
+# ---------- #67 Selective sharing (SPEC v2.1 §21) — server-enforced consent ----
+# Owner-scoped. Default-deny: nothing is shared until the owner grants it. The
+# pure decision/state logic lives in core.logic.family_sharing; these views only
+# persist the owner's choices (FamilySharing row) and enforce can_share_item()
+# before serializing any shared field. Bilingual via req_lang/pick.
+from .models import FamilySharing  # noqa: E402
+from .logic import family_sharing as fsh  # noqa: E402
+
+_FAM_AUDIT_CAP = 200
+
+
+def _fam_sharing_row(user):
+    row, _ = FamilySharing.objects.get_or_create(user=user)
+    return row
+
+
+def _fam_members(user):
+    """[{id, name, relation, phone}] for the owner's family members."""
+    return [
+        {"id": m.id, "name": m.name, "relation": m.relation, "phone": m.phone}
+        for m in FamilyMember.objects.filter(user=user)
+    ]
+
+
+def _fam_consent_payload(row, user, lang):
+    members = _fam_members(user)
+    summary = fsh.consent_summary(row.grants, members)
+    summary["item_labels"] = {
+        i: fsh.item_label(i, lang) for i in fsh.SHAREABLE_ITEMS
+    }
+    return summary
+
+
+class FamilySharingConsentView(APIView):
+    """GET family/sharing/consent — the consent screen model (per-member,
+    per-item grid) built from the owner's grants + family members."""
+    def get(self, request):
+        row = _fam_sharing_row(request.user)
+        return Response(_fam_consent_payload(row, request.user, req_lang(request)))
+
+
+class FamilySharingGrantView(APIView):
+    """POST family/sharing/grant {member_id, item, on} — grant/revoke one item
+    for one member, append an audit entry, return the fresh consent model."""
+    def post(self, request):
+        data = request.data or {}
+        member_id = data.get("member_id")
+        item = data.get("item")
+        on = bool(data.get("on", True))
+        if not fsh.is_shareable_item(item):
+            return Response({"detail": "unknown item"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        row = _fam_sharing_row(request.user)
+        row.grants = fsh.set_grant(row.grants, member_id, item, on=on)
+        # JSON can't store sets/int keys — serialize to {str: [sorted items]}.
+        row.grants = {str(k): sorted(v) for k, v in
+                      fsh.normalize_grants(row.grants).items()}
+        name = ""
+        for m in _fam_members(request.user):
+            if str(m["id"]) == str(member_id):
+                name = m["name"]
+                break
+        entry = fsh.build_audit_entry(
+            fsh.AUDIT_GRANT if on else fsh.AUDIT_REVOKE,
+            member_id=member_id, item=item, member_name=name,
+            actor_id=request.user.id)
+        row.audit = ([entry] + list(row.audit or []))[:_FAM_AUDIT_CAP]
+        row.save()
+        log(request.user, "family.sharing.grant",
+            member_id=member_id, item=item, on=on)
+        return Response(_fam_consent_payload(row, request.user, req_lang(request)))
+
+
+class FamilySharingRevokeMemberView(APIView):
+    """POST family/sharing/revoke-member {member_id} — revoke all for a member."""
+    def post(self, request):
+        member_id = (request.data or {}).get("member_id")
+        row = _fam_sharing_row(request.user)
+        row.grants = {str(k): sorted(v) for k, v in
+                      fsh.normalize_grants(
+                          fsh.revoke_member(row.grants, member_id)).items()}
+        name = ""
+        for m in _fam_members(request.user):
+            if str(m["id"]) == str(member_id):
+                name = m["name"]
+                break
+        entry = fsh.build_audit_entry(
+            fsh.AUDIT_REVOKE_MEMBER, member_id=member_id, member_name=name,
+            actor_id=request.user.id)
+        row.audit = ([entry] + list(row.audit or []))[:_FAM_AUDIT_CAP]
+        row.save()
+        log(request.user, "family.sharing.revoke_member", member_id=member_id)
+        return Response(_fam_consent_payload(row, request.user, req_lang(request)))
+
+
+class FamilySharingRevokeAllView(APIView):
+    """POST family/sharing/revoke-all — revoke everything from everyone."""
+    def post(self, request):
+        row = _fam_sharing_row(request.user)
+        row.grants = {}
+        entry = fsh.build_audit_entry(fsh.AUDIT_REVOKE_ALL,
+                                      actor_id=request.user.id)
+        row.audit = ([entry] + list(row.audit or []))[:_FAM_AUDIT_CAP]
+        row.save()
+        log(request.user, "family.sharing.revoke_all")
+        return Response(_fam_consent_payload(row, request.user, req_lang(request)))
+
+
+class FamilySharingAuditView(APIView):
+    """GET family/sharing/audit — the persisted audit log (newest first)."""
+    def get(self, request):
+        row = _fam_sharing_row(request.user)
+        return Response({"entries": list(row.audit or [])})
+
+
+class FamilySharedItemView(APIView):
+    """GET family/shared/<member_id>/<item> — server-enforced read. MUST call
+    can_share_item() BEFORE loading/returning the field; default-deny on false."""
+    def get(self, request, member_id, item):
+        row = _fam_sharing_row(request.user)
+        if not fsh.can_share_item(row.grants, member_id, item):
+            return Response({"detail": "not shared", "shared": False},
+                            status=status.HTTP_403_FORBIDDEN)
+        # The owner has granted this item to this member; a real integration
+        # resolves the concrete field here. We confirm the grant (default-deny
+        # already enforced) without fabricating data.
+        return Response({"shared": True, "member_id": int(member_id),
+                         "item": item})

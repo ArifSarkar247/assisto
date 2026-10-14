@@ -1,0 +1,39 @@
+{
+  "_comment": "NEW ARB keys for the ADVANCED profile editor (MessengerProfileScreen; SPEC v2.1 §21, #98). INTEGRATION: merge the `en` map into app/lib/l10n/app_en.arb and the `bn` map into app/lib/l10n/app_bn.arb, then run l10n codegen (flutter gen-l10n / build). The app ships these strings TODAY via a local bilingual table in app/lib/widgets/profile_strings.dart (Bangla as \\u codepoints only — ZERO Bangla glyphs in any .dart); the `pf` prefix matches that table — keep this file and the table in sync. EXISTING ARB getters are REUSED and NOT redefined here: msgrProfileTitle, msgrChangePhoto, msgrRemovePhoto, msgrPickFromGallery, msgrTakePhoto, msgrDisplayName, msgrAbout, msgrAboutHint, msgrPhone, msgrPhoneVisibility, msgrWhoCanMessage, msgrVisibilityEveryone/Family/Nobody, msgrSaveProfile, msgrProfileSaved, msgrProfileSaveFailed, retry, cancel, save, ok, delete, close, you. No @-metadata needed (no placeholders). No other .dart/.arb/api/model/url/sidebar files are touched.",
+  "en": {
+    "pfLoading": "Loading your profile…",
+    "pfSaving": "Saving…",
+    "pfLoadError": "Couldn’t load your profile.",
+    "pfLoadErrorBody": "Check your connection and try again.",
+    "pfCropTitle": "Crop photo",
+    "pfCropHint": "Drag and zoom to fit the square.",
+    "pfCropUse": "Use this photo",
+    "pfPhotoRemoved": "Photo removed",
+    "pfNoPhotoYet": "No photo yet — your initial is shown.",
+    "pfNameRequired": "Please enter a display name.",
+    "pfNameTooLong": "Name is too long.",
+    "pfNameHelper": "This is the name your circle sees.",
+    "pfPhoneHidden": "No phone number on your account.",
+    "pfVisibilityHint": "Who sees each field is set per field.",
+    "pfOpenPrivacy": "Open privacy settings",
+    "pfNameVisibilityNote": "Your name and photo are visible to your circle."
+  },
+  "bn": {
+    "pfLoading": "প্রোফাইল লোড হচ্ছে…",
+    "pfSaving": "সংরক্ষণ করা হচ্ছে…",
+    "pfLoadError": "প্রোফাইল লোড করা যায়নি।",
+    "pfLoadErrorBody": "ইন্টারনেট পরীক্ষা করে আবার চেষ্টা করুন।",
+    "pfCropTitle": "ছবি কাটুন",
+    "pfCropHint": "ছবি সরান ও জুম করে বর্গাকারে সাজান।",
+    "pfCropUse": "এই ছবি ব্যবহার করুন",
+    "pfPhotoRemoved": "ছবি সরানো হয়েছে",
+    "pfNoPhotoYet": "এখনো কোনো ছবি নেই—আপনার নামের অক্ষর দেখানো হচ্ছে।",
+    "pfNameRequired": "নাম দিন।",
+    "pfNameTooLong": "নাম খুব বড়।",
+    "pfNameHelper": "এই নামই আপনার সার্কেল দেখবে।",
+    "pfPhoneHidden": "আপনার অ্যাকাউন্টে কোনো ফোন নম্বর নেই।",
+    "pfVisibilityHint": "কে যে তথ্য দেখবে তা প্রতিটি ফিল্ডে আলাদাভাবে ঠিক করা যায়।",
+    "pfOpenPrivacy": "গোপনীয়তা সেটিংস খুলুন",
+    "pfNameVisibilityNote": "আপনার নাম ও ছবি আপনার সার্কেলের কাছে দৃশ্যমান।"
+  }
+}

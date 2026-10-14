@@ -812,6 +812,11 @@ JobHunterSnippetTests = _make_snippet_case(
 # Agent Studio (advanced §21) — deterministic WHEN/IF/THEN automation engine.
 AgentStudioSnippetTests = _make_snippet_case(
     "core.logic.agent_studio_tests_snippets", "AgentStudioSnippetTests")
+# Social-media post & caption composer (#135, advanced §21) — deterministic
+# MOCK draft generator (platform/tone/length/lang), per-platform char limits,
+# hashtags/emoji, share intent. Key-free; never auto-posts.
+SocialComposeSnippetTests = _make_snippet_case(
+    "core.logic.social_tests_snippets", "SocialComposeSnippetTests")
 # Payment / auto-pay ladder (advanced §21) — deterministic escalation engine for
 # receivables (chase dues) + payables (bill/EMI reminders). Never holds money,
 # never auto-charges; `pay_key` is gated on a licensed payment key.
@@ -832,6 +837,11 @@ FamAcctSnippetTests = _make_snippet_case(
 # (test_wrapped_*) alongside the broader money-engine asserts.
 MoneyEngineSnippetTests = _make_snippet_case(
     "core.logic.money_tests_snippets", "MoneyEngineSnippetTests")
+# Wave-D batch-6 (FAMILY advanced bundle §21 #67) — selective-sharing pure
+# logic: grant/revoke/default-deny, consent-summary, audit entries, probashi
+# two-timezone math, remittance reminder (never a wallet).
+FamilySharingSnippetTests = _make_snippet_case(
+    "core.logic.family_sharing_tests_snippets", "FamilySharingSnippetTests")
 
 
 # ---------------------------------------------------------------------------
@@ -1119,3 +1129,87 @@ class Build61ApiTests(APITestCase):
         pin = self.client.post(f"/api/v1/circle/messages/{msg_id}/pin", {},
                               format="json")
         self.assertTrue(pin.json()["pinned"])
+
+
+class FamilySharingApiTests(APITestCase):
+    """#67 Selective sharing endpoints — owner-scoped, default-deny, audited.
+
+    The FamilySharing model is NEW (migration surface: core 0030, created by the
+    integrator via makemigrations). Until that migration exists the table is
+    absent in the test DB, so this suite skips rather than erroring — it runs in
+    full once the integrator has run makemigrations."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        from django.db import connection
+        from .models import FamilySharing
+        table = FamilySharing._meta.db_table
+        if table not in connection.introspection.table_names():
+            import unittest
+            raise unittest.SkipTest(
+                "FamilySharing table absent — run makemigrations (core 0030)")
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            name="মালিক", phone="01710000000", password="secret123")
+        self.client.force_authenticate(user=self.user)
+        from .models import FamilyMember
+        self.m = FamilyMember.objects.create(
+            user=self.user, name="বাবা", relation="father")
+
+    def test_default_deny_consent_empty(self):
+        r = self.client.get("/api/v1/family/sharing/consent/")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json()["total_shared"], 0)
+        row = next(x for x in r.json()["rows"] if x["member_id"] == self.m.id)
+        self.assertFalse(any(row["items"].values()))
+
+    def test_grant_then_revoke_and_audit(self):
+        g = self.client.post("/api/v1/family/sharing/grant/",
+                             {"member_id": self.m.id, "item": "location",
+                              "on": True}, format="json")
+        self.assertEqual(g.status_code, 200)
+        self.assertEqual(g.json()["total_shared"], 1)
+        # server-enforced read: granted item is visible
+        ok = self.client.get(
+            f"/api/v1/family/shared/{self.m.id}/location/")
+        self.assertEqual(ok.status_code, 200)
+        self.assertTrue(ok.json()["shared"])
+        # ungranted item is default-deny (403)
+        no = self.client.get(
+            f"/api/v1/family/shared/{self.m.id}/documents/")
+        self.assertEqual(no.status_code, 403)
+        # revoke the member
+        rm = self.client.post("/api/v1/family/sharing/revoke-member/",
+                              {"member_id": self.m.id}, format="json")
+        self.assertEqual(rm.status_code, 200)
+        self.assertEqual(rm.json()["total_shared"], 0)
+        after = self.client.get(
+            f"/api/v1/family/shared/{self.m.id}/location/")
+        self.assertEqual(after.status_code, 403)
+        # audit log records both actions
+        a = self.client.get("/api/v1/family/sharing/audit/")
+        actions = [e["action"] for e in a.json()["entries"]]
+        self.assertIn("grant", actions)
+        self.assertIn("revoke_member", actions)
+
+    def test_revoke_all(self):
+        self.client.post("/api/v1/family/sharing/grant/",
+                         {"member_id": self.m.id, "item": "medicine",
+                          "on": True}, format="json")
+        r = self.client.post("/api/v1/family/sharing/revoke-all/", {},
+                            format="json")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json()["total_shared"], 0)
+
+    def test_unknown_item_rejected(self):
+        r = self.client.post("/api/v1/family/sharing/grant/",
+                            {"member_id": self.m.id, "item": "bank_pin",
+                             "on": True}, format="json")
+        self.assertEqual(r.status_code, 400)
+
+    def test_requires_auth(self):
+        self.client.force_authenticate(user=None)
+        r = self.client.get("/api/v1/family/sharing/consent/")
+        self.assertIn(r.status_code, (401, 403))

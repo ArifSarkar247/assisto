@@ -1,0 +1,163 @@
+{
+  "_comment": "Contact MATCH (#99) + INVITE (#101) ADVANCED (SPEC v2.1 §21). NEW keys {key:[bn,en]} to merge into app_bn.arb/app_en.arb at next sync. REUSED existing getters (NOT re-emitted): msgrContactsTitle, msgrContactsPermTitle, msgrContactsDisclosure, msgrContactsAllow, msgrContactsDeny, msgrContactsScanning, msgrContactsOnAssisto, msgrContactsInviteOthers, msgrContactsNoneMatched, msgrContactsManualHint, msgrContactsPermissionNeeded, msgrInviteAction, msgrConnectAction, msgrInviteShareLink, msgrInviteSms, msgrInviteSmsNote, msgrInviteSent, msgrInviteFailed, msgrConnectTitle, msgrRequestSent, msgrRequestFailed, msgrCancel. The app ships these NEW strings TODAY via the bilingual table in app/lib/widgets/contacts_match_model.dart (Bangla as \\u codepoints; zero Bangla glyphs in .dart). The 'cm' prefix matches the keys in that table. Parameterized keys use {n}/{code}.",
+  "cmDiscWhyTitle": [
+    "কেন অনুমতি দরকার",
+    "Why Assisto asks"
+  ],
+  "cmDiscWhyBody": [
+    "আপনার ফোনের পরিচিতদের মধ্যে কারা ইতিমধ্যে Assisto-তে আছেন তা বের করতে, যাতে এক ট্যাপে যুক্ত হতে পারেন।",
+    "To find which of your phone contacts are already on Assisto, so you can connect with them in one tap."
+  ],
+  "cmDiscSendTitle": [
+    "কী পাঠানো হয়",
+    "What is sent"
+  ],
+  "cmDiscSendBody": [
+    "শুধু সোল্ট-সহ এনক্রিপ্ট কোড (হ্যাশ)। কাঁচা ফোন নম্বর বা নাম কখনই সার্ভারে যায় না।",
+    "Only salted encrypted codes (hashes). Raw phone numbers and names are never sent to the server."
+  ],
+  "cmDiscStoreTitle": [
+    "যা কখনও রাখা হয় না",
+    "What is never stored"
+  ],
+  "cmDiscStoreBody": [
+    "যারা Assisto-তে নেই তাদের কোড মিলিয়ে সঙ্গে সঙ্গে বাদ দেওয়া হয় — অ-ব্যবহারকারীদের কোথাও সংরক্ষণ করা হয় না।",
+    "Codes that are not on Assisto are matched and immediately discarded — non-users are never stored anywhere."
+  ],
+  "cmDiscControlTitle": [
+    "আপনি নিয়ন্ত্রণে",
+    "You stay in control"
+  ],
+  "cmDiscControlBody": [
+    "আপনি অনুমতি দিলে তবেই মিল যাচাই চলে, তার আগে কিছুই আপলোড হয় না। যেকোনো সময় বন্ধ করতে পারেন।",
+    "Matching only runs when you tap Allow, and nothing uploads until then. You can stop at any time."
+  ],
+  "cmPrivacyExplainerTitle": [
+    "এটি আপনার গোপনীয়তা কীভাবে রক্ষা করে",
+    "How this protects your privacy"
+  ],
+  "cmPrivacyLearnMore": [
+    "গোপনীয়তা কীভাবে রক্ষা হয়",
+    "How your privacy is protected"
+  ],
+  "cmPrivacyStep1": [
+    "প্রতিটি নম্বর আপনার ফোনেই একমুখী কোডে (HMAC-SHA256) পরিণত হয় — মূল নম্বর আর ফিরে পাওয়া যায় না।",
+    "Each number is turned into a one-way code (HMAC-SHA256) on your phone — the original number cannot be recovered."
+  ],
+  "cmPrivacyStep2": [
+    "শুধু সেই কোডগুলোই পাঠানো হয় — কাঁচা নম্বর বা নাম নয়।",
+    "Only those codes are uploaded — never the raw numbers or names."
+  ],
+  "cmPrivacyStep3": [
+    "সার্ভার শুধু যাচাই-করা ব্যবহারকারীদের কোডের সাথে মিলিয়ে দেখে — কিছুই লিখে রাখা হয় না।",
+    "The server only checks your codes against codes of verified users — a match, nothing is written down."
+  ],
+  "cmPrivacyStep4": [
+    "যে কোডগুলো মেলে না সেগুলো সঙ্গে সঙ্গে বাদ দেওয়া হয়, কখনও রাখা হয় না।",
+    "Codes that do not match are discarded instantly and are never kept."
+  ],
+  "cmResultsFoundTitle": [
+    "আপনার পরিচিতরা Assisto-তে",
+    "Your contacts on Assisto"
+  ],
+  "cmResultsFoundCount": [
+    "{n} জন মিলেছে",
+    "{n} found"
+  ],
+  "cmInviteOthersTitle": [
+    "যারা এখনও নেই",
+    "Not on Assisto yet"
+  ],
+  "cmReSync": [
+    "আবার মিলান",
+    "Re-sync contacts"
+  ],
+  "cmReSyncHint": [
+    "নতুন পরিচিত যোগ হলে আবার মিলান।",
+    "Added new contacts? Match again."
+  ],
+  "cmPhaseReading": [
+    "পরিচিত পড়া হচ্ছে…",
+    "Reading contacts…"
+  ],
+  "cmPhaseHashing": [
+    "ফোনেই কোড তৈরি হচ্ছে…",
+    "Encrypting on your phone…"
+  ],
+  "cmPhaseMatching": [
+    "মিল যাচাই হচ্ছে…",
+    "Matching…"
+  ],
+  "cmHashedOnDevice": [
+    "{n}টি নম্বর এই ফোনেই এনক্রিপ্ট হয়েছে।",
+    "{n} numbers were encrypted on this device."
+  ],
+  "cmDeniedTitle": [
+    "কন্টাক্ট অনুমতি দেওয়া হয়নি",
+    "Contacts permission not granted"
+  ],
+  "cmDeniedBody": [
+    "মিল যাচাই করতে কন্টাক্ট অনুমতি প্রয়োজন। অথবা নিচে নম্বর দিয়ে একজনকে খুঁজুন — কোনো অনুমতি লাগে না।",
+    "We need contacts permission to match. Or find one person by number below — no permission needed."
+  ],
+  "cmOpenSettings": [
+    "সেটিংস খুলুন",
+    "Open settings"
+  ],
+  "cmOfflineTitle": [
+    "আপনি অফলাইন",
+    "You are offline"
+  ],
+  "cmOfflineBody": [
+    "মিল যাচাই করতে ইন্টারনেট প্রয়োজন। আবার চেষ্টা করুন।",
+    "Matching needs a connection. Please try again."
+  ],
+  "cmRetry": [
+    "আবার চেষ্টা",
+    "Retry"
+  ],
+  "cmInviteCardTitle": [
+    "Assisto-তে আমার সাথে যুক্ত হোন",
+    "Join me on Assisto"
+  ],
+  "cmInviteCardBody": [
+    "নিরাপদ, বাংলা-ফার্স্ট মেসেঞ্জার ও সহায়ক।",
+    "A private, Bangla-first messenger and assistant."
+  ],
+  "cmInviteCardReferral": [
+    "আপনার রেফারেল কোড: {code}",
+    "Your referral code: {code}"
+  ],
+  "cmInviteCardReferralNote": [
+    "আপনার আমন্ত্রণে কেউ যুক্ত হলে পয়েন্ট পাবেন।",
+    "You earn points when someone joins through your invite."
+  ],
+  "cmInviteCardSeeReferral": [
+    "রেফারেল পয়েন্ট দেখুন",
+    "See referral points"
+  ],
+  "cmInviteCopyLink": [
+    "লিংক কপি",
+    "Copy link"
+  ],
+  "cmInviteLinkCopied": [
+    "লিংক কপি হয়েছে",
+    "Link copied"
+  ],
+  "cmShareCard": [
+    "কার্ড শেয়ার",
+    "Share card"
+  ],
+  "cmInviteFromContacts": [
+    "পরিচিতদের আমন্ত্রণ করুন",
+    "Invite people you know"
+  ],
+  "cmInviteNoneTitle": [
+    "এখনও কেউ Assisto-তে নেই",
+    "No contacts on Assisto yet"
+  ],
+  "cmInviteNoneBody": [
+    "আপনি-ই প্রথম — নিচের কার্ড দিয়ে পরিচিতদের আমন্ত্রণ জানান।",
+    "Be the first — invite the people you know with the card below."
+  ]
+}

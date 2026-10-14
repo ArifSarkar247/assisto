@@ -1,0 +1,33 @@
+{
+  "_note": "SPEC v2.1 §21 — OWNER-ADMIN surfaces ADVANCED: #174 User info (admin), #175 Complaint & moderation queue. NEW l10n keys only (merge_arb.py adds missing keys; existing msgrMod* keys are left untouched). Format: key -> [bn, en]. Two keys are parameterized: msgrModResultsCount ({count}) and msgrModActionDone ({action}) — add both to PARAMS in merge_arb.py so they get @-metadata (see up_admin_integration note inline below).",
+  "_params": {
+    "msgrModResultsCount": ["count"],
+    "msgrModActionDone": ["action"]
+  },
+
+  "msgrModSortTitle": ["সাজান", "Sort"],
+  "msgrModSortRecent": ["সাম্প্রতিক", "Most recent"],
+  "msgrModSortReports": ["সবচেয়ে বেশি রিপোর্ট", "Most reported"],
+  "msgrModSortName": ["নাম (ক–হ)", "Name (A–Z)"],
+  "msgrModSortSeverity": ["গুরুত্ব অনুযায়ী", "By severity"],
+
+  "msgrModFiltersTitle": ["ফিল্টার", "Filters"],
+  "msgrModFiltersReset": ["রিসেট", "Reset"],
+  "msgrModFiltersApply": ["প্রয়োগ করুন", "Apply"],
+  "msgrModFilterReportedOnly": ["শুধু রিপোর্ট হওয়া ব্যবহারকারী", "Reported users only"],
+
+  "msgrModResultsCount": ["{count} টি ফলাফল", "{count} results"],
+  "msgrModClear": ["মুছুন", "Clear"],
+  "msgrModShowMore": ["আরও দেখান", "Show more"],
+  "msgrModActionDone": ["{action} সম্পন্ন হয়েছে", "{action} done"],
+
+  "msgrModGroupSevere": ["গুরুতর — স্বয়ংক্রিয়ভাবে লুকানো", "Severe — auto-hidden"],
+  "msgrModGroupOther": ["অন্যান্য রিপোর্ট", "Other reports"],
+
+  "msgrModLegalRetentionNote": ["অবৈধ কনটেন্টের রেকর্ড আইনত-প্রয়োজনীয় রিপোর্টিংয়ের জন্য সংরক্ষণ করা হয়। নির্দিষ্ট আইনি নির্দেশনা মালিক/আইনজীবীর পর্যালোচনা সাপেক্ষ।", "Records of illegal content are kept for legally-required reporting. The exact legal guidance is subject to owner/lawyer review."],
+  "msgrModAuditAppendOnlyNote": ["এই লগ শুধু-যোগ করা যায় (append-only) — কোনো এন্ট্রি সম্পাদনা বা মোছা যায় না।", "This log is append-only — entries can't be edited or deleted."],
+
+  "msgrModAppealOpenTitle": ["আপিল পর্যালোচনার অপেক্ষায়", "Appeal awaiting review"],
+  "msgrModAppealOpenBody": ["ব্যবহারকারী এই সিদ্ধান্তের বিরুদ্ধে আপিল করেছেন। পুনরায় সিদ্ধান্ত নিন অথবা পর্যালোচনার জন্য আবার খুলুন।", "The user has appealed this decision. Re-decide, or reopen it for review."],
+  "msgrModAppealRecordsNote": ["একজন মানুষ পর্যালোচক আপনার আপিল আবার পড়বেন। সিদ্ধান্ত ও তার কারণ শুধু-যোগ করা অডিট লগে লেখা হয়; অবৈধ কনটেন্টের রেকর্ড আইনত-প্রয়োজনীয় রিপোর্টিংয়ের জন্য সংরক্ষিত থাকে।", "A human reviewer will re-read your appeal. The decision and its reason are written to an append-only audit log; records of illegal content are kept for legally-required reporting."]
+}

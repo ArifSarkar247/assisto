@@ -94,3 +94,43 @@ duplication. No models/views/urls/app/Asalify were edited.
 ## UI strings
 `backend/core/logic/msg_contacts_arb.json` — `{key: [bn, en]}`. `strings(lang)`
 in the module mirrors the core subset for server-rendered responses.
+
+## ADVANCED upgrade (#99 MATCH + #101 INVITE → SPEC v2.1 §21)
+Contact MATCH + INVITE were raised to the §21 "advanced" bar.
+
+NEW app files (nothing else edited on the app side):
+- `app/lib/widgets/contacts_match_model.dart` — bilingual string table (Bangla
+  as `\u` codepoints; **zero Bangla glyphs in any .dart**), `cmStr`/`cmNum`
+  helpers, and value types (`CmStage`, `CmProgress`/`CmPhase`, `CmInviteCard`).
+- `app/lib/widgets/contacts_match_widgets.dart` — reusable UI: `CmDisclosure`
+  (Play disclosure: why / what's sent / never-stored / in-control + a privacy
+  link), `showCmPrivacyExplainer` ("how this protects your privacy" sheet),
+  `CmLoading` (hashing/match progress, not a bare spinner), `CmStateView`
+  (empty/denied/offline), `CmUserRow` (connect), `CmInviteCardView` (shareable,
+  **referral-code embedded**, share / own-SIM SMS / copy / see-referral).
+- `app/lib/screens/messenger/contacts_screen.dart` — rewritten to orchestrate
+  all §21 states: disclosure → matching (progress) → results, plus denied /
+  offline / empty / re-sync. Hashing contract unchanged (HMAC-SHA256,
+  E.164 cc880, 32-hex). Re-sync action in the AppBar + inline. Invite card pulls
+  the user's referral link/code from `referralBalance()` and links to
+  `ReferralScreen`.
+
+ARB: apply **`.phaseB/up_contactmatch_arb.json`** (40 NEW `cm*` keys; merge into
+`app_bn.arb`/`app_en.arb`). Reuses existing `msgrContacts*/msgrInvite*/
+msgrConnect*/msgrRequest*/msgrCancel` getters (not re-emitted). Parameterized:
+`cmResultsFoundCount{n}`, `cmHashedOnDevice{n}`, `cmInviteCardReferral{code}`.
+
+Backend (optional, added): `msg_contacts.privacy_disclosure(lang)` — bilingual,
+machine-readable permission-disclosure facts (why / sent / never-stored /
+control) + the hard invariants (`uploads_raw_numbers:false`,
+`uploads_names:false`, `stores_non_users:false`, `permission_gated:true`,
+`auto_sends_anything:false`), so the app's disclosure copy and the server's
+stated contract never drift. Test `test_privacy_disclosure_invariants` asserts
+the facts and that they agree with `hashing_contract()`. Self-tests now
+**89 assertions / 16 tests**.
+
+FCM / own-SIM invite unchanged from the pure layer: existing users get an in-app
+request (FCM push when a key is configured via `invite_existing_user(...,
+fcm_available=...)`, else shown on next open); non-users get a share-link
+descriptor (any app) OR an own-SIM `sms:` URI the USER presses send on — no
+`SEND_SMS` permission, no gateway, `auto_sent:false` everywhere.

@@ -35,6 +35,7 @@ from core.logic.msg_contacts import (
     match_contacts,
     normalize_e164,
     pre_accept_message_count_ok,
+    privacy_disclosure,
     requests_sent_last_24h,
 )
 
@@ -249,6 +250,29 @@ def test_block_report_on_request():
     # harassment report auto-blocks even when action='report'
     d3 = block_or_report_on_request(1, 2, action="report", reason="harassment")
     ok(d3["block"] is True, "harassment report auto-blocks")
+
+
+def test_privacy_disclosure_invariants():
+    # bilingual, all four disclosure facts present
+    for lang in ("bn", "en"):
+        d = privacy_disclosure(lang)
+        for k in ("why", "sent", "never_stored", "control"):
+            ok(isinstance(d[k], str) and d[k], f"{lang} disclosure.{k} present")
+    # the HARD invariants the UI asserts verbatim — must match the contract
+    f = privacy_disclosure("en")["facts"]
+    ok(f["uploads_raw_numbers"] is False, "disclosure: never uploads raw numbers")
+    ok(f["uploads_names"] is False, "disclosure: never uploads names")
+    ok(f["stores_non_users"] is False, "disclosure: never stores non-users")
+    ok(f["permission_gated"] is True, "disclosure: permission-gated")
+    ok(f["auto_sends_anything"] is False, "disclosure: never auto-sends")
+    ok(f["uploads_only"] == ["salted_hashes", "permission_flag"],
+       "disclosure: uploads only salted hashes + permission flag")
+    # the disclosure's stated facts agree with the hashing contract
+    hc = hashing_contract()
+    ok(hc["non_user_retention"] == "none",
+       "contract + disclosure agree: non-users retained nowhere")
+    ok("raw_numbers" in hc["upload_never_contains"],
+       "contract + disclosure agree: raw numbers never uploaded")
 
 
 # ---------------------------------------------------------------------------

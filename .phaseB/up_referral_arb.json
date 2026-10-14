@@ -1,0 +1,42 @@
+{
+  "refTabOverview": ["ওভারভিউ", "Overview"],
+  "refTabFriends": ["বন্ধুরা", "Friends"],
+  "refTabHistory": ["ইতিহাস", "History"],
+
+  "refProgressTitle": ["আপনার অগ্রগতি", "Your progress"],
+  "refProgressJoined": ["{n} জন যুক্ত হয়েছেন", "{n} joined"],
+  "refProgressDaysEarned": ["এ পর্যন্ত {days} প্রিমিয়াম দিন অর্জিত", "{days} Premium days earned so far"],
+  "refProgressNext": ["পরবর্তী প্রিমিয়াম দিনের জন্য আর {n} জন বন্ধুকে আমন্ত্রণ জানান", "Invite {n} more friend(s) for your next Premium day"],
+  "refProgressReadyToRedeem": ["দারুণ! এখনই প্রিমিয়াম দিনে রিডিম করতে পারবেন।", "Great — you can redeem Premium days now."],
+
+  "refShareTitle": ["আমন্ত্রণ শেয়ার করুন", "Share your invite"],
+  "refShareSubtitle": ["আপনার রেফারেল কোডসহ লিংক শেয়ার করুন — তারা যুক্ত হলে আপনি পয়েন্ট পাবেন।", "Share your link with your referral code — you earn points when they join."],
+  "refShareCodeLabel": ["কোড:", "Code:"],
+  "refShareLink": ["লিংক শেয়ার করুন", "Share link"],
+  "refShareQr": ["QR কোড দেখান", "Show QR code"],
+  "refShareSms": ["নিজের সিম থেকে SMS", "SMS from your SIM"],
+  "refShareSmsNote": ["আপনার ফোনের মেসেজ অ্যাপ খুলবে; আপনি নিজে পাঠাবেন।", "Opens your phone's messaging app; you press send."],
+  "refShareUnavailable": ["লিংক এখনও তৈরি হয়নি", "No invite link yet"],
+
+  "refFriendsTitle": ["আমার মাধ্যমে যারা যুক্ত হয়েছেন", "Who joined via me"],
+  "refLeaderboardEmpty": ["এখনও কেউ আপনার মাধ্যমে যুক্ত হননি। একজন বন্ধুকে আমন্ত্রণ জানিয়ে শুরু করুন।", "No one has joined via you yet. Invite a friend to get started."],
+  "refLeaderboardMember": ["সদস্য #{rank}", "Member #{rank}"],
+  "refLeaderboardJoined": ["আপনার সার্কেলে যুক্ত হয়েছেন", "Joined your circle"],
+  "refLeaderboardHonestNote": ["শুধু যারা সত্যিকারভাবে যুক্ত হয়েছেন তারাই এখানে দেখানো হয়; যারা আমন্ত্রণ গ্রহণ করেননি তাদের তথ্য কখনও দেখানো হয় না।", "Only people who actually joined appear here; we never show details of anyone who didn't."],
+
+  "refCardTitle": ["রেফারেল অর্জন", "Referral achievement"],
+  "refCardFriends": ["বন্ধু", "friends"],
+  "refCardDays": ["প্রিমিয়াম দিন", "Premium days"],
+  "refCardShare": ["অর্জন কার্ড শেয়ার করুন", "Share achievement card"],
+  "refCardCaption": ["Assisto-তে আমি {friends} জন বন্ধুকে আমন্ত্রণ জানিয়ে {days} প্রিমিয়াম দিন অর্জন করেছি!", "I invited {friends} friends on Assisto and earned {days} Premium days!"],
+
+  "refAuditEarned": ["মোট অর্জিত", "Earned"],
+  "refAuditSpent": ["মোট খরচ", "Spent"],
+  "refAuditReversed": ["প্রত্যাহার", "Reversed"],
+  "refAuditBalance": ["ব্যালেন্স", "Balance"],
+  "refRedeemedTitle": ["রিডিম করা ইতিহাস", "Redeemed history"],
+  "refRedeemedEmpty": ["এখনও কোনো রিডিম করা হয়নি।", "Nothing redeemed yet."],
+  "refRedeemedRow": ["{days} প্রিমিয়াম দিন রিডিম করা হয়েছে", "Redeemed {days} Premium day(s)"],
+
+  "refRedeemSuccessTitle": ["রিডিম সফল হয়েছে", "Redeemed successfully"]
+}

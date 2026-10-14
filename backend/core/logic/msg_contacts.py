@@ -207,6 +207,47 @@ def match_contacts(contact_hashes, registered_hash_to_user, *,
     }
 
 
+def privacy_disclosure(lang="bn"):
+    """Machine-readable, bilingual PERMISSION-DISCLOSURE facts (Play-compliant):
+    WHY access is needed, WHAT is sent, WHAT is never stored, and the fact the
+    user stays in control.  The app renders the identical four facts on its
+    disclosure screen + "how this protects your privacy" explainer so the
+    on-device claims and the server's stated contract never drift.  Pure; no
+    storage, no side effects.  Mirrors the `cmDisc*` / `cmPrivacy*` ARB keys."""
+    return {
+        "why": pick(
+            lang,
+            "আপনার ফোনের পরিচিতদের মধ্যে কারা ইতিমধ্যে Assisto-তে আছেন তা বের করতে।",
+            "To find which of your phone contacts are already on Assisto.",
+        ),
+        "sent": pick(
+            lang,
+            "শুধু সোল্ট-সহ এনক্রিপ্ট কোড (হ্যাশ) — কাঁচা নম্বর বা নাম কখনই নয়।",
+            "Only salted encrypted codes (hashes) — never raw numbers or names.",
+        ),
+        "never_stored": pick(
+            lang,
+            "যারা Assisto-তে নেই তাদের কোড মিলিয়ে সঙ্গে সঙ্গে বাদ — কোথাও রাখা হয় না।",
+            "Codes not on Assisto are matched and discarded — non-users are "
+            "never stored.",
+        ),
+        "control": pick(
+            lang,
+            "আপনি অনুমতি দিলে তবেই মিল যাচাই চলে; তার আগে কিছুই আপলোড হয় না।",
+            "Matching only runs when you allow it; nothing uploads before that.",
+        ),
+        # the hard invariants the UI asserts verbatim
+        "facts": {
+            "uploads_raw_numbers": False,
+            "uploads_names": False,
+            "uploads_only": ["salted_hashes", "permission_flag"],
+            "stores_non_users": False,
+            "permission_gated": True,
+            "auto_sends_anything": False,
+        },
+    }
+
+
 def hashing_contract(base_url="https://assisto.asalify.com"):
     """Machine-readable statement of the client hashing contract (also rendered
     into the integration doc).  The client reads this at build time to stay in

@@ -47,6 +47,13 @@ def _f(key, label_bn, label_en, secret=True):
     return {"key": key, "label_bn": label_bn, "label_en": label_en, "secret": secret}
 
 
+# Owner "how to connect" docs live in owner_actions/. One shared note maps every
+# key → the feature it unlocks; the dashboard deep-links each service to it.
+# These are repo-relative anchors so the page can show an honest "read the guide"
+# link even when the file isn't web-served.
+_DOC = "owner_actions/integrations.md"
+
+
 REGISTRY = {
     "anthropic": {
         "name": "Anthropic (Claude) AI",
@@ -246,6 +253,65 @@ REGISTRY = {
                  "guide_en": ["Axon ERP API base URL + token → paste → Save"],
                  "fields": [_f("base_url", "Base URL", "Base URL", secret=False), _f("token", "API token", "API token")],
                  "test": None},
+    "messenger": {"name": "Meta Messenger / Facebook Page", "category": "Business",
+                  "unlocks_bn": "Business mode: Facebook Page/Messenger সেলস সহকারী; ইনবক্স→CRM lead।",
+                  "unlocks_en": "Business mode: Facebook Page/Messenger sales assistant; inbox→CRM lead.",
+                  "guide_bn": ["developers.facebook.com → App → Messenger → Page যুক্ত করুন",
+                               "Page access token + Page ID + verify token কপি",
+                               "webhook: https://assisto.asalify.com/webhooks/messenger", "পেস্ট → Save"],
+                  "guide_en": ["developers.facebook.com → App → Messenger → add your Page",
+                               "Copy Page access token + Page ID + verify token",
+                               "webhook: https://assisto.asalify.com/webhooks/messenger", "Paste → Save"],
+                  "fields": [_f("page_id", "Page ID", "Page ID", secret=False),
+                             _f("page_name", "Page name", "Page name", secret=False),
+                             _f("access_token", "Page access token", "Page access token"),
+                             _f("verify_token", "Webhook verify token", "Webhook verify token")],
+                  "test": None},
+    "instagram": {"name": "Instagram (Business/Creator)", "category": "Business",
+                  "unlocks_bn": "Business mode: Instagram DM সেলস সহকারী ও lead capture।",
+                  "unlocks_en": "Business mode: Instagram DM sales assistant & lead capture.",
+                  "guide_bn": ["Instagram কে একটি Facebook Page-এর সাথে যুক্ত করুন (Business/Creator)",
+                               "developers.facebook.com → Instagram → access token কপি → পেস্ট → Save"],
+                  "guide_en": ["Link the Instagram account to a Facebook Page (Business/Creator)",
+                               "developers.facebook.com → Instagram → copy access token → paste → Save"],
+                  "fields": [_f("ig_user_id", "IG user ID", "IG user ID", secret=False),
+                             _f("access_token", "Access token", "Access token")],
+                  "test": None},
+    "ocr": {"name": "OCR (document scanner)", "category": "AI",
+            "unlocks_bn": "ডকুমেন্ট স্ক্যানার: ছবি/রসিদ→টেক্সট (বাংলা+ইংরেজি)।",
+            "unlocks_en": "Document scanner: image/receipt → text (Bangla + English).",
+            "guide_bn": ["OCR প্রোভাইডার (Google Vision/OCR.space) → API key → পেস্ট → Save",
+                         "key ছাড়া on-device fallback চলে (কম নির্ভুল)"],
+            "guide_en": ["OCR provider (Google Vision / OCR.space) → API key → paste → Save",
+                         "Without a key an on-device fallback runs (less accurate)"],
+            "fields": [_f("provider", "Provider", "Provider", secret=False), _f("api_key", "API Key", "API Key")],
+            "test": None},
+    "transcription": {"name": "Speech-to-text (STT / transcription)", "category": "AI",
+                      "unlocks_bn": "ভয়েস কমান্ড, কল/মিটিং ট্রান্সক্রিপশন (দুই পক্ষকে জানানো হয়)।",
+                      "unlocks_en": "Voice commands, call/meeting transcription (both parties notified).",
+                      "guide_bn": ["STT প্রোভাইডার (Deepgram/Google STT/Whisper) → API key → পেস্ট → Save"],
+                      "guide_en": ["STT provider (Deepgram / Google STT / Whisper) → API key → paste → Save"],
+                      "fields": [_f("provider", "Provider", "Provider", secret=False), _f("api_key", "API Key", "API Key")],
+                      "test": None},
+    "voice_clone": {"name": "Voice clone (TTS)", "category": "AI",
+                    "unlocks_bn": "নিজের অনুমোদিত কণ্ঠে AI রিপ্লাই/ব্রিফিং (self-verified)।",
+                    "unlocks_en": "AI replies/briefing in the owner's self-verified cloned voice.",
+                    "guide_bn": ["TTS প্রোভাইডার (ElevenLabs ইত্যাদি) → API key + voice ID → পেস্ট → Save"],
+                    "guide_en": ["TTS provider (ElevenLabs etc) → API key + voice ID → paste → Save"],
+                    "fields": [_f("api_key", "API Key", "API Key"), _f("voice_id", "Voice ID", "Voice ID", secret=False)],
+                    "test": None},
+    "weather": {"name": "Weather", "category": "Media",
+                "unlocks_bn": "সকালের ব্রিফিং-এ আবহাওয়া।", "unlocks_en": "Weather in the morning briefing.",
+                "guide_bn": ["openweathermap.org (বা অনুরূপ) → API key → পেস্ট → Save"],
+                "guide_en": ["openweathermap.org (or similar) → API key → paste → Save"],
+                "fields": [_f("provider", "Provider", "Provider", secret=False), _f("api_key", "API Key", "API Key")],
+                "test": None},
+    "news": {"name": "News", "category": "Media",
+             "unlocks_bn": "সকালের ব্রিফিং-এ খবরের শিরোনাম।", "unlocks_en": "Headlines in the morning briefing.",
+             "guide_bn": ["newsapi.org (বা অনুরূপ) → API key → পেস্ট → Save (key ছাড়া RSS fallback)"],
+             "guide_en": ["newsapi.org (or similar) → API key → paste → Save (RSS fallback if no key)"],
+             "fields": [_f("provider", "Provider", "Provider", secret=False), _f("api_key", "API Key", "API Key")],
+             "test": None},
 }
 
 
@@ -314,8 +380,19 @@ def test(slug: str) -> tuple:
     return (status, detail)
 
 
+def _status_label(status, lang):
+    """Honest, owner-readable state. 'connected' means at least one key is saved
+    and the last test (if any) did not fail; features gate on is_enabled()."""
+    return {
+        "working": ("সংযুক্ত / CONNECTED", "CONNECTED"),
+        "failing": ("ব্যর্থ — ঠিক করুন / NOT WORKING", "NOT WORKING"),
+        "not_set": ("সংযুক্ত নয় / NOT CONNECTED", "NOT CONNECTED"),
+    }[status][0 if lang == "bn" else 1]
+
+
 def list_all(lang="bn") -> list:
-    """Owner-facing list: metadata + status, NEVER raw secrets (masked)."""
+    """Owner-facing list: metadata + status + last-checked + how-to-connect doc,
+    NEVER raw secrets (masked). Honest states only."""
     from .models import Integration
     rows = {o.slug: o for o in Integration.objects.all()}
     out = []
@@ -323,8 +400,10 @@ def list_all(lang="bn") -> list:
         obj = rows.get(slug)
         cfg = _decrypt(obj.enc_blob) if obj else {}
         fields = []
+        any_set = False
         for f in meta["fields"]:
             has = bool(cfg.get(f["key"]))
+            any_set = any_set or has
             fields.append({
                 "key": f["key"],
                 "label": f["label_bn"] if lang == "bn" else f["label_en"],
@@ -332,6 +411,8 @@ def list_all(lang="bn") -> list:
                 "set": has,
                 "masked": "•••• " + str(cfg.get(f["key"]))[-4:] if (has and f["secret"]) else (cfg.get(f["key"]) if has else ""),
             })
+        status = obj.status if obj else "not_set"
+        last = obj.last_tested if obj else None
         out.append({
             "slug": slug,
             "name": meta["name"],
@@ -339,11 +420,38 @@ def list_all(lang="bn") -> list:
             "unlocks": meta["unlocks_bn"] if lang == "bn" else meta["unlocks_en"],
             "guide": meta["guide_bn"] if lang == "bn" else meta["guide_en"],
             "fields": fields,
-            "status": obj.status if obj else "not_set",
+            "status": status,
+            "status_label": _status_label(status, lang),
+            "connected": status == "working",
+            "any_key_saved": any_set,
             "detail": obj.detail if obj else "",
+            "last_tested": last.isoformat() if last else "",
+            "last_tested_human": (timezone.localtime(last).strftime("%Y-%m-%d %H:%M")
+                                  if last else ("কখনো পরীক্ষা হয়নি / never checked"
+                                                if lang == "bn" else "never checked")),
+            "doc": _DOC,
             "testable": bool(meta.get("test")),
         })
     return out
+
+
+def summary(lang="bn") -> dict:
+    """Dashboard roll-up for the owner: counts per state + per category."""
+    rows = list_all(lang)
+    counts = {"connected": 0, "not_working": 0, "not_connected": 0, "total": len(rows)}
+    by_cat = {}
+    for r in rows:
+        if r["status"] == "working":
+            counts["connected"] += 1
+        elif r["status"] == "failing":
+            counts["not_working"] += 1
+        else:
+            counts["not_connected"] += 1
+        c = by_cat.setdefault(r["category"], {"connected": 0, "total": 0})
+        c["total"] += 1
+        if r["status"] == "working":
+            c["connected"] += 1
+    return {"counts": counts, "by_category": by_cat}
 
 
 # ---------------------------------------------------------------- tests

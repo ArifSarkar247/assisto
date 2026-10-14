@@ -740,3 +740,26 @@ NOTHING basic may remain.
 - AFTER D5: merge arb + wire new screens nav (budget/tax/wrapped/money-voice → My Account sidebar + chatnav; reminders/family in place) + reconcile getter-coverage if gaps + any temp-strings-swap + backend wiring (budget/tax models if needed) + gen-l10n→analyze 0→gate→tests→gallery→build. →~28/61.
 - NEXT D6 (Family/Contacts/Profile good-bits — family_screen shared w/ D5 #61, sequence after D5), D7-D10 (referral/agent/admin/messenger good-bits). Then WAVE E (~79 new), Step 6 (SFU+TURN M3 + aws_ports.md + Telegram sandbox), Step 7 (P14-16/iOS/FINAL).
 - Builds through 76. All green. Repo PUBLIC. disk ~8.6G.
+
+- BUILD 77 SHIPPED 2026-10-14: https://assisto.asalify.com/dl/e2emRVOwM9msrCHCndK2mGHA/assisto-part7-build77.apk (Wave D batch 5/D5: Reminders+Notes calendar, Budget, Tax&Zakat, Monthly Wrapped, Money-voice, Family accounting). 729 tests, analyze 0, gate clean, en=bn=5049. ~28/61. Gallery: https://assisto.asalify.com/dl/shots-waved5-VWBA24jcFHY/index.html
+
+## RESUME ANCHOR (2026-10-14, after build 77) — Wave D continues D6→D10
+- SHIPPED: 55→77. All 28 basic→advanced, 2 not-built built, 4 web tools, 28/61 good→advanced (Wave D batches 1-5). en=bn=5049, 729 tests, migrations→0029.
+- NEXT: Wave D D6-D10 per .phaseB/REMAINING_BELOW_ADVANCED.md (43−28=~15 good left... re-read that file for exact remaining-good list + batch definitions; D6=Family/Contacts/Profile, D7=Referral+Agent+Admin-A, D8=Admin-B+Messenger-start, D9=Messenger good-bits, D10=Messenger tail). ~6 per batch.
+- THEN WAVE E (~79 v2.1 new, .phaseB/REMAINING_BELOW_ADVANCED.md §2): Sec14 PA mode(23), AI-core(7), Daily-Life(6), Health(4), standalone(~13: task-mgr/spending-advice/voice-SOS/lost-stolen-phone/call-transcription/blog-script/mock-interview/language-partner/supplier-dir/demand-map/quiz), Sec20(20). Key-gated=mock/sandbox+Integrations-admin+owner_actions.
+- THEN Step 6 (self-hosted SFU+TURN M3 + hard caps + owner_actions/aws_ports.md + Telegram bot sandbox), Step 7 (P14-16 leftovers audit + iOS prep + P12 FINAL).
+- 13 owner-blocked: AI key (#10/11/16/126/127/134), OCR #26, Smart-home #46, SMS-IVR #65, IG/FB #123, Gmail-OAuth #137, notif-listener #138, transcription #140.
+- PROVEN PIPELINE: 6 agents emit up_<mod>_arb.json → merge → reconcile (grep-coverage + swap temp-strings pStr/aStr/faStr→AppLocalizations; author missing like wrapped) → gen-l10n→analyze 0 (watch localeName built-in collision, add missing api.dart imports)→gate (native-labels via codepoints)→tests→gallery (add specs, tall viewport for overflow)→secret-scan→build via bin/ship_watch.sh (exit-code fixed; transient NDK ZipFile→gh run rerun --failed). Repo PUBLIC owner-managed; disabled/403→"MAKE PRIVATE NOW"+stop. 3-line Bangla per build.
+
+## WAVE D BATCH 6 (D6, 2026-10-14, after build 77) — Family/Contacts/Profile good-bits
+- ✅ 28/61 shipped (builds 73-77). en=bn=5049, 729 tests.
+- D6 agents (3 cover 6 items, disjoint): family-bundle aee0ad (#67 selective-sharing per-item-consent+audit+revoke, #73 family-card, #75 probashi two-timezone+never-hold-money; family_screen new sections, famacct untouched), profile a942a4 (#98 full photo/name/bio edit, messenger_profile + settings card), contacts+invite a72b1e (#99 hashed-match disclosure, #101 FCM/own-SIM-SMS invite).
+- AFTER D6: merge arb + reconcile coverage/temp-strings + backend wiring (selective-sharing endpoints if needed) + gen-l10n→analyze 0→gate→tests→gallery→build. →34/61.
+- D7 items: #102 referral, #135 social-post(agent-studio), #174 admin-user-info, #175 moderation-queue, #176 integration-page(admin), #177 admin-analytics(verify-or-drop vs shipped owner-analytics). D8-D10 = admin-B + messenger good-bits (see REMAINING_BELOW_ADVANCED.md lines 68-98). Then Wave E (~79), Step 6, Step 7.
+- Builds through 77. Repo PUBLIC. disk ~8.6G.
+
+## D6+D7 COMBINING (2026-10-14) — parallel launch intermingled tree → one combined build
+- D6 DONE: migration 0030 (FamilySharing), screens in, 3 temp-strings swapped, en=bn=5168, 752 tests, analyze-was-0 before D7 files landed. family_sharing endpoints live (401).
+- D7 launched in parallel (disjoint files BUT working-tree now holds D6 + finished D7-referral + in-flight D7-others) → referral's ref_* widgets reference unmerged ref* ARB → analyze errors (expected). DECISION: wait all D7, merge D6+D7 ARBs together + reconcile, ONE combined build (D6+D7 = ~10 items, →~40/61).
+- D7 agents: referral a5bc82 (DONE, ref_* on disk), social a1f6ce, admin aa97a1 (#174/#175), integrations a0cea7 (#176). When all 4 report: merge up_{referral,social,admin,integrations,fambundle-already,profile-already,contactmatch-already}_arb.json → reconcile getter-coverage + any temp-strings → gen-l10n→analyze 0→gate→tests→gallery→build. #177 admin-analytics = verify-or-drop (owner-analytics shipped build 75).
+- LESSON: don't launch next batch in parallel before current batch BUILDS — intermingles tree. Future: build each batch before launching next (or accept combined builds).

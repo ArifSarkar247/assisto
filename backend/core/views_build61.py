@@ -43,11 +43,16 @@ class ReferralBalanceView(APIView):
     def get(self, request):
         lang = req_lang(request)
         ledger = _ledger_for(request.user)
-        summary = R.referral_summary(ledger, request.user.id, lang)
-        # an invite link so the user can share right from the balance card
+        # ADVANCED (#102): strict superset of referral_summary — adds progress,
+        # honest invite leaderboard, earned/spent audit and redeemed history. The
+        # advanced screen renders from this single call; it degrades gracefully to
+        # the basic balance+history if those extra fields are ever absent.
+        summary = R.advanced_summary(ledger, request.user.id, lang)
+        # an invite link + raw code so the user can share right from the card
         token = circle.make_invite_token(request.user.id, "friend",
                                           settings.SECRET_KEY)
         summary["invite_link"] = circle.qr_payload(token)
+        summary["referral_code"] = token
         return Response(summary)
 
 

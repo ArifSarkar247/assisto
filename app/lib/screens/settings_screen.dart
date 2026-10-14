@@ -23,6 +23,8 @@ import 'legal_screen.dart';
 import 'messenger/admin_moderation_screen.dart';
 import 'messenger/admin_users_screen.dart';
 import 'messenger/moderation_policy_screen.dart';
+import 'messenger/messenger_profile_screen.dart';
+import '../widgets/msgr_avatar.dart';
 // Wave-D batch-4: Action Center (replaces the old audit tile target) + Offline.
 import 'action_center_screen.dart';
 import 'offline_status_screen.dart';
@@ -140,7 +142,9 @@ class SettingsScreen extends StatelessWidget {
         children: [
           // Prominent profile card at the very TOP (OWNER UI FIX v2 §4) — the
           // profile card was removed from the sidebar; it lives here and in the
-          // Messenger hub-settings.
+          // Messenger hub-settings. It now opens the ADVANCED profile editor
+          // (photo / name / bio / phone / per-field privacy) — SPEC v2.1 §21,
+          // #98 — instead of the info-only "About the name" screen.
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: Card(
@@ -148,19 +152,9 @@ class SettingsScreen extends StatelessWidget {
               child: ListTile(
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                leading: CircleAvatar(
+                leading: MsgrAvatar(
+                  name: u?.name ?? '',
                   radius: 28,
-                  backgroundColor:
-                      Theme.of(context).colorScheme.primaryContainer,
-                  child: Text(
-                    (u?.name.isNotEmpty == true ? u!.name[0] : 'A')
-                        .toUpperCase(),
-                    style: TextStyle(
-                        color:
-                            Theme.of(context).colorScheme.onPrimaryContainer,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 22),
-                  ),
                 ),
                 title: Text(
                     u?.name.isNotEmpty == true
@@ -176,9 +170,11 @@ class SettingsScreen extends StatelessWidget {
                         .join(' · '),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
-                trailing: const Icon(Icons.badge_outlined),
-                onTap: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => const NameAboutScreen())),
+                trailing: const Icon(Icons.edit_outlined),
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const MessengerProfileScreen())),
               ),
             ),
           ),

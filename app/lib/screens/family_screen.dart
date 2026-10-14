@@ -8,6 +8,12 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/famacct_section.dart';
+// ---- FAMILY ADVANCED bundle (#67/#73/#75, SPEC v2.1 §21) — isolated sections,
+// each a self-contained widget; none of them touch famacct_section (D5). ----
+import '../widgets/fam_sharing_strings.dart';
+import '../widgets/fam_share_section.dart';
+import '../widgets/fam_card_section.dart';
+import '../widgets/fam_probashi_section.dart';
 import 'medicine_history_screen.dart';
 
 class FamilyScreen extends StatefulWidget {
@@ -126,7 +132,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
   Widget build(BuildContext context) {
     final t = _t;
     return DefaultTabController(
-        length: 7,
+        length: 10,
         child: Scaffold(
           appBar: AppBar(title: Text(t.familyCareTitle), actions: [
             IconButton(
@@ -143,6 +149,12 @@ class _FamilyScreenState extends State<FamilyScreen> {
             // ---- FAMILY ACCOUNTING (#61, SPEC v2.1 §21) — isolated section ----
             Tab(child: Text(AppLocalizations.of(context).faTitle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
             Tab(child: Text(t.familySchoolTitle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            // ---- FAMILY ADVANCED (#67/#73/#75, SPEC v2.1 §21) — three NEW
+            // isolated sections; labels come from fam_sharing_strings (ARB-sync
+            // pending in up_fambundle_arb.json), kept separate from famacct. ----
+            Tab(child: Text(famLabel(context, 'famShareTabSelective'), maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(child: Text(famLabel(context, 'famShareTabCard'), maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(child: Text(famLabel(context, 'famShareTabProbashi'), maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
           ])),
           body: loading
               ? const SkeletonList()
@@ -156,6 +168,12 @@ class _FamilyScreenState extends State<FamilyScreen> {
                   // already loaded (`members`); fully self-contained widget.
                   FamAcctSection(members: members),
                   _schoolTab(),
+                  // FAMILY ADVANCED — three NEW bounded sections (#67/#73/#75).
+                  // Each is its own self-contained widget; they reuse the
+                  // already-loaded `members` and do not touch famacct.
+                  FamShareSection(members: members),
+                  FamCardSection(members: members),
+                  const FamProbashiSection(),
                 ]),
         ));
   }

@@ -6560,5 +6560,330 @@
   "wrappedPersonaQuiet": "Quiet Month",
   "wrappedPersonaQuietBlurb": "A calm month with little money movement.",
   "wrappedPersonaEveryday": "Everyday Spender",
-  "wrappedPersonaEverydayBlurb": "A steady, everyday rhythm of spending and saving."
+  "wrappedPersonaEverydayBlurb": "A steady, everyday rhythm of spending and saving.",
+  "cmDiscWhyTitle": "Why Assisto asks",
+  "cmDiscWhyBody": "To find which of your phone contacts are already on Assisto, so you can connect with them in one tap.",
+  "cmDiscSendTitle": "What is sent",
+  "cmDiscSendBody": "Only salted encrypted codes (hashes). Raw phone numbers and names are never sent to the server.",
+  "cmDiscStoreTitle": "What is never stored",
+  "cmDiscStoreBody": "Codes that are not on Assisto are matched and immediately discarded — non-users are never stored anywhere.",
+  "cmDiscControlTitle": "You stay in control",
+  "cmDiscControlBody": "Matching only runs when you tap Allow, and nothing uploads until then. You can stop at any time.",
+  "cmPrivacyExplainerTitle": "How this protects your privacy",
+  "cmPrivacyLearnMore": "How your privacy is protected",
+  "cmPrivacyStep1": "Each number is turned into a one-way code (HMAC-SHA256) on your phone — the original number cannot be recovered.",
+  "cmPrivacyStep2": "Only those codes are uploaded — never the raw numbers or names.",
+  "cmPrivacyStep3": "The server only checks your codes against codes of verified users — a match, nothing is written down.",
+  "cmPrivacyStep4": "Codes that do not match are discarded instantly and are never kept.",
+  "cmResultsFoundTitle": "Your contacts on Assisto",
+  "cmResultsFoundCount": "{n} found",
+  "@cmResultsFoundCount": {
+    "placeholders": {
+      "n": {}
+    }
+  },
+  "cmInviteOthersTitle": "Not on Assisto yet",
+  "cmReSync": "Re-sync contacts",
+  "cmReSyncHint": "Added new contacts? Match again.",
+  "cmPhaseReading": "Reading contacts…",
+  "cmPhaseHashing": "Encrypting on your phone…",
+  "cmPhaseMatching": "Matching…",
+  "cmHashedOnDevice": "{n} numbers were encrypted on this device.",
+  "@cmHashedOnDevice": {
+    "placeholders": {
+      "n": {}
+    }
+  },
+  "cmDeniedTitle": "Contacts permission not granted",
+  "cmDeniedBody": "We need contacts permission to match. Or find one person by number below — no permission needed.",
+  "cmOpenSettings": "Open settings",
+  "cmOfflineTitle": "You are offline",
+  "cmOfflineBody": "Matching needs a connection. Please try again.",
+  "cmRetry": "Retry",
+  "cmInviteCardTitle": "Join me on Assisto",
+  "cmInviteCardBody": "A private, Bangla-first messenger and assistant.",
+  "cmInviteCardReferral": "Your referral code: {code}",
+  "@cmInviteCardReferral": {
+    "placeholders": {
+      "code": {}
+    }
+  },
+  "cmInviteCardReferralNote": "You earn points when someone joins through your invite.",
+  "cmInviteCardSeeReferral": "See referral points",
+  "cmInviteCopyLink": "Copy link",
+  "cmInviteLinkCopied": "Link copied",
+  "cmShareCard": "Share card",
+  "cmInviteFromContacts": "Invite people you know",
+  "cmInviteNoneTitle": "No contacts on Assisto yet",
+  "cmInviteNoneBody": "Be the first — invite the people you know with the card below.",
+  "famShareTabSelective": "Sharing",
+  "famShareTabCard": "Family card",
+  "famShareTabProbashi": "Probashi",
+  "famShareTitle": "Selective sharing",
+  "famShareIntro": "You choose which of your info each family member can see. Default: nothing is shared.",
+  "famShareEmpty": "Add family members first",
+  "famShareServerNote": "Sharing is enforced on the server — no one can see what you did not share.",
+  "famShareConsentTitle": "Consent",
+  "famShareConsentBody": "Turn each item on or off below. You can change this at any time.",
+  "famShareSharedCount": "{count} shared",
+  "@famShareSharedCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "famShareNothing": "Nothing shared",
+  "famShareRevokeMember": "Revoke all for this member",
+  "famShareRevokeAll": "Revoke everything",
+  "famShareRevokeQ": "Revoke all sharing for this member?",
+  "famShareRevokeAllQ": "Revoke all sharing for everyone?",
+  "famShareRevoked": "Sharing revoked",
+  "famShareAuditTitle": "Sharing log",
+  "famShareAuditEmpty": "No changes yet",
+  "famShareAuditGrant": "Shared",
+  "famShareAuditRevoke": "Revoked",
+  "famItemLocation": "My location",
+  "famItemMedicine": "Medicine & schedule",
+  "famItemMoney": "Money summary",
+  "famItemDocuments": "Documents",
+  "famItemJourney": "Safe journey",
+  "famCardTitle": "Family card",
+  "famCardMyFamily": "My family",
+  "famCardShareImage": "Share as image",
+  "famCardPrint": "Print / export",
+  "famCardLight": "Light",
+  "famCardDark": "Dark",
+  "famCardEmergency": "Emergency info",
+  "famCardBlood": "Blood group",
+  "famCardAddress": "Address",
+  "famCardEmContact": "Emergency contact",
+  "famCardMembers": "{count} members",
+  "@famCardMembers": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "famCardEmpty": "Add family members to build the card",
+  "famCardShareFailed": "Could not share",
+  "famCardEditEmergency": "Edit emergency info",
+  "famProbashiTitle": "Probashi family",
+  "famProbashiIntro": "For expatriate Bangladeshis — two clocks, call scheduling, and remittance reminders.",
+  "famProbashiMyTime": "My time",
+  "famProbashiBdTime": "Bangladesh time",
+  "famProbashiTzNote": "Bangladesh is UTC+06:00 (same all year)",
+  "famProbashiDiffAhead": "Bangladesh is {value} ahead",
+  "@famProbashiDiffAhead": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "famProbashiDiffBehind": "Bangladesh is {value} behind",
+  "@famProbashiDiffBehind": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "famProbashiDiffSame": "Same time",
+  "famProbashiCallsTitle": "Good times to call",
+  "famProbashiCallsBody": "Polite hours at both ends (8am–10pm).",
+  "famProbashiCallsEmpty": "No comfortable slot in the next 24h",
+  "famProbashiScheduleCall": "Schedule a call",
+  "famProbashiScheduleNote": "This adds the time to meetings/calls — it does not place a call here.",
+  "famProbashiRemitTitle": "Remittance reminder",
+  "famProbashiRemitBody": "Set a reminder to send money.",
+  "famProbashiNeverWallet": "Assisto never holds or sends money — this is only a reminder. It is not a wallet.",
+  "famProbashiRemitAmount": "Amount (note)",
+  "famProbashiRemitCadenceM": "Monthly",
+  "famProbashiRemitCadenceW": "Weekly",
+  "famProbashiRemitNextDue": "Next: {value}",
+  "@famProbashiRemitNextDue": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "famProbashiRemitLastSent": "Last sent: {value}",
+  "@famProbashiRemitLastSent": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "famProbashiRemitMarkSent": "Mark as sent",
+  "famProbashiShareCard": "Share probashi card",
+  "famProbashiHours": "{count}h",
+  "@famProbashiHours": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "pfLoading": "Loading your profile…",
+  "pfSaving": "Saving…",
+  "pfLoadError": "Couldn’t load your profile.",
+  "pfLoadErrorBody": "Check your connection and try again.",
+  "pfCropTitle": "Crop photo",
+  "pfCropHint": "Drag and zoom to fit the square.",
+  "pfCropUse": "Use this photo",
+  "pfPhotoRemoved": "Photo removed",
+  "pfNoPhotoYet": "No photo yet — your initial is shown.",
+  "pfNameRequired": "Please enter a display name.",
+  "pfNameTooLong": "Name is too long.",
+  "pfNameHelper": "This is the name your circle sees.",
+  "pfPhoneHidden": "No phone number on your account.",
+  "pfVisibilityHint": "Who sees each field is set per field.",
+  "pfOpenPrivacy": "Open privacy settings",
+  "pfNameVisibilityNote": "Your name and photo are visible to your circle.",
+  "refTabOverview": "Overview",
+  "refTabFriends": "Friends",
+  "refTabHistory": "History",
+  "refProgressTitle": "Your progress",
+  "refProgressJoined": "{n} joined",
+  "@refProgressJoined": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "refProgressDaysEarned": "{days} Premium days earned so far",
+  "@refProgressDaysEarned": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "refProgressNext": "Invite {n} more friend(s) for your next Premium day",
+  "@refProgressNext": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "refProgressReadyToRedeem": "Great — you can redeem Premium days now.",
+  "refShareTitle": "Share your invite",
+  "refShareSubtitle": "Share your link with your referral code — you earn points when they join.",
+  "refShareCodeLabel": "Code:",
+  "refShareLink": "Share link",
+  "refShareQr": "Show QR code",
+  "refShareSms": "SMS from your SIM",
+  "refShareSmsNote": "Opens your phone's messaging app; you press send.",
+  "refShareUnavailable": "No invite link yet",
+  "refFriendsTitle": "Who joined via me",
+  "refLeaderboardEmpty": "No one has joined via you yet. Invite a friend to get started.",
+  "refLeaderboardMember": "Member #{rank}",
+  "@refLeaderboardMember": {
+    "placeholders": {
+      "rank": {
+        "type": "Object"
+      }
+    }
+  },
+  "refLeaderboardJoined": "Joined your circle",
+  "refLeaderboardHonestNote": "Only people who actually joined appear here; we never show details of anyone who didn't.",
+  "refCardTitle": "Referral achievement",
+  "refCardFriends": "friends",
+  "refCardDays": "Premium days",
+  "refCardShare": "Share achievement card",
+  "refCardCaption": "I invited {friends} friends on Assisto and earned {days} Premium days!",
+  "@refCardCaption": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      },
+      "friends": {
+        "type": "Object"
+      }
+    }
+  },
+  "refAuditEarned": "Earned",
+  "refAuditSpent": "Spent",
+  "refAuditReversed": "Reversed",
+  "refAuditBalance": "Balance",
+  "refRedeemedTitle": "Redeemed history",
+  "refRedeemedEmpty": "Nothing redeemed yet.",
+  "refRedeemedRow": "Redeemed {days} Premium day(s)",
+  "@refRedeemedRow": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "refRedeemSuccessTitle": "Redeemed successfully",
+  "socialTitle": "Post & caption",
+  "socialTabCompose": "Compose",
+  "socialTabSaved": "Saved",
+  "socialAiMarker": "AI-generated — review before posting.",
+  "socialNeverAutoPost": "Assisto never posts for you — you share and post it yourself.",
+  "socialPlatform": "Platform",
+  "socialPlatFacebook": "Facebook",
+  "socialPlatInstagram": "Instagram",
+  "socialPlatLinkedin": "LinkedIn",
+  "socialPlatWhatsapp": "WhatsApp status",
+  "socialTopic": "Topic / goal",
+  "socialTopicHint": "e.g. new shop opening, Eid offer",
+  "socialTone": "Tone",
+  "socialToneFriendly": "Friendly",
+  "socialToneProfessional": "Professional",
+  "socialToneFunny": "Funny",
+  "socialToneInspirational": "Inspirational",
+  "socialTonePromotional": "Promotional",
+  "socialLength": "Length",
+  "socialLenShort": "Short",
+  "socialLenMedium": "Medium",
+  "socialLenLong": "Long",
+  "socialLanguage": "Language",
+  "socialLangBn": "Bangla",
+  "socialLangBanglish": "Banglish",
+  "socialLangEn": "English",
+  "socialGenerate": "Draft it",
+  "socialRegenerate": "Redraft",
+  "socialCaption": "Caption",
+  "socialPost": "Post",
+  "socialHashtags": "Hashtags (tap to add)",
+  "socialEmoji": "Emoji (tap to add)",
+  "socialShare": "Share",
+  "socialOverLimit": "Over this platform's limit — trim it before sharing.",
+  "socialSaved": "Draft saved.",
+  "socialSavedEmptyTitle": "No saved drafts",
+  "socialSavedEmptyBody": "Draft a post and save it — reopen and re-share it anytime.",
+  "socialLoadError": "Couldn't load saved drafts.",
+  "socialErrTopic": "Enter a topic.",
+  "socialErrPlatform": "Choose a platform.",
+  "socialErrTone": "Choose a tone.",
+  "socialErrLength": "Choose a length.",
+  "socialErrLang": "Choose a language.",
+  "msgrModSortTitle": "Sort",
+  "msgrModSortRecent": "Most recent",
+  "msgrModSortReports": "Most reported",
+  "msgrModSortName": "Name (A–Z)",
+  "msgrModSortSeverity": "By severity",
+  "msgrModFiltersTitle": "Filters",
+  "msgrModFiltersReset": "Reset",
+  "msgrModFiltersApply": "Apply",
+  "msgrModFilterReportedOnly": "Reported users only",
+  "msgrModResultsCount": "{count} results",
+  "@msgrModResultsCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "msgrModClear": "Clear",
+  "msgrModShowMore": "Show more",
+  "msgrModActionDone": "{action} done",
+  "@msgrModActionDone": {
+    "placeholders": {
+      "action": {
+        "type": "Object"
+      }
+    }
+  },
+  "msgrModGroupSevere": "Severe — auto-hidden",
+  "msgrModGroupOther": "Other reports",
+  "msgrModLegalRetentionNote": "Records of illegal content are kept for legally-required reporting. The exact legal guidance is subject to owner/lawyer review.",
+  "msgrModAuditAppendOnlyNote": "This log is append-only — entries can't be edited or deleted.",
+  "msgrModAppealOpenTitle": "Appeal awaiting review",
+  "msgrModAppealOpenBody": "The user has appealed this decision. Re-decide, or reopen it for review.",
+  "msgrModAppealRecordsNote": "A human reviewer will re-read your appeal. The decision and its reason are written to an append-only audit log; records of illegal content are kept for legally-required reporting."
 }

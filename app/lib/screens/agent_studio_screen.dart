@@ -5,6 +5,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/studio_engine.dart';
 import '../widgets/studio_cards.dart';
 import '../widgets/studio_builder_sheet.dart';
+import 'social_compose_screen.dart';
 
 /// Agent Studio (SPEC v2.1 §21, ADVANCED) — the user builds their own little
 /// AI automations: readable WHEN … IF … THEN mini-agents with trigger(s) →
@@ -123,6 +124,16 @@ class _AgentStudioScreenState extends State<AgentStudioScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text(t.agentStudio),
+        actions: [
+          // Single bounded entry point to the SOCIAL-MEDIA POST & CAPTION
+          // composer (#135, §21) — a separate "mini-tool" opened from Studio.
+          IconButton(
+            icon: const Icon(Icons.campaign_outlined),
+            tooltip: t.socialTitle,
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const SocialComposeScreen())),
+          ),
+        ],
         bottom: TabBar(
           controller: _tabs,
           tabs: [

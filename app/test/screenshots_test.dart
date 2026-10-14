@@ -23,6 +23,11 @@ import 'package:assisto/screens/messenger/messenger_home_screen.dart';
 import 'package:assisto/screens/messenger/messenger_settings_screen.dart';
 import 'package:assisto/screens/messenger/contact_info_screen.dart';
 import 'package:assisto/screens/notification_centre_screen.dart';
+import 'package:assisto/screens/messenger/messenger_profile_screen.dart';
+import 'package:assisto/screens/messenger/contacts_screen.dart';
+import 'package:assisto/screens/social_compose_screen.dart';
+import 'package:assisto/screens/messenger/admin_users_screen.dart';
+import 'package:assisto/screens/messenger/admin_moderation_screen.dart';
 import 'package:assisto/screens/money_voice_screen.dart';
 import 'package:assisto/screens/money_wrapped_screen.dart';
 import 'package:assisto/screens/money_tax_screen.dart';
@@ -197,6 +202,11 @@ void main() {
     'language_picker': (build: (_) => const LanguagePickerScreen(), mode: FakeMode.data, full: true),
     'home_welcome': (build: (_) => const HomeScreen(), mode: FakeMode.data, full: true),
     'notification_centre': (build: (_) => const NotificationCentreScreen(), mode: FakeMode.data, full: true),
+    'msgr_profile': (build: (_) => const MessengerProfileScreen(), mode: FakeMode.data, full: true),
+    'contacts': (build: (_) => const ContactsScreen(), mode: FakeMode.data, full: true),
+    'social': (build: (_) => const SocialComposeScreen(), mode: FakeMode.data, full: true),
+    'admin_users': (build: (_) => const AdminUsersScreen(), mode: FakeMode.data, full: true),
+    'admin_mod': (build: (_) => const AdminModerationScreen(), mode: FakeMode.data, full: true),
     'money_budget': (build: (_) => const MoneyBudgetScreen(), mode: FakeMode.data, full: true),
     'money_tax': (build: (_) => const MoneyTaxScreen(), mode: FakeMode.data, full: true),
     'money_wrapped': (build: (_) => const MoneyWrappedScreen(), mode: FakeMode.data, full: true),

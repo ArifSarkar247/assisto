@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import '../../messenger_admin_api.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/admin_notes.dart';
 
 /// Appeal a moderation decision within the appeal window.
 ///
@@ -152,6 +153,11 @@ class _ModerationAppealScreenState extends State<ModerationAppealScreen> {
                   t.msgrModAppealWindowNote,
                   style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
                 ),
+                const SizedBox(height: Gap.md),
+                // A human reviewer re-reads the decision; the outcome and its
+                // reason are written to the append-only audit trail, and records
+                // of illegal content are kept for legally-required reporting.
+                AdminLegalNote(text: t.msgrModAppealRecordsNote),
                 if (_error != null) ...[
                   const SizedBox(height: Gap.md),
                   Container(

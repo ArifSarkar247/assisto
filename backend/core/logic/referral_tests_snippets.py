@@ -198,6 +198,90 @@ def test_summary_can_redeem_flag():
     assert empty["points"] == 0 and empty["can_redeem"] is False, empty
 
 
+def _redeem_row(inviter=1, points=-25, rid=900):
+    return {
+        "id": rid, "kind": R.KIND_REDEEM, "user_id": inviter,
+        "points": points, "reason": R.REASON_REDEEM_PREMIUM,
+        "invitee_id": None, "device_id": None, "reverses": None,
+        "month": "2026-10", "created_at": "2026-10-13T13:00:00+00:00",
+    }
+
+
+# --- ADVANCED (#102 advanced) -----------------------------------------------
+
+def test_joined_count_and_my_referrals_ignore_clawed():
+    led = [
+        _grant_row(rid=1, invitee=2, device="dA"),
+        _grant_row(rid=2, invitee=3, device="dB"),
+        {"id": 9, "kind": R.KIND_CLAWBACK, "user_id": 1, "points": -50,
+         "reason": R.REASON_CLAWBACK_FAKE, "invitee_id": 3, "device_id": "dB",
+         "reverses": 2, "month": "2026-10",
+         "created_at": "2026-10-13T12:30:00+00:00"},
+    ]
+    # invitee 3's grant was clawed back => only 1 genuine join remains
+    assert R.joined_count(led, 1) == 1, R.joined_count(led, 1)
+    assert [r["invitee_id"] for r in R.my_referrals(led, 1)] == [2]
+
+
+def test_progress_from_backend_constants_only():
+    # 1 referral = 50 pts, 25 pts/day => 1 friend already buys a whole day,
+    # friends_per_day == 1, and the next whole day needs 1 more friend.
+    led = [_grant_row(rid=1, invitee=2, device="dA")]
+    p = R.progress(led, 1)  # uses POINTS_PER_REFERRAL=50, rate=25
+    assert p["friends_joined"] == 1, p
+    assert p["points_per_referral"] == R.POINTS_PER_REFERRAL, p
+    assert p["points_per_day"] == R.POINTS_PER_PREMIUM_DAY, p
+    assert p["days_earned_total"] == 2, p      # 50 pts // 25 = 2 days
+    assert p["friends_per_day"] == 1, p
+    assert p["friends_to_next_day"] == 1, p
+    # empty ledger: zero progress, still consistent, no crash
+    e = R.progress([], 1)
+    assert e["friends_joined"] == 0 and e["days_earned_total"] == 0, e
+    assert 0.0 <= e["progress_to_next_day"] <= 1.0, e
+
+
+def test_leaderboard_is_honest_no_nonjoiners():
+    led = [
+        _grant_row(rid=1, invitee=2, device="dA"),
+        _grant_row(rid=2, invitee=3, device="dB"),
+    ]
+    lb = R.invite_leaderboard(led, 1, lang="en")
+    assert len(lb) == 2 and lb[0]["rank"] == 1, lb
+    # only real joiners appear; ids are circle invitees, nothing else leaked
+    ids = {row["invitee_id"] for row in lb}
+    assert ids == {2, 3}, ids
+    assert all(set(row) >= {"rank", "invitee_id", "points", "created_at"}
+               for row in lb)
+
+
+def test_audit_reconciles_to_balance():
+    led = [
+        _grant_row(rid=1, invitee=2, device="dA"),   # +50
+        _grant_row(rid=2, invitee=3, device="dB"),   # +50
+        _redeem_row(points=-25, rid=900),            # -25 spent
+    ]
+    a = R.audit(led, 1, lang="en")
+    assert a["earned_total"] == 100, a
+    assert a["spent_total"] == 25, a
+    assert a["reversed_total"] == 0, a
+    assert a["balance"] == R.balance(led, 1) == 75, (a, R.balance(led, 1))
+
+
+def test_redeemed_history_recomputes_days():
+    led = [_redeem_row(points=-50, rid=901)]
+    h = R.redeemed_history(led, 1, lang="en")
+    assert len(h) == 1 and h[0]["spent"] == 50 and h[0]["days"] == 2, h
+
+
+def test_advanced_summary_is_superset():
+    led = [_grant_row(rid=1, invitee=2, device="dA")]
+    s = R.advanced_summary(led, 1, lang="en")
+    # has every referral_summary key plus the advanced bundles
+    base = R.referral_summary(led, 1, lang="en")
+    assert set(s) >= set(base), set(base) - set(s)
+    assert {"progress", "leaderboard", "audit", "redeemed"} <= set(s), set(s)
+
+
 def run_all():
     import inspect
     fns = [v for k, v in sorted(globals().items())

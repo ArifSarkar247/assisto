@@ -212,6 +212,28 @@ urlpatterns = [
     path("business/webhook/incoming", bz.WebhookIncomingView.as_view()),
     path("business/payments/qr", bz.MerchantQrView.as_view()),
     path("business/payments/link", bz.PaymentLinkView.as_view()),
+    # #67 Selective sharing (SPEC v2.1 §21) — server-enforced per-member,
+    # per-item consent. MUST precede router.urls so the literal `family/sharing*`
+    # routes win over the FamilyMember router's `family/<pk>`. Trailing slashes
+    # match the client's createItem/listItems path convention (api.dart _withSlash).
+    path("family/sharing/consent/", views.FamilySharingConsentView.as_view()),
+    path("family/sharing/consent", views.FamilySharingConsentView.as_view()),
+    path("family/sharing/grant/", views.FamilySharingGrantView.as_view()),
+    path("family/sharing/grant", views.FamilySharingGrantView.as_view()),
+    path("family/sharing/revoke-member/",
+         views.FamilySharingRevokeMemberView.as_view()),
+    path("family/sharing/revoke-member",
+         views.FamilySharingRevokeMemberView.as_view()),
+    path("family/sharing/revoke-all/",
+         views.FamilySharingRevokeAllView.as_view()),
+    path("family/sharing/revoke-all", views.FamilySharingRevokeAllView.as_view()),
+    path("family/sharing/audit/", views.FamilySharingAuditView.as_view()),
+    path("family/sharing/audit", views.FamilySharingAuditView.as_view()),
+    path("family/shared/<int:member_id>/<slug:item>/",
+         views.FamilySharedItemView.as_view()),
+    path("family/shared/<int:member_id>/<slug:item>",
+         views.FamilySharedItemView.as_view()),
+
     path("nominees/<int:pk>/activate", views.nominee_activate),
     path("nominees/<int:pk>/request-release", views.nominee_request_release),
     path("nominees/<int:pk>/confirm-open", views.nominee_confirm_open),

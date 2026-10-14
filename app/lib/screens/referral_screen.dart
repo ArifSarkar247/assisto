@@ -1,26 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/referral_balance_card.dart';
 import '../widgets/referral_history_tile.dart';
+import '../widgets/ref_progress_card.dart';
+import '../widgets/ref_share_sheet.dart';
+import '../widgets/ref_leaderboard.dart';
+import '../widgets/ref_achievement_card.dart';
+import '../widgets/ref_audit.dart';
 
-/// Referral points — invite people into your Connected Circle; when an invitee
-/// installs, signs up AND accepts your relationship invite you earn points that
-/// redeem for Premium days. This screen shows the balance, how-it-works, an
-/// invite/share action, a redeem action, and the points history (ledger).
+/// Referral points — ADVANCED (feature #102, SPEC v2.1 §21).
+///
+/// Invite people into your Connected Circle; when an invitee installs, signs up
+/// AND accepts your relationship invite you earn points that redeem for Premium
+/// days. This screen is a three-tab surface:
+///
+///   Overview — balance, "earn X days by inviting Y friends" progress, invite
+///              (link / QR / own-SIM SMS with your referral code), redeem
+///              (confirm + success state), a shareable achievement card.
+///   Friends  — honest leaderboard of who actually joined via me (no PII of
+///              people who were invited but never joined).
+///   History  — the full points ledger, the earned-vs-spent audit, and the
+///              redeemed-for-Premium history.
+///
+/// EVERY number is from the backend (referral.py via api). The client never
+/// invents a point value, a rate, or a conversion — it renders what the server
+/// computed from the OWNER-REVIEW constants, so the UI can never disagree with
+/// the ledger.
 ///
 /// Data (api):
-///   referralBalance()  -> {points, redeemable_days, points_per_day,
-///                          min_redeem, can_redeem, invite_link?}
-///   referralHistory()  -> {history: [{kind, points, reason, label,
-///                          created_at}, ...]}
+///   referralBalance()  -> referral_summary + (advanced) {progress, leaderboard,
+///                         audit, redeemed, invite_link?, referral_code?}
+///   referralHistory()  -> {history: [...]}
 ///   referralRedeem(points) -> {ok, days, spent, points, ...}
 /// Redeem APPLIES Premium days server-side via the plan mechanism; the client
-/// just reloads the (now higher) balance and shows the days granted.
+/// reloads the (now higher) balance and shows the days granted.
 class ReferralScreen extends StatefulWidget {
   const ReferralScreen({super.key});
   @override
@@ -57,11 +74,26 @@ class _ReferralScreenState extends State<ReferralScreen> {
 
   int _int(dynamic v) => v is num ? v.toInt() : 0;
 
+  Map<String, dynamic> _map(dynamic v) =>
+      v is Map ? Map<String, dynamic>.from(v) : const {};
+
+  List<Map<String, dynamic>> _list(dynamic v) =>
+      v is List ? v.cast<Map<String, dynamic>>() : const [];
+
   Future<void> _invite() async {
     final t = AppLocalizations.of(context);
     final link = (_bal?['invite_link'] ?? '').toString();
-    final msg = link.isNotEmpty ? '${t.referralShareMessage}\n$link' : t.referralShareMessage;
-    await Share.share(msg);
+    final code = (_bal?['referral_code'] ?? '').toString();
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => RefShareSheet(
+        link: link.isEmpty ? null : link,
+        code: code.isEmpty ? null : code,
+        message: t.referralShareMessage,
+      ),
+    );
   }
 
   Future<void> _redeem() async {
@@ -76,105 +108,195 @@ class _ReferralScreenState extends State<ReferralScreen> {
     final days = await showModalBottomSheet<int>(
       context: context,
       isScrollControlled: true,
+      showDragHandle: true,
       builder: (_) => _RedeemSheet(maxDays: maxDays, pointsPerDay: perDay),
     );
     if (days == null || days < 1) return;
 
-    final messenger = ScaffoldMessenger.of(context);
     setState(() => _busy = true);
     try {
       final r = await context
           .read<AppState>()
           .api
           .referralRedeem(days * perDay);
+      final ok = r['ok'] == true;
       final granted = _int(r['days']);
-      messenger.showSnackBar(SnackBar(
-          content: Text(r['ok'] == true
-              ? t.referralRedeemedDays(granted)
-              : t.referralRedeemFailed)));
       await _load();
+      if (mounted && ok) {
+        await _showRedeemSuccess(t, granted);
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(t.referralRedeemFailed)));
+      }
     } catch (_) {
-      messenger.showSnackBar(SnackBar(content: Text(t.referralRedeemFailed)));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(t.referralRedeemFailed)));
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  Future<void> _showRedeemSuccess(AppLocalizations t, int days) {
+    final scheme = Theme.of(context).colorScheme;
+    return showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        icon: Icon(Icons.check_circle, color: Brand.success, size: 44),
+        title: Text(t.refRedeemSuccessTitle, textAlign: TextAlign.center),
+        content: Text(t.referralRedeemedDays(days),
+            textAlign: TextAlign.center,
+            style: TextStyle(color: scheme.onSurfaceVariant)),
+        actions: [
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx), child: Text(t.close)),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Scaffold(
-      appBar: AppBar(title: Text(t.referralTitle)),
-      body: _loading
-          ? const SkeletonList()
-          : _error
-              ? StateMessage(
-                  icon: Icons.cloud_off,
-                  tint: scheme.error,
-                  title: t.loadFailed,
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh),
-                      label: Text(t.retry)))
-              : RefreshIndicator(onRefresh: _load, child: _body(t, scheme)),
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(t.referralTitle),
+          bottom: _loading || _error
+              ? null
+              : TabBar(tabs: [
+                  Tab(text: t.refTabOverview),
+                  Tab(text: t.refTabFriends),
+                  Tab(text: t.refTabHistory),
+                ]),
+        ),
+        body: _loading
+            ? const SkeletonList()
+            : _error
+                ? StateMessage(
+                    icon: Icons.cloud_off,
+                    tint: scheme.error,
+                    title: t.loadFailed,
+                    action: FilledButton.tonalIcon(
+                        onPressed: _load,
+                        icon: const Icon(Icons.refresh),
+                        label: Text(t.retry)))
+                : TabBarView(children: [
+                    _overviewTab(t, scheme),
+                    _friendsTab(t, scheme),
+                    _historyTab(t, scheme),
+                  ]),
+      ),
     );
   }
 
-  Widget _body(AppLocalizations t, ColorScheme scheme) {
+  Widget _overviewTab(AppLocalizations t, ColorScheme scheme) {
     final b = _bal ?? const {};
     final points = _int(b['points']);
     final days = _int(b['redeemable_days']);
     final perDay = _int(b['points_per_day']);
     final canRedeem = b['can_redeem'] == true;
+    final prog = _map(b['progress']);
+    final code = (b['referral_code'] ?? '').toString();
 
-    return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
-      ReferralBalanceCard(
-          points: points, redeemableDays: days, pointsPerDay: perDay),
-      const SizedBox(height: Gap.lg),
-      Row(children: [
-        Expanded(
-          child: FilledButton.icon(
-            onPressed: _invite,
-            icon: const Icon(Icons.person_add_alt, size: 18),
-            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(46)),
-            label: Text(t.referralInvite),
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        ReferralBalanceCard(
+            points: points, redeemableDays: days, pointsPerDay: perDay),
+        const SizedBox(height: Gap.lg),
+        Row(children: [
+          Expanded(
+            child: FilledButton.icon(
+              onPressed: _invite,
+              icon: const Icon(Icons.person_add_alt, size: 18),
+              style:
+                  FilledButton.styleFrom(minimumSize: const Size.fromHeight(46)),
+              label: Text(t.referralInvite),
+            ),
           ),
-        ),
-        const SizedBox(width: Gap.md),
-        Expanded(
-          child: FilledButton.tonalIcon(
-            onPressed: (_busy || !canRedeem) ? null : _redeem,
-            icon: const Icon(Icons.workspace_premium, size: 18),
-            style:
-                FilledButton.styleFrom(minimumSize: const Size.fromHeight(46)),
-            label: Text(t.referralRedeem),
+          const SizedBox(width: Gap.md),
+          Expanded(
+            child: FilledButton.tonalIcon(
+              onPressed: (_busy || !canRedeem) ? null : _redeem,
+              icon: const Icon(Icons.workspace_premium, size: 18),
+              style:
+                  FilledButton.styleFrom(minimumSize: const Size.fromHeight(46)),
+              label: Text(t.referralRedeem),
+            ),
           ),
+        ]),
+        if (prog.isNotEmpty) ...[
+          const SizedBox(height: Gap.lg),
+          RefProgressCard(
+            friendsJoined: _int(prog['friends_joined']),
+            daysEarnedTotal: _int(prog['days_earned_total']),
+            friendsToNextDay: _int(prog['friends_to_next_day']),
+            progressToNextDay: (prog['progress_to_next_day'] is num)
+                ? (prog['progress_to_next_day'] as num).toDouble()
+                : 0.0,
+          ),
+        ],
+        const SizedBox(height: Gap.lg),
+        RefAchievementCard(
+          friendsJoined: _int(prog['friends_joined']),
+          daysEarnedTotal: _int(prog['days_earned_total']),
+          points: points,
+          code: code.isEmpty ? null : code,
         ),
+        const SizedBox(height: Gap.lg),
+        _howItWorks(t, scheme),
+        const SizedBox(height: Gap.md),
+        Text(t.referralRateReviewNote,
+            style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
       ]),
-      const SizedBox(height: Gap.lg),
-      _howItWorks(t, scheme),
-      const SizedBox(height: Gap.lg),
-      Text(t.referralHistoryTitle,
-          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
-      const SizedBox(height: Gap.sm),
-      if (_history.isEmpty)
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: Gap.xl),
-          child: Column(children: [
-            Icon(Icons.history, size: 48, color: scheme.onSurfaceVariant),
-            const SizedBox(height: Gap.sm),
-            Text(t.referralHistoryEmpty,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: scheme.onSurfaceVariant)),
-          ]),
-        )
-      else
-        for (final e in _history) ReferralHistoryTile(entry: e),
-      const SizedBox(height: Gap.md),
-      Text(t.referralRateReviewNote,
-          style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
-    ]);
+    );
+  }
+
+  Widget _friendsTab(AppLocalizations t, ColorScheme scheme) {
+    final rows = _list(_bal?['leaderboard']);
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        Text(t.refFriendsTitle,
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+        const SizedBox(height: Gap.sm),
+        RefLeaderboard(rows: rows),
+      ]),
+    );
+  }
+
+  Widget _historyTab(AppLocalizations t, ColorScheme scheme) {
+    final audit = _map(_bal?['audit']);
+    final redeemed = _list(_bal?['redeemed']);
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        if (audit.isNotEmpty) ...[
+          RefAudit(audit: audit, redeemed: redeemed),
+          const SizedBox(height: Gap.lg),
+        ],
+        Text(t.referralHistoryTitle,
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+        const SizedBox(height: Gap.sm),
+        if (_history.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: Gap.xl),
+            child: Column(children: [
+              Icon(Icons.history, size: 48, color: scheme.onSurfaceVariant),
+              const SizedBox(height: Gap.sm),
+              Text(t.referralHistoryEmpty,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: scheme.onSurfaceVariant)),
+            ]),
+          )
+        else
+          for (final e in _history) ReferralHistoryTile(entry: e),
+      ]),
+    );
   }
 
   Widget _howItWorks(AppLocalizations t, ColorScheme scheme) {
@@ -211,7 +333,8 @@ class _ReferralScreenState extends State<ReferralScreen> {
   }
 }
 
-/// Bottom sheet to pick how many Premium days to redeem (1..maxDays).
+/// Bottom sheet to pick how many Premium days to redeem (1..maxDays) with a live
+/// cost + an explicit confirm step.
 class _RedeemSheet extends StatefulWidget {
   final int maxDays;
   final int pointsPerDay;

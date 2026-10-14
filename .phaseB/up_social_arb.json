@@ -1,0 +1,56 @@
+{
+  "socialTitle": ["পোস্ট ও ক্যাপশন", "Post & caption"],
+  "socialTabCompose": ["লিখুন", "Compose"],
+  "socialTabSaved": ["সেভ করা", "Saved"],
+
+  "socialAiMarker": ["AI-এর তৈরি খসড়া — পোস্ট করার আগে পড়ে দেখুন।", "AI-generated — review before posting."],
+  "socialNeverAutoPost": ["Assisto নিজে থেকে পোস্ট করে না — আপনি নিজে শেয়ার করে পোস্ট করবেন।", "Assisto never posts for you — you share and post it yourself."],
+
+  "socialPlatform": ["প্ল্যাটফর্ম", "Platform"],
+  "socialPlatFacebook": ["ফেসবুক", "Facebook"],
+  "socialPlatInstagram": ["ইনস্টাগ্রাম", "Instagram"],
+  "socialPlatLinkedin": ["লিংকডইন", "LinkedIn"],
+  "socialPlatWhatsapp": ["হোয়াটসঅ্যাপ স্ট্যাটাস", "WhatsApp status"],
+
+  "socialTopic": ["বিষয়/লক্ষ্য", "Topic / goal"],
+  "socialTopicHint": ["যেমন নতুন দোকান খোলা, ঈদ অফার", "e.g. new shop opening, Eid offer"],
+
+  "socialTone": ["সুর", "Tone"],
+  "socialToneFriendly": ["বন্ধুত্বপূর্ণ", "Friendly"],
+  "socialToneProfessional": ["পেশাদার", "Professional"],
+  "socialToneFunny": ["মজার", "Funny"],
+  "socialToneInspirational": ["অনুপ্রেরণামূলক", "Inspirational"],
+  "socialTonePromotional": ["প্রচারমূলক", "Promotional"],
+
+  "socialLength": ["দৈর্ঘ্য", "Length"],
+  "socialLenShort": ["ছোট", "Short"],
+  "socialLenMedium": ["মাঝারি", "Medium"],
+  "socialLenLong": ["বড়", "Long"],
+
+  "socialLanguage": ["ভাষা", "Language"],
+  "socialLangBn": ["বাংলা", "Bangla"],
+  "socialLangBanglish": ["বাংলিশ", "Banglish"],
+  "socialLangEn": ["ইংরেজি", "English"],
+
+  "socialGenerate": ["খসড়া বানান", "Draft it"],
+  "socialRegenerate": ["আবার বানান", "Redraft"],
+
+  "socialCaption": ["ক্যাপশন", "Caption"],
+  "socialPost": ["পোস্ট", "Post"],
+  "socialHashtags": ["হ্যাশট্যাগ (চাপলে যোগ হবে)", "Hashtags (tap to add)"],
+  "socialEmoji": ["ইমোজি (চাপলে যোগ হবে)", "Emoji (tap to add)"],
+
+  "socialShare": ["শেয়ার", "Share"],
+  "socialOverLimit": ["এই প্ল্যাটফর্মের সীমা ছাড়িয়ে গেছে — শেয়ারের আগে কমান।", "Over this platform's limit — trim it before sharing."],
+
+  "socialSaved": ["খসড়া সেভ হয়েছে।", "Draft saved."],
+  "socialSavedEmptyTitle": ["সেভ করা খসড়া নেই", "No saved drafts"],
+  "socialSavedEmptyBody": ["একটা খসড়া বানিয়ে সেভ করুন — পরে খুলে আবার শেয়ার করতে পারবেন।", "Draft a post and save it — reopen and re-share it anytime."],
+  "socialLoadError": ["সেভ করা খসড়া লোড করা গেল না।", "Couldn't load saved drafts."],
+
+  "socialErrTopic": ["একটি বিষয় লিখুন।", "Enter a topic."],
+  "socialErrPlatform": ["একটি প্ল্যাটফর্ম বেছে নিন।", "Choose a platform."],
+  "socialErrTone": ["একটি সুর বেছে নিন।", "Choose a tone."],
+  "socialErrLength": ["একটি দৈর্ঘ্য বেছে নিন।", "Choose a length."],
+  "socialErrLang": ["একটি ভাষা বেছে নিন।", "Choose a language."]
+}

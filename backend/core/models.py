@@ -2365,3 +2365,20 @@ class PaymentDebt(models.Model):
 
     class Meta:
         ordering = ["due_date", "id"]
+
+
+class FamilySharing(models.Model):
+    """#67 SELECTIVE SHARING (SPEC v2.1 §21) — per-user, server-enforced consent
+    store for which of the owner's info each family member may see. The pure
+    decision/state logic lives in core.logic.family_sharing; this row only
+    persists the owner's choices + an audit trail so the server can enforce
+    default-deny before serializing any shared field.
+
+    grants — {str(member_id): [item, ...]} (JSON can't key on int; the logic
+             layer normalizes to int). Default is SHARE NOTHING.
+    audit  — newest-first list of build_audit_entry(...) rows (capped)."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="family_sharing")
+    grants = models.JSONField(default=dict, blank=True)   # {member_id: [items]}
+    audit = models.JSONField(default=list, blank=True)     # [{action, at, ...}]
+    updated_at = models.DateTimeField(auto_now=True)

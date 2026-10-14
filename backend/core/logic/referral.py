@@ -414,3 +414,157 @@ def referral_summary(ledger, user_id, lang="bn", *, rate=POINTS_PER_PREMIUM_DAY,
         "points_label": pick(lang, "পয়েন্ট", "points"),
         "days_label": pick(lang, "প্রিমিয়াম দিন", "Premium days"),
     }
+
+
+# ---------------------------------------------------------------------------
+# ADVANCED (feature #102 → ADVANCED): friends-joined progress, honest invite
+# leaderboard, earned-vs-spent audit, redeemed history.
+#
+# Everything below is still PURE: it derives from the SAME audit ledger, so it
+# can NEVER disagree with `balance`/`history`.  No point value is invented — the
+# OWNER-REVIEW constants above are the single source of truth and are echoed to
+# the client so the UI can render "N friends = M days" from the server, not from
+# a hard-coded client number.
+# ---------------------------------------------------------------------------
+
+def my_referrals(ledger, user_id):
+    """The effective (not-clawed-back) referral grants this inviter earned, i.e.
+    the people who genuinely joined via this user.  Sorted newest-first."""
+    rows = [r for r in _effective_referral_grants(ledger)
+            if r.get("user_id") == user_id]
+    return sorted(rows, key=lambda r: r.get("created_at", ""), reverse=True)
+
+
+def joined_count(ledger, user_id):
+    """How many friends have actually joined via this user (honest count — only
+    accepted+rewarded invitees; pending/declined invites are NOT counted here
+    because they earned no grant row)."""
+    return len(my_referrals(ledger, user_id))
+
+
+def progress(ledger, user_id, *, rate=POINTS_PER_PREMIUM_DAY,
+             points=POINTS_PER_REFERRAL, lang="bn"):
+    """The 'earn X Premium days by inviting Y friends' progress model.
+
+    All of it is derived from backend constants (never the client):
+      - friends_joined         : effective referrals so far
+      - points_per_referral    : what one accepted friend is worth (echoed)
+      - points_per_day         : the redemption rate (echoed)
+      - days_earned_total      : whole Premium days those friends are worth
+      - friends_per_day        : friends needed to clear ONE whole Premium day
+      - friends_to_next_day    : how many MORE friends until the next whole day
+      - progress_to_next_day   : 0..1 fraction toward the next whole day
+    """
+    joined = joined_count(ledger, user_id)
+    earned_points = joined * int(points)
+    days_total = points_to_days(earned_points, rate)
+    # whole friends needed to buy one day, rounded UP (honest: never undersell)
+    friends_per_day = (
+        1 if points >= rate
+        else -(-int(rate) // max(1, int(points)))  # ceil(rate/points)
+    )
+    # points still short of the next whole Premium day
+    remainder = earned_points - days_total * int(rate)
+    short_points = int(rate) - remainder if remainder else int(rate)
+    if points <= 0:
+        friends_to_next = 0
+        frac = 0.0
+    else:
+        friends_to_next = -(-short_points // int(points))  # ceil
+        frac = (int(rate) - short_points) / int(rate) if rate else 0.0
+    return {
+        "friends_joined": joined,
+        "points_per_referral": int(points),
+        "points_per_day": int(rate),
+        "days_earned_total": days_total,
+        "friends_per_day": friends_per_day,
+        "friends_to_next_day": max(0, friends_to_next),
+        "progress_to_next_day": round(max(0.0, min(1.0, frac)), 4),
+        "earned_points_total": earned_points,
+    }
+
+
+def invite_leaderboard(ledger, user_id, *, lang="bn"):
+    """Leaderboard of MY invites — who joined via me.
+
+    HONEST / privacy-respecting: one row per invitee who actually joined (earned
+    an effective grant).  It carries only the invitee id (the integrator joins it
+    to a display name they are ALREADY allowed to show — a Connected-Circle
+    relationship exists, so this is not a new PII leak), the points earned, and
+    when.  People who were invited but did NOT join have NO row and NO identity
+    exposed here — we never surface a non-joiner's details.
+    """
+    rows = my_referrals(ledger, user_id)
+    out = []
+    for i, r in enumerate(rows, start=1):
+        out.append({
+            "rank": i,
+            "invitee_id": r.get("invitee_id"),
+            "points": int(r.get("points", 0)),
+            "month": r.get("month"),
+            "created_at": r.get("created_at"),
+            "joined_label": pick(lang, "যুক্ত হয়েছেন", "Joined"),
+        })
+    return out
+
+
+def audit(ledger, user_id, lang="bn"):
+    """Full earned-vs-spent audit for the user, split by category, so the ledger
+    the user sees always reconciles to their balance.
+
+    earned = grants + bonuses (positive rows)
+    spent  = redeems        (negative, shown as a positive 'spent' figure)
+    reversed = clawbacks    (negative, shown as a positive 'reversed' figure)
+    balance = earned - spent - reversed  (== `balance()`, by construction)
+    """
+    rows = [r for r in (ledger or []) if r.get("user_id") == user_id]
+    earned = sum(int(r.get("points", 0)) for r in rows
+                 if r.get("kind") in (KIND_GRANT, KIND_BONUS))
+    spent = -sum(int(r.get("points", 0)) for r in rows
+                 if r.get("kind") == KIND_REDEEM)
+    reversed_ = -sum(int(r.get("points", 0)) for r in rows
+                     if r.get("kind") == KIND_CLAWBACK)
+    return {
+        "earned_total": earned,
+        "spent_total": spent,
+        "reversed_total": reversed_,
+        "balance": max(0, earned - spent - reversed_),
+        "earned_label": pick(lang, "অর্জিত", "Earned"),
+        "spent_label": pick(lang, "খরচ", "Spent"),
+        "reversed_label": pick(lang, "প্রত্যাহার", "Reversed"),
+    }
+
+
+def redeemed_history(ledger, user_id, lang="bn", *, rate=POINTS_PER_PREMIUM_DAY):
+    """Just the redemptions (points → Premium days), newest-first, with the days
+    each redemption bought recomputed from the signed points at the live rate."""
+    rows = [r for r in (ledger or [])
+            if r.get("user_id") == user_id and r.get("kind") == KIND_REDEEM]
+    rows = sorted(rows, key=lambda r: r.get("created_at", ""), reverse=True)
+    out = []
+    for r in rows:
+        spent = -int(r.get("points", 0))
+        out.append({
+            "spent": spent,
+            "days": points_to_days(spent, rate),
+            "created_at": r.get("created_at"),
+            "label": reason_label(REASON_REDEEM_PREMIUM, KIND_REDEEM, lang),
+        })
+    return out
+
+
+def advanced_summary(ledger, user_id, lang="bn", *, rate=POINTS_PER_PREMIUM_DAY,
+                     min_points=MIN_REDEEM_POINTS, points=POINTS_PER_REFERRAL):
+    """One bundle the advanced Referral screen can render from a single call —
+    the basic balance summary PLUS the progress model, honest invite
+    leaderboard, earned-vs-spent audit and redeemed history.  The integrator may
+    merge this into GET /referral/balance (it is a superset of referral_summary)
+    or expose it as GET /referral/overview."""
+    s = referral_summary(ledger, user_id, lang, rate=rate, min_points=min_points)
+    s.update({
+        "progress": progress(ledger, user_id, rate=rate, points=points, lang=lang),
+        "leaderboard": invite_leaderboard(ledger, user_id, lang=lang),
+        "audit": audit(ledger, user_id, lang),
+        "redeemed": redeemed_history(ledger, user_id, lang, rate=rate),
+    })
+    return s
