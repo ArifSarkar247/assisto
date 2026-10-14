@@ -1,0 +1,17 @@
+{
+  "voiceTitle":            ["ভয়েস কমান্ড", "Voice command"],
+  "voiceTapToSpeak":       ["মাইক চাপুন, তারপর বলুন — যেমন “টাকার হিসাব খোলো” বা “আম্মুকে কল করো”।", "Tap the mic, then speak — e.g. “open my money” or “call mom”."],
+  "voiceListeningHint":    ["শুনছি… থামতে আবার চাপুন।", "Listening… tap again to stop."],
+  "voiceUnderstoodHint":   ["এটি কি ঠিক? নিশ্চিত করলে কাজটি হবে।", "Is this right? It will run only after you confirm."],
+  "voiceUnderstoodLabel":  ["আমি বুঝলাম", "I understood"],
+  "voiceUnavailableBody":  ["এই ফোনে ভয়েস চেনা যাচ্ছে না। আপনি টাইপ করে লিখতে পারেন।", "Voice isn’t available on this device. You can type instead."],
+  "voiceErrorBody":        ["শোনা যায়নি। একটু আস্তে, স্পষ্ট করে আবার বলুন।", "Didn’t catch that. Try again, a little slower and clearer."],
+  "voiceStop":             ["থামুন", "Stop"],
+  "voiceConfirm":          ["নিশ্চিত করুন", "Confirm"],
+  "voiceIntentOpen":       ["স্ক্রিন খুলবে", "Open screen"],
+  "voiceIntentReminder":   ["রিমাইন্ডার যোগ হবে", "Add reminder"],
+  "voiceIntentExpense":    ["খরচ লেখা হবে", "Log expense"],
+  "voiceIntentCall":       ["কল করা হবে", "Call"],
+  "voiceIntentSos":        ["জরুরি সাহায্য", "Emergency SOS"],
+  "voiceIntentSend":       ["Assisto-কে পাঠানো হবে", "Send to Assisto"]
+}

@@ -1,0 +1,36 @@
+{
+  "guideSearchHint":       ["সেবা খুঁজুন (NID, পাসপোর্ট, জমি…)", "Search services (NID, passport, land…)"],
+  "guideClear":            ["মুছুন", "Clear"],
+  "guideAll":              ["সব", "All"],
+  "guideSaved":            ["সংরক্ষিত", "Saved"],
+
+  "guideSteps":            ["ধাপসমূহ", "Steps"],
+  "guideRequiredDocs":     ["প্রয়োজনীয় কাগজপত্র", "Required documents"],
+  "guideFees":             ["ফি", "Fees"],
+  "guideWhereOffice":      ["কোথায় / কোন অফিস", "Where / which office"],
+  "guideProcessingTime":   ["প্রক্রিয়াকরণের সময়", "Processing time"],
+  "guideCommonMistakes":   ["সাধারণ ভুল", "Common mistakes"],
+
+  "guideVerifyOnPortal":   ["সরকারি পোর্টালে যাচাই করুন", "Verify on the official portal"],
+  "guideDisclaimer":       ["তথ্য সাধারণ দিকনির্দেশনা মাত্র — ফি, সময় ও নিয়ম বদলাতে পারে। আবেদনের আগে সরকারি পোর্টালে যাচাই করুন।", "This is general guidance only — fees, timelines and rules can change. Verify on the official portal before applying."],
+
+  "guideOfficialSite":     ["সরকারি সাইট", "Official site"],
+  "guideWhatDoINeed":      ["কী কী লাগবে?", "What do I need?"],
+  "guideWhatYouNeedFor":   ["{service} — কী কী লাগবে", "What you need for {service}"],
+  "guideNoDocsListed":     ["এই সেবার জন্য আলাদা কাগজের তালিকা নেই — সরকারি পোর্টাল দেখুন।", "No separate document list for this service — see the official portal."],
+
+  "guideSave":             ["সংরক্ষণ করুন", "Save"],
+  "guideRemoveBookmark":   ["সংরক্ষণ থেকে সরান", "Remove bookmark"],
+
+  "guideClearFilters":     ["ফিল্টার মুছুন", "Clear filters"],
+  "guideErrorBody":        ["গাইড লোড করা যায়নি এবং কোনো সংরক্ষিত কপি নেই। সংযোগ দেখে আবার চেষ্টা করুন।", "Could not load the guide and there is no cached copy. Check your connection and try again."],
+  "guideOfflineBanner":    ["অফলাইন / সংরক্ষিত কপি দেখানো হচ্ছে — ফি ও নিয়ম সরকারি পোর্টালে যাচাই করুন।", "Showing an offline / cached copy — verify fees and rules on the official portal."],
+  "guideCouldNotOpen":     ["লিংকটি খোলা যায়নি।", "Couldn't open the link."],
+
+  "guideWelcomeTitle":     ["সরকারি সেবার ধাপে ধাপে গাইড", "Step-by-step guide to government services"],
+  "guideWelcomeBody":      ["NID, পাসপোর্ট, জন্ম নিবন্ধন, জমির পর্চা, ট্রেড লাইসেন্স ও আরও — উপরে খুঁজুন বা শ্রেণি বেছে নিন।", "NID, passport, birth registration, land records, trade licence and more — search above or pick a category."],
+  "guideNoResultsTitle":   ["কিছু পাওয়া যায়নি", "Nothing found"],
+  "guideNoResultsBody":    ["অন্য শব্দে খুঁজুন বা ফিল্টার মুছে ফেলুন।", "Try a different word or clear the filters."],
+  "guideNoSavedTitle":     ["এখনও কিছু সংরক্ষণ করেননি", "Nothing saved yet"],
+  "guideNoSavedBody":      ["যেকোনো সেবার বুকমার্ক আইকনে ট্যাপ করে এখানে রাখুন।", "Tap the bookmark icon on any service to keep it here."]
+}

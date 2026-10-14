@@ -639,3 +639,11 @@ NOTHING basic may remain.
   WAVE E: v2.1 NEW ~79 — Sec14 PA mode(23), AI-core(9), Daily-Life(6: doc scanner/contract analyzer/market radar/travel/service-finder/cost-time), Health(5), standalone(11: task mgr/spending/water-sleep-diet/fitness/voice-SOS/lost-stolen-phone/call-transcription/blog-script/mock-interview/language-partner/supplier-dir/demand-map/quiz), Sec20(20). All key-gated=mock/sandbox+Integrations-admin+owner_actions.
 - Also queued (master order): Step 6 SFU+TURN M3 self-hosted (hard caps) + aws_ports.md + Telegram bot sandbox; Step 7 P14-16/iOS/FINAL.
 - APK BLOCKED (public-flip→disabled): owner must send owner_actions/github_support_message.md to GitHub or enable paid private Actions minutes. All committed+pushed private through 27135a7. Everything builds+tests+deploys locally.
+
+## WAVE A launched (2026-10-14, commit b41c515) — last 6 basic→advanced
+- Agents: contacts/personal-CRM a43623, govt-guide af2b3f, agent-studio ace8d9, AI-inbox abb586, job-hunter a68faa, voice-commands a4b19c. Each emits up_<mod>_arb.json + up_<mod>_integration.md, Section-21 gate, AI/STT/sources mock+key-gated, no scraping, fees source-noted.
+- After Wave A reports: merge ARBs → wire any backend (one pass) → gen-l10n→analyze 0→gate→tests→commit. Then NO module remains basic (28→0).
+- NEXT WAVES: B payment-ladder + elderly-mode (not-built→build) · C 4 web tools→advanced · D 61 good→advanced · E ~79 v2.1-new (Sec14 PA/AI-core/Daily-Life/standalone/Sec20). Then Step6 SFU+TURN M3 + aws_ports.md + Telegram sandbox · Step7 P14-16/iOS/FINAL. Section-21 gate + reviewer + gallery each. Key-gated=mock/sandbox+Integrations-admin+owner_actions.
+- APK BLOCKED until owner unblocks GitHub (support msg ready / paid private Actions minutes). Committed+pushed private through b41c515. All green: analyze 0, gate clean, 436 logic+427 suite, Asalify 200, disk 8.7G.
+
+- BUILD 67 SHIPPED 2026-10-14: https://assisto.asalify.com/dl/BG_8jfTEj4m035BwHGfucFAz/assisto-part7-build67.apk (batched: P14-16 + batch-1 upgrades + full CRM + Circle fix + Messenger v3 + sidebar §4). run 38547307994 success, no disabled/403, asalify 200. Repo PUBLIC — owner to make private. NEXT WINDOW batch: Wave A (6 upgrades, done, uncommitted) + Waves B-E.

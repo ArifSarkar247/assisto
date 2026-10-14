@@ -1,0 +1,64 @@
+{
+  "_comment": "Assisto AI INBOX (feature 22) BASIC->ADVANCED upgrade, SPEC v2.1 Section 21. {key:[bn,en]}: index [0]=bn -> app_bn.arb, [1]=en -> app_en.arb. camelCase getters map 1:1 to tr.* used by inbox_screen.dart + widgets/inbox_*.dart. One parameterized key inboxSelectedCount uses ICU {count}; its @-metadata block (placeholders:{count:{type:Object}}) must be added to BOTH .arb files. Bangla digits (the selected count) are rendered at runtime from codepoints in Dart intl, no Bangla literals in .dart. REUSED existing getters (do NOT re-add): aiInbox, checkInternetRetry, retry. Merge both arbs then flutter gen-l10n.",
+
+  "inboxCatUrgent": ["জরুরি", "Urgent"],
+  "inboxCatAction": ["ব্যবস্থা নিন", "Action"],
+  "inboxCatFyi": ["তথ্য", "FYI"],
+  "inboxCatPromo": ["প্রচার", "Promo"],
+
+  "inboxSrcEmail": ["ইমেইল", "Email"],
+  "inboxSrcNotification": ["নোটিফিকেশন", "Notifications"],
+  "inboxSrcMessage": ["বার্তা", "Messages"],
+
+  "inboxFilterAll": ["সব", "All"],
+  "inboxNeedsReply": ["উত্তর দরকার", "Needs reply"],
+  "inboxSnoozed": ["পরে দেখব", "Snoozed"],
+
+  "inboxQuickReply": ["দ্রুত উত্তর", "Quick reply"],
+  "inboxSnooze": ["পরে দেখান", "Snooze"],
+  "inboxMarkDone": ["সম্পন্ন করুন", "Mark done"],
+  "inboxConvertTask": ["কাজ বানান", "Make a task"],
+  "inboxConvertReminder": ["রিমাইন্ডার বানান", "Make a reminder"],
+
+  "inboxSelect": ["নির্বাচন করুন", "Select"],
+  "inboxCancelSelect": ["বাতিল", "Cancel"],
+  "inboxSelectedCount": ["{count}টি নির্বাচিত", "{count} selected"],
+
+  "inboxSuggestedReplies": ["প্রস্তাবিত উত্তর", "Suggested replies"],
+  "inboxNoRepliesForPromo": ["প্রচারমূলক বার্তায় সাধারণত উত্তরের দরকার হয় না।", "Promotional messages usually need no reply."],
+  "inboxReplyKeyGatedDraftOnly": ["এই উত্তরটি খসড়া হিসেবে প্রস্তুত হবে। সরাসরি পাঠাতে একটি AI কী লাগবে (ইন্টিগ্রেশনে যোগ করুন)।", "This reply is prepared as a draft. Sending it directly needs an AI key (add it in Integrations)."],
+  "inboxReplyConnectToSend": ["উত্তর পাঠাতে প্রথমে একটি ইমেইল অ্যাকাউন্ট যোগ করুন (ইন্টিগ্রেশন)।", "To send replies, first connect an email account (Integrations)."],
+
+  "inboxReplyAckOnIt": ["দেখছি, করছি", "On it"],
+  "inboxReplyNeedTime": ["একটু সময় লাগবে", "Need a little time"],
+  "inboxReplyCallMe": ["ফোন করুন", "Please call me"],
+  "inboxReplyWillDo": ["ঠিক আছে, করব", "Will do"],
+  "inboxReplyNotNow": ["এখন নয়, পরে", "Not now"],
+  "inboxReplyAskDetails": ["আরেকটু বিস্তারিত বলবেন?", "Can you share more details?"],
+  "inboxReplyThanks": ["ধন্যবাদ", "Thanks"],
+  "inboxReplyNoted": ["জেনে নিলাম", "Noted"],
+
+  "inboxConnectedLive": ["অ্যাকাউন্ট যুক্ত আছে — এখানে আপনার আসল বার্তা AI দিয়ে সাজানো দেখাবে।", "Account connected — your real messages appear here, AI-sorted."],
+  "inboxMockConnectAccount": ["এটি একটি নমুনা ইনবক্স। আসল ইমেইল আনতে ইন্টিগ্রেশনে একটি অ্যাকাউন্ট যোগ করুন (কী প্রয়োজন)।", "This is a sample inbox. To bring in real email, connect an account in Integrations (key needed)."],
+
+  "inboxSnooze1h": ["১ ঘণ্টা পরে", "In 1 hour"],
+  "inboxSnooze3h": ["৩ ঘণ্টা পরে", "In 3 hours"],
+  "inboxSnooze1d": ["আগামীকাল", "Tomorrow"],
+  "inboxSnooze3d": ["৩ দিন পরে", "In 3 days"],
+
+  "inboxSnoozedToast": ["পরে দেখাব।", "Snoozed."],
+  "inboxMarkedDone": ["সম্পন্ন হয়েছে।", "Marked done."],
+  "inboxUndo": ["ফেরান", "Undo"],
+  "inboxTaskCreated": ["কাজ তৈরি হলো।", "Task created."],
+  "inboxReminderCreated": ["রিমাইন্ডার তৈরি হলো।", "Reminder created."],
+  "inboxReplyDraftReady": ["উত্তরের খসড়া প্রস্তুত।", "Reply draft ready."],
+
+  "inboxBulkDone": ["নির্বাচিতগুলো সম্পন্ন হয়েছে।", "Selected items marked done."],
+  "inboxBulkSnoozed": ["নির্বাচিতগুলো পরে দেখাব।", "Selected items snoozed."],
+
+  "inboxAllClear": ["ইনবক্স পরিষ্কার", "Inbox zero"],
+  "inboxAllClearHint": ["এখন নতুন কিছু নেই। নতুন বার্তা এলে এখানে দেখাবে।", "Nothing new right now. New messages will show up here."],
+  "inboxNoneInFilter": ["এই ফিল্টারে কিছু নেই", "Nothing in this filter"],
+  "inboxTryAnotherFilter": ["অন্য একটি ফিল্টার বেছে নিন বা সব দেখুন।", "Pick another filter, or view All."],
+  "inboxLoadFailed": ["ইনবক্স আনা যায়নি", "Couldn't load the inbox"]
+}

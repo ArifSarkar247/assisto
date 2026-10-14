@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:speech_to_text/speech_to_text.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
-import '../widgets/permission_reason.dart';
 import '../widgets/chatnav.dart';
+import '../widgets/voice_command_sheet.dart';
 import 'nearby_screen.dart';
 
 class _Msg {
@@ -36,8 +35,8 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
   final List<_Msg> _msgs = [];
   bool _sending = false;
 
-  final SpeechToText _speech = SpeechToText();
-  bool _speechReady = false;
+  // Preview flag only: the live mic now opens the advanced voice-command sheet
+  // (see [_openVoice]); this keeps the screenshot-seeded "listening" state.
   bool _listening = false;
 
   AppLocalizations get t => AppLocalizations.of(context);
@@ -67,7 +66,6 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
 
   @override
   void dispose() {
-    _speech.cancel();
     _input.dispose();
     _scroll.dispose();
     super.dispose();
@@ -160,49 +158,16 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
     } catch (_) {}
   }
 
-  Future<void> _toggleMic() async {
-    if (_listening) {
-      await _speech.stop();
-      if (mounted) setState(() => _listening = false);
-      return;
-    }
-    if (!_speechReady) {
-      final okReason = await showPermissionReason(context, PermKind.mic);
-      if (!okReason || !mounted) return;
-      _speechReady = await _speech.initialize(
-        onStatus: (s) {
-          if ((s == 'done' || s == 'notListening') && mounted) {
-            setState(() => _listening = false);
-          }
-        },
-        onError: (_) {
-          if (mounted) setState(() => _listening = false);
-        },
-      );
-    }
-    if (!_speechReady) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(t.micUnavailable)));
-      }
-      return;
-    }
+  // Advanced voice command: opens a sheet that transcribes on-device, shows the
+  // understood intent, and waits for an explicit confirm. The confirmed
+  // transcript then flows through the SAME pipeline as typed chat (_send →
+  // local route → backend route → agent), so Bangla/Banglish commands the
+  // on-device mapper can't resolve are still handled by the server.
+  Future<void> _openVoice() async {
     HapticFeedback.selectionClick();
-    final loc =
-        context.read<AppState>().locale?.languageCode == 'en' ? 'en_US' : 'bn_BD';
-    setState(() => _listening = true);
-    await _speech.listen(
-      localeId: loc,
-      onResult: (r) {
-        if (mounted) {
-          setState(() {
-            _input.text = r.recognizedWords;
-            _input.selection = TextSelection.fromPosition(
-                TextPosition(offset: _input.text.length));
-          });
-        }
-      },
-    );
+    final text = await showVoiceCommandSheet(context);
+    if (text == null || text.trim().isEmpty || !mounted) return;
+    await _send(text);
   }
 
   @override
@@ -504,8 +469,8 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
           ),
           const SizedBox(width: Gap.xs),
           IconButton(
-            onPressed: _toggleMic,
-            tooltip: t.listening,
+            onPressed: _openVoice,
+            tooltip: t.voiceTitle,
             icon: Icon(_listening ? Icons.stop_circle : Icons.mic_none,
                 color: _listening ? Brand.danger : scheme.onSurfaceVariant),
           ),

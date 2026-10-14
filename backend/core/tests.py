@@ -801,6 +801,15 @@ SafetyJourneySnippetTests = _make_snippet_case(
 # Watch Feed (advanced) — pure aggregation/grouping/priority helper.
 WatchFeedSnippetTests = _make_snippet_case(
     "core.logic.watch_feed_tests_snippets", "WatchFeedSnippetTests")
+# AI Inbox (advanced §21) — pure triage/priority/summary/bulk helper.
+AiInboxSnippetTests = _make_snippet_case(
+    "core.logic.ai_inbox_tests_snippets", "AiInboxSnippetTests")
+# Job Hunter (advanced §21) — pure pipeline/reminder/filter/salary helper.
+JobHunterSnippetTests = _make_snippet_case(
+    "core.logic.job_hunter_tests_snippets", "JobHunterSnippetTests")
+# Agent Studio (advanced §21) — deterministic WHEN/IF/THEN automation engine.
+AgentStudioSnippetTests = _make_snippet_case(
+    "core.logic.agent_studio_tests_snippets", "AgentStudioSnippetTests")
 
 
 # ---------------------------------------------------------------------------

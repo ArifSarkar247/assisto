@@ -1,0 +1,103 @@
+{
+  "studioTabMine": ["আমার অটোমেশন", "My automations"],
+  "studioTabTemplates": ["টেমপ্লেট", "Templates"],
+  "studioNew": ["নতুন", "New"],
+
+  "studioEmptyTitle": ["এখনো কোনো অটোমেশন নেই", "No automations yet"],
+  "studioEmptyBody": ["নিজের ছোট এজেন্ট বানান — যখন… হলে… তখন… এই নিয়মে কাজ চলবে। একটা টেমপ্লেট দিয়ে শুরু করুন।", "Build your own little agents — they run on a WHEN… IF… THEN rule. Start from a template."],
+  "studioBrowseTemplates": ["টেমপ্লেট দেখুন", "Browse templates"],
+  "studioLoadError": ["লোড করা গেল না", "Couldn't load"],
+
+  "studioTemplatesIntro": ["একটা টেমপ্লেট বেছে নিন, তারপর নিজের মতো বদলে নিন। সব কিছু আপনার — আপনি না বানালে কিছুই চলবে না।", "Pick a template, then tweak it. Everything is yours — nothing runs unless you create it."],
+  "studioUseTemplate": ["ব্যবহার করুন", "Use"],
+
+  "studioBuilderTitle": ["অটোমেশন বানান", "Build an automation"],
+  "studioName": ["নাম", "Name"],
+  "studioPreview": ["প্রিভিউ", "Preview"],
+
+  "studioWhen": ["যখন", "WHEN"],
+  "studioIfAll": ["যদি (সব মিলে)", "IF (all match)"],
+  "studioIfAny": ["যদি (যেকোনো একটি)", "IF (any match)"],
+  "studioIfOptional": ["শর্ত ঐচ্ছিক — না দিলে সবসময় চলবে।", "Conditions are optional — without them it always runs."],
+  "studioThen": ["তখন", "THEN"],
+  "studioMatchAll": ["সব মিলতে হবে", "All must match"],
+  "studioMatchAny": ["যেকোনো একটি মিললেই", "Any can match"],
+
+  "studioTrigSchedule": ["সময়/সময়সূচি", "Time / schedule"],
+  "studioTrigEvent": ["ঘটনা", "Event"],
+  "studioTrigKeyword": ["কিওয়ার্ড", "Keyword"],
+  "studioTrigIncoming": ["আগত বার্তা", "Incoming"],
+
+  "studioActRemind": ["মনে করিয়ে দাও", "Remind"],
+  "studioActMessage": ["বার্তা পাঠাও", "Message"],
+  "studioActLog": ["লগ করো", "Log"],
+  "studioActSummarize": ["সারসংক্ষেপ করো", "Summarize"],
+  "studioActTool": ["টুল চালাও", "Call a tool"],
+  "studioActText": ["লেখা", "Text"],
+  "studioActToolHint": ["যেমন money.summary", "e.g. money.summary"],
+
+  "studioOpEq": ["সমান", "equals"],
+  "studioOpNe": ["সমান নয়", "not equals"],
+  "studioOpContains": ["এর মধ্যে আছে", "contains"],
+
+  "studioCondField": ["ফিল্ড", "Field"],
+  "studioCondOp": ["শর্ত", "Op"],
+  "studioCondValue": ["মান", "Value"],
+
+  "studioEvtLeadCreated": ["নতুন লিড তৈরি হলে", "a lead is created"],
+  "studioEvtBirthday": ["আজ কারও জন্মদিন হলে", "it's someone's birthday"],
+  "studioEvtBillDue": ["বিল বকেয়া হলে", "a bill is due"],
+  "studioEvtAny": ["যেকোনো ঘটনা", "any event"],
+
+  "studioFieldTime": ["সময়", "Time"],
+  "studioFieldMonthly": ["মাসের নির্দিষ্ট দিনে", "On a day of the month"],
+  "studioFieldDayOfMonth": ["মাসের দিন (১–৩১)", "Day of month (1–31)"],
+  "studioFieldEvent": ["ঘটনা", "Event"],
+  "studioFieldKeywords": ["কিওয়ার্ড (কমা দিয়ে আলাদা)", "Keywords (comma separated)"],
+  "studioFieldKeywordsHint": ["যেকোনো একটি মিললেই চলবে", "Any one match fires it"],
+  "studioFieldIncomingFrom": ["যার কাছ থেকে এলে", "Incoming from"],
+  "studioFieldIncomingHint": ["যেমন bkash, bank", "e.g. bkash, bank"],
+
+  "studioDayMon": ["সোম", "Mon"],
+  "studioDayTue": ["মঙ্গল", "Tue"],
+  "studioDayWed": ["বুধ", "Wed"],
+  "studioDayThu": ["বৃহঃ", "Thu"],
+  "studioDayFri": ["শুক্র", "Fri"],
+  "studioDaySat": ["শনি", "Sat"],
+  "studioDaySun": ["রবি", "Sun"],
+
+  "studioWhenDaily": ["প্রতিদিন {at}", "every day at {at}"],
+  "studioWhenOnDays": ["নির্দিষ্ট দিনে {at}", "on chosen days at {at}"],
+  "studioWhenMonthly": ["প্রতি মাসের {day} তারিখে {at}", "on day {day} of each month at {at}"],
+  "studioWhenKeyword": ["কিওয়ার্ড: {keywords}", "keyword: {keywords}"],
+  "studioWhenIncoming": ["{from} থেকে বার্তা এলে", "a message comes from {from}"],
+
+  "studioRunNow": ["এখন চালান", "Run now"],
+  "studioRunManual": ["হাতে চালানো", "Manual run"],
+  "studioRunScheduled": ["সময়সূচিতে", "Scheduled"],
+  "studioRanOk": ["চালানো হয়েছে।", "Ran successfully."],
+  "studioRanWithAiMock": ["চালানো হয়েছে — AI অংশটি নমুনা (key যোগ করলে সত্যিকারের ফল আসবে)।", "Ran — the AI part is a mock (add a key for real output)."],
+
+  "studioHistoryTitle": ["চলার ইতিহাস", "Run history"],
+  "studioHistoryEmpty": ["এখনো চলেনি। \"এখন চালান\" চেপে পরীক্ষা করুন।", "Hasn't run yet. Tap \"Run now\" to test it."],
+
+  "studioAiTag": ["AI", "AI"],
+  "studioAiMockTag": ["AI নমুনা", "AI mock"],
+  "studioAiMockNote": ["সারসংক্ষেপ অংশটি এখন নমুনা দেখায়। সত্যিকারের AI ফলের জন্য Integrations-এ একটি AI key যোগ করুন।", "The summarize step shows a mocked preview for now. Add an AI key in Integrations for real AI output."],
+
+  "studioErrName": ["একটি নাম দিন।", "Give it a name."],
+  "studioErrTrigger": ["অন্তত একটি ট্রিগার দিন।", "Add at least one trigger."],
+  "studioErrAction": ["অন্তত একটি অ্যাকশন দিন।", "Add at least one action."],
+  "studioErrTime": ["সঠিক সময় দিন।", "Enter a valid time."],
+  "studioErrKeyword": ["অন্তত একটি কিওয়ার্ড দিন।", "Add at least one keyword."],
+  "studioErrEvent": ["একটি ঘটনা বেছে নিন।", "Choose an event."],
+  "studioErrSource": ["উৎস লিখুন।", "Enter a source."],
+
+  "studioTplBill": ["বিল রিমাইন্ডার", "Bill reminder"],
+  "studioTplBillText": ["বিল পরিশোধ করুন", "Pay the bill"],
+  "studioTplSummary": ["দৈনিক সারসংক্ষেপ", "Daily summary"],
+  "studioTplFollowup": ["ফলো-আপ", "Follow-up"],
+  "studioTplFollowupText": ["ফলো-আপ করুন", "Follow up"],
+  "studioTplBirthday": ["জন্মদিনের শুভেচ্ছা", "Birthday wish"],
+  "studioTplBirthdayText": ["শুভেচ্ছা পাঠান", "Send a wish"]
+}

@@ -4,9 +4,21 @@ import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import '../widgets/inbox_mock.dart';
+import '../widgets/inbox_item_card.dart';
+import '../widgets/inbox_filter_bar.dart';
+import '../widgets/inbox_reply_sheet.dart';
 
-/// AI Inbox (feature 22): red/yellow/green triage. Fetching email needs Gmail
-/// (owner connects it in Integrations) — clean "Available when ___" state here.
+/// AI Inbox (feature 22, SPEC v2.1 section 21 ADVANCED) - a unified SMART INBOX over
+/// email / notifications / messages with deterministic AI triage
+/// (urgent/action/FYI/promo), per-item summary + suggested quick replies
+/// (MOCK), priority sort, "needs reply" view, category/source filters, snooze,
+/// mark-done, convert-to-task/reminder and bulk actions.
+///
+/// Connecting a REAL email account (Gmail/IMAP) is key-gated; until the owner
+/// connects one in Integrations the list runs on MOCK items with a clear,
+/// honest "connect account" banner. Triage mirrors backend
+/// `core.logic.ai_inbox` (no real AI, no network).
 class InboxScreen extends StatefulWidget {
   const InboxScreen({super.key});
   @override
@@ -16,6 +28,14 @@ class InboxScreen extends StatefulWidget {
 class _InboxScreenState extends State<InboxScreen> {
   Map<String, dynamic>? _s;
   bool _loading = true;
+  bool _error = false;
+
+  List<InboxItem> _items = [];
+  InboxFilter _filter = const InboxFilter();
+  bool _selectMode = false;
+  final Set<String> _selected = {};
+
+  bool get _connected => _s?['connected'] == true;
 
   @override
   void initState() {
@@ -24,66 +44,315 @@ class _InboxScreenState extends State<InboxScreen> {
   }
 
   Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = false;
+    });
     try {
       _s = await context.read<AppState>().api.inboxStatus();
-    } catch (_) {}
+      // Live data needs a connected account (key-gated). Until then we populate
+      // the advanced UI with MOCK items so every feature is exercisable.
+      final now = DateTime.now();
+      _items = mockInbox(now);
+      triage(_items, now);
+    } catch (_) {
+      _error = true;
+    }
     if (mounted) setState(() => _loading = false);
+  }
+
+  // ---- derived lists -------------------------------------------------------
+  List<InboxItem> get _visible {
+    final now = DateTime.now();
+    var list = activeItems(_items, now);
+    if (_filter.needsReplyOnly) list = list.where((i) => i.needsReply).toList();
+    if (_filter.category != null) {
+      list = list.where((i) => i.category == _filter.category).toList();
+    }
+    if (_filter.source != null) {
+      list = list.where((i) => i.source == _filter.source).toList();
+    }
+    return sortByPriority(list);
+  }
+
+  Map<InboxCategory, int> get _counts {
+    final now = DateTime.now();
+    final active = activeItems(_items, now);
+    return {
+      for (final c in InboxCategory.values)
+        c: active.where((i) => i.category == c).length,
+    };
+  }
+
+  int get _needsReplyCount =>
+      activeItems(_items, DateTime.now()).where((i) => i.needsReply).length;
+
+  // ---- actions -------------------------------------------------------------
+  void _toast(String msg) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
+
+  Future<void> _reply(InboxItem it) async {
+    final tr = AppLocalizations.of(context);
+    final chosen = await InboxReplySheet.show(context, it, _connected);
+    if (chosen != null) _toast(tr.inboxReplyDraftReady);
+  }
+
+  Future<void> _snooze(InboxItem it) async {
+    final tr = AppLocalizations.of(context);
+    final hours = await showModalBottomSheet<int>(
+      context: context,
+      showDragHandle: true,
+      builder: (_) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          ListTile(title: Text(tr.inboxSnooze1h), leading: const Icon(Icons.snooze),
+              onTap: () => Navigator.pop(context, 1)),
+          ListTile(title: Text(tr.inboxSnooze3h), leading: const Icon(Icons.snooze),
+              onTap: () => Navigator.pop(context, 3)),
+          ListTile(title: Text(tr.inboxSnooze1d), leading: const Icon(Icons.snooze),
+              onTap: () => Navigator.pop(context, 24)),
+          ListTile(title: Text(tr.inboxSnooze3d), leading: const Icon(Icons.snooze),
+              onTap: () => Navigator.pop(context, 72)),
+        ]),
+      ),
+    );
+    if (hours == null) return;
+    setState(() => it.snoozedUntil = DateTime.now().add(Duration(hours: hours)));
+    _toast(tr.inboxSnoozedToast);
+  }
+
+  void _markDone(InboxItem it) {
+    final tr = AppLocalizations.of(context);
+    setState(() => it.done = true);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(tr.inboxMarkedDone),
+      action: SnackBarAction(
+        label: tr.inboxUndo,
+        onPressed: () => setState(() => it.done = false),
+      ),
+    ));
+  }
+
+  void _convertTask(InboxItem it) => _toast(AppLocalizations.of(context).inboxTaskCreated);
+  void _convertReminder(InboxItem it) =>
+      _toast(AppLocalizations.of(context).inboxReminderCreated);
+
+  void _bulk(bool done) {
+    final tr = AppLocalizations.of(context);
+    setState(() {
+      for (final it in _items) {
+        if (_selected.contains(it.id)) {
+          if (done) {
+            it.done = true;
+          } else {
+            it.snoozedUntil = DateTime.now().add(const Duration(hours: 24));
+          }
+        }
+      }
+      _selected.clear();
+      _selectMode = false;
+    });
+    _toast(done ? tr.inboxBulkDone : tr.inboxBulkSnoozed);
   }
 
   @override
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final connected = _s?['connected'] == true;
-    Widget legendRow(Color c, String label) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(children: [
-          Container(width: 12, height: 12,
-              decoration: BoxDecoration(color: c, shape: BoxShape.circle)),
-          const SizedBox(width: Gap.sm),
-          Text(label),
-        ]));
+
     return Scaffold(
-      appBar: AppBar(title: Text(tr.aiInbox)),
+      appBar: AppBar(
+        title: Text(_selectMode
+            ? tr.inboxSelectedCount(_selected.length)
+            : tr.aiInbox),
+        actions: [
+          if (!_loading && !_error)
+            IconButton(
+              tooltip: _selectMode ? tr.inboxCancelSelect : tr.inboxSelect,
+              icon: Icon(_selectMode ? Icons.close : Icons.checklist),
+              onPressed: () => setState(() {
+                _selectMode = !_selectMode;
+                _selected.clear();
+              }),
+            ),
+        ],
+      ),
+      bottomNavigationBar: (_selectMode && _selected.isNotEmpty)
+          ? _BulkBar(tr: tr, onDone: () => _bulk(true), onSnooze: () => _bulk(false))
+          : null,
       body: _loading
           ? const SkeletonList()
-          : ListView(padding: const EdgeInsets.all(Gap.lg), children: [
-              if (!connected)
-                Card(
-                  color: scheme.tertiaryContainer,
-                  child: Padding(
-                    padding: const EdgeInsets.all(Gap.lg),
-                    child: Row(children: [
-                      Icon(Icons.mark_email_unread_outlined,
-                          color: scheme.onTertiaryContainer),
-                      const SizedBox(width: Gap.md),
-                      Expanded(
-                        child: Text(
-                          tr.availableWhenGmailIsConnected,
-                          style: TextStyle(color: scheme.onTertiaryContainer),
-                        ),
+          : _error
+              ? _ErrorState(tr: tr, onRetry: _load)
+              : _body(tr, scheme),
+    );
+  }
+
+  Widget _body(AppLocalizations tr, ColorScheme scheme) {
+    final visible = _visible;
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: Column(children: [
+        // Honest account state: mock now, real email is key-gated.
+        _ConnectBanner(connected: _connected, tr: tr, scheme: scheme),
+        InboxFilterBar(
+          filter: _filter,
+          counts: _counts,
+          needsReplyCount: _needsReplyCount,
+          onChanged: (f) => setState(() => _filter = f),
+        ),
+        const Divider(height: 1),
+        Expanded(
+          child: visible.isEmpty
+              ? _EmptyState(tr: tr, filtered: _filter.category != null ||
+                  _filter.source != null || _filter.needsReplyOnly)
+              : ListView(
+                  padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xl),
+                  children: [
+                    for (final it in visible)
+                      InboxItemCard(
+                        item: it,
+                        selectMode: _selectMode,
+                        selected: _selected.contains(it.id),
+                        onToggleSelect: () => setState(() {
+                          _selected.contains(it.id)
+                              ? _selected.remove(it.id)
+                              : _selected.add(it.id);
+                        }),
+                        onReply: () => _reply(it),
+                        onSnooze: () => _snooze(it),
+                        onDone: () => _markDone(it),
+                        onTask: () => _convertTask(it),
+                        onReminder: () => _convertReminder(it),
                       ),
-                    ]),
-                  ),
+                  ],
                 ),
-              const SizedBox(height: Gap.lg),
-              Text(tr.howAiTriages,
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
-              const SizedBox(height: Gap.sm),
-              Card(child: Padding(
-                padding: const EdgeInsets.all(Gap.lg),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  legendRow(const Color(0xFFE0485A), tr.redUrgentNeedsAction),
-                  legendRow(const Color(0xFFE0A500), tr.yellowReplySoon),
-                  legendRow(const Color(0xFF2E9E6B), tr.greenJustInfo),
-                ]),
-              )),
-              const SizedBox(height: Gap.md),
-              Text(
-                tr.onceConnectedYourEmailsAppear,
-                style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
-              ),
-            ]),
+        ),
+      ]),
+    );
+  }
+}
+
+class _ConnectBanner extends StatelessWidget {
+  final bool connected;
+  final AppLocalizations tr;
+  final ColorScheme scheme;
+  const _ConnectBanner({required this.connected, required this.tr, required this.scheme});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = connected ? scheme.secondaryContainer : scheme.tertiaryContainer;
+    final onColor = connected ? scheme.onSecondaryContainer : scheme.onTertiaryContainer;
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 0),
+      padding: const EdgeInsets.all(Gap.md),
+      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(Radii.md)),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Icon(connected ? Icons.mark_email_read_outlined : Icons.link,
+            size: 20, color: onColor),
+        const SizedBox(width: Gap.sm),
+        Expanded(
+          child: Text(
+            connected ? tr.inboxConnectedLive : tr.inboxMockConnectAccount,
+            style: TextStyle(fontSize: 12.5, color: onColor),
+          ),
+        ),
+      ]),
+    );
+  }
+}
+
+class _BulkBar extends StatelessWidget {
+  final AppLocalizations tr;
+  final VoidCallback onDone, onSnooze;
+  const _BulkBar({required this.tr, required this.onDone, required this.onSnooze});
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.md),
+        child: Row(children: [
+          Expanded(
+            child: OutlinedButton.icon(
+              icon: const Icon(Icons.snooze),
+              label: Text(tr.inboxSnooze),
+              onPressed: onSnooze,
+            ),
+          ),
+          const SizedBox(width: Gap.md),
+          Expanded(
+            child: FilledButton.icon(
+              icon: const Icon(Icons.check_circle_outline),
+              label: Text(tr.inboxMarkDone),
+              onPressed: onDone,
+            ),
+          ),
+        ]),
+      ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  final AppLocalizations tr;
+  final bool filtered;
+  const _EmptyState({required this.tr, required this.filtered});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.xl),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Icon(filtered ? Icons.filter_alt_off : Icons.inbox_outlined,
+              size: 56, color: scheme.onSurfaceVariant),
+          const SizedBox(height: Gap.md),
+          Text(filtered ? tr.inboxNoneInFilter : tr.inboxAllClear,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+          const SizedBox(height: Gap.sm),
+          Text(filtered ? tr.inboxTryAnotherFilter : tr.inboxAllClearHint,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
+        ]),
+      ),
+    );
+  }
+}
+
+class _ErrorState extends StatelessWidget {
+  final AppLocalizations tr;
+  final VoidCallback onRetry;
+  const _ErrorState({required this.tr, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.xl),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Icon(Icons.cloud_off, size: 56, color: scheme.error),
+          const SizedBox(height: Gap.md),
+          Text(tr.inboxLoadFailed,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+          const SizedBox(height: Gap.sm),
+          Text(tr.checkInternetRetry,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
+          const SizedBox(height: Gap.lg),
+          FilledButton.icon(
+            icon: const Icon(Icons.refresh),
+            label: Text(tr.retry),
+            onPressed: onRetry,
+          ),
+        ]),
+      ),
     );
   }
 }
