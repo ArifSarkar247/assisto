@@ -41,6 +41,8 @@ import '../screens/inbox_screen.dart';
 // business
 import '../screens/business_screen.dart';
 import '../screens/crm/crm_home_screen.dart';
+// messenger (Step 3) — the Messages hub lives at the TOP of the sidebar
+import '../screens/messenger/messenger_home_screen.dart';
 
 /// One navigable module inside a sidebar section.
 class SidebarItem {
@@ -75,6 +77,14 @@ class SidebarSections {
   SidebarSections._();
 
   static final List<SidebarSection> all = [
+    // 0. Messages — the Messenger hub (Chats · Updates · Communities · Calls).
+    // Pinned to the TOP; also opened by the `messages` ChatNav route. Our own
+    // wording/icons — original identity, never a WhatsApp/Meta copy.
+    SidebarSection('messages', Icons.forum_outlined, (t) => t.msgrTitle, [
+      SidebarItem(Icons.forum_outlined, (t) => t.msgrTitle,
+          (_) => const MessengerHomeScreen(),
+          synonyms: ['messages', 'messenger', 'chat', 'chats', 'dm']),
+    ]),
     // 1. Reminders & Memory
     SidebarSection('reminders_memory', Icons.notifications_active_outlined,
         (t) => t.sidebarRemindersMemory, [

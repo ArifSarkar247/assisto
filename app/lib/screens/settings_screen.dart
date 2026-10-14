@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import '../state.dart';
 import '../config.dart';
 import '../models.dart';
+import '../messenger_admin_api.dart';
 import '../l10n/app_localizations.dart';
 import 'owner_analytics_screen.dart';
 import 'name_about_screen.dart';
@@ -15,6 +16,9 @@ import 'subscriptions_screen.dart';
 import 'battery_guidance_screen.dart';
 import 'in_progress_screen.dart';
 import 'legal_screen.dart';
+import 'messenger/admin_moderation_screen.dart';
+import 'messenger/admin_users_screen.dart';
+import 'messenger/moderation_policy_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -280,6 +284,9 @@ class SettingsScreen extends StatelessWidget {
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const InProgressScreen())),
           ),
+          const Divider(),
+          _MsgrSettingsSection(),
+          const Divider(),
           ListTile(
             leading: const Icon(Icons.gavel_outlined),
             title: Text(AppLocalizations.of(context).legalTitle),
@@ -327,6 +334,88 @@ class SettingsScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Messenger section of Settings: policy pages (always visible, so anyone can
+/// read the content/community/18+ policies) plus the moderation tools, which
+/// are gated behind [ApiClientModerationApi.moderationWhoAmI] so only
+/// (from the MessengerAdminApi extension) operators/owners ever see the queue
+/// + user-management links.
+class _MsgrSettingsSection extends StatefulWidget {
+  @override
+  State<_MsgrSettingsSection> createState() => _MsgrSettingsSectionState();
+}
+
+class _MsgrSettingsSectionState extends State<_MsgrSettingsSection> {
+  bool? _isOperator;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkRole();
+  }
+
+  Future<void> _checkRole() async {
+    bool ok = false;
+    try {
+      ok = await context.read<AppState>().api.moderationWhoAmI();
+    } catch (_) {}
+    if (mounted) setState(() => _isOperator = ok);
+  }
+
+  void _open(Widget screen) => Navigator.push(
+      context, MaterialPageRoute(builder: (_) => screen));
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+          child: Text(t.settingsMsgrSection,
+              style: Theme.of(context)
+                  .textTheme
+                  .labelLarge
+                  ?.copyWith(color: Theme.of(context).colorScheme.primary)),
+        ),
+        // Moderation tools — operators/owners only.
+        if (_isOperator == true) ...[
+          ListTile(
+            leading: const Icon(Icons.shield_outlined),
+            title: Text(t.settingsMsgrAdminTools),
+            subtitle: Text(t.settingsMsgrAdminToolsSub),
+            onTap: () => _open(const AdminModerationScreen()),
+          ),
+          ListTile(
+            leading: const Icon(Icons.manage_accounts_outlined),
+            title: Text(t.settingsMsgrUsers),
+            onTap: () => _open(const AdminUsersScreen()),
+          ),
+        ],
+        // Policies — visible to everyone.
+        ListTile(
+          leading: const Icon(Icons.policy_outlined),
+          title: Text(t.msgrModPolicyContentTitle),
+          onTap: () => _open(const ModerationPolicyScreen(
+              kind: MsgrModPolicyKind.contentPolicy)),
+        ),
+        ListTile(
+          leading: const Icon(Icons.handshake_outlined),
+          title: Text(t.msgrModPolicyGuidelinesTitle),
+          onTap: () => _open(const ModerationPolicyScreen(
+              kind: MsgrModPolicyKind.communityGuidelines)),
+        ),
+        ListTile(
+          leading: const Icon(Icons.no_adult_content),
+          title: Text(t.msgrModPolicyAdultTitle),
+          onTap: () => _open(const ModerationPolicyScreen(
+              kind: MsgrModPolicyKind.adultContent)),
+        ),
+      ],
     );
   }
 }

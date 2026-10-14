@@ -393,6 +393,21 @@ class ApiClient {
     _fail(r);
   }
 
+  /// Mirror of [postJson] but issues an HTTP PATCH. Messenger edit/setting
+  /// endpoints (channel edit, community group update, /me/* privacy toggles)
+  /// are modelled as PATCH on the backend; this hits those real handlers
+  /// instead of a non-existent POST (405). The slash stays before any query
+  /// string exactly as [AppConfig.api] produces it.
+  Future<Map<String, dynamic>> patchJson(String path,
+      [Map<String, dynamic> body = const {}]) async {
+    final r = await _c.patch(AppConfig.api(path),
+        headers: _headers(), body: jsonEncode(body));
+    if (r.statusCode >= 200 && r.statusCode < 300) {
+      return r.body.isEmpty ? {} : jsonDecode(r.body) as Map<String, dynamic>;
+    }
+    _fail(r);
+  }
+
   // Monetization
   Future<Map<String, dynamic>> plan() => getJson('/me/plan');
   Future<Map<String, dynamic>> rewardedAd() => postJson('/credits/rewarded');

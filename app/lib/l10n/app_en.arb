@@ -3452,5 +3452,603 @@
   "circleCancelRequest": "Cancel",
   "circleSomeone": "Someone",
   "circleRequestNoteLabel": "A note (optional)",
-  "circleRequestNoteHint": "e.g. Hi, it's Rahim from work."
+  "circleRequestNoteHint": "e.g. Hi, it's Rahim from work.",
+  "msgrTitle": "Messages",
+  "msgrTabChats": "Chats",
+  "msgrTabUpdates": "Updates",
+  "msgrTabCommunities": "Communities",
+  "msgrTabCalls": "Calls",
+  "msgrSearchHint": "Search chats",
+  "msgrNewChat": "New chat",
+  "msgrComingSoon": "Coming soon",
+  "msgrUpdatesSoon": "Status and channels are coming here soon.",
+  "msgrCommunitiesSoon": "Communities for your circle are coming here soon.",
+  "msgrCallsSoon": "Your call history is coming here soon.",
+  "msgrChatsEmptyTitle": "No chats yet",
+  "msgrChatsEmptyBody": "Add someone to your circle, then message privately. Every chat is end-to-end encrypted.",
+  "msgrStartChatting": "Start chatting",
+  "msgrTyping": "typing…",
+  "msgrNoMessagesYet": "No messages yet",
+  "msgrPhoto": "Photo",
+  "msgrVoiceMessage": "Voice message",
+  "msgrDocument": "Document",
+  "msgrLocation": "Location",
+  "msgrYouPrefix": "You: ",
+  "msgrActionMute": "Mute",
+  "msgrActionUnmute": "Unmute",
+  "msgrActionPin": "Pin",
+  "msgrActionUnpin": "Unpin",
+  "msgrActionMarkRead": "Mark as read",
+  "msgrActionMarkUnread": "Mark as unread",
+  "msgrActionDelete": "Delete chat",
+  "msgrDeleteConfirmTitle": "Delete chat?",
+  "msgrDeleteConfirmBody": "This chat will be removed from your device.",
+  "msgrMutedBadge": "Muted",
+  "msgrSwipeToReply": "Swipe to reply",
+  "msgrProfileTitle": "Profile",
+  "msgrProfilePhoto": "Profile photo",
+  "msgrChangePhoto": "Change photo",
+  "msgrRemovePhoto": "Remove photo",
+  "msgrPickFromGallery": "Choose from gallery",
+  "msgrTakePhoto": "Take a photo",
+  "msgrDisplayName": "Display name",
+  "msgrAbout": "About",
+  "msgrAboutHint": "Write a little about yourself",
+  "msgrPhone": "Phone number",
+  "msgrPhoneVisibility": "Who can see my phone number",
+  "msgrVisibilityEveryone": "My circle",
+  "msgrVisibilityFamily": "Family only",
+  "msgrVisibilityNobody": "Nobody",
+  "msgrWhoCanMessage": "Who can message me in communities",
+  "msgrSaveProfile": "Save",
+  "msgrProfileSaved": "Profile saved",
+  "msgrProfileSaveFailed": "Couldn't save — please try again",
+  "msgrContactsTitle": "Contacts on Assisto",
+  "msgrContactsPermTitle": "See which contacts are on Assisto",
+  "msgrContactsDisclosure": "With your permission, Assisto matches contacts on your device by comparing encrypted codes only, to find who's already here. Raw phone numbers and names are never sent to the server and are never stored anywhere.",
+  "msgrContactsAllow": "Allow and find contacts",
+  "msgrContactsDeny": "Not now",
+  "msgrContactsScanning": "Matching…",
+  "msgrContactsOnAssisto": "On Assisto",
+  "msgrContactsInviteOthers": "Invite others",
+  "msgrContactsNoneMatched": "None of your contacts are on Assisto yet. Be the first to invite someone.",
+  "msgrContactsPermissionNeeded": "Contact permission is needed to match.",
+  "msgrContactsManualTitle": "Find by number",
+  "msgrContactsManualHint": "Enter a phone number",
+  "msgrInviteAction": "Invite",
+  "msgrConnectAction": "Connect",
+  "msgrInviteExisting": "Invite in app",
+  "msgrInviteShareLink": "Share invite link",
+  "msgrInviteSms": "Invite by SMS",
+  "msgrInviteSmsNote": "A message opens on your own SIM — you send it yourself.",
+  "msgrInviteSent": "Invite sent",
+  "msgrInviteFailed": "Couldn't send the invite",
+  "msgrConnectTitle": "Connection request",
+  "msgrRelationLabel": "Relationship",
+  "msgrRelationRequired": "Please choose a relationship",
+  "msgrRelationFamily": "Family",
+  "msgrRelationFriend": "Friend",
+  "msgrRelationCousin": "Cousin",
+  "msgrRelationHusband": "Husband",
+  "msgrRelationWife": "Wife",
+  "msgrRelationFather": "Father",
+  "msgrRelationMother": "Mother",
+  "msgrRelationChild": "Child",
+  "msgrRelationSibling": "Sibling",
+  "msgrRelationOther": "Other",
+  "msgrFamilySubLabel": "Family relation (optional)",
+  "msgrNoteOptional": "A note (optional)",
+  "msgrNoteHint": "You may send one short note before they accept",
+  "msgrSendRequest": "Send request",
+  "msgrRequestSent": "Request sent",
+  "msgrRequestFailed": "Couldn't send the request",
+  "msgrDailyLimitReached": "You've reached today's request limit. Try again tomorrow.",
+  "msgrRequestsSentTab": "Sent",
+  "msgrRequestsIncomingTab": "Requests",
+  "msgrNoSentRequests": "No sent requests",
+  "msgrNoIncomingRequests": "No new requests",
+  "msgrAccept": "Accept",
+  "msgrDecline": "Decline",
+  "msgrCancel": "Cancel",
+  "msgrPending": "Pending",
+  "msgrAccepted": "Connected",
+  "msgrBlock": "Block",
+  "msgrReport": "Report",
+  "msgrReportTitle": "Report",
+  "msgrReportReasonHint": "Reason",
+  "msgrReportSpam": "Spam",
+  "msgrReportHarassment": "Harassment",
+  "msgrReportOther": "Other",
+  "msgrReportSubmit": "Submit report",
+  "msgrBlockedNotice": "This person has been blocked.",
+  "msgrReportSubmitted": "Report submitted",
+  "msgrPreAcceptNote": "Only one note can be sent before they accept.",
+  "msgrRetry": "Retry",
+  "msgrClose": "Close",
+  "msgrSomethingWrong": "Something went wrong",
+  "communityTitle": "Community",
+  "communityGroupsYoureIn": "Groups you're in",
+  "communityGroupsYouCanJoin": "Groups you can join",
+  "communityOpen": "Open",
+  "communityJoin": "Join",
+  "communityRequestToJoin": "Request to join",
+  "communityRequested": "Requested",
+  "communityJoinedNow": "You joined the group",
+  "communityRequestSent": "Join request sent",
+  "communityActionFailed": "Couldn't complete that, please try again",
+  "communityMemberCount": "{count} members",
+  "@communityMemberCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "communityAnnouncementsGroup": "Announcements group",
+  "communityEmptyTitle": "No groups yet",
+  "communityEmptyBody": "No groups have been created in this community yet. New ones will show up here.",
+  "communityBackendPending": "This will fill in once the community service is live.",
+  "communityMembersTitle": "Members",
+  "communityTopicGroups": "Topic groups",
+  "communityNoTopics": "No topic groups yet.",
+  "communityPendingRequests": "Pending join requests",
+  "communityWantsToJoin": "Wants to join {group}",
+  "@communityWantsToJoin": {
+    "placeholders": {
+      "group": {
+        "type": "Object"
+      }
+    }
+  },
+  "communityApprove": "Approve",
+  "communityReject": "Reject",
+  "communityAdminControls": "Admin controls",
+  "communityAdminsPostOnly": "Admins post only",
+  "communitySetRules": "Set group rules",
+  "communityRulesHint": "Write the rules for group members",
+  "communitySetSizeLimit": "Set member limit",
+  "communitySizeLimitHint": "Maximum number of members",
+  "communityPhoneHidden": "Phone hidden",
+  "communityPhonePrivacyNote": "Phone numbers are hidden by default; only shown for members who chose to share.",
+  "communityPhoneTitle": "Phone number",
+  "communityRoleAdmin": "Admin",
+  "communityMemberYou": "{name} (you)",
+  "@communityMemberYou": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "communityMemberMessage": "Message",
+  "communityMemberMore": "More",
+  "communityMemberRemove": "Remove from group",
+  "communityNoMembers": "No members yet.",
+  "communityMessageMemberTitle": "Message {name}",
+  "@communityMessageMemberTitle": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "communityMessageHint": "Type your message",
+  "communitySend": "Send",
+  "communityFirstMessageNote": "If this person is outside your circle, your first message goes as a message request — a direct chat starts only after they accept.",
+  "communityMessageRequestSent": "A message request was sent to {name}. The chat opens once they accept.",
+  "@communityMessageRequestSent": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "communityCannotMessageNobody": "This person doesn't accept messages from communities.",
+  "communityCannotMessageBlocked": "You can't message this person.",
+  "communityCannotMessageNotMember": "You can't message because you're not in the same community.",
+  "communityRateLimited": "You've sent a lot of requests in a short time. Please wait a bit and try again.",
+  "communityRequestsTitle": "Message requests",
+  "communityRequestsEmptyTitle": "No message requests",
+  "communityRequestsEmptyBody": "When someone outside your circle messages you for the first time, it shows up here.",
+  "communityRequestGenericPreview": "Sent you a message",
+  "communityRequestFromCommunity": "From {community}",
+  "@communityRequestFromCommunity": {
+    "placeholders": {
+      "community": {
+        "type": "Object"
+      }
+    }
+  },
+  "communityRequestBanner": "This is a message request — no direct chat or calls until you accept.",
+  "communityRequestAccept": "Accept",
+  "communityRequestDecline": "Decline",
+  "communityRequestBlock": "Block",
+  "communityRequestReport": "Report",
+  "communityReportTitle": "Report reason",
+  "communityReportSpam": "Spam",
+  "communityReportHarassment": "Harassment",
+  "communityReportScam": "Scam",
+  "communityReportOther": "Other",
+  "communityReportAlsoBlock": "Also block this person",
+  "communityReportSubmit": "Submit report",
+  "communityReportThanks": "Thanks for the report.",
+  "communitySettingsTitle": "Community privacy",
+  "communityWhoCanMessageTitle": "Who in my communities can message me",
+  "communityWhoEveryone": "Everyone",
+  "communityWhoEveryoneHint": "Anyone in your communities can send you a first message (as a request).",
+  "communityWhoNobody": "Nobody",
+  "communityWhoNobodyHint": "No one outside your circle can message you.",
+  "communityShowPhone": "Show my phone to community members",
+  "communityShowPhoneHint": "When off, your phone stays hidden on member lists.",
+  "communitySettingsServerNote": "These rules are enforced on the server, not just in the app, so they protect you reliably.",
+  "channelsTitle": "Channels",
+  "channelCreate": "Create channel",
+  "channelsEmptyTitle": "No channels yet",
+  "channelsEmptyBody": "Create a channel to broadcast updates, or follow channels you like.",
+  "channelsBackendSoon": "Channels are coming soon. You're seeing a preview for now.",
+  "channelName": "Channel name",
+  "channelHandle": "Handle",
+  "channelHandleHint": "Lowercase letters, numbers and underscores only.",
+  "channelNameHandleRequired": "Name and handle are both required.",
+  "channelDescription": "Description",
+  "channelCategory": "Category",
+  "channelLanguage": "Language",
+  "channelLangBn": "Bangla",
+  "channelLangEn": "English",
+  "channelLangOther": "Other",
+  "channelCatNews": "News",
+  "channelCatReligion": "Religion",
+  "channelCatEntertainment": "Entertainment",
+  "channelCatEducation": "Education",
+  "channelCatSports": "Sports",
+  "channelCatBusiness": "Business",
+  "channelCatLocal": "Local area",
+  "channelFollow": "Follow",
+  "channelFollowing": "Following",
+  "channelFollowingSection": "Channels you follow",
+  "channelSuggestedSection": "Suggested",
+  "channelSuggestedSourceNote": "Suggestions come from your chosen interests, language and public popularity — never from your private messages or contacts.",
+  "channelUnfollow": "Unfollow",
+  "channelUnfollowedToast": "Unfollowed.",
+  "channelFollowedCountOnlyToast": "Following. By default you're count-only — your name isn't shown to anyone. You can change this in settings.",
+  "channelMute": "Mute",
+  "channelUnmute": "Unmute",
+  "channelShareLink": "Share link",
+  "channelCopyLink": "Copy link",
+  "channelLinkCopied": "Link copied.",
+  "channelManage": "Manage channel",
+  "channelFollowerCount": "{count} followers",
+  "@channelFollowerCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "channelVerified": "Verified",
+  "channelVerifiedActive": "This channel is verified.",
+  "channelRequestVerification": "Request verification",
+  "channelVerificationPending": "Verification under review",
+  "channelVerificationNote": "The verified badge is granted only by the Assisto team on approval; it cannot be self-assigned.",
+  "channelPost": "Post",
+  "channelPostText": "Text",
+  "channelPostPhoto": "Photo",
+  "channelPostVideo": "Video",
+  "channelPostLink": "Link",
+  "channelPostPoll": "Poll",
+  "channelComposeText": "What do you want to share?",
+  "channelComposeCaption": "Caption (optional)",
+  "channelComposeLink": "Link URL",
+  "channelComposeFirstBody": "Broadcast your first update to your followers.",
+  "channelAttachPhoto": "Add photo",
+  "channelAttachVideo": "Add video",
+  "channelPollQuestion": "Poll question",
+  "channelPollOption": "Option",
+  "channelPollAddOption": "Add option",
+  "channelPollMulti": "Allow multiple choices",
+  "channelReact": "React",
+  "channelReactions": "{count} reactions",
+  "@channelReactions": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "channelViews": "{count} views",
+  "@channelViews": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "channelPollVotes": "{count} votes",
+  "@channelPollVotes": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "channelPollClosed": "Poll closed",
+  "channelPin": "Pin",
+  "channelUnpin": "Unpin",
+  "channelPinned": "Pinned",
+  "channelNoPostsTitle": "No posts yet",
+  "channelNoPostsBody": "This channel hasn't posted anything yet.",
+  "channelReplyDisabledNote": "This is a broadcast channel. Followers can react, but cannot reply or message.",
+  "channelNotEncryptedNote": "Channel content is public and moderatable — it is NOT end-to-end encrypted. Your personal chats and groups stay encrypted.",
+  "channelTabPosts": "Posts",
+  "channelTabProfile": "Profile",
+  "channelTabAdmins": "Admins",
+  "channelSaveProfile": "Save profile",
+  "channelProfileSaved": "Profile saved.",
+  "channelAdmins": "Channel admins",
+  "channelAddAdmin": "Add admin",
+  "channelAdminUserId": "User ID",
+  "channelAdminsOwnerOnly": "Only the channel owner can add or remove admins.",
+  "channelOwner": "Owner",
+  "channelCancel": "Cancel",
+  "channelAnalytics": "Analytics",
+  "channelAnalyticsViews": "Total views",
+  "channelAnalyticsReactions": "Total reactions",
+  "channelAnalyticsGrowth": "Follower growth",
+  "channelAnalyticsNoData": "Not enough data yet.",
+  "channelAnalyticsNoPii": "Analytics show counts only — no personal information and no follower list.",
+  "channelFollowerListTitle": "Followers",
+  "channelListVisibility": "Follower list visibility",
+  "channelListVisibilityNote": "Public shows only followers who chose 'show'. Count-only followers are never shown. Either way, the total count stays visible.",
+  "channelListPublic": "Public",
+  "channelListPrivate": "Private",
+  "channelMyVisibility": "My visibility",
+  "channelVisShow": "Show that I follow",
+  "channelVisCountOnly": "Count me only",
+  "channelVisCountOnlyHint": "Your name is shown to no one — not even the owner.",
+  "channelVisDefaultNote": "Default: count only. If you are 'count me only', your name is shown to no one — not even the channel owner — but you are still included in the follower count. Changeable anytime.",
+  "channelHiddenPrivate": "{count} chose to stay private",
+  "@channelHiddenPrivate": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "discoverTitle": "Discover",
+  "discoverSearchHint": "Search channels and public communities",
+  "discoverAll": "All",
+  "discoverResults": "Results",
+  "discoverPopular": "Popular",
+  "discoverSuggestedByAssisto": "Suggested by Assisto",
+  "discoverSuggestedSourceNote": "Assisto's suggestions come from your chosen interests, language and public popularity — never from your private messages or contacts.",
+  "discoverEmptyTitle": "Nothing found",
+  "discoverEmptyBody": "Try a different search, or pick a category.",
+  "discoverInviteTitle": "Invite to channel",
+  "msgrModCancel": "Cancel",
+  "msgrModDone": "Done",
+  "msgrModRetry": "Try again",
+  "msgrModErrorTitle": "Something went wrong",
+  "msgrModErrorBody": "Couldn't load. Check your connection and try again.",
+  "msgrModTargetChannel": "Channel",
+  "msgrModTargetPost": "Post",
+  "msgrModTargetCommunity": "Community",
+  "msgrModTargetGroup": "Group",
+  "msgrModTargetPerson": "Person",
+  "msgrModTargetContent": "Content",
+  "msgrModReasonChildSafety": "Child sexual abuse or exploitation",
+  "msgrModReasonViolentThreat": "Violent threats",
+  "msgrModReasonTerrorism": "Terrorism or violent extremism",
+  "msgrModReasonScamFraud": "Scams or fraud",
+  "msgrModReasonHarassment": "Harassment or bullying",
+  "msgrModReasonHateSpeech": "Hate speech",
+  "msgrModReasonSelfHarm": "Self-harm or suicide",
+  "msgrModReasonNudity": "Nudity or adult content",
+  "msgrModReasonImpersonation": "Impersonation",
+  "msgrModReasonMisinformation": "Misinformation",
+  "msgrModReasonSpam": "Spam",
+  "msgrModReasonOther": "Something else",
+  "msgrModReportHeader": "Report {target}",
+  "@msgrModReportHeader": {
+    "placeholders": {
+      "target": {
+        "type": "Object"
+      }
+    }
+  },
+  "msgrModReportHeaderNamed": "Report {target} — {name}",
+  "@msgrModReportHeaderNamed": {
+    "placeholders": {
+      "target": {
+        "type": "Object"
+      },
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "msgrModReportSubtitle": "Pick why you're reporting this. We don't reveal your identity to the reported party.",
+  "msgrModReportSevereGroup": "Severe — hidden immediately",
+  "msgrModReportOtherGroup": "Other reasons — go to review",
+  "msgrModReportNoteLabel": "Extra detail (optional)",
+  "msgrModReportNoteHint": "Briefly describe what happened",
+  "msgrModReportSevereNote": "To be honest: we hide severe content immediately and a person reviews it. Where the law requires, it may be reported to the authorities.",
+  "msgrModReportReviewNote": "To be honest: these reports go to a person for review. The content may stay visible until a decision is made.",
+  "msgrModReportPickReason": "Please pick at least one reason.",
+  "msgrModReportSubmit": "Submit report",
+  "msgrModReportFailed": "Couldn't send the report. Please try again.",
+  "msgrModReportDoneSevere": "Thank you. Severe content has been hidden immediately and sent for review.",
+  "msgrModReportDoneReview": "Thank you. Your report has been sent for review.",
+  "msgrModAppealTitle": "Appeal a decision",
+  "msgrModAppealHeader": "Appeal a moderation decision",
+  "msgrModAppealHeaderNamed": "Appeal the decision on {name}",
+  "@msgrModAppealHeaderNamed": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "msgrModAppealDecisionLine": "Last decision: {decision}",
+  "@msgrModAppealDecisionLine": {
+    "placeholders": {
+      "decision": {
+        "type": "Object"
+      }
+    }
+  },
+  "msgrModAppealIntro": "If you think the decision is wrong, explain why and ask for a re-review. A person will look at it again.",
+  "msgrModAppealReasonLabel": "Your reason for appealing",
+  "msgrModAppealReasonHint": "Explain why you think this decision is wrong",
+  "msgrModAppealWindowNote": "Appeals have a limited window. After it closes, an appeal may not be accepted.",
+  "msgrModAppealSubmit": "Submit appeal",
+  "msgrModAppealFailed": "Couldn't submit the appeal. The window may have closed.",
+  "msgrModAppealDoneTitle": "Appeal submitted",
+  "msgrModAppealDoneBody": "Your appeal is queued for re-review. We'll let you know once there's a decision.",
+  "msgrModQueueTitle": "Moderation queue",
+  "msgrModQueueEmptyTitle": "Queue is empty",
+  "msgrModQueueEmptyBody": "Nothing to review right now.",
+  "msgrModQueueItemHeader": "{kind} · #{id}",
+  "@msgrModQueueItemHeader": {
+    "placeholders": {
+      "kind": {
+        "type": "Object"
+      },
+      "id": {
+        "type": "Object"
+      }
+    }
+  },
+  "msgrModFilterAll": "All",
+  "msgrModFilterSevere": "Severe",
+  "msgrModFilterLegal": "Legal retention",
+  "msgrModFilterAppeals": "Appeals",
+  "msgrModSevereBadge": "Severe",
+  "msgrModLegalBadge": "Legal retention",
+  "msgrModReportsCount": "{count} reports",
+  "@msgrModReportsCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "msgrModNoReason": "No reason given",
+  "msgrModStatusVisible": "Visible",
+  "msgrModStatusHidden": "Hidden",
+  "msgrModStatusRemoved": "Removed",
+  "msgrModStatusRestored": "Restored",
+  "msgrModItemTitle": "Item detail",
+  "msgrModLastDecision": "Last decision: {decision}",
+  "@msgrModLastDecision": {
+    "placeholders": {
+      "decision": {
+        "type": "Object"
+      }
+    }
+  },
+  "msgrModActionsSection": "Actions",
+  "msgrModActionRemove": "Remove",
+  "msgrModActionRemoveDesc": "This content will be removed for everyone.",
+  "msgrModActionRestore": "Restore",
+  "msgrModActionRestoreDesc": "This content will be made visible again.",
+  "msgrModActionWarn": "Warn",
+  "msgrModActionWarnDesc": "The user will be warned; the content stays as-is.",
+  "msgrModActionSuspend": "Suspend",
+  "msgrModActionSuspendDesc": "The user's account is temporarily suspended and the content is hidden.",
+  "msgrModActionBan": "Ban",
+  "msgrModActionBanDesc": "The user is permanently banned and the content is removed.",
+  "msgrModActionUnsuspend": "Unsuspend",
+  "msgrModActionResetSessions": "Reset sessions",
+  "msgrModReopen": "Reopen",
+  "msgrModReopenDesc": "This item goes back into the review queue.",
+  "msgrModAuditSection": "Audit trail",
+  "msgrModAuditEmpty": "No actions taken yet.",
+  "msgrModAuditActor": "Admin #{actor}",
+  "@msgrModAuditActor": {
+    "placeholders": {
+      "actor": {
+        "type": "Object"
+      }
+    }
+  },
+  "msgrModAuditRemoved": "Removed",
+  "msgrModAuditRestored": "Restored",
+  "msgrModAuditWarned": "Warned",
+  "msgrModAuditSuspended": "Suspended",
+  "msgrModAuditBanned": "Banned",
+  "msgrModAuditUnsuspended": "Unsuspended",
+  "msgrModAuditResetSessions": "Sessions reset",
+  "msgrModAuditReopened": "Reopened",
+  "msgrModAuditAppealed": "Appealed",
+  "msgrModAuditReported": "Reported",
+  "msgrModReasonRequiredLabel": "Reason (required)",
+  "msgrModReasonRequiredHint": "Write the reason for this action",
+  "msgrModReasonAuditNote": "Every action is kept with its reason in a permanent audit log.",
+  "msgrModAdminsOnlyTitle": "Operators only",
+  "msgrModAdminsOnlyBody": "This screen is for operators and the owner only.",
+  "msgrModOwnerOnlyTitle": "Owner only",
+  "msgrModOwnerOnlyBody": "User management is for the owner only.",
+  "msgrModAdminPrivacyNote": "Admins never see message contents or anyone's contacts — only reported public content.",
+  "msgrModUsersTitle": "Users",
+  "msgrModUsersSearchHint": "Search by name or phone",
+  "msgrModUsersPrivacyNote": "Admins see only public fields (name, phone, photo, plan, activity). Message contents and contact lists are never shown.",
+  "msgrModUsersEmptyTitle": "No users found",
+  "msgrModUsersEmptyBody": "Try a different search or status filter.",
+  "msgrModUserStatusActive": "Active",
+  "msgrModUserStatusSuspended": "Suspended",
+  "msgrModUserStatusBanned": "Banned",
+  "msgrModUserNoName": "No name",
+  "msgrModUserPlan": "Plan: {plan}",
+  "@msgrModUserPlan": {
+    "placeholders": {
+      "plan": {
+        "type": "Object"
+      }
+    }
+  },
+  "msgrModUserSignup": "Joined {date}",
+  "@msgrModUserSignup": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      }
+    }
+  },
+  "msgrModUserLastActive": "Last active {when}",
+  "@msgrModUserLastActive": {
+    "placeholders": {
+      "when": {
+        "type": "Object"
+      }
+    }
+  },
+  "msgrModUserAppVersion": "App {version}",
+  "@msgrModUserAppVersion": {
+    "placeholders": {
+      "version": {
+        "type": "Object"
+      }
+    }
+  },
+  "msgrModUserDetailTitle": "User detail",
+  "msgrModUserSuspendDesc": "This user will be temporarily suspended.",
+  "msgrModUserUnsuspendDesc": "This user's suspension will be lifted.",
+  "msgrModUserResetSessionsDesc": "This user will be signed out of all devices.",
+  "msgrModUserBanDesc": "This user will be permanently banned.",
+  "msgrModUserPublicSection": "Public channels & communities",
+  "msgrModUserPublicHint": "Only this user's public surfaces — no private content.",
+  "msgrModUserNoPublic": "This user has no public channels or communities.",
+  "msgrModPolicyOwnerReview": "This page is to be reviewed by the owner — it is not a published policy yet.",
+  "msgrModPolicyPlaceholderBody": "The final wording will appear here once the owner and lawyer approve it.",
+  "msgrModPolicyContentTitle": "Content policy",
+  "msgrModPolicyContentIntro": "This will explain what is and isn't allowed on public surfaces, and how to report it.",
+  "msgrModPolicyGuidelinesTitle": "Community guidelines",
+  "msgrModPolicyGuidelinesIntro": "The rules for keeping our community safe and respectful will live here.",
+  "msgrModPolicyAdultTitle": "Adult content (18+)",
+  "msgrModPolicyAdultIntro": "This will explain the rules for adult content and age verification.",
+  "settingsMsgrSection": "Messenger",
+  "settingsMsgrAdminTools": "Moderation tools",
+  "settingsMsgrAdminToolsSub": "Review reports and manage users (operators only).",
+  "settingsMsgrUsers": "Users",
+  "settingsMsgrPolicies": "Policies"
 }

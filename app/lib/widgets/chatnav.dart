@@ -24,6 +24,7 @@ import '../screens/exam_result_screen.dart';
 import '../screens/unseen_world_screen.dart';
 import '../screens/photo_enhance_screen.dart';
 import '../screens/circle_screen.dart';
+import '../screens/messenger/messenger_home_screen.dart';
 import '../screens/legal_screen.dart';
 // build-61 wave: remaining modules (every sidebar module is chat-openable)
 import '../screens/subscriptions_screen.dart';
@@ -99,6 +100,8 @@ class ChatNav {
     'unseen': (_) => const UnseenWorldScreen(),
     'photo_enhance': (_) => const PhotoEnhanceScreen(),
     'circle': (_) => const CircleScreen(),
+    // Messenger hub (Step 3): Chats · Updates · Communities · Calls.
+    'messages': (_) => const MessengerHomeScreen(),
     // M2: Groups + Status live inside the Circle hub (they need the loaded
     // on-device identity + members-with-public_key), so chat-open lands there.
     'groups': (_) => const CircleScreen(),
@@ -155,6 +158,7 @@ class ChatNav {
     'unseen': ['unseen bangladesh', 'travel', 'destinations', 'tourism'],
     'photo_enhance': ['enhance photo', 'photo enhance', 'improve photo'],
     'circle': ['connected circle', 'circle', 'family chat'],
+    'messages': ['messages', 'messenger', 'chats', 'direct message', 'dm'],
     'groups': ['groups', 'group chat', 'group'],
     'status': ['status', 'story', 'stories', 'status updates'],
     'legal': ['legal', 'privacy policy', 'terms', 'policies'],
