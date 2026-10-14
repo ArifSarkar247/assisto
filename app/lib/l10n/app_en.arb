@@ -4053,7 +4053,7 @@
   "settingsMsgrPolicies": "Policies",
   "sidebarFamilySafety": "Family & Safety",
   "sidebarContactsProfile": "Contacts & Profile",
-  "sidebarPaSecretary": "PA Secretary (coming soon)",
+  "sidebarPaSecretary": "PA Secretary",
   "cGroupFamily": "Family",
   "cGroupWork": "Work",
   "cGroupFriends": "Friends",
@@ -7436,5 +7436,433 @@
     }
   },
   "channelUnpinTitle": "Unpin post?",
-  "channelUnpinConfirm": "This post will no longer be pinned to the top."
+  "channelUnpinConfirm": "This post will no longer be pinned to the top.",
+  "paScheduleTitle": "Schedule control",
+  "paAddSlot": "Add slot",
+  "paEditSlot": "Edit slot",
+  "paAddFirst": "Add your first slot",
+  "paEmptyTitle": "Your schedule is empty",
+  "paEmptyBody": "Organise the owner's meetings and appointments here. Add your first slot to begin.",
+  "paNoneWindowTitle": "Nothing scheduled",
+  "paNoneDayBody": "No meetings or appointments on this day.",
+  "paNoneWeekBody": "No meetings or appointments this week.",
+  "paLoadError": "Couldn't load the schedule.",
+  "paOffline": "Offline — showing your saved list.",
+  "paSavedOffline": "Saved offline — will sync later.",
+  "paToday": "Today",
+  "paTomorrow": "Tomorrow",
+  "paScopeDay": "Day",
+  "paScopeWeek": "Week",
+  "paPrev": "Previous",
+  "paNext": "Next",
+  "paNextUp": "Next up",
+  "paNothingNext": "Nothing coming up right now.",
+  "paInProgress": "In progress",
+  "paInMinutes": "In {n} min",
+  "@paInMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paSlotCount": "{n} slots",
+  "@paSlotCount": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paConflictSummary": "{n} slots overlap — review them below.",
+  "@paConflictSummary": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paClashBadge": "This slot overlaps another slot.",
+  "paOpenBrief": "Open brief",
+  "paDeleteTitle": "Delete this slot?",
+  "paDeleteBody": "This slot will be removed from the schedule. This can't be undone.",
+  "paMarkConfirmed": "Mark confirmed",
+  "paMarkDone": "Mark done",
+  "paMarkCancelled": "Cancel slot",
+  "paStatusTentative": "Tentative",
+  "paStatusConfirmed": "Confirmed",
+  "paStatusDone": "Done",
+  "paStatusCancelled": "Cancelled",
+  "paKindMeeting": "Meeting",
+  "paKindAppointment": "Appointment",
+  "paKindCall": "Call",
+  "paKindTask": "Task",
+  "paKindBlock": "Busy block",
+  "paMinutes": "{n} min",
+  "@paMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paFieldTitle": "Title",
+  "paFieldKind": "Type",
+  "paFieldDuration": "Duration",
+  "paFieldPlace": "Place",
+  "paFieldPeople": "People",
+  "paFieldPeopleHint": "Add names (comma separated)",
+  "paFieldNote": "Note",
+  "paErrTitle": "Enter a title.",
+  "paErrStart": "Pick a start time.",
+  "paErrDuration": "Duration isn't valid.",
+  "paBriefTitle": "Meeting brief",
+  "paBriefDeterministic": "This brief is built from your entered details — not AI, nothing invented.",
+  "paBriefNeedsCore": "A brief needs at least a title and a start time. Edit the slot first.",
+  "paBriefReady": "Brief is {n}% ready",
+  "@paBriefReady": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBriefWhen": "When",
+  "paBriefWhere": "Where",
+  "paBriefWho": "Who",
+  "paBriefWhat": "What",
+  "paBriefWhatHint": "Enter the meeting's main purpose",
+  "paBriefAgenda": "Agenda",
+  "paBriefPrep": "Prep checklist",
+  "paBriefNote": "Notes",
+  "paBriefBulletHint": "One point per line",
+  "paBriefMissing": "Not entered",
+  "paBriefSectionEmpty": "Nothing added yet.",
+  "paBriefFieldsHeading": "Brief details",
+  "paBriefSaved": "Brief saved.",
+  "paBriefAiSeam": "Later, AI can polish your notes into crisper points — this turns on when a key is added.",
+  "paBriefAiCta": "Enhance with AI (coming soon)",
+  "paShare": "Share",
+  "paReminderHeading": "Reminders",
+  "paReminderHint": "Choose how long before the meeting to be reminded.",
+  "paReminderNone": "No reminders selected.",
+  "paReminderNext": "{n} reminders set — next at {time}.",
+  "@paReminderNext": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      },
+      "time": {
+        "type": "Object"
+      }
+    }
+  },
+  "paReminderAllPast": "Every chosen reminder time has already passed.",
+  "paReminderNoTime": "Set a start time to schedule reminders.",
+  "paLead1Day": "1 day before",
+  "paLead1Hour": "1 hour before",
+  "paLead30Min": "30 min before",
+  "paLead15Min": "15 min before",
+  "paLeadAtTime": "At start time",
+  "saveFailed": "Couldn't save",
+  "deleteFailed": "Couldn't delete",
+  "paVisTitle": "Visitors & Appointments",
+  "paVisAddRequest": "Add request",
+  "paVisEditRequest": "Edit request",
+  "paVisWelcomeTitle": "Visit requests land here",
+  "paVisWelcomeBody": "Review visit and appointment requests one by one — approve, decline, or suggest a new time. Add your first request to get started.",
+  "paVisVisitorName": "Visitor name",
+  "paVisReason": "Reason for visit",
+  "paVisContactOptional": "Contact (optional)",
+  "paVisContactPrivacyNote": "For privacy, contact details are masked in the list.",
+  "paVisContactHidden": "Contact: {hint}",
+  "@paVisContactHidden": {
+    "placeholders": {
+      "hint": {
+        "type": "Object"
+      }
+    }
+  },
+  "paVisPickTime": "Pick a time",
+  "paVisPriorityNormal": "Normal",
+  "paVisPriorityVip": "VIP",
+  "paVisMarkVip": "Mark VIP",
+  "paVisApprove": "Approve",
+  "paVisDecline": "Decline",
+  "paVisSuggest": "Suggest time",
+  "paVisApproveConfirmTitle": "Approve this request?",
+  "paVisApproveConfirmBody": "{name}'s visit will be approved. Are you sure?",
+  "@paVisApproveConfirmBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "paVisDeclineConfirmTitle": "Decline this request?",
+  "paVisDeclineConfirmBody": "{name}'s visit request will be declined. Are you sure?",
+  "@paVisDeclineConfirmBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "paVisDeleteConfirmTitle": "Delete request?",
+  "paVisDeleteConfirmBody": "{name}'s request will be removed from the list.",
+  "@paVisDeleteConfirmBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "paVisDeleted": "Request deleted",
+  "paVisSaved": "Saved",
+  "paVisStatusPending": "Pending",
+  "paVisStatusApproved": "Approved",
+  "paVisStatusDeclined": "Declined",
+  "paVisStatusSuggested": "Time suggested",
+  "paVisStatusExpired": "Expired",
+  "paVisFilterAll": "All",
+  "paVisNoMatchTitle": "Nothing matches this filter",
+  "paVisNoMatchBody": "Try a different filter, or clear it to see all requests.",
+  "paVisClearFilters": "Clear filters",
+  "paVisLoadError": "Couldn't load the request list. Check your connection and try again.",
+  "paVisSummary": "{needs} need attention · {pending} pending · {expired} expired",
+  "@paVisSummary": {
+    "placeholders": {
+      "expired": {
+        "type": "Object"
+      },
+      "needs": {
+        "type": "Object"
+      },
+      "pending": {
+        "type": "Object"
+      }
+    }
+  },
+  "paLiaTitle": "Liaison & Follow-up",
+  "paLiaAdd": "Add follow-up",
+  "paLiaEdit": "Edit follow-up",
+  "paLiaWelcomeTitle": "Keep track of what you're chasing",
+  "paLiaWelcomeBody": "Add the people and tasks you're chasing on the owner's behalf — with due dates, status, and nudge reminders.",
+  "paLiaTitleField": "What you're following up",
+  "paLiaCounterpart": "With whom",
+  "paLiaWith": "With {name}",
+  "@paLiaWith": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "paLiaContactOptional": "Contact (optional)",
+  "paLiaContactPrivacyNote": "For privacy, contact details are masked in the list.",
+  "paLiaContactHidden": "Contact: {hint}",
+  "@paLiaContactHidden": {
+    "placeholders": {
+      "hint": {
+        "type": "Object"
+      }
+    }
+  },
+  "paLiaPickDue": "Pick a due date",
+  "paLiaClearDue": "Clear date",
+  "paLiaNudgeLabel": "Nudge reminder",
+  "paLiaNudgeOff": "Off",
+  "paLiaNudgeDaily": "Daily",
+  "paLiaNudgeEvery3": "Every 3 days",
+  "paLiaNudgeWeekly": "Weekly",
+  "paLiaNextNudge": "Next nudge {date}",
+  "@paLiaNextNudge": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      }
+    }
+  },
+  "paLiaStatusWaiting": "Waiting",
+  "paLiaStatusReplied": "Replied",
+  "paLiaStatusDone": "Done",
+  "paLiaMarkReplied": "Mark replied",
+  "paLiaMarkWaiting": "Back to waiting",
+  "paLiaMarkDone": "Mark done",
+  "paLiaReopen": "Re-open",
+  "paLiaFilterAll": "All",
+  "paLiaFilterOverdue": "Overdue",
+  "paLiaOverdueBanner": "{count} follow-ups are overdue.",
+  "@paLiaOverdueBanner": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paLiaViewOverdue": "View",
+  "paLiaOverdueBy": "{days} days overdue",
+  "@paLiaOverdueBy": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "paLiaDueInDays": "Due in {days} days",
+  "@paLiaDueInDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "paLiaNoMatchTitle": "Nothing matches this filter",
+  "paLiaNoMatchBody": "Try a different filter, or clear it to see all follow-ups.",
+  "paLiaClearFilters": "Clear filters",
+  "paLiaLoadError": "Couldn't load the follow-up list. Check your connection and try again.",
+  "paLiaDeleteConfirmTitle": "Delete follow-up?",
+  "paLiaDeleteConfirmBody": "The follow-up \"{title}\" will be removed.",
+  "@paLiaDeleteConfirmBody": {
+    "placeholders": {
+      "title": {
+        "type": "Object"
+      }
+    }
+  },
+  "paLiaDeleted": "Follow-up deleted",
+  "paLiaSaved": "Saved",
+  "paDelegateTitle": "Delegate access",
+  "paDelegateTabScopes": "Permissions",
+  "paDelegateTabAudit": "Access log",
+  "paDelegateLoadError": "Could not load permissions.",
+  "paDelegateWelcomeTitle": "Nothing is delegated yet",
+  "paDelegateWelcomeBody": "You decide what your assistant may see or do on your behalf. We start with only safe, low-risk permissions — nothing sensitive.",
+  "paDelegateStart": "Start with least privilege",
+  "paDelegateLeastPrivilegeNote": "By default only low-risk, view-only permissions are on. Turning on anything sensitive needs your explicit confirmation.",
+  "paDelegateScopesHeader": "What the assistant may do",
+  "paDelegateServerNote": "Access is enforced on the server. If a permission is off, the assistant cannot see it — it can't be forced on from the app.",
+  "paScopeSensitiveBadge": "Sensitive",
+  "paScopeSchedule": "See schedule",
+  "paScopeBriefs": "View briefs",
+  "paScopeTasks": "See tasks",
+  "paScopeVisitors": "Approve visitors",
+  "paScopeFollowups": "Send follow-ups",
+  "paScopeManageTasks": "Add/edit tasks",
+  "paScopeContacts": "View contacts",
+  "paScopeMoney": "Private money",
+  "paScopeHealth": "Health info",
+  "paScopeDocuments": "Private documents",
+  "paScopeExposesSchedule": "Can see your appointments and meeting times for the day.",
+  "paScopeExposesBriefs": "Can read prepared meeting briefs and notes.",
+  "paScopeExposesTasks": "Can see your personal task list (view only, no edits).",
+  "paScopeExposesVisitors": "Can approve or decline visitors and appointments on your behalf.",
+  "paScopeExposesFollowups": "Can send follow-up messages to your contacts on your behalf.",
+  "paScopeExposesManageTasks": "Can add, edit and complete your tasks.",
+  "paScopeExposesContacts": "Can see your saved contacts and phone numbers.",
+  "paScopeExposesMoney": "Can see your private income and expense summary. Grant with care.",
+  "paScopeExposesHealth": "Can see your medicine and health information. Grant with care.",
+  "paScopeExposesDocuments": "Can see the private documents in your vault. Grant with care.",
+  "paGrantConfirmTitle": "Grant a sensitive permission?",
+  "paGrantConfirmBody": "You're about to grant \"{scope}\". This exposes sensitive information — confirm only if you're sure.",
+  "@paGrantConfirmBody": {
+    "placeholders": {
+      "scope": {
+        "type": "Object"
+      }
+    }
+  },
+  "paGrantConfirmYes": "Grant",
+  "paAuditEmptyTitle": "No access yet",
+  "paAuditEmptyBody": "What the assistant viewed or did will be listed here — including permission changes and blocked attempts.",
+  "paAuditSummary": "{total} events · {sensitive} sensitive · {denied} blocked",
+  "@paAuditSummary": {
+    "placeholders": {
+      "denied": {
+        "type": "Object"
+      },
+      "sensitive": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "paAuditGranted": "Granted",
+  "paAuditRevoked": "Revoked",
+  "paAuditActed": "Acted",
+  "paAuditDenied": "Blocked",
+  "paAuditViewed": "Viewed",
+  "paTasksTitle": "Personal task oversight",
+  "paTasksLoadError": "Could not load tasks.",
+  "paTasksWelcomeTitle": "No tasks yet",
+  "paTasksWelcomeBody": "The owner's personal tasks appear here, sorted by priority — overdue first. Add a task to begin.",
+  "paTaskAdd": "Add task",
+  "paTaskEditTitle": "Edit task",
+  "paTaskTitleLabel": "Task title",
+  "paTaskTitleHint": "e.g. Call the bank",
+  "paTaskTitleRequired": "Please enter a task title.",
+  "paTaskNoteLabel": "Note (optional)",
+  "paTaskStatusLabel": "Status",
+  "paTaskStatusTodo": "To-do",
+  "paTaskStatusDoing": "Doing",
+  "paTaskStatusDone": "Done",
+  "paTaskPriorityLabel": "Priority",
+  "paTaskPriorityUrgent": "Urgent",
+  "paTaskPriorityHigh": "High",
+  "paTaskPriorityNormal": "Normal",
+  "paTaskPriorityLow": "Low",
+  "paTaskSetDue": "Set due date",
+  "paTaskClearDue": "Clear date",
+  "paTaskOverdue": "Overdue",
+  "paTaskDeleteTitle": "Delete this task?",
+  "paTaskDeleteBody": "\"{title}\" will be deleted. This can't be undone.",
+  "@paTaskDeleteBody": {
+    "placeholders": {
+      "title": {
+        "type": "Object"
+      }
+    }
+  },
+  "paProgressDone": "{percent}% done",
+  "@paProgressDone": {
+    "placeholders": {
+      "percent": {
+        "type": "Object"
+      }
+    }
+  },
+  "paStatTodo": "{count} to-do",
+  "@paStatTodo": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paStatDoing": "{count} doing",
+  "@paStatDoing": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paStatDone": "{count} done",
+  "@paStatDone": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paStatOverdue": "{count} overdue",
+  "@paStatOverdue": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  }
 }

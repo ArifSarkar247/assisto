@@ -1787,6 +1787,37 @@ class MeetingViewSet(OwnedViewSet):
     model = _M; kind = "meeting"; serializer_class = _S
 
 
+class PaCollectionViewSet(OwnedViewSet):
+    """PA Secretary Mode (§14) generic per-user collection. One flexible model
+    (PaCollectionItem) + a flatten serializer back the visitors/followups/
+    schedule REST collections; each subclass pins its `collection` so rows never
+    leak across collections. User-scoped + audit-logged via OwnedViewSet."""
+    from .models import PaCollectionItem as _M
+    from .serializers import PaItemSerializer as _S
+    model = _M; serializer_class = _S
+    collection = ""
+
+    def get_queryset(self):
+        return self.model.objects.filter(
+            user=self.request.user, collection=self.collection)
+
+    def perform_create(self, serializer):
+        obj = serializer.save(user=self.request.user, collection=self.collection)
+        log(self.request.user, f"pa.{self.collection}.create", id=obj.id)
+
+
+class PaVisitorsViewSet(PaCollectionViewSet):
+    collection = "visitors"; kind = "pa_visitors"
+
+
+class PaFollowupsViewSet(PaCollectionViewSet):
+    collection = "followups"; kind = "pa_followups"
+
+
+class PaScheduleViewSet(PaCollectionViewSet):
+    collection = "schedule"; kind = "pa_schedule"
+
+
 class AutoPayRuleViewSet(OwnedViewSet):
     from .models import AutoPayRule as _M
     from .serializers import AutoPayRuleSerializer as _S

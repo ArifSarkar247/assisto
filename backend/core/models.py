@@ -2424,3 +2424,22 @@ class ChatOrganiseState(models.Model):
 
     class Meta:
         unique_together = ("user", "chat_kind", "chat_id")
+
+
+class PaCollectionItem(models.Model):
+    """PA Secretary Mode (SPEC v2.1 §14) generic per-user collection row. One
+    flexible store backs the PA REST collections (visitors #105, followups #108,
+    schedule #103) — each row is {id, ...data}. The pure decision logic lives in
+    core.logic.pa_* ; this only persists the owner's entries. (Delegate scopes
+    #111 and personal tasks #115 are device-local in the client; their server
+    enforcement seam is documented, not yet stored here.)"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="pa_items")
+    collection = models.CharField(max_length=24)   # visitors|followups|schedule
+    data = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["user", "collection"])]

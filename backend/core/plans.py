@@ -171,9 +171,13 @@ def consume_credit(user, note="ai"):
 def reward_ad(user):
     """Grant +1 credit for watching a rewarded ad, up to a daily cap."""
     from .models import CreditLedger
-    now = timezone.now()
+    # Count against the LOCAL day. `created_at__date` is evaluated in the active
+    # timezone (Asia/Dhaka), so the comparison date must also be the local date —
+    # timezone.now().date() returns the UTC date and, after ~18:00 UTC (past
+    # Dhaka midnight), would mismatch and silently reset the cap. Use localdate().
+    today = timezone.localdate()
     today_rewards = CreditLedger.objects.filter(
-        user=user, reason="rewarded", created_at__date=now.date()).count()
+        user=user, reason="rewarded", created_at__date=today).count()
     if today_rewards >= REWARDED_DAILY_CAP:
         return (False, REWARDED_DAILY_CAP - today_rewards)
     _grant(user, 1, "rewarded", "watched a rewarded ad")

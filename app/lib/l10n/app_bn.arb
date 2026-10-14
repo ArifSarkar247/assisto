@@ -3293,7 +3293,7 @@
   "settingsMsgrPolicies": "নীতিমালা",
   "sidebarFamilySafety": "পরিবার ও নিরাপত্তা",
   "sidebarContactsProfile": "কন্টাক্টস ও প্রোফাইল",
-  "sidebarPaSecretary": "পিএ সেক্রেটারি (শীঘ্রই আসছে)",
+  "sidebarPaSecretary": "পিএ সেক্রেটারি",
   "cGroupFamily": "পরিবার",
   "cGroupWork": "কর্মক্ষেত্র",
   "cGroupFriends": "বন্ধু",
@@ -6139,5 +6139,433 @@
     }
   },
   "channelUnpinTitle": "পিন খুলবেন?",
-  "channelUnpinConfirm": "এই পোস্টটি উপরে পিন করা থাকবে না।"
+  "channelUnpinConfirm": "এই পোস্টটি উপরে পিন করা থাকবে না।",
+  "paScheduleTitle": "সময়সূচি নিয়ন্ত্রণ",
+  "paAddSlot": "নতুন সময় যোগ করুন",
+  "paEditSlot": "সময় সম্পাদনা",
+  "paAddFirst": "প্রথম সময়টি যোগ করুন",
+  "paEmptyTitle": "সময়সূচি এখনো খালি",
+  "paEmptyBody": "মালিকের মিটিং ও অ্যাপয়েন্টমেন্ট এখানে গুছিয়ে রাখুন। প্রথম সময়টি যোগ করে শুরু করুন।",
+  "paNoneWindowTitle": "এই সময়ে কিছু নেই",
+  "paNoneDayBody": "এই দিনে কোনো মিটিং বা অ্যাপয়েন্টমেন্ট নেই।",
+  "paNoneWeekBody": "এই সপ্তাহে কোনো মিটিং বা অ্যাপয়েন্টমেন্ট নেই।",
+  "paLoadError": "সময়সূচি লোড করা গেল না।",
+  "paOffline": "অফলাইন — সংরক্ষিত তালিকা দেখানো হচ্ছে।",
+  "paSavedOffline": "অফলাইনে সংরক্ষিত, পরে সিঙ্ক হবে।",
+  "paToday": "আজ",
+  "paTomorrow": "আগামীকাল",
+  "paScopeDay": "দিন",
+  "paScopeWeek": "সপ্তাহ",
+  "paPrev": "আগের",
+  "paNext": "পরের",
+  "paNextUp": "পরবর্তী",
+  "paNothingNext": "এখন সামনে কিছু নেই।",
+  "paInProgress": "চলছে",
+  "paInMinutes": "{n} মিনিট পরে",
+  "@paInMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paSlotCount": "{n}টি সময়",
+  "@paSlotCount": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paConflictSummary": "{n}টি সময় একে অপরের সাথে মিলে যাচ্ছে — নিচে দেখে নিন।",
+  "@paConflictSummary": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paClashBadge": "এই সময়টি অন্য একটি সময়ের সাথে মিলে যাচ্ছে।",
+  "paOpenBrief": "ব্রিফ খুলুন",
+  "paDeleteTitle": "সময়টি মুছবেন?",
+  "paDeleteBody": "এই সময়টি সময়সূচি থেকে মুছে যাবে। এটি ফেরানো যাবে না।",
+  "paMarkConfirmed": "নিশ্চিত হিসেবে চিহ্নিত করুন",
+  "paMarkDone": "সম্পন্ন হিসেবে চিহ্নিত করুন",
+  "paMarkCancelled": "বাতিল করুন",
+  "paStatusTentative": "সম্ভাব্য",
+  "paStatusConfirmed": "নিশ্চিত",
+  "paStatusDone": "সম্পন্ন",
+  "paStatusCancelled": "বাতিল",
+  "paKindMeeting": "মিটিং",
+  "paKindAppointment": "অ্যাপয়েন্টমেন্ট",
+  "paKindCall": "কল",
+  "paKindTask": "কাজ",
+  "paKindBlock": "ব্যস্ত সময়",
+  "paMinutes": "{n} মিনিট",
+  "@paMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paFieldTitle": "শিরোনাম",
+  "paFieldKind": "ধরন",
+  "paFieldDuration": "সময়কাল",
+  "paFieldPlace": "স্থান",
+  "paFieldPeople": "কারা থাকবেন",
+  "paFieldPeopleHint": "নাম যোগ করুন (কমা দিয়ে আলাদা)",
+  "paFieldNote": "নোট",
+  "paErrTitle": "একটি শিরোনাম লিখুন।",
+  "paErrStart": "শুরুর সময় বেছে নিন।",
+  "paErrDuration": "সময়কাল সঠিক নয়।",
+  "paBriefTitle": "মিটিং ব্রিফ",
+  "paBriefDeterministic": "এই ব্রিফ আপনার দেওয়া তথ্য থেকেই তৈরি — কোনো AI নয়, কিছু বানিয়ে লেখা হয়নি।",
+  "paBriefNeedsCore": "ব্রিফ দেখাতে অন্তত একটি শিরোনাম ও শুরুর সময় লাগবে। আগে সময়টি সম্পাদনা করুন।",
+  "paBriefReady": "ব্রিফ {n}% প্রস্তুত",
+  "@paBriefReady": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "paBriefWhen": "কখন",
+  "paBriefWhere": "কোথায়",
+  "paBriefWho": "কারা",
+  "paBriefWhat": "কী বিষয়",
+  "paBriefWhatHint": "মিটিংয়ের মূল উদ্দেশ্য লিখুন",
+  "paBriefAgenda": "আলোচ্যসূচি",
+  "paBriefPrep": "প্রস্তুতির তালিকা",
+  "paBriefNote": "নোট",
+  "paBriefBulletHint": "প্রতি লাইনে একটি করে পয়েন্ট লিখুন",
+  "paBriefMissing": "দেওয়া হয়নি",
+  "paBriefSectionEmpty": "এখনো কিছু যোগ করা হয়নি।",
+  "paBriefFieldsHeading": "ব্রিফের তথ্য",
+  "paBriefSaved": "ব্রিফ সংরক্ষিত হয়েছে।",
+  "paBriefAiSeam": "পরে চাইলে AI দিয়ে নোটগুলো আরও সাজিয়ে লেখা যাবে — এটি আলাদা কী যুক্ত হলে চালু হবে।",
+  "paBriefAiCta": "AI দিয়ে উন্নত করুন (শীঘ্রই)",
+  "paShare": "শেয়ার করুন",
+  "paReminderHeading": "মনে করানোর সময়",
+  "paReminderHint": "মিটিংয়ের কত আগে মনে করিয়ে দেওয়া হবে বেছে নিন।",
+  "paReminderNone": "কোনো রিমাইন্ডার বেছে নেওয়া হয়নি।",
+  "paReminderNext": "{n}টি রিমাইন্ডার সেট আছে — পরেরটি {time}।",
+  "@paReminderNext": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      },
+      "time": {
+        "type": "Object"
+      }
+    }
+  },
+  "paReminderAllPast": "বেছে নেওয়া সব রিমাইন্ডারের সময় পেরিয়ে গেছে।",
+  "paReminderNoTime": "শুরুর সময় ঠিক করলে রিমাইন্ডার হিসাব করা হবে।",
+  "paLead1Day": "১ দিন আগে",
+  "paLead1Hour": "১ ঘণ্টা আগে",
+  "paLead30Min": "৩০ মিনিট আগে",
+  "paLead15Min": "১৫ মিনিট আগে",
+  "paLeadAtTime": "ঠিক সময়ে",
+  "saveFailed": "সংরক্ষণ করা যায়নি",
+  "deleteFailed": "মুছে ফেলা যায়নি",
+  "paVisTitle": "ভিজিটর ও অ্যাপয়েন্টমেন্ট",
+  "paVisAddRequest": "অনুরোধ যোগ করুন",
+  "paVisEditRequest": "অনুরোধ সম্পাদনা",
+  "paVisWelcomeTitle": "দর্শনার্থীর অনুরোধ এখানে জমা হবে",
+  "paVisWelcomeBody": "সাক্ষাৎ বা অ্যাপয়েন্টমেন্টের অনুরোধগুলো একে একে পর্যালোচনা করুন — অনুমোদন, প্রত্যাখ্যান বা নতুন সময়ের প্রস্তাব দিন। শুরু করতে প্রথম অনুরোধটি যোগ করুন।",
+  "paVisVisitorName": "দর্শনার্থীর নাম",
+  "paVisReason": "সাক্ষাতের কারণ",
+  "paVisContactOptional": "যোগাযোগ (ঐচ্ছিক)",
+  "paVisContactPrivacyNote": "গোপনীয়তার জন্য তালিকায় যোগাযোগের তথ্য ঢেকে দেখানো হয়।",
+  "paVisContactHidden": "যোগাযোগ: {hint}",
+  "@paVisContactHidden": {
+    "placeholders": {
+      "hint": {
+        "type": "Object"
+      }
+    }
+  },
+  "paVisPickTime": "সময় বেছে নিন",
+  "paVisPriorityNormal": "সাধারণ",
+  "paVisPriorityVip": "ভিআইপি",
+  "paVisMarkVip": "ভিআইপি করুন",
+  "paVisApprove": "অনুমোদন",
+  "paVisDecline": "প্রত্যাখ্যান",
+  "paVisSuggest": "সময় প্রস্তাব",
+  "paVisApproveConfirmTitle": "অনুরোধ অনুমোদন করবেন?",
+  "paVisApproveConfirmBody": "{name}-এর সাক্ষাৎ অনুমোদন করা হবে। নিশ্চিত?",
+  "@paVisApproveConfirmBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "paVisDeclineConfirmTitle": "অনুরোধ প্রত্যাখ্যান করবেন?",
+  "paVisDeclineConfirmBody": "{name}-এর সাক্ষাতের অনুরোধ প্রত্যাখ্যান করা হবে। নিশ্চিত?",
+  "@paVisDeclineConfirmBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "paVisDeleteConfirmTitle": "অনুরোধ মুছবেন?",
+  "paVisDeleteConfirmBody": "{name}-এর অনুরোধটি তালিকা থেকে সরিয়ে ফেলা হবে।",
+  "@paVisDeleteConfirmBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "paVisDeleted": "অনুরোধ মুছে ফেলা হয়েছে",
+  "paVisSaved": "সংরক্ষণ করা হয়েছে",
+  "paVisStatusPending": "অপেক্ষমাণ",
+  "paVisStatusApproved": "অনুমোদিত",
+  "paVisStatusDeclined": "প্রত্যাখ্যাত",
+  "paVisStatusSuggested": "সময় প্রস্তাবিত",
+  "paVisStatusExpired": "সময় পেরিয়ে গেছে",
+  "paVisFilterAll": "সব",
+  "paVisNoMatchTitle": "এই ফিল্টারে কিছু নেই",
+  "paVisNoMatchBody": "ফিল্টার বদলে দেখুন বা সব অনুরোধ দেখতে ফিল্টার মুছে দিন।",
+  "paVisClearFilters": "ফিল্টার মুছুন",
+  "paVisLoadError": "অনুরোধের তালিকা লোড করা যায়নি। সংযোগ দেখে আবার চেষ্টা করুন।",
+  "paVisSummary": "{needs}টি মনোযোগ প্রয়োজন · {pending}টি অপেক্ষমাণ · {expired}টির সময় পেরিয়েছে",
+  "@paVisSummary": {
+    "placeholders": {
+      "expired": {
+        "type": "Object"
+      },
+      "needs": {
+        "type": "Object"
+      },
+      "pending": {
+        "type": "Object"
+      }
+    }
+  },
+  "paLiaTitle": "যোগাযোগ ও ফলো-আপ",
+  "paLiaAdd": "ফলো-আপ যোগ করুন",
+  "paLiaEdit": "ফলো-আপ সম্পাদনা",
+  "paLiaWelcomeTitle": "যা তাড়া দিচ্ছেন তা একসাথে রাখুন",
+  "paLiaWelcomeBody": "মালিকের হয়ে যেসব ব্যক্তি বা কাজের পেছনে লেগে আছেন তা এখানে যোগ করুন — শেষ তারিখ, অবস্থা ও মনে করিয়ে দেওয়ার সময়সূচিসহ।",
+  "paLiaTitleField": "কী ফলো-আপ করছেন",
+  "paLiaCounterpart": "কার সাথে",
+  "paLiaWith": "সাথে: {name}",
+  "@paLiaWith": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "paLiaContactOptional": "যোগাযোগ (ঐচ্ছিক)",
+  "paLiaContactPrivacyNote": "গোপনীয়তার জন্য তালিকায় যোগাযোগের তথ্য ঢেকে দেখানো হয়।",
+  "paLiaContactHidden": "যোগাযোগ: {hint}",
+  "@paLiaContactHidden": {
+    "placeholders": {
+      "hint": {
+        "type": "Object"
+      }
+    }
+  },
+  "paLiaPickDue": "শেষ তারিখ বেছে নিন",
+  "paLiaClearDue": "তারিখ মুছুন",
+  "paLiaNudgeLabel": "মনে করিয়ে দেওয়ার সময়সূচি",
+  "paLiaNudgeOff": "বন্ধ",
+  "paLiaNudgeDaily": "প্রতিদিন",
+  "paLiaNudgeEvery3": "প্রতি ৩ দিনে",
+  "paLiaNudgeWeekly": "সাপ্তাহিক",
+  "paLiaNextNudge": "পরবর্তী মনে করানো {date}",
+  "@paLiaNextNudge": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      }
+    }
+  },
+  "paLiaStatusWaiting": "অপেক্ষমাণ",
+  "paLiaStatusReplied": "উত্তর এসেছে",
+  "paLiaStatusDone": "সম্পন্ন",
+  "paLiaMarkReplied": "উত্তর এসেছে",
+  "paLiaMarkWaiting": "আবার অপেক্ষমাণ",
+  "paLiaMarkDone": "সম্পন্ন করুন",
+  "paLiaReopen": "আবার চালু করুন",
+  "paLiaFilterAll": "সব",
+  "paLiaFilterOverdue": "সময় পেরিয়েছে",
+  "paLiaOverdueBanner": "{count}টি ফলো-আপের সময় পেরিয়ে গেছে।",
+  "@paLiaOverdueBanner": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paLiaViewOverdue": "দেখুন",
+  "paLiaOverdueBy": "{days} দিন দেরি",
+  "@paLiaOverdueBy": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "paLiaDueInDays": "{days} দিনে শেষ",
+  "@paLiaDueInDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "paLiaNoMatchTitle": "এই ফিল্টারে কিছু নেই",
+  "paLiaNoMatchBody": "ফিল্টার বদলে দেখুন বা সব ফলো-আপ দেখতে ফিল্টার মুছে দিন।",
+  "paLiaClearFilters": "ফিল্টার মুছুন",
+  "paLiaLoadError": "ফলো-আপ তালিকা লোড করা যায়নি। সংযোগ দেখে আবার চেষ্টা করুন।",
+  "paLiaDeleteConfirmTitle": "ফলো-আপ মুছবেন?",
+  "paLiaDeleteConfirmBody": "\"{title}\" ফলো-আপটি মুছে ফেলা হবে।",
+  "@paLiaDeleteConfirmBody": {
+    "placeholders": {
+      "title": {
+        "type": "Object"
+      }
+    }
+  },
+  "paLiaDeleted": "ফলো-আপ মুছে ফেলা হয়েছে",
+  "paLiaSaved": "সংরক্ষণ করা হয়েছে",
+  "paDelegateTitle": "দায়িত্বপ্রাপ্ত ব্যক্তির অ্যাক্সেস",
+  "paDelegateTabScopes": "অনুমতি",
+  "paDelegateTabAudit": "অ্যাক্সেস লগ",
+  "paDelegateLoadError": "অনুমতি লোড করা যায়নি।",
+  "paDelegateWelcomeTitle": "এখনো কোনো দায়িত্ব দেওয়া হয়নি",
+  "paDelegateWelcomeBody": "আপনার সহকারী আপনার হয়ে কী দেখতে বা করতে পারবেন তা আপনি ঠিক করবেন। শুরুতে শুধু নিরাপদ, কম-ঝুঁকির অনুমতি চালু থাকবে — সংবেদনশীল কিছু নয়।",
+  "paDelegateStart": "কম-অনুমতি দিয়ে শুরু করুন",
+  "paDelegateLeastPrivilegeNote": "ডিফল্টে শুধু কম-ঝুঁকির, শুধু-দেখা অনুমতি চালু। সংবেদনশীল কিছু চালু করতে হলে আপনাকে আলাদা করে নিশ্চিত করতে হবে।",
+  "paDelegateScopesHeader": "সহকারী কী করতে পারবেন",
+  "paDelegateServerNote": "প্রকৃত নিয়ন্ত্রণ সার্ভারে প্রয়োগ হয়। অ্যাপে অনুমতি বন্ধ থাকলে সহকারী তা দেখতে পাবেন না — ক্লায়েন্টে জোর করে চালু করা যায় না।",
+  "paScopeSensitiveBadge": "সংবেদনশীল",
+  "paScopeSchedule": "সময়সূচি দেখা",
+  "paScopeBriefs": "ব্রিফ দেখা",
+  "paScopeTasks": "কাজের তালিকা দেখা",
+  "paScopeVisitors": "দর্শনার্থী অনুমোদন",
+  "paScopeFollowups": "ফলো-আপ পাঠানো",
+  "paScopeManageTasks": "কাজ যোগ/সম্পাদনা",
+  "paScopeContacts": "পরিচিতি দেখা",
+  "paScopeMoney": "ব্যক্তিগত টাকার হিসাব",
+  "paScopeHealth": "স্বাস্থ্য তথ্য",
+  "paScopeDocuments": "ব্যক্তিগত নথি",
+  "paScopeExposesSchedule": "আপনার দিনের অ্যাপয়েন্টমেন্ট ও মিটিংয়ের সময় দেখতে পাবেন।",
+  "paScopeExposesBriefs": "মিটিংয়ের তৈরি ব্রিফ ও নোট পড়তে পারবেন।",
+  "paScopeExposesTasks": "আপনার ব্যক্তিগত কাজের তালিকা দেখতে পারবেন (সম্পাদনা নয়)।",
+  "paScopeExposesVisitors": "আপনার হয়ে দর্শনার্থী ও অ্যাপয়েন্টমেন্ট অনুমোদন বা বাতিল করতে পারবেন।",
+  "paScopeExposesFollowups": "আপনার হয়ে পরিচিতদের ফলো-আপ বার্তা পাঠাতে পারবেন।",
+  "paScopeExposesManageTasks": "আপনার কাজ যোগ, সম্পাদনা ও সম্পন্ন চিহ্নিত করতে পারবেন।",
+  "paScopeExposesContacts": "আপনার সংরক্ষিত পরিচিতি ও ফোন নম্বর দেখতে পারবেন।",
+  "paScopeExposesMoney": "আপনার ব্যক্তিগত আয়-ব্যয়ের সারসংক্ষেপ দেখতে পারবেন। সতর্ক থাকুন।",
+  "paScopeExposesHealth": "আপনার ওষুধ ও স্বাস্থ্য সংক্রান্ত তথ্য দেখতে পারবেন। সতর্ক থাকুন।",
+  "paScopeExposesDocuments": "আপনার ভল্টে রাখা ব্যক্তিগত নথি দেখতে পারবেন। সতর্ক থাকুন।",
+  "paGrantConfirmTitle": "সংবেদনশীল অনুমতি চালু করবেন?",
+  "paGrantConfirmBody": "আপনি \"{scope}\" অনুমতিটি চালু করতে যাচ্ছেন। এটি সংবেদনশীল তথ্য প্রকাশ করে — নিশ্চিত হয়ে তবেই চালু করুন।",
+  "@paGrantConfirmBody": {
+    "placeholders": {
+      "scope": {
+        "type": "Object"
+      }
+    }
+  },
+  "paGrantConfirmYes": "চালু করুন",
+  "paAuditEmptyTitle": "এখনো কোনো অ্যাক্সেস হয়নি",
+  "paAuditEmptyBody": "সহকারী কী দেখলেন বা করলেন তা এখানে তালিকাভুক্ত হবে — অনুমতি পরিবর্তন ও বন্ধ হয়ে যাওয়া চেষ্টাসহ।",
+  "paAuditSummary": "মোট {total}টি ঘটনা · {sensitive}টি সংবেদনশীল · {denied}টি আটকে দেওয়া হয়েছে",
+  "@paAuditSummary": {
+    "placeholders": {
+      "denied": {
+        "type": "Object"
+      },
+      "sensitive": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "paAuditGranted": "চালু করা হয়েছে",
+  "paAuditRevoked": "বন্ধ করা হয়েছে",
+  "paAuditActed": "পদক্ষেপ নেওয়া হয়েছে",
+  "paAuditDenied": "আটকে দেওয়া হয়েছে",
+  "paAuditViewed": "দেখা হয়েছে",
+  "paTasksTitle": "ব্যক্তিগত কাজ তদারকি",
+  "paTasksLoadError": "কাজের তালিকা লোড করা যায়নি।",
+  "paTasksWelcomeTitle": "এখনো কোনো কাজ নেই",
+  "paTasksWelcomeBody": "মালিকের ব্যক্তিগত কাজগুলো এখানে অগ্রাধিকার অনুযায়ী সাজানো থাকবে — মেয়াদ পেরোনো কাজ উপরে। শুরু করতে একটি কাজ যোগ করুন।",
+  "paTaskAdd": "কাজ যোগ করুন",
+  "paTaskEditTitle": "কাজ সম্পাদনা",
+  "paTaskTitleLabel": "কাজের শিরোনাম",
+  "paTaskTitleHint": "যেমন: ব্যাংকে ফোন করা",
+  "paTaskTitleRequired": "কাজের একটি শিরোনাম দিন।",
+  "paTaskNoteLabel": "নোট (ঐচ্ছিক)",
+  "paTaskStatusLabel": "অবস্থা",
+  "paTaskStatusTodo": "করণীয়",
+  "paTaskStatusDoing": "চলছে",
+  "paTaskStatusDone": "সম্পন্ন",
+  "paTaskPriorityLabel": "অগ্রাধিকার",
+  "paTaskPriorityUrgent": "জরুরি",
+  "paTaskPriorityHigh": "উচ্চ",
+  "paTaskPriorityNormal": "সাধারণ",
+  "paTaskPriorityLow": "নিম্ন",
+  "paTaskSetDue": "শেষ তারিখ দিন",
+  "paTaskClearDue": "তারিখ মুছুন",
+  "paTaskOverdue": "মেয়াদ পেরিয়েছে",
+  "paTaskDeleteTitle": "কাজটি মুছবেন?",
+  "paTaskDeleteBody": "\"{title}\" কাজটি মুছে ফেলা হবে। এটি আর ফেরানো যাবে না।",
+  "@paTaskDeleteBody": {
+    "placeholders": {
+      "title": {
+        "type": "Object"
+      }
+    }
+  },
+  "paProgressDone": "{percent}% সম্পন্ন",
+  "@paProgressDone": {
+    "placeholders": {
+      "percent": {
+        "type": "Object"
+      }
+    }
+  },
+  "paStatTodo": "করণীয় {count}",
+  "@paStatTodo": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paStatDoing": "চলছে {count}",
+  "@paStatDoing": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paStatDone": "সম্পন্ন {count}",
+  "@paStatDone": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paStatOverdue": "মেয়াদোত্তীর্ণ {count}",
+  "@paStatOverdue": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  }
 }

@@ -520,3 +520,23 @@ class AppointmentSerializer(serializers.ModelSerializer):
         fields = ["id", "title", "start", "duration_min", "place",
                   "place_lat", "place_lng", "note", "created_at"]
         read_only_fields = ["id", "created_at"]
+
+
+class PaItemSerializer(serializers.ModelSerializer):
+    """Flatten the PaCollectionItem into {id, ...data} on read, and fold every
+    client field (except id) into `data` on write — so the PA screens round-trip
+    arbitrary row shapes through one model without a schema per collection."""
+    class Meta:
+        from .models import PaCollectionItem
+        model = PaCollectionItem
+        fields = ["id", "data"]
+        read_only_fields = ["id"]
+
+    def to_representation(self, instance):
+        out = dict(instance.data or {})
+        out["id"] = instance.id
+        return out
+
+    def to_internal_value(self, data):
+        d = {k: v for k, v in (data or {}).items() if k != "id"}
+        return {"data": d}

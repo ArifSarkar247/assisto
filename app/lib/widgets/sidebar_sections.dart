@@ -45,9 +45,8 @@ import '../screens/photo_enhance_screen.dart';
 import '../screens/agent_studio_screen.dart';
 import '../screens/jobs_screen.dart';
 import '../screens/inbox_screen.dart';
-// PA Secretary (SPEC §14) not built yet — placeholder routes to InProgressScreen
-import '../screens/in_progress_screen.dart';
 // business
+import '../screens/pa/pa_hub_screen.dart';
 import '../screens/business_screen.dart';
 import '../screens/crm/crm_home_screen.dart';
 // NOTE: the former "My Circle" sidebar group (Connected circle / Circle privacy
@@ -243,12 +242,11 @@ class SidebarSections {
       SidebarItem(Icons.mark_email_unread_outlined, (t) => t.aiInbox,
           (_) => const InboxScreen(),
           synonyms: ['inbox', 'ai inbox', 'mail']),
-      // PA Secretary — SPEC §14 / §4. PA mode is NOT built yet, so this routes
-      // to InProgressScreen as a "coming soon" placeholder (label carries the
-      // coming-soon wording). Re-point the builder to the real PA screen when
-      // Section 14 ships; the group structure already matches §4.
+      // PA Secretary — SPEC §14 / §4. Section 14 core (schedule, meeting brief,
+      // visitor filter, liaison, personal tasks, delegate access) now ships, so
+      // this opens the PA hub.
       SidebarItem(Icons.support_agent_outlined, (t) => t.sidebarPaSecretary,
-          (_) => const InProgressScreen(),
+          (_) => const PaHubScreen(),
           synonyms: ['pa', 'secretary', 'personal assistant', 'pa mode']),
     ]),
     // 8. Business

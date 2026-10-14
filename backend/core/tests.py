@@ -885,6 +885,33 @@ MsgCommunitySnippetTests = _make_snippet_case(
     "core.logic.msg_community_tests_snippets", "MsgCommunitySnippetTests")
 MsgChannelSnippetTests = _make_snippet_case(
     "core.logic.msg_channel_tests_snippets", "MsgChannelSnippetTests")
+# PA Secretary mode (§14 #103 schedule control + #104 meeting reminder & 1-page
+# brief, advanced §21) — pure deterministic schedule/conflict/next-up logic and
+# deterministic brief assembly + reminder-lead math. No DB, no clock (now passed
+# in), no AI; the AI-enhanced brief is a documented key-gated seam, not built.
+PaScheduleSnippetTests = _make_snippet_case(
+    "core.logic.pa_schedule_tests_snippets", "PaScheduleSnippetTests")
+PaBriefSnippetTests = _make_snippet_case(
+    "core.logic.pa_brief_tests_snippets", "PaBriefSnippetTests")
+# PA Secretary mode (§14 #105 visitor/appointment filter + #108 liaison &
+# follow-up, advanced §21) — pure deterministic engines, no DB/clock (now passed
+# in)/AI. Visitor: triage (approve/decline/suggest), computed expiry, VIP/normal
+# priority ordering, status/priority filter, privacy-minimised view. Liaison:
+# waiting/replied/done, computed overdue, nudge cadence, urgency ordering.
+PaVisitorSnippetTests = _make_snippet_case(
+    "core.logic.pa_visitor_tests_snippets", "PaVisitorSnippetTests")
+PaLiaisonSnippetTests = _make_snippet_case(
+    "core.logic.pa_liaison_tests_snippets", "PaLiaisonSnippetTests")
+# PA Secretary mode (§14 #111 role-based delegate access + #115 personal-task
+# oversight, advanced §21) — pure deterministic scope model (LEAST-PRIVILEGE
+# default, default-DENY can_access so a forged client scope reads as NOT granted,
+# confirm gate on sensitive grants, append-only audit builder) and task
+# priority/overdue(from passed-in now)/progress logic. No DB, no clock, no AI;
+# server-side scope enforcement is the documented seam (up_pa3_integration.md).
+PaDelegateSnippetTests = _make_snippet_case(
+    "core.logic.pa_delegate_tests_snippets", "PaDelegateSnippetTests")
+PaTasksSnippetTests = _make_snippet_case(
+    "core.logic.pa_tasks_tests_snippets", "PaTasksSnippetTests")
 
 
 # ---------------------------------------------------------------------------

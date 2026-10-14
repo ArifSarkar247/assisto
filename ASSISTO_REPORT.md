@@ -781,3 +781,9 @@ NOTHING basic may remain.
 - D9 (6 good→advanced): #86 message actions (confirm-gated delete, edit/forward gates), #87 chat organise (pin/archive/mute/read + search no-results; ChatOrganiseState mig 0032 + 4 endpoints messenger/chats/<id>/{pin,archive,mute,read} enforced via msg_organise; /circle/members returns organise flags), #88 status (honest error tray, family-only default), #91 call settings (who-can-call + confirm), #89 voice (free) + #90 video (premium caller-pays, server-gated; reconnecting/failed states, SFU/TURN seam).
 - Gates: en=bn=5463, 877 backend tests OK, analyze 0, lang gate clean, mig 0032. Gallery: circle_privacy/call/chat reviewed.
 - D10 launched in parallel (tree clean post-commit): #93 community, #94 channel, #95 msg-requests, #96 messenger-privacy (non-overlap w/ D9), #97 in-chat-AI (mock key-gated), #5 AI-knows-me page. → completes the 43 remaining good→advanced (D4-D10).
+
+## BUILD 81 — D10 (pushed c470617, run 38611691765) 2026-10-14 — COMPLETES GOOD→ADVANCED
+- D10 (6): #93 community + #94 channel (reviewer-pass, invariants test-locked), #95 msg-requests + #96 msg-privacy (CirclePrivacy.who_can_message/phone_hidden mig 0033 + endpoints; conservative defaults; no clipping), #97 in-chat AI (mock key-gated, honest marker), #5 AI-knows-me transparency page (reuses memory storage).
+- Gates: en=bn=5552, 997 backend tests OK, analyze 0, lang gate clean, mig 0033. Gallery: ai_knowledge + msg_privacy reviewed (fixed label clipping).
+- ** MILESTONE: all 43 good→advanced (D4-D10) DONE. MASTER ORDER step 5 "nothing basic remains" satisfied for the graded set.**
+- NEXT = Wave E (v2.1-new ~79): Section 14 PA Secretary Mode (23), AI-core additions, Daily-Life additions, standalone modules (task-manager, lost-stolen-phone, call-transcription, mock-interview), Section 20. Then Step 6 (self-hosted SFU+TURN M3 + Telegram sandbox), Step 7 (P14-16 + iOS + FINAL). 13 owner-blocked remain key-gated (mock/sandbox + Integrations wire).

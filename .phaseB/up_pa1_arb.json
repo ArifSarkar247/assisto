@@ -1,0 +1,114 @@
+{
+  "_comment": "PA Secretary mode — #103 Schedule control + #104 Meeting reminder & 1-page brief (SPEC v2.1 §14, ADVANCED §21). New ARB keys {key:[bn,en]} to merge into app_bn.arb/app_en.arb. Emitted by the PA-1 build (screens: app/lib/screens/pa/pa_schedule_screen.dart, pa_meeting_brief_screen.dart; engine: app/lib/widgets/pa_engine.dart). ZERO Bangla glyphs live in any .dart — every string is an AppLocalizations getter. Sibling files up_pa2_arb.json / up_pa3_arb.json carry other PA screens; key names here were checked for NO collision with those.",
+  "_reused": "REUSED existing ARB getters (NOT re-emitted): cancel, save, edit, delete, retry, copy, copied, commonDeleted.",
+  "_params": {
+    "paInMinutes": ["n"],
+    "paMinutes": ["n"],
+    "paSlotCount": ["n"],
+    "paConflictSummary": ["n"],
+    "paBriefReady": ["n"],
+    "paReminderNext": ["n", "time"]
+  },
+
+  "paScheduleTitle": ["সময়সূচি নিয়ন্ত্রণ", "Schedule control"],
+  "paAddSlot": ["নতুন সময় যোগ করুন", "Add slot"],
+  "paEditSlot": ["সময় সম্পাদনা", "Edit slot"],
+  "paAddFirst": ["প্রথম সময়টি যোগ করুন", "Add your first slot"],
+
+  "paEmptyTitle": ["সময়সূচি এখনো খালি", "Your schedule is empty"],
+  "paEmptyBody": ["মালিকের মিটিং ও অ্যাপয়েন্টমেন্ট এখানে গুছিয়ে রাখুন। প্রথম সময়টি যোগ করে শুরু করুন।", "Organise the owner's meetings and appointments here. Add your first slot to begin."],
+  "paNoneWindowTitle": ["এই সময়ে কিছু নেই", "Nothing scheduled"],
+  "paNoneDayBody": ["এই দিনে কোনো মিটিং বা অ্যাপয়েন্টমেন্ট নেই।", "No meetings or appointments on this day."],
+  "paNoneWeekBody": ["এই সপ্তাহে কোনো মিটিং বা অ্যাপয়েন্টমেন্ট নেই।", "No meetings or appointments this week."],
+
+  "paLoadError": ["সময়সূচি লোড করা গেল না।", "Couldn't load the schedule."],
+  "paOffline": ["অফলাইন — সংরক্ষিত তালিকা দেখানো হচ্ছে।", "Offline — showing your saved list."],
+  "paSavedOffline": ["অফলাইনে সংরক্ষিত, পরে সিঙ্ক হবে।", "Saved offline — will sync later."],
+
+  "paToday": ["আজ", "Today"],
+  "paTomorrow": ["আগামীকাল", "Tomorrow"],
+  "paScopeDay": ["দিন", "Day"],
+  "paScopeWeek": ["সপ্তাহ", "Week"],
+  "paPrev": ["আগের", "Previous"],
+  "paNext": ["পরের", "Next"],
+
+  "paNextUp": ["পরবর্তী", "Next up"],
+  "paNothingNext": ["এখন সামনে কিছু নেই।", "Nothing coming up right now."],
+  "paInProgress": ["চলছে", "In progress"],
+  "paInMinutes": ["{n} মিনিট পরে", "In {n} min"],
+  "paSlotCount": ["{n}টি সময়", "{n} slots"],
+
+  "paConflictSummary": ["{n}টি সময় একে অপরের সাথে মিলে যাচ্ছে — নিচে দেখে নিন।", "{n} slots overlap — review them below."],
+  "paClashBadge": ["এই সময়টি অন্য একটি সময়ের সাথে মিলে যাচ্ছে।", "This slot overlaps another slot."],
+
+  "paOpenBrief": ["ব্রিফ খুলুন", "Open brief"],
+
+  "paDeleteTitle": ["সময়টি মুছবেন?", "Delete this slot?"],
+  "paDeleteBody": ["এই সময়টি সময়সূচি থেকে মুছে যাবে। এটি ফেরানো যাবে না।", "This slot will be removed from the schedule. This can't be undone."],
+
+  "paMarkConfirmed": ["নিশ্চিত হিসেবে চিহ্নিত করুন", "Mark confirmed"],
+  "paMarkDone": ["সম্পন্ন হিসেবে চিহ্নিত করুন", "Mark done"],
+  "paMarkCancelled": ["বাতিল করুন", "Cancel slot"],
+
+  "paStatusTentative": ["সম্ভাব্য", "Tentative"],
+  "paStatusConfirmed": ["নিশ্চিত", "Confirmed"],
+  "paStatusDone": ["সম্পন্ন", "Done"],
+  "paStatusCancelled": ["বাতিল", "Cancelled"],
+
+  "paKindMeeting": ["মিটিং", "Meeting"],
+  "paKindAppointment": ["অ্যাপয়েন্টমেন্ট", "Appointment"],
+  "paKindCall": ["কল", "Call"],
+  "paKindTask": ["কাজ", "Task"],
+  "paKindBlock": ["ব্যস্ত সময়", "Busy block"],
+
+  "paMinutes": ["{n} মিনিট", "{n} min"],
+
+  "paFieldTitle": ["শিরোনাম", "Title"],
+  "paFieldKind": ["ধরন", "Type"],
+  "paFieldDuration": ["সময়কাল", "Duration"],
+  "paFieldPlace": ["স্থান", "Place"],
+  "paFieldPeople": ["কারা থাকবেন", "People"],
+  "paFieldPeopleHint": ["নাম যোগ করুন (কমা দিয়ে আলাদা)", "Add names (comma separated)"],
+  "paFieldNote": ["নোট", "Note"],
+
+  "paErrTitle": ["একটি শিরোনাম লিখুন।", "Enter a title."],
+  "paErrStart": ["শুরুর সময় বেছে নিন।", "Pick a start time."],
+  "paErrDuration": ["সময়কাল সঠিক নয়।", "Duration isn't valid."],
+
+  "paBriefTitle": ["মিটিং ব্রিফ", "Meeting brief"],
+  "paBriefDeterministic": ["এই ব্রিফ আপনার দেওয়া তথ্য থেকেই তৈরি — কোনো AI নয়, কিছু বানিয়ে লেখা হয়নি।", "This brief is built from your entered details — not AI, nothing invented."],
+  "paBriefNeedsCore": ["ব্রিফ দেখাতে অন্তত একটি শিরোনাম ও শুরুর সময় লাগবে। আগে সময়টি সম্পাদনা করুন।", "A brief needs at least a title and a start time. Edit the slot first."],
+  "paBriefReady": ["ব্রিফ {n}% প্রস্তুত", "Brief is {n}% ready"],
+
+  "paBriefWhen": ["কখন", "When"],
+  "paBriefWhere": ["কোথায়", "Where"],
+  "paBriefWho": ["কারা", "Who"],
+  "paBriefWhat": ["কী বিষয়", "What"],
+  "paBriefWhatHint": ["মিটিংয়ের মূল উদ্দেশ্য লিখুন", "Enter the meeting's main purpose"],
+  "paBriefAgenda": ["আলোচ্যসূচি", "Agenda"],
+  "paBriefPrep": ["প্রস্তুতির তালিকা", "Prep checklist"],
+  "paBriefNote": ["নোট", "Notes"],
+  "paBriefBulletHint": ["প্রতি লাইনে একটি করে পয়েন্ট লিখুন", "One point per line"],
+  "paBriefMissing": ["দেওয়া হয়নি", "Not entered"],
+  "paBriefSectionEmpty": ["এখনো কিছু যোগ করা হয়নি।", "Nothing added yet."],
+  "paBriefFieldsHeading": ["ব্রিফের তথ্য", "Brief details"],
+  "paBriefSaved": ["ব্রিফ সংরক্ষিত হয়েছে।", "Brief saved."],
+
+  "paBriefAiSeam": ["পরে চাইলে AI দিয়ে নোটগুলো আরও সাজিয়ে লেখা যাবে — এটি আলাদা কী যুক্ত হলে চালু হবে।", "Later, AI can polish your notes into crisper points — this turns on when a key is added."],
+  "paBriefAiCta": ["AI দিয়ে উন্নত করুন (শীঘ্রই)", "Enhance with AI (coming soon)"],
+
+  "paShare": ["শেয়ার করুন", "Share"],
+
+  "paReminderHeading": ["মনে করানোর সময়", "Reminders"],
+  "paReminderHint": ["মিটিংয়ের কত আগে মনে করিয়ে দেওয়া হবে বেছে নিন।", "Choose how long before the meeting to be reminded."],
+  "paReminderNone": ["কোনো রিমাইন্ডার বেছে নেওয়া হয়নি।", "No reminders selected."],
+  "paReminderNext": ["{n}টি রিমাইন্ডার সেট আছে — পরেরটি {time}।", "{n} reminders set — next at {time}."],
+  "paReminderAllPast": ["বেছে নেওয়া সব রিমাইন্ডারের সময় পেরিয়ে গেছে।", "Every chosen reminder time has already passed."],
+  "paReminderNoTime": ["শুরুর সময় ঠিক করলে রিমাইন্ডার হিসাব করা হবে।", "Set a start time to schedule reminders."],
+
+  "paLead1Day": ["১ দিন আগে", "1 day before"],
+  "paLead1Hour": ["১ ঘণ্টা আগে", "1 hour before"],
+  "paLead30Min": ["৩০ মিনিট আগে", "30 min before"],
+  "paLead15Min": ["১৫ মিনিট আগে", "15 min before"],
+  "paLeadAtTime": ["ঠিক সময়ে", "At start time"]
+}

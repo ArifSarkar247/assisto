@@ -25,6 +25,12 @@ import 'package:assisto/screens/messenger/contact_info_screen.dart';
 import 'package:assisto/screens/notification_centre_screen.dart';
 import 'package:assisto/screens/messenger/messenger_profile_screen.dart';
 import 'package:assisto/screens/messenger/contacts_screen.dart';
+import 'package:assisto/screens/pa/pa_hub_screen.dart';
+import 'package:assisto/screens/pa/pa_schedule_screen.dart';
+import 'package:assisto/screens/pa/visitor_filter_screen.dart';
+import 'package:assisto/screens/pa/liaison_screen.dart';
+import 'package:assisto/screens/pa/personal_tasks_screen.dart';
+import 'package:assisto/screens/pa/delegate_access_screen.dart';
 import 'package:assisto/screens/messenger/msgr_set_privacy_screen.dart';
 import 'package:assisto/screens/ai_knowledge_screen.dart';
 import 'package:assisto/screens/admin/cost_flags_screen.dart';
@@ -210,6 +216,12 @@ void main() {
     'notification_centre': (build: (_) => const NotificationCentreScreen(), mode: FakeMode.data, full: true),
     'msgr_profile': (build: (_) => const MessengerProfileScreen(), mode: FakeMode.data, full: true),
     'contacts': (build: (_) => const ContactsScreen(), mode: FakeMode.data, full: true),
+    'pa_hub': (build: (_) => const PaHubScreen(), mode: FakeMode.data, full: true),
+    'pa_schedule': (build: (_) => const PaScheduleScreen(), mode: FakeMode.data, full: true),
+    'pa_visitor': (build: (_) => const VisitorFilterScreen(), mode: FakeMode.data, full: true),
+    'pa_liaison': (build: (_) => const LiaisonScreen(), mode: FakeMode.data, full: true),
+    'pa_tasks': (build: (_) => const PersonalTasksScreen(), mode: FakeMode.data, full: true),
+    'pa_delegate': (build: (_) => const DelegateAccessScreen(), mode: FakeMode.data, full: true),
     'msg_privacy': (build: (_) => const MsgrSetMessagePrivacyScreen(), mode: FakeMode.data, full: true),
     'ai_knowledge': (build: (_) => const AiKnowledgeScreen(), mode: FakeMode.data, full: true),
     'cost_flags': (build: (_) => const CostFlagsScreen(), mode: FakeMode.data, full: true),
