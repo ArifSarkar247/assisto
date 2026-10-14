@@ -1448,10 +1448,103 @@ class LinkedDevice(models.Model):
     public_key_id = models.CharField(max_length=64, blank=True, default="")
     name = models.CharField(max_length=120, blank=True, default="")
     linked_at = models.DateTimeField(auto_now_add=True)
+    last_active = models.DateTimeField(null=True, blank=True)
     revoked = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-linked_at"]
+
+
+# ===========================================================================
+# Messenger FULL-UI backend (MESSENGER_UI_FULL §2-4). Pure logic lives in
+# core/logic/msg_messenger_ui.py. All rows are ownership-scoped by `user`.
+# ===========================================================================
+
+class DeviceLinkToken(models.Model):
+    """A SINGLE-USE, short-TTL pairing token minted by the mobile primary so a
+    web/desktop client can link (mint_link_token). The token is a random handle
+    (secrets.token_urlsafe) — NEVER a key, NEVER plaintext. `used` enforces
+    single-use; `expires_at` enforces the short TTL (LINK_TOKEN_TTL_SEC)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="device_link_tokens")
+    token = models.CharField(max_length=64, unique=True, db_index=True)
+    platform = models.CharField(max_length=10, default="web")  # web/desktop later
+    used = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(db_index=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class StarredMessage(models.Model):
+    """A per-user bookmark on one message in one chat. Stores ONLY opaque refs
+    (the chat it lives in + the message id) so the client can JUMP to it — never
+    the message body. Idempotent per (user, chat_kind, chat_id, message_id)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="starred_messages")
+    chat_kind = models.CharField(max_length=12, default="member")  # member/group/community/channel
+    chat_id = models.CharField(max_length=64)
+    message_id = models.CharField(max_length=64)
+    at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("user", "chat_kind", "chat_id", "message_id")]
+        ordering = ["-at"]
+        indexes = [models.Index(fields=["user", "chat_kind", "chat_id"])]
+
+
+class ChatList(models.Model):
+    """A user-defined chat list ("Family", "Work") that feeds the hub filter
+    chips. member_refs are CircleMember ids. Reserved chip names are rejected by
+    msg_messenger_ui.validate_list_name."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="chat_lists")
+    name = models.CharField(max_length=40)
+    member_refs = models.JSONField(default=list, blank=True)  # CircleMember ids
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("user", "name")]
+        ordering = ["-created_at"]
+
+
+class CallLink(models.Model):
+    """An EXPIRING tokenized call-join link (send-call-link). The token is a
+    random handle, not a room secret. VIDEO links are Premium creator-gated at
+    mint time (circle_calls.can_place_call)."""
+    KINDS = [("voice", "voice"), ("video", "video")]
+    creator = models.ForeignKey(User, on_delete=models.CASCADE,
+                                related_name="call_links")
+    token = models.CharField(max_length=64, unique=True, db_index=True)
+    kind = models.CharField(max_length=8, choices=KINDS, default="voice")
+    revoked = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(db_index=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class ScheduledCall(models.Model):
+    """A scheduled 1:1 or group call (time + a reminder fanned out to every
+    invitee). VIDEO is Premium organiser-gated. Reminders themselves are enqueued
+    by the view via the reminders engine."""
+    KINDS = [("voice", "voice"), ("video", "video")]
+    STATES = [("scheduled", "scheduled"), ("started", "started"),
+              ("cancelled", "cancelled")]
+    organiser = models.ForeignKey(User, on_delete=models.CASCADE,
+                                  related_name="scheduled_calls")
+    invitee_ids = models.JSONField(default=list, blank=True)  # CircleMember/User ids
+    call_kind = models.CharField(max_length=8, choices=KINDS, default="voice")
+    title = models.CharField(max_length=120, blank=True, default="")
+    scheduled_at = models.DateTimeField(db_index=True)
+    remind_at = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=10, choices=STATES, default="scheduled")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["scheduled_at"]
 
 
 # ===========================================================================
@@ -2079,6 +2172,12 @@ class ModerationReport(models.Model):
     categories = models.JSONField(default=list, blank=True)
     note = models.TextField(blank=True, default="")
     valid = models.BooleanField(default=False)
+    # Report-last-5: the LAST <=5 DECRYPTED messages the REPORTER's device chose
+    # to attach as context. The server NEVER decrypts — it only stores the
+    # reporter-supplied plaintext snapshot (sanitize_report_snapshot). Empty for
+    # public-surface reports (channel/community/group).
+    snapshot = models.JSONField(default=list, blank=True)
+    snapshot_source = models.CharField(max_length=20, blank=True, default="")  # 'reporter_device'
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

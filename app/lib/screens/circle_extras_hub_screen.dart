@@ -88,7 +88,7 @@ class _CircleExtrasHubScreenState extends State<CircleExtrasHubScreen> {
     _viewOnceDefault = await Settings.getBool(_viewOnceKey, false);
     // Disappearing timer is server routing metadata.
     try {
-      final r = await _api.getJson('/circle/$_peer/settings');
+      final r = await _api.getJson('messenger/chat/$_peer/settings');
       final s = (r['disappearing_sec'] as num?)?.toInt() ?? 0;
       _disappearing = const [_off, _d24h, _d7d, _d90d].contains(s) ? s : _off;
     } catch (_) {}
@@ -98,7 +98,7 @@ class _CircleExtrasHubScreenState extends State<CircleExtrasHubScreen> {
   Future<void> _saveDisappearing(int sec) async {
     setState(() => _disappearing = sec);
     try {
-      await _api.postJson('/circle/$_peer/settings', {'disappearing_sec': sec});
+      await _api.postJson('messenger/chat/$_peer/settings', {'disappearing_sec': sec});
     } catch (_) {}
   }
 

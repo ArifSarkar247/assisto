@@ -1,0 +1,49 @@
+{
+  "_comment": "ARB source for the Assisto MY CIRCLE HUB top-level UI (.phaseB/MESSENGER_UI_FULL.md §2): hub top-bar (camera + overflow), search bar, filter chips, ⋮ menu, and the three new screens (Broadcast lists, Linked devices, Starred messages). Each entry key:[bn,en]; both always filled, never mixed. camelCase keys. ORIGINAL Assisto wording — never WhatsApp/Meta text. Dynamic names/counts injected by the Flutter layer; Bn digits rendered via codepoints in Dart so numeric placeholders stay ASCII.",
+
+  "msgrHubSearchHint": ["Assisto-কে জিজ্ঞাসা করুন বা খুঁজুন", "Ask Assisto or search"],
+  "msgrHubCameraTooltip": ["স্ট্যাটাস বা ছবি", "Status or photo"],
+
+  "msgrChipAll": ["সব", "All"],
+  "msgrChipUnread": ["অপঠিত", "Unread"],
+  "msgrChipFavourites": ["প্রিয়", "Favourites"],
+  "msgrChipGroups": ["গ্রুপ", "Groups"],
+
+  "msgrHubNewGroup": ["নতুন গ্রুপ", "New group"],
+  "msgrHubNewCommunity": ["নতুন কমিউনিটি", "New community"],
+  "msgrHubBroadcastLists": ["ব্রডকাস্ট তালিকা", "Broadcast lists"],
+  "msgrHubLinkedDevices": ["লিঙ্ক করা ডিভাইস", "Linked devices"],
+  "msgrHubStarred": ["তারকাচিহ্নিত বার্তা", "Starred messages"],
+  "msgrHubReadAll": ["সব পঠিত চিহ্নিত করুন", "Mark all read"],
+
+  "msgrReadAllTitle": ["সব চ্যাট পঠিত করবেন?", "Mark every chat read?"],
+  "msgrReadAllBody": ["প্রতিটি চ্যাটের অপঠিত চিহ্ন মুছে যাবে।", "The unread mark will be cleared from every chat."],
+  "msgrReadAllConfirm": ["সব পঠিত করুন", "Mark all read"],
+  "msgrReadAllDone": ["সব চ্যাট পঠিত চিহ্নিত হয়েছে।", "All chats marked read."],
+  "msgrReadAllFailed": ["এখন সব পঠিত করা গেল না। পরে আবার চেষ্টা করুন।", "Could not mark all read right now. Please try again."],
+
+  "msgrBroadcastTitle": ["ব্রডকাস্ট তালিকা", "Broadcast lists"],
+  "msgrBroadcastNew": ["নতুন তালিকা", "New list"],
+  "msgrBroadcastEmptyTitle": ["এখনও কোনো ব্রডকাস্ট তালিকা নেই", "No broadcast lists yet"],
+  "msgrBroadcastEmptyBody": ["একটি বার্তা একসাথে অনেকজনকে আলাদা ব্যক্তিগত বার্তা হিসেবে পাঠান। শুধু যাদের সার্কেলে আপনি আছেন তারাই এটি পাবেন।", "Send one message to many people as separate private messages. Only recipients who have you in their circle will receive it."],
+  "msgrBroadcastRecipients": ["প্রাপক", "Recipients"],
+  "msgrBroadcastNote": ["শুধু যাদের সার্কেলে আপনি আছেন তারাই আপনার ব্রডকাস্ট পাবেন।", "Only recipients who have you in their circle receive your broadcast."],
+
+  "msgrLinkedTitle": ["লিঙ্ক করা ডিভাইস", "Linked devices"],
+  "msgrLinkDevice": ["ডিভাইস লিঙ্ক করুন", "Link a device"],
+  "msgrLinkScanHint": ["ওয়েব বা ডেস্কটপ ক্লায়েন্টে এই কোডটি স্ক্যান করুন।", "Scan this code in the web or desktop client."],
+  "msgrLinkedEmptyTitle": ["কোনো ডিভাইস লিঙ্ক করা নেই", "No linked devices"],
+  "msgrLinkedEmptyBody": ["ওয়েব বা ডেস্কটপে এই অ্যাকাউন্ট খুলতে একটি ডিভাইস লিঙ্ক করুন। আপনার বার্তা এন্ড-টু-এন্ড এনক্রিপ্টেডই থাকে।", "Link a device to open this account on web or desktop. Your messages stay end-to-end encrypted."],
+  "msgrLinkedLastActive": ["সর্বশেষ সক্রিয়", "Last active"],
+  "msgrLinkedLogout": ["লগ আউট", "Log out"],
+  "msgrLinkedLogoutTitle": ["এই ডিভাইসটি লগ আউট করবেন?", "Log out this device?"],
+  "msgrLinkedLogoutBody": ["এই ডিভাইসে আর বার্তা দেখা যাবে না।", "This device will no longer be able to see your messages."],
+  "msgrLinkStartFailed": ["লিঙ্ক কোড তৈরি করা গেল না। পরে আবার চেষ্টা করুন।", "Could not create a link code. Please try again."],
+
+  "msgrStarredTitle": ["তারকাচিহ্নিত বার্তা", "Starred messages"],
+  "msgrStarredEmptyTitle": ["এখনও কোনো তারকাচিহ্নিত বার্তা নেই", "No starred messages yet"],
+  "msgrStarredEmptyBody": ["যেকোনো বার্তা তারকাচিহ্নিত করুন, এখানে এক জায়গায় সব পাবেন।", "Star any message to find it here in one place."],
+  "msgrStarredJump": ["চ্যাটে দেখুন", "View in chat"],
+
+  "msgrHubLoadFailed": ["লোড করা গেল না। টেনে রিফ্রেশ করুন।", "Couldn't load. Pull to refresh."]
+}

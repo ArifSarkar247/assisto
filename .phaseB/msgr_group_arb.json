@@ -1,0 +1,84 @@
+{
+  "grpMenuMore": ["আরও", "More"],
+  "grpMenuGroupInfo": ["গ্রুপের তথ্য", "Group info"],
+  "grpMenuGroupMedia": ["গ্রুপ মিডিয়া", "Group media"],
+  "grpMenuSearch": ["খুঁজুন", "Search"],
+  "grpMenuSelectMessages": ["বার্তা নির্বাচন করুন", "Select messages"],
+  "grpMenuMute": ["নীরব করুন", "Mute"],
+  "grpMenuDisappearing": ["অদৃশ্য বার্তা", "Disappearing messages"],
+  "grpMenuChatTheme": ["চ্যাট থিম", "Chat theme"],
+  "grpMenuAddFavourite": ["প্রিয়তে যোগ করুন", "Add to favourites"],
+  "grpMenuRemoveFavourite": ["প্রিয় থেকে সরান", "Remove from favourites"],
+  "grpMenuExportChat": ["চ্যাট রপ্তানি করুন", "Export chat"],
+  "grpMenuSendCallLink": ["কল লিঙ্ক পাঠান", "Send call link"],
+  "grpMenuScheduleCall": ["কল নির্ধারণ করুন", "Schedule call"],
+  "grpMenuNewGroupCall": ["নতুন গ্রুপ কল", "New group call"],
+  "grpMenuSummarise": ["সারসংক্ষেপ করুন", "Summarise"],
+  "grpMenuMakeReminder": ["রিমাইন্ডার তৈরি করুন", "Make reminder"],
+  "grpMenuTranslate": ["অনুবাদ করুন", "Translate"],
+  "grpMenuAddMembers": ["সদস্য যোগ করুন", "Add members"],
+  "grpMenuExitGroup": ["গ্রুপ ছাড়ুন", "Exit group"],
+  "grpMenuReportGroup": ["গ্রুপ রিপোর্ট করুন", "Report group"],
+  "grpMenuClearChat": ["চ্যাট পরিষ্কার করুন", "Clear chat"],
+
+  "grpMute8h": ["৮ ঘণ্টা", "8 hours"],
+  "grpMute1Week": ["১ সপ্তাহ", "1 week"],
+  "grpMuteAlways": ["সবসময়", "Always"],
+  "grpMuted": ["গ্রুপ নীরব করা হয়েছে", "Group muted"],
+
+  "grpDisappearOff": ["বন্ধ", "Off"],
+  "grpDisappear24h": ["২৪ ঘণ্টা", "24 hours"],
+  "grpDisappear7d": ["৭ দিন", "7 days"],
+  "grpDisappear90d": ["৯০ দিন", "90 days"],
+  "grpDisappearingSet": ["অদৃশ্য বার্তা সেট করা হয়েছে", "Disappearing messages set"],
+
+  "grpThemeDefault": ["ডিফল্ট", "Default"],
+  "grpThemeOcean": ["সমুদ্র", "Ocean"],
+  "grpThemeSunset": ["সূর্যাস্ত", "Sunset"],
+  "grpThemeForest": ["অরণ্য", "Forest"],
+  "grpThemeSaved": ["থিম সংরক্ষিত হয়েছে", "Theme saved"],
+
+  "grpFavouriteAdded": ["প্রিয়তে যোগ করা হয়েছে", "Added to favourites"],
+  "grpFavouriteRemoved": ["প্রিয় থেকে সরানো হয়েছে", "Removed from favourites"],
+
+  "grpCallScheduled": ["কল নির্ধারণ করা হয়েছে", "Call scheduled"],
+
+  "grpSummariseTitle": ["চ্যাট সারসংক্ষেপ", "Chat summary"],
+  "grpTranslateTitle": ["অনুবাদ", "Translation"],
+  "grpMakeReminderTitle": ["চ্যাট থেকে রিমাইন্ডার", "Reminder from chat"],
+  "grpNothingToProcess": ["প্রক্রিয়া করার মতো কিছু নেই", "Nothing to process"],
+  "grpNoResult": ["কোনো ফলাফল নেই", "No result"],
+
+  "grpLangBangla": ["বাংলা", "Bangla"],
+  "grpLangEnglish": ["ইংরেজি", "English"],
+
+  "grpExitLastAdmin": ["প্রস্থানের আগে আরেকজন অ্যাডমিন নিয়োগ করুন", "Make someone else an admin before you exit"],
+
+  "grpClearChatConfirm": ["এই গ্রুপের সব বার্তা পরিষ্কার করবেন? চ্যাটটি তালিকায় থাকবে।", "Clear all messages in this group? The chat stays in your list."],
+
+  "grpSearchNoResults": ["কোনো বার্তা মেলেনি", "No messages found"],
+  "grpSelectedCount": ["{count} নির্বাচিত", "{count} selected"],
+  "grpStar": ["তারকা", "Star"],
+  "grpStarred": ["তারকা দেওয়া হয়েছে", "Starred"],
+  "grpDelete": ["মুছুন", "Delete"],
+
+  "grpMediaEmpty": ["এখনো কোনো মিডিয়া শেয়ার করা হয়নি", "No media shared yet"],
+  "grpMediaGated": ["মিডিয়া স্টোরেজ শীঘ্রই", "Media storage coming"],
+
+  "communityInfo": ["কমিউনিটির তথ্য", "Community info"],
+  "communityEdit": ["কমিউনিটি সম্পাদনা করুন", "Edit community"],
+  "communityApproveRequests": ["অনুরোধ অনুমোদন করুন", "Approve requests"],
+  "communityMuteNotifications": ["বিজ্ঞপ্তি নীরব করুন", "Mute notifications"],
+  "communityUnmuteNotifications": ["বিজ্ঞপ্তি চালু করুন", "Unmute notifications"],
+  "communityMuted": ["বিজ্ঞপ্তি নীরব করা হয়েছে", "Notifications muted"],
+  "communityUnmuted": ["বিজ্ঞপ্তি চালু করা হয়েছে", "Notifications on"],
+  "communityLeave": ["কমিউনিটি ছাড়ুন", "Leave community"],
+  "communityLeaveConfirm": ["এই কমিউনিটি ছাড়বেন?", "Leave this community?"],
+  "communityLeaveLastAdmin": ["প্রস্থানের আগে আরেকজন অ্যাডমিন নিয়োগ করুন", "Make someone else an admin before you leave"],
+  "communityReport": ["কমিউনিটি রিপোর্ট করুন", "Report community"],
+
+  "channelInfo": ["চ্যানেলের তথ্য", "Channel info"],
+  "channelReport": ["চ্যানেল রিপোর্ট করুন", "Report channel"],
+  "channelRequestVerify": ["ভেরিফিকেশনের অনুরোধ করুন", "Request verification"],
+  "channelVerifyRequested": ["ভেরিফিকেশনের অনুরোধ পাঠানো হয়েছে", "Verification requested"]
+}

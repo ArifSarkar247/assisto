@@ -4,13 +4,19 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../api.dart';
 import '../crypto/e2e.dart';
 import '../l10n/app_localizations.dart';
+import '../messenger_admin_api.dart';
+import '../messenger_group_api.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/circle_group_poll.dart';
+import '../widgets/group_menu_media.dart';
+import '../widgets/group_menu_sheet.dart';
+import '../widgets/msgr_mod_report_sheet.dart';
 import 'circle_group_info_screen.dart';
 
 /// End-to-end-encrypted GROUP chat (M2 item 7).
@@ -62,6 +68,13 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   bool _loading = true;
   bool _sending = false;
   Map<String, dynamic>? _replyTo;
+
+  // Group ⋮ driven UI modes.
+  bool _searching = false;
+  String _searchQuery = '';
+  bool _selecting = false;
+  final Set<String> _selected = {};
+  bool get _isFavourite => widget.group['favourite'] == true;
 
   @override
   void initState() {
@@ -326,12 +339,379 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     )).then((_) => _load());
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final pinned =
-        _messages.where((m) => m['pinned'] == true).toList();
-    return Scaffold(
-      appBar: AppBar(
+  // -------------------------------------------------------------------------
+  // GROUP CHAT ⋮ menu (group-flavoured mirror of the 1:1 chat ⋮). Every item
+  // routes to a real handler below — no dead taps.
+  // -------------------------------------------------------------------------
+  Future<void> _openMenu() async {
+    final action =
+        await showGroupMenuSheet(context, isFavourite: _isFavourite);
+    if (action == null || !mounted) return;
+    switch (action) {
+      case GroupMenuAction.groupInfo:
+        _openInfo();
+      case GroupMenuAction.groupMedia:
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => GroupMediaScreen(groupId: _groupId)));
+      case GroupMenuAction.search:
+        setState(() => _searching = true);
+      case GroupMenuAction.selectMessages:
+        setState(() {
+          _selecting = true;
+          _selected.clear();
+        });
+      case GroupMenuAction.mute:
+        await _chooseMute();
+      case GroupMenuAction.disappearing:
+        await _chooseDisappearing();
+      case GroupMenuAction.chatTheme:
+        await _chooseTheme();
+      case GroupMenuAction.addToFavourites:
+        await _toggleFavourite();
+      case GroupMenuAction.exportChat:
+        await _exportChat();
+      case GroupMenuAction.sendCallLink:
+        await _sendCallLink();
+      case GroupMenuAction.scheduleCall:
+        await _scheduleCall();
+      case GroupMenuAction.newGroupCall:
+        await _call('video'); // group video = Premium-gated at placement
+      case GroupMenuAction.summarise:
+        await _aiTask('summarise', _t.grpSummariseTitle);
+      case GroupMenuAction.makeReminder:
+        await _makeReminder();
+      case GroupMenuAction.translate:
+        await _translate();
+      case GroupMenuAction.addMembers:
+        _openInfo(); // add-members lives in Group info (circle-only, admin)
+      case GroupMenuAction.exitGroup:
+        await _exitGroup();
+      case GroupMenuAction.reportGroup:
+        await _reportGroup();
+      case GroupMenuAction.clearChat:
+        await _clearChat();
+    }
+  }
+
+  void _toast(String msg) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(msg)));
+  }
+
+  Future<void> _chooseMute() async {
+    final v = await showGroupOptionPicker(
+      context,
+      title: _t.grpMenuMute,
+      current: '${widget.group['mute'] ?? 'off'}',
+      options: [
+        ('8h', _t.grpMute8h),
+        ('1w', _t.grpMute1Week),
+        ('always', _t.grpMuteAlways),
+      ],
+    );
+    if (v == null) return;
+    try {
+      await _api.groupSetMute(_groupId, v);
+      widget.group['mute'] = v;
+      _toast(_t.grpMuted);
+    } catch (_) {
+      _toast(_t.circleBackendPending);
+    }
+  }
+
+  Future<void> _chooseDisappearing() async {
+    final v = await showGroupOptionPicker(
+      context,
+      title: _t.grpMenuDisappearing,
+      current: '${widget.group['disappearing'] ?? 'off'}',
+      options: [
+        ('off', _t.grpDisappearOff),
+        ('24h', _t.grpDisappear24h),
+        ('7d', _t.grpDisappear7d),
+        ('90d', _t.grpDisappear90d),
+      ],
+    );
+    if (v == null) return;
+    try {
+      await _api.groupSetDisappearing(_groupId, v);
+      widget.group['disappearing'] = v;
+      _toast(_t.grpDisappearingSet);
+    } catch (_) {
+      _toast(_t.circleBackendPending);
+    }
+  }
+
+  Future<void> _chooseTheme() async {
+    final v = await showGroupOptionPicker(
+      context,
+      title: _t.grpMenuChatTheme,
+      current: '${widget.group['theme'] ?? 'default'}',
+      options: [
+        ('default', _t.grpThemeDefault),
+        ('ocean', _t.grpThemeOcean),
+        ('sunset', _t.grpThemeSunset),
+        ('forest', _t.grpThemeForest),
+      ],
+    );
+    if (v == null) return;
+    try {
+      await _api.groupSetTheme(_groupId, color: v);
+      widget.group['theme'] = v;
+      _toast(_t.grpThemeSaved);
+    } catch (_) {
+      _toast(_t.circleBackendPending);
+    }
+  }
+
+  Future<void> _toggleFavourite() async {
+    final next = !_isFavourite;
+    try {
+      await _api.groupSetFavourite(_groupId, next);
+      setState(() => widget.group['favourite'] = next);
+      _toast(next ? _t.grpFavouriteAdded : _t.grpFavouriteRemoved);
+    } catch (_) {
+      _toast(_t.circleBackendPending);
+    }
+  }
+
+  Future<void> _exportChat() async {
+    try {
+      final r = await _api.groupExport(_groupId);
+      final url = '${r['url'] ?? ''}';
+      if (url.isNotEmpty) {
+        await Share.share(url);
+      } else {
+        _toast(_t.circleBackendPending);
+      }
+    } catch (_) {
+      _toast(_t.circleBackendPending);
+    }
+  }
+
+  Future<void> _sendCallLink() async {
+    try {
+      final r = await _api.groupCallLink(_groupId);
+      final url = '${r['url'] ?? ''}';
+      if (url.isNotEmpty) {
+        await Share.share(url);
+      } else {
+        _toast(_t.circleBackendPending);
+      }
+    } catch (_) {
+      _toast(_t.circleBackendPending);
+    }
+  }
+
+  Future<void> _scheduleCall() async {
+    final now = DateTime.now();
+    final date = await showDatePicker(
+      context: context,
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 365)),
+      initialDate: now,
+    );
+    if (date == null || !mounted) return;
+    final time = await showTimePicker(
+        context: context, initialTime: TimeOfDay.now());
+    if (time == null) return;
+    final at = DateTime(
+        date.year, date.month, date.day, time.hour, time.minute);
+    try {
+      await _api.groupScheduleCall(_groupId, at: at.toIso8601String());
+      _toast(_t.grpCallScheduled);
+    } catch (_) {
+      _toast(_t.circleBackendPending);
+    }
+  }
+
+  /// Assisto extras (Summarise / Translate) — the AI runs ONLY on the group's
+  /// already-decrypted messages collected on this device; the server AI never
+  /// sees group ciphertext.
+  Future<void> _aiTask(String task, String title, {String lang = ''}) async {
+    final plain = _messages
+        .map(_decryptForMe)
+        .whereType<String>()
+        .where((s) => s.trim().isNotEmpty)
+        .toList();
+    if (plain.isEmpty) {
+      _toast(_t.grpNothingToProcess);
+      return;
+    }
+    try {
+      final r = await _api.groupAiTask(_groupId, task,
+          messages: plain, targetLang: lang);
+      if (r['allowed'] == false && r['needs_plan'] == true) {
+        _showVideoUpgrade();
+        return;
+      }
+      final result = '${r['result'] ?? ''}';
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(title),
+          content: SingleChildScrollView(
+              child: Text(result.isEmpty ? _t.grpNoResult : result)),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx), child: Text(_t.close)),
+          ],
+        ),
+      );
+    } catch (_) {
+      _toast(_t.circleBackendPending);
+    }
+  }
+
+  Future<void> _translate() async {
+    final lang = await showGroupOptionPicker(
+      context,
+      title: _t.grpMenuTranslate,
+      options: [
+        ('bn', _t.grpLangBangla),
+        ('en', _t.grpLangEnglish),
+      ],
+    );
+    if (lang == null) return;
+    await _aiTask('translate', _t.grpTranslateTitle, lang: lang);
+  }
+
+  /// Make a reminder from the chat — route into the Assisto reminders flow via
+  /// the extras AI task; the server returns a draft the reminders module books.
+  Future<void> _makeReminder() async {
+    await _aiTask('reminder', _t.grpMakeReminderTitle);
+  }
+
+  Future<void> _exitGroup() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(_t.grpMenuExitGroup),
+        content: Text(_t.circleGroupLeaveConfirm),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(_t.cancel)),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(_t.grpMenuExitGroup)),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    try {
+      final r = await _api.postJson('/circle/groups/$_groupId/leave', {});
+      // LAST-ADMIN protection: the server refuses when I am the last admin and
+      // tells me to promote someone first. Surface the reason, stay in the chat.
+      if (r['allowed'] == false || r['left'] == false) {
+        // The only blocking reason is last-admin; surface that guidance.
+        _toast(_t.grpExitLastAdmin);
+        return;
+      }
+      if (mounted) Navigator.of(context).pop();
+    } catch (_) {
+      _toast(_t.circleBackendPending);
+    }
+  }
+
+  Future<void> _reportGroup() async {
+    // Funnels into the ONE moderation engine (/moderation/report) — no private
+    // report path. The sheet collects categories + note and submits.
+    await MsgrReportSheet.show(
+      context,
+      targetKind: ModTargets.group,
+      targetId: _groupId,
+    );
+  }
+
+  Future<void> _clearChat() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(_t.grpMenuClearChat),
+        content: Text(_t.grpClearChatConfirm),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(_t.cancel)),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(_t.grpMenuClearChat)),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    try {
+      await _api.postJson('/circle/groups/$_groupId/clear', {});
+    } catch (_) {}
+    // Keeps the chat entry; only the message history is cleared locally + server.
+    if (mounted) setState(() => _messages = []);
+  }
+
+  // -------------------------------------------------------------------------
+  // Select messages — multi-select then delete / forward / star / copy.
+  // -------------------------------------------------------------------------
+  void _toggleSelect(Map<String, dynamic> msg) {
+    final id = '${msg['id']}';
+    setState(() {
+      if (_selected.contains(id)) {
+        _selected.remove(id);
+      } else {
+        _selected.add(id);
+      }
+    });
+  }
+
+  void _exitSelect() => setState(() {
+        _selecting = false;
+        _selected.clear();
+      });
+
+  Future<void> _deleteSelected() async {
+    for (final id in _selected) {
+      try {
+        await _api
+            .postJson('/circle/groups/$_groupId/messages/$id/delete', {});
+      } catch (_) {}
+    }
+    _exitSelect();
+    await _load();
+  }
+
+  void _copySelected() {
+    final text = _messages
+        .where((m) => _selected.contains('${m['id']}'))
+        .map((m) => _decryptForMe(m) ?? '')
+        .where((s) => s.isNotEmpty)
+        .join('\n');
+    Clipboard.setData(ClipboardData(text: text));
+    _exitSelect();
+    _toast(_t.copy);
+  }
+
+  Future<void> _starSelected() async {
+    for (final id in _selected) {
+      try {
+        await _api.postJson(
+            '/circle/groups/$_groupId/messages/$id/star', {'starred': true});
+      } catch (_) {}
+    }
+    _exitSelect();
+    _toast(_t.grpStarred);
+  }
+
+  // In-chat search over already-decrypted text (client-side).
+  List<Map<String, dynamic>> get _visible {
+    if (!_searching || _searchQuery.trim().isEmpty) return _messages;
+    final terms = _searchQuery.toLowerCase().trim().split(RegExp(r'\s+'));
+    return _messages.where((m) {
+      final hay = (_decryptForMe(m) ?? '').toLowerCase();
+      return terms.every((tk) => hay.contains(tk));
+    }).toList();
+  }
+
+  PreferredSizeWidget _normalAppBar() => AppBar(
         title: InkWell(
           onTap: _openInfo,
           child: Text('${widget.group['name'] ?? ''}'),
@@ -348,20 +728,74 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
             onPressed: () => _call('video'),
           ),
           IconButton(
-            tooltip: _t.circleGroupInfo,
-            icon: const Icon(Icons.info_outline),
-            onPressed: _openInfo,
+            tooltip: _t.grpMenuMore,
+            icon: const Icon(Icons.more_vert),
+            onPressed: _openMenu,
           ),
         ],
-      ),
+      );
+
+  PreferredSizeWidget _searchAppBar() => AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => setState(() {
+            _searching = false;
+            _searchQuery = '';
+          }),
+        ),
+        title: TextField(
+          autofocus: true,
+          decoration: InputDecoration(
+              hintText: _t.grpMenuSearch, border: InputBorder.none),
+          onChanged: (v) => setState(() => _searchQuery = v),
+        ),
+      );
+
+  PreferredSizeWidget _selectAppBar() => AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: _exitSelect,
+        ),
+        title: Text(_t.grpSelectedCount('${_selected.length}')),
+        actions: [
+          IconButton(
+            tooltip: _t.copy,
+            icon: const Icon(Icons.copy_outlined),
+            onPressed: _selected.isEmpty ? null : _copySelected,
+          ),
+          IconButton(
+            tooltip: _t.grpStar,
+            icon: const Icon(Icons.star_border),
+            onPressed: _selected.isEmpty ? null : _starSelected,
+          ),
+          IconButton(
+            tooltip: _t.grpDelete,
+            icon: const Icon(Icons.delete_outline),
+            onPressed: _selected.isEmpty ? null : _deleteSelected,
+          ),
+        ],
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    final pinned =
+        _messages.where((m) => m['pinned'] == true).toList();
+    return Scaffold(
+      appBar: _selecting
+          ? _selectAppBar()
+          : _searching
+              ? _searchAppBar()
+              : _normalAppBar(),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                if (pinned.isNotEmpty) _pinnedBar(pinned),
+                if (pinned.isNotEmpty && !_searching && !_selecting)
+                  _pinnedBar(pinned),
                 Expanded(child: _messageList()),
-                if (_replyTo != null) _replyPreview(),
-                _composer(),
+                if (_replyTo != null && !_searching && !_selecting)
+                  _replyPreview(),
+                if (!_searching && !_selecting) _composer(),
               ],
             ),
     );
@@ -390,11 +824,13 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   }
 
   Widget _messageList() {
-    if (_messages.isEmpty) {
+    final items = _visible;
+    if (items.isEmpty) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(Gap.xl),
-          child: Text(_t.circleGroupNoMessages,
+          child: Text(
+              _searching ? _t.grpSearchNoResults : _t.circleGroupNoMessages,
               textAlign: TextAlign.center,
               style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurfaceVariant)),
@@ -404,8 +840,8 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     return ListView.builder(
       controller: _scroll,
       padding: const EdgeInsets.all(Gap.md),
-      itemCount: _messages.length,
-      itemBuilder: (_, i) => _messageItem(_messages[i]),
+      itemCount: items.length,
+      itemBuilder: (_, i) => _messageItem(items[i]),
     );
   }
 
@@ -424,12 +860,16 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     final text = _decryptForMe(msg) ?? '';
     final senderName = _senderName(msg);
     final announcement = msg['announcement'] == true;
+    final selected = _selecting && _selected.contains('${msg['id']}');
     return GestureDetector(
-      onLongPress: () => _showActions(msg),
+      onLongPress: _selecting ? null : () => _showActions(msg),
+      onTap: _selecting ? () => _toggleSelect(msg) : null,
       child: Card(
-        color: announcement
-            ? Theme.of(context).colorScheme.tertiaryContainer
-            : null,
+        color: selected
+            ? Theme.of(context).colorScheme.primaryContainer
+            : announcement
+                ? Theme.of(context).colorScheme.tertiaryContainer
+                : null,
         margin: const EdgeInsets.symmetric(vertical: Gap.xs),
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),

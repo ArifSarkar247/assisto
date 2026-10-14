@@ -8,17 +8,21 @@ import '../../api.dart';
 import '../../crypto/e2e.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
+import '../../messenger_hub_api.dart';
 import '../../theme.dart';
-import '../../widgets/msgr_chat_list.dart';
+import '../../widgets/msgr_hub_chat_list.dart';
 import '../circle_call_history_screen.dart';
-import '../circle_screen.dart';
+import '../circle_group_list_screen.dart';
+import '../circle_status_composer_screen.dart';
 import '../circle_status_screen.dart';
+import 'broadcast_lists_screen.dart';
 import 'channel_list_screen.dart';
 import 'community_list_screen.dart';
 import 'contacts_screen.dart';
 import 'discover_screen.dart';
-import 'messenger_profile_screen.dart';
+import 'linked_devices_screen.dart';
 import 'messenger_settings_screen.dart';
+import 'starred_messages_screen.dart';
 
 /// The Assisto Messenger hub — the home of everything chat. Opened from the
 /// "Messages" entry at the top of the sidebar and from the `messages` ChatNav
@@ -118,23 +122,110 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
     }
   }
 
-  void _openProfile() => Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const MessengerProfileScreen()));
-
   void _openContacts() => Navigator.of(context)
       .push(MaterialPageRoute(builder: (_) => const ContactsScreen()))
       .then((_) => _bootstrap());
 
-  /// People / add-member / connected-circle flow (OWNER UI FIX v2 §2) — opens
-  /// the Connected Circle hub (add member · contacts · groups · new chat).
-  void _openPeople() => Navigator.of(context)
-      .push(MaterialPageRoute(builder: (_) => const CircleScreen()))
-      .then((_) => _bootstrap());
-
-  /// Hub ⋮ overflow → WhatsApp-style hub Settings (Account · Privacy · Chats …).
+  /// Hub ⋮ overflow → the hub Settings (Account · Privacy · Chats …).
   void _openSettings() => Navigator.of(context)
       .push(MaterialPageRoute(builder: (_) => const MessengerSettingsScreen()))
       .then((_) => _bootstrap());
+
+  /// Top-bar CAMERA — status / photo. Opens the status composer when the
+  /// on-device identity exists; otherwise the status list (so it is never a
+  /// dead tap). ORIGINAL Assisto flow (never a Meta status copy).
+  void _openCamera() {
+    final id = _identity;
+    if (id == null) {
+      _openStatus();
+      return;
+    }
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) =>
+            CircleStatusComposerScreen(identity: id, members: _members)));
+  }
+
+  /// Hub ⋮ dispatch (SPEC §2 order): New group · New community · Broadcast
+  /// lists · Linked devices · Starred · Read all · Settings. Every branch
+  /// navigates somewhere real — no dead taps.
+  void _onHubMenu(String v) {
+    switch (v) {
+      case 'new_group':
+        _openNewGroup();
+        break;
+      case 'new_community':
+        setState(() => _tab = 2); // Community tab hosts the create flow.
+        break;
+      case 'broadcast':
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => BroadcastListsScreen(
+                identity: _identity, members: _members)));
+        break;
+      case 'linked':
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const LinkedDevicesScreen()));
+        break;
+      case 'starred':
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => StarredMessagesScreen(
+                identity: _identity, members: _members)));
+        break;
+      case 'read_all':
+        _readAll();
+        break;
+      case 'settings':
+        _openSettings();
+        break;
+    }
+  }
+
+  /// New group → the circle group-create flow (pick members, name, photo,
+  /// desc). Needs the on-device identity; falls back to Settings-free honest
+  /// path via the group list screen's own create sheet.
+  void _openNewGroup() {
+    final id = _identity;
+    if (id == null) return;
+    Navigator.of(context)
+        .push(MaterialPageRoute(
+          builder: (_) => CircleGroupListScreen(
+              identity: id, circleMembers: _members),
+        ))
+        .then((_) => _bootstrap());
+  }
+
+  /// Read all → confirm, then hit the read-all endpoint. Honest success /
+  /// failure feedback (never a silent no-op).
+  Future<void> _readAll() async {
+    final t = _t;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t.msgrReadAllTitle),
+        content: Text(t.msgrReadAllBody),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(MaterialLocalizations.of(ctx).cancelButtonLabel)),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(t.msgrReadAllConfirm)),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    try {
+      await _api.hubReadAll();
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(t.msgrReadAllDone)));
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(t.msgrReadAllFailed)));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -143,22 +234,29 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
       appBar: AppBar(
         title: Text(t.sidebarMyCircle),
         actions: [
+          // CAMERA — status/photo. Opens the status composer (or the status
+          // list fallback) so the top-bar camera always does something real.
           IconButton(
-            tooltip: t.msgrPeopleTooltip,
-            icon: const Icon(Icons.group_add_outlined),
-            onPressed: _openPeople,
+            tooltip: t.msgrHubCameraTooltip,
+            icon: const Icon(Icons.photo_camera_outlined),
+            onPressed: _openCamera,
           ),
-          IconButton(
-            tooltip: t.msgrProfileTitle,
-            icon: const Icon(Icons.manage_accounts_outlined),
-            onPressed: _openProfile,
-          ),
+          // ⋮ hub overflow (exact spec order). Every row navigates somewhere
+          // real — no dead taps.
           PopupMenuButton<String>(
             tooltip: t.msgrMoreTooltip,
-            onSelected: (v) {
-              if (v == 'settings') _openSettings();
-            },
+            onSelected: _onHubMenu,
             itemBuilder: (_) => [
+              PopupMenuItem(value: 'new_group', child: Text(t.msgrHubNewGroup)),
+              PopupMenuItem(
+                  value: 'new_community', child: Text(t.msgrHubNewCommunity)),
+              PopupMenuItem(
+                  value: 'broadcast', child: Text(t.msgrHubBroadcastLists)),
+              PopupMenuItem(
+                  value: 'linked', child: Text(t.msgrHubLinkedDevices)),
+              PopupMenuItem(value: 'starred', child: Text(t.msgrHubStarred)),
+              PopupMenuItem(value: 'read_all', child: Text(t.msgrHubReadAll)),
+              const PopupMenuDivider(),
               PopupMenuItem(value: 'settings', child: Text(t.msgrSettingsTitle)),
             ],
           ),
@@ -167,7 +265,7 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : IndexedStack(index: _tab, children: [
-              MsgrChatList(identity: _identity, members: _members),
+              MsgrHubChatList(identity: _identity, members: _members),
               _updatesTab(),
               _communitiesTab(),
               const CircleCallHistoryScreen(),

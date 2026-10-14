@@ -8,13 +8,19 @@ import 'package:provider/provider.dart';
 import '../api.dart';
 import '../crypto/e2e.dart';
 import '../l10n/app_localizations.dart';
+import '../messenger_chat_api.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/chat_menu_pickers.dart';
+import '../widgets/chat_menu_sheet.dart';
 import '../widgets/circle_attach_sheet.dart';
 import '../widgets/circle_bubble.dart';
 import '../widgets/circle_media_viewer.dart';
 import '../widgets/circle_message_actions.dart';
 import '../widgets/circle_relation.dart';
+import 'circle_call_screen.dart';
+import 'circle_extras_hub_screen.dart';
+import 'messenger/contact_info_screen.dart';
 
 /// End-to-end-encrypted 1:1 chat with a circle member.
 ///
@@ -70,6 +76,15 @@ class _CircleChatScreenState extends State<CircleChatScreen> {
   bool _searching = false;
   String _searchQuery = '';
 
+  // Chat-menu backed state (confirmed from the server on open).
+  bool _favourite = false;
+  int _disappearingSec = 0;
+  String _chatTheme = 'default';
+
+  // Multi-select mode (⋮ Select messages).
+  bool _selecting = false;
+  final Set<String> _selected = {};
+
   // Reply / edit context.
   CircleMessage? _replyTo;
   CircleMessage? _editing;
@@ -117,10 +132,35 @@ class _CircleChatScreenState extends State<CircleChatScreen> {
     } catch (_) {
       // Offline/not-wired: keep any optimistic local echoes already shown.
     }
+    // Per-chat settings (disappearing is server-authoritative; favourite/theme
+    // are opaque prefs). Failures just leave the honest defaults.
+    try {
+      final s = await _api.circleChatSettings(_memberId ?? 0);
+      _disappearingSec = (s['disappearing_sec'] as int?) ?? 0;
+      _favourite = s['favourite'] == true;
+      _chatTheme = '${s['theme'] ?? 'default'}';
+    } catch (_) {}
     if (mounted) {
       setState(() => _loading = false);
       _scrollToEnd();
     }
+  }
+
+  /// Last five messages the user DECRYPTED on THIS device (newest last), used
+  /// by Report. The server holds ciphertext only and cannot rebuild these.
+  List<Map<String, dynamic>> _lastFiveDecrypted() {
+    final usable = _messages
+        .where((m) => m.deleted != 'everyone' && !m.decryptFailed && m.text.isNotEmpty)
+        .toList();
+    final slice = usable.length <= 5 ? usable : usable.sublist(usable.length - 5);
+    return slice
+        .map((m) => <String, dynamic>{
+              'id': m.id,
+              'text': m.text,
+              'mine': m.mine,
+              'at': m.at.toUtc().toIso8601String(),
+            })
+        .toList();
   }
 
   /// Resolve each reply's quoted preview from the LOCAL decrypted cache (never
@@ -509,6 +549,527 @@ class _CircleChatScreenState extends State<CircleChatScreen> {
     }).toList();
   }
 
+  // -------------------------------------------------------------------------
+  // Top-bar: calls (video is Premium-gated SERVER-SIDE — caller pays)
+  // -------------------------------------------------------------------------
+  Future<void> _placeCall(String kind) async {
+    // Ask the server first. can_place_call(caller,callee,'video') is the plan
+    // gate: a FREE caller requesting video gets upgrade_required back and we
+    // show the upgrade prompt — the client never starts video media itself.
+    // Voice is free for everyone.
+    try {
+      final r = await _api.circlePlaceCall(_memberId ?? 0, kind);
+      if (!mounted) return;
+      if (r['allowed'] == false || r['upgrade_required'] == true) {
+        _showVideoUpgrade();
+        return;
+      }
+    } catch (_) {
+      // Backend pending: still open the call screen, which re-runs the gate
+      // and renders the honest blocked/upgrade state if the server refuses.
+    }
+    if (!mounted) return;
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => CircleCallScreen(member: widget.member, kind: kind),
+    ));
+  }
+
+  void _showVideoUpgrade() {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(_t.msgrChatVideoPremiumTitle),
+        content: Text(_t.msgrChatVideoPremiumBody),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(_t.close)),
+          FilledButton(onPressed: () => Navigator.pop(ctx), child: Text(_t.msgrChatGetPremium)),
+        ],
+      ),
+    );
+  }
+
+  // -------------------------------------------------------------------------
+  // Chat ⋮ menu dispatch
+  // -------------------------------------------------------------------------
+  Future<void> _openChatMenu() async {
+    final action = await showChatMenu(context, isFavourite: _favourite);
+    if (action == null || !mounted) return;
+    switch (action) {
+      case ChatMenuAction.contactInfo:
+        _openContactInfo();
+        break;
+      case ChatMenuAction.search:
+        setState(() => _searching = true);
+        break;
+      case ChatMenuAction.selectMessages:
+        setState(() {
+          _selecting = true;
+          _selected.clear();
+        });
+        break;
+      case ChatMenuAction.mute:
+        await _muteFlow();
+        break;
+      case ChatMenuAction.disappearing:
+        await _disappearingFlow();
+        break;
+      case ChatMenuAction.chatTheme:
+        await _chatThemeFlow();
+        break;
+      case ChatMenuAction.addFavourite:
+        await _toggleFavourite();
+        break;
+      case ChatMenuAction.addToList:
+        await _addToListFlow();
+        break;
+      case ChatMenuAction.exportChat:
+        await _exportChat();
+        break;
+      case ChatMenuAction.closeChat:
+        await _closeChat();
+        break;
+      case ChatMenuAction.sendCallLink:
+        await _sendCallLink();
+        break;
+      case ChatMenuAction.scheduleCall:
+        await _scheduleCall();
+        break;
+      case ChatMenuAction.newGroupCall:
+        await _newGroupCall();
+        break;
+      case ChatMenuAction.summarise:
+        _aiExtra(_t.msgrChatSummarise);
+        break;
+      case ChatMenuAction.makeReminder:
+        _aiExtra(_t.msgrChatMakeReminder);
+        break;
+      case ChatMenuAction.translate:
+        _aiExtra(_t.msgrChatTranslate);
+        break;
+      case ChatMenuAction.report:
+        await _reportFlow();
+        break;
+      case ChatMenuAction.block:
+        await _blockFlow();
+        break;
+      case ChatMenuAction.clearChat:
+        await _clearChatFlow();
+        break;
+    }
+  }
+
+  void _toast(String msg) =>
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+
+  void _openContactInfo() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => ContactInfoScreen(
+        member: widget.member,
+        decryptedLastFive: _lastFiveDecrypted,
+      ),
+    )).then((_) => _load());
+  }
+
+  // ---- Mute ---------------------------------------------------------------
+  Future<void> _muteFlow() async {
+    final d = await showMutePicker(context);
+    if (d == null || !mounted) return;
+    final until = d == Duration.zero
+        ? DateTime.utc(2099).toIso8601String()
+        : DateTime.now().toUtc().add(d).toIso8601String();
+    try {
+      await _api.setChatMute(_memberId ?? 0, until);
+      _toast(_t.msgrChatMuted);
+    } catch (_) {
+      _toast(_t.circleBackendPending);
+    }
+  }
+
+  // ---- Disappearing (server + device enforced) ----------------------------
+  Future<void> _disappearingFlow() async {
+    final sec = await showDisappearingPicker(context, _disappearingSec);
+    if (sec == null || !mounted) return;
+    setState(() => _disappearingSec = sec);
+    try {
+      await _api.setDisappearing(_memberId ?? 0, sec);
+    } catch (_) {
+      _toast(_t.circleBackendPending);
+    }
+  }
+
+  // ---- Chat theme ---------------------------------------------------------
+  Future<void> _chatThemeFlow() async {
+    final token = await showChatThemePicker(context, _chatTheme);
+    if (token == null || !mounted) return;
+    setState(() => _chatTheme = token);
+    try {
+      await _api.setChatTheme(_memberId ?? 0, theme: token);
+    } catch (_) {
+      _toast(_t.circleBackendPending);
+    }
+  }
+
+  // ---- Favourites ---------------------------------------------------------
+  Future<void> _toggleFavourite() async {
+    setState(() => _favourite = !_favourite);
+    try {
+      await _api.setFavourite(_memberId ?? 0, _favourite);
+      _toast(_favourite ? _t.msgrChatFavouriteAdded : _t.msgrChatFavouriteRemoved);
+    } catch (_) {
+      _toast(_t.circleBackendPending);
+    }
+  }
+
+  // ---- Add to list --------------------------------------------------------
+  Future<void> _addToListFlow() async {
+    List<Map<String, dynamic>> lists = const [];
+    try {
+      final r = await _api.chatLists();
+      lists = ((r['lists'] ?? []) as List).cast<Map<String, dynamic>>();
+    } catch (_) {}
+    if (!mounted) return;
+    final controller = TextEditingController();
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (ctx) => SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.only(
+              left: Gap.lg,
+              right: Gap.lg,
+              bottom: MediaQuery.of(ctx).viewInsets.bottom + Gap.lg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(_t.msgrChatAddToList,
+                  style: Theme.of(ctx).textTheme.titleMedium),
+              for (final l in lists)
+                ListTile(
+                  leading: const Icon(Icons.label_outline),
+                  title: Text('${l['name'] ?? ''}'),
+                  onTap: () => Navigator.pop(ctx, 'id:${l['id']}'),
+                ),
+              TextField(
+                controller: controller,
+                decoration: InputDecoration(
+                  hintText: _t.msgrChatNewListHint,
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: () => Navigator.pop(ctx, 'new:${controller.text.trim()}'),
+                  ),
+                ),
+                onSubmitted: (v) => Navigator.pop(ctx, 'new:${v.trim()}'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (choice == null || !mounted) return;
+    try {
+      if (choice.startsWith('new:')) {
+        final name = choice.substring(4);
+        if (name.isEmpty) return;
+        await _api.setChatList(_memberId ?? 0, name: name);
+      } else {
+        await _api.setChatList(_memberId ?? 0, listId: int.tryParse(choice.substring(3)));
+      }
+      _toast(_t.msgrChatAddedToList);
+    } catch (_) {
+      _toast(_t.circleBackendPending);
+    }
+  }
+
+  // ---- Export chat (.txt from DECRYPTED msgs, client-side share sheet) -----
+  Future<void> _exportChat() async {
+    final buf = StringBuffer();
+    buf.writeln('Assisto — ${_memberName}');
+    for (final m in _messages) {
+      if (m.deleted == 'everyone' || m.text.isEmpty) continue;
+      final who = m.mine ? '→' : '←';
+      buf.writeln('[${m.at.toIso8601String()}] $who ${m.text}');
+    }
+    // The transcript is built ON-DEVICE from already-decrypted text (never from
+    // the server). Hand it to the extras hub, which owns the OS share sheet +
+    // optional media attach.
+    _toast(_t.msgrChatExportReady);
+    if (!mounted) return;
+    _openExtrasHub();
+  }
+
+  void _openExtrasHub() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => CircleExtrasHubScreen(
+        member: widget.member,
+        decryptedMessages: () => _messages
+            .where((m) => m.deleted != 'everyone' && m.text.isNotEmpty)
+            .map((m) => <String, dynamic>{
+                  'id': m.id,
+                  'text': m.text,
+                  'mine': m.mine,
+                  'at': m.at.toIso8601String(),
+                })
+            .toList(),
+      ),
+    ));
+  }
+
+  // ---- Close chat (keeps the entry, archives) -----------------------------
+  Future<void> _closeChat() async {
+    try {
+      await _api.closeChat(_memberId ?? 0);
+      if (mounted) Navigator.of(context).pop();
+    } catch (_) {
+      _toast(_t.circleBackendPending);
+    }
+  }
+
+  // ---- Send call link (expiring) ------------------------------------------
+  Future<void> _sendCallLink() async {
+    try {
+      final r = await _api.createCallLink(_memberId ?? 0, kind: 'voice');
+      final link = '${r['link'] ?? ''}';
+      if (!mounted) return;
+      if (link.isEmpty) {
+        _toast(_t.circleBackendPending);
+        return;
+      }
+      // The expiring link is built server-side; share via the OS sheet (a chat
+      // message carrying the link is the user's choice).
+      _input.text = link;
+      _toast(_t.msgrChatCallLinkReady);
+    } catch (_) {
+      _toast(_t.circleBackendPending);
+    }
+  }
+
+  // ---- Schedule call (time + reminder for invitees) -----------------------
+  Future<void> _scheduleCall() async {
+    final now = DateTime.now();
+    final date = await showDatePicker(
+      context: context,
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 365)),
+      initialDate: now,
+    );
+    if (date == null || !mounted) return;
+    final time = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+    if (time == null || !mounted) return;
+    final at = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+    try {
+      await _api.scheduleCall(_memberId ?? 0, atIso: at.toUtc().toIso8601String());
+      _toast(_t.msgrChatCallScheduled);
+    } catch (_) {
+      _toast(_t.circleBackendPending);
+    }
+  }
+
+  // ---- New group call -----------------------------------------------------
+  Future<void> _newGroupCall() async {
+    // Starting a group call from a 1:1 means adding more circle members; the
+    // group-call launch reuses circle_calls. The picker is the group screen's
+    // job, so from here we open the call screen with this member and the
+    // honest "add people" affordance lives in the call controls.
+    try {
+      final r = await _api.circlePlaceCall(_memberId ?? 0, 'voice');
+      if (!mounted) return;
+      if (r['allowed'] == false) {
+        _toast(_t.circleBackendPending);
+        return;
+      }
+    } catch (_) {}
+    if (!mounted) return;
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => CircleCallScreen(member: widget.member, kind: 'voice'),
+    ));
+  }
+
+  // ---- Assisto extras (AI MOCK, key-gated honest) -------------------------
+  //
+  // These read the LAST FEW decrypted messages ON-DEVICE and show a MOCK
+  // result plus an honest "needs the AI key" note (no AI key is wired in this
+  // build; nothing is ever sent to a server for AI). "Make reminder from chat"
+  // additionally offers to open the on-device reminder flow (nlp_datetime),
+  // which works WITHOUT any AI key.
+  void _aiExtra(String title) {
+    final recent = _lastFiveDecrypted();
+    final preview = recent.isEmpty
+        ? ''
+        : recent.map((m) => m['text']).whereType<String>().join(' · ');
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(_t.msgrChatAiMock),
+            if (preview.isNotEmpty) ...[
+              const SizedBox(height: Gap.sm),
+              Text(preview,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(ctx).textTheme.bodySmall),
+            ],
+            const SizedBox(height: Gap.sm),
+            Text(_t.msgrChatAiNeedsKey,
+                style: Theme.of(ctx).textTheme.bodySmall),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(_t.close)),
+        ],
+      ),
+    );
+  }
+
+  // ---- Report (sends the LAST 5 decrypted messages to moderation) ---------
+  Future<void> _reportFlow() async {
+    final res = await showChatReportPicker(context);
+    if (res == null || !mounted) return;
+    try {
+      await _api.reportLast5(
+        peerId: _memberId ?? 0,
+        reason: res.reason,
+        decryptedLastFive: _lastFiveDecrypted(),
+      );
+      if (res.alsoBlock) {
+        await _api.blockContact(_memberId ?? 0, on: true);
+      }
+      if (mounted) _toast(_t.msgrChatReportSent);
+    } catch (_) {
+      _toast(_t.circleBackendPending);
+    }
+  }
+
+  Future<void> _blockFlow() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(_t.circleBlock),
+        content: Text(_t.msgrChatBlockConfirm),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(_t.cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(_t.circleBlock)),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    try {
+      await _api.blockContact(_memberId ?? 0, on: true);
+      _toast(_t.msgrChatBlocked);
+    } catch (_) {
+      _toast(_t.circleBackendPending);
+    }
+  }
+
+  Future<void> _clearChatFlow() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(_t.msgrChatClear),
+        content: Text(_t.msgrChatClearConfirm),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(_t.cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(_t.msgrChatClear)),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    setState(() => _messages = []);
+    try {
+      await _api.clearChat(_memberId ?? 0);
+    } catch (_) {
+      _toast(_t.circleBackendPending);
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Multi-select bulk actions (⋮ Select messages)
+  // -------------------------------------------------------------------------
+  void _toggleSelect(CircleMessage m) {
+    setState(() {
+      if (_selected.contains(m.id)) {
+        _selected.remove(m.id);
+      } else {
+        _selected.add(m.id);
+      }
+    });
+  }
+
+  List<CircleMessage> get _selectedMsgs =>
+      _messages.where((m) => _selected.contains(m.id)).toList();
+
+  Future<void> _bulkStar() async {
+    for (final m in _selectedMsgs) {
+      if (!m.starred) await _toggleStar(m);
+    }
+    setState(() {
+      _selecting = false;
+      _selected.clear();
+    });
+  }
+
+  Future<void> _bulkCopy() async {
+    final text = _selectedMsgs.map((m) => m.text).where((t) => t.isNotEmpty).join('\n');
+    await Clipboard.setData(ClipboardData(text: text));
+    if (!mounted) return;
+    _toast(_t.circleCopied);
+    setState(() {
+      _selecting = false;
+      _selected.clear();
+    });
+  }
+
+  Future<void> _bulkForward() async {
+    final toForward = _selectedMsgs.toList();
+    setState(() {
+      _selecting = false;
+      _selected.clear();
+    });
+    for (final m in toForward) {
+      await _doForwardInto(m);
+    }
+  }
+
+  Future<void> _bulkDelete() async {
+    // Delete-for-everyone only within the window AND only my own messages;
+    // otherwise delete-for-me. Honest choice dialog.
+    final now = DateTime.now();
+    final canEveryone = _selectedMsgs.every((m) =>
+        m.mine && now.difference(m.at).inMinutes < _kDeleteEveryoneWindowMin);
+    final scope = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(_t.delete),
+        content: Text(_t.msgrChatDeleteConfirm),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(_t.cancel)),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, 'me'),
+              child: Text(_t.circleActionDeleteMe)),
+          if (canEveryone)
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, 'everyone'),
+                child: Text(_t.circleActionDeleteEveryone)),
+        ],
+      ),
+    );
+    if (scope == null || !mounted) return;
+    final toDelete = _selectedMsgs.toList();
+    setState(() {
+      _selecting = false;
+      _selected.clear();
+    });
+    for (final m in toDelete) {
+      await _delete(m, scope);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -531,16 +1092,45 @@ class _CircleChatScreenState extends State<CircleChatScreen> {
                         itemCount: _visible.length,
                         itemBuilder: (_, i) {
                           final m = _visible[i];
-                          return CircleBubble(
+                          final bubble = CircleBubble(
                             msg: m,
-                            onLongPress: () => _onLongPress(m),
-                            onTapMedia: m.contentType != 'text' ? () => _openMedia(m) : null,
+                            onLongPress: _selecting ? null : () => _onLongPress(m),
+                            onTapMedia: (!_selecting && m.contentType != 'text')
+                                ? () => _openMedia(m)
+                                : null,
+                          );
+                          if (!_selecting) return bubble;
+                          final sel = _selected.contains(m.id);
+                          return InkWell(
+                            onTap: () => _toggleSelect(m),
+                            child: Container(
+                              color: sel
+                                  ? scheme.primary.withValues(alpha: 0.12)
+                                  : null,
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: Gap.sm),
+                                    child: Icon(
+                                      sel
+                                          ? Icons.check_circle
+                                          : Icons.radio_button_unchecked,
+                                      color: sel
+                                          ? scheme.primary
+                                          : scheme.onSurfaceVariant,
+                                      size: 20,
+                                    ),
+                                  ),
+                                  Expanded(child: IgnorePointer(child: bubble)),
+                                ],
+                              ),
+                            ),
                           );
                         },
                       ),
           ),
           if (_peerTyping && !_searching) _typingIndicator(scheme),
-          if ((_replyTo != null || _editing != null) && !_searching)
+          if ((_replyTo != null || _editing != null) && !_searching && !_selecting)
             CircleComposerContext(
               preview: (_editing ?? _replyTo)!.text,
               isEdit: _editing != null,
@@ -550,30 +1140,40 @@ class _CircleChatScreenState extends State<CircleChatScreen> {
                 if (_editing == null) _input.clear();
               }),
             ),
-          if (!_searching) _composer(scheme),
+          if (!_searching && !_selecting) _composer(scheme),
         ],
       ),
     );
   }
 
-  PreferredSizeWidget _normalAppBar(ColorScheme scheme, String relation) => AppBar(
-        titleSpacing: 0,
-        title: Row(
+  PreferredSizeWidget _normalAppBar(ColorScheme scheme, String relation) {
+    if (_selecting) return _selectionAppBar(scheme);
+    return AppBar(
+      titleSpacing: 0,
+      title: InkWell(
+        onTap: _openContactInfo,
+        child: Row(
           children: [
             CircleAvatar(
                 radius: 16,
-                child: Text(_memberName.isEmpty ? '?' : _memberName.characters.first.toUpperCase())),
+                child: Text(
+                    _memberName.isEmpty ? '?' : _memberName.characters.first.toUpperCase())),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(_memberName, style: Theme.of(context).textTheme.titleMedium),
+                  Text(_memberName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium),
                   Text(
                     _peerTyping
                         ? _t.circleTyping
                         : CircleRelation.labelFor(_t, relation,
                             custom: widget.member['custom_label'] as String?),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
                   ),
                 ],
@@ -581,17 +1181,61 @@ class _CircleChatScreenState extends State<CircleChatScreen> {
             ),
           ],
         ),
+      ),
+      actions: [
+        IconButton(
+          tooltip: _t.circleVideo,
+          icon: const Icon(Icons.videocam_outlined),
+          onPressed: () => _placeCall('video'),
+        ),
+        IconButton(
+          tooltip: _t.circleVoiceCall,
+          icon: const Icon(Icons.call_outlined),
+          onPressed: () => _placeCall('voice'),
+        ),
+        IconButton(
+          tooltip: _t.circleSearchInChat,
+          icon: const Icon(Icons.search),
+          onPressed: () => setState(() => _searching = true),
+        ),
+        IconButton(
+          tooltip: _t.msgrChatMore,
+          icon: const Icon(Icons.more_vert),
+          onPressed: _openChatMenu,
+        ),
+      ],
+    );
+  }
+
+  PreferredSizeWidget _selectionAppBar(ColorScheme scheme) => AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () => setState(() {
+            _selecting = false;
+            _selected.clear();
+          }),
+        ),
+        title: Text('${_selected.length}'),
         actions: [
           IconButton(
-            tooltip: _t.circleSearchInChat,
-            icon: const Icon(Icons.search),
-            onPressed: () => setState(() => _searching = true),
+            tooltip: _t.circleActionStar,
+            icon: const Icon(Icons.star_outline),
+            onPressed: _selected.isEmpty ? null : _bulkStar,
           ),
           IconButton(
-            tooltip: _t.circleVoiceCall,
-            icon: const Icon(Icons.call_outlined),
-            onPressed: () =>
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_t.circleCallGated))),
+            tooltip: _t.msgrChatCopy,
+            icon: const Icon(Icons.copy_outlined),
+            onPressed: _selected.isEmpty ? null : _bulkCopy,
+          ),
+          IconButton(
+            tooltip: _t.circleActionForward,
+            icon: const Icon(Icons.forward_outlined),
+            onPressed: _selected.isEmpty ? null : _bulkForward,
+          ),
+          IconButton(
+            tooltip: _t.delete,
+            icon: const Icon(Icons.delete_outline),
+            onPressed: _selected.isEmpty ? null : _bulkDelete,
           ),
         ],
       );

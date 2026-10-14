@@ -4,11 +4,16 @@ import 'package:provider/provider.dart';
 import '../../api.dart';
 import '../../crypto/e2e.dart';
 import '../../l10n/app_localizations.dart';
+import '../../messenger_admin_api.dart';
 import '../../messenger_community_api.dart';
+import '../../messenger_group_api.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/msgr_community_card.dart';
+import '../../widgets/msgr_mod_report_sheet.dart';
 import 'community_members_screen.dart';
+import 'community_message_requests_screen.dart';
+import 'community_settings_screen.dart';
 
 /// Assisto Messenger — COMMUNITY detail (Step 3, item 2).
 ///
@@ -162,6 +167,91 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
     ));
   }
 
+  // -------------------------------------------------------------------------
+  // COMMUNITY detail ⋮ — only the actions that apply to this viewer.
+  // -------------------------------------------------------------------------
+  void _toast(String msg) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(msg)));
+  }
+
+  void _showInfo() {
+    final desc = '${widget.community['description'] ?? ''}';
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('${widget.community['name'] ?? _t.communityTitle}'),
+        content: Text(desc.isEmpty ? _t.communityNoTopics : desc),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: Text(_t.close)),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _toggleNotifications() async {
+    final muted = widget.community['notifications_muted'] == true;
+    try {
+      await _api.communitySetNotifications(_cid, !muted);
+      setState(() => widget.community['notifications_muted'] = !muted);
+      _toast(!muted ? _t.communityMuted : _t.communityUnmuted);
+    } catch (_) {
+      _toast(_t.communityBackendPending);
+    }
+  }
+
+  void _openSettings() {
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => const CommunitySettingsScreen()));
+  }
+
+  void _openApprovals() {
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) =>
+            CommunityMessageRequestsScreen(identity: widget.identity)));
+  }
+
+  Future<void> _leave() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(_t.communityLeave),
+        content: Text(_t.communityLeaveConfirm),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(_t.cancel)),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(_t.communityLeave)),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    try {
+      final r = await _api.communityLeave(_cid);
+      // LAST-ADMIN protection (can_leave_community): the last admin must hand
+      // over first — surface the refusal and stay.
+      if (r['left'] == false || r['allowed'] == false) {
+        _toast(_t.communityLeaveLastAdmin);
+        return;
+      }
+      if (mounted) Navigator.of(context).pop();
+    } catch (_) {
+      _toast(_t.communityBackendPending);
+    }
+  }
+
+  Future<void> _report() async {
+    await MsgrReportSheet.show(
+      context,
+      targetKind: ModTargets.community,
+      targetId: _cid,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -173,6 +263,46 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
             tooltip: _t.communityMembersTitle,
             icon: const Icon(Icons.people_outline),
             onPressed: _openMembers,
+          ),
+          PopupMenuButton<String>(
+            tooltip: _t.grpMenuMore,
+            onSelected: (v) {
+              switch (v) {
+                case 'info':
+                  _showInfo();
+                case 'members':
+                  _openMembers();
+                case 'notifications':
+                  _toggleNotifications();
+                case 'settings':
+                  _openSettings();
+                case 'approve':
+                  _openApprovals();
+                case 'leave':
+                  _leave();
+                case 'report':
+                  _report();
+              }
+            },
+            itemBuilder: (_) => [
+              PopupMenuItem(value: 'info', child: Text(_t.communityInfo)),
+              PopupMenuItem(
+                  value: 'members', child: Text(_t.communityMembersTitle)),
+              PopupMenuItem(
+                value: 'notifications',
+                child: Text(widget.community['notifications_muted'] == true
+                    ? _t.communityUnmuteNotifications
+                    : _t.communityMuteNotifications),
+              ),
+              // Admin-only actions appear only for an admin viewer.
+              if (_isAdmin)
+                PopupMenuItem(value: 'settings', child: Text(_t.communityEdit)),
+              if (_isAdmin)
+                PopupMenuItem(
+                    value: 'approve', child: Text(_t.communityApproveRequests)),
+              PopupMenuItem(value: 'leave', child: Text(_t.communityLeave)),
+              PopupMenuItem(value: 'report', child: Text(_t.communityReport)),
+            ],
           ),
         ],
       ),

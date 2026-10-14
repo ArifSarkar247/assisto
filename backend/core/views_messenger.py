@@ -26,10 +26,12 @@ from rest_framework.views import APIView
 
 from .i18n import req_lang
 from .logic import circle, circle_calls
+from .logic import circle_extras as cx
 from .logic import msg_contacts as mc
 from .logic import msg_community as mcom
 from .logic import msg_channel as mch
 from .logic import msg_moderation as mmod
+from .logic import msg_messenger_ui as mui
 from .models import (
     User as _UserModel,
     UserPhoneHash, ConnectionRequest, InviteOutbound, CircleMember,
@@ -38,6 +40,8 @@ from .models import (
     Channel, ChannelAdmin, ChannelFollower, ChannelPost, ChannelPoll,
     ChannelPollVote, ChannelVerificationRequest,
     ModerationReport, ModerationItem, ModerationAudit,
+    ChatSettings, StarredMessage, ChatList, CallLink, ScheduledCall,
+    DeviceLinkToken, LinkedDevice,
 )
 
 User = get_user_model()
@@ -1577,3 +1581,466 @@ class AdminUserActionView(APIView):
             extra={"new_status": new_status, "reset_sessions": reset_sessions})
         return Response({"id": target.id, "status": target.account_status,
                          "reset_sessions": reset_sessions})
+
+
+# ===========================================================================
+# 5. MESSENGER FULL-UI — hub-⋮ + chat-⋮ actions (msg_messenger_ui)
+# ===========================================================================
+# Every endpoint is ownership-scoped by request.user. Bilingual via req_lang.
+# The pure module enforces the rules; these thin views only resolve DB rows.
+
+def _app_base(request):
+    return getattr(settings, "APP_DEEP_LINK_BASE_HTTPS",
+                   "https://assisto.asalify.com")
+
+
+# ---- STARRED messages ----
+
+class StarredView(APIView):
+    """GET  /api/messenger/starred -> all starred messages across chats (with a
+             chat ref + message id to jump to).
+    POST /api/messenger/starred {chat_kind, chat_id, message_id, starred:bool}
+             -> star / unstar a message (idempotent)."""
+
+    def get(self, request):
+        rows = StarredMessage.objects.filter(user=request.user)
+        out = [mui.star_jump_target({
+            "chat_kind": r.chat_kind, "chat_id": r.chat_id,
+            "message_id": r.message_id}) | {"at": r.at.isoformat()}
+            for r in rows]
+        return Response({"starred": out, "count": len(out)})
+
+    def post(self, request):
+        d = request.data or {}
+        cid, mid = d.get("chat_id"), d.get("message_id")
+        if cid is None or mid is None:
+            return _badreq("chat_id and message_id required")
+        rec = mui.build_star(request.user.id, d.get("chat_kind"), cid, mid)
+        if d.get("starred", True):
+            StarredMessage.objects.get_or_create(
+                user=request.user, chat_kind=rec["chat_kind"],
+                chat_id=rec["chat_id"], message_id=rec["message_id"])
+            return Response({"starred": True, **mui.star_jump_target(rec)})
+        StarredMessage.objects.filter(
+            user=request.user, chat_kind=rec["chat_kind"],
+            chat_id=rec["chat_id"], message_id=rec["message_id"]).delete()
+        return Response({"starred": False, **mui.star_jump_target(rec)})
+
+
+# ---- LINKED DEVICES ----
+
+class LinkStartView(APIView):
+    """POST /api/messenger/link/start {platform?} -> mint a SINGLE-USE, short-TTL
+    pairing token + QR payload (server side now; web client later)."""
+
+    def post(self, request):
+        d = request.data or {}
+        out = mui.mint_link_token(
+            request.user.id, platform=d.get("platform", "web"),
+            base_url=_app_base(request))
+        rec = out["record"]
+        DeviceLinkToken.objects.create(
+            user=request.user, token=rec["token"], platform=rec["platform"],
+            expires_at=timezone.datetime.fromisoformat(rec["expires_at"]))
+        return Response({"qr_payload": out["qr_payload"],
+                         "ttl_sec": out["ttl_sec"],
+                         "expires_at": rec["expires_at"]})
+
+
+class LinkConfirmView(APIView):
+    """POST /api/messenger/link/confirm {token, device_id, name?, public_key_id?,
+    platform?} -> consume the single-use token (if fresh + cap/web-after-mobile
+    allow) and register the LinkedDevice. The token can never be replayed."""
+
+    def post(self, request):
+        d = request.data or {}
+        tok = DeviceLinkToken.objects.filter(
+            user=request.user, token=str(d.get("token", ""))).first()
+        token_rec = None if tok is None else {
+            "used": tok.used, "expires_at": tok.expires_at.isoformat()}
+        existing = [cx.device_record(
+            x.device_id, x.platform, role=x.role,
+            public_key_id=x.public_key_id, name=x.name)
+            for x in LinkedDevice.objects.filter(user=request.user)]
+        plat = d.get("platform") or (tok.platform if tok else "web")
+        ok, why = mui.can_confirm_link(token_rec, existing, plat)
+        if not ok:
+            return _badreq(why)     # used/expired/unknown/device_cap/web_after_mobile
+        tok.used = True
+        tok.save(update_fields=["used"])
+        dev, _ = LinkedDevice.objects.get_or_create(
+            device_id=str(d.get("device_id", "")),
+            defaults={"user": request.user, "platform": plat,
+                      "role": "linked", "name": str(d.get("name", ""))[:120],
+                      "public_key_id": str(d.get("public_key_id", ""))[:64]})
+        return Response({"ok": True, "device_id": dev.device_id})
+
+
+class LinkedDevicesView(APIView):
+    """GET /api/messenger/linked-devices -> list linked devices (name/platform/
+    last-active). Never exposes a key."""
+
+    def get(self, request):
+        lang = req_lang(request)
+        rows = LinkedDevice.objects.filter(user=request.user, revoked=False)
+        out = [mui.linked_device_view({
+            "device_id": r.device_id, "name": r.name, "platform": r.platform,
+            "role": r.role, "linked_at": r.linked_at.isoformat(),
+            "last_active": r.last_active.isoformat() if r.last_active else None,
+            "revoked": r.revoked}, lang=lang) for r in rows]
+        return Response({"devices": out, "count": len(out)})
+
+
+class LinkedDeviceRevokeView(APIView):
+    """POST /api/messenger/linked-devices/<device_id>/revoke -> logout/revoke one
+    companion device (its keys are rotated out by the primary)."""
+
+    def post(self, request, device_id):
+        dev = LinkedDevice.objects.filter(
+            user=request.user, device_id=str(device_id)).first()
+        if dev is None:
+            return _notfound()
+        dev.revoked = True
+        dev.save(update_fields=["revoked"])
+        return Response({"ok": True, "device_id": dev.device_id, "revoked": True})
+
+
+# ---- CALLS ----
+
+def _caller_descriptor(user):
+    return {"id": user.id, "plan": user.plan,
+            "video_unlocked": any(
+                CircleMember.objects.filter(
+                    user=user, video_unlocked=True).values_list("id", flat=True)[:1])}
+
+
+class CallLinkView(APIView):
+    """POST /api/messenger/call-link {kind:voice|video} -> an EXPIRING tokenized
+    call link. VIDEO is Premium creator-gated (circle_calls)."""
+
+    def post(self, request):
+        lang = req_lang(request)
+        d = request.data or {}
+        out = mui.mint_call_link(
+            {"id": request.user.id, "plan": request.user.plan},
+            kind=d.get("kind", "voice"), base_url=_app_base(request))
+        if not out["ok"]:
+            return Response(
+                {"detail": out["reason"], "upgrade_required": True,
+                 "upgrade": circle_calls.upgrade_prompt(lang)},
+                status=status.HTTP_402_PAYMENT_REQUIRED)
+        rec = out["record"]
+        CallLink.objects.create(
+            creator=request.user, token=rec["token"], kind=rec["kind"],
+            expires_at=timezone.datetime.fromisoformat(rec["expires_at"]))
+        return Response({"url": out["url"], "kind": rec["kind"],
+                         "expires_at": rec["expires_at"]})
+
+
+class ScheduleCallView(APIView):
+    """POST /api/messenger/schedule-call {invitee_member_ids:[], scheduled_at,
+    kind, title?, remind_lead_sec?} -> a ScheduledCall + a reminder descriptor
+    for every invitee (organiser included). VIDEO is Premium organiser-gated."""
+
+    def post(self, request):
+        lang = req_lang(request)
+        d = request.data or {}
+        organiser = {"id": request.user.id, "plan": request.user.plan}
+        try:
+            built = mui.build_scheduled_call(
+                organiser, d.get("invitee_member_ids") or [],
+                d.get("scheduled_at"), kind=d.get("kind", "voice"),
+                title=str(d.get("title", "")),
+                remind_lead_sec=d.get("remind_lead_sec"))
+        except ValueError as e:
+            reason = str(e).split(": ", 1)[-1]
+            if reason == "video_requires_premium":
+                return Response(
+                    {"detail": reason, "upgrade_required": True,
+                     "upgrade": circle_calls.upgrade_prompt(lang)},
+                    status=status.HTTP_402_PAYMENT_REQUIRED)
+            return _badreq(reason)
+        rec = built["record"]
+        row = ScheduledCall.objects.create(
+            organiser=request.user, invitee_ids=rec["invitee_ids"],
+            call_kind=rec["call_kind"], title=rec["title"],
+            scheduled_at=timezone.datetime.fromisoformat(rec["scheduled_at"]),
+            remind_at=timezone.datetime.fromisoformat(rec["remind_at"]))
+        return Response({"id": row.id, **rec, "reminders": built["reminders"]})
+
+
+class GroupCallView(APIView):
+    """POST /api/messenger/group-call {invitee_member_ids:[], kind} -> plan a new
+    group call. VOICE free; VIDEO Premium organiser-gated. Not-connected invitees
+    are skipped; a video-entitlement failure is fatal (reuse circle_calls)."""
+
+    def post(self, request):
+        lang = req_lang(request)
+        d = request.data or {}
+        ids = [int(i) for i in (d.get("invitee_member_ids") or []) if str(i).isdigit()]
+        members = CircleMember.objects.filter(user=request.user, id__in=ids)
+        invitees = [{"id": m.id, "accepted": m.state == "accepted",
+                     "blocked": m.blocked} for m in members]
+        plan = mui.plan_group_call(
+            {"id": request.user.id, "plan": request.user.plan},
+            invitees, kind=d.get("kind", "voice"))
+        if not plan["allowed"]:
+            if plan["reason"] == "video_requires_premium":
+                return Response(
+                    {"detail": plan["reason"], "upgrade_required": True,
+                     "upgrade": circle_calls.upgrade_prompt(lang)},
+                    status=status.HTTP_402_PAYMENT_REQUIRED)
+            return _badreq(plan["reason"])
+        return Response(plan)
+
+
+# ---- REPORT-LAST-5 (reporter snapshot; server NEVER decrypts) ----
+
+class ChatReportView(APIView):
+    """POST /api/messenger/chat/<member_id>/report {categories:[], note?,
+    last_messages:[{message_id, from_me, sender_name, at, content_type, text}]}
+    -> build a 'person' moderation report with the reporter's LAST 5 DECRYPTED
+    messages attached as context. THE SERVER NEVER DECRYPTS — it accepts the
+    reporter-supplied plaintext snapshot, caps it to 5, and stores it. Reuses
+    msg_moderation.build_report + evaluate_report."""
+
+    def post(self, request, member_id):
+        d = request.data or {}
+        m = CircleMember.objects.filter(user=request.user, pk=member_id).first()
+        if m is None:
+            return _notfound()
+        target_user_id = m.peer_user_id or m.id
+        built = mui.build_chat_report(
+            report_id=None, reporter_id=request.user.id,
+            target_user_id=target_user_id,
+            categories=d.get("categories") or [],
+            snapshot_messages=d.get("last_messages") or [],
+            note=str(d.get("note", "")))
+        rpt = built["report"]
+        ModerationReport.objects.create(
+            reporter=request.user, target_kind=mmod.T_PERSON,
+            target_id=str(target_user_id)[:64], categories=rpt["categories"],
+            note=rpt["note"], valid=rpt["valid"],
+            snapshot=built["snapshot"], snapshot_source=rpt["snapshot_source"])
+        if not rpt["valid"]:
+            return _badreq("invalid_report")
+        existing = [{"valid": r.valid, "reporter_id": r.reporter_id,
+                     "created_at": r.created_at}
+                    for r in ModerationReport.objects.filter(
+                        target_kind=mmod.T_PERSON,
+                        target_id=str(target_user_id))]
+        decision = mmod.evaluate_report(
+            {**rpt, "reporter_id": request.user.id}, existing, mmod.STATUS_VISIBLE)
+        item = ModerationItem.objects.filter(
+            target_kind=mmod.T_PERSON, target_id=str(target_user_id)).exclude(
+            queue_state=mmod.Q_RESOLVED).order_by("-opened_at").first()
+        if item is None:
+            b = mmod.build_queue_item(
+                None, mmod.T_PERSON, target_user_id, rpt["categories"],
+                decision["severe"],
+                decision["new_status"] or mmod.STATUS_VISIBLE)
+            item = ModerationItem.objects.create(
+                target_kind=mmod.T_PERSON, target_id=str(target_user_id)[:64],
+                categories=b["categories"], severe=b["severe"],
+                content_status=b["content_status"], queue_state=b["queue_state"],
+                legal_retention=b["legal_retention"],
+                report_count=b["report_count"])
+        return Response({"accepted": True, "action": decision["action"],
+                         "reason": decision["reason"], "item_id": item.id,
+                         "snapshot_count": len(built["snapshot"]),
+                         "server_decrypted": False})
+
+
+# ---- READ-ALL ----
+
+class ReadAllView(APIView):
+    """POST /api/messenger/read-all -> mark every 1:1 chat read for the user
+    (append the user id to read_by on unread incoming messages). Idempotent."""
+
+    def post(self, request):
+        from .models import CircleMessage
+        members = CircleMember.objects.filter(
+            user=request.user, state="accepted")
+        refs = [{"chat_kind": "member", "chat_id": m.id} for m in members]
+        plan = mui.read_all_plan(refs)
+        uid = request.user.id
+        marked = 0
+        qs = CircleMessage.objects.filter(
+            member__user=request.user).exclude(sender=request.user)
+        for msg in qs.iterator():
+            rb = msg.read_by or []
+            if uid not in rb:
+                rb.append(uid)
+                msg.read_by = rb
+                msg.save(update_fields=["read_by"])
+                marked += 1
+        return Response({"ok": True, "chats": plan["count"],
+                         "messages_marked": marked})
+
+
+# ---- PER-CHAT theme/wallpaper + disappearing (reuse circle_extras ChatSettings) ----
+
+class ChatThemeView(APIView):
+    """GET/POST /api/messenger/chat/<member_id>/settings -> per-chat theme /
+    wallpaper / disappearing (Off/24h/7d/90d). Only disappearing_sec is
+    server-enforced; theme/wallpaper persist to ChatSettings (circle_extras)."""
+
+    def _dict(self, row):
+        return {"disappearing_sec": row.disappearing_sec,
+                "wallpaper": row.wallpaper,
+                "wallpaper_blob_ref": row.wallpaper_blob_ref,
+                "theme": row.theme, "bubble_scheme": row.bubble_scheme}
+
+    def get(self, request, member_id):
+        m = CircleMember.objects.filter(user=request.user, pk=member_id).first()
+        if m is None:
+            return _notfound()
+        row, _ = ChatSettings.objects.get_or_create(user=request.user, peer=m)
+        lang = req_lang(request)
+        return Response({**self._dict(row),
+                         "disappearing_choices": [
+                             {"sec": s, "label": cx.disappearing_label(s, lang)}
+                             for s in cx.DISAPPEAR_CHOICES],
+                         "wallpapers": cx.wallpaper_catalog(lang),
+                         "themes": cx.theme_catalog(lang)})
+
+    def post(self, request, member_id):
+        m = CircleMember.objects.filter(user=request.user, pk=member_id).first()
+        if m is None:
+            return _notfound()
+        d = request.data or {}
+        try:
+            built = cx.build_chat_settings(
+                disappearing_sec=d.get("disappearing_sec", cx.DISAPPEAR_OFF),
+                wallpaper=d.get("wallpaper", "default"),
+                theme=d.get("theme", "system"),
+                wallpaper_blob_ref=d.get("wallpaper_blob_ref"),
+                bubble_scheme=d.get("bubble_scheme"))
+        except ValueError as e:
+            return _badreq(str(e))
+        row, _ = ChatSettings.objects.get_or_create(user=request.user, peer=m)
+        row.disappearing_sec = built["disappearing_sec"]
+        row.wallpaper = built.get("wallpaper", "default")
+        row.wallpaper_blob_ref = built.get("wallpaper_blob_ref", "")
+        row.theme = built.get("theme", "system")
+        row.bubble_scheme = built.get("bubble_scheme", "")
+        row.save()
+        return Response({"ok": True, **self._dict(row)})
+
+
+# ---- CUSTOM LISTS (feed hub filter chips) ----
+
+class ChatListsView(APIView):
+    """GET  /api/messenger/lists -> the hub filter chips (All/Unread/Favourites/
+             Groups + the user's own lists).
+    POST /api/messenger/lists {name, member_refs:[]} -> create a named list."""
+
+    def get(self, request):
+        lang = req_lang(request)
+        rows = ChatList.objects.filter(user=request.user)
+        lists = [{"id": r.id, "name": r.name, "member_refs": r.member_refs}
+                 for r in rows]
+        return Response({"chips": mui.hub_filter_chips(lists, lang),
+                         "lists": lists})
+
+    def post(self, request):
+        d = request.data or {}
+        try:
+            built = mui.build_chat_list(
+                request.user.id, d.get("name", ""), d.get("member_refs") or [])
+        except ValueError as e:
+            return _badreq(str(e).split(": ", 1)[-1])
+        if ChatList.objects.filter(user=request.user, name=built["name"]).exists():
+            return _badreq("duplicate_name")
+        row = ChatList.objects.create(
+            user=request.user, name=built["name"],
+            member_refs=built["member_refs"])
+        return Response({"id": row.id, "name": row.name,
+                         "member_refs": row.member_refs})
+
+
+class ChatListDetailView(APIView):
+    """POST   /api/messenger/lists/<id> {add:[], remove:[]} -> add/remove members.
+    DELETE /api/messenger/lists/<id> -> delete the list."""
+
+    def post(self, request, pk):
+        row = ChatList.objects.filter(user=request.user, pk=pk).first()
+        if row is None:
+            return _notfound()
+        d = request.data or {}
+        refs = row.member_refs or []
+        if d.get("add"):
+            refs = mui.list_add_members(refs, d.get("add"))
+        if d.get("remove"):
+            refs = mui.list_remove_members(refs, d.get("remove"))
+        row.member_refs = refs
+        row.save(update_fields=["member_refs"])
+        return Response({"id": row.id, "name": row.name, "member_refs": refs})
+
+    def delete(self, request, pk):
+        n, _ = ChatList.objects.filter(user=request.user, pk=pk).delete()
+        if not n:
+            return _notfound()
+        return Response({"ok": True, "deleted": pk})
+
+
+# ---- BROADCAST lists (reuse circle_extras.broadcast_fanout_plan + circle gate) ----
+
+class BroadcastListsView(APIView):
+    """GET  /api/messenger/broadcast-lists -> the user's broadcast lists.
+    POST /api/messenger/broadcast-lists {name, member_ids:[CircleMember ids]}
+             -> create a named broadcast list."""
+
+    def get(self, request):
+        from .models import BroadcastList
+        rows = BroadcastList.objects.filter(owner=request.user)
+        return Response({"lists": [
+            {"id": r.id, "name": r.name, "member_ids": r.member_ids}
+            for r in rows]})
+
+    def post(self, request):
+        from .models import BroadcastList
+        d = request.data or {}
+        row = BroadcastList.objects.create(
+            owner=request.user, name=str(d.get("name", ""))[:120],
+            member_ids=[int(i) for i in (d.get("member_ids") or [])
+                        if str(i).isdigit()])
+        return Response({"id": row.id, "name": row.name,
+                         "member_ids": row.member_ids})
+
+
+class BroadcastSendView(APIView):
+    """POST /api/messenger/broadcast-lists/<id>/send {base_client_msg_id} ->
+    fan out ONE message to N INDIVIDUAL 1:1 sends. THE GATE: a recipient only
+    receives it if they have the SENDER in THEIR accepted circle (resolved from
+    the OTHER side's CircleMember rows). Reuses circle_extras.broadcast_fanout_plan."""
+
+    def post(self, request, pk):
+        from .models import BroadcastList
+        bl = BroadcastList.objects.filter(owner=request.user, pk=pk).first()
+        if bl is None:
+            return _notfound()
+        # Resolve recipient USER ids from the list's CircleMember refs.
+        members = CircleMember.objects.filter(
+            user=request.user, id__in=bl.member_ids)
+        recip_user_ids, peer_by_user = [], {}
+        for m in members:
+            if m.peer_user_id:
+                recip_user_ids.append(m.peer_user_id)
+                peer_by_user[m.peer_user_id] = m.id
+        # THE circle gate: the recipient must have THIS sender accepted on THEIR
+        # side — look up the OTHER party's CircleMember rows pointing back at us.
+        mutual = list(CircleMember.objects.filter(
+            user_id__in=recip_user_ids, peer_user=request.user,
+            state="accepted").values_list("user_id", flat=True))
+        d = request.data or {}
+        ok, reason, plan = mui.broadcast_send_plan(
+            request.user.id, recip_user_ids, mutual, bl.id,
+            str(d.get("base_client_msg_id", f"bcast{bl.id}")))
+        if not ok:
+            return _badreq(reason)   # 'not_connected' / 'no recipients' / ...
+        # Re-map each per-recipient descriptor's user id back to the sender-side
+        # CircleMember id the client sends to.
+        for p in plan:
+            p["member_id"] = peer_by_user.get(p["recipient_id"])
+        return Response({"ok": True, "fanout": plan, "count": len(plan)})

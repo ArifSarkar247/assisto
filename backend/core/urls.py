@@ -361,6 +361,25 @@ urlpatterns = [
     path("admin/users", msg.AdminUsersView.as_view()),
     path("admin/users/<int:pk>/public", msg.AdminUserPublicView.as_view()),
     path("admin/users/<int:pk>/action", msg.AdminUserActionView.as_view()),
+
+    # 5. Messenger FULL-UI — hub-⋮ + chat-⋮ actions (msg_messenger_ui)
+    path("messenger/starred", msg.StarredView.as_view()),
+    path("messenger/link/start", msg.LinkStartView.as_view()),
+    path("messenger/link/confirm", msg.LinkConfirmView.as_view()),
+    path("messenger/linked-devices", msg.LinkedDevicesView.as_view()),
+    path("messenger/linked-devices/<str:device_id>/revoke",
+         msg.LinkedDeviceRevokeView.as_view()),
+    path("messenger/call-link", msg.CallLinkView.as_view()),
+    path("messenger/schedule-call", msg.ScheduleCallView.as_view()),
+    path("messenger/group-call", msg.GroupCallView.as_view()),
+    path("messenger/chat/<int:member_id>/report", msg.ChatReportView.as_view()),
+    path("messenger/read-all", msg.ReadAllView.as_view()),
+    path("messenger/chat/<int:member_id>/settings", msg.ChatThemeView.as_view()),
+    path("messenger/lists", msg.ChatListsView.as_view()),
+    path("messenger/lists/<int:pk>", msg.ChatListDetailView.as_view()),
+    path("messenger/broadcast-lists", msg.BroadcastListsView.as_view()),
+    path("messenger/broadcast-lists/<int:pk>/send",
+         msg.BroadcastSendView.as_view()),
 ]
 
 urlpatterns += router.urls

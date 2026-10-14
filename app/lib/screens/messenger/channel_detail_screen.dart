@@ -5,11 +5,13 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../api.dart';
 import '../../l10n/app_localizations.dart';
+import '../../messenger_admin_api.dart';
 import '../../messenger_channel_api.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/msgr_channel_common.dart';
 import '../../widgets/msgr_channel_post_card.dart';
+import '../../widgets/msgr_mod_report_sheet.dart';
 import 'channel_admin_screen.dart';
 
 /// Assisto Messenger — CHANNEL detail (Step 3).
@@ -182,48 +184,127 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
     }
   }
 
+  void _showInfo() {
+    final desc = '${_channel['description'] ?? ''}';
+    final handle = '${_channel['handle'] ?? ''}';
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('${_channel['name'] ?? _t.channelsTitle}'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (handle.isNotEmpty) Text('@$handle'),
+            if (desc.isNotEmpty) ...[
+              const SizedBox(height: Gap.sm),
+              Text(desc),
+            ],
+            const SizedBox(height: Gap.sm),
+            Text(_t.channelReplyDisabledNote,
+                style: Theme.of(ctx).textTheme.bodySmall),
+          ],
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: Text(_t.close)),
+        ],
+      ),
+    );
+  }
+
+  void _openAdmin() {
+    Navigator.of(context)
+        .push(MaterialPageRoute(
+            builder: (_) =>
+                ChannelAdminScreen(channelId: widget.channelId)))
+        .then((_) => _load());
+  }
+
+  Future<void> _requestVerify() async {
+    try {
+      final j = await _api.channelRequestVerification(widget.channelId);
+      _channel = (j['channel'] ?? _channel).cast<String, dynamic>();
+      if (mounted) {
+        setState(() {});
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(_t.channelVerifyRequested)));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('$e')));
+      }
+    }
+  }
+
+  Future<void> _report() async {
+    await MsgrReportSheet.show(
+      context,
+      targetKind: ModTargets.channel,
+      targetId: '${widget.channelId}',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = _t;
+    final verifyState = '${_channel['verification_state'] ?? ''}';
     return Scaffold(
       appBar: AppBar(
         title: Text('${_channel['name'] ?? t.channelsTitle}'),
         actions: [
-          if (_isAdmin)
-            IconButton(
-              tooltip: t.channelManage,
-              icon: const Icon(Icons.tune),
-              onPressed: () => Navigator.of(context)
-                  .push(MaterialPageRoute(
-                      builder: (_) =>
-                          ChannelAdminScreen(channelId: widget.channelId)))
-                  .then((_) => _load()),
-            ),
           IconButton(
             tooltip: t.channelShareLink,
             icon: const Icon(Icons.share_outlined),
             onPressed: _share,
           ),
-          if (_following)
-            PopupMenuButton<String>(
-              onSelected: (v) {
-                if (v == 'mute') _toggleMute();
-                if (v == 'visibility') _editMyVisibility();
-                if (v == 'unfollow') _unfollow();
-              },
-              itemBuilder: (_) => [
+          // Unified channel ⋮ — only the actions that apply to this viewer.
+          PopupMenuButton<String>(
+            tooltip: t.grpMenuMore,
+            onSelected: (v) {
+              switch (v) {
+                case 'info':
+                  _showInfo();
+                case 'manage':
+                  _openAdmin();
+                case 'verify':
+                  _requestVerify();
+                case 'mute':
+                  _toggleMute();
+                case 'visibility':
+                  _editMyVisibility();
+                case 'unfollow':
+                  _unfollow();
+                case 'report':
+                  _report();
+              }
+            },
+            itemBuilder: (_) => [
+              PopupMenuItem(value: 'info', child: Text(t.channelInfo)),
+              // Admin-only: manage (edit / post / analytics) + verify request.
+              if (_isAdmin)
+                PopupMenuItem(value: 'manage', child: Text(t.channelManage)),
+              if (_isAdmin && verifyState != 'verified')
+                PopupMenuItem(
+                    value: 'verify', child: Text(t.channelRequestVerify)),
+              // Follower-only: mute / follower-privacy / unfollow.
+              if (_following)
                 PopupMenuItem(
                   value: 'mute',
                   child: Text(_channel['my_muted'] == true
                       ? t.channelUnmute
                       : t.channelMute),
                 ),
+              if (_following)
                 PopupMenuItem(
                     value: 'visibility', child: Text(t.channelMyVisibility)),
+              if (_following)
                 PopupMenuItem(
                     value: 'unfollow', child: Text(t.channelUnfollow)),
-              ],
-            ),
+              PopupMenuItem(value: 'report', child: Text(t.channelReport)),
+            ],
+          ),
         ],
       ),
       body: _loading
