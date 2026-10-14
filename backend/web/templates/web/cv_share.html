@@ -1,18 +1,23 @@
 {% extends "web/base.html" %}
-{% block title %}CV স্কোর {{ score }}/১০০ — Assisto{% endblock %}
+{% block title %}{{ T.cv_h }} {{ score }}/100 — Assisto{% endblock %}
 {% block og %}
+{% if lang == 'en' %}
+<meta property="og:title" content="My CV score is {{ score }}/100 — what's yours?">
+<meta property="og:description" content="Check your CV score free on Assisto.">
+{% else %}
 <meta property="og:title" content="আমার CV স্কোর {{ score }}/১০০ — তোমার কত?">
 <meta property="og:description" content="Assisto-তে ফ্রি CV স্কোর যাচাই করো।">
-<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}/cv/card.png?s={{ score }}">
+{% endif %}
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}/cv/card.png?s={{ score }}{% if lang == 'en' %}&lang=en{% endif %}">
 <meta property="og:type" content="website">
 {% endblock %}
 {% block content %}
 <div class="card">
   <div class="score">{{ score }}</div>
-  <div style="text-align:center" class="muted">কারো CV স্কোর ১০০-তে</div>
+  <div style="text-align:center" class="muted">{% if lang == 'en' %}Someone's CV score out of 100{% else %}কারো CV স্কোর ১০০-তে{% endif %}</div>
 </div>
 <div class="appcta">
-  <div style="font-weight:700">তোমার CV স্কোর কত?</div>
-  <a href="/cv">ফ্রি যাচাই করো →</a>
+  <div style="font-weight:700">{% if lang == 'en' %}What's your CV score?{% else %}তোমার CV স্কোর কত?{% endif %}</div>
+  <a href="/cv{{ qlang }}">{% if lang == 'en' %}Check it free →{% else %}ফ্রি যাচাই করো →{% endif %}</a>
 </div>
 {% endblock %}

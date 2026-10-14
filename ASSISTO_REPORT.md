@@ -679,3 +679,12 @@ NOTHING basic may remain.
 - NEXT: Wave C (4 web tools — sanctioned web exception) → D (61 good→advanced) → E (~79 v2.1 new: Sec14 PA/AI-core/DailyLife/standalone/Sec20). Section-21 gate + gallery each. Key-gated=mock/sandbox+Integrations-admin+owner_actions.
 - BUILD RULE (current): repo stays PUBLIC (owner manages), build on meaningful green batches (no daily limit, batch small), secret-scan before every push, stop+"MAKE PRIVATE NOW" on disabled/403, 3-line Bangla after each build.
 - Builds shipped: 67(msgr-M2+CRM+batch1+circle), 68(WaveA 6 basic→adv), 69(UI fix v1), 70(UI v2 My Circle), 71(Messenger UI full + Home + Notif centre). en=bn=3766. migrations through 0027.
+
+- BUILD 72 SHIPPED 2026-10-14: https://assisto.asalify.com/dl/cyGeVlHrtFNo0kpTrwkWUPgn/assisto-part7-build72.apk (Wave B: Payment/Auto-pay Ladder + Elderly simple-mode. ZERO not-built/basic modules remain). 521 tests, analyze 0, gate clean. Gallery: https://assisto.asalify.com/dl/shots-waveb-pVwF41bKFho/index.html
+
+## WAVE C (2026-10-14, after build 72) — 4 web tools → advanced
+- Web tools live in backend/web/ (Django server-rendered, mounted at "/"): CV score (cv.py), Scam checker (scam.py), Photo maker (photo.py), Festival cards (cards.py) + templates + web/tests.py. Sanctioned web exception (platform order: web last, these 4 + Integrations admin are exceptions).
+- Agent aaacc21 upgrading all 4 to advanced (richer logic, BD-specific, share-cards, honest key-gated bits e.g. bg-removal, strong "Get the app" CTA/lead-gen, original art, strict per-page language, extend web/tests.py).
+- AFTER agent: cd backend && manage.py test web + check 0 → restart (deploy web, NO APK) → curl the 4 pages 200. Web gallery optional (they're web pages, not app@360dp).
+- THEN WAVE D: 61 "good"→advanced (memory, meetings, birthdays, plans, health tips, medicine DB, dictionary, photo, unseen, ride/food, ramadan, safe-arrival, exam, password-reset, analytics, fall-detect, name-about, legal, onboarding, + messenger/CRM/business good-bits, etc. — full list in SPEC_V21_AUDIT.md). Section-21 gate + gallery + reviewer each. Then WAVE E (~79 v2.1 new: Sec14 PA/AI-core/DailyLife/standalone/Sec20). Then Step 6 (SFU+TURN M3 + aws_ports.md + Telegram sandbox), Step 7 (P14-16/iOS/FINAL).
+- Builds shipped through 72 (Wave B). No module basic/not-built. en=bn=3893, migrations through 0028.

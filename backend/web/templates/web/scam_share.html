@@ -1,9 +1,14 @@
 {% extends "web/base.html" %}
-{% block title %}{{ emoji }} {{ label }} — Assisto স্ক্যাম চেকার{% endblock %}
+{% block title %}{{ emoji }} {{ label }} — Assisto {{ T.scam_h }}{% endblock %}
 {% block og %}
+{% if lang == 'en' %}
+<meta property="og:title" content="{{ emoji }} This message is: {{ label }}">
+<meta property="og:description" content="Suspicious message? Check it free on Assisto.">
+{% else %}
 <meta property="og:title" content="{{ emoji }} এই মেসেজটি {{ label }}">
 <meta property="og:description" content="সন্দেহজনক মেসেজ? Assisto-তে ফ্রি যাচাই করুন।">
-<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}/scam/card.png?v={{ v }}">
+{% endif %}
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}/scam/card.png?v={{ v }}{% if lang == 'en' %}&lang=en{% endif %}">
 <meta property="og:type" content="website">
 {% endblock %}
 {% block content %}
@@ -12,7 +17,7 @@
   <h1>{{ label }}</h1>
 </div>
 <div class="appcta">
-  <div style="font-weight:700">সন্দেহজনক মেসেজ পেয়েছেন?</div>
-  <a href="/scam">ফ্রি যাচাই করুন →</a>
+  <div style="font-weight:700">{% if lang == 'en' %}Got a suspicious message?{% else %}সন্দেহজনক মেসেজ পেয়েছেন?{% endif %}</div>
+  <a href="/scam{{ qlang }}">{% if lang == 'en' %}Check it free →{% else %}ফ্রি যাচাই করুন →{% endif %}</a>
 </div>
 {% endblock %}

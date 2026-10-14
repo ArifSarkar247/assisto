@@ -1,19 +1,23 @@
 {% extends "web/base.html" %}
-{% block title %}পাসপোর্ট/ভিসা ছবি — Assisto{% endblock %}
+{% block title %}{{ T.photo_h }} — Assisto{% endblock %}
 {% block content %}
-<h1>🪪 পাসপোর্ট / ভিসা / চাকরির ছবি</h1>
-<p class="muted">নিজের ছবি আপলোড করুন — সঠিক মাপে কেটে তৈরি করে দেব। শুধু আপনার নিজের ছবি ব্যবহার করুন।</p>
+<h1>{{ T.photo_h }}</h1>
+<p class="muted">{{ T.photo_lead }}</p>
 {% if error %}<div class="err">{{ error }}</div>{% endif %}
 <form method="post" enctype="multipart/form-data" class="card">
   {% csrf_token %}
-  <label>ছবি আপলোড করুন</label>
+  <label>{{ T.photo_upload }}</label>
   <input type="file" name="photo" accept="image/*" required>
-  <label>সাইজ বেছে নিন</label>
+  <label>{{ T.photo_size }}</label>
   <select name="preset">
-    {% for key, p in presets.items %}<option value="{{ key }}">{{ p.0 }}</option>{% endfor %}
+    {% for key, label, phys, needs_bg in presets %}<option value="{{ key }}">{{ label }} · {{ phys }}</option>{% endfor %}
   </select>
   <div style="height:12px"></div>
-  <button class="btn" type="submit">ছবি বানান</button>
-  <p class="muted" style="margin-top:10px">টিপ: সোজা হয়ে, সাদা/হালকা ব্যাকগ্রাউন্ডে তোলা ছবি দিন। ব্যাকগ্রাউন্ড বদলানোর সুবিধা পরে যোগ হবে।</p>
+  <button class="btn" type="submit">{{ T.photo_btn }}</button>
 </form>
+<div class="card">
+  <b>{{ T.photo_guide }}</b>
+  <ul>{% for g in guide %}<li>{{ g }}</li>{% endfor %}</ul>
+  <div class="warn">{{ bg_note }}</div>
+</div>
 {% endblock %}

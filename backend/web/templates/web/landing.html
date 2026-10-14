@@ -1,23 +1,46 @@
 {% extends "web/base.html" %}
 {% block content %}
+{% if lang == 'en' %}
+<h1>Free tools</h1>
+<p class="muted">No login needed. Use in one click and share with friends.</p>
+
+<a href="/cv{{ qlang }}"><div class="card tool"><div class="emoji">📄</div>
+  <div><h3>CV Score</h3><p>How does your CV score out of 100? + concrete tips</p></div></div></a>
+
+<a href="/scam{{ qlang }}"><div class="card tool"><div class="emoji">🛡️</div>
+  <div><h3>Scam Checker</h3><p>Check if a suspicious message is a scam</p></div></div></a>
+
+<a href="/photo{{ qlang }}"><div class="card tool"><div class="emoji">🪪</div>
+  <div><h3>Passport / Visa photo</h3><p>Crop your own photo to spec (passport, visa, NID, job)</p></div></div></a>
+
+<a href="/festival{{ qlang }}"><div class="card tool"><div class="emoji">🎉</div>
+  <div><h3>Festival cards</h3><p>Eid, Pohela Boishakh, Victory Day, Puja, Christmas, birthday</p></div></div></a>
+
+<div class="appcta">
+  <div style="font-weight:700;font-size:16px">Want everything? Get the app</div>
+  <div style="font-size:13px;opacity:.9;margin:6px 0">Reminders, life ledger, document vault, family care</div>
+  <a href="/get{{ qlang }}">📱 Download the app</a>
+</div>
+{% else %}
 <h1>ফ্রি বাংলা টুল</h1>
 <p class="muted">লগইন লাগবে না। এক ক্লিকে ব্যবহার করুন ও বন্ধুদের শেয়ার করুন।</p>
 
-<a href="/cv"><div class="card tool"><div class="emoji">📄</div>
-  <div><h3>CV স্কোর</h3><p>আপনার CV ১০০-তে কত? + ৫টি উন্নতির পরামর্শ</p></div></div></a>
+<a href="/cv{{ qlang }}"><div class="card tool"><div class="emoji">📄</div>
+  <div><h3>CV স্কোর</h3><p>আপনার CV ১০০-তে কত? + সুনির্দিষ্ট পরামর্শ</p></div></div></a>
 
-<a href="/scam"><div class="card tool"><div class="emoji">🛡️</div>
+<a href="/scam{{ qlang }}"><div class="card tool"><div class="emoji">🛡️</div>
   <div><h3>স্ক্যাম চেকার</h3><p>সন্দেহজনক মেসেজ প্রতারণা কিনা যাচাই করুন</p></div></div></a>
 
-<a href="/photo"><div class="card tool"><div class="emoji">🪪</div>
-  <div><h3>পাসপোর্ট / ভিসা ছবি</h3><p>নিজের ছবি সঠিক মাপে বানান (পাসপোর্ট, ভিসা, চাকরি)</p></div></div></a>
+<a href="/photo{{ qlang }}"><div class="card tool"><div class="emoji">🪪</div>
+  <div><h3>পাসপোর্ট / ভিসা ছবি</h3><p>নিজের ছবি সঠিক মাপে বানান (পাসপোর্ট, ভিসা, NID, চাকরি)</p></div></div></a>
 
-<a href="/festival"><div class="card tool"><div class="emoji">🎉</div>
-  <div><h3>উৎসবের কার্ড</h3><p>ঈদ, পহেলা বৈশাখ, একুশে, বিজয় দিবসের শুভেচ্ছা কার্ড</p></div></div></a>
+<a href="/festival{{ qlang }}"><div class="card tool"><div class="emoji">🎉</div>
+  <div><h3>উৎসবের কার্ড</h3><p>ঈদ, পহেলা বৈশাখ, বিজয় দিবস, পূজা, বড়দিন, জন্মদিন</p></div></div></a>
 
 <div class="appcta">
   <div style="font-weight:700;font-size:16px">পুরো সুবিধা চাইলে অ্যাপ নিন</div>
   <div style="font-size:13px;opacity:.9;margin:6px 0">রিমাইন্ডার, জীবনের হিসাব, ডকুমেন্ট ভল্ট, ফ্যামিলি কেয়ার</div>
-  <a href="/get">📱 অ্যাপ ডাউনলোড</a>
+  <a href="/get{{ qlang }}">📱 অ্যাপ ডাউনলোড</a>
 </div>
+{% endif %}
 {% endblock %}

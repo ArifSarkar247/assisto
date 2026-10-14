@@ -1,6 +1,19 @@
 {% extends "web/base.html" %}
-{% block title %}Assisto অ্যাপ নিন{% endblock %}
+{% block title %}{% if lang == 'en' %}Get the Assisto app{% else %}Assisto অ্যাপ নিন{% endif %}{% endblock %}
 {% block content %}
+{% if lang == 'en' %}
+<h1>📱 Assisto app</h1>
+<div class="card">
+  <p>Install on your Android phone. Reminders, life ledger, document vault, family care — all in one place.</p>
+  {% if apk.apk_url %}
+    <a class="btn gold" href="{{ apk.apk_url }}">Download APK ({{ apk.version_name }})</a>
+    <p class="muted" style="margin-top:10px">After downloading, open the file → allow "Install from this source" → install. Once installed, the app itself notifies you of updates.</p>
+  {% else %}
+    <div class="warn">The app link will be added soon.</div>
+  {% endif %}
+</div>
+<p style="text-align:center"><a href="/{{ qlang }}">← Back to tools</a></p>
+{% else %}
 <h1>📱 Assisto অ্যাপ</h1>
 <div class="card">
   <p>Android ফোনে ইনস্টল করুন। রিমাইন্ডার, জীবনের হিসাব, ডকুমেন্ট ভল্ট, ফ্যামিলি কেয়ার — সব এক জায়গায়।</p>
@@ -11,5 +24,6 @@
     <div class="warn">অ্যাপের লিংক শিগগিরই যোগ হবে।</div>
   {% endif %}
 </div>
-<p style="text-align:center"><a href="/">← টুলে ফিরুন</a></p>
+<p style="text-align:center"><a href="/{{ qlang }}">← টুলে ফিরুন</a></p>
+{% endif %}
 {% endblock %}

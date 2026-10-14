@@ -1,10 +1,16 @@
 {% extends "web/base.html" %}
-{% block title %}একটু পরে চেষ্টা করুন — Assisto{% endblock %}
+{% block title %}{% if lang == 'en' %}Try again later{% else %}একটু পরে চেষ্টা করুন{% endif %} — Assisto{% endblock %}
 {% block content %}
 <div class="card" style="text-align:center">
   <div style="font-size:48px">⏳</div>
+  {% if lang == 'en' %}
+  <h2>Take a short break</h2>
+  <p class="muted">You've tried many times in a short while. Please try again in an hour.</p>
+  <a class="btn ghost" href="/{{ qlang }}">Back home</a>
+  {% else %}
   <h2>একটু বিশ্রাম নিন</h2>
   <p class="muted">আপনি অল্প সময়ে অনেকবার চেষ্টা করেছেন। এক ঘণ্টা পরে আবার চেষ্টা করুন।</p>
-  <a class="btn ghost" href="/">হোমে ফিরুন</a>
+  <a class="btn ghost" href="/{{ qlang }}">হোমে ফিরুন</a>
+  {% endif %}
 </div>
 {% endblock %}

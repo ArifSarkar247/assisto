@@ -1,14 +1,15 @@
 {% extends "web/base.html" %}
-{% block title %}আপনার ছবি তৈরি — Assisto{% endblock %}
+{% block title %}{{ label }} — Assisto{% endblock %}
 {% block content %}
 <div class="card" style="text-align:center">
   <h2>{{ label }}</h2>
-  <img class="result" src="data:image/jpeg;base64,{{ img }}" style="max-height:360px" alt="ছবি">
+  <img class="result" src="data:image/jpeg;base64,{{ img }}" style="max-height:360px" alt="photo">
   <div class="share" style="margin-top:12px">
-    <a class="dl" href="data:image/jpeg;base64,{{ img }}" download="assisto-photo.jpg">ছবি ডাউনলোড</a>
-    <a class="dl" style="background:var(--teal)" href="data:image/jpeg;base64,{{ sheet }}" download="assisto-print-sheet.jpg">প্রিন্ট শিট (৪ কপি)</a>
+    <a class="dl" href="data:image/jpeg;base64,{{ img }}" download="assisto-photo.jpg">{{ T.photo_dl }}</a>
+    <a class="dl" style="background:var(--teal)" href="data:image/jpeg;base64,{{ sheet }}" download="assisto-print-sheet.jpg">{{ T.photo_sheet }}</a>
   </div>
+  {% if bg_note %}<div class="warn" style="margin-top:12px;text-align:left">{{ bg_note }}</div>{% endif %}
 </div>
-<div class="appcta"><a href="/get">📱 আরও সুবিধা — অ্যাপ নিন</a></div>
-<p style="text-align:center"><a href="/photo">↺ আরেকটা ছবি বানান</a></p>
+<div class="appcta"><a href="/get{{ qlang }}">{{ T.photo_cta }}</a></div>
+<p style="text-align:center"><a href="/photo{{ qlang }}">{{ T.again }}</a></p>
 {% endblock %}

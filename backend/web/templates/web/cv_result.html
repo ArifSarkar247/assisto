@@ -1,40 +1,53 @@
 {% extends "web/base.html" %}
-{% block title %}CV স্কোর: {{ r.score }}/১০০ — Assisto{% endblock %}
+{% block title %}{{ T.cv_h }}: {{ r.score }}/100 — Assisto{% endblock %}
 {% block content %}
 <div class="card">
   <div class="score">{{ r.score }}</div>
-  <div style="text-align:center" class="muted">১০০-তে · {{ r.word_count }} শব্দ</div>
+  <div style="text-align:center" class="muted">/ 100 · {{ r.word_count }} {{ T.cv_words }}</div>
+  <div style="text-align:center" class="muted"><i>{{ T.cv_disclaimer }}</i></div>
 </div>
 
+{% if r.red_flags %}
 <div class="card">
-  <h2>কোথায় কত পেলেন</h2>
+  <h2>{{ T.cv_redflags }}</h2>
+  <div class="warn"><ul style="margin:6px 0">{% for f in r.red_flags %}<li>{{ f }}</li>{% endfor %}</ul></div>
+</div>
+{% endif %}
+
+<div class="card">
+  <h2>{{ T.cv_breakdown }}</h2>
   {% for label, got, mx, tip in r.breakdown %}
     <div style="margin:10px 0">
       <div style="display:flex;justify-content:space-between"><span>{{ label }}</span><b>{{ got }}/{{ mx }}</b></div>
       <div class="bar"><i style="width:{% widthratio got mx 100 %}%"></i></div>
+      {% if tip %}<div class="muted" style="margin-top:4px">💡 {{ tip }}</div>{% endif %}
     </div>
   {% endfor %}
 </div>
 
 <div class="card">
-  <h2>৫টি উন্নতির পরামর্শ</h2>
+  <h2>{{ T.cv_tips }}</h2>
   <ul>{% for t in r.tips %}<li>{{ t }}</li>{% endfor %}</ul>
+  {% if r.keywords_found %}
+    <div style="margin-top:10px"><b>{{ T.cv_keywords }}:</b>
+      {% for k in r.keywords_found %}<span class="pill">{{ k }}</span>{% endfor %}</div>
+  {% endif %}
   {% if ai_tips %}
-    <div class="warn" style="margin-top:10px"><b>AI পরামর্শ:</b>
+    <div class="warn" style="margin-top:10px"><b>AI:</b>
       <ul style="margin:6px 0">{% for t in ai_tips %}<li>{{ t }}</li>{% endfor %}</ul></div>
   {% endif %}
 </div>
 
 <div class="card">
-  <b>বন্ধুদের শেয়ার করুন</b>
+  <b>{{ T.share_friends }}</b>
   <div class="share">
     <a class="fb" href="https://www.facebook.com/sharer/sharer.php?u={{ share_url|urlencode }}" target="_blank">Facebook</a>
     <a class="wa" href="https://wa.me/?text={{ share_url|urlencode }}" target="_blank">WhatsApp</a>
-    <a class="dl" href="/cv/card.png?s={{ r.score }}" download="assisto-cv-{{ r.score }}.png">কার্ড ডাউনলোড</a>
+    <a class="dl" href="/cv/card.png?s={{ r.score }}{% if lang == 'en' %}&lang=en{% endif %}" download="assisto-cv-{{ r.score }}.png">{{ T.download_card }}</a>
   </div>
-  <div style="margin-top:8px"><a class="muted" href="/cv/card.png?s={{ r.score }}&story=1" download>স্টোরি সাইজ কার্ড</a></div>
+  <div style="margin-top:8px"><a class="muted" href="/cv/card.png?s={{ r.score }}&story=1{% if lang == 'en' %}&lang=en{% endif %}" download>{{ T.story_card }}</a></div>
 </div>
 
-<div class="appcta"><a href="/get">📱 আরও সুবিধা — অ্যাপ নিন</a></div>
-<p style="text-align:center"><a href="/cv">↺ আরেকটা CV যাচাই করুন</a></p>
+<div class="appcta"><a href="/get{{ qlang }}">{{ T.cv_cta }}</a></div>
+<p style="text-align:center"><a href="/cv{{ qlang }}">{{ T.again }}</a></p>
 {% endblock %}

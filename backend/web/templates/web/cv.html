@@ -1,16 +1,17 @@
 {% extends "web/base.html" %}
-{% block title %}CV স্কোর — Assisto{% endblock %}
+{% block title %}{{ T.cv_h }} — Assisto{% endblock %}
 {% block content %}
-<h1>📄 CV স্কোর</h1>
-<p class="muted">আপনার CV-র লেখা পেস্ট করুন। আমরা ১০০-তে স্কোর ও ৫টি উন্নতির পরামর্শ দেব। ডাটা সেভ করা হয় না।</p>
+<h1>{{ T.cv_h }}</h1>
+<p class="muted">{{ T.cv_lead }}</p>
+<p class="muted"><i>{{ T.cv_disclaimer }}</i></p>
 {% if error %}<div class="err">{{ error }}</div>{% endif %}
 <form method="post" enctype="multipart/form-data" class="card">
   {% csrf_token %}
-  <label>CV টেক্সট পেস্ট করুন</label>
-  <textarea name="cv_text" placeholder="আপনার CV এখানে পেস্ট করুন..."></textarea>
-  <label>অথবা .txt ফাইল দিন (ঐচ্ছিক)</label>
+  <label>{{ T.cv_paste }}</label>
+  <textarea name="cv_text" placeholder="{{ T.cv_paste }}..."></textarea>
+  <label>{{ T.cv_file }}</label>
   <input type="file" name="cv_file" accept=".txt">
   <div style="height:12px"></div>
-  <button class="btn" type="submit">স্কোর দেখুন</button>
+  <button class="btn" type="submit">{{ T.cv_btn }}</button>
 </form>
 {% endblock %}

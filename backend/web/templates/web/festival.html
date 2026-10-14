@@ -1,19 +1,19 @@
 {% extends "web/base.html" %}
-{% block title %}উৎসবের কার্ড — Assisto{% endblock %}
+{% block title %}{{ T.fest_h }} — Assisto{% endblock %}
 {% block content %}
-<h1>🎉 উৎসবের শুভেচ্ছা কার্ড</h1>
-<p class="muted">উৎসব বেছে নিন, নাম লিখুন — সুন্দর কার্ড বানিয়ে দেব। ফেসবুক/হোয়াটসঅ্যাপে শেয়ার করুন।</p>
+<h1>{{ T.fest_h }}</h1>
+<p class="muted">{{ T.fest_lead }}</p>
 <form method="post" class="card">
   {% csrf_token %}
-  <label>উৎসব</label>
+  <label>{{ T.fest_select }}</label>
   <select name="festival">
-    {% for key, f in festivals.items %}<option value="{{ key }}">{{ f.title }} — {{ f.sub }}</option>{% endfor %}
+    {% for key, title, sub in festivals %}<option value="{{ key }}">{{ title }} — {{ sub }}</option>{% endfor %}
   </select>
-  <label>আপনার নাম (ঐচ্ছিক)</label>
-  <input type="text" name="name" maxlength="40" placeholder="যেমন: আরিফ">
-  <label>বার্তা (ঐচ্ছিক)</label>
-  <input type="text" name="message" maxlength="120" placeholder="যেমন: সবাইকে শুভেচ্ছা">
+  <label>{{ T.fest_name }}</label>
+  <input type="text" name="name" maxlength="40" placeholder="{% if lang == 'en' %}e.g. Arif{% else %}যেমন: আরিফ{% endif %}">
+  <label>{{ T.fest_msg }}</label>
+  <input type="text" name="message" maxlength="120" placeholder="{% if lang == 'en' %}e.g. Warm wishes to all{% else %}যেমন: সবাইকে শুভেচ্ছা{% endif %}">
   <div style="height:12px"></div>
-  <button class="btn gold" type="submit">কার্ড বানান</button>
+  <button class="btn gold" type="submit">{{ T.fest_btn }}</button>
 </form>
 {% endblock %}
