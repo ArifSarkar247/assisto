@@ -23,6 +23,10 @@ import 'package:assisto/screens/messenger/messenger_home_screen.dart';
 import 'package:assisto/screens/messenger/messenger_settings_screen.dart';
 import 'package:assisto/screens/messenger/contact_info_screen.dart';
 import 'package:assisto/screens/notification_centre_screen.dart';
+import 'package:assisto/screens/money_voice_screen.dart';
+import 'package:assisto/screens/money_wrapped_screen.dart';
+import 'package:assisto/screens/money_tax_screen.dart';
+import 'package:assisto/screens/money_budget_screen.dart';
 import 'package:assisto/screens/offline_status_screen.dart';
 import 'package:assisto/screens/disaster_alerts_screen.dart';
 import 'package:assisto/screens/action_center_screen.dart';
@@ -193,6 +197,10 @@ void main() {
     'language_picker': (build: (_) => const LanguagePickerScreen(), mode: FakeMode.data, full: true),
     'home_welcome': (build: (_) => const HomeScreen(), mode: FakeMode.data, full: true),
     'notification_centre': (build: (_) => const NotificationCentreScreen(), mode: FakeMode.data, full: true),
+    'money_budget': (build: (_) => const MoneyBudgetScreen(), mode: FakeMode.data, full: true),
+    'money_tax': (build: (_) => const MoneyTaxScreen(), mode: FakeMode.data, full: true),
+    'money_wrapped': (build: (_) => const MoneyWrappedScreen(), mode: FakeMode.data, full: true),
+    'money_voice': (build: (_) => const MoneyVoiceScreen(), mode: FakeMode.data, full: true),
     'action_center': (build: (_) => const ActionCenterScreen(), mode: FakeMode.data, full: true),
     'disaster_alerts': (build: (_) => const DisasterAlertsScreen(), mode: FakeMode.data, full: true),
     'offline_status': (build: (_) => const OfflineStatusScreen(), mode: FakeMode.data, full: true),

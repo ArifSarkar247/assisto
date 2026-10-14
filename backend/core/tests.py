@@ -817,6 +817,21 @@ AgentStudioSnippetTests = _make_snippet_case(
 # never auto-charges; `pay_key` is gated on a licensed payment key.
 PaymentLadderSnippetTests = _make_snippet_case(
     "core.logic.payment_ladder_tests_snippets", "PaymentLadderSnippetTests")
+# Wave-D batch-5 (money/reminders): advanced Budget, Tax & Zakat, Money-by-voice
+# parse, Family accounting, and the money engine (incl. Monthly Wrapped) — all
+# pure, deterministic, integer-poisha / Decimal helpers with no AI, no DB.
+BudgetSnippetTests = _make_snippet_case(
+    "core.logic.budget_tests_snippets", "BudgetSnippetTests")
+TaxZakatSnippetTests = _make_snippet_case(
+    "core.logic.tax_zakat_tests_snippets", "TaxZakatSnippetTests")
+MoneyVoiceSnippetTests = _make_snippet_case(
+    "core.logic.moneyvoice_tests_snippets", "MoneyVoiceSnippetTests")
+FamAcctSnippetTests = _make_snippet_case(
+    "core.logic.famacct_tests_snippets", "FamAcctSnippetTests")
+# money_tests_snippets carries the Monthly Wrapped (feature #63) scenarios
+# (test_wrapped_*) alongside the broader money-engine asserts.
+MoneyEngineSnippetTests = _make_snippet_case(
+    "core.logic.money_tests_snippets", "MoneyEngineSnippetTests")
 
 
 # ---------------------------------------------------------------------------

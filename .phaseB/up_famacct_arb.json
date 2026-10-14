@@ -1,0 +1,195 @@
+{
+  "_comment": "FAMILY ACCOUNTING (#61, SPEC v2.1 §21, basic->advanced): shared family money — who-paid-what, split expenses among family/circle members, a family budget pool + contributions, settle-up ('Dad owes Mom ৳500'), shared bills, per-member view, monthly summary. {key:[bn,en]}: index [0]=bn -> app/lib/l10n/app_bn.arb, [1]=en -> app/lib/l10n/app_en.arb. These mirror VERBATIM the _faStrings table in app/lib/widgets/famacct_strings.dart (Bangla stored there as \\u escapes — ZERO Bangla glyphs in any .dart); until merged the section reads them via faStr(). The fa* keys are NEW (48). Category labels (rent/utility/groceries/…) live in widgets/famacct_sheets.dart _catLabels and mirror famacct_engine.BILL_CATEGORIES; fold those in too if you expose them as ARB keys. Placeholders: keys ending in a %s slot (faPaidBy, faPoolCollected, faPoolRemaining, faPoolProgress, faGetsBack, faOwesFamily, faTotalSpent) take ONE already-formatted amount/name string via faStrS — if converted to ICU add {s} + @-metadata to both .arb. REUSED existing getters (do NOT re-add): medForSelf, cancel, save, delete. The '৳' taka sign is a currency glyph emitted by FamAcctLocal.fmtPoisha, not translatable copy. Merge both maps then run flutter gen-l10n.",
+  "faTitle": [
+    "পারিবারিক হিসাব",
+    "Family accounting"
+  ],
+  "faSubtitle": [
+    "শেয়ার করা খরচ, ভাগ ও পাওনা একসাথে",
+    "Shared expenses, splits and who-owes-whom"
+  ],
+  "faTabExpenses": [
+    "খরচ",
+    "Expenses"
+  ],
+  "faTabSettle": [
+    "পাওনা মেটানো",
+    "Settle up"
+  ],
+  "faTabPool": [
+    "পারিবারিক তহবিল",
+    "Family pool"
+  ],
+  "faTabMembers": [
+    "সদস্যভিত্তিক",
+    "Per member"
+  ],
+  "faMonthThis": [
+    "এই মাস",
+    "This month"
+  ],
+  "faEmptyExpenses": [
+    "এখনো কোনো শেয়ার করা খরচ নেই",
+    "No shared expenses yet"
+  ],
+  "faEmptyExpensesSub": [
+    "প্রথম পারিবারিক খরচ যোগ করুন — কে দিয়েছে, কীভাবে ভাগ হবে।",
+    "Add your first family expense — who paid, how it splits."
+  ],
+  "faAddExpense": [
+    "খরচ যোগ করুন",
+    "Add expense"
+  ],
+  "faPayer": [
+    "কে দিয়েছে",
+    "Who paid"
+  ],
+  "faAmount": [
+    "টাকার পরিমাণ",
+    "Amount"
+  ],
+  "faCategory": [
+    "ধরন",
+    "Category"
+  ],
+  "faNote": [
+    "নোট (ঐচ্ছিক)",
+    "Note (optional)"
+  ],
+  "faSplitMode": [
+    "কীভাবে ভাগ হবে",
+    "How to split"
+  ],
+  "faSplitEqual": [
+    "সমানভাবে",
+    "Equally"
+  ],
+  "faSplitShares": [
+    "অংশ অনুযায়ী",
+    "By shares"
+  ],
+  "faSplitExact": [
+    "নির্দিষ্ট পরিমাণ",
+    "Exact amounts"
+  ],
+  "faSplitAmong": [
+    "কাদের মধ্যে ভাগ হবে",
+    "Split among"
+  ],
+  "faShared": [
+    "পারিবারিক (সবাই দেখবে)",
+    "Family (shared with members)"
+  ],
+  "faPrivate": [
+    "ব্যক্তিগত (শুধু আপনি)",
+    "Private (only you)"
+  ],
+  "faPaidBy": [
+    "দিয়েছেন %s",
+    "Paid by %s"
+  ],
+  "faSplitDrift": [
+    "ভাগ মিলছে না — সব অংশ মিলিয়ে মোট হতে হবে।",
+    "Split does not reconcile — shares must sum to the total."
+  ],
+  "faSettleEmpty": [
+    "সব হিসাব মেটানো আছে",
+    "All settled up"
+  ],
+  "faSettleEmptySub": [
+    "এই মুহূর্তে কারও কারো কাছে পাওনা নেই।",
+    "Nobody owes anyone right now."
+  ],
+  "faMarkPaid": [
+    "পরিশোধ হয়েছে",
+    "Mark paid"
+  ],
+  "faSettledDone": [
+    "পরিশোধ হিসেবে চিহ্নিত",
+    "Marked as paid"
+  ],
+  "faPoolTarget": [
+    "তহবিলের লক্ষ্য",
+    "Pool target"
+  ],
+  "faPoolNone": [
+    "এখনো কোনো তহবিল লক্ষ্য নেই",
+    "No pool target yet"
+  ],
+  "faPoolNoneSub": [
+    "একটি মাসিক পারিবারিক লক্ষ্য দিন, সবাই জমা দিক।",
+    "Set a monthly family target everyone chips in to."
+  ],
+  "faPoolSetTarget": [
+    "লক্ষ্য নির্ধারণ করুন",
+    "Set target"
+  ],
+  "faPoolContribute": [
+    "জমা দিন",
+    "Contribute"
+  ],
+  "faPoolCollected": [
+    "জমা হয়েছে %s",
+    "Collected %s"
+  ],
+  "faPoolRemaining": [
+    "বাকি %s",
+    "%s remaining"
+  ],
+  "faPoolProgress": [
+    "%s জমা হয়েছে লক্ষ্যের",
+    "%s collected of target"
+  ],
+  "faMembersEmpty": [
+    "সদস্য যোগ করলে এখানে হিসাব দেখাবে",
+    "Add family members to see per-member totals"
+  ],
+  "faMemberPaid": [
+    "দিয়েছেন",
+    "Paid"
+  ],
+  "faMemberShare": [
+    "ভাগে পড়েছে",
+    "Their share"
+  ],
+  "faMemberNet": [
+    "নিট",
+    "Net"
+  ],
+  "faGetsBack": [
+    "ফেরত পাবেন %s",
+    "Gets back %s"
+  ],
+  "faOwesFamily": [
+    "দিতে হবে %s",
+    "Owes %s"
+  ],
+  "faEven": [
+    "হিসাব সমান",
+    "Settled"
+  ],
+  "faTotalSpent": [
+    "মোট খরচ %s",
+    "Total spent %s"
+  ],
+  "faError": [
+    "হিসাব আনা গেল না",
+    "Could not load family accounting"
+  ],
+  "faOfflineNote": [
+    "অফলাইন — ফোনে হিসাব করে দেখানো হচ্ছে, অনলাইনে সিঙ্ক হবে।",
+    "Offline — computed on your phone; will sync when back online."
+  ],
+  "faAiCaptured": [
+    "স্বয়ংক্রিয়ভাবে যোগ করা",
+    "AI-captured"
+  ],
+  "faSelectMembers": [
+    "অন্তত একজন সদস্য বেছে নিন।",
+    "Choose at least one member."
+  ],
+  "faDeleteExpenseQ": [
+    "এই খরচ মুছে ফেলবেন?",
+    "Delete this expense?"
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "_comment": "Money by VOICE (feature #62, SPEC v2.1 §21). bn+en pairs for the integrator to fold into app_bn.arb / app_en.arb (then gen-l10n). Placeholder {count} on mvoiceDoneBody -> integrator adds @metadata (int count). ৳ (U+09F3) is the shared currency sign.",
+
+  "mvoiceTitle":            ["মুখে বলে খরচ লেখা", "Money by voice"],
+  "mvoiceSpeakHint":        ["মাইক চাপুন, তারপর খরচ বা আয় বলুন। নিশ্চিত করার আগে কিছুই সেভ হবে না।", "Tap the mic, then say an expense or income. Nothing is saved until you confirm."],
+  "mvoiceListeningHint":    ["শুনছি… বলা শেষে আবার চাপুন।", "Listening… tap again when you’re done."],
+  "mvoiceTapToSpeak":       ["বলতে চাপুন", "Tap to speak"],
+  "mvoiceStop":             ["থামুন", "Stop"],
+
+  "mvoiceExamplesTitle":    ["যেমন বলতে পারেন", "You can say"],
+  "mvoiceExample1":         ["চা ২০ টাকা", "Tea 20 taka"],
+  "mvoiceExample2":         ["রহিমকে ৫০০ টাকা দিলাম", "Gave Rahim 500 taka"],
+  "mvoiceExample3":         ["চা ২০, রিকশা ৩০", "Tea 20, rickshaw 30"],
+
+  "mvoiceReviewTitle":      ["আমি যা বুঝলাম", "What I understood"],
+  "mvoiceReviewBody":       ["ঠিক আছে কিনা দেখুন, দরকারে বদলে নিন — তারপর নিশ্চিত করলে লেখা হবে।", "Check it, fix anything if needed — it’s logged only after you confirm."],
+  "mvoiceConfirmLog":       ["নিশ্চিত করে লিখুন", "Confirm & log"],
+  "mvoiceSpeakAgain":       ["আবার বলুন", "Speak again"],
+  "mvoiceNoAmount":         ["পরিমাণ নেই", "No amount"],
+  "mvoiceEntryUnnamed":     ["নামহীন খরচ", "Untitled entry"],
+  "mvoiceNeedsInfo":        ["লেখার আগে পরিমাণ ও ধরন লাগবে।", "Amount and type are needed before logging."],
+  "mvoiceSkip":             ["বাদ দিন", "Skip"],
+  "mvoiceInclude":          ["যোগ করুন", "Include"],
+
+  "mvoiceFieldAmount":      ["পরিমাণ (৳)", "Amount (৳)"],
+  "mvoiceFieldNote":        ["নোট", "Note"],
+  "mvoiceFieldPerson":      ["কার সাথে", "Person"],
+
+  "mvoiceTypeExpense":      ["খরচ", "Expense"],
+  "mvoiceTypeIncome":       ["আয়", "Income"],
+  "mvoiceTypeDueIn":        ["পাবো", "They owe me"],
+  "mvoiceTypeDueOut":       ["দেবো", "I owe"],
+
+  "mvoiceUnavailableTitle": ["ভয়েস চালু নেই", "Voice isn’t available"],
+  "mvoiceUnavailableBody":  ["এই ফোনে কথা চেনা যাচ্ছে না। আপনি টাইপ করে খরচ যোগ করতে পারেন।", "Speech isn’t available on this device. You can add money by typing instead."],
+  "mvoiceGotIt":            ["বুঝেছি", "Got it"],
+
+  "mvoiceErrorTitle":       ["শোনা গেল না", "Didn’t catch that"],
+  "mvoiceErrorBody":        ["একটু আস্তে, স্পষ্ট করে আবার বলুন।", "Please try again, a little slower and clearer."],
+  "mvoiceRetry":            ["আবার চেষ্টা করুন", "Try again"],
+
+  "mvoiceDoneTitle":        ["লেখা হয়েছে", "Logged"],
+  "mvoiceDoneBody":         ["{count}টি এন্ট্রি আপনার হিসাবে যোগ হয়েছে।", "{count} entries added to your account."],
+  "mvoiceDoneClose":        ["বন্ধ করুন", "Close"]
+}

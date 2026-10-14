@@ -1,0 +1,70 @@
+{
+  "budgetTitle": ["বাজেট", "Budget"],
+  "budgetSubtitle": ["প্রতি খাতে মাসিক বাজেট, আসল খরচের সাথে মিলিয়ে", "Monthly budget per category, tracked against real spending"],
+
+  "budgetTabThisMonth": ["এই মাস", "This month"],
+  "budgetTabHistory": ["ইতিহাস", "History"],
+  "budgetTabPlan": ["পরিকল্পনা", "Plan"],
+
+  "budgetEmptyTitle": ["এখনো কোনো বাজেট নেই", "No budgets yet"],
+  "budgetEmptyBody": ["খাবার, যাতায়াত, বিলের মতো খাতে মাসিক সীমা দিন — খরচ আপনার আসল লেনদেন থেকে হিসাব হবে।", "Set a monthly limit for categories like food, transport or bills — spending is counted from your real transactions."],
+  "budgetAddFirst": ["প্রথম বাজেট যোগ করুন", "Add your first budget"],
+  "budgetAdd": ["বাজেট যোগ", "Add budget"],
+  "budgetNew": ["নতুন বাজেট", "New budget"],
+  "budgetEdit": ["বাজেট সম্পাদনা", "Edit budget"],
+  "budgetDelete": ["বাজেট মুছুন", "Delete budget"],
+  "budgetDeleted": ["বাজেট মুছে ফেলা হয়েছে", "Budget deleted"],
+
+  "budgetFieldCategory": ["খাত", "Category"],
+  "budgetFieldLimit": ["মাসিক সীমা", "Monthly limit"],
+  "budgetRollover": ["অব্যবহৃত টাকা পরের মাসে যোগ", "Roll unused budget to next month"],
+  "budgetRolloverHint": ["এই মাসে যা খরচ হবে না, পরের মাসের বাজেটে যোগ হবে।", "Whatever you don't spend this month is added to next month's budget."],
+  "budgetRolloverOn": ["রোলওভার চালু", "Rollover on"],
+  "budgetRolloverOff": ["রোলওভার বন্ধ", "Rollover off"],
+  "budgetCarriedIn": ["গত মাস থেকে এসেছে", "Carried in"],
+  "budgetCarryForward": ["পরের মাসে যাবে", "Carries forward"],
+  "budgetBaseLimit": ["মূল সীমা", "Base limit"],
+  "budgetRemaining": ["বাকি আছে", "Remaining"],
+  "budgetEffectiveLimit": ["কার্যকর সীমা", "Effective limit"],
+
+  "budgetSpentOf": ["{spent} / {limit} খরচ", "{spent} of {limit} spent"],
+  "budgetStateOk": ["ঠিক আছে", "On track"],
+  "budgetStateNear": ["সীমার কাছে", "Near limit"],
+  "budgetStateOver": ["সীমা পার", "Over budget"],
+  "budgetStateNone": ["শুধু ট্র্যাক হচ্ছে", "Tracking only"],
+  "budgetOverBy": ["{amount} বেশি খরচ", "{amount} over"],
+  "budgetPctOfLimit": ["সীমার {pct}%", "{pct}% of limit"],
+
+  "budgetTotalHeader": ["মোট বাজেট", "Total budget"],
+  "budgetUnbudgeted": ["বাজেটের বাইরে খরচ", "Un-budgeted spending"],
+  "budgetUnbudgetedHint": ["{amount} এমন খাতে খরচ হয়েছে যার বাজেট নেই।", "{amount} spent in categories with no budget set."],
+
+  "budgetInsightsTitle": ["এক নজরে", "Insights"],
+  "budgetInsightOver": ["{category} বাজেটের {pct}% বেশি", "{category} is {pct}% over budget"],
+  "budgetInsightNear": ["{category} সীমার {pct}%-এ পৌঁছেছে", "{category} is at {pct}% of its budget"],
+  "budgetInsightOnTrack": ["সব খাত এই মাসে বাজেটের মধ্যে আছে।", "Every category is within budget this month."],
+
+  "budgetTemplateTitle": ["৫০-৩০-২০ টেমপ্লেট", "50-30-20 template"],
+  "budgetTemplateBody": ["আয়ের ৫০% প্রয়োজন, ৩০% শখ, ২০% সঞ্চয় — একটি সহজ নিয়ম।", "50% needs, 30% wants, 20% savings — a simple rule of thumb."],
+  "budgetTemplateIncome": ["মাসিক আয়", "Monthly income"],
+  "budgetTemplateApply": ["টেমপ্লেট প্রয়োগ করুন", "Apply template"],
+  "budgetBucketNeeds": ["প্রয়োজন", "Needs"],
+  "budgetBucketWants": ["শখ", "Wants"],
+  "budgetBucketSavings": ["সঞ্চয়", "Savings"],
+
+  "budgetPlanTitle": ["পরের মাসের পরিকল্পনা", "Next-month plan"],
+  "budgetPlanBody": ["গত মাসগুলোর আসল খরচের গড় + সামান্য বাফার ধরে পরামর্শ।", "Suggested from your average real spend over recent months, plus a small buffer."],
+  "budgetPlanSuggested": ["প্রস্তাবিত সীমা", "Suggested limit"],
+  "budgetPlanAvg": ["গড় খরচ", "Average spent"],
+  "budgetPlanUse": ["এই সীমা ব্যবহার করুন", "Use this limit"],
+
+  "budgetGoalLinkTitle": ["সঞ্চয় লক্ষ্যে যোগ", "Add to savings goal"],
+  "budgetGoalLinkBody": ["এই মাসে না-খরচ টাকা {amount} আপনার লক্ষ্যে যোগ করতে পারেন।", "You can move this month's {amount} underspend into your goal."],
+  "budgetGoalLinkNone": ["এখন কোনো সঞ্চয় লক্ষ্য নেই।", "No savings goal set yet."],
+  "budgetGoalReached": ["লক্ষ্যে পৌঁছে গেছেন!", "Goal reached!"],
+
+  "budgetMonthLabel": ["{month} মাস", "{month}"],
+  "budgetOffline": ["অফলাইন — আসল খরচ সার্ভার থেকে আসবে; আপনার সীমা নিরাপদে রাখা আছে।", "Offline — real spend comes from the server; your limits are safe on device."],
+  "budgetLoadFailed": ["বাজেট আনা যায়নি", "Couldn't load the budget"],
+  "budgetAiMarker": ["লেনদেন থেকে স্বয়ংক্রিয়", "Auto from transactions"]
+}

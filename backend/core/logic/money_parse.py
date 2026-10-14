@@ -454,3 +454,242 @@ def parse_batch(messages):
         else:
             out.append(parse_sms(m.get("body", ""), m.get("sender", "")))
     return out
+
+
+# ===========================================================================
+# money-VOICE parsing (feature #62, SPEC v2.1 §21)
+# ===========================================================================
+# A spoken utterance ("রহিমকে ৫০০ টাকা দিলাম", "cha 20 taka", "tea 20, rickshaw
+# 30") is NOT a wallet SMS — there is no channel, no TrxID, no balance. It is a
+# short natural-language money entry the user DICTATED. These helpers turn one
+# (or a comma-separated batch of) such utterance(s) into a reviewable draft the
+# UI confirms BEFORE logging. They deliberately REUSE the SMS parser's building
+# blocks — normalize_digits / _amounts / guess_category — so Bangla numerals,
+# amount tokens and category rules behave identically to SMS import. The STT
+# transcript is produced by the device (key/engine-gated on the Flutter side);
+# this layer is pure text -> structured draft, so it is deterministic and
+# unit-testable and never fabricates words the user did not speak.
+#
+# Output per entry (money_voice_entry):
+#   {
+#     "amount": Decimal|None,
+#     "txn_type": "expense"|"income"|"due_in"|"due_out"|None,
+#         # due_in  = someone owes YOU (you lent / will receive)      -> loan given
+#         # due_out = YOU owe someone (you borrowed / must pay later) -> loan taken
+#     "category_guess": str|None,     # money_engine slug (reuses guess_category)
+#     "category_confidence": float,
+#     "counterparty": str|None,       # "Rahim" from "Rahim-ke" / "রহিমকে"
+#     "note": str,                    # leftover descriptive words (e.g. "tea")
+#     "raw": str,                     # this entry's text, trimmed
+#     "parsed": bool,                 # True when amount AND txn_type both found
+#   }
+
+# -- type cues (bn + Banglish + en), checked by phrase so Banglish wins too ---
+# Order matters only within a class; across classes we score by *last* cue hit
+# (the verb that ends a Bangla sentence carries the real direction).
+_MV_INCOME_CUES = [
+    # money came IN
+    "income", "earned", "got paid", "received", "receive", "salary", "profit",
+    "পেলাম", "পেয়েছি", "পাইলাম", "আয়", "বেতন", "ইনকাম", "জমা",
+    "pelam", "peyechi", "paisi", "income holo", "ay holo", "beton",
+]
+_MV_EXPENSE_CUES = [
+    # money went OUT as spend
+    "spent", "paid", "bought", "expense", "cost", "bill", "kinlam", "khoroch",
+    "খরচ", "কিনলাম", "কিনেছি", "দিলাম খরচ", "বিল দিলাম",
+    "khoroch korechi", "kharoch", "porlo", "laglo", "gelo",
+]
+_MV_DUE_IN_CUES = [
+    # you LENT / money owed TO you
+    "lent", "loaned", "gave a loan", "will get back", "owes me", "to pabo",
+    "ধার দিলাম", "ধার দিয়েছি", "পাবো", "পাব", "পাওনা", "ধারে দিলাম",
+    "dhar dilam", "dhar dilo", "pabo", "pawna", " dhar diyechi",
+]
+_MV_DUE_OUT_CUES = [
+    # you BORROWED / you OWE
+    "borrowed", "owe", "i owe", "took a loan", "to debo",
+    "ধার নিলাম", "ধার নিয়েছি", "দেনা", "দিতে হবে", "দেবো", "দিব",
+    "dhar nilam", "dhar nilo", "dena", "debo", "dibo", "dite hobe",
+]
+# A bare "gave" verb ("দিলাম" / "dilam" / "gave") with a counterparty but no
+# loan word is an EXPENSE (you handed over money), not a loan — handled below.
+_MV_GAVE_CUES = ["দিলাম", "দিয়েছি", "দিলো", "দিল", "dilam", "diyechi", "dilo", "gave", "diye dilam"]
+
+# counterparty: "<name>-ke" (Bangla dative "কে" / Banglish " ke") or
+# "<name> theke / থেকে" (from) or English "to/from/for <name>". Names keep
+# their original casing.
+# Bangla dative: a word ending in কে — but NOT the word "থেকে" (from), whose
+# own tail is কে; require ≥2 leading chars and forbid the থে- stem.
+_MV_PARTY_BN = re.compile(r"(?<![ঀ-৿])((?!থে)[ঀ-৿]{2,}?)কে(?=[\s,।]|$)")
+# Bangla/Banglish "from": "<name>র থেকে" / "<name> theke".
+_MV_PARTY_BN_FROM = re.compile(r"([ঀ-৿]{2,}?)(?:র|ের)?\s*থেকে")
+_MV_PARTY_BANGLISH = re.compile(r"\b([A-Za-z][A-Za-z.'\-]{1,24})\s+(?:ke|theke)\b", re.I)
+_MV_PARTY_EN = re.compile(r"\b(?:to|from|for)\s+([A-Za-z][A-Za-z .'\-]{1,24}?)(?=[.,;]|\s+(?:tk|taka|bdt|৳|\d)|$)", re.I)
+
+
+def _mv_last_cue_type(low):
+    """Score the four type-classes by the LAST position each class's strongest
+    cue appears; the latest-appearing wins (Bangla direction verbs trail the
+    sentence). Returns a txn_type or None. Loan cues beat plain spend/income
+    because 'ধার দিলাম' contains the spend-ish 'দিলাম'."""
+    def last_hit(cues):
+        pos = -1
+        for c in cues:
+            c = c.strip()
+            if not c:
+                continue
+            i = low.rfind(c)
+            if i > pos:
+                pos = i
+        return pos
+
+    scores = {
+        "due_in": last_hit(_MV_DUE_IN_CUES),
+        "due_out": last_hit(_MV_DUE_OUT_CUES),
+        "income": last_hit(_MV_INCOME_CUES),
+        "expense": last_hit(_MV_EXPENSE_CUES),
+    }
+    # loans take priority on a tie / overlap with spend verbs.
+    best_t, best_p = None, -1
+    for t in ("due_in", "due_out", "income", "expense"):
+        if scores[t] > best_p:
+            best_p, best_t = scores[t], t
+    if best_p < 0:
+        return None
+    return best_t
+
+
+def _mv_counterparty(raw):
+    """Pull a counterparty name out of one voice entry (original casing)."""
+    m = _MV_PARTY_BN.search(raw)
+    if m:
+        name = m.group(1).strip(" .,।-")
+        if name:
+            return name
+    m = _MV_PARTY_BN_FROM.search(raw)
+    if m:
+        name = m.group(1).strip(" .,।-")
+        if name:
+            return name
+    m = _MV_PARTY_BANGLISH.search(raw)
+    if m:
+        return m.group(1).strip(" .,-")
+    m = _MV_PARTY_EN.search(raw)
+    if m:
+        return m.group(1).strip(" .,-")
+    return None
+
+
+def _mv_note(raw, amount_span, party):
+    """Leftover descriptive words after removing the amount token + the party
+    phrase — this is the human label ("tea", "rickshaw", "চা")."""
+    norm = normalize_digits(raw)
+    if amount_span:
+        s, e = amount_span
+        norm = norm[:s] + " " + norm[e:]
+    # strip currency words + the party + common cue/verb noise words
+    norm = re.sub(r"\b(?:tk|taka|bdt)\b|৳", " ", norm, flags=re.I)
+    if party:
+        norm = re.sub(re.escape(party), " ", norm, flags=re.I)
+        norm = re.sub(r"\bke\b|কে", " ", norm, flags=re.I)
+    norm = re.sub(r"\b(?:to|from|for|the|a|an|of)\b", " ", norm, flags=re.I)
+    note = re.sub(r"\s+", " ", norm).strip(" .,।-")
+    return note
+
+
+def parse_money_voice_entry(text):
+    """Parse ONE spoken money utterance into a reviewable draft dict.
+
+    Deterministic; reuses normalize_digits / _amounts / guess_category so the
+    numerals, amount token and category behave exactly like SMS import.
+    """
+    raw = (text or "").strip()
+    norm = normalize_digits(raw)
+    low = norm.lower()
+
+    # amount: first currency/number token (voice has no fee/balance to skip).
+    amount = None
+    amount_span = None
+    amts = _amounts(norm)
+    if amts:
+        val, s, e = amts[0]
+        amount, amount_span = val, (s, e)
+    else:
+        m = re.search(r"\b(\d[\d,]*(?:\.\d+)?)\b", norm)
+        if m:
+            amount = _to_decimal(m.group(1))
+            amount_span = m.span(1)
+
+    party = _mv_counterparty(raw)
+
+    # type: explicit loan/income/expense cues first.
+    txn_type = _mv_last_cue_type(low)
+    if txn_type is None:
+        # a bare "gave <party>" with no loan word = expense; otherwise default
+        # to expense (the overwhelmingly common quick-entry case) ONLY when an
+        # amount exists — a type with no amount stays unparsed for review.
+        if any(g in low for g in _MV_GAVE_CUES):
+            txn_type = "expense"
+        elif amount is not None:
+            txn_type = "expense"
+
+    # category: reuse the SMS category guesser. Map our voice types to the
+    # debit/credit the guesser expects (loans are neither; pass None).
+    cat_type = {"income": "credit", "due_in": "credit",
+                "expense": "debit", "due_out": "debit"}.get(txn_type)
+    cat, conf = guess_category(norm, party, cat_type, "voice")
+    # income/due_in with no keyword match shouldn't claim an expense slug.
+    if txn_type in ("income", "due_in") and cat == _UNCATEGORIZED:
+        cat, conf = "income", 0.3
+
+    note = _mv_note(raw, amount_span, party)
+
+    return {
+        "amount": amount,
+        "txn_type": txn_type,
+        "category_guess": cat,
+        "category_confidence": conf,
+        "counterparty": party,
+        "note": note,
+        "raw": raw,
+        "parsed": bool(amount is not None and txn_type is not None),
+    }
+
+
+# batch splitter: commas / " and " / Bangla danda / "ar" separate entries. A
+# comma is a separator ONLY when it is NOT a thousands separator inside a number
+# (negative lookbehind/lookahead on digits keeps "1,500" intact).
+_MV_SPLIT_RX = re.compile(
+    r"\s*(?:(?<!\d),|,(?!\d)|।|;|\n|\band\b|\bar\b|\bও\b|\bএবং\b)\s*", re.I)
+
+
+def split_money_voice(text):
+    """Split a dictated batch ("tea 20, rickshaw 30") into entry strings.
+    Keeps order; drops empties; does not split inside numbers."""
+    norm = normalize_digits(text or "")
+    parts = _MV_SPLIT_RX.split(norm)
+    out = []
+    for p in parts:
+        p = (p or "").strip(" .।,-")
+        # only keep a fragment that carries a digit (an amount) — stray
+        # connectors / trailing words without a number aren't entries.
+        if p and re.search(r"\d", p):
+            out.append(p)
+    return out
+
+
+def parse_money_voice(text):
+    """Parse a spoken money utterance (single OR comma/‘and’-separated batch)
+    into a list of reviewable entry drafts, in spoken order.
+
+    Single entry with no separators still returns a 1-element list, so the UI
+    has one review path. Entries with parsed=False are kept (shown greyed /
+    needing the user to fill a field) — never silently dropped, never auto-logged.
+    """
+    raw = (text or "").strip()
+    if not raw:
+        return []
+    frags = split_money_voice(raw)
+    if len(frags) <= 1:
+        return [parse_money_voice_entry(raw)]
+    return [parse_money_voice_entry(f) for f in frags]

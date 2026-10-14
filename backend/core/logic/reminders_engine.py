@@ -123,6 +123,46 @@ def expand(anchor, rule, start=None, end=None, limit=50):
     return out
 
 
+def agenda(items, start=None, end=None, now=None, limit_per_item=50):
+    """Build a combined, time-sorted agenda across mixed items for a calendar
+    window — the server-side mirror of the app's calendar _collect().
+
+    Each `item` is a dict:
+        {"id", "kind", "anchor" (datetime|None), "rule" (dict|None),
+         "done" (bool), "title" (str)}
+    where `kind` is e.g. "reminder" | "todo" | "note". Recurring reminders are
+    expanded via expand()/next_occurrence() so every occurrence inside
+    [start, end] appears; one-off items / dated todos / dated notes contribute a
+    single point if in range. Returns a list of occurrence dicts:
+        {"id","kind","title","when","overdue","done","recurring"}
+    sorted ascending by `when`. Deterministic; no DB, no AI."""
+    now = now or datetime.now()
+    out = []
+    for it in items or []:
+        anchor = it.get("anchor")
+        if anchor is None:
+            continue
+        rule = it.get("rule")
+        done = bool(it.get("done"))
+        base = {
+            "id": it.get("id"),
+            "kind": it.get("kind"),
+            "title": it.get("title", ""),
+            "done": done,
+            "recurring": bool(rule),
+        }
+        if not rule:
+            if (start is None or anchor >= start) and (end is None or anchor <= end):
+                out.append({**base, "when": anchor,
+                            "overdue": (not done) and anchor < now})
+        else:
+            for occ in expand(anchor, rule, start=start, end=end, limit=limit_per_item):
+                out.append({**base, "when": occ,
+                            "overdue": (not done) and occ < now})
+    out.sort(key=lambda o: o["when"])
+    return out
+
+
 def is_overdue(anchor, rule, done=False, now=None):
     """True when a reminder has a fire time in the past that still needs action.
     Recurring reminders are overdue when their *most recent* occurrence has passed

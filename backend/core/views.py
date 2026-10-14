@@ -1728,6 +1728,34 @@ class FinanceView(APIView):
         if tool == "invest":
             return Response(finance.invest_projection(d.get("principal"), d.get("rate"),
                             d.get("years"), d.get("monthly_add", 0)))
+        # ---- Tax & Zakat (feature #60, SPEC v2.1 §21) — server parity over
+        # core.logic.tax_zakat. Pure, read-only; every rate/threshold is a
+        # source-noted NBR figure, never invented. Estimate only, not tax advice.
+        if tool in ("tax_estimate", "zakat_nisab", "zakat_full"):
+            from .logic import tax_zakat as tz
+            if tool == "tax_estimate":
+                return Response(tz.estimate_income_tax(
+                    d.get("taxable_income", 0),
+                    year=d.get("year", tz.DEFAULT_TAX_YEAR),
+                    category=d.get("category", "general"),
+                    eligible_investment=d.get("eligible_investment", 0),
+                    tds_paid=d.get("tds_paid", 0),
+                    location=d.get("location", "dhaka_ctg"),
+                    extra_disabled_dependent=bool(
+                        d.get("extra_disabled_dependent"))))
+            if tool == "zakat_nisab":
+                return Response(tz.zakat_nisab(
+                    gold_price_per_gram=d.get("gold_price_per_gram", 0),
+                    silver_price_per_gram=d.get("silver_price_per_gram", 0)))
+            # zakat_full
+            return Response(tz.zakat(
+                cash=d.get("cash", 0), bank=d.get("bank", 0),
+                gold_value=d.get("gold_value", 0),
+                silver_value=d.get("silver_value", 0),
+                investments=d.get("investments", 0),
+                business_goods=d.get("business_goods", 0),
+                money_lent=d.get("money_lent", 0),
+                debts=d.get("debts", 0), nisab=d.get("nisab", 0)))
         return Response({"detail": "unknown tool"}, status=400)
 
 
@@ -2339,6 +2367,151 @@ class MoneyBudgetDetailView(APIView):
         carry = out[-1].get("carry_forward", "0") if out else "0"
         return Response({"category": cat, "rollover": b.rollover,
                          "carry_forward": carry, "months": out})
+
+
+class MoneyWrappedView(APIView):
+    """Monthly Money Wrapped (feature #63, SPEC v2.1 §21) — a Spotify-Wrapped
+    style recap of ONE month, computed ONLY from the user's real transaction
+    rows (read-only) by money_engine.monthly_wrapped. Never fabricates numbers;
+    for users with too little history it returns enough_data=False so the client
+    shows an honest empty state. Parallels MoneyTrendsView. Owner-scoped (txns
+    come from request.user). Optional ?month=YYYY-MM; defaults to current month.
+    Bilingual category slugs localise client-side via Accept-Language."""
+
+    def get(self, request):
+        from .logic import money_engine as me
+        txns = _money_txns(request.user)
+        month = request.query_params.get("month") or me.month_key(
+            timezone.localdate())
+        rec = me.monthly_wrapped(txns, month)
+        return Response(_json_decimals(rec))
+
+
+class MoneyBudgetView(APIView):
+    """Advanced Budget module (feature #50, SPEC v2.1 §21). Reads the user's REAL
+    transactions read-only through core.logic.budget (integer-poisha, no float
+    drift); budgets are stored in the existing Budget model. Owner-scoped.
+
+    GET  /money/budget/month[?month=YYYY-MM]  -> month_budget + insights
+    GET  /money/budget/history?category=&months=6 -> rollover_series
+    GET  /money/budget/plan?months=3&buffer=10 -> next_month_plan
+    GET  /money/budget/template?income=       -> template_50_30_20
+    POST /money/budget {category,monthly_limit,rollover}
+    PATCH/money/budget/<id> {monthly_limit?,rollover?}
+    POST /money/budget/<id>/delete
+    POST /money/budget/goal-link              -> goal_contribution (+persist)
+    """
+
+    def _budget_rows(self, user):
+        return [{"category": b.category, "monthly_limit": b.monthly_limit,
+                 "rollover": b.rollover} for b in user.budgets.all()]
+
+    def _recent_months(self, me, n):
+        cur = me.month_key(timezone.localdate())
+        return [me.month_key(me.add_months(me._as_date(cur + "-01"), -i))
+                for i in range(n - 1, -1, -1)]
+
+    def get(self, request, action=""):
+        from .logic import budget as bg
+        from .logic import money_engine as me
+        txns = _money_txns(request.user)
+        if action == "month":
+            month = request.query_params.get("month") or me.month_key(
+                timezone.localdate())
+            result = bg.month_budget(self._budget_rows(request.user), txns, month)
+            result["insights"] = bg.insights(result)
+            return Response(_json_decimals(result))
+        if action == "history":
+            cat = request.query_params.get("category", "")
+            try:
+                n = max(1, min(24, int(request.query_params.get("months", 6))))
+            except (TypeError, ValueError):
+                n = 6
+            b = request.user.budgets.filter(category=cat).first()
+            if not b:
+                return Response(
+                    {"detail": pick(req_lang(request), "বাজেট নেই",
+                                    "No such budget")},
+                    status=status.HTTP_404_NOT_FOUND)
+            months = self._recent_months(me, n)
+            spend = {mk: bg.from_poisha(
+                bg.spent_by_category(txns, mk).get(cat, 0)) for mk in months}
+            return Response(_json_decimals(bg.rollover_series(
+                cat, b.monthly_limit, spend, months, rollover=b.rollover)))
+        if action == "plan":
+            try:
+                n = max(1, min(24, int(request.query_params.get("months", 3))))
+                buf = max(0, min(100, int(request.query_params.get("buffer", 10))))
+            except (TypeError, ValueError):
+                n, buf = 3, 10
+            months = self._recent_months(me, n)
+            return Response(_json_decimals(
+                bg.next_month_plan(txns, months, buffer_pct=buf)))
+        if action == "template":
+            income = request.query_params.get("income", "0")
+            return Response(_json_decimals(bg.template_50_30_20(income)))
+        return Response({"detail": "unknown action"},
+                        status=status.HTTP_404_NOT_FOUND)
+
+    def post(self, request, pk=None, action=""):
+        from .logic import budget as bg
+        from .logic import money_engine as me
+        from .models import Budget
+        from decimal import Decimal
+        if action == "goal-link":
+            month = request.data.get("month") or me.month_key(
+                timezone.localdate())
+            result = bg.month_budget(self._budget_rows(request.user),
+                                     _money_txns(request.user), month)
+            goal = request.user.goals.order_by("-updated_at").first()
+            if not goal:
+                return Response(
+                    {"detail": pick(req_lang(request), "কোনো লক্ষ্য নেই",
+                                    "No savings goal")},
+                    status=status.HTTP_404_NOT_FOUND)
+            card = bg.goal_contribution(
+                result, {"target_amount": goal.target_amount,
+                         "saved_amount": goal.saved_amount})
+            goal.saved_amount = Decimal(str(card["new_saved"]))
+            goal.save(update_fields=["saved_amount", "updated_at"])
+            return Response(_json_decimals(card))
+        if pk is not None and action == "delete":
+            request.user.budgets.filter(pk=pk).delete()
+            return Response({"ok": True})
+        # create
+        cat = (request.data.get("category") or "").strip()
+        if not cat:
+            return Response(
+                {"detail": pick(req_lang(request), "খাত দিন",
+                                "Category required")},
+                status=status.HTTP_400_BAD_REQUEST)
+        b, _ = Budget.objects.update_or_create(
+            user=request.user, category=cat,
+            defaults={"monthly_limit": Decimal(str(
+                request.data.get("monthly_limit") or "0")),
+                "rollover": bool(request.data.get("rollover"))})
+        return Response({"id": b.id, "category": b.category,
+                         "monthly_limit": str(b.monthly_limit),
+                         "rollover": b.rollover},
+                        status=status.HTTP_201_CREATED)
+
+    def patch(self, request, pk=None, action=""):
+        from .models import Budget
+        from decimal import Decimal
+        b = request.user.budgets.filter(pk=pk).first()
+        if not b:
+            return Response(
+                {"detail": pick(req_lang(request), "বাজেট নেই",
+                                "No such budget")},
+                status=status.HTTP_404_NOT_FOUND)
+        if "monthly_limit" in request.data:
+            b.monthly_limit = Decimal(str(request.data.get("monthly_limit") or "0"))
+        if "rollover" in request.data:
+            b.rollover = bool(request.data.get("rollover"))
+        b.save()
+        return Response({"id": b.id, "category": b.category,
+                         "monthly_limit": str(b.monthly_limit),
+                         "rollover": b.rollover})
 
 
 class MoneyReportView(APIView):

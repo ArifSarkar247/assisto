@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import '../widgets/famacct_section.dart';
 import 'medicine_history_screen.dart';
 
 class FamilyScreen extends StatefulWidget {
@@ -125,7 +126,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
   Widget build(BuildContext context) {
     final t = _t;
     return DefaultTabController(
-        length: 6,
+        length: 7,
         child: Scaffold(
           appBar: AppBar(title: Text(t.familyCareTitle), actions: [
             IconButton(
@@ -139,6 +140,8 @@ class _FamilyScreenState extends State<FamilyScreen> {
             Tab(child: Text(t.medTabCaregiver, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
             Tab(child: Text(t.medTabPrescriptions, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
             Tab(child: Text(t.moduleFamily, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            // ---- FAMILY ACCOUNTING (#61, SPEC v2.1 §21) — isolated section ----
+            Tab(child: Text(AppLocalizations.of(context).faTitle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
             Tab(child: Text(t.familySchoolTitle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
           ])),
           body: loading
@@ -149,6 +152,9 @@ class _FamilyScreenState extends State<FamilyScreen> {
                   _caregiverTab(),
                   _prescriptionsTab(),
                   _membersTab(),
+                  // FAMILY ACCOUNTING — reuses the family/circle contacts
+                  // already loaded (`members`); fully self-contained widget.
+                  FamAcctSection(members: members),
                   _schoolTab(),
                 ]),
         ));

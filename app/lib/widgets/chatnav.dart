@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../screens/money_screen.dart';
+import '../screens/money_budget_screen.dart';
+import '../screens/money_tax_screen.dart';
+import '../screens/money_wrapped_screen.dart';
+import '../screens/money_voice_screen.dart';
 import '../screens/vault_screen.dart';
 import '../screens/family_screen.dart';
 import '../screens/emergency_screen.dart';
@@ -139,6 +143,13 @@ class ChatNav {
     'action_center': (_) => const ActionCenterScreen(),
     'disaster': (_) => const DisasterAlertsScreen(),
     'offline': (_) => const OfflineStatusScreen(),
+    // Wave-D batch-5 (money/reminders): advanced Budget, Tax & Zakat, Monthly
+    // Wrapped recap, and Money-by-voice. Each is also in the My Account sidebar
+    // group, so none is a dead screen.
+    'budget': (_) => const MoneyBudgetScreen(),
+    'tax': (_) => const MoneyTaxScreen(),
+    'wrapped': (_) => const MoneyWrappedScreen(),
+    'money_voice': (_) => const MoneyVoiceScreen(),
   };
 
   /// Local ENGLISH subject vocabulary (ASCII only). Mirrors the English tokens
@@ -147,7 +158,7 @@ class ChatNav {
   static const Map<String, List<String>> _synonyms = {
     'money': [
       'my account', 'account', 'money', 'finance', 'expense', 'expenses',
-      'budget', 'wallet',
+      'wallet',
     ],
     'documents': ['documents', 'docs', 'vault', 'papers', 'files'],
     'family': [
@@ -202,6 +213,14 @@ class ChatNav {
     'disaster': ['disaster alerts', 'disaster', 'cyclone', 'flood', 'warning',
         'weather warning', 'earthquake'],
     'offline': ['offline', 'offline data', 'cache', 'data usage', 'clear cache'],
+    // Wave-D batch-5 (money/reminders)
+    'budget': ['budget', 'spending plan', 'spending limit', 'monthly budget'],
+    'tax': ['tax and zakat', 'tax & zakat', 'tax', 'zakat', 'income tax',
+        'nisab'],
+    'wrapped': ['money wrapped', 'wrapped', 'monthly recap', 'money recap',
+        'year in money'],
+    'money_voice': ['money by voice', 'money voice', 'voice expense',
+        'speak expense', 'log by voice'],
   };
 
   /// English verbs marking an explicit "open the screen" intent, so a plain

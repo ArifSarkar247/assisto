@@ -216,6 +216,38 @@ def test_expand():
     ok(all(d.weekday() == 4 for d in occ), "all fridays")
 
 
+def test_agenda_combined():
+    # a weekly recurring reminder + a one-off dated to-do + a dated note,
+    # expanded into one sorted calendar window (the mirror of the app view).
+    start = datetime(2026, 10, 13, 0, 0)
+    end = datetime(2026, 10, 27, 23, 59)
+    items = [
+        {"id": "r1", "kind": "reminder", "title": "prayer",
+         "anchor": datetime(2026, 10, 16, 17, 0),
+         "rule": {"freq": "weekly", "interval": 1, "weekday": 4,
+                  "day_of_month": None, "month": None, "time": "17:00"},
+         "done": False},
+        {"id": "t1", "kind": "todo", "title": "pay bill",
+         "anchor": datetime(2026, 10, 13, 8, 0), "rule": None, "done": False},
+        {"id": "n1", "kind": "note", "title": "groceries",
+         "anchor": datetime(2026, 10, 20, 10, 0), "rule": None, "done": False},
+    ]
+    ag = eng.agenda(items, start=start, end=end, now=NOW)
+    kinds = [o["kind"] for o in ag]
+    # two Fridays (16, 23 Oct) + the todo + the note = 4 occurrences
+    ok(len(ag) == 4, "combined agenda size, got %d" % len(ag))
+    ok(ag == sorted(ag, key=lambda o: o["when"]), "agenda sorted by when")
+    ok(kinds.count("reminder") == 2, "weekly reminder expanded to 2 Fridays")
+    ok(kinds.count("note") == 1 and kinds.count("todo") == 1, "note+todo once")
+    # the past-anchored todo (12 Oct < NOW) that is in-window is flagged overdue
+    todo = next(o for o in ag if o["kind"] == "todo")
+    ok(todo["overdue"] is True, "past todo overdue")
+    future_note = next(o for o in ag if o["kind"] == "note")
+    ok(future_note["overdue"] is False, "future note not overdue")
+    ok(all(o["recurring"] == (o["kind"] == "reminder") for o in ag),
+       "recurring flag set only on expanded reminder")
+
+
 def test_overdue():
     anchor = datetime(2026, 10, 12, 9, 0)  # yesterday
     ok(eng.is_overdue(anchor, None, done=False, now=NOW) is True, "one-off past overdue")

@@ -435,6 +435,162 @@ def split_expense(total, parts, mode="equal"):
 # monthly report (feeds PDF / Excel export in the app)
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# monthly "money wrapped" — a Spotify-Wrapped-style recap (feature #63, §21).
+# Pure math over REAL transaction rows; it NEVER invents numbers. For a user
+# with too little real data it returns {"enough_data": False, ...} so the client
+# shows an honest "not enough data yet" state instead of a fabricated recap.
+# ---------------------------------------------------------------------------
+
+def _no_spend_days(expenses, month):
+    """Count calendar days in `month` with ZERO expense activity. Only counts
+    days up to today when `month` is the current month (future days aren't
+    "no-spend" — they simply haven't happened), else the whole month."""
+    y, m = int(month[:4]), int(month[5:7])
+    last = [31, 29 if y % 4 == 0 and (y % 100 or y % 400 == 0) else 28,
+            31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1]
+    today = date.today()
+    if today.year == y and today.month == m:
+        days_in_scope = today.day
+    elif (y, m) > (today.year, today.month):
+        return 0  # a future month hasn't happened; don't claim no-spend days
+    else:
+        days_in_scope = last
+    spent_days = set()
+    for t in expenses:
+        d = _as_date(t.get("date"))
+        if d.year == y and d.month == m:
+            spent_days.add(d.day)
+    return max(0, days_in_scope - len(spent_days))
+
+
+def _money_personality(income, expense, net, savings_rate, top_category,
+                       no_spend_days, days_in_scope):
+    """Pick ONE fun persona slug from the REAL numbers (deterministic, no AI).
+    The client localises the slug to a friendly title/emoji; we only decide
+    which badge the data earns. Order matters: first match wins."""
+    inc = D(income)
+    exp = D(expense)
+    if inc <= 0 and exp <= 0:
+        return "quiet_month"
+    if savings_rate >= 40:
+        return "super_saver"          # kept a big slice of what came in
+    if net < 0:
+        return "big_spender"          # spent more than earned this month
+    if no_spend_days >= max(10, days_in_scope // 2):
+        return "mindful_minimalist"   # lots of zero-spend days
+    if top_category == "food":
+        return "foodie"
+    if top_category in ("shopping", "mobile"):
+        return "treat_yourself"
+    if top_category == "transport":
+        return "always_on_the_move"
+    if savings_rate >= 15:
+        return "steady_balancer"
+    return "everyday_spender"
+
+
+def monthly_wrapped(txns, month, prev_month=None, min_txns=5):
+    """A shareable monthly recap built ONLY from real transaction rows.
+
+    txns: the user's transaction dicts ({'kind','amount','category','date'}...).
+    month: 'YYYY-MM' to recap. prev_month: comparison month (defaults to the
+    month before). min_txns: below this many real txns in `month` we decline to
+    fabricate a recap and return enough_data=False.
+
+    Returns a dict the client renders as swipeable story cards. Every figure is
+    derived from the rows — if a stat can't be computed from real data it is
+    omitted/None rather than guessed. Shapes money values as strings (2dp) so
+    the client formats Taka identically to the rest of the money module.
+    """
+    prev_month = prev_month or prev_month_key(month)
+    month_txns = [t for t in txns if month_key(t.get("date")) == month]
+    month_expenses = [t for t in month_txns if t.get("kind") == "expense"]
+
+    if len(month_txns) < min_txns:
+        return {
+            "month": month,
+            "enough_data": False,
+            "txn_count": len(month_txns),
+            "min_txns": min_txns,
+        }
+
+    totals = monthly_totals(txns).get(
+        month, {"income": ZERO, "expense": ZERO, "net": ZERO})
+    income, expense, net = totals["income"], totals["expense"], totals["net"]
+    savings_rate = int((net / income * 100).to_integral_value(ROUND_HALF_UP)) \
+        if income > 0 else 0
+
+    by_cat = category_spend(txns, month)
+    top_cat = max(by_cat.items(), key=lambda kv: kv[1], default=None)
+    top_category = top_cat[0] if top_cat else None
+
+    biggest = max(month_expenses, key=lambda t: D(t.get("amount")),
+                  default=None) if month_expenses else None
+
+    # month-over-month spend trend (expense this month vs previous)
+    prev_expense = monthly_totals(txns).get(
+        prev_month, {"expense": ZERO})["expense"]
+    spend_delta = money(expense - prev_expense)
+    if prev_expense > 0:
+        trend_pct = int((spend_delta / prev_expense * 100)
+                        .to_integral_value(ROUND_HALF_UP))
+        has_prev = True
+    else:
+        trend_pct = 0          # no real previous month -> no honest % to show
+        has_prev = False
+
+    # day-scope for no-spend-days + busiest day
+    y, m = int(month[:4]), int(month[5:7])
+    last = [31, 29 if y % 4 == 0 and (y % 100 or y % 400 == 0) else 28,
+            31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1]
+    today = date.today()
+    days_in_scope = (today.day if (today.year == y and today.month == m)
+                     else last)
+    no_spend = _no_spend_days(month_expenses, month)
+
+    # busiest spending day (real max of per-day expense sums)
+    per_day = defaultdict(lambda: ZERO)
+    for t in month_expenses:
+        per_day[str(t.get("date"))[:10]] += D(t.get("amount"))
+    busiest = max(per_day.items(), key=lambda kv: kv[1], default=None)
+
+    personality = _money_personality(
+        income, expense, net, savings_rate, top_category, no_spend,
+        days_in_scope)
+
+    return {
+        "month": month,
+        "previous_month": prev_month,
+        "enough_data": True,
+        "txn_count": len(month_txns),
+        "total_earned": str(money(income)),
+        "total_spent": str(money(expense)),
+        "total_saved": str(money(net)),          # net can be negative (overspend)
+        "savings_rate": savings_rate,            # int %, 0 when no income
+        "top_category": top_category,            # slug or None
+        "top_category_amount": str(top_cat[1]) if top_cat else None,
+        "biggest_expense": ({
+            "category": biggest.get("category") or "uncategorized",
+            "amount": str(money(biggest.get("amount"))),
+            "date": str(biggest.get("date"))[:10],
+        } if biggest else None),
+        "spend_trend": {
+            "previous_spent": str(money(prev_expense)),
+            "delta": str(spend_delta),           # +ve = spent more than last month
+            "pct": trend_pct,                    # signed %, 0 when no prior month
+            "up": spend_delta > 0,
+            "has_previous": has_prev,
+        },
+        "no_spend_days": no_spend,
+        "days_in_scope": days_in_scope,
+        "busiest_day": ({"date": busiest[0], "amount": str(money(busiest[1]))}
+                        if busiest else None),
+        "category_count": len(by_cat),
+        "personality": personality,              # slug; client localises title
+    }
+
+
 def monthly_report(txns, month, budgets=None, opening_net_worth=None):
     """Assemble everything the export needs for one month.
     budgets: list of {'category','monthly_limit'}."""

@@ -303,6 +303,68 @@ def test_monthly_report():
     assert rep["txn_count"] == 3
 
 
+def test_wrapped_not_enough_data():
+    # New user with < min_txns real rows -> honest empty, no fabricated recap.
+    txns = [
+        {"kind": "expense", "amount": "100", "category": "food", "date": "2026-10-01"},
+        {"kind": "expense", "amount": "200", "category": "food", "date": "2026-10-02"},
+    ]
+    w = E.monthly_wrapped(txns, "2026-10", min_txns=5)
+    assert w["enough_data"] is False, w
+    assert w["txn_count"] == 2, w
+    assert "total_spent" not in w, w  # nothing fabricated
+
+
+def test_wrapped_real_numbers():
+    txns = [
+        {"kind": "income", "amount": "30000", "category": "salary", "date": "2026-09-01"},
+        {"kind": "expense", "amount": "4000", "category": "food", "date": "2026-09-05"},
+        {"kind": "expense", "amount": "6000", "category": "food", "date": "2026-09-10"},
+        {"kind": "expense", "amount": "3000", "category": "transport", "date": "2026-09-12"},
+        {"kind": "expense", "amount": "2000", "category": "shopping", "date": "2026-09-15"},
+        {"kind": "expense", "amount": "1000", "category": "mobile", "date": "2026-09-20"},
+        # previous month for the trend comparison
+        {"kind": "expense", "amount": "8000", "category": "food", "date": "2026-08-05"},
+    ]
+    w = E.monthly_wrapped(txns, "2026-09", min_txns=5)
+    assert w["enough_data"] is True, w
+    assert w["total_earned"] == "30000.00", w
+    assert w["total_spent"] == "16000.00", w          # 4+6+3+2+1 k
+    assert w["total_saved"] == "14000.00", w          # net
+    assert w["savings_rate"] == 47, w                 # 14000/30000
+    assert w["top_category"] == "food", w             # 10000 is the biggest slice
+    assert w["top_category_amount"] == "10000.00", w
+    assert w["biggest_expense"]["amount"] == "6000.00", w
+    assert w["biggest_expense"]["category"] == "food", w
+    # trend vs Aug (8000 spent) -> up 8000 = +100%
+    assert w["spend_trend"]["up"] is True, w
+    assert w["spend_trend"]["pct"] == 100, w
+    assert w["spend_trend"]["has_previous"] is True, w
+    assert w["category_count"] == 4, w
+    assert w["busiest_day"]["date"] == "2026-09-10", w
+    assert w["busiest_day"]["amount"] == "6000.00", w
+    assert w["personality"] == "super_saver", w       # 47% savings rate
+
+
+def test_wrapped_no_previous_month_is_honest():
+    # First real month ever: no prior spend -> trend has_previous False, pct 0,
+    # never a fabricated comparison.
+    txns = [
+        {"kind": "income", "amount": "10000", "date": "2026-07-01"},
+        {"kind": "expense", "amount": "500", "category": "food", "date": "2026-07-02"},
+        {"kind": "expense", "amount": "500", "category": "food", "date": "2026-07-03"},
+        {"kind": "expense", "amount": "500", "category": "transport", "date": "2026-07-04"},
+        {"kind": "expense", "amount": "500", "category": "food", "date": "2026-07-05"},
+        {"kind": "expense", "amount": "500", "category": "food", "date": "2026-07-06"},
+    ]
+    w = E.monthly_wrapped(txns, "2026-07", min_txns=5)
+    assert w["enough_data"] is True, w
+    assert w["spend_trend"]["has_previous"] is False, w
+    assert w["spend_trend"]["pct"] == 0, w
+    # a fully past month: 31 days, spent on 5 distinct days -> 26 no-spend days
+    assert w["no_spend_days"] == 26, w
+
+
 def run_all():
     fns = [v for k, v in sorted(globals().items())
            if k.startswith("test_") and callable(v)]

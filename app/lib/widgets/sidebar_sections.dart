@@ -9,6 +9,10 @@ import '../screens/notes_todos_screen.dart';
 import '../screens/memory_screen.dart';
 // my account
 import '../screens/money_screen.dart';
+import '../screens/money_budget_screen.dart';
+import '../screens/money_tax_screen.dart';
+import '../screens/money_wrapped_screen.dart';
+import '../screens/money_voice_screen.dart';
 import '../screens/subscriptions_screen.dart';
 import '../screens/finance_screen.dart';
 import '../screens/payment_ladder_screen.dart';
@@ -119,6 +123,22 @@ class SidebarSections {
       SidebarItem(Icons.account_balance_wallet_outlined, (t) => t.moduleMoney,
           (_) => const MoneyScreen(),
           synonyms: ['account', 'ledger', 'money', 'expense', 'income']),
+      // Advanced Budget module (feature #50, SPEC v2.1 §21).
+      SidebarItem(Icons.pie_chart_outline, (t) => t.budgetTitle,
+          (_) => const MoneyBudgetScreen(),
+          synonyms: ['budget', 'limit', 'spending plan', 'rollover']),
+      // Tax & Zakat calculators (feature #60) — client-side, bilingual.
+      SidebarItem(Icons.receipt_long_outlined, (t) => t.taxTitle,
+          (_) => const MoneyTaxScreen(),
+          synonyms: ['tax', 'zakat', 'nisab', 'income tax', 'nbr']),
+      // Monthly Money Wrapped recap (feature #63).
+      SidebarItem(Icons.auto_awesome_outlined, (t) => t.wrappedTitle,
+          (_) => const MoneyWrappedScreen(),
+          synonyms: ['wrapped', 'recap', 'monthly', 'summary', 'story']),
+      // Money by voice — speak an expense/income, confirm, log (feature #62).
+      SidebarItem(Icons.mic_none_outlined, (t) => t.mvoiceTitle,
+          (_) => const MoneyVoiceScreen(),
+          synonyms: ['voice', 'speak', 'say', 'mic', 'dictate']),
       SidebarItem(Icons.autorenew, (t) => t.subscriptions,
           (_) => const SubscriptionsScreen(),
           synonyms: ['subscription', 'recurring', 'bill']),

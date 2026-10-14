@@ -731,3 +731,12 @@ NOTHING basic may remain.
 - AFTER D4: merge arb + wire new screens (action_center/disaster/offline → settings or sidebar + chatnav routes) + reconcile getter-coverage if needed + gen-l10n→analyze 0→gate→tests→gallery→build. →~22/61.
 - NEXT D5 (Reminders&Money good-bits: #22 calendar&notes, #50 budget, #60 tax&zakat, #61 family-accounting, #62 money-voice, #63 monthly-wrapped — SEQUENCE D5 before D6, family_screen.dart shared). Then D6-D10 → Wave E (~79) → Step 6 (SFU+TURN M3 + aws_ports.md + Telegram sandbox) → Step 7 (P14-16/iOS/FINAL).
 - Builds through 75. en=bn=4560. 626 tests. All green. Repo PUBLIC. disk 8.6G.
+
+- BUILD 76 SHIPPED 2026-10-14: https://assisto.asalify.com/dl/CYJ84GgfX6fnQTUABk8JvTqu/assisto-part7-build76.apk (Wave D batch 4/D4: strict-lang+autonomy+dark/light, Action Center+PendingAction migration 0029, Disaster Alerts official-only, Offline-first). 626 tests, analyze 0, gate clean. ~22/61. Gallery: https://assisto.asalify.com/dl/shots-waved4-digx5YXDhCw/index.html
+
+## WAVE D BATCH 5 (D5, 2026-10-14, after build 76) — Reminders&Money good-bits
+- ✅ 22/61 shipped (builds 73-76). en=bn=4752, 626 tests, migrations→0029.
+- D5 agents (6, disjoint): reminders+notes-calendar af4037 (#22), budget a7727c (#50 new budget.py+screen), tax&zakat a6713d (#60 NBR-slabs-source-noted+zakat-2.5%, new tax_zakat.py+screen), monthly-wrapped a69997 (#63 real-data recap cards), money-voice a1c2c3 (#62 parse-reuse+confirm-before-log, STT-gated), family-accounting abf8fdc (#61 family_screen section, split/settle-up).
+- AFTER D5: merge arb + wire new screens nav (budget/tax/wrapped/money-voice → My Account sidebar + chatnav; reminders/family in place) + reconcile getter-coverage if gaps + any temp-strings-swap + backend wiring (budget/tax models if needed) + gen-l10n→analyze 0→gate→tests→gallery→build. →~28/61.
+- NEXT D6 (Family/Contacts/Profile good-bits — family_screen shared w/ D5 #61, sequence after D5), D7-D10 (referral/agent/admin/messenger good-bits). Then WAVE E (~79 new), Step 6 (SFU+TURN M3 + aws_ports.md + Telegram sandbox), Step 7 (P14-16/iOS/FINAL).
+- Builds through 76. All green. Repo PUBLIC. disk ~8.6G.

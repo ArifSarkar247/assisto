@@ -7,6 +7,8 @@ import '../theme.dart';
 import '../notifications.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/reminders_nlp.dart';
+import '../widgets/rem_calendar.dart';
+import '../widgets/offline_banner.dart';
 import 'reminders_quick_add.dart';
 
 /// Reminders & Memory brain — the daily natural-language reminder screen.
@@ -19,8 +21,17 @@ import 'reminders_quick_add.dart';
 ///  - Smart snooze (10 min / tomorrow morning / adha ghonta).
 ///  - Overdue / Today / Upcoming / Done grouping with live next-occurrence.
 ///  - Optional link to a person / bill / document / event (a chip).
-class RemindersScreen extends StatelessWidget {
+class RemindersScreen extends StatefulWidget {
   const RemindersScreen({super.key});
+
+  @override
+  State<RemindersScreen> createState() => _RemindersScreenState();
+}
+
+class _RemindersScreenState extends State<RemindersScreen> {
+  // list = the grouped Overdue/Today/Upcoming view; calendar = the combined
+  // day/week/month agenda over reminders + to-dos + dated notes.
+  bool _calendar = false;
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +44,13 @@ class RemindersScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(t.navReminders),
         actions: [
+          IconButton(
+            tooltip: _calendar ? t.remCalShowList : t.remCalShowCalendar,
+            onPressed: () => setState(() => _calendar = !_calendar),
+            icon: Icon(_calendar
+                ? Icons.view_agenda_outlined
+                : Icons.calendar_month_outlined),
+          ),
           IconButton(
             tooltip: t.remSyncTooltip,
             onPressed: () => app.reminders.sync(),
@@ -50,34 +68,38 @@ class RemindersScreen extends StatelessWidget {
         icon: const Icon(Icons.add_alarm),
         label: Text(t.add),
       ),
-      body: Column(
-        children: [
-          QuickAddBar(onCommit: (p, title, link) async {
-            await _create(context, title: title, parsed: p, link: link);
-          }),
-          Expanded(
-            child: items.isEmpty
-                ? StateMessage(
-                    icon: Icons.alarm_on_outlined,
-                    title: t.remEmpty,
-                    message: t.remEmptyHint,
-                  )
-                : ListView(
-                    padding: const EdgeInsets.fromLTRB(
-                        Gap.md, Gap.sm, Gap.md, 96),
-                    children: [
-                      for (final g in groups)
-                        if (g.items.isNotEmpty) ...[
-                          _SectionHeader(label: g.label(t), tint: g.tint),
-                          for (final it in g.items)
-                            _ReminderCard(item: it, group: g.kind),
-                          const SizedBox(height: Gap.sm),
-                        ],
-                    ],
-                  ),
-          ),
-        ],
-      ),
+      body: _calendar
+          ? const RemCalendarView()
+          : Column(
+              children: [
+                const OfflineBanner(),
+                QuickAddBar(onCommit: (p, title, link) async {
+                  await _create(context, title: title, parsed: p, link: link);
+                }),
+                Expanded(
+                  child: items.isEmpty
+                      ? StateMessage(
+                          icon: Icons.alarm_on_outlined,
+                          title: t.remEmpty,
+                          message: t.remEmptyHint,
+                        )
+                      : ListView(
+                          padding: const EdgeInsets.fromLTRB(
+                              Gap.md, Gap.sm, Gap.md, 96),
+                          children: [
+                            for (final g in groups)
+                              if (g.items.isNotEmpty) ...[
+                                _SectionHeader(
+                                    label: g.label(t), tint: g.tint),
+                                for (final it in g.items)
+                                  _ReminderCard(item: it, group: g.kind),
+                                const SizedBox(height: Gap.sm),
+                              ],
+                          ],
+                        ),
+                ),
+              ],
+            ),
     );
   }
 
@@ -174,7 +196,7 @@ DateTime? _anchorOf(Map<String, dynamic> d) =>
 DateTime? nextFireOf(Map<String, dynamic> d, DateTime now) {
   final anchor = _anchorOf(d);
   if (anchor == null) return null;
-  final rule = _ruleFromData(d);
+  final rule = ruleFromData(d);
   if (rule == null) return anchor; // one-off keeps its instant (may be overdue)
   return nextOccurrence(anchor, rule, after: now);
 }
@@ -193,7 +215,7 @@ bool isOverdue(Map<String, dynamic> d, DateTime now) {
   if (d['done'] == true) return false;
   final anchor = _anchorOf(d);
   if (anchor == null) return false;
-  final rule = _ruleFromData(d);
+  final rule = ruleFromData(d);
   if (rule == null) return anchor.isBefore(now); // one-off past due
   if (!anchor.isBefore(now)) return false; // pointer still in the future
   final afterPointer = nextOccurrence(anchor, rule, after: anchor);
@@ -205,7 +227,7 @@ bool isOverdue(Map<String, dynamic> d, DateTime now) {
 DateTime? overdueFireOf(Map<String, dynamic> d, DateTime now) =>
     _anchorOf(d) ?? nextFireOf(d, now);
 
-RecurrenceRule? _ruleFromData(Map<String, dynamic> d) {
+RecurrenceRule? ruleFromData(Map<String, dynamic> d) {
   final raw = d['recurrence_rule'];
   if (raw is Map) {
     return RecurrenceRule(
@@ -291,7 +313,7 @@ class _ReminderCard extends StatelessWidget {
     // On an overdue card show the missed instant; otherwise the next fire.
     final next =
         group == 'overdue' ? overdueFireOf(d, now) : nextFireOf(d, now);
-    final rule = _ruleFromData(d);
+    final rule = ruleFromData(d);
     final link = d['link'] is Map ? d['link'] as Map : null;
 
     return Card(
@@ -365,6 +387,18 @@ class _ReminderCard extends StatelessWidget {
                             label: (link['label'] ?? '').toString(),
                             tint: Brand.blue,
                           ),
+                        if ((d['priority'] ?? 'none') == 'high')
+                          _MetaChip(
+                            icon: Icons.flag,
+                            label: t.remPriorityHigh,
+                            tint: Brand.warning,
+                          ),
+                        if ((d['category'] ?? '').toString().isNotEmpty)
+                          _MetaChip(
+                            icon: Icons.label_outline,
+                            label: (d['category']).toString(),
+                            tint: Brand.cyan,
+                          ),
                       ],
                     ),
                     if ((d['notes'] ?? '').toString().isNotEmpty) ...[
@@ -385,6 +419,8 @@ class _ReminderCard extends StatelessWidget {
                 onSelected: (v) {
                   if (v == 'edit') editReminder(context, item: item);
                   if (v == 'snooze') _snooze(context, item);
+                  if (v == 'priority') _togglePriority(context, item);
+                  if (v == 'category') _setCategory(context, item);
                   if (v == 'del') _del(context, item);
                 },
                 itemBuilder: (_) => [
@@ -396,6 +432,26 @@ class _ReminderCard extends StatelessWidget {
                           const SizedBox(width: Gap.sm),
                           Text(t.remSnooze),
                         ])),
+                  PopupMenuItem(
+                      value: 'priority',
+                      child: Row(children: [
+                        Icon(
+                            (d['priority'] ?? 'none') == 'high'
+                                ? Icons.flag
+                                : Icons.outlined_flag,
+                            size: 18),
+                        const SizedBox(width: Gap.sm),
+                        Text((d['priority'] ?? 'none') == 'high'
+                            ? t.remPriorityClear
+                            : t.remPrioritySet),
+                      ])),
+                  PopupMenuItem(
+                      value: 'category',
+                      child: Row(children: [
+                        const Icon(Icons.label_outline, size: 18),
+                        const SizedBox(width: Gap.sm),
+                        Text(t.remCategorySet),
+                      ])),
                   PopupMenuItem(value: 'edit', child: Text(t.edit)),
                   PopupMenuItem(value: 'del', child: Text(t.delete)),
                 ],
@@ -451,6 +507,39 @@ class _ReminderCard extends StatelessWidget {
           content: Text(
               '${t.remSnoozedTo} ${DateFormat('d MMM, h:mm a').format(chosen)}')));
     }
+  }
+
+  void _togglePriority(BuildContext context, Map<String, dynamic> it) {
+    final app = context.read<AppState>();
+    final d = it['data'] as Map<String, dynamic>;
+    final high = (d['priority'] ?? 'none') == 'high';
+    app.reminders.update(it, {'priority': high ? 'none' : 'high'});
+  }
+
+  Future<void> _setCategory(BuildContext context, Map<String, dynamic> it) async {
+    final t = AppLocalizations.of(context);
+    final app = context.read<AppState>();
+    final d = it['data'] as Map<String, dynamic>;
+    final c = TextEditingController(text: (d['category'] ?? '').toString());
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t.remCategorySet),
+        content: TextField(
+          controller: c,
+          autofocus: true,
+          decoration: InputDecoration(hintText: t.remCategoryHint),
+          onSubmitted: (_) => Navigator.pop(ctx, true),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true), child: Text(t.save)),
+        ],
+      ),
+    );
+    if (ok == true) app.reminders.update(it, {'category': c.text.trim()});
   }
 
   void _del(BuildContext context, Map<String, dynamic> it) {
