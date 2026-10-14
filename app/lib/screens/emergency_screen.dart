@@ -3,11 +3,31 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import '../state.dart';
+import '../theme.dart';
 import '../l10n/app_localizations.dart';
-import '../widgets/safety_sos_countdown.dart';
+import '../widgets/emergency_card_view.dart';
+import '../widgets/emergency_helplines.dart';
+import '../widgets/emergency_first_aid.dart';
+import '../widgets/emergency_nearest_help.dart';
+import '../widgets/emergency_sos_panel.dart';
 import 'safety_screen.dart';
 
+/// ADVANCED Emergency + SOS screen.
+///
+/// - A proper, high-contrast EMERGENCY CARD (blood group, allergies,
+///   conditions, meds, doctor, insurance, NID ref, organ-donor, contacts) that
+///   is editable, cached OFFLINE (shared_preferences), and shareable to a lock
+///   screen as text OR image.
+/// - One-tap SOS (calls 999 + alerts family with live location, countdown-
+///   cancel, loud mode) via EmergencySosPanel.
+/// - Verified BD helpline directory, nearest-help (reuses /nearby) and
+///   source-named first-aid quick cards.
+///
+/// All strings via AppLocalizations. Bangla digits via the locale-digit helper
+/// (code points) so no Bangla literal lives in this file.
 class EmergencyScreen extends StatefulWidget {
   const EmergencyScreen({super.key});
   @override
@@ -15,13 +35,26 @@ class EmergencyScreen extends StatefulWidget {
 }
 
 class _EmergencyScreenState extends State<EmergencyScreen> {
+  static const _cacheKey = 'emergency_card_cache';
+
+  final _name = TextEditingController();
   final _blood = TextEditingController();
   final _allergies = TextEditingController();
   final _meds = TextEditingController();
   final _conditions = TextEditingController();
+  final _doctor = TextEditingController();
+  final _insurance = TextEditingController();
+  final _nid = TextEditingController();
+  bool _organDonor = false;
   List<Map<String, dynamic>> _contacts = [];
+
+  final _cardKey = GlobalKey();
+
   bool _loading = true;
   bool _saving = false;
+  bool _offline = false; // served from cache (no network)
+  bool _editing = false;
+  int _sosCountdown = 5;
 
   @override
   void initState() {
@@ -31,73 +64,171 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
 
   @override
   void dispose() {
-    _blood.dispose(); _allergies.dispose(); _meds.dispose(); _conditions.dispose();
+    for (final c in [
+      _name,
+      _blood,
+      _allergies,
+      _meds,
+      _conditions,
+      _doctor,
+      _insurance,
+      _nid
+    ]) {
+      c.dispose();
+    }
     super.dispose();
   }
 
-  Future<void> _load() async {
-    try {
-      final c = await context.read<AppState>().api.getEmergency();
-      _blood.text = c['blood_group'] ?? '';
-      _allergies.text = c['allergies'] ?? '';
-      _meds.text = c['medicines'] ?? '';
-      _conditions.text = c['conditions'] ?? '';
-      _contacts = ((c['contacts'] ?? []) as List).cast<Map<String, dynamic>>();
-    } catch (_) {}
-    if (mounted) setState(() => _loading = false);
+  // --- locale digit helper (Bangla numerals from code points; no literal) ---
+  String _digits(String latin) {
+    final name = AppLocalizations.of(context).localeName;
+    if (!name.startsWith('bn')) return latin;
+    const bnZero = 0x09E6;
+    final b = StringBuffer();
+    for (final ch in latin.runes) {
+      if (ch >= 0x30 && ch <= 0x39) {
+        b.writeCharCode(bnZero + (ch - 0x30));
+      } else {
+        b.writeCharCode(ch);
+      }
+    }
+    return b.toString();
   }
 
-  Future<void> _save() async {
-    setState(() => _saving = true);
-    try {
-      await context.read<AppState>().api.putEmergency({
+  void _apply(Map<String, dynamic> c) {
+    _name.text = '${c['name'] ?? ''}';
+    _blood.text = '${c['blood_group'] ?? ''}';
+    _allergies.text = '${c['allergies'] ?? ''}';
+    _meds.text = '${c['medicines'] ?? ''}';
+    _conditions.text = '${c['conditions'] ?? ''}';
+    _doctor.text = '${c['doctor'] ?? ''}';
+    _insurance.text = '${c['insurance'] ?? ''}';
+    _nid.text = '${c['nid'] ?? ''}';
+    _organDonor = c['organ_donor'] == true;
+    _contacts = ((c['contacts'] ?? []) as List).cast<Map<String, dynamic>>();
+  }
+
+  Map<String, dynamic> _collect() => {
+        'name': _name.text.trim(),
         'blood_group': _blood.text.trim(),
         'allergies': _allergies.text.trim(),
         'medicines': _meds.text.trim(),
         'conditions': _conditions.text.trim(),
+        'doctor': _doctor.text.trim(),
+        'insurance': _insurance.text.trim(),
+        'nid': _nid.text.trim(),
+        'organ_donor': _organDonor,
         'contacts': _contacts,
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).emergencySaved)));
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
-      }
-    } finally {
-      if (mounted) setState(() => _saving = false);
+      };
+
+  Future<void> _load() async {
+    // Offline-first: show cache instantly, then refresh from the server.
+    final prefs = await SharedPreferences.getInstance();
+    final cached = prefs.getString(_cacheKey);
+    if (cached != null) {
+      try {
+        _apply(jsonDecode(cached) as Map<String, dynamic>);
+        _offline = true;
+      } catch (_) {}
     }
+    _sosCountdown = int.tryParse(await Settings.getString('safety_sos_cd') ?? '') ?? 5;
+    try {
+      final c = await context.read<AppState>().api.getEmergency();
+      _apply(c);
+      _offline = false;
+      await prefs.setString(_cacheKey, jsonEncode(_collect()));
+    } catch (_) {
+      // keep whatever cache we had; _offline stays true if we had cache,
+      // and empty state shows if we didn't.
+    }
+    if (mounted) setState(() => _loading = false);
   }
 
-  Future<void> _addContact() async {
-    final name = TextEditingController();
-    final phone = TextEditingController();
-    final rel = TextEditingController();
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(AppLocalizations.of(context).emergencyContactTitle),
-        content: Column(mainAxisSize: MainAxisSize.min, children: [
-          TextField(controller: name, decoration: InputDecoration(labelText: AppLocalizations.of(context).name)),
-          TextField(controller: phone, keyboardType: TextInputType.phone,
-              decoration: InputDecoration(labelText: AppLocalizations.of(context).phone)),
-          TextField(controller: rel, decoration: InputDecoration(labelText: AppLocalizations.of(context).familyRelationLabel)),
-        ]),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(context).cancel)),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(AppLocalizations.of(context).add)),
-        ],
-      ),
-    );
-    if (ok == true && phone.text.trim().isNotEmpty) {
-      setState(() => _contacts.add({
-        'name': name.text.trim(), 'phone': phone.text.trim(), 'relation': rel.text.trim()}));
+  Future<void> _save() async {
+    final t = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _saving = true);
+    final body = _collect();
+    // Always persist to the offline cache first so the card survives offline.
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_cacheKey, jsonEncode(body));
+    try {
+      await context.read<AppState>().api.putEmergency(body);
+      _offline = false;
+      messenger.showSnackBar(SnackBar(content: Text(t.emergencySaved)));
+    } catch (_) {
+      _offline = true;
+      messenger.showSnackBar(SnackBar(content: Text(t.emergencySavedOffline)));
+    } finally {
+      if (mounted) setState(() {
+        _saving = false;
+        _editing = false;
+      });
     }
   }
 
   Future<void> _call(String phone) async {
     final uri = Uri.parse('tel:$phone');
     if (await canLaunchUrl(uri)) await launchUrl(uri);
+  }
+
+  // Build the shareable plain-text (mirrors safety.emergency_card_text order).
+  String _cardText() {
+    final t = AppLocalizations.of(context);
+    final lines = <String>[t.emergencyCardBanner];
+    void add(String label, String v) {
+      if (v.trim().isNotEmpty) lines.add('$label: ${v.trim()}');
+    }
+
+    add(t.name, _name.text);
+    add(t.emergencyBloodGroup, _blood.text);
+    add(t.emergencyAllergies, _allergies.text);
+    add(t.emergencyConditions, _conditions.text);
+    add(t.emergencyMedicines, _meds.text);
+    add(t.emergencyDoctor, _doctor.text);
+    add(t.emergencyInsurance, _insurance.text);
+    add(t.emergencyNid, _nid.text);
+    if (_organDonor) lines.add('${t.emergencyOrganDonor}: ${t.emergencyYes}');
+    final callable =
+        _contacts.where((c) => '${c['phone'] ?? ''}'.trim().isNotEmpty);
+    if (callable.isNotEmpty) {
+      lines.add('${t.emergencyContactTitle}:');
+      for (final c in callable) {
+        final nm = '${c['name'] ?? ''}'.trim();
+        final rel = '${c['relation'] ?? ''}'.trim();
+        final who = nm + (rel.isNotEmpty ? ' ($rel)' : '');
+        lines.add('  • ${who.isEmpty ? '' : '$who — '}${c['phone']}');
+      }
+    }
+    return lines.join('\n');
+  }
+
+  Future<void> _shareCard() async {
+    final t = AppLocalizations.of(context);
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          ListTile(
+            leading: const Icon(Icons.image_outlined),
+            title: Text(t.emergencyShareAsImage),
+            onTap: () => Navigator.pop(ctx, 'image'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.text_snippet_outlined),
+            title: Text(t.emergencyShareAsText),
+            onTap: () => Navigator.pop(ctx, 'text'),
+          ),
+        ]),
+      ),
+    );
+    if (choice == null) return;
+    if (choice == 'text') {
+      await EmergencyCardView.shareAsText(_cardText());
+    } else {
+      final ok = await EmergencyCardView.shareAsImage(_cardKey, _cardText());
+      if (!ok) await EmergencyCardView.shareAsText(_cardText());
+    }
   }
 
   Future<void> _shareLocation() async {
@@ -118,128 +249,281 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
         return;
       }
       final pos = await Geolocator.getCurrentPosition();
-      final link = 'https://maps.google.com/?q=${pos.latitude},${pos.longitude}';
-      await Share.share(t.sosShareText(link));
+      await Share.share(t.sosShareText(
+          'https://maps.google.com/?q=${pos.latitude},${pos.longitude}'));
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text('$e')));
     }
   }
 
-  /// Mirror core.logic.safety.sos_alert_targets: skip entries without a phone,
-  /// keep primary-first order. Returns the first callable contact.
-  Map<String, dynamic>? _firstCallable() {
-    for (final c in _contacts) {
-      if ((c['phone'] ?? '').toString().trim().isNotEmpty) return c;
-    }
-    return null;
-  }
-
-  Future<void> _sos() async {
-    // Never blindly dial _contacts.first — pick the first entry that has a
-    // non-empty phone number.
-    final primary = _firstCallable();
-    if (primary == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context).emergencyAddContactFirst)));
-      return;
-    }
-    final confirm = await showDialog<bool>(
+  Future<void> _addContact() async {
+    final t = AppLocalizations.of(context);
+    final name = TextEditingController();
+    final phone = TextEditingController();
+    final rel = TextEditingController();
+    final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('SOS'),
-        content: Text(AppLocalizations.of(context).emergencySosConfirm(primary['name'], primary['phone'])),
+        title: Text(t.emergencyContactTitle),
+        content: Column(mainAxisSize: MainAxisSize.min, children: [
+          TextField(
+              controller: name,
+              decoration: InputDecoration(labelText: t.name)),
+          TextField(
+              controller: phone,
+              keyboardType: TextInputType.phone,
+              decoration: InputDecoration(labelText: t.phone)),
+          TextField(
+              controller: rel,
+              decoration:
+                  InputDecoration(labelText: t.familyRelationLabel)),
+        ]),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(context).emergencyNo)),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(t.cancel)),
           FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: Colors.red),
-              onPressed: () => Navigator.pop(ctx, true), child: Text(AppLocalizations.of(context).call)),
+              onPressed: () => Navigator.pop(ctx, true), child: Text(t.add)),
         ],
       ),
     );
-    if (confirm != true) return;
-    // configurable countdown (shared with the Safety screen) lets a mis-tap
-    // be cancelled before contacts are alerted.
-    final cd = int.tryParse(await Settings.getString('safety_sos_cd') ?? '') ?? 5;
-    if (!mounted) return;
-    final fire = await SafetySosCountdown.show(context, cd);
-    if (fire && mounted) _call(primary['phone'].toString());
+    if (ok == true && phone.text.trim().isNotEmpty) {
+      setState(() {
+        _contacts.add({
+          'name': name.text.trim(),
+          'phone': phone.text.trim(),
+          'relation': rel.text.trim()
+        });
+        _editing = true;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
     final t = AppLocalizations.of(context);
+    if (_loading) {
+      return Scaffold(
+        appBar: AppBar(title: Text(t.emergencyCard)),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context).emergencyCard), actions: [
+      appBar: AppBar(title: Text(t.emergencyCard), actions: [
+        IconButton(
+          tooltip: t.emergencyShare,
+          onPressed: _shareCard,
+          icon: const Icon(Icons.ios_share),
+        ),
         _saving
-            ? const Padding(padding: EdgeInsets.all(14),
-                child: SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2)))
-            : IconButton(onPressed: _save, icon: const Icon(Icons.save)),
+            ? const Padding(
+                padding: EdgeInsets.all(14),
+                child: SizedBox(
+                    height: 18,
+                    width: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2)))
+            : IconButton(
+                tooltip: _editing ? t.save : t.edit,
+                onPressed: _editing
+                    ? _save
+                    : () => setState(() => _editing = true),
+                icon: Icon(_editing ? Icons.save : Icons.edit_outlined),
+              ),
       ]),
-      body: ListView(padding: const EdgeInsets.all(16), children: [
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton.icon(
-            style: FilledButton.styleFrom(
-                backgroundColor: Colors.red, padding: const EdgeInsets.symmetric(vertical: 16)),
-            onPressed: _sos,
-            icon: const Icon(Icons.sos, size: 28),
-            label: Text(AppLocalizations.of(context).emergencySosButton, style: TextStyle(fontSize: 18)),
-          ),
-        ),
-        const SizedBox(height: 10),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: _shareLocation,
-            icon: const Icon(Icons.my_location),
-            label: Text(t.shareMyLocation),
-          ),
-        ),
-        const SizedBox(height: 10),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const SafetyScreen())),
-            icon: const Icon(Icons.health_and_safety_outlined),
-            label: Text(t.safetyToolsButton),
-          ),
-        ),
-        const SizedBox(height: 16),
-        TextField(controller: _blood, decoration: InputDecoration(labelText: AppLocalizations.of(context).emergencyBloodGroup)),
-        const SizedBox(height: 10),
-        TextField(controller: _allergies, maxLines: 2,
-            decoration: InputDecoration(labelText: AppLocalizations.of(context).emergencyAllergies)),
-        const SizedBox(height: 10),
-        TextField(controller: _meds, maxLines: 2,
-            decoration: InputDecoration(labelText: AppLocalizations.of(context).emergencyMedicines)),
-        const SizedBox(height: 10),
-        TextField(controller: _conditions, maxLines: 2,
-            decoration: InputDecoration(labelText: AppLocalizations.of(context).emergencyConditions)),
-        const SizedBox(height: 18),
-        Row(children: [
-          Text(AppLocalizations.of(context).emergencyContactTitle, style: TextStyle(fontWeight: FontWeight.bold)),
-          const Spacer(),
-          TextButton.icon(onPressed: _addContact,
-              icon: const Icon(Icons.add), label: Text(AppLocalizations.of(context).add)),
-        ]),
-        for (int i = 0; i < _contacts.length; i++)
-          Card(child: ListTile(
-            title: Text(_contacts[i]['name'] ?? ''),
-            subtitle: Text('${_contacts[i]['phone']} · ${_contacts[i]['relation'] ?? ''}'),
-            trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-              IconButton(icon: const Icon(Icons.call, color: Colors.green),
-                  onPressed: () => _call(_contacts[i]['phone'])),
-              IconButton(icon: const Icon(Icons.delete_outline),
-                  onPressed: () => setState(() => _contacts.removeAt(i))),
+      body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        if (_offline)
+          Padding(
+            padding: const EdgeInsets.only(bottom: Gap.sm),
+            child: Row(children: [
+              const Icon(Icons.cloud_off, size: 16, color: Colors.grey),
+              const SizedBox(width: Gap.xs),
+              Expanded(
+                  child: Text(t.emergencyOfflineBadge,
+                      style: const TextStyle(
+                          fontSize: 12, color: Colors.grey))),
             ]),
-          )),
-        const SizedBox(height: 20),
-        Text(AppLocalizations.of(context).emergencyFooterNote, style: TextStyle(fontSize: 12, color: Colors.grey)),
+          ),
+
+        // ---- one-tap SOS ----
+        EmergencySosPanel(
+          contacts: _contacts,
+          countdownSeconds: _sosCountdown,
+          onNoContact: () => ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(t.emergencyAddContactFirst))),
+        ),
+        const SizedBox(height: Gap.sm),
+        Row(children: [
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: _shareLocation,
+              icon: const Icon(Icons.my_location, size: 18),
+              label: Text(t.shareMyLocation),
+            ),
+          ),
+          const SizedBox(width: Gap.sm),
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const SafetyScreen())),
+              icon: const Icon(Icons.health_and_safety_outlined, size: 18),
+              label: Text(t.safetyToolsButton),
+            ),
+          ),
+        ]),
+
+        const Divider(height: Gap.xxl),
+
+        // ---- the emergency card (preview or editor) ----
+        _sectionTitle(t.emergencyCardSection),
+        const SizedBox(height: Gap.sm),
+        if (_editing) _editor(t) else _preview(t),
+
+        const Divider(height: Gap.xxl),
+
+        // ---- verified helpline directory ----
+        _sectionTitle(t.emergencyHelplinesSection),
+        const SizedBox(height: Gap.sm),
+        EmergencyHelplineList(onCall: _call, localeDigits: _digits),
+
+        const Divider(height: Gap.xxl),
+
+        // ---- nearest help ----
+        _sectionTitle(t.emergencyNearestSection),
+        const SizedBox(height: Gap.sm),
+        const EmergencyNearestHelp(),
+
+        const Divider(height: Gap.xxl),
+
+        // ---- first-aid quick cards ----
+        _sectionTitle(t.emergencyFirstAidSection),
+        const SizedBox(height: Gap.sm),
+        FirstAidList(localeDigits: _digits),
+
+        const SizedBox(height: Gap.lg),
+        Text(t.emergencyFooterNote,
+            style: const TextStyle(fontSize: 12, color: Colors.grey)),
       ]),
     );
+  }
+
+  Widget _sectionTitle(String s) =>
+      Text(s, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16));
+
+  Widget _preview(AppLocalizations t) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      EmergencyCardView(
+        boundaryKey: _cardKey,
+        name: _name.text,
+        bloodGroup: _blood.text,
+        allergies: _allergies.text,
+        conditions: _conditions.text,
+        medicines: _meds.text,
+        doctor: _doctor.text,
+        insurance: _insurance.text,
+        nid: _nid.text,
+        organDonor: _organDonor,
+        contacts: _contacts,
+      ),
+      const SizedBox(height: Gap.sm),
+      Row(children: [
+        Expanded(
+          child: OutlinedButton.icon(
+            onPressed: () => setState(() => _editing = true),
+            icon: const Icon(Icons.edit_outlined, size: 18),
+            label: Text(t.edit),
+          ),
+        ),
+        const SizedBox(width: Gap.sm),
+        Expanded(
+          child: FilledButton.tonalIcon(
+            onPressed: _shareCard,
+            icon: const Icon(Icons.ios_share, size: 18),
+            label: Text(t.emergencyShare),
+          ),
+        ),
+      ]),
+    ]);
+  }
+
+  Widget _editor(AppLocalizations t) {
+    InputDecoration dec(String l) => InputDecoration(labelText: l);
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      TextField(controller: _name, decoration: dec(t.name)),
+      const SizedBox(height: Gap.sm),
+      TextField(controller: _blood, decoration: dec(t.emergencyBloodGroup)),
+      const SizedBox(height: Gap.sm),
+      TextField(
+          controller: _allergies,
+          maxLines: 2,
+          decoration: dec(t.emergencyAllergies)),
+      const SizedBox(height: Gap.sm),
+      TextField(
+          controller: _conditions,
+          maxLines: 2,
+          decoration: dec(t.emergencyConditions)),
+      const SizedBox(height: Gap.sm),
+      TextField(
+          controller: _meds, maxLines: 2, decoration: dec(t.emergencyMedicines)),
+      const SizedBox(height: Gap.sm),
+      TextField(controller: _doctor, decoration: dec(t.emergencyDoctor)),
+      const SizedBox(height: Gap.sm),
+      TextField(controller: _insurance, decoration: dec(t.emergencyInsurance)),
+      const SizedBox(height: Gap.sm),
+      TextField(controller: _nid, decoration: dec(t.emergencyNid)),
+      SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        value: _organDonor,
+        onChanged: (v) => setState(() => _organDonor = v),
+        title: Text(t.emergencyOrganDonor),
+      ),
+      const SizedBox(height: Gap.sm),
+      Row(children: [
+        Text(t.emergencyContactTitle,
+            style: const TextStyle(fontWeight: FontWeight.bold)),
+        const Spacer(),
+        TextButton.icon(
+            onPressed: _addContact,
+            icon: const Icon(Icons.add),
+            label: Text(t.add)),
+      ]),
+      for (int i = 0; i < _contacts.length; i++)
+        Card(
+          margin: const EdgeInsets.only(bottom: Gap.xs),
+          child: ListTile(
+            title: Text('${_contacts[i]['name'] ?? ''}'),
+            subtitle:
+                Text('${_contacts[i]['phone']} · ${_contacts[i]['relation'] ?? ''}'),
+            trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+              IconButton(
+                  icon: const Icon(Icons.call, color: Brand.success),
+                  onPressed: () => _call('${_contacts[i]['phone']}')),
+              IconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  onPressed: () =>
+                      setState(() => _contacts.removeAt(i))),
+            ]),
+          ),
+        ),
+      const SizedBox(height: Gap.sm),
+      Row(children: [
+        Expanded(
+          child: OutlinedButton(
+            onPressed: () => setState(() {
+              _editing = false;
+              _load(); // discard unsaved edits by reloading
+            }),
+            child: Text(t.cancel),
+          ),
+        ),
+        const SizedBox(width: Gap.sm),
+        Expanded(
+          child: FilledButton.icon(
+            onPressed: _save,
+            icon: const Icon(Icons.save, size: 18),
+            label: Text(t.save),
+          ),
+        ),
+      ]),
+    ]);
   }
 }

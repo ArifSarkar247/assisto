@@ -798,6 +798,9 @@ ReferralSnippetTests = _make_snippet_case(
     "core.logic.referral_tests_snippets", "ReferralSnippetTests")
 SafetyJourneySnippetTests = _make_snippet_case(
     "core.logic.safety_journey_tests_snippets", "SafetyJourneySnippetTests")
+# Watch Feed (advanced) — pure aggregation/grouping/priority helper.
+WatchFeedSnippetTests = _make_snippet_case(
+    "core.logic.watch_feed_tests_snippets", "WatchFeedSnippetTests")
 
 
 # ---------------------------------------------------------------------------

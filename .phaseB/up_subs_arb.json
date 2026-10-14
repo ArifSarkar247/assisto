@@ -1,0 +1,74 @@
+{
+  "subsEditTitle": ["সাবস্ক্রিপশন এডিট", "Edit subscription"],
+  "subsValidation": ["নাম আর সঠিক টাকার অঙ্ক দিন", "Enter a name and a valid amount"],
+
+  "subsCycle": ["বিলিং চক্র", "Billing cycle"],
+  "subsCycleWeekly": ["সাপ্তাহিক", "Weekly"],
+  "subsCycleMonthly": ["মাসিক", "Monthly"],
+  "subsCycleQuarterly": ["ত্রৈমাসিক", "Quarterly"],
+  "subsCycleYearly": ["বার্ষিক", "Yearly"],
+  "subsCycleCustom": ["কাস্টম", "Custom"],
+  "subsCustomDays": ["কত দিন পর পর", "Every how many days"],
+
+  "subsCategory": ["ক্যাটাগরি", "Category"],
+  "subsCatStreaming": ["স্ট্রিমিং", "Streaming"],
+  "subsCatInternet": ["ইন্টারনেট", "Internet"],
+  "subsCatMobile": ["মোবাইল রিচার্জ", "Mobile recharge"],
+  "subsCatUtility": ["ইউটিলিটি", "Utility"],
+  "subsCatFitness": ["জিম ও ফিটনেস", "Gym & fitness"],
+  "subsCatShopping": ["শপিং", "Shopping"],
+  "subsCatProductivity": ["কাজের অ্যাপ", "Productivity"],
+  "subsCatOther": ["অন্যান্য", "Other"],
+
+  "subsPaymentMethod": ["পেমেন্ট মাধ্যম", "Payment method"],
+  "subsPayBkash": ["বিকাশ", "bKash"],
+  "subsPayNagad": ["নগদ", "Nagad"],
+  "subsPayRocket": ["রকেট", "Rocket"],
+  "subsPayCard": ["কার্ড", "Card"],
+  "subsPayBank": ["ব্যাংক", "Bank"],
+  "subsPayCash": ["ক্যাশ", "Cash"],
+
+  "subsTrialEnd": ["ফ্রি ট্রায়াল শেষ", "Free trial ends"],
+  "subsAutoRenew": ["অটো-রিনিউ", "Auto-renew"],
+  "subsAutoRenewHint": ["চক্র শেষে নিজে থেকে চার্জ হবে", "Charges automatically at cycle end"],
+  "subsNotes": ["নোট", "Notes"],
+
+  "subsStatus": ["অবস্থা", "Status"],
+  "subsStatusActive": ["চালু", "Active"],
+  "subsStatusPaused": ["বিরতি", "Paused"],
+  "subsStatusCancelled": ["বাতিল", "Cancelled"],
+
+  "subsActiveCount": ["{count}টি চালু সাবস্ক্রিপশন", "{count} active subscriptions"],
+  "subsPerMonth": ["প্রতি মাসে", "Per month"],
+  "subsPerYear": ["প্রতি বছর", "Per year"],
+
+  "subsMarkPaid": ["পরিশোধ হয়েছে চিহ্ন দিন", "Mark paid"],
+  "subsMarkedPaid": ["{name} পরিশোধ হয়েছে — পরের তারিখ ঠিক করা হলো", "{name} marked paid — next due updated"],
+
+  "subsDeleteTitle": ["সাবস্ক্রিপশন মুছবেন?", "Delete subscription?"],
+  "subsDeleteBody": ["{name} ও তার হিসাব মুছে যাবে।", "{name} and its history will be removed."],
+
+  "subsNoDate": ["তারিখ নেই", "No date"],
+  "subsDueToday": ["আজই বকেয়া", "Due today"],
+  "subsDueTomorrow": ["আগামীকাল বকেয়া", "Due tomorrow"],
+  "subsDueInDays": ["{days} দিনে বকেয়া", "Due in {days} days"],
+  "subsOverdue": ["{days} দিন পার হয়েছে", "Overdue by {days} days"],
+
+  "subsUpcoming7": ["আগামী ৭ দিনে", "Next 7 days"],
+  "subsUpcoming30": ["আগামী ৩০ দিনে", "Next 30 days"],
+  "subsByCategory": ["ক্যাটাগরি অনুযায়ী", "By category"],
+  "subsByPayment": ["পেমেন্ট মাধ্যম অনুযায়ী", "By payment method"],
+  "subsMostExpensive": ["সবচেয়ে ব্যয়বহুল", "Most expensive"],
+  "subsAll": ["সব সাবস্ক্রিপশন", "All subscriptions"],
+
+  "subsTrialAlertTitle": ["{name} ট্রায়াল শেষ হচ্ছে", "{name} trial is ending"],
+  "subsTrialAlertBody": ["{days} দিনে {amount} চার্জ হবে — চাইলে এখনই বাতিল করুন", "{amount} charges in {days} days — cancel now if you want"],
+
+  "subsNudgeTitle": ["{name} কি আর লাগছে?", "Still using {name}?"],
+  "subsNudgeBody": ["{days} দিন ব্যবহার হয়নি — বাতিল করলে বছরে {amount} বাঁচবে", "Unused for {days} days — cancel to save {amount}/year"],
+
+  "subsBurdenTitle": ["আয়ের তুলনায় মাসিক বোঝা", "Monthly burden vs income"],
+  "subsBurdenBody": ["সাবস্ক্রিপশন আপনার মাসিক আয়ের {pct}% — মাসে {monthly}, আয় {income}", "Subscriptions are {pct}% of your monthly income — {monthly}/mo of {income}"],
+
+  "subsFooterHint": ["সব হিসাব আপনার ফোনেই — বকেয়ার আগে মনে করিয়ে দেব।", "All figures stay on your phone — I'll remind you before each is due."]
+}

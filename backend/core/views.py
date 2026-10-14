@@ -1843,24 +1843,234 @@ class WhatsAppWebhookView(APIView):
         return Response({"ok": True})
 
 
-# ---------- Nominee / family access (feature 36) ----------
+# ---------- Nominee / family access (feature 36 — advanced) ----------
+#
+# SERVER-AUTHORITATIVE SAFETY GATE. The pure state-machine core.logic.nominee is
+# the single source of truth for every release transition; the view NEVER trusts
+# a client-sent release_state. All lifecycle fields are read_only in the
+# serializer, and the two helpers below are the ONLY paths that write them —
+# each through the validated logic functions. This is what stops a client from
+# forging an `open` state or skipping the grace window.
+
+def _nominee_build_input(request):
+    d = request.data or {}
+    scopes = d.get("scopes")
+    if scopes is None and d.get("scope"):
+        scopes = [d.get("scope")]
+    return dict(
+        name=d.get("name", ""),
+        contact=d.get("contact", ""),
+        relationship=d.get("relationship", "family"),
+        scopes=scopes,
+        priority=d.get("priority", 1),
+        trigger=d.get("trigger", "owner_grant"),
+        inactivity_days=d.get("inactivity_days", 30),
+        grace_hours=d.get("grace_hours", 48),
+        multi_verify_ids=d.get("multi_verify_ids"),
+        multi_verify_quorum=d.get("multi_verify_quorum", 2),
+    )
+
+
+def _apply_nominee_row(obj, row):
+    """Persist the normalized dict a core.logic.nominee fn returned back onto the
+    model. Only ever called with a dict the logic layer produced."""
+    from django.utils.dateparse import parse_datetime
+    obj.name = row["name"]
+    obj.contact = row["contact"]
+    obj.relationship = row["relationship"]
+    obj.scopes = row["scopes"]
+    obj.scope = row["scope"]
+    obj.priority = row["priority"]
+    obj.trigger = row["trigger"]
+    obj.inactivity_days = row["inactivity_days"]
+    obj.grace_hours = row["grace_hours"]
+    obj.multi_verify_ids = row["multi_verify_ids"]
+    obj.multi_verify_quorum = row["multi_verify_quorum"]
+    obj.release_state = row["release_state"]
+    obj.release_pending = row.get("release_pending", row["release_state"] == "pending")
+    obj.release_requested_at = (parse_datetime(row["release_requested_at"])
+                                if row.get("release_requested_at") else None)
+    obj.release_confirmations = row.get("release_confirmations") or []
+    obj.activated = row["activated"]
+    obj.activated_at = (parse_datetime(row["activated_at"])
+                        if row.get("activated_at") else None)
+
+
 class NomineeViewSet(OwnedViewSet):
+    """list/create/update/delete nominees. create + update feed owner input
+    through nominee.build_nominee (validates → 400 on an unusable plan) so a bad
+    definition can never silently become a live grant. A client PATCH can never
+    change release_state: build_nominee always returns a fresh dormant lifecycle
+    on edit, and the lifecycle fields are serializer read-only regardless."""
     from .models import Nominee as _M
     from .serializers import NomineeSerializer as _S
     model = _M; kind = "nominee"; serializer_class = _S
 
+    def create(self, request, *args, **kwargs):
+        from .logic import nominee as nlogic
+        lang = req_lang(request)
+        try:
+            row = nlogic.build_nominee(**_nominee_build_input(request))
+        except ValueError:
+            return Response({"detail": pick(lang,
+                "নাম ও অন্তত একটি অ্যাক্সেস ক্যাটেগরি দিন।",
+                "Provide a name and at least one access category.")}, status=400)
+        from .models import Nominee
+        obj = Nominee(user=request.user)
+        _apply_nominee_row(obj, row)
+        obj.save()
+        log(request.user, "nominee.create", id=obj.id, trigger=obj.trigger,
+            scopes=obj.scopes)
+        return Response(self.get_serializer(obj).data, status=201)
+
+    def update(self, request, *args, **kwargs):
+        from .logic import nominee as nlogic
+        lang = req_lang(request)
+        obj = self.get_object()
+        try:
+            row = nlogic.build_nominee(**_nominee_build_input(request))
+        except ValueError:
+            return Response({"detail": pick(lang,
+                "নাম ও অন্তত একটি অ্যাক্সেস ক্যাটেগরি দিন।",
+                "Provide a name and at least one access category.")}, status=400)
+        # Editing a plan returns it to a dormant/armed lifecycle — never lets a
+        # client-sent release_state survive. Any live release must be re-driven
+        # through request-release / confirm-open below.
+        _apply_nominee_row(obj, row)
+        obj.save()
+        log(request.user, "nominee.update", id=obj.id)
+        return Response(self.get_serializer(obj).data)
+
+
+def _wellness_state_for(user):
+    """Compute the current Safe-Journey wellness state for a user from their
+    WellnessWatch row (item 16). Only 'alert' is accepted as the inactivity
+    trigger's precondition in request_release."""
+    from .logic import safety_journey as SJ
+    w = getattr(user, "wellness_watch", None)
+    if w is None:
+        return "off"
+    cfg = {"enabled": w.enabled, "parent_opt_in": w.parent_opt_in,
+           "period_hours": w.period_hours,
+           "response_window_min": w.response_window,
+           "quiet_start": w.quiet_start, "quiet_end": w.quiet_end}
+    state, _ = SJ.wellness_state(cfg, w.last_activity_at,
+                                 prompt_sent_at=w.prompt_sent_at)
+    return state
+
+
+@api_view(["POST"])
+def nominee_request_release(request, pk):
+    """POST /nominees/<pk>/request-release — armed → pending (start the
+    cancellable grace window) via nominee.request_release. Preconditions per
+    trigger are enforced in the pure layer; nothing is shared yet."""
+    from .models import Nominee
+    from .logic import nominee as nlogic
+    from .serializers import _nominee_row, NomineeSerializer
+    lang = req_lang(request)
+    n = Nominee.objects.filter(user=request.user, pk=pk).first()
+    if not n:
+        return Response({"detail": pick(lang, "পাওয়া যায়নি।", "Not found.")}, status=404)
+
+    trigger = n.trigger
+    owner_confirmed = bool(request.data.get("owner_confirmed", False))
+    confirmations = request.data.get("confirmations") or []
+    # inactivity: the wellness_state is computed SERVER-SIDE from the existing
+    # Safe-Journey engine — the client cannot supply it.
+    wellness_state = _wellness_state_for(request.user) if trigger == "inactivity" else None
+
+    ok, bn, en, row = nlogic.request_release(
+        _nominee_row(n), owner_confirmed=owner_confirmed,
+        now=timezone.now(), wellness_state=wellness_state,
+        confirmations=confirmations)
+    if not ok:
+        return Response({"detail": pick(lang, bn, en)}, status=409)
+    _apply_nominee_row(n, row)
+    n.save()
+    log(request.user, "nominee.request_release", id=n.id, trigger=trigger,
+        state=n.release_state)
+    return Response(NomineeSerializer(n).data)
+
+
+@api_view(["POST"])
+def nominee_cancel_release(request, pk):
+    """POST /nominees/<pk>/cancel-release — the owner's always-on kill switch.
+    Returns any state to `armed`, closing/revoking any access. Always allowed."""
+    from .models import Nominee
+    from .logic import nominee as nlogic
+    from .serializers import _nominee_row, NomineeSerializer
+    lang = req_lang(request)
+    n = Nominee.objects.filter(user=request.user, pk=pk).first()
+    if not n:
+        return Response({"detail": pick(lang, "পাওয়া যায়নি।", "Not found.")}, status=404)
+    row = nlogic.cancel_release(_nominee_row(n))
+    _apply_nominee_row(n, row)
+    n.save()
+    log(request.user, "nominee.cancel_release", id=n.id)
+    return Response(NomineeSerializer(n).data)
+
+
+@api_view(["POST"])
+def nominee_confirm_open(request, pk):
+    """POST /nominees/<pk>/confirm-open — the FINAL open step: pending → open via
+    nominee.open_access, which REFUSES unless the grace window has fully elapsed
+    (can_open_now) AND the owner confirms once more. Rejects with 409 if the
+    window has not elapsed — this is what stops skipping the grace period."""
+    from .models import Nominee
+    from .logic import nominee as nlogic
+    from .serializers import _nominee_row, NomineeSerializer
+    lang = req_lang(request)
+    n = Nominee.objects.filter(user=request.user, pk=pk).first()
+    if not n:
+        return Response({"detail": pick(lang, "পাওয়া যায়নি।", "Not found.")}, status=404)
+    owner_confirmed = bool(request.data.get("owner_confirmed", False))
+    now = timezone.now()
+    if not nlogic.can_open_now(_nominee_row(n), now=now):
+        return Response({"detail": pick(lang, "গ্রেস সময় এখনও শেষ হয়নি।",
+                                        "The grace window has not elapsed yet.")},
+                        status=409)
+    ok, bn, en, row = nlogic.open_access(_nominee_row(n),
+                                         owner_confirmed=owner_confirmed, now=now)
+    if not ok:
+        return Response({"detail": pick(lang, bn, en)}, status=409)
+    _apply_nominee_row(n, row)
+    n.save()
+    log(request.user, "nominee.confirm_open", id=n.id, scopes=n.scopes)
+    return Response(NomineeSerializer(n).data)
+
 
 @api_view(["POST"])
 def nominee_activate(request, pk):
-    """Owner explicitly opens nominee access (e.g. during an emergency). Scoped,
-    audit-logged, reversible — never silent."""
+    """Legacy POST /nominees/<pk>/activate kept for back-compat and now the FINAL
+    open step: it gates on nominee.can_open_now (grace fully elapsed) and a final
+    owner confirmation, mirroring confirm-open. activated=False delegates to
+    cancel_release (the always-safe revoke)."""
     from .models import Nominee
+    from .logic import nominee as nlogic
+    from .serializers import _nominee_row, NomineeSerializer
+    lang = req_lang(request)
     n = Nominee.objects.filter(user=request.user, pk=pk).first()
     if not n:
-        return Response({"detail": "not found"}, status=404)
-    n.activated = bool(request.data.get("activated", True))
-    n.activated_at = timezone.now() if n.activated else None
-    n.save(update_fields=["activated", "activated_at"])
+        return Response({"detail": pick(lang, "পাওয়া যায়নি।", "Not found.")}, status=404)
+    want = bool(request.data.get("activated", True))
+    now = timezone.now()
+    if not want:
+        row = nlogic.cancel_release(_nominee_row(n))
+        _apply_nominee_row(n, row)
+        n.save()
+        log(request.user, "nominee.activate", id=n.id, on=False)
+        return Response({"id": n.id, "activated": n.activated})
+    if not nlogic.can_open_now(_nominee_row(n), now=now):
+        return Response({"detail": pick(lang, "গ্রেস সময় এখনও শেষ হয়নি।",
+                                        "The grace window has not elapsed yet.")},
+                        status=409)
+    ok, bn, en, row = nlogic.open_access(
+        _nominee_row(n), owner_confirmed=bool(request.data.get("owner_confirmed", True)),
+        now=now)
+    if not ok:
+        return Response({"detail": pick(lang, bn, en)}, status=409)
+    _apply_nominee_row(n, row)
+    n.save()
     log(request.user, "nominee.activate", id=n.id, on=n.activated)
     return Response({"id": n.id, "activated": n.activated})
 

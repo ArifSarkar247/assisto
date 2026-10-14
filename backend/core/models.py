@@ -395,12 +395,22 @@ class SavingsGoal(models.Model):
 
 
 class Subscription(models.Model):
-    """Feature 10 — recurring subscriptions."""
+    """Feature 10 — recurring subscriptions.
+
+    `cycle` widened to 16 chars so the advanced UI's full words
+    (weekly|monthly|quarterly|yearly|custom) round-trip without truncation.
+    `details` is a JSON map for the richer fields the advanced sheet collects
+    (category, payment_method, trial_end, auto_renew, notes, icon, colour,
+    status pause/cancel, custom_days, last_used …). Kept nullable/default so
+    existing rows stay valid with no data migration — see the pure engine
+    core.logic.subscriptions and .phaseB/up_subs_integration.md."""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="subscriptions")
     name = models.CharField(max_length=80)
     amount = models.DecimalField(max_digits=14, decimal_places=2)
-    cycle = models.CharField(max_length=8, default="monthly")  # monthly|yearly
+    cycle = models.CharField(max_length=16, default="monthly")  # weekly|monthly|quarterly|yearly|custom
     next_due = models.DateField(null=True, blank=True)
+    # Richer advanced-UI fields, kept as a real JSON map so values survive intact.
+    details = models.JSONField(default=dict, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -437,6 +447,10 @@ class EmergencyCard(models.Model):
     conditions = models.TextField(blank=True)
     notes = models.TextField(blank=True)
     contacts = models.JSONField(default=list, blank=True)  # [{name, phone, relation}]
+    # Advanced emergency-card extras the printable card collects: name, doctor,
+    # insurance, nid_ref (reference string only — treat as sensitive, never
+    # index/log), organ_donor (bool). Nullable/default so existing rows are safe.
+    card = models.JSONField(default=dict, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 
@@ -568,6 +582,30 @@ class Nominee(models.Model):
     activated = models.BooleanField(default=False)    # access currently open
     activated_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    # --- advanced flow (feature 36 upgrade). Enum values live in
+    #     core.logic.nominee (SCOPES/RELATIONSHIPS/TRIGGERS/STATE_*) — never
+    #     duplicated here. All additive + defaulted so existing rows stay valid.
+    #
+    # `scopes` is the multi-category replacement for single `scope` (kept as a
+    # back-compat mirror = 'all' or the first category).
+    scopes = models.JSONField(default=list, blank=True)        # subset of nominee.SCOPES
+    relationship = models.CharField(max_length=16, default="family")  # RELATIONSHIPS
+    priority = models.PositiveIntegerField(default=1)                 # fallback order
+    trigger = models.CharField(max_length=16, default="owner_grant")  # TRIGGERS
+
+    # grace-window release lifecycle — SERVER-AUTHORITATIVE, read-only to clients.
+    release_state = models.CharField(max_length=10, default="armed")  # armed|pending|open
+    release_pending = models.BooleanField(default=False)              # UI convenience mirror
+    release_requested_at = models.DateTimeField(null=True, blank=True)
+    grace_hours = models.PositiveIntegerField(default=48)
+    # multi_verify quorum
+    multi_verify_ids = models.JSONField(default=list, blank=True)       # user/circle ids
+    multi_verify_quorum = models.PositiveIntegerField(default=2)
+    release_confirmations = models.JSONField(default=list, blank=True)  # ids who confirmed
+
+    class Meta:
+        indexes = [models.Index(fields=["user", "priority"])]
 
 
 class JobApplication(models.Model):

@@ -503,3 +503,25 @@ OWNER MUST DO (to unblock build 64 + all future APKs): (1) open https://github.c
 FUTURE SHIPS: reduce visibility-flip frequency (batch multiple phases per APK) OR ask owner to make repo public-stable / enable Actions on private to avoid flips entirely. Consider a self-hosted runner to eliminate the flip dance.
 BUILD 64 CONTENTS (ready to ship on re-enable): owner analytics dashboard, fall-detect runtime, name/TM about surface, ride_food+fall sidebar nav, security/backup plan doc. After it ships: P14-P16 fully done → P11 iOS → Messenger M3 (SFU, needs server) → P12 FINAL.
 LIVE NOW: build 63 (Business v2) + build 62 (Messenger M2) remain shipped/live; backend deployed; migrations 0021+0022 applied.
+
+## BUILD WINDOW STATUS (2026-10-14, FINAL ORDER)
+- Repo RE-ENABLED: test push while PRIVATE succeeded (d0d540f..fecfd86). HEAD now pushed.
+- BUT private-repo CI run (38529218446, our HEAD) FAILED ("log not found" = no private Actions minutes). → CI builds still require repo PUBLIC. 
+- PLAN per owner BUILD WINDOW RULE: do STEP 1 fixes + STEP 2 upgrades LOCALLY first (analyze/gate/tests need no CI), then open ONE public window (≤2h, once/day) to build the combined APK (build 64 = P14-P16 + upgrades), secret-scan, publish, flip PRIVATE. Repo stays PRIVATE between windows; backend deploys continue locally.
+- Today's window: ship build 64 + whatever upgrades are ready, batched.
+
+## STEP 2 UPGRADE WAVE (FINAL ORDER, 2026-10-14) — basic→advanced
+- STATUS_MATRIX.md written: advanced 12, good 21, basic 12, not-built 2, owner-blocked 1. STEP 1 owner-requests ALL 9 verified DONE.
+- BATCH 1 agents launched (first-P10 basic, disjoint; each emits .phaseB/up_<mod>_arb.json + up_<mod>_integration.md): finance(a14084), emergency+SOS(af9ee8), subscriptions(aff32c), nearby(ad2eb5), nominee(ac0652), watch-feed(adf330). Agents edit only their screen+new widgets+optional pure logic; integrator merges ARB/api/models + wires + gen-l10n + analyze + gate + tests.
+- BATCH 2 queued (remaining P10 basic): voice-commands, contacts/personal-CRM, govt-guide, agent-studio, AI-inbox, job-hunter.
+- TIER 2 queued (build missing UI): auto-pay ladder screen, elderly simple-mode UI.
+- TIER 3 queued (good→advanced, 21 items).
+- Each upgrade → premium reviewer pass (owner requirement) before it counts as advanced.
+- BUILD: batch all ready upgrades + build 64 into ONE public window (≤2h/day). Repo PRIVATE now; HEAD pushed (fecfd86). Backend deploys continue locally between windows.
+
+## CRM FIX + FULL SPEC (NEW TOP PRIORITY, 2026-10-14) — after batch-1 integration
+- Owner found CRM pages showing "couldn't open". A) contract audit (like Business v2's 52-mismatch fix): diff Flutter CRM paths vs crm app routes (crm/urls.py, weburls.py; mounted api/v1/crm/ + api/crm/ + crm/), fix both sides, test every CRM screen live with 3 personas (new user / owner-with-data / salesperson) → zero couldn't-load; check journalctl crm.errors ref codes; report causes.
+- B) build COMPLETE CRM to advanced vs owner 12-point spec (capture+dedupe/company360/pipelines+deals/daily-work/comms/quotes+proposals/after-sale/team/reports/AI-mock/automation-rules/offline+multitenant+audit+ERP-link). TOP TRIO: Today agenda + 10-sec post-call log + WhatsApp integration. Prices/tax/commission = TO REVIEW BY OWNER (never invented). WhatsApp = official Cloud API only. Scenario: 30-day AXON month (25 leads, visits, proposals+discount-approval, 2 wins+installments+AMC, 3 losses+reasons) → correct reports. Gallery every CRM screen bn/en×light/dark. Ship next window.
+- AUDIT AGENT a98b69 running (read-only) → .phaseB/CRM_AUDIT.md (root causes + 12-pt ✅/🟡/⏳ + build list).
+- IN FLIGHT (finish first): STEP2 batch-1 integration — backend wiring a453a6 (subs details+cycle, Nominee model/serializer/view server-authoritative release_state, emergency card fields, nearby police), ARB merge a0c4e1 (398 keys from 6 up_*_arb.json). Then gen-l10n→analyze→gate→tests. 6 batch-1 upgrades done: finance(108 arb,21t), emergency(76,+3t), subs(58,20t), nearby(34,7t), nominee(63,15t), watch(59,12t).
+- REVISED ORDER: finish batch-1 integration → CRM FIX+build (top) → STEP2 batch-2 + Tier2/3 → iOS → M3 client → FINAL. One public window/day batches all ready APwhen built.

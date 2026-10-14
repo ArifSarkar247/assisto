@@ -19,12 +19,14 @@ _CACHE_TTL = 300
 _LAST_OSM = [0.0]  # polite rate-limit for Overpass
 
 _PLACES_TYPE = {"restaurant": "restaurant", "pharmacy": "pharmacy",
-                "atm": "atm", "hospital": "hospital", "lodging": "lodging"}
+                "atm": "atm", "hospital": "hospital", "lodging": "lodging",
+                "police": "police"}
 _OSM_FILTER = {"restaurant": 'node["amenity"="restaurant"]',
                "pharmacy": 'node["amenity"="pharmacy"]',
                "atm": 'node["amenity"="atm"]',
                "hospital": 'node["amenity"="hospital"]',
-               "lodging": 'node["tourism"~"hotel|motel|guest_house"]'}
+               "lodging": 'node["tourism"~"hotel|motel|guest_house"]',
+               "police": 'node["amenity"="police"]'}
 
 
 def _haversine(a, b, c, d):

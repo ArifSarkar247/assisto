@@ -145,10 +145,14 @@ class DocumentSerializer(serializers.ModelSerializer):
 
 
 class EmergencyCardSerializer(serializers.ModelSerializer):
+    # `card` carries the advanced-card extras: name, doctor, insurance,
+    # nid_ref (reference string only), organ_donor (bool).
+    card = serializers.JSONField(required=False)
+
     class Meta:
         model = EmergencyCard
         fields = ["blood_group", "allergies", "medicines", "conditions",
-                  "notes", "contacts", "updated_at"]
+                  "notes", "contacts", "card", "updated_at"]
         read_only_fields = ["updated_at"]
 
 
@@ -210,10 +214,27 @@ class SavingsGoalSerializer(serializers.ModelSerializer):
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
+    # `details` round-trips the advanced-UI fields (category, payment_method,
+    # trial_end, auto_renew, notes, icon, colour, status, custom_days, …).
+    # Accept a JSON object or a JSON-encoded string (multipart can't nest).
+    details = serializers.JSONField(required=False)
+
     class Meta:
         model = Subscription
-        fields = ["id", "name", "amount", "cycle", "next_due"]
+        fields = ["id", "name", "amount", "cycle", "next_due", "details"]
         read_only_fields = ["id"]
+
+    def to_internal_value(self, data):
+        raw = data.get("details") if hasattr(data, "get") else None
+        if isinstance(raw, str) and raw.strip():
+            import json as _json
+            try:
+                decoded = _json.loads(raw)
+                data = data.copy() if hasattr(data, "copy") else dict(data)
+                data["details"] = decoded
+            except (ValueError, TypeError):
+                pass
+        return super().to_internal_value(data)
 
 
 class WatcherSerializer(serializers.ModelSerializer):
@@ -266,13 +287,58 @@ class OrderSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+def _nominee_row(obj):
+    """Plain dict of a Nominee model instance in the shape core.logic.nominee
+    expects (ISO strings for datetimes). Used by both the serializer and views
+    so the pure state-machine stays the single source of truth."""
+    return {
+        "name": obj.name,
+        "contact": obj.contact,
+        "relationship": obj.relationship,
+        "scopes": obj.scopes or [],
+        "scope": obj.scope,
+        "priority": obj.priority,
+        "trigger": obj.trigger,
+        "inactivity_days": obj.inactivity_days,
+        "grace_hours": obj.grace_hours,
+        "multi_verify_ids": obj.multi_verify_ids or [],
+        "multi_verify_quorum": obj.multi_verify_quorum,
+        "release_state": obj.release_state,
+        "release_pending": obj.release_pending,
+        "release_requested_at": obj.release_requested_at.isoformat()
+        if obj.release_requested_at else None,
+        "release_confirmations": obj.release_confirmations or [],
+        "activated": obj.activated,
+        "activated_at": obj.activated_at.isoformat() if obj.activated_at else None,
+    }
+
+
 class NomineeSerializer(serializers.ModelSerializer):
+    # grace-window release lifecycle. release_* + activated* are
+    # SERVER-AUTHORITATIVE: they are set ONLY by the validated transitions in
+    # core.logic.nominee, never by a raw client PATCH, so a client can never
+    # forge an `open` state. `release_pending` is writeable intent only — the
+    # view translates it through the logic layer; the stored value remains the
+    # server's mirror.
+    scopes = serializers.JSONField(required=False)
+    grace_remaining_seconds = serializers.SerializerMethodField()
+
     class Meta:
         from .models import Nominee
         model = Nominee
-        fields = ["id", "name", "contact", "scope", "inactivity_days",
-                  "activated", "activated_at"]
-        read_only_fields = ["id", "activated", "activated_at"]
+        fields = ["id", "name", "contact", "scope", "scopes", "relationship",
+                  "priority", "trigger", "inactivity_days", "grace_hours",
+                  "multi_verify_ids", "multi_verify_quorum",
+                  "release_state", "release_pending", "release_requested_at",
+                  "release_confirmations", "grace_remaining_seconds",
+                  "activated", "activated_at", "created_at"]
+        read_only_fields = ["id", "release_state", "release_requested_at",
+                            "release_confirmations", "grace_remaining_seconds",
+                            "activated", "activated_at", "created_at"]
+
+    def get_grace_remaining_seconds(self, obj):
+        from .logic import nominee as nlogic
+        return nlogic.grace_remaining_seconds(_nominee_row(obj))
 
 
 class JobApplicationSerializer(serializers.ModelSerializer):

@@ -140,8 +140,18 @@ class ApiClient {
   }
 
   // ---- generic synced collections (reminders / notes / todos) ----
+  // Insert the trailing slash BEFORE any query string. Building '/$path/'
+  // naively turns 'crm/leads?org=7' into '/crm/leads?org=7/', which Django's
+  // APPEND_SLASH 301-redirects into '/crm/leads/?org=7/' — moving the slash
+  // into the query value ('org=7/') and 500ing the view. Split first.
+  static String _withSlash(String path) {
+    final q = path.indexOf('?');
+    if (q < 0) return '/$path/';
+    return '/${path.substring(0, q)}/${path.substring(q)}';
+  }
+
   Future<List<Map<String, dynamic>>> listItems(String path) async {
-    final r = await _c.get(AppConfig.api('/$path/'), headers: _headers());
+    final r = await _c.get(AppConfig.api(_withSlash(path)), headers: _headers());
     if (r.statusCode == 200) {
       return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
     }
@@ -149,7 +159,7 @@ class ApiClient {
   }
 
   Future<Map<String, dynamic>> createItem(String path, Map<String, dynamic> body) async {
-    final r = await _c.post(AppConfig.api('/$path/'),
+    final r = await _c.post(AppConfig.api(_withSlash(path)),
         headers: _headers(), body: jsonEncode(body));
     if (r.statusCode >= 200 && r.statusCode < 300) {
       return jsonDecode(r.body) as Map<String, dynamic>;
@@ -158,13 +168,13 @@ class ApiClient {
   }
 
   Future<void> updateItem(String path, int id, Map<String, dynamic> body) async {
-    final r = await _c.patch(AppConfig.api('/$path/$id/'),
+    final r = await _c.patch(AppConfig.api(_withSlash('$path/$id')),
         headers: _headers(), body: jsonEncode(body));
     if (r.statusCode < 200 || r.statusCode >= 300) _fail(r);
   }
 
   Future<void> deleteItem(String path, int id) async {
-    final r = await _c.delete(AppConfig.api('/$path/$id/'), headers: _headers());
+    final r = await _c.delete(AppConfig.api(_withSlash('$path/$id')), headers: _headers());
     if (r.statusCode != 204 && r.statusCode != 404) _fail(r);
   }
 

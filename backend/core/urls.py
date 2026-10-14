@@ -178,6 +178,9 @@ urlpatterns = [
     path("business/payments/qr", bz.MerchantQrView.as_view()),
     path("business/payments/link", bz.PaymentLinkView.as_view()),
     path("nominees/<int:pk>/activate", views.nominee_activate),
+    path("nominees/<int:pk>/request-release", views.nominee_request_release),
+    path("nominees/<int:pk>/confirm-open", views.nominee_confirm_open),
+    path("nominees/<int:pk>/cancel-release", views.nominee_cancel_release),
     path("jobs/<int:pk>/tailor", views.JobTailorView.as_view()),
 
     # ===== Module 5 (P13+) =====

@@ -1,0 +1,42 @@
+{
+  "nearbyAll":              ["সব", "All"],
+  "nearbyFavourites":       ["পছন্দের", "Favourites"],
+
+  "nearbyCatHospital":      ["হাসপাতাল", "Hospital"],
+  "nearbyCatPharmacy":      ["ফার্মেসি", "Pharmacy"],
+  "nearbyCatAtm":           ["এটিএম / ব্যাংক", "ATM / Bank"],
+  "nearbyCatAgent":         ["বিকাশ / নগদ এজেন্ট", "bKash / Nagad agent"],
+  "nearbyCatPolice":        ["পুলিশ", "Police"],
+  "nearbyCatFire":          ["ফায়ার সার্ভিস", "Fire service"],
+  "nearbyCatTransport":     ["বাস / ট্রেন / লঞ্চ", "Bus / train / launch"],
+  "nearbyCatFuel":          ["জ্বালানি / সিএনজি", "Fuel / CNG"],
+  "nearbyCatRestaurant":    ["রেস্তোরাঁ", "Restaurant"],
+  "nearbyCatMosque":        ["মসজিদ", "Mosque"],
+  "nearbyCatGovt":          ["সরকারি অফিস", "Govt office"],
+
+  "nearbyCall":             ["কল", "Call"],
+  "nearbyDirections":       ["পথ দেখাও", "Directions"],
+  "nearbySave":             ["পছন্দে রাখো", "Save"],
+  "nearbyUnsave":           ["পছন্দ থেকে সরাও", "Remove"],
+
+  "nearbyOpenNow":          ["এখন খোলা", "Open now"],
+  "nearbyClosedNow":        ["এখন বন্ধ", "Closed now"],
+  "nearbyOpen24h":          ["২৪ ঘণ্টা খোলা", "Open 24h"],
+  "nearbyHoursUnknown":     ["সময় অজানা", "Hours unknown"],
+  "nearbyHoursRange":       ["{open}–{close}", "{open}–{close}"],
+  "nearbyKmAway":           ["{km} কিমি দূরে", "{km} km away"],
+  "nearbyMAway":            ["{m} মি দূরে", "{m} m away"],
+
+  "nearbySearchHint":       ["জায়গা খুঁজুন…", "Search places…"],
+  "nearbySortBy":           ["সাজান", "Sort by"],
+  "nearbySortDistance":     ["দূরত্ব অনুযায়ী", "Distance"],
+  "nearbySortOpen":         ["আগে খোলা", "Open first"],
+  "nearbySortName":         ["নাম অনুযায়ী", "Name"],
+
+  "nearbyMockBanner":       ["নমুনা তালিকা দেখানো হচ্ছে — ম্যাপ কী ও লোকেশন চালু হলে লাইভ হবে।", "Showing a sample list — goes live when the Maps key + location are enabled."],
+  "nearbyLocationBanner":   ["লোকেশন ছাড়া দূরত্ব দেখানো যাচ্ছে না — নমুনা তালিকা দেখানো হচ্ছে।", "Distance is hidden without location — showing a sample list."],
+  "nearbyEnable":           ["চালু করুন", "Enable"],
+
+  "nearbyNoFavourites":     ["কোনো পছন্দের জায়গা নেই", "No saved places yet"],
+  "nearbyNoFavouritesHint": ["তারকা চিহ্নে ট্যাপ করে জায়গা পছন্দে রাখুন।", "Tap the star on a place to save it here."]
+}

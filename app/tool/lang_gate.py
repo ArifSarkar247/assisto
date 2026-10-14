@@ -29,6 +29,7 @@ SAME_VALUE_ALLOWLIST = {
     "circleExtrasAssistoTitle",  # "@Assisto" == "@Assisto" -- product handle, not translated.
     "bizChannelWhatsapp",  # "WhatsApp" == "WhatsApp" -- global brand name, not translated.
     "bizChannelMessenger",  # "Messenger" == "Messenger" -- global brand name, not translated.
+    "nearbyHoursRange",  # "{open}–{close}" == "{open}–{close}" -- pure ICU format string (no translatable text).
 }
 
 viol = []

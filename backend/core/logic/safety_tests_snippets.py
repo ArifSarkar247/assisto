@@ -115,6 +115,46 @@ def test_payloads_bilingual():
     assert S.sos_payload("X", "http://m", "en")["kind"] == "sos"
 
 
+def test_emergency_helplines_verified():
+    hl = S.emergency_helplines("en")
+    nums = {h["number"] for h in hl}
+    # verified BD numbers must all be present
+    assert {"999", "109", "333", "102", "199"} <= nums, nums
+    # 999 is primary and comes first
+    assert hl[0]["number"] == "999" and hl[0]["primary"] is True
+    # bilingual labels
+    bn = S.emergency_helplines("bn")
+    assert bn[0]["label"] != hl[0]["label"]
+    assert all(h["source"] for h in hl)
+
+
+def test_first_aid_cards_never_diagnose():
+    cards = S.first_aid_cards("en")
+    assert len(cards) >= 5
+    for c in cards:
+        assert c["source"]            # every card names a source
+        assert c["steps"]
+        # every card routes to 999 somewhere
+        assert any("999" in s for s in c["steps"]), c["key"]
+    bn = S.first_aid_cards("bn")
+    assert bn[0]["title"] != cards[0]["title"]
+
+
+def test_emergency_card_text_omits_empty():
+    card = {"name": "Rahim", "blood_group": "B+", "allergies": "",
+            "contacts": [{"name": "Mom", "phone": "01711", "relation": "mother"},
+                         {"name": "X", "phone": ""}]}
+    txt = S.emergency_card_text(card, "en")
+    assert "EMERGENCY CARD" in txt
+    assert "Blood group: B+" in txt
+    assert "Allergies" not in txt          # empty field omitted
+    assert "Mom" in txt and "01711" in txt
+    assert "X" not in txt                   # blank-phone contact skipped
+    # bn differs and empty card is safe
+    assert S.emergency_card_text({}, "bn")
+    assert S.emergency_card_text(None, "en").startswith("EMERGENCY CARD")
+
+
 def run_all():
     import inspect
     fns = [v for k, v in sorted(globals().items())

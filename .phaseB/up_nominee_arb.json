@@ -1,0 +1,81 @@
+{
+  "_comment": "Assisto NOMINEE (feature 36) ADVANCED upgrade. {key:[bn,en]} camelCase getters. Snake-case placeholders in ARB are ICU {name}. Bangla digits are rendered at runtime from codepoints in Dart (no Bangla literals in .dart). Merge into app_bn.arb / app_en.arb; flutter gen-l10n regenerates the getters used by nominee_screen.dart + nominee_*.dart.",
+
+  "nomineeEdit": ["সম্পাদনা করুন", "Edit"],
+  "nomineeRelationship": ["সম্পর্ক", "Relationship"],
+  "nomineeRelSpouse": ["স্বামী / স্ত্রী", "Spouse"],
+  "nomineeRelChild": ["সন্তান", "Child"],
+  "nomineeRelParent": ["বাবা / মা", "Parent"],
+  "nomineeRelSibling": ["ভাই / বোন", "Sibling"],
+  "nomineeRelFamily": ["পরিবার / আত্মীয়", "Family / relative"],
+  "nomineeRelLawyer": ["আইনজীবী", "Lawyer"],
+  "nomineeRelFriend": ["বিশ্বস্ত বন্ধু", "Trusted friend"],
+
+  "nomineeWhatTheyCanAccess": ["তিনি কী দেখতে পারবেন", "What they can access"],
+  "nomineeScopeHint": ["প্রয়োজন অনুযায়ী ক্যাটাগরি বেছে নিন — যত কম, তত নিরাপদ।", "Pick only the categories they truly need — fewer is safer."],
+
+  "nomineeScopeEmergency": ["জরুরি তথ্য কার্ড", "Emergency card"],
+  "nomineeScopeEmergencyDesc": ["রক্তের গ্রুপ, অ্যালার্জি, জরুরি যোগাযোগ ও মৌলিক চিকিৎসা তথ্য।", "Blood group, allergies, emergency contacts and basic medical info."],
+  "nomineeScopeDocuments": ["দলিল ভল্টের তালিকা", "Document vault list"],
+  "nomineeScopeDocumentsDesc": ["ভল্টে কোন কোন দলিল আছে তার তালিকা ও নির্দেশনা — মূল এনক্রিপ্টেড ফাইল নয়।", "The list and pointers of what is in the vault — never the encrypted files themselves."],
+  "nomineeScopeAccounts": ["অ্যাকাউন্ট তালিকা", "Account list"],
+  "nomineeScopeAccountsDesc": ["কোথায় কোন ব্যাংক/মোবাইল ব্যাংকিং/বিল আছে তার তালিকা — পাসওয়ার্ড বা পিন নয়।", "Which banks, mobile-banking and bills exist — never passwords or PINs."],
+  "nomineeScopeInsurance": ["বীমা তথ্য", "Insurance"],
+  "nomineeScopeInsuranceDesc": ["বীমা পলিসির নম্বর, কোম্পানি ও নমিনি সংক্রান্ত নির্দেশনা।", "Insurance policy numbers, company and nominee instructions."],
+  "nomineeScopeWishes": ["শেষ ইচ্ছা ও নির্দেশনা", "Final wishes & instructions"],
+  "nomineeScopeWishesDesc": ["আপনার লিখে রাখা শেষ ইচ্ছা, বার্তা ও করণীয় নির্দেশনা।", "Your written final wishes, messages and instructions."],
+
+  "nomineeReleaseTrigger": ["অ্যাক্সেস কখন খুলবে (ট্রিগার)", "When access opens (trigger)"],
+  "nomineeTriggerHint": ["কোনো অ্যাক্সেস আপনাআপনি বা নীরবে খোলে না — সব সময় যাচাই ও আপনার হাতে বাতিলযোগ্য।", "Access never opens automatically or silently — always verified and cancellable by you."],
+  "nomineeTriggerOwnerGrant": ["আমি নিজে অনুমতি দেব", "I grant it myself"],
+  "nomineeTriggerOwnerGrantDesc": ["শুধু আপনি, আপনার নিজের ডিভাইসে যাচাই করে, অ্যাক্সেস খোলার অনুরোধ করতে পারবেন; তারপরও একটি গ্রেস সময় থাকবে।", "Only you, verified on your own device, can request to open access — and even then a grace window applies."],
+  "nomineeTriggerInactivity": ["দীর্ঘ নিষ্ক্রিয়তা (ওয়েলনেস চেক)", "Long inactivity (wellness check)"],
+  "nomineeTriggerInactivityDesc": ["সেফ জার্নির ওয়েলনেস চেক ব্যবহার করে: আপনি নির্ধারিত সময় ধরে সাড়া না দিলে তবেই অ্যাক্সেস প্রস্তাব করা হয় — ‘আমি ঠিক আছি’ চাপলেই বাতিল।", "Reuses Safe Journey's wellness check: access is only proposed after you miss the wellness prompt for the full set period — tap ‘I'm OK’ to cancel."],
+  "nomineeTriggerMultiVerify": ["একাধিক ব্যক্তির যাচাই", "Multi-person verification"],
+  "nomineeTriggerMultiVerifyDesc": ["একাধিক বিশ্বস্ত ব্যক্তিকে আলাদাভাবে নিশ্চিত করতে হবে (যেমন ৩ জনের মধ্যে ২ জন), তারপরই গ্রেস সময় শুরু হয়।", "Several trusted people must each confirm independently (e.g. 2 of 3) before the grace window even begins."],
+
+  "nomineeInactivityDays": ["নিষ্ক্রিয়তার দিন", "Days of inactivity"],
+  "nomineePriorityOrder": ["অগ্রাধিকার ক্রম", "Priority order"],
+
+  "nomineeConsentTitle": ["সম্মতি ও গুরুত্বপূর্ণ কথা", "Consent & important note"],
+  "nomineeConsentInformThem": ["এই ব্যক্তিকে জানিয়ে রাখুন যে আপনি তাকে ওয়ারিশ/বিশ্বস্ত ব্যক্তি হিসেবে রেখেছেন — অ্যাপ কখনও নীরবে কাউকে যুক্ত করে না।", "Please tell this person you have named them as your nominee / trusted person — the app never silently enrols anyone."],
+  "nomineeConsentNothingOpensNow": ["এখন সংরক্ষণ করলে কিছুই খোলে না; এটি শুধু ভবিষ্যতের একটি যাচাইকৃত অ্যাক্সেস প্রস্তুত রাখে।", "Saving now opens nothing; it only arms a future, verified release."],
+  "nomineeConsentReversible": ["আপনি যেকোনো সময় এটি বদলাতে, থামাতে বা মুছে ফেলতে পারবেন।", "You can change, pause or delete this at any time."],
+
+  "nomineeSaveTrustedPerson": ["বিশ্বস্ত ব্যক্তি সংরক্ষণ করুন", "Save trusted person"],
+  "nomineeSaveFailed": ["সংরক্ষণ করা যায়নি — আবার চেষ্টা করুন।", "Couldn't save — please try again."],
+
+  "nomineeAccessNeverSilent": ["কোনো অ্যাক্সেস কখনও নীরবে বা আপনাআপনি খোলে না। প্রতিটি রিলিজ যাচাইকৃত, গ্রেস-সময়ে আপনার হাতে বাতিলযোগ্য এবং পরেও প্রত্যাহারযোগ্য।", "Access never opens silently or automatically. Every release is verified, cancellable by you during a grace window, and revocable afterwards."],
+
+  "nomineeManageAccess": ["অ্যাক্সেস নিয়ন্ত্রণ", "Manage access"],
+  "nomineeStatusArmed": ["প্রস্তুত", "Armed"],
+  "nomineeStatusArmedDesc": ["পরিকল্পনা প্রস্তুত আছে, কিন্তু কোনো অ্যাক্সেস খোলা নেই।", "The plan is ready, but no access is open."],
+  "nomineeStatusPending": ["অপেক্ষমাণ (গ্রেস সময়)", "Pending (grace window)"],
+  "nomineeStatusPendingDesc": ["একটি রিলিজ অনুরোধ করা হয়েছে। গ্রেস সময় শেষ হওয়ার আগে আপনি এটি বাতিল করতে পারবেন।", "A release was requested. You can cancel it before the grace window ends."],
+  "nomineeStatusOpen": ["অ্যাক্সেস খোলা", "Access open"],
+  "nomineeStatusOpenDesc": ["এই ব্যক্তি এখন নির্বাচিত ক্যাটাগরি দেখতে পারছেন। আপনি চাইলে এখনই প্রত্যাহার করতে পারেন।", "This person can now see the chosen categories. You can revoke it right now."],
+
+  "nomineeHowReleaseWorks": ["রিলিজ কীভাবে কাজ করে", "How release works"],
+  "nomineeGraceWindowNote": ["রিলিজ অনুরোধের পর অ্যাক্সেস সঙ্গে সঙ্গে খোলে না — একটি গ্রেস সময় থাকে; ওই সময়ে এক টোকায় বাতিল করা যায়।", "After a release is requested, access does not open at once — a grace window runs, and a single tap cancels it."],
+  "nomineeNoSecretsNote": ["এখানে কোনো গোপন পাসওয়ার্ড, পিন বা এনক্রিপ্টেড ফাইল দেখানো হয় না — শুধু নির্দেশনা ও পয়েন্টার। ভল্ট E2E এনক্রিপ্টেডই থাকে।", "No secret passwords, PINs or encrypted files are shown here — only pointers and instructions. The vault stays end-to-end encrypted."],
+
+  "nomineeArmedNote": ["অ্যাক্সেস খুলতে হলে আপনাকে নিচে রিলিজের অনুরোধ করতে হবে, তারপর দ্বিতীয়বার নিশ্চিত করতে হবে।", "To open access you must request a release below, then confirm a second time."],
+  "nomineePendingNote": ["একটি রিলিজ অপেক্ষমাণ। গ্রেস সময় চলাকালীন আপনি এটি নিরাপদে বাতিল করতে পারেন।", "A release is pending. You can safely cancel it while the grace window runs."],
+  "nomineeAccessOpenNote": ["অ্যাক্সেস এখন খোলা আছে। নিরাপত্তার জন্য প্রয়োজন শেষ হলে প্রত্যাহার করুন।", "Access is currently open. For safety, revoke it once it is no longer needed."],
+
+  "nomineeRequestRelease": ["রিলিজের অনুরোধ করুন", "Request release"],
+  "nomineeRequestReleaseTitle": ["রিলিজের অনুরোধ করবেন?", "Request a release?"],
+  "nomineeRequestReleaseBody": ["এতে এখনই অ্যাক্সেস খোলে না। একটি গ্রেস সময় শুরু হবে; ওই সময়ে আপনি যেকোনো মুহূর্তে বাতিল করতে পারবেন।", "This does not open access yet. A grace window will start, and you can cancel it at any moment during that time."],
+  "nomineeRequestReleaseConfirm": ["গ্রেস সময় শুরু করুন", "Start grace window"],
+
+  "nomineeCancelRelease": ["রিলিজ বাতিল করুন", "Cancel release"],
+  "nomineeOpenNowAfterWindow": ["গ্রেস সময় শেষে এখন খুলুন", "Open now (after window)"],
+  "nomineeOpenNowTitle": ["এখনই অ্যাক্সেস খুলবেন?", "Open access now?"],
+  "nomineeOpenNowBody": ["নিশ্চিত হলে এই বিশ্বস্ত ব্যক্তি নির্বাচিত ক্যাটাগরিগুলো দেখতে পারবেন। আপনি পরে যেকোনো সময় প্রত্যাহার করতে পারবেন।", "If you confirm, this trusted person will be able to see the chosen categories. You can revoke it later at any time."],
+  "nomineeOpenNowConfirm": ["অ্যাক্সেস খুলুন", "Open access"],
+
+  "nomineeRevokeAccess": ["অ্যাক্সেস প্রত্যাহার করুন", "Revoke access"],
+
+  "nomineeRemoveTitle": ["ওয়ারিশ সরাবেন?", "Remove nominee?"],
+  "nomineeRemoveBody": ["“{name}” কে আপনার বিশ্বস্ত ব্যক্তির তালিকা থেকে সরিয়ে দেওয়া হবে। তাদের কোনো অপেক্ষমাণ রিলিজও বাতিল হয়ে যাবে।", "“{name}” will be removed from your trusted people. Any pending release for them is cancelled too."]
+}
