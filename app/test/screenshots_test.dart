@@ -25,6 +25,8 @@ import 'package:assisto/screens/messenger/contact_info_screen.dart';
 import 'package:assisto/screens/notification_centre_screen.dart';
 import 'package:assisto/screens/messenger/messenger_profile_screen.dart';
 import 'package:assisto/screens/messenger/contacts_screen.dart';
+import 'package:assisto/screens/pa/letters_screen.dart';
+import 'package:assisto/screens/pa/expense_voucher_screen.dart';
 import 'package:assisto/screens/quick_tools_screen.dart';
 import 'package:assisto/screens/daily_brief_screen.dart';
 import 'package:assisto/screens/blog_writer_screen.dart';
@@ -250,6 +252,8 @@ void main() {
     'notification_centre': (build: (_) => const NotificationCentreScreen(), mode: FakeMode.data, full: true),
     'msgr_profile': (build: (_) => const MessengerProfileScreen(), mode: FakeMode.data, full: true),
     'contacts': (build: (_) => const ContactsScreen(), mode: FakeMode.data, full: true),
+    'pa_letters': (build: (_) => const LettersScreen(), mode: FakeMode.data, full: true),
+    'pa_voucher': (build: (_) => const ExpenseVoucherScreen(), mode: FakeMode.data, full: true),
     'quick_tools': (build: (_) => const QuickToolsScreen(), mode: FakeMode.data, full: true),
     'daily_brief': (build: (_) => const DailyBriefScreen(), mode: FakeMode.data, full: true),
     'blog': (build: (_) => const BlogWriterScreen(), mode: FakeMode.data, full: true),

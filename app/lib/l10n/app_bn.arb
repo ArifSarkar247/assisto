@@ -9601,5 +9601,476 @@
   "dbWeatherNeedsKey": "সকালের ব্রিফে আবহাওয়া দেখতে একটি weather key যোগ করুন (Integrations)। আমরা কখনো ভুয়া আবহাওয়া দেখাই না।",
   "dbNewsNeedsKey": "রাতের সারসংক্ষেপে শিরোনাম দেখতে একটি news key যোগ করুন (Integrations)। আমরা কখনো ভুয়া খবর দেখাই না।",
   "dbLoadError": "ব্রিফ লোড করা গেল না।",
-  "share": "শেয়ার"
+  "share": "শেয়ার",
+  "paAiReviewMarker": "AI-দ্বারা তৈরি খসড়া — পাঠানোর আগে দেখে নিন ও সম্পাদনা করুন।",
+  "paCeTitle": "কল ও ইমেইল",
+  "paCeAdd": "নতুন যোগ করুন",
+  "paCeEdit": "সম্পাদনা করুন",
+  "paCeWelcomeTitle": "কল ও ইমেইল ইনবক্স",
+  "paCeWelcomeBody": "যেসব কল করতে বা ফেরত দিতে হবে এবং যেসব ইমেইলের উত্তর দিতে হবে, এখানে লিখে রাখুন। প্রতিটির জন্য একটি খসড়া উত্তরও তৈরি করতে পারবেন।",
+  "paCeLoadError": "তালিকা আনা যায়নি। আবার চেষ্টা করুন।",
+  "paCeStatCalls": "{count}টি কল বাকি",
+  "@paCeStatCalls": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paCeStatEmails": "{count}টি ইমেইল বাকি",
+  "@paCeStatEmails": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paCeStatDone": "{count}টি সম্পন্ন",
+  "@paCeStatDone": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paCeFilterAll": "সব",
+  "paCeFilterCalls": "কল",
+  "paCeFilterEmails": "ইমেইল",
+  "paCeHideDone": "সম্পন্নগুলো লুকান",
+  "paCeNoMatchTitle": "কিছু পাওয়া যায়নি",
+  "paCeNoMatchBody": "এই ফিল্টারে কোনো কাজ নেই। ফিল্টার সরিয়ে আবার দেখুন।",
+  "paCeClearFilters": "ফিল্টার মুছুন",
+  "paCeWith": "সঙ্গে: {name}",
+  "@paCeWith": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "paCeChannelLabel": "ধরন",
+  "paCeChannelCall": "কল",
+  "paCeChannelEmail": "ইমেইল",
+  "paCeContactField": "যোগাযোগ (নাম/প্রতিষ্ঠান)",
+  "paCeSubjectField": "বিষয়",
+  "paCeNotesField": "নোট (ঐচ্ছিক)",
+  "paCePriorityLabel": "অগ্রাধিকার",
+  "paCePriorityHigh": "জরুরি",
+  "paCePriorityNormal": "সাধারণ",
+  "paCePriorityLow": "কম",
+  "paCeMarkDone": "সম্পন্ন চিহ্নিত করুন",
+  "paCeMarkTodo": "আবার করণীয় করুন",
+  "paCeDraftReply": "খসড়া উত্তর",
+  "paCeDeleted": "মুছে ফেলা হয়েছে",
+  "paCeDeleteTitle": "মুছে ফেলবেন?",
+  "paCeDeleteBody": "\"{name}\" মুছে ফেলা হবে। এটি ফেরানো যাবে না।",
+  "@paCeDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "paCeDraftTitle": "খসড়া উত্তর",
+  "paCeChooseCategory": "ধরন বেছে নিন",
+  "paCeCatAcknowledge": "প্রাপ্তি স্বীকার",
+  "paCeCatDecline": "বিনয়ের সঙ্গে না",
+  "paCeCatSchedule": "সময় ঠিক করা",
+  "paCeCatFollowup": "ফলো-আপ",
+  "paCeDraftEditable": "খসড়া (সম্পাদনাযোগ্য)",
+  "paCeNeverSends": "এই খসড়া নিজে থেকে পাঠানো হবে না — আপনি কপি বা শেয়ার করে নিজে পাঠাবেন।",
+  "paCeAiSeamTitle": "সম্পূর্ণ AI-লেখা উত্তর চান?",
+  "paCeAiSeamBody": "একটি AI key যোগ করা থাকলে (Integrations) মালিক পুরো উত্তরটি AI দিয়ে লেখাতে পারবেন। এখন এটি একটি টেমপ্লেট-ভিত্তিক খসড়া।",
+  "paCeTplAcknowledge": "প্রিয় {contact},\n{subject} বিষয়ে আপনার বার্তার জন্য ধন্যবাদ। আমি তা পেয়েছি এবং শীঘ্রই আপনার সঙ্গে যোগাযোগ করব।\nশুভেচ্ছান্তে,\n{sender}",
+  "@paCeTplAcknowledge": {
+    "placeholders": {
+      "contact": {
+        "type": "Object"
+      },
+      "sender": {
+        "type": "Object"
+      },
+      "subject": {
+        "type": "Object"
+      }
+    }
+  },
+  "paCeTplDecline": "প্রিয় {contact},\n{subject} বিষয়ে যোগাযোগের জন্য ধন্যবাদ। দুঃখের সঙ্গে জানাচ্ছি, এই মুহূর্তে আমরা এগিয়ে যেতে পারছি না। আপনার বোঝাপড়ার জন্য কৃতজ্ঞ।\nশুভেচ্ছান্তে,\n{sender}",
+  "@paCeTplDecline": {
+    "placeholders": {
+      "contact": {
+        "type": "Object"
+      },
+      "sender": {
+        "type": "Object"
+      },
+      "subject": {
+        "type": "Object"
+      }
+    }
+  },
+  "paCeTplSchedule": "প্রিয় {contact},\n{subject} বিষয়ে আমরা কি কথা বলার জন্য একটি সময় ঠিক করতে পারি? আপনার সুবিধামতো একটি সময় জানালে আমি নিশ্চিত করব।\nশুভেচ্ছান্তে,\n{sender}",
+  "@paCeTplSchedule": {
+    "placeholders": {
+      "contact": {
+        "type": "Object"
+      },
+      "sender": {
+        "type": "Object"
+      },
+      "subject": {
+        "type": "Object"
+      }
+    }
+  },
+  "paCeTplFollowup": "প্রিয় {contact},\n{subject} বিষয়ে ফলো-আপ করছি — আপনার দিক থেকে কোনো অগ্রগতি আছে কি না জানতে চাইছিলাম। দয়া করে জানাবেন।\nশুভেচ্ছান্তে,\n{sender}",
+  "@paCeTplFollowup": {
+    "placeholders": {
+      "contact": {
+        "type": "Object"
+      },
+      "sender": {
+        "type": "Object"
+      },
+      "subject": {
+        "type": "Object"
+      }
+    }
+  },
+  "paLetTitle": "চিঠি, নোটিশ ও মেমো",
+  "paLetNew": "নতুন ডকুমেন্ট",
+  "paLetEdit": "সম্পাদনা করুন",
+  "paLetOpen": "খুলুন",
+  "paLetWelcomeTitle": "ফরমাল ডকুমেন্ট তৈরি করুন",
+  "paLetWelcomeBody": "চিঠি, নোটিশ, মেমো বা দরখাস্ত — ধরন বেছে নিন, কয়েকটি তথ্য দিন, আর সঠিক কাঠামোয় সাজানো ডকুমেন্ট পান। পরে সম্পাদনা, কপি বা শেয়ার করতে পারবেন।",
+  "paLetLoadError": "সংরক্ষিত ডকুমেন্ট আনা যায়নি। আবার চেষ্টা করুন।",
+  "paLetTypeLabel": "ধরন",
+  "paLetTypeLetter": "চিঠি",
+  "paLetTypeNotice": "নোটিশ",
+  "paLetTypeMemo": "মেমো",
+  "paLetTypeApplication": "দরখাস্ত",
+  "paLetToField": "প্রাপক (কাকে)",
+  "paLetToOptional": "প্রাপক (ঐচ্ছিক)",
+  "paLetFromField": "প্রেরক (কার পক্ষ থেকে)",
+  "paLetSubjectField": "বিষয়",
+  "paLetDateField": "তারিখ",
+  "paLetDateHelp": "যেমন: ১৪ অক্টোবর ২০২৬",
+  "paLetBodyField": "মূল বক্তব্য",
+  "paLetBodyHelp": "প্রতিটি অনুচ্ছেদ আলাদা লাইনে লিখুন। আপনার লেখা হুবহু ব্যবহার করা হবে।",
+  "paLetPreviewLabel": "প্রিভিউ",
+  "paLetPreviewEmpty": "তথ্য দিলে এখানে সাজানো ডকুমেন্ট দেখা যাবে।",
+  "paLetNeedSubject": "একটি বিষয় লিখুন।",
+  "paLetNeedRecipient": "প্রাপক লিখুন।",
+  "paLetDeleteTitle": "মুছে ফেলবেন?",
+  "paLetDeleteBody": "\"{name}\" মুছে ফেলা হবে। এটি ফেরানো যাবে না।",
+  "@paLetDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "paLetAiSeamTitle": "AI দিয়ে মূল বক্তব্য লেখাতে চান?",
+  "paLetAiSeamBody": "একটি AI key যোগ করা থাকলে (Integrations) মালিক মূল বক্তব্যটি AI দিয়ে লেখাতে পারবেন। এখন এটি একটি টেমপ্লেট-ভিত্তিক জেনারেটর — কাঠামো তৈরি হয়, লেখা আপনার নিজের।",
+  "paLetPhraseTo": "প্রতি,",
+  "paLetPhraseFrom": "ইতি,",
+  "paLetPhraseDate": "তারিখ",
+  "paLetPhraseSubject": "বিষয়",
+  "paLetPhraseDear": "জনাব",
+  "paLetPhraseRespected": "মাননীয়",
+  "paLetPhraseYoursSincerely": "বিনীত",
+  "paLetPhraseYoursFaithfully": "বিনীত নিবেদক",
+  "paLetPhraseNotice": "বিজ্ঞপ্তি",
+  "paLetPhraseMemo": "অফিস মেমো",
+  "paFileTitle": "ফাইলিং ক্যাবিনেট",
+  "paFileAdd": "ডকুমেন্ট ফাইল করুন",
+  "paFileEdit": "ডকুমেন্ট সম্পাদনা",
+  "paFileWelcomeTitle": "আপনার ফাইলিং ক্যাবিনেট",
+  "paFileWelcomeBody": "চুক্তি, ইনভয়েস, চিঠি ও রিপোর্ট ফোল্ডারে গুছিয়ে রাখুন — টাইটেল, ট্যাগ, নোট ও তারিখ সহ। যেকোনো সময় খুঁজে বের করুন। কোনো কি ছাড়াই পুরোপুরি কাজ করে।",
+  "paFileLoadError": "ক্যাবিনেট লোড করা গেল না। আবার চেষ্টা করুন।",
+  "paFileSaved": "ফাইল করা হয়েছে",
+  "paFileDeleted": "মুছে ফেলা হয়েছে",
+  "paFileFolderLabel": "ফোল্ডার",
+  "paFileFolderAll": "সব ({count})",
+  "@paFileFolderAll": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paFileCatContracts": "চুক্তি",
+  "paFileCatInvoices": "ইনভয়েস",
+  "paFileCatLetters": "চিঠি",
+  "paFileCatReports": "রিপোর্ট",
+  "paFileCatOther": "অন্যান্য",
+  "paFileTitleLabel": "ডকুমেন্টের টাইটেল",
+  "paFileTitleHint": "যেমন: অফিস ভাড়ার চুক্তি",
+  "paFileTagsLabel": "ট্যাগ",
+  "paFileTagsHint": "কমা দিয়ে আলাদা করুন",
+  "paFileTagsHelper": "খুঁজতে সুবিধা হয় — যেমন: লিগ্যাল, ২০২৬",
+  "paFileNotesLabel": "নোট",
+  "paFileSetDate": "ফাইলিং তারিখ দিন",
+  "paFileSearchHint": "টাইটেল, নোট বা ট্যাগে খুঁজুন",
+  "paFileClearFilters": "ফিল্টার মুছুন",
+  "paFileNoMatchTitle": "কিছু পাওয়া যায়নি",
+  "paFileNoMatchBody": "এই ফোল্ডার/খোঁজার সাথে কোনো ডকুমেন্ট মেলেনি।",
+  "paFileScanAttached": "স্ক্যান সংযুক্ত",
+  "paFileExtractedLabel": "পড়া লেখা (OCR)",
+  "paFileOcrSeamTitle": "অটো টেক্সট পড়া বন্ধ",
+  "paFileOcrSeamBody": "স্ক্যান থেকে লেখা ও টাইটেল নিজে থেকে বের করতে একটি OCR কি যুক্ত করুন (Integrations → ocr)। কি ছাড়াও ম্যানুয়ালি ফাইল করা পুরোপুরি চলে — আমরা কখনো লেখা বানিয়ে দেখাই না।",
+  "paFileOcrReadyTitle": "অটো টেক্সট পড়া চালু",
+  "paFileOcrReadyBody": "একটি স্ক্যান যুক্ত করলে সার্ভারে OCR চালিয়ে লেখা বের করা হবে — আপনি তা দেখে সম্পাদনা করতে পারবেন।",
+  "paFileDeleteTitle": "ডকুমেন্ট মুছবেন?",
+  "paFileDeleteBody": "“{title}” ক্যাবিনেট থেকে সরানো হবে।",
+  "@paFileDeleteBody": {
+    "placeholders": {
+      "title": {
+        "type": "Object"
+      }
+    }
+  },
+  "paMinTitle": "মিটিং মিনিটস",
+  "paMinAdd": "নতুন মিনিটস",
+  "paMinEdit": "মিনিটস সম্পাদনা",
+  "paMinWelcomeTitle": "মিটিংয়ের মিনিটস রাখুন",
+  "paMinWelcomeBody": "মিটিংয়ের টাইটেল, তারিখ, উপস্থিত ব্যক্তিরা, আলোচ্যসূচি, সিদ্ধান্ত ও অ্যাকশন আইটেম (দায়িত্ব + সময়সীমা সহ) লিখে রাখুন। একটি পরিষ্কার সারাংশ নিজে থেকেই তৈরি হয়। কোনো কি ছাড়াই পুরোপুরি কাজ করে।",
+  "paMinLoadError": "মিনিটস লোড করা গেল না। আবার চেষ্টা করুন।",
+  "paMinSaved": "সেভ হয়েছে",
+  "paMinDeleted": "মুছে ফেলা হয়েছে",
+  "paMinTitleLabel": "মিটিংয়ের টাইটেল",
+  "paMinTitleHint": "যেমন: সাপ্তাহিক টিম মিটিং",
+  "paMinSetDate": "মিটিংয়ের তারিখ দিন",
+  "paMinAttendeesLabel": "উপস্থিত ব্যক্তিরা",
+  "paMinAttendeesHint": "প্রতি লাইনে একজন",
+  "paMinAgendaLabel": "আলোচ্যসূচি",
+  "paMinAgendaHint": "প্রতি লাইনে একটি বিষয়",
+  "paMinDecisionsLabel": "সিদ্ধান্ত",
+  "paMinDecisionsHint": "প্রতি লাইনে একটি সিদ্ধান্ত",
+  "paMinAgenda": "আলোচ্যসূচি",
+  "paMinDecisions": "সিদ্ধান্ত",
+  "paMinActions": "অ্যাকশন আইটেম",
+  "paMinAddAction": "যোগ করুন",
+  "paMinNoActions": "এখনো কোনো অ্যাকশন আইটেম নেই।",
+  "paMinAction": "অ্যাকশন আইটেম",
+  "paMinActionTitleLabel": "কী করতে হবে",
+  "paMinOwnerLabel": "দায়িত্বে",
+  "paMinSetDue": "সময়সীমা দিন",
+  "paMinOwnerHint": "দায়িত্বে: {owner}",
+  "@paMinOwnerHint": {
+    "placeholders": {
+      "owner": {
+        "type": "Object"
+      }
+    }
+  },
+  "paMinDueHint": "সময়সীমা: {due}",
+  "@paMinDueHint": {
+    "placeholders": {
+      "due": {
+        "type": "Object"
+      }
+    }
+  },
+  "paMinStatusOpen": "বাকি",
+  "paMinStatusDoing": "চলছে",
+  "paMinStatusDone": "শেষ",
+  "paMinAttendeeCount": "{count} জন উপস্থিত",
+  "@paMinAttendeeCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paMinActionCount": "{open} বাকি · {done} শেষ",
+  "@paMinActionCount": {
+    "placeholders": {
+      "done": {
+        "type": "Object"
+      },
+      "open": {
+        "type": "Object"
+      }
+    }
+  },
+  "paMinSttSeamTitle": "অটো মিনিটস বন্ধ",
+  "paMinSttSeamBody": "রেকর্ডিং থেকে নিজে থেকে মিনিটস তৈরি করতে একটি ট্রান্সক্রিপশন কি যুক্ত করুন (Integrations → transcription)। কি ছাড়াও ম্যানুয়ালি মিনিটস লেখা পুরোপুরি চলে — আমরা কখনো ট্রান্সক্রিপ্ট বা মিনিটস বানিয়ে দেখাই না।",
+  "paMinSttReadyTitle": "অটো মিনিটস চালু",
+  "paMinSttReadyBody": "একটি রেকর্ডিং যুক্ত করলে সার্ভারে ট্রান্সক্রিপশন চালিয়ে মিনিটসের ঘরগুলো আগেভাগে ভরে দেওয়া হবে — আপনি তা দেখে সম্পাদনা করবেন।",
+  "paMinDeleteTitle": "মিনিটস মুছবেন?",
+  "paMinDeleteBody": "“{title}”-এর মিনিটস সরানো হবে।",
+  "@paMinDeleteBody": {
+    "placeholders": {
+      "title": {
+        "type": "Object"
+      }
+    }
+  },
+  "paTravelTitle": "ভ্রমণ ও সফরসূচি",
+  "paTravelLoadError": "সফরসূচি লোড করা যায়নি।",
+  "paTravelWelcomeTitle": "এখনো কোনো সফর তৈরি হয়নি",
+  "paTravelWelcomeBody": "স্যারের সফরের পুরো সূচি হাতে তৈরি করুন—যাত্রা, থাকা, পথে মিটিং আর প্রস্তুতির চেকলিস্ট। কোনো কি লাগবে না; কিছু বুক করা হয় না।",
+  "paTravelNewTrip": "নতুন সফর",
+  "paTravelTripTitleLabel": "সফরের নাম",
+  "paTravelTitleRequired": "সফরের একটি নাম দিন।",
+  "paTravelStartLabel": "শুরুর তারিখ",
+  "paTravelEndLabel": "শেষের তারিখ",
+  "paTravelNoteLabel": "নোট",
+  "paTravelDaysCount": "{days} দিন",
+  "@paTravelDaysCount": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "paTravelCountdown": "আর {days} দিন বাকি",
+  "@paTravelCountdown": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "paTravelStartsToday": "আজ শুরু",
+  "paTravelOngoingPast": "{days} দিন আগে শুরু হয়েছে",
+  "@paTravelOngoingPast": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "paTravelBookingSeamTitle": "লাইভ বুকিং—একটি বুকিং কি যুক্ত করুন",
+  "paTravelBookingSeamBody": "এখানে ফ্লাইট/হোটেলের দাম খোঁজা বা বুক করা হয় না। একটি বুকিং কি যুক্ত হলে আসল বুকিং চালু হবে। এই সূচি পুরোপুরি হাতে তৈরি—কোনো দাম বানানো হয় না, কোনো টাকা রাখা হয় না।",
+  "paTravelLegsHeader": "যাত্রাপথ",
+  "paTravelNoLegs": "এখনো কোনো যাত্রা যোগ করা হয়নি।",
+  "paTravelLegFromToRequired": "কোথা থেকে ও কোথায় দুটোই লিখুন।",
+  "paTravelFromLabel": "কোথা থেকে",
+  "paTravelToLabel": "কোথায়",
+  "paTravelDepartLabel": "ছাড়ার সময়",
+  "paTravelRefFieldLabel": "টিকিট/পিএনআর নম্বর",
+  "paTravelRefHelper": "আপনার নিজের লেখা রেফারেন্স—এটি আমরা তৈরি করি না।",
+  "paTravelRefLabel": "রেফ: {ref}",
+  "@paTravelRefLabel": {
+    "placeholders": {
+      "ref": {
+        "type": "Object"
+      }
+    }
+  },
+  "paTravelModeFlight": "ফ্লাইট",
+  "paTravelModeTrain": "ট্রেন",
+  "paTravelModeCar": "গাড়ি",
+  "paTravelModeBus": "বাস",
+  "paTravelModeLaunch": "লঞ্চ",
+  "paTravelStaysHeader": "থাকার জায়গা",
+  "paTravelNoStays": "এখনো কোনো থাকার জায়গা যোগ করা হয়নি।",
+  "paTravelStayNameLabel": "হোটেল/জায়গার নাম",
+  "paTravelStayAddressLabel": "ঠিকানা",
+  "paTravelCheckInLabel": "চেক-ইন",
+  "paTravelCheckOutLabel": "চেক-আউট",
+  "paTravelMeetingsHeader": "পথে মিটিং",
+  "paTravelNoMeetings": "এখনো কোনো মিটিং যোগ করা হয়নি।",
+  "paTravelMeetingTitleLabel": "মিটিংয়ের বিষয়",
+  "paTravelMeetingAtLabel": "সময়",
+  "paTravelMeetingPlaceLabel": "স্থান",
+  "paTravelMeetingWithLabel": "কার সাথে",
+  "paTravelPackingHeader": "প্রস্তুতি ও গোছগাছ",
+  "paTravelNoPacking": "এখনো কোনো আইটেম যোগ করা হয়নি।",
+  "paTravelPackLabel": "আইটেমের নাম",
+  "paTravelPackingProgress": "{total}টির মধ্যে {checked}টি গোছানো হয়েছে",
+  "@paTravelPackingProgress": {
+    "placeholders": {
+      "checked": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "paTravelSummaryButton": "ছাপার উপযোগী সূচি দেখুন",
+  "paVoucherTitle": "খরচের ভাউচার",
+  "paVoucherLoadError": "ভাউচার লোড করা যায়নি।",
+  "paVoucherWelcomeTitle": "এখনো কোনো ভাউচার নেই",
+  "paVoucherWelcomeBody": "খরচের দাবি হাতে তৈরি করুন—তারিখ, খাত, ৳ অঙ্ক ও রসিদের রেফারেন্স সহ প্রতিটি লাইন। যোগফল নিজে হিসাব হয়; কোনো টাকা রাখা হয় না।",
+  "paVoucherNew": "নতুন ভাউচার",
+  "paVoucherTitleLabel": "ভাউচারের শিরোনাম",
+  "paVoucherTitleRequired": "ভাউচারের একটি শিরোনাম দিন।",
+  "paVoucherClaimantLabel": "দাবিদারের নাম",
+  "paVoucherOcrSeamTitle": "রসিদ অটো-পড়া—একটি OCR কি যুক্ত করুন",
+  "paVoucherOcrSeamBody": "ছবি থেকে অঙ্ক নিজে পড়তে একটি OCR কি যুক্ত করুন। কি ছাড়া অঙ্ক হাতে লিখুন—আমরা ছবি থেকে কোনো অঙ্ক, দোকান বা তারিখ কখনো বানাই না।",
+  "paVoucherStatusLabel": "অনুমোদনের অবস্থা",
+  "paVoucherStatusDraft": "খসড়া",
+  "paVoucherStatusSubmitted": "জমা দেওয়া",
+  "paVoucherStatusApproved": "অনুমোদিত",
+  "paVoucherSubmit": "জমা দিন",
+  "paVoucherApprove": "অনুমোদন করুন",
+  "paVoucherTotalLabel": "মোট",
+  "paVoucherLineCount": "{count}টি লাইন",
+  "@paVoucherLineCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paVoucherLinesHeader": "খরচের লাইন",
+  "paVoucherNoLines": "এখনো কোনো লাইন যোগ করা হয়নি।",
+  "paVoucherAddLine": "লাইন যোগ করুন",
+  "paVoucherAmountLabel": "অঙ্ক",
+  "paVoucherAmountRequired": "শূন্যের বেশি একটি অঙ্ক দিন।",
+  "paVoucherCategoryLabel": "খাত",
+  "paVoucherDateLabel": "তারিখ",
+  "paVoucherReceiptRefLabel": "রসিদের রেফারেন্স",
+  "paVoucherReceiptRefHelper": "রসিদের নম্বর বা ফাইলের নাম—আপনি নিজে লিখুন।",
+  "paVoucherReceiptLabel": "রসিদ: {ref}",
+  "@paVoucherReceiptLabel": {
+    "placeholders": {
+      "ref": {
+        "type": "Object"
+      }
+    }
+  },
+  "paVoucherLineNoteLabel": "নোট",
+  "paVoucherCatTransport": "যাতায়াত",
+  "paVoucherCatLodging": "থাকা",
+  "paVoucherCatMeals": "খাবার",
+  "paVoucherCatSupplies": "সরঞ্জাম",
+  "paVoucherCatCommunication": "যোগাযোগ",
+  "paVoucherCatEntertainment": "আপ্যায়ন",
+  "paVoucherCatOther": "অন্যান্য",
+  "paResearchTitle": "গবেষণা ও উপস্থাপনা",
+  "paResearchLoadError": "বিষয় লোড করা যায়নি।",
+  "paResearchWelcomeTitle": "এখনো কোনো বিষয় নেই",
+  "paResearchWelcomeBody": "একটি বিষয়ে নোট ও সূত্র জমান, উপস্থাপনার আউটলাইন সাজান—অংশ ও পয়েন্ট। তারপর তা এক্সপোর্ট করে স্লাইডে বসান। সব হাতে—কোনো তথ্য বানানো হয় না।",
+  "paResearchNewTopic": "নতুন বিষয়",
+  "paResearchTopicTitleLabel": "বিষয়ের নাম",
+  "paResearchTitleRequired": "বিষয়ের একটি নাম দিন।",
+  "paResearchGoalLabel": "লক্ষ্য / প্রশ্ন",
+  "paResearchAiSeamTitle": "AI সহায়তা—একটি AI কি যুক্ত করুন",
+  "paResearchAiSeamBody": "তথ্য খোঁজা বা স্লাইড তৈরিতে AI সহায়তা পেতে একটি AI কি যুক্ত করুন। কি ছাড়া নোট ও আউটলাইন হাতে লিখুন—আমরা কোনো তথ্য, সূত্র বা লিংক কখনো বানাই না।",
+  "paResearchNotesHeader": "নোট",
+  "paResearchNoNotes": "এখনো কোনো নোট যোগ করা হয়নি।",
+  "paResearchNoteTextLabel": "নোট লিখুন",
+  "paResearchSourcesHeader": "সূত্র",
+  "paResearchNoSources": "এখনো কোনো সূত্র যোগ করা হয়নি।",
+  "paResearchSourceTitleLabel": "সূত্রের শিরোনাম",
+  "paResearchSourceRefLabel": "লিংক / উদ্ধৃতি",
+  "paResearchSourceRefHelper": "আপনার নিজের লেখা লিংক বা রেফারেন্স।",
+  "paResearchOutlineHeader": "উপস্থাপনার আউটলাইন",
+  "paResearchNoSections": "এখনো কোনো অংশ যোগ করা হয়নি।",
+  "paResearchSectionHeadingLabel": "অংশের শিরোনাম",
+  "paResearchSectionOrderLabel": "ক্রম",
+  "paResearchSectionBulletsLabel": "পয়েন্টসমূহ",
+  "paResearchSectionBulletsHelper": "প্রতি লাইনে একটি পয়েন্ট লিখুন।",
+  "paResearchHeadingRequired": "অংশের একটি শিরোনাম দিন।",
+  "paResearchExportButton": "আউটলাইন এক্সপোর্ট করুন",
+  "paResearchExportTitle": "আউটলাইন এক্সপোর্ট",
+  "paResearchExportEmpty": "এক্সপোর্ট করার মতো কিছু নেই।",
+  "paResearchIncludeSources": "সূত্র যোগ করুন",
+  "paResearchCopy": "কপি করুন",
+  "paResearchCopied": "আউটলাইন কপি হয়েছে।"
 }

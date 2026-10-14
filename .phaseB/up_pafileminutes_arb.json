@@ -1,0 +1,99 @@
+{
+  "_comment": "ARB source for PA Secretary Mode key-gated extensions #109 Filing cabinet + #110 Meeting minutes (SPEC v2.1 §14/§21). Each entry key:[bn,en]; bn+en both filled, never mixed. Placeholder params are listed in _params so the integrator's merge wires them (it SKIPS keys nested in _params — add those manually). Common keys already in app_*.arb are NOT repeated here: cancel, delete, edit, save, retry, loadFailed, saveFailed, deleteFailed.",
+
+  "paFileTitle": ["ফাইলিং ক্যাবিনেট", "Filing Cabinet"],
+  "paFileAdd": ["ডকুমেন্ট ফাইল করুন", "File a Document"],
+  "paFileEdit": ["ডকুমেন্ট সম্পাদনা", "Edit Document"],
+  "paFileWelcomeTitle": ["আপনার ফাইলিং ক্যাবিনেট", "Your filing cabinet"],
+  "paFileWelcomeBody": ["চুক্তি, ইনভয়েস, চিঠি ও রিপোর্ট ফোল্ডারে গুছিয়ে রাখুন — টাইটেল, ট্যাগ, নোট ও তারিখ সহ। যেকোনো সময় খুঁজে বের করুন। কোনো কি ছাড়াই পুরোপুরি কাজ করে।", "Keep contracts, invoices, letters and reports organised in folders — with a title, tags, notes and a date. Retrieve anything, anytime. Works fully with no key."],
+  "paFileLoadError": ["ক্যাবিনেট লোড করা গেল না। আবার চেষ্টা করুন।", "Couldn't load the cabinet. Please try again."],
+  "paFileSaved": ["ফাইল করা হয়েছে", "Filed"],
+  "paFileDeleted": ["মুছে ফেলা হয়েছে", "Removed"],
+
+  "paFileFolderLabel": ["ফোল্ডার", "Folder"],
+  "paFileFolderAll": ["সব ({count})", "All ({count})"],
+  "paFileCatContracts": ["চুক্তি", "Contracts"],
+  "paFileCatInvoices": ["ইনভয়েস", "Invoices"],
+  "paFileCatLetters": ["চিঠি", "Letters"],
+  "paFileCatReports": ["রিপোর্ট", "Reports"],
+  "paFileCatOther": ["অন্যান্য", "Other"],
+
+  "paFileTitleLabel": ["ডকুমেন্টের টাইটেল", "Document title"],
+  "paFileTitleHint": ["যেমন: অফিস ভাড়ার চুক্তি", "e.g. Office lease agreement"],
+  "paFileTagsLabel": ["ট্যাগ", "Tags"],
+  "paFileTagsHint": ["কমা দিয়ে আলাদা করুন", "comma-separated"],
+  "paFileTagsHelper": ["খুঁজতে সুবিধা হয় — যেমন: লিগ্যাল, ২০২৬", "Makes search easier — e.g. legal, 2026"],
+  "paFileNotesLabel": ["নোট", "Notes"],
+  "paFileSetDate": ["ফাইলিং তারিখ দিন", "Set filing date"],
+
+  "paFileSearchHint": ["টাইটেল, নোট বা ট্যাগে খুঁজুন", "Search title, notes or tags"],
+  "paFileClearFilters": ["ফিল্টার মুছুন", "Clear filters"],
+  "paFileNoMatchTitle": ["কিছু পাওয়া যায়নি", "Nothing matched"],
+  "paFileNoMatchBody": ["এই ফোল্ডার/খোঁজার সাথে কোনো ডকুমেন্ট মেলেনি।", "No documents match this folder/search."],
+  "paFileScanAttached": ["স্ক্যান সংযুক্ত", "Scan attached"],
+
+  "paFileExtractedLabel": ["পড়া লেখা (OCR)", "Read text (OCR)"],
+  "paFileOcrSeamTitle": ["অটো টেক্সট পড়া বন্ধ", "Auto text-read is off"],
+  "paFileOcrSeamBody": ["স্ক্যান থেকে লেখা ও টাইটেল নিজে থেকে বের করতে একটি OCR কি যুক্ত করুন (Integrations → ocr)। কি ছাড়াও ম্যানুয়ালি ফাইল করা পুরোপুরি চলে — আমরা কখনো লেখা বানিয়ে দেখাই না।", "Connect an OCR key to auto-extract text and a title from a scan (Integrations → ocr). Manual filing works fully without a key — we never fabricate extracted text."],
+  "paFileOcrReadyTitle": ["অটো টেক্সট পড়া চালু", "Auto text-read is on"],
+  "paFileOcrReadyBody": ["একটি স্ক্যান যুক্ত করলে সার্ভারে OCR চালিয়ে লেখা বের করা হবে — আপনি তা দেখে সম্পাদনা করতে পারবেন।", "Attach a scan and OCR will run server-side to extract text — you can review and edit it."],
+
+  "paFileDeleteTitle": ["ডকুমেন্ট মুছবেন?", "Delete document?"],
+  "paFileDeleteBody": ["“{title}” ক্যাবিনেট থেকে সরানো হবে।", "“{title}” will be removed from the cabinet."],
+
+  "paMinTitle": ["মিটিং মিনিটস", "Meeting Minutes"],
+  "paMinAdd": ["নতুন মিনিটস", "New Minutes"],
+  "paMinEdit": ["মিনিটস সম্পাদনা", "Edit Minutes"],
+  "paMinWelcomeTitle": ["মিটিংয়ের মিনিটস রাখুন", "Keep meeting minutes"],
+  "paMinWelcomeBody": ["মিটিংয়ের টাইটেল, তারিখ, উপস্থিত ব্যক্তিরা, আলোচ্যসূচি, সিদ্ধান্ত ও অ্যাকশন আইটেম (দায়িত্ব + সময়সীমা সহ) লিখে রাখুন। একটি পরিষ্কার সারাংশ নিজে থেকেই তৈরি হয়। কোনো কি ছাড়াই পুরোপুরি কাজ করে।", "Jot down the meeting title, date, attendees, agenda, decisions and action items (with owner + due). A clean summary is formed automatically. Works fully with no key."],
+  "paMinLoadError": ["মিনিটস লোড করা গেল না। আবার চেষ্টা করুন।", "Couldn't load minutes. Please try again."],
+  "paMinSaved": ["সেভ হয়েছে", "Saved"],
+  "paMinDeleted": ["মুছে ফেলা হয়েছে", "Removed"],
+
+  "paMinTitleLabel": ["মিটিংয়ের টাইটেল", "Meeting title"],
+  "paMinTitleHint": ["যেমন: সাপ্তাহিক টিম মিটিং", "e.g. Weekly team sync"],
+  "paMinSetDate": ["মিটিংয়ের তারিখ দিন", "Set meeting date"],
+  "paMinAttendeesLabel": ["উপস্থিত ব্যক্তিরা", "Attendees"],
+  "paMinAttendeesHint": ["প্রতি লাইনে একজন", "one per line"],
+  "paMinAgendaLabel": ["আলোচ্যসূচি", "Agenda"],
+  "paMinAgendaHint": ["প্রতি লাইনে একটি বিষয়", "one item per line"],
+  "paMinDecisionsLabel": ["সিদ্ধান্ত", "Decisions"],
+  "paMinDecisionsHint": ["প্রতি লাইনে একটি সিদ্ধান্ত", "one decision per line"],
+
+  "paMinAgenda": ["আলোচ্যসূচি", "Agenda"],
+  "paMinDecisions": ["সিদ্ধান্ত", "Decisions"],
+  "paMinActions": ["অ্যাকশন আইটেম", "Action items"],
+  "paMinAddAction": ["যোগ করুন", "Add"],
+  "paMinNoActions": ["এখনো কোনো অ্যাকশন আইটেম নেই।", "No action items yet."],
+  "paMinAction": ["অ্যাকশন আইটেম", "Action item"],
+  "paMinActionTitleLabel": ["কী করতে হবে", "What needs doing"],
+  "paMinOwnerLabel": ["দায়িত্বে", "Owner"],
+  "paMinSetDue": ["সময়সীমা দিন", "Set due date"],
+  "paMinOwnerHint": ["দায়িত্বে: {owner}", "Owner: {owner}"],
+  "paMinDueHint": ["সময়সীমা: {due}", "Due: {due}"],
+
+  "paMinStatusOpen": ["বাকি", "Open"],
+  "paMinStatusDoing": ["চলছে", "Doing"],
+  "paMinStatusDone": ["শেষ", "Done"],
+
+  "paMinAttendeeCount": ["{count} জন উপস্থিত", "{count} attending"],
+  "paMinActionCount": ["{open} বাকি · {done} শেষ", "{open} open · {done} done"],
+
+  "paMinSttSeamTitle": ["অটো মিনিটস বন্ধ", "Auto-minutes is off"],
+  "paMinSttSeamBody": ["রেকর্ডিং থেকে নিজে থেকে মিনিটস তৈরি করতে একটি ট্রান্সক্রিপশন কি যুক্ত করুন (Integrations → transcription)। কি ছাড়াও ম্যানুয়ালি মিনিটস লেখা পুরোপুরি চলে — আমরা কখনো ট্রান্সক্রিপ্ট বা মিনিটস বানিয়ে দেখাই না।", "Connect a transcription key to auto-generate minutes from a recording (Integrations → transcription). Writing minutes manually works fully without a key — we never fabricate a transcript or minutes."],
+  "paMinSttReadyTitle": ["অটো মিনিটস চালু", "Auto-minutes is on"],
+  "paMinSttReadyBody": ["একটি রেকর্ডিং যুক্ত করলে সার্ভারে ট্রান্সক্রিপশন চালিয়ে মিনিটসের ঘরগুলো আগেভাগে ভরে দেওয়া হবে — আপনি তা দেখে সম্পাদনা করবেন।", "Attach a recording and transcription will run server-side to prefill the minutes fields — you then review and edit."],
+
+  "paMinDeleteTitle": ["মিনিটস মুছবেন?", "Delete minutes?"],
+  "paMinDeleteBody": ["“{title}”-এর মিনিটস সরানো হবে।", "The minutes for “{title}” will be removed."],
+
+  "_params": {
+    "paFileFolderAll": { "count": "String" },
+    "paFileDeleteBody": { "title": "String" },
+    "paMinOwnerHint": { "owner": "String" },
+    "paMinDueHint": { "due": "String" },
+    "paMinAttendeeCount": { "count": "String" },
+    "paMinActionCount": { "open": "String", "done": "String" },
+    "paMinDeleteBody": { "title": "String" }
+  }
+}

@@ -838,6 +838,17 @@ ProbashiSnippetTests = _make_snippet_case(
 # translation. Never auto-sends. Mirror of app/lib/widgets/in_chat_ai_engine.dart.
 InChatAiSnippetTests = _make_snippet_case(
     "core.logic.in_chat_ai_tests_snippets", "InChatAiSnippetTests")
+# PA Secretary Mode · Call & email handling (#106, §14) + Letters/notices/memos
+# (#107, §14), ADVANCED. Pure deterministic engines: a call/email task inbox
+# (order/counts) + template reply drafter by category; a formal-document
+# assembler (letter/notice/memo/application) from the owner's own words. Both
+# honest MOCK (marker on every result), key-gated full-AI seams (ai_required,
+# never fabricates), never auto-send. Mirrors call_email_screen.dart +
+# letters_screen.dart.
+PaCallEmailSnippetTests = _make_snippet_case(
+    "core.logic.pa_callemail_tests_snippets", "PaCallEmailSnippetTests")
+PaLettersSnippetTests = _make_snippet_case(
+    "core.logic.pa_letters_tests_snippets", "PaLettersSnippetTests")
 # Mock interview (#131, §21) + Language-learning partner (#132, §21), both
 # ADVANCED & KEY-GATED. Pure deterministic engines: a bilingual question bank +
 # rule-based (NOT AI) feedback rubric + model-answer outlines; a bilingual deck
@@ -960,6 +971,11 @@ PaDelegateSnippetTests = _make_snippet_case(
     "core.logic.pa_delegate_tests_snippets", "PaDelegateSnippetTests")
 PaTasksSnippetTests = _make_snippet_case(
     "core.logic.pa_tasks_tests_snippets", "PaTasksSnippetTests")
+# PA filing cabinet (#109) + meeting minutes (#110), §14 ADVANCED §21 — pure
+# deterministic organiser/formatter; honest key-gated OCR/transcription seams.
+PaFilingSnippetTests = _make_snippet_case("core.logic.pa_filing_tests_snippets", "PaFilingSnippetTests"); PaMinutesSnippetTests = _make_snippet_case("core.logic.pa_minutes_tests_snippets", "PaMinutesSnippetTests")
+# PA travel & itinerary (#112) + expense voucher (#113) + research & presentation (#114), §14 ADVANCED §21 — pure deterministic builders; honest key-gated booking/OCR/AI seams.
+PaTravelSnippetTests = _make_snippet_case("core.logic.pa_travel_tests_snippets", "PaTravelSnippetTests"); PaExpenseSnippetTests = _make_snippet_case("core.logic.pa_expense_tests_snippets", "PaExpenseSnippetTests"); PaResearchSnippetTests = _make_snippet_case("core.logic.pa_research_tests_snippets", "PaResearchSnippetTests")
 # Task Manager (#21, §21 ADVANCED) — projects + board engine. Pure, no DB/AI/
 # clock (now passed in): normalize/validate, honest overdue, deterministic
 # ordering + board bucketing, status-move (done⇄active progress honesty),

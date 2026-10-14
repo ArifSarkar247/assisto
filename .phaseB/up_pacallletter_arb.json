@@ -1,0 +1,118 @@
+{
+  "_note": "NEW l10n keys for PA Secretary Mode · Call & email handling (#106) + Letters/notices/memos (#107), SPEC v2.1 §14, built to §21 ADVANCED. Format: key -> [bn, en]. Merge the `bn` value into app_bn.arb and the `en` value into app_en.arb (this project keeps @-metadata in app_en.arb only). After merging, add the parameterized keys listed in `_params` to the placeholders-metadata (merge_arb.py PARAMS) so gen-l10n emits the String Function(...) signatures, then run flutter gen-l10n. ZERO Bangla lives in any .dart file — every Bangla string is here. The reply templates and formal phrases are deterministic MOCKS; the UI always shows the honest paAiReviewMarker ('AI-generated — review') and never auto-sends. REUSED existing keys (NOT redefined here): save, cancel, delete, edit, retry, copy, share, copied, saved, saveFailed, deleteFailed, loadFailed.",
+
+  "_params": {
+    "paCeWith": ["name"],
+    "paCeStatCalls": ["count"],
+    "paCeStatEmails": ["count"],
+    "paCeStatDone": ["count"],
+    "paCeDeleteBody": ["name"],
+    "paCeTplAcknowledge": ["contact", "subject", "sender"],
+    "paCeTplDecline": ["contact", "subject", "sender"],
+    "paCeTplSchedule": ["contact", "subject", "sender"],
+    "paCeTplFollowup": ["contact", "subject", "sender"],
+    "paLetDeleteBody": ["name"]
+  },
+
+  "paAiReviewMarker": ["AI-দ্বারা তৈরি খসড়া — পাঠানোর আগে দেখে নিন ও সম্পাদনা করুন।", "AI-generated draft — review and edit before use."],
+
+  "paCeTitle": ["কল ও ইমেইল", "Calls & emails"],
+  "paCeAdd": ["নতুন যোগ করুন", "Add task"],
+  "paCeEdit": ["সম্পাদনা করুন", "Edit task"],
+  "paCeWelcomeTitle": ["কল ও ইমেইল ইনবক্স", "Your call & email inbox"],
+  "paCeWelcomeBody": ["যেসব কল করতে বা ফেরত দিতে হবে এবং যেসব ইমেইলের উত্তর দিতে হবে, এখানে লিখে রাখুন। প্রতিটির জন্য একটি খসড়া উত্তরও তৈরি করতে পারবেন।", "Keep a list of calls to make or return and emails to handle. You can also draft a suggested reply for each one."],
+  "paCeLoadError": ["তালিকা আনা যায়নি। আবার চেষ্টা করুন।", "Couldn't load your list. Please try again."],
+
+  "paCeStatCalls": ["{count}টি কল বাকি", "{count} calls open"],
+  "paCeStatEmails": ["{count}টি ইমেইল বাকি", "{count} emails open"],
+  "paCeStatDone": ["{count}টি সম্পন্ন", "{count} done"],
+
+  "paCeFilterAll": ["সব", "All"],
+  "paCeFilterCalls": ["কল", "Calls"],
+  "paCeFilterEmails": ["ইমেইল", "Emails"],
+  "paCeHideDone": ["সম্পন্নগুলো লুকান", "Hide done"],
+  "paCeNoMatchTitle": ["কিছু পাওয়া যায়নি", "Nothing matches"],
+  "paCeNoMatchBody": ["এই ফিল্টারে কোনো কাজ নেই। ফিল্টার সরিয়ে আবার দেখুন।", "No tasks match this filter. Clear the filters to see all."],
+  "paCeClearFilters": ["ফিল্টার মুছুন", "Clear filters"],
+
+  "paCeWith": ["সঙ্গে: {name}", "With {name}"],
+  "paCeChannelLabel": ["ধরন", "Type"],
+  "paCeChannelCall": ["কল", "Call"],
+  "paCeChannelEmail": ["ইমেইল", "Email"],
+  "paCeContactField": ["যোগাযোগ (নাম/প্রতিষ্ঠান)", "Contact (name / organisation)"],
+  "paCeSubjectField": ["বিষয়", "Subject"],
+  "paCeNotesField": ["নোট (ঐচ্ছিক)", "Notes (optional)"],
+  "paCePriorityLabel": ["অগ্রাধিকার", "Priority"],
+  "paCePriorityHigh": ["জরুরি", "High"],
+  "paCePriorityNormal": ["সাধারণ", "Normal"],
+  "paCePriorityLow": ["কম", "Low"],
+
+  "paCeMarkDone": ["সম্পন্ন চিহ্নিত করুন", "Mark done"],
+  "paCeMarkTodo": ["আবার করণীয় করুন", "Mark as to-do"],
+  "paCeDraftReply": ["খসড়া উত্তর", "Draft reply"],
+  "paCeDeleted": ["মুছে ফেলা হয়েছে", "Deleted"],
+  "paCeDeleteTitle": ["মুছে ফেলবেন?", "Delete this task?"],
+  "paCeDeleteBody": ["\"{name}\" মুছে ফেলা হবে। এটি ফেরানো যাবে না।", "\"{name}\" will be removed. This can't be undone."],
+
+  "paCeDraftTitle": ["খসড়া উত্তর", "Suggested reply"],
+  "paCeChooseCategory": ["ধরন বেছে নিন", "Choose a reply type"],
+  "paCeCatAcknowledge": ["প্রাপ্তি স্বীকার", "Acknowledge"],
+  "paCeCatDecline": ["বিনয়ের সঙ্গে না", "Decline"],
+  "paCeCatSchedule": ["সময় ঠিক করা", "Schedule"],
+  "paCeCatFollowup": ["ফলো-আপ", "Follow-up"],
+  "paCeDraftEditable": ["খসড়া (সম্পাদনাযোগ্য)", "Draft (editable)"],
+  "paCeNeverSends": ["এই খসড়া নিজে থেকে পাঠানো হবে না — আপনি কপি বা শেয়ার করে নিজে পাঠাবেন।", "This draft is never sent automatically — copy or share it and send it yourself."],
+
+  "paCeAiSeamTitle": ["সম্পূর্ণ AI-লেখা উত্তর চান?", "Want a full AI-drafted reply?"],
+  "paCeAiSeamBody": ["একটি AI key যোগ করা থাকলে (Integrations) মালিক পুরো উত্তরটি AI দিয়ে লেখাতে পারবেন। এখন এটি একটি টেমপ্লেট-ভিত্তিক খসড়া।", "When an AI key is connected (Integrations), the owner can have the whole reply written by AI. For now this is a template-based draft."],
+
+  "paCeTplAcknowledge": ["প্রিয় {contact},\n{subject} বিষয়ে আপনার বার্তার জন্য ধন্যবাদ। আমি তা পেয়েছি এবং শীঘ্রই আপনার সঙ্গে যোগাযোগ করব।\nশুভেচ্ছান্তে,\n{sender}", "Dear {contact},\nThank you for your message regarding {subject}. I confirm I have received it and will get back to you shortly.\nBest regards,\n{sender}"],
+  "paCeTplDecline": ["প্রিয় {contact},\n{subject} বিষয়ে যোগাযোগের জন্য ধন্যবাদ। দুঃখের সঙ্গে জানাচ্ছি, এই মুহূর্তে আমরা এগিয়ে যেতে পারছি না। আপনার বোঝাপড়ার জন্য কৃতজ্ঞ।\nশুভেচ্ছান্তে,\n{sender}", "Dear {contact},\nThank you for reaching out about {subject}. Regretfully, we are unable to proceed at this time. I appreciate your understanding.\nBest regards,\n{sender}"],
+  "paCeTplSchedule": ["প্রিয় {contact},\n{subject} বিষয়ে আমরা কি কথা বলার জন্য একটি সময় ঠিক করতে পারি? আপনার সুবিধামতো একটি সময় জানালে আমি নিশ্চিত করব।\nশুভেচ্ছান্তে,\n{sender}", "Dear {contact},\nRegarding {subject}, could we arrange a time to speak? Please share a slot that suits you and I will confirm.\nBest regards,\n{sender}"],
+  "paCeTplFollowup": ["প্রিয় {contact},\n{subject} বিষয়ে ফলো-আপ করছি — আপনার দিক থেকে কোনো অগ্রগতি আছে কি না জানতে চাইছিলাম। দয়া করে জানাবেন।\nশুভেচ্ছান্তে,\n{sender}", "Dear {contact},\nFollowing up on {subject} — I wanted to check whether there is any update from your side. Please let me know.\nBest regards,\n{sender}"],
+
+  "paLetTitle": ["চিঠি, নোটিশ ও মেমো", "Letters, notices & memos"],
+  "paLetNew": ["নতুন ডকুমেন্ট", "New document"],
+  "paLetEdit": ["সম্পাদনা করুন", "Edit document"],
+  "paLetOpen": ["খুলুন", "Open"],
+  "paLetWelcomeTitle": ["ফরমাল ডকুমেন্ট তৈরি করুন", "Create a formal document"],
+  "paLetWelcomeBody": ["চিঠি, নোটিশ, মেমো বা দরখাস্ত — ধরন বেছে নিন, কয়েকটি তথ্য দিন, আর সঠিক কাঠামোয় সাজানো ডকুমেন্ট পান। পরে সম্পাদনা, কপি বা শেয়ার করতে পারবেন।", "A letter, notice, memo or application — pick a type, fill a few fields, and get a correctly structured document. Edit, copy or share it afterwards."],
+  "paLetLoadError": ["সংরক্ষিত ডকুমেন্ট আনা যায়নি। আবার চেষ্টা করুন।", "Couldn't load saved documents. Please try again."],
+
+  "paLetTypeLabel": ["ধরন", "Document type"],
+  "paLetTypeLetter": ["চিঠি", "Letter"],
+  "paLetTypeNotice": ["নোটিশ", "Notice"],
+  "paLetTypeMemo": ["মেমো", "Memo"],
+  "paLetTypeApplication": ["দরখাস্ত", "Application"],
+
+  "paLetToField": ["প্রাপক (কাকে)", "To (recipient)"],
+  "paLetToOptional": ["প্রাপক (ঐচ্ছিক)", "To (optional)"],
+  "paLetFromField": ["প্রেরক (কার পক্ষ থেকে)", "From (sender)"],
+  "paLetSubjectField": ["বিষয়", "Subject"],
+  "paLetDateField": ["তারিখ", "Date"],
+  "paLetDateHelp": ["যেমন: ১৪ অক্টোবর ২০২৬", "e.g. 14 October 2026"],
+  "paLetBodyField": ["মূল বক্তব্য", "Body points"],
+  "paLetBodyHelp": ["প্রতিটি অনুচ্ছেদ আলাদা লাইনে লিখুন। আপনার লেখা হুবহু ব্যবহার করা হবে।", "Write each paragraph on its own line. Your words are used exactly as written."],
+
+  "paLetPreviewLabel": ["প্রিভিউ", "Preview"],
+  "paLetPreviewEmpty": ["তথ্য দিলে এখানে সাজানো ডকুমেন্ট দেখা যাবে।", "Fill the fields above and the formatted document appears here."],
+  "paLetNeedSubject": ["একটি বিষয় লিখুন।", "Please enter a subject."],
+  "paLetNeedRecipient": ["প্রাপক লিখুন।", "Please enter a recipient."],
+
+  "paLetDeleteTitle": ["মুছে ফেলবেন?", "Delete this document?"],
+  "paLetDeleteBody": ["\"{name}\" মুছে ফেলা হবে। এটি ফেরানো যাবে না।", "\"{name}\" will be removed. This can't be undone."],
+
+  "paLetAiSeamTitle": ["AI দিয়ে মূল বক্তব্য লেখাতে চান?", "Want an AI-written body?"],
+  "paLetAiSeamBody": ["একটি AI key যোগ করা থাকলে (Integrations) মালিক মূল বক্তব্যটি AI দিয়ে লেখাতে পারবেন। এখন এটি একটি টেমপ্লেট-ভিত্তিক জেনারেটর — কাঠামো তৈরি হয়, লেখা আপনার নিজের।", "When an AI key is connected (Integrations), the owner can have the body written by AI. For now this is a template-based generator — the structure is built, the words are your own."],
+
+  "paLetPhraseTo": ["প্রতি,", "To,"],
+  "paLetPhraseFrom": ["ইতি,", "From,"],
+  "paLetPhraseDate": ["তারিখ", "Date"],
+  "paLetPhraseSubject": ["বিষয়", "Subject"],
+  "paLetPhraseDear": ["জনাব", "Dear Sir/Madam"],
+  "paLetPhraseRespected": ["মাননীয়", "Respected Sir/Madam"],
+  "paLetPhraseYoursSincerely": ["বিনীত", "Yours sincerely"],
+  "paLetPhraseYoursFaithfully": ["বিনীত নিবেদক", "Yours faithfully"],
+  "paLetPhraseNotice": ["বিজ্ঞপ্তি", "Notice"],
+  "paLetPhraseMemo": ["অফিস মেমো", "Memo"]
+}

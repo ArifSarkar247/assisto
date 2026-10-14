@@ -1872,6 +1872,10 @@ GENERIC_COLLECTIONS = [
     "blog/drafts", "docscan/items",
     # #17 Quick tools + #7 Daily brief (key-gated AI mock)
     "quicktools/saved", "brief/prefs",
+    # PA Secretary key-gated layer (§14 #106/107/109/110/112/113/114) — mock
+    "pa/callemail", "pa/letters",
+    "pa/filing", "pa/minutes", "pa/actionitems",
+    "pa/travel", "pa/vouchers", "pa/research",
 ]
 GENERIC_COLLECTION_VIEWSETS = {
     name: type(

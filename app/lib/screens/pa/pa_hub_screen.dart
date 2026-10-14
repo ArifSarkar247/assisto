@@ -7,6 +7,13 @@ import 'visitor_filter_screen.dart';
 import 'liaison_screen.dart';
 import 'delegate_access_screen.dart';
 import 'personal_tasks_screen.dart';
+import 'call_email_screen.dart';
+import 'letters_screen.dart';
+import 'filing_screen.dart';
+import 'meeting_minutes_screen.dart';
+import 'pa_travel_screen.dart';
+import 'expense_voucher_screen.dart';
+import 'research_prep_screen.dart';
 
 /// PA Secretary Mode hub (SPEC v2.1 §14 / §4 Work group) — the single sidebar
 /// entry point for the six PA tools. Each tile reuses the destination screen's
@@ -32,6 +39,22 @@ class PaHubScreen extends StatelessWidget {
           (_) => const PersonalTasksScreen()),
       _PaTool(Icons.admin_panel_settings_outlined, t.paDelegateTitle,
           (_) => const DelegateAccessScreen()),
+      // Key-gated layer (§14 #106/107/109/110/112/113/114) — deterministic mock
+      // with honest "connect a key" seams; works fully with no key.
+      _PaTool(Icons.contact_phone_outlined, t.paCeTitle,
+          (_) => const CallEmailScreen()),
+      _PaTool(Icons.mail_outline, t.paLetTitle,
+          (_) => const LettersScreen()),
+      _PaTool(Icons.folder_outlined, t.paFileTitle,
+          (_) => const FilingScreen()),
+      _PaTool(Icons.sticky_note_2_outlined, t.paMinTitle,
+          (_) => const MeetingMinutesScreen()),
+      _PaTool(Icons.flight_outlined, t.paTravelTitle,
+          (_) => const PaTravelScreen()),
+      _PaTool(Icons.receipt_long_outlined, t.paVoucherTitle,
+          (_) => const ExpenseVoucherScreen()),
+      _PaTool(Icons.insert_chart_outlined, t.paResearchTitle,
+          (_) => const ResearchPrepScreen()),
     ];
 
     return Scaffold(

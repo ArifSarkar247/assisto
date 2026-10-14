@@ -10898,5 +10898,476 @@
   "dbWeatherNeedsKey": "Add a weather key (Integrations) to see the forecast here. We never fabricate weather.",
   "dbNewsNeedsKey": "Add a news key (Integrations) to see headlines here. We never fabricate news.",
   "dbLoadError": "Couldn't load the brief.",
-  "share": "Share"
+  "share": "Share",
+  "paAiReviewMarker": "AI-generated draft — review and edit before use.",
+  "paCeTitle": "Calls & emails",
+  "paCeAdd": "Add task",
+  "paCeEdit": "Edit task",
+  "paCeWelcomeTitle": "Your call & email inbox",
+  "paCeWelcomeBody": "Keep a list of calls to make or return and emails to handle. You can also draft a suggested reply for each one.",
+  "paCeLoadError": "Couldn't load your list. Please try again.",
+  "paCeStatCalls": "{count} calls open",
+  "@paCeStatCalls": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paCeStatEmails": "{count} emails open",
+  "@paCeStatEmails": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paCeStatDone": "{count} done",
+  "@paCeStatDone": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paCeFilterAll": "All",
+  "paCeFilterCalls": "Calls",
+  "paCeFilterEmails": "Emails",
+  "paCeHideDone": "Hide done",
+  "paCeNoMatchTitle": "Nothing matches",
+  "paCeNoMatchBody": "No tasks match this filter. Clear the filters to see all.",
+  "paCeClearFilters": "Clear filters",
+  "paCeWith": "With {name}",
+  "@paCeWith": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "paCeChannelLabel": "Type",
+  "paCeChannelCall": "Call",
+  "paCeChannelEmail": "Email",
+  "paCeContactField": "Contact (name / organisation)",
+  "paCeSubjectField": "Subject",
+  "paCeNotesField": "Notes (optional)",
+  "paCePriorityLabel": "Priority",
+  "paCePriorityHigh": "High",
+  "paCePriorityNormal": "Normal",
+  "paCePriorityLow": "Low",
+  "paCeMarkDone": "Mark done",
+  "paCeMarkTodo": "Mark as to-do",
+  "paCeDraftReply": "Draft reply",
+  "paCeDeleted": "Deleted",
+  "paCeDeleteTitle": "Delete this task?",
+  "paCeDeleteBody": "\"{name}\" will be removed. This can't be undone.",
+  "@paCeDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "paCeDraftTitle": "Suggested reply",
+  "paCeChooseCategory": "Choose a reply type",
+  "paCeCatAcknowledge": "Acknowledge",
+  "paCeCatDecline": "Decline",
+  "paCeCatSchedule": "Schedule",
+  "paCeCatFollowup": "Follow-up",
+  "paCeDraftEditable": "Draft (editable)",
+  "paCeNeverSends": "This draft is never sent automatically — copy or share it and send it yourself.",
+  "paCeAiSeamTitle": "Want a full AI-drafted reply?",
+  "paCeAiSeamBody": "When an AI key is connected (Integrations), the owner can have the whole reply written by AI. For now this is a template-based draft.",
+  "paCeTplAcknowledge": "Dear {contact},\nThank you for your message regarding {subject}. I confirm I have received it and will get back to you shortly.\nBest regards,\n{sender}",
+  "@paCeTplAcknowledge": {
+    "placeholders": {
+      "contact": {
+        "type": "Object"
+      },
+      "sender": {
+        "type": "Object"
+      },
+      "subject": {
+        "type": "Object"
+      }
+    }
+  },
+  "paCeTplDecline": "Dear {contact},\nThank you for reaching out about {subject}. Regretfully, we are unable to proceed at this time. I appreciate your understanding.\nBest regards,\n{sender}",
+  "@paCeTplDecline": {
+    "placeholders": {
+      "contact": {
+        "type": "Object"
+      },
+      "sender": {
+        "type": "Object"
+      },
+      "subject": {
+        "type": "Object"
+      }
+    }
+  },
+  "paCeTplSchedule": "Dear {contact},\nRegarding {subject}, could we arrange a time to speak? Please share a slot that suits you and I will confirm.\nBest regards,\n{sender}",
+  "@paCeTplSchedule": {
+    "placeholders": {
+      "contact": {
+        "type": "Object"
+      },
+      "sender": {
+        "type": "Object"
+      },
+      "subject": {
+        "type": "Object"
+      }
+    }
+  },
+  "paCeTplFollowup": "Dear {contact},\nFollowing up on {subject} — I wanted to check whether there is any update from your side. Please let me know.\nBest regards,\n{sender}",
+  "@paCeTplFollowup": {
+    "placeholders": {
+      "contact": {
+        "type": "Object"
+      },
+      "sender": {
+        "type": "Object"
+      },
+      "subject": {
+        "type": "Object"
+      }
+    }
+  },
+  "paLetTitle": "Letters, notices & memos",
+  "paLetNew": "New document",
+  "paLetEdit": "Edit document",
+  "paLetOpen": "Open",
+  "paLetWelcomeTitle": "Create a formal document",
+  "paLetWelcomeBody": "A letter, notice, memo or application — pick a type, fill a few fields, and get a correctly structured document. Edit, copy or share it afterwards.",
+  "paLetLoadError": "Couldn't load saved documents. Please try again.",
+  "paLetTypeLabel": "Document type",
+  "paLetTypeLetter": "Letter",
+  "paLetTypeNotice": "Notice",
+  "paLetTypeMemo": "Memo",
+  "paLetTypeApplication": "Application",
+  "paLetToField": "To (recipient)",
+  "paLetToOptional": "To (optional)",
+  "paLetFromField": "From (sender)",
+  "paLetSubjectField": "Subject",
+  "paLetDateField": "Date",
+  "paLetDateHelp": "e.g. 14 October 2026",
+  "paLetBodyField": "Body points",
+  "paLetBodyHelp": "Write each paragraph on its own line. Your words are used exactly as written.",
+  "paLetPreviewLabel": "Preview",
+  "paLetPreviewEmpty": "Fill the fields above and the formatted document appears here.",
+  "paLetNeedSubject": "Please enter a subject.",
+  "paLetNeedRecipient": "Please enter a recipient.",
+  "paLetDeleteTitle": "Delete this document?",
+  "paLetDeleteBody": "\"{name}\" will be removed. This can't be undone.",
+  "@paLetDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "paLetAiSeamTitle": "Want an AI-written body?",
+  "paLetAiSeamBody": "When an AI key is connected (Integrations), the owner can have the body written by AI. For now this is a template-based generator — the structure is built, the words are your own.",
+  "paLetPhraseTo": "To,",
+  "paLetPhraseFrom": "From,",
+  "paLetPhraseDate": "Date",
+  "paLetPhraseSubject": "Subject",
+  "paLetPhraseDear": "Dear Sir/Madam",
+  "paLetPhraseRespected": "Respected Sir/Madam",
+  "paLetPhraseYoursSincerely": "Yours sincerely",
+  "paLetPhraseYoursFaithfully": "Yours faithfully",
+  "paLetPhraseNotice": "Notice",
+  "paLetPhraseMemo": "Memo",
+  "paFileTitle": "Filing Cabinet",
+  "paFileAdd": "File a Document",
+  "paFileEdit": "Edit Document",
+  "paFileWelcomeTitle": "Your filing cabinet",
+  "paFileWelcomeBody": "Keep contracts, invoices, letters and reports organised in folders — with a title, tags, notes and a date. Retrieve anything, anytime. Works fully with no key.",
+  "paFileLoadError": "Couldn't load the cabinet. Please try again.",
+  "paFileSaved": "Filed",
+  "paFileDeleted": "Removed",
+  "paFileFolderLabel": "Folder",
+  "paFileFolderAll": "All ({count})",
+  "@paFileFolderAll": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paFileCatContracts": "Contracts",
+  "paFileCatInvoices": "Invoices",
+  "paFileCatLetters": "Letters",
+  "paFileCatReports": "Reports",
+  "paFileCatOther": "Other",
+  "paFileTitleLabel": "Document title",
+  "paFileTitleHint": "e.g. Office lease agreement",
+  "paFileTagsLabel": "Tags",
+  "paFileTagsHint": "comma-separated",
+  "paFileTagsHelper": "Makes search easier — e.g. legal, 2026",
+  "paFileNotesLabel": "Notes",
+  "paFileSetDate": "Set filing date",
+  "paFileSearchHint": "Search title, notes or tags",
+  "paFileClearFilters": "Clear filters",
+  "paFileNoMatchTitle": "Nothing matched",
+  "paFileNoMatchBody": "No documents match this folder/search.",
+  "paFileScanAttached": "Scan attached",
+  "paFileExtractedLabel": "Read text (OCR)",
+  "paFileOcrSeamTitle": "Auto text-read is off",
+  "paFileOcrSeamBody": "Connect an OCR key to auto-extract text and a title from a scan (Integrations → ocr). Manual filing works fully without a key — we never fabricate extracted text.",
+  "paFileOcrReadyTitle": "Auto text-read is on",
+  "paFileOcrReadyBody": "Attach a scan and OCR will run server-side to extract text — you can review and edit it.",
+  "paFileDeleteTitle": "Delete document?",
+  "paFileDeleteBody": "“{title}” will be removed from the cabinet.",
+  "@paFileDeleteBody": {
+    "placeholders": {
+      "title": {
+        "type": "Object"
+      }
+    }
+  },
+  "paMinTitle": "Meeting Minutes",
+  "paMinAdd": "New Minutes",
+  "paMinEdit": "Edit Minutes",
+  "paMinWelcomeTitle": "Keep meeting minutes",
+  "paMinWelcomeBody": "Jot down the meeting title, date, attendees, agenda, decisions and action items (with owner + due). A clean summary is formed automatically. Works fully with no key.",
+  "paMinLoadError": "Couldn't load minutes. Please try again.",
+  "paMinSaved": "Saved",
+  "paMinDeleted": "Removed",
+  "paMinTitleLabel": "Meeting title",
+  "paMinTitleHint": "e.g. Weekly team sync",
+  "paMinSetDate": "Set meeting date",
+  "paMinAttendeesLabel": "Attendees",
+  "paMinAttendeesHint": "one per line",
+  "paMinAgendaLabel": "Agenda",
+  "paMinAgendaHint": "one item per line",
+  "paMinDecisionsLabel": "Decisions",
+  "paMinDecisionsHint": "one decision per line",
+  "paMinAgenda": "Agenda",
+  "paMinDecisions": "Decisions",
+  "paMinActions": "Action items",
+  "paMinAddAction": "Add",
+  "paMinNoActions": "No action items yet.",
+  "paMinAction": "Action item",
+  "paMinActionTitleLabel": "What needs doing",
+  "paMinOwnerLabel": "Owner",
+  "paMinSetDue": "Set due date",
+  "paMinOwnerHint": "Owner: {owner}",
+  "@paMinOwnerHint": {
+    "placeholders": {
+      "owner": {
+        "type": "Object"
+      }
+    }
+  },
+  "paMinDueHint": "Due: {due}",
+  "@paMinDueHint": {
+    "placeholders": {
+      "due": {
+        "type": "Object"
+      }
+    }
+  },
+  "paMinStatusOpen": "Open",
+  "paMinStatusDoing": "Doing",
+  "paMinStatusDone": "Done",
+  "paMinAttendeeCount": "{count} attending",
+  "@paMinAttendeeCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paMinActionCount": "{open} open · {done} done",
+  "@paMinActionCount": {
+    "placeholders": {
+      "done": {
+        "type": "Object"
+      },
+      "open": {
+        "type": "Object"
+      }
+    }
+  },
+  "paMinSttSeamTitle": "Auto-minutes is off",
+  "paMinSttSeamBody": "Connect a transcription key to auto-generate minutes from a recording (Integrations → transcription). Writing minutes manually works fully without a key — we never fabricate a transcript or minutes.",
+  "paMinSttReadyTitle": "Auto-minutes is on",
+  "paMinSttReadyBody": "Attach a recording and transcription will run server-side to prefill the minutes fields — you then review and edit.",
+  "paMinDeleteTitle": "Delete minutes?",
+  "paMinDeleteBody": "The minutes for “{title}” will be removed.",
+  "@paMinDeleteBody": {
+    "placeholders": {
+      "title": {
+        "type": "Object"
+      }
+    }
+  },
+  "paTravelTitle": "Travel & itinerary",
+  "paTravelLoadError": "Could not load the itinerary.",
+  "paTravelWelcomeTitle": "No trip planned yet",
+  "paTravelWelcomeBody": "Build the boss's whole trip by hand — legs, stays, meetings on the road and a prep checklist. No key needed; nothing is booked.",
+  "paTravelNewTrip": "New trip",
+  "paTravelTripTitleLabel": "Trip name",
+  "paTravelTitleRequired": "Please give the trip a name.",
+  "paTravelStartLabel": "Start date",
+  "paTravelEndLabel": "End date",
+  "paTravelNoteLabel": "Note",
+  "paTravelDaysCount": "{days} day(s)",
+  "@paTravelDaysCount": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "paTravelCountdown": "{days} day(s) to go",
+  "@paTravelCountdown": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "paTravelStartsToday": "Starts today",
+  "paTravelOngoingPast": "Started {days} day(s) ago",
+  "@paTravelOngoingPast": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "paTravelBookingSeamTitle": "Live booking — connect a booking key",
+  "paTravelBookingSeamBody": "We don't search prices or book flights/hotels here. Connect a booking key to enable real booking. This itinerary is built fully by hand — no prices are invented and no money is held.",
+  "paTravelLegsHeader": "Legs",
+  "paTravelNoLegs": "No legs added yet.",
+  "paTravelLegFromToRequired": "Enter both a from and a to place.",
+  "paTravelFromLabel": "From",
+  "paTravelToLabel": "To",
+  "paTravelDepartLabel": "Departs",
+  "paTravelRefFieldLabel": "Ticket / PNR no.",
+  "paTravelRefHelper": "Your own reference — we never generate this.",
+  "paTravelRefLabel": "Ref: {ref}",
+  "@paTravelRefLabel": {
+    "placeholders": {
+      "ref": {
+        "type": "Object"
+      }
+    }
+  },
+  "paTravelModeFlight": "Flight",
+  "paTravelModeTrain": "Train",
+  "paTravelModeCar": "Car",
+  "paTravelModeBus": "Bus",
+  "paTravelModeLaunch": "Launch",
+  "paTravelStaysHeader": "Stays",
+  "paTravelNoStays": "No stays added yet.",
+  "paTravelStayNameLabel": "Hotel / place name",
+  "paTravelStayAddressLabel": "Address",
+  "paTravelCheckInLabel": "Check-in",
+  "paTravelCheckOutLabel": "Check-out",
+  "paTravelMeetingsHeader": "Meetings on the road",
+  "paTravelNoMeetings": "No meetings added yet.",
+  "paTravelMeetingTitleLabel": "Meeting title",
+  "paTravelMeetingAtLabel": "At",
+  "paTravelMeetingPlaceLabel": "Place",
+  "paTravelMeetingWithLabel": "With whom",
+  "paTravelPackingHeader": "Packing & prep",
+  "paTravelNoPacking": "No items added yet.",
+  "paTravelPackLabel": "Item name",
+  "paTravelPackingProgress": "{checked} of {total} packed",
+  "@paTravelPackingProgress": {
+    "placeholders": {
+      "checked": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "paTravelSummaryButton": "View printable itinerary",
+  "paVoucherTitle": "Expense voucher",
+  "paVoucherLoadError": "Could not load vouchers.",
+  "paVoucherWelcomeTitle": "No vouchers yet",
+  "paVoucherWelcomeBody": "Create expense claims by hand — each line with date, category, ৳ amount and a receipt reference. Totals add up automatically; no money is held.",
+  "paVoucherNew": "New voucher",
+  "paVoucherTitleLabel": "Voucher title",
+  "paVoucherTitleRequired": "Please give the voucher a title.",
+  "paVoucherClaimantLabel": "Claimant",
+  "paVoucherOcrSeamTitle": "Auto-read receipts — connect an OCR key",
+  "paVoucherOcrSeamBody": "Connect an OCR key to auto-read amounts from a photo. Without a key, type the amount by hand — we never invent an amount, merchant or date from an image.",
+  "paVoucherStatusLabel": "Approval status",
+  "paVoucherStatusDraft": "Draft",
+  "paVoucherStatusSubmitted": "Submitted",
+  "paVoucherStatusApproved": "Approved",
+  "paVoucherSubmit": "Submit",
+  "paVoucherApprove": "Approve",
+  "paVoucherTotalLabel": "Total",
+  "paVoucherLineCount": "{count} line(s)",
+  "@paVoucherLineCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "paVoucherLinesHeader": "Line items",
+  "paVoucherNoLines": "No line items added yet.",
+  "paVoucherAddLine": "Add line",
+  "paVoucherAmountLabel": "Amount",
+  "paVoucherAmountRequired": "Enter an amount greater than zero.",
+  "paVoucherCategoryLabel": "Category",
+  "paVoucherDateLabel": "Date",
+  "paVoucherReceiptRefLabel": "Receipt reference",
+  "paVoucherReceiptRefHelper": "A receipt number or file name — you type it.",
+  "paVoucherReceiptLabel": "Receipt: {ref}",
+  "@paVoucherReceiptLabel": {
+    "placeholders": {
+      "ref": {
+        "type": "Object"
+      }
+    }
+  },
+  "paVoucherLineNoteLabel": "Note",
+  "paVoucherCatTransport": "Transport",
+  "paVoucherCatLodging": "Lodging",
+  "paVoucherCatMeals": "Meals",
+  "paVoucherCatSupplies": "Supplies",
+  "paVoucherCatCommunication": "Communication",
+  "paVoucherCatEntertainment": "Entertainment",
+  "paVoucherCatOther": "Other",
+  "paResearchTitle": "Research & presentation",
+  "paResearchLoadError": "Could not load topics.",
+  "paResearchWelcomeTitle": "No topics yet",
+  "paResearchWelcomeBody": "Collect notes and sources on a topic, outline a presentation — sections and bullet points — then export it to paste into slides. All by hand — no facts are invented.",
+  "paResearchNewTopic": "New topic",
+  "paResearchTopicTitleLabel": "Topic title",
+  "paResearchTitleRequired": "Please give the topic a title.",
+  "paResearchGoalLabel": "Goal / question",
+  "paResearchAiSeamTitle": "AI assist — connect an AI key",
+  "paResearchAiSeamBody": "Connect an AI key for help finding facts or generating slides. Without a key, write notes and the outline by hand — we never invent a fact, citation or link.",
+  "paResearchNotesHeader": "Notes",
+  "paResearchNoNotes": "No notes added yet.",
+  "paResearchNoteTextLabel": "Note text",
+  "paResearchSourcesHeader": "Sources",
+  "paResearchNoSources": "No sources added yet.",
+  "paResearchSourceTitleLabel": "Source title",
+  "paResearchSourceRefLabel": "Link / citation",
+  "paResearchSourceRefHelper": "A link or reference you type yourself.",
+  "paResearchOutlineHeader": "Presentation outline",
+  "paResearchNoSections": "No sections added yet.",
+  "paResearchSectionHeadingLabel": "Section heading",
+  "paResearchSectionOrderLabel": "Order",
+  "paResearchSectionBulletsLabel": "Bullet points",
+  "paResearchSectionBulletsHelper": "Write one bullet point per line.",
+  "paResearchHeadingRequired": "Please give the section a heading.",
+  "paResearchExportButton": "Export outline",
+  "paResearchExportTitle": "Outline export",
+  "paResearchExportEmpty": "Nothing to export yet.",
+  "paResearchIncludeSources": "Include sources",
+  "paResearchCopy": "Copy",
+  "paResearchCopied": "Outline copied."
 }
