@@ -1,0 +1,86 @@
+{
+  "_note": "NEW ARB keys for SPEC v2.1 §20 #198 Digital Security Check-up + #200 True Accessibility Mode (ADVANCED). Merge each key into app/lib/l10n/app_bn.arb (first value) and app/lib/l10n/app_en.arb (second value), then run flutter gen-l10n (integrator runs it — NOT done here). Format: {\"keyName\": [\"<bangla>\", \"<english>\"]}. Parameterized keys are grouped under \"_params\" with their placeholder metadata; add the @key block alongside the key in app_en.arb per repo convention. Reused existing keys (NOT re-added here): cancel, retry. Zero Bangla literals live in any .dart file — every user-facing string flows through these getters.",
+  "count": 61,
+
+  "a11yTitle": ["অ্যাক্সেসিবিলিটি মোড", "Accessibility mode"],
+  "a11yTileSub": ["বড় লেখা, বেশি কনট্রাস্ট, কম অ্যানিমেশন ও আরও", "Larger text, higher contrast, less motion and more"],
+  "a11yIntro": ["অ্যাপটিকে আপনার জন্য সহজে পড়া ও ব্যবহার করার মতো করে নিন। প্রতিটি সেটিং এখনই চালু হয় এবং আপনার ফোনে সংরক্ষিত থাকে।", "Make the app easier to read and use for you. Each setting applies right away and is saved on your phone."],
+  "a11ySectionDisplay": ["প্রদর্শন", "Display"],
+  "a11ySectionMotion": ["অ্যানিমেশন", "Motion"],
+  "a11ySectionLayout": ["লেআউট", "Layout"],
+  "a11ySectionAssist": ["সহায়তা", "Assistance"],
+
+  "a11yLargeText": ["বড় লেখা", "Larger text"],
+  "a11yLargeTextSub": ["পুরো অ্যাপ জুড়ে লেখার আকার বাড়ায়।", "Increases text size across the whole app."],
+  "a11yTextSmallMark": ["ক", "A"],
+  "a11yTextLargeMark": ["ক", "A"],
+  "a11yPreviewLabel": ["নমুনা", "Preview"],
+  "a11yPreviewSample": ["এই লেখাটি আপনার বেছে নেওয়া আকারে দেখাচ্ছে।", "This text shows at the size you picked."],
+
+  "a11yHighContrast": ["বেশি কনট্রাস্ট", "High contrast"],
+  "a11yHighContrastSub": ["লেখা ও সীমারেখা আরও স্পষ্ট করে — কম আলোয় সহজে দেখা যায়।", "Makes text and borders sharper — easier to see in low light."],
+
+  "a11yReduceMotion": ["অ্যানিমেশন কমান", "Reduce motion"],
+  "a11yReduceMotionSub": ["পাতা বদল ও নড়াচড়ার প্রভাব নরম বা বন্ধ করে।", "Softens or stops page transitions and moving effects."],
+
+  "a11ySimplified": ["সরল লেআউট", "Simplified layout"],
+  "a11ySimplifiedSub": ["যেসব পাতায় সমর্থিত সেখানে সাজসজ্জা কমিয়ে দেয়। পুরো সরল হোম চাইলে এল্ডারলি সহজ-মোড ব্যবহার করুন।", "Reduces decoration where supported. For a fully simple home, use Elderly simple-mode."],
+
+  "a11yScreenReader": ["স্ক্রিন-রিডার ইঙ্গিত", "Screen-reader hints"],
+  "a11yScreenReaderSub": ["আইকন-বোতামে বাড়তি বিবরণ যোগ করে। স্ক্রিন-রিডার (TalkBack) আলাদাভাবে ফোনের সেটিংস থেকে চালু করতে হবে।", "Adds extra descriptions to icon buttons. The screen reader (TalkBack) must be turned on separately in your phone settings."],
+
+  "a11yHaptics": ["কম্পন সাড়া", "Haptic feedback"],
+  "a11yHapticsSub": ["বোতামে চাপলে হালকা কম্পন দেয়।", "Gives a gentle vibration when you tap."],
+
+  "a11yReset": ["রিসেট", "Reset"],
+  "a11yResetTitle": ["রিসেট করবেন?", "Reset settings?"],
+  "a11yResetBody": ["সব অ্যাক্সেসিবিলিটি সেটিং ডিফল্টে ফিরে যাবে।", "All accessibility settings will return to default."],
+  "a11yHonestFooter": ["এই সেটিংগুলো শুধু আপনার এই ফোনে কাজ করে। স্ক্রিন-রিডার ও সিস্টেম ফন্ট-আকারের মতো কিছু সুবিধা ফোনের নিজের সেটিংসে থাকে — আমরা সেগুলো প্রতিস্থাপন করার দাবি করি না।", "These settings apply only on this phone. Some features like the screen reader and system font size live in your phone's own settings — we don't claim to replace those."],
+
+  "secTitle": ["ডিজিটাল নিরাপত্তা চেক-আপ", "Digital security check-up"],
+  "secTileSub": ["আপনার নিরাপত্তা অভ্যাস যাচাই করে স্কোর দেখুন", "Review your security habits and see a score"],
+  "secChecklistHeading": ["নিরাপত্তা তালিকা", "Security checklist"],
+  "secGradeStrong": ["শক্তিশালী", "Strong"],
+  "secGradeGood": ["ভালো", "Good"],
+  "secGradeFair": ["মোটামুটি", "Fair"],
+  "secGradeAtRisk": ["ঝুঁকিতে", "At risk"],
+  "secGradeHint": ["নিজের দেওয়া উত্তরের ভিত্তিতে হিসাব করা হয়েছে।", "Calculated from the answers you gave."],
+  "secWeakHeading": ["আগে এগুলো ঠিক করুন", "Fix these first"],
+  "secSelfReportedNote": ["এই চেক-আপ পুরোপুরি আপনার নিজের উত্তরের ভিত্তিতে। আমরা আপনার ফোন বা অ্যাকাউন্ট পরীক্ষা করি না — কোনো সুরক্ষা চালু আছে বলে নিজে থেকে ধরে নিই না।", "This check-up is based entirely on your own answers. We don't inspect your phone or accounts, and never assume a protection is on."],
+  "secMarkedDone": ["সম্পন্ন বলে চিহ্নিত", "Marked as done"],
+  "secTapToExpand": ["পরামর্শ দেখতে ট্যাপ করুন", "Tap to see the tip"],
+  "secSaving": ["সংরক্ষণ হচ্ছে…", "Saving…"],
+  "secLoadFailed": ["তালিকা আনা গেল না। সংযোগ দেখে আবার চেষ্টা করুন।", "Couldn't load your checklist. Check your connection and try again."],
+  "secResetTitle": ["তালিকা রিসেট করবেন?", "Reset checklist?"],
+  "secResetBody": ["সব আইটেম আবার 'সম্পন্ন নয়' হয়ে যাবে।", "Every item will go back to 'not done'."],
+  "secResetConfirm": ["রিসেট করুন", "Reset"],
+
+  "secItemScreenLock": ["ফোনের স্ক্রিন লক", "Phone screen lock"],
+  "secItemAppLock": ["অ্যাপ লক / পিন", "App lock / PIN"],
+  "secItemWalletPin": ["শক্তিশালী ওয়ালেট পিন", "Strong wallet PIN"],
+  "secItemTwoFactor": ["গুরুত্বপূর্ণ অ্যাকাউন্টে টু-ফ্যাক্টর", "Two-factor on key accounts"],
+  "secItemStrongPasswords": ["শক্তিশালী পাসওয়ার্ড", "Strong passwords"],
+  "secItemBackup": ["ব্যাকআপ চালু আছে", "Backup enabled"],
+  "secItemScamAwareness": ["প্রতারণা সম্পর্কে সচেতনতা", "Scam awareness"],
+  "secItemPermissions": ["অ্যাপ অনুমতি যাচাই", "App permissions review"],
+
+  "secTipScreenLock": ["ফোনে পিন, প্যাটার্ন, ফিঙ্গারপ্রিন্ট বা ফেস লক রাখুন — হারালে বা চুরি হলে প্রথম সুরক্ষা এটাই।", "Keep a PIN, pattern, fingerprint or face lock on your phone — it's your first protection if it's lost or stolen."],
+  "secTipAppLock": ["টাকা ও ব্যক্তিগত তথ্যের অ্যাপে আলাদা লক চালু রাখুন, যাতে ফোন খোলা থাকলেও সেগুলো সুরক্ষিত থাকে।", "Turn on a separate lock for money and private apps, so they stay safe even when the phone is unlocked."],
+  "secTipWalletPin": ["বিকাশ/নগদের পিন কঠিন রাখুন, জন্মসাল বা ১২৩৪-এর মতো সহজ কিছু নয়, এবং কারও সঙ্গে শেয়ার করবেন না।", "Keep your bKash/Nagad PIN hard to guess — not a birth year or 1234 — and never share it with anyone."],
+  "secTipTwoFactor": ["ইমেইল ও প্রধান অ্যাকাউন্টে টু-ফ্যাক্টর (OTP/অথেনটিকেটর) চালু করুন — পাসওয়ার্ড ফাঁস হলেও অ্যাকাউন্ট সুরক্ষিত থাকে।", "Turn on two-factor (OTP/authenticator) for email and main accounts — your account stays safe even if the password leaks."],
+  "secTipStrongPasswords": ["প্রতিটি গুরুত্বপূর্ণ অ্যাকাউন্টে আলাদা ও লম্বা পাসওয়ার্ড ব্যবহার করুন; একই পাসওয়ার্ড সব জায়গায় নয়।", "Use a separate, long password for each important account; don't reuse the same one everywhere."],
+  "secTipBackup": ["কন্টাক্ট, ছবি ও জরুরি কাগজপত্রের ব্যাকআপ রাখুন, যাতে ফোন হারালেও তথ্য থেকে যায়।", "Back up contacts, photos and important documents, so your data survives even if the phone is lost."],
+  "secTipScamAwareness": ["ফোন, এসএমএস বা লিংকে চাওয়া হলেও কখনো OTP বা পিন দেবেন না — ব্যাংক বা বিকাশ কখনো এগুলো চায় না।", "Never give an OTP or PIN over a call, SMS or link — banks and bKash never ask for them."],
+  "secTipPermissions": ["মাঝেমধ্যে অ্যাপের অনুমতি দেখুন; যেসব অ্যাপের ক্যামেরা, লোকেশন বা কন্টাক্ট দরকার নেই, তাদের অনুমতি বন্ধ করুন।", "Review app permissions now and then; turn off camera, location or contacts for apps that don't need them."],
+
+  "_params": {
+    "secDoneOfTotal": {
+      "bn": "{total}টির মধ্যে {done}টি সম্পন্ন",
+      "en": "{done} of {total} done",
+      "placeholders": {
+        "done": { "type": "int" },
+        "total": { "type": "int" }
+      }
+    }
+  }
+}

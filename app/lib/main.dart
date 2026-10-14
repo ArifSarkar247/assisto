@@ -10,6 +10,7 @@ import 'state.dart';
 import 'theme.dart';
 import 'updater.dart';
 import 'notifications.dart';
+import 'widgets/a11y_prefs.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/language_picker_screen.dart';
@@ -36,13 +37,18 @@ void main() {
     // Notifications init is fully self-guarded; fire-and-forget.
     unawaited(Notifications.init());
 
+    // Accessibility prefs (#200) — pure client prefs, loaded before first frame
+    // so text-scale / high-contrast / reduce-motion apply app-wide immediately.
+    final a11y = A11yPrefs();
+    unawaited(a11y.load());
+
     runApp(
       MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => AppState()..init()),
           ChangeNotifierProvider(create: (_) => Updater()..check()),
         ],
-        child: const AssistoApp(),
+        child: AssistoApp(a11y: a11y),
       ),
     );
   }, (error, stack) {
@@ -51,31 +57,63 @@ void main() {
 }
 
 class AssistoApp extends StatelessWidget {
-  const AssistoApp({super.key});
+  const AssistoApp({super.key, required this.a11y});
+
+  /// The app-wide accessibility preferences (#200). Provided via [A11yScope] so
+  /// every screen can read/toggle it, and applied app-wide in [build] below.
+  final A11yPrefs a11y;
 
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AppState>();
-    return MaterialApp(
-      title: 'Assisto',
-      debugShowCheckedModeBanner: false,
-      theme: AssistoTheme.light,
-      darkTheme: AssistoTheme.dark,
-      themeMode: app.themeMode,
-      locale: app.locale,
-      supportedLocales: AppLocalizations.supportedLocales,
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      localeResolutionCallback: (device, supported) {
-        if (app.locale != null) return app.locale;
-        // default to Bangla on first launch
-        return const Locale('bn');
-      },
-      home: const _Root(),
+    // A11yScope rebuilds this subtree whenever a preference changes, so the
+    // text-scale / high-contrast / reduce-motion overrides re-apply instantly.
+    return A11yScope(
+      prefs: a11y,
+      child: Builder(builder: (context) {
+        final a = A11yScope.of(context);
+        final light = a.highContrast
+            ? applyHighContrast(AssistoTheme.light)
+            : AssistoTheme.light;
+        final dark = a.highContrast
+            ? applyHighContrast(AssistoTheme.dark)
+            : AssistoTheme.dark;
+        return MaterialApp(
+          title: 'Assisto',
+          debugShowCheckedModeBanner: false,
+          theme: light,
+          darkTheme: dark,
+          themeMode: app.themeMode,
+          locale: app.locale,
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          localeResolutionCallback: (device, supported) {
+            if (app.locale != null) return app.locale;
+            // default to Bangla on first launch
+            return const Locale('bn');
+          },
+          // App-wide accessibility overrides (#200). We merge our text-scale,
+          // high-contrast and reduce-motion prefs into the MediaQuery every
+          // screen reads, so no screen needs per-screen wiring.
+          builder: (context, child) {
+            final mq = MediaQuery.of(context);
+            return MediaQuery(
+              data: mq.copyWith(
+                textScaler: TextScaler.linear(a.textScale),
+                highContrast: mq.highContrast || a.highContrast,
+                disableAnimations: mq.disableAnimations || a.reduceMotion,
+              ),
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
+          home: const _Root(),
+        );
+      }),
     );
   }
 }

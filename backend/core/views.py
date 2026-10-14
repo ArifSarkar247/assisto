@@ -1845,6 +1845,12 @@ GENERIC_COLLECTIONS = [
     "student/routine", "student/assignments", "student/courses", "student/goals",
     # #189 Wedding & events
     "wedding/event", "wedding/guests", "wedding/budget", "wedding/tasks",
+    # #198 Security check-up
+    "security/checklist",
+    # #199 Farmer / village mode
+    "farmer/records", "farmer/livestock",
+    # #186 Domestic staff + #171 Savings challenge
+    "staff/people", "staff/payments", "savechal/plans", "savechal/deposits",
 ]
 GENERIC_COLLECTION_VIEWSETS = {
     name: type(

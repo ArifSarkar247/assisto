@@ -9041,5 +9041,374 @@
   },
   "probashiDocsNote": "You enter the expiry dates; the app only shows the days left. Automatic reminders are not wired yet.",
   "probashiDeleteDocTitle": "Delete document?",
-  "probashiDeleteDocBody": "This document will be permanently removed from the list."
+  "probashiDeleteDocBody": "This document will be permanently removed from the list.",
+  "a11yTitle": "Accessibility mode",
+  "a11yTileSub": "Larger text, higher contrast, less motion and more",
+  "a11yIntro": "Make the app easier to read and use for you. Each setting applies right away and is saved on your phone.",
+  "a11ySectionDisplay": "Display",
+  "a11ySectionMotion": "Motion",
+  "a11ySectionLayout": "Layout",
+  "a11ySectionAssist": "Assistance",
+  "a11yLargeText": "Larger text",
+  "a11yLargeTextSub": "Increases text size across the whole app.",
+  "a11yTextSmallMark": "A",
+  "a11yTextLargeMark": "A",
+  "a11yPreviewLabel": "Preview",
+  "a11yPreviewSample": "This text shows at the size you picked.",
+  "a11yHighContrast": "High contrast",
+  "a11yHighContrastSub": "Makes text and borders sharper — easier to see in low light.",
+  "a11yReduceMotion": "Reduce motion",
+  "a11yReduceMotionSub": "Softens or stops page transitions and moving effects.",
+  "a11ySimplified": "Simplified layout",
+  "a11ySimplifiedSub": "Reduces decoration where supported. For a fully simple home, use Elderly simple-mode.",
+  "a11yScreenReader": "Screen-reader hints",
+  "a11yScreenReaderSub": "Adds extra descriptions to icon buttons. The screen reader (TalkBack) must be turned on separately in your phone settings.",
+  "a11yHaptics": "Haptic feedback",
+  "a11yHapticsSub": "Gives a gentle vibration when you tap.",
+  "a11yReset": "Reset",
+  "a11yResetTitle": "Reset settings?",
+  "a11yResetBody": "All accessibility settings will return to default.",
+  "a11yHonestFooter": "These settings apply only on this phone. Some features like the screen reader and system font size live in your phone's own settings — we don't claim to replace those.",
+  "secTitle": "Digital security check-up",
+  "secTileSub": "Review your security habits and see a score",
+  "secChecklistHeading": "Security checklist",
+  "secGradeStrong": "Strong",
+  "secGradeGood": "Good",
+  "secGradeFair": "Fair",
+  "secGradeAtRisk": "At risk",
+  "secGradeHint": "Calculated from the answers you gave.",
+  "secWeakHeading": "Fix these first",
+  "secSelfReportedNote": "This check-up is based entirely on your own answers. We don't inspect your phone or accounts, and never assume a protection is on.",
+  "secMarkedDone": "Marked as done",
+  "secTapToExpand": "Tap to see the tip",
+  "secSaving": "Saving…",
+  "secLoadFailed": "Couldn't load your checklist. Check your connection and try again.",
+  "secResetTitle": "Reset checklist?",
+  "secResetBody": "Every item will go back to 'not done'.",
+  "secResetConfirm": "Reset",
+  "secItemScreenLock": "Phone screen lock",
+  "secItemAppLock": "App lock / PIN",
+  "secItemWalletPin": "Strong wallet PIN",
+  "secItemTwoFactor": "Two-factor on key accounts",
+  "secItemStrongPasswords": "Strong passwords",
+  "secItemBackup": "Backup enabled",
+  "secItemScamAwareness": "Scam awareness",
+  "secItemPermissions": "App permissions review",
+  "secTipScreenLock": "Keep a PIN, pattern, fingerprint or face lock on your phone — it's your first protection if it's lost or stolen.",
+  "secTipAppLock": "Turn on a separate lock for money and private apps, so they stay safe even when the phone is unlocked.",
+  "secTipWalletPin": "Keep your bKash/Nagad PIN hard to guess — not a birth year or 1234 — and never share it with anyone.",
+  "secTipTwoFactor": "Turn on two-factor (OTP/authenticator) for email and main accounts — your account stays safe even if the password leaks.",
+  "secTipStrongPasswords": "Use a separate, long password for each important account; don't reuse the same one everywhere.",
+  "secTipBackup": "Back up contacts, photos and important documents, so your data survives even if the phone is lost.",
+  "secTipScamAwareness": "Never give an OTP or PIN over a call, SMS or link — banks and bKash never ask for them.",
+  "secTipPermissions": "Review app permissions now and then; turn off camera, location or contacts for apps that don't need them.",
+  "farmerTitle": "Farmer mode",
+  "farmerTabLedger": "Ledger",
+  "farmerTabCalendar": "Crop calendar",
+  "farmerTabLivestock": "Livestock",
+  "farmerLoadError": "Couldn't load your farm data. Please try again.",
+  "farmerSaved": "Saved",
+  "farmerDeleted": "Deleted",
+  "farmerLedgerWelcomeTitle": "Start your farm ledger",
+  "farmerLedgerWelcomeBody": "Add each crop here — planting and harvest dates, input cost and sale income. The app works out your profit for you. No price is ever invented — only what you enter.",
+  "farmerLivestockWelcomeTitle": "Start your livestock list",
+  "farmerLivestockWelcomeBody": "Add your cows, goats, poultry — their count and last vaccination date. The app helps you see when the next shot is due.",
+  "farmerAddRecord": "Add crop",
+  "farmerEditRecord": "Edit crop",
+  "farmerAddAnimal": "Add animal",
+  "farmerEditAnimal": "Edit animal",
+  "farmerUntitledRecord": "Untitled crop",
+  "farmerSummaryTitle": "Your farm summary",
+  "farmerCost": "Cost",
+  "farmerIncome": "Income",
+  "farmerProfit": "Profit",
+  "farmerNetProfit": "Net profit",
+  "farmerStatusPlanned": "Planned",
+  "farmerStatusGrowing": "Growing",
+  "farmerStatusHarvested": "Harvested",
+  "farmerStatusSold": "Sold",
+  "farmerCalendarNote": "This is a general season almanac — not live weather or advice. Always follow your local agriculture officer's guidance.",
+  "farmerSeasonRabi": "Rabi (winter)",
+  "farmerSeasonKharif1": "Kharif-1 (pre-monsoon)",
+  "farmerSeasonKharif2": "Kharif-2 (monsoon)",
+  "farmerSeasonCurrent": "Now",
+  "farmerSowWindow": "Sowing",
+  "farmerHarvestWindow": "Harvest",
+  "farmerCommonCrops": "Common crops",
+  "farmerTotalHead": "Total head",
+  "farmerCount": "Count",
+  "farmerVaccDue": "Due",
+  "farmerVaccSoon": "Soon",
+  "farmerVaccOk": "OK",
+  "farmerVaccUnknown": "No data",
+  "farmerVaccDueSummary": "{due} animal(s) due for vaccination now, {soon} due soon.",
+  "@farmerVaccDueSummary": {
+    "placeholders": {
+      "due": {
+        "type": "Object"
+      },
+      "soon": {
+        "type": "Object"
+      }
+    }
+  },
+  "farmerFieldName": "Crop name / plot",
+  "farmerFieldCrop": "Crop type",
+  "farmerFieldPlanted": "Planting date",
+  "farmerFieldHarvest": "Harvest date",
+  "farmerFieldCost": "Cost (৳)",
+  "farmerFieldIncome": "Sale income (৳)",
+  "farmerFieldNotes": "Notes",
+  "farmerFieldAnimal": "Animal type",
+  "farmerFieldCount": "Count",
+  "farmerFieldLastVacc": "Last vaccination date",
+  "farmerLastVaccHelper": "A booster is usually needed about every 6 months.",
+  "farmerPickDate": "Pick a date",
+  "farmerErrNameRequired": "Please enter a crop name.",
+  "farmerErrHarvestBeforePlanting": "Harvest date can't be before the planting date.",
+  "farmerErrAnimalRequired": "Please choose an animal type.",
+  "farmerErrInvalid": "That doesn't look right. Please check.",
+  "farmerDeleteRecordTitle": "Delete this crop?",
+  "farmerDeleteRecordBody": "This crop record will be permanently removed.",
+  "farmerDeleteAnimalTitle": "Delete this animal?",
+  "farmerDeleteAnimalBody": "This animal record will be permanently removed.",
+  "farmerCropBoroRice": "Boro rice",
+  "farmerCropAusRice": "Aus rice",
+  "farmerCropAmanRice": "Aman rice",
+  "farmerCropWheat": "Wheat",
+  "farmerCropPotato": "Potato",
+  "farmerCropMustard": "Mustard",
+  "farmerCropLentil": "Lentil",
+  "farmerCropOnion": "Onion",
+  "farmerCropGarlic": "Garlic",
+  "farmerCropMaize": "Maize",
+  "farmerCropTomato": "Tomato",
+  "farmerCropCabbage": "Cabbage",
+  "farmerCropJute": "Jute",
+  "farmerCropChilli": "Chilli",
+  "farmerCropAubergine": "Aubergine",
+  "farmerCropCucumber": "Cucumber",
+  "farmerCropBitterGourd": "Bitter gourd",
+  "farmerCropOkra": "Okra",
+  "farmerCropPumpkin": "Pumpkin",
+  "farmerCropSpinach": "Spinach",
+  "farmerCropRadish": "Radish",
+  "farmerCropCauliflower": "Cauliflower",
+  "farmerCropBean": "Bean",
+  "farmerAnimalCow": "Cow",
+  "farmerAnimalGoat": "Goat",
+  "farmerAnimalSheep": "Sheep",
+  "farmerAnimalBuffalo": "Buffalo",
+  "farmerAnimalChicken": "Chicken",
+  "farmerAnimalDuck": "Duck",
+  "farmerAnimalOther": "Other",
+  "trustTitle": "Trust & transparency",
+  "trustHeadline": "We do what we say",
+  "trustIntro": "What Assisto does — and does not — do, honestly. Every statement below matches what the app actually does.",
+  "trustWhatWeDo": "What we do",
+  "trustWhatWeDont": "What we never do",
+  "trustTransparency": "Transparency",
+  "trustReadMore": "Read more",
+  "trustMoneyTitle": "We never hold your money",
+  "trustMoneyBody": "Assisto has no wallet and never charges you. To pay a bill it only pre-fills and opens your OWN bank / bKash / Nagad app — you press Send yourself.",
+  "trustE2eTitle": "Your Circle chats are end-to-end encrypted",
+  "trustE2eBody": "Text messages in Connected Circle are end-to-end encrypted; the server stores only the encrypted form and cannot read them. Photos, voice and video will come when encrypted storage is enabled — we do not claim them yet.",
+  "trustAiTitle": "AI runs only with your key and consent",
+  "trustAiBody": "No AI runs without an owner-provided AI key. AI never posts, pays or applies on its own. Anything it remembers is shown to you and you can delete it.",
+  "trustSellTitle": "We never sell your data",
+  "trustSellBody": "The app contains no third-party ad or tracking SDKs. Analytics are our own and identity-free (a hashed id, an allow-listed event, day-level buckets only).",
+  "trustControlTitle": "Your data, your control",
+  "trustControlBody": "You can export all your data at any time and delete your account. The document vault is PIN-locked.",
+  "trustDataLocationTitle": "Where your data lives",
+  "trustDataLocationBody": "Your data is stored on Assisto's own server. It is not sold or handed to any third party.",
+  "trustNeverHoldMoney": "Hold or charge your money — never.",
+  "trustNeverSell": "Sell your data or hand it to advertisers — never.",
+  "trustNeverReadChats": "Read your encrypted chats — never.",
+  "trustNeverAutoAct": "Post, pay or apply without your go-ahead — never.",
+  "trustNeverTrackers": "Add third-party trackers — never.",
+  "trustLicenseTitle": "Licensing & building blocks",
+  "trustLicenseBody": "For encryption we aim to use permissively-licensed, auditable building blocks (for example OpenMLS — Apache/MIT). The app itself is not yet open source — we state this plainly rather than overclaim.",
+  "trustOpenLegal": "Privacy policy & terms",
+  "trustOpenAbout": "About Assisto",
+  "trustFooter": "Every claim on this page is written to match the app's behaviour. If anything doesn't line up, tell us.",
+  "staffTitle": "Household staff & driver",
+  "staffLoadError": "Couldn't load your staff. Please try again.",
+  "staffWelcomeTitle": "Your household staff, all in one place",
+  "staffWelcomeBody": "Keep each person's salary, attendance, advances and dues fairly — maid, driver, cook, guard and more. The app holds no money; it just shows the honest number.",
+  "staffAddPerson": "Add staff",
+  "staffEditPerson": "Edit profile",
+  "staffName": "Name",
+  "staffRole": "Role",
+  "staffMonthlySalary": "Monthly salary",
+  "staffJoinDate": "Joined (month)",
+  "staffMonthHint": "e.g. 2026-10",
+  "staffMonthHelper": "Enter year-month (YYYY-MM)",
+  "staffDuplicateName": "A person with this name already exists.",
+  "staffSaved": "Saved",
+  "staffRoleMaid": "Maid / housekeeper",
+  "staffRoleDriver": "Driver",
+  "staffRoleCook": "Cook",
+  "staffRoleGuard": "Guard",
+  "staffRoleGardener": "Gardener",
+  "staffRoleNanny": "Nanny / childminder",
+  "staffRoleTutor": "Home tutor",
+  "staffRoleOther": "Other",
+  "staffMonthlyPayroll": "Monthly payroll",
+  "staffTotalDues": "Total dues",
+  "staffYourStaff": "Your staff",
+  "staffPerMonthSuffix": "/mo",
+  "staffAdvanceHeld": "Advance {amount}",
+  "@staffAdvanceHeld": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "staffStateOwed": "You owe",
+  "staffStateAdvanceDue": "Advance to adjust",
+  "staffStateSettled": "Settled",
+  "staffLogEntry": "Log an entry",
+  "staffWagesOutstanding": "Wages outstanding",
+  "staffAdvanceBalance": "Advance balance",
+  "staffMonthByMonth": "Month by month",
+  "staffNoMonthsYet": "No monthly entries yet.",
+  "staffDue": "Due",
+  "staffPaid": "Paid",
+  "staffAdvance": "Advance",
+  "staffRepay": "Repaid",
+  "staffAttendance": "Attendance",
+  "staffDaysPresent": "{present}/{month} days",
+  "@staffDaysPresent": {
+    "placeholders": {
+      "month": {
+        "type": "Object"
+      },
+      "present": {
+        "type": "Object"
+      }
+    }
+  },
+  "staffMonthOwed": "Owed",
+  "staffMonthOverpaid": "Overpaid",
+  "staffMonthSettled": "Settled",
+  "staffKindSalary": "Salary",
+  "staffKindAdvance": "Advance",
+  "staffKindRepay": "Repay",
+  "staffAmount": "Amount",
+  "staffMonth": "Month",
+  "staffAttendanceOptional": "Attendance (optional — a partial month pro-rates the salary)",
+  "staffPresentDays": "Days present",
+  "staffMonthDays": "Days in month",
+  "staffDeleteTitle": "Remove this person?",
+  "staffDeleteBody": "All of {name}'s profile and records will be removed. This can't be undone.",
+  "@staffDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "staffNoMoneyNote": "Computed from what you entered — the app holds no money. Paying your worker's fair wage on time is your responsibility.",
+  "savechalTitle": "Savings challenge",
+  "savechalLoadError": "Couldn't load your challenges. Please try again.",
+  "savechalWelcomeTitle": "Start saving, made fun",
+  "savechalWelcomeBody": "Pick a challenge — 52-week, fixed deposit, or a round-up jar. Log deposits, watch your progress, and reach your goal. The app holds no money.",
+  "savechalStartChallenge": "Start a challenge",
+  "savechalSaved": "Saved",
+  "savechalKindWeek52": "52-week challenge",
+  "savechalKindFixed": "Fixed deposit",
+  "savechalKindRoundup": "Round-up jar",
+  "savechalDaily": "Daily",
+  "savechalWeekly": "Weekly",
+  "savechalMonthly": "Monthly",
+  "savechalName": "Challenge name",
+  "savechalNameHint": "e.g. saving for a new phone",
+  "savechalType": "Type",
+  "savechalBaseAmount": "Base amount",
+  "savechalDailyTarget": "Daily target",
+  "savechalWeek52Helper": "Week 1 saves this much; each week rises by the same step.",
+  "savechalRoundupHelper": "An open jar — progress is measured against this gentle daily target.",
+  "savechalEvery": "Every",
+  "savechalHowMany": "How many",
+  "savechalStartDate": "Start date",
+  "savechalDateHint": "e.g. 2026-10-14",
+  "savechalGoalPreview": "Goal: {goal}",
+  "@savechalGoalPreview": {
+    "placeholders": {
+      "goal": {
+        "type": "Object"
+      }
+    }
+  },
+  "savechalStatusNotStarted": "Not started",
+  "savechalStatusBehind": "Behind",
+  "savechalStatusOnTrack": "On track",
+  "savechalStatusAhead": "Ahead",
+  "savechalStatusComplete": "Complete!",
+  "savechalOpenEnded": "Open-ended",
+  "savechalStreakShort": "{n} streak",
+  "@savechalStreakShort": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "savechalProjectedShort": "Projected {amount}",
+  "@savechalProjectedShort": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "savechalOfGoal": "of your {goal} goal",
+  "@savechalOfGoal": {
+    "placeholders": {
+      "goal": {
+        "type": "Object"
+      }
+    }
+  },
+  "savechalLogDeposit": "Log a deposit",
+  "savechalExpectedByNow": "Expected by now",
+  "savechalAheadBy": "Ahead by",
+  "savechalBehindBy": "Behind by",
+  "savechalStreak": "Streak",
+  "savechalPeriods": "{n} periods",
+  "@savechalPeriods": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "savechalProjected": "Projected final",
+  "savechalDeposits": "Deposits",
+  "savechalNoDepositsYet": "No deposits yet. Add your first one.",
+  "savechalAmount": "Amount",
+  "savechalDate": "Date",
+  "savechalDeleteTitle": "Delete this challenge?",
+  "savechalDeleteBody": "{name} and all its deposits will be removed. This can't be undone.",
+  "@savechalDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "savechalNoMoneyNote": "Computed from your own deposits — the app holds no money, it only shows your progress.",
+  "secDoneOfTotal": "{done} of {total} done",
+  "@secDoneOfTotal": {
+    "placeholders": {
+      "done": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "trustTileSub": "What Assisto does — and never does"
 }

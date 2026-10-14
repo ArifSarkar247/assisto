@@ -34,6 +34,10 @@ import '../widgets/offline_strings.dart';
 // Section-21 support surfaces: in-app update check (#180) + support center (#181).
 import 'app_update_screen.dart';
 import 'support_center_screen.dart';
+// Section-20 advanced: accessibility mode (#200) + digital security check-up (#198).
+import 'accessibility_mode_screen.dart';
+import 'trust_page_screen.dart';
+import 'security_checkup_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -196,8 +200,36 @@ class SettingsScreen extends StatelessWidget {
             onChanged: (_) =>
                 Navigator.of(context).popUntil((r) => r.isFirst),
           ),
+          // #200 True accessibility mode — large text, high contrast, reduce
+          // motion, simplified layout, screen-reader hints, haptics. Sits in the
+          // accessibility cluster next to Elderly simple-mode.
+          ListTile(
+            leading: const Icon(Icons.accessibility_new_outlined),
+            title: Text(t.a11yTitle),
+            subtitle: Text(t.a11yTileSub),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const AccessibilityModeScreen())),
+          ),
           const Divider(),
           const _SafetySection(),
+          // #198 Digital security check-up — a guided self-audit + security
+          // score. Lives with Safety (protection) settings.
+          ListTile(
+            leading: const Icon(Icons.verified_user_outlined),
+            title: Text(t.secTitle),
+            subtitle: Text(t.secTileSub),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const SecurityCheckupScreen())),
+          ),
+          // #201 Trust / proof page — the app's honest integrity statement
+          // (what Assisto does and never does). Lives with the safety/trust tiles.
+          ListTile(
+            leading: const Icon(Icons.shield_outlined),
+            title: Text(t.trustTitle),
+            subtitle: Text(t.trustTileSub),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const TrustPageScreen())),
+          ),
           const Divider(),
           const SettingsAutonomySection(),
           const Divider(),

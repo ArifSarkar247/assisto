@@ -797,3 +797,9 @@ NOTHING basic may remain.
 - IN FLIGHT (batch3, build 84): #188 blood donor, #193 prepaid meter, #190 qurbani, #191 probashi, #192 student corner, #189 wedding.
 - NEXT Wave E: Section-20 remaining (#186 domestic staff, #187 doctor serial[key], #194 area community, #195 AI call[key], #196 widget/watch[native], #197 encrypted backup[key], #198 security checkup, #199 farmer mode, #200 accessibility, #201 trust page); Daily-Life (#29-36 mostly key-gated→mock); Health (#69-72); AI-core (#7/13/14/15/17/18/6 mostly key→mock); standalone (#27/51/79/80/92/130/131/132/144/145/173/171/172); PA key-gated layer (#106/107/109/110/112/113/114/116-125 as mock).
 - Then Step 6 (SFU/TURN M3 + Telegram sandbox), Step 7 (P14-16 + iOS + FINAL), 13 owner-blocked (key-gated mock + Integrations wire).
+
+## BUILD 84 — Wave E batch 3 (pushed 62c4e28) — 6 Section-20 modules
+- #188 blood donor, #193 prepaid meter, #190 qurbani, #191 probashi, #192 student corner, #189 wedding. 15 more generic collections (no migration). +101 tests (1301 total). en=bn=6397. qurbani/probashi recovered after an agent socket-drop (rebuilt probashi screen + authored ARB via completion agent).
+- Wave E DONE so far: PA core(6) + batch2(5) + batch3(6) = 17. Builds 82/83/84.
+- IN FLIGHT (batch4, build85): #186 domestic staff, #171 savings challenge, #198 security checkup, #200 accessibility mode, #199 farmer mode, #201 trust page.
+- Generic-collection integrate is now fully mechanical: merge ARBs → append collection names to GENERIC_COLLECTIONS in core/views.py → add sidebar entries → test/gallery/build. No migration for generic-collection modules.

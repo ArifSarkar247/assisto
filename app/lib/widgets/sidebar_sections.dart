@@ -27,6 +27,9 @@ import '../screens/qurbani_screen.dart';
 import '../screens/probashi_screen.dart';
 import '../screens/student_corner_screen.dart';
 import '../screens/wedding_events_screen.dart';
+import '../screens/domestic_staff_screen.dart';
+import '../screens/savings_challenge_screen.dart';
+import '../screens/farmer_mode_screen.dart';
 // family & safety (merged per SPEC v2.1 §4)
 import '../screens/family_screen.dart';
 import '../screens/nominee_screen.dart';
@@ -177,6 +180,13 @@ class SidebarSections {
       SidebarItem(Icons.electric_meter_outlined, (t) => t.meterTitle,
           (_) => const PrepaidMeterScreen(),
           synonyms: ['meter', 'prepaid', 'electricity', 'gas', 'recharge', 'token']),
+      // #186 Domestic staff/driver payroll + #171 savings challenge.
+      SidebarItem(Icons.badge_outlined, (t) => t.staffTitle,
+          (_) => const DomesticStaffScreen(),
+          synonyms: ['staff', 'maid', 'driver', 'cook', 'salary', 'household']),
+      SidebarItem(Icons.emoji_events_outlined, (t) => t.savechalTitle,
+          (_) => const SavingsChallengeScreen(),
+          synonyms: ['savings', 'challenge', 'save', '52 week', 'streak']),
     ]),
     // 3. Family & Safety — merged per SPEC v2.1 §4 (Family + Safety → one group).
     // Contacts moved OUT to its own "Contacts & Profile" section (item 4).
@@ -275,6 +285,10 @@ class SidebarSections {
       SidebarItem(Icons.flight_takeoff_outlined, (t) => t.probashiTitle,
           (_) => const ProbashiScreen(),
           synonyms: ['probashi', 'expat', 'remittance', 'abroad', 'foreign']),
+      // #199 Farmer / village mode — large-touch farm ledger + crop calendar.
+      SidebarItem(Icons.agriculture_outlined, (t) => t.farmerTitle,
+          (_) => const FarmerModeScreen(),
+          synonyms: ['farmer', 'village', 'crop', 'livestock', 'krishi', 'chash']),
     ]),
     // 7. Work
     SidebarSection('work', Icons.work_outline, (t) => t.sidebarWork, [

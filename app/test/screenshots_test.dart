@@ -25,6 +25,11 @@ import 'package:assisto/screens/messenger/contact_info_screen.dart';
 import 'package:assisto/screens/notification_centre_screen.dart';
 import 'package:assisto/screens/messenger/messenger_profile_screen.dart';
 import 'package:assisto/screens/messenger/contacts_screen.dart';
+import 'package:assisto/screens/domestic_staff_screen.dart';
+import 'package:assisto/screens/savings_challenge_screen.dart';
+import 'package:assisto/screens/security_checkup_screen.dart';
+import 'package:assisto/screens/farmer_mode_screen.dart';
+import 'package:assisto/screens/trust_page_screen.dart';
 import 'package:assisto/screens/blood_donor_screen.dart';
 import 'package:assisto/screens/prepaid_meter_screen.dart';
 import 'package:assisto/screens/qurbani_screen.dart';
@@ -227,6 +232,11 @@ void main() {
     'notification_centre': (build: (_) => const NotificationCentreScreen(), mode: FakeMode.data, full: true),
     'msgr_profile': (build: (_) => const MessengerProfileScreen(), mode: FakeMode.data, full: true),
     'contacts': (build: (_) => const ContactsScreen(), mode: FakeMode.data, full: true),
+    'staff': (build: (_) => const DomesticStaffScreen(), mode: FakeMode.data, full: true),
+    'savings': (build: (_) => const SavingsChallengeScreen(), mode: FakeMode.data, full: true),
+    'security': (build: (_) => const SecurityCheckupScreen(), mode: FakeMode.data, full: true),
+    'farmer': (build: (_) => const FarmerModeScreen(), mode: FakeMode.data, full: true),
+    'trust': (build: (_) => const TrustPageScreen(), mode: FakeMode.data, full: true),
     'blood': (build: (_) => const BloodDonorScreen(), mode: FakeMode.data, full: true),
     'meter': (build: (_) => const PrepaidMeterScreen(), mode: FakeMode.data, full: true),
     'qurbani': (build: (_) => const QurbaniScreen(), mode: FakeMode.data, full: true),

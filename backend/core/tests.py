@@ -970,6 +970,33 @@ StudentCornerSnippetTests = _make_snippet_case(
     "core.logic.student_corner_tests_snippets", "StudentCornerSnippetTests")
 WeddingEventsSnippetTests = _make_snippet_case(
     "core.logic.wedding_events_tests_snippets", "WeddingEventsSnippetTests")
+SecurityCheckupSnippetTests = _make_snippet_case(
+    "core.logic.security_checkup_tests_snippets", "SecurityCheckupSnippetTests")
+# Farmer / village mode (#199, §20 ADVANCED) — pure deterministic farm engine:
+# per-record lifecycle status (planned/growing/harvested/sold) + profit math
+# (never invents a price), farm-wide ledger totals, a FIXED cropping-season
+# almanac lookup (Rabi/Kharif-1/Kharif-2 — NOT live weather), and vaccination-
+# due (due/soon/ok/unknown) from a passed-in `now` as the reminder SEAM. No
+# DB/AI/wall-clock; holds no money. Mirrors app/lib/widgets/farmer_engine.dart;
+# persists via generic owned collections farmer/records + farmer/livestock (see
+# .phaseB/up_farmtrust_integration.md).
+FarmerModeSnippetTests = _make_snippet_case(
+    "core.logic.farmer_mode_tests_snippets", "FarmerModeSnippetTests")
+# Domestic staff / driver tracker (#186, §20 ADVANCED) + Savings challenge
+# (#171, ADVANCED). Both pure, deterministic, integer-poisha; hold no money;
+# all time-based values from a passed-in `now`. Staff: pro-rated monthly due
+# (full month always pays the full salary EXACTLY; partial floored, a bad
+# attendance entry never deducts), per-month paid/due/outstanding, advance/loan
+# balance, honest net-dues (unpaid wages minus advance held) with dignity-first
+# copy. Savings: deterministic schedule (52-week rising / fixed-period / open
+# round-up jar), progress %/streak, projected-at-pace final (never inflated past
+# goal), and behind/on-track/ahead vs what the plan EXPECTED by `now`. Mirror
+# app/lib/screens/domestic_staff_screen.dart + savings_challenge_screen.dart;
+# persist via generic owned collections (see .phaseB/up_staffsave_integration.md).
+DomesticStaffSnippetTests = _make_snippet_case(
+    "core.logic.domestic_staff_tests_snippets", "DomesticStaffSnippetTests")
+SavingsChallengeSnippetTests = _make_snippet_case(
+    "core.logic.savings_challenge_tests_snippets", "SavingsChallengeSnippetTests")
 
 
 # ---------------------------------------------------------------------------

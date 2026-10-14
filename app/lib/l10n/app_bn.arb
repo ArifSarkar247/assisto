@@ -7744,5 +7744,374 @@
   },
   "probashiDocsNote": "মেয়াদের তারিখ আপনি লেখেন; অ্যাপ শুধু কত দিন বাকি তা দেখায়। স্বয়ংক্রিয় রিমাইন্ডার এখনো চালু নয়।",
   "probashiDeleteDocTitle": "কাগজ মুছবেন?",
-  "probashiDeleteDocBody": "এই কাগজটি তালিকা থেকে স্থায়ীভাবে মুছে যাবে।"
+  "probashiDeleteDocBody": "এই কাগজটি তালিকা থেকে স্থায়ীভাবে মুছে যাবে।",
+  "a11yTitle": "অ্যাক্সেসিবিলিটি মোড",
+  "a11yTileSub": "বড় লেখা, বেশি কনট্রাস্ট, কম অ্যানিমেশন ও আরও",
+  "a11yIntro": "অ্যাপটিকে আপনার জন্য সহজে পড়া ও ব্যবহার করার মতো করে নিন। প্রতিটি সেটিং এখনই চালু হয় এবং আপনার ফোনে সংরক্ষিত থাকে।",
+  "a11ySectionDisplay": "প্রদর্শন",
+  "a11ySectionMotion": "অ্যানিমেশন",
+  "a11ySectionLayout": "লেআউট",
+  "a11ySectionAssist": "সহায়তা",
+  "a11yLargeText": "বড় লেখা",
+  "a11yLargeTextSub": "পুরো অ্যাপ জুড়ে লেখার আকার বাড়ায়।",
+  "a11yTextSmallMark": "ক",
+  "a11yTextLargeMark": "ক",
+  "a11yPreviewLabel": "নমুনা",
+  "a11yPreviewSample": "এই লেখাটি আপনার বেছে নেওয়া আকারে দেখাচ্ছে।",
+  "a11yHighContrast": "বেশি কনট্রাস্ট",
+  "a11yHighContrastSub": "লেখা ও সীমারেখা আরও স্পষ্ট করে — কম আলোয় সহজে দেখা যায়।",
+  "a11yReduceMotion": "অ্যানিমেশন কমান",
+  "a11yReduceMotionSub": "পাতা বদল ও নড়াচড়ার প্রভাব নরম বা বন্ধ করে।",
+  "a11ySimplified": "সরল লেআউট",
+  "a11ySimplifiedSub": "যেসব পাতায় সমর্থিত সেখানে সাজসজ্জা কমিয়ে দেয়। পুরো সরল হোম চাইলে এল্ডারলি সহজ-মোড ব্যবহার করুন।",
+  "a11yScreenReader": "স্ক্রিন-রিডার ইঙ্গিত",
+  "a11yScreenReaderSub": "আইকন-বোতামে বাড়তি বিবরণ যোগ করে। স্ক্রিন-রিডার (TalkBack) আলাদাভাবে ফোনের সেটিংস থেকে চালু করতে হবে।",
+  "a11yHaptics": "কম্পন সাড়া",
+  "a11yHapticsSub": "বোতামে চাপলে হালকা কম্পন দেয়।",
+  "a11yReset": "রিসেট",
+  "a11yResetTitle": "রিসেট করবেন?",
+  "a11yResetBody": "সব অ্যাক্সেসিবিলিটি সেটিং ডিফল্টে ফিরে যাবে।",
+  "a11yHonestFooter": "এই সেটিংগুলো শুধু আপনার এই ফোনে কাজ করে। স্ক্রিন-রিডার ও সিস্টেম ফন্ট-আকারের মতো কিছু সুবিধা ফোনের নিজের সেটিংসে থাকে — আমরা সেগুলো প্রতিস্থাপন করার দাবি করি না।",
+  "secTitle": "ডিজিটাল নিরাপত্তা চেক-আপ",
+  "secTileSub": "আপনার নিরাপত্তা অভ্যাস যাচাই করে স্কোর দেখুন",
+  "secChecklistHeading": "নিরাপত্তা তালিকা",
+  "secGradeStrong": "শক্তিশালী",
+  "secGradeGood": "ভালো",
+  "secGradeFair": "মোটামুটি",
+  "secGradeAtRisk": "ঝুঁকিতে",
+  "secGradeHint": "নিজের দেওয়া উত্তরের ভিত্তিতে হিসাব করা হয়েছে।",
+  "secWeakHeading": "আগে এগুলো ঠিক করুন",
+  "secSelfReportedNote": "এই চেক-আপ পুরোপুরি আপনার নিজের উত্তরের ভিত্তিতে। আমরা আপনার ফোন বা অ্যাকাউন্ট পরীক্ষা করি না — কোনো সুরক্ষা চালু আছে বলে নিজে থেকে ধরে নিই না।",
+  "secMarkedDone": "সম্পন্ন বলে চিহ্নিত",
+  "secTapToExpand": "পরামর্শ দেখতে ট্যাপ করুন",
+  "secSaving": "সংরক্ষণ হচ্ছে…",
+  "secLoadFailed": "তালিকা আনা গেল না। সংযোগ দেখে আবার চেষ্টা করুন।",
+  "secResetTitle": "তালিকা রিসেট করবেন?",
+  "secResetBody": "সব আইটেম আবার 'সম্পন্ন নয়' হয়ে যাবে।",
+  "secResetConfirm": "রিসেট করুন",
+  "secItemScreenLock": "ফোনের স্ক্রিন লক",
+  "secItemAppLock": "অ্যাপ লক / পিন",
+  "secItemWalletPin": "শক্তিশালী ওয়ালেট পিন",
+  "secItemTwoFactor": "গুরুত্বপূর্ণ অ্যাকাউন্টে টু-ফ্যাক্টর",
+  "secItemStrongPasswords": "শক্তিশালী পাসওয়ার্ড",
+  "secItemBackup": "ব্যাকআপ চালু আছে",
+  "secItemScamAwareness": "প্রতারণা সম্পর্কে সচেতনতা",
+  "secItemPermissions": "অ্যাপ অনুমতি যাচাই",
+  "secTipScreenLock": "ফোনে পিন, প্যাটার্ন, ফিঙ্গারপ্রিন্ট বা ফেস লক রাখুন — হারালে বা চুরি হলে প্রথম সুরক্ষা এটাই।",
+  "secTipAppLock": "টাকা ও ব্যক্তিগত তথ্যের অ্যাপে আলাদা লক চালু রাখুন, যাতে ফোন খোলা থাকলেও সেগুলো সুরক্ষিত থাকে।",
+  "secTipWalletPin": "বিকাশ/নগদের পিন কঠিন রাখুন, জন্মসাল বা ১২৩৪-এর মতো সহজ কিছু নয়, এবং কারও সঙ্গে শেয়ার করবেন না।",
+  "secTipTwoFactor": "ইমেইল ও প্রধান অ্যাকাউন্টে টু-ফ্যাক্টর (OTP/অথেনটিকেটর) চালু করুন — পাসওয়ার্ড ফাঁস হলেও অ্যাকাউন্ট সুরক্ষিত থাকে।",
+  "secTipStrongPasswords": "প্রতিটি গুরুত্বপূর্ণ অ্যাকাউন্টে আলাদা ও লম্বা পাসওয়ার্ড ব্যবহার করুন; একই পাসওয়ার্ড সব জায়গায় নয়।",
+  "secTipBackup": "কন্টাক্ট, ছবি ও জরুরি কাগজপত্রের ব্যাকআপ রাখুন, যাতে ফোন হারালেও তথ্য থেকে যায়।",
+  "secTipScamAwareness": "ফোন, এসএমএস বা লিংকে চাওয়া হলেও কখনো OTP বা পিন দেবেন না — ব্যাংক বা বিকাশ কখনো এগুলো চায় না।",
+  "secTipPermissions": "মাঝেমধ্যে অ্যাপের অনুমতি দেখুন; যেসব অ্যাপের ক্যামেরা, লোকেশন বা কন্টাক্ট দরকার নেই, তাদের অনুমতি বন্ধ করুন।",
+  "farmerTitle": "কৃষক মোড",
+  "farmerTabLedger": "খাতা",
+  "farmerTabCalendar": "ফসল পঞ্জিকা",
+  "farmerTabLivestock": "পশুসম্পদ",
+  "farmerLoadError": "আপনার কৃষি তথ্য লোড করা যায়নি। আবার চেষ্টা করুন।",
+  "farmerSaved": "সংরক্ষণ হয়েছে",
+  "farmerDeleted": "মুছে ফেলা হয়েছে",
+  "farmerLedgerWelcomeTitle": "আপনার কৃষি খাতা শুরু করুন",
+  "farmerLedgerWelcomeBody": "প্রতিটি ফসল এখানে যোগ করুন — রোপণ ও ফসল তোলার তারিখ, খরচ ও বিক্রির আয়। অ্যাপ নিজেই লাভ হিসাব করে দেবে। কোনো দাম বানিয়ে বলা হয় না — আপনি যা লেখেন, শুধু তাই।",
+  "farmerLivestockWelcomeTitle": "আপনার পশুর তালিকা শুরু করুন",
+  "farmerLivestockWelcomeBody": "গরু, ছাগল, হাঁস-মুরগির সংখ্যা ও শেষ টিকার তারিখ যোগ করুন। পরের টিকা কবে দরকার, অ্যাপ তা মনে করিয়ে দিতে সাহায্য করবে।",
+  "farmerAddRecord": "ফসল যোগ করুন",
+  "farmerEditRecord": "ফসলের তথ্য সম্পাদনা",
+  "farmerAddAnimal": "পশু যোগ করুন",
+  "farmerEditAnimal": "পশুর তথ্য সম্পাদনা",
+  "farmerUntitledRecord": "নামহীন ফসল",
+  "farmerSummaryTitle": "এই মৌসুমের হিসাব",
+  "farmerCost": "খরচ",
+  "farmerIncome": "আয়",
+  "farmerProfit": "লাভ",
+  "farmerNetProfit": "মোট লাভ",
+  "farmerStatusPlanned": "পরিকল্পিত",
+  "farmerStatusGrowing": "চাষ চলছে",
+  "farmerStatusHarvested": "ফসল তোলা হয়েছে",
+  "farmerStatusSold": "বিক্রি হয়েছে",
+  "farmerCalendarNote": "এটি একটি সাধারণ মৌসুম পঞ্জিকা — নির্দিষ্ট আবহাওয়া বা পরামর্শ নয়। আপনার এলাকার কৃষি কর্মকর্তার পরামর্শ সবসময় মেনে চলুন।",
+  "farmerSeasonRabi": "রবি (শীতকাল)",
+  "farmerSeasonKharif1": "খরিফ-১ (প্রাক-বর্ষা)",
+  "farmerSeasonKharif2": "খরিফ-২ (বর্ষা)",
+  "farmerSeasonCurrent": "এখন চলছে",
+  "farmerSowWindow": "বপনের সময়",
+  "farmerHarvestWindow": "ফসল তোলার সময়",
+  "farmerCommonCrops": "সাধারণ ফসল",
+  "farmerTotalHead": "মোট পশু",
+  "farmerCount": "সংখ্যা",
+  "farmerVaccDue": "টিকা বাকি",
+  "farmerVaccSoon": "শীঘ্রই",
+  "farmerVaccOk": "ঠিক আছে",
+  "farmerVaccUnknown": "তথ্য নেই",
+  "farmerVaccDueSummary": "{due} টি পশুর টিকা এখন বাকি, {soon} টির শীঘ্রই দরকার।",
+  "@farmerVaccDueSummary": {
+    "placeholders": {
+      "due": {
+        "type": "Object"
+      },
+      "soon": {
+        "type": "Object"
+      }
+    }
+  },
+  "farmerFieldName": "ফসলের নাম/জমি",
+  "farmerFieldCrop": "ফসলের ধরন",
+  "farmerFieldPlanted": "রোপণের তারিখ",
+  "farmerFieldHarvest": "ফসল তোলার তারিখ",
+  "farmerFieldCost": "খরচ (৳)",
+  "farmerFieldIncome": "বিক্রির আয় (৳)",
+  "farmerFieldNotes": "মন্তব্য",
+  "farmerFieldAnimal": "পশুর ধরন",
+  "farmerFieldCount": "সংখ্যা",
+  "farmerFieldLastVacc": "শেষ টিকার তারিখ",
+  "farmerLastVaccHelper": "সাধারণত ৬ মাস পরপর বুস্টার দরকার হয়।",
+  "farmerPickDate": "তারিখ বাছুন",
+  "farmerErrNameRequired": "ফসলের নাম লিখুন।",
+  "farmerErrHarvestBeforePlanting": "ফসল তোলার তারিখ রোপণের আগে হতে পারে না।",
+  "farmerErrAnimalRequired": "পশুর ধরন বাছুন।",
+  "farmerErrInvalid": "তথ্যটি ঠিক নয়। আবার দেখুন।",
+  "farmerDeleteRecordTitle": "ফসল মুছবেন?",
+  "farmerDeleteRecordBody": "এই ফসলের হিসাব স্থায়ীভাবে মুছে যাবে।",
+  "farmerDeleteAnimalTitle": "পশু মুছবেন?",
+  "farmerDeleteAnimalBody": "এই পশুর তথ্য স্থায়ীভাবে মুছে যাবে।",
+  "farmerCropBoroRice": "বোরো ধান",
+  "farmerCropAusRice": "আউশ ধান",
+  "farmerCropAmanRice": "আমন ধান",
+  "farmerCropWheat": "গম",
+  "farmerCropPotato": "আলু",
+  "farmerCropMustard": "সরিষা",
+  "farmerCropLentil": "মসুর ডাল",
+  "farmerCropOnion": "পেঁয়াজ",
+  "farmerCropGarlic": "রসুন",
+  "farmerCropMaize": "ভুট্টা",
+  "farmerCropTomato": "টমেটো",
+  "farmerCropCabbage": "বাঁধাকপি",
+  "farmerCropJute": "পাট",
+  "farmerCropChilli": "মরিচ",
+  "farmerCropAubergine": "বেগুন",
+  "farmerCropCucumber": "শসা",
+  "farmerCropBitterGourd": "করলা",
+  "farmerCropOkra": "ঢেঁড়স",
+  "farmerCropPumpkin": "মিষ্টি কুমড়া",
+  "farmerCropSpinach": "পালং শাক",
+  "farmerCropRadish": "মুলা",
+  "farmerCropCauliflower": "ফুলকপি",
+  "farmerCropBean": "শিম",
+  "farmerAnimalCow": "গরু",
+  "farmerAnimalGoat": "ছাগল",
+  "farmerAnimalSheep": "ভেড়া",
+  "farmerAnimalBuffalo": "মহিষ",
+  "farmerAnimalChicken": "মুরগি",
+  "farmerAnimalDuck": "হাঁস",
+  "farmerAnimalOther": "অন্যান্য",
+  "trustTitle": "বিশ্বাস ও স্বচ্ছতা",
+  "trustHeadline": "আমরা যা বলি, তা-ই করি",
+  "trustIntro": "Assisto কী করে এবং কী করে না — সৎভাবে। নিচের প্রতিটি কথা অ্যাপটি আসলে যা করে, তার সঙ্গে মিলিয়ে লেখা।",
+  "trustWhatWeDo": "আমরা যা করি",
+  "trustWhatWeDont": "আমরা যা কখনো করি না",
+  "trustTransparency": "স্বচ্ছতা",
+  "trustReadMore": "আরও পড়ুন",
+  "trustMoneyTitle": "আমরা আপনার টাকা কখনো রাখি না",
+  "trustMoneyBody": "Assisto-র কোনো ওয়ালেট নেই এবং এটি আপনার কাছ থেকে টাকা কাটে না। বিল পরিশোধে এটি শুধু আপনার নিজের ব্যাংক/বিকাশ/নগদ অ্যাপ আগে থেকে পূরণ করে খুলে দেয় — পাঠানোর বোতাম আপনিই চাপেন।",
+  "trustE2eTitle": "আপনার সার্কেলের চ্যাট এন্ড-টু-এন্ড এনক্রিপ্টেড",
+  "trustE2eBody": "কানেক্টেড সার্কেলের টেক্সট বার্তা এন্ড-টু-এন্ড এনক্রিপ্ট করা হয়; সার্ভার শুধু এনক্রিপ্টেড রূপ রাখে, মূল লেখা পড়তে পারে না। ছবি, ভয়েস ও ভিডিও এনক্রিপ্টেড স্টোরেজ চালু হলে আসবে — আমরা তা এখনই দাবি করি না।",
+  "trustAiTitle": "AI শুধু আপনার অনুমতি ও কী দিয়ে চলে",
+  "trustAiBody": "মালিকের দেওয়া AI কী ছাড়া কোনো AI চলে না। AI নিজে থেকে পোস্ট করে না, টাকা পাঠায় না, আবেদন করে না। যা মনে রাখে তা আপনি দেখতে ও মুছে ফেলতে পারেন।",
+  "trustSellTitle": "আমরা আপনার তথ্য বিক্রি করি না",
+  "trustSellBody": "অ্যাপে কোনো তৃতীয় পক্ষের বিজ্ঞাপন বা ট্র্যাকিং SDK নেই। পরিসংখ্যান আমাদের নিজস্ব ও পরিচয়-মুক্ত (হ্যাশ করা আইডি, নির্দিষ্ট ইভেন্ট, শুধু দিনের হিসাব)।",
+  "trustControlTitle": "আপনার তথ্য, আপনার নিয়ন্ত্রণে",
+  "trustControlBody": "যেকোনো সময় আপনার সব তথ্য রপ্তানি করতে পারেন এবং অ্যাকাউন্ট মুছে ফেলতে পারেন। ডকুমেন্ট ভল্ট PIN দিয়ে লক করা।",
+  "trustDataLocationTitle": "আপনার তথ্য কোথায় থাকে",
+  "trustDataLocationBody": "আপনার তথ্য Assisto-র নিজস্ব সার্ভারে রাখা হয়। এটি কোনো তৃতীয় পক্ষের কাছে বিক্রি বা হস্তান্তর করা হয় না।",
+  "trustNeverHoldMoney": "আপনার টাকা রাখা বা কাটা — কখনো নয়।",
+  "trustNeverSell": "আপনার তথ্য বিক্রি বা বিজ্ঞাপনদাতার কাছে দেওয়া — কখনো নয়।",
+  "trustNeverReadChats": "আপনার এনক্রিপ্টেড চ্যাট পড়া — কখনো নয়।",
+  "trustNeverAutoAct": "আপনার অনুমতি ছাড়া পোস্ট, পেমেন্ট বা আবেদন — কখনো নয়।",
+  "trustNeverTrackers": "তৃতীয় পক্ষের ট্র্যাকার যোগ করা — কখনো নয়।",
+  "trustLicenseTitle": "লাইসেন্স ও তৈরির উপাদান",
+  "trustLicenseBody": "এনক্রিপশনের জন্য আমরা উদারভাবে-লাইসেন্সকৃত, যাচাইযোগ্য উপাদান (যেমন OpenMLS — Apache/MIT) ব্যবহার করতে চাই। অ্যাপটি নিজে এখনো ওপেন-সোর্স নয় — আমরা বাড়িয়ে কিছু বলি না।",
+  "trustOpenLegal": "গোপনীয়তা নীতি ও শর্তাবলি",
+  "trustOpenAbout": "Assisto সম্পর্কে",
+  "trustFooter": "এই পৃষ্ঠার প্রতিটি দাবি অ্যাপের আচরণের সঙ্গে মিলিয়ে লেখা। যদি কোনো কিছু না মেলে, আমাদের জানান।",
+  "staffTitle": "গৃহকর্মী ও ড্রাইভার",
+  "staffLoadError": "কর্মীর তথ্য আনা যায়নি। আবার চেষ্টা করুন।",
+  "staffWelcomeTitle": "ঘরের কর্মীদের হিসাব এক জায়গায়",
+  "staffWelcomeBody": "বুয়া, ড্রাইভার, রাঁধুনি, দারোয়ান—প্রত্যেকের বেতন, উপস্থিতি, অগ্রিম আর বকেয়া ন্যায্যভাবে রাখুন। অ্যাপ কোনো টাকা রাখে না, শুধু সঠিক হিসাব দেখায়।",
+  "staffAddPerson": "কর্মী যোগ করুন",
+  "staffEditPerson": "তথ্য সম্পাদনা",
+  "staffName": "নাম",
+  "staffRole": "কাজ",
+  "staffMonthlySalary": "মাসিক বেতন",
+  "staffJoinDate": "যোগদানের মাস",
+  "staffMonthHint": "যেমন 2026-10",
+  "staffMonthHelper": "বছর-মাস লিখুন (YYYY-MM)",
+  "staffDuplicateName": "এই নামে একজন কর্মী ইতিমধ্যে আছেন।",
+  "staffSaved": "সংরক্ষিত হয়েছে",
+  "staffRoleMaid": "বুয়া / গৃহকর্মী",
+  "staffRoleDriver": "ড্রাইভার",
+  "staffRoleCook": "রাঁধুনি",
+  "staffRoleGuard": "দারোয়ান",
+  "staffRoleGardener": "মালি",
+  "staffRoleNanny": "আয়া / শিশু-পরিচারিকা",
+  "staffRoleTutor": "গৃহশিক্ষক",
+  "staffRoleOther": "অন্যান্য",
+  "staffMonthlyPayroll": "মাসিক মোট বেতন",
+  "staffTotalDues": "মোট বকেয়া",
+  "staffYourStaff": "আপনার কর্মীরা",
+  "staffPerMonthSuffix": "/মাস",
+  "staffAdvanceHeld": "অগ্রিম {amount}",
+  "@staffAdvanceHeld": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "staffStateOwed": "বকেয়া",
+  "staffStateAdvanceDue": "অগ্রিম সমন্বয়",
+  "staffStateSettled": "পরিশোধিত",
+  "staffLogEntry": "এন্ট্রি যোগ করুন",
+  "staffWagesOutstanding": "বকেয়া বেতন",
+  "staffAdvanceBalance": "অগ্রিম ব্যালেন্স",
+  "staffMonthByMonth": "মাস-ভিত্তিক হিসাব",
+  "staffNoMonthsYet": "এখনো কোনো মাসের এন্ট্রি নেই।",
+  "staffDue": "প্রাপ্য",
+  "staffPaid": "পরিশোধিত",
+  "staffAdvance": "অগ্রিম",
+  "staffRepay": "ফেরত",
+  "staffAttendance": "উপস্থিতি",
+  "staffDaysPresent": "{present}/{month} দিন",
+  "@staffDaysPresent": {
+    "placeholders": {
+      "month": {
+        "type": "Object"
+      },
+      "present": {
+        "type": "Object"
+      }
+    }
+  },
+  "staffMonthOwed": "বাকি",
+  "staffMonthOverpaid": "বেশি দেওয়া",
+  "staffMonthSettled": "পরিশোধিত",
+  "staffKindSalary": "বেতন",
+  "staffKindAdvance": "অগ্রিম",
+  "staffKindRepay": "ফেরত",
+  "staffAmount": "পরিমাণ",
+  "staffMonth": "মাস",
+  "staffAttendanceOptional": "উপস্থিতি (ঐচ্ছিক — অর্ধমাস হলে বেতন সমানুপাতে হবে)",
+  "staffPresentDays": "উপস্থিত দিন",
+  "staffMonthDays": "মাসের দিন",
+  "staffDeleteTitle": "কর্মী মুছবেন?",
+  "staffDeleteBody": "{name}-এর সব তথ্য ও হিসাব মুছে যাবে। এটি ফেরানো যাবে না।",
+  "@staffDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "staffNoMoneyNote": "সব হিসাব আপনার দেওয়া তথ্য থেকে—অ্যাপ কোনো টাকা রাখে না। কর্মীর ন্যায্য বেতন সময়মতো পরিশোধ করা আপনার দায়িত্ব।",
+  "savechalTitle": "সঞ্চয় চ্যালেঞ্জ",
+  "savechalLoadError": "চ্যালেঞ্জের তথ্য আনা যায়নি। আবার চেষ্টা করুন।",
+  "savechalWelcomeTitle": "খেলার ছলে সঞ্চয় শুরু করুন",
+  "savechalWelcomeBody": "একটি চ্যালেঞ্জ বেছে নিন—৫২-সপ্তাহ, নির্দিষ্ট জমা, বা রাউন্ড-আপ জার। জমা তুলুন, অগ্রগতি দেখুন, আর নিজের লক্ষ্যে পৌঁছান। অ্যাপ কোনো টাকা রাখে না।",
+  "savechalStartChallenge": "চ্যালেঞ্জ শুরু করুন",
+  "savechalSaved": "সংরক্ষিত হয়েছে",
+  "savechalKindWeek52": "৫২-সপ্তাহ চ্যালেঞ্জ",
+  "savechalKindFixed": "নির্দিষ্ট জমা",
+  "savechalKindRoundup": "রাউন্ড-আপ জার",
+  "savechalDaily": "প্রতিদিন",
+  "savechalWeekly": "প্রতি সপ্তাহে",
+  "savechalMonthly": "প্রতি মাসে",
+  "savechalName": "চ্যালেঞ্জের নাম",
+  "savechalNameHint": "যেমন নতুন ফোনের জন্য সঞ্চয়",
+  "savechalType": "ধরন",
+  "savechalBaseAmount": "শুরুর পরিমাণ",
+  "savechalDailyTarget": "দৈনিক লক্ষ্য",
+  "savechalWeek52Helper": "১ম সপ্তাহে এই পরিমাণ, পরে প্রতি সপ্তাহে ততটা করে বাড়ে।",
+  "savechalRoundupHelper": "খোলা জার—এই দৈনিক লক্ষ্যের সাথে অগ্রগতি মাপা হয়।",
+  "savechalEvery": "প্রতি",
+  "savechalHowMany": "কতবার",
+  "savechalStartDate": "শুরুর তারিখ",
+  "savechalDateHint": "যেমন 2026-10-14",
+  "savechalGoalPreview": "লক্ষ্য: {goal}",
+  "@savechalGoalPreview": {
+    "placeholders": {
+      "goal": {
+        "type": "Object"
+      }
+    }
+  },
+  "savechalStatusNotStarted": "শুরু হয়নি",
+  "savechalStatusBehind": "পিছিয়ে",
+  "savechalStatusOnTrack": "ঠিক পথে",
+  "savechalStatusAhead": "এগিয়ে",
+  "savechalStatusComplete": "সম্পূর্ণ!",
+  "savechalOpenEnded": "খোলা লক্ষ্য",
+  "savechalStreakShort": "{n} ধারাবাহিক",
+  "@savechalStreakShort": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "savechalProjectedShort": "সম্ভাব্য {amount}",
+  "@savechalProjectedShort": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "savechalOfGoal": "লক্ষ্য {goal}-এর মধ্যে",
+  "@savechalOfGoal": {
+    "placeholders": {
+      "goal": {
+        "type": "Object"
+      }
+    }
+  },
+  "savechalLogDeposit": "জমা যোগ করুন",
+  "savechalExpectedByNow": "এতদিনে যা হওয়ার কথা",
+  "savechalAheadBy": "এগিয়ে আছেন",
+  "savechalBehindBy": "পিছিয়ে আছেন",
+  "savechalStreak": "ধারাবাহিকতা",
+  "savechalPeriods": "{n} বার",
+  "@savechalPeriods": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "savechalProjected": "সম্ভাব্য মোট",
+  "savechalDeposits": "জমাসমূহ",
+  "savechalNoDepositsYet": "এখনো কোনো জমা নেই। প্রথম জমা যোগ করুন।",
+  "savechalAmount": "পরিমাণ",
+  "savechalDate": "তারিখ",
+  "savechalDeleteTitle": "চ্যালেঞ্জ মুছবেন?",
+  "savechalDeleteBody": "{name} ও এর সব জমা মুছে যাবে। এটি ফেরানো যাবে না।",
+  "@savechalDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "savechalNoMoneyNote": "সব হিসাব আপনার জমা থেকে—অ্যাপ কোনো টাকা রাখে না, শুধু অগ্রগতি দেখায়।",
+  "secDoneOfTotal": "{total}টির মধ্যে {done}টি সম্পন্ন",
+  "@secDoneOfTotal": {
+    "placeholders": {
+      "done": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "trustTileSub": "Assisto কী করে — আর কী কখনো করে না"
 }
