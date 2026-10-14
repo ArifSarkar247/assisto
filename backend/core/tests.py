@@ -807,6 +807,16 @@ SafetyJourneySnippetTests = _make_snippet_case(
 # Watch Feed (advanced) — pure aggregation/grouping/priority helper.
 WatchFeedSnippetTests = _make_snippet_case(
     "core.logic.watch_feed_tests_snippets", "WatchFeedSnippetTests")
+# Voice mood sensing (#15, advanced §21) — on-device, opt-in, NON-CLINICAL mood
+# check-in: deterministic fold/7-day-trend/supportive-suggestion-keys helper.
+# No audio, no server, no AI, no clock (today passed in). Never diagnoses.
+VoiceMoodSnippetTests = _make_snippet_case(
+    "core.logic.voice_mood_tests_snippets", "VoiceMoodSnippetTests")
+# Proactive AI (#6, advanced §21) — deterministic rules over the user's OWN
+# signals (built on watch_feed) → urgency-grouped nudges + dismissals + "why".
+# Never fabricates; AI-personalised proactivity is a documented key-gated seam.
+ProactiveAiSnippetTests = _make_snippet_case(
+    "core.logic.proactive_ai_tests_snippets", "ProactiveAiSnippetTests")
 # AI Inbox (advanced §21) — pure triage/priority/summary/bulk helper.
 AiInboxSnippetTests = _make_snippet_case(
     "core.logic.ai_inbox_tests_snippets", "AiInboxSnippetTests")
@@ -1148,6 +1158,22 @@ PaBizTravelSnippetTests = _make_snippet_case(
     "core.logic.pa_biztravel_tests_snippets", "PaBizTravelSnippetTests")
 PaProjectsSnippetTests = _make_snippet_case(
     "core.logic.pa_projects_tests_snippets", "PaProjectsSnippetTests")
+# Business #144 Supplier & wholesale market + #145 Demand map (§21, advanced) —
+# pure deterministic supplier filter/compare/reorder + demand heat aggregation;
+# honest {required, mock} partner-directory / live trade-data seams (no key yet).
+SupplierMarketSnippetTests = _make_snippet_case(
+    "core.logic.supplier_market_tests_snippets", "SupplierMarketSnippetTests")
+DemandMapSnippetTests = _make_snippet_case(
+    "core.logic.demand_map_tests_snippets", "DemandMapSnippetTests")
+# Section-20 #194 Area/neighbourhood board + #187 Doctor appointment tracker
+# (§21, advanced) — pure deterministic area-scoped post filter (conservative
+# privacy: precise-location fields dropped) + appointment upcoming/past + derived
+# missed + reminder-due from a passed-in `now`; honest key-gated {required, mock}
+# live-booking partner seam (never fabricates a serial/booking). No DB, no clock.
+AreaCommunitySnippetTests = _make_snippet_case(
+    "core.logic.area_community_tests_snippets", "AreaCommunitySnippetTests")
+DoctorSerialSnippetTests = _make_snippet_case(
+    "core.logic.doctor_serial_tests_snippets", "DoctorSerialSnippetTests")
 
 
 # ---------------------------------------------------------------------------

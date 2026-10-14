@@ -1905,6 +1905,22 @@ GENERIC_COLLECTIONS = [
     #                      {kind:'appt'|'pref'|'routine'}. On-device only.
     "star/deals", "star/press", "star/socialinbox",
     "star/callsheets", "star/lifestyle",
+    # Business #144 Supplier & wholesale market + #145 Demand map (§21) —
+    # deterministic, key-free; the user's OWN data only (no scraping/fabrication).
+    #   supplier/vendors — one supplier row per entry:
+    #       {name, category (slug), products ("a, b" or [..]), location,
+    #        contact, price_note, rating (0-5 int), note, reorder (bool)}.
+    #       Filter/compare/reorder is pure (core.logic.supplier_market); a real
+    #       partner/wholesale directory is a key-gated seam (supplier_directory,
+    #       not in REGISTRY yet).
+    #   demand/signals  — one demand signal per entry:
+    #       {product, area, period, level ('low'|'medium'|'high'|'surge'),
+    #        note}. Heat aggregation is pure (core.logic.demand_map); LIVE
+    #       trade/market demand is a key-gated seam (trade_data, not in REGISTRY
+    #       yet) — NEVER fabricated.
+    "supplier/vendors", "demand/signals",
+    # #6 Proactive AI dismissals + #194 Area community + #187 Doctor appointments
+    "proactive/dismissed", "area/posts", "doctor/appointments",
 ]
 GENERIC_COLLECTION_VIEWSETS = {
     name: type(

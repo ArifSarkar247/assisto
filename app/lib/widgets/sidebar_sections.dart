@@ -48,6 +48,10 @@ import '../screens/blog_writer_screen.dart';
 import '../screens/doc_scanner_screen.dart';
 import '../screens/transcription_screen.dart';
 import '../screens/travel_planner_screen.dart';
+import '../screens/voice_mood_screen.dart';
+import '../screens/proactive_ai_screen.dart';
+import '../screens/area_community_screen.dart';
+import '../screens/doctor_serial_screen.dart';
 // family & safety (merged per SPEC v2.1 §4)
 import '../screens/family_screen.dart';
 import '../screens/nominee_screen.dart';
@@ -254,6 +258,10 @@ class SidebarSections {
       SidebarItem(Icons.school_outlined, (t) => t.kidTitle,
           (_) => const KidSchoolScreen(),
           synonyms: ['kid', 'child', 'school', 'fees', 'exam', 'ptm', 'notice']),
+      // #187 Doctor serial / appointment tracker.
+      SidebarItem(Icons.medical_services_outlined, (t) => t.doctorSerialTitle,
+          (_) => const DoctorSerialScreen(),
+          synonyms: ['doctor', 'appointment', 'serial', 'chamber', 'hospital']),
     ]),
     // 4. Contacts — single-item section. Profile was REMOVED here (OWNER UI FIX
     // v2 §4–5): Profile is NOT a module, it lives as a card at the top of
@@ -356,6 +364,17 @@ class SidebarSections {
       SidebarItem(Icons.luggage_outlined, (t) => t.tvTitle,
           (_) => const TravelPlannerScreen(),
           synonyms: ['travel', 'trip', 'itinerary', 'tour', 'journey', 'vacation']),
+      // §6 AI-core: #15 voice mood (on-device opt-in), #6 proactive AI;
+      // §20 #194 area community (local-area board).
+      SidebarItem(Icons.mood_outlined, (t) => t.moodTitle,
+          (_) => const VoiceMoodScreen(),
+          synonyms: ['mood', 'wellbeing', 'feeling', 'mental', 'check-in']),
+      SidebarItem(Icons.lightbulb_outline, (t) => t.proTitle,
+          (_) => const ProactiveAiScreen(),
+          synonyms: ['proactive', 'suggestions', 'nudges', 'ai', 'digest']),
+      SidebarItem(Icons.holiday_village_outlined, (t) => t.areaCommunityTitle,
+          (_) => const AreaCommunityScreen(),
+          synonyms: ['area', 'community', 'neighbourhood', 'local', 'notice board']),
     ]),
     // 7. Work
     SidebarSection('work', Icons.work_outline, (t) => t.sidebarWork, [

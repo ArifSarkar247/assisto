@@ -25,6 +25,12 @@ import 'package:assisto/screens/messenger/contact_info_screen.dart';
 import 'package:assisto/screens/notification_centre_screen.dart';
 import 'package:assisto/screens/messenger/messenger_profile_screen.dart';
 import 'package:assisto/screens/messenger/contacts_screen.dart';
+import 'package:assisto/screens/voice_mood_screen.dart';
+import 'package:assisto/screens/proactive_ai_screen.dart';
+import 'package:assisto/screens/area_community_screen.dart';
+import 'package:assisto/screens/doctor_serial_screen.dart';
+import 'package:assisto/screens/business/supplier_market_screen.dart';
+import 'package:assisto/screens/business/demand_map_screen.dart';
 import 'package:assisto/screens/pa/star_deals_screen.dart';
 import 'package:assisto/screens/pa/vip_stakeholder_screen.dart';
 import 'package:assisto/screens/pa/letters_screen.dart';
@@ -254,6 +260,12 @@ void main() {
     'notification_centre': (build: (_) => const NotificationCentreScreen(), mode: FakeMode.data, full: true),
     'msgr_profile': (build: (_) => const MessengerProfileScreen(), mode: FakeMode.data, full: true),
     'contacts': (build: (_) => const ContactsScreen(), mode: FakeMode.data, full: true),
+    'mood': (build: (_) => const VoiceMoodScreen(), mode: FakeMode.data, full: true),
+    'proactive': (build: (_) => const ProactiveAiScreen(), mode: FakeMode.data, full: true),
+    'area': (build: (_) => const AreaCommunityScreen(), mode: FakeMode.data, full: true),
+    'doctor': (build: (_) => const DoctorSerialScreen(), mode: FakeMode.data, full: true),
+    'supplier': (build: (_) => const SupplierMarketScreen(), mode: FakeMode.data, full: true),
+    'demand': (build: (_) => const DemandMapScreen(), mode: FakeMode.data, full: true),
     'pa_star_deals': (build: (_) => const StarDealsScreen(), mode: FakeMode.data, full: true),
     'pa_vip': (build: (_) => const VipStakeholderScreen(), mode: FakeMode.data, full: true),
     'pa_letters': (build: (_) => const LettersScreen(), mode: FakeMode.data, full: true),

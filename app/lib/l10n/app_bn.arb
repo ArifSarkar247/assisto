@@ -10918,5 +10918,365 @@
   "paProjSevHigh": "বেশি",
   "paProjRiskStatusLabel": "সমাধান হয়েছে",
   "paProjRiskOpen": "খোলা",
-  "paProjRiskClosed": "বন্ধ"
+  "paProjRiskClosed": "বন্ধ",
+  "moodTitle": "মন ও প্রাণশক্তি",
+  "moodOptInTitle": "আপনার মন কেমন আছে, নিজেই লিখে রাখুন",
+  "moodOptInBody": "এটি সম্পূর্ণ ঐচ্ছিক ও শুধু এই ফোনেই থাকে। আপনি দিনে একবার আপনার মন কেমন তা বেছে নেন—এর বেশি কিছু নয়।",
+  "moodOptInPoint1": "সব তথ্য শুধু এই ডিভাইসে থাকে—কোনো সার্ভারে যায় না।",
+  "moodOptInPoint2": "কোনো অডিও রেকর্ড বা পাঠানো হয় না। কণ্ঠ-প্রাণশক্তি আপনি নিজেই রেট করেন।",
+  "moodOptInPoint3": "যেকোনো সময় এক ট্যাপে সব মুছে ফেলতে পারেন।",
+  "moodOptInPoint4": "এটি কোনো চিকিৎসা বা মানসিক স্বাস্থ্য সেবা নয়—প্রয়োজনে একজন পেশাদারের সাহায্য নিন।",
+  "moodOptInButton": "চালু করুন (শুধু এই ফোনে)",
+  "moodWelcomeTitle": "প্রথম চেক-ইন করুন",
+  "moodWelcomeBody": "আজ আপনার মন কেমন? বেছে নিন—৭ দিনে একটি সহজ প্রবণতা তৈরি হবে।",
+  "moodCheckIn": "চেক-ইন করুন",
+  "moodEditToday": "আজকেরটা বদলান",
+  "moodCheckInTitle": "আজকের চেক-ইন",
+  "moodPickPrompt": "এখন আপনার মন কেমন?",
+  "moodSaved": "সংরক্ষিত হয়েছে",
+  "moodLow": "খুব খারাপ",
+  "moodDown": "মন খারাপ",
+  "moodOk": "মোটামুটি",
+  "moodGood": "ভালো",
+  "moodGreat": "দারুণ",
+  "moodTodayTitle": "আজ",
+  "moodNotLoggedYet": "আজ এখনও চেক-ইন করা হয়নি।",
+  "moodVoiceToggle": "কণ্ঠ-প্রাণশক্তি (ঐচ্ছিক)",
+  "moodVoiceExplain": "চাইলে নিজে একটু কথা বলে দেখুন—তারপর আপনার কণ্ঠে কতটা শক্তি ছিল, নিজেই রেট করুন। কোনো রেকর্ডিং রাখা বা পাঠানো হয় না।",
+  "moodEnergyLabel": "প্রাণশক্তির রেটিং",
+  "moodEnergyUnrated": "দেওয়া হয়নি",
+  "moodEnergyValue": "{value}/{max}",
+  "@moodEnergyValue": {
+    "placeholders": {
+      "max": {
+        "type": "Object"
+      },
+      "value": {
+        "type": "Object"
+      }
+    }
+  },
+  "moodVoicePrivacy": "শুধু ০–৫ সংখ্যাটি রাখা হয়—অডিও নয়।",
+  "moodTrend7d": "৭ দিনের প্রবণতা",
+  "moodTrendEmpty": "এখনও যথেষ্ট তথ্য নেই—কয়েক দিন চেক-ইন করলে প্রবণতা দেখা যাবে।",
+  "moodTrendSummary": "গত ৭ দিনে {logged}/{days} দিন লেখা হয়েছে।",
+  "@moodTrendSummary": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      },
+      "logged": {
+        "type": "Object"
+      }
+    }
+  },
+  "moodSuggestionsTitle": "মৃদু পরামর্শ",
+  "moodSuggestionsNote": "এগুলো সাধারণ সহায়ক পরামর্শ, কোনো চিকিৎসা পরামর্শ নয়।",
+  "moodSugRest": "নিজেকে একটু বিশ্রাম দিন—আজ একটু ধীরে চলাই ঠিক আছে।",
+  "moodSugReachOut": "বিশ্বাস করেন এমন কারও সাথে একটু কথা বলুন।",
+  "moodSugBreathe": "কয়েকবার ধীরে গভীর শ্বাস নিন।",
+  "moodSugWalk": "অল্প কিছুক্ষণ হেঁটে আসুন।",
+  "moodSugGratitude": "আজকের একটি ভালো জিনিস মনে করুন।",
+  "moodSugKeepGoing": "ভালো চলছে—এভাবেই চালিয়ে যান।",
+  "moodSugCelebrate": "এই ভালো মুহূর্তটা একটু উপভোগ করুন।",
+  "moodSugShare": "ভালো লাগাটা প্রিয় কারও সাথে ভাগ করে নিন।",
+  "moodHelplineTitle": "সাহায্য কাছেই আছে",
+  "moodHelplineBody": "কয়েক দিন ধরে মন ভারী থাকলে একা সামলাতে হবে না। একজন পেশাদার বা বিশ্বস্ত কারও সাথে কথা বলুন। বাংলাদেশে জাতীয় মানসিক স্বাস্থ্য হেল্পলাইন: ০৮০০০০১১১২২ (টোল-ফ্রি)।",
+  "moodPrivacyNote": "এই তথ্য শুধু এই ডিভাইসে আছে—কোনো সার্ভারে পাঠানো হয় না।",
+  "moodSafetyNote": "এটি কোনো চিকিৎসা বা মানসিক স্বাস্থ্য সেবা নয় এবং কখনও রোগ নির্ণয় করে না। প্রয়োজনে একজন পেশাদারের সাহায্য নিন।",
+  "moodDeleteAll": "সব তথ্য মুছুন",
+  "moodDeleteTitle": "সব মুড-তথ্য মুছবেন?",
+  "moodDeleteBody": "এই ফোনে রাখা আপনার সব চেক-ইন স্থায়ীভাবে মুছে যাবে।",
+  "moodDeletedAll": "সব তথ্য মুছে ফেলা হয়েছে",
+  "moodTurnOff": "বন্ধ করুন",
+  "moodTurnOffTitle": "মুড চেক-ইন বন্ধ করবেন?",
+  "moodTurnOffBody": "ফিচারটি বন্ধ হবে এবং এই ফোনে রাখা সব চেক-ইন মুছে যাবে। পরে আবার চালু করতে পারবেন।",
+  "moodTurnOffConfirm": "বন্ধ করুন ও মুছুন",
+  "proTitle": "প্রোঅ্যাকটিভ সহায়তা",
+  "proIntro": "আপনার নিজের তথ্য থেকে তৈরি কিছু সহায়ক পরামর্শ—জরুরি অনুযায়ী সাজানো।",
+  "proLoadError": "পরামর্শ লোড করা যায়নি।",
+  "proUrgNow": "এখনই দরকার",
+  "proUrgSoon": "শিগগিরই",
+  "proUrgFyi": "জেনে রাখুন",
+  "proOpen": "খুলুন",
+  "proWhy": "কেন দেখছি?",
+  "proDismiss": "সরিয়ে দিন",
+  "proDismissed": "সরিয়ে দেওয়া হয়েছে",
+  "proWhenToday": "আজকের মধ্যে",
+  "proWhenTomorrow": "আগামীকাল",
+  "proWhenInDays": "{days} দিন পরে",
+  "@proWhenInDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "proWhenOverdue": "{days} দিন পেরিয়ে গেছে",
+  "@proWhenOverdue": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "proWhenNoDate": "তারিখ নেই",
+  "proWhyTitle": "কেন এটি দেখছি?",
+  "proWhyRuleNote": "এটি আপনার অ্যাপের বাস্তব তথ্যের উপর নির্দিষ্ট নিয়ম মেনে দেখানো হয়েছে—কোনো কিছু বানিয়ে বলা হয়নি।",
+  "proReasonBillDue": "একটি বিলের শেষ তারিখ কাছে আসছে, তাই মনে করিয়ে দেওয়া হলো।",
+  "proReasonLoanDue": "একটি পাওনা/দেনার তারিখ কাছে আসছে।",
+  "proReasonSubscription": "একটি সাবস্ক্রিপশন শিগগিরই নবায়ন হবে।",
+  "proReasonBirthday": "একটি জন্মদিন কাছে আসছে।",
+  "proReasonRefill": "একটি ওষুধ ফুরিয়ে আসছে—রিফিল করার সময় হয়েছে।",
+  "proReasonExpenseGap": "এই সপ্তাহে কোনো খরচ লেখা হয়নি, তাই মনে করিয়ে দেওয়া হলো।",
+  "proReasonSafeJourney": "একটি নিরাপদ-যাত্রার চেক-ইন আপনার মনোযোগ চায়।",
+  "proReasonFamilyAlert": "পরিবারের একটি বিষয় আপনার মনোযোগ চায়।",
+  "proReasonReminder": "আপনার একটি রিমাইন্ডারের সময় হয়েছে।",
+  "proReasonGeneric": "আপনার অ্যাপের একটি তথ্য আপনার মনোযোগ চাইছে।",
+  "proEmptyTitle": "এখন কিছুই দরকার নেই",
+  "proEmptyBody": "সব গুছানো আছে। নতুন কিছু থাকলে এখানে দেখাবে।",
+  "proEmptyDismissed": "সব পরামর্শ আপনি সরিয়ে দিয়েছেন ({count}টি)। পরিস্থিতি বদলালে আবার দেখাবে।",
+  "@proEmptyDismissed": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "proHiddenCount": "{count}টি পরামর্শ আপনি সরিয়ে রেখেছেন।",
+  "@proHiddenCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "proHonestNote": "এই পরামর্শগুলো নির্দিষ্ট নিয়ম মেনে তৈরি। এআই-নির্ভর ব্যক্তিগতকরণ ভবিষ্যতে এআই কী যুক্ত হলে চালু হবে।",
+  "supTitle": "সরবরাহকারী ও পাইকারি বাজার",
+  "supHubSub": "নিজের সরবরাহকারীদের তালিকা রাখুন, তুলনা করুন ও রি-অর্ডার লিস্ট বানান।",
+  "supLoadError": "আপনার সরবরাহকারীর তালিকা লোড করা গেল না। আবার চেষ্টা করুন।",
+  "supWelcomeTitle": "আপনার সরবরাহকারী যোগ করুন",
+  "supWelcomeBody": "আপনি নিজে যাদের থেকে মাল কেনেন, শুধু তাদেরই এখানে যোগ করুন — নাম, ধরন, পণ্য, এলাকা, যোগাযোগ, দামের নোট ও রেটিং। এটি আপনার নিজের তালিকা, কোনো বাইরের ডিরেক্টরি নয়।",
+  "supManualNote": "এখানে শুধু আপনার নিজের যোগ করা সরবরাহকারীই দেখানো হয়। আমরা কখনো বাইরের ডিরেক্টরি থেকে তথ্য আনি না বা ভুয়া দাম/রিভিউ বানাই না।",
+  "supAddSupplier": "সরবরাহকারী যোগ করুন",
+  "supEditSupplier": "সরবরাহকারী সম্পাদনা",
+  "supDeleteTitle": "সরবরাহকারী মুছবেন?",
+  "supDeleteBody": "এই সরবরাহকারীটি আপনার তালিকা থেকে স্থায়ীভাবে মুছে যাবে।",
+  "supSearchHint": "নাম, পণ্য বা এলাকা খুঁজুন",
+  "supReorderOnly": "শুধু রি-অর্ডার",
+  "supRatedMin4": "৪+ রেটিং",
+  "supClearFilters": "ফিল্টার মুছুন",
+  "supNoMatchTitle": "কিছু পাওয়া যায়নি",
+  "supNoMatchBody": "এই ফিল্টারে কোনো সরবরাহকারী মেলেনি। ফিল্টার বদলে আবার দেখুন।",
+  "supCatRawMaterial": "কাঁচামাল",
+  "supCatWholesale": "পাইকারি",
+  "supCatPackaging": "প্যাকেজিং",
+  "supCatElectronics": "ইলেকট্রনিকস",
+  "supCatClothing": "পোশাক",
+  "supCatFood": "খাদ্য",
+  "supCatLogistics": "পরিবহন",
+  "supCatServices": "সেবা",
+  "supCatOther": "অন্যান্য",
+  "supFieldName": "সরবরাহকারীর নাম",
+  "supFieldCategory": "ধরন",
+  "supFieldProducts": "পণ্য",
+  "supFieldProductsHelp": "কমা দিয়ে আলাদা করুন, যেমন: চাল, তেল, চিনি",
+  "supFieldLocation": "এলাকা",
+  "supFieldContact": "যোগাযোগ",
+  "supFieldContactHelp": "ফোন নম্বর বা অন্য যোগাযোগ",
+  "supFieldPriceNote": "দামের নোট",
+  "supFieldPriceNoteHelp": "যেমন: ৫০ কেজির বস্তা ৳২৬০০, বাকিতে দেয়",
+  "supFieldNote": "নোট",
+  "supFieldRating": "রেটিং",
+  "supUnrated": "রেটিং দেওয়া হয়নি",
+  "supReorderToggle": "রি-অর্ডার লিস্টে রাখুন",
+  "supReorderToggleSub": "এই সরবরাহকারীকে রি-অর্ডার/যোগাযোগ তালিকায় রাখুন।",
+  "supCompare": "তুলনা করুন",
+  "supCompareDone": "শেষ",
+  "supComparePick": "তুলনার জন্য দুই বা তার বেশি সরবরাহকারী বেছে নিন।",
+  "supCompareIntro": "এই তুলনা শুধু আপনার নিজের লেখা তথ্য থেকে — সর্বোচ্চ রেটিং হাইলাইট করা হয়েছে।",
+  "supBestRated": "সেরা রেটিং",
+  "supOnReorderList": "রি-অর্ডার লিস্টে আছে",
+  "supPartnerSeamTitle": "পার্টনার ডিরেক্টরি",
+  "supPartnerSeamBody": "যাচাই করা পাইকার/সরবরাহকারীর একটি পার্টনার ডিরেক্টরি ভবিষ্যতে যুক্ত হতে পারে — মালিক একটি ডিরেক্টরি সোর্স যুক্ত করলে এটি চালু হবে। ততক্ষণ শুধু আপনার নিজের তালিকাই দেখানো হয়; আমরা কখনো বাইরে থেকে তথ্য স্ক্র্যাপ করি না।",
+  "demandTitle": "চাহিদা ম্যাপ",
+  "demandHubSub": "এলাকা ও সময় ধরে পণ্যের চাহিদা লিখুন, আর কোনটা হট তা দেখুন।",
+  "demandLoadError": "আপনার চাহিদার তথ্য লোড করা গেল না। আবার চেষ্টা করুন।",
+  "demandWelcomeTitle": "চাহিদার সংকেত লিখুন",
+  "demandWelcomeBody": "আপনি যে চাহিদা নিজে লক্ষ্য করেন তা লিখুন — পণ্য, এলাকা, সময়, চাহিদার মাত্রা। আমরা শুধু আপনার দেওয়া তথ্য থেকেই হিট সারাংশ বানাব; এটি বাজারের বাস্তব তথ্যের দাবি নয়।",
+  "demandManualNote": "এই হিট সারাংশ শুধু আপনার নিজের লেখা সংকেত থেকে। আমরা কখনো বাজার/ট্রেড তথ্য বানাই না বা বাইরে থেকে আনি না।",
+  "demandLogSignal": "সংকেত যোগ করুন",
+  "demandEditSignal": "সংকেত সম্পাদনা",
+  "demandDeleteTitle": "সংকেত মুছবেন?",
+  "demandDeleteBody": "এই চাহিদা সংকেতটি স্থায়ীভাবে মুছে যাবে।",
+  "demandHeatTitle": "হিট সারাংশ",
+  "demandHottestProduct": "সবচেয়ে হট পণ্য",
+  "demandHottestArea": "সবচেয়ে হট এলাকা",
+  "demandViewProduct": "পণ্য",
+  "demandViewArea": "এলাকা",
+  "demandViewGrid": "গ্রিড",
+  "demandGridNeedsBoth": "গ্রিড দেখতে পণ্য ও এলাকা দুটোই লেখা সংকেত দরকার।",
+  "demandStatSignals": "সংকেত:",
+  "demandStatHeat": "হিট:",
+  "demandStatAvg": "গড়:",
+  "demandSignalsHeading": "আপনার সংকেতসমূহ",
+  "demandLevelLow": "কম",
+  "demandLevelMedium": "মাঝারি",
+  "demandLevelHigh": "বেশি",
+  "demandLevelSurge": "খুব বেশি",
+  "demandFieldProduct": "পণ্য",
+  "demandFieldArea": "এলাকা",
+  "demandFieldPeriod": "সময়",
+  "demandFieldPeriodHelp": "যেমন: জানুয়ারি, শীতকাল, ঈদ মৌসুম",
+  "demandFieldLevel": "চাহিদার মাত্রা",
+  "demandFieldNote": "নোট",
+  "demandTradeSeamTitle": "লাইভ ট্রেড ডেটা",
+  "demandTradeSeamBody": "রিয়েল-টাইম বাজার/ট্রেড চাহিদার তথ্য মালিক একটি ট্রেড-ডেটা সোর্স যুক্ত করলে চালু হবে। ততক্ষণ শুধু আপনার নিজের লেখা সংকেতই দেখানো হয় — আমরা কখনো ভুয়া বাজার তথ্য দেখাই না।",
+  "areaCommunityTitle": "এলাকার কমিউনিটি",
+  "areaLoadError": "এলাকার বোর্ড লোড করা গেল না। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "areaPostNotice": "নোটিশ দিন",
+  "areaEditNotice": "নোটিশ এডিট করুন",
+  "areaChangeArea": "এলাকা বদলান",
+  "areaChooseArea": "এলাকা বেছে নিন",
+  "areaAllAreas": "সব এলাকা",
+  "areaShowingAll": "সব এলাকার নোটিশ দেখানো হচ্ছে।",
+  "areaCategory": "বিভাগ",
+  "areaTitle": "শিরোনাম",
+  "areaDetails": "বিস্তারিত (ঐচ্ছিক)",
+  "areaFieldArea": "এলাকা",
+  "areaFieldAreaHelper": "আপনার এলাকা বা পাড়া — পুরো ঠিকানা নয়।",
+  "areaContact": "যোগাযোগ (ঐচ্ছিক)",
+  "areaContactHelper": "শুধু এই নোটিশেই দেখানো হবে — যতটুকু দিতে স্বচ্ছন্দ ততটুকুই দিন।",
+  "areaPrice": "মূল্য (ঐচ্ছিক)",
+  "areaTitleRequired": "একটি ছোট শিরোনাম দিন।",
+  "areaAreaRequired": "আপনার এলাকার নাম দিন।",
+  "areaDeleteTitle": "নোটিশটি মুছবেন?",
+  "areaDeleteBody": "নোটিশটি আপনার এলাকার বোর্ড থেকে সরে যাবে। এটি ফেরানো যাবে না।",
+  "areaPrivacyNote": "নোটিশ শুধু আপনার এলাকার সঙ্গে যুক্ত, কখনো পুরো ঠিকানার নয়। প্রতিবেশীদের যতটুকু জানাতে স্বচ্ছন্দ ততটুকুই দিন।",
+  "areaWelcomeTitle": "আপনার এলাকার নোটিশ বোর্ড",
+  "areaWelcomeBody": "ঘোষণা, স্থানীয় সেবা, হারানো-পাওয়া, অনুষ্ঠান আর এলাকার সতর্কতা দিন — আর আশপাশের মানুষ কী শেয়ার করেছে তা দেখুন।",
+  "areaEmptyAreaTitle": "{area}-তে এখনো কোনো নোটিশ নেই",
+  "@areaEmptyAreaTitle": {
+    "placeholders": {
+      "area": {
+        "type": "Object"
+      }
+    }
+  },
+  "areaEmptyAreaBody": "প্রতিবেশীদের জন্য এখানে প্রথম নোটিশটি আপনিই দিন।",
+  "areaNoneInFilterTitle": "এই ফিল্টারে কিছু নেই",
+  "areaNoneInFilterBody": "এই এলাকায় এখন কোনো \"{category}\" নোটিশ নেই।",
+  "@areaNoneInFilterBody": {
+    "placeholders": {
+      "category": {
+        "type": "Object"
+      }
+    }
+  },
+  "areaShowAll": "সব দেখান",
+  "areaCatAll": "সব",
+  "areaCatAnnouncement": "ঘোষণা",
+  "areaCatService": "স্থানীয় সেবা",
+  "areaCatLostFound": "হারানো-পাওয়া",
+  "areaCatEvent": "অনুষ্ঠান",
+  "areaCatAlert": "সতর্কতা",
+  "doctorSerialTitle": "ডাক্তার অ্যাপয়েন্টমেন্ট",
+  "doctorLoadError": "আপনার অ্যাপয়েন্টমেন্ট লোড করা গেল না। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "doctorTabUpcoming": "আসন্ন",
+  "doctorTabPast": "আগের",
+  "doctorAddAppt": "অ্যাপয়েন্টমেন্ট যোগ করুন",
+  "doctorEditAppt": "অ্যাপয়েন্টমেন্ট এডিট করুন",
+  "doctorName": "ডাক্তারের নাম",
+  "doctorSpecialty": "বিশেষত্ব",
+  "doctorSpecialtyCustom": "বিশেষত্ব (লিখুন)",
+  "doctorPlace": "হাসপাতাল / চেম্বার",
+  "doctorPlaceHelper": "অ্যাপয়েন্টমেন্ট কোথায় তা দিন।",
+  "doctorDate": "তারিখ",
+  "doctorPickDate": "তারিখ বেছে নিন",
+  "doctorTime": "সময়",
+  "doctorTimeOptional": "ঐচ্ছিক",
+  "doctorPickTime": "সময় বেছে নিন",
+  "doctorSerial": "সিরিয়াল নম্বর",
+  "doctorSerialHelper": "চেম্বারের স্লিপ থেকে পাওয়া সিরিয়াল, থাকলে দিন।",
+  "doctorSerialNo": "সিরিয়াল {serial}",
+  "@doctorSerialNo": {
+    "placeholders": {
+      "serial": {
+        "type": "Object"
+      }
+    }
+  },
+  "doctorStatus": "অবস্থা",
+  "doctorNotes": "নোট (ঐচ্ছিক)",
+  "doctorNameRequired": "ডাক্তারের নাম দিন।",
+  "doctorDateRequired": "একটি তারিখ বেছে নিন।",
+  "doctorDeleteTitle": "অ্যাপয়েন্টমেন্টটি মুছবেন?",
+  "doctorDeleteBody": "অ্যাপয়েন্টমেন্টের রেকর্ডটি মুছে যাবে। এটি ফেরানো যাবে না।",
+  "doctorMarkBooked": "বুকড হিসেবে রাখুন",
+  "doctorMarkDone": "ভিজিট হয়েছে",
+  "doctorMarkCancelled": "বাতিল করা হয়েছে",
+  "doctorStatusBooked": "বুকড",
+  "doctorStatusDone": "ভিজিট হয়েছে",
+  "doctorStatusCancelled": "বাতিল",
+  "doctorStatusMissed": "মিস হয়েছে",
+  "doctorSoon": "শীঘ্রই",
+  "doctorReminderDue": "{count}টি অ্যাপয়েন্টমেন্ট শীঘ্রই আসছে।",
+  "@doctorReminderDue": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "doctorTrackerNote": "এটি আপনার ভিজিটের হিসাব রাখে — কোনো চিকিৎসা পরামর্শ নয়। সিরিয়াল নম্বর আপনি নিজের চেম্বার স্লিপ থেকেই দেন।",
+  "doctorBookingSeamTitle": "লাইভ সিরিয়াল বুকিং (পার্টনার লাগবে)",
+  "doctorBookingSeamBody": "হেলথকেয়ার পার্টনারের মাধ্যমে লাইভ সিরিয়াল বুকিং এখনো যুক্ত নয়, তাই নিজে থেকে কিছু বুক হয় না। এখানে অ্যাপয়েন্টমেন্টের হিসাব রাখতে থাকুন।",
+  "doctorUpcomingWelcomeTitle": "আপনার ডাক্তার ভিজিটের হিসাব রাখুন",
+  "doctorUpcomingWelcomeBody": "ডাক্তার, চেম্বার, তারিখ ও সিরিয়াল দিয়ে একটি অ্যাপয়েন্টমেন্ট যোগ করুন — আমরা আসন্ন ও আগেরগুলো আলাদা করব আর কোনটা শীঘ্রই তা দেখাব।",
+  "doctorPastWelcomeTitle": "এখনো কোনো আগের অ্যাপয়েন্টমেন্ট নেই",
+  "doctorPastWelcomeBody": "ভিজিট হওয়া ও বাতিল হওয়া অ্যাপয়েন্টমেন্ট এখানে দেখা যাবে।",
+  "doctorSpecGeneral": "জেনারেল ফিজিশিয়ান",
+  "doctorSpecMedicine": "মেডিসিন",
+  "doctorSpecCardiology": "হৃদরোগ",
+  "doctorSpecDental": "দন্ত",
+  "doctorSpecGyne": "গাইনি",
+  "doctorSpecChild": "শিশু",
+  "doctorSpecOrtho": "অর্থোপেডিক্স",
+  "doctorSpecSkin": "চর্ম",
+  "doctorSpecEye": "চক্ষু",
+  "doctorSpecEnt": "নাক-কান-গলা",
+  "doctorSpecOther": "অন্যান্য",
+  "supCompareN": "তুলনা ({n})",
+  "@supCompareN": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "supMatchCount": "{total}টির মধ্যে {shown}টি",
+  "@supMatchCount": {
+    "placeholders": {
+      "shown": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "demandSignalSummary": "{signals}টি সিগন্যাল · {products}টি পণ্য · {areas}টি এলাকা",
+  "@demandSignalSummary": {
+    "placeholders": {
+      "signals": {
+        "type": "Object"
+      },
+      "products": {
+        "type": "Object"
+      },
+      "areas": {
+        "type": "Object"
+      }
+    }
+  }
 }

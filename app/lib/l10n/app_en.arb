@@ -12215,5 +12215,365 @@
   "paProjSevHigh": "High",
   "paProjRiskStatusLabel": "Resolved",
   "paProjRiskOpen": "Open",
-  "paProjRiskClosed": "Closed"
+  "paProjRiskClosed": "Closed",
+  "moodTitle": "Mood & energy",
+  "moodOptInTitle": "A gentle, private mood check-in",
+  "moodOptInBody": "This is fully optional and stays only on this phone. Once a day you pick how you feel — nothing more.",
+  "moodOptInPoint1": "Everything stays on this device — nothing goes to a server.",
+  "moodOptInPoint2": "No audio is recorded or sent. You rate your own voice energy.",
+  "moodOptInPoint3": "You can delete everything with one tap, any time.",
+  "moodOptInPoint4": "This is not a medical or mental-health service — reach a professional if you need help.",
+  "moodOptInButton": "Turn on (this phone only)",
+  "moodWelcomeTitle": "Make your first check-in",
+  "moodWelcomeBody": "How do you feel today? Pick one — a simple 7-day trend will build up.",
+  "moodCheckIn": "Check in",
+  "moodEditToday": "Edit today",
+  "moodCheckInTitle": "Today's check-in",
+  "moodPickPrompt": "How are you feeling right now?",
+  "moodSaved": "Saved",
+  "moodLow": "Low",
+  "moodDown": "Down",
+  "moodOk": "Okay",
+  "moodGood": "Good",
+  "moodGreat": "Great",
+  "moodTodayTitle": "Today",
+  "moodNotLoggedYet": "No check-in yet today.",
+  "moodVoiceToggle": "Voice energy (optional)",
+  "moodVoiceExplain": "If you like, speak a little to yourself — then rate how much energy your voice had. Nothing is recorded or sent.",
+  "moodEnergyLabel": "Energy rating",
+  "moodEnergyUnrated": "Not rated",
+  "moodEnergyValue": "{value}/{max}",
+  "@moodEnergyValue": {
+    "placeholders": {
+      "max": {
+        "type": "Object"
+      },
+      "value": {
+        "type": "Object"
+      }
+    }
+  },
+  "moodVoicePrivacy": "Only the 0–5 number is kept — never audio.",
+  "moodTrend7d": "7-day trend",
+  "moodTrendEmpty": "Not enough data yet — check in for a few days to see a trend.",
+  "moodTrendSummary": "Logged {logged} of the last {days} days.",
+  "@moodTrendSummary": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      },
+      "logged": {
+        "type": "Object"
+      }
+    }
+  },
+  "moodSuggestionsTitle": "Gentle suggestions",
+  "moodSuggestionsNote": "These are everyday supportive ideas, not medical advice.",
+  "moodSugRest": "Give yourself some rest — it's okay to take today slowly.",
+  "moodSugReachOut": "Reach out to someone you trust for a short chat.",
+  "moodSugBreathe": "Take a few slow, deep breaths.",
+  "moodSugWalk": "Take a short walk.",
+  "moodSugGratitude": "Note one good thing about today.",
+  "moodSugKeepGoing": "You're doing well — keep it up.",
+  "moodSugCelebrate": "Take a moment to enjoy this good feeling.",
+  "moodSugShare": "Share the good mood with someone you care about.",
+  "moodHelplineTitle": "Help is close by",
+  "moodHelplineBody": "If things have felt heavy for several days, you don't have to handle it alone. Talk to a professional or someone you trust. Bangladesh national mental-health helpline: 08000011122 (toll-free).",
+  "moodPrivacyNote": "This data stays on this device — it is never sent to a server.",
+  "moodSafetyNote": "This is not a medical or mental-health service and never diagnoses. Reach a professional if you need help.",
+  "moodDeleteAll": "Delete all data",
+  "moodDeleteTitle": "Delete all mood data?",
+  "moodDeleteBody": "All your check-ins stored on this phone will be permanently deleted.",
+  "moodDeletedAll": "All data deleted",
+  "moodTurnOff": "Turn off",
+  "moodTurnOffTitle": "Turn off mood check-in?",
+  "moodTurnOffBody": "The feature will be turned off and all check-ins on this phone will be deleted. You can turn it on again later.",
+  "moodTurnOffConfirm": "Turn off & delete",
+  "proTitle": "Proactive helper",
+  "proIntro": "Helpful nudges built from your own data — sorted by how urgent they are.",
+  "proLoadError": "Could not load suggestions.",
+  "proUrgNow": "Needs you now",
+  "proUrgSoon": "Coming soon",
+  "proUrgFyi": "Good to know",
+  "proOpen": "Open",
+  "proWhy": "Why this?",
+  "proDismiss": "Dismiss",
+  "proDismissed": "Dismissed",
+  "proWhenToday": "Due today",
+  "proWhenTomorrow": "Due tomorrow",
+  "proWhenInDays": "In {days} days",
+  "@proWhenInDays": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "proWhenOverdue": "{days} days overdue",
+  "@proWhenOverdue": {
+    "placeholders": {
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "proWhenNoDate": "No date",
+  "proWhyTitle": "Why am I seeing this?",
+  "proWhyRuleNote": "This was shown by a fixed rule over real data in your app — nothing is made up.",
+  "proReasonBillDue": "A bill's due date is approaching, so we're reminding you.",
+  "proReasonLoanDue": "A loan or due payment date is approaching.",
+  "proReasonSubscription": "A subscription will renew soon.",
+  "proReasonBirthday": "A birthday is coming up.",
+  "proReasonRefill": "A medicine is running low — time to refill.",
+  "proReasonExpenseGap": "No expenses were logged this week, so we're nudging you.",
+  "proReasonSafeJourney": "A safe-journey check-in needs your attention.",
+  "proReasonFamilyAlert": "A family matter needs your attention.",
+  "proReasonReminder": "A reminder you set is due.",
+  "proReasonGeneric": "Something in your app needs your attention.",
+  "proEmptyTitle": "Nothing needs you right now",
+  "proEmptyBody": "You're all caught up. New nudges will show up here.",
+  "proEmptyDismissed": "You've dismissed all suggestions ({count}). They'll return if the situation changes.",
+  "@proEmptyDismissed": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "proHiddenCount": "{count} suggestions you dismissed are hidden.",
+  "@proHiddenCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "proHonestNote": "These nudges follow fixed rules. AI-personalised ordering turns on later when an AI key is added.",
+  "supTitle": "Suppliers & wholesale market",
+  "supHubSub": "Keep your supplier list, compare them, and build a reorder list.",
+  "supLoadError": "Couldn't load your supplier list. Please try again.",
+  "supWelcomeTitle": "Add your suppliers",
+  "supWelcomeBody": "Add only the suppliers you buy from — name, category, products, area, contact, price notes and a rating. This is your own list, not an external directory.",
+  "supManualNote": "Only the suppliers you add are shown here. We never pull from an external directory or invent prices/reviews.",
+  "supAddSupplier": "Add supplier",
+  "supEditSupplier": "Edit supplier",
+  "supDeleteTitle": "Delete supplier?",
+  "supDeleteBody": "This supplier will be permanently removed from your list.",
+  "supSearchHint": "Search name, product or area",
+  "supReorderOnly": "Reorder only",
+  "supRatedMin4": "Rated 4+",
+  "supClearFilters": "Clear filters",
+  "supNoMatchTitle": "No matches",
+  "supNoMatchBody": "No suppliers match these filters. Try changing them.",
+  "supCatRawMaterial": "Raw material",
+  "supCatWholesale": "Wholesale",
+  "supCatPackaging": "Packaging",
+  "supCatElectronics": "Electronics",
+  "supCatClothing": "Clothing",
+  "supCatFood": "Food",
+  "supCatLogistics": "Logistics",
+  "supCatServices": "Services",
+  "supCatOther": "Other",
+  "supFieldName": "Supplier name",
+  "supFieldCategory": "Category",
+  "supFieldProducts": "Products",
+  "supFieldProductsHelp": "Separate with commas, e.g. rice, oil, sugar",
+  "supFieldLocation": "Location",
+  "supFieldContact": "Contact",
+  "supFieldContactHelp": "Phone number or other contact",
+  "supFieldPriceNote": "Price note",
+  "supFieldPriceNoteHelp": "e.g. 50kg bag ৳2600, gives credit",
+  "supFieldNote": "Note",
+  "supFieldRating": "Rating",
+  "supUnrated": "Not rated",
+  "supReorderToggle": "On reorder list",
+  "supReorderToggleSub": "Keep this supplier on your reorder/contact list.",
+  "supCompare": "Compare",
+  "supCompareDone": "Done",
+  "supComparePick": "Pick two or more suppliers to compare.",
+  "supCompareIntro": "This compares only your own entered data — the highest rating is highlighted.",
+  "supBestRated": "Best rated",
+  "supOnReorderList": "On reorder list",
+  "supPartnerSeamTitle": "Partner directory",
+  "supPartnerSeamBody": "A partner directory of verified wholesalers/suppliers may be added later — it turns on when the owner connects a directory source. Until then only your own list is shown; we never scrape outside sources.",
+  "demandTitle": "Demand map",
+  "demandHubSub": "Log product demand by area and time, and see what's hot.",
+  "demandLoadError": "Couldn't load your demand data. Please try again.",
+  "demandWelcomeTitle": "Log demand signals",
+  "demandWelcomeBody": "Log the demand you observe yourself — product, area, period, demand level. We'll build a heat summary from only your data; this is not a claim about the real market.",
+  "demandManualNote": "This heat summary is from only your own logged signals. We never fabricate or fetch market/trade data.",
+  "demandLogSignal": "Log signal",
+  "demandEditSignal": "Edit signal",
+  "demandDeleteTitle": "Delete signal?",
+  "demandDeleteBody": "This demand signal will be permanently removed.",
+  "demandHeatTitle": "Heat summary",
+  "demandHottestProduct": "Hottest product",
+  "demandHottestArea": "Hottest area",
+  "demandViewProduct": "Product",
+  "demandViewArea": "Area",
+  "demandViewGrid": "Grid",
+  "demandGridNeedsBoth": "The grid needs signals with both a product and an area.",
+  "demandStatSignals": "Signals:",
+  "demandStatHeat": "Heat:",
+  "demandStatAvg": "Avg:",
+  "demandSignalsHeading": "Your signals",
+  "demandLevelLow": "Low",
+  "demandLevelMedium": "Medium",
+  "demandLevelHigh": "High",
+  "demandLevelSurge": "Surge",
+  "demandFieldProduct": "Product",
+  "demandFieldArea": "Area",
+  "demandFieldPeriod": "Period",
+  "demandFieldPeriodHelp": "e.g. January, winter, Eid season",
+  "demandFieldLevel": "Demand level",
+  "demandFieldNote": "Note",
+  "demandTradeSeamTitle": "Live trade data",
+  "demandTradeSeamBody": "Real-time market/trade demand data turns on when the owner connects a trade-data source. Until then, only your own logged signals are shown — we never show fake market data.",
+  "areaCommunityTitle": "Area community",
+  "areaLoadError": "Couldn't load the area board. Check your connection and try again.",
+  "areaPostNotice": "Post a notice",
+  "areaEditNotice": "Edit notice",
+  "areaChangeArea": "Change area",
+  "areaChooseArea": "Choose an area",
+  "areaAllAreas": "All areas",
+  "areaShowingAll": "Showing notices from all areas.",
+  "areaCategory": "Category",
+  "areaTitle": "Title",
+  "areaDetails": "Details (optional)",
+  "areaFieldArea": "Area",
+  "areaFieldAreaHelper": "Your neighbourhood or area — not your exact address.",
+  "areaContact": "Contact (optional)",
+  "areaContactHelper": "Shared only on this notice — share only what you're comfortable with.",
+  "areaPrice": "Price (optional)",
+  "areaTitleRequired": "Please add a short title.",
+  "areaAreaRequired": "Please add your area.",
+  "areaDeleteTitle": "Delete this notice?",
+  "areaDeleteBody": "This notice will be removed from your area board. This can't be undone.",
+  "areaPrivacyNote": "Notices are scoped to your area, never your exact address. Share only what you're comfortable letting neighbours see.",
+  "areaWelcomeTitle": "Your local notice board",
+  "areaWelcomeBody": "Post announcements, local services, lost-and-found, events and neighbourhood alerts — and see what others nearby have shared.",
+  "areaEmptyAreaTitle": "No notices in {area} yet",
+  "@areaEmptyAreaTitle": {
+    "placeholders": {
+      "area": {
+        "type": "Object"
+      }
+    }
+  },
+  "areaEmptyAreaBody": "Be the first to post something for your neighbours here.",
+  "areaNoneInFilterTitle": "Nothing in this filter",
+  "areaNoneInFilterBody": "No \"{category}\" notices in this area right now.",
+  "@areaNoneInFilterBody": {
+    "placeholders": {
+      "category": {
+        "type": "Object"
+      }
+    }
+  },
+  "areaShowAll": "Show all",
+  "areaCatAll": "All",
+  "areaCatAnnouncement": "Announcement",
+  "areaCatService": "Local service",
+  "areaCatLostFound": "Lost & found",
+  "areaCatEvent": "Event",
+  "areaCatAlert": "Alert",
+  "doctorSerialTitle": "Doctor appointments",
+  "doctorLoadError": "Couldn't load your appointments. Check your connection and try again.",
+  "doctorTabUpcoming": "Upcoming",
+  "doctorTabPast": "Past",
+  "doctorAddAppt": "Add appointment",
+  "doctorEditAppt": "Edit appointment",
+  "doctorName": "Doctor's name",
+  "doctorSpecialty": "Specialty",
+  "doctorSpecialtyCustom": "Specialty (type it)",
+  "doctorPlace": "Hospital / chamber",
+  "doctorPlaceHelper": "Where the appointment is.",
+  "doctorDate": "Date",
+  "doctorPickDate": "Pick a date",
+  "doctorTime": "Time",
+  "doctorTimeOptional": "Optional",
+  "doctorPickTime": "Pick time",
+  "doctorSerial": "Serial number",
+  "doctorSerialHelper": "The serial from your chamber slip, if you have one.",
+  "doctorSerialNo": "Serial {serial}",
+  "@doctorSerialNo": {
+    "placeholders": {
+      "serial": {
+        "type": "Object"
+      }
+    }
+  },
+  "doctorStatus": "Status",
+  "doctorNotes": "Notes (optional)",
+  "doctorNameRequired": "Please add the doctor's name.",
+  "doctorDateRequired": "Please pick a date.",
+  "doctorDeleteTitle": "Delete this appointment?",
+  "doctorDeleteBody": "This appointment record will be removed. This can't be undone.",
+  "doctorMarkBooked": "Mark as booked",
+  "doctorMarkDone": "Mark as visited",
+  "doctorMarkCancelled": "Mark as cancelled",
+  "doctorStatusBooked": "Booked",
+  "doctorStatusDone": "Visited",
+  "doctorStatusCancelled": "Cancelled",
+  "doctorStatusMissed": "Missed",
+  "doctorSoon": "Soon",
+  "doctorReminderDue": "{count} appointment(s) coming up soon.",
+  "@doctorReminderDue": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "doctorTrackerNote": "This keeps track of your visits — it isn't medical advice. Serial numbers are what you enter from your own chamber slip.",
+  "doctorBookingSeamTitle": "Live serial booking (partner needed)",
+  "doctorBookingSeamBody": "Booking a live serial through a healthcare partner isn't connected yet, so nothing is booked automatically. Keep tracking your appointments here.",
+  "doctorUpcomingWelcomeTitle": "Track your doctor visits",
+  "doctorUpcomingWelcomeBody": "Add an appointment with the doctor, chamber, date and serial — we'll sort upcoming from past and flag what's coming up.",
+  "doctorPastWelcomeTitle": "No past appointments yet",
+  "doctorPastWelcomeBody": "Visited and cancelled appointments will appear here.",
+  "doctorSpecGeneral": "General physician",
+  "doctorSpecMedicine": "Medicine",
+  "doctorSpecCardiology": "Cardiology",
+  "doctorSpecDental": "Dental",
+  "doctorSpecGyne": "Gynaecology",
+  "doctorSpecChild": "Child / paediatrics",
+  "doctorSpecOrtho": "Orthopaedics",
+  "doctorSpecSkin": "Skin",
+  "doctorSpecEye": "Eye",
+  "doctorSpecEnt": "ENT (nose-ear-throat)",
+  "doctorSpecOther": "Other",
+  "supCompareN": "Compare ({n})",
+  "@supCompareN": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "supMatchCount": "{shown} of {total}",
+  "@supMatchCount": {
+    "placeholders": {
+      "shown": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "demandSignalSummary": "{signals} signals · {products} products · {areas} areas",
+  "@demandSignalSummary": {
+    "placeholders": {
+      "signals": {
+        "type": "Object"
+      },
+      "products": {
+        "type": "Object"
+      },
+      "areas": {
+        "type": "Object"
+      }
+    }
+  }
 }

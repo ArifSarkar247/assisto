@@ -19,6 +19,8 @@ import 'orders_screen.dart';
 import 'customers_screen.dart';
 import 'payments_screen.dart';
 import 'ai_assistant_screen.dart';
+import 'supplier_market_screen.dart';
+import 'demand_map_screen.dart';
 
 /// Business HUB — the new home for Assisto Business v2 (replaces the old
 /// name/price/stock business screen). Shows the selected business, a switcher
@@ -324,6 +326,22 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
                 title: t.businessReports,
                 subtitle: t.businessReportsSub,
                 onTap: () => _go(const _ReportsPlaceholderScreen()),
+              ),
+              const SizedBox(height: Gap.md),
+              _HubCard(
+                icon: Icons.inventory_2_outlined,
+                tint: Brand.cyan,
+                title: t.supTitle,
+                subtitle: t.supHubSub,
+                onTap: () => _go(const SupplierMarketScreen()),
+              ),
+              const SizedBox(height: Gap.md),
+              _HubCard(
+                icon: Icons.insights_outlined,
+                tint: Brand.danger,
+                title: t.demandTitle,
+                subtitle: t.demandHubSub,
+                onTap: () => _go(const DemandMapScreen()),
               ),
             ],
             const SizedBox(height: Gap.md),

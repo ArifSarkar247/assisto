@@ -1,0 +1,113 @@
+{
+  "_comment": ["NEW ARB keys for #15 Voice mood sensing + #6 Proactive AI (SPEC v2.1 §21, advanced). Each value is [bn, en]. Shared keys already in app_*.arb (cancel, delete, save, retry, loadFailed, saveFailed) are NOT repeated here. Placeholder metadata is in _params. Bangla is real + natural.", "zero Bangla literals live in the .dart; all Bangla is here for the integrator to merge into app_bn.arb / app_en.arb."],
+
+  "moodTitle": ["মন ও প্রাণশক্তি", "Mood & energy"],
+  "moodOptInTitle": ["আপনার মন কেমন আছে, নিজেই লিখে রাখুন", "A gentle, private mood check-in"],
+  "moodOptInBody": ["এটি সম্পূর্ণ ঐচ্ছিক ও শুধু এই ফোনেই থাকে। আপনি দিনে একবার আপনার মন কেমন তা বেছে নেন—এর বেশি কিছু নয়।", "This is fully optional and stays only on this phone. Once a day you pick how you feel — nothing more."],
+  "moodOptInPoint1": ["সব তথ্য শুধু এই ডিভাইসে থাকে—কোনো সার্ভারে যায় না।", "Everything stays on this device — nothing goes to a server."],
+  "moodOptInPoint2": ["কোনো অডিও রেকর্ড বা পাঠানো হয় না। কণ্ঠ-প্রাণশক্তি আপনি নিজেই রেট করেন।", "No audio is recorded or sent. You rate your own voice energy."],
+  "moodOptInPoint3": ["যেকোনো সময় এক ট্যাপে সব মুছে ফেলতে পারেন।", "You can delete everything with one tap, any time."],
+  "moodOptInPoint4": ["এটি কোনো চিকিৎসা বা মানসিক স্বাস্থ্য সেবা নয়—প্রয়োজনে একজন পেশাদারের সাহায্য নিন।", "This is not a medical or mental-health service — reach a professional if you need help."],
+  "moodOptInButton": ["চালু করুন (শুধু এই ফোনে)", "Turn on (this phone only)"],
+
+  "moodWelcomeTitle": ["প্রথম চেক-ইন করুন", "Make your first check-in"],
+  "moodWelcomeBody": ["আজ আপনার মন কেমন? বেছে নিন—৭ দিনে একটি সহজ প্রবণতা তৈরি হবে।", "How do you feel today? Pick one — a simple 7-day trend will build up."],
+  "moodCheckIn": ["চেক-ইন করুন", "Check in"],
+  "moodEditToday": ["আজকেরটা বদলান", "Edit today"],
+  "moodCheckInTitle": ["আজকের চেক-ইন", "Today's check-in"],
+  "moodPickPrompt": ["এখন আপনার মন কেমন?", "How are you feeling right now?"],
+  "moodSaved": ["সংরক্ষিত হয়েছে", "Saved"],
+
+  "moodLow": ["খুব খারাপ", "Low"],
+  "moodDown": ["মন খারাপ", "Down"],
+  "moodOk": ["মোটামুটি", "Okay"],
+  "moodGood": ["ভালো", "Good"],
+  "moodGreat": ["দারুণ", "Great"],
+
+  "moodTodayTitle": ["আজ", "Today"],
+  "moodNotLoggedYet": ["আজ এখনও চেক-ইন করা হয়নি।", "No check-in yet today."],
+
+  "moodVoiceToggle": ["কণ্ঠ-প্রাণশক্তি (ঐচ্ছিক)", "Voice energy (optional)"],
+  "moodVoiceExplain": ["চাইলে নিজে একটু কথা বলে দেখুন—তারপর আপনার কণ্ঠে কতটা শক্তি ছিল, নিজেই রেট করুন। কোনো রেকর্ডিং রাখা বা পাঠানো হয় না।", "If you like, speak a little to yourself — then rate how much energy your voice had. Nothing is recorded or sent."],
+  "moodEnergyLabel": ["প্রাণশক্তির রেটিং", "Energy rating"],
+  "moodEnergyUnrated": ["দেওয়া হয়নি", "Not rated"],
+  "moodEnergyValue": ["{value}/{max}", "{value}/{max}"],
+  "moodVoicePrivacy": ["শুধু ০–৫ সংখ্যাটি রাখা হয়—অডিও নয়।", "Only the 0–5 number is kept — never audio."],
+
+  "moodTrend7d": ["৭ দিনের প্রবণতা", "7-day trend"],
+  "moodTrendEmpty": ["এখনও যথেষ্ট তথ্য নেই—কয়েক দিন চেক-ইন করলে প্রবণতা দেখা যাবে।", "Not enough data yet — check in for a few days to see a trend."],
+  "moodTrendSummary": ["গত ৭ দিনে {logged}/{days} দিন লেখা হয়েছে।", "Logged {logged} of the last {days} days."],
+
+  "moodSuggestionsTitle": ["মৃদু পরামর্শ", "Gentle suggestions"],
+  "moodSuggestionsNote": ["এগুলো সাধারণ সহায়ক পরামর্শ, কোনো চিকিৎসা পরামর্শ নয়।", "These are everyday supportive ideas, not medical advice."],
+  "moodSugRest": ["নিজেকে একটু বিশ্রাম দিন—আজ একটু ধীরে চলাই ঠিক আছে।", "Give yourself some rest — it's okay to take today slowly."],
+  "moodSugReachOut": ["বিশ্বাস করেন এমন কারও সাথে একটু কথা বলুন।", "Reach out to someone you trust for a short chat."],
+  "moodSugBreathe": ["কয়েকবার ধীরে গভীর শ্বাস নিন।", "Take a few slow, deep breaths."],
+  "moodSugWalk": ["অল্প কিছুক্ষণ হেঁটে আসুন।", "Take a short walk."],
+  "moodSugGratitude": ["আজকের একটি ভালো জিনিস মনে করুন।", "Note one good thing about today."],
+  "moodSugKeepGoing": ["ভালো চলছে—এভাবেই চালিয়ে যান।", "You're doing well — keep it up."],
+  "moodSugCelebrate": ["এই ভালো মুহূর্তটা একটু উপভোগ করুন।", "Take a moment to enjoy this good feeling."],
+  "moodSugShare": ["ভালো লাগাটা প্রিয় কারও সাথে ভাগ করে নিন।", "Share the good mood with someone you care about."],
+
+  "moodHelplineTitle": ["সাহায্য কাছেই আছে", "Help is close by"],
+  "moodHelplineBody": ["কয়েক দিন ধরে মন ভারী থাকলে একা সামলাতে হবে না। একজন পেশাদার বা বিশ্বস্ত কারও সাথে কথা বলুন। বাংলাদেশে জাতীয় মানসিক স্বাস্থ্য হেল্পলাইন: ০৮০০০০১১১২২ (টোল-ফ্রি)।", "If things have felt heavy for several days, you don't have to handle it alone. Talk to a professional or someone you trust. Bangladesh national mental-health helpline: 08000011122 (toll-free)."],
+
+  "moodPrivacyNote": ["এই তথ্য শুধু এই ডিভাইসে আছে—কোনো সার্ভারে পাঠানো হয় না।", "This data stays on this device — it is never sent to a server."],
+  "moodSafetyNote": ["এটি কোনো চিকিৎসা বা মানসিক স্বাস্থ্য সেবা নয় এবং কখনও রোগ নির্ণয় করে না। প্রয়োজনে একজন পেশাদারের সাহায্য নিন।", "This is not a medical or mental-health service and never diagnoses. Reach a professional if you need help."],
+
+  "moodDeleteAll": ["সব তথ্য মুছুন", "Delete all data"],
+  "moodDeleteTitle": ["সব মুড-তথ্য মুছবেন?", "Delete all mood data?"],
+  "moodDeleteBody": ["এই ফোনে রাখা আপনার সব চেক-ইন স্থায়ীভাবে মুছে যাবে।", "All your check-ins stored on this phone will be permanently deleted."],
+  "moodDeletedAll": ["সব তথ্য মুছে ফেলা হয়েছে", "All data deleted"],
+  "moodTurnOff": ["বন্ধ করুন", "Turn off"],
+  "moodTurnOffTitle": ["মুড চেক-ইন বন্ধ করবেন?", "Turn off mood check-in?"],
+  "moodTurnOffBody": ["ফিচারটি বন্ধ হবে এবং এই ফোনে রাখা সব চেক-ইন মুছে যাবে। পরে আবার চালু করতে পারবেন।", "The feature will be turned off and all check-ins on this phone will be deleted. You can turn it on again later."],
+  "moodTurnOffConfirm": ["বন্ধ করুন ও মুছুন", "Turn off & delete"],
+
+  "proTitle": ["প্রোঅ্যাকটিভ সহায়তা", "Proactive helper"],
+  "proIntro": ["আপনার নিজের তথ্য থেকে তৈরি কিছু সহায়ক পরামর্শ—জরুরি অনুযায়ী সাজানো।", "Helpful nudges built from your own data — sorted by how urgent they are."],
+  "proLoadError": ["পরামর্শ লোড করা যায়নি।", "Could not load suggestions."],
+
+  "proUrgNow": ["এখনই দরকার", "Needs you now"],
+  "proUrgSoon": ["শিগগিরই", "Coming soon"],
+  "proUrgFyi": ["জেনে রাখুন", "Good to know"],
+
+  "proOpen": ["খুলুন", "Open"],
+  "proWhy": ["কেন দেখছি?", "Why this?"],
+  "proDismiss": ["সরিয়ে দিন", "Dismiss"],
+  "proDismissed": ["সরিয়ে দেওয়া হয়েছে", "Dismissed"],
+
+  "proWhenToday": ["আজকের মধ্যে", "Due today"],
+  "proWhenTomorrow": ["আগামীকাল", "Due tomorrow"],
+  "proWhenInDays": ["{days} দিন পরে", "In {days} days"],
+  "proWhenOverdue": ["{days} দিন পেরিয়ে গেছে", "{days} days overdue"],
+  "proWhenNoDate": ["তারিখ নেই", "No date"],
+
+  "proWhyTitle": ["কেন এটি দেখছি?", "Why am I seeing this?"],
+  "proWhyRuleNote": ["এটি আপনার অ্যাপের বাস্তব তথ্যের উপর নির্দিষ্ট নিয়ম মেনে দেখানো হয়েছে—কোনো কিছু বানিয়ে বলা হয়নি।", "This was shown by a fixed rule over real data in your app — nothing is made up."],
+  "proReasonBillDue": ["একটি বিলের শেষ তারিখ কাছে আসছে, তাই মনে করিয়ে দেওয়া হলো।", "A bill's due date is approaching, so we're reminding you."],
+  "proReasonLoanDue": ["একটি পাওনা/দেনার তারিখ কাছে আসছে।", "A loan or due payment date is approaching."],
+  "proReasonSubscription": ["একটি সাবস্ক্রিপশন শিগগিরই নবায়ন হবে।", "A subscription will renew soon."],
+  "proReasonBirthday": ["একটি জন্মদিন কাছে আসছে।", "A birthday is coming up."],
+  "proReasonRefill": ["একটি ওষুধ ফুরিয়ে আসছে—রিফিল করার সময় হয়েছে।", "A medicine is running low — time to refill."],
+  "proReasonExpenseGap": ["এই সপ্তাহে কোনো খরচ লেখা হয়নি, তাই মনে করিয়ে দেওয়া হলো।", "No expenses were logged this week, so we're nudging you."],
+  "proReasonSafeJourney": ["একটি নিরাপদ-যাত্রার চেক-ইন আপনার মনোযোগ চায়।", "A safe-journey check-in needs your attention."],
+  "proReasonFamilyAlert": ["পরিবারের একটি বিষয় আপনার মনোযোগ চায়।", "A family matter needs your attention."],
+  "proReasonReminder": ["আপনার একটি রিমাইন্ডারের সময় হয়েছে।", "A reminder you set is due."],
+  "proReasonGeneric": ["আপনার অ্যাপের একটি তথ্য আপনার মনোযোগ চাইছে।", "Something in your app needs your attention."],
+
+  "proEmptyTitle": ["এখন কিছুই দরকার নেই", "Nothing needs you right now"],
+  "proEmptyBody": ["সব গুছানো আছে। নতুন কিছু থাকলে এখানে দেখাবে।", "You're all caught up. New nudges will show up here."],
+  "proEmptyDismissed": ["সব পরামর্শ আপনি সরিয়ে দিয়েছেন ({count}টি)। পরিস্থিতি বদলালে আবার দেখাবে।", "You've dismissed all suggestions ({count}). They'll return if the situation changes."],
+  "proHiddenCount": ["{count}টি পরামর্শ আপনি সরিয়ে রেখেছেন।", "{count} suggestions you dismissed are hidden."],
+  "proHonestNote": ["এই পরামর্শগুলো নির্দিষ্ট নিয়ম মেনে তৈরি। এআই-নির্ভর ব্যক্তিগতকরণ ভবিষ্যতে এআই কী যুক্ত হলে চালু হবে।", "These nudges follow fixed rules. AI-personalised ordering turns on later when an AI key is added."],
+
+  "_params": {
+    "moodEnergyValue": [{"name": "value", "type": "int"}, {"name": "max", "type": "int"}],
+    "moodTrendSummary": [{"name": "logged", "type": "int"}, {"name": "days", "type": "int"}],
+    "proWhenInDays": [{"name": "days", "type": "int"}],
+    "proWhenOverdue": [{"name": "days", "type": "int"}],
+    "proEmptyDismissed": [{"name": "count", "type": "int"}],
+    "proHiddenCount": [{"name": "count", "type": "int"}]
+  }
+}
