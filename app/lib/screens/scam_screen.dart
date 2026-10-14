@@ -94,8 +94,8 @@ class _ScamScreenState extends State<ScamScreen> {
               if (i == 1) _loadLibrary();
             },
             tabs: [
-              Tab(text: t.scamTabCheck),
-              Tab(text: t.scamTabLearn),
+              Tab(child: Text(t.scamTabCheck, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+              Tab(child: Text(t.scamTabLearn, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
             ],
           ),
         ),

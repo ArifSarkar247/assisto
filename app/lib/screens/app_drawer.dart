@@ -6,18 +6,20 @@ import '../l10n/app_localizations.dart';
 import '../widgets/sidebar_sections.dart';
 import 'settings_screen.dart';
 import 'plans_screen.dart';
-import 'circle_screen.dart';
+import 'messenger/messenger_home_screen.dart';
 
 /// Left sidebar — the app's navigation hub (modern AI-chat style). The main
 /// screen is only the chat; everything else lives here.
 ///
-/// Layout (owner-final, .phaseB/SIDEBAR_LAYOUT.md):
-///   TOP (always visible): New chat, Messages (Connected Circle), search box.
-///   SECTIONS: 8 collapsible [SidebarSections] (Reminders & Memory, My Account,
-///     Family, Safety, Health, Daily Life, Work, Business) — open/closed state
-///     is remembered across drawer opens.
-///   BOTTOM (pinned): Settings (In-progress / Connected apps / Battery / Legal
-///     live inside it), Plans & points, Profile.
+/// Layout (owner-final): the WHOLE drawer is ONE scroll list — nothing pinned
+/// below it.
+///   TOP of scroll: brand header, profile card (name + phone), New chat,
+///     Messages hub quick-link ([MessengerHomeScreen]), search box.
+///   SECTIONS: 8 collapsible [SidebarSections] (My Circle, Reminders & Memory,
+///     My Account, Family & Safety, Contacts & Profile, Daily Life, Work,
+///     Business) — open/closed state is remembered across drawer opens.
+///   END of scroll: Settings (In-progress / Connected apps / Battery / Legal
+///     live inside it), Plans & points.
 class AppDrawer extends StatefulWidget {
   final VoidCallback onNewChat;
   const AppDrawer({super.key, required this.onNewChat});
@@ -78,7 +80,28 @@ class _AppDrawerState extends State<AppDrawer> {
           ]),
         ),
         const SizedBox(height: Gap.sm),
-        // ---- TOP: new chat + messages ----
+        // ---- TOP of scroll: profile card (moved up from the old pinned
+        // bottom) under the logo for a cleaner layout ----
+        ListTile(
+          leading: CircleAvatar(
+            radius: 16,
+            backgroundColor: scheme.primaryContainer,
+            child: Text(
+              (u?.name.isNotEmpty == true ? u!.name[0] : 'A').toUpperCase(),
+              style: TextStyle(
+                  color: scheme.onPrimaryContainer, fontWeight: FontWeight.w700),
+            ),
+          ),
+          title: Text(u?.name.isNotEmpty == true ? u!.name : 'Assisto',
+              maxLines: 1, overflow: TextOverflow.ellipsis),
+          subtitle: Text(
+            [u?.phone, u?.email].where((e) => e != null && e!.isNotEmpty).join(' · '),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          onTap: () => _push((_) => const SettingsScreen()),
+        ),
+        // ---- new chat + Messages hub quick-link ----
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: Gap.md),
           child: FilledButton.tonalIcon(
@@ -95,11 +118,13 @@ class _AppDrawerState extends State<AppDrawer> {
           ),
         ),
         const SizedBox(height: Gap.xs),
+        // The ONLY entry point to the Messenger hub (Chats · Updates ·
+        // Communities · Calls). The "My Circle" sidebar group is separate.
         ListTile(
           dense: true,
           leading: Icon(Icons.forum_outlined, color: scheme.onSurfaceVariant),
-          title: Text(t.sidebarMessages),
-          onTap: () => _push((_) => const CircleScreen()),
+          title: Text(t.msgrTitle),
+          onTap: () => _push((_) => const MessengerHomeScreen()),
         ),
         // ---- search box ----
         Padding(
@@ -175,42 +200,29 @@ class _AppDrawerState extends State<AppDrawer> {
                             ),
                         ],
                       ),
+                    // ---- END of scroll: Settings + Plans & points (moved in
+                    // from the old pinned bottom; nothing is pinned now) ----
+                    if (!searching) ...[
+                      const Divider(height: Gap.md),
+                      ListTile(
+                        leading: Icon(Icons.settings_outlined,
+                            color: scheme.onSurfaceVariant),
+                        title: Text(t.settingsTitle),
+                        onTap: () => _push((_) => const SettingsScreen()),
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.workspace_premium_outlined,
+                            color: scheme.onSurfaceVariant),
+                        title: Text(t.sidebarPlansPoints),
+                        onTap: () => _push((_) => const PlansScreen()),
+                      ),
+                      SizedBox(
+                          height: MediaQuery.of(context).padding.bottom +
+                              Gap.sm),
+                    ],
                   ],
                 ),
         ),
-        const Divider(height: 1),
-        // ---- BOTTOM (pinned): Settings / Plans & points / Profile ----
-        ListTile(
-          leading: Icon(Icons.settings_outlined, color: scheme.onSurfaceVariant),
-          title: Text(t.settingsTitle),
-          onTap: () => _push((_) => const SettingsScreen()),
-        ),
-        ListTile(
-          leading: Icon(Icons.workspace_premium_outlined,
-              color: scheme.onSurfaceVariant),
-          title: Text(t.sidebarPlansPoints),
-          onTap: () => _push((_) => const PlansScreen()),
-        ),
-        ListTile(
-          leading: CircleAvatar(
-            radius: 16,
-            backgroundColor: scheme.primaryContainer,
-            child: Text(
-              (u?.name.isNotEmpty == true ? u!.name[0] : 'A').toUpperCase(),
-              style: TextStyle(
-                  color: scheme.onPrimaryContainer, fontWeight: FontWeight.w700),
-            ),
-          ),
-          title: Text(u?.name.isNotEmpty == true ? u!.name : 'Assisto',
-              maxLines: 1, overflow: TextOverflow.ellipsis),
-          subtitle: Text(
-            [u?.phone, u?.email].where((e) => e != null && e!.isNotEmpty).join(' · '),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          onTap: () => _push((_) => const SettingsScreen()),
-        ),
-        SizedBox(height: MediaQuery.of(context).padding.bottom + Gap.sm),
       ]),
     );
   }

@@ -68,11 +68,11 @@ class _MoneyScreenState extends State<MoneyScreen> {
             IconButton(onPressed: _refresh, icon: const Icon(Icons.sync)),
           ],
           bottom: TabBar(isScrollable: true, tabs: [
-            Tab(text: t.moneyTabSummary),
-            Tab(text: t.moneyTabAccounts),
-            Tab(text: t.moneyTransactionFallback),
-            Tab(text: t.moneyTabBudget),
-            Tab(text: t.moneyTabLoansSavings),
+            Tab(child: Text(t.moneyTabSummary, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(child: Text(t.moneyTabAccounts, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(child: Text(t.moneyTransactionFallback, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(child: Text(t.moneyTabBudget, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(child: Text(t.moneyTabLoansSavings, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
           ]),
         ),
         body: TabBarView(children: [

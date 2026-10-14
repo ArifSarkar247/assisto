@@ -84,8 +84,8 @@ class _StickerGifSheetState extends State<StickerGifSheet>
         child: Column(
           children: [
             TabBar(controller: _tabs, tabs: [
-              Tab(text: t.circleExtrasStickers),
-              Tab(text: t.circleExtrasGifTitle),
+              Tab(child: Text(t.circleExtrasStickers, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+              Tab(child: Text(t.circleExtrasGifTitle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
             ]),
             Expanded(
               child: TabBarView(controller: _tabs, children: [

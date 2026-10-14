@@ -4453,5 +4453,8 @@
   "voiceIntentExpense": "Log expense",
   "voiceIntentCall": "Call",
   "voiceIntentSos": "Emergency SOS",
-  "voiceIntentSend": "Send to Assisto"
+  "voiceIntentSend": "Send to Assisto",
+  "sidebarMyCircle": "My Circle",
+  "circleCallsTitle": "Circle calls",
+  "msgrTabCommunity": "Community"
 }

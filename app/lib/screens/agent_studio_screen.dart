@@ -126,8 +126,8 @@ class _AgentStudioScreenState extends State<AgentStudioScreen>
         bottom: TabBar(
           controller: _tabs,
           tabs: [
-            Tab(text: t.studioTabMine),
-            Tab(text: t.studioTabTemplates),
+            Tab(child: Text(t.studioTabMine, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(child: Text(t.studioTabTemplates, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
           ],
         ),
       ),

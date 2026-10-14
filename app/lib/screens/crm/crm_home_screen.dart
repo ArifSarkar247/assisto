@@ -117,7 +117,7 @@ class _CrmHomeScreenState extends State<CrmHomeScreen> {
           ],
           bottom: TabBar(
             isScrollable: true,
-            tabs: [for (final tb in tabs) Tab(icon: Icon(tb.icon, size: 20), text: tb.label)],
+            tabs: [for (final tb in tabs) Tab(icon: Icon(tb.icon, size: 20), child: Text(tb.label, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis))],
           ),
         ),
         body: TabBarView(children: [for (final tb in tabs) tb.child]),

@@ -19,6 +19,7 @@ import 'package:assisto/screens/language_picker_screen.dart';
 import 'package:assisto/screens/home_screen.dart';
 import 'package:assisto/screens/agent_thread_screen.dart';
 import 'package:assisto/screens/app_drawer.dart';
+import 'package:assisto/screens/messenger/messenger_home_screen.dart';
 import 'package:assisto/screens/settings_screen.dart';
 import 'package:assisto/screens/in_progress_screen.dart';
 import 'package:assisto/screens/money_screen.dart';
@@ -182,6 +183,8 @@ void main() {
     'chat': (build: (l) => Scaffold(appBar: AppBar(title: const Text('Assisto')), body: AgentThreadScreen(debugSeed: _chat(l))), mode: FakeMode.data, full: true),
     'chat_voice': (build: (l) => Scaffold(appBar: AppBar(title: const Text('Assisto')), body: AgentThreadScreen(debugSeed: const [], debugListening: true)), mode: FakeMode.data, full: true),
     'drawer': (build: (_) => Scaffold(body: Row(children: [AppDrawer(onNewChat: () {})])), mode: FakeMode.data, full: true),
+    'drawer_bottom': (build: (_) => Scaffold(body: Row(children: [AppDrawer(onNewChat: () {})])), mode: FakeMode.data, full: true),
+    'messenger': (build: (_) => const MessengerHomeScreen(), mode: FakeMode.data, full: true),
     'money': (build: (_) => const MoneyScreen(), mode: FakeMode.data, full: true),
     'vault': (build: (_) => const VaultScreen(previewUnlocked: true), mode: FakeMode.data, full: true),
     'family': (build: (_) => const FamilyScreen(), mode: FakeMode.data, full: true),
@@ -251,7 +254,8 @@ void main() {
 
   Future<void> shoot(WidgetTester tester, String name, String lang,
       Brightness brightness, Widget screen, FakeMode mode) async {
-    await tester.binding.setSurfaceSize(const Size(390, 844));
+    final tall = name.endsWith('_bottom');
+    await tester.binding.setSurfaceSize(Size(360, tall ? 1800 : 800));
     final key = GlobalKey();
     final app = _stub(lang: lang, mode: mode);
     final mode2 = brightness == Brightness.light ? ThemeMode.light : ThemeMode.dark;
@@ -263,7 +267,7 @@ void main() {
       child: RepaintBoundary(
         key: key,
         child: MediaQuery(
-          data: const MediaQueryData(size: Size(390, 844)),
+          data: MediaQueryData(size: Size(360, tall ? 1800 : 800)),
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
             locale: Locale(lang),
@@ -309,7 +313,10 @@ void main() {
     }
   }
 
+  final onlyEnv = Platform.environment['ASSISTO_SHOT_ONLY'];
+  final only = (onlyEnv == null || onlyEnv.isEmpty) ? null : onlyEnv.split(',').toSet();
   specs.forEach((name, spec) {
+    if (only != null && !only.contains(name)) return;
     final langs = ['bn', 'en'];
     final brights = [Brightness.light, Brightness.dark];
     for (final lang in langs) {

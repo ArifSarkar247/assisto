@@ -105,11 +105,11 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
           title: Text(c['name']?.toString() ?? t.crmCompany,
               maxLines: 1, overflow: TextOverflow.ellipsis),
           bottom: TabBar(isScrollable: true, tabs: [
-            Tab(text: t.crmTabOverview),
-            Tab(text: t.crmPeople),
-            Tab(text: t.crmTabTimeline),
-            Tab(text: t.crmTabDeals),
-            Tab(text: t.crmTabDocuments),
+            Tab(child: Text(t.crmTabOverview, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(child: Text(t.crmPeople, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(child: Text(t.crmTabTimeline, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(child: Text(t.crmTabDeals, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(child: Text(t.crmTabDocuments, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
           ]),
         ),
         body: TabBarView(children: [

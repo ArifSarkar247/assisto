@@ -3618,5 +3618,8 @@
   "voiceIntentExpense": "খরচ লেখা হবে",
   "voiceIntentCall": "কল করা হবে",
   "voiceIntentSos": "জরুরি সাহায্য",
-  "voiceIntentSend": "Assisto-কে পাঠানো হবে"
+  "voiceIntentSend": "Assisto-কে পাঠানো হবে",
+  "sidebarMyCircle": "আমার সার্কেল",
+  "circleCallsTitle": "সার্কেল কল",
+  "msgrTabCommunity": "কমিউনিটি"
 }

@@ -102,9 +102,9 @@ class _CircleStatusComposerScreenState
           title: Text(s.statusAdd),
           bottom: TabBar(
             tabs: [
-              Tab(text: s.statusText, icon: const Icon(Icons.text_fields)),
-              Tab(text: s.statusPhoto, icon: const Icon(Icons.photo_outlined)),
-              Tab(text: s.statusVideo, icon: const Icon(Icons.videocam_outlined)),
+              Tab(child: Text(s.statusText, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis), icon: const Icon(Icons.text_fields)),
+              Tab(child: Text(s.statusPhoto, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis), icon: const Icon(Icons.photo_outlined)),
+              Tab(child: Text(s.statusVideo, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis), icon: const Icon(Icons.videocam_outlined)),
             ],
           ),
         ),

@@ -22,10 +22,10 @@ class CrmAfterSaleScreen extends StatelessWidget {
           bottom: TabBar(
             isScrollable: true,
             tabs: [
-              Tab(text: t.crmCollections),
-              Tab(text: t.crmAmcRenewals),
-              Tab(text: t.crmComplaints),
-              Tab(text: t.crmUpsell),
+              Tab(child: Text(t.crmCollections, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+              Tab(child: Text(t.crmAmcRenewals, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+              Tab(child: Text(t.crmComplaints, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+              Tab(child: Text(t.crmUpsell, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
             ],
           ),
         ),

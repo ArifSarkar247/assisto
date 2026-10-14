@@ -144,9 +144,9 @@ class _JobsScreenState extends State<JobsScreen> {
             ),
           ],
           bottom: TabBar(tabs: [
-            Tab(text: tr.jobsTabDiscover),
-            Tab(text: tr.jobsTabSaved),
-            Tab(text: tr.jobsTabTracker),
+            Tab(child: Text(tr.jobsTabDiscover, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(child: Text(tr.jobsTabSaved, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(child: Text(tr.jobsTabTracker, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
           ]),
         ),
         floatingActionButton: FloatingActionButton.extended(

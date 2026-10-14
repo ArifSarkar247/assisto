@@ -152,31 +152,46 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
               child: const Icon(Icons.chat_outlined),
             )
           : null,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _tab,
-        onDestinationSelected: (i) => setState(() => _tab = i),
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.forum_outlined),
-            selectedIcon: const Icon(Icons.forum),
-            label: t.msgrTabChats,
+      // Clamp text scaling + use a compact label style so all FOUR short
+      // labels stay on ONE line 4-across at 360dp in both EN and BN. The
+      // NavigationBar label itself renders one-line with ellipsis as a
+      // backstop so a label can never wrap to a second line.
+      bottomNavigationBar: NavigationBarTheme(
+        data: NavigationBarThemeData(
+          labelTextStyle: WidgetStateProperty.all(
+            const TextStyle(
+                fontSize: 11, letterSpacing: 0, fontWeight: FontWeight.w600),
           ),
-          NavigationDestination(
-            icon: const Icon(Icons.auto_awesome_outlined),
-            selectedIcon: const Icon(Icons.auto_awesome),
-            label: t.msgrTabUpdates,
+        ),
+        child: MediaQuery.withClampedTextScaling(
+          maxScaleFactor: 1.1,
+          child: NavigationBar(
+            selectedIndex: _tab,
+            onDestinationSelected: (i) => setState(() => _tab = i),
+            destinations: [
+              NavigationDestination(
+                icon: const Icon(Icons.forum_outlined),
+                selectedIcon: const Icon(Icons.forum),
+                label: t.msgrTabChats,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.auto_awesome_outlined),
+                selectedIcon: const Icon(Icons.auto_awesome),
+                label: t.msgrTabUpdates,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.groups_2_outlined),
+                selectedIcon: const Icon(Icons.groups_2),
+                label: t.msgrTabCommunity,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.call_outlined),
+                selectedIcon: const Icon(Icons.call),
+                label: t.msgrTabCalls,
+              ),
+            ],
           ),
-          NavigationDestination(
-            icon: const Icon(Icons.groups_2_outlined),
-            selectedIcon: const Icon(Icons.groups_2),
-            label: t.msgrTabCommunities,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.call_outlined),
-            selectedIcon: const Icon(Icons.call),
-            label: t.msgrTabCalls,
-          ),
-        ],
+        ),
       ),
     );
   }

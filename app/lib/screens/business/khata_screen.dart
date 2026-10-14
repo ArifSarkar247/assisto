@@ -47,8 +47,8 @@ class _KhataScreenState extends State<KhataScreen> {
         appBar: AppBar(
           title: Text(t.khataTitle),
           bottom: TabBar(tabs: [
-            Tab(text: t.khataCustomers),
-            Tab(text: t.khataSuppliers),
+            Tab(child: Text(t.khataCustomers, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(child: Text(t.khataSuppliers, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
           ]),
         ),
         body: TabBarView(children: [

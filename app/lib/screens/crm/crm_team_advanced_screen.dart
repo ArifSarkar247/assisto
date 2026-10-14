@@ -29,10 +29,10 @@ class CrmTeamAdvancedScreen extends StatelessWidget {
         appBar: AppBar(
           title: Text(t.crmTeamManage),
           bottom: TabBar(isScrollable: true, tabs: [
-            Tab(text: t.crmTargets),
-            Tab(text: t.crmLeaderboard),
-            Tab(text: t.crmCommission),
-            Tab(text: t.crmRoutingConfig),
+            Tab(child: Text(t.crmTargets, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(child: Text(t.crmLeaderboard, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(child: Text(t.crmCommission, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(child: Text(t.crmRoutingConfig, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
           ]),
         ),
         body: TabBarView(children: [

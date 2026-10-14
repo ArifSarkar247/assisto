@@ -16,8 +16,8 @@ class NotesTodosScreen extends StatelessWidget {
         appBar: AppBar(
           title: Text(t.notesTitle),
           bottom: TabBar(tabs: [
-            Tab(text: t.notesTabNotes),
-            Tab(text: t.notesTabTodos),
+            Tab(child: Text(t.notesTabNotes, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(child: Text(t.notesTabTodos, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
           ]),
         ),
         body: const TabBarView(children: [_NotesTab(), _TodosTab()]),

@@ -134,12 +134,12 @@ class _FamilyScreenState extends State<FamilyScreen> {
                 tooltip: t.familyScamCheckTooltip),
             IconButton(onPressed: _load, icon: const Icon(Icons.sync)),
           ], bottom: TabBar(isScrollable: true, tabs: [
-            Tab(text: t.familyTabToday),
-            Tab(text: t.familyTabMedicines),
-            Tab(text: t.medTabCaregiver),
-            Tab(text: t.medTabPrescriptions),
-            Tab(text: t.moduleFamily),
-            Tab(text: t.familySchoolTitle),
+            Tab(child: Text(t.familyTabToday, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(child: Text(t.familyTabMedicines, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(child: Text(t.medTabCaregiver, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(child: Text(t.medTabPrescriptions, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(child: Text(t.moduleFamily, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(child: Text(t.familySchoolTitle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
           ])),
           body: loading
               ? const SkeletonList()
