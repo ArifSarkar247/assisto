@@ -195,7 +195,25 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     try {
       const ch = MethodChannel('com.assisto/device_admin');
       final route = await ch.invokeMethod<String>('aoSmokeOpen');
-      if (route != null && route.isNotEmpty && mounted) {
+      if (route == null || route.isEmpty || !mounted) return;
+      if (route == '__tour__') {
+        // CI calls this once, on the very first (race-free) cold start, to walk
+        // every re-enabled native-plugin screen in a SINGLE process — so the
+        // real camera / foreground-service / device-admin / sensor plugins each
+        // load once. A native crash kills the process (caught by the smoke
+        // test's logcat + liveness check); Dart-level errors stay guarded.
+        const tour = ['voice_sos', 'lost_stolen', 'watch_feed', 'fall_detect'];
+        for (final r in tour) {
+          if (!mounted) return;
+          try {
+            final nav = Navigator.of(context);
+            ChatNav.push(context, r);
+            await Future.delayed(const Duration(seconds: 3));
+            if (nav.canPop()) nav.pop();
+            await Future.delayed(const Duration(milliseconds: 700));
+          } catch (_) {}
+        }
+      } else {
         ChatNav.push(context, route);
       }
     } catch (_) {}

@@ -358,18 +358,20 @@ jobs:
           # &&/|| one-liners (multi-line if/then/fi breaks it).
           script: |
             adb install -r apk/*.apk || { echo "install failed"; exit 1; }
-            adb logcat -c || true
-            adb shell am start -n com.assisto.assisto/com.assisto.assisto.MainActivity || adb shell monkey -p com.assisto.assisto -c android.intent.category.LAUNCHER 1
-            sleep 45
-            adb logcat -d > logcat.txt 2>/dev/null || true
-            echo "===== last 120 logcat lines ====="; tail -120 logcat.txt || true
-            grep -E "FATAL EXCEPTION|ANR in com.assisto|com.assisto.assisto.*has died|FATAL SIGNAL|AndroidRuntime.*com.assisto" logcat.txt > crashes.txt 2>/dev/null || true
-            test ! -s crashes.txt || { echo "::error::CRASH/ANR on API ${{ matrix.api }}"; cat crashes.txt; exit 1; }
-            adb shell pidof com.assisto.assisto > pid.txt 2>/dev/null || true
-            test -s pid.txt || { echo "::error::app NOT running 45s after launch on API ${{ matrix.api }}"; exit 1; }
-            echo "LAUNCH OK on API ${{ matrix.api }} pid=$(cat pid.txt)"
             adb shell pm grant com.assisto.assisto android.permission.RECORD_AUDIO 2>/dev/null || true
             adb shell pm grant com.assisto.assisto android.permission.ACTIVITY_RECOGNITION 2>/dev/null || true
             adb shell pm grant com.assisto.assisto android.permission.BODY_SENSORS 2>/dev/null || true
-            for R in voice_sos lost_stolen watch_feed fall_detect ; do adb logcat -c || true ; adb shell am start -S -n com.assisto.assisto/com.assisto.assisto.MainActivity --es ao_open "$R" || { echo "::error::could not start for $R"; exit 1; } ; UP="" ; K=0 ; while [ $K -lt 30 ] ; do P=$(adb shell pidof com.assisto.assisto 2>/dev/null | tr -d '\r') ; test -n "$P" && { UP="$P" ; break ; } ; K=$((K+1)) ; sleep 2 ; done ; test -n "$UP" || { echo "::error::feature '$R' never started within 60s on API ${{ matrix.api }} (emulator too slow)"; exit 1; } ; sleep 8 ; adb logcat -d > "log_$R.txt" 2>/dev/null || true ; grep -E "FATAL EXCEPTION|FATAL SIGNAL|ANR in com.assisto|AndroidRuntime.*com.assisto|E/flutter.*(Unhandled|Fatal)" "log_$R.txt" > "crash_$R.txt" 2>/dev/null || true ; test ! -s "crash_$R.txt" || { echo "::error::CRASH opening feature '$R' on API ${{ matrix.api }}"; cat "crash_$R.txt"; exit 1; } ; P2=$(adb shell pidof com.assisto.assisto 2>/dev/null | tr -d '\r') ; test -n "$P2" || { echo "::error::app DIED while opening feature '$R' on API ${{ matrix.api }} (came up then vanished — see log)"; tail -100 "log_$R.txt"; exit 1; } ; echo "FEATURE OK: $R (pid=$P2)" ; done
-            echo "ALL FEATURE SCREENS OK on API ${{ matrix.api }}"
+            adb logcat -c || true
+            # Single, race-free cold start (no prior instance right after install).
+            # --es ao_open __tour__ makes the debug build walk every native-plugin
+            # screen once IN-PROCESS (voice_sos, lost_stolen, watch_feed,
+            # fall_detect), so each real plugin loads. Inert in the release APK.
+            adb shell am start -n com.assisto.assisto/com.assisto.assisto.MainActivity --es ao_open __tour__ || adb shell monkey -p com.assisto.assisto -c android.intent.category.LAUNCHER 1
+            sleep 60
+            adb logcat -d > logcat.txt 2>/dev/null || true
+            echo "===== last 140 logcat lines ====="; tail -140 logcat.txt || true
+            grep -E "FATAL EXCEPTION|ANR in com.assisto|com.assisto.assisto.*has died|FATAL SIGNAL|AndroidRuntime.*com.assisto|E/flutter.*(Unhandled|Fatal)" logcat.txt > crashes.txt 2>/dev/null || true
+            test ! -s crashes.txt || { echo "::error::CRASH/ANR during launch+feature-tour on API ${{ matrix.api }}"; cat crashes.txt; exit 1; }
+            adb shell pidof com.assisto.assisto > pid.txt 2>/dev/null || true
+            test -s pid.txt || { echo "::error::app NOT running after launch+feature-tour on API ${{ matrix.api }}"; exit 1; }
+            echo "LAUNCH + FEATURE-TOUR OK on API ${{ matrix.api }} pid=$(cat pid.txt)"
