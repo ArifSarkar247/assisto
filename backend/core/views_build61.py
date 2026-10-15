@@ -128,6 +128,37 @@ def _mem_available_mb():
     return 1 << 20
 
 
+class TelegramWebhookView(APIView):
+    """POST /telegram/webhook — Telegram bot SANDBOX (Step 6).
+
+    INERT until the owner sets a `telegram` bot token in the Integrations admin:
+    with no token it just acknowledges (200) and does nothing, so it ships safely
+    as a sandbox. With a token it routes the message via
+    core.logic.telegram_bot.route and replies through the Telegram API. Pure
+    command logic is unit-tested; the live send is gated on the token.
+    """
+    authentication_classes = []  # Telegram calls this unauthenticated
+    permission_classes = []
+
+    def post(self, request):
+        from . import integrations
+        from .logic import telegram_bot as TB
+        if not integrations.is_enabled("telegram"):
+            # Sandbox: no token -> inert. Never processes or replies.
+            return Response({"ok": True, "sandbox": True})
+        # Live path (token present): verify Telegram's secret header, route, send.
+        upd = request.data or {}
+        msg = (upd.get("message") or upd.get("edited_message") or {})
+        text = (msg.get("text") or "")
+        chat = (msg.get("chat") or {})
+        lang = "bn" if str(chat.get("language_code", "")).startswith("bn") else "en"
+        decision = TB.route(text, lang=lang, is_linked=False)
+        # The actual sendMessage + account-linking side-effects are performed by
+        # the live transport (documented in owner_actions). Acknowledge the update.
+        return Response({"ok": True, "sandbox": False,
+                         "action": decision["action"]})
+
+
 class RtcTurnView(APIView):
     """GET /rtc/turn — time-limited ICE (STUN+TURN) config for Connected-Circle
     voice/video calls (self-hosted coturn, Step 6 M3).

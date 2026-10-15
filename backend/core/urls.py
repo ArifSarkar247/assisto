@@ -344,6 +344,8 @@ urlpatterns = [
     path("referral/history", b61.ReferralHistoryView.as_view()),
     # Self-hosted WebRTC TURN/STUN credentials (Step 6 M3)
     path("rtc/turn", b61.RtcTurnView.as_view()),
+    # Telegram bot sandbox (Step 6) — inert until a token is set
+    path("telegram/webhook", b61.TelegramWebhookView.as_view()),
     # #178 Cost kill-switch & feature flags (owner-only)
     path("admin/flags", b61.AdminFlagsView.as_view()),
     path("admin/flags/flip", b61.AdminFlagsFlipView.as_view()),
