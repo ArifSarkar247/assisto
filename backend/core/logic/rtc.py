@@ -34,16 +34,16 @@ def turn_credentials(secret, user_id, now_ts, ttl=TURN_DEFAULT_TTL):
             "ttl": int(ttl), "expiry": expiry}
 
 
-def ice_servers(public_ip, port, creds):
+def ice_servers(host, port, creds):
     """The `iceServers` array the client feeds to RTCPeerConnection: a STUN entry
-    (for reflexive candidates) + a TURN entry over UDP and TCP (relay fallback
+    (for reflexive candidates; host is a DOMAIN so a server move = DNS change) + a TURN entry over UDP and TCP (relay fallback
     when a direct/NAT path fails)."""
     return [
-        {"urls": [f"stun:{public_ip}:{port}"]},
+        {"urls": [f"stun:{host}:{port}"]},
         {
             "urls": [
-                f"turn:{public_ip}:{port}?transport=udp",
-                f"turn:{public_ip}:{port}?transport=tcp",
+                f"turn:{host}:{port}?transport=udp",
+                f"turn:{host}:{port}?transport=tcp",
             ],
             "username": creds["username"],
             "credential": creds["credential"],

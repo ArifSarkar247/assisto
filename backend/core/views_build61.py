@@ -173,9 +173,9 @@ class RtcTurnView(APIView):
         import os
         from .logic import rtc as RTC
         secret = getattr(settings, "TURN_STATIC_SECRET", "")
-        ip = getattr(settings, "TURN_PUBLIC_IP", "")
+        host = getattr(settings, "TURN_HOST", "")
         port = getattr(settings, "TURN_PORT", 3478)
-        if not secret or not ip:
+        if not secret or not host:
             return Response({"configured": False, "throttled": False,
                              "ice_servers": [], "reason": "not_configured"})
         try:
@@ -189,7 +189,7 @@ class RtcTurnView(APIView):
         creds = RTC.turn_credentials(secret, request.user.id,
                                      timezone.now().timestamp())
         return Response({"configured": True, "throttled": False,
-                         "ice_servers": RTC.ice_servers(ip, port, creds),
+                         "ice_servers": RTC.ice_servers(host, port, creds),
                          "ttl": creds["ttl"]})
 
 

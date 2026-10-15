@@ -45,12 +45,15 @@ AI_DAILY_BUDGET_USD = float(os.getenv("AI_DAILY_BUDGET_USD", "5"))   # kill-swit
 AI_USER_DAILY_LIMIT = int(os.getenv("AI_USER_DAILY_LIMIT", "40"))    # per-user/day calls
 
 # Self-hosted WebRTC (Step 6 M3): coturn TURN/STUN. Credentials are minted
-# server-side from TURN_STATIC_SECRET (shared with /etc/turnserver.conf). The
-# public IP/port are what the CLIENT dials — leave TURN_STATIC_SECRET empty to
-# disable (the /rtc/turn endpoint then reports configured=false and the app
-# falls back to an honest "call server not reachable" state).
+# server-side from TURN_STATIC_SECRET (shared with /etc/turnserver.conf).
+# TURN_HOST is a DOMAIN NAME (never a raw IP) so a server move is only a DNS
+# change — no new APK. It defaults to the API domain (coturn runs on the same
+# box). coturn's own `external-ip` (the raw IP for ICE candidates) lives in
+# /etc/turnserver.conf and is regenerated per-server by provision.sh.
+# Leave TURN_STATIC_SECRET empty to disable (the /rtc/turn endpoint then reports
+# configured=false and the app shows an honest "call server not reachable").
 TURN_STATIC_SECRET = os.getenv("TURN_STATIC_SECRET", "")
-TURN_PUBLIC_IP = os.getenv("TURN_PUBLIC_IP", "65.2.155.10")
+TURN_HOST = os.getenv("TURN_HOST", "assisto.asalify.com")
 TURN_PORT = int(os.getenv("TURN_PORT", "3478"))
 
 INSTALLED_APPS = [

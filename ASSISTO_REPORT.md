@@ -819,3 +819,17 @@ NOTHING basic may remain.
   * #197 encrypted backup & phone transfer [Drive OAuth], #172 "made in 30s" [web growth tool].
 - THEN: Step 6 (self-hosted SFU+TURN M3 on this server + hard caps + owner_actions/aws_ports.md + Telegram bot sandbox) — server infra. Step 7 (P14-16 leftovers + iOS prep + P12 FINAL). 13 owner-blocked already shipped as key-gated mock; flip live when owner adds keys.
 - RECOMMENDATION: native/infra items need real-device or server-provisioning work (and some owner decisions, e.g. SFU host/region, Drive OAuth app). Next best autonomous step = Step 6 server infra (self-host SFU+TURN + Telegram sandbox) which IS doable on this server, OR build the native items as stub-screens-with-documented-native-seam (lower value). Surfaced to owner for direction.
+
+## STEP 6 (self-host SFU+TURN M3 + Telegram sandbox) — builds 93+ (2026-10-15)
+- Home-screen fix CONFIRMED already shipped (My Circle + Bell badge icons, notif-centre 2 tabs Reminders/Notifications chat-excluded, dynamic long-press-dismiss suggestion cards) — verified by render; did NOT rebuild.
+- coturn (TURN/STUN) INSTALLED + running on this box. Ports: 3478 udp/tcp, relay 49200-49300 udp. external-ip=65.2.155.10 (public)/172.31.7.16 (private). STUN VERIFIED (answers + reports public IP). SECURITY: denies relay to ALL private/loopback ranges (can't reach Asalify/PG/Redis). Secret in ~/.assisto_secrets.env (TURN_STATIC_SECRET) + /etc/turnserver.conf (640 root:turnserver) only — NEVER committed.
+- HARD CAPS: systemd MemoryMax=256M/MemoryHigh=192M/CPUQuota=40%/Nice=5/Restart=on-failure (drop-in /etc/systemd/system/coturn.service.d/caps.conf). coturn: total-quota=100, user-quota=6, max-bps=160000, 100-port relay range. Runtime idle: ~5MB RAM. Asalify 200 throughout; RAM stayed ~1.7GB free.
+- Backend GET /rtc/turn (b61.RtcTurnView): mints time-limited coturn-REST HMAC creds (core/logic/rtc.py) + AUTO-THROTTLE: returns throttled=true (app backs off BEFORE a call) when 1-min load>2×cpu OR MemAvailable<250MB → Asalify protected first. configured=false when no secret → honest fallback. 6 rtc tests.
+- App: rtc_api.dart (RtcApi.rtcTurn → RtcConfig{configured,throttled,iceServers}); circle_call_screen._start fetches it, shows circleCallServerUnreachable / circleCallServerBusy honest states (build 93). ICE servers feed the future flutter_webrtc RTCPeerConnection (media seam remains).
+- owner_actions/aws_ports.md: WROTE exact AWS security-group rules (3478 udp+tcp, 49200-49300 udp, 0.0.0.0/0) + reasons + security rationale. OWNER MUST OPEN THESE; until then calls fall back gracefully. I did NOT touch AWS.
+- SFU (large group calls): DEFERRED — box lacks RAM (3.7GB total, ~1.7GB free, swap ~65% used). Documented in aws_ports.md; needs owner to enlarge instance. 1:1 + small mesh work on TURN alone.
+- Telegram bot sandbox: core/logic/telegram_bot.py (pure command router, 7 tests) + POST /telegram/webhook INERT without token (returns sandbox:true) + Integrations `telegram` registry entry. Flips live when owner pastes a BotFather token. No live daemon.
+- DISK: 9G free (floor 8G) — coturn is 1.5MB, fine. Did NOT breach floor. (A full SFU would; flagged.)
+
+## REMAINING: native-platform items (need owner real-device testing) + Step 7
+Native items each need a specific on-phone test (list prepared for owner). Step 7 = P14-16 + iOS + FINAL.

@@ -20,11 +20,11 @@ def test_turn_credentials_hmac_is_deterministic_and_secret_bound():
 
 def test_ice_servers_has_stun_and_turn_udp_tcp():
     creds = rtc.turn_credentials("s", 7, now_ts=0)
-    ice = rtc.ice_servers("1.2.3.4", 3478, creds)
-    assert ice[0]["urls"] == ["stun:1.2.3.4:3478"]
+    ice = rtc.ice_servers("turn.example.com", 3478, creds)
+    assert ice[0]["urls"] == ["stun:turn.example.com:3478"]
     turn = ice[1]
-    assert "turn:1.2.3.4:3478?transport=udp" in turn["urls"]
-    assert "turn:1.2.3.4:3478?transport=tcp" in turn["urls"]
+    assert "turn:turn.example.com:3478?transport=udp" in turn["urls"]
+    assert "turn:turn.example.com:3478?transport=tcp" in turn["urls"]
     assert turn["username"] == creds["username"]
     assert turn["credential"] == creds["credential"]
 
