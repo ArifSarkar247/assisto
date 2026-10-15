@@ -167,8 +167,6 @@ class _ThisMonthTabState extends State<_ThisMonthTab> {
 
     if (lines.isEmpty && app.budgets.items.isEmpty) {
       return Scaffold(
-        floatingActionButton: FloatingActionButton(
-            onPressed: () => _addOrEdit(context), child: const Icon(Icons.add)),
         body: StateMessage(
           icon: Icons.donut_large_outlined,
           title: t.budgetEmptyTitle,

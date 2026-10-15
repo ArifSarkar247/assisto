@@ -1283,7 +1283,7 @@
   "circleMediaGenericGated": "এনক্রিপ্টেড স্টোরেজ চালু হলে এই মিডিয়া পাঠানো যাবে।",
   "circleFamilySubOptional": "পরিবারের সম্পর্ক (ঐচ্ছিক)",
   "circleFamilySubSibling": "ভাই/বোন",
-  "circleCallHistoryTitle": "কল হিস্ট্রি",
+  "circleCallHistoryTitle": "কলের তালিকা",
   "circleCallHistoryEmpty": "এখনো কোনো কল নেই।",
   "circleCallBackVoice": "আবার ভয়েস কল",
   "circleCallBackVideo": "আবার ভিডিও কল",

@@ -252,7 +252,9 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
   Widget _welcome(AppLocalizations tr) => StateMessage(
         icon: Icons.handshake_outlined,
         title: tr.starDealsWelcomeTitle,
-        message: tr.starDealsWelcomeBody,
+        // The arrow (U+2192) used as a stage separator renders as a tofu box in
+        // the app font; swap it for the bullet the app already uses elsewhere.
+        message: tr.starDealsWelcomeBody.replaceAll('\u2192', ' \u2022 '),
         action: FilledButton.icon(
           onPressed: () => _addOrEdit(tr),
           icon: const Icon(Icons.add),

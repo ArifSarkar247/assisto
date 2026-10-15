@@ -155,13 +155,14 @@ class _LandlordTenantScreenState extends State<LandlordTenantScreen>
           tabs: [Tab(text: t.rentTabThisMonth), Tab(text: t.rentTabArrears)],
         ),
       ),
-      floatingActionButton: _tabs.index == 0
-          ? FloatingActionButton.extended(
-              onPressed: () => _addOrEditUnit(),
-              icon: const Icon(Icons.add_home_work_outlined),
-              label: Text(t.rentAddUnit),
-            )
-          : null,
+      floatingActionButton:
+          (_tabs.index == 0 && rentActiveUnits(_units).isNotEmpty)
+              ? FloatingActionButton.extended(
+                  onPressed: () => _addOrEditUnit(),
+                  icon: const Icon(Icons.add_home_work_outlined),
+                  label: Text(t.rentAddUnit),
+                )
+              : null,
       body: _loading
           ? const SkeletonList()
           : _error

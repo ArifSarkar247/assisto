@@ -182,11 +182,13 @@ class _DoctorSerialScreenState extends State<DoctorSerialScreen> {
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: _add,
-          icon: const Icon(Icons.add),
-          label: Text(tr.doctorAddAppt),
-        ),
+        floatingActionButton: org.upcoming.isEmpty
+            ? null
+            : FloatingActionButton.extended(
+                onPressed: _add,
+                icon: const Icon(Icons.add),
+                label: Text(tr.doctorAddAppt),
+              ),
         body: TabBarView(children: [
           _UpcomingTab(
             org: org,

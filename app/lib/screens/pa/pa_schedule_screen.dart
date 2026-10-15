@@ -166,7 +166,7 @@ class _PaScheduleScreenState extends State<PaScheduleScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(t.paScheduleTitle)),
-      floatingActionButton: (_loading || _error)
+      floatingActionButton: (_loading || _error || _slots.isEmpty)
           ? null
           : FloatingActionButton.extended(
               onPressed: () => _addOrEdit(),

@@ -86,7 +86,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
                     _line(t.crmCommit, bdt(forecast['commit'] as num?)),
                     _line(t.crmOpenDeals, '${forecast['open_count'] ?? 0}'),
                     const SizedBox(height: Gap.xs),
-                    Text('${t.crmMethod}: ${forecast['method'] ?? ''}',
+                    Text('${t.crmMethod}: ${_safeMethod(forecast['method'])}',
                         style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
                   ])
                 : Row(children: [
@@ -165,4 +165,11 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
         padding: const EdgeInsets.only(bottom: Gap.xs),
         child: Text(s, style: const TextStyle(fontWeight: FontWeight.w800)),
       );
+
+  // Swap symbols the app font lacks (render as tofu boxes) for safe ASCII:
+  // sigma U+03A3 -> 'Sum ', multiplication sign U+00D7 -> 'x'.
+  String _safeMethod(Object? raw) => (raw ?? '')
+      .toString()
+      .replaceAll('\u03A3', 'Sum ')
+      .replaceAll('\u00D7', 'x');
 }

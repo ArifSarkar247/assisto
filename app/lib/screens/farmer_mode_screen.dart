@@ -149,6 +149,8 @@ class _FarmerModeScreenState extends State<FarmerModeScreen> {
                 style: const TextStyle(fontSize: _titleSize, fontWeight: FontWeight.bold)),
           ),
           bottom: TabBar(
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
             labelStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
             tabs: [
               Tab(icon: const Icon(Icons.agriculture, size: 26), text: t.farmerTabLedger),
@@ -1016,15 +1018,22 @@ class _WelcomeState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    // Dark navy-green reads fine on light surfaces but its 0.12-alpha badge and
+    // dark-navy button text vanish on near-black in dark mode — lift it there.
+    final green = isDark ? const Color(0xFF4CAF50) : const Color(0xFF1B5E20);
     return StateMessage(
       icon: icon,
-      tint: const Color(0xFF1B5E20),
+      tint: green,
       title: title,
       message: body,
       action: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 56, minWidth: 200),
         child: FilledButton.icon(
-          style: FilledButton.styleFrom(backgroundColor: const Color(0xFF1B5E20)),
+          style: FilledButton.styleFrom(
+            backgroundColor: green,
+            foregroundColor: Colors.white,
+          ),
           onPressed: onCta,
           icon: const Icon(Icons.add, size: 26),
           label: Text(cta, style: const TextStyle(fontSize: _bodySize)),

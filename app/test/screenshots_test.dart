@@ -403,8 +403,11 @@ void main() {
     'journey_sos': (build: (_) => const JourneySosScreen(journeyId: 1), mode: FakeMode.data, full: true),
     'journey_settings': (build: (_) => const JourneySettingsScreen(), mode: FakeMode.data, full: true),
     'journey_fake_call': (build: (l) => JourneyFakeCallScreen(caller: l == 'bn' ? 'Ammu' : 'Mom'), mode: FakeMode.data, full: true),
-    'crm_firstrun': (build: (_) => CrmFirstRunScreen(onReady: () async {}), mode: FakeMode.data, full: true),
-    'crm_firstrun_join': (build: (_) => CrmFirstRunScreen(onReady: () async {}, previewJoin: true), mode: FakeMode.data, full: true),
+    // Wrap in Scaffold (as the real host CrmHomeScreen does) so the interactive
+    // Material widgets have a Material ancestor — without it the gallery shot
+    // degrades to the framework's "no Material" gray/tofu blocks.
+    'crm_firstrun': (build: (_) => Scaffold(body: CrmFirstRunScreen(onReady: () async {})), mode: FakeMode.data, full: true),
+    'crm_firstrun_join': (build: (_) => Scaffold(body: CrmFirstRunScreen(onReady: () async {}, previewJoin: true)), mode: FakeMode.data, full: true),
     'legal': (build: (_) => const LegalScreen(), mode: FakeMode.data, full: true),
     'photo_enhance': (build: (_) => const PhotoEnhanceScreen(), mode: FakeMode.data, full: true),
     'unseen': (build: (_) => const UnseenWorldScreen(), mode: FakeMode.data, full: true),

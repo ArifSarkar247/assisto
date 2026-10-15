@@ -107,11 +107,13 @@ class _SamityScreenState extends State<SamityScreen> {
     final t = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(t.samityTitle)),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _addOrEditGroup(),
-        icon: const Icon(Icons.add),
-        label: Text(t.samityNew),
-      ),
+      floatingActionButton: _groups.isEmpty
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => _addOrEditGroup(),
+              icon: const Icon(Icons.add),
+              label: Text(t.samityNew),
+            ),
       body: _loading
           ? const SkeletonList()
           : _error

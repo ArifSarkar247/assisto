@@ -280,11 +280,13 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: Text(tr.paVisTitle)),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _loading ? null : () => _addOrEdit(tr),
-        icon: const Icon(Icons.person_add_alt_1),
-        label: Text(tr.paVisAddRequest),
-      ),
+      floatingActionButton: _rows.isEmpty
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: _loading ? null : () => _addOrEdit(tr),
+              icon: const Icon(Icons.person_add_alt_1),
+              label: Text(tr.paVisAddRequest),
+            ),
       body: _loading
           ? const SkeletonList()
           : _error

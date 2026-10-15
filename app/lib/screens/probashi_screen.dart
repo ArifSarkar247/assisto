@@ -286,11 +286,13 @@ class _RemitTab extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final summary = _PMath.remittanceSummary(remits);
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: onAdd,
-        icon: const Icon(Icons.add),
-        label: Text(tr.probashiLogSend),
-      ),
+      floatingActionButton: remits.isEmpty
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: onAdd,
+              icon: const Icon(Icons.add),
+              label: Text(tr.probashiLogSend),
+            ),
       body: remits.isEmpty
           ? StateMessage(
               icon: Icons.send_outlined,
@@ -495,11 +497,13 @@ class _DocsTab extends StatelessWidget {
     final today = DateTime.now();
     final overview = _PMath.docsOverview(docs, today);
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: onAdd,
-        icon: const Icon(Icons.add),
-        label: Text(tr.probashiAddDoc),
-      ),
+      floatingActionButton: docs.isEmpty
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: onAdd,
+              icon: const Icon(Icons.add),
+              label: Text(tr.probashiAddDoc),
+            ),
       body: docs.isEmpty
           ? StateMessage(
               icon: Icons.badge_outlined,

@@ -306,11 +306,13 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: Text(t.dsTitle)),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _addOrEdit(),
-        icon: const Icon(Icons.add_a_photo_outlined),
-        label: Text(t.dsAddTitle),
-      ),
+      floatingActionButton: _items.isEmpty
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => _addOrEdit(),
+              icon: const Icon(Icons.add_a_photo_outlined),
+              label: Text(t.dsAddTitle),
+            ),
       body: _loading
           ? const SkeletonList(count: 5)
           : _error

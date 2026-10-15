@@ -151,11 +151,13 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(tr.spendTitle)),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _add,
-        icon: const Icon(Icons.add),
-        label: Text(tr.spendAddCategory),
-      ),
+      floatingActionButton: _rows.isEmpty
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: _add,
+              icon: const Icon(Icons.add),
+              label: Text(tr.spendAddCategory),
+            ),
       body: _rows.isEmpty
           ? StateMessage(
               icon: Icons.insights_outlined,
