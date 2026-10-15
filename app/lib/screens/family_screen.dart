@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
@@ -53,6 +54,11 @@ class _FamilyScreenState extends State<FamilyScreen> {
   }
 
   AppLocalizations get _t => AppLocalizations.of(context);
+
+  Future<void> _call(String phone) async {
+    final uri = Uri.parse('tel:$phone');
+    if (await canLaunchUrl(uri)) await launchUrl(uri);
+  }
 
   String _foodLabel(String? rel) {
     switch (rel) {
@@ -702,6 +708,12 @@ class _FamilyScreenState extends State<FamilyScreen> {
                       style: TextStyle(color: scheme.onSurfaceVariant)),
                 ]),
               ),
+              if ((p['phone']?.toString() ?? '').trim().isNotEmpty)
+                IconButton(
+                  icon: const Icon(Icons.call),
+                  tooltip: t.call,
+                  onPressed: () => _call(p['phone'].toString().trim()),
+                ),
               _adhChip(adh),
             ]),
             const SizedBox(height: Gap.md),
@@ -1065,6 +1077,11 @@ class _FamilyScreenState extends State<FamilyScreen> {
                         .where((e) => e.toString().isNotEmpty)
                         .join(' · ')),
                     trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                      if ((m['phone']?.toString() ?? '').trim().isNotEmpty)
+                        IconButton(
+                            icon: const Icon(Icons.call),
+                            tooltip: t.call,
+                            onPressed: () => _call(m['phone'].toString().trim())),
                       IconButton(
                           icon: const Icon(Icons.edit_outlined),
                           tooltip: t.edit,

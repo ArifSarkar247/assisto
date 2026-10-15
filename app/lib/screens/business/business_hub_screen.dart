@@ -17,6 +17,7 @@ import 'products_screen.dart';
 import 'quick_sell_screen.dart';
 import 'orders_screen.dart';
 import 'customers_screen.dart';
+import 'reports_screen.dart';
 import 'payments_screen.dart';
 import 'ai_assistant_screen.dart';
 import 'supplier_market_screen.dart';
@@ -325,7 +326,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
                 tint: scheme.tertiary,
                 title: t.businessReports,
                 subtitle: t.businessReportsSub,
-                onTap: () => _go(const _ReportsPlaceholderScreen()),
+                onTap: () => _go(ReportsScreen(businessId: bizId)),
               ),
               const SizedBox(height: Gap.md),
               _HubCard(
@@ -631,25 +632,6 @@ class _TypeAvatar extends StatelessWidget {
       ),
       child: Icon(_icon,
           color: onGradient ? Colors.white : scheme.onSecondaryContainer),
-    );
-  }
-}
-
-/// Reports is a FREE feature (plan §3) owned by a sibling agent; its screen is
-/// not wired yet. Until the integrator routes the real reports screen here, we
-/// show an honest "coming soon" state rather than a dead card.
-class _ReportsPlaceholderScreen extends StatelessWidget {
-  const _ReportsPlaceholderScreen();
-  @override
-  Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
-    return Scaffold(
-      appBar: AppBar(title: Text(t.businessReports)),
-      body: StateMessage(
-        icon: Icons.insights_outlined,
-        title: t.businessReports,
-        message: t.businessReportsSoon,
-      ),
     );
   }
 }

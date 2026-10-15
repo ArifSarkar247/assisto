@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/finance_common.dart';
 import '../widgets/skeleton.dart';
 
 /// MESS & BACHELOR ACCOUNTING — ADVANCED (#182, SPEC v2.1 §20).
@@ -339,15 +340,18 @@ class _EntriesTabState extends State<_EntriesTab> {
         break;
       }
     }
-    final current = double.tryParse('${existing?['meals'] ?? ''}');
-    final val = await _promptNumber(
+    final current = parseNum('${existing?['meals'] ?? ''}');
+    final raw = await _promptNumber(
       context,
       tr.messMealsFor((member['name'] ?? '').toString()),
       initial: current,
       allowDecimal: true,
       hint: tr.messMealsHint,
     );
-    if (val == null) return;
+    if (raw == null) return;
+    // Users may type Bangla numerals (৩০ / ২৮.৫) per the on-screen hint, so
+    // normalize to Latin before persisting — otherwise meals would store as 0.
+    final val = normalizeDigits(raw);
     try {
       if (existing != null && existing['id'] is int) {
         await api.updateItem(_mealsPath, existing['id'] as int,
@@ -938,7 +942,9 @@ class _LedgerFormState extends State<_LedgerForm> {
                   child: FilledButton(
                     onPressed: amountOk
                         ? () => Navigator.pop(context, <String, dynamic>{
-                              'amount': _amount.text.trim(),
+                              // Normalize Bangla numerals so the saved amount
+                              // matches what the user typed (৳৩০ -> 30), not ৳0.
+                              'amount': normalizeDigits(_amount.text.trim()),
                               if (widget.withMember) 'member': _member,
                               if (!widget.withMember &&
                                   _label.text.trim().isNotEmpty)
@@ -990,7 +996,9 @@ class _MessMath {
     if (v is bool) return 0;
     if (v is int) return v;
     if (v is double) v = v.toString();
-    var s = v.toString().trim().replaceAll(',', '');
+    // Accept Bangla numerals (U+09E6..U+09EF) on input: the in-app hints tell
+    // Bangla users to type ৩০ / ২৮.৫, so map them to Latin before parsing.
+    var s = normalizeDigits(v.toString()).trim().replaceAll(',', '');
     final neg = s.startsWith('-');
     if (neg) s = s.substring(1);
     String whole, frac;

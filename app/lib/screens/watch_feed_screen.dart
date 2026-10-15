@@ -290,8 +290,15 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
         setState(() => _dismissed.add(it.id));
         break;
       case WatchAction.call:
+        // Safety-critical: the alert payload carries no phone number (the
+        // server alert dict is only type/text/title/severity), so we cannot
+        // dial directly. The item's own route is 'family', a screen with no
+        // call button — a dead end. Deep-link to Emergency instead, which has
+        // a working dialer (emergency_screen._call → tel: via url_launcher).
+        ChatNav.push(context, 'emergency');
+        break;
       case WatchAction.payHint:
-        // Deep-link into the module where the real call/pay flow lives.
+        // Deep-link into the module where the real pay flow lives.
         ChatNav.push(context, it.route);
         break;
     }
