@@ -843,3 +843,10 @@ Native items each need a specific on-phone test (list prepared for owner). Step 
 - NEXT: Step 7 (P14-16 leftovers + iOS prep + FINAL).
 
 ## STEP 7 SCOPE CHECK
+
+## STEP 7 DONE (builds 98 + iOS prep) 2026-10-15
+- P14-P16 leftovers: CONFIRMED already shipped during good→advanced + Wave E (all screens present).
+- P11 iOS prep (build 98): Platform.isIOS graceful-hide for the 3 Android-only native features (device-admin/voice-SOS/widget) — honest "Android-only for now", channels guarded. Complete Info.plist. New ios.yml macOS compile-check.
+- iOS COMPILE STATUS (honest): the iOS build gets ALL the way through pod install + Xcode build; fails ONLY on camera_avfoundation's Swift (`AVCaptureSession.wasInterruptedNotification`/`runtimeErrorNotification`) — a known `camera` 0.11.0+2 iOS-internal bug, NOT our code. Xcode 15.4 pin didn't change it. Remaining iOS fix = bump `camera` (re-verify Android) OR patch the pod, done on a Mac during the real iOS release. Everything else is iOS-ready. Did NOT bump camera now (would risk the proven-green Android build; iOS not shipping yet).
+- Share Extension + Siri App Intents: documented follow-ups (need a Mac).
+- P12: owner_actions/OWNER_UNLOCK_LIST.md (29 keys, Bangla, priority tiers) + this report + the full owner_actions set (aws_ports, MIGRATION_DAY, integrations).

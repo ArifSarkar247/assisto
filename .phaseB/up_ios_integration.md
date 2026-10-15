@@ -160,3 +160,17 @@ here.
 - HealthKit capability on the Runner target (for `health` reads).
 - A WidgetKit extension to actually ship the #196 home widget on iOS (until then
   the Settings tile honestly says "coming soon").
+
+## ACTUAL iOS COMPILE RESULT (2 CI runs, Xcode default + 15.4)
+Both failed at the SAME point — `camera_avfoundation` Swift:
+  `Type 'AVCaptureSession' has no member 'wasInterruptedNotification'`
+  `Type 'AVCaptureSession' has no member 'runtimeErrorNotification'`
+This is INSIDE the `camera` 0.11.0+2 plugin's iOS code, not ours. pod install +
+the Xcode build run fine; only the camera pod's Swift fails to compile. This is a
+known plugin/Xcode-SDK issue. FIX for the real iOS release (on a Mac):
+  1) bump `camera` to a newer version (then re-run the Android APK build to confirm
+     Android stays green — camera is shared), OR
+  2) pin/patch camera_avfoundation to a compatible pod, OR
+  3) temporarily gate the camera screen out of the iOS build if iOS v1 ships without it.
+Everything else (all other plugins, Dart, Info.plist, Podfile iOS 15.0, guards) is
+iOS-ready. Did NOT bump camera here to avoid destabilizing the green Android build.
