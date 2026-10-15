@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
@@ -20,6 +21,7 @@ import 'screens/language_picker_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/elderly_home_screen.dart';
 import 'widgets/elderly_mode.dart';
+import 'widgets/chatnav.dart';
 
 void main() {
   // Nothing in startup may crash the app. Every Dart error — sync, async, or
@@ -176,7 +178,27 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     // First foreground poll shortly after launch.
-    WidgetsBinding.instance.addPostFrameCallback((_) => _pollAlerts());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _pollAlerts();
+      _maybeSmokeOpen();
+    });
+  }
+
+  /// DEBUG-ONLY launch-safety probe. Lets the CI emulator smoke test open one
+  /// named feature screen (via `am start --es ao_open <route>`) so a real
+  /// native plugin (camera / health / device-admin / foreground-service) is
+  /// exercised once on a device. Completely inert in the shipped release APK
+  /// (kDebugMode == false) and when no extra is passed, and it only runs AFTER
+  /// the first frame — never on the cold-start critical path.
+  Future<void> _maybeSmokeOpen() async {
+    if (!kDebugMode) return;
+    try {
+      const ch = MethodChannel('com.assisto/device_admin');
+      final route = await ch.invokeMethod<String>('aoSmokeOpen');
+      if (route != null && route.isNotEmpty && mounted) {
+        ChatNav.push(context, route);
+      }
+    } catch (_) {}
   }
 
   @override

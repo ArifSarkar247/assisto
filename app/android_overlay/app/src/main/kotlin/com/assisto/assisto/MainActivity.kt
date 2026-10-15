@@ -88,6 +88,12 @@ class MainActivity : FlutterActivity() {
                     "startAlarm" -> result.success(startAlarm())
                     "stopAlarm" -> result.success(stopAlarm())
 
+                    // CI launch-safety probe: returns the "ao_open" intent extra
+                    // (a ChatNav route name) so the emulator smoke test can open
+                    // one feature screen and exercise its real native plugins.
+                    // Null for normal launches — Dart only reads it in debug.
+                    "aoSmokeOpen" -> result.success(intent?.getStringExtra("ao_open"))
+
                     "openAdminSettings" -> {
                         try {
                             startActivity(

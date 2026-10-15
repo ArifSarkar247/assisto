@@ -364,3 +364,8 @@ jobs:
             adb shell pidof com.assisto.assisto > pid.txt 2>/dev/null || true
             test -s pid.txt || { echo "::error::app NOT running 45s after launch on API ${{ matrix.api }}"; exit 1; }
             echo "LAUNCH OK on API ${{ matrix.api }} pid=$(cat pid.txt)"
+            adb shell pm grant com.assisto.assisto android.permission.RECORD_AUDIO 2>/dev/null || true
+            adb shell pm grant com.assisto.assisto android.permission.ACTIVITY_RECOGNITION 2>/dev/null || true
+            adb shell pm grant com.assisto.assisto android.permission.BODY_SENSORS 2>/dev/null || true
+            for R in voice_sos lost_stolen watch_feed fall_detect ; do adb shell am force-stop com.assisto.assisto ; adb logcat -c || true ; adb shell am start -n com.assisto.assisto/com.assisto.assisto.MainActivity --es ao_open "$R" || { echo "::error::could not start for $R"; exit 1; } ; sleep 18 ; adb logcat -d > "log_$R.txt" 2>/dev/null || true ; grep -E "FATAL EXCEPTION|ANR in com.assisto|com.assisto.assisto.*has died|FATAL SIGNAL|AndroidRuntime.*com.assisto" "log_$R.txt" > "crash_$R.txt" 2>/dev/null || true ; test ! -s "crash_$R.txt" || { echo "::error::CRASH opening feature '$R' on API ${{ matrix.api }}"; cat "crash_$R.txt"; exit 1; } ; adb shell pidof com.assisto.assisto > "pid_$R.txt" 2>/dev/null || true ; test -s "pid_$R.txt" || { echo "::error::app DIED after opening feature '$R' on API ${{ matrix.api }}"; tail -60 "log_$R.txt"; exit 1; } ; echo "FEATURE OK: $R (pid=$(cat pid_$R.txt))" ; done
+            echo "ALL FEATURE SCREENS OK on API ${{ matrix.api }}"
