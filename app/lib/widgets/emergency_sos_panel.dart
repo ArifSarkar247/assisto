@@ -174,17 +174,22 @@ class _EmergencySosPanelState extends State<EmergencySosPanel> {
         Text(t.emergencySosExplainer,
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 12, color: Colors.black54)),
-        SwitchListTile(
-          contentPadding: EdgeInsets.zero,
-          dense: true,
-          value: _loud,
-          onChanged: (v) => setState(() => _loud = v),
-          secondary: Icon(_loud ? Icons.volume_up : Icons.volume_off,
-              color: Brand.danger),
-          title: Text(t.emergencyLoudMode,
-              style: const TextStyle(fontWeight: FontWeight.w600)),
-          subtitle: Text(t.emergencyLoudModeDesc,
-              style: const TextStyle(fontSize: 12)),
+        // Wrapped in a transparent Material so the tile's ink splash paints
+        // above the decorated red SOS surface (it otherwise would be hidden).
+        Material(
+          type: MaterialType.transparency,
+          child: SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            value: _loud,
+            onChanged: (v) => setState(() => _loud = v),
+            secondary: Icon(_loud ? Icons.volume_up : Icons.volume_off,
+                color: Brand.danger),
+            title: Text(t.emergencyLoudMode,
+                style: const TextStyle(fontWeight: FontWeight.w600)),
+            subtitle: Text(t.emergencyLoudModeDesc,
+                style: const TextStyle(fontSize: 12)),
+          ),
         ),
       ]),
     );

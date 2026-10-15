@@ -56,11 +56,17 @@ class SkeletonList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      padding: const EdgeInsets.all(Gap.lg),
-      itemCount: count,
-      separatorBuilder: (_, __) => const SizedBox(height: Gap.md),
-      itemBuilder: (_, __) => Row(children: [
+    // Works both inside a bounded parent (scrolls) and an unbounded one like a
+    // Column (shrink-wraps) — the loader must never throw a layout assertion.
+    return LayoutBuilder(builder: (context, constraints) {
+      final bounded = constraints.hasBoundedHeight;
+      return ListView.separated(
+        shrinkWrap: !bounded,
+        physics: bounded ? null : const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(Gap.lg),
+        itemCount: count,
+        separatorBuilder: (_, __) => const SizedBox(height: Gap.md),
+        itemBuilder: (_, __) => Row(children: [
         const Skeleton(width: 44, height: 44, radius: 12),
         const SizedBox(width: Gap.md),
         Expanded(
@@ -71,7 +77,8 @@ class SkeletonList extends StatelessWidget {
           ]),
         ),
       ]),
-    );
+      );
+    });
   }
 }
 

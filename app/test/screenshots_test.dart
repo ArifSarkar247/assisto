@@ -475,8 +475,10 @@ void main() {
         .writeAsBytesSync(bytes!.buffer.asUint8List());
     image.dispose();
     // Drain any pending "slow load" timer so the test tears down cleanly.
+    // _slow() schedules a fake-async Future.delayed(1200ms) at pumpWidget time,
+    // so we must advance the fake clock (not real async) to fire it.
     if (mode == FakeMode.slow) {
-      await tester.runAsync(() => Future.delayed(const Duration(seconds: 2)));
+      await tester.pump(const Duration(milliseconds: 1400));
       await tester.pump();
     }
   }
