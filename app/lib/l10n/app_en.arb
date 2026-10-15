@@ -6917,6 +6917,44 @@
     }
   },
   "updateCheckAgain": "Check again",
+  "aboutTitle": "About",
+  "aboutAppTagline": "Your family's everyday helper",
+  "aboutVersionName": "Version",
+  "aboutBuildNumber": "Build number",
+  "aboutBuildDate": "Build date",
+  "aboutCheckUpdates": "Check for updates",
+  "aboutChecking": "Checking…",
+  "aboutUpToDate": "You're on the latest version (build {build})",
+  "@aboutUpToDate": {
+    "placeholders": {
+      "build": {
+        "type": "Object"
+      }
+    }
+  },
+  "aboutUpdateFound": "New build {build} available — update",
+  "@aboutUpdateFound": {
+    "placeholders": {
+      "build": {
+        "type": "Object"
+      }
+    }
+  },
+  "aboutCurrentToNew": "Current: build {current} → New: build {latest}",
+  "@aboutCurrentToNew": {
+    "placeholders": {
+      "current": {
+        "type": "Object"
+      },
+      "latest": {
+        "type": "Object"
+      }
+    }
+  },
+  "aboutCheckFailed": "Couldn't check. Please check your connection.",
+  "aboutCopyHint": "Long-press the build number to copy device info for a bug report.",
+  "aboutCopied": "Copied for bug report",
+  "aboutViewUpdate": "View update",
   "updateCheckFailedTitle": "Couldn't check for updates",
   "updateCheckFailedBody": "Check your internet connection and try again.",
   "updateRetry": "Retry",

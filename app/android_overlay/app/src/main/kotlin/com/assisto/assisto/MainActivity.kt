@@ -88,6 +88,17 @@ class MainActivity : FlutterActivity() {
                     "startAlarm" -> result.success(startAlarm())
                     "stopAlarm" -> result.success(stopAlarm())
 
+                    // Device model + Android version for the Settings → About
+                    // long-press "copy for bug report". Reuses this channel so we
+                    // add NO new native plugin (keeps the launch path minimal).
+                    "deviceInfo" -> result.success(
+                        mapOf(
+                            "model" to "${Build.MANUFACTURER} ${Build.MODEL}",
+                            "androidRelease" to Build.VERSION.RELEASE,
+                            "sdkInt" to Build.VERSION.SDK_INT
+                        )
+                    )
+
                     // CI launch-safety probe: returns the "ao_open" intent extra
                     // (a ChatNav route name) so the emulator smoke test can open
                     // one feature screen and exercise its real native plugins.

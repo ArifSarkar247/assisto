@@ -8,5 +8,9 @@ class AppConfig {
   static const String apiPrefix = '/api/v1';
   static const String appVersionLabel = '1.0';
 
+  /// UTC build timestamp, injected by CI (--dart-define=BUILD_TIME=...). Empty
+  /// on local/dev builds. Shown only in Settings → About.
+  static const String buildTime = String.fromEnvironment('BUILD_TIME', defaultValue: '');
+
   static Uri api(String path) => Uri.parse('$apiBase$apiPrefix$path');
 }

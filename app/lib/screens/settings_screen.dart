@@ -17,6 +17,7 @@ import '../widgets/settings_theme.dart';
 import '../widgets/settings_autonomy.dart';
 import 'owner_analytics_screen.dart';
 import 'name_about_screen.dart';
+import 'about_screen.dart';
 import 'subscriptions_screen.dart';
 import 'battery_guidance_screen.dart';
 import 'in_progress_screen.dart';
@@ -369,13 +370,17 @@ class SettingsScreen extends StatelessWidget {
               style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-            child: Text(
-              AppLocalizations.of(context).versionServer(AppConfig.appVersionLabel, AppConfig.apiBase),
-              style: const TextStyle(fontSize: 11, color: Colors.grey),
+          // Version info lives ONLY here, deep in Settings → About (owner rule:
+          // nothing version-related on the home screen, sidebar, or elsewhere).
+          ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: Text(AppLocalizations.of(context).aboutTitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const AboutScreen()),
             ),
           ),
+          const SizedBox(height: 24),
         ],
       ),
     );

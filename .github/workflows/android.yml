@@ -265,11 +265,13 @@ jobs:
         working-directory: app
         run: |
           API_BASE="${{ github.event.inputs.api_base || 'https://assisto.asalify.com' }}"
+          BUILD_TIME="$(date -u +%Y-%m-%dT%H:%MZ)"
           flutter build apk --release \
             --target-platform=android-arm64 \
             --build-number=${{ github.run_number }} \
             --build-name=1.0.${{ github.run_number }} \
-            --dart-define=API_BASE="$API_BASE"
+            --dart-define=API_BASE="$API_BASE" \
+            --dart-define=BUILD_TIME="$BUILD_TIME"
 
       - name: Build x86_64 debug APK (emulator smoke test only — NOT shipped)
         working-directory: app
@@ -278,7 +280,8 @@ jobs:
           # x64 debug APK has the SAME Dart, plugins and patched manifest, so it's
           # a valid launch/ANR proxy on the CI emulator.
           flutter build apk --debug --target-platform=android-x64 \
-            --dart-define=API_BASE="${{ github.event.inputs.api_base || 'https://assisto.asalify.com' }}"
+            --dart-define=API_BASE="${{ github.event.inputs.api_base || 'https://assisto.asalify.com' }}" \
+            --dart-define=BUILD_TIME="$(date -u +%Y-%m-%dT%H:%MZ)"
           cp build/app/outputs/flutter-apk/app-debug.apk emu-x64.apk
 
       - name: Upload emulator smoke APK
@@ -346,11 +349,12 @@ jobs:
         with:
           api-level: ${{ matrix.api }}
           arch: x86_64
-          # AOSP (no GMS/Gmail/clouddpc background thrash) — far more stable for
-          # the repeated cold-starts the feature loop does. All native plugins we
-          # exercise (foreground-service, device-admin, sensors) are framework,
-          # not Google-Play, so nothing is lost. google_apis starved our process.
-          target: default
+          # google_apis is the image that reliably boots headless on CI (every
+          # build 102-108 reached LAUNCH OK on it within minutes). The AOSP
+          # 'default' image hung >2h without booting. The GMS thrash only ever
+          # hurt REPEATED relaunches — the single-cold-start __tour__ below does
+          # one launch, so google_apis is both reliable and sufficient.
+          target: google_apis
           profile: pixel_5
           disable-animations: true
           emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim

@@ -5620,6 +5620,44 @@
     }
   },
   "updateCheckAgain": "আবার পরীক্ষা করুন",
+  "aboutTitle": "অ্যাপ সম্পর্কে",
+  "aboutAppTagline": "আপনার পরিবারের প্রতিদিনের সহায়ক",
+  "aboutVersionName": "সংস্করণ",
+  "aboutBuildNumber": "বিল্ড নম্বর",
+  "aboutBuildDate": "বিল্ডের তারিখ",
+  "aboutCheckUpdates": "আপডেট দেখুন",
+  "aboutChecking": "দেখা হচ্ছে…",
+  "aboutUpToDate": "আপনি সর্বশেষ সংস্করণে আছেন (বিল্ড {build})",
+  "@aboutUpToDate": {
+    "placeholders": {
+      "build": {
+        "type": "Object"
+      }
+    }
+  },
+  "aboutUpdateFound": "নতুন বিল্ড {build} আছে — আপডেট করুন",
+  "@aboutUpdateFound": {
+    "placeholders": {
+      "build": {
+        "type": "Object"
+      }
+    }
+  },
+  "aboutCurrentToNew": "বর্তমান: বিল্ড {current} → নতুন: বিল্ড {latest}",
+  "@aboutCurrentToNew": {
+    "placeholders": {
+      "current": {
+        "type": "Object"
+      },
+      "latest": {
+        "type": "Object"
+      }
+    }
+  },
+  "aboutCheckFailed": "দেখা গেল না। সংযোগ পরীক্ষা করুন।",
+  "aboutCopyHint": "বাগ রিপোর্টের জন্য বিল্ড নম্বরে চেপে ধরে ডিভাইস তথ্য কপি করুন।",
+  "aboutCopied": "বাগ রিপোর্টের জন্য কপি হয়েছে",
+  "aboutViewUpdate": "আপডেট দেখুন",
   "updateCheckFailedTitle": "আপডেট পরীক্ষা করা যায়নি",
   "updateCheckFailedBody": "ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।",
   "updateRetry": "আবার চেষ্টা করুন",
