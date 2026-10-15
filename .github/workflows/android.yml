@@ -271,6 +271,23 @@ jobs:
             --build-name=1.0.${{ github.run_number }} \
             --dart-define=API_BASE="$API_BASE"
 
+      - name: Build x86_64 debug APK (emulator smoke test only — NOT shipped)
+        working-directory: app
+        run: |
+          # The shipped APK is arm64-only; x86_64 emulators can't load it. This
+          # x64 debug APK has the SAME Dart, plugins and patched manifest, so it's
+          # a valid launch/ANR proxy on the CI emulator.
+          flutter build apk --debug --target-platform=android-x64 \
+            --dart-define=API_BASE="${{ github.event.inputs.api_base || 'https://assisto.asalify.com' }}"
+          cp build/app/outputs/flutter-apk/app-debug.apk emu-x64.apk
+
+      - name: Upload emulator smoke APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: assisto-apk-emu
+          path: app/emu-x64.apk
+          retention-days: 3
+
       - name: Sign APK with permanent release key
         working-directory: app
         env:
@@ -317,7 +334,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: assisto-apk
+          name: assisto-apk-emu
           path: apk
       - name: Enable KVM
         run: |
