@@ -134,14 +134,10 @@ class _AboutScreenState extends State<AboutScreen> {
   Widget _brandHeader(AppLocalizations t) {
     return Column(
       children: [
-        Container(
-          height: 72,
-          width: 72,
-          decoration: BoxDecoration(
-            gradient: Brand.gradient,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: const Icon(Icons.favorite, color: Colors.white, size: 38),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Image.asset('assets/branding/new_logo.png',
+              width: 76, height: 76, fit: BoxFit.cover),
         ),
         const SizedBox(height: Gap.md),
         Text('Assisto',

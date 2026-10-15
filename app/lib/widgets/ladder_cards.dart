@@ -45,9 +45,11 @@ class LadderHero extends StatelessWidget {
               const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text(
-                  actionCount > 0
-                      ? t.plActionDueCount(fmtInt(context, actionCount))
-                      : t.plNoActionDue,
+                  actionCount == 1
+                      ? t.plActionDueOne
+                      : actionCount > 0
+                          ? t.plActionDueCount(fmtInt(context, actionCount))
+                          : t.plNoActionDue,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),

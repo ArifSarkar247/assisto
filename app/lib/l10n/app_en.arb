@@ -4880,6 +4880,7 @@
       "count": {}
     }
   },
+  "plActionDueOne": "1 step due now",
   "plNoActionDue": "Nothing due right now.",
   "plSectionDueNow": "Due now",
   "plSectionAll": "All ladders",

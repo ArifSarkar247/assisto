@@ -349,7 +349,7 @@ class _EntriesTabState extends State<_EntriesTab> {
       hint: tr.messMealsHint,
     );
     if (raw == null) return;
-    // Users may type Bangla numerals (৩০ / ২৮.৫) per the on-screen hint, so
+    // Users may type Bangla numerals per the on-screen hint, so
     // normalize to Latin before persisting — otherwise meals would store as 0.
     final val = normalizeDigits(raw);
     try {
@@ -943,7 +943,7 @@ class _LedgerFormState extends State<_LedgerForm> {
                     onPressed: amountOk
                         ? () => Navigator.pop(context, <String, dynamic>{
                               // Normalize Bangla numerals so the saved amount
-                              // matches what the user typed (৳৩০ -> 30), not ৳0.
+                              // matches the Bangla-numeral value the user typed.
                               'amount': normalizeDigits(_amount.text.trim()),
                               if (widget.withMember) 'member': _member,
                               if (!widget.withMember &&
@@ -997,7 +997,7 @@ class _MessMath {
     if (v is int) return v;
     if (v is double) v = v.toString();
     // Accept Bangla numerals (U+09E6..U+09EF) on input: the in-app hints tell
-    // Bangla users to type ৩০ / ২৮.৫, so map them to Latin before parsing.
+    // Bangla users to type Bangla numerals, so map them to Latin before parsing.
     var s = normalizeDigits(v.toString()).trim().replaceAll(',', '');
     final neg = s.startsWith('-');
     if (neg) s = s.substring(1);
