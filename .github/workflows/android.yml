@@ -37,6 +37,22 @@ jobs:
         working-directory: app
         run: flutter create --project-name assisto --org com.assisto --platforms=android .
 
+      - name: Apply native overlay (custom Kotlin/res for native features)
+        working-directory: app
+        run: |
+          # Native platform code (device-admin receiver #80, foreground service
+          # #79, home-widget provider #196, Health Connect bits #70) lives in the
+          # repo under app/android_overlay/ and is MERGED over the freshly
+          # generated android/ tree. Paths mirror android/ exactly (e.g.
+          # android_overlay/app/src/main/kotlin/... , .../res/xml/...). No-op if
+          # the overlay is absent.
+          if [ -d android_overlay ]; then
+            cp -rv android_overlay/. android/
+            echo "native overlay applied"
+          else
+            echo "no android_overlay — skipping"
+          fi
+
       - name: Pub get
         working-directory: app
         run: flutter pub get
@@ -80,7 +96,21 @@ jobs:
               '\n    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>'
               '\n    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>'
               '\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>'
-              '\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>\n'
+              '\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>'
+              # #79 hands-free voice SOS — foreground service (mic + location)
+              '\n    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>'
+              '\n    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"/>'
+              '\n    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>'
+              '\n    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>'
+              '\n    <uses-permission android:name="android.permission.WAKE_LOCK"/>'
+              # #70 Health Connect reads
+              '\n    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>'
+              '\n    <uses-permission android:name="android.permission.health.READ_STEPS"/>'
+              '\n    <uses-permission android:name="android.permission.health.READ_HEART_RATE"/>'
+              '\n    <uses-permission android:name="android.permission.health.READ_SLEEP"/>'
+              '\n    <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED"/>'
+              # #80 lost/stolen — alarm vibration
+              '\n    <uses-permission android:name="android.permission.VIBRATE"/>\n'
           )
           if 'android.permission.INTERNET' not in s:
               s = re.sub(r'(<manifest[^>]*>)', r'\1' + perms, s, count=1)
@@ -91,6 +121,8 @@ jobs:
               '\n      <intent><action android:name="android.intent.action.SENDTO"/>'
               '<data android:scheme="smsto"/></intent>'
               '\n      <intent><action android:name="android.intent.action.VIEW"/></intent>'
+              # #70 Health Connect visibility (so the app can resolve HC)
+              '\n      <package android:name="com.google.android.apps.healthdata"/>'
               '\n    </queries>\n'
           )
           if '<queries>' not in s:
@@ -105,8 +137,37 @@ jobs:
           )
           if 'com.yalantis.ucrop.UCropActivity' not in s:
               s = s.replace('</application>', ucrop + '    </application>', 1)
+          # Native-feature <application> components (classes live in the overlay):
+          #   #79 voice-SOS foreground service (flutter_foreground_task),
+          #   #196 home-screen widget provider, #80 device-admin receiver.
+          native_components = (
+              '\n        <service'
+              ' android:name="com.pravera.flutter_foreground_task.service.ForegroundService"'
+              ' android:foregroundServiceType="microphone|location"'
+              ' android:exported="false"/>'
+              '\n        <receiver android:name=".AssistoWidgetProvider"'
+              ' android:exported="false">'
+              '\n            <intent-filter>'
+              '\n                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>'
+              '\n            </intent-filter>'
+              '\n            <meta-data android:name="android.appwidget.provider"'
+              ' android:resource="@xml/assisto_widget_info"/>'
+              '\n        </receiver>'
+              '\n        <receiver'
+              ' android:name="com.assisto.assisto.AssistoDeviceAdminReceiver"'
+              ' android:permission="android.permission.BIND_DEVICE_ADMIN"'
+              ' android:exported="true">'
+              '\n            <meta-data android:name="android.app.device_admin"'
+              ' android:resource="@xml/device_admin"/>'
+              '\n            <intent-filter>'
+              '\n                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED"/>'
+              '\n            </intent-filter>'
+              '\n        </receiver>\n'
+          )
+          if '.AssistoWidgetProvider' not in s:
+              s = s.replace('</application>', native_components + '    </application>', 1)
           open(p, "w").write(s)
-          print("manifest patched: label, permissions, queries, UCropActivity")
+          print("manifest patched: label, permissions, queries, UCropActivity, native components")
           PY
 
       - name: Patch iOS Info.plist (camera/mic/photos usage strings)

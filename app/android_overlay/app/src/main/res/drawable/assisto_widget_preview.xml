@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #196 widget picker preview — a static brand-styled vector mock of the
+     widget (no user data; purely illustrative). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="180dp"
+    android:height="70dp"
+    android:viewportWidth="180"
+    android:viewportHeight="70">
+
+    <!-- rounded brand-dark card -->
+    <path
+        android:fillColor="#10204A"
+        android:pathData="M12,2 L168,2 A10,10 0 0 1 178,12 L178,58 A10,10 0 0 1 168,68 L12,68 A10,10 0 0 1 2,58 L2,12 A10,10 0 0 1 12,2 Z" />
+    <!-- accent dot (brand cyan) -->
+    <path
+        android:fillColor="#22D3EE"
+        android:pathData="M14,14 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" />
+    <!-- count line -->
+    <path
+        android:fillColor="#A9C4F5"
+        android:pathData="M26,11 L90,11 L90,17 L26,17 Z" />
+    <!-- title line (bold/white) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M14,30 L150,30 L150,40 L14,40 Z" />
+    <!-- subtitle line -->
+    <path
+        android:fillColor="#3B6EF6"
+        android:pathData="M14,47 L96,47 L96,54 L14,54 Z" />
+</vector>

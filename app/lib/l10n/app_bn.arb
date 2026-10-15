@@ -11456,5 +11456,153 @@
         "type": "Object"
       }
     }
-  }
+  },
+  "vsosTitle": "হ্যান্ডস-ফ্রি ভয়েস SOS",
+  "vsosTileSubtitle": "ফোন না ছুঁয়ে, কথা বলে SOS পাঠান",
+  "vsosHeadline": "কথা বলেই সাহায্য চান",
+  "vsosIntro": "চালু করলে Assisto ব্যাকগ্রাউন্ডে আপনার বেছে নেওয়া ওয়েক-ফ্রেজ শোনে। স্ক্রিন বন্ধ থাকলেও, ফ্রেজটি বললে আপনার পরিবারকে লাইভ লোকেশনসহ SOS চলে যায় — ঠিক SOS বোতামের মতোই।",
+  "vsosEnableTitle": "হ্যান্ডস-ফ্রি SOS চালু করুন",
+  "vsosStateOn": "চালু — Assisto আপনার ফ্রেজ শুনছে",
+  "vsosStateOff": "বন্ধ (ডিফল্ট)। ব্যাটারি বাঁচাতে প্রয়োজনে চালু করুন।",
+  "vsosPhraseLabel": "ওয়েক-ফ্রেজ",
+  "vsosPhraseTitle": "একটি ওয়েক-ফ্রেজ বেছে নিন",
+  "vsosChange": "বদলান",
+  "vsosBatteryNote": "সবসময় শোনা ব্যাটারি খরচ করে। তাই এটি ডিফল্টে বন্ধ — ঝুঁকির সময় চালু রাখুন, পরে বন্ধ করে দিন।",
+  "vsosPrivacyNote": "আপনার কথা শুধু ডিভাইসেই লেখা হয় — Assisto কোনো অডিও আপলোড বা রেকর্ড করে রাখে না। শুধু SOS পাঠালে তবেই (লোকেশনসহ) বার্তা ডিভাইস ছাড়ে, ঠিক ম্যানুয়াল SOS-এর মতো।",
+  "vsosRunningNote": "শোনা চালু আছে — আপনি নোটিফিকেশন বারে “Assisto শুনছে” দেখতে পাবেন। সেখান থেকেই বা এখানেই যেকোনো সময় বন্ধ করা যাবে।",
+  "vsosNotRunningNote": "শোনার সার্ভিস এখন চলছে না। টগল বন্ধ করে আবার চালু করে দেখুন।",
+  "vsosUnavailable": "এই ডিভাইসে অন-ডিভাইস স্পিচ ইঞ্জিন পাওয়া যায়নি, তাই হ্যান্ডস-ফ্রি SOS শুনতে পারছে না। SOS বোতাম সবসময় কাজ করে।",
+  "vsosMicDenied": "মাইক্রোফোনের অনুমতি ছাড়া হ্যান্ডস-ফ্রি SOS কথা শুনতে পারে না।",
+  "vsosMicBlocked": "মাইক্রোফোন বন্ধ করা আছে",
+  "vsosMicBlockedBody": "মাইক্রোফোনের অনুমতি বন্ধ করা আছে, তাই Assisto ওয়েক-ফ্রেজ শুনতে পারছে না। সেটিংসে গিয়ে মাইক্রোফোনের অনুমতি দিন।",
+  "vsosOpenSettings": "সেটিংস খুলুন",
+  "vsosStartFailed": "শোনার সার্ভিস চালু করা গেল না। একটু পরে আবার চেষ্টা করুন।",
+  "vsosNotifChannelName": "হ্যান্ডস-ফ্রি SOS",
+  "vsosNotifChannelDesc": "হ্যান্ডস-ফ্রি SOS শোনা চালু থাকলে এই নোটিফিকেশনটি দেখায়।",
+  "vsosNotifTitle": "Assisto আপনার SOS ফ্রেজ শুনছে",
+  "vsosNotifText": "বন্ধ করতে ট্যাপ করুন। আপনার কথা শুধু ডিভাইসেই থাকে।",
+  "swTitle": "স্মার্টওয়াচ ও ফিটনেস",
+  "swOpenSettings": "হেলথ কানেক্ট সেটিংস খুলুন",
+  "swUnavailableTitle": "হেলথ কানেক্ট পাওয়া যায়নি",
+  "swUnavailableBody": "আপনার ঘড়ি বা ফিটনেস ব্যান্ডের তথ্য দেখাতে এই ফোনে Health Connect দরকার। ইনস্টল করে আবার চেষ্টা করুন।",
+  "swInstall": "Health Connect ইনস্টল করুন",
+  "swConnectTitle": "হেলথ কানেক্ট যুক্ত করুন",
+  "swConnectBody": "পা, হৃৎস্পন্দন, ঘুম ও ক্যালরি দেখাতে Health Connect থেকে পড়ার অনুমতি দিন। আমরা শুধু পড়ি, কিছু বদলাই না।",
+  "swConnect": "অনুমতি দিন ও যুক্ত করুন",
+  "swErrorTitle": "তথ্য আনা যায়নি",
+  "swErrorBody": "Health Connect থেকে তথ্য আনা যায়নি। আবার চেষ্টা করুন।",
+  "swNoDataTitle": "এখনো কোনো তথ্য নেই",
+  "swNoDataBody": "আপনার ঘড়ি বা ব্যান্ড Health Connect-এ তথ্য পাঠালে এখানে দেখা যাবে। একটু হাঁটুন বা ঘড়ি সিঙ্ক করুন।",
+  "swToday": "আজ",
+  "swSteps": "পা",
+  "swHeartRate": "হৃৎস্পন্দন",
+  "swSleep": "ঘুম",
+  "swActiveEnergy": "সক্রিয় ক্যালরি",
+  "swNoReading": "তথ্য নেই",
+  "swBpm": "{bpm} বিট/মিনিট",
+  "@swBpm": {
+    "placeholders": {
+      "bpm": {
+        "type": "Object"
+      }
+    }
+  },
+  "swHours": "{hours} ঘণ্টা",
+  "@swHours": {
+    "placeholders": {
+      "hours": {
+        "type": "Object"
+      }
+    }
+  },
+  "swKcal": "{kcal} কিলোক্যালরি",
+  "@swKcal": {
+    "placeholders": {
+      "kcal": {
+        "type": "Object"
+      }
+    }
+  },
+  "swStepsWeek": "৭ দিনের পা",
+  "swStepsWeekEmpty": "গত ৭ দিনে কোনো পায়ের তথ্য নেই।",
+  "swStepsWeekSummary": "মোট {total} · দৈনিক গড় {avg}",
+  "@swStepsWeekSummary": {
+    "placeholders": {
+      "total": {
+        "type": "Object"
+      },
+      "avg": {
+        "type": "Object"
+      }
+    }
+  },
+  "swSurfaceTitle": "আপনার ওয়েলনেস ও ফিটনেসে ব্যবহার করুন",
+  "swSurfaceBody": "এখানকার তথ্য শুধু Health Connect থেকে দেখানো হয়। লক্ষ্য ঠিক করতে ও লগ রাখতে ওয়েলনেস বা ফিটনেস পার্টনার খুলুন।",
+  "swPrivacyNote": "আপনার স্বাস্থ্য তথ্য এই ফোনেই থাকে—আমরা শুধু পড়ি, কোথাও আপলোড বা পরিবর্তন করি না। অনুমতি যেকোনো সময় Health Connect থেকে তুলে নিতে পারেন।",
+  "hwTile": "হোম স্ক্রিন উইজেট",
+  "hwTileSub": "পরের রিমাইন্ডার ও আজকের সংখ্যা হোম স্ক্রিনে দেখান।",
+  "hwEnabledToast": "উইজেট চালু হয়েছে। হোম স্ক্রিনে অ্যাসিস্টো উইজেট যোগ করুন।",
+  "hwDisabledToast": "উইজেট বন্ধ হয়েছে।",
+  "hwEmptyTitle": "আসন্ন কোনো রিমাইন্ডার নেই",
+  "hwEmptyBody": "সব শেষ—আপাতত কিছু বাকি নেই।",
+  "hwTodayLabel": "আজ",
+  "lostStolenTitle": "হারানো / চুরি সুরক্ষা",
+  "lostStolenEnable": "চালু করুন",
+  "lostStolenManage": "ব্যবস্থাপনা",
+  "lostStolenStateActive": "সুরক্ষা চালু আছে",
+  "lostStolenStateActiveBody": "ডিভাইস-অ্যাডমিন অনুমোদিত — লক, অ্যালার্ম ও লোকেশন কাজ করবে।",
+  "lostStolenStateInactive": "সুরক্ষা বন্ধ আছে",
+  "lostStolenStateInactiveBody": "ডিভাইস-অ্যাডমিন এখনও অনুমোদিত হয়নি। রিমোট লক কাজ করবে না — চালু করুন।",
+  "lostStolenConsentExplain": "ফোন হারালে বা চুরি হলে দূর থেকে লক করতে Assisto-র ডিভাইস-অ্যাডমিন দরকার।",
+  "lostStolenNativeMissing": "এই বিল্ডে ডিভাইস-সুরক্ষা মডিউলটি নেই।",
+  "lostStolenIntroTitle": "এটি যা করে",
+  "lostStolenIntroBody": "ফোন হারালে বা চুরি হলে আপনি দূর থেকে এটি লক করতে, জোরে অ্যালার্ম বাজাতে, শেষ অবস্থান জানাতে এবং লক স্ক্রিনে মালিকের যোগাযোগ দেখাতে পারবেন।",
+  "lostStolenBulletLock": "দূর থেকে স্ক্রিন লক করুন।",
+  "lostStolenBulletAlarm": "জোরে অ্যালার্ম বাজান (সাইলেন্ট থাকলেও)।",
+  "lostStolenBulletLocate": "বিদ্যমান SOS GPS দিয়ে শেষ অবস্থান জানান।",
+  "lostStolenBulletMessage": "লক স্ক্রিনে \"হারানো ফোন\" বার্তা ও মালিকের নম্বর দেখান।",
+  "lostStolenPrivacyNote": "অবস্থান শুধু আপনার নির্দেশে পাঠানো হয়; রিকভারি পিন শুধু এই ফোনে এনক্রিপ্ট করে রাখা হয়, কাঁচা অবস্থায় কোথাও যায় না।",
+  "lostStolenRecoveryPin": "রিকভারি পিন",
+  "lostStolenPinSet": "পিন সেট করা আছে",
+  "lostStolenPinNotSet": "এখনও পিন সেট করা হয়নি",
+  "lostStolenPinChange": "পরিবর্তন",
+  "lostStolenPinHint": "৪–৮ সংখ্যার একটি পিন দিন। সুরক্ষা বন্ধ করার সময় এটি লাগবে।",
+  "lostStolenPinLabel": "পিন",
+  "lostStolenPinConfirmLabel": "পিন নিশ্চিত করুন",
+  "lostStolenPinTooShort": "পিন কমপক্ষে ৪ সংখ্যার হতে হবে।",
+  "lostStolenPinMismatch": "দুটি পিন মিলছে না।",
+  "lostStolenPinSaved": "রিকভারি পিন সংরক্ষিত হয়েছে।",
+  "lostStolenPinWrong": "পিন সঠিক নয়।",
+  "lostStolenActionsTitle": "রিমোট অ্যাকশন",
+  "lostStolenActionLock": "স্ক্রিন লক করুন",
+  "lostStolenActionLockOk": "ডিভাইস-অ্যাডমিন চালু — লক কাজ করবে।",
+  "lostStolenNeedsAdmin": "এটি কাজ করতে ডিভাইস-অ্যাডমিন দরকার।",
+  "lostStolenActionAlarm": "জোরে অ্যালার্ম",
+  "lostStolenActionAlarmBody": "সর্বোচ্চ ভলিউমে অ্যালার্ম বাজায় ও ভাইব্রেট করে।",
+  "lostStolenActionLocate": "শেষ অবস্থান জানান",
+  "lostStolenActionLocateBody": "বিদ্যমান SOS লোকেশন সার্ভিস ব্যবহার করে।",
+  "lostStolenActionMessage": "লক স্ক্রিনে বার্তা",
+  "lostStolenActionMessageBody": "\"হারানো ফোন\" বার্তা ও মালিকের নম্বর দেখায়।",
+  "lostStolenTestLock": "লক পরীক্ষা করুন",
+  "lostStolenTestAlarm": "অ্যালার্ম পরীক্ষা করুন",
+  "lostStolenReportNow": "এখনই অবস্থান পাঠান",
+  "lostStolenLockSent": "লক নির্দেশ পাঠানো হয়েছে।",
+  "lostStolenActionFailed": "অ্যাকশনটি করা যায়নি।",
+  "lostStolenAlarmPlaying": "অ্যালার্ম বাজছে",
+  "lostStolenAlarmPlayingBody": "এটি একটি পরীক্ষা। থামাতে নিচে চাপুন।",
+  "lostStolenStopAlarm": "অ্যালার্ম থামান",
+  "lostStolenNoLocation": "অবস্থান পাওয়া যায়নি — লোকেশন চালু আছে কিনা দেখুন।",
+  "lostStolenLocationSent": "শেষ অবস্থান পাঠানো হয়েছে।",
+  "lostStolenLocationQueued": "অফলাইন — অবস্থানটি সারিতে রাখা হলো, সংযোগ ফিরলে পাঠানো হবে।",
+  "lostStolenLostMessage": "হারানো-ফোন বার্তা ও মালিকের যোগাযোগ",
+  "lostStolenLostMessageEmpty": "এখনও কোনো মালিকের যোগাযোগ যোগ করা হয়নি।",
+  "lostStolenOwnerName": "মালিকের নাম",
+  "lostStolenOwnerPhone": "বিকল্প যোগাযোগ নম্বর",
+  "lostStolenMessageLabel": "লক স্ক্রিনে দেখানো বার্তা",
+  "lostStolenTriggersTitle": "ট্রিগার",
+  "lostStolenTriggersBody": "বিশ্বস্ত পরিচিতি বা SMS কমান্ড দিয়ে দূর থেকে এই অ্যাকশনগুলো চালু করার ব্যবস্থা।",
+  "lostStolenSmsTrigger": "SMS কমান্ড ট্রিগার",
+  "lostStolenSmsTriggerSoon": "শীঘ্রই আসছে — এটির জন্য আলাদা নেটিভ SMS রিসিভার দরকার, এখনও যুক্ত হয়নি।",
+  "lostStolenUninstallTitle": "আনইনস্টল সুরক্ষা",
+  "lostStolenUninstallBody": "ডিভাইস-অ্যাডমিন চালু থাকা অবস্থায় Android অ্যাপটি আনইনস্টল হতে দেয় না — আগে সুরক্ষা বন্ধ করতে হবে (সেটিংস → নিরাপত্তা → ডিভাইস অ্যাডমিন)। এটি কোনো অটুট লক নয়, তবে সাধারণ চোরকে থামায়।"
 }

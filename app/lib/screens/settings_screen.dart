@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import '../state.dart';
 import '../config.dart';
 import '../models.dart';
+import '../services/home_widget_service.dart';
 import '../messenger_admin_api.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/elderly_mode.dart';
@@ -303,6 +304,10 @@ class SettingsScreen extends StatelessWidget {
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const BatteryGuidanceScreen())),
           ),
+          // #196 Home-screen widget — enable/disable the native AppWidget that
+          // shows the next reminder + today's count. Self-contained; a failure
+          // never breaks Settings.
+          const _HomeWidgetTile(),
           ListTile(
             leading: const Icon(Icons.tune),
             title: Text(AppLocalizations.of(context).inputSourcePermissions),
@@ -754,5 +759,67 @@ class _SafetySectionState extends State<_SafetySection> {
         isThreeLine: true,
       ),
     ]);
+  }
+}
+
+/// #196 Home-screen widget toggle. Persists the enabled flag and pushes the
+/// current snapshot on enable / clears it on disable. Reads reminders from
+/// [AppState]. All copy via AppLocalizations — no literals.
+class _HomeWidgetTile extends StatefulWidget {
+  const _HomeWidgetTile();
+  @override
+  State<_HomeWidgetTile> createState() => _HomeWidgetTileState();
+}
+
+class _HomeWidgetTileState extends State<_HomeWidgetTile> {
+  bool _enabled = false;
+  bool _loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    HomeWidgetService.isEnabled().then((v) {
+      if (mounted) setState(() {
+            _enabled = v;
+            _loaded = true;
+          });
+    });
+  }
+
+  HomeWidgetLabels _labels(AppLocalizations t) => HomeWidgetLabels(
+        emptyTitle: t.hwEmptyTitle,
+        emptyBody: t.hwEmptyBody,
+        todayLabel: t.hwTodayLabel,
+      );
+
+  Future<void> _toggle(bool v) async {
+    final t = AppLocalizations.of(context);
+    final app = context.read<AppState>();
+    setState(() => _enabled = v);
+    await HomeWidgetService.setEnabled(v);
+    if (v) {
+      await HomeWidgetService.refresh(app, labels: _labels(t));
+    } else {
+      await HomeWidgetService.clear(_labels(t));
+    }
+    if (mounted) {
+      ScaffoldMessenger.of(context)
+        ..clearSnackBars()
+        ..showSnackBar(SnackBar(
+            content: Text(v ? t.hwEnabledToast : t.hwDisabledToast)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return SwitchListTile(
+      secondary: const Icon(Icons.widgets_outlined),
+      value: _enabled,
+      onChanged: _loaded ? _toggle : null,
+      title: Text(t.hwTile),
+      subtitle: Text(t.hwTileSub, style: const TextStyle(fontSize: 12)),
+      isThreeLine: true,
+    );
   }
 }

@@ -12753,5 +12753,153 @@
         "type": "Object"
       }
     }
-  }
+  },
+  "vsosTitle": "Hands-free Voice SOS",
+  "vsosTileSubtitle": "Send SOS by voice, without touching the phone",
+  "vsosHeadline": "Call for help with your voice",
+  "vsosIntro": "When on, Assisto listens in the background for your chosen wake phrase. Even with the screen off, saying the phrase sends an SOS with your live location to your family — exactly like the SOS button.",
+  "vsosEnableTitle": "Turn on hands-free SOS",
+  "vsosStateOn": "On — Assisto is listening for your phrase",
+  "vsosStateOff": "Off (default). Turn on when you need it to save battery.",
+  "vsosPhraseLabel": "Wake phrase",
+  "vsosPhraseTitle": "Choose a wake phrase",
+  "vsosChange": "Change",
+  "vsosBatteryNote": "Always-listening uses battery. That is why it is off by default — turn it on when you feel at risk and turn it off afterwards.",
+  "vsosPrivacyNote": "Your speech is transcribed only on your device — Assisto does not upload or store any audio. Only the SOS alert itself (with location) ever leaves the device, exactly like a manual SOS.",
+  "vsosRunningNote": "Listening is active — you will see “Assisto is listening” in your notification bar. You can stop it from there or here any time.",
+  "vsosNotRunningNote": "The listening service is not running right now. Try turning the toggle off and on again.",
+  "vsosUnavailable": "No on-device speech engine is available on this phone, so hands-free SOS cannot listen. The SOS button always works.",
+  "vsosMicDenied": "Without microphone permission, hands-free SOS cannot hear you.",
+  "vsosMicBlocked": "Microphone is blocked",
+  "vsosMicBlockedBody": "Microphone permission is turned off, so Assisto cannot listen for the wake phrase. Open settings and allow the microphone.",
+  "vsosOpenSettings": "Open settings",
+  "vsosStartFailed": "Couldn't start the listening service. Please try again.",
+  "vsosNotifChannelName": "Hands-free SOS",
+  "vsosNotifChannelDesc": "This notification shows while hands-free SOS is listening.",
+  "vsosNotifTitle": "Assisto is listening for your SOS phrase",
+  "vsosNotifText": "Tap to turn off. Your speech stays on your device.",
+  "swTitle": "Smartwatch & fitness",
+  "swOpenSettings": "Open Health Connect settings",
+  "swUnavailableTitle": "Health Connect isn't available",
+  "swUnavailableBody": "To show your watch or fitness-band data, this phone needs Health Connect. Install it and try again.",
+  "swInstall": "Install Health Connect",
+  "swConnectTitle": "Connect Health Connect",
+  "swConnectBody": "Allow read access to Health Connect to show your steps, heart rate, sleep and active energy. We only read — we never change anything.",
+  "swConnect": "Allow & connect",
+  "swErrorTitle": "Couldn't read your data",
+  "swErrorBody": "We couldn't read from Health Connect. Please try again.",
+  "swNoDataTitle": "No data yet",
+  "swNoDataBody": "Once your watch or band sends data to Health Connect it will show here. Take a walk or sync your watch.",
+  "swToday": "Today",
+  "swSteps": "Steps",
+  "swHeartRate": "Heart rate",
+  "swSleep": "Sleep",
+  "swActiveEnergy": "Active energy",
+  "swNoReading": "No reading",
+  "swBpm": "{bpm} bpm",
+  "@swBpm": {
+    "placeholders": {
+      "bpm": {
+        "type": "Object"
+      }
+    }
+  },
+  "swHours": "{hours} h",
+  "@swHours": {
+    "placeholders": {
+      "hours": {
+        "type": "Object"
+      }
+    }
+  },
+  "swKcal": "{kcal} kcal",
+  "@swKcal": {
+    "placeholders": {
+      "kcal": {
+        "type": "Object"
+      }
+    }
+  },
+  "swStepsWeek": "Steps — last 7 days",
+  "swStepsWeekEmpty": "No step data in the last 7 days.",
+  "swStepsWeekSummary": "Total {total} · daily avg {avg}",
+  "@swStepsWeekSummary": {
+    "placeholders": {
+      "total": {
+        "type": "Object"
+      },
+      "avg": {
+        "type": "Object"
+      }
+    }
+  },
+  "swSurfaceTitle": "Use this in Wellness & Fitness",
+  "swSurfaceBody": "This is read from Health Connect for viewing. To set goals and keep logs, open Wellness or Fitness partner.",
+  "swPrivacyNote": "Your health data stays on this phone — we only read it, never upload or change it. You can revoke access anytime in Health Connect.",
+  "hwTile": "Home-screen widget",
+  "hwTileSub": "Show your next reminder and today's count on the home screen.",
+  "hwEnabledToast": "Widget on. Add the Assisto widget to your home screen.",
+  "hwDisabledToast": "Widget turned off.",
+  "hwEmptyTitle": "No upcoming reminders",
+  "hwEmptyBody": "You're all caught up.",
+  "hwTodayLabel": "Today",
+  "lostStolenTitle": "Lost / Stolen Protection",
+  "lostStolenEnable": "Enable",
+  "lostStolenManage": "Manage",
+  "lostStolenStateActive": "Protection is ON",
+  "lostStolenStateActiveBody": "Device-admin is granted — lock, alarm and locate will work.",
+  "lostStolenStateInactive": "Protection is OFF",
+  "lostStolenStateInactiveBody": "Device-admin is not granted yet. Remote lock will not work — tap Enable.",
+  "lostStolenConsentExplain": "Assisto needs device-admin to lock your phone if it is lost or stolen.",
+  "lostStolenNativeMissing": "The device-protection module isn't available in this build.",
+  "lostStolenIntroTitle": "What this does",
+  "lostStolenIntroBody": "If your phone goes missing you can lock it remotely, sound a loud alarm, report its last location, and show an owner-contact message on the lock screen.",
+  "lostStolenBulletLock": "Remotely lock the screen.",
+  "lostStolenBulletAlarm": "Sound a loud alarm (even if on silent).",
+  "lostStolenBulletLocate": "Report the last location using the existing SOS GPS.",
+  "lostStolenBulletMessage": "Show a \"lost phone\" message with the owner's number.",
+  "lostStolenPrivacyNote": "Location is only sent when you ask; the recovery PIN is stored encrypted on this phone and never leaves it in plain form.",
+  "lostStolenRecoveryPin": "Recovery PIN",
+  "lostStolenPinSet": "A PIN is set",
+  "lostStolenPinNotSet": "No PIN set yet",
+  "lostStolenPinChange": "Change",
+  "lostStolenPinHint": "Choose a 4–8 digit PIN. You'll need it to turn protection off.",
+  "lostStolenPinLabel": "PIN",
+  "lostStolenPinConfirmLabel": "Confirm PIN",
+  "lostStolenPinTooShort": "PIN must be at least 4 digits.",
+  "lostStolenPinMismatch": "The PINs don't match.",
+  "lostStolenPinSaved": "Recovery PIN saved.",
+  "lostStolenPinWrong": "Incorrect PIN.",
+  "lostStolenActionsTitle": "Remote actions",
+  "lostStolenActionLock": "Lock the screen",
+  "lostStolenActionLockOk": "Device-admin is on — lock will work.",
+  "lostStolenNeedsAdmin": "This needs device-admin to work.",
+  "lostStolenActionAlarm": "Loud alarm",
+  "lostStolenActionAlarmBody": "Plays at max volume and vibrates.",
+  "lostStolenActionLocate": "Report last location",
+  "lostStolenActionLocateBody": "Uses the existing SOS location service.",
+  "lostStolenActionMessage": "Lock-screen message",
+  "lostStolenActionMessageBody": "Shows a \"lost phone\" note with the owner's number.",
+  "lostStolenTestLock": "Test lock",
+  "lostStolenTestAlarm": "Test alarm",
+  "lostStolenReportNow": "Report location now",
+  "lostStolenLockSent": "Lock command sent.",
+  "lostStolenActionFailed": "That action couldn't be completed.",
+  "lostStolenAlarmPlaying": "Alarm playing",
+  "lostStolenAlarmPlayingBody": "This is a test. Tap below to stop.",
+  "lostStolenStopAlarm": "Stop alarm",
+  "lostStolenNoLocation": "Couldn't get a location — check that location is on.",
+  "lostStolenLocationSent": "Last location reported.",
+  "lostStolenLocationQueued": "Offline — location queued and will send when you're back online.",
+  "lostStolenLostMessage": "Lost-phone message & owner contact",
+  "lostStolenLostMessageEmpty": "No owner contact added yet.",
+  "lostStolenOwnerName": "Owner name",
+  "lostStolenOwnerPhone": "Alternate contact number",
+  "lostStolenMessageLabel": "Message shown on the lock screen",
+  "lostStolenTriggersTitle": "Triggers",
+  "lostStolenTriggersBody": "Ways to trigger these actions remotely via a trusted contact or an SMS command.",
+  "lostStolenSmsTrigger": "SMS-command trigger",
+  "lostStolenSmsTriggerSoon": "Coming soon — this needs a separate native SMS receiver, not shipped yet.",
+  "lostStolenUninstallTitle": "Uninstall resistance",
+  "lostStolenUninstallBody": "While device-admin is active Android blocks uninstalling the app until you turn protection off (Settings → Security → Device admin). This isn't an unbreakable lock, but it stops a casual thief."
 }

@@ -1,0 +1,99 @@
+{
+  "_comment": "ARB source for #79 Hands-free Voice SOS. Each key:[bn,en]. No parameterized keys. bn is natural Bangla; en is plain. Already merged into app_en.arb/app_bn.arb.",
+  "vsosTitle": [
+    "হ্যান্ডস-ফ্রি ভয়েস SOS",
+    "Hands-free Voice SOS"
+  ],
+  "vsosTileSubtitle": [
+    "ফোন না ছুঁয়ে, কথা বলে SOS পাঠান",
+    "Send SOS by voice, without touching the phone"
+  ],
+  "vsosHeadline": [
+    "কথা বলেই সাহায্য চান",
+    "Call for help with your voice"
+  ],
+  "vsosIntro": [
+    "চালু করলে Assisto ব্যাকগ্রাউন্ডে আপনার বেছে নেওয়া ওয়েক-ফ্রেজ শোনে। স্ক্রিন বন্ধ থাকলেও, ফ্রেজটি বললে আপনার পরিবারকে লাইভ লোকেশনসহ SOS চলে যায় — ঠিক SOS বোতামের মতোই।",
+    "When on, Assisto listens in the background for your chosen wake phrase. Even with the screen off, saying the phrase sends an SOS with your live location to your family — exactly like the SOS button."
+  ],
+  "vsosEnableTitle": [
+    "হ্যান্ডস-ফ্রি SOS চালু করুন",
+    "Turn on hands-free SOS"
+  ],
+  "vsosStateOn": [
+    "চালু — Assisto আপনার ফ্রেজ শুনছে",
+    "On — Assisto is listening for your phrase"
+  ],
+  "vsosStateOff": [
+    "বন্ধ (ডিফল্ট)। ব্যাটারি বাঁচাতে প্রয়োজনে চালু করুন।",
+    "Off (default). Turn on when you need it to save battery."
+  ],
+  "vsosPhraseLabel": [
+    "ওয়েক-ফ্রেজ",
+    "Wake phrase"
+  ],
+  "vsosPhraseTitle": [
+    "একটি ওয়েক-ফ্রেজ বেছে নিন",
+    "Choose a wake phrase"
+  ],
+  "vsosChange": [
+    "বদলান",
+    "Change"
+  ],
+  "vsosBatteryNote": [
+    "সবসময় শোনা ব্যাটারি খরচ করে। তাই এটি ডিফল্টে বন্ধ — ঝুঁকির সময় চালু রাখুন, পরে বন্ধ করে দিন।",
+    "Always-listening uses battery. That is why it is off by default — turn it on when you feel at risk and turn it off afterwards."
+  ],
+  "vsosPrivacyNote": [
+    "আপনার কথা শুধু ডিভাইসেই লেখা হয় — Assisto কোনো অডিও আপলোড বা রেকর্ড করে রাখে না। শুধু SOS পাঠালে তবেই (লোকেশনসহ) বার্তা ডিভাইস ছাড়ে, ঠিক ম্যানুয়াল SOS-এর মতো।",
+    "Your speech is transcribed only on your device — Assisto does not upload or store any audio. Only the SOS alert itself (with location) ever leaves the device, exactly like a manual SOS."
+  ],
+  "vsosRunningNote": [
+    "শোনা চালু আছে — আপনি নোটিফিকেশন বারে “Assisto শুনছে” দেখতে পাবেন। সেখান থেকেই বা এখানেই যেকোনো সময় বন্ধ করা যাবে।",
+    "Listening is active — you will see “Assisto is listening” in your notification bar. You can stop it from there or here any time."
+  ],
+  "vsosNotRunningNote": [
+    "শোনার সার্ভিস এখন চলছে না। টগল বন্ধ করে আবার চালু করে দেখুন।",
+    "The listening service is not running right now. Try turning the toggle off and on again."
+  ],
+  "vsosUnavailable": [
+    "এই ডিভাইসে অন-ডিভাইস স্পিচ ইঞ্জিন পাওয়া যায়নি, তাই হ্যান্ডস-ফ্রি SOS শুনতে পারছে না। SOS বোতাম সবসময় কাজ করে।",
+    "No on-device speech engine is available on this phone, so hands-free SOS cannot listen. The SOS button always works."
+  ],
+  "vsosMicDenied": [
+    "মাইক্রোফোনের অনুমতি ছাড়া হ্যান্ডস-ফ্রি SOS কথা শুনতে পারে না।",
+    "Without microphone permission, hands-free SOS cannot hear you."
+  ],
+  "vsosMicBlocked": [
+    "মাইক্রোফোন বন্ধ করা আছে",
+    "Microphone is blocked"
+  ],
+  "vsosMicBlockedBody": [
+    "মাইক্রোফোনের অনুমতি বন্ধ করা আছে, তাই Assisto ওয়েক-ফ্রেজ শুনতে পারছে না। সেটিংসে গিয়ে মাইক্রোফোনের অনুমতি দিন।",
+    "Microphone permission is turned off, so Assisto cannot listen for the wake phrase. Open settings and allow the microphone."
+  ],
+  "vsosOpenSettings": [
+    "সেটিংস খুলুন",
+    "Open settings"
+  ],
+  "vsosStartFailed": [
+    "শোনার সার্ভিস চালু করা গেল না। একটু পরে আবার চেষ্টা করুন।",
+    "Couldn't start the listening service. Please try again."
+  ],
+  "vsosNotifChannelName": [
+    "হ্যান্ডস-ফ্রি SOS",
+    "Hands-free SOS"
+  ],
+  "vsosNotifChannelDesc": [
+    "হ্যান্ডস-ফ্রি SOS শোনা চালু থাকলে এই নোটিফিকেশনটি দেখায়।",
+    "This notification shows while hands-free SOS is listening."
+  ],
+  "vsosNotifTitle": [
+    "Assisto আপনার SOS ফ্রেজ শুনছে",
+    "Assisto is listening for your SOS phrase"
+  ],
+  "vsosNotifText": [
+    "বন্ধ করতে ট্যাপ করুন। আপনার কথা শুধু ডিভাইসেই থাকে।",
+    "Tap to turn off. Your speech stays on your device."
+  ]
+}

@@ -36,6 +36,7 @@ import '../screens/daily_challenges_screen.dart';
 import '../screens/saved_items_screen.dart';
 import '../screens/kid_school_screen.dart';
 import '../screens/fitness_partner_screen.dart';
+import '../screens/smartwatch_screen.dart';
 import '../screens/contract_analyzer_screen.dart';
 import '../screens/cost_estimator_screen.dart';
 import '../screens/mock_interview_screen.dart';
@@ -71,6 +72,7 @@ import '../screens/guide_screen.dart';
 import '../screens/nearby_screen.dart';
 import '../screens/ride_food_screen.dart';
 import '../screens/fall_detect_screen.dart';
+import '../screens/lost_stolen_screen.dart';
 import '../screens/unseen_world_screen.dart';
 import '../screens/dictionary_screen.dart';
 import '../screens/ramadan_screen.dart';
@@ -243,6 +245,12 @@ class SidebarSections {
       SidebarItem(Icons.monitor_heart_outlined, (t) => t.fallDetectTitle,
           (_) => const FallDetectScreen(),
           synonyms: ['fall', 'fall detection', 'accident', 'elderly safety']),
+      // #80 Lost / stolen phone protection (device-admin: lock / alarm /
+      // locate / lost-message). Chat-openable via ChatNav route 'lost_stolen'.
+      SidebarItem(Icons.phonelink_lock_outlined, (t) => t.lostStolenTitle,
+          (_) => const LostStolenScreen(),
+          synonyms: ['lost', 'stolen', 'theft', 'anti-theft', 'find phone',
+              'device admin', 'remote lock', 'churi', 'harano']),
       // Wave-D batch-4: BD-specific disaster & weather warnings (cyclone / flood
       // / heatwave / earthquake), official sources only. Also chat-openable via
       // ChatNav route 'disaster'.
@@ -340,6 +348,18 @@ class SidebarSections {
       SidebarItem(Icons.fitness_center_outlined, (t) => t.fitTitle,
           (_) => const FitnessPartnerScreen(),
           synonyms: ['fitness', 'workout', 'exercise', 'steps', 'gym']),
+      // #70 Smartwatch & fitness — Health Connect bridge (steps/HR/sleep/energy).
+      SidebarItem(Icons.watch_outlined, (t) => t.swTitle,
+          (_) => const SmartwatchScreen(),
+          synonyms: [
+            'watch',
+            'smartwatch',
+            'health connect',
+            'heart rate',
+            'steps',
+            'wearable',
+            'fitness band'
+          ]),
       SidebarItem(Icons.quiz_outlined, (t) => t.chalTitle,
           (_) => const DailyChallengesScreen(),
           synonyms: ['challenge', 'quiz', 'daily', 'streak', 'game']),

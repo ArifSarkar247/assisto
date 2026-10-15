@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  #196 Home-screen widget metadata.
+  initialLayout points at the same layout the provider renders.
+  resizeable + a 2x1 default cell so the next reminder + count fit at 360dp.
+  previewImage is a vector drawable (shown in the launcher's widget picker).
+-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="180dp"
+    android:minHeight="70dp"
+    android:targetCellWidth="2"
+    android:targetCellHeight="1"
+    android:updatePeriodMillis="1800000"
+    android:initialLayout="@layout/assisto_widget"
+    android:previewImage="@drawable/assisto_widget_preview"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen" />

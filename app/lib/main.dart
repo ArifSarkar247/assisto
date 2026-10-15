@@ -10,6 +10,7 @@ import 'state.dart';
 import 'theme.dart';
 import 'updater.dart';
 import 'notifications.dart';
+import 'services/home_widget_service.dart';
 import 'widgets/a11y_prefs.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
@@ -36,6 +37,10 @@ void main() {
 
     // Notifications init is fully self-guarded; fire-and-forget.
     unawaited(Notifications.init());
+
+    // #196 Home-screen widget plugin init — fully self-guarded; a failure here
+    // never affects startup. Snapshots are pushed later from the reminders flow.
+    unawaited(HomeWidgetService.init());
 
     // Accessibility prefs (#200) — pure client prefs, loaded before first frame
     // so text-scale / high-contrast / reduce-motion apply app-wide immediately.

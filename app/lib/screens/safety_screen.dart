@@ -9,6 +9,7 @@ import '../state.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/safety_sos_countdown.dart';
 import '../widgets/safety_checkin_card.dart';
+import 'voice_sos_screen.dart';
 import '../widgets/scam_safety_api.dart';
 import '../widgets/sos_button.dart';
 import 'journey_start_screen.dart';
@@ -300,6 +301,17 @@ class _SafetyScreenState extends State<SafetyScreen> {
           leading: const Icon(Icons.timer_outlined),
           title: Text(t.safetySosCountdownValue(_sosCountdown)),
           trailing: TextButton(onPressed: _setCountdown, child: Text(t.edit)),
+        ),
+        // Hands-free Voice SOS (feature #79) — opt-in, OFF by default.
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.record_voice_over_outlined),
+          title: Text(t.vsosTitle),
+          subtitle: Text(t.vsosTileSubtitle,
+              style: const TextStyle(fontSize: 12)),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => const VoiceSosScreen())),
         ),
         const Divider(height: 28),
 

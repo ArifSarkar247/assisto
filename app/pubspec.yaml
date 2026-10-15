@@ -30,8 +30,18 @@ dependencies:
   permission_handler: ^11.3.1 # camera/mic/photos permission flow + openAppSettings
   image_cropper: ^8.0.2       # crop + rotate in the capture/edit screen
   geolocator: ^13.0.1         # SOS GPS location
-  speech_to_text: ^7.0.0      # Bangla/English voice input
+  speech_to_text: ^7.0.0      # Bangla/English voice input + #79 wake-phrase listen
   share_plus: ^10.0.2         # SOS share sheet / share-out
+  # #79 Hands-free Voice SOS — foreground service (persistent notification +
+  # microphone FGS type) that keeps speech_to_text listening with the screen off
+  # and fires the EXISTING SOS (api.journeySos) on the chosen wake phrase.
+  flutter_foreground_task: ^11.0.0
+  # #70 Smartwatch & fitness — bridges Android Health Connect natively (steps,
+  # heart rate, sleep, active energy). No custom Kotlin needed for reads.
+  health: ^13.3.1
+  # #196 Home-screen widget — pushes next-reminder / today count to a native
+  # AppWidgetProvider (see android_overlay/) and opens the app on tap.
+  home_widget: ^0.7.0
   # workmanager REMOVED — its androidx.work startup ContentProvider crashed on
   # launch (ColorOS/Realme) and background exec is throttled there anyway.
   # Family alerts now poll on app open/resume (see AppState). FCM later.

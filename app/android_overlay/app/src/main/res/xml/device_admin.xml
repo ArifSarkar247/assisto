@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  #80 Lost / stolen phone protection — device-admin policy set.
+
+  Request ONLY what the feature actually uses (Play-policy minimal scope):
+    * force-lock       -> remote LOCK the screen (DevicePolicyManager.lockNow)
+    * limit-password / reset-password -> allow enforcing/setting a lock when the
+      device is reported lost so a thief can't stay on an unlocked screen
+    * watch-login      -> receive onPasswordFailed (seam for an on-device alarm
+      after repeated wrong unlock attempts; the alarm itself is driven from
+      Dart today)
+
+  DELIBERATELY ABSENT: <wipe-data>. Remote wipe is NOT requested. Do not add it
+  unless the owner has cleared the Google Play anti-theft/device-admin review
+  (see integration note). Keeping wipe out also keeps the consent screen's
+  warning list minimal and trustworthy.
+-->
+<device-admin xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-policies>
+        <force-lock />
+        <limit-password />
+        <reset-password />
+        <watch-login />
+    </uses-policies>
+</device-admin>

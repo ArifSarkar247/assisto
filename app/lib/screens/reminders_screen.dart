@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../notifications.dart';
+import '../services/home_widget_service.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/reminders_nlp.dart';
 import '../widgets/rem_calendar.dart';
@@ -39,6 +40,16 @@ class _RemindersScreenState extends State<RemindersScreen> {
     final app = context.watch<AppState>();
     final items = app.reminders.items;
     final groups = _group(items);
+
+    // #196 Keep the home-screen widget in sync with the latest reminders.
+    // Fire-and-forget; a no-op when the widget is disabled. Labels are already
+    // localised (bn/en) so the native widget never holds a hard-coded string.
+    HomeWidgetService.refresh(app,
+        labels: HomeWidgetLabels(
+          emptyTitle: t.hwEmptyTitle,
+          emptyBody: t.hwEmptyBody,
+          todayLabel: t.hwTodayLabel,
+        ));
 
     return Scaffold(
       appBar: AppBar(

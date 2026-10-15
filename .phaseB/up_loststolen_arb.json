@@ -1,0 +1,73 @@
+{
+  "_note": "#80 Lost / stolen phone protection (device-admin). NEW ARB keys to merge into app/lib/l10n/app_en.arb and app/lib/l10n/app_bn.arb, then regenerate (flutter gen-l10n). Format: key:[bn,en]. 59 keys, all static labels — no runtime placeholders. bn and en never mixed. The screen (app/lib/screens/lost_stolen_screen.dart) also REUSES existing generic keys cancel/save/edit/safetyCheckinSet, which are already present in both arb files and are NOT re-listed here.",
+  "count": 59,
+
+  "lostStolenTitle": ["হারানো / চুরি সুরক্ষা", "Lost / Stolen Protection"],
+  "lostStolenEnable": ["চালু করুন", "Enable"],
+  "lostStolenManage": ["ব্যবস্থাপনা", "Manage"],
+
+  "lostStolenStateActive": ["সুরক্ষা চালু আছে", "Protection is ON"],
+  "lostStolenStateActiveBody": ["ডিভাইস-অ্যাডমিন অনুমোদিত — লক, অ্যালার্ম ও লোকেশন কাজ করবে।", "Device-admin is granted — lock, alarm and locate will work."],
+  "lostStolenStateInactive": ["সুরক্ষা বন্ধ আছে", "Protection is OFF"],
+  "lostStolenStateInactiveBody": ["ডিভাইস-অ্যাডমিন এখনও অনুমোদিত হয়নি। রিমোট লক কাজ করবে না — চালু করুন।", "Device-admin is not granted yet. Remote lock will not work — tap Enable."],
+
+  "lostStolenConsentExplain": ["ফোন হারালে বা চুরি হলে দূর থেকে লক করতে Assisto-র ডিভাইস-অ্যাডমিন দরকার।", "Assisto needs device-admin to lock your phone if it is lost or stolen."],
+  "lostStolenNativeMissing": ["এই বিল্ডে ডিভাইস-সুরক্ষা মডিউলটি নেই।", "The device-protection module isn't available in this build."],
+
+  "lostStolenIntroTitle": ["এটি যা করে", "What this does"],
+  "lostStolenIntroBody": ["ফোন হারালে বা চুরি হলে আপনি দূর থেকে এটি লক করতে, জোরে অ্যালার্ম বাজাতে, শেষ অবস্থান জানাতে এবং লক স্ক্রিনে মালিকের যোগাযোগ দেখাতে পারবেন।", "If your phone goes missing you can lock it remotely, sound a loud alarm, report its last location, and show an owner-contact message on the lock screen."],
+  "lostStolenBulletLock": ["দূর থেকে স্ক্রিন লক করুন।", "Remotely lock the screen."],
+  "lostStolenBulletAlarm": ["জোরে অ্যালার্ম বাজান (সাইলেন্ট থাকলেও)।", "Sound a loud alarm (even if on silent)."],
+  "lostStolenBulletLocate": ["বিদ্যমান SOS GPS দিয়ে শেষ অবস্থান জানান।", "Report the last location using the existing SOS GPS."],
+  "lostStolenBulletMessage": ["লক স্ক্রিনে \"হারানো ফোন\" বার্তা ও মালিকের নম্বর দেখান।", "Show a \"lost phone\" message with the owner's number."],
+  "lostStolenPrivacyNote": ["অবস্থান শুধু আপনার নির্দেশে পাঠানো হয়; রিকভারি পিন শুধু এই ফোনে এনক্রিপ্ট করে রাখা হয়, কাঁচা অবস্থায় কোথাও যায় না।", "Location is only sent when you ask; the recovery PIN is stored encrypted on this phone and never leaves it in plain form."],
+
+  "lostStolenRecoveryPin": ["রিকভারি পিন", "Recovery PIN"],
+  "lostStolenPinSet": ["পিন সেট করা আছে", "A PIN is set"],
+  "lostStolenPinNotSet": ["এখনও পিন সেট করা হয়নি", "No PIN set yet"],
+  "lostStolenPinChange": ["পরিবর্তন", "Change"],
+  "lostStolenPinHint": ["৪–৮ সংখ্যার একটি পিন দিন। সুরক্ষা বন্ধ করার সময় এটি লাগবে।", "Choose a 4–8 digit PIN. You'll need it to turn protection off."],
+  "lostStolenPinLabel": ["পিন", "PIN"],
+  "lostStolenPinConfirmLabel": ["পিন নিশ্চিত করুন", "Confirm PIN"],
+  "lostStolenPinTooShort": ["পিন কমপক্ষে ৪ সংখ্যার হতে হবে।", "PIN must be at least 4 digits."],
+  "lostStolenPinMismatch": ["দুটি পিন মিলছে না।", "The PINs don't match."],
+  "lostStolenPinSaved": ["রিকভারি পিন সংরক্ষিত হয়েছে।", "Recovery PIN saved."],
+  "lostStolenPinWrong": ["পিন সঠিক নয়।", "Incorrect PIN."],
+
+  "lostStolenActionsTitle": ["রিমোট অ্যাকশন", "Remote actions"],
+  "lostStolenActionLock": ["স্ক্রিন লক করুন", "Lock the screen"],
+  "lostStolenActionLockOk": ["ডিভাইস-অ্যাডমিন চালু — লক কাজ করবে।", "Device-admin is on — lock will work."],
+  "lostStolenNeedsAdmin": ["এটি কাজ করতে ডিভাইস-অ্যাডমিন দরকার।", "This needs device-admin to work."],
+  "lostStolenActionAlarm": ["জোরে অ্যালার্ম", "Loud alarm"],
+  "lostStolenActionAlarmBody": ["সর্বোচ্চ ভলিউমে অ্যালার্ম বাজায় ও ভাইব্রেট করে।", "Plays at max volume and vibrates."],
+  "lostStolenActionLocate": ["শেষ অবস্থান জানান", "Report last location"],
+  "lostStolenActionLocateBody": ["বিদ্যমান SOS লোকেশন সার্ভিস ব্যবহার করে।", "Uses the existing SOS location service."],
+  "lostStolenActionMessage": ["লক স্ক্রিনে বার্তা", "Lock-screen message"],
+  "lostStolenActionMessageBody": ["\"হারানো ফোন\" বার্তা ও মালিকের নম্বর দেখায়।", "Shows a \"lost phone\" note with the owner's number."],
+
+  "lostStolenTestLock": ["লক পরীক্ষা করুন", "Test lock"],
+  "lostStolenTestAlarm": ["অ্যালার্ম পরীক্ষা করুন", "Test alarm"],
+  "lostStolenReportNow": ["এখনই অবস্থান পাঠান", "Report location now"],
+  "lostStolenLockSent": ["লক নির্দেশ পাঠানো হয়েছে।", "Lock command sent."],
+  "lostStolenActionFailed": ["অ্যাকশনটি করা যায়নি।", "That action couldn't be completed."],
+  "lostStolenAlarmPlaying": ["অ্যালার্ম বাজছে", "Alarm playing"],
+  "lostStolenAlarmPlayingBody": ["এটি একটি পরীক্ষা। থামাতে নিচে চাপুন।", "This is a test. Tap below to stop."],
+  "lostStolenStopAlarm": ["অ্যালার্ম থামান", "Stop alarm"],
+  "lostStolenNoLocation": ["অবস্থান পাওয়া যায়নি — লোকেশন চালু আছে কিনা দেখুন।", "Couldn't get a location — check that location is on."],
+  "lostStolenLocationSent": ["শেষ অবস্থান পাঠানো হয়েছে।", "Last location reported."],
+  "lostStolenLocationQueued": ["অফলাইন — অবস্থানটি সারিতে রাখা হলো, সংযোগ ফিরলে পাঠানো হবে।", "Offline — location queued and will send when you're back online."],
+
+  "lostStolenLostMessage": ["হারানো-ফোন বার্তা ও মালিকের যোগাযোগ", "Lost-phone message & owner contact"],
+  "lostStolenLostMessageEmpty": ["এখনও কোনো মালিকের যোগাযোগ যোগ করা হয়নি।", "No owner contact added yet."],
+  "lostStolenOwnerName": ["মালিকের নাম", "Owner name"],
+  "lostStolenOwnerPhone": ["বিকল্প যোগাযোগ নম্বর", "Alternate contact number"],
+  "lostStolenMessageLabel": ["লক স্ক্রিনে দেখানো বার্তা", "Message shown on the lock screen"],
+
+  "lostStolenTriggersTitle": ["ট্রিগার", "Triggers"],
+  "lostStolenTriggersBody": ["বিশ্বস্ত পরিচিতি বা SMS কমান্ড দিয়ে দূর থেকে এই অ্যাকশনগুলো চালু করার ব্যবস্থা।", "Ways to trigger these actions remotely via a trusted contact or an SMS command."],
+  "lostStolenSmsTrigger": ["SMS কমান্ড ট্রিগার", "SMS-command trigger"],
+  "lostStolenSmsTriggerSoon": ["শীঘ্রই আসছে — এটির জন্য আলাদা নেটিভ SMS রিসিভার দরকার, এখনও যুক্ত হয়নি।", "Coming soon — this needs a separate native SMS receiver, not shipped yet."],
+
+  "lostStolenUninstallTitle": ["আনইনস্টল সুরক্ষা", "Uninstall resistance"],
+  "lostStolenUninstallBody": ["ডিভাইস-অ্যাডমিন চালু থাকা অবস্থায় Android অ্যাপটি আনইনস্টল হতে দেয় না — আগে সুরক্ষা বন্ধ করতে হবে (সেটিংস → নিরাপত্তা → ডিভাইস অ্যাডমিন)। এটি কোনো অটুট লক নয়, তবে সাধারণ চোরকে থামায়।", "While device-admin is active Android blocks uninstalling the app until you turn protection off (Settings → Security → Device admin). This isn't an unbreakable lock, but it stops a casual thief."]
+}

@@ -12,6 +12,7 @@ import '../screens/reminders_screen.dart';
 import '../screens/plans_screen.dart';
 import '../screens/scam_screen.dart';
 import '../screens/safety_screen.dart';
+import '../screens/voice_sos_screen.dart';
 import '../screens/crm/crm_home_screen.dart';
 // module 5 (P13+)
 import '../screens/medicine_db_screen.dart';
@@ -21,6 +22,7 @@ import '../screens/meetings_screen.dart';
 import '../screens/dictionary_screen.dart';
 import '../screens/ride_food_screen.dart';
 import '../screens/fall_detect_screen.dart';
+import '../screens/lost_stolen_screen.dart';
 import '../screens/owner_analytics_screen.dart';
 import '../screens/name_about_screen.dart';
 import '../screens/ramadan_screen.dart';
@@ -94,6 +96,7 @@ class ChatNav {
     'plans': (_) => const PlansScreen(),
     'scam': (_) => const ScamScreen(),
     'safety': (_) => const SafetyScreen(),
+    'voice_sos': (_) => const VoiceSosScreen(),
     'crm': (_) => const CrmHomeScreen(),
     // module 5 (P13+)
     'medicine_db': (_) => const MedicineDbScreen(),
@@ -103,6 +106,7 @@ class ChatNav {
     'dictionary': (_) => const DictionaryScreen(),
     'ride_food': (_) => const RideFoodScreen(),
     'fall_detect': (_) => const FallDetectScreen(),
+    'lost_stolen': (_) => const LostStolenScreen(),
     'analytics': (_) => const OwnerAnalyticsScreen(),
     'name_about': (_) => const NameAboutScreen(),
     'ramadan': (_) => const RamadanScreen(),
@@ -170,6 +174,10 @@ class ChatNav {
     'plans': ['plans', 'plan', 'premium', 'upgrade', 'subscribe', 'pricing'],
     'scam': ['scam check', 'scam', 'fraud'],
     'safety': ['safe arrival', 'safety', 'check-in', 'checkin'],
+    'voice_sos': [
+      'hands-free sos', 'hands free sos', 'voice sos', 'wake phrase',
+      'voice emergency',
+    ],
     'crm': ['sales crm', 'pipeline', 'leads', 'crm'],
     // module 5 (P13+)
     'medicine_db': ['medicine database', 'drug lookup', 'medicine info'],

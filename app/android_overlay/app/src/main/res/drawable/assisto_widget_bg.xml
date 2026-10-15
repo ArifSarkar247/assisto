@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #196 widget background: brand dark field with rounded corners + subtle
+     cyan->blue->purple diagonal gradient (matches the app's Brand.gradient). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="18dp" />
+    <gradient
+        android:startColor="#0A1430"
+        android:centerColor="#10204A"
+        android:endColor="#1A1038"
+        android:angle="135" />
+    <stroke
+        android:width="1dp"
+        android:color="#223B6E" />
+</shape>
