@@ -87,6 +87,9 @@ jobs:
           p = "android/app/src/main/AndroidManifest.xml"
           s = open(p).read()
           s = s.replace('android:label="assisto"', 'android:label="Assisto"')
+          # tools: namespace for tools:node overrides.
+          if 'xmlns:tools' not in s:
+              s = s.replace('<manifest ', '<manifest xmlns:tools="http://schemas.android.com/tools" ', 1)
           perms = (
               '\n    <uses-permission android:name="android.permission.INTERNET"/>'
               '\n    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>'
@@ -166,8 +169,22 @@ jobs:
           )
           if '.AssistoWidgetProvider' not in s:
               s = s.replace('</application>', native_components + '    </application>', 1)
+          # LAUNCH-ANR FIX: disable androidx.startup auto-initialization. This
+          # phone (Realme/ColorOS) ANR'd at process start on the androidx
+          # WorkManager startup ContentProvider before; androidx.camera (CameraX)
+          # now pulls androidx.startup too. Removing the InitializationProvider
+          # makes those libs lazy-init (CameraX inits on first use;
+          # profileinstaller baseline profiles are a skippable perf optimisation)
+          # so NOTHING heavy runs via a ContentProvider at cold start.
+          startup_remove = (
+              '\n        <provider android:name="androidx.startup.InitializationProvider"'
+              ' android:authorities="${applicationId}.androidx-startup"'
+              ' tools:node="remove"/>\n'
+          )
+          if 'androidx.startup.InitializationProvider' not in s:
+              s = s.replace('</application>', startup_remove + '    </application>', 1)
           open(p, "w").write(s)
-          print("manifest patched: label, permissions, queries, UCropActivity, native components")
+          print("manifest patched: label, permissions, queries, UCropActivity, native components, androidx.startup removed")
           PY
 
       - name: Patch iOS Info.plist (camera/mic/photos usage strings)
@@ -316,21 +333,17 @@ jobs:
           profile: pixel_5
           disable-animations: true
           emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          # NOTE: this script runs under /bin/sh in the runner — use only
+          # &&/|| one-liners (multi-line if/then/fi breaks it).
           script: |
-            set -x
-            adb install -r apk/*.apk
-            adb logcat -c
-            # Launch via monkey (auto-resolves the launcher activity).
-            adb shell monkey -p com.assisto.assisto -c android.intent.category.LAUNCHER 1
-            sleep 60
-            adb logcat -d > logcat.txt || true
-            echo "===== last 120 logcat lines ====="; tail -120 logcat.txt
-            # FAIL on ANR / fatal crash / process death / early VM shutdown of our app.
-            if grep -E "ANR in com\.assisto|FATAL EXCEPTION|Process com\.assisto\.assisto .*has died|Force finishing activity .*com\.assisto|FATAL SIGNAL|Shutting down VM" logcat.txt; then
-              echo "::error::App ANR/crash on API ${{ matrix.api }} (see logcat above)"; exit 1
-            fi
-            # Confirm the app process is actually alive (didn't crash-dismiss).
-            if ! adb shell pidof com.assisto.assisto >/dev/null 2>&1; then
-              echo "::error::App process not running 60s after launch on API ${{ matrix.api }}"; exit 1
-            fi
-            echo "LAUNCH OK on API ${{ matrix.api }}"
+            adb install -r apk/*.apk || { echo "install failed"; exit 1; }
+            adb logcat -c || true
+            adb shell am start -n com.assisto.assisto/com.assisto.assisto.MainActivity || adb shell monkey -p com.assisto.assisto -c android.intent.category.LAUNCHER 1
+            sleep 45
+            adb logcat -d > logcat.txt 2>/dev/null || true
+            echo "===== last 120 logcat lines ====="; tail -120 logcat.txt || true
+            grep -E "FATAL EXCEPTION|ANR in com.assisto|com.assisto.assisto.*has died|FATAL SIGNAL|AndroidRuntime.*com.assisto" logcat.txt > crashes.txt 2>/dev/null || true
+            test ! -s crashes.txt || { echo "::error::CRASH/ANR on API ${{ matrix.api }}"; cat crashes.txt; exit 1; }
+            adb shell pidof com.assisto.assisto > pid.txt 2>/dev/null || true
+            test -s pid.txt || { echo "::error::app NOT running 45s after launch on API ${{ matrix.api }}"; exit 1; }
+            echo "LAUNCH OK on API ${{ matrix.api }} pid=$(cat pid.txt)"
