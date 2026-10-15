@@ -26,7 +26,7 @@ dependencies:
   url_launcher: ^6.3.0
   # Part A plugins (probe-validated to build together on release arm64)
   image_picker: ^1.1.2        # vault attachments: camera / gallery
-  camera: ^0.11.0+2           # in-app camera: live preview + photo + video
+  camera: ^0.12.0           # in-app camera (0.12 pulls camera_avfoundation 0.11, fixes iOS Swift)
   permission_handler: ^11.3.1 # camera/mic/photos permission flow + openAppSettings
   image_cropper: ^8.0.2       # crop + rotate in the capture/edit screen
   geolocator: ^13.0.1         # SOS GPS location
