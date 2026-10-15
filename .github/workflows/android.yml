@@ -212,11 +212,14 @@ jobs:
           gr = "android/app/build.gradle"
           p, is_kts = (kts, True) if os.path.exists(kts) else (gr, False)
           s = open(p).read()
-          # Force minSdk 23 (required by file_picker / lifecycle / notifications):
+          # Force minSdk 26 (Android 8.0): the Health Connect plugin (#70) requires
+          # 26; older plugins (file_picker / lifecycle / notifications) need 23. 26
+          # covers ~96%+ of active devices in 2026 and old Android 6-7 phones can't
+          # run Health Connect anyway.
           # strip any existing minSdk line, then inject into defaultConfig.
           import re as _re
           s = _re.sub(r'\n[ \t]*minSdk[A-Za-z]*\s*=?[^\n]*', '', s)
-          inject = '\n        minSdk = 23' if is_kts else '\n        minSdkVersion 23'
+          inject = '\n        minSdk = 26' if is_kts else '\n        minSdkVersion 26'
           s = s.replace('defaultConfig {', 'defaultConfig {' + inject, 1)
           # compileSdk 36 (required by flutter_plugin_android_lifecycle)
           s = _re.sub(r'\n[ \t]*compileSdk[A-Za-z]*\s*=?[^\n]*', '', s)

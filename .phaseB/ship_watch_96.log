@@ -1,0 +1,32 @@
+[watch] run 38674646833
+
+- "The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748"
+build-apk: .github#1
+
+SHIP_RESULT=build_failed
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.2737581Z > Run with --stacktrace option to get the stack trace.
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.2738241Z > Run with --info or --debug option to get more log output.
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.2739046Z > Run with --scan to get full insights from a Build Scan (powered by Develocity).
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.2739717Z > Get more help at https://help.gradle.org.
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.2740063Z 
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.2740224Z BUILD FAILED in 6m 44s
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.6882605Z Running Gradle task 'assembleRelease'...                          405.1s
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.6906527Z 
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.6911715Z ┌─ Flutter Fix ─────────────────────────────────────────────────────────────────────────────────┐
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.6913384Z │ The plugin health requires a higher Android SDK version.                                      │
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.6915002Z │ Fix this issue by adding the following to the file                                            │
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.6916784Z │ /home/runner/work/***/***/app/android/app/build.gradle.kts:                           │
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.6918155Z │ android {                                                                                     │
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.6919714Z │   defaultConfig {                                                                             │
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.6921495Z │     minSdkVersion 26                                                                          │
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.6923089Z │   }                                                                                           │
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.6924503Z │ }                                                                                             │
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.6925766Z │                                                                                               │
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.6927899Z │ Following this change, your app will not be available to users running Android SDKs below 26. │
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.6929166Z │ Consider searching for a version of this plugin that supports these lower versions of the     │
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.6930969Z │ Android SDK instead.                                                                          │
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.6932726Z │ For more information, see: https://flutter.dev/to/review-gradle-config                        │
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.6934335Z └───────────────────────────────────────────────────────────────────────────────────────────────┘
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.7445582Z Gradle task assembleRelease failed with exit code 1
+build-apk	Build release APK (arm64 only)	2026-10-15T03:15:52.7499823Z ##[error]Process completed with exit code 1.
+vis=PUBLIC
