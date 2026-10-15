@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -60,10 +62,17 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) _refreshMic();
+    if (state == AppLifecycleState.resumed && !Platform.isIOS) _refreshMic();
   }
 
   Future<void> _load() async {
+    // iOS: the always-on foreground service does not exist. Don't query it or
+    // the mic status for a feature we won't offer here; just render the honest
+    // Android-only state.
+    if (Platform.isIOS) {
+      if (mounted) setState(() => _loading = false);
+      return;
+    }
     _enabled = await VoiceSosConfig.isEnabled();
     _phrase = await VoiceSosConfig.phrase();
     _running = await VoiceSosManager.instance.isRunning();
@@ -77,6 +86,7 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
   }
 
   Future<void> _toggle(bool on) async {
+    if (Platform.isIOS) return; // no always-on foreground service on iOS
     if (_busy) return;
     final messenger = ScaffoldMessenger.of(context);
     setState(() => _busy = true);
@@ -154,6 +164,15 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
 
   @override
   Widget build(BuildContext context) {
+    // iOS: an always-listening foreground microphone service is not possible
+    // (background audio is restricted). Show an honest Android-only state; the
+    // foreground-service plugin is never started here. Manual SOS still works.
+    if (Platform.isIOS) {
+      return Scaffold(
+        appBar: AppBar(title: Text(t.vsosTitle)),
+        body: _iosOnly(),
+      );
+    }
     return Scaffold(
       appBar: AppBar(title: Text(t.vsosTitle)),
       body: _loading
@@ -183,6 +202,41 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
                 _runningNote(),
               ],
             ),
+    );
+  }
+
+  /// Honest iOS state: hands-free Voice SOS is Android-only for now.
+  Widget _iosOnly() {
+    final cs = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.lg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.hearing_disabled,
+                size: 56, color: cs.onSurfaceVariant),
+            const SizedBox(height: Gap.md),
+            Text(
+              t.iosAndroidOnlyTitle,
+              textAlign: TextAlign.center,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: Gap.sm),
+            Text(
+              t.vsosIosOnlyBody,
+              textAlign: TextAlign.center,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: cs.onSurfaceVariant, height: 1.4),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

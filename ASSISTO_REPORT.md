@@ -833,3 +833,13 @@ NOTHING basic may remain.
 
 ## REMAINING: native-platform items (need owner real-device testing) + Step 7
 Native items each need a specific on-phone test (list prepared for owner). Step 7 = P14-16 + iOS + FINAL.
+
+## BUILD 97 — NATIVE ITEMS (#70/#196/#79/#80) + overlay mechanism 2026-10-15
+- Builds 94-95: OWNER UI FIX (top-bar swap, single-item Contacts, Account&Finance rename, full in-app camera + UCrop fix). Build 96 FAILED (health plugin needs minSdk 26). Build 97 GREEN with minSdk 26.
+- NEW android_overlay/ mechanism: committed native Kotlin/res merged over the CI flutter-create tree (workflow copy step after flutter create); manifest components/perms injected in the workflow patch. Proven working build 97.
+- #70 Health Connect (health pkg, minSdk 26), #196 widget (home_widget + overlay provider), #79 voice SOS (flutter_foreground_task, reuses journeySos), #80 lost/stolen (overlay DeviceAdminReceiver + MainActivity MethodChannel, reuses GPS/PIN, no wipe). ALL live native behaviour = OWNER DEVICE TEST (checklists in .phaseB/up_*_integration.md).
+- PRODUCT DECISION flagged to owner: minSdk 23→26 (Android 8.0+) due to Health Connect. Lost Android 6-7 (<3% market). Awaiting owner confirmation.
+- LESSON: native agents edited shared files (ARB/pubspec/sidebar/main) concurrently → races. Reconciled from .phaseB jsons (parity held). Future native batches: tell agents to only emit .phaseB + describe wiring.
+- NEXT: Step 7 (P14-16 leftovers + iOS prep + FINAL).
+
+## STEP 7 SCOPE CHECK

@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/foundation.dart';
 import 'package:home_widget/home_widget.dart';
 
@@ -39,9 +41,16 @@ class HomeWidgetService {
 
   static bool _initialised = false;
 
-  /// One-time init. Safe to call more than once. The app-group id only matters
-  /// on iOS (not built here) so we pass the Android package id.
+  /// Whether the home-screen widget is supported on this platform. Android only:
+  /// no iOS WidgetKit extension is shipped yet, so on iOS every call here is a
+  /// no-op and the Settings tile shows an honest "coming soon".
+  static bool get isSupported => Platform.isAndroid;
+
+  /// One-time init. Safe to call more than once. No-op on iOS (no widget
+  /// extension). The app-group id only matters on iOS (not built here) so we
+  /// pass the Android package id.
   static Future<void> init() async {
+    if (!isSupported) return;
     if (_initialised) return;
     try {
       await HomeWidget.setAppGroupId('com.assisto');
@@ -69,6 +78,7 @@ class HomeWidgetService {
     AppState app, {
     required HomeWidgetLabels labels,
   }) async {
+    if (!isSupported) return false; // iOS: no widget extension, no-op
     if (!await isEnabled()) return false;
     await init();
     if (!_initialised) return false;
@@ -100,6 +110,7 @@ class HomeWidgetService {
 
   /// Clear the widget back to its empty state (used when the user disables it).
   static Future<void> clear(HomeWidgetLabels labels) async {
+    if (!isSupported) return; // iOS: no widget extension, no-op
     await init();
     if (!_initialised) return;
     try {

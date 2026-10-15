@@ -1,0 +1,6 @@
+{
+  "iosAndroidOnlyTitle": ["এখন শুধু Android-এ", "Android-only for now"],
+  "lostStolenIosOnlyBody": ["হারানো/চুরি হওয়া ফোন সুরক্ষা Android ডিভাইস-অ্যাডমিন ব্যবহার করে (রিমোট লক, অ্যালার্ম, আনইনস্টল-প্রতিরোধ), যা iOS তৃতীয়-পক্ষের অ্যাপকে করতে দেয় না। আমরা iPhone-এ অর্ধেক-কাজ করা সংস্করণ দিচ্ছি না। আপনার অন্যান্য নিরাপত্তা সরঞ্জাম — SOS, নিরাপদ পৌঁছানো ও জরুরি কার্ড — iOS-এ কাজ করে।", "Lost/stolen phone protection uses Android device-admin (remote lock, alarm, uninstall-resistance), which iOS does not allow third-party apps to do. We're not shipping a half-working version on iPhone. Your other safety tools — SOS, safe-arrival and emergency card — work on iOS."],
+  "vsosIosOnlyBody": ["হ্যান্ডস-ফ্রি ভয়েস SOS-এর জন্য ব্যাকগ্রাউন্ডে সবসময় চালু মাইক্রোফোন দরকার। iOS ব্যাটারি ও গোপনীয়তার জন্য ব্যাকগ্রাউন্ড অডিও সীমিত করে, তাই iPhone-এ সবসময়-শোনা SOS সম্ভব নয়। ম্যানুয়াল SOS এখনও কাজ করে — যেকোনো সময় SOS বোতামে চাপুন।", "Hands-free Voice SOS needs an always-on microphone in the background. iOS restricts background audio for battery and privacy, so an always-listening SOS isn't possible on iPhone. Manual SOS still works — tap the SOS button any time."],
+  "hwIosSoon": ["হোম-স্ক্রিন উইজেট এখন শুধু Android-এ; iOS উইজেট পরবর্তী আপডেটে আসছে।", "Home-screen widget is Android-only right now; an iOS widget is coming in a later update."]
+}

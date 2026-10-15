@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io' show Platform;
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -111,6 +112,13 @@ class _LostStolenScreenState extends State<LostStolenScreen>
   // ---- native bridge (honest, every call guarded) -----------------------
 
   Future<void> _refreshAdmin() async {
+    // iOS: device-admin does not exist. Never touch the MethodChannel — just
+    // report INACTIVE so the honest iOS state renders. (build() also returns an
+    // Android-only screen on iOS, but this keeps the native call from firing.)
+    if (Platform.isIOS) {
+      if (mounted) setState(() => _adminActive = false);
+      return;
+    }
     bool active = false;
     try {
       active = await _channel.invokeMethod<bool>('isAdminActive') ?? false;
@@ -123,6 +131,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
   }
 
   Future<void> _enable() async {
+    if (Platform.isIOS) return; // no device-admin on iOS
     final tr = AppLocalizations.of(context);
     try {
       await _channel.invokeMethod<bool>(
@@ -138,6 +147,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
   }
 
   Future<void> _openAdminSettings() async {
+    if (Platform.isIOS) return; // no device-admin on iOS
     final tr = AppLocalizations.of(context);
     // If a recovery PIN is set, require it before exposing the deactivation
     // path (a thief shouldn't be able to turn protection off casually). This is
@@ -161,6 +171,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
   }
 
   Future<void> _testLock() async {
+    if (Platform.isIOS) return; // no device-admin on iOS
     final tr = AppLocalizations.of(context);
     if (!_adminActive) return;
     bool ok = false;
@@ -173,6 +184,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
   }
 
   Future<void> _testAlarm() async {
+    if (Platform.isIOS) return; // native alarm receiver is Android-only
     final tr = AppLocalizations.of(context);
     bool ok = false;
     try {
@@ -419,6 +431,15 @@ class _LostStolenScreenState extends State<LostStolenScreen>
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
+    // iOS: device-admin (remote lock / alarm / uninstall-resistance) is an
+    // Android-only capability. Show an honest "Android-only" state instead of a
+    // dead toggle UI. The native MethodChannel is never touched on iOS.
+    if (Platform.isIOS) {
+      return Scaffold(
+        appBar: AppBar(title: Text(tr.lostStolenTitle)),
+        body: _iosOnly(tr, scheme),
+      );
+    }
     return Scaffold(
       appBar: AppBar(title: Text(tr.lostStolenTitle)),
       body: _loading
@@ -442,6 +463,40 @@ class _LostStolenScreenState extends State<LostStolenScreen>
                 const SizedBox(height: Gap.xl),
               ],
             ),
+    );
+  }
+
+  /// Honest iOS state: this protection is Android-only for now.
+  Widget _iosOnly(AppLocalizations tr, ColorScheme scheme) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.lg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.phonelink_lock_outlined,
+                size: 56, color: scheme.onSurfaceVariant),
+            const SizedBox(height: Gap.md),
+            Text(
+              tr.iosAndroidOnlyTitle,
+              textAlign: TextAlign.center,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: Gap.sm),
+            Text(
+              tr.lostStolenIosOnlyBody,
+              textAlign: TextAlign.center,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: scheme.onSurfaceVariant, height: 1.4),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

@@ -1,0 +1,177 @@
+name: iOS compile check (Assisto)
+
+# ==========================================================================
+# COMPILE CHECK ONLY — this is NOT a release/distribution pipeline.
+#
+# It proves the Assisto Flutter app COMPILES for iOS (unsigned) on a macOS
+# runner. It does NOT produce a signed, installable IPA (no provisioning
+# profile, no Apple Developer account, no code-signing). Shipping to the App
+# Store / TestFlight needs signing + a Share Extension + a WidgetKit extension
+# that cannot be built here (see .phaseB/up_ios_integration.md for the
+# follow-up notes).
+#
+# The app is Android-first; several native features (device-admin #80, the
+# always-on voice-SOS foreground service #79, the home-screen widget #196) are
+# gracefully guarded to be Android-only in Dart (dart:io Platform checks), so
+# they compile but show an honest "Android-only" state on iOS.
+# ==========================================================================
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [ main ]
+    paths:
+      - 'app/**'
+      - '.github/workflows/ios.yml'
+
+concurrency:
+  group: ios-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ios-compile-check:
+    # macOS runner is REQUIRED for any iOS/Xcode build. Linux cannot build iOS.
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Show toolchain
+        run: |
+          flutter --version
+          xcodebuild -version || true
+          pod --version || true
+
+      - name: Generate iOS platform files
+        working-directory: app
+        run: flutter create --project-name assisto --org com.assisto --platforms=ios .
+
+      - name: Pub get
+        working-directory: app
+        run: flutter pub get
+
+      - name: Patch iOS Info.plist (permission usage strings)
+        working-directory: app
+        # Keep this COMPLETE + consistent with the (camera/mic/photos) patch in
+        # android.yml. iOS crashes at runtime if a used permission lacks its
+        # usage string, and App Store review rejects builds missing them.
+        run: |
+          python3 - <<'PY'
+          import os
+          p = "ios/Runner/Info.plist"
+          if not os.path.exists(p):
+              raise SystemExit("ERROR: ios/Runner/Info.plist missing after flutter create")
+          s = open(p).read()
+          entries = {
+              # camera / mic / photos — must match android.yml's iOS patch
+              "NSCameraUsageDescription":
+                  "Assisto uses the camera so you can take photos and record "
+                  "videos to share with your circle or post as a status.",
+              "NSMicrophoneUsageDescription":
+                  "Assisto uses the microphone to record audio while you shoot a "
+                  "video, and for voice input and voice SOS.",
+              "NSPhotoLibraryUsageDescription":
+                  "Assisto needs your photos so you can pick an existing picture "
+                  "or video to share with your circle or post as a status.",
+              # location — SOS / safe-arrival / lost-device last location
+              "NSLocationWhenInUseUsageDescription":
+                  "Assisto uses your location to attach where you are to an SOS or "
+                  "safe-arrival alert so your circle can find you.",
+              "NSLocationAlwaysAndWhenInUseUsageDescription":
+                  "Assisto can share your location during a safe-journey so your "
+                  "circle can follow your trip until you arrive safely.",
+              # contacts — circle invites / contact matching
+              "NSContactsUsageDescription":
+                  "Assisto can read your contacts so you can quickly invite people "
+                  "to your circle and find contacts who already use Assisto.",
+              # on-device speech recognition — voice input / wake phrase
+              "NSSpeechRecognitionUsageDescription":
+                  "Assisto uses speech recognition to turn your voice into text for "
+                  "voice input and hands-free commands.",
+              # motion — step/activity reads used by fitness features
+              "NSMotionUsageDescription":
+                  "Assisto reads motion and fitness data to show your steps and "
+                  "activity in your wellness tools.",
+              # HealthKit usage (the `health` plugin, #70). Needed if HealthKit
+              # is read; harmless to declare. The HealthKit *capability* still
+              # requires signing (not done in this compile check).
+              "NSHealthShareUsageDescription":
+                  "Assisto reads your health data (steps, heart rate, sleep, "
+                  "active energy) to show it in your wellness and smartwatch tools.",
+              "NSHealthUpdateUsageDescription":
+                  "Assisto does not write to Health; this is declared only because "
+                  "the Health framework requires it to be present.",
+          }
+          inject = ""
+          for k, v in entries.items():
+              if k not in s:
+                  inject += f"\t<key>{k}</key>\n\t<string>{v}</string>\n"
+          # UIBackgroundModes for the voice-SOS foreground task plugin (#79). On
+          # iOS the always-on service is guarded OFF in Dart, but the plugin's
+          # pod still expects the key; declaring 'audio'+'fetch' is honest and
+          # lets the pod/build resolve.
+          if "UIBackgroundModes" not in s:
+              inject += ("\t<key>UIBackgroundModes</key>\n\t<array>\n"
+                         "\t\t<string>fetch</string>\n"
+                         "\t\t<string>processing</string>\n\t</array>\n")
+          if inject:
+              s = s.replace("</dict>\n</plist>", inject + "</dict>\n</plist>", 1)
+              open(p, "w").write(s)
+              print("Info.plist patched with iOS permission usage strings")
+          else:
+              print("Info.plist already complete")
+          PY
+
+      - name: Set iOS deployment target (Podfile)
+        working-directory: app
+        # The `health` plugin needs iOS 15.0 and flutter_foreground_task needs
+        # 13.0; set the Podfile platform to 15.0 so CocoaPods can resolve every
+        # pod. Without this, `pod install` fails on the higher-minimum pods.
+        run: |
+          python3 - <<'PY'
+          import os, re
+          p = "ios/Podfile"
+          if not os.path.exists(p):
+              raise SystemExit("ERROR: ios/Podfile missing after flutter create")
+          s = open(p).read()
+          # Uncomment / set the global platform line to 15.0.
+          if re.search(r"^\s*#?\s*platform :ios", s, re.M):
+              s = re.sub(r"^\s*#?\s*platform :ios.*$",
+                         "platform :ios, '15.0'", s, count=1, flags=re.M)
+          else:
+              s = "platform :ios, '15.0'\n" + s
+          open(p, "w").write(s)
+          print("Podfile platform set to iOS 15.0")
+          PY
+
+      - name: Precache iOS artifacts
+        working-directory: app
+        run: flutter precache --ios
+
+      - name: CocoaPods install (pod repo update)
+        working-directory: app/ios
+        # `flutter build ios` also runs pod install, but doing it here first
+        # surfaces any pod that lacks iOS support as a clear, isolated failure.
+        run: |
+          pod install --repo-update || pod install
+
+      - name: Build iOS (release, NO code signing)
+        working-directory: app
+        # --no-codesign compiles + links without a signing identity. This proves
+        # the Dart + all plugin pods build for iOS. It does NOT create an IPA.
+        run: |
+          API_BASE="https://assisto.asalify.com"
+          flutter build ios --release --no-codesign \
+            --dart-define=API_BASE="$API_BASE"
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "This job is a COMPILE CHECK only (unsigned)."
+          echo "It does not produce a signed/installable IPA."
+          echo "See app docs + .phaseB/up_ios_integration.md for signing and"
+          echo "the Share-Extension / Siri-Shortcuts follow-ups."

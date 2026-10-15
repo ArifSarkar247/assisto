@@ -12901,5 +12901,9 @@
   "lostStolenSmsTrigger": "SMS-command trigger",
   "lostStolenSmsTriggerSoon": "Coming soon — this needs a separate native SMS receiver, not shipped yet.",
   "lostStolenUninstallTitle": "Uninstall resistance",
-  "lostStolenUninstallBody": "While device-admin is active Android blocks uninstalling the app until you turn protection off (Settings → Security → Device admin). This isn't an unbreakable lock, but it stops a casual thief."
+  "lostStolenUninstallBody": "While device-admin is active Android blocks uninstalling the app until you turn protection off (Settings → Security → Device admin). This isn't an unbreakable lock, but it stops a casual thief.",
+  "iosAndroidOnlyTitle": "Android-only for now",
+  "lostStolenIosOnlyBody": "Lost/stolen phone protection uses Android device-admin (remote lock, alarm, uninstall-resistance), which iOS does not allow third-party apps to do. We're not shipping a half-working version on iPhone. Your other safety tools — SOS, safe-arrival and emergency card — work on iOS.",
+  "vsosIosOnlyBody": "Hands-free Voice SOS needs an always-on microphone in the background. iOS restricts background audio for battery and privacy, so an always-listening SOS isn't possible on iPhone. Manual SOS still works — tap the SOS button any time.",
+  "hwIosSoon": "Home-screen widget is Android-only right now; an iOS widget is coming in a later update."
 }

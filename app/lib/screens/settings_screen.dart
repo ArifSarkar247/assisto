@@ -813,6 +813,16 @@ class _HomeWidgetTileState extends State<_HomeWidgetTile> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
+    // iOS: no widget extension is shipped. Show an honest disabled tile with a
+    // "coming soon" note instead of a toggle that would do nothing.
+    if (!HomeWidgetService.isSupported) {
+      return ListTile(
+        leading: const Icon(Icons.widgets_outlined),
+        title: Text(t.hwTile),
+        subtitle: Text(t.hwIosSoon, style: const TextStyle(fontSize: 12)),
+        enabled: false,
+      );
+    }
     return SwitchListTile(
       secondary: const Icon(Icons.widgets_outlined),
       value: _enabled,
