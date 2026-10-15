@@ -153,38 +153,52 @@ class _AppDrawerState extends State<AppDrawer> {
                   padding: const EdgeInsets.symmetric(vertical: Gap.xs),
                   children: [
                     for (final s in sections)
-                      ExpansionTile(
-                        key: PageStorageKey('sidebar_${s.id}_$searching'),
-                        // Searching force-opens matches; otherwise honour the
-                        // remembered open/closed state.
-                        initiallyExpanded:
-                            searching || _expanded.contains(s.id),
-                        onExpansionChanged: (open) {
-                          if (searching) return;
-                          if (open) {
-                            _expanded.add(s.id);
-                          } else {
-                            _expanded.remove(s.id);
-                          }
-                        },
-                        leading:
-                            Icon(s.icon, color: scheme.onSurfaceVariant),
-                        title: Text(s.title(t),
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w600)),
-                        childrenPadding:
-                            const EdgeInsets.only(left: Gap.sm),
-                        children: [
-                          for (final item in s.items)
-                            ListTile(
-                              leading: Icon(item.icon,
-                                  color: scheme.onSurfaceVariant, size: 22),
-                              title: Text(item.label(t)),
-                              visualDensity: VisualDensity.compact,
-                              onTap: () => _push(item.builder),
-                            ),
-                        ],
-                      ),
+                      // OWNER UI FIX: a group with exactly ONE item is NOT an
+                      // expandable group — render it as a single direct entry
+                      // (tap opens that item). Applies to every section now and
+                      // in future (e.g. Contacts).
+                      if (s.items.length == 1)
+                        ListTile(
+                          leading:
+                              Icon(s.icon, color: scheme.onSurfaceVariant),
+                          title: Text(s.title(t),
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w600)),
+                          onTap: () => _push(s.items.first.builder),
+                        )
+                      else
+                        ExpansionTile(
+                          key: PageStorageKey('sidebar_${s.id}_$searching'),
+                          // Searching force-opens matches; otherwise honour the
+                          // remembered open/closed state.
+                          initiallyExpanded:
+                              searching || _expanded.contains(s.id),
+                          onExpansionChanged: (open) {
+                            if (searching) return;
+                            if (open) {
+                              _expanded.add(s.id);
+                            } else {
+                              _expanded.remove(s.id);
+                            }
+                          },
+                          leading:
+                              Icon(s.icon, color: scheme.onSurfaceVariant),
+                          title: Text(s.title(t),
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w600)),
+                          childrenPadding:
+                              const EdgeInsets.only(left: Gap.sm),
+                          children: [
+                            for (final item in s.items)
+                              ListTile(
+                                leading: Icon(item.icon,
+                                    color: scheme.onSurfaceVariant, size: 22),
+                                title: Text(item.label(t)),
+                                visualDensity: VisualDensity.compact,
+                                onTap: () => _push(item.builder),
+                              ),
+                          ],
+                        ),
                     // ---- END of scroll: Settings + Plans & points (moved in
                     // from the old pinned bottom; nothing is pinned now) ----
                     if (!searching) ...[

@@ -1,0 +1,50 @@
+{
+  "_comment": "ARB source for the in-app Camera feature (My Circle hub camera button). Each key:[bn,en]. Parameterized keys listed in _params. bn is real, natural Bangla; en is plain and clear.",
+
+  "_params": {
+    "camSentToChats": { "count": "int" },
+    "camSentPartial": { "ok": "int", "fail": "int" },
+    "camSendCount": { "count": "int" }
+  },
+
+  "camPermTitle": ["ক্যামেরা চালু করুন", "Turn on the camera"],
+  "camPermBody": ["ছবি তুলতে, ভিডিও করতে আর আপনার সার্কেলে শেয়ার করতে Assisto-র ক্যামেরা, মাইক্রোফোন ও ছবির অ্যাক্সেস দরকার। আপনার ছবি-ভিডিও এনক্রিপ্ট করা থাকে — শুধু আপনি আর যাদের পাঠাবেন তারাই দেখতে পাবেন।", "Assisto needs camera, microphone and photo access to take photos, record videos and share them with your circle. Your photos and videos stay encrypted — only you and the people you send them to can see them."],
+  "camPermBlockedTitle": ["ক্যামেরা বন্ধ আছে", "Camera is blocked"],
+  "camPermBlockedBody": ["ক্যামেরার অনুমতি বন্ধ করা আছে, তাই লাইভ প্রিভিউ দেখানো যাচ্ছে না। সেটিংসে গিয়ে Assisto-কে ক্যামেরার অনুমতি দিলে ছবি ও ভিডিও তোলা যাবে।", "Camera permission is turned off, so the live preview can't run. Open settings and allow Assisto to use the camera to take photos and videos."],
+  "camPermOpenSettings": ["সেটিংস খুলুন", "Open settings"],
+
+  "camStarting": ["ক্যামেরা চালু হচ্ছে…", "Starting the camera…"],
+  "camNoCamera": ["এই ডিভাইসে কোনো ক্যামেরা পাওয়া যায়নি।", "No camera found on this device."],
+  "camFlash": ["ফ্ল্যাশ", "Flash"],
+  "camSwitch": ["ক্যামেরা বদলান", "Switch camera"],
+  "camGallery": ["গ্যালারি", "Gallery"],
+  "camEnhance": ["এনহ্যান্স", "Enhance"],
+  "camEnhanceHint": ["ছবি তোলার পর এডিট স্ক্রিনে এনহ্যান্স করা যাবে।", "You can enhance after capture on the edit screen."],
+  "camModePhoto": ["ছবি", "Photo"],
+  "camModeVideo": ["ভিডিও", "Video"],
+  "camCaptureFailed": ["তোলা গেল না। আবার চেষ্টা করুন।", "Couldn't capture. Please try again."],
+  "camPickFailed": ["গ্যালারি থেকে আনা গেল না।", "Couldn't open from the gallery."],
+  "camMicNeeded": ["ভিডিওর সাথে শব্দ রেকর্ড করতে মাইক্রোফোনের অনুমতি দরকার।", "Microphone access is needed to record sound with video."],
+
+  "camCrop": ["ক্রপ ও ঘোরান", "Crop & rotate"],
+  "camCropTitle": ["ক্রপ ও ঘোরান", "Crop & rotate"],
+  "camDraw": ["আঁকুন", "Draw"],
+  "camAddText": ["লেখা যোগ করুন", "Add text"],
+  "camTextHint": ["এখানে লিখুন…", "Type here…"],
+  "camUndo": ["আগেরটি মুছুন", "Undo"],
+  "camEditFailed": ["এডিট করা গেল না।", "Couldn't edit this."],
+  "camVideoReady": ["ভিডিও তৈরি — ক্যাপশন দিয়ে পাঠিয়ে দিন।", "Video ready — add a caption and send."],
+  "camCaptionHint": ["একটি ক্যাপশন লিখুন…", "Write a caption…"],
+
+  "camSendTitle": ["কোথায় পাঠাবেন?", "Where to send?"],
+  "camPostStatus": ["স্ট্যাটাসে দিন", "Post as status"],
+  "camPostStatusSub": ["২৪ ঘণ্টার জন্য আপনার সার্কেল দেখতে পাবে।", "Visible to your circle for 24 hours."],
+  "camSendToChats": ["চ্যাটে পাঠান", "Send to chats"],
+  "camSendNoIdentity": ["পাঠানোর আগে আপনার সার্কেল চালু করতে হবে।", "Set up your circle before you can send."],
+  "camSendNoMembers": ["এখনো কাউকে যোগ করা হয়নি। আগে সার্কেলে কাউকে যুক্ত করুন।", "No one here yet. Add someone to your circle first."],
+  "camMediaGatedNote": ["এনক্রিপ্টেড স্টোরেজ চালু হলে ছবি-ভিডিও পুরোপুরি যাবে; এখন ক্যাপশনসহ অনুরোধ পাঠানো হচ্ছে।", "Full photo/video delivery arrives when encrypted storage is on; for now the caption is sent."],
+  "camSend": ["পাঠান", "Send"],
+  "camSendCount": ["{count} জনকে পাঠান", "Send to {count}"],
+  "camSentToChats": ["{count} জনকে পাঠানো হয়েছে।", "Sent to {count}."],
+  "camSentPartial": ["{ok} জনকে পাঠানো হয়েছে, {fail} জনকে যায়নি।", "Sent to {ok}, {fail} failed."]
+}

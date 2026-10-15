@@ -437,7 +437,7 @@
   "min": "মিনিট",
   "moduleEmergency": "ইমার্জেন্সি",
   "moduleFamily": "ফ্যামিলি",
-  "moduleMoney": "আমার হিসাব",
+  "moduleMoney": "হিসাব ও অর্থ",
   "moduleVault": "ডকুমেন্টস",
   "moneyAccTypeBank": "ব্যাংক",
   "moneyAccTypeBkash": "বিকাশ",
@@ -518,7 +518,7 @@
   "moneyNoTransactions": "কোনো লেনদেন নেই।",
   "moneyNoTransactionsHint": "নিচের + চেপে প্রথম লেনদেন যোগ করুন।",
   "moneyOpeningBalanceLabel": "শুরু: {amount}",
-  "moneyOverview": "আমার হিসাবের সারাংশ",
+  "moneyOverview": "হিসাব ও অর্থের সারাংশ",
   "moneyReceivable": "পাওনা",
   "moneyRemaining": "বাকি",
   "moneyReminder": "রিমাইন্ডার",
@@ -542,7 +542,7 @@
   "moneyTabBudget": "বাজেট",
   "moneyTabLoansSavings": "ধার/সঞ্চয়",
   "moneyTabSummary": "সারাংশ",
-  "moneyTitle": "আমার হিসাব",
+  "moneyTitle": "হিসাব ও অর্থ",
   "moneyTotalBalance": "মোট ব্যালেন্স",
   "moneyTransactionFallback": "লেনদেন",
   "moneyTrendsSubtitle": "মাস ও খাত অনুযায়ী প্রবণতা",
@@ -791,7 +791,7 @@
   "sidebarHealth": "স্বাস্থ্য",
   "sidebarLife": "দৈনন্দিন জীবন",
   "sidebarMedicines": "ওষুধ",
-  "sidebarMoney": "আমার হিসাব",
+  "sidebarMoney": "হিসাব ও অর্থ",
   "sidebarNearby": "কাছেপিঠে",
   "sidebarNoResults": "কোনো মিল পাওয়া যায়নি",
   "sidebarSettings": "সেটিংস",
@@ -1216,7 +1216,7 @@
   "circleScopeMedicines": "ওষুধ",
   "circleScopeLocation": "অবস্থান",
   "circleScopeDocuments": "দলিলপত্র",
-  "circleScopeMoney": "আমার হিসাব",
+  "circleScopeMoney": "হিসাব ও অর্থ",
   "circleScopeProfile": "প্রোফাইল",
   "circleRelFather": "বাবা",
   "circleRelMother": "মা",
@@ -11395,5 +11395,66 @@
   },
   "bkTileSub": "পাসফ্রেজ-এনক্রিপ্টেড ব্যাকআপ ও ফোন ট্রান্সফার",
   "circleCallServerUnreachable": "কল সার্ভারে পৌঁছানো যাচ্ছে না",
-  "circleCallServerBusy": "কল সার্ভার ব্যস্ত — আবার চেষ্টা করুন"
+  "circleCallServerBusy": "কল সার্ভার ব্যস্ত — আবার চেষ্টা করুন",
+  "camPermTitle": "ক্যামেরা চালু করুন",
+  "camPermBody": "ছবি তুলতে, ভিডিও করতে আর আপনার সার্কেলে শেয়ার করতে Assisto-র ক্যামেরা, মাইক্রোফোন ও ছবির অ্যাক্সেস দরকার। আপনার ছবি-ভিডিও এনক্রিপ্ট করা থাকে — শুধু আপনি আর যাদের পাঠাবেন তারাই দেখতে পাবেন।",
+  "camPermBlockedTitle": "ক্যামেরা বন্ধ আছে",
+  "camPermBlockedBody": "ক্যামেরার অনুমতি বন্ধ করা আছে, তাই লাইভ প্রিভিউ দেখানো যাচ্ছে না। সেটিংসে গিয়ে Assisto-কে ক্যামেরার অনুমতি দিলে ছবি ও ভিডিও তোলা যাবে।",
+  "camPermOpenSettings": "সেটিংস খুলুন",
+  "camStarting": "ক্যামেরা চালু হচ্ছে…",
+  "camNoCamera": "এই ডিভাইসে কোনো ক্যামেরা পাওয়া যায়নি।",
+  "camFlash": "ফ্ল্যাশ",
+  "camSwitch": "ক্যামেরা বদলান",
+  "camGallery": "গ্যালারি",
+  "camEnhance": "এনহ্যান্স",
+  "camEnhanceHint": "ছবি তোলার পর এডিট স্ক্রিনে এনহ্যান্স করা যাবে।",
+  "camModePhoto": "ছবি",
+  "camModeVideo": "ভিডিও",
+  "camCaptureFailed": "তোলা গেল না। আবার চেষ্টা করুন।",
+  "camPickFailed": "গ্যালারি থেকে আনা গেল না।",
+  "camMicNeeded": "ভিডিওর সাথে শব্দ রেকর্ড করতে মাইক্রোফোনের অনুমতি দরকার।",
+  "camCrop": "ক্রপ ও ঘোরান",
+  "camCropTitle": "ক্রপ ও ঘোরান",
+  "camDraw": "আঁকুন",
+  "camAddText": "লেখা যোগ করুন",
+  "camTextHint": "এখানে লিখুন…",
+  "camUndo": "আগেরটি মুছুন",
+  "camEditFailed": "এডিট করা গেল না।",
+  "camVideoReady": "ভিডিও তৈরি — ক্যাপশন দিয়ে পাঠিয়ে দিন।",
+  "camCaptionHint": "একটি ক্যাপশন লিখুন…",
+  "camSendTitle": "কোথায় পাঠাবেন?",
+  "camPostStatus": "স্ট্যাটাসে দিন",
+  "camPostStatusSub": "২৪ ঘণ্টার জন্য আপনার সার্কেল দেখতে পাবে।",
+  "camSendToChats": "চ্যাটে পাঠান",
+  "camSendNoIdentity": "পাঠানোর আগে আপনার সার্কেল চালু করতে হবে।",
+  "camSendNoMembers": "এখনো কাউকে যোগ করা হয়নি। আগে সার্কেলে কাউকে যুক্ত করুন।",
+  "camMediaGatedNote": "এনক্রিপ্টেড স্টোরেজ চালু হলে ছবি-ভিডিও পুরোপুরি যাবে; এখন ক্যাপশনসহ অনুরোধ পাঠানো হচ্ছে।",
+  "camSend": "পাঠান",
+  "camSendCount": "{count} জনকে পাঠান",
+  "@camSendCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "camSentToChats": "{count} জনকে পাঠানো হয়েছে।",
+  "@camSentToChats": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "camSentPartial": "{ok} জনকে পাঠানো হয়েছে, {fail} জনকে যায়নি।",
+  "@camSentPartial": {
+    "placeholders": {
+      "fail": {
+        "type": "Object"
+      },
+      "ok": {
+        "type": "Object"
+      }
+    }
+  }
 }

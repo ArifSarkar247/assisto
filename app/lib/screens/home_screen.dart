@@ -149,19 +149,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           const SizedBox(width: Gap.sm),
           const Text('Assisto', style: TextStyle(fontWeight: FontWeight.w800)),
         ]),
+        // OWNER UI FIX: bell (notifications) to the LEFT, My Circle at the
+        // far-right corner (its original place). actions render left→right, so
+        // the bell comes first and My Circle last.
         actions: [
-          HomeBadgeIcon(
-            icon: Icons.diversity_3_outlined,
-            count: _badges.myCircleUnread,
-            tooltip: t.homeMyCircle,
-            onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const MessengerHomeScreen()),
-              );
-              _loadBadges(); // refresh on return
-            },
-          ),
           HomeBadgeIcon(
             icon: Icons.notifications_outlined,
             count: _badges.notifUnseen,
@@ -171,6 +162,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 context,
                 MaterialPageRoute(
                     builder: (_) => const NotificationCentreScreen()),
+              );
+              _loadBadges(); // refresh on return
+            },
+          ),
+          HomeBadgeIcon(
+            icon: Icons.diversity_3_outlined,
+            count: _badges.myCircleUnread,
+            tooltip: t.homeMyCircle,
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const MessengerHomeScreen()),
               );
               _loadBadges(); // refresh on return
             },

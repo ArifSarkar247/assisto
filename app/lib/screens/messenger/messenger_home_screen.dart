@@ -11,9 +11,9 @@ import '../../state.dart';
 import '../../messenger_hub_api.dart';
 import '../../theme.dart';
 import '../../widgets/msgr_hub_chat_list.dart';
+import '../camera/camera_screen.dart';
 import '../circle_call_history_screen.dart';
 import '../circle_group_list_screen.dart';
-import '../circle_status_composer_screen.dart';
 import '../circle_status_screen.dart';
 import 'broadcast_lists_screen.dart';
 import 'channel_list_screen.dart';
@@ -131,18 +131,15 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
       .push(MaterialPageRoute(builder: (_) => const MessengerSettingsScreen()))
       .then((_) => _bootstrap());
 
-  /// Top-bar CAMERA — status / photo. Opens the status composer when the
-  /// on-device identity exists; otherwise the status list (so it is never a
-  /// dead tap). ORIGINAL Assisto flow (never a Meta status copy).
+  /// Top-bar CAMERA — opens the REAL in-app camera (live preview, photo/video,
+  /// recent strip, gallery, flash, switch). From the capture/edit screen the
+  /// user sends to a chat, several chats, or posts as Status — all through the
+  /// existing circle paths. The on-device identity + member list are forwarded
+  /// so the send targets are ready. ORIGINAL Assisto flow (never a Meta copy).
   void _openCamera() {
-    final id = _identity;
-    if (id == null) {
-      _openStatus();
-      return;
-    }
     Navigator.of(context).push(MaterialPageRoute(
         builder: (_) =>
-            CircleStatusComposerScreen(identity: id, members: _members)));
+            CameraScreen(identity: _identity, members: _members)));
   }
 
   /// Hub ⋮ dispatch (SPEC §2 order): New group · New community · Broadcast

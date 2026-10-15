@@ -161,7 +161,7 @@ class SidebarSections {
         (t) => t.sidebarMoney, [
       SidebarItem(Icons.account_balance_wallet_outlined, (t) => t.moduleMoney,
           (_) => const MoneyScreen(),
-          synonyms: ['account', 'ledger', 'money', 'expense', 'income']),
+          synonyms: ['account', 'finance', 'ledger', 'money', 'expense', 'income']),
       // Advanced Budget module (feature #50, SPEC v2.1 §21).
       SidebarItem(Icons.pie_chart_outline, (t) => t.budgetTitle,
           (_) => const MoneyBudgetScreen(),

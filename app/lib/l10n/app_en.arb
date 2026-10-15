@@ -768,7 +768,7 @@
   "min": "min",
   "moduleEmergency": "Emergency",
   "moduleFamily": "Family",
-  "moduleMoney": "My Account",
+  "moduleMoney": "Account & Finance",
   "moduleVault": "Documents",
   "moneyAccTypeBank": "Bank",
   "moneyAccTypeBkash": "bKash",
@@ -849,7 +849,7 @@
   "moneyNoTransactions": "No transactions yet.",
   "moneyNoTransactionsHint": "Tap + below to add your first transaction.",
   "moneyOpeningBalanceLabel": "Opening: {amount}",
-  "moneyOverview": "My Account overview",
+  "moneyOverview": "Account & Finance overview",
   "moneyReceivable": "Receivable",
   "moneyRemaining": "Remaining",
   "moneyReminder": "Reminder",
@@ -873,7 +873,7 @@
   "moneyTabBudget": "Budget",
   "moneyTabLoansSavings": "Loans and Savings",
   "moneyTabSummary": "Summary",
-  "moneyTitle": "My Account",
+  "moneyTitle": "Account & Finance",
   "moneyTotalBalance": "Total Balance",
   "moneyTransactionFallback": "Transaction",
   "moneyTrendsSubtitle": "Month-over-month and per-category",
@@ -1122,7 +1122,7 @@
   "sidebarHealth": "Health",
   "sidebarLife": "Daily Life",
   "sidebarMedicines": "Medicines",
-  "sidebarMoney": "My Account",
+  "sidebarMoney": "Account & Finance",
   "sidebarNearby": "Nearby",
   "sidebarNoResults": "No matching modules",
   "sidebarSettings": "Settings",
@@ -1547,7 +1547,7 @@
   "circleScopeMedicines": "Medicines",
   "circleScopeLocation": "Location",
   "circleScopeDocuments": "Documents",
-  "circleScopeMoney": "My Account",
+  "circleScopeMoney": "Account & Finance",
   "circleScopeProfile": "Profile",
   "circleRelFather": "Father",
   "circleRelMother": "Mother",
@@ -12692,5 +12692,66 @@
   },
   "bkTileSub": "Passphrase-encrypted backup & phone transfer",
   "circleCallServerUnreachable": "Call server not reachable",
-  "circleCallServerBusy": "Call server busy — try again"
+  "circleCallServerBusy": "Call server busy — try again",
+  "camPermTitle": "Turn on the camera",
+  "camPermBody": "Assisto needs camera, microphone and photo access to take photos, record videos and share them with your circle. Your photos and videos stay encrypted — only you and the people you send them to can see them.",
+  "camPermBlockedTitle": "Camera is blocked",
+  "camPermBlockedBody": "Camera permission is turned off, so the live preview can't run. Open settings and allow Assisto to use the camera to take photos and videos.",
+  "camPermOpenSettings": "Open settings",
+  "camStarting": "Starting the camera…",
+  "camNoCamera": "No camera found on this device.",
+  "camFlash": "Flash",
+  "camSwitch": "Switch camera",
+  "camGallery": "Gallery",
+  "camEnhance": "Enhance",
+  "camEnhanceHint": "You can enhance after capture on the edit screen.",
+  "camModePhoto": "Photo",
+  "camModeVideo": "Video",
+  "camCaptureFailed": "Couldn't capture. Please try again.",
+  "camPickFailed": "Couldn't open from the gallery.",
+  "camMicNeeded": "Microphone access is needed to record sound with video.",
+  "camCrop": "Crop & rotate",
+  "camCropTitle": "Crop & rotate",
+  "camDraw": "Draw",
+  "camAddText": "Add text",
+  "camTextHint": "Type here…",
+  "camUndo": "Undo",
+  "camEditFailed": "Couldn't edit this.",
+  "camVideoReady": "Video ready — add a caption and send.",
+  "camCaptionHint": "Write a caption…",
+  "camSendTitle": "Where to send?",
+  "camPostStatus": "Post as status",
+  "camPostStatusSub": "Visible to your circle for 24 hours.",
+  "camSendToChats": "Send to chats",
+  "camSendNoIdentity": "Set up your circle before you can send.",
+  "camSendNoMembers": "No one here yet. Add someone to your circle first.",
+  "camMediaGatedNote": "Full photo/video delivery arrives when encrypted storage is on; for now the caption is sent.",
+  "camSend": "Send",
+  "camSendCount": "Send to {count}",
+  "@camSendCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "camSentToChats": "Sent to {count}.",
+  "@camSentToChats": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "camSentPartial": "Sent to {ok}, {fail} failed.",
+  "@camSentPartial": {
+    "placeholders": {
+      "fail": {
+        "type": "Object"
+      },
+      "ok": {
+        "type": "Object"
+      }
+    }
+  }
 }
