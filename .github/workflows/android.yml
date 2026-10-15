@@ -286,3 +286,51 @@ jobs:
           name: assisto-apk
           path: app/out/*.apk
           retention-days: 14
+
+  # Install the RELEASE APK on real Android emulators and prove it OPENS without
+  # an ANR or crash within 60s. The whole run fails if this fails, so ship_watch
+  # never publishes a broken-launch build. (Added after the build-99 launch ANR.)
+  launch-smoke-test:
+    needs: build-apk
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [30, 33]
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: assisto-apk
+          path: apk
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Launch smoke test (API ${{ matrix.api }})
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          disable-animations: true
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          script: |
+            set -x
+            adb install -r apk/*.apk
+            adb logcat -c
+            # Launch via monkey (auto-resolves the launcher activity).
+            adb shell monkey -p com.assisto.assisto -c android.intent.category.LAUNCHER 1
+            sleep 60
+            adb logcat -d > logcat.txt || true
+            echo "===== last 120 logcat lines ====="; tail -120 logcat.txt
+            # FAIL on ANR / fatal crash / process death / early VM shutdown of our app.
+            if grep -E "ANR in com\.assisto|FATAL EXCEPTION|Process com\.assisto\.assisto .*has died|Force finishing activity .*com\.assisto|FATAL SIGNAL|Shutting down VM" logcat.txt; then
+              echo "::error::App ANR/crash on API ${{ matrix.api }} (see logcat above)"; exit 1
+            fi
+            # Confirm the app process is actually alive (didn't crash-dismiss).
+            if ! adb shell pidof com.assisto.assisto >/dev/null 2>&1; then
+              echo "::error::App process not running 60s after launch on API ${{ matrix.api }}"; exit 1
+            fi
+            echo "LAUNCH OK on API ${{ matrix.api }}"

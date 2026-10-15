@@ -11,6 +11,8 @@ import 'theme.dart';
 import 'updater.dart';
 import 'notifications.dart';
 import 'services/home_widget_service.dart';
+import 'services/startup_guard.dart';
+import 'home_api.dart';
 import 'widgets/a11y_prefs.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
@@ -35,15 +37,15 @@ void main() {
       return true; // handled — do not crash
     };
 
-    // Notifications init is fully self-guarded; fire-and-forget.
-    unawaited(Notifications.init());
+    // STARTUP SAFETY (hotfix after the build-99 launch ANR on Realme/ColorOS):
+    // NOTHING native runs before the first frame. Optional/native init is
+    // deferred to AFTER the UI is on screen, each self-guarded, so a plugin can
+    // never block or ANR the launch. A breadcrumb detects a bad previous launch
+    // and enters SAFE MODE (skip the deferred native init) + records it.
+    StartupGuard.markLaunchStart();
 
-    // #196 Home-screen widget plugin init — fully self-guarded; a failure here
-    // never affects startup. Snapshots are pushed later from the reminders flow.
-    unawaited(HomeWidgetService.init());
-
-    // Accessibility prefs (#200) — pure client prefs, loaded before first frame
-    // so text-scale / high-contrast / reduce-motion apply app-wide immediately.
+    // Accessibility prefs (#200) — pure SharedPreferences read (no native plugin
+    // channel), needed before first frame so text-scale/contrast apply app-wide.
     final a11y = A11yPrefs();
     unawaited(a11y.load());
 
@@ -56,13 +58,30 @@ void main() {
         child: AssistoApp(a11y: a11y),
       ),
     );
+
+    // Deferred, post-first-frame, SAFE-MODE-aware init. If the previous launch
+    // never reached the home screen, we SKIP all of this and the app still opens.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final safe = await StartupGuard.isSafeMode();
+      // Notifications (local scheduling) — self-guarded, not a startup blocker.
+      try { await Notifications.init(); } catch (_) {}
+      if (!safe) {
+        // #196 home-widget plugin — only touch the native widget bridge when the
+        // last launch was healthy; never at cold start.
+        try { await HomeWidgetService.init(); } catch (_) {}
+      }
+    });
   }, (error, stack) {
+    StartupGuard.recordError('$error\n$stack');
     debugPrint('Uncaught (zone): $error\n$stack');
   });
 }
 
 class AssistoApp extends StatelessWidget {
   const AssistoApp({super.key, required this.a11y});
+
+  /// One-shot guard so we only clear the launch breadcrumb / upload once.
+  static bool _markedHealthy = false;
 
   /// The app-wide accessibility preferences (#200). Provided via [A11yScope] so
   /// every screen can read/toggle it, and applied app-wide in [build] below.
@@ -71,6 +90,20 @@ class AssistoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AppState>();
+    // Once the first real UI frame renders, the launch is HEALTHY — clear the
+    // bad-launch flag and (best-effort) upload any error captured last time.
+    if (!_markedHealthy) {
+      _markedHealthy = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await StartupGuard.markReachedHome();
+        try {
+          final err = await StartupGuard.takeError();
+          if (err != null && app.loggedIn) {
+            await app.api.reportStartupCrash(err);
+          }
+        } catch (_) {}
+      });
+    }
     // A11yScope rebuilds this subtree whenever a preference changes, so the
     // text-scale / high-contrast / reduce-motion overrides re-apply instantly.
     return A11yScope(

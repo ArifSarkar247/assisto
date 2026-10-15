@@ -159,6 +159,30 @@ class TelegramWebhookView(APIView):
                          "action": decision["action"]})
 
 
+class ClientCrashReportView(APIView):
+    """POST /client/crash-report — a device uploads a startup crash/ANR log that
+    StartupGuard captured on the previous bad launch. Appended to a server-side
+    file the owner can read (.phaseB/client_crash_reports.log). No model/migration.
+    Best-effort: never 500s on a bad payload."""
+    def post(self, request):
+        import os
+        from django.conf import settings as _s
+        d = request.data or {}
+        log = str(d.get("log", ""))[:8000]
+        ver = str(d.get("version", ""))[:32]
+        plat = str(d.get("platform", ""))[:32]
+        try:
+            path = os.path.join(str(getattr(_s, "BASE_DIR", ".")), "..",
+                                ".phaseB", "client_crash_reports.log")
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "a", encoding="utf-8") as f:
+                f.write(f"\n===== user={request.user.id} v={ver} {plat} "
+                        f"{timezone.now().isoformat()} =====\n{log}\n")
+        except Exception:
+            pass
+        return Response({"ok": True})
+
+
 class RtcTurnView(APIView):
     """GET /rtc/turn — time-limited ICE (STUN+TURN) config for Connected-Circle
     voice/video calls (self-hosted coturn, Step 6 M3).

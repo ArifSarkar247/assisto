@@ -1,4 +1,6 @@
 import 'api.dart';
+import 'config.dart';
+import 'package:flutter/foundation.dart';
 
 /// HOME (Assisto chat) screen API surface — the top-bar badges and the
 /// dynamic suggestion cards driven by the backend rule-engine.
@@ -46,6 +48,15 @@ extension HomeApi on ApiClient {
   /// The engine stops surfacing this prompt key for the user.
   Future<void> homeSuggestionDismiss(String key) =>
       postJson('/home/suggestions/dismiss', {'key': key});
+
+  /// Upload a stored startup crash/ANR log (collected by StartupGuard on the
+  /// previous bad launch) so the owner can see real device errors. Best-effort —
+  /// failures are swallowed by the caller. Includes the app version + platform.
+  Future<void> reportStartupCrash(String log) => postJson('/client/crash-report', {
+        'log': log.length > 8000 ? log.substring(0, 8000) : log,
+        'version': AppConfig.appVersionLabel,
+        'platform': defaultTargetPlatform.name,
+      });
 
   static int _asInt(Object? v) {
     if (v is int) return v;
