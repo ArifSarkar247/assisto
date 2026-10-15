@@ -12690,5 +12690,7 @@
       }
     }
   },
-  "bkTileSub": "Passphrase-encrypted backup & phone transfer"
+  "bkTileSub": "Passphrase-encrypted backup & phone transfer",
+  "circleCallServerUnreachable": "Call server not reachable",
+  "circleCallServerBusy": "Call server busy — try again"
 }

@@ -115,6 +115,53 @@ class AdminFlagsFlipView(_FlagsBase):
         return Response(self._snapshot(row))
 
 
+def _mem_available_mb():
+    """Available RAM in MB from /proc/meminfo (MemAvailable). Best-effort; a
+    read failure returns a large number so we don't throttle on a bad read."""
+    try:
+        with open("/proc/meminfo") as f:
+            for line in f:
+                if line.startswith("MemAvailable:"):
+                    return int(line.split()[1]) // 1024
+    except Exception:
+        pass
+    return 1 << 20
+
+
+class RtcTurnView(APIView):
+    """GET /rtc/turn — time-limited ICE (STUN+TURN) config for Connected-Circle
+    voice/video calls (self-hosted coturn, Step 6 M3).
+
+    * Not configured (no secret) -> {configured:false} so the client shows an
+      honest 'call server not reachable' state and the call degrades gracefully.
+    * Box under load / low memory -> {throttled:true} so new calls back off
+      BEFORE Asalify can slow down (Asalify is protected first).
+    * Healthy -> short-lived ICE servers the client plugs into WebRTC.
+    """
+    def get(self, request):
+        import os
+        from .logic import rtc as RTC
+        secret = getattr(settings, "TURN_STATIC_SECRET", "")
+        ip = getattr(settings, "TURN_PUBLIC_IP", "")
+        port = getattr(settings, "TURN_PORT", 3478)
+        if not secret or not ip:
+            return Response({"configured": False, "throttled": False,
+                             "ice_servers": [], "reason": "not_configured"})
+        try:
+            load1 = os.getloadavg()[0]
+        except (OSError, AttributeError):
+            load1 = 0.0
+        thr = RTC.throttle_decision(load1, os.cpu_count() or 1, _mem_available_mb())
+        if thr["throttled"]:
+            return Response({"configured": True, "throttled": True,
+                             "ice_servers": [], "reason": thr["reason"]})
+        creds = RTC.turn_credentials(secret, request.user.id,
+                                     timezone.now().timestamp())
+        return Response({"configured": True, "throttled": False,
+                         "ice_servers": RTC.ice_servers(ip, port, creds),
+                         "ttl": creds["ttl"]})
+
+
 class ReferralHistoryView(APIView):
     def get(self, request):
         lang = req_lang(request)

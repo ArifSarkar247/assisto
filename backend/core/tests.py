@@ -831,6 +831,8 @@ AgentStudioSnippetTests = _make_snippet_case(
 # hashtags/emoji, share intent. Key-free; never auto-posts.
 SocialComposeSnippetTests = _make_snippet_case(
     "core.logic.social_tests_snippets", "SocialComposeSnippetTests")
+RtcSnippetTests = _make_snippet_case(
+    "core.logic.rtc_tests_snippets", "RtcSnippetTests")
 # Encrypted backup & phone transfer (#197, advanced §21) — PURE manifest /
 # checksum / integrity / chunk / transfer-code bookkeeping. NO crypto or secrets
 # here: encryption is on-device (app/lib/crypto/e2e.dart PBKDF2 + ChaCha20-

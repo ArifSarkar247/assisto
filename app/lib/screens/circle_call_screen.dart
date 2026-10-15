@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../api.dart';
+import '../rtc_api.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -60,6 +61,9 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   String? _callId;
   bool _starting = true;
   bool _blockedByGate = false;
+  // Why the call couldn't start: '' (ok), 'unreachable' (TURN not configured /
+  // ports not open yet), 'busy' (server auto-throttled to protect Asalify).
+  String _rtcReason = '';
 
   // Live call duration (counts while active/reconnecting), mirrors the
   // server-side duration measured from answered_at.
@@ -96,6 +100,23 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   /// either a signalling session or an upgrade/denied reason.
   Future<void> _start() async {
     try {
+      // Step 6 M3: ask the server for ICE (STUN/TURN) config first. It also
+      // decides whether a call may start — if the TURN server isn't reachable
+      // yet (ports not open) or the box is auto-throttled to protect Asalify,
+      // we surface an honest state instead of attempting a call that can't
+      // connect. (The ICE servers feed the RTCPeerConnection once flutter_webrtc
+      // is wired — the media seam.)
+      final rtc = await _api.rtcTurn();
+      if (!rtc.callable) {
+        if (mounted) {
+          setState(() {
+            _starting = false;
+            _state = 'failed';
+            _rtcReason = rtc.configured ? 'busy' : 'unreachable';
+          });
+        }
+        return;
+      }
       final r = widget.outgoing
           ? await _api.postJson('/circle/$_memberId/call', {'kind': widget.kind})
           : await _api
@@ -352,6 +373,8 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       case 'reconnecting':
         return _t.circleCallReconnecting;
       case 'failed':
+        if (_rtcReason == 'unreachable') return _t.circleCallServerUnreachable;
+        if (_rtcReason == 'busy') return _t.circleCallServerBusy;
         return _t.circleCallFailed;
       default:
         return _t.circleCallEnded;
