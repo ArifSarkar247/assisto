@@ -254,7 +254,11 @@ class _JobsScreenState extends State<JobsScreen> {
                 style: TextStyle(fontWeight: FontWeight.w700, color: scheme.onSurface)),
           ]),
           const SizedBox(height: 4),
-          Text(tr.jobsSalaryRange('${ins['min']}', '${ins['median']}', '${ins['max']}', '${ins['count']}'),
+          // NB: generated signature order is (median, min, max, count) even
+          // though the rendered string reads "min – median – max". Pass values
+          // in the SIGNATURE order so each placeholder gets its intended value
+          // and the range reads ascending (min ≤ median ≤ max).
+          Text(tr.jobsSalaryRange('${ins['median']}', '${ins['min']}', '${ins['max']}', '${ins['count']}'),
               style: TextStyle(color: scheme.onSurface)),
           Text(tr.jobsSalarySourceNote,
               style: TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant)),

@@ -131,7 +131,7 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
     ].where((e) => (e ?? '').toString().isNotEmpty).join(' · ');
     return Card(
       child: ListTile(
-        leading: ScoreBadge((l['score'] as num?)?.toInt() ?? 0),
+        leading: _scoreBadge((l['score'] as num?)?.toInt() ?? 0),
         title: Row(children: [
           Expanded(
               child: Text(
@@ -150,6 +150,29 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
           _load();
         },
       ),
+    );
+  }
+
+  /// High-contrast score badge. The shared [ScoreBadge] renders low scores as
+  /// grey-on-grey (surfaceContainerHighest + onSurfaceVariant) which fails
+  /// contrast in both themes; here low scores use the theme's primaryContainer
+  /// / onPrimaryContainer pair for a legible tinted chip, while hot/warm keep
+  /// the familiar red/amber-on-white semantics.
+  Widget _scoreBadge(int score) {
+    final scheme = Theme.of(context).colorScheme;
+    final hot = score >= 90;
+    final warm = score >= 60;
+    final bg = hot
+        ? Brand.danger
+        : warm
+            ? Brand.warning
+            : scheme.primaryContainer;
+    final fg = (hot || warm) ? Colors.white : scheme.onPrimaryContainer;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
+      child: Text('$score',
+          style: TextStyle(color: fg, fontWeight: FontWeight.w800, fontSize: 12)),
     );
   }
 

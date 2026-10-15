@@ -242,7 +242,10 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
     final int? income = _knownMonthlyIncomePoisha;
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 88),
+      // Bottom inset clears the extended FAB (height ~56 + 16 margin) PLUS the
+      // trailing footer, so the last card and the footer hint are never hidden
+      // behind the floating "Add subscription" button.
+      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
       children: [
         SubsSpendHero(
           monthlyPoisha: _monthly,
@@ -352,7 +355,6 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
       );
 
   Widget _dismissibleTile(Map<String, dynamic> s) {
-    final t = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: Gap.sm),
       child: Dismissible(

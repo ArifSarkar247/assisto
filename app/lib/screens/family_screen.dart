@@ -193,15 +193,17 @@ class _FamilyScreenState extends State<FamilyScreen> {
         title: t.familyNoDosesToday,
       );
     }
-    return ListView(padding: const EdgeInsets.all(Gap.md), children: [
-      for (final d in today) _doseCard(d),
-      Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Text(t.familyCheckToConfirm,
-              style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant))),
-    ]);
+    return ListView(
+        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 88),
+        children: [
+          for (final d in today) _doseCard(d),
+          Padding(
+              padding: const EdgeInsets.all(Gap.md),
+              child: Text(t.familyCheckToConfirm,
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant))),
+        ]);
   }
 
   Widget _doseCard(Map<String, dynamic> d) {
@@ -227,48 +229,69 @@ class _FamilyScreenState extends State<FamilyScreen> {
             : (prnAt.isNotEmpty ? '${t.medAsNeededShort} · $prnAt' : t.medAsNeededShort))
         : d['slot'].toString();
 
-    return Card(
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: taken
-              ? Brand.success.withValues(alpha: 0.15)
-              : scheme.surfaceContainerHighest,
-          child: Icon(
-              taken
-                  ? Icons.check
-                  : skipped
-                      ? Icons.remove
-                      : Icons.medication_outlined,
-              color: taken ? Brand.success : scheme.onSurfaceVariant),
-        ),
-        title: Row(children: [
-          Expanded(child: Text('${d['name']} · $doseLabel')),
-        ]),
-        subtitle: subtitle.isEmpty ? null : Text(subtitle),
-        trailing: taken
-            ? TextButton(
+    // Actions live on their OWN full-width row BELOW the text so the medicine
+    // details column always gets the full card width (no word-per-line wrap on
+    // narrow 360dp phones — this is a safety screen). Same actions/behavior.
+    final Widget actions = taken
+        ? TextButton(
+            onPressed: () async {
+              await api.medicineTaken(d['medicine_id'], d['slot'], taken: false);
+              _load();
+            },
+            child: Text(t.medUndo))
+        : Row(mainAxisSize: MainAxisSize.min, children: [
+            // PRN 'log another' row: just a logging action (no skip — PRN
+            // doses are not scheduled, so there's nothing to skip).
+            if (!prnLogAnother)
+              TextButton(
+                  onPressed: () async {
+                    await api.medicineTaken(d['medicine_id'], d['slot'], skipped: true);
+                    _load();
+                  },
+                  child: Text(t.medSkip)),
+            FilledButton(
                 onPressed: () async {
-                  await api.medicineTaken(d['medicine_id'], d['slot'], taken: false);
+                  await api.medicineTaken(d['medicine_id'], d['slot'], taken: true);
                   _load();
                 },
-                child: Text(t.medUndo))
-            : Row(mainAxisSize: MainAxisSize.min, children: [
-                // PRN 'log another' row: just a logging action (no skip — PRN
-                // doses are not scheduled, so there's nothing to skip).
-                if (!prnLogAnother)
-                  TextButton(
-                      onPressed: () async {
-                        await api.medicineTaken(d['medicine_id'], d['slot'], skipped: true);
-                        _load();
-                      },
-                      child: Text(t.medSkip)),
-                FilledButton(
-                    onPressed: () async {
-                      await api.medicineTaken(d['medicine_id'], d['slot'], taken: true);
-                      _load();
-                    },
-                    child: Text(prnLogAnother ? t.medLogAsNeeded : t.medTakeNow)),
-              ]),
+                child: Text(prnLogAnother ? t.medLogAsNeeded : t.medTakeNow)),
+          ]);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.md),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            CircleAvatar(
+              backgroundColor: taken
+                  ? Brand.success.withValues(alpha: 0.15)
+                  : scheme.surfaceContainerHighest,
+              child: Icon(
+                  taken
+                      ? Icons.check
+                      : skipped
+                          ? Icons.remove
+                          : Icons.medication_outlined,
+                  color: taken ? Brand.success : scheme.onSurfaceVariant),
+            ),
+            const SizedBox(width: Gap.md),
+            Expanded(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('${d['name']} · $doseLabel',
+                        style: Theme.of(context).textTheme.titleMedium),
+                    if (subtitle.isNotEmpty) ...[
+                      const SizedBox(height: Gap.xs),
+                      Text(subtitle,
+                          style: TextStyle(color: scheme.onSurfaceVariant)),
+                    ],
+                  ]),
+            ),
+          ]),
+          const SizedBox(height: Gap.xs),
+          Align(alignment: Alignment.centerRight, child: actions),
+        ]),
       ),
     );
   }

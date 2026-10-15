@@ -279,6 +279,10 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
     }
 
     return ListView(
+      // Bottom inset clears the extended FAB (height ~56 + 16 margin) PLUS the
+      // trailing footer hint, so neither the last ladder card nor the
+      // "Payments go through your own bKash/Nagad…" footer is hidden behind the
+      // floating "Add a due" button when scrolled to the end.
       padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
       children: [
         if (_offline) ...[

@@ -50,6 +50,15 @@ class _MoneyScreenState extends State<MoneyScreen> {
     }
   }
 
+  /// Tab label that centers and wraps to 2 lines rather than clipping, so the
+  /// longer English strings still show in full within a fixed-width tab.
+  Widget _tabLabel(String text) => Text(
+        text,
+        maxLines: 2,
+        textAlign: TextAlign.center,
+        overflow: TextOverflow.visible,
+      );
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
@@ -67,13 +76,23 @@ class _MoneyScreenState extends State<MoneyScreen> {
             ),
             IconButton(onPressed: _refresh, icon: const Icon(Icons.sync)),
           ],
-          bottom: TabBar(isScrollable: true, tabs: [
-            Tab(child: Text(t.moneyTabSummary, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            Tab(child: Text(t.moneyTabAccounts, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            Tab(child: Text(t.moneyTransactionFallback, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            Tab(child: Text(t.moneyTabBudget, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            Tab(child: Text(t.moneyTabLoansSavings, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-          ]),
+          // Non-scrollable so all 5 tabs always share the 360dp width and none
+          // (e.g. Budget/Loans) scroll off-screen in English. Labels wrap to
+          // 2 lines and use tight padding + a smaller font to fit the longer
+          // EN strings ("Loans and Savings").
+          bottom: TabBar(
+            isScrollable: false,
+            labelPadding: const EdgeInsets.symmetric(horizontal: 2),
+            labelStyle: const TextStyle(fontSize: 12),
+            unselectedLabelStyle: const TextStyle(fontSize: 12),
+            tabs: [
+              Tab(child: _tabLabel(t.moneyTabSummary)),
+              Tab(child: _tabLabel(t.moneyTabAccounts)),
+              Tab(child: _tabLabel(t.moneyTransactionFallback)),
+              Tab(child: _tabLabel(t.moneyTabBudget)),
+              Tab(child: _tabLabel(t.moneyTabLoansSavings)),
+            ],
+          ),
         ),
         body: TabBarView(children: [
           _OverviewTab(summary: _summary, loading: _loading, onRefresh: _refresh),
@@ -136,18 +155,13 @@ class _OverviewTab extends StatelessWidget {
           ]),
         ),
         const SizedBox(height: Gap.md),
-        // income / expense / net row
-        Row(children: [
-          Expanded(
-              child: statCard(context, t.moneyMonthIncome,
-                  tkFmt(s?['month_income'] ?? '0'), Brand.success,
-                  Icons.south_west)),
-          const SizedBox(width: Gap.md),
-          Expanded(
-              child: statCard(context, t.moneyMonthExpense,
-                  tkFmt(s?['month_expense'] ?? '0'), Brand.danger,
-                  Icons.north_east)),
-        ]),
+        // income / expense / net — stacked full-width so the longer EN labels
+        // ("Income This Month" / "Expenses This Month") fit without clipping.
+        statCard(context, t.moneyMonthIncome,
+            tkFmt(s?['month_income'] ?? '0'), Brand.success, Icons.south_west),
+        const SizedBox(height: Gap.md),
+        statCard(context, t.moneyMonthExpense,
+            tkFmt(s?['month_expense'] ?? '0'), Brand.danger, Icons.north_east),
         const SizedBox(height: Gap.md),
         statCard(
             context,

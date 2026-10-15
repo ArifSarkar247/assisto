@@ -125,8 +125,13 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
     final scheme = Theme.of(context).colorScheme;
     final stageId = (stage['id'] as num).toInt();
     final deals = _deals.where((d) => (d['stage'] as num?)?.toInt() == stageId).toList();
+    // Size each column to ~68% of the viewport so ~1.3 columns show on a 360dp
+    // screen (the previous fixed 260dp left the first column as dead space and
+    // clipped the next column's card). Capped for wider tablets.
+    final screenW = MediaQuery.of(context).size.width;
+    final colW = (screenW * 0.68).clamp(220.0, 290.0);
     return Container(
-      width: 260,
+      width: colW,
       margin: const EdgeInsets.only(right: Gap.md),
       child: DragTarget<Map<String, dynamic>>(
         onWillAcceptWithDetails: (d) => (d.data['stage'] as num?)?.toInt() != stageId,
@@ -170,8 +175,9 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(d['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.w700), maxLines: 2, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 4),
-          Text(bdt((d['value'] as num?)), style: const TextStyle(fontWeight: FontWeight.w800)),
+          Text(bdt((d['value'] as num?)), style: const TextStyle(fontWeight: FontWeight.w800), maxLines: 1, overflow: TextOverflow.ellipsis),
           Text('${d['probability']}% · ${d['expected_close'] ?? '—'}',
+              maxLines: 1, overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
           if (stuckDays != null)
             Padding(
@@ -179,7 +185,11 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
               child: Row(children: [
                 const Icon(Icons.warning_amber_outlined, size: 14, color: Brand.warning),
                 const SizedBox(width: 4),
-                Text('${t.crmStuck} $stuckDays${t.crmDaysShort}', style: const TextStyle(fontSize: 11, color: Brand.warning)),
+                Expanded(
+                  child: Text('${t.crmStuck} $stuckDays${t.crmDaysShort}',
+                      maxLines: 1, overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 11, color: Brand.warning)),
+                ),
               ]),
             ),
         ]),

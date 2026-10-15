@@ -97,6 +97,16 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
     });
   }
 
+  /// Human-readable label for a topic chip. The backend sends `name`; some
+  /// payloads use `label`. Returns '' for null/blank so the caller can skip the
+  /// chip entirely (never render a literal "null").
+  String _topicLabel(Map<String, dynamic> top) {
+    final raw = top['name'] ?? top['label'];
+    if (raw == null) return '';
+    final s = raw.toString().trim();
+    return s == 'null' ? '' : s;
+  }
+
   void _openTopic(String topicId) {
     setState(() {
       _activeTopic = topicId;
@@ -201,14 +211,19 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
               },
             ),
             for (final top in _topics)
-              ChoiceChip(
-                label: Text(top['label'].toString()),
-                selected: _activeTopic == top['id'],
-                onSelected: (_) {
-                  setState(() => _activeTopic = top['id'].toString());
-                  _load();
-                },
-              ),
+              // The backend sends each topic as {id, name}. Read `name` (fall
+              // back to `label`), and only build a chip when the label is a
+              // real non-empty string — otherwise a null/blank field would
+              // render the literal text "null" on a health screen.
+              if (_topicLabel(top).isNotEmpty)
+                ChoiceChip(
+                  label: Text(_topicLabel(top)),
+                  selected: _activeTopic == top['id'],
+                  onSelected: (_) {
+                    setState(() => _activeTopic = top['id'].toString());
+                    _load();
+                  },
+                ),
             FilterChip(
               avatar: Icon(
                 _savedOnly ? Icons.bookmark : Icons.bookmark_border,
