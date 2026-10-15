@@ -95,8 +95,18 @@ jobs:
           )
           if '<queries>' not in s:
               s = re.sub(r'(<manifest[^>]*>)', r'\1' + queries, s, count=1)
+          # image_cropper needs UCropActivity registered INSIDE <application>,
+          # else cropping crashes at runtime (ActivityNotFoundException). Give it
+          # an explicit AppCompat theme so the app theme need not be AppCompat.
+          ucrop = (
+              '\n        <activity android:name="com.yalantis.ucrop.UCropActivity"'
+              ' android:exported="false"'
+              ' android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>\n'
+          )
+          if 'com.yalantis.ucrop.UCropActivity' not in s:
+              s = s.replace('</application>', ucrop + '    </application>', 1)
           open(p, "w").write(s)
-          print("manifest patched: label, permissions, queries")
+          print("manifest patched: label, permissions, queries, UCropActivity")
           PY
 
       - name: Patch iOS Info.plist (camera/mic/photos usage strings)
