@@ -131,9 +131,9 @@ class _ThemeCard extends StatelessWidget {
               children: [
                 _preview(),
                 const SizedBox(height: Gap.sm),
-                // Radio on its own line so the (sometimes long, e.g. Bangla
-                // "ডিফল্ট (ফোন অনুযায়ী)") label gets the FULL card width and
-                // wraps instead of truncating.
+                // Radio on its own line so the (sometimes long, e.g. the Bangla
+                // "system default") label gets the FULL card width and wraps
+                // instead of truncating.
                 Icon(
                   selected
                       ? Icons.radio_button_checked
