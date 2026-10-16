@@ -524,15 +524,13 @@ Future<void> editReminder(BuildContext context,
       'done': data['done'] ?? false,
       'link': link,
     };
+    Map<String, dynamic>? lidSource = item;
     if (item == null) {
-      await app.reminders.add(payload);
+      lidSource = await app.reminders.add(payload);
     } else {
       await app.reminders.update(item, payload);
     }
-    final lid = item?['localId'] ??
-        (app.reminders.items.isNotEmpty
-            ? app.reminders.items.first['localId']
-            : null);
+    final lid = lidSource?['localId'];
     if (due != null && lid != null) {
       Notifications.schedule(lid, title.text.trim(), notes.text.trim(), due!);
     }

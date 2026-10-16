@@ -242,7 +242,7 @@ Future<void> noteToReminder(
       context: context, initialTime: const TimeOfDay(hour: 9, minute: 0));
   final when = DateTime(
       due.year, due.month, due.day, tm?.hour ?? 9, tm?.minute ?? 0);
-  await app.reminders.add({
+  final created = await app.reminders.add({
     'title': title,
     'notes': (d['body'] ?? '').toString(),
     'due_at': when.toUtc().toIso8601String(),
@@ -253,9 +253,7 @@ Future<void> noteToReminder(
     'note_local_id': note['localId'],
   });
   // link back from the note to the reminder it spawned
-  final lid = app.reminders.items.isNotEmpty
-      ? app.reminders.items.first['localId']
-      : null;
+  final lid = created['localId'];
   if (lid != null) {
     await app.notes.update(note, {'reminder_local_id': lid});
     Notifications.schedule(lid, title, (d['body'] ?? '').toString(), when);

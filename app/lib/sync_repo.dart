@@ -40,11 +40,16 @@ class SyncedRepo extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> add(Map<String, dynamic> data) async {
+  /// Creates a new item and returns it (including its client-generated
+  /// `localId`). Callers that schedule an OS notification MUST use the
+  /// returned item's `localId`: after [sync] the in-memory list is reordered
+  /// by `updated_at DESC`, so `items.first` is not reliably the new item.
+  Future<Map<String, dynamic>> add(Map<String, dynamic> data) async {
     final m = {'localId': _newId(), 'serverId': null, 'data': data, 'pendingOp': 'create'};
     await db.recUpsert(entity, _toRow(m));
     await load();
     await sync();
+    return m;
   }
 
   Future<void> update(Map<String, dynamic> item, Map<String, dynamic> data) async {

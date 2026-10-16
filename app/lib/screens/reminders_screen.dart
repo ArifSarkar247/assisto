@@ -185,10 +185,8 @@ class _RemindersScreenState extends State<RemindersScreen> {
       'source': 'nlp',
       if (link != null) 'link': link,
     };
-    await app.reminders.add(payload);
-    final lid = app.reminders.items.isNotEmpty
-        ? app.reminders.items.first['localId']
-        : null;
+    final created = await app.reminders.add(payload);
+    final lid = created['localId'];
     if (parsed.dateTime != null && lid != null) {
       Notifications.schedule(lid, title, '', parsed.dateTime!);
     }
