@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -59,6 +60,63 @@ class Notifications {
     try {
       await _plugin.cancel(idFor(localId));
     } catch (_) {}
+  }
+
+  /// Whether the OS currently permits us to post notifications. On Android 13+
+  /// (POST_NOTIFICATIONS runtime permission — Realme/ColorOS, Xiaomi, …) a user
+  /// who denied the prompt gets NO reminders; the UI uses this to warn them.
+  /// On Android<13 and iOS the permission is effectively auto-granted, so this
+  /// returns true there. Fully guarded — never throws; on any query failure we
+  /// assume enabled so we never nag a user we can't actually diagnose (e.g. in
+  /// a test/gallery environment where the platform channel is absent).
+  static Future<bool> isEnabled() async {
+    try {
+      final android = _plugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      if (android != null) {
+        final enabled = await android.areNotificationsEnabled();
+        if (enabled != null) return enabled;
+      }
+      // Fallback (and iOS): permission_handler's unified status. `isDenied`
+      // only ever returns true where a runtime prompt exists (Android 13+).
+      final status = await Permission.notification.status;
+      if (status.isGranted || status.isLimited || status.isProvisional) {
+        return true;
+      }
+      if (status.isPermanentlyDenied || status.isDenied) return false;
+      return true;
+    } catch (e) {
+      if (kDebugMode) print('notif isEnabled failed: $e');
+      return true; // degrade gracefully: never show a banner we can't justify
+    }
+  }
+
+  /// Re-prompt for the notification permission (Android 13+). Returns whether it
+  /// is granted afterwards. Guarded — never throws.
+  static Future<bool> requestPermission() async {
+    try {
+      final android = _plugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      await android?.requestNotificationsPermission();
+      // Re-check through the same path we query with, so callers get the truth
+      // regardless of which layer actually granted it.
+      final granted = await isEnabled();
+      _ready = _ready || granted;
+      return granted;
+    } catch (e) {
+      if (kDebugMode) print('notif requestPermission failed: $e');
+      return false;
+    }
+  }
+
+  /// Open the OS app-settings page so the user can flip notifications on when
+  /// the runtime prompt can no longer be shown (permanently denied). Guarded.
+  static Future<void> openSettings() async {
+    try {
+      await openAppSettings();
+    } catch (e) {
+      if (kDebugMode) print('notif openSettings failed: $e');
+    }
   }
 
   /// Show a notification immediately (used by the background family poller).

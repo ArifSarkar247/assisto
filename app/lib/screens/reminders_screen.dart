@@ -29,10 +29,49 @@ class RemindersScreen extends StatefulWidget {
   State<RemindersScreen> createState() => _RemindersScreenState();
 }
 
-class _RemindersScreenState extends State<RemindersScreen> {
+class _RemindersScreenState extends State<RemindersScreen>
+    with WidgetsBindingObserver {
   // list = the grouped Overdue/Today/Upcoming view; calendar = the combined
   // day/week/month agenda over reminders + to-dos + dated notes.
   bool _calendar = false;
+
+  // Notification-permission banner (Android 13+): null = still checking,
+  // true = enabled (hide), false = disabled (show). Dismissal is in-memory
+  // for the session so a user who closes it isn't nagged again this run.
+  bool? _notifEnabled;
+  bool _notifBannerDismissed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _refreshNotifStatus();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Re-check when the user comes back (e.g. after toggling the OS setting).
+    if (state == AppLifecycleState.resumed) _refreshNotifStatus();
+  }
+
+  Future<void> _refreshNotifStatus() async {
+    final enabled = await Notifications.isEnabled();
+    if (mounted) setState(() => _notifEnabled = enabled);
+  }
+
+  Future<void> _enableNotifications() async {
+    final granted = await Notifications.requestPermission();
+    // If the runtime prompt can no longer help (permanently denied), send the
+    // user to the OS settings page instead.
+    if (!granted) await Notifications.openSettings();
+    await _refreshNotifStatus();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +122,12 @@ class _RemindersScreenState extends State<RemindersScreen> {
           ? const RemCalendarView()
           : Column(
               children: [
+                if (_notifEnabled == false && !_notifBannerDismissed)
+                  _NotifPermBanner(
+                    onEnable: _enableNotifications,
+                    onDismiss: () =>
+                        setState(() => _notifBannerDismissed = true),
+                  ),
                 const OfflineBanner(),
                 QuickAddBar(onCommit: (p, title, link) async {
                   await _create(context, title: title, parsed: p, link: link);
@@ -603,6 +648,85 @@ String _weekdayName(AppLocalizations t, int wd) {
   // 0=Mon..6=Sun -> intl EEEE via a reference Monday (2024-01-01 was Monday)
   final ref = DateTime(2024, 1, 1).add(Duration(days: wd));
   return DateFormat('EEEE').format(ref);
+}
+
+// ---------------------------------------------------------------- notif banner
+/// Dismissible strip shown when the OS is blocking notifications (Android 13+,
+/// POST_NOTIFICATIONS denied). Without it a user who declined the prompt gets
+/// NO reminder alerts and no clue why. Hidden on Android<13 / iOS where the
+/// permission is auto-granted (Notifications.isEnabled returns true there).
+///
+/// WCAG: errorContainer / onErrorContainer pair (AA both themes), icon paired
+/// with text (never colour-only). Copy comes from the ARB — no literals.
+class _NotifPermBanner extends StatelessWidget {
+  final Future<void> Function() onEnable;
+  final VoidCallback onDismiss;
+  const _NotifPermBanner({required this.onEnable, required this.onDismiss});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      liveRegion: true,
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
+        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.xs, Gap.sm),
+        decoration: BoxDecoration(
+          color: scheme.errorContainer,
+          borderRadius: BorderRadius.circular(Radii.md),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.notifications_off_outlined,
+                size: 18, color: scheme.onErrorContainer),
+            const SizedBox(width: Gap.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 2),
+                  Text(t.remNotifBannerTitle,
+                      style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: scheme.onErrorContainer)),
+                  const SizedBox(height: 2),
+                  Text(t.remNotifBannerBody,
+                      style: TextStyle(
+                          fontSize: 12, color: scheme.onErrorContainer)),
+                  const SizedBox(height: Gap.xs),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: FilledButton.tonalIcon(
+                      onPressed: onEnable,
+                      icon: const Icon(Icons.settings_outlined, size: 16),
+                      label: Text(t.remNotifBannerCta),
+                      style: FilledButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: Gap.sm, vertical: 0),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              tooltip: t.close,
+              visualDensity: VisualDensity.compact,
+              iconSize: 18,
+              color: scheme.onErrorContainer,
+              onPressed: onDismiss,
+              icon: const Icon(Icons.close),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _MetaChip extends StatelessWidget {
