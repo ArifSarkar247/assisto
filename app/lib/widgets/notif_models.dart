@@ -55,15 +55,18 @@ String notifWhen(BuildContext context, String? iso) {
   final now = DateTime.now();
   DateTime d0(DateTime d) => DateTime(d.year, d.month, d.day);
   final days = d0(dt).difference(d0(now)).inDays;
+  // Localise weekday/month/AM-PM too (not just digits): in Bangla mode an
+  // unlocalised DateFormat leaks "Wed"/"PM". bn locale data is loaded app-wide.
+  final loc = Localizations.localeOf(context).languageCode;
   String raw;
   if (days == 0) {
-    raw = DateFormat.jm().format(dt);
+    raw = DateFormat.jm(loc).format(dt);
   } else if (days == 1) {
-    raw = '${DateFormat.jm().format(dt)}'; // tomorrow — label added by caller
+    raw = DateFormat.jm(loc).format(dt); // tomorrow — label added by caller
   } else if (days.abs() < 7) {
-    raw = '${DateFormat.E().format(dt)} ${DateFormat.jm().format(dt)}';
+    raw = '${DateFormat.E(loc).format(dt)} ${DateFormat.jm(loc).format(dt)}';
   } else {
-    raw = DateFormat.MMMd().format(dt);
+    raw = DateFormat.MMMd(loc).format(dt);
   }
   return notifLocalizeDigits(context, raw);
 }

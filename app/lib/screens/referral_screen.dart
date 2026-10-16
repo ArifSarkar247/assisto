@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/ladder_common.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/referral_balance_card.dart';
 import '../widgets/referral_history_tile.dart';
@@ -145,7 +146,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
       builder: (ctx) => AlertDialog(
         icon: Icon(Icons.check_circle, color: Brand.success, size: 44),
         title: Text(t.refRedeemSuccessTitle, textAlign: TextAlign.center),
-        content: Text(t.referralRedeemedDays(days),
+        content: Text(t.referralRedeemedDays(fmtInt(context, days)),
             textAlign: TextAlign.center,
             style: TextStyle(color: scheme.onSurfaceVariant)),
         actions: [
@@ -364,17 +365,17 @@ class _RedeemSheetState extends State<_RedeemSheet> {
             Text(t.referralRedeemPickDays,
                 style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
             const SizedBox(height: Gap.md),
-            Text(t.referralRedeemDaysChosen(_days),
+            Text(t.referralRedeemDaysChosen(fmtInt(context, _days)),
                 style: const TextStyle(fontWeight: FontWeight.w700)),
             Slider(
               value: _days.toDouble(),
               min: 1,
               max: maxD.toDouble(),
               divisions: maxD > 1 ? maxD - 1 : null,
-              label: '$_days',
+              label: fmtInt(context, _days),
               onChanged: (v) => setState(() => _days = v.round()),
             ),
-            Text(t.referralRedeemCost(cost),
+            Text(t.referralRedeemCost(fmtInt(context, cost)),
                 style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
             const SizedBox(height: Gap.lg),
             SizedBox(

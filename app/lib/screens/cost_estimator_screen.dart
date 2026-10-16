@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/ladder_common.dart';
 import '../widgets/skeleton.dart';
 
 /// COST / TIME ESTIMATOR (#36, SPEC v2.1 §8, ADVANCED).
@@ -275,9 +276,9 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
     final hours = rem ~/ 60;
     final mins = rem % 60;
     final parts = <String>[];
-    if (days > 0) parts.add(t.ceDays(days));
-    if (hours > 0) parts.add(t.ceHours(hours));
-    if (mins > 0 || parts.isEmpty) parts.add(t.ceMinutes(mins));
+    if (days > 0) parts.add(t.ceDays(fmtInt(context, days)));
+    if (hours > 0) parts.add(t.ceHours(fmtInt(context, hours)));
+    if (mins > 0 || parts.isEmpty) parts.add(t.ceMinutes(fmtInt(context, mins)));
     return parts.join(' ');
   }
 
@@ -348,14 +349,14 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
         const SizedBox(height: Gap.lg),
 
         // contingency slider
-        Text(t.ceContingency(_contingency),
+        Text(t.ceContingency(fmtInt(context, _contingency)),
             style: const TextStyle(fontWeight: FontWeight.w700)),
         Slider(
           value: _contingency.toDouble(),
           min: 0,
           max: 100,
           divisions: 20,
-          label: '$_contingency%',
+          label: '${fmtInt(context, _contingency)}%',
           onChanged: (v) => setState(() => _contingency = v.round()),
         ),
         const SizedBox(height: Gap.sm),
@@ -427,7 +428,7 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
               title: Text((row['name'] ?? t.ceUntitled).toString(),
                   maxLines: 1, overflow: TextOverflow.ellipsis),
               subtitle: Text(
-                  '${_takaStr(e.totalPoisha)} · ${t.ceComponentsCount(lines.length)}',
+                  '${_takaStr(e.totalPoisha)} · ${t.ceComponentsCount(fmtInt(context, lines.length))}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis),
               onTap: () => _openSaved(row),
@@ -497,7 +498,7 @@ class _ComponentCard extends StatelessWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           Expanded(
-            child: Text(t.ceComponentN(index),
+            child: Text(t.ceComponentN(fmtInt(context, index)),
                 style: TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 12.5,
@@ -617,7 +618,7 @@ class _TotalsCard extends StatelessWidget {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         line(t.ceSubtotal, subtotal),
-        if (contingencyPct > 0) line(t.ceContingencyLine(contingencyPct), contingency),
+        if (contingencyPct > 0) line(t.ceContingencyLine(fmtInt(context, contingencyPct)), contingency),
         const Divider(height: Gap.lg),
         line(t.ceTotalCost, totalCost, strong: true),
         const SizedBox(height: 2),

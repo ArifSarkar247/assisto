@@ -5,6 +5,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../api.dart';
 import '../widgets/chatnav.dart';
+import '../widgets/ladder_common.dart';
 import '../widgets/skeleton.dart';
 
 /// PROACTIVE AI — ADVANCED (#6, SPEC v2.1 §21).
@@ -315,7 +316,7 @@ class _ProactiveAiScreenState extends State<ProactiveAiScreen> {
               tint: Brand.success,
               title: tr.proEmptyTitle,
               message: digest.dismissedCount > 0
-                  ? tr.proEmptyDismissed(digest.dismissedCount)
+                  ? tr.proEmptyDismissed(fmtInt(context, digest.dismissedCount))
                   : tr.proEmptyBody,
             ),
             const Padding(
@@ -367,7 +368,7 @@ class _ProactiveAiScreenState extends State<ProactiveAiScreen> {
             if (digest.dismissedCount > 0)
               Padding(
                 padding: const EdgeInsets.all(Gap.sm),
-                child: Text(tr.proHiddenCount(digest.dismissedCount),
+                child: Text(tr.proHiddenCount(fmtInt(context, digest.dismissedCount)),
                     style: TextStyle(
                         fontSize: 12, color: scheme.onSurfaceVariant)),
               ),
@@ -388,7 +389,6 @@ class _GroupHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
     final (label, color, icon) = switch (urgency) {
       'now' => (tr.proUrgNow, Brand.danger, Icons.priority_high),
       'soon' => (tr.proUrgSoon, Brand.warning, Icons.schedule),
@@ -411,7 +411,7 @@ class _GroupHeader extends StatelessWidget {
             color: color.withValues(alpha: 0.14),
             borderRadius: BorderRadius.circular(Radii.pill),
           ),
-          child: Text('$count',
+          child: Text(fmtInt(context, count),
               style: TextStyle(
                   fontSize: 12, fontWeight: FontWeight.w700, color: color)),
         ),
@@ -459,7 +459,7 @@ class _NudgeCard extends StatelessWidget {
                               fontSize: 13, color: scheme.onSurfaceVariant)),
                     ],
                     const SizedBox(height: Gap.xs),
-                    Text(_whenText(tr, sug.daysUntil),
+                    Text(_whenText(context, tr, sug.daysUntil),
                         style: TextStyle(
                             fontSize: 12, color: scheme.onSurfaceVariant)),
                   ]),
@@ -494,12 +494,12 @@ class _NudgeCard extends StatelessWidget {
     );
   }
 
-  String _whenText(AppLocalizations tr, int? days) {
+  String _whenText(BuildContext context, AppLocalizations tr, int? days) {
     if (days == null) return tr.proWhenNoDate;
-    if (days < 0) return tr.proWhenOverdue(-days);
+    if (days < 0) return tr.proWhenOverdue(fmtInt(context, -days));
     if (days == 0) return tr.proWhenToday;
     if (days == 1) return tr.proWhenTomorrow;
-    return tr.proWhenInDays(days);
+    return tr.proWhenInDays(fmtInt(context, days));
   }
 }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import 'ladder_common.dart';
 
 /// "Earn X Premium days by inviting Y friends" progress (feature #102 advanced).
 ///
@@ -42,11 +43,11 @@ class RefProgressCard extends StatelessWidget {
             child: Text(t.refProgressTitle,
                 style: const TextStyle(fontWeight: FontWeight.w700)),
           ),
-          Text(t.refProgressJoined(friendsJoined),
+          Text(t.refProgressJoined(fmtInt(context, friendsJoined)),
               style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
         ]),
         const SizedBox(height: Gap.sm),
-        Text(t.refProgressDaysEarned(daysEarnedTotal),
+        Text(t.refProgressDaysEarned(fmtInt(context, daysEarnedTotal)),
             style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
         const SizedBox(height: Gap.md),
         ClipRRect(
@@ -61,7 +62,7 @@ class RefProgressCard extends StatelessWidget {
         const SizedBox(height: Gap.sm),
         Text(
           friendsToNextDay > 0
-              ? t.refProgressNext(friendsToNextDay)
+              ? t.refProgressNext(fmtInt(context, friendsToNextDay))
               : t.refProgressReadyToRedeem,
           style: TextStyle(
               fontSize: 12,

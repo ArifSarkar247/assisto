@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import 'ladder_common.dart';
 
 /// Gradient hero card for the Referral screen: shows the point balance and how
 /// many Premium days those points can currently buy. Mirrors the Plans current-
@@ -28,7 +29,7 @@ class ReferralBalanceCard extends StatelessWidget {
         Text(t.referralBalanceLabel,
             style: const TextStyle(color: Colors.white70, fontSize: 12)),
         Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-          Text('$points',
+          Text(fmtInt(context, points),
               style: const TextStyle(
                   color: Colors.white,
                   fontSize: 34,
@@ -45,13 +46,13 @@ class ReferralBalanceCard extends StatelessWidget {
           const Icon(Icons.workspace_premium, color: Colors.white, size: 18),
           const SizedBox(width: 6),
           Expanded(
-            child: Text(t.referralRedeemableDays(redeemableDays),
+            child: Text(t.referralRedeemableDays(fmtInt(context, redeemableDays)),
                 style: const TextStyle(
                     color: Colors.white, fontWeight: FontWeight.w600)),
           ),
         ]),
         const SizedBox(height: 2),
-        Text(t.referralRate(pointsPerDay),
+        Text(t.referralRate(fmtInt(context, pointsPerDay)),
             style: const TextStyle(color: Colors.white70, fontSize: 12)),
       ]),
     );
