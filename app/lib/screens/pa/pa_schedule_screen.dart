@@ -58,15 +58,38 @@ class _PaScheduleScreenState extends State<PaScheduleScreen> {
     });
     try {
       final rows = await _app.api.listItems('pa_schedule');
-      _slots =
-          rows.map((r) => (r['data'] as Map<String, dynamic>?) ?? r).toList();
-      // If the slot stores a wrapped {'items': [...]} blob, unwrap it.
-      if (_slots.length == 1 && _slots.first['items'] is List) {
-        _slots = ((_slots.first['items'] as List))
-            .map((e) => Map<String, dynamic>.from(e as Map))
-            .toList();
+      // The PA collection serializer flattens each row to {...slot, 'id': N};
+      // every slot is its own row. Older builds (pre-fix) wrote one or more
+      // wrapper rows shaped {'items': [...], 'id': N}. Self-heal here: expand
+      // any wrapper rows into real per-slot rows, and delete the stale wrappers
+      // from the backend so they never accumulate or shadow the real slots.
+      final slots = <Map<String, dynamic>>[];
+      final staleWrapperIds = <int>[];
+      for (final r in rows) {
+        final row = (r['data'] as Map<String, dynamic>?) ?? r;
+        if (row['items'] is List) {
+          // Legacy wrapper row — expand its payload into standalone slots.
+          for (final e in (row['items'] as List)) {
+            if (e is Map) {
+              final slot = Map<String, dynamic>.from(e);
+              slot.remove('id'); // inner items never carried a real row id
+              slots.add(slot);
+            }
+          }
+          final wid = row['id'];
+          if (wid is int) staleWrapperIds.add(wid);
+        } else {
+          slots.add(Map<String, dynamic>.from(row));
+        }
       }
+      _slots = slots;
       _offline = false;
+      // Fire-and-forget cleanup of the legacy wrapper rows. If any expanded
+      // slots had no id of their own, re-persist them as proper per-slot rows
+      // so the self-heal is durable across reloads.
+      if (staleWrapperIds.isNotEmpty) {
+        await _healLegacyRows(staleWrapperIds);
+      }
     } catch (_) {
       if (_slots.isNotEmpty) {
         _offline = true;
@@ -77,16 +100,56 @@ class _PaScheduleScreenState extends State<PaScheduleScreen> {
     if (mounted) setState(() => _loading = false);
   }
 
-  Future<void> _save() async {
+  /// Recovers data written by the old wrapper-row bug: persists any expanded
+  /// slots that lack a row id as fresh per-slot rows, then deletes the stale
+  /// wrapper rows. Best-effort — failures leave the in-memory view intact.
+  Future<void> _healLegacyRows(List<int> staleWrapperIds) async {
     try {
-      await _app.api.createItem('pa_schedule', {'items': _slots});
+      for (var i = 0; i < _slots.length; i++) {
+        final s = _slots[i];
+        if (s['id'] is int) continue;
+        final created = await _app.api.createItem('pa_schedule', _payloadOf(s));
+        _slots[i] = {...s, 'id': created['id']};
+      }
+      for (final id in staleWrapperIds) {
+        await _app.api.deleteItem('pa_schedule', id);
+      }
+      if (mounted) setState(() {});
+    } catch (_) {
+      // Leave the in-memory slots as-is; a later successful save/reload will
+      // retry the heal. Never strand the user on a transient failure.
+    }
+  }
+
+  /// A slot map minus the backend row id — the body we send on create/update.
+  Map<String, dynamic> _payloadOf(Map<String, dynamic> s) {
+    final body = Map<String, dynamic>.from(s);
+    body.remove('id');
+    return body;
+  }
+
+  /// Persists a single slot: PATCH when it already has a row id, POST (capturing
+  /// the new id) otherwise. Returns the slot with its id populated, or null on
+  /// failure (caller surfaces the offline state).
+  Future<Map<String, dynamic>?> _persist(Map<String, dynamic> s) async {
+    try {
+      final id = s['id'];
+      if (id is int) {
+        await _app.api.updateItem('pa_schedule', id, _payloadOf(s));
+        if (mounted && _offline) setState(() => _offline = false);
+        return s;
+      }
+      final created = await _app.api.createItem('pa_schedule', _payloadOf(s));
+      final withId = {...s, 'id': created['id']};
       if (mounted && _offline) setState(() => _offline = false);
+      return withId;
     } catch (_) {
       if (mounted) {
         setState(() => _offline = true);
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(t.paSavedOffline)));
       }
+      return null;
     }
   }
 
@@ -98,15 +161,24 @@ class _PaScheduleScreenState extends State<PaScheduleScreen> {
       builder: (_) => _SlotEditor(existing: existing, anchor: _anchor),
     );
     if (result == null) return;
+    // Carry the backend row id across an edit so we PATCH the same row rather
+    // than POSTing a duplicate.
+    final toSave = existing != null && existing['id'] is int
+        ? {...result, 'id': existing['id']}
+        : result;
     setState(() {
       if (existing == null) {
-        _slots = [..._slots, result];
+        _slots = [..._slots, toSave];
       } else {
         _slots =
-            _slots.map((x) => identical(x, existing) ? result : x).toList();
+            _slots.map((x) => identical(x, existing) ? toSave : x).toList();
       }
     });
-    await _save();
+    final saved = await _persist(toSave);
+    if (saved != null && mounted) {
+      setState(() => _slots =
+          _slots.map((x) => identical(x, toSave) ? saved : x).toList());
+    }
   }
 
   Future<void> _delete(Map<String, dynamic> s) async {
@@ -127,7 +199,15 @@ class _PaScheduleScreenState extends State<PaScheduleScreen> {
     );
     if (ok != true) return;
     setState(() => _slots = _slots.where((x) => !identical(x, s)).toList());
-    await _save();
+    final id = s['id'];
+    if (id is int) {
+      try {
+        await _app.api.deleteItem('pa_schedule', id);
+        if (mounted && _offline) setState(() => _offline = false);
+      } catch (_) {
+        if (mounted) setState(() => _offline = true);
+      }
+    }
     if (mounted) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(t.commonDeleted)));
@@ -135,10 +215,14 @@ class _PaScheduleScreenState extends State<PaScheduleScreen> {
   }
 
   Future<void> _setStatus(Map<String, dynamic> s, String status) async {
-    setState(() => _slots = _slots
-        .map((x) => identical(x, s) ? {...x, 'status': status} : x)
-        .toList());
-    await _save();
+    final updated = {...s, 'status': status};
+    setState(() =>
+        _slots = _slots.map((x) => identical(x, s) ? updated : x).toList());
+    final saved = await _persist(updated);
+    if (saved != null && mounted) {
+      setState(() => _slots =
+          _slots.map((x) => identical(x, updated) ? saved : x).toList());
+    }
   }
 
   void _openBrief(Map<String, dynamic> s) {
@@ -146,9 +230,17 @@ class _PaScheduleScreenState extends State<PaScheduleScreen> {
       builder: (_) => PaMeetingBriefScreen(
         meeting: Map<String, dynamic>.from(s),
         onSaved: (updated) async {
+          // Preserve the backend row id so the brief edit PATCHes in place.
+          final merged = s['id'] is int && updated['id'] == null
+              ? {...updated, 'id': s['id']}
+              : updated;
           setState(() => _slots =
-              _slots.map((x) => identical(x, s) ? updated : x).toList());
-          await _save();
+              _slots.map((x) => identical(x, s) ? merged : x).toList());
+          final saved = await _persist(merged);
+          if (saved != null && mounted) {
+            setState(() => _slots =
+                _slots.map((x) => identical(x, merged) ? saved : x).toList());
+          }
         },
       ),
     ));
