@@ -131,31 +131,29 @@ class _ThemeCard extends StatelessWidget {
               children: [
                 _preview(),
                 const SizedBox(height: Gap.sm),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      selected
-                          ? Icons.radio_button_checked
-                          : Icons.radio_button_unchecked,
-                      size: 16,
-                      color: selected ? cs.primary : cs.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 4),
-                    Flexible(
-                      child: Text(
-                        label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight:
-                              selected ? FontWeight.w700 : FontWeight.w500,
-                          color: selected ? cs.primary : cs.onSurface,
-                        ),
-                      ),
-                    ),
-                  ],
+                // Radio on its own line so the (sometimes long, e.g. Bangla
+                // "ডিফল্ট (ফোন অনুযায়ী)") label gets the FULL card width and
+                // wraps instead of truncating.
+                Icon(
+                  selected
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_unchecked,
+                  size: 16,
+                  color: selected ? cs.primary : cs.onSurfaceVariant,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  label,
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                  softWrap: true,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12,
+                    height: 1.15,
+                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                    color: selected ? cs.primary : cs.onSurface,
+                  ),
                 ),
               ],
             ),

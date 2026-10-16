@@ -196,7 +196,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
       for (final c in callable) {
         final nm = '${c['name'] ?? ''}'.trim();
         final rel = '${c['relation'] ?? ''}'.trim();
-        final who = nm + (rel.isNotEmpty ? ' ($rel)' : '');
+        final who = nm + (rel.isNotEmpty && rel != nm ? ' ($rel)' : '');
         lines.add('  • ${who.isEmpty ? '' : '$who — '}${c['phone']}');
       }
     }

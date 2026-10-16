@@ -173,7 +173,11 @@ class _EmergencySosPanelState extends State<EmergencySosPanel> {
         const SizedBox(height: Gap.sm),
         Text(t.emergencySosExplainer,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 12, color: Colors.black54)),
+            style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white70
+                    : Colors.black54)),
         // Wrapped in a transparent Material so the tile's ink splash paints
         // above the decorated red SOS surface (it otherwise would be hidden).
         Material(

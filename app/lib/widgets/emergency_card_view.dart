@@ -153,7 +153,7 @@ class EmergencyCardView extends StatelessWidget {
     final nm = '${c['name'] ?? ''}'.trim();
     final rel = '${c['relation'] ?? ''}'.trim();
     final ph = '${c['phone'] ?? ''}'.trim();
-    final who = nm + (rel.isNotEmpty ? ' ($rel)' : '');
+    final who = nm + (rel.isNotEmpty && rel != nm ? ' ($rel)' : '');
     return who.isEmpty ? '• $ph' : '• $who — $ph';
   }
 

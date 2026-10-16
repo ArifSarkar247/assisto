@@ -303,15 +303,19 @@ class _PlansScreenState extends State<PlansScreen> {
       (_annual && id == 'annual') || (!_annual && id == 'premium');
 
   Widget _billingToggle(AppLocalizations t, ColorScheme scheme) {
+    // Size the segment labels on the Text widgets (not via a bare TextStyle on
+    // the button) so they keep inheriting the app font family — a plain
+    // TextStyle(fontSize:) on the button strips the family and the labels fall
+    // back to a glyph-less font (rendering as empty boxes/bars).
+    const seg = TextStyle(fontSize: 12);
     return SegmentedButton<bool>(
       showSelectedIcon: false,
-      style: ButtonStyle(
+      style: const ButtonStyle(
         visualDensity: VisualDensity.compact,
-        textStyle: const WidgetStatePropertyAll(TextStyle(fontSize: 12)),
       ),
       segments: [
-        ButtonSegment(value: false, label: Text(t.plansMonthly)),
-        ButtonSegment(value: true, label: Text(t.plansYearly)),
+        ButtonSegment(value: false, label: Text(t.plansMonthly, style: seg)),
+        ButtonSegment(value: true, label: Text(t.plansYearly, style: seg)),
       ],
       selected: {_annual},
       onSelectionChanged: (s) => setState(() => _annual = s.first),
