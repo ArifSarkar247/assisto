@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import '../notifications.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/subs_common.dart';
 import '../widgets/subs_cards.dart';
@@ -64,6 +65,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
       };
 
   Future<void> _add() async {
+    final t = AppLocalizations.of(context);
     final form = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
@@ -71,11 +73,17 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
       builder: (_) => const SubsEditSheet(),
     );
     if (form == null || !mounted) return;
-    await context.read<AppState>().api.createItem('subscriptions', _wire(form));
+    final created =
+        await context.read<AppState>().api.createItem('subscriptions', _wire(form));
+    // Honour the "I'll remind you before each is due" promise: schedule a local
+    // reminder for the new subscription (guarded, never blocks the add).
+    _scheduleDueReminder(t, created['id'], created['name'] ?? form['name'],
+        created['next_due'] ?? form['next_due']);
     await _load();
   }
 
   Future<void> _edit(Map<String, dynamic> sub) async {
+    final t = AppLocalizations.of(context);
     final form = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
@@ -86,6 +94,9 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
         .read<AppState>()
         .api
         .updateItem('subscriptions', sub['id'] as int, _wire(form));
+    // Re-schedule against the edited next-due (stable id ⇒ replaces, never dupes).
+    _scheduleDueReminder(
+        t, sub['id'], form['name'] ?? sub['name'], form['next_due']);
     await _load();
   }
 
@@ -96,11 +107,41 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
         .read<AppState>()
         .api
         .updateItem('subscriptions', sub['id'] as int, {'next_due': next});
+    // The new cycle now has a next_due — schedule its reminder (same stable id
+    // ⇒ the previous one is replaced, not duplicated).
+    _scheduleDueReminder(t, sub['id'], sub['name'], next);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(t.subsMarkedPaid('${sub['name']}'))),
     );
     await _load();
+  }
+
+  /// Schedule a local "due soon" reminder for a subscription. Fired the morning
+  /// (09:00 local) BEFORE the due date so the user has a day to act; if that is
+  /// already past we fall back to 09:00 ON the due date. Past/missing dates are
+  /// skipped. The notification id is derived from the backend subscription id
+  /// ("sub-<id>") so re-scheduling on edit / mark-paid REPLACES the old alert.
+  /// Fully guarded — notifications are best-effort and never block the UX.
+  void _scheduleDueReminder(
+      AppLocalizations t, dynamic id, dynamic name, dynamic nextDue) {
+    try {
+      if (id == null) return;
+      final due = parseDate(nextDue);
+      if (due == null) return;
+      final title = (name ?? '').toString().trim();
+      if (title.isEmpty) return;
+      final now = DateTime.now();
+      final dayBefore = DateTime(due.year, due.month, due.day - 1, 9);
+      final onDue = DateTime(due.year, due.month, due.day, 9);
+      // Prefer the day-before nudge; fall back to the morning-of if that passed.
+      final when = dayBefore.isAfter(now) ? dayBefore : onDue;
+      if (!when.isAfter(now)) return; // already due/overdue — nothing to fire
+      final body = dayBefore.isAfter(now) ? t.subsDueTomorrow : t.subsDueToday;
+      Notifications.schedule('sub-$id', title, body, when);
+    } catch (_) {
+      // best-effort only
+    }
   }
 
   Future<void> _delete(Map<String, dynamic> sub) async {
@@ -123,6 +164,10 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
         .read<AppState>()
         .api
         .deleteItem('subscriptions', sub['id'] as int);
+    // Drop any pending due reminder for this subscription.
+    try {
+      if (sub['id'] != null) Notifications.cancel('sub-${sub['id']}');
+    } catch (_) {}
     await _load();
   }
 

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import '../notifications.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/ladder_common.dart';
 import '../widgets/ladder_cards.dart';
@@ -111,12 +112,43 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
       'ladder': result['ladder'],
     };
     final api = context.read<AppState>().api;
+    final debtBody = Map<String, dynamic>.from(result['debt'] as Map);
     if (row != null && row['id'] != null) {
       await api.updateItem(_path, row['id'] as int, body);
+      // Re-schedule against the edited due date (stable id ⇒ replaces, no dupes).
+      _scheduleDueReminder(
+          row['id'], debtBody['party'] ?? row['party'], debtBody['due_date']);
     } else {
-      await api.createItem(_path, body);
+      final created = await api.createItem(_path, body);
+      // Honour "we'll remind you to pay on time": schedule a local reminder for
+      // the new due (guarded, never blocks the add).
+      _scheduleDueReminder(created['id'], created['party'] ?? debtBody['party'],
+          created['due_date'] ?? debtBody['due_date']);
     }
     await _load();
+  }
+
+  /// Schedule a local "due today" reminder for a ladder row, fired at 09:00 local
+  /// on its due date (the ladder itself is anchored on `due_date`, with a
+  /// `due_today` rung). Past/missing dates are skipped. The notification id is
+  /// derived from the tab-kind + backend id ("ladder-<kind>-<id>") so
+  /// re-scheduling on edit / mark-paid REPLACES the old alert rather than
+  /// duplicating it, and receivable/payable rows never collide. Fully guarded —
+  /// notifications are best-effort and never block the UX.
+  void _scheduleDueReminder(dynamic id, dynamic party, dynamic dueDate) {
+    try {
+      if (id == null) return;
+      final t = AppLocalizations.of(context);
+      final due = parseDate(dueDate);
+      if (due == null) return;
+      final title = (party ?? '').toString().trim();
+      if (title.isEmpty) return;
+      final when = DateTime(due.year, due.month, due.day, 9);
+      if (!when.isAfter(DateTime.now())) return; // already due/overdue
+      Notifications.schedule('ladder-$_kind-$id', title, t.plDueToday, when);
+    } catch (_) {
+      // best-effort only
+    }
   }
 
   Future<void> _doStep(Map<String, dynamic> row, Map<String, dynamic> ladder,
@@ -176,10 +208,16 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
     );
     if (ok != true || !mounted) return;
     final settled = markPaid(row, now: DateTime.now());
+    final rolled = settled['due_date'] != row['due_date'];
     await context.read<AppState>().api.updateItem(_path, row['id'] as int, {
       'paid_poisha': settled['paid_poisha'],
-      if (settled['due_date'] != row['due_date']) 'due_date': settled['due_date'],
+      if (rolled) 'due_date': settled['due_date'],
     });
+    // A recurring bill rolled forward to a new due_date → schedule its reminder
+    // (same stable id ⇒ replaces the fired one). A one-off that is now fully
+    // settled keeps its date; _scheduleDueReminder skips it if it is not future.
+    _scheduleDueReminder(
+        row['id'], party, rolled ? settled['due_date'] : row['due_date']);
     if (!mounted) return;
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(t.plMarkedPaid(party))));
@@ -210,6 +248,10 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
     );
     if (ok != true || !mounted) return;
     await context.read<AppState>().api.deleteItem(_path, row['id'] as int);
+    // Drop any pending due reminder for this row.
+    try {
+      if (row['id'] != null) Notifications.cancel('ladder-$_kind-${row['id']}');
+    } catch (_) {}
     await _load();
   }
 
