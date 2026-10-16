@@ -69,7 +69,10 @@ Widget _centered(Widget child) => Center(
     );
 
 Widget _emptyState(BuildContext context,
-    {required IconData icon, required String title, required String body}) {
+    {required IconData icon,
+    required String title,
+    required String body,
+    Widget? action}) {
   final cs = Theme.of(context).colorScheme;
   return _centered(Column(
     mainAxisSize: MainAxisSize.min,
@@ -83,6 +86,10 @@ Widget _emptyState(BuildContext context,
       Text(body,
           textAlign: TextAlign.center,
           style: TextStyle(color: cs.onSurfaceVariant, height: 1.4)),
+      if (action != null) ...[
+        const SizedBox(height: Gap.md),
+        action,
+      ],
     ],
   ));
 }
@@ -169,7 +176,12 @@ class _PendingTabState extends State<_PendingTab> {
               _emptyState(context,
                   icon: Icons.cloud_off_outlined,
                   title: t.actionErrorTitle,
-                  body: t.loadFailedOffline(snap.error ?? '')),
+                  body: t.loadFailedBody,
+                  action: FilledButton.tonalIcon(
+                    onPressed: _reload,
+                    icon: const Icon(Icons.refresh),
+                    label: Text(t.retry),
+                  )),
             ]);
           }
           final items = snap.data ?? const <PendingAction>[];
@@ -255,7 +267,12 @@ class _DoneTabState extends State<_DoneTab> {
               _emptyState(context,
                   icon: Icons.cloud_off_outlined,
                   title: t.actionErrorTitle,
-                  body: t.loadFailedOffline(snap.error ?? '')),
+                  body: t.loadFailedBody,
+                  action: FilledButton.tonalIcon(
+                    onPressed: _reload,
+                    icon: const Icon(Icons.refresh),
+                    label: Text(t.retry),
+                  )),
             ]);
           }
           final all = snap.data ?? const <AuditEntry>[];

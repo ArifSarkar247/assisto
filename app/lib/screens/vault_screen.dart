@@ -13,6 +13,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/permission_reason.dart';
 import '../widgets/vault_doc_types.dart';
 import '../widgets/scam_safety_api.dart';
+import '../widgets/ladder_common.dart' show fmtInt;
 
 class VaultScreen extends StatefulWidget {
   /// Preview/screenshot: skip the PIN gate and load straight to the list.
@@ -213,7 +214,7 @@ class _VaultScreenState extends State<VaultScreen> {
                         icon: const Icon(Icons.event, size: 18),
                         label: Text(detailDates[f.key] == null
                             ? f.label(t)
-                            : '${f.label(t)}: ${DateFormat('d MMM yyyy').format(detailDates[f.key]!)}'),
+                            : '${f.label(t)}: ${DateFormat('d MMM yyyy', Localizations.localeOf(ctx).languageCode).format(detailDates[f.key]!)}'),
                         onPressed: () async {
                           final d = await showDatePicker(context: ctx,
                               initialDate: DateTime.now(),
@@ -239,7 +240,7 @@ class _VaultScreenState extends State<VaultScreen> {
             OutlinedButton.icon(
               icon: const Icon(Icons.event, size: 18),
               label: Text(expiry == null ? t.vaultExpiryDate
-                  : '${t.vaultExpiryDate}: ${DateFormat('d MMM yyyy').format(expiry!)}'),
+                  : '${t.vaultExpiryDate}: ${DateFormat('d MMM yyyy', Localizations.localeOf(ctx).languageCode).format(expiry!)}'),
               onPressed: () async {
                 final d = await showDatePicker(context: ctx, initialDate: expiry ?? DateTime.now(),
                     firstDate: DateTime(2000), lastDate: DateTime(2100));
@@ -525,11 +526,12 @@ class _VaultScreenState extends State<VaultScreen> {
     final days = d.difference(DateTime.now()).inDays;
     Color c;
     String t;
+    final daysStr = fmtInt(context, days);
     if (days < 0) { c = Colors.red; t = AppLocalizations.of(context).vaultExpired; }
-    else if (days <= 7) { c = Colors.red; t = AppLocalizations.of(context).vaultExpiresInDays(days); }
-    else if (days <= 30) { c = Colors.orange; t = AppLocalizations.of(context).vaultExpiresInDays(days); }
-    else if (days <= 90) { c = const Color(0xFFB8860B); t = AppLocalizations.of(context).vaultExpiresInDays(days); }
-    else { c = Colors.green; t = DateFormat('d MMM yyyy').format(d); }
+    else if (days <= 7) { c = Colors.red; t = AppLocalizations.of(context).vaultExpiresInDays(daysStr); }
+    else if (days <= 30) { c = Colors.orange; t = AppLocalizations.of(context).vaultExpiresInDays(daysStr); }
+    else if (days <= 90) { c = const Color(0xFFB8860B); t = AppLocalizations.of(context).vaultExpiresInDays(daysStr); }
+    else { c = Colors.green; t = DateFormat('d MMM yyyy', Localizations.localeOf(context).languageCode).format(d); }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(color: c.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),

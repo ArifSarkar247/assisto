@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import 'bday_model.dart';
+import 'ladder_common.dart';
 
 /// One upcoming occasion (ADVANCED). Shows kind + name + relation, when it is
 /// (today / tomorrow / in N days, with Bangla digits via [bNum]), the turning
@@ -51,13 +52,13 @@ class BdayUpcomingCard extends StatelessWidget {
     } else if (daysUntil == 1) {
       when = t.birthdayTomorrow;
     } else {
-      when = t.birthdayInDays(daysUntil);
+      when = t.birthdayInDays(fmtInt(context, daysUntil));
     }
 
     final subtitleParts = <String>[
       if (kindLabel.isNotEmpty) kindLabel,
       when,
-      if (age is int) t.birthdayTurningAge(age),
+      if (age is int) t.birthdayTurningAge(fmtInt(context, age)),
     ];
 
     final card = Card(

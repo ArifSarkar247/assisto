@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import '../widgets/ladder_common.dart' show fmtInt;
 
 /// Adherence history: overall % + per-medicine weekly bars and streaks.
 /// Opened from the caregiver overview; scoped to one person by [member].
@@ -92,7 +93,7 @@ class _MedicineHistoryScreenState extends State<MedicineHistoryScreen> {
                   Text(t.medOverallAdherence,
                       style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: Gap.xs),
-                  Text(t.medTakenScheduled(taken, scheduled),
+                  Text(t.medTakenScheduled(fmtInt(context, taken), fmtInt(context, scheduled)),
                       style: TextStyle(color: scheme.onSurfaceVariant)),
                 ]),
               ),
@@ -106,6 +107,7 @@ class _MedicineHistoryScreenState extends State<MedicineHistoryScreen> {
   }
 
   Widget _ring(int pct) {
+    final pctStr = fmtInt(context, pct);
     return SizedBox(
       height: 64,
       width: 64,
@@ -120,7 +122,7 @@ class _MedicineHistoryScreenState extends State<MedicineHistoryScreen> {
             valueColor: AlwaysStoppedAnimation(_pctColor(pct)),
           ),
         ),
-        Text('$pct%', style: const TextStyle(fontWeight: FontWeight.w700)),
+        Text('$pctStr%', style: const TextStyle(fontWeight: FontWeight.w700)),
       ]),
     );
   }
@@ -145,7 +147,7 @@ class _MedicineHistoryScreenState extends State<MedicineHistoryScreen> {
               if (prn)
                 Chip(label: Text(t.medAsNeededShort), visualDensity: VisualDensity.compact)
               else
-                Text('$pct%',
+                Text('${fmtInt(context, pct)}%',
                     style: TextStyle(
                         fontWeight: FontWeight.w700, color: _pctColor(pct))),
             ]),
@@ -154,7 +156,7 @@ class _MedicineHistoryScreenState extends State<MedicineHistoryScreen> {
               Row(children: [
                 const Icon(Icons.local_fire_department_outlined, size: 16),
                 const SizedBox(width: Gap.xs),
-                Text(t.medStreakValue(streak),
+                Text(t.medStreakValue(fmtInt(context, streak)),
                     style: TextStyle(color: scheme.onSurfaceVariant)),
               ]),
             ],
@@ -183,7 +185,7 @@ class _MedicineHistoryScreenState extends State<MedicineHistoryScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Column(children: [
-        Text('$pct%', style: const TextStyle(fontSize: 11)),
+        Text('${fmtInt(context, pct)}%', style: const TextStyle(fontSize: 11)),
         const SizedBox(height: Gap.xs),
         Container(
           height: 60,
@@ -199,7 +201,7 @@ class _MedicineHistoryScreenState extends State<MedicineHistoryScreen> {
           ),
         ),
         const SizedBox(height: Gap.xs),
-        Text(t.medWeekLabel(n),
+        Text(t.medWeekLabel(fmtInt(context, n)),
             style: TextStyle(
                 fontSize: 10,
                 color: Theme.of(context).colorScheme.onSurfaceVariant)),

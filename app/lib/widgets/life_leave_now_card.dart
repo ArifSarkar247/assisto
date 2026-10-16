@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import 'ladder_common.dart';
 
 /// "Leave now" (bn label supplied via l10n) card for an appointment.
 ///
@@ -68,6 +69,10 @@ class _LifeLeaveNowCardState extends State<LifeLeaveNowCard> {
     final la = _leaveAt;
     if (la == null) return (state: 'unknown', minutes: 0);
     final diff = la.difference(DateTime.now()).inMinutes;
+    // Guard against absurd values from a far/invalid meeting date (e.g. default
+    // or epoch data would otherwise render "leave in 37980541 min"). Beyond a
+    // day in either direction, fall back to the neutral "add travel" state.
+    if (diff.abs() > 24 * 60) return (state: 'unknown', minutes: 0);
     if (diff > 0) return (state: 'later', minutes: diff);
     return (state: 'leave_now', minutes: -diff);
   }
@@ -164,7 +169,7 @@ class _LifeLeaveNowCardState extends State<LifeLeaveNowCard> {
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(
-            isNow ? t.leaveNowGo : t.leaveNowIn(phase.minutes),
+            isNow ? t.leaveNowGo : t.leaveNowIn(fmtInt(context, phase.minutes)),
             style: TextStyle(color: fg, fontWeight: isNow ? FontWeight.bold : FontWeight.normal),
           ),
         ),

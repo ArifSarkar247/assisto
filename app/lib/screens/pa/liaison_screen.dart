@@ -259,11 +259,15 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: Text(tr.paLiaTitle)),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _loading ? null : () => _addOrEdit(tr),
-        icon: const Icon(Icons.add),
-        label: Text(tr.paLiaAdd),
-      ),
+      // When the list is empty the welcome state already shows an Add CTA, so
+      // suppress the FAB to avoid two identical "Add" buttons on one screen.
+      floatingActionButton: (_loading || _error || _rows.isEmpty)
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => _addOrEdit(tr),
+              icon: const Icon(Icons.add),
+              label: Text(tr.paLiaAdd),
+            ),
       body: _loading
           ? const SkeletonList()
           : _error

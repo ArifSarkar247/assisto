@@ -231,11 +231,15 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(tr.paVipTitle)),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _open(),
-        icon: const Icon(Icons.person_add_alt_1),
-        label: Text(tr.paVipNew),
-      ),
+      // When the list is empty the welcome state already shows a "New" CTA, so
+      // suppress the FAB to avoid two identical buttons on one screen.
+      floatingActionButton: (_loading || _error || rows.isEmpty)
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => _open(),
+              icon: const Icon(Icons.person_add_alt_1),
+              label: Text(tr.paVipNew),
+            ),
       body: _loading
           ? const SkeletonList()
           : _error

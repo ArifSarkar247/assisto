@@ -257,7 +257,8 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
           ? _EmptyPast()
           : _Empty(t: AppLocalizations.of(context), onAdd: _add);
     }
-    final fmt = DateFormat('EEE d MMM, h:mm a');
+    final locale = Localizations.localeOf(context).languageCode;
+    final fmt = DateFormat('EEE d MMM, h:mm a', locale);
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
       itemCount: list.length + 1,
@@ -410,7 +411,8 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
     if (day == today.add(const Duration(days: 1))) {
       return mStr(context, 'mTomorrow');
     }
-    return DateFormat('EEE d MMM').format(d);
+    return DateFormat('EEE d MMM', Localizations.localeOf(context).languageCode)
+        .format(d);
   }
 }
 
@@ -466,16 +468,17 @@ class _AnchorBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode;
     String label;
     if (view == _View.month) {
-      label = DateFormat('MMMM yyyy').format(anchor);
+      label = DateFormat('MMMM yyyy', locale).format(anchor);
     } else if (view == _View.week) {
       final start = anchor.subtract(Duration(days: anchor.weekday - 1));
       final end = start.add(const Duration(days: 6));
       label =
-          '${DateFormat('d MMM').format(start)} – ${DateFormat('d MMM').format(end)}';
+          '${DateFormat('d MMM', locale).format(start)} – ${DateFormat('d MMM', locale).format(end)}';
     } else {
-      label = DateFormat('EEE d MMM').format(anchor);
+      label = DateFormat('EEE d MMM', locale).format(anchor);
     }
     return Padding(
       padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
@@ -511,7 +514,10 @@ class _AgendaRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final s = DateTime.tryParse('${appt['start']}');
-    final time = s == null ? '' : DateFormat('h:mm a').format(s);
+    final time = s == null
+        ? ''
+        : DateFormat('h:mm a', Localizations.localeOf(context).languageCode)
+            .format(s);
     final done = statusOf(appt) == kStatusDone;
     final recurring = freqOf(appt) != kFreqNone;
     return InkWell(
@@ -896,7 +902,7 @@ class _AppointmentEditorState extends State<_AppointmentEditor> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final df = DateFormat('EEE d MMM');
+    final df = DateFormat('EEE d MMM', Localizations.localeOf(context).languageCode);
     return Padding(
       padding: EdgeInsets.only(
         left: Gap.lg,
