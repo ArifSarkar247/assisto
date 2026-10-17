@@ -40,8 +40,18 @@ class AppState extends ChangeNotifier {
   Future<void> setLocale(Locale? l) async {
     locale = l;
     api.lang = l?.languageCode;
-    await Settings.setString('locale', l?.languageCode ?? '');
+    // Advance the UI IMMEDIATELY. The chosen language is already live in memory,
+    // so the first-run gate (locale == null) clears right away and "Continue"
+    // always works — even offline or if local storage is slow/unavailable.
+    // Persistence is best-effort and must NEVER block or throw past this point;
+    // a hung/failing SharedPreferences write used to freeze the language screen
+    // (notifyListeners sat behind the await, so the tap did nothing).
     notifyListeners();
+    try {
+      await Settings.setString('locale', l?.languageCode ?? '');
+    } catch (_) {
+      // Language stays applied for this session; it will persist next time.
+    }
   }
 
   Future<void> _loadPrefs() async {

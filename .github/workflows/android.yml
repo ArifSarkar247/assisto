@@ -71,6 +71,14 @@ jobs:
         working-directory: app
         run: python3 tool/lang_gate.py
 
+      # First-run gate: the language picker → "Continue" → enter-app flow must
+      # work deterministically (the owner-reported freeze where Continue did
+      # nothing shipped because nothing proved this flow). Host-side widget test,
+      # no emulator — gates the whole pipeline, so a broken Continue can't ship.
+      - name: First-run language flow test (Continue must enter the app)
+        working-directory: app
+        run: flutter test test/language_flow_test.dart test/widget_test.dart
+
       - name: Generate launcher icons (adaptive)
         working-directory: app
         run: dart run flutter_launcher_icons
@@ -390,3 +398,17 @@ jobs:
             adb shell pidof com.assisto.assisto > pid.txt 2>/dev/null || true
             test -s pid.txt || { echo "::error::app NOT running after launch+feature-tour on API ${{ matrix.api }}"; exit 1; }
             echo "LAUNCH + FEATURE-TOUR OK on API ${{ matrix.api }} pid=$(cat pid.txt)"
+            # First-run language flow: a fresh install opens on the language
+            # picker. Prove "Continue" actually enters the app (the owner hit a
+            # freeze where it did nothing). Tap the lowest clickable node (the
+            # Continue button), then assert we LEFT the picker. pidof alone used
+            # to pass even while frozen on this screen.
+            adb shell uiautomator dump /sdcard/pick.xml && adb pull /sdcard/pick.xml pick.xml || true
+            grep -q 'English' pick.xml && echo "language picker shown (fresh install)" || echo "picker not detected — already past, skipping tap"
+            XY=$(python3 -c "import re;x=open('pick.xml',encoding='utf-8').read();n=[(int(a),int(b),int(c),int(d)) for a,b,c,d in re.findall(r'clickable=\"true\"[^>]*bounds=\"\[(\d+),(\d+)\]\[(\d+),(\d+)\]\"',x)];n.sort(key=lambda m:m[3]);b=n[-1] if n else (0,0,0,0);print((b[0]+b[2])//2,(b[1]+b[3])//2)") || XY="540 2080"
+            echo "tapping Continue at $XY" && adb shell input tap $XY || true
+            sleep 6
+            adb shell pidof com.assisto.assisto > pid2.txt 2>/dev/null || true
+            test -s pid2.txt || { echo "::error::app died after tapping Continue on API ${{ matrix.api }}"; exit 1; }
+            adb shell uiautomator dump /sdcard/after.xml && adb pull /sdcard/after.xml after.xml || true
+            grep -q 'English' after.xml && { echo "::error::still on language picker after Continue — first-run FREEZE on API ${{ matrix.api }}"; exit 1; } || echo "LEFT the language picker — Continue entered the app OK"
