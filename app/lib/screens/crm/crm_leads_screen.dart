@@ -143,6 +143,7 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
           Icon(sourceIcon(l['source']), size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ]),
         subtitle: Text(sub, maxLines: 2, overflow: TextOverflow.ellipsis),
+        trailing: _inlineActions(t, l),
         onTap: () async {
           await Navigator.push(context,
               MaterialPageRoute(
@@ -151,6 +152,36 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
         },
       ),
     );
+  }
+
+  /// Inline call + WhatsApp buttons so a rep can act from the list without
+  /// opening the lead. Launch directly via the shared launchers (same mechanism
+  /// as the detail screen). Only shown when the lead has a phone / WhatsApp.
+  Widget? _inlineActions(AppLocalizations t, Map<String, dynamic> l) {
+    final id = (l['id'] as num?)?.toInt();
+    final phone = (l['phone'] ?? '').toString().trim().isNotEmpty
+        ? (l['phone']).toString().trim()
+        : (l['whatsapp'] ?? '').toString().trim();
+    if (id == null || phone.isEmpty) return null;
+    final name = (l['name']?.toString().isNotEmpty == true
+            ? l['name']
+            : (l['company'] ?? t.crmLead))
+        .toString();
+    return Row(mainAxisSize: MainAxisSize.min, children: [
+      IconButton(
+        tooltip: t.crmCall,
+        icon: const Icon(Icons.call),
+        onPressed: () => crmQuickCall(context, id, phone),
+      ),
+      IconButton(
+        tooltip: t.cWhatsapp,
+        icon: const Icon(Icons.chat),
+        onPressed: () async {
+          final sent = await crmQuickWhatsApp(context, id, name);
+          if (sent) _load();
+        },
+      ),
+    ]);
   }
 
   /// High-contrast score badge. The shared [ScoreBadge] renders low scores as

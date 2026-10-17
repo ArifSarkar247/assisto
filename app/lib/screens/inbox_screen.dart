@@ -211,25 +211,108 @@ class _InboxScreenState extends State<InboxScreen> {
                   padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xl),
                   children: [
                     for (final it in visible)
-                      InboxItemCard(
-                        item: it,
-                        selectMode: _selectMode,
-                        selected: _selected.contains(it.id),
-                        onToggleSelect: () => setState(() {
-                          _selected.contains(it.id)
-                              ? _selected.remove(it.id)
-                              : _selected.add(it.id);
-                        }),
-                        onReply: () => _reply(it),
-                        onSnooze: () => _snooze(it),
-                        onDone: () => _markDone(it),
-                        onTask: () => _convertTask(it),
-                        onReminder: () => _convertReminder(it),
+                      // Superhuman-style swipe triage: swipe right = Done,
+                      // swipe left = Snooze. Both call the SAME handlers as the
+                      // existing icon buttons (which are kept). Backgrounds
+                      // reuse the inbox action colours/icons/labels — no new ARB
+                      // keys (tr.inboxMarkDone / tr.inboxSnooze). Swiping is
+                      // disabled in select mode so bulk selection isn't fought.
+                      Dismissible(
+                        key: ValueKey(it.id),
+                        direction: _selectMode
+                            ? DismissDirection.none
+                            : DismissDirection.horizontal,
+                        background: _SwipeBg(
+                          align: Alignment.centerLeft,
+                          color: Brand.success,
+                          icon: Icons.check_circle_outline,
+                          label: tr.inboxMarkDone,
+                        ),
+                        secondaryBackground: _SwipeBg(
+                          align: Alignment.centerRight,
+                          color: Brand.warning,
+                          icon: Icons.snooze,
+                          label: tr.inboxSnooze,
+                        ),
+                        // Done is synchronous (with undo) so we confirm the
+                        // dismissal; Snooze opens a sheet that can be cancelled,
+                        // so we never confirm the dismissal — we run the handler
+                        // and keep the card (its snoozed state hides it on the
+                        // next build). The card itself is never structurally
+                        // removed here; _visible re-derives from item state.
+                        confirmDismiss: (dir) async {
+                          if (dir == DismissDirection.startToEnd) {
+                            _markDone(it);
+                          } else {
+                            await _snooze(it);
+                          }
+                          return false;
+                        },
+                        child: InboxItemCard(
+                          item: it,
+                          selectMode: _selectMode,
+                          selected: _selected.contains(it.id),
+                          onToggleSelect: () => setState(() {
+                            _selected.contains(it.id)
+                                ? _selected.remove(it.id)
+                                : _selected.add(it.id);
+                          }),
+                          onReply: () => _reply(it),
+                          onSnooze: () => _snooze(it),
+                          onDone: () => _markDone(it),
+                          onTask: () => _convertTask(it),
+                          onReminder: () => _convertReminder(it),
+                        ),
                       ),
                   ],
                 ),
         ),
       ]),
+    );
+  }
+}
+
+/// Swipe-reveal background for the inbox Dismissible: a tinted panel with an
+/// icon + label, mirroring the icon-button action it triggers. Used for both
+/// Done (lead) and Snooze (trailing) by varying alignment/colour/icon/label.
+class _SwipeBg extends StatelessWidget {
+  final Alignment align;
+  final Color color;
+  final IconData icon;
+  final String label;
+  const _SwipeBg({
+    required this.align,
+    required this.color,
+    required this.icon,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final lead = align == Alignment.centerLeft;
+    return Container(
+      margin: const EdgeInsets.only(bottom: Gap.md),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
+      alignment: align,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.16),
+        borderRadius: BorderRadius.circular(Radii.md),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (lead) ...[
+            Icon(icon, color: color),
+            const SizedBox(width: Gap.sm),
+          ],
+          Text(label,
+              style: TextStyle(color: color, fontWeight: FontWeight.w700)),
+          if (!lead) ...[
+            const SizedBox(width: Gap.sm),
+            Icon(icon, color: color),
+          ],
+        ],
+      ),
     );
   }
 }

@@ -2,11 +2,13 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../api.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
 import '../../l10n/app_localizations.dart';
+import 'crm_whatsapp_sheet.dart';
 
 /// Shared helpers for the in-app Sales CRM module. All CRM screens talk to the
 /// DRF JSON API under `/crm/...` via the existing generic ApiClient helpers
@@ -443,6 +445,42 @@ IconData sourceIcon(String? code) {
     default:
       return Icons.edit_outlined;
   }
+}
+
+/// Shared quick-contact launchers so the Today list and the Leads list can
+/// dial / open WhatsApp inline WITHOUT drilling into the lead-detail screen —
+/// identical mechanism to CrmLeadDetailScreen's `_quick`/`_openWhatsApp`.
+///
+/// [crmQuickCall]: logs the tap as a `call` activity (best-effort), then opens
+/// the device dialer with `tel:`. If the dialer can't open, it says so honestly
+/// (G8) instead of implying success. Fully guarded.
+Future<void> crmQuickCall(
+    BuildContext context, int leadId, String phone) async {
+  final t = AppLocalizations.of(context);
+  try {
+    await CrmApi.of(context).logAction(leadId, 'call');
+  } catch (_) {/* best-effort log */}
+  bool launched = false;
+  try {
+    launched = await launchUrl(Uri.parse('tel:$phone'),
+        mode: LaunchMode.externalApplication);
+  } catch (_) {
+    launched = false;
+  }
+  if (!launched && context.mounted) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(t.crmQuickLaunchFailed)));
+  }
+}
+
+/// [crmQuickWhatsApp]: opens the official WhatsApp Business Cloud API sheet
+/// (send + auto-log + key-gated state) — NOT a wa.me personal deep-link, mirror
+/// of the detail screen. Returns true if a message was sent (caller may refresh).
+Future<bool> crmQuickWhatsApp(
+    BuildContext context, int leadId, String leadName) async {
+  final sent = await CrmWhatsAppSheet.show(context,
+      leadId: leadId, leadName: leadName);
+  return sent == true;
 }
 
 /// The module options spec (lead required-modules multi-select). Codes are

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
+import '../../notifications.dart';
 import 'crm_common.dart';
 
 /// Fast "log activity + set next follow-up" sheet for the lead-detail screen.
@@ -103,6 +104,23 @@ class _CrmLogActivitySheetState extends State<CrmLogActivitySheet> {
         await api.updateLead(
             widget.leadId, {'next_follow_up': _fmt(_followUp!)});
       }
+      // Mirror the bill/subscription reminder pattern: schedule a best-effort
+      // local notification so the rep is nudged on the follow-up day. Stable id
+      // per lead → cancel+reschedule on change; cleared date cancels. Skip past
+      // dates (schedule() already no-ops on past times, but guard explicitly).
+      // Fully guarded — reminders are best-effort and never block the save.
+      try {
+        final localId = 'crm-followup-${widget.leadId}';
+        await Notifications.cancel(localId);
+        if (_followUp != null) {
+          final f = _followUp!;
+          final when = DateTime(f.year, f.month, f.day, 9);
+          if (when.isAfter(DateTime.now())) {
+            await Notifications.schedule(
+                localId, t.crmNextFollowUp, type.label(t), when);
+          }
+        }
+      } catch (_) {/* best-effort only */}
       if (!mounted) return;
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(t.crmActionLogged)));
@@ -155,6 +173,13 @@ class _CrmLogActivitySheetState extends State<CrmLogActivitySheet> {
             ),
           ),
           const SizedBox(height: Gap.md),
+          // ---- quick-preset follow-up chips (one tap) ----
+          Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+            _preset(t.remTomorrow, 1),
+            _preset(t.inboxSnooze3d, 3),
+            _preset(t.remSnoozeNextWeek, 7),
+          ]),
+          const SizedBox(height: Gap.sm),
           // ---- optional next follow-up ----
           Row(children: [
             Expanded(

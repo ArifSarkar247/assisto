@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import '../notifications.dart';
 import '../widgets/life_leave_now_card.dart';
 import '../widgets/meet_model.dart';
 
@@ -94,6 +95,7 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
       builder: (_) => const _AppointmentEditor(),
     );
     if (result != null) {
+      if (mounted) _syncReminders(result);
       setState(() => _appts = [..._appts, result]);
       await _save();
     }
@@ -106,6 +108,10 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
       builder: (_) => _AppointmentEditor(existing: a),
     );
     if (result != null) {
+      // Drop the pre-edit reminders first (start/title/leads may have changed),
+      // then schedule the edited meeting fresh.
+      _cancelReminders(a);
+      if (mounted) _syncReminders(result);
       setState(() =>
           _appts = _appts.map((x) => identical(x, a) ? result : x).toList());
       await _save();
@@ -128,12 +134,69 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
       ),
     );
     if (ok != true) return;
+    _cancelReminders(a);
     setState(() => _appts = _appts.where((x) => !identical(x, a)).toList());
     await _save();
     if (mounted) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(mStr(context, 'mDeleted'))));
     }
+  }
+
+  // ---------------------------------------------------------------- reminders
+
+  /// Stable notification id prefix for a meeting. Uses the backend id when one
+  /// exists, else a hash of start+title (the same identity `_apptKey` uses), so
+  /// a given meeting keeps the same id across rebuilds.
+  String _reminderBase(Map<String, dynamic> a) {
+    final id = a['id'];
+    return 'appt-${id ?? _apptKey(a)}';
+  }
+
+  /// Honour the lead-time reminders the editor collected. For each lead offset
+  /// (minutes before start) we schedule a local notification at
+  /// start − lead, with the STABLE id 'appt-<id>-<lead>' so re-scheduling an
+  /// edit replaces (never duplicates) the alert. Cancelled/done meetings and
+  /// fire-times already in the past are skipped. Fully guarded — notifications
+  /// are best-effort and must never break the save UX.
+  void _syncReminders(Map<String, dynamic> a) {
+    try {
+      // Always clear any previously-scheduled leads for this meeting first.
+      _cancelReminders(a);
+      if (statusOf(a) == kStatusCancelled || statusOf(a) == kStatusDone) return;
+      final start = nextStart(a);
+      if (start == null) return;
+      final title = '${a['title'] ?? ''}'.trim();
+      if (title.isEmpty) return;
+      // Body = the meeting's localized date/time (no literals in .dart).
+      final locale = Localizations.localeOf(context).languageCode;
+      final body = DateFormat('EEE d MMM, h:mm a', locale).format(start);
+      final base = _reminderBase(a);
+      final now = DateTime.now();
+      final leads = (a['reminder_offsets'] as List?)
+              ?.map((x) => (x as num).toInt())
+              .toList() ??
+          const <int>[];
+      for (final lead in leads) {
+        if (lead < 0) continue;
+        final when = start.subtract(Duration(minutes: lead));
+        if (!when.isAfter(now)) continue; // past — nothing to fire
+        Notifications.schedule('$base-$lead', title, body, when);
+      }
+    } catch (_) {
+      // best-effort only
+    }
+  }
+
+  /// Drop every reminder we might have scheduled for a meeting (one per known
+  /// lead option). Guarded — safe on delete and before re-scheduling.
+  void _cancelReminders(Map<String, dynamic> a) {
+    try {
+      final base = _reminderBase(a);
+      for (final lead in kLeadOptions) {
+        Notifications.cancel('$base-$lead');
+      }
+    } catch (_) {}
   }
 
   Future<void> _setStatus(Map<String, dynamic> a, String status) async {

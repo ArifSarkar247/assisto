@@ -55,10 +55,21 @@ const List<HealthDataAccess> _access = [
 
 enum _Phase { checking, unavailable, needsPermission, loading, ready, error }
 
+/// Trend window lengths offered by the toggle. 7 is the default; the longest
+/// entry also drives how far back we fetch from Health Connect, so the shorter
+/// windows are a pure re-fold of already-loaded data (no extra I/O).
+const List<int> _windowDays = [7, 30, 90];
+const int _maxWindowDays = 90;
+
 class _SmartwatchScreenState extends State<SmartwatchScreen> {
   final Health _health = Health();
   _Phase _phase = _Phase.checking;
   _Summary? _summary;
+  // Raw (de-duplicated) points for the longest window, kept so the trend toggle
+  // can re-fold over 7 / 30 / 90 days without re-querying Health Connect.
+  List<HealthDataPoint> _points = const [];
+  int? _loadedTodaySteps;
+  int _window = 7;
 
   @override
   void initState() {
@@ -139,11 +150,12 @@ class _SmartwatchScreenState extends State<SmartwatchScreen> {
     setState(() => _phase = _Phase.loading);
     final now = DateTime.now();
     final todayStart = DateTime(now.year, now.month, now.day);
-    final weekStart = todayStart.subtract(const Duration(days: 6));
+    // Fetch the longest window up-front so shorter windows are a pure re-fold.
+    final rangeStart = todayStart.subtract(const Duration(days: _maxWindowDays - 1));
     try {
       List<HealthDataPoint> points = await _health.getHealthDataFromTypes(
         types: _types,
-        startTime: weekStart,
+        startTime: rangeStart,
         endTime: now,
       );
       points = _health.removeDuplicates(points);
@@ -155,16 +167,27 @@ class _SmartwatchScreenState extends State<SmartwatchScreen> {
       } catch (_) {
         todaySteps = null;
       }
-      final summary = _Summary.from(points, now, todaySteps);
       if (mounted) {
         setState(() {
-          _summary = summary;
+          _points = points;
+          _loadedTodaySteps = todaySteps;
+          _summary = _Summary.from(points, now, todaySteps, _window);
           _phase = _Phase.ready;
         });
       }
     } catch (_) {
       if (mounted) setState(() => _phase = _Phase.error);
     }
+  }
+
+  /// Re-fold the already-loaded points over a new trend window. No I/O.
+  void _setWindow(int days) {
+    if (days == _window) return;
+    setState(() {
+      _window = days;
+      _summary =
+          _Summary.from(_points, DateTime.now(), _loadedTodaySteps, days);
+    });
   }
 
   @override
@@ -270,7 +293,11 @@ class _SmartwatchScreenState extends State<SmartwatchScreen> {
             const SizedBox(height: Gap.sm),
             _TodayGrid(summary: s),
             const SizedBox(height: Gap.lg),
-            _StepsWeekCard(summary: s),
+            _StepsWeekCard(
+              summary: s,
+              window: _window,
+              onWindowChanged: _setWindow,
+            ),
           ],
           const SizedBox(height: Gap.lg),
           const _SurfaceLinks(),
@@ -376,26 +403,36 @@ class _Metric extends StatelessWidget {
   }
 }
 
-// ======================= 7-DAY STEPS =======================
+// ======================= STEPS TREND (7 / 30 / 90) =======================
 class _StepsWeekCard extends StatelessWidget {
   final _Summary summary;
-  const _StepsWeekCard({required this.summary});
+  final int window;
+  final ValueChanged<int> onWindowChanged;
+  const _StepsWeekCard(
+      {required this.summary,
+      required this.window,
+      required this.onWindowChanged});
   @override
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final series = summary.stepsByDay; // 7 entries, oldest → newest
+    final series = summary.stepsByDay; // `window` entries, oldest → newest
     final maxVal = series.fold<int>(0, (m, e) => e.steps > m ? e.steps : m);
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
         padding: const EdgeInsets.all(Gap.lg),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(tr.swStepsWeek,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w700)),
+          Row(children: [
+            Expanded(
+              child: Text(tr.swSteps,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w700)),
+            ),
+            _WindowToggle(window: window, onChanged: onWindowChanged),
+          ]),
           const SizedBox(height: Gap.xs),
           Text(
             summary.weekStepsTotal == 0
@@ -414,7 +451,8 @@ class _StepsWeekCard extends StatelessWidget {
                 for (final d in series)
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 3),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: series.length > 14 ? 0.7 : 3),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -438,11 +476,15 @@ class _StepsWeekCard extends StatelessWidget {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(_dayLetter(context, d.date),
-                              style: TextStyle(
-                                  fontSize: 10,
-                                  color: scheme.onSurfaceVariant)),
+                          // Per-day letters only read well on the 7-day window;
+                          // wider windows show the range in the summary line.
+                          if (series.length <= 7) ...[
+                            const SizedBox(height: 4),
+                            Text(_dayLetter(context, d.date),
+                                style: TextStyle(
+                                    fontSize: 10,
+                                    color: scheme.onSurfaceVariant)),
+                          ],
                         ],
                       ),
                     ),
@@ -458,6 +500,45 @@ class _StepsWeekCard extends StatelessWidget {
   String _dayLetter(BuildContext context, DateTime d) {
     final names = MaterialLocalizations.of(context).narrowWeekdays;
     return names[d.weekday % 7];
+  }
+}
+
+// ======================= trend window toggle (7 / 30 / 90) =======================
+/// Segmented 7d / 30d / 90d selector. Labels reuse the existing analytics range
+/// getters ("7 days" / "30 days" / "90 days") — no new ARB keys.
+class _WindowToggle extends StatelessWidget {
+  final int window;
+  final ValueChanged<int> onChanged;
+  const _WindowToggle({required this.window, required this.onChanged});
+
+  String _label(AppLocalizations tr, int days) {
+    switch (days) {
+      case 30:
+        return tr.analyticsRange30d;
+      case 90:
+        return tr.analyticsRange90d;
+      default:
+        return tr.analyticsRange7d;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tr = AppLocalizations.of(context);
+    return SegmentedButton<int>(
+      showSelectedIcon: false,
+      style: ButtonStyle(
+        visualDensity: VisualDensity.compact,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        textStyle: const WidgetStatePropertyAll(TextStyle(fontSize: 11)),
+      ),
+      segments: [
+        for (final d in _windowDays)
+          ButtonSegment<int>(value: d, label: Text(_label(tr, d))),
+      ],
+      selected: {window},
+      onSelectionChanged: (s) => onChanged(s.first),
+    );
   }
 }
 
@@ -552,9 +633,9 @@ class _Summary {
   final double? latestHeartRate;
   final int? todaySleepMinutes;
   final double? todayEnergyKcal;
-  final List<_DaySteps> stepsByDay; // 7, oldest → newest
-  final int weekStepsTotal;
-  final int weekStepsAvg;
+  final List<_DaySteps> stepsByDay; // `windowDays` entries, oldest → newest
+  final int weekStepsTotal; // total over the selected window
+  final int weekStepsAvg; // daily average over logged days in the window
 
   _Summary({
     required this.todaySteps,
@@ -578,13 +659,14 @@ class _Summary {
     return double.tryParse(v.toString()) ?? 0.0;
   }
 
-  static _Summary from(
-      List<HealthDataPoint> points, DateTime now, int? aggregatedTodaySteps) {
+  static _Summary from(List<HealthDataPoint> points, DateTime now,
+      int? aggregatedTodaySteps, int windowDays) {
     final todayStart = DateTime(now.year, now.month, now.day);
+    final window = windowDays < 1 ? 1 : windowDays;
 
-    // Per-day step buckets for the last 7 days (oldest → newest).
+    // Per-day step buckets for the last `window` days (oldest → newest).
     final buckets = <DateTime, int>{};
-    for (var i = 6; i >= 0; i--) {
+    for (var i = window - 1; i >= 0; i--) {
       final d = todayStart.subtract(Duration(days: i));
       buckets[d] = 0;
     }

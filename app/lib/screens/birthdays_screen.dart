@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import '../notifications.dart';
 import '../widgets/health_api.dart';
 import '../widgets/bday_model.dart';
 import '../widgets/bday_upcoming_card.dart';
@@ -131,13 +132,21 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
     );
     if (body == null) return;
     try {
-      if (existing != null && existing['id'] is int) {
-        // No dedicated update endpoint in the shipped api surface: an edit is a
-        // delete + re-create (both existing endpoints). Integrator MAY fold
-        // this into a real PATCH later.
-        await api.birthdayDelete(existing['id'] as int);
+      if (existing != null) {
+        // Clear the old occasion's reminders before re-creating (an edit is a
+        // delete + re-create below, so leads/date may have changed).
+        _cancelBdayReminders(existing);
+        if (existing['id'] is int) {
+          // No dedicated update endpoint in the shipped api surface: an edit is
+          // a delete + re-create (both existing endpoints). Integrator MAY fold
+          // this into a real PATCH later.
+          await api.birthdayDelete(existing['id'] as int);
+        }
       }
       await api.birthdayCreate(body);
+      // Honour the chosen pre-reminders: schedule local notifications against
+      // the (next) birthday date. Guarded — never blocks the save.
+      if (mounted) _scheduleBdayReminders(body);
     } catch (_) {
       if (mounted) _snack(AppLocalizations.of(context).birthdaySaveError);
     }
@@ -147,6 +156,7 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
   Future<void> _delete(Map<String, dynamic> occ) async {
     final id = occ['id'];
     if (id is! int) return;
+    _cancelBdayReminders(occ);
     // optimistic
     setState(() => _upcoming.removeWhere((o) => o['id'] == id));
     await _writeCache();
@@ -154,6 +164,83 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
       await context.read<AppState>().api.birthdayDelete(id);
     } catch (_) {}
     await _load(silent: true);
+  }
+
+  // ---- device reminders (pre-reminder lead-days -> local notifications) ----
+
+  /// Stable notification id prefix for an occasion. Based on name+date (which
+  /// survive the edit = delete + re-create cycle), so re-saving replaces rather
+  /// than duplicates, and a far-future birthday still gets a stable id even
+  /// though it may be outside the upcoming-list horizon.
+  String _bdayBase(Map<String, dynamic> occ) {
+    final name = '${occ['name'] ?? ''}'.trim();
+    final dateIso = '${occ['date'] ?? ''}'.trim();
+    return 'bday-$name|$dateIso';
+  }
+
+  /// Next annual occurrence of a yyyy-MM-dd birthday as a local DateTime at
+  /// 09:00 (so the alert lands in the morning, not at midnight). Null on a bad
+  /// date. Mirrors bDaysUntil's Feb-29 handling.
+  DateTime? _nextBirthdayAt(String? iso) {
+    final d = bParseDate(iso);
+    if (d == null) return null;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    DateTime occ(int year) {
+      try {
+        return DateTime(year, d.month, d.day, 9);
+      } catch (_) {
+        return DateTime(year, 2, 28, 9);
+      }
+    }
+
+    var cand = occ(today.year);
+    if (DateTime(cand.year, cand.month, cand.day).isBefore(today)) {
+      cand = occ(today.year + 1);
+    }
+    return cand;
+  }
+
+  /// Schedule the occasion's chosen pre-reminders. For each lead-day the alert
+  /// fires at (next birthday − leadDays) 09:00, with the stable id
+  /// 'bday-<name|date>-<offset>'. Past fire-times are skipped. Fully guarded.
+  void _scheduleBdayReminders(Map<String, dynamic> occ) {
+    try {
+      final next = _nextBirthdayAt('${occ['date'] ?? ''}');
+      if (next == null) return;
+      final name = '${occ['name'] ?? ''}'.trim();
+      if (name.isEmpty) return;
+      final t = AppLocalizations.of(context);
+      final body = t.watchItemBirthday; // "Birthday coming up"
+      final base = _bdayBase(occ);
+      final now = DateTime.now();
+      final raw = occ['lead_days'];
+      final leads = <int>[];
+      if (raw is List) {
+        leads.addAll(raw.whereType<num>().map((x) => x.toInt()));
+      } else if (raw is num) {
+        leads.add(raw.toInt());
+      }
+      for (final lead in leads) {
+        if (lead < 0) continue;
+        final when = next.subtract(Duration(days: lead));
+        if (!when.isAfter(now)) continue; // past — nothing to fire
+        Notifications.schedule('$base-$lead', name, body, when);
+      }
+    } catch (_) {
+      // best-effort only
+    }
+  }
+
+  /// Drop every reminder we might have scheduled for an occasion (one per known
+  /// pre-reminder option). Guarded — safe on delete and before re-scheduling.
+  void _cancelBdayReminders(Map<String, dynamic> occ) {
+    try {
+      final base = _bdayBase(occ);
+      for (final opt in kPreReminderOptions) {
+        Notifications.cancel('$base-${opt.leadDays}');
+      }
+    } catch (_) {}
   }
 
   // ---- wish drafts (+ key-gated AI mock) ----

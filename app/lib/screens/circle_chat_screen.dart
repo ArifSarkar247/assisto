@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -65,10 +66,23 @@ const int _kDeleteEveryoneWindowMin = 60 * 24 * 2;
 // Pin cap per chat — mirrors circle_messaging.PIN_CAP_PER_CHAT.
 const int _kPinCap = 3;
 
-class _CircleChatScreenState extends State<CircleChatScreen> {
+// Foreground live-refresh cadence while the thread is open (WhatsApp/Telegram
+// benchmark). No background service, no push — we poll the existing
+// GET /circle/<id>/messages every few seconds ONLY while the chat is open and
+// in the foreground, mirroring lib/alerts_fg.dart. Cheap + fully cancellable.
+const Duration _kPollInterval = Duration(seconds: 7);
+
+class _CircleChatScreenState extends State<CircleChatScreen>
+    with WidgetsBindingObserver {
   final _e2e = SoftwareE2E();
   final _input = TextEditingController();
   final _scroll = ScrollController();
+
+  // Live foreground poll (see _kPollInterval). Null when not scheduled.
+  Timer? _poll;
+  // In-flight guard so a slow fetch never stacks with the next tick (and so we
+  // never double-schedule). Mirrors AlertPoller._busy.
+  bool _polling = false;
 
   List<CircleMessage> _messages = [];
   bool _loading = true;
@@ -93,16 +107,100 @@ class _CircleChatScreenState extends State<CircleChatScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _load().then((_) {
       if (widget.forwarding != null) _doForwardInto(widget.forwarding!);
     });
+    _startPolling();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _stopPolling();
     _input.dispose();
     _scroll.dispose();
     super.dispose();
+  }
+
+  /// Keep the open thread live without a background service: poll the existing
+  /// message-fetch while foregrounded, and refresh immediately on resume — so
+  /// incoming messages appear without a manual pull-to-refresh.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _pollMessages(); // catch up on whatever arrived while backgrounded
+      _startPolling();
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.hidden) {
+      // Stop burning requests the moment we leave the foreground.
+      _stopPolling();
+    }
+  }
+
+  void _startPolling() {
+    if (_poll != null) return; // never double-schedule
+    _poll = Timer.periodic(_kPollInterval, (_) => _pollMessages());
+  }
+
+  void _stopPolling() {
+    _poll?.cancel();
+    _poll = null;
+  }
+
+  /// A cheap background tick: re-fetch + decrypt messages only (NOT the per-chat
+  /// settings), swap them in only when something actually changed, and never
+  /// yank the scroll unless the user is already at the bottom. Fully silent on
+  /// failure (offline / not-wired), and guarded so ticks can't stack.
+  Future<void> _pollMessages() async {
+    if (_polling || _loading || _memberId == null) return;
+    _polling = true;
+    try {
+      final peer = _peerPub;
+      final r = await _api.getJson('/circle/$_memberId/messages');
+      final raw = ((r['results'] ?? r['messages'] ?? []) as List)
+          .cast<Map<String, dynamic>>();
+      final fetched = raw.map((e) => _decryptEnvelope(e, peer)).toList();
+      // Preserve any optimistic local echoes the server hasn't confirmed yet.
+      final serverIds = fetched.map((m) => m.id).toSet();
+      final pendingEchoes =
+          _messages.where((m) => m.pending && !serverIds.contains(m.id));
+      final merged = [...fetched, ...pendingEchoes];
+      if (!mounted || !_changed(_messages, merged)) return;
+      final atBottom = _scroll.hasClients &&
+          _scroll.position.pixels >=
+              _scroll.position.maxScrollExtent - 80;
+      setState(() {
+        _messages = merged;
+        _resolveReplyPreviews();
+      });
+      if (atBottom) _scrollToEnd();
+    } catch (_) {
+      // Silent: a failed poll just waits for the next tick.
+    } finally {
+      _polling = false;
+    }
+  }
+
+  /// Shallow identity+state diff so a quiet poll never rebuilds the list for
+  /// nothing (cheap: ids + the fields a bubble actually renders).
+  bool _changed(List<CircleMessage> a, List<CircleMessage> b) {
+    if (a.length != b.length) return true;
+    for (var i = 0; i < a.length; i++) {
+      final x = a[i], y = b[i];
+      if (x.id != y.id ||
+          x.text != y.text ||
+          x.status != y.status ||
+          x.deleted != y.deleted ||
+          x.edited != y.edited ||
+          x.pinned != y.pinned ||
+          x.starred != y.starred ||
+          x.reactions.length != y.reactions.length) {
+        return true;
+      }
+    }
+    return false;
   }
 
   ApiClient get _api => context.read<AppState>().api;

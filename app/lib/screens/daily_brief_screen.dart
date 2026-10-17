@@ -83,6 +83,11 @@ class _DailyBriefScreenState extends State<DailyBriefScreen>
     final reminders = await soft(api.listItems('reminders'));
     final subs = await soft(api.listItems('subscriptions'));
     final appts = await soft(api.listItems('appointments'));
+    // PA Schedule writes to its OWN `pa_schedule` collection (per-slot rows with
+    // start/title), so meetings entered there never surfaced in the brief. Load
+    // it too and MERGE those slots into the brief's events below. Best-effort:
+    // on failure `paSlots` is null and the brief degrades to appointments only.
+    final paSched = await soft(api.listItems('pa_schedule'));
     final bdays = await soft(api.birthdaysList());
 
     if (!mounted) return;
@@ -119,6 +124,49 @@ class _DailyBriefScreenState extends State<DailyBriefScreen>
       } else {
         events.add(row);
       }
+    }
+
+    // MERGE the PA Schedule slots as events. A pa_schedule slot is shaped
+    // {title, start (ISO), duration_min, kind, status, ...} — the brief engine
+    // keys events off `title` + `start`, so those two fields are all we must
+    // map. Each slot is its own row, but older builds wrote wrapper rows shaped
+    // {items:[...]}; handle both. Dedupe against appointment events already
+    // collected (same title + same start instant) so a meeting that lives in
+    // both collections shows once. Cancelled slots are dropped (nothing ahead).
+    // Guarded: a malformed pa_schedule payload must never break the brief.
+    try {
+      String dedupeKey(Map m) {
+        final title = (m['title'] ?? m['name'] ?? '').toString().trim().toLowerCase();
+        final start =
+            DateTime.tryParse((m['start'] ?? m['when'] ?? '').toString());
+        return '$title@${start?.toIso8601String() ?? ''}';
+      }
+
+      final seen = events.map(dedupeKey).toSet();
+      final paRows = <Map<String, dynamic>>[];
+      for (final row in flat(paSched)) {
+        if (row['items'] is List) {
+          for (final e in (row['items'] as List)) {
+            if (e is Map) paRows.add(e.cast<String, dynamic>());
+          }
+        } else {
+          paRows.add(row);
+        }
+      }
+      for (final slot in paRows) {
+        if ('${slot['status'] ?? ''}' == 'cancelled') continue;
+        if ((slot['title'] ?? slot['name'] ?? '').toString().trim().isEmpty) {
+          continue;
+        }
+        final key = dedupeKey(slot);
+        if (!seen.add(key)) continue; // already present from appointments
+        events.add({
+          'title': slot['title'] ?? slot['name'],
+          'start': slot['start'] ?? slot['when'],
+        });
+      }
+    } catch (_) {
+      // pa_schedule merge failed — fall back to appointments-only events.
     }
 
     // birthdays endpoint → {upcoming:[{name, next_date, days_until}]}
