@@ -786,4 +786,91 @@ class ApiClient {
   /// POST /circle/devices/<id>/revoke {} -> revoke a linked device.
   Future<Map<String, dynamic>> revokeDevice(int deviceId) =>
       postJson('/circle/devices/$deviceId/revoke', const {});
+
+  // ==========================================================================
+  // Section 8: Stolen-While-Unlocked Protection
+  // Server-side ownership + delayed/alerted sensitive actions. The app NEVER
+  // enforces OS settings — these endpoints add a delay, alert the owner +
+  // trusted contacts, and hold ownership so a snatched phone can't instantly
+  // be sold / wiped-of-ownership. A thief who already knows the Security PIN
+  // is NOT stopped outright; the delay + alerts + cancel are the defence.
+  // ==========================================================================
+
+  /// GET security/state -> {has_pin, armed, frozen_until, status, wrong_pin_count,
+  /// trusted_place_count, pending:[{id, action, effective_at, state}]}.
+  Future<Map<String, dynamic>> securityState() => getJson('/security/state');
+
+  /// POST security/pin/set {new_pin, current_pin?} -> {ok, reason?}. When a PIN
+  /// already exists the server requires [currentPin].
+  Future<Map<String, dynamic>> securityPinSet(String newPin,
+          {String? currentPin}) =>
+      postJson('/security/pin/set', {
+        'new_pin': newPin,
+        if (currentPin != null) 'current_pin': currentPin,
+      });
+
+  /// POST security/pin/verify {pin} -> {ok, locked?}.
+  Future<Map<String, dynamic>> securityPinVerify(String pin) =>
+      postJson('/security/pin/verify', {'pin': pin});
+
+  /// POST security/action {action, pin, lat?, lng?}. action in
+  /// [sell_transfer, disarm, remove_admin, change_contacts, turn_off_lost,
+  /// change_pin, export_data]. Responses:
+  ///   {state:'applied', id:null}
+  ///   {state:'pending'|'awaiting_approval', effective_at, id}
+  ///   HTTP 423 {state:'blocked', reason:'frozen'}
+  ///   HTTP 403 {ok:false, reason:'bad_pin'}
+  ///   {ok:false, locked:true}
+  /// This issues a RAW POST (not via [postJson]) because the 403/423 bodies
+  /// carry the interpretable result — [SecurityGuard] reads them off the
+  /// thrown [ApiException].status instead of a generic failure.
+  Future<Map<String, dynamic>> securityAction(String action, String pin,
+      {double? lat, double? lng}) async {
+    final r = await _c.post(AppConfig.api('/security/action'),
+        headers: _headers(),
+        body: jsonEncode({
+          'action': action,
+          'pin': pin,
+          if (lat != null) 'lat': lat,
+          if (lng != null) 'lng': lng,
+        }));
+    if (r.statusCode >= 200 && r.statusCode < 300) {
+      return r.body.isEmpty ? {} : jsonDecode(r.body) as Map<String, dynamic>;
+    }
+    // 403 (bad_pin) and 423 (frozen) are meaningful, interpretable results —
+    // surface the parsed body to the caller rather than a generic error.
+    if (r.statusCode == 403 || r.statusCode == 423) {
+      final body = r.body.isEmpty ? {} : jsonDecode(r.body);
+      if (body is Map<String, dynamic>) {
+        return {...body, '_status': r.statusCode};
+      }
+    }
+    _fail(r);
+  }
+
+  /// POST security/action/<id>/cancel {token?} -> {ok, state}. Authed owner OR
+  /// a one-tap cancel token (from the alert notification/email on another
+  /// device). "This wasn't me."
+  Future<Map<String, dynamic>> securityCancel(int id, {String? token}) =>
+      postJson('/security/action/$id/cancel',
+          {if (token != null) 'token': token});
+
+  /// POST security/action/<id>/approve -> {ok, state}. Family approver only.
+  Future<Map<String, dynamic>> securityApprove(int id) =>
+      postJson('/security/action/$id/approve', const {});
+
+  /// POST security/signal {kind} -> {ok, frozen_until, status}. A theft signal
+  /// (e.g. SIM swap, repeated wrong PIN) that freezes sensitive actions.
+  Future<Map<String, dynamic>> securitySignal(String kind) =>
+      postJson('/security/signal', {'kind': kind});
+
+  /// POST security/arm {pin} -> {ok, armed} | {ok:false, reason|locked}.
+  /// Arming raises protection (PIN required; no delay — it only increases safety).
+  Future<Map<String, dynamic>> securityArm(String pin) =>
+      postJson('/security/arm', {'pin': pin});
+
+  /// POST security/approver {member_id} -> {ok, approver_id}. Pass null/empty to
+  /// clear. The member must be an ACCEPTED circle contact.
+  Future<Map<String, dynamic>> securitySetApprover(int? memberId) =>
+      postJson('/security/approver', {'member_id': memberId});
 }

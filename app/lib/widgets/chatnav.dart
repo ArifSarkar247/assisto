@@ -25,6 +25,7 @@ import '../screens/my_vehicles_screen.dart';
 import '../screens/fall_detect_screen.dart';
 import '../screens/lost_stolen_screen.dart';
 import '../screens/phone_safety_screen.dart';
+import '../screens/security_screen.dart';
 import '../screens/owner_analytics_screen.dart';
 import '../screens/name_about_screen.dart';
 import '../screens/ramadan_screen.dart';
@@ -112,6 +113,8 @@ class ChatNav {
     'fall_detect': (_) => const FallDetectScreen(),
     'lost_stolen': (_) => const LostStolenScreen(),
     'phone_safety': (_) => const PhoneSafetyScreen(),
+    // Section 8: Stolen-while-unlocked protection hub.
+    'security': (_) => const SecurityScreen(),
     'analytics': (_) => const OwnerAnalyticsScreen(),
     'name_about': (_) => const NameAboutScreen(),
     'ramadan': (_) => const RamadanScreen(),
@@ -197,6 +200,9 @@ class ChatNav {
     'exam': ['exam result', 'result', 'exam'],
     'unseen': ['unseen bangladesh', 'travel', 'destinations', 'tourism'],
     'photo_enhance': ['enhance photo', 'photo enhance', 'improve photo'],
+    'security': ['security', 'stolen while unlocked', 'anti-theft ownership',
+        'protect my phone', 'theft protection', 'disarm protection',
+        'security pin'],
     'circle': ['connected circle', 'circle', 'family chat'],
     'messages': ['messages', 'messenger', 'chats', 'direct message', 'dm'],
     'groups': ['groups', 'group chat', 'group'],

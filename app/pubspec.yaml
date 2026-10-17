@@ -30,6 +30,11 @@ dependencies:
   permission_handler: ^11.3.1 # camera/mic/photos permission flow + openAppSettings
   image_cropper: ^8.0.2       # crop + rotate in the capture/edit screen
   geolocator: ^13.0.1         # SOS GPS location
+  # Stolen-while-unlocked protection (Section 8): class-3 (strong) biometric
+  # used LAZILY only when gating a sensitive security action (SecurityGuard).
+  # Never invoked at app launch; all calls try/catch so a device without
+  # enrolled biometrics still works (falls back to the Assisto Security PIN).
+  local_auth: ^2.3.0
   speech_to_text: ^7.0.0      # Bangla/English voice input + #79 wake-phrase listen
   share_plus: ^10.0.2         # SOS share sheet / share-out
   # #79 Hands-free Voice SOS — foreground service (persistent notification +

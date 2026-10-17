@@ -8,6 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import '../crypto/e2e.dart' show Pbkdf2;
 import '../l10n/app_localizations.dart';
+import '../services/security_guard.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/journey_api.dart';
@@ -148,18 +149,21 @@ class _LostStolenScreenState extends State<LostStolenScreen>
 
   Future<void> _openAdminSettings() async {
     if (Platform.isIOS) return; // no device-admin on iOS
-    final tr = AppLocalizations.of(context);
-    // If a recovery PIN is set, require it before exposing the deactivation
-    // path (a thief shouldn't be able to turn protection off casually). This is
-    // a deterrent, NOT a hard lock: the OS always lets the true owner reach
-    // Settings → Device admin directly — so we never claim it's unbreakable.
-    if (_hasPin) {
-      final entered = await _askPin(tr);
-      if (entered == null) return;
-      if (!await _verifyPin(entered)) {
-        if (mounted) _snack(tr.lostStolenPinWrong);
-        return;
-      }
+    // Section 8 gate: removing device admin is a sensitive, hard-to-reverse
+    // action, so it goes THROUGH SecurityGuard.run('remove_admin') — which
+    // enforces a class-3 biometric + the server-side Assisto Security PIN and
+    // honours any delay/freeze/approval. We only open the system deactivation
+    // screen when the server says the action is APPLIED (immediate). If it is
+    // pending/awaiting/blocked, the guard already showed the message and we do
+    // NOT expose the deactivation path. This is a deterrent + alert, NOT a hard
+    // lock: the OS always lets the true owner reach Settings → Device admin
+    // directly, so we never claim it's unbreakable. Crash-guarded.
+    try {
+      final res = await const SecurityGuard().run(context, 'remove_admin');
+      if (!mounted) return;
+      if (res.state != SecActionState.applied) return;
+    } catch (_) {
+      return; // never crash; if the gate errors, don't expose deactivation
     }
     try {
       await _channel.invokeMethod('openAdminSettings');
@@ -284,21 +288,6 @@ class _LostStolenScreenState extends State<LostStolenScreen>
       setState(() => _hasPin = true);
       _snack(tr.lostStolenPinSaved);
     }
-  }
-
-  Future<bool> _verifyPin(String entered) async {
-    final saltB = await _secure.read(key: _kPinSalt);
-    final hashB = await _secure.read(key: _kPinHash);
-    if (saltB == null || hashB == null) return false;
-    final salt = base64Decode(saltB);
-    final got = Pbkdf2.derive(utf8.encode(entered), salt, 20000, 32);
-    final want = base64Decode(hashB);
-    if (got.length != want.length) return false;
-    var diff = 0;
-    for (var i = 0; i < got.length; i++) {
-      diff |= got[i] ^ want[i];
-    }
-    return diff == 0;
   }
 
   Future<String?> _askPin(AppLocalizations tr, {bool confirm = false}) async {
@@ -625,6 +614,22 @@ class _LostStolenScreenState extends State<LostStolenScreen>
                   ? tr.lostStolenActionLockOk
                   : tr.lostStolenNeedsAdmin),
               onChanged: (v) async {
+                // Section 8 gate: turning OFF remote-lock protection is a
+                // "turn off lost mode" sensitive action → route through
+                // SecurityGuard.run('turn_off_lost'). Only proceed to disable
+                // locally when the server returns APPLIED (immediate); for
+                // pending/awaiting/blocked the guard shows the message and we
+                // leave protection ON. Turning it ON needs no gate.
+                if (!v) {
+                  try {
+                    final res = await const SecurityGuard()
+                        .run(context, 'turn_off_lost');
+                    if (!mounted) return;
+                    if (res.state != SecActionState.applied) return;
+                  } catch (_) {
+                    return; // crash-guarded; keep protection on if gate errors
+                  }
+                }
                 setState(() => _lock = v);
                 await Settings.setBool(_kLock, v);
               },

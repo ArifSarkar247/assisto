@@ -76,6 +76,7 @@ import '../screens/ride_food_screen.dart';
 import '../screens/fall_detect_screen.dart';
 import '../screens/lost_stolen_screen.dart';
 import '../screens/phone_safety_screen.dart';
+import '../screens/security_screen.dart';
 import '../screens/unseen_world_screen.dart';
 import '../screens/dictionary_screen.dart';
 import '../screens/ramadan_screen.dart';
@@ -261,6 +262,14 @@ class SidebarSections {
           (_) => const PhoneSafetyScreen(),
           synonyms: ['phone safety', 'theft', 'anti-theft', 'churi',
               'nirapotta', 'lock', 'harden', 'secure phone']),
+      // Section 8 — Stolen-while-unlocked protection: server-side ownership +
+      // delayed/alerted sensitive actions (disarm, transfer, remove admin).
+      // ChatNav route 'security'.
+      SidebarItem(Icons.shield_outlined, (t) => t.securityTitle,
+          (_) => const SecurityScreen(),
+          synonyms: ['security', 'stolen while unlocked', 'ownership',
+              'anti-theft ownership', 'protect phone', 'churi', 'disarm',
+              'security pin']),
       // Wave-D batch-4: BD-specific disaster & weather warnings (cyclone / flood
       // / heatwave / earthquake), official sources only. Also chat-openable via
       // ChatNav route 'disaster'.

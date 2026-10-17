@@ -13169,5 +13169,109 @@
   "phoneSafeTwoStepHow": "Open your Google Account > Security.\nTurn on 2-Step Verification and finish the setup.\nAdd a second method (authenticator app or phone prompt).\nSave your backup codes somewhere safe, offline.\nUse the button below to open the settings page directly.",
   "phoneSafeTwoStepOpenWeb": "Open 2-Step Verification settings",
   "phoneSafeRealityTitle": "What really protects your phone",
-  "phoneSafeRealityBody": "No ordinary app — including Assisto — can block airplane mode or stop a factory reset or firmware flash. Please don’t trust any app that claims it can.\nWhat actually helps: keeping the phone online so Find My Device can locate and lock it, plus a locked SIM so a thief can’t swap it out.\nThe real deterrent is Factory Reset Protection and your brand’s reactivation lock — they make a wiped, stolen phone useless to resell."
+  "phoneSafeRealityBody": "No ordinary app — including Assisto — can block airplane mode or stop a factory reset or firmware flash. Please don’t trust any app that claims it can.\nWhat actually helps: keeping the phone online so Find My Device can locate and lock it, plus a locked SIM so a thief can’t swap it out.\nThe real deterrent is Factory Reset Protection and your brand’s reactivation lock — they make a wiped, stolen phone useless to resell.",
+  "securityTitle": "Phone ownership protection",
+  "securityBiometricReason": "Confirm it's you to change a sensitive security setting",
+  "securityBiometricFailed": "Fingerprint/face check was not passed. Nothing was changed.",
+  "securityActionError": "Couldn't reach the server. Nothing was changed — try again.",
+  "securityLockedOut": "Too many wrong PINs. This is locked for a while — try again later.",
+  "securityBadPin": "Wrong Security PIN. This is your Assisto PIN, not your phone's screen lock.",
+  "securityBlockedFrozen": "Blocked — your phone has a recent theft signal, so this is frozen for now.",
+  "securityActionApplied": "Done.",
+  "securityAwaitingTitle": "Needs family approval",
+  "securityAwaitingBody": "Your trusted approver must approve this before it takes effect. We've alerted them and you.",
+  "securityPendingTitle": "Scheduled — you can still cancel",
+  "securityPendingBody": "This will take effect in 24 hours unless you cancel — we've alerted you and your trusted contacts.",
+  "securityPinPromptTitle": "Enter your Security PIN",
+  "securityPinPromptBody": "This is your Assisto Security PIN — separate from your phone's screen lock.",
+  "securityPinLabel": "Security PIN",
+  "securityContinue": "Continue",
+  "securityPinSaved": "Security PIN saved.",
+  "securityPinSetFailed": "Couldn't set the PIN. Check your current PIN and try again.",
+  "securitySetPinTitle": "Set a Security PIN",
+  "securityChangePinTitle": "Change your Security PIN",
+  "securityCurrentPinLabel": "Current Security PIN",
+  "securityNewPinLabel": "New Security PIN",
+  "securityConfirmPinLabel": "Confirm new PIN",
+  "securityPinTooShort": "Use at least 4 digits.",
+  "securityPinMismatch": "The two PINs don't match.",
+  "securityCurrentPinRequired": "Enter your current PIN to change it.",
+  "securityPinSeparateNote": "Your Security PIN is separate from your phone's screen lock. It guards sensitive actions like selling, transferring or disarming.",
+  "securityPinCardTitle": "Security PIN",
+  "securityPinIsSet": "A Security PIN is set.",
+  "securityPinNotSet": "No Security PIN yet. Set one to protect sensitive actions.",
+  "securitySetPin": "Set PIN",
+  "securityChangePin": "Change PIN",
+  "securityNeedPinFirst": "Set a Security PIN first.",
+  "securityArmed": "Protection is on.",
+  "securityArm": "Turn on protection",
+  "securityDisarm": "Turn off protection",
+  "securityDisarmNote": "Turning off protection needs your fingerprint/face and PIN, and may be delayed and alerted — so a snatched phone can't be unprotected instantly.",
+  "securityArmCardTitle": "Protection",
+  "securityArmCardBody": "When on, sensitive actions (sell/transfer, disarm, remove admin, change contacts, export data) are delayed, alerted and held by the server.",
+  "securityStateArmed": "Protection on",
+  "securityStateDisarmed": "Protection off",
+  "securityStatusOwned": "You own this phone",
+  "securityStatusReportedStolen": "Reported stolen",
+  "securityStatusTransferPending": "Transfer pending",
+  "securityStatusTransferred": "Ownership transferred",
+  "securityTrustedPlaces": "Trusted places: {count} — set them in Safe Journey",
+  "@securityTrustedPlaces": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "securityWrongPinCount": "Recent wrong PIN attempts: {count}",
+  "@securityWrongPinCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "securityFrozenTitle": "Sensitive actions frozen",
+  "securityFrozenUntil": "Because of a recent theft signal, sensitive actions are frozen until {date}.",
+  "@securityFrozenUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "securityPendingCardTitle": "Pending actions",
+  "securityPendingCardBody": "These are scheduled but not done yet. If it wasn't you, cancel now. You also get these alerts by notification and email on your other devices.",
+  "securityEffectiveAt": "Takes effect {date}",
+  "@securityEffectiveAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "securityWasntMe": "Cancel — this wasn't me",
+  "securityCancelConfirmTitle": "Cancel this action?",
+  "securityCancelConfirmBody": "This stops the pending action. If your phone is stolen, cancelling keeps it protected.",
+  "securityCancelled": "Cancelled.",
+  "securityActionSellTransfer": "Sell / transfer ownership",
+  "securityActionDisarm": "Turn off protection",
+  "securityActionRemoveAdmin": "Remove device admin",
+  "securityActionChangeContacts": "Change trusted contacts",
+  "securityActionTurnOffLost": "Turn off lost mode",
+  "securityActionChangePin": "Change Security PIN",
+  "securityActionExportData": "Export your data",
+  "securityApproverTitle": "Family approver",
+  "securityApproverBody": "A trusted family member can be asked to approve high-risk actions before they take effect — a second lock on your ownership.",
+  "securityApproverNone": "Add trusted family in My Circle first, then they can be chosen as your approver.",
+  "securityApproverCandidates": "Trusted family who could approve:",
+  "securityApproverTodoNote": "Choosing a saved approver will be available in a future update; for now this is informational.",
+  "securityHonestTitle": "What this does — and doesn't",
+  "securityHonestBody": "Assisto can't stop a thief who already knows your PIN, and it never changes your phone's OS settings. What it adds: a delay before risky actions, alerts to you and your trusted contacts, and a server-side ownership record — so a snatched phone can't be instantly sold or wiped of ownership, giving you time to cancel.",
+  "securityLoadFailed": "Couldn't load your protection status.",
+  "securityRetry": "Retry",
+  "phoneSafeIdCheckTitle": "Turn on Identity Check",
+  "phoneSafeIdCheckWhy": "On supported phones, this forces a fingerprint/face check before anyone can change critical Google or device settings while away from your trusted places — blunting a snatch-and-change-settings theft.",
+  "phoneSafeIdCheckHow": "Open Settings → Google → All services → Identity Check (or Settings → Security & privacy → Device unlock → Identity Check).\nTurn Identity Check on.\nMake sure your trusted places are set, since the check applies when you're away from them.\nAssisto cannot turn this on for you — do it directly in Settings.",
+  "phoneSafeIdCheckAvail": "Available on Android 15+ on some brands/regions; the menu path and name vary, and it may not exist on your phone."
 }

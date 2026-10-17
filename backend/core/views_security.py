@@ -133,6 +133,12 @@ class SecurityStateView(APIView):
     def get(self, request):
         from .models import SavedPlace
         phone = _primary_phone(request.user)
+        approver = None
+        if phone.family_approver_id:
+            m = phone.family_approver
+            approver = {"id": m.id, "name": m.name}
+        candidates = [{"id": m.id, "name": m.name}
+                      for m in _accepted_members(request.user)]
         return Response({
             "has_pin": bool(phone.security_pin_hash),
             "armed": phone.armed,
@@ -140,6 +146,8 @@ class SecurityStateView(APIView):
             "status": phone.status,
             "wrong_pin_count": phone.wrong_pin_count,
             "trusted_place_count": SavedPlace.objects.filter(user=request.user).count(),
+            "family_approver": approver,
+            "approver_candidates": candidates,
             "pending": _pending_list(phone),
         })
 
@@ -318,6 +326,55 @@ class SecurityActionApproveView(APIView):
         pending.state = "applied"
         pending.save(update_fields=["state"])
         return Response({"ok": True, "state": "applied"})
+
+
+# --------------------------------------------------------------------------
+# POST security/arm  — raise protection (PIN required; arming is protective so
+# there is NO delay/approval gate — it only increases safety)
+# --------------------------------------------------------------------------
+
+class SecurityArmView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        phone = _primary_phone(request.user)
+        if not phone.security_pin_hash:
+            return Response({"ok": False, "reason": "no_pin"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        ok, locked = _verify_pin(phone, request.data.get("pin"))
+        if not ok:
+            if locked:
+                _register_lockout(request.user, phone)
+                return Response({"ok": False, "locked": True})
+            return Response({"ok": False, "reason": "bad_pin"},
+                            status=status.HTTP_403_FORBIDDEN)
+        phone.armed = True
+        phone.save(update_fields=["armed", "updated_at"])
+        return Response({"ok": True, "armed": True})
+
+
+# --------------------------------------------------------------------------
+# POST security/approver  — choose/clear the optional family approver (must be
+# an ACCEPTED circle member). Not itself a sensitive action here; v1.
+# --------------------------------------------------------------------------
+
+class SecuritySetApproverView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        phone = _primary_phone(request.user)
+        mid = request.data.get("member_id")
+        if mid in (None, ""):
+            phone.family_approver = None
+        else:
+            m = CircleMember.objects.filter(
+                id=mid, user=request.user, state="accepted").first()
+            if m is None:
+                return Response({"ok": False, "reason": "bad_member"},
+                                status=status.HTTP_400_BAD_REQUEST)
+            phone.family_approver = m
+        phone.save(update_fields=["family_approver", "updated_at"])
+        return Response({"ok": True, "approver_id": phone.family_approver_id})
 
 
 # --------------------------------------------------------------------------

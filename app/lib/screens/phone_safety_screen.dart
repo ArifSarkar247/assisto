@@ -126,6 +126,19 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
   /// The step catalogue. Wording adapts per OEM where the menu path differs
   /// (handled inside the localized `how` builders via brand-specific keys).
   List<_Step> get _steps => [
+        // TOP-priority (Section 8): Google "Identity Check" (Android 15+, where
+        // available) — requires biometric to change critical Google/device
+        // settings while OUTSIDE your trusted places, blunting a snatch-and-
+        // change-settings theft. HONESTY: availability varies by device/region
+        // and Assisto cannot toggle it; this step only guides the user to the
+        // native setting. No reliable deep link exists, so it is guide-only.
+        _Step(
+          'identitycheck',
+          (t) => t.phoneSafeIdCheckTitle,
+          (t) => t.phoneSafeIdCheckWhy,
+          (t) => t.phoneSafeIdCheckHow.split('\n'),
+          availability: (t) => t.phoneSafeIdCheckAvail,
+        ),
         _Step(
           'lockshade',
           (t) => t.phoneSafeShadeTitle,

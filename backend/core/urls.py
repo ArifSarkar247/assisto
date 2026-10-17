@@ -472,6 +472,8 @@ urlpatterns = [
     path("security/action/<int:pk>/cancel", secv.SecurityActionCancelView.as_view()),
     path("security/action/<int:pk>/approve", secv.SecurityActionApproveView.as_view()),
     path("security/signal", secv.SecuritySignalView.as_view()),
+    path("security/arm", secv.SecurityArmView.as_view()),
+    path("security/approver", secv.SecuritySetApproverView.as_view()),
 ]
 
 urlpatterns += router.urls
