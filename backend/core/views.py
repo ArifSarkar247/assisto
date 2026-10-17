@@ -1923,6 +1923,9 @@ GENERIC_COLLECTIONS = [
     "proactive/dismissed", "area/posts", "doctor/appointments",
     # CV / resume builder — single per-user CV record (no migration; generic)
     "cv",
+    # Anti-theft "My Vehicles" — vehicle profile rows (type, reg/chassis/engine,
+    # tax-token/fitness/insurance expiry). No migration; reuses PaCollectionItem.
+    "vehicle/records",
 ]
 GENERIC_COLLECTION_VIEWSETS = {
     name: type(

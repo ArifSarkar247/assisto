@@ -13061,5 +13061,98 @@
   "vaultFieldModel": "Model",
   "vaultFieldSim1": "SIM 1 number",
   "vaultFieldSim2": "SIM 2 number",
-  "vaultDeviceImeiHelp": "To find your IMEI, dial *#06# on the phone, or open Settings → About phone. Take a screenshot and record the number here. Note: on Android 10 and newer, apps are not allowed to read the IMEI (a privacy rule), so you must type it in by hand."
+  "vaultDeviceImeiHelp": "To find your IMEI, dial *#06# on the phone, or open Settings → About phone. Take a screenshot and record the number here. Note: on Android 10 and newer, apps are not allowed to read the IMEI (a privacy rule), so you must type it in by hand.",
+  "vehiclesTitle": "My Vehicles",
+  "vehiclesTabMine": "My Vehicles",
+  "vehiclesTabGuide": "Buying guide",
+  "vehiclesAdd": "Add vehicle",
+  "vehiclesSaved": "Vehicle saved",
+  "vehiclesSaveFailed": "Could not save. Please try again.",
+  "vehiclesLoadError": "Could not load your vehicles. Check your connection and try again.",
+  "vehiclesUnnamed": "Unnamed vehicle",
+  "vehiclesEmptyTitle": "No vehicles yet",
+  "vehiclesEmptyBody": "Add your car or motorcycle to keep its papers in one place and get reminders before the tax token, fitness or insurance expires.",
+  "vehiclesTypeCar": "Car",
+  "vehiclesTypeBike": "Motorcycle",
+  "vehiclesFormTitle": "Vehicle details",
+  "vehiclesFieldName": "Vehicle name (e.g. my car)",
+  "vehiclesFieldReg": "Registration number",
+  "vehiclesFieldChassis": "Chassis number",
+  "vehiclesFieldEngine": "Engine number",
+  "vehiclesExpiriesHeader": "Paper expiry dates",
+  "vehiclesTaxToken": "Tax token",
+  "vehiclesFitness": "Fitness",
+  "vehiclesInsurance": "Insurance",
+  "vehiclesNotSet": "not set",
+  "vehiclesExpired": "expired",
+  "vehiclesExpiresInDays": "{days} days left",
+  "@vehiclesExpiresInDays": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "vehiclesDeleteTitle": "Delete this vehicle?",
+  "vehiclesDeleteBody": "{name} and its saved details will be removed. This cannot be undone.",
+  "@vehiclesDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vehiclesRemindTitle": "Set a renewal reminder?",
+  "vehiclesRemindBody": "Want a yearly reminder for \"{label}\" so you never miss the renewal?",
+  "@vehiclesRemindBody": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "vehiclesRemindCreate": "Yes, remind me",
+  "vehiclesRemindSkip": "Not now",
+  "vehiclesReminderTitle": "{item} renewal — {name}",
+  "@vehiclesReminderTitle": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vehiclesReminderCreated": "Reminder set",
+  "vehiclesReminderFailed": "Could not set the reminder",
+  "vehiclesTrackingComingSoon": "Assisto's own live vehicle tracking is coming soon. Until then, this guide helps you choose a tracker honestly — with no fake prices.",
+  "vehiclesCompareTitle": "SIM GPS tracker vs Bluetooth tag",
+  "vehiclesSimTitle": "SIM-card GPS tracker",
+  "vehiclesSimHow": "How it works: a device with its own SIM uses GPS for location and mobile data to send it to a server, so you can see the vehicle live from anywhere.",
+  "vehiclesSimCoverage": "Coverage: works anywhere there is mobile network — real-time tracking across the whole country.",
+  "vehiclesSimBattery": "Battery: should be wired to the vehicle's power with a small backup battery, so it does not depend on charging.",
+  "vehiclesSimLimit": "Limits: needs a small monthly data/SIM cost, and a thief can block it if they find and remove the device.",
+  "vehiclesBtTitle": "Bluetooth tag",
+  "vehiclesBtHow": "How it works: a small tag that your phone finds over Bluetooth when it is close by — it has no GPS of its own.",
+  "vehiclesBtCoverage": "Coverage: only within a few metres of a phone. Some tags use other people's phones nearby, but that is unreliable for a vehicle.",
+  "vehiclesBtBattery": "Battery: runs on a tiny coin-cell battery that lasts months, no wiring needed.",
+  "vehiclesBtLimit": "Limits: it cannot track a stolen vehicle that drives away — good for finding a parked bike nearby, not anti-theft.",
+  "vehiclesChecklistTitle": "What to look for in a tracker",
+  "vehiclesCheckCutoff": "Engine cut-off relay — lets you remotely stop the engine (fit by a professional).",
+  "vehiclesCheckBackupBattery": "Built-in backup battery — keeps tracking for a while even if the main power is cut.",
+  "vehiclesCheckTamperAlert": "Tamper and power-cut alerts — warns you if someone unplugs or tampers with the device.",
+  "vehiclesCheckGt06": "GT06 protocol support — so it can connect to Assisto's own tracking (coming soon).",
+  "vehiclesCheckSimPlan": "A SIM with a small data plan — the tracker needs it to send its location.",
+  "vehiclesInstallTitle": "Installation tips",
+  "vehiclesInstallHidden": "Hide it well — place the device where a thief cannot easily find or reach it.",
+  "vehiclesInstallPower": "Wire it to constant power with a backup battery, so it keeps working even if the main line is cut.",
+  "vehiclesInstallPro": "Get a professional to install it — especially the engine cut-off, so the vehicle's wiring is not damaged.",
+  "vehiclesPriceTitle": "Prices",
+  "vehiclesPriceNote": "We do not show prices here because they change often and vary by seller. Use the buttons below to check the current price yourself.",
+  "vehiclesPriceCheckGps": "Check GPS tracker price",
+  "vehiclesPriceCheckBt": "Check Bluetooth tag price",
+  "vehiclesPriceQueryGps": "GPS tracker for car motorcycle price Bangladesh",
+  "vehiclesPriceQueryBt": "Bluetooth tracker tag price Bangladesh",
+  "vehiclesPriceDisclaimer": "Prices change — always confirm the current price and warranty directly from the seller before buying."
 }

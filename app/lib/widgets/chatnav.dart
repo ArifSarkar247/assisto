@@ -21,6 +21,7 @@ import '../screens/birthdays_screen.dart';
 import '../screens/meetings_screen.dart';
 import '../screens/dictionary_screen.dart';
 import '../screens/ride_food_screen.dart';
+import '../screens/my_vehicles_screen.dart';
 import '../screens/fall_detect_screen.dart';
 import '../screens/lost_stolen_screen.dart';
 import '../screens/phone_safety_screen.dart';
@@ -94,6 +95,7 @@ class ChatNav {
     'documents': (_) => const VaultScreen(),
     'family': (_) => const FamilyScreen(),
     'reminders': (_) => const RemindersScreen(),
+    'vehicles': (_) => const MyVehiclesScreen(),
     'emergency': (_) => const EmergencyScreen(),
     'plans': (_) => const PlansScreen(),
     'scam': (_) => const ScamScreen(),

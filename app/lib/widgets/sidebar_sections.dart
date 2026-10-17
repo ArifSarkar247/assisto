@@ -18,6 +18,7 @@ import '../screens/finance_screen.dart';
 import '../screens/payment_ladder_screen.dart';
 import '../screens/task_manager_screen.dart';
 import '../screens/mess_accounting_screen.dart';
+import '../screens/my_vehicles_screen.dart';
 import '../screens/expense_split_screen.dart';
 import '../screens/samity_screen.dart';
 import '../screens/landlord_tenant_screen.dart';
@@ -330,6 +331,19 @@ class SidebarSections {
       SidebarItem(Icons.directions_car_outlined, (t) => t.rideFoodTitle,
           (_) => const RideFoodScreen(),
           synonyms: ['ride', 'food', 'uber', 'pathao', 'foodpanda', 'delivery']),
+      SidebarItem(Icons.directions_car_outlined, (t) => t.vehiclesTitle,
+          (_) => const MyVehiclesScreen(), synonyms: [
+        'vehicle',
+        'car',
+        'bike',
+        'motorcycle',
+        'gari',
+        'registration',
+        'tax token',
+        'fitness',
+        'insurance',
+        'tracker'
+      ]),
       // Section-20 life modules (SPEC v2.1 §20) — Daily Life group.
       SidebarItem(Icons.school_outlined, (t) => t.studentTitle,
           (_) => const StudentCornerScreen(),
