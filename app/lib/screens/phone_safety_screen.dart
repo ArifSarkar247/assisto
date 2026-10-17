@@ -151,6 +151,16 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
           availability: (t) => t.phoneSafeAvailBrand,
         ),
         _Step(
+          'locknetsec',
+          (t) => t.phoneSafeLockNetTitle,
+          (t) => t.phoneSafeLockNetWhy,
+          (t) => switch (_brand) {
+                'samsung' => t.phoneSafeLockNetHowSamsung.split('\n'),
+                _ => t.phoneSafeLockNetHowOther.split('\n'),
+              },
+          availability: (t) => t.phoneSafeAvailBrand,
+        ),
+        _Step(
           'theftprotect',
           (t) => t.phoneSafeTheftTitle,
           (t) => t.phoneSafeTheftWhy,
@@ -182,6 +192,25 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
           (t) => t.phoneSafeFrpTitle,
           (t) => t.phoneSafeFrpWhy,
           (t) => t.phoneSafeFrpHow.split('\n'),
+        ),
+        _Step(
+          'brandaccount',
+          (t) => t.phoneSafeBrandAccountTitle,
+          (t) => t.phoneSafeBrandAccountWhy,
+          (t) => switch (_brand) {
+                'samsung' => t.phoneSafeBrandAccountHowSamsung.split('\n'),
+                'xiaomi' => t.phoneSafeBrandAccountHowXiaomi.split('\n'),
+                _ => t.phoneSafeBrandAccountHowOther.split('\n'),
+              },
+          availability: (t) => t.phoneSafeAvailBrand,
+        ),
+        _Step(
+          'twostep',
+          (t) => t.phoneSafeTwoStepTitle,
+          (t) => t.phoneSafeTwoStepWhy,
+          (t) => t.phoneSafeTwoStepHow.split('\n'),
+          link: 'https://myaccount.google.com/signinoptions/twosv',
+          linkLabel: (t) => t.phoneSafeTwoStepOpenWeb,
         ),
       ];
 
@@ -220,6 +249,37 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
                         color: scheme.onTertiaryContainer, fontSize: 13)),
               ),
             ]),
+          ),
+        ),
+        const SizedBox(height: Gap.md),
+        // Honest reality explainer — what software can and cannot do.
+        Card(
+          color: scheme.secondaryContainer,
+          child: Padding(
+            padding: const EdgeInsets.all(Gap.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [
+                  Icon(Icons.shield_outlined,
+                      color: scheme.onSecondaryContainer, size: 20),
+                  const SizedBox(width: Gap.sm),
+                  Expanded(
+                    child: Text(t.phoneSafeRealityTitle,
+                        style: TextStyle(
+                            color: scheme.onSecondaryContainer,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14)),
+                  ),
+                ]),
+                const SizedBox(height: Gap.sm),
+                Text(t.phoneSafeRealityBody,
+                    style: TextStyle(
+                        color: scheme.onSecondaryContainer,
+                        fontSize: 13,
+                        height: 1.35)),
+              ],
+            ),
           ),
         ),
         const SizedBox(height: Gap.lg),

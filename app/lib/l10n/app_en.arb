@@ -13154,5 +13154,20 @@
   "vehiclesPriceCheckBt": "Check Bluetooth tag price",
   "vehiclesPriceQueryGps": "GPS tracker for car motorcycle price Bangladesh",
   "vehiclesPriceQueryBt": "Bluetooth tracker tag price Bangladesh",
-  "vehiclesPriceDisclaimer": "Prices change — always confirm the current price and warranty directly from the seller before buying."
+  "vehiclesPriceDisclaimer": "Prices change — always confirm the current price and warranty directly from the seller before buying.",
+  "phoneSafeLockNetTitle": "Lock network & security",
+  "phoneSafeLockNetWhy": "Stops a thief from turning on airplane mode or switching off mobile data from the lock screen — so your phone stays online and findable.",
+  "phoneSafeLockNetHowSamsung": "Open Settings > Lock screen.\nTap Secure lock settings (confirm your PIN/pattern).\nTurn ON “Lock network and security”.\nNow network toggles need an unlock before they can be changed.",
+  "phoneSafeLockNetHowOther": "Most brands (Pixel/stock, Realme, Xiaomi, Vivo) do NOT have an exact “lock network & security” toggle like Samsung.\nOpen your own Settings > Lock screen / Security and look for any option to block quick-settings changes while locked.\nIf no such option exists on your phone, there is no equivalent — don’t rely on one; focus on keeping the phone online (Find My Device) and a locked SIM instead.",
+  "phoneSafeBrandAccountTitle": "Brand account lock",
+  "phoneSafeBrandAccountWhy": "A reactivation lock tied to your brand account blocks the phone from being reused after a factory reset — making a stolen phone useless to a thief.",
+  "phoneSafeBrandAccountHowSamsung": "Sign in to your Samsung account on the phone.\nOpen Settings > Security and privacy > Find My Mobile.\nTurn ON “Remote unlock” (this also enables Reactivation Lock).\nNow a factory reset will still ask for your Samsung account.",
+  "phoneSafeBrandAccountHowXiaomi": "Sign in to your Mi Account on the phone.\nOpen Settings > Mi Account > or Settings > Security to find “Find device”.\nTurn ON “Find device” — this enables activation lock tied to your Mi Account.\nAfter a reset the phone will still need your Mi Account credentials.",
+  "phoneSafeBrandAccountHowOther": "This depends on your brand’s own account:\nRealme/Vivo: sign in to your Realme or Vivo account and turn on their own “Find device”/anti-theft option if your phone offers one.\nPixel/stock Android: there is no separate brand lock — it relies on the Google Factory Reset Protection step above (keep a Google account signed in).\nIf your brand has no such option, don’t assume one exists — lean on Find My Device and FRP instead.",
+  "phoneSafeTwoStepTitle": "Google 2-Step Verification",
+  "phoneSafeTwoStepWhy": "A thief needs your Google account to disable Find My Device or bypass factory-reset protection. 2-Step Verification stops them signing in even if they learn your password.",
+  "phoneSafeTwoStepHow": "Open your Google Account > Security.\nTurn on 2-Step Verification and finish the setup.\nAdd a second method (authenticator app or phone prompt).\nSave your backup codes somewhere safe, offline.\nUse the button below to open the settings page directly.",
+  "phoneSafeTwoStepOpenWeb": "Open 2-Step Verification settings",
+  "phoneSafeRealityTitle": "What really protects your phone",
+  "phoneSafeRealityBody": "No ordinary app — including Assisto — can block airplane mode or stop a factory reset or firmware flash. Please don’t trust any app that claims it can.\nWhat actually helps: keeping the phone online so Find My Device can locate and lock it, plus a locked SIM so a thief can’t swap it out.\nThe real deterrent is Factory Reset Protection and your brand’s reactivation lock — they make a wiped, stolen phone useless to resell."
 }
