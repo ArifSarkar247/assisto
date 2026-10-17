@@ -92,6 +92,27 @@ class _CrmLogActivitySheetState extends State<CrmLogActivitySheet> {
     if (picked != null) setState(() => _followUp = picked);
   }
 
+  /// One-tap relative follow-up preset (e.g. "Tomorrow", "In 3 days"). Sets
+  /// `_followUp` to that many days from today at DATE granularity, so it matches
+  /// `_fmt` and the server's date-only `next_follow_up`. Renders selected when
+  /// the current pick lands on this preset's day; tapping a selected chip again
+  /// clears it. Disabled while saving.
+  Widget _preset(String label, int days) {
+    final target = DateTime.now().add(Duration(days: days));
+    final day = DateTime(target.year, target.month, target.day);
+    final selected = _followUp != null &&
+        _followUp!.year == day.year &&
+        _followUp!.month == day.month &&
+        _followUp!.day == day.day;
+    return ChoiceChip(
+      label: Text(label),
+      selected: selected,
+      onSelected: _saving
+          ? null
+          : (_) => setState(() => _followUp = selected ? null : day),
+    );
+  }
+
   Future<void> _save() async {
     final t = AppLocalizations.of(context);
     setState(() => _saving = true);
