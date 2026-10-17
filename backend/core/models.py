@@ -2443,3 +2443,73 @@ class PaCollectionItem(models.Model):
     class Meta:
         ordering = ["-created_at"]
         indexes = [models.Index(fields=["user", "collection"])]
+
+
+# ===========================================================================
+# Stolen-While-Unlocked Protection (Apple Stolen-Device-Protection style)
+#
+#   SERVER IS THE SOURCE OF TRUTH. A system/factory reset on the device can
+#   never change ownership or clear the armed/frozen/status state — those live
+#   here and only change through the core.views_security endpoints (which gate
+#   every sensitive action behind PIN + trusted-location + delay/approval).
+#   The native anti-theft engine only *reports signals*; it cannot grant
+#   itself any capability the server has not agreed to.
+# ===========================================================================
+
+class ProtectedPhone(models.Model):
+    """One protected handset, keyed to its owner. There is one *primary* row
+    per owner (treat the earliest-created as primary); kept as a ForeignKey
+    (not OneToOne) so a future multi-device story is a non-breaking change."""
+    STATUS = [("owned", "owned"),
+              ("reported_stolen", "reported_stolen"),
+              ("transfer_pending", "transfer_pending"),
+              ("transferred", "transferred")]
+    owner = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name="protected_phones")
+    imei1 = models.CharField(max_length=32, blank=True, default="")
+    imei2 = models.CharField(max_length=32, blank=True, default="")
+    model_name = models.CharField(max_length=80, blank=True, default="")
+    # Server-side Security-PIN hash (Django make_password). The raw PIN is
+    # NEVER stored or logged — see views_security.
+    security_pin_hash = models.CharField(max_length=256, blank=True, default="")
+    armed = models.BooleanField(default=False)
+    frozen_until = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS, default="owned")
+    gd_number = models.CharField(max_length=60, blank=True, default="")  # police General Diary
+    wrong_pin_count = models.IntegerField(default=0)
+    family_approver = models.ForeignKey("CircleMember", null=True, blank=True,
+                                        on_delete=models.SET_NULL,
+                                        related_name="approver_for_phones")
+    signals = models.JSONField(default=list, blank=True)  # [{kind, at}]
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+
+class PendingSensitiveAction(models.Model):
+    """A sensitive action that could not run immediately (untrusted location /
+    approver required). It sits here delayed or awaiting approval so the real
+    owner has a window to cancel it ("This wasn't me")."""
+    ACTIONS = [("sell_transfer", "sell_transfer"), ("disarm", "disarm"),
+               ("remove_admin", "remove_admin"), ("change_contacts", "change_contacts"),
+               ("turn_off_lost", "turn_off_lost"), ("change_pin", "change_pin"),
+               ("export_data", "export_data")]
+    STATES = [("pending", "pending"), ("awaiting_approval", "awaiting_approval"),
+              ("cancelled", "cancelled"), ("applied", "applied"), ("rejected", "rejected")]
+    phone = models.ForeignKey(ProtectedPhone, on_delete=models.CASCADE,
+                              related_name="pending_actions")
+    action = models.CharField(max_length=20, choices=ACTIONS)
+    requested_at = models.DateTimeField(auto_now_add=True)
+    effective_at = models.DateTimeField(null=True, blank=True)
+    state = models.CharField(max_length=20, choices=STATES, default="pending")
+    cancel_token = models.CharField(max_length=64, blank=True, default="", db_index=True)
+    approver = models.ForeignKey("CircleMember", null=True, blank=True,
+                                 on_delete=models.SET_NULL,
+                                 related_name="pending_action_approvals")
+    payload = models.JSONField(default=dict, blank=True)
+    note = models.TextField(blank=True, default="")
+
+    class Meta:
+        ordering = ["-requested_at"]

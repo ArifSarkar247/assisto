@@ -7,6 +7,7 @@ from . import views_build61 as b61
 from . import views_m2 as m2
 from . import business_views as bz
 from . import views_messenger as msg
+from . import views_security as secv
 
 router = DefaultRouter()
 router.register("memory", views.MemoryViewSet, basename="memory")
@@ -462,6 +463,15 @@ urlpatterns = [
     path("messenger/broadcast-lists", msg.BroadcastListsView.as_view()),
     path("messenger/broadcast-lists/<int:pk>/send",
          msg.BroadcastSendView.as_view()),
+
+    # Stolen-While-Unlocked Protection (server is source of truth)
+    path("security/state", secv.SecurityStateView.as_view()),
+    path("security/pin/set", secv.SecurityPinSetView.as_view()),
+    path("security/pin/verify", secv.SecurityPinVerifyView.as_view()),
+    path("security/action", secv.SecurityActionView.as_view()),
+    path("security/action/<int:pk>/cancel", secv.SecurityActionCancelView.as_view()),
+    path("security/action/<int:pk>/approve", secv.SecurityActionApproveView.as_view()),
+    path("security/signal", secv.SecuritySignalView.as_view()),
 ]
 
 urlpatterns += router.urls

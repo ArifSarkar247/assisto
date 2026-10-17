@@ -1556,3 +1556,131 @@ class FamilySharingApiTests(APITestCase):
         self.client.force_authenticate(user=None)
         r = self.client.get("/api/v1/family/sharing/consent/")
         self.assertIn(r.status_code, (401, 403))
+
+
+# ===========================================================================
+# Stolen-While-Unlocked Protection — scenario tests
+#   Prove a thief with an UNLOCKED phone still cannot quietly transfer/disarm:
+#   untrusted actions are delayed (24h) and cancelable; a theft signal freezes
+#   (blocks) transfers; 5 wrong PINs lock + signal + alert; an approver gates
+#   sell/disarm; the real owner at a trusted SavedPlace acts immediately.
+# ===========================================================================
+from django.utils import timezone as _tz
+from datetime import timedelta as _td
+
+from .models import (ProtectedPhone, PendingSensitiveAction, CircleMember,
+                     FamilyAlert, SavedPlace)
+
+
+class StolenProtectionScenarioTests(APITestCase):
+    PIN = "2468"
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            name="মালিক", phone="01799999999", password="secret123",
+            email="owner@example.com")
+        self.client.force_authenticate(user=self.user)
+        # Provision the handset + set a PIN through the real endpoint.
+        r = self.client.post("/api/v1/security/pin/set",
+                             {"new_pin": self.PIN}, format="json")
+        self.assertEqual(r.status_code, 200)
+        self.phone = ProtectedPhone.objects.get(owner=self.user)
+        self.phone.armed = True
+        self.phone.save()
+        # A trusted place at (23.80, 90.40).
+        self.home = SavedPlace.objects.create(
+            user=self.user, label="home", name="Home", lat=23.80, lng=90.40)
+
+    # -- helpers ----------------------------------------------------------
+    def _action(self, action, pin=None, lat=None, lng=None):
+        body = {"action": action, "pin": pin if pin is not None else self.PIN}
+        if lat is not None:
+            body["lat"] = lat
+            body["lng"] = lng
+        return self.client.post("/api/v1/security/action", body, format="json")
+
+    # -- scenarios --------------------------------------------------------
+    def test_thief_disarm_untrusted_is_delayed_and_cancelable(self):
+        # Untrusted location (far from home) -> delayed ~24h, NOT applied.
+        r = self._action("disarm", lat=22.0, lng=88.0)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.data["state"], "pending")
+        eff = r.data["effective_at"]
+        self.assertIsNotNone(eff)
+        pending = PendingSensitiveAction.objects.get(id=r.data["id"])
+        delta = pending.effective_at - pending.requested_at
+        self.assertTrue(_td(hours=23) < delta < _td(hours=25))
+        # Still armed (not applied yet) + owner alerted.
+        self.phone.refresh_from_db()
+        self.assertTrue(self.phone.armed)
+        self.assertTrue(FamilyAlert.objects.filter(user=self.user).exists())
+        # Cancel with the token, no auth ("this wasn't me").
+        self.client.force_authenticate(user=None)
+        c = self.client.post(f"/api/v1/security/action/{pending.id}/cancel",
+                             {"token": pending.cancel_token}, format="json")
+        self.assertEqual(c.status_code, 200)
+        pending.refresh_from_db()
+        self.assertEqual(pending.state, "cancelled")
+
+    def test_sell_transfer_while_frozen_is_blocked_423(self):
+        # Simulate a prior theft signal -> frozen.
+        self.phone.frozen_until = _tz.now() + _td(hours=10)
+        self.phone.save()
+        r = self._action("sell_transfer", lat=23.80, lng=90.40)
+        self.assertEqual(r.status_code, 423)
+        self.assertEqual(r.data["state"], "blocked")
+        self.assertEqual(r.data["reason"], "frozen")
+
+    def test_five_wrong_pins_locks_and_signals_and_alerts(self):
+        last = None
+        for _ in range(5):
+            last = self.client.post("/api/v1/security/pin/verify",
+                                    {"pin": "0000"}, format="json")
+        self.assertEqual(last.status_code, 200)
+        self.assertFalse(last.data["ok"])
+        self.assertTrue(last.data.get("locked"))
+        self.phone.refresh_from_db()
+        self.assertTrue(self.phone.frozen_until and
+                        self.phone.frozen_until > _tz.now())
+        kinds = [s["kind"] for s in self.phone.signals]
+        self.assertIn("wrong_pin", kinds)
+        self.assertTrue(FamilyAlert.objects.filter(user=self.user).exists())
+
+    def test_change_pin_and_remove_admin_untrusted_are_delayed(self):
+        for action in ("change_pin", "remove_admin"):
+            r = self._action(action, lat=1.0, lng=1.0)
+            self.assertEqual(r.status_code, 200)
+            self.assertEqual(r.data["state"], "pending", action)
+            self.assertIsNotNone(r.data["effective_at"])
+
+    def test_owner_at_trusted_place_is_immediate(self):
+        r = self._action("disarm", lat=23.8001, lng=90.4001)  # ~15m from home
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.data["state"], "applied")
+        self.phone.refresh_from_db()
+        self.assertFalse(self.phone.armed)  # disarm actually applied
+
+    def test_family_approver_sell_disarm_awaits_approval_until_approve(self):
+        approver_user = User.objects.create_user(
+            name="বাবা", phone="01788888888", password="x",
+            email="dad@example.com")
+        member = CircleMember.objects.create(
+            user=self.user, peer_user=approver_user, state="accepted",
+            name="Dad", relation="family")
+        self.phone.family_approver = member
+        self.phone.save()
+        # sell_transfer from a TRUSTED place still awaits approval.
+        r = self._action("sell_transfer", lat=23.80, lng=90.40)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.data["state"], "awaiting_approval")
+        pid = r.data["id"]
+        # A non-approver cannot approve.
+        other = User.objects.create_user(name="x", phone="01700000001", password="x")
+        self.client.force_authenticate(user=other)
+        bad = self.client.post(f"/api/v1/security/action/{pid}/approve", {}, format="json")
+        self.assertEqual(bad.status_code, 403)
+        # The approver can.
+        self.client.force_authenticate(user=approver_user)
+        good = self.client.post(f"/api/v1/security/action/{pid}/approve", {}, format="json")
+        self.assertEqual(good.status_code, 200)
+        self.assertEqual(good.data["state"], "applied")
