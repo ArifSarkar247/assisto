@@ -157,6 +157,7 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
             decoration: InputDecoration(
               labelText: t.rideFoodDestLabel,
               helperText: t.rideFoodDestHelper,
+              helperMaxLines: 2,
               prefixIcon: const Icon(Icons.place_outlined),
               border: const OutlineInputBorder(),
             ),
@@ -246,6 +247,7 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
             decoration: InputDecoration(
               labelText: t.rideFoodFoodLabel,
               helperText: t.rideFoodFoodHelper,
+              helperMaxLines: 2,
               prefixIcon: const Icon(Icons.restaurant_outlined),
               border: const OutlineInputBorder(),
             ),

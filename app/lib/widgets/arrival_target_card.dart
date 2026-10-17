@@ -70,13 +70,36 @@ class _ArrivalTargetCardState extends State<ArrivalTargetCard> {
   Widget build(BuildContext context) {
     final eta = widget.eta;
     if (eta == null) {
+      // Empty hero: stacked icon → title → body → full-width button so the
+      // text uses the full card width instead of cramming into a narrow
+      // column beside the button (was a Row/ListTile that wrapped badly).
       return Card(
-        child: ListTile(
-          leading: const Icon(Icons.pin_drop_outlined),
-          title: Text(AppLocalizations.of(context).aNoneTitle),
-          subtitle: Text(AppLocalizations.of(context).aNoneDesc),
-          trailing: FilledButton.tonal(
-              onPressed: widget.onSet, child: Text(AppLocalizations.of(context).aSetButton)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Icon(Icons.pin_drop_outlined,
+                  color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(AppLocalizations.of(context).aNoneTitle,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w700, fontSize: 16)),
+              ),
+            ]),
+            const SizedBox(height: 8),
+            Text(AppLocalizations.of(context).aNoneDesc,
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    height: 1.4)),
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.tonal(
+                  onPressed: widget.onSet,
+                  child: Text(AppLocalizations.of(context).aSetButton)),
+            ),
+          ]),
         ),
       );
     }

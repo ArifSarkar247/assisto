@@ -1,7 +1,9 @@
 import 'crm_erp_handoff_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/ladder_common.dart';
 import 'crm_common.dart';
 
 /// Pipeline kanban (CRM_SPEC): columns = stages, drag a deal between stages
@@ -147,7 +149,7 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
               padding: const EdgeInsets.all(Gap.xs),
               child: Row(children: [
                 Expanded(child: Text(stage['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.w800))),
-                Text('${stage['probability']}%', style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+                Text('${fmtInt(context, (stage['probability'] as num?)?.toInt() ?? 0)}%', style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
               ]),
             ),
             Expanded(
@@ -176,7 +178,7 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
           Text(d['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.w700), maxLines: 2, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 4),
           Text(bdt((d['value'] as num?)), style: const TextStyle(fontWeight: FontWeight.w800), maxLines: 1, overflow: TextOverflow.ellipsis),
-          Text('${d['probability']}% · ${d['expected_close'] ?? '—'}',
+          Text('${fmtInt(context, (d['probability'] as num?)?.toInt() ?? 0)}% · ${_closeDate(d['expected_close'])}',
               maxLines: 1, overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
           if (stuckDays != null)
@@ -186,7 +188,7 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
                 const Icon(Icons.warning_amber_outlined, size: 14, color: Brand.warning),
                 const SizedBox(width: 4),
                 Expanded(
-                  child: Text('${t.crmStuck} $stuckDays${t.crmDaysShort}',
+                  child: Text('${t.crmStuck} ${fmtInt(context, stuckDays)}${t.crmDaysShort}',
                       maxLines: 1, overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontSize: 11, color: Brand.warning)),
                 ),
@@ -208,6 +210,17 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
         child: card,
       ),
     );
+  }
+
+  /// Localised yyyy-MM-dd expected-close date (Bangla numerals in bn). Returns a
+  /// dash when empty, or the raw value when it is not a parseable date.
+  String _closeDate(dynamic v) {
+    final s = (v ?? '').toString();
+    if (s.isEmpty) return '—';
+    final d = DateTime.tryParse(s);
+    if (d == null) return s;
+    return DateFormat('yyyy-MM-dd', Localizations.localeOf(context).languageCode)
+        .format(d);
   }
 
   int? _stuckAge(Map<String, dynamic> d, Map<String, dynamic> stage) {

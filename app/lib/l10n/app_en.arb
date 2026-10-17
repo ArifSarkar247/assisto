@@ -10405,7 +10405,7 @@
   "priceTitle": "Market price radar",
   "priceLoadError": "Couldn't load your price logs. Please try again.",
   "priceWelcomeTitle": "Keep an eye on prices",
-  "priceWelcomeBody": "Log the items whose prices you want to track — item, ৳ price, date, market. We show the trend from your own logged prices. No fake live prices.",
+  "priceWelcomeBody": "Log the items whose prices you want to track — item, price (৳), date, market. We show the trend from your own logged prices. No fake live prices.",
   "priceLogPrice": "Log price",
   "priceEditLog": "Edit price log",
   "priceDeleteTitle": "Delete this price log?",

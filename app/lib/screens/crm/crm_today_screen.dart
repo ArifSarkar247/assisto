@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/ladder_common.dart';
 import 'crm_common.dart';
 import 'crm_lead_detail_screen.dart';
 
@@ -95,7 +97,7 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
                 title: Text(l['name']?.toString().isNotEmpty == true
                     ? l['name']
                     : (l['company'] ?? t.crmLead)),
-                subtitle: Text('${t.crmNextFollowUp}: ${l['next_follow_up'] ?? '—'}'),
+                subtitle: Text('${t.crmNextFollowUp}: ${_date(l['next_follow_up'])}'),
                 onTap: () => _openLead((l['id'] as num).toInt()),
               ),
             ),
@@ -107,7 +109,7 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
               child: ListTile(
                 leading: const Icon(Icons.flag_outlined),
                 title: Text(s['title'] ?? ''),
-                subtitle: Text('${s['next_step']} · ${t.crmDue}: ${s['due']}'),
+                subtitle: Text('${s['next_step']} · ${t.crmDue}: ${_date(s['due'])}'),
               ),
             ),
         ],
@@ -123,12 +125,23 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
               child: ListTile(
                 leading: const Icon(Icons.timelapse),
                 title: Text(s['title'] ?? ''),
-                subtitle: Text('${s['stage']} · ${s['days']} ${t.crmDaysStuck}'),
+                subtitle: Text('${s['stage']} · ${fmtInt(context, (s['days'] as num?)?.toInt() ?? 0)} ${t.crmDaysStuck}'),
               ),
             ),
         ],
       ]),
     );
+  }
+
+  /// Localised yyyy-MM-dd (Bangla numerals in bn). Falls back to a dash / the
+  /// raw value when the string is empty or not a parseable date.
+  String _date(dynamic v) {
+    final s = (v ?? '').toString();
+    if (s.isEmpty) return '—';
+    final d = DateTime.tryParse(s);
+    if (d == null) return s;
+    return DateFormat('yyyy-MM-dd', Localizations.localeOf(context).languageCode)
+        .format(d);
   }
 
   void _openLead(int id) => Navigator.push(context,

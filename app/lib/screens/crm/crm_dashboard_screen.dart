@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/ladder_common.dart';
 import 'crm_common.dart';
 
 /// Dashboard (CRM_SPEC): pipeline value, weighted forecast WITH its method
@@ -84,7 +85,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
                     const SizedBox(height: Gap.xs),
                     _line(t.crmBestCase, bdt(forecast['best_case'] as num?)),
                     _line(t.crmCommit, bdt(forecast['commit'] as num?)),
-                    _line(t.crmOpenDeals, '${forecast['open_count'] ?? 0}'),
+                    _line(t.crmOpenDeals, fmtInt(context, (forecast['open_count'] as num?)?.toInt() ?? 0)),
                     const SizedBox(height: Gap.xs),
                     Text('${t.crmMethod}: ${_safeMethod(forecast['method'])}',
                         style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
@@ -106,9 +107,9 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
             padding: const EdgeInsets.all(Gap.md),
             child: winLoss['has_data'] == true
                 ? Column(children: [
-                    _line(t.crmMarkWon, '${winLoss['won'] ?? 0}'),
-                    _line(t.crmMarkLost, '${winLoss['lost'] ?? 0}'),
-                    _line(t.crmWinRate, winLoss['win_rate'] == null ? '—' : '${winLoss['win_rate']}%'),
+                    _line(t.crmMarkWon, fmtInt(context, (winLoss['won'] as num?)?.toInt() ?? 0)),
+                    _line(t.crmMarkLost, fmtInt(context, (winLoss['lost'] as num?)?.toInt() ?? 0)),
+                    _line(t.crmWinRate, winLoss['win_rate'] == null ? '—' : '${fmtInt(context, (winLoss['win_rate'] as num).toInt())}%'),
                   ])
                 : Text(t.crmNotEnoughData, style: TextStyle(color: scheme.onSurfaceVariant)),
           ),
@@ -116,11 +117,11 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
         const SizedBox(height: Gap.md),
         // ---- by industry ----
         _sectionTitle(t.crmByIndustry),
-        _rows(byInd, (r) => _line(_industryLabel(t, r['industry']?.toString()), '${bdt(r['value'] as num?)} · ${r['count']}'), t),
+        _rows(byInd, (r) => _line(_industryLabel(t, r['industry']?.toString()), '${bdt(r['value'] as num?)} · ${fmtInt(context, (r['count'] as num?)?.toInt() ?? 0)}'), t),
         const SizedBox(height: Gap.md),
         // ---- by salesperson ----
         _sectionTitle(t.crmBySalesperson),
-        _rows(byRep, (r) => _line(r['name']?.toString() ?? '—', '${t.crmMarkWon} ${r['won']} · ${bdt(r['won_value'] as num?)}'), t),
+        _rows(byRep, (r) => _line(r['name']?.toString() ?? '—', '${t.crmMarkWon} ${fmtInt(context, (r['won'] as num?)?.toInt() ?? 0)} · ${bdt(r['won_value'] as num?)}'), t),
       ]),
     );
   }

@@ -247,9 +247,17 @@ class MemCategories {
     for (final e in id.entries) {
       if (c == e.value) return e.key; // exact id match (what our editor writes)
     }
+    // Whole-word match (tokenise) so short keywords don't match inside unrelated
+    // words — e.g. "personal" must NOT match Family's "son", "mama" not "maa".
+    // Multi-word keywords (e.g. "important date") still match as a phrase.
+    final tokens = c
+        .split(RegExp(r'[^a-z0-9]+'))
+        .where((t) => t.isNotEmpty)
+        .toSet();
     for (final e in _keywords.entries) {
       for (final kw in e.value) {
-        if (c.contains(kw)) return e.key;
+        final hit = kw.contains(' ') ? c.contains(kw) : tokens.contains(kw);
+        if (hit) return e.key;
       }
     }
     return MemCat.other;

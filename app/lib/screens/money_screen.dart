@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/ladder_common.dart';
 import '../widgets/skeleton.dart';
 import 'money_common.dart';
 import 'money_trends_screen.dart';
@@ -11,6 +12,25 @@ import 'money_networth_screen.dart';
 import 'money_loan_detail_screen.dart';
 import 'money_budget_screen.dart';
 import 'money_import_screen.dart';
+
+/// Locale-aware Taka string. Keeps [tkFmt]'s ৳ sign, lakh grouping and decimals
+/// exactly, but renders the digits in Bangla numerals when the locale is bn —
+/// so the money figures match the sibling screens (subscriptions) that already
+/// localise. Digit mapping routes through [fmtInt] (0–9 → localised numeral,
+/// no extra separator) rather than any hard-coded Bangla literal, keeping the
+/// language gate strict.
+String tk(BuildContext context, dynamic v) {
+  final s = tkFmt(v);
+  final buf = StringBuffer();
+  for (final ch in s.runes) {
+    if (ch >= 0x30 && ch <= 0x39) {
+      buf.write(fmtInt(context, ch - 0x30));
+    } else {
+      buf.writeCharCode(ch);
+    }
+  }
+  return buf.toString();
+}
 
 /// My Account — advanced personal-finance module.
 ///
@@ -139,7 +159,7 @@ class _OverviewTab extends StatelessWidget {
             Text(t.moneyTotalBalance,
                 style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: Gap.xs),
-            Text(tkFmt(s?['total_balance'] ?? nw['assets']),
+            Text(tk(context, s?['total_balance'] ?? nw['assets']),
                 style: const TextStyle(
                     color: Colors.white,
                     fontSize: 32,
@@ -147,10 +167,10 @@ class _OverviewTab extends StatelessWidget {
             const SizedBox(height: Gap.md),
             Row(children: [
               _heroPill(Icons.trending_up, t.moneyNetWorthLabel,
-                  tkFmt(nw['net_worth'])),
+                  tk(context, nw['net_worth'])),
               const SizedBox(width: Gap.md),
               _heroPill(Icons.account_balance_outlined, t.moneyAccountsCount,
-                  '${app.accounts.items.length}'),
+                  fmtInt(context, app.accounts.items.length)),
             ]),
           ]),
         ),
@@ -158,15 +178,15 @@ class _OverviewTab extends StatelessWidget {
         // income / expense / net — stacked full-width so the longer EN labels
         // ("Income This Month" / "Expenses This Month") fit without clipping.
         statCard(context, t.moneyMonthIncome,
-            tkFmt(s?['month_income'] ?? '0'), Brand.success, Icons.south_west),
+            tk(context, s?['month_income'] ?? '0'), Brand.success, Icons.south_west),
         const SizedBox(height: Gap.md),
         statCard(context, t.moneyMonthExpense,
-            tkFmt(s?['month_expense'] ?? '0'), Brand.danger, Icons.north_east),
+            tk(context, s?['month_expense'] ?? '0'), Brand.danger, Icons.north_east),
         const SizedBox(height: Gap.md),
         statCard(
             context,
             t.moneyMonthNet,
-            tkFmt(s?['month_net'] ?? '0'),
+            tk(context, s?['month_net'] ?? '0'),
             (dbl(s?['month_net']) >= 0) ? scheme.secondary : Brand.danger,
             Icons.savings_outlined),
         const SizedBox(height: Gap.lg),
@@ -248,7 +268,7 @@ class _OverviewTab extends StatelessWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Text(e.key),
-              Text(tkFmt(e.value),
+              Text(tk(context, e.value),
                   style: const TextStyle(fontWeight: FontWeight.w600)),
             ]),
             const SizedBox(height: Gap.xs),
@@ -377,7 +397,7 @@ class _AccountsTab extends StatelessWidget {
                       title: Text(it['data']['name'] ?? ''),
                       subtitle: Text(accTypes(t)[it['data']['acc_type']] ?? ''),
                       trailing: Text(
-                          tkFmt(it['data']['opening_balance'] ??
+                          tk(context, it['data']['opening_balance'] ??
                               it['data']['balance']),
                           style: const TextStyle(
                               fontWeight: FontWeight.w700)),
@@ -627,7 +647,7 @@ class _TxnsTabState extends State<_TxnsTab> {
                             ],
                           ]),
                           trailing: Text(
-                              '${it['data']['kind'] == 'income' ? '+' : '-'}${tkFmt(it['data']['amount'])}',
+                              '${it['data']['kind'] == 'income' ? '+' : '-'}${tk(context, it['data']['amount'])}',
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: it['data']['kind'] == 'income'
@@ -744,7 +764,7 @@ class _BudgetsTab extends StatelessWidget {
                                         style: const TextStyle(
                                             fontWeight: FontWeight.bold)),
                                     Text(
-                                        '${tkFmt(b['spent'])} / ${tkFmt(b['limit'])}'),
+                                        '${tk(context, b['spent'])} / ${tk(context, b['limit'])}'),
                                   ]),
                               const SizedBox(height: Gap.sm),
                               ClipRRect(
@@ -821,7 +841,7 @@ class _LoansSavingsTab extends StatelessWidget {
                     ? Brand.warning
                     : Brand.blue),
             title: Text(
-                '${it['data']['person']} · ${tkFmt(it['data']['amount'])}'),
+                '${it['data']['person']} · ${tk(context, it['data']['amount'])}'),
             subtitle: Text(_loanSubtitle(context, it['data'])),
             trailing: it['data']['settled'] == true
                 ? const Icon(Icons.check_circle, color: Brand.success)
@@ -853,7 +873,7 @@ class _LoansSavingsTab extends StatelessWidget {
                       children: [
                         Text(it['data']['title'] ?? ''),
                         Text(
-                            '${tkFmt(it['data']['saved_amount'])} / ${tkFmt(it['data']['target_amount'])}'),
+                            '${tk(context, it['data']['saved_amount'])} / ${tk(context, it['data']['target_amount'])}'),
                       ]),
                   const SizedBox(height: Gap.sm),
                   ClipRRect(
@@ -883,7 +903,7 @@ class _LoansSavingsTab extends StatelessWidget {
     final base = data['kind'] == 'given' ? t.moneyLoanGiven : t.moneyLoanTaken;
     if (data['settled'] == true) return '$base · ${t.moneyLoanSettled}';
     if (paid > 0) {
-      return '$base · ${t.moneyLoanBalanceLabel(tkFmt(dbl(data['amount']) - paid))}';
+      return '$base · ${t.moneyLoanBalanceLabel(tk(context, dbl(data['amount']) - paid))}';
     }
     return base;
   }
