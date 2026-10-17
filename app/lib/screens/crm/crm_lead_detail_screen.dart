@@ -7,6 +7,7 @@ import 'crm_lead_form_screen.dart';
 import 'crm_proposal_screen.dart';
 import 'crm_proposal_advanced_screen.dart';
 import 'crm_whatsapp_sheet.dart';
+import 'crm_log_activity_sheet.dart';
 
 /// Lead/Deal detail (CRM_SPEC): smart profile, score WITH reasons, full timeline
 /// (messages / calls / meetings / notes / AI summaries / sentiment), next step,
@@ -81,6 +82,16 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
     if (sent == true) _load();
   }
 
+  // Fast "log what happened + set next follow-up" flow (sales-exec core task).
+  // The sheet logs an activity and (optionally) writes next_follow_up on the
+  // lead — the field that drives the CRM Today screen. Refresh on any save.
+  Future<void> _logActivity() async {
+    final saved = await CrmLogActivitySheet.show(context,
+        leadId: widget.leadId,
+        currentFollowUp: (_lead?['next_follow_up'] ?? '').toString());
+    if (saved == true) _load();
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
@@ -119,6 +130,11 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
             },
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _logActivity,
+        icon: const Icon(Icons.add_task),
+        label: Text(t.crmLogActivity),
       ),
       body: RefreshIndicator(
         onRefresh: _load,
@@ -186,8 +202,24 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
             child: Padding(
               padding: const EdgeInsets.all(Gap.md),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                if ((l['next_follow_up'] ?? '').toString().isNotEmpty)
-                  Text('${t.crmNextFollowUp}: ${l['next_follow_up']}'),
+                // Tap to set/change the next follow-up date (drives Today).
+                InkWell(
+                  onTap: _logActivity,
+                  borderRadius: BorderRadius.circular(Radii.sm),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(children: [
+                      const Icon(Icons.event_outlined, size: 16),
+                      const SizedBox(width: Gap.xs),
+                      Expanded(
+                        child: Text((l['next_follow_up'] ?? '').toString().isNotEmpty
+                            ? '${t.crmNextFollowUp}: ${l['next_follow_up']}'
+                            : t.crmNextFollowUp),
+                      ),
+                      Icon(Icons.edit_outlined, size: 14, color: scheme.onSurfaceVariant),
+                    ]),
+                  ),
+                ),
                 if (_followup?['ok'] == true) ...[
                   Text('${t.crmSuggestedContact}: ${_followup!['suggested_contact_date'] ?? '—'}',
                       style: TextStyle(color: scheme.onSurfaceVariant)),
