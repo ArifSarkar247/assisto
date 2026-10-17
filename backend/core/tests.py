@@ -1684,3 +1684,193 @@ class StolenProtectionScenarioTests(APITestCase):
         good = self.client.post(f"/api/v1/security/action/{pid}/approve", {}, format="json")
         self.assertEqual(good.status_code, 200)
         self.assertEqual(good.data["state"], "applied")
+
+
+# ===========================================================================
+# Anti-theft Batch 4 — stolen-IMEI registry + used-phone check + sell transfer.
+#   Proves: gd_number is required; a check never leaks the reporter but DOES
+#   alert them (coarse area only); ownership moves ONLY through buyer-accept;
+#   a theft signal / active stolen report blocks the transfer; checks are
+#   rate-limited.
+# ===========================================================================
+from .models import StolenReport, ImeiCheckLog, SaleReceipt  # noqa: E402
+from .logic import security as _sec  # noqa: E402
+
+
+class RegistryTransferScenarioTests(APITestCase):
+    IMEI = "357219087654321"
+
+    def setUp(self):
+        self.seller = User.objects.create_user(
+            name="বিক্রেতা", phone="01811111111", password="x",
+            email="seller@example.com")
+        self.buyer = User.objects.create_user(
+            name="ক্রেতা", phone="01822222222", password="x",
+            email="buyer@example.com")
+        self.phone = ProtectedPhone.objects.create(
+            owner=self.seller, imei1=self.IMEI, model_name="Pixel")
+
+    def _as(self, user):
+        self.client.force_authenticate(user=user)
+
+    # -- report-stolen ----------------------------------------------------
+    def test_report_without_gd_is_400_with_gd_flags_phone(self):
+        self._as(self.seller)
+        bad = self.client.post("/api/v1/registry/report-stolen",
+                               {"imei": self.IMEI}, format="json")
+        self.assertEqual(bad.status_code, 400)
+        self.assertFalse(StolenReport.objects.exists())
+
+        ok = self.client.post(
+            "/api/v1/registry/report-stolen",
+            {"imei": self.IMEI, "gd_number": "GD-123/2026",
+             "area": "Dhaka, Mirpur"}, format="json")
+        self.assertEqual(ok.status_code, 200)
+        rep = StolenReport.objects.get(id=ok.data["report_id"])
+        self.assertEqual(rep.status, "active")
+        self.phone.refresh_from_db()
+        self.assertEqual(self.phone.status, "reported_stolen")
+
+    # -- check: clean / reported_stolen (reporter alerted, identity hidden)
+    def test_check_clean(self):
+        self._as(self.buyer)
+        r = self.client.post("/api/v1/registry/check",
+                             {"imei": self.IMEI}, format="json")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.data["result"], "clean")
+        self.assertEqual(r.data["advice_key"], "buy_ok")
+
+    def test_check_reported_stolen_alerts_reporter_hides_identity(self):
+        self._as(self.seller)
+        self.client.post(
+            "/api/v1/registry/report-stolen",
+            {"imei": self.IMEI, "gd_number": "GD-9/2026",
+             "area": "Dhaka, Mirpur"}, format="json")
+        # A DIFFERENT user checks the IMEI.
+        self._as(self.buyer)
+        r = self.client.post("/api/v1/registry/check",
+                             {"imei": self.IMEI}, format="json")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.data["result"], "reported_stolen")
+        self.assertEqual(r.data["advice_key"], "contact_police_dont_confront")
+        # Response never names the reporter.
+        self.assertNotIn("reporter", r.data)
+        self.assertNotIn("seller@example.com", str(r.data))
+        # The REPORTER (seller) got an alert; it carries coarse area, not the
+        # checker's identity/location.
+        alert = FamilyAlert.objects.filter(user=self.seller).order_by("-id").first()
+        self.assertIsNotNone(alert)
+        self.assertEqual(alert.payload.get("area"), "Dhaka, Mirpur")
+        self.assertNotIn("buyer@example.com", str(alert.payload))
+        self.assertNotIn("ক্রেতা", alert.body)
+
+    def test_recover_clears_status_and_check_clean_again(self):
+        self._as(self.seller)
+        self.client.post(
+            "/api/v1/registry/report-stolen",
+            {"imei": self.IMEI, "gd_number": "GD-1/2026"}, format="json")
+        rec = self.client.post("/api/v1/registry/recover",
+                               {"imei": self.IMEI}, format="json")
+        self.assertEqual(rec.status_code, 200)
+        self.phone.refresh_from_db()
+        self.assertEqual(self.phone.status, "owned")
+        self._as(self.buyer)
+        r = self.client.post("/api/v1/registry/check",
+                             {"imei": self.IMEI}, format="json")
+        self.assertEqual(r.data["result"], "clean")
+
+    # -- full sale: create -> authorize -> buyer accept -> ownership moved -
+    def test_full_sale_moves_ownership_and_verifies(self):
+        self._as(self.seller)
+        cr = self.client.post(
+            "/api/v1/sale/create",
+            {"imei": self.IMEI, "price": 15000, "buyer_name": "ক্রেতা"},
+            format="json")
+        self.assertEqual(cr.status_code, 200)
+        self.assertEqual(cr.data["state"], "draft")
+        token = cr.data["token"]
+
+        au = self.client.post("/api/v1/sale/authorize",
+                              {"id": cr.data["id"]}, format="json")
+        self.assertEqual(au.status_code, 200)
+        self.assertEqual(au.data["state"], "authorized")
+        self.phone.refresh_from_db()
+        self.assertEqual(self.phone.status, "transfer_pending")
+
+        # The BUYER (different user) accepts via the QR token.
+        self._as(self.buyer)
+        ac = self.client.post("/api/v1/sale/accept",
+                              {"token": token}, format="json")
+        self.assertEqual(ac.status_code, 200)
+        self.assertEqual(ac.data["state"], "accepted")
+
+        # Ownership moved server-side.
+        self.phone.refresh_from_db()
+        self.assertEqual(self.phone.status, "transferred")
+        buyer_phone = ProtectedPhone.objects.filter(
+            owner=self.buyer, imei1=self.IMEI).first()
+        self.assertIsNotNone(buyer_phone)
+        self.assertEqual(buyer_phone.status, "owned")
+
+        # Registry now returns verified_transfer.
+        chk = self.client.post("/api/v1/registry/check",
+                               {"imei": self.IMEI}, format="json")
+        self.assertEqual(chk.data["result"], "verified_transfer")
+        self.assertEqual(chk.data["advice_key"], "verified_ok")
+
+    # -- authorize BLOCKED when a theft signal is recent ------------------
+    def test_authorize_blocked_by_recent_theft_signal(self):
+        self._as(self.seller)
+        cr = self.client.post(
+            "/api/v1/sale/create", {"imei": self.IMEI, "price": 1},
+            format="json")
+        # A recent theft signal lands (and freezes).
+        _sec.register_signal(self.phone, "snatch", _tz.now())
+        self.phone.save()
+        au = self.client.post("/api/v1/sale/authorize",
+                              {"id": cr.data["id"]}, format="json")
+        self.assertIn(au.status_code, (409, 423))
+        self.assertFalse(au.data.get("ok", False))
+        SaleReceipt.objects.get(id=cr.data["id"]).refresh_from_db()
+        self.assertEqual(
+            SaleReceipt.objects.get(id=cr.data["id"]).state, "draft")
+
+    # -- accept BLOCKED if reported_stolen --------------------------------
+    def test_accept_blocked_if_reported_stolen_after_authorize(self):
+        self._as(self.seller)
+        cr = self.client.post(
+            "/api/v1/sale/create", {"imei": self.IMEI, "price": 1},
+            format="json")
+        au = self.client.post("/api/v1/sale/authorize",
+                              {"id": cr.data["id"]}, format="json")
+        self.assertEqual(au.status_code, 200)
+        # Now the phone is reported stolen (e.g. snatched mid-sale).
+        StolenReport.objects.create(
+            imei=self.IMEI, reporter=self.seller, gd_number="GD-77", status="active")
+        self._as(self.buyer)
+        ac = self.client.post("/api/v1/sale/accept",
+                              {"token": cr.data["token"]}, format="json")
+        self.assertIn(ac.status_code, (409, 423))
+        self.assertFalse(ac.data.get("ok", False))
+        self.assertEqual(
+            SaleReceipt.objects.get(id=cr.data["id"]).state, "authorized")
+
+    # -- rate-limit: 21st check in an hour -> 429 -------------------------
+    def test_rate_limit_21st_check_is_429(self):
+        self._as(self.buyer)
+        for i in range(20):
+            r = self.client.post("/api/v1/registry/check",
+                                 {"imei": self.IMEI}, format="json")
+            self.assertEqual(r.status_code, 200, f"check {i}")
+        r21 = self.client.post("/api/v1/registry/check",
+                               {"imei": self.IMEI}, format="json")
+        self.assertEqual(r21.status_code, 429)
+        self.assertEqual(ImeiCheckLog.objects.filter(checker=self.buyer).count(), 20)
+
+    # -- NEIR placeholder is disabled, never fakes a block ----------------
+    def test_neir_status_disabled_placeholder(self):
+        self._as(self.buyer)
+        r = self.client.get("/api/v1/registry/neir-status")
+        self.assertEqual(r.status_code, 200)
+        self.assertFalse(r.data["available"])
+        self.assertEqual(r.data["message_key"], "neir_not_available")

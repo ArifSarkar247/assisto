@@ -2513,3 +2513,76 @@ class PendingSensitiveAction(models.Model):
 
     class Meta:
         ordering = ["-requested_at"]
+
+
+# ===========================================================================
+# Anti-theft Batch 4 — stolen-IMEI registry + used-phone check + sell transfer
+#
+# SERVER IS THE SOURCE OF TRUTH. A factory reset on the handset can NEVER move
+# ownership or clear a stolen report; ownership only moves through sale/accept
+# (SaleReceipt -> accepted). A phone with an active StolenReport or a recent
+# theft signal can never be transfer-accepted.
+# ===========================================================================
+
+def _normalize_imei(raw):
+    """Digits-only normalization so '35-980123 / 456' matches '35980123456'."""
+    return "".join(ch for ch in str(raw or "") if ch.isdigit())
+
+
+class StolenReport(models.Model):
+    """An owner (or anyone authed) flags an IMEI as stolen, backed by a police
+    General Diary number. A check against this IMEI then warns the buyer. The
+    reporter's identity is NEVER revealed on a check — only coarse area/time."""
+    STATUS = [("active", "active"), ("recovered", "recovered")]
+    imei = models.CharField(max_length=32, db_index=True)  # normalized digits
+    reporter = models.ForeignKey(User, on_delete=models.CASCADE,
+                                 related_name="stolen_reports")
+    gd_number = models.CharField(max_length=60)  # required, non-blank (enforced in view)
+    model_name = models.CharField(max_length=80, blank=True, default="")
+    # COARSE text only, e.g. "Dhaka, Mirpur" — never a precise location.
+    area = models.CharField(max_length=120, blank=True, default="")
+    status = models.CharField(max_length=12, choices=STATUS, default="active")
+    created_at = models.DateTimeField(auto_now_add=True)
+    recovered_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["imei"])]
+
+
+class ImeiCheckLog(models.Model):
+    """One row per used-phone check. Audit trail + the source for the per-user
+    abuse rate-limit (count in the last hour)."""
+    imei = models.CharField(max_length=32, db_index=True)
+    checker = models.ForeignKey(User, null=True, blank=True,
+                                on_delete=models.SET_NULL,
+                                related_name="imei_checks")
+    at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-at"]
+
+
+class SaleReceipt(models.Model):
+    """A sell-my-phone transfer. The QR encodes `token`. Ownership moves only
+    when the BUYER accepts (state -> accepted). authorize is the sensitive step
+    and re-checks the theft signal as the authoritative server-side guard."""
+    STATES = [("draft", "draft"), ("authorized", "authorized"),
+              ("accepted", "accepted"), ("cancelled", "cancelled")]
+    seller = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name="sales_as_seller")
+    imei = models.CharField(max_length=32, db_index=True)  # normalized digits
+    model_name = models.CharField(max_length=80, blank=True, default="")
+    price = models.IntegerField(default=0)  # taka
+    buyer_name = models.CharField(max_length=120, blank=True, default="")
+    buyer_nid = models.CharField(max_length=40, blank=True, default="")
+    token = models.CharField(max_length=64, unique=True)  # random; QR payload
+    state = models.CharField(max_length=12, choices=STATES, default="draft")
+    buyer_user = models.ForeignKey(User, null=True, blank=True,
+                                   on_delete=models.SET_NULL,
+                                   related_name="sales_as_buyer")
+    created_at = models.DateTimeField(auto_now_add=True)
+    accepted_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]

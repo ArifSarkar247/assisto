@@ -26,6 +26,8 @@ import '../screens/fall_detect_screen.dart';
 import '../screens/lost_stolen_screen.dart';
 import '../screens/phone_safety_screen.dart';
 import '../screens/security_screen.dart';
+import '../screens/sell_my_phone_screen.dart';
+import '../screens/used_phone_check_screen.dart';
 import '../screens/owner_analytics_screen.dart';
 import '../screens/name_about_screen.dart';
 import '../screens/ramadan_screen.dart';
@@ -115,6 +117,10 @@ class ChatNav {
     'phone_safety': (_) => const PhoneSafetyScreen(),
     // Section 8: Stolen-while-unlocked protection hub.
     'security': (_) => const SecurityScreen(),
+    // Anti-theft Batch 4: used-phone registry check + sell/transfer flow.
+    // (Report-stolen lives inside both screens, so it needs no route of its own.)
+    'used_phone_check': (_) => const UsedPhoneCheckScreen(),
+    'sell_phone': (_) => const SellMyPhoneScreen(),
     'analytics': (_) => const OwnerAnalyticsScreen(),
     'name_about': (_) => const NameAboutScreen(),
     'ramadan': (_) => const RamadanScreen(),
@@ -203,6 +209,12 @@ class ChatNav {
     'security': ['security', 'stolen while unlocked', 'anti-theft ownership',
         'protect my phone', 'theft protection', 'disarm protection',
         'security pin'],
+    'used_phone_check': ['used phone check', 'used phone', 'second hand phone',
+        'secondhand phone', 'check imei', 'imei check', 'buy used phone',
+        'check used phone'],
+    'sell_phone': ['sell my phone', 'sell phone', 'transfer phone',
+        'phone transfer', 'sale receipt', 'report stolen', 'report my phone',
+        'mark recovered'],
     'circle': ['connected circle', 'circle', 'family chat'],
     'messages': ['messages', 'messenger', 'chats', 'direct message', 'dm'],
     'groups': ['groups', 'group chat', 'group'],

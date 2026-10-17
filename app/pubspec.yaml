@@ -37,6 +37,11 @@ dependencies:
   local_auth: ^2.3.0
   speech_to_text: ^7.0.0      # Bangla/English voice input + #79 wake-phrase listen
   share_plus: ^10.0.2         # SOS share sheet / share-out
+  # Anti-theft Batch 4 — DISPLAY-ONLY QR for the digital sale receipt token
+  # (pure Dart, no native code / no camera). The buyer accepts by scanning the
+  # QR with any app OR by pasting the token; Assisto adds NO scanner plugin.
+  # Lazy: QrImageView is only built inside the Sell screen, never at launch.
+  qr_flutter: ^4.1.0
   # #79 Hands-free Voice SOS — foreground service (persistent notification +
   # microphone FGS type) that keeps speech_to_text listening with the screen off
   # and fires the EXISTING SOS (api.journeySos) on the chosen wake phrase.

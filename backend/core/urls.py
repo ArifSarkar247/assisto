@@ -8,6 +8,7 @@ from . import views_m2 as m2
 from . import business_views as bz
 from . import views_messenger as msg
 from . import views_security as secv
+from . import views_registry as reg
 
 router = DefaultRouter()
 router.register("memory", views.MemoryViewSet, basename="memory")
@@ -474,6 +475,16 @@ urlpatterns = [
     path("security/signal", secv.SecuritySignalView.as_view()),
     path("security/arm", secv.SecurityArmView.as_view()),
     path("security/approver", secv.SecuritySetApproverView.as_view()),
+
+    # Anti-theft Batch 4 — stolen-IMEI registry + used-phone check + sell transfer
+    path("registry/report-stolen", reg.ReportStolenView.as_view()),
+    path("registry/recover", reg.RecoverView.as_view()),
+    path("registry/check", reg.CheckView.as_view()),
+    path("registry/neir-status", reg.NeirStatusView.as_view()),
+    path("sale/create", reg.SaleCreateView.as_view()),
+    path("sale/authorize", reg.SaleAuthorizeView.as_view()),
+    path("sale/accept", reg.SaleAcceptView.as_view()),
+    path("sale/mine", reg.SaleMineView.as_view()),
 ]
 
 urlpatterns += router.urls

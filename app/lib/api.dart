@@ -873,4 +873,118 @@ class ApiClient {
   /// clear. The member must be an ACCEPTED circle contact.
   Future<Map<String, dynamic>> securitySetApprover(int? memberId) =>
       postJson('/security/approver', {'member_id': memberId});
+
+  // ==========================================================================
+  // Anti-theft Batch 4: community stolen-phone REGISTRY + a safe SALE/TRANSFER
+  // ledger. HONESTY: this is a COMMUNITY + server-side ownership registry —
+  // Assisto never blocks a phone at the mobile-network level (that is NEIR,
+  // which is not available yet; see [registryNeirStatus]). A "reported_stolen"
+  // result means a seller/community flagged the IMEI; it advises contacting the
+  // police, never confronting anyone.
+  // ==========================================================================
+
+  /// POST registry/report-stolen {imei, gd_number, model?, area?}
+  /// -> {ok, report_id}. [gdNumber] is the police General-Diary reference (file
+  /// an Online GD first). [area] is a COARSE locality, never a precise address.
+  Future<Map<String, dynamic>> registryReportStolen({
+    required String imei,
+    required String gdNumber,
+    String? model,
+    String? area,
+  }) =>
+      postJson('/registry/report-stolen', {
+        'imei': imei,
+        'gd_number': gdNumber,
+        if (model != null && model.isNotEmpty) 'model': model,
+        if (area != null && area.isNotEmpty) 'area': area,
+      });
+
+  /// POST registry/recover {imei} -> {ok}. Clears a stolen flag after recovery.
+  Future<Map<String, dynamic>> registryRecover(String imei) =>
+      postJson('/registry/recover', {'imei': imei});
+
+  /// POST registry/check {imei}
+  /// -> {result:'clean'|'reported_stolen'|'verified_transfer',
+  ///     advice_key:'buy_ok'|'contact_police_dont_confront'|'verified_ok'}.
+  /// HTTP 429 when rate-limited (too many checks). RAW post so the 429 body is
+  /// surfaced to the caller as an [ApiException] with `.status == 429`, exactly
+  /// like [securityAction] surfaces 403/423 — a generic failure would hide it.
+  Future<Map<String, dynamic>> registryCheck(String imei) async {
+    final r = await _c.post(AppConfig.api('/registry/check'),
+        headers: _headers(), body: jsonEncode({'imei': imei}));
+    if (r.statusCode >= 200 && r.statusCode < 300) {
+      return r.body.isEmpty ? {} : jsonDecode(r.body) as Map<String, dynamic>;
+    }
+    // 429 (rate-limited) is an interpretable result — carry the status through
+    // so the screen can show a friendly "too many checks, try later" message.
+    _fail(r);
+  }
+
+  /// GET registry/neir-status -> {available:false, message_key:'neir_not_available'}.
+  /// The honest placeholder for the official (NEIR) stolen-phone registry.
+  Future<Map<String, dynamic>> registryNeirStatus() =>
+      getJson('/registry/neir-status');
+
+  /// POST sale/create {imei, model?, price, buyer_name, buyer_nid?}
+  /// -> {id, token, state}. [price] is in TAKA (whole/decimal) as the backend
+  /// expects — the sale ledger is a receipt, not a wallet; no money moves.
+  Future<Map<String, dynamic>> saleCreate({
+    required String imei,
+    required String price,
+    required String buyerName,
+    String? model,
+    String? buyerNid,
+  }) =>
+      postJson('/sale/create', {
+        'imei': imei,
+        'price': price,
+        'buyer_name': buyerName,
+        if (model != null && model.isNotEmpty) 'model': model,
+        if (buyerNid != null && buyerNid.isNotEmpty) 'buyer_nid': buyerNid,
+      });
+
+  /// POST sale/authorize {id} -> {ok?, state, reason?}. HTTP 423/409 when the
+  /// transfer is blocked by a theft signal / reported-stolen / frozen state.
+  /// RAW post so those interpretable bodies are surfaced to the caller via
+  /// [ApiException].status + the merged `_status` field (same pattern as
+  /// [securityAction]). The Sell flow only calls this AFTER SecurityGuard has
+  /// returned `applied` — this is the server-side re-check on top of that gate.
+  Future<Map<String, dynamic>> saleAuthorize(int id) async {
+    final r = await _c.post(AppConfig.api('/sale/authorize'),
+        headers: _headers(), body: jsonEncode({'id': id}));
+    if (r.statusCode >= 200 && r.statusCode < 300) {
+      return r.body.isEmpty ? {} : jsonDecode(r.body) as Map<String, dynamic>;
+    }
+    // 409 (conflict: reported-stolen) and 423 (locked: theft signal / frozen)
+    // carry a readable state/reason — surface the parsed body to the caller.
+    if (r.statusCode == 409 || r.statusCode == 423) {
+      final body = r.body.isEmpty ? {} : jsonDecode(r.body);
+      if (body is Map<String, dynamic>) {
+        return {...body, '_status': r.statusCode};
+      }
+    }
+    _fail(r);
+  }
+
+  /// POST sale/accept {token} -> {ok, state}. Called by the BUYER's account to
+  /// accept a transfer (they scan the QR with any app, or paste the token).
+  Future<Map<String, dynamic>> saleAccept(String token) =>
+      postJson('/sale/accept', {'token': token});
+
+  /// GET sale/mine -> {as_seller:[...], as_buyer:[...]} OR a bare list. Callers
+  /// MUST code defensively against both shapes (see used/sell screens).
+  Future<Map<String, dynamic>> saleMine() async {
+    final r = await _c.get(AppConfig.api('/sale/mine'), headers: _headers());
+    if (r.statusCode == 200) {
+      final body = r.body.isEmpty ? {} : jsonDecode(r.body);
+      // Normalise a bare list into the documented map shape so screens have a
+      // single contract to read.
+      if (body is List) {
+        return {'as_seller': body, 'as_buyer': const []};
+      }
+      if (body is Map<String, dynamic>) return body;
+      return {'as_seller': const [], 'as_buyer': const []};
+    }
+    _fail(r);
+  }
 }
