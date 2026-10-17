@@ -46,6 +46,7 @@ import '../screens/price_radar_screen.dart';
 import '../screens/quick_tools_screen.dart';
 import '../screens/daily_brief_screen.dart';
 import '../screens/blog_writer_screen.dart';
+import '../screens/cv_builder_screen.dart';
 import '../screens/doc_scanner_screen.dart';
 import '../screens/transcription_screen.dart';
 import '../screens/travel_planner_screen.dart';
@@ -421,7 +422,10 @@ class SidebarSections {
           synonyms: ['blog', 'script', 'writing', 'post', 'caption', 'draft']),
       SidebarItem(Icons.work_outline, (t) => t.jobHunter,
           (_) => const JobsScreen(),
-          synonyms: ['job', 'hunter', 'career', 'cv']),
+          synonyms: ['job', 'hunter', 'career']),
+      SidebarItem(Icons.description_outlined, (t) => t.cvTitle,
+          (_) => const CvBuilderScreen(),
+          synonyms: ['cv', 'resume', 'bio data', 'biodata', 'curriculum vitae']),
       SidebarItem(Icons.mark_email_unread_outlined, (t) => t.aiInbox,
           (_) => const InboxScreen(),
           synonyms: ['inbox', 'ai inbox', 'mail']),

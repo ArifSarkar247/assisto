@@ -40,6 +40,7 @@ import 'package:assisto/screens/pa/expense_voucher_screen.dart';
 import 'package:assisto/screens/quick_tools_screen.dart';
 import 'package:assisto/screens/daily_brief_screen.dart';
 import 'package:assisto/screens/blog_writer_screen.dart';
+import 'package:assisto/screens/cv_builder_screen.dart';
 import 'package:assisto/screens/doc_scanner_screen.dart';
 import 'package:assisto/screens/transcription_screen.dart';
 import 'package:assisto/screens/travel_planner_screen.dart';
@@ -280,6 +281,7 @@ void main() {
     'quick_tools': (build: (_) => const QuickToolsScreen(), mode: FakeMode.data, full: true),
     'daily_brief': (build: (_) => const DailyBriefScreen(), mode: FakeMode.data, full: true),
     'blog': (build: (_) => const BlogWriterScreen(), mode: FakeMode.data, full: true),
+    'cv_builder': (build: (_) => const CvBuilderScreen(), mode: FakeMode.data, full: true),
     'doc_scan': (build: (_) => const DocScannerScreen(), mode: FakeMode.data, full: true),
     'transcribe': (build: (_) => const TranscriptionScreen(), mode: FakeMode.data, full: true),
     'travel': (build: (_) => const TravelPlannerScreen(), mode: FakeMode.data, full: true),

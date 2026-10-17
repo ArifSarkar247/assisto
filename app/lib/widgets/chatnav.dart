@@ -43,6 +43,7 @@ import '../screens/nominee_screen.dart';
 import '../screens/crm_contacts_screen.dart';
 import '../screens/agent_studio_screen.dart';
 import '../screens/jobs_screen.dart';
+import '../screens/cv_builder_screen.dart';
 import '../screens/inbox_screen.dart';
 import '../screens/guide_screen.dart';
 import '../screens/nearby_screen.dart';
@@ -132,6 +133,8 @@ class ChatNav {
     'contacts': (_) => const CrmContactsScreen(),
     'agent_studio': (_) => const AgentStudioScreen(),
     'jobs': (_) => const JobsScreen(),
+    'cv': (_) => const CvBuilderScreen(),
+    'resume': (_) => const CvBuilderScreen(),
     'inbox': (_) => const InboxScreen(),
     'guide': (_) => const GuideScreen(),
     'nearby': (_) => const NearbyScreen(),
@@ -206,6 +209,7 @@ class ChatNav {
     'contacts': ['contacts', 'contact', 'phonebook'],
     'agent_studio': ['agent studio', 'agent', 'automation'],
     'jobs': ['job hunter', 'jobs', 'career'],
+    'cv': ['cv', 'resume', 'bio data', 'biodata', 'curriculum vitae', 'build cv', 'make resume'],
     'inbox': ['ai inbox', 'inbox', 'mail'],
     'guide': ['government service', 'service guide', 'guide'],
     'nearby': ['nearby', 'around me', 'places nearby'],

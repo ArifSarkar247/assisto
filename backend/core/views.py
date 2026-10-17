@@ -1921,6 +1921,8 @@ GENERIC_COLLECTIONS = [
     "supplier/vendors", "demand/signals",
     # #6 Proactive AI dismissals + #194 Area community + #187 Doctor appointments
     "proactive/dismissed", "area/posts", "doctor/appointments",
+    # CV / resume builder — single per-user CV record (no migration; generic)
+    "cv",
 ]
 GENERIC_COLLECTION_VIEWSETS = {
     name: type(
