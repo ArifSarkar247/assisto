@@ -97,10 +97,16 @@ class _VoiceCommandSheetState extends State<_VoiceCommandSheet>
       _transcript = '';
       _cmd = null;
     });
+    // Recognise in the app's ACTIVE language. Without this the plugin defaults
+    // to the DEVICE locale, so a Bangla speaker on a non-Bengali device is not
+    // transcribed. 'bn_BD' is passed when the app language is Bengali; if that
+    // locale pack isn't installed the plugin safely falls back to the default.
+    final localeId = t.localeName.startsWith('bn') ? 'bn_BD' : 'en_US';
     await _speech.listen(
       onResult: (r) {
         if (mounted) setState(() => _transcript = r.recognizedWords);
       },
+      listenOptions: SpeechListenOptions(localeId: localeId),
     );
   }
 

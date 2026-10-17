@@ -49,11 +49,16 @@ class VoiceSosTaskHandler extends TaskHandler {
   bool _ready = false;
   bool _firedOnce = false;
   String _phrase = VoiceSosConfig.defaultPhrases.first;
+  // Recognise in the app's ACTIVE language. Without this the plugin defaults to
+  // the DEVICE locale, so a Bangla wake phrase on a non-Bengali device is never
+  // transcribed and SOS never fires. Derived from the persisted app locale.
+  String _localeId = 'en_US';
   DateTime _lastRestart = DateTime.fromMillisecondsSinceEpoch(0);
 
   @override
   Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
     _phrase = await VoiceSosConfig.phrase();
+    _localeId = await VoiceSosConfig.speechLocaleId();
     try {
       _ready = await _speech.initialize(
         onStatus: (status) {
@@ -94,6 +99,7 @@ class VoiceSosTaskHandler extends TaskHandler {
           listenMode: ListenMode.dictation,
           listenFor: const Duration(minutes: 5),
           pauseFor: const Duration(seconds: 3),
+          localeId: _localeId,
         ),
       );
     } catch (_) {

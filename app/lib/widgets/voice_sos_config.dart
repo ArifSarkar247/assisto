@@ -50,6 +50,16 @@ class VoiceSosConfig {
   static Future<void> setCountdown(int v) =>
       Settings.setString(kCountdown, '$v');
 
+  /// BCP-47-ish speech recogniser locale for the app's ACTIVE language, read
+  /// from the SAME persisted 'locale' preference the main app writes
+  /// (AppState.setLocale). The foreground-service isolate has no BuildContext,
+  /// so it derives the locale here instead. Returns 'bn_BD' for Bengali, else
+  /// 'en_US'. If the device lacks that pack the speech plugin falls back safely.
+  static Future<String> speechLocaleId() async {
+    final lc = (await Settings.getString('locale') ?? '').trim();
+    return lc.startsWith('bn') ? 'bn_BD' : 'en_US';
+  }
+
   /// Normalise a phrase for matching: lowercase, strip punctuation, collapse
   /// whitespace. Keeps Unicode letters/digits so Bangla speech also matches if
   /// a user ever sets a Bangla phrase (the matching is script-agnostic).

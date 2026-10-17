@@ -141,9 +141,27 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
   Future<void> _voice() async {
     final text = await showVoiceCommandSheet(context);
     if (text == null || !mounted) return;
-    // Route the confirmed phrase the same way chat does.
-    final route = ChatNav.detectRoute(text);
-    ChatNav.push(context, route);
+    // Route the confirmed phrase the SAME way chat does (agent_thread_screen):
+    //   layer 1 — local English fast-path (offline, zero latency);
+    //   layer 2 — backend /agent, the ONLY path that understands Bangla
+    //             open-phrases (the Dart language gate forbids Bangla literals),
+    //             reading resp['route'] exactly as the chat does.
+    final local = ChatNav.detectRoute(text);
+    if (local != null && ChatNav.push(context, local)) return;
+    try {
+      final app = context.read<AppState>();
+      final r = await app.api.agent(text);
+      if (!mounted) return;
+      if (ChatNav.push(context, r['route'] as String?)) return;
+    } catch (_) {
+      // fall through to the snackbar below; never crash on offline/AI failure.
+    }
+    if (!mounted) return;
+    // Nothing resolved: give honest, localized feedback (same copy chat uses
+    // when it can't act on the input).
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(_t.sendFailed)),
+    );
   }
 
   Future<void> _exit() async {
