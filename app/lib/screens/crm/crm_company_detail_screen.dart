@@ -292,7 +292,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
               subtitle: Text(
                   '${d['stage_name'] ?? ''} · ${_stateLabel(t, state)}',
                   style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
-              trailing: Text(bdt(d['value'] as num?),
+              trailing: Text(bdt(context, d['value'] as num?),
                   style: const TextStyle(fontWeight: FontWeight.w800)),
             ),
           );

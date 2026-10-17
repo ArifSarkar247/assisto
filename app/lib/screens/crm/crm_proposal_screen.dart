@@ -140,11 +140,11 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
           ]),
           const SizedBox(height: Gap.xs),
           if (total > 0) ...[
-            _line(t.crmSubtotal, bdt(p['subtotal'] as num?)),
-            if ((p['discount_amount'] as num? ?? 0) > 0) _line(t.crmDiscount, '- ${bdt(p['discount_amount'] as num?)}'),
-            _line('${t.crmTax} (${p['tax_pct']}%)', bdt(p['tax_amount'] as num?)),
+            _line(t.crmSubtotal, bdt(context, p['subtotal'] as num?)),
+            if ((p['discount_amount'] as num? ?? 0) > 0) _line(t.crmDiscount, '- ${bdt(context, p['discount_amount'] as num?)}'),
+            _line('${t.crmTax} (${p['tax_pct']}%)', bdt(context, p['tax_amount'] as num?)),
             const Divider(),
-            _line(t.crmTotal, bdt(total), bold: true),
+            _line(t.crmTotal, bdt(context, total), bold: true),
           ],
           if (!reviewed)
             Padding(
@@ -329,11 +329,11 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
                       ),
                     ]),
                     const SizedBox(height: Gap.sm),
-                    _line(t.crmSubtotal, bdt(subtotal)),
-                    if (discountAmount > 0) _line(t.crmDiscount, '- ${bdt(discountAmount)}'),
-                    _line('${t.crmTax} (${taxPct.toStringAsFixed(taxPct == taxPct.roundToDouble() ? 0 : 2)}%)', bdt(taxAmount)),
+                    _line(t.crmSubtotal, bdt(context, subtotal)),
+                    if (discountAmount > 0) _line(t.crmDiscount, '- ${bdt(context, discountAmount)}'),
+                    _line('${t.crmTax} (${taxPct.toStringAsFixed(taxPct == taxPct.roundToDouble() ? 0 : 2)}%)', bdt(context, taxAmount)),
                     const Divider(),
-                    _line(t.crmTotal, bdt(total), bold: true),
+                    _line(t.crmTotal, bdt(context, total), bold: true),
                     if (!_allReviewed)
                       Padding(
                         padding: const EdgeInsets.only(top: Gap.xs),
@@ -372,7 +372,7 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(p['name']?.toString() ?? sku, style: const TextStyle(fontWeight: FontWeight.w700)),
-              Text('${bdt((p['unit_price'] as num?))} · $sku',
+              Text('${bdt(context, (p['unit_price'] as num?))} · $sku',
                   style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
               if (!reviewed)
                 Text(t.crmToReview, style: const TextStyle(color: Brand.warning, fontWeight: FontWeight.w700, fontSize: 11)),

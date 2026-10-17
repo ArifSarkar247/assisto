@@ -60,7 +60,7 @@ class CrmLeaderboardList extends StatelessWidget {
             Text(t.crmPoints,
                 style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
             if (r['won_amount'] != null)
-              Text(bdt(r['won_amount'] as num?),
+              Text(bdt(context, r['won_amount'] as num?),
                   style: TextStyle(fontSize: 11, color: Brand.success)),
           ]),
         ]),

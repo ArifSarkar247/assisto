@@ -97,14 +97,14 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
           Expanded(
             child: ReportStatTile(
                 label: t.crmPipelineValue,
-                value: bdt(d['pipeline_value'] as num?),
+                value: bdt(context, d['pipeline_value'] as num?),
                 icon: Icons.account_tree_outlined),
           ),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: ReportStatTile(
                 label: t.crmWonValue,
-                value: bdt(d['won_value'] as num?),
+                value: bdt(context, d['won_value'] as num?),
                 icon: Icons.emoji_events_outlined,
                 tint: Brand.success),
           ),
@@ -131,12 +131,12 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(bdt(forecast['weighted'] as num?),
+                      Text(bdt(context, forecast['weighted'] as num?),
                           style: const TextStyle(
                               fontSize: 24, fontWeight: FontWeight.w800)),
                       const SizedBox(height: Gap.xs),
-                      _line(t.crmBestCase, bdt(forecast['best_case'] as num?)),
-                      _line(t.crmCommitForecast, bdt(forecast['commit'] as num?)),
+                      _line(t.crmBestCase, bdt(context, forecast['best_case'] as num?)),
+                      _line(t.crmCommitForecast, bdt(context, forecast['commit'] as num?)),
                       _line(t.crmOpenDealsCount, '${forecast['open_count'] ?? 0}'),
                       const SizedBox(height: Gap.xs),
                       Text('${t.crmMethodLabel}: ${forecast['method'] ?? ''}',
@@ -192,7 +192,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
         CrmSectionHeader(t.crmReportByIndustry),
         _rowsCard(byInd,
             (r) => _line(r['industry']?.toString() ?? '—',
-                '${bdt(r['value'] as num?)} · ${r['count']}')),
+                '${bdt(context, r['value'] as num?)} · ${r['count']}')),
         const SizedBox(height: Gap.md),
 
         // ---- performance by rep (with attainment bars) ----
@@ -216,7 +216,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
             ? _unavailable(t.crmReportUnavailable)
             : _rowsCard(bySource,
                 (r) => _line(r['source']?.toString() ?? '—',
-                    '${bdt(r['value'] as num?)} · ${r['count']}')),
+                    '${bdt(context, r['value'] as num?)} · ${r['count']}')),
         const SizedBox(height: Gap.md),
 
         CrmSectionHeader(t.crmReportLeaderboard,
@@ -400,7 +400,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontWeight: FontWeight.w700)),
           ),
-          Text(bdt(r['won_value'] as num?),
+          Text(bdt(context, r['won_value'] as num?),
               style: const TextStyle(fontWeight: FontWeight.w800)),
         ]),
         const SizedBox(height: 2),

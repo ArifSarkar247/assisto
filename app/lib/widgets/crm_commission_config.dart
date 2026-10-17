@@ -166,7 +166,7 @@ class _CrmCommissionConfigState extends State<CrmCommissionConfig> {
         if (preview.isNotEmpty) ...[
           Text(t.crmCommissionPreview, style: const TextStyle(fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.xs),
-          for (final p in preview) _previewRow(t, p),
+          for (final p in preview) _previewRow(context, t, p),
         ],
       ],
     );
@@ -208,14 +208,15 @@ class _CrmCommissionConfigState extends State<CrmCommissionConfig> {
     );
   }
 
-  Widget _previewRow(AppLocalizations t, Map<String, dynamic> p) {
+  Widget _previewRow(
+      BuildContext context, AppLocalizations t, Map<String, dynamic> p) {
     final set = p['config_set'] == true;
     return Card(
       child: ListTile(
         title: Text(p['member_name']?.toString() ?? ''),
-        subtitle: Text('${t.crmWon}: ${bdt(p['won_amount'] as num?)}'),
+        subtitle: Text('${t.crmWon}: ${bdt(context, p['won_amount'] as num?)}'),
         trailing: set
-            ? Text(bdt(p['payout'] as num?),
+            ? Text(bdt(context, p['payout'] as num?),
                 style: const TextStyle(fontWeight: FontWeight.w800, color: Brand.success))
             : Text(t.crmOwnerMustSet,
                 style: const TextStyle(fontSize: 11, color: Brand.warning)),

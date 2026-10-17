@@ -69,9 +69,9 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.all(Gap.md), children: [
         Row(children: [
-          Expanded(child: _metric(t.crmPipelineValue, bdt(d['pipeline_value'] as num?), Icons.account_tree_outlined)),
+          Expanded(child: _metric(t.crmPipelineValue, bdt(context, d['pipeline_value'] as num?), Icons.account_tree_outlined)),
           const SizedBox(width: Gap.sm),
-          Expanded(child: _metric(t.crmWonValue, bdt(d['won_value'] as num?), Icons.emoji_events_outlined)),
+          Expanded(child: _metric(t.crmWonValue, bdt(context, d['won_value'] as num?), Icons.emoji_events_outlined)),
         ]),
         const SizedBox(height: Gap.md),
         // ---- weighted forecast with method shown ----
@@ -81,10 +81,10 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
             padding: const EdgeInsets.all(Gap.md),
             child: forecast['has_data'] == true
                 ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(bdt(forecast['weighted'] as num?), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
+                    Text(bdt(context, forecast['weighted'] as num?), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
                     const SizedBox(height: Gap.xs),
-                    _line(t.crmBestCase, bdt(forecast['best_case'] as num?)),
-                    _line(t.crmCommit, bdt(forecast['commit'] as num?)),
+                    _line(t.crmBestCase, bdt(context, forecast['best_case'] as num?)),
+                    _line(t.crmCommit, bdt(context, forecast['commit'] as num?)),
                     _line(t.crmOpenDeals, fmtInt(context, (forecast['open_count'] as num?)?.toInt() ?? 0)),
                     const SizedBox(height: Gap.xs),
                     Text('${t.crmMethod}: ${_safeMethod(forecast['method'])}',
@@ -117,11 +117,11 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
         const SizedBox(height: Gap.md),
         // ---- by industry ----
         _sectionTitle(t.crmByIndustry),
-        _rows(byInd, (r) => _line(_industryLabel(t, r['industry']?.toString()), '${bdt(r['value'] as num?)} · ${fmtInt(context, (r['count'] as num?)?.toInt() ?? 0)}'), t),
+        _rows(byInd, (r) => _line(_industryLabel(t, r['industry']?.toString()), '${bdt(context, r['value'] as num?)} · ${fmtInt(context, (r['count'] as num?)?.toInt() ?? 0)}'), t),
         const SizedBox(height: Gap.md),
         // ---- by salesperson ----
         _sectionTitle(t.crmBySalesperson),
-        _rows(byRep, (r) => _line(r['name']?.toString() ?? '—', '${t.crmMarkWon} ${fmtInt(context, (r['won'] as num?)?.toInt() ?? 0)} · ${bdt(r['won_value'] as num?)}'), t),
+        _rows(byRep, (r) => _line(r['name']?.toString() ?? '—', '${t.crmMarkWon} ${fmtInt(context, (r['won'] as num?)?.toInt() ?? 0)} · ${bdt(context, r['won_value'] as num?)}'), t),
       ]),
     );
   }

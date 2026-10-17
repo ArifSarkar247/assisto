@@ -177,7 +177,7 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(d['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.w700), maxLines: 2, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 4),
-          Text(bdt((d['value'] as num?)), style: const TextStyle(fontWeight: FontWeight.w800), maxLines: 1, overflow: TextOverflow.ellipsis),
+          Text(bdt(context, (d['value'] as num?)), style: const TextStyle(fontWeight: FontWeight.w800), maxLines: 1, overflow: TextOverflow.ellipsis),
           Text('${fmtInt(context, (d['probability'] as num?)?.toInt() ?? 0)}% · ${_closeDate(d['expected_close'])}',
               maxLines: 1, overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),

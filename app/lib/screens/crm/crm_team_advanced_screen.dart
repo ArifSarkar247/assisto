@@ -148,7 +148,7 @@ class _TargetsTabState extends State<_TargetsTab> {
           else ...[
             const SizedBox(height: Gap.xs),
             Row(children: [
-              Text('${bdt(tg['won_amount'] as num?)} / ${bdt(tg['target_amount'] as num?)}',
+              Text('${bdt(context, tg['won_amount'] as num?)} / ${bdt(context, tg['target_amount'] as num?)}',
                   style: const TextStyle(fontWeight: FontWeight.w700)),
               const Spacer(),
               if (pct != null)

@@ -7,6 +7,7 @@ import '../../api.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import '../../widgets/ladder_common.dart' show fmtInt;
 import '../../l10n/app_localizations.dart';
 import 'crm_whatsapp_sheet.dart';
 
@@ -354,17 +355,12 @@ class RefCodeChip extends StatelessWidget {
   }
 }
 
-/// Format a BDT amount with the taka sign (৳ is allowed in .dart).
-String bdt(num? v) {
-  final n = (v ?? 0).round();
-  final s = n.abs().toString();
-  final buf = StringBuffer();
-  for (int i = 0; i < s.length; i++) {
-    if (i > 0 && (s.length - i) % 3 == 0) buf.write(',');
-    buf.write(s[i]);
-  }
-  return '৳${n < 0 ? '-' : ''}$buf';
-}
+/// Format a BDT amount with the taka sign, LOCALE-AWARE: Bangla digits + comma
+/// grouping in Bangla, Latin in English (reuses the shared [fmtInt], which also
+/// handles the sign). ৳ (U+09F3) is allowed in .dart — the language gate exempts
+/// the currency sign. Pass a BuildContext so the locale can be read.
+String bdt(BuildContext context, num? v) =>
+    '৳${fmtInt(context, (v ?? 0).round())}';
 
 /// A 0–100 lead score badge. Colour steps: >=90 danger-tint (hot), >=60 warn,
 /// else muted. WCAG-safe foregrounds.
