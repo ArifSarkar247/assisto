@@ -205,6 +205,23 @@ class _VaultScreenState extends State<VaultScreen> {
               onChanged: (v) => setD(() => type = v ?? 'other'),
             ),
             const SizedBox(height: 10),
+            // Honest how-to helper for types that need it (e.g. finding IMEI).
+            if (dt.helpText(t) != null) ...[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Theme.of(ctx).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  const Icon(Icons.info_outline, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(dt.helpText(t)!, style: const TextStyle(fontSize: 12.5))),
+                ]),
+              ),
+              const SizedBox(height: 10),
+            ],
             // type-specific fields
             for (final f in dt.fields)
               Padding(
@@ -320,6 +337,22 @@ class _VaultScreenState extends State<VaultScreen> {
           ]),
           const SizedBox(height: 4),
           Text(dt.label(t), style: TextStyle(color: Colors.grey)),
+          if (dt.helpText(t) != null) ...[
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Theme.of(ctx).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                const Icon(Icons.info_outline, size: 18),
+                const SizedBox(width: 8),
+                Expanded(child: Text(dt.helpText(t)!, style: const TextStyle(fontSize: 12.5))),
+              ]),
+            ),
+          ],
           const SizedBox(height: 14),
           if (decoded.details.isNotEmpty)
             for (final e in decoded.details.entries)

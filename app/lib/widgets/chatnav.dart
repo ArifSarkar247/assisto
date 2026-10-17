@@ -23,6 +23,7 @@ import '../screens/dictionary_screen.dart';
 import '../screens/ride_food_screen.dart';
 import '../screens/fall_detect_screen.dart';
 import '../screens/lost_stolen_screen.dart';
+import '../screens/phone_safety_screen.dart';
 import '../screens/owner_analytics_screen.dart';
 import '../screens/name_about_screen.dart';
 import '../screens/ramadan_screen.dart';
@@ -108,6 +109,7 @@ class ChatNav {
     'ride_food': (_) => const RideFoodScreen(),
     'fall_detect': (_) => const FallDetectScreen(),
     'lost_stolen': (_) => const LostStolenScreen(),
+    'phone_safety': (_) => const PhoneSafetyScreen(),
     'analytics': (_) => const OwnerAnalyticsScreen(),
     'name_about': (_) => const NameAboutScreen(),
     'ramadan': (_) => const RamadanScreen(),

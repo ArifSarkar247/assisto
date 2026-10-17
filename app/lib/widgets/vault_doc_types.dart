@@ -25,6 +25,19 @@ class VaultDocType {
   const VaultDocType(this.key, this.icon, this.fields,
       {this.defaultValidityYears, this.guideKey});
 
+  /// Localised how-to helper shown on the add/detail UI for types that need a
+  /// short honest explanation (e.g. how to find the phone IMEI by hand). A
+  /// METHOD (not a field) so [kVaultDocTypes] stays const. Returns null when the
+  /// type has no guide text.
+  String? helpText(AppLocalizations t) {
+    switch (key) {
+      case 'device':
+        return t.vaultDeviceImeiHelp;
+      default:
+        return null;
+    }
+  }
+
   String label(AppLocalizations t) {
     switch (key) {
       case 'passport':
@@ -39,6 +52,8 @@ class VaultDocType {
         return t.docTypeInsurance;
       case 'warranty':
         return t.docTypeWarranty;
+      case 'device':
+        return t.docTypeDevice;
       default:
         return t.docTypeOther;
     }
@@ -71,6 +86,16 @@ class VaultField {
         return t.vaultFieldPurchaseDate;
       case 'seller':
         return t.vaultFieldSeller;
+      case 'imei1':
+        return t.vaultFieldImei1;
+      case 'imei2':
+        return t.vaultFieldImei2;
+      case 'model':
+        return t.vaultFieldModel;
+      case 'sim1':
+        return t.vaultFieldSim1;
+      case 'sim2':
+        return t.vaultFieldSim2;
       default:
         return key;
     }
@@ -105,6 +130,17 @@ const List<VaultDocType> kVaultDocTypes = [
     VaultField('seller'),
     VaultField('purchase_date', isDate: true),
   ], defaultValidityYears: 1),
+  // Anti-theft phone record. Fields are recorded BY HAND — Android 10+ blocks
+  // apps from reading the IMEI (privacy), so the helpText explains how to find
+  // it. Box/receipt photos attach via the existing file-attach flow.
+  VaultDocType('device', Icons.smartphone, [
+    VaultField('imei1'),
+    VaultField('imei2'),
+    VaultField('model'),
+    VaultField('sim1'),
+    VaultField('sim2'),
+    VaultField('purchase_date', isDate: true),
+  ]),
   VaultDocType('other', Icons.description_outlined, []),
 ];
 

@@ -128,6 +128,12 @@ class DocumentSerializer(serializers.ModelSerializer):
     # to_internal_value below json.loads()es the string path. Values with
     # ; | = stay intact (vault P1 fix).
     details = serializers.JSONField(required=False)
+    # doc_type is a CLIENT-SIDE category and the app's vault type list grows
+    # (device/insurance/warranty, ...). The model keeps `choices` only for the
+    # Django admin dropdown; the auto-generated ChoiceField must NOT 400 a type
+    # the app legitimately uses. Accept any short string (fixes a pre-existing
+    # bug where insurance/warranty docs were rejected).
+    doc_type = serializers.CharField(required=False, max_length=16, default="other")
 
     class Meta:
         model = Document
