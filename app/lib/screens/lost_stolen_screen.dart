@@ -12,6 +12,8 @@ import '../services/security_guard.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/journey_api.dart';
+import 'my_lost_phone_screen.dart';
+import 'recovery_screen.dart';
 
 /// #80 — Lost / stolen phone protection (device-admin).
 ///
@@ -438,6 +440,8 @@ class _LostStolenScreenState extends State<LostStolenScreen>
               children: [
                 _statusBanner(tr, scheme),
                 const SizedBox(height: Gap.md),
+                _lostPhoneLinks(tr, scheme),
+                const SizedBox(height: Gap.md),
                 _intro(tr, scheme),
                 const SizedBox(height: Gap.md),
                 _recoveryPinCard(tr, scheme),
@@ -539,6 +543,39 @@ class _LostStolenScreenState extends State<LostStolenScreen>
               ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// Anti-theft Batch 5 links — the server-side view of this phone and the
+  /// Recovery toolkit. Placed here (not duplicated) so they're reachable from
+  /// the existing Lost/Stolen hub as well as the sidebar.
+  Widget _lostPhoneLinks(AppLocalizations tr, ColorScheme scheme) {
+    return Card(
+      child: Column(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.travel_explore_outlined),
+            title: Text(tr.mlpTitle),
+            subtitle: Text(tr.mlpSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const MyLostPhoneScreen()),
+            ),
+          ),
+          const Divider(height: 1),
+          ListTile(
+            leading: const Icon(Icons.gavel_outlined),
+            title: Text(tr.mlpRecoveryHelp),
+            subtitle: Text(tr.mlpRecoveryHelpBody),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const RecoveryScreen()),
+            ),
+          ),
+        ],
       ),
     );
   }

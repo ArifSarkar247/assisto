@@ -971,6 +971,88 @@ class ApiClient {
   Future<Map<String, dynamic>> saleAccept(String token) =>
       postJson('/sale/accept', {'token': token});
 
+  // ==========================================================================
+  // Anti-theft Batch 5: "My lost phone" view + RECOVERY help + a best-effort
+  // FOREGROUND heartbeat.
+  //
+  // HONESTY: Assisto only ever sees the phone while it is ONLINE. It cannot
+  // locate an offline / powered-off / flashed phone. The heartbeat here is a
+  // best-effort, foreground-only stopgap (sent when the owner opens/resumes the
+  // app with protection armed) until the native always-on engine ships. FRP +
+  // IMEI + a police GD are what actually help recovery — these endpoints build
+  // those documents, never a fake live location.
+  // ==========================================================================
+
+  /// POST security/heartbeat {lat?, lng?, battery?, network?}
+  /// -> {lost_mode, lost_message, lost_contact, armed, frozen,
+  ///     heartbeat_interval_min}. Best-effort "I'm online" ping from the
+  /// foreground. Every field is optional (omit what the device can't supply).
+  Future<Map<String, dynamic>> securityHeartbeat({
+    double? lat,
+    double? lng,
+    int? battery,
+    String? network,
+  }) =>
+      postJson('/security/heartbeat', {
+        if (lat != null) 'lat': lat,
+        if (lng != null) 'lng': lng,
+        if (battery != null) 'battery': battery,
+        if (network != null && network.isNotEmpty) 'network': network,
+      });
+
+  /// POST security/lost-mode {on:true, message?, contact?, reward?} -> {ok}.
+  /// IMPORTANT: this ONLY turns lost mode ON. Turning it OFF is a sensitive
+  /// (Section-8-gated) action — call SecurityGuard.run(context,'turn_off_lost')
+  /// instead; the server returns HTTP 409 if on:false is posted here, so this
+  /// method never accepts an `on` flag.
+  Future<Map<String, dynamic>> securityLostMode({
+    String? message,
+    String? contact,
+    String? reward,
+  }) =>
+      postJson('/security/lost-mode', {
+        'on': true,
+        if (message != null && message.isNotEmpty) 'message': message,
+        if (contact != null && contact.isNotEmpty) 'contact': contact,
+        if (reward != null && reward.isNotEmpty) 'reward': reward,
+      });
+
+  /// GET security/lost-phone -> {imei1, imei2, model, armed, lost_mode, frozen,
+  /// went_dark_at:ISO|null, last_location:{lat,lng,at}|null,
+  /// trail:[{lat,lng,at}], events:[{id,kind,data,at,photo_url?}],
+  /// sim_change:{...}|null, status}.
+  Future<Map<String, dynamic>> securityLostPhone() =>
+      getJson('/security/lost-phone');
+
+  /// Authed URL for an intruder-event photo (owner only). Built the same way
+  /// AppConfig produces every other API URL so the Authorization header still
+  /// applies when fetched via [getBytes]; use the path (not this Uri) with
+  /// [getBytes] to carry the token.
+  static String securityEventPhotoPath(int eventId) =>
+      '/security/event/$eventId/photo';
+
+  /// GET recovery/gd-draft -> {text}. A ready-to-file Online GD (General Diary)
+  /// draft the owner can copy into gd.police.gov.bd.
+  Future<Map<String, dynamic>> recoveryGdDraft() =>
+      getJson('/recovery/gd-draft');
+
+  /// GET recovery/sp-letter -> {text}. An escalation letter to the SP
+  /// (Superintendent of Police) when a GD stalls.
+  Future<Map<String, dynamic>> recoverySpLetter() =>
+      getJson('/recovery/sp-letter');
+
+  /// GET recovery/police-stations?lat&lng
+  /// -> {stations:[{name, phone?, lat, lng}]} | {available:false}.
+  /// HONEST: returns {available:false} where no real station data exists —
+  /// the app never invents stations.
+  Future<Map<String, dynamic>> recoveryPoliceStations(double lat, double lng) =>
+      getJson('/recovery/police-stations?lat=$lat&lng=$lng');
+
+  /// Path for the evidence PDF (owner only). Fetch the bytes with [getBytes]
+  /// (reuses the vault / money-report download path so the Token header
+  /// applies) then share via share_plus.
+  static const String recoveryEvidencePdfPath = '/recovery/evidence.pdf';
+
   /// GET sale/mine -> {as_seller:[...], as_buyer:[...]} OR a bare list. Callers
   /// MUST code defensively against both shapes (see used/sell screens).
   Future<Map<String, dynamic>> saleMine() async {

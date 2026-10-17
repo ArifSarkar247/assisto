@@ -75,6 +75,7 @@ import '../screens/nearby_screen.dart';
 import '../screens/ride_food_screen.dart';
 import '../screens/fall_detect_screen.dart';
 import '../screens/lost_stolen_screen.dart';
+import '../screens/my_lost_phone_screen.dart';
 import '../screens/phone_safety_screen.dart';
 import '../screens/security_screen.dart';
 import '../screens/sell_my_phone_screen.dart';
@@ -257,6 +258,18 @@ class SidebarSections {
           (_) => const LostStolenScreen(),
           synonyms: ['lost', 'stolen', 'theft', 'anti-theft', 'find phone',
               'device admin', 'remote lock', 'churi', 'harano']),
+      // Anti-theft Batch 5: "My lost phone" — the server-side view of this
+      // phone (armed/lost/frozen status, last location + trail, intruder
+      // photos, SIM change, IMEIs) plus Lost-mode on/off. Recovery help
+      // (GD draft / SP letter / evidence PDF / nearest stations / recovery
+      // chances) is reachable from INSIDE this screen and from Lost/Stolen, so
+      // it adds no second sidebar entry. ChatNav routes 'my_lost_phone' +
+      // 'recovery'.
+      SidebarItem(Icons.travel_explore_outlined, (t) => t.mlpTitle,
+          (_) => const MyLostPhoneScreen(),
+          synonyms: ['my lost phone', 'lost phone', 'find my phone',
+              'track phone', 'lost mode', 'recovery', 'gd', 'harano',
+              'locate phone', 'where is my phone']),
       // Phone Safety Check-up — honest anti-theft hardening wizard (brand-aware
       // menu paths, self-confirm checklist, protection score). ChatNav route
       // 'phone_safety'.

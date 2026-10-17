@@ -12,6 +12,7 @@ import 'theme.dart';
 import 'updater.dart';
 import 'notifications.dart';
 import 'services/home_widget_service.dart';
+import 'services/security_guard.dart' show SecurityHeartbeat;
 import 'services/startup_guard.dart';
 import 'home_api.dart';
 import 'widgets/a11y_prefs.dart';
@@ -237,7 +238,13 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
 
   void _pollAlerts() {
     final app = context.read<AppState>();
-    if (app.loggedIn) unawaited(AlertPoller.poll(app.api));
+    if (app.loggedIn) {
+      unawaited(AlertPoller.poll(app.api));
+      // Anti-theft Batch 5: best-effort FOREGROUND heartbeat — fires only if
+      // the server says protection is armed. Lazy, crash-guarded, throttled,
+      // never blocks resume (same fire-and-forget pattern as the alert poll).
+      unawaited(SecurityHeartbeat.maybeSend(app.api));
+    }
   }
 
   void _resolveElderly() {

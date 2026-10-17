@@ -24,6 +24,8 @@ import '../screens/ride_food_screen.dart';
 import '../screens/my_vehicles_screen.dart';
 import '../screens/fall_detect_screen.dart';
 import '../screens/lost_stolen_screen.dart';
+import '../screens/my_lost_phone_screen.dart';
+import '../screens/recovery_screen.dart';
 import '../screens/phone_safety_screen.dart';
 import '../screens/security_screen.dart';
 import '../screens/sell_my_phone_screen.dart';
@@ -114,6 +116,11 @@ class ChatNav {
     'ride_food': (_) => const RideFoodScreen(),
     'fall_detect': (_) => const FallDetectScreen(),
     'lost_stolen': (_) => const LostStolenScreen(),
+    // Anti-theft Batch 5: "My lost phone" (server view + lost-mode) and the
+    // Recovery help toolkit (GD draft / SP letter / evidence / stations).
+    // Recovery is also reachable from inside My lost phone and Lost/Stolen.
+    'my_lost_phone': (_) => const MyLostPhoneScreen(),
+    'recovery': (_) => const RecoveryScreen(),
     'phone_safety': (_) => const PhoneSafetyScreen(),
     // Section 8: Stolen-while-unlocked protection hub.
     'security': (_) => const SecurityScreen(),
@@ -215,6 +222,11 @@ class ChatNav {
     'sell_phone': ['sell my phone', 'sell phone', 'transfer phone',
         'phone transfer', 'sale receipt', 'report stolen', 'report my phone',
         'mark recovered'],
+    // Anti-theft Batch 5.
+    'my_lost_phone': ['my lost phone', 'lost phone', 'find my phone',
+        'track my phone', 'where is my phone', 'lost mode', 'locate my phone'],
+    'recovery': ['recovery help', 'recover phone', 'gd draft',
+        'general diary', 'police station', 'sp letter', 'get my phone back'],
     'circle': ['connected circle', 'circle', 'family chat'],
     'messages': ['messages', 'messenger', 'chats', 'direct message', 'dm'],
     'groups': ['groups', 'group chat', 'group'],

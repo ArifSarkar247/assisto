@@ -276,3 +276,74 @@ class SecurityGuard {
     return null;
   }
 }
+
+/// Best-effort FOREGROUND heartbeat (Anti-theft Batch 5).
+///
+/// HONESTY: this is a STOPGAP, not the always-on engine. Assisto can only see
+/// the phone while the app is in the foreground and online; this sends ONE
+/// best-effort "I'm online (+ coarse location)" ping when the owner opens or
+/// resumes the app, so a lost-but-still-online phone can report a recent
+/// position. It does nothing for an offline / powered-off / flashed phone. The
+/// native always-on reporter ships in the next batch.
+///
+/// Contract: lazy (no plugin touched at launch), fully crash-guarded, never
+/// blocks startup, and only fires AFTER protection is confirmed armed. Battery
+/// is omitted (no battery plugin is a dependency); network is omitted too (no
+/// connectivity plugin) — the server treats both as optional.
+class SecurityHeartbeat {
+  SecurityHeartbeat._();
+
+  static bool _busy = false;
+  static DateTime? _lastSent;
+
+  /// Call from the SAME on-resume hook that polls alerts (see main.dart).
+  /// Fire-and-forget: await-free at the call site via `unawaited`.
+  ///
+  /// Flow: (1) skip if not logged in / already in flight / sent very recently;
+  /// (2) GET security/lost-phone to learn if protection is ARMED (the server is
+  /// the only source of truth — we never trust a cached flag); (3) if armed,
+  /// best-effort GPS (null on any denial — never prompts aggressively, never
+  /// blocks); (4) POST one heartbeat. Any error is swallowed.
+  static Future<void> maybeSend(ApiClient api) async {
+    if (api.token == null || _busy) return;
+    // Light throttle so rapid resume/pause cycles don't spam the server.
+    final now = DateTime.now();
+    if (_lastSent != null && now.difference(_lastSent!) < const Duration(minutes: 2)) {
+      return;
+    }
+    _busy = true;
+    try {
+      // Is protection actually armed? Only ping if so.
+      final info = await api.securityLostPhone();
+      final armed = info['armed'] == true;
+      if (!armed) return;
+
+      // Best-effort GPS — identical denial-safe flow to the SOS path. Never
+      // force a permission dialog loop; if denied/unavailable we still send a
+      // location-less "I'm online" ping (useful on its own).
+      double? lat, lng;
+      try {
+        if (await Geolocator.isLocationServiceEnabled()) {
+          var perm = await Geolocator.checkPermission();
+          // Do NOT aggressively request here (foreground stopgap) — only use an
+          // already-granted permission so opening the app never nags.
+          if (perm == LocationPermission.always ||
+              perm == LocationPermission.whileInUse) {
+            final pos = await Geolocator.getCurrentPosition();
+            lat = pos.latitude;
+            lng = pos.longitude;
+          }
+        }
+      } catch (_) {
+        // GPS unavailable — send the ping without a location.
+      }
+
+      await api.securityHeartbeat(lat: lat, lng: lng);
+      _lastSent = DateTime.now();
+    } catch (_) {
+      // Offline / server down / plugin missing — try again next resume.
+    } finally {
+      _busy = false;
+    }
+  }
+}

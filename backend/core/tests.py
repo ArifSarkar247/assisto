@@ -1874,3 +1874,199 @@ class RegistryTransferScenarioTests(APITestCase):
         self.assertEqual(r.status_code, 200)
         self.assertFalse(r.data["available"])
         self.assertEqual(r.data["message_key"], "neir_not_available")
+
+
+# ===========================================================================
+# Anti-theft Batch 5 — lost/stolen server-side + recovery helpers
+# ===========================================================================
+from .models import PhoneHeartbeat, CapturedEvent  # noqa: E402
+from django.core.management import call_command as _call_command  # noqa: E402
+
+
+class LostPhoneRecoveryTests(APITestCase):
+    PIN = "1357"
+
+    def setUp(self):
+        self.owner = User.objects.create_user(
+            name="মালিক", phone="01700000001", password="x",
+            email="lostowner@example.com")
+        self.helper = User.objects.create_user(
+            name="সহায়ক", phone="01700000002", password="x",
+            email="helper@example.com")
+        self.stranger = User.objects.create_user(
+            name="অপরিচিত", phone="01700000003", password="x",
+            email="stranger@example.com")
+        self.client.force_authenticate(user=self.owner)
+        self.client.post("/api/v1/security/pin/set",
+                         {"new_pin": self.PIN}, format="json")
+        self.phone = ProtectedPhone.objects.get(owner=self.owner)
+        self.phone.armed = True
+        self.phone.imei1 = "351111111111111"
+        self.phone.imei2 = "352222222222222"
+        self.phone.model_name = "Realme 9i"
+        self.phone.save()
+        # helper is an accepted circle member of owner (can help track)
+        self.member = CircleMember.objects.create(
+            user=self.owner, peer_user=self.helper, name="সহায়ক",
+            state="accepted", direction="outgoing")
+
+    def _as(self, u):
+        self.client.force_authenticate(user=u)
+
+    # -- heartbeat updates last location + clears went-dark latch ---------
+    def test_heartbeat_updates_location_and_clears_dark(self):
+        self.phone.went_dark_alerted = True
+        self.phone.save()
+        r = self.client.post("/api/v1/security/heartbeat",
+                             {"lat": 23.78, "lng": 90.41, "battery": 55,
+                              "network": "mobile"}, format="json")
+        self.assertEqual(r.status_code, 200)
+        # Device gets its actionable state back.
+        self.assertIn("lost_mode", r.data)
+        self.assertIn("frozen", r.data)
+        self.phone.refresh_from_db()
+        self.assertEqual(self.phone.last_lat, 23.78)
+        self.assertEqual(self.phone.last_lng, 90.41)
+        self.assertIsNotNone(self.phone.last_heartbeat_at)
+        self.assertFalse(self.phone.went_dark_alerted)
+        self.assertEqual(PhoneHeartbeat.objects.filter(phone=self.phone).count(), 1)
+
+    # -- events store, and a sim_change freezes the handset ---------------
+    def test_events_store_and_sim_change_freezes(self):
+        r = self.client.post(
+            "/api/v1/security/events",
+            {"events": [
+                {"kind": "failed_unlock", "data": {"count": 3}},
+                {"kind": "sim_change",
+                 "data": {"new_sim": "01911112222", "operator": "GP"}},
+            ]}, format="json")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.data["stored"], 2)
+        self.assertTrue(r.data["frozen"])
+        self.assertEqual(CapturedEvent.objects.filter(phone=self.phone).count(), 2)
+        self.phone.refresh_from_db()
+        self.assertTrue(_sec.is_frozen(self.phone, _tz.now()))
+        # one alert batch for the owner
+        self.assertTrue(FamilyAlert.objects.filter(user=self.owner).exists())
+
+    # -- lost-mode ON is protective; OFF must use security/action (409) ---
+    def test_lost_mode_on_protective_off_via_action_409(self):
+        on = self.client.post("/api/v1/security/lost-mode",
+                              {"on": True, "message": "Please call me",
+                               "contact": "01700000001",
+                               "reward": "1000 taka"}, format="json")
+        self.assertEqual(on.status_code, 200)
+        self.phone.refresh_from_db()
+        self.assertTrue(self.phone.lost_mode)
+        self.assertIsNotNone(self.phone.lost_since)
+        self.assertEqual(self.phone.lost_message, "Please call me")
+        # Turning OFF directly is refused -> directed to security/action.
+        off = self.client.post("/api/v1/security/lost-mode",
+                               {"on": False}, format="json")
+        self.assertEqual(off.status_code, 409)
+        self.assertEqual(off.data["action"], "turn_off_lost")
+        self.phone.refresh_from_db()
+        self.assertTrue(self.phone.lost_mode)  # still on
+        # The real path: security/action turn_off_lost (trusted => immediate).
+        SavedPlace.objects.create(user=self.owner, label="home",
+                                  lat=23.80, lng=90.40)
+        act = self.client.post(
+            "/api/v1/security/action",
+            {"action": "turn_off_lost", "pin": self.PIN,
+             "lat": 23.80, "lng": 90.40}, format="json")
+        self.assertEqual(act.status_code, 200)
+
+    # -- lost-phone view: trail; readable by circle only while lost/dark --
+    def test_lost_phone_view_and_circle_scope(self):
+        # seed a short trail
+        for la, ln in [(23.70, 90.40), (23.71, 90.41)]:
+            self.client.post("/api/v1/security/heartbeat",
+                             {"lat": la, "lng": ln}, format="json")
+        # Owner always sees it.
+        r = self.client.get("/api/v1/security/lost-phone")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.data["imei1"], "351111111111111")
+        self.assertTrue(len(r.data["trail"]) >= 2)
+        self.assertEqual(r.data["last_location"]["lat"], 23.71)
+
+        # Helper (circle) BLOCKED while not lost/dark.
+        self._as(self.helper)
+        blk = self.client.get(f"/api/v1/security/lost-phone?phone_id={self.phone.id}")
+        self.assertEqual(blk.status_code, 403)
+        self.assertEqual(blk.data["reason"], "not_active")
+
+        # Owner turns on lost mode -> helper can now read ONLY this.
+        self._as(self.owner)
+        self.client.post("/api/v1/security/lost-mode", {"on": True}, format="json")
+        self._as(self.helper)
+        ok = self.client.get(f"/api/v1/security/lost-phone?phone_id={self.phone.id}")
+        self.assertEqual(ok.status_code, 200)
+        self.assertEqual(ok.data["viewer"], "circle")
+        self.assertTrue(ok.data["lost_mode"])
+
+        # A stranger (no relationship) is always forbidden, even while lost.
+        self._as(self.stranger)
+        no = self.client.get(f"/api/v1/security/lost-phone?phone_id={self.phone.id}")
+        self.assertEqual(no.status_code, 403)
+
+    # -- went-dark command alerts once, idempotent ------------------------
+    def test_went_dark_command_alerts_once(self):
+        # Last heartbeat long ago -> dark.
+        self.phone.last_heartbeat_at = _tz.now() - _td(hours=5)
+        self.phone.last_lat = 23.70
+        self.phone.last_lng = 90.40
+        self.phone.went_dark_alerted = False
+        self.phone.save()
+        before = FamilyAlert.objects.filter(user=self.owner).count()
+        _call_command("check_went_dark")
+        self.phone.refresh_from_db()
+        self.assertTrue(self.phone.went_dark_alerted)
+        after1 = FamilyAlert.objects.filter(user=self.owner).count()
+        self.assertEqual(after1, before + 1)
+        # Second run is a no-op (idempotent).
+        _call_command("check_went_dark")
+        after2 = FamilyAlert.objects.filter(user=self.owner).count()
+        self.assertEqual(after2, after1)
+
+    # -- recovery text drafts: non-empty + localized ---------------------
+    def test_gd_and_sp_drafts_localized(self):
+        en = self.client.get("/api/v1/recovery/gd-draft",
+                             HTTP_ACCEPT_LANGUAGE="en")
+        self.assertEqual(en.status_code, 200)
+        self.assertTrue(en.data["text"].strip())
+        self.assertIn("351111111111111", en.data["text"])
+        self.assertIn("General Diary", en.data["text"])
+        bn = self.client.get("/api/v1/recovery/gd-draft",
+                             HTTP_ACCEPT_LANGUAGE="bn")
+        self.assertIn("সাধারণ ডায়েরি", bn.data["text"])
+
+        sp_en = self.client.get("/api/v1/recovery/sp-letter",
+                                HTTP_ACCEPT_LANGUAGE="en")
+        self.assertEqual(sp_en.status_code, 200)
+        self.assertIn("Superintendent of Police", sp_en.data["text"])
+        sp_bn = self.client.get("/api/v1/recovery/sp-letter",
+                                HTTP_ACCEPT_LANGUAGE="bn")
+        self.assertIn("পুলিশ সুপার", sp_bn.data["text"])
+
+    # -- evidence.pdf returns a PDF --------------------------------------
+    def test_evidence_pdf(self):
+        self.client.post("/api/v1/security/heartbeat",
+                         {"lat": 23.70, "lng": 90.40, "battery": 40,
+                          "network": "wifi"}, format="json")
+        r = self.client.get("/api/v1/recovery/evidence.pdf")
+        self.assertEqual(r.status_code, 200)
+        body = r.getvalue() if hasattr(r, "getvalue") else b"".join(r.streaming_content)
+        self.assertEqual(r["Content-Type"], "application/pdf")
+        self.assertTrue(body.startswith(b"%PDF"))
+
+    # -- police-stations honest: no location -> available:false ----------
+    def test_police_stations_honest(self):
+        none = self.client.get("/api/v1/recovery/police-stations")
+        self.assertEqual(none.status_code, 200)
+        self.assertFalse(none.data["available"])
+        with_loc = self.client.get(
+            "/api/v1/recovery/police-stations?lat=23.739&lng=90.395")
+        self.assertEqual(with_loc.status_code, 200)
+        self.assertEqual(with_loc.data["source"], "mock")
+        self.assertTrue(with_loc.data["available"])
+        self.assertTrue(len(with_loc.data["stations"]) >= 1)

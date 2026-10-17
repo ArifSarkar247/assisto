@@ -2481,11 +2481,75 @@ class ProtectedPhone(models.Model):
                                         on_delete=models.SET_NULL,
                                         related_name="approver_for_phones")
     signals = models.JSONField(default=list, blank=True)  # [{kind, at}]
+    # --- Batch 5: lost/stolen server-side (lost-mode + went-dark heartbeat) ---
+    # Lost mode is PROTECTIVE: the owner (or a helping family member) can turn it
+    # ON with no delay. Turning it OFF is the 'turn_off_lost' sensitive action and
+    # MUST go through POST security/action (the Section-8 gate) — never directly.
+    lost_mode = models.BooleanField(default=False)
+    lost_message = models.TextField(blank=True, default="")   # shown on the lost device
+    lost_contact = models.CharField(max_length=120, blank=True, default="")  # how to reach owner
+    lost_reward = models.CharField(max_length=160, blank=True, default="")
+    lost_since = models.DateTimeField(null=True, blank=True)
+    # Heartbeat: the native engine phones home every heartbeat_interval_min; we
+    # keep only the last location on the row (full trail lives in PhoneHeartbeat,
+    # pruned to the retention cap). went_dark = no heartbeat for a long time.
+    last_heartbeat_at = models.DateTimeField(null=True, blank=True)
+    last_lat = models.FloatField(null=True, blank=True)
+    last_lng = models.FloatField(null=True, blank=True)
+    went_dark_alerted = models.BooleanField(default=False)
+    heartbeat_interval_min = models.IntegerField(default=10)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["created_at"]
+
+
+# Keep server-side location history bounded (privacy — mirror Journey's cap).
+HEARTBEAT_RETENTION_HOURS = 24
+
+
+class PhoneHeartbeat(models.Model):
+    """One "I'm alive, here's where" ping from the native engine. We retain only
+    the recent window (HEARTBEAT_RETENTION_HOURS) — old pings are hard-deleted so
+    we never hoard a location history (same discipline as Journey retention)."""
+    phone = models.ForeignKey(ProtectedPhone, on_delete=models.CASCADE,
+                              related_name="heartbeats")
+    lat = models.FloatField(null=True, blank=True)
+    lng = models.FloatField(null=True, blank=True)
+    battery = models.IntegerField(null=True, blank=True)
+    network = models.CharField(max_length=16, blank=True, default="")  # wifi|mobile|none
+    at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-at"]
+
+    @classmethod
+    def prune(cls, phone, hours=HEARTBEAT_RETENTION_HOURS):
+        """Hard-delete this phone's heartbeats older than the retention cap."""
+        from django.utils import timezone as _tz
+        from datetime import timedelta as _td
+        cutoff = _tz.now() - _td(hours=hours)
+        cls.objects.filter(phone=phone, at__lt=cutoff).delete()
+
+
+class CapturedEvent(models.Model):
+    """Store-and-forward evidence the device captured while lost/stolen (intruder
+    photo, SIM change, failed unlock, etc.). Owner-only retrieval via an
+    auth-checked view — the photo is NEVER served publicly (vault-file pattern)."""
+    KINDS = [("intruder_photo", "intruder_photo"), ("sim_change", "sim_change"),
+             ("failed_unlock", "failed_unlock"), ("low_battery_loc", "low_battery_loc"),
+             ("airplane_guard", "airplane_guard")]
+    phone = models.ForeignKey(ProtectedPhone, on_delete=models.CASCADE,
+                              related_name="captured_events")
+    kind = models.CharField(max_length=20, choices=KINDS)
+    data = models.JSONField(default=dict, blank=True)  # {new_sim, operator, lat, lng, ...}
+    photo = models.FileField(upload_to="theft/", null=True, blank=True)
+    at = models.DateTimeField(null=True, blank=True)  # when the device captured it
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
 
 
 class PendingSensitiveAction(models.Model):

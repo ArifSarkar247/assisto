@@ -9,6 +9,7 @@ from . import business_views as bz
 from . import views_messenger as msg
 from . import views_security as secv
 from . import views_registry as reg
+from . import views_lost as lost
 
 router = DefaultRouter()
 router.register("memory", views.MemoryViewSet, basename="memory")
@@ -485,6 +486,18 @@ urlpatterns = [
     path("sale/authorize", reg.SaleAuthorizeView.as_view()),
     path("sale/accept", reg.SaleAcceptView.as_view()),
     path("sale/mine", reg.SaleMineView.as_view()),
+
+    # Anti-theft Batch 5 — lost/stolen server-side (heartbeat, events, lost-mode)
+    path("security/heartbeat", lost.HeartbeatView.as_view()),
+    path("security/events", lost.CapturedEventsView.as_view()),
+    path("security/lost-mode", lost.LostModeView.as_view()),
+    path("security/lost-phone", lost.LostPhoneView.as_view()),
+    path("security/event/<int:pk>/photo", lost.CapturedPhotoView.as_view()),
+    # Recovery helpers (text + PDF; honest/coarse)
+    path("recovery/gd-draft", lost.GdDraftView.as_view()),
+    path("recovery/sp-letter", lost.SpLetterView.as_view()),
+    path("recovery/evidence.pdf", lost.EvidencePdfView.as_view()),
+    path("recovery/police-stations", lost.PoliceStationsView.as_view()),
 ]
 
 urlpatterns += router.urls
