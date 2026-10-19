@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/password_field.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
@@ -62,8 +63,8 @@ class _VaultScreenState extends State<VaultScreen> {
       context: context, barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         title: Text(AppLocalizations.of(context).vaultSetPinTitle),
-        content: TextField(
-          controller: ctrl, obscureText: true, keyboardType: TextInputType.number,
+        content: ObscureTextField(
+          controller: ctrl, keyboardType: TextInputType.number,
           maxLength: 6,
           decoration: InputDecoration(labelText: AppLocalizations.of(context).vaultPinLengthHint),
         ),
@@ -86,8 +87,8 @@ class _VaultScreenState extends State<VaultScreen> {
       context: context, barrierDismissible: false,
       builder: (ctx) => StatefulBuilder(builder: (ctx, setD) => AlertDialog(
         title: Text(AppLocalizations.of(context).vaultLockedTitle),
-        content: TextField(
-          controller: ctrl, obscureText: true, keyboardType: TextInputType.number,
+        content: ObscureTextField(
+          controller: ctrl, keyboardType: TextInputType.number,
           decoration: InputDecoration(labelText: AppLocalizations.of(context).vaultEnterPinHint, errorText: err),
         ),
         actions: [

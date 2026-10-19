@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../api.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/password_field.dart';
 import '../services/security_guard.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -151,26 +152,23 @@ class _SecurityScreenState extends State<SecurityScreen> {
                     style: Theme.of(ctx).textTheme.bodySmall),
                 const SizedBox(height: Gap.sm),
                 if (requireCurrent)
-                  TextField(
+                  ObscureTextField(
                     controller: cur,
                     keyboardType: TextInputType.number,
-                    obscureText: true,
                     maxLength: 8,
                     decoration:
                         InputDecoration(labelText: tr.securityCurrentPinLabel),
                   ),
-                TextField(
+                ObscureTextField(
                   controller: a,
                   keyboardType: TextInputType.number,
-                  obscureText: true,
                   maxLength: 8,
                   decoration:
                       InputDecoration(labelText: tr.securityNewPinLabel),
                 ),
-                TextField(
+                ObscureTextField(
                   controller: b,
                   keyboardType: TextInputType.number,
-                  obscureText: true,
                   maxLength: 8,
                   decoration:
                       InputDecoration(labelText: tr.securityConfirmPinLabel),

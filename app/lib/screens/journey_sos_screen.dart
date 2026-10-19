@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
 import '../state.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/password_field.dart';
 import '../widgets/journey_api.dart';
 
 /// Discreet SOS flow (item 7 + 8 + 11 + 12), fully working IN-APP today.
@@ -159,10 +160,9 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(t.sosPinTitle),
-        content: TextField(
+        content: ObscureTextField(
           controller: ctrl,
           keyboardType: TextInputType.number,
-          obscureText: true,
           autofocus: true,
           decoration: InputDecoration(labelText: t.sosPinLabel),
         ),

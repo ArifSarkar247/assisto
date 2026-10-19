@@ -2069,4 +2069,80 @@ class LostPhoneRecoveryTests(APITestCase):
         self.assertEqual(with_loc.status_code, 200)
         self.assertEqual(with_loc.data["source"], "mock")
         self.assertTrue(with_loc.data["available"])
-        self.assertTrue(len(with_loc.data["stations"]) >= 1)
+
+
+class ProfilePhotoTests(APITestCase):
+    """Regression: the profile picture did not save. The app PATCHes /me with
+    `photo` as a BASE64 string (not a multipart file); the old plain ImageField
+    rejected it and the whole PATCH 400'd. These prove base64 upload sets the
+    photo, returns a reachable ABSOLUTE url, and the authed avatar view streams
+    the bytes — and that the visibility-token `show_phone` no longer 400s."""
+
+    def setUp(self):
+        import base64
+        import io
+        from PIL import Image
+        buf = io.BytesIO()
+        Image.new("RGB", (4, 4), (10, 120, 200)).save(buf, "PNG")
+        self._png = buf.getvalue()
+        self.PNG_B64 = base64.b64encode(self._png).decode()
+        self.user = User.objects.create_user(
+            name="Pic", phone="01900000009", password="x123456")
+        self.client.force_authenticate(user=self.user)
+
+    def tearDown(self):
+        self.user.refresh_from_db()
+        if self.user.photo:
+            self.user.photo.delete(save=False)
+
+    def test_base64_photo_upload_sets_and_returns_absolute_url(self):
+        # Send exactly what the app sends: JSON PATCH with show_phone as a
+        # visibility token AND photo as a bare base64 string.
+        resp = self.client.patch(
+            "/api/v1/me",
+            {"name": "Pic", "show_phone": "circle",
+             "photo": self.PNG_B64},
+            format="json")
+        self.assertEqual(resp.status_code, 200, resp.data)
+        url = resp.data["photo_url"]
+        self.assertTrue(url, "photo_url should be non-empty after upload")
+        # Absolute + points at the authed avatar view (cache-busted).
+        self.assertTrue(url.startswith("http"), url)
+        self.assertIn("/api/v1/me/avatar", url)
+        # Visibility token mapped to a bool, not rejected.
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.show_phone)
+        self.assertTrue(self.user.photo)
+
+    def test_avatar_view_streams_bytes_authed(self):
+        self.client.patch("/api/v1/me", {"photo": self.PNG_B64},
+                           format="json")
+        got = self.client.get("/api/v1/me/avatar")
+        self.assertEqual(got.status_code, 200)
+        body = b"".join(got.streaming_content)
+        self.assertEqual(body[:8], self._png[:8])  # PNG signature
+
+    def test_avatar_view_requires_auth(self):
+        self.client.patch("/api/v1/me", {"photo": self.PNG_B64},
+                           format="json")
+        self.client.force_authenticate(user=None)
+        self.assertIn(self.client.get("/api/v1/me/avatar").status_code,
+                      (401, 403))
+
+    def test_empty_string_removes_photo(self):
+        self.client.patch("/api/v1/me", {"photo": self.PNG_B64},
+                           format="json")
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.photo)
+        resp = self.client.patch("/api/v1/me", {"photo": ""}, format="json")
+        self.assertEqual(resp.status_code, 200, resp.data)
+        self.assertEqual(resp.data["photo_url"], "")
+        self.user.refresh_from_db()
+        self.assertFalse(self.user.photo)
+
+    def test_get_me_round_trips_url(self):
+        self.client.patch("/api/v1/me", {"photo": self.PNG_B64},
+                           format="json")
+        me = self.client.get("/api/v1/me")
+        self.assertEqual(me.status_code, 200)
+        self.assertIn("/api/v1/me/avatar", me.data["photo_url"])

@@ -166,6 +166,7 @@ class SettingsScreen extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 leading: MsgrAvatar(
                   name: u?.name ?? '',
+                  photoUrl: u?.photoUrl ?? '',
                   radius: 28,
                 ),
                 title: Text(

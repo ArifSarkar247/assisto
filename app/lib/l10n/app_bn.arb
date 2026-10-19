@@ -12124,5 +12124,8 @@
   "upTacHeading": "IMEI অনুযায়ী এই ফোনটি হওয়ার কথা: {makeModel}।",
   "upTacConfirmQuestion": "হাতের আসল ফোনটি কি সত্যিই এই ব্র্যান্ড/মডেলের?",
   "upTacYes": "হ্যাঁ, মিলছে",
-  "upTacNo": "না, মিলছে না"
+  "upTacNo": "না, মিলছে না",
+  "pwShow": "দেখান",
+  "pwHide": "লুকান",
+  "homeEnhancePhoto": "ছবি সুন্দর করুন"
 }

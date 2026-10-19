@@ -8,6 +8,8 @@ class AppUser {
   final bool elderlyMode;
   final bool fallDetect;
   final int fallCountdownSec;
+  /// Absolute, cache-busted avatar URL from the backend (`photo_url`), or ''.
+  final String photoUrl;
 
   AppUser({
     required this.id,
@@ -19,6 +21,7 @@ class AppUser {
     this.elderlyMode = false,
     this.fallDetect = false,
     this.fallCountdownSec = 120,
+    this.photoUrl = '',
   });
 
   factory AppUser.fromJson(Map<String, dynamic> j) => AppUser(
@@ -31,6 +34,7 @@ class AppUser {
         elderlyMode: (j['elderly_mode'] ?? false) as bool,
         fallDetect: (j['fall_detect'] ?? false) as bool,
         fallCountdownSec: (j['fall_countdown_sec'] ?? 120) as int,
+        photoUrl: (j['photo_url'] ?? j['photo_link'] ?? '') as String,
       );
 
   Map<String, dynamic> toJson() => {
@@ -40,6 +44,7 @@ class AppUser {
         'email': email,
         'autonomy_level': autonomyLevel,
         'language': language,
+        'photo_url': photoUrl,
       };
 }
 

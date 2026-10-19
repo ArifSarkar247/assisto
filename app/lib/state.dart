@@ -204,6 +204,14 @@ class AppState extends ChangeNotifier {
     } catch (_) {}
   }
 
+  /// Adopt an authoritative user returned by the backend (e.g. after the
+  /// profile editor saves) so every surface that reads [user] — the Settings
+  /// profile card, avatars — refreshes immediately without a second upload.
+  void setUser(AppUser u) {
+    user = u;
+    notifyListeners();
+  }
+
   Future<void> setAutonomy(int level) async {
     final prev = user;
     if (prev == null) return;

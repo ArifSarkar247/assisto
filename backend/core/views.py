@@ -141,14 +141,29 @@ class OTPRequestView(APIView):
 
 class MeView(APIView):
     def get(self, request):
-        return Response(UserSerializer(request.user).data)
+        return Response(UserSerializer(request.user,
+                                       context={"request": request}).data)
 
     def patch(self, request):
-        ser = UserSerializer(request.user, data=request.data, partial=True)
+        ser = UserSerializer(request.user, data=request.data, partial=True,
+                             context={"request": request})
         ser.is_valid(raise_exception=True)
         ser.save()
         log(request.user, "profile.update", fields=list(request.data.keys()))
         return Response(ser.data)
+
+
+class MeAvatarView(APIView):
+    """Authed avatar stream — mirrors the vault DocumentFileView / lost-phone
+    CapturedPhotoView pattern: the uploaded profile photo is served through an
+    auth-checked view (never a public MEDIA URL). The `?v=` cache-buster in the
+    URL changes whenever the photo changes, so clients refetch immediately."""
+    def get(self, request):
+        from django.http import FileResponse, Http404
+        user = request.user
+        if not user.photo:
+            raise Http404()
+        return FileResponse(user.photo.open("rb"))
 
 
 # ---------- memory ("AI কী জানে") ----------

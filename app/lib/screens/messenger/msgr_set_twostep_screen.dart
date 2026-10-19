@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../api.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/password_field.dart';
 import '../../messenger_setapi.dart';
 import '../../state.dart';
 import '../../theme.dart';
@@ -63,11 +64,10 @@ class _MsgrSetTwoStepScreenState extends State<MsgrSetTwoStepScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(title),
-        content: TextField(
+        content: ObscureTextField(
           controller: c,
           autofocus: true,
           keyboardType: TextInputType.number,
-          obscureText: true,
           maxLength: 6,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           decoration: InputDecoration(hintText: _t.msgrSetTwoStepPinHint),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/password_field.dart';
 import 'password_reset_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -118,9 +119,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       decoration: InputDecoration(labelText: t.phoneOrEmail),
                     ),
                   const SizedBox(height: 12),
-                  TextField(
+                  ObscureTextField(
                     controller: _password,
-                    obscureText: true,
                     decoration: InputDecoration(labelText: t.password),
                   ),
                   if (_error != null) ...[

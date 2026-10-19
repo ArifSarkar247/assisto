@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
+import '../config.dart';
 import '../theme.dart';
 
 /// A chat avatar — shows the member's photo when present, else a brand-tinted
@@ -43,7 +44,12 @@ class MsgrAvatar extends StatelessWidget {
 
   ImageProvider? _imageProvider(String src) {
     if (src.isEmpty) return null;
-    if (src.startsWith('http')) return NetworkImage(src);
+    if (src.startsWith('http')) {
+      // Our own backend serves the avatar through an auth-checked view
+      // (/me/avatar), so attach the token header for same-host URLs. External
+      // avatar links (foreign host) load without it.
+      return NetworkImage(src, headers: AppConfig.authHeadersFor(src));
+    }
     try {
       final b64 = src.startsWith('data:') ? src.split(',').last : src;
       final bytes = base64Decode(b64);

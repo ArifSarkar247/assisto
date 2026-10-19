@@ -18,11 +18,22 @@ class ApiException implements Exception {
 
 /// Thin REST client for the Assisto backend. Token auth (DRF).
 class ApiClient {
-  String? token;
+  String? _token;
   String? lang; // 'bn'|'en' -> Accept-Language (follows selected locale)
   final http.Client _c = http.Client();
 
-  ApiClient({this.token});
+  ApiClient({String? token}) {
+    this.token = token;
+  }
+
+  String? get token => _token;
+
+  /// Setting the token also mirrors it into [AppConfig.authToken] so avatar
+  /// image widgets can authenticate against our own backend's media views.
+  set token(String? v) {
+    _token = v;
+    AppConfig.authToken = v;
+  }
 
   Map<String, String> _headers({bool json = true}) => {
         if (json) 'Content-Type': 'application/json',

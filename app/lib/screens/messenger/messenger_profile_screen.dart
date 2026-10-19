@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -69,7 +67,8 @@ class _MessengerProfileScreenState extends State<MessengerProfileScreen> {
       _name.text = '${me['name'] ?? ''}';
       _about.text = '${me['bio'] ?? me['about'] ?? ''}';
       _phone = '${me['phone'] ?? ''}';
-      _existingPhoto = '${me['photo_link'] ?? me['photo'] ?? ''}';
+      _existingPhoto =
+          '${me['photo_url'] ?? me['photo_link'] ?? ''}';
       _phoneVisibility = _norm('${me['show_phone'] ?? 'circle'}');
       _communitiesWhoCanMsg =
           _norm('${me['communities_who_can_msg'] ?? 'circle'}');
@@ -118,12 +117,17 @@ class _MessengerProfileScreenState extends State<MessengerProfileScreen> {
     }
     try {
       // Call the API directly so a failure is surfaced honestly (AppState's
-      // saveProfile swallows errors). On success, mirror the fields into the
-      // cached AppState.user (no-throw) so the Settings profile card updates.
-      await _api.updateProfile(fields);
+      // saveProfile swallows errors). The response is authoritative — it
+      // carries the stored, cache-busted photo_url — so adopt it straight into
+      // AppState.user. That refreshes the Settings profile card + every avatar
+      // immediately, with ONE upload (no fire-and-forget re-send).
+      final updated = await _api.updateProfile(fields);
       if (mounted) {
-        // Fire-and-forget cache refresh; errors here must not mask success.
-        unawaited(context.read<AppState>().saveProfile(fields));
+        context.read<AppState>().setUser(updated);
+        // Mirror the saved photo back into the editor so it shows the stored
+        // URL (not just the local base64) and survives a reopen.
+        _existingPhoto = updated.photoUrl;
+        _photoB64 = null;
       }
       if (!mounted) return;
       ScaffoldMessenger.of(context)

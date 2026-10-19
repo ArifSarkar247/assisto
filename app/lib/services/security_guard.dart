@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../api.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/password_field.dart';
 import '../state.dart';
 import '../theme.dart';
 
@@ -217,10 +218,9 @@ class SecurityGuard {
             Text(tr.securityPinPromptBody,
                 style: Theme.of(ctx).textTheme.bodySmall),
             const SizedBox(height: Gap.sm),
-            TextField(
+            ObscureTextField(
               controller: c,
               keyboardType: TextInputType.number,
-              obscureText: true,
               autofocus: true,
               maxLength: 8,
               decoration: InputDecoration(labelText: tr.securityPinLabel),

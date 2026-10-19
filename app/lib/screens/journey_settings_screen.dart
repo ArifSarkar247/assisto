@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/password_field.dart';
 import '../widgets/journey_api.dart';
 import '../widgets/sos_native_hooks.dart';
 
@@ -77,14 +78,12 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
         content: Column(mainAxisSize: MainAxisSize.min, children: [
           Text(t.duressExplain, style: const TextStyle(fontSize: 13)),
           const SizedBox(height: 12),
-          TextField(
+          ObscureTextField(
               controller: pin,
-              obscureText: true,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(labelText: t.duressNormalPin)),
-          TextField(
+          ObscureTextField(
               controller: duress,
-              obscureText: true,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(labelText: t.duressDuressPin)),
         ]),

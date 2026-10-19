@@ -119,7 +119,8 @@ class MessengerSettingsScreen extends StatelessWidget {
               child: ListTile(
                 contentPadding: const EdgeInsets.symmetric(
                     horizontal: Gap.md, vertical: Gap.sm),
-                leading: MsgrAvatar(name: name, radius: 28),
+                leading: MsgrAvatar(
+                    name: name, photoUrl: u?.photoUrl ?? '', radius: 28),
                 title: Text(name,
                     style: const TextStyle(
                         fontWeight: FontWeight.w700, fontSize: 16),

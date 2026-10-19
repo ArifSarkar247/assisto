@@ -8,6 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import '../crypto/e2e.dart' show Pbkdf2;
 import '../l10n/app_localizations.dart';
+import '../widgets/password_field.dart';
 import '../services/security_guard.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -307,18 +308,16 @@ class _LostStolenScreenState extends State<LostStolenScreen>
               Text(tr.lostStolenPinHint,
                   style: Theme.of(ctx).textTheme.bodySmall),
               const SizedBox(height: Gap.sm),
-              TextField(
+              ObscureTextField(
                 controller: c1,
                 keyboardType: TextInputType.number,
-                obscureText: true,
                 maxLength: 8,
                 decoration: InputDecoration(labelText: tr.lostStolenPinLabel),
               ),
               if (confirm)
-                TextField(
+                ObscureTextField(
                   controller: c2,
                   keyboardType: TextInputType.number,
-                  obscureText: true,
                   maxLength: 8,
                   decoration:
                       InputDecoration(labelText: tr.lostStolenPinConfirmLabel),

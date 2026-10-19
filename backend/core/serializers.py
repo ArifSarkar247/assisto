@@ -1,3 +1,8 @@
+import base64
+import binascii
+import uuid
+
+from django.core.files.base import ContentFile
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from .i18n import pick, req_lang
@@ -6,9 +11,55 @@ from .models import (User, MemoryItem, AuditLog, Reminder, Note, Todo,
                      Account, Transaction, Budget, Loan, SavingsGoal, Subscription)
 
 
+class Base64OrFileImageField(serializers.ImageField):
+    """Accepts an avatar as EITHER a real multipart upload (the normal
+    ImageField path) OR a base64 string (optionally a ``data:`` URL), which is
+    how the Flutter profile editor sends the cropped square. An empty string
+    means "remove the photo". This is the real fix for the profile-picture save
+    bug: the app PATCHes JSON with ``photo`` as a base64 string, and a plain
+    ImageField rejected it ("submitted data was not a file") → the whole
+    PATCH 400'd and nothing saved."""
+
+    def to_internal_value(self, data):
+        if isinstance(data, str):
+            s = data.strip()
+            if s == "":
+                return ""  # explicit remove — handled in update()
+            # Strip an optional data: URL header (data:image/png;base64,....).
+            if s.startswith("data:") and "," in s:
+                s = s.split(",", 1)[1]
+            try:
+                decoded = base64.b64decode(s, validate=True)
+            except (binascii.Error, ValueError):
+                self.fail("invalid")
+            data = ContentFile(decoded, name=f"{uuid.uuid4().hex}.png")
+        return super().to_internal_value(data)
+
+
+class VisibilityBooleanField(serializers.BooleanField):
+    """The profile editor sends a visibility TOKEN (circle/family/nobody, or
+    everyone/none) for ``show_phone`` rather than a raw bool — a plain
+    BooleanField 400'd on "circle" and blocked the whole profile save. Map it:
+    anything that is not an explicit "hide" means the phone may be shown."""
+
+    def to_internal_value(self, data):
+        if isinstance(data, str):
+            v = data.strip().lower()
+            if v in ("nobody", "none", "0", "off", "no"):
+                return False
+            if v in ("circle", "family", "everyone", "all", "yes", "on"):
+                return True
+        return super().to_internal_value(data)
+
+
 class UserSerializer(serializers.ModelSerializer):
-    # Resolved avatar URL (uploaded file or external link); read-only.
-    photo_url = serializers.ReadOnlyField()
+    # Resolved avatar URL (uploaded file or external link); read-only +
+    # absolute (built against the request so the app can load it directly).
+    photo_url = serializers.SerializerMethodField()
+    # Accept base64 (app) or a multipart file; "" removes.
+    photo = Base64OrFileImageField(required=False, allow_null=True)
+    # Accept the app's visibility token (circle/family/nobody) OR a bool.
+    show_phone = VisibilityBooleanField(required=False)
 
     class Meta:
         model = User
@@ -21,6 +72,33 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "date_joined", "photo_url",
                             # owner-only switch: never self-set via profile PUT
                             "public_surfaces_enabled"]
+
+    def get_photo_url(self, obj):
+        """Absolute avatar URL served through the authed avatar view (uploaded
+        file) or the external link. Empty string when there is no photo."""
+        request = self.context.get("request")
+        if obj.photo:
+            try:
+                # Cache-buster keyed off the stored file NAME (a fresh uuid per
+                # upload) so replacing the photo yields a new URL and clients
+                # refetch immediately instead of showing the old cached image.
+                import hashlib
+                tag = hashlib.md5(
+                    str(obj.photo.name).encode()).hexdigest()[:8]
+                path = f"/api/v1/me/avatar?v={tag}"
+                return request.build_absolute_uri(path) if request else path
+            except Exception:
+                return ""
+        return obj.photo_link or ""
+
+    def update(self, instance, validated_data):
+        # An explicit empty-string photo means "remove it" (delete the file).
+        if "photo" in validated_data and validated_data["photo"] == "":
+            if instance.photo:
+                instance.photo.delete(save=False)
+            instance.photo = None
+            validated_data.pop("photo")
+        return super().update(instance, validated_data)
 
 
 class RegisterSerializer(serializers.Serializer):

@@ -13545,5 +13545,8 @@
   },
   "upTacConfirmQuestion": "Does the actual phone in your hand really match this brand/model?",
   "upTacYes": "Yes, it matches",
-  "upTacNo": "No, it doesn't"
+  "upTacNo": "No, it doesn't",
+  "pwShow": "Show",
+  "pwHide": "Hide",
+  "homeEnhancePhoto": "Enhance photo"
 }

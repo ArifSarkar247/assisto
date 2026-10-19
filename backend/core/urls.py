@@ -62,6 +62,7 @@ urlpatterns = [
     path("auth/otp/request", views.OTPRequestView.as_view()),
 
     path("me", views.MeView.as_view()),
+    path("me/avatar", views.MeAvatarView.as_view()),
     path("audit", views.AuditListView.as_view()),
     path("undo", views.UndoView.as_view()),
     # Action Center (SPEC v2.1 §21, feature #9) — pending-approval queue + log.
