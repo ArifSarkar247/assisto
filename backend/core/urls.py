@@ -10,6 +10,7 @@ from . import views_messenger as msg
 from . import views_security as secv
 from . import views_registry as reg
 from . import views_lost as lost
+from . import views_account_deletion as acctdel
 
 router = DefaultRouter()
 router.register("memory", views.MemoryViewSet, basename="memory")
@@ -129,6 +130,12 @@ urlpatterns = [
     path("export/excel", views.ExportExcelView.as_view()),
     path("export/pdf", views.ExportPdfView.as_view()),
     path("account", views.DeleteAccountView.as_view()),
+    # Secure "Delete my profile & all data" — Play-compliant 7-day grace,
+    # gated like Section 8 (password + OTP + Security PIN, theft-blocked, delayed).
+    path("account/delete/preview", acctdel.AccountDeletePreviewView.as_view()),
+    path("account/delete/request", acctdel.AccountDeleteRequestView.as_view()),
+    path("account/delete/cancel", acctdel.AccountDeleteCancelView.as_view()),
+    path("account/delete/status", acctdel.AccountDeleteStatusView.as_view()),
 
     # Integrations admin (owner-only)
     path("admin/integrations", views.IntegrationsListView.as_view()),

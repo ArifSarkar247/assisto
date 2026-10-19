@@ -2579,6 +2579,45 @@ class PendingSensitiveAction(models.Model):
         ordering = ["-requested_at"]
 
 
+class AccountDeletionRequest(models.Model):
+    """A scheduled "delete my profile & all data" request (Play-Store compliant).
+
+    Deleting the whole account is a SENSITIVE ACTION (Section 8): it is gated by
+    password + OTP + the Assisto Security PIN, blocked while a theft signal is
+    active, and delayed. The account is NOT touched when this row is created —
+    it stays fully RECOVERABLE until effective_at. Only the purge_deletions
+    management command (cron), running after effective_at on a still-pending
+    request, performs the real, complete, cascading hard delete. A thief can
+    never silently wipe the owner's data: the owner (and every trusted contact)
+    gets an instant notice with a one-tap cancel token, and 7 days to undo it.
+
+    effective_at = max(now + 7-day grace, Section-8 24h delay when untrusted) so
+    the grace period never shortens the anti-theft delay.
+    """
+    STATE_PENDING = "pending"
+    STATE_CANCELLED = "cancelled"
+    STATE_COMPLETED = "completed"
+    STATES = [(STATE_PENDING, "pending"),
+              (STATE_CANCELLED, "cancelled"),
+              (STATE_COMPLETED, "completed")]
+
+    # OneToOne -> at most one active request per user; re-requesting reuses/
+    # refreshes the same row.
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="deletion_request")
+    requested_at = models.DateTimeField(auto_now_add=True)
+    effective_at = models.DateTimeField()
+    state = models.CharField(max_length=12, choices=STATES, default=STATE_PENDING)
+    # Random, URL-safe token for the "Cancel — this wasn't me" one-tap link.
+    cancel_token = models.CharField(max_length=64, blank=True, default="",
+                                    db_index=True)
+    export_downloaded = models.BooleanField(default=False)
+    reason = models.TextField(blank=True, default="")
+
+    class Meta:
+        ordering = ["-requested_at"]
+
+
 # ===========================================================================
 # Anti-theft Batch 4 — stolen-IMEI registry + used-phone check + sell transfer
 #

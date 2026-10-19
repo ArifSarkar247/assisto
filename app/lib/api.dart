@@ -387,6 +387,94 @@ class ApiClient {
     if (r.statusCode != 204) _fail(r);
   }
 
+  // ==========================================================================
+  // Secure "Delete my profile & all data" (Play-compliant). This is the NEW,
+  // multi-factor, cancellable, theft-safe flow that REPLACES the one-tap
+  // [deleteAccount] above in the UI (that DELETE path is left only for legacy /
+  // tests — the app routes everything through DeleteAccountScreen now).
+  //
+  // Backend contract (see views_account_deletion.py):
+  //   POST account/delete/preview -> {counts:{type:n}, export_downloaded}
+  //   POST account/delete/request {password, otp, security_pin?, lat?, lng?}
+  //        -> {state:'pending', effective_at, id}
+  //         | 423 {state:'blocked', reason:'theft_signal'|'frozen'}
+  //         | 403/400 {ok:false, reason:'bad_password'|'bad_otp'|'bad_pin'}
+  //   POST account/delete/cancel {token?} -> {ok, state}
+  //   GET  account/delete/status -> {state, effective_at} | {state:null}
+  // ==========================================================================
+
+  /// What a deletion would remove — counts per data type, plus whether an
+  /// export was already downloaded. No side effects.
+  Future<Map<String, dynamic>> accountDeletePreview() =>
+      postJson('/account/delete/preview');
+
+  /// Schedule the deletion. Issues a RAW POST (like [securityAction]) because
+  /// the 423 (blocked) and 403/400 (bad_password/bad_otp/bad_pin) bodies carry
+  /// the interpretable result; [_status] is merged in so the caller can branch
+  /// on it instead of catching a generic failure.
+  Future<Map<String, dynamic>> accountDeleteRequest({
+    required String password,
+    String? otp,
+    String? securityPin,
+    double? lat,
+    double? lng,
+  }) async {
+    final r = await _c.post(AppConfig.api('/account/delete/request'),
+        headers: _headers(),
+        body: jsonEncode({
+          'password': password,
+          if (otp != null && otp.isNotEmpty) 'otp': otp,
+          if (securityPin != null && securityPin.isNotEmpty)
+            'security_pin': securityPin,
+          if (lat != null) 'lat': lat,
+          if (lng != null) 'lng': lng,
+        }));
+    if (r.statusCode >= 200 && r.statusCode < 300) {
+      return r.body.isEmpty ? {} : jsonDecode(r.body) as Map<String, dynamic>;
+    }
+    // 400/403 (bad_password/bad_otp/bad_pin) and 423 (blocked) are meaningful,
+    // interpretable results — surface the parsed body with its status.
+    if (r.statusCode == 400 || r.statusCode == 403 || r.statusCode == 423) {
+      final body = r.body.isEmpty ? {} : jsonDecode(r.body);
+      if (body is Map<String, dynamic>) {
+        return {...body, '_status': r.statusCode};
+      }
+    }
+    _fail(r);
+  }
+
+  /// Cancel a pending deletion. Authed owner, or a one-tap [token] from the
+  /// "this wasn't me" alert. -> {ok, state}.
+  Future<Map<String, dynamic>> accountDeleteCancel({String? token}) =>
+      postJson('/account/delete/cancel',
+          {if (token != null && token.isNotEmpty) 'token': token});
+
+  /// Current deletion request, if any -> {state:'pending'|'cancelled'|
+  /// 'completed', effective_at} | {state:null}.
+  Future<Map<String, dynamic>> accountDeleteStatus() =>
+      getJson('/account/delete/status');
+
+  /// Request a one-time code for [identifier] (phone or email) — hits the SAME
+  /// existing endpoint the login/reset OTP flow uses (OTPRequestView). When no
+  /// SMS provider is configured the server degrades gracefully (503 +
+  /// sms_enabled:false) and account deletion treats OTP as satisfied-if-absent.
+  /// Returns the parsed body (incl. {sms_enabled:false}) rather than throwing
+  /// on the degraded 503, so the UI can tell the user OTP is simply off.
+  Future<Map<String, dynamic>> requestOtp(String identifier) async {
+    final r = await _c.post(AppConfig.api('/auth/otp/request'),
+        headers: _headers(), body: jsonEncode({'identifier': identifier}));
+    if (r.statusCode >= 200 && r.statusCode < 300) {
+      return r.body.isEmpty ? {} : jsonDecode(r.body) as Map<String, dynamic>;
+    }
+    if (r.statusCode == 503 || r.statusCode == 501) {
+      final body = r.body.isEmpty ? {} : jsonDecode(r.body);
+      if (body is Map<String, dynamic>) {
+        return {...body, '_status': r.statusCode, 'sms_enabled': false};
+      }
+    }
+    _fail(r);
+  }
+
   // ---------- P10 generic helpers for new endpoints ----------
   Future<Map<String, dynamic>> getJson(String path) async {
     final r = await _c.get(AppConfig.api(path), headers: _headers());

@@ -41,6 +41,8 @@ import 'accessibility_mode_screen.dart';
 import 'trust_page_screen.dart';
 import 'encrypted_backup_screen.dart';
 import 'security_checkup_screen.dart';
+import 'delete_account_screen.dart';
+import '../theme.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -114,33 +116,13 @@ class SettingsScreen extends StatelessWidget {
     } catch (_) {}
   }
 
-  Future<void> _deleteAccount(BuildContext context) async {
-    final app = context.read<AppState>();
-    final messenger = ScaffoldMessenger.of(context);
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(AppLocalizations.of(context).deleteAccountConfirmTitle),
-        content: Text(
-            AppLocalizations.of(context).deleteAccountConfirmBody),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(AppLocalizations.of(context).cancel)),
-          FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: Colors.red),
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(AppLocalizations.of(context).delete)),
-        ],
-      ),
-    );
-    if (ok == true) {
-      try {
-        await app.deleteAccount();
-      } catch (e) {
-        messenger.showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).failed(e))));
-      }
-    }
+  // The old one-tap instant delete is gone. Everything now routes through the
+  // secure, multi-factor, cancellable, theft-safe DeleteAccountScreen (which
+  // schedules a Play-compliant 7-day-grace deletion server-side and never
+  // calls AppState.deleteAccount()'s instant local wipe).
+  void _deleteAccount(BuildContext context) {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (_) => const DeleteAccountScreen()));
   }
 
   @override
@@ -152,6 +134,10 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(title: Text(t.settingsTitle)),
       body: ListView(
         children: [
+          // Pending-deletion banner (secure delete flow). If an account
+          // deletion is scheduled, surface a "this wasn't me" entry point at the
+          // very TOP so the owner can cancel during the grace period.
+          _DeletePendingBanner(),
           // Prominent profile card at the very TOP (OWNER UI FIX v2 §4) — the
           // profile card was removed from the sidebar; it lives here and in the
           // Messenger hub-settings. It now opens the ADVANCED profile editor
@@ -353,8 +339,9 @@ class SettingsScreen extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.delete_forever_outlined,
                 color: Colors.red),
-            title: Text(AppLocalizations.of(context).deleteAccountTile,
-                style: TextStyle(color: Colors.red)),
+            title: Text(AppLocalizations.of(context).delAcctTile,
+                style: const TextStyle(color: Colors.red)),
+            subtitle: Text(AppLocalizations.of(context).delAcctTileSub),
             onTap: () => _deleteAccount(context),
           ),
           const Divider(),
@@ -383,6 +370,70 @@ class SettingsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 24),
         ],
+      ),
+    );
+  }
+}
+
+/// Top-of-Settings banner that appears ONLY when an account deletion is
+/// scheduled (secure delete flow). It one-taps into [DeleteAccountScreen]'s
+/// pending state where the owner can cancel ("this wasn't me") before the
+/// grace period ends. Self-contained + crash-guarded: any error renders
+/// nothing, so it can never break Settings.
+class _DeletePendingBanner extends StatefulWidget {
+  @override
+  State<_DeletePendingBanner> createState() => _DeletePendingBannerState();
+}
+
+class _DeletePendingBannerState extends State<_DeletePendingBanner> {
+  DateTime? _effectiveAt;
+  bool _pending = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _check();
+  }
+
+  Future<void> _check() async {
+    try {
+      final st = await context.read<AppState>().api.accountDeleteStatus();
+      if (!mounted) return;
+      if ('${st['state']}' == 'pending') {
+        setState(() {
+          _pending = true;
+          _effectiveAt = DateTime.tryParse('${st['effective_at']}')?.toLocal();
+        });
+      }
+    } catch (_) {
+      // ignore — banner simply does not show.
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_pending) return const SizedBox.shrink();
+    final t = AppLocalizations.of(context);
+    final when = _effectiveAt == null
+        ? ''
+        : DateFormat.yMMMMd(Localizations.localeOf(context).toLanguageTag())
+            .format(_effectiveAt!);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: Card(
+        color: Brand.warning.withValues(alpha: 0.14),
+        child: ListTile(
+          leading: const Icon(Icons.schedule, color: Brand.warning),
+          title: Text(t.delAcctScheduledTitle),
+          subtitle: Text(t.delAcctScheduledBody(when)),
+          trailing: TextButton(
+            onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const DeleteAccountScreen())),
+            child: Text(t.delAcctCancelNotMe),
+          ),
+        ),
       ),
     );
   }

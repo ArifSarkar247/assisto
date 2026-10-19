@@ -13548,5 +13548,70 @@
   "upTacNo": "No, it doesn't",
   "pwShow": "Show",
   "pwHide": "Hide",
-  "homeEnhancePhoto": "Enhance photo"
+  "homeEnhancePhoto": "Enhance photo",
+  "delAcctTitle": "Delete account",
+  "delAcctTile": "Delete my account…",
+  "delAcctTileSub": "Permanently delete your profile and all your data",
+  "delAcctLoadFailed": "Could not load the details. Tap to try again. ({error})",
+  "@delAcctLoadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "delAcctPreviewTitle": "This deletes everything — permanently",
+  "delAcctPreviewBody": "After a 7-day grace period your profile and all the data below are permanently deleted and cannot be recovered. You can cancel any time before then.",
+  "delAcctWhatDeleted": "What will be deleted",
+  "delAcctNothingToDelete": "There's no stored data to delete — only your profile will be removed.",
+  "delAcctDownloadFirst": "Download my data first",
+  "delAcctExportNudge": "We recommend downloading a copy of your data first — after deletion it cannot be recovered.",
+  "delAcctExportDone": "You've downloaded a copy of your data.",
+  "delAcctContinue": "Continue to delete",
+  "delAcctKeepAccount": "Keep my account",
+  "delAcctVerifyTitle": "Confirm it's really you",
+  "delAcctVerifyBody": "For your safety we need a few checks before scheduling the deletion.",
+  "delAcctPasswordLabel": "Your password",
+  "delAcctOtpLabel": "One-time code",
+  "delAcctSendOtp": "Send code",
+  "delAcctResendOtp": "Resend",
+  "delAcctOtpSent": "A code was sent to {dest}.",
+  "@delAcctOtpSent": {
+    "placeholders": {
+      "dest": {
+        "type": "String"
+      }
+    }
+  },
+  "delAcctOtpOff": "Text-message codes aren't set up yet, so no code is needed — your password confirms it's you.",
+  "delAcctPinTitle": "Security PIN",
+  "delAcctPinSubtitle": "Verify with your fingerprint/face and Security PIN.",
+  "delAcctPinCaptured": "Verified.",
+  "delAcctPinVerify": "Verify",
+  "delAcctPinRedo": "Redo",
+  "delAcctBiometricFailed": "Fingerprint/face check didn't pass. Please try again.",
+  "delAcctScheduleDeletion": "Schedule deletion",
+  "delAcctBack": "Back",
+  "delAcctBadPassword": "That password is incorrect. Please try again.",
+  "delAcctBadOtp": "That code is incorrect or has expired. Send a new one and try again.",
+  "delAcctBadPin": "That Security PIN is incorrect. Please try again.",
+  "delAcctPinLocked": "Too many wrong PIN tries. Please wait a while and try again.",
+  "delAcctRequestError": "Something went wrong. Nothing was deleted — please try again.",
+  "delAcctScheduledTitle": "Deletion scheduled",
+  "delAcctScheduledBody": "Your account is scheduled to be deleted on {date}. You can cancel any time before then.",
+  "@delAcctScheduledBody": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "delAcctAlertedContacts": "We've alerted you and your trusted contacts so a lost or stolen phone can't delete your account without you knowing.",
+  "delAcctCancelNotMe": "Cancel — this wasn't me",
+  "delAcctCancelled": "Deletion cancelled. Your account is safe.",
+  "delAcctClose": "Close",
+  "delAcctBlockedTitle": "Deletion blocked for your safety",
+  "delAcctBlockedTheft": "Deletion is blocked because this phone recently showed a theft signal. This protects you from someone deleting your account after snatching your phone. Please try again later, or contact support if this is a mistake.",
+  "delAcctBlockedFrozen": "Deletion is blocked because your account's protection is temporarily frozen for your safety. Please try again later, or contact support.",
+  "delAcctTryAgain": "Try again"
 }

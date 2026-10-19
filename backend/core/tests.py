@@ -8,6 +8,7 @@ commands and only ever creates the user's OWN data. Kept deterministic
 from decimal import Decimal
 
 from django.test import TestCase
+from django.utils import timezone
 from rest_framework.test import APITestCase
 
 from . import agent
@@ -2146,3 +2147,178 @@ class ProfilePhotoTests(APITestCase):
         me = self.client.get("/api/v1/me")
         self.assertEqual(me.status_code, 200)
         self.assertIn("/api/v1/me/avatar", me.data["photo_url"])
+
+
+# ===========================================================================
+# Secure "Delete my profile & all data" — Play-compliant, Section-8-gated.
+# ===========================================================================
+
+class AccountDeletionScenarioTests(APITestCase):
+    """A thief must NOT be able to wipe the owner's account; the 7-day grace +
+    cancel-from-anywhere protect against malicious deletion; deletion is real
+    and complete only after the grace period (Play-compliant)."""
+
+    PIN = "4321"
+    PW = "x123456"
+
+    def setUp(self):
+        from django.contrib.auth.hashers import make_password
+        from .models import ProtectedPhone, SavedPlace, MemoryItem
+        self.user = User.objects.create_user(
+            name="Owner", phone="01970000001", password=self.PW)
+        self.client.force_authenticate(user=self.user)
+        # Primary protected phone WITH a Security PIN set.
+        self.phone = ProtectedPhone.objects.create(
+            owner=self.user, security_pin_hash=make_password(self.PIN))
+        # A trusted place (home) so trusted/untrusted paths are testable.
+        self.home = SavedPlace.objects.create(
+            user=self.user, label="Home", lat=23.80, lng=90.40)
+        # Some data to prove the cascade.
+        MemoryItem.objects.create(user=self.user, title="secret note")
+
+    def _request(self, **over):
+        body = {"password": self.PW, "security_pin": self.PIN,
+                # inside the trusted radius unless overridden
+                "lat": 23.80, "lng": 90.40}
+        body.update(over)
+        return self.client.post("/api/v1/account/delete/request", body,
+                                format="json")
+
+    # -- auth factors -------------------------------------------------------
+
+    def test_request_rejected_without_correct_password(self):
+        r = self._request(password="wrong")
+        self.assertEqual(r.status_code, 403, r.data)
+        self.assertEqual(r.data["reason"], "bad_password")
+
+    def test_request_rejected_without_correct_pin(self):
+        r = self._request(security_pin="0000")
+        self.assertEqual(r.status_code, 403, r.data)
+
+    def test_request_rejected_with_bad_otp_when_code_issued(self):
+        from .models import OTPCode
+        from datetime import timedelta
+        OTPCode.objects.create(identifier=self.user.phone, code="999999",
+                               purpose="login",
+                               expires_at=timezone.now() + timedelta(minutes=5))
+        r = self._request(otp="000000")
+        self.assertEqual(r.status_code, 403, r.data)
+        self.assertEqual(r.data["reason"], "bad_otp")
+        # correct code passes
+        ok = self._request(otp="999999")
+        self.assertEqual(ok.status_code, 200, ok.data)
+
+    # -- happy path at a trusted place -> ~7-day grace ----------------------
+
+    def test_request_all_factors_trusted_gives_7_day_grace(self):
+        from .models import AccountDeletionRequest
+        before = timezone.now()
+        r = self._request()
+        self.assertEqual(r.status_code, 200, r.data)
+        self.assertEqual(r.data["state"], "pending")
+        req = AccountDeletionRequest.objects.get(user=self.user)
+        delta = req.effective_at - before
+        # ~7 days (allow a minute of test slack).
+        self.assertGreaterEqual(delta.total_seconds(), 7 * 86400 - 60)
+        self.assertLess(delta.total_seconds(), 7 * 86400 + 120)
+
+    # -- theft signal blocks (the thief cannot delete) ----------------------
+
+    def test_request_blocked_while_theft_signal_active(self):
+        from .logic import security as sec
+        from .models import AccountDeletionRequest
+        sec.register_signal(self.phone, "snatch", timezone.now())
+        self.phone.save()
+        r = self._request()
+        self.assertEqual(r.status_code, 423, r.data)
+        self.assertEqual(r.data["reason"], "theft_signal")
+        self.assertFalse(AccountDeletionRequest.objects.filter(
+            user=self.user).exists())
+
+    # -- untrusted place respects BOTH grace and 24h delay ------------------
+
+    def test_untrusted_respects_grace_and_24h_delay(self):
+        from .models import AccountDeletionRequest
+        before = timezone.now()
+        # far from home -> untrusted
+        r = self._request(lat=10.0, lng=10.0)
+        self.assertEqual(r.status_code, 200, r.data)
+        req = AccountDeletionRequest.objects.get(user=self.user)
+        # must be at least the 7-day grace (which already exceeds the 24h delay)
+        self.assertGreaterEqual((req.effective_at - before).total_seconds(),
+                                7 * 86400 - 60)
+
+    # -- cancel by token ----------------------------------------------------
+
+    def test_cancel_by_token_works_unauthenticated(self):
+        from .models import AccountDeletionRequest
+        self._request()
+        req = AccountDeletionRequest.objects.get(user=self.user)
+        token = req.cancel_token
+        self.assertTrue(token)
+        self.client.force_authenticate(user=None)  # "this wasn't me", no login
+        c = self.client.post("/api/v1/account/delete/cancel",
+                             {"token": token}, format="json")
+        self.assertEqual(c.status_code, 200, c.data)
+        self.assertEqual(c.data["state"], "cancelled")
+        req.refresh_from_db()
+        self.assertEqual(req.state, "cancelled")
+
+    def test_cancel_rejects_wrong_token_unauthenticated(self):
+        self._request()
+        self.client.force_authenticate(user=None)
+        c = self.client.post("/api/v1/account/delete/cancel",
+                             {"token": "nope"}, format="json")
+        self.assertIn(c.status_code, (403, 404))
+
+    # -- status + preview ---------------------------------------------------
+
+    def test_status_and_preview(self):
+        pv = self.client.post("/api/v1/account/delete/preview", {},
+                              format="json")
+        self.assertEqual(pv.status_code, 200, pv.data)
+        self.assertTrue(pv.data["export_first"])
+        self.assertIn("memories", pv.data["counts"])
+        self._request()
+        st = self.client.get("/api/v1/account/delete/status")
+        self.assertEqual(st.status_code, 200, st.data)
+        self.assertEqual(st.data["state"], "pending")
+
+    # -- purge command ------------------------------------------------------
+
+    def test_purge_deletes_only_past_due_pending_and_cascades(self):
+        from django.core.management import call_command
+        from datetime import timedelta
+        from .models import AccountDeletionRequest, MemoryItem
+        self._request()
+        req = AccountDeletionRequest.objects.get(user=self.user)
+        uid = self.user.id
+        # Not yet due -> purge is a no-op.
+        call_command("purge_deletions")
+        self.assertTrue(User.objects.filter(id=uid).exists())
+        # Make it due.
+        req.effective_at = timezone.now() - timedelta(minutes=1)
+        req.save(update_fields=["effective_at"])
+        call_command("purge_deletions")
+        # User + their data gone (cascade).
+        self.assertFalse(User.objects.filter(id=uid).exists())
+        self.assertFalse(MemoryItem.objects.filter(user_id=uid).exists())
+        self.assertFalse(AccountDeletionRequest.objects.filter(
+            user_id=uid).exists())
+        # Idempotent: running again is a clean no-op.
+        call_command("purge_deletions")
+
+    def test_purge_never_touches_a_cancelled_request(self):
+        from django.core.management import call_command
+        from datetime import timedelta
+        from .models import AccountDeletionRequest
+        self._request()
+        req = AccountDeletionRequest.objects.get(user=self.user)
+        req.state = "cancelled"
+        req.effective_at = timezone.now() - timedelta(days=1)  # past-due but cancelled
+        req.save(update_fields=["state", "effective_at"])
+        uid = self.user.id
+        call_command("purge_deletions")
+        self.assertTrue(User.objects.filter(id=uid).exists())
+        req.refresh_from_db()
+        self.assertEqual(req.state, "cancelled")

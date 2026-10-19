@@ -35,6 +35,19 @@ def log(user, action, **detail):
     AuditLog.objects.create(user=user, action=action, detail=detail)
 
 
+def _mark_export_downloaded(user):
+    """If the user has a PENDING deletion request, record that they downloaded
+    their data (the delete preview surfaces this so "Download my data first" can
+    be confirmed). Never raises."""
+    try:
+        from .models import AccountDeletionRequest
+        AccountDeletionRequest.objects.filter(
+            user=user, state=AccountDeletionRequest.STATE_PENDING
+        ).update(export_downloaded=True)
+    except Exception:
+        pass
+
+
 # ---------- public / health ----------
 
 @api_view(["GET"])
@@ -1488,6 +1501,7 @@ class ExportExcelView(APIView):
         buf = io.BytesIO()
         wb.save(buf)
         log(u, "export.excel")
+        _mark_export_downloaded(u)
         resp = HttpResponse(buf.getvalue(),
                             content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
         resp["Content-Disposition"] = 'attachment; filename="assisto-export.xlsx"'
@@ -1539,6 +1553,7 @@ class ExportPdfView(APIView):
         section("Memory", [f"- {m.title}" for m in u.memories.all()] or ["(none)"])
         c.showPage(); c.save()
         log(u, "export.pdf")
+        _mark_export_downloaded(u)
         resp = HttpResponse(buf.getvalue(), content_type="application/pdf")
         resp["Content-Disposition"] = 'attachment; filename="assisto-export.pdf"'
         return resp
@@ -1556,6 +1571,7 @@ class ExportView(APIView):
             "audit": AuditLogSerializer(u.audit.all()[:1000], many=True).data,
         }
         log(u, "account.export")
+        _mark_export_downloaded(u)
         resp = Response(data)
         resp["Content-Disposition"] = 'attachment; filename="assisto-export.json"'
         return resp
