@@ -2322,3 +2322,203 @@ class AccountDeletionScenarioTests(APITestCase):
         self.assertTrue(User.objects.filter(id=uid).exists())
         req.refresh_from_db()
         self.assertEqual(req.state, "cancelled")
+
+
+# ===========================================================================
+# Business Model — Build 1 of N  (PricingConfig + atomic charge + Family→Premium)
+# ===========================================================================
+class BusinessModelBuild1Tests(APITestCase):
+    def setUp(self):
+        from django.utils import timezone as _tz
+        from datetime import timedelta as _td
+        self.owner = User.objects.create_user(
+            name="Owner", phone="01810000001", password="x123456",
+            is_staff=True, is_superuser=True)
+        self.u = User.objects.create_user(
+            name="Payer", phone="01810000002", password="x123456")
+        # a paid-until-future free-tier credits user (expired trial -> free plan)
+        self.u.trial_until = _tz.now() - _td(days=1)
+        self.u.plan = "free"
+        self.u.ai_credits = 10
+        self.u.save()
+
+    # ---- defaults / public plans -----------------------------------------
+    def test_default_prices_and_no_family(self):
+        from core import billing, plans
+        c = billing.cfg()
+        self.assertEqual(c["plans"]["premium"]["price"], 199)
+        self.assertEqual(c["plans"]["business"]["price"], 999)
+        self.assertEqual(c["plans"]["free"]["price"], 0)
+        self.assertGreaterEqual(c["margin"], 0.40)
+        pub = plans.plans_public("en")
+        ids = [p["id"] for p in pub]
+        self.assertIn("premium", ids)
+        self.assertIn("business", ids)
+        self.assertNotIn("family", ids)          # Family removed from catalog
+        prem = next(p for p in pub if p["id"] == "premium")
+        self.assertEqual(prem["price"], 199)
+        self.assertEqual(prem["family"], 5)       # premium absorbs family=5
+
+    # ---- atomic charge ----------------------------------------------------
+    def test_charge_debits_and_never_negative(self):
+        from core import billing
+        self.u.ai_credits = 5
+        self.u.save()
+        r = billing.charge(self.u, "ai_msg_strong", qty=1)  # costs 5
+        self.assertTrue(r["ok"])
+        self.assertEqual(r["charged"], 5)
+        self.u.refresh_from_db()
+        self.assertEqual(self.u.ai_credits, 0)
+        # now cannot afford a 1-credit action -> blocked, balance unchanged
+        r2 = billing.charge(self.u, "ai_msg_cheap", qty=1)
+        self.assertFalse(r2["ok"])
+        self.assertEqual(r2["reason"], "insufficient")
+        self.u.refresh_from_db()
+        self.assertEqual(self.u.ai_credits, 0)   # never negative
+
+    def test_concurrent_double_charge_cannot_double_spend(self):
+        # two charges of 1 credit from a balance of 1: exactly one succeeds and
+        # the balance lands at 0, never -1 (the select_for_update fix).
+        from core import billing
+        self.u.ai_credits = 1
+        self.u.save()
+        r1 = billing.charge(self.u, "ai_msg_cheap", qty=1)
+        u2 = User.objects.get(pk=self.u.pk)   # a second view of the same row
+        r2 = billing.charge(u2, "ai_msg_cheap", qty=1)
+        oks = [r1["ok"], r2["ok"]]
+        self.assertEqual(oks.count(True), 1)   # only one debit landed
+        self.u.refresh_from_db()
+        self.assertEqual(self.u.ai_credits, 0)
+        # exactly one consume ledger row for the spend
+        from core.models import CreditLedger
+        self.assertEqual(
+            CreditLedger.objects.filter(user=self.u, reason="consume").count(), 1)
+
+    # ---- safety allow-list ------------------------------------------------
+    def test_safety_exempt_never_charged_or_blocked(self):
+        from core import billing
+        self.u.ai_credits = 0
+        self.u.save()
+        for action in ["sos", "safe_journey", "anti_theft", "health",
+                       "elderly", "payment", "login",
+                       "sos_sms", "health_reminder", "login_otp"]:
+            allowed, reason = billing.guard_can(self.u, action)
+            self.assertTrue(allowed, action)
+            r = billing.charge(self.u, action)
+            self.assertTrue(r["ok"], action)
+            self.assertEqual(r["charged"], 0, action)
+        self.u.refresh_from_db()
+        self.assertEqual(self.u.ai_credits, 0)   # untouched
+
+    # ---- ai.generate wiring ----------------------------------------------
+    def _patch_ai(self, providers, call):
+        """Monkeypatch ai._providers / _call_anthropic WITH restore on teardown
+        so the module-global stubs never leak into later tests."""
+        from core import ai
+        orig_p, orig_c = ai._providers, ai._call_anthropic
+        ai._providers, ai._call_anthropic = providers, call
+        def _restore():
+            ai._providers, ai._call_anthropic = orig_p, orig_c
+        self.addCleanup(_restore)
+
+    def test_ai_generate_consumes_configured_credits(self):
+        from core import ai
+        self.u.ai_credits = 10
+        self.u.save()
+        # stub providers + a successful anthropic call (no network)
+        self._patch_ai(lambda: [("anthropic", "k")],
+                       lambda key, model, system, prompt, mx: ("ok", 10, 10))
+        text, cost = ai.generate("hi", tier="strong", user=self.u)  # strong = 5 cr
+        self.assertEqual(text, "ok")
+        self.u.refresh_from_db()
+        self.assertEqual(self.u.ai_credits, 5)   # 10 - 5
+
+    def test_ai_generate_refunds_on_all_providers_failing(self):
+        from core import ai
+        self.u.ai_credits = 10
+        self.u.save()
+        def _boom(*a, **k):
+            raise RuntimeError("down")
+        self._patch_ai(lambda: [("anthropic", "k")], _boom)
+        with self.assertRaises(ai.AIUnavailable):
+            ai.generate("hi", tier="strong", user=self.u)
+        self.u.refresh_from_db()
+        self.assertEqual(self.u.ai_credits, 10)  # pre-charge refunded
+
+    def test_ai_generate_blocks_underfunded_before_call(self):
+        from core import ai
+        self.u.ai_credits = 1          # can't cover strong (5)
+        self.u.save()
+        self._patch_ai(lambda: [("anthropic", "k")],
+                       lambda *a, **k: ("ok", 1, 1))
+        with self.assertRaises(ai.AIUnavailable) as cm:
+            ai.generate("hi", tier="strong", user=self.u)
+        self.assertEqual(cm.exception.reason, "credits")
+        self.u.refresh_from_db()
+        self.assertEqual(self.u.ai_credits, 1)   # untouched
+
+    # ---- /admin/pricing ---------------------------------------------------
+    def test_admin_pricing_owner_only_and_edit_flows_to_plans(self):
+        # non-owner -> 403
+        self.client.force_authenticate(self.u)
+        self.assertEqual(self.client.get("/api/v1/admin/pricing").status_code, 403)
+        # owner GET
+        self.client.force_authenticate(self.owner)
+        g = self.client.get("/api/v1/admin/pricing")
+        self.assertEqual(g.status_code, 200)
+        self.assertEqual(g.data["config"]["plans"]["premium"]["price"], 199)
+        # owner edits premium price -> shows up in /plans with NO app change
+        p = self.client.post("/api/v1/admin/pricing",
+                             {"config": {"plans": {"premium": {"price": 249}}},
+                              "reason": "test raise"}, format="json")
+        self.assertEqual(p.status_code, 200)
+        self.assertEqual(p.data["config"]["plans"]["premium"]["price"], 249)
+        from core import plans
+        prem = next(x for x in plans.plans_public("en") if x["id"] == "premium")
+        self.assertEqual(prem["price"], 249)
+
+    def test_admin_pricing_validation_rejects_bad_margin(self):
+        self.client.force_authenticate(self.owner)
+        r = self.client.post("/api/v1/admin/pricing",
+                            {"config": {"margin": -0.1}}, format="json")
+        self.assertEqual(r.status_code, 400)
+        self.assertIn("margin_negative", r.data["problems"])
+
+    # ---- Family → Premium migration ---------------------------------------
+    def test_family_subscriber_migrated_keeps_circle_entitlement(self):
+        from django.utils import timezone as _tz
+        from datetime import timedelta as _td
+        from django.apps import apps as _apps
+        from importlib import import_module
+        fam = User.objects.create_user(
+            name="Fam", phone="01810000003", password="x123456")
+        fam.plan = "family"
+        fam.plan_until = _tz.now() + _td(days=30)
+        fam.save()
+        # run the data migration's function against the live models (idempotent)
+        mod = import_module(
+            "core.migrations.0039_pricingconfig_family_to_premium")
+        mod.family_to_premium(_apps, None)
+        fam.refresh_from_db()
+        self.assertEqual(fam.plan, "premium")
+        self.assertIsNotNone(fam.plan_until)      # expiry preserved
+        from core import plans
+        ent = plans.entitlements(fam, "en")
+        self.assertEqual(ent["plan"], "premium")
+        self.assertEqual(ent["max_family"], 5)    # 5-member circle preserved
+
+    # ---- auto re-pricing holds margin -------------------------------------
+    def test_auto_reprice_keeps_margin(self):
+        from core.logic import pricing
+        c = pricing.DEFAULTS()
+        # bump an action's provider cost; recompute must keep >=40% margin
+        c["action_costs"]["ai_msg_strong"]["provider_cost"] = 0.10  # USD
+        new_credits = pricing.recompute_from_provider_cost("ai_msg_strong", c)
+        # credits priced at credit_bdt each must cover cost*(1+margin) in BDT
+        bdt_cost = 0.10 * c["usd_bdt"]
+        self.assertGreaterEqual(new_credits * c["credit_bdt"],
+                                bdt_cost * (1 + c["margin"]))
+        # recompute_all produces a config whose every action holds margin
+        c2 = pricing.recompute_all(c)
+        self.assertEqual(c2["action_costs"]["ai_msg_strong"]["credits"],
+                         new_credits)

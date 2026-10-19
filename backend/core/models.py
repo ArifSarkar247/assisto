@@ -2404,6 +2404,26 @@ class AdminFlagState(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
+class PricingConfig(models.Model):
+    """Business Model (Build 1 of N) — SERVER-SIDE PRICING config, owner-only.
+
+    A single row (key='global') holds every NUMBER the business runs on: plan
+    prices + included credits, annual discount %, the credit-cost-per-action map,
+    the margin target and the currency basis. Mirrors the AdminFlagState
+    single-row pattern, but it HOLDS MONEY MATH — which AdminFlagState/admin_flags
+    is contractually barred from ("NEVER SERVER-SIDE PRICING"). All defaults,
+    normalization, validation and the auto-reprice math live in the pure
+    core.logic.pricing engine; this row only persists what it returns so the
+    owner's price edits survive restarts and are served to the app via /plans.
+
+    data  — the pricing dict; shape + defaults owned by core.logic.pricing.
+    audit — newest-first list of pricing.make_audit_entry(...) rows (capped)."""
+    key = models.CharField(max_length=32, unique=True, default="global")
+    data = models.JSONField(default=dict, blank=True)
+    audit = models.JSONField(default=list, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
 class ChatOrganiseState(models.Model):
     """#87 CHAT ORGANISE (SPEC v2.1 §21) — PER-USER per-chat pin/archive/mute.
     The viewer's own organisation; it never leaks to or affects the peer and

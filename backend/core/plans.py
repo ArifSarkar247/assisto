@@ -17,22 +17,22 @@ PLANS = {
                  "desc_bn": "শুরু করার জন্য — নিরাপত্তা সবসময় ফ্রি।", "desc_en": "To get started — safety is always free.",
                  "benefits_bn": ["মাসে ১৫ AI স্ক্যান", "রিমাইন্ডার, ভল্ট, হিসাব", "জরুরি SOS ও স্ক্যাম সতর্কতা (ফ্রি)", "ওষুধ রিমাইন্ডার (ফ্রি)"],
                  "benefits_en": ["15 AI scans / month", "Reminders, documents, money", "Emergency SOS & scam alerts (free)", "Medicine reminders (free)"]},
-    "premium":  {"name_bn": "প্রিমিয়াম", "name_en": "Premium", "price": 149, "cur": "BDT", "period": "mo",
-                 "credits": 0, "unlimited_ai": True, "ads": False, "family": 0,
-                 "desc_bn": "আনলিমিটেড AI, বিজ্ঞাপন নেই।", "desc_en": "Unlimited AI, no ads.",
-                 "benefits_bn": ["আনলিমিটেড AI স্ক্যান ও সহকারী", "বিজ্ঞাপন নেই", "স্মার্ট ব্রিফিং ও প্রোঅ্যাকটিভ সাহায্য", "অগ্রাধিকার সাপোর্ট"],
-                 "benefits_en": ["Unlimited AI scans & assistant", "No ads", "Smart briefings & proactive help", "Priority support"]},
-    "family":   {"name_bn": "ফ্যামিলি", "name_en": "Family", "price": 299, "cur": "BDT", "period": "mo",
+    # NOTE (Business Model Build 1): Premium absorbs the former Family plan — it
+    # now carries family=5 (5-member circle + caregiver dashboard). The standalone
+    # "family" plan is REMOVED and existing Family subscribers are migrated to
+    # Premium by migration 0039. Live prices/credits/ads come from PricingConfig
+    # (core.logic.pricing); these literals are the DEFAULT/fallback only.
+    "premium":  {"name_bn": "প্রিমিয়াম", "name_en": "Premium", "price": 199, "cur": "BDT", "period": "mo",
                  "credits": 0, "unlimited_ai": True, "ads": False, "family": 5,
-                 "desc_bn": "৫ জন পর্যন্ত — বাবা-মায়ের যত্ন একসাথে।", "desc_en": "Up to 5 people — care for your parents together.",
-                 "benefits_bn": ["প্রিমিয়ামের সব সুবিধা", "৫ জন পর্যন্ত পরিবারের সদস্য", "কেয়ারগিভার ড্যাশবোর্ড ও ওষুধ অ্যালার্ট", "কানেক্টেড সার্কেল শেয়ারিং"],
-                 "benefits_en": ["Everything in Premium", "Up to 5 family members", "Caregiver dashboard & medicine alerts", "Connected Circle sharing"]},
+                 "desc_bn": "আনলিমিটেড AI, বিজ্ঞাপন নেই — পরিবারের যত্ন একসাথে।", "desc_en": "Unlimited AI, no ads — care for your family together.",
+                 "benefits_bn": ["আনলিমিটেড AI স্ক্যান ও সহকারী", "বিজ্ঞাপন নেই", "৫ জন পর্যন্ত কানেক্টেড সার্কেল ও কেয়ারগিভার ড্যাশবোর্ড", "স্মার্ট ব্রিফিং ও অগ্রাধিকার সাপোর্ট"],
+                 "benefits_en": ["Unlimited AI scans & assistant", "No ads", "Up to 5-member Circle & caregiver dashboard", "Smart briefings & priority support"]},
     "probashi": {"name_bn": "প্রবাসী", "name_en": "Probashi", "price": 4.99, "cur": "USD", "period": "mo",
                  "credits": 0, "unlimited_ai": True, "ads": False, "family": 5,
                  "desc_bn": "বিদেশ থেকে দেশের পরিবারের যত্ন।", "desc_en": "Care for your family back home, from abroad.",
-                 "benefits_bn": ["ফ্যামিলির সব সুবিধা", "দেশের পরিবারের জন্য দূর থেকে যত্ন", "USD বিলিং"],
-                 "benefits_en": ["Everything in Family", "Remote care for family in Bangladesh", "USD billing"]},
-    "business": {"name_bn": "বিজনেস", "name_en": "Business", "price": 1999, "cur": "BDT", "period": "mo",
+                 "benefits_bn": ["প্রিমিয়ামের সব সুবিধা", "দেশের পরিবারের জন্য দূর থেকে যত্ন", "USD বিলিং"],
+                 "benefits_en": ["Everything in Premium", "Remote care for family in Bangladesh", "USD billing"]},
+    "business": {"name_bn": "বিজনেস", "name_en": "Business", "price": 999, "cur": "BDT", "period": "mo",
                  "credits": 0, "unlimited_ai": True, "ads": False, "family": 0,
                  "desc_bn": "ছোট ব্যবসা ও বিক্রয় দলের জন্য।", "desc_en": "For small businesses and sales teams.",
                  "benefits_bn": ["আনলিমিটেড AI", "বিজনেস মোড: ক্যাটালগ ও অর্ডার", "AI CRM (Axon Dynamics)", "দলের আসন (দাম মালিক ঠিক করবেন)"],
@@ -73,26 +73,48 @@ def effective_plan(user):
     """What the user is actually entitled to right now."""
     if user.is_founder:
         return "founder"
-    if plan_active(user) and user.plan in PLANS:
-        return user.plan
+    if plan_active(user):
+        # Family was folded into Premium (Build 1); any stray "family" row still
+        # on a user maps to premium so their 5-member circle keeps working.
+        if user.plan == "family":
+            return "premium"
+        if user.plan in PLANS:
+            return user.plan
     if trial_active(user):
         return "premium"          # full trial
     return "free"
+
+
+def _config_plan(pid):
+    """The PricingConfig view of a plan (price/credits/unlimited/ads/family), or
+    None if config isn't applicable (founder/annual/probashi stay literal). The
+    server is authoritative: edits in /admin/pricing show here with no app change."""
+    try:
+        from . import billing
+        return billing.cfg()["plans"].get(pid)
+    except Exception:
+        return None
 
 
 def entitlements(user, lang="bn"):
     from .i18n import pick
     p = effective_plan(user)
     spec = PLANS[p]
+    # Prices/credits/ads/family come from PricingConfig when the plan is config-
+    # backed (free/premium/business); founder/annual/probashi keep the literal.
+    cp = _config_plan(p)
+    unlimited = cp["unlimited_ai"] if cp else spec["unlimited_ai"]
+    ads = (cp["ads"] if cp else spec["ads"])
+    max_family = cp["family"] if cp else spec["family"]
     return {
         "plan": p,
         "name": pick(lang, spec["name_bn"], spec["name_en"]),
         "name_bn": spec["name_bn"],
         "desc": pick(lang, spec["desc_bn"], spec["desc_en"]),
         "benefits": spec["benefits_" + lang],
-        "unlimited_ai": spec["unlimited_ai"],
-        "ads": spec["ads"] and not trial_active(user),
-        "max_family": spec["family"],
+        "unlimited_ai": unlimited,
+        "ads": ads and not trial_active(user),
+        "max_family": max_family,
         "credits": user.ai_credits,
         "trial_active": trial_active(user),
         "trial_until": user.trial_until.isoformat() if user.trial_until else None,
@@ -101,14 +123,21 @@ def entitlements(user, lang="bn"):
 
 
 def plans_public(lang="bn"):
-    """All purchasable plans, localised, for the paywall/Plans screen."""
+    """All purchasable plans, localised, for the paywall/Plans screen.
+
+    Build 1: Free/Premium/Business (+ derived Annual) come from PricingConfig via
+    the pure pricing.plan_public() — so the owner's /admin/pricing edits show in
+    the app with NO app change. Family is removed from the catalog. probashi is
+    appended from the literal; founder stays hidden."""
     from .i18n import pick
-    out = []
-    for pid, s in PLANS.items():
-        if pid == "founder":
-            continue
+    from .logic import pricing
+    from . import billing
+    out = pricing.plan_public(lang, billing.cfg())
+    # append probashi (USD plan kept per the plan; not config-backed yet)
+    s = PLANS.get("probashi")
+    if s:
         out.append({
-            "id": pid, "name": pick(lang, s["name_bn"], s["name_en"]),
+            "id": "probashi", "name": pick(lang, s["name_bn"], s["name_en"]),
             "price": s["price"], "cur": s["cur"], "period": s["period"],
             "desc": pick(lang, s["desc_bn"], s["desc_en"]),
             "benefits": s["benefits_" + lang], "unlimited_ai": s["unlimited_ai"],
@@ -143,14 +172,19 @@ def grant_monthly_if_due(user):
             .order_by("-created_at").first())
     if last and last.created_at.year == now.year and last.created_at.month == now.month:
         return
-    _grant(user, PLANS["free"]["credits"], "grant", f"{now:%Y-%m} monthly")
+    cp = _config_plan("free")
+    free_credits = cp["credits"] if cp else PLANS["free"]["credits"]
+    _grant(user, free_credits, "grant", f"{now:%Y-%m} monthly")
 
 
 def has_ai_quota(user):
     """True if the user may run an AI call now (unlimited plan or has credits)."""
     if user is None:
         return True
-    if PLANS[effective_plan(user)]["unlimited_ai"]:
+    p = effective_plan(user)
+    cp = _config_plan(p)
+    unlimited = cp["unlimited_ai"] if cp else PLANS[p]["unlimited_ai"]
+    if unlimited:
         return True
     grant_monthly_if_due(user)
     return (user.ai_credits or 0) > 0

@@ -362,6 +362,8 @@ urlpatterns = [
     # #178 Cost kill-switch & feature flags (owner-only)
     path("admin/flags", b61.AdminFlagsView.as_view()),
     path("admin/flags/flip", b61.AdminFlagsFlipView.as_view()),
+    # Business Model (Build 1): owner-only server-side pricing config
+    path("admin/pricing", b61.PricingConfigView.as_view()),
     path("referral/redeem", b61.ReferralRedeemView.as_view()),
     # --- build-61: Safe Journey ---
     path("journey/start", b61.JourneyStartView.as_view()),

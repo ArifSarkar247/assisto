@@ -115,6 +115,90 @@ class AdminFlagsFlipView(_FlagsBase):
         return Response(self._snapshot(row))
 
 
+class PricingConfigView(APIView):
+    """Business Model (Build 1) — SERVER-SIDE PRICING config, OWNER-only (same
+    superuser gate as /admin/integrations & /admin/flags).
+
+      GET   -> the current normalized PricingConfig + audit.
+      POST  -> merge-update prices / included credits / margin / per-action costs
+               with validation (margin>=target, prices/credits>=0); audit-logged.
+               When an action's provider_cost changes and auto_reprice=True, the
+               action's credit cost is recomputed to hold the margin (§8); the
+               default is alert-mode (credits left as submitted / unchanged).
+
+    State persists in PricingConfig(key='global'); all defaults/normalize/validate
+    /auto-reprice math is in the pure core.logic.pricing engine — the server is
+    the authority, the app never sets a price."""
+    @staticmethod
+    def _owner(request):
+        u = request.user
+        return bool(u and u.is_authenticated and u.is_superuser)
+
+    def _snapshot(self):
+        from . import billing
+        row = billing.get_config()
+        from .logic import pricing as P
+        return {"config": P.normalize(row.data), "audit": row.audit,
+                "can_manage": True}
+
+    def get(self, request):
+        if not self._owner(request):
+            return Response({"can_manage": False},
+                            status=status.HTTP_403_FORBIDDEN)
+        if request.query_params.get("probe"):
+            return Response({"can_manage": True})
+        return Response(self._snapshot())
+
+    def post(self, request):
+        if not self._owner(request):
+            return Response({"can_manage": False},
+                            status=status.HTTP_403_FORBIDDEN)
+        from . import billing
+        from .logic import pricing as P
+        d = request.data or {}
+        patch = d.get("config") if isinstance(d.get("config"), dict) else d
+        reason = (d.get("reason") or "") if isinstance(d, dict) else ""
+        auto_reprice = bool(d.get("auto_reprice")) if isinstance(d, dict) else False
+
+        row = billing.get_config()
+        old = P.normalize(row.data)
+
+        # deep-ish merge: patch overrides old at the plan / action-cost / scalar level
+        merged = {k: (dict(v) if isinstance(v, dict) else v) for k, v in old.items()}
+        for key in ("margin", "annual_discount_pct", "credit_bdt", "usd_bdt"):
+            if key in (patch or {}):
+                merged[key] = patch[key]
+        if isinstance((patch or {}).get("plans"), dict):
+            merged_plans = {k: dict(v) for k, v in old["plans"].items()}
+            for pid, pv in patch["plans"].items():
+                if isinstance(pv, dict):
+                    merged_plans.setdefault(pid, {}).update(pv)
+            merged["plans"] = merged_plans
+        if isinstance((patch or {}).get("action_costs"), dict):
+            merged_costs = {k: dict(v) for k, v in old["action_costs"].items()}
+            for aid, av in patch["action_costs"].items():
+                if isinstance(av, dict):
+                    merged_costs.setdefault(aid, {}).update(av)
+            merged["action_costs"] = merged_costs
+
+        problems = P.validate_edit(merged)
+        if problems:
+            return Response({"ok": False, "problems": problems},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        new = P.normalize(merged)
+        if auto_reprice:
+            new = P.recompute_all(new)   # hold the margin on every action (§8)
+
+        row.data = new
+        entry = P.make_audit_entry(
+            path="config", old=old, new=new, actor=request.user.id,
+            reason=reason, at_iso=timezone.now().isoformat())
+        row.audit = ([entry] + list(row.audit or []))[:200]
+        row.save(update_fields=["data", "audit", "updated_at"])
+        return Response(self._snapshot())
+
+
 def _mem_available_mb():
     """Available RAM in MB from /proc/meminfo (MemAvailable). Best-effort; a
     read failure returns a large number so we don't throttle on a bad read."""

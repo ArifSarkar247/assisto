@@ -155,11 +155,21 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
         raise AIUnavailable("budget")
     if _user_over_limit(user):
         raise AIUnavailable("user_limit")
-    # Plan credits: unlimited plans pass; free/trial-expired need credits.
+    # Plan credits: config-driven, per-model-tier cost, ATOMIC pre-charge.
+    # Build 1: replaces the flat 1-credit plans.consume_credit (non-atomic
+    # double-spend bug) with billing.charge(ai_msg_<tier>). Unlimited plans are
+    # charged 0; a free/trial-expired user who can't cover the tier's cost is
+    # blocked BEFORE any provider call (fixes under-funded-start). The charge is
+    # REFUNDED below if every provider fails (the existing "queued" path).
+    charged = 0
     if user is not None:
-        from . import plans
-        if not plans.has_ai_quota(user):
+        from . import billing
+        from .logic import pricing
+        action = pricing.TIER_ACTION.get(tier, "ai_msg_cheap")
+        res = billing.charge(user, action, qty=1, note=feature or action)
+        if not res["ok"]:
             raise AIUnavailable("credits")
+        charged = res["charged"]
 
     model = TIER_MODEL.get(tier, TIER_MODEL["cheap"])
     system = _INJECTION_GUARD + (("\n" + extra_system) if extra_system else "")
@@ -181,14 +191,16 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             cost = (itok * pin + otok * pout) / 1_000_000
             AIUsage.objects.create(user=user, feature=feature, model=used_model,
                                    input_tokens=itok, output_tokens=otok, cost_usd=cost)
-            if user is not None:
-                from . import plans
-                plans.consume_credit(user, note=feature or "ai")
+            # credits were already debited by the pre-charge above (atomic).
             return text, cost
         except Exception as e:  # noqa: BLE001 — degrade to next provider
             last_err = e
             continue
-    # every provider failed → honest "queued" state, never a fake answer
+    # every provider failed → honest "queued" state, never a fake answer.
+    # Refund the pre-charged credits so a user is never billed for a non-answer.
+    if user is not None and charged:
+        from . import billing
+        billing.credit(user, "adjust", charged, note="ai_refund")
     raise AIUnavailable("queued")
 
 
