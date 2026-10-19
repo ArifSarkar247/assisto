@@ -32,7 +32,13 @@ class VaultDocType {
   String? helpText(AppLocalizations t) {
     switch (key) {
       case 'device':
-        return t.vaultDeviceImeiHelp;
+        // Original IMEI how-to + the anti-theft evidence-pack guidance: also
+        // record the serial number and photograph the box label, SIM-tray
+        // label and any unique physical marks; plus the honest note on what
+        // changing an IMEI does (and doesn't) defeat.
+        return '${t.vaultDeviceImeiHelp}\n\n'
+            '${t.vaultDeviceEvidenceHelp}\n\n'
+            '${t.imeiHonestNote}';
       default:
         return null;
     }
@@ -96,6 +102,8 @@ class VaultField {
         return t.vaultFieldSim1;
       case 'sim2':
         return t.vaultFieldSim2;
+      case 'serial':
+        return t.vaultFieldSerial;
       default:
         return key;
     }
@@ -136,6 +144,7 @@ const List<VaultDocType> kVaultDocTypes = [
   VaultDocType('device', Icons.smartphone, [
     VaultField('imei1'),
     VaultField('imei2'),
+    VaultField('serial'),
     VaultField('model'),
     VaultField('sim1'),
     VaultField('sim2'),

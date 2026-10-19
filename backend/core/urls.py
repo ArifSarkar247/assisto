@@ -482,6 +482,7 @@ urlpatterns = [
     path("registry/recover", reg.RecoverView.as_view()),
     path("registry/check", reg.CheckView.as_view()),
     path("registry/neir-status", reg.NeirStatusView.as_view()),
+    path("registry/tac", reg.TacLookupView.as_view()),
     path("sale/create", reg.SaleCreateView.as_view()),
     path("sale/authorize", reg.SaleAuthorizeView.as_view()),
     path("sale/accept", reg.SaleAcceptView.as_view()),

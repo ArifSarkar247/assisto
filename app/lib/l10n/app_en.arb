@@ -13508,5 +13508,42 @@
   "recChanceFlashedGdNote": "The IMEI can still be traced or blocked via police/NEIR.",
   "recChanceNoGdNote": "Without a GD and IMEI there is almost nothing to trace.",
   "recCopied": "Copied",
-  "recLoadFailed": "Couldn't load. Try again."
+  "recLoadFailed": "Couldn't load. Try again.",
+  "vaultFieldSerial": "Serial number",
+  "vaultDeviceEvidenceHelp": "Also record the serial number from Settings → About phone. For your evidence pack, photograph the label on the box, the label inside the SIM tray, and any unique physical marks on the phone, and attach them here — if it is ever stolen these are your strongest proof.",
+  "imeiHonestNote": "Changing an IMEI defeats IMEI-based tracing. The serial number, Google FRP lock, and reporting fast still help. Note: changing a phone's IMEI is a punishable offence in Bangladesh.",
+  "upTamperTitle": "Tamper check (compare the IMEI)",
+  "upTamperIntro": "On some phones the IMEI can be illegally changed, so never trust just one source. Enter the IMEI from the sources below — if they don't all match, be careful.",
+  "upImeiSrcDialer": "IMEI — from the dialer (*#06#)",
+  "upImeiSrcDialerHint": "Dial *#06# on the phone and type the IMEI it shows (required).",
+  "upImeiSrcSettings": "IMEI — from Settings → About",
+  "upImeiSrcSettingsHint": "Open Settings → About phone → Status and type the IMEI (optional).",
+  "upImeiSrcBox": "IMEI — from the box label",
+  "upImeiSrcBoxHint": "Type the IMEI printed on the phone's retail box label (optional).",
+  "upImeiSrcTray": "IMEI — from the SIM-tray label",
+  "upImeiSrcTrayHint": "Type the IMEI printed on the small SIM-tray label inside (optional).",
+  "upTamperWarnTitle": "Possible tampering",
+  "upTamperMismatch": "IMEI numbers don't match — the IMEI may have been changed. Do NOT buy; inform police.",
+  "upTamperTacMismatch": "The brand/model from the IMEI doesn't match the actual phone — the IMEI may have been changed.",
+  "upTamperInvalid": "The IMEI from {src} is not a valid IMEI number.",
+  "@upTamperInvalid": {
+    "placeholders": {
+      "src": {
+        "type": "String"
+      }
+    }
+  },
+  "upTamperAdvice": "Do NOT buy this phone. Don't confront the seller — stay safe and inform the police.",
+  "upTacUnavailable": "TAC make/model check is not available yet (it needs a data source). So no brand/model is shown here — we don't guess.",
+  "upTacHeading": "The IMEI says this phone should be: {makeModel}.",
+  "@upTacHeading": {
+    "placeholders": {
+      "makeModel": {
+        "type": "String"
+      }
+    }
+  },
+  "upTacConfirmQuestion": "Does the actual phone in your hand really match this brand/model?",
+  "upTacYes": "Yes, it matches",
+  "upTacNo": "No, it doesn't"
 }

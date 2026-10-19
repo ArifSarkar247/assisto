@@ -392,6 +392,21 @@ def _vault_sims(user):
     return out
 
 
+def _vault_serial(user):
+    """Best-effort device serial number from the vault device record (IMEIs can
+    be re-flashed, but the serial is a second anchor for the evidence pack)."""
+    try:
+        from .models import Document
+    except Exception:
+        return ""
+    for d in Document.objects.filter(user=user, doc_type="device"):
+        det = d.details or {}
+        for k, v in det.items():
+            if "serial" in str(k).lower() and v:
+                return str(v)
+    return ""
+
+
 def _when_place(phone):
     """(when_text, place_text) from last_location + went_dark — honest/coarse."""
     ds = _went_dark_since(phone)
@@ -411,9 +426,12 @@ class GdDraftView(APIView):
         lang = req_lang(request)
         phone = _primary_phone(request.user)
         sims = _vault_sims(request.user)
+        serial = _vault_serial(request.user)
         when, place = _when_place(phone)
         name = getattr(request.user, "name", "") or ""
 
+        serial_en = serial or "(write the serial number from Settings > About)"
+        serial_bn = serial or "(সেটিংস > ফোন সম্পর্কে থেকে সিরিয়াল নম্বর লিখুন)"
         imei1 = phone.imei1 or pick(lang, "(জানা নেই)", "(unknown)")
         imei2 = phone.imei2 or pick(lang, "(জানা নেই)", "(নেই)" if False else "(none)")
         model = phone.model_name or pick(lang, "(জানা নেই)", "(unknown)")
@@ -433,6 +451,7 @@ class GdDraftView(APIView):
                 f"  Model: {model}\n"
                 f"  IMEI 1: {imei1}\n"
                 f"  IMEI 2: {imei2}\n"
+                f"  Serial number: {serial_en}\n"
                 f"  SIM number(s): {sim_line}\n\n"
                 f"The phone was protected by the Assisto app. Server-side evidence "
                 f"(a recent location trail and any SIM-change record) is available "
@@ -452,6 +471,7 @@ class GdDraftView(APIView):
                 f"  মডেল: {model}\n"
                 f"  IMEI ১: {imei1}\n"
                 f"  IMEI ২: {imei2}\n"
+                f"  সিরিয়াল নম্বর: {serial_bn}\n"
                 f"  সিম নম্বর: {sim_line}\n\n"
                 f"ফোনটি Assisto অ্যাপ দিয়ে সুরক্ষিত ছিল। সার্ভারে সংরক্ষিত প্রমাণ "
                 f"(সাম্প্রতিক অবস্থানের তথ্য ও সিম পরিবর্তনের রেকর্ড) প্রয়োজনে "

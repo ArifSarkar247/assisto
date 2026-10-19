@@ -319,3 +319,32 @@ class SaleMineView(APIView):
         rows += [_row(r, "buyer") for r in SaleReceipt.objects.filter(
             buyer_user=request.user)]
         return Response({"receipts": rows})
+
+
+# --------------------------------------------------------------------------
+# GET registry/tac?imei=...  — TAC (first 8 digits) -> make/model lookup.
+# KEY-GATED + HONEST: without a licensed TAC data source wired in Integrations,
+# we return {available:false} and NEVER invent a brand/model. (A fabricated
+# "genuine" result would be worse than none — IMEI re-flashing is the whole
+# risk.) When a 'tac' integration key is present, this is where a provider call
+# would go; until then it is honestly unavailable.
+# --------------------------------------------------------------------------
+
+class TacLookupView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        imei = _normalize_imei(request.GET.get("imei", ""))
+        if len(imei) < 8:
+            return Response({"available": False, "reason": "bad_imei"})
+        try:
+            from . import integrations as _ig
+            enabled = _ig.is_enabled("tac")
+        except Exception:
+            enabled = False
+        if not enabled:
+            # Honest: no data source → cannot look up make/model from the TAC.
+            return Response({"available": False, "message_key": "tac_not_available"})
+        # Provider wiring would go here when a 'tac' key is configured. Until a
+        # real provider is integrated we still do NOT fabricate a result.
+        return Response({"available": False, "message_key": "tac_not_available"})

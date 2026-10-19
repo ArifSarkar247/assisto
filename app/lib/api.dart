@@ -925,6 +925,31 @@ class ApiClient {
   Future<Map<String, dynamic>> registryNeirStatus() =>
       getJson('/registry/neir-status');
 
+  /// GET registry/tac?imei=... -> {available:bool, brand?, model?}.
+  ///
+  /// Looks up the make/model implied by an IMEI's Type Allocation Code (first 8
+  /// digits), used to flag a re-flashed IMEI whose TAC no longer matches the
+  /// phone in hand. This needs a real TAC database, so the backend is HONEST:
+  /// when no data source is wired up it returns {available:false} and we say so
+  /// — we NEVER invent a brand/model. Key-gated; any non-200 (incl. the gate
+  /// being closed) degrades gracefully to the "not available yet" state rather
+  /// than throwing, so the tamper pre-check still runs its deterministic parts.
+  Future<Map<String, dynamic>> tacLookup(String imei) async {
+    try {
+      final r = await _c.get(
+          AppConfig.api('/registry/tac?imei=${Uri.encodeQueryComponent(imei)}'),
+          headers: _headers());
+      if (r.statusCode >= 200 && r.statusCode < 300) {
+        final body =
+            r.body.isEmpty ? {} : jsonDecode(r.body) as Map<String, dynamic>;
+        return {'available': body['available'] == true, ...body};
+      }
+    } catch (_) {
+      // fall through to the honest "not available" result
+    }
+    return const {'available': false};
+  }
+
   /// POST sale/create {imei, model?, price, buyer_name, buyer_nid?}
   /// -> {id, token, state}. [price] is in TAKA (whole/decimal) as the backend
   /// expects — the sale ledger is a receipt, not a wallet; no money moves.
