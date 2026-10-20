@@ -101,11 +101,25 @@ def _providers():
     return out
 
 
-def _call_anthropic(key, model, system, prompt, max_tokens):
+def _messages(history, prompt):
+    """Build a provider-neutral messages list: prior turns (role/content) then
+    the current user prompt. `history` is a list of {"role","content"} dicts
+    already sanitised by the caller (only 'user'/'assistant' roles)."""
+    msgs = []
+    for h in (history or []):
+        role = h.get("role")
+        content = (h.get("content") or "").strip()
+        if role in ("user", "assistant") and content:
+            msgs.append({"role": role, "content": content})
+    msgs.append({"role": "user", "content": prompt})
+    return msgs
+
+
+def _call_anthropic(key, model, system, prompt, max_tokens, history=None):
     import anthropic
     client = anthropic.Anthropic(api_key=key)
     resp = client.messages.create(model=model, max_tokens=max_tokens, system=system,
-                                   messages=[{"role": "user", "content": prompt}])
+                                   messages=_messages(history, prompt))
     text = "".join(getattr(b, "text", "") for b in resp.content if b.type == "text")
     return text, resp.usage.input_tokens, resp.usage.output_tokens
 
@@ -142,12 +156,28 @@ def _call_openai(key, system, prompt, max_tokens):
     return text, usage.get("prompt_tokens", 0), usage.get("completion_tokens", 0)
 
 
+def _flatten_history(history, prompt):
+    """For providers we call as a single prompt (gemini/openai via REST), fold
+    the prior turns into one transcript so multi-turn context is preserved."""
+    lines = []
+    for h in (history or []):
+        role = h.get("role")
+        content = (h.get("content") or "").strip()
+        if role in ("user", "assistant") and content:
+            who = "User" if role == "user" else "Assistant"
+            lines.append(f"{who}: {content}")
+    lines.append(f"User: {prompt}")
+    return "\n".join(lines)
+
+
 def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
-             extra_system=""):
+             extra_system="", history=None):
     """Run one AI call across providers with graceful degrade. `task` is the
     trusted instruction; `data` is untrusted user content (wrapped safely).
-    Returns (text, cost). Raises AIUnavailable('no_key'|'budget'|'user_limit'|
-    'queued') — callers show a clean Bangla state."""
+    `history` is an optional list of prior {"role","content"} turns (chat), fed
+    as real multi-turn context (Anthropic) or folded into the prompt (REST
+    providers). Returns (text, cost). Raises AIUnavailable('no_key'|'budget'|
+    'user_limit'|'queued') — callers show a clean Bangla state."""
     providers = _providers()
     if not providers:
         raise AIUnavailable("no_key")
@@ -186,13 +216,16 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
     for name, key in providers:
         try:
             if name == "anthropic":
-                text, itok, otok = _call_anthropic(key, model, system, prompt, max_tokens)
+                text, itok, otok = _call_anthropic(key, model, system, prompt,
+                                                   max_tokens, history=history)
                 used_model = model
             elif name == "gemini":
-                text, itok, otok = _call_gemini(key, system, prompt, max_tokens)
+                text, itok, otok = _call_gemini(
+                    key, system, _flatten_history(history, prompt), max_tokens)
                 used_model = "gemini-1.5-flash"
             else:
-                text, itok, otok = _call_openai(key, system, prompt, max_tokens)
+                text, itok, otok = _call_openai(
+                    key, system, _flatten_history(history, prompt), max_tokens)
                 used_model = "gpt-4o-mini"
             pin, pout = PRICES.get(used_model, (1.0, 5.0))
             cost = (itok * pin + otok * pout) / 1_000_000

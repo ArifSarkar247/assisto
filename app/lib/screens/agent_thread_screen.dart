@@ -3,14 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:speech_to_text/speech_to_text.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/chatnav.dart';
+import '../widgets/chat_cards.dart';
 import '../widgets/permission_reason.dart';
 import '../widgets/voice_command_sheet.dart';
-import 'nearby_screen.dart';
 
 class _Msg {
   final bool user;
@@ -388,7 +387,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
           Text(m.text,
               style: TextStyle(
                   color: m.user ? Colors.white : scheme.onSurface, height: 1.4)),
-        for (final c in m.cards) _card(c),
+        for (final c in m.cards) ChatCard(c, onUndo: _undo),
       ]),
     );
 
@@ -406,166 +405,6 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
         _logoMark(28),
         const SizedBox(width: Gap.sm),
         Flexible(child: bubble),
-      ]),
-    );
-  }
-
-  Future<void> _launch(String url, {bool external = true}) async {
-    try {
-      await launchUrl(Uri.parse(url),
-          mode: external ? LaunchMode.externalApplication : LaunchMode.platformDefault);
-    } catch (_) {}
-  }
-
-  Widget _actionCard(Map<String, dynamic> c, IconData icon, List<Widget> actions) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      margin: const EdgeInsets.only(top: Gap.sm),
-      padding: const EdgeInsets.all(Gap.md),
-      decoration: BoxDecoration(
-        color: scheme.surface,
-        borderRadius: BorderRadius.circular(Radii.sm),
-        border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.5)),
-      ),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          Icon(icon, size: 18, color: scheme.primary),
-          const SizedBox(width: Gap.sm),
-          Expanded(child: Text(c['title'] ?? '',
-              style: const TextStyle(fontWeight: FontWeight.w700))),
-        ]),
-        if ((c['subtitle'] ?? '').toString().isNotEmpty)
-          Padding(padding: const EdgeInsets.only(top: 2, left: 26),
-              child: Text(c['subtitle'],
-                  style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant))),
-        const SizedBox(height: Gap.sm),
-        Wrap(spacing: Gap.sm, children: actions),
-      ]),
-    );
-  }
-
-  Widget _card(Map<String, dynamic> c) {
-    final scheme = Theme.of(context).colorScheme;
-    if (c['type'] == 'approval') return _approvalCard(c);
-    if (c['type'] == 'music') {
-      return _actionCard(c, Icons.music_note, [
-        FilledButton.icon(
-            onPressed: () => _launch(c['youtube'] ?? ''),
-            icon: const Icon(Icons.play_arrow, size: 18),
-            label: const Text('YouTube')),
-        if (c['spotify'] != null)
-          OutlinedButton(onPressed: () => _launch(c['spotify']), child: const Text('Spotify')),
-      ]);
-    }
-    if (c['type'] == 'navigate') {
-      return _actionCard(c, Icons.navigation_outlined, [
-        FilledButton.icon(
-            onPressed: () => _launch(c['maps'] ?? ''),
-            icon: const Icon(Icons.map_outlined, size: 18),
-            label: Text(t.open)),
-      ]);
-    }
-    if (c['type'] == 'call') {
-      final phone = (c['phone'] ?? '').toString();
-      return _actionCard(c, Icons.call, [
-        FilledButton.icon(
-            onPressed: phone.isEmpty ? null : () => _launch('tel:$phone', external: false),
-            icon: const Icon(Icons.call, size: 18),
-            label: Text(t.call)),
-      ]);
-    }
-    if (c['type'] == 'nearby') {
-      return _actionCard(c, Icons.place_outlined, [
-        FilledButton.icon(
-            onPressed: () => Navigator.push(context, MaterialPageRoute(
-                builder: (_) => NearbyScreen(placeType: c['place_type'] ?? 'restaurant'))),
-            icon: const Icon(Icons.search, size: 18),
-            label: Text(t.open)),
-      ]);
-    }
-    final isAlert = c['type'] == 'alert';
-    final sev = c['severity'];
-    final bg = isAlert
-        ? (sev == 'high'
-            ? scheme.errorContainer
-            : scheme.tertiaryContainer)
-        : scheme.surface;
-    final fg = isAlert
-        ? (sev == 'high' ? scheme.onErrorContainer : scheme.onTertiaryContainer)
-        : scheme.onSurface;
-    return Container(
-      margin: const EdgeInsets.only(top: Gap.sm),
-      padding: const EdgeInsets.all(Gap.md),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(Radii.sm),
-        border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.5)),
-      ),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(c['title'] ?? '',
-            style: TextStyle(fontWeight: FontWeight.w700, color: fg)),
-        if ((c['subtitle'] ?? '').toString().isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 2),
-            child: Text(c['subtitle'],
-                style: TextStyle(fontSize: 12, color: fg.withValues(alpha: 0.75))),
-          ),
-        if (c['undo'] == true)
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton.icon(
-              onPressed: () => _undo(c),
-              icon: const Icon(Icons.undo, size: 16),
-              label: Text(t.undo),
-              style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
-            ),
-          ),
-      ]),
-    );
-  }
-
-  Widget _approvalCard(Map<String, dynamic> c) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      margin: const EdgeInsets.only(top: Gap.sm),
-      padding: const EdgeInsets.all(Gap.md),
-      decoration: BoxDecoration(
-        color: scheme.primaryContainer.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(Radii.md),
-        border: Border.all(color: scheme.primary.withValues(alpha: 0.4)),
-      ),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          Icon(Icons.verified_user_outlined, size: 18, color: scheme.primary),
-          const SizedBox(width: Gap.sm),
-          Expanded(
-            child: Text(c['title'] ?? '',
-                style: TextStyle(
-                    fontWeight: FontWeight.w700, color: scheme.onSurface)),
-          ),
-        ]),
-        if ((c['subtitle'] ?? '').toString().isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 4, left: 26),
-            child: Text(c['subtitle'],
-                style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
-          ),
-        const SizedBox(height: Gap.sm),
-        Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
-          FilledButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.check, size: 18),
-            label: Text(t.approve),
-            style: FilledButton.styleFrom(
-                minimumSize: const Size(0, 38),
-                visualDensity: VisualDensity.compact),
-          ),
-          OutlinedButton(
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(minimumSize: const Size(0, 38)),
-              child: Text(t.edit)),
-          TextButton(onPressed: () {}, child: Text(t.cancel)),
-        ]),
       ]),
     );
   }

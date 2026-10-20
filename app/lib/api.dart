@@ -1257,4 +1257,156 @@ class ApiClient {
     }
     _fail(r);
   }
+
+  // ==========================================================================
+  // Part 3: Assisto AI — the ChatGPT-like full-history chat. The HOME chat
+  // (/agent) stays as-is; this is the richer, persistent-session experience.
+  //
+  // HONESTY: with no AI key the backend answers via Assisto Brain (real
+  // user-data summaries / help answers / honest "needs key"). Every reply
+  // carries `meta.source` so the UI can label a Brain answer instead of
+  // pretending it was a streamed AI response. We NEVER fabricate a reply.
+  //
+  // Sessions endpoints code DEFENSIVELY: the list view may return either
+  // {sessions:[...]} or a bare list; [chatSessions] normalises both.
+  // ==========================================================================
+
+  /// GET chat/sessions?query= -> list of {id, title, pinned, updated, snippet}.
+  /// Handles both {sessions:[...]} and a bare list.
+  Future<List<Map<String, dynamic>>> chatSessions({String? query}) async {
+    final q = (query != null && query.trim().isNotEmpty)
+        ? '?query=${Uri.encodeQueryComponent(query.trim())}'
+        : '';
+    final r = await _c.get(AppConfig.api('/chat/sessions$q'), headers: _headers());
+    if (r.statusCode == 200) {
+      final body = r.body.isEmpty ? [] : jsonDecode(r.body);
+      final list = body is Map ? (body['sessions'] ?? body['results'] ?? []) : body;
+      return (list as List).cast<Map<String, dynamic>>();
+    }
+    _fail(r);
+  }
+
+  /// POST chat/sessions -> the created session {id, ...}.
+  Future<Map<String, dynamic>> chatCreateSession({String? title}) =>
+      postJson('/chat/sessions',
+          {if (title != null && title.isNotEmpty) 'title': title});
+
+  /// PATCH chat/sessions/<id> {title?, pinned?, archived?} -> updated session.
+  Future<Map<String, dynamic>> chatUpdateSession(String id,
+      {String? title, bool? pinned, bool? archived}) async {
+    final r = await _c.patch(AppConfig.api('/chat/sessions/$id'),
+        headers: _headers(),
+        body: jsonEncode({
+          if (title != null) 'title': title,
+          if (pinned != null) 'pinned': pinned,
+          if (archived != null) 'archived': archived,
+        }));
+    if (r.statusCode >= 200 && r.statusCode < 300) {
+      return r.body.isEmpty ? {} : jsonDecode(r.body) as Map<String, dynamic>;
+    }
+    _fail(r);
+  }
+
+  /// DELETE chat/sessions/<id>.
+  Future<void> chatDeleteSession(String id) async {
+    final r =
+        await _c.delete(AppConfig.api('/chat/sessions/$id'), headers: _headers());
+    if (r.statusCode != 204 && r.statusCode != 200 && r.statusCode != 404) {
+      _fail(r);
+    }
+  }
+
+  /// GET chat/sessions/<id>/messages -> list of {id, role, text, meta}.
+  /// Handles both {messages:[...]} and a bare list.
+  Future<List<Map<String, dynamic>>> chatMessages(String sessionId) async {
+    final r = await _c.get(AppConfig.api('/chat/sessions/$sessionId/messages'),
+        headers: _headers());
+    if (r.statusCode == 200) {
+      final body = r.body.isEmpty ? [] : jsonDecode(r.body);
+      final list =
+          body is Map ? (body['messages'] ?? body['results'] ?? []) : body;
+      return (list as List).cast<Map<String, dynamic>>();
+    }
+    _fail(r);
+  }
+
+  /// POST chat/sessions/<id>/send {text} -> the assistant message
+  /// {id, role:'assistant', text, meta, cards?}.
+  Future<Map<String, dynamic>> chatSend(String sessionId, String text) =>
+      postJson('/chat/sessions/$sessionId/send', {'text': text});
+
+  /// POST chat/sessions/<id>/regenerate {edit?} -> a new assistant message.
+  /// Pass [edit] to resend an edited version of the last user message.
+  Future<Map<String, dynamic>> chatRegenerate(String sessionId,
+          {String? edit}) =>
+      postJson('/chat/sessions/$sessionId/regenerate',
+          {if (edit != null && edit.isNotEmpty) 'edit': edit});
+
+  /// SSE stream of chat/sessions/<id>/stream (POST {text}). Yields `token`
+  /// chunks as they arrive and a final `done` event carrying
+  /// {message_id, cards, source}. Parses the standard text/event-stream
+  /// framing (`event:` + `data:` lines, blank-line separated).
+  ///
+  /// Each yielded record is one of:
+  ///   {'kind':'token', 'chunk': <String>}
+  ///   {'kind':'done', 'message_id':..., 'cards':[...], 'source':...}
+  ///
+  /// Callers that can't stream should fall back to [chatSend]. The stream is
+  /// cancellable by cancelling the StreamSubscription (we abort the request).
+  Stream<Map<String, dynamic>> chatStream(String sessionId, String text) async* {
+    final req = http.Request(
+        'POST', AppConfig.api('/chat/sessions/$sessionId/stream'));
+    req.headers.addAll(_headers());
+    req.headers['Accept'] = 'text/event-stream';
+    req.body = jsonEncode({'text': text});
+    final resp = await _c.send(req);
+    if (resp.statusCode < 200 || resp.statusCode >= 300) {
+      throw ApiException('stream failed', resp.statusCode);
+    }
+    final lines = resp.stream
+        .transform(utf8.decoder)
+        .transform(const LineSplitter());
+    String? event;
+    final dataBuf = StringBuffer();
+    await for (final line in lines) {
+      if (line.isEmpty) {
+        // Blank line = dispatch the accumulated event.
+        final data = dataBuf.toString();
+        dataBuf.clear();
+        if (data.isEmpty) {
+          event = null;
+          continue;
+        }
+        Map<String, dynamic> payload;
+        try {
+          final decoded = jsonDecode(data);
+          payload = decoded is Map<String, dynamic> ? decoded : {'value': decoded};
+        } catch (_) {
+          payload = {'chunk': data};
+        }
+        final ev = event ?? (payload.containsKey('message_id') ? 'done' : 'token');
+        if (ev == 'done') {
+          yield {
+            'kind': 'done',
+            'message_id': payload['message_id'],
+            'cards': payload['cards'] ?? const [],
+            'source': payload['source'],
+            'meta': payload['meta'],
+            'text': payload['text'],
+          };
+        } else {
+          yield {'kind': 'token', 'chunk': payload['chunk'] ?? payload['value'] ?? ''};
+        }
+        event = null;
+        continue;
+      }
+      if (line.startsWith('event:')) {
+        event = line.substring(6).trim();
+      } else if (line.startsWith('data:')) {
+        if (dataBuf.isNotEmpty) dataBuf.write('\n');
+        dataBuf.write(line.substring(5).trimLeft());
+      }
+      // other SSE fields (id:, retry:, comments) are ignored.
+    }
+  }
 }

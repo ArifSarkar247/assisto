@@ -7,6 +7,7 @@ import '../widgets/sidebar_sections.dart';
 import 'settings_screen.dart';
 import 'plans_screen.dart';
 import 'messenger/messenger_home_screen.dart';
+import 'ai_chat_screen.dart';
 
 /// Left sidebar — the app's navigation hub (modern AI-chat style). The main
 /// screen is only the chat; everything else lives here.
@@ -110,6 +111,15 @@ class _AppDrawerState extends State<AppDrawer> {
               color: scheme.onSurfaceVariant),
           title: Text(t.sidebarMyCircle),
           onTap: () => _push((_) => const MessengerHomeScreen()),
+        ),
+        // Part 3: Assisto AI — the full-history ChatGPT-like chat (distinct
+        // from the home chat, which stays as-is). Chat-openable via ChatNav
+        // route 'ai_chat'.
+        ListTile(
+          dense: true,
+          leading: Icon(Icons.auto_awesome, color: scheme.primary),
+          title: Text(t.aichatSidebar),
+          onTap: () => _push((_) => const AiChatScreen()),
         ),
         // ---- search box ----
         Padding(

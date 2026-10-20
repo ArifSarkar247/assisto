@@ -12,6 +12,7 @@ from django.utils import timezone
 from rest_framework.test import APITestCase
 
 from . import agent
+from . import ai
 from .models import (User, Transaction, Loan, Medicine, Reminder,
                      MemoryItem, Account)
 
@@ -2709,7 +2710,7 @@ class BusinessModelBuild1Tests(APITestCase):
         self.u.save()
         # stub providers + a successful anthropic call (no network)
         self._patch_ai(lambda: [("anthropic", "k")],
-                       lambda key, model, system, prompt, mx: ("ok", 10, 10))
+                       lambda key, model, system, prompt, mx, history=None: ("ok", 10, 10))
         text, cost = ai.generate("hi", tier="strong", user=self.u)  # v2 strong = 6 cr
         self.assertEqual(text, "ok")
         self.u.refresh_from_db()
@@ -3326,3 +3327,264 @@ class BusinessModelV3Tests(APITestCase):
         self.assertEqual(p.data["config"]["fixed_cost_per_day"], 450.0)
         r = self.client.get("/api/v1/admin/pnl")
         self.assertEqual(r.data["fixed_cost_per_day"], 450.0)
+
+
+class ChatSessionTests(APITestCase):
+    """AI Chat (Part 3) — ChatGPT-like multi-turn chat with history.
+
+    Proves: session CRUD + search + pin; no-key chat is answered by Brain
+    (non-empty, FREE, never charged); a (mocked) key routes through ai.generate
+    with the FULL prior-turn context + credits charged; regenerate replaces the
+    last assistant message; edit+regenerate; and the kill-switch / guard degrades
+    to the free Brain answer instead of failing.
+    """
+    def setUp(self):
+        from .models import User
+        self.user = User.objects.create_user(
+            name="চ্যাট", phone="01722222222", password="secret123")
+        self.client.force_authenticate(user=self.user)
+
+    # -- helpers ------------------------------------------------------------
+    def _new_session(self, title=None):
+        body = {"title": title} if title else {}
+        r = self.client.post("/api/v1/chat/sessions", body, format="json")
+        self.assertEqual(r.status_code, 201)
+        return r.data["id"]
+
+    def _send(self, sid, text):
+        return self.client.post(f"/api/v1/chat/sessions/{sid}/send",
+                                {"text": text}, format="json")
+
+    def _grant_credits(self, n=50):
+        from .models import User
+        User.objects.filter(pk=self.user.pk).update(ai_credits=n)
+        self.user.refresh_from_db()
+
+    # -- session CRUD / list / search / pin --------------------------------
+    def test_create_list_session(self):
+        sid = self._new_session()
+        r = self.client.get("/api/v1/chat/sessions")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(len(r.data["sessions"]), 1)
+        self.assertEqual(r.data["sessions"][0]["id"], sid)
+
+    def test_title_auto_derived_from_first_message(self):
+        sid = self._new_session()
+        self._send(sid, "আমার কত টাকা আছে?")
+        r = self.client.get(f"/api/v1/chat/sessions/{sid}/messages")
+        self.assertEqual(r.data["session"]["title"], "আমার কত টাকা আছে?")
+
+    def test_long_title_is_trimmed(self):
+        sid = self._new_session()
+        self._send(sid, "x" * 60)
+        r = self.client.get("/api/v1/chat/sessions")
+        row = [s for s in r.data["sessions"] if s["id"] == sid][0]
+        self.assertTrue(row["title"].endswith("…"))
+        self.assertLessEqual(len(row["title"]), 41)
+
+    def test_rename_is_sticky(self):
+        sid = self._new_session()
+        self._send(sid, "প্রথম বার্তা একটি")
+        r = self.client.patch(f"/api/v1/chat/sessions/{sid}",
+                              {"title": "My renamed chat"}, format="json")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.data["title"], "My renamed chat")
+        # a later first-message-style send must NOT clobber the manual title
+        self._send(sid, "আরেকটি বার্তা")
+        r2 = self.client.get(f"/api/v1/chat/sessions/{sid}/messages")
+        self.assertEqual(r2.data["session"]["title"], "My renamed chat")
+
+    def test_pin_orders_first(self):
+        a = self._new_session("alpha")
+        b = self._new_session("beta")
+        self.client.patch(f"/api/v1/chat/sessions/{b}",
+                          {"pinned": True}, format="json")
+        r = self.client.get("/api/v1/chat/sessions")
+        self.assertEqual(r.data["sessions"][0]["id"], b)
+        self.assertTrue(r.data["sessions"][0]["pinned"])
+        del a
+
+    def test_search_over_title_and_messages(self):
+        s1 = self._new_session("Groceries plan")
+        s2 = self._new_session("Other")
+        self._send(s2, "কত টাকা খরচ করেছি বাজারে")  # body-only match
+        r = self.client.get("/api/v1/chat/sessions?query=Groceries")
+        ids = [s["id"] for s in r.data["sessions"]]
+        self.assertIn(s1, ids)
+        self.assertNotIn(s2, ids)
+        r2 = self.client.get("/api/v1/chat/sessions?query=বাজারে")
+        ids2 = [s["id"] for s in r2.data["sessions"]]
+        self.assertIn(s2, ids2)
+
+    def test_archive_hides_from_default_list(self):
+        sid = self._new_session("to archive")
+        self.client.patch(f"/api/v1/chat/sessions/{sid}",
+                          {"archived": True}, format="json")
+        r = self.client.get("/api/v1/chat/sessions")
+        self.assertNotIn(sid, [s["id"] for s in r.data["sessions"]])
+        r2 = self.client.get("/api/v1/chat/sessions?archived=1")
+        self.assertIn(sid, [s["id"] for s in r2.data["sessions"]])
+
+    def test_delete_session(self):
+        from .models import ChatSession
+        sid = self._new_session()
+        r = self.client.delete(f"/api/v1/chat/sessions/{sid}")
+        self.assertEqual(r.status_code, 204)
+        self.assertFalse(ChatSession.objects.filter(id=sid).exists())
+
+    def test_requires_auth(self):
+        self.client.force_authenticate(user=None)
+        r = self.client.get("/api/v1/chat/sessions")
+        self.assertIn(r.status_code, (401, 403))
+
+    def test_data_isolation(self):
+        from .models import User
+        sid = self._new_session("mine")
+        other = User.objects.create_user(
+            name="অন্য", phone="01733333333", password="secret123")
+        self.client.force_authenticate(user=other)
+        r = self.client.get(f"/api/v1/chat/sessions/{sid}/messages")
+        self.assertEqual(r.status_code, 404)
+
+    # -- NO KEY → Brain answer, non-empty, FREE ----------------------------
+    def test_send_no_key_brain_answer_not_charged(self):
+        from unittest.mock import patch
+        from .models import ChatMessage
+        self._grant_credits(10)
+        sid = self._new_session()
+        with patch("core.ai.available", return_value=False), \
+             patch("core.ai.key_present", return_value=False):
+            r = self._send(sid, "আমার কত টাকা আছে?")
+        self.assertEqual(r.status_code, 200)
+        self.assertFalse(r.data["ai_used"])
+        self.assertTrue(r.data["message"]["text"].strip())  # never empty
+        self.assertEqual(r.data["message"]["meta"]["source"], "brain")
+        self.assertEqual(r.data["message"]["meta"]["credits"], 0)
+        # not charged: balance unchanged
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.ai_credits, 10)
+        # transcript has the user turn + the assistant turn
+        self.assertEqual(
+            ChatMessage.objects.filter(session_id=sid).count(), 2)
+
+    def test_send_no_key_general_question_is_honest_needs_key(self):
+        from unittest.mock import patch
+        sid = self._new_session()
+        with patch("core.ai.available", return_value=False):
+            r = self._send(sid, "What's the capital of France?")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.data["message"]["meta"]["level"], "L4")
+        self.assertTrue(r.data["message"]["text"].strip())
+
+    # -- KEY present → ai.generate with prior-turn context + credits charged
+    def test_send_with_key_calls_ai_with_history_and_charges(self):
+        from unittest.mock import patch
+        self._grant_credits(10)
+        sid = self._new_session()
+        # turn 1 (keyed)
+        captured = {}
+
+        def fake_call(key, model, system, prompt, max_tokens, history=None):
+            captured["history"] = history
+            captured["prompt"] = prompt
+            return "Fake AI reply", 100, 50
+
+        with patch("core.ai._providers", return_value=[("anthropic", "KEY")]), \
+             patch("core.ai.key_present", return_value=True), \
+             patch("core.ai._call_anthropic", side_effect=fake_call):
+            self._send(sid, "প্রথম প্রশ্ন")
+            r2 = self._send(sid, "দ্বিতীয় প্রশ্ন")
+
+        self.assertEqual(r2.status_code, 200)
+        self.assertTrue(r2.data["ai_used"])
+        self.assertEqual(r2.data["message"]["text"], "Fake AI reply")
+        self.assertEqual(r2.data["message"]["meta"]["source"], "ai")
+        # the SECOND call saw the FULL prior transcript as history
+        hist_roles = [h["role"] for h in (captured["history"] or [])]
+        self.assertIn("user", hist_roles)
+        self.assertIn("assistant", hist_roles)
+        self.assertTrue(any("প্রথম প্রশ্ন" in h["content"]
+                            for h in captured["history"]))
+        # credits were charged (2 keyed messages, ai_msg_cheap = 1 each)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.ai_credits, 8)
+        self.assertTrue(r2.data["message"]["meta"]["credits"] >= 1)
+
+    # -- regenerate replaces the last assistant message --------------------
+    def test_regenerate_replaces_last_assistant(self):
+        from unittest.mock import patch
+        from .models import ChatMessage
+        sid = self._new_session()
+        with patch("core.ai.available", return_value=False):
+            self._send(sid, "আমার রিমাইন্ডার গুলা কি")
+            before = ChatMessage.objects.filter(
+                session_id=sid, role="assistant").first()
+            r = self.client.post(
+                f"/api/v1/chat/sessions/{sid}/regenerate", {}, format="json")
+        self.assertEqual(r.status_code, 200)
+        # still exactly one user + one assistant turn
+        self.assertEqual(
+            ChatMessage.objects.filter(session_id=sid, role="user").count(), 1)
+        self.assertEqual(
+            ChatMessage.objects.filter(session_id=sid, role="assistant").count(), 1)
+        after = ChatMessage.objects.filter(
+            session_id=sid, role="assistant").first()
+        self.assertNotEqual(before.id, after.id)  # a NEW assistant row
+
+    def test_edit_and_regenerate(self):
+        from unittest.mock import patch
+        from .models import ChatMessage
+        sid = self._new_session()
+        with patch("core.ai.available", return_value=False):
+            self._send(sid, "আমার টুডু গুলা কি")
+            r = self.client.post(
+                f"/api/v1/chat/sessions/{sid}/regenerate",
+                {"edit": "আমার কত টাকা আছে?"}, format="json")
+        self.assertEqual(r.status_code, 200)
+        # the user turn text was replaced
+        um = ChatMessage.objects.filter(session_id=sid, role="user").first()
+        self.assertEqual(um.text, "আমার কত টাকা আছে?")
+        # and the new answer reflects the money question
+        self.assertIn("ব্যালেন্স", r.data["message"]["text"])
+
+    # -- kill-switch / guard → Brain fallback, never a failure -------------
+    def test_kill_switch_degrades_to_brain(self):
+        from unittest.mock import patch
+        self._grant_credits(10)
+        sid = self._new_session()
+        # ai.available() False simulates the global kill-switch (over budget).
+        with patch("core.ai.available", return_value=False), \
+             patch("core.ai.key_present", return_value=True):
+            r = self._send(sid, "আমার কত টাকা আছে?")
+        self.assertEqual(r.status_code, 200)
+        self.assertFalse(r.data["ai_used"])
+        self.assertEqual(r.data["message"]["meta"]["source"], "brain")
+        self.assertTrue(r.data["message"]["text"].strip())
+        # not charged (Brain is free)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.ai_credits, 10)
+
+    def test_ai_unavailable_midcall_falls_back_to_brain(self):
+        """If ai.available() is True but ai.generate raises AIUnavailable (e.g.
+        every provider failed, after a refund), send still returns a Brain answer."""
+        from unittest.mock import patch
+        sid = self._new_session()
+        with patch("core.ai.available", return_value=True), \
+             patch("core.ai.generate", side_effect=ai.AIUnavailable("queued")):
+            r = self._send(sid, "আমার কত টাকা আছে?")
+        self.assertEqual(r.status_code, 200)
+        self.assertFalse(r.data["ai_used"])
+        self.assertEqual(r.data["message"]["meta"]["source"], "brain")
+
+    # -- streaming ----------------------------------------------------------
+    def test_stream_returns_sse_chunks(self):
+        from unittest.mock import patch
+        sid = self._new_session()
+        with patch("core.ai.available", return_value=False):
+            r = self.client.get(
+                f"/api/v1/chat/sessions/{sid}/stream?text=" "আমার কত টাকা আছে")
+        self.assertEqual(r.status_code, 200)
+        self.assertIn("text/event-stream", r["Content-Type"])
+        body = b"".join(r.streaming_content).decode()
+        self.assertIn("event: token", body)
+        self.assertIn("event: done", body)

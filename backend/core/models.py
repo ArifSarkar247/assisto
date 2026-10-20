@@ -2821,3 +2821,56 @@ class SaleReceipt(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+
+# ===========================================================================
+# AI CHAT (Part 3) — ChatGPT-like multi-turn chat with history.
+#
+#   A ChatSession is one conversation thread; ChatMessage rows are its turns.
+#   The reply is produced by core/ai.py (keyed, charged, full-context) or, with
+#   NO key / kill-switch active, by the deterministic no-key Brain (free, honest,
+#   over the user's OWN data + help KB). Nothing here ever fabricates a fact.
+# ===========================================================================
+
+class ChatSession(models.Model):
+    """One ChatGPT-style conversation thread owned by a user. The title is
+    auto-derived from the first user message (trimmed) unless the user renames
+    it (`title_custom` then stays True so the derive never clobbers it)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="chat_sessions")
+    title = models.CharField(max_length=120, blank=True, default="")
+    title_custom = models.BooleanField(default=False)
+    pinned = models.BooleanField(default=False)
+    archived = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-pinned", "-updated_at"]
+        indexes = [models.Index(fields=["user", "-pinned", "-updated_at"])]
+
+    def derive_title(self, first_user_text):
+        """Set the title from the first user message (~40 chars) unless the user
+        has renamed it. No-op once `title_custom` is True."""
+        if self.title_custom:
+            return
+        t = (first_user_text or "").strip().replace("\n", " ")
+        if not t:
+            return
+        self.title = (t[:40].rstrip() + "…") if len(t) > 40 else t
+
+
+class ChatMessage(models.Model):
+    """One turn in a ChatSession. `meta` carries non-content extras (tokens,
+    model, cards, credits charged, level/handler for Brain answers)."""
+    ROLES = [("user", "user"), ("assistant", "assistant"), ("system", "system")]
+    session = models.ForeignKey(ChatSession, on_delete=models.CASCADE,
+                                related_name="messages")
+    role = models.CharField(max_length=10, choices=ROLES)
+    text = models.TextField(blank=True, default="")
+    meta = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at", "id"]
+        indexes = [models.Index(fields=["session", "created_at"])]

@@ -66,6 +66,7 @@ import '../screens/circle_call_history_screen.dart';
 import '../screens/action_center_screen.dart';
 import '../screens/disaster_alerts_screen.dart';
 import '../screens/offline_status_screen.dart';
+import '../screens/ai_chat_screen.dart';
 
 /// open-from-chat configuration (Phase B).
 ///
@@ -183,6 +184,9 @@ class ChatNav {
     'tax': (_) => const MoneyTaxScreen(),
     'wrapped': (_) => const MoneyWrappedScreen(),
     'money_voice': (_) => const MoneyVoiceScreen(),
+    // Part 3: Assisto AI — the full-history ChatGPT-like chat (distinct from
+    // the home chat). Chat-openable via 'ai'/'chat'/'assistant' synonyms.
+    'ai_chat': (_) => const AiChatScreen(),
   };
 
   /// Local ENGLISH subject vocabulary (ASCII only). Mirrors the English tokens
@@ -278,6 +282,11 @@ class ChatNav {
         'year in money'],
     'money_voice': ['money by voice', 'money voice', 'voice expense',
         'speak expense', 'log by voice'],
+    // Part 3: Assisto AI full chat. ASCII synonyms only (the gate forbids
+    // Bangla literals in .dart); Bangla phrases resolve via the backend
+    // screen_synonyms `route` field (layer 1), not this local fast-path.
+    'ai_chat': ['assisto ai', 'ai chat', 'assistant', 'ai assistant', 'chat',
+        'ai'],
   };
 
   /// English verbs marking an explicit "open the screen" intent, so a plain

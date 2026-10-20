@@ -11,6 +11,7 @@ from . import views_security as secv
 from . import views_registry as reg
 from . import views_lost as lost
 from . import views_account_deletion as acctdel
+from . import views_chat as chatv
 
 router = DefaultRouter()
 router.register("memory", views.MemoryViewSet, basename="memory")
@@ -124,6 +125,14 @@ urlpatterns = [
 
     path("scan", views.LifeScanView.as_view()),
     path("agent", views.AgentView.as_view()),
+
+    # AI Chat (Part 3) — ChatGPT-like multi-turn chat with history.
+    path("chat/sessions", chatv.ChatSessionsView.as_view()),
+    path("chat/sessions/<int:sid>", chatv.ChatSessionDetailView.as_view()),
+    path("chat/sessions/<int:sid>/messages", chatv.ChatMessagesView.as_view()),
+    path("chat/sessions/<int:sid>/send", chatv.ChatSendView.as_view()),
+    path("chat/sessions/<int:sid>/stream", chatv.ChatStreamView.as_view()),
+    path("chat/sessions/<int:sid>/regenerate", chatv.ChatRegenerateView.as_view()),
     path("wrapped", views.wrapped),
     path("invite", views.InviteView.as_view()),
     path("export", views.ExportView.as_view()),
