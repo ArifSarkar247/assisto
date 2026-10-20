@@ -119,6 +119,13 @@ class ShopIngestView(APIView):
                         status=429, code="rate_limited")
 
         signals = request.data.get("signals")
+        if isinstance(signals, str):
+            # multipart uploads (signals + snapshot) carry signals as a JSON string
+            try:
+                import json
+                signals = json.loads(signals)
+            except ValueError:
+                signals = {}
         if not isinstance(signals, dict):
             signals = {}
         # the camera event the pure guard consumes (its own `at`, epoch seconds)

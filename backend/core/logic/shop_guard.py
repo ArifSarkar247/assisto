@@ -55,6 +55,18 @@ DEFAULT_SPIKE_MIN = 3          # at least this many in the window to even consid
 DEFAULT_SPIKE_FACTOR = 2.0     # and >= this multiple of the baseline
 
 
+# Descriptive keys an edge/camera attaches to `signals` that are NOT evidence
+# (which detector ran, client version, where the event came from). They must
+# never count as an extra corroborating signal or inflate confidence.
+META_KEYS = frozenset({"detector", "edge_version", "source", "camera_rule",
+                       "model", "fps", "camera_id"})
+
+
+def _corroborations(extra):
+    """The truthy, evidence-bearing extra signals (metadata excluded)."""
+    return [k for k, v in extra.items() if v and k not in META_KEYS]
+
+
 def _ts(ev):
     """Seconds-epoch of an event's `at` (already a float/int), else None."""
     v = ev.get("at")
@@ -119,10 +131,9 @@ def combine(camera_event, pos_events, now=None, window_s=DEFAULT_WINDOW_S,
         conf = 0.6
         # each extra corroborating edge signal (e.g. reach_into_drawer, lingering)
         # nudges confidence up — more agreement = higher confidence.
-        for k, v in extra.items():
-            if v:
-                reasons.append(k)
-                conf += 0.1
+        for k in _corroborations(extra):
+            reasons.append(k)
+            conf += 0.1
         return _result(True, etype, min(conf, 0.95), reasons, pos_matched=False)
 
     # ---- DRAWER OPEN without a sale ----
@@ -134,10 +145,9 @@ def combine(camera_event, pos_events, now=None, window_s=DEFAULT_WINDOW_S,
                            pos_matched=True)
         reasons = ["drawer_open", "no_matching_sale"]
         conf = 0.65
-        for k, v in extra.items():
-            if v:
-                reasons.append(k)
-                conf += 0.1
+        for k in _corroborations(extra):
+            reasons.append(k)
+            conf += 0.1
         return _result(True, etype, min(conf, 0.95), reasons, pos_matched=False)
 
     # ---- VOID / REFUND / DISCOUNT SPIKE vs a baseline ----

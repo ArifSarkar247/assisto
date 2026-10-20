@@ -157,3 +157,34 @@ class CameraHookViewTests(APITestCase):
         self.cam.save()
         r = self._post("dahua", "text/plain", b"Code=CrossLineDetection;action=Start")
         self.assertEqual(r.data.get("ignored"), "camera_disabled")
+
+
+class EdgeIngestGapTests(APITestCase):
+    """Gaps found by the Shop Box client: multipart signals + metadata keys."""
+    def setUp(self):
+        from core.models import ShopSite, ShopCamera
+        self.owner = User.objects.create_user(name="O", phone="01710000088", password="pw")
+        self.site = ShopSite.objects.create(owner=self.owner, name="S")
+        self.cam = ShopCamera.objects.create(site=self.site, name="Till")
+
+    def test_metadata_keys_do_not_inflate_confidence(self):
+        from core.logic import shop_guard as SG
+        base = SG.combine({"type": "hand_in_cash_zone", "at": 1.0, "signals": {}}, [], now=1.0)
+        meta = SG.combine({"type": "hand_in_cash_zone", "at": 1.0,
+                           "signals": {"detector": "yolox_nano", "edge_version": "1.0"}}, [], now=1.0)
+        self.assertEqual(base["confidence"], meta["confidence"])
+        self.assertNotIn("detector", meta["reason_signals"])
+
+    def test_multipart_string_signals_are_parsed(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        r = self.client.post("/api/v1/shop/ingest", {
+            "camera_token": self.cam.camera_token, "type": "motion",
+            "signals": json.dumps({"after_hours": True, "detector": "motion_only"}),
+            "snapshot": SimpleUploadedFile("s.jpg", _jpeg(320), content_type="image/jpeg"),
+        }, format="multipart")
+        self.assertEqual(r.status_code, 201)
+        self.assertEqual(r.data["type"], "after_hours")
+        from core.models import ShopEvent
+        ev = ShopEvent.objects.get(pk=r.data["event_id"])
+        self.assertEqual(ev.signals["inputs"]["detector"], "motion_only")
+        ev.snapshot.delete(save=False)
