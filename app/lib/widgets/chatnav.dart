@@ -29,6 +29,7 @@ import '../screens/recovery_screen.dart';
 import '../screens/phone_safety_screen.dart';
 import '../screens/security_screen.dart';
 import '../screens/sell_my_phone_screen.dart';
+import '../screens/shop_box_screen.dart';
 import '../screens/used_phone_check_screen.dart';
 import '../screens/owner_analytics_screen.dart';
 import '../screens/name_about_screen.dart';
@@ -131,6 +132,8 @@ class ChatNav {
     // (Report-stolen lives inside both screens, so it needs no route of its own.)
     'used_phone_check': (_) => const UsedPhoneCheckScreen(),
     'sell_phone': (_) => const SellMyPhoneScreen(),
+    // Part 4: Shop Box / CCTV loss-prevention (Business tier, signals-only).
+    'shop_box': (_) => const ShopBoxScreen(),
     'analytics': (_) => const OwnerAnalyticsScreen(),
     'name_about': (_) => const NameAboutScreen(),
     'ramadan': (_) => const RamadanScreen(),

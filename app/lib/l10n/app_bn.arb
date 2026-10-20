@@ -12331,5 +12331,153 @@
   "aichatAssistant": "অ্যাসিস্টো",
   "aichatMicHint": "কথা বলে লিখুন",
   "aichatStoppedByUser": "থামানো হয়েছে।",
-  "aichatUpdatedRelative": "{when} আপডেট হয়েছে"
+  "aichatUpdatedRelative": "{when} আপডেট হয়েছে",
+  "shopBoxTitle": "শপ বক্স",
+  "shopBoxTabSites": "দোকান",
+  "shopBoxTabCameras": "ক্যামেরা",
+  "shopBoxTabAlerts": "সতর্কতা",
+  "shopBoxTabReport": "রিপোর্ট",
+  "shopBoxUpsellTitle": "শপ বক্স — নীরব লস-প্রিভেনশন",
+  "shopBoxUpsellBody": "একটি এজ ডিভাইস দোকানে নজর রাখে এবং কিছু দেখার দরকার হলে শুধু ছোট একটি সতর্কতা ও একটি স্থির ছবি পাঠায়। কোনো ভিডিও কখনও আপনার দোকান থেকে বের হয় না।",
+  "shopBoxWhatSignals": "শুধু সিগন্যাল, গোপনীয়তা সুরক্ষিত — শনাক্তকরণ ডিভাইসেই হয়; কোনো লাইভ ভিডিও স্ট্রিমিং নেই।",
+  "shopBoxWhatAlerts": "সৎ সতর্কতা: কনফিডেন্স স্কোরসহ \"অনুগ্রহ করে ক্যামেরা X দেখুন\" — সিদ্ধান্ত আপনার।",
+  "shopBoxWhatReport": "প্রতিদিনের রিপোর্ট: ভয়েড, রিফান্ড, ডিসকাউন্ট, ড্রয়ার-ওপেন এবং সময়ের বাইরের কার্যকলাপ।",
+  "shopBoxUpsellPlanNote": "শপ বক্স বিজনেস প্ল্যানের অংশ। এতে কয়েকটি ক্যামেরা অন্তর্ভুক্ত; বাড়তি ক্যামেরায় ক্রেডিট লাগে।",
+  "shopBoxSeePlans": "বিজনেস প্ল্যান দেখুন",
+  "shopBoxPrivacyNote": "গোপনীয়তা সবার আগে: শপ বক্স ডিভাইসেই শনাক্ত করে এবং শুধু সিগন্যাল ও বড়জোর একটি স্ন্যাপশট পাঠায়। কোনো ভিডিও কখনও দোকান থেকে বের হয় না।",
+  "shopBoxUnnamedSite": "নামহীন দোকান",
+  "shopBoxUnnamedCamera": "নামহীন ক্যামেরা",
+  "shopBoxAddSite": "দোকান যোগ করুন",
+  "shopBoxSitesEmptyTitle": "এখনো কোনো দোকান নেই",
+  "shopBoxSitesEmptyBody": "একটি দোকান যোগ করুন, তারপর কোড দিয়ে আপনার শপ বক্স ডিভাইস যুক্ত করুন।",
+  "shopBoxSitesLoadError": "আপনার দোকানগুলো লোড করা যায়নি। আবার চেষ্টা করুন।",
+  "shopBoxSiteCreated": "দোকান যোগ হয়েছে।",
+  "shopBoxSiteCreateFailed": "দোকান যোগ করা যায়নি।",
+  "shopBoxSiteSaved": "দোকান আপডেট হয়েছে।",
+  "shopBoxSiteSaveFailed": "দোকান সংরক্ষণ করা যায়নি।",
+  "shopBoxSiteSubtitle": "{cameras} ক্যামেরা · স্ন্যাপশট {days} দিন রাখে",
+  "@shopBoxSiteSubtitle": {
+    "placeholders": {
+      "cameras": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "shopBoxEditAndToken": "সেটিংস ও ডিভাইস কোড",
+  "shopBoxSiteFormTitle": "দোকানের তথ্য",
+  "shopBoxSiteName": "দোকানের নাম",
+  "shopBoxRetentionLabel": "স্ন্যাপশট {days} দিন রাখুন",
+  "@shopBoxRetentionLabel": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "shopBoxRetentionHint": "এর পরে স্ন্যাপশট স্বয়ংক্রিয়ভাবে মুছে যায়।",
+  "shopBoxRetentionZero": "কোনো স্ন্যাপশট রাখবেন না — শুধু সতর্কতা।",
+  "shopBoxEnrollTitle": "আপনার শপ বক্স যুক্ত করুন",
+  "shopBoxEnrollExplain": "এই দোকানের সাথে যুক্ত করতে এই কোডটি আপনার শপ বক্স ডিভাইসে পেস্ট করুন। গোপন রাখুন — এই কোড যার কাছে আছে সে এই দোকানের জন্য সিগন্যাল পাঠাতে পারবে।",
+  "shopBoxTokenCopied": "কোড কপি হয়েছে।",
+  "shopBoxAddCamera": "ক্যামেরা যোগ করুন",
+  "shopBoxCameraName": "ক্যামেরার নাম",
+  "shopBoxCameraAdded": "ক্যামেরা যোগ হয়েছে।",
+  "shopBoxCameraAddFailed": "ক্যামেরা যোগ করা যায়নি।",
+  "shopBoxCamerasEmptyTitle": "এখনো কোনো ক্যামেরা নেই",
+  "shopBoxCamerasEmptyBody": "এই দোকানের সতর্কতা পেতে একটি ক্যামেরা যোগ করুন।",
+  "shopBoxCamerasLoadError": "ক্যামেরা লোড করা যায়নি। আবার চেষ্টা করুন।",
+  "shopBoxUsedIncluded": "অন্তর্ভুক্ত {included}টির মধ্যে {used}টি ক্যামেরা ব্যবহৃত",
+  "@shopBoxUsedIncluded": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "included": {
+        "type": "String"
+      }
+    }
+  },
+  "shopBoxCameraKindEdge": "এজ ক্যামেরা",
+  "shopBoxCameraKindShopbox": "শপ বক্স",
+  "shopBoxCameraEnabled": "চালু",
+  "shopBoxCameraDisabled": "বিরতি",
+  "shopBoxCapTitle": "বাড়তি ক্যামেরায় ক্রেডিট লাগবে",
+  "shopBoxCapNeeded": "প্রয়োজনীয় ক্রেডিট: {credits}",
+  "@shopBoxCapNeeded": {
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      }
+    }
+  },
+  "shopBoxCapBalance": "আপনার ব্যালেন্স: {credits}",
+  "@shopBoxCapBalance": {
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      }
+    }
+  },
+  "shopBoxCapTopup": "ক্রেডিট নিন",
+  "shopBoxNoSiteTitle": "আগে একটি দোকান বাছুন",
+  "shopBoxNoSiteBody": "এটি দেখতে দোকান ট্যাবে একটি দোকান যোগ করুন বা বাছুন।",
+  "shopBoxFilterAll": "সব",
+  "shopBoxFilterOpen": "খোলা",
+  "shopBoxFilterChecked": "দেখা হয়েছে",
+  "shopBoxFilterFalseAlarm": "ভুল সতর্কতা",
+  "shopBoxAlertsEmptyTitle": "সব ঠিক আছে",
+  "shopBoxAlertsEmptyBody": "এখন দেখার মতো কোনো সতর্কতা নেই।",
+  "shopBoxAlertsLoadError": "সতর্কতা লোড করা যায়নি। আবার চেষ্টা করুন।",
+  "shopBoxAlertHeadline": "অনুগ্রহ করে এই ক্যামেরাটি দেখুন",
+  "shopBoxConfidence": "কনফিডেন্স {pct}",
+  "@shopBoxConfidence": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "shopBoxPossible": "সম্ভাব্য — কম কনফিডেন্স",
+  "shopBoxPosMatched": "একটি বিক্রয় রেকর্ডের সাথে মিলেছে",
+  "shopBoxStatusOpen": "খোলা",
+  "shopBoxStatusChecked": "দেখা হয়েছে",
+  "shopBoxStatusFalseAlarm": "ভুল সতর্কতা",
+  "shopBoxMarkChecked": "দেখা হয়েছে",
+  "shopBoxMarkFalseAlarm": "ভুল সতর্কতা",
+  "shopBoxMarkedChecked": "দেখা হয়েছে বলে চিহ্নিত।",
+  "shopBoxMarkedFalseAlarm": "ভুল সতর্কতা বলে চিহ্নিত।",
+  "shopBoxMarkFailed": "সতর্কতা আপডেট করা যায়নি।",
+  "shopBoxReportLoadError": "রিপোর্ট লোড করা যায়নি। আবার চেষ্টা করুন।",
+  "shopBoxReportDays": "{days} দিন",
+  "@shopBoxReportDays": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "shopBoxStatTotal": "মোট ইভেন্ট",
+  "shopBoxStatOpen": "খোলা",
+  "shopBoxStatFalseAlarms": "ভুল সতর্কতা",
+  "shopBoxStatAfterHours": "সময়ের বাইরে",
+  "shopBoxExceptionTitle": "এক্সেপশন রিপোর্ট",
+  "shopBoxExcVoids": "ভয়েড",
+  "shopBoxExcRefunds": "রিফান্ড",
+  "shopBoxExcDiscounts": "ডিসকাউন্ট",
+  "shopBoxExcDrawerOpens": "ড্রয়ার ওপেন",
+  "shopBoxCameraOnlyNote": "এই দোকানে কোনো পিওএস ফিড নেই, তাই বিক্রয়-সংক্রান্ত হিসাব (ভয়েড, রিফান্ড, ডিসকাউন্ট, ড্রয়ার-ওপেন) পাওয়া যায় না।",
+  "shopBoxNoPos": "পিওএস নেই",
+  "shopBoxByTypeTitle": "ধরন অনুযায়ী ইভেন্ট",
+  "shopEvtHandCashZone": "ক্যাশ জোনে হাত",
+  "shopEvtDrawerOpen": "ড্রয়ার খোলা হয়েছে",
+  "shopEvtVoidSpike": "ভয়েড বেড়ে যাওয়া",
+  "shopEvtRefundSpike": "রিফান্ড বেড়ে যাওয়া",
+  "shopEvtDiscountSpike": "ডিসকাউন্ট বেড়ে যাওয়া",
+  "shopEvtEodMismatch": "দিনশেষে হিসাব মেলেনি",
+  "shopEvtMotion": "নড়াচড়া",
+  "shopEvtAfterHours": "সময়ের বাইরে",
+  "shopEvtPosePossible": "ক্যাশের কাছে নড়াচড়া (সম্ভাব্য)"
 }

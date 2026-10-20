@@ -513,6 +513,66 @@ class ApiClient {
   Future<Map<String, dynamic>> joinWaitlist(String contact) =>
       postJson('/waitlist', {'contact': contact});
 
+  // ---- Shop Box / CCTV loss-prevention (Part 4, Business tier) ----
+  // Signals-only, privacy-first: NO video. These wrap the owner-side endpoints
+  // (normal Token auth). Paths carry NO trailing slash — the shop views are
+  // registered without one, so getJson/postJson/patchJson (which do not add a
+  // slash) hit them directly.
+  Future<Map<String, dynamic>> shopSites() => getJson('/shop/sites');
+
+  Future<Map<String, dynamic>> shopCreateSite(String name, int retentionDays) =>
+      postJson('/shop/sites',
+          {'name': name, 'snapshot_retention_days': retentionDays});
+
+  Future<Map<String, dynamic>> shopUpdateSite(int id,
+          {String? name, int? retentionDays}) =>
+      patchJson('/shop/sites/$id', {
+        if (name != null) 'name': name,
+        if (retentionDays != null) 'snapshot_retention_days': retentionDays,
+      });
+
+  Future<Map<String, dynamic>> shopCameras(int siteId) =>
+      getJson('/shop/sites/$siteId/cameras');
+
+  /// Add a camera. The server returns 402 with `code:"camera_cap"` + the
+  /// credit figures when the included-camera cap is hit. We must NOT crash on
+  /// that, so this issues a raw POST and returns the parsed JSON for BOTH 2xx
+  /// and 402, with an `_ok` flag + `_status` the caller inspects. Other
+  /// non-2xx still throw via [_fail] (real errors).
+  Future<Map<String, dynamic>> shopAddCamera(int siteId,
+      {required String name, String? kind, bool enabled = true}) async {
+    final r = await _c.post(AppConfig.api('/shop/sites/$siteId/cameras'),
+        headers: _headers(),
+        body: jsonEncode({
+          'name': name,
+          if (kind != null) 'kind': kind,
+          'enabled': enabled,
+        }));
+    if (r.statusCode >= 200 && r.statusCode < 300) {
+      final body = r.body.isEmpty
+          ? <String, dynamic>{}
+          : jsonDecode(r.body) as Map<String, dynamic>;
+      return {...body, '_ok': true, '_status': r.statusCode};
+    }
+    if (r.statusCode == 402) {
+      final body = r.body.isEmpty
+          ? <String, dynamic>{}
+          : jsonDecode(r.body) as Map<String, dynamic>;
+      return {...body, '_ok': false, '_status': 402};
+    }
+    _fail(r);
+  }
+
+  Future<Map<String, dynamic>> shopEvents(int siteId, {String? status}) =>
+      getJson('/shop/events?site=$siteId'
+          '${status != null ? '&status=$status' : ''}');
+
+  Future<Map<String, dynamic>> shopMarkEvent(int eventId, String status) =>
+      postJson('/shop/events/$eventId/mark', {'status': status});
+
+  Future<Map<String, dynamic>> shopSummary(int siteId, {int days = 7}) =>
+      getJson('/shop/summary?site=$siteId&days=$days');
+
   // Watcher
   Future<Map<String, dynamic>> watchFeed() => getJson('/watch/feed');
 

@@ -79,6 +79,7 @@ import '../screens/my_lost_phone_screen.dart';
 import '../screens/phone_safety_screen.dart';
 import '../screens/security_screen.dart';
 import '../screens/sell_my_phone_screen.dart';
+import '../screens/shop_box_screen.dart';
 import '../screens/used_phone_check_screen.dart';
 import '../screens/unseen_world_screen.dart';
 import '../screens/dictionary_screen.dart';
@@ -294,6 +295,15 @@ class SidebarSections {
           (_) => const SellMyPhoneScreen(),
           synonyms: ['sell phone', 'sell my phone', 'transfer phone',
               'phone sale', 'report stolen', 'report phone', 'bikri', 'churi']),
+      // Part 4: Shop Box / CCTV loss-prevention (Business tier). Signals-only,
+      // privacy-first: NO video — the edge box detects on-device and sends only
+      // signals + at most one snapshot. Alerts say "please check camera X".
+      // Business-gated inside the screen. ChatNav route 'shop_box'.
+      SidebarItem(Icons.storefront_outlined, (t) => t.shopBoxTitle,
+          (_) => const ShopBoxScreen(),
+          synonyms: ['shop box', 'cctv', 'camera', 'loss prevention',
+              'shop security', 'theft', 'churi', 'dokan', 'store camera',
+              'surveillance', 'alert camera']),
       // Wave-D batch-4: BD-specific disaster & weather warnings (cyclone / flood
       // / heatwave / earthquake), official sources only. Also chat-openable via
       // ChatNav route 'disaster'.

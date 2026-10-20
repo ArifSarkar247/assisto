@@ -13939,5 +13939,153 @@
         "type": "String"
       }
     }
-  }
+  },
+  "shopBoxTitle": "Shop Box",
+  "shopBoxTabSites": "Sites",
+  "shopBoxTabCameras": "Cameras",
+  "shopBoxTabAlerts": "Alerts",
+  "shopBoxTabReport": "Report",
+  "shopBoxUpsellTitle": "Shop Box — quiet loss-prevention",
+  "shopBoxUpsellBody": "An edge device watches the shop and only sends you a short alert plus one still photo when something needs a look. No video ever leaves your shop.",
+  "shopBoxWhatSignals": "Signals-only and private — detection happens on the device; no live video streaming.",
+  "shopBoxWhatAlerts": "Honest alerts: \"please check camera X\" with a confidence score — you decide.",
+  "shopBoxWhatReport": "A daily report: voids, refunds, discounts, drawer-opens and after-hours activity.",
+  "shopBoxUpsellPlanNote": "Shop Box is part of the Business plan. It includes a few cameras; extra cameras use credits.",
+  "shopBoxSeePlans": "See Business plan",
+  "shopBoxPrivacyNote": "Privacy-first: the Shop Box detects on the device itself and sends only signals plus at most one snapshot. No video ever leaves your shop.",
+  "shopBoxUnnamedSite": "Unnamed shop",
+  "shopBoxUnnamedCamera": "Unnamed camera",
+  "shopBoxAddSite": "Add shop",
+  "shopBoxSitesEmptyTitle": "No shops yet",
+  "shopBoxSitesEmptyBody": "Add a shop, then enrol your Shop Box device with its code.",
+  "shopBoxSitesLoadError": "Could not load your shops. Please try again.",
+  "shopBoxSiteCreated": "Shop added.",
+  "shopBoxSiteCreateFailed": "Could not add the shop.",
+  "shopBoxSiteSaved": "Shop updated.",
+  "shopBoxSiteSaveFailed": "Could not save the shop.",
+  "shopBoxSiteSubtitle": "{cameras} cameras · keeps snapshots {days} days",
+  "@shopBoxSiteSubtitle": {
+    "placeholders": {
+      "cameras": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "shopBoxEditAndToken": "Settings & device code",
+  "shopBoxSiteFormTitle": "Shop details",
+  "shopBoxSiteName": "Shop name",
+  "shopBoxRetentionLabel": "Keep snapshots for {days} days",
+  "@shopBoxRetentionLabel": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "shopBoxRetentionHint": "After this, snapshots are deleted automatically.",
+  "shopBoxRetentionZero": "Keep no snapshots at all — alerts only.",
+  "shopBoxEnrollTitle": "Enrol your Shop Box",
+  "shopBoxEnrollExplain": "Paste this code into your Shop Box device to connect it to this shop. Keep it private — anyone with this code can send signals for this shop.",
+  "shopBoxTokenCopied": "Code copied.",
+  "shopBoxAddCamera": "Add camera",
+  "shopBoxCameraName": "Camera name",
+  "shopBoxCameraAdded": "Camera added.",
+  "shopBoxCameraAddFailed": "Could not add the camera.",
+  "shopBoxCamerasEmptyTitle": "No cameras yet",
+  "shopBoxCamerasEmptyBody": "Add a camera to start getting alerts for this shop.",
+  "shopBoxCamerasLoadError": "Could not load cameras. Please try again.",
+  "shopBoxUsedIncluded": "{used} of {included} included cameras in use",
+  "@shopBoxUsedIncluded": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "included": {
+        "type": "String"
+      }
+    }
+  },
+  "shopBoxCameraKindEdge": "Edge camera",
+  "shopBoxCameraKindShopbox": "Shop Box",
+  "shopBoxCameraEnabled": "On",
+  "shopBoxCameraDisabled": "Paused",
+  "shopBoxCapTitle": "Extra camera needs credits",
+  "shopBoxCapNeeded": "Credits needed: {credits}",
+  "@shopBoxCapNeeded": {
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      }
+    }
+  },
+  "shopBoxCapBalance": "Your balance: {credits}",
+  "@shopBoxCapBalance": {
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      }
+    }
+  },
+  "shopBoxCapTopup": "Get credits",
+  "shopBoxNoSiteTitle": "Pick a shop first",
+  "shopBoxNoSiteBody": "Add or select a shop on the Sites tab to see this.",
+  "shopBoxFilterAll": "All",
+  "shopBoxFilterOpen": "Open",
+  "shopBoxFilterChecked": "Checked",
+  "shopBoxFilterFalseAlarm": "False alarm",
+  "shopBoxAlertsEmptyTitle": "All clear",
+  "shopBoxAlertsEmptyBody": "No alerts to review right now.",
+  "shopBoxAlertsLoadError": "Could not load alerts. Please try again.",
+  "shopBoxAlertHeadline": "Please check this camera",
+  "shopBoxConfidence": "Confidence {pct}",
+  "@shopBoxConfidence": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "shopBoxPossible": "Possible — low confidence",
+  "shopBoxPosMatched": "Matched a sale record",
+  "shopBoxStatusOpen": "Open",
+  "shopBoxStatusChecked": "Checked",
+  "shopBoxStatusFalseAlarm": "False alarm",
+  "shopBoxMarkChecked": "Checked",
+  "shopBoxMarkFalseAlarm": "False alarm",
+  "shopBoxMarkedChecked": "Marked checked.",
+  "shopBoxMarkedFalseAlarm": "Marked false alarm.",
+  "shopBoxMarkFailed": "Could not update the alert.",
+  "shopBoxReportLoadError": "Could not load the report. Please try again.",
+  "shopBoxReportDays": "{days} days",
+  "@shopBoxReportDays": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "shopBoxStatTotal": "Total events",
+  "shopBoxStatOpen": "Open",
+  "shopBoxStatFalseAlarms": "False alarms",
+  "shopBoxStatAfterHours": "After hours",
+  "shopBoxExceptionTitle": "Exception report",
+  "shopBoxExcVoids": "Voids",
+  "shopBoxExcRefunds": "Refunds",
+  "shopBoxExcDiscounts": "Discounts",
+  "shopBoxExcDrawerOpens": "Drawer opens",
+  "shopBoxCameraOnlyNote": "This shop has no POS feed, so sale-side counts (voids, refunds, discounts, drawer-opens) are not available.",
+  "shopBoxNoPos": "no POS",
+  "shopBoxByTypeTitle": "Events by type",
+  "shopEvtHandCashZone": "Hand in cash zone",
+  "shopEvtDrawerOpen": "Drawer opened",
+  "shopEvtVoidSpike": "Void spike",
+  "shopEvtRefundSpike": "Refund spike",
+  "shopEvtDiscountSpike": "Discount spike",
+  "shopEvtEodMismatch": "End-of-day mismatch",
+  "shopEvtMotion": "Motion",
+  "shopEvtAfterHours": "After hours",
+  "shopEvtPosePossible": "Movement near till (possible)"
 }
