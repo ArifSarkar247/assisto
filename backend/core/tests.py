@@ -3588,3 +3588,339 @@ class ChatSessionTests(APITestCase):
         body = b"".join(r.streaming_content).decode()
         self.assertIn("event: token", body)
         self.assertIn("event: done", body)
+
+
+# ===========================================================================
+# CCTV / shop loss-prevention (Business, Part 4) — ingest + alert + config.
+#
+# Proves the hard safety rules: COMBINED signals only (never one input), a lone
+# pose is at most "possible", the 4-camera cap + credits for the 5th, owner marks
+# checked/false_alarm, retention prune deletes old snapshots only, owner-only
+# read gates (an enrollment token can ingest but can't read others' events), the
+# summary / exception report, and that alert text says "please check", NEVER
+# "theft". NO video field exists anywhere.
+# ===========================================================================
+
+class ShopGuardTests(APITestCase):
+    def setUp(self):
+        from core.models import ShopSite, ShopCamera
+        self.owner = User.objects.create_user(name="Shop Owner", phone="01710000001",
+                                               password="pw")
+        self.owner.plan = "business"
+        self.owner.plan_until = timezone.now() + timedelta(days=30)
+        self.owner.ai_credits = 1000
+        self.owner.save()
+        self.site = ShopSite.objects.create(owner=self.owner, name="Main Shop")
+        self.cam = ShopCamera.objects.create(site=self.site, name="Till 1")
+
+    # ---- PURE GUARD: combined-signal logic -------------------------------
+    def test_hand_in_zone_no_sale_raises(self):
+        from core.logic import shop_guard as SG
+        ev = {"type": SG.HAND_IN_CASH_ZONE, "at": 1000.0, "signals": {}}
+        r = SG.combine(ev, pos_events=[], now=1000.0, window_s=30)
+        self.assertTrue(r["raise"])
+        self.assertIn("no_matching_sale", r["reason_signals"])
+        self.assertGreater(r["confidence"], 0.0)
+
+    def test_hand_in_zone_with_matching_sale_no_raise(self):
+        from core.logic import shop_guard as SG
+        ev = {"type": SG.HAND_IN_CASH_ZONE, "at": 1000.0, "signals": {}}
+        pos = [{"kind": SG.POS_SALE, "amount": 5000, "at": 1005.0}]
+        r = SG.combine(ev, pos_events=pos, now=1005.0, window_s=30)
+        self.assertFalse(r["raise"])        # corroborated as LEGIT → no alert
+        self.assertTrue(r["pos_matched"])
+
+    def test_drawer_open_without_sale_raises(self):
+        from core.logic import shop_guard as SG
+        ev = {"type": SG.DRAWER_OPEN, "at": 2000.0, "signals": {}}
+        r = SG.combine(ev, pos_events=[], now=2000.0, window_s=30)
+        self.assertTrue(r["raise"])
+        self.assertIn("drawer_open", r["reason_signals"])
+
+    def test_void_spike_raises_only_above_baseline(self):
+        from core.logic import shop_guard as SG
+        base = {"type": SG.VOID_SPIKE, "at": 3000.0,
+                "signals": {"baseline": 1}}
+        voids = [{"kind": SG.POS_VOID, "amount": 0, "at": 3000.0 + i}
+                 for i in range(4)]
+        r = SG.combine(base, pos_events=voids, now=3000.0)
+        self.assertTrue(r["raise"])
+        # a single void is NOT a spike
+        r2 = SG.combine(base, pos_events=voids[:1], now=3000.0)
+        self.assertFalse(r2["raise"])
+
+    def test_refund_spike_raises(self):
+        from core.logic import shop_guard as SG
+        ev = {"type": SG.REFUND_SPIKE, "at": 100.0, "signals": {"baseline": 1}}
+        refunds = [{"kind": SG.POS_REFUND, "amount": 0, "at": 100.0 + i}
+                   for i in range(5)]
+        r = SG.combine(ev, pos_events=refunds, now=100.0)
+        self.assertTrue(r["raise"])
+
+    def test_eod_mismatch_raises(self):
+        from core.logic import shop_guard as SG
+        ev = {"type": SG.EOD_MISMATCH,
+              "signals": {"counted": 9000, "expected": 10000, "tolerance": 100}}
+        r = SG.combine(ev, pos_events=[], now=0.0)
+        self.assertTrue(r["raise"])
+        # a reconciled till (within tolerance) does NOT raise
+        ev2 = {"type": SG.EOD_MISMATCH,
+               "signals": {"counted": 9990, "expected": 10000, "tolerance": 100}}
+        self.assertFalse(SG.combine(ev2, [], now=0.0)["raise"])
+
+    def test_lone_pose_is_possible_low_confidence(self):
+        from core.logic import shop_guard as SG
+        ev = {"type": SG.POSE_POSSIBLE, "at": 500.0, "signals": {}}
+        r = SG.combine(ev, pos_events=[], now=500.0)
+        self.assertTrue(r["possible"])          # labelled "possible"
+        self.assertLess(r["confidence"], 0.5)   # low confidence
+        self.assertFalse(r["pos_matched"])
+
+    def test_lone_motion_open_hours_no_raise(self):
+        from core.logic import shop_guard as SG
+        ev = {"type": SG.MOTION, "at": 10.0, "signals": {}}
+        self.assertFalse(SG.combine(ev, [], now=10.0)["raise"])
+
+    def test_after_hours_motion_raises(self):
+        from core.logic import shop_guard as SG
+        ev = {"type": SG.AFTER_HOURS, "at": 10.0, "signals": {"after_hours": True}}
+        self.assertTrue(SG.combine(ev, [], now=10.0)["raise"])
+
+    # ---- DEVICE INGEST (enrollment token, no user login) -----------------
+    def test_ingest_raises_and_notifies_please_check_never_theft(self):
+        from core.models import ShopEvent, FamilyAlert, NotifEvent
+        # owner's language English so the FamilyAlert carries "please check" too
+        self.owner.language = "en"
+        self.owner.save()
+        # hand-in-zone with NO POS sale → alert raised + owner notified
+        r = self.client.post("/api/v1/shop/ingest",
+                             {"camera_token": self.cam.camera_token,
+                              "type": "hand_in_cash_zone"}, format="json")
+        self.assertEqual(r.status_code, 201)
+        self.assertTrue(r.data["raised"])
+        self.assertEqual(ShopEvent.objects.filter(site=self.site).count(), 1)
+        fa = FamilyAlert.objects.filter(user=self.owner, kind="shop_guard").first()
+        self.assertIsNotNone(fa)
+        # WORDING: must say "please check", NEVER "theft" (either language)
+        blob = (fa.title + " " + fa.body).lower()
+        self.assertIn("please check", blob)
+        self.assertNotIn("theft", blob)
+        ne = NotifEvent.objects.filter(user=self.owner, type="business").first()
+        self.assertIsNotNone(ne)
+        # the NotifEvent carries BOTH languages; English always says "please check"
+        self.assertIn("please check", (ne.title_en + " " + ne.body_en).lower())
+        full = (ne.title_en + ne.body_en + ne.title_bn + ne.body_bn).lower()
+        self.assertNotIn("theft", full)
+        self.assertNotIn("চুরি", full)       # never "theft" in Bangla either
+        # confidence is always shown
+        self.assertGreater(ne.meta.get("confidence", 0), 0)
+
+    def test_ingest_no_raise_when_pos_sale_matches(self):
+        from core.models import ShopEvent, ShopPosEvent
+        from django.utils import timezone
+        ShopPosEvent.objects.create(site=self.site, kind="sale", amount=5000,
+                                    at=timezone.now())
+        r = self.client.post("/api/v1/shop/ingest",
+                             {"camera_token": self.cam.camera_token,
+                              "type": "hand_in_cash_zone"}, format="json")
+        self.assertEqual(r.status_code, 200)
+        self.assertFalse(r.data["raised"])
+        self.assertEqual(ShopEvent.objects.filter(site=self.site).count(), 0)
+
+    def test_ingest_bad_token_rejected(self):
+        r = self.client.post("/api/v1/shop/ingest",
+                             {"camera_token": "nope", "type": "drawer_open"},
+                             format="json")
+        self.assertEqual(r.status_code, 401)
+
+    def test_ingest_stores_at_most_one_snapshot_no_video_field(self):
+        from core.models import ShopEvent
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        img = SimpleUploadedFile("snap.jpg", b"x" * 512, content_type="image/jpeg")
+        r = self.client.post("/api/v1/shop/ingest",
+                             {"camera_token": self.cam.camera_token,
+                              "type": "drawer_open", "snapshot": img},
+                             format="multipart")
+        self.assertEqual(r.status_code, 201)
+        ev = ShopEvent.objects.get(site=self.site)
+        self.assertTrue(bool(ev.snapshot))
+        # NO video field exists anywhere on the model
+        field_names = {f.name for f in ShopEvent._meta.get_fields()}
+        self.assertNotIn("video", field_names)
+        self.assertFalse(any("video" in n for n in field_names))
+
+    def test_pos_ingest_by_enrollment_token(self):
+        from core.models import ShopPosEvent
+        r = self.client.post("/api/v1/shop/pos",
+                             {"site_token": self.site.enrollment_token,
+                              "kind": "void", "amount": 1000}, format="json")
+        self.assertEqual(r.status_code, 201)
+        self.assertEqual(ShopPosEvent.objects.filter(site=self.site).count(), 1)
+
+    # ---- CAMERA CAP + CREDITS --------------------------------------------
+    def test_four_camera_cap_then_credits_for_fifth(self):
+        from core.models import ShopCamera
+        self.client.force_authenticate(self.owner)
+        # site already has 1 camera (Till 1); add 3 more → 4 total (all free)
+        for i in range(3):
+            r = self.client.post("/api/v1/shop/sites/%d/cameras" % self.site.id,
+                                 {"name": "cam%d" % i}, format="json")
+            self.assertEqual(r.status_code, 201, r.data)
+            self.assertEqual(r.data.get("charged_credits", 0), 0)
+        self.assertEqual(ShopCamera.objects.filter(site=self.site).count(), 4)
+        # the 5th camera is charged credits
+        before = self.owner.ai_credits
+        r = self.client.post("/api/v1/shop/sites/%d/cameras" % self.site.id,
+                             {"name": "cam5"}, format="json")
+        self.assertEqual(r.status_code, 201, r.data)
+        self.assertGreater(r.data["charged_credits"], 0)
+        self.owner.refresh_from_db()
+        self.assertEqual(self.owner.ai_credits,
+                         before - r.data["charged_credits"])
+
+    def test_fifth_camera_blocked_without_credits(self):
+        from core.models import ShopCamera
+        # fill to the 4-camera cap
+        for i in range(3):
+            ShopCamera.objects.create(site=self.site, name="c%d" % i)
+        self.assertEqual(ShopCamera.objects.filter(site=self.site).count(), 4)
+        self.owner.ai_credits = 0
+        self.owner.save()
+        self.client.force_authenticate(self.owner)
+        r = self.client.post("/api/v1/shop/sites/%d/cameras" % self.site.id,
+                             {"name": "cam5"}, format="json")
+        self.assertEqual(r.status_code, 402)
+        self.assertEqual(r.data["error"], "camera_cap")
+        self.assertEqual(ShopCamera.objects.filter(site=self.site).count(), 4)
+
+    # ---- OWNER READ GATES ------------------------------------------------
+    def test_owner_reads_events_device_token_cannot(self):
+        # raise an event
+        self.client.post("/api/v1/shop/ingest",
+                         {"camera_token": self.cam.camera_token,
+                          "type": "drawer_open"}, format="json")
+        # a DIFFERENT owner may not read this site's events
+        other = User.objects.create_user(name="Other", phone="01710000002",
+                                         password="pw")
+        self.client.force_authenticate(other)
+        r = self.client.get("/api/v1/shop/events?site=%d" % self.site.id)
+        self.assertEqual(r.status_code, 404)   # not their site
+        # the real owner can
+        self.client.force_authenticate(self.owner)
+        r2 = self.client.get("/api/v1/shop/events?site=%d" % self.site.id)
+        self.assertEqual(r2.status_code, 200)
+        self.assertEqual(len(r2.data["events"]), 1)
+
+    def test_events_unauthenticated_rejected(self):
+        # the device enrollment token can ingest but there is no session here,
+        # so the owner read endpoint rejects an anonymous caller.
+        r = self.client.get("/api/v1/shop/events?site=%d" % self.site.id)
+        self.assertIn(r.status_code, (401, 403))
+
+    def test_mark_checked_and_false_alarm(self):
+        from core.models import ShopEvent
+        self.client.post("/api/v1/shop/ingest",
+                         {"camera_token": self.cam.camera_token,
+                          "type": "drawer_open"}, format="json")
+        ev = ShopEvent.objects.get(site=self.site)
+        self.client.force_authenticate(self.owner)
+        r = self.client.post("/api/v1/shop/events/%d/mark" % ev.id,
+                             {"status": "false_alarm"}, format="json")
+        self.assertEqual(r.status_code, 200)
+        ev.refresh_from_db()
+        self.assertEqual(ev.status, "false_alarm")
+        r2 = self.client.post("/api/v1/shop/events/%d/mark" % ev.id,
+                              {"status": "checked"}, format="json")
+        self.assertEqual(r2.status_code, 200)
+        ev.refresh_from_db()
+        self.assertEqual(ev.status, "checked")
+        # a non-owner cannot mark it
+        other = User.objects.create_user(name="X", phone="01710000003",
+                                         password="pw")
+        self.client.force_authenticate(other)
+        r3 = self.client.post("/api/v1/shop/events/%d/mark" % ev.id,
+                              {"status": "checked"}, format="json")
+        self.assertEqual(r3.status_code, 404)
+
+    # ---- RETENTION PRUNE -------------------------------------------------
+    def test_prune_deletes_only_old_snapshots(self):
+        from core.models import ShopEvent
+        from core.management.commands.shop_prune_snapshots import prune
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from django.utils import timezone
+        import datetime as _dt
+        self.site.snapshot_retention_days = 7
+        self.site.save()
+
+        def mk(days_ago):
+            e = ShopEvent.objects.create(site=self.site, camera=self.cam,
+                                         type="drawer_open", confidence=0.6)
+            e.snapshot.save("s.jpg", SimpleUploadedFile("s.jpg", b"z" * 256),
+                            save=True)
+            ShopEvent.objects.filter(pk=e.pk).update(
+                created=timezone.now() - _dt.timedelta(days=days_ago))
+            return e
+
+        old = mk(10)        # older than 7-day retention → pruned
+        fresh = mk(1)       # within retention → kept
+        removed = prune(now=timezone.now())
+        self.assertEqual(removed, 1)
+        old.refresh_from_db(); fresh.refresh_from_db()
+        self.assertFalse(bool(old.snapshot))    # bytes gone, row + audit kept
+        self.assertTrue(bool(fresh.snapshot))
+
+    def test_prune_retention_zero_keeps_no_snapshot(self):
+        from core.models import ShopEvent
+        from core.management.commands.shop_prune_snapshots import prune
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from django.utils import timezone
+        self.site.snapshot_retention_days = 0
+        self.site.save()
+        e = ShopEvent.objects.create(site=self.site, camera=self.cam,
+                                     type="drawer_open", confidence=0.6)
+        e.snapshot.save("s.jpg", SimpleUploadedFile("s.jpg", b"z" * 64), save=True)
+        removed = prune(now=timezone.now())
+        self.assertEqual(removed, 1)
+        e.refresh_from_db()
+        self.assertFalse(bool(e.snapshot))
+
+    def test_retention_patch_clamped_0_30(self):
+        self.client.force_authenticate(self.owner)
+        r = self.client.patch("/api/v1/shop/sites/%d" % self.site.id,
+                              {"snapshot_retention_days": 99}, format="json")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.data["snapshot_retention_days"], 30)   # clamped
+        r2 = self.client.patch("/api/v1/shop/sites/%d" % self.site.id,
+                               {"snapshot_retention_days": -5}, format="json")
+        self.assertEqual(r2.data["snapshot_retention_days"], 0)
+
+    # ---- SUMMARY / EXCEPTION REPORT (incl. camera-only mode) -------------
+    def test_summary_counts_and_exception_report(self):
+        from core.models import ShopEvent, ShopPosEvent
+        from django.utils import timezone
+        ShopEvent.objects.create(site=self.site, type="after_hours",
+                                 confidence=0.7)
+        ShopEvent.objects.create(site=self.site, type="drawer_open",
+                                 confidence=0.6)
+        ShopPosEvent.objects.create(site=self.site, kind="void", amount=0,
+                                    at=timezone.now())
+        ShopPosEvent.objects.create(site=self.site, kind="refund", amount=0,
+                                    at=timezone.now())
+        self.client.force_authenticate(self.owner)
+        r = self.client.get("/api/v1/shop/summary?site=%d&days=1" % self.site.id)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.data["by_type"]["after_hours"], 1)
+        self.assertEqual(r.data["after_hours"], 1)
+        self.assertEqual(r.data["exceptions"]["voids"], 1)
+        self.assertEqual(r.data["exceptions"]["refunds"], 1)
+        self.assertFalse(r.data["camera_only"])
+
+    def test_summary_camera_only_mode(self):
+        from core.models import ShopEvent
+        ShopEvent.objects.create(site=self.site, type="after_hours",
+                                 confidence=0.7)
+        self.client.force_authenticate(self.owner)
+        r = self.client.get("/api/v1/shop/summary?site=%d" % self.site.id)
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue(r.data["camera_only"])      # no POS feed at all
+        self.assertEqual(r.data["after_hours"], 1)

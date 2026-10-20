@@ -2874,3 +2874,124 @@ class ChatMessage(models.Model):
     class Meta:
         ordering = ["created_at", "id"]
         indexes = [models.Index(fields=["session", "created_at"])]
+
+
+# ===========================================================================
+# CCTV / SHOP LOSS-PREVENTION (Business, Part 4) — INGEST + ALERT backend.
+#
+# HARD SAFETY RULES baked into the schema:
+#   * NO VIDEO is ever stored on our server. ShopEvent has a SINGLE small
+#     ImageField (`snapshot`) and nothing else — no clip, no stream, no frames.
+#   * The snapshot is auto-deleted after the site's retention window
+#     (shop_prune_snapshots management command).
+#   * The edge device / Shop Box does the vision detection; we only receive
+#     SIGNALS (what fired) + at most one snapshot. No heavy AI runs here.
+#   * Alerts are produced by shop_guard.combine() using COMBINED signals only;
+#     the human-facing wording is always "please check", never "theft".
+#
+# AUTH: devices authenticate with a per-SHOP ENROLLMENT TOKEN (ShopSite /
+# ShopCamera tokens), not a user login. Owner endpoints use normal Token auth +
+# the owner/business gate.
+# ===========================================================================
+
+def _gen_token(nbytes=24):
+    """A URL-safe random enrollment/camera token."""
+    import secrets
+    return secrets.token_urlsafe(nbytes)
+
+
+class ShopSite(models.Model):
+    """One physical shop/site an owner is protecting. Devices enrol against its
+    `enrollment_token` (per-shop, not a user login). Retention is owner-settable
+    0–30 days; snapshots older than that are pruned."""
+    owner = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name="shop_sites")
+    name = models.CharField(max_length=120, blank=True, default="")
+    enrollment_token = models.CharField(max_length=64, unique=True,
+                                        default=_gen_token, db_index=True)
+    # 0 = keep no snapshot bytes at all; 30 = max. Default 7 days.
+    snapshot_retention_days = models.PositiveSmallIntegerField(default=7)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created"]
+        indexes = [models.Index(fields=["owner", "-created"])]
+
+
+class ShopCamera(models.Model):
+    """A camera at a site. `kind` is how it reaches us: an edge device posting to
+    the webhook, or the Shop Box. `zone_config` holds polygons like the cash_zone
+    the edge uses for detection. The 'Business includes 4 edge cameras; more =
+    credits' cap is enforced at CREATE time in the view (not in the schema)."""
+    KINDS = [("edge_webhook", "edge webhook"), ("shopbox", "Shop Box")]
+    site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
+                             related_name="cameras")
+    name = models.CharField(max_length=120, blank=True, default="")
+    kind = models.CharField(max_length=16, choices=KINDS, default="edge_webhook")
+    camera_token = models.CharField(max_length=64, unique=True,
+                                    default=_gen_token, db_index=True)
+    zone_config = models.JSONField(default=dict, blank=True)  # e.g. {"cash_zone": [...]}
+    enabled = models.BooleanField(default=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created", "id"]
+        indexes = [models.Index(fields=["site", "enabled"])]
+
+
+class ShopEvent(models.Model):
+    """ONE loss-prevention event the guard decided to surface. Carries the
+    combined `signals` that fired, a shown `confidence`, and AT MOST ONE small
+    snapshot (auto-deleted after retention). NEVER a video. `pos_matched` records
+    whether a correlating POS row was found. The owner marks checked/false_alarm."""
+    TYPES = [
+        ("hand_in_cash_zone", "hand in cash zone"),
+        ("drawer_open", "drawer open"),
+        ("void_spike", "void spike"),
+        ("refund_spike", "refund spike"),
+        ("discount_spike", "discount spike"),
+        ("eod_mismatch", "end-of-day mismatch"),
+        ("motion", "motion"),
+        ("after_hours", "after hours"),
+        ("pose_possible", "pose (possible)"),
+    ]
+    STATUS = [("open", "open"), ("checked", "checked"),
+              ("false_alarm", "false alarm")]
+    site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
+                             related_name="events")
+    camera = models.ForeignKey(ShopCamera, on_delete=models.CASCADE,
+                               related_name="events", null=True, blank=True)
+    type = models.CharField(max_length=20, choices=TYPES)
+    signals = models.JSONField(default=dict, blank=True)  # the combined inputs that fired
+    confidence = models.FloatField(default=0.0)           # 0..1, always shown
+    # the ONE small image we may keep. NO video field exists, ever.
+    snapshot = models.ImageField(upload_to="shop/", null=True, blank=True)
+    pos_matched = models.BooleanField(default=False)
+    possible = models.BooleanField(default=False)   # low-confidence "possible" (lone pose)
+    status = models.CharField(max_length=12, choices=STATUS, default="open")
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created"]
+        indexes = [models.Index(fields=["site", "-created"]),
+                   models.Index(fields=["site", "status"]),
+                   models.Index(fields=["site", "type"])]
+
+
+class ShopPosEvent(models.Model):
+    """A point-of-sale signal (from the shop's POS or the Shop Box) used to
+    CORRELATE with camera events — e.g. a hand in the cash zone with NO matching
+    `sale` within ±N seconds is suspicious. Camera-only sites simply have none
+    of these, and the guard falls back to zone/motion/after-hours logic."""
+    KINDS = [("sale", "sale"), ("void", "void"), ("refund", "refund"),
+             ("discount", "discount"), ("drawer_open", "drawer open")]
+    site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
+                             related_name="pos_events")
+    kind = models.CharField(max_length=12, choices=KINDS)
+    amount = models.BigIntegerField(default=0)   # poisha (or 0 for drawer_open)
+    at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["-at"]
+        indexes = [models.Index(fields=["site", "kind", "at"]),
+                   models.Index(fields=["site", "at"])]

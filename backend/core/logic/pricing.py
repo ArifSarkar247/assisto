@@ -96,7 +96,15 @@ _ACTION_DEFAULTS = {
     "sms":                 {"provider_cost": 0.002, "credits": 1},
     "voice_clone":         {"provider_cost": 0.010, "credits": 5},
     "ai_sales":            {"provider_cost": 0.006, "credits": 3},
+    # Shop loss-prevention (Part 4): Business includes 4 edge cameras; each
+    # extra camera (or server-mode camera) costs credits. No provider cost —
+    # it is an entitlement charge, priced so the owner tunes it from /admin/pricing.
+    "shop_extra_camera":   {"provider_cost": 0.0,   "credits": 20},
 }
+
+# Business plan includes this many edge cameras at no credit cost; beyond it,
+# each camera is charged `shop_extra_camera`. Non-Business plans get 0 included.
+BUSINESS_INCLUDED_CAMERAS = 4
 
 # tier (core/ai.py) -> action id
 TIER_ACTION = {

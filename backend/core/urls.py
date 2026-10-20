@@ -12,6 +12,7 @@ from . import views_registry as reg
 from . import views_lost as lost
 from . import views_account_deletion as acctdel
 from . import views_chat as chatv
+from . import shop_views as shop
 
 router = DefaultRouter()
 router.register("memory", views.MemoryViewSet, basename="memory")
@@ -270,6 +271,18 @@ urlpatterns = [
          views.FamilySharedItemView.as_view()),
     path("family/shared/<int:member_id>/<slug:item>",
          views.FamilySharedItemView.as_view()),
+
+    # ===== CCTV / shop loss-prevention (Business, Part 4) =====
+    # DEVICE ingest — per-shop ENROLLMENT TOKEN (not a user login). No video.
+    path("shop/ingest", shop.ShopIngestView.as_view()),
+    path("shop/pos", shop.ShopPosIngestView.as_view()),
+    # OWNER endpoints — normal Token auth + owner gate.
+    path("shop/sites", shop.ShopSitesView.as_view()),
+    path("shop/sites/<int:pk>", shop.ShopSiteDetailView.as_view()),
+    path("shop/sites/<int:pk>/cameras", shop.ShopCamerasView.as_view()),
+    path("shop/events", shop.ShopEventsView.as_view()),
+    path("shop/events/<int:pk>/mark", shop.ShopEventMarkView.as_view()),
+    path("shop/summary", shop.ShopSummaryView.as_view()),
 
     path("nominees/<int:pk>/activate", views.nominee_activate),
     path("nominees/<int:pk>/request-release", views.nominee_request_release),
