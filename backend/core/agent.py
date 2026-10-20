@@ -92,7 +92,17 @@ def parse(text, lang="bn"):
     if not text:
         return {"intent": "unknown"}
 
-    # queries first
+    from .logic import brain
+
+    # A QUESTION is NEVER a capture (owner A3 bug: "Amar kno data ace naki??"
+    # was being saved as a note). We detect it up front, but an EXPLICIT command
+    # or capture below (call/remind/expense/…) still wins — those carry an action
+    # verb, so e.g. "রহিম কে কল করো" is a call, not a question. Any text that is a
+    # question and matches NO command/capture falls through to the `question`
+    # return just before the ambiguous fallback.
+    question = brain.is_question(text)
+
+    # structured queries first (these answer, never save)
     if _has(text, _QUERY_TODAY):
         return {"intent": "query_today"}
     if _has(text, _QUERY_MONEY):
@@ -109,6 +119,12 @@ def parse(text, lang="bn"):
         return {"intent": "navigate", "place": _strip(text, _NAVIGATE + ["যাও", "to"])}
     if _has(text, _CALL):
         return {"intent": "call", "name": _strip(text, _CALL + ["কে", "-কে", "to"])}
+
+    # A QUESTION wins over keyword captures (reminder/medicine/memory): it is
+    # ANSWERED by Brain, never saved. (Deep-link voice commands above keep
+    # priority — they carry an explicit action verb, e.g. "রহিম কে কল করো".)
+    if question:
+        return {"intent": "question", "text": text}
 
     amt = _amount(text)
 
@@ -127,13 +143,15 @@ def parse(text, lang="bn"):
     if _has(text, _REMIND):
         return {"intent": "reminder", "title": _clean_remind(text, lang),
                 "due": _timestr(text)}
-    if _has(text, _REMEMBER):
+    if _has(text, _REMEMBER) or brain.has_explicit_save(text):
+        # explicit "mone rakho / save / note:" → a clear capture
         return {"intent": "memory", "title": _clean_remember(text)}
     # bare "<amount> <something>" → treat as expense
     if amt is not None:
         return {"intent": "expense", "amount": str(amt), "category": _category(text)}
-    # otherwise store as a memory/note
-    return {"intent": "memory", "title": text}
+    # Not a question, not a clear capture, not a known command → AMBIGUOUS.
+    # We ANSWER (Brain) and offer a "Save as note" chip; we never silently save.
+    return {"intent": "ambiguous", "text": text}
 
 
 def _timestr(text):

@@ -139,6 +139,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     // the thread's built-in welcome — with its hard-coded cards — never shows.
     _seed ??= _greetingSeed();
     return Scaffold(
+      // A1 — explicit: the body shrinks for the keyboard so the input bar (at
+      // the bottom of the thread) always sits directly above it.
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         titleSpacing: 0,
         title: Row(children: [
@@ -212,7 +215,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             ),
           ),
         Expanded(
-          child: AgentThreadScreen(key: _threadKey, debugSeed: _seed),
+          child: AgentThreadScreen(
+            key: _threadKey,
+            debugSeed: _seed,
+            // A1 — collapse the Discover/spotlight area the moment the input
+            // gains focus so the chat + input fill the screen and the keyboard
+            // never covers what the user is typing.
+            onInputFocus: () {
+              if (_showSuggestions && mounted) {
+                setState(() => _showSuggestions = false);
+              }
+            },
+          ),
         ),
       ]),
     );

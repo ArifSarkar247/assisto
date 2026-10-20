@@ -66,8 +66,14 @@ class AgentParseTests(TestCase):
     def test_bare_amount_is_expense(self):
         self.assertEqual(agent.parse("২৫০ বাজার")["intent"], "expense")
 
-    def test_free_text_is_memory(self):
-        self.assertEqual(agent.parse("আমার পাসপোর্ট ড্রয়ারে আছে")["intent"], "memory")
+    def test_free_text_is_ambiguous_not_autosaved(self):
+        # Behaviour fix (owner A3): plain free text is NO LONGER silently saved
+        # as a note — it's ambiguous (answered + offered "Save as note").
+        self.assertEqual(agent.parse("আমার পাসপোর্ট ড্রয়ারে আছে")["intent"], "ambiguous")
+
+    def test_explicit_save_is_memory(self):
+        self.assertEqual(agent.parse("মনে রাখো আমার পাসপোর্ট ড্রয়ারে আছে")["intent"],
+                         "memory")
 
     def test_empty(self):
         self.assertEqual(agent.parse("")["intent"], "unknown")
@@ -115,11 +121,20 @@ class AgentViewTests(APITestCase):
         self.assertEqual(Reminder.objects.filter(user=self.user).count(), 1)
 
     def test_memory_needs_review_and_marked_ai(self):
-        r = self._post("আমার পাসপোর্ট ড্রয়ারে আছে")
+        # explicit "মনে রাখো …" → a clear capture, saved for review
+        r = self._post("মনে রাখো আমার পাসপোর্ট ড্রয়ারে আছে")
         self.assertEqual(r.status_code, 200)
         m = MemoryItem.objects.get(user=self.user)
         self.assertTrue(m.needs_review)
         self.assertEqual(m.source, "ai")
+
+    def test_free_text_not_autosaved(self):
+        # plain free text is answered + offered a Save chip, never saved
+        r = self._post("আমার পাসপোর্ট ড্রয়ারে আছে")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.data["intent"], "ambiguous")
+        self.assertEqual(MemoryItem.objects.filter(user=self.user).count(), 0)
+        self.assertIn("save_note", [c.get("type") for c in r.data["cards"]])
 
     def test_query_money_reply(self):
         self._post("৫০০ টাকা খরচ খাবার")
@@ -144,6 +159,267 @@ class AgentViewTests(APITestCase):
             name="অন্য", phone="01800000000", password="secret123")
         self.client.force_authenticate(user=other)
         self.assertEqual(Transaction.objects.filter(user=other).count(), 0)
+
+
+class IntentRouterTests(APITestCase):
+    """Owner A3 bug: a QUESTION must be ANSWERED, never silently saved as a note.
+    Covers bn / Banglish / en questions, clear captures, and ambiguous text —
+    all with NO AI key (Brain answers deterministically over the user's rows)."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            name="ইন্টেন্ট", phone="01766666666", password="secret123")
+        self.client.force_authenticate(user=self.user)
+        self.url = "/api/v1/agent"
+
+    def _post(self, text):
+        return self.client.post(self.url, {"text": text}, format="json")
+
+    def _note_count(self):
+        from core.models import Note
+        return (MemoryItem.objects.filter(user=self.user).count()
+                + Note.objects.filter(user=self.user).count())
+
+    # ---- parser: question detection (pure) ----
+    def test_detect_q_banglish_naki(self):
+        from core.logic import brain
+        self.assertTrue(brain.is_question("Amar kno data ace naki??"))
+
+    def test_detect_q_banglish_koto(self):
+        from core.logic import brain
+        self.assertTrue(brain.is_question("ei mase koto khoroch"))
+
+    def test_detect_q_banglish_kivabe(self):
+        from core.logic import brain
+        self.assertTrue(brain.is_question("SOS kivabe kaj kore"))
+
+    def test_detect_q_banglish_ki(self):
+        from core.logic import brain
+        self.assertTrue(brain.is_question("amar reminder gula ki"))
+
+    def test_detect_q_english_qmark(self):
+        from core.logic import brain
+        self.assertTrue(brain.is_question("what is my balance?"))
+
+    def test_detect_q_english_howmany(self):
+        from core.logic import brain
+        self.assertTrue(brain.is_question("how many reminders do I have"))
+
+    def test_detect_q_bangla_kot(self):
+        from core.logic import brain
+        self.assertTrue(brain.is_question("কত টাকা আছে?"))
+
+    def test_detect_q_bangla_ki_ki(self):
+        from core.logic import brain
+        self.assertTrue(brain.is_question("আমার কী কী ডেটা আছে"))
+
+    def test_detect_q_english_can(self):
+        from core.logic import brain
+        self.assertTrue(brain.is_question("can you set a reminder"))
+
+    def test_statement_not_question_expense(self):
+        from core.logic import brain
+        self.assertFalse(brain.is_question("500 taka bazar"))
+
+    def test_statement_not_question_reminder(self):
+        from core.logic import brain
+        # "kal 9tay meeting" — 'kal' must not trip the 'ke' token
+        self.assertFalse(brain.is_question("kal 9tay meeting"))
+
+    def test_statement_not_question_save(self):
+        from core.logic import brain
+        self.assertFalse(brain.is_question("mone rakho amar passport drawer e ace"))
+
+    def test_statement_not_question_free_text(self):
+        from core.logic import brain
+        self.assertFalse(brain.is_question("আমার পাসপোর্ট ড্রয়ারে আছে"))
+
+    # ---- parser routes questions to the 'question' intent ----
+    def test_parse_question_banglish(self):
+        p = agent.parse("Amar kno data ace naki??")
+        self.assertEqual(p["intent"], "question")
+
+    def test_parse_question_english(self):
+        # "balance" is also a structured money query → answered either way,
+        # never saved. A non-money English question routes to 'question'.
+        self.assertEqual(agent.parse("how many reminders do I have?")["intent"],
+                         "question")
+        self.assertIn(agent.parse("what is my balance?")["intent"],
+                      ("question", "query_money"))
+
+    def test_parse_question_bangla(self):
+        p = agent.parse("আমার কী কী ডেটা আছে?")
+        self.assertEqual(p["intent"], "question")
+
+    def test_parse_ambiguous_not_memory(self):
+        # free text, not a question, not a clear capture, no save prefix
+        p = agent.parse("ekta kotha chilo tomar sathe")
+        self.assertEqual(p["intent"], "ambiguous")
+
+    def test_parse_explicit_save_is_memory(self):
+        p = agent.parse("mone rakho amar gari KA-123")
+        self.assertEqual(p["intent"], "memory")
+
+    def test_parse_note_prefix_is_memory(self):
+        p = agent.parse("note: buy rice")
+        self.assertEqual(p["intent"], "memory")
+
+    # ---- the A3 bug itself: question answered, NOT saved ----
+    def test_a3_bug_question_not_saved(self):
+        before = self._note_count()
+        r = self._post("Amar kno data ace naki??")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.data["intent"], "question")
+        self.assertTrue(r.data["reply"])                  # non-empty
+        self.assertNotIn("মনে রাখলাম", r.data["reply"])    # not the "noted" reply
+        self.assertNotIn("Noted and remembered", r.data["reply"])
+        self.assertEqual(self._note_count(), before)      # nothing saved
+
+    def test_a3_bug_empty_data_honest(self):
+        r = self._post("Amar kno data ace naki??")
+        # brand-new user has no data → honest empty-state answer
+        self.assertIn(self._lang_any(r.data["reply"],
+                                     ["কোনো ডেটা", "No data"]), [True])
+
+    def _lang_any(self, s, needles):
+        return any(n in s for n in needles)
+
+    def test_overview_counts_real_rows(self):
+        self._post("৫০০ টাকা খরচ খাবার")   # creates a txn
+        r = self._post("আমার কী কী ডেটা আছে?")
+        self.assertEqual(r.data["intent"], "question")
+        self.assertTrue(self._lang_any(r.data["reply"], ["টাকা", "Money", "ব্যালেন্স"]))
+        self.assertTrue(r.data["cards"])                  # summary cards with routes
+
+    def test_money_question_answers(self):
+        self._post("spent 300 on transport")
+        r = self._post("ei mase koto khoroch?")
+        self.assertEqual(r.data["intent"], "question")
+        self.assertIn("300", r.data["reply"])
+
+    def test_english_balance_question(self):
+        self._post("got paid 1000 salary")
+        r = self._post("what is my balance?")
+        self.assertIn(r.data["intent"], ("question", "query_money"))
+        self.assertTrue(self._lang_any(r.data["reply"], ["Balance", "balance", "ব্যালেন্স"]))
+
+    def test_bangla_balance_question(self):
+        r = self._post("কত টাকা আছে?")
+        self.assertIn(r.data["intent"], ("question", "query_money"))
+        self.assertTrue(r.data["reply"])
+
+    def test_reminders_list_question_empty(self):
+        r = self._post("amar reminder gula ki?")
+        self.assertEqual(r.data["intent"], "question")
+        self.assertTrue(r.data["reply"])
+
+    def test_reminders_list_question_with_data(self):
+        self._post("কাল বিকেল ৫টায় মিটিং মনে করিয়ে দিও")   # creates a reminder
+        r = self._post("amar reminder gula ki?")
+        self.assertEqual(r.data["intent"], "question")
+        self.assertIn("মিটিং", r.data["reply"])
+
+    def test_todos_question(self):
+        r = self._post("amar kaj gula ki?")
+        self.assertEqual(r.data["intent"], "question")
+        self.assertTrue(r.data["reply"])
+
+    # ---- L2 offline knowledge base (app help) ----
+    def test_help_sos_answered(self):
+        r = self._post("SOS kivabe kaj kore?")
+        self.assertEqual(r.data["intent"], "question")
+        self.assertTrue(self._lang_any(r.data["reply"], ["SOS", "Safety", "Circle"]))
+        self.assertEqual(self._note_count(), 0)           # help never saved
+
+    def test_help_reminder_how(self):
+        r = self._post("kivabe reminder set korbo?")
+        self.assertEqual(r.data["intent"], "question")
+        self.assertTrue(self._lang_any(r.data["reply"], ["রিমাইন্ডার", "reminder", "Reminder"]))
+
+    def test_help_kb_match_direct(self):
+        from core.logic import help_kb
+        self.assertEqual(help_kb.match("sos kivabe kaj kore", "en")["id"], "sos")
+        self.assertEqual(help_kb.match("how do I set a reminder", "en")["id"], "reminder")
+
+    # ---- L4 escalation: honest, never "noted", never empty ----
+    def test_l4_general_question_is_honest(self):
+        from core.logic import brain
+        res = brain.answer(self.user, "ইতিহাসের সবচেয়ে বড় যুদ্ধ কোনটি?", "bn")
+        self.assertEqual(res["level"], "L4")
+        self.assertTrue(res["reply"])
+        self.assertIn("AI", res["reply"])
+        self.assertEqual(self._note_count(), 0)
+
+    def test_l4_english_general_question(self):
+        from core.logic import brain
+        res = brain.answer(self.user, "who won the world cup in 2018?", "en")
+        self.assertEqual(res["level"], "L4")
+        self.assertIn("AI assistant", res["reply"])
+
+    # ---- clear captures still work ----
+    def test_clear_expense_creates_txn(self):
+        r = self._post("500 taka bazar")
+        self.assertEqual(r.data["intent"], "expense")
+        self.assertEqual(Transaction.objects.filter(user=self.user).count(), 1)
+
+    def test_clear_bangla_expense(self):
+        r = self._post("৫০০ টাকা খরচ খাবার")
+        self.assertEqual(r.data["intent"], "expense")
+        self.assertEqual(Transaction.objects.filter(user=self.user).count(), 1)
+
+    def test_clear_reminder_with_time(self):
+        r = self._post("কাল বিকেল ৫টায় মিটিং মনে করিয়ে দিও")
+        self.assertEqual(r.data["intent"], "reminder")
+        self.assertEqual(Reminder.objects.filter(user=self.user).count(), 1)
+
+    def test_explicit_save_creates_memory(self):
+        before = MemoryItem.objects.filter(user=self.user).count()
+        r = self._post("mone rakho amar gari KA-123")
+        self.assertEqual(r.data["intent"], "memory")
+        self.assertEqual(MemoryItem.objects.filter(user=self.user).count(), before + 1)
+
+    # ---- ambiguous: answered + offered save, NOT auto-saved ----
+    def test_ambiguous_not_autosaved_but_offers_save(self):
+        before = self._note_count()
+        r = self._post("ekta kotha chilo tomar sathe")
+        self.assertEqual(r.data["intent"], "ambiguous")
+        self.assertTrue(r.data["reply"])                  # answered, never empty
+        self.assertEqual(self._note_count(), before)      # NOT saved
+        kinds = [c.get("type") for c in r.data["cards"]]
+        self.assertIn("save_note", kinds)                 # offers a Save-as-note chip
+
+    def test_ambiguous_save_card_carries_text(self):
+        from core.logic import brain
+        card = brain.save_note_card("remember something later", "en")
+        self.assertEqual(card["type"], "save_note")
+        self.assertEqual(card["save_text"], "remember something later")
+        self.assertEqual(card["route"], "notes")
+
+    # ---- question never navigates away (reply must show in chat) ----
+    def test_question_returns_null_route(self):
+        r = self._post("what is my balance?")
+        self.assertIsNone(r.data["route"])
+
+    def test_ambiguous_returns_null_route(self):
+        r = self._post("ekta kotha chilo tomar sathe")
+        self.assertIsNone(r.data["route"])
+
+    # ---- no AI key → Brain answered, ai_used False ----
+    def test_no_key_ai_not_used(self):
+        r = self._post("Amar kno data ace naki??")
+        self.assertFalse(r.data["ai_used"])
+        self.assertFalse(r.data["ai_enabled"])
+
+    # ---- structured legacy queries still answer ----
+    def test_legacy_query_money_still_answers(self):
+        r = self._post("আমার কত টাকা আছে?")
+        self.assertIn(r.data["intent"], ("query_money", "question"))
+        self.assertTrue(r.data["reply"])
+
+    def test_legacy_query_today_still_answers(self):
+        r = self._post("আজ কী কী আছে?")
+        self.assertIn(r.data["intent"], ("query_today", "question"))
+        self.assertTrue(r.data["reply"])
 
 
 class IntegrationsStoreTests(TestCase):

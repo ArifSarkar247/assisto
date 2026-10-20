@@ -1186,8 +1186,12 @@ def alerts(request):
 
 @api_view(["GET"])
 def briefing(request):
-    lang = req_lang(request)
-    u = request.user
+    return Response(_briefing_payload(request.user, req_lang(request)))
+
+
+def _briefing_payload(u, lang):
+    """The briefing dict — callable without the HTTP layer (used by AgentView's
+    'today' query so it isn't double-wrapping a DRF Request)."""
     today = timezone.localdate()
     doses = []
     for med in u.medicines.all():
@@ -1223,8 +1227,8 @@ def briefing(request):
                 data=text, tier="cheap", feature="briefing", max_tokens=300, user=u)
         except ai.AIUnavailable:
             ai_text = None
-    return Response({"text": text, "lines": lines, "ai_text": ai_text,
-                     "alerts": al, "ai_enabled": ai.key_present()})
+    return {"text": text, "lines": lines, "ai_text": ai_text,
+            "alerts": al, "ai_enabled": ai.key_present()}
 
 
 class LifeScanView(APIView):
@@ -1341,6 +1345,8 @@ class AgentView(APIView):
         intent = p.get("intent")
         cards = []
         reply = ""
+        ai_used = False
+        brain_route = None
 
         def ensure_account():
             acc = u.accounts.first()
@@ -1450,19 +1456,53 @@ class AgentView(APIView):
                                            f"খরচ ৳{s['month_expense']} · আয় ৳{s['month_income']}",
                                            f"Spent ৳{s['month_expense']} · Earned ৳{s['month_income']}")})
         elif intent == "query_today":
-            b = briefing(request).data
-            reply = b["text"]
+            reply = _briefing_payload(u, lang)["text"]
+        elif intent in ("question", "ambiguous"):
+            # A QUESTION (or ambiguous free text) is ANSWERED, never saved.
+            from .logic import brain
+            ai_answered = False
+            # Cloud-AI path: a real question + a key present → let AI answer with
+            # the user's data context. Brain is the no-key fallback (and the
+            # honest L4 message is itself returned by Brain when AI is off).
+            if intent == "question" and ai.available():
+                try:
+                    ctx = brain.answer(u, text, lang)  # user-data context
+                    ai_reply, _ = ai.generate(
+                        task=pick(lang,
+                                  "ব্যবহারকারীর প্রশ্নের উত্তর দাও বাংলায়, সংক্ষেপে ও সত্যভাবে। "
+                                  "নিচের DATA-তে তার নিজের তথ্যের সারাংশ আছে — শুধু এটাই সত্য।",
+                                  "Answer the user's question briefly and truthfully in English. "
+                                  "The DATA below summarises their own data — treat only it as true."),
+                        data=f"Question: {text}\n\n{ctx['reply']}",
+                        tier="cheap", feature="agent_qa", max_tokens=400, user=u)
+                    reply = ai_reply
+                    cards = ctx.get("cards", [])
+                    ai_used = ai_answered = True
+                except ai.AIUnavailable:
+                    ai_answered = False
+            if not ai_answered:
+                res = brain.answer(u, text, lang)
+                reply = res["reply"]
+                cards = res.get("cards", [])
+                brain_route = res.get("route")
+            # ambiguous free text → offer a "Save as note" chip (never auto-saved)
+            if intent == "ambiguous":
+                cards = list(cards) + [brain.save_note_card(text, lang)]
         else:
             reply = pick(lang,
                          "বুঝতে পারিনি। যেমন বলুন: 'কাল সকাল ৮টায় ওষুধ মনে করিয়ে দিও' বা '৫০০ টাকা খরচ খাবার'।",
                          "I didn't catch that. Try: 'remind me to take my medicine at 8am tomorrow' or '500 taka spent on food'.")
 
-        # Optional AI enrichment (never required)
-        ai_used = False
         # open-from-chat: resolve a screen route from the raw phrase (bn+en
-        # synonyms). The app navigates when this is non-null.
+        # synonyms). For a QUESTION/ambiguous text we keep route null so the app
+        # SHOWS the answer in chat instead of navigating away — the answer's
+        # cards already carry a per-card route the user can tap. For commands we
+        # fall back to the synonym resolver as before.
         from . import screen_synonyms
-        route = screen_synonyms.resolve(text)
+        if intent in ("question", "ambiguous"):
+            route = None
+        else:
+            route = brain_route or screen_synonyms.resolve(text)
         return Response({"reply": reply, "cards": cards, "intent": intent,
                          "route": route,
                          "ai_used": ai_used, "ai_enabled": ai.key_present()})

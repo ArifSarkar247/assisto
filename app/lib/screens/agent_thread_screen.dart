@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/chatnav.dart';
+import '../widgets/permission_reason.dart';
 import '../widgets/voice_command_sheet.dart';
 import 'nearby_screen.dart';
 
@@ -23,21 +26,34 @@ class AgentThreadScreen extends StatefulWidget {
   /// When set, the thread renders this conversation instead of polling alerts.
   final List<Map<String, dynamic>>? debugSeed;
   final bool debugListening;
+
+  /// Fired when the text input gains focus (A1). The home screen uses this to
+  /// collapse the Discover/suggestion area so the chat + input fill the screen
+  /// and the keyboard never covers what the user is typing.
+  final VoidCallback? onInputFocus;
   const AgentThreadScreen(
-      {super.key, this.debugSeed, this.debugListening = false});
+      {super.key, this.debugSeed, this.debugListening = false, this.onInputFocus});
   @override
   State<AgentThreadScreen> createState() => _AgentThreadScreenState();
 }
 
-class _AgentThreadScreenState extends State<AgentThreadScreen> {
+class _AgentThreadScreenState extends State<AgentThreadScreen>
+    with WidgetsBindingObserver {
   final _input = TextEditingController();
   final _scroll = ScrollController();
+  final _inputFocus = FocusNode();
   final List<_Msg> _msgs = [];
   bool _sending = false;
 
-  // Preview flag only: the live mic now opens the advanced voice-command sheet
-  // (see [_openVoice]); this keeps the screenshot-seeded "listening" state.
+  // A4 — live speech-to-text into the input box. Lazily initialised on the
+  // FIRST mic tap only (never at launch). _listening doubles as the UI state
+  // for both the seeded preview and the live mic.
+  final SpeechToText _speech = SpeechToText();
+  bool _speechReady = false;
   bool _listening = false;
+  // Text already in the box before dictation began, so partial results are
+  // appended (not overwritten) each time onResult fires.
+  String _speechBase = '';
 
   AppLocalizations get t => AppLocalizations.of(context);
 
@@ -51,6 +67,16 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
   @override
   void initState() {
     super.initState();
+    // A1 — the thread's input must always sit above the keyboard and the list
+    // must auto-scroll when the keyboard opens. Observe metrics for that.
+    WidgetsBinding.instance.addObserver(this);
+    // A1 — the home collapses its Discover cards as soon as the input focuses.
+    _inputFocus.addListener(() {
+      if (_inputFocus.hasFocus) {
+        widget.onInputFocus?.call();
+        _toBottom();
+      }
+    });
     if (widget.debugSeed != null) {
       _listening = widget.debugListening;
       for (final m in widget.debugSeed!) {
@@ -64,10 +90,22 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadAlerts());
   }
 
+  // A1 — when the on-screen keyboard opens/closes the window insets change;
+  // keep the newest message pinned to the bottom (above the keyboard).
+  @override
+  void didChangeMetrics() {
+    if (_inputFocus.hasFocus) _toBottom();
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    try {
+      _speech.cancel();
+    } catch (_) {}
     _input.dispose();
     _scroll.dispose();
+    _inputFocus.dispose();
     super.dispose();
   }
 
@@ -168,6 +206,98 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
     final text = await showVoiceCommandSheet(context);
     if (text == null || text.trim().isEmpty || !mounted) return;
     await _send(text);
+  }
+
+  // A4 — live speech-to-text straight into the input box. Tapping the mic
+  // toggles listening; partial results stream LIVE into the TextField (append
+  // to whatever was already typed). Auto-send stays OFF — we only fill the box.
+  // Everything is guarded so the mic can never crash or block the UI.
+  Future<void> _toggleMic() async {
+    if (_listening) {
+      await _stopMic();
+      return;
+    }
+    HapticFeedback.selectionClick();
+    try {
+      // Lazy init on the FIRST tap only — never at launch.
+      if (!_speechReady) {
+        final okReason = await showPermissionReason(context, PermKind.mic);
+        if (!okReason || !mounted) return;
+        _speechReady = await _speech.initialize(
+          onStatus: (s) {
+            if ((s == 'done' || s == 'notListening') && mounted && _listening) {
+              setState(() => _listening = false);
+            }
+          },
+          onError: (_) {
+            if (mounted && _listening) {
+              setState(() => _listening = false);
+              _micUnavailable();
+            }
+          },
+        );
+      }
+      // Honest device gate: no speech engine (common on ColorOS/Realme) → show
+      // a clear message, never a fake transcript. Offer to open settings.
+      if (!_speechReady) {
+        if (mounted) _micUnavailable();
+        return;
+      }
+      _speechBase = _input.text;
+      if (_speechBase.isNotEmpty && !_speechBase.endsWith(' ')) {
+        _speechBase = '$_speechBase ';
+      }
+      setState(() => _listening = true);
+      // Recognise in the app's ACTIVE language. Without this the plugin uses the
+      // DEVICE locale, so a Bangla speaker on a non-Bengali device isn't heard.
+      final localeId = t.localeName.startsWith('bn') ? 'bn_BD' : 'en_US';
+      await _speech.listen(
+        onResult: (r) {
+          if (!mounted) return;
+          final live = '$_speechBase${r.recognizedWords}';
+          _input.value = TextEditingValue(
+            text: live,
+            selection: TextSelection.collapsed(offset: live.length),
+          );
+        },
+        listenOptions: SpeechListenOptions(
+          localeId: localeId,
+          partialResults: true,
+          cancelOnError: true,
+        ),
+      );
+    } catch (_) {
+      // Never crash: fall back to the idle state and tell the user honestly.
+      if (mounted) {
+        setState(() => _listening = false);
+        _micUnavailable();
+      }
+    }
+  }
+
+  Future<void> _stopMic() async {
+    try {
+      await _speech.stop();
+    } catch (_) {}
+    if (mounted) setState(() => _listening = false);
+  }
+
+  // Server transcription fallback (if a key ever exists) is NOT built here; this
+  // is a later build. For now we guide the user to install Google speech.
+  void _micUnavailable() {
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.clearSnackBars();
+    messenger.showSnackBar(SnackBar(
+      content: Text(t.micEnableSpeech),
+      action: SnackBarAction(
+        label: t.open,
+        onPressed: () {
+          try {
+            openAppSettings();
+          } catch (_) {}
+        },
+      ),
+    ));
   }
 
   @override
@@ -451,10 +581,14 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
           Expanded(
             child: TextField(
               controller: _input,
+              focusNode: _inputFocus,
               textInputAction: TextInputAction.send,
               onSubmitted: (_) => _send(),
               minLines: 1,
-              maxLines: 4,
+              // A1 — grow up to ~5 lines, then scroll internally so the typed
+              // text is always visible and the bar never outgrows the screen.
+              maxLines: 5,
+              keyboardType: TextInputType.multiline,
               decoration: InputDecoration(
                 hintText: _listening ? t.listening : t.inputHint,
                 filled: true,
@@ -468,11 +602,19 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
             ),
           ),
           const SizedBox(width: Gap.xs),
-          IconButton(
-            onPressed: _openVoice,
-            tooltip: t.voiceTitle,
-            icon: Icon(_listening ? Icons.stop_circle : Icons.mic_none,
-                color: _listening ? Brand.danger : scheme.onSurfaceVariant),
+          // A4 — tap: live speech-to-text into the box (fills, never auto-sends).
+          // Long-press: the advanced voice-command sheet (confirm-before-run).
+          Tooltip(
+            message: t.voiceTitle,
+            child: GestureDetector(
+              onLongPress: _listening ? null : _openVoice,
+              child: _listening
+                  ? _MicPulse(onTap: _toggleMic)
+                  : IconButton(
+                      onPressed: _toggleMic,
+                      icon: Icon(Icons.mic_none, color: scheme.onSurfaceVariant),
+                    ),
+            ),
           ),
           _sending
               ? const Padding(
@@ -493,4 +635,39 @@ class _AgentThreadScreenState extends State<AgentThreadScreen> {
         child: Image.asset('assets/branding/new_logo.png',
             width: size, height: size, fit: BoxFit.cover),
       );
+}
+
+/// A4 — visible "listening" state for the inline mic: a gently pulsing red
+/// stop button. Tapping it stops dictation.
+class _MicPulse extends StatefulWidget {
+  final VoidCallback onTap;
+  const _MicPulse({required this.onTap});
+  @override
+  State<_MicPulse> createState() => _MicPulseState();
+}
+
+class _MicPulseState extends State<_MicPulse>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 900))
+    ..repeat(reverse: true);
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: widget.onTap,
+      icon: AnimatedBuilder(
+        animation: _c,
+        builder: (_, child) =>
+            Transform.scale(scale: 1 + _c.value * 0.18, child: child),
+        child: const Icon(Icons.stop_circle, color: Brand.danger),
+      ),
+    );
+  }
 }
