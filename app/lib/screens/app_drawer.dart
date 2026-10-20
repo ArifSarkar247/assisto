@@ -162,6 +162,8 @@ class _AppDrawerState extends State<AppDrawer> {
                           leading:
                               Icon(s.icon, color: scheme.onSurfaceVariant),
                           title: Text(s.title(t),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                   fontWeight: FontWeight.w600)),
                           onTap: () => _push(s.items.first.builder),
@@ -184,6 +186,8 @@ class _AppDrawerState extends State<AppDrawer> {
                           leading:
                               Icon(s.icon, color: scheme.onSurfaceVariant),
                           title: Text(s.title(t),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                   fontWeight: FontWeight.w600)),
                           childrenPadding:
@@ -193,7 +197,9 @@ class _AppDrawerState extends State<AppDrawer> {
                               ListTile(
                                 leading: Icon(item.icon,
                                     color: scheme.onSurfaceVariant, size: 22),
-                                title: Text(item.label(t)),
+                                title: Text(item.label(t),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis),
                                 visualDensity: VisualDensity.compact,
                                 onTap: () => _push(item.builder),
                               ),
