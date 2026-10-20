@@ -34,7 +34,7 @@ from rest_framework.views import APIView
 from .i18n import req_lang, pick
 from .logic import (circle, circle_groups as G, circle_status as S,
                     circle_extras as X, circle_calls as CC)
-from . import plans
+from . import plans, push
 from .models import (CircleMember, CircleMessage, CircleGroup,
                      CircleGroupMember, GroupPoll, PollVote, CircleStatus,
                      StatusView, StatusMute, ChatSettings, ScheduledMessage,
@@ -379,6 +379,7 @@ class CircleGroupMessagesView(APIView):
             mentions=mentions or None,
             announcement=bool(env.get("announcement", False)),
             client_msg_id=cmid)
+        push.hook_group_message(request.user, g, x)   # key-gated, never raises
         return Response({"id": x.id, "ok": True, "mentions": mentions},
                         status=status.HTTP_201_CREATED)
 
@@ -986,6 +987,7 @@ class CircleStatusReplyView(APIView):
             content_type="text", ciphertext=env.get("ciphertext", ""),
             nonce=env.get("nonce", ""), scheme=env.get("scheme", ""),
             sender_key_id=env.get("sender_key_id", ""))
+        push.hook_circle_message(request.user, peer, x)   # key-gated
         return Response({"ok": True, "message_id": x.id},
                         status=status.HTTP_201_CREATED)
 
@@ -1154,6 +1156,7 @@ class CircleBroadcastView(APIView):
                 scheme=envelope.get("scheme", ""),
                 sender_key_id=envelope.get("sender_key_id", ""),
                 client_msg_id=cmid)
+            push.hook_circle_message(request.user, m, x)   # key-gated
             sent.append({"peer_id": pid, "message_id": x.id})
         return Response({"ok": True, "sent_count": len(sent), "sent": sent},
                         status=status.HTTP_201_CREATED)

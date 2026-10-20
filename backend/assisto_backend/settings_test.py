@@ -28,3 +28,8 @@ REST_FRAMEWORK = {**REST_FRAMEWORK,  # noqa: F405
                       "user": "1000000/min",
                       "reset": "1000000/min",
                   }}
+
+# Push (core/push.py): never read the server's real service-account file in
+# tests, and run pushes inline (no worker thread touching the in-memory DB).
+FCM_SERVICE_ACCOUNT_FILE = ""
+PUSH_SYNC = True

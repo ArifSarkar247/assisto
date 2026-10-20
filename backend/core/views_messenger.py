@@ -159,8 +159,8 @@ class InviteExistingView(_InviteBase):
             requester=request.user, target=target, state="pending",
             defaults={"relation": row["relation"], "custom_label": label,
                       "note": "", "note_used": False})
-        fcm = bool(getattr(settings, "FCM_SERVER_KEY", "")) or \
-            getattr(settings, "FCM_AVAILABLE", False)
+        from . import push
+        fcm = push.is_available()
         descriptor = mc.invite_existing_user(
             self._from_name(request), target.id, relation,
             fcm_available=bool(fcm), lang=lang, custom_label=label)

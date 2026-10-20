@@ -159,6 +159,14 @@ STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
+# Private uploads: every FileField .url is a short-lived signed link served via
+# /api/v1/m/ (core/media_sign.py); nginx keeps /media/ closed.
+STORAGES = {
+    "default": {"BACKEND": "core.media_sign.SignedMediaStorage"},
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+}
+# nginx streams the bytes (X-Accel-Redirect → internal /protected-media/).
+MEDIA_X_ACCEL = env_bool("MEDIA_X_ACCEL", False)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 15 * 1024 * 1024  # 15MB uploads (screenshots/photos)
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

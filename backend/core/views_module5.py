@@ -835,6 +835,10 @@ class CircleMessagesView(APIView):
             forward_hops=fh,
             link_preview=env.get("link_preview"),
         )
+        if notify:
+            # FCM (key-gated, async, never raises): name + ids only, no text.
+            from . import push
+            push.hook_circle_message(request.user, m, x)
         return Response({"id": x.id, "ok": True, "inbox": decision["inbox"],
                          "notify": notify},
                         status=status.HTTP_201_CREATED)

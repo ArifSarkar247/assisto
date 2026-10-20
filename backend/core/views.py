@@ -816,11 +816,8 @@ class MedicineEscalationView(APIView):
             base_day=timezone.localdate())
         events = [{"kind": e["kind"], "at": e["at"].strftime("%H:%M"),
                    "suppressed": e["suppressed"]} for e in plan]
-        from . import integrations as _ig
-        try:
-            push_ready = _ig.is_enabled("firebase")
-        except Exception:
-            push_ready = False
+        from . import push as _push
+        push_ready = _push.is_available()
         return Response({"slot": slot, "events": events, "push_ready": push_ready})
 
 
@@ -976,6 +973,14 @@ class ScamReportView(APIView):
             user=u, kind=payload.get("kind", "scam_report"),
             title=payload.get("title", ""), body=payload.get("body", ""),
             severity="high", payload=payload)
+        try:  # FCM to the reporter's family (key-gated, never raises)
+            from . import push
+            push.hook_family_alert(
+                u, payload.get("title", ""), payload.get("title", ""),
+                payload.get("body", ""), payload.get("body", ""),
+                data={"alert_kind": payload.get("kind", "scam_report")})
+        except Exception:
+            pass
         log(u, "scam.report", verdict=result["verdict"])
         return Response({"ok": True, "alert": payload})
 

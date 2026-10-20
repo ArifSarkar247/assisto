@@ -70,6 +70,14 @@ def _notify_owner_and_circle(user, title, body, kind="security", ntype="security
                       fail_silently=True)
         except Exception:
             pass
+    # FCM to the owner's other devices + accepted circle (key-gated, never raises)
+    try:
+        from . import push
+        push.hook_family_alert(user, title, title, body, body,
+                               data={"alert_kind": kind, "route": route},
+                               include_self=True)
+    except Exception:
+        pass
 
 
 def _register_lockout(user, phone):

@@ -2,6 +2,7 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from . import views
+from . import media_sign
 from . import views_module5 as m5
 from . import views_build61 as b61
 from . import views_m2 as m2
@@ -13,6 +14,7 @@ from . import views_lost as lost
 from . import views_account_deletion as acctdel
 from . import views_chat as chatv
 from . import shop_views as shop
+from . import views_push as pushv
 
 router = DefaultRouter()
 router.register("memory", views.MemoryViewSet, basename="memory")
@@ -55,6 +57,7 @@ router.register("ladder-payable", views.LadderPayableViewSet,
 
 urlpatterns = [
     path("health", views.health),
+    path("m/<path:name>", media_sign.serve_signed),
     path("version", views.version),
     path("app/latest", views.app_latest),
     path("ai/status", views.ai_status),
@@ -112,6 +115,11 @@ urlpatterns = [
     path("plans", views.PlansPublicView.as_view()),
     path("briefing", views.briefing),
     path("alerts", views.alerts),
+
+    # ---- push (FCM HTTP v1, key-gated) ----
+    path("devices/register", pushv.DeviceRegisterView.as_view()),
+    path("devices/unregister", pushv.DeviceUnregisterView.as_view()),
+    path("push/status", pushv.PushStatusView.as_view()),
 
     # ---- home notification centre + dynamic suggestions ----
     path("notif/reminders", views.notif_reminders),
@@ -275,6 +283,7 @@ urlpatterns = [
     # ===== CCTV / shop loss-prevention (Business, Part 4) =====
     # DEVICE ingest — per-shop ENROLLMENT TOKEN (not a user login). No video.
     path("shop/ingest", shop.ShopIngestView.as_view()),
+    path("shop/hook/<str:vendor>/<str:camera_token>", shop.ShopCameraHookView.as_view()),
     path("shop/pos", shop.ShopPosIngestView.as_view()),
     # OWNER endpoints — normal Token auth + owner gate.
     path("shop/sites", shop.ShopSitesView.as_view()),

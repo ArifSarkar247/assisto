@@ -125,29 +125,13 @@ class ShopIngestView(APIView):
         at_ts = _coerce_epoch(request.data.get("at"), now)
         cam_event = {"type": etype, "signals": signals, "at": at_ts}
 
-        pos_rows = _pos_rows_for(site, now, SG.DEFAULT_WINDOW_S)
-        decision = SG.combine(cam_event, pos_rows, now=now.timestamp())
-
-        if not decision["raise"]:
+        decision, ev = _ingest_event(site, cam, cam_event, now,
+                                     request.FILES.get("snapshot"))
+        if ev is None:
             # logged/ignored — honest: no alert, no snapshot stored, no video.
             return Response({"raised": False, "type": etype,
                              "confidence": decision["confidence"],
                              "reason_signals": decision["reason_signals"]})
-
-        from .models import ShopEvent
-        ev = ShopEvent.objects.create(
-            site=site, camera=cam, type=decision["type"],
-            signals={"inputs": signals, "reason": decision["reason_signals"],
-                     "pos_matched": decision["pos_matched"]},
-            confidence=decision["confidence"],
-            pos_matched=decision["pos_matched"], possible=decision["possible"])
-
-        # store AT MOST the one small snapshot (only if retention allows it)
-        snap = request.FILES.get("snapshot")
-        if snap is not None and site.snapshot_retention_days > 0:
-            ev.snapshot.save(snap.name, snap, save=True)
-
-        self._notify_owner(site, cam, ev)
 
         return Response({"raised": True, "event_id": ev.id,
                          "type": ev.type, "confidence": ev.confidence,
@@ -203,6 +187,120 @@ class ShopIngestView(APIView):
                       "confidence": ev.confidence})
         except Exception:
             pass
+        # FCM to the owner's phones — same "please check" wording, never
+        # "theft". Key-gated + async; its own guard so it can't affect ingest.
+        try:
+            from . import push
+            push.safe_push(
+                site.owner, "shop_alert", title_bn, title_en, body_bn, body_en,
+                data={"event_id": ev.id, "site_id": site.id,
+                      "camera_id": cam.id if cam else "",
+                      "camera_name": cam_name, "type": ev.type,
+                      "confidence": ev.confidence, "possible": ev.possible,
+                      "route": "business/shop-box"},
+                high_priority=not ev.possible)
+        except Exception:
+            pass
+
+
+def _ingest_event(site, cam, cam_event, now, snapshot=None):
+    """Shared core of every device ingest (Shop Box POST + camera webhooks):
+    run the pure combined-signal guard against recent POS rows; when it raises,
+    persist ONE ShopEvent + at most one snapshot and notify the owner.
+    Returns (decision, event_or_None)."""
+    pos_rows = _pos_rows_for(site, now, SG.DEFAULT_WINDOW_S)
+    decision = SG.combine(cam_event, pos_rows, now=now.timestamp())
+    if not decision["raise"]:
+        return decision, None
+
+    from .models import ShopEvent
+    ev = ShopEvent.objects.create(
+        site=site, camera=cam, type=decision["type"],
+        signals={"inputs": cam_event.get("signals") or {},
+                 "reason": decision["reason_signals"],
+                 "pos_matched": decision["pos_matched"]},
+        confidence=decision["confidence"],
+        pos_matched=decision["pos_matched"], possible=decision["possible"])
+
+    # store AT MOST the one small snapshot (only if retention allows it)
+    if snapshot is not None and site.snapshot_retention_days > 0:
+        ev.snapshot.save(snapshot.name, snapshot, save=True)
+
+    ShopIngestView._notify_owner(site, cam, ev)
+    return decision, ev
+
+
+# Camera webhooks: a camera repeats "active" every second or so while an event
+# lasts — collapse a burst into ONE alert per camera+type in this window.
+HOOK_DEDUPE_S = 60
+HOOK_SNAPSHOT_MAX_PX = 640
+
+
+def _small_jpeg(raw, name):
+    """Downscale a camera JPEG to <= HOOK_SNAPSHOT_MAX_PX on the long side.
+    Returns a ContentFile, or None when the bytes are not a readable image."""
+    import io
+    from django.core.files.base import ContentFile
+    try:
+        from PIL import Image
+        im = Image.open(io.BytesIO(raw))
+        im = im.convert("RGB")
+        im.thumbnail((HOOK_SNAPSHOT_MAX_PX, HOOK_SNAPSHOT_MAX_PX))
+        out = io.BytesIO()
+        im.save(out, "JPEG", quality=75, optimize=True)
+        return ContentFile(out.getvalue(), name=name)
+    except Exception:
+        return None
+
+
+class ShopCameraHookView(APIView):
+    """POST shop/hook/<vendor>/<camera_token> — an IP camera's OWN event push
+    (Hikvision ISAPI HTTP Listening, Dahua event push). The camera token is in
+    the path because cameras cannot add headers. Always answers 200 quickly
+    (cameras retry/stall on errors), except an unknown token → 401.
+
+    Line-crossing / intrusion → after_hours alert outside the camera's hours,
+    else a restricted-zone breach; plain motion is only logged unless after
+    hours. Same combined-signal guard + "please check" wording as the Shop Box."""
+    permission_classes = [AllowAny]
+    authentication_classes = []
+    parser_classes = []                # we parse the raw body ourselves
+
+    def post(self, request, vendor, camera_token):
+        from .logic import camera_hooks as CH
+        from .models import ShopCamera, ShopEvent
+        lang = req_lang(request)
+        parser = CH.PARSERS.get(vendor)
+        cam = ShopCamera.objects.filter(camera_token=camera_token).select_related(
+            "site").first() if parser else None
+        if cam is None:
+            return _err(lang, "ডিভাইস টোকেন ভুল।", "Invalid device token.",
+                        status=401, code="bad_token")
+        if not cam.enabled:
+            return Response({"ok": True, "ignored": "camera_disabled"})
+
+        events = parser(request.content_type or "", request.body[:4 * 1024 * 1024])
+        now = timezone.now()
+        local_now = timezone.localtime(now)
+        results = []
+        for vev in events:
+            mapped = CH.map_event(vev, cam.zone_config, local_now)
+            if mapped is None:
+                continue
+            etype, signals = mapped
+            recent = ShopEvent.objects.filter(
+                camera=cam, type__in=(etype, "after_hours", "motion"),
+                created__gte=now - timedelta(seconds=HOOK_DEDUPE_S)).exists()
+            if recent:
+                results.append({"type": etype, "raised": False, "dedupe": True})
+                continue
+            snap = _small_jpeg(vev["image"], "cam%d.jpg" % cam.id) if vev.get("image") else None
+            decision, ev = _ingest_event(
+                cam.site, cam, {"type": etype, "signals": signals,
+                                "at": now.timestamp()}, now, snap)
+            results.append({"type": decision["type"], "raised": ev is not None,
+                            "confidence": decision["confidence"]})
+        return Response({"ok": True, "events": results})
 
 
 class ShopPosIngestView(APIView):

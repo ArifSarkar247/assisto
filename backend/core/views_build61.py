@@ -16,6 +16,7 @@ from .i18n import req_lang
 from .logic import (referral as R, circle_calls as CC, circle_privacy as CP,
                     circle_messaging as CM, safety_journey as SJ, circle)
 from . import plans, nearby
+from . import push as PUSH
 from .models import (CircleMember, CircleMessage, CallRecord, CirclePrivacy,
                      ReferralGrant, Journey, JourneyWatcher, SavedPlace,
                      WellnessWatch, DuressPin)
@@ -586,11 +587,22 @@ class CirclePlaceCallView(APIView):
             if gate.get("upgrade_required"):
                 body["prompt"] = CC.upgrade_prompt(lang)
             return Response(body, status=status.HTTP_200_OK)
+        try:
+            peer = PUSH.member_peer_user(m)
+        except Exception:
+            peer = None
         rec = CallRecord.objects.create(
-            caller=request.user, callee=request.user, circle=m, kind=kind,
+            # the real other party, so their decline/history works; a contact
+            # without an Assisto account falls back to the caller (as before).
+            caller=request.user, callee=peer or request.user,
+            circle=m, kind=kind,
             state=("active" if answer else "ringing"))
+        if not answer:
+            # App-closed ring via FCM data message (key-gated, never raises).
+            PUSH.hook_call_placed(request.user, m, rec)
         turn_ready = bool(getattr(settings, "CIRCLE_TURN_READY", False))
-        push_ready = bool(getattr(settings, "CIRCLE_PUSH_READY", False))
+        push_ready = bool(getattr(settings, "CIRCLE_PUSH_READY", False)) \
+            or PUSH.is_available()
         return Response({
             "allowed": True, "kind": kind, "call_id": rec.id,
             "ice": CC.ice_config(turn_ready=turn_ready,
@@ -618,6 +630,7 @@ class CircleCallEventView(APIView):
                  "answered_at": rec.answered_at.isoformat() if rec.answered_at else None,
                  "started_at": rec.started_at.isoformat()}
         fin = CC.finalize_call(state, event)
+        was_ringing = rec.state == "ringing"
         rec.state = fin.get("state", rec.state)
         rec.duration_sec = int(fin.get("duration_sec", rec.duration_sec) or 0)
         if fin.get("state") in ("ended", "missed", "declined"):
@@ -625,6 +638,9 @@ class CircleCallEventView(APIView):
         if event == "answer" and rec.answered_at is None:
             rec.answered_at = timezone.now()
         rec.save()
+        if was_ringing and CC.is_terminal(rec.state):
+            # ended before answer -> stop the callee's ringing (FCM, key-gated)
+            PUSH.hook_call_cancel(rec, rec.state)
         return Response({"state": rec.state, "duration_sec": rec.duration_sec})
 
 
@@ -835,6 +851,9 @@ class JourneyStopView(APIView):
         # cancel + duress both stop the journey; duress also fires silent SOS.
         j.status = "stopped"
         j.save(update_fields=["status", "sos_active", "silent"])
+        if outcome == "duress":
+            # silent SOS still reaches family (key-gated, never raises)
+            PUSH.hook_sos(request.user, silent=True, journey_id=j.id)
         return Response({"ok": True, "outcome": outcome})
 
 
@@ -865,6 +884,8 @@ class JourneySosView(APIView):
             if d.get("lat") is not None else None
         payload = SJ.sos_journey_payload(request.user.name or "", loc,
                                          silent=silent, lang=lang)
+        PUSH.hook_sos(request.user, lat=d.get("lat"), lng=d.get("lng"),
+                      silent=silent, journey_id=j.id if j else None)
         return Response({"ok": True, "silent": silent, "payload": payload})
 
 

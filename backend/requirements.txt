@@ -5,3 +5,5 @@ gunicorn==26.2.0
 psycopg==3.2.13
 psycopg-binary==3.2.13
 python-dotenv==1.2.4
+reportlab==5.0.1
+requests==2.34.2
