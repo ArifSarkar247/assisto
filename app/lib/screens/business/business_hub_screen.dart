@@ -22,6 +22,8 @@ import 'payments_screen.dart';
 import 'ai_assistant_screen.dart';
 import 'supplier_market_screen.dart';
 import 'demand_map_screen.dart';
+import 'bargain_rules_screen.dart';
+import 'business_plans_screen.dart';
 
 /// Business HUB — the new home for Assisto Business v2 (replaces the old
 /// name/price/stock business screen). Shows the selected business, a switcher
@@ -344,6 +346,19 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
                 subtitle: t.demandHubSub,
                 onTap: () => _go(const DemandMapScreen()),
               ),
+              const SizedBox(height: Gap.md),
+              // Bargaining rules (Premium). The screen enforces the price floor
+              // in code and shows its own gate/upgrade when unpaid; the hub just
+              // mirrors the Premium badge when the business is unpaid.
+              _HubCard(
+                icon: Icons.handshake_outlined,
+                tint: Brand.purple,
+                title: t.bizBargainTitle,
+                subtitle: t.bizBargainHubSub,
+                locked: !premium,
+                lockedLabel: t.premium,
+                onTap: () => _go(const BargainRulesScreen()),
+              ),
             ],
             const SizedBox(height: Gap.md),
             // AI assistant handles its own Premium gate + upgrade screen; the
@@ -356,6 +371,15 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
               locked: !premium,
               lockedLabel: t.premium,
               onTap: () => _go(const AiAssistantScreen()),
+            ),
+            const SizedBox(height: Gap.md),
+            // Plans comparison (Free vs Premium) — informational, open to all.
+            _HubCard(
+              icon: Icons.workspace_premium_outlined,
+              tint: Brand.cyan,
+              title: t.bizPlansTitle,
+              subtitle: t.bizPlansHubSub,
+              onTap: () => _go(const BusinessPlansScreen()),
             ),
             const SizedBox(height: Gap.md),
             _HubCard(

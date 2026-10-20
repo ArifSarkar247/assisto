@@ -49,6 +49,18 @@
 
 ---
 
+## ✅ সদ্য চালু (key লাগেনি — ২০২৬-১০-২০)
+এই ফিচারগুলো আগে কোড-এ ছিল কিন্তু নেভিগেশনে পৌঁছানো যেত না / audit-এ "off" লেখা ছিল। এখন চালু, **কোনো key লাগে না**:
+- **Bargaining rules** (দরদামের নিয়ম — Premium) ও **Business plans** (ফ্রি বনাম প্রিমিয়াম) — আগে orphan স্ক্রিন ছিল, এখন **Business Hub**-এ টাইল + চ্যাট-নেভ রুট (`bargain_rules`, `business_plans`) যোগ করা হয়েছে। Bargaining Premium-gated (স্ক্রিন নিজে gate দেখায়); Plans সবার জন্য খোলা।
+- **Action Center — Pending approvals তালিকা**: audit বলেছিল backend endpoint deploy হয়নি — যাচাই করে দেখা গেছে `GET /actions/pending` + approve/reject + `PendingAction` মডেল সবই কোড-এ আছে ও কাজ করে (smoke-test পাস)। স্ক্রিন Settings → Audit log ও চ্যাট-নেভ (`action_center`) থেকে পৌঁছানো যায়। **কিছু করার নেই — ইতিমধ্যে চালু।**
+- **Rule-based ফিচার (daily brief / social draft / mock interview / blog / spending advice / travel / contract / letters / language partner / research)**: সবগুলো আগে থেকেই আসল rule-based ফলাফল ডিফল্ট দেখায়; "AI key যোগ করুন" শুধু অতিরিক্ত upsell কার্ড, gate নয়। **কোনো পরিবর্তন লাগেনি।**
+
+**এখনো key লাগবে (অপরিবর্তিত):** Dictionary পূর্ণ ডেটাসেট (ওপেন-লাইসেন্স bn↔en dataset এখনো bundle হয়নি → সৎ "offline dictionary data not bundled yet" state বহাল; কোনো ভুয়া অর্থ দেখানো হয় না), এবং §B-এর সব key-gated ফিচার (anthropic/weather/news/sms/firebase/…)।
+
+**ইচ্ছাকৃতভাবে বাদ (এই রাউন্ডে):** Moderation appeal স্ক্রিন — এটির জন্য একটি নির্দিষ্ট `itemId` দরকার যা শুধু "আপনার কনটেন্টে ব্যবস্থা নেওয়া হয়েছে" ধরনের ইউজার-মুখী সারফেস থেকে আসে, যা এখনো তৈরি হয়নি; তাই static nav টাইল করা সম্ভব নয় (ভুয়া id দিলে ভাঙবে)। নেটিভ ফিচার (voice SOS, Health Connect, home widget, fall detection, camera) এই রাউন্ডে ছোঁয়া হয়নি — আলাদা smoke-build লাগবে।
+
+---
+
 ## এছাড়া আপনার যে অ্যাকশন বাকি (key নয়)
 1. **কল সার্ভার পোর্ট** (এই সার্ভারে কল চালু করতে): `owner_actions/aws_ports.md` — 3478 udp/tcp + 49200-49300 udp খুলুন। (নতুন সার্ভারে গেলে provision.sh করে দেবে।)
 2. **নেটিভ ফিচার ফোনে টেস্ট** (বিল্ড ৯৪-৯৭): ক্যামেরা, হেলথ কানেক্ট, উইজেট, ভয়েস SOS, হারানো/চুরি — চেকলিস্ট `.phaseB/up_*_integration.md` + আমার আগের বার্তায়।

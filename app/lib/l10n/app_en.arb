@@ -13889,5 +13889,7 @@
   "pnlGuardHealthy": "Profit guard: healthy",
   "pnlGuardThin": "Profit guard: thin margin",
   "pnlGuardLoss": "Profit guard: running at a loss",
-  "done": "Done"
+  "done": "Done",
+  "bizBargainHubSub": "Set per-product price floors and discount steps",
+  "bizPlansHubSub": "Compare Free vs Premium Business"
 }

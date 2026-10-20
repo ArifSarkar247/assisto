@@ -56,6 +56,8 @@ import '../screens/guide_screen.dart';
 import '../screens/nearby_screen.dart';
 import '../screens/watch_feed_screen.dart';
 import '../screens/business_screen.dart';
+import '../screens/business/bargain_rules_screen.dart';
+import '../screens/business/business_plans_screen.dart';
 import '../screens/journey_start_screen.dart';
 import '../screens/referral_screen.dart';
 import '../screens/circle_privacy_screen.dart';
@@ -160,6 +162,10 @@ class ChatNav {
     'nearby': (_) => const NearbyScreen(),
     'watch_feed': (_) => const WatchFeedScreen(),
     'business': (_) => const BusinessScreen(),
+    // Business orphans now reachable: per-product bargaining rules (Premium)
+    // and the Free-vs-Premium plans comparison. Also in the Business Hub.
+    'bargain_rules': (_) => const BargainRulesScreen(),
+    'business_plans': (_) => const BusinessPlansScreen(),
     'journey': (_) => const JourneyStartScreen(),
     'referral': (_) => const ReferralScreen(),
     'circle_privacy': (_) => const CirclePrivacyScreen(),
@@ -249,6 +255,11 @@ class ChatNav {
     'nearby': ['nearby', 'around me', 'places nearby'],
     'watch_feed': ['watch feed', 'alerts feed', 'watch alerts'],
     'business': ['business', 'shop', 'store', 'orders'],
+    'bargain_rules': ['bargaining rules', 'bargain rules', 'bargaining',
+        'bargain', 'price floor', 'minimum price', 'discount rules',
+        'negotiation rules'],
+    'business_plans': ['business plans', 'business plan', 'free vs premium',
+        'upgrade business', 'premium business', 'plan comparison'],
     'journey': ['safe journey', 'journey', 'track me', 'live location'],
     'referral': ['referral', 'refer', 'points', 'invite friend'],
     'circle_privacy': ['circle privacy', 'privacy controls', 'block'],
