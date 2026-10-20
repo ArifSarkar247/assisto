@@ -504,13 +504,19 @@ class MonetizationP3Tests(TestCase):
         u.trial_until = timezone.now() - timedelta(days=1)  # expired trial -> free
         u.save()
         self.assertEqual(plans.effective_plan(u), "free")
+        # Business Model v2: the Free monthly POOL comes from PricingConfig (0 —
+        # free users earn credits via ads, not a monthly grant), so the grant
+        # matches config, NOT the literal fallback.
+        from core import billing
         plans.grant_monthly_if_due(u)
-        self.assertEqual(u.ai_credits, plans.PLANS["free"]["credits"])
-        self.assertTrue(plans.has_ai_quota(u))
-        before = u.ai_credits
+        u.refresh_from_db()
+        self.assertEqual(u.ai_credits, billing.cfg()["plans"]["free"]["credits"])
+        # consume decrements an explicit balance (unlimited-plan guard aside)
+        u.ai_credits = 3
+        u.save()
         plans.consume_credit(u)
         u.refresh_from_db()
-        self.assertEqual(u.ai_credits, before - 1)
+        self.assertEqual(u.ai_credits, 2)
 
     def test_rewarded_ad_daily_cap(self):
         from core import plans
@@ -2623,7 +2629,7 @@ class BusinessModelBuild1Tests(APITestCase):
         from core import billing, plans
         c = billing.cfg()
         self.assertEqual(c["plans"]["premium"]["price"], 199)
-        self.assertEqual(c["plans"]["business"]["price"], 999)
+        self.assertEqual(c["plans"]["business"]["price"], 499)   # v2 reprice
         self.assertEqual(c["plans"]["free"]["price"], 0)
         self.assertGreaterEqual(c["margin"], 0.40)
         pub = plans.plans_public("en")
@@ -2638,11 +2644,11 @@ class BusinessModelBuild1Tests(APITestCase):
     # ---- atomic charge ----------------------------------------------------
     def test_charge_debits_and_never_negative(self):
         from core import billing
-        self.u.ai_credits = 5
+        self.u.ai_credits = 6
         self.u.save()
-        r = billing.charge(self.u, "ai_msg_strong", qty=1)  # costs 5
+        r = billing.charge(self.u, "ai_msg_strong", qty=1)  # v2: costs 6
         self.assertTrue(r["ok"])
-        self.assertEqual(r["charged"], 5)
+        self.assertEqual(r["charged"], 6)
         self.u.refresh_from_db()
         self.assertEqual(self.u.ai_credits, 0)
         # now cannot afford a 1-credit action -> blocked, balance unchanged
@@ -2704,10 +2710,10 @@ class BusinessModelBuild1Tests(APITestCase):
         # stub providers + a successful anthropic call (no network)
         self._patch_ai(lambda: [("anthropic", "k")],
                        lambda key, model, system, prompt, mx: ("ok", 10, 10))
-        text, cost = ai.generate("hi", tier="strong", user=self.u)  # strong = 5 cr
+        text, cost = ai.generate("hi", tier="strong", user=self.u)  # v2 strong = 6 cr
         self.assertEqual(text, "ok")
         self.u.refresh_from_db()
-        self.assertEqual(self.u.ai_credits, 5)   # 10 - 5
+        self.assertEqual(self.u.ai_credits, 4)   # 10 - 6
 
     def test_ai_generate_refunds_on_all_providers_failing(self):
         from core import ai
@@ -2798,3 +2804,309 @@ class BusinessModelBuild1Tests(APITestCase):
         c2 = pricing.recompute_all(c)
         self.assertEqual(c2["action_costs"]["ai_msg_strong"]["credits"],
                          new_credits)
+
+
+# ===========================================================================
+# Business Model — Build 2 of N  (packs + ad wallet + profit guard + storage)
+# ===========================================================================
+class BusinessModelV2Tests(APITestCase):
+    def setUp(self):
+        from django.utils import timezone as _tz
+        from datetime import timedelta as _td
+        self.owner = User.objects.create_user(
+            name="Owner", phone="01820000001", password="x123456",
+            is_staff=True, is_superuser=True)
+        # a FREE-tier user (expired trial -> free), 0 credits by default
+        self.u = User.objects.create_user(
+            name="Free", phone="01820000002", password="x123456")
+        self.u.trial_until = _tz.now() - _td(days=1)
+        self.u.plan = "free"
+        self.u.ai_credits = 0
+        self.u.save()
+
+    def _enable(self, slug):
+        from core.models import Integration
+        from core import integrations
+        integrations.save(slug, {"x": "y"})
+        Integration.objects.filter(slug=slug).update(status="working")
+
+    # ---- v2 prices + pools in /plans -------------------------------------
+    def test_v2_prices_and_pools(self):
+        from core import billing, plans
+        c = billing.cfg()
+        self.assertEqual(c["plans"]["business"]["price"], 499)   # 999 -> 499
+        self.assertEqual(c["plans"]["premium"]["price"], 199)
+        self.assertEqual(c["plans"]["free"]["price"], 0)
+        # monthly included POOL (no rollover): Premium 90, Business 240, Free 0
+        self.assertEqual(c["plans"]["premium"]["credits"], 90)
+        self.assertEqual(c["plans"]["business"]["credits"], 240)
+        self.assertEqual(c["plans"]["free"]["credits"], 0)
+        # base storage quota: Free 1GB / Premium 5GB / Business 15GB
+        GB = 1024 ** 3
+        self.assertEqual(c["plans"]["free"]["storage_bytes"], 1 * GB)
+        self.assertEqual(c["plans"]["premium"]["storage_bytes"], 5 * GB)
+        self.assertEqual(c["plans"]["business"]["storage_bytes"], 15 * GB)
+        pub = plans.plans_public("en")
+        biz = next(p for p in pub if p["id"] == "business")
+        self.assertEqual(biz["price"], 499)
+        self.assertEqual(biz["credits"], 240)
+
+    def test_packs_list_endpoint(self):
+        self.client.force_authenticate(self.u)
+        r = self.client.get("/api/v1/credits/packs")
+        self.assertEqual(r.status_code, 200)
+        ids = [p["id"] for p in r.data["packs"]]
+        self.assertEqual(ids, ["p20", "p50", "p100", "p200"])
+        p200 = next(p for p in r.data["packs"] if p["id"] == "p200")
+        self.assertEqual(p200["credits"], 240)
+        self.assertEqual(p200["valid_months"], 12)
+
+    # ---- topup: honest no-provider + confirmed grant with 12mo expiry -----
+    def test_topup_needs_provider_when_none_configured(self):
+        self.client.force_authenticate(self.u)
+        r = self.client.post("/api/v1/credits/topup", {"pack": "p50"},
+                             format="json")
+        # no payment provider -> honest 'needs_provider', NO credits granted
+        self.assertEqual(r.data["state"], "needs_provider")
+        self.u.refresh_from_db()
+        self.assertEqual(self.u.ai_credits, 0)
+        from core.models import CreditPurchase
+        self.assertEqual(CreditPurchase.objects.filter(user=self.u).count(), 0)
+
+    def test_pack_grant_and_12_month_expiry(self):
+        from django.utils import timezone as _tz
+        self._enable("bkash")
+        self.client.force_authenticate(self.u)
+        start = self.client.post("/api/v1/credits/topup", {"pack": "p100"},
+                                 format="json")
+        self.assertEqual(start.status_code, 201)
+        pid = start.data["purchase_id"]
+        # credits NOT granted yet (pending)
+        self.u.refresh_from_db()
+        self.assertEqual(self.u.ai_credits, 0)
+        # owner confirms the (mocked) payment -> atomic grant + 12mo expiry
+        self.client.force_authenticate(self.owner)
+        conf = self.client.post("/api/v1/credits/topup/confirm",
+                                {"purchase_id": pid, "txn_ref": "TX1"},
+                                format="json")
+        self.assertEqual(conf.status_code, 200)
+        self.assertEqual(conf.data["granted"], 115)       # p100 -> 115 credits
+        self.u.refresh_from_db()
+        self.assertEqual(self.u.ai_credits, 115)
+        from core.models import CreditPurchase
+        p = CreditPurchase.objects.get(pk=pid)
+        self.assertTrue(p.granted)
+        days = (p.expires_at - _tz.now()).days
+        self.assertGreater(days, 350)                     # ~12 months out
+        # idempotent: confirming again grants nothing more
+        self.client.post("/api/v1/credits/topup/confirm",
+                         {"purchase_id": pid}, format="json")
+        self.u.refresh_from_db()
+        self.assertEqual(self.u.ai_credits, 115)
+        # history exposes balance + expiry buckets
+        self.client.force_authenticate(self.u)
+        h = self.client.get("/api/v1/credits/history")
+        self.assertEqual(h.data["balance"], 115)
+        self.assertEqual(sum(b["credits"] for b in h.data["expiry_buckets"]), 115)
+
+    # ---- ad wallet: credits within caps, rejects over-cap + fraud ---------
+    def test_ad_event_credits_wallet_within_caps(self):
+        from core import billing
+        self._enable("admob")
+        # bump eCPM so one impression yields >=1 whole credit deterministically
+        billing.get_config()
+        self.client.force_authenticate(self.owner)
+        self.client.post("/api/v1/admin/pricing",
+                         {"config": {"ad_rewards": {"ecpm_bdt": 3000.0}}},
+                         format="json")
+        self.client.force_authenticate(self.u)
+        r = self.client.post("/api/v1/ads/event", {"kind": "rewarded"},
+                             format="json")
+        self.assertTrue(r.data["ok"])
+        # 3000 ৳/1000 * 0.70 = ৳2.10 -> 210 paisa -> 2 whole credits
+        self.assertEqual(r.data["credited_credits"], 2)
+        w = self.client.get("/api/v1/ads/wallet")
+        self.assertEqual(w.data["balance_credits"], 2)
+
+    def test_ad_appopen_rejected_within_3h_and_daily_cap(self):
+        from core import billing
+        from core.models import AdEvent
+        from django.utils import timezone as _tz
+        from datetime import timedelta as _td
+        self._enable("admob")
+        r1 = billing.ad_event(self.u, "app_open")
+        self.assertTrue(r1["ok"])
+        # a 2nd app-open immediately after -> rejected (server 3h gap)
+        r2 = billing.ad_event(self.u, "app_open")
+        self.assertFalse(r2["ok"])
+        self.assertIn(r2["reason"], ("too_soon", "fraud"))
+
+    def test_ad_fraud_impossible_frequency_rejected(self):
+        from core import billing
+        self._enable("admob")
+        r1 = billing.ad_event(self.u, "rewarded", device_id="DEV1")
+        self.assertTrue(r1["ok"])
+        # same device, same instant -> impossible frequency -> fraud reject
+        r2 = billing.ad_event(self.u, "rewarded", device_id="DEV1")
+        self.assertFalse(r2["ok"])
+        self.assertEqual(r2["reason"], "fraud")
+
+    def test_ad_not_configured_grants_nothing(self):
+        from core import billing
+        # AdMob OFF -> honest: no crediting (never fake ad revenue)
+        r = billing.ad_event(self.u, "rewarded")
+        self.assertFalse(r["ok"])
+        self.assertEqual(r["reason"], "ads_not_configured")
+        self.assertEqual(billing.ad_wallet_credits(self.u), 0)
+
+    # ---- free user pays via ad wallet, then refused when empty ------------
+    def test_free_user_pays_via_ad_wallet_then_refused(self):
+        from core import billing
+        self._enable("admob")
+        self.client.force_authenticate(self.owner)
+        self.client.post("/api/v1/admin/pricing",
+                         {"config": {"ad_rewards": {"ecpm_bdt": 3000.0}}},
+                         format="json")
+        # earn 2 ad-wallet credits
+        billing.ad_event(self.u, "rewarded")
+        self.assertEqual(billing.ad_wallet_credits(self.u), 2)
+        # a 1-credit costly action is paid from the ad wallet
+        r = billing.charge(self.u, "ai_msg_cheap")   # 1 credit
+        self.assertTrue(r["ok"])
+        self.assertEqual(billing.ad_wallet_credits(self.u), 1)
+        # drain it, then the next costly action is refused (watch an ad)
+        billing.charge(self.u, "ai_msg_cheap")
+        self.assertEqual(billing.ad_wallet_credits(self.u), 0)
+        allowed, reason = billing.guard_can(self.u, "ai_msg_cheap")
+        self.assertFalse(allowed)
+        self.assertEqual(reason, "insufficient")
+        blocked = billing.charge(self.u, "ai_msg_cheap")
+        self.assertFalse(blocked["ok"])
+        # but SAFETY is still free even with an empty wallet
+        safe = billing.charge(self.u, "sos")
+        self.assertTrue(safe["ok"])
+        self.assertEqual(safe["charged"], 0)
+
+    # ---- profit guard: near -> cheaper model, over -> block + alert -------
+    def _set_ledger(self, rev, cost):
+        from core.models import DailyLedger
+        from django.utils import timezone as _tz
+        DailyLedger.objects.update_or_create(
+            date=_tz.localdate(),
+            defaults={"revenue_by_source": {"subs": rev},
+                      "variable_cost_by_type": {"ai": cost}})
+
+    def test_profit_guard_near_downgrades_model(self):
+        from core import billing
+        # cost at 85% of the 60%-cap -> 'near'. cap = 0.60*rev. near >= 0.80*cap.
+        # rev=1000 -> cap=600 -> near band [480,600]. cost=500 -> near.
+        self._set_ledger(1000, 500)
+        self.assertEqual(billing.guard_state()["state"], "near")
+        self.assertEqual(billing.effective_tier(self.u, "strong"), "medium")
+        # paid user keeps the requested tier
+        paid = User.objects.create_user(name="Prem", phone="01820000009",
+                                        password="x123456")
+        paid.plan = "premium"
+        from django.utils import timezone as _tz
+        from datetime import timedelta as _td
+        paid.plan_until = _tz.now() + _td(days=30)
+        paid.save()
+        self.assertEqual(billing.effective_tier(paid, "strong"), "strong")
+
+    def test_profit_guard_over_blocks_free_and_alerts_but_not_safety(self):
+        from core import billing
+        from core.models import FamilyAlert
+        self.u.ai_credits = 50       # even WITH credits, 'over' pauses free tier
+        self.u.save()
+        self._set_ledger(1000, 700)  # cost 700 > cap 600 -> 'over'
+        self.assertEqual(billing.guard_state()["state"], "over")
+        r = billing.charge(self.u, "ai_msg_cheap")
+        self.assertFalse(r["ok"])
+        self.assertEqual(r["reason"], "guard_over")
+        self.assertTrue(FamilyAlert.objects.filter(
+            user=self.owner, kind="cost_guard").exists())
+        # SAFETY is NEVER blocked by the guard
+        safe = billing.charge(self.u, "sos_sms")
+        self.assertTrue(safe["ok"])
+        # paid user is unaffected by the free-tier guard
+        paid = User.objects.create_user(name="Prem2", phone="01820000010",
+                                        password="x123456")
+        from django.utils import timezone as _tz
+        from datetime import timedelta as _td
+        paid.plan = "business"
+        paid.plan_until = _tz.now() + _td(days=30)
+        paid.save()
+        self.assertTrue(billing.charge(paid, "ai_msg_cheap")["ok"])  # unlimited
+
+    # ---- margin validator refuses a loss-making edit (NET basis) ----------
+    def test_margin_validator_refuses_loss_making_action(self):
+        from core.logic import pricing as P
+        bad = P.DEFAULTS()
+        # cost 0.10 USD -> NET floor needs ceil(0.10*120/0.60)=20 credits; set 3
+        bad["action_costs"]["ai_msg_strong"] = {"provider_cost": 0.10, "credits": 3}
+        self.assertIn("action_breaks_margin", P.validate_edit(bad))
+        # via the admin endpoint -> 400
+        self.client.force_authenticate(self.owner)
+        r = self.client.post(
+            "/api/v1/admin/pricing",
+            {"config": {"action_costs": {"ai_msg_strong":
+                                         {"provider_cost": 0.10, "credits": 3}}}},
+            format="json")
+        self.assertEqual(r.status_code, 400)
+        self.assertIn("action_breaks_margin", r.data["problems"])
+
+    def test_pool_cap_refuses_overlarge_included_pool(self):
+        from core.logic import pricing as P
+        bad = P.DEFAULTS()
+        # Premium NET = 199*0.83 = 165.17; 60% = 99.1. Pool 150 face > that.
+        bad["plans"]["premium"]["credits"] = 150
+        self.assertIn("pool_exceeds_net", P.validate_edit(bad))
+
+    def test_net_basis_margin_math(self):
+        from core.logic import pricing as P
+        c = P.DEFAULTS()
+        # NET fraction = 1 - 0.15 - 0.02 - 0.00 = 0.83
+        self.assertAlmostEqual(P.net_fraction(c), 0.83, places=6)
+        self.assertAlmostEqual(P.net_plan_revenue("business", c), 499 * 0.83,
+                               places=4)
+        # NET floor for strong: ceil(0.030*120/0.60) = ceil(6.0) = 6
+        self.assertEqual(P.action_credit_floor("ai_msg_strong", c), 6)
+        # the shipped defaults satisfy both the floor and the pool cap
+        self.assertEqual(P.validate_edit(c), [])
+
+    # ---- global kill-switch + abuse --------------------------------------
+    def test_kill_switch_disables_topups(self):
+        from core import billing
+        from core.models import AdminFlagState
+        from core.logic import admin_flags as AF
+        self._enable("bkash")
+        # owner flips topups_enabled OFF
+        st = AF.normalize_state({})
+        st["topups_enabled"] = False
+        AdminFlagState.objects.update_or_create(
+            key="global", defaults={"state": st})
+        res = billing.start_topup(self.u, "p50")
+        self.assertFalse(res["ok"])
+        self.assertEqual(res["state"], "disabled")
+
+    def test_free_user_no_credits_no_ads_refused_but_safety_works(self):
+        # The load-bearing test: a FREE user with 0 credits + empty ad wallet is
+        # REFUSED every paid action, while SAFETY_EXEMPT still works.
+        from core import billing
+        self.u.ai_credits = 0
+        self.u.save()
+        self.assertEqual(billing.ad_wallet_credits(self.u), 0)
+        for action in ["ai_msg_cheap", "ai_msg_strong", "photo_enhance",
+                       "scan_ocr", "voice_clone", "ai_sales", "sms", "ivr_call"]:
+            allowed, reason = billing.guard_can(self.u, action)
+            self.assertFalse(allowed, action)
+            r = billing.charge(self.u, action)
+            self.assertFalse(r["ok"], action)
+        self.u.refresh_from_db()
+        self.assertEqual(self.u.ai_credits, 0)
+        # SAFETY_EXEMPT always works
+        for safe in ["sos", "safe_journey", "health", "login", "payment",
+                     "anti_theft", "sos_sms"]:
+            r = billing.charge(self.u, safe)
+            self.assertTrue(r["ok"], safe)
+            self.assertEqual(r["charged"], 0, safe)

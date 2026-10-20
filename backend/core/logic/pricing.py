@@ -86,7 +86,7 @@ _ACTION_DEFAULTS = {
     # ai messages — cheap (haiku) vs advanced (sonnet/opus)
     "ai_msg_cheap":        {"provider_cost": 0.002, "credits": 1},
     "ai_msg_medium":       {"provider_cost": 0.015, "credits": 3},
-    "ai_msg_strong":       {"provider_cost": 0.030, "credits": 5},
+    "ai_msg_strong":       {"provider_cost": 0.030, "credits": 6},
     # non-AI costly actions
     "scan_ocr":            {"provider_cost": 0.004, "credits": 2},
     "photo_enhance":       {"provider_cost": 0.004, "credits": 2},
@@ -106,22 +106,70 @@ TIER_ACTION = {
 }
 
 
+# ---------------------------------------------------------------- v2 packs / fees / storage
+# Business Model Build 2. 1 credit == ৳1 face (credit_bdt). Packs grant bonus
+# credits (buy more, get more) and expire 12 months after purchase.
+_TOPUP_PACKS = [
+    {"id": "p20",  "price": 20,  "credits": 20,  "valid_months": 12},
+    {"id": "p50",  "price": 50,  "credits": 55,  "valid_months": 12},
+    {"id": "p100", "price": 100, "credits": 115, "valid_months": 12},
+    {"id": "p200", "price": 200, "credits": 240, "valid_months": 12},
+]
+
+# Revenue fees used for the NET-margin guarantee. NET revenue a plan actually
+# keeps = price * (1 - play_fee - gateway_fee - vat). All admin-editable.
+DEFAULT_PLAY_FEE = 0.15          # store (Play/App Store) cut
+DEFAULT_GATEWAY_FEE = 0.02       # bkash/nagad/sslcommerz gateway cut
+DEFAULT_VAT = 0.00               # VAT / tax withheld
+MARGIN_NET_FLOOR = 0.60          # every action's credit-value must be >= cost / 0.60
+POOL_CAP_PCT_OF_NET = 0.60       # included-pool face value must be <= 60% of NET plan rev
+
+GB = 1024 ** 3
+
+
 def DEFAULTS():
     """The shipped default config dict (deep copy each call — never share refs)."""
     return {
         "plans": {
-            "free":     {"price": 0,   "credits": 15, "unlimited_ai": False,
-                         "ads": True,  "family": 0},
-            "premium":  {"price": 199, "credits": 0,  "unlimited_ai": True,
-                         "ads": False, "family": 5},
-            "business": {"price": 999, "credits": 0,  "unlimited_ai": True,
-                         "ads": False, "family": 0},
+            # v2: Business 999 -> 499, Premium 199, Free 0. Monthly included
+            # credit POOL (granted monthly, reset not accumulated — no rollover):
+            # Free 0, Premium 90, Business 240.
+            "free":     {"price": 0,   "credits": 0,   "unlimited_ai": False,
+                         "ads": True,  "family": 0,
+                         "storage_bytes": 1 * GB},
+            "premium":  {"price": 199, "credits": 90,  "unlimited_ai": True,
+                         "ads": False, "family": 5,
+                         "storage_bytes": 5 * GB},
+            "business": {"price": 499, "credits": 240, "unlimited_ai": True,
+                         "ads": False, "family": 0,
+                         "storage_bytes": 15 * GB},
         },
+        "topup_packs": [dict(p) for p in _TOPUP_PACKS],
         "annual_discount_pct": 20,     # % off 12 months of Premium
         "action_costs": {k: dict(v) for k, v in _ACTION_DEFAULTS.items()},
         "margin": DEFAULT_MARGIN,
         "credit_bdt": DEFAULT_CREDIT_BDT,
         "usd_bdt": DEFAULT_USD_BDT,
+        # NET-revenue fee structure (admin-editable)
+        "play_fee": DEFAULT_PLAY_FEE,
+        "gateway_fee": DEFAULT_GATEWAY_FEE,
+        "vat": DEFAULT_VAT,
+        # ad-funded wallet (free users) — admin-editable, deliberately tiny
+        # defaults before we have real BD fill-rate / eCPM data.
+        "ad_rewards": {
+            "ecpm_bdt": 30.0,          # BD eCPM floor (৳ per 1000 impressions)
+            "revenue_share": 0.70,     # credit the user at <=70% of the floor
+            "appopen_min_gap_sec": 3 * 3600,   # app-open >= 3h apart
+            "appopen_daily_cap": 4,
+            "rewarded_daily_cap": 5,
+            "interstitial_daily_cap": 10,
+            "native_daily_cap": 20,
+        },
+        # daily profit guard thresholds (admin-editable)
+        "profit_guard": {
+            "spend_cap_pct": 0.60,     # variable cost <= 60% of NET revenue
+            "approach_pct": 0.80,      # 'near' at 80% of that cap
+        },
     }
 
 
@@ -165,7 +213,25 @@ def normalize(data):
             "unlimited_ai": _bool(raw.get("unlimited_ai"), pdef["unlimited_ai"]),
             "ads": _bool(raw.get("ads"), pdef["ads"]),
             "family": max(0, _int(raw.get("family"), pdef["family"])),
+            "storage_bytes": max(0, _int(raw.get("storage_bytes"),
+                                         pdef["storage_bytes"])),
         }
+
+    # topup packs — keep the known shape; owner may edit price/credits/validity.
+    packs = []
+    raw_packs = d.get("topup_packs")
+    src = raw_packs if isinstance(raw_packs, list) and raw_packs else base["topup_packs"]
+    for p in src:
+        if not isinstance(p, dict) or not p.get("id"):
+            continue
+        packs.append({
+            "id": str(p["id"])[:16],
+            "price": max(0, _int(p.get("price"), 0)),
+            "credits": max(0, _int(p.get("credits"), 0)),
+            "valid_months": max(1, _int(p.get("valid_months"), 12)),
+        })
+    if not packs:
+        packs = [dict(p) for p in base["topup_packs"]]
 
     # action costs
     costs = {}
@@ -185,13 +251,102 @@ def normalize(data):
 
     return {
         "plans": plans,
+        "topup_packs": packs,
         "annual_discount_pct": max(0, min(90, _int(d.get("annual_discount_pct"),
                                                    base["annual_discount_pct"]))),
         "action_costs": costs,
         "margin": max(0.0, _num(d.get("margin"), base["margin"])),
         "credit_bdt": max(0.01, _num(d.get("credit_bdt"), base["credit_bdt"])),
         "usd_bdt": max(0.01, _num(d.get("usd_bdt"), base["usd_bdt"])),
+        "play_fee": max(0.0, min(0.95, _num(d.get("play_fee"), base["play_fee"]))),
+        "gateway_fee": max(0.0, min(0.95, _num(d.get("gateway_fee"),
+                                               base["gateway_fee"]))),
+        "vat": max(0.0, min(0.95, _num(d.get("vat"), base["vat"]))),
+        "ad_rewards": _norm_ad_rewards(d.get("ad_rewards"), base["ad_rewards"]),
+        "profit_guard": _norm_profit_guard(d.get("profit_guard"),
+                                           base["profit_guard"]),
     }
+
+
+def _norm_ad_rewards(raw, base):
+    raw = raw if isinstance(raw, dict) else {}
+    return {
+        "ecpm_bdt": max(0.0, _num(raw.get("ecpm_bdt"), base["ecpm_bdt"])),
+        "revenue_share": max(0.0, min(0.70, _num(raw.get("revenue_share"),
+                                                 base["revenue_share"]))),
+        "appopen_min_gap_sec": max(0, _int(raw.get("appopen_min_gap_sec"),
+                                           base["appopen_min_gap_sec"])),
+        "appopen_daily_cap": max(0, _int(raw.get("appopen_daily_cap"),
+                                         base["appopen_daily_cap"])),
+        "rewarded_daily_cap": max(0, _int(raw.get("rewarded_daily_cap"),
+                                          base["rewarded_daily_cap"])),
+        "interstitial_daily_cap": max(0, _int(raw.get("interstitial_daily_cap"),
+                                              base["interstitial_daily_cap"])),
+        "native_daily_cap": max(0, _int(raw.get("native_daily_cap"),
+                                        base["native_daily_cap"])),
+    }
+
+
+def _norm_profit_guard(raw, base):
+    raw = raw if isinstance(raw, dict) else {}
+    return {
+        "spend_cap_pct": max(0.0, min(1.0, _num(raw.get("spend_cap_pct"),
+                                                base["spend_cap_pct"]))),
+        "approach_pct": max(0.0, min(1.0, _num(raw.get("approach_pct"),
+                                               base["approach_pct"]))),
+    }
+
+
+# ---------------------------------------------------------------- v2 helpers
+
+def topup_packs(cfg):
+    """The list of purchasable credit packs from config."""
+    return normalize(cfg)["topup_packs"]
+
+
+def pack_by_id(pack_id, cfg):
+    """One pack dict by id, or None."""
+    for p in normalize(cfg)["topup_packs"]:
+        if p["id"] == pack_id:
+            return p
+    return None
+
+
+def storage_quota_bytes(plan_id, cfg):
+    """Base storage quota (bytes) for a config-backed plan; 0 if unknown."""
+    row = normalize(cfg)["plans"].get(plan_id)
+    return int(row["storage_bytes"]) if row else 0
+
+
+def net_fraction(cfg):
+    """The fraction of a plan's gross price the business keeps after store cut,
+    gateway fee and VAT: (1 - play_fee - gateway_fee - vat), clamped to >0."""
+    cfg = normalize(cfg)
+    keep = 1.0 - cfg["play_fee"] - cfg["gateway_fee"] - cfg["vat"]
+    return max(0.0001, keep)
+
+
+def net_plan_revenue(plan_id, cfg):
+    """NET ৳ a plan actually earns per month = price * net_fraction."""
+    cfg = normalize(cfg)
+    row = cfg["plans"].get(plan_id)
+    if not row:
+        return 0.0
+    return float(row["price"]) * net_fraction(cfg)
+
+
+def action_credit_floor(action, cfg):
+    """Minimum credits an action MUST charge to hold the NET-margin guarantee:
+    credit ৳-value >= provider_cost ÷ MARGIN_NET_FLOOR (0.60), expressed in
+    credits. provider_cost is USD; converted to ৳ via usd_bdt, divided by
+    credit_bdt. Returns ceil(...) credits (0 for an unknown/free action)."""
+    cfg = normalize(cfg)
+    row = cfg["action_costs"].get(action)
+    if not row or row["provider_cost"] <= 0:
+        return 0
+    cost_bdt = row["provider_cost"] * cfg["usd_bdt"]
+    need_face_bdt = cost_bdt / MARGIN_NET_FLOOR
+    return max(1, int(math.ceil(need_face_bdt / cfg["credit_bdt"])))
 
 
 # ---------------------------------------------------------------- cost reads
@@ -210,22 +365,22 @@ def credits_for(action, qty, cfg):
 
 
 def recompute_from_provider_cost(action, cfg):
-    """AUTO-RE-PRICING helper. Given the action's provider_cost (USD), return the
-    credit count that preserves the margin target:
+    """AUTO-RE-PRICING helper on the NET basis (Build 2). Given the action's
+    provider_cost (USD), return the credit count that holds BOTH:
 
-        bdt_cost = provider_cost_usd * usd_bdt
-        price_bdt = bdt_cost * (1 + margin)
-        credits = ceil(price_bdt / credit_bdt)
+      * the legacy margin target:  price_bdt = cost_bdt * (1 + margin)
+      * the NET-margin guarantee:  credit ৳-value >= cost_bdt / MARGIN_NET_FLOOR
 
-    Pure; returns an int >= 1 for any priced action, 0 for an unknown one."""
+    We take the stricter (larger) of the two so an action can never break the
+    60%-NET floor. Pure; >=1 for any priced action, 0 for an unknown one."""
     cfg = normalize(cfg)
     row = cfg["action_costs"].get(action)
-    if not row:
+    if not row or row["provider_cost"] <= 0:
         return 0
     bdt_cost = row["provider_cost"] * cfg["usd_bdt"]
-    price_bdt = bdt_cost * (1.0 + cfg["margin"])
-    credits = math.ceil(price_bdt / cfg["credit_bdt"])
-    return max(1, int(credits)) if row["provider_cost"] > 0 else 0
+    margin_credits = math.ceil(bdt_cost * (1.0 + cfg["margin"]) / cfg["credit_bdt"])
+    net_credits = action_credit_floor(action, cfg)   # the NET-floor minimum
+    return max(1, int(margin_credits), int(net_credits))
 
 
 def recompute_all(cfg):
@@ -248,7 +403,11 @@ def validate_edit(data):
     """Return a list of problem codes for a proposed config; empty == OK.
 
     Codes: 'margin_negative', 'margin_below_target', 'price_negative',
-    'credits_negative', 'provider_cost_negative', 'bad_credit_basis'."""
+    'credits_negative', 'provider_cost_negative', 'bad_credit_basis',
+    'bad_fee' (fees out of [0,1) or summing >=1), 'action_breaks_margin'
+    (an action charges fewer credits than the NET-margin floor requires), and
+    'pool_exceeds_net' (a plan's monthly included-pool face value > 60% of its
+    NET revenue). The last two are the Build-2 NET-margin guarantee."""
     d = data or {}
     problems = []
     margin = _num(d.get("margin"), None)
@@ -272,6 +431,31 @@ def validate_edit(data):
     cb = _num(d.get("credit_bdt"), None)
     if cb is not None and cb <= 0:
         problems.append("bad_credit_basis")
+
+    # ---- Build 2: NET fee sanity + per-action margin + pool cap ----
+    cfg = normalize(d)              # fills defaults so partial edits still validate
+    for fkey in ("play_fee", "gateway_fee", "vat"):
+        fv = _num(d.get(fkey), None)
+        if fv is not None and (fv < 0 or fv >= 1):
+            problems.append("bad_fee")
+    if (cfg["play_fee"] + cfg["gateway_fee"] + cfg["vat"]) >= 1.0:
+        problems.append("bad_fee")
+
+    # every priced action's credits must be >= the NET-margin floor
+    for aid, row in cfg["action_costs"].items():
+        floor = action_credit_floor(aid, cfg)
+        if floor and row["credits"] < floor:
+            problems.append("action_breaks_margin")
+            break
+
+    # a plan's monthly included-pool face value must not exceed 60% of NET rev
+    for pid, row in cfg["plans"].items():
+        net = net_plan_revenue(pid, cfg)
+        pool_face = row["credits"] * cfg["credit_bdt"]
+        if net > 0 and pool_face > POOL_CAP_PCT_OF_NET * net:
+            problems.append("pool_exceeds_net")
+            break
+
     return list(dict.fromkeys(problems))   # ordered-unique
 
 
@@ -295,6 +479,7 @@ def plan_public(lang, cfg):
             "benefits": meta["benefits_" + lang],
             "unlimited_ai": s["unlimited_ai"], "ads": s["ads"],
             "family": s["family"], "credits": s["credits"],
+            "storage_bytes": s["storage_bytes"],
         }
         out.append(entry)
     # annual (Premium yearly with discount) — derived, not a separate plan row

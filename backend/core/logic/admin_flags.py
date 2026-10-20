@@ -71,6 +71,9 @@ CATALOG = (
     ("business_crm", KIND_FEATURE, "features", True),
     ("family_sharing", KIND_FEATURE, "features", True),
     ("new_signups", KIND_FEATURE, "ops", True),
+    # Business Model Build 2 — owner kill-switches for monetization abuse.
+    ("topups_enabled", KIND_FEATURE, "monetization", True),
+    ("ads_rewarded", KIND_FEATURE, "monetization", True),
 )
 
 _BY_ID = {row[0]: row for row in CATALOG}

@@ -165,9 +165,17 @@ class PricingConfigView(APIView):
 
         # deep-ish merge: patch overrides old at the plan / action-cost / scalar level
         merged = {k: (dict(v) if isinstance(v, dict) else v) for k, v in old.items()}
-        for key in ("margin", "annual_discount_pct", "credit_bdt", "usd_bdt"):
+        for key in ("margin", "annual_discount_pct", "credit_bdt", "usd_bdt",
+                    "play_fee", "gateway_fee", "vat"):
             if key in (patch or {}):
                 merged[key] = patch[key]
+        for dkey in ("ad_rewards", "profit_guard"):
+            if isinstance((patch or {}).get(dkey), dict):
+                sub = {k: v for k, v in (old.get(dkey) or {}).items()}
+                sub.update(patch[dkey])
+                merged[dkey] = sub
+        if isinstance((patch or {}).get("topup_packs"), list):
+            merged["topup_packs"] = patch["topup_packs"]
         if isinstance((patch or {}).get("plans"), dict):
             merged_plans = {k: dict(v) for k, v in old["plans"].items()}
             for pid, pv in patch["plans"].items():
@@ -197,6 +205,105 @@ class PricingConfigView(APIView):
         row.audit = ([entry] + list(row.audit or []))[:200]
         row.save(update_fields=["data", "audit", "updated_at"])
         return Response(self._snapshot())
+
+
+# ===========================================================================
+# Business Model — Build 2: credit top-up / history / packs + ad wallet
+# ===========================================================================
+class CreditPacksView(APIView):
+    """GET /credits/packs -> the purchasable credit packs from PricingConfig."""
+    def get(self, request):
+        from . import billing
+        return Response({"packs": billing.cfg()["topup_packs"],
+                         "credit_bdt": billing.cfg()["credit_bdt"]})
+
+
+class CreditHistoryView(APIView):
+    """GET /credits/history -> ledger + balance + expiry buckets."""
+    def get(self, request):
+        from . import billing
+        return Response(billing.credit_history(request.user))
+
+
+class CreditTopupView(APIView):
+    """POST /credits/topup {pack} -> begin a pack top-up.
+
+    HONESTY: with no payment provider configured we return an honest
+    'needs_provider' state and grant NOTHING. With a provider we create a PENDING
+    purchase; credits are granted only on a confirmed payment (confirm_topup).
+    A mocked/confirmed success can be driven in tests via confirm=True + the
+    superuser owner (never by a normal client)."""
+    def post(self, request):
+        from . import billing
+        d = request.data or {}
+        pack_id = str(d.get("pack", ""))[:16]
+        # per-user rate limit: <=10 topup starts / hour (abuse guard)
+        from .models import CreditPurchase
+        from django.utils import timezone as _tz
+        from datetime import timedelta as _td
+        recent = CreditPurchase.objects.filter(
+            user=request.user, created_at__gte=_tz.now() - _td(hours=1)).count()
+        if recent >= 10:
+            return Response({"ok": False, "state": "rate_limited"},
+                            status=status.HTTP_429_TOO_MANY_REQUESTS)
+        res = billing.start_topup(request.user, pack_id)
+        if not res.get("ok"):
+            code = (status.HTTP_200_OK if res.get("state") == "needs_provider"
+                    else status.HTTP_400_BAD_REQUEST)
+            return Response(res, status=code)
+        return Response(res, status=status.HTTP_201_CREATED)
+
+
+class CreditTopupConfirmView(APIView):
+    """POST /credits/topup/confirm {purchase_id, txn_ref} — payment-provider
+    confirmation callback. OWNER-only in this build (no live provider yet); a
+    real bkash/Play callback would authenticate via its own signature. Grants
+    the pack's credits atomically with the 12-month expiry."""
+    def post(self, request):
+        u = request.user
+        if not (u and u.is_authenticated and u.is_superuser):
+            return Response({"ok": False, "reason": "forbidden"},
+                            status=status.HTTP_403_FORBIDDEN)
+        from . import billing
+        d = request.data or {}
+        res = billing.confirm_topup(d.get("purchase_id"),
+                                    txn_ref=str(d.get("txn_ref", ""))[:120])
+        code = status.HTTP_200_OK if res.get("ok") else status.HTTP_400_BAD_REQUEST
+        return Response(res, status=code)
+
+
+class AdEventView(APIView):
+    """POST /ads/event {kind, [ad_id], [device_id]} — an AdMob impression.
+
+    AdMob-key-gated + owner kill-switch gated; credits the FREE user's ad wallet
+    at <=70% of a configurable eCPM floor; enforces caps (app_open>=3h, daily
+    caps) + a fraud guard (impossible frequency per user/device). NEVER credits
+    when AdMob is off (no faked ad revenue)."""
+    def post(self, request):
+        from . import billing
+        from .models import AdEvent
+        from django.utils import timezone as _tz
+        from datetime import timedelta as _td
+        d = request.data or {}
+        kind = str(d.get("kind", ""))[:14]
+        ad_id = str(d.get("ad_id", ""))[:80]
+        device_id = str(d.get("device_id", ""))[:64]
+        # coarse per-user abuse throttle: <=120 ad events / hour
+        recent = AdEvent.objects.filter(
+            user=request.user, at__gte=_tz.now() - _td(hours=1)).count()
+        if recent >= 120:
+            return Response({"ok": False, "reason": "rate_limited"},
+                            status=status.HTTP_429_TOO_MANY_REQUESTS)
+        res = billing.ad_event(request.user, kind, device_id=device_id,
+                               ad_id=ad_id)
+        return Response(res)
+
+
+class AdWalletView(APIView):
+    """GET /ads/wallet -> balance + today's remaining caps per ad kind."""
+    def get(self, request):
+        from . import billing
+        return Response(billing.ad_wallet_state(request.user))
 
 
 def _mem_available_mb():

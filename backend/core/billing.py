@@ -22,10 +22,14 @@ What lives here:
 
 Prices are SERVER-AUTHORITATIVE: the client never decides what it costs.
 """
+from datetime import timedelta
+
 from django.db import transaction
-from django.db.models import F
+from django.db.models import F, Sum
+from django.utils import timezone
 
 from .logic import pricing
+from .logic import profit_guard as PG
 
 # --------------------------------------------------------------- safety allow-list
 # These actions are life-safety / account-critical and are NEVER charged and NEVER
@@ -36,6 +40,19 @@ SAFETY_EXEMPT = frozenset({
     "sos", "safe_journey", "anti_theft", "health", "elderly",
     "payment", "login",
 })
+
+
+def flag_on(flag_id, default=True):
+    """Read an owner kill-switch from AdminFlagState (Build 2 global kill-switch
+    reuse). Missing row/flag -> the catalog default. Never raises."""
+    try:
+        from .models import AdminFlagState
+        from .logic import admin_flags as AF
+        row = AdminFlagState.objects.filter(key="global").first()
+        state = AF.normalize_state(row.state if row else {})
+        return bool(state.get(flag_id, default))
+    except Exception:
+        return default
 
 
 def is_exempt(action):
@@ -84,13 +101,146 @@ def _has_unlimited(user):
         return False
 
 
+def _is_free(user):
+    """True when the user's EFFECTIVE plan is the free tier (the only tier the
+    ad wallet and the profit guard apply to)."""
+    from . import plans
+    try:
+        return plans.effective_plan(user) == "free"
+    except Exception:
+        return False
+
+
+# --------------------------------------------------------------- ad wallet
+
+def get_ad_wallet(user):
+    from .models import AdWallet
+    w, _ = AdWallet.objects.get_or_create(user=user)
+    return w
+
+
+def ad_wallet_credits(user):
+    """Whole spendable credits currently in the user's ad wallet."""
+    if user is None:
+        return 0
+    return get_ad_wallet(user).spendable_credits()
+
+
+# --------------------------------------------------------------- daily ledger (P&L)
+
+def _today_ledger():
+    """Today's DailyLedger row (Asia/Dhaka local date), created empty if absent."""
+    from .models import DailyLedger
+    row, _ = DailyLedger.objects.get_or_create(
+        date=timezone.localdate(),
+        defaults={"revenue_by_source": {}, "variable_cost_by_type": {}})
+    return row
+
+
+def record_revenue(source, amount_bdt):
+    """Add ৳`amount_bdt` to today's revenue under `source`
+    ∈ {ads, subs, packs, commissions}. Append-only daily (upsert today's row)."""
+    amount = float(amount_bdt or 0)
+    if source not in PG.REVENUE_SOURCES or amount <= 0:
+        return
+    with transaction.atomic():
+        row = _today_ledger()
+        rev = dict(row.revenue_by_source or {})
+        rev[source] = float(rev.get(source, 0) or 0) + amount
+        row.revenue_by_source = rev
+        row.save(update_fields=["revenue_by_source", "updated_at"])
+
+
+def record_cost(ctype, amount_bdt):
+    """Add ৳`amount_bdt` to today's variable cost under `ctype`
+    ∈ {ai, sms, ivr, video, storage}. AI callers convert USD -> ৳ first."""
+    amount = float(amount_bdt or 0)
+    if ctype not in PG.COST_TYPES or amount <= 0:
+        return
+    with transaction.atomic():
+        row = _today_ledger()
+        cost = dict(row.variable_cost_by_type or {})
+        cost[ctype] = float(cost.get(ctype, 0) or 0) + amount
+        row.variable_cost_by_type = cost
+        row.save(update_fields=["variable_cost_by_type", "updated_at"])
+
+
+def record_ai_cost_usd(usd):
+    """Convenience: convert a USD AI spend to ৳ (via cfg.usd_bdt) and record it."""
+    try:
+        bdt = float(usd or 0) * float(cfg()["usd_bdt"])
+        record_cost("ai", bdt)
+    except Exception:
+        pass
+
+
+def _trailing_rows(days=7, now=None):
+    from .models import DailyLedger
+    today = timezone.localdate()
+    since = today - timedelta(days=days - 1)
+    rows = DailyLedger.objects.filter(date__gte=since, date__lte=today)
+    return [{"date": r.date.isoformat(),
+             "revenue_by_source": r.revenue_by_source,
+             "variable_cost_by_type": r.variable_cost_by_type} for r in rows]
+
+
+def guard_state(now=None):
+    """The current profit-guard decision from the trailing-7-day DailyLedger,
+    using the admin-editable thresholds in PricingConfig (fallback to the
+    profit_guard defaults). Returns the profit_guard.guard_state dict."""
+    c = cfg()
+    pg = c.get("profit_guard") if isinstance(c.get("profit_guard"), dict) else {}
+    spend_cap = pg.get("spend_cap_pct", PG.DEFAULT_SPEND_CAP_PCT)
+    approach = pg.get("approach_pct", PG.DEFAULT_APPROACH_PCT)
+    return PG.guard_state(_trailing_rows(7, now),
+                          spend_cap_pct=float(spend_cap),
+                          approach_pct=float(approach))
+
+
+def effective_tier(user, requested_tier):
+    """AI model-downgrade hook. When a FREE user's action runs while the profit
+    guard is 'near', step the requested tier down one rung (strong->medium->
+    cheap) to cut cost. Paid users and non-'near' states keep the requested
+    tier. Returns the tier string ai.generate should actually use."""
+    try:
+        if not _is_free(user):
+            return requested_tier
+        st = guard_state()
+        if st["near"]:
+            return PG.cheaper_tier(requested_tier)
+    except Exception:
+        pass
+    return requested_tier
+
+
+def _owner_alert(title, body):
+    """Fire an honest owner alert when the profit guard blocks free-tier costly
+    actions. Reuses FamilyAlert (the foreground-polled alert the app already
+    renders) addressed to every superuser/owner; best-effort, never raises."""
+    try:
+        from .models import User, FamilyAlert
+        owners = User.objects.filter(is_superuser=True)[:5]
+        for o in owners:
+            FamilyAlert.objects.get_or_create(
+                user=o, kind="cost_guard", title=title[:160],
+                defaults={"body": body, "severity": "high",
+                          "payload": {"source": "profit_guard"}})
+    except Exception:
+        pass
+
+
 # --------------------------------------------------------------- guard (no debit)
 
 def guard_can(user, action, qty=1):
     """Can this charge succeed, WITHOUT debiting? Returns (allowed, reason).
 
-    reason ∈ {"exempt", "unlimited", "ok", "insufficient"}. Safety-exempt actions
-    and unlimited plans are always allowed; otherwise checks the live balance."""
+    reason ∈ {"exempt", "unlimited", "ok", "insufficient", "guard_over"}.
+
+      * Safety-exempt actions and unlimited plans are always allowed.
+      * FREE users: the profit guard is consulted first — 'over' blocks a costly
+        action ("guard_over") until the next local day (never a safety action).
+        The spendable balance is included credits + ad-wallet credits.
+    """
     if is_exempt(action):
         return True, "exempt"
     if user is None:
@@ -100,7 +250,16 @@ def guard_can(user, action, qty=1):
     need = pricing.credits_for(action, qty, cfg())
     if need <= 0:
         return True, "ok"          # unpriced/unknown action -> free, never block
-    bal = int(getattr(user, "ai_credits", 0) or 0)
+
+    if _is_free(user):
+        try:
+            if guard_state()["over"]:
+                return False, "guard_over"
+        except Exception:
+            pass
+        bal = int(getattr(user, "ai_credits", 0) or 0) + ad_wallet_credits(user)
+    else:
+        bal = int(getattr(user, "ai_credits", 0) or 0)
     if bal < need:
         return False, "insufficient"
     return True, "ok"
@@ -138,17 +297,57 @@ def charge(user, action, qty=1, note=""):
         return {"ok": True, "reason": "ok", "charged": 0,
                 "balance": int(user.ai_credits or 0)}
 
+    free = _is_free(user)
+
+    # FREE-tier PROFIT GUARD: when trailing cost is 'over' 60% of NET revenue,
+    # block free-tier costly actions until the next local day + alert the owner.
+    # Safety-exempt actions already returned above, so safety is NEVER blocked.
+    if free:
+        try:
+            st = guard_state()
+        except Exception:
+            st = {"over": False}
+        if st.get("over"):
+            _owner_alert(
+                "Cost guard tripped — free-tier costly actions paused",
+                "Trailing-7-day variable cost exceeded 60% of NET revenue. "
+                "Free-tier paid actions are paused until tomorrow; paid users "
+                "and all safety features are unaffected.")
+            return {"ok": False, "reason": "guard_over", "charged": 0,
+                    "balance": int(user.ai_credits or 0)}
+
+    from .models import AdWallet
+
     with transaction.atomic():
         locked = User.objects.select_for_update().get(pk=user.pk)
         bal = int(locked.ai_credits or 0)
-        if bal < need:
+        ad_credits = 0
+        if free:
+            # include ad-wallet credits in the affordability check
+            wallet = AdWallet.objects.select_for_update().get_or_create(
+                user=locked)[0]
+            ad_credits = wallet.spendable_credits()
+
+        if bal + (ad_credits if free else 0) < need:
             return {"ok": False, "reason": "insufficient", "charged": 0,
                     "balance": bal}
-        User.objects.filter(pk=locked.pk).update(ai_credits=F("ai_credits") - need)
-        CreditLedger.objects.create(
-            user=locked, delta=-need, reason="consume",
-            note=(note or action)[:120])
-        new_bal = bal - need
+
+        # spend INCLUDED/purchased credits first, then the ad wallet (free only)
+        from_credits = min(bal, need)
+        from_ad = need - from_credits
+        if from_credits:
+            User.objects.filter(pk=locked.pk).update(
+                ai_credits=F("ai_credits") - from_credits)
+            CreditLedger.objects.create(
+                user=locked, delta=-from_credits, reason="consume",
+                note=(note or action)[:120])
+        if from_ad:
+            AdWallet.objects.filter(pk=wallet.pk).update(
+                balance_paisa=F("balance_paisa") - from_ad * 100)
+            CreditLedger.objects.create(
+                user=locked, delta=-from_ad, reason="ad_spend",
+                note=(note or action)[:120])
+        new_bal = bal - from_credits
 
     # keep the in-memory object consistent for the caller
     try:
@@ -178,3 +377,294 @@ def credit(user, source, amount, note=""):
     except Exception:
         pass
     return new_bal
+
+
+# --------------------------------------------------------------- credit packs
+
+# payment providers that, when enabled, REQUIRE a confirmed payment before any
+# credits are granted (we never grant on a pending purchase with a live provider).
+PAYMENT_PROVIDERS = ("play_billing", "bkash", "nagad", "sslcommerz")
+
+
+def enabled_payment_provider():
+    """The first configured+enabled payment provider, or '' if none. HONESTY:
+    when a provider is required, topup must not grant credits without a real,
+    confirmed payment through it."""
+    try:
+        from . import integrations
+        for slug in PAYMENT_PROVIDERS:
+            if integrations.is_enabled(slug):
+                return slug
+    except Exception:
+        pass
+    return ""
+
+
+def start_topup(user, pack_id):
+    """Begin a credit-pack top-up (Build 2).
+
+      * No payment provider configured -> return an HONEST 'needs_provider'
+        state and grant NOTHING (we never fake money).
+      * Provider configured -> create a PENDING CreditPurchase; credits are
+        granted only by confirm_topup() on a verified payment callback.
+
+    Returns {ok, state, purchase_id, pack, provider}."""
+    if not flag_on("topups_enabled"):
+        return {"ok": False, "state": "disabled"}
+    pack = pricing.pack_by_id(pack_id, cfg())
+    if not pack:
+        return {"ok": False, "state": "bad_pack"}
+    provider = enabled_payment_provider()
+    if not provider:
+        return {"ok": False, "state": "needs_provider", "pack": pack}
+    from .models import CreditPurchase
+    p = CreditPurchase.objects.create(
+        user=user, pack_id=pack["id"], price_bdt=pack["price"],
+        credits=pack["credits"], provider=provider, status="pending")
+    return {"ok": True, "state": "pending", "purchase_id": p.id,
+            "pack": pack, "provider": provider}
+
+
+def confirm_topup(purchase_id, txn_ref="", now=None):
+    """Grant a pending purchase's credits ATOMICALLY on a confirmed payment.
+
+    Idempotent: a purchase that already granted does nothing. Sets a 12-month
+    expiry (pack.valid_months) and records the pack revenue in the DailyLedger.
+    Returns {ok, granted, balance, expires_at}."""
+    from .models import CreditPurchase, User, CreditLedger
+    now = now or timezone.now()
+    with transaction.atomic():
+        p = CreditPurchase.objects.select_for_update().filter(
+            pk=purchase_id).first()
+        if p is None:
+            return {"ok": False, "reason": "not_found"}
+        if p.granted or p.status == "confirmed":
+            return {"ok": True, "granted": 0, "balance": None,
+                    "expires_at": p.expires_at.isoformat() if p.expires_at else None}
+        pack = pricing.pack_by_id(p.pack_id, cfg()) or {}
+        months = int(pack.get("valid_months", 12) or 12)
+        p.status = "confirmed"
+        p.granted = True
+        p.txn_ref = (txn_ref or p.txn_ref)[:120]
+        p.confirmed_at = now
+        p.expires_at = now + timedelta(days=30 * months)
+        p.save(update_fields=["status", "granted", "txn_ref", "confirmed_at",
+                              "expires_at"])
+        locked = User.objects.select_for_update().get(pk=p.user_id)
+        User.objects.filter(pk=locked.pk).update(
+            ai_credits=F("ai_credits") + p.credits)
+        CreditLedger.objects.create(
+            user=locked, delta=p.credits, reason="topup",
+            note=f"pack:{p.pack_id}")
+        new_bal = int(locked.ai_credits or 0) + p.credits
+    record_revenue("packs", p.price_bdt)
+    return {"ok": True, "granted": p.credits, "balance": new_bal,
+            "expires_at": p.expires_at.isoformat()}
+
+
+def credit_history(user, now=None):
+    """Ledger list + balance + expiry buckets for /credits/history.
+
+    expiry_buckets = active (granted, un-expired) CreditPurchase rows grouped by
+    the month they expire, so the app can warn 'N credits expire in <month>'."""
+    from .models import CreditLedger, CreditPurchase
+    now = now or timezone.now()
+    ledger = [{
+        "delta": r.delta, "reason": r.reason, "note": r.note,
+        "at": r.created_at.isoformat(),
+    } for r in CreditLedger.objects.filter(user=user)[:200]]
+    buckets = {}
+    active = CreditPurchase.objects.filter(
+        user=user, granted=True, expires_at__gt=now)
+    for p in active:
+        key = p.expires_at.date().isoformat()
+        buckets[key] = buckets.get(key, 0) + int(p.credits)
+    return {
+        "balance": int(getattr(user, "ai_credits", 0) or 0),
+        "ad_wallet_credits": ad_wallet_credits(user) if _is_free(user) else 0,
+        "ledger": ledger,
+        "expiry_buckets": [{"expires_on": k, "credits": v}
+                           for k, v in sorted(buckets.items())],
+    }
+
+
+# --------------------------------------------------------------- ad crediting
+
+def _ad_reward_paisa(ad_cfg):
+    """Paisa credited per valid impression: eCPM_৳/1000 * revenue_share, in
+    paisa (×100). Clamped at <=70% of the floor by config normalize."""
+    per_impression_bdt = float(ad_cfg["ecpm_bdt"]) / 1000.0
+    return int(round(per_impression_bdt * float(ad_cfg["revenue_share"]) * 100))
+
+
+def ad_event(user, kind, device_id="", ad_id="", now=None):
+    """Record one ad impression for a FREE user and, if the caps/fraud checks
+    pass AND AdMob is configured, credit the ad wallet at <=70% of the eCPM floor.
+
+    Returns {ok, credited_paisa, credited_credits, reason, wallet_credits,
+    caps}. reason ∈ {'ok','ads_not_configured','not_free','bad_kind','capped',
+    'too_soon','fraud'}.
+
+    HONESTY: no AdMob key -> NO crediting (we never fake ad revenue); the event
+    is still logged (credited 0) so caps/fraud history stays intact."""
+    from . import integrations
+    from .models import AdEvent, AdWallet
+    now = now or timezone.now()
+    kind = str(kind or "")
+    valid_kinds = {"app_open", "rewarded", "native", "interstitial"}
+    if kind not in valid_kinds:
+        return {"ok": False, "reason": "bad_kind"}
+    # ad wallet is a FREE-tier mechanism only
+    if not _is_free(user):
+        return {"ok": False, "reason": "not_free"}
+
+    ads_on = False
+    try:
+        ads_on = integrations.is_enabled("admob") and flag_on("ads_rewarded")
+    except Exception:
+        ads_on = False
+
+    ad_cfg = cfg()["ad_rewards"]
+    today = timezone.localdate()
+
+    # --- fraud guard: impossible frequency (per user AND per device) ---
+    # reject >1 impression of the same kind within 2s from the same user/device.
+    recent_cut = now - timedelta(seconds=2)
+    dup = AdEvent.objects.filter(kind=kind, at__gte=recent_cut).filter(
+        models_q_user_or_device(user, device_id)).exists()
+    if dup:
+        AdEvent.objects.create(user=user, kind=kind, device_id=device_id[:64],
+                               ad_id=ad_id[:80], credited_paisa=0, at=now)
+        return {"ok": False, "reason": "fraud", "credited_paisa": 0,
+                "credited_credits": 0}
+
+    # --- per-kind caps (server-checked, Asia/Dhaka local day) ---
+    cap_map = {
+        "app_open": ad_cfg["appopen_daily_cap"],
+        "rewarded": ad_cfg["rewarded_daily_cap"],
+        "interstitial": ad_cfg["interstitial_daily_cap"],
+        "native": ad_cfg["native_daily_cap"],
+    }
+    today_count = AdEvent.objects.filter(
+        user=user, kind=kind, credited_paisa__gt=0, at__date=today).count()
+    if today_count >= cap_map.get(kind, 0):
+        AdEvent.objects.create(user=user, kind=kind, device_id=device_id[:64],
+                               ad_id=ad_id[:80], credited_paisa=0, at=now)
+        return {"ok": False, "reason": "capped", "credited_paisa": 0,
+                "credited_credits": 0}
+
+    # --- app-open minimum gap (>= configured seconds since last credited) ---
+    if kind == "app_open":
+        gap = int(ad_cfg["appopen_min_gap_sec"])
+        last = AdEvent.objects.filter(
+            user=user, kind="app_open", credited_paisa__gt=0).order_by("-at").first()
+        if last and (now - last.at).total_seconds() < gap:
+            AdEvent.objects.create(user=user, kind=kind,
+                                   device_id=device_id[:64], ad_id=ad_id[:80],
+                                   credited_paisa=0, at=now)
+            return {"ok": False, "reason": "too_soon", "credited_paisa": 0,
+                    "credited_credits": 0}
+
+    if not ads_on:
+        AdEvent.objects.create(user=user, kind=kind, device_id=device_id[:64],
+                               ad_id=ad_id[:80], credited_paisa=0, at=now)
+        return {"ok": False, "reason": "ads_not_configured",
+                "credited_paisa": 0, "credited_credits": 0}
+
+    paisa = _ad_reward_paisa(ad_cfg)
+    with transaction.atomic():
+        w = AdWallet.objects.select_for_update().get_or_create(user=user)[0]
+        before_credits = w.spendable_credits()
+        AdWallet.objects.filter(pk=w.pk).update(
+            balance_paisa=F("balance_paisa") + paisa)
+        AdEvent.objects.create(user=user, kind=kind, device_id=device_id[:64],
+                               ad_id=ad_id[:80], credited_paisa=paisa, at=now)
+        w.refresh_from_db()
+        after_credits = w.spendable_credits()
+        whole_gained = after_credits - before_credits
+        if whole_gained > 0:
+            # unify the audit trail: a whole credit crossing writes a ledger row
+            from .models import CreditLedger
+            reason = {"app_open": "ad_appopen", "interstitial": "ad_interstitial",
+                      "rewarded": "rewarded", "native": "ad_appopen"}.get(
+                          kind, "rewarded")
+            CreditLedger.objects.create(user=user, delta=whole_gained,
+                                        reason=reason, note=f"ad:{kind}")
+    # ad revenue into the DailyLedger (we got paid the eCPM; the user share is a cost
+    # we recognise as the credit grant — we only book the NET we actually keep here).
+    record_revenue("ads", paisa / 100.0)
+    return {"ok": True, "reason": "ok", "credited_paisa": paisa,
+            "credited_credits": after_credits, "wallet_credits": after_credits}
+
+
+def ad_wallet_state(user, now=None):
+    """GET /ads/wallet -> balance + today's remaining caps per kind."""
+    from .models import AdEvent
+    now = now or timezone.now()
+    today = timezone.localdate()
+    ad_cfg = cfg()["ad_rewards"]
+    caps = {
+        "app_open": ad_cfg["appopen_daily_cap"],
+        "rewarded": ad_cfg["rewarded_daily_cap"],
+        "interstitial": ad_cfg["interstitial_daily_cap"],
+        "native": ad_cfg["native_daily_cap"],
+    }
+    used = {k: AdEvent.objects.filter(
+        user=user, kind=k, credited_paisa__gt=0, at__date=today).count()
+        for k in caps}
+    return {
+        "balance_credits": ad_wallet_credits(user),
+        "caps": {k: {"cap": caps[k], "used": used[k],
+                     "remaining": max(0, caps[k] - used[k])} for k in caps},
+        "ads_configured": _ads_configured(),
+    }
+
+
+def _ads_configured():
+    try:
+        from . import integrations
+        return bool(integrations.is_enabled("admob"))
+    except Exception:
+        return False
+
+
+def models_q_user_or_device(user, device_id):
+    """A Q matching rows by this user OR (when present) this device_id — the
+    cross-account anti-farming guard."""
+    from django.db.models import Q
+    q = Q(user=user)
+    if device_id:
+        q = q | Q(device_id=device_id)
+    return q
+
+
+# --------------------------------------------------------------- expiry sweep
+
+def expire_credits(now=None):
+    """Zero out expired purchased credits (12-month validity). Append-only: for
+    each purchase that has passed its expiry and not yet been swept, debit the
+    still-held credits (bounded by the live balance) and write an 'expire'
+    ledger row. Idempotent via the `granted` flag flip to a swept marker.
+
+    Returns the number of credits expired. Called by the daily management
+    command; safe to run repeatedly."""
+    from .models import CreditPurchase, User, CreditLedger
+    now = now or timezone.now()
+    total = 0
+    due = CreditPurchase.objects.filter(
+        granted=True, status="confirmed", expires_at__lte=now)
+    for p in due:
+        with transaction.atomic():
+            locked = User.objects.select_for_update().get(pk=p.user_id)
+            take = min(int(locked.ai_credits or 0), int(p.credits or 0))
+            if take > 0:
+                User.objects.filter(pk=locked.pk).update(
+                    ai_credits=F("ai_credits") - take)
+                CreditLedger.objects.create(
+                    user=locked, delta=-take, reason="expire",
+                    note=f"pack:{p.pack_id} expired")
+                total += take
+            p.status = "failed"   # reuse as a "swept/closed" terminal marker
+            p.granted = False
+            p.save(update_fields=["status", "granted"])
+    return total

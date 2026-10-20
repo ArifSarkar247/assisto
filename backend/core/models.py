@@ -716,10 +716,16 @@ class CreditLedger(models.Model):
     User.ai_credits is the running balance; this is the audit trail."""
     REASONS = [("grant", "monthly grant"), ("consume", "consume"),
                ("rewarded", "rewarded ad"), ("topup", "top-up"),
-               ("trial", "trial"), ("adjust", "adjust")]
+               ("trial", "trial"), ("adjust", "adjust"),
+               # Business Model Build 2 — unified audit trail for ad wallet +
+               # expiry; purchased/pack credits land as "topup".
+               ("ad_appopen", "ad: app open"),
+               ("ad_interstitial", "ad: interstitial"),
+               ("ad_spend", "spent ad-wallet credits"),
+               ("expire", "credits expired")]
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="credit_ledger")
     delta = models.IntegerField()               # +grant / -consume
-    reason = models.CharField(max_length=12, choices=REASONS)
+    reason = models.CharField(max_length=20, choices=REASONS)
     note = models.CharField(max_length=120, blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -2422,6 +2428,88 @@ class PricingConfig(models.Model):
     data = models.JSONField(default=dict, blank=True)
     audit = models.JSONField(default=list, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+# ===========================================================================
+# Business Model — Build 2 of N  (credit packs + ad wallet + daily profit guard)
+# ===========================================================================
+class CreditPurchase(models.Model):
+    """A credit-pack top-up. ONE row per confirmed purchase. Credits are granted
+    atomically only on a confirmed payment (status='confirmed'); a 'pending' row
+    exists while awaiting a payment provider and NEVER grants credits. `expires_at`
+    is 12 months after the grant — surfaced as expiry buckets in /credits/history.
+
+    HONESTY: a pending purchase with no configured provider grants NOTHING; we
+    never fake money or grant credits without a real payment when one is required."""
+    STATUS = [("pending", "pending"), ("confirmed", "confirmed"),
+              ("failed", "failed")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="credit_purchases")
+    pack_id = models.CharField(max_length=16)
+    price_bdt = models.IntegerField(default=0)
+    credits = models.IntegerField(default=0)
+    provider = models.CharField(max_length=20, blank=True, default="")  # bkash|play_billing|...
+    status = models.CharField(max_length=10, choices=STATUS, default="pending")
+    txn_ref = models.CharField(max_length=120, blank=True, default="")
+    granted = models.BooleanField(default=False)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    confirmed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["user", "status"]),
+                   models.Index(fields=["user", "expires_at"])]
+
+
+class AdWallet(models.Model):
+    """Ad-funded wallet for FREE users. Balance is in *paisa* (1 credit == ৳1 ==
+    100 paisa) so sub-credit ad rewards accumulate honestly before a whole credit
+    is spendable. `spendable_credits()` = balance_paisa // 100. Rewarded/app-open/
+    interstitial impressions credit this at <=70% of a configurable eCPM floor."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="ad_wallet")
+    balance_paisa = models.BigIntegerField(default=0)   # 100 paisa == 1 credit
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def spendable_credits(self):
+        return int(self.balance_paisa // 100)
+
+
+class AdEvent(models.Model):
+    """One ad impression. Append-only; used for server-side cap + fraud math
+    (per-user / per-device frequency). `credited_paisa` is what we paid into the
+    wallet for it (0 if rejected / fraud / caps hit)."""
+    KINDS = [("app_open", "app open"), ("rewarded", "rewarded"),
+             ("native", "native"), ("interstitial", "interstitial")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="ad_events")
+    kind = models.CharField(max_length=14, choices=KINDS)
+    device_id = models.CharField(max_length=64, blank=True, default="")
+    ad_id = models.CharField(max_length=80, blank=True, default="")
+    credited_paisa = models.IntegerField(default=0)
+    at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["-at"]
+        indexes = [models.Index(fields=["user", "kind", "at"]),
+                   models.Index(fields=["device_id", "kind", "at"])]
+
+
+class DailyLedger(models.Model):
+    """Append-only DAILY P&L row (one per local date). The profit guard compares
+    trailing-7-day variable cost against <=60% of trailing-7-day NET revenue.
+
+    revenue_by_source — {ads, subs, packs, commissions} in ৳.
+    variable_cost_by_type — {ai, sms, ivr, video, storage} in ৳ (AI USD converted
+    via cfg.usd_bdt at record time)."""
+    date = models.DateField(unique=True)
+    revenue_by_source = models.JSONField(default=dict, blank=True)
+    variable_cost_by_type = models.JSONField(default=dict, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-date"]
 
 
 class ChatOrganiseState(models.Model):

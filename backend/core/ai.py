@@ -165,10 +165,17 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
     if user is not None:
         from . import billing
         from .logic import pricing
+        # Profit-guard model-downgrade hook (Build 2): when a FREE user's action
+        # runs while the guard is 'near', drop the requested tier one rung
+        # (strong->medium->cheap) to cut variable cost. Paid users keep the tier.
+        tier = billing.effective_tier(user, tier)
         action = pricing.TIER_ACTION.get(tier, "ai_msg_cheap")
         res = billing.charge(user, action, qty=1, note=feature or action)
         if not res["ok"]:
-            raise AIUnavailable("credits")
+            # 'guard_over' -> free-tier costly actions are paused for today; the
+            # caller still shows a clean Bangla state via AIUnavailable.
+            raise AIUnavailable("budget" if res.get("reason") == "guard_over"
+                                else "credits")
         charged = res["charged"]
 
     model = TIER_MODEL.get(tier, TIER_MODEL["cheap"])
@@ -191,6 +198,13 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             cost = (itok * pin + otok * pout) / 1_000_000
             AIUsage.objects.create(user=user, feature=feature, model=used_model,
                                    input_tokens=itok, output_tokens=otok, cost_usd=cost)
+            # Profit guard (Build 2): book the AI provider spend (USD->৳) into
+            # today's DailyLedger so trailing-7-day variable cost is real.
+            try:
+                from . import billing
+                billing.record_ai_cost_usd(cost)
+            except Exception:
+                pass
             # credits were already debited by the pre-charge above (atomic).
             return text, cost
         except Exception as e:  # noqa: BLE001 — degrade to next provider

@@ -145,6 +145,13 @@ urlpatterns = [
     # Monetization (P3)
     path("me/plan", views.PlanView.as_view()),
     path("credits/rewarded", views.RewardedAdView.as_view()),
+    # Business Model Build 2 — credit packs + ad wallet
+    path("credits/packs", b61.CreditPacksView.as_view()),
+    path("credits/history", b61.CreditHistoryView.as_view()),
+    path("credits/topup", b61.CreditTopupView.as_view()),
+    path("credits/topup/confirm", b61.CreditTopupConfirmView.as_view()),
+    path("ads/event", b61.AdEventView.as_view()),
+    path("ads/wallet", b61.AdWalletView.as_view()),
     path("waitlist", views.WaitlistView.as_view()),
     path("watch/feed", views.watch_feed),
     path("nearby", views.nearby),
