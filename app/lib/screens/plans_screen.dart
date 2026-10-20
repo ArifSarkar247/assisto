@@ -8,6 +8,8 @@ import '../widgets/skeleton.dart';
 import '../widgets/plans_compare_table.dart';
 import '../widgets/plans_referral_section.dart';
 import '../widgets/plans_faq.dart';
+import '../widgets/ladder_common.dart' show fmtInt;
+import 'credits_screen.dart';
 
 /// Plans / monetization — the "why pay (or earn) it" surface (SPEC v2.1 §21).
 ///
@@ -205,6 +207,19 @@ class _PlansScreenState extends State<PlansScreen> {
       _currentCard(t),
       const SizedBox(height: Gap.lg),
       _safetyPromise(t, scheme),
+      const SizedBox(height: Gap.md),
+      // Honest allowance explainer: NOTHING is unlimited. Each paid plan
+      // includes a MONTHLY credit pool; when it's used up you buy credits.
+      _allowanceNote(t, scheme),
+      const SizedBox(height: Gap.sm),
+      // Entry to the Credits screen (balance / packs / usage / storage).
+      OutlinedButton.icon(
+        onPressed: () => Navigator.push(context,
+            MaterialPageRoute(builder: (_) => const CreditsScreen())),
+        icon: const Icon(Icons.bolt, size: 18),
+        label: Text(t.plansManageCredits),
+        style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(46)),
+      ),
       const SizedBox(height: Gap.lg),
       Row(children: [
         Expanded(
@@ -379,6 +394,45 @@ class _PlansScreenState extends State<PlansScreen> {
                 color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
       );
 
+  /// "Nothing is unlimited" honesty line — paid plans ship a MONTHLY credit
+  /// pool; when it runs out you buy credits (never a surprise cap).
+  Widget _allowanceNote(AppLocalizations t, ColorScheme scheme) {
+    return Container(
+      padding: const EdgeInsets.all(Gap.md),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(Radii.md),
+        border: Border.all(color: scheme.outlineVariant),
+      ),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Icon(Icons.info_outline, color: scheme.primary, size: 20),
+        const SizedBox(width: Gap.md),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(t.plansNothingUnlimitedTitle,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
+            const SizedBox(height: 2),
+            Text(t.plansNothingUnlimitedBody,
+                style: TextStyle(
+                    fontSize: 12.5,
+                    color: scheme.onSurfaceVariant,
+                    height: 1.35)),
+          ]),
+        ),
+      ]),
+    );
+  }
+
+  /// The MONTHLY allowance (included credit pool) for a plan, read straight
+  /// from the server catalogue. Tries a few shapes the backend might use.
+  int _includedPool(Map<String, dynamic> p) {
+    final v = p['included_pool'] ??
+        p['included_credits'] ??
+        p['credits'] ??
+        p['pool'];
+    return v is num ? v.toInt() : 0;
+  }
+
   /// Safety-stays-free promise — never cripple emergency / scam / medicine.
   Widget _safetyPromise(AppLocalizations t, ColorScheme scheme) {
     return Container(
@@ -459,6 +513,31 @@ class _PlansScreenState extends State<PlansScreen> {
             Text('${p['desc']}',
                 style:
                     TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
+          ],
+          // Monthly allowance (included credit pool). Free plans show no pool.
+          if (!isFree && _includedPool(p) > 0) ...[
+            const SizedBox(height: Gap.sm),
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: Gap.md, vertical: 6),
+              decoration: BoxDecoration(
+                color: scheme.primary.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(Radii.sm),
+              ),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                Icon(Icons.calendar_month, size: 16, color: scheme.primary),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                      t.plansMonthlyAllowance(
+                          fmtInt(context, _includedPool(p))),
+                      style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                          color: scheme.primary)),
+                ),
+              ]),
+            ),
           ],
           const SizedBox(height: Gap.md),
           for (final b in benefits) _benefitRow(scheme, b),

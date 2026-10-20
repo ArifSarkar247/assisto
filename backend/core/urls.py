@@ -152,6 +152,9 @@ urlpatterns = [
     path("credits/topup/confirm", b61.CreditTopupConfirmView.as_view()),
     path("ads/event", b61.AdEventView.as_view()),
     path("ads/wallet", b61.AdWalletView.as_view()),
+    # Business Model Build 3 — storage meter + usage summary
+    path("storage/meter", b61.StorageMeterView.as_view()),
+    path("me/usage-summary", b61.UsageSummaryView.as_view()),
     path("waitlist", views.WaitlistView.as_view()),
     path("watch/feed", views.watch_feed),
     path("nearby", views.nearby),
@@ -371,6 +374,8 @@ urlpatterns = [
     path("admin/flags/flip", b61.AdminFlagsFlipView.as_view()),
     # Business Model (Build 1): owner-only server-side pricing config
     path("admin/pricing", b61.PricingConfigView.as_view()),
+    # Business Model (Build 3): owner-only daily P&L dashboard
+    path("admin/pnl", b61.AdminPnlView.as_view()),
     path("referral/redeem", b61.ReferralRedeemView.as_view()),
     # --- build-61: Safe Journey ---
     path("journey/start", b61.JourneyStartView.as_view()),

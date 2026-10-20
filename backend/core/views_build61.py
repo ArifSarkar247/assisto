@@ -166,7 +166,7 @@ class PricingConfigView(APIView):
         # deep-ish merge: patch overrides old at the plan / action-cost / scalar level
         merged = {k: (dict(v) if isinstance(v, dict) else v) for k, v in old.items()}
         for key in ("margin", "annual_discount_pct", "credit_bdt", "usd_bdt",
-                    "play_fee", "gateway_fee", "vat"):
+                    "play_fee", "gateway_fee", "vat", "fixed_cost_per_day"):
             if key in (patch or {}):
                 merged[key] = patch[key]
         for dkey in ("ad_rewards", "profit_guard"):
@@ -304,6 +304,55 @@ class AdWalletView(APIView):
     def get(self, request):
         from . import billing
         return Response(billing.ad_wallet_state(request.user))
+
+
+# ===========================================================================
+# Business Model — Build 3: storage meter + owner P&L dashboard + usage summary
+# ===========================================================================
+class StorageMeterView(APIView):
+    """GET /storage/meter -> the signed-in user's always-visible storage meter:
+    {used, quota_bytes, pct, full}. Quota is the EFFECTIVE plan's quota from
+    PricingConfig (Free 1GB / Premium 5GB / Business 15GB)."""
+    def get(self, request):
+        from . import billing
+        return Response(billing.storage_state(request.user))
+
+
+class UsageSummaryView(APIView):
+    """GET /me/usage-summary -> this user's credit balance + included monthly pool
+    + this-month usage by action + storage meter, for the credit/usage screens."""
+    def get(self, request):
+        from . import billing
+        return Response(billing.usage_summary(request.user))
+
+
+class AdminPnlView(APIView):
+    """GET /admin/pnl?days=30 — OWNER-only daily P&L dashboard (same superuser
+    gate as /admin/pricing & /admin/flags).
+
+    Returns a daily series (revenue by source vs variable cost by type vs the
+    admin fixed cost/day) from DailyLedger, margin per feature + per-plan prices,
+    the break-even line ("X more paid users OR ৳Y more ad revenue/day"), the
+    current profit-guard state and recent cost alerts. REAL numbers only — a
+    missing source/type is 0 and there are no fabricated figures."""
+    @staticmethod
+    def _owner(request):
+        u = request.user
+        return bool(u and u.is_authenticated and u.is_superuser)
+
+    def get(self, request):
+        if not self._owner(request):
+            return Response({"can_manage": False},
+                            status=status.HTTP_403_FORBIDDEN)
+        try:
+            days = int(request.query_params.get("days", 30))
+        except (TypeError, ValueError):
+            days = 30
+        days = max(1, min(180, days))
+        from . import billing
+        payload = billing.pnl_dashboard(days=days)
+        payload["can_manage"] = True
+        return Response(payload)
 
 
 def _mem_available_mb():

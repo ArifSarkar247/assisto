@@ -103,3 +103,87 @@ def cheaper_tier(tier):
     tier down one rung (strong->medium->cheap; cheap stays cheap)."""
     return {"strong": "medium", "medium": "cheap", "cheap": "cheap"}.get(
         tier or "cheap", "cheap")
+
+
+# ===========================================================================
+# Owner P&L dashboard (Build 3) — PURE daily P&L from DailyLedger rows.
+# ===========================================================================
+def _round(x, n=2):
+    try:
+        return round(float(x or 0), n)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def day_pnl(row, fixed_cost_per_day):
+    """One day's P&L dict from a projected ledger row + the admin fixed cost/day.
+
+    Returns {date, revenue{<source>.., total}, variable{<type>.., total},
+             fixed, profit}. profit = revenue - variable - fixed. No invented
+             numbers — a missing source/type is simply 0."""
+    rev_src = (row or {}).get("revenue_by_source") or {}
+    cost_src = (row or {}).get("variable_cost_by_type") or {}
+    revenue = {s: _round(rev_src.get(s, 0)) for s in REVENUE_SOURCES}
+    variable = {t: _round(cost_src.get(t, 0)) for t in COST_TYPES}
+    rev_total = _round(sum(revenue.values()))
+    var_total = _round(sum(variable.values()))
+    fixed = _round(fixed_cost_per_day)
+    revenue["total"] = rev_total
+    variable["total"] = var_total
+    return {
+        "date": (row or {}).get("date"),
+        "revenue": revenue,
+        "variable": variable,
+        "fixed": fixed,
+        "profit": _round(rev_total - var_total - fixed),
+    }
+
+
+def pnl_series(rows, fixed_cost_per_day):
+    """A daily P&L series (one day_pnl per row) + period totals.
+
+    Returns {days:[day_pnl...], totals:{revenue, variable, fixed, profit}}.
+    `rows` are projected DailyLedger dicts (any order); output is oldest-first."""
+    rows = sorted((rows or []), key=lambda r: (r or {}).get("date") or "")
+    days = [day_pnl(r, fixed_cost_per_day) for r in rows]
+    totals = {
+        "revenue": _round(sum(d["revenue"]["total"] for d in days)),
+        "variable": _round(sum(d["variable"]["total"] for d in days)),
+        "fixed": _round(fixed_cost_per_day * len(days)),
+        "profit": _round(sum(d["profit"] for d in days)),
+    }
+    return {"days": days, "totals": totals}
+
+
+def break_even(rows, fixed_cost_per_day, paid_users, arpu_per_day,
+               ad_rev_per_day):
+    """How far today is from covering fixed+variable cost, expressed BOTH as
+    "X more paid users" and "৳Y more ad revenue/day", from REAL inputs.
+
+      daily_cost  = today's variable cost + fixed_cost_per_day
+      daily_rev   = today's total revenue (all sources)
+      gap         = max(0, daily_cost - daily_rev)   (0 when already profitable)
+
+    `arpu_per_day` = current average NET revenue per paid user per day (0 when
+    there are no paid users -> users_needed is null, never a divide-by-zero or a
+    fabricated figure). Returns {daily_cost, daily_rev, gap, arpu_per_day,
+    users_needed, ad_revenue_needed, covered}."""
+    today = sorted((rows or []), key=lambda r: (r or {}).get("date") or "")
+    last = today[-1] if today else {}
+    daily_var = row_cost(last)
+    daily_rev = row_revenue(last)
+    daily_cost = daily_var + _round(fixed_cost_per_day)
+    gap = max(0.0, daily_cost - daily_rev)
+    users_needed = None
+    if arpu_per_day and arpu_per_day > 0:
+        import math
+        users_needed = int(math.ceil(gap / arpu_per_day)) if gap > 0 else 0
+    return {
+        "daily_cost": _round(daily_cost),
+        "daily_rev": _round(daily_rev),
+        "gap": _round(gap),
+        "arpu_per_day": _round(arpu_per_day, 4),
+        "users_needed": users_needed,
+        "ad_revenue_needed": _round(gap),   # ৳/day of extra ad revenue closes it
+        "covered": gap <= 0,
+    }

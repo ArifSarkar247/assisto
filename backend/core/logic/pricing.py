@@ -170,6 +170,10 @@ def DEFAULTS():
             "spend_cap_pct": 0.60,     # variable cost <= 60% of NET revenue
             "approach_pct": 0.80,      # 'near' at 80% of that cap
         },
+        # owner P&L fixed overhead per day (Build 3) — ৳/day server + infra cost,
+        # admin-editable. Default ~৳300/day (a small cloud box) as a sensible
+        # starting figure the owner tunes from the /admin/pnl dashboard.
+        "fixed_cost_per_day": 300.0,
     }
 
 
@@ -265,6 +269,8 @@ def normalize(data):
         "ad_rewards": _norm_ad_rewards(d.get("ad_rewards"), base["ad_rewards"]),
         "profit_guard": _norm_profit_guard(d.get("profit_guard"),
                                            base["profit_guard"]),
+        "fixed_cost_per_day": max(0.0, _num(d.get("fixed_cost_per_day"),
+                                            base["fixed_cost_per_day"])),
     }
 
 

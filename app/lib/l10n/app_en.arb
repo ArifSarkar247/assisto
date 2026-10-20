@@ -13637,5 +13637,257 @@
   "discoverAsalifyBenefit": "Our easy online store builder — asalify.com.",
   "discoverAxonTitle": "AXON ERP",
   "discoverAxonBenefit": "Our complete business management system.",
-  "micEnableSpeech": "Voice typing needs Google speech services. Please install or enable them."
+  "micEnableSpeech": "Voice typing needs Google speech services. Please install or enable them.",
+  "plansNothingUnlimitedTitle": "Nothing is unlimited",
+  "plansNothingUnlimitedBody": "Each paid plan includes a monthly credit allowance. When it's used up, you simply buy credits — no surprise cut-off, and safety features always stay free.",
+  "plansMonthlyAllowance": "Monthly allowance: {n} credits",
+  "@plansMonthlyAllowance": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "plansManageCredits": "Balance, top-up & usage",
+  "creditsTitle": "AI credits",
+  "creditsSettingsSub": "Balance, top-up packs & this month's usage",
+  "creditsBalanceLabel": "Available balance",
+  "creditsUnit": "credits",
+  "creditsIncludedPool": "{n} included / month",
+  "@creditsIncludedPool": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "creditsAdWallet": "{n} from ads",
+  "@creditsAdWallet": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "creditsUsedThisMonth": "{n} used this month",
+  "@creditsUsedThisMonth": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "creditsNothingUnlimited": "Nothing is unlimited",
+  "creditsNothingUnlimitedBody": "Your plan includes {n} credits each month. When they run out, buy a top-up pack below.",
+  "@creditsNothingUnlimitedBody": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "creditsPoolUsedUpTitle": "Monthly allowance used up",
+  "creditsPoolUsedUpBody": "You've used this month's included credits. Buy a top-up pack to keep using AI features — your allowance refills next month.",
+  "creditsPacksTitle": "Buy credits",
+  "creditsPacksEmpty": "No top-up packs are available right now.",
+  "creditsPackCredits": "{n} credits",
+  "@creditsPackCredits": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "creditsPackValidity": "Valid {n} months",
+  "@creditsPackValidity": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "creditsTopupConfirmed": "Credits added.",
+  "creditsNoProviderTitle": "Payment setup pending",
+  "creditsNoProviderBody": "Paid top-up isn't switched on yet — a payment method will be added soon. Nothing was charged.",
+  "creditsTopupPendingTitle": "Top-up pending",
+  "creditsTopupPendingBody": "Your top-up is being processed. Credits appear once it's confirmed.",
+  "creditsThisMonthTitle": "This month by feature",
+  "creditsMonthTotal": "Total this month",
+  "creditsExpiryTitle": "When credits expire",
+  "creditsExpiresOn": "Expires {when}",
+  "@creditsExpiresOn": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "creditsHistoryTitle": "Credit history",
+  "creditsLedgerEntry": "Credit entry",
+  "creditsActionAiDraft": "AI drafting",
+  "creditsActionInboxSummary": "Inbox summary",
+  "creditsActionScamCheck": "Scam check",
+  "creditsActionPhotoEnhance": "Photo enhance",
+  "creditsActionStudio": "Creative studio",
+  "creditsActionTopup": "Top-up",
+  "creditsActionAdReward": "Ad reward",
+  "creditsActionMonthlyPool": "Monthly allowance",
+  "storageTitle": "Storage",
+  "storageLoading": "Checking storage…",
+  "storageLoadError": "Couldn't load storage",
+  "storageUsedOf": "{used} of {quota}",
+  "@storageUsedOf": {
+    "placeholders": {
+      "quota": {
+        "type": "String"
+      },
+      "used": {
+        "type": "String"
+      }
+    }
+  },
+  "storageCanStillBody": "Plenty of room for photos, documents and backups.",
+  "storageNearFullBody": "Storage is almost full. Delete items you don't need, or add more space.",
+  "storageFullBody": "Storage full — delete items or buy more space.",
+  "storageDeleteItems": "Delete items",
+  "storageBuyMore": "Buy storage",
+  "storageBuyHint": "Storage add-ons use credits — buy a pack below.",
+  "storageUnitGb": "{n} GB",
+  "@storageUnitGb": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "storageUnitMb": "{n} MB",
+  "@storageUnitMb": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "storageUnitKb": "{n} KB",
+  "@storageUnitKb": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "storageUnitBytes": "{n} B",
+  "@storageUnitBytes": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "adUnlockTitle": "Watch an ad to earn credits",
+  "adUnlockBody": "Free users can earn AI credits by watching short ads, up to a daily limit.",
+  "adWalletBalance": "Ad credits: {n}",
+  "@adWalletBalance": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "adRewardedTodayCap": "{done}/{cap} today",
+  "@adRewardedTodayCap": {
+    "placeholders": {
+      "cap": {
+        "type": "String"
+      },
+      "done": {
+        "type": "String"
+      }
+    }
+  },
+  "adWatchNow": "Watch now",
+  "adMaybeLater": "Maybe later",
+  "adChecking": "Checking…",
+  "adNotSetUpTitle": "Ads aren't set up yet",
+  "adNotSetUpBody": "Reward ads will arrive in a future update. Nothing was shown and no credit was given.",
+  "adCapTitle": "Daily limit reached",
+  "adCapBody": "You've earned all of today's ad credits. Come back tomorrow for more.",
+  "adRewardedTitle": "Credits added",
+  "adRewardedBody": "Thanks for watching — your ad credits are updated above.",
+  "adLoadError": "Couldn't load the ad wallet. Please try again.",
+  "adEarnCredits": "Earn free credits by watching ads",
+  "adUnlockDisclaimer": "Credits are added by our server only when an ad is actually shown — never faked.",
+  "pnlTitle": "Profit & loss",
+  "pnlTile": "Profit & loss dashboard",
+  "pnlTileSub": "Revenue vs cost, margins & break-even (owner only)",
+  "pnlOwnerOnlyTitle": "Owner only",
+  "pnlOwnerOnlyBody": "This dashboard is only available to the app owner.",
+  "pnlEmptyTitle": "No data yet",
+  "pnlEmptyBody": "Revenue and cost figures will appear here once there's activity.",
+  "pnlRange7": "{n}d",
+  "@pnlRange7": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "pnlRange30": "{n}d",
+  "@pnlRange30": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "pnlRange90": "{n}d",
+  "@pnlRange90": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "pnlRangeTotals": "Last {n} days",
+  "@pnlRangeTotals": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "pnlRevenue": "Revenue",
+  "pnlCost": "Cost",
+  "pnlProfit": "Profit",
+  "pnlDailyTitle": "Daily revenue vs cost",
+  "pnlSegmentsTitle": "By plan",
+  "pnlMarginTitle": "Margin per feature",
+  "pnlRevCost": "Revenue {rev} · Cost {cost}",
+  "@pnlRevCost": {
+    "placeholders": {
+      "cost": {
+        "type": "String"
+      },
+      "rev": {
+        "type": "String"
+      }
+    }
+  },
+  "pnlBreakEvenTitle": "Break-even",
+  "pnlBreakEvenReached": "You're at break-even — revenue covers cost.",
+  "pnlBreakEvenBody": "Need {users} more paid users, or {adrev}/day in ad revenue, to break even.",
+  "@pnlBreakEvenBody": {
+    "placeholders": {
+      "adrev": {
+        "type": "String"
+      },
+      "users": {
+        "type": "String"
+      }
+    }
+  },
+  "pnlGuardHealthy": "Profit guard: healthy",
+  "pnlGuardThin": "Profit guard: thin margin",
+  "pnlGuardLoss": "Profit guard: running at a loss",
+  "done": "Done"
 }

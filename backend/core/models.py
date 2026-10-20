@@ -2512,6 +2512,30 @@ class DailyLedger(models.Model):
         ordering = ["-date"]
 
 
+class StorageUsage(models.Model):
+    """Business Model (Build 3) — per-user cloud STORAGE meter + quota basis.
+
+    One row per user. `used_bytes` is the running total of RETAINED server-side
+    media that counts toward the plan quota: vault documents, the profile avatar,
+    messenger/circle status media blobs, and encrypted chat backups. The quota
+    itself is NOT stored here — it comes from the user's EFFECTIVE plan via
+    PricingConfig (Free 1GB / Premium 5GB / Business 15GB), so an owner price edit
+    changes every user's quota with no migration.
+
+    WhatsApp model: cloud backups + retained media count here; delivered-and-
+    expired media is pruned elsewhere (the status-expiry / purge sweep decrements
+    used_bytes via billing.add_storage with a negative delta). Recompute from the
+    live rows with `manage.py storage_recompute` so the meter never drifts.
+
+    SAFETY NOTE: text messages, voice/video calls and ALL safety features (SOS,
+    safe-journey, anti-theft captured photos, health reminders) are NEVER counted
+    or blocked by this meter — only bulk media/file/backup uploads are gated."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="storage_usage")
+    used_bytes = models.BigIntegerField(default=0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
 class ChatOrganiseState(models.Model):
     """#87 CHAT ORGANISE (SPEC v2.1 §21) — PER-USER per-chat pin/archive/mute.
     The viewer's own organisation; it never leaks to or affects the peer and

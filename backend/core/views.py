@@ -35,6 +35,25 @@ def log(user, action, **detail):
     AuditLog.objects.create(user=user, action=action, detail=detail)
 
 
+def _photo_bytes(user):
+    """Current avatar file size in bytes (0 when none / external link)."""
+    try:
+        return int(user.photo.size) if getattr(user, "photo", None) else 0
+    except Exception:
+        return 0
+
+
+def storage_full_response(user):
+    """Business Model (Build 3) — the shared 413 'storage_full' response for a
+    media/file/backup upload a user has no quota left for. Callers MUST check
+    billing.storage_state(user)['full'] BEFORE saving and return this (without
+    saving) when full. SAFETY (SOS/anti-theft photos), text and calls NEVER call
+    this — they are never gated by storage."""
+    from . import billing
+    return Response({"error": "storage_full", "state": billing.storage_state(user)},
+                    status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
+
+
 def _mark_export_downloaded(user):
     """If the user has a PENDING deletion request, record that they downloaded
     their data (the delete preview surfaces this so "Download my data first" can
@@ -158,10 +177,27 @@ class MeView(APIView):
                                        context={"request": request}).data)
 
     def patch(self, request):
+        from . import billing
+        # Build 3 STORAGE GATE: setting a NEW avatar is a media upload. Gate it
+        # (and only it) — the rest of the profile PATCH (name, elderly_mode, …)
+        # is never storage-bound. If full AND a new photo is incoming, refuse the
+        # whole PATCH with 413 so nothing (incl. the photo) is saved.
+        setting_photo = ("photo" in request.data and request.data.get("photo"))
+        if setting_photo and billing.storage_state(request.user)["full"]:
+            return storage_full_response(request.user)
+        before = _photo_bytes(request.user)
         ser = UserSerializer(request.user, data=request.data, partial=True,
                              context={"request": request})
         ser.is_valid(raise_exception=True)
         ser.save()
+        if "photo" in request.data:
+            request.user.refresh_from_db(fields=["photo"])
+            after = _photo_bytes(request.user)
+            if after != before:
+                try:
+                    billing.add_storage(request.user, after - before)
+                except Exception:
+                    pass
         log(request.user, "profile.update", fields=list(request.data.keys()))
         return Response(ser.data)
 
@@ -414,14 +450,42 @@ class DocumentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Document.objects.filter(user=self.request.user)
 
+    def create(self, request, *args, **kwargs):
+        # Build 3 STORAGE GATE: a vault document upload is bulk media. If the
+        # user's quota is already full, refuse the NEW file with 413 and save
+        # nothing. (Metadata-only PATCHes go through update(), never gated.)
+        from . import billing
+        up = request.FILES.get("file")
+        if up is not None and billing.storage_state(request.user)["full"]:
+            return storage_full_response(request.user)
+        return super().create(request, *args, **kwargs)
+
     def perform_create(self, serializer):
+        from . import billing
         obj = serializer.save(user=self.request.user)
+        if obj.file:
+            try:
+                billing.add_storage(self.request.user, obj.file.size)
+            except Exception:
+                pass
         log(self.request.user, "document.create", id=obj.id, title=obj.title)
 
     def perform_destroy(self, instance):
+        from . import billing
         log(self.request.user, "document.delete", title=instance.title)
+        freed = 0
+        try:
+            if instance.file:
+                freed = instance.file.size
+        except Exception:
+            freed = 0
         instance.file.delete(save=False)
         instance.delete()
+        if freed:
+            try:
+                billing.add_storage(self.request.user, -freed)
+            except Exception:
+                pass
 
 
 class DocumentFileView(APIView):

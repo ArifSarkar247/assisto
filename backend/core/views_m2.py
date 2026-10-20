@@ -822,6 +822,15 @@ class CircleStatusView(APIView):
             if free and not S.disk_floor_ok(free, incoming):
                 return Response({"detail": "disk_floor"},
                                 status=status.HTTP_507_INSUFFICIENT_STORAGE)
+            # Build 3 STORAGE GATE: retained status media counts toward the plan
+            # quota. If the user is already full, refuse the NEW media blob with
+            # 413 and store nothing. (Text statuses are NEVER gated.)
+            from . import billing
+            if billing.storage_state(request.user)["full"]:
+                return Response(
+                    {"error": "storage_full",
+                     "state": billing.storage_state(request.user)},
+                    status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
         try:
             meta = S.build_status_meta(
                 kind=kind, visibility=d.get("visibility"),
@@ -848,6 +857,15 @@ class CircleStatusView(APIView):
             blob_ref=meta.get("blob_ref", ""), meta=meta,
             visibility=meta["visibility"],
             expires_at=_parse_dt(exp.isoformat()))
+        # Build 3: retained media counts toward storage (decremented later by the
+        # status-expiry / purge sweep — WhatsApp model: delivered+expired pruned).
+        if kind in (S.STATUS_PHOTO, S.STATUS_VIDEO):
+            try:
+                from . import billing
+                billing.add_storage(request.user,
+                                    int(meta.get("byte_size", 0) or 0))
+            except Exception:
+                pass
         return Response({"id": st.id, "ok": True,
                          "expires_at": st.expires_at.isoformat()},
                         status=status.HTTP_201_CREATED)
@@ -1161,6 +1179,15 @@ class CircleBackupView(APIView):
 
     def post(self, request):
         d = request.data or {}
+        # Build 3 STORAGE GATE: a cloud chat backup counts toward the plan quota
+        # (WhatsApp model). If the user is already full, refuse the NEW backup
+        # with 413 and store nothing — a text/voice/safety path is never gated.
+        from . import billing
+        if billing.storage_state(request.user)["full"]:
+            return Response(
+                {"error": "storage_full",
+                 "state": billing.storage_state(request.user)},
+                status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
         try:
             env = X.build_backup_envelope(
                 owner_id=request.user.id,
@@ -1174,11 +1201,21 @@ class CircleBackupView(APIView):
         except (ValueError, TypeError) as e:
             return Response({"detail": str(e)},
                             status=status.HTTP_400_BAD_REQUEST)
+        # a user keeps one backup envelope — replace the previous one's bytes so
+        # the quota reflects the current (latest) backup, not a growing sum.
+        prev = ChatBackup.objects.filter(owner=request.user)
+        prev_bytes = sum(int(r.size_bytes or 0) for r in prev)
+        prev.delete()
         row = ChatBackup.objects.create(
             owner=request.user, v=env["v"], scheme=env["scheme"],
             ciphertext=env["ciphertext"], nonce=env["nonce"], salt=env["salt"],
             iters=env["iters"], message_count=env["message_count"],
             recovery_hint=env["recovery_hint"], size_bytes=env["size_bytes"])
+        try:
+            billing.add_storage(request.user,
+                               int(env["size_bytes"] or 0) - prev_bytes)
+        except Exception:
+            pass
         return Response({"ok": True, "id": row.id,
                          "created_at": row.created_at.isoformat()},
                         status=status.HTTP_201_CREATED)

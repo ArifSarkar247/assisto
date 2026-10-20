@@ -126,6 +126,68 @@ def ad_wallet_credits(user):
     return get_ad_wallet(user).spendable_credits()
 
 
+# --------------------------------------------------------------- storage (Build 3)
+
+def storage_quota_bytes(user):
+    """The user's storage quota (bytes) from their EFFECTIVE plan via PricingConfig
+    (Free 1GB / Premium 5GB / Business 15GB). Plans not in config (founder/annual/
+    probashi) fall back to the Premium quota so a paid user is never squeezed
+    below Premium. Never raises."""
+    from . import plans
+    try:
+        c = cfg()
+        p = plans.effective_plan(user)
+        q = pricing.storage_quota_bytes(p, c)
+        if q > 0:
+            return int(q)
+        # founder / annual / probashi etc. -> at least the Premium quota
+        return int(pricing.storage_quota_bytes("premium", c))
+    except Exception:
+        return int(1024 ** 3)   # safe default: 1 GB
+
+
+def _storage_row(user):
+    from .models import StorageUsage
+    row, _ = StorageUsage.objects.get_or_create(user=user)
+    return row
+
+
+def storage_state(user):
+    """The always-visible storage meter for `user`:
+        {used, quota_bytes, pct, full}
+    `used` is the retained-media byte total; `quota_bytes` from the plan; `pct`
+    is 0..100 (int); `full` is True when used >= quota. Never raises."""
+    quota = storage_quota_bytes(user)
+    used = 0
+    try:
+        if user is not None:
+            used = int(_storage_row(user).used_bytes or 0)
+    except Exception:
+        used = 0
+    used = max(0, used)
+    pct = 0
+    if quota > 0:
+        pct = min(100, int(round(used * 100.0 / quota)))
+    return {"used": used, "quota_bytes": int(quota), "pct": pct,
+            "full": quota > 0 and used >= quota}
+
+
+def add_storage(user, delta_bytes):
+    """Atomically add `delta_bytes` (may be negative on delete/expiry) to the
+    user's retained-media total; clamped at >= 0. Returns the new storage_state.
+    Called AFTER a media upload is accepted, and with a negative delta by the
+    status-expiry / purge sweep when delivered media is pruned."""
+    from .models import StorageUsage
+    if user is None:
+        return storage_state(user)
+    delta = int(delta_bytes or 0)
+    with transaction.atomic():
+        row = StorageUsage.objects.select_for_update().get_or_create(user=user)[0]
+        new_used = max(0, int(row.used_bytes or 0) + delta)
+        StorageUsage.objects.filter(pk=row.pk).update(used_bytes=new_used)
+    return storage_state(user)
+
+
 # --------------------------------------------------------------- daily ledger (P&L)
 
 def _today_ledger():
@@ -195,6 +257,160 @@ def guard_state(now=None):
     return PG.guard_state(_trailing_rows(7, now),
                           spend_cap_pct=float(spend_cap),
                           approach_pct=float(approach))
+
+
+# --------------------------------------------------------------- owner P&L (Build 3)
+
+def plan_segment_counts(now=None):
+    """Active-user counts by EFFECTIVE plan segment {free, premium, business}.
+
+    'paid' = premium + business (plus annual/founder/probashi folded into premium
+    for the segment view). Real counts from the User table — never fabricated."""
+    from .models import User
+    counts = {"free": 0, "premium": 0, "business": 0}
+    for u in User.objects.filter(is_active=True).only(
+            "plan", "plan_until", "trial_until", "is_founder"):
+        try:
+            seg = _segment_of(u)
+        except Exception:
+            seg = "free"
+        counts[seg] = counts.get(seg, 0) + 1
+    counts["paid"] = counts["premium"] + counts["business"]
+    counts["total"] = counts["free"] + counts["paid"]
+    return counts
+
+
+def _segment_of(user):
+    """Map a user's effective plan to a P&L segment {free, premium, business}.
+    business stays business; everything paid-but-not-business -> premium."""
+    from . import plans
+    p = plans.effective_plan(user)
+    if p == "business":
+        return "business"
+    if p == "free":
+        return "free"
+    return "premium"   # premium / annual / founder / probashi / trial
+
+
+def margin_per_feature(cfg_dict=None):
+    """Margin per feature/action from the config cost table: for each priced
+    action, credit face-value (credits * credit_bdt, ৳) vs provider cost (USD ->
+    ৳), and the margin ratio. Real config numbers only."""
+    c = cfg_dict or cfg()
+    credit_bdt = float(c["credit_bdt"])
+    usd_bdt = float(c["usd_bdt"])
+    out = []
+    for aid, row in sorted(c["action_costs"].items()):
+        face = float(row["credits"]) * credit_bdt
+        cost = float(row["provider_cost"]) * usd_bdt
+        margin = None if face <= 0 else round((face - cost) / face, 4)
+        out.append({"action": aid, "credits": row["credits"],
+                    "charge_bdt": round(face, 4), "provider_cost_bdt": round(cost, 4),
+                    "margin": margin})
+    return out
+
+
+def _price_map(c=None):
+    """plan -> monthly ৳ price, for analytics.revenue_by_plan (config-authoritative)."""
+    c = c or cfg()
+    return {pid: row["price"] for pid, row in c["plans"].items()}
+
+
+def arpu_per_day(c=None, now=None):
+    """Current average NET revenue per PAID user per DAY, from REAL inputs: the
+    config plan prices (NET of fees) weighted by the live premium/business counts,
+    divided by 30 days. 0 when there are no paid users (break-even then reports
+    users_needed = null — never a divide-by-zero or an invented figure)."""
+    from .logic import pricing as P
+    c = c or cfg()
+    counts = plan_segment_counts(now)
+    paid = counts["premium"] + counts["business"]
+    if paid <= 0:
+        return 0.0
+    monthly_net = (counts["premium"] * P.net_plan_revenue("premium", c) +
+                   counts["business"] * P.net_plan_revenue("business", c))
+    return (monthly_net / paid) / 30.0
+
+
+def pnl_dashboard(days=30, now=None):
+    """The owner P&L dashboard payload for GET /admin/pnl.
+
+    Real numbers only: the daily P&L series comes straight from DailyLedger; the
+    break-even line is computed from live paid-user counts + config-derived ARPU;
+    margins come from the config cost table and the analytics revenue-by-plan."""
+    c = cfg()
+    fixed = float(c["fixed_cost_per_day"])
+    rows = _trailing_rows(max(1, int(days or 30)), now)
+    series = PG.pnl_series(rows, fixed)
+    counts = plan_segment_counts(now)
+    arpu = arpu_per_day(c, now)
+    be = PG.break_even(rows, fixed, counts["paid"], arpu,
+                       ad_rev_per_day=None)
+    guard = guard_state(now)
+    # recent cost kill-switch / guard alerts the owner should see
+    alerts = _recent_cost_alerts()
+    return {
+        "days": days,
+        "fixed_cost_per_day": round(fixed, 2),
+        "series": series["days"],
+        "totals": series["totals"],
+        "segments": counts,
+        "margin_per_feature": margin_per_feature(c),
+        "revenue_by_plan_prices": _price_map(c),
+        "break_even": be,
+        "guard": guard,
+        "alerts": alerts,
+    }
+
+
+def _recent_cost_alerts(limit=20):
+    """Recent owner-facing cost alerts (profit-guard FamilyAlert rows). Honest:
+    returns [] when none exist — never fabricated."""
+    try:
+        from .models import FamilyAlert
+        rows = FamilyAlert.objects.filter(kind="cost_guard").order_by("-id")[:limit]
+        return [{"title": r.title, "body": getattr(r, "body", ""),
+                 "at": r.created_at.isoformat() if getattr(r, "created_at", None)
+                 else None} for r in rows]
+    except Exception:
+        return []
+
+
+def usage_summary(user, now=None):
+    """GET /me/usage-summary — the signed-in user's own credit + storage picture:
+    balance, included monthly pool (from plan), this-month spend by action, and
+    the storage meter. Complements /credits/history (which is the ledger view)."""
+    from .models import CreditLedger
+    now = now or timezone.now()
+    c = cfg()
+    from . import plans
+    plan_id = plans.effective_plan(user)
+    pool = 0
+    prow = c["plans"].get(plan_id)
+    if prow is not None:
+        pool = int(prow["credits"])
+    elif plan_id in ("annual", "founder", "probashi"):
+        pool = int(c["plans"]["premium"]["credits"])
+    # this calendar month's consumption grouped by action (the ledger note)
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    by_action = {}
+    rows = CreditLedger.objects.filter(
+        user=user, delta__lt=0, created_at__gte=month_start)
+    for r in rows:
+        key = r.note or r.reason
+        by_action[key] = by_action.get(key, 0) + (-int(r.delta))
+    usage = [{"action": k, "credits": v}
+             for k, v in sorted(by_action.items(), key=lambda kv: -kv[1])]
+    return {
+        "plan": plan_id,
+        "balance": int(getattr(user, "ai_credits", 0) or 0),
+        "ad_wallet_credits": ad_wallet_credits(user) if _is_free(user) else 0,
+        "included_pool": pool,
+        "unlimited_ai": _has_unlimited(user),
+        "month_usage": usage,
+        "month_total": sum(u["credits"] for u in usage),
+        "storage": storage_state(user),
+    }
 
 
 def effective_tier(user, requested_tier):

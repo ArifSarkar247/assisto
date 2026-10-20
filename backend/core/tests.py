@@ -3110,3 +3110,219 @@ class BusinessModelV2Tests(APITestCase):
             r = billing.charge(self.u, safe)
             self.assertTrue(r["ok"], safe)
             self.assertEqual(r["charged"], 0, safe)
+
+
+# ===========================================================================
+# Business Model — Build 3 of N  (storage quota + enforcement + owner P&L)
+# ===========================================================================
+class BusinessModelV3Tests(APITestCase):
+    def setUp(self):
+        from django.utils import timezone as _tz
+        from datetime import timedelta as _td
+        self.owner = User.objects.create_user(
+            name="Owner", phone="01830000001", password="x123456",
+            is_staff=True, is_superuser=True)
+        # a FREE-tier user (expired trial -> free)
+        self.u = User.objects.create_user(
+            name="Free", phone="01830000002", password="x123456")
+        self.u.trial_until = _tz.now() - _td(days=1)
+        self.u.plan = "free"
+        self.u.ai_credits = 0
+        self.u.save()
+        self._td = _td
+        self._tz = _tz
+
+    def _business(self):
+        u = User.objects.create_user(name="Biz", phone="01830000003",
+                                     password="x123456")
+        u.plan = "business"
+        u.plan_until = self._tz.now() + self._td(days=30)
+        u.save()
+        return u
+
+    # ---- storage counts an upload + per-plan quota in the meter -----------
+    def test_storage_counts_upload_and_meter_pct_per_plan(self):
+        from core import billing
+        GB = 1024 ** 3
+        # free user quota = 1 GB
+        st = billing.storage_state(self.u)
+        self.assertEqual(st["quota_bytes"], 1 * GB)
+        self.assertEqual(st["used"], 0)
+        self.assertEqual(st["pct"], 0)
+        self.assertFalse(st["full"])
+        # count a ~0.5 GB upload -> used reflects it, pct ~= 50
+        billing.add_storage(self.u, GB // 2)
+        st = billing.storage_state(self.u)
+        self.assertEqual(st["used"], GB // 2)
+        self.assertEqual(st["pct"], 50)
+        self.assertFalse(st["full"])
+        # a BUSINESS user's quota is 15 GB (same used -> tiny pct)
+        biz = self._business()
+        billing.add_storage(biz, GB // 2)
+        bst = billing.storage_state(biz)
+        self.assertEqual(bst["quota_bytes"], 15 * GB)
+        self.assertEqual(bst["pct"], 3)      # 0.5/15 ≈ 3%
+        # delete/expiry decrements, clamped at >= 0
+        billing.add_storage(self.u, -(GB))   # over-subtract
+        self.assertEqual(billing.storage_state(self.u)["used"], 0)
+
+    def test_storage_meter_endpoint(self):
+        from core import billing
+        GB = 1024 ** 3
+        billing.add_storage(self.u, GB // 4)   # 25% of 1 GB
+        self.client.force_authenticate(self.u)
+        r = self.client.get("/api/v1/storage/meter")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.data["quota_bytes"], 1 * GB)
+        self.assertEqual(r.data["pct"], 25)
+        self.assertFalse(r.data["full"])
+
+    # ---- a NEW upload is blocked (413) when full; safety + text unaffected -
+    def test_full_storage_blocks_new_upload_413_but_safety_and_text_work(self):
+        from core import billing
+        from core.models import Document
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        GB = 1024 ** 3
+        # fill the free user's 1 GB quota
+        billing.add_storage(self.u, 1 * GB)
+        self.assertTrue(billing.storage_state(self.u)["full"])
+        self.client.force_authenticate(self.u)
+        # a NEW vault document upload -> 413 storage_full, NOTHING saved
+        upload = SimpleUploadedFile("id.jpg", b"x" * 1024, content_type="image/jpeg")
+        r = self.client.post("/api/v1/documents/",
+                             {"title": "NID", "doc_type": "nid", "file": upload},
+                             format="multipart")
+        self.assertEqual(r.status_code, 413)
+        self.assertEqual(r.data["error"], "storage_full")
+        self.assertIn("state", r.data)
+        self.assertEqual(Document.objects.filter(user=self.u).count(), 0)
+        # a SAFETY action is NEVER blocked by storage
+        safe = billing.charge(self.u, "sos")
+        self.assertTrue(safe["ok"])
+        self.assertEqual(safe["charged"], 0)
+        # a TEXT circle status is NEVER gated by storage (no media) — whatever
+        # its outcome, it must never be the storage 413 (text carries no media).
+        t = self.client.post("/api/v1/circle/status",
+                             {"kind": "text", "ciphertext": "aGk=", "nonce": "bg==",
+                              "scheme": "x", "sender_key_id": "k"}, format="json")
+        self.assertNotEqual(t.status_code, 413)
+
+    def test_upload_under_quota_increments_usage(self):
+        from core.models import Document
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from core import billing
+        self.client.force_authenticate(self.u)
+        blob = b"y" * 4096
+        upload = SimpleUploadedFile("p.jpg", blob, content_type="image/jpeg")
+        r = self.client.post("/api/v1/documents/",
+                             {"title": "Pass", "doc_type": "passport", "file": upload},
+                             format="multipart")
+        self.assertIn(r.status_code, (200, 201))
+        self.assertEqual(Document.objects.filter(user=self.u).count(), 1)
+        self.assertEqual(billing.storage_state(self.u)["used"], len(blob))
+
+    # ---- owner P&L dashboard ----------------------------------------------
+    def _seed_ledger(self, day, rev, cost):
+        from core.models import DailyLedger
+        DailyLedger.objects.update_or_create(
+            date=day, defaults={"revenue_by_source": rev,
+                                "variable_cost_by_type": cost})
+
+    def test_admin_pnl_owner_only_and_shape(self):
+        # non-owner -> 403
+        self.client.force_authenticate(self.u)
+        self.assertEqual(self.client.get("/api/v1/admin/pnl").status_code, 403)
+        # seed two days of real ledger rows
+        today = self._tz.localdate()
+        self._seed_ledger(today, {"subs": 1000, "ads": 50},
+                          {"ai": 300, "sms": 20})
+        self._seed_ledger(today - self._td(days=1), {"packs": 200},
+                          {"ai": 100})
+        # a paid user so break-even ARPU is non-zero
+        self._business()
+        self.client.force_authenticate(self.owner)
+        r = self.client.get("/api/v1/admin/pnl?days=7")
+        self.assertEqual(r.status_code, 200)
+        # revenue / cost / margin / break-even all present
+        self.assertIn("series", r.data)
+        self.assertIn("totals", r.data)
+        self.assertIn("break_even", r.data)
+        self.assertIn("margin_per_feature", r.data)
+        self.assertIn("guard", r.data)
+        self.assertIn("segments", r.data)
+        # totals = sum of the seeded ledger (no fabrication)
+        self.assertEqual(r.data["totals"]["revenue"], 1000 + 50 + 200)
+        self.assertEqual(r.data["totals"]["variable"], 300 + 20 + 100)
+        # fixed cost/day is the config value applied per day in the window
+        self.assertEqual(r.data["fixed_cost_per_day"], 300.0)
+        # today's row P&L: profit = rev - variable - fixed
+        day_today = next(d for d in r.data["series"] if d["date"] == today.isoformat())
+        self.assertEqual(day_today["revenue"]["total"], 1050)
+        self.assertEqual(day_today["variable"]["total"], 320)
+        self.assertEqual(day_today["profit"], 1050 - 320 - 300.0)
+        # break-even: covered today (rev 1050 > cost 320 + fixed 300)
+        self.assertTrue(r.data["break_even"]["covered"])
+        self.assertEqual(r.data["break_even"]["users_needed"], 0)
+        # one paid (business) user counted in segments
+        self.assertEqual(r.data["segments"]["business"], 1)
+        self.assertGreaterEqual(r.data["segments"]["paid"], 1)
+        # margin per feature carries the config cost table
+        acts = {m["action"] for m in r.data["margin_per_feature"]}
+        self.assertIn("ai_msg_strong", acts)
+
+    def test_admin_pnl_break_even_needs_more_users_when_losing(self):
+        from core import billing
+        # a loss day: cost+fixed > revenue, with a paid user so ARPU > 0
+        today = self._tz.localdate()
+        self._seed_ledger(today, {"subs": 100}, {"ai": 500})
+        self._business()
+        self.client.force_authenticate(self.owner)
+        r = self.client.get("/api/v1/admin/pnl?days=3")
+        be = r.data["break_even"]
+        self.assertFalse(be["covered"])
+        self.assertGreater(be["gap"], 0)
+        self.assertIsNotNone(be["users_needed"])
+        self.assertGreater(be["users_needed"], 0)
+        # ad-revenue alternative equals the ৳ gap
+        self.assertEqual(be["ad_revenue_needed"], be["gap"])
+
+    # ---- me/usage-summary --------------------------------------------------
+    def test_usage_summary_returns_balance_pool_usage_storage(self):
+        from core import billing
+        from core.models import CreditLedger
+        GB = 1024 ** 3
+        prem = User.objects.create_user(name="Prem", phone="01830000011",
+                                        password="x123456")
+        prem.plan = "premium"
+        prem.plan_until = self._tz.now() + self._td(days=30)
+        prem.ai_credits = 42
+        prem.save()
+        # this-month spend by action
+        CreditLedger.objects.create(user=prem, delta=-3, reason="consume",
+                                    note="ai_msg_medium")
+        CreditLedger.objects.create(user=prem, delta=-1, reason="consume",
+                                    note="ai_msg_cheap")
+        billing.add_storage(prem, GB)        # 1 of 5 GB
+        self.client.force_authenticate(prem)
+        r = self.client.get("/api/v1/me/usage-summary")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.data["balance"], 42)
+        self.assertEqual(r.data["included_pool"], 90)     # Premium monthly pool
+        self.assertTrue(r.data["unlimited_ai"])
+        self.assertEqual(r.data["month_total"], 4)        # 3 + 1 consumed
+        acts = {u["action"]: u["credits"] for u in r.data["month_usage"]}
+        self.assertEqual(acts["ai_msg_medium"], 3)
+        self.assertEqual(acts["ai_msg_cheap"], 1)
+        self.assertEqual(r.data["storage"]["quota_bytes"], 5 * GB)
+        self.assertEqual(r.data["storage"]["used"], GB)
+
+    # ---- fixed cost is admin-editable via /admin/pricing ------------------
+    def test_fixed_cost_per_day_admin_editable(self):
+        self.client.force_authenticate(self.owner)
+        p = self.client.post("/api/v1/admin/pricing",
+                             {"config": {"fixed_cost_per_day": 450}},
+                             format="json")
+        self.assertEqual(p.status_code, 200)
+        self.assertEqual(p.data["config"]["fixed_cost_per_day"], 450.0)
+        r = self.client.get("/api/v1/admin/pnl")
+        self.assertEqual(r.data["fixed_cost_per_day"], 450.0)

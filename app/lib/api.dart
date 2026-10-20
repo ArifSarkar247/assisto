@@ -572,6 +572,70 @@ class ApiClient {
     _fail(r);
   }
 
+  // ==========================================================================
+  // Business Model Build 3 — plans / credits / storage / ads / owner P&L.
+  //
+  // HONESTY: the server is the authority on every price, credit count and
+  // state. No payment provider or AdMob key is wired yet, so top-up and
+  // rewarded-ad endpoints return an HONEST non-confirmed state
+  // (`needs_provider` / a not-configured flag) — the UI must surface that and
+  // NEVER fake a checkout, an ad, or a reward. All helpers are thin wrappers on
+  // [getJson]/[postJson]; non-200s throw [ApiException] which screens interpret
+  // (e.g. 403 -> owner-only for the P&L dashboard).
+  // ==========================================================================
+
+  /// GET /plans (localized) -> [{code, name, price, desc/benefits, included
+  /// credits/pool}]. Alias of [plansPublic] so callers can use the name from
+  /// the build spec without knowing the legacy method.
+  Future<List<Map<String, dynamic>>> plansList() => plansPublic();
+
+  /// GET /credits/packs -> [{id/code, taka, credits, valid_months}].
+  Future<List<Map<String, dynamic>>> creditsPacks() async {
+    final r = await _c.get(AppConfig.api('/credits/packs'), headers: _headers());
+    if (r.statusCode == 200) {
+      final body = jsonDecode(r.body);
+      final list = body is Map ? (body['packs'] ?? body['items'] ?? []) : body;
+      return (list as List).cast<Map<String, dynamic>>();
+    }
+    _fail(r);
+  }
+
+  /// POST /credits/topup {pack} -> {state:'pending'|'needs_provider'|
+  /// 'confirmed', ...}. HONEST: with no payment provider configured the server
+  /// returns `needs_provider`; this wrapper returns that body as-is so the UI
+  /// shows the "payment setup pending" state instead of a broken checkout.
+  Future<Map<String, dynamic>> creditsTopup(String pack) =>
+      postJson('/credits/topup', {'pack': pack});
+
+  /// GET /credits/history -> {balance, items:[ledger], expiry_buckets}.
+  Future<Map<String, dynamic>> creditsHistory() => getJson('/credits/history');
+
+  /// GET /me/usage-summary -> {plan, balance, ad_wallet_credits, included_pool,
+  /// month_usage:[{action,credits}], month_total, storage:{used, quota_bytes,
+  /// pct, full}}.
+  Future<Map<String, dynamic>> meUsageSummary() => getJson('/me/usage-summary');
+
+  /// GET /storage/meter -> {used, quota_bytes, pct, full}.
+  Future<Map<String, dynamic>> storageMeter() => getJson('/storage/meter');
+
+  /// GET /ads/wallet -> {balance_credits, caps:{app_open_next_ts,
+  /// rewarded_today, rewarded_cap}}.
+  Future<Map<String, dynamic>> adsWallet() => getJson('/ads/wallet');
+
+  /// POST /ads/event {kind:'rewarded'} -> credits the ad wallet. AdMob-key
+  /// gated: when ads are not enabled the server returns a not-configured state
+  /// (e.g. {enabled:false} / {ok:false}) rather than crediting — the UI shows
+  /// the honest "ads not set up yet" message and NEVER fakes a reward.
+  Future<Map<String, dynamic>> adsEvent(String kind) =>
+      postJson('/ads/event', {'kind': kind});
+
+  /// GET /admin/pnl?days=N (OWNER only; 403 otherwise) -> {series, totals,
+  /// segments, margin_per_feature, break_even, guard, alerts}. The 403 surfaces
+  /// as [ApiException] with status 403 so the screen can show its owner-only
+  /// state, matching the admin-flags console.
+  Future<Map<String, dynamic>> adminPnl({int days = 30}) =>
+      getJson('/admin/pnl?days=$days');
+
   // ---- reminders NL parse (server-of-truth; UI also parses offline) ----
   Future<Map<String, dynamic>> parseReminder(String text) =>
       postJson('/reminders/parse', {'text': text});

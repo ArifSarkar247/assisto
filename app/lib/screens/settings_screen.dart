@@ -26,6 +26,9 @@ import 'messenger/admin_moderation_screen.dart';
 import 'messenger/admin_users_screen.dart';
 import 'admin/cost_flags_screen.dart';
 import 'admin/server_address_screen.dart';
+import 'admin/owner_pnl_screen.dart';
+import 'credits_screen.dart';
+import '../widgets/storage_meter.dart';
 import 'messenger/moderation_policy_screen.dart';
 import 'messenger/messenger_profile_screen.dart';
 import '../widgets/msgr_avatar.dart';
@@ -278,6 +281,21 @@ class SettingsScreen extends StatelessWidget {
             onTap: () => _downloadOpen(context, '/export/pdf', 'assisto-export.pdf'),
           ),
           const Divider(),
+          // Business Model Build 3 — credits + an always-visible storage meter.
+          ListTile(
+            leading: const Icon(Icons.bolt_outlined),
+            title: Text(t.creditsTitle),
+            subtitle: Text(t.creditsSettingsSub),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const CreditsScreen())),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+            child: StorageMeter(
+              onBuyStorage: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const CreditsScreen())),
+            ),
+          ),
           ListTile(
             leading: const Icon(Icons.autorenew),
             title: Text(t.subscriptions),
@@ -502,6 +520,16 @@ class _MsgrSettingsSectionState extends State<_MsgrSettingsSection> {
             title: Text(t.costFlagsTile),
             subtitle: Text(t.costFlagsTileSub),
             onTap: () => _open(const CostFlagsScreen()),
+          ),
+          // Business Model Build 3 — owner P&L dashboard (revenue vs cost,
+          // margin per feature, break-even, profit-guard). Owner-only; gated by
+          // the same operator probe and re-checked server-side (403 -> owner
+          // only state).
+          ListTile(
+            leading: const Icon(Icons.query_stats_outlined),
+            title: Text(t.pnlTile),
+            subtitle: Text(t.pnlTileSub),
+            onTap: () => _open(const OwnerPnlScreen()),
           ),
           // #179 Server-address swap (owner/admin).
           ListTile(
