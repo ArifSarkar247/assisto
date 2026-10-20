@@ -3,7 +3,7 @@
 class AppConfig {
   static const String apiBase = String.fromEnvironment(
     'API_BASE',
-    defaultValue: 'https://assisto.asalify.com',
+    defaultValue: 'https://api.lifeassisto.com',
   );
   static const String apiPrefix = '/api/v1';
   static const String appVersionLabel = '1.0';

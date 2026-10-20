@@ -6,7 +6,7 @@ on:
       api_base:
         description: "Backend base URL baked into the app"
         required: false
-        default: "https://assisto.asalify.com"
+        default: "https://api.lifeassisto.com"
   push:
     branches: [ main ]
     paths:
@@ -272,7 +272,7 @@ jobs:
       - name: Build release APK (arm64 only)
         working-directory: app
         run: |
-          API_BASE="${{ github.event.inputs.api_base || 'https://assisto.asalify.com' }}"
+          API_BASE="${{ github.event.inputs.api_base || 'https://api.lifeassisto.com' }}"
           BUILD_TIME="$(date -u +%Y-%m-%dT%H:%MZ)"
           flutter build apk --release \
             --target-platform=android-arm64 \
@@ -288,7 +288,7 @@ jobs:
           # x64 debug APK has the SAME Dart, plugins and patched manifest, so it's
           # a valid launch/ANR proxy on the CI emulator.
           flutter build apk --debug --target-platform=android-x64 \
-            --dart-define=API_BASE="${{ github.event.inputs.api_base || 'https://assisto.asalify.com' }}" \
+            --dart-define=API_BASE="${{ github.event.inputs.api_base || 'https://api.lifeassisto.com' }}" \
             --dart-define=BUILD_TIME="$(date -u +%Y-%m-%dT%H:%MZ)"
           cp build/app/outputs/flutter-apk/app-debug.apk emu-x64.apk
 

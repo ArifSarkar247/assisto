@@ -6,7 +6,7 @@ on:
       api_base:
         description: "Backend base URL baked into the app"
         required: false
-        default: "https://assisto.asalify.com"
+        default: "https://api.lifeassisto.com"
 
 jobs:
   smoke:
@@ -102,7 +102,7 @@ jobs:
       - name: Build release APK (x86_64 for emulator)
         working-directory: app
         run: |
-          API_BASE="${{ github.event.inputs.api_base || 'https://assisto.asalify.com' }}"
+          API_BASE="${{ github.event.inputs.api_base || 'https://api.lifeassisto.com' }}"
           flutter build apk --release \
             --target-platform=android-x64 \
             --build-number=${{ github.run_number }} \
