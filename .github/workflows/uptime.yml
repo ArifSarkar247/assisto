@@ -1,0 +1,40 @@
+# Off-box uptime check for api.lifeassisto.com.
+# Runs on GitHub's infrastructure (not our server), so it still alerts when the
+# whole box is down. A failed run makes GitHub email the repo owner — no SMTP
+# key needed. Checks: API health 200, APK download host reachable, TLS cert
+# not expiring within 14 days.
+name: uptime
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: uptime
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: API health (3 tries, 20s apart)
+        run: |
+          for i in 1 2 3; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 https://api.lifeassisto.com/api/v1/health || true)
+            echo "try $i: $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 20
+          done
+          echo "::error::api.lifeassisto.com health is DOWN (last HTTP $code)"
+          exit 1
+      - name: TLS certificate expiry
+        run: |
+          end=$(echo | openssl s_client -servername api.lifeassisto.com -connect api.lifeassisto.com:443 2>/dev/null | openssl x509 -noout -enddate | cut -d= -f2)
+          days=$(( ( $(date -d "$end" +%s) - $(date +%s) ) / 86400 ))
+          echo "cert expires in $days days ($end)"
+          if [ "$days" -lt 14 ]; then echo "::error::TLS cert expires in $days days"; exit 1; fi

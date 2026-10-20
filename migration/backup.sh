@@ -34,12 +34,17 @@ if [ "${free_gb:-0}" -lt "$FLOOR_GB" ]; then
   exit 1
 fi
 
-# --- passphrase ---
+# --- passphrase --- (env, else the server-only file, else prompt)
+PASS_FILE="${BACKUP_PASSPHRASE_FILE:-/home/ubuntu/.assisto_backup_pass}"
+if [ -z "${BACKUP_PASSPHRASE:-}" ] && [ -r "$PASS_FILE" ]; then
+  BACKUP_PASSPHRASE="$(head -1 "$PASS_FILE")"
+fi
 if [ -z "${BACKUP_PASSPHRASE:-}" ]; then
   read -r -s -p "Backup passphrase (remember it — the bundle can't be opened without it): " BACKUP_PASSPHRASE; echo
   [ -n "$BACKUP_PASSPHRASE" ] || { echo "ABORT: empty passphrase." >&2; exit 1; }
 fi
 
+export BACKUP_PASSPHRASE
 mkdir -p "$OUT"
 echo "[1/5] Postgres dump ($DB_NAME) ..."
 PGPASSWORD="${DB_PASSWORD:-}" pg_dump -h "$DB_HOST" -U "$DB_USER" --no-owner --no-privileges "$DB_NAME" \
@@ -70,7 +75,7 @@ done
 echo "[4/5] bundle + encrypt (AES-256) ..."
 BUNDLE="$OUT/assisto_backup_${TS}.tar.gz.enc"
 tar -C "$STAGE" -czf - . \
-  | openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -pass pass:"$BACKUP_PASSPHRASE" \
+  | openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -pass env:BACKUP_PASSPHRASE \
   > "$BUNDLE"
 chmod 600 "$BUNDLE"
 
@@ -78,4 +83,27 @@ echo "[5/5] checksum ..."
 sha256sum "$BUNDLE" | tee "${BUNDLE}.sha256"
 
 echo "DONE: $BUNDLE ($(du -h "$BUNDLE" | cut -f1))"
+
+# --- retention: keep the newest $KEEP bundles locally ---
+KEEP="${BACKUP_KEEP:-14}"
+ls -1t "$OUT"/assisto_backup_*.tar.gz.enc 2>/dev/null | tail -n +"$((KEEP + 1))" | while read -r old; do
+  rm -f "$old" "${old}.sha256"
+done
+
+# --- off-site copy (NEVER keep the only copy on this server) ---
+# Configured by the owner in the server-only file /home/ubuntu/.assisto_offsite.env
+# (RCLONE_CONFIG_OFFSITE_* vars for any S3-compatible store: AWS S3 /
+# Cloudflare R2 / Backblaze B2) + OFFSITE_PATH=offsite:<bucket>/assisto.
+OFFSITE_ENV=/home/ubuntu/.assisto_offsite.env
+if [ -r "$OFFSITE_ENV" ] && command -v rclone >/dev/null; then
+  set -a; # shellcheck disable=SC1090
+  source "$OFFSITE_ENV"; set +a
+  if rclone copy "$BUNDLE" "$OFFSITE_PATH/" && rclone copy "${BUNDLE}.sha256" "$OFFSITE_PATH/"; then
+    echo "OFFSITE: uploaded to $OFFSITE_PATH"
+  else
+    echo "OFFSITE: upload FAILED" >&2; exit 2
+  fi
+else
+  echo "OFFSITE: not configured — this backup exists ONLY on this server (see owner_actions/OWNER_UNLOCK_LIST.md)"
+fi
 echo "Keep this file AND the passphrase safe. restore.sh needs both."

@@ -1,5 +1,28 @@
 # Assisto — মালিকের জন্য স্ট্যাটাস (নতুন আপডেট উপরে)
 
+> ## 🔴 আপনার করণীয় (নতুন সার্ভার, 20 Oct) — আমি এর মধ্যে অন্য কাজ চালিয়ে যাচ্ছি
+>
+> **১. GitHub লগইন (সবচেয়ে জরুরি — এটা ছাড়া কোনো বিল্ড push/পাবলিশ হবে না):** নতুন সার্ভারে gh লগইন **করা নেই** (`gh auth status` → "not logged in")। Claude Code-এ এই দুটো লাইন একটা একটা করে টাইপ করুন:
+> ```
+> ! ~/assisto/bin/gh auth login -h github.com -p https -w -s workflow
+> ! ~/assisto/bin/gh auth setup-git
+> ```
+> প্রথমটা একটা ৮-অক্ষরের কোড দেবে → ফোন/ল্যাপটপে https://github.com/login/device খুলে কোডটা দিন → Authorize। ততক্ষণ আমি কাজ লোকালি commit করে রাখছি।
+>
+> **২. Firebase (প্রজেক্ট assisto-247):** অ্যান্ড্রয়েড প্যাকেজ নাম: **`com.assisto.assisto`**
+> - (ক) https://console.firebase.google.com → assisto-247 → ⚙️ Project settings → General → "Add app" → Android → Package name: `com.assisto.assisto` → Register → **google-services.json** ডাউনলোড করুন। (SHA-1 লাগবে না।)
+> - (খ) ⚙️ Project settings → **Service accounts** → "Firebase Admin SDK" → **Generate new private key** → একটা JSON নামবে (নাম `assisto-247-firebase-adminsdk-....json`)।
+> - (গ) আপনার ল্যাপটপ থেকে সার্ভারে পাঠান (Windows-এ PowerShell, Mac-এ Terminal; ফাইল Downloads-এ ধরে নিয়ে):
+> ```
+> scp -i ~/.ssh/assisto-key.pem ~/Downloads/google-services.json ubuntu@16.4.105.173:/home/ubuntu/.assisto_google_services.json
+> scp -i ~/.ssh/assisto-key.pem ~/Downloads/assisto-247-firebase-adminsdk-*.json ubuntu@16.4.105.173:/home/ubuntu/.assisto_firebase_sa.json
+> ```
+> - তারপর আমাকে বলুন "firebase sent"। দুটো ফাইল **কখনো git-এ যাবে না** (রিপো পাবলিক): service-account শুধু সার্ভারে থাকবে (chmod 600); google-services.json GitHub-এর গোপন secret হয়ে CI বিল্ডে ঢুকবে। এতে খুলবে: অ্যাপ বন্ধ থাকলেও মেসেজ, My Circle কল রিং, রিমাইন্ডার, ফ্যামিলি/SOS অ্যালার্ট, দোকান অ্যালার্ট, সার্ভার-ডাউন অ্যালার্ট।
+>
+> **৩. অফ-সার্ভার ব্যাকআপ:** এখন প্রতি রাতের এনক্রিপ্টেড ব্যাকআপ **শুধু এই সার্ভারেই** আছে। বাইরে কপির জন্য একটা স্টোরেজ (Cloudflare R2 সুপারিশ, ফ্রি) — কী তৈরি করবেন ও কোথায় বসাবেন: `owner_actions/OWNER_UNLOCK_LIST.md` → "অফ-সার্ভার ব্যাকআপ"। আর ব্যাকআপ পাসফ্রেজটা (`cat ~/.assisto_backup_pass`) একবার দেখে পাসওয়ার্ড ম্যানেজারে রাখুন।
+>
+> ✅ আমি যা ঠিক করেছি: নাইটলি ব্যাকআপ আসলে চলত না (পাসফ্রেজ ফাইল ছিল না) — এখন ঠিক, টেস্ট ব্যাকআপ বানিয়ে খুলে যাচাই করেছি। সার্ভারের ভেতরে আপটাইম চেক প্রতি ২ মিনিটে চালু; বাইরে থেকে GitHub-এর চেক (ডাউন হলে আপনাকে ইমেইল) gh লগইনের পর push হলেই চালু হবে। Flutter + Android টুলস ইনস্টল, লোকাল চেক (analyze/lang gate) আবার চালু।
+
 > ## ✅✅ মাইগ্রেশন সম্পূর্ণ ও যাচাই — আপনার ফোন এখন নতুন সার্ভারে চলছে
 > আপনি "phone updated" বললেন — সার্ভার-লগে নিশ্চিত: আপনার ফোন নতুন সার্ভারে **লগইন (২০০)** করেছে এবং reminders/notes/todos/goals/transactions/accounts/budgets/loans/alerts/plan/lost-phone/badges — **সব ২০০** (১৮০০+ রিকোয়েস্ট)। আসল ডেটা নতুন সার্ভার থেকেই আসছে, লগইন টিকে আছে। **Asalify সারাক্ষণ ২০০, ছোঁয়া হয়নি।**
 >

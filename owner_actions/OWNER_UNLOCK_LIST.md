@@ -61,6 +61,29 @@
 
 ---
 
+## 🛟 অফ-সার্ভার ব্যাকআপ (জরুরি — এখন সব ব্যাকআপ শুধু এই সার্ভারেই আছে)
+প্রতি রাত ২:১৫-এ এনক্রিপ্টেড ব্যাকআপ হয় (DB + মিডিয়া + সিক্রেট; AES-256; ১৪টা রাখা হয়; restore পরীক্ষিত ২০ অক্টোবর)।
+কিন্তু সার্ভার নষ্ট হলে ব্যাকআপও যাবে — তাই বাইরে একটা কপি দরকার। আপনাকে দিতে হবে **যেকোনো একটি**:
+
+| বিকল্প | আপনাকে যা তৈরি করতে হবে | খরচ |
+|---|---|---|
+| **Cloudflare R2 (সুপারিশ)** | R2-তে একটা bucket (যেমন `assisto-backups`) + "Object Read & Write" API token (শুধু ঐ bucket) → Access Key ID, Secret, Account ID | ১০GB পর্যন্ত ফ্রি |
+| AWS S3 | একটা bucket (ap-south-1) + শুধু ঐ bucket-এ PutObject/GetObject/ListBucket অনুমতির IAM user → Access Key ID + Secret | ~৳৫/মাস |
+| Backblaze B2 | একটা private bucket + ঐ bucket-এর Application Key → keyID + applicationKey | ১০GB পর্যন্ত ফ্রি |
+
+**কীভাবে দেবেন (key চ্যাটে পেস্ট করবেন না):** সার্ভারে `migration/offsite.env.template` কপি করে পূরণ করুন:
+```
+cp ~/assisto/migration/offsite.env.template ~/.assisto_offsite.env && chmod 600 ~/.assisto_offsite.env && nano ~/.assisto_offsite.env
+```
+তারপর আমাকে বলুন "offsite ready" — আমি একটা টেস্ট আপলোড + সেখান থেকে restore যাচাই করব।
+
+**ব্যাকআপ পাসফ্রেজ:** সার্ভারের `~/.assisto_backup_pass` ফাইলে আছে। এটা ছাড়া ব্যাকআপ খোলা যায় না, আর সার্ভার গেলে ফাইলটাও যাবে। একবার দেখে আপনার পাসওয়ার্ড ম্যানেজারে রাখুন: `cat ~/.assisto_backup_pass`
+
+## 📣 আপটাইম অ্যালার্ট (api.lifeassisto.com ডাউন হলে)
+- ⏳ **gh লগইনের পর push হলেই চালু (key লাগবে না):** GitHub Actions প্রতি ১০ মিনিটে সার্ভার বাইরে থেকে চেক করে; ডাউন হলে GitHub আপনার GitHub ইমেইলে "workflow failed" মেইল পাঠায়। পুরো সার্ভার বন্ধ থাকলেও কাজ করে।
+- ✅ সার্ভারের ভেতরের চেক প্রতি ২ মিনিটে (API, অ্যাপ সার্ভার, SSL মেয়াদ, ডিস্ক)। Firebase দিলে ফোনে push-ও আসবে।
+- ঐচ্ছিক — সার্ভার থেকে সরাসরি ইমেইল চাইলে: একটা SMTP অ্যাকাউন্ট (Gmail App Password বা Brevo ফ্রি) — `backend/.env`-এ বসাতে হবে, আমাকে বললে কোন ৪টা লাইন লিখবেন জানাব।
+
 ## এছাড়া আপনার যে অ্যাকশন বাকি (key নয়)
 1. **কল সার্ভার পোর্ট** (এই সার্ভারে কল চালু করতে): `owner_actions/aws_ports.md` — 3478 udp/tcp + 49200-49300 udp খুলুন। (নতুন সার্ভারে গেলে provision.sh করে দেবে।)
 2. **নেটিভ ফিচার ফোনে টেস্ট** (বিল্ড ৯৪-৯৭): ক্যামেরা, হেলথ কানেক্ট, উইজেট, ভয়েস SOS, হারানো/চুরি — চেকলিস্ট `.phaseB/up_*_integration.md` + আমার আগের বার্তায়।
