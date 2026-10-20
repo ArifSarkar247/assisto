@@ -7,6 +7,7 @@ import '../home_api.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/chatnav.dart';
 import '../widgets/home_badge_icon.dart';
+import '../widgets/home_quick_buttons.dart';
 import '../widgets/home_suggestions.dart';
 import 'agent_thread_screen.dart';
 import 'app_drawer.dart';
@@ -32,9 +33,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   // Changing this key starts a fresh chat (New chat).
   Key _threadKey = UniqueKey();
 
-  // When set, the thread renders a seeded exchange (a run suggestion). null =>
-  // live chat / welcome.
-  List<Map<String, dynamic>>? _seed;
+  // Thread wiring: which saved home conversation to show, whether "New chat"
+  // was pressed, and a tapped suggestion to send once the thread is ready.
+  String? _openSessionId;
+  bool _fresh = false;
+  String? _pendingSend;
 
   // Fresh chat shows the suggestion cards; they hide once the user runs one.
   bool _showSuggestions = true;
@@ -73,71 +76,43 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     } catch (_) {/* offline/server down — keep last counts */}
   }
 
-  // A fresh chat: show the dynamic suggestion cards, and seed the thread with a
-  // single greeting bubble so AgentThreadScreen's built-in welcome (which still
-  // carries hard-coded cards we must not duplicate) never renders.
-  List<Map<String, dynamic>> _greetingSeed() => [
-        {'user': false, 'text': AppLocalizations.of(context).welcomeHeadline},
-      ];
-
+  // "New chat": a fresh, empty home thread (the old one stays in the sidebar
+  // history) with the Discover cards + quick buttons back.
   void _newChat() => setState(() {
         _threadKey = UniqueKey();
-        _seed = _greetingSeed();
+        _openSessionId = null;
+        _fresh = true;
+        _pendingSend = null;
         _showSuggestions = true;
       });
 
-  // Run a tapped suggestion: route → navigate; else send to the agent and show
-  // the resulting exchange in a fresh thread. Never touches AgentThreadScreen's
-  // internals — it just re-seeds the home-owned thread.
+  // Reopen a saved home conversation from the sidebar history.
+  void _openHomeChat(String sessionId) => setState(() {
+        _threadKey = UniqueKey();
+        _openSessionId = sessionId;
+        _fresh = false;
+        _pendingSend = null;
+        _showSuggestions = false;
+      });
+
+  // Run a tapped suggestion: route → navigate; else send it in the current
+  // home thread (so it is saved like any typed message).
   Future<void> _runSuggestion(HomeSuggestion s) async {
-    // 1) Explicit engine route, or a local route the text maps to.
     final route = s.route ?? ChatNav.detectRoute(s.sendText);
     if (ChatNav.push(context, route)) return;
-
-    // 2) Otherwise send to the agent; the backend may still return a route.
-    final app = context.read<AppState>();
-    final text = s.sendText;
-    final seed = <Map<String, dynamic>>[
-      {'user': true, 'text': text},
-    ];
     setState(() {
       _showSuggestions = false;
-      _seed = seed;
+      _openSessionId = null;
+      _fresh = false;
+      _pendingSend = s.sendText;
       _threadKey = UniqueKey();
     });
-    try {
-      final r = await app.api.agent(text);
-      if (!mounted) return;
-      if (ChatNav.push(context, r['route'] as String?)) return;
-      final cards = ((r['cards'] ?? []) as List).cast<Map<String, dynamic>>();
-      setState(() {
-        _seed = [
-          ...seed,
-          {'user': false, 'text': r['reply'] ?? '', 'cards': cards},
-        ];
-        _threadKey = UniqueKey();
-      });
-      app.reminders.sync();
-      app.txns.sync();
-      app.loans.sync();
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _seed = [
-          ...seed,
-          {'user': false, 'text': AppLocalizations.of(context).sendFailed},
-        ];
-        _threadKey = UniqueKey();
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    // Seed the greeting on the first build (localizations are ready here) so
-    // the thread's built-in welcome — with its hard-coded cards — never shows.
-    _seed ??= _greetingSeed();
+    final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
     return Scaffold(
       // A1 — explicit: the body shrinks for the keyboard so the input bar (at
       // the bottom of the thread) always sits directly above it.
@@ -195,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           const SizedBox(width: Gap.xs),
         ],
       ),
-      drawer: AppDrawer(onNewChat: _newChat),
+      drawer: AppDrawer(onNewChat: _newChat, onOpenHomeChat: _openHomeChat),
       // Small in-chat new-chat action stays available on home.
       floatingActionButton: _showSuggestions
           ? null
@@ -209,15 +184,35 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         if (_showSuggestions)
           Padding(
             padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 0),
-            child: HomeSuggestions(
-              onRun: _runSuggestion,
-              onReady: (fn) => _refreshSuggestions = fn,
-            ),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  HomeSuggestions(
+                    onRun: _runSuggestion,
+                    onReady: (fn) => _refreshSuggestions = fn,
+                  ),
+                  // OWNER ORDER: 6 customizable one-tap shortcuts (hidden while
+                  // the keyboard is open so the input is never pushed off-screen).
+                  if (!keyboardOpen) ...[
+                    const SizedBox(height: Gap.sm),
+                    const HomeQuickBar(),
+                  ],
+                ]),
+          )
+        else if (!keyboardOpen)
+          // During a conversation the shortcuts shrink to one chip row; hidden
+          // while typing so the keyboard never covers the input.
+          const Padding(
+            padding: EdgeInsets.only(top: Gap.xs),
+            child: HomeQuickBar(compact: true),
           ),
         Expanded(
           child: AgentThreadScreen(
             key: _threadKey,
-            debugSeed: _seed,
+            sessionId: _openSessionId,
+            fresh: _fresh,
+            greeting: t.welcomeHeadline,
+            initialSend: _pendingSend,
             // A1 — collapse the Discover/spotlight area the moment the input
             // gains focus so the chat + input fill the screen and the keyboard
             // never covers what the user is typing.
@@ -249,7 +244,8 @@ class _UpdateBanner extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
-              Icon(Icons.system_update, color: scheme.onPrimaryContainer, size: 20),
+              Icon(Icons.system_update,
+                  color: scheme.onPrimaryContainer, size: 20),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(t.updateAvailable,
@@ -261,14 +257,17 @@ class _UpdateBanner extends StatelessWidget {
                 IconButton(
                     onPressed: up.dismiss,
                     visualDensity: VisualDensity.compact,
-                    icon: Icon(Icons.close, size: 18, color: scheme.onPrimaryContainer)),
+                    icon: Icon(Icons.close,
+                        size: 18, color: scheme.onPrimaryContainer)),
             ]),
             if (up.downloading) ...[
               const SizedBox(height: Gap.xs),
-              LinearProgressIndicator(value: up.progress > 0 ? up.progress : null),
+              LinearProgressIndicator(
+                  value: up.progress > 0 ? up.progress : null),
               const SizedBox(height: Gap.xs),
               Text('${(up.progress * 100).toStringAsFixed(0)}%',
-                  style: TextStyle(fontSize: 12, color: scheme.onPrimaryContainer)),
+                  style: TextStyle(
+                      fontSize: 12, color: scheme.onPrimaryContainer)),
             ] else
               Align(
                 alignment: Alignment.centerRight,

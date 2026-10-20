@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/sidebar_chats.dart';
 import '../widgets/sidebar_sections.dart';
 import 'settings_screen.dart';
 import 'plans_screen.dart';
@@ -23,7 +24,11 @@ import 'ai_chat_screen.dart';
 ///     live inside it), Plans & points.
 class AppDrawer extends StatefulWidget {
   final VoidCallback onNewChat;
-  const AppDrawer({super.key, required this.onNewChat});
+
+  /// Reopen a saved HOME conversation (sidebar chat history) on the home
+  /// screen. Null in previews → home rows just close the drawer.
+  final void Function(String sessionId)? onOpenHomeChat;
+  const AppDrawer({super.key, required this.onNewChat, this.onOpenHomeChat});
 
   @override
   State<AppDrawer> createState() => _AppDrawerState();
@@ -63,8 +68,8 @@ class _AppDrawerState extends State<AppDrawer> {
         Container(
           width: double.infinity,
           decoration: const BoxDecoration(gradient: Brand.heroDark),
-          padding: EdgeInsets.fromLTRB(
-              Gap.lg, MediaQuery.of(context).padding.top + Gap.lg, Gap.lg, Gap.lg),
+          padding: EdgeInsets.fromLTRB(Gap.lg,
+              MediaQuery.of(context).padding.top + Gap.lg, Gap.lg, Gap.lg),
           child: Row(children: [
             _logoMark(44),
             const SizedBox(width: Gap.md),
@@ -107,19 +112,10 @@ class _AppDrawerState extends State<AppDrawer> {
         // privacy, calls) now lives INSIDE the hub (OWNER UI FIX v2 §1–2).
         ListTile(
           dense: true,
-          leading: Icon(Icons.diversity_3_outlined,
-              color: scheme.onSurfaceVariant),
+          leading:
+              Icon(Icons.diversity_3_outlined, color: scheme.onSurfaceVariant),
           title: Text(t.sidebarMyCircle),
           onTap: () => _push((_) => const MessengerHomeScreen()),
-        ),
-        // Part 3: Assisto AI — the full-history ChatGPT-like chat (distinct
-        // from the home chat, which stays as-is). Chat-openable via ChatNav
-        // route 'ai_chat'.
-        ListTile(
-          dense: true,
-          leading: Icon(Icons.auto_awesome, color: scheme.primary),
-          title: Text(t.aichatSidebar),
-          onTap: () => _push((_) => const AiChatScreen()),
         ),
         // ---- search box ----
         Padding(
@@ -140,8 +136,8 @@ class _AppDrawerState extends State<AppDrawer> {
                       },
                     )
                   : null,
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12)),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             ),
@@ -150,93 +146,98 @@ class _AppDrawerState extends State<AppDrawer> {
         const Divider(height: Gap.md),
         // ---- grouped modules ----
         Expanded(
-          child: sections.isEmpty
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Text(t.sidebarNoResults,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: scheme.onSurfaceVariant)),
-                  ),
-                )
-              : ListView(
-                  padding: const EdgeInsets.symmetric(vertical: Gap.xs),
-                  children: [
-                    for (final s in sections)
-                      // OWNER UI FIX: a group with exactly ONE item is NOT an
-                      // expandable group — render it as a single direct entry
-                      // (tap opens that item). Applies to every section now and
-                      // in future (e.g. Contacts).
-                      if (s.items.length == 1)
-                        ListTile(
-                          leading:
-                              Icon(s.icon, color: scheme.onSurfaceVariant),
-                          title: Text(s.title(t),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w600)),
-                          onTap: () => _push(s.items.first.builder),
-                        )
-                      else
-                        ExpansionTile(
-                          key: PageStorageKey('sidebar_${s.id}_$searching'),
-                          // Searching force-opens matches; otherwise honour the
-                          // remembered open/closed state.
-                          initiallyExpanded:
-                              searching || _expanded.contains(s.id),
-                          onExpansionChanged: (open) {
-                            if (searching) return;
-                            if (open) {
-                              _expanded.add(s.id);
-                            } else {
-                              _expanded.remove(s.id);
-                            }
-                          },
-                          leading:
-                              Icon(s.icon, color: scheme.onSurfaceVariant),
-                          title: Text(s.title(t),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w600)),
-                          childrenPadding:
-                              const EdgeInsets.only(left: Gap.sm),
-                          children: [
-                            for (final item in s.items)
-                              ListTile(
-                                leading: Icon(item.icon,
-                                    color: scheme.onSurfaceVariant, size: 22),
-                                title: Text(item.label(t),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis),
-                                visualDensity: VisualDensity.compact,
-                                onTap: () => _push(item.builder),
-                              ),
-                          ],
-                        ),
-                    // ---- END of scroll: Settings + Plans & points (moved in
-                    // from the old pinned bottom; nothing is pinned now) ----
-                    if (!searching) ...[
-                      const Divider(height: Gap.md),
-                      ListTile(
-                        leading: Icon(Icons.settings_outlined,
-                            color: scheme.onSurfaceVariant),
-                        title: Text(t.settingsTitle),
-                        onTap: () => _push((_) => const SettingsScreen()),
-                      ),
-                      ListTile(
-                        leading: Icon(Icons.workspace_premium_outlined,
-                            color: scheme.onSurfaceVariant),
-                        title: Text(t.sidebarPlansPoints),
-                        onTap: () => _push((_) => const PlansScreen()),
-                      ),
-                      SizedBox(
-                          height: MediaQuery.of(context).padding.bottom +
-                              Gap.sm),
-                    ],
-                  ],
+          child: ListView(
+            padding: const EdgeInsets.symmetric(vertical: Gap.xs),
+            children: [
+              // ChatGPT-style history (home + Assisto AI threads). The
+              // old separate "Assisto AI" tile lives here as "New AI chat".
+              SidebarChats(
+                query: _q,
+                onNewAiChat: () => _push((_) => const AiChatScreen()),
+                onOpen: (source, row) {
+                  if (source == 'ai') {
+                    _push((_) => AiChatScreen(initialSession: row));
+                  } else {
+                    Navigator.pop(context);
+                    widget.onOpenHomeChat?.call('${row['id']}');
+                  }
+                },
+              ),
+              const Divider(height: Gap.md),
+              if (sections.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Text(t.sidebarNoResults,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: scheme.onSurfaceVariant)),
                 ),
+              for (final s in sections)
+                // OWNER UI FIX: a group with exactly ONE item is NOT an
+                // expandable group — render it as a single direct entry
+                // (tap opens that item). Applies to every section now and
+                // in future (e.g. Contacts).
+                if (s.items.length == 1)
+                  ListTile(
+                    leading: Icon(s.icon, color: scheme.onSurfaceVariant),
+                    title: Text(s.title(t),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
+                    onTap: () => _push(s.items.first.builder),
+                  )
+                else
+                  ExpansionTile(
+                    key: PageStorageKey('sidebar_${s.id}_$searching'),
+                    // Searching force-opens matches; otherwise honour the
+                    // remembered open/closed state.
+                    initiallyExpanded: searching || _expanded.contains(s.id),
+                    onExpansionChanged: (open) {
+                      if (searching) return;
+                      if (open) {
+                        _expanded.add(s.id);
+                      } else {
+                        _expanded.remove(s.id);
+                      }
+                    },
+                    leading: Icon(s.icon, color: scheme.onSurfaceVariant),
+                    title: Text(s.title(t),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
+                    childrenPadding: const EdgeInsets.only(left: Gap.sm),
+                    children: [
+                      for (final item in s.items)
+                        ListTile(
+                          leading: Icon(item.icon,
+                              color: scheme.onSurfaceVariant, size: 22),
+                          title: Text(item.label(t),
+                              maxLines: 1, overflow: TextOverflow.ellipsis),
+                          visualDensity: VisualDensity.compact,
+                          onTap: () => _push(item.builder),
+                        ),
+                    ],
+                  ),
+              // ---- END of scroll: Settings + Plans & points (moved in
+              // from the old pinned bottom; nothing is pinned now) ----
+              if (!searching) ...[
+                const Divider(height: Gap.md),
+                ListTile(
+                  leading: Icon(Icons.settings_outlined,
+                      color: scheme.onSurfaceVariant),
+                  title: Text(t.settingsTitle),
+                  onTap: () => _push((_) => const SettingsScreen()),
+                ),
+                ListTile(
+                  leading: Icon(Icons.workspace_premium_outlined,
+                      color: scheme.onSurfaceVariant),
+                  title: Text(t.sidebarPlansPoints),
+                  onTap: () => _push((_) => const PlansScreen()),
+                ),
+                SizedBox(
+                    height: MediaQuery.of(context).padding.bottom + Gap.sm),
+              ],
+            ],
+          ),
         ),
       ]),
     );

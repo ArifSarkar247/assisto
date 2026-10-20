@@ -14087,5 +14087,33 @@
   "shopEvtEodMismatch": "End-of-day mismatch",
   "shopEvtMotion": "Motion",
   "shopEvtAfterHours": "After hours",
-  "shopEvtPosePossible": "Movement near till (possible)"
+  "shopEvtPosePossible": "Movement near till (possible)",
+  "voiceNoBangla": "This phone's voice engine has no Bangla. Add \"Bangla\" in Google app → Settings → Voice → Offline speech recognition, or switch the voice language to EN.",
+  "voiceNoEnglish": "This phone's voice engine has no English. Add English in the Google app's voice settings, or switch the voice language to Bangla.",
+  "voiceNoMatch": "Didn't catch that. Hold the mic and speak clearly.",
+  "voiceNeedsNet": "Voice typing needs internet here. Turn on data, or download the offline language in the Google app.",
+  "voiceNoPermission": "Microphone permission is off. Turn it on in Settings.",
+  "voiceBusy": "The voice engine is busy. Try again in a second.",
+  "voiceLangToggle": "Switch voice language (Bangla / English)",
+  "voiceHoldToTalk": "Hold to talk, release to stop",
+  "voiceReleaseToStop": "Tap to stop",
+  "sidebarChats": "Chats",
+  "sidebarNewAiChat": "New AI chat",
+  "sidebarSeeAll": "See all",
+  "sidebarShowLess": "Show less",
+  "quickTitle": "Shortcuts",
+  "quickEdit": "Edit",
+  "quickPickTitle": "Choose your 6 home shortcuts",
+  "quickPickHint": "{count}/6 chosen · drag to reorder",
+  "@quickPickHint": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "quickReset": "Reset",
+  "voiceChipBn": "BN",
+  "voiceChipEn": "EN"
 }

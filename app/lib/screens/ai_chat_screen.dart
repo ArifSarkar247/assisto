@@ -1,17 +1,15 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:speech_to_text/speech_to_text.dart';
 import '../api.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/chat_cards.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
-import '../widgets/permission_reason.dart';
+import '../widgets/voice_input.dart';
 
 /// Part 3 — Assisto AI: the ChatGPT-like full-history chat.
 ///
@@ -74,7 +72,9 @@ class _Session {
 }
 
 class AiChatScreen extends StatefulWidget {
-  const AiChatScreen({super.key});
+  /// A saved Assisto AI chat to open directly (sidebar history row JSON).
+  final Map<String, dynamic>? initialSession;
+  const AiChatScreen({super.key, this.initialSession});
   @override
   State<AiChatScreen> createState() => _AiChatScreenState();
 }
@@ -94,11 +94,22 @@ class _AiChatScreenState extends State<AiChatScreen> {
   // Streaming control: a live subscription we can cancel with Stop.
   StreamSubscription<Map<String, dynamic>>? _streamSub;
 
-  // Voice input (same pattern as AgentThreadScreen).
-  final SpeechToText _speech = SpeechToText();
-  bool _speechReady = false;
-  bool _listening = false;
-  String _speechBase = '';
+  // Voice input (shared with the home chat): hold-to-talk + bn/EN chip.
+  late final VoiceDictation _voice = VoiceDictation(lang: 'bn');
+
+  @override
+  void initState() {
+    super.initState();
+    _voice.addListener(() {
+      if (mounted) setState(() {});
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _voice.loadLang(t.localeName);
+      final init = widget.initialSession;
+      if (init != null) _openSession(_Session.fromJson(init));
+    });
+  }
 
   AppLocalizations get t => AppLocalizations.of(context);
   ApiClient get _api => context.read<AppState>().api;
@@ -106,9 +117,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
   @override
   void dispose() {
     _streamSub?.cancel();
-    try {
-      _speech.cancel();
-    } catch (_) {}
+    _voice.dispose();
     _input.dispose();
     _scroll.dispose();
     _inputFocus.dispose();
@@ -247,8 +256,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
             setState(() => assistant.text += (ev['chunk'] ?? '').toString());
             _toBottom();
           } else if (ev['kind'] == 'done') {
-            final cards = ((ev['cards'] ?? []) as List)
-                .cast<Map<String, dynamic>>();
+            final cards =
+                ((ev['cards'] ?? []) as List).cast<Map<String, dynamic>>();
             final doneText = (ev['text'] ?? '').toString();
             setState(() {
               assistant.streaming = false;
@@ -323,8 +332,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
   // source (keeps the honest "offline answer" chip accurate without a mutable
   // field just for this).
   void _applySource(_Msg assistant, dynamic source, dynamic meta) {
-    final src = source?.toString() ??
-        (meta is Map ? meta['source']?.toString() : null);
+    final src =
+        source?.toString() ?? (meta is Map ? meta['source']?.toString() : null);
     if (src == null) return;
     final idx = _msgs.indexOf(assistant);
     if (idx < 0) return;
@@ -437,83 +446,6 @@ class _AiChatScreenState extends State<AiChatScreen> {
     }
   }
 
-  // ---------------- voice (same pattern as home chat) ----------------
-  Future<void> _toggleMic() async {
-    if (_listening) {
-      try {
-        await _speech.stop();
-      } catch (_) {}
-      if (mounted) setState(() => _listening = false);
-      return;
-    }
-    HapticFeedback.selectionClick();
-    try {
-      if (!_speechReady) {
-        final okReason = await showPermissionReason(context, PermKind.mic);
-        if (!okReason || !mounted) return;
-        _speechReady = await _speech.initialize(
-          onStatus: (s) {
-            if ((s == 'done' || s == 'notListening') && mounted && _listening) {
-              setState(() => _listening = false);
-            }
-          },
-          onError: (_) {
-            if (mounted && _listening) {
-              setState(() => _listening = false);
-              _micUnavailable();
-            }
-          },
-        );
-      }
-      if (!_speechReady) {
-        if (mounted) _micUnavailable();
-        return;
-      }
-      _speechBase = _input.text;
-      if (_speechBase.isNotEmpty && !_speechBase.endsWith(' ')) {
-        _speechBase = '$_speechBase ';
-      }
-      setState(() => _listening = true);
-      final localeId = t.localeName.startsWith('bn') ? 'bn_BD' : 'en_US';
-      await _speech.listen(
-        onResult: (r) {
-          if (!mounted) return;
-          final live = '$_speechBase${r.recognizedWords}';
-          _input.value = TextEditingValue(
-            text: live,
-            selection: TextSelection.collapsed(offset: live.length),
-          );
-        },
-        listenOptions: SpeechListenOptions(
-          localeId: localeId,
-          partialResults: true,
-          cancelOnError: true,
-        ),
-      );
-    } catch (_) {
-      if (mounted) {
-        setState(() => _listening = false);
-        _micUnavailable();
-      }
-    }
-  }
-
-  void _micUnavailable() {
-    final messenger = ScaffoldMessenger.of(context);
-    messenger.clearSnackBars();
-    messenger.showSnackBar(SnackBar(
-      content: Text(t.micEnableSpeech),
-      action: SnackBarAction(
-        label: t.open,
-        onPressed: () {
-          try {
-            openAppSettings();
-          } catch (_) {}
-        },
-      ),
-    ));
-  }
-
   // ---------------- helpers ----------------
   void _snack(String msg) {
     final m = ScaffoldMessenger.of(context);
@@ -613,7 +545,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
               gradient: Brand.gradient,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Icon(Icons.auto_awesome, color: Colors.white, size: 38),
+            child:
+                const Icon(Icons.auto_awesome, color: Colors.white, size: 38),
           ),
         ),
         const SizedBox(height: Gap.lg),
@@ -634,8 +567,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
   // ---------------- bubble ----------------
   Widget _bubble(_Msg m, int i) {
     final scheme = Theme.of(context).colorScheme;
-    final isLastAssistant =
-        !m.user && i == _msgs.length - 1 && !m.streaming;
+    final isLastAssistant = !m.user && i == _msgs.length - 1 && !m.streaming;
     final isLastUserEditable = m.user &&
         !_sending &&
         _msgs.skip(i + 1).every((x) => !x.user); // last user turn
@@ -692,7 +624,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
         _avatar(scheme),
         const SizedBox(width: Gap.sm),
         Flexible(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             bubble,
             if (isLastAssistant && m.text.isNotEmpty) _assistantActions(m),
           ]),
@@ -806,7 +739,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
             style: TextStyle(color: scheme.onSurface, height: 1.45)));
       }
     }
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: widgets);
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.start, children: widgets);
   }
 
   // ---------------- input ----------------
@@ -827,7 +761,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
               maxLines: 5,
               keyboardType: TextInputType.multiline,
               decoration: InputDecoration(
-                hintText: _listening ? t.aichatListening : t.aichatInputHint,
+                hintText:
+                    _voice.listening ? t.aichatListening : t.aichatInputHint,
                 filled: true,
                 fillColor: scheme.surfaceContainerHighest,
                 contentPadding: const EdgeInsets.symmetric(
@@ -839,16 +774,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
             ),
           ),
           const SizedBox(width: Gap.xs),
-          Tooltip(
-            message: t.aichatMicHint,
-            child: _listening
-                ? IconButton(
-                    onPressed: _toggleMic,
-                    icon: const Icon(Icons.stop_circle, color: Brand.danger))
-                : IconButton(
-                    onPressed: _toggleMic,
-                    icon: Icon(Icons.mic_none, color: scheme.onSurfaceVariant)),
-          ),
+          VoiceMicButton(voice: _voice, input: _input),
           // While a reply is in flight, the send button becomes a Stop control.
           _sending
               ? IconButton.filled(
@@ -896,7 +822,8 @@ class _TypingDotsState extends State<_TypingDots>
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 2),
               child: Opacity(
-                opacity: 0.3 + 0.7 * ((((_c.value + i / 3) % 1) - 0.5).abs() * 2),
+                opacity:
+                    0.3 + 0.7 * ((((_c.value + i / 3) % 1) - 0.5).abs() * 2),
                 child: Container(
                   width: 7,
                   height: 7,
@@ -951,7 +878,11 @@ class _HistorySheetState extends State<_HistorySheet> {
     });
     try {
       final rows = await _api.chatSessions(query: _q.isEmpty ? null : _q);
-      final list = rows.map(_Session.fromJson).toList();
+      // Home-chat threads reopen on home (sidebar), not inside AI chat.
+      final list = rows
+          .where((r) => r['source'] != 'home')
+          .map(_Session.fromJson)
+          .toList();
       // Pinned first, then as the server ordered them.
       list.sort((a, b) => (b.pinned ? 1 : 0).compareTo(a.pinned ? 1 : 0));
       if (mounted) {
@@ -1009,8 +940,8 @@ class _HistorySheetState extends State<_HistorySheet> {
       if (mounted) {
         setState(() {
           s.pinned = !s.pinned;
-          _sessions.sort(
-              (a, b) => (b.pinned ? 1 : 0).compareTo(a.pinned ? 1 : 0));
+          _sessions
+              .sort((a, b) => (b.pinned ? 1 : 0).compareTo(a.pinned ? 1 : 0));
         });
       }
     } catch (_) {}
@@ -1120,8 +1051,7 @@ class _HistorySheetState extends State<_HistorySheet> {
         return ListTile(
           selected: active,
           selectedTileColor: scheme.secondaryContainer.withValues(alpha: 0.4),
-          leading: Icon(
-              s.pinned ? Icons.push_pin : Icons.chat_bubble_outline,
+          leading: Icon(s.pinned ? Icons.push_pin : Icons.chat_bubble_outline,
               color: s.pinned ? scheme.primary : scheme.onSurfaceVariant),
           title: Text(s.title.isEmpty ? t.aichatUntitled : s.title,
               maxLines: 1, overflow: TextOverflow.ellipsis),

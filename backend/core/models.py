@@ -2842,6 +2842,10 @@ class ChatSession(models.Model):
     title_custom = models.BooleanField(default=False)
     pinned = models.BooleanField(default=False)
     archived = models.BooleanField(default=False)
+    # "home" = the home agent chat (actions + cards); "ai" = Assisto AI chat.
+    # Both show in the sidebar history; tapping reopens it in the right place.
+    SOURCES = [("ai", "ai"), ("home", "home")]
+    source = models.CharField(max_length=8, choices=SOURCES, default="ai")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

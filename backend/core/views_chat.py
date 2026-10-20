@@ -60,6 +60,7 @@ def _session_row(s, last=None):
         "title": s.title or "",
         "pinned": s.pinned,
         "archived": s.archived,
+        "source": s.source,
         "updated": s.updated_at.isoformat() if s.updated_at else None,
         "snippet": snippet,
     }
@@ -164,6 +165,9 @@ class ChatSessionsView(APIView):
         # exclude archived unless explicitly asked
         if (request.query_params.get("archived") or "").lower() not in ("1", "true"):
             qs = qs.filter(archived=False)
+        src = (request.query_params.get("source") or "").strip()
+        if src in ("ai", "home"):
+            qs = qs.filter(source=src)
         query = (request.query_params.get("query") or "").strip()
         if query:
             qs = qs.filter(

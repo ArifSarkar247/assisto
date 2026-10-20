@@ -189,9 +189,12 @@ class ApiClient {
     if (r.statusCode != 204 && r.statusCode != 404) _fail(r);
   }
 
-  Future<Map<String, dynamic>> agent(String text) async {
+  /// Home agent turn. [sessionId] keeps the home conversation in one saved
+  /// thread (sidebar history); the reply carries the `session_id` to reuse.
+  Future<Map<String, dynamic>> agent(String text, {String? sessionId}) async {
     final r = await _c.post(AppConfig.api('/agent'),
-        headers: _headers(), body: jsonEncode({'text': text}));
+        headers: _headers(),
+        body: jsonEncode({'text': text, if (sessionId != null) 'session_id': sessionId}));
     if (r.statusCode == 200) return jsonDecode(r.body) as Map<String, dynamic>;
     _fail(r);
   }

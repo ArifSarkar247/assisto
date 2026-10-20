@@ -1696,4 +1696,29 @@ class FakeApi extends ApiClient {
     return super.deleteItem(path, id);
   }
 
+  // ---- chat history (sidebar + home persistence previews) ----
+  @override
+  Future<List<Map<String, dynamic>>> chatSessions({String? query}) async {
+    await _slow();
+    return _maybe([
+      {'id': 11, 'title': _bn ? 'কাল সকালে মাকে ফোন' : 'Call mom tomorrow morning', 'pinned': true, 'source': 'home', 'snippet': '', 'updated': '2026-10-20T09:00:00Z'},
+      {'id': 12, 'title': _bn ? 'এই মাসের খরচের হিসাব' : "This month's spending", 'pinned': false, 'source': 'home', 'snippet': '', 'updated': '2026-10-19T18:00:00Z'},
+      {'id': 13, 'title': _bn ? 'দোকানের অফারের পোস্ট লেখা' : 'Write a shop offer post', 'pinned': false, 'source': 'ai', 'snippet': '', 'updated': '2026-10-18T12:00:00Z'},
+      {'id': 14, 'title': _bn ? 'বিদ্যুৎ বিল কবে দিতে হবে' : 'When is the electricity bill due', 'pinned': false, 'source': 'home', 'snippet': '', 'updated': '2026-10-17T08:00:00Z'},
+      {'id': 15, 'title': _bn ? 'চাকরির আবেদনপত্র' : 'Job application letter', 'pinned': false, 'source': 'ai', 'snippet': '', 'updated': '2026-10-15T08:00:00Z'},
+    ]);
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> chatMessages(String sessionId) async {
+    await _slow();
+    return _maybe([
+      {'id': 1, 'role': 'user', 'text': _bn ? 'কাল সকাল ৯টায় মাকে ফোন করতে মনে করিয়ে দিও' : 'Remind me to call mom tomorrow at 9am', 'meta': {}},
+      {'id': 2, 'role': 'assistant', 'text': _bn ? 'রিমাইন্ডার সেট করেছি।' : 'Reminder set.', 'meta': {
+        'cards': [
+          {'type': 'reminder', 'title': _bn ? 'মাকে ফোন' : 'Call mom', 'subtitle': '2026-10-21 09:00', 'model': 'reminder', 'id': 7, 'undo': true}
+        ]
+      }},
+    ]);
+  }
 }

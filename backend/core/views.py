@@ -1572,9 +1572,36 @@ class AgentView(APIView):
             route = None
         else:
             route = brain_route or screen_synonyms.resolve(text)
+        session_id = _persist_home_turn(u, request.data.get("session_id"),
+                                        text, reply, cards, intent, route)
         return Response({"reply": reply, "cards": cards, "intent": intent,
-                         "route": route,
+                         "route": route, "session_id": session_id,
                          "ai_used": ai_used, "ai_enabled": ai.key_present()})
+
+
+def _persist_home_turn(user, session_id, text, reply, cards, intent, route):
+    """Save one home-chat turn (user text + agent reply/cards) so the home
+    conversation survives restarts and shows in the sidebar history. Reuses an
+    existing home session of THIS user, else starts one. Never breaks the
+    reply: returns the session id, or None if saving failed."""
+    from .models import ChatSession, ChatMessage
+    try:
+        s = None
+        if session_id:
+            s = ChatSession.objects.filter(pk=session_id, user=user,
+                                          source="home").first()
+        if s is None:
+            s = ChatSession(user=user, source="home")
+            s.derive_title(text)
+            s.save()
+        ChatMessage.objects.create(session=s, role="user", text=text)
+        ChatMessage.objects.create(session=s, role="assistant", text=reply or "",
+                                   meta={"source": "agent", "cards": cards,
+                                         "intent": intent, "route": route})
+        s.save(update_fields=["updated_at"])
+        return s.id
+    except Exception:
+        return None
 
 
 # ---------- AI status (needs-key state surfaced to the app) ----------

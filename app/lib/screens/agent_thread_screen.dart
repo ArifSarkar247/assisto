@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import 'package:speech_to_text/speech_to_text.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/chatnav.dart';
 import '../widgets/chat_cards.dart';
-import '../widgets/permission_reason.dart';
-import '../widgets/voice_command_sheet.dart';
+import '../widgets/voice_input.dart';
 
 class _Msg {
   final bool user;
@@ -30,8 +27,33 @@ class AgentThreadScreen extends StatefulWidget {
   /// collapse the Discover/suggestion area so the chat + input fill the screen
   /// and the keyboard never covers what the user is typing.
   final VoidCallback? onInputFocus;
+
+  /// Saved home conversation to reopen (from the sidebar history). Null =
+  /// continue the remembered home thread (or start fresh when [fresh]).
+  final String? sessionId;
+
+  /// "New chat": start an empty thread and forget the remembered one.
+  final bool fresh;
+
+  /// Assistant greeting shown when the thread is empty (home uses this
+  /// instead of the built-in welcome cards).
+  final String? greeting;
+
+  /// Text to send as soon as the thread is ready (a tapped home suggestion) —
+  /// it goes through the normal send path, so it is saved like any turn.
+  final String? initialSend;
   const AgentThreadScreen(
-      {super.key, this.debugSeed, this.debugListening = false, this.onInputFocus});
+      {super.key,
+      this.debugSeed,
+      this.debugListening = false,
+      this.onInputFocus,
+      this.sessionId,
+      this.fresh = false,
+      this.greeting,
+      this.initialSend});
+
+  /// SharedPreferences key of the home thread that survives restarts.
+  static const sessionKey = 'home_session_id';
   @override
   State<AgentThreadScreen> createState() => _AgentThreadScreenState();
 }
@@ -44,15 +66,9 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
   final List<_Msg> _msgs = [];
   bool _sending = false;
 
-  // A4 — live speech-to-text into the input box. Lazily initialised on the
-  // FIRST mic tap only (never at launch). _listening doubles as the UI state
-  // for both the seeded preview and the live mic.
-  final SpeechToText _speech = SpeechToText();
-  bool _speechReady = false;
-  bool _listening = false;
-  // Text already in the box before dictation began, so partial results are
-  // appended (not overwritten) each time onResult fires.
-  String _speechBase = '';
+  // Live speech-to-text into the input (shared with Assisto AI chat).
+  late final VoiceDictation _voice = VoiceDictation(lang: 'bn');
+  String? _sessionId;
 
   AppLocalizations get t => AppLocalizations.of(context);
 
@@ -69,6 +85,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
     // A1 — the thread's input must always sit above the keyboard and the list
     // must auto-scroll when the keyboard opens. Observe metrics for that.
     WidgetsBinding.instance.addObserver(this);
+    _voice.addListener(_rebuild);
     // A1 — the home collapses its Discover cards as soon as the input focuses.
     _inputFocus.addListener(() {
       if (_inputFocus.hasFocus) {
@@ -77,16 +94,67 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
       }
     });
     if (widget.debugSeed != null) {
-      _listening = widget.debugListening;
       for (final m in widget.debugSeed!) {
-        _msgs.add(_Msg(
-            m['user'] == true,
-            (m['text'] ?? '').toString(),
+        _msgs.add(_Msg(m['user'] == true, (m['text'] ?? '').toString(),
             ((m['cards'] ?? []) as List).cast<Map<String, dynamic>>()));
       }
       return; // previews don't poll
     }
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadAlerts());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _voice.loadLang(t.localeName);
+      _restoreThread();
+    });
+  }
+
+  void _rebuild() {
+    if (mounted) setState(() {});
+  }
+
+  // Reopen the saved home conversation so it survives app restarts (and so a
+  // sidebar history tap shows it). Falls back to the welcome state + alerts.
+  Future<void> _restoreThread() async {
+    String? sid = widget.sessionId;
+    if (widget.fresh) {
+      await Settings.setString(AgentThreadScreen.sessionKey, '');
+    } else {
+      sid ??= await Settings.getString(AgentThreadScreen.sessionKey);
+    }
+    if (sid == null || sid.isEmpty) {
+      _afterRestore();
+      return _loadAlerts();
+    }
+    _sessionId = sid;
+    final app = context.read<AppState>();
+    try {
+      final rows = await app.api.chatMessages(sid);
+      if (!mounted) return;
+      setState(() {
+        for (final m in rows) {
+          final meta = (m['meta'] is Map) ? m['meta'] as Map : const {};
+          _msgs.add(_Msg(m['role'] == 'user', (m['text'] ?? '').toString(),
+              ((meta['cards'] ?? []) as List).cast<Map<String, dynamic>>()));
+        }
+      });
+      await Settings.setString(AgentThreadScreen.sessionKey, sid);
+      _toBottom();
+      _afterRestore();
+    } catch (_) {
+      // deleted/foreign thread → start fresh, never show an error wall
+      _sessionId = null;
+      await Settings.setString(AgentThreadScreen.sessionKey, '');
+      _afterRestore();
+      _loadAlerts();
+    }
+  }
+
+  void _afterRestore() {
+    if (!mounted) return;
+    final g = widget.greeting;
+    if (_msgs.isEmpty && g != null && g.isNotEmpty) {
+      setState(() => _msgs.add(_Msg(false, g)));
+    }
+    final pending = widget.initialSend;
+    if (pending != null && pending.trim().isNotEmpty) _send(pending);
   }
 
   // A1 — when the on-screen keyboard opens/closes the window insets change;
@@ -99,9 +167,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    try {
-      _speech.cancel();
-    } catch (_) {}
+    _voice.dispose();
     _input.dispose();
     _scroll.dispose();
     _inputFocus.dispose();
@@ -116,7 +182,9 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
       final alerts = await app.api.alertsList();
       final urgent = alerts.where((a) => a['severity'] == 'high').toList();
       if (urgent.isNotEmpty && mounted) {
-        setState(() => _msgs.add(_Msg(false, t.urgentForYou,
+        setState(() => _msgs.add(_Msg(
+            false,
+            t.urgentForYou,
             urgent
                 .map((a) => {
                       'type': 'alert',
@@ -160,7 +228,12 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
     _toBottom();
     final app = context.read<AppState>();
     try {
-      final r = await app.api.agent(text);
+      final r = await app.api.agent(text, sessionId: _sessionId);
+      final sid = r['session_id']?.toString();
+      if (sid != null && sid.isNotEmpty && sid != _sessionId) {
+        _sessionId = sid;
+        Settings.setString(AgentThreadScreen.sessionKey, sid);
+      }
       // open-from-chat, layer 2: backend route (authoritative, bilingual —
       // the only path that understands Bangla open-phrases). If it navigates,
       // skip rendering a reply bubble.
@@ -195,110 +268,6 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
     } catch (_) {}
   }
 
-  // Advanced voice command: opens a sheet that transcribes on-device, shows the
-  // understood intent, and waits for an explicit confirm. The confirmed
-  // transcript then flows through the SAME pipeline as typed chat (_send →
-  // local route → backend route → agent), so Bangla/Banglish commands the
-  // on-device mapper can't resolve are still handled by the server.
-  Future<void> _openVoice() async {
-    HapticFeedback.selectionClick();
-    final text = await showVoiceCommandSheet(context);
-    if (text == null || text.trim().isEmpty || !mounted) return;
-    await _send(text);
-  }
-
-  // A4 — live speech-to-text straight into the input box. Tapping the mic
-  // toggles listening; partial results stream LIVE into the TextField (append
-  // to whatever was already typed). Auto-send stays OFF — we only fill the box.
-  // Everything is guarded so the mic can never crash or block the UI.
-  Future<void> _toggleMic() async {
-    if (_listening) {
-      await _stopMic();
-      return;
-    }
-    HapticFeedback.selectionClick();
-    try {
-      // Lazy init on the FIRST tap only — never at launch.
-      if (!_speechReady) {
-        final okReason = await showPermissionReason(context, PermKind.mic);
-        if (!okReason || !mounted) return;
-        _speechReady = await _speech.initialize(
-          onStatus: (s) {
-            if ((s == 'done' || s == 'notListening') && mounted && _listening) {
-              setState(() => _listening = false);
-            }
-          },
-          onError: (_) {
-            if (mounted && _listening) {
-              setState(() => _listening = false);
-              _micUnavailable();
-            }
-          },
-        );
-      }
-      // Honest device gate: no speech engine (common on ColorOS/Realme) → show
-      // a clear message, never a fake transcript. Offer to open settings.
-      if (!_speechReady) {
-        if (mounted) _micUnavailable();
-        return;
-      }
-      _speechBase = _input.text;
-      if (_speechBase.isNotEmpty && !_speechBase.endsWith(' ')) {
-        _speechBase = '$_speechBase ';
-      }
-      setState(() => _listening = true);
-      // Recognise in the app's ACTIVE language. Without this the plugin uses the
-      // DEVICE locale, so a Bangla speaker on a non-Bengali device isn't heard.
-      final localeId = t.localeName.startsWith('bn') ? 'bn_BD' : 'en_US';
-      await _speech.listen(
-        onResult: (r) {
-          if (!mounted) return;
-          final live = '$_speechBase${r.recognizedWords}';
-          _input.value = TextEditingValue(
-            text: live,
-            selection: TextSelection.collapsed(offset: live.length),
-          );
-        },
-        listenOptions: SpeechListenOptions(
-          localeId: localeId,
-          partialResults: true,
-          cancelOnError: true,
-        ),
-      );
-    } catch (_) {
-      // Never crash: fall back to the idle state and tell the user honestly.
-      if (mounted) {
-        setState(() => _listening = false);
-        _micUnavailable();
-      }
-    }
-  }
-
-  Future<void> _stopMic() async {
-    try {
-      await _speech.stop();
-    } catch (_) {}
-    if (mounted) setState(() => _listening = false);
-  }
-
-  // Server transcription fallback (if a key ever exists) is NOT built here; this
-  // is a later build. For now we guide the user to install Google speech.
-  void _micUnavailable() {
-    final messenger = ScaffoldMessenger.of(context);
-    messenger.clearSnackBars();
-    messenger.showSnackBar(SnackBar(
-      content: Text(t.micEnableSpeech),
-      action: SnackBarAction(
-        label: t.open,
-        onPressed: () {
-          try {
-            openAppSettings();
-          } catch (_) {}
-        },
-      ),
-    ));
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(children: [
@@ -307,7 +276,8 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
             ? _welcome()
             : ListView.builder(
                 controller: _scroll,
-                padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.sm),
+                padding:
+                    const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.sm),
                 itemCount: _msgs.length,
                 itemBuilder: (_, i) => _bubble(_msgs[i]),
               ),
@@ -358,7 +328,8 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
             Icon(icon, size: 22, color: scheme.primary),
             const SizedBox(width: Gap.md),
             Expanded(
-                child: Text(text, style: const TextStyle(fontWeight: FontWeight.w500))),
+                child: Text(text,
+                    style: const TextStyle(fontWeight: FontWeight.w500))),
             Icon(Icons.north_east, size: 16, color: scheme.onSurfaceVariant),
           ]),
         ),
@@ -386,7 +357,8 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
         if (m.text.isNotEmpty)
           Text(m.text,
               style: TextStyle(
-                  color: m.user ? Colors.white : scheme.onSurface, height: 1.4)),
+                  color: m.user ? Colors.white : scheme.onSurface,
+                  height: 1.4)),
         for (final c in m.cards) ChatCard(c, onUndo: _undo),
       ]),
     );
@@ -395,7 +367,8 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
       return Align(
         alignment: Alignment.centerRight,
         child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: Gap.xs), child: bubble),
+            padding: const EdgeInsets.symmetric(vertical: Gap.xs),
+            child: bubble),
       );
     }
     // assistant: avatar + bubble
@@ -429,11 +402,13 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
               maxLines: 5,
               keyboardType: TextInputType.multiline,
               decoration: InputDecoration(
-                hintText: _listening ? t.listening : t.inputHint,
+                hintText: (_voice.listening || widget.debugListening)
+                    ? t.listening
+                    : t.inputHint,
                 filled: true,
                 fillColor: scheme.surfaceContainerHighest,
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.md),
+                contentPadding: const EdgeInsets.symmetric(
+                    horizontal: Gap.lg, vertical: Gap.md),
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(Radii.pill),
                     borderSide: BorderSide.none),
@@ -441,20 +416,12 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
             ),
           ),
           const SizedBox(width: Gap.xs),
-          // A4 — tap: live speech-to-text into the box (fills, never auto-sends).
-          // Long-press: the advanced voice-command sheet (confirm-before-run).
-          Tooltip(
-            message: t.voiceTitle,
-            child: GestureDetector(
-              onLongPress: _listening ? null : _openVoice,
-              child: _listening
-                  ? _MicPulse(onTap: _toggleMic)
-                  : IconButton(
-                      onPressed: _toggleMic,
-                      icon: Icon(Icons.mic_none, color: scheme.onSurfaceVariant),
-                    ),
-            ),
-          ),
+          // Hold the mic to talk (release stops), tap to toggle; the bn/EN chip
+          // picks the voice language. Fills the box, never auto-sends.
+          VoiceMicButton(
+              voice: _voice,
+              input: _input,
+              debugListening: widget.debugListening),
           _sending
               ? const Padding(
                   padding: EdgeInsets.all(10),
@@ -463,7 +430,8 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
                       width: 22,
                       child: CircularProgressIndicator(strokeWidth: 2)))
               : IconButton.filled(
-                  onPressed: () => _send(), icon: const Icon(Icons.arrow_upward)),
+                  onPressed: () => _send(),
+                  icon: const Icon(Icons.arrow_upward)),
         ]),
       ),
     );
@@ -474,39 +442,4 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
         child: Image.asset('assets/branding/new_logo.png',
             width: size, height: size, fit: BoxFit.cover),
       );
-}
-
-/// A4 — visible "listening" state for the inline mic: a gently pulsing red
-/// stop button. Tapping it stops dictation.
-class _MicPulse extends StatefulWidget {
-  final VoidCallback onTap;
-  const _MicPulse({required this.onTap});
-  @override
-  State<_MicPulse> createState() => _MicPulseState();
-}
-
-class _MicPulseState extends State<_MicPulse>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(
-      vsync: this, duration: const Duration(milliseconds: 900))
-    ..repeat(reverse: true);
-
-  @override
-  void dispose() {
-    _c.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: widget.onTap,
-      icon: AnimatedBuilder(
-        animation: _c,
-        builder: (_, child) =>
-            Transform.scale(scale: 1 + _c.value * 0.18, child: child),
-        child: const Icon(Icons.stop_circle, color: Brand.danger),
-      ),
-    );
-  }
 }
