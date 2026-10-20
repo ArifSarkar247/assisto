@@ -2,6 +2,13 @@
 
 > **চূড়ান্ত মাস্টার প্ল্যান চলছে (শুরু ১২ অক্টোবর ২০২৬)।** লক্ষ্য: দুই PDF-এর সব ফিচার শেষ করা, যেন মালিক শুধু একে একে API key/account যোগ করলেই সব চালু হয়। এই সেকশনটাই রিজিউম-অ্যাঙ্কর — সেশন থামলে এখান থেকে শুরু।
 
+### 🔧 RESUME (২০২৬-১০-১৭, fresh session after OOM)
+- Prev session DIED: kernel OOM-killer killed `dart:frontend_server`+dbus at 04:28 → tmux gone (NOT reboot; box 3.7GB RAM). Mitigation set: CI-only APK builds, serialized local Dart tooling (`--concurrency=1`), ≤2 parallel agents, no 6-worktree parallel flutter. See memory [[oom-prevention]]. Asalify safe (200).
+- **URGENT FIX SHIPPED — build 126** (https://assisto.asalify.com/dl/jiRidAr0uSSt4582RRxmbG7H/assisto-part7-build126.apk): first-run language picker "Continue" froze (owner couldn't enter app). Cause: `AppState.setLocale` notified AFTER awaiting SharedPreferences write → a hung/failed write froze the gate. Fix (app/lib/state.dart): apply locale + notifyListeners immediately, persist best-effort in try/catch. Added `app/test/language_flow_test.dart` (deterministic host gate, wired into android.yml build-apk) + on-device Continue-tap diagnostic in launch-smoke. build-apk✅ smoke✅, /app/latest→126.
+- Settings → About (version/build/date + copy-for-bug) already DONE (build 113) — verified, nothing to do.
+- Premium-QA WIP (7 screens: birthdays, circle_chat, crm/*, daily_brief, inbox, meetings, smartwatch — real follow-up/snooze notifications, inbox swipe-triage, quick-preset chips) was INCOMPLETE (missing `_preset` helper → undefined_method). Completed it (missing `_preset` helper) + SHIPPED as **build 128** (127 failed CI analyze on that; build-apk✅ smoke✅, /app/latest→128, APK https://assisto.asalify.com/dl/IrevH1TCJ5irroApou754k-4/assisto-part7-build128.apk). Repo stays PUBLIC by owner design — NEVER flip visibility.
+- GOTCHA: always `flutter analyze | grep -E "error •"` — don't eyeball `tail` (info/warnings hide real errors; cost build 127).
+
 ### ✅ Phase B MODULE 5 INTEGRATED + GREEN (build 60 shipping)
 commit c7f5b1f: 240 ARB keys (en==bn==1127), 9 models + migration 0019 (DB backup), endpoints w/ CC enforcement (validate_envelope/auto-block/can_see/invite-single-use) + reset rate-limit+neutral + analytics fail-closed + photo declared-kind, drawer(Health/Life/Family/Settings)+ChatNav+login forgot-password, fake_api+12 gallery screens, 220 backend tests + crm_scenario pass, flutter analyze 0, lang gate CLEAN, Asalify 200. Deployed (/legal localized). Deep-link assisto://reset/confirm NOT wired (needs native manifest+dep) — forgot-password primary path works; TODO native.
 NEXT per QUEUE: Business Module v2 (.phaseB/BUSINESS_V2_PLAN.md) → P14-P16 → P11 iOS → P12 FINAL.
