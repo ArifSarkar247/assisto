@@ -1,0 +1,7 @@
+# The model is downloaded (pinned SHA-256) at build time / first run — never committed.
+models/
+build/
+dist/
+__pycache__/
+*.pyc
+.pytest_cache/

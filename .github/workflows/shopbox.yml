@@ -1,0 +1,103 @@
+name: Shop Box edge client (Windows)
+
+on:
+  push:
+    paths:
+      - "edge/shopbox/**"
+      - ".github/workflows/shopbox.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: edge/shopbox
+
+jobs:
+  test:
+    name: pytest (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            edge/shopbox/requirements.txt
+            edge/shopbox/requirements-dev.txt
+
+      - name: Install pinned dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      # Official YOLOX release asset; shopbox.model_fetch refuses it unless
+      # the SHA-256 matches the value pinned in shopbox/model_fetch.py.
+      - name: Download person model (SHA-256 verified)
+        run: python -m shopbox.model_fetch models/yolox_nano.onnx
+
+      - name: Run tests (backend contract tests use backend/core/logic/shop_guard.py)
+        env:
+          SHOPBOX_MODEL: models/yolox_nano.onnx
+        run: python -m pytest -q
+
+  build-windows:
+    name: Build AssistoShopBox.exe
+    needs: test
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            edge/shopbox/requirements.txt
+            edge/shopbox/requirements-dev.txt
+
+      - name: Install pinned dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Download person model (SHA-256 verified)
+        run: python -m shopbox.model_fetch models/yolox_nano.onnx
+
+      - name: PyInstaller (onedir, GUI + CLI executables)
+        env:
+          SHOPBOX_REQUIRE_MODEL: "1"
+        run: pyinstaller --noconfirm --clean AssistoShopBox.spec
+
+      - name: Smoke-test the frozen build (bundled model + onnxruntime load)
+        shell: pwsh
+        env:
+          SHOPBOX_HOME: ${{ runner.temp }}\shopbox-smoke
+        run: |
+          $exe = "dist\AssistoShopBox\AssistoShopBoxCLI.exe"
+          & $exe --version
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          & $exe --self-test
+          if ($LASTEXITCODE -ne 0) { Write-Error "detector did not load in frozen build"; exit 1 }
+          if (-not (Test-Path "dist\AssistoShopBox\AssistoShopBox.exe")) { exit 1 }
+
+      - name: Zip bundle
+        shell: pwsh
+        run: |
+          Copy-Item README.md, README_bn.md dist\AssistoShopBox\
+          Compress-Archive -Path dist\AssistoShopBox -DestinationPath dist\AssistoShopBox-windows-x64.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AssistoShopBox-windows-x64
+          path: edge/shopbox/dist/AssistoShopBox-windows-x64.zip
+          retention-days: 30

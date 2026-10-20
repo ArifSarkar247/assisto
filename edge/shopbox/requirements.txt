@@ -1,0 +1,7 @@
+# Runtime dependencies — pinned. Windows x64 / Python 3.11 wheels exist for all.
+numpy==1.26.4
+opencv-python-headless==4.10.0.84   # FFmpeg backend for RTSP; no GUI needed (UI is tkinter)
+onnxruntime==1.19.2                 # CPU inference for the person model
+cryptography==43.0.1                # Fernet secret store on Linux/macOS (Windows uses DPAPI)
+requests==2.32.3
+tzdata==2024.2                      # IANA time zones for zoneinfo on Windows
