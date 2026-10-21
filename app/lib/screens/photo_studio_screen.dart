@@ -10,6 +10,7 @@ import '../photo_studio/ps_controller.dart';
 import '../photo_studio/ps_engines.dart';
 import '../photo_studio/ps_gate_sheet.dart';
 import '../photo_studio/ps_models.dart';
+import '../photo_studio/ps_web_import.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
@@ -28,7 +29,12 @@ import 'plans_screen.dart';
 /// * One-tap enhance runs on-device behind [EnhanceEngine]; in this build the
 ///   engine is not linked and the screen says so honestly.
 class PhotoStudioScreen extends StatefulWidget {
-  const PhotoStudioScreen({super.key, this.deps, this.controller});
+  const PhotoStudioScreen(
+      {super.key, this.deps, this.controller, this.webImport});
+
+  /// w1-webphoto: a photo made on lifeassisto.com/photo, opened by the deep
+  /// link. Exported through the same gate as every other result.
+  final WebPhotoImport? webImport;
 
   /// Inject for tests / the screenshot gallery; default talks to the server.
   final PsDeps? deps;
@@ -55,7 +61,13 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
             PsDeps(backend: ApiPsBackend(context.read<AppState>().api)));
     _c.addListener(_onChange);
     if (_ownsController) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _c.init());
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await _c.init();
+        final w = widget.webImport;
+        if (w != null && !_c.disposed && _c.phase == PsPhase.open) {
+          _c.loadWebImport(w);
+        }
+      });
     }
   }
 
@@ -98,6 +110,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
         PsNotice.cancelled => t.psCancelled,
         PsNotice.needPhoto => t.psNeedPhoto,
         PsNotice.needPrompt => t.psNeedPrompt,
+        PsNotice.webImportNoEdit => t.psWebEditNote,
         PsNotice.refused || PsNotice.none => '',
       };
 
@@ -175,8 +188,15 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
             _refusalCard(t),
             const SizedBox(height: Gap.lg)
           ],
-          if (s != null) ...[_enhanceCard(t), const SizedBox(height: Gap.lg)],
-          _promptCard(t),
+          if (_c.webImport)
+            _webCard(t)
+          else ...[
+            if (s != null) ...[
+              _enhanceCard(t),
+              const SizedBox(height: Gap.lg)
+            ],
+            _promptCard(t),
+          ],
           const SizedBox(height: Gap.lg),
           if (s != null) _exportCard(t),
           const SizedBox(height: Gap.md),
@@ -290,7 +310,22 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
   Widget _preview(AppLocalizations t) {
     final s = _c.session!;
     final cur = s.current;
-    final Widget img = s.edited
+    final Widget img = _c.webImport
+        // website photo: one framed passport/visa picture (no before/after)
+        ? ClipRRect(
+            borderRadius: BorderRadius.circular(Radii.md),
+            child: ColoredBox(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              child: SizedBox(
+                  height: 300,
+                  width: double.infinity,
+                  child: Image.memory(cur.bytes,
+                      key: const Key('psWebImage'),
+                      fit: BoxFit.contain,
+                      gaplessPlayback: true)),
+            ),
+          )
+        : s.edited
         ? PhotoCompare(
             original: _image(s.original.bytes),
             adjusted: _c.free
@@ -309,6 +344,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       img,
       const SizedBox(height: Gap.sm),
+      if (!_c.webImport)
       Wrap(
           spacing: Gap.sm,
           runSpacing: Gap.xs,
@@ -331,6 +367,31 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
             _c.secureActive ? t.psSecureOn : t.psSecureOff),
       ],
     ]);
+  }
+
+  // w1-webphoto: what this website photo is, and how to edit instead.
+  Widget _webCard(AppLocalizations t) {
+    final scheme = Theme.of(context).colorScheme;
+    return _card(
+        icon: Icons.badge_outlined,
+        title: t.psWebTitle,
+        children: [
+          if (_c.webLabel.isNotEmpty) ...[
+            Text(_c.webLabel,
+                key: const Key('psWebLabel'),
+                style: const TextStyle(fontWeight: FontWeight.w600)),
+            const SizedBox(height: Gap.xs),
+          ],
+          Text(t.psWebBody,
+              style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+          const SizedBox(height: Gap.md),
+          OutlinedButton.icon(
+            key: const Key('psWebPickOriginal'),
+            onPressed: () => _c.pick(camera: false),
+            icon: const Icon(Icons.photo_library_outlined),
+            label: Text(t.psWebPickOriginal),
+          ),
+        ]);
   }
 
   Widget _infoLine(IconData icon, String text) {

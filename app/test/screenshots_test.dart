@@ -182,6 +182,7 @@ import 'package:assisto/screens/crm/crm_firstrun_screen.dart';
 import 'package:assisto/crypto/e2e.dart';
 import 'package:assisto/screens/legal_screen.dart';
 import 'ps1_shots.dart'; // ps1-photo
+import 'w1_webphoto_shots.dart'; // w1-webphoto
 import 'package:assisto/screens/unseen_world_screen.dart';
 import 'package:assisto/screens/shop_box_screen.dart';
 import 'package:assisto/screens/business/business_hub_screen.dart';
@@ -535,6 +536,8 @@ void main() {
     'legal': (build: (_) => const LegalScreen(), mode: FakeMode.data, full: true),
     // ps1-photo: Photo Studio (free / premium / unavailable / refusal / export gate)
     for (final e in ps1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // w1-webphoto: lifeassisto.com/photo deep link -> Photo Studio (gate kept)
+    for (final e in w1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // ---- a1 Premium QA: screens that had no gallery shot ----
     'ai_chat': (build: (_) => const AiChatScreen(), mode: FakeMode.data, full: true),
     'nearby': (build: (_) => const NearbyScreen(), mode: FakeMode.data, full: true),

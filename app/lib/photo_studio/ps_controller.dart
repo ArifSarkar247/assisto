@@ -9,6 +9,7 @@ import 'ps_engines.dart';
 import 'ps_export.dart';
 import 'ps_models.dart';
 import 'ps_session.dart';
+import 'ps_web_import.dart';
 
 /// Image source seam (gallery / camera). Tests inject bytes.
 abstract class PhotoPicker {
@@ -77,6 +78,10 @@ enum PsNotice {
   refused,
   needPhoto,
   needPrompt,
+
+  /// w1-webphoto: the website photo is a (watermarked) preview of a server
+  /// job — it is exported as-is; editing needs the user's original photo.
+  webImportNoEdit,
 }
 
 class PhotoStudioController extends ChangeNotifier {
@@ -99,6 +104,10 @@ class PhotoStudioController extends ChangeNotifier {
   String noticeText = '';
   SafetyVerdict? refusal;
   bool disposed = false;
+
+  /// w1-webphoto: the current session came from lifeassisto.com/photo.
+  bool webImport = false;
+  String webLabel = '';
 
   final Map<int, EditStrength> _versionStrength = {};
 
@@ -165,7 +174,29 @@ class PhotoStudioController extends ChangeNotifier {
   Future<void> pick({required bool camera}) async {
     final b = await deps.picker.pick(camera: camera);
     if (b == null) return;
+    webImport = false;
+    webLabel = '';
     session = PhotoSession(b);
+    refusal = null;
+    notice = PsNotice.none;
+    _notify();
+  }
+
+  /// w1-webphoto: open a website photo. The shown bytes are the server's
+  /// preview (watermarked for free users); the version carries the server
+  /// job, so [export] runs the SAME gate and downloads the clean result only
+  /// after it unlocks. Nothing here can export without the gate.
+  void loadWebImport(WebPhotoImport imp) {
+    final s = PhotoSession(imp.preview);
+    s.push(PhotoVersion(
+        bytes: imp.preview,
+        feature: PsFeature.enhanceHd.wire,
+        jobId: imp.job.id,
+        previewOnly: config.free));
+    session = s;
+    webImport = true;
+    webLabel = imp.label;
+    if (imp.studioOption.isNotEmpty) options.add(imp.studioOption);
     refusal = null;
     notice = PsNotice.none;
     _notify();
@@ -225,6 +256,7 @@ class PhotoStudioController extends ChangeNotifier {
   Future<void> runEnhance() async {
     final s = session;
     if (s == null) return _say(PsNotice.needPhoto);
+    if (webImport) return _say(PsNotice.webImportNoEdit);
     if (!enhance.ready) {
       return _say(enhance.state == EnhanceState.notInBuild
           ? PsNotice.enhanceNotInBuild
@@ -276,6 +308,7 @@ class PhotoStudioController extends ChangeNotifier {
   Future<void> runPrompt(String prompt, GateUi ui) async {
     final s = session;
     final feature = s == null ? PsFeature.generate : PsFeature.promptEdit;
+    if (webImport) return _say(PsNotice.webImportNoEdit);
     if (prompt.trim().isEmpty && options.isEmpty) return _say(PsNotice.needPrompt);
     refusal = null;
     busy = true;
