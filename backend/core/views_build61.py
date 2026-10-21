@@ -652,6 +652,23 @@ class CirclePlaceCallView(APIView):
             return Response({"detail": "not found"},
                             status=status.HTTP_404_NOT_FOUND)
         kind = CC.normalize_kind((request.data or {}).get("kind", "voice"))
+        if not answer:
+            # m1-messenger: the callee blocked me, or switched incoming calls
+            # off -> refuse without ringing (same neutral reason for both, so
+            # a block is not revealed).
+            from .views_m1_messenger import reverse_edge, call_prefs
+            try:
+                rev = reverse_edge(m)
+                callee = PUSH.member_peer_user(m)
+            except Exception:
+                rev = callee = None
+            if (rev is not None and rev.blocked) or (
+                    callee is not None and callee.pk != request.user.pk
+                    and not call_prefs(callee)["incoming_calls"]):
+                return Response({"allowed": False, "kind": kind,
+                                 "upgrade_required": False,
+                                 "reason": "unavailable"},
+                                status=status.HTTP_200_OK)
         gate = CC.can_place_call(_caller_dict(request.user, m), _callee_dict(m),
                                  kind)
         if not gate["allowed"]:
@@ -778,20 +795,30 @@ class CircleMemberControlsView(APIView):
                 setattr(m, b, bool(d[b]))
                 fields.append(b)
         if "muted_until" in d:
-            dur = d.get("muted_until")
-            epoch = CP.mute_until(dur) if dur else None
-            if epoch:
-                import datetime as _dt
-                m.muted_until = _dt.datetime.fromtimestamp(
-                    epoch, tz=_dt.timezone.utc)
-            else:
-                m.muted_until = None
+            # m1-messenger: accept the ISO instant the client sends ('Always' =
+            # far future) as well as a duration token; null/'' unmutes. (The
+            # old path only understood tokens, so every ⋮ mute was a no-op.)
+            from .views_m1_messenger import parse_mute_until
+            try:
+                m.muted_until = parse_mute_until(d.get("muted_until"))
+            except ValueError:
+                return Response({"detail": "bad_muted_until"},
+                                status=status.HTTP_400_BAD_REQUEST)
             fields.append("muted_until")
         if fields:
             m.save(update_fields=fields)
+        from .views_m1_messenger import chat_pref
+        if "favourite" in d:
+            p = chat_pref(request.user, "member", m.id, create=True)
+            p.favourite = bool(d["favourite"])
+            p.save(update_fields=["favourite", "updated_at"])
+        fav = chat_pref(request.user, "member", m.id)
         return Response({"ok": True, "id": m.id,
                          "blocked": m.blocked, "restricted": m.restricted,
-                         "pinned": m.pinned, "archived": m.archived})
+                         "pinned": m.pinned, "archived": m.archived,
+                         "muted_until": (m.muted_until.isoformat()
+                                         if m.muted_until else None),
+                         "favourite": bool(fav and fav.favourite)})
 
 
 # ===========================================================================

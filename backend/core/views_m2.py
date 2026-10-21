@@ -104,7 +104,18 @@ def _group_dict(group, me):
         "my_role": (mine.role if mine else None),
         "my_member_id": (mine.id if mine else None),
         "created_at": group.created_at.isoformat(),
+        # m1-messenger: the viewer's ⋮ state (mute / disappearing / theme /
+        # favourite) so a reload shows what the server actually holds.
+        **_m1_group_prefs(group, me),
     }
+
+
+def _m1_group_prefs(group, me):
+    from .views_m1_messenger import group_prefs_for
+    try:
+        return group_prefs_for(group, me)
+    except Exception:
+        return {}
 
 
 # ===========================================================================
@@ -305,7 +316,9 @@ class CircleGroupMessagesView(APIView):
         g = CircleGroup.objects.filter(pk=pk).first()
         if g is None or _my_membership(g, request.user) is None:
             return _not_found()
-        msgs = CircleMessage.objects.filter(group=g)
+        # m1-messenger: hide what I cleared / deleted-for-me / what expired.
+        from .views_m1_messenger import visible_group_messages
+        msgs = visible_group_messages(g, request.user)
         out = [{
             "id": x.id, "sender_id": x.sender_id, "content_type": x.content_type,
             "ciphertext": x.ciphertext, "nonce": x.nonce, "blob_ref": x.blob_ref,
@@ -313,6 +326,8 @@ class CircleGroupMessagesView(APIView):
             "sender_key_id": x.sender_key_id, "scheme": x.scheme,
             "reactions": x.reactions or {}, "pinned": x.pinned,
             "announcement": x.announcement,
+            "deleted": x.deleted or "",
+            "starred": request.user.id in (x.starred_by or []),
             "created_at": x.created_at.isoformat(),
             "mine": x.sender_id == request.user.id,
         } for x in msgs]
@@ -1027,30 +1042,22 @@ class CircleChatSettingsView(APIView):
         if m is None:
             return _not_found()
         row, _ = ChatSettings.objects.get_or_create(user=request.user, peer=m)
-        return Response(self._dict(row))
+        from .views_m1_messenger import member_favourite
+        return Response({**self._dict(row),
+                         "favourite": member_favourite(request.user, m.id)})
 
     def post(self, request, pk):
         m = CircleMember.objects.filter(user=request.user, pk=pk).first()
         if m is None:
             return _not_found()
-        d = request.data or {}
+        # m1-messenger: PARTIAL update (a theme change no longer resets the
+        # timer, and vice versa); the timer is mirrored to the peer's edge.
+        from .views_m1_messenger import apply_chat_settings
         try:
-            built = X.build_chat_settings(
-                disappearing_sec=d.get("disappearing_sec", X.DISAPPEAR_OFF),
-                wallpaper=d.get("wallpaper", "default"),
-                theme=d.get("theme", "system"),
-                wallpaper_blob_ref=d.get("wallpaper_blob_ref"),
-                bubble_scheme=d.get("bubble_scheme"))
+            row = apply_chat_settings(request.user, m, request.data or {})
         except ValueError as e:
             return Response({"detail": str(e)},
                             status=status.HTTP_400_BAD_REQUEST)
-        row, _ = ChatSettings.objects.get_or_create(user=request.user, peer=m)
-        row.disappearing_sec = built["disappearing_sec"]
-        row.wallpaper = built.get("wallpaper", "default")
-        row.wallpaper_blob_ref = built.get("wallpaper_blob_ref", "")
-        row.theme = built.get("theme", "system")
-        row.bubble_scheme = built.get("bubble_scheme", "")
-        row.save()
         return Response({"ok": True, **self._dict(row)})
 
 

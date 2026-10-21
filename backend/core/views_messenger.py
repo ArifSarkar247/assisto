@@ -479,7 +479,12 @@ class CommunityGroupsListView(APIView):
         pending = list(CommunityJoinRequest.objects.filter(
             group__community=community, requester=request.user, state="pending"
         ).values_list("group_id", flat=True))
-        return Response(mcom.partition_groups(all_rows, active, pending))
+        out = mcom.partition_groups(all_rows, active, pending)
+        # m1-messenger: the viewer's community alert switch (⋮ Notifications).
+        from .views_m1_messenger import community_notifications_muted
+        out["notifications_muted"] = community_notifications_muted(
+            request.user, community.id)
+        return Response(out)
 
 
 class CommunityGroupJoinView(APIView):
@@ -670,6 +675,15 @@ class CommunityMessageView(APIView):
         if not decision["allowed"]:
             return Response({"allowed": False, "reason": decision["reason"]},
                             status=status.HTTP_403_FORBIDDEN)
+        if decision["route"] == "message_request":
+            # m1-messenger: the recipient's Messenger privacy (who_can_message
+            # my_circle/nobody refuses strangers) + a block from the requests
+            # inbox are enforced HERE, before anything is stored.
+            from .views_m1_messenger import stranger_message_refusal
+            refusal = stranger_message_refusal(request.user, recipient)
+            if refusal:
+                return Response({"allowed": False, "reason": refusal},
+                                status=status.HTTP_403_FORBIDDEN)
         if decision["route"] == "direct":
             return Response({"allowed": True, "route": "direct",
                              "calls_allowed": decision["calls_allowed"]})
@@ -1897,7 +1911,9 @@ class ChatThemeView(APIView):
             return _notfound()
         row, _ = ChatSettings.objects.get_or_create(user=request.user, peer=m)
         lang = req_lang(request)
+        from .views_m1_messenger import member_favourite
         return Response({**self._dict(row),
+                         "favourite": member_favourite(request.user, m.id),
                          "disappearing_choices": [
                              {"sec": s, "label": cx.disappearing_label(s, lang)}
                              for s in cx.DISAPPEAR_CHOICES],
@@ -1908,23 +1924,12 @@ class ChatThemeView(APIView):
         m = CircleMember.objects.filter(user=request.user, pk=member_id).first()
         if m is None:
             return _notfound()
-        d = request.data or {}
+        # m1-messenger: PARTIAL update + timer mirrored to the peer's edge.
+        from .views_m1_messenger import apply_chat_settings
         try:
-            built = cx.build_chat_settings(
-                disappearing_sec=d.get("disappearing_sec", cx.DISAPPEAR_OFF),
-                wallpaper=d.get("wallpaper", "default"),
-                theme=d.get("theme", "system"),
-                wallpaper_blob_ref=d.get("wallpaper_blob_ref"),
-                bubble_scheme=d.get("bubble_scheme"))
+            row = apply_chat_settings(request.user, m, request.data or {})
         except ValueError as e:
             return _badreq(str(e))
-        row, _ = ChatSettings.objects.get_or_create(user=request.user, peer=m)
-        row.disappearing_sec = built["disappearing_sec"]
-        row.wallpaper = built.get("wallpaper", "default")
-        row.wallpaper_blob_ref = built.get("wallpaper_blob_ref", "")
-        row.theme = built.get("theme", "system")
-        row.bubble_scheme = built.get("bubble_scheme", "")
-        row.save()
         return Response({"ok": True, **self._dict(row)})
 
 

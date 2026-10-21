@@ -3084,3 +3084,79 @@ class ShopEodCheck(models.Model):
     class Meta:
         ordering = ["-created"]
         indexes = [models.Index(fields=["site", "-created"])]
+
+
+# ===========================================================================
+# ---- m1-messenger ---- per-user chat prefs, group timers, account settings,
+# server-built exports. Message BODIES stay E2E ciphertext; nothing here holds
+# plaintext (two-step PIN + OTP are Django password hashes).
+# ===========================================================================
+class MsgChatPref(models.Model):
+    """The VIEWER's own per-chat prefs (never shared with the peer):
+    favourite, theme/wallpaper, the clear-chat marker (messages created at or
+    before `cleared_at` are hidden from this user only) and, for 1:1 chats,
+    when the disappearing timer was switched on (only later messages expire)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="msg_chat_prefs")
+    chat_kind = models.CharField(max_length=10, default="member")  # member|group
+    chat_id = models.CharField(max_length=64)
+    favourite = models.BooleanField(default=False)
+    theme = models.CharField(max_length=24, blank=True, default="")
+    wallpaper = models.CharField(max_length=40, blank=True, default="")
+    cleared_at = models.DateTimeField(null=True, blank=True)
+    disappearing_since = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [("user", "chat_kind", "chat_id")]
+
+
+class MsgGroupTimer(models.Model):
+    """Group-wide disappearing-messages timer (applies to every member's
+    messages sent at/after `since`). Enforced by `manage.py purge_disappearing`
+    and by the group message read, which never returns an expired row."""
+    group = models.OneToOneField("CircleGroup", on_delete=models.CASCADE,
+                                 related_name="m1_timer")
+    disappearing_sec = models.IntegerField(default=0)
+    since = models.DateTimeField(null=True, blank=True)
+    set_by = models.ForeignKey(User, null=True, blank=True,
+                               on_delete=models.SET_NULL, related_name="+")
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class MsgUserSettings(models.Model):
+    """Messenger account settings, one row per user. Notification / call /
+    auto-download prefs are enforced server-side where they apply (push hooks,
+    call placement). The two-step PIN and a pending change-number code are
+    stored ONLY as Django password hashes."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="msg_settings")
+    notifications = models.JSONField(default=dict, blank=True)
+    calls = models.JSONField(default=dict, blank=True)
+    auto_download = models.JSONField(default=dict, blank=True)
+    two_step_enabled = models.BooleanField(default=False)
+    two_step_hash = models.CharField(max_length=128, blank=True, default="")
+    recovery_email = models.EmailField(blank=True, default="")
+    two_step_failures = models.IntegerField(default=0)
+    two_step_locked_until = models.DateTimeField(null=True, blank=True)
+    pending_phone = models.CharField(max_length=24, blank=True, default="")
+    pending_code_hash = models.CharField(max_length=128, blank=True, default="")
+    pending_expires = models.DateTimeField(null=True, blank=True)
+    pending_attempts = models.IntegerField(default=0)
+    pending_sent_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class MsgExport(models.Model):
+    """A server-built group export file (what the server legitimately holds:
+    metadata + the requester's OWN ciphertext envelopes). Served only through
+    a signed, expiring media link; purged after `expires_at`."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="msg_exports")
+    group = models.ForeignKey("CircleGroup", null=True, blank=True,
+                              on_delete=models.SET_NULL, related_name="+")
+    file = models.FileField(upload_to="msg_exports/")
+    message_count = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+# ---- /m1-messenger ----
