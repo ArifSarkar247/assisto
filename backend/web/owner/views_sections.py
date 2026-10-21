@@ -508,8 +508,12 @@ def ads(request):
             ctx["problems"] = [T.get("f_" + p, p) for p in payload["problems"]]
             status = 400
         else:
-            patch, bad = {"ad_rewards": {}, "photo_studio": {}}, []
-            for blk, keys in (("ad_rewards", _AD_REWARD_KEYS), ("photo_studio", _PS_AD_KEYS)):
+            # Photo Studio's block only exists once that build is deployed.
+            blocks = [("ad_rewards", _AD_REWARD_KEYS)]
+            if "photo_studio" in cfg:
+                blocks.append(("photo_studio", _PS_AD_KEYS))
+            patch, bad = {b: {} for b, _ in blocks}, []
+            for blk, keys in blocks:
                 for k in keys:
                     cur = cfg[blk].get(k)
                     name = "%s.%s" % (blk, k)
@@ -545,8 +549,9 @@ def ads(request):
     ctx.update({
         "ar": [(k, cfg["ad_rewards"].get(k), "bool" if isinstance(cfg["ad_rewards"].get(k), bool)
                 else "num") for k in _AD_REWARD_KEYS if k in cfg["ad_rewards"]],
-        "ps": [(k, cfg["photo_studio"].get(k), "bool" if isinstance(cfg["photo_studio"].get(k), bool)
-                else "num") for k in _PS_AD_KEYS if k in cfg["photo_studio"]],
+        "ps": [(k, (cfg.get("photo_studio") or {}).get(k),
+                "bool" if isinstance((cfg.get("photo_studio") or {}).get(k), bool) else "num")
+               for k in _PS_AD_KEYS if k in (cfg.get("photo_studio") or {})],
         "flags": flags, "admob": admob})
     return page(request, "owner/ads.html", ctx, status=status, nav="ads")
 

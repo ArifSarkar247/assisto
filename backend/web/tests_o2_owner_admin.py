@@ -363,9 +363,14 @@ class SectionRenderTests(OwnerBase):
 
 
 # =================================================================== discover
+from core.logic import discover as _D
+
+# Photo Studio's route only exists once that build is merged; any real route works.
+ROUTE = "photo_studio" if "photo_studio" in _D.ROUTE_KEYS else "notes"
+
 CARD = {"type": "FEATURE", "title_bn": "ছবি ঠিক করুন", "title_en": "Fix photos",
         "desc_bn": "এক চাপে", "desc_en": "One tap", "icon": "auto_fix_high",
-        "route": "photo_studio", "audience": "all", "enabled": "on"}
+        "route": ROUTE, "audience": "all", "enabled": "on"}
 
 
 class DiscoverPanelTests(OwnerBase):
@@ -381,7 +386,7 @@ class DiscoverPanelTests(OwnerBase):
         self.assertEqual(r.status_code, 302)
         c = DiscoverCard.objects.get()
         self.assertEqual((c.type, c.title_en, c.route, c.enabled), ("FEATURE", "Fix photos",
-                                                                    "photo_studio", True))
+                                                                    ROUTE, True))
         a = OwnerAudit.objects.get(action="discover.create")
         self.assertEqual(a.after["title_en"], "Fix photos")
         # unsafe copy: panel and API both refuse it, with the same safety codes
@@ -526,7 +531,8 @@ class PricingAdsTests(OwnerBase):
         from core import billing
         cfg = billing.cfg()
         data = {"action": "settings", "reason": "test"}
-        for blk, keys in (("ad_rewards", cfg["ad_rewards"]), ("photo_studio", cfg["photo_studio"])):
+        has_ps = "photo_studio" in cfg
+        for blk, keys in (("ad_rewards", cfg["ad_rewards"]), ("photo_studio", cfg.get("photo_studio") or {})):
             for k, v in keys.items():
                 if isinstance(v, bool):
                     if v:
@@ -536,13 +542,15 @@ class PricingAdsTests(OwnerBase):
         self.assertFalse(cfg["ad_rewards"]["hero_enabled"])
         self.assertTrue(cfg["ad_rewards"]["hero_start_muted"])   # default ON
         data["ad_rewards.hero_enabled"] = "on"
-        data["photo_studio.entry_interstitial_gap_min"] = "45"
+        if has_ps:
+            data["photo_studio.entry_interstitial_gap_min"] = "45"
         r = self.post("/owner/ads", data)
         self.assertEqual(r.status_code, 302, r.content[:400])
         c = billing.cfg()
         self.assertTrue(c["ad_rewards"]["hero_enabled"])
         self.assertTrue(c["ad_rewards"]["hero_start_muted"])
-        self.assertEqual(c["photo_studio"]["entry_interstitial_gap_min"], 45)
+        if has_ps:
+            self.assertEqual(c["photo_studio"]["entry_interstitial_gap_min"], 45)
         a = OwnerAudit.objects.get(action="ads.update")
         self.assertEqual(a.after["ad_rewards.hero_enabled"], True)
         # the app's /ads/config carries it to Free users only
