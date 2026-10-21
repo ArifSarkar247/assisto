@@ -52,7 +52,7 @@ class ApiPsBackend implements PsBackend {
     try {
       return PsReply(200, await api.getJson('/photo-studio/jobs/$id'));
     } on ApiException catch (e) {
-      return PsReply(e.status, const {});
+      return PsReply(e.status ?? 500, const {});
     }
   }
 

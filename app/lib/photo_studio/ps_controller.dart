@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
@@ -299,7 +298,11 @@ class PhotoStudioController extends ChangeNotifier {
           body['via'] = 'ads';
         } else {
           final c = await ui.chooseFunding(GateNeed(
-              adsRemaining: 0, adsTotal: 0, credits: q.credits?.credits, adsLinked: deps.ads.linked));
+              adsRemaining: 0,
+              adsTotal: 0,
+              credits: q.credits?.credits,
+              adsLinked: deps.ads.linked,
+              reason: q.reason));
           if (c != FundChoice.credits) return _say(PsNotice.cancelled);
           body['via'] = 'credits';
         }
@@ -344,6 +347,10 @@ class PhotoStudioController extends ChangeNotifier {
         s.push(ver);
       }
       notice = PsNotice.none;
+      // trials left / pool balance changed on the server
+      try {
+        config = await deps.backend.config();
+      } catch (_) {}
     } catch (_) {
       _say(PsNotice.failed);
     } finally {

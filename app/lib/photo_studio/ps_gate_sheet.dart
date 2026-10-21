@@ -49,7 +49,7 @@ class PsGateSheet extends StatelessWidget {
               Text(forRun ? t.psGateRunBody(n) : t.psGateBody(n),
                   style: Theme.of(context).textTheme.bodyLarge)
             else
-              Text(t.psGateCreditsOnly,
+              Text(need.reason == 'trial_used' ? t.psGateTrialUsed : t.psGateCreditsOnly,
                   style: Theme.of(context).textTheme.bodyLarge),
             if (adsPossible && need.adsTotal > 1) ...[
               const SizedBox(height: Gap.sm),

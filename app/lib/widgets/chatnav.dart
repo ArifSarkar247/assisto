@@ -39,6 +39,7 @@ import '../screens/ramadan_screen.dart';
 import '../screens/exam_result_screen.dart';
 import '../screens/unseen_world_screen.dart';
 import '../screens/photo_enhance_screen.dart';
+import '../screens/photo_studio_screen.dart'; // ps1-photo
 import '../screens/circle_screen.dart';
 import '../screens/messenger/messenger_home_screen.dart';
 import '../screens/notification_centre_screen.dart';
@@ -148,6 +149,7 @@ class ChatNav {
     'exam': (_) => const ExamResultScreen(),
     'unseen': (_) => const UnseenWorldScreen(),
     'photo_enhance': (_) => const PhotoEnhanceScreen(),
+    'photo_studio': (_) => const PhotoStudioScreen(), // ps1-photo
     'circle': (_) => const CircleScreen(),
     // Messenger hub (Step 3): Chats · Updates · Communities · Calls.
     'messages': (_) => const MessengerHomeScreen(),
@@ -239,6 +241,7 @@ class ChatNav {
     'exam': ['exam result', 'result', 'exam'],
     'unseen': ['unseen bangladesh', 'travel', 'destinations', 'tourism'],
     'photo_enhance': ['enhance photo', 'photo enhance', 'improve photo'],
+    'photo_studio': ['photo studio', 'edit photo', 'photo editor', 'change background', 'passport photo', 'ai photo'],
     'security': ['security', 'stolen while unlocked', 'anti-theft ownership',
         'protect my phone', 'theft protection', 'disarm protection',
         'security pin'],

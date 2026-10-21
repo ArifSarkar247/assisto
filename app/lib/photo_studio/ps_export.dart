@@ -34,7 +34,12 @@ class GateNeed {
       required this.adsTotal,
       this.credits,
       this.lastAdFailed = false,
-      this.adsLinked = true});
+      this.adsLinked = true,
+      this.reason = ''});
+
+  /// Server quote reason when ads are not offered: 'trial_used' |
+  /// 'too_many_ads' | ''.
+  final String reason;
   final int adsRemaining;
   final int adsTotal;
   final int? credits;

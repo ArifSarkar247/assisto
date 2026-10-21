@@ -172,7 +172,6 @@
    }
   },
   "psPremiumClean": "Premium: no ads, clean full-quality saves.",
-  "psCompareHint": "Drag to compare · hold to see the original",
   "psWorking": "Working…",
   "psSafetyNote": "We refuse sexual edits, fake scenes of real people and any editing of IDs, certificates, money or seals.",
   "psOwnerPnlTitle": "Photo Studio: ad revenue vs cost",
@@ -181,7 +180,8 @@
   "psOwnerFeatPrompt": "Prompt edit",
   "psOwnerFeatGenerate": "Generate",
   "psOwnerFeatEntry": "Entry ad",
-  "psOwnerEmpty": "No Photo Studio activity in this period yet."
+  "psOwnerEmpty": "No Photo Studio activity in this period yet.",
+  "psGateTrialUsed": "Today's free trial is used — continue with credits or Premium."
  },
  "bn": {
   "psTitle": "ফটো স্টুডিও",
@@ -283,7 +283,6 @@
   "psGateNoFillNote": "ফ্রি বিকল্প নেই: বিজ্ঞাপন লোড না হলে আবার চেষ্টা করুন বা ক্রেডিট দিন।",
   "psTrialsLeft": "আজ বাকি ফ্রি ট্রায়াল: {count}টি",
   "psPremiumClean": "প্রিমিয়াম: বিজ্ঞাপন নেই, পরিষ্কার পুরো মানের সেভ।",
-  "psCompareHint": "টেনে তুলনা করুন · চেপে ধরে মূল ছবি দেখুন",
   "psWorking": "কাজ চলছে…",
   "psSafetyNote": "যৌন এডিট, বাস্তব মানুষের ভুয়া দৃশ্য, এবং পরিচয়পত্র, সনদ, টাকা বা সিলের এডিট আমরা করি না।",
   "psOwnerPnlTitle": "ফটো স্টুডিও: বিজ্ঞাপন আয় বনাম খরচ",
@@ -292,6 +291,7 @@
   "psOwnerFeatPrompt": "প্রম্পট এডিট",
   "psOwnerFeatGenerate": "নতুন ছবি তৈরি",
   "psOwnerFeatEntry": "প্রবেশ বিজ্ঞাপন",
-  "psOwnerEmpty": "এই সময়ে ফটো স্টুডিওতে এখনো কোনো কার্যক্রম নেই।"
+  "psOwnerEmpty": "এই সময়ে ফটো স্টুডিওতে এখনো কোনো কার্যক্রম নেই।",
+  "psGateTrialUsed": "আজকের ফ্রি ট্রায়াল শেষ — ক্রেডিট বা প্রিমিয়াম দিয়ে চালিয়ে যান।"
  }
 }

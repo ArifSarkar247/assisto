@@ -88,8 +88,10 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
         PsNotice.providerMissing => t.psProviderMissing(_c.noticeText),
         PsNotice.sinkUnavailable => t.psSinkUnavailable,
         PsNotice.adUnavailable => t.psAdUnavailable,
-        PsNotice.insufficient => _c.noticeText.isNotEmpty ? _c.noticeText : t.psInsufficient,
-        PsNotice.failed => _c.noticeText.isNotEmpty ? _c.noticeText : t.psFailed,
+        PsNotice.insufficient =>
+          _c.noticeText.isNotEmpty ? _c.noticeText : t.psInsufficient,
+        PsNotice.failed =>
+          _c.noticeText.isNotEmpty ? _c.noticeText : t.psFailed,
         PsNotice.saved => t.psSaved,
         PsNotice.shared => t.psShared,
         PsNotice.opened => t.psOpened,
@@ -151,9 +153,10 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
           Container(
             width: 72,
             height: 72,
-            decoration:
-                const BoxDecoration(gradient: Brand.gradient, shape: BoxShape.circle),
-            child: const Icon(Icons.auto_awesome, color: Colors.white, size: 34),
+            decoration: const BoxDecoration(
+                gradient: Brand.gradient, shape: BoxShape.circle),
+            child:
+                const Icon(Icons.auto_awesome, color: Colors.white, size: 34),
           ),
           const SizedBox(height: Gap.lg),
           Text(t.psOpening, style: Theme.of(context).textTheme.titleMedium),
@@ -168,7 +171,10 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
         children: [
           if (s == null) _hero(t) else _preview(t),
           const SizedBox(height: Gap.lg),
-          if (_c.refusal != null) ...[_refusalCard(t), const SizedBox(height: Gap.lg)],
+          if (_c.refusal != null) ...[
+            _refusalCard(t),
+            const SizedBox(height: Gap.lg)
+          ],
           if (s != null) ...[_enhanceCard(t), const SizedBox(height: Gap.lg)],
           _promptCard(t),
           const SizedBox(height: Gap.lg),
@@ -187,7 +193,9 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
                   padding: const EdgeInsets.all(Gap.lg),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
                     const SizedBox(
-                        width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.4)),
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(strokeWidth: 2.4)),
                     const SizedBox(width: Gap.md),
                     Text(t.psWorking),
                   ]),
@@ -221,7 +229,8 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
         Container(
           width: 52,
           height: 52,
-          decoration: const BoxDecoration(gradient: Brand.gradient, shape: BoxShape.circle),
+          decoration: const BoxDecoration(
+              gradient: Brand.gradient, shape: BoxShape.circle),
           child: const Icon(Icons.auto_awesome, color: Colors.white, size: 26),
         ),
         const SizedBox(height: Gap.md),
@@ -231,7 +240,8 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
                 .headlineSmall
                 ?.copyWith(fontWeight: FontWeight.w800, height: 1.25)),
         const SizedBox(height: Gap.sm),
-        Text(t.psEmptyBody, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+        Text(t.psEmptyBody,
+            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
         const SizedBox(height: Gap.lg),
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
           FilledButton.icon(
@@ -248,14 +258,16 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
         ]),
         if (!_c.free) ...[
           const SizedBox(height: Gap.md),
-          _pill(Icons.workspace_premium_outlined, t.psPremiumClean, Brand.success),
+          _pill(Icons.workspace_premium_outlined, t.psPremiumClean,
+              Brand.success),
         ],
       ]),
     );
   }
 
   Widget _pill(IconData icon, String text, Color color) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
+        padding:
+            const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(Radii.pill),
@@ -277,38 +289,45 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
 
   Widget _preview(AppLocalizations t) {
     final s = _c.session!;
-    final scheme = Theme.of(context).colorScheme;
     final cur = s.current;
     final Widget img = s.edited
         ? PhotoCompare(
             original: _image(s.original.bytes),
-            adjusted: _image(cur.bytes),
+            adjusted: _c.free
+                ? Stack(fit: StackFit.expand, children: [
+                    _image(cur.bytes),
+                    const IgnorePointer(child: _Watermark()),
+                  ])
+                : _image(cur.bytes),
             height: 300,
           )
         : ClipRRect(
             borderRadius: BorderRadius.circular(Radii.md),
-            child: SizedBox(height: 300, width: double.infinity, child: _image(cur.bytes)),
+            child: SizedBox(
+                height: 300, width: double.infinity, child: _image(cur.bytes)),
           );
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      Stack(children: [
-        img,
-        if (_c.free && s.edited)
-          const Positioned.fill(child: IgnorePointer(child: _Watermark())),
-      ]),
+      img,
       const SizedBox(height: Gap.sm),
-      Wrap(spacing: Gap.sm, runSpacing: Gap.xs, crossAxisAlignment: WrapCrossAlignment.center, children: [
-        _pill(Icons.verified_outlined, t.psOriginalKept, Brand.success),
-        if (s.edited) Text(t.psCompareHint, style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
-        TextButton.icon(
-          onPressed: () => _c.pick(camera: false),
-          icon: const Icon(Icons.swap_horiz, size: 18),
-          label: Text(t.psChangePhoto),
-        ),
-      ]),
+      Wrap(
+          spacing: Gap.sm,
+          runSpacing: Gap.xs,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            _pill(Icons.verified_outlined, t.psOriginalKept, Brand.success),
+            TextButton.icon(
+              onPressed: () => _c.pick(camera: false),
+              icon: const Icon(Icons.swap_horiz, size: 18),
+              label: Text(t.psChangePhoto),
+            ),
+          ]),
       if (_c.free) ...[
         const SizedBox(height: Gap.xs),
         _infoLine(Icons.lock_outline, t.psPreviewNote),
-        _infoLine(_c.secureActive ? Icons.no_photography_outlined : Icons.info_outline,
+        _infoLine(
+            _c.secureActive
+                ? Icons.no_photography_outlined
+                : Icons.info_outline,
             _c.secureActive ? t.psSecureOn : t.psSecureOff),
       ],
     ]);
@@ -323,83 +342,107 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,
-                style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant, height: 1.35))),
+                style: TextStyle(
+                    fontSize: 12.5,
+                    color: scheme.onSurfaceVariant,
+                    height: 1.35))),
       ]),
     );
   }
 
   // ------------------------------------------------------------------ cards
-  Widget _card({required IconData icon, required String title, required List<Widget> children}) {
+  Widget _card(
+      {required IconData icon,
+      required String title,
+      required List<Widget> children}) {
     final scheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(Gap.lg),
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerLow,
+    return Material(
+      color: scheme.surfaceContainerLow,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Radii.lg),
-        border: Border.all(color: scheme.outlineVariant),
+        side: BorderSide(color: scheme.outlineVariant),
       ),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          Icon(icon, color: scheme.primary),
-          const SizedBox(width: Gap.sm),
-          Expanded(
-              child: Text(title,
-                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16.5))),
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.lg),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Icon(icon, color: scheme.primary),
+            const SizedBox(width: Gap.sm),
+            Expanded(
+                child: Text(title,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w800, fontSize: 16.5))),
+          ]),
+          const SizedBox(height: Gap.md),
+          ...children,
         ]),
-        const SizedBox(height: Gap.md),
-        ...children,
-      ]),
+      ),
     );
   }
 
   Widget _enhanceCard(AppLocalizations t) {
     final scheme = Theme.of(context).colorScheme;
     final av = _c.enhance;
-    return _card(icon: Icons.auto_fix_high_rounded, title: t.psEnhanceTitle, children: [
-      Text(t.psEnhanceBody, style: TextStyle(color: scheme.onSurfaceVariant)),
-      const SizedBox(height: Gap.md),
-      Text(t.psStrength, style: const TextStyle(fontWeight: FontWeight.w600)),
-      const SizedBox(height: Gap.xs),
-      SizedBox(
-        width: double.infinity,
-        child: SegmentedButton<EditStrength>(
-          showSelectedIcon: false,
-          segments: [
-            ButtonSegment(value: EditStrength.light, label: Text(t.psStrengthLight)),
-            ButtonSegment(value: EditStrength.natural, label: Text(t.psStrengthNatural)),
-            ButtonSegment(value: EditStrength.strong, label: Text(t.psStrengthStrong)),
+    return _card(
+        icon: Icons.auto_fix_high_rounded,
+        title: t.psEnhanceTitle,
+        children: [
+          Text(t.psEnhanceBody,
+              style: TextStyle(color: scheme.onSurfaceVariant)),
+          const SizedBox(height: Gap.md),
+          Text(t.psStrength,
+              style: const TextStyle(fontWeight: FontWeight.w600)),
+          const SizedBox(height: Gap.xs),
+          SizedBox(
+            width: double.infinity,
+            child: SegmentedButton<EditStrength>(
+              showSelectedIcon: false,
+              segments: [
+                ButtonSegment(
+                    value: EditStrength.light, label: Text(t.psStrengthLight)),
+                ButtonSegment(
+                    value: EditStrength.natural,
+                    label: Text(t.psStrengthNatural)),
+                ButtonSegment(
+                    value: EditStrength.strong,
+                    label: Text(t.psStrengthStrong)),
+              ],
+              selected: {_c.strength},
+              onSelectionChanged: (v) => _c.setStrength(v.first),
+            ),
+          ),
+          const SizedBox(height: Gap.md),
+          if (av.state == EnhanceState.notInBuild)
+            _statusBox(Icons.hourglass_top_rounded, t.psEnhanceNotInBuild,
+                Brand.warnInk(context))
+          else if (av.state == EnhanceState.needsDownload ||
+              av.state == EnhanceState.downloading) ...[
+            _statusBox(Icons.downloading_rounded, t.psEnhancePreparing,
+                scheme.primary),
+            if (av.state == EnhanceState.downloading) ...[
+              const SizedBox(height: Gap.sm),
+              LinearProgressIndicator(value: av.progress),
+            ],
           ],
-          selected: {_c.strength},
-          onSelectionChanged: (v) => _c.setStrength(v.first),
-        ),
-      ),
-      const SizedBox(height: Gap.md),
-      if (av.state == EnhanceState.notInBuild)
-        _statusBox(Icons.hourglass_top_rounded, t.psEnhanceNotInBuild, Brand.warnInk(context))
-      else if (av.state == EnhanceState.needsDownload || av.state == EnhanceState.downloading) ...[
-        _statusBox(Icons.downloading_rounded, t.psEnhancePreparing, scheme.primary),
-        if (av.state == EnhanceState.downloading) ...[
-          const SizedBox(height: Gap.sm),
-          LinearProgressIndicator(value: av.progress),
-        ],
-      ],
-      const SizedBox(height: Gap.md),
-      SizedBox(
-        width: double.infinity,
-        child: FilledButton.icon(
-          key: const Key('psEnhance'),
-          onPressed: _c.busy
-              ? null
-              : (av.state == EnhanceState.needsDownload ? _c.prepareEnhance : _c.runEnhance),
-          icon: const Icon(Icons.auto_awesome),
-          label: Text(t.psEnhanceButton),
-        ),
-      ),
-      if (_c.free) ...[
-        const SizedBox(height: Gap.sm),
-        _costLine(t, _c.config.quote(PsFeature.enhanceHd)),
-      ],
-    ]);
+          const SizedBox(height: Gap.md),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              key: const Key('psEnhance'),
+              onPressed: _c.busy
+                  ? null
+                  : (av.state == EnhanceState.needsDownload
+                      ? _c.prepareEnhance
+                      : _c.runEnhance),
+              icon: const Icon(Icons.auto_awesome),
+              label: Text(t.psEnhanceButton),
+            ),
+          ),
+          if (_c.free) ...[
+            const SizedBox(height: Gap.sm),
+            _costLine(t, _c.config.quote(PsFeature.enhanceHd)),
+          ],
+        ]);
   }
 
   Widget _statusBox(IconData icon, String text, Color color) => Container(
@@ -422,7 +465,8 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
     if (q.free) parts.add(t.psCostIncluded);
     final a = q.ads;
     if (a != null) {
-      parts.add(t.psCostAds(fmtInt(context, a.ads)) + (a.trial ? ' · ${t.psFreeTrial}' : ''));
+      parts.add(t.psCostAds(fmtInt(context, a.ads)) +
+          (a.trial ? ' · ${t.psFreeTrial}' : ''));
     }
     final c = q.credits;
     if (c != null) {
@@ -436,7 +480,8 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
       const SizedBox(width: Gap.sm),
       Expanded(
           child: Text(parts.join('  ·  '),
-              style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant))),
+              style:
+                  TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant))),
     ]);
   }
 
@@ -474,92 +519,110 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
     final hasPhoto = _c.session != null;
     final feature = hasPhoto ? PsFeature.promptEdit : PsFeature.generate;
     final q = _c.config.quote(feature);
-    return _card(icon: Icons.edit_note_rounded, title: t.psPromptTitle, children: [
-      if (!hasPhoto)
-        Padding(
-          padding: const EdgeInsets.only(bottom: Gap.sm),
-          child: Text(t.psGenerateNoPhoto, style: TextStyle(color: scheme.onSurfaceVariant)),
-        ),
-      TextField(
-        key: const Key('psPrompt'),
-        controller: _prompt,
-        minLines: 1,
-        maxLines: 4,
-        maxLength: 500,
-        textInputAction: TextInputAction.newline,
-        decoration: InputDecoration(
-          hintText: t.psPromptHint,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(Radii.md)),
-          counterText: '',
-          suffixIcon: VoiceMicButton(voice: _voice, input: _prompt),
-        ),
-      ),
-      if (hasPhoto) ...[
-        const SizedBox(height: Gap.md),
-        Text(t.psReadyOptions, style: const TextStyle(fontWeight: FontWeight.w600)),
-        const SizedBox(height: Gap.sm),
-        Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-          for (final id in PsOptions.ready)
-            if (!(id == 'beauty_retouch' && _c.childInPhoto))
-              FilterChip(
-                key: Key('psOpt_$id'),
-                label: Text(_optLabel(t, id)),
-                selected: _c.options.contains(id),
-                onSelected: (_) => _c.toggleOption(id),
-              ),
-        ]),
-        if (_c.options.contains('beauty_retouch')) ...[
+    return _card(
+        icon: Icons.edit_note_rounded,
+        title: t.psPromptTitle,
+        children: [
+          if (!hasPhoto)
+            Padding(
+              padding: const EdgeInsets.only(bottom: Gap.sm),
+              child: Text(t.psGenerateNoPhoto,
+                  style: TextStyle(color: scheme.onSurfaceVariant)),
+            ),
+          TextField(
+            key: const Key('psPrompt'),
+            controller: _prompt,
+            minLines: 1,
+            maxLines: 4,
+            maxLength: 500,
+            textInputAction: TextInputAction.newline,
+            decoration: InputDecoration(
+              hintText: t.psPromptHint,
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(Radii.md)),
+              counterText: '',
+              suffixIcon: VoiceMicButton(voice: _voice, input: _prompt),
+            ),
+          ),
+          if (hasPhoto) ...[
+            const SizedBox(height: Gap.md),
+            Text(t.psReadyOptions,
+                style: const TextStyle(fontWeight: FontWeight.w600)),
+            const SizedBox(height: Gap.sm),
+            Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+              for (final id in PsOptions.ready)
+                if (!(id == 'beauty_retouch' && _c.childInPhoto))
+                  FilterChip(
+                    key: Key('psOpt_$id'),
+                    label: Text(_optLabel(t, id)),
+                    selected: _c.options.contains(id),
+                    onSelected: (_) => _c.toggleOption(id),
+                  ),
+            ]),
+            if (_c.options.contains('beauty_retouch')) ...[
+              const SizedBox(height: Gap.md),
+              Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+                for (final b in PsOptions.beautyAllowed)
+                  FilterChip(
+                    label: Text(_beautyLabel(t, b)),
+                    selected: _c.beauty.contains(b),
+                    onSelected: (_) => _c.toggleBeauty(b),
+                  ),
+              ]),
+              const SizedBox(height: Gap.sm),
+              _infoLine(Icons.face_retouching_natural, t.psBeautyRule),
+            ],
+            const SizedBox(height: Gap.sm),
+            _switch(t.psHasPeople, _c.hasPeople, _c.setHasPeople,
+                const Key('psHasPeople')),
+            _switch(t.psOthers, _c.othersInPhoto, _c.setOthers,
+                const Key('psOthers')),
+            _switch(
+                t.psChild, _c.childInPhoto, _c.setChild, const Key('psChild')),
+            if (_c.othersInPhoto)
+              _statusBox(Icons.handshake_outlined, t.psConsent, scheme.primary),
+            if (_c.childInPhoto) ...[
+              const SizedBox(height: Gap.sm),
+              _statusBox(Icons.child_care_outlined, t.psChildCaution,
+                  Brand.warnInk(context)),
+            ],
+          ],
           const SizedBox(height: Gap.md),
-          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-            for (final b in PsOptions.beautyAllowed)
-              FilterChip(
-                label: Text(_beautyLabel(t, b)),
-                selected: _c.beauty.contains(b),
-                onSelected: (_) => _c.toggleBeauty(b),
-              ),
-          ]),
-          const SizedBox(height: Gap.sm),
-          _infoLine(Icons.face_retouching_natural, t.psBeautyRule),
-        ],
-        const SizedBox(height: Gap.sm),
-        _switch(t.psHasPeople, _c.hasPeople, _c.setHasPeople, const Key('psHasPeople')),
-        _switch(t.psOthers, _c.othersInPhoto, _c.setOthers, const Key('psOthers')),
-        _switch(t.psChild, _c.childInPhoto, _c.setChild, const Key('psChild')),
-        if (_c.othersInPhoto) _statusBox(Icons.handshake_outlined, t.psConsent, scheme.primary),
-        if (_c.childInPhoto) ...[
-          const SizedBox(height: Gap.sm),
-          _statusBox(Icons.child_care_outlined, t.psChildCaution, Brand.warnInk(context)),
-        ],
-      ],
-      const SizedBox(height: Gap.md),
-      if (!_c.config.providerReady)
-        _statusBox(Icons.key_outlined, t.psProviderMissing(_c.config.providerNeeds),
-            scheme.onSurfaceVariant),
-      if (_c.config.providerReady) _costLine(t, q),
-      if (_c.free && _c.config.trialsLeft != null && _c.config.providerReady) ...[
-        const SizedBox(height: Gap.xs),
-        Text(t.psTrialsLeft(fmtInt(context, _c.config.trialsLeft!)),
-            style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
-      ],
-      const SizedBox(height: Gap.md),
-      SizedBox(
-        width: double.infinity,
-        child: FilledButton.tonalIcon(
-          key: const Key('psRunPrompt'),
-          onPressed: _c.busy
-              ? null
-              : () => _c.runPrompt(
-                  _prompt.text,
-                  SheetGateUi(context,
-                      forRun: true, onPremium: _c.free ? _openPlans : null)),
-          icon: const Icon(Icons.auto_awesome_outlined),
-          label: Text(hasPhoto ? t.psRunEdit : t.psRunGenerate),
-        ),
-      ),
-    ]);
+          if (!_c.config.providerReady)
+            _statusBox(
+                Icons.key_outlined,
+                t.psProviderMissing(_c.config.providerNeeds),
+                scheme.onSurfaceVariant),
+          if (_c.config.providerReady) _costLine(t, q),
+          if (_c.free &&
+              _c.config.trialsLeft != null &&
+              _c.config.providerReady) ...[
+            const SizedBox(height: Gap.xs),
+            Text(t.psTrialsLeft(fmtInt(context, _c.config.trialsLeft!)),
+                style:
+                    TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+          ],
+          const SizedBox(height: Gap.md),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.tonalIcon(
+              key: const Key('psRunPrompt'),
+              onPressed: _c.busy
+                  ? null
+                  : () => _c.runPrompt(
+                      _prompt.text,
+                      SheetGateUi(context,
+                          forRun: true,
+                          onPremium: _c.free ? _openPlans : null)),
+              icon: const Icon(Icons.auto_awesome_outlined),
+              label: Text(hasPhoto ? t.psRunEdit : t.psRunGenerate),
+            ),
+          ),
+        ]);
   }
 
-  Widget _switch(String label, bool value, ValueChanged<bool> on, Key key) => SwitchListTile(
+  Widget _switch(String label, bool value, ValueChanged<bool> on, Key key) =>
+      SwitchListTile(
         key: key,
         contentPadding: EdgeInsets.zero,
         dense: true,
@@ -582,8 +645,10 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
         const Icon(Icons.shield_outlined, color: Brand.danger),
         const SizedBox(width: Gap.md),
         Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(t.psRefusedTitle, style: const TextStyle(fontWeight: FontWeight.w800)),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(t.psRefusedTitle,
+                style: const TextStyle(fontWeight: FontWeight.w800)),
             const SizedBox(height: Gap.xs),
             Text(r.message.isNotEmpty ? r.message : t.psSafetyNote,
                 style: const TextStyle(height: 1.35)),
@@ -604,27 +669,31 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
           onTap: () => _c.export(
               k, SheetGateUi(context, onPremium: _c.free ? _openPlans : null)),
         );
-    return _card(icon: Icons.ios_share_rounded, title: t.psExportTitle, children: [
-      LayoutBuilder(builder: (context, c) {
-        final cols = c.maxWidth >= 420 ? 5 : 3;
-        final w = (c.maxWidth - Gap.sm * (cols - 1)) / cols;
-        return Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-          for (final e in [
-            tile(ExportKind.save, Icons.download_rounded, t.psSave),
-            tile(ExportKind.share, Icons.share_rounded, t.psShare),
-            tile(ExportKind.wallpaper, Icons.wallpaper_rounded, t.psWallpaper),
-            tile(ExportKind.copy, Icons.copy_rounded, t.psCopy),
-            tile(ExportKind.openIn, Icons.open_in_new_rounded, t.psOpenIn),
-          ])
-            SizedBox(width: w, child: e),
+    return _card(
+        icon: Icons.ios_share_rounded,
+        title: t.psExportTitle,
+        children: [
+          LayoutBuilder(builder: (context, c) {
+            final cols = c.maxWidth >= 420 ? 5 : 3;
+            final w = (c.maxWidth - Gap.sm * (cols - 1)) / cols;
+            return Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+              for (final e in [
+                tile(ExportKind.save, Icons.download_rounded, t.psSave),
+                tile(ExportKind.share, Icons.share_rounded, t.psShare),
+                tile(ExportKind.wallpaper, Icons.wallpaper_rounded,
+                    t.psWallpaper),
+                tile(ExportKind.copy, Icons.copy_rounded, t.psCopy),
+                tile(ExportKind.openIn, Icons.open_in_new_rounded, t.psOpenIn),
+              ])
+                SizedBox(width: w, child: e),
+            ]);
+          }),
+          if (_c.free) ...[
+            const SizedBox(height: Gap.sm),
+            _costLine(t, _c.config.quote(PsFeature.enhanceHd)),
+            _infoLine(Icons.branding_watermark_outlined, t.psCornerNote),
+          ],
         ]);
-      }),
-      if (_c.free) ...[
-        const SizedBox(height: Gap.sm),
-        _costLine(t, _c.config.quote(PsFeature.enhanceHd)),
-        _infoLine(Icons.branding_watermark_outlined, t.psCornerNote),
-      ],
-    ]);
   }
 
   Widget _footNotes(AppLocalizations t) => Column(children: [
@@ -644,18 +713,25 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
             child: Text(t.psHistory,
-                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+                style:
+                    const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
           ),
           for (var i = 0; i < s.versions.length; i++)
             ListTile(
               leading: ClipRRect(
                 borderRadius: BorderRadius.circular(Radii.xs),
                 child: SizedBox(
-                    width: 44, height: 44,
-                    child: Image.memory(s.versions[i].bytes, fit: BoxFit.cover, cacheWidth: 96)),
+                    width: 44,
+                    height: 44,
+                    child: Image.memory(s.versions[i].bytes,
+                        fit: BoxFit.cover, cacheWidth: 96)),
               ),
-              title: Text(i == 0 ? t.psVersionOriginal : t.psVersionEdit(fmtInt(context, i))),
-              trailing: i == s.index ? const Icon(Icons.check_circle, color: Brand.success) : null,
+              title: Text(i == 0
+                  ? t.psVersionOriginal
+                  : t.psVersionEdit(fmtInt(context, i))),
+              trailing: i == s.index
+                  ? const Icon(Icons.check_circle, color: Brand.success)
+                  : null,
               onTap: () {
                 s.select(i);
                 Navigator.of(ctx).pop();
@@ -692,9 +768,13 @@ class _ExportTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.md),
         onTap: on ? onTap : null,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: Gap.md, horizontal: Gap.xs),
+          padding:
+              const EdgeInsets.symmetric(vertical: Gap.md, horizontal: Gap.xs),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(icon, color: on ? (available ? scheme.primary : scheme.onSurfaceVariant) : scheme.outline),
+            Icon(icon,
+                color: on
+                    ? (available ? scheme.primary : scheme.onSurfaceVariant)
+                    : scheme.outline),
             const SizedBox(height: Gap.xs),
             Text(label,
                 textAlign: TextAlign.center,
@@ -716,21 +796,25 @@ class _Watermark extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ClipRRect(
         borderRadius: BorderRadius.circular(Radii.md),
-        child: CustomPaint(painter: _WatermarkPainter()),
+        child: CustomPaint(
+            painter: _WatermarkPainter(DefaultTextStyle.of(context).style.fontFamily)),
       );
 }
 
 class _WatermarkPainter extends CustomPainter {
+  _WatermarkPainter(this.fontFamily);
+  final String? fontFamily;
   @override
   void paint(Canvas canvas, Size size) {
     final tp = TextPainter(
-      text: const TextSpan(
+      text: TextSpan(
           text: 'Assisto preview',
           style: TextStyle(
-              color: Color(0x66FFFFFF),
+              fontFamily: fontFamily,
+              color: const Color(0x66FFFFFF),
               fontSize: 15,
               fontWeight: FontWeight.w700,
-              shadows: [Shadow(blurRadius: 2, color: Color(0x55000000))])),
+              shadows: const [Shadow(blurRadius: 2, color: Color(0x55000000))])),
       textDirection: TextDirection.ltr,
     )..layout();
     canvas.save();
@@ -740,7 +824,8 @@ class _WatermarkPainter extends CustomPainter {
     final r = math.max(size.width, size.height);
     for (var y = -r; y < r; y += stepY) {
       for (var x = -r; x < r; x += stepX) {
-        tp.paint(canvas, Offset(x + ((y / stepY).round().isEven ? 0 : stepX / 2), y));
+        tp.paint(canvas,
+            Offset(x + ((y / stepY).round().isEven ? 0 : stepX / 2), y));
       }
     }
     canvas.restore();
