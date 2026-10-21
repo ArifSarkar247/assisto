@@ -34,6 +34,10 @@ touch "$OUT/.recording"
       break
     fi; sleep 2; done ) &
 
+# Let the freshly booted emulator finish its BOOT_COMPLETED broadcast storm first
+# (21 Oct: the app died seconds into flow 01 while Maps/Calendar/NFC were still
+# starting, and adb wedged; the APK smoke saw the same).
+echo "== settle 60 s after boot"; sleep 60
 echo "== flutter drive (all flows)"
 REALITY_OUT="$OUT" timeout "${REALITY_DRIVE_TIMEOUT:-3300}" flutter drive \
   --driver=test_driver/integration_test.dart \
