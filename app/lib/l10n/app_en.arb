@@ -15317,7 +15317,7 @@
   "discoverMgrTypeSponsored": "Sponsored",
   "discoverMgrTypeAdmob": "AdMob slot",
   "discoverMgrAdmobNote": "AdMob is not linked in the app yet, so this slot shows nothing to users for now. It is only filled for Free users when no sponsored card is booked.",
-  "discoverMgrPaidNote": "Premium and Business users never see sponsored or AdMob cards.",
+  "discoverMgrPaidNote": "Sponsored cards are shown to every plan (always labelled \"Sponsored\"); AdMob cards only to Free users.",
   "discoverMgrType": "Card type",
   "discoverMgrTitleBn": "Title (Bangla)",
   "discoverMgrTitleEn": "Title (English)",

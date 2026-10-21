@@ -13167,7 +13167,7 @@
   "discoverMgrTypeSponsored": "স্পনসরড",
   "discoverMgrTypeAdmob": "AdMob বিজ্ঞাপনের জায়গা",
   "discoverMgrAdmobNote": "অ্যাপে এখনো AdMob যুক্ত হয়নি, তাই এই জায়গাটি আপাতত ব্যবহারকারীদের কিছুই দেখাবে না। কোনো স্পনসরড কার্ড না থাকলে শুধু ফ্রি ব্যবহারকারীদের জন্য এটি পূরণ হয়।",
-  "discoverMgrPaidNote": "প্রিমিয়াম ও বিজনেস ব্যবহারকারীরা কখনো স্পনসরড বা AdMob কার্ড দেখেন না।",
+  "discoverMgrPaidNote": "Sponsored কার্ড সব প্ল্যানের ব্যবহারকারী দেখেন (সবসময় \"Sponsored\" লেখা থাকে); AdMob কার্ড শুধু Free ব্যবহারকারীরা দেখেন।",
   "discoverMgrType": "কার্ডের ধরন",
   "discoverMgrTitleBn": "শিরোনাম (বাংলা)",
   "discoverMgrTitleEn": "শিরোনাম (ইংরেজি)",
