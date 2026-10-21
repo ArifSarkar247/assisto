@@ -376,6 +376,25 @@ jobs:
           )
           if 'AssistoFcmService' not in s:
               s = s.replace('</application>', push_components + '    </application>', 1)
+          # ---- w1-webphoto ---- Android App Link on MainActivity:
+          # https://lifeassisto.com/photo/app?t=<token> opens the website
+          # passport photo in Photo Studio. Flutter's built-in deep linking
+          # (flutter_deeplinking_enabled defaults to true) hands the URL to Dart;
+          # no plugin. autoVerify needs /.well-known/assetlinks.json on the host.
+          applink = (
+              '\n            <intent-filter android:autoVerify="true">'
+              '\n                <action android:name="android.intent.action.VIEW"/>'
+              '\n                <category android:name="android.intent.category.DEFAULT"/>'
+              '\n                <category android:name="android.intent.category.BROWSABLE"/>'
+              '\n                <data android:scheme="https" android:host="lifeassisto.com"'
+              ' android:pathPrefix="/photo/app"/>'
+              '\n            </intent-filter>\n        '
+          )
+          if 'android:pathPrefix="/photo/app"' not in s:
+              i = s.find('android:name=".MainActivity"')
+              j = s.find('</activity>', i) if i != -1 else -1
+              if j != -1:
+                  s = s[:j] + applink + s[j:]
           open(p, "w").write(s)
           print("manifest patched: label, permissions, queries, UCropActivity, native components, androidx.startup removed, FCM push")
           PY

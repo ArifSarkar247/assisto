@@ -18,6 +18,8 @@ urlpatterns = [
     path("scam/card.png", views.scam_card),
 
     path("photo", views.photo),
+    path("photo/app", views.photo_app),          # w1-webphoto App Link target (no image bytes)
+    path(".well-known/assetlinks.json", views.assetlinks),
 
     path("festival", views.festival),
     path("festival/card.png", views.festival_card),

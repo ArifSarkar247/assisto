@@ -1,23 +1,57 @@
 {% extends "web/base.html" %}
-{% block title %}{{ T.photo_h }} — Assisto{% endblock %}
+{% block title %}{{ T.photo_title }}{% endblock %}
+{% block og %}
+<meta property="og:title" content="{{ T.photo_title }}">
+<meta property="og:description" content="{{ T.photo_meta }}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ seo.canonical }}">
+<meta property="og:locale" content="{% if lang == 'en' %}en_US{% else %}bn_BD{% endif %}">
+{% endblock %}
+{% block head %}{% include "web/_photo_seo.html" %}
+<style>
+  table.sz{width:100%;border-collapse:collapse;font-size:14px}
+  table.sz th,table.sz td{text-align:left;padding:8px 6px;border-bottom:1px solid #e3e8f2;vertical-align:top}
+  table.sz th{font-size:13px;color:#3b4763}
+  table.sz td small{display:block;color:#5a6680;font-size:12px;margin-top:2px}
+  .tbl{overflow-x:auto}
+</style>{% endblock %}
 {% block content %}
 <h1>{{ T.photo_h }}</h1>
 <p class="muted">{{ T.photo_lead }}</p>
 {% if error %}<div class="err">{{ error }}</div>{% endif %}
 <form method="post" enctype="multipart/form-data" class="card">
   {% csrf_token %}
-  <label>{{ T.photo_upload }}</label>
-  <input type="file" name="photo" accept="image/*" required>
-  <label>{{ T.photo_size }}</label>
-  <select name="preset">
-    {% for key, label, phys, needs_bg in presets %}<option value="{{ key }}">{{ label }} · {{ phys }}</option>{% endfor %}
+  <label for="ph">{{ T.photo_upload }}</label>
+  <input id="ph" type="file" name="photo" accept="image/*" required>
+  <label for="ps">{{ T.photo_size }}</label>
+  <select id="ps" name="preset">
+    {% for key, label, phys, needs_bg in presets %}<option value="{{ key }}">{{ label }}</option>{% endfor %}
   </select>
   <div style="height:12px"></div>
   <button class="btn" type="submit">{{ T.photo_btn }}</button>
 </form>
-<div class="card">
-  <b>{{ T.photo_guide }}</b>
+<section class="card">
+  <h2>{{ T.photo_sizes_h }}</h2>
+  <div class="tbl"><table class="sz">
+    <thead><tr><th>{{ T.photo_col_doc }}</th><th>{{ T.photo_col_size }}</th><th>{{ T.photo_col_px }}</th></tr></thead>
+    <tbody>{% for label, phys, px, note in sizes %}
+      <tr><td>{{ label }}{% if note %}<small>{{ note }}</small>{% endif %}</td><td>{{ phys }}</td><td>{{ px }}</td></tr>{% endfor %}
+    </tbody>
+  </table></div>
+  <p class="muted">{{ T.photo_sizes_note }}</p>
+</section>
+<section class="card">
+  <h2>{{ T.photo_how_h }}</h2>
+  <ol>{% for step in how %}<li>{{ step }}</li>{% endfor %}</ol>
+  <p class="muted">{{ T.photo_export_rule }}</p>
+</section>
+<section class="card">
+  <h2>{{ T.photo_guide }}</h2>
   <ul>{% for g in guide %}<li>{{ g }}</li>{% endfor %}</ul>
   <div class="warn">{{ bg_note }}</div>
-</div>
+</section>
+<section class="card" id="privacy">
+  <h2>{{ T.photo_privacy_h }}</h2>
+  <p>{{ T.photo_privacy }}</p>
+</section>
 {% endblock %}

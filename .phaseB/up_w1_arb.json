@@ -1,0 +1,42 @@
+{
+  "en": {
+    "psWebTitle": "Your photo from lifeassisto.com",
+    "@psWebTitle": {"description": "w1-webphoto: card title when Photo Studio opens a passport/visa photo made on the website"},
+    "psWebBody": "This passport/visa photo was made on the website and is ready to save or print below. Saving follows the usual Photo Studio rule. To edit it, use your original photo.",
+    "@psWebBody": {"description": "w1-webphoto: explains the website photo and the normal export rule"},
+    "psWebPickOriginal": "Edit with my original photo",
+    "@psWebPickOriginal": {"description": "w1-webphoto: button to pick the original photo from the gallery instead"},
+    "psWebEditNote": "This photo came from the website. To edit it, choose your original photo first.",
+    "@psWebEditNote": {"description": "w1-webphoto: snackbar when the user tries to edit the website preview"},
+    "psWebOpening": "Opening your photo…",
+    "@psWebOpening": {"description": "w1-webphoto: loading text while the deep-linked photo is fetched"},
+    "psWebLoginTitle": "Sign in to open your photo",
+    "@psWebLoginTitle": {"description": "w1-webphoto: deep link arrived while signed out"},
+    "psWebLoginBody": "Sign in to Assisto and your photo opens right after. The link works for up to 1 hour.",
+    "@psWebLoginBody": {"description": "w1-webphoto: deep link arrived while signed out"},
+    "psWebLoginBtn": "Sign in",
+    "@psWebLoginBtn": {"description": "w1-webphoto: goes back to the sign-in screen"},
+    "psWebExpiredTitle": "This link has expired",
+    "@psWebExpiredTitle": {"description": "w1-webphoto: token expired or already used"},
+    "psWebExpiredBody": "Website photos are deleted after 1 hour, or as soon as they open in the app. Make it again on lifeassisto.com/photo, or open your own photo in Photo Studio.",
+    "@psWebExpiredBody": {"description": "w1-webphoto: token expired or already used"},
+    "psWebOpenStudio": "Open Photo Studio",
+    "@psWebOpenStudio": {"description": "w1-webphoto: open the studio without the website photo"},
+    "psWebFailed": "Couldn't fetch the photo. Check your internet and try again.",
+    "@psWebFailed": {"description": "w1-webphoto: network/server error while claiming the photo"}
+  },
+  "bn": {
+    "psWebTitle": "lifeassisto.com থেকে আপনার ছবি",
+    "psWebBody": "এই পাসপোর্ট/ভিসা ছবিটি ওয়েবসাইটে তৈরি — নিচ থেকে সেভ বা প্রিন্ট করুন। সেভ করার নিয়ম Photo Studio-র মতোই। এডিট করতে চাইলে আপনার আসল ছবিটি দিন।",
+    "psWebPickOriginal": "আসল ছবি দিয়ে এডিট করুন",
+    "psWebEditNote": "ছবিটি ওয়েবসাইট থেকে এসেছে। এডিট করতে আগে আপনার আসল ছবিটি বেছে নিন।",
+    "psWebOpening": "আপনার ছবি খুলছে…",
+    "psWebLoginTitle": "ছবি খুলতে সাইন ইন করুন",
+    "psWebLoginBody": "Assisto-তে সাইন ইন করলেই ছবিটি খুলে যাবে। লিংকটি সর্বোচ্চ ১ ঘণ্টা কাজ করে।",
+    "psWebLoginBtn": "সাইন ইন",
+    "psWebExpiredTitle": "লিংকটির মেয়াদ শেষ",
+    "psWebExpiredBody": "ওয়েবসাইটের ছবি ১ ঘণ্টা পর, অথবা অ্যাপে খোলার সাথে সাথেই মুছে যায়। lifeassisto.com/photo-তে আবার বানিয়ে নিন, অথবা Photo Studio-তে নিজের ছবি খুলুন।",
+    "psWebOpenStudio": "Photo Studio খুলুন",
+    "psWebFailed": "ছবিটি আনা গেল না। ইন্টারনেট দেখে আবার চেষ্টা করুন।"
+  }
+}
