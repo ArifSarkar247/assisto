@@ -1,0 +1,91 @@
+{
+ "en": {
+  "c1Accept": "Accept",
+  "c1Accepted": "You're connected. You can message and call now.",
+  "c1AddToCircle": "Add to My Circle",
+  "c1Call": "Call",
+  "c1ChatOpenFailed": "Couldn't open the chat. Open Messenger once, then try again.",
+  "c1CheckedCount": "{count} contacts checked.",
+  "@c1CheckedCount": {
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "c1DisclosureLead": "We only send hashed numbers to find who is on Assisto. Names and phone numbers stay on your phone.",
+  "c1DisclosureNextStep": "Next, Android will ask for permission to read your contacts.",
+  "c1DisclosureTitle": "Find your people on Assisto",
+  "c1InYourCircle": "In your circle",
+  "c1Invite": "Invite",
+  "c1InviteTitle": "Invite to Assisto",
+  "c1Message": "Message",
+  "c1MessageAfterAccept": "Message and call open once they accept.",
+  "c1NoneOnAssisto": "None of your contacts are on Assisto yet. Invite them below.",
+  "c1OnAssistoAs": "On Assisto as {name}",
+  "@c1OnAssistoAs": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "c1OnAssistoTitle": "On Assisto",
+  "c1PhonebookNextUpdateBody": "This version can't read your phonebook yet, so nothing was read from your phone. Type a number above to find someone on Assisto.",
+  "c1PhonebookNextUpdateTitle": "Reading your phonebook arrives in the next update",
+  "c1PullToRefresh": "Pull down to check again.",
+  "c1RequestFailed": "Couldn't send that. Please try again.",
+  "c1RequestSent": "Request sent. You can message once they accept.",
+  "c1Requested": "Requested",
+  "c1SearchFailed": "Couldn't search right now. Please try again.",
+  "c1SearchHint": "Search by number, e.g. 01712345678",
+  "c1SearchInstead": "Find by number instead",
+  "c1SearchInvalid": "That doesn't look like a phone number. Example: 01712345678",
+  "c1SearchLimited": "Too many searches for now. Please try again in a while.",
+  "c1SearchNotFound": "{number} is not on Assisto yet. Invite them?",
+  "@c1SearchNotFound": {
+   "placeholders": {
+    "number": {
+     "type": "String"
+    }
+   }
+  },
+  "c1SearchSelf": "That's your own number.",
+  "c1WantsToConnect": "Wants to join your circle",
+  "c1FlagContactsMatchUnverified": "Find unverified numbers in Contacts (test builds)"
+ },
+ "bn": {
+  "c1Accept": "গ্রহণ করুন",
+  "c1Accepted": "আপনারা এখন যুক্ত। এখন মেসেজ ও কল করতে পারবেন।",
+  "c1AddToCircle": "মাই সার্কেলে যোগ করুন",
+  "c1Call": "কল",
+  "c1ChatOpenFailed": "চ্যাট খোলা গেল না। একবার মেসেঞ্জার খুলে আবার চেষ্টা করুন।",
+  "c1CheckedCount": "{count}টি পরিচিতি যাচাই করা হয়েছে।",
+  "c1DisclosureLead": "কারা Assisto-তে আছেন তা খুঁজতে আমরা শুধু হ্যাশ করা (সাংকেতিক) নম্বর পাঠাই। নাম ও ফোন নম্বর আপনার ফোনেই থাকে।",
+  "c1DisclosureNextStep": "এরপর অ্যান্ড্রয়েড আপনার পরিচিতি পড়ার অনুমতি চাইবে।",
+  "c1DisclosureTitle": "Assisto-তে আপনার পরিচিতদের খুঁজুন",
+  "c1InYourCircle": "আপনার সার্কেলে আছেন",
+  "c1Invite": "আমন্ত্রণ",
+  "c1InviteTitle": "Assisto-তে আমন্ত্রণ জানান",
+  "c1Message": "মেসেজ",
+  "c1MessageAfterAccept": "উনি গ্রহণ করলে মেসেজ ও কল চালু হবে।",
+  "c1NoneOnAssisto": "আপনার পরিচিতদের কেউ এখনো Assisto-তে নেই। নিচে আমন্ত্রণ জানান।",
+  "c1OnAssistoAs": "Assisto-তে {name} নামে আছেন",
+  "c1OnAssistoTitle": "Assisto-তে আছেন",
+  "c1PhonebookNextUpdateBody": "এই সংস্করণ এখনো আপনার ফোনবুক পড়তে পারে না, তাই ফোন থেকে কিছুই পড়া হয়নি। Assisto-তে কাউকে খুঁজতে ওপরে নম্বর লিখুন।",
+  "c1PhonebookNextUpdateTitle": "ফোনবুক পড়ার সুবিধা আসছে পরের আপডেটে",
+  "c1PullToRefresh": "আবার দেখতে নিচে টানুন।",
+  "c1RequestFailed": "পাঠানো গেল না। আবার চেষ্টা করুন।",
+  "c1RequestSent": "অনুরোধ পাঠানো হয়েছে। উনি গ্রহণ করলে মেসেজ করতে পারবেন।",
+  "c1Requested": "অনুরোধ পাঠানো হয়েছে",
+  "c1SearchFailed": "এখন খোঁজা যাচ্ছে না। আবার চেষ্টা করুন।",
+  "c1SearchHint": "নম্বর দিয়ে খুঁজুন, যেমন ০১৭১২৩৪৫৬৭৮",
+  "c1SearchInstead": "বরং নম্বর দিয়ে খুঁজুন",
+  "c1SearchInvalid": "এটি ফোন নম্বর মনে হচ্ছে না। যেমন: ০১৭১২৩৪৫৬৭৮",
+  "c1SearchLimited": "এখন অনেকবার খোঁজা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।",
+  "c1SearchNotFound": "{number} এখনো Assisto-তে নেই। আমন্ত্রণ জানাবেন?",
+  "c1SearchSelf": "এটি আপনার নিজের নম্বর।",
+  "c1WantsToConnect": "আপনার সার্কেলে যুক্ত হতে চান",
+  "c1FlagContactsMatchUnverified": "পরিচিতিতে যাচাই-না-করা নম্বরও খুঁজুন (টেস্ট বিল্ড)"
+ }
+}

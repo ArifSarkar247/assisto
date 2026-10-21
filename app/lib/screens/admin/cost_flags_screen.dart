@@ -114,6 +114,8 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
         return t.flagNewSignups;
       case 'auth_password_only_signup':
         return t.otpFlagPasswordOnlySignup;
+      case 'contacts_match_unverified':
+        return t.c1FlagContactsMatchUnverified;
       default:
         return id;
     }
