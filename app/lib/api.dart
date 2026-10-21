@@ -773,15 +773,6 @@ class ApiClient {
   /// GET /legal/<key> -> {key, title, body, stamp, last_updated}.
   Future<Map<String, dynamic>> legalPage(String key) => getJson('/legal/$key');
 
-  // ---- module-5 launch gaps: photo enhance (own photos only) ----
-  /// POST /photo/plan {kind, ops, own_photo} -> {allowed, path, message, ops}.
-  Future<Map<String, dynamic>> photoEnhancePlan({
-    required String kind,
-    required List<String> ops,
-    required bool ownPhoto,
-  }) =>
-      postJson('/photo/plan', {'kind': kind, 'ops': ops, 'own_photo': ownPhoto});
-
   // ---- module-5 launch gaps: Unseen Bangladesh travel companion ----
   /// GET /unseen -> {destinations[], tips[], attribution}.
   Future<Map<String, dynamic>> unseenCompanion() => getJson('/unseen');

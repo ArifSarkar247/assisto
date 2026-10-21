@@ -1,0 +1,297 @@
+{
+ "en": {
+  "psTitle": "Photo Studio",
+  "psTagline": "Your face stays yours — just at its very best.",
+  "psOpening": "Opening Photo Studio…",
+  "psPickGallery": "Choose a photo",
+  "psPickCamera": "Take a photo",
+  "psChangePhoto": "Change photo",
+  "psEmptyBody": "Enhance in one tap, or describe the edit you want — typed or by voice.",
+  "psEnhanceTitle": "One-tap enhance",
+  "psEnhanceBody": "Sharper, cleaner, brighter — on your phone, at no internet cost.",
+  "psEnhanceButton": "Enhance",
+  "psStrength": "Strength",
+  "psStrengthLight": "Light",
+  "psStrengthNatural": "Natural",
+  "psStrengthStrong": "Strong",
+  "psEnhanceNotInBuild": "On-device AI enhance arrives in the next app update. We never show a fake result.",
+  "psEnhancePreparing": "Preparing the photo tool…",
+  "psPromptTitle": "Edit by prompt",
+  "psPromptHint": "e.g. change the background to a beach",
+  "psGenerateNoPhoto": "No photo? Describe a new image to create.",
+  "psReadyOptions": "Ready options",
+  "psOptBgChange": "Change background",
+  "psOptBgRemove": "Remove background",
+  "psOptBgBlur": "Blur background",
+  "psOptSky": "Replace sky",
+  "psOptRemoveObjects": "Remove things or people behind",
+  "psOptLighting": "Lighting & colour",
+  "psOptPassport": "Passport photo (40×50 mm, white)",
+  "psOptVisa": "Visa photo (50×50 mm, white)",
+  "psOptProduct": "Product photo (white studio)",
+  "psOptDocument": "Document cleanup",
+  "psOptCrop": "Crop & straighten",
+  "psOptBeauty": "Beauty retouch",
+  "psBeautySkinSmooth": "Smooth skin",
+  "psBeautyBlemish": "Remove blemishes & acne",
+  "psBeautyUnderEye": "Under-eye circles",
+  "psBeautyEvenTone": "Even skin tone",
+  "psBeautyGlow": "Glow & face light",
+  "psBeautyTeeth": "Whiter teeth",
+  "psBeautyEyes": "Brighter eyes",
+  "psBeautyHair": "Tidy hair",
+  "psBeautyMakeup": "Light natural makeup",
+  "psBeautyRule": "Same person, best version: we never change face shape, eye, nose or lip size, skin colour, age or gender.",
+  "psHasPeople": "There are people in this photo",
+  "psOthers": "Someone else is in this photo",
+  "psChild": "A child is in this photo",
+  "psConsent": "Please edit other people's photos only with their permission.",
+  "psChildCaution": "Children's photos: beauty retouch is off and we don't create new images of them.",
+  "psRunEdit": "Apply edit",
+  "psRunGenerate": "Create image",
+  "psCostAds": "Watch {count} short ads",
+  "@psCostAds": {
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "psCostCredits": "{count} credits",
+  "@psCostCredits": {
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "psCostPool": "{count} credits from your plan",
+  "@psCostPool": {
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "psFreeTrial": "Free trial today",
+  "psCostIncluded": "Included — no ads",
+  "psProviderMissing": "Prompt editing switches on when the owner connects an image provider. ({needs})",
+  "@psProviderMissing": {
+   "placeholders": {
+    "needs": {
+     "type": "String"
+    }
+   }
+  },
+  "psIdentityMissing": "Edits on photos with people need the on-device identity check, which arrives in the next update. Nothing was charged.",
+  "psIdentityFailed": "The result didn't clearly look like the same person, so we discarded it. Your original is safe.",
+  "psRefusedTitle": "We can't make this edit",
+  "psExportTitle": "Save & share",
+  "psSave": "Save",
+  "psShare": "Share",
+  "psWallpaper": "Wallpaper",
+  "psCopy": "Copy",
+  "psOpenIn": "Open in…",
+  "psSinkUnavailable": "That option isn't available in this app version yet.",
+  "psSaved": "Saved to the Assisto Photos folder.",
+  "psShared": "Shared.",
+  "psOpened": "Opened in another app.",
+  "psFailed": "Something went wrong — please try again.",
+  "psInsufficient": "Not enough credits.",
+  "psNeedPhoto": "Choose a photo and make an edit first.",
+  "psNeedPrompt": "Type or say what to change, or tick an option.",
+  "psCancelled": "Cancelled — nothing was charged.",
+  "psAdUnavailable": "The ad couldn't load. Try again, or use credits.",
+  "psPreviewNote": "Free preview: smaller size with a watermark. Full quality after the ads.",
+  "psSecureOn": "Screenshots are blocked on this preview.",
+  "psSecureOff": "Screenshot blocking for previews arrives in the next update.",
+  "psCornerNote": "Free saves carry a small “Edited with Assisto” mark. Premium saves are clean.",
+  "psAiMetaNote": "AI-edited photos are marked as AI-edited in their file info.",
+  "psOriginalKept": "Original kept",
+  "psUndo": "Undo",
+  "psRedo": "Redo",
+  "psHistory": "Versions",
+  "psVersionOriginal": "Original",
+  "psVersionEdit": "Edit {n}",
+  "@psVersionEdit": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "psGateTitle": "Unlock full quality",
+  "psGateBody": "Watch {count} short ads to save, share or use this photo in full quality.",
+  "@psGateBody": {
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "psGateRunTitle": "Run this AI edit",
+  "psGateRunBody": "This edit runs on a paid AI server. Watch {count} short ads first — then it runs.",
+  "@psGateRunBody": {
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "psGateProgress": "Ads verified: {done} of {total}",
+  "@psGateProgress": {
+   "placeholders": {
+    "done": {
+     "type": "String"
+    },
+    "total": {
+     "type": "String"
+    }
+   }
+  },
+  "psGateWatch": "Watch ad",
+  "psGateRetry": "Try the ad again",
+  "psGateUseCredits": "Use {count} credits",
+  "@psGateUseCredits": {
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "psGatePremium": "Go Premium — no ads",
+  "psGateAdsNotLinked": "Ads aren't set up in this app version yet — use credits or Premium.",
+  "psGateCreditsOnly": "Ads can't cover this job's cost — it needs credits or Premium.",
+  "psGateNoFillNote": "No free shortcut: if an ad doesn't load, retry or use credits.",
+  "psTrialsLeft": "Free prompt trials left today: {count}",
+  "@psTrialsLeft": {
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "psPremiumClean": "Premium: no ads, clean full-quality saves.",
+  "psWorking": "Working…",
+  "psSafetyNote": "We refuse sexual edits, fake scenes of real people and any editing of IDs, certificates, money or seals.",
+  "psOwnerPnlTitle": "Photo Studio: ad revenue vs cost",
+  "psOwnerFeatEnhanceHd": "One-tap enhance (HD export)",
+  "psOwnerFeatEnhanceCloud": "Cloud enhance",
+  "psOwnerFeatPrompt": "Prompt edit",
+  "psOwnerFeatGenerate": "Generate",
+  "psOwnerFeatEntry": "Entry ad",
+  "psOwnerEmpty": "No Photo Studio activity in this period yet.",
+  "psGateTrialUsed": "Today's free trial is used — continue with credits or Premium."
+ },
+ "bn": {
+  "psTitle": "ফটো স্টুডিও",
+  "psTagline": "আপনার মুখ আপনারই — শুধু সবচেয়ে সুন্দর রূপে।",
+  "psOpening": "ফটো স্টুডিও খুলছে…",
+  "psPickGallery": "ছবি বেছে নিন",
+  "psPickCamera": "ছবি তুলুন",
+  "psChangePhoto": "ছবি বদলান",
+  "psEmptyBody": "এক ট্যাপে সুন্দর করুন, অথবা কী বদলাতে চান লিখে বা বলে দিন।",
+  "psEnhanceTitle": "এক ট্যাপে এনহ্যান্স",
+  "psEnhanceBody": "আরও স্পষ্ট, পরিষ্কার, উজ্জ্বল — ফোনেই, ইন্টারনেট খরচ ছাড়া।",
+  "psEnhanceButton": "এনহ্যান্স করুন",
+  "psStrength": "মাত্রা",
+  "psStrengthLight": "হালকা",
+  "psStrengthNatural": "স্বাভাবিক",
+  "psStrengthStrong": "বেশি",
+  "psEnhanceNotInBuild": "ফোনেই AI এনহ্যান্স পরের অ্যাপ আপডেটে আসছে। আমরা কখনো নকল ফল দেখাই না।",
+  "psEnhancePreparing": "ফটো টুল প্রস্তুত হচ্ছে…",
+  "psPromptTitle": "লিখে বা বলে এডিট",
+  "psPromptHint": "যেমন: ব্যাকগ্রাউন্ড সমুদ্রসৈকত করে দাও",
+  "psGenerateNoPhoto": "ছবি নেই? নতুন ছবির বর্ণনা লিখুন।",
+  "psReadyOptions": "তৈরি অপশন",
+  "psOptBgChange": "ব্যাকগ্রাউন্ড বদল",
+  "psOptBgRemove": "ব্যাকগ্রাউন্ড সরান",
+  "psOptBgBlur": "ব্যাকগ্রাউন্ড ঝাপসা",
+  "psOptSky": "আকাশ বদল",
+  "psOptRemoveObjects": "পেছনের জিনিস বা মানুষ সরান",
+  "psOptLighting": "আলো ও রং",
+  "psOptPassport": "পাসপোর্ট ছবি (৪০×৫০ মিমি, সাদা)",
+  "psOptVisa": "ভিসা ছবি (৫০×৫০ মিমি, সাদা)",
+  "psOptProduct": "প্রোডাক্ট ছবি (সাদা স্টুডিও)",
+  "psOptDocument": "ডকুমেন্ট পরিষ্কার",
+  "psOptCrop": "ক্রপ ও সোজা করা",
+  "psOptBeauty": "বিউটি রিটাচ",
+  "psBeautySkinSmooth": "ত্বক মসৃণ",
+  "psBeautyBlemish": "দাগ ও ব্রণ দূর",
+  "psBeautyUnderEye": "চোখের নিচের কালি",
+  "psBeautyEvenTone": "ত্বকের রং সমান",
+  "psBeautyGlow": "উজ্জ্বলতা ও মুখে আলো",
+  "psBeautyTeeth": "দাঁত সাদা",
+  "psBeautyEyes": "চোখ উজ্জ্বল",
+  "psBeautyHair": "চুল পরিপাটি",
+  "psBeautyMakeup": "হালকা স্বাভাবিক মেকআপ",
+  "psBeautyRule": "একই মানুষ, সেরা রূপ: মুখের গঠন, চোখ-নাক-ঠোঁটের আকার, গায়ের রং, বয়স বা লিঙ্গ কখনো বদলানো হয় না।",
+  "psHasPeople": "ছবিতে মানুষ আছে",
+  "psOthers": "ছবিতে অন্য কেউ আছেন",
+  "psChild": "ছবিতে শিশু আছে",
+  "psConsent": "অন্যের ছবি এডিট করার আগে তাঁর অনুমতি নিন।",
+  "psChildCaution": "শিশুর ছবি: বিউটি রিটাচ বন্ধ, আর তাদের নতুন ছবি তৈরি করা হয় না।",
+  "psRunEdit": "এডিট করুন",
+  "psRunGenerate": "ছবি তৈরি করুন",
+  "psCostAds": "{count}টি ছোট বিজ্ঞাপন দেখুন",
+  "psCostCredits": "{count} ক্রেডিট",
+  "psCostPool": "প্ল্যান থেকে {count} ক্রেডিট",
+  "psFreeTrial": "আজকের ফ্রি ট্রায়াল",
+  "psCostIncluded": "অন্তর্ভুক্ত — কোনো বিজ্ঞাপন নেই",
+  "psProviderMissing": "মালিক ইমেজ প্রোভাইডার যুক্ত করলে প্রম্পট এডিট চালু হবে। ({needs})",
+  "psIdentityMissing": "মানুষসহ ছবির এডিটে ফোনের পরিচয়-যাচাই লাগে, যা পরের আপডেটে আসছে। কিছুই কাটা হয়নি।",
+  "psIdentityFailed": "ফলাফলে মানুষটিকে স্পষ্টভাবে একই মনে হয়নি, তাই বাদ দেওয়া হয়েছে। আপনার মূল ছবি নিরাপদ।",
+  "psRefusedTitle": "এই এডিটটি করা যাবে না",
+  "psExportTitle": "সেভ ও শেয়ার",
+  "psSave": "সেভ",
+  "psShare": "শেয়ার",
+  "psWallpaper": "ওয়ালপেপার",
+  "psCopy": "কপি",
+  "psOpenIn": "অন্য অ্যাপে",
+  "psSinkUnavailable": "এই অপশনটি এই সংস্করণে এখনো নেই।",
+  "psSaved": "Assisto Photos ফোল্ডারে সেভ হয়েছে।",
+  "psShared": "শেয়ার হয়েছে।",
+  "psOpened": "অন্য অ্যাপে খোলা হয়েছে।",
+  "psFailed": "কিছু একটা সমস্যা হয়েছে — আবার চেষ্টা করুন।",
+  "psInsufficient": "যথেষ্ট ক্রেডিট নেই।",
+  "psNeedPhoto": "আগে একটি ছবি বেছে এডিট করুন।",
+  "psNeedPrompt": "কী বদলাবেন লিখুন বা বলুন, অথবা একটি অপশন বাছুন।",
+  "psCancelled": "বাতিল — কিছুই কাটা হয়নি।",
+  "psAdUnavailable": "বিজ্ঞাপন লোড হয়নি। আবার চেষ্টা করুন, অথবা ক্রেডিট ব্যবহার করুন।",
+  "psPreviewNote": "ফ্রি প্রিভিউ: ছোট আকার ও জলছাপসহ। বিজ্ঞাপনের পর পুরো মান।",
+  "psSecureOn": "এই প্রিভিউতে স্ক্রিনশট বন্ধ।",
+  "psSecureOff": "প্রিভিউতে স্ক্রিনশট বন্ধের সুবিধা পরের আপডেটে আসছে।",
+  "psCornerNote": "ফ্রি সেভে ছোট্ট “Edited with Assisto” চিহ্ন থাকে। প্রিমিয়াম সেভ পরিষ্কার।",
+  "psAiMetaNote": "AI দিয়ে এডিট করা ছবির ফাইল-তথ্যে তা উল্লেখ থাকে।",
+  "psOriginalKept": "মূল ছবি রাখা আছে",
+  "psUndo": "আগের অবস্থা",
+  "psRedo": "আবার করুন",
+  "psHistory": "সংস্করণ",
+  "psVersionOriginal": "মূল ছবি",
+  "psVersionEdit": "এডিট {n}",
+  "psGateTitle": "পুরো মান আনলক করুন",
+  "psGateBody": "পুরো মানে সেভ, শেয়ার বা ব্যবহার করতে {count}টি ছোট বিজ্ঞাপন দেখুন।",
+  "psGateRunTitle": "এই AI এডিট চালান",
+  "psGateRunBody": "এই এডিট খরচের AI সার্ভারে চলে। আগে {count}টি ছোট বিজ্ঞাপন দেখুন — তারপর চলবে।",
+  "psGateProgress": "যাচাই হয়েছে: {total}টির মধ্যে {done}টি",
+  "psGateWatch": "বিজ্ঞাপন দেখুন",
+  "psGateRetry": "আবার বিজ্ঞাপন চেষ্টা করুন",
+  "psGateUseCredits": "{count} ক্রেডিট ব্যবহার করুন",
+  "psGatePremium": "প্রিমিয়াম নিন — বিজ্ঞাপন নেই",
+  "psGateAdsNotLinked": "এই সংস্করণে বিজ্ঞাপন এখনো চালু নয় — ক্রেডিট বা প্রিমিয়াম ব্যবহার করুন।",
+  "psGateCreditsOnly": "এই কাজের খরচ বিজ্ঞাপনে মেটে না — ক্রেডিট বা প্রিমিয়াম লাগবে।",
+  "psGateNoFillNote": "ফ্রি বিকল্প নেই: বিজ্ঞাপন লোড না হলে আবার চেষ্টা করুন বা ক্রেডিট দিন।",
+  "psTrialsLeft": "আজ বাকি ফ্রি ট্রায়াল: {count}টি",
+  "psPremiumClean": "প্রিমিয়াম: বিজ্ঞাপন নেই, পরিষ্কার পুরো মানের সেভ।",
+  "psWorking": "কাজ চলছে…",
+  "psSafetyNote": "যৌন এডিট, বাস্তব মানুষের ভুয়া দৃশ্য, এবং পরিচয়পত্র, সনদ, টাকা বা সিলের এডিট আমরা করি না।",
+  "psOwnerPnlTitle": "ফটো স্টুডিও: বিজ্ঞাপন আয় বনাম খরচ",
+  "psOwnerFeatEnhanceHd": "এক ট্যাপে এনহ্যান্স (HD এক্সপোর্ট)",
+  "psOwnerFeatEnhanceCloud": "ক্লাউড এনহ্যান্স",
+  "psOwnerFeatPrompt": "প্রম্পট এডিট",
+  "psOwnerFeatGenerate": "নতুন ছবি তৈরি",
+  "psOwnerFeatEntry": "প্রবেশ বিজ্ঞাপন",
+  "psOwnerEmpty": "এই সময়ে ফটো স্টুডিওতে এখনো কোনো কার্যক্রম নেই।",
+  "psGateTrialUsed": "আজকের ফ্রি ট্রায়াল শেষ — ক্রেডিট বা প্রিমিয়াম দিয়ে চালিয়ে যান।"
+ }
+}

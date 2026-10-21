@@ -15445,5 +15445,187 @@
   },
   "c1SearchSelf": "That's your own number.",
   "c1WantsToConnect": "Wants to join your circle",
-  "c1FlagContactsMatchUnverified": "Find unverified numbers in Contacts (test builds)"
+  "c1FlagContactsMatchUnverified": "Find unverified numbers in Contacts (test builds)",
+  "psTitle": "Photo Studio",
+  "psTagline": "Your face stays yours — just at its very best.",
+  "psOpening": "Opening Photo Studio…",
+  "psPickGallery": "Choose a photo",
+  "psPickCamera": "Take a photo",
+  "psChangePhoto": "Change photo",
+  "psEmptyBody": "Enhance in one tap, or describe the edit you want — typed or by voice.",
+  "psEnhanceTitle": "One-tap enhance",
+  "psEnhanceBody": "Sharper, cleaner, brighter — on your phone, at no internet cost.",
+  "psEnhanceButton": "Enhance",
+  "psStrength": "Strength",
+  "psStrengthLight": "Light",
+  "psStrengthNatural": "Natural",
+  "psStrengthStrong": "Strong",
+  "psEnhanceNotInBuild": "On-device AI enhance arrives in the next app update. We never show a fake result.",
+  "psEnhancePreparing": "Preparing the photo tool…",
+  "psPromptTitle": "Edit by prompt",
+  "psPromptHint": "e.g. change the background to a beach",
+  "psGenerateNoPhoto": "No photo? Describe a new image to create.",
+  "psReadyOptions": "Ready options",
+  "psOptBgChange": "Change background",
+  "psOptBgRemove": "Remove background",
+  "psOptBgBlur": "Blur background",
+  "psOptSky": "Replace sky",
+  "psOptRemoveObjects": "Remove things or people behind",
+  "psOptLighting": "Lighting & colour",
+  "psOptPassport": "Passport photo (40×50 mm, white)",
+  "psOptVisa": "Visa photo (50×50 mm, white)",
+  "psOptProduct": "Product photo (white studio)",
+  "psOptDocument": "Document cleanup",
+  "psOptCrop": "Crop & straighten",
+  "psOptBeauty": "Beauty retouch",
+  "psBeautySkinSmooth": "Smooth skin",
+  "psBeautyBlemish": "Remove blemishes & acne",
+  "psBeautyUnderEye": "Under-eye circles",
+  "psBeautyEvenTone": "Even skin tone",
+  "psBeautyGlow": "Glow & face light",
+  "psBeautyTeeth": "Whiter teeth",
+  "psBeautyEyes": "Brighter eyes",
+  "psBeautyHair": "Tidy hair",
+  "psBeautyMakeup": "Light natural makeup",
+  "psBeautyRule": "Same person, best version: we never change face shape, eye, nose or lip size, skin colour, age or gender.",
+  "psHasPeople": "There are people in this photo",
+  "psOthers": "Someone else is in this photo",
+  "psChild": "A child is in this photo",
+  "psConsent": "Please edit other people's photos only with their permission.",
+  "psChildCaution": "Children's photos: beauty retouch is off and we don't create new images of them.",
+  "psRunEdit": "Apply edit",
+  "psRunGenerate": "Create image",
+  "psCostAds": "Watch {count} short ads",
+  "@psCostAds": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "psCostCredits": "{count} credits",
+  "@psCostCredits": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "psCostPool": "{count} credits from your plan",
+  "@psCostPool": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "psFreeTrial": "Free trial today",
+  "psCostIncluded": "Included — no ads",
+  "psProviderMissing": "Prompt editing switches on when the owner connects an image provider. ({needs})",
+  "@psProviderMissing": {
+    "placeholders": {
+      "needs": {
+        "type": "String"
+      }
+    }
+  },
+  "psIdentityMissing": "Edits on photos with people need the on-device identity check, which arrives in the next update. Nothing was charged.",
+  "psIdentityFailed": "The result didn't clearly look like the same person, so we discarded it. Your original is safe.",
+  "psRefusedTitle": "We can't make this edit",
+  "psExportTitle": "Save & share",
+  "psSave": "Save",
+  "psShare": "Share",
+  "psWallpaper": "Wallpaper",
+  "psCopy": "Copy",
+  "psOpenIn": "Open in…",
+  "psSinkUnavailable": "That option isn't available in this app version yet.",
+  "psSaved": "Saved to the Assisto Photos folder.",
+  "psShared": "Shared.",
+  "psOpened": "Opened in another app.",
+  "psFailed": "Something went wrong — please try again.",
+  "psInsufficient": "Not enough credits.",
+  "psNeedPhoto": "Choose a photo and make an edit first.",
+  "psNeedPrompt": "Type or say what to change, or tick an option.",
+  "psCancelled": "Cancelled — nothing was charged.",
+  "psAdUnavailable": "The ad couldn't load. Try again, or use credits.",
+  "psPreviewNote": "Free preview: smaller size with a watermark. Full quality after the ads.",
+  "psSecureOn": "Screenshots are blocked on this preview.",
+  "psSecureOff": "Screenshot blocking for previews arrives in the next update.",
+  "psCornerNote": "Free saves carry a small “Edited with Assisto” mark. Premium saves are clean.",
+  "psAiMetaNote": "AI-edited photos are marked as AI-edited in their file info.",
+  "psOriginalKept": "Original kept",
+  "psUndo": "Undo",
+  "psRedo": "Redo",
+  "psHistory": "Versions",
+  "psVersionOriginal": "Original",
+  "psVersionEdit": "Edit {n}",
+  "@psVersionEdit": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "psGateTitle": "Unlock full quality",
+  "psGateBody": "Watch {count} short ads to save, share or use this photo in full quality.",
+  "@psGateBody": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "psGateRunTitle": "Run this AI edit",
+  "psGateRunBody": "This edit runs on a paid AI server. Watch {count} short ads first — then it runs.",
+  "@psGateRunBody": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "psGateProgress": "Ads verified: {done} of {total}",
+  "@psGateProgress": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "psGateWatch": "Watch ad",
+  "psGateRetry": "Try the ad again",
+  "psGateUseCredits": "Use {count} credits",
+  "@psGateUseCredits": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "psGatePremium": "Go Premium — no ads",
+  "psGateAdsNotLinked": "Ads aren't set up in this app version yet — use credits or Premium.",
+  "psGateCreditsOnly": "Ads can't cover this job's cost — it needs credits or Premium.",
+  "psGateNoFillNote": "No free shortcut: if an ad doesn't load, retry or use credits.",
+  "psTrialsLeft": "Free prompt trials left today: {count}",
+  "@psTrialsLeft": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "psPremiumClean": "Premium: no ads, clean full-quality saves.",
+  "psWorking": "Working…",
+  "psSafetyNote": "We refuse sexual edits, fake scenes of real people and any editing of IDs, certificates, money or seals.",
+  "psOwnerPnlTitle": "Photo Studio: ad revenue vs cost",
+  "psOwnerFeatEnhanceHd": "One-tap enhance (HD export)",
+  "psOwnerFeatEnhanceCloud": "Cloud enhance",
+  "psOwnerFeatPrompt": "Prompt edit",
+  "psOwnerFeatGenerate": "Generate",
+  "psOwnerFeatEntry": "Entry ad",
+  "psOwnerEmpty": "No Photo Studio activity in this period yet.",
+  "psGateTrialUsed": "Today's free trial is used — continue with credits or Premium."
 }

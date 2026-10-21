@@ -392,6 +392,8 @@ def pnl_dashboard(days=30, now=None):
         "guard": guard,
         "alerts": alerts,
         "sponsored": _sponsored_summary(rows),
+        # ps1-photo: Photo Studio ad revenue vs cost, per day per feature
+        "photo_studio": _photo_studio_stats(days),
     }
 
 
@@ -404,6 +406,14 @@ def _sponsored_summary(rows):
         except (TypeError, ValueError):
             pass
     return {"total": round(total, 2)}
+
+
+def _photo_studio_stats(days):
+    try:
+        from . import photo_studio_service
+        return photo_studio_service.owner_stats(days)
+    except Exception:
+        return {"days": [], "features": [], "totals": {}}
 
 
 def _recent_cost_alerts(limit=20):

@@ -38,7 +38,7 @@ import '../screens/name_about_screen.dart';
 import '../screens/ramadan_screen.dart';
 import '../screens/exam_result_screen.dart';
 import '../screens/unseen_world_screen.dart';
-import '../screens/photo_enhance_screen.dart';
+import '../screens/photo_studio_screen.dart'; // ps1-photo
 import '../screens/circle_screen.dart';
 import '../screens/messenger/messenger_home_screen.dart';
 import '../screens/notification_centre_screen.dart';
@@ -147,7 +147,11 @@ class ChatNav {
     'ramadan': (_) => const RamadanScreen(),
     'exam': (_) => const ExamResultScreen(),
     'unseen': (_) => const UnseenWorldScreen(),
-    'photo_enhance': (_) => const PhotoEnhanceScreen(),
+    // The old enhance tool is gone (owner order): its key stays because saved
+    // home buttons, Discover cards and chat commands use it — it now opens
+    // Photo Studio, so every save goes through the same ad/credit rule.
+    'photo_enhance': (_) => const PhotoStudioScreen(),
+    'photo_studio': (_) => const PhotoStudioScreen(), // ps1-photo
     'circle': (_) => const CircleScreen(),
     // Messenger hub (Step 3): Chats · Updates · Communities · Calls.
     'messages': (_) => const MessengerHomeScreen(),
@@ -239,6 +243,7 @@ class ChatNav {
     'exam': ['exam result', 'result', 'exam'],
     'unseen': ['unseen bangladesh', 'travel', 'destinations', 'tourism'],
     'photo_enhance': ['enhance photo', 'photo enhance', 'improve photo'],
+    'photo_studio': ['photo studio', 'edit photo', 'photo editor', 'change background', 'passport photo', 'ai photo'],
     'security': ['security', 'stolen while unlocked', 'anti-theft ownership',
         'protect my phone', 'theft protection', 'disarm protection',
         'security pin'],

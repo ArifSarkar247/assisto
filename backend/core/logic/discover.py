@@ -51,7 +51,7 @@ ROUTE_KEYS = (
     "nearby", "watch_feed", "business", "bargain_rules", "business_plans",
     "journey", "referral", "circle_privacy", "circle_calls", "action_center",
     "disaster", "offline", "budget", "tax", "wrapped", "money_voice", "ai_chat",
-    "voice_assistant", "voice_settings",
+    "voice_assistant", "voice_settings", "photo_studio",
 )
 
 # Icon names the app knows how to draw (app/lib/widgets/home_suggestions.dart

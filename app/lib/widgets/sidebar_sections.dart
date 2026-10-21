@@ -87,7 +87,7 @@ import '../screens/dictionary_screen.dart';
 import '../screens/ramadan_screen.dart';
 import '../screens/watch_feed_screen.dart';
 import '../screens/exam_result_screen.dart';
-import '../screens/photo_enhance_screen.dart';
+import '../screens/photo_studio_screen.dart'; // ps1-photo
 // work
 import '../screens/agent_studio_screen.dart';
 import '../screens/jobs_screen.dart';
@@ -375,9 +375,12 @@ class SidebarSections {
       SidebarItem(Icons.school_outlined, (t) => t.examTitle,
           (_) => const ExamResultScreen(),
           synonyms: ['exam', 'result', 'ssc', 'hsc']),
-      SidebarItem(Icons.auto_fix_high_outlined, (t) => t.photoTitle,
-          (_) => const PhotoEnhanceScreen(),
-          synonyms: ['photo', 'enhance', 'image']),
+      // ps1-photo: Photo Studio — one-tap AI enhance + edit/generate by prompt.
+      // It REPLACES the old enhance tool (owner order): one entry, one ad rule.
+      SidebarItem(Icons.auto_awesome_outlined, (t) => t.psTitle,
+          (_) => const PhotoStudioScreen(),
+          synonyms: ['photo studio', 'edit photo', 'background', 'passport photo',
+              'ai photo', 'beauty', 'retouch', 'photo', 'enhance', 'image']),
       SidebarItem(Icons.directions_car_outlined, (t) => t.rideFoodTitle,
           (_) => const RideFoodScreen(),
           synonyms: ['ride', 'food', 'uber', 'pathao', 'foodpanda', 'delivery']),

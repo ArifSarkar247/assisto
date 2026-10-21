@@ -714,3 +714,21 @@ urlpatterns += [
 # ---- /c1-contacts ----
 
 urlpatterns += router.urls
+
+# ---- ps1-photo ---- Photo Studio: config, safety, entry ad, jobs (funding taken
+# first), rewarded-ad tickets + AdMob SSV callback, cloud run, export gate, owner P&L.
+from . import views_ps1_photo as ps1  # noqa: E402
+urlpatterns += [
+    path("photo-studio/config", ps1.PhotoStudioConfigView.as_view()),
+    path("photo-studio/safety", ps1.PhotoStudioSafetyView.as_view()),
+    path("photo-studio/entry-ad", ps1.PhotoStudioEntryAdView.as_view()),
+    path("photo-studio/jobs", ps1.PhotoStudioJobsView.as_view()),
+    path("photo-studio/jobs/<int:pk>", ps1.PhotoStudioJobView.as_view()),
+    path("photo-studio/jobs/<int:pk>/ad-ticket", ps1.PhotoStudioTicketView.as_view()),
+    path("photo-studio/jobs/<int:pk>/fund", ps1.PhotoStudioFundView.as_view()),
+    path("photo-studio/jobs/<int:pk>/run", ps1.PhotoStudioRunView.as_view()),
+    path("photo-studio/jobs/<int:pk>/unlock", ps1.PhotoStudioUnlockView.as_view()),
+    path("ads/ssv", ps1.AdMobSsvView.as_view()),
+    path("admin/photo-studio/pnl", ps1.AdminPhotoStudioPnlView.as_view()),
+]
+# ---- /ps1-photo ----
