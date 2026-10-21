@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api.dart';
+import 'home_api.dart';
 import 'db.dart';
 import 'models.dart';
 import 'sync_repo.dart';
@@ -37,7 +38,19 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setLocale(Locale? l) async {
+  // Why the first-run language gate could come back on every launch: the
+  // choice lived ONLY in SharedPreferences, and every read/write failure was
+  // swallowed. If that store fails on a device (the login token, in secure
+  // storage, survived), locale stayed null at each cold start → gate again.
+  // Now the choice is kept in THREE places — SharedPreferences, secure storage
+  // and the user's server profile — and any one of them is enough.
+  static const _localeKey = 'locale';
+  static const _ioTimeout = Duration(seconds: 3);
+
+  /// Last local-storage failure (sent once as a diagnostic when logged in).
+  String? prefsError;
+
+  Future<void> setLocale(Locale? l, {bool syncServer = true}) async {
     locale = l;
     api.lang = l?.languageCode;
     // Advance the UI IMMEDIATELY. The chosen language is already live in memory,
@@ -47,23 +60,87 @@ class AppState extends ChangeNotifier {
     // a hung/failing SharedPreferences write used to freeze the language screen
     // (notifyListeners sat behind the await, so the tap did nothing).
     notifyListeners();
+    final code = l?.languageCode ?? '';
     try {
-      await Settings.setString('locale', l?.languageCode ?? '');
-    } catch (_) {
-      // Language stays applied for this session; it will persist next time.
+      await Settings.setString(_localeKey, code).timeout(_ioTimeout);
+    } catch (e) {
+      prefsError ??= 'prefs write locale: $e';
+    }
+    try {
+      await _secure.write(key: _localeKey, value: code).timeout(_ioTimeout);
+    } catch (e) {
+      prefsError ??= 'secure write locale: $e';
+    }
+    if (syncServer) unawaited(_pushLanguageToServer());
+  }
+
+  /// Keep the server profile in step with the local choice (best-effort).
+  Future<void> _pushLanguageToServer() async {
+    final code = locale?.languageCode;
+    final u = user;
+    if (code == null || u == null || api.token == null) return;
+    if (u.language == code) return;
+    try {
+      user = await api.updateProfile({'language': code});
+    } catch (_) {/* offline — the next launch/login retries */}
+  }
+
+  /// After the profile loads: a phone with no saved choice (new phone,
+  /// reinstall, or broken local storage) takes the server language, so a
+  /// logged-in user never sees the gate. A local choice made on this phone
+  /// (e.g. at the gate just before logging in) is pushed to the server.
+  Future<void> reconcileLanguage() async {
+    final server = user?.language;
+    if (server != 'bn' && server != 'en') return;
+    if (locale == null) {
+      await setLocale(Locale(server!), syncServer: false);
+    } else if (locale!.languageCode != server) {
+      await _pushLanguageToServer();
     }
   }
 
+  Future<String?> _readLocale() async {
+    try {
+      final v = await Settings.getString(_localeKey).timeout(_ioTimeout);
+      if (v != null && v.isNotEmpty) return v;
+    } catch (e) {
+      prefsError ??= 'prefs read locale: $e';
+    }
+    try {
+      final v = await _secure.read(key: _localeKey).timeout(_ioTimeout);
+      if (v != null && v.isNotEmpty) {
+        // heal the primary store when it lost the value
+        unawaited(Settings.setString(_localeKey, v)
+            .timeout(_ioTimeout)
+            .catchError((_) {}));
+        return v;
+      }
+    } catch (e) {
+      prefsError ??= 'secure read locale: $e';
+    }
+    return null;
+  }
+
   Future<void> _loadPrefs() async {
-    final tm = await Settings.getString('theme_mode');
-    themeMode = ThemeMode.values.firstWhere(
-      (m) => m.name == tm,
-      orElse: () => ThemeMode.system,
-    );
-    final lc = await Settings.getString('locale');
-    locale = (lc != null && lc.isNotEmpty) ? Locale(lc) : null;
+    // Each read is guarded on its own: one failing key must never wipe the
+    // others (the old single try/catch around all of them lost the language).
+    try {
+      final tm = await Settings.getString('theme_mode').timeout(_ioTimeout);
+      themeMode = ThemeMode.values.firstWhere(
+        (m) => m.name == tm,
+        orElse: () => ThemeMode.system,
+      );
+    } catch (e) {
+      prefsError ??= 'prefs read theme: $e';
+    }
+    final lc = await _readLocale();
+    if (lc != null) locale = Locale(lc);
     api.lang = locale?.languageCode;
-    onboarded = await Settings.getBool('onboarded', false);
+    try {
+      onboarded = await Settings.getBool('onboarded', false).timeout(_ioTimeout);
+    } catch (e) {
+      prefsError ??= 'prefs read onboarded: $e';
+    }
   }
 
   AppUser? user;
@@ -124,6 +201,7 @@ class AppState extends ChangeNotifier {
     if (t != null) {
       try {
         user = await api.me();
+        await reconcileLanguage();
         await sync();
         _syncAll();
         // Background poller must never block or crash startup.
@@ -138,6 +216,12 @@ class AppState extends ChangeNotifier {
     }
     loading = false;
     notifyListeners();
+    // Tell us (once per launch) when local storage misbehaves on a device, so
+    // a real root cause shows up in the server log instead of being swallowed.
+    final pe = prefsError;
+    if (pe != null && loggedIn) {
+      unawaited(api.reportStartupCrash('[prefs] $pe').catchError((_) {}));
+    }
   }
 
   // ---------- auth ----------
@@ -152,6 +236,7 @@ class AppState extends ChangeNotifier {
     api.token = res.token;
     user = res.user;
     await _secure.write(key: 'token', value: res.token);
+    await reconcileLanguage();
     unawaited(Background.start());
     await sync();
     _syncAll();
@@ -164,6 +249,7 @@ class AppState extends ChangeNotifier {
     api.token = res.token;
     user = res.user;
     await _secure.write(key: 'token', value: res.token);
+    await reconcileLanguage();
     unawaited(Background.start());
     await sync();
     _syncAll();
