@@ -1,0 +1,3 @@
+# w1-webphoto: delete lifeassisto.com/photo uploads/results after <= 1 hour.
+# Install (main session): append to the ubuntu crontab on the Assisto box.
+*/10 * * * * cd /home/ubuntu/assisto/backend && /home/ubuntu/assisto/.venv/bin/python manage.py purge_web_photos >> /home/ubuntu/assisto/logs/purge_web_photos.log 2>&1

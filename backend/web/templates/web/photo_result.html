@@ -1,15 +1,22 @@
 {% extends "web/base.html" %}
 {% block title %}{{ label }} — Assisto{% endblock %}
+{% block head %}<meta name="robots" content="noindex">
+<link rel="canonical" href="{{ seo.canonical }}">
+<style>
+  .pv{position:relative;display:inline-block}
+  .pv img{display:block;-webkit-user-drag:none;user-select:none;pointer-events:none}
+</style>{% endblock %}
 {% block content %}
 <div class="card" style="text-align:center">
-  <h2>{{ label }}</h2>
-  <img class="result" src="data:image/jpeg;base64,{{ img }}" style="max-height:360px" alt="photo">
-  <div class="share" style="margin-top:12px">
-    <a class="dl" href="data:image/jpeg;base64,{{ img }}" download="assisto-photo.jpg">{{ T.photo_dl }}</a>
-    <a class="dl" style="background:var(--teal)" href="data:image/jpeg;base64,{{ sheet }}" download="assisto-print-sheet.jpg">{{ T.photo_sheet }}</a>
-  </div>
+  <h1 style="font-size:20px">{{ label }}</h1>
+  <h2 style="font-size:15px;margin:.2em 0 .6em">{{ T.photo_preview_h }}</h2>
+  <div class="pv"><img class="result" src="data:image/jpeg;base64,{{ preview }}" width="180" alt="{{ T.photo_preview_h }}" oncontextmenu="return false"></div>
+  <p class="muted">{{ T.photo_preview_note }}</p>
+  <a class="btn gold" id="openApp" href="{{ app_href }}" rel="nofollow">{{ T.photo_open_app }}</a>
+  <p class="muted" style="margin-top:8px">{{ open_hint }}</p>
+  <p class="muted">{{ T.photo_export_rule }}</p>
   {% if bg_note %}<div class="warn" style="margin-top:12px;text-align:left">{{ bg_note }}</div>{% endif %}
 </div>
-<div class="appcta"><a href="/get{{ qlang }}">{{ T.photo_cta }}</a></div>
+<div class="card"><b>{{ T.photo_privacy_h }}</b><p class="muted" style="margin:.3em 0 0">{{ T.photo_privacy }}</p></div>
 <p style="text-align:center"><a href="/photo{{ qlang }}">{{ T.again }}</a></p>
 {% endblock %}

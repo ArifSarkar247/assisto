@@ -3562,3 +3562,19 @@ class PhotoExport(models.Model):
     corner_mark = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 # ---- /ps1-photo ----
+
+
+# ---- w1-webphoto ----
+class WebPhotoDrop(models.Model):
+    """A passport/visa photo made on lifeassisto.com/photo, parked for the
+    "Get it in the Assisto app" deep link. The clean JPEG lives ONLY here (DB,
+    never /media) and is never served by a web route; the app claims it once,
+    after login, into a Photo Studio job (normal export gate). Expires within
+    1 hour (web/logic/webphoto.TTL_MIN); purged on access + by cron."""
+    token = models.CharField(max_length=64, unique=True)
+    preset = models.CharField(max_length=24)
+    image = models.BinaryField()
+    ip_hash = models.CharField(max_length=64, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(db_index=True)
+# ---- /w1-webphoto ----

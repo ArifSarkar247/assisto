@@ -8,7 +8,7 @@ Honest scope (SPEC v2.1 §21, web-adapted):
     key. Without a key we say so plainly and give the user a guidance checklist
     instead of silently producing a wrong result.
 
-All specs below are standard published sizes (BD passport 45×35 mm, US/DV visa
+All specs below are standard published sizes (BD e-passport 35×45 mm, US/DV visa
 600×600 px, etc.) — rendered at 300 DPI. No facts invented.
 """
 import io
@@ -16,8 +16,10 @@ from PIL import Image
 
 # key -> (label_bn, label_en, width_px, height_px, physical, needs_white_bg)  @300dpi
 PRESETS = {
-    "bd_passport": ("বাংলাদেশ পাসপোর্ট (45×35 mm)", "Bangladesh Passport (45×35 mm)",
+    "bd_passport": ("বাংলাদেশ ই-পাসপোর্ট (35×45 mm)", "Bangladesh e-Passport (35×45 mm)",
                     413, 531, "35×45 mm", True),
+    "bd_mrp": ("বাংলাদেশ MRP / ফর্মের ছবি (45×55 mm)", "Bangladesh MRP / form photo (45×55 mm)",
+               531, 650, "45×55 mm", True),
     "bd_nid": ("জাতীয় পরিচয়পত্র (NID)", "National ID (NID)", 300, 360, "~25×30 mm", True),
     "passport_2x2": ("পাসপোর্ট / ভিসা (2×2 inch)", "Passport / Visa (2×2 inch)",
                      600, 600, "2×2 inch", True),
@@ -27,6 +29,32 @@ PRESETS = {
     "job": ("চাকরির আবেদন ছবি (300×400)", "Job application photo (300×400)",
             300, 400, "portrait", False),
     "stamp": ("স্ট্যাম্প সাইজ (300×360)", "Stamp size (300×360)", 300, 360, "stamp", False),
+}
+
+# Honest per-size notes (w1-webphoto SEO table). Verified 21 Oct 2026 against
+# public guides; official rules can change and missions abroad may differ, so
+# the page always says "confirm with the office before printing".
+PRESET_NOTES = {
+    "bn": {
+        "bd_passport": "ই-পাসপোর্টের বায়োমেট্রিক ছবি সাধারণত পাসপোর্ট অফিসেই তোলা হয়; সত্যায়ন/অন্য কাগজে ৩৫×৪৫ মিমি ছবি লাগে।",
+        "bd_mrp": "পুরনো MRP আবেদন ও কিছু দূতাবাসের ফর্মে ৪৫×৫৫ মিমি ছবি চাওয়া হয়।",
+        "bd_nid": "NID সংশোধন/আবেদনের ছোট ছবি — অফিসের নির্দেশনা মিলিয়ে নিন।",
+        "passport_2x2": "যেসব দেশ ২×২ ইঞ্চি (৫১×৫১ মিমি) ছবি চায়।",
+        "us_visa": "যুক্তরাষ্ট্রের ভিসা ও DV লটারি: ৬০০×৬০০ পিক্সেল, সাদা ব্যাকগ্রাউন্ড।",
+        "schengen": "শেঞ্জেন (ইউরোপ) ভিসা: ৩৫×৪৫ মিমি।",
+        "job": "চাকরির অনলাইন আবেদনের সাধারণ ছবি (৩০০×৪০০ পিক্সেল)।",
+        "stamp": "স্ট্যাম্প সাইজ ছবি (৩০০×৩৬০ পিক্সেল)।",
+    },
+    "en": {
+        "bd_passport": "The e-Passport biometric photo is usually taken at the passport office; 35×45 mm prints are used for attestation and other papers.",
+        "bd_mrp": "Older MRP forms and some missions abroad still ask for 45×55 mm.",
+        "bd_nid": "Small photo for NID applications/corrections — check the office's instructions.",
+        "passport_2x2": "For countries that ask for a 2×2 inch (51×51 mm) photo.",
+        "us_visa": "US visa and DV lottery: 600×600 pixels, white background.",
+        "schengen": "Schengen (Europe) visa: 35×45 mm.",
+        "job": "Common online job-application photo (300×400 pixels).",
+        "stamp": "Stamp-size photo (300×360 pixels).",
+    },
 }
 
 GUIDANCE = {
