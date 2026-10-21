@@ -15296,5 +15296,101 @@
   "vaOnbLater": "You can do this later in Settings > Voice assistant.",
   "vaDefBody2": "Then press and hold the power button (or Home, or swipe up from a bottom corner) to talk to Assisto — even on the lock screen. On the lock screen, anything private asks you to unlock first.",
   "vaDefPowerNote": "Power button: on Android 12+ go to Settings > System > Gestures > Press and hold power button > Digital assistant. On realme / OPPO look under Settings > Additional settings > Power button; some ColorOS versions only offer Google Assistant there — then use long-press Home or the corner swipe.",
-  "vaWakeTitle2": "“Hey Assisto” / “Hi Assisto”"
+  "vaWakeTitle2": "“Hey Assisto” / “Hi Assisto”",
+  "discoverSponsored": "Sponsored",
+  "discoverMgrTile": "Discover manager",
+  "discoverMgrTileSub": "Home spotlight cards, sponsors and reports",
+  "discoverMgrTitle": "Discover cards",
+  "discoverMgrOwnerOnly": "Only the app owner can manage Discover cards.",
+  "discoverMgrEmpty": "No cards yet. Add the first one.",
+  "discoverMgrAdd": "Add card",
+  "discoverMgrEdit": "Edit card",
+  "discoverMgrPreview": "Preview",
+  "discoverMgrPreviewAs": "What a user sees right now",
+  "discoverMgrPreviewEmpty": "This user would see no cards.",
+  "discoverMgrSegFree": "Free",
+  "discoverMgrSegPremium": "Premium",
+  "discoverMgrSegBusiness": "Business",
+  "discoverMgrAudienceAll": "Everyone",
+  "discoverMgrTypeFeature": "Assisto feature",
+  "discoverMgrTypeProduct": "Our product",
+  "discoverMgrTypeSponsored": "Sponsored",
+  "discoverMgrTypeAdmob": "AdMob slot",
+  "discoverMgrAdmobNote": "AdMob is not linked in the app yet, so this slot shows nothing to users for now. It is only filled for Free users when no sponsored card is booked.",
+  "discoverMgrPaidNote": "Premium and Business users never see sponsored or AdMob cards.",
+  "discoverMgrType": "Card type",
+  "discoverMgrTitleBn": "Title (Bangla)",
+  "discoverMgrTitleEn": "Title (English)",
+  "discoverMgrDescBn": "Description (Bangla)",
+  "discoverMgrDescEn": "Description (English)",
+  "discoverMgrAction": "When tapped",
+  "discoverMgrActionRoute": "Open an app screen",
+  "discoverMgrActionUrl": "Open a website",
+  "discoverMgrRoute": "App screen",
+  "discoverMgrUrl": "Website link (https only)",
+  "discoverMgrIcon": "Icon",
+  "discoverMgrImage": "Image",
+  "discoverMgrImagePick": "Upload image",
+  "discoverMgrImageRemove": "Remove image",
+  "discoverMgrImageSaveFirst": "Save the card first, then add an image.",
+  "discoverMgrImageFailed": "Image not accepted. Use PNG, JPG or WEBP up to 2 MB.",
+  "discoverMgrAudience": "Who sees it",
+  "discoverMgrStart": "Starts",
+  "discoverMgrEnd": "Ends",
+  "discoverMgrNoDate": "Not set",
+  "discoverMgrClear": "Clear",
+  "discoverMgrMinBuild": "Minimum app build (optional)",
+  "discoverMgrSponsorName": "Sponsor name",
+  "discoverMgrSponsorRevenue": "Sponsor revenue (৳)",
+  "discoverMgrSponsorNote": "Added to the P&L dashboard, spread across the days the card runs.",
+  "discoverMgrEnabled": "Show this card",
+  "discoverMgrSaved": "Saved",
+  "discoverMgrDeleteConfirm": "Delete this card? Its report will be deleted too.",
+  "discoverMgrLive": "Live",
+  "discoverMgrOff": "Off",
+  "discoverMgrNotLive": "Not live now",
+  "discoverMgrStats": "{impressions} views · {clicks} taps · {ctr}% CTR",
+  "discoverMgrReport": "Report",
+  "discoverMgrReportTitle": "Sponsor report",
+  "discoverMgrDays": "{days} days",
+  "discoverMgrColDate": "Date",
+  "discoverMgrColViews": "Views",
+  "discoverMgrColTaps": "Taps",
+  "discoverMgrColCtr": "CTR %",
+  "discoverMgrTotal": "Total",
+  "discoverMgrExportCsv": "Export CSV",
+  "discoverMgrExportPdf": "Export PDF",
+  "discoverMgrExportFailed": "Could not export the report.",
+  "discoverMgrUniqueNote": "Views and taps are counted once per user per day.",
+  "discoverMgrErrSafety": "This text or link is not allowed: gambling, adult or scam-like wording, a non-https link, a link inside the text, or a link shortener.",
+  "discoverMgrErrFields": "Please check: {fields}",
+  "discoverMgrSaveFailed": "Could not save. Please try again.",
+  "discoverMgrReorderHint": "Drag a card to change its order. Users see live cards in this order.",
+  "@discoverMgrStats": {
+    "placeholders": {
+      "impressions": {
+        "type": "int"
+      },
+      "clicks": {
+        "type": "int"
+      },
+      "ctr": {
+        "type": "String"
+      }
+    }
+  },
+  "@discoverMgrDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "@discoverMgrErrFields": {
+    "placeholders": {
+      "fields": {
+        "type": "String"
+      }
+    }
+  }
 }
