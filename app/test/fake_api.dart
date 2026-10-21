@@ -1404,7 +1404,11 @@ class FakeApi extends ApiClient {
       return {'orders': mode == FakeMode.empty ? const [] : _bizOrders(), 'role': 'owner'};
     }
     if (RegExp(r'^business/orders/\d+$').hasMatch(bare)) {
-      return _bizOrders().first;
+      // the detail view carries the item LIST (the list view only a count)
+      return {..._bizOrders().first, 'items': [
+        {'name': _bn ? 'পাঞ্জাবি' : 'Panjabi', 'qty': 1, 'price': '1200.00'},
+        {'name': _bn ? 'শাড়ি' : 'Saree', 'qty': 1, 'price': '1200.00'},
+      ], 'tracking': '', 'courier': '', 'courier_live': false};
     }
     // payments
     if (bare == 'business/payments/qr') {

@@ -90,7 +90,7 @@ class _CrmCommissionConfigState extends State<CrmCommissionConfig> {
       await CrmAdvApi.of(context).saveCommissionConfig(widget.org, _buildConfig());
       widget.onSaved();
     } catch (e) {
-      setState(() => _err = CrmError.from(e).message);
+      setState(() => _err = CrmError.from(e).textFor(context));
     } finally {
       if (mounted) setState(() => _saving = false);
     }

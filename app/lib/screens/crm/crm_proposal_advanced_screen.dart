@@ -56,7 +56,7 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('${CrmError.from(e).message}')));
+            .showSnackBar(SnackBar(content: Text('${CrmError.from(e).textFor(context)}')));
       }
     }
   }
@@ -130,7 +130,7 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('${CrmError.from(e).message}')));
+            .showSnackBar(SnackBar(content: Text('${CrmError.from(e).textFor(context)}')));
       }
     }
   }
@@ -208,7 +208,7 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('${CrmError.from(e).message}')));
+            .showSnackBar(SnackBar(content: Text('${CrmError.from(e).textFor(context)}')));
       }
     }
   }

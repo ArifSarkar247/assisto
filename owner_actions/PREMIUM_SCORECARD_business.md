@@ -40,3 +40,33 @@ States also rendered: `biz_products_empty`, `biz_khata_error`, `biz_reports_load
 Gallery additions (`app/test/screenshots_test.dart`): 13 business/money
 screens + 3 state variants, and a `ASSISTO_SHOT_SCALE` large-font knob.
 New ARB keys: `shopQa*` (12) in `app/up_a2_arb.json`.
+
+## Batch 2 (20 screens)
+
+Shots: `/tmp/claude-1000/-home-ubuntu-assisto/ea8a0e54-3e29-4bc2-a831-7f9d2da14cc0/scratchpad/qb` (before), `/tmp/claude-1000/-home-ubuntu-assisto/ea8a0e54-3e29-4bc2-a831-7f9d2da14cc0/scratchpad/qb2` (after, for the fixed screens).
+
+| Screen (gallery name) | Before → After | What was fixed |
+|---|---|---|
+| CRM home tabs (`crm_home`) | 9 → 9 | Scrollable icon tabs; the 4th tab peeking at the edge is the scroll hint. No change. |
+| CRM today (`crm_today`) | 9 → 9 | No change needed. |
+| CRM leads (`crm_leads`) | 7 → 9 | Lead names were cut to "করিম গার্মে…" at 1.0×; titles now take 2 lines. |
+| CRM pipeline (`crm_pipeline`) | 9 → 9 | Horizontal board; the next column peeking at the edge is the scroll affordance. No change. |
+| CRM team (`crm_team`) | 7 → 9 | Routing rules showed the raw code "rmg" and "member #2". They now show "গার্মেন্টস"/"RMG" and the member's name. |
+| CRM contacts (`crm_contacts`) | 9 → 9 | No change needed. |
+| CRM companies (`crm_companies`) | gallery crash → 9 | The gallery rendered it without its host Scaffold ("No Material widget"); it is now wrapped like the real host. The empty state is clean. |
+| CRM reports (`crm_reports`) | 6 → 9 | The KPI tiles were cut at 1.0× ("৳২,১৫০…"); they now shrink to fit (shared `crm_company_widgets`). The formula showed a tofu Σ glyph and English text on the Bangla screen; it is now localized. Industry rows showed "rmg/pharma"; they now show proper labels (shared `crmIndustryLabel`, moved to `crm_common`). |
+| CRM lead detail, error state (`crm_lead_detail`) | 4 → 9 | **The error state showed the raw exception** ("ClientException with SocketException … uri=https://…"). `CrmError` now keeps only server messages; network failures say "Couldn't reach Assisto. Check your internet and try again." and still log the technical text with the ref code. This applies to all 21 CRM snackbars via `textFor(context)`. |
+| Order detail (`biz_order_detail`) | crash → 9 | A **type-cast crash** when `items` is a count rather than a list now degrades safely. Item prices are formatted (৳1,200). |
+| Expense voucher (`pa_voucher`) | 9 → 9 | Empty state; no change needed. |
+| Expense split (`expense_split`) | 9 → 9 | No change needed. |
+| Mess accounting (`mess_acct`) | 9 → 9 | No change needed. |
+| Tax & zakat (`money_tax`) | 6 → 9 | A **dropdown overflow** (71 px) at 1.4× in English: the dropdowns are now `isExpanded` with ellipsis. The tabs were cut ("Income t"); they now scroll on a large font. |
+| Money Wrapped (`money_wrapped`) | 9 → 9 | Only the error state renders (no FakeApi stub); it is clean. |
+| Money by voice (`money_voice`) | 9 → 9 | No change needed (voice logic is a3's; UI only). |
+| SMS import (`money_import`) | 9 → 9 | No change needed. |
+| Shop Box cameras tab (`shop_cameras`) | 9 → 9 | No change needed. |
+| Shop Box alerts tab (`shop_alerts`) | 8 → 9 | An end-of-day/POS alert (no camera) said "Please check this camera"; it now says "Please check". At 1.4× the "False alarm" button wrapped to 2 lines; the buttons now stack full-width on a large font. |
+| Shop Box report tab (`shop_report`) | 8 → 9 | The English chip said "1 days"; it now says "1 day". |
+
+States also rendered: `crm_leads_empty`, `biz_orders_error` — both clean.
+New ARB keys this batch: `shopQaOneDay`, `shopQaLoadFailedBody`, `shopQaPleaseCheck` (the ARB file now holds 147 keys).

@@ -172,31 +172,8 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
         child: Text(s, style: const TextStyle(fontWeight: FontWeight.w800)),
       );
 
-  // The backend's by_industry rows carry the raw industry CODE (rmg/pharma/…).
-  // Map known codes to their proper labels (matches crm_firstrun) and title-
-  // case anything unexpected, so nothing renders as a bare lowercase token.
-  String _industryLabel(AppLocalizations t, String? code) {
-    switch (code) {
-      case 'rmg':
-        return t.crmIndRmg;
-      case 'pharma':
-        return t.crmIndPharma;
-      case 'retail':
-        return t.crmIndRetail;
-      case 'it':
-        return t.crmIndIt;
-      case 'manufacturing':
-        return t.crmIndManufacturing;
-      case 'services':
-        return t.crmIndServices;
-      case 'other':
-        return t.crmIndOther;
-      default:
-        final c = (code ?? '').trim();
-        if (c.isEmpty) return '—';
-        return c[0].toUpperCase() + c.substring(1);
-    }
-  }
+  String _industryLabel(AppLocalizations t, String? code) =>
+      crmIndustryLabel(t, code);
 
   // Swap symbols the app font lacks (render as tofu boxes) for safe ASCII:
   // sigma U+03A3 -> 'Sum ', multiplication sign U+00D7 -> 'x'.

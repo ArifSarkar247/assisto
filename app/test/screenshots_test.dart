@@ -124,6 +124,11 @@ import 'package:assisto/screens/crm/crm_leads_screen.dart';
 import 'package:assisto/screens/crm/crm_pipeline_screen.dart';
 import 'package:assisto/screens/crm/crm_dashboard_screen.dart';
 import 'package:assisto/screens/crm/crm_team_screen.dart';
+import 'package:assisto/screens/crm/crm_companies_screen.dart';
+import 'package:assisto/screens/crm/crm_reports_screen.dart';
+import 'package:assisto/screens/crm/crm_lead_detail_screen.dart';
+import 'package:assisto/screens/crm/crm_home_screen.dart';
+import 'package:assisto/screens/money_import_screen.dart';
 import 'package:assisto/screens/business_screen.dart';
 import 'package:assisto/screens/inbox_screen.dart';
 import 'package:assisto/screens/guide_screen.dart';
@@ -456,6 +461,18 @@ void main() {
     'biz_products_empty': (build: (_) => const ProductsScreen(businessId: 1), mode: FakeMode.empty, full: false),
     'biz_khata_error': (build: (l) => KhataScreen(business: const {'id': 1, 'name': 'X', 'role': 'owner'}), mode: FakeMode.fail, full: false),
     'biz_reports_loading': (build: (_) => const ReportsScreen(businessId: 1), mode: FakeMode.slow, full: false),
+    // a2-cctv Premium QA batch 2
+    'crm_home': (build: (_) => const CrmHomeScreen(previewOrg: 1), mode: FakeMode.data, full: true),
+    'crm_companies': (build: (_) => Scaffold(appBar: AppBar(title: const Text('CRM')), body: const CrmCompaniesScreen(org: 1)), mode: FakeMode.data, full: true),
+    'crm_reports': (build: (_) => Scaffold(appBar: AppBar(title: const Text('CRM')), body: const CrmReportsScreen(org: 1)), mode: FakeMode.data, full: true),
+    'crm_lead_detail': (build: (_) => const CrmLeadDetailScreen(org: 1, leadId: 1), mode: FakeMode.data, full: true),
+    'biz_order_detail': (build: (_) => const OrderDetailScreen(orderId: 101), mode: FakeMode.data, full: true),
+    'money_import': (build: (_) => const MoneyImportScreen(), mode: FakeMode.data, full: true),
+    'shop_cameras': (build: (_) => const ShopBoxScreen(initialTab: 1), mode: FakeMode.data, full: true),
+    'shop_alerts': (build: (_) => const ShopBoxScreen(initialTab: 2), mode: FakeMode.data, full: true),
+    'shop_report': (build: (_) => const ShopBoxScreen(initialTab: 3), mode: FakeMode.data, full: true),
+    'crm_leads_empty': (build: (_) => Scaffold(appBar: AppBar(title: const Text('CRM')), body: const CrmLeadsScreen(org: 1)), mode: FakeMode.empty, full: false),
+    'biz_orders_error': (build: (_) => const OrdersScreen(), mode: FakeMode.fail, full: false),
     // a2-cctv: Shop Box (CCTV Part 4) — Business plan stubbed in FakeApi
     'shop_box': (build: (_) => const ShopBoxScreen(), mode: FakeMode.data, full: true),
     'shop_eod': (build: (_) => const ShopEodScreen(siteId: 1), mode: FakeMode.data, full: true),

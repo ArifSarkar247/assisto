@@ -51,7 +51,7 @@ class _CrmErpHandoffScreenState extends State<CrmErpHandoffScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('${CrmError.from(e).message}')));
+            .showSnackBar(SnackBar(content: Text('${CrmError.from(e).textFor(context)}')));
       }
     }
   }

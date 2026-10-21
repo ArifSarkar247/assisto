@@ -291,7 +291,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   Widget _content(AppLocalizations tr) {
-    final items = ((_order['items'] ?? []) as List).cast<Map<String, dynamic>>();
+    // list rows carry an item COUNT; only the detail carries the item list
+    final rawItems = _order['items'];
+    final items = rawItems is List
+        ? rawItems.whereType<Map>().map((e) => e.cast<String, dynamic>()).toList()
+        : const <Map<String, dynamic>>[];
     final cod = _order['payment'] == 'cod';
     return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
       // Parcel status line ("where is my parcel?").
@@ -334,7 +338,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 Expanded(child: Text((it['name'] ?? '').toString())),
                 Text('×${it['qty'] ?? 1}'),
                 const SizedBox(width: Gap.md),
-                Text('৳${it['price'] ?? 0}', style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(_takaFmt(it['price']), style: const TextStyle(fontWeight: FontWeight.w600)),
               ]),
             ),
           const Divider(),

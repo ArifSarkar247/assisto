@@ -139,7 +139,10 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
                       _line(t.crmCommitForecast, bdt(context, forecast['commit'] as num?)),
                       _line(t.crmOpenDealsCount, '${forecast['open_count'] ?? 0}'),
                       const SizedBox(height: Gap.xs),
-                      Text('${t.crmMethodLabel}: ${forecast['method'] ?? ''}',
+                      // fixed server formula, shown in the user's language
+                      // (the server text is English and uses a Σ glyph the
+                      // Bengali font lacks)
+                      Text('${t.crmMethodLabel}: ${t.shopQaForecastMethod}',
                           style: TextStyle(
                               fontSize: 11, color: scheme.onSurfaceVariant)),
                       const SizedBox(height: Gap.xs),
@@ -191,7 +194,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
         // ---- pipeline by industry ----
         CrmSectionHeader(t.crmReportByIndustry),
         _rowsCard(byInd,
-            (r) => _line(r['industry']?.toString() ?? '—',
+            (r) => _line(crmIndustryLabel(t, r['industry']?.toString()),
                 '${bdt(context, r['value'] as num?)} · ${r['count']}')),
         const SizedBox(height: Gap.md),
 

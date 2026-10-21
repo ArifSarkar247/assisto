@@ -32,7 +32,9 @@ import 'shop_eod_screen.dart';
 /// Four tabs: Sites · Cameras · Alerts · Report. All strings are ARB keys
 /// (en + bn parity); no Bangla literal lives in this file.
 class ShopBoxScreen extends StatefulWidget {
-  const ShopBoxScreen({super.key});
+  /// 0 Sites · 1 Cameras · 2 Alerts · 3 Report (gallery / deep links).
+  final int initialTab;
+  const ShopBoxScreen({super.key, this.initialTab = 0});
   @override
   State<ShopBoxScreen> createState() => _ShopBoxScreenState();
 }
@@ -121,6 +123,7 @@ class _ShopBoxScreenState extends State<ShopBoxScreen> {
 
     return DefaultTabController(
       length: 4,
+      initialIndex: widget.initialTab.clamp(0, 3),
       child: Scaffold(
         appBar: AppBar(
           title: Text(t.shopBoxTitle),
@@ -231,13 +234,6 @@ class _UpsellBody extends StatelessWidget {
 }
 
 // ======================= SHARED =======================
-String _fmtDate(BuildContext context, dynamic iso) {
-  final d = iso == null ? null : DateTime.tryParse(iso.toString());
-  if (d == null) return '';
-  final lang = Localizations.localeOf(context).languageCode;
-  return DateFormat('d MMM yyyy', lang).format(d.toLocal());
-}
-
 String _fmtDateTime(BuildContext context, dynamic iso) {
   final d = iso == null ? null : DateTime.tryParse(iso.toString());
   if (d == null) return '';
@@ -1200,7 +1196,7 @@ class _AlertsTabState extends State<_AlertsTab> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // ALWAYS "please check camera X" wording, never theft.
-                        Text(t.shopBoxAlertHeadline,
+                        Text((e['camera'] == null ? t.shopQaPleaseCheck : t.shopBoxAlertHeadline),
                             style: const TextStyle(
                                 fontWeight: FontWeight.w700, fontSize: 14.5)),
                         const SizedBox(height: 2),
@@ -1251,23 +1247,29 @@ class _AlertsTabState extends State<_AlertsTab> {
               ],
               if (isOpen) ...[
                 const SizedBox(height: Gap.md),
-                Row(children: [
-                  Expanded(
-                    child: FilledButton.tonalIcon(
-                      onPressed: () => _mark(e, 'checked'),
-                      icon: const Icon(Icons.check, size: 18),
-                      label: Text(t.shopBoxMarkChecked),
-                    ),
-                  ),
-                  const SizedBox(width: Gap.sm),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => _mark(e, 'false_alarm'),
-                      icon: const Icon(Icons.not_interested, size: 18),
-                      label: Text(t.shopBoxMarkFalseAlarm),
-                    ),
-                  ),
-                ]),
+                Builder(builder: (context) {
+                  final checked = FilledButton.tonalIcon(
+                    onPressed: () => _mark(e, 'checked'),
+                    icon: const Icon(Icons.check, size: 18),
+                    label: Text(t.shopBoxMarkChecked),
+                  );
+                  final falseAlarm = OutlinedButton.icon(
+                    onPressed: () => _mark(e, 'false_alarm'),
+                    icon: const Icon(Icons.not_interested, size: 18),
+                    label: Text(t.shopBoxMarkFalseAlarm),
+                  );
+                  // large font: stack full-width so labels stay on one line
+                  if (MediaQuery.textScalerOf(context).scale(10) > 11.5) {
+                    return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [checked, const SizedBox(height: Gap.sm), falseAlarm]);
+                  }
+                  return Row(children: [
+                    Expanded(child: checked),
+                    const SizedBox(width: Gap.sm),
+                    Expanded(child: falseAlarm),
+                  ]);
+                }),
               ],
             ]),
       ),
@@ -1390,7 +1392,7 @@ class _ReportTabState extends State<_ReportTab> {
           Wrap(spacing: Gap.sm, children: [
             for (final d in [1, 7, 30, 90])
               ChoiceChip(
-                label: Text(t.shopBoxReportDays(fmtInt(context, d))),
+                label: Text(d == 1 ? t.shopQaOneDay : t.shopBoxReportDays(fmtInt(context, d))),
                 selected: _days == d,
                 onSelected: (_) {
                   setState(() => _days = d);

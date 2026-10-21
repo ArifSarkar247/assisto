@@ -43,6 +43,10 @@ class _MoneyTaxScreenState extends State<MoneyTaxScreen> {
         appBar: AppBar(
           title: Text(t.taxTitle),
           bottom: TabBar(
+            isScrollable: MediaQuery.textScalerOf(context).scale(10) > 11.5,
+            tabAlignment: MediaQuery.textScalerOf(context).scale(10) > 11.5
+                ? TabAlignment.start
+                : null,
             tabs: [
               Tab(text: t.taxTabIncome),
               Tab(text: t.taxTabZakat),
@@ -153,6 +157,7 @@ class _IncomeTaxTabState extends State<_IncomeTaxTab> {
       if (_err != null) FinanceErrorBanner(_err!),
       TaxSectionTitle(t.taxYearLabel),
       DropdownButtonFormField<String>(
+        isExpanded: true, // long labels ellipsize instead of overflowing
         initialValue: _year,
         decoration: InputDecoration(labelText: t.taxYearLabel),
         items: tax.taxYears.keys
@@ -165,11 +170,12 @@ class _IncomeTaxTabState extends State<_IncomeTaxTab> {
       ),
       const SizedBox(height: Gap.md),
       DropdownButtonFormField<tax.TaxCategory>(
+        isExpanded: true, // long labels ellipsize instead of overflowing
         initialValue: _category,
         decoration: InputDecoration(labelText: t.taxCategoryLabel),
         items: tax.TaxCategory.values
             .map((c) =>
-                DropdownMenuItem(value: c, child: Text(_catLabel(t, c))))
+                DropdownMenuItem(value: c, child: Text(_catLabel(t, c), overflow: TextOverflow.ellipsis)))
             .toList(),
         onChanged: (v) => setState(() {
           _category = v ?? tax.TaxCategory.general;
@@ -178,11 +184,12 @@ class _IncomeTaxTabState extends State<_IncomeTaxTab> {
       ),
       const SizedBox(height: Gap.md),
       DropdownButtonFormField<String>(
+        isExpanded: true, // long labels ellipsize instead of overflowing
         initialValue: _location,
         decoration: InputDecoration(labelText: t.taxLocationLabel),
         items: const ['dhaka_ctg', 'other_city', 'elsewhere']
             .map((l) =>
-                DropdownMenuItem(value: l, child: Text(_locLabel(t, l))))
+                DropdownMenuItem(value: l, child: Text(_locLabel(t, l), overflow: TextOverflow.ellipsis)))
             .toList(),
         onChanged: (v) => setState(() {
           _location = v ?? 'dhaka_ctg';

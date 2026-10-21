@@ -136,7 +136,7 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
           Expanded(
               child: Text(
                   l['name']?.toString().isNotEmpty == true ? l['name'] : (l['company'] ?? t.crmLead),
-                  maxLines: 1,
+                  maxLines: 2, // long Bangla names were cut at 360 px
                   overflow: TextOverflow.ellipsis)),
           Icon(industryIcon(l['industry']), size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
           const SizedBox(width: 6),

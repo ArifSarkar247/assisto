@@ -220,6 +220,12 @@ class CrmError {
   final int? status;
   CrmError(this.message, this.ref, {this.status});
 
+  /// What to show the user: the server's message, or a plain-language line
+  /// for a technical (network) failure — never a raw exception/URL.
+  String textFor(BuildContext context) => message.isNotEmpty
+      ? message
+      : AppLocalizations.of(context).shopQaLoadFailedBody;
+
   static final _rand = Random();
   // Unambiguous alphabet (no 0/O/1/I), matching the server's ref_code().
   static const _alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -231,9 +237,14 @@ class CrmError {
   /// falls back to a locally-minted, locally-logged code.
   factory CrmError.from(Object e) {
     String? serverRef;
-    String message = e.toString();
+    // Only a server ApiException carries a human message. Anything else
+    // (ClientException / SocketException with a URL) is technical: it is
+    // logged with the ref code, and the user sees a plain-language line.
+    String message = '';
+    final technical = e.toString();
     int? status;
     if (e is ApiException) {
+      message = e.message;
       status = e.status;
       // `ref` is an optional field on ApiException (integrator adds it so the
       // server's reference code flows through). Read it defensively so this
@@ -246,7 +257,7 @@ class CrmError {
     }
     if (serverRef != null) return CrmError(message, serverRef, status: status);
     final local = _clientRef();
-    debugPrint('CRM error ref=$local (client) :: $message');
+    debugPrint('CRM error ref=$local (client) :: ${message.isEmpty ? technical : message}');
     return CrmError(message, local, status: status);
   }
 }
@@ -308,7 +319,7 @@ class CrmStateView extends StatelessWidget {
       icon: Icons.cloud_off,
       tint: scheme.error,
       title: title ?? t.loadFailed,
-      message: error?.message,
+      message: (error?.message ?? '').isEmpty ? t.shopQaLoadFailedBody : error!.message,
       action: Column(mainAxisSize: MainAxisSize.min, children: [
         if (error != null && error!.ref.isNotEmpty) RefCodeChip(error!.ref),
         if (onRetry != null) ...[
@@ -490,3 +501,29 @@ List<({String code, String label})> moduleOptions(AppLocalizations t) => [
       (code: 'production', label: t.crmModProduction),
       (code: 'sales', label: t.crmModSales),
     ];
+
+// The backend's by_industry rows carry the raw industry CODE (rmg/pharma/…).
+// Map known codes to their proper labels (matches crm_firstrun) and title-
+// case anything unexpected, so nothing renders as a bare lowercase token.
+String crmIndustryLabel(AppLocalizations t, String? code) {
+  switch (code) {
+    case 'rmg':
+      return t.crmIndRmg;
+    case 'pharma':
+      return t.crmIndPharma;
+    case 'retail':
+      return t.crmIndRetail;
+    case 'it':
+      return t.crmIndIt;
+    case 'manufacturing':
+      return t.crmIndManufacturing;
+    case 'services':
+      return t.crmIndServices;
+    case 'other':
+      return t.crmIndOther;
+    default:
+      final c = (code ?? '').trim();
+      if (c.isEmpty) return '—';
+      return c[0].toUpperCase() + c.substring(1);
+  }
+}
