@@ -73,3 +73,67 @@ class VoiceRoutingTests(APITestCase):
                              format="json")
         self.assertEqual(r.data["intent"], "reminder")
         self.assertTrue(Reminder.objects.filter(user=u).exists())
+
+
+class VoiceYoutubeTests(APITestCase):
+    def setUp(self):
+        from django.core.cache import cache
+        cache.clear()
+        self.u = User.objects.create_user(name="Y", phone="01710000903", password="pw")
+        self.client.force_authenticate(self.u)
+
+    def test_no_key_is_honest(self):
+        r = self.client.get("/api/v1/voice/youtube", {"q": "amar priya asif"})
+        self.assertEqual(r.status_code, 200)
+        self.assertFalse(r.data["available"])
+        self.assertEqual(r.data["reason"], "no_key")
+
+    def _with_key(self, fake):
+        return (mock.patch("core.integrations.is_enabled", return_value=True),
+                mock.patch("core.integrations.get", return_value={"api_key": "fake-yt"}),
+                mock.patch("core.views_voice.youtube_search", side_effect=fake))
+
+    def test_found_and_cached(self):
+        calls = []
+
+        def fake(key, q):
+            calls.append(q)
+            return {"video_id": "abcDEF12345", "title": "Amar Priya", "channel": "Asif"}
+        a, b, c = self._with_key(fake)
+        with a, b, c:
+            r1 = self.client.get("/api/v1/voice/youtube", {"q": "Amar Priya Asif"})
+            r2 = self.client.get("/api/v1/voice/youtube", {"q": "amar priya asif"})
+        self.assertTrue(r1.data["available"])
+        self.assertEqual(r1.data["video_id"], "abcDEF12345")
+        self.assertTrue(r2.data.get("cached"))
+        self.assertEqual(len(calls), 1)  # second request served from cache
+
+    def test_daily_cap(self):
+        a, b, c = self._with_key(lambda k, q: {"video_id": "x" * 11, "title": q, "channel": ""})
+        with a, b, c, mock.patch("core.views_voice._daily_cap", return_value=2):
+            res = [self.client.get("/api/v1/voice/youtube", {"q": f"song {i}"}).data
+                   for i in range(3)]
+        self.assertTrue(res[0]["available"] and res[1]["available"])
+        self.assertEqual(res[2]["reason"], "daily_limit")
+
+    def test_api_error_falls_back(self):
+        def boom(k, q):
+            raise OSError("quota")
+        a, b, c = self._with_key(boom)
+        with a, b, c:
+            r = self.client.get("/api/v1/voice/youtube", {"q": "x"})
+        self.assertEqual(r.data["reason"], "error")
+
+    def test_limit_is_admin_editable(self):
+        from core.logic import pricing
+        cfg = pricing.DEFAULTS()
+        self.assertEqual(pricing.limits(cfg)["voice_youtube_daily"], 40)
+        cfg["limits"]["voice_youtube_daily"] = 5
+        self.assertEqual(pricing.limits(cfg)["voice_youtube_daily"], 5)
+
+    def test_wake_two_keywords(self):
+        cfg = {"access_key": "k", "keyword_url": "https://a/hey.ppn, https://a/hi.ppn"}
+        with mock.patch("core.integrations.is_enabled", return_value=True), \
+                mock.patch("core.integrations.get", return_value=cfg):
+            w = self.client.get("/api/v1/voice/config").data["wake"]
+        self.assertEqual(w["keyword_urls"], ["https://a/hey.ppn", "https://a/hi.ppn"])

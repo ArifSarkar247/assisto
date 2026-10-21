@@ -86,11 +86,14 @@ void main() {
   });
 
   group('youtube / music', () {
-    test('youtube e gaan chalao', () =>
-        expectAction('youtube e gaan chalao', VaAction.youtube, target: 'gaan'));
+    test('youtube e gaan chalao', () {
+      final r = p('youtube e gaan chalao');
+      expect(r.action, VaAction.youtube);
+      expect(r.app, 'youtube');
+      expect(r.target, isNull);
+    });
     test('play arijit songs', () => expectAction(
-        'play arijit singh songs', VaAction.youtube,
-        target: 'arijit singh songs'));
+        'play arijit singh songs', VaAction.youtube, target: 'arijit singh'));
     test('play on youtube', () => expectAction(
         'play tahsan on youtube', VaAction.youtube, target: 'tahsan'));
     test('banglish gaan shunao', () =>
@@ -101,6 +104,46 @@ void main() {
         expectAction('ইউটিউবে নাটক চালাও', VaAction.youtube, target: 'নাটক'));
     test('open youtube = app', () =>
         expectAction('open youtube', VaAction.openApp, target: 'youtube'));
+  });
+
+  group('music: artist + song (owner sentence)', () {
+    void song(String phrase, String artist, String title, {String? app}) {
+      final r = p(phrase);
+      expect(r.action, VaAction.youtube, reason: '$r');
+      expect(r.artist?.toLowerCase(), artist, reason: '$r');
+      expect(r.song?.toLowerCase(), title, reason: '$r');
+      if (app != null) expect(r.app, app, reason: '$r');
+    }
+    test('banglish owner sentence', () => song(
+        'Hey Assisto, YouTube-e Asif-er Amar Priya gaan ta play koro',
+        'asif', 'amar priya', app: 'youtube'));
+    test('banglish without hey', () => song(
+        'asif er amar priya gaan ta chalao', 'asif', 'amar priya'));
+    test('bn owner sentence', () => song(
+        'হেই অ্যাসিস্টো, ইউটিউবে আসিফের আমার প্রিয়া গানটা চালাও',
+        'আসিফ', 'আমার প্রিয়া', app: 'youtube'));
+    test('bn without youtube', () =>
+        song('আসিফের আমার প্রিয়া গানটা বাজাও', 'আসিফ', 'আমার প্রিয়া'));
+    test('en by', () => song(
+        'Hey Assisto, play Amar Priya by Asif on YouTube', 'asif',
+        'amar priya', app: 'youtube'));
+    test("en possessive", () =>
+        song("play Asif's Amar Priya", 'asif', 'amar priya'));
+    test('spotify', () => song(
+        'play Amar Priya by Asif on Spotify', 'asif', 'amar priya',
+        app: 'spotify'));
+    test('youtube music', () => song(
+        'youtube music e james er bhalobashi tomay gaan ta play koro',
+        'james', 'bhalobashi tomay', app: 'ytmusic'));
+    test('query has song then artist', () {
+      expect(p('Asif-er Amar Priya gaan ta play koro').target?.toLowerCase(),
+          'amar priya asif');
+    });
+    test('hi assisto torch on', () =>
+        expectAction('Hi Assisto torch on', VaAction.torchOn));
+    test('hey assisto call ammu', () =>
+        expectAction('hey assisto, ammu ke call dao', VaAction.call,
+            target: 'ammu'));
   });
 
   group('alarm / timer', () {
@@ -319,6 +362,24 @@ void main() {
     ]) {
       test('"$s"', () => expect(p(s).action, VaAction.unknown));
     }
+  });
+
+  group('reply language (auto)', () {
+    final cases = <String, String>{
+      'আম্মুকে ফোন দাও': 'bn',
+      'ammu ke call dao': 'bn',
+      'YouTube-e Asif-er Amar Priya gaan ta play koro': 'bn',
+      'kal 8tay alarm': 'bn',
+      '500 taka bazar khoroch': 'bn',
+      'torch jalao': 'bn',
+      'Call Ammu': 'en',
+      'play Amar Priya by Asif on YouTube': 'en',
+      'set an alarm for 6:30 am': 'en',
+      'turn on the flashlight': 'en',
+      'remind me at 5 to call mum': 'en',
+    };
+    cases.forEach((s, l) =>
+        test(s, () => expect(VaText.replyLang(s), l)));
   });
 
   group('helpers', () {

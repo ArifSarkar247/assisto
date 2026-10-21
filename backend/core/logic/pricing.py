@@ -298,6 +298,9 @@ def DEFAULTS():
             "trial_days": DEFAULT_TRIAL_DAYS,
             "trial_credits": DEFAULT_TRIAL_CREDITS,
             "business_included_cameras": BUSINESS_INCLUDED_CAMERAS,
+            # a3-voice: YouTube Data API voice lookups per user per day (each
+            # search = 100 of the free 10,000 daily quota units). 0 = off.
+            "voice_youtube_daily": 40,
         },
         "probashi_price_usd": DEFAULT_PROBASHI_PRICE_USD,
         # 0 = use the server env AI_DAILY_BUDGET_USD kill-switch default
@@ -463,6 +466,8 @@ def _norm_limits(raw, base):
         "trial_credits": max(0, _int(raw.get("trial_credits"), base["trial_credits"])),
         "business_included_cameras": max(0, min(64, _int(
             raw.get("business_included_cameras"), base["business_included_cameras"]))),
+        "voice_youtube_daily": max(0, min(500, _int(
+            raw.get("voice_youtube_daily"), base.get("voice_youtube_daily", 40)))),
     }
 
 

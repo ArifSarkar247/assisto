@@ -102,6 +102,7 @@ import 'package:assisto/screens/voice_assistant_screen.dart';
 import 'package:assisto/screens/voice_assistant_settings_screen.dart';
 import 'package:assisto/voice/va_actions.dart';
 import 'package:assisto/voice/va_confirm_sheet.dart';
+import 'package:assisto/voice/va_onboarding_step.dart';
 import 'package:assisto/screens/money_wrapped_screen.dart';
 import 'package:assisto/screens/money_tax_screen.dart';
 import 'package:assisto/screens/money_budget_screen.dart';
@@ -418,6 +419,7 @@ void main() {
           confirmLabel: t.vaSendSos, danger: true)))));
     }), mode: FakeMode.data, full: true),
     'voice_settings': (build: (_) => const VoiceAssistantSettingsScreen(debugStatic: true), mode: FakeMode.data, full: true),
+    'voice_onboarding': (build: (_) => const Scaffold(body: SafeArea(child: VaOnboardingStep())), mode: FakeMode.data, full: true),
     'voice_settings_bottom': (build: (_) => const VoiceAssistantSettingsScreen(debugStatic: true), mode: FakeMode.data, full: true),
     'action_center': (build: (_) => const ActionCenterScreen(), mode: FakeMode.data, full: true),
     'disaster_alerts': (build: (_) => const DisasterAlertsScreen(), mode: FakeMode.data, full: true),

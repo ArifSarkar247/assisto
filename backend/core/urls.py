@@ -563,6 +563,7 @@ urlpatterns = [
 
     # ---- a3-voice ---- Part 3 Assisto Voice (wake-word config, key-gated)
     path("voice/config", voicev.VoiceConfigView.as_view()),
+    path("voice/youtube", voicev.VoiceYoutubeView.as_view()),
 ]
 
 # ---- a2-cctv ---- CCTV Part 4 round 2: camera settings, device heartbeat /

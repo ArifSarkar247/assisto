@@ -91,6 +91,12 @@ class VaIntent {
   final num? amount; // expense
   final String? category; // expense category key (see VaText.categories)
   final String? route; // in-app screen (openScreen)
+
+  /// Music: who and what ("Asif" / "Amar Priya") when the words say so, and
+  /// the app the user named ('youtube' | 'ytmusic' | 'spotify'), else null.
+  final String? artist;
+  final String? song;
+  final String? app;
   final String raw;
 
   const VaIntent(
@@ -103,6 +109,9 @@ class VaIntent {
     this.amount,
     this.category,
     this.route,
+    this.artist,
+    this.song,
+    this.app,
   });
 
   /// Outgoing actions ALWAYS need an explicit confirmation before they run.
@@ -115,7 +124,8 @@ class VaIntent {
   @override
   String toString() => 'VaIntent($action, target: $target, message: $message, '
       'clock: $clock, seconds: $seconds, amount: $amount, '
-      'category: $category, route: $route)';
+      'category: $category, route: $route, artist: $artist, song: $song, '
+      'app: $app)';
 }
 
 /// Text helpers shared by the parser, the contact matcher and the app matcher.
@@ -154,6 +164,32 @@ class VaText {
         .replaceAll(RegExp(r'''[,!?;"“”‘’]'''), ' ')
         .replaceAll(RegExp(r'\s+'), ' ')
         .trim();
+  }
+
+  /// Romanised-Bangla (Banglish) words that do not occur as English words.
+  static const _banglish = {
+    'koro', 'kor', 'dao', 'dau', 'kore', 'korte', 'ami',
+    'amake', 'tumi', 'apni', 'ke', 'er', 'gaan', 'gan', 'chalao', 'bajao',
+    'shunao', 'khoroch', 'khorch', 'taka', 'kivabe', 'kibhabe', 'jabo',
+    'likho', 'lekho', 'kholo', 'dekhao', 'bondho', 'jalao', 'nibhao', 'mone',
+    'koriye', 'ektu', 'ekta', 'ache', 'nai', 'hobe', 'koto', 'kal', 'kalke',
+    'ajke', 'theke', 'tay', 'ta', 'diyo', 'dio', 'den', 'bhai', 'vai',
+    'apu', 'sokal', 'bikel', 'rat', 'raat', 'bazar', 'bachao', 'kothay',
+  };
+
+  /// Language to ANSWER in, from what the user actually said: Bangla script
+  /// -> 'bn'; Latin script with Banglish words -> 'bn'; otherwise 'en'.
+  static String replyLang(String said) {
+    if (isBangla(said)) return 'bn';
+    final words = norm(said)
+        .replaceAll('-', ' ')
+        .split(RegExp(r"[^a-z0-9']+"))
+        .where((w) => w.isNotEmpty);
+    for (final w in words) {
+      if (_banglish.contains(w)) return 'bn';
+      if (RegExp(r'^\d+(ta|tay|tar|te)$').hasMatch(w)) return 'bn'; // "8tay"
+    }
+    return 'en';
   }
 
   static bool isBangla(String w) =>
@@ -713,7 +749,7 @@ class VoiceIntentParser {
   /// Parse an utterance. [detectRoute] (optional) maps an English
   /// "open X" phrase to an in-app ChatNav route.
   static VaIntent parse(String raw, {String? Function(String)? detectRoute}) {
-    final text = VaText.norm(raw);
+    final text = stripWake(VaText.norm(raw));
     if (text.isEmpty) return VaIntent(VaAction.unknown, raw);
     final hasOpen = VaText.any(text, _open);
 
@@ -809,7 +845,7 @@ class VoiceIntentParser {
     }
 
     // 10. YouTube / music.
-    final yt = VaText.any(text, _music);
+    final yt = VaText.any(text, _music) || VaText.any(text, _spotify);
     final musicish = VaText.any(text, _musicWords) ||
         (VaText.any(text, _playVerbs) && !VaText.any(text, _torch));
     if (yt || musicish) {
@@ -823,9 +859,7 @@ class VoiceIntentParser {
       if (yt && hasOpen && q.isEmpty) {
         return VaIntent(VaAction.openApp, raw, target: 'youtube');
       }
-      if (yt || musicish) {
-        return VaIntent(VaAction.youtube, raw, target: q.isEmpty ? null : q);
-      }
+      return _musicIntent(raw, text);
     }
 
     // 11. Nearby / map search.
@@ -866,6 +900,107 @@ class VoiceIntentParser {
   }
 
   // ---- helpers -------------------------------------------------------------
+
+  static final _wake = _n([
+    'hey assisto', 'hi assisto', 'hello assisto', 'ok assisto', 'okay assisto',
+    'hey assistant', 'assisto',
+    '\u09b9\u09c7\u0987 \u0985\u09cd\u09af\u09be\u09b8\u09bf\u09b8\u09cd\u099f\u09cb', '\u09b9\u09be\u0987 \u0985\u09cd\u09af\u09be\u09b8\u09bf\u09b8\u09cd\u099f\u09cb', '\u09b9\u09cd\u09af\u09be\u09b2\u09cb \u0985\u09cd\u09af\u09be\u09b8\u09bf\u09b8\u09cd\u099f\u09cb', '\u0985\u09cd\u09af\u09be\u09b8\u09bf\u09b8\u09cd\u099f\u09cb',
+    '\u09b9\u09c7 \u0985\u09cd\u09af\u09be\u09b8\u09bf\u09b8\u09cd\u099f\u09cb', '\u098f\u0987 \u0985\u09cd\u09af\u09be\u09b8\u09bf\u09b8\u09cd\u099f\u09cb',
+  ])
+    ..sort((a, b) => b.length.compareTo(a.length));
+
+  /// Drop a leading "Hey Assisto," so the command after it is parsed.
+  static String stripWake(String text) {
+    var t = text;
+    for (final w in _wake) {
+      if (t == w) return '';
+      if (t.startsWith('$w ')) {
+        t = t.substring(w.length).trim();
+        break;
+      }
+    }
+    return t;
+  }
+
+  static final _ytMusic = _n([
+    'youtube music', 'yt music', 'you tube music', '\u0987\u0989\u099f\u09bf\u0989\u09ac \u09ae\u09bf\u0989\u099c\u09bf\u0995',
+  ]);
+  static final _spotify = _n(['spotify', '\u09b8\u09cd\u09aa\u099f\u09bf\u09ab\u09be\u0987']);
+
+  /// Pull artist / song / app out of a music command.
+  ///   "YouTube-e Asif-er Amar Priya gaan ta play koro"
+  ///   "\u0986\u09b8\u09bf\u09ab\u09c7\u09b0 \u0986\u09ae\u09be\u09b0 \u09aa\u09cd\u09b0\u09bf\u09af\u09bc\u09be \u0997\u09be\u09a8\u099f\u09be \u099a\u09be\u09b2\u09be\u0993"   "play Amar Priya by Asif"
+  static VaIntent _musicIntent(String raw, String text) {
+    var t = text.replaceAll('-', ' ').replaceAll(RegExp(r'\s+'), ' ');
+    String? app;
+    if (VaText.any(t, _ytMusic)) {
+      app = 'ytmusic';
+    } else if (VaText.any(t, _spotify)) {
+      app = 'spotify';
+    } else if (VaText.any(t, _music)) {
+      app = 'youtube';
+    }
+    t = VaText.strip(t, [..._ytMusic, ..._spotify, ..._music, ..._playVerbs,
+      ..._open, ..._n(['koro', 'kor', '\u0995\u09b0\u09cb', '\u09a6\u09be\u0993', 'dao', 'den', '\u09a6\u09bf\u09a8'])]);
+    const songWordsRaw = [
+      'song', 'songs', 'music', 'gaan', 'gan', 'gaanta', 'gaanti', 'ganta',
+      '\u0997\u09be\u09a8', '\u0997\u09be\u09a8\u099f\u09be', '\u0997\u09be\u09a8\u099f\u09bf', '\u0997\u09be\u09a8\u0997\u09c1\u09b2\u09cb', 'video',
+    ];
+    final songWords = _n(songWordsRaw).toSet();
+    // Song titles often contain "amar" / "my" ("Amar Priya"), so those
+    // fillers stay; only true filler words are dropped.
+    final keep = _n(['amar', 'my', 'me', '\u0986\u09ae\u09be\u09b0', 'amake', '\u0986\u09ae\u09be\u0995\u09c7', 'you']).toSet();
+    final drop = {
+      ..._fillers.where((w) => !keep.contains(w)),
+      ...songWords,
+      ..._n(['on', 'in', 'some', 'something', 'theke', 'the', 'ta', 'ti',
+        '\u099f\u09be', '\u099f\u09bf', '\u09a5\u09c7\u0995\u09c7', '\u0995\u09bf\u099b\u09c1', '\u098f', 'e', 'te']),
+    };
+    var words = t.split(' ').where((w) => w.isNotEmpty).toList();
+    // a lone locative "e"/"te" after the app name was already a filler.
+    String? artist;
+    String? song;
+    final bnEr = VaText.norm('\u09c7\u09b0'); // Bangla "-er"
+    final bnErWord = VaText.norm('\u098f\u09b0'); // Bangla "er"
+    final byIdx = words.indexOf('by');
+    final erIdx = words.indexWhere((w) => w == 'er' || w == bnErWord);
+    final possIdx = words.indexWhere((w) => w.endsWith("'s"));
+    final bnAttached = words.indexWhere((w) =>
+        VaText.isBangla(w) && w.endsWith(bnEr) && w.runes.length > 3);
+    List<String> clean(List<String> ws) =>
+        ws.where((w) => !drop.contains(w)).toList();
+    if (byIdx > 0) {
+      song = clean(words.sublist(0, byIdx)).join(' ');
+      artist = clean(words.sublist(byIdx + 1)).join(' ');
+    } else if (possIdx >= 0) {
+      artist = [
+        ...clean(words.sublist(0, possIdx)),
+        words[possIdx].substring(0, words[possIdx].length - 2),
+      ].join(' ');
+      song = clean(words.sublist(possIdx + 1)).join(' ');
+    } else if (erIdx > 0) {
+      artist = clean(words.sublist(0, erIdx)).join(' ');
+      song = clean(words.sublist(erIdx + 1)).join(' ');
+    } else if (bnAttached >= 0) {
+      final w = words[bnAttached];
+      artist = [
+        ...clean(words.sublist(0, bnAttached)),
+        w.substring(0, w.length - bnEr.length),
+      ].join(' ');
+      song = clean(words.sublist(bnAttached + 1)).join(' ');
+    }
+    if (artist != null && artist.isEmpty) artist = null;
+    if (song != null && song.isEmpty) song = null;
+    words = clean(words);
+    String? query;
+    if (artist != null || song != null) {
+      query = [if (song != null) song, if (artist != null) artist].join(' ');
+    } else if (words.isNotEmpty) {
+      query = words.join(' ');
+    }
+    return VaIntent(VaAction.youtube, raw,
+        target: query, artist: artist, song: song, app: app);
+  }
 
   static VaIntent _expense(String raw, String text, num amt) {
     final cat = VaText.categoryOf(text);

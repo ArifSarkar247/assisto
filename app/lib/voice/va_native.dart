@@ -103,6 +103,45 @@ class VaNative {
   static Future<bool> youtubeSearch(String query) async =>
       (await _call<bool>('youtubeSearch', {'query': query})) == true;
 
+  // ---- lock screen -----------------------------------------------------------
+
+  /// True when the phone is locked (Assisto was opened over the lock screen).
+  static Future<bool> isLocked() async => (await _call<bool>('isLocked')) == true;
+
+  /// Ask Android to show the unlock prompt. true = unlocked.
+  static Future<bool> requestUnlock() async =>
+      (await _call<bool>('requestUnlock')) ?? true; // no native = never locked
+
+  /// Stop showing over the lock screen; [moveBack] returns to the lock screen.
+  static Future<void> leaveLockScreen({bool moveBack = false}) =>
+      _call<void>('leaveLockScreen', {'moveBack': moveBack});
+
+  // ---- music -----------------------------------------------------------------
+
+  static const pkgYtMusic = 'com.google.android.apps.youtube.music';
+  static const pkgSpotify = 'com.spotify.music';
+  static const pkgYoutube = 'com.google.android.youtube';
+
+  /// Installed music apps among YouTube Music / Spotify / YouTube.
+  static Future<List<String>> musicApps() async {
+    final r = await _call<List<Object?>>('musicApps');
+    return r == null ? const [] : r.map((e) => '$e').toList();
+  }
+
+  /// Android MEDIA_PLAY_FROM_SEARCH into [package]: 'ok' | 'no_app' | 'error'.
+  static Future<String?> playFromSearch(String package, String query,
+          {String? artist, String? title}) =>
+      _call<String>('playFromSearch', {
+        'package': package,
+        'query': query,
+        'artist': artist,
+        'title': title,
+      });
+
+  /// Open one YouTube video in the YouTube app (it starts playing).
+  static Future<bool> openYoutubeVideo(String id) async =>
+      (await _call<bool>('openYoutubeVideo', {'id': id})) == true;
+
   // ---- wake word -------------------------------------------------------------
 
   /// 'running' | 'stopped' | 'engine_missing' | 'error:<msg>' | null.

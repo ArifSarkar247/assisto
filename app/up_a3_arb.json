@@ -323,7 +323,55 @@
     "vaWakeTapToTalk": "Tap to talk to Assisto",
     "vaTtsTitle": "Spoken replies",
     "vaTtsBody": "Assisto reads its answers aloud in your app language.",
-    "vaTtsInstallBn": "Install or change the Bangla voice"
+    "vaTtsInstallBn": "Install or change the Bangla voice",
+    "vaUnlockNeeded": "Unlock your phone first — then I'll do it.",
+    "vaLockedNote": "Phone is locked: torch and SOS work now; anything else asks you to unlock first.",
+    "vaSongByArtist": "{song} by {artist}",
+    "@vaSongByArtist": {
+      "placeholders": {
+        "song": {
+          "type": "String"
+        },
+        "artist": {
+          "type": "String"
+        }
+      }
+    },
+    "vaPlayingOn": "Playing {what} on {app}.",
+    "@vaPlayingOn": {
+      "placeholders": {
+        "what": {
+          "type": "String"
+        },
+        "app": {
+          "type": "String"
+        }
+      }
+    },
+    "vaAppMissing": "{app} isn't installed, so I used YouTube.",
+    "@vaAppMissing": {
+      "placeholders": {
+        "app": {
+          "type": "String"
+        }
+      }
+    },
+    "vaMusicTitle": "Music app",
+    "vaMusicBody": "Where “play a song” should go when you don't name an app.",
+    "vaMusicAuto": "Automatic",
+    "vaMusicAutoSub": "YouTube Music, then Spotify, then YouTube — whichever is installed",
+    "vaMusicInstalled": "Installed",
+    "vaMusicNotInstalled": "Not installed",
+    "vaMusicHonest": "YouTube Music and Spotify start the song themselves. YouTube plays the exact video only when the owner has added a YouTube key; otherwise search results open and you tap once.",
+    "vaWakeRealmeNote": "On realme / OPPO (ColorOS) turn on Auto-launch for Assisto and set Battery to “Allow background activity”, or the phone may stop the wake word.",
+    "vaWakeBatteryGuide": "Battery & auto-launch guide",
+    "vaExSong": "YouTube-e Asif-er Amar Priya gaan ta play koro",
+    "vaOnbTitle": "Talk to Assisto from anywhere",
+    "vaOnbBody": "Make Assisto your phone's digital assistant. Then press and hold the power button (or Home) and Assisto starts listening — even on the lock screen.",
+    "vaOnbLater": "You can do this later in Settings > Voice assistant.",
+    "vaDefBody2": "Then press and hold the power button (or Home, or swipe up from a bottom corner) to talk to Assisto — even on the lock screen. On the lock screen, anything private asks you to unlock first.",
+    "vaDefPowerNote": "Power button: on Android 12+ go to Settings > System > Gestures > Press and hold power button > Digital assistant. On realme / OPPO look under Settings > Additional settings > Power button; some ColorOS versions only offer Google Assistant there — then use long-press Home or the corner swipe.",
+    "vaWakeTitle2": "“Hey Assisto” / “Hi Assisto”"
   },
   "bn": {
     "vaTitle": "অ্যাসিস্টো ভয়েস",
@@ -464,6 +512,27 @@
     "vaWakeTapToTalk": "অ্যাসিস্টোর সাথে কথা বলতে চাপ দিন",
     "vaTtsTitle": "কণ্ঠে উত্তর",
     "vaTtsBody": "অ্যাসিস্টো আপনার অ্যাপের ভাষায় উত্তর পড়ে শোনায়।",
-    "vaTtsInstallBn": "বাংলা কণ্ঠ ইনস্টল বা বদলান"
+    "vaTtsInstallBn": "বাংলা কণ্ঠ ইনস্টল বা বদলান",
+    "vaUnlockNeeded": "আগে ফোন আনলক করুন — তারপর করে দিচ্ছি।",
+    "vaLockedNote": "ফোন লক করা: টর্চ ও SOS এখনই চলবে; বাকি সবকিছুর আগে আনলক করতে বলা হবে।",
+    "vaSongByArtist": "{artist}-এর {song}",
+    "vaPlayingOn": "{app}-এ {what} চালাচ্ছি।",
+    "vaAppMissing": "{app} ইনস্টল নেই, তাই ইউটিউব ব্যবহার করলাম।",
+    "vaMusicTitle": "গানের অ্যাপ",
+    "vaMusicBody": "অ্যাপের নাম না বললে “গান চালাও” কোথায় যাবে।",
+    "vaMusicAuto": "স্বয়ংক্রিয়",
+    "vaMusicAutoSub": "ইউটিউব মিউজিক, তারপর স্পটিফাই, তারপর ইউটিউব — যেটা ইনস্টল আছে",
+    "vaMusicInstalled": "ইনস্টল আছে",
+    "vaMusicNotInstalled": "ইনস্টল নেই",
+    "vaMusicHonest": "ইউটিউব মিউজিক ও স্পটিফাই নিজেরাই গান চালু করে। ইউটিউবে সঠিক ভিডিও সরাসরি চলে শুধু মালিক ইউটিউব কি যোগ করলে; না হলে সার্চ ফল খোলে, আপনাকে একবার চাপ দিতে হয়।",
+    "vaWakeRealmeNote": "রিয়েলমি / অপো (ColorOS)-তে অ্যাসিস্টোর জন্য অটো-লঞ্চ চালু করুন আর ব্যাটারিতে “ব্যাকগ্রাউন্ডে চলতে দিন” দিন, নইলে ফোন ডাক শোনা বন্ধ করে দিতে পারে।",
+    "vaWakeBatteryGuide": "ব্যাটারি ও অটো-লঞ্চ গাইড",
+    "vaExSong": "ইউটিউবে আসিফের আমার প্রিয়া গানটা চালাও",
+    "vaOnbTitle": "যেকোনো জায়গা থেকে অ্যাসিস্টোকে ডাকুন",
+    "vaOnbBody": "অ্যাসিস্টোকে ফোনের ডিজিটাল অ্যাসিস্ট্যান্ট বানান। তারপর পাওয়ার বাটন (বা হোম) চেপে ধরলেই অ্যাসিস্টো শুনতে শুরু করবে — লক স্ক্রিনেও।",
+    "vaOnbLater": "পরে সেটিংস > ভয়েস অ্যাসিস্ট্যান্ট থেকেও করতে পারবেন।",
+    "vaDefBody2": "তারপর পাওয়ার বাটন (বা হোম বাটন, বা নিচের কোণ থেকে উপরে টেনে) চেপে ধরে অ্যাসিস্টোর সাথে কথা বলুন — লক স্ক্রিনেও। লক স্ক্রিনে ব্যক্তিগত কিছু করার আগে আনলক করতে বলা হবে।",
+    "vaDefPowerNote": "পাওয়ার বাটন: অ্যান্ড্রয়েড ১২+-এ সেটিংস > সিস্টেম > জেসচার > পাওয়ার বাটন চেপে ধরুন > ডিজিটাল অ্যাসিস্ট্যান্ট। রিয়েলমি / অপোতে সেটিংস > অতিরিক্ত সেটিংস > পাওয়ার বাটন দেখুন; কিছু ColorOS সংস্করণে সেখানে শুধু গুগল অ্যাসিস্ট্যান্ট থাকে — তখন হোম বাটন চেপে ধরুন বা কোণ থেকে টানুন।",
+    "vaWakeTitle2": "“হেই অ্যাসিস্টো” / “হাই অ্যাসিস্টো”"
   }
 }

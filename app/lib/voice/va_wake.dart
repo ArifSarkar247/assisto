@@ -13,12 +13,13 @@ import 'va_native.dart';
 class VaWakeConfig {
   final bool available;
   final String accessKey;
-  final String keywordUrl;
+  /// One or more https keyword files ("Hey Assisto", "Hi Assisto").
+  final List<String> keywordUrls;
   final double sensitivity;
   const VaWakeConfig({
     this.available = false,
     this.accessKey = '',
-    this.keywordUrl = '',
+    this.keywordUrls = const [],
     this.sensitivity = 0.6,
   });
 
@@ -28,7 +29,12 @@ class VaWakeConfig {
     return VaWakeConfig(
       available: w['available'] == true,
       accessKey: (w['access_key'] ?? '').toString(),
-      keywordUrl: (w['keyword_url'] ?? '').toString(),
+      keywordUrls: [
+        ...((w['keyword_urls'] is List) ? (w['keyword_urls'] as List) : const [])
+            .map((e) => '$e'),
+        if (w['keyword_urls'] is! List)
+          ...(w['keyword_url'] ?? '').toString().split(','),
+      ].map((e) => e.trim()).where((e) => e.startsWith('https://')).toList(),
       sensitivity: s is num ? s.toDouble().clamp(0.1, 0.95) : 0.6,
     );
   }
@@ -55,12 +61,12 @@ class VaWake {
 
   /// Download the keyword file once (a few KB) into app storage. Never
   /// bundled in the APK. Returns the local path or null.
-  static Future<String?> keywordFile(String url) async {
+  static Future<String?> keywordFile(String url, int n) async {
     if (!url.startsWith('https://')) return null;
     try {
       final dir = await getApplicationSupportDirectory();
-      final f = File('${dir.path}/hey_assisto.ppn');
-      final tag = File('${dir.path}/hey_assisto.url');
+      final f = File('${dir.path}/assisto_wake_$n.ppn');
+      final tag = File('${dir.path}/assisto_wake_$n.url');
       if (await f.exists() &&
           await tag.exists() &&
           (await tag.readAsString()) == url &&
@@ -84,12 +90,18 @@ class VaWake {
       required String body,
       required String stopLabel,
       required String tapText}) async {
-    if (!c.available || c.accessKey.isEmpty) return 'error:config';
-    final path = await keywordFile(c.keywordUrl);
-    if (path == null) return 'error:download';
+    if (!c.available || c.accessKey.isEmpty || c.keywordUrls.isEmpty) {
+      return 'error:config';
+    }
+    final paths = <String>[];
+    for (var i = 0; i < c.keywordUrls.length && i < 4; i++) {
+      final p = await keywordFile(c.keywordUrls[i], i);
+      if (p == null) return 'error:download';
+      paths.add(p);
+    }
     return VaNative.wakeStart(
       accessKey: c.accessKey,
-      keywordPath: path,
+      keywordPath: paths.join('|'),
       sensitivity: c.sensitivity,
       title: title,
       body: body,

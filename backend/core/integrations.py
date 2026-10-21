@@ -130,12 +130,14 @@ REGISTRY = {
     "youtube": {
         "name": "YouTube Data (optional)",
         "category": "Media",
-        "unlocks_bn": "প্রিয় শিল্পীর চ্যানেল watch (RSS দিয়ে key ছাড়াও চলে)।",
-        "unlocks_en": "Watch artist channels (also works key-free via RSS).",
-        "guide_bn": ["Google Cloud → YouTube Data API v3 চালু → API key", "পেস্ট → Test"],
-        "guide_en": ["Google Cloud → enable YouTube Data API v3 → API key", "Paste → Test"],
+        "unlocks_bn": "ভয়েসে “অমুকের অমুক গান চালাও” বললে ইউটিউবে সরাসরি গানটি চালু (key ছাড়া শুধু সার্চ ফল খোলে); প্রিয় শিল্পীর চ্যানেল watch।",
+        "unlocks_en": "Voice “play <song> by <artist>” opens the exact YouTube video playing (without a key only search results open); artist channel watch.",
+        "guide_bn": ["Google Cloud → YouTube Data API v3 চালু → API key", "key-টি শুধু YouTube Data API-তে সীমিত (restrict) করুন",
+                     "পেস্ট → Test", "ফ্রি কোটা: দিনে ১০,০০০ ইউনিট; একটি সার্চ = ১০০ ইউনিট (≈১০০ সার্চ/দিন)"],
+        "guide_en": ["Google Cloud → enable YouTube Data API v3 → API key", "Restrict the key to YouTube Data API",
+                     "Paste → Test", "Free quota: 10,000 units/day; one search = 100 units (~100 searches/day)"],
         "fields": [_f("api_key", "API Key", "API Key")],
-        "test": None,
+        "test": "test_youtube",
     },
     "admob": {
         "name": "Google AdMob",
@@ -350,17 +352,17 @@ REGISTRY = {
                   "unlocks_bn": "ঐচ্ছিক “হেই অ্যাসিস্টো” ডাক — ফোনেই শনাক্ত হয়, কোনো শব্দ সার্ভারে আসে না।",
                   "unlocks_en": "Optional “Hey Assisto” wake word — detected on the phone, no audio reaches the server.",
                   "guide_bn": ["console.picovoice.ai-এ অ্যাকাউন্ট খুলুন → AccessKey কপি করুন",
-                               "Porcupine → নতুন wake word “Hey Assisto” → Platform: Android → .ppn ফাইল নামান",
-                               ".ppn ফাইলটি https লিংকে রাখুন (যেমন আমাদের media) → লিংক ও AccessKey নিচে দিন → Save → Test",
+                               "Porcupine → wake word “Hey Assisto” ও “Hi Assisto” → Platform: Android → দুটি .ppn ফাইল নামান",
+                               ".ppn ফাইল https লিংকে রাখুন → লিংকগুলো কমা দিয়ে আলাদা করে ও AccessKey নিচে দিন → Save → Test",
                                "অ্যাপে একটি আপডেট লাগবে (Porcupine লাইব্রেরি) — integrator proposal a3-voice ধাপ ২",
                                "বাণিজ্যিক ব্যবহারে Picovoice-এর পেইড প্ল্যান লাগতে পারে — শর্ত দেখে নিন"],
                   "guide_en": ["Create an account at console.picovoice.ai → copy the AccessKey",
-                               "Porcupine → new wake word “Hey Assisto” → Platform: Android → download the .ppn file",
-                               "Host the .ppn at an https URL (e.g. our media) → paste the URL + AccessKey below → Save → Test",
+                               "Porcupine → wake words “Hey Assisto” and “Hi Assisto” → Platform: Android → download both .ppn files",
+                               "Host the .ppn files at https URLs → paste the URLs (comma-separated) + AccessKey below → Save → Test",
                                "The app needs one update (Porcupine library) — integrator proposal a3-voice stage 2",
                                "Commercial use may need a paid Picovoice plan — check their terms"],
                   "fields": [_f("access_key", "AccessKey", "AccessKey"),
-                             _f("keyword_url", "কিওয়ার্ড ফাইলের লিংক (.ppn)", "Keyword file URL (.ppn)", secret=False),
+                             _f("keyword_url", "কিওয়ার্ড ফাইলের লিংক (.ppn, কমা দিয়ে একাধিক)", "Keyword file URL(s) (.ppn, comma-separated)", secret=False),
                              _f("sensitivity", "সংবেদনশীলতা (০.১–০.৯৫)", "Sensitivity (0.1–0.95)", secret=False)],
                   "test": "test_picovoice"},
     "news": {"name": "News", "category": "Media",
@@ -608,19 +610,33 @@ def test_picovoice(cfg):
     be validated on-device by the Porcupine engine."""
     import urllib.request
     key = (cfg.get("access_key") or "").strip()
-    url = (cfg.get("keyword_url") or "").strip()
+    urls = [u.strip() for u in (cfg.get("keyword_url") or "").split(",") if u.strip()]
     if not key:
         return (False, "AccessKey missing")
-    if not url.startswith("https://"):
+    if not urls or not all(u.startswith("https://") for u in urls):
         return (False, "keyword_url must be https://")
+    for url in urls:
+        try:
+            with urllib.request.urlopen(url, timeout=15) as r:
+                data = r.read(512 * 1024 + 1)
+        except Exception as e:  # noqa: BLE001
+            return (False, f"keyword file: {str(e)[:120]}")
+        if not data or len(data) > 512 * 1024:
+            return (False, "keyword file empty or too large")
+    return (True, f"✓ {len(urls)} keyword file(s) reachable — key verified on first phone use")
+
+
+def test_youtube(cfg):
+    """a3-voice: one real search (costs 100 quota units)."""
+    from . import views_voice
+    key = (cfg.get("api_key") or "").strip()
+    if not key:
+        return (False, "API key missing")
     try:
-        with urllib.request.urlopen(url, timeout=15) as r:
-            data = r.read(512 * 1024 + 1)
+        r = views_voice.youtube_search(key, "Bangla song")
     except Exception as e:  # noqa: BLE001
-        return (False, f"keyword file: {str(e)[:120]}")
-    if not data or len(data) > 512 * 1024:
-        return (False, "keyword file empty or too large")
-    return (True, "✓ keyword file reachable — key verified on first phone use")
+        return (False, str(e)[:200])
+    return (True, "✓ working") if r else (False, "no result")
 
 
 # ---- o1-otp ----
