@@ -89,6 +89,11 @@ def app_latest(request):
     return Response(data)
 
 
+def _sms_otp_on():
+    from . import otp
+    return otp.sms_available()
+
+
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def version(request):
@@ -98,7 +103,7 @@ def version(request):
         "part": BUILD_PART,
         "base_url": settings.ASSISTO_BASE_URL,
         "features": {
-            "sms_otp": settings.SMS_ENABLED,
+            "sms_otp": _sms_otp_on(),
             "ai": settings.AI_ENABLED,
         },
     })
@@ -110,9 +115,35 @@ class RegisterView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+        # o1-otp launch gate: with admin flag auth_password_only_signup OFF,
+        # sign-up REQUIRES an otp_proof (purpose=signup) for the given phone.
+        from . import otp
+        from .views_otp import signup_gate_response
+        lang = req_lang(request)
+        proof = str((request.data or {}).get("otp_proof") or "").strip()
+        if not proof and not otp.password_only_signup_allowed():
+            return signup_gate_response(lang)
         ser = RegisterSerializer(data=request.data)
         ser.is_valid(raise_exception=True)
+        canon = None
+        if proof:
+            canon = otp.normalize_bd_phone(ser.validated_data.get("phone"))
+            if not canon:
+                return Response({"ok": False, "reason": "bad_phone",
+                                 "detail": otp.message("bad_phone", lang)},
+                                status=status.HTTP_400_BAD_REQUEST)
+            if otp.find_user_by_phone(canon) is not None:
+                return Response({"ok": False, "reason": "already_registered",
+                                 "detail": otp.message("already_registered", lang)},
+                                status=status.HTTP_400_BAD_REQUEST)
+            if otp.consume_proof(proof, "signup", canon) is None:
+                return Response({"ok": False, "reason": "bad_otp",
+                                 "detail": otp.message("bad_otp", lang)},
+                                status=status.HTTP_403_FORBIDDEN)
+            ser.validated_data["phone"] = otp.local_form(canon)
         user = ser.save()
+        if canon:
+            otp.mark_verified(user, canon)
         token, _ = Token.objects.get_or_create(user=user)
         from . import plans
         plans.start_trial(user)   # 7-day full trial for new users
@@ -150,23 +181,10 @@ class LogoutView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class OTPRequestView(APIView):
-    """Designed, but off until an SMS provider is configured. No fake SMS."""
-    permission_classes = [AllowAny]
-
-    def post(self, request):
-        if not settings.SMS_ENABLED:
-            lang = req_lang(request)
-            return Response(
-                {"detail": pick(lang,
-                                "OTP এখন বন্ধ — SMS প্রোভাইডার যুক্ত করা হয়নি। "
-                                "ফোন/ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন।",
-                                "OTP is off for now — no SMS provider is set up yet. "
-                                "Sign in with your phone/email and password."),
-                 "sms_enabled": False},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
-        return Response({"detail": "not implemented"}, status=status.HTTP_501_NOT_IMPLEMENTED)
+# o1-otp: the real OTP flow lives in views_otp (key-gated; honest 503 when the
+# SMS gateway isn't connected — never 501). Kept under the old name so the
+# existing auth/otp/request route is unchanged.
+from .views_otp import OtpRequestView as OTPRequestView  # noqa: E402
 
 
 # ---------- profile ----------

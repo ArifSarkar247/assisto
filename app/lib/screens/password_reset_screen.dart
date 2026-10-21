@@ -5,6 +5,8 @@ import '../api.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/reset_options.dart';
 import 'password_reset_confirm_screen.dart';
+import '../otp_api.dart';
+import 'otp/otp_login_screen.dart';
 
 /// Password reset — request step (SPEC v2.1 §21, account recovery ADVANCED).
 ///
@@ -20,7 +22,9 @@ import 'password_reset_confirm_screen.dart';
 ///  - Full §21 states: empty (chooser), loading (spinner), error (rate-limit /
 ///    generic), neutral-sent success. Bilingual via ARB; zero Bangla here.
 class PasswordResetScreen extends StatefulWidget {
-  const PasswordResetScreen({super.key});
+  /// o1-otp: injectable for widget tests; defaults to the real API.
+  final OtpBackend? otpBackend;
+  const PasswordResetScreen({super.key, this.otpBackend});
   @override
   State<PasswordResetScreen> createState() => _PasswordResetScreenState();
 }
@@ -32,6 +36,23 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
   bool _rateLimited = false;
   String? _emailError;
   String? _neutralMessage; // shown after submit (same regardless of existence)
+  bool _smsReady = false; // o1-otp: SMS gateway connected -> SMS reset works
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOtpStatus();
+  }
+
+  OtpBackend get _otp =>
+      widget.otpBackend ?? ApiOtpBackend(context.read<AppState>().api);
+
+  Future<void> _loadOtpStatus() async {
+    try {
+      final st = await _otp.status();
+      if (mounted && st.smsEnabled) setState(() => _smsReady = true);
+    } catch (_) {}
+  }
 
   @override
   void dispose() {
@@ -132,9 +153,12 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
               selected: _channel == RecoveryChannel.email,
               onTap: () => setState(() => _channel = RecoveryChannel.email),
             ),
-            const ResetChannelTile(
+            ResetChannelTile(
+              key: const Key('reset-sms-tile'),
               channel: RecoveryChannel.sms,
-              available: false, // 🔑 until an SMS gateway key is wired
+              available: _smsReady, // 🔑 only when the SMS gateway is connected
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => OtpResetScreen(backend: widget.otpBackend))),
             ),
             const ResetChannelTile(
               channel: RecoveryChannel.securityQuestion,

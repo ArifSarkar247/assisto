@@ -15,6 +15,9 @@ import 'package:assisto/theme.dart';
 import 'package:assisto/updater.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/screens/login_screen.dart';
+import 'package:assisto/screens/otp/otp_verify_screen.dart';
+import 'package:assisto/screens/otp/otp_login_screen.dart';
+import 'fake_otp.dart';
 import 'package:assisto/screens/language_picker_screen.dart';
 import 'package:assisto/screens/home_screen.dart';
 import 'package:assisto/screens/agent_thread_screen.dart';
@@ -414,6 +417,13 @@ void main() {
     'offline_status': (build: (_) => const OfflineStatusScreen(), mode: FakeMode.data, full: true),
     'safe_arrival': (build: (_) => const SafeArrivalScreen(), mode: FakeMode.data, full: true),
     'password_reset': (build: (_) => const PasswordResetScreen(), mode: FakeMode.data, full: true),
+    // ---- o1-otp ----
+    'otp_verify': (build: (_) => OtpVerifyScreen(backend: FakeOtpBackend(), purpose: 'login', phone: '01712345678', title: 'Assisto'), mode: FakeMode.data, full: true),
+    'otp_sms_off': (build: (_) => OtpVerifyScreen(backend: FakeOtpBackend(smsEnabled: false), purpose: 'login', phone: '01712345678', title: 'Assisto'), mode: FakeMode.data, full: true),
+    'otp_login': (build: (_) => OtpLoginScreen(backend: FakeOtpBackend()), mode: FakeMode.data, full: true),
+    'otp_reset': (build: (_) => OtpResetScreen(backend: FakeOtpBackend()), mode: FakeMode.data, full: true),
+    'password_reset_sms': (build: (_) => PasswordResetScreen(otpBackend: FakeOtpBackend()), mode: FakeMode.data, full: true),
+    // ---- /o1-otp ----
     'name_about': (build: (_) => const NameAboutScreen(), mode: FakeMode.data, full: true),
     'owner_analytics': (build: (_) => const OwnerAnalyticsScreen(), mode: FakeMode.data, full: true),
     'payment_ladder': (build: (_) => const PaymentLadderScreen(), mode: FakeMode.data, full: true),

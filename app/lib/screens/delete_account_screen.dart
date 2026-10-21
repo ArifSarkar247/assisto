@@ -13,6 +13,8 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/ladder_common.dart';
 import '../widgets/password_field.dart';
+import '../otp_api.dart';
+import 'otp/otp_verify_screen.dart';
 
 /// Secure, Play-compliant "Delete my profile & all data".
 ///
@@ -28,7 +30,9 @@ import '../widgets/password_field.dart';
 /// `AppState.deleteAccount()` wipe; it schedules the deletion server-side and
 /// leaves the user logged in so they can still cancel during the grace period.
 class DeleteAccountScreen extends StatefulWidget {
-  const DeleteAccountScreen({super.key});
+  /// o1-otp: injectable for widget tests; defaults to the real API.
+  final OtpBackend? otpBackend;
+  const DeleteAccountScreen({super.key, this.otpBackend});
 
   @override
   State<DeleteAccountScreen> createState() => _DeleteAccountScreenState();
@@ -49,11 +53,11 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
 
   // Verify inputs.
   final _password = TextEditingController();
-  final _otp = TextEditingController();
   bool _hasPin = false; // user HAS a Security PIN -> biometric + PIN required.
   String? _securityPin; // captured via askPin after biometric.
-  bool _otpSent = false;
-  bool _otpOff = false; // SMS provider off -> OTP satisfied-if-absent.
+  // o1-otp: single-use SMS proof (purpose delete_account). Asked for only when
+  // the server says otp_required (i.e. an SMS gateway is connected).
+  String? _otpProof;
 
   bool _busy = false;
   String? _inlineError;
@@ -67,7 +71,6 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
   @override
   void dispose() {
     _password.dispose();
-    _otp.dispose();
     super.dispose();
   }
 
@@ -171,32 +174,6 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     }
   }
 
-  // --- OTP (reuses the existing auth/otp/request endpoint) -----------------
-  Future<void> _sendOtp() async {
-    final t = AppLocalizations.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-    final ident = _app.user?.phone?.trim().isNotEmpty == true
-        ? _app.user!.phone!.trim()
-        : (_app.user?.email?.trim() ?? '');
-    setState(() => _busy = true);
-    try {
-      final r = await _app.api.requestOtp(ident);
-      if (!mounted) return;
-      final smsOff = r['sms_enabled'] == false;
-      setState(() {
-        _otpSent = true;
-        _otpOff = smsOff;
-        _busy = false;
-      });
-      messenger.showSnackBar(SnackBar(
-          content: Text(smsOff ? t.delAcctOtpOff : t.delAcctOtpSent(ident))));
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _busy = false);
-      messenger.showSnackBar(SnackBar(content: Text(_friendly(e))));
-    }
-  }
-
   // --- verify PIN (biometric then askPin) ----------------------------------
   Future<void> _capturePin() async {
     final t = AppLocalizations.of(context);
@@ -230,7 +207,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     try {
       resp = await _app.api.accountDeleteRequest(
         password: _password.text,
-        otp: _otp.text.trim(),
+        otpProof: _otpProof,
         securityPin: _hasPin ? _securityPin : null,
         lat: pos?.latitude,
         lng: pos?.longitude,
@@ -264,6 +241,25 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
         _phase = _Phase.blocked;
       });
       return;
+    }
+
+    // o1-otp: SMS confirmation needed (gateway connected) -> code step, then
+    // resubmit once with the proof. An expired/used proof asks again.
+    if (reason == 'otp_required' ||
+        (reason == 'bad_otp' && _otpProof != null)) {
+      _otpProof = null;
+      final proof = await OtpVerifyScreen.run(context,
+          backend: widget.otpBackend ?? ApiOtpBackend(_app.api),
+          purpose: 'delete_account',
+          title: t.otpDeleteTitle,
+          intro: t.otpDeleteIntro);
+      if (!mounted) return;
+      if (proof == null) {
+        setState(() => _busy = false);
+        return;
+      }
+      _otpProof = proof;
+      return _submit();
     }
 
     // 400/403 — bad credential. Inline error, let them retry.
@@ -497,6 +493,9 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
         ObscureTextField(
           controller: _password,
           autofillHints: const [AutofillHints.password],
+          // Re-evaluate _canSubmit() as the user types (the submit button
+          // otherwise stayed disabled until some unrelated rebuild).
+          onChanged: (_) => setState(() {}),
           decoration: InputDecoration(
             labelText: t.delAcctPasswordLabel,
             prefixIcon: const Icon(Icons.key_outlined),
@@ -504,36 +503,19 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
         ),
         const SizedBox(height: Gap.lg),
 
-        // OTP.
+        // OTP (o1-otp): asked on submit, only when SMS is connected.
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: TextField(
-                controller: _otp,
-                keyboardType: TextInputType.number,
-                maxLength: 8,
-                enabled: !_otpOff,
-                decoration: InputDecoration(
-                  labelText: t.delAcctOtpLabel,
-                  prefixIcon: const Icon(Icons.sms_outlined),
-                  counterText: '',
-                ),
-              ),
-            ),
+            Icon(Icons.sms_outlined,
+                size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(width: Gap.sm),
-            Padding(
-              padding: const EdgeInsets.only(top: 6),
-              child: OutlinedButton(
-                onPressed: _busy ? null : _sendOtp,
-                child: Text(_otpSent ? t.delAcctResendOtp : t.delAcctSendOtp),
-              ),
+            Expanded(
+              child: Text(t.otpDelSmsNote,
+                  style: Theme.of(context).textTheme.bodySmall),
             ),
           ],
         ),
-        if (_otpOff)
-          Text(t.delAcctOtpOff,
-              style: Theme.of(context).textTheme.bodySmall),
 
         // Security PIN (only when the user HAS one): biometric + PIN.
         if (_hasPin) ...[

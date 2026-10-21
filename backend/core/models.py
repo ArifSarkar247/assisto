@@ -3086,7 +3086,7 @@ class ShopEodCheck(models.Model):
         indexes = [models.Index(fields=["site", "-created"])]
 
 
-# ===========================================================================
+# ====================================================================
 # ---- m1-messenger ---- per-user chat prefs, group timers, account settings,
 # server-built exports. Message BODIES stay E2E ciphertext; nothing here holds
 # plaintext (two-step PIN + OTP are Django password hashes).
@@ -3220,3 +3220,45 @@ class JourneyPoint(models.Model):
     class Meta:
         ordering = ["at"]
 # ---- /m1-messenger ----
+# ---- o1-otp ---- OTP (SMS one-time codes), purpose-bound proofs, and the
+# phone-verified marker. Codes are NEVER stored in plaintext: only an
+# HMAC-SHA256(SECRET_KEY, salt|phone|purpose|code). See core/otp.py.
+class OtpChallenge(models.Model):
+    phone = models.CharField(max_length=24, db_index=True)     # +8801XXXXXXXXX
+    purpose = models.CharField(max_length=20)
+    code_hash = models.CharField(max_length=64)
+    salt = models.CharField(max_length=32)
+    created_at = models.DateTimeField(default=timezone.now, db_index=True)
+    expires_at = models.DateTimeField()
+    attempts = models.PositiveSmallIntegerField(default=0)
+    consumed_at = models.DateTimeField(null=True, blank=True)
+    locked_until = models.DateTimeField(null=True, blank=True)
+    ip = models.CharField(max_length=64, blank=True, default="", db_index=True)
+    device_id = models.CharField(max_length=128, blank=True, default="", db_index=True)
+    sent = models.BooleanField(default=False)
+    detail = models.CharField(max_length=200, blank=True, default="")
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["phone", "purpose", "-created_at"])]
+
+
+class OtpProof(models.Model):
+    """Short-lived, single-use proof that `phone` passed an OTP for `purpose`.
+    Only the SHA-256 of the raw token is stored."""
+    token_hash = models.CharField(max_length=64, unique=True)
+    phone = models.CharField(max_length=24)
+    purpose = models.CharField(max_length=20)
+    created_at = models.DateTimeField(default=timezone.now)
+    expires_at = models.DateTimeField()
+    used_at = models.DateTimeField(null=True, blank=True)
+
+
+class PhoneVerification(models.Model):
+    """A user's phone number was proven by OTP (append-only marker; the User
+    model itself is untouched)."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="phone_verification")
+    phone = models.CharField(max_length=24)
+    verified_at = models.DateTimeField(default=timezone.now)
+# ---- /o1-otp ----

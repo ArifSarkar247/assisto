@@ -43,7 +43,8 @@ class ResetChannelTile extends StatelessWidget {
       RecoveryChannel.sms => (
           Icons.sms_outlined,
           t.resetChannelSms,
-          t.resetSmsUnavailable, // 🔑 honest: needs an SMS gateway key
+          // 🔑 honest: works only once an SMS gateway is connected (o1-otp)
+          available ? t.otpResetSmsReady : t.resetSmsUnavailable,
         ),
       RecoveryChannel.securityQuestion => (
           Icons.help_outline,

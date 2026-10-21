@@ -8,6 +8,8 @@ import '../l10n/app_localizations.dart';
 import '../widgets/password_field.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../otp_api.dart';
+import '../screens/otp/otp_verify_screen.dart';
 
 /// The outcome of gating a sensitive security action through [SecurityGuard].
 ///
@@ -57,7 +59,9 @@ class SecActionResult {
 /// when gating an action — never at app launch. Every plugin call is wrapped
 /// so a device without biometrics still works (it falls back to PIN-only).
 class SecurityGuard {
-  const SecurityGuard();
+  /// o1-otp: injectable for tests; defaults to the real API.
+  final OtpBackend? otpBackend;
+  const SecurityGuard({this.otpBackend});
 
   static final LocalAuthentication _auth = LocalAuthentication();
 
@@ -127,6 +131,31 @@ class SecurityGuard {
       return const SecActionResult(SecActionState.error);
     }
     if (!context.mounted) return const SecActionResult(SecActionState.error);
+
+    // (d2) o1-otp: Section-8 SMS confirmation — the server asks for it only
+    // when an SMS gateway is connected. Code step, then ONE retry with proof.
+    if ('${resp['reason'] ?? ''}' == 'otp_required') {
+      final proof = await OtpVerifyScreen.run(context,
+          backend: otpBackend ?? ApiOtpBackend(api),
+          purpose: 'section8',
+          title: tr.otpSection8Title,
+          intro: tr.otpSection8Intro);
+      if (!context.mounted || proof == null) {
+        return const SecActionResult(SecActionState.cancelled);
+      }
+      try {
+        resp = await api.securityAction(action, pin,
+            lat: pos?.latitude, lng: pos?.longitude, otpProof: proof);
+      } catch (_) {
+        if (context.mounted) _snack(context, tr.securityActionError);
+        return const SecActionResult(SecActionState.error);
+      }
+      if (!context.mounted) return const SecActionResult(SecActionState.error);
+      if ('${resp['reason'] ?? ''}' == 'bad_otp') {
+        _snack(context, tr.otpErrExpired);
+        return const SecActionResult(SecActionState.error);
+      }
+    }
 
     // (e) interpret.
     return _interpret(context, tr, resp);

@@ -77,6 +77,10 @@ CATALOG = (
     # a6: app-open ad kill-switch (still needs AdMob configured; never shown to
     # Premium/Business, never on safety/payment/login/call screens).
     ("ads_app_open", KIND_FEATURE, "monetization", True),
+    # o1-otp: launch gate. ON = password-only sign-up still allowed (test
+    # builds / today). Turn OFF at public launch -> sign-up REQUIRES an
+    # OTP-verified phone. Existing users' password login is never affected.
+    ("auth_password_only_signup", KIND_FEATURE, "ops", True),
 )
 
 _BY_ID = {row[0]: row for row in CATALOG}

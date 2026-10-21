@@ -653,4 +653,15 @@ urlpatterns[:0] = [
 ]
 # ---- /m1-messenger ----
 
+# ---- o1-otp ---- SMS OTP: status / request / resend / verify / login / reset.
+from . import views_otp as otpv  # noqa: E402
+urlpatterns += [
+    path("auth/otp/status", otpv.OtpStatusView.as_view()),
+    path("auth/otp/resend", otpv.OtpRequestView.as_view()),
+    path("auth/otp/verify", otpv.OtpVerifyView.as_view()),
+    path("auth/otp/login", otpv.OtpLoginView.as_view()),
+    path("auth/otp/reset", otpv.OtpResetView.as_view()),
+]
+# ---- /o1-otp ----
+
 urlpatterns += router.urls

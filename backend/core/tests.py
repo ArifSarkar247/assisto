@@ -2479,18 +2479,16 @@ class AccountDeletionScenarioTests(APITestCase):
         r = self._request(security_pin="0000")
         self.assertEqual(r.status_code, 403, r.data)
 
-    def test_request_rejected_with_bad_otp_when_code_issued(self):
-        from .models import OTPCode
-        from datetime import timedelta
-        OTPCode.objects.create(identifier=self.user.phone, code="999999",
-                               purpose="login",
-                               expires_at=timezone.now() + timedelta(minutes=5))
-        r = self._request(otp="000000")
+    def test_request_rejected_with_bad_otp_when_sms_connected(self):
+        # o1-otp: with the SMS gateway CONNECTED an otp_proof is required
+        # (full coverage in core.tests_o1_otp.SensitiveActionProofTests).
+        from .models import Integration
+        from . import integrations
+        integrations.save("sms", {"provider": "bulksmsbd", "api_key": "k"})
+        Integration.objects.filter(slug="sms").update(status="working")
+        r = self._request(otp_proof="forged")
         self.assertEqual(r.status_code, 403, r.data)
         self.assertEqual(r.data["reason"], "bad_otp")
-        # correct code passes
-        ok = self._request(otp="999999")
-        self.assertEqual(ok.status_code, 200, ok.data)
 
     # -- happy path at a trusted place -> ~7-day grace ----------------------
 
