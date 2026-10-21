@@ -1,10 +1,23 @@
+import 'package:flutter/foundation.dart' show kReleaseMode;
+
 /// All URLs come from ONE place so the backend can move servers with zero
 /// change for users (override at build time with --dart-define=API_BASE=...).
+
 class AppConfig {
-  static const String apiBase = String.fromEnvironment(
+  static const String _shippedBase = String.fromEnvironment(
     'API_BASE',
     defaultValue: 'https://api.lifeassisto.com',
   );
+
+  /// Reality-audit CI override (.github/workflows/reality.yml points the debug
+  /// integration-test build at a throw-away Django inside the runner:
+  /// --dart-define=REALITY_API_BASE=http://10.0.2.2:8700). INERT in release:
+  /// kReleaseMode is a compile-time const, so a release build always uses
+  /// [_shippedBase] even if the define were passed.
+  static const String _realityBase = String.fromEnvironment('REALITY_API_BASE');
+
+  static const String apiBase =
+      (!kReleaseMode && _realityBase != '') ? _realityBase : _shippedBase;
   static const String apiPrefix = '/api/v1';
   static const String appVersionLabel = '1.0';
 
