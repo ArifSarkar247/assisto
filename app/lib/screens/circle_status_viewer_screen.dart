@@ -262,12 +262,16 @@ class _CircleStatusViewerScreenState extends State<CircleStatusViewerScreen> {
       }
       return;
     }
+    var muted = true;
     try {
       await _api.muteStatusAuthor(widget.authorId, on: true);
-    } catch (_) {}
+    } catch (_) {
+      muted = false; // m2-reality: no false "muted"
+    }
     if (mounted) {
+      final t = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context).statusMuted)),
+        SnackBar(content: Text(muted ? t.statusMuted : t.grpActionFailed)),
       );
       Navigator.of(context).maybePop();
     }

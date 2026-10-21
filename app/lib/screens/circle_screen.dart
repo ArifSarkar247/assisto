@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -97,6 +98,14 @@ class _CircleScreenState extends State<CircleScreen> {
           base64Decode(j['pub'] as String),
           j['kid'] as String,
         );
+        // Re-publish the PUBLIC key on every open (fire-and-forget): edges
+        // created since the first publish (new connections) only learn our
+        // key this way — without it the peer's chat stays at "key missing".
+        unawaited(_api.postJson('/circle/keys', {
+          'public_key': _identity!.publicKeyB64,
+          'key_id': _identity!.keyId,
+          'scheme': _e2e.scheme,
+        }).then((_) {}, onError: (_) {}));
         return;
       }
       final id = _e2e.generateIdentity();
@@ -166,12 +175,16 @@ class _CircleScreenState extends State<CircleScreen> {
       ),
     );
     if (reason == null) return;
+    // m2-reality: a failed report used to show "Reported" anyway.
+    var ok = true;
     try {
       await _api.postJson('/circle/${member['id']}/report', {'reason': reason});
-    } catch (_) {}
+    } catch (_) {
+      ok = false;
+    }
     if (mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(_t.circleReported)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(ok ? _t.circleReported : _t.grpActionFailed)));
     }
     await _load();
   }
