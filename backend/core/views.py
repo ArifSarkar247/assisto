@@ -174,6 +174,11 @@ class LoginView(APIView):
             return Response({"detail": pick(lang, "ভুল তথ্য। আবার চেষ্টা করুন।",
                                             "Those details didn't match. Please try again.")},
                             status=status.HTTP_401_UNAUTHORIZED)
+        from .account_block import is_blocked, blocked_message
+        if is_blocked(user):   # o2-admin: blocked accounts cannot sign in
+            return Response({"reason": "account_blocked",
+                             "detail": blocked_message(req_lang(request))},
+                            status=status.HTTP_403_FORBIDDEN)
         token, _ = Token.objects.get_or_create(user=user)
         log(user, "account.login")
         return Response({"token": token.key, "user": UserSerializer(user).data})

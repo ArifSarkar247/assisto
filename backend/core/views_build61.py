@@ -116,22 +116,34 @@ class AdminFlagsFlipView(_FlagsBase):
         if not self._owner(request):
             return Response({"can_manage": False},
                             status=status.HTTP_403_FORBIDDEN)
-        from .logic import admin_flags as AF
         d = request.data or {}
-        flag = d.get("flag")
-        value = d.get("value")
-        reason = d.get("reason", "")
-        row = self._row()
-        res = AF.apply_flip(row.state, flag, value,
-                            actor=request.user.id, reason=reason,
-                            at_iso=timezone.now().isoformat())
-        if not res["ok"]:
-            return Response({"ok": False, "problems": res["problems"]},
-                            status=status.HTTP_400_BAD_REQUEST)
-        row.state = res["state"]
-        row.audit = ([res["audit"]] + list(row.audit or []))[:200]  # newest-first, capped
-        row.save(update_fields=["state", "audit", "updated_at"])
-        return Response(self._snapshot(row))
+        ok, payload = flags_flip(request.user.id, d.get("flag"), d.get("value"),
+                                 d.get("reason", ""))
+        if not ok:
+            return Response(payload, status=status.HTTP_400_BAD_REQUEST)
+        return Response(payload)
+
+
+def flags_snapshot():
+    """The /admin/flags GET payload (shared with the web owner panel)."""
+    return _FlagsBase._snapshot(_FlagsBase._row())
+
+
+def flags_flip(actor_id, flag, value, reason=""):
+    """Validate + apply one flag flip through core.logic.admin_flags (confirm
+    gate, audit). Returns (ok, payload). ONE implementation for /admin/flags/flip
+    and the web owner panel."""
+    from .logic import admin_flags as AF
+    row = _FlagsBase._row()
+    res = AF.apply_flip(row.state, flag, value,
+                        actor=actor_id, reason=reason,
+                        at_iso=timezone.now().isoformat())
+    if not res["ok"]:
+        return False, {"ok": False, "problems": res["problems"]}
+    row.state = res["state"]
+    row.audit = ([res["audit"]] + list(row.audit or []))[:200]  # newest-first, capped
+    row.save(update_fields=["state", "audit", "updated_at"])
+    return True, _FlagsBase._snapshot(row)
 
 
 class PricingConfigView(APIView):
@@ -175,70 +187,85 @@ class PricingConfigView(APIView):
         if not self._owner(request):
             return Response({"can_manage": False},
                             status=status.HTTP_403_FORBIDDEN)
-        from . import billing
-        from .logic import pricing as P
-        d = request.data or {}
-        patch = d.get("config") if isinstance(d.get("config"), dict) else d
-        reason = (d.get("reason") or "") if isinstance(d, dict) else ""
-        auto_reprice = bool(d.get("auto_reprice")) if isinstance(d, dict) else False
+        ok, payload = pricing_apply(request.user.id, request.data or {})
+        if not ok:
+            return Response(payload, status=status.HTTP_400_BAD_REQUEST)
+        return Response(payload)
 
-        row = billing.get_config()
-        old = P.normalize(row.data)
 
-        # deep-ish merge: patch overrides old at the plan / action-cost / scalar level
-        merged = {k: (dict(v) if isinstance(v, dict) else v) for k, v in old.items()}
-        for key in ("margin", "annual_discount_pct", "credit_bdt", "usd_bdt",
-                    "play_fee", "gateway_fee", "vat", "fixed_cost_per_day",
-                    "storage_cost_bdt_per_gb_month",
-                    "probashi_price_usd", "ai_daily_budget_usd",
-                    "ai_user_daily_limit"):
-            if key in (patch or {}):
-                merged[key] = patch[key]
-        for dkey in ("ad_rewards", "profit_guard", "guarantees", "limits",
-                     "referral", "shop", "otp", "vehicle"):
-            if (dkey in ("guarantees", "limits", "referral")
-                    and dkey in (patch or {})
-                    and not isinstance(patch[dkey], dict)):
-                merged[dkey] = patch[dkey]          # validate_edit rejects it
-            elif isinstance((patch or {}).get(dkey), dict):
-                sub = {k: v for k, v in (old.get(dkey) or {}).items()}
-                sub.update(patch[dkey])
-                merged[dkey] = sub
-        if isinstance((patch or {}).get("topup_packs"), list):
-            merged["topup_packs"] = patch["topup_packs"]
-        if "home_quick_defaults" in (patch or {}):
-            merged["home_quick_defaults"] = patch["home_quick_defaults"]
-        if isinstance((patch or {}).get("plans"), dict):
-            merged_plans = {k: dict(v) for k, v in old["plans"].items()}
-            for pid, pv in patch["plans"].items():
-                if isinstance(pv, dict):
-                    merged_plans.setdefault(pid, {}).update(pv)
-            merged["plans"] = merged_plans
-        if isinstance((patch or {}).get("action_costs"), dict):
-            merged_costs = {k: dict(v) for k, v in old["action_costs"].items()}
-            for aid, av in patch["action_costs"].items():
-                if isinstance(av, dict):
-                    merged_costs.setdefault(aid, {}).update(av)
-            merged["action_costs"] = merged_costs
+def pricing_snapshot():
+    """The /admin/pricing GET payload (shared by the API and the web owner
+    panel /owner/pricing)."""
+    return PricingConfigView()._snapshot()
 
-        problems = P.validate_edit(merged)
-        if problems:
-            return Response({"ok": False, "problems": problems,
-                             "margin_check": P.plan_margin_report(merged),
-                             "warnings": P.margin_warnings(merged)},
-                            status=status.HTTP_400_BAD_REQUEST)
 
-        new = P.normalize(merged)
-        if auto_reprice:
-            new = P.recompute_all(new)   # hold the margin on every action (§8)
+def pricing_apply(actor_id, d):
+    """Merge-validate-save a PricingConfig edit. `d` is the POST body
+    ({config|<patch>, reason, auto_reprice}). Returns (ok, payload): on
+    failure payload = {ok:False, problems, margin_check, warnings}; on success
+    the fresh snapshot. ONE implementation for /admin/pricing and /owner/."""
+    from . import billing
+    from .logic import pricing as P
+    d = d or {}
+    patch = d.get("config") if isinstance(d.get("config"), dict) else d
+    reason = (d.get("reason") or "") if isinstance(d, dict) else ""
+    auto_reprice = bool(d.get("auto_reprice")) if isinstance(d, dict) else False
 
-        row.data = new
-        entry = P.make_audit_entry(
-            path="config", old=old, new=new, actor=request.user.id,
-            reason=reason, at_iso=timezone.now().isoformat())
-        row.audit = ([entry] + list(row.audit or []))[:200]
-        row.save(update_fields=["data", "audit", "updated_at"])
-        return Response(self._snapshot())
+    row = billing.get_config()
+    old = P.normalize(row.data)
+    # deep-ish merge: patch overrides old at the plan / action-cost / scalar level
+    merged = {k: (dict(v) if isinstance(v, dict) else v) for k, v in old.items()}
+    for key in ("margin", "annual_discount_pct", "credit_bdt", "usd_bdt",
+                "play_fee", "gateway_fee", "vat", "fixed_cost_per_day",
+                "storage_cost_bdt_per_gb_month",
+                "probashi_price_usd", "ai_daily_budget_usd",
+                "ai_user_daily_limit"):
+        if key in (patch or {}):
+            merged[key] = patch[key]
+    for dkey in ("ad_rewards", "profit_guard", "guarantees", "limits",
+                 "referral", "shop", "otp", "vehicle", "photo_studio"):
+        if (dkey in ("guarantees", "limits", "referral")
+                and dkey in (patch or {})
+                and not isinstance(patch[dkey], dict)):
+            merged[dkey] = patch[dkey]          # validate_edit rejects it
+        elif isinstance((patch or {}).get(dkey), dict):
+            sub = {k: v for k, v in (old.get(dkey) or {}).items()}
+            sub.update(patch[dkey])
+            merged[dkey] = sub
+    if isinstance((patch or {}).get("topup_packs"), list):
+        merged["topup_packs"] = patch["topup_packs"]
+    if "home_quick_defaults" in (patch or {}):
+        merged["home_quick_defaults"] = patch["home_quick_defaults"]
+    if isinstance((patch or {}).get("plans"), dict):
+        merged_plans = {k: dict(v) for k, v in old["plans"].items()}
+        for pid, pv in patch["plans"].items():
+            if isinstance(pv, dict):
+                merged_plans.setdefault(pid, {}).update(pv)
+        merged["plans"] = merged_plans
+    if isinstance((patch or {}).get("action_costs"), dict):
+        merged_costs = {k: dict(v) for k, v in old["action_costs"].items()}
+        for aid, av in patch["action_costs"].items():
+            if isinstance(av, dict):
+                merged_costs.setdefault(aid, {}).update(av)
+        merged["action_costs"] = merged_costs
+
+    problems = P.validate_edit(merged)
+    if problems:
+        return False, {"ok": False, "problems": problems,
+                       "margin_check": P.plan_margin_report(merged),
+                       "warnings": P.margin_warnings(merged)}
+
+    new = P.normalize(merged)
+    if auto_reprice:
+        new = P.recompute_all(new)   # hold the margin on every action (§8)
+
+    row.data = new
+    entry = P.make_audit_entry(
+        path="config", old=old, new=new, actor=actor_id,
+        reason=reason, at_iso=timezone.now().isoformat())
+    row.audit = ([entry] + list(row.audit or []))[:200]
+    row.save(update_fields=["data", "audit", "updated_at"])
+    return True, pricing_snapshot()
 
 
 class HomeDefaultsView(APIView):

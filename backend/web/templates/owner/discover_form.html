@@ -1,0 +1,37 @@
+{% extends "owner/base.html" %}
+{% block heading %}{% if card %}{{ T.edit_card }}{% else %}{{ T.new_card }}{% endif %}{% endblock %}
+{% block content %}
+<p><a href="/owner/discover">← {{ T.nav_discover }}</a></p>
+{% if safety %}<div class="flash warn" role="alert"><b>{{ T.safety_block }}</b><ul>{% for s in safety %}<li>{{ s }}</li>{% endfor %}</ul></div>{% endif %}
+{% if errors %}<div class="flash warn" role="alert"><b>{{ T.fix_fields }}</b><ul>{% for k, v in errors.items %}<li>{{ k }}: {{ v }}</li>{% endfor %}</ul></div>{% endif %}
+<form method="post" enctype="multipart/form-data" class="card grid2" action="{% if card %}/owner/discover/{{ card.id }}{% else %}/owner/discover/new{% endif %}">
+  {% include "owner/_csrf.html" %}
+  <label>{{ T.type }}<select name="type">{% for t in types %}<option value="{{ t }}" {% if card and card.type == t or not card and data.type == t %}selected{% endif %}>{{ t }}</option>{% endfor %}</select></label>
+  <label class="check"><input type="checkbox" name="enabled" {% if card and card.enabled or not card and data.enabled %}checked{% endif %}> {{ T.enabled }}</label>
+  <label>{{ T.title }} (বাংলা)<input name="title_bn" maxlength="80" value="{% if card %}{{ card.title_bn }}{% else %}{{ data.title_bn }}{% endif %}"></label>
+  <label>{{ T.title }} (English)<input name="title_en" maxlength="80" value="{% if card %}{{ card.title_en }}{% else %}{{ data.title_en }}{% endif %}"></label>
+  <label>{{ T.description }} (বাংলা)<textarea name="desc_bn" maxlength="200">{% if card %}{{ card.desc_bn }}{% else %}{{ data.desc_bn }}{% endif %}</textarea></label>
+  <label>{{ T.description }} (English)<textarea name="desc_en" maxlength="200">{% if card %}{{ card.desc_en }}{% else %}{{ data.desc_en }}{% endif %}</textarea></label>
+  <label>{{ T.icon }}<select name="icon"><option value="">—</option>{% for i in icons %}<option value="{{ i }}" {% if card and card.icon == i or not card and data.icon == i %}selected{% endif %}>{{ i }}</option>{% endfor %}</select></label>
+  <label>{{ T.route }}<select name="route"><option value="">—</option>{% for r in routes %}<option value="{{ r }}" {% if card and card.route == r or not card and data.route == r %}selected{% endif %}>{{ r }}</option>{% endfor %}</select></label>
+  <label class="span2">URL (https)<input name="url" type="url" maxlength="300" value="{% if card %}{{ card.url }}{% else %}{{ data.url }}{% endif %}" placeholder="https://"></label>
+  <label>{{ T.start }}<input name="start_at" type="datetime-local" value="{% if card %}{{ start_local }}{% else %}{{ data.start_at }}{% endif %}"></label>
+  <label>{{ T.end }}<input name="end_at" type="datetime-local" value="{% if card %}{{ end_local }}{% else %}{{ data.end_at }}{% endif %}"></label>
+  <label>{{ T.audience }}<select name="audience">{% for a in audiences %}<option value="{{ a }}" {% if card and card.audience == a or not card and data.audience == a %}selected{% endif %}>{{ a }}</option>{% endfor %}</select></label>
+  <label>{{ T.min_build }}<input name="min_build" type="number" min="0" value="{% if card %}{{ card.min_build|default_if_none:'' }}{% else %}{{ data.min_build }}{% endif %}"></label>
+  <label>{{ T.sponsor_name }}<input name="sponsor_name" maxlength="80" value="{% if card %}{{ card.sponsor_name }}{% else %}{{ data.sponsor_name }}{% endif %}"></label>
+  <label>{{ T.sponsor_revenue }} (৳)<input name="sponsor_revenue" type="number" step="0.01" min="0" value="{% if card %}{{ card.sponsor_revenue }}{% else %}{{ data.sponsor_revenue }}{% endif %}"></label>
+  <label class="span2">{{ T.image }} (PNG/JPEG/WEBP ≤ 2 MB)<input name="image" type="file" accept="image/png,image/jpeg,image/webp"></label>
+  {% if card and card.image %}<div class="span2 imgrow"><img src="{{ card.image.url }}" alt="" class="thumb"><label class="check"><input type="checkbox" name="remove_image"> {{ T.remove_image }}</label></div>{% endif %}
+  <p class="mut small span2">{{ T.sponsored_rule }}</p>
+  <div class="span2"><button class="btn primary">{{ T.save }}</button></div>
+</form>
+{% if card %}
+<form method="post" action="/owner/discover/{{ card.id }}/delete" class="card danger">
+  {% include "owner/_csrf.html" %}
+  <h2>{{ T.delete_card }}</h2>
+  <label class="check"><input type="checkbox" name="confirm" required> {{ T.delete_confirm }}</label>
+  <button class="btn danger">{{ T.delete }}</button>
+</form>
+{% endif %}
+{% endblock %}

@@ -277,6 +277,11 @@ def DEFAULTS():
             "rewarded_daily_cap": 5,
             "interstitial_daily_cap": 10,
             "native_daily_cap": 20,
+            # o2-admin: Discover/home HERO ad slot (Free plan only, AdMob
+            # key-gated like every ad). OFF until the owner turns it on in
+            # /owner/ads; when shown, video starts MUTED by default.
+            "hero_enabled": False,
+            "hero_start_muted": True,
         },
         # daily profit guard thresholds (admin-editable)
         "profit_guard": {
@@ -517,6 +522,9 @@ def _norm_ad_rewards(raw, base):
                                               base["interstitial_daily_cap"])),
         "native_daily_cap": max(0, _int(raw.get("native_daily_cap"),
                                         base["native_daily_cap"])),
+        "hero_enabled": _bool(raw.get("hero_enabled"), base["hero_enabled"]),
+        "hero_start_muted": _bool(raw.get("hero_start_muted"),
+                                  base["hero_start_muted"]),
     }
 
 

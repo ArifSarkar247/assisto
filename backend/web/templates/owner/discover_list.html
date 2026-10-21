@@ -1,0 +1,47 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_discover }}{% endblock %}
+{% block content %}
+<div class="bar"><a class="btn primary" href="/owner/discover/new">+ {{ T.new_card }}</a><p class="mut small">{{ T.discover_note }}</p></div>
+<section class="card">
+  <h2>{{ T.cards }}</h2>
+  {% if cards %}
+  <form method="post" action="/owner/discover/reorder" id="reorder-form">{% include "owner/_csrf.html" %}
+    <input type="hidden" name="ids" id="reorder-ids" value="{{ ids }}">
+    <p class="mut small">{{ T.drag_hint }} <button class="btn ghost small" id="reorder-save" hidden>{{ T.save_order }}</button></p>
+  </form>
+  <div class="tbl"><table class="drag" id="cards-table"><thead><tr><th></th><th>{{ T.title }}</th><th>{{ T.type }}</th><th>{{ T.audience }}</th><th>{{ T.status }}</th><th>{{ T.impressions }}</th><th>{{ T.clicks }}</th><th>CTR</th><th></th></tr></thead><tbody>
+  {% for c in cards %}
+  <tr draggable="true" data-id="{{ c.id }}">
+    <td class="handle" title="{{ T.drag }}">⋮⋮</td>
+    <td><a href="/owner/discover/{{ c.id }}"><b>{% if lang == 'en' %}{{ c.title_en|default:c.key }}{% else %}{{ c.title_bn|default:c.title_en|default:c.key }}{% endif %}</b></a>{% if c.type == 'SPONSORED' %} <span class="pill spons">{{ T.sponsored }}</span>{% endif %}{% if c.sponsor_name %}<br><small class="mut">{{ c.sponsor_name }} · ৳{{ c.sponsor_revenue }}</small>{% endif %}</td>
+    <td>{{ c.type }}</td><td>{{ c.audience }}{% if c.min_build %} · ≥{{ c.min_build }}{% endif %}</td>
+    <td>{% if c.live %}<span class="pill ok">{{ T.live }}</span>{% elif c.enabled %}<span class="pill">{{ T.scheduled }}</span>{% else %}<span class="pill off">{{ T.disabled }}</span>{% endif %}</td>
+    <td class="num">{{ c.stats.impressions }}</td><td class="num">{{ c.stats.clicks }}</td><td class="num">{{ c.stats.ctr }}%</td>
+    <td class="row-actions">
+      <form method="post" action="/owner/discover/reorder">{% include "owner/_csrf.html" %}<button class="btn ghost small" name="move" value="{{ c.id }}:up" aria-label="{{ T.up }}">↑</button><button class="btn ghost small" name="move" value="{{ c.id }}:down" aria-label="{{ T.down }}">↓</button></form>
+      <form method="post" action="/owner/discover/{{ c.id }}/toggle">{% include "owner/_csrf.html" %}<button class="btn ghost small">{% if c.enabled %}{{ T.disable }}{% else %}{{ T.enable }}{% endif %}</button></form>
+      <a class="btn ghost small" href="/owner/discover/{{ c.id }}/report">{{ T.report }}</a>
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody></table></div>
+  {% else %}<p class="empty">{{ T.no_cards }}</p>{% endif %}
+</section>
+<section class="card">
+  <h2>{{ T.preview }}</h2>
+  <form method="get" class="inline">
+    <label>{{ T.plan }} <select name="segment">{% for s in segments %}<option value="{{ s }}" {% if s == seg %}selected{% endif %}>{{ s }}</option>{% endfor %}</select></label>
+    <label>{{ T.build }} <input name="build" type="number" min="0" value="{{ build|default_if_none:'' }}" class="short"></label>
+    <button class="btn ghost">{{ T.show }}</button>
+  </form>
+  {% if preview %}
+  <div class="phone">{% for p in preview %}
+    <div class="pcard">{% if p.type == 'ADMOB' %}<span class="pill">{{ T.ad_slot }}</span>{% else %}{% if p.label == 'sponsored' %}<span class="pill spons">{{ T.sponsored }}</span>{% elif p.label == 'our_products' %}<span class="pill">{{ T.our_products }}</span>{% endif %}
+      {% if p.image_url %}<img src="{{ p.image_url }}" alt="">{% endif %}
+      <b>{% if lang == 'en' %}{{ p.title.en }}{% else %}{{ p.title.bn|default:p.title.en }}{% endif %}</b>
+      <small>{% if lang == 'en' %}{{ p.description.en }}{% else %}{{ p.description.bn|default:p.description.en }}{% endif %}</small>
+      <small class="mut">{{ p.route|default:p.url }}</small>{% endif %}
+    </div>{% endfor %}</div>
+  {% else %}<p class="empty">{{ T.preview_empty }}</p>{% endif %}
+</section>
+{% endblock %}
