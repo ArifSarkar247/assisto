@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0049_d1_discover_cards'),
+        ('core', '0050_c1_phone_canonical'),
     ]
 
     operations = [
