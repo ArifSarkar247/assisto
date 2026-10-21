@@ -1,0 +1,148 @@
+--- a/.github/workflows/android.yml	2026-10-21 04:29:32.273378809 +0000
++++ b/.github/workflows/android.yml	2026-10-21 04:33:11.507237160 +0000
+@@ -53,6 +53,29 @@
+             echo "no android_overlay — skipping"
+           fi
+ 
++      # a6 FCM: Firebase config is KEY-GATED. google-services.json lives ONLY in
++      # the GOOGLE_SERVICES_JSON_B64 Actions secret (repo is public — never
++      # commit it, never print it). No secret -> no file -> the Gradle plugin is
++      # not applied, Firebase.initializeApp() fails inside its try/catch and the
++      # app builds + launches with push silently off.
++      - name: Firebase config (google-services.json from secret)
++        working-directory: app
++        env:
++          GSJ_B64: ${{ secrets.GOOGLE_SERVICES_JSON_B64 }}
++        run: |
++          if [ -n "${GSJ_B64:-}" ]; then
++            printf '%s' "$GSJ_B64" | base64 -d > android/app/google-services.json
++            python3 - <<'PY2'
++          import json
++          d = json.load(open("android/app/google-services.json"))
++          pk = [c["client_info"]["android_client_info"]["package_name"] for c in d.get("client", [])]
++          assert "com.assisto.assisto" in pk, "google-services.json has no com.assisto.assisto client"
++          print("google-services.json OK for project", d["project_info"]["project_id"])
++          PY2
++          else
++            echo "no GOOGLE_SERVICES_JSON_B64 secret - push stays OFF in this build"
++          fi
++
+       - name: Pub get
+         working-directory: app
+         run: flutter pub get
+@@ -191,8 +214,69 @@
+           )
+           if 'androidx.startup.InitializationProvider' not in s:
+               s = s.replace('</application>', startup_remove + '    </application>', 1)
++          # ---- a6 FCM push ----
++          # Full-screen incoming calls (Android 14+: user-grantable special
++          # permission; Settings -> Notifications & calls deep-links to it).
++          if 'USE_FULL_SCREEN_INTENT' not in s:
++              s = re.sub(r'(<manifest[^>]*>)', r'\1' +
++                  '\n    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>'
++                  '\n    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>\n',
++                  s, count=1)
++          # A ringing call / SOS may open over the lock screen and wake it.
++          if 'android:showWhenLocked' not in s:
++              s = s.replace('android:name=".MainActivity"',
++                  'android:name=".MainActivity"\n            android:showWhenLocked="true"'
++                  '\n            android:turnScreenOn="true"', 1)
++          push_components = (
++              # NO startup ContentProvider: Firebase is initialised lazily (Dart
++              # after the first frame; native AssistoFcmService when a push
++              # arrives with the app closed).
++              '\n        <provider android:name="com.google.firebase.provider.FirebaseInitProvider"'
++              ' android:authorities="${applicationId}.firebaseinitprovider"'
++              ' tools:node="remove"/>'
++              # firebase_messaging's own startup provider only stores the app
++              # context; the plugin's receiver, engine attach and our service
++              # set the same holder, so it goes too (no startup providers).
++              '\n        <provider android:name="io.flutter.plugins.firebase.messaging.FlutterFirebaseMessagingInitProvider"'
++              ' android:authorities="${applicationId}.flutterfirebasemessaginginitprovider"'
++              ' tools:node="remove"/>'
++              # swap the plugin's messaging service for our subclass (it inits
++              # Firebase on demand, crash-guarded)
++              '\n        <service android:name="io.flutter.plugins.firebase.messaging.FlutterFirebaseMessagingService"'
++              ' tools:node="remove"/>'
++              '\n        <service android:name="com.assisto.assisto.push.AssistoFcmService"'
++              ' android:exported="false">'
++              '\n            <intent-filter>'
++              '\n                <action android:name="com.google.firebase.MESSAGING_EVENT"/>'
++              '\n            </intent-filter>'
++              '\n        </service>'
++              # notification messages that arrive before the app created its
++              # channels land on "alerts" (channels are created in Dart:
++              # messages / calls / reminders / alerts / sos)
++              '\n        <meta-data android:name="com.google.firebase.messaging.default_notification_channel_id"'
++              ' android:value="alerts"/>'
++              # flutter_local_notifications receivers: notification ACTIONS
++              # (call Accept/Decline) + scheduled reminders + reschedule on boot.
++              # (The scheduled receivers were missing before, so zonedSchedule
++              # reminders could not fire.)
++              '\n        <receiver android:exported="false"'
++              ' android:name="com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver"/>'
++              '\n        <receiver android:exported="false"'
++              ' android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"/>'
++              '\n        <receiver android:exported="false"'
++              ' android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">'
++              '\n            <intent-filter>'
++              '\n                <action android:name="android.intent.action.BOOT_COMPLETED"/>'
++              '\n                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>'
++              '\n                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>'
++              '\n                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>'
++              '\n            </intent-filter>'
++              '\n        </receiver>\n'
++          )
++          if 'AssistoFcmService' not in s:
++              s = s.replace('</application>', push_components + '    </application>', 1)
+           open(p, "w").write(s)
+-          print("manifest patched: label, permissions, queries, UCropActivity, native components, androidx.startup removed")
++          print("manifest patched: label, permissions, queries, UCropActivity, native components, androidx.startup removed, FCM push")
+           PY
+ 
+       - name: Patch iOS Info.plist (camera/mic/photos usage strings)
+@@ -269,6 +353,44 @@
+               print("already enabled")
+           PY
+ 
++      - name: Apply google-services Gradle plugin (only when Firebase config exists)
++        working-directory: app
++        run: |
++          python3 - <<'PY'
++          import os, re
++          if not os.path.exists("android/app/google-services.json"):
++              print("no google-services.json - google-services plugin NOT applied (push off)")
++              raise SystemExit(0)
++          GMS = "4.5.0"
++          for settings in ("android/settings.gradle.kts", "android/settings.gradle"):
++              if os.path.exists(settings):
++                  s = open(settings).read()
++                  if "com.google.gms.google-services" not in s:
++                      kts = settings.endswith(".kts")
++                      line = ('    id("com.google.gms.google-services") version "%s" apply false' % GMS
++                              if kts else
++                              '    id "com.google.gms.google-services" version "%s" apply false' % GMS)
++                      s, n = re.subn(r'(\n[ \t]*id[ (]+"dev\.flutter\.flutter-plugin-loader"[^\n]*)',
++                                     lambda m: m.group(1) + "\n" + line, s, count=1)
++                      assert n == 1, "plugin-loader line not found in " + settings
++                      open(settings, "w").write(s)
++                  print("google-services plugin declared in", settings)
++                  break
++          for app in ("android/app/build.gradle.kts", "android/app/build.gradle"):
++              if os.path.exists(app):
++                  s = open(app).read()
++                  if "com.google.gms.google-services" not in s:
++                      kts = app.endswith(".kts")
++                      line = ('    id("com.google.gms.google-services")' if kts
++                              else '    id "com.google.gms.google-services"')
++                      s, n = re.subn(r'(\n[ \t]*id[ (]+"dev\.flutter\.flutter-gradle-plugin"[^\n]*)',
++                                     lambda m: m.group(1) + "\n" + line, s, count=1)
++                      assert n == 1, "flutter-gradle-plugin line not found in " + app
++                      open(app, "w").write(s)
++                  print("google-services plugin applied in", app)
++                  break
++          PY
++
+       - name: Build release APK (arm64 only)
+         working-directory: app
+         run: |

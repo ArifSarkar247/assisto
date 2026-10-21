@@ -1,0 +1,179 @@
+import 'dart:convert';
+
+/// Pure (no Flutter, no plugins) model of an Assisto FCM data payload.
+///
+/// Backend contract (backend/core/push.py `push_to_user`): every value is a
+/// STRING. Always present: `kind, title, body, lang, channel, sent_at`. Extras
+/// per kind, e.g. call: `call_id, caller_id, caller_name, video, chat_id,
+/// route`; message: `message_id, chat_kind, chat_id, sender_id, sender_name,
+/// route`; reminder: `reminder_id, due_at, route`; sos: `from_user_id,
+/// from_name, lat, lng, silent, route`.
+///
+/// Calls / call_cancel / SOS arrive DATA-ONLY (the app draws the UI itself).
+class PushChannels {
+  PushChannels._();
+
+  static const messages = 'messages';
+  static const calls = 'calls';
+  static const reminders = 'reminders';
+  static const alerts = 'alerts';
+  static const sos = 'sos';
+
+  static const all = [messages, calls, reminders, alerts, sos];
+
+  /// kind -> channel (mirror of push.CHANNELS; used when `channel` is absent).
+  static const byKind = {
+    'message': messages,
+    'call': calls,
+    'call_cancel': calls,
+    'reminder': reminders,
+    'family_alert': alerts,
+    'owner_alert': alerts,
+    'shop_alert': alerts,
+    'sos': sos,
+  };
+}
+
+class PushPayload {
+  PushPayload(Map<String, String> data) : data = Map.unmodifiable(data);
+
+  final Map<String, String> data;
+
+  /// Accepts the raw FCM `RemoteMessage.data` map (values may be non-strings
+  /// in tests); every value is stringified, nulls dropped.
+  factory PushPayload.fromData(Map<dynamic, dynamic>? raw) {
+    final out = <String, String>{};
+    (raw ?? const {}).forEach((k, v) {
+      if (k == null || v == null) return;
+      out['$k'] = '$v';
+    });
+    return PushPayload(out);
+  }
+
+  /// Payload stored on a local notification (tap / action round-trip).
+  static PushPayload? decode(String? s) {
+    if (s == null || s.isEmpty) return null;
+    try {
+      final m = jsonDecode(s);
+      if (m is Map) return PushPayload.fromData(m);
+    } catch (_) {}
+    return null;
+  }
+
+  String encode() => jsonEncode(data);
+
+  String _s(String k) => (data[k] ?? '').trim();
+
+  String get kind => _s('kind');
+  String get title => _s('title');
+  String get body => _s('body');
+  String get lang => _s('lang') == 'en' ? 'en' : 'bn';
+  String get route => _s('route');
+  String get channel {
+    final c = _s('channel');
+    if (PushChannels.all.contains(c)) return c;
+    return PushChannels.byKind[kind] ?? PushChannels.alerts;
+  }
+
+  String get callId => _s('call_id');
+  String get chatId => _s('chat_id');
+  String get callerName => _s('caller_name');
+  bool get isVideo => _s('video') == 'true';
+  bool get silent => _s('silent') == 'true';
+
+  bool get isKnownKind => PushChannels.byKind.containsKey(kind);
+  bool get isCall => kind == 'call';
+  bool get isCallCancel => kind == 'call_cancel';
+  bool get isSos => kind == 'sos';
+
+  /// Calls and SOS take over the screen (full-screen intent).
+  bool get wantsFullScreen => isCall || isSos;
+
+  /// The backend marks these data-only, so the app must draw them itself even
+  /// when it is in the background.
+  bool get isDataOnly => isCall || isCallCancel || isSos;
+
+  /// Stable Android notification id. A call and its cancel share the id so a
+  /// cancel can dismiss the ringing; messages from one chat collapse into one.
+  int get notificationId {
+    String key;
+    if ((isCall || isCallCancel) && callId.isNotEmpty) {
+      key = 'call-$callId';
+    } else if (kind == 'message' && chatId.isNotEmpty) {
+      key = 'chat-${_s('chat_kind')}-$chatId';
+    } else if (kind == 'reminder' && _s('reminder_id').isNotEmpty) {
+      key = 'rem-${_s('reminder_id')}';
+    } else {
+      key = '$kind-${_s('sent_at')}-${_s('message_id')}${_s('event_id')}';
+    }
+    return stableHash(key);
+  }
+
+  /// FNV-1a 31-bit — identical across isolates/launches (String.hashCode is
+  /// not guaranteed stable between runs, and the background isolate must
+  /// compute the same id as the UI isolate to cancel a ring).
+  static int stableHash(String s) {
+    var h = 0x811c9dc5;
+    for (final c in utf8.encode(s)) {
+      h ^= c;
+      h = (h * 0x01000193) & 0xffffffff;
+    }
+    return h & 0x7fffffff;
+  }
+}
+
+/// Where a tapped push should land. [chatNavRoute] is a key of
+/// `ChatNav.routes`; [openIncomingCall] means "open the My Circle call screen
+/// for this call (incoming)".
+class PushTarget {
+  const PushTarget({this.chatNavRoute, this.openIncomingCall = false});
+  final String? chatNavRoute;
+  final bool openIncomingCall;
+
+  @override
+  String toString() =>
+      'PushTarget(route: $chatNavRoute, call: $openIncomingCall)';
+}
+
+class PushRouting {
+  PushRouting._();
+
+  /// backend `route` value -> ChatNav route key.
+  static const routeMap = {
+    'circle/chat': 'messages',
+    'circle/group': 'messages',
+    'circle/call': 'circle_calls',
+    'reminders': 'reminders',
+    'alerts': 'notifications',
+    'safety/sos': 'family',
+    'business/shop-box': 'shop_box',
+    'business': 'business',
+    'owner': 'analytics',
+  };
+
+  /// kind -> fallback route when `route` is missing/unknown.
+  static const kindMap = {
+    'message': 'messages',
+    'call_cancel': 'circle_calls',
+    'reminder': 'reminders',
+    'family_alert': 'notifications',
+    'owner_alert': 'notifications',
+    'shop_alert': 'shop_box',
+    'sos': 'family',
+  };
+
+  /// [action] is the local-notification action id ('accept' / 'decline' /
+  /// null for a plain tap). Decline never opens anything.
+  static PushTarget? targetFor(PushPayload p, {String? action}) {
+    if (action == 'decline') return null;
+    if (p.isCall) {
+      if (p.chatId.isEmpty) {
+        return const PushTarget(chatNavRoute: 'circle_calls');
+      }
+      return const PushTarget(openIncomingCall: true);
+    }
+    final r = routeMap[p.route] ?? kindMap[p.kind];
+    if (r == null) return null;
+    return PushTarget(chatNavRoute: r);
+  }
+}

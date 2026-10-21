@@ -158,6 +158,9 @@ import 'package:assisto/screens/legal_screen.dart';
 import 'package:assisto/screens/photo_enhance_screen.dart';
 import 'package:assisto/screens/unseen_world_screen.dart';
 
+import 'package:assisto/push/incoming_call_screen.dart';
+import 'package:assisto/push/push_payload.dart';
+import 'package:assisto/push/push_settings_screen.dart';
 import 'fake_api.dart';
 
 class _NoNet extends HttpOverrides {
@@ -368,6 +371,9 @@ void main() {
     'in_progress': (build: (_) => const InProgressScreen(), mode: FakeMode.data, full: true),
     'settings': (build: (_) => const SettingsScreen(), mode: FakeMode.data, full: true),
     'plans': (build: (_) => const PlansScreen(), mode: FakeMode.data, full: true),
+    // a6 push: Settings → Notifications & calls + the ringing screen.
+    'push_settings': (build: (_) => const PushSettingsScreen(probe: false), mode: FakeMode.data, full: true),
+    'incoming_call': (build: (_) => IncomingCallScreen(payload: PushPayload({'kind': 'call', 'call_id': '7', 'chat_id': '3', 'caller_name': 'Ayesha Rahman', 'video': 'true', 'title': 'Ayesha Rahman'})), mode: FakeMode.data, full: true),
     'finance': (build: (_) => const FinanceScreen(), mode: FakeMode.data, full: true),
     'watch_feed': (build: (_) => const WatchFeedScreen(), mode: FakeMode.data, full: true),
     'jobs': (build: (_) => const JobsScreen(), mode: FakeMode.data, full: true),

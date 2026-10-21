@@ -28,6 +28,7 @@ import 'admin/cost_flags_screen.dart';
 import 'admin/server_address_screen.dart';
 import 'admin/owner_pnl_screen.dart';
 import 'credits_screen.dart';
+import '../push/push_settings_screen.dart';
 import '../widgets/storage_meter.dart';
 import 'messenger/moderation_policy_screen.dart';
 import 'messenger/messenger_profile_screen.dart';
@@ -202,6 +203,15 @@ class SettingsScreen extends StatelessWidget {
             subtitle: Text(t.a11yTileSub),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const AccessibilityModeScreen())),
+          ),
+          // a6: push — Notifications & calls (delivery status, permission,
+          // Android 14 full-screen calls, battery hint).
+          ListTile(
+            leading: const Icon(Icons.notifications_active_outlined),
+            title: Text(t.pushSetTitle),
+            subtitle: Text(t.pushSetTileSub),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const PushSettingsScreen())),
           ),
           const Divider(),
           const _SafetySection(),

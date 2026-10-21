@@ -4,11 +4,28 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
+import 'push/push_notifier.dart' show assistoNotificationBackground;
+
 /// Best-effort device reminders. Everything is wrapped so failures never crash
 /// the app — reminders still work in-app/offline without notifications.
 class Notifications {
   static final _plugin = FlutterLocalNotificationsPlugin();
   static bool _ready = false;
+
+  /// Set by PushService: called for every tap / action on our notifications.
+  static void Function(NotificationResponse r)? onResponse;
+
+  /// The tap/action that cold-started the app, if any (consumed by
+  /// PushService once it is ready to navigate). Guarded.
+  static Future<NotificationResponse?> launchResponse() async {
+    try {
+      final d = await _plugin.getNotificationAppLaunchDetails();
+      if (d != null && d.didNotificationLaunchApp) {
+        return d.notificationResponse;
+      }
+    } catch (_) {}
+    return null;
+  }
 
   static Future<void> init() async {
     try {
@@ -17,10 +34,22 @@ class Notifications {
         tz.setLocalLocation(tz.getLocation('Asia/Dhaka'));
       } catch (_) {}
       const android = AndroidInitializationSettings('@mipmap/ic_launcher');
-      await _plugin.initialize(const InitializationSettings(android: android));
-      final android13 = _plugin.resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>();
-      await android13?.requestNotificationsPermission();
+      await _plugin.initialize(
+        const InitializationSettings(android: android),
+        // Push taps/actions (calls: Accept/Decline). PushService sets
+        // [onResponse]; Decline with the app closed goes to the background
+        // entry point instead.
+        onDidReceiveNotificationResponse: (r) {
+          try {
+            onResponse?.call(r);
+          } catch (_) {}
+        },
+        onDidReceiveBackgroundNotificationResponse:
+            assistoNotificationBackground,
+      );
+      // POST_NOTIFICATIONS (Android 13+) is NOT requested here any more — the
+      // cold-start path stays prompt-free. PushService asks once after
+      // sign-in; Reminders/Settings offer it again when it is off.
       _ready = true;
     } catch (e) {
       if (kDebugMode) print('notif init failed: $e');

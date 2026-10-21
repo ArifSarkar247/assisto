@@ -10,6 +10,7 @@ import 'db.dart';
 import 'models.dart';
 import 'sync_repo.dart';
 import 'background.dart';
+import 'push/push_service.dart';
 
 class AppState extends ChangeNotifier {
   final _secure = const FlutterSecureStorage();
@@ -171,6 +172,11 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> logout() async {
+    // Stop this account's pushes landing on this phone (needs the token, so
+    // before api.logout clears it). Guarded + time-boxed inside.
+    try {
+      await PushService.instance.onLogout();
+    } catch (_) {}
     await api.logout();
     await _clearSession();
     await db.clearAll();

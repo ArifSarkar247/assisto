@@ -11,6 +11,7 @@ import 'state.dart';
 import 'theme.dart';
 import 'updater.dart';
 import 'notifications.dart';
+import 'push/push_service.dart';
 import 'services/home_widget_service.dart';
 import 'services/security_guard.dart' show SecurityHeartbeat;
 import 'services/startup_guard.dart';
@@ -52,10 +53,14 @@ void main() {
     final a11y = A11yPrefs();
     unawaited(a11y.load());
 
+    // Held here (not only inside the provider) so the deferred push init below
+    // can reach it without a BuildContext.
+    final appState = AppState()..init();
+
     runApp(
       MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (_) => AppState()..init()),
+          ChangeNotifierProvider(create: (_) => appState),
           ChangeNotifierProvider(create: (_) => Updater()..check()),
         ],
         child: AssistoApp(a11y: a11y),
@@ -72,6 +77,12 @@ void main() {
         // #196 home-widget plugin — only touch the native widget bridge when the
         // last launch was healthy; never at cold start.
         try { await HomeWidgetService.init(); } catch (_) {}
+        // Push (FCM) — lazy, after the first frame and after local
+        // notifications are initialised; silently off when this build has no
+        // Firebase config. Never blocks or crashes the launch.
+        unawaited(Future<void>.delayed(const Duration(seconds: 2), () async {
+          try { await PushService.instance.start(appState); } catch (_) {}
+        }));
       }
     });
   }, (error, stack) {
@@ -120,6 +131,7 @@ class AssistoApp extends StatelessWidget {
             ? applyHighContrast(AssistoTheme.dark)
             : AssistoTheme.dark;
         return MaterialApp(
+          navigatorKey: appNavigatorKey,
           title: 'Assisto',
           debugShowCheckedModeBanner: false,
           theme: light,
