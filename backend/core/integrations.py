@@ -151,7 +151,9 @@ REGISTRY = {
         "fields": [_f("app_id", "AdMob App ID", "AdMob App ID", secret=False),
                    _f("banner_unit", "Banner unit ID", "Banner unit ID", secret=False),
                    _f("rewarded_unit", "Rewarded unit ID", "Rewarded unit ID", secret=False),
-                   _f("app_open_unit", "App-open unit ID", "App-open unit ID", secret=False)],
+                   _f("app_open_unit", "App-open unit ID", "App-open unit ID", secret=False),
+                   # ps1-photo: Photo Studio entry interstitial + SSV key note
+                   _f("interstitial_unit", "Interstitial unit ID (ফটো স্টুডিও)", "Interstitial unit ID (Photo Studio)", secret=False)],
         "test": "test_admob",
     },
     "play_billing": {
@@ -365,6 +367,52 @@ REGISTRY = {
                              _f("keyword_url", "কিওয়ার্ড ফাইলের লিংক (.ppn, কমা দিয়ে একাধিক)", "Keyword file URL(s) (.ppn, comma-separated)", secret=False),
                              _f("sensitivity", "সংবেদনশীলতা (০.১–০.৯৫)", "Sensitivity (0.1–0.95)", secret=False)],
                   "test": "test_picovoice"},
+    # ---- ps1-photo ---- Photo Studio cloud image providers (edit / generate /
+    # heavy enhance). Switchable: the owner connects one or more and picks the
+    # active one in /admin/pricing photo_studio.provider ('' = first connected).
+    # "Cost per image" is REQUIRED: Profit Guard prices every job from it (the
+    # larger of it and the pricing table), and a provider with no cost is never
+    # used — we never run a job we cannot price.
+    "photo_gemini": {"name": "Gemini image editing (Photo Studio)", "category": "AI",
+                     "unlocks_bn": "ফটো স্টুডিও: প্রম্পট দিয়ে এডিট/নতুন ছবি (ব্যাকগ্রাউন্ড, আকাশ, আলো, প্রোডাক্ট ফটো)।",
+                     "unlocks_en": "Photo Studio: edit / generate by prompt (background, sky, lighting, product photo).",
+                     "guide_bn": ["aistudio.google.com → Get API key (বিলিং চালু রাখুন)",
+                                  "মডেল: gemini-2.5-flash-image (বা আপনার অ্যাকাউন্টে যেটি আছে)",
+                                  "ছবি প্রতি খরচ (USD) Google-এর মূল্য তালিকা দেখে লিখুন → Save → Test"],
+                     "guide_en": ["aistudio.google.com → Get API key (billing on)",
+                                  "Model: gemini-2.5-flash-image (or the image model on your account)",
+                                  "Enter cost per image (USD) from Google's price list → Save → Test"],
+                     "fields": [_f("api_key", "API Key", "API Key"),
+                                _f("model", "মডেল", "Model", secret=False),
+                                _f("cost_per_image_usd", "ছবি প্রতি খরচ (USD)", "Cost per image (USD)", secret=False)],
+                     "test": "test_gemini"},
+    "photo_openai": {"name": "OpenAI images (Photo Studio)", "category": "AI",
+                     "unlocks_bn": "ফটো স্টুডিও: OpenAI দিয়ে প্রম্পট এডিট/নতুন ছবি।",
+                     "unlocks_en": "Photo Studio: prompt edit / generate with OpenAI.",
+                     "guide_bn": ["platform.openai.com → API keys → Create (Images চালু থাকতে হবে)",
+                                  "মডেল: gpt-image-1 (বা আপনার অ্যাকাউন্টের ইমেজ মডেল)",
+                                  "ছবি প্রতি খরচ (USD) লিখুন → Save → Test"],
+                     "guide_en": ["platform.openai.com → API keys → Create (Images enabled)",
+                                  "Model: gpt-image-1 (or your account's image model)",
+                                  "Enter cost per image (USD) → Save → Test"],
+                     "fields": [_f("api_key", "API Key", "API Key"),
+                                _f("model", "মডেল", "Model", secret=False),
+                                _f("cost_per_image_usd", "ছবি প্রতি খরচ (USD)", "Cost per image (USD)", secret=False)],
+                     "test": "test_openai"},
+    "photo_replicate": {"name": "Replicate-class image models (Photo Studio)", "category": "AI",
+                        "unlocks_bn": "ফটো স্টুডিও: ভারী এনহ্যান্স/এডিট (বাণিজ্যিক লাইসেন্সের মডেলই শুধু)।",
+                        "unlocks_en": "Photo Studio: heavy enhance / edit (commercial-licence models only).",
+                        "guide_bn": ["replicate.com → Account → API token",
+                                     "মডেল version ID দিন — শুধু বাণিজ্যিক ব্যবহারযোগ্য লাইসেন্স (.phaseB/MODEL_LICENSES.md)",
+                                     "ছবি প্রতি খরচ (USD) লিখুন → Save → Test"],
+                        "guide_en": ["replicate.com → Account → API token",
+                                     "Model version id — commercial-use licence only (.phaseB/MODEL_LICENSES.md)",
+                                     "Enter cost per image (USD) → Save → Test"],
+                        "fields": [_f("api_token", "API Token", "API Token"),
+                                   _f("model", "মডেল version", "Model version", secret=False),
+                                   _f("cost_per_image_usd", "ছবি প্রতি খরচ (USD)", "Cost per image (USD)", secret=False)],
+                        "test": "test_replicate"},
+    # ---- /ps1-photo ----
     "news": {"name": "News", "category": "Media",
              "unlocks_bn": "সকালের ব্রিফিং-এ খবরের শিরোনাম।", "unlocks_en": "Headlines in the morning briefing.",
              "guide_bn": ["newsapi.org (বা অনুরূপ) → API key → পেস্ট → Save (key ছাড়া RSS fallback)"],
@@ -601,6 +649,19 @@ def test_admob(cfg):
     from .logic import ads as _ads
     ok, why = _ads.validate_admob_ids(cfg)
     return ok, why
+
+
+# ---- ps1-photo ----
+def test_replicate(cfg):
+    import urllib.request
+    tok = cfg.get("api_token", "")
+    req = urllib.request.Request("https://api.replicate.com/v1/account",
+                                 headers={"Authorization": f"Bearer {tok}"})
+    try:
+        urllib.request.urlopen(req, timeout=15)
+        return (True, "✓ working")
+    except urllib.error.HTTPError as e:
+        return (False, f"HTTP {e.code}")
 
 
 # ---- a3-voice ----

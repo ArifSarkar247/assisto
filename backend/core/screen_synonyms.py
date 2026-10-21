@@ -50,6 +50,10 @@ SCREEN_SYNONYMS = {
                 "unseen bangladesh", "travel", "destinations", "tourism"],
     "photo_enhance": ["ছবি উন্নত", "ছবি এনহ্যান্স", "ছবি ভালো করা",
                        "enhance photo", "photo enhance", "improve photo"],
+    # ps1-photo: Photo Studio (AI enhance + edit/generate by prompt)
+    "photo_studio": ["ফটো স্টুডিও", "ছবি এডিট", "ব্যাকগ্রাউন্ড বদল", "পাসপোর্ট ছবি",
+                     "photo studio", "edit photo", "photo editor", "change background",
+                     "passport photo", "ai photo"],
     "circle": ["সার্কেল", "পরিবার সার্কেল", "পরিবার-বন্ধু",
                 "connected circle", "circle", "family chat"],
     "legal": ["আইনি", "গোপনীয়তা নীতি", "নীতিমালা", "ব্যবহারের শর্ত",

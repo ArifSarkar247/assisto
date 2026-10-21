@@ -26,6 +26,7 @@ The server is the authority; a Dart mirror (if any) is advisory for UX only.
 import math
 
 from . import home_defaults as HD
+from . import photo_studio as _PS
 
 # --------------------------------------------------------------- currency basis
 # Prices are stored in whole TAKA (BDT), matching core/plans.py `price` (e.g. 199).
@@ -109,6 +110,13 @@ _ACTION_DEFAULTS = {
     # provider_cost = our server + bandwidth + DB share per vehicle-month
     # (~US$0.15); the SIM in the tracker is the owner's own. Admin-editable.
     "vehicle_tracking_month": {"provider_cost": 0.15, "credits": 50},
+    # ps1-photo: Photo Studio CLOUD jobs, per image. provider_cost is the
+    # owner's best estimate (USD/image); the live job uses the larger of this
+    # and the connected provider's own "cost per image" field, so a stale table
+    # can never make an edit loss-making. On-device enhance has no row (no cost).
+    "photo_enhance_cloud": {"provider_cost": 0.01, "credits": 3},
+    "photo_prompt_edit":   {"provider_cost": 0.04, "credits": 9},
+    "photo_generate":      {"provider_cost": 0.04, "credits": 9},
 }
 
 # Vehicle tracking knobs (admin-editable via /admin/pricing "vehicle" block).
@@ -314,6 +322,8 @@ def DEFAULTS():
         # o1-otp: OTP limits (admin-editable)
         "otp": dict(_OTP_DEFAULTS),
         "vehicle": dict(_VEHICLE_DEFAULTS),
+        # ps1-photo: Photo Studio knobs (core/logic/photo_studio.py)
+        "photo_studio": _PS.defaults(),
     }
 
 
@@ -427,6 +437,7 @@ def normalize(data):
         "shop": _norm_shop(d.get("shop"), base["shop"]),
         "otp": _norm_otp(d.get("otp"), base["otp"]),
         "vehicle": _norm_vehicle(d.get("vehicle"), base["vehicle"]),
+        "photo_studio": _PS.normalize_cfg(d.get("photo_studio")),
     }
 
 
@@ -692,6 +703,8 @@ def validate_edit(data):
                 problems.append("price_negative")
     if "home_quick_defaults" in d:
         problems.extend(HD.validate(d.get("home_quick_defaults")))
+    if "photo_studio" in d:
+        problems.extend(_PS.validate_cfg(d.get("photo_studio")))
 
     # ---- Build 2: NET fee sanity + per-action margin + pool cap ----
     cfg = normalize(d)              # fills defaults so partial edits still validate

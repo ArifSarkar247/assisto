@@ -117,3 +117,17 @@ cp ~/assisto/migration/offsite.env.template ~/.assisto_offsite.env && chmod 600 
 4. **সার্ভার মাইগ্রেশন:** `owner_actions/MIGRATION_DAY.md` (এক দিনের গাইড) + `migration/` স্ক্রিপ্ট — প্রমাণিত (dry-run ব্যাকআপ→restore টেস্ট পাস)।
 5. **লিগ্যাল/দাম/কমিশন রিভিউ:** legal পেজ + প্ল্যান দাম + কমিশন — আপনার চূড়ান্ত অনুমোদন দরকার (code-এ "TO REVIEW BY OWNER")।
 6. **নিজের ডোমেইন (সুপারিশ):** লঞ্চের আগে Assisto-র নিজস্ব ডোমেইন — `MIGRATION_DAY.md` §২।
+
+## 🖼️ ফটো স্টুডিও (ps1-photo) — যা দিলে চালু হবে
+অ্যাডমিন → Integrations-এ **যেকোনো একটি** ইমেজ প্রোভাইডার (একাধিক দিলে `/admin/pricing` → photo_studio.provider দিয়ে বেছে নিন):
+
+| প্রোভাইডার | যা দিতে হবে | ছবি প্রতি খরচ (USD) — আপনি নিজে লিখবেন |
+|---|---|---|
+| **Gemini image editing** (`photo_gemini`) | Google AI Studio API key + মডেল (যেমন gemini-2.5-flash-image) | Google-এর মূল্য তালিকা দেখে লিখুন |
+| OpenAI images (`photo_openai`) | OpenAI API key + মডেল (যেমন gpt-image-1) | OpenAI-এর মূল্য তালিকা দেখে লিখুন |
+| Replicate (`photo_replicate`) | API token + মডেল version (শুধু বাণিজ্যিক লাইসেন্সের মডেল — `.phaseB/MODEL_LICENSES.md`) | মডেল পেজের দাম |
+
+- **"ছবি প্রতি খরচ" না দিলে প্রোভাইডার কখনো ব্যবহার হবে না** — Profit Guard দাম না জেনে কাজ চালায় না।
+- **AdMob:** Rewarded unit ID + **Interstitial unit ID (নতুন ঘর)** + AdMob কনসোলে Rewarded ad unit-এর **Server-side verification callback URL** = `https://api.lifeassisto.com/api/v1/ads/ssv` দিতে হবে। এটা ছাড়া ফ্রি ইউজার বিজ্ঞাপন দেখে সেভ আনলক করতে পারবে না (শুধু ক্রেডিট/প্রিমিয়াম)।
+- **বিজ্ঞাপনের আসল মূল্য:** `/admin/pricing` → photo_studio.ad_value_bdt (একটা rewarded বিজ্ঞাপনে আসলে কত ৳ আসে)। ০ রাখলে eCPM ফ্লোর (৩০৳/১০০০) ধরা হয় — তাতে ক্লাউড এডিট বিজ্ঞাপনে মেটে না, শুধু ক্রেডিটে চলে। সঠিক সংখ্যা দিলে Profit Guard নিজে হিসাব করবে কয়টা বিজ্ঞাপন লাগবে (সর্বোচ্চ ৩)।
+- ফোনেই AI এনহ্যান্স, মুখ শনাক্ত, স্ক্রিনশট ব্লক — অ্যাপ আপডেট লাগবে (নেটিভ প্রস্তাব `.phaseB/proposals/ps1-photo.md`)।

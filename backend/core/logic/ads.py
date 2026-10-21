@@ -22,6 +22,7 @@ TEST_UNITS = {
     "app_open": "ca-app-pub-3940256099942544/9257395921",
     "rewarded": "ca-app-pub-3940256099942544/5224354917",
     "banner": "ca-app-pub-3940256099942544/6300978111",
+    "interstitial": "ca-app-pub-3940256099942544/1033173712",
 }
 TEST_PUBLISHER = "ca-app-pub-3940256099942544"
 
@@ -30,7 +31,7 @@ _UNIT_RE = re.compile(r"^ca-app-pub-\d{16}/\d{6,12}$")
 
 # integration field -> client unit key
 UNIT_FIELDS = {"app_open_unit": "app_open", "rewarded_unit": "rewarded",
-               "banner_unit": "banner"}
+               "banner_unit": "banner", "interstitial_unit": "interstitial"}
 
 # Screens where an ad must NEVER appear (server copy; the app has the same
 # hard list and treats any unknown screen as blocked).
