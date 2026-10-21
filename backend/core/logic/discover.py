@@ -45,7 +45,7 @@ ROUTE_KEYS = (
     "ride_food", "fall_detect", "lost_stolen", "my_lost_phone", "recovery",
     "phone_safety", "security", "used_phone_check", "sell_phone", "shop_box",
     "analytics", "name_about", "ramadan", "exam", "unseen", "photo_enhance",
-    "circle", "messages", "notifications", "groups", "status", "legal",
+    "circle", "circle_add", "messages", "notifications", "groups", "status", "legal",
     "subscriptions", "finance", "payment_ladder", "notes", "memory", "nominee",
     "contacts", "agent_studio", "jobs", "cv", "resume", "inbox", "guide",
     "nearby", "watch_feed", "business", "bargain_rules", "business_plans",

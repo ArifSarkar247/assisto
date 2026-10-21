@@ -142,6 +142,9 @@ class AppState extends ChangeNotifier {
     } catch (e) {
       prefsError ??= 'prefs read onboarded: $e';
     }
+    // Settings never throws now; keep reporting a broken store once.
+    final se = Settings.lastError;
+    if (se != null) prefsError ??= 'prefs read theme: $se';
   }
 
   AppUser? user;
@@ -440,24 +443,97 @@ class AppState extends ChangeNotifier {
 }
 
 /// Simple settings store (shared_preferences) for non-sensitive prefs.
+///
+/// m3-circle (owner bug "Phone Safety Check-up spins forever"): on real
+/// release builds SharedPreferences.getInstance() THROWS (client crash log:
+/// `PlatformException ... NoSuchMethodError ... SharedPreferencesApiRegistrar
+/// .getAll`), and every screen that awaited a Settings read without its own
+/// try/catch (Phone Safety's `_load`) never left its spinner. Settings now
+/// NEVER throws and NEVER hangs: each call has a short timeout and falls back
+/// to an in-memory copy for this app session. [degraded] says honestly that
+/// values will not survive an app restart; [lastError] is reported once.
 class Settings {
+  /// Swappable for tests (simulate the device's broken / hanging store).
+  @visibleForTesting
+  static Future<SharedPreferences> Function() prefsProvider =
+      SharedPreferences.getInstance;
+
+  static const Duration _timeout = Duration(seconds: 3);
+  static final Map<String, Object> _memory = {};
+
+  /// True once the persistent store failed in this session.
+  static bool degraded = false;
+
+  /// The first storage error seen (for the startup crash report).
+  static String? lastError;
+
+  @visibleForTesting
+  static void resetForTest() {
+    _memory.clear();
+    degraded = false;
+    lastError = null;
+    prefsProvider = SharedPreferences.getInstance;
+  }
+
+  static Future<SharedPreferences?> _prefs() async {
+    try {
+      return await prefsProvider().timeout(_timeout);
+    } catch (e) {
+      degraded = true;
+      lastError ??= '$e';
+      return null;
+    }
+  }
+
+  // The in-memory copy is ONLY a fallback for a store that failed; a healthy
+  // store is always the source of truth (so a cleared store reads as empty).
   static Future<bool> getBool(String k, bool def) async {
-    final p = await SharedPreferences.getInstance();
-    return p.getBool(k) ?? def;
+    final p = await _prefs();
+    if (p != null) {
+      try {
+        return p.getBool(k) ?? def;
+      } catch (e) {
+        lastError ??= '$e';
+      }
+    }
+    final m = _memory[k];
+    return m is bool ? m : def;
   }
 
   static Future<void> setBool(String k, bool v) async {
-    final p = await SharedPreferences.getInstance();
-    await p.setBool(k, v);
+    _memory[k] = v;
+    final p = await _prefs();
+    if (p == null) return;
+    try {
+      await p.setBool(k, v).timeout(_timeout);
+    } catch (e) {
+      degraded = true;
+      lastError ??= '$e';
+    }
   }
 
   static Future<String?> getString(String k) async {
-    final p = await SharedPreferences.getInstance();
-    return p.getString(k);
+    final p = await _prefs();
+    if (p != null) {
+      try {
+        return p.getString(k);
+      } catch (e) {
+        lastError ??= '$e';
+      }
+    }
+    final m = _memory[k];
+    return m is String ? m : null;
   }
 
   static Future<void> setString(String k, String v) async {
-    final p = await SharedPreferences.getInstance();
-    await p.setString(k, v);
+    _memory[k] = v;
+    final p = await _prefs();
+    if (p == null) return;
+    try {
+      await p.setString(k, v).timeout(_timeout);
+    } catch (e) {
+      degraded = true;
+      lastError ??= '$e';
+    }
   }
 }

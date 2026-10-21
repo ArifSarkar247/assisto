@@ -62,6 +62,11 @@ class _AppDrawerState extends State<AppDrawer> {
 
     final searching = _q.trim().isNotEmpty;
     final sections = SidebarSections.filter(t, _q);
+    // m3-circle: root cause of the owner's "circle -> no match": My Circle is
+    // the fixed quick-link ABOVE the search box, not a section, so a search
+    // for it found nothing and printed "No matching modules". It is now a
+    // search result too (label in the current language + English synonyms).
+    final circleHit = searching && _matchesCircle(t, _q);
 
     return Drawer(
       child: Column(children: [
@@ -161,7 +166,16 @@ class _AppDrawerState extends State<AppDrawer> {
           child: ListView(
             padding: const EdgeInsets.symmetric(vertical: Gap.xs),
             children: [
-              if (sections.isEmpty)
+              if (circleHit)
+                ListTile(
+                  key: const ValueKey('drawer_search_my_circle'),
+                  leading: Icon(Icons.diversity_3_outlined,
+                      color: scheme.onSurfaceVariant),
+                  title: Text(t.sidebarMyCircle,
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                  onTap: () => _push((_) => const MessengerHomeScreen()),
+                ),
+              if (sections.isEmpty && !circleHit)
                 Padding(
                   padding: const EdgeInsets.all(24),
                   child: Text(t.sidebarNoResults,
@@ -238,6 +252,19 @@ class _AppDrawerState extends State<AppDrawer> {
         ),
       ]),
     );
+  }
+
+  static const _circleSynonyms = [
+    'circle', 'my circle', 'messages', 'messenger', 'chats', 'contacts on',
+    'add someone', 'add to my circle', 'friends', 'family chat', 'requests',
+  ];
+
+  static bool _matchesCircle(AppLocalizations t, String query) {
+    final q = query.trim().toLowerCase();
+    if (q.isEmpty) return false;
+    if (t.sidebarMyCircle.toLowerCase().contains(q)) return true;
+    if (t.m3AddToCircle.toLowerCase().contains(q)) return true;
+    return _circleSynonyms.any((s) => s.contains(q) || q.contains(s));
   }
 
   Widget _logoMark(double size) => ClipRRect(

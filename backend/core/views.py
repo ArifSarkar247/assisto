@@ -1591,7 +1591,9 @@ class AgentView(APIView):
         # fall back to the synonym resolver as before.
         from . import screen_synonyms
         if intent in ("question", "ambiguous"):
-            route = None
+            # m3-circle: a whole-message My Circle command ("circle",
+            # "my circle", "add someone", bn too) still opens My Circle add.
+            route = screen_synonyms.resolve_command(text)
         else:
             route = brain_route or screen_synonyms.resolve(text)
         session_id = _persist_home_turn(u, request.data.get("session_id"),
