@@ -40,6 +40,21 @@ def _ledger_for(user):
     return rows
 
 
+def _referral_cfg():
+    """Referral points economy from PricingConfig (admin-editable in
+    /admin/pricing `referral`), falling back to the referral.py defaults."""
+    try:
+        from . import billing
+        return billing.cfg()["referral"]
+    except Exception:
+        return {"points_per_referral": R.POINTS_PER_REFERRAL,
+                "welcome_bonus_points": R.WELCOME_BONUS_POINTS,
+                "points_per_premium_day": R.POINTS_PER_PREMIUM_DAY,
+                "min_redeem_points": R.MIN_REDEEM_POINTS,
+                "monthly_referral_cap": R.MONTHLY_REFERRAL_CAP,
+                "max_redeem_days": R.MAX_REDEEM_DAYS}
+
+
 class ReferralBalanceView(APIView):
     def get(self, request):
         lang = req_lang(request)
@@ -48,7 +63,10 @@ class ReferralBalanceView(APIView):
         # honest invite leaderboard, earned/spent audit and redeemed history. The
         # advanced screen renders from this single call; it degrades gracefully to
         # the basic balance+history if those extra fields are ever absent.
-        summary = R.advanced_summary(ledger, request.user.id, lang)
+        rc = _referral_cfg()
+        summary = R.advanced_summary(
+            ledger, request.user.id, lang, rate=rc["points_per_premium_day"],
+            min_points=rc["min_redeem_points"], points=rc["points_per_referral"])
         # an invite link + raw code so the user can share right from the card
         token = circle.make_invite_token(request.user.id, "friend",
                                           settings.SECRET_KEY)
@@ -167,11 +185,18 @@ class PricingConfigView(APIView):
         # deep-ish merge: patch overrides old at the plan / action-cost / scalar level
         merged = {k: (dict(v) if isinstance(v, dict) else v) for k, v in old.items()}
         for key in ("margin", "annual_discount_pct", "credit_bdt", "usd_bdt",
-                    "play_fee", "gateway_fee", "vat", "fixed_cost_per_day"):
+                    "play_fee", "gateway_fee", "vat", "fixed_cost_per_day",
+                    "probashi_price_usd", "ai_daily_budget_usd",
+                    "ai_user_daily_limit"):
             if key in (patch or {}):
                 merged[key] = patch[key]
-        for dkey in ("ad_rewards", "profit_guard"):
-            if isinstance((patch or {}).get(dkey), dict):
+        for dkey in ("ad_rewards", "profit_guard", "guarantees", "limits",
+                     "referral"):
+            if (dkey in ("guarantees", "limits", "referral")
+                    and dkey in (patch or {})
+                    and not isinstance(patch[dkey], dict)):
+                merged[dkey] = patch[dkey]          # validate_edit rejects it
+            elif isinstance((patch or {}).get(dkey), dict):
                 sub = {k: v for k, v in (old.get(dkey) or {}).items()}
                 sub.update(patch[dkey])
                 merged[dkey] = sub
@@ -486,7 +511,11 @@ class ReferralRedeemView(APIView):
     def post(self, request):
         ledger = _ledger_for(request.user)
         want = int((request.data or {}).get("points", 0) or 0)
-        res = R.redeem(request.user.id, want, ledger)
+        rc = _referral_cfg()
+        res = R.redeem(request.user.id, want, ledger,
+                       rate=rc["points_per_premium_day"],
+                       min_points=rc["min_redeem_points"],
+                       max_days=rc["max_redeem_days"])
         if not res["ok"]:
             return Response({"ok": False, "code": res["code"], "days": 0},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -512,6 +541,7 @@ def award_referral_on_accept(inviter_id, invitee_id, device_id="",
                              invitee_active=True):
     """HOOK called at circle invite-accept. Awards referral points + welcome
     bonus idempotently (unique (user,invitee) grant guards double-award)."""
+    rc = _referral_cfg()
     ledger = []
     for g in ReferralGrant.objects.filter(user_id=inviter_id):
         ledger.append({"id": g.id, "user_id": g.user_id,
@@ -522,18 +552,25 @@ def award_referral_on_accept(inviter_id, invitee_id, device_id="",
         inviter_id, invitee_id, device_id, phone_verified,
         inviter_active=inviter_active, invitee_active=invitee_active,
         sms_gate_enabled=getattr(settings, "SMS_ENABLED", False),
-        ledger=ledger)
+        ledger=ledger, monthly_cap=rc["monthly_referral_cap"],
+        points=rc["points_per_referral"],
+        welcome_bonus=rc["welcome_bonus_points"])
     if not res.get("ok"):
         return res
     for row in (res.get("grant"), res.get("bonus")):
         if not row:
             continue
         try:
-            ReferralGrant.objects.create(
-                user_id=row["user_id"], invitee_id=row.get("invitee_id"),
-                device_id=row.get("device_id", ""), kind=row["kind"],
-                points=row["points"], reason=row.get("reason", ""),
-                month=row.get("month", ""))
+            # savepoint: a duplicate must not poison the caller's transaction.
+            # device_id is None on the welcome-bonus row (NOT NULL column) —
+            # coerce, or the invitee's bonus was silently never saved.
+            from django.db import transaction as _tx
+            with _tx.atomic():
+                ReferralGrant.objects.create(
+                    user_id=row["user_id"], invitee_id=row.get("invitee_id"),
+                    device_id=row.get("device_id") or "", kind=row["kind"],
+                    points=row["points"], reason=row.get("reason") or "",
+                    month=row.get("month") or "")
         except Exception:
             # unique (user,invitee) -> already awarded; idempotent no-op.
             pass

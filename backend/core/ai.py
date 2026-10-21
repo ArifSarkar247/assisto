@@ -67,10 +67,32 @@ def _today_spend():
     return agg["s"] or 0.0
 
 
+def _cfg_override(key):
+    """An owner override from PricingConfig (/admin/pricing); 0/absent = use
+    the server env default. Never raises."""
+    try:
+        from . import billing
+        return float(billing.cfg().get(key) or 0)
+    except Exception:
+        return 0.0
+
+
+def daily_budget_usd():
+    """Global AI daily budget kill-switch: admin override, else env default."""
+    v = _cfg_override("ai_daily_budget_usd")
+    return v if v > 0 else float(settings.AI_DAILY_BUDGET_USD)
+
+
+def user_daily_limit():
+    """Per-user AI calls/day: admin override, else env default."""
+    v = int(_cfg_override("ai_user_daily_limit"))
+    return v if v > 0 else int(settings.AI_USER_DAILY_LIMIT)
+
+
 def available():
     """AI usable right now: at least one provider configured AND under the
     daily budget kill-switch."""
-    return bool(_providers()) and _today_spend() < settings.AI_DAILY_BUDGET_USD
+    return bool(_providers()) and _today_spend() < daily_budget_usd()
 
 
 def _user_over_limit(user):
@@ -78,7 +100,7 @@ def _user_over_limit(user):
         return False
     since = timezone.now() - timedelta(days=1)
     n = AIUsage.objects.filter(user=user, created_at__gte=since).count()
-    return n >= settings.AI_USER_DAILY_LIMIT
+    return n >= user_daily_limit()
 
 
 def _providers():
@@ -181,7 +203,7 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
     providers = _providers()
     if not providers:
         raise AIUnavailable("no_key")
-    if _today_spend() >= settings.AI_DAILY_BUDGET_USD:
+    if _today_spend() >= daily_budget_usd():
         raise AIUnavailable("budget")
     if _user_over_limit(user):
         raise AIUnavailable("user_limit")
@@ -256,6 +278,6 @@ def status():
         "enabled": key_present(),
         "available": available(),
         "today_spend_usd": round(_today_spend(), 4),
-        "daily_budget_usd": settings.AI_DAILY_BUDGET_USD,
+        "daily_budget_usd": daily_budget_usd(),
         "provider": settings.AI_PROVIDER,
     }

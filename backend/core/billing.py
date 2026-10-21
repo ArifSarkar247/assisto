@@ -524,9 +524,12 @@ def charge(user, action, qty=1, note=""):
         except Exception:
             st = {"over": False}
         if st.get("over"):
+            cap_pct = int(round(100 * float(
+                (cfg().get("profit_guard") or {}).get(
+                    "spend_cap_pct", PG.DEFAULT_SPEND_CAP_PCT))))
             _owner_alert(
                 "Cost guard tripped — free-tier costly actions paused",
-                "Trailing-7-day variable cost exceeded 60% of NET revenue. "
+                f"Trailing-7-day variable cost exceeded {cap_pct}% of NET revenue. "
                 "Free-tier paid actions are paused until tomorrow; paid users "
                 "and all safety features are unaffected.")
             return {"ok": False, "reason": "guard_over", "charged": 0,

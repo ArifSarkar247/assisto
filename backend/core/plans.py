@@ -55,8 +55,34 @@ TOPUP_PACKS = [
     {"id": "p30", "price": 30, "cur": "BDT", "credits": 35},
 ]
 
+# DEFAULTS only — live values come from PricingConfig (admin-editable in
+# /admin/pricing): limits.trial_days / limits.trial_credits and
+# ad_rewards.rewarded_daily_cap. Read them via the helpers below.
 TRIAL_DAYS = 7
 REWARDED_DAILY_CAP = 5
+
+
+def _cfg():
+    try:
+        from . import billing
+        return billing.cfg()
+    except Exception:
+        return None
+
+
+def trial_days():
+    c = _cfg()
+    return int(c["limits"]["trial_days"]) if c else TRIAL_DAYS
+
+
+def trial_credits():
+    c = _cfg()
+    return int(c["limits"]["trial_credits"]) if c else PLANS["free"]["credits"]
+
+
+def rewarded_daily_cap():
+    c = _cfg()
+    return int(c["ad_rewards"]["rewarded_daily_cap"]) if c else REWARDED_DAILY_CAP
 
 
 def trial_active(user):
@@ -136,9 +162,10 @@ def plans_public(lang="bn"):
     # append probashi (USD plan kept per the plan; not config-backed yet)
     s = PLANS.get("probashi")
     if s:
+        c = _cfg()
         out.append({
             "id": "probashi", "name": pick(lang, s["name_bn"], s["name_en"]),
-            "price": s["price"], "cur": s["cur"], "period": s["period"],
+            "price": c["probashi_price_usd"] if c else s["price"], "cur": s["cur"], "period": s["period"],
             "desc": pick(lang, s["desc_bn"], s["desc_en"]),
             "benefits": s["benefits_" + lang], "unlimited_ai": s["unlimited_ai"],
             "ads": s["ads"], "family": s["family"],
@@ -148,9 +175,10 @@ def plans_public(lang="bn"):
 
 def start_trial(user):
     if not user.trial_until:
-        user.trial_until = timezone.now() + timedelta(days=TRIAL_DAYS)
+        days = trial_days()
+        user.trial_until = timezone.now() + timedelta(days=days)
         user.save(update_fields=["trial_until"])
-        _grant(user, PLANS["free"]["credits"], "trial", "7-day trial start")
+        _grant(user, trial_credits(), "trial", f"{days}-day trial start")
 
 
 def _grant(user, n, reason, note=""):
@@ -192,7 +220,11 @@ def has_ai_quota(user):
 
 def consume_credit(user, note="ai"):
     """Consume one credit for credit-limited plans. No-op for unlimited plans."""
-    if user is None or PLANS[effective_plan(user)]["unlimited_ai"]:
+    if user is None:
+        return
+    p = effective_plan(user)
+    cp = _config_plan(p)
+    if (cp["unlimited_ai"] if cp else PLANS[p]["unlimited_ai"]):
         return
     from .models import CreditLedger
     if (user.ai_credits or 0) <= 0:
@@ -212,7 +244,8 @@ def reward_ad(user):
     today = timezone.localdate()
     today_rewards = CreditLedger.objects.filter(
         user=user, reason="rewarded", created_at__date=today).count()
-    if today_rewards >= REWARDED_DAILY_CAP:
-        return (False, REWARDED_DAILY_CAP - today_rewards)
+    cap = rewarded_daily_cap()
+    if today_rewards >= cap:
+        return (False, max(0, cap - today_rewards))
     _grant(user, 1, "rewarded", "watched a rewarded ad")
-    return (True, REWARDED_DAILY_CAP - today_rewards - 1)
+    return (True, cap - today_rewards - 1)
