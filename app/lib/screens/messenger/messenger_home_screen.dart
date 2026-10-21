@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -86,6 +87,14 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
           base64Decode(j['pub'] as String),
           j['kid'] as String,
         );
+        // Re-publish the PUBLIC key on every open (fire-and-forget): edges
+        // created since the first publish (new connections) only learn our
+        // key this way — without it the peer's chat stays at "key missing".
+        unawaited(_api.postJson('/circle/keys', {
+          'public_key': _identity!.publicKeyB64,
+          'key_id': _identity!.keyId,
+          'scheme': _e2e.scheme,
+        }).then((_) {}, onError: (_) {}));
         return;
       }
       final id = _e2e.generateIdentity();

@@ -1,0 +1,33 @@
+--- a/.github/workflows/android.yml	2026-10-21 07:06:41.206119737 +0000
++++ b/.github/workflows/android.yml	2026-10-21 07:06:41.237607323 +0000
+@@ -23,6 +23,30 @@
+     steps:
+       - uses: actions/checkout@v4
+ 
++      # API CONTRACT GATE (m2-reality): every endpoint the Flutter app calls
++      # (literal + string-built paths, ${id} normalised) must resolve to a
++      # Django route that handles that HTTP method (DRF router actions and
++      # <int>/<str>/<slug>/<uuid> converter shapes included). A miss means a
++      # screen that can never work -> fail before spending 20 min on Gradle.
++      # No DB, no network: URL resolution only, under settings_test.
++      - uses: actions/setup-python@v5
++        with:
++          python-version: '3.12'
++      - name: API contract (every app endpoint has a backend route)
++        env:
++          DJANGO_SETTINGS_MODULE: assisto_backend.settings_test
++        run: |
++          python -m pip install -q -r backend/requirements.txt
++          timeout 600 python tools/route_check.py --md route_check.md
++      - name: Upload API contract report
++        if: always()
++        uses: actions/upload-artifact@v4
++        with:
++          name: api-contract-report
++          path: route_check.md
++          retention-days: 14
++          if-no-files-found: ignore
++
+       - uses: actions/setup-java@v4
+         with:
+           distribution: temurin

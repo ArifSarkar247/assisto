@@ -3071,7 +3071,9 @@ def _chat_unread(user):
     from .models import CircleMessage
     uid = user.id
     n = 0
-    qs = (CircleMessage.objects.filter(member__user=user)
+    from django.db.models import Q
+    # m2-reality: incoming 1:1 messages live on the SENDER's edge (peer_user=me)
+    qs = (CircleMessage.objects.filter(Q(member__user=user) | Q(member__peer_user=user))
           .exclude(sender=user).exclude(deleted="everyone"))
     for m in qs.only("read_by").iterator():
         if uid not in (m.read_by or []):

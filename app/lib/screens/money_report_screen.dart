@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -45,7 +49,14 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
     final app = context.read<AppState>();
     final messenger = ScaffoldMessenger.of(context);
     try {
-      await app.api.getBytes('/money/report.$fmt');
+      // m2-reality: the bytes used to be downloaded and DROPPED while the
+      // snackbar claimed "exported". Save the real file and hand it to the
+      // share sheet (save to Files / WhatsApp / email) — then say so.
+      final bytes = await app.api.getBytes('/money/report.$fmt');
+      final dir = await getTemporaryDirectory();
+      final f = File('${dir.path}/assisto-money-report.$fmt');
+      await f.writeAsBytes(bytes, flush: true);
+      await Share.shareXFiles([XFile(f.path)]);
       messenger.showSnackBar(SnackBar(content: Text(t.moneyReportExported)));
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(t.exportFailed(e))));

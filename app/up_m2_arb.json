@@ -1,0 +1,16 @@
+{
+  "en": {
+    "realityInboxConnectNeeded": "No email account is connected yet. Connect one in Integrations (needs a key) and your real inbox will appear here.",
+    "realityInboxNotConnectedTitle": "No inbox connected",
+    "realityInboxNotConnectedHint": "Assisto never shows sample mail. Connect your email to sort, snooze and reply here.",
+    "realityArrivedNotSent": "Couldn't tell the server you arrived — your family may still get an alert. Check your internet and tap Arrived again.",
+    "realityCheckinNotSent": "Check-in saved on this phone only — the server couldn't be reached, so your family won't be alerted if you're late. Check your internet and set it again."
+  },
+  "bn": {
+    "realityInboxConnectNeeded": "এখনও কোনো ইমেইল অ্যাকাউন্ট যুক্ত হয়নি। ইন্টিগ্রেশনে গিয়ে একটি যুক্ত করুন (কী লাগবে), তারপর আপনার আসল ইনবক্স এখানে দেখা যাবে।",
+    "realityInboxNotConnectedTitle": "কোনো ইনবক্স যুক্ত নেই",
+    "realityInboxNotConnectedHint": "Assisto কখনো নমুনা মেইল দেখায় না। এখানে সাজাতে, পরে দেখতে ও উত্তর দিতে আপনার ইমেইল যুক্ত করুন।",
+    "realityArrivedNotSent": "আপনি পৌঁছেছেন তা সার্ভারে জানানো যায়নি — পরিবার এখনও সতর্কবার্তা পেতে পারে। ইন্টারনেট দেখে আবার 'পৌঁছেছি' চাপুন।",
+    "realityCheckinNotSent": "চেক-ইন শুধু এই ফোনে সেভ হয়েছে — সার্ভারে পৌঁছানো যায়নি, তাই দেরি হলে পরিবার সতর্কবার্তা পাবে না। ইন্টারনেট দেখে আবার সেট করুন।"
+  }
+}

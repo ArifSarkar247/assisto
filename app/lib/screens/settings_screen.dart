@@ -49,6 +49,11 @@ import 'delete_account_screen.dart';
 import 'voice_assistant_settings_screen.dart';
 import '../theme.dart';
 
+
+/// m2-reality: flip to true once the server-address override is actually
+/// applied by AppConfig (see the hidden tile below).
+const bool _kServerSwapWired = false;
+
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -551,13 +556,18 @@ class _MsgrSettingsSectionState extends State<_MsgrSettingsSection> {
             subtitle: Text(t.pnlTileSub),
             onTap: () => _open(const OwnerPnlScreen()),
           ),
-          // #179 Server-address swap (owner/admin).
-          ListTile(
-            leading: const Icon(Icons.dns_outlined),
-            title: Text(t.srvTile),
-            subtitle: Text(t.srvTileSub),
-            onTap: () => _open(const ServerAddressScreen()),
-          ),
+          // #179 Server-address swap (owner/admin) — HIDDEN by the reality
+          // audit (m2-reality): nothing reads the saved override (api.dart uses
+          // the compile-time AppConfig.apiBase), yet the screen promised it
+          // "takes effect after an app relaunch". Re-show this tile only when
+          // AppConfig reads ServerConfig.effectiveBase() at startup.
+          if (_kServerSwapWired)
+            ListTile(
+              leading: const Icon(Icons.dns_outlined),
+              title: Text(t.srvTile),
+              subtitle: Text(t.srvTileSub),
+              onTap: () => _open(const ServerAddressScreen()),
+            ),
         ],
         // Policies — visible to everyone.
         ListTile(

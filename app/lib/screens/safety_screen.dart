@@ -205,11 +205,17 @@ class _SafetyScreenState extends State<SafetyScreen> {
       });
       await Settings.setString('safety_checkin_place', _checkinPlace ?? '');
       await Settings.setString('safety_checkin_eta', eta.toIso8601String());
-      // surface to backend so family poll can see it (integrator wires endpoint)
+      // surface to backend so family poll can see it. m2-reality: a failed
+      // send used to be silent — the user believed family was watching.
       try {
         await context.read<AppState>().api.safetyCheckinStart(
             place: _checkinPlace, etaIso: eta.toIso8601String());
-      } catch (_) {}
+      } catch (_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(AppLocalizations.of(context).realityCheckinNotSent)));
+        }
+      }
     }
   }
 
@@ -220,12 +226,18 @@ class _SafetyScreenState extends State<SafetyScreen> {
     });
     await Settings.setString('safety_checkin_place', '');
     await Settings.setString('safety_checkin_eta', '');
+    // m2-reality: if the server never heard "arrived", the overdue alert can
+    // still go to family — say so instead of a false "done".
+    var ok = true;
     try {
       await context.read<AppState>().api.safetyCheckinArrived();
-    } catch (_) {}
+    } catch (_) {
+      ok = false;
+    }
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context).safetyArrivedDone)));
+      final t = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(ok ? t.safetyArrivedDone : t.realityArrivedNotSent)));
     }
   }
 

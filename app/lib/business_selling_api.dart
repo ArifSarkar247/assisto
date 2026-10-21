@@ -56,8 +56,8 @@ extension BusinessSellingApi on ApiClient {
   Future<Map<String, dynamic>> productUpdate(int id, Map<String, dynamic> body) =>
       postJson('/business/products/$id', body);
 
-  /// DELETE products/{id}/.
-  Future<void> productDelete(int id) => deleteItem('business/products', id);
+  // (m2-reality: unused productDelete() removed — it sent 'products/<id>/'
+  // which 404s; DELETE business/products/<id> exists for a future caller.)
 
   /// POST products/{id}/variants/ — add a size/colour variant (owner only).
   Future<Map<String, dynamic>> variantCreate(
@@ -247,7 +247,7 @@ extension BusinessSellingApi on ApiClient {
   Future<Map<String, dynamic>> customerSave(Map<String, dynamic> body) =>
       postJson('/business/customers', body);
 
-  Future<void> customerDelete(int id) => deleteItem('business/customers', id);
+  // (m2-reality: unused customerDelete() removed — no such backend route.)
 
   /// POST customers/dedupe/ — merge duplicate phone rows (owner).
   Future<Map<String, dynamic>> customersDedupe({int? businessId}) =>

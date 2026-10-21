@@ -1,0 +1,167 @@
+name: Reality audit (real user flows on an emulator)
+
+# OWNER ORDER (reality audit): a feature is DONE only when a real user flow
+# works end-to-end. This job boots a THROW-AWAY Django inside the runner
+# (settings_ci: file sqlite, DEBUG off, every paid/external key scrubbed),
+# seeds demo users (seed_reality), boots the API-33 emulator and drives the
+# app through every flow in app/integration_test/ against
+# http://10.0.2.2:8700. It NEVER touches api.lifeassisto.com or the live DB.
+#
+# Evidence (artifact "reality-evidence"): per-step PNG screenshots, screen
+# recordings, results.json (per flow: steps, every HTTP call + status), the
+# Django request log, logcat, and reality_summary.md (A/B/C table, also on the
+# run page). The job only fails on infrastructure errors; flow verdicts live
+# in the summary so one broken feature never hides the others' evidence.
+
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Comma list of flow groups (start,home,personal,family,business,docs,sweep); empty = all"
+        required: false
+        default: ""
+  schedule:
+    - cron: "30 20 * * *"   # nightly, 02:30 Asia/Dhaka
+
+concurrency:
+  group: reality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  reality:
+    runs-on: ubuntu-latest
+    # A hung adb call once held a run for 6h; healthy runs need ~45-60 min.
+    timeout-minutes: 100
+    env:
+      ASSISTO_CI_DB: ${{ github.workspace }}/backend/ci_reality.sqlite3
+      REALITY_OUT: ${{ github.workspace }}/reality_out
+    steps:
+      - uses: actions/checkout@v4
+
+      # ------------------------------------------------ backend (in-runner)
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Backend deps
+        run: python -m pip install -q -r backend/requirements.txt pyyaml
+      - name: API contract (report only here; android.yml gates on it)
+        env:
+          DJANGO_SETTINGS_MODULE: assisto_backend.settings_test
+        run: |
+          mkdir -p "$REALITY_OUT"
+          timeout 600 python tools/route_check.py --report-only --md "$REALITY_OUT/route_check.md" | tail -80
+      - name: Migrate + seed (settings_ci, sqlite file)
+        working-directory: backend
+        run: |
+          timeout 600 python manage.py migrate --settings=assisto_backend.settings_ci -v 0
+          timeout 300 python manage.py seed_reality --settings=assisto_backend.settings_ci --out "$REALITY_OUT/seed.json"
+          python - <<'PY'
+          import json, os
+          d = json.load(open(os.environ["REALITY_OUT"] + "/seed.json"))
+          assert not d["failed_steps"], d["failed_steps"]
+          assert d["circle"]["a_state"] == "accepted", d["circle"]
+          print("seed OK:", len(d["steps"]), "steps")
+          PY
+      - name: Start Django on :8700 (reachable from the emulator as 10.0.2.2:8700)
+        working-directory: backend
+        run: |
+          nohup python manage.py runserver 0.0.0.0:8700 --noreload --settings=assisto_backend.settings_ci \
+            > "$REALITY_OUT/django.log" 2>&1 &
+          echo $! > "$REALITY_OUT/django.pid"
+          for i in $(seq 1 60); do
+            curl -fsS -m 5 http://127.0.0.1:8700/api/v1/health >/dev/null && { echo "django up"; exit 0; }
+            sleep 2
+          done
+          echo "::error::Django did not come up"; tail -50 "$REALITY_OUT/django.log"; exit 1
+
+      # ------------------------------------------------ app (same build prep as android.yml)
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Add integration_test + flutter_driver (CI-only dev deps)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          p = "pubspec.yaml"
+          s = open(p).read()
+          if "integration_test:" not in s:
+              s = s.replace("dev_dependencies:\n  flutter_test:\n    sdk: flutter\n",
+                            "dev_dependencies:\n  flutter_test:\n    sdk: flutter\n"
+                            "  integration_test:\n    sdk: flutter\n"
+                            "  flutter_driver:\n    sdk: flutter\n", 1)
+              assert "integration_test:" in s, "dev_dependencies block not found"
+              open(p, "w").write(s)
+          print("dev deps ready")
+          PY
+      - name: Replay android.yml build prep (create, overlay, pub get, icons, splash, manifest, gradle)
+        run: python3 tools/reality/replay_android_steps.py
+      - name: Debug-only cleartext to the in-runner backend
+        working-directory: app
+        run: |
+          # src/debug/ only: the release manifest is untouched.
+          python3 - <<'PY'
+          p = "android/app/src/debug/AndroidManifest.xml"
+          s = open(p).read()
+          if "usesCleartextTraffic" not in s:
+              s = s.replace("</manifest>",
+                  '    <application android:usesCleartextTraffic="true"/>\n</manifest>', 1)
+              open(p, "w").write(s)
+          print(open(p).read())
+          PY
+      - name: Analyze the flows (fail on errors)
+        working-directory: app
+        run: |
+          set +e
+          flutter analyze integration_test test_driver > ia.txt 2>&1; cat ia.txt
+          grep -qE "error •" ia.txt && { echo "::error::integration flows do not compile"; exit 1; }
+          exit 0
+      - name: Pre-build the x86_64 debug test APK (warms Gradle before the emulator)
+        working-directory: app
+        run: |
+          timeout 1800 flutter build apk --debug --target-platform=android-x64 \
+            --target=integration_test/reality_all_test.dart \
+            --dart-define=REALITY_API_BASE=http://10.0.2.2:8700
+
+      # ------------------------------------------------ emulator + flows
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Run reality flows on API 33
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          REALITY_ONLY: ${{ github.event.inputs.only }}
+        with:
+          api-level: 33
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          disable-animations: true
+          emulator-boot-timeout: 480
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          # /bin/sh one-liner: all logic (and every adb timeout) is in the script
+          script: bash tools/reality/run_flows.sh
+
+      # ------------------------------------------------ verdict + evidence
+      - name: Summarize (A/B/C table)
+        if: always()
+        run: python3 tools/reality/summarize.py "$REALITY_OUT"
+      - name: Stop Django
+        if: always()
+        run: kill "$(cat "$REALITY_OUT/django.pid" 2>/dev/null)" 2>/dev/null || true
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reality-evidence
+          path: |
+            reality_out/
+            !reality_out/.recording
+          retention-days: 14
+          if-no-files-found: warn

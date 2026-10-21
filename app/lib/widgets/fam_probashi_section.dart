@@ -218,16 +218,22 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
     // HONEST: this only adds a reminder for the chosen time (the integrator can
     // route it into meetings/calls). It does NOT place a call from here.
     final my = utc.toLocal();
+    // m2-reality: the Reminder field is `due_at` (was `due` -> the reminder
+    // was saved with NO time), and a failed save no longer claims success.
+    var ok = true;
     try {
       await context.read<AppState>().api.createItem('reminders', {
         'title': famLabel(context, 'famProbashiScheduleCall'),
-        'due': my.toIso8601String(),
-        'kind': 'call',
+        'due_at': my.toIso8601String(),
       });
-    } catch (_) {}
+    } catch (_) {
+      ok = false;
+    }
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(famLabel(context, 'famProbashiScheduleNote'))));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(ok
+              ? famLabel(context, 'famProbashiScheduleNote')
+              : AppLocalizations.of(context).grpActionFailed)));
     }
   }
 

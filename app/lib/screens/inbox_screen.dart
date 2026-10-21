@@ -50,10 +50,12 @@ class _InboxScreenState extends State<InboxScreen> {
     });
     try {
       _s = await context.read<AppState>().api.inboxStatus();
-      // Live data needs a connected account (key-gated). Until then we populate
-      // the advanced UI with MOCK items so every feature is exercisable.
+      // m2-reality: this used to fill the inbox with MOCK emails (e.g. a fake
+      // "bKash: payment failed") for every real user. Never show fake mail:
+      // with no connected account the list is empty and the screen says
+      // honestly what to connect. (Live fetch arrives with the mail key.)
       final now = DateTime.now();
-      _items = mockInbox(now);
+      _items = <InboxItem>[];
       triage(_items, now);
     } catch (_) {
       _error = true;
@@ -205,7 +207,7 @@ class _InboxScreenState extends State<InboxScreen> {
         const Divider(height: 1),
         Expanded(
           child: visible.isEmpty
-              ? _EmptyState(tr: tr, filtered: _filter.category != null ||
+              ? _EmptyState(tr: tr, connected: _connected, filtered: _filter.category != null ||
                   _filter.source != null || _filter.needsReplyOnly)
               : ListView(
                   padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xl),
@@ -338,7 +340,7 @@ class _ConnectBanner extends StatelessWidget {
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(
-            connected ? tr.inboxConnectedLive : tr.inboxMockConnectAccount,
+            connected ? tr.inboxConnectedLive : tr.realityInboxConnectNeeded,
             style: TextStyle(fontSize: 12.5, color: onColor),
           ),
         ),
@@ -382,7 +384,8 @@ class _BulkBar extends StatelessWidget {
 class _EmptyState extends StatelessWidget {
   final AppLocalizations tr;
   final bool filtered;
-  const _EmptyState({required this.tr, required this.filtered});
+  final bool connected;
+  const _EmptyState({required this.tr, required this.filtered, this.connected = true});
 
   @override
   Widget build(BuildContext context) {
@@ -394,11 +397,13 @@ class _EmptyState extends StatelessWidget {
           Icon(filtered ? Icons.filter_alt_off : Icons.inbox_outlined,
               size: 56, color: scheme.onSurfaceVariant),
           const SizedBox(height: Gap.md),
-          Text(filtered ? tr.inboxNoneInFilter : tr.inboxAllClear,
+          Text(filtered ? tr.inboxNoneInFilter
+              : (connected ? tr.inboxAllClear : tr.realityInboxNotConnectedTitle),
               textAlign: TextAlign.center,
               style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
           const SizedBox(height: Gap.sm),
-          Text(filtered ? tr.inboxTryAnotherFilter : tr.inboxAllClearHint,
+          Text(filtered ? tr.inboxTryAnotherFilter
+              : (connected ? tr.inboxAllClearHint : tr.realityInboxNotConnectedHint),
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
         ]),
