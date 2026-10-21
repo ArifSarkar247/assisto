@@ -14149,5 +14149,585 @@
   "pushSetBatteryOpen": "Battery settings guide",
   "pushSetChannelsTitle": "Choose what you get",
   "pushSetChannelsBody": "Each type (Messages, Calls, Reminders, Family & safety alerts, SOS) can be muted separately in Android settings. Please keep SOS on.",
-  "pushSetOpenSystem": "Open Android notification settings"
+  "pushSetOpenSystem": "Open Android notification settings",
+  "a1CmpCreditsPerMonth": "{n} / mo",
+  "@a1CmpCreditsPerMonth": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "a1CmpPacksOrAds": "Packs or ads",
+  "a1AiSugLeave": "Write a polite leave application for tomorrow",
+  "a1AiSugWeek": "Summarise my reminders and spending this week",
+  "a1AiSugShop": "Draft a Facebook post for my shop's Eid offer",
+  "a1AiSugBill": "Explain my electricity bill in simple words",
+  "a1MemSearchHint": "Search what AI knows",
+  "a1MeetCountOne": "1 meeting",
+  "vaTitle": "Assisto Voice",
+  "vaClose": "Close",
+  "vaWelcome": "Hi! What can I do for you?",
+  "vaWelcomeSub": "Speak in Bangla or English. I always ask before calling, messaging or sending SOS.",
+  "vaListening": "Listening…",
+  "vaThinking": "Working on it…",
+  "vaTapToTalk": "Tap the mic and speak",
+  "vaStop": "Stop",
+  "vaStopSpeaking": "Stop speaking",
+  "vaTypeInstead": "Type instead",
+  "vaTypeHint": "Type a command…",
+  "vaSend": "Send",
+  "vaSettingsTitle": "Voice assistant",
+  "vaSettingsTileSub": "Default assistant, “Hey Assisto”, spoken replies",
+  "vaExCall": "Call Ammu",
+  "vaExSms": "Text Rakib I am coming",
+  "vaExYoutube": "Play Bangla songs on YouTube",
+  "vaExAlarm": "Set an alarm for 6:30 am",
+  "vaExTimer": "Timer for 10 minutes",
+  "vaExTorch": "Torch on",
+  "vaExMaps": "Navigate to Dhanmondi",
+  "vaExReminder": "Remind me at 5 pm to call Mum",
+  "vaExExpense": "500 taka groceries expense",
+  "vaExOpenApp": "Open WhatsApp",
+  "vaExSos": "Help me (SOS)",
+  "vaTryTitle": "Try saying",
+  "vaConfirmNote": "Calls, messages, WhatsApp and SOS always wait for your “yes”. Messages open as a draft — you press Send.",
+  "vaConfirmCallTitle": "Call {name}?",
+  "@vaConfirmCallTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaConfirmCallSpoken": "Shall I call {name}? Say yes or no.",
+  "@vaConfirmCallSpoken": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaConfirmSmsTitle": "Message {name}?",
+  "@vaConfirmSmsTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaConfirmSmsSpoken": "Shall I open a message to {name}? Say yes or no.",
+  "@vaConfirmSmsSpoken": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaConfirmWaTitle": "WhatsApp {name}?",
+  "@vaConfirmWaTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaConfirmWaSpoken": "Shall I open WhatsApp for {name}? Say yes or no.",
+  "@vaConfirmWaSpoken": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaConfirmSmsAnyone": "Open a new message?",
+  "vaConfirmWaAnyone": "Open WhatsApp with this message?",
+  "vaNoMessageBody": "No message text — you can type it in the app.",
+  "vaConfirmSosTitle": "Send SOS to your family?",
+  "vaConfirmSosBody": "A 5-second countdown starts, then your family is alerted with your location. You can cancel during the countdown.",
+  "vaSendSos": "Start SOS",
+  "vaCallNow": "Call",
+  "vaOpenDraft": "Open draft",
+  "vaSayYesNo": "Listening — say “yes” or “no”",
+  "vaContinue": "Continue",
+  "vaCancelled": "Okay, cancelled.",
+  "vaContactsReason": "To find who to call or message, Assisto reads your phone contacts on this phone only. Nothing is uploaded.",
+  "vaContactsDenied": "I can't see your contacts, so I can't find the number. You can pick it in the dialer.",
+  "vaNoContact": "I couldn't find “{name}” in your contacts.",
+  "@vaNoContact": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaOpenDialer": "Open dialer",
+  "vaDialerOpened": "Dialer opened.",
+  "vaCalling": "Calling {name}…",
+  "@vaCalling": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaDialerReady": "{name}'s number is ready in the dialer — tap call.",
+  "@vaDialerReady": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaSmsDraftReady": "Your message is ready — tap Send in Messages.",
+  "vaWaDraftReady": "WhatsApp is open with your message — tap Send.",
+  "vaErrNoWhatsapp": "WhatsApp didn't open. Is it installed?",
+  "vaSosStarted": "SOS countdown started.",
+  "vaYoutubeSearching": "Searching YouTube for “{query}”.",
+  "@vaYoutubeSearching": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "vaYoutubeTapToPlay": "Tap a video to play it.",
+  "vaOpeningApp": "Opening {name}.",
+  "@vaOpeningApp": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaOpening": "Opening it.",
+  "vaNoApp": "I couldn't find an app called “{name}” on this phone.",
+  "@vaNoApp": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaNavigating": "Starting directions to {place}.",
+  "@vaNavigating": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "vaMapSearching": "Showing {place} on the map.",
+  "@vaMapSearching": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "vaOpen": "Open",
+  "vaAlarmLabel": "Assisto alarm",
+  "vaTimerLabel": "Assisto timer",
+  "vaAlarmSet": "Alarm sent to your Clock app for {when}.",
+  "@vaAlarmSet": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "vaAlarmPickTime": "Clock app opened — pick the alarm time.",
+  "vaAlarmFallback": "The Clock app didn't take it, so I set an Assisto reminder for {when}.",
+  "@vaAlarmFallback": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "vaErrNoClock": "I couldn't open the Clock app on this phone.",
+  "vaTimerSet": "Timer started for {duration}.",
+  "@vaTimerSet": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "vaTimerPick": "Clock app opened — set the timer length.",
+  "vaHours": "{n, plural, =1{1 hour} other{{n} hours}}",
+  "@vaHours": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "vaMinutes": "{n, plural, =1{1 minute} other{{n} minutes}}",
+  "@vaMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "vaSeconds": "{n, plural, =1{1 second} other{{n} seconds}}",
+  "@vaSeconds": {
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "vaTodayAt": "today at {time}",
+  "@vaTodayAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "vaTomorrowAt": "tomorrow at {time}",
+  "@vaTomorrowAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "vaPartMorning": "morning",
+  "vaPartNoon": "noon",
+  "vaPartAfternoon": "afternoon",
+  "vaPartEvening": "evening",
+  "vaPartNight": "night",
+  "vaTorchOn": "Torch is on.",
+  "vaTorchOff": "Torch is off.",
+  "vaTurnOn": "Turn on",
+  "vaTurnOff": "Turn off",
+  "vaTorchNone": "This phone has no flashlight.",
+  "vaTorchError": "I couldn't control the torch — the camera may be in use.",
+  "vaReminderDefault": "Reminder",
+  "vaReminderSet": "Reminder set: {title} — {when}.",
+  "@vaReminderSet": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "vaReminderSetNoTime": "Reminder saved without a time: {title}.",
+  "@vaReminderSetNoTime": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "vaNoTime": "No time set",
+  "vaExpenseLogged": "Logged {amount} · {category}.",
+  "@vaExpenseLogged": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "vaUndo": "Undo",
+  "vaCatGroceries": "Groceries",
+  "vaCatFood": "Food",
+  "vaCatTransport": "Transport",
+  "vaCatBills": "Bills",
+  "vaCatRecharge": "Mobile recharge",
+  "vaCatHealth": "Health",
+  "vaCatShopping": "Shopping",
+  "vaCatEducation": "Education",
+  "vaCatOther": "Other",
+  "vaNotUnderstood": "Sorry, I didn't get that. Try “Call Ammu” or “Torch on”.",
+  "vaErrGeneric": "Something went wrong. Please try again.",
+  "vaErrNoApp": "No app on this phone could open that.",
+  "vaErrOffline": "I couldn't reach Assisto. Check the internet and try again.",
+  "vaNoTtsVoice": "This phone has no Bangla voice installed, so replies are shown as text. You can install one.",
+  "vaInstall": "Install",
+  "vaNeedsUpdate": "This needs the next Assisto update on this phone.",
+  "vaDefTitle": "Make Assisto your phone's assistant",
+  "vaDefBody": "Then press and hold the Home button (or swipe up from a bottom corner) to talk to Assisto from anywhere.",
+  "vaDefIsDefault": "Assisto is your default assistant",
+  "vaDefNotDefault": "Not set yet",
+  "vaDefUnknown": "Can't check on this phone",
+  "vaDefStep1": "Tap “Open settings” below.",
+  "vaDefStep2": "Choose “Digital assistant app” (or “Default digital assistant”).",
+  "vaDefStep3": "Select Assisto, then come back here.",
+  "vaDefColorOs": "Realme / OPPO (ColorOS): Settings > Apps > Default apps > Digital assistant app > Assisto. Some phones name it “Assist & voice input”.",
+  "vaDefOpenSettings": "Open settings",
+  "vaWakeTitle": "“Hey Assisto” wake word",
+  "vaWakeBody": "Say “Hey Assisto” to start talking, without touching the phone. Off unless you turn it on.",
+  "vaWakeChecking": "Checking…",
+  "vaWakeComing": "Coming soon — available once the wake-word key is set up.",
+  "vaWakeEngineMissing": "Not in this app version yet — it arrives with an update.",
+  "vaWakeOffNote": "Off",
+  "vaWakeOnNote": "On — listening for “Hey Assisto”",
+  "vaWakeStartFailed": "Couldn't start the wake word. Please try again.",
+  "vaWakeDownloadFailed": "Couldn't download the wake-word file. Check the internet.",
+  "vaWakeBattery": "Uses some extra battery while on. A notification stays visible the whole time so you always know the mic is listening.",
+  "vaWakePrivacy": "The wake word is detected on this phone. Audio is never uploaded or saved.",
+  "vaWakeConfirmTitle": "Turn on “Hey Assisto”?",
+  "vaWakeConfirmBody": "Assisto will keep the microphone on to listen for “Hey Assisto” — on this phone only, nothing is uploaded. A notification shows while it listens, and it uses some extra battery. You can stop it from the notification any time.",
+  "vaWakeTurnOn": "Turn on",
+  "vaWakeNotifTitle": "Listening for “Hey Assisto”",
+  "vaWakeNotifBody": "Microphone in use on this phone only. Tap Stop to turn off.",
+  "vaWakeTapToTalk": "Tap to talk to Assisto",
+  "vaTtsTitle": "Spoken replies",
+  "vaTtsBody": "Assisto reads its answers aloud in your app language.",
+  "vaTtsInstallBn": "Install or change the Bangla voice",
+  "adsPaidOptInTitle": "Earn credits with an optional ad",
+  "adsPaidOptInSub": "Your plan has no ads. Only if you want: watch one short video to get credits.",
+  "adsUnavailableBody": "No ad is available right now. Please try again a little later.",
+  "adsDismissedBody": "The ad was closed before it finished, so no credits were added.",
+  "qaLoadFailedRetry": "Couldn't load this. Check your internet connection and try again.",
+  "qaActionFailed": "That didn't work. Check your internet connection and try again.",
+  "shopCamClearHours": "Use shop hours",
+  "shopCamCloses": "Closes",
+  "shopCamClosesAt": "Closes {time}",
+  "@shopCamClosesAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "shopCamDelete": "Remove camera",
+  "shopCamDeleteBody": "This camera and its alerts will be removed. Its token stops working at once.",
+  "shopCamDeleteTitle": "Remove this camera?",
+  "shopCamEnabled": "Camera on",
+  "shopCamEnabledHelp": "When off, its signals are ignored and it isn't billed.",
+  "shopCamHours": "Opening hours",
+  "shopCamHoursUsesSite": "Not set — this camera uses the shop's hours.",
+  "shopCamNeverSeen": "Not connected yet",
+  "shopCamOfflineSince": "Offline since {when}",
+  "@shopCamOfflineSince": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "shopCamOnline": "Online",
+  "shopCamOpens": "Opens",
+  "shopCamOpensAt": "Opens {time}",
+  "@shopCamOpensAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "shopCamRestricted": "Staff-only area",
+  "shopCamRestrictedHelp": "A line-crossing here during open hours asks you to check. Turn off for a busy shop floor.",
+  "shopCamRotate": "New token",
+  "shopCamRotateBody": "The old token stops working right away. You'll need to update the camera or Shop Box with the new one.",
+  "shopCamRotateTitle": "Make a new token?",
+  "shopCamRotated": "New token ready — update your device.",
+  "shopCamSaveFailed": "Couldn't save. Please try again.",
+  "shopCamSaved": "Saved",
+  "shopCamSettingsTitle": "Camera settings",
+  "shopCamTokenCopied": "Token copied — keep it private.",
+  "shopCamTokenHelp": "Paste it into a Shop Box phone to make it this camera.",
+  "shopCamTokenLabel": "Camera token",
+  "shopEodCheck": "Check cash",
+  "shopEodCounted": "Cash counted in the drawer",
+  "shopEodCountedShort": "Counted",
+  "shopEodDifference": "Difference",
+  "shopEodEnterCounted": "Enter the cash you counted.",
+  "shopEodEntrySub": "Compare the drawer with today's Assisto POS cash sales",
+  "shopEodExpected": "Expected",
+  "shopEodExplain": "Expected = today's cash sales (voided sales left out) + opening cash. A gap above {tolerance} asks you to check — it can have an honest reason, like change given from a pocket.",
+  "@shopEodExplain": {
+    "placeholders": {
+      "tolerance": {
+        "type": "String"
+      }
+    }
+  },
+  "shopEodHistory": "Recent checks",
+  "shopEodHistoryEmpty": "No checks yet.",
+  "shopEodLoadError": "Couldn't load today's figures.",
+  "shopEodNote": "Note (optional)",
+  "shopEodOk": "Matches",
+  "shopEodOpening": "Opening cash (optional)",
+  "shopEodOpeningHelp": "Cash that was in the drawer before the first sale.",
+  "shopEodOver": "More than expected",
+  "shopEodSaveFailed": "Couldn't check. Please try again.",
+  "shopEodShort": "Less than expected",
+  "shopEodTitle": "End-of-day cash check",
+  "shopEodTodayCash": "Today's cash sales (Assisto POS)",
+  "shopEodTodayCount": "{count} cash sales today",
+  "@shopEodTodayCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "shopHookCopied": "Link copied",
+  "shopHookDahua": "Dahua (event push)",
+  "shopHookGuideDahua": "Dahua: Setting → Network → Alarm Centre (or HTTP push) → paste the Dahua link, protocol HTTP(S), then enable Upload for the IVS rule.",
+  "shopHookGuideHik": "Hikvision: Configuration → Event → Smart Event (Line Crossing / Intrusion) → Linkage: Notify Surveillance Center. Then Network → Advanced → HTTP Listening → paste the Hikvision link.",
+  "shopHookHikvision": "Hikvision (HTTP Listening)",
+  "shopHookIntro": "An IP camera can send its own line-crossing / intrusion events here. Only the event and one small photo arrive — never video.",
+  "shopHookSecret": "Keep these links private — anyone with them can send events for this camera. Make a new token if one leaks.",
+  "shopHookTitle": "Camera webhook setup",
+  "shopLiveCharged": "{credits} credits used for relayed minutes.",
+  "@shopLiveCharged": {
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      }
+    }
+  },
+  "shopLiveConnectFailed": "Couldn't connect to the camera. Check the shop's internet and try again.",
+  "shopLiveConnecting": "Waiting for the shop device to answer…",
+  "shopLiveCostNote": "Direct (P2P) viewing is free. If a direct path isn't possible, video goes through our relay: {credits} credit per minute.",
+  "@shopLiveCostNote": {
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      }
+    }
+  },
+  "shopLiveEnded": "Live view ended",
+  "shopLiveNoRecording": "Nothing is recorded — not on the phone, not on our server.",
+  "shopLiveNoRelayNote": "No credits for the relay, so only a direct (P2P) connection is tried. It may not connect on some networks.",
+  "shopLiveOpen": "Live view",
+  "shopLiveP2p": "P2P (free)",
+  "shopLiveRelayed": "Relayed (uses credits)",
+  "shopLiveStartFailed": "Couldn't start live view. Please try again.",
+  "shopLiveStarting": "Starting…",
+  "shopLiveStop": "Stop",
+  "shopLiveTimeLeft": "{time} left",
+  "@shopLiveTimeLeft": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "shopLiveTitle": "Live view",
+  "shopModeBadToken": "This token isn't valid any more. Ask the owner for the current one and pair again.",
+  "shopModeCameraDenied": "Camera permission is off. Allow it for Assisto in phone Settings.",
+  "shopModeCameraFailed": "Couldn't open the camera on this phone.",
+  "shopModeEntrySub": "Turn a spare Android phone into a shop camera",
+  "shopModeEntryTitle": "Use this phone as a Shop Box",
+  "shopModeEventsSent": "{count} signals sent · last {time}",
+  "@shopModeEventsSent": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "shopModeGuideBody": "Keep this phone plugged in, on this screen, pointed at the counter. If you leave this screen the camera closes and nothing is watched — that's by design.",
+  "shopModeGuideTitle": "Keep it running",
+  "shopModeIntroBody": "A spare phone can watch the cash counter. It looks for movement on the phone itself and only sends a small signal (and one small photo) when something needs a look.",
+  "shopModeIntroTitle": "An old phone as your shop camera",
+  "shopModeLive": "The owner is watching live — detection pauses until they stop.",
+  "shopModeNoCamera": "This phone has no usable camera.",
+  "shopModeNoCameras": "This shop has no camera yet. In Shop Box → Cameras, add a camera first, then pair.",
+  "shopModeNoEvents": "No signals sent yet.",
+  "shopModeNoScan": "QR scanning isn't available yet — please paste or type the token.",
+  "shopModeNotCharging": "This phone isn't charging. Please plug it in — watching uses battery.",
+  "shopModeOffHelp": "Off — the camera is closed.",
+  "shopModeOffline": "No internet. Connect this phone and try again.",
+  "shopModeOnHelp": "On — watching while this screen stays open.",
+  "shopModeOwnerOff": "The owner has turned this camera off.",
+  "shopModePair": "Check and pair",
+  "shopModePairHelp": "In the owner's Shop Box, open a camera → Camera settings (or the shop's token), copy the token and paste it here.",
+  "shopModePairTitle": "Pair with a shop",
+  "shopModePairedTo": "Shop: {site}",
+  "@shopModePairedTo": {
+    "placeholders": {
+      "site": {
+        "type": "String"
+      }
+    }
+  },
+  "shopModePaste": "Paste",
+  "shopModePickCamera": "Which camera is this phone?",
+  "shopModePrivacyBody": "No video is uploaded or recorded. Only signals and at most one small photo per alert, kept for the shop's set number of days. Live view is direct and never stored.",
+  "shopModePrivacyTitle": "Privacy",
+  "shopModeScreenTimeout": "Tip: set Display → Screen timeout to the longest option while this phone is the Shop Box.",
+  "shopModeServerOffline": "Can't reach Assisto right now — signals wait until the internet is back.",
+  "shopModeServerOk": "Connected to Assisto",
+  "shopModeStarting": "Starting the camera…",
+  "shopModeSwitch": "Shop Box mode",
+  "shopModeTitle": "Shop Box mode",
+  "shopModeTokenLabel": "Shop or camera token",
+  "shopModeTokenShort": "That token looks too short.",
+  "shopModeUnpair": "Unpair this phone",
+  "shopModeWatching": "Watching for movement",
+  "shopModeZone": "Cash zone",
+  "shopModeZoneBottom": "Bottom",
+  "shopModeZoneClear": "No zone",
+  "shopModeZoneHelp": "Mark the part of the picture with the cash drawer. During open hours, only movement inside it is reported.",
+  "shopModeZoneLeft": "Left",
+  "shopModeZoneNone": "Not set — during open hours nothing is reported",
+  "shopModeZoneRight": "Right",
+  "shopModeZoneSet": "Set — movement inside it is reported during open hours",
+  "shopModeZoneTop": "Top",
+  "shopQaAddCustomer": "Add customer",
+  "shopQaAddProduct": "Add product",
+  "shopQaAddVariant": "Add variant",
+  "shopQaCustomers": "Customers",
+  "shopQaDueInDays": "Due in {days} days",
+  "@shopQaDueInDays": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "shopQaForecastMethod": "sum of (deal value × win chance) over open deals",
+  "shopQaLoadFailedBody": "Couldn't reach Assisto. Check your internet and try again.",
+  "shopQaMarkWon": "Won — hand off to ERP",
+  "shopQaNoCustomersBody": "Customers you sell to are saved here, with their purchases and dues.",
+  "shopQaNoCustomersTitle": "No customers yet",
+  "shopQaNoProductsBody": "Add your first product with its price and stock to start selling.",
+  "shopQaNoProductsTitle": "No products yet",
+  "shopQaOneDay": "1 day",
+  "shopQaOverdueOneDay": "Overdue by 1 day",
+  "shopQaPleaseCheck": "Please check",
+  "shopQaProducts": "Products",
+  "shopQaPropAccepted": "Accepted",
+  "shopQaPropApproved": "Approved",
+  "shopQaPropDeclined": "Declined",
+  "shopQaPropDraft": "Draft",
+  "shopQaPropPending": "Pending approval",
+  "shopQaPropSent": "Sent",
+  "shopQaPropViewed": "Viewed",
+  "shopQaWon": "Won",
+  "shopSaleOptions": "More",
+  "shopSiteHoursButton": "Hours & POS",
+  "shopSiteHoursExplain": "Outside these hours, movement asks you to check. Cameras without their own hours use these.",
+  "shopSiteHoursTitle": "Shop hours",
+  "shopSiteNoHours": "Not set — no after-hours checks.",
+  "shopSitePosLink": "Use Assisto POS sales",
+  "shopSitePosLinkHelp": "Sales, discounts and voids from Assisto POS are matched with this shop's cameras.",
+  "shopVoidBody": "The sale stays in history marked VOID and is left out of reports. Stock is put back where possible.",
+  "shopVoidConfirm": "Void sale",
+  "shopVoidDone": "Sale voided.",
+  "shopVoidFailed": "Couldn't void the sale. Please try again.",
+  "shopVoidReason": "Reason",
+  "shopVoidReasonNeeded": "Please write a reason.",
+  "shopVoidTitle": "Void this sale"
 }
