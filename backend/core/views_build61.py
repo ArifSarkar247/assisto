@@ -170,7 +170,7 @@ class PricingConfigView(APIView):
                     "play_fee", "gateway_fee", "vat", "fixed_cost_per_day"):
             if key in (patch or {}):
                 merged[key] = patch[key]
-        for dkey in ("ad_rewards", "profit_guard"):
+        for dkey in ("ad_rewards", "profit_guard", "shop"):
             if isinstance((patch or {}).get(dkey), dict):
                 sub = {k: v for k, v in (old.get(dkey) or {}).items()}
                 sub.update(patch[dkey])

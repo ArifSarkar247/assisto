@@ -1696,6 +1696,13 @@ class Sale(models.Model):
     payment_method = models.CharField(max_length=10, choices=PAY, default="cash")
     discount_clamped = models.BooleanField(default=False)  # a discount hit the min floor
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    # ---- a2-cctv: POS VOID (business/sales/<id>/void). A voided sale stays
+    # in history (shown as VOID) but is excluded from every report/total.
+    voided_at = models.DateTimeField(null=True, blank=True)
+    voided_by = models.ForeignKey(User, null=True, blank=True,
+                                  on_delete=models.SET_NULL,
+                                  related_name="voided_sales")
+    void_reason = models.CharField(max_length=200, blank=True, default="")
 
     class Meta:
         ordering = ["-created_at"]
@@ -1721,6 +1728,9 @@ class SaleLine(models.Model):
     min_price = models.BigIntegerField(default=0)     # owner-only
     cost_price = models.BigIntegerField(default=0)    # owner-only
     sell_price = models.BigIntegerField(default=0)    # list
+    # a2-cctv: the cart variant key, set at checkout so a VOID can restore
+    # stock. Blank on sales made before this field existed (restore skipped).
+    variant_key = models.CharField(max_length=120, blank=True, default="")
 
 
 class Expense(models.Model):
@@ -2916,6 +2926,13 @@ class ShopSite(models.Model):
     # 0 = keep no snapshot bytes at all; 30 = max. Default 7 days.
     snapshot_retention_days = models.PositiveSmallIntegerField(default=7)
     created = models.DateTimeField(auto_now_add=True)
+    # ---- a2-cctv ----
+    # shop opening hours {"open": "HH:MM", "close": "HH:MM"} (local); a camera
+    # without its own hours falls back to these. {} = no hours configured.
+    hours = models.JSONField(default=dict, blank=True)
+    # mirror Assisto POS sales/voids/discounts into this site's ShopPosEvent
+    pos_link = models.BooleanField(default=True)
+    last_seen = models.DateTimeField(null=True, blank=True)  # any device heartbeat
 
     class Meta:
         ordering = ["-created"]
@@ -2937,6 +2954,13 @@ class ShopCamera(models.Model):
     zone_config = models.JSONField(default=dict, blank=True)  # e.g. {"cash_zone": [...]}
     enabled = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True)
+    # ---- a2-cctv ----
+    last_seen = models.DateTimeField(null=True, blank=True)    # heartbeat / webhook
+    # an EXTRA (beyond-included) camera is paid through this time; the daily
+    # shop_camera_billing command renews it for 30 days or disables it.
+    billed_until = models.DateTimeField(null=True, blank=True)
+    # what the device reported on heartbeat: {"caps": ["live"], "platform", "version"}
+    device_info = models.JSONField(default=dict, blank=True)
 
     class Meta:
         ordering = ["created", "id"]
@@ -2999,3 +3023,64 @@ class ShopPosEvent(models.Model):
         ordering = ["-at"]
         indexes = [models.Index(fields=["site", "kind", "at"]),
                    models.Index(fields=["site", "at"])]
+
+
+# ===========================================================================
+# ---- a2-cctv ---- CCTV Part 4: live-view SIGNALING + end-of-day cash check.
+#
+# ShopLiveSession carries ONLY WebRTC signaling (SDP offer/answer + ICE
+# candidates) between the owner's phone and the shop device. The media flows
+# peer-to-peer (or through TURN when P2P fails); it NEVER touches this server
+# and is NEVER recorded anywhere. Sessions are hard-capped (10 min default).
+# ===========================================================================
+
+class ShopLiveSession(models.Model):
+    STATUS = [("pending", "pending"), ("active", "active"),
+              ("ended", "ended"), ("expired", "expired")]
+    site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
+                             related_name="live_sessions")
+    camera = models.ForeignKey(ShopCamera, on_delete=models.CASCADE,
+                               related_name="live_sessions")
+    owner = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name="shop_live_sessions")
+    status = models.CharField(max_length=8, choices=STATUS, default="pending")
+    # [{seq, side: owner|device, kind: offer|answer|candidate|bye, payload}]
+    messages = models.JSONField(default=list, blank=True)
+    seq = models.PositiveIntegerField(default=0)
+    created = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    answered_at = models.DateTimeField(null=True, blank=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
+    end_reason = models.CharField(max_length=24, blank=True, default="")
+    relayed = models.BooleanField(default=False)     # client-reported: TURN pair used
+    seconds = models.PositiveIntegerField(default=0)
+    charged_credits = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["-created"]
+        indexes = [models.Index(fields=["camera", "status"]),
+                   models.Index(fields=["owner", "-created"])]
+
+
+class ShopEodCheck(models.Model):
+    """One end-of-day cash count vs Assisto POS cash sales. Money in POISHA."""
+    STATUS = [("ok", "ok"), ("short", "short"), ("over", "over")]
+    site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
+                             related_name="eod_checks")
+    day = models.DateField()
+    counted = models.BigIntegerField(default=0)
+    expected = models.BigIntegerField(default=0)
+    opening_float = models.BigIntegerField(default=0)
+    cash_sales = models.BigIntegerField(default=0)
+    tolerance = models.BigIntegerField(default=0)
+    status = models.CharField(max_length=6, choices=STATUS, default="ok")
+    note = models.CharField(max_length=200, blank=True, default="")
+    event = models.ForeignKey(ShopEvent, null=True, blank=True,
+                              on_delete=models.SET_NULL, related_name="+")
+    created_by = models.ForeignKey(User, null=True, blank=True,
+                                   on_delete=models.SET_NULL, related_name="+")
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created"]
+        indexes = [models.Index(fields=["site", "-created"])]

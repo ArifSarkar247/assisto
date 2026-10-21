@@ -554,4 +554,22 @@ urlpatterns = [
     path("recovery/police-stations", lost.PoliceStationsView.as_view()),
 ]
 
+# ---- a2-cctv ---- CCTV Part 4 round 2: camera settings, device heartbeat /
+# config / pair, EOD cash check, POS void, WebRTC live-view SIGNALING (no media).
+from . import shop_ops_views as shopops  # noqa: E402
+from . import sale_void_views as salevoid  # noqa: E402
+urlpatterns += [
+    path("shop/cameras/<int:pk>", shopops.ShopCameraDetailView.as_view()),
+    path("shop/pair/check", shopops.ShopPairCheckView.as_view()),
+    path("shop/heartbeat", shopops.ShopHeartbeatView.as_view()),
+    path("shop/config", shopops.ShopDeviceConfigView.as_view()),
+    path("shop/sites/<int:pk>/eod", shopops.ShopEodView.as_view()),
+    path("shop/live/start", shopops.ShopLiveStartView.as_view()),
+    path("shop/live/pending", shopops.ShopLivePendingView.as_view()),
+    path("shop/live/<int:pk>/signal", shopops.ShopLiveSignalView.as_view()),
+    path("shop/live/<int:pk>/end", shopops.ShopLiveEndView.as_view()),
+    path("business/sales/<int:pk>/void", salevoid.SaleVoidView.as_view()),
+]
+# ---- /a2-cctv ----
+
 urlpatterns += router.urls

@@ -100,7 +100,16 @@ _ACTION_DEFAULTS = {
     # extra camera (or server-mode camera) costs credits. No provider cost —
     # it is an entitlement charge, priced so the owner tunes it from /admin/pricing.
     "shop_extra_camera":   {"provider_cost": 0.0,   "credits": 20},
+    # Live view (a2-cctv): P2P is FREE; only a minute relayed through our TURN
+    # server (when a direct path fails) costs credits. Per started minute.
+    "shop_live_relay_min": {"provider_cost": 0.002, "credits": 1},
 }
+
+# Shop module knobs (admin-editable via /admin/pricing "shop" block).
+#   eod_tolerance_poisha  end-of-day cash count may differ by this before a
+#                         "please check" (default ৳50 = 5000 poisha)
+#   live_max_session_s    hard cap on one live-view session (default 10 min)
+_SHOP_DEFAULTS = {"eod_tolerance_poisha": 5000, "live_max_session_s": 600}
 
 # Business plan includes this many edge cameras at no credit cost; beyond it,
 # each camera is charged `shop_extra_camera`. Non-Business plans get 0 included.
@@ -182,6 +191,7 @@ def DEFAULTS():
         # admin-editable. Default ~৳300/day (a small cloud box) as a sensible
         # starting figure the owner tunes from the /admin/pnl dashboard.
         "fixed_cost_per_day": 300.0,
+        "shop": dict(_SHOP_DEFAULTS),
     }
 
 
@@ -279,6 +289,18 @@ def normalize(data):
                                            base["profit_guard"]),
         "fixed_cost_per_day": max(0.0, _num(d.get("fixed_cost_per_day"),
                                             base["fixed_cost_per_day"])),
+        "shop": _norm_shop(d.get("shop"), base["shop"]),
+    }
+
+
+def _norm_shop(raw, base):
+    raw = raw if isinstance(raw, dict) else {}
+    return {
+        "eod_tolerance_poisha": max(0, _int(raw.get("eod_tolerance_poisha"),
+                                            base["eod_tolerance_poisha"])),
+        # 60 s .. 30 min — never unbounded
+        "live_max_session_s": max(60, min(1800, _int(raw.get("live_max_session_s"),
+                                                     base["live_max_session_s"]))),
     }
 
 

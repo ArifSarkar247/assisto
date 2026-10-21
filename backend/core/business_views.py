@@ -230,12 +230,22 @@ def _sale_record(s):
         "id": s.id, "total": s.total, "paid": s.paid, "due": s.due,
         "profit": s.profit, "discount": s.discount, "subtotal": s.subtotal,
         "payment_method": s.payment_method, "created_at": s.created_at.isoformat(),
+        "voided": s.voided_at is not None,
         "customer": ({"name": s.customer.name, "phone": s.customer.phone}
                      if s.customer_id else {}),
         "lines": [{"product_name": l.product_name, "qty": l.qty,
                    "unit_price": l.unit_price, "cost_price": l.cost_price}
                   for l in s.lines.all()],
     }
+
+
+def _void_fields(s, lang):
+    """VOID marker for receipts/history (a2-cctv)."""
+    if s.voided_at is None:
+        return {"voided": False}
+    return {"voided": True, "voided_at": s.voided_at.isoformat(),
+            "void_reason": s.void_reason,
+            "status_text": pick(lang, "বাতিল (VOID)", "VOID")}
 
 
 def _order_dict(o):
@@ -629,20 +639,27 @@ class CheckoutView(APIView):
             paid=res["paid"], change=res["change"], due=res["due"],
             profit=res["profit"], payment_method=res["payment_method"],
             discount_clamped=res["discount_clamped"])
-        for l in res["lines"]:
-            SaleLine.objects.create(
-                sale=sale, product_name=l["product_name"], size=l.get("size", ""),
-                colour=l.get("colour", ""), qty=l["qty"],
-                unit_price=l["unit_price"], min_price=l["min_price"],
-                cost_price=l["cost_price"], sell_price=l["sell_price"])
-
-        # apply stock decrements across the catalog variants
+        # resolve the catalog variants first so each SaleLine records the one
+        # whose stock it decrements (a void restores exactly that).
+        vobjs = {}
         vmap = {}
         for vk in {l["variant_key"] for l in res["lines"]}:
             v = ProductVariant.objects.filter(product__user=request.user,
                                               vkey=vk).first()
             if v:
+                vobjs[vk] = v
                 vmap[vk] = _variant_dict(v)
+        for l in res["lines"]:
+            vobj = vobjs.get(l.get("variant_key"))
+            SaleLine.objects.create(
+                sale=sale, product_name=l["product_name"], size=l.get("size", ""),
+                colour=l.get("colour", ""), qty=l["qty"],
+                unit_price=l["unit_price"], min_price=l["min_price"],
+                cost_price=l["cost_price"], sell_price=l["sell_price"],
+                variant=vobj, product_id=(vobj.product_id if vobj else None),
+                variant_key=(l.get("variant_key") or "")[:120])
+
+        # apply stock decrements across the catalog variants
         decs = selling.apply_stock_decrements(vmap, res["stock_decrements"])
         for dd in decs:
             v = ProductVariant.objects.filter(product__user=request.user,
@@ -659,6 +676,14 @@ class CheckoutView(APIView):
         # khata entry are the SAME debt surfaced on two screens (history/report
         # vs khata book); neither report sums the other, so no double-count.
         khata_entry_id = self._bridge_due_to_khata(request, prof, sale, cust_obj, res)
+
+        # CCTV Part 4: mirror into the owner's Shop Box sites (pos_link). An
+        # explicit call (not a signal); it can never break checkout.
+        try:
+            from .shop_ops_views import mirror_sale
+            mirror_sale(prof, sale)
+        except Exception:
+            pass
 
         out = dict(res)
         out["sale_id"] = sale.id
@@ -736,7 +761,9 @@ class ReceiptView(APIView):
                        "colour": l.colour, "qty": l.qty,
                        "unit_price": l.unit_price} for l in s.lines.all()],
         }
-        return Response(selling.build_receipt(sale, lang=lang))
+        out = selling.build_receipt(sale, lang=lang)
+        out.update(_void_fields(s, lang))
+        return Response(out)
 
 
 class ReceiptPdfView(APIView):
@@ -767,6 +794,7 @@ class ReceiptPdfView(APIView):
                        "unit_price": l.unit_price} for l in s.lines.all()],
         }
         out = selling.build_receipt(sale, lang=lang)
+        out.update(_void_fields(s, lang))
         out["pdf"] = False
         out["format"] = "json"
         return Response(out)
@@ -807,7 +835,9 @@ class CustomerHistoryView(APIView):
                  Sale.objects.filter(user=request.user, business=prof)
                  .prefetch_related("lines")]
         hist = selling.purchase_history(sales, phone)
-        dues = selling.customer_dues_poisha(sales, phone)
+        # a VOIDED sale stays in history (marked) but owes nothing
+        dues = selling.customer_dues_poisha(
+            [x for x in sales if not x.get("voided")], phone)
         out = {"history": [selling.redact_sale(h, role) for h in hist],
                "dues_poisha": dues}
         return Response(out)
@@ -823,7 +853,8 @@ class ReportsView(APIView):
         period = request.query_params.get("period", "daily")
         from .models import Sale, Expense
         sales = [_sale_record(s) for s in
-                 Sale.objects.filter(user=request.user, business=prof)
+                 Sale.objects.filter(user=request.user, business=prof,
+                                     voided_at__isnull=True)   # VOID excluded
                  .prefetch_related("lines")]
         expenses = [{"amount": selling.poisha_to_taka(e.amount),
                      "date": e.date.isoformat(), "category": e.category}
@@ -1763,7 +1794,8 @@ class BankLoanReportView(APIView):
             return gate
         from .models import Sale
         rows = []
-        for s in Sale.objects.filter(user=request.user, business=prof):
+        for s in Sale.objects.filter(user=request.user, business=prof,
+                                     voided_at__isnull=True):
             rows.append({"month": s.created_at.strftime("%Y-%m"),
                          "amount": selling.poisha_to_taka(s.total)})
         return Response(bai.bank_loan_report_data(rows, lang=req_lang(request)))
