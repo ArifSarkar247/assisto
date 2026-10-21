@@ -547,7 +547,6 @@ jobs:
             # Let the freshly booted emulator finish its BOOT_COMPLETED broadcast storm
             # (build 151: Maps/Calendar/NFC were still starting when the tour ran, and
             # the whole emulator + adb wedged). 2-core runner; ~60 s is enough.
-            sleep 60
             adb install -r apk/*.apk || { echo "install failed"; exit 1; }
             adb shell pm grant com.assisto.assisto android.permission.RECORD_AUDIO 2>/dev/null || true
             adb shell pm grant com.assisto.assisto android.permission.ACTIVITY_RECOGNITION 2>/dev/null || true
@@ -555,7 +554,6 @@ jobs:
             timeout 60 adb logcat -c || true
             # LIVE logcat from before launch (builds 151: adb wedged after launch, so a
             # post-launch `logcat -d` captured nothing). Detached: each script line is its own sh.
-            nohup sh -c 'adb logcat -v time > /tmp/live_logcat.txt 2>&1' >/dev/null 2>&1 &
             # 1) PLAIN release launch first (no tour): splits "app itself" from "tour".
             adb shell monkey -p com.assisto.assisto -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1 || true
             sleep 25
