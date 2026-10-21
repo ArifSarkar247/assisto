@@ -168,7 +168,9 @@ jobs:
               '\n    <uses-permission android:name="android.permission.health.READ_SLEEP"/>'
               '\n    <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED"/>'
               # #80 lost/stolen — alarm vibration
-              '\n    <uses-permission android:name="android.permission.VIBRATE"/>\n'
+              '\n    <uses-permission android:name="android.permission.VIBRATE"/>'
+              # c1-contacts — read the phonebook ONLY after the in-app disclosure
+              '\n    <uses-permission android:name="android.permission.READ_CONTACTS"/>\n'
           )
           if 'android.permission.INTERNET' not in s:
               s = re.sub(r'(<manifest[^>]*>)', r'\1' + perms, s, count=1)
