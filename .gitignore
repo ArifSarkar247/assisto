@@ -56,3 +56,9 @@ watchdog.dryrun
 watchdog.state
 db_backups/
 .worktrees/
+
+# Reality-audit CI (m2-reality): disposable DB/seed/media/output
+backend/ci_reality*.sqlite3
+backend/ci_reality_seed.json
+backend/ci_media/
+reality_out/
