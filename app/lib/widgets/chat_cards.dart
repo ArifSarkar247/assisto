@@ -38,7 +38,13 @@ class ChatCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final c = card;
 
-    if (c['type'] == 'approval') return _approvalCard(context, t, scheme);
+    // m2-reality: an 'approval' card used to render Approve / Edit / Cancel
+    // buttons wired to `() {}` (they did nothing). The backend never emits
+    // this type today; if it ever does, show it as information only — never
+    // buttons that pretend to act.
+    if (c['type'] == 'approval') {
+      return _actionCard(context, c, Icons.verified_user_outlined, const []);
+    }
     if (c['type'] == 'music') {
       return _actionCard(context, c, Icons.music_note, [
         FilledButton.icon(
@@ -149,53 +155,6 @@ class ChatCard extends StatelessWidget {
                       fontSize: 12, color: scheme.onSurfaceVariant))),
         const SizedBox(height: Gap.sm),
         Wrap(spacing: Gap.sm, children: actions),
-      ]),
-    );
-  }
-
-  Widget _approvalCard(
-      BuildContext context, AppLocalizations t, ColorScheme scheme) {
-    final c = card;
-    return Container(
-      margin: const EdgeInsets.only(top: Gap.sm),
-      padding: const EdgeInsets.all(Gap.md),
-      decoration: BoxDecoration(
-        color: scheme.primaryContainer.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(Radii.md),
-        border: Border.all(color: scheme.primary.withValues(alpha: 0.4)),
-      ),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          Icon(Icons.verified_user_outlined, size: 18, color: scheme.primary),
-          const SizedBox(width: Gap.sm),
-          Expanded(
-            child: Text(c['title'] ?? '',
-                style: TextStyle(
-                    fontWeight: FontWeight.w700, color: scheme.onSurface)),
-          ),
-        ]),
-        if ((c['subtitle'] ?? '').toString().isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 4, left: 26),
-            child: Text(c['subtitle'],
-                style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
-          ),
-        const SizedBox(height: Gap.sm),
-        Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
-          FilledButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.check, size: 18),
-            label: Text(t.approve),
-            style: FilledButton.styleFrom(
-                minimumSize: const Size(0, 38),
-                visualDensity: VisualDensity.compact),
-          ),
-          OutlinedButton(
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(minimumSize: const Size(0, 38)),
-              child: Text(t.edit)),
-          TextButton(onPressed: () {}, child: Text(t.cancel)),
-        ]),
       ]),
     );
   }

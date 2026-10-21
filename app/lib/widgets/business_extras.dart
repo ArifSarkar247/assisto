@@ -216,17 +216,9 @@ class _ReviewSheetState extends State<_ReviewSheet> {
                 child: Text(_result == null ? tr.bizRunDraft : tr.bizRedo),
               ),
             ),
-            if (_result != null) ...[
-              const SizedBox(width: Gap.md),
-              Expanded(
-                child: OutlinedButton(
-                  // Review step: confirming is a mock here; the integrator wires
-                  // the actual ledger write behind this.
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(tr.bizConfirmSave),
-                ),
-              ),
-            ],
+            // m2-reality: a "Confirm & save" button here only closed the sheet
+            // (nothing was written to the ledger). Hidden until the real
+            // ledger write exists — the draft above stays readable.
           ]),
         ],
       ]),
