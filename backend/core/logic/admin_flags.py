@@ -81,6 +81,10 @@ CATALOG = (
     # builds / today). Turn OFF at public launch -> sign-up REQUIRES an
     # OTP-verified phone. Existing users' password login is never affected.
     ("auth_password_only_signup", KIND_FEATURE, "ops", True),
+    # c1-contacts: discoverability gate. ON (test builds) = any registered
+    # account with a phone can be found by contacts match / number search.
+    # Turn OFF before public launch -> only OTP-verified numbers are found.
+    ("contacts_match_unverified", KIND_FEATURE, "ops", True),
 )
 
 _BY_ID = {row[0]: row for row in CATALOG}

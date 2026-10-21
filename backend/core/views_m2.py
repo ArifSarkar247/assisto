@@ -67,6 +67,12 @@ def _active_count(group):
         group=group, status=G.MEMBERSHIP_ACTIVE).count()
 
 
+def _c1_variants(phone):
+    """c1-contacts: match an edge stored in ANY legacy phone spelling."""
+    from .phone import canonical_phone, variants
+    return variants(canonical_phone(phone)) or [phone]
+
+
 def _rel_state_to(viewer, other_user):
     """The requester's relationship state to `other_user`, resolved from the
     requester's CircleMember edges (matched by phone — the only stable join we
@@ -76,7 +82,7 @@ def _rel_state_to(viewer, other_user):
     phone = (getattr(other_user, "phone", "") or "").strip()
     if not phone:
         return "pending"
-    edge = CircleMember.objects.filter(user=viewer, phone=phone).first()
+    edge = CircleMember.objects.filter(user=viewer, phone__in=_c1_variants(phone)).first()
     return edge.state if edge else "pending"
 
 
@@ -86,7 +92,7 @@ def _peer_key_for(viewer, member_user):
     strings when the viewer has no recorded edge yet."""
     phone = (getattr(member_user, "phone", "") or "").strip()
     if phone:
-        edge = CircleMember.objects.filter(user=viewer, phone=phone).first()
+        edge = CircleMember.objects.filter(user=viewer, phone__in=_c1_variants(phone)).first()
         if edge:
             return edge.public_key, edge.key_id
     return "", ""
