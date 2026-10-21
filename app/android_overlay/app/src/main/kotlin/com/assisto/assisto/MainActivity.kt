@@ -114,6 +114,12 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        // v1-vehicle: ELM327 OBD over classic Bluetooth. Registering is free;
+        // the adapter is only touched when Dart calls it from the OBD screen.
+        try {
+            com.assisto.assisto.vehicle.ObdBtChannel.register(flutterEngine, this)
+        } catch (e: Throwable) {
+        }
         // Part 3 (a3-voice): Assisto Voice channel "com.assisto/voice". Installs
         // a handler only — TTS / camera / wake word are created on first use.
         try {

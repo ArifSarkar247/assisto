@@ -174,7 +174,13 @@ jobs:
               # Part 3 Assisto Voice (a3-voice): CALL_PHONE asked ONLY when the
               # user confirms a call; SET_ALARM is a normal permission.
               '\n    <uses-permission android:name="android.permission.CALL_PHONE"/>'
-              '\n    <uses-permission android:name="com.android.alarm.permission.SET_ALARM"/>\n'
+              '\n    <uses-permission android:name="com.android.alarm.permission.SET_ALARM"/>'
+              # v1-vehicle: ELM327 OBD dongle over classic Bluetooth (bonded
+              # devices only, we never scan). CONNECT is a runtime permission on
+              # 12+, requested lazily from the OBD screen; legacy pair <= 11.
+              '\n    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>'
+              '\n    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>'
+              '\n    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>\n'
           )
           if 'android.permission.INTERNET' not in s:
               s = re.sub(r'(<manifest[^>]*>)', r'\1' + perms, s, count=1)
