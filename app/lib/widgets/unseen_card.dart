@@ -51,7 +51,8 @@ class UnseenCard extends StatelessWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         // Category hero — honest tint band, not a fabricated photo.
         Container(
-          height: 72,
+          // min height (not fixed): grows with large fonts instead of clipping
+          constraints: const BoxConstraints(minHeight: 72),
           width: double.infinity,
           decoration: BoxDecoration(
             gradient: LinearGradient(

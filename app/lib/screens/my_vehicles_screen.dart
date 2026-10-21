@@ -219,12 +219,8 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
       );
     }
     if (_vehicles.isEmpty) {
+      // empty state has its own CTA: no duplicate FAB
       return Scaffold(
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => _addOrEdit(),
-          icon: const Icon(Icons.add),
-          label: Text(tr.vehiclesAdd),
-        ),
         body: StateMessage(
           icon: Icons.directions_car_outlined,
           title: tr.vehiclesEmptyTitle,

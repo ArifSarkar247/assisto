@@ -363,8 +363,9 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(
-                tr.paVisSummary('$_needsAttention', '${_countFor(_stPending)}',
-                    '${_countFor(_stExpired)}'),
+                tr.paVisSummary(/* (expired, needs, pending) */
+                    '${_countFor(_stExpired)}', '$_needsAttention',
+                    '${_countFor(_stPending)}'),
                 style: TextStyle(color: scheme.onSurface, fontSize: 13, height: 1.3),
               ),
             ),

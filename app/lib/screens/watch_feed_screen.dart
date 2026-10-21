@@ -451,7 +451,8 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
         visible.where((it) => it.group == WatchGroup.upcoming).toList();
 
     return ListView(
-      padding: const EdgeInsets.all(Gap.md),
+      // bottom room so the floating action never covers the last card
+      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
       children: [
         Text(t.watchSummaryLine(
           _n(needs.length),

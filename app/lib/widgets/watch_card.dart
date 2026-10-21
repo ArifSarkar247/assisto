@@ -97,6 +97,7 @@ class WatchCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final vis = watchSeverityVisual(item.severity, scheme);
     final due = watchDueLabel(context, item);
+    final bigText = MediaQuery.textScalerOf(context).scale(1) > 1.2;
 
     return Card(
       margin: const EdgeInsets.only(bottom: Gap.sm),
@@ -135,6 +136,13 @@ class WatchCard extends StatelessWidget {
                                 .textTheme
                                 .titleSmall
                                 ?.copyWith(fontWeight: FontWeight.w700)),
+                        // large font: the due chip moves under the title so
+                        // the title keeps its width (no mid-word breaks)
+                        if (due.isNotEmpty && bigText) ...[
+                          const SizedBox(height: 4),
+                          _DueChip(
+                              text: due, overdue: (item.daysUntil ?? 0) < 0),
+                        ],
                         if (item.body != null && item.body!.isNotEmpty) ...[
                           const SizedBox(height: 2),
                           Text(item.body!,
@@ -144,7 +152,7 @@ class WatchCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  if (due.isNotEmpty) ...[
+                  if (due.isNotEmpty && !bigText) ...[
                     const SizedBox(width: Gap.sm),
                     _DueChip(text: due, overdue: (item.daysUntil ?? 0) < 0),
                   ],

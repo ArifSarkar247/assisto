@@ -123,7 +123,9 @@ class NearbyPlaceCard extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: () => launchUrl(Uri.parse('tel:$phone')),
                   icon: const Icon(Icons.call, size: 18, color: Brand.success),
-                  label: Text(t.nearbyCall),
+                  label: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(t.nearbyCall, maxLines: 1)),
                 ),
               ),
             if (phone != null && phone.isNotEmpty) const SizedBox(width: Gap.sm),
@@ -132,7 +134,10 @@ class NearbyPlaceCard extends StatelessWidget {
                 onPressed: () => launchUrl(Uri.parse(place.directionsUrl),
                     mode: LaunchMode.externalApplication),
                 icon: const Icon(Icons.directions, size: 18),
-                label: Text(t.nearbyDirections),
+                // one line, scaled to fit (large font broke "Direction s")
+                label: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(t.nearbyDirections, maxLines: 1)),
               ),
             ),
           ]),

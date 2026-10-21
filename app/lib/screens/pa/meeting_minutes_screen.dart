@@ -267,7 +267,7 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
                 tr.paMinAttendeeCount('${s['attendee_count']}'), scheme),
             if (actions.isNotEmpty)
               _meta(Icons.task_alt,
-                  tr.paMinActionCount('$open', '$done'), scheme),
+                  tr.paMinActionCount(/* (done, open) */ '$done', '$open'), scheme),
           ]),
           if ((s['agenda'] as List).isNotEmpty)
             _section(tr.paMinAgenda, (s['agenda'] as List).cast<String>(),

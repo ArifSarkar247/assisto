@@ -341,7 +341,8 @@ class _DelegateAccessScreenState extends State<DelegateAccessScreen>
               borderRadius: BorderRadius.circular(Radii.md),
             ),
             child: Text(
-              t.paAuditSummary(summary.total, summary.sensitive, summary.denied),
+              t.paAuditSummary(/* (denied, sensitive, total) */
+                  summary.denied, summary.sensitive, summary.total),
               style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
             ),
           );

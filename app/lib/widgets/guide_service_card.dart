@@ -64,8 +64,14 @@ class GuideServiceCard extends StatelessWidget {
             ? null
             : Padding(
                 padding: const EdgeInsets.only(top: 2),
-                child: Text(service.portal,
-                    style: TextStyle(fontSize: 12, color: scheme.primary)),
+                // a domain must never break mid-word: one line, scale to fit
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(service.portal,
+                      maxLines: 1,
+                      style: TextStyle(fontSize: 12, color: scheme.primary)),
+                ),
               ),
         trailing: IconButton(
           tooltip: bookmarked ? tr.guideRemoveBookmark : tr.guideSave,

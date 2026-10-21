@@ -380,7 +380,7 @@ class _DailyBriefScreenState extends State<DailyBriefScreen>
   Widget _completionBar(int pct, int done, int open) {
     final scheme = Theme.of(context).colorScheme;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(t.dbCompletion(pct, done, done + open),
+      Text(t.dbCompletion(/* (done, pct, total) */ done, pct, done + open),
           style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
       const SizedBox(height: Gap.xs),
       ClipRRect(

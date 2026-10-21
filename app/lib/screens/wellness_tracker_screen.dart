@@ -216,7 +216,7 @@ class _TodayCard extends StatelessWidget {
                 ring: view.water.ring,
                 color: Brand.blue,
                 icon: Icons.water_drop_outlined,
-                valueLabel: tr.wellGlassesOf(view.water.value, view.water.goal),
+                valueLabel: tr.wellGlassesOf(/* (goal, value) */ view.water.goal, view.water.value),
                 caption: tr.wellWater,
                 met: view.water.met,
               ),
@@ -226,8 +226,8 @@ class _TodayCard extends StatelessWidget {
                 ring: view.sleep.ring,
                 color: Brand.purple,
                 icon: Icons.bedtime_outlined,
-                valueLabel: tr.wellHoursOf(
-                    _fmt(view.sleep.value), _fmt(view.sleep.goal)),
+                valueLabel: tr.wellHoursOf(/* (goal, value) */
+                    _fmt(view.sleep.goal), _fmt(view.sleep.value)),
                 caption: tr.wellSleep,
                 met: view.sleep.met,
               ),
@@ -385,8 +385,8 @@ class _TrendCard extends StatelessWidget {
           Text(
             trend.loggedDays == 0
                 ? tr.wellTrendEmpty
-                : tr.wellTrendAverages(
-                    _fmt(trend.avgWater), _fmt(trend.avgSleep)),
+                : tr.wellTrendAverages(/* (sleep, water) */
+                    _fmt(trend.avgSleep), _fmt(trend.avgWater)),
             style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: Gap.md),
@@ -623,7 +623,7 @@ class _LogFormState extends State<_LogForm> {
               icon: Icons.water_drop_outlined,
               color: Brand.blue,
               label: tr.wellWater,
-              valueLabel: tr.wellGlassesOf(_water, _waterGoal),
+              valueLabel: tr.wellGlassesOf(/* (goal, value) */ _waterGoal, _water),
               onMinus: _water > 0 ? () => setState(() => _water--) : null,
               onPlus: _water < 40 ? () => setState(() => _water++) : null,
             ),

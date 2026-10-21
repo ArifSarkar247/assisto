@@ -141,13 +141,13 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
     final who = sender.isEmpty ? '—' : sender;
     switch (cat) {
       case _catDecline:
-        return tr.paCeTplDecline(c, s, who);
+        return tr.paCeTplDecline(/* (contact, sender, subject) */ c, who, s);
       case _catSchedule:
-        return tr.paCeTplSchedule(c, s, who);
+        return tr.paCeTplSchedule(/* (contact, sender, subject) */ c, who, s);
       case _catFollowup:
-        return tr.paCeTplFollowup(c, s, who);
+        return tr.paCeTplFollowup(/* (contact, sender, subject) */ c, who, s);
       default:
-        return tr.paCeTplAcknowledge(c, s, who);
+        return tr.paCeTplAcknowledge(/* (contact, sender, subject) */ c, who, s);
     }
   }
 

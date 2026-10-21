@@ -59,19 +59,28 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
     final places = await _store.places();
     final trips = await _store.recentTrips();
     final cravings = await _store.cravings();
-    // Best-effort install probes for every provider in the catalog.
-    for (final p in [
-      ...RideDeepLink.rideProviders,
-      ...RideDeepLink.foodProviders,
-    ]) {
-      _install[p.id] = await RideDeepLink.installState(p);
-    }
     if (!mounted) return;
+    // Show the user's own places/trips right away — the install probes below
+    // are best-effort and must never hold the screen on skeletons.
     setState(() {
       _places = places;
       _trips = trips;
       _cravings = cravings;
       _loading = false;
+    });
+    final providers = [
+      ...RideDeepLink.rideProviders,
+      ...RideDeepLink.foodProviders,
+    ];
+    final states = await Future.wait(providers.map((p) => RideDeepLink
+        .installState(p)
+        .timeout(const Duration(seconds: 2),
+            onTimeout: () => InstallState.unknown)));
+    if (!mounted) return;
+    setState(() {
+      for (var i = 0; i < providers.length; i++) {
+        _install[providers[i].id] = states[i];
+      }
     });
   }
 
