@@ -45,16 +45,16 @@ Classes:
 | Money | Add expense | personal_flow.dart / 11_money | A? | pending first CI run (seeded account/txns via the API OK) | report export: file was dropped with a fake "exported" (fixed) | |
 | Money | Budget | personal_flow.dart / 12_budget | A? | pending first CI run | — | |
 | Family | Family members load | family_circle_flow.dart / 13_family | A? (members) | pending first CI run | — | |
-| Family | Family accounting tab | — (sweep S024) | **C → in progress (m1)** | route_check: 8 missing `/family/accounting/*` | — | |
+| Family | Family accounting tab | — (sweep S024) | A? (fixed, m1) | route_check clean (`/family/accounting/*` built, integer poisha) | — | |
 | Safety | SOS countdown → Cancel (nothing sent) | family_circle_flow.dart / 14_sos_countdown | A? | pending first CI run | — | a real SOS → phone checklist 12 |
 | Safety | Check-in / arrived / Safe Journey | sweep (S026/S028) | A? (fixed) | route_check now clean for these | **fixed C:** check-in "arrived", journey arrived / respond-OK / duress PIN / places / routines / wellness all used `createItem()` → trailing `/` → **404 on every call**. Failures were swallowed with a fake "arrived" / silent check-in. They now use the real routes and show honest failure messages. | |
 | My Circle | E2E message A→B **and** B→A between seeded users | family_circle_flow.dart / 15_circle_message | A? (fixed) | pending first CI run; backend round trip proven by `core.tests_reality` | **fixed C (critical):** (1) `POST /circle/keys` discarded the key, so no peer ever got `public_key` and every chat stopped at "key missing"; (2) a message lived only on the sender's edge, so **the peer never received it**. Keys are now published onto peer edges (and re-published on every open), the recipient reads the mirror edge, the recipient can react, and unread counts include incoming messages. | |
 | My Circle | Call screen opens / hangs up | family_circle_flow.dart / 16_circle_call | B? | pending first CI run | — | TURN_STATIC_SECRET + FCM + second phone (checklist 16) |
-| My Circle | Group chat react / pin / vote / member events | — | **C → in progress (m1)** | route_check: client paths don't match `circle/groups/messages/<id>/<action>` etc. | not touched (m1 owns the URL-shape fix) | |
-| My Circle | Messenger TODO(backend) routes (info, clear, two-step, change-number, settings/*, group export/ai, community leave/notifications, circle/chats, community/message-requests) | — | **C → in progress (m1)** | route_check (16 rows tagged) | — | |
-| My Circle | Connection requests list (`GET messenger/request` → 405) | — | **C** (messenger; not on m1's list) | route_check METHOD | not touched (messenger area): the screen swallows the 405 into an empty list | |
-| My Circle | Channel discover (`GET channels/discover` missing) | — | **C** (messenger; not on m1's list) | route_check MISSING | not touched (messenger area) | |
-| My Circle | Channel post "Attach photo/video" button is `onPressed: () {}` | — | **C** (messenger) | static sweep (channel_admin_screen.dart:316) | not touched (messenger area) | |
+| My Circle | Group chat react / pin / vote / member events | — | A? (fixed, m1) | route_check clean | m1: group URL shapes aligned | |
+| My Circle | Messenger TODO(backend) routes (info, clear, two-step, change-number, settings/*, group export/ai, community leave/notifications, circle/chats, community/message-requests) | — | A? (fixed, m1) | route_check clean (all 25 TODO(backend) built; see .phaseB/MESSENGER_ROUTES.md) | — | |
+| My Circle | Connection requests list (`GET messenger/request` → 405) | — | A? (fixed, m1) | route_check clean | GET list added | |
+| My Circle | Channel discover (`GET channels/discover` missing) | — | A? (fixed, m1) | route_check clean | route built | |
+| My Circle | Channel post "Attach photo/video" button is `onPressed: () {}` | — | B (fixed, m1) | no `onPressed: () {}` left in app/lib | button hidden honestly until channel media upload exists | |
 | My Circle | Report a member / mute status | — | A? (fixed) | static | a failed report/mute showed "Reported"/"Muted" anyway (fixed) | |
 | Business | POS sale → receipt → void | business_flow.dart / 17_pos_sale_void | A? | pending first CI run | — | |
 | Business | Product edit / customer save / merchant-QR save | (sweep + `core.tests_reality`) | A? (fixed) | backend tests pass | **fixed C:** all three POSTed to views with **no POST handler (405)**, so the forms never saved; `cost_price` was silently dropped on create (profit wrong) | bKash/Nagad merchant = pointer only |
@@ -99,25 +99,25 @@ The class is provisional, from static evidence. The CI sweep replaces it with: d
 | S021 | Account & Finance | Savings challenge | `savings_challenge_screen.dart` | A? | every client route resolves (route_check) |  |
 | S022 | Account & Finance | AI spending insights | `spending_advice_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
 | S023 | Account & Finance | Market price radar | `price_radar_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
-| S024 | Family & Safety | Family | `family_screen.dart` | C → in progress (m1) | Family-accounting tab calls 8 missing /family/accounting/* routes (m1 builds them); the members tab is real (flow 13) |  |
+| S024 | Family & Safety | Family | `family_screen.dart` | A? (fixed, m1) | family accounting routes built; members tab flow 13 |  |
 | S025 | Family & Safety | Nominee access | `nominee_screen.dart` | A? | every client route resolves (route_check) |  |
 | S026 | Family & Safety | Safe Journey | `journey_start_screen.dart` | A? (fixed) | fixed: arrived / respond-OK / duress PIN / places / routines / wellness used createItem() -> trailing "/" -> 404; they now POST the real routes. The timeline route is still missing (m1) |  |
 | S027 | Family & Safety | Emergency | `emergency_screen.dart` | A? | flow 14 (SOS countdown + cancel); a real SOS needs the phone (checklist 12) |  |
 | S028 | Family & Safety | Scam protection | `scam_screen.dart` | A? (fixed) | fixed: "report scam" posted to scam/report/ (404); it now uses the real route |  |
 | S029 | Family & Safety | Accident / fall detection | `fall_detect_screen.dart` | B? | native fall sensor not wired; the screen says so honestly | native sensor plugin |
-| S030 | Family & Safety | Lost / Stolen Protection | `lost_stolen_screen.dart` | C → in progress (m1) | route_check: GET /journey/$id/timeline |  |
+| S030 | Family & Safety | Lost / Stolen Protection | `lost_stolen_screen.dart` | A? (fixed, m1) | journey timeline route built |  |
 | S031 | Family & Safety | My lost phone | `my_lost_phone_screen.dart` | A? | every client route resolves (route_check) |  |
 | S032 | Family & Safety | Phone Safety Check-up | `phone_safety_screen.dart` | A? | every client route resolves (route_check) |  |
 | S033 | Family & Safety | Phone ownership protection | `security_screen.dart` | A? | every client route resolves (route_check) |  |
 | S034 | Family & Safety | Sell my phone safely | `sell_my_phone_screen.dart` | A? | every client route resolves (route_check) |  |
 | S035 | Family & Safety | Shop Box | `shop_box_screen.dart` | B? | flow 20 (site + camera + EOD); live view / motion need a real camera or Shop Box phone | camera / NVR + Shop Box device |
-| S036 | Family & Safety | Disaster alerts | `disaster_alerts_screen.dart` | C → in progress (m1) | GET /disaster/feed missing (m1 builds it); the screen already falls back to an honest no-key state | official feed source |
+| S036 | Family & Safety | Disaster alerts | `disaster_alerts_screen.dart` | B? (fixed, m1) | /disaster/feed built; honest state until an official feed source is set | official feed source |
 | S037 | Family & Safety | Blood donors | `blood_donor_screen.dart` | A? | every client route resolves (route_check) |  |
 | S038 | Family & Safety | School corner | `kid_school_screen.dart` | A? | every client route resolves (route_check) |  |
 | S039 | Family & Safety | Doctor appointments | `doctor_serial_screen.dart` | B? | key-gated/mock path present — verify the honest label in the sweep shot | see screen |
 | S040 | Contacts | Contacts | `crm_contacts_screen.dart` | A? | every client route resolves (route_check) |  |
 | S041 | Daily Life | Assisto Voice | `voice_assistant_screen.dart` | B? | flow 22 (typed fallback); speech can't run on CI | phone mic + Google speech; AI key |
-| S042 | Daily Life | Medicine database | `medicine_db_screen.dart` | C → in progress (m1) | "report a wrong entry" posts to the missing /medicine-db/report (m1 builds it); the lookup itself is real |  |
+| S042 | Daily Life | Medicine database | `medicine_db_screen.dart` | A? (fixed, m1) | /medicine-db/report built |  |
 | S043 | Daily Life | Health tips | `health_tips_screen.dart` | A? | every client route resolves (route_check) |  |
 | S044 | Daily Life | Documents | `vault_screen.dart` | A? | flow 21 (record without a file); attaching a file needs the phone (checklist 10) |  |
 | S045 | Daily Life | Service guide | `guide_screen.dart` | A? | every client route resolves (route_check) |  |
@@ -163,7 +163,11 @@ The class is provisional, from static evidence. The CI sweep replaces it with: d
 | S085 | Business | Business | `business_screen.dart` | A? (fixed) | flows 17/18; fixed in the backend: product edit (405), customer save (405), merchant-QR save (405), cost_price dropped on create; the paper-khata fake "Confirm & save" is hidden |  |
 | S086 | Business | CRM | `crm_home_screen.dart` | A? (fixed) | flow 19; fixed: quote versions called a non-existent route (now /crm/proposals?lead=) |  |
 
-## API contract (`tools/route_check.py`, run 21 Oct)
+## API contract (`tools/route_check.py`)
+
+- **21 Oct night, build 148 (main b5eb97a): 835 client calls, 732 unique — 731 OK, 1 DYNAMIC (runtime prefix, `api.dart:219`), 0 problems.** `core.tests_api_contract` passes in the 2545-test backend suite. The CI step is in `.phaseB/pending_workflows/android.yml.next` (needs the gh `workflow` scope to push).
+
+Earlier run (before m1 landed):
 
 - **796 client calls, 699 unique: 656 OK, 42 problems.** 40 of them are on m1's list (C → in progress (m1)). The other 2 are messenger rows (see above).
 - My fixes cleared **13 more misses** before this run: journey ×7, scam/safety ×3, CRM quote versions, product/customer delete (two unused methods that called dead routes were removed) and where-are-you ×2 (two unused methods that called routes that never existed were removed).
@@ -174,14 +178,14 @@ The class is provisional, from static evidence. The CI sweep replaces it with: d
 
 | finding | where | class | action |
 |---|---|---|---|
-| `TODO(backend)` messenger routes (25 comments, 16 routes) | messenger_setapi / group_api / chat_api | C → in progress (m1) | not touched |
+| `TODO(backend)` messenger routes (25 comments, 16 routes) | messenger_setapi / group_api / chat_api | C → fixed (m1) | all built; route_check 0 |
 | "coming soon" | vehicles tracking, wake word, billing, fall sensor, home widget, msgr settings panel | B (honest label) | none needed; verify in sweep shots |
 | no-op `onPressed: () {}` | chat_cards.dart approval card (×3) | C → fixed | information-only card |
-| no-op `onPressed: () {}` | channel_admin_screen.dart:316 attach photo/video | C (messenger) | left for the messenger owner |
+| no-op `onPressed: () {}` | channel attach photo/video | C → fixed (m1) | hidden honestly until channel media upload exists |
 | fake data shown to real users | inbox_screen.dart `mockInbox()` | C → fixed | honest not-connected state + 3 new ARB keys |
 | fake data (labelled) | nearby_data.dart curated places, quick-tools/social/in-chat AI "mock" drafts, meet ETA mock | B? (honest banner/label claimed in code) | verify the banner text in the sweep screenshots; any unlabelled one becomes C |
 | errors swallowed → fake success | circle report, status mute, safety check-in start + arrived, safe-arrival arrived, probashi reminder, money report export | C → fixed | honest failure messages (2 new ARB keys + existing `grpActionFailed`) |
-| errors swallowed → empty list | connection_requests, msgr_chat_list, community lists, starred, broadcast lists (messenger) | C where the route is missing (above); otherwise A-with-risk (offline looks empty) | messenger owner |
+| errors swallowed → empty list | connection_requests, msgr_chat_list, community lists, starred, broadcast lists (messenger) | routes now exist (m1); A-with-risk (offline looks empty) | phone checklist |
 | backend 405 on app writes | product edit, customer save, merchant QR | C → fixed | POST handlers + `core.tests_reality` |
 | unwired setting | server-address swap | C → fixed (hidden) | tile hidden until wired |
 
