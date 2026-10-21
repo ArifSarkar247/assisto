@@ -338,6 +338,9 @@ jobs:
   launch-smoke-test:
     needs: build-apk
     runs-on: ubuntu-latest
+    # A hung adb call once held runs for 6h (builds 145/146: `adb logcat -d`
+    # never returned). Healthy runs finish in ~5 min; cap the job.
+    timeout-minutes: 40
     # Launch-safety gate: cold-start + open every native feature (the __tour__)
     # on an emulator. We test API 33 = the owner's Android 13 phone (the critical
     # target). API 30 was dropped from the gate: its x86_64 CI emulator kept
@@ -384,18 +387,18 @@ jobs:
             adb shell pm grant com.assisto.assisto android.permission.RECORD_AUDIO 2>/dev/null || true
             adb shell pm grant com.assisto.assisto android.permission.ACTIVITY_RECOGNITION 2>/dev/null || true
             adb shell pm grant com.assisto.assisto android.permission.BODY_SENSORS 2>/dev/null || true
-            adb logcat -c || true
+            timeout 60 adb logcat -c || true
             # Single, race-free cold start (no prior instance right after install).
             # --es ao_open __tour__ makes the debug build walk every native-plugin
             # screen once IN-PROCESS (voice_sos, lost_stolen, watch_feed,
             # fall_detect), so each real plugin loads. Inert in the release APK.
             adb shell am start -n com.assisto.assisto/com.assisto.assisto.MainActivity --es ao_open __tour__ || adb shell monkey -p com.assisto.assisto -c android.intent.category.LAUNCHER 1
             sleep 60
-            adb logcat -d > logcat.txt 2>/dev/null || true
+            timeout 120 adb logcat -d > logcat.txt 2>/dev/null || { echo "::warning::adb logcat -d timed out/failed (adb infra); crash check uses what was captured"; timeout 60 adb logcat -d -t 3000 > logcat.txt 2>/dev/null || true; }
             echo "===== last 140 logcat lines ====="; tail -140 logcat.txt || true
             grep -E "FATAL EXCEPTION|ANR in com.assisto|com.assisto.assisto.*has died|FATAL SIGNAL|AndroidRuntime.*com.assisto|E/flutter.*(Unhandled|Fatal)" logcat.txt > crashes.txt 2>/dev/null || true
             test ! -s crashes.txt || { echo "::error::CRASH/ANR during launch+feature-tour on API ${{ matrix.api }}"; cat crashes.txt; exit 1; }
-            adb shell pidof com.assisto.assisto > pid.txt 2>/dev/null || true
+            timeout 30 adb shell pidof com.assisto.assisto > pid.txt 2>/dev/null || true
             test -s pid.txt || { echo "::error::app NOT running after launch+feature-tour on API ${{ matrix.api }}"; exit 1; }
             echo "LAUNCH + FEATURE-TOUR OK on API ${{ matrix.api }} pid=$(cat pid.txt)"
             # First-run language flow (BEST-EFFORT, on-device): a fresh install
@@ -414,7 +417,7 @@ jobs:
             TX=$((W/2)); TY=$((H*88/100))
             echo "screen=$SZ tapping Continue at $TX $TY" && adb shell input tap $TX $TY || true
             sleep 6
-            adb shell pidof com.assisto.assisto > pid2.txt 2>/dev/null || true
+            timeout 30 adb shell pidof com.assisto.assisto > pid2.txt 2>/dev/null || true
             test -s pid2.txt || { echo "::error::app died after tapping Continue on API ${{ matrix.api }}"; exit 1; }
-            adb shell uiautomator dump /sdcard/after.xml && adb pull /sdcard/after.xml after.xml 2>/dev/null || true
+            timeout 60 adb shell uiautomator dump /sdcard/after.xml && timeout 60 adb pull /sdcard/after.xml after.xml 2>/dev/null || true
             if grep -q 'English' after.xml 2>/dev/null; then echo "::warning::on-device: still on language picker after tap (likely the UI-automation tap missed; host widget test is the real gate)"; else echo "LEFT the language picker — Continue entered the app OK"; fi
