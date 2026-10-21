@@ -386,7 +386,9 @@ class ProductsView(APIView):
             name=d.get("name", ""), category=d.get("category", ""),
             sku=d.get("sku", ""), barcode=d.get("barcode", ""),
             description=d.get("description", ""),
-            sell=d.get("sell") or d.get("price") or 0, cost=d.get("cost") or 0,
+            sell=d.get("sell") or d.get("price") or 0,
+            # the app sends cost_price (m2-reality: was silently dropped -> 0)
+            cost=d.get("cost") or d.get("cost_price") or 0,
             minimum=d.get("minimum") or d.get("min_price") or 0,
             stock=d.get("stock") or 0, low_stock_at=d.get("low_stock_at", 3))
         ok, errs = selling.validate_product(prod)
@@ -423,6 +425,52 @@ class ProductDetailView(APIView):
         if not p:
             return _err(req_lang(request), "পাওয়া যায়নি।", "Not found.", status=404)
         return Response(selling.redact_product(_product_dict(p), role))
+
+    # m2-reality: the app's product EDIT posts here (was 405 -> edit never saved)
+    def post(self, request, pk):
+        prof, role, bad = _require_business(request)
+        if bad:
+            return bad
+        guard = _owner_only(request, role)
+        if guard:
+            return guard
+        lang = req_lang(request)
+        p = request.user.products.filter(pk=pk).first()
+        if not p:
+            return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
+        d = request.data
+        prod = selling.make_product(
+            name=d.get("name", p.name), category=d.get("category", p.category),
+            sku=d.get("sku", p.sku), barcode=d.get("barcode", p.barcode),
+            description=d.get("description", p.description),
+            sell=d.get("sell") or d.get("price") or p.price,
+            cost=d.get("cost") or d.get("cost_price") or p.cost_price,
+            minimum=d.get("minimum") or d.get("min_price") or p.min_price,
+            stock=d.get("stock", p.stock),
+            low_stock_at=d.get("low_stock_at", p.low_stock_at))
+        ok, errs = selling.validate_product(prod)
+        if not ok:
+            return _err(lang, "পণ্যের তথ্য ভুল।", "Invalid product.", status=422,
+                        code="invalid_product", errors=errs)
+        base = prod["variants"][0]
+        p.name, p.category, p.sku = prod["name"], prod["category"], prod["sku"]
+        p.barcode, p.description = prod["barcode"], prod["description"]
+        p.price = selling.poisha_to_taka(base["sell_price"])
+        p.cost_price = selling.poisha_to_taka(base["cost_price"])
+        p.min_price = selling.poisha_to_taka(base["min_price"])
+        p.stock, p.low_stock_at = base["stock"], base["low_stock_at"]
+        p.save()
+        return Response(selling.redact_product(_product_dict(p), role))
+
+    def delete(self, request, pk):
+        prof, role, bad = _require_business(request)
+        if bad:
+            return bad
+        guard = _owner_only(request, role)
+        if guard:
+            return guard
+        request.user.products.filter(pk=pk).delete()
+        return Response(status=204)
 
 
 class ProductImportView(APIView):
@@ -809,6 +857,41 @@ class CustomersView(APIView):
                  "vip": c.vip} for c in
                 request.user.sale_customers.filter(business=prof)]
         return Response({"customers": rows})
+
+
+    # m2-reality: the customer form saves here (was 405 -> never saved).
+    # Create-or-update keyed by the normalised phone (same rule as checkout).
+    def post(self, request):
+        prof, role, bad = _require_business(request)
+        if bad:
+            return bad
+        lang = req_lang(request)
+        from .models import Customer
+        d = request.data
+        name = str(d.get("name", "")).strip()[:120]
+        phone = str(d.get("phone", "")).strip()[:40]
+        if not name and not phone:
+            return _err(lang, "নাম বা ফোন দিন।", "Enter a name or phone.",
+                        status=422, code="invalid_customer")
+        key = selling.normalize_phone(phone) if phone else ""
+        c = None
+        if d.get("id"):
+            c = Customer.objects.filter(user=request.user, business=prof,
+                                        pk=d.get("id")).first()
+        if c is None and key:
+            c = Customer.objects.filter(user=request.user, business=prof,
+                                        phone_key=key).first()
+        if c is None:
+            c = Customer(user=request.user, business=prof)
+        c.name, c.phone, c.phone_key = name, phone, key
+        c.address = str(d.get("address", "")).strip()
+        c.area = str(d.get("area", "")).strip()[:80]
+        c.notes = str(d.get("notes", "")).strip()
+        c.vip = bool(d.get("vip"))
+        c.save()
+        return Response({"id": c.id, "name": c.name, "phone": c.phone,
+                         "address": c.address, "area": c.area,
+                         "notes": c.notes, "vip": c.vip}, status=201)
 
 
 class CustomerDedupeView(APIView):
@@ -1818,6 +1901,34 @@ class MerchantQrView(APIView):
         return Response(bai.merchant_qr_descriptor(
             {"provider": w.provider, "merchant_number": w.merchant_number,
              "merchant_name": w.merchant_name}, lang))
+
+    # m2-reality: the Payments screen saves the owner's merchant POINTER here
+    # (was 405). Never a balance; we never hold funds.
+    def post(self, request):
+        prof, role, bad = _require_business(request)
+        if bad:
+            return bad
+        guard = _owner_only(request, role)
+        if guard:
+            return guard
+        lang = req_lang(request)
+        from .models import OwnerWallet
+        d = request.data
+        provider = str(d.get("provider", "")).strip().lower()
+        number = str(d.get("merchant_number", "")).strip()[:40]
+        if provider not in ("bkash", "nagad") or not number:
+            return _err(lang, "প্রোভাইডার ও মার্চেন্ট নম্বর দিন।",
+                        "Choose a provider and enter the merchant number.",
+                        status=422, code="invalid_wallet")
+        w = prof.wallets.first()
+        if w is None:
+            w = OwnerWallet(user=request.user, business=prof)
+        w.provider, w.merchant_number = provider, number
+        w.merchant_name = str(d.get("merchant_name", "")).strip()[:120]
+        w.save()
+        return Response(bai.merchant_qr_descriptor(
+            {"provider": w.provider, "merchant_number": w.merchant_number,
+             "merchant_name": w.merchant_name}, lang), status=201)
 
 
 class PaymentLinkView(APIView):

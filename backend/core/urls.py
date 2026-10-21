@@ -585,4 +585,12 @@ urlpatterns += [
 ]
 # ---- /a2-cctv ----
 
+# ---- m2-reality ----
+# Routes the app already called but that were missing (tools/route_check.py).
+from . import views_reality as reality  # noqa: E402
+urlpatterns += [
+    path("notif/reminders/<str:item_id>/done", reality.notif_reminder_done),
+]
+# ---- /m2-reality ----
+
 urlpatterns += router.urls
