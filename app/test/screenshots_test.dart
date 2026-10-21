@@ -181,7 +181,6 @@ import 'package:assisto/screens/journey_fake_call_screen.dart';
 import 'package:assisto/screens/crm/crm_firstrun_screen.dart';
 import 'package:assisto/crypto/e2e.dart';
 import 'package:assisto/screens/legal_screen.dart';
-import 'package:assisto/screens/photo_enhance_screen.dart';
 import 'ps1_shots.dart'; // ps1-photo
 import 'package:assisto/screens/unseen_world_screen.dart';
 import 'package:assisto/screens/shop_box_screen.dart';
@@ -534,7 +533,6 @@ void main() {
     'crm_firstrun': (build: (_) => Scaffold(body: CrmFirstRunScreen(onReady: () async {})), mode: FakeMode.data, full: true),
     'crm_firstrun_join': (build: (_) => Scaffold(body: CrmFirstRunScreen(onReady: () async {}, previewJoin: true)), mode: FakeMode.data, full: true),
     'legal': (build: (_) => const LegalScreen(), mode: FakeMode.data, full: true),
-    'photo_enhance': (build: (_) => const PhotoEnhanceScreen(), mode: FakeMode.data, full: true),
     // ps1-photo: Photo Studio (free / premium / unavailable / refusal / export gate)
     for (final e in ps1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // ---- a1 Premium QA: screens that had no gallery shot ----

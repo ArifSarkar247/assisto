@@ -12,7 +12,7 @@ import '../widgets/home_suggestions.dart';
 import 'agent_thread_screen.dart';
 import 'app_drawer.dart';
 import 'assisto_chats_screen.dart';
-import 'photo_enhance_screen.dart';
+import 'photo_studio_screen.dart';
 import 'messenger/messenger_home_screen.dart';
 // Built by another agent; imported by class name per the home spec.
 import 'notification_centre_screen.dart';
@@ -137,14 +137,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         // far-right corner (its original place). actions render left→right, so
         // the bell comes first and My Circle last.
         actions: [
-          // OWNER-REQUESTED home entry (the only home change allowed): one-tap
-          // "Enhance photo" quick access to the photo-enhance tool.
+          // OWNER-REQUESTED home entry: one-tap "Enhance photo" opens Photo
+          // Studio (owner-approved change, 21 Oct: the old tool is removed).
           IconButton(
             icon: const Icon(Icons.auto_fix_high_outlined),
             tooltip: t.homeEnhancePhoto,
             onPressed: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const PhotoEnhanceScreen()),
+              MaterialPageRoute(builder: (_) => const PhotoStudioScreen()),
             ),
           ),
           HomeBadgeIcon(
