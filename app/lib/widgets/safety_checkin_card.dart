@@ -76,11 +76,20 @@ class _SafetyCheckinCardState extends State<SafetyCheckinCard> {
     if (eta == null) {
       return Card(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
+          // QA a6: the trailing button squeezed the text column to a few
+          // words per line (one word at 1.5x font). Button now sits under it.
           ListTile(
             leading: const Icon(Icons.pin_drop_outlined),
             title: Text(t.safetyCheckinNone),
             subtitle: Text(t.safetyCheckinNoneDesc),
-            trailing: FilledButton.tonal(onPressed: onSet, child: Text(t.safetyCheckinSet)),
+          ),
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(72, 0, 16, 4),
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: FilledButton.tonal(
+                  onPressed: onSet, child: Text(t.safetyCheckinSet)),
+            ),
           ),
           _advancedLink(context),
         ]),
@@ -123,13 +132,13 @@ class _SafetyCheckinCardState extends State<SafetyCheckinCard> {
           Text(status, style: TextStyle(color: color, fontWeight: FontWeight.w600)),
           if (deltaMin > graceMinutes) ...[
             const SizedBox(height: 4),
-            Text(t.safetyCheckinOverdueNote, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+            Text(t.safetyCheckinOverdueNote, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ],
           const SizedBox(height: 12),
           Row(children: [
             Expanded(
               child: FilledButton.icon(
-                style: FilledButton.styleFrom(backgroundColor: Colors.green),
+                style: FilledButton.styleFrom(backgroundColor: const Color(0xFF1E7E4E), foregroundColor: Colors.white),
                 onPressed: onArrived,
                 icon: const Icon(Icons.check),
                 label: Text(t.safetyArrived),

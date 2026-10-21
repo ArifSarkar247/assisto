@@ -101,11 +101,11 @@ class FirstAidList extends StatelessWidget {
           borderRadius: BorderRadius.circular(Radii.sm),
         ),
         child: Row(children: [
-          const Icon(Icons.info_outline, size: 18, color: Color(0xFF8A6D00)),
+          Icon(Icons.info_outline, size: 18, color: Brand.warnInk(context)),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(t.firstAidDisclaimer,
-                style: const TextStyle(fontSize: 12, color: Color(0xFF8A6D00))),
+                style: TextStyle(fontSize: 12, color: Brand.warnInk(context))),
           ),
         ]),
       ),

@@ -83,7 +83,7 @@ class SettingsScreen extends StatelessWidget {
       messenger.showSnackBar(
           SnackBar(content: Text(AppLocalizations.of(context).savedToPath(f.path))));
     } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).exportFailed(e))));
+      messenger.showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).qaActionFailed)));
     }
   }
 
@@ -97,7 +97,7 @@ class SettingsScreen extends StatelessWidget {
       await f.writeAsBytes(bytes);
       await OpenFilex.open(f.path);
     } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).exportFailed(e))));
+      messenger.showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).qaActionFailed)));
     }
   }
 
@@ -383,7 +383,7 @@ class SettingsScreen extends StatelessWidget {
             padding: EdgeInsets.all(16),
             child: Text(
               AppLocalizations.of(context).privacyNotice,
-              style: TextStyle(fontSize: 12, color: Colors.grey),
+              style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ),
           // Version info lives ONLY here, deep in Settings → About (owner rule:
@@ -677,7 +677,7 @@ class _SourcesScreenState extends State<SourcesScreen> {
                 Padding(
                   padding: EdgeInsets.all(16),
                   child: Text(AppLocalizations.of(context).inputSourceHint,
-                      style: TextStyle(fontSize: 13, color: Colors.grey)),
+                      style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                 ),
                 for (final s in _sources)
                   SwitchListTile(

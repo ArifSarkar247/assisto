@@ -6,6 +6,14 @@ import 'package:flutter/material.dart';
 /// Everything else (spacing, radius, type, motion) is derived from these tokens
 /// so every screen feels like one app.
 class Brand {
+  /// Readable "warning" ink for text/icons on a warning-tinted surface:
+  /// dark amber on light, light amber on dark (QA a6: 0xFF8A6D00 on a dark
+  /// surface was ~2:1).
+  static Color warnInk(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+          ? const Color(0xFFFFD666)
+          : const Color(0xFF8A6D00);
+
   Brand._();
 
   // Core brand colours — sampled from the logo (cyan → blue → purple on black).

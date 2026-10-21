@@ -189,8 +189,10 @@ class _AboutScreenState extends State<AboutScreen> {
       child: Row(
         children: [
           Text(label, style: TextStyle(color: scheme.onSurfaceVariant)),
-          const Spacer(),
-          Flexible(
+          const SizedBox(width: Gap.md),
+          // QA a6: Spacer+Flexible split the row 50/50, so values floated in
+          // the middle. Values now sit flush right.
+          Expanded(
             child: Text(value,
                 textAlign: TextAlign.right,
                 style: const TextStyle(fontWeight: FontWeight.w600)),

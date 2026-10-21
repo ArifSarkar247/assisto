@@ -73,10 +73,22 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
       if (mounted) setState(() => _loading = false);
       return;
     }
-    _enabled = await VoiceSosConfig.isEnabled();
-    _phrase = await VoiceSosConfig.phrase();
-    _running = await VoiceSosManager.instance.isRunning();
-    await _refreshMic();
+    // QA a6: any plugin/channel failure used to leave an endless spinner.
+    // Each probe is guarded; the screen always renders.
+    try {
+      _enabled = await VoiceSosConfig.isEnabled();
+    } catch (_) {}
+    try {
+      _phrase = await VoiceSosConfig.phrase();
+    } catch (_) {}
+    try {
+      _running = await VoiceSosManager.instance.isRunning();
+    } catch (_) {
+      _running = false;
+    }
+    try {
+      await _refreshMic();
+    } catch (_) {}
     if (mounted) setState(() => _loading = false);
   }
 

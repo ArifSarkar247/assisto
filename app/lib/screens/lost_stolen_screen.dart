@@ -108,8 +108,16 @@ class _LostStolenScreenState extends State<LostStolenScreen>
     _ownerName = await Settings.getString(_kOwnerName) ?? '';
     _ownerPhone = await Settings.getString(_kOwnerPhone) ?? '';
     _lostMsg = await Settings.getString(_kLostMsg) ?? '';
-    _hasPin = await _readPinHash() != null;
-    await _refreshAdmin();
+    // QA a6: a secure-storage failure (keystore reset, ColorOS quirk) used to
+    // leave an endless spinner on a SAFETY screen. Guarded; always renders.
+    try {
+      _hasPin = await _readPinHash() != null;
+    } catch (_) {
+      _hasPin = false;
+    }
+    try {
+      await _refreshAdmin();
+    } catch (_) {}
     if (mounted) setState(() => _loading = false);
   }
 
@@ -497,49 +505,64 @@ class _LostStolenScreenState extends State<LostStolenScreen>
     final bg = active
         ? Brand.success.withValues(alpha: 0.12)
         : Brand.warning.withValues(alpha: 0.14);
-    final fg = active ? Brand.success : Brand.warning;
+    // QA a6: amber title on cream was ~2.5:1 and the trailing button
+    // squeezed the text to 2–3 words per line. Readable ink + button below.
+    final fg = active
+        ? (Theme.of(context).brightness == Brightness.dark
+            ? Brand.success
+            : const Color(0xFF1E7E4E))
+        : Brand.warnInk(context);
     return Card(
       color: bg,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(active ? Icons.verified_user : Icons.gpp_maybe,
-                color: fg, size: 32),
-            const SizedBox(width: Gap.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    active
-                        ? tr.lostStolenStateActive
-                        : tr.lostStolenStateInactive,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(color: fg, fontWeight: FontWeight.w700),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(active ? Icons.verified_user : Icons.gpp_maybe,
+                    color: fg, size: 32),
+                const SizedBox(width: Gap.sm),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        active
+                            ? tr.lostStolenStateActive
+                            : tr.lostStolenStateInactive,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(color: fg, fontWeight: FontWeight.w700),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        active
+                            ? tr.lostStolenStateActiveBody
+                            : tr.lostStolenStateInactiveBody,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    active
-                        ? tr.lostStolenStateActiveBody
-                        : tr.lostStolenStateInactiveBody,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-            if (!active)
-              FilledButton(
-                onPressed: _enable,
-                child: Text(tr.lostStolenEnable),
-              )
-            else
-              TextButton(
-                onPressed: _openAdminSettings,
-                child: Text(tr.lostStolenManage),
-              ),
+            const SizedBox(height: Gap.sm),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: !active
+                  ? FilledButton(
+                      onPressed: _enable,
+                      child: Text(tr.lostStolenEnable),
+                    )
+                  : TextButton(
+                      onPressed: _openAdminSettings,
+                      child: Text(tr.lostStolenManage),
+                    ),
+            ),
           ],
         ),
       ),

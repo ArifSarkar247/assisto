@@ -474,20 +474,20 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
         border: Border.all(color: Brand.warning.withValues(alpha: 0.5)),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Icon(Icons.sensors_off, color: Color(0xFF8A6D00)),
+        Icon(Icons.sensors_off, color: Brand.warnInk(context)),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(t.fallSensorGatedTitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF8A6D00))),
+                        color: Brand.warnInk(context))),
                 const SizedBox(height: Gap.xs),
                 Text(t.fallSensorGatedBody,
-                    style: const TextStyle(
-                        fontSize: 12, color: Color(0xFF8A6D00))),
+                    style: TextStyle(
+                        fontSize: 12, color: Brand.warnInk(context))),
               ]),
         ),
       ]),

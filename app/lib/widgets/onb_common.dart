@@ -105,7 +105,7 @@ class OnbChoiceTile extends StatelessWidget {
     return Semantics(
       button: true,
       selected: selected,
-      label: '$title. $subtitle',
+      label: subtitle.isEmpty ? title : '$title. $subtitle',
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(Radii.md),
@@ -151,12 +151,14 @@ class OnbChoiceTile extends StatelessWidget {
                     Text(title,
                         style: const TextStyle(
                             fontWeight: FontWeight.w700, fontSize: 15)),
-                    const SizedBox(height: 2),
-                    Text(subtitle,
-                        style: TextStyle(
-                            fontSize: 12.5,
-                            height: 1.35,
-                            color: scheme.onSurfaceVariant)),
+                    if (subtitle.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(subtitle,
+                          style: TextStyle(
+                              fontSize: 12.5,
+                              height: 1.35,
+                              color: scheme.onSurfaceVariant)),
+                    ],
                   ]),
             ),
             const SizedBox(width: Gap.sm),

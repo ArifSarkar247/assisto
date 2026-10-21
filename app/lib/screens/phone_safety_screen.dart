@@ -286,11 +286,18 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
                   ),
                 ]),
                 const SizedBox(height: Gap.sm),
-                Text(t.phoneSafeRealityBody,
-                    style: TextStyle(
-                        color: scheme.onSecondaryContainer,
-                        fontSize: 13,
-                        height: 1.35)),
+                // QA a6: one wall of text — split the paragraphs with air.
+                for (final (i, para) in t.phoneSafeRealityBody
+                    .split('\n')
+                    .where((x) => x.trim().isNotEmpty)
+                    .indexed) ...[
+                  if (i > 0) const SizedBox(height: Gap.sm),
+                  Text(para.trim(),
+                      style: TextStyle(
+                          color: scheme.onSecondaryContainer,
+                          fontSize: 13.5,
+                          height: 1.45)),
+                ],
               ],
             ),
           ),

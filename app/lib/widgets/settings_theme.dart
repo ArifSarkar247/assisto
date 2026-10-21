@@ -144,7 +144,7 @@ class _ThemeCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   label,
-                  maxLines: 2,
+                  maxLines: 3, // QA a6: 2 lines ellipsized "System (follow phone)" at 1.5x
                   textAlign: TextAlign.center,
                   softWrap: true,
                   overflow: TextOverflow.ellipsis,

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../theme.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -153,7 +154,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
                 label: '$v',
                 onChanged: (x) => setD(() => v = x.round()),
               ),
-              Text(t.safetySosCountdownNote, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              Text(t.safetySosCountdownNote, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
             ]),
             actions: [
               TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
@@ -261,7 +262,10 @@ class _SafetyScreenState extends State<SafetyScreen> {
               ]),
               const SizedBox(height: 6),
               Text(t.journeyHubDesc,
-                  style: const TextStyle(fontSize: 13, color: Colors.grey)),
+                  style: TextStyle(
+                      fontSize: 13,
+                      height: 1.4,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant)),
               const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
@@ -338,10 +342,10 @@ class _SafetyScreenState extends State<SafetyScreen> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(children: [
-              const Icon(Icons.sensors_off, size: 18, color: Color(0xFF8A6D00)),
+              Icon(Icons.sensors_off, size: 18, color: Brand.warnInk(context)),
               const SizedBox(width: 8),
               Expanded(child: Text(t.safetyFallSensorGated,
-                  style: const TextStyle(fontSize: 12, color: Color(0xFF8A6D00)))),
+                  style: TextStyle(fontSize: 12, color: Brand.warnInk(context)))),
             ]),
           ),
         SwitchListTile(
@@ -393,7 +397,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
           ),
         ],
         const SizedBox(height: 20),
-        Text(t.safetyFooterNote, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        Text(t.safetyFooterNote, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ]),
     );
   }

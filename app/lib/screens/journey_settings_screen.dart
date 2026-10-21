@@ -180,7 +180,7 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
         Text(t.wellnessSection,
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         Text(t.wellnessIntro,
-            style: const TextStyle(fontSize: 13, color: Colors.grey)),
+            style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant)),
         const SizedBox(height: 4),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
@@ -242,7 +242,7 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         const SizedBox(height: 6),
         Text(t.journeyPrivacyStatement,
-            style: const TextStyle(fontSize: 13, color: Colors.grey)),
+            style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ]),
     );
   }

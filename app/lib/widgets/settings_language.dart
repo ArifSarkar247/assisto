@@ -163,18 +163,26 @@ class _LangCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
+                    // QA a6: at 1.5x font the label ran into the radio —
+                    // scale down to fit, keep a gap.
                     Expanded(
-                      child: Text(
-                        nativeLabel,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: selected
-                              ? cs.onPrimaryContainer
-                              : cs.onSurface,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Text(
+                          nativeLabel,
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            color: selected
+                                ? cs.onPrimaryContainer
+                                : cs.onSurface,
+                          ),
                         ),
                       ),
                     ),
+                    const SizedBox(width: Gap.xs),
                     Icon(
                       selected
                           ? Icons.radio_button_checked
@@ -184,6 +192,8 @@ class _LangCard extends StatelessWidget {
                     ),
                   ],
                 ),
+                // (no "English / English" — only when it adds information)
+                if (subLabel != nativeLabel) ...[
                 const SizedBox(height: 2),
                 Text(
                   subLabel,
@@ -194,6 +204,7 @@ class _LangCard extends StatelessWidget {
                         : cs.onSurfaceVariant,
                   ),
                 ),
+                ],
               ],
             ),
           ),

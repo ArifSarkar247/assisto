@@ -1,0 +1,10 @@
+{
+ "en": {
+  "qaLoadFailedRetry": "Couldn't load this. Check your internet connection and try again.",
+  "qaActionFailed": "That didn't work. Check your internet connection and try again."
+ },
+ "bn": {
+  "qaLoadFailedRetry": "লোড করা যায়নি। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।",
+  "qaActionFailed": "কাজটি হয়নি। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।"
+ }
+}

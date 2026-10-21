@@ -102,6 +102,18 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     await _loadPreview();
   }
 
+  bool _previewFailed = false;
+
+  /// User-safe error text: the server's own (localized) message when there is
+  /// one, otherwise a plain "check your connection" line.
+  String _friendly(Object e, {bool load = false}) {
+    final t = AppLocalizations.of(context);
+    if (e is ApiException && e.message.trim().isNotEmpty && (e.status ?? 0) < 500) {
+      return e.message;
+    }
+    return load ? t.qaLoadFailedRetry : t.qaActionFailed;
+  }
+
   Future<void> _loadPreview() async {
     setState(() {
       _busy = true;
@@ -121,11 +133,15 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
         _exportDownloaded = p['export_downloaded'] == true;
         _phase = _Phase.preview;
         _busy = false;
+        _previewFailed = false;
       });
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _inlineError = AppLocalizations.of(context).delAcctLoadFailed('$e');
+        // QA a6: never show raw exception text (it leaked
+        // "ClientException ... uri=https://..." to users).
+        _inlineError = _friendly(e, load: true);
+        _previewFailed = true;
         _phase = _Phase.preview;
         _busy = false;
       });
@@ -151,7 +167,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
-      messenger.showSnackBar(SnackBar(content: Text(t.exportFailed(e))));
+      messenger.showSnackBar(SnackBar(content: Text(_friendly(e))));
     }
   }
 
@@ -177,7 +193,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
-      messenger.showSnackBar(SnackBar(content: Text(t.exportFailed(e))));
+      messenger.showSnackBar(SnackBar(content: Text(_friendly(e))));
     }
   }
 
@@ -383,10 +399,16 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
           body: t.delAcctPreviewBody,
         ),
         const SizedBox(height: Gap.lg),
+        // QA a6: when the preview failed we don't KNOW what will be deleted —
+        // never claim "nothing stored".
+        if (!_previewFailed) ...[
         Text(t.delAcctWhatDeleted,
             style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: Gap.sm),
-        if (entries.isEmpty)
+        ],
+        if (_previewFailed)
+          const SizedBox.shrink()
+        else if (entries.isEmpty)
           Text(t.delAcctNothingToDelete)
         else
           Card(
@@ -416,7 +438,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
-                  ?.copyWith(color: Brand.warning)),
+                  ?.copyWith(color: Brand.warnInk(context))),
         ] else ...[
           const SizedBox(height: Gap.xs),
           Row(children: [

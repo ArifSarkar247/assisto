@@ -239,7 +239,7 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
                   const SizedBox(height: 8),
                   Text(t.sosCancelNeedsPin,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                      style: const TextStyle(color: Colors.white, fontSize: 13)),
                 ]),
           ),
         ),
@@ -287,7 +287,7 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
         const SizedBox(height: 6),
         if (_help.isEmpty)
           Text(t.sosNearestHelpLoading,
-              style: const TextStyle(color: Colors.grey)),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
         ..._help.map((p) => Card(
               child: ListTile(
                 leading: Icon(

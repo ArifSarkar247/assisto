@@ -339,8 +339,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
               const SizedBox(width: Gap.xs),
               Expanded(
                   child: Text(t.emergencyOfflineBadge,
-                      style: const TextStyle(
-                          fontSize: 12, color: Colors.grey))),
+                      style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant))),
             ]),
           ),
 
@@ -352,24 +351,28 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
               SnackBar(content: Text(t.emergencyAddContactFirst))),
         ),
         const SizedBox(height: Gap.sm),
-        Row(children: [
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: _shareLocation,
-              icon: const Icon(Icons.my_location, size: 18),
-              label: Text(t.shareMyLocation),
-            ),
-          ),
-          const SizedBox(width: Gap.sm),
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => const SafetyScreen())),
-              icon: const Icon(Icons.health_and_safety_outlined, size: 18),
-              label: Text(t.safetyToolsButton),
-            ),
-          ),
-        ]),
+        // QA a6: side-by-side these wrapped to 3 lines in Bangla and the text
+        // spilled outside the pill. Full-width, stacked.
+        OutlinedButton.icon(
+          style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(48),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: Gap.lg, vertical: Gap.sm)),
+          onPressed: _shareLocation,
+          icon: const Icon(Icons.my_location, size: 18),
+          label: Text(t.shareMyLocation, textAlign: TextAlign.center),
+        ),
+        const SizedBox(height: Gap.sm),
+        OutlinedButton.icon(
+          style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(48),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: Gap.lg, vertical: Gap.sm)),
+          onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => const SafetyScreen())),
+          icon: const Icon(Icons.health_and_safety_outlined, size: 18),
+          label: Text(t.safetyToolsButton, textAlign: TextAlign.center),
+        ),
 
         const Divider(height: Gap.xxl),
 
@@ -401,7 +404,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
 
         const SizedBox(height: Gap.lg),
         Text(t.emergencyFooterNote,
-            style: const TextStyle(fontSize: 12, color: Colors.grey)),
+            style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ]),
     );
   }
