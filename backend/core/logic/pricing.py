@@ -27,6 +27,7 @@ import math
 
 from . import home_defaults as HD
 from . import photo_studio as _PS
+from . import chat_vision as _CV
 
 # --------------------------------------------------------------- currency basis
 # Prices are stored in whole TAKA (BDT), matching core/plans.py `price` (e.g. 199).
@@ -117,6 +118,10 @@ _ACTION_DEFAULTS = {
     "photo_enhance_cloud": {"provider_cost": 0.01, "credits": 3},
     "photo_prompt_edit":   {"provider_cost": 0.04, "credits": 9},
     "photo_generate":      {"provider_cost": 0.04, "credits": 9},
+    # h1-home: one cloud vision answer about a photo in chat (Claude / OpenAI /
+    # Gemini vision). The live call uses the larger of this estimate and the
+    # connected provider's own "cost per image" field.
+    "chat_vision_image":   {"provider_cost": 0.01, "credits": 3},
 }
 
 # Vehicle tracking knobs (admin-editable via /admin/pricing "vehicle" block).
@@ -324,6 +329,9 @@ def DEFAULTS():
         "vehicle": dict(_VEHICLE_DEFAULTS),
         # ps1-photo: Photo Studio knobs (core/logic/photo_studio.py)
         "photo_studio": _PS.defaults(),
+        # h1-home: image-in-chat knobs + the home hero native-ad refresh
+        "chat_vision": _CV.defaults(),
+        "home_hero": _CV.hero_defaults(),
     }
 
 
@@ -438,6 +446,8 @@ def normalize(data):
         "otp": _norm_otp(d.get("otp"), base["otp"]),
         "vehicle": _norm_vehicle(d.get("vehicle"), base["vehicle"]),
         "photo_studio": _PS.normalize_cfg(d.get("photo_studio")),
+        "chat_vision": _CV.normalize_cfg(d.get("chat_vision")),
+        "home_hero": _CV.normalize_hero(d.get("home_hero")),
     }
 
 
@@ -705,6 +715,9 @@ def validate_edit(data):
         problems.extend(HD.validate(d.get("home_quick_defaults")))
     if "photo_studio" in d:
         problems.extend(_PS.validate_cfg(d.get("photo_studio")))
+    for blk in ("chat_vision", "home_hero"):
+        if blk in d:
+            problems.extend(_CV.validate_cfg(d.get(blk), blk))
 
     # ---- Build 2: NET fee sanity + per-action margin + pool cap ----
     cfg = normalize(d)              # fills defaults so partial edits still validate

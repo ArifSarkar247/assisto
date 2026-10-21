@@ -153,7 +153,9 @@ REGISTRY = {
                    _f("rewarded_unit", "Rewarded unit ID", "Rewarded unit ID", secret=False),
                    _f("app_open_unit", "App-open unit ID", "App-open unit ID", secret=False),
                    # ps1-photo: Photo Studio entry interstitial + SSV key note
-                   _f("interstitial_unit", "Interstitial unit ID (ফটো স্টুডিও)", "Interstitial unit ID (Photo Studio)", secret=False)],
+                   _f("interstitial_unit", "Interstitial unit ID (ফটো স্টুডিও)", "Interstitial unit ID (Photo Studio)", secret=False),
+                   # h1-home: the home hero NATIVE ad (image or video, free plan only)
+                   _f("native_unit", "Native unit ID (হোম হিরো)", "Native unit ID (home hero)", secret=False)],
         "test": "test_admob",
     },
     "play_billing": {
@@ -413,6 +415,51 @@ REGISTRY = {
                                    _f("cost_per_image_usd", "ছবি প্রতি খরচ (USD)", "Cost per image (USD)", secret=False)],
                         "test": "test_replicate"},
     # ---- /ps1-photo ----
+    # ---- h1-home ---- Image in chat: cloud VISION providers (read a photo and
+    # answer a question about it). Switchable like Photo Studio: the active one
+    # is /admin/pricing chat_vision.provider ('' = first ready). "Cost per
+    # image" is REQUIRED — a provider without it is never used (we never run
+    # an answer we cannot price). Images are never stored.
+    "vision_claude": {"name": "Claude vision (image in chat)", "category": "AI",
+                      "unlocks_bn": "চ্যাটে ছবি: ওষুধের বাক্স, বিল, গাছ, নথি পড়ে বিস্তারিত উত্তর।",
+                      "unlocks_en": "Image in chat: detailed answers about medicine boxes, bills, plants, documents.",
+                      "guide_bn": ["console.anthropic.com → API Keys → Create Key",
+                                   "মডেল: claude-sonnet-5-5 (ডিফল্ট), বেশি নিখুঁত চাইলে claude-opus-5-5, সস্তা চাইলে claude-haiku-5-5",
+                                   "ছবি প্রতি খরচ (USD) লিখুন → Save → Test"],
+                      "guide_en": ["console.anthropic.com → API Keys → Create Key",
+                                   "Model: claude-sonnet-5-5 (default), claude-opus-5-5 for best accuracy, claude-haiku-5-5 for lowest cost",
+                                   "Enter cost per image (USD) → Save → Test"],
+                      "fields": [_f("api_key", "API Key", "API Key"),
+                                 _f("model", "মডেল", "Model", secret=False),
+                                 _f("cost_per_image_usd", "ছবি প্রতি খরচ (USD)", "Cost per image (USD)", secret=False)],
+                      "test": "test_anthropic"},
+    "vision_openai": {"name": "OpenAI vision (image in chat)", "category": "AI",
+                      "unlocks_bn": "চ্যাটে ছবি: OpenAI দিয়ে ছবি পড়ে উত্তর।",
+                      "unlocks_en": "Image in chat: answers about a photo with OpenAI.",
+                      "guide_bn": ["platform.openai.com → API keys → Create",
+                                   "মডেল: আপনার অ্যাকাউন্টের ভিশন-সক্ষম মডেল (যেমন gpt-4o-mini)",
+                                   "ছবি প্রতি খরচ (USD) লিখুন → Save → Test"],
+                      "guide_en": ["platform.openai.com → API keys → Create",
+                                   "Model: a vision-capable model on your account (e.g. gpt-4o-mini)",
+                                   "Enter cost per image (USD) → Save → Test"],
+                      "fields": [_f("api_key", "API Key", "API Key"),
+                                 _f("model", "মডেল", "Model", secret=False),
+                                 _f("cost_per_image_usd", "ছবি প্রতি খরচ (USD)", "Cost per image (USD)", secret=False)],
+                      "test": "test_openai"},
+    "vision_gemini": {"name": "Gemini vision (image in chat)", "category": "AI",
+                      "unlocks_bn": "চ্যাটে ছবি: Gemini দিয়ে ছবি পড়ে উত্তর।",
+                      "unlocks_en": "Image in chat: answers about a photo with Gemini.",
+                      "guide_bn": ["aistudio.google.com → Get API key (বিলিং চালু রাখুন)",
+                                   "মডেল: gemini-2.5-flash (বা আপনার অ্যাকাউন্টের মডেল)",
+                                   "ছবি প্রতি খরচ (USD) লিখুন → Save → Test"],
+                      "guide_en": ["aistudio.google.com → Get API key (billing on)",
+                                   "Model: gemini-2.5-flash (or the model on your account)",
+                                   "Enter cost per image (USD) → Save → Test"],
+                      "fields": [_f("api_key", "API Key", "API Key"),
+                                 _f("model", "মডেল", "Model", secret=False),
+                                 _f("cost_per_image_usd", "ছবি প্রতি খরচ (USD)", "Cost per image (USD)", secret=False)],
+                      "test": "test_gemini"},
+    # ---- /h1-home ----
     "news": {"name": "News", "category": "Media",
              "unlocks_bn": "সকালের ব্রিফিং-এ খবরের শিরোনাম।", "unlocks_en": "Headlines in the morning briefing.",
              "guide_bn": ["newsapi.org (বা অনুরূপ) → API key → পেস্ট → Save (key ছাড়া RSS fallback)"],

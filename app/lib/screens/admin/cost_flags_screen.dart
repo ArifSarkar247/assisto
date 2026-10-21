@@ -116,6 +116,10 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
         return t.otpFlagPasswordOnlySignup;
       case 'contacts_match_unverified':
         return t.c1FlagContactsMatchUnverified;
+      case 'ads_home_hero':
+        return t.h1FlagHomeHero;
+      case 'ads_hero_start_muted':
+        return t.h1FlagHeroStartMuted;
       default:
         return id;
     }

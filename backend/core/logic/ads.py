@@ -23,6 +23,8 @@ TEST_UNITS = {
     "rewarded": "ca-app-pub-3940256099942544/5224354917",
     "banner": "ca-app-pub-3940256099942544/6300978111",
     "interstitial": "ca-app-pub-3940256099942544/1033173712",
+    # h1-home: native advanced (the video sample is .../1044960115)
+    "native": "ca-app-pub-3940256099942544/2247696110",
 }
 TEST_PUBLISHER = "ca-app-pub-3940256099942544"
 
@@ -31,7 +33,8 @@ _UNIT_RE = re.compile(r"^ca-app-pub-\d{16}/\d{6,12}$")
 
 # integration field -> client unit key
 UNIT_FIELDS = {"app_open_unit": "app_open", "rewarded_unit": "rewarded",
-               "banner_unit": "banner", "interstitial_unit": "interstitial"}
+               "banner_unit": "banner", "interstitial_unit": "interstitial",
+               "native_unit": "native"}
 
 # Screens where an ad must NEVER appear (server copy; the app has the same
 # hard list and treats any unknown screen as blocked).
@@ -79,8 +82,25 @@ def validate_admob_ids(cfg):
     return True, "IDs look valid — verified on first ad load"
 
 
+def home_hero_config(*, paid, flag_hero, flag_start_muted, refresh_sec):
+    """h1-home: the home hero native ad block of /ads/config. Free plan only;
+    refresh never faster than AdMob's 60 s minimum; video starts muted unless
+    the owner turned the admin flag off."""
+    try:
+        refresh = int(refresh_sec)
+    except (TypeError, ValueError):
+        refresh = 90
+    return {
+        "enabled": bool(flag_hero) and not paid,
+        "start_muted": bool(flag_start_muted),
+        "refresh_sec": max(60, refresh),
+        # where the hero must never appear (home only, never safety screens)
+        "screens": ["home"],
+    }
+
+
 def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
-                  flag_app_open, ad_caps):
+                  flag_app_open, ad_caps, home_hero=None):
     """The /ads/config payload. `configured` is True only for owner-saved REAL
     ids that pass validation; otherwise the app falls back to TEST ids and the
     server never credits real money."""
@@ -108,4 +128,6 @@ def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
         "appopen_daily_cap": int(caps.get("appopen_daily_cap", 0) or 0),
         "rewarded_daily_cap": int(caps.get("rewarded_daily_cap", 0) or 0),
         "blocked_screens": list(BLOCKED_SCREENS),
+        "home_hero": home_hero or home_hero_config(
+            paid=paid, flag_hero=False, flag_start_muted=True, refresh_sec=90),
     }
