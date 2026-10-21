@@ -1,15 +1,14 @@
-import 'firebase_push_bridge.dart';
 import 'push_bridge.dart';
 
 /// Which [PushBridge] the app uses.
 ///
-/// INTEGRATOR: after applying the pubspec part of
-/// `.phaseB/proposals/a6-leftovers.md` (firebase_core + firebase_messaging),
-/// rename `firebase_push_bridge.dart.pending` -> `firebase_push_bridge.dart`
-/// and switch this file to:
+/// NOOP in this build: firebase_core/firebase_messaging are not linked yet.
+/// The FCM build (with its own launch smoke) restores
+/// `.phaseB/pending_native/firebase_push_bridge.dart` to `lib/push/`, adds the
+/// pubspec entries back and switches this file to:
 ///
 ///   import 'firebase_push_bridge.dart';
 ///   PushBridge createPushBridge() => FirebasePushBridge();
 ///
-/// Until then push is silently off and nothing Firebase-related is linked.
-PushBridge createPushBridge() => FirebasePushBridge();
+/// Until then push is silently off and the app polls on open/resume.
+PushBridge createPushBridge() => NoopPushBridge();

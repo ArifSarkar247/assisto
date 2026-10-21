@@ -156,7 +156,7 @@ const List<_Discover> _kDiscover = [
     icon: Icons.account_tree_outlined,
     title: _tAxonTitle,
     benefit: _tAxonBenefit,
-    url: 'https://axonerp.com',
+    url: 'https://axonerpsoftware.com',
   ),
 ];
 
