@@ -11,6 +11,8 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../messenger_hub_api.dart';
 import '../../theme.dart';
+import '../../widgets/loading_gate.dart';
+import '../../widgets/m3_circle_widgets.dart';
 import '../../widgets/msgr_hub_chat_list.dart';
 import '../camera/camera_screen.dart';
 import '../circle_call_history_screen.dart';
@@ -22,6 +24,8 @@ import 'community_list_screen.dart';
 import 'contacts_screen.dart';
 import 'discover_screen.dart';
 import 'linked_devices_screen.dart';
+import 'm3_add_to_circle_screen.dart';
+import 'm3_requests_screen.dart';
 import 'messenger_settings_screen.dart';
 import 'starred_messages_screen.dart';
 
@@ -43,7 +47,12 @@ import 'starred_messages_screen.dart';
 class MessengerHomeScreen extends StatefulWidget {
   /// Optional tab to open on (0=Chats…3=Calls). Defaults to Chats.
   final int initialTab;
-  const MessengerHomeScreen({super.key, this.initialTab = 0});
+
+  /// m3-circle: open straight into "Add to My Circle" (chat command
+  /// "circle" / "add someone", route `circle_add`). Back returns here.
+  final bool startAdd;
+  const MessengerHomeScreen(
+      {super.key, this.initialTab = 0, this.startAdd = false});
 
   @override
   State<MessengerHomeScreen> createState() => _MessengerHomeScreenState();
@@ -58,6 +67,12 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
   IdentityKeyPair? _identity;
   List<Map<String, dynamic>> _members = [];
 
+  // m3-circle: incoming request count (badge) + chat-list refresh token.
+  int _incoming = 0;
+  int _refresh = 0;
+  bool _startedAdd = false;
+  final _bannerKey = GlobalKey<M3RequestsBannerState>();
+
   @override
   void initState() {
     super.initState();
@@ -69,9 +84,19 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
   AppLocalizations get _t => AppLocalizations.of(context);
 
   Future<void> _bootstrap() async {
-    await _ensureIdentity();
+    // m3-circle global rule: the hub spinner ALWAYS ends (secure storage or
+    // the network hanging used to keep it spinning forever).
+    try {
+      await loadGuard(_ensureIdentity(), timeout: const Duration(seconds: 8));
+    } catch (_) {
+      // identity stays null -> tabs show their honest "not ready" state.
+    }
     await _loadMembers();
     if (mounted) setState(() => _loading = false);
+    if (widget.startAdd && !_startedAdd && mounted) {
+      _startedAdd = true;
+      _openAdd();
+    }
   }
 
   /// Load (or lazily create) the on-device identity key — mirrors the circle
@@ -121,7 +146,7 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
 
   Future<void> _loadMembers() async {
     try {
-      final r = await _api.getJson('/circle/members');
+      final r = await loadGuard(_api.getJson('/circle/members'));
       _members = ((r['results'] ?? r['members'] ?? []) as List)
           .cast<Map<String, dynamic>>()
           .where((m) => '${m['state'] ?? 'accepted'}' == 'accepted')
@@ -131,9 +156,54 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
     }
   }
 
-  void _openContacts() => Navigator.of(context)
-      .push(MaterialPageRoute(builder: (_) => const ContactsScreen()))
-      .then((_) => _bootstrap());
+  /// FAB -> "New chat" (WhatsApp order): Add to My Circle, New group, New
+  /// community, Invite a friend, then the phone contacts who are on Assisto
+  /// (the c1 contacts screen: disclosure -> real phonebook -> match).
+  void _openNewChat() {
+    final t = _t;
+    Navigator.of(context)
+        .push(MaterialPageRoute(
+          builder: (ctx) => ContactsScreen(
+            title: t.msgrNewChat,
+            header: M3NewChatActions(
+              onAdd: _openAdd,
+              onNewGroup: () {
+                Navigator.of(ctx).pop();
+                _openNewGroup();
+              },
+              onNewCommunity: () {
+                Navigator.of(ctx).pop();
+                setState(() => _tab = 2);
+              },
+              onInvite: () => m3Invite(ctx, M3InviteVia.share),
+            ),
+          ),
+        ))
+        .then((_) => _afterChange());
+  }
+
+  /// "Add to My Circle" (number in any format / contacts / QR / link).
+  Future<void> _openAdd() async {
+    await Navigator.of(context).push<bool>(
+        MaterialPageRoute(builder: (_) => const M3AddToCircleScreen()));
+    _afterChange();
+  }
+
+  Future<void> _openRequests() async {
+    await Navigator.of(context).push<bool>(
+        MaterialPageRoute(builder: (_) => const M3RequestsScreen()));
+    _afterChange();
+  }
+
+  /// Something may have changed (a request sent / accepted): reload the
+  /// members, the chat list and the requests banner.
+  Future<void> _afterChange() async {
+    if (!mounted) return;
+    await _loadMembers();
+    if (!mounted) return;
+    setState(() => _refresh++);
+    _bannerKey.currentState?.reload();
+  }
 
   /// Hub ⋮ overflow → the hub Settings (Account · Privacy · Chats …).
   void _openSettings() => Navigator.of(context)
@@ -156,6 +226,15 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
   /// navigates somewhere real — no dead taps.
   void _onHubMenu(String v) {
     switch (v) {
+      case 'add_circle':
+        _openAdd();
+        break;
+      case 'requests':
+        _openRequests();
+        break;
+      case 'invite':
+        m3Invite(context, M3InviteVia.share);
+        break;
       case 'new_group':
         _openNewGroup();
         break;
@@ -190,7 +269,10 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
   /// path via the group list screen's own create sheet.
   void _openNewGroup() {
     final id = _identity;
-    if (id == null) return;
+    if (id == null) {
+      m3Snack(context, _t.m3SecureStoreNotReady, error: true);
+      return;
+    }
     Navigator.of(context)
         .push(MaterialPageRoute(
           builder: (_) => CircleGroupListScreen(
@@ -250,9 +332,31 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
           // ⋮ hub overflow (exact spec order). Every row navigates somewhere
           // real — no dead taps.
           PopupMenuButton<String>(
+            key: const Key('m3-hub-menu'),
             tooltip: t.msgrMoreTooltip,
             onSelected: _onHubMenu,
+            icon: Badge(
+              isLabelVisible: _incoming > 0,
+              label: Text('$_incoming'),
+              child: const Icon(Icons.more_vert),
+            ),
             itemBuilder: (_) => [
+              // m3-circle: adding people lives INSIDE My Circle.
+              PopupMenuItem(
+                  key: const Key('m3-menu-add'),
+                  value: 'add_circle',
+                  child: Text(t.m3AddToCircle)),
+              PopupMenuItem(
+                  key: const Key('m3-menu-requests'),
+                  value: 'requests',
+                  child: Text(_incoming > 0
+                      ? t.m3RequestsCount(_incoming)
+                      : t.m3RequestsTitle)),
+              PopupMenuItem(
+                  key: const Key('m3-menu-invite'),
+                  value: 'invite',
+                  child: Text(t.m3InviteFriend)),
+              const PopupMenuDivider(),
               PopupMenuItem(value: 'new_group', child: Text(t.msgrHubNewGroup)),
               PopupMenuItem(
                   value: 'new_community', child: Text(t.msgrHubNewCommunity)),
@@ -271,15 +375,31 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : IndexedStack(index: _tab, children: [
-              MsgrHubChatList(identity: _identity, members: _members),
+              MsgrHubChatList(
+                identity: _identity,
+                members: _members,
+                refreshToken: _refresh,
+                onAdd: _openAdd,
+                // Incoming requests at the TOP of My Circle (Accept/Decline).
+                header: M3RequestsBanner(
+                  key: _bannerKey,
+                  onSeeAll: _openRequests,
+                  onChanged: (n, accepted) {
+                    if (!mounted) return;
+                    setState(() => _incoming = n);
+                    if (accepted) _afterChange();
+                  },
+                ),
+              ),
               _updatesTab(),
               _communitiesTab(),
               const CircleCallHistoryScreen(),
             ]),
       floatingActionButton: _tab == 0
           ? FloatingActionButton(
+              key: const Key('m3-fab'),
               tooltip: t.msgrNewChat,
-              onPressed: _openContacts,
+              onPressed: _openNewChat,
               child: const Icon(Icons.chat_outlined),
             )
           : null,
@@ -301,8 +421,14 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
             onDestinationSelected: (i) => setState(() => _tab = i),
             destinations: [
               NavigationDestination(
-                icon: const Icon(Icons.forum_outlined),
-                selectedIcon: const Icon(Icons.forum),
+                icon: Badge(
+                    isLabelVisible: _incoming > 0,
+                    label: Text('$_incoming'),
+                    child: const Icon(Icons.forum_outlined)),
+                selectedIcon: Badge(
+                    isLabelVisible: _incoming > 0,
+                    label: Text('$_incoming'),
+                    child: const Icon(Icons.forum)),
                 label: t.msgrTabChats,
               ),
               NavigationDestination(

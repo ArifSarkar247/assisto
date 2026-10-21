@@ -435,3 +435,43 @@ def made30_card(request):
                                   theme=theme, story=request.GET.get("story") == "1",
                                   lang=lang)
     return HttpResponse(png, content_type="image/png")
+
+
+# ---- m3-circle: /i/<token> — the page a My Circle invite link opens ----
+def circle_invite(request, token):
+    """Landing page for a shared My Circle invite (QR / share / SMS link).
+    Bilingual, no login. Step 1 install Assisto, step 2 in the app: My Circle
+    -> Add to My Circle -> "Paste invite link". Never reveals the inviter's
+    phone; shows only their display name when the token is valid."""
+    from django.utils.html import escape
+    from core.logic import circle as _circle
+    from core.models import User as _User
+    from django.conf import settings as _s
+    ok, _info = _circle.parse_invite_token(token, _s.SECRET_KEY)
+    name = ""
+    if ok:
+        try:
+            u = _User.objects.filter(pk=int(token.split(".", 1)[0])).first()
+            name = (u.name or "").strip() if u else ""
+        except (TypeError, ValueError):
+            name = ""
+    link = escape(request.build_absolute_uri())
+    who_bn = f"{escape(name)} আপনাকে" if name else "আপনাকে"
+    who_en = f"{escape(name)} invited you" if name else "You were invited"
+    state_bn = "" if ok else "<p><b>এই লিংকের মেয়াদ শেষ বা সঠিক নয় — নতুন লিংক চেয়ে নিন।</b></p>"
+    state_en = "" if ok else "<p><b>This link has expired or isn't valid — ask for a new one.</b></p>"
+    html = f"""<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Assisto — My Circle</title>
+<style>body{{font-family:system-ui,sans-serif;max-width:560px;margin:auto;padding:24px;line-height:1.5}}
+a.b{{display:inline-block;background:#2563eb;color:#fff;padding:12px 18px;border-radius:12px;text-decoration:none}}
+code{{word-break:break-all;background:#f1f5f9;padding:6px;border-radius:6px;display:block}}</style></head><body>
+<h2>{who_bn} Assisto-র “আমার সার্কেল”-এ যোগ হতে আমন্ত্রণ জানিয়েছেন</h2>{state_bn}
+<ol><li>Assisto অ্যাপ ইনস্টল করুন: <a class="b" href="/get">অ্যাপ নিন</a></li>
+<li>অ্যাপে: আমার সার্কেল → ＋ → আমার সার্কেলে যোগ করুন → “আমন্ত্রণ লিংক পেস্ট করুন”, তারপর এই লিংকটি দিন:</li></ol>
+<code>{link}</code><hr>
+<h3>{who_en} to their Assisto My Circle</h3>{state_en}
+<ol><li>Install Assisto: <a class="b" href="/get">Get the app</a></li>
+<li>In the app: My Circle → + → Add to My Circle → "Paste invite link", and paste the link above.</li></ol>
+</body></html>"""
+    return HttpResponse(html)
