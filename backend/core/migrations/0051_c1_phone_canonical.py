@@ -80,7 +80,7 @@ def forwards(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core", "0049_d1_discover_cards"),  # C1_LOCAL_TEST
+        ("core", "0048_v1_vehicle_tracking"),  # integrator re-chains (0049/0050 are other slots)
     ]
 
     operations = [

@@ -365,3 +365,18 @@ class DataMigrationTests(TestCase):
         with redirect_stdout(StringIO()):
             self._run()
         self.assertEqual(UserPhoneHash.objects.filter(user=b).count(), 1)
+
+
+class RebuildCommandTests(TestCase):
+    def test_rebuild_after_salt_change(self):
+        from io import StringIO
+        from django.core.management import call_command
+        u = User.objects.create_user(name="S", phone=OWNER_NO, password="x")
+        with self.settings(SERVER_MATCH_SALT="rotated-salt-for-test"):
+            self.assertNotEqual(UserPhoneHash.objects.get(user=u).phone_hash,
+                                P.hash_raw(OWNER_NO))
+            out = StringIO()
+            call_command("rebuild_phone_hashes", stdout=out)
+            self.assertIn("phone hashes written: 1", out.getvalue())
+            self.assertEqual(UserPhoneHash.objects.get(user=u).phone_hash,
+                             P.hash_raw(OWNER_NO))
