@@ -52,6 +52,11 @@ dependencies:
   # #196 Home-screen widget — pushes next-reminder / today count to a native
   # AppWidgetProvider (see android_overlay/) and opens the app on tap.
   home_widget: ^0.7.0
+  # a6 FCM push — key-gated by google-services.json (CI secret
+  # GOOGLE_SERVICES_JSON_B64). Lazy init after first frame; the auto-init
+  # FirebaseInitProvider is removed in the manifest (ColorOS history).
+  firebase_core: 4.15.0
+  firebase_messaging: 16.7.0
   # workmanager REMOVED — its androidx.work startup ContentProvider crashed on
   # launch (ColorOS/Realme) and background exec is throttled there anyway.
   # Family alerts now poll on app open/resume (see AppState). FCM later.

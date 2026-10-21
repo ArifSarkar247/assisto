@@ -1,3 +1,4 @@
+import 'firebase_push_bridge.dart';
 import 'push_bridge.dart';
 
 /// Which [PushBridge] the app uses.
@@ -8,7 +9,7 @@ import 'push_bridge.dart';
 /// and switch this file to:
 ///
 ///   import 'firebase_push_bridge.dart';
-///   PushBridge createPushBridge() => const NoopPushBridge();
+///   PushBridge createPushBridge() => FirebasePushBridge();
 ///
 /// Until then push is silently off and nothing Firebase-related is linked.
-PushBridge createPushBridge() => const NoopPushBridge();
+PushBridge createPushBridge() => FirebasePushBridge();
