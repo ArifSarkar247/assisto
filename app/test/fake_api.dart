@@ -3,6 +3,8 @@ import 'package:assisto/business_selling_api.dart';
 import 'package:assisto/models.dart';
 import 'package:assisto/widgets/home_quick_buttons.dart';
 
+import 'fake_vehicle.dart';
+
 enum FakeMode { data, empty, fail, slow }
 
 /// Returns realistic sample data so every screen renders populated (or empty,
@@ -742,6 +744,9 @@ class FakeApi extends ApiClient {
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
     await _slow();
+    // v1-vehicle: vehicle tracking stubs (test/fake_vehicle.dart)
+    final veh = fakeVehicleGet(path, _bn, mode.name, planSlug);
+    if (veh != null) return veh;
     // ===== Home / Notification centre stubs =====
     if (path == '/home/badges') return {'my_circle_unread': 3, 'notif_unseen': 5};
     if (path.startsWith('/home/suggestions')) {
@@ -1546,6 +1551,8 @@ class FakeApi extends ApiClient {
 
   @override
   Future<Map<String, dynamic>> postJson(String path, [Map<String, dynamic> body = const {}]) async {
+    final vehP = fakeVehiclePost(path, body, _bn); // v1-vehicle
+    if (vehP != null) return vehP;
     if (path == '/shop/live/start') {
       // the honest offline state the server answers (409 device_offline)
       throw ApiException(

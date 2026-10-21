@@ -22,6 +22,8 @@ import '../screens/meetings_screen.dart';
 import '../screens/dictionary_screen.dart';
 import '../screens/ride_food_screen.dart';
 import '../screens/my_vehicles_screen.dart';
+import '../screens/vehicle_tracking_screen.dart';
+import '../screens/car_mode_screen.dart';
 import '../screens/fall_detect_screen.dart';
 import '../screens/lost_stolen_screen.dart';
 import '../screens/my_lost_phone_screen.dart';
@@ -108,6 +110,8 @@ class ChatNav {
     'family': (_) => const FamilyScreen(),
     'reminders': (_) => const RemindersScreen(),
     'vehicles': (_) => const MyVehiclesScreen(),
+    'vehicle_tracking': (_) => const VehicleTrackingScreen(), // v1-vehicle
+    'car_mode': (_) => const CarModeScreen(), // v1-vehicle
     'emergency': (_) => const EmergencyScreen(),
     'plans': (_) => const PlansScreen(),
     'scam': (_) => const ScamScreen(),

@@ -105,6 +105,31 @@ _ACTION_DEFAULTS = {
     # Live view (a2-cctv): P2P is FREE; only a minute relayed through our TURN
     # server (when a direct path fails) costs credits. Per started minute.
     "shop_live_relay_min": {"provider_cost": 0.002, "credits": 1},
+    # Vehicle tracking (v1-vehicle): one paired GPS tracker for 30 days.
+    # provider_cost = our server + bandwidth + DB share per vehicle-month
+    # (~US$0.15); the SIM in the tracker is the owner's own. Admin-editable.
+    "vehicle_tracking_month": {"provider_cost": 0.15, "credits": 50},
+}
+
+# Vehicle tracking knobs (admin-editable via /admin/pricing "vehicle" block).
+# (min, max) bounds keep a bad edit from ever making the tracker unsafe.
+_VEHICLE_DEFAULTS = {
+    "retention_days": 30,            # position history kept this long
+    "moving_interval_s": 5,          # report every N s while moving
+    "parked_interval_s": 180,        # ... and every N s while parked
+    "pair_window_min": 10,           # device must connect within N min of pairing
+    "cutoff_max_speed_kmh": 5,       # engine cut only below this speed
+    "cutoff_max_fix_age_s": 120,     # ... and only with a fix this fresh
+    "command_timeout_s": 120,        # sent -> failed if no device reply
+    "online_window_s": 600,          # seen within N s = online
+    "max_packets_per_min": 240,      # per-device rate limit (abuse guard)
+}
+_VEHICLE_BOUNDS = {
+    "retention_days": (1, 365), "moving_interval_s": (5, 600),
+    "parked_interval_s": (10, 3600), "pair_window_min": (2, 60),
+    "cutoff_max_speed_kmh": (1, 10), "cutoff_max_fix_age_s": (30, 600),
+    "command_timeout_s": (30, 900), "online_window_s": (60, 3600),
+    "max_packets_per_min": (30, 3000),
 }
 
 # Shop module knobs (admin-editable via /admin/pricing "shop" block).
@@ -282,6 +307,7 @@ def DEFAULTS():
         "shop": dict(_SHOP_DEFAULTS),
         # o1-otp: OTP limits (admin-editable)
         "otp": dict(_OTP_DEFAULTS),
+        "vehicle": dict(_VEHICLE_DEFAULTS),
     }
 
 
@@ -394,7 +420,21 @@ def normalize(data):
         "referral": _norm_referral(d.get("referral"), base["referral"]),
         "shop": _norm_shop(d.get("shop"), base["shop"]),
         "otp": _norm_otp(d.get("otp"), base["otp"]),
+        "vehicle": _norm_vehicle(d.get("vehicle"), base["vehicle"]),
     }
+
+
+def _norm_vehicle(raw, base):
+    raw = raw if isinstance(raw, dict) else {}
+    out = {}
+    for k, (lo, hi) in _VEHICLE_BOUNDS.items():
+        out[k] = max(lo, min(hi, _int(raw.get(k), base[k])))
+    return out
+
+
+def vehicle_cfg(cfg):
+    """The normalized vehicle-tracking knobs (bounded)."""
+    return normalize(cfg)["vehicle"]
 
 
 def _norm_shop(raw, base):
@@ -623,7 +663,7 @@ def validate_edit(data):
                     v = _num(g.get(k), None)
                     if v is None or v < lo or v > hi:
                         problems.append("bad_guarantee")
-    for sect in ("limits", "referral"):
+    for sect in ("limits", "referral", "vehicle"):
         sv = d.get(sect)
         if sv is None:
             continue
