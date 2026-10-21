@@ -231,9 +231,14 @@ class AppState extends ChangeNotifier {
     String? phone,
     String? email,
     required String password,
+    String? otpProof,
   }) async {
     final res = await api.register(
-        name: name, phone: phone, email: email, password: password);
+        name: name,
+        phone: phone,
+        email: email,
+        password: password,
+        otpProof: otpProof);
     api.token = res.token;
     user = res.user;
     await _secure.write(key: 'token', value: res.token);
@@ -250,6 +255,19 @@ class AppState extends ChangeNotifier {
     api.token = res.token;
     user = res.user;
     await _secure.write(key: 'token', value: res.token);
+    await reconcileLanguage();
+    unawaited(Background.start());
+    await sync();
+    _syncAll();
+    notifyListeners();
+  }
+
+  /// o1-otp: adopt a session issued by a non-password sign-in (OTP login).
+  /// Same post-login steps as [login].
+  Future<void> adoptSession(String token, AppUser signedIn) async {
+    api.token = token;
+    user = signedIn;
+    await _secure.write(key: 'token', value: token);
     await reconcileLanguage();
     unawaited(Background.start());
     await sync();

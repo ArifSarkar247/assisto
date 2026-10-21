@@ -1,0 +1,132 @@
+{
+  "en": {
+    "otpTitle": "Enter the code",
+    "otpSentTo": "We sent a 6-digit code to {phone}",
+    "otpSending": "Sending your code…",
+    "otpVerify": "Verify",
+    "otpResendIn": "Resend code in {seconds}s",
+    "otpResend": "Resend code",
+    "otpNeverShare": "Never share this code. Assisto will never ask you for it.",
+    "otpCodeFieldLabel": "6-digit verification code",
+    "otpErrInvalid": "That code didn't match. {left} tries left.",
+    "otpErrInvalidPlain": "That code didn't match. Please check and try again.",
+    "otpErrExpired": "That code has expired. Ask for a new one.",
+    "otpErrLocked": "Too many wrong codes. Please try again in {minutes} min.",
+    "otpErrCooldown": "A code was sent a moment ago. Please wait before asking for a new one.",
+    "otpErrRateLimited": "Too many requests. Please try again later.",
+    "otpErrSendFailed": "We couldn't send the SMS. Please try again shortly.",
+    "otpErrNoActive": "No active code. Tap Resend to get a new one.",
+    "otpErrPhoneMismatch": "That number isn't the one on your account.",
+    "otpErrAlreadyRegistered": "This number is already registered. Please sign in.",
+    "otpErrNetwork": "Couldn't connect. Check your internet and try again.",
+    "otpErrGeneric": "Something went wrong. Please try again.",
+    "otpSmsOffTitle": "SMS codes aren't available yet",
+    "otpSmsOffBody": "No SMS provider is connected yet, so we can't send a code. Please use your password instead.",
+    "otpClose": "Close",
+    "otpPhoneLabel": "Mobile number",
+    "otpPhoneHint": "01XXXXXXXXX",
+    "otpPhoneInvalid": "Enter a valid Bangladeshi mobile number (01XXXXXXXXX).",
+    "otpSendCode": "Send code",
+    "otpLoginWithSms": "Sign in with an SMS code",
+    "otpLoginTitle": "Sign in with SMS",
+    "otpLoginIntro": "We'll text a one-time code to your mobile number.",
+    "otpLoginFailed": "Couldn't sign in with that code. Please try again.",
+    "otpSignupVerifyTitle": "Verify your number",
+    "otpSignupNeedPhone": "Sign-up needs a verified mobile number. Please enter your number.",
+    "otpSignupUnavailable": "Sign-up needs SMS verification, which isn't available right now. Please try again later.",
+    "otpResetSmsReady": "Get a code by SMS on your registered number",
+    "otpResetTitle": "Reset by SMS",
+    "otpResetIntro": "Enter the mobile number on your account. If it's registered, we'll text you a code.",
+    "otpResetNewPassword": "New password",
+    "otpResetSave": "Save new password",
+    "otpResetDone": "Password changed. You've been signed out of other devices — sign in with your new password.",
+    "otpResetFailed": "That verification has expired. Please start again.",
+    "otpBackToLogin": "Back to sign in",
+    "otpVerified": "Number verified",
+    "otpDeleteTitle": "Confirm it's you",
+    "otpDeleteIntro": "To delete your account, enter the code we text to your number.",
+    "otpSection8Title": "Confirm this security change",
+    "otpSection8Intro": "This is a sensitive change. Enter the code we text to your number.",
+    "otpDelSmsNote": "If SMS is connected, we'll also text a code to your number to confirm.",
+    "otpFlagPasswordOnlySignup": "Password-only sign-up (test builds)",
+    "@otpSentTo": {
+      "placeholders": {
+        "phone": {
+          "type": "String"
+        }
+      }
+    },
+    "@otpResendIn": {
+      "placeholders": {
+        "seconds": {
+          "type": "int"
+        }
+      }
+    },
+    "@otpErrInvalid": {
+      "placeholders": {
+        "left": {
+          "type": "int"
+        }
+      }
+    },
+    "@otpErrLocked": {
+      "placeholders": {
+        "minutes": {
+          "type": "int"
+        }
+      }
+    }
+  },
+  "bn": {
+    "otpTitle": "কোডটি লিখুন",
+    "otpSentTo": "{phone} নম্বরে ৬ সংখ্যার একটি কোড পাঠানো হয়েছে",
+    "otpSending": "আপনার কোড পাঠানো হচ্ছে…",
+    "otpVerify": "যাচাই করুন",
+    "otpResendIn": "{seconds} সেকেন্ড পরে আবার কোড চাওয়া যাবে",
+    "otpResend": "আবার কোড পাঠান",
+    "otpNeverShare": "এই কোড কাউকে বলবেন না। Assisto কখনো এই কোড চায় না।",
+    "otpCodeFieldLabel": "৬ সংখ্যার যাচাই কোড",
+    "otpErrInvalid": "কোডটি মেলেনি। আর {left} বার চেষ্টা করা যাবে।",
+    "otpErrInvalidPlain": "কোডটি মেলেনি। আবার দেখে লিখুন।",
+    "otpErrExpired": "কোডের মেয়াদ শেষ। নতুন কোড চান।",
+    "otpErrLocked": "অনেকবার ভুল কোড দেওয়া হয়েছে। {minutes} মিনিট পরে আবার চেষ্টা করুন।",
+    "otpErrCooldown": "একটু আগেই কোড পাঠানো হয়েছে। নতুন কোড চাওয়ার আগে একটু অপেক্ষা করুন।",
+    "otpErrRateLimited": "অনেকবার চাওয়া হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।",
+    "otpErrSendFailed": "SMS পাঠানো যায়নি। একটু পরে আবার চেষ্টা করুন।",
+    "otpErrNoActive": "কোনো সক্রিয় কোড নেই। নতুন কোড পেতে আবার পাঠান চাপুন।",
+    "otpErrPhoneMismatch": "এই নম্বরটি আপনার অ্যাকাউন্টের নম্বর নয়।",
+    "otpErrAlreadyRegistered": "এই নম্বরে আগেই অ্যাকাউন্ট আছে। লগইন করুন।",
+    "otpErrNetwork": "সংযোগ করা যায়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+    "otpErrGeneric": "কিছু একটা সমস্যা হয়েছে। আবার চেষ্টা করুন।",
+    "otpSmsOffTitle": "SMS কোড এখনো চালু হয়নি",
+    "otpSmsOffBody": "এখনো কোনো SMS প্রোভাইডার যুক্ত হয়নি, তাই কোড পাঠানো যাচ্ছে না। পাসওয়ার্ড দিয়ে চালিয়ে যান।",
+    "otpClose": "বন্ধ করুন",
+    "otpPhoneLabel": "মোবাইল নম্বর",
+    "otpPhoneHint": "01XXXXXXXXX",
+    "otpPhoneInvalid": "সঠিক বাংলাদেশি মোবাইল নম্বর দিন (01XXXXXXXXX)।",
+    "otpSendCode": "কোড পাঠান",
+    "otpLoginWithSms": "SMS কোড দিয়ে লগইন",
+    "otpLoginTitle": "SMS দিয়ে লগইন",
+    "otpLoginIntro": "আপনার মোবাইল নম্বরে একবার ব্যবহারের একটি কোড পাঠানো হবে।",
+    "otpLoginFailed": "এই কোড দিয়ে লগইন করা যায়নি। আবার চেষ্টা করুন।",
+    "otpSignupVerifyTitle": "আপনার নম্বর যাচাই করুন",
+    "otpSignupNeedPhone": "সাইন-আপ করতে যাচাই করা মোবাইল নম্বর লাগবে। আপনার নম্বর দিন।",
+    "otpSignupUnavailable": "সাইন-আপের জন্য SMS যাচাই লাগবে, যা এখন চালু নেই। পরে আবার চেষ্টা করুন।",
+    "otpResetSmsReady": "নিবন্ধিত নম্বরে SMS-এ কোড নিন",
+    "otpResetTitle": "SMS দিয়ে রিসেট",
+    "otpResetIntro": "অ্যাকাউন্টের মোবাইল নম্বর দিন। নিবন্ধিত হলে আপনাকে একটি কোড পাঠানো হবে।",
+    "otpResetNewPassword": "নতুন পাসওয়ার্ড",
+    "otpResetSave": "নতুন পাসওয়ার্ড সেভ করুন",
+    "otpResetDone": "পাসওয়ার্ড বদলানো হয়েছে। অন্য সব ডিভাইস থেকে সাইন-আউট করা হয়েছে — নতুন পাসওয়ার্ড দিয়ে লগইন করুন।",
+    "otpResetFailed": "যাচাইয়ের মেয়াদ শেষ। আবার শুরু করুন।",
+    "otpBackToLogin": "লগইনে ফিরে যান",
+    "otpVerified": "নম্বর যাচাই হয়েছে",
+    "otpDeleteTitle": "নিশ্চিত করুন এটা আপনি",
+    "otpDeleteIntro": "অ্যাকাউন্ট ডিলিট করতে আপনার নম্বরে পাঠানো কোডটি লিখুন।",
+    "otpSection8Title": "এই নিরাপত্তা পরিবর্তন নিশ্চিত করুন",
+    "otpSection8Intro": "এটি একটি সংবেদনশীল পরিবর্তন। আপনার নম্বরে পাঠানো কোডটি লিখুন।",
+    "otpDelSmsNote": "SMS চালু থাকলে নিশ্চিত করতে আপনার নম্বরে একটি কোডও পাঠানো হবে।",
+    "otpFlagPasswordOnlySignup": "শুধু পাসওয়ার্ডে সাইন-আপ (টেস্ট বিল্ড)"
+  }
+}

@@ -83,12 +83,14 @@ class ApiClient {
     String? phone,
     String? email,
     required String password,
+    String? otpProof,
   }) async {
     final j = await _postJson('/auth/register', {
       'name': name,
       if (phone != null && phone.isNotEmpty) 'phone': phone,
       if (email != null && email.isNotEmpty) 'email': email,
       'password': password,
+      if (otpProof != null && otpProof.isNotEmpty) 'otp_proof': otpProof,
     });
     return (token: j['token'] as String, user: AppUser.fromJson(j['user']));
   }
@@ -418,6 +420,7 @@ class ApiClient {
   Future<Map<String, dynamic>> accountDeleteRequest({
     required String password,
     String? otp,
+    String? otpProof,
     String? securityPin,
     double? lat,
     double? lng,
@@ -427,6 +430,7 @@ class ApiClient {
         body: jsonEncode({
           'password': password,
           if (otp != null && otp.isNotEmpty) 'otp': otp,
+          if (otpProof != null && otpProof.isNotEmpty) 'otp_proof': otpProof,
           if (securityPin != null && securityPin.isNotEmpty)
             'security_pin': securityPin,
           if (lat != null) 'lat': lat,
@@ -484,6 +488,23 @@ class ApiClient {
     if (r.statusCode == 200) return jsonDecode(r.body) as Map<String, dynamic>;
     _fail(r);
   }
+
+  // ---- o1-otp ----
+  /// POST that never throws on an HTTP error status: returns the parsed body
+  /// with `_status` merged in (OTP endpoints carry reason / retry_after /
+  /// attempts_left in their 4xx/5xx bodies). Network failures still throw.
+  Future<Map<String, dynamic>> postJsonRaw(String path,
+      [Map<String, dynamic> body = const {}]) async {
+    final r = await _c.post(AppConfig.api(path),
+        headers: _headers(), body: jsonEncode(body));
+    Map<String, dynamic> out = {};
+    try {
+      final j = r.body.isEmpty ? null : jsonDecode(r.body);
+      if (j is Map<String, dynamic>) out = j;
+    } catch (_) {}
+    return {...out, '_status': r.statusCode};
+  }
+  // ---- /o1-otp ----
 
   Future<Map<String, dynamic>> postJson(String path,
       [Map<String, dynamic> body = const {}]) async {
@@ -1056,12 +1077,13 @@ class ApiClient {
   /// carry the interpretable result — [SecurityGuard] reads them off the
   /// thrown [ApiException].status instead of a generic failure.
   Future<Map<String, dynamic>> securityAction(String action, String pin,
-      {double? lat, double? lng}) async {
+      {double? lat, double? lng, String? otpProof}) async {
     final r = await _c.post(AppConfig.api('/security/action'),
         headers: _headers(),
         body: jsonEncode({
           'action': action,
           'pin': pin,
+          if (otpProof != null && otpProof.isNotEmpty) 'otp_proof': otpProof,
           if (lat != null) 'lat': lat,
           if (lng != null) 'lng': lng,
         }));

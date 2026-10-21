@@ -4,9 +4,14 @@ import '../state.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/password_field.dart';
 import 'password_reset_screen.dart';
+import '../otp_api.dart';
+import 'otp/otp_login_screen.dart';
+import 'otp/otp_verify_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  /// o1-otp: injectable for widget tests; defaults to the real API.
+  final OtpBackend? otpBackend;
+  const LoginScreen({super.key, this.otpBackend});
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
@@ -40,14 +45,34 @@ class _LoginScreenState extends State<LoginScreen> {
     final app = context.read<AppState>();
     try {
       if (_register) {
-        if (_phone.text.trim().isEmpty && _email.text.trim().isEmpty) {
-          throw AppLocalizations.of(context).needPhoneOrEmail;
+        final t = AppLocalizations.of(context);
+        final phone = _phone.text.trim();
+        if (phone.isEmpty && _email.text.trim().isEmpty) {
+          throw t.needPhoneOrEmail;
+        }
+        // o1-otp: verify the phone by SMS when a gateway is connected; when
+        // the launch gate is closed (password-only sign-up OFF) it's required.
+        final otpB = widget.otpBackend ?? ApiOtpBackend(app.api);
+        final st = await otpB.status();
+        if (!mounted) return;
+        String? proof;
+        if (st.smsEnabled && phone.isNotEmpty) {
+          if (!looksLikeBdMobile(phone)) throw t.otpPhoneInvalid;
+          proof = await OtpVerifyScreen.run(context,
+              backend: otpB,
+              purpose: 'signup',
+              phone: phone,
+              title: t.otpSignupVerifyTitle);
+          if (proof == null) return; // backed out — no error
+        } else if (!st.passwordOnlySignup) {
+          throw st.smsEnabled ? t.otpSignupNeedPhone : t.otpSignupUnavailable;
         }
         await app.register(
           name: _name.text.trim(),
-          phone: _phone.text.trim(),
+          phone: phone,
           email: _email.text.trim(),
           password: _password.text,
+          otpProof: proof,
         );
       } else {
         await app.login(
@@ -158,6 +183,17 @@ class _LoginScreenState extends State<LoginScreen> {
                           : () => Navigator.of(context).push(MaterialPageRoute(
                               builder: (_) => const PasswordResetScreen())),
                       child: Text(t.resetForgotLink),
+                    ),
+                  if (!_register)
+                    TextButton.icon(
+                      key: const Key('login-with-sms'),
+                      onPressed: _busy
+                          ? null
+                          : () => Navigator.of(context).push(MaterialPageRoute(
+                              builder: (_) =>
+                                  OtpLoginScreen(backend: widget.otpBackend))),
+                      icon: const Icon(Icons.sms_outlined, size: 18),
+                      label: Text(t.otpLoginWithSms),
                     ),
                 ],
               ),

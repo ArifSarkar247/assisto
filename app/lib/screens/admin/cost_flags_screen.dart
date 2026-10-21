@@ -112,6 +112,8 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
         return t.flagFamilySharing;
       case 'new_signups':
         return t.flagNewSignups;
+      case 'auth_password_only_signup':
+        return t.otpFlagPasswordOnlySignup;
       default:
         return id;
     }
