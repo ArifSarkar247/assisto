@@ -62,9 +62,10 @@ def is_exempt(action):
     a = str(action)
     if a in SAFETY_EXEMPT:
         return True
-    head = a.split("_", 1)[0]
-    # e.g. "sos_sms", "health_reminder", "payment_bkash", "login_otp"
-    return head in SAFETY_EXEMPT
+    # e.g. "sos_sms", "health_reminder", "payment_bkash", "login_otp" — and the
+    # multi-word keys too ("anti_theft_alert", "safe_journey_sos"), which a
+    # first-segment split used to miss.
+    return any(a.startswith(k + "_") for k in SAFETY_EXEMPT)
 
 
 # --------------------------------------------------------------- config accessor

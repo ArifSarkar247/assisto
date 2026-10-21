@@ -572,7 +572,8 @@ def validate_edit(data):
         fv = _num(d.get(fkey), None)
         if fv is not None and (fv < 0 or fv >= 1):
             problems.append("bad_fee")
-    if (cfg["play_fee"] + cfg["gateway_fee"] + cfg["vat"]) >= 1.0:
+    # tolerance: 0.6 + 0.3 + 0.1 == 0.9999999999999999 in floats
+    if (cfg["play_fee"] + cfg["gateway_fee"] + cfg["vat"]) >= 1.0 - 1e-9:
         problems.append("bad_fee")
 
     # every priced action's credits must be >= the NET-margin floor
