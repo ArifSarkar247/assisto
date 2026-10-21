@@ -139,8 +139,11 @@ class PricingConfigView(APIView):
         from . import billing
         row = billing.get_config()
         from .logic import pricing as P
-        return {"config": P.normalize(row.data), "audit": row.audit,
-                "can_manage": True}
+        cfg = P.normalize(row.data)
+        # a6: the pricing check — monthly + ANNUAL plan NET margins.
+        return {"config": cfg, "audit": row.audit, "can_manage": True,
+                "margin_check": P.plan_margin_report(cfg),
+                "warnings": P.margin_warnings(cfg)}
 
     def get(self, request):
         if not self._owner(request):
@@ -167,7 +170,8 @@ class PricingConfigView(APIView):
         # deep-ish merge: patch overrides old at the plan / action-cost / scalar level
         merged = {k: (dict(v) if isinstance(v, dict) else v) for k, v in old.items()}
         for key in ("margin", "annual_discount_pct", "credit_bdt", "usd_bdt",
-                    "play_fee", "gateway_fee", "vat", "fixed_cost_per_day"):
+                    "play_fee", "gateway_fee", "vat", "fixed_cost_per_day",
+                    "storage_cost_bdt_per_gb_month"):
             if key in (patch or {}):
                 merged[key] = patch[key]
         for dkey in ("ad_rewards", "profit_guard"):
@@ -192,7 +196,9 @@ class PricingConfigView(APIView):
 
         problems = P.validate_edit(merged)
         if problems:
-            return Response({"ok": False, "problems": problems},
+            return Response({"ok": False, "problems": problems,
+                             "margin_check": P.plan_margin_report(merged),
+                             "warnings": P.margin_warnings(merged)},
                             status=status.HTTP_400_BAD_REQUEST)
 
         new = P.normalize(merged)

@@ -148,8 +148,9 @@ REGISTRY = {
                      "Paste App ID + unit IDs → Save"],
         "fields": [_f("app_id", "AdMob App ID", "AdMob App ID", secret=False),
                    _f("banner_unit", "Banner unit ID", "Banner unit ID", secret=False),
-                   _f("rewarded_unit", "Rewarded unit ID", "Rewarded unit ID", secret=False)],
-        "test": None,
+                   _f("rewarded_unit", "Rewarded unit ID", "Rewarded unit ID", secret=False),
+                   _f("app_open_unit", "App-open unit ID", "App-open unit ID", secret=False)],
+        "test": "test_admob",
     },
     "play_billing": {
         "name": "Google Play Billing",
@@ -542,3 +543,12 @@ def test_spotify(cfg):
         return (True, "✓ working")
     except urllib.error.HTTPError as e:
         return (False, f"HTTP {e.code}")
+
+
+def test_admob(cfg):
+    """Format check only (AdMob has no server-side 'ping'): App ID looks like
+    ca-app-pub-<16 digits>~<digits>, each unit like ca-app-pub-<16>/<digits>.
+    Google's public TEST IDs are refused so 'working' always means real IDs."""
+    from .logic import ads as _ads
+    ok, why = _ads.validate_admob_ids(cfg)
+    return ok, why

@@ -74,6 +74,9 @@ CATALOG = (
     # Business Model Build 2 — owner kill-switches for monetization abuse.
     ("topups_enabled", KIND_FEATURE, "monetization", True),
     ("ads_rewarded", KIND_FEATURE, "monetization", True),
+    # a6: app-open ad kill-switch (still needs AdMob configured; never shown to
+    # Premium/Business, never on safety/payment/login/call screens).
+    ("ads_app_open", KIND_FEATURE, "monetization", True),
 )
 
 _BY_ID = {row[0]: row for row in CATALOG}

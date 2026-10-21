@@ -730,8 +730,12 @@ def ad_event(user, kind, device_id="", ad_id="", now=None):
     valid_kinds = {"app_open", "rewarded", "native", "interstitial"}
     if kind not in valid_kinds:
         return {"ok": False, "reason": "bad_kind"}
-    # ad wallet is a FREE-tier mechanism only
-    if not _is_free(user):
+    # The ad wallet is a FREE-tier mechanism. Paid (Premium/Business) users see
+    # NO ads — except a rewarded ad they explicitly opt into for credits (a6):
+    # its sub-credit value accumulates in the wallet and every WHOLE credit is
+    # moved straight into their purchased balance (User.ai_credits).
+    paid = not _is_free(user)
+    if paid and kind != "rewarded":
         return {"ok": False, "reason": "not_free"}
 
     ads_on = False
@@ -788,6 +792,7 @@ def ad_event(user, kind, device_id="", ad_id="", now=None):
                 "credited_paisa": 0, "credited_credits": 0}
 
     paisa = _ad_reward_paisa(ad_cfg)
+    moved = 0
     with transaction.atomic():
         w = AdWallet.objects.select_for_update().get_or_create(user=user)[0]
         before_credits = w.spendable_credits()
@@ -798,6 +803,20 @@ def ad_event(user, kind, device_id="", ad_id="", now=None):
         w.refresh_from_db()
         after_credits = w.spendable_credits()
         whole_gained = after_credits - before_credits
+        if paid and after_credits > 0:
+            # paid opt-in rewarded: whole credits leave the wallet (which a paid
+            # user can't spend) and land in their own balance, one ledger row.
+            from .models import CreditLedger, User
+            AdWallet.objects.filter(pk=w.pk).update(
+                balance_paisa=F("balance_paisa") - after_credits * 100)
+            User.objects.filter(pk=user.pk).update(
+                ai_credits=F("ai_credits") + after_credits)
+            CreditLedger.objects.create(user=user, delta=after_credits,
+                                        reason="rewarded",
+                                        note="ad:rewarded:paid")
+            moved = after_credits
+            whole_gained = 0
+            after_credits = 0
         if whole_gained > 0:
             # unify the audit trail: a whole credit crossing writes a ledger row
             from .models import CreditLedger
@@ -809,8 +828,11 @@ def ad_event(user, kind, device_id="", ad_id="", now=None):
     # ad revenue into the DailyLedger (we got paid the eCPM; the user share is a cost
     # we recognise as the credit grant — we only book the NET we actually keep here).
     record_revenue("ads", paisa / 100.0)
-    return {"ok": True, "reason": "ok", "credited_paisa": paisa,
-            "credited_credits": after_credits, "wallet_credits": after_credits}
+    out = {"ok": True, "reason": "ok", "credited_paisa": paisa,
+           "credited_credits": after_credits, "wallet_credits": after_credits}
+    if paid:
+        out["moved_to_balance"] = moved
+    return out
 
 
 def ad_wallet_state(user, now=None):

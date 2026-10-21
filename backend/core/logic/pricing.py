@@ -132,6 +132,16 @@ DEFAULT_VAT = 0.00               # VAT / tax withheld
 MARGIN_NET_FLOOR = 0.60          # every action's credit-value must be >= cost / 0.60
 POOL_CAP_PCT_OF_NET = 0.60       # included-pool face value must be <= 60% of NET plan rev
 
+# Storage we pay for per GB per month (৳). Used by the plan margin check: a
+# plan's worst case is its FULL storage quota in use. ~US$0.025/GB-mo object
+# storage at ৳120/USD. Admin-editable ("storage_cost_bdt_per_gb_month").
+DEFAULT_STORAGE_COST_BDT_PER_GB_MONTH = 3.0
+
+# Plans sold yearly (price = monthly * 12 * (1 - annual_discount_pct)). Each
+# one must pass the same NET-margin guard as its monthly plan (see
+# plan_margin_report / validate_edit).
+ANNUAL_PLANS = ("premium",)
+
 GB = 1024 ** 3
 
 
@@ -153,7 +163,13 @@ def DEFAULTS():
                          "storage_bytes": 15 * GB},
         },
         "topup_packs": [dict(p) for p in _TOPUP_PACKS],
-        "annual_discount_pct": 20,     # % off 12 months of Premium
+        # % off 12 months of Premium. NOTE (a6 annual margin check): at 20%
+        # the yearly NET (1586) does NOT cover 12 months of the included pool
+        # under POOL_CAP_PCT_OF_NET (1080 > 951.5) — max safe is 9%. Shipped
+        # price left unchanged; /admin/pricing reports it as a WARNING for the
+        # owner to decide (see margin_warnings / plan_margin_report).
+        "annual_discount_pct": 20,
+        "storage_cost_bdt_per_gb_month": DEFAULT_STORAGE_COST_BDT_PER_GB_MONTH,
         "action_costs": {k: dict(v) for k, v in _ACTION_DEFAULTS.items()},
         "margin": DEFAULT_MARGIN,
         "credit_bdt": DEFAULT_CREDIT_BDT,
@@ -279,6 +295,9 @@ def normalize(data):
                                            base["profit_guard"]),
         "fixed_cost_per_day": max(0.0, _num(d.get("fixed_cost_per_day"),
                                             base["fixed_cost_per_day"])),
+        "storage_cost_bdt_per_gb_month": max(0.0, _num(
+            d.get("storage_cost_bdt_per_gb_month"),
+            base["storage_cost_bdt_per_gb_month"])),
     }
 
 
@@ -470,7 +489,116 @@ def validate_edit(data):
             problems.append("pool_exceeds_net")
             break
 
+    # NOTE: annual-plan margins are reported as WARNINGS (margin_warnings),
+    # not blocking problems — owner decision pending on the annual discount.
     return list(dict.fromkeys(problems))   # ordered-unique
+
+
+def margin_warnings(cfg):
+    """Non-blocking pricing-check warnings for /admin/pricing. One dict per
+    failing plan row: {code, plan, period, ...numbers}. Codes:
+      'annual_pool_exceeds_net' — 12 months of included pool face value
+          > POOL_CAP_PCT_OF_NET of the yearly NET (after fees + VAT);
+      'annual_cost_exceeds_net' — worst-case pool cost + full storage quota
+          > MARGIN_NET_FLOOR of the yearly NET;
+      'monthly_cost_exceeds_net' — same cost check on a monthly plan.
+    Annual rows carry max_safe_discount_pct so the owner sees the fix."""
+    out = []
+    for row in plan_margin_report(cfg):
+        yr = row["period"] == "yr"
+        checks = []
+        if yr and not row["pool_ok"]:
+            checks.append("annual_pool_exceeds_net")
+        if not row["cost_ok"]:
+            checks.append("annual_cost_exceeds_net" if yr
+                          else "monthly_cost_exceeds_net")
+        for code in checks:
+            w = {"code": code, "plan": row["plan"], "period": row["period"],
+                 "price": row["price"], "net": row["net"],
+                 "pool_face": row["pool_face"], "pool_cap": row["pool_cap"],
+                 "cost": row["cost"], "cost_cap": row["cost_cap"]}
+            if yr:
+                w["discount_pct"] = row.get("discount_pct")
+                w["max_safe_discount_pct"] = row.get("max_safe_discount_pct")
+            out.append(w)
+    return out
+
+
+# ---------------------------------------------------------------- plan margins
+
+def annual_price(plan_id, cfg):
+    """Yearly price (whole ৳) of a plan = monthly * 12 * (1 - discount)."""
+    cfg = normalize(cfg)
+    row = cfg["plans"].get(plan_id)
+    if not row:
+        return 0
+    disc = cfg["annual_discount_pct"]
+    return int(round(row["price"] * 12 * (100 - disc) / 100.0))
+
+
+def _storage_cost_month(row, cfg):
+    gb = float(row.get("storage_bytes", 0) or 0) / GB
+    return gb * cfg["storage_cost_bdt_per_gb_month"]
+
+
+def _margin_row(plan_id, period, price, months, row, cfg):
+    net = float(price) * net_fraction(cfg)
+    pool_face = row["credits"] * cfg["credit_bdt"] * months
+    pool_cap = POOL_CAP_PCT_OF_NET * net
+    # worst-case provider cost of the pool: every priced action holds the NET
+    # floor, so a credit costs us at most MARGIN_NET_FLOOR of its face value.
+    pool_cost = pool_face * MARGIN_NET_FLOOR
+    storage_cost = _storage_cost_month(row, cfg) * months
+    cost = pool_cost + storage_cost
+    cost_cap = MARGIN_NET_FLOOR * net
+    paid = price > 0
+    return {
+        "plan": plan_id, "period": period, "price": price,
+        "net": round(net, 2),
+        "pool_face": round(pool_face, 2), "pool_cap": round(pool_cap, 2),
+        "pool_ok": (not paid) or pool_face <= pool_cap + 1e-9,
+        "storage_cost": round(storage_cost, 2),
+        "cost": round(cost, 2), "cost_cap": round(cost_cap, 2),
+        "cost_ok": (not paid) or cost <= cost_cap + 1e-9,
+        "margin_pct": round(100.0 * (1 - cost / net), 1) if net > 0 else None,
+    }
+
+
+def max_safe_annual_discount_pct(plan_id, cfg):
+    """Largest whole % annual discount at which `plan_id`'s yearly NET still
+    passes both the pool cap and the cost cap. 0 when even 0% fails."""
+    cfg = normalize(cfg)
+    if plan_id not in cfg["plans"]:
+        return 0
+    for disc in range(90, -1, -1):
+        trial = dict(cfg, annual_discount_pct=disc)
+        r = _margin_row(plan_id, "yr", annual_price(plan_id, trial), 12,
+                        cfg["plans"][plan_id], trial)
+        if r["pool_ok"] and r["cost_ok"]:
+            return disc
+    return 0
+
+
+def plan_margin_report(cfg):
+    """The admin pricing check: one row per monthly plan and per ANNUAL plan —
+    NET revenue (after play/gateway fees + VAT), included-pool face value vs
+    the POOL_CAP_PCT_OF_NET cap, and worst-case cost (pool at the
+    MARGIN_NET_FLOOR cost ratio + full storage quota) vs MARGIN_NET_FLOOR of
+    NET. Annual rows also carry max_safe_discount_pct. Pure."""
+    cfg = normalize(cfg)
+    out = []
+    for pid in PLAN_ORDER:
+        row = cfg["plans"][pid]
+        out.append(_margin_row(pid, "mo", row["price"], 1, row, cfg))
+    for pid in ANNUAL_PLANS:
+        row = cfg["plans"].get(pid)
+        if not row:
+            continue
+        r = _margin_row(pid, "yr", annual_price(pid, cfg), 12, row, cfg)
+        r["discount_pct"] = cfg["annual_discount_pct"]
+        r["max_safe_discount_pct"] = max_safe_annual_discount_pct(pid, cfg)
+        out.append(r)
+    return out
 
 
 # ---------------------------------------------------------------- plans_public
@@ -499,11 +627,11 @@ def plan_public(lang, cfg):
     # annual (Premium yearly with discount) — derived, not a separate plan row
     prem = cfg["plans"]["premium"]
     disc = cfg["annual_discount_pct"]
-    annual_price = int(round(prem["price"] * 12 * (100 - disc) / 100.0))
+    yearly = annual_price("premium", cfg)
     out.append({
         "id": "annual",
         "name": pick(lang, "বার্ষিক (প্রিমিয়াম)", "Annual (Premium)"),
-        "price": annual_price, "cur": CUR, "period": "yr",
+        "price": yearly, "cur": CUR, "period": "yr",
         "desc": pick(lang, f"প্রিমিয়াম — বছরে, {disc}% সাশ্রয়।",
                      f"Premium — yearly, save {disc}%."),
         "benefits": _PLAN_META["premium"]["benefits_" + lang],
