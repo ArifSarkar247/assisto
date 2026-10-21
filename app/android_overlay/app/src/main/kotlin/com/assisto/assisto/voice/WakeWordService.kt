@@ -68,7 +68,8 @@ class WakeWordService : Service() {
             title: String, body: String, stopLabel: String, tapText: String
         ): String {
             if (!engineBundled()) return "engine_missing"
-            if (accessKey.isBlank() || keywordPath.isBlank() || !File(keywordPath).exists()) {
+            val paths = keywordPath.split('|').filter { it.isNotBlank() }
+            if (accessKey.isBlank() || paths.isEmpty() || paths.any { !File(it).exists() }) {
                 return "error:config"
             }
             if (ctx.checkSelfPermission(Manifest.permission.RECORD_AUDIO)
@@ -145,13 +146,16 @@ class WakeWordService : Service() {
         return START_NOT_STICKY
     }
 
-    private fun buildPorcupine(key: String, path: String, sens: Float): Any? {
+    private fun buildPorcupine(key: String, path: String, sensitivity: Float): Any? {
         val builderCls = Class.forName(PORCUPINE_BUILDER)
         val cbCls = Class.forName(PORCUPINE_CALLBACK)
         var b: Any = builderCls.getConstructor().newInstance()
         b = builderCls.getMethod("setAccessKey", String::class.java).invoke(b, key)!!
-        b = builderCls.getMethod("setKeywordPath", String::class.java).invoke(b, path)!!
-        b = builderCls.getMethod("setSensitivity", Float::class.javaPrimitiveType).invoke(b, sens)!!
+        // One or more keyword files ("Hey Assisto", "Hi Assisto"), '|'-separated.
+        val paths = path.split('|').filter { it.isNotBlank() }.toTypedArray()
+        b = builderCls.getMethod("setKeywordPaths", Array<String>::class.java).invoke(b, paths)!!
+        val sens = FloatArray(paths.size) { sensitivity }
+        b = builderCls.getMethod("setSensitivities", FloatArray::class.java).invoke(b, sens)!!
         val handler = InvocationHandler { proxy, method, args ->
             when (method.name) {
                 "invoke" -> { main.post { onWake() }; null }
@@ -170,6 +174,9 @@ class WakeWordService : Service() {
         val now = System.currentTimeMillis()
         if (now - lastWake < 3000) return // debounce double triggers
         lastWake = now
+        // Assisto is the default assistant → our own session opens the voice
+        // screen instantly, even from background or the lock screen.
+        if (AssistoVoiceInteractionService.showFromWake()) return
         try {
             VoiceLaunchState.mark()
             val open = Intent(this, AssistEntryActivity::class.java)

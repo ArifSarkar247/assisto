@@ -18,7 +18,8 @@ class LimitsLogicTests(SimpleTestCase):
     def test_defaults_preserve_shipped_behaviour(self):
         c = P.normalize({})
         self.assertEqual(c["limits"], {"trial_days": 7, "trial_credits": 15,
-                                       "business_included_cameras": 4})
+                                       "business_included_cameras": 4,
+                                       "voice_youtube_daily": 40})  # a3-voice
         self.assertEqual(c["guarantees"], {"margin_net_floor": 0.60,
                                            "pool_cap_pct_of_net": 0.60})
         self.assertEqual(c["probashi_price_usd"], 4.99)

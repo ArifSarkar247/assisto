@@ -51,14 +51,43 @@ class VaOutcome {
 class VaExecutor {
   final BuildContext context;
   final VaConfirmVoice? confirmVoice;
-  VaExecutor(this.context, {this.confirmVoice});
 
-  AppLocalizations get t => AppLocalizations.of(context);
-  String get _lang => Localizations.localeOf(context).languageCode;
+  /// Opened over the lock screen: everything except the torch and SOS asks
+  /// Android to unlock first (calls, messages, apps, data are private).
+  final bool locked;
+  final VoidCallback? onUnlocked;
+
+  /// Language to answer in ('bn' | 'en'), detected from the user's words
+  /// ([VaText.replyLang]). Replies, confirm questions and TTS follow it;
+  /// data saved into the user's lists (categories, default titles) stays in
+  /// the app language.
+  final String? replyLang;
+  VaExecutor(this.context,
+      {this.confirmVoice, this.locked = false, this.onUnlocked, this.replyLang});
+
+  /// Music app preference key: 'auto' | 'youtube' | 'ytmusic' | 'spotify'.
+  static const musicPrefKey = 'va_music_app';
+
+  AppLocalizations get t => replyLang == null
+      ? AppLocalizations.of(context)
+      : lookupAppLocalizations(Locale(replyLang!));
+  AppLocalizations get tUi => AppLocalizations.of(context);
+  String get _lang =>
+      replyLang ?? Localizations.localeOf(context).languageCode;
 
   static const _agentSessionKey = 'va_agent_session';
 
   Future<VaOutcome> run(VaIntent i) async {
+    if (locked &&
+        i.action != VaAction.torchOn &&
+        i.action != VaAction.torchOff &&
+        i.action != VaAction.sos) {
+      final ok = await VaNative.requestUnlock();
+      if (!ok) {
+        return VaOutcome(t.vaUnlockNeeded, icon: Icons.lock_outline, ok: false);
+      }
+      onUnlocked?.call();
+    }
     try {
       switch (i.action) {
         case VaAction.call:
@@ -320,25 +349,95 @@ class VaExecutor {
 
   // ---- media / maps / apps --------------------------------------------------
 
+  /// Music. Order: the app the user NAMED → their saved choice → (auto)
+  /// YouTube Music, Spotify, YouTube. YouTube Music / Spotify get Android's
+  /// MEDIA_PLAY_FROM_SEARCH (they start playing by themselves, no key).
+  /// YouTube: with the owner's YouTube Data key the SERVER finds the video and
+  /// it opens playing; without a key, search results open (one tap needed —
+  /// we say so).
   Future<VaOutcome> _youtube(VaIntent i) async {
     final q = i.target;
-    var ok = false;
-    if (q != null && q.isNotEmpty) {
-      ok = await VaNative.youtubeSearch(q);
-      if (!ok) {
-        ok = await _launch('https://www.youtube.com/results?search_query='
-            '${Uri.encodeQueryComponent(q)}');
-      }
-      return VaOutcome(ok ? t.vaYoutubeSearching(q) : t.vaErrNoApp,
-          icon: Icons.smart_display_outlined,
-          title: q,
-          subtitle: ok ? t.vaYoutubeTapToPlay : null,
-          ok: ok);
+    if (q == null || q.isEmpty) {
+      final ok = await VaNative.launchApp(VaNative.pkgYoutube) ||
+          await _launch('https://www.youtube.com');
+      return VaOutcome(ok ? t.vaOpeningApp('YouTube') : t.vaErrNoApp,
+          icon: Icons.smart_display_outlined, ok: ok);
     }
-    ok = await VaNative.launchApp('com.google.android.youtube') ||
-        await _launch('https://www.youtube.com');
-    return VaOutcome(ok ? t.vaOpeningApp('YouTube') : t.vaErrNoApp,
-        icon: Icons.smart_display_outlined, ok: ok);
+    final installed = await VaNative.musicApps();
+    var pref = i.app;
+    if (pref == null) {
+      final saved = await Settings.getString(musicPrefKey);
+      if (saved == 'youtube' || saved == 'ytmusic' || saved == 'spotify') {
+        pref = saved;
+      }
+    }
+    if (pref == null) {
+      if (installed.contains(VaNative.pkgYtMusic)) {
+        pref = 'ytmusic';
+      } else if (installed.contains(VaNative.pkgSpotify)) {
+        pref = 'spotify';
+      } else {
+        pref = 'youtube';
+      }
+    }
+    final shown = i.song != null && i.artist != null
+        ? t.vaSongByArtist(i.song!, i.artist!)
+        : q;
+    if (pref == 'ytmusic' || pref == 'spotify') {
+      final pkg = pref == 'ytmusic' ? VaNative.pkgYtMusic : VaNative.pkgSpotify;
+      final name = pref == 'ytmusic' ? 'YouTube Music' : 'Spotify';
+      if (installed.contains(pkg)) {
+        final r = await VaNative.playFromSearch(pkg, q,
+            artist: i.artist, title: i.song);
+        if (r == 'ok') {
+          return VaOutcome(t.vaPlayingOn(shown, name),
+              icon: Icons.music_note, title: shown, subtitle: name);
+        }
+      }
+      // named app missing / refused: fall through to YouTube, and say why.
+      final out = await _youtubeVideo(q, shown);
+      return VaOutcome('${t.vaAppMissing(name)} ${out.reply}',
+          icon: out.icon,
+          title: out.title,
+          subtitle: out.subtitle,
+          ok: out.ok);
+    }
+    return _youtubeVideo(q, shown);
+  }
+
+  Future<VaOutcome> _youtubeVideo(String q, String shown) async {
+    // 1) owner's YouTube Data key (server-side) -> exact video, plays directly
+    try {
+      final app = context.read<AppState>();
+      if (app.loggedIn) {
+        final r = await app.api
+            .getJson('/voice/youtube?q=${Uri.encodeQueryComponent(q)}')
+            .timeout(const Duration(seconds: 6));
+        final id = (r['video_id'] ?? '').toString();
+        if (r['available'] == true && id.isNotEmpty) {
+          final ok = await VaNative.openYoutubeVideo(id) ||
+              await _launch('https://www.youtube.com/watch?v=$id');
+          if (ok) {
+            final title = (r['title'] ?? '').toString();
+            return VaOutcome(t.vaPlayingOn(shown, 'YouTube'),
+                icon: Icons.smart_display_outlined,
+                title: title.isEmpty ? shown : title,
+                subtitle: 'YouTube');
+          }
+        }
+      }
+    } catch (_) {}
+    // 2) no key / quota / offline: search results, one tap needed (honest)
+    var ok = await VaNative.youtubeSearch(q);
+    if (!ok) {
+      ok = await _launch('https://www.youtube.com/results?search_query='
+          '${Uri.encodeQueryComponent(q)}');
+    }
+    return VaOutcome(ok ? t.vaYoutubeSearching(shown) : t.vaErrNoApp,
+        icon: Icons.smart_display_outlined,
+        title: shown,
+        subtitle: ok ? t.vaYoutubeTapToPlay : null,
+        ok: ok);
   }
 
   Future<VaOutcome> _maps(String place, {required bool navigate}) async {
@@ -397,7 +496,7 @@ class VaExecutor {
     if (at != null) {
       // The phone's Clock app refused — keep the promise with an Assisto
       // reminder instead, and say so plainly.
-      await _createReminder(t.vaAlarmLabel, at);
+      await _createReminder(tUi.vaAlarmLabel, at);
       return VaOutcome(t.vaAlarmFallback(_clock(at)),
           icon: Icons.notifications_active_outlined);
     }
@@ -413,7 +512,7 @@ class VaExecutor {
     }
     if (s != null) {
       final at = DateTime.now().add(Duration(seconds: s));
-      await _createReminder(t.vaTimerLabel, at);
+      await _createReminder(tUi.vaTimerLabel, at);
       return VaOutcome(t.vaAlarmFallback(_clock(at)),
           icon: Icons.notifications_active_outlined);
     }
@@ -483,7 +582,7 @@ class VaExecutor {
     }
     final title = (i.message ?? '').isNotEmpty
         ? i.message!
-        : (parsed.cleanTitle.isNotEmpty ? parsed.cleanTitle : t.vaReminderDefault);
+        : (parsed.cleanTitle.isNotEmpty ? parsed.cleanTitle : tUi.vaReminderDefault);
     final created =
         await _createReminder(title, at, rule: parsed.recurrence);
     return VaOutcome(
@@ -496,6 +595,18 @@ class VaExecutor {
   }
 
   String _categoryLabel(String? key) => switch (key) {
+        'groceries' => tUi.vaCatGroceries,
+        'food' => tUi.vaCatFood,
+        'transport' => tUi.vaCatTransport,
+        'bills' => tUi.vaCatBills,
+        'recharge' => tUi.vaCatRecharge,
+        'health' => tUi.vaCatHealth,
+        'shopping' => tUi.vaCatShopping,
+        'education' => tUi.vaCatEducation,
+        _ => '',
+      };
+
+  String _catSaid(String? key) => switch (key) {
         'groceries' => t.vaCatGroceries,
         'food' => t.vaCatFood,
         'transport' => t.vaCatTransport,
@@ -504,7 +615,7 @@ class VaExecutor {
         'health' => t.vaCatHealth,
         'shopping' => t.vaCatShopping,
         'education' => t.vaCatEducation,
-        _ => '',
+        _ => t.vaCatOther,
       };
 
   Future<VaOutcome> _expense(VaIntent i) async {
@@ -513,6 +624,7 @@ class VaExecutor {
         app.accounts.items.where((a) => a['serverId'] != null).toList();
     final acc = accs.isEmpty ? null : accs.first['serverId'];
     final cat = _categoryLabel(i.category);
+    final catSaid = _catSaid(i.category);
     final created = await app.txns.add({
       if (acc != null) 'account': acc,
       'kind': 'expense',
@@ -524,10 +636,10 @@ class VaExecutor {
     });
     final amount = NumberFormat.decimalPattern(_lang).format(i.amount);
     return VaOutcome(
-      t.vaExpenseLogged('৳$amount', cat.isEmpty ? t.vaCatOther : cat),
+      t.vaExpenseLogged('৳$amount', catSaid),
       icon: Icons.receipt_long_outlined,
       title: '৳$amount',
-      subtitle: cat.isEmpty ? (i.message ?? t.vaCatOther) : cat,
+      subtitle: catSaid,
       buttons: [_undoButton(created, reminder: false)],
     );
   }

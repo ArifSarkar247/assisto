@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Part 3 (a3-voice): makes Assisto selectable as the Digital assistant app.
+     recognitionService is REQUIRED by the platform; ours is a transparent
+     proxy to the phone's real recognizer (AssistoRecognitionService.kt). -->
+<voice-interaction-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:sessionService="com.assisto.assisto.voice.AssistoVoiceSessionService"
+    android:recognitionService="com.assisto.assisto.voice.AssistoRecognitionService"
+    android:supportsAssist="true"
+    android:supportsLaunchVoiceAssistFromKeyguard="true" />

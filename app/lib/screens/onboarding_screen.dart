@@ -1,3 +1,4 @@
+import '../voice/va_onboarding_step.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
@@ -47,7 +48,7 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   static const _resumeKey = 'onb_step';
-  static const _steps = 5; // welcome+lang, who, perms, first-win, link-parent
+  static const _steps = 6; // welcome+lang, who, perms, assistant (Part 3), first-win, link-parent
 
   final _pc = PageController();
   int _page = 0;
@@ -164,6 +165,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 OnbRoleStep(
                     selected: _role, onPick: (r) => setState(() => _role = r)),
                 const OnbPermissions(),
+                // Part 3: set Assisto as the default digital assistant.
+                const VaOnboardingStep(),
                 OnbFirstWin(role: _role, onPick: _openWin),
                 OnbLinkParent(
                   ivrEnabled: widget.ivrEnabled,
@@ -193,10 +196,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     // First-win and link-parent steps carry their own CTAs, so the footer there
     // just offers "start chatting". Earlier steps advance with Next; the role
     // step requires a pick before Next lights up.
-    if (_page == 3) {
+    // (page 3 = the Part 3 assistant step: plain Next, it is optional)
+    if (_page == 4) {
       return TextButton(onPressed: _next, child: Text(t.onbMaybeLater));
     }
-    if (_page == 4) {
+    if (_page == 5) {
       return TextButton(onPressed: _finish, child: Text(t.justStartChatting));
     }
     final canNext = _page != 1 || _role != null;

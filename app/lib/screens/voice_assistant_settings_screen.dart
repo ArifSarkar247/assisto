@@ -5,7 +5,9 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../voice/va_actions.dart';
 import '../voice/va_native.dart';
+import 'battery_guidance_screen.dart';
 import '../voice/va_wake.dart';
 
 /// Assisto Voice settings: make Assisto the phone's default digital
@@ -31,6 +33,8 @@ class _VoiceAssistantSettingsScreenState
   VaWakeConfig _cfg = const VaWakeConfig();
   bool _tts = true;
   bool _busy = false;
+  String _music = 'auto';
+  List<String> _installed = const [];
 
   AppLocalizations get t => AppLocalizations.of(context);
 
@@ -54,10 +58,12 @@ class _VoiceAssistantSettingsScreenState
 
   Future<void> _load() async {
     final tts = await Settings.getBool(VaWake.ttsKey, true);
+    final music = await Settings.getString(VaExecutor.musicPrefKey) ?? 'auto';
     if (widget.debugStatic) {
       if (mounted) {
         setState(() {
           _tts = tts;
+          _music = music;
           _wake = _Wake.keyMissing;
         });
       }
@@ -68,9 +74,12 @@ class _VoiceAssistantSettingsScreenState
     if (!mounted) return;
     final cfg = await VaWake.fetchConfig(context.read<AppState>().api);
     final st = native ? await VaNative.wakeStatus() : null;
+    final installed = native ? await VaNative.musicApps() : const <String>[];
     if (!mounted) return;
     setState(() {
       _tts = tts;
+      _music = music;
+      _installed = installed;
       _native = native;
       _isDefault = isDef;
       _cfg = cfg;
@@ -163,6 +172,8 @@ class _VoiceAssistantSettingsScreenState
           _wakeCard(scheme),
           const SizedBox(height: Gap.lg),
           _ttsCard(scheme),
+          const SizedBox(height: Gap.lg),
+          _musicCard(scheme),
           const SizedBox(height: Gap.lg),
           _examplesCard(scheme),
         ],
@@ -263,7 +274,7 @@ class _VoiceAssistantSettingsScreenState
         icon: Icons.assistant_outlined,
         title: t.vaDefTitle,
         children: [
-          Text(t.vaDefBody,
+          Text(t.vaDefBody2,
               style: TextStyle(color: scheme.onSurfaceVariant)),
           const SizedBox(height: Gap.md),
           status,
@@ -278,7 +289,7 @@ class _VoiceAssistantSettingsScreenState
               color: scheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(Radii.md),
             ),
-            child: Text(t.vaDefColorOs,
+            child: Text('${t.vaDefColorOs}\n\n${t.vaDefPowerNote}',
                 style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
           ),
           const SizedBox(height: Gap.md),
@@ -311,7 +322,7 @@ class _VoiceAssistantSettingsScreenState
     };
     return _card(scheme,
         icon: Icons.hearing_outlined,
-        title: t.vaWakeTitle,
+        title: t.vaWakeTitle2,
         trailing: _busy
             ? const SizedBox(
                 width: 24,
@@ -344,6 +355,20 @@ class _VoiceAssistantSettingsScreenState
                     style: TextStyle(
                         color: scheme.onSurfaceVariant, fontSize: 13))),
           ]),
+          const SizedBox(height: Gap.sm),
+          Text(t.vaWakeRealmeNote,
+              style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton.icon(
+              onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const BatteryGuidanceScreen())),
+              icon: const Icon(Icons.battery_saver_outlined),
+              label: Text(t.vaWakeBatteryGuide),
+            ),
+          ),
         ]);
   }
 
@@ -375,11 +400,53 @@ class _VoiceAssistantSettingsScreenState
         ]);
   }
 
+  Widget _musicCard(ColorScheme scheme) {
+    final opts = <(String, String, String?)>[
+      ('auto', t.vaMusicAuto, null),
+      ('youtube', 'YouTube', VaNative.pkgYoutube),
+      ('ytmusic', 'YouTube Music', VaNative.pkgYtMusic),
+      ('spotify', 'Spotify', VaNative.pkgSpotify),
+    ];
+    return _card(scheme,
+        icon: Icons.library_music_outlined,
+        title: t.vaMusicTitle,
+        children: [
+          Text(t.vaMusicBody, style: TextStyle(color: scheme.onSurfaceVariant)),
+          const SizedBox(height: Gap.sm),
+          RadioGroup<String>(
+            groupValue: _music,
+            onChanged: (v) async {
+              if (v == null) return;
+              setState(() => _music = v);
+              await Settings.setString(VaExecutor.musicPrefKey, v);
+            },
+            child: Column(children: [
+              for (final o in opts)
+                RadioListTile<String>(
+                  contentPadding: EdgeInsets.zero,
+                  value: o.$1,
+                  title: Text(o.$2),
+                  subtitle: o.$3 == null
+                      ? Text(t.vaMusicAutoSub)
+                      : (widget.debugStatic
+                          ? null
+                          : Text(_installed.contains(o.$3)
+                              ? t.vaMusicInstalled
+                              : t.vaMusicNotInstalled)),
+                ),
+            ]),
+          ),
+          Text(t.vaMusicHonest,
+              style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
+        ]);
+  }
+
   Widget _examplesCard(ColorScheme scheme) {
     final ex = [
       t.vaExCall,
       t.vaExSms,
       t.vaExYoutube,
+      t.vaExSong,
       t.vaExAlarm,
       t.vaExTimer,
       t.vaExTorch,

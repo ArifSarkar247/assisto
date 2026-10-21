@@ -2,6 +2,8 @@ package com.assisto.assisto.voice
 
 import android.Manifest
 import android.app.Activity
+import android.app.KeyguardManager
+import android.app.SearchManager
 import android.app.role.RoleManager
 import android.content.Context
 import android.content.Intent
@@ -11,6 +13,7 @@ import android.hardware.camera2.CameraManager
 import android.net.Uri
 import android.os.Build
 import android.provider.AlarmClock
+import android.provider.MediaStore
 import android.provider.ContactsContract
 import android.provider.Settings
 import android.os.Handler
@@ -121,6 +124,25 @@ object AssistoVoiceChannel {
                             call.argument<String>("tapText") ?: ""
                         )
                     )
+                    "isLocked" -> result.success(isLocked(activity))
+                    "requestUnlock" -> requestUnlock(activity, result)
+                    "leaveLockScreen" -> {
+                        leaveLockScreen(activity, call.argument<Boolean>("moveBack") ?: false)
+                        result.success(null)
+                    }
+                    "musicApps" -> result.success(musicApps(activity))
+                    "playFromSearch" -> result.success(
+                        playFromSearch(
+                            activity,
+                            call.argument<String>("package") ?: "",
+                            call.argument<String>("query") ?: "",
+                            call.argument<String>("artist"),
+                            call.argument<String>("title")
+                        )
+                    )
+                    "openYoutubeVideo" -> result.success(
+                        openYoutubeVideo(activity, call.argument<String>("id") ?: "")
+                    )
                     "wakeStop" -> {
                         WakeWordService.stop(activity)
                         result.success(null)
@@ -131,6 +153,128 @@ object AssistoVoiceChannel {
                 // Never let a native failure escape to the platform thread.
                 try { result.success(null) } catch (ignored: Throwable) {}
             }
+        }
+    }
+
+    // ---- launch over the lock screen ------------------------------------------
+
+    /**
+     * Call from MainActivity.onCreate and onNewIntent. For an assist / wake
+     * launch on a LOCKED phone it lets this one launch show over the keyguard
+     * (Dart then asks to unlock before anything private runs).
+     */
+    @JvmStatic
+    fun applyLaunchIntent(activity: Activity, intent: Intent?) {
+        try {
+            if (intent?.getBooleanExtra("assisto_voice", false) != true) return
+            VoiceLaunchState.mark()
+            if (intent.getBooleanExtra("assisto_voice_locked", false) &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                activity.setShowWhenLocked(true)
+                activity.setTurnScreenOn(true)
+            }
+            intent.removeExtra("assisto_voice")
+        } catch (ignored: Throwable) {}
+    }
+
+    private fun isLocked(ctx: Context): Boolean = try {
+        (ctx.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).isKeyguardLocked
+    } catch (ignored: Throwable) {
+        false
+    }
+
+    private fun requestUnlock(activity: Activity, result: MethodChannel.Result) {
+        if (!isLocked(activity)) { result.success(true); return }
+        var done = false
+        fun reply(v: Boolean) {
+            if (done) return
+            done = true
+            try { result.success(v) } catch (ignored: Throwable) {}
+        }
+        try {
+            val km = activity.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+            km.requestDismissKeyguard(activity, object : KeyguardManager.KeyguardDismissCallback() {
+                override fun onDismissSucceeded() = reply(true)
+                override fun onDismissCancelled() = reply(false)
+                override fun onDismissError() = reply(false)
+            })
+        } catch (ignored: Throwable) {
+            reply(false)
+        }
+    }
+
+    private fun leaveLockScreen(activity: Activity, moveBack: Boolean) {
+        try {
+            // NOTE: we do NOT reset showWhenLocked here — the integrated
+            // manifest (a6 FCM) declares MainActivity showWhenLocked="true"
+            // statically for incoming calls / SOS; clearing it at runtime would
+            // break those. We only hand the phone back to the lock screen.
+            if (moveBack && isLocked(activity)) activity.moveTaskToBack(true)
+        } catch (ignored: Throwable) {}
+    }
+
+    // ---- music -------------------------------------------------------------------
+
+    private val MUSIC_PKGS = listOf(
+        "com.google.android.apps.youtube.music",
+        "com.spotify.music",
+        "com.google.android.youtube"
+    )
+
+    private fun musicApps(ctx: Context): List<String> = MUSIC_PKGS.filter { p ->
+        try {
+            ctx.packageManager.getLaunchIntentForPackage(p) != null
+        } catch (ignored: Throwable) {
+            false
+        }
+    }
+
+    /**
+     * MEDIA_PLAY_FROM_SEARCH — the Android "play this" intent that YouTube Music
+     * and Spotify start playing straight away (no API key). Focus = song when
+     * we know the title, artist when only the artist is known.
+     */
+    private fun playFromSearch(
+        activity: Activity, pkg: String, query: String, artist: String?, title: String?
+    ): String {
+        if (pkg.isBlank()) return "no_app"
+        return try {
+            val i = Intent(MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH)
+                .setPackage(pkg)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .putExtra(SearchManager.QUERY, query)
+            when {
+                !title.isNullOrBlank() -> {
+                    i.putExtra(MediaStore.EXTRA_MEDIA_FOCUS, MediaStore.Audio.Media.ENTRY_CONTENT_TYPE)
+                    i.putExtra(MediaStore.EXTRA_MEDIA_TITLE, title)
+                    if (!artist.isNullOrBlank()) i.putExtra(MediaStore.EXTRA_MEDIA_ARTIST, artist)
+                }
+                !artist.isNullOrBlank() -> {
+                    i.putExtra(MediaStore.EXTRA_MEDIA_FOCUS, MediaStore.Audio.Artists.ENTRY_CONTENT_TYPE)
+                    i.putExtra(MediaStore.EXTRA_MEDIA_ARTIST, artist)
+                }
+                else -> i.putExtra(MediaStore.EXTRA_MEDIA_FOCUS, "vnd.android.cursor.item/*")
+            }
+            activity.startActivity(i)
+            "ok"
+        } catch (ignored: android.content.ActivityNotFoundException) {
+            "no_app"
+        } catch (ignored: Throwable) {
+            "error"
+        }
+    }
+
+    private fun openYoutubeVideo(activity: Activity, id: String): Boolean {
+        if (!Regex("^[A-Za-z0-9_-]{6,20}$").matches(id)) return false
+        return try {
+            activity.startActivity(
+                Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:$id"))
+                    .setPackage("com.google.android.youtube")
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+            true
+        } catch (ignored: Throwable) {
+            false
         }
     }
 

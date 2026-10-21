@@ -72,6 +72,12 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
   bool _typing = false;
   bool _ttsOn = true;
 
+  /// Opened over the lock screen (power long-press / wake word while locked).
+  bool _locked = false;
+
+  /// Language of the last thing the user said (answers + TTS follow it).
+  String? _replyLang;
+
   AppLocalizations get t => AppLocalizations.of(context);
   String get _uiLang => Localizations.localeOf(context).languageCode;
 
@@ -94,8 +100,12 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
     _voice = v;
     v.addListener(_onVoice);
     try {
-      await v.loadLang(_uiLang);
+      // Recognition language: VoiceDictation's own setting (Auto by default,
+      // override in Settings > Voice — owned by voice_input.dart).
       _ttsOn = await Settings.getBool(VaWake.ttsKey, true);
+      if (widget.debugTurns == null && !widget.debugListening) {
+        _locked = await VaNative.isLocked();
+      }
     } catch (_) {}
     if (!mounted) return;
     setState(() {});
@@ -116,6 +126,7 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
     _voice?.dispose();
     try {
       VaNative.stopSpeaking();
+      if (_locked) VaNative.leaveLockScreen(moveBack: true);
     } catch (_) {}
     _pulse.dispose();
     _ctrl.dispose();
@@ -170,7 +181,8 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
   Future<void> say(String text) async {
     if (!_ttsOn) return;
     try {
-      await VaNative.speak(text, _uiLang).timeout(const Duration(seconds: 8));
+      await VaNative.speak(text, _replyLang ?? _uiLang)
+          .timeout(const Duration(seconds: 8));
     } catch (_) {}
   }
 
@@ -228,7 +240,12 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
     _toBottom();
     final intent =
         VoiceIntentParser.parse(said, detectRoute: ChatNav.detectRoute);
-    final out = await VaExecutor(context, confirmVoice: this).run(intent);
+    _replyLang = VaText.replyLang(said);
+    final out = await VaExecutor(context,
+        confirmVoice: this,
+        locked: _locked,
+        onUnlocked: _onUnlocked,
+        replyLang: _replyLang).run(intent);
     if (!mounted) return;
     setState(() {
       _turns[_turns.length - 1] = VaTurn(said, out);
@@ -238,10 +255,29 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
     _speak(out.reply);
   }
 
+  void _onUnlocked() {
+    _locked = false;
+    VaNative.leaveLockScreen();
+    if (mounted) setState(() {});
+  }
+
+  /// Closing while still locked: hand the phone back to the lock screen
+  /// FIRST, then drop the route, so nothing of Assisto shows unlocked.
+  Future<void> _close() async {
+    if (_locked) {
+      await VaNative.leaveLockScreen(moveBack: true);
+      _locked = false;
+      if (mounted) Navigator.of(context).pop();
+      return;
+    }
+    if (mounted) Navigator.maybePop(context);
+  }
+
   Future<void> _speak(String text) async {
     if (!_ttsOn || text.isEmpty) return;
-    final r = await VaNative.speak(text, _uiLang);
-    if (r == 'no_voice' && mounted) {
+    final lang = _replyLang ?? _uiLang;
+    final r = await VaNative.speak(text, lang);
+    if (r == 'no_voice' && lang == 'bn' && mounted) {
       final shown = await Settings.getBool('va_tts_hint_shown', false);
       if (shown || !mounted) return;
       await Settings.setBool('va_tts_hint_shown', true);
@@ -278,9 +314,13 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final voice = _voice;
     final listening = _phase == _Phase.listening;
-    return Scaffold(
+    return PopScope(
+      canPop: !_locked,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _close();
+      },
+      child: Scaffold(
       backgroundColor: dark ? const Color(0xFF0A0D18) : const Color(0xFFF5F7FF),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -288,31 +328,14 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
         leading: IconButton(
           tooltip: t.vaClose,
           icon: const Icon(Icons.close),
-          onPressed: () => Navigator.maybePop(context),
+          onPressed: _close,
         ),
         title: Text(t.vaTitle,
             style: const TextStyle(fontWeight: FontWeight.w700)),
         actions: [
-          if (voice != null)
-            ListenableBuilder(
-              listenable: voice,
-              builder: (_, __) => Semantics(
-                button: true,
-                label: t.voiceLangToggle,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: ActionChip(
-                    visualDensity: VisualDensity.compact,
-                    label: Text(
-                        voice.lang == 'bn' ? t.voiceChipBn : t.voiceChipEn,
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: scheme.primary)),
-                    onPressed: voice.toggleLang,
-                  ),
-                ),
-              ),
-            ),
+          // Voice language is AUTOMATIC (owner order); the manual override
+          // lives only in Settings > Voice. No BN/EN chip here.
+          if (!_locked)
           IconButton(
             tooltip: t.vaSettingsTitle,
             icon: const Icon(Icons.tune),
@@ -343,16 +366,29 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
                     ],
                   ),
           ),
+          if (_locked)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
+              child: Row(children: [
+                Icon(Icons.lock_outline, size: 16, color: scheme.onSurfaceVariant),
+                const SizedBox(width: Gap.sm),
+                Expanded(
+                    child: Text(t.vaLockedNote,
+                        style: TextStyle(
+                            color: scheme.onSurfaceVariant, fontSize: 13))),
+              ]),
+            ),
           _bottom(scheme, listening),
         ]),
       ),
+    ),
     );
   }
 
   Widget _welcome(ColorScheme scheme) {
     final examples = [
       t.vaExCall,
-      t.vaExYoutube,
+      t.vaExSong,
       t.vaExAlarm,
       t.vaExExpense,
       t.vaExTorch,
