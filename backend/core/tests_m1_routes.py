@@ -321,3 +321,40 @@ class GroupShapeTests(TestCase):
         self.assertFalse(j["backend_ready"])
         self.assertEqual(self.cc.get("%s/circle/groups/%d/media" % (V, self.g.id))
                          .status_code, 404)
+
+
+class ConnectionAndDiscoverTests(TestCase):
+    def setUp(self):
+        self.a = mk("01760000001", "A")
+        self.b = mk("01760000002", "B")
+        self.ca, self.cb = cl(self.a), cl(self.b)
+
+    def test_connection_request_list_both_sides(self):
+        from core.models import ConnectionRequest
+        ConnectionRequest.objects.create(requester=self.a, target=self.b,
+                                         relation="friend")
+        ra = self.ca.get("%s/messenger/request" % V)
+        self.assertEqual(ra.status_code, 200)
+        self.assertEqual(ra.json()["results"][0]["direction"], "outgoing")
+        rb = self.cb.get("%s/messenger/request" % V).json()["results"][0]
+        self.assertEqual(rb["direction"], "incoming")
+        self.assertIn("accept", rb["actions"])
+        self.assertEqual(rb["peer"]["name"], "A")
+        stranger = cl(mk("01760000003", "C"))
+        self.assertEqual(stranger.get("%s/messenger/request" % V)
+                         .json()["results"], [])
+
+    def test_channel_discover_public_only(self):
+        from core.models import Channel
+        pub = Channel.objects.create(owner=self.a, name="Dhaka News",
+                                     handle="dn", category="news",
+                                     language="bn", list_visibility="public",
+                                     follower_count=5)
+        Channel.objects.create(owner=self.a, name="Dhaka Secret", handle="ds",
+                               list_visibility="private")
+        j = self.cb.get("%s/channels/discover?q=Dhaka" % V).json()
+        self.assertEqual([c["id"] for c in j["results"]], [pub.id])
+        self.assertIn("news", j["categories"])
+        self.assertEqual([c["id"] for c in j["suggested"]], [pub.id])
+        j = self.cb.get("%s/channels/discover?category=sports" % V).json()
+        self.assertEqual(j["results"], [])

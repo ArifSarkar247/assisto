@@ -653,3 +653,86 @@ def resolve_add_member(request, g, data):
     from . import push
     peer = push.member_peer_user(edge)
     return peer.pk if peer else None
+
+
+# ===========================================================================
+# CONNECTION REQUESTS list  (GET /messenger/request) + CHANNEL DISCOVER
+# ===========================================================================
+from .views_messenger import ConnectionRequestCreateView as _CRCreate  # noqa: E402
+
+
+class ConnectionRequestsView(_CRCreate):
+    """GET /messenger/request -> {results:[...]} my PENDING connection
+    requests, incoming (I may accept/decline/block) and outgoing (I may
+    cancel). POST is the existing create (unchanged)."""
+
+    def get(self, request):
+        from .models import ConnectionRequest
+        lang = req_lang(request)
+        rows = (ConnectionRequest.objects
+                .filter(dj_models.Q(requester=request.user)
+                        | dj_models.Q(target=request.user), state="pending")
+                .select_related("requester", "target"))
+        out = []
+        for cr in rows:
+            incoming = cr.target_id == request.user.id
+            other = cr.requester if incoming else cr.target
+            d = self._dict(cr, lang)
+            d.update({
+                "direction": "incoming" if incoming else "outgoing",
+                "actions": (["accept", "decline", "block"] if incoming
+                            else ["cancel"]),
+                "peer": {"id": other.id,
+                         "name": (other.name or "").strip() or other.username,
+                         "photo": other.photo_url},
+            })
+            out.append(d)
+        return Response({"results": out})
+
+
+class ChannelDiscoverView(APIView):
+    """GET /channels/discover?q=&category=&language= -> {results, suggested,
+    categories}. ONLY public-listed channels of active owners. `suggested` is
+    popularity (+ the viewer's app language) — never contacts or messages."""
+
+    def get(self, request):
+        from .logic import msg_channel as mch
+        from .models import Channel, ChannelFollower
+        from .views_messenger import _channel_dict
+        qp = request.query_params
+        q = str(qp.get("q", "")).strip()[:80]
+        cat = str(qp.get("category", "")).strip()[:20]
+        lang = str(qp.get("language", "")).strip()[:8]
+        base = Channel.objects.filter(list_visibility="public",
+                                      owner__is_active=True).exclude(
+            owner__account_status__in=["suspended", "banned"])
+        following = set(ChannelFollower.objects.filter(user=request.user)
+                        .values_list("channel_id", flat=True))
+
+        def ser(ch):
+            d = _channel_dict(ch)
+            d["id"] = ch.id
+            d["following"] = ch.id in following
+            return d
+        results = []
+        if q or cat or lang:
+            qs = base
+            if q:
+                qs = qs.filter(dj_models.Q(name__icontains=q)
+                               | dj_models.Q(handle__icontains=q.lstrip("@"))
+                               | dj_models.Q(description__icontains=q))
+            if cat:
+                qs = qs.filter(category=cat)
+            if lang:
+                qs = qs.filter(language=lang)
+            results = [ser(c) for c in qs.order_by("-follower_count", "-id")[:50]]
+        my_lang = getattr(request.user, "language", "bn")
+        sug = list(base.filter(language=my_lang).order_by("-follower_count")[:10])
+        if len(sug) < 10:
+            sug += list(base.exclude(pk__in=[c.pk for c in sug])
+                        .order_by("-follower_count")[:10 - len(sug)])
+        return Response({"results": results,
+                         "suggested": [ser(c) for c in sug
+                                       if c.id not in following],
+                         "categories": [c if isinstance(c, str) else c[0]
+                                        for c in mch.CATEGORIES]})

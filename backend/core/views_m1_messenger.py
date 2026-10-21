@@ -171,11 +171,17 @@ def _visible(user, rows, cleared_at=None, ttl=0, since=None, now=None):
 def conversation_rows(edge):
     """Every 1:1 message of the conversation `edge` belongs to: the ones sent
     on this edge AND the ones the peer sent on their reverse edge."""
-    rev = reverse_edge(edge)
+    # Same thread rule as m2-reality's views_module5._thread_q (mirror edge =
+    # owner is my peer, peer_user is me), plus the phone-matched reverse edge.
     q = dj_models.Q(member=edge)
+    if getattr(edge, "peer_user_id", None):
+        q |= dj_models.Q(member__user_id=edge.peer_user_id,
+                         member__peer_user_id=edge.user_id)
+    rev = reverse_edge(edge)
     if rev is not None:
         q |= dj_models.Q(member=rev)
-    return CircleMessage.objects.filter(q, group=None).order_by("created_at")
+    return CircleMessage.objects.filter(q, group=None).order_by(
+        "created_at", "id")
 
 
 def visible_conversation(user, edge):

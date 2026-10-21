@@ -647,6 +647,9 @@ urlpatterns[:0] = [
     path("journey/<int:pk>/timeline", m1r.JourneyTimelineView.as_view()),
     path("disaster/feed", m1r.DisasterFeedView.as_view()),
     path("medicine-db/report", m1r.MedicineDbReportView.as_view()),
+    # connection-request list (GET; POST create unchanged) + channel discover
+    path("messenger/request", m1r.ConnectionRequestsView.as_view()),
+    path("channels/discover", m1r.ChannelDiscoverView.as_view()),
 ]
 # ---- /m1-messenger ----
 

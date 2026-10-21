@@ -842,12 +842,12 @@ class CircleMessageActionView(APIView):
     """POST /circle/messages/<id>/<action> -> react|star|pin|edit|delete.
     All gates (edit-window, pin-cap, delete scope) run server-side."""
     def post(self, request, pk, action):
-        # m1-messenger: either side of the conversation may act on a message
-        # (the receiver stars / reacts / deletes-for-me the peer's rows too).
         from django.db.models import Q
-        x = CircleMessage.objects.filter(pk=pk, group=None).filter(
-            Q(member__user=request.user) | Q(member__peer_user=request.user)
-        ).first()
+        # m2-reality: the recipient may act (react/star/delete-for-me) on a
+        # message stored on the sender's edge of the same 1:1 thread.
+        x = CircleMessage.objects.filter(
+            Q(member__user=request.user) | Q(member__peer_user=request.user),
+            pk=pk, group__isnull=True).first()
         if x is None:
             return Response({"detail": "not found"},
                             status=status.HTTP_404_NOT_FOUND)

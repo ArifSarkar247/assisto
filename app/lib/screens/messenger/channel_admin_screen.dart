@@ -291,9 +291,8 @@ class _PostComposerSheetState extends State<_PostComposerSheet> {
               spacing: Gap.sm,
               children: [
                 _kindChip('text', t.channelPostText, Icons.notes),
-                _kindChip('photo', t.channelPostPhoto, Icons.image_outlined),
-                _kindChip('video', t.channelPostVideo,
-                    Icons.videocam_outlined),
+                // Photo / video posts are hidden: the server has no channel
+                // media upload yet, so an "attach" button would do nothing.
                 _kindChip('link', t.channelPostLink, Icons.link),
                 _kindChip('poll', t.channelPostPoll, Icons.poll_outlined),
               ],
@@ -310,18 +309,6 @@ class _PostComposerSheetState extends State<_PostComposerSheet> {
                 maxLines: 4,
                 minLines: 2,
               ),
-            if (_kind == 'photo' || _kind == 'video') ...[
-              const SizedBox(height: Gap.md),
-              OutlinedButton.icon(
-                onPressed: () {},
-                icon: Icon(_kind == 'video'
-                    ? Icons.video_library_outlined
-                    : Icons.add_photo_alternate_outlined),
-                label: Text(_kind == 'video'
-                    ? t.channelAttachVideo
-                    : t.channelAttachPhoto),
-              ),
-            ],
             if (_kind == 'link') ...[
               const SizedBox(height: Gap.md),
               TextField(
