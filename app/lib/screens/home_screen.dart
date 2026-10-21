@@ -11,6 +11,7 @@ import '../widgets/home_quick_buttons.dart';
 import '../widgets/home_suggestions.dart';
 import 'agent_thread_screen.dart';
 import 'app_drawer.dart';
+import 'assisto_chats_screen.dart';
 import 'photo_enhance_screen.dart';
 import 'messenger/messenger_home_screen.dart';
 // Built by another agent; imported by class name per the home spec.
@@ -49,11 +50,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // The Assisto AI chats page (also opened from the home quick shortcut via
+    // ChatNav) reopens home chats / starts a new one here.
+    HomeChatLink.register(onNew: _newChat, onOpen: _openHomeChat);
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadBadges());
   }
 
   @override
   void dispose() {
+    HomeChatLink.unregister(_newChat);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -76,8 +81,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     } catch (_) {/* offline/server down — keep last counts */}
   }
 
-  // "New chat": a fresh, empty home thread (the old one stays in the sidebar
-  // history) with the Discover cards + quick buttons back.
+  // "New chat": a fresh, empty home thread (the old one stays in the Assisto
+  // AI chats page) with the Discover cards + quick buttons back.
   void _newChat() => setState(() {
         _threadKey = UniqueKey();
         _openSessionId = null;
@@ -86,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         _showSuggestions = true;
       });
 
-  // Reopen a saved home conversation from the sidebar history.
+  // Reopen a saved home conversation from the Assisto AI chats page.
   void _openHomeChat(String sessionId) => setState(() {
         _threadKey = UniqueKey();
         _openSessionId = sessionId;

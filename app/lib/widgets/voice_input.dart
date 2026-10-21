@@ -11,22 +11,27 @@ import 'permission_reason.dart';
 
 /// Shared live speech-to-text for every chat input (home + Assisto AI).
 ///
-/// * The VOICE language (bn / en) is its own choice, independent of the app's
-///   UI language, and is remembered. Bangla UI users can dictate English and
-///   the other way round.
+/// * The voice language is AUTOMATIC by default (owner order, build 147): no
+///   BN/EN chip on the chat screens. Auto listens with the Bangla (bn-BD)
+///   recogniser, which also transcribes English words and mixed "Banglish"
+///   speech; if this phone's engine has no Bangla at all, Auto falls back to
+///   English instead of failing. A manual override (Auto / Bangla / English)
+///   lives ONLY in Settings -> Voice ([VoiceDictation.setMode]).
 /// * The actual recogniser locale is resolved from what THIS phone's speech
-///   engine offers (bn_BD → bn_IN → any bn). If the engine has no Bangla at
-///   all we say so plainly and explain how to add it — never a fake result.
+///   engine offers (bn_BD -> bn_IN -> any bn). If the chosen language is missing
+///   we say so plainly and explain how to add it -- never a fake result.
 /// * Press-and-hold the mic to talk, release to stop; a short tap toggles.
-///   Text goes into the input box only — it is never auto-sent.
+///   Text goes into the input box only -- it is never auto-sent.
 /// * Lazy: the engine is initialised on the first mic use, never at launch.
 ///   Every call is guarded so the mic can never crash or block the UI.
+///
+/// HONEST LIMIT: speech_to_text 7.x does not pass Android 14's
+/// EXTRA_ENABLE_LANGUAGE_DETECTION extras, so true per-utterance language
+/// detection is not used yet (see .phaseB/proposals/p1-sidebar.md).
 class VoiceDictation extends ChangeNotifier {
-  static const _langKey = 'voice_lang_v1';
-
-  /// The voice language is ONE app-wide choice: toggling it on the AI chat
-  /// updates the home chip too (each screen owns its own VoiceDictation).
-  static final ValueNotifier<String?> _langBus = ValueNotifier<String?>(null);
+  /// Settings key for the Settings -> Voice override.
+  static const modeKey = 'voice_mode_v1';
+  static const modes = ['auto', 'bn', 'en'];
 
   /// The rationale dialog is shown once per app run, not once per screen.
   static bool _reasonShown = false;
@@ -51,60 +56,53 @@ class VoiceDictation extends ChangeNotifier {
   /// stop() (finger released, or a 2nd tap) arrived while still starting.
   bool _cancelPending = false;
 
-  /// 'bn' or 'en' — the language the user wants to SPEAK.
-  String lang;
+  /// 'auto' (default), 'bn' or 'en' -- the Settings -> Voice choice.
+  String mode;
+
+  /// The language actually being listened in right now ('bn' / 'en').
+  String activeLang = 'bn';
+
+  // Auto mode: the bn locale was rejected by the engine for this session, so
+  // the next listens go straight to English.
+  bool _bnRejected = false;
 
   VoiceDictation(
-      {required this.lang,
+      {this.mode = 'auto',
       @visibleForTesting SpeechToText? engine,
       @visibleForTesting Future<bool> Function(BuildContext context)? askReason,
       @visibleForTesting Future<bool> Function()? micDenied})
       : _speech = engine ?? SpeechToText(),
         _askReason = askReason ??
             ((c) => showPermissionReason(c, PermKind.mic)),
-        _micDenied = micDenied ?? _osMicDenied {
-    _langBus.addListener(_onLangBus);
-  }
+        _micDenied = micDenied ?? _osMicDenied;
 
   @visibleForTesting
   static void debugReset() {
-    _langBus.value = null;
     _reasonShown = false;
   }
 
-  void _onLangBus() {
-    final v = _langBus.value;
-    if (v != null && v != lang) {
-      lang = v;
-      notifyListeners();
-    }
-  }
-
-  /// Loads the remembered voice language (falls back to the UI language).
-  Future<void> loadLang(String uiLocale) async {
-    String? saved = _langBus.value;
-    if (saved == null) {
-      try {
-        saved = await Settings.getString(_langKey);
-      } catch (_) {}
-    }
-    // a toggle that happened while prefs were loading wins
-    if (_langBus.value != null) saved = _langBus.value;
-    lang = (saved == 'bn' || saved == 'en')
-        ? saved!
-        : (uiLocale.startsWith('bn') ? 'bn' : 'en');
-    notifyListeners();
-  }
-
-  Future<void> toggleLang() async {
-    if (listening) await stop();
-    lang = lang == 'bn' ? 'en' : 'bn';
-    _langBus.value = lang;
-    notifyListeners();
-    HapticFeedback.selectionClick();
+  /// Reads the saved Settings -> Voice mode (missing/invalid -> 'auto').
+  static Future<String> savedMode() async {
     try {
-      await Settings.setString(_langKey, lang);
+      final v = await Settings.getString(modeKey);
+      return modes.contains(v) ? v! : 'auto';
+    } catch (_) {
+      return 'auto';
+    }
+  }
+
+  /// Saves the Settings -> Voice mode.
+  static Future<void> saveMode(String mode) async {
+    if (!modes.contains(mode)) return;
+    try {
+      await Settings.setString(modeKey, mode);
     } catch (_) {}
+  }
+
+  /// Loads the remembered voice mode for this input.
+  Future<void> loadMode() async {
+    mode = await savedMode();
+    notifyListeners();
   }
 
   /// Picks the recogniser locale for [lang] from the engine's [available]
@@ -128,6 +126,28 @@ class VoiceDictation extends ChangeNotifier {
     return null;
   }
 
+  /// The listen plan for [mode]: the (lang, localeId) to use, or null when the
+  /// engine has nothing usable. Auto = Bangla first (bn-BD handles Bangla,
+  /// English and mixed speech), English only when Bangla is missing or was
+  /// rejected ([bnRejected]). Manual bn/en never silently switch language.
+  static ({String lang, String localeId})? pickLocale(
+      List<String> available, String mode,
+      {bool bnRejected = false}) {
+    if (mode == 'bn' || mode == 'en') {
+      final id = resolveLocale(available, mode);
+      return id == null ? null : (lang: mode, localeId: id);
+    }
+    if (!bnRejected) {
+      final bn = resolveLocale(available, 'bn');
+      if (bn != null) return (lang: 'bn', localeId: bn);
+    }
+    final en = resolveLocale(available, 'en');
+    return en == null ? null : (lang: 'en', localeId: en);
+  }
+
+  /// Which language's "missing" message to show when [pickLocale] is null.
+  static String missingLang(String mode) => mode == 'en' ? 'en' : 'bn';
+
   Future<void> toggle(BuildContext context, TextEditingController input) =>
       (listening || _starting) ? stop() : start(context, input);
 
@@ -142,7 +162,11 @@ class VoiceDictation extends ChangeNotifier {
     final wasListening = listening;
     listening = false;
     notifyListeners();
-    if (wasListening || e.permanent) _report(e.errorMsg);
+    if (!(wasListening || e.permanent)) return;
+    if (shouldFallBackToEnglish(mode, activeLang, e.errorMsg)) {
+      _bnRejected = true;
+    }
+    _report(e.errorMsg);
   }
 
   void _claimEngine() {
@@ -189,15 +213,17 @@ class VoiceDictation extends ChangeNotifier {
       // a very short hold: the finger was already up before the engine was
       // ready — never start an unwanted listening session.
       if (_cancelPending || !context.mounted) return;
-      final localeId = resolveLocale(_available, lang);
-      if (localeId == null) {
-        _showMessage(context, lang == 'bn' ? t.voiceNoBangla : t.voiceNoEnglish,
+      final plan = pickLocale(_available, mode, bnRejected: _bnRejected);
+      if (plan == null) {
+        _showMessage(context,
+            missingLang(mode) == 'bn' ? t.voiceNoBangla : t.voiceNoEnglish,
             settings: false);
         return;
       }
       _target = input;
       _base = input.text;
       if (_base.isNotEmpty && !_base.endsWith(' ')) _base = '$_base ';
+      activeLang = plan.lang;
       listening = true;
       notifyListeners();
       await _speech.listen(
@@ -209,7 +235,7 @@ class VoiceDictation extends ChangeNotifier {
           );
         },
         listenOptions: SpeechListenOptions(
-          localeId: localeId,
+          localeId: plan.localeId,
           partialResults: true,
           cancelOnError: true,
           listenMode: ListenMode.dictation,
@@ -247,6 +273,18 @@ class VoiceDictation extends ChangeNotifier {
     return st.isDenied || st.isPermanentlyDenied || st.isRestricted;
   }
 
+  /// Auto mode only: the engine rejected Bangla, so the NEXT listen in this
+  /// input goes straight to English. We deliberately do not restart the
+  /// recogniser from inside its own error callback (status events of the
+  /// failed session could race the new one); the user sees the honest
+  /// "Bangla missing" hint and their next tap works in English.
+  static bool shouldFallBackToEnglish(
+          String mode, String activeLang, String code) =>
+      mode == 'auto' &&
+      activeLang == 'bn' &&
+      (code == 'error_language_not_supported' ||
+          code == 'error_language_unavailable');
+
   Future<void> stop() async {
     if (_starting) {
       _cancelPending = true;
@@ -272,7 +310,8 @@ class VoiceDictation extends ChangeNotifier {
         _showMessage(ctx, t.voiceNoMatch, settings: false);
       case 'error_language_not_supported':
       case 'error_language_unavailable':
-        _showMessage(ctx, lang == 'bn' ? t.voiceNoBangla : t.voiceNoEnglish,
+        _showMessage(
+            ctx, activeLang == 'bn' ? t.voiceNoBangla : t.voiceNoEnglish,
             settings: false);
       case 'error_network':
       case 'error_network_timeout':
@@ -313,7 +352,6 @@ class VoiceDictation extends ChangeNotifier {
 
   @override
   void dispose() {
-    _langBus.removeListener(_onLangBus);
     // The engine is shared: only cancel OUR session, and drop our callbacks.
     try {
       if (listening) _speech.cancel();
@@ -326,8 +364,10 @@ class VoiceDictation extends ChangeNotifier {
   }
 }
 
-/// The mic control for a chat input: a small bn/EN voice-language chip plus
-/// the mic. Hold to talk (release stops), tap to toggle. Pulses while live.
+/// The mic control for a chat input. The voice language is automatic (see
+/// [VoiceDictation]); the only override lives in Settings -> Voice, so there is
+/// no language chip here. Hold to talk (release stops), tap to toggle. Pulses
+/// while live.
 class VoiceMicButton extends StatelessWidget {
   final VoiceDictation voice;
   final TextEditingController input;
@@ -346,40 +386,19 @@ class VoiceMicButton extends StatelessWidget {
       listenable: voice,
       builder: (context, _) {
         final live = voice.listening || debugListening;
-        return Row(mainAxisSize: MainAxisSize.min, children: [
-          Semantics(
-            button: true,
-            label: t.voiceLangToggle,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(Radii.pill),
-              onTap: voice.toggleLang,
-              child: Container(
-                constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-                alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(horizontal: 6),
-                child: Text(voice.lang == 'bn' ? t.voiceChipBn : t.voiceChipEn,
-                    style: TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w700,
-                        color: scheme.primary)),
-              ),
-            ),
+        return Tooltip(
+          message: live ? t.voiceReleaseToStop : t.voiceHoldToTalk,
+          child: GestureDetector(
+            onLongPressStart: (_) => voice.start(context, input),
+            onLongPressEnd: (_) => voice.stop(),
+            child: live
+                ? _MicPulse(onTap: voice.stop)
+                : IconButton(
+                    onPressed: () => voice.toggle(context, input),
+                    icon: Icon(Icons.mic_none, color: scheme.onSurfaceVariant),
+                  ),
           ),
-          Tooltip(
-            message: live ? t.voiceReleaseToStop : t.voiceHoldToTalk,
-            child: GestureDetector(
-              onLongPressStart: (_) => voice.start(context, input),
-              onLongPressEnd: (_) => voice.stop(),
-              child: live
-                  ? _MicPulse(onTap: voice.stop)
-                  : IconButton(
-                      onPressed: () => voice.toggle(context, input),
-                      icon:
-                          Icon(Icons.mic_none, color: scheme.onSurfaceVariant),
-                    ),
-            ),
-          ),
-        ]);
+        );
       },
     );
   }

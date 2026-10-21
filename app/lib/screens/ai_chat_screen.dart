@@ -94,8 +94,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
   // Streaming control: a live subscription we can cancel with Stop.
   StreamSubscription<Map<String, dynamic>>? _streamSub;
 
-  // Voice input (shared with the home chat): hold-to-talk + bn/EN chip.
-  late final VoiceDictation _voice = VoiceDictation(lang: 'bn');
+  // Voice input (shared with the home chat): hold-to-talk, automatic language.
+  late final VoiceDictation _voice = VoiceDictation();
 
   @override
   void initState() {
@@ -105,7 +105,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      _voice.loadLang(t.localeName);
+      _voice.loadMode();
       final init = widget.initialSession;
       if (init != null) _openSession(_Session.fromJson(init));
     });

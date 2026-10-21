@@ -96,8 +96,9 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
 
   Future<void> _boot() async {
     if (!mounted) return;
-    final v = VoiceDictation(lang: _uiLang);
+    final v = VoiceDictation();
     _voice = v;
+    unawaited(v.loadMode());
     v.addListener(_onVoice);
     try {
       // Recognition language: VoiceDictation's own setting (Auto by default,

@@ -1,0 +1,53 @@
+{
+  "en": {
+    "p1ChatsSourceHome": "Home chat",
+    "p1ChatsPinned": "Pinned",
+    "p1ChatsRecent": "Recent",
+    "p1ChatsSidebarSub": "New chat and all your chats",
+    "p1VoiceTitle": "Voice input",
+    "p1VoiceAuto": "Auto",
+    "p1VoiceAutoBody": "Understands Bangla, English and mixed speech",
+    "p1VoiceBnBody": "Always listens in Bangla",
+    "p1VoiceEnBody": "Always listens in English",
+    "p1VoiceNote": "Voice uses your phone's own speech engine. If Bangla is missing, add it in your phone's voice typing settings.",
+    "p1ChatsAgoMin": "{n}m ago",
+    "@p1ChatsAgoMin": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "p1ChatsAgoHour": "{n}h ago",
+    "@p1ChatsAgoHour": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "p1ChatsAgoDay": "{n}d ago",
+    "@p1ChatsAgoDay": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    }
+  },
+  "bn": {
+    "p1ChatsSourceHome": "হোম চ্যাট",
+    "p1ChatsPinned": "পিন করা",
+    "p1ChatsRecent": "সাম্প্রতিক",
+    "p1ChatsSidebarSub": "নতুন চ্যাট আর আপনার সব চ্যাট",
+    "p1VoiceTitle": "ভয়েস ইনপুট",
+    "p1VoiceAuto": "স্বয়ংক্রিয়",
+    "p1VoiceAutoBody": "বাংলা, ইংরেজি আর মেশানো কথা — সবই বোঝে",
+    "p1VoiceBnBody": "সবসময় বাংলায় শোনে",
+    "p1VoiceEnBody": "সবসময় ইংরেজিতে শোনে",
+    "p1VoiceNote": "ভয়েস আপনার ফোনের নিজস্ব স্পিচ ইঞ্জিন ব্যবহার করে। বাংলা না থাকলে ফোনের ভয়েস টাইপিং সেটিংসে বাংলা যোগ করুন।",
+    "p1ChatsAgoMin": "{n} মিনিট আগে",
+    "p1ChatsAgoHour": "{n} ঘণ্টা আগে",
+    "p1ChatsAgoDay": "{n} দিন আগে"
+  }
+}

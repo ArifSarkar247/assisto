@@ -1845,21 +1845,51 @@ class FakeApi extends ApiClient {
     return super.deleteItem(path, id);
   }
 
-  // ---- chat history (sidebar + home persistence previews) ----
   @override
   Future<Map<String, dynamic>> homeDefaults() async =>
       {'quick_buttons': HomeQuickButtons.defaults, 'count': 6};
 
-  @override
-  Future<List<Map<String, dynamic>>> chatSessions({String? query}) async {
-    await _slow();
-    return _maybe([
+  // ---- chat history (Assisto AI chats page + home persistence previews) ----
+  // A small mutable store so rename / pin / delete flows are testable; every
+  // call is recorded in [chatCalls].
+  List<Map<String, dynamic>>? _chatStore;
+  final List<String> chatCalls = [];
+
+  List<Map<String, dynamic>> get _chats => _chatStore ??= [
       {'id': 11, 'title': _bn ? 'কাল সকালে মাকে ফোন' : 'Call mom tomorrow morning', 'pinned': true, 'source': 'home', 'snippet': '', 'updated': '2026-10-20T09:00:00Z'},
       {'id': 12, 'title': _bn ? 'এই মাসের খরচের হিসাব' : "This month's spending", 'pinned': false, 'source': 'home', 'snippet': '', 'updated': '2026-10-19T18:00:00Z'},
       {'id': 13, 'title': _bn ? 'দোকানের অফারের পোস্ট লেখা' : 'Write a shop offer post', 'pinned': false, 'source': 'ai', 'snippet': '', 'updated': '2026-10-18T12:00:00Z'},
       {'id': 14, 'title': _bn ? 'বিদ্যুৎ বিল কবে দিতে হবে' : 'When is the electricity bill due', 'pinned': false, 'source': 'home', 'snippet': '', 'updated': '2026-10-17T08:00:00Z'},
       {'id': 15, 'title': _bn ? 'চাকরির আবেদনপত্র' : 'Job application letter', 'pinned': false, 'source': 'ai', 'snippet': '', 'updated': '2026-10-15T08:00:00Z'},
+    ];
+
+  @override
+  Future<List<Map<String, dynamic>>> chatSessions({String? query}) async {
+    await _slow();
+    chatCalls.add('list:${query ?? ''}');
+    final q = (query ?? '').trim().toLowerCase();
+    return _maybe([
+      for (final r in _chats)
+        if (q.isEmpty || '${r['title']}'.toLowerCase().contains(q)) Map.of(r),
     ]);
+  }
+
+  @override
+  Future<Map<String, dynamic>> chatUpdateSession(String id,
+      {String? title, bool? pinned, bool? archived}) async {
+    if (mode == FakeMode.fail) _fail();
+    chatCalls.add('update:$id:${title ?? ''}:${pinned ?? ''}');
+    final r = _chats.firstWhere((r) => '${r['id']}' == id, orElse: () => {});
+    if (title != null) r['title'] = title;
+    if (pinned != null) r['pinned'] = pinned;
+    return Map.of(r);
+  }
+
+  @override
+  Future<void> chatDeleteSession(String id) async {
+    if (mode == FakeMode.fail) _fail();
+    chatCalls.add('delete:$id');
+    _chats.removeWhere((r) => '${r['id']}' == id);
   }
 
   @override

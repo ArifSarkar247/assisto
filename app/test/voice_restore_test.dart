@@ -147,7 +147,7 @@ void main() {
       final ctx = await _ctx(tester);
       final eng = FakeSpeech()..initGate = Completer<bool>();
       final v = VoiceDictation(
-          lang: 'en', engine: eng, askReason: (_) async => true);
+          mode: 'en', engine: eng, askReason: (_) async => true);
       final input = TextEditingController();
       final f = v.start(ctx, input); // onLongPressStart
       await tester.pump();
@@ -168,7 +168,7 @@ void main() {
     testWidgets('normal hold listens, release stops', (tester) async {
       final ctx = await _ctx(tester);
       final eng = FakeSpeech();
-      final v = VoiceDictation(lang: 'bn', engine: eng, askReason: (_) async => true);
+      final v = VoiceDictation(mode: 'bn', engine: eng, askReason: (_) async => true);
       await v.start(ctx, TextEditingController());
       expect(v.listening, isTrue);
       await v.stop();
@@ -181,10 +181,10 @@ void main() {
         (tester) async {
       final ctx = await _ctx(tester);
       final eng = FakeSpeech();
-      final home = VoiceDictation(lang: 'en', engine: eng, askReason: (_) async => true);
+      final home = VoiceDictation(mode: 'en', engine: eng, askReason: (_) async => true);
       await home.start(ctx, TextEditingController());
       await home.stop();
-      final ai = VoiceDictation(lang: 'en', engine: eng, askReason: (_) async => true);
+      final ai = VoiceDictation(mode: 'en', engine: eng, askReason: (_) async => true);
       await ai.start(ctx, TextEditingController());
       expect(ai.listening, isTrue);
       eng.statusListener!('done'); // engine auto-stopped after the pause
@@ -202,12 +202,12 @@ void main() {
       final ctx = await _ctx(tester);
       final eng = FakeSpeech(initOk: false);
       final declined = VoiceDictation(
-          lang: 'en', engine: eng, askReason: (_) async => false,
+          mode: 'en', engine: eng, askReason: (_) async => false,
           micDenied: () async => true);
       await declined.start(ctx, TextEditingController());
       expect(eng.listens, 0);
       expect(declined.listening, isFalse);
-      final v = VoiceDictation(lang: 'en', engine: eng,
+      final v = VoiceDictation(mode: 'en', engine: eng,
           askReason: (_) async => true, micDenied: () async => true);
       await v.start(ctx, TextEditingController());
       await tester.pump();
@@ -221,23 +221,13 @@ void main() {
       v.dispose();
     });
 
-    testWidgets('bn/EN chip is app-wide and persisted', (tester) async {
-      final a = VoiceDictation(lang: 'bn', engine: FakeSpeech());
-      final b = VoiceDictation(lang: 'bn', engine: FakeSpeech());
-      await a.loadLang('bn');
-      await b.loadLang('bn');
-      expect(a.lang, 'bn');
-      await a.toggleLang();
-      expect(a.lang, 'en');
-      expect(b.lang, 'en', reason: 'other screen follows the toggle');
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getString('voice_lang_v1'), 'en');
-      VoiceDictation.debugReset(); // simulate a cold start
-      final c = VoiceDictation(lang: 'bn', engine: FakeSpeech());
-      await c.loadLang('bn');
-      expect(c.lang, 'en');
-      a.dispose();
-      b.dispose();
+    testWidgets('Settings -> Voice mode is persisted (no chip)', (tester) async {
+      await VoiceDictation.saveMode('en');
+      final c = VoiceDictation(engine: FakeSpeech());
+      await c.loadMode();
+      expect(c.mode, 'en');
+      await VoiceDictation.saveMode('nonsense'); // ignored
+      expect(await VoiceDictation.savedMode(), 'en');
       c.dispose();
     });
   });
