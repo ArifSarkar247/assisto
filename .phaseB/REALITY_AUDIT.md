@@ -186,5 +186,7 @@ The class is provisional, from static evidence. The CI sweep replaces it with: d
 | unwired setting | server-address swap | C → fixed (hidden) | tile hidden until wired |
 
 ## Backend tests added
-- `core.tests_reality`: 1:1 delivery + keys, business writes, seed. Result: 9 run, all OK before notif-done was moved to m1. Rerun counts are in the final report.
-- `core.tests_api_contract`: red until m1 lands.
+- `core.tests_reality`: 1:1 delivery + keys, business writes, seed. **8 tests, all OK.**
+- `core.tests_api_contract`: **red until m1 lands** (42 problems: 40 on m1's list + 2 messenger rows).
+- Full backend suite, 21 Oct: **2415 tests, 1 failure.** The failure is exactly the contract test above.
+- Local HTTP check: `settings_ci` + `seed_reality` on :8790. B published a key → A's `/circle/members` returned it. A posted → B's `/circle/2/messages` returned it (`mine:false`). The server was stopped afterwards.
