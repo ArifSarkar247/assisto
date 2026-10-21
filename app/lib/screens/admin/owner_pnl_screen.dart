@@ -165,6 +165,11 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
               const SizedBox(height: Gap.sm),
               for (final m in margins) _marginRow(t, scheme, m),
             ],
+            // ps1-photo: Photo Studio ad revenue vs cost, per feature
+            const SizedBox(height: Gap.lg),
+            _sectionTitle(t.psOwnerPnlTitle, Icons.auto_awesome_outlined, scheme),
+            const SizedBox(height: Gap.sm),
+            ..._photoStudioRows(t, scheme),
           ],
         ],
       ),
@@ -455,6 +460,39 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
         ]),
       ),
     );
+  }
+
+  // ps1-photo
+  String _psFeature(AppLocalizations t, String f) => switch (f) {
+        'enhance_hd' => t.psOwnerFeatEnhanceHd,
+        'enhance_cloud' => t.psOwnerFeatEnhanceCloud,
+        'prompt_edit' => t.psOwnerFeatPrompt,
+        'generate' => t.psOwnerFeatGenerate,
+        'entry' => t.psOwnerFeatEntry,
+        _ => f,
+      };
+
+  List<Widget> _photoStudioRows(AppLocalizations t, ColorScheme scheme) {
+    final ps = (_data['photo_studio'] as Map?)?.cast<String, dynamic>() ?? const {};
+    final feats = (ps['features'] as List?)
+            ?.whereType<Map>()
+            .map((e) => e.cast<String, dynamic>())
+            .toList() ??
+        const <Map<String, dynamic>>[];
+    if (feats.isEmpty) {
+      return [
+        Text(t.psOwnerEmpty, style: TextStyle(color: scheme.onSurfaceVariant)),
+      ];
+    }
+    return [
+      for (final f in feats)
+        _marginRow(t, scheme, {
+          'feature': _psFeature(t, '${f['feature'] ?? ''}'),
+          'revenue': f['revenue'],
+          'cost': f['cost'],
+          'margin': f['margin'],
+        }),
+    ];
   }
 
   Widget _sectionTitle(String text, IconData icon, ColorScheme scheme) => Row(

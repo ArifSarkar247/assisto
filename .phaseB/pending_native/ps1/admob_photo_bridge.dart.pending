@@ -1,0 +1,113 @@
+// ps1-photo — real PhotoAdBridge (google_mobile_ads, same version as a6:
+// 9.1.0). Rename to app/lib/photo_studio/admob_photo_bridge.dart and switch
+// createPhotoAdBridge() in ps_ads.dart to `AdmobPhotoAdBridge()` AFTER the a6
+// AdMob native part is live. Every SDK call is wrapped; failure = honest
+// RewardOutcome.unavailable (the gate then offers retry / credits).
+import 'dart:async';
+
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+
+import 'ps_ads.dart';
+
+class AdmobPhotoAdBridge implements PhotoAdBridge {
+  bool _ready = false;
+  static const _request = AdRequest(nonPersonalizedAds: true);
+
+  Future<bool> _init() async {
+    if (_ready) return true;
+    try {
+      await MobileAds.instance.initialize();
+      _ready = true;
+    } catch (_) {
+      _ready = false;
+    }
+    return _ready;
+  }
+
+  @override
+  bool get linked => true;
+
+  @override
+  Future<bool> showInterstitial(String unitId) async {
+    if (unitId.isEmpty || !await _init()) return false;
+    final done = Completer<bool>();
+    try {
+      await InterstitialAd.load(
+        adUnitId: unitId,
+        request: _request,
+        adLoadCallback: InterstitialAdLoadCallback(
+          onAdLoaded: (ad) {
+            ad.fullScreenContentCallback = FullScreenContentCallback(
+              onAdDismissedFullScreenContent: (a) {
+                a.dispose();
+                if (!done.isCompleted) done.complete(true);
+              },
+              onAdFailedToShowFullScreenContent: (a, _) {
+                a.dispose();
+                if (!done.isCompleted) done.complete(false);
+              },
+            );
+            try {
+              ad.show();
+            } catch (_) {
+              if (!done.isCompleted) done.complete(false);
+            }
+          },
+          onAdFailedToLoad: (_) {
+            if (!done.isCompleted) done.complete(false);
+          },
+        ),
+      );
+    } catch (_) {
+      if (!done.isCompleted) done.complete(false);
+    }
+    // the studio opens after the user closes the ad (or 60 s at most)
+    return done.future.timeout(const Duration(seconds: 60), onTimeout: () => false);
+  }
+
+  @override
+  Future<RewardOutcome> showRewardedSsv(String unitId,
+      {required String userId, required String customData}) async {
+    if (unitId.isEmpty || !await _init()) return RewardOutcome.unavailable;
+    final done = Completer<RewardOutcome>();
+    var earned = false;
+    try {
+      await RewardedAd.load(
+        adUnitId: unitId,
+        request: _request,
+        rewardedAdLoadCallback: RewardedAdLoadCallback(
+          onAdLoaded: (ad) async {
+            try {
+              await ad.setServerSideOptions(ServerSideVerificationOptions(
+                  userId: userId, customData: customData));
+            } catch (_) {}
+            ad.fullScreenContentCallback = FullScreenContentCallback(
+              onAdDismissedFullScreenContent: (a) {
+                a.dispose();
+                if (!done.isCompleted) {
+                  done.complete(earned ? RewardOutcome.earned : RewardOutcome.dismissed);
+                }
+              },
+              onAdFailedToShowFullScreenContent: (a, _) {
+                a.dispose();
+                if (!done.isCompleted) done.complete(RewardOutcome.unavailable);
+              },
+            );
+            try {
+              ad.show(onUserEarnedReward: (_, __) => earned = true);
+            } catch (_) {
+              if (!done.isCompleted) done.complete(RewardOutcome.unavailable);
+            }
+          },
+          onAdFailedToLoad: (_) {
+            if (!done.isCompleted) done.complete(RewardOutcome.unavailable);
+          },
+        ),
+      );
+    } catch (_) {
+      if (!done.isCompleted) done.complete(RewardOutcome.unavailable);
+    }
+    return done.future
+        .timeout(const Duration(minutes: 2), onTimeout: () => RewardOutcome.unavailable);
+  }
+}
