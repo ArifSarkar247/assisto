@@ -8,3 +8,15 @@
 -keep class io.flutter.plugins.sharedpreferences.** { *; }
 -keep class androidx.datastore.** { *; }
 -keepclassmembers class * extends androidx.datastore.preferences.protobuf.GeneratedMessageLite { <fields>; }
+
+# The plugin's JNI registrars (SharedPreferencesApiRegistrar etc.) are found by
+# EXACT JNI signature, e.g. getAll(String, List, kotlin.coroutines.Continuation).
+# Keeping the class was not enough: R8 renamed kotlin.coroutines.Continuation
+# (to "t70" in build 151's smoke APK), so the lookup still failed. Keep the
+# NAMES of the Kotlin types that appear in JNI signatures, and the JNI runtime.
+-keep class kotlin.coroutines.Continuation
+-keepnames class kotlin.coroutines.**
+-keepnames class kotlin.jvm.functions.**
+-keep class kotlin.Unit
+-keep class com.github.dart_lang.jni.** { *; }
+-keep class io.flutter.plugins.pathprovider.** { *; }

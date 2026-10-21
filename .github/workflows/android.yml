@@ -544,6 +544,10 @@ jobs:
           # NOTE: this script runs under /bin/sh in the runner — use only
           # &&/|| one-liners (multi-line if/then/fi breaks it).
           script: |
+            # Let the freshly booted emulator finish its BOOT_COMPLETED broadcast storm
+            # (build 151: Maps/Calendar/NFC were still starting when the tour ran, and
+            # the whole emulator + adb wedged). 2-core runner; ~60 s is enough.
+            sleep 60
             adb install -r apk/*.apk || { echo "install failed"; exit 1; }
             adb shell pm grant com.assisto.assisto android.permission.RECORD_AUDIO 2>/dev/null || true
             adb shell pm grant com.assisto.assisto android.permission.ACTIVITY_RECOGNITION 2>/dev/null || true
