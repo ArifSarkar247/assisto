@@ -1,166 +1,133 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../discover_api.dart';
 import '../home_api.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import 'chatnav.dart';
 
-/// HOME "Discover" spotlight (owner-approved home change).
+/// HOME "Discover" spotlight — an auto-rotating, swipeable PageView of
+/// spotlight cards.
 ///
-/// Replaces the old 4 static prompt cards with an auto-rotating, horizontally
-/// swipeable PageView of premium spotlight cards that promote:
-///   1. Assisto's OWN features the user hasn't opened yet (personalised,
-///      unused-first, via a local "opened features" set in SharedPreferences),
-///   2. our other products (Asalify, AXON ERP) clearly marked "Our products",
-///   3. for FREE users only, ONE native-style ad slot — AdMob-key-gated. Since
-///      the app has no way to learn AdMob is enabled yet (no flag on /me/plan)
-///      and the real ad SDK (google_mobile_ads) is NOT a dependency, we show
-///      NOTHING there unless the plan response carries an explicit ads flag, in
-///      which case we show a labelled "Ad slot (enable AdMob)" placeholder.
-///      TODO(ads): wire google_mobile_ads with TEST unit ids in a later build.
+/// SERVER-DRIVEN (d1-discover): cards come from `GET /discover/cards`, managed
+/// by the owner in Settings -> Discover manager. The server decides who sees
+/// what (plan, audience, dates, min build; Premium/Business never receive
+/// sponsored or AdMob cards). The app:
+///   * shows the LAST server set from cache first (works offline),
+///   * refreshes from the server in the background and re-caches,
+///   * uses the built-in list below ONLY on first run (no cache, no network),
+///   * labels "Our products" / "Sponsored" by card type (not editable),
+///   * picks the bn/en copy by the user's UI language,
+///   * opens in-app routes via [ChatNav] or https links externally,
+///   * records impressions + taps fire-and-forget (never blocks the UI),
+///   * renders NOTHING for ADMOB cards: AdMob is not linked in the app yet.
 ///
-/// The promo list is a local const default for now; a backend `/home/discover`
-/// endpoint will OVERRIDE it later (admin-editable). Personalisation
-/// (unused-first ordering) stays client-side.
+/// Personalisation stays client-side: feature cards the user already opened
+/// move behind unopened ones, inside the feature slots only (sponsored and
+/// product cards keep the position the owner gave them).
 ///
-/// Fully crash-guarded: if anything throws, the card simply doesn't render and
-/// the home still shows the chat.
+/// Only used on the home screen (never on SOS / family-alert / safety
+/// screens). Fully crash-guarded: if anything throws, nothing renders and the
+/// home still shows the chat.
 ///
 /// The constructor keeps the previous signature ([onRun], [onReady]) so the
-/// host (home_screen) needs no change. [onRun] is kept for backward-compat but
-/// is unused — Discover cards navigate / open URLs on their own.
+/// host (home_screen) needs no change. [onRun] is unused.
 class HomeSuggestions extends StatefulWidget {
   final void Function(HomeSuggestion s)? onRun;
   final void Function(Future<void> Function() refresh)? onReady;
 
   const HomeSuggestions({super.key, this.onRun, this.onReady});
 
+  /// SharedPreferences key holding the last server card set (JSON list).
+  static const cacheKey = 'discover_cards_cache_v1';
+
   @override
   State<HomeSuggestions> createState() => _HomeSuggestionsState();
 }
 
-/// How a Discover card behaves when tapped.
-enum _DiscoverKind { feature, product, ad }
-
-class _Discover {
-  final _DiscoverKind kind;
-  final IconData icon;
-  final String Function(AppLocalizations t) title;
-  final String Function(AppLocalizations t) benefit;
-
-  /// In-app canonical route (feature cards). Must EXIST in [ChatNav.routes].
-  final String? route;
-
-  /// External URL (product cards).
-  final String? url;
-
-  /// Stable key for the "already opened" personalisation set.
-  final String key;
-
-  const _Discover.feature({
-    required this.key,
-    required this.icon,
-    required this.title,
-    required this.benefit,
-    required this.route,
-  })  : kind = _DiscoverKind.feature,
-        url = null;
-
-  const _Discover.product({
-    required this.key,
-    required this.icon,
-    required this.title,
-    required this.benefit,
-    required this.url,
-  })  : kind = _DiscoverKind.product,
-        route = null;
-}
-
-/// LOCAL default spotlight list. A backend `/home/discover` endpoint will
-/// override this later (admin-editable). Only routes that exist in
-/// [ChatNav.routes] are used (verified: photo_enhance, phone_safety, security,
-/// journey, messages, used_phone_check, vehicles, plans). "Remote support" has
-/// no route, so it is intentionally omitted.
-const List<_Discover> _kDiscover = [
-  _Discover.feature(
-    key: 'photo_enhance',
-    icon: Icons.auto_fix_high_outlined,
-    title: _tEnhanceTitle,
-    benefit: _tEnhanceBenefit,
-    route: 'photo_enhance',
-  ),
-  _Discover.feature(
-    key: 'phone_safety',
-    icon: Icons.phonelink_lock_outlined,
-    title: _tAntiTheftTitle,
-    benefit: _tAntiTheftBenefit,
-    route: 'phone_safety',
-  ),
-  _Discover.feature(
-    key: 'journey',
-    icon: Icons.near_me_outlined,
-    title: _tJourneyTitle,
-    benefit: _tJourneyBenefit,
-    route: 'journey',
-  ),
-  _Discover.feature(
-    key: 'messages',
-    icon: Icons.diversity_3_outlined,
-    title: _tCircleTitle,
-    benefit: _tCircleBenefit,
-    route: 'messages',
-  ),
-  _Discover.feature(
-    key: 'used_phone_check',
-    icon: Icons.verified_outlined,
-    title: _tUsedPhoneTitle,
-    benefit: _tUsedPhoneBenefit,
-    route: 'used_phone_check',
-  ),
-  _Discover.feature(
-    key: 'vehicles',
-    icon: Icons.directions_car_outlined,
-    title: _tVehiclesTitle,
-    benefit: _tVehiclesBenefit,
-    route: 'vehicles',
-  ),
-  _Discover.feature(
-    key: 'security',
-    icon: Icons.security_outlined,
-    title: _tSecurityTitle,
-    benefit: _tSecurityBenefit,
-    route: 'security',
-  ),
-  _Discover.feature(
-    key: 'plans',
-    icon: Icons.workspace_premium_outlined,
-    title: _tPlansTitle,
-    benefit: _tPlansBenefit,
-    route: 'plans',
-  ),
-  // ---- our other products (clearly marked "Our products") ----
-  _Discover.product(
-    key: 'asalify',
-    icon: Icons.storefront_outlined,
-    title: _tAsalifyTitle,
-    benefit: _tAsalifyBenefit,
-    url: 'https://asalify.com',
-  ),
-  _Discover.product(
-    key: 'axon',
-    icon: Icons.account_tree_outlined,
-    title: _tAxonTitle,
-    benefit: _tAxonBenefit,
-    url: 'https://axonerpsoftware.com',
-  ),
+/// FIRST-RUN fallback only (no cache and no network yet). Mirrors the server
+/// seed (migration 0049) so the first launch looks the same either way.
+const List<DiscoverItem> kDiscoverFallback = [
+  DiscoverItem(
+      key: 'photo_enhance',
+      type: DiscoverItem.feature,
+      icon: 'auto_fix_high',
+      route: 'photo_enhance',
+      tTitle: _tEnhanceTitle,
+      tDesc: _tEnhanceBenefit),
+  DiscoverItem(
+      key: 'phone_safety',
+      type: DiscoverItem.feature,
+      icon: 'phonelink_lock',
+      route: 'phone_safety',
+      tTitle: _tAntiTheftTitle,
+      tDesc: _tAntiTheftBenefit),
+  DiscoverItem(
+      key: 'journey',
+      type: DiscoverItem.feature,
+      icon: 'near_me',
+      route: 'journey',
+      tTitle: _tJourneyTitle,
+      tDesc: _tJourneyBenefit),
+  DiscoverItem(
+      key: 'messages',
+      type: DiscoverItem.feature,
+      icon: 'diversity_3',
+      route: 'messages',
+      tTitle: _tCircleTitle,
+      tDesc: _tCircleBenefit),
+  DiscoverItem(
+      key: 'used_phone_check',
+      type: DiscoverItem.feature,
+      icon: 'verified',
+      route: 'used_phone_check',
+      tTitle: _tUsedPhoneTitle,
+      tDesc: _tUsedPhoneBenefit),
+  DiscoverItem(
+      key: 'vehicles',
+      type: DiscoverItem.feature,
+      icon: 'directions_car',
+      route: 'vehicles',
+      tTitle: _tVehiclesTitle,
+      tDesc: _tVehiclesBenefit),
+  DiscoverItem(
+      key: 'security',
+      type: DiscoverItem.feature,
+      icon: 'security',
+      route: 'security',
+      tTitle: _tSecurityTitle,
+      tDesc: _tSecurityBenefit),
+  DiscoverItem(
+      key: 'plans',
+      type: DiscoverItem.feature,
+      icon: 'workspace_premium',
+      route: 'plans',
+      tTitle: _tPlansTitle,
+      tDesc: _tPlansBenefit),
+  DiscoverItem(
+      key: 'asalify',
+      type: DiscoverItem.ourProduct,
+      icon: 'storefront',
+      url: 'https://asalify.com',
+      tTitle: _tAsalifyTitle,
+      tDesc: _tAsalifyBenefit),
+  DiscoverItem(
+      key: 'axon',
+      type: DiscoverItem.ourProduct,
+      icon: 'account_tree',
+      url: 'https://axonerpsoftware.com',
+      tTitle: _tAxonTitle,
+      tDesc: _tAxonBenefit),
 ];
 
-// Top-level tear-offs so the list above can stay `const`.
+// Top-level tear-offs so the fallback entries can stay `const`.
 String _tEnhanceTitle(AppLocalizations t) => t.discoverEnhanceTitle;
 String _tEnhanceBenefit(AppLocalizations t) => t.discoverEnhanceBenefit;
 String _tAntiTheftTitle(AppLocalizations t) => t.discoverAntiTheftTitle;
@@ -182,19 +149,45 @@ String _tAsalifyBenefit(AppLocalizations t) => t.discoverAsalifyBenefit;
 String _tAxonTitle(AppLocalizations t) => t.discoverAxonTitle;
 String _tAxonBenefit(AppLocalizations t) => t.discoverAxonBenefit;
 
+/// Parse a cached / server card list. Unknown shapes are skipped.
+List<DiscoverItem> parseDiscoverItems(Object? raw) {
+  if (raw is! List) return const [];
+  final out = <DiscoverItem>[];
+  for (final e in raw) {
+    if (e is Map) {
+      try {
+        out.add(DiscoverItem.fromJson(e.cast<String, dynamic>()));
+      } catch (_) {}
+    }
+  }
+  return out;
+}
+
+/// Cards this app build can actually render: ADMOB renders nothing (AdMob is
+/// not linked in the app yet), in-app routes must exist in [ChatNav.routes],
+/// external links must be https.
+List<DiscoverItem> renderableDiscover(List<DiscoverItem> items) =>
+    items.where((c) {
+      if (c.isAdmob) return false;
+      if (c.route.isNotEmpty) return ChatNav.routes.containsKey(c.route);
+      return c.url.startsWith('https://');
+    }).toList();
+
 class _HomeSuggestionsState extends State<HomeSuggestions> {
   static const _openedKey = 'discover_opened_features';
+  static int? _buildNumber; // resolved once per process
+  static bool _buildResolved = false;
 
   final _page = PageController(viewportFraction: 0.92);
   final _rotate = ValueNotifier<int>(0);
   Timer? _autoRotate;
 
-  // Ordered cards to show (unused-first; ad injected for free users if gated).
-  List<_Discover> _cards = const [];
-  // Set of feature keys the user has already opened (unused-first ordering).
+  /// Source list (server / cache / fallback) before personalisation; null
+  /// until the first load decided which source to use.
+  List<DiscoverItem>? _source;
+  List<DiscoverItem> _cards = const [];
   Set<String> _opened = {};
-  // True only when the user is on the FREE plan AND an AdMob flag is present.
-  bool _showAd = false;
+  final Set<int> _impressed = {};
   int _index = 0;
 
   AppLocalizations get t => AppLocalizations.of(context);
@@ -231,9 +224,21 @@ class _HomeSuggestionsState extends State<HomeSuggestions> {
     });
   }
 
+  Future<int?> _appBuild() async {
+    if (_buildResolved) return _buildNumber;
+    try {
+      final info = await PackageInfo.fromPlatform();
+      _buildNumber = int.tryParse(info.buildNumber);
+    } catch (_) {
+      _buildNumber = null; // unknown -> the server hides min-build cards
+    }
+    _buildResolved = true;
+    return _buildNumber;
+  }
+
   Future<void> _refresh() async {
     if (!mounted) return;
-    // 1) load opened-set (best-effort).
+    // 1) opened-set (best-effort).
     try {
       final raw = await Settings.getString(_openedKey);
       _opened = (raw == null || raw.isEmpty)
@@ -242,42 +247,75 @@ class _HomeSuggestionsState extends State<HomeSuggestions> {
     } catch (_) {
       _opened = {};
     }
-    // 2) learn plan + ad gating (best-effort; default: NO ad).
-    var free = false;
-    var admobEnabled = false;
+    // 2) first load: the last server set from cache, else the fallback.
+    if (_source == null) {
+      List<DiscoverItem>? cached;
+      try {
+        final raw = await Settings.getString(HomeSuggestions.cacheKey);
+        if (raw != null) cached = parseDiscoverItems(jsonDecode(raw));
+      } catch (_) {
+        cached = null;
+      }
+      _source = cached ?? kDiscoverFallback;
+      _rebuild();
+    }
+    // 3) server (best-effort; offline keeps what is already shown).
+    if (!mounted) return;
     try {
       final app = context.read<AppState>();
-      if (app.loggedIn) {
-        final p = await app.api.plan();
-        final slug = (p['plan'] ?? p['id'] ?? '').toString().toLowerCase();
-        free = slug.isEmpty || slug == 'free';
-        // Honest AdMob gate: only if the backend explicitly says ads/admob are
-        // enabled. Absent → false → NO ad slot. (Real SDK is a later build.)
-        admobEnabled = p['admob'] == true ||
-            p['ads_enabled'] == true ||
-            p['ads'] == true;
-      }
-    } catch (_) {/* offline / no plan — treat as not-free, no ad */}
-    _showAd = free && admobEnabled;
-    _rebuild();
+      if (!app.loggedIn) return;
+      final build = await _appBuild();
+      final j = await app.api.discoverCards(build: build);
+      final raw = j['cards'];
+      if (raw is! List) return;
+      final items = parseDiscoverItems(raw);
+      _source = items;
+      try {
+        await Settings.setString(HomeSuggestions.cacheKey,
+            jsonEncode([for (final c in items) c.toJson()]));
+      } catch (_) {}
+      _rebuild();
+    } catch (_) {/* offline / server down — keep cache or fallback */}
   }
 
   void _rebuild() {
-    // Personalise: features NOT yet opened first, then opened ones, then
-    // product cards last. Keep relative order within each bucket.
-    final features = _kDiscover
-        .where((c) => c.kind == _DiscoverKind.feature)
-        .toList();
-    final products =
-        _kDiscover.where((c) => c.kind == _DiscoverKind.product).toList();
-    final unused = features.where((c) => !_opened.contains(c.key)).toList();
-    final used = features.where((c) => _opened.contains(c.key)).toList();
-    final list = <_Discover>[...unused, ...used, ...products];
+    final list = renderableDiscover(_source ?? const []);
+    // Feature slots get unopened-first ordering; other slots stay put.
+    final features = list.where((c) => c.type == DiscoverItem.feature).toList();
+    final reordered = [
+      ...features.where((c) => !_opened.contains(c.key)),
+      ...features.where((c) => _opened.contains(c.key)),
+    ];
+    var fi = 0;
+    final out = [
+      for (final c in list)
+        if (c.type == DiscoverItem.feature) reordered[fi++] else c,
+    ];
     if (!mounted) return;
     setState(() {
-      _cards = list;
-      _index = _index.clamp(0, list.isEmpty ? 0 : list.length - 1);
+      _cards = out;
+      _index = _index.clamp(0, out.isEmpty ? 0 : out.length - 1);
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _impression(_index));
+  }
+
+  void _track(DiscoverItem c, String event) {
+    final id = c.id;
+    if (id == null || !mounted) return;
+    try {
+      final api = context.read<AppState>().api;
+      // fire-and-forget: never awaited, never surfaces an error
+      unawaited(api.discoverTrack(id, event).then((_) {}, onError: (_) {}));
+    } catch (_) {}
+  }
+
+  void _impression(int i) {
+    if (!mounted || i < 0 || i >= _cards.length) return;
+    final c = _cards[i];
+    final id = c.id;
+    if (id == null || _impressed.contains(id)) return;
+    _impressed.add(id);
+    _track(c, 'impression');
   }
 
   Future<void> _markOpened(String key) async {
@@ -288,22 +326,17 @@ class _HomeSuggestionsState extends State<HomeSuggestions> {
     } catch (_) {}
   }
 
-  Future<void> _tap(_Discover c) async {
-    switch (c.kind) {
-      case _DiscoverKind.feature:
-        await _markOpened(c.key);
-        if (c.route != null) ChatNav.push(context, c.route);
-        break;
-      case _DiscoverKind.product:
-        if (c.url != null) {
-          try {
-            await launchUrl(Uri.parse(c.url!),
-                mode: LaunchMode.externalApplication);
-          } catch (_) {}
-        }
-        break;
-      case _DiscoverKind.ad:
-        break; // placeholder slot — no action
+  Future<void> _tap(DiscoverItem c) async {
+    _track(c, 'click');
+    if (c.route.isNotEmpty) {
+      if (c.type == DiscoverItem.feature) await _markOpened(c.key);
+      if (mounted) ChatNav.push(context, c.route);
+      return;
+    }
+    if (c.url.startsWith('https://')) {
+      try {
+        await launchUrl(Uri.parse(c.url), mode: LaunchMode.externalApplication);
+      } catch (_) {}
     }
   }
 
@@ -311,23 +344,15 @@ class _HomeSuggestionsState extends State<HomeSuggestions> {
   Widget build(BuildContext context) {
     // Crash guard: any failure → render nothing, chat stays.
     try {
-      return _build();
+      return _buildBody();
     } catch (_) {
       return const SizedBox.shrink();
     }
   }
 
-  Widget _build() {
+  Widget _buildBody() {
     final scheme = Theme.of(context).colorScheme;
     if (_cards.isEmpty) return const SizedBox.shrink();
-
-    // Inject ONE ad placeholder (free + admob-enabled only). Never for
-    // premium/business, never when AdMob is absent.
-    final display = <Widget>[
-      for (final c in _cards) _card(c),
-      if (_showAd) _adCard(),
-    ];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -351,12 +376,19 @@ class _HomeSuggestionsState extends State<HomeSuggestions> {
             onPageChanged: (i) {
               _index = i;
               _rotate.value = i;
+              _impression(i);
             },
-            children: display,
+            children: [
+              for (final c in _cards)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: Gap.xs),
+                  child: DiscoverCardTile(item: c, onTap: () => _tap(c)),
+                ),
+            ],
           ),
         ),
         const SizedBox(height: Gap.sm),
-        _dots(display.length, scheme),
+        _dots(_cards.length, scheme),
       ],
     );
   }
@@ -384,124 +416,104 @@ class _HomeSuggestionsState extends State<HomeSuggestions> {
       ),
     );
   }
+}
 
-  Widget _shell({required Widget child}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: Gap.xs),
-      child: child,
-    );
-  }
+/// One Discover spotlight card. Public so the owner's Discover manager can
+/// preview a card exactly as users will see it.
+class DiscoverCardTile extends StatelessWidget {
+  final DiscoverItem item;
+  final VoidCallback? onTap;
 
-  Widget _card(_Discover c) {
+  const DiscoverCardTile({super.key, required this.item, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final lang =
+        Localizations.localeOf(context).languageCode == 'bn' ? 'bn' : 'en';
     final scheme = Theme.of(context).colorScheme;
-    final isProduct = c.kind == _DiscoverKind.product;
-    return _shell(
-      child: Material(
-        borderRadius: BorderRadius.circular(Radii.md),
-        clipBehavior: Clip.antiAlias,
-        color: scheme.surfaceContainerHighest,
-        child: InkWell(
-          onTap: () => _tap(c),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: isProduct
-                  ? null
-                  : LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        scheme.primary.withValues(alpha: 0.14),
-                        scheme.tertiary.withValues(alpha: 0.10),
-                      ],
-                    ),
-            ),
-            padding: const EdgeInsets.all(Gap.lg),
-            child: Row(children: [
-              Container(
-                width: 46,
-                height: 46,
-                decoration: BoxDecoration(
-                  color: scheme.primary.withValues(alpha: 0.14),
-                  borderRadius: BorderRadius.circular(Radii.sm),
-                ),
-                child: Icon(c.icon, color: scheme.primary, size: 24),
-              ),
-              const SizedBox(width: Gap.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (isProduct) ...[
-                      _badge(t.discoverOurProducts, scheme.tertiary),
-                      const SizedBox(height: Gap.xs),
-                    ],
-                    Text(
-                      c.title(t),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w800, fontSize: 15),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      c.benefit(t),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                          color: scheme.onSurfaceVariant,
-                          fontSize: 12,
-                          height: 1.3),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(isProduct ? Icons.open_in_new : Icons.north_east,
-                  size: 16, color: scheme.onSurfaceVariant),
-            ]),
-          ),
-        ),
+    final plain = item.isProduct || item.isSponsored;
+    final img = item.absoluteImageUrl;
+    final iconBox = Container(
+      width: 46,
+      height: 46,
+      decoration: BoxDecoration(
+        color: scheme.primary.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(Radii.sm),
       ),
+      child: Icon(item.iconData, color: scheme.primary, size: 24),
     );
-  }
-
-  // Free + AdMob-enabled placeholder. The real google_mobile_ads SDK is NOT a
-  // dependency yet, so this is a clearly-labelled placeholder only.
-  // TODO(ads): render a native AdMob ad (TEST unit ids) once the SDK is added.
-  Widget _adCard() {
-    final scheme = Theme.of(context).colorScheme;
-    return _shell(
-      child: Container(
-        decoration: BoxDecoration(
-          color: scheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(Radii.md),
-          border: Border.all(
-              color: scheme.outlineVariant.withValues(alpha: 0.6),
-              style: BorderStyle.solid),
-        ),
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Row(children: [
-          Icon(Icons.campaign_outlined,
-              size: 28, color: scheme.onSurfaceVariant),
-          const SizedBox(width: Gap.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _badge(t.discoverAdBadge, scheme.secondary),
-                const SizedBox(height: Gap.xs),
-                Text(t.discoverAdPlaceholder,
+    return Material(
+      borderRadius: BorderRadius.circular(Radii.md),
+      clipBehavior: Clip.antiAlias,
+      color: scheme.surfaceContainerHighest,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: plain
+                ? null
+                : LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      scheme.primary.withValues(alpha: 0.14),
+                      scheme.tertiary.withValues(alpha: 0.10),
+                    ],
+                  ),
+          ),
+          padding: const EdgeInsets.all(Gap.lg),
+          child: Row(children: [
+            if (img != null)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(Radii.sm),
+                child: Image.network(
+                  img,
+                  width: 46,
+                  height: 46,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => iconBox,
+                ),
+              )
+            else
+              iconBox,
+            const SizedBox(width: Gap.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (item.isProduct) ...[
+                    _badge(t.discoverOurProducts, scheme.tertiary),
+                    const SizedBox(height: Gap.xs),
+                  ] else if (item.isSponsored) ...[
+                    _badge(t.discoverSponsored, scheme.secondary),
+                    const SizedBox(height: Gap.xs),
+                  ],
+                  Text(
+                    item.title(t, lang),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w800, fontSize: 15),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    item.description(t, lang),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                         color: scheme.onSurfaceVariant,
                         fontSize: 12,
-                        height: 1.3)),
-              ],
+                        height: 1.3),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ]),
+            Icon(item.isExternal ? Icons.open_in_new : Icons.north_east,
+                size: 16, color: scheme.onSurfaceVariant),
+          ]),
+        ),
       ),
     );
   }

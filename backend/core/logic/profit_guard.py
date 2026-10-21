@@ -19,7 +19,7 @@ Safety (SOS / family-alert SMS / safety notifications) is NEVER subject to the
 guard — that decision lives in billing.SAFETY_EXEMPT, asserted by a test.
 """
 
-REVENUE_SOURCES = ("ads", "subs", "packs", "commissions")
+REVENUE_SOURCES = ("ads", "subs", "packs", "commissions", "sponsored")
 COST_TYPES = ("ai", "sms", "ivr", "video", "storage")
 
 # config defaults (mirrored into PricingConfig via pricing defaults if desired)

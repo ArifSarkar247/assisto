@@ -28,6 +28,7 @@ import 'messenger/admin_users_screen.dart';
 import 'admin/cost_flags_screen.dart';
 import 'admin/server_address_screen.dart';
 import 'admin/owner_pnl_screen.dart';
+import 'admin/discover_manager_screen.dart';
 import 'credits_screen.dart';
 import '../push/push_settings_screen.dart';
 import '../widgets/storage_meter.dart';
@@ -559,6 +560,14 @@ class _MsgrSettingsSectionState extends State<_MsgrSettingsSection> {
             title: Text(t.pnlTile),
             subtitle: Text(t.pnlTileSub),
             onTap: () => _open(const OwnerPnlScreen()),
+          ),
+          // d1-discover: owner Discover manager (home spotlight cards, sponsors,
+          // reports). Same operator probe; the server re-checks superuser.
+          ListTile(
+            leading: const Icon(Icons.view_carousel_outlined),
+            title: Text(t.discoverMgrTile),
+            subtitle: Text(t.discoverMgrTileSub),
+            onTap: () => _open(const DiscoverManagerScreen()),
           ),
           // #179 Server-address swap (owner/admin) — HIDDEN by the reality
           // audit (m2-reality): nothing reads the saved override (api.dart uses

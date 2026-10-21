@@ -3,6 +3,7 @@ import 'package:assisto/business_selling_api.dart';
 import 'package:assisto/models.dart';
 import 'package:assisto/widgets/home_quick_buttons.dart';
 
+import 'fake_discover.dart';
 import 'fake_vehicle.dart';
 
 enum FakeMode { data, empty, fail, slow }
@@ -747,6 +748,9 @@ class FakeApi extends ApiClient {
     // v1-vehicle: vehicle tracking stubs (test/fake_vehicle.dart)
     final veh = fakeVehicleGet(path, _bn, mode.name, planSlug);
     if (veh != null) return veh;
+    // d1-discover: Discover cards + owner Discover manager stubs
+    final disc = fakeDiscoverGet(path, _bn, mode.name);
+    if (disc != null) return disc;
     // ===== Home / Notification centre stubs =====
     if (path == '/home/badges') return {'my_circle_unread': 3, 'notif_unseen': 5};
     if (path.startsWith('/home/suggestions')) {
