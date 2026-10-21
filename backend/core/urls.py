@@ -713,6 +713,13 @@ urlpatterns += [
 ]
 # ---- /c1-contacts ----
 
+# ---- m3-circle ----
+from . import views_m3_circle as m3c  # noqa: E402
+urlpatterns += [
+    path("circle/invite/redeem", m3c.CircleInviteRedeemView.as_view()),
+]
+# ---- /m3-circle ----
+
 urlpatterns += router.urls
 
 # ---- ps1-photo ---- Photo Studio: config, safety, entry ad, jobs (funding taken

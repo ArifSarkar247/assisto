@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 
@@ -11,9 +10,11 @@ import '../crypto/e2e.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
-import '../widgets/circle_invite_sheet.dart';
 import '../widgets/circle_relation.dart';
 import '../widgets/circle_sharing.dart';
+import '../widgets/loading_gate.dart';
+import '../widgets/m3_circle_widgets.dart';
+import 'messenger/m3_add_to_circle_screen.dart';
 import 'circle_chat_screen.dart';
 import 'circle_group_list_screen.dart';
 import 'circle_search_screen.dart';
@@ -80,7 +81,11 @@ class _CircleScreenState extends State<CircleScreen> {
       .toList();
 
   Future<void> _bootstrap() async {
-    await _ensureIdentity();
+    try {
+      await loadGuard(_ensureIdentity(), timeout: const Duration(seconds: 8));
+    } catch (_) {
+      _identity ??= _e2e.generateIdentity(); // volatile, UI still renders
+    }
     await _load();
   }
 
@@ -135,8 +140,8 @@ class _CircleScreenState extends State<CircleScreen> {
 
   Future<void> _load() async {
     try {
-      final m = await _api.getJson('/circle/members');
-      final r = await _api.getJson('/circle/requests');
+      final m = await loadGuard(_api.getJson('/circle/members'));
+      final r = await loadGuard(_api.getJson('/circle/requests'));
       _members = ((m['results'] ?? m['members'] ?? []) as List)
           .cast<Map<String, dynamic>>();
       _requests = ((r['results'] ?? r['requests'] ?? []) as List)
@@ -151,9 +156,12 @@ class _CircleScreenState extends State<CircleScreen> {
   }
 
   Future<void> _act(Map<String, dynamic> req, String event) async {
+    // m3-circle: a failed accept/decline/block used to be swallowed.
     try {
       await _api.postJson('/circle/request/${req['id']}/act', {'event': event});
-    } catch (_) {}
+    } catch (e) {
+      if (mounted) m3Snack(context, m3ErrorText(_t, e), error: true);
+    }
     await _load();
   }
 
@@ -228,7 +236,13 @@ class _CircleScreenState extends State<CircleScreen> {
                     try {
                       await _api.postJson(
                           '/circle/${member['id']}/sharing', {'sharing': policy});
-                    } catch (_) {}
+                    } catch (e) {
+                      // m3-circle: say so and keep the sheet open to retry.
+                      if (ctx.mounted) {
+                        m3Snack(ctx, m3ErrorText(_t, e), error: true);
+                      }
+                      return;
+                    }
                     if (ctx.mounted) Navigator.pop(ctx);
                   },
                   child: Text(_t.save),
@@ -242,55 +256,13 @@ class _CircleScreenState extends State<CircleScreen> {
     await _load();
   }
 
+  /// m3-circle: the one "Add to My Circle" flow (any number format, lookup
+  /// first, honest not-on-Assisto + invite, QR / link). The old composer sent
+  /// the request blind and swallowed every error.
   Future<void> _addFlow() async {
-    final choice = await showCircleInviteSheet(context);
-    if (choice == null || !mounted) return;
-    switch (choice.channel) {
-      case 'phone':
-        if (choice.phone.isEmpty) return;
-        try {
-          await _api.postJson('/circle/request', {
-            'phone': choice.phone,
-            'relation': choice.relation,
-            if (choice.relation == 'custom') 'custom_label': choice.custom,
-            if (choice.familySub != null) 'family_sub': choice.familySub,
-            if (choice.note.isNotEmpty) 'note': choice.note,
-          });
-        } catch (_) {}
-        break;
-      case 'qr':
-      case 'link':
-        await _showInvite(choice);
-        break;
-    }
+    await Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const M3AddToCircleScreen()));
     await _load();
-  }
-
-  /// Fetch a signed invite token/link and present it as a QR + copyable link
-  /// (or a share-link). Mirrors core/logic/circle.make_invite_token /
-  /// qr_payload (single-use enforced in the DB by the integrator).
-  Future<void> _showInvite(CircleInviteChoice choice) async {
-    String? token;
-    String? link;
-    try {
-      var path = '/circle/invite?relation=${choice.relation}';
-      if (choice.familySub != null) path += '&family_sub=${choice.familySub}';
-      final r = await _api.getJson(path);
-      token = r['token'] as String?;
-      link = r['link'] as String? ?? r['qr'] as String?;
-    } catch (_) {}
-    if (!mounted) return;
-    if (choice.channel == 'link' && (link != null || token != null)) {
-      // Share-link path: copy to clipboard (the integrator can wire a native
-      // share sheet). We reuse the invite dialog so the user also sees the QR.
-      await Clipboard.setData(ClipboardData(text: link ?? token!));
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(_t.circleLinkCopied)));
-      }
-    }
-    if (!mounted) return;
-    await showCircleInviteLink(context, link: link, token: token);
   }
 
   void _openChat(Map<String, dynamic> member) {

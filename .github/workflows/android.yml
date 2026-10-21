@@ -507,16 +507,24 @@ jobs:
             --dart-define=API_BASE="$API_BASE" \
             --dart-define=BUILD_TIME="$BUILD_TIME"
 
-      - name: Build x86_64 debug APK (emulator smoke test only — NOT shipped)
+      - name: Build x86_64 RELEASE APK (emulator smoke test only — NOT shipped)
         working-directory: app
         run: |
           # The shipped APK is arm64-only; x86_64 emulators can't load it. This
-          # x64 debug APK has the SAME Dart, plugins and patched manifest, so it's
-          # a valid launch/ANR proxy on the CI emulator.
-          flutter build apk --debug --target-platform=android-x64 \
+          # x64 build is a RELEASE build (R8 shrinking, AOT) like the shipped one:
+          # builds 147-150 broke SharedPreferences ONLY in release (R8), which a
+          # debug smoke APK could never catch. The arm64 release output is kept
+          # aside and restored, so the signing step still ships arm64.
+          REL=build/app/outputs/flutter-apk/app-release.apk
+          cp "$REL" /tmp/arm64-release.apk
+          flutter build apk --release --target-platform=android-x64 \
+            --dart-define=ASSISTO_SMOKE=true \
             --dart-define=API_BASE="${{ github.event.inputs.api_base || 'https://api.lifeassisto.com' }}" \
             --dart-define=BUILD_TIME="$(date -u +%Y-%m-%dT%H:%MZ)"
-          cp build/app/outputs/flutter-apk/app-debug.apk emu-x64.apk
+          cp "$REL" emu-x64.apk
+          cp /tmp/arm64-release.apk "$REL"
+          unzip -l "$REL" | grep -q "lib/arm64-v8a/" || { echo "::error::shipped APK is not arm64"; exit 1; }
+          unzip -l emu-x64.apk | grep -q "lib/x86_64/" || { echo "::error::smoke APK is not x86_64"; exit 1; }
 
       - name: Upload emulator smoke APK
         uses: actions/upload-artifact@v4
@@ -624,6 +632,8 @@ jobs:
             echo "===== last 140 logcat lines ====="; tail -140 logcat.txt || true
             grep -E "FATAL EXCEPTION|ANR in com.assisto|com.assisto.assisto.*has died|FATAL SIGNAL|AndroidRuntime.*com.assisto|E/flutter.*(Unhandled|Fatal)" logcat.txt > crashes.txt 2>/dev/null || true
             test ! -s crashes.txt || { echo "::error::CRASH/ANR during launch+feature-tour on API ${{ matrix.api }}"; cat crashes.txt; exit 1; }
+            # Release-only storage failure (builds 147-150: R8 broke SharedPreferences).
+            if grep -q "ASSISTO_PREFS_FAIL" logcat.txt; then echo "::error::settings store (SharedPreferences) failed in the release smoke APK"; grep "ASSISTO_PREFS_FAIL" logcat.txt | head -3; exit 1; fi
             timeout 30 adb shell pidof com.assisto.assisto > pid.txt 2>/dev/null || true
             test -s pid.txt || { echo "::error::app NOT running after launch+feature-tour on API ${{ matrix.api }}"; exit 1; }
             echo "LAUNCH + FEATURE-TOUR OK on API ${{ matrix.api }} pid=$(cat pid.txt)"
