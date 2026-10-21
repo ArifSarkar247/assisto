@@ -78,6 +78,11 @@ SCREEN_SYNONYMS = {
     "referral": ["রেফারেল", "রেফার", "পয়েন্ট", "বন্ধু আমন্ত্রণ", "referral", "refer", "points", "invite friend"],
     "circle_privacy": ["প্রাইভেসি", "কল প্রাইভেসি", "ব্লক", "circle privacy", "privacy controls", "block"],
     "circle_calls": ["কল হিস্ট্রি", "কল লগ", "call history", "call log", "circle calls"],
+    # ---- a3-voice ---- Part 3 Assisto Voice + its settings
+    "voice_assistant": ["ভয়েস অ্যাসিস্ট্যান্ট", "অ্যাসিস্টো ভয়েস", "ভয়েস মোড", "হেই অ্যাসিস্টো",
+                        "voice assistant", "assisto voice", "hey assisto", "voice mode", "talk to assisto"],
+    "voice_settings": ["ডিফল্ট অ্যাসিস্ট্যান্ট", "ডিজিটাল অ্যাসিস্ট্যান্ট", "ওয়েক ওয়ার্ড",
+                       "default assistant", "digital assistant", "wake word", "voice settings"],
     "vaultpin": [],  # reserved
 }
 

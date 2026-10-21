@@ -68,6 +68,9 @@ import '../screens/action_center_screen.dart';
 import '../screens/disaster_alerts_screen.dart';
 import '../screens/offline_status_screen.dart';
 import '../screens/ai_chat_screen.dart';
+// Part 3: native voice assistant
+import '../screens/voice_assistant_screen.dart';
+import '../screens/voice_assistant_settings_screen.dart';
 
 /// open-from-chat configuration (Phase B).
 ///
@@ -190,6 +193,10 @@ class ChatNav {
     // Part 3: Assisto AI — the full-history ChatGPT-like chat (distinct from
     // the home chat). Chat-openable via 'ai'/'chat'/'assistant' synonyms.
     'ai_chat': (_) => const AiChatScreen(),
+    // Part 3: Assisto Voice (hands-free assistant) + its settings card
+    // (default-assistant setup, wake word, spoken replies).
+    'voice_assistant': (_) => const VoiceAssistantScreen(),
+    'voice_settings': (_) => const VoiceAssistantSettingsScreen(),
   };
 
   /// Local ENGLISH subject vocabulary (ASCII only). Mirrors the English tokens
@@ -290,6 +297,11 @@ class ChatNav {
     // screen_synonyms `route` field (layer 1), not this local fast-path.
     'ai_chat': ['assisto ai', 'ai chat', 'assistant', 'ai assistant', 'chat',
         'ai'],
+    // Part 3: Assisto Voice. Longer phrases than 'assistant' so they win.
+    'voice_assistant': ['voice assistant', 'assisto voice', 'hey assisto',
+        'talk to assisto', 'voice mode', 'hands free'],
+    'voice_settings': ['default assistant', 'digital assistant',
+        'wake word', 'voice settings', 'assistant settings'],
   };
 
   /// English verbs marking an explicit "open the screen" intent, so a plain

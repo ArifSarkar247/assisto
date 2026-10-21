@@ -13,6 +13,7 @@ import '../screens/money_budget_screen.dart';
 import '../screens/money_tax_screen.dart';
 import '../screens/money_wrapped_screen.dart';
 import '../screens/money_voice_screen.dart';
+import '../screens/voice_assistant_screen.dart';
 import '../screens/subscriptions_screen.dart';
 import '../screens/finance_screen.dart';
 import '../screens/payment_ladder_screen.dart';
@@ -338,6 +339,12 @@ class SidebarSections {
     // SPEC v2.1 §4 (standalone Health section removed).
     SidebarSection('daily_life', Icons.auto_awesome_outlined,
         (t) => t.sidebarLife, [
+      // Part 3: Assisto Voice — hands-free assistant (calls, alarms, torch,
+      // YouTube, maps, reminders, expenses, SOS — outgoing always confirmed).
+      SidebarItem(Icons.graphic_eq, (t) => t.vaTitle,
+          (_) => const VoiceAssistantScreen(),
+          synonyms: ['voice assistant', 'assistant', 'hey assisto', 'voice',
+              'talk', 'speak', 'alarm', 'torch', 'flashlight']),
       SidebarItem(Icons.medication_outlined, (t) => t.medicineDbTitle,
           (_) => const MedicineDbScreen(),
           synonyms: ['medicine', 'drug', 'pharmacy']),

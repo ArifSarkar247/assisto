@@ -46,6 +46,7 @@ import 'trust_page_screen.dart';
 import 'encrypted_backup_screen.dart';
 import 'security_checkup_screen.dart';
 import 'delete_account_screen.dart';
+import 'voice_assistant_settings_screen.dart';
 import '../theme.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -212,6 +213,15 @@ class SettingsScreen extends StatelessWidget {
             subtitle: Text(t.pushSetTileSub),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const PushSettingsScreen())),
+          ),
+          // Part 3: Assisto Voice — default digital assistant, optional
+          // "Hey Assisto" wake word (off by default), spoken replies.
+          ListTile(
+            leading: const Icon(Icons.graphic_eq),
+            title: Text(t.vaSettingsTitle),
+            subtitle: Text(t.vaSettingsTileSub),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const VoiceAssistantSettingsScreen())),
           ),
           const Divider(),
           const _SafetySection(),

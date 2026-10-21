@@ -95,6 +95,10 @@ import 'package:assisto/screens/social_compose_screen.dart';
 import 'package:assisto/screens/messenger/admin_users_screen.dart';
 import 'package:assisto/screens/messenger/admin_moderation_screen.dart';
 import 'package:assisto/screens/money_voice_screen.dart';
+import 'package:assisto/screens/voice_assistant_screen.dart';
+import 'package:assisto/screens/voice_assistant_settings_screen.dart';
+import 'package:assisto/voice/va_actions.dart';
+import 'package:assisto/voice/va_confirm_sheet.dart';
 import 'package:assisto/screens/money_wrapped_screen.dart';
 import 'package:assisto/screens/money_tax_screen.dart';
 import 'package:assisto/screens/money_budget_screen.dart';
@@ -346,6 +350,39 @@ void main() {
     'money_tax': (build: (_) => const MoneyTaxScreen(), mode: FakeMode.data, full: true),
     'money_wrapped': (build: (_) => const MoneyWrappedScreen(), mode: FakeMode.data, full: true),
     'money_voice': (build: (_) => const MoneyVoiceScreen(), mode: FakeMode.data, full: true),
+    // Part 3 (a3-voice): Assisto Voice — welcome, live listening, result
+    // cards, the outgoing-action confirm sheet, and the settings card.
+    'voice_assistant': (build: (_) => const VoiceAssistantScreen(autoListen: false), mode: FakeMode.data, full: true),
+    'voice_listening': (build: (l) => VoiceAssistantScreen(autoListen: false, debugListening: true, debugPartial: l == 'bn' ? 'আম্মুকে ফোন দাও' : 'Call Ammu'), mode: FakeMode.data, full: true),
+    'voice_results': (build: (_) => Builder(builder: (ctx) {
+      final t = AppLocalizations.of(ctx);
+      return VoiceAssistantScreen(autoListen: false, debugTurns: [
+        VaTurn(t.vaExReminder, VaOutcome(t.vaReminderSet(t.vaReminderDefault, t.vaTomorrowAt('5:00')), icon: Icons.notifications_active_outlined, title: t.vaReminderDefault, subtitle: t.vaTomorrowAt('5:00'), buttons: [VaButton(t.vaUndo, Icons.undo, () async {})])),
+        VaTurn(t.vaExExpense, VaOutcome(t.vaExpenseLogged('৳500', t.vaCatGroceries), icon: Icons.receipt_long_outlined, title: '৳500', subtitle: t.vaCatGroceries, buttons: [VaButton(t.vaUndo, Icons.undo, () async {})])),
+        VaTurn(t.vaExTorch, VaOutcome(t.vaTorchOn, icon: Icons.flashlight_on, buttons: [VaButton(t.vaTurnOff, Icons.flashlight_off, () async {})])),
+      ]);
+    }), mode: FakeMode.data, full: true),
+    'voice_confirm': (build: (l) => Builder(builder: (ctx) {
+      final t = AppLocalizations.of(ctx);
+      return Scaffold(body: Align(alignment: Alignment.bottomCenter, child: Material(
+        elevation: 6, borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        color: Theme.of(ctx).colorScheme.surfaceContainerLow,
+        child: Padding(padding: const EdgeInsets.only(top: 24), child: VaConfirmSheet(
+          icon: Icons.call, title: t.vaConfirmCallTitle(l == 'bn' ? 'আম্মু' : 'Ammu'),
+          choices: const [{'name': 'Ammu', 'phone': '01711-000000'}, {'name': 'Ammu (office)', 'phone': '01811-000000'}],
+          confirmLabel: t.vaCallNow, debugListening: true)))));
+    }), mode: FakeMode.data, full: true),
+    'voice_sos_confirm': (build: (_) => Builder(builder: (ctx) {
+      final t = AppLocalizations.of(ctx);
+      return Scaffold(body: Align(alignment: Alignment.bottomCenter, child: Material(
+        elevation: 6, borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        color: Theme.of(ctx).colorScheme.surfaceContainerLow,
+        child: Padding(padding: const EdgeInsets.only(top: 24), child: VaConfirmSheet(
+          icon: Icons.sos, title: t.vaConfirmSosTitle, detail: t.vaConfirmSosBody,
+          confirmLabel: t.vaSendSos, danger: true)))));
+    }), mode: FakeMode.data, full: true),
+    'voice_settings': (build: (_) => const VoiceAssistantSettingsScreen(debugStatic: true), mode: FakeMode.data, full: true),
+    'voice_settings_bottom': (build: (_) => const VoiceAssistantSettingsScreen(debugStatic: true), mode: FakeMode.data, full: true),
     'action_center': (build: (_) => const ActionCenterScreen(), mode: FakeMode.data, full: true),
     'disaster_alerts': (build: (_) => const DisasterAlertsScreen(), mode: FakeMode.data, full: true),
     'offline_status': (build: (_) => const OfflineStatusScreen(), mode: FakeMode.data, full: true),
