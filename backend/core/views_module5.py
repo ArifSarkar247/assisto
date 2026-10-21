@@ -690,6 +690,14 @@ class CircleRequestCreateView(APIView):
                 state__in=("pending", "accepted")).order_by("-id").first())
             if existing is not None:
                 return Response(_member_dict(existing), status=status.HTTP_200_OK)
+            # m3-circle: WhatsApp-like "add each other". Already connected the
+            # other way -> return that edge (no duplicate request). They already
+            # asked ME -> adding them back IS accepting (both sides converge).
+            from .views_m3_circle import mutual_add
+            done = mutual_add(request.user, peer, relation,
+                              str(data.get("custom_label", "")).strip()[:60])
+            if done is not None:
+                return Response(_member_dict(done), status=status.HTTP_200_OK)
         peer_key = _published_key(peer)  # m2-reality: carry an already-published key
         # The SENDER's own row is OUTGOING (can only cancel it).
         m = CircleMember.objects.create(
@@ -815,7 +823,12 @@ class CircleInviteView(APIView):
             token=token,
             expires_at=timezone.now() + timezone.timedelta(minutes=1440),
         )
-        return Response({"token": token, "qr": circle.qr_payload(token), "id": inv.id})
+        # m3-circle: the link used to point at the OLD domain
+        # (assisto.asalify.com) with no /i/ page behind it. It now uses the
+        # live base and a real landing page (web/urls.py i/<token>).
+        from .views_m3_circle import invite_base
+        link = circle.qr_payload(token, base_url=invite_base())
+        return Response({"token": token, "qr": link, "link": link, "id": inv.id})
 
 
 class CircleMessagesView(APIView):

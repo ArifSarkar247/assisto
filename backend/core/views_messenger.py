@@ -237,9 +237,12 @@ class _InviteBase(APIView):
     def _share_link(self, request, relation):
         token = circle.make_invite_token(
             request.user.id, relation, settings.SECRET_KEY)
-        base = getattr(settings, "APP_DEEP_LINK_BASE_HTTPS",
-                       "https://assisto.asalify.com")
-        return token, f"{base}/i/{token}"
+        # m3-circle: live base (was the old assisto.asalify.com domain) + the
+        # token is stored so the /i/<token> page and /circle/invite/redeem
+        # can turn it into a real My Circle connection.
+        from .views_m3_circle import invite_base, remember_invite
+        remember_invite(request.user, relation, token)
+        return token, f"{invite_base()}/i/{token}"
 
 
 class InviteExistingView(_InviteBase):

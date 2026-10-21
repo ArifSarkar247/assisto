@@ -96,10 +96,18 @@ class _CircleExtrasHubScreenState extends State<CircleExtrasHubScreen> {
   }
 
   Future<void> _saveDisappearing(int sec) async {
+    final before = _disappearing;
     setState(() => _disappearing = sec);
     try {
       await _api.postJson('messenger/chat/$_peer/settings', {'disappearing_sec': sec});
-    } catch (_) {}
+    } catch (_) {
+      // m3-circle: never silent — roll back and say so.
+      if (mounted) {
+        setState(() => _disappearing = before);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(AppLocalizations.of(context).grpActionFailed)));
+      }
+    }
   }
 
   Future<void> _saveWallpaper(String id) async {
