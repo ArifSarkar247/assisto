@@ -1,0 +1,11 @@
+{
+  "en": {
+    "a1CmpCreditsPerMonth": "{n} / mo",
+    "@a1CmpCreditsPerMonth": {"placeholders": {"n": {"type": "Object"}}},
+    "a1CmpPacksOrAds": "Packs or ads"
+  },
+  "bn": {
+    "a1CmpCreditsPerMonth": "মাসে {n}",
+    "a1CmpPacksOrAds": "প্যাক বা বিজ্ঞাপন"
+  }
+}

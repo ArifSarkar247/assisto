@@ -49,9 +49,9 @@ _PLAN_META = {
         "name_bn": "ফ্রি", "name_en": "Free",
         "desc_bn": "শুরু করার জন্য — নিরাপত্তা সবসময় ফ্রি।",
         "desc_en": "To get started — safety is always free.",
-        "benefits_bn": ["মাসে ১৫ AI স্ক্যান", "রিমাইন্ডার, ভল্ট, হিসাব",
+        "benefits_bn": ["AI: ক্রেডিট প্যাক কিনে বা বিজ্ঞাপন দেখে", "রিমাইন্ডার, ভল্ট, হিসাব",
                         "জরুরি SOS ও স্ক্যাম সতর্কতা (ফ্রি)", "ওষুধ রিমাইন্ডার (ফ্রি)"],
-        "benefits_en": ["15 AI scans / month", "Reminders, documents, money",
+        "benefits_en": ["AI with credit packs or rewarded ads", "Reminders, documents, money",
                         "Emergency SOS & scam alerts (free)", "Medicine reminders (free)"],
     },
     "premium": {
@@ -596,6 +596,44 @@ def validate_edit(data):
 
 # ---------------------------------------------------------------- plans_public
 
+_BN_DIGITS = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
+
+
+def _bn_num(n):
+    return str(int(n)).translate(_BN_DIGITS)
+
+
+def plan_benefits(pid, lang, cfg):
+    """Localized benefit lines for a config-backed plan, with every NUMBER
+    taken from the live config (never a hardcoded "15 scans" that drifts from
+    the real pool). Lines that state a number are rebuilt here; the rest come
+    from _PLAN_META."""
+    cfg = normalize(cfg)
+    s = cfg["plans"][pid]
+    bn = lang == "bn"
+    lines = list(_PLAN_META[pid]["benefits_" + ("bn" if bn else "en")])
+    if pid == "free":
+        n = s["credits"]
+        if s["unlimited_ai"]:
+            first = "আনলিমিটেড AI" if bn else "Unlimited AI"
+        elif n > 0:
+            first = (f"প্রতি মাসে {_bn_num(n)} AI ক্রেডিট" if bn
+                     else f"{n} AI credits / month")
+        else:
+            first = ("AI: ক্রেডিট প্যাক কিনে বা বিজ্ঞাপন দেখে" if bn
+                     else "AI with credit packs or rewarded ads")
+        lines[0] = first
+    elif pid == "premium":
+        fam = s["family"]
+        if fam > 0:
+            lines[2] = (f"{_bn_num(fam)} জন পর্যন্ত কানেক্টেড সার্কেল ও কেয়ারগিভার ড্যাশবোর্ড"
+                        if bn else
+                        f"Up to {fam}-member Circle & caregiver dashboard")
+        else:
+            lines.pop(2)
+    return lines
+
+
 def plan_public(lang, cfg):
     """Build the localized public plans list from config. REPLACES the hard-coded
     Free/Premium/Business entries in core/plans.py. probashi/founder are handled
@@ -611,7 +649,7 @@ def plan_public(lang, cfg):
             "name": pick(lang, meta["name_bn"], meta["name_en"]),
             "price": s["price"], "cur": CUR, "period": "mo",
             "desc": pick(lang, meta["desc_bn"], meta["desc_en"]),
-            "benefits": meta["benefits_" + lang],
+            "benefits": plan_benefits(pid, lang, cfg),
             "unlimited_ai": s["unlimited_ai"], "ads": s["ads"],
             "family": s["family"], "credits": s["credits"],
             "storage_bytes": s["storage_bytes"],
@@ -627,7 +665,7 @@ def plan_public(lang, cfg):
         "price": annual_price, "cur": CUR, "period": "yr",
         "desc": pick(lang, f"প্রিমিয়াম — বছরে, {disc}% সাশ্রয়।",
                      f"Premium — yearly, save {disc}%."),
-        "benefits": _PLAN_META["premium"]["benefits_" + lang],
+        "benefits": plan_benefits("premium", lang, cfg),
         "unlimited_ai": True, "ads": False, "family": prem["family"],
         "credits": 0,
     })

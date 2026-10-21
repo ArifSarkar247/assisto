@@ -15,8 +15,8 @@ PLANS = {
     "free":     {"name_bn": "ফ্রি", "name_en": "Free", "price": 0, "cur": "BDT", "period": "mo",
                  "credits": 15, "unlimited_ai": False, "ads": True, "family": 0,
                  "desc_bn": "শুরু করার জন্য — নিরাপত্তা সবসময় ফ্রি।", "desc_en": "To get started — safety is always free.",
-                 "benefits_bn": ["মাসে ১৫ AI স্ক্যান", "রিমাইন্ডার, ভল্ট, হিসাব", "জরুরি SOS ও স্ক্যাম সতর্কতা (ফ্রি)", "ওষুধ রিমাইন্ডার (ফ্রি)"],
-                 "benefits_en": ["15 AI scans / month", "Reminders, documents, money", "Emergency SOS & scam alerts (free)", "Medicine reminders (free)"]},
+                 "benefits_bn": ["AI: ক্রেডিট প্যাক কিনে বা বিজ্ঞাপন দেখে", "রিমাইন্ডার, ভল্ট, হিসাব", "জরুরি SOS ও স্ক্যাম সতর্কতা (ফ্রি)", "ওষুধ রিমাইন্ডার (ফ্রি)"],
+                 "benefits_en": ["AI with credit packs or rewarded ads", "Reminders, documents, money", "Emergency SOS & scam alerts (free)", "Medicine reminders (free)"]},
     # NOTE (Business Model Build 1): Premium absorbs the former Family plan — it
     # now carries family=5 (5-member circle + caregiver dashboard). The standalone
     # "family" plan is REMOVED and existing Family subscribers are migrated to
@@ -122,6 +122,19 @@ def _config_plan(pid):
         return None
 
 
+def _benefits(pid, lang, spec):
+    """Config-derived benefit lines for free/premium/business (numbers come
+    from the live PricingConfig); literal lines for the other plans."""
+    try:
+        from .logic import pricing
+        c = _cfg()
+        if c is not None and pid in c["plans"]:
+            return pricing.plan_benefits(pid, lang, c)
+    except Exception:
+        pass
+    return spec["benefits_" + lang]
+
+
 def entitlements(user, lang="bn"):
     from .i18n import pick
     p = effective_plan(user)
@@ -137,7 +150,7 @@ def entitlements(user, lang="bn"):
         "name": pick(lang, spec["name_bn"], spec["name_en"]),
         "name_bn": spec["name_bn"],
         "desc": pick(lang, spec["desc_bn"], spec["desc_en"]),
-        "benefits": spec["benefits_" + lang],
+        "benefits": _benefits(p, lang, spec),
         "unlimited_ai": unlimited,
         "ads": ads and not trial_active(user),
         "max_family": max_family,

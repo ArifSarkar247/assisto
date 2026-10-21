@@ -178,3 +178,40 @@ class LimitsTakeEffectTests(APITestCase):
         r = self._edit({"guarantees": {"margin_net_floor": 0.80}})
         self.assertEqual(r.data["config"]["guarantees"]["margin_net_floor"], 0.80)
         self.assertEqual(P.action_credit_floor("ai_msg_strong", billing.cfg()), 5)
+
+
+class PlanBenefitsFromConfigTests(APITestCase):
+    """Free-plan benefit text is derived from the live pool (was a hardcoded
+    "15 AI scans / month" while the configured pool is 0)."""
+    def setUp(self):
+        self.u = User.objects.create_user(name="U", phone="01710000901", password="pw")
+        self.owner = User.objects.create_user(name="O", phone="01710000902", password="pw")
+        self.owner.is_superuser = True
+        self.owner.save()
+
+    def _free(self, lang):
+        return next(p for p in plans.plans_public(lang) if p["id"] == "free")["benefits"]
+
+    def test_zero_pool_says_packs_or_ads(self):
+        self.assertEqual(self._free("en")[0], "AI with credit packs or rewarded ads")
+        self.assertNotIn("15", " ".join(self._free("en")))
+        self.assertNotIn("১৫", " ".join(self._free("bn")))
+        self.assertEqual(plans.entitlements(self.u, "en")["benefits"][0],
+                         "AI with credit packs or rewarded ads")
+
+    def test_pool_edit_flows_into_text_bn_and_en(self):
+        self.client.force_authenticate(self.owner)
+        r = self.client.post("/api/v1/admin/pricing",
+                             {"config": {"plans": {"free": {"credits": 20}}}}, format="json")
+        self.assertEqual(r.status_code, 200, r.data)
+        self.assertEqual(self._free("en")[0], "20 AI credits / month")
+        self.assertEqual(self._free("bn")[0], "প্রতি মাসে ২০ AI ক্রেডিট")
+
+    def test_premium_family_count_from_config(self):
+        self.client.force_authenticate(self.owner)
+        self.client.post("/api/v1/admin/pricing",
+                         {"config": {"plans": {"premium": {"family": 8}}}}, format="json")
+        prem = next(p for p in plans.plans_public("en") if p["id"] == "premium")
+        self.assertIn("Up to 8-member Circle & caregiver dashboard", prem["benefits"])
+        annual = next(p for p in plans.plans_public("bn") if p["id"] == "annual")
+        self.assertTrue(any("৮ জন" in b for b in annual["benefits"]))
