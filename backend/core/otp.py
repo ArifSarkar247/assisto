@@ -60,21 +60,10 @@ _BD_MOBILE = re.compile(r"^1[3-9]\d{8}$")
 
 def normalize_bd_phone(raw):
     """01XXXXXXXXX | +8801XXXXXXXXX | 8801XXXXXXXXX | 008801… → '+8801XXXXXXXXX'.
-    Spaces, dashes, dots and brackets are ignored. Anything else → None."""
-    s = re.sub(r"[\s\-().]", "", str(raw or ""))
-    if s.startswith("+"):
-        s = s[1:]
-    if s.startswith("00"):
-        s = s[2:]
-    if not s.isdigit():
-        return None
-    if s.startswith("880"):
-        s = s[3:]
-    elif s.startswith("0"):
-        s = s[1:]
-    if not _BD_MOBILE.match(s):
-        return None
-    return "+880" + s
+    Spaces, dashes, dots, brackets and Bangla digits are accepted. Anything
+    else → None. c1-contacts: delegates to THE canonical helper core.phone."""
+    from .phone import canonical_bd
+    return canonical_bd(raw)
 
 
 def local_form(canon):
@@ -99,7 +88,9 @@ def find_user_by_phone(canon):
     from .models import User
     if not canon:
         return None
-    return User.objects.filter(phone__in=phone_variants(canon)).first()
+    from .phone import variants
+    return (User.objects.filter(phone__in=variants(canon)).order_by("id")
+            .first())
 
 
 def user_phone(user):

@@ -1,74 +1,108 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../api.dart';
+import '../../c1_contacts_api.dart';
 import '../../crypto/e2e.dart';
 import '../../l10n/app_localizations.dart';
 import '../../messenger_api.dart';
+import '../../services/contacts_source.dart';
+import '../../services/phone_canon.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/c1_contacts_widgets.dart';
 import '../../widgets/contacts_match_model.dart';
 import '../../widgets/contacts_match_widgets.dart';
 import '../../widgets/msgr_connect_sheet.dart';
+import '../circle_call_screen.dart';
+import '../circle_chat_screen.dart';
 import '../referral_screen.dart';
 import 'connection_requests_screen.dart';
 
-/// ADVANCED Contact MATCH (#99) + INVITE (#101) — SPEC v2.1 §21.
+/// "Contacts on Assisto" — WhatsApp-style (c1-contacts, owner bug fix).
 ///
-/// Find which of the user's phone contacts are already on Assisto, then CONNECT
-/// (existing user → in-app request, pushed via FCM when a key is configured,
-/// else shown on their next open) or INVITE (non-user → share link via any app
-/// OR an own-SIM prefilled SMS the USER presses send on). A shareable invite
-/// card carries the user's referral code so accepted invites credit points.
+/// * "On Assisto" first (Add to My Circle / Requested / Accept / Message +
+///   Call), then everyone else in the phonebook with Invite.
+/// * A prominent disclosure is shown BEFORE the OS permission prompt: we only
+///   send hashed numbers to find who is on Assisto.
+/// * Numbers are canonicalised + hashed ON DEVICE ([PhoneCanon], mirror of
+///   backend/core/phone.py) with the salt from /messenger/contacts/contract;
+///   only hashes are uploaded to /messenger/contacts/match.
+/// * Re-sync on pull-to-refresh and whenever [ContactsSource.changes] fires.
+/// * Find-by-number (/messenger/contacts/lookup) accepts ANY format.
 ///
-/// PRIVACY INVARIANT (enforced on-device + stated in the disclosure + explained
-/// in the "how this protects your privacy" sheet):
-///   • Raw numbers/names NEVER leave the device.
-///   • We upload ONLY a de-duplicated batch of SALTED HASHES (HMAC-SHA256 over
-///     the E.164 number with the server-wide match salt, truncated to 32 hex)
-///     plus the permission flag — the /messenger/contacts/contract contract.
-///   • Non-user hashes are dropped server-side and never persisted.
-///   • Invites to non-users never auto-send: share sheet or own-SIM sms: URI;
-///     no SEND_SMS permission, no gateway.
-///
-/// SPEC §21 states covered: disclosure (consent), loading/progress (hashing +
-/// match), results (connect + invite), empty, permission-denied, offline,
-/// re-sync, privacy explainer — every branch designed, nothing raw.
-///
-/// NOTE on device-contact access: the OS contacts plugin is not bundled in this
-/// build, so the user supplies numbers explicitly (manual find). The hashing +
-/// upload pipeline is identical to the one the plugin will feed — when it is
-/// added, pass its numbers straight into [_matchNumbers] with
-/// [_progressFor] driving the loading UI; nothing else changes.
+/// HONESTY: the phonebook comes from a [ContactsSource]. This build ships the
+/// [UnavailableContactsSource] (no contacts plugin yet), so the screen says
+/// "reading the phonebook arrives in the next update" and offers search by
+/// number — it never pretends it read the phonebook.
 class ContactsScreen extends StatefulWidget {
-  const ContactsScreen({super.key});
+  const ContactsScreen({super.key, this.source});
+
+  /// Injected for tests; defaults to [ContactsSources.create] (lazy).
+  final ContactsSource? source;
 
   @override
   State<ContactsScreen> createState() => _ContactsScreenState();
 }
 
-class _ContactsScreenState extends State<ContactsScreen> {
-  CmStage _stage = CmStage.disclosure;
-  CmProgress _progress = const CmProgress(phase: CmPhase.reading);
-  final _manual = TextEditingController();
+/// One phonebook person after canonicalisation (raw numbers stay on device).
+class _PbEntry {
+  _PbEntry(this.name, this.numbers);
+  final String name;
+  final List<String> numbers; // canonical E.164
+}
 
-  // Hashing contract (from the server; sane v1 defaults until it loads).
+const _kConsentKey = 'c1_contacts_consent_v1';
+const _kChunk = 1000;
+
+class _ContactsScreenState extends State<ContactsScreen> {
+  late final ContactsSource _source =
+      widget.source ?? ContactsSources.create();
+  StreamSubscription<void>? _changesSub;
+  Timer? _debounce;
+
+  CmStage _stage = CmStage.matching;
+  CmProgress _progress = const CmProgress(phase: CmPhase.reading);
+  bool _syncing = false;
+  bool _synced = false; // the phonebook was really read at least once
+
+  // Hashing contract (from the server).
   String _salt = '';
-  String _cc = '880';
   int _hashLen = 32;
 
-  final List<Map<String, dynamic>> _onAssisto = [];
+  final List<_PbEntry> _phonebook = [];
+  // user id -> {user: descriptor, contact: phonebook name}
+  final Map<String, Map<String, dynamic>> _onAssisto = {};
+  final Set<String> _matchedNumbers = {};
+  final Set<String> _busy = {};
+
+  // Manual search
+  final _search = TextEditingController();
+  bool _searching = false;
+  String? _searchError;
+  Map<String, dynamic>? _searchResult;
+
   CmInviteCard? _inviteCard;
-  bool _hasMatchedOnce = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _init());
+  }
 
   @override
   void dispose() {
-    _manual.dispose();
+    _debounce?.cancel();
+    _changesSub?.cancel();
+    _search.dispose();
     super.dispose();
   }
 
@@ -76,42 +110,352 @@ class _ContactsScreenState extends State<ContactsScreen> {
   AppLocalizations get _t => AppLocalizations.of(context);
 
   // ---------------------------------------------------------------------------
-  // CLIENT HASHING CONTRACT (msg_contacts_integration.md §CLIENT HASHING)
+  // FLOW
   // ---------------------------------------------------------------------------
 
-  /// Normalize a raw number to E.164 with the device SIM region (default cc).
-  String _normalizeE164(String raw) {
-    var d = raw.replaceAll(RegExp(r'[^0-9+]'), '');
-    if (d.startsWith('+')) return d;
-    d = d.replaceAll('+', '');
-    if (d.startsWith('00')) return '+${d.substring(2)}';
-    if (d.startsWith('0')) return '+$_cc${d.substring(1)}';
-    if (d.startsWith(_cc)) return '+$d';
-    if (d.isEmpty) return '';
-    return '+$_cc$d';
-  }
-
-  /// hex( HMAC-SHA256( key=salt, msg=e164 ) ) truncated to [_hashLen] hex chars.
-  String _hashPhone(String e164) {
-    final mac = HmacSha256.mac(utf8.encode(_salt), utf8.encode(e164));
-    final hex =
-        mac.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
-    return hex.substring(0, _hashLen.clamp(1, hex.length));
-  }
-
-  Future<void> _loadContract() async {
+  Future<void> _init() async {
+    if (!mounted) return;
+    unawaited(_loadInviteCard());
+    if (!_source.available) {
+      setState(() => _stage = CmStage.results);
+      return;
+    }
+    var consent = false;
     try {
-      final c = await _api.contactsContract();
-      _salt = '${c['salt'] ?? c['match_salt'] ?? ''}';
-      _cc = '${c['country_code'] ?? c['cc'] ?? '880'}';
-      _hashLen = (c['hash_len'] as int?) ?? (c['truncate'] as int?) ?? 32;
+      final p = await SharedPreferences.getInstance();
+      consent = p.getBool(_kConsentKey) ?? false;
+    } catch (_) {}
+    if (!mounted) return;
+    if (!consent) {
+      setState(() => _stage = CmStage.disclosure);
+      return;
+    }
+    ContactsPermission st;
+    try {
+      st = await _source.status();
     } catch (_) {
-      // Keep v1 defaults; with an empty salt the match simply returns nothing.
+      st = ContactsPermission.unavailable;
+    }
+    if (!mounted) return;
+    if (st == ContactsPermission.granted) {
+      await _sync();
+    } else {
+      setState(() => _stage = CmStage.disclosure);
     }
   }
 
-  /// Build the shareable invite card (referral code + link). Best-effort; the
-  /// card still shows (minus the referral row) if the balance isn't wired.
+  /// The user tapped Allow on the disclosure -> only NOW ask the OS.
+  Future<void> _allow() async {
+    try {
+      final p = await SharedPreferences.getInstance();
+      await p.setBool(_kConsentKey, true);
+    } catch (_) {}
+    ContactsPermission st;
+    try {
+      st = await _source.request();
+    } catch (_) {
+      st = ContactsPermission.unavailable;
+    }
+    if (!mounted) return;
+    switch (st) {
+      case ContactsPermission.granted:
+        await _sync();
+      case ContactsPermission.denied:
+      case ContactsPermission.permanentlyDenied:
+        setState(() => _stage = CmStage.denied);
+      case ContactsPermission.unavailable:
+        setState(() => _stage = CmStage.results);
+    }
+  }
+
+  void _listenForChanges() {
+    if (_changesSub != null) return;
+    try {
+      _changesSub = _source.changes.listen((_) {
+        _debounce?.cancel();
+        _debounce = Timer(const Duration(seconds: 2), () {
+          if (mounted && !_syncing && _stage == CmStage.results) _sync();
+        });
+      }, onError: (_) {});
+    } catch (_) {}
+  }
+
+  Future<bool> _loadContract() async {
+    try {
+      final c = await _api.contactsContract();
+      _salt = '${c['salt'] ?? c['match_salt'] ?? ''}';
+      _hashLen = (c['hash_len'] as num?)?.toInt() ?? 32;
+    } catch (_) {}
+    return _salt.isNotEmpty;
+  }
+
+  /// Read the phonebook -> canonicalise + hash on device -> upload hashes ->
+  /// map matches back to phonebook entries. Pull-to-refresh calls this too.
+  Future<void> _sync() async {
+    if (_syncing || !_source.available) return;
+    _syncing = true;
+    final firstRun = !_synced;
+    if (firstRun && mounted) {
+      setState(() {
+        _stage = CmStage.matching;
+        _progress = const CmProgress(phase: CmPhase.reading);
+      });
+    }
+    try {
+      List<DeviceContact> raw;
+      try {
+        raw = await _source.read();
+      } catch (_) {
+        raw = const [];
+      }
+      final book = <_PbEntry>[];
+      for (final c in raw) {
+        final nums = <String>{};
+        for (final n in c.numbers) {
+          final canon = PhoneCanon.canonical(n);
+          if (canon != null) nums.add(canon);
+        }
+        if (nums.isNotEmpty) book.add(_PbEntry(c.name.trim(), nums.toList()));
+      }
+      if (mounted && firstRun) {
+        setState(() => _progress =
+            CmProgress(phase: CmPhase.hashing, total: book.length));
+      }
+      if (_salt.isEmpty && !await _loadContract()) {
+        if (mounted) setState(() => _stage = CmStage.offline);
+        return;
+      }
+      final byHash = <String, _PbEntry>{};
+      final numByHash = <String, String>{};
+      for (final e in book) {
+        for (final n in e.numbers) {
+          final h = PhoneCanon.hashCanonical(n, _salt, hashLen: _hashLen);
+          byHash.putIfAbsent(h, () => e);
+          numByHash.putIfAbsent(h, () => n);
+        }
+      }
+      if (mounted && firstRun) {
+        setState(() => _progress = const CmProgress(phase: CmPhase.matching));
+      }
+      final hashes = byHash.keys.toList();
+      final found = <String, Map<String, dynamic>>{};
+      final matched = <String>{};
+      for (var i = 0; i < hashes.length; i += _kChunk) {
+        final end = i + _kChunk > hashes.length ? hashes.length : i + _kChunk;
+        final r = await _api.contactsMatch(
+            hashes: hashes.sublist(i, end), permissionGranted: true);
+        for (final m in ((r['matches'] ?? []) as List).whereType<Map>()) {
+          final h = '${m['contact_hash'] ?? ''}';
+          final u = (m['user'] is Map)
+              ? (m['user'] as Map).cast<String, dynamic>()
+              : m.cast<String, dynamic>();
+          final n = numByHash[h];
+          if (n != null) matched.add(n);
+          found.putIfAbsent('${u['id']}',
+              () => {'user': u, 'contact': byHash[h]?.name ?? ''});
+        }
+      }
+      if (!mounted) return;
+      book.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+      setState(() {
+        _phonebook
+          ..clear()
+          ..addAll(book);
+        _onAssisto
+          ..clear()
+          ..addAll(found);
+        _matchedNumbers
+          ..clear()
+          ..addAll(matched);
+        _synced = true;
+        _stage = CmStage.results;
+      });
+      _listenForChanges();
+    } catch (_) {
+      if (mounted) {
+        if (_synced) {
+          _snack(cmLabel(context, 'cmOfflineBody'));
+        } else {
+          setState(() => _stage = CmStage.offline);
+        }
+      }
+    } finally {
+      _syncing = false;
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // MANUAL SEARCH (any format)
+  // ---------------------------------------------------------------------------
+
+  Future<void> _runSearch() async {
+    final raw = _search.text.trim();
+    if (raw.isEmpty) return;
+    final canon = PhoneCanon.canonical(raw);
+    if (canon == null) {
+      setState(() {
+        _searchError = _t.c1SearchInvalid;
+        _searchResult = null;
+      });
+      return;
+    }
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _searching = true;
+      _searchError = null;
+      _searchResult = null;
+    });
+    try {
+      final r = await _api.contactsLookup(canon);
+      if (!mounted) return;
+      setState(() => _searchResult = r);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _searchError = e.status == 400
+          ? _t.c1SearchInvalid
+          : e.status == 429
+              ? _t.c1SearchLimited
+              : _t.c1SearchFailed);
+    } catch (_) {
+      if (mounted) setState(() => _searchError = _t.c1SearchFailed);
+    } finally {
+      if (mounted) setState(() => _searching = false);
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // ACTIONS
+  // ---------------------------------------------------------------------------
+
+  void _setCircle(String userId, Map<String, dynamic> circle) {
+    setState(() {
+      final e = _onAssisto[userId];
+      if (e != null) {
+        (e['user'] as Map<String, dynamic>)['circle'] = circle;
+      }
+      final s = _searchResult;
+      if (s != null && s['user'] is Map && '${s['user']['id']}' == userId) {
+        (s['user'] as Map)['circle'] = circle;
+      }
+    });
+  }
+
+  Future<void> _addToCircle(Map<String, dynamic> user) async {
+    final res =
+        await showMsgrConnectSheet(context, peerName: '${user['name'] ?? ''}');
+    if (res == null || !mounted) return;
+    final id = '${user['id']}';
+    setState(() => _busy.add(id));
+    try {
+      final m = await _api.circleAddByUser(
+        toUserId: (user['id'] as num).toInt(),
+        relation: res.relation,
+        customLabel: res.customLabel,
+        note: res.note,
+      );
+      final st = '${m['state'] ?? 'pending'}';
+      _setCircle(id, {
+        'state': st,
+        'member_id': m['id'],
+        'member': st == 'accepted' ? m : null,
+      });
+      _snack(st == 'accepted' ? _t.c1Accepted : _t.c1RequestSent);
+    } catch (_) {
+      _snack(_t.c1RequestFailed);
+    } finally {
+      if (mounted) setState(() => _busy.remove(id));
+    }
+  }
+
+  Future<void> _accept(Map<String, dynamic> user) async {
+    final c = user['circle'];
+    final mid = c is Map ? (c['member_id'] as num?)?.toInt() : null;
+    if (mid == null) return;
+    final id = '${user['id']}';
+    setState(() => _busy.add(id));
+    try {
+      final m = await _api.circleAcceptRequest(mid);
+      _setCircle(id, {'state': 'accepted', 'member_id': mid, 'member': m});
+      _snack(_t.c1Accepted);
+    } catch (_) {
+      _snack(_t.c1RequestFailed);
+    } finally {
+      if (mounted) setState(() => _busy.remove(id));
+    }
+  }
+
+  Map<String, dynamic>? _memberOf(Map<String, dynamic> user) {
+    final c = user['circle'];
+    if (c is! Map) return null;
+    final m = c['member'];
+    if (m is Map && m['id'] != null) return m.cast<String, dynamic>();
+    final mid = c['member_id'];
+    if (mid == null) return null;
+    return {
+      'id': mid,
+      'name': user['name'] ?? '',
+      'photo': user['photo'] ?? '',
+      'state': 'accepted',
+    };
+  }
+
+  /// The on-device E2E identity (same storage key as the Messenger hub). The
+  /// PRIVATE key never leaves the device.
+  Future<IdentityKeyPair?> _identity() async {
+    const secure = FlutterSecureStorage();
+    try {
+      final stored = await secure.read(key: 'circle_identity_v1');
+      if (stored != null) {
+        final j = jsonDecode(stored) as Map<String, dynamic>;
+        return IdentityKeyPair(base64Decode(j['priv'] as String),
+            base64Decode(j['pub'] as String), j['kid'] as String);
+      }
+      final e2e = SoftwareE2E();
+      final id = e2e.generateIdentity();
+      await secure.write(
+          key: 'circle_identity_v1',
+          value: jsonEncode({
+            'priv': base64Encode(id.privateKey),
+            'pub': base64Encode(id.publicKey),
+            'kid': id.keyId,
+          }));
+      try {
+        await _api.postJson('/circle/keys', {
+          'public_key': id.publicKeyB64,
+          'key_id': id.keyId,
+          'scheme': e2e.scheme,
+        });
+      } catch (_) {}
+      return id;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _message(Map<String, dynamic> user) async {
+    final member = _memberOf(user);
+    if (member == null) return;
+    final id = await _identity();
+    if (!mounted) return;
+    if (id == null) {
+      _snack(_t.c1ChatOpenFailed);
+      return;
+    }
+    await Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => CircleChatScreen(member: member, identity: id)));
+  }
+
+  Future<void> _call(Map<String, dynamic> user) async {
+    final member = _memberOf(user);
+    if (member == null) return;
+    await Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => CircleCallScreen(member: member, kind: 'voice')));
+  }
+
+  // ---------------------------------------------------------------------------
+  // INVITE (non-user) — share link or own-SIM SMS; never auto-sends.
+  // ---------------------------------------------------------------------------
+
   Future<void> _loadInviteCard() async {
     if (_inviteCard != null) return;
     final me = context.read<AppState>().user?.name ?? '';
@@ -122,119 +466,12 @@ class _ContactsScreenState extends State<ContactsScreen> {
       if (code.isEmpty && link.contains('/')) {
         code = link.split('/').last.split('?').first;
       }
-      _inviteCard = CmInviteCard(
-          link: link, referralCode: code, inviterName: me);
+      _inviteCard =
+          CmInviteCard(link: link, referralCode: code, inviterName: me);
     } catch (_) {
       _inviteCard = CmInviteCard(link: '', referralCode: '', inviterName: me);
     }
-  }
-
-  // ---------------------------------------------------------------------------
-  // CONSENT → MATCH
-  // ---------------------------------------------------------------------------
-
-  /// The user tapped Allow on the disclosure. In a build with the OS contacts
-  /// plugin this is where the runtime permission is requested; if DENIED we
-  /// route to [CmStage.denied] (recoverable). Here (no plugin) consent is in-app
-  /// and we proceed to the hashing + match pipeline over the manual rail.
-  Future<void> _consentAndMatch() async {
-    // Permission hook — with the OS contacts plugin this requests the runtime
-    // permission and returns granted/denied. When it returns false, route to
-    // [CmStage.denied] (recoverable: the manual rail + re-request). Here (no
-    // plugin) consent is the in-app Allow tap, so we proceed.
-    final granted = await _requestContactsPermission();
-    if (!mounted) return;
-    if (!granted) {
-      setState(() => _stage = CmStage.denied);
-      return;
-    }
-    await _runMatch(const []);
-  }
-
-  /// Stub for the OS contacts-permission request (always granted in this build;
-  /// swap for the plugin's `Permission.contacts.request().isGranted`).
-  Future<bool> _requestContactsPermission() async => true;
-
-  /// The one match pipeline: read → hash on device → upload hashes → match.
-  /// [rawNumbers] come from the contacts plugin (or the manual rail). Drives the
-  /// progress UI and lands on results / offline.
-  Future<void> _runMatch(List<String> rawNumbers) async {
-    setState(() {
-      _stage = CmStage.matching;
-      _progress = const CmProgress(phase: CmPhase.reading);
-    });
-    if (_salt.isEmpty) await _loadContract();
-    await _loadInviteCard();
-
-    // de-dupe + normalize
-    final e164 = rawNumbers
-        .map(_normalizeE164)
-        .where((s) => s.length > 3)
-        .toSet();
-    if (mounted) {
-      setState(() => _progress =
-          CmProgress(phase: CmPhase.hashing, total: e164.length));
-    }
-    // hash on-device (raw numbers never leave here)
-    final hashes = e164.map(_hashPhone).where((h) => h.isNotEmpty).toSet();
-
-    if (mounted) {
-      setState(() => _progress = const CmProgress(phase: CmPhase.matching));
-    }
-    final ok = await _uploadAndMerge(hashes.toList());
-    _hasMatchedOnce = true;
-    if (!mounted) return;
-    setState(() => _stage = ok ? CmStage.results : CmStage.offline);
-  }
-
-  /// Upload the salted hashes and merge any on-Assisto matches. Returns false
-  /// on a connectivity failure so the caller can show the offline state.
-  Future<bool> _uploadAndMerge(List<String> hashes) async {
-    if (hashes.isEmpty) return true; // nothing to match ⇒ a valid empty result
-    try {
-      final r = await _api.contactsMatch(
-          hashes: hashes, permissionGranted: true);
-      final matches =
-          ((r['matches'] ?? []) as List).cast<Map<String, dynamic>>();
-      final seen = {for (final m in _onAssisto) '${m['id']}'};
-      for (final m in matches) {
-        // server may nest the descriptor under {contact_hash, user}
-        final u = (m['user'] is Map)
-            ? (m['user'] as Map).cast<String, dynamic>()
-            : m;
-        if (seen.add('${u['id']}')) _onAssisto.add(u);
-      }
-      return true;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  Future<void> _matchManual() async {
-    final raw = _manual.text.trim();
-    if (raw.isEmpty) return;
-    _manual.clear();
-    await _runMatch([raw]);
-  }
-
-  // ---------------------------------------------------------------------------
-  // CONNECT (existing user) + INVITE (non-user)
-  // ---------------------------------------------------------------------------
-
-  Future<void> _connect(Map<String, dynamic> user) async {
-    final res =
-        await showMsgrConnectSheet(context, peerName: '${user['name'] ?? ''}');
-    if (res == null || !mounted) return;
-    try {
-      await _api.inviteExisting(
-        toUserId: (user['id'] as num).toInt(),
-        relation: res.relation,
-        customLabel: res.customLabel,
-      );
-      _snack(_t.msgrRequestSent);
-    } catch (_) {
-      _snack(_t.msgrRequestFailed);
-    }
+    if (mounted) setState(() {});
   }
 
   Future<void> _shareInvite() async {
@@ -246,7 +483,6 @@ class _ContactsScreenState extends State<ContactsScreen> {
       await Share.share(text.contains(url) ? text : '$text $url');
       _snack(_t.msgrInviteSent);
     } catch (_) {
-      // Offline / not wired: still let the user share the card's own link.
       final url = card?.link ?? '';
       if (url.isNotEmpty) {
         await Share.share(_defaultInviteText(url));
@@ -257,16 +493,26 @@ class _ContactsScreenState extends State<ContactsScreen> {
     }
   }
 
-  Future<void> _inviteSms() async {
-    final number = await _askNumber();
+  Future<void> _inviteSms([String? prefilled]) async {
+    final number = (prefilled == null || prefilled.isEmpty)
+        ? await _askNumber()
+        : PhoneCanon.localForm(prefilled);
     if (number == null || number.isEmpty || !mounted) return;
+    Uri uri;
     try {
       final d = await _api.inviteSms(relation: 'friend', toNumber: number);
       final smsUri = '${d['sms_uri'] ?? ''}';
-      final body = _localized(d['body']) ?? _defaultInviteText(_inviteCard?.link ?? '');
-      final uri = smsUri.isNotEmpty
+      final body = _localized(d['body']) ??
+          _defaultInviteText(_inviteCard?.link ?? '');
+      uri = smsUri.isNotEmpty
           ? Uri.parse(smsUri)
           : Uri.parse('sms:$number?body=${Uri.encodeComponent(body)}');
+    } catch (_) {
+      final link = _inviteCard?.link ?? '';
+      uri = Uri.parse(
+          'sms:$number?body=${Uri.encodeComponent(_defaultInviteText(link))}');
+    }
+    try {
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri); // opens the composer; the USER presses Send
         _snack(_t.msgrInviteSent);
@@ -274,16 +520,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
         _snack(_t.msgrInviteFailed);
       }
     } catch (_) {
-      // Fallback to own composer over the card link (never auto-sends).
-      final link = _inviteCard?.link ?? '';
-      final uri = Uri.parse(
-          'sms:$number?body=${Uri.encodeComponent(_defaultInviteText(link))}');
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri);
-        _snack(_t.msgrInviteSent);
-      } else {
-        _snack(_t.msgrInviteFailed);
-      }
+      _snack(_t.msgrInviteFailed);
     }
   }
 
@@ -294,10 +531,8 @@ class _ContactsScreenState extends State<ContactsScreen> {
     _snack(cmLabel(context, 'cmInviteLinkCopied'));
   }
 
-  void _openReferral() {
-    Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const ReferralScreen()));
-  }
+  void _openReferral() => Navigator.of(context)
+      .push(MaterialPageRoute(builder: (_) => const ReferralScreen()));
 
   String _defaultInviteText(String url) {
     final name = _inviteCard?.inviterName ?? '';
@@ -348,10 +583,11 @@ class _ContactsScreenState extends State<ContactsScreen> {
 
   void _snack(String msg) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
+  // ---------------------------------------------------------------------------
+  // UI
   // ---------------------------------------------------------------------------
 
   @override
@@ -361,12 +597,6 @@ class _ContactsScreenState extends State<ContactsScreen> {
       appBar: AppBar(
         title: Text(t.msgrContactsTitle),
         actions: [
-          if (_stage == CmStage.results)
-            IconButton(
-              tooltip: cmLabel(context, 'cmReSync'),
-              icon: const Icon(Icons.sync),
-              onPressed: () => _runMatch(const []),
-            ),
           IconButton(
             tooltip: cmLabel(context, 'cmPrivacyLearnMore'),
             icon: const Icon(Icons.shield_outlined),
@@ -381,9 +611,9 @@ class _ContactsScreenState extends State<ContactsScreen> {
         ],
       ),
       body: switch (_stage) {
-        CmStage.disclosure => CmDisclosure(
-            onAllow: _consentAndMatch,
-            onDeny: () => Navigator.of(context).maybePop(),
+        CmStage.disclosure => C1Disclosure(
+            onAllow: _allow,
+            onDeny: () => setState(() => _stage = CmStage.results),
             onPrivacy: () => showCmPrivacyExplainer(context),
           ),
         CmStage.matching => CmLoading(progress: _progress),
@@ -393,10 +623,13 @@ class _ContactsScreenState extends State<ContactsScreen> {
             body: cmLabel(context, 'cmDeniedBody'),
             tone: Theme.of(context).colorScheme.error,
             primaryLabel: cmLabel(context, 'cmOpenSettings'),
-            onPrimary: () =>
-                setState(() => _stage = CmStage.results), // manual rail works
-            secondaryLabel: _t.msgrContactsDeny,
-            onSecondary: () => Navigator.of(context).maybePop(),
+            onPrimary: () async {
+              try {
+                await _source.openSettings();
+              } catch (_) {}
+            },
+            secondaryLabel: t.c1SearchInstead,
+            onSecondary: () => setState(() => _stage = CmStage.results),
           ),
         CmStage.offline => CmStateView(
             icon: Icons.wifi_off_outlined,
@@ -404,120 +637,201 @@ class _ContactsScreenState extends State<ContactsScreen> {
             body: cmLabel(context, 'cmOfflineBody'),
             tone: Theme.of(context).colorScheme.error,
             primaryLabel: cmLabel(context, 'cmRetry'),
-            onPrimary: () => _runMatch(const []),
+            onPrimary: _sync,
+            secondaryLabel: t.c1SearchInstead,
+            onSecondary: () => setState(() => _stage = CmStage.results),
           ),
         CmStage.results => _results(),
       },
     );
   }
 
+  Widget _searchBar() {
+    final t = _t;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xs),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Expanded(
+          child: TextField(
+            key: const Key('c1-search'),
+            controller: _search,
+            keyboardType: TextInputType.phone,
+            textInputAction: TextInputAction.search,
+            onSubmitted: (_) => _runSearch(),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(
+                  RegExp(r'[0-9+ ()\-.\u09E6-\u09EF]')),
+            ],
+            decoration: InputDecoration(
+              isDense: true,
+              prefixIcon: const Icon(Icons.search, size: 20),
+              hintText: t.c1SearchHint,
+              hintMaxLines: 2,
+              errorText: _searchError,
+              errorMaxLines: 3,
+            ),
+          ),
+        ),
+        const SizedBox(width: Gap.sm),
+        IconButton.filled(
+          key: const Key('c1-search-go'),
+          tooltip: t.c1SearchHint,
+          onPressed: _searching ? null : _runSearch,
+          icon: _searching
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2))
+              : const Icon(Icons.person_search),
+        ),
+      ]),
+    );
+  }
+
+  Widget? _searchCard() {
+    final r = _searchResult;
+    if (r == null) return null;
+    final t = _t;
+    final scheme = Theme.of(context).colorScheme;
+    final canon = '${r['phone'] ?? ''}';
+    final local = PhoneCanon.localForm(canon);
+    if (r['found'] == true && r['user'] is Map) {
+      final u = (r['user'] as Map).cast<String, dynamic>();
+      return Card(
+        key: const Key('c1-search-found'),
+        margin: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, Gap.xs),
+        child: C1AssistoUserRow(
+          user: u,
+          busy: _busy.contains('${u['id']}'),
+          onAdd: () => _addToCircle(u),
+          onAccept: () => _accept(u),
+          onMessage: () => _message(u),
+          onCall: () => _call(u),
+        ),
+      );
+    }
+    final self = r['is_self'] == true;
+    return Card(
+      key: const Key('c1-search-notfound'),
+      margin: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, Gap.xs),
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.md),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(self ? t.c1SearchSelf : t.c1SearchNotFound(local),
+              style: TextStyle(color: scheme.onSurface, height: 1.4)),
+          if (!self) ...[
+            const SizedBox(height: Gap.sm),
+            Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+              FilledButton.tonalIcon(
+                onPressed: () => _inviteSms(canon),
+                icon: const Icon(Icons.sms_outlined, size: 18),
+                label: Text(t.c1Invite),
+              ),
+              OutlinedButton.icon(
+                onPressed: _shareInvite,
+                icon: const Icon(Icons.share_outlined, size: 18),
+                label: Text(cmLabel(context, 'cmShareCard')),
+              ),
+            ]),
+          ],
+        ]),
+      ),
+    );
+  }
+
+  Widget _foundRow(Map<String, dynamic> f) {
+    final u = (f['user'] as Map).cast<String, dynamic>();
+    return C1AssistoUserRow(
+      key: Key('c1-on-${u['id']}'),
+      user: u,
+      contactName: '${f['contact'] ?? ''}',
+      busy: _busy.contains('${u['id']}'),
+      onAdd: () => _addToCircle(u),
+      onAccept: () => _accept(u),
+      onMessage: () => _message(u),
+      onCall: () => _call(u),
+    );
+  }
+
   Widget _results() {
     final t = _t;
     final scheme = Theme.of(context).colorScheme;
-    return Column(children: [
-      // Manual find-by-number rail (the plugin feeds the same path).
-      Padding(
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xs),
-        child: Row(children: [
-          Expanded(
-            child: TextField(
-              controller: _manual,
-              keyboardType: TextInputType.phone,
-              textInputAction: TextInputAction.search,
-              onSubmitted: (_) => _matchManual(),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[0-9+ \-]'))
-              ],
-              decoration: InputDecoration(
-                isDense: true,
-                prefixIcon: const Icon(Icons.search, size: 20),
-                hintText: t.msgrContactsManualHint,
-              ),
-            ),
+    final others = _phonebook
+        .where((e) => !e.numbers.any(_matchedNumbers.contains))
+        .toList();
+    final found = _onAssisto.values.toList()
+      ..sort((a, b) => '${a['contact']}'
+          .toLowerCase()
+          .compareTo('${b['contact']}'.toLowerCase()));
+    final searchCard = _searchCard();
+    final children = <Widget>[
+      _searchBar(),
+      if (searchCard != null) searchCard,
+      if (!_source.available)
+        C1InfoBanner(
+          key: const Key('c1-unavailable'),
+          icon: Icons.update,
+          title: t.c1PhonebookNextUpdateTitle,
+          body: t.c1PhonebookNextUpdateBody,
+        ),
+      if (_source.available && !_synced)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
+          child: OutlinedButton.icon(
+            onPressed: () => setState(() => _stage = CmStage.disclosure),
+            icon: const Icon(Icons.contacts_outlined),
+            label: Text(t.msgrContactsAllow),
           ),
-          const SizedBox(width: Gap.sm),
-          IconButton.filled(
-              onPressed: _matchManual,
-              icon: const Icon(Icons.person_search)),
-        ]),
-      ),
-      Expanded(
-        child: ListView(children: [
-          if (_onAssisto.isNotEmpty) ...[
-            _sectionHeader(
-              '${t.cmResultsFoundTitle} · '
-              '${t.cmResultsFoundCount(cmNum(context, _onAssisto.length))}',
-              scheme.primary,
-            ),
-            for (final u in _onAssisto)
-              CmUserRow(user: u, onConnect: () => _connect(u)),
-            const SizedBox(height: Gap.sm),
-          ] else
-            _emptyMatched(),
-          // Invite-others — always available (SPEC §21 #8 share card).
-          _sectionHeader(cmLabel(context, 'cmInviteOthersTitle'),
-              scheme.onSurfaceVariant),
-          if (_inviteCard != null)
-            CmInviteCardView(
-              card: _inviteCard!,
-              onShare: _shareInvite,
-              onSms: _inviteSms,
-              onCopy: _copyLink,
-              onSeeReferral: _openReferral,
-            ),
-          _reSyncHint(),
-          const SizedBox(height: Gap.xl),
-        ]),
-      ),
-    ]);
-  }
-
-  Widget _sectionHeader(String label, Color color) => Padding(
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xs),
-        child: Text(label.toUpperCase(),
-            style: TextStyle(
-                fontSize: 11, fontWeight: FontWeight.w700, color: color)),
-      );
-
-  Widget _emptyMatched() {
-    final scheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(Gap.xl, Gap.xl, Gap.xl, Gap.sm),
-      child: Column(children: [
-        Icon(Icons.group_outlined,
-            size: 48, color: scheme.primary.withValues(alpha: 0.7)),
-        const SizedBox(height: Gap.md),
-        Text(
-          _hasMatchedOnce
-              ? cmLabel(context, 'cmInviteNoneTitle')
-              : _t.msgrContactsNoneMatched,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.titleSmall,
         ),
-        const SizedBox(height: Gap.xs),
-        Text(cmLabel(context, 'cmInviteNoneBody'),
-            textAlign: TextAlign.center,
-            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
-      ]),
-    );
-  }
-
-  Widget _reSyncHint() {
-    final scheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
-      child: Row(children: [
-        Icon(Icons.sync, size: 16, color: scheme.onSurfaceVariant),
-        const SizedBox(width: Gap.xs),
-        Expanded(
-          child: Text(cmLabel(context, 'cmReSyncHint'),
-              style:
-                  TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
+      if (_synced) ...[
+        C1SectionHeader(
+            '${t.c1OnAssistoTitle} · ${cmNum(context, found.length)}',
+            key: const Key('c1-section-on')),
+        if (found.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: Gap.md, vertical: Gap.sm),
+            child: Text(t.c1NoneOnAssisto,
+                style: TextStyle(color: scheme.onSurfaceVariant)),
+          ),
+        for (final f in found) _foundRow(f),
+        C1SectionHeader(t.c1InviteTitle,
+            key: const Key('c1-section-invite'),
+            color: scheme.onSurfaceVariant),
+        for (final e in others)
+          C1InviteRow(
+            name: e.name,
+            number: PhoneCanon.localForm(e.numbers.first),
+            onInvite: () => _inviteSms(e.numbers.first),
+          ),
+      ],
+      if (_inviteCard != null) ...[
+        if (!_synced)
+          C1SectionHeader(t.c1InviteTitle, color: scheme.onSurfaceVariant),
+        CmInviteCardView(
+          card: _inviteCard!,
+          onShare: _shareInvite,
+          onSms: () => _inviteSms(),
+          onCopy: _copyLink,
+          onSeeReferral: _openReferral,
         ),
-        TextButton(
-            onPressed: () => _runMatch(const []),
-            child: Text(cmLabel(context, 'cmReSync'))),
-      ]),
+      ],
+      if (_synced)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
+          child: Text(
+            '${t.c1CheckedCount(cmNum(context, _phonebook.length))} '
+            '${t.c1PullToRefresh}',
+            style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
+          ),
+        ),
+      const SizedBox(height: Gap.xl),
+    ];
+    final list = ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: children,
     );
+    if (!_source.available) return list;
+    return RefreshIndicator(onRefresh: _sync, child: list);
   }
 }

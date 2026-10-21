@@ -498,9 +498,9 @@ class ChangeNumberTests(_Base):
                                       "code": "424242"}, format="json")
             self.assertEqual(r.status_code, 200, r.content)
         self.a.refresh_from_db()
-        self.assertEqual(self.a.phone, "01799999999")
+        self.assertEqual(self.a.phone, "+8801799999999")  # c1: canonical
         self.ba.refresh_from_db()
-        self.assertEqual(self.ba.phone, "01799999999")
+        self.assertEqual(self.ba.phone, "+8801799999999")
 
     def test_otp_service_missing_means_not_configured(self):
         from core import views_m1_messenger as m1

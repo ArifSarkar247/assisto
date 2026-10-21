@@ -707,4 +707,10 @@ urlpatterns += [
 ]
 # ---- /d1-discover ----
 
+# ---- c1-contacts ----
+urlpatterns += [
+    path("messenger/contacts/lookup", msg.ContactLookupView.as_view()),
+]
+# ---- /c1-contacts ----
+
 urlpatterns += router.urls

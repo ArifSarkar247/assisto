@@ -3,6 +3,7 @@ import 'package:assisto/business_selling_api.dart';
 import 'package:assisto/models.dart';
 import 'package:assisto/widgets/home_quick_buttons.dart';
 
+import 'fake_c1_contacts.dart';
 import 'fake_discover.dart';
 import 'fake_vehicle.dart';
 
@@ -751,6 +752,8 @@ class FakeApi extends ApiClient {
     // d1-discover: Discover cards + owner Discover manager stubs
     final disc = fakeDiscoverGet(path, _bn, mode.name);
     if (disc != null) return disc;
+    final c1 = fakeC1Get(path); // c1-contacts
+    if (c1 != null) return c1;
     // ===== Home / Notification centre stubs =====
     if (path == '/home/badges') return {'my_circle_unread': 3, 'notif_unseen': 5};
     if (path.startsWith('/home/suggestions')) {
@@ -1557,6 +1560,8 @@ class FakeApi extends ApiClient {
   Future<Map<String, dynamic>> postJson(String path, [Map<String, dynamic> body = const {}]) async {
     final vehP = fakeVehiclePost(path, body, _bn); // v1-vehicle
     if (vehP != null) return vehP;
+    final c1P = fakeC1Post(path, body); // c1-contacts
+    if (c1P != null) return c1P;
     if (path == '/shop/live/start') {
       // the honest offline state the server answers (409 device_offline)
       throw ApiException(

@@ -396,7 +396,8 @@ def _resolve_peer(m):
     name, photo = (m.name or "").strip(), ""
     peer = getattr(m, "peer_user", None)
     if peer is None and (m.phone or "").strip():
-        peer = User.objects.filter(phone=m.phone.strip()).first()
+        from .phone import find_user as _find_by_phone
+        peer = _find_by_phone(m.phone)
     if peer is not None:
         name = (getattr(peer, "name", "") or "").strip() or name or peer.username
         photo = getattr(peer, "photo_url", "") or ""
@@ -646,10 +647,49 @@ def _thread_q(m):
 class CircleRequestCreateView(APIView):
     def post(self, request):
         data = request.data or {}
-        phone = str(data.get("phone", "")).strip()[:40]
+        raw_phone = str(data.get("phone", "")).strip()[:40]
         relation = circle.normalize_relation(data.get("relation", "friend"))
         note = str(data.get("note", "")).strip()[:500]  # ONE optional pre-accept note
-        peer = User.objects.filter(phone=phone).first() if phone else None
+        # c1-contacts: the number may arrive in ANY format (01…, +880…,
+        # spaces, dashes, Bangla digits). Canonicalise it, refuse an invalid
+        # one honestly, and find the account across legacy spellings.
+        from .phone import canonical_phone, find_user as _find_by_phone
+        phone = canonical_phone(raw_phone) if raw_phone else ""
+        legacy_peer = None
+        if raw_phone and not phone:
+            # A pre-0051 account whose stored phone is not a valid number
+            # (reported by the migration) stays reachable by its exact value;
+            # anything else is refused honestly.
+            legacy_peer = User.objects.filter(phone=raw_phone).first()
+            if legacy_peer is None:
+                return Response({"detail": "bad_phone", "reason": "bad_phone"},
+                                status=status.HTTP_400_BAD_REQUEST)
+            phone = raw_phone
+        peer = legacy_peer
+        to_id = data.get("to_user_id")
+        if to_id not in (None, ""):
+            try:
+                peer = User.objects.filter(pk=int(to_id), is_active=True).first()
+            except (TypeError, ValueError):
+                peer = None
+            if peer is None:
+                return Response({"detail": "user not found"},
+                                status=status.HTTP_404_NOT_FOUND)
+            phone = phone or canonical_phone(peer.phone or "") or ""
+        elif phone and peer is None:
+            peer = _find_by_phone(phone)
+        if not phone and peer is None:
+            return Response({"detail": "bad_phone", "reason": "bad_phone"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if peer is not None and peer.id == request.user.id:
+            return Response({"detail": "self_request", "reason": "self_request"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if peer is not None:
+            existing = (CircleMember.objects.filter(
+                user=request.user, peer_user=peer, direction="outgoing",
+                state__in=("pending", "accepted")).order_by("-id").first())
+            if existing is not None:
+                return Response(_member_dict(existing), status=status.HTTP_200_OK)
         peer_key = _published_key(peer)  # m2-reality: carry an already-published key
         # The SENDER's own row is OUTGOING (can only cancel it).
         m = CircleMember.objects.create(

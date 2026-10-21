@@ -91,6 +91,30 @@ class UserSerializer(serializers.ModelSerializer):
                 return ""
         return obj.photo_link or ""
 
+    def validate_phone(self, value):
+        """c1-contacts: a profile phone change is stored canonical; invalid
+        numbers and numbers already used by another account (in ANY format)
+        are refused honestly."""
+        raw = (value or "").strip()
+        if not raw:
+            return None
+        from .phone import canonical_phone, variants
+        request = self.context.get("request")
+        lang = req_lang(request) if request is not None else "bn"
+        canon = canonical_phone(raw)
+        if not canon:
+            raise serializers.ValidationError(pick(lang,
+                "ফোন নম্বরটি সঠিক নয়। যেমন: ০১৭১২৩৪৫৬৭৮",
+                "That phone number doesn't look right. Example: 01712345678"))
+        qs = User.objects.filter(phone__in=variants(canon))
+        if self.instance is not None:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise serializers.ValidationError(pick(lang,
+                "এই ফোন নম্বর আগে থেকেই আছে।",
+                "This phone number is already registered."))
+        return canon
+
     def update(self, instance, validated_data):
         # An explicit empty-string photo means "remove it" (delete the file).
         if "photo" in validated_data and validated_data["photo"] == "":
@@ -116,10 +140,21 @@ class RegisterSerializer(serializers.Serializer):
             raise serializers.ValidationError(pick(lang,
                 "ফোন নম্বর বা ইমেইল — অন্তত একটা দিন।",
                 "Enter at least one — a phone number or an email."))
-        if phone and User.objects.filter(phone=phone).exists():
-            raise serializers.ValidationError(pick(lang,
-                "এই ফোন নম্বর আগে থেকেই আছে।",
-                "This phone number is already registered."))
+        if phone:
+            # c1-contacts: ONE canonical form (+8801XXXXXXXXX); any input
+            # format accepted, invalid numbers rejected honestly, and the
+            # duplicate check covers every legacy spelling.
+            from .phone import canonical_phone, variants
+            canon = canonical_phone(phone)
+            if not canon:
+                raise serializers.ValidationError(pick(lang,
+                    "ফোন নম্বরটি সঠিক নয়। যেমন: ০১৭১২৩৪৫৬৭৮",
+                    "That phone number doesn't look right. Example: 01712345678"))
+            if User.objects.filter(phone__in=variants(canon)).exists():
+                raise serializers.ValidationError(pick(lang,
+                    "এই ফোন নম্বর আগে থেকেই আছে।",
+                    "This phone number is already registered."))
+            phone = canon
         if email and User.objects.filter(email=email).exists():
             raise serializers.ValidationError(pick(lang,
                 "এই ইমেইল আগে থেকেই আছে।",
