@@ -52,6 +52,12 @@ dependencies:
   # #196 Home-screen widget — pushes next-reminder / today count to a native
   # AppWidgetProvider (see android_overlay/) and opens the app on tap.
   home_widget: ^0.7.0
+  # CCTV Part 4 (a2-cctv): Shop Box LIVE VIEW over WebRTC — P2P first, TURN
+  # relay fallback (relayed minutes cost credits). Media never touches our
+  # server and is never recorded. LAZY: only the live-view screen and Shop Box
+  # mode import it (deferred); nothing at app launch. Shared constraint with
+  # a4-remote (see /home/ubuntu/wt/SHARED_DEPS.md).
+  flutter_webrtc: ^1.6.2
   # workmanager REMOVED — its androidx.work startup ContentProvider crashed on
   # launch (ColorOS/Realme) and background exec is throttled there anyway.
   # Family alerts now poll on app open/resume (see AppState). FCM later.

@@ -157,6 +157,11 @@ import 'package:assisto/crypto/e2e.dart';
 import 'package:assisto/screens/legal_screen.dart';
 import 'package:assisto/screens/photo_enhance_screen.dart';
 import 'package:assisto/screens/unseen_world_screen.dart';
+import 'package:assisto/screens/shop_box_screen.dart';
+import 'package:assisto/screens/shop_eod_screen.dart';
+import 'package:assisto/screens/shop_live_screen.dart';
+import 'package:assisto/screens/shop_box_mode_screen.dart';
+import 'package:assisto/screens/shop_camera_settings.dart';
 
 import 'fake_api.dart';
 
@@ -171,7 +176,8 @@ class _DeadClient implements HttpClient {
       throw const SocketException('network disabled in screenshot tests');
 }
 
-const _outDir = '/home/ubuntu/assisto/screenshots';
+// ASSISTO_SHOT_DIR lets a worktree agent write shots outside the main checkout.
+final _outDir = Platform.environment['ASSISTO_SHOT_DIR'] ?? '/home/ubuntu/assisto/screenshots';
 
 Future<void> _loadFont(String family, String path) async {
   final loader = FontLoader(family);
@@ -417,6 +423,13 @@ void main() {
     'legal': (build: (_) => const LegalScreen(), mode: FakeMode.data, full: true),
     'photo_enhance': (build: (_) => const PhotoEnhanceScreen(), mode: FakeMode.data, full: true),
     'unseen': (build: (_) => const UnseenWorldScreen(), mode: FakeMode.data, full: true),
+    // a2-cctv: Shop Box (CCTV Part 4) — Business plan stubbed in FakeApi
+    'shop_box': (build: (_) => const ShopBoxScreen(), mode: FakeMode.data, full: true),
+    'shop_eod': (build: (_) => const ShopEodScreen(siteId: 1), mode: FakeMode.data, full: true),
+    'shop_live_offline': (build: (l) => ShopLiveScreen(cameraId: 1, cameraName: l == 'bn' ? 'ক্যাশ কাউন্টার' : 'Cash counter'), mode: FakeMode.data, full: true),
+    'shop_mode_pair': (build: (_) => const ShopBoxModeScreen(), mode: FakeMode.data, full: true),
+    'shop_mode_paired': (build: (l) => ShopBoxModeScreen(preview: (token: 'demo', cameraId: 1, site: l == 'bn' ? 'মিরপুর শাখা' : 'Mirpur branch', camera: l == 'bn' ? 'ক্যাশ কাউন্টার' : 'Cash counter')), mode: FakeMode.data, full: true),
+    'shop_cam_settings': (build: (l) => Scaffold(body: SafeArea(child: ShopCameraSettingsSheet(camera: {'id': 1, 'name': l == 'bn' ? 'ক্যাশ কাউন্টার' : 'Cash counter', 'enabled': true, 'online': false, 'last_seen': '2026-10-21T03:10:00Z', 'restricted_zone': true, 'hours': {'open': '09:00', 'close': '22:00'}, 'camera_token': 'demo-cam-token-xyz'}))), mode: FakeMode.data, full: true),
     // state variants (single representative each)
     'subscriptions_empty': (build: (_) => const SubscriptionsScreen(), mode: FakeMode.empty, full: false),
     'subscriptions_loading': (build: (_) => const SubscriptionsScreen(), mode: FakeMode.slow, full: false),
@@ -427,6 +440,7 @@ void main() {
 
   Future<void> shoot(WidgetTester tester, String name, String lang,
       Brightness brightness, Widget screen, FakeMode mode) async {
+    FakeApi.planSlug = name.startsWith('shop_') ? 'business' : 'premium';
     final tall = name.endsWith('_bottom');
     await tester.binding.setSurfaceSize(Size(360, tall ? 1800 : 800));
     final key = GlobalKey();

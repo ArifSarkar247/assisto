@@ -392,9 +392,13 @@ def _poisha(v, default=None):
 def todays_cash_sales(owner, now=None, business_id=None):
     """Sum of (paid - change) of today's (local tz) NON-voided CASH sales across
     the owner's businesses. POISHA."""
+    from django.db.models import Q
     from .models import Sale
     start, end = _local_day_bounds(now)
-    qs = Sale.objects.filter(business__user=owner, payment_method="cash",
+    # the owner's businesses, plus legacy single-shop sales without a business
+    qs = Sale.objects.filter(Q(business__user=owner) |
+                             Q(business__isnull=True, user=owner),
+                             payment_method="cash",
                              voided_at__isnull=True,
                              created_at__gte=start, created_at__lt=end)
     if business_id:

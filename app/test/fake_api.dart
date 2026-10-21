@@ -14,6 +14,10 @@ class FakeApi extends ApiClient {
   }
 
   bool get _bn => lang == 'bn';
+
+  /// The plan slug [plan] reports. The gallery sets 'business' for the Shop Box
+  /// shots (Business-only UI) and resets it to 'premium' for everything else.
+  static String planSlug = 'premium';
   Never _fail() => throw ApiException(
       _bn ? 'সংযোগ করা গেল না' : 'Could not connect', 503);
   List<Map<String, dynamic>> _maybe(List<Map<String, dynamic>> data) {
@@ -408,7 +412,7 @@ class FakeApi extends ApiClient {
 
   @override
   Future<Map<String, dynamic>> plan() async => {
-        'plan': 'premium', 'name_bn': _bn ? 'প্রিমিয়াম' : 'Premium',
+        'plan': planSlug, 'name_bn': _bn ? 'প্রিমিয়াম' : 'Premium',
         'unlimited_ai': true, 'ads': false, 'credits': 0,
         'trial_active': true, 'trial_until': '2026-10-20T00:00:00',
       };
@@ -1139,6 +1143,9 @@ class FakeApi extends ApiClient {
     if (path.startsWith('/circle/') || path.startsWith('/journey/') || path.startsWith('/referral/')) {
       return const {}; // unmatched build-61 GET -> empty, never throw in gallery
     }
+    // ===== a2-cctv: Shop Box (CCTV Part 4) GET stubs =====
+    final shop = _shopGet(path);
+    if (shop != null) return shop;
     // ===== Business v2 (khata / selling / AI) GET stubs =====
     final biz = _businessGet(path);
     if (biz != null) return biz;
@@ -1410,8 +1417,75 @@ class FakeApi extends ApiClient {
     return const {}; // unmatched business GET -> empty, never throw in gallery
   }
 
+  // a2-cctv: Shop Box sample data (signals-only; no video anywhere).
+  Map<String, dynamic>? _shopGet(String path) {
+    if (!path.startsWith('/shop/')) return null;
+    if (mode == FakeMode.fail) _fail();
+    final b = _bn;
+    final now = DateTime.now();
+    final ago = now.subtract(const Duration(hours: 3)).toUtc().toIso8601String();
+    if (path == '/shop/sites') {
+      return {'sites': mode == FakeMode.empty ? [] : [
+        {'id': 1, 'name': b ? 'মিরপুর শাখা' : 'Mirpur branch', 'snapshot_retention_days': 7,
+         'cameras': 3, 'hours': {'open': '09:00', 'close': '22:00'}, 'pos_link': true,
+         'last_seen': now.toUtc().toIso8601String(), 'online': true, 'created': '2026-10-01T10:00:00Z'},
+        {'id': 2, 'name': b ? 'গুদাম' : 'Warehouse', 'snapshot_retention_days': 3,
+         'cameras': 1, 'hours': {}, 'pos_link': false, 'last_seen': ago, 'online': false,
+         'created': '2026-10-05T10:00:00Z'},
+      ]};
+    }
+    if (RegExp(r'^/shop/sites/\d+/cameras$').hasMatch(path)) {
+      return {'included': 4, 'used': 3, 'used_total': 4, 'extra_camera_credits': 20, 'cameras': [
+        {'id': 1, 'name': b ? 'ক্যাশ কাউন্টার' : 'Cash counter', 'kind': 'shopbox', 'enabled': true,
+         'online': true, 'last_seen': now.toUtc().toIso8601String(), 'live_capable': true,
+         'restricted_zone': true, 'hours': null, 'zone_config': {}},
+        {'id': 2, 'name': b ? 'পেছনের দরজা' : 'Back door', 'kind': 'edge_webhook', 'enabled': true,
+         'online': false, 'last_seen': ago, 'live_capable': false, 'restricted_zone': true,
+         'hours': {'open': '08:00', 'close': '23:00'}, 'zone_config': {}},
+        {'id': 3, 'name': b ? 'স্টোর রুম' : 'Store room', 'kind': 'edge_webhook', 'enabled': false,
+         'online': false, 'last_seen': null, 'live_capable': false, 'restricted_zone': false,
+         'hours': null, 'zone_config': {}},
+      ]};
+    }
+    if (RegExp(r'^/shop/sites/\d+/eod$').hasMatch(path)) {
+      return {'today_cash_sales': 1854000, 'today_cash_sale_count': 37, 'tolerance': 5000,
+        'checks': mode == FakeMode.empty ? [] : [
+          {'id': 2, 'day': '2026-10-20', 'counted': 1520000, 'expected': 1545000, 'opening_float': 200000,
+           'cash_sales': 1345000, 'tolerance': 5000, 'difference': -25000, 'status': 'short', 'note': '', 'event_id': 9},
+          {'id': 1, 'day': '2026-10-19', 'counted': 1210000, 'expected': 1212000, 'opening_float': 200000,
+           'cash_sales': 1012000, 'tolerance': 5000, 'difference': -2000, 'status': 'ok', 'note': '', 'event_id': null},
+        ]};
+    }
+    if (RegExp(r'^/shop/cameras/\d+$').hasMatch(path)) {
+      return {'id': 1, 'name': b ? 'ক্যাশ কাউন্টার' : 'Cash counter', 'camera_token': 'demo-cam-token-xyz',
+        'enabled': true, 'online': true, 'restricted_zone': true, 'hours': null};
+    }
+    if (path.startsWith('/shop/events')) {
+      return {'site': 1, 'events': [
+        {'id': 9, 'type': 'eod_mismatch', 'confidence': 0.62, 'possible': false, 'pos_matched': false,
+         'status': 'open', 'signals': {'reason': ['eod_mismatch', 'short_by_25000']}, 'snapshot_url': null,
+         'camera': null, 'created': ago},
+      ]};
+    }
+    if (path.startsWith('/shop/summary')) {
+      return {'site': 1, 'days': 7, 'total_events': 4, 'by_type': {'after_hours': 1, 'void_spike': 1,
+        'eod_mismatch': 1, 'motion': 1}, 'open': 2, 'false_alarms': 1, 'after_hours': 1,
+        'exceptions': {'voids': 5, 'refunds': 0, 'discounts': 11, 'drawer_opens': 0},
+        'pos_by_kind': {'sale': 212, 'void': 5, 'discount': 11}, 'camera_only': false};
+    }
+    return const {};
+  }
+
   @override
   Future<Map<String, dynamic>> postJson(String path, [Map<String, dynamic> body = const {}]) async {
+    if (path == '/shop/live/start') {
+      // the honest offline state the server answers (409 device_offline)
+      throw ApiException(
+          _bn
+              ? 'শপ বক্স ডিভাইসটি এখন অফলাইন — ফোন/পিসি চালু ও ইন্টারনেটে আছে কিনা দেখুন।'
+              : 'The Shop Box device is offline right now — check that the phone/PC is on and connected.',
+          409);
+    }
     // ===== Module 5 (P13+) stubs =====
     if (path.startsWith('/health/tips/emergency')) {
       return {'emergency': false, 'matched': const [],

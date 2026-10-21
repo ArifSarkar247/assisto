@@ -5,6 +5,7 @@ import '../../business_selling_api.dart';
 import '../../widgets/skeleton.dart';
 import '../../l10n/app_localizations.dart';
 import 'selling_common.dart';
+import 'sale_void_dialog.dart';
 
 /// Quick sell (§3): tap a product → cart → qty / price → payment → done.
 ///
@@ -592,8 +593,10 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
         discountTaka: disc,
       );
       if (!mounted) return;
+      // the host (navigator) context outlives this sheet, for the void dialog
+      final host = Navigator.of(context).context;
       Navigator.pop(context, sale);
-      _offerReceipt(sale);
+      _offerReceipt(sale, host);
     } on BelowMinException {
       if (mounted) showBelowMin(context);
     } catch (e) {
@@ -602,24 +605,55 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
     if (mounted) setState(() => _busy = false);
   }
 
-  void _offerReceipt(Map<String, dynamic> sale) {
+  void _offerReceipt(Map<String, dynamic> sale, BuildContext host) {
     final t = AppLocalizations.of(context);
-    final id = sale['id'];
+    // checkout answers `sale_id` (older code read `id`, so the action never showed)
+    final id = sale['id'] ?? sale['sale_id'];
     final messenger = ScaffoldMessenger.of(context);
     messenger.showSnackBar(SnackBar(
+      duration: const Duration(seconds: 8),
       content: Text(t.biz_sale_done),
       action: id == null
           ? null
           : SnackBarAction(
-              label: t.biz_receipt_share,
-              onPressed: () => _shareReceipt(sale)),
+              label: t.shopSaleOptions,
+              onPressed: () => _saleOptions(host, sale, (id as num).toInt())),
     ));
   }
 
-  Future<void> _shareReceipt(Map<String, dynamic> sale) async {
-    final t = AppLocalizations.of(context);
-    // Build a plain-text receipt from the sale payload (staff-safe: uses only
-    // line names, qty, unit price and totals — no cost/profit).
+  /// Share the receipt, or VOID the sale (reason required; server-gated).
+  void _saleOptions(BuildContext host, Map<String, dynamic> sale, int id) {
+    if (!host.mounted) return;
+    final t = AppLocalizations.of(host);
+    showModalBottomSheet<void>(
+      context: host,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          ListTile(
+            leading: const Icon(Icons.share_outlined),
+            title: Text(t.biz_receipt_share),
+            onTap: () {
+              Navigator.pop(ctx);
+              _shareReceiptText(host, sale);
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.block, color: Theme.of(ctx).colorScheme.error),
+            title: Text(t.shopVoidTitle),
+            onTap: () {
+              Navigator.pop(ctx);
+              showSaleVoidDialog(host, id);
+            },
+          ),
+        ]),
+      ),
+    );
+  }
+
+  Future<void> _shareReceiptText(BuildContext host, Map<String, dynamic> sale) async {
+    if (!host.mounted) return;
+    final t = AppLocalizations.of(host);
     final buf = StringBuffer();
     buf.writeln(t.biz_receipt);
     for (final l in ((sale['lines'] ?? []) as List)) {
@@ -638,6 +672,7 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
     }
     await Share.share(buf.toString());
   }
+
 
   @override
   Widget build(BuildContext context) {
