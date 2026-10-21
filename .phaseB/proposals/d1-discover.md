@@ -122,7 +122,7 @@ no nginx and no settings changes are needed.
   - image upload to a signed URL, with non-images rejected;
   - end to end: the owner creates a card, the app endpoint returns it, and after the end date
     it is gone.
-- Full backend `core` suite: see the final report numbers.
+- Full backend `core` suite: 2532 tests, OK. The "RuntimeError: boom" in the log is the expected output of an existing test.
 - Flutter `test/d1_discover_test.dart`: 7 tests pass. They cover:
   - server cards render, the build is sent, the Sponsored label shows, ADMOB is skipped, an
     impression is tracked, and the set is cached;
