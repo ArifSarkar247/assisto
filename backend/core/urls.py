@@ -689,4 +689,22 @@ urlpatterns += [
 ]
 # ---- /v1-vehicle ----
 
+# ---- d1-discover ----
+from . import views_discover as disc  # noqa: E402
+
+urlpatterns += [
+    path("discover/cards", disc.DiscoverCardsView.as_view()),
+    path("discover/track", disc.DiscoverTrackView.as_view()),
+    path("admin/discover/cards", disc.AdminDiscoverCardsView.as_view()),
+    path("admin/discover/cards/<int:pk>", disc.AdminDiscoverCardView.as_view()),
+    path("admin/discover/cards/<int:pk>/image", disc.AdminDiscoverImageView.as_view()),
+    path("admin/discover/cards/<int:pk>/report", disc.AdminDiscoverReportView.as_view()),
+    path("admin/discover/cards/<int:pk>/report.<str:fmt>",
+         disc.AdminDiscoverReportExportView.as_view()),
+    path("admin/discover/reorder", disc.AdminDiscoverReorderView.as_view()),
+    path("admin/discover/meta", disc.AdminDiscoverMetaView.as_view()),
+    path("admin/discover/preview", disc.AdminDiscoverPreviewView.as_view()),
+]
+# ---- /d1-discover ----
+
 urlpatterns += router.urls

@@ -242,9 +242,39 @@ def _trailing_rows(days=7, now=None):
     today = timezone.localdate()
     since = today - timedelta(days=days - 1)
     rows = DailyLedger.objects.filter(date__gte=since, date__lte=today)
-    return [{"date": r.date.isoformat(),
-             "revenue_by_source": r.revenue_by_source,
-             "variable_cost_by_type": r.variable_cost_by_type} for r in rows]
+    out = [{"date": r.date.isoformat(),
+            "revenue_by_source": r.revenue_by_source,
+            "variable_cost_by_type": r.variable_cost_by_type} for r in rows]
+    return _merge_sponsored(out, since, today)
+
+
+def _merge_sponsored(rows, since, today):
+    """d1-discover: add booked SPONSORED Discover-card revenue (spread over each
+    card's run) as the `sponsored` revenue source. Computed from the cards, not
+    written into DailyLedger, so editing/deleting a deal never double-counts."""
+    try:
+        from .views_discover import sponsored_revenue_by_day
+        extra = sponsored_revenue_by_day(since, today)
+    except Exception:
+        extra = {}
+    if not extra:
+        return rows
+    by_date = {r["date"]: r for r in rows}
+    for d, amt in extra.items():
+        key = d.isoformat()
+        r = by_date.get(key)
+        if r is None:
+            r = {"date": key, "revenue_by_source": {}, "variable_cost_by_type": {}}
+            by_date[key] = r
+            rows.append(r)
+        rev = dict(r.get("revenue_by_source") or {})
+        try:
+            prev = float(rev.get("sponsored", 0) or 0)
+        except (TypeError, ValueError):
+            prev = 0.0
+        rev["sponsored"] = round(prev + amt, 2)
+        r["revenue_by_source"] = rev
+    return rows
 
 
 def guard_state(now=None):
@@ -361,7 +391,19 @@ def pnl_dashboard(days=30, now=None):
         "break_even": be,
         "guard": guard,
         "alerts": alerts,
+        "sponsored": _sponsored_summary(rows),
     }
+
+
+def _sponsored_summary(rows):
+    """d1-discover: the sponsored-card revenue line of the P&L period."""
+    total = 0.0
+    for r in rows or []:
+        try:
+            total += float((r.get("revenue_by_source") or {}).get("sponsored", 0) or 0)
+        except (TypeError, ValueError):
+            pass
+    return {"total": round(total, 2)}
 
 
 def _recent_cost_alerts(limit=20):

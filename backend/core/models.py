@@ -3412,3 +3412,67 @@ class VehicleAuditLog(models.Model):
     class Meta:
         ordering = ["-at"]
 # ---- /v1-vehicle ----
+
+
+# ---- d1-discover ----
+class DiscoverCard(models.Model):
+    """One HOME "Discover" spotlight card, managed from the owner admin
+    (Settings -> Discover manager). Visibility rules live in
+    core/logic/discover.py and are enforced server-side."""
+    TYPES = [("FEATURE", "Feature"), ("OUR_PRODUCT", "Our product"),
+             ("SPONSORED", "Sponsored"), ("ADMOB", "AdMob slot")]
+    AUDIENCES = [("all", "all"), ("free", "free"), ("premium", "premium"),
+                 ("business", "business")]
+    key = models.SlugField(max_length=60, unique=True)
+    type = models.CharField(max_length=12, choices=TYPES, default="FEATURE")
+    title_bn = models.CharField(max_length=80, blank=True, default="")
+    title_en = models.CharField(max_length=80, blank=True, default="")
+    desc_bn = models.CharField(max_length=200, blank=True, default="")
+    desc_en = models.CharField(max_length=200, blank=True, default="")
+    image = models.ImageField(upload_to="discover/", null=True, blank=True)
+    icon = models.CharField(max_length=40, blank=True, default="")
+    route = models.CharField(max_length=40, blank=True, default="")
+    url = models.URLField(max_length=300, blank=True, default="")
+    order = models.IntegerField(default=0)
+    enabled = models.BooleanField(default=True)
+    start_at = models.DateTimeField(null=True, blank=True)
+    end_at = models.DateTimeField(null=True, blank=True)
+    audience = models.CharField(max_length=10, choices=AUDIENCES, default="all")
+    min_build = models.PositiveIntegerField(null=True, blank=True)
+    sponsor_name = models.CharField(max_length=80, blank=True, default="")
+    sponsor_revenue = models.DecimalField(max_digits=12, decimal_places=2,
+                                          default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["order", "id"]
+
+
+class DiscoverSeen(models.Model):
+    """Dedupe ledger: at most ONE impression and ONE click per user per card
+    per local day is counted into DiscoverDailyStat."""
+    KINDS = [("imp", "impression"), ("click", "click")]
+    card = models.ForeignKey(DiscoverCard, on_delete=models.CASCADE,
+                             related_name="seen")
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="discover_seen")
+    date = models.DateField()
+    kind = models.CharField(max_length=5, choices=KINDS)
+
+    class Meta:
+        unique_together = [("card", "user", "date", "kind")]
+
+
+class DiscoverDailyStat(models.Model):
+    """Daily aggregate per card (the sponsor report)."""
+    card = models.ForeignKey(DiscoverCard, on_delete=models.CASCADE,
+                             related_name="daily")
+    date = models.DateField()
+    impressions = models.PositiveIntegerField(default=0)
+    clicks = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = [("card", "date")]
+        ordering = ["date"]
+# ---- /d1-discover ----
