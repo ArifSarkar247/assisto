@@ -59,11 +59,26 @@ class MainActivity : FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         applyLockScreenPolicy(intent)
+        applyVoiceLaunch(intent)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        setIntent(intent)
         applyLockScreenPolicy(intent)
+        applyVoiceLaunch(intent)
+    }
+
+    // Part 3 (a3-voice): an assist / wake launch marks "open Assisto Voice"
+    // and, on a locked phone, lets THAT launch show over the keyguard (the
+    // voice screen asks to unlock before anything private and releases the
+    // lock screen as it closes; onStop releases it too). Runs AFTER the call
+    // policy, which clears the flag for every non-call launch.
+    private fun applyVoiceLaunch(i: Intent?) {
+        try {
+            com.assisto.assisto.voice.AssistoVoiceChannel.applyLaunchIntent(this, i)
+        } catch (e: Throwable) {
+        }
     }
 
     override fun onStop() {
@@ -99,6 +114,14 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        // Part 3 (a3-voice): Assisto Voice channel "com.assisto/voice". Installs
+        // a handler only — TTS / camera / wake word are created on first use.
+        try {
+            com.assisto.assisto.voice.AssistoVoiceChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.assisto/lockscreen")
             .setMethodCallHandler { call, result ->
                 if (call.method == "release") {

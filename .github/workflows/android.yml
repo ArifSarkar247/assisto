@@ -170,7 +170,11 @@ jobs:
               # #80 lost/stolen — alarm vibration
               '\n    <uses-permission android:name="android.permission.VIBRATE"/>'
               # c1-contacts — read the phonebook ONLY after the in-app disclosure
-              '\n    <uses-permission android:name="android.permission.READ_CONTACTS"/>\n'
+              '\n    <uses-permission android:name="android.permission.READ_CONTACTS"/>'
+              # Part 3 Assisto Voice (a3-voice): CALL_PHONE asked ONLY when the
+              # user confirms a call; SET_ALARM is a normal permission.
+              '\n    <uses-permission android:name="android.permission.CALL_PHONE"/>'
+              '\n    <uses-permission android:name="com.android.alarm.permission.SET_ALARM"/>\n'
           )
           if 'android.permission.INTERNET' not in s:
               s = re.sub(r'(<manifest[^>]*>)', r'\1' + perms, s, count=1)
@@ -183,10 +187,28 @@ jobs:
               '\n      <intent><action android:name="android.intent.action.VIEW"/></intent>'
               # #70 Health Connect visibility (so the app can resolve HC)
               '\n      <package android:name="com.google.android.apps.healthdata"/>'
+              # Part 3 Assisto Voice: "open <app>", TTS engines + recognizers
+              # (needed on API 30+), music / WhatsApp hand-off.
+              '\n      <intent><action android:name="android.intent.action.MAIN"/>'
+              '<category android:name="android.intent.category.LAUNCHER"/></intent>'
+              '\n      <intent><action android:name="android.intent.action.TTS_SERVICE"/></intent>'
+              '\n      <intent><action android:name="android.speech.RecognitionService"/></intent>'
+              '\n      <package android:name="com.google.android.youtube"/>'
+              '\n      <package android:name="com.google.android.apps.youtube.music"/>'
+              '\n      <package android:name="com.spotify.music"/>'
+              '\n      <package android:name="com.whatsapp"/>'
               '\n    </queries>\n'
           )
-          if '<queries>' not in s:
-              s = re.sub(r'(<manifest[^>]*>)', r'\1' + queries, s, count=1)
+          # flutter create ALREADY writes a <queries> block (PROCESS_TEXT), so
+          # "only if no <queries>" never added ours (link/dialer/Health Connect
+          # visibility silently missing on Android 11+). Merge our entries into
+          # the existing block instead; a fresh block only if there is none.
+          if 'com.google.android.apps.healthdata' not in s:
+              inner = queries.split('<queries>', 1)[1].rsplit('</queries>', 1)[0]
+              if '</queries>' in s:
+                  s = s.replace('</queries>', inner.rstrip() + '\n    </queries>', 1)
+              else:
+                  s = re.sub(r'(<manifest[^>]*>)', r'\1' + queries, s, count=1)
           # image_cropper needs UCropActivity registered INSIDE <application>,
           # else cropping crashes at runtime (ActivityNotFoundException). Give it
           # an explicit AppCompat theme so the app theme need not be AppCompat.
@@ -222,7 +244,52 @@ jobs:
               '\n            <intent-filter>'
               '\n                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED"/>'
               '\n            </intent-filter>'
-              '\n        </receiver>\n'
+              '\n        </receiver>'
+              # ---- a3-voice: Part 3 Assisto Voice ----
+              # Default digital assistant (VoiceInteractionService): long-press
+              # power / home / corner swipe open Assisto Voice, also over the
+              # lock screen. The platform REQUIRES a recognitionService; ours
+              # proxies to the phone's real recognizer so STT keeps working.
+              '\n        <service android:name="com.assisto.assisto.voice.AssistoVoiceInteractionService"'
+              ' android:permission="android.permission.BIND_VOICE_INTERACTION"'
+              ' android:exported="true">'
+              '\n            <meta-data android:name="android.voice_interaction"'
+              ' android:resource="@xml/assisto_voice_interaction"/>'
+              '\n            <intent-filter>'
+              '\n                <action android:name="android.service.voice.VoiceInteractionService"/>'
+              '\n            </intent-filter>'
+              '\n        </service>'
+              '\n        <service android:name="com.assisto.assisto.voice.AssistoVoiceSessionService"'
+              ' android:permission="android.permission.BIND_VOICE_INTERACTION"'
+              ' android:exported="true"/>'
+              '\n        <service android:name="com.assisto.assisto.voice.AssistoRecognitionService"'
+              ' android:exported="true">'
+              '\n            <intent-filter>'
+              '\n                <action android:name="android.speech.RecognitionService"/>'
+              '\n                <category android:name="android.intent.category.DEFAULT"/>'
+              '\n            </intent-filter>'
+              '\n            <meta-data android:name="android.speech"'
+              ' android:resource="@xml/assisto_recognition"/>'
+              '\n        </service>'
+              # Fallback ACTION_ASSIST / headset VOICE_COMMAND entry (no UI).
+              '\n        <activity android:name="com.assisto.assisto.voice.AssistEntryActivity"'
+              ' android:exported="true" android:excludeFromRecents="true"'
+              ' android:noHistory="true" android:launchMode="singleTop"'
+              ' android:theme="@android:style/Theme.Translucent.NoTitleBar">'
+              '\n            <intent-filter>'
+              '\n                <action android:name="android.intent.action.ASSIST"/>'
+              '\n                <category android:name="android.intent.category.DEFAULT"/>'
+              '\n            </intent-filter>'
+              '\n            <intent-filter>'
+              '\n                <action android:name="android.intent.action.VOICE_COMMAND"/>'
+              '\n                <category android:name="android.intent.category.DEFAULT"/>'
+              '\n            </intent-filter>'
+              '\n        </activity>'
+              # Opt-in "Hey/Hi Assisto" wake word (never started at launch/boot;
+              # the Porcupine engine itself ships in stage 2, by reflection).
+              '\n        <service android:name="com.assisto.assisto.voice.WakeWordService"'
+              ' android:foregroundServiceType="microphone"'
+              ' android:exported="false"/>\n'
           )
           if '.AssistoWidgetProvider' not in s:
               s = s.replace('</application>', native_components + '    </application>', 1)
