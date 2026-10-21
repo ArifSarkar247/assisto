@@ -1617,7 +1617,17 @@ def ai_status(request):
 class ExportExcelView(APIView):
     def get(self, request):
         import io
-        from openpyxl import Workbook
+        try:
+            from openpyxl import Workbook
+        except ImportError:
+            # openpyxl is not in requirements.txt / the server venv: answer
+            # honestly instead of a 500 (see m1 report: add openpyxl).
+            lang = req_lang(request)
+            return Response({"detail": pick(
+                lang, "এক্সেল এক্সপোর্ট এখনো সার্ভারে চালু হয়নি।",
+                "Excel export isn't available on the server yet."),
+                "code": "xlsx_unavailable"},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE)
         u = request.user
         wb = Workbook()
         def sheet(title, headers, rows):
@@ -2728,7 +2738,11 @@ class MoneyBudgetView(APIView):
         return [me.month_key(me.add_months(me._as_date(cur + "-01"), -i))
                 for i in range(n - 1, -1, -1)]
 
-    def get(self, request, action=""):
+    def get(self, request, pk=None, action=""):
+        if pk is not None:
+            # money/budget/<pk>[/delete] are POST/PATCH-only; a GET used to 500.
+            return Response({"detail": "method not allowed"},
+                            status=status.HTTP_405_METHOD_NOT_ALLOWED)
         from .logic import budget as bg
         from .logic import money_engine as me
         txns = _money_txns(request.user)
@@ -3087,6 +3101,10 @@ def notif_reminders(request):
     lang = req_lang(request)
     now = timezone.localtime().replace(tzinfo=None)
     raw = _collect_reminders(request.user, now, lang)
+    # m1: occurrences the user marked Done (meeting/appointment/birthday).
+    from .views_m1_routes import dismissed_ids
+    gone = dismissed_ids(request.user)
+    raw = [r for r in raw if r.get("id") not in gone]
     feed = _nc.build_reminders(raw, now)
     counts = {s: len(feed[s]) for s in _nc.SECTIONS}
     return Response({
@@ -3104,8 +3122,11 @@ def notif_reminder_snooze(request, item_id):
     its due_at is persisted; other sources just echo the computed time (the
     client reschedules its own local notification)."""
     now = timezone.localtime().replace(tzinfo=None)
-    option = request.data.get("option", "")
-    custom = request.data.get("custom")
+    # The app sends {preset} | {until}; {option, custom} still accepted.
+    option = request.data.get("option") or request.data.get("preset") or ""
+    custom = request.data.get("custom") or request.data.get("until")
+    if not option and custom:
+        option = "custom"
     new_dt = _nc.snooze_until(option, now, custom=custom)
     if new_dt is None:
         return Response({"ok": False, "error": "bad_option"},

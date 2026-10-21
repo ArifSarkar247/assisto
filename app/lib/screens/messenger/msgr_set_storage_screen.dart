@@ -58,14 +58,6 @@ class _MsgrSetStorageScreenState extends State<MsgrSetStorageScreen> {
     if (mounted) setState(() => _loading = false);
   }
 
-  Future<void> _saveAutoDl(String key, bool v) async {
-    setState(() => _autoDl[key] = v);
-    try {
-      await _api.setStoragePrefs(
-          {'auto_download': Map<String, dynamic>.from(_autoDl)});
-    } catch (_) {}
-  }
-
   // QA a6: sizes in the app's digits (was "0 MB" in Latin in Bangla).
   String _mb(dynamic bytes) {
     final b = (bytes is num) ? bytes.toDouble() : 0.0;
@@ -106,9 +98,14 @@ class _MsgrSetStorageScreenState extends State<MsgrSetStorageScreen> {
                     value: _mb(_usage['docs_bytes']),
                   ),
                   MsgrSetRow(
-                    icon: Icons.cached_outlined,
-                    title: t.msgrSetStorageCache,
-                    value: _mb(_usage['cache_bytes']),
+                    icon: Icons.backup_outlined,
+                    title: t.msgStorageBackups,
+                    value: _mb(_usage['backup_bytes']),
+                  ),
+                  MsgrSetRow(
+                    icon: Icons.data_usage_outlined,
+                    title: t.msgStorageQuota,
+                    value: _mb(_usage['quota_bytes']),
                   ),
                 ] else
                   MsgrSetNote(t.msgrSetStorageUnavailable,
@@ -122,14 +119,16 @@ class _MsgrSetStorageScreenState extends State<MsgrSetStorageScreen> {
                   ('docs', Icons.insert_drive_file_outlined,
                       t.msgrSetStorageDocsDl),
                 ])
+                  // Chats don't carry media yet, so auto-download has
+                  // nothing to act on: honest disabled switches + reason.
                   SwitchListTile(
                     secondary: Icon(e.$2),
                     title: Text(e.$3,
                         maxLines: 1, overflow: TextOverflow.ellipsis),
                     value: _autoDl[e.$1] ?? false,
-                    onChanged: (v) => _saveAutoDl(e.$1, v),
+                    onChanged: null,
                   ),
-                MsgrSetNote(t.msgrSetStorageAutoDlHint),
+                MsgrSetNote(t.msgAutoDlNotYet, icon: Icons.info_outline),
               ],
             ),
     );

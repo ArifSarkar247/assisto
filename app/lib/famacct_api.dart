@@ -7,10 +7,10 @@ import 'api.dart';
 /// editing api.dart. The integrator SHOULD later fold these into ApiClient
 /// proper; the paths + shapes below are authoritative.
 ///
-/// EMITTED ENDPOINT NEEDS (see .phaseB/up_famacct_integration.md). None of
-/// these exist on the server yet, so every call is wrapped so the section can
-/// degrade to the on-device compute path ([FamAcctLocal]) and show honest
-/// states rather than crash. All money crosses the wire as INTEGER POISHA
+/// Backed by core/views_m1_routes.py (Fam* views, famacct_engine maths). A
+/// failure is an [ApiException] the section shows honestly (no local
+/// fallback ledger). Members are 'self' (the account owner) or a family
+/// member id. All money crosses the wire as INTEGER POISHA
 /// (1 taka = 100 poisha) — never a float. The family MEMBER rows are READ from
 /// the existing `family` / Connected-Circle contacts; this surface defines no
 /// new contact store.
@@ -53,22 +53,24 @@ extension FamAcctApi on ApiClient {
       postJson('/family/accounting/pool', {'target_poisha': targetPoisha});
 
   /// POST /family/accounting/pool/contribute {member, amount_poisha} -> pool.
-  Future<Map<String, dynamic>> famAcctContribute(int member, int amountPoisha) =>
+  Future<Map<String, dynamic>> famAcctContribute(
+          Object member, int amountPoisha) =>
       postJson('/family/accounting/pool/contribute',
           {'member': member, 'amount_poisha': amountPoisha});
 
   /// POST /family/accounting/settle {from, to, amount_poisha} — records that a
-  /// settle-up transfer was paid (removes it from outstanding). -> {ok:true}.
+  /// settle-up transfer was paid. The server refuses an amount above what
+  /// `from` actually owes `to` (400 exceeds_outstanding, max_poisha).
+  /// -> {ok:true, remaining:[{from,to,amount_poisha}]}.
   Future<Map<String, dynamic>> famAcctSettle(
-          int from, int to, int amountPoisha) =>
+          Object from, Object to, int amountPoisha) =>
       postJson('/family/accounting/settle',
           {'from': from, 'to': to, 'amount_poisha': amountPoisha});
 }
 
-/// On-device mirror of famacct_engine.py's integer-poisha math. Used as the
-/// compute path while the endpoints above are not yet live, and as the single
-/// source of truth for the UI's taka<->poisha conversion so NO float ever
-/// enters the ledger (parsing goes through [takaToPoisha] on the string).
+/// On-device mirror of famacct_engine.py's integer-poisha helpers, used for
+/// the UI's taka<->poisha conversion so NO float ever enters the ledger
+/// (parsing goes through [takaToPoisha] on the string).
 class FamAcctLocal {
   /// Parse a taka-ish string ("12.50", "1,250") to INTEGER poisha. Mirrors
   /// to_poisha(): decimal-string path, half-up on the paisa, no binary float.

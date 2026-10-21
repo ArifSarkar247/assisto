@@ -18,8 +18,8 @@ import 'famacct_sheets.dart';
 /// in as [members]) — it defines no new contact store. All money is integer
 /// poisha end to end (see FamAcctLocal); no float ever enters the ledger.
 ///
-/// States (§21): loading (skeleton) · error · empty-per-sub-tab · offline
-/// (on-device compute banner) · honest "settled/—" instead of fake zeros.
+/// States (§21): loading (skeleton) · error + retry · empty-per-sub-tab ·
+/// honest "settled/—" instead of fake zeros. The server is the ledger.
 class FamAcctSection extends StatefulWidget {
   final List<Map<String, dynamic>> members;
   const FamAcctSection({super.key, required this.members});
@@ -31,7 +31,6 @@ class FamAcctSection extends StatefulWidget {
 class _FamAcctSectionState extends State<FamAcctSection> {
   bool loading = true;
   bool errored = false;
-  bool offline = false; // served from the on-device compute path
 
   Map<String, dynamic> summary = {};
   List<Map<String, dynamic>> expenses = [];
@@ -69,90 +68,43 @@ class _FamAcctSectionState extends State<FamAcctSection> {
         summary = s;
         expenses = (e['expenses'] as List? ?? []).cast<Map<String, dynamic>>();
         pool = (s['pool'] as Map?)?.cast<String, dynamic>() ?? {};
-        offline = false;
         loading = false;
       });
     } catch (_) {
-      // Endpoints not live yet (or no network): fall back to the on-device
-      // compute path so the section still works and states stay honest.
+      // Honest error + retry. The server is the ledger; no local guesswork.
       if (!mounted) return;
       setState(() {
-        offline = true;
-        _recomputeLocal();
+        errored = true;
         loading = false;
       });
     }
   }
 
-  /// Recompute summary/pool from whatever expenses we hold, on-device, in
-  /// integer poisha. Mirrors famacct_engine.monthly_summary / settle_up.
-  void _recomputeLocal() {
-    final nets = <dynamic, int>{};
-    var total = 0;
-    final byCat = <String, int>{};
-    for (final e in expenses) {
-      final payer = e['payer'];
-      final totalP = (e['total_poisha'] as num?)?.toInt() ?? 0;
-      total += totalP;
-      final cat = (e['category'] ?? 'other').toString();
-      byCat[cat] = (byCat[cat] ?? 0) + totalP;
-      nets[payer] = (nets[payer] ?? 0) + totalP;
-      for (final s in (e['shares'] as List? ?? [])) {
-        final mid = s['member'];
-        final sp = (s['share_poisha'] as num?)?.toInt() ?? 0;
-        nets[mid] = (nets[mid] ?? 0) - sp;
-      }
-    }
-    final members = nets.entries
-        .map((en) => {
-              'member': en.key,
-              'net_poisha': en.value,
-            })
-        .toList();
-    summary = {
-      'total_poisha': total,
-      'by_category': byCat,
-      'members': members,
-      'settlements': _settle(nets),
-    };
-  }
-
-  /// Greedy minimal-transfer settle-up over integer poisha (mirror of
-  /// famacct_engine.settle_up). Returns [{from,to,amount_poisha}].
-  List<Map<String, dynamic>> _settle(Map<dynamic, int> nets) {
-    final cred = [
-      for (final e in nets.entries)
-        if (e.value > 0) [e.key, e.value]
-    ]..sort((a, b) => (b[1] as int).compareTo(a[1] as int));
-    final debt = [
-      for (final e in nets.entries)
-        if (e.value < 0) [e.key, -(e.value as int)]
-    ]..sort((a, b) => (b[1] as int).compareTo(a[1] as int));
-    final out = <Map<String, dynamic>>[];
-    var ci = 0, di = 0;
-    while (ci < cred.length && di < debt.length) {
-      final pay = (cred[ci][1] as int) < (debt[di][1] as int)
-          ? cred[ci][1] as int
-          : debt[di][1] as int;
-      if (pay > 0) {
-        out.add({'from': debt[di][0], 'to': cred[ci][0], 'amount_poisha': pay});
-      }
-      cred[ci][1] = (cred[ci][1] as int) - pay;
-      debt[di][1] = (debt[di][1] as int) - pay;
-      if (cred[ci][1] == 0) ci++;
-      if (debt[di][1] == 0) di++;
-    }
-    return out;
+  void _failSnack(Object e) {
+    final t = AppLocalizations.of(context);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(e is ApiException && e.message.isNotEmpty
+            ? e.message
+            : t.grpActionFailed)));
   }
 
   @override
   Widget build(BuildContext context) {
     if (loading) return const SkeletonList();
+    if (errored) {
+      return StateMessage(
+        icon: Icons.cloud_off_outlined,
+        title: AppLocalizations.of(context).msgLoadFailed,
+        action: FilledButton.icon(
+            onPressed: _load,
+            icon: const Icon(Icons.refresh),
+            label: Text(AppLocalizations.of(context).retry)),
+      );
+    }
     return DefaultTabController(
       length: 4,
       child: Column(children: [
         _brandHeader(),
-        if (offline) _offlineBanner(),
         TabBar(isScrollable: true, tabs: [
           Tab(text: AppLocalizations.of(context).faTabExpenses),
           Tab(text: AppLocalizations.of(context).faTabSettle),
@@ -198,25 +150,6 @@ class _FamAcctSectionState extends State<FamAcctSection> {
         IconButton(
             onPressed: _load,
             icon: const Icon(Icons.sync, color: Colors.white)),
-      ]),
-    );
-  }
-
-  Widget _offlineBanner() {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      width: double.infinity,
-      color: scheme.secondaryContainer,
-      padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.sm),
-      child: Row(children: [
-        Icon(Icons.cloud_off_outlined,
-            size: 16, color: scheme.onSecondaryContainer),
-        const SizedBox(width: Gap.sm),
-        Expanded(
-          child: Text(AppLocalizations.of(context).faOfflineNote,
-              style: TextStyle(
-                  fontSize: 12, color: scheme.onSecondaryContainer)),
-        ),
       ]),
     );
   }
@@ -318,48 +251,11 @@ class _FamAcctSectionState extends State<FamAcctSection> {
     final body = await showAddExpenseSheet(context, widget.members);
     if (body == null) return;
     try {
-      final created = await _api.famAcctAddExpense(body);
-      if (created.isNotEmpty) {
-        await _load();
-        return;
-      }
-    } catch (_) {}
-    // Offline/not-live: append locally so the ledger still updates honestly.
-    setState(() {
-      expenses = [...expenses, _localExpenseFromBody(body)];
-      offline = true;
-      _recomputeLocal();
-    });
-  }
-
-  Map<String, dynamic> _localExpenseFromBody(Map<String, dynamic> body) {
-    final mode = (body['mode'] ?? 'equal').toString();
-    final total = (body['total_poisha'] as num?)?.toInt() ?? 0;
-    List<Map<String, dynamic>> shares;
-    if (mode == 'exact') {
-      shares = [
-        for (final p in (body['parts'] as List? ?? []))
-          {
-            'member': p['member'],
-            'share_poisha': (p['amount_poisha'] as num?)?.toInt() ?? 0
-          }
-      ];
-    } else {
-      final ids = (body['members'] as List? ?? []);
-      final split = FamAcctLocal.splitEqual(total, ids.length);
-      shares = [
-        for (var i = 0; i < ids.length; i++)
-          {'member': ids[i], 'share_poisha': split[i]}
-      ];
+      await _api.famAcctAddExpense(body);
+      await _load();
+    } catch (e) {
+      if (mounted) _failSnack(e);
     }
-    return {
-      'payer': body['payer'],
-      'total_poisha': total,
-      'category': body['category'],
-      'mode': mode,
-      'note': body['note'],
-      'shares': shares,
-    };
   }
 
   Future<void> _deleteExpense(Map<String, dynamic> e) async {
@@ -378,17 +274,13 @@ class _FamAcctSectionState extends State<FamAcctSection> {
             ));
     if (ok != true) return;
     final id = e['id'];
-    if (id is int) {
-      try {
-        await _api.famAcctDeleteExpense(id);
-        await _load();
-        return;
-      } catch (_) {}
+    if (id is! int) return;
+    try {
+      await _api.famAcctDeleteExpense(id);
+      await _load();
+    } catch (err) {
+      if (mounted) _failSnack(err);
     }
-    setState(() {
-      expenses = expenses.where((x) => !identical(x, e)).toList();
-      _recomputeLocal();
-    });
   }
 
   // --------------------------- SETTLE UP ---------------------------------
@@ -444,17 +336,16 @@ class _FamAcctSectionState extends State<FamAcctSection> {
     final messenger = ScaffoldMessenger.of(context);
     final from = s['from'], to = s['to'];
     final amt = (s['amount_poisha'] as num?)?.toInt() ?? 0;
-    if (from is int && to is int) {
-      try {
-        await _api.famAcctSettle(from, to, amt);
-        await _load();
-        messenger.showSnackBar(
-            SnackBar(content: Text(AppLocalizations.of(context).faSettledDone)));
-        return;
-      } catch (_) {}
+    final done = AppLocalizations.of(context).faSettledDone;
+    try {
+      // 'self' (the account owner) or a family-member id; the server checks
+      // the amount against what is actually outstanding.
+      await _api.famAcctSettle(from, to, amt);
+      await _load();
+      messenger.showSnackBar(SnackBar(content: Text(done)));
+    } catch (e) {
+      if (mounted) _failSnack(e);
     }
-    messenger.showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context).faSettledDone)));
   }
 
   // ----------------------------- POOL ------------------------------------
@@ -526,13 +417,11 @@ class _FamAcctSectionState extends State<FamAcctSection> {
     final p = await showAmountSheet(context, AppLocalizations.of(context).faPoolSetTarget);
     if (p == null) return;
     try {
-      final r = await _api.famAcctSetPoolTarget(p);
-      if (r.isNotEmpty) {
-        await _load();
-        return;
-      }
-    } catch (_) {}
-    setState(() => pool = {...pool, 'target': p});
+      await _api.famAcctSetPoolTarget(p);
+      await _load();
+    } catch (e) {
+      if (mounted) _failSnack(e);
+    }
   }
 
   Future<void> _contribute() async {
@@ -540,24 +429,12 @@ class _FamAcctSectionState extends State<FamAcctSection> {
     if (member == null || !mounted) return;
     final p = await showAmountSheet(context, AppLocalizations.of(context).faPoolContribute);
     if (p == null) return;
-    if (member is int) {
-      try {
-        final r = await _api.famAcctContribute(member, p);
-        if (r.isNotEmpty) {
-          await _load();
-          return;
-        }
-      } catch (_) {}
+    try {
+      await _api.famAcctContribute(member, p);
+      await _load();
+    } catch (e) {
+      if (mounted) _failSnack(e);
     }
-    setState(() {
-      final collected = ((pool['collected'] as num?)?.toInt() ?? 0) + p;
-      final target = (pool['target'] as num?)?.toInt() ?? 0;
-      pool = {
-        ...pool,
-        'collected': collected,
-        'remaining': target - collected,
-      };
-    });
   }
 
   // ---------------------------- MEMBERS ----------------------------------

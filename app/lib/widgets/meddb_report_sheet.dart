@@ -50,8 +50,11 @@ class _MedDbReportSheetState extends State<_MedDbReportSheet> {
         'issue': issue,
       });
     } catch (_) {
-      // offline / server down: still acknowledge — report is user-reported,
-      // not a blocking action.
+      // Honest: never thank the user for a report the server didn't get.
+      if (!mounted) return;
+      setState(() => _sending = false);
+      messenger.showSnackBar(SnackBar(content: Text(t.grpActionFailed)));
+      return;
     }
     if (!mounted) return;
     Navigator.of(context).pop();

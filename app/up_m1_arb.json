@@ -1,0 +1,51 @@
+{
+ "en": {
+  "msgGrpUnmute": "Unmute",
+  "msgGrpUnmuted": "Notifications are on again",
+  "msgExportHeader": "Exported from Assisto",
+  "msgExportUnreadable": "[encrypted — can't be opened on this device]",
+  "msgExportDeleted": "[message deleted]",
+  "msgExportMedia": "[media]",
+  "msgExportYou": "You",
+  "msgReminderSaved": "Reminder saved: {title}",
+  "msgLoadFailed": "Couldn't load this. Check your connection and try again.",
+  "msgCommunityAlertsNotYet": "Not available yet — community posts don't send alerts yet.",
+  "msgTwoStepCurrentPin": "Enter your current PIN",
+  "msgTwoStepLocked": "Too many wrong PINs. Please wait 15 minutes and try again.",
+  "msgTwoStepWrongPin": "That PIN didn't match. Please try again.",
+  "msgChangeNumberSmsOff": "Changing your number needs an SMS code, but no SMS service is connected on the server yet. This will work once it is.",
+  "msgWhoCircleStrictHint": "Only people in your circle can message you. Strangers can't send you anything.",
+  "msgNotifInAppNotYet": "Not available yet — the app doesn't play in-app sounds or vibration.",
+  "msgStorageBackups": "Chat backups",
+  "msgStorageQuota": "Your plan's space",
+  "msgAutoDlNotYet": "Chats can't carry photos, audio, video or files yet, so auto-download has nothing to do. These switches turn on when media arrives.",
+  "@msgReminderSaved": {
+   "placeholders": {
+    "title": {
+     "type": "String"
+    }
+   }
+  }
+ },
+ "bn": {
+  "msgGrpUnmute": "মিউট বন্ধ করুন",
+  "msgGrpUnmuted": "নোটিফিকেশন আবার চালু হয়েছে",
+  "msgExportHeader": "Assisto থেকে এক্সপোর্ট করা",
+  "msgExportUnreadable": "[এনক্রিপ্টেড — এই ফোনে খোলা যায়নি]",
+  "msgExportDeleted": "[মেসেজটি মুছে ফেলা হয়েছে]",
+  "msgExportMedia": "[মিডিয়া]",
+  "msgExportYou": "আপনি",
+  "msgReminderSaved": "রিমাইন্ডার সেভ হয়েছে: {title}",
+  "msgLoadFailed": "লোড করা গেল না। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।",
+  "msgCommunityAlertsNotYet": "এখনো চালু নেই — কমিউনিটির পোস্টে এখনো কোনো অ্যালার্ট যায় না।",
+  "msgTwoStepCurrentPin": "আপনার বর্তমান পিন দিন",
+  "msgTwoStepLocked": "অনেকবার ভুল পিন দেওয়া হয়েছে। ১৫ মিনিট অপেক্ষা করে আবার চেষ্টা করুন।",
+  "msgTwoStepWrongPin": "পিন মেলেনি। আবার চেষ্টা করুন।",
+  "msgChangeNumberSmsOff": "নম্বর বদলাতে SMS কোড লাগে, কিন্তু সার্ভারে এখনো কোনো SMS সেবা যুক্ত হয়নি। যুক্ত হলেই এটি কাজ করবে।",
+  "msgWhoCircleStrictHint": "শুধু আপনার সার্কেলের মানুষ আপনাকে মেসেজ দিতে পারবেন। অপরিচিত কেউ কিছুই পাঠাতে পারবেন না।",
+  "msgNotifInAppNotYet": "এখনো চালু নেই — অ্যাপের ভেতরে শব্দ বা কম্পন এখনো বাজে না।",
+  "msgStorageBackups": "চ্যাট ব্যাকআপ",
+  "msgStorageQuota": "আপনার প্ল্যানের জায়গা",
+  "msgAutoDlNotYet": "চ্যাটে এখনো ছবি, অডিও, ভিডিও বা ফাইল পাঠানো যায় না, তাই অটো-ডাউনলোডের কিছু করার নেই। মিডিয়া চালু হলে এই সুইচগুলো কাজ করবে।"
+ }
+}

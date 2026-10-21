@@ -24,6 +24,7 @@ class MsgrSetCallsScreen extends StatefulWidget {
 class _MsgrSetCallsScreenState extends State<MsgrSetCallsScreen> {
   bool _loading = true;
   bool _synced = true;
+  bool _loadFailed = false;
   bool _incoming = true;
   bool _silenceUnknown = false;
 
@@ -42,8 +43,9 @@ class _MsgrSetCallsScreenState extends State<MsgrSetCallsScreen> {
       _incoming = r['incoming_calls'] != false;
       _silenceUnknown = r['silence_unknown'] == true;
       _synced = true;
+      _loadFailed = false;
     } catch (_) {
-      _synced = false;
+      _loadFailed = true;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -57,6 +59,7 @@ class _MsgrSetCallsScreenState extends State<MsgrSetCallsScreen> {
       _synced = true;
     } catch (_) {
       _synced = false;
+      _load(); // re-read the server's truth instead of keeping a fake value
     }
     if (mounted) setState(() {});
   }
@@ -68,7 +71,20 @@ class _MsgrSetCallsScreenState extends State<MsgrSetCallsScreen> {
       appBar: AppBar(title: Text(t.msgrSetCalls)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : ListView(
+          : _loadFailed
+              ? Center(
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    Text(t.msgLoadFailed, textAlign: TextAlign.center),
+                    const SizedBox(height: Gap.md),
+                    FilledButton(
+                        onPressed: () {
+                          setState(() => _loading = true);
+                          _load();
+                        },
+                        child: Text(t.retry)),
+                  ]),
+                )
+              : ListView(
               padding: const EdgeInsets.only(bottom: Gap.xxl),
               children: [
                 SwitchListTile(

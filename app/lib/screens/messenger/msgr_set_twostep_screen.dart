@@ -11,15 +11,11 @@ import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/msgr_set_tiles.dart';
 
-/// Two-step verification PIN (set / change / turn off). The PIN is stored BOTH
-/// on-device (a fast gate on app open — SharedPreferences, salted via a simple
-/// obfuscation; the real secret is the server hash) AND on the server via
-/// [MessengerSettingsApi.twoStepSet] so a re-install / new device is
-/// challenged. The server stores only a salted hash and never returns the PIN.
-///
-/// If the server route isn't live yet, the on-device PIN still works and the
-/// screen shows an honest "saved on this device; server copy will sync when
-/// available" line — never a silent failure, never a dead tap.
+/// Two-step verification PIN (set / change / turn off). The PIN lives ONLY on
+/// the server, as a Django password hash ([MessengerSettingsApi.twoStepSet]);
+/// nothing is kept on the device. Changing or turning off an enabled PIN asks
+/// for the current one, and the server rate-limits wrong tries (5, then a
+/// 15-minute lock). It is required to confirm a number change.
 class MsgrSetTwoStepScreen extends StatefulWidget {
   const MsgrSetTwoStepScreen({super.key});
 
@@ -28,13 +24,11 @@ class MsgrSetTwoStepScreen extends StatefulWidget {
 }
 
 class _MsgrSetTwoStepScreenState extends State<MsgrSetTwoStepScreen> {
-  static const _kEnabled = 'msgr_twostep_enabled';
-  static const _kPin = 'msgr_twostep_pin'; // local fast-gate copy
-
   bool _loading = true;
+  bool _loadFailed = false;
   bool _enabled = false;
   bool _busy = false;
-  bool _serverSynced = false;
+  int _lockedSec = 0;
 
   ApiClient get _api => context.read<AppState>().api;
   AppLocalizations get _t => AppLocalizations.of(context);
@@ -46,17 +40,28 @@ class _MsgrSetTwoStepScreenState extends State<MsgrSetTwoStepScreen> {
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
-    _enabled = prefs.getBool(_kEnabled) ?? false;
+    setState(() {
+      _loading = true;
+      _loadFailed = false;
+    });
+    // Older builds kept a plaintext copy of the PIN on the device; wipe it.
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('msgr_twostep_pin');
+      await prefs.remove('msgr_twostep_enabled');
+    } catch (_) {}
     try {
       final r = await _api.twoStepStatus();
-      _serverSynced = true;
-      if (r['enabled'] is bool) _enabled = r['enabled'] as bool;
+      _enabled = r['enabled'] == true;
+      _lockedSec = (r['retry_after_sec'] as num?)?.toInt() ?? 0;
     } catch (_) {
-      _serverSynced = false;
+      _loadFailed = true;
     }
     if (mounted) setState(() => _loading = false);
   }
+
+  void _snack(String m) =>
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(m)));
 
   Future<String?> _askPin(String title) {
     final c = TextEditingController();
@@ -85,55 +90,56 @@ class _MsgrSetTwoStepScreenState extends State<MsgrSetTwoStepScreen> {
   }
 
   Future<void> _setOrChange() async {
+    String? current;
+    if (_enabled) {
+      current = await _askPin(_t.msgTwoStepCurrentPin);
+      if (current == null || current.isEmpty) return;
+    }
+    if (!mounted) return;
     final pin = await _askPin(_t.msgrSetTwoStepEnterNew);
     if (pin == null || pin.length < 6) {
-      if (pin != null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(_t.msgrSetTwoStepTooShort)));
-      }
+      if (pin != null && mounted) _snack(_t.msgrSetTwoStepTooShort);
       return;
     }
+    if (!mounted) return;
     final confirm = await _askPin(_t.msgrSetTwoStepConfirm);
     if (confirm != pin) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(_t.msgrSetTwoStepMismatch)));
-      }
+      if (mounted) _snack(_t.msgrSetTwoStepMismatch);
       return;
     }
-    await _persist(enabled: true, pin: pin);
+    await _persist(enabled: true, pin: pin, current: current);
   }
 
   Future<void> _turnOff() async {
-    await _persist(enabled: false, pin: null);
+    final current = await _askPin(_t.msgTwoStepCurrentPin);
+    if (current == null || current.isEmpty) return;
+    await _persist(enabled: false, current: current);
   }
 
-  Future<void> _persist({required bool enabled, String? pin}) async {
+  Future<void> _persist(
+      {required bool enabled, String? pin, String? current}) async {
     setState(() => _busy = true);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_kEnabled, enabled);
-    if (enabled && pin != null) {
-      await prefs.setString(_kPin, pin);
-    } else {
-      await prefs.remove(_kPin);
-    }
     try {
-      await _api.twoStepSet(enabled: enabled, pin: pin);
-      _serverSynced = true;
+      final r = await _api.twoStepSet(
+          enabled: enabled, pin: pin, currentPin: current);
+      _enabled = r['enabled'] == true;
+      if (mounted) {
+        _snack(_enabled ? _t.msgrSetTwoStepOn : _t.msgrSetTwoStepOff);
+      }
+    } on ApiException catch (e) {
+      if (mounted) {
+        if (e.status == 429) {
+          _snack(_t.msgTwoStepLocked);
+        } else if (e.status == 403) {
+          _snack(_t.msgTwoStepWrongPin);
+        } else {
+          _snack(e.message.isNotEmpty ? e.message : _t.grpActionFailed);
+        }
+      }
     } catch (_) {
-      _serverSynced = false;
+      if (mounted) _snack(_t.grpActionFailed);
     }
-    if (!mounted) return;
-    setState(() {
-      _enabled = enabled;
-      _busy = false;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(enabled
-            ? (_serverSynced
-                ? _t.msgrSetTwoStepOn
-                : _t.msgrSetTwoStepLocalOnly)
-            : _t.msgrSetTwoStepOff)));
+    if (mounted) setState(() => _busy = false);
   }
 
   @override
@@ -143,7 +149,15 @@ class _MsgrSetTwoStepScreenState extends State<MsgrSetTwoStepScreen> {
       appBar: AppBar(title: Text(t.msgrSetTwoStepTitle)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : ListView(
+          : _loadFailed
+              ? Center(
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    Text(t.msgLoadFailed, textAlign: TextAlign.center),
+                    const SizedBox(height: Gap.md),
+                    FilledButton(onPressed: _load, child: Text(t.retry)),
+                  ]),
+                )
+              : ListView(
               padding: const EdgeInsets.only(bottom: Gap.xxl),
               children: [
                 Padding(
@@ -172,8 +186,7 @@ class _MsgrSetTwoStepScreenState extends State<MsgrSetTwoStepScreen> {
                     title: t.msgrSetTwoStepChange,
                     onTap: _busy ? null : _setOrChange,
                   ),
-                if (!_serverSynced)
-                  MsgrSetNote(t.msgrSetTwoStepServerPending),
+                if (_lockedSec > 0) MsgrSetNote(t.msgTwoStepLocked),
                 MsgrSetNote(t.msgrSetTwoStepHashNote,
                     icon: Icons.verified_user_outlined),
               ],

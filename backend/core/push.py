@@ -511,8 +511,33 @@ def _recipient_silenced(edge):
     mu = getattr(edge, "muted_until", None)
     if mu is not None:
         from django.utils import timezone
-        return mu > timezone.now()
+        if mu > timezone.now():
+            return True
+    # m1-messenger: the hub's per-user mute (ChatOrganiseState) counts too.
+    try:
+        from .views_m1_messenger import organise_muted
+        if organise_muted(edge.user, "member", edge.id):
+            return True
+    except Exception:
+        pass
     return False
+
+
+def _m1_notif(user):
+    """m1-messenger: the recipient's Messenger notification prefs (messages /
+    groups / calls / show_preview). Defaults to all-on; never raises."""
+    try:
+        from .views_m1_messenger import notif_prefs
+        return notif_prefs(user)
+    except Exception:
+        return {"messages": True, "groups": True, "calls": True,
+                "show_preview": True}
+
+
+def _private_texts():
+    """show_preview=false: a push that names nobody."""
+    return ("নতুন মেসেজ", "New message", "পড়তে Assisto খুলুন",
+            "Open Assisto to read")
 
 
 def _message_texts(sender_name):
@@ -532,11 +557,17 @@ def hook_circle_message(sender, member, message):
         edge = _reverse_edge(recipient, sender)
         if _recipient_silenced(edge):
             return False
-        tb, te, bb, be = _message_texts(display_name(sender))
+        prefs = _m1_notif(recipient)
+        if not prefs.get("messages", True):
+            return False
+        preview = prefs.get("show_preview", True)
+        tb, te, bb, be = (_message_texts(display_name(sender)) if preview
+                          else _private_texts())
         return safe_push(recipient, "message", tb, te, bb, be, data={
             "message_id": message.id, "chat_kind": "member",
             "chat_id": edge.id if edge is not None else "",
-            "sender_id": sender.id, "sender_name": display_name(sender),
+            "sender_id": sender.id,
+            "sender_name": display_name(sender) if preview else "",
             "route": "circle/chat"}, high_priority=True)
     except Exception:
         return False
@@ -554,13 +585,26 @@ def hook_group_message(sender, group, message):
         gname = (getattr(group, "name", "") or "").strip()
         if gname:
             bb, be = "%s — পড়তে খুলুন" % gname, "%s — open to read" % gname
+        from .views_m1_messenger import organise_muted
+        sent = 0
         for r in rows:
-            safe_push(r.member, "message", tb, te, bb, be, data={
+            # m1-messenger: a member who muted this group, or switched group
+            # notifications off, gets nothing; show_preview=false hides names.
+            if organise_muted(r.member, "group", group.id):
+                continue
+            prefs = _m1_notif(r.member)
+            if not prefs.get("groups", True):
+                continue
+            preview = prefs.get("show_preview", True)
+            t = (tb, te, bb, be) if preview else _private_texts()
+            safe_push(r.member, "message", *t, data={
                 "message_id": message.id, "chat_kind": "group",
                 "chat_id": group.id, "group_id": group.id,
-                "sender_id": sender.id, "sender_name": display_name(sender),
+                "sender_id": sender.id,
+                "sender_name": display_name(sender) if preview else "",
                 "route": "circle/group"}, high_priority=True)
-        return True
+            sent += 1
+        return sent > 0
     except Exception:
         return False
 
@@ -576,6 +620,17 @@ def hook_call_placed(caller, member, call):
         edge = _reverse_edge(callee, caller)
         if edge is not None and getattr(edge, "blocked", False):
             return False
+        # m1-messenger: callee prefs — call notifications off, or "silence
+        # unknown callers" and the caller is not in their accepted circle.
+        if not _m1_notif(callee).get("calls", True):
+            return False
+        try:
+            from .views_m1_messenger import call_prefs
+            if call_prefs(callee)["silence_unknown"] and (
+                    edge is None or edge.state != "accepted"):
+                return False
+        except Exception:
+            pass
         name = display_name(caller)
         video = getattr(call, "kind", "voice") == "video"
         return safe_push(callee, "call",

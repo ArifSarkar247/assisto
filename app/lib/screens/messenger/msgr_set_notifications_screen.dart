@@ -25,6 +25,7 @@ class _MsgrSetNotificationsScreenState
     extends State<MsgrSetNotificationsScreen> {
   bool _loading = true;
   bool _synced = true;
+  bool _loadFailed = false;
 
   // Safe defaults — everything on, no preview suppression.
   final Map<String, bool> _v = {
@@ -52,22 +53,35 @@ class _MsgrSetNotificationsScreenState
         if (r[k] is bool) _v[k] = r[k] as bool;
       }
       _synced = true;
+      _loadFailed = false;
     } catch (_) {
-      _synced = false;
+      _loadFailed = true; // honest retry, never fake defaults as saved
     }
     if (mounted) setState(() => _loading = false);
   }
 
   Future<void> _save(String key, bool value) async {
+    final before = _v[key];
     setState(() => _v[key] = value);
     try {
-      await _api.setNotificationPrefs(Map<String, dynamic>.from(_v));
+      await _api.setNotificationPrefs({key: value});
       _synced = true;
     } catch (_) {
+      _v[key] = before ?? true; // revert: the server didn't take it
       _synced = false;
     }
     if (mounted) setState(() {});
   }
+
+  /// In-app sound / vibration need on-device playback the app doesn't do
+  /// yet — shown disabled with the reason instead of a switch that does
+  /// nothing.
+  Widget _deviceOnly(IconData icon, String title) => ListTile(
+        enabled: false,
+        leading: Icon(icon),
+        title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+        subtitle: Text(_t.msgNotifInAppNotYet),
+      );
 
   SwitchListTile _toggle(
           IconData icon, String key, String title, String sub) =>
@@ -86,7 +100,20 @@ class _MsgrSetNotificationsScreenState
       appBar: AppBar(title: Text(t.msgrSetNotifications)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : ListView(
+          : _loadFailed
+              ? Center(
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    Text(t.msgLoadFailed, textAlign: TextAlign.center),
+                    const SizedBox(height: Gap.md),
+                    FilledButton(
+                        onPressed: () {
+                          setState(() => _loading = true);
+                          _load();
+                        },
+                        child: Text(t.retry)),
+                  ]),
+                )
+              : ListView(
               padding: const EdgeInsets.only(bottom: Gap.xxl),
               children: [
                 MsgrSetSection(t.msgrSetNotifMessagesSection),
@@ -98,10 +125,8 @@ class _MsgrSetNotificationsScreenState
                     t.msgrSetNotifCallsSub),
                 const Divider(),
                 MsgrSetSection(t.msgrSetNotifInAppSection),
-                _toggle(Icons.volume_up_outlined, 'in_app_sound',
-                    t.msgrSetNotifSound, t.msgrSetNotifSoundSub),
-                _toggle(Icons.vibration, 'in_app_vibrate',
-                    t.msgrSetNotifVibrate, t.msgrSetNotifVibrateSub),
+                _deviceOnly(Icons.volume_up_outlined, t.msgrSetNotifSound),
+                _deviceOnly(Icons.vibration, t.msgrSetNotifVibrate),
                 _toggle(Icons.remove_red_eye_outlined, 'show_preview',
                     t.msgrSetNotifPreview, t.msgrSetNotifPreviewSub),
                 if (!_synced) MsgrSetNote(t.msgrSetNotSynced),

@@ -1,12 +1,16 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../api.dart';
+import '../config.dart';
 import '../crypto/e2e.dart';
 import '../l10n/app_localizations.dart';
 import '../messenger_admin_api.dart';
@@ -15,6 +19,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/circle_group_poll.dart';
 import '../widgets/group_menu_media.dart';
+import '../widgets/group_export.dart';
 import '../widgets/group_menu_sheet.dart';
 import '../widgets/msgr_mod_report_sheet.dart';
 import 'circle_group_info_screen.dart';
@@ -241,7 +246,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       await _api.postJson(
           '/circle/groups/$_groupId/messages/${msg['id']}/react',
           {'emoji': emoji});
-    } catch (_) {}
+    } catch (e) {
+      _fail(e);
+    }
     await _load();
   }
 
@@ -251,7 +258,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     try {
       await _api.postJson('/circle/groups/$_groupId/messages/${msg['id']}/pin',
           {'pin': !pinned});
-    } catch (_) {}
+    } catch (e) {
+      _fail(e);
+    }
     await _load();
   }
 
@@ -262,17 +271,19 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       final r = await _api
           .postJson('/circle/groups/$_groupId/call', {'kind': kind});
       if (!mounted) return;
-      if (r['allowed'] == false && r['needs_video_plan'] == true) {
+      if (r['allowed'] == false &&
+          (r['upgrade_required'] == true || r['needs_video_plan'] == true)) {
         _showVideoUpgrade();
+        return;
+      }
+      if (r['allowed'] == false) {
+        _toast(_t.grpActionFailed);
         return;
       }
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(_t.circleGroupCallStarting)));
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(_t.circleBackendPending)));
-      }
+    } catch (e) {
+      _fail(e);
     }
   }
 
@@ -336,7 +347,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         'options_ct': optionsCt,
         'sender_key_id': widget.identity.keyId,
       });
-    } catch (_) {}
+    } catch (e) {
+      _fail(e);
+    }
     await _load();
   }
 
@@ -344,7 +357,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     try {
       await _api.postJson('/circle/groups/$_groupId/polls/${poll['id']}/vote',
           {'choices': choices});
-    } catch (_) {}
+    } catch (e) {
+      _fail(e);
+    }
     await _load();
   }
 
@@ -424,6 +439,13 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         .showSnackBar(SnackBar(content: Text(msg)));
   }
 
+  /// Honest failure: the server's own reason when it gave one, else a
+  /// generic "couldn't do that". Never a fake "pending".
+  void _fail(Object e) =>
+      _toast(e is ApiException && e.message.isNotEmpty
+          ? e.message
+          : _t.grpActionFailed);
+
   Future<void> _chooseMute() async {
     final v = await showGroupOptionPicker(
       context,
@@ -433,15 +455,17 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         ('8h', _t.grpMute8h),
         ('1w', _t.grpMute1Week),
         ('always', _t.grpMuteAlways),
+        if ('${widget.group['mute'] ?? 'off'}' != 'off')
+          ('off', _t.msgGrpUnmute),
       ],
     );
     if (v == null) return;
     try {
-      await _api.groupSetMute(_groupId, v);
-      widget.group['mute'] = v;
-      _toast(_t.grpMuted);
-    } catch (_) {
-      _toast(_t.circleBackendPending);
+      final r = await _api.groupSetMute(_groupId, v);
+      setState(() => widget.group['mute'] = '${r['mute'] ?? v}');
+      _toast(v == 'off' ? _t.msgGrpUnmuted : _t.grpMuted);
+    } catch (e) {
+      _fail(e);
     }
   }
 
@@ -460,10 +484,10 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     if (v == null) return;
     try {
       await _api.groupSetDisappearing(_groupId, v);
-      widget.group['disappearing'] = v;
+      setState(() => widget.group['disappearing'] = v);
       _toast(_t.grpDisappearingSet);
-    } catch (_) {
-      _toast(_t.circleBackendPending);
+    } catch (e) {
+      _fail(e);
     }
   }
 
@@ -482,10 +506,10 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     if (v == null) return;
     try {
       await _api.groupSetTheme(_groupId, color: v);
-      widget.group['theme'] = v;
+      setState(() => widget.group['theme'] = v);
       _toast(_t.grpThemeSaved);
-    } catch (_) {
-      _toast(_t.circleBackendPending);
+    } catch (e) {
+      _fail(e);
     }
   }
 
@@ -495,22 +519,86 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       await _api.groupSetFavourite(_groupId, next);
       setState(() => widget.group['favourite'] = next);
       _toast(next ? _t.grpFavouriteAdded : _t.grpFavouriteRemoved);
-    } catch (_) {
-      _toast(_t.circleBackendPending);
+    } catch (e) {
+      _fail(e);
     }
   }
 
+  /// Export: the server returns a SIGNED link to a JSON file of what it holds
+  /// (metadata + my own ciphertext envelopes); this device decrypts it and
+  /// shares the readable .txt. Plaintext never goes back to the server.
   Future<void> _exportChat() async {
     try {
       final r = await _api.groupExport(_groupId);
       final url = '${r['url'] ?? ''}';
-      if (url.isNotEmpty) {
-        await Share.share(url);
-      } else {
-        _toast(_t.circleBackendPending);
+      if (url.isEmpty) {
+        _toast(_t.grpActionFailed);
+        return;
       }
+      final res = await http.get(Uri.parse(
+          url.startsWith('http') ? url : '${AppConfig.apiBase}$url'));
+      if (res.statusCode != 200) {
+        _toast(_t.grpActionFailed);
+        return;
+      }
+      final data = jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+      final text = buildGroupExportText(
+        data,
+        myUserId: _myUserId,
+        decrypt: _decryptExportEnvelope,
+        labels: GroupExportLabels(
+          header: _t.msgExportHeader,
+          unreadable: _t.msgExportUnreadable,
+          deleted: _t.msgExportDeleted,
+          media: _t.msgExportMedia,
+          you: _t.msgExportYou,
+        ),
+      );
+      final dir = await getTemporaryDirectory();
+      final f = File('${dir.path}/${exportFileName('${widget.group['name'] ?? ''}')}');
+      await f.writeAsString(text);
+      await Share.shareXFiles([XFile(f.path)]);
+    } catch (e) {
+      _fail(e);
+    }
+  }
+
+  /// My User id (the roster row flagged is_self).
+  int get _myUserId {
+    for (final m in _members) {
+      if (m['is_self'] == true) return (m['user_id'] as num?)?.toInt() ?? -1;
+    }
+    return -1;
+  }
+
+  String? _decryptExportEnvelope(
+      Map<String, dynamic> env, int senderId, String senderKeyId) {
+    try {
+      // My own message: opened with MY key + the recipient's public key.
+      final peerMember = env['peer_member_id'];
+      Uint8List? pub;
+      if (peerMember != null) {
+        for (final m in _members) {
+          if ('${m['member_id']}' == '$peerMember' && m['public_key'] != null) {
+            pub = Uint8List.fromList(base64Decode('${m['public_key']}'));
+          }
+        }
+      } else {
+        pub = _senderPublicKey({'sender_id': senderId});
+      }
+      if (pub == null || env['ciphertext'] == null) return null;
+      return _e2e.decrypt(
+        self: widget.identity,
+        senderPublicKey: pub,
+        ct: Ciphertext(
+          scheme: _e2e.scheme,
+          ciphertextB64: '${env['ciphertext']}',
+          nonceB64: '${env['nonce']}',
+          senderKeyId: senderKeyId,
+        ),
+      );
     } catch (_) {
-      _toast(_t.circleBackendPending);
+      return null;
     }
   }
 
@@ -521,10 +609,10 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       if (url.isNotEmpty) {
         await Share.share(url);
       } else {
-        _toast(_t.circleBackendPending);
+        _toast(_t.grpActionFailed);
       }
-    } catch (_) {
-      _toast(_t.circleBackendPending);
+    } catch (e) {
+      _fail(e);
     }
   }
 
@@ -543,10 +631,10 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     final at = DateTime(
         date.year, date.month, date.day, time.hour, time.minute);
     try {
-      await _api.groupScheduleCall(_groupId, at: at.toIso8601String());
+      await _api.groupScheduleCall(_groupId, at: at.toUtc().toIso8601String());
       _toast(_t.grpCallScheduled);
-    } catch (_) {
-      _toast(_t.circleBackendPending);
+    } catch (e) {
+      _fail(e);
     }
   }
 
@@ -566,11 +654,16 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     try {
       final r = await _api.groupAiTask(_groupId, task,
           messages: plain, targetLang: lang);
-      if (r['allowed'] == false && r['needs_plan'] == true) {
-        _showVideoUpgrade();
+      if (r['allowed'] == false) {
+        // Honest server state: no AI key / budget / not enough credits.
+        _toast('${r['message'] ?? _t.grpActionFailed}');
         return;
       }
-      final result = '${r['result'] ?? ''}';
+      var result = '${r['result'] ?? ''}';
+      final rem = r['reminder'];
+      if (task == 'reminder' && rem is Map) {
+        result = _t.msgReminderSaved('${rem['title'] ?? ''}');
+      }
       if (!mounted) return;
       showDialog(
         context: context,
@@ -584,8 +677,8 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           ],
         ),
       );
-    } catch (_) {
-      _toast(_t.circleBackendPending);
+    } catch (e) {
+      _fail(e);
     }
   }
 
@@ -627,16 +720,20 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     if (ok != true) return;
     try {
       final r = await _api.postJson('/circle/groups/$_groupId/leave', {});
-      // LAST-ADMIN protection: the server refuses when I am the last admin and
-      // tells me to promote someone first. Surface the reason, stay in the chat.
       if (r['allowed'] == false || r['left'] == false) {
-        // The only blocking reason is last-admin; surface that guidance.
         _toast(_t.grpExitLastAdmin);
         return;
       }
       if (mounted) Navigator.of(context).pop();
-    } catch (_) {
-      _toast(_t.circleBackendPending);
+    } on ApiException catch (e) {
+      // LAST-ADMIN protection: the server answers 403 promote_before_leaving.
+      if (e.status == 403) {
+        _toast(_t.grpExitLastAdmin);
+      } else {
+        _fail(e);
+      }
+    } catch (e) {
+      _fail(e);
     }
   }
 
@@ -668,10 +765,12 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     );
     if (ok != true) return;
     try {
-      await _api.postJson('/circle/groups/$_groupId/clear', {});
-    } catch (_) {}
-    // Keeps the chat entry; only the message history is cleared locally + server.
-    if (mounted) setState(() => _messages = []);
+      // Per-user marker on the server: hidden for me, kept for the others.
+      await _api.groupClear(_groupId);
+      if (mounted) setState(() => _messages = []);
+    } catch (e) {
+      _fail(e);
+    }
   }
 
   // -------------------------------------------------------------------------
@@ -739,14 +838,17 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   }
 
   Future<void> _starSelected() async {
+    var failed = 0;
     for (final id in _selected) {
       try {
         await _api.postJson(
             '/circle/groups/$_groupId/messages/$id/star', {'starred': true});
-      } catch (_) {}
+      } catch (_) {
+        failed++;
+      }
     }
     _exitSelect();
-    _toast(_t.grpStarred);
+    _toast(failed > 0 ? _t.grpActionFailed : _t.grpStarred);
   }
 
   // In-chat search over already-decrypted text (client-side).
@@ -865,7 +967,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
             Icon(Icons.cloud_off_outlined,
                 size: 48, color: scheme.onSurfaceVariant),
             const SizedBox(height: Gap.md),
-            Text(_t.circleBackendPending,
+            Text(_t.msgLoadFailed,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: scheme.onSurfaceVariant)),
             const SizedBox(height: Gap.lg),
@@ -1284,7 +1386,8 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   Uint8List? _senderPublicKey(Map<String, dynamic> msg) {
     final sid = '${msg['sender_id'] ?? ''}';
     for (final m in _members) {
-      if ('${_idOf(m)}' == sid && m['public_key'] != null) {
+      // sender_id is a USER id; the roster carries it as user_id.
+      if ('${m['user_id'] ?? _idOf(m)}' == sid && m['public_key'] != null) {
         try {
           return Uint8List.fromList(base64Decode('${m['public_key']}'));
         } catch (_) {}

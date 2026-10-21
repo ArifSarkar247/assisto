@@ -65,7 +65,9 @@ class _ConnectionRequestsScreenState extends State<ConnectionRequestsScreen>
       _requests = ((r['results'] ?? r['requests'] ?? []) as List)
           .cast<Map<String, dynamic>>();
     } catch (_) {
+      // Honest: a failed load is not "no requests".
       _requests = [];
+      if (mounted) _snack(_t.msgLoadFailed);
     }
     if (mounted) setState(() => _loading = false);
   }

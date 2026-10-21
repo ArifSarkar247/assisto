@@ -3084,3 +3084,139 @@ class ShopEodCheck(models.Model):
     class Meta:
         ordering = ["-created"]
         indexes = [models.Index(fields=["site", "-created"])]
+
+
+# ===========================================================================
+# ---- m1-messenger ---- per-user chat prefs, group timers, account settings,
+# server-built exports. Message BODIES stay E2E ciphertext; nothing here holds
+# plaintext (two-step PIN + OTP are Django password hashes).
+# ===========================================================================
+class MsgChatPref(models.Model):
+    """The VIEWER's own per-chat prefs (never shared with the peer):
+    favourite, theme/wallpaper, the clear-chat marker (messages created at or
+    before `cleared_at` are hidden from this user only) and, for 1:1 chats,
+    when the disappearing timer was switched on (only later messages expire)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="msg_chat_prefs")
+    chat_kind = models.CharField(max_length=10, default="member")  # member|group
+    chat_id = models.CharField(max_length=64)
+    favourite = models.BooleanField(default=False)
+    theme = models.CharField(max_length=24, blank=True, default="")
+    wallpaper = models.CharField(max_length=40, blank=True, default="")
+    cleared_at = models.DateTimeField(null=True, blank=True)
+    disappearing_since = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [("user", "chat_kind", "chat_id")]
+
+
+class MsgGroupTimer(models.Model):
+    """Group-wide disappearing-messages timer (applies to every member's
+    messages sent at/after `since`). Enforced by `manage.py purge_disappearing`
+    and by the group message read, which never returns an expired row."""
+    group = models.OneToOneField("CircleGroup", on_delete=models.CASCADE,
+                                 related_name="m1_timer")
+    disappearing_sec = models.IntegerField(default=0)
+    since = models.DateTimeField(null=True, blank=True)
+    set_by = models.ForeignKey(User, null=True, blank=True,
+                               on_delete=models.SET_NULL, related_name="+")
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class MsgUserSettings(models.Model):
+    """Messenger account settings, one row per user. Notification / call /
+    auto-download prefs are enforced server-side where they apply (push hooks,
+    call placement). The two-step PIN and a pending change-number code are
+    stored ONLY as Django password hashes."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="msg_settings")
+    notifications = models.JSONField(default=dict, blank=True)
+    calls = models.JSONField(default=dict, blank=True)
+    auto_download = models.JSONField(default=dict, blank=True)
+    two_step_enabled = models.BooleanField(default=False)
+    two_step_hash = models.CharField(max_length=128, blank=True, default="")
+    recovery_email = models.EmailField(blank=True, default="")
+    two_step_failures = models.IntegerField(default=0)
+    two_step_locked_until = models.DateTimeField(null=True, blank=True)
+    pending_phone = models.CharField(max_length=24, blank=True, default="")
+    pending_code_hash = models.CharField(max_length=128, blank=True, default="")
+    pending_expires = models.DateTimeField(null=True, blank=True)
+    pending_attempts = models.IntegerField(default=0)
+    pending_sent_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class MsgExport(models.Model):
+    """A server-built group export file (what the server legitimately holds:
+    metadata + the requester's OWN ciphertext envelopes). Served only through
+    a signed, expiring media link; purged after `expires_at`."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="msg_exports")
+    group = models.ForeignKey("CircleGroup", null=True, blank=True,
+                              on_delete=models.SET_NULL, related_name="+")
+    file = models.FileField(upload_to="msg_exports/")
+    message_count = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+
+class FamExpense(models.Model):
+    """Family accounting (#61): one shared expense in the OWNER's household
+    ledger. Members are 'self' (the owner) or the owner's FamilyMember ids,
+    stored as strings. All money is INTEGER POISHA. A recorded settle-up is a
+    row with kind='settlement' (payer=from, one share to=amount)."""
+    owner = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name="fam_expenses")
+    kind = models.CharField(max_length=12, default="expense")  # expense|settlement
+    payer = models.CharField(max_length=24)
+    total_poisha = models.BigIntegerField(default=0)
+    category = models.CharField(max_length=20, default="other")
+    mode = models.CharField(max_length=8, default="equal")
+    note = models.CharField(max_length=200, blank=True, default="")
+    date = models.DateField()
+    shares = models.JSONField(default=list, blank=True)  # [{member, share}]
+    shared = models.BooleanField(default=True)
+    ai_captured = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-date", "-id"]
+
+
+class FamPool(models.Model):
+    """Monthly family budget pool target (poisha) + contributions."""
+    owner = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name="fam_pools")
+    month = models.CharField(max_length=7)  # YYYY-MM
+    target_poisha = models.BigIntegerField(default=0)
+    contributions = models.JSONField(default=list, blank=True)  # [{member, amount, at}]
+
+    class Meta:
+        unique_together = [("owner", "month")]
+
+
+class NotifDismissal(models.Model):
+    """'Done' on a notification-centre item that has no done flag of its own
+    (meeting / appointment / birthday occurrence): hides that occurrence."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="notif_dismissals")
+    item_id = models.CharField(max_length=80)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("user", "item_id")]
+
+
+class JourneyPoint(models.Model):
+    """A Safe-Journey location fix for the watcher timeline. Deleted with the
+    journey's privacy expiry (never kept past Journey.expires_at)."""
+    journey = models.ForeignKey("Journey", on_delete=models.CASCADE,
+                                related_name="points")
+    lat = models.FloatField()
+    lng = models.FloatField()
+    battery = models.IntegerField(null=True, blank=True)
+    at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["at"]
+# ---- /m1-messenger ----

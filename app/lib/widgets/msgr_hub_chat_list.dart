@@ -48,6 +48,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
   bool _showArchived = false;
 
   List<Map<String, dynamic>> _chats = [];
+  bool _loadFailed = false;
   List<Map<String, dynamic>> _lists = [];
 
   @override
@@ -64,18 +65,10 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       final r = await _api.getJson('/circle/chats');
       _chats = ((r['results'] ?? r['chats'] ?? const []) as List)
           .cast<Map<String, dynamic>>();
+      _loadFailed = false;
     } catch (_) {
-      // Offline / not wired: synthesise a row per accepted member so the list
-      // still works (empty previews) rather than a blank screen.
-      _chats = widget.members
-          .map((m) => <String, dynamic>{
-                'id': '${m['id']}',
-                'member': m,
-                'last_text': '',
-                'unread': 0,
-                'at': null,
-              })
-          .toList();
+      // Honest error + retry (no synthesised rows posing as real chats).
+      _loadFailed = true;
     }
     try {
       _lists = await _api.hubCustomLists();
@@ -345,6 +338,20 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
   @override
   Widget build(BuildContext context) {
     if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loadFailed && _chats.isEmpty) {
+      return Center(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Text(_t.msgLoadFailed, textAlign: TextAlign.center),
+          const SizedBox(height: Gap.md),
+          FilledButton(
+              onPressed: () {
+                setState(() => _loading = true);
+                _load();
+              },
+              child: Text(_t.retry)),
+        ]),
+      );
+    }
     final visible = _visible;
     return Column(children: [
       _searchBar(),

@@ -429,6 +429,7 @@ def _organise_map(user):
             "muted_at": s.updated_at.isoformat(),
         }) if (s.mute_until or s.muted_duration) else False
         out[str(s.chat_id)] = {
+            "favourite": False,
             "pinned": s.pinned,
             "pin_at": s.pin_at.isoformat() if s.pin_at else None,
             "archived": s.archived,
@@ -444,10 +445,15 @@ class CircleMembersView(APIView):
         rows = CircleMember.objects.filter(user=request.user, state="accepted")
         org = _organise_map(request.user)
         out = []
+        from .models import MsgChatPref
+        favs = set(MsgChatPref.objects.filter(
+            user=request.user, chat_kind="member", favourite=True
+        ).values_list("chat_id", flat=True))
         for m in rows:
             d = _member_dict(m)
             d.update(org.get(str(m.id), {
                 "pinned": False, "pin_at": None, "archived": False, "muted": False}))
+            d["favourite"] = str(m.id) in favs
             out.append(d)
         return Response({"results": out})
 
@@ -577,37 +583,8 @@ class CircleBlockedView(APIView):
         return Response({"blocked": out})
 
 
-class CircleMessageRequestsView(APIView):
-    """#95 Message requests from non-contacts. GET returns the held requests
-    inbox (honestly empty until the relay routing seam lands — strangers are
-    routed here with NO notify by message_request_routing). POST <id> applies
-    accept/decline/block/report via msg_contacts.apply_message_request_action."""
-    def get(self, request):
-        # No stranger-message store yet; the relay seam (message_request_routing)
-        # will populate this. Honest empty rather than fabricated rows.
-        return Response({"requests": []})
-
-    def post(self, request, pk):
-        from .logic import msg_contacts as MC
-        lang = req_lang(request)
-        d = request.data or {}
-        action = str(d.get("action", "")).strip()
-        reason = str(d.get("reason", "harassment")).strip() or "harassment"
-        # Resolve against the sender's member row (if one exists) so block/report
-        # actually persists the block; accept/decline are honest no-op directives.
-        member = CircleMember.objects.filter(user=request.user, id=pk).first()
-        owner_state = {"blocked": []}
-        res = MC.apply_message_request_action(
-            owner_state, pk, action, reason=reason,
-            note=str(d.get("note", "")), lang=lang)
-        if not res.get("ok"):
-            return Response({"ok": False}, status=status.HTTP_400_BAD_REQUEST)
-        directive = res.get("directive") or {}
-        if member is not None and directive.get("block"):
-            member.blocked = True
-            member.save(update_fields=["blocked"])
-        return Response({"ok": True, "action": res.get("action"),
-                         "message": res.get("message", "")})
+# (CircleMessageRequestsView moved to views_m1_messenger.MessageRequestsView —
+#  backed by the real CommunityMessageRequest store, m1-messenger.)
 
 
 class CircleRequestsView(APIView):
@@ -806,13 +783,23 @@ class CircleMessagesView(APIView):
         m = CircleMember.objects.filter(user=request.user, pk=pk).first()
         if m is None:
             return Response({"detail": "not found"}, status=status.HTTP_404_NOT_FOUND)
-        msgs = CircleMessage.objects.filter(_thread_q(m)).order_by("created_at", "id")
+        # m1-messenger: the WHOLE conversation (my sent rows on my edge + the
+        # peer's rows on their reverse edge), minus what I cleared, deleted
+        # for me, or what is past the disappearing timer.
+        from .views_m1_messenger import visible_conversation
+        uid = request.user.id
+        msgs = visible_conversation(request.user, m)
         out = [{
             "id": x.id, "sender_id": x.sender_id, "content_type": x.content_type,
             "ciphertext": x.ciphertext, "nonce": x.nonce, "blob_ref": x.blob_ref,
             "sender_key_id": x.sender_key_id, "scheme": x.scheme,
             "created_at": x.created_at.isoformat(),
-            "mine": x.sender_id == request.user.id,
+            "mine": x.sender_id == uid,
+            "reply_to": x.reply_to_id, "reactions": x.reactions or {},
+            "starred": uid in (x.starred_by or []), "pinned": x.pinned,
+            "deleted": x.deleted or "",
+            "edited_at": x.edited_at.isoformat() if x.edited_at else None,
+            "forwarded": x.forwarded,
         } for x in msgs]
         return Response({"results": out})
 
@@ -845,6 +832,13 @@ class CircleMessagesView(APIView):
             if dup is not None:
                 return Response({"id": dup.id, "ok": True, "deduped": True},
                                 status=status.HTTP_200_OK)
+        # m1-messenger: if the OTHER side blocked me, drop silently (WhatsApp
+        # semantics: the sender is not told; nothing is stored or pushed).
+        from .views_m1_messenger import reverse_edge
+        _rev = reverse_edge(m)
+        if _rev is not None and _rev.blocked:
+            return Response({"ok": True, "dropped": True, "reason": "blocked"},
+                            status=status.HTTP_200_OK)
         # Privacy relay decision (block -> drop, restrict -> quiet inbox).
         decision = circle_privacy.deliver_decision(
             {"id": request.user.id},

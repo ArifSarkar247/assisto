@@ -25,7 +25,11 @@ class AppConfig {
   /// on local/dev builds. Shown only in Settings → About.
   static const String buildTime = String.fromEnvironment('BUILD_TIME', defaultValue: '');
 
-  static Uri api(String path) => Uri.parse('$apiBase$apiPrefix$path');
+  /// A path without a leading slash ('messenger/lists') used to produce
+  /// '/api/v1messenger/lists' (a guaranteed 404). Normalise it here so every
+  /// caller hits the real route.
+  static Uri api(String path) => Uri.parse(
+      '$apiBase$apiPrefix${path.startsWith('/') ? '' : '/'}$path');
 
   /// The current DRF auth token, mirrored here by [ApiClient] so image
   /// widgets (which use [NetworkImage], not the REST client) can attach the

@@ -336,8 +336,6 @@ urlpatterns = [
     # #95/#96 message requests + message-level privacy
     path("circle/settings/message-privacy", m5.MessagePrivacyView.as_view()),
     path("circle/blocked", m5.CircleBlockedView.as_view()),
-    path("circle/message-requests", m5.CircleMessageRequestsView.as_view()),
-    path("circle/message-requests/<int:pk>", m5.CircleMessageRequestsView.as_view()),
     path("circle/requests", m5.CircleRequestsView.as_view()),
     path("circle/keys", m5.CircleKeysView.as_view()),
     path("circle/request", m5.CircleRequestCreateView.as_view()),
@@ -584,5 +582,75 @@ urlpatterns += [
     path("business/sales/<int:pk>/void", salevoid.SaleVoidView.as_view()),
 ]
 # ---- /a2-cctv ----
+
+# ---- m1-messenger ---- real backends for the 1:1 / group / community ⋮ menus
+# and the Messenger settings screens. PREPENDED so the literal group routes win
+# over the single-segment `circle/groups/<pk>/<slug:setting>` catch-all above.
+from . import views_m1_messenger as m1  # noqa: E402
+from . import views_m1_routes as m1r  # noqa: E402
+urlpatterns[:0] = [
+    # 1:1
+    path("circle/<int:pk>/info", m1.ChatInfoView.as_view()),
+    path("circle/<int:pk>/clear", m1.ChatClearView.as_view()),
+    # group ⋮
+    path("circle/groups/<int:pk>/mute", m1.GroupMuteView.as_view()),
+    path("circle/groups/<int:pk>/disappearing",
+         m1.GroupDisappearingView.as_view()),
+    path("circle/groups/<int:pk>/theme", m1.GroupThemeView.as_view()),
+    path("circle/groups/<int:pk>/favourite", m1.GroupFavouriteView.as_view()),
+    path("circle/groups/<int:pk>/clear", m1.GroupClearView.as_view()),
+    path("circle/groups/<int:pk>/export", m1.GroupExportView.as_view()),
+    path("circle/groups/<int:pk>/ai/<slug:task>", m1.GroupAiView.as_view()),
+    path("circle/groups/<int:pk>/messages/<int:mid>/<slug:action>",
+         m1.GroupMessageActView.as_view()),
+    # community ⋮
+    path("community/<int:pk>/notifications",
+         m1.CommunityNotificationsView.as_view()),
+    path("community/<int:pk>/leave", m1.CommunityLeaveView.as_view()),
+    # account
+    path("circle/account/two-step", m1.TwoStepView.as_view()),
+    path("circle/account/two-step/verify", m1.TwoStepVerifyView.as_view()),
+    path("circle/account/change-number", m1.ChangeNumberStatusView.as_view()),
+    path("circle/account/change-number/request",
+         m1.ChangeNumberRequestView.as_view()),
+    path("circle/account/change-number/confirm",
+         m1.ChangeNumberConfirmView.as_view()),
+    # privacy: message requests (stranger first messages, ciphertext only)
+    path("circle/message-requests", m1.MessageRequestsView.as_view()),
+    path("circle/message-requests/<int:pk>", m1.MessageRequestsView.as_view()),
+    # settings
+    path("circle/settings/notifications", m1.NotificationPrefsView.as_view()),
+    path("circle/settings/calls", m1.CallPrefsView.as_view()),
+    path("circle/settings/storage", m1.StoragePrefsView.as_view()),
+    # chat list + community request inbox
+    path("circle/chats", m1r.CircleChatsView.as_view()),
+    path("community/message-requests",
+         m1r.CommunityMessageRequestsListView.as_view()),
+    # group: canonical NESTED shapes (old flat routes stay as aliases)
+    path("circle/groups/<int:pk>/polls/<int:pid>/<slug:action>",
+         m1r.GroupPollActNestedView.as_view()),
+    path("circle/groups/<int:pk>/members/<int:mid>",
+         m1r.GroupMemberNestedView.as_view()),
+    path("circle/groups/<int:pk>/media", m1r.GroupMediaView.as_view()),
+    # family accounting (integer poisha)
+    path("family/accounting/summary", m1r.FamSummaryView.as_view()),
+    path("family/accounting/expenses", m1r.FamExpensesView.as_view()),
+    path("family/accounting/expenses/delete",
+         m1r.FamExpenseDeleteView.as_view()),
+    path("family/accounting/pool", m1r.FamPoolView.as_view()),
+    path("family/accounting/pool/contribute",
+         m1r.FamPoolContributeView.as_view()),
+    path("family/accounting/settle", m1r.FamSettleView.as_view()),
+    # notification centre, journey, disaster, medicine-db
+    path("notif/reminders/<str:item_id>/done",
+         m1r.NotifReminderDoneView.as_view()),
+    path("journey/<int:pk>/timeline", m1r.JourneyTimelineView.as_view()),
+    path("disaster/feed", m1r.DisasterFeedView.as_view()),
+    path("medicine-db/report", m1r.MedicineDbReportView.as_view()),
+    # connection-request list (GET; POST create unchanged) + channel discover
+    path("messenger/request", m1r.ConnectionRequestsView.as_view()),
+    path("channels/discover", m1r.ChannelDiscoverView.as_view()),
+]
+# ---- /m1-messenger ----
 
 urlpatterns += router.urls

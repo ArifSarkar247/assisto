@@ -250,17 +250,6 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
     );
   }
 
-  Future<void> _toggleNotifications() async {
-    final muted = widget.community['notifications_muted'] == true;
-    try {
-      await _api.communitySetNotifications(_cid, !muted);
-      setState(() => widget.community['notifications_muted'] = !muted);
-      _toast(!muted ? _t.communityMuted : _t.communityUnmuted);
-    } catch (_) {
-      _toast(_t.communityBackendPending);
-    }
-  }
-
   void _openSettings() {
     Navigator.of(context).push(MaterialPageRoute(
         builder: (_) => const CommunitySettingsScreen()));
@@ -298,8 +287,10 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
         return;
       }
       if (mounted) Navigator.of(context).pop();
-    } catch (_) {
-      _toast(_t.communityBackendPending);
+    } catch (e) {
+      _toast(e is ApiException && e.message.isNotEmpty
+          ? e.message
+          : _t.communityActionFailed);
     }
   }
 
@@ -331,8 +322,6 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                   _showInfo();
                 case 'members':
                   _openMembers();
-                case 'notifications':
-                  _toggleNotifications();
                 case 'settings':
                   _openSettings();
                 case 'approve':
@@ -347,11 +336,17 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
               PopupMenuItem(value: 'info', child: Text(_t.communityInfo)),
               PopupMenuItem(
                   value: 'members', child: Text(_t.communityMembersTitle)),
+              // Honest disabled item: the server does not deliver or push
+              // community posts yet, so an alert switch would change nothing.
               PopupMenuItem(
+                enabled: false,
                 value: 'notifications',
-                child: Text(widget.community['notifications_muted'] == true
-                    ? _t.communityUnmuteNotifications
-                    : _t.communityMuteNotifications),
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  enabled: false,
+                  title: Text(_t.communityMuteNotifications),
+                  subtitle: Text(_t.msgCommunityAlertsNotYet),
+                ),
               ),
               // Admin-only actions appear only for an admin viewer.
               if (_isAdmin)
