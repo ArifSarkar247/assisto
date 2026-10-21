@@ -166,7 +166,8 @@ class _TravelPlannerScreenState extends State<TravelPlannerScreen> {
     }
     return Scaffold(
       appBar: AppBar(title: Text(tr.tvTitle)),
-      floatingActionButton: FloatingActionButton.extended(
+      // empty state has its own CTA: no duplicate FAB
+      floatingActionButton: _trips.isEmpty ? null : FloatingActionButton.extended(
         onPressed: () => _openTripEditor(),
         icon: const Icon(Icons.add),
         label: Text(tr.tvNewTrip),

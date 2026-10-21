@@ -523,48 +523,70 @@ class _ComponentCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: Gap.sm),
-        Row(children: [
-          Expanded(
-            child: TextField(
-              controller: row.qty,
-              keyboardType: TextInputType.number,
-              onChanged: (_) => onChanged(),
-              decoration: InputDecoration(
-                isDense: true,
-                labelText: t.ceQty,
-                border: const OutlineInputBorder(),
-              ),
+        // Labels like "Unit cost" (and the bn label) were cut to 1 letter in three
+        // ~95px columns: lay out by the space each label really needs.
+        LayoutBuilder(builder: (context, c) {
+          final need = 120 * MediaQuery.textScalerOf(context).scale(1);
+          final qtyF = TextField(
+            controller: row.qty,
+            keyboardType: TextInputType.number,
+            onChanged: (_) => onChanged(),
+            decoration: InputDecoration(
+              isDense: true,
+              labelText: t.ceQty,
+              border: const OutlineInputBorder(),
             ),
-          ),
-          const SizedBox(width: Gap.sm),
-          Expanded(
-            child: TextField(
-              controller: row.unit,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              onChanged: (_) => onChanged(),
-              decoration: InputDecoration(
-                isDense: true,
-                labelText: t.ceUnitCost,
-                prefixText: '৳ ',
-                border: const OutlineInputBorder(),
-              ),
+          );
+          final unitF = TextField(
+            controller: row.unit,
+            keyboardType:
+                const TextInputType.numberWithOptions(decimal: true),
+            onChanged: (_) => onChanged(),
+            decoration: InputDecoration(
+              isDense: true,
+              labelText: t.ceUnitCost,
+              prefixText: '৳ ',
+              border: const OutlineInputBorder(),
             ),
-          ),
-          const SizedBox(width: Gap.sm),
-          Expanded(
-            child: TextField(
-              controller: row.minutes,
-              keyboardType: TextInputType.number,
-              onChanged: (_) => onChanged(),
-              decoration: InputDecoration(
-                isDense: true,
-                labelText: t.ceMinEach,
-                border: const OutlineInputBorder(),
-              ),
+          );
+          final minF = TextField(
+            controller: row.minutes,
+            keyboardType: TextInputType.number,
+            onChanged: (_) => onChanged(),
+            decoration: InputDecoration(
+              isDense: true,
+              labelText: t.ceMinEach,
+              border: const OutlineInputBorder(),
             ),
-          ),
-        ]),
+          );
+          if (c.maxWidth >= need * 3 + 2 * Gap.sm) {
+            return Row(children: [
+              Expanded(child: qtyF),
+              const SizedBox(width: Gap.sm),
+              Expanded(child: unitF),
+              const SizedBox(width: Gap.sm),
+              Expanded(child: minF),
+            ]);
+          }
+          if (c.maxWidth >= need * 2 + Gap.sm) {
+            return Column(children: [
+              Row(children: [
+                Expanded(child: qtyF),
+                const SizedBox(width: Gap.sm),
+                Expanded(child: minF),
+              ]),
+              const SizedBox(height: Gap.sm),
+              unitF,
+            ]);
+          }
+          return Column(children: [
+            qtyF,
+            const SizedBox(height: Gap.sm),
+            unitF,
+            const SizedBox(height: Gap.sm),
+            minF,
+          ]);
+        }),
       ]),
     );
   }

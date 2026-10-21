@@ -183,7 +183,8 @@ class _TranscriptionScreenState extends State<TranscriptionScreen> {
     final list = _filtered;
     return Scaffold(
       appBar: AppBar(title: Text(tr.tnTitle)),
-      floatingActionButton: FloatingActionButton.extended(
+      // empty state has its own CTA: no duplicate FAB
+      floatingActionButton: _notes.isEmpty ? null : FloatingActionButton.extended(
         onPressed: () => _openEditor(),
         icon: const Icon(Icons.add),
         label: Text(tr.tnAddNote),

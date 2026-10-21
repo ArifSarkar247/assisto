@@ -46,6 +46,33 @@ outline), text-scale pass, `ASSISTO_SHOT_DIR`, new shots `ai_chat`, `nearby`,
 | 24 | My vehicles (`vehicles`, new shot) | 8 → 9 | Empty state showed "Add vehicle" twice (CTA + FAB) → FAB hidden when empty. |
 | 25 | Student corner (`student`) | 8 → 9 | CGPA/course/credits lines had arguments swapped (arg-order bug). |
 | 26 | Wedding & events (`wedding`) | 8 → 9 | "Estimated vs actual" swapped (arg-order bug). |
+| 27 | Probashi corner (`probashi`) | 8 → 9 | Remittance rate/date swapped (arg-order bug). |
+| 28 | Qurbani planner (`qurbani`) | 9 → 9 | — |
+| 29 | Farmer mode (`farmer`) | 9 → 9 | — |
+| 30 | Health timeline (`health_tl`) | 9 → 9 | — |
+| 31 | Water, sleep & diet (`wellness`) | 7 → 9 | Glasses/hours value and goal were swapped, and so were the water and sleep averages (arg-order bug). |
+| 32 | Fitness partner (`fitness`) | 9 → 9 | — |
+| 33 | Smartwatch (`smartwatch`, new shot) | 9 → 9 | — |
+| 34 | Daily challenge (`challenges`) | 9 → 9 | — |
+| 35 | Contract analyzer (`contract`) | 9 → 9 | — |
+| 36 | Language partner (`lang_partner`) | 9 → 9 | — |
+| 37 | Daily brief (`daily_brief`) | 7 → 9 | Completion line showed "50 of 4 done (2%)" (arg-order bug). The bn "Night" tab label was cut at large font → tabs scroll. |
+| 38 | Document scanner (`doc_scan`) | 9 → 9 | — |
+| 39 | Calls & voice notes (`transcribe`) | 8 → 9 | Empty state showed "Add note" twice (CTA + FAB) → FAB hidden when empty. |
+| 40 | Travel planner (`travel`) | 7 → 9 | Same duplicate CTA, plus itinerary summary and budget line swapped (arg-order bug). |
+| 41 | Mood & energy (`mood`) | 7 → 9 | Energy showed "5 of 3" and the trend summary was swapped (arg-order bug). |
+| 42 | Proactive helper (`proactive`) | 9 → 9 | — |
+| 43 | Area community (`area`) | 8 → 9 | Empty board showed "Post a notice" twice → FAB hidden when empty. |
+| 44 | Agent Studio (`agent_studio`) | 8 → 9 | XL: tab label cut → tabs scroll at large font. |
+| 45 | Task manager (`task_mgr`) | 9 → 9 | — |
+| 46 | Cost & time estimator (`cost_est`) | 7 → 9 | Qty / Unit cost / Min labels were cut to "প…/এ…/মি…" in three ~95px columns → the layout adapts (3 → 2+1 → stacked) to the space each label needs. |
+| 47 | Mock interview (`mock_iv`) | 9 → 9 | — |
+| 48 | Quick tools (`quick_tools`) | 9 → 9 | — |
+| 49 | Blog & script (`blog`) | 9 → 9 | — |
+| 50 | Job hunter (`jobs`) | 8 → 9 | bn "আবেদন ট্র্যাকার" tab was cut even at normal size → tabs scroll in bn and at large font. |
+| 51 | CV builder (`cv_builder`) | 9 → 9 | — |
+| 52 | AI inbox (`inbox`) | 9 → 9 | — |
+| 53 | PA secretary hub (`pa_hub`) | 8 → 9 | The PA sub-screens' summaries and email templates had swapped values (arg-order bug: visitors, delegate audit, minutes, shoot checklist, biz travel, call/email templates). |
 
 ## Systemic bug: swapped values in 48 translated strings
 
@@ -84,3 +111,9 @@ templates with subject and sender swapped.
   - jobsSalaryRange is already correct.
 - **Guard:** `app/test/arb_arg_order_test.dart` pins the fixed signatures and fails on
   any new key whose metadata order differs from its text order.
+
+## Not covered by a1 (other slots or not in the gallery)
+- Contacts (CRM contacts) → a2. The Family & Safety drawer section (incl. blood
+  donor, doctor serial, kid school, disaster) → a6/a2 per the scope split.
+- Test-font artifacts only: "→" and "৳" render as a box or "b" in the harness font
+  (NotoSans without those glyphs); on a phone the system font has them.

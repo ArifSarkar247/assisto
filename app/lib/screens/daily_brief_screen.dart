@@ -216,6 +216,11 @@ class _DailyBriefScreenState extends State<DailyBriefScreen>
       appBar: AppBar(
         title: Text(t.dbTitle),
         bottom: TabBar(
+          // large font: scroll instead of cutting tab labels
+          isScrollable: MediaQuery.textScalerOf(context).scale(1) > 1.2,
+          tabAlignment: MediaQuery.textScalerOf(context).scale(1) > 1.2
+              ? TabAlignment.start
+              : null,
           controller: _tabs,
           tabs: [
             Tab(text: t.dbTabMorning),

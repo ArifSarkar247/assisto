@@ -185,7 +185,8 @@ class _AreaCommunityScreenState extends State<AreaCommunityScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      // empty board has its own "Post a notice" CTA: no duplicate FAB
+      floatingActionButton: _posts.isEmpty ? null : FloatingActionButton.extended(
         onPressed: _add,
         icon: const Icon(Icons.campaign_outlined),
         label: Text(tr.areaPostNotice),
