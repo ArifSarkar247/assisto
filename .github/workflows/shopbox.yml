@@ -33,11 +33,12 @@ jobs:
           cache-dependency-path: |
             edge/shopbox/requirements.txt
             edge/shopbox/requirements-dev.txt
+            edge/shopbox/requirements-live.txt
 
       - name: Install pinned dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt -r requirements-dev.txt
+          pip install -r requirements.txt -r requirements-dev.txt -r requirements-live.txt
 
       # Official YOLOX release asset; shopbox.model_fetch refuses it unless
       # the SHA-256 matches the value pinned in shopbox/model_fetch.py.
@@ -64,11 +65,12 @@ jobs:
           cache-dependency-path: |
             edge/shopbox/requirements.txt
             edge/shopbox/requirements-dev.txt
+            edge/shopbox/requirements-live.txt
 
       - name: Install pinned dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt -r requirements-dev.txt
+          pip install -r requirements.txt -r requirements-dev.txt -r requirements-live.txt
 
       - name: Download person model (SHA-256 verified)
         run: python -m shopbox.model_fetch models/yolox_nano.onnx
@@ -89,6 +91,10 @@ jobs:
           & $exe --self-test
           if ($LASTEXITCODE -ne 0) { Write-Error "detector did not load in frozen build"; exit 1 }
           if (-not (Test-Path "dist\AssistoShopBox\AssistoShopBox.exe")) { exit 1 }
+          # optional live view: report, don't fail the build (monitoring works without it)
+          & $exe --live-check
+          if ($LASTEXITCODE -ne 0) { Write-Warning "live view (aiortc/av) not available in the frozen build" }
+          $global:LASTEXITCODE = 0
 
       - name: Zip bundle
         shell: pwsh

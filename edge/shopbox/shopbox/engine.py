@@ -89,6 +89,9 @@ class Engine:
         self.workers: Dict[str, CameraWorker] = {}
         self.analyzers: Dict[str, CameraAnalyzer] = {}
         self.sender: Optional[Sender] = None
+        self.sync = None                 # device.DeviceSync (heartbeat/config)
+        self.live = None                 # live.LiveAnswerer when aiortc is present
+        self.latest: Dict[str, object] = {}   # cam_id -> latest analysis frame
         self.running = False
 
     # ------------------------------------------------------------ credentials
@@ -99,6 +102,47 @@ class Engine:
 
     def rtsp_url_for(self, cam_id: str) -> str:
         return camera_url(self.cfg, self.store, cam_id)
+
+    def device_tokens(self) -> Dict[str, str]:
+        """Tokens to heartbeat with: each camera's own token (so the owner's
+        app shows THAT camera online), else the site token once."""
+        out = {}
+        for cam in self.cfg.cameras:
+            tok = self.store.get(cam_key(cam.id, "token"))
+            if tok:
+                out[cam.id] = tok
+        if not out:
+            site = self.store.get(SITE_TOKEN)
+            if site:
+                out[""] = site
+        return out
+
+    def _cam_for_token(self, token: str) -> Optional[str]:
+        for cid, tok in self.device_tokens().items():
+            if tok == token:
+                return cid or (self.cfg.cameras[0].id if self.cfg.cameras else None)
+        return None
+
+    def frame_source_for(self, token: str):
+        cid = self._cam_for_token(token)
+        return lambda: self.latest.get(cid) if cid else None
+
+    def apply_server_config(self, data: dict, cam_id: Optional[str]) -> None:
+        """Owner's server-side settings -> local config (enabled + hours)."""
+        from .device import apply_server_camera, apply_server_site
+        changed = apply_server_site(self.cfg, data.get("site") or {})
+        site_hours = (data.get("site") or {}).get("hours") or None
+        if cam_id:
+            cam = self.cfg.camera(cam_id)
+            srv = (data.get("cameras") or [None])[0]
+            if cam is not None and isinstance(srv, dict):
+                changed = apply_server_camera(cam, srv, site_hours) or changed
+        if changed:
+            for cid, an in self.analyzers.items():
+                cam = self.cfg.camera(cid)
+                if cam is not None:
+                    an.hours = self.cfg.hours_for(cam)
+            log.info("applied the owner's server settings")
 
     # -------------------------------------------------------------- lifecycle
     def start(self) -> None:
@@ -112,6 +156,7 @@ class Engine:
                              snapshot_mode=self.cfg.sending.snapshot_mode,
                              on_result=self._on_send_result)
         self.sender.start()
+        self._start_device_sync()
         for cam in self.cfg.cameras:
             if not cam.enabled:
                 continue
@@ -128,7 +173,27 @@ class Engine:
         log.info("monitoring %d camera(s); detector=%s", len(self.workers),
                  getattr(self.detector, "name", "motion_only"))
 
+    def _start_device_sync(self) -> None:
+        """Heartbeat + config pull + (optional) live view. Never fatal."""
+        try:
+            from . import live
+            from .device import DeviceClient, DeviceSync
+            caps = []
+            if live.available():
+                self.live = live.LiveAnswerer(self.cfg.base_url, self.frame_source_for)
+                caps.append("live")
+            self.sync = DeviceSync(
+                DeviceClient(self.cfg.base_url, timeout=self.cfg.sending.timeout_s),
+                self.device_tokens, caps, self.apply_server_config,
+                on_live=(self.live.handle if self.live else None))
+            self.sync.start()
+        except Exception:
+            log.exception("device sync could not start (monitoring continues)")
+            self.sync = None
+
     def stop(self) -> None:
+        if self.sync:
+            self.sync.stop()
         for w in self.workers.values():
             w.stop()
         if self.sender:
@@ -141,6 +206,7 @@ class Engine:
 
     # --------------------------------------------------------------- pipeline
     def _on_frame(self, cam_id: str, frame) -> None:
+        self.latest[cam_id] = frame          # live view reads the newest frame
         an = self.analyzers.get(cam_id)
         if an is None:
             return
@@ -151,9 +217,11 @@ class Engine:
 
     def handle_trigger(self, cam_id: str, trig) -> bool:
         """Apply cooldown, encode the one snapshot, queue. Returns True if queued."""
+        cam = self.cfg.camera(cam_id)
+        if cam is not None and not cam.enabled:
+            return False                     # the owner switched it off
         if not self.cooldown.allow((cam_id, trig.type)):
             return False
-        cam = self.cfg.camera(cam_id)
         snap = None
         if self.cfg.sending.snapshot_mode != "never":
             try:
@@ -196,4 +264,6 @@ class Engine:
             "queued": len(self.outbox),
             "online": self.sender.online if self.sender else None,
             "unauthorized": self.sender.unauthorized if self.sender else False,
+            "live_view": bool(self.live),
+            "heartbeat_online": self.sync.online if self.sync else None,
         }

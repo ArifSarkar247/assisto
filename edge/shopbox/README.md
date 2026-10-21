@@ -153,30 +153,29 @@ snapshot=<snapshot.jpg, image/jpeg, ~9-150 KB>
   spikes` and `eod_mismatch` are POS-side types.
 * **Applying changes.** Config changes apply when monitoring is restarted.
 
-## Server gaps (what a complete edge client still needs)
+## Heartbeat, config sync and live view
 
-`shop_views.py` has no device endpoint for the following, so the client
-**invents none of them**:
+* **Pairing** uses `POST shop/pair/check` (shows the shop's name); an older
+  server without it falls back to the empty-type ingest probe.
+* **Heartbeat:** every 20 s, `POST shop/heartbeat` with each camera's own
+  token (so the owner's app shows *that* camera online / "offline since …"),
+  or once with the site token when no camera token is set. The token is sent
+  in the `X-Shop-Token` header, never in a URL.
+* **Config pull:** when the heartbeat's `config_version` changes, `GET
+  shop/config` is read and the owner's server-side settings are applied:
+  camera on/off and open/close hours. The local timezone, closed days, zones
+  and RTSP settings stay as set on the PC.
+* **Live view (optional):** with `requirements-live.txt` installed (aiortc +
+  PyAV, bundled by CI), the heartbeat advertises `live` and the PC answers the
+  owner's live-view session as the WebRTC sender, using the frames it already
+  pulls from the camera (about 3 fps, analysis size). P2P is free; if only the
+  TURN relay works, the owner is charged per minute. Nothing is recorded. If
+  aiortc is missing, monitoring works as before and the app says honestly that
+  this device has no live view.
 
-1. **Heartbeat:** for example `POST shop/heartbeat {site_token, cameras:[{id,
-   status, last_frame_at}], detector, queued, version}`. The app could then
-   show "Shop Box offline / camera X unreachable" instead of silence.
-2. **Device config pull:** for example `GET shop/device/config` with a device
-   token, returning cameras, `zone_config` and hours, so zones drawn in the
-   app sync to the PC. Today `ShopCamera.zone_config` is set only at create
-   time and there is no device read path.
-3. **Device camera registration:** so the box can create/claim its
-   `ShopCamera` rows (and their `camera_token`) instead of the owner copying
-   tokens by hand.
-4. **Parse `signals` in multipart:** in `ShopIngestView`, add
-   `if isinstance(signals, str): signals = json.loads(signals)`, guarded.
-   This lets signals and the snapshot travel together.
-5. **Ignore metadata keys in `shop_guard`:** keys such as `detector`,
-   `edge_version` and `score` should not count as corroboration.
-6. **A pairing-check endpoint:** the empty-type probe works, but it is
-   implicit.
-7. **Per-device throttle scope:** so several shops behind one ISP NAT/CGNAT do
-   not share the 30/min anonymous bucket.
+Still open on the server side: device-side camera registration (today the
+owner copies camera tokens by hand) and a per-device throttle scope for shops
+behind one CGNAT.
 
 ## Usage
 
@@ -184,7 +183,7 @@ snapshot=<snapshot.jpg, image/jpeg, ~9-150 KB>
 AssistoShopBox.exe                    config UI (Bangla/English)
 AssistoShopBox.exe --run              headless monitoring (put a shortcut in shell:startup)
 AssistoShopBoxCLI.exe --pair          enter the enrollment token (hidden input)
-AssistoShopBoxCLI.exe --verify | --list | --test-camera ID | --fetch-model | --self-test
+AssistoShopBoxCLI.exe --verify | --list | --test-camera ID | --fetch-model | --self-test | --live-check
 ```
 
 ## Development

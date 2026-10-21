@@ -16,12 +16,23 @@ if os.path.exists(model):
 elif os.environ.get("SHOPBOX_REQUIRE_MODEL") == "1":
     raise SystemExit("models/yolox_nano.onnx missing — run: python -m shopbox.model_fetch models/yolox_nano.onnx")
 
+# OPTIONAL live view (requirements-live.txt): bundle aiortc + PyAV when they
+# are installed in the build env; otherwise the exe simply has no live view.
+try:
+    import aiortc  # noqa: F401
+    from PyInstaller.utils.hooks import collect_submodules
+    live_hidden = (collect_submodules("aiortc") + collect_submodules("aioice")
+                   + ["av", "pylibsrtp", "google_crc32c", "pyee", "OpenSSL"])
+    live_bins = collect_dynamic_libs("av") + collect_dynamic_libs("aiortc")
+except ImportError:
+    live_hidden, live_bins = [], []
+
 a = Analysis(  # noqa: F821
     [os.path.join(here, "run_shopbox.py")],
     pathex=[here],
-    binaries=collect_dynamic_libs("onnxruntime"),
+    binaries=collect_dynamic_libs("onnxruntime") + live_bins,
     datas=datas,
-    hiddenimports=["tkinter", "tkinter.ttk"],
+    hiddenimports=["tkinter", "tkinter.ttk"] + live_hidden,
     excludes=["matplotlib", "PIL", "pytest", "IPython"],
     noarchive=False,
 )
