@@ -92,6 +92,8 @@ import 'package:assisto/screens/pa/delegate_access_screen.dart';
 import 'package:assisto/screens/messenger/msgr_set_privacy_screen.dart';
 import 'package:assisto/screens/ai_knowledge_screen.dart';
 import 'package:assisto/screens/admin/cost_flags_screen.dart';
+import 'package:assisto/screens/admin/discover_manager_screen.dart';
+import 'fake_discover.dart';
 import 'package:assisto/screens/admin/server_address_screen.dart';
 import 'package:assisto/screens/app_update_screen.dart';
 import 'package:assisto/screens/about_screen.dart';
@@ -378,6 +380,12 @@ void main() {
     'msg_privacy': (build: (_) => const MsgrSetMessagePrivacyScreen(), mode: FakeMode.data, full: true),
     'ai_knowledge': (build: (_) => const AiKnowledgeScreen(), mode: FakeMode.data, full: true),
     'cost_flags': (build: (_) => const CostFlagsScreen(), mode: FakeMode.data, full: true),
+    // d1-discover: owner Discover manager — list, editor (sponsored card with
+    // live preview), sponsor report.
+    'discover_mgr': (build: (_) => const DiscoverManagerScreen(), mode: FakeMode.data, full: true),
+    'discover_edit': (build: (_) => DiscoverCardEditScreen(card: fakeDiscoverAdminCards().first, meta: const {
+      'routes': ['photo_enhance', 'plans', 'notes'], 'icons': ['shopping_bag', 'star', 'campaign']}), mode: FakeMode.data, full: true),
+    'discover_report': (build: (_) => const DiscoverReportScreen(cardId: 20, title: 'Fresh Market'), mode: FakeMode.data, full: true),
     'server_addr': (build: (_) => const ServerAddressScreen(), mode: FakeMode.data, full: true),
     'app_update': (build: (_) => const AppUpdateScreen(), mode: FakeMode.data, full: true),
     'about': (build: (_) => const AboutScreen(), mode: FakeMode.data, full: true),
