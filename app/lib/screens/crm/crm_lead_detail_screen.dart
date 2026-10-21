@@ -138,7 +138,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: _load,
-        child: ListView(padding: const EdgeInsets.all(Gap.md), children: [
+        child: ListView(padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96), children: [ // clear the FAB
           // ---- smart profile + score ----
           Card(
             child: Padding(
@@ -257,7 +257,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
               child: OutlinedButton.icon(
                 onPressed: () => _markWon(t),
                 icon: const Icon(Icons.emoji_events_outlined),
-                label: Text(t.crmMarkWon),
+                label: Text(t.shopQaMarkWon),
               ),
             ),
             const SizedBox(width: Gap.sm),
@@ -311,11 +311,11 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(t.crmMarkWon),
+        title: Text(t.shopQaMarkWon),
         content: Text(t.crmMarkWonConfirm),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(t.crmMarkWon)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(t.shopQaMarkWon)),
         ],
       ),
     );
@@ -332,7 +332,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
     final handoff = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(t.crmMarkWon),
+        title: Text(t.shopQaMarkWon),
         content: Text(t.crmWonErpHandoffPrompt),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.close)),
@@ -404,11 +404,18 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
     }
   }
 
+  // icon over label: three equal buttons fit 360 px without cutting
+  // "WhatsApp" to "Wh…"; the label shrinks rather than ellipsizes.
   Widget _action(String label, IconData icon, bool enabled, VoidCallback onTap) =>
-      OutlinedButton.icon(
+      OutlinedButton(
         onPressed: enabled ? onTap : null,
-        icon: Icon(icon, size: 18),
-        label: Text(label, overflow: TextOverflow.ellipsis),
+        style: OutlinedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8)),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Icon(icon, size: 18),
+          const SizedBox(height: 2),
+          FittedBox(fit: BoxFit.scaleDown, child: Text(label, maxLines: 1)),
+        ]),
       );
 
   Widget _pill(String k, dynamic v) => Container(

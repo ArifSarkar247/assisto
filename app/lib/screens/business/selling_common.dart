@@ -143,6 +143,7 @@ class MoneyField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         helperText: helper,
+        helperMaxLines: 2,
         prefixText: '৳ ',
       ),
     );

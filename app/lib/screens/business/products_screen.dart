@@ -514,17 +514,14 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
               ),
               if (_showCost) ...[
                 const SizedBox(height: Gap.md),
-                Row(children: [
-                  Expanded(
-                      child: MoneyField(
-                          controller: _cost, label: t.biz_cost_price)),
-                  const SizedBox(width: Gap.md),
-                  Expanded(
-                      child: MoneyField(
-                          controller: _min,
-                          label: t.biz_min_price,
-                          helper: t.biz_price_override)),
-                ]),
+                // stacked, not side by side: "Minimum price" + its helper
+                // were cut to "Minimum pri…" / "Bargain (override …" at 360 px
+                MoneyField(controller: _cost, label: t.biz_cost_price),
+                const SizedBox(height: Gap.md),
+                MoneyField(
+                    controller: _min,
+                    label: t.biz_min_price,
+                    helper: t.biz_price_override),
               ],
               const SizedBox(height: Gap.md),
               TextFormField(
@@ -554,7 +551,7 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2))
-                    : Text(t.biz_cart_add),
+                    : Text(t.save), // was "Add to cart" on the product form
               ),
               const SizedBox(height: Gap.lg),
             ],
@@ -603,7 +600,7 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
         TextButton.icon(
           onPressed: () => setState(() => _variants.add(_VariantDraft())),
           icon: const Icon(Icons.add, size: 18),
-          label: Text(t.biz_cart_add),
+          label: Text(t.shopQaAddVariant),
         ),
       ]),
       for (int i = 0; i < _variants.length; i++) ...[

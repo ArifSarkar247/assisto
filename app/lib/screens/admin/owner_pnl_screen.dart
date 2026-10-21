@@ -398,8 +398,8 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
             Text(
               atBreakEven
                   ? t.pnlBreakEvenReached
-                  : t.pnlBreakEvenBody(
-                      fmtInt(context, users), taka(context, adRev)),
+                  : t.pnlBreakEvenBody( // (adrev, users) per signature
+                      taka(context, adRev), fmtInt(context, users)),
               style: TextStyle(
                   fontSize: 12.5,
                   color: scheme.onSurfaceVariant,
@@ -449,7 +449,7 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
           ]),
           const SizedBox(height: 4),
           Text(
-            t.pnlRevCost(taka(context, rev), taka(context, cost)),
+            t.pnlRevCost(taka(context, cost), taka(context, rev)), // (cost, rev)
             style: TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant),
           ),
         ]),

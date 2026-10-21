@@ -1033,3 +1033,9 @@ Future<void> _showTagadaShare(BuildContext context, Map<String, dynamic> party,
     ),
   );
 }
+
+/// Gallery/preview access to the private entry sheet (screenshot harness).
+@visibleForTesting
+Widget khataEntrySheetPreview(Map<String, dynamic> business,
+        {int partyId = 1, String book = 'customer', bool isDue = true}) =>
+    _EntrySheet(business: business, partyId: partyId, book: book, isDue: isDue);

@@ -304,7 +304,9 @@ String monthLabel(BuildContext context, String iso) {
     t.monthJul, t.monthAug, t.monthSep, t.monthOct, t.monthNov, t.monthDec,
   ];
   final name = (m >= 1 && m <= 12) ? names[m - 1] : '';
-  return '$name ${fmtInt(context, y)}';
+  // a year is not a quantity: no thousands separator ("2,026" was shown).
+  // fmtInt still localises the digits; strip its grouping comma.
+  return '$name ${fmtInt(context, y).replaceAll(',', '')}';
 }
 
 // ---------------------------------------------------------------- shared UI

@@ -70,3 +70,34 @@ Shots: `/tmp/claude-1000/-home-ubuntu-assisto/ea8a0e54-3e29-4bc2-a831-7f9d2da14c
 
 States also rendered: `crm_leads_empty`, `biz_orders_error` — both clean.
 New ARB keys this batch: `shopQaOneDay`, `shopQaLoadFailedBody`, `shopQaPleaseCheck` (the ARB file now holds 147 keys).
+
+## Batch 3: data stubs, sheets/dialogs, and the ARB arg-order bug (17 renders)
+
+Shots: `/tmp/claude-1000/-home-ubuntu-assisto/ea8a0e54-3e29-4bc2-a831-7f9d2da14cc0/scratchpad/qc` (1.0× and `_s1.4`).
+
+| Screen (gallery name) | Before → After | What was fixed |
+|---|---|---|
+| Money Wrapped with data (`money_wrapped_data`) | not renderable → 9 | Added a FakeApi `/money/wrapped` stub (story cards, steady_balancer persona). Clean at both scales. |
+| Money Wrapped, thin month (`money_wrapped_thin`) | 9 | The honest "not enough data yet (2 of 5)" state. |
+| CRM lead detail with data (`crm_lead_full`) | error only → 9 | Added lead + timeline stubs. "WhatsApp" was cut to "Wh…" in the 3-button row; the buttons are now icon-over-label and shrink to fit. The FAB covered the Won/Lost buttons; the list now has 96 px bottom padding. "Won — ERP হ্যান্ড-অফ" (mixed bn) is now "জয় — ইআরপি-তে হস্তান্তর" via a screen-local key. *Left as is:* the server's machine-format score reason ("industry_fit=25 + …"). |
+| CRM proposals (`crm_proposal`) | 7 → 9 | The status chip showed the raw code "draft"; all 7 proposal states are now localized. |
+| Product new/edit sheet (`sheet_product_new/edit/staff`) | 5 → 9 | The save button said **"Add to cart"**; it now says "Save". The add-variant button also said "Add to cart"; it now says "Add variant". "Minimum pri…" and its helper "Bargain (override …" were cut at 1.0×: cost and minimum price are now stacked, and MoneyField helpers wrap to 2 lines (shared). |
+| Customer sheet (`sheet_customer_new/edit`) | 9 | No change needed. |
+| Khata due / payment sheet (`sheet_khata_due/payment`) | 9 | No change needed. Gallery access is via `khataEntrySheetPreview` (@visibleForTesting). |
+| Sale void dialog (`dialog_sale_void`) | 8 → 9 | The dialog is now a widget (`SaleVoidDialog`). Confirm stays disabled until a reason is typed, instead of erroring after the tap. The helper was cut at 1.4×; it now wraps. |
+| House rent (`landlord`, seeded) | 6 → 9 | **ARB arg-order bug made visible:** "3 paid · 2 partial · 1 due" (with seeded 3/2/1 units) and "৳5,000 of ৳15,000 paid" now render correctly. The ExpansionTile sat on a tinted box (**debug assertion**: ink invisible; this is why the gallery shot failed), so it is now wrapped in `Material(transparency)`. The month header showed "October **2,026**" (year grouped like a quantity); fixed in the shared `monthLabel`. |
+| AI spending insights (`spending`, seeded) | 6 → 9 | **ARB arg-order bug:** all 6 observations (`spendObsTopCategory/MomUp/MomDown/MoverUp/MoverDown/OverBudget`) now read correctly in bn and en (e.g. "Food is ৳10.00 over your ৳80.00 budget"). Verified on the rendered shot. |
+
+### ARB arg-order fixes (callers only; ARB metadata untouched)
+gen-l10n orders parameters by the @metadata placeholder order, not the text
+order. Fixed call sites in Business + Money scope:
+plMsgReceivable, plMsgPayable (payment_ladder) · splitPaidBySplit
+(expense_split) · samityRecordPayoutBody (samity) · rentStatusCounts,
+rentBillPaid (landlord) · staffDaysPresent (domestic_staff) · spendObsTopCategory,
+spendObsMomUp, spendObsMomDown, spendObsMoverUp, spendObsMoverDown,
+spendObsOverBudget (spending_advice) · pnlRevCost, pnlBreakEvenBody
+(owner_pnl) · camSentPartial (camera_send_sheet).
+The guard test `app/test/a2_arb_arg_order_test.dart` pins all 16 signatures with
+exact output strings. **Seen on rendered shots:** landlord and spending.
+**Not shown on a rendered shot:** the other 5 screens/sheets only render empty
+states in the gallery, so those fixes are covered by the guard test only.

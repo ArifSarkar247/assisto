@@ -12,42 +12,12 @@ import '../../state.dart';
 /// Voided sales stay in history as VOID and drop out of every report.
 Future<bool> showSaleVoidDialog(BuildContext context, int saleId) async {
   final t = AppLocalizations.of(context);
-  final reason = TextEditingController();
-  final ok = await showDialog<bool>(
+  final text = await showDialog<String>(
     context: context,
-    builder: (ctx) => AlertDialog(
-      title: Text(t.shopVoidTitle),
-      content: Column(mainAxisSize: MainAxisSize.min, children: [
-        Text(t.shopVoidBody, style: const TextStyle(height: 1.4)),
-        const SizedBox(height: 12),
-        TextField(
-          controller: reason,
-          autofocus: true,
-          maxLength: 200,
-          decoration: InputDecoration(
-              labelText: t.shopVoidReason, border: const OutlineInputBorder()),
-        ),
-      ]),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
-        FilledButton(
-          style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(ctx).colorScheme.error,
-              foregroundColor: Theme.of(ctx).colorScheme.onError),
-          onPressed: () => Navigator.pop(ctx, true),
-          child: Text(t.shopVoidConfirm),
-        ),
-      ],
-    ),
+    builder: (_) => const SaleVoidDialog(),
   );
-  final text = reason.text.trim();
-  reason.dispose();
-  if (ok != true || !context.mounted) return false;
+  if (text == null || !context.mounted) return false;
   final messenger = ScaffoldMessenger.of(context);
-  if (text.length < 2) {
-    messenger.showSnackBar(SnackBar(content: Text(t.shopVoidReasonNeeded)));
-    return false;
-  }
   try {
     final r = await context.read<AppState>().api.shopVoidSale(saleId, text);
     final note = (r['note'] ?? '').toString();
@@ -60,4 +30,60 @@ Future<bool> showSaleVoidDialog(BuildContext context, int saleId) async {
     messenger.showSnackBar(SnackBar(content: Text(t.shopVoidFailed)));
   }
   return false;
+}
+
+/// The reason dialog. Pops the trimmed reason, or nothing on cancel. The
+/// confirm button stays disabled until a reason is written (no empty voids,
+/// and no "reason needed" error after the fact).
+class SaleVoidDialog extends StatefulWidget {
+  const SaleVoidDialog({super.key});
+  @override
+  State<SaleVoidDialog> createState() => _SaleVoidDialogState();
+}
+
+class _SaleVoidDialogState extends State<SaleVoidDialog> {
+  final _reason = TextEditingController();
+
+  @override
+  void dispose() {
+    _reason.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final ok = _reason.text.trim().length >= 2;
+    return AlertDialog(
+      icon: Icon(Icons.block, color: scheme.error),
+      title: Text(t.shopVoidTitle),
+      content: SingleChildScrollView(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Text(t.shopVoidBody, style: const TextStyle(height: 1.4)),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _reason,
+            autofocus: true,
+            maxLength: 200,
+            onChanged: (_) => setState(() {}),
+            decoration: InputDecoration(
+                labelText: t.shopVoidReason,
+                helperText: t.shopVoidReasonNeeded,
+                helperMaxLines: 2,
+                border: const OutlineInputBorder()),
+          ),
+        ]),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(t.cancel)),
+        FilledButton(
+          style: FilledButton.styleFrom(
+              backgroundColor: scheme.error, foregroundColor: scheme.onError),
+          onPressed: ok ? () => Navigator.pop(context, _reason.text.trim()) : null,
+          child: Text(t.shopVoidConfirm),
+        ),
+      ],
+    );
+  }
 }

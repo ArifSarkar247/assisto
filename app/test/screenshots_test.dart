@@ -129,6 +129,9 @@ import 'package:assisto/screens/crm/crm_reports_screen.dart';
 import 'package:assisto/screens/crm/crm_lead_detail_screen.dart';
 import 'package:assisto/screens/crm/crm_home_screen.dart';
 import 'package:assisto/screens/money_import_screen.dart';
+import 'package:assisto/screens/crm/crm_proposal_screen.dart';
+import 'package:assisto/screens/business/selling_common.dart' show SellRole;
+import 'package:assisto/screens/business/sale_void_dialog.dart';
 import 'package:assisto/screens/business_screen.dart';
 import 'package:assisto/screens/inbox_screen.dart';
 import 'package:assisto/screens/guide_screen.dart';
@@ -473,6 +476,19 @@ void main() {
     'shop_report': (build: (_) => const ShopBoxScreen(initialTab: 3), mode: FakeMode.data, full: true),
     'crm_leads_empty': (build: (_) => Scaffold(appBar: AppBar(title: const Text('CRM')), body: const CrmLeadsScreen(org: 1)), mode: FakeMode.empty, full: false),
     'biz_orders_error': (build: (_) => const OrdersScreen(), mode: FakeMode.fail, full: false),
+    // a2-cctv Premium QA batch 3 (data stubs + sheets/dialogs)
+    'money_wrapped_data': (build: (_) => const MoneyWrappedScreen(), mode: FakeMode.data, full: true),
+    'money_wrapped_thin': (build: (_) => const MoneyWrappedScreen(), mode: FakeMode.empty, full: false),
+    'crm_lead_full': (build: (_) => const CrmLeadDetailScreen(org: 1, leadId: 1), mode: FakeMode.data, full: true),
+    'crm_proposal': (build: (l) => CrmProposalScreen(org: 1, lead: {'id': 1, 'name': l == 'bn' ? 'করিম গার্মেন্টস' : 'Karim Garments', 'company': 'Karim Garments Ltd'}), mode: FakeMode.data, full: true),
+    'sheet_product_new': (build: (_) => const Scaffold(body: SafeArea(child: ProductEditSheet(businessId: 1, role: SellRole('owner')))), mode: FakeMode.data, full: true),
+    'sheet_product_edit': (build: (l) => Scaffold(body: SafeArea(child: ProductEditSheet(businessId: 1, role: const SellRole('owner'), product: {'id': 1, 'name': l == 'bn' ? 'পাঞ্জাবি' : 'Panjabi', 'category': l == 'bn' ? 'পোশাক' : 'Clothing', 'sku': 'PJ-01', 'barcode': '', 'description': '', 'variants': [{'key': '__base__', 'size': '', 'colour': '', 'sell_price': 120000, 'cost_price': 80000, 'min_price': 100000, 'stock': 8, 'barcode': '', 'low_stock_at': 3}]}))), mode: FakeMode.data, full: true),
+    'sheet_product_staff': (build: (_) => const Scaffold(body: SafeArea(child: ProductEditSheet(businessId: 1, role: SellRole('staff')))), mode: FakeMode.data, full: false),
+    'sheet_customer_new': (build: (_) => const Scaffold(body: SafeArea(child: CustomerEditSheet(businessId: 1))), mode: FakeMode.data, full: true),
+    'sheet_customer_edit': (build: (l) => Scaffold(body: SafeArea(child: CustomerEditSheet(businessId: 1, customer: {'id': 1, 'name': l == 'bn' ? 'নাদিয়া' : 'Nadia', 'phone': '01712345678', 'area': l == 'bn' ? 'মিরপুর' : 'Mirpur', 'address': '', 'notes': '', 'vip': true}))), mode: FakeMode.data, full: true),
+    'sheet_khata_due': (build: (l) => Scaffold(body: SafeArea(child: khataEntrySheetPreview({'id': 1, 'name': 'X', 'role': 'owner'}))), mode: FakeMode.data, full: true),
+    'sheet_khata_payment': (build: (l) => Scaffold(body: SafeArea(child: khataEntrySheetPreview({'id': 1, 'name': 'X', 'role': 'owner'}, isDue: false))), mode: FakeMode.data, full: true),
+    'dialog_sale_void': (build: (_) => const Scaffold(body: Center(child: SaleVoidDialog())), mode: FakeMode.data, full: true),
     // a2-cctv: Shop Box (CCTV Part 4) — Business plan stubbed in FakeApi
     'shop_box': (build: (_) => const ShopBoxScreen(), mode: FakeMode.data, full: true),
     'shop_eod': (build: (_) => const ShopEodScreen(siteId: 1), mode: FakeMode.data, full: true),

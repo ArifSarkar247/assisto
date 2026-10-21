@@ -35,6 +35,31 @@ class FakeApi extends ApiClient {
   Future<List<Map<String, dynamic>>> listItems(String path) async {
     await _slow();
     if (path.startsWith('crm/')) return _crmList(path);
+    // a2-cctv QA batch 3: seeded rows so arg-order fixes are visible on screen
+    if (path == 'spending/notes') {
+      final b = _bn;
+      return _maybe([
+        {'id': 1, 'category': b ? 'খাবার' : 'Food', 'amount': 9000, 'budget': 8000, 'previous': 6000},
+        {'id': 2, 'category': b ? 'যাতায়াত' : 'Transport', 'amount': 2500, 'budget': 4000, 'previous': 3000},
+        {'id': 3, 'category': b ? 'বিল' : 'Bills', 'amount': 1500, 'previous': 1500},
+      ]);
+    }
+    if (path == 'rent_units' || path == 'rent_payments') {
+      final now = DateTime.now();
+      final m = '${now.year}-${now.month.toString().padLeft(2, '0')}';
+      // 3 paid, 2 partial, 1 due: distinct counts make a swap visible
+      if (path == 'rent_units') {
+        return _maybe([
+          for (var i = 1; i <= 6; i++)
+            {'id': i, 'label': '${_bn ? 'ফ্ল্যাট' : 'Flat'} ${i}A', 'tenant_name': _bn ? 'ভাড়াটিয়া $i' : 'Tenant $i', 'rent_poisha': 1500000, 'active': true},
+        ]);
+      }
+      return _maybe([
+        for (var i = 1; i <= 3; i++) {'id': i, 'unit_id': i, 'month': m, 'paid_poisha': 1500000},
+        {'id': 4, 'unit_id': 4, 'month': m, 'paid_poisha': 500000},
+        {'id': 5, 'unit_id': 5, 'month': m, 'paid_poisha': 1000000},
+      ]);
+    }
     switch (path) {
       case 'subscriptions':
         return _maybe([
@@ -1142,6 +1167,38 @@ class FakeApi extends ApiClient {
     }
     if (path.startsWith('/circle/') || path.startsWith('/journey/') || path.startsWith('/referral/')) {
       return const {}; // unmatched build-61 GET -> empty, never throw in gallery
+    }
+    // ===== a2-cctv QA batch 3: CRM lead detail + Money Wrapped =====
+    if (RegExp(r'^/crm/leads/\d+/?$').hasMatch(path)) {
+      if (mode == FakeMode.fail) _fail();
+      return _crmLeads().first;
+    }
+    if (RegExp(r'^/crm/leads/\d+/timeline/?$').hasMatch(path)) {
+      final b = _bn;
+      return {
+        'insight': b ? 'গ্রাহক দাম নিয়ে প্রশ্ন করেছেন — একটি ডেমো প্রস্তাব করুন।' : 'The customer asked about price — offer a demo.',
+        'messages': [
+          {'direction': 'in', 'sentiment': 'positive', 'text': b ? 'ভ্যাট রিপোর্ট সহ ইআরপি দরকার, দাম কত?' : 'We need ERP with VAT reports, what is the price?'},
+          {'direction': 'out', 'sentiment': 'neutral', 'text': b ? 'আগামী সপ্তাহে একটি ডেমো দেখাতে পারি।' : 'We can show you a demo next week.'},
+        ],
+        'activities': [
+          {'kind': 'call', 'kind_display': b ? 'কল' : 'Call', 'subject': b ? 'প্রথম কল' : 'Intro call', 'body': b ? 'বাজেট ৳৫-১০ লাখ' : 'Budget ৳5-10L', 'created_at': '2026-10-12T10:00:00'},
+        ],
+      };
+    }
+    if (path.startsWith('/money/wrapped')) {
+      if (mode == FakeMode.fail) _fail();
+      if (mode == FakeMode.empty) return {'enough_data': false, 'min_txns': 5, 'txn_count': 2, 'month': '2026-09'};
+      return {
+        'enough_data': true, 'month': '2026-09', 'txn_count': 64, 'category_count': 7,
+        'total_spent': 18450, 'total_earned': 35000, 'total_saved': 16550, 'savings_rate': 47,
+        'top_category': _bn ? 'খাবার' : 'Food', 'top_category_amount': 6400,
+        'biggest_expense': {'category': _bn ? 'বাজার' : 'Groceries', 'amount': 3200, 'date': '2026-09-14'},
+        'spend_trend': {'has_previous': true, 'up': false, 'pct': 12, 'delta': -2500},
+        'no_spend_days': 6, 'days_in_scope': 30,
+        'busiest_day': {'date': '2026-09-14', 'amount': 4100},
+        'personality': 'steady_balancer',
+      };
     }
     // ===== a2-cctv: Shop Box (CCTV Part 4) GET stubs =====
     final shop = _shopGet(path);

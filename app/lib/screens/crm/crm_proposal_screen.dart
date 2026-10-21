@@ -183,12 +183,27 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
         ]),
       );
 
+  // server status codes -> the user's language (was the raw "draft")
+  String _statusLabel(String s) {
+    final t = AppLocalizations.of(context);
+    switch (s) {
+      case 'draft': return t.shopQaPropDraft;
+      case 'pending': return t.shopQaPropPending;
+      case 'approved': return t.shopQaPropApproved;
+      case 'sent': return t.shopQaPropSent;
+      case 'viewed': return t.shopQaPropViewed;
+      case 'accepted': return t.shopQaPropAccepted;
+      case 'declined': return t.shopQaPropDeclined;
+      default: return s;
+    }
+  }
+
   Widget _statusChip(String status) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(color: scheme.secondaryContainer, borderRadius: BorderRadius.circular(999)),
-      child: Text(status, style: TextStyle(fontSize: 11, color: scheme.onSecondaryContainer, fontWeight: FontWeight.w700)),
+      child: Text(_statusLabel(status), style: TextStyle(fontSize: 11, color: scheme.onSecondaryContainer, fontWeight: FontWeight.w700)),
     );
   }
 }

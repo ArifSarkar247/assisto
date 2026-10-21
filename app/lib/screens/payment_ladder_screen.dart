@@ -163,8 +163,9 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
       final party = '${row['party'] ?? ''}';
       final amount = taka(context, outstandingPoisha(row));
       final msg = _kind == kKindReceivable
-          ? t.plMsgReceivable(party, amount)
-          : t.plMsgPayable(party, amount);
+          // (amount, party): generated signature order
+          ? t.plMsgReceivable(amount, party)
+          : t.plMsgPayable(amount, party);
       await showModalBottomSheet<void>(
         context: context,
         builder: (_) => _SharePreview(

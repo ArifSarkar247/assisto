@@ -495,7 +495,7 @@ class _PersonDetailScreenState extends State<_PersonDetailScreen> {
                   _StaffMath.fmtPoisha(m.repay.toDouble())),
             if (m.presentDays != null)
               _kv(context, tr.staffAttendance,
-                  tr.staffDaysPresent(m.presentDays!, m.monthDays ?? 30)),
+                  tr.staffDaysPresent(m.monthDays ?? 30, m.presentDays!)), // (month, present)
           ]),
         ]),
       ),

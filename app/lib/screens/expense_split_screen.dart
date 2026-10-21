@@ -331,8 +331,8 @@ class _ExpensesTab extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis),
                       subtitle: Text(
-                        tr.splitPaidBySplit(
-                            nameOf(e['payer']), _modeLabel(tr, mode)),
+                        tr.splitPaidBySplit( // (mode, name) per signature
+                            _modeLabel(tr, mode), nameOf(e['payer'])),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
