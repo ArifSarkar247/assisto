@@ -28,4 +28,7 @@ urlpatterns = [
     path("made30/card.png", views.made30_card),
 
     path("wrapped/card.png", views.wrapped_card),
+
+    # m3-circle: My Circle invite link landing (QR / share / SMS)
+    path("i/<str:token>", views.circle_invite),
 ]

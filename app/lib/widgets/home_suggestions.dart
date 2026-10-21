@@ -18,8 +18,8 @@ import 'chatnav.dart';
 ///
 /// SERVER-DRIVEN (d1-discover): cards come from `GET /discover/cards`, managed
 /// by the owner in Settings -> Discover manager. The server decides who sees
-/// what (plan, audience, dates, min build; Premium/Business never receive
-/// sponsored or AdMob cards). The app:
+/// what (plan, audience, dates, min build; sponsored cards reach every plan,
+/// AdMob cards only Free users). The app:
 ///   * shows the LAST server set from cache first (works offline),
 ///   * refreshes from the server in the background and re-caches,
 ///   * uses the built-in list below ONLY on first run (no cache, no network),

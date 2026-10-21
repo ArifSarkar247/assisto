@@ -152,7 +152,10 @@ class ChatNav {
     // Photo Studio, so every save goes through the same ad/credit rule.
     'photo_enhance': (_) => const PhotoStudioScreen(),
     'photo_studio': (_) => const PhotoStudioScreen(), // ps1-photo
-    'circle': (_) => const CircleScreen(),
+    // m3-circle: "My Circle" IS the Messenger hub (drawer + home icon open
+    // it); the old circle hub screen stays reachable for groups/status.
+    'circle': (_) => const MessengerHomeScreen(),
+    'circle_add': (_) => const MessengerHomeScreen(startAdd: true),
     // Messenger hub (Step 3): Chats · Updates · Communities · Calls.
     'messages': (_) => const MessengerHomeScreen(),
     'notifications': (_) => const NotificationCentreScreen(),
@@ -258,6 +261,9 @@ class ChatNav {
         'track my phone', 'where is my phone', 'lost mode', 'locate my phone'],
     'recovery': ['recovery help', 'recover phone', 'gd draft',
         'general diary', 'police station', 'sp letter', 'get my phone back'],
+    'circle_add': ['add to my circle', 'add to circle', 'add someone',
+        'add a person', 'add people', 'add friend to circle',
+        'add family to circle'],
     'circle': ['connected circle', 'circle', 'family chat'],
     'messages': ['messages', 'messenger', 'chats', 'direct message', 'dm'],
     'groups': ['groups', 'group chat', 'group'],
@@ -339,6 +345,8 @@ class ChatNav {
   /// by design (handled by the backend `route` field).
   static String? detectRoute(String? text) {
     if (text == null || text.trim().isEmpty) return null;
+    final cmd = commandRoute(text);
+    if (cmd != null) return cmd;
     final t = text.toLowerCase();
     final hasVerb = _openVerbs.any((v) => t.contains(v));
     if (!hasVerb) return null;
@@ -346,6 +354,28 @@ class ChatNav {
       if (e.key.isNotEmpty && t.contains(e.key)) return e.value;
     }
     return null;
+  }
+
+  /// m3-circle: WHOLE-message My Circle commands (no open-verb needed).
+  /// Root cause of the owner's "circle -> no match": a bare "circle" had no
+  /// verb, so it went to the server, which answered it as an ambiguous
+  /// question and never navigated. ASCII only here (language gate); Bangla
+  /// commands resolve server-side (screen_synonyms.resolve_command).
+  static const Set<String> _circleCommands = {
+    'circle', 'my circle', 'connected circle', 'open circle',
+    'open my circle', 'show my circle', 'add someone', 'add to my circle',
+    'add to circle', 'add a person', 'add people',
+  };
+
+  static String? commandRoute(String? text) {
+    final t = (text ?? '')
+        .toLowerCase()
+        .replaceAll(RegExp('[.,!?;:\'"]+'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim()
+        .replaceFirst(RegExp(r'^please '), '')
+        .replaceFirst(RegExp(r' please$'), '');
+    return _circleCommands.contains(t) ? 'circle_add' : null;
   }
 
   /// Push the screen for a canonical [route]. Returns true if a screen existed.

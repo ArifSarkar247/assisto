@@ -212,14 +212,18 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     });
   }
 
-  /// DEBUG-ONLY launch-safety probe. Lets the CI emulator smoke test open one
+  /// SMOKE-ONLY launch-safety probe. Lets the CI emulator smoke test open one
   /// named feature screen (via `am start --es ao_open <route>`) so a real
   /// native plugin (camera / health / device-admin / foreground-service) is
-  /// exercised once on a device. Completely inert in the shipped release APK
-  /// (kDebugMode == false) and when no extra is passed, and it only runs AFTER
-  /// the first frame — never on the cold-start critical path.
+  /// exercised once on a device. Active only in debug builds and in the CI
+  /// x86_64 smoke APK (a release build compiled with --dart-define=
+  /// ASSISTO_SMOKE=true, so release-only R8 bugs are caught). Completely inert
+  /// in the shipped arm64 APK (no define) and when no extra is passed, and it
+  /// only runs AFTER the first frame — never on the cold-start critical path.
+  static const bool _smokeBuild = bool.fromEnvironment('ASSISTO_SMOKE');
+
   Future<void> _maybeSmokeOpen() async {
-    if (!kDebugMode) return;
+    if (!kDebugMode && !_smokeBuild) return;
     try {
       const ch = MethodChannel('com.assisto/device_admin');
       final route = await ch.invokeMethod<String>('aoSmokeOpen');

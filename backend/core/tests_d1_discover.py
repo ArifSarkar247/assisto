@@ -29,11 +29,17 @@ class RulesPureTests(TestCase):
     def ids(self, rows, seg, build=None):
         return [r["id"] for r in D.visible_cards(rows, seg, build, self.now)]
 
-    def test_paid_never_sees_sponsored_or_admob(self):
+    def test_sponsored_reaches_all_plans_admob_free_only(self):
+        # owner decision 21 Oct: SPONSORED -> every plan (audience can narrow);
+        # ADMOB stays Free-only (paid-plan benefit).
         rows = [_row(id=1), _row(id=2, type="SPONSORED", audience="premium"),
                 _row(id=3, type="ADMOB"), _row(id=4, type="SPONSORED")]
-        self.assertEqual(self.ids(rows, "premium"), [1])
-        self.assertEqual(self.ids(rows, "business"), [1])
+        self.assertEqual(self.ids(rows, "premium"), [1, 2, 4])
+        self.assertEqual(self.ids(rows, "business"), [1, 4])
+        self.assertEqual(self.ids(rows, "free"), [1, 4])
+        for r in D.visible_cards(rows, "premium", None, self.now):
+            if r["type"] == "SPONSORED":
+                self.assertEqual(D.label_for(r["type"]), "sponsored")
 
     def test_admob_only_free_and_only_without_sponsor(self):
         rows = [_row(id=1), _row(id=3, type="ADMOB", order=5)]
@@ -176,11 +182,12 @@ class SponsoredFeedTests(_Base):
     def keys(self, user, build=None):
         return [c["key"] for c in self.feed(user, build)]
 
-    def test_premium_business_never_see_paid(self):
+    def test_premium_business_see_sponsored_labelled_never_admob(self):
         for u in (self.prem, self.biz):
-            k = self.keys(u)
-            self.assertNotIn("sp1", k)
-            self.assertNotIn("ad1", k)
+            cards = self.feed(u)
+            sp = next(c for c in cards if c["key"] == "sp1")
+            self.assertEqual(sp["label"], "sponsored")
+            self.assertNotIn("ad1", [c["key"] for c in cards])
 
     def test_free_sees_sponsor_with_label_and_no_admob(self):
         cards = self.feed(self.free)
@@ -334,9 +341,10 @@ class TrackingReportTests(_Base):
         st = DiscoverDailyStat.objects.get(card=self.sp)
         self.assertEqual((st.impressions, st.clicks), (2, 1))
 
-    def test_premium_events_on_sponsored_ignored(self):
-        self.assertEqual(self.track(self.prem, "impression").data["counted"], 0)
-        self.assertFalse(DiscoverDailyStat.objects.filter(card=self.sp).exists())
+    def test_premium_events_on_sponsored_counted(self):
+        # sponsored cards now reach Premium too, so their views count for the sponsor
+        self.assertEqual(self.track(self.prem, "impression").data["counted"], 1)
+        self.assertTrue(DiscoverDailyStat.objects.filter(card=self.sp).exists())
 
     def test_bad_payload_is_200(self):
         self.client.force_authenticate(self.free)
