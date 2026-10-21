@@ -1,0 +1,580 @@
+{
+ "en": {
+  "vehTrackingTitle": "Live tracking",
+  "vehGuideTrackingNow": "Assisto live tracking works with GT06 and Teltonika GPS trackers that have their own SIM. Pair yours from Live tracking.",
+  "vehHonestHardware": "Live tracking needs a GPS tracker with its own SIM, fitted in the vehicle. A phone or car stereo alone can't follow a parked vehicle.",
+  "vehEmptyTitle": "No tracker yet",
+  "vehEmptyBody": "Pair a GT06 or Teltonika tracker to see your vehicle live, its trips and alerts.",
+  "vehLoadError": "Couldn't load tracking. Check your internet and try again.",
+  "vehPairCta": "Pair tracker",
+  "vehUnnamedTracker": "My vehicle",
+  "vehSharedWithYou": "Shared",
+  "vehStatePending": "Waiting for the tracker to connect",
+  "vehStateExpired": "Pairing time ran out",
+  "vehStateUnpaid": "Paused — not enough credits",
+  "vehStateOff": "Turned off",
+  "vehOfflineSince": "Offline · last seen {ago}",
+  "@vehOfflineSince": {
+   "placeholders": {
+    "ago": {
+     "type": "String"
+    }
+   }
+  },
+  "vehMovingAt": "Moving · {speed} km/h",
+  "@vehMovingAt": {
+   "placeholders": {
+    "speed": {
+     "type": "String"
+    }
+   }
+  },
+  "vehParked": "Parked",
+  "vehPendingBody": "Switch the tracker on and send it the setup SMS. It must connect before {time}.",
+  "@vehPendingBody": {
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "vehExpiredBody": "The tracker didn't connect in time. Tap Pair tracker and enter the same IMEI to try again.",
+  "vehPairTitle": "Pair a tracker",
+  "vehPairBody": "Enter the 15-digit IMEI printed on the tracker or its box. The tracker must then connect to Assisto within a few minutes — that proves it's yours.",
+  "vehImeiLabel": "Tracker IMEI",
+  "vehImeiHelp": "15 digits. Usually on a sticker on the tracker.",
+  "vehNameLabel": "Name (e.g. Family car)",
+  "vehLinkVehicle": "Link to one of My Vehicles",
+  "vehLinkNone": "Don't link",
+  "vehProtocolLabel": "Tracker type",
+  "vehProtocolAuto": "Detect",
+  "vehMonthlyCost": "Tracking costs {credits} credits a month per vehicle, charged when the tracker first connects.",
+  "@vehMonthlyCost": {
+   "placeholders": {
+    "credits": {
+     "type": "String"
+    }
+   }
+  },
+  "vehPairSubmit": "Start pairing",
+  "vehPairWaitingTitle": "Now switch the tracker on",
+  "vehSetupSmsTitle": "Setup SMS to send to the tracker's SIM",
+  "vehSetupSmsNote": "Some trackers need a password before the command — check its manual. Tracker data travels over plain TCP (these devices can't encrypt); Assisto only accepts trackers you paired, and the app itself always uses HTTPS.",
+  "vehCopy": "Copy",
+  "vehCopied": "Copied",
+  "vehDone": "Done",
+  "vehSettingsTitle": "Tracker settings",
+  "vehFixAge": "Location updated {ago}",
+  "@vehFixAge": {
+   "placeholders": {
+    "ago": {
+     "type": "String"
+    }
+   }
+  },
+  "vehSpeed": "Speed",
+  "vehIgnition": "Ignition",
+  "vehBattery": "Battery",
+  "vehUnknown": "Unknown",
+  "vehOn": "On",
+  "vehOff": "Off",
+  "vehKmh": "{value} km/h",
+  "@vehKmh": {
+   "placeholders": {
+    "value": {
+     "type": "String"
+    }
+   }
+  },
+  "vehKm": "{value} km",
+  "@vehKm": {
+   "placeholders": {
+    "value": {
+     "type": "String"
+    }
+   }
+  },
+  "vehVolts": "{value} V",
+  "@vehVolts": {
+   "placeholders": {
+    "value": {
+     "type": "String"
+    }
+   }
+  },
+  "vehCelsius": "{value} °C",
+  "@vehCelsius": {
+   "placeholders": {
+    "value": {
+     "type": "String"
+    }
+   }
+  },
+  "vehPercent": "{value}%",
+  "@vehPercent": {
+   "placeholders": {
+    "value": {
+     "type": "String"
+    }
+   }
+  },
+  "vehMeters": "{value} m",
+  "@vehMeters": {
+   "placeholders": {
+    "value": {
+     "type": "String"
+    }
+   }
+  },
+  "vehOpenMaps": "Open in Maps",
+  "vehRoute24h": "Last 24 hours",
+  "vehMapSemantics": "Route map of the last 24 hours, {km} km",
+  "@vehMapSemantics": {
+   "placeholders": {
+    "km": {
+     "type": "String"
+    }
+   }
+  },
+  "vehNoRoute": "No movement in the last 24 hours",
+  "vehPlay": "Play route",
+  "vehPause": "Pause",
+  "vehPlaySpeed": "Playback speed",
+  "vehPlaybackAt": "{time} · {speed}",
+  "@vehPlaybackAt": {
+   "placeholders": {
+    "time": {
+     "type": "String"
+    },
+    "speed": {
+     "type": "String"
+    }
+   }
+  },
+  "vehTripsToday": "Trips",
+  "vehDistance": "Distance",
+  "vehTrips": "Trips",
+  "vehDriving": "Driving time",
+  "vehTopSpeed": "Top speed",
+  "vehNoTrips": "No trips in the last 24 hours.",
+  "vehNightTrip": "at night",
+  "vehDurHm": "{h} h {m} min",
+  "@vehDurHm": {
+   "placeholders": {
+    "h": {
+     "type": "String"
+    },
+    "m": {
+     "type": "String"
+    }
+   }
+  },
+  "vehDurM": "{m} min",
+  "@vehDurM": {
+   "placeholders": {
+    "m": {
+     "type": "String"
+    }
+   }
+  },
+  "vehNever": "never",
+  "vehJustNow": "just now",
+  "vehMinAgo": "{n} min ago",
+  "@vehMinAgo": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "vehHourAgo": "{n} h ago",
+  "@vehHourAgo": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "vehEngineTitle": "Remote engine cut-off",
+  "vehRelayUnknown": "Relay state not reported yet",
+  "vehRelayCut": "Engine is cut (reported by the tracker)",
+  "vehRelayNormal": "Engine can start normally",
+  "vehEngineRules": "Works only if an installer wired the tracker's relay. For safety, Assisto cuts the engine only when the vehicle is stopped or under 5 km/h with a fresh location, and asks for your Security PIN. Restoring is always allowed.",
+  "vehCutCta": "Cut engine",
+  "vehRestoreCta": "Restore engine",
+  "vehCutConfirmTitle": "Cut the engine?",
+  "vehCutConfirmBody": "The vehicle won't start until you restore it. Assisto will refuse if the vehicle is moving.",
+  "vehRestoreConfirmTitle": "Restore the engine?",
+  "vehRestoreConfirmBody": "The vehicle will be able to start again.",
+  "vehCmdQueued": "Sent to the server. Waiting for the tracker to confirm.",
+  "vehCmdAwaitingApproval": "Waiting for your family approver to approve.",
+  "vehRecentCommands": "Recent commands",
+  "vehCmdStAwaiting": "waiting for approval",
+  "vehCmdStQueued": "waiting to send",
+  "vehCmdStSent": "sent, waiting for tracker",
+  "vehCmdStAcked": "confirmed by tracker",
+  "vehCmdStFailed": "tracker reported a problem",
+  "vehCmdStNoReply": "no reply from tracker — please check the vehicle",
+  "vehCmdStCancelled": "cancelled",
+  "vehCmdStExpired": "expired",
+  "vehAiTitle": "Unusual trips",
+  "vehAiBody": "Check the last 24 hours for night trips, very long trips or high speed.",
+  "vehAiCta": "Check trips",
+  "vehAiByAi": "Summary written by Assisto AI.",
+  "vehAiNoKey": "AI isn't available right now, so this is a simple rule-based summary.",
+  "vehAiNothing": "Nothing unusual, so no AI credits were used.",
+  "vehObdTitle": "Car health (OBD)",
+  "vehObdSubtitle": "Engine temperature, battery and trouble codes",
+  "vehObdFromTracker": "From your 4G tracker",
+  "vehObdTrackerNone": "This tracker hasn't sent any OBD data. Only OBD-capable trackers plugged into the car's OBD port report it.",
+  "vehObdBtTitle": "Bluetooth OBD dongle (ELM327)",
+  "vehObdBtBody": "Plug the dongle into the OBD port under the dashboard, switch the ignition on, and pair it once in your phone's Bluetooth settings.",
+  "vehBtRead": "Read dongle",
+  "vehBtReading": "Reading…",
+  "vehBtOff": "Bluetooth is off. Turn it on and try again.",
+  "vehBtNoPermission": "Allow Nearby devices permission to talk to the dongle.",
+  "vehBtUnavailable": "Bluetooth OBD isn't available on this device or app version.",
+  "vehBtNoPaired": "No paired Bluetooth devices. Pair the ELM327 dongle in phone settings first (PIN is often 1234).",
+  "vehBtPick": "Choose the OBD dongle",
+  "vehBtConnectFailed": "Couldn't connect to the dongle. Check it's plugged in and the ignition is on.",
+  "vehBtNoAnswer": "The dongle didn't answer. It may not be an ELM327-compatible dongle.",
+  "vehCoolant": "Engine temperature",
+  "vehFuel": "Fuel level",
+  "vehRpm": "Engine RPM",
+  "vehNotSupported": "Not supported",
+  "vehDtcTitle": "Trouble codes",
+  "vehNoDtc": "No stored trouble codes",
+  "vehObdHonest": "Codes show which system the car's computer flagged — a mechanic should confirm. Many cars don't report fuel level. Reading codes never clears them.",
+  "vehCarModeTitle": "Car Mode",
+  "vehCarNavigate": "Navigate",
+  "vehCarVoice": "Voice assistant",
+  "vehCarStartTrip": "Start trip log",
+  "vehCarStopTrip": "Stop & save trip",
+  "vehCarDashcam": "Dashcam",
+  "vehCarLogging": "Logging trip · {count} points · {speed}",
+  "@vehCarLogging": {
+   "placeholders": {
+    "count": {
+     "type": "String"
+    },
+    "speed": {
+     "type": "String"
+    }
+   }
+  },
+  "vehCarTripSaved": "Trip saved",
+  "vehCarTooShort": "Trip too short to save.",
+  "vehCarGpsOff": "Location is off. Turn it on to log trips.",
+  "vehCarGpsDenied": "Location permission is needed to log trips.",
+  "vehCarNavTitle": "Where to?",
+  "vehCarNavHint": "Place or address",
+  "vehCarNavGo": "Go",
+  "vehCarNoMaps": "No maps app found.",
+  "vehCarHonest": "Car Mode logs trips only while this screen is open. A car stereo is off when the car is parked, so it can't replace a hardware tracker for theft protection.",
+  "vehFleetTitle": "Fleet dashboard",
+  "vehFleetBusinessTitle": "Fleet dashboard is a Business feature",
+  "vehSeePlans": "See plans",
+  "vehFleetVehicles": "Vehicles",
+  "vehFleetOnline": "Online",
+  "vehFleetMoving": "Moving now",
+  "vehFleetKmToday": "Distance today",
+  "vehFleetAlerts": "{count} alerts today — please check",
+  "@vehFleetAlerts": {
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "vehAlertsSection": "Alerts",
+  "vehSpeedLimitOff": "Over-speed alert: off",
+  "vehSpeedLimitOn": "Alert above {value} km/h",
+  "@vehSpeedLimitOn": {
+   "placeholders": {
+    "value": {
+     "type": "String"
+    }
+   }
+  },
+  "vehNightAlert": "Alert if started at night",
+  "vehNightWindow": "Night is {start} – {end}",
+  "@vehNightWindow": {
+   "placeholders": {
+    "start": {
+     "type": "String"
+    },
+    "end": {
+     "type": "String"
+    }
+   }
+  },
+  "vehNightFrom": "From {time}",
+  "@vehNightFrom": {
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "vehNightTo": "To {time}",
+  "@vehNightTo": {
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "vehFencesSection": "Areas (geofence)",
+  "vehFencesEmpty": "No areas yet. You'll get an alert when the vehicle enters or leaves one.",
+  "vehFenceAddHere": "Add an area around the vehicle",
+  "vehFenceAddTitle": "New area",
+  "vehFenceAddBody": "The area is centred on the vehicle's current location.",
+  "vehFenceName": "Area name",
+  "vehFenceDefaultName": "Home",
+  "vehFenceRadius": "Radius",
+  "vehIntervalSection": "Reporting interval",
+  "vehIntervalMoving": "While moving",
+  "vehIntervalParked": "While parked",
+  "vehEverySec": "Every {s} seconds",
+  "@vehEverySec": {
+   "placeholders": {
+    "s": {
+     "type": "String"
+    }
+   }
+  },
+  "vehIntervalNote": "Sent to the tracker as a command. Not every model accepts it — the tracker's reply shows whether it worked.",
+  "vehApprovalSection": "Family approval",
+  "vehApprovalToggle": "Engine cut needs approval",
+  "vehApprovalBody": "A trusted family member must approve before the command is sent.",
+  "vehApprover": "Approver",
+  "vehSharingSection": "Who can see this vehicle",
+  "vehSharingBody": "Only you, and the people you add here, can see its location.",
+  "vehShareTitle": "Share with family",
+  "vehShareWho": "Family member",
+  "vehShareCanControl": "Can cut / restore engine",
+  "vehShareCanControlBody": "They'll still need their own Security PIN.",
+  "vehShareViewOnly": "Can see location",
+  "vehShareCta": "Add person",
+  "vehShareRevoke": "Remove access",
+  "vehNoCircleMembers": "Add family to My Circle first.",
+  "vehSaved": "Saved",
+  "vehRemoveTitle": "Remove tracker",
+  "vehRemoveBody": "Its location history will be deleted. You can pair it again later.",
+  "vehErrMoving": "The vehicle is moving. For safety, the engine can only be cut when it's stopped.",
+  "vehErrStaleFix": "The last location is too old to be sure the vehicle is stopped. Try again when the tracker reports.",
+  "vehErrNoFix": "No location from the tracker yet.",
+  "vehErrOffline": "The tracker is offline right now.",
+  "vehErrNotPaired": "This tracker isn't paired yet.",
+  "vehErrBusy": "Another engine command is still in progress.",
+  "vehErrBadPin": "Wrong Security PIN.",
+  "vehErrNoPin": "Set an Assisto Security PIN first (Safety → Phone protection).",
+  "vehErrLocked": "Too many wrong PINs. Try again later.",
+  "vehErrBadImei": "That isn't a valid 15-digit IMEI.",
+  "vehErrImeiTaken": "This tracker is already paired to another account. If it's yours, contact support.",
+  "vehErrNoCredits": "Not enough credits for a month of tracking. Add credits first.",
+  "vehErrBusinessOnly": "The fleet dashboard comes with the Business plan.",
+  "vehErrApproverRequired": "Choose an approver from My Circle.",
+  "vehErrNoAccess": "You don't have access to this vehicle.",
+  "vehErrGeneric": "Something went wrong. Please try again."
+ },
+ "bn": {
+  "vehTrackingTitle": "লাইভ ট্র্যাকিং",
+  "vehGuideTrackingNow": "নিজস্ব সিমসহ GT06 ও Teltonika জিপিএস ট্র্যাকারে Assisto লাইভ ট্র্যাকিং কাজ করে। লাইভ ট্র্যাকিং থেকে আপনার ট্র্যাকার যুক্ত করুন।",
+  "vehHonestHardware": "লাইভ ট্র্যাকিংয়ের জন্য গাড়িতে লাগানো নিজস্ব সিমসহ একটি জিপিএস ট্র্যাকার লাগবে। শুধু ফোন বা গাড়ির স্টেরিও দিয়ে পার্ক করা গাড়ি অনুসরণ করা যায় না।",
+  "vehEmptyTitle": "এখনো কোনো ট্র্যাকার নেই",
+  "vehEmptyBody": "গাড়ির লাইভ অবস্থান, যাত্রা ও সতর্কতা দেখতে একটি GT06 বা Teltonika ট্র্যাকার যুক্ত করুন।",
+  "vehLoadError": "ট্র্যাকিং লোড করা যায়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "vehPairCta": "ট্র্যাকার যুক্ত করুন",
+  "vehUnnamedTracker": "আমার গাড়ি",
+  "vehSharedWithYou": "শেয়ার করা",
+  "vehStatePending": "ট্র্যাকার সংযুক্ত হওয়ার অপেক্ষায়",
+  "vehStateExpired": "যুক্ত করার সময় শেষ",
+  "vehStateUnpaid": "বন্ধ — ক্রেডিট যথেষ্ট নেই",
+  "vehStateOff": "বন্ধ করা আছে",
+  "vehOfflineSince": "অফলাইন · শেষ দেখা {ago}",
+  "vehMovingAt": "চলছে · {speed} কিমি/ঘণ্টা",
+  "vehParked": "পার্ক করা",
+  "vehPendingBody": "ট্র্যাকার চালু করে সেটআপ এসএমএস পাঠান। {time}-এর আগে এটিকে সংযুক্ত হতে হবে।",
+  "vehExpiredBody": "ট্র্যাকার সময়মতো সংযুক্ত হয়নি। আবার চেষ্টা করতে ট্র্যাকার যুক্ত করুন চাপুন ও একই IMEI দিন।",
+  "vehPairTitle": "ট্র্যাকার যুক্ত করুন",
+  "vehPairBody": "ট্র্যাকার বা তার বাক্সে লেখা ১৫ সংখ্যার IMEI দিন। এরপর কয়েক মিনিটের মধ্যে ট্র্যাকারটিকে Assisto-তে সংযুক্ত হতে হবে — এতেই বোঝা যায় এটি আপনার।",
+  "vehImeiLabel": "ট্র্যাকারের IMEI",
+  "vehImeiHelp": "১৫ সংখ্যা। সাধারণত ট্র্যাকারের স্টিকারে থাকে।",
+  "vehNameLabel": "নাম (যেমন: পরিবারের গাড়ি)",
+  "vehLinkVehicle": "আমার গাড়িগুলোর একটির সাথে যুক্ত করুন",
+  "vehLinkNone": "যুক্ত করবেন না",
+  "vehProtocolLabel": "ট্র্যাকারের ধরন",
+  "vehProtocolAuto": "নিজে বুঝে নিক",
+  "vehMonthlyCost": "প্রতি গাড়ির ট্র্যাকিংয়ে মাসে {credits} ক্রেডিট লাগে, ট্র্যাকার প্রথম সংযুক্ত হলে কাটা হয়।",
+  "vehPairSubmit": "যুক্ত করা শুরু করুন",
+  "vehPairWaitingTitle": "এবার ট্র্যাকার চালু করুন",
+  "vehSetupSmsTitle": "ট্র্যাকারের সিমে এই সেটআপ এসএমএস পাঠান",
+  "vehSetupSmsNote": "কিছু ট্র্যাকারে কমান্ডের আগে পাসওয়ার্ড লাগে — ম্যানুয়াল দেখুন। ট্র্যাকারের ডেটা সাধারণ TCP-তে আসে (এসব ডিভাইস এনক্রিপ্ট করতে পারে না); Assisto শুধু আপনার যুক্ত করা ট্র্যাকারই গ্রহণ করে, আর অ্যাপ সবসময় HTTPS ব্যবহার করে।",
+  "vehCopy": "কপি",
+  "vehCopied": "কপি হয়েছে",
+  "vehDone": "ঠিক আছে",
+  "vehSettingsTitle": "ট্র্যাকারের সেটিংস",
+  "vehFixAge": "অবস্থান হালনাগাদ {ago}",
+  "vehSpeed": "গতি",
+  "vehIgnition": "ইগনিশন",
+  "vehBattery": "ব্যাটারি",
+  "vehUnknown": "অজানা",
+  "vehOn": "চালু",
+  "vehOff": "বন্ধ",
+  "vehKmh": "{value} কিমি/ঘণ্টা",
+  "vehKm": "{value} কিমি",
+  "vehVolts": "{value} ভোল্ট",
+  "vehCelsius": "{value} °সে",
+  "vehPercent": "{value}%",
+  "vehMeters": "{value} মিটার",
+  "vehOpenMaps": "ম্যাপে খুলুন",
+  "vehRoute24h": "গত ২৪ ঘণ্টা",
+  "vehMapSemantics": "গত ২৪ ঘণ্টার পথের মানচিত্র, {km} কিমি",
+  "vehNoRoute": "গত ২৪ ঘণ্টায় কোনো চলাচল নেই",
+  "vehPlay": "পথ চালান",
+  "vehPause": "থামান",
+  "vehPlaySpeed": "চালানোর গতি",
+  "vehPlaybackAt": "{time} · {speed}",
+  "vehTripsToday": "যাত্রা",
+  "vehDistance": "দূরত্ব",
+  "vehTrips": "যাত্রা",
+  "vehDriving": "চালানোর সময়",
+  "vehTopSpeed": "সর্বোচ্চ গতি",
+  "vehNoTrips": "গত ২৪ ঘণ্টায় কোনো যাত্রা নেই।",
+  "vehNightTrip": "রাতে",
+  "vehDurHm": "{h} ঘণ্টা {m} মিনিট",
+  "vehDurM": "{m} মিনিট",
+  "vehNever": "কখনো না",
+  "vehJustNow": "এইমাত্র",
+  "vehMinAgo": "{n} মিনিট আগে",
+  "vehHourAgo": "{n} ঘণ্টা আগে",
+  "vehEngineTitle": "দূর থেকে ইঞ্জিন বন্ধ",
+  "vehRelayUnknown": "রিলের অবস্থা এখনো জানানো হয়নি",
+  "vehRelayCut": "ইঞ্জিন বন্ধ আছে (ট্র্যাকার জানিয়েছে)",
+  "vehRelayNormal": "ইঞ্জিন স্বাভাবিকভাবে চালু হতে পারবে",
+  "vehEngineRules": "ট্র্যাকারের রিলে মিস্ত্রি দিয়ে লাগানো থাকলেই কাজ করে। নিরাপত্তার জন্য গাড়ি থেমে থাকলে বা গতি ৫ কিমি/ঘণ্টার কম ও অবস্থান সাম্প্রতিক হলেই Assisto ইঞ্জিন বন্ধ করে, আর আপনার সিকিউরিটি পিন চায়। আবার চালু করা সবসময় যায়।",
+  "vehCutCta": "ইঞ্জিন বন্ধ করুন",
+  "vehRestoreCta": "ইঞ্জিন আবার চালু করুন",
+  "vehCutConfirmTitle": "ইঞ্জিন বন্ধ করবেন?",
+  "vehCutConfirmBody": "আবার চালু না করা পর্যন্ত গাড়ি স্টার্ট হবে না। গাড়ি চললে Assisto এটি করবে না।",
+  "vehRestoreConfirmTitle": "ইঞ্জিন আবার চালু করবেন?",
+  "vehRestoreConfirmBody": "গাড়িটি আবার স্টার্ট হতে পারবে।",
+  "vehCmdQueued": "সার্ভারে পাঠানো হয়েছে। ট্র্যাকারের নিশ্চিতকরণের অপেক্ষায়।",
+  "vehCmdAwaitingApproval": "আপনার পরিবারের অনুমোদনকারীর অনুমতির অপেক্ষায়।",
+  "vehRecentCommands": "সাম্প্রতিক নির্দেশ",
+  "vehCmdStAwaiting": "অনুমোদনের অপেক্ষায়",
+  "vehCmdStQueued": "পাঠানোর অপেক্ষায়",
+  "vehCmdStSent": "পাঠানো হয়েছে, ট্র্যাকারের অপেক্ষায়",
+  "vehCmdStAcked": "ট্র্যাকার নিশ্চিত করেছে",
+  "vehCmdStFailed": "ট্র্যাকার সমস্যা জানিয়েছে",
+  "vehCmdStNoReply": "ট্র্যাকার সাড়া দেয়নি — গাড়িটি দেখে নিন",
+  "vehCmdStCancelled": "বাতিল",
+  "vehCmdStExpired": "মেয়াদ শেষ",
+  "vehAiTitle": "অস্বাভাবিক যাত্রা",
+  "vehAiBody": "গত ২৪ ঘণ্টায় রাতের যাত্রা, খুব লম্বা যাত্রা বা বেশি গতি আছে কি না দেখুন।",
+  "vehAiCta": "যাত্রা দেখুন",
+  "vehAiByAi": "সারাংশটি Assisto AI লিখেছে।",
+  "vehAiNoKey": "এখন AI চালু নেই, তাই এটি নিয়ম-ভিত্তিক সাধারণ সারাংশ।",
+  "vehAiNothing": "অস্বাভাবিক কিছু নেই, তাই কোনো AI ক্রেডিট খরচ হয়নি।",
+  "vehObdTitle": "গাড়ির স্বাস্থ্য (OBD)",
+  "vehObdSubtitle": "ইঞ্জিনের তাপমাত্রা, ব্যাটারি ও সমস্যার কোড",
+  "vehObdFromTracker": "আপনার ৪জি ট্র্যাকার থেকে",
+  "vehObdTrackerNone": "এই ট্র্যাকার কোনো OBD তথ্য পাঠায়নি। শুধু গাড়ির OBD পোর্টে লাগানো OBD-সক্ষম ট্র্যাকারই এটি পাঠায়।",
+  "vehObdBtTitle": "ব্লুটুথ OBD ডঙ্গল (ELM327)",
+  "vehObdBtBody": "ড্যাশবোর্ডের নিচের OBD পোর্টে ডঙ্গল লাগান, ইগনিশন চালু করুন, আর ফোনের ব্লুটুথ সেটিংসে একবার পেয়ার করে নিন।",
+  "vehBtRead": "ডঙ্গল পড়ুন",
+  "vehBtReading": "পড়া হচ্ছে…",
+  "vehBtOff": "ব্লুটুথ বন্ধ। চালু করে আবার চেষ্টা করুন।",
+  "vehBtNoPermission": "ডঙ্গলের সাথে যোগাযোগে কাছাকাছি ডিভাইসের অনুমতি দিন।",
+  "vehBtUnavailable": "এই ডিভাইস বা অ্যাপ সংস্করণে ব্লুটুথ OBD নেই।",
+  "vehBtNoPaired": "কোনো পেয়ার করা ব্লুটুথ ডিভাইস নেই। আগে ফোনের সেটিংসে ELM327 ডঙ্গল পেয়ার করুন (পিন সাধারণত 1234)।",
+  "vehBtPick": "OBD ডঙ্গল বেছে নিন",
+  "vehBtConnectFailed": "ডঙ্গলের সাথে সংযোগ হয়নি। এটি লাগানো আছে ও ইগনিশন চালু আছে কি না দেখুন।",
+  "vehBtNoAnswer": "ডঙ্গল সাড়া দেয়নি। এটি হয়তো ELM327-সামঞ্জস্যপূর্ণ নয়।",
+  "vehCoolant": "ইঞ্জিনের তাপমাত্রা",
+  "vehFuel": "জ্বালানির মাত্রা",
+  "vehRpm": "ইঞ্জিনের আরপিএম",
+  "vehNotSupported": "সমর্থিত নয়",
+  "vehDtcTitle": "সমস্যার কোড",
+  "vehNoDtc": "কোনো সমস্যার কোড জমা নেই",
+  "vehObdHonest": "কোডগুলো দেখায় গাড়ির কম্পিউটার কোন অংশে সমস্যা ধরেছে — মেকানিক দিয়ে নিশ্চিত করুন। অনেক গাড়ি জ্বালানির মাত্রা জানায় না। কোড পড়লে তা মুছে যায় না।",
+  "vehCarModeTitle": "কার মোড",
+  "vehCarNavigate": "পথ দেখান",
+  "vehCarVoice": "ভয়েস সহকারী",
+  "vehCarStartTrip": "যাত্রা লগ শুরু",
+  "vehCarStopTrip": "থামিয়ে যাত্রা সংরক্ষণ",
+  "vehCarDashcam": "ড্যাশক্যাম",
+  "vehCarLogging": "যাত্রা লগ হচ্ছে · {count}টি পয়েন্ট · {speed}",
+  "vehCarTripSaved": "যাত্রা সংরক্ষিত",
+  "vehCarTooShort": "যাত্রাটি সংরক্ষণের জন্য খুব ছোট।",
+  "vehCarGpsOff": "লোকেশন বন্ধ। যাত্রা লগ করতে চালু করুন।",
+  "vehCarGpsDenied": "যাত্রা লগ করতে লোকেশনের অনুমতি লাগবে।",
+  "vehCarNavTitle": "কোথায় যাবেন?",
+  "vehCarNavHint": "জায়গা বা ঠিকানা",
+  "vehCarNavGo": "চলুন",
+  "vehCarNoMaps": "কোনো ম্যাপ অ্যাপ পাওয়া যায়নি।",
+  "vehCarHonest": "এই স্ক্রিন খোলা থাকলেই কার মোড যাত্রা লগ করে। গাড়ি পার্ক করলে স্টেরিও বন্ধ থাকে, তাই এটি চুরি-সুরক্ষায় হার্ডওয়্যার ট্র্যাকারের বিকল্প নয়।",
+  "vehFleetTitle": "ফ্লিট ড্যাশবোর্ড",
+  "vehFleetBusinessTitle": "ফ্লিট ড্যাশবোর্ড বিজনেস প্ল্যানের সুবিধা",
+  "vehSeePlans": "প্ল্যান দেখুন",
+  "vehFleetVehicles": "গাড়ি",
+  "vehFleetOnline": "অনলাইন",
+  "vehFleetMoving": "এখন চলছে",
+  "vehFleetKmToday": "আজকের দূরত্ব",
+  "vehFleetAlerts": "আজ {count}টি সতর্কতা — দেখে নিন",
+  "vehAlertsSection": "সতর্কতা",
+  "vehSpeedLimitOff": "অতিরিক্ত গতির সতর্কতা: বন্ধ",
+  "vehSpeedLimitOn": "{value} কিমি/ঘণ্টার বেশি হলে সতর্কতা",
+  "vehNightAlert": "রাতে চালু হলে সতর্কতা",
+  "vehNightWindow": "রাত ধরা হবে {start} – {end}",
+  "vehNightFrom": "শুরু {time}",
+  "vehNightTo": "শেষ {time}",
+  "vehFencesSection": "এলাকা (জিওফেন্স)",
+  "vehFencesEmpty": "এখনো কোনো এলাকা নেই। গাড়ি কোনো এলাকায় ঢুকলে বা বেরোলে সতর্কতা পাবেন।",
+  "vehFenceAddHere": "গাড়ির চারপাশে একটি এলাকা যোগ করুন",
+  "vehFenceAddTitle": "নতুন এলাকা",
+  "vehFenceAddBody": "এলাকাটি গাড়ির বর্তমান অবস্থানকে কেন্দ্র করে হবে।",
+  "vehFenceName": "এলাকার নাম",
+  "vehFenceDefaultName": "বাসা",
+  "vehFenceRadius": "ব্যাসার্ধ",
+  "vehIntervalSection": "অবস্থান পাঠানোর বিরতি",
+  "vehIntervalMoving": "চলার সময়",
+  "vehIntervalParked": "পার্ক করা অবস্থায়",
+  "vehEverySec": "প্রতি {s} সেকেন্ডে",
+  "vehIntervalNote": "ট্র্যাকারে নির্দেশ হিসেবে পাঠানো হয়। সব মডেল এটি মানে না — ট্র্যাকারের উত্তরে বোঝা যাবে কাজ হলো কি না।",
+  "vehApprovalSection": "পরিবারের অনুমোদন",
+  "vehApprovalToggle": "ইঞ্জিন বন্ধে অনুমোদন লাগবে",
+  "vehApprovalBody": "নির্দেশ পাঠানোর আগে একজন বিশ্বস্ত পরিবারের সদস্যকে অনুমোদন দিতে হবে।",
+  "vehApprover": "অনুমোদনকারী",
+  "vehSharingSection": "কে এই গাড়ি দেখতে পারবেন",
+  "vehSharingBody": "শুধু আপনি আর এখানে যাঁদের যোগ করবেন, তাঁরাই এর অবস্থান দেখতে পারবেন।",
+  "vehShareTitle": "পরিবারের সাথে শেয়ার",
+  "vehShareWho": "পরিবারের সদস্য",
+  "vehShareCanControl": "ইঞ্জিন বন্ধ / চালু করতে পারবেন",
+  "vehShareCanControlBody": "তাঁদেরও নিজের সিকিউরিটি পিন লাগবে।",
+  "vehShareViewOnly": "অবস্থান দেখতে পারবেন",
+  "vehShareCta": "সদস্য যোগ করুন",
+  "vehShareRevoke": "অনুমতি সরান",
+  "vehNoCircleMembers": "আগে মাই সার্কেলে পরিবারের সদস্য যোগ করুন।",
+  "vehSaved": "সংরক্ষিত",
+  "vehRemoveTitle": "ট্র্যাকার সরান",
+  "vehRemoveBody": "এর অবস্থানের ইতিহাস মুছে যাবে। পরে আবার যুক্ত করতে পারবেন।",
+  "vehErrMoving": "গাড়িটি চলছে। নিরাপত্তার জন্য থেমে থাকলেই ইঞ্জিন বন্ধ করা যায়।",
+  "vehErrStaleFix": "শেষ অবস্থান অনেক পুরনো, তাই গাড়ি থেমে আছে কি না নিশ্চিত নয়। ট্র্যাকার তথ্য পাঠালে আবার চেষ্টা করুন।",
+  "vehErrNoFix": "ট্র্যাকার থেকে এখনো কোনো অবস্থান আসেনি।",
+  "vehErrOffline": "ট্র্যাকার এখন অফলাইন।",
+  "vehErrNotPaired": "এই ট্র্যাকার এখনো যুক্ত হয়নি।",
+  "vehErrBusy": "আরেকটি ইঞ্জিন নির্দেশ এখনো চলছে।",
+  "vehErrBadPin": "সিকিউরিটি পিন ভুল।",
+  "vehErrNoPin": "আগে Assisto সিকিউরিটি পিন সেট করুন (নিরাপত্তা → ফোন সুরক্ষা)।",
+  "vehErrLocked": "অনেকবার ভুল পিন। পরে আবার চেষ্টা করুন।",
+  "vehErrBadImei": "এটি সঠিক ১৫ সংখ্যার IMEI নয়।",
+  "vehErrImeiTaken": "এই ট্র্যাকার অন্য একটি অ্যাকাউন্টে যুক্ত। এটি আপনার হলে সাপোর্টে যোগাযোগ করুন।",
+  "vehErrNoCredits": "এক মাসের ট্র্যাকিংয়ের মতো ক্রেডিট নেই। আগে ক্রেডিট যোগ করুন।",
+  "vehErrBusinessOnly": "ফ্লিট ড্যাশবোর্ড বিজনেস প্ল্যানের সাথে পাওয়া যায়।",
+  "vehErrApproverRequired": "মাই সার্কেল থেকে একজন অনুমোদনকারী বেছে নিন।",
+  "vehErrNoAccess": "এই গাড়িতে আপনার অনুমতি নেই।",
+  "vehErrGeneric": "কিছু একটা সমস্যা হয়েছে। আবার চেষ্টা করুন।"
+ }
+}

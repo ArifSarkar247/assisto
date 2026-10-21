@@ -7,6 +7,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
+import 'vehicle_tracking_screen.dart';
 
 /// MY VEHICLES — anti-theft module Batch 2 (vehicle profile + expiry reminders
 /// + an HONEST buying guide). CODE ONLY.
@@ -30,8 +31,8 @@ import '../widgets/ladder_common.dart' show fmtInt;
 /// reminder via the existing reminder-create path (createItem('reminders', ...),
 /// the same call fam_probashi_section uses) — guarded best-effort.
 ///
-/// Live GPS tracking (GT06 server) is a LATER batch — the buying guide says so
-/// honestly ("coming soon"); there is NO fake map and NO hardcoded prices here.
+/// Live GPS tracking of a paired GT06 / Teltonika tracker lives in
+/// VehicleTrackingScreen (v1-vehicle) — reached from the AppBar and the guide.
 class MyVehiclesScreen extends StatefulWidget {
   const MyVehiclesScreen({super.key});
   @override
@@ -191,6 +192,17 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(tr.vehiclesTitle),
+          actions: [
+            // v1-vehicle: live GPS tracking of paired hardware trackers
+            IconButton(
+              tooltip: tr.vehTrackingTitle,
+              icon: const Icon(Icons.gps_fixed),
+              onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const VehicleTrackingScreen())),
+            ),
+          ],
           bottom: TabBar(tabs: [
             Tab(text: tr.vehiclesTabMine),
             Tab(text: tr.vehiclesTabGuide),
@@ -542,20 +554,34 @@ class _BuyingGuideTab extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 32),
       children: [
-        // Coming-soon note: Assisto's own tracking is a later batch — honest.
+        // v1-vehicle: Assisto live tracking now works with GT06 / Teltonika
+        // trackers — say so honestly and link to it.
         Card(
           color: scheme.surfaceContainerHighest,
           child: Padding(
             padding: const EdgeInsets.all(Gap.md),
-            child: Row(children: [
-              Icon(Icons.info_outline, size: 18, color: scheme.primary),
-              const SizedBox(width: Gap.sm),
-              Expanded(
-                child: Text(tr.vehiclesTrackingComingSoon,
-                    style: TextStyle(
-                        fontSize: 12.5, color: scheme.onSurfaceVariant)),
-              ),
-            ]),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(children: [
+                    Icon(Icons.info_outline, size: 18, color: scheme.primary),
+                    const SizedBox(width: Gap.sm),
+                    Expanded(
+                      child: Text(tr.vehGuideTrackingNow,
+                          style: TextStyle(
+                              fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                    ),
+                  ]),
+                  const SizedBox(height: Gap.xs),
+                  TextButton.icon(
+                    onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const VehicleTrackingScreen())),
+                    icon: const Icon(Icons.gps_fixed),
+                    label: Text(tr.vehTrackingTitle),
+                  ),
+                ]),
           ),
         ),
         const SizedBox(height: Gap.lg),

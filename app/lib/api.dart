@@ -510,6 +510,16 @@ class ApiClient {
     _fail(r);
   }
 
+  /// v1-vehicle: generic DELETE on an exact path (no slash rewriting, unlike
+  /// [deleteItem]) returning the JSON body. Non-2xx -> ApiException.
+  Future<Map<String, dynamic>> deleteJson(String path) async {
+    final r = await _c.delete(AppConfig.api(path), headers: _headers());
+    if (r.statusCode >= 200 && r.statusCode < 300) {
+      return r.body.isEmpty ? {} : jsonDecode(r.body) as Map<String, dynamic>;
+    }
+    _fail(r);
+  }
+
   // Monetization
   Future<Map<String, dynamic>> plan() => getJson('/me/plan');
   Future<Map<String, dynamic>> rewardedAd() => postJson('/credits/rewarded');
