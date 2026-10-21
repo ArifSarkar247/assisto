@@ -317,6 +317,20 @@ def check(rows):
 
 PROBLEM = ("MISSING", "METHOD", "SLASH")
 
+# Routes slot m1-messenger is building (coordinator list, 21 Oct). They still
+# FAIL the contract until m1 lands — the tag only labels them in reports.
+M1_PENDING = [re.compile(p) for p in (
+    r"^/family/accounting/", r"^/circle/groups/", r"^/circle/chats",
+    r"^/circle/[^/]+/(info|clear)$", r"^/circle/account/", r"^/circle/settings/",
+    r"^/community/[^/]+/(leave|notifications)$", r"^/community/message-requests",
+    r"^/notif/reminders/[^/]+/done", r"^/journey/[^/]+/timeline", r"^/disaster/feed",
+    r"^/medicine-db/report")]
+
+
+def _m1_pending(raw):
+    p = strip_interp(raw).split("?", 1)[0].replace("\x00", "x")
+    return any(rx.search(p) for rx in M1_PENDING)
+
 
 def run(app_lib=None):
     """In-process entry point (used by core/tests_api_contract.py)."""
@@ -326,6 +340,9 @@ def run(app_lib=None):
         k = (r["method"], r["raw"])
         if k not in uniq or (uniq[k]["status"] == "OK" and r["status"] != "OK"):
             uniq[k] = r
+    for r in uniq.values():
+        if r["status"] in PROBLEM and _m1_pending(r["raw"]):
+            r["m1"] = True
     bad = sorted([r for r in uniq.values() if r["status"] in PROBLEM],
                  key=lambda x: (x["m1"], x["file"], x["line"]))
     counts = {}
@@ -337,7 +354,7 @@ def run(app_lib=None):
 
 
 def format_problem(r):
-    tag = "  [TODO(backend) - m1]" if r["m1"] else ""
+    tag = "  [m1 in progress]" if r["m1"] else ""
     return (f"{r['status']:7} {r['method']:6} {r['raw']}  ->  {r['file']}:{r['line']}"
             f"  ({r.get('note', '')}){tag}")
 
@@ -364,7 +381,7 @@ def main():
         out = ["| status | method | client path | where | note |", "|---|---|---|---|---|"]
         for r in bad:
             out.append(f"| {r['status']} | {r['method']} | `{r['raw']}` | {r['file']}:{r['line']} | "
-                       f"{r.get('note', '')}{' (TODO(backend), m1)' if r['m1'] else ''} |")
+                       f"{r.get('note', '')}{' (m1 in progress)' if r['m1'] else ''} |")
         Path(a.md).write_text("\n".join(out) + "\n")
     if bad and not a.report_only:
         print(f"\nAPI CONTRACT FAILED: {len(bad)} client call(s) have no matching backend route.")
