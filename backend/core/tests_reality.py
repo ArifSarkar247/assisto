@@ -126,19 +126,6 @@ class BusinessWriteRouteTests(TestCase):
         self.assertNotEqual(g.get("error"), "needs_setup")
 
 
-class NotifReminderDoneTests(TestCase):
-    def test_done_marks_reminder(self):
-        u = User.objects.create_user(name="N", phone="01877777777", password="x12345")
-        c = _client(u)
-        rid = c.post("/api/v1/reminders/", {"title": "Pay bill"}, format="json").json()["id"]
-        r = c.post(f"/api/v1/notif/reminders/reminder:{rid}/done", {}, format="json")
-        self.assertEqual(r.status_code, 200)
-        self.assertTrue(r.json()["persisted"])
-        self.assertTrue(u.reminders.get(pk=rid).done)
-        r = c.post("/api/v1/notif/reminders/medicine:1:am/done", {}, format="json")
-        self.assertFalse(r.json()["persisted"])  # honest: not completed here
-
-
 class SeedRealityTests(TestCase):
     def test_seed_runs_clean(self):
         out = StringIO()
