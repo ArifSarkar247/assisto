@@ -150,6 +150,10 @@ jobs:
               '\n    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>'
               '\n    <uses-permission android:name="android.permission.RECORD_AUDIO"/>'
               '\n    <uses-permission android:name="android.permission.CAMERA"/>'
+              # CCTV Part 4 live view (flutter_webrtc): network monitor + audio routing
+              '\n    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>'
+              '\n    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>'
+              '\n    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>'
               '\n    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>'
               '\n    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>'
               '\n    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>'

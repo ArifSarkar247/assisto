@@ -114,6 +114,12 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        // CCTV Part 4 Shop Box mode: keep-screen-on + charging state. Handler
+        // registration only — nothing runs until Dart calls it (lazy).
+        try {
+            com.assisto.assisto.shopbox.ShopBoxChannel.register(flutterEngine, this)
+        } catch (e: Throwable) {
+        }
         // v1-vehicle: ELM327 OBD over classic Bluetooth. Registering is free;
         // the adapter is only touched when Dart calls it from the OBD screen.
         try {
