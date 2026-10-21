@@ -1615,7 +1615,8 @@ class Module5ApiTests(APITestCase):
 
     def test_circle_report_auto_blocks(self):
         m = self.client.post("/api/v1/circle/request",
-                          {"name": "C", "relation": "friend", "phone": "9"},
+                          {"name": "C", "relation": "friend",
+                           "phone": "01700000009"},  # c1: valid number
                           format="json").json()
         mid = m["id"]
         self.client.post(f"/api/v1/circle/request/{mid}/act",

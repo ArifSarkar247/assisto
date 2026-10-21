@@ -655,10 +655,17 @@ class CircleRequestCreateView(APIView):
         # one honestly, and find the account across legacy spellings.
         from .phone import canonical_phone, find_user as _find_by_phone
         phone = canonical_phone(raw_phone) if raw_phone else ""
+        legacy_peer = None
         if raw_phone and not phone:
-            return Response({"detail": "bad_phone", "reason": "bad_phone"},
-                            status=status.HTTP_400_BAD_REQUEST)
-        peer = None
+            # A pre-0051 account whose stored phone is not a valid number
+            # (reported by the migration) stays reachable by its exact value;
+            # anything else is refused honestly.
+            legacy_peer = User.objects.filter(phone=raw_phone).first()
+            if legacy_peer is None:
+                return Response({"detail": "bad_phone", "reason": "bad_phone"},
+                                status=status.HTTP_400_BAD_REQUEST)
+            phone = raw_phone
+        peer = legacy_peer
         to_id = data.get("to_user_id")
         if to_id not in (None, ""):
             try:
@@ -669,7 +676,7 @@ class CircleRequestCreateView(APIView):
                 return Response({"detail": "user not found"},
                                 status=status.HTTP_404_NOT_FOUND)
             phone = phone or canonical_phone(peer.phone or "") or ""
-        elif phone:
+        elif phone and peer is None:
             peer = _find_by_phone(phone)
         if not phone and peer is None:
             return Response({"detail": "bad_phone", "reason": "bad_phone"},
