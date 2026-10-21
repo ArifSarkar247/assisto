@@ -632,7 +632,38 @@ class CircleKeysView(APIView):
             if data.get(forbidden):
                 return Response({"detail": "only the public key may be sent"},
                                 status=status.HTTP_400_BAD_REQUEST)
-        return Response({"ok": True})
+        # m2-reality fix: the key used to be DISCARDED, so no peer ever got
+        # `public_key` on GET /circle/members and every 1:1 chat stopped at
+        # "key missing". Publish it onto every edge that points AT me (those
+        # rows' public_key is "the peer's public key" from their owner's view).
+        pub = str(data.get("public_key", "")).strip()[:200]
+        updated = 0
+        if pub:
+            updated = CircleMember.objects.filter(peer_user=request.user).update(
+                public_key=pub, key_id=str(data.get("key_id", ""))[:64],
+                scheme=str(data.get("scheme", ""))[:64])
+        return Response({"ok": True, "published": bool(pub), "edges": updated})
+
+
+def _published_key(user):
+    """(public_key, key_id, scheme) the user last published, read back from any
+    edge that points at them; empty strings when they never opened the circle."""
+    row = (CircleMember.objects.filter(peer_user=user).exclude(public_key="")
+           .order_by("-id").first()) if user is not None else None
+    if row is None:
+        return "", "", ""
+    return row.public_key, row.key_id, row.scheme
+
+
+def _thread_q(m):
+    """m2-reality fix: a 1:1 thread is BOTH edges. A message is stored on the
+    SENDER's edge, so the recipient's GET must also read the mirror edge
+    (owner = my peer, peer_user = me). Without this the peer never saw it."""
+    from django.db.models import Q
+    q = Q(member=m)
+    if getattr(m, "peer_user_id", None):
+        q |= Q(member__user_id=m.peer_user_id, member__peer_user_id=m.user_id)
+    return q
 
 
 class CircleRequestCreateView(APIView):
@@ -642,8 +673,10 @@ class CircleRequestCreateView(APIView):
         relation = circle.normalize_relation(data.get("relation", "friend"))
         note = str(data.get("note", "")).strip()[:500]  # ONE optional pre-accept note
         peer = User.objects.filter(phone=phone).first() if phone else None
+        peer_key = _published_key(peer)  # m2-reality: carry an already-published key
         # The SENDER's own row is OUTGOING (can only cancel it).
         m = CircleMember.objects.create(
+            public_key=peer_key[0], key_id=peer_key[1], scheme=peer_key[2],
             user=request.user,
             name=str(data.get("name", "")).strip()[:120],
             relation=relation,
@@ -658,10 +691,13 @@ class CircleRequestCreateView(APIView):
         # Mirror an INCOMING row on the recipient's side so they get accept/
         # decline (and see WHO sent it). Only when the recipient has an account.
         if peer is not None and peer.id != request.user.id:
+            my_key = _published_key(request.user)
             CircleMember.objects.get_or_create(
                 user=peer, peer_user=request.user, direction="incoming",
                 state="pending",
                 defaults={
+                    "public_key": my_key[0], "key_id": my_key[1],
+                    "scheme": my_key[2],
                     "name": (getattr(request.user, "name", "") or "").strip(),
                     "phone": (getattr(request.user, "phone", "") or "")[:40],
                     "relation": circle.reciprocal_relation(relation),
@@ -770,7 +806,7 @@ class CircleMessagesView(APIView):
         m = CircleMember.objects.filter(user=request.user, pk=pk).first()
         if m is None:
             return Response({"detail": "not found"}, status=status.HTTP_404_NOT_FOUND)
-        msgs = CircleMessage.objects.filter(member=m)
+        msgs = CircleMessage.objects.filter(_thread_q(m)).order_by("created_at", "id")
         out = [{
             "id": x.id, "sender_id": x.sender_id, "content_type": x.content_type,
             "ciphertext": x.ciphertext, "nonce": x.nonce, "blob_ref": x.blob_ref,
@@ -848,8 +884,12 @@ class CircleMessageActionView(APIView):
     """POST /circle/messages/<id>/<action> -> react|star|pin|edit|delete.
     All gates (edit-window, pin-cap, delete scope) run server-side."""
     def post(self, request, pk, action):
+        from django.db.models import Q
+        # m2-reality: the recipient may act (react/star/delete-for-me) on a
+        # message stored on the sender's edge of the same 1:1 thread.
         x = CircleMessage.objects.filter(
-            pk=pk, member__user=request.user).first()
+            Q(member__user=request.user) | Q(member__peer_user=request.user),
+            pk=pk, group__isnull=True).first()
         if x is None:
             return Response({"detail": "not found"},
                             status=status.HTTP_404_NOT_FOUND)
