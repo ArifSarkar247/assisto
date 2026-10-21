@@ -19,7 +19,9 @@ class CrmAfterSaleApi {
 
   // ---- quote versions / acceptance / convert (advanced §6) ----
   Future<List<Map<String, dynamic>>> quoteVersions(int leadId) =>
-      _c.listItems('crm/leads/$leadId/quote_versions');
+      // versions = the lead's proposals (ProposalViewSet filters ?lead=); the
+      // old crm/leads/<id>/quote_versions route never existed (route_check).
+      _c.listItems('crm/proposals?lead=$leadId');
   Future<Map<String, dynamic>> quoteVersionDiff(int quoteId) =>
       _c.getJson('/crm/proposals/$quoteId/diff/');
   Future<Map<String, dynamic>> setValidity(int quoteId, int validDays) =>

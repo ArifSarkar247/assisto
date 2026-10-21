@@ -48,7 +48,9 @@ probe/
 app/lib/l10n/app_localizations*.dart
 
 # local Flutter SDK + render outputs (not committed)
-tools/
+tools/*
+!tools/route_check.py
+!tools/reality/
 screenshots/
 new-logo.png
 logs/
