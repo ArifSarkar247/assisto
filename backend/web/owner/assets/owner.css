@@ -3,6 +3,7 @@
 --cyan:#22d3ee;--blue:#3b6ef6;--purple:#9b4df0;--ok:#34c38f;--bad:#ff6b7d;--warn:#f4b740;
 --s1:#3987e5;--s2:#d95926;color-scheme:dark}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans Bengali","Hind Siliguri",sans-serif}
 a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
 h1{font-size:20px;margin:0}h2{font-size:15px;margin:0 0 12px;color:#cfd3dd}h3{font-size:15px;margin:0}
