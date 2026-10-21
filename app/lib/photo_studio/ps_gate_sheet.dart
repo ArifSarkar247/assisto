@@ -1,0 +1,134 @@
+import 'package:flutter/material.dart';
+
+import '../l10n/app_localizations.dart';
+import '../theme.dart';
+import '../widgets/ladder_common.dart' show fmtInt;
+import 'ps_export.dart';
+
+/// The ONE funding sheet free users see before a full-quality export or a
+/// paid AI run. Honest copy: N rewarded ads OR credits; a failed ad offers
+/// retry or credits — never a free unlock.
+class PsGateSheet extends StatelessWidget {
+  const PsGateSheet({super.key, required this.need, this.forRun = false, this.onPremium});
+  final GateNeed need;
+  final bool forRun;
+  final VoidCallback? onPremium;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final adsPossible = need.adsRemaining > 0;
+    final n = fmtInt(context, need.adsRemaining);
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: const BoxDecoration(
+                    gradient: Brand.gradient, shape: BoxShape.circle),
+                child: const Icon(Icons.lock_open_rounded, color: Colors.white),
+              ),
+              const SizedBox(width: Gap.md),
+              Expanded(
+                child: Text(forRun ? t.psGateRunTitle : t.psGateTitle,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(fontWeight: FontWeight.w800)),
+              ),
+            ]),
+            const SizedBox(height: Gap.md),
+            if (adsPossible)
+              Text(forRun ? t.psGateRunBody(n) : t.psGateBody(n),
+                  style: Theme.of(context).textTheme.bodyLarge)
+            else
+              Text(t.psGateCreditsOnly,
+                  style: Theme.of(context).textTheme.bodyLarge),
+            if (adsPossible && need.adsTotal > 1) ...[
+              const SizedBox(height: Gap.sm),
+              Text(
+                  t.psGateProgress(fmtInt(context, need.adsTotal - need.adsRemaining),
+                      fmtInt(context, need.adsTotal)),
+                  style: TextStyle(color: scheme.onSurfaceVariant)),
+            ],
+            if (need.lastAdFailed) ...[
+              const SizedBox(height: Gap.md),
+              _note(context, Icons.wifi_off_rounded, t.psAdUnavailable, Brand.warnInk(context)),
+            ],
+            if (adsPossible && !need.adsLinked) ...[
+              const SizedBox(height: Gap.md),
+              _note(context, Icons.info_outline, t.psGateAdsNotLinked, scheme.onSurfaceVariant),
+            ],
+            const SizedBox(height: Gap.lg),
+            if (adsPossible)
+              FilledButton.icon(
+                key: const Key('psGateWatch'),
+                onPressed: () => Navigator.of(context).pop(FundChoice.ads),
+                icon: const Icon(Icons.play_circle_outline),
+                label: Text(need.lastAdFailed ? t.psGateRetry : t.psGateWatch),
+              ),
+            if (need.credits != null) ...[
+              const SizedBox(height: Gap.sm),
+              OutlinedButton.icon(
+                key: const Key('psGateCredits'),
+                onPressed: () => Navigator.of(context).pop(FundChoice.credits),
+                icon: const Icon(Icons.toll_outlined),
+                label: Text(t.psGateUseCredits(fmtInt(context, need.credits!))),
+              ),
+            ],
+            if (onPremium != null) ...[
+              const SizedBox(height: Gap.sm),
+              TextButton.icon(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  onPremium!();
+                },
+                icon: const Icon(Icons.workspace_premium_outlined),
+                label: Text(t.psGatePremium),
+              ),
+            ],
+            const SizedBox(height: Gap.sm),
+            Text(t.psGateNoFillNote,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _note(BuildContext context, IconData icon, String text, Color color) => Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 18, color: color),
+          const SizedBox(width: Gap.sm),
+          Expanded(child: Text(text, style: TextStyle(color: color))),
+        ],
+      );
+}
+
+/// [GateUi] backed by [PsGateSheet].
+class SheetGateUi extends GateUi {
+  SheetGateUi(this.context, {this.forRun = false, this.onPremium});
+  final BuildContext context;
+  final bool forRun;
+  final VoidCallback? onPremium;
+
+  @override
+  Future<FundChoice?> chooseFunding(GateNeed need) {
+    if (!context.mounted) return Future.value(null);
+    return showModalBottomSheet<FundChoice>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => PsGateSheet(need: need, forRun: forRun, onPremium: onPremium),
+    );
+  }
+}

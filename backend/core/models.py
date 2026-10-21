@@ -3412,3 +3412,86 @@ class VehicleAuditLog(models.Model):
     class Meta:
         ordering = ["-at"]
 # ---- /v1-vehicle ----
+
+
+# ---- ps1-photo ---- Photo Studio: jobs, rewarded-ad tickets, export unlocks.
+class PhotoStudioJob(models.Model):
+    """One Photo Studio job. Funding is decided and TAKEN before any cost is
+    incurred (core/logic/photo_studio.funding_options): Premium/Business pay from
+    their monthly pool, free users either watch N SSV-verified rewarded ads or
+    spend credits. `status` only reaches 'funded' when that is done; cloud work
+    and full-quality export both require 'funded' (or 'done')."""
+    STATUSES = [("awaiting_funds", "awaiting funds"), ("funded", "funded"),
+                ("running", "running"), ("done", "done"), ("failed", "failed"),
+                ("refused", "refused"), ("expired", "expired")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="photo_jobs")
+    feature = models.CharField(max_length=16)
+    options = models.JSONField(default=dict, blank=True)
+    prompt = models.CharField(max_length=500, blank=True, default="")
+    status = models.CharField(max_length=16, choices=STATUSES,
+                              default="awaiting_funds")
+    funding = models.CharField(max_length=10, blank=True, default="")
+    trial = models.BooleanField(default=False)
+    ads_required = models.IntegerField(default=0)
+    credits_charged = models.IntegerField(default=0)
+    provider = models.CharField(max_length=24, blank=True, default="")
+    cost_bdt = models.FloatField(default=0.0)        # booked provider cost
+    revenue_bdt = models.FloatField(default=0.0)     # ads/credits value taken
+    result_name = models.CharField(max_length=200, blank=True, default="")
+    preview_name = models.CharField(max_length=200, blank=True, default="")
+    error = models.CharField(max_length=200, blank=True, default="")
+    runs = models.IntegerField(default=0)
+    flags = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    funded_at = models.DateTimeField(null=True, blank=True)
+    done_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["user", "feature", "created_at"])]
+
+
+class PhotoAdTicket(models.Model):
+    """A rewarded-ad (or entry-interstitial) ticket. The app passes `nonce` as
+    the AdMob SSV custom_data; ONLY Google's signed server-side-verification
+    callback (GET /ads/ssv) can flip a rewarded ticket to 'verified'. A no-fill,
+    a dismissed ad or a client claim never verifies anything — no free bypass.
+    transaction_id is unique so a replayed callback cannot count twice."""
+    KINDS = [("rewarded", "rewarded"), ("interstitial", "interstitial")]
+    STATUSES = [("pending", "pending"), ("verified", "verified"),
+                ("expired", "expired"), ("rejected", "rejected")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="photo_ad_tickets")
+    job = models.ForeignKey(PhotoStudioJob, null=True, blank=True,
+                            on_delete=models.CASCADE, related_name="tickets")
+    kind = models.CharField(max_length=14, choices=KINDS, default="rewarded")
+    placement = models.CharField(max_length=10, default="job")   # job | entry
+    nonce = models.CharField(max_length=48, unique=True)
+    status = models.CharField(max_length=10, choices=STATUSES, default="pending")
+    transaction_id = models.CharField(max_length=128, null=True, blank=True,
+                                      unique=True)
+    ad_unit = models.CharField(max_length=80, blank=True, default="")
+    value_bdt = models.FloatField(default=0.0)
+    source = models.CharField(max_length=8, blank=True, default="")  # ssv | client
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    verified_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["user", "placement", "created_at"])]
+
+
+class PhotoExport(models.Model):
+    """Every unlock of an image leaving the studio (save / share / wallpaper /
+    copy / open-in). Free users get one only for a funded job; the row records
+    whether the corner mark was required."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="photo_exports")
+    job = models.ForeignKey(PhotoStudioJob, on_delete=models.CASCADE,
+                            related_name="exports")
+    kind = models.CharField(max_length=10)
+    token = models.CharField(max_length=48, unique=True)
+    corner_mark = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+# ---- /ps1-photo ----

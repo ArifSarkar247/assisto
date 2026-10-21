@@ -1,0 +1,751 @@
+import 'dart:math' as math;
+import 'dart:typed_data';
+
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../l10n/app_localizations.dart';
+import '../photo_studio/ps_backend.dart';
+import '../photo_studio/ps_controller.dart';
+import '../photo_studio/ps_engines.dart';
+import '../photo_studio/ps_gate_sheet.dart';
+import '../photo_studio/ps_models.dart';
+import '../state.dart';
+import '../theme.dart';
+import '../widgets/ladder_common.dart' show fmtInt;
+import '../widgets/photo_compare.dart';
+import '../widgets/skeleton.dart';
+import '../widgets/voice_input.dart';
+import 'plans_screen.dart';
+
+/// PHOTO STUDIO (ps1-photo) — "your face stays yours, just at its best".
+///
+/// * Free users: entry interstitial first (server-capped, default 30 min),
+///   reduced watermarked preview, and EVERY exit (save / share / wallpaper /
+///   copy / open-in) goes through [PhotoStudioController.export] -> the one
+///   export gate (rewarded ads verified server-side, or credits).
+/// * Premium / Business: no ads ever, clean full-quality saves.
+/// * One-tap enhance runs on-device behind [EnhanceEngine]; in this build the
+///   engine is not linked and the screen says so honestly.
+class PhotoStudioScreen extends StatefulWidget {
+  const PhotoStudioScreen({super.key, this.deps, this.controller});
+
+  /// Inject for tests / the screenshot gallery; default talks to the server.
+  final PsDeps? deps;
+
+  /// A pre-built controller (gallery states). Not disposed by the screen.
+  final PhotoStudioController? controller;
+
+  @override
+  State<PhotoStudioScreen> createState() => _PhotoStudioScreenState();
+}
+
+class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
+  late final PhotoStudioController _c;
+  late final bool _ownsController;
+  final _prompt = TextEditingController();
+  late final VoiceDictation _voice = VoiceDictation();
+
+  @override
+  void initState() {
+    super.initState();
+    _ownsController = widget.controller == null;
+    _c = widget.controller ??
+        PhotoStudioController(widget.deps ??
+            PsDeps(backend: ApiPsBackend(context.read<AppState>().api)));
+    _c.addListener(_onChange);
+    if (_ownsController) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _c.init());
+    }
+  }
+
+  void _onChange() {
+    if (!mounted) return;
+    setState(() {});
+    final n = _c.notice;
+    if (n == PsNotice.none || n == PsNotice.refused) return;
+    final text = _noticeText(AppLocalizations.of(context), n);
+    if (text.isEmpty) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(text)));
+  }
+
+  @override
+  void dispose() {
+    _c.removeListener(_onChange);
+    if (_ownsController) _c.dispose();
+    _prompt.dispose();
+    _voice.dispose();
+    super.dispose();
+  }
+
+  String _noticeText(AppLocalizations t, PsNotice n) => switch (n) {
+        PsNotice.enhanceNotInBuild => t.psEnhanceNotInBuild,
+        PsNotice.enhancePreparing => t.psEnhancePreparing,
+        PsNotice.identityCheckMissing => t.psIdentityMissing,
+        PsNotice.identityFailed => t.psIdentityFailed,
+        PsNotice.providerMissing => t.psProviderMissing(_c.noticeText),
+        PsNotice.sinkUnavailable => t.psSinkUnavailable,
+        PsNotice.adUnavailable => t.psAdUnavailable,
+        PsNotice.insufficient => _c.noticeText.isNotEmpty ? _c.noticeText : t.psInsufficient,
+        PsNotice.failed => _c.noticeText.isNotEmpty ? _c.noticeText : t.psFailed,
+        PsNotice.saved => t.psSaved,
+        PsNotice.shared => t.psShared,
+        PsNotice.opened => t.psOpened,
+        PsNotice.cancelled => t.psCancelled,
+        PsNotice.needPhoto => t.psNeedPhoto,
+        PsNotice.needPrompt => t.psNeedPrompt,
+        PsNotice.refused || PsNotice.none => '',
+      };
+
+  void _openPlans() => Navigator.of(context)
+      .push(MaterialPageRoute(builder: (_) => const PlansScreen()));
+
+  // ------------------------------------------------------------------ build
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final s = _c.session;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(t.psTitle),
+        actions: [
+          if (s != null) ...[
+            IconButton(
+                tooltip: t.psUndo,
+                onPressed: s.canUndo ? _c.undo : null,
+                icon: const Icon(Icons.undo_rounded)),
+            IconButton(
+                tooltip: t.psRedo,
+                onPressed: s.canRedo ? _c.redo : null,
+                icon: const Icon(Icons.redo_rounded)),
+            IconButton(
+                key: const Key('psHistory'),
+                tooltip: t.psHistory,
+                onPressed: _history,
+                icon: const Icon(Icons.history_rounded)),
+          ],
+        ],
+      ),
+      body: switch (_c.phase) {
+        PsPhase.loading => const SkeletonList(),
+        PsPhase.entryAd => _entryTransition(t),
+        PsPhase.error => StateMessage(
+            icon: Icons.cloud_off_outlined,
+            title: t.loadFailed,
+            message: t.loadFailedBody,
+            tint: Brand.danger,
+            action: FilledButton.icon(
+                onPressed: _c.init,
+                icon: const Icon(Icons.refresh),
+                label: Text(t.retry)),
+          ),
+        PsPhase.open => _studio(t),
+      },
+    );
+  }
+
+  Widget _entryTransition(AppLocalizations t) => Center(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Container(
+            width: 72,
+            height: 72,
+            decoration:
+                const BoxDecoration(gradient: Brand.gradient, shape: BoxShape.circle),
+            child: const Icon(Icons.auto_awesome, color: Colors.white, size: 34),
+          ),
+          const SizedBox(height: Gap.lg),
+          Text(t.psOpening, style: Theme.of(context).textTheme.titleMedium),
+        ]),
+      );
+
+  Widget _studio(AppLocalizations t) {
+    final s = _c.session;
+    return Stack(children: [
+      ListView(
+        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl * 2),
+        children: [
+          if (s == null) _hero(t) else _preview(t),
+          const SizedBox(height: Gap.lg),
+          if (_c.refusal != null) ...[_refusalCard(t), const SizedBox(height: Gap.lg)],
+          if (s != null) ...[_enhanceCard(t), const SizedBox(height: Gap.lg)],
+          _promptCard(t),
+          const SizedBox(height: Gap.lg),
+          if (s != null) _exportCard(t),
+          const SizedBox(height: Gap.md),
+          _footNotes(t),
+        ],
+      ),
+      if (_c.busy)
+        Positioned.fill(
+          child: ColoredBox(
+            color: Colors.black26,
+            child: Center(
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(Gap.lg),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    const SizedBox(
+                        width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.4)),
+                    const SizedBox(width: Gap.md),
+                    Text(t.psWorking),
+                  ]),
+                ),
+              ),
+            ),
+          ),
+        ),
+    ]);
+  }
+
+  // ------------------------------------------------------------------ hero
+  Widget _hero(AppLocalizations t) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(Gap.xl),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(Radii.lg),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Brand.cyan.withValues(alpha: 0.18),
+            Brand.blue.withValues(alpha: 0.16),
+            Brand.purple.withValues(alpha: 0.20),
+          ],
+        ),
+        border: Border.all(color: scheme.outlineVariant),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Container(
+          width: 52,
+          height: 52,
+          decoration: const BoxDecoration(gradient: Brand.gradient, shape: BoxShape.circle),
+          child: const Icon(Icons.auto_awesome, color: Colors.white, size: 26),
+        ),
+        const SizedBox(height: Gap.md),
+        Text(t.psTagline,
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.copyWith(fontWeight: FontWeight.w800, height: 1.25)),
+        const SizedBox(height: Gap.sm),
+        Text(t.psEmptyBody, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+        const SizedBox(height: Gap.lg),
+        Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+          FilledButton.icon(
+            key: const Key('psPickGallery'),
+            onPressed: () => _c.pick(camera: false),
+            icon: const Icon(Icons.photo_library_outlined),
+            label: Text(t.psPickGallery),
+          ),
+          OutlinedButton.icon(
+            onPressed: () => _c.pick(camera: true),
+            icon: const Icon(Icons.photo_camera_outlined),
+            label: Text(t.psPickCamera),
+          ),
+        ]),
+        if (!_c.free) ...[
+          const SizedBox(height: Gap.md),
+          _pill(Icons.workspace_premium_outlined, t.psPremiumClean, Brand.success),
+        ],
+      ]),
+    );
+  }
+
+  Widget _pill(IconData icon, String text, Color color) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(Radii.pill),
+        ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: Gap.xs),
+          Flexible(child: Text(text, style: const TextStyle(fontSize: 12.5))),
+        ]),
+      );
+
+  // ------------------------------------------------------------------ preview
+  Widget _image(Uint8List bytes) => Image.memory(
+        bytes,
+        fit: BoxFit.cover,
+        gaplessPlayback: true,
+        cacheWidth: _c.free ? math.min(_c.config.previewMaxPx, 1024) : null,
+      );
+
+  Widget _preview(AppLocalizations t) {
+    final s = _c.session!;
+    final scheme = Theme.of(context).colorScheme;
+    final cur = s.current;
+    final Widget img = s.edited
+        ? PhotoCompare(
+            original: _image(s.original.bytes),
+            adjusted: _image(cur.bytes),
+            height: 300,
+          )
+        : ClipRRect(
+            borderRadius: BorderRadius.circular(Radii.md),
+            child: SizedBox(height: 300, width: double.infinity, child: _image(cur.bytes)),
+          );
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Stack(children: [
+        img,
+        if (_c.free && s.edited)
+          const Positioned.fill(child: IgnorePointer(child: _Watermark())),
+      ]),
+      const SizedBox(height: Gap.sm),
+      Wrap(spacing: Gap.sm, runSpacing: Gap.xs, crossAxisAlignment: WrapCrossAlignment.center, children: [
+        _pill(Icons.verified_outlined, t.psOriginalKept, Brand.success),
+        if (s.edited) Text(t.psCompareHint, style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+        TextButton.icon(
+          onPressed: () => _c.pick(camera: false),
+          icon: const Icon(Icons.swap_horiz, size: 18),
+          label: Text(t.psChangePhoto),
+        ),
+      ]),
+      if (_c.free) ...[
+        const SizedBox(height: Gap.xs),
+        _infoLine(Icons.lock_outline, t.psPreviewNote),
+        _infoLine(_c.secureActive ? Icons.no_photography_outlined : Icons.info_outline,
+            _c.secureActive ? t.psSecureOn : t.psSecureOff),
+      ],
+    ]);
+  }
+
+  Widget _infoLine(IconData icon, String text) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: Gap.xs),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Icon(icon, size: 16, color: scheme.onSurfaceVariant),
+        const SizedBox(width: Gap.sm),
+        Expanded(
+            child: Text(text,
+                style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant, height: 1.35))),
+      ]),
+    );
+  }
+
+  // ------------------------------------------------------------------ cards
+  Widget _card({required IconData icon, required String title, required List<Widget> children}) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(Gap.lg),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(Radii.lg),
+        border: Border.all(color: scheme.outlineVariant),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Icon(icon, color: scheme.primary),
+          const SizedBox(width: Gap.sm),
+          Expanded(
+              child: Text(title,
+                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16.5))),
+        ]),
+        const SizedBox(height: Gap.md),
+        ...children,
+      ]),
+    );
+  }
+
+  Widget _enhanceCard(AppLocalizations t) {
+    final scheme = Theme.of(context).colorScheme;
+    final av = _c.enhance;
+    return _card(icon: Icons.auto_fix_high_rounded, title: t.psEnhanceTitle, children: [
+      Text(t.psEnhanceBody, style: TextStyle(color: scheme.onSurfaceVariant)),
+      const SizedBox(height: Gap.md),
+      Text(t.psStrength, style: const TextStyle(fontWeight: FontWeight.w600)),
+      const SizedBox(height: Gap.xs),
+      SizedBox(
+        width: double.infinity,
+        child: SegmentedButton<EditStrength>(
+          showSelectedIcon: false,
+          segments: [
+            ButtonSegment(value: EditStrength.light, label: Text(t.psStrengthLight)),
+            ButtonSegment(value: EditStrength.natural, label: Text(t.psStrengthNatural)),
+            ButtonSegment(value: EditStrength.strong, label: Text(t.psStrengthStrong)),
+          ],
+          selected: {_c.strength},
+          onSelectionChanged: (v) => _c.setStrength(v.first),
+        ),
+      ),
+      const SizedBox(height: Gap.md),
+      if (av.state == EnhanceState.notInBuild)
+        _statusBox(Icons.hourglass_top_rounded, t.psEnhanceNotInBuild, Brand.warnInk(context))
+      else if (av.state == EnhanceState.needsDownload || av.state == EnhanceState.downloading) ...[
+        _statusBox(Icons.downloading_rounded, t.psEnhancePreparing, scheme.primary),
+        if (av.state == EnhanceState.downloading) ...[
+          const SizedBox(height: Gap.sm),
+          LinearProgressIndicator(value: av.progress),
+        ],
+      ],
+      const SizedBox(height: Gap.md),
+      SizedBox(
+        width: double.infinity,
+        child: FilledButton.icon(
+          key: const Key('psEnhance'),
+          onPressed: _c.busy
+              ? null
+              : (av.state == EnhanceState.needsDownload ? _c.prepareEnhance : _c.runEnhance),
+          icon: const Icon(Icons.auto_awesome),
+          label: Text(t.psEnhanceButton),
+        ),
+      ),
+      if (_c.free) ...[
+        const SizedBox(height: Gap.sm),
+        _costLine(t, _c.config.quote(PsFeature.enhanceHd)),
+      ],
+    ]);
+  }
+
+  Widget _statusBox(IconData icon, String text, Color color) => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(Gap.md),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(Radii.md),
+        ),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Icon(icon, size: 20, color: color),
+          const SizedBox(width: Gap.sm),
+          Expanded(child: Text(text, style: const TextStyle(height: 1.35))),
+        ]),
+      );
+
+  Widget _costLine(AppLocalizations t, FeatureQuote q) {
+    final scheme = Theme.of(context).colorScheme;
+    final parts = <String>[];
+    if (q.free) parts.add(t.psCostIncluded);
+    final a = q.ads;
+    if (a != null) {
+      parts.add(t.psCostAds(fmtInt(context, a.ads)) + (a.trial ? ' · ${t.psFreeTrial}' : ''));
+    }
+    final c = q.credits;
+    if (c != null) {
+      parts.add(c.via == 'pool'
+          ? t.psCostPool(fmtInt(context, c.credits))
+          : t.psCostCredits(fmtInt(context, c.credits)));
+    }
+    if (parts.isEmpty) return const SizedBox.shrink();
+    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Icon(Icons.toll_outlined, size: 16, color: scheme.onSurfaceVariant),
+      const SizedBox(width: Gap.sm),
+      Expanded(
+          child: Text(parts.join('  ·  '),
+              style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant))),
+    ]);
+  }
+
+  String _optLabel(AppLocalizations t, String id) => switch (id) {
+        'bg_change' => t.psOptBgChange,
+        'bg_remove' => t.psOptBgRemove,
+        'bg_blur' => t.psOptBgBlur,
+        'sky_replace' => t.psOptSky,
+        'remove_objects' => t.psOptRemoveObjects,
+        'lighting' => t.psOptLighting,
+        'passport_bd' => t.psOptPassport,
+        'visa_bd' => t.psOptVisa,
+        'product_photo' => t.psOptProduct,
+        'document_cleanup' => t.psOptDocument,
+        'crop_straighten' => t.psOptCrop,
+        'beauty_retouch' => t.psOptBeauty,
+        _ => id,
+      };
+
+  String _beautyLabel(AppLocalizations t, String id) => switch (id) {
+        'skin_smooth' => t.psBeautySkinSmooth,
+        'blemish_remove' => t.psBeautyBlemish,
+        'under_eye' => t.psBeautyUnderEye,
+        'even_tone' => t.psBeautyEvenTone,
+        'glow' => t.psBeautyGlow,
+        'teeth_whiten' => t.psBeautyTeeth,
+        'eye_brighten' => t.psBeautyEyes,
+        'hair_tidy' => t.psBeautyHair,
+        'light_makeup' => t.psBeautyMakeup,
+        _ => id,
+      };
+
+  Widget _promptCard(AppLocalizations t) {
+    final scheme = Theme.of(context).colorScheme;
+    final hasPhoto = _c.session != null;
+    final feature = hasPhoto ? PsFeature.promptEdit : PsFeature.generate;
+    final q = _c.config.quote(feature);
+    return _card(icon: Icons.edit_note_rounded, title: t.psPromptTitle, children: [
+      if (!hasPhoto)
+        Padding(
+          padding: const EdgeInsets.only(bottom: Gap.sm),
+          child: Text(t.psGenerateNoPhoto, style: TextStyle(color: scheme.onSurfaceVariant)),
+        ),
+      TextField(
+        key: const Key('psPrompt'),
+        controller: _prompt,
+        minLines: 1,
+        maxLines: 4,
+        maxLength: 500,
+        textInputAction: TextInputAction.newline,
+        decoration: InputDecoration(
+          hintText: t.psPromptHint,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(Radii.md)),
+          counterText: '',
+          suffixIcon: VoiceMicButton(voice: _voice, input: _prompt),
+        ),
+      ),
+      if (hasPhoto) ...[
+        const SizedBox(height: Gap.md),
+        Text(t.psReadyOptions, style: const TextStyle(fontWeight: FontWeight.w600)),
+        const SizedBox(height: Gap.sm),
+        Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+          for (final id in PsOptions.ready)
+            if (!(id == 'beauty_retouch' && _c.childInPhoto))
+              FilterChip(
+                key: Key('psOpt_$id'),
+                label: Text(_optLabel(t, id)),
+                selected: _c.options.contains(id),
+                onSelected: (_) => _c.toggleOption(id),
+              ),
+        ]),
+        if (_c.options.contains('beauty_retouch')) ...[
+          const SizedBox(height: Gap.md),
+          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+            for (final b in PsOptions.beautyAllowed)
+              FilterChip(
+                label: Text(_beautyLabel(t, b)),
+                selected: _c.beauty.contains(b),
+                onSelected: (_) => _c.toggleBeauty(b),
+              ),
+          ]),
+          const SizedBox(height: Gap.sm),
+          _infoLine(Icons.face_retouching_natural, t.psBeautyRule),
+        ],
+        const SizedBox(height: Gap.sm),
+        _switch(t.psHasPeople, _c.hasPeople, _c.setHasPeople, const Key('psHasPeople')),
+        _switch(t.psOthers, _c.othersInPhoto, _c.setOthers, const Key('psOthers')),
+        _switch(t.psChild, _c.childInPhoto, _c.setChild, const Key('psChild')),
+        if (_c.othersInPhoto) _statusBox(Icons.handshake_outlined, t.psConsent, scheme.primary),
+        if (_c.childInPhoto) ...[
+          const SizedBox(height: Gap.sm),
+          _statusBox(Icons.child_care_outlined, t.psChildCaution, Brand.warnInk(context)),
+        ],
+      ],
+      const SizedBox(height: Gap.md),
+      if (!_c.config.providerReady)
+        _statusBox(Icons.key_outlined, t.psProviderMissing(_c.config.providerNeeds),
+            scheme.onSurfaceVariant),
+      if (_c.config.providerReady) _costLine(t, q),
+      if (_c.free && _c.config.trialsLeft != null && _c.config.providerReady) ...[
+        const SizedBox(height: Gap.xs),
+        Text(t.psTrialsLeft(fmtInt(context, _c.config.trialsLeft!)),
+            style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+      ],
+      const SizedBox(height: Gap.md),
+      SizedBox(
+        width: double.infinity,
+        child: FilledButton.tonalIcon(
+          key: const Key('psRunPrompt'),
+          onPressed: _c.busy
+              ? null
+              : () => _c.runPrompt(
+                  _prompt.text,
+                  SheetGateUi(context,
+                      forRun: true, onPremium: _c.free ? _openPlans : null)),
+          icon: const Icon(Icons.auto_awesome_outlined),
+          label: Text(hasPhoto ? t.psRunEdit : t.psRunGenerate),
+        ),
+      ),
+    ]);
+  }
+
+  Widget _switch(String label, bool value, ValueChanged<bool> on, Key key) => SwitchListTile(
+        key: key,
+        contentPadding: EdgeInsets.zero,
+        dense: true,
+        title: Text(label),
+        value: value,
+        onChanged: on,
+      );
+
+  Widget _refusalCard(AppLocalizations t) {
+    final r = _c.refusal!;
+    return Container(
+      key: const Key('psRefusal'),
+      padding: const EdgeInsets.all(Gap.lg),
+      decoration: BoxDecoration(
+        color: Brand.danger.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(Radii.lg),
+        border: Border.all(color: Brand.danger.withValues(alpha: 0.45)),
+      ),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const Icon(Icons.shield_outlined, color: Brand.danger),
+        const SizedBox(width: Gap.md),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(t.psRefusedTitle, style: const TextStyle(fontWeight: FontWeight.w800)),
+            const SizedBox(height: Gap.xs),
+            Text(r.message.isNotEmpty ? r.message : t.psSafetyNote,
+                style: const TextStyle(height: 1.35)),
+          ]),
+        ),
+      ]),
+    );
+  }
+
+  Widget _exportCard(AppLocalizations t) {
+    final enabled = _c.canExport && !_c.busy;
+    Widget tile(ExportKind k, IconData icon, String label) => _ExportTile(
+          key: Key('psExport_${k.wire}'),
+          icon: icon,
+          label: label,
+          enabled: enabled,
+          available: _c.deps.sink.available(k),
+          onTap: () => _c.export(
+              k, SheetGateUi(context, onPremium: _c.free ? _openPlans : null)),
+        );
+    return _card(icon: Icons.ios_share_rounded, title: t.psExportTitle, children: [
+      LayoutBuilder(builder: (context, c) {
+        final cols = c.maxWidth >= 420 ? 5 : 3;
+        final w = (c.maxWidth - Gap.sm * (cols - 1)) / cols;
+        return Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+          for (final e in [
+            tile(ExportKind.save, Icons.download_rounded, t.psSave),
+            tile(ExportKind.share, Icons.share_rounded, t.psShare),
+            tile(ExportKind.wallpaper, Icons.wallpaper_rounded, t.psWallpaper),
+            tile(ExportKind.copy, Icons.copy_rounded, t.psCopy),
+            tile(ExportKind.openIn, Icons.open_in_new_rounded, t.psOpenIn),
+          ])
+            SizedBox(width: w, child: e),
+        ]);
+      }),
+      if (_c.free) ...[
+        const SizedBox(height: Gap.sm),
+        _costLine(t, _c.config.quote(PsFeature.enhanceHd)),
+        _infoLine(Icons.branding_watermark_outlined, t.psCornerNote),
+      ],
+    ]);
+  }
+
+  Widget _footNotes(AppLocalizations t) => Column(children: [
+        _infoLine(Icons.shield_moon_outlined, t.psSafetyNote),
+        _infoLine(Icons.info_outline, t.psAiMetaNote),
+      ]);
+
+  Future<void> _history() async {
+    final t = AppLocalizations.of(context);
+    final s = _c.session;
+    if (s == null) return;
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: ListView(shrinkWrap: true, children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
+            child: Text(t.psHistory,
+                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+          ),
+          for (var i = 0; i < s.versions.length; i++)
+            ListTile(
+              leading: ClipRRect(
+                borderRadius: BorderRadius.circular(Radii.xs),
+                child: SizedBox(
+                    width: 44, height: 44,
+                    child: Image.memory(s.versions[i].bytes, fit: BoxFit.cover, cacheWidth: 96)),
+              ),
+              title: Text(i == 0 ? t.psVersionOriginal : t.psVersionEdit(fmtInt(context, i))),
+              trailing: i == s.index ? const Icon(Icons.check_circle, color: Brand.success) : null,
+              onTap: () {
+                s.select(i);
+                Navigator.of(ctx).pop();
+              },
+            ),
+        ]),
+      ),
+    );
+  }
+}
+
+class _ExportTile extends StatelessWidget {
+  const _ExportTile(
+      {super.key,
+      required this.icon,
+      required this.label,
+      required this.enabled,
+      required this.available,
+      required this.onTap});
+  final IconData icon;
+  final String label;
+  final bool enabled;
+  final bool available;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final on = enabled;
+    return Material(
+      color: scheme.surfaceContainerHighest.withValues(alpha: on ? 1 : 0.5),
+      borderRadius: BorderRadius.circular(Radii.md),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(Radii.md),
+        onTap: on ? onTap : null,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: Gap.md, horizontal: Gap.xs),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Icon(icon, color: on ? (available ? scheme.primary : scheme.onSurfaceVariant) : scheme.outline),
+            const SizedBox(height: Gap.xs),
+            Text(label,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                style: TextStyle(
+                    fontSize: 12.5,
+                    color: on ? scheme.onSurface : scheme.onSurfaceVariant)),
+          ]),
+        ),
+      ),
+    );
+  }
+}
+
+/// Visible diagonal watermark over the FREE preview (pixels-level the preview
+/// is also reduced-size; full quality only through the export gate).
+class _Watermark extends StatelessWidget {
+  const _Watermark();
+  @override
+  Widget build(BuildContext context) => ClipRRect(
+        borderRadius: BorderRadius.circular(Radii.md),
+        child: CustomPaint(painter: _WatermarkPainter()),
+      );
+}
+
+class _WatermarkPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final tp = TextPainter(
+      text: const TextSpan(
+          text: 'Assisto preview',
+          style: TextStyle(
+              color: Color(0x66FFFFFF),
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              shadows: [Shadow(blurRadius: 2, color: Color(0x55000000))])),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    canvas.save();
+    canvas.translate(size.width / 2, size.height / 2);
+    canvas.rotate(-math.pi / 7);
+    final stepX = tp.width + 36, stepY = tp.height + 44;
+    final r = math.max(size.width, size.height);
+    for (var y = -r; y < r; y += stepY) {
+      for (var x = -r; x < r; x += stepX) {
+        tp.paint(canvas, Offset(x + ((y / stepY).round().isEven ? 0 : stepX / 2), y));
+      }
+    }
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}

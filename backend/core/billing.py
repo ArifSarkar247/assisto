@@ -361,7 +361,17 @@ def pnl_dashboard(days=30, now=None):
         "break_even": be,
         "guard": guard,
         "alerts": alerts,
+        # ps1-photo: Photo Studio ad revenue vs cost, per day per feature
+        "photo_studio": _photo_studio_stats(days),
     }
+
+
+def _photo_studio_stats(days):
+    try:
+        from . import photo_studio_service
+        return photo_studio_service.owner_stats(days)
+    except Exception:
+        return {"days": [], "features": [], "totals": {}}
 
 
 def _recent_cost_alerts(limit=20):
