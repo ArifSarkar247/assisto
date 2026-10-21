@@ -149,11 +149,10 @@ class _AppDrawerState extends State<AppDrawer> {
           child: ListView(
             padding: const EdgeInsets.symmetric(vertical: Gap.xs),
             children: [
-              // ChatGPT-style history (home + Assisto AI threads). The
-              // old separate "Assisto AI" tile lives here as "New AI chat".
+              // ChatGPT-style history (home + Assisto AI threads). The ONE
+              // "New chat" button sits above; no second "New AI chat" entry.
               SidebarChats(
                 query: _q,
-                onNewAiChat: () => _push((_) => const AiChatScreen()),
                 onOpen: (source, row) {
                   if (source == 'ai') {
                     _push((_) => AiChatScreen(initialSession: row));
