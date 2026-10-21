@@ -171,7 +171,7 @@ class _DeadClient implements HttpClient {
       throw const SocketException('network disabled in screenshot tests');
 }
 
-const _outDir = '/home/ubuntu/assisto/screenshots';
+final _outDir = Platform.environment['ASSISTO_SHOT_DIR'] ?? '/home/ubuntu/assisto/screenshots';
 
 Future<void> _loadFont(String family, String path) async {
   final loader = FontLoader(family);
@@ -348,6 +348,8 @@ void main() {
     'drawer': (build: (_) => Scaffold(body: Row(children: [AppDrawer(onNewChat: () {})])), mode: FakeMode.data, full: true),
     'home_chat_restored': (build: (_) => Scaffold(appBar: AppBar(title: const Text('Assisto')), body: Column(children: [const HomeQuickBar(compact: true, debugRoutes: HomeQuickButtons.defaults), Expanded(child: AgentThreadScreen(sessionId: '11'))])), mode: FakeMode.data, full: true),
     'quick_grid': (build: (_) => const Scaffold(body: Padding(padding: EdgeInsets.all(16), child: HomeQuickBar(debugRoutes: HomeQuickButtons.defaults))), mode: FakeMode.data, full: true),
+    // owner default (from /admin/pricing) applied for a not-yet-customized user
+    'quick_grid_owner': (build: (_) => const Scaffold(body: Padding(padding: EdgeInsets.all(16), child: HomeQuickBar(debugRoutes: ['emergency', 'money', 'reminders', 'scam', 'nearby', 'notes']))), mode: FakeMode.data, full: true),
     'quick_picker': (build: (_) => const Scaffold(body: QuickButtonsPicker(current: HomeQuickButtons.defaults)), mode: FakeMode.data, full: true),
     'drawer_bottom': (build: (_) => Scaffold(body: Row(children: [AppDrawer(onNewChat: () {})])), mode: FakeMode.data, full: true),
     'messenger': (build: (_) => const MessengerHomeScreen(), mode: FakeMode.data, full: true),
