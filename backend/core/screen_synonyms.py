@@ -50,6 +50,13 @@ SCREEN_SYNONYMS = {
                 "unseen bangladesh", "travel", "destinations", "tourism"],
     "photo_enhance": ["ছবি উন্নত", "ছবি এনহ্যান্স", "ছবি ভালো করা",
                        "enhance photo", "photo enhance", "improve photo"],
+    # m3-circle: "add someone" opens the My Circle ADD flow (longer phrases
+    # than the bare "circle" so they win in resolve()).
+    "circle_add": ["সার্কেলে যোগ", "সার্কেলে যুক্ত", "কাউকে যোগ", "কাউকে যুক্ত",
+                   "আমার সার্কেলে যোগ", "নতুন কাউকে যোগ",
+                   "add to my circle", "add to circle", "add someone",
+                   "add a person", "add people", "add friend to circle",
+                   "add family to circle"],
     "circle": ["সার্কেল", "পরিবার সার্কেল", "পরিবার-বন্ধু",
                 "connected circle", "circle", "family chat"],
     "legal": ["আইনি", "গোপনীয়তা নীতি", "নীতিমালা", "ব্যবহারের শর্ত",
@@ -102,4 +109,55 @@ def resolve(text):
     for word, route in _INDEX:
         if word and word in t:
             return route
+    return None
+
+
+# ---------------------------------------------------------------------------
+# m3-circle: whole-message My Circle commands.
+#
+# Root cause of the owner's "circle -> no match": a bare one/two-word message
+# ("circle", "my circle", "সার্কেল") is classified as intent "ambiguous", and
+# the agent view deliberately drops the route for question/ambiguous text (so
+# questions are answered in chat). The command never navigated. This resolver
+# is consulted ONLY for those intents and ONLY returns a route when the WHOLE
+# message is a My Circle command (after removing open-verbs / "my" / "please"),
+# or contains an explicit "add someone" phrase — so a real question that just
+# mentions a circle is still answered in chat.
+# ---------------------------------------------------------------------------
+_CMD_FILLER = (
+    "please", "plz", "pls", "open", "show", "go to", "take me to", "my", "the",
+    "আমার", "খোলো", "খুলুন", "খোল", "দেখাও", "দেখান", "যাও", "চাই",
+    "প্লিজ", "একটু",
+)
+_CIRCLE_WORDS = {"circle", "my circle", "connected circle", "সার্কেল",
+                 "আমার সার্কেল", "মাই সার্কেল"}
+
+
+def _norm_cmd(text):
+    import re
+    t = (text or "").lower().strip()
+    t = re.sub(r"[\s.,!?।:;'\"]+", " ", t).strip()
+    changed = True
+    while changed and t:
+        changed = False
+        for f in _CMD_FILLER:
+            for pat in (f + " ", " " + f):
+                if t.startswith(pat) and pat.endswith(" "):
+                    t, changed = t[len(pat):].strip(), True
+                elif t.endswith(pat) and pat.startswith(" "):
+                    t, changed = t[: -len(pat)].strip(), True
+    return t
+
+
+def resolve_command(text):
+    """'circle_add' for a whole-message My Circle command, else None."""
+    if not text:
+        return None
+    low = text.lower()
+    for w in SCREEN_SYNONYMS["circle_add"]:
+        if w in low:
+            return "circle_add"
+    n = _norm_cmd(text)
+    if n in _CIRCLE_WORDS:
+        return "circle_add"
     return None

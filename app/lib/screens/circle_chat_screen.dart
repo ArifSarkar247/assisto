@@ -523,8 +523,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       ),
     );
     if (ok != true || !mounted) return;
-    await _delete(m, scope);
-    if (mounted) {
+    final done = await _delete(m, scope);
+    if (mounted && done) {
       _toast(everyone ? _t.msgrMsgDeletedEveryone : _t.msgrMsgDeletedMe);
     }
   }
@@ -533,21 +533,27 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     final me = context.read<AppState>().user?.id;
     final next = Map<String, int>.from(m.reactions);
     next[emoji] = (next[emoji] ?? 0) + 1;
+    final before = _messages;
     setState(() {
       _messages = _messages.map((x) => x.id == m.id ? x.copyWith(reactions: next) : x).toList();
     });
     try {
       await _api.postJson('/circle/messages/${m.id}/react', {'emoji': emoji, 'member_id': me});
-    } catch (_) {}
+    } catch (_) {
+      _undo(before); // m3-circle: never silent
+    }
   }
 
   Future<void> _toggleStar(CircleMessage m) async {
+    final before = _messages;
     setState(() {
       _messages = _messages.map((x) => x.id == m.id ? x.copyWith(starred: !x.starred) : x).toList();
     });
     try {
       await _api.postJson('/circle/messages/${m.id}/star', {'starred': !m.starred});
-    } catch (_) {}
+    } catch (_) {
+      _undo(before);
+    }
   }
 
   Future<void> _togglePin(CircleMessage m, int pinnedCount) async {
@@ -555,15 +561,19 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_t.circlePinLimit)));
       return;
     }
+    final before = _messages;
     setState(() {
       _messages = _messages.map((x) => x.id == m.id ? x.copyWith(pinned: !x.pinned) : x).toList();
     });
     try {
       await _api.postJson('/circle/messages/${m.id}/pin', {'pinned': !m.pinned});
-    } catch (_) {}
+    } catch (_) {
+      _undo(before);
+    }
   }
 
-  Future<void> _delete(CircleMessage m, String scope) async {
+  Future<bool> _delete(CircleMessage m, String scope) async {
+    final before = _messages;
     setState(() {
       _messages = scope == 'me'
           ? _messages.where((x) => x.id != m.id).toList()
@@ -571,21 +581,39 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     });
     try {
       await _api.postJson('/circle/messages/${m.id}/delete', {'scope': scope});
-    } catch (_) {}
+      return true;
+    } catch (_) {
+      _undo(before);
+      return false;
+    }
+  }
+
+  /// m3-circle: an optimistic change the server refused/never got is rolled
+  /// back and the user is told (these used to fail silently).
+  void _undo(List<CircleMessage> before) {
+    if (!mounted) return;
+    setState(() => _messages = before);
+    _toast(_t.grpActionFailed);
   }
 
   Future<void> _applyEdit(CircleMessage m, String newText) async {
     final peer = _peerPub;
+    final before = _messages;
     setState(() {
       _messages = _messages.map((x) => x.id == m.id ? x.copyWith(text: newText, edited: true) : x).toList();
       _editing = null;
       _input.clear();
     });
-    if (peer == null) return;
+    if (peer == null) {
+      _undo(before); // can't encrypt without the peer key -> say so
+      return;
+    }
     final ct = _e2e.encrypt(self: widget.identity, recipientPublicKey: peer, plaintext: newText);
     try {
       await _api.postJson('/circle/messages/${m.id}/edit', {...ct.toEnvelopeFields()});
-    } catch (_) {}
+    } catch (_) {
+      _undo(before);
+    }
   }
 
   // -------------------------------------------------------------------------
@@ -636,7 +664,12 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       setState(() {
         _messages = _messages.map((x) => x.id == clientMsgId ? x.copyWith(pending: false) : x).toList();
       });
-    } catch (_) {}
+    } catch (_) {
+      if (mounted) {
+        setState(() => _messages = _messages.where((x) => x.id != clientMsgId).toList());
+        _toast(_t.grpActionFailed);
+      }
+    }
   }
 
   // -------------------------------------------------------------------------

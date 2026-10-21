@@ -9,8 +9,10 @@ SERVER-ENFORCED RULES (the app never decides who sees what):
     for clients that did not report a build (conservative);
   * audience: all | free | premium | business, matched against the user's
     plan SEGMENT (free / premium / business — see billing._segment_of);
-  * Premium and Business users NEVER receive SPONSORED or ADMOB cards, whatever
-    the card's audience says;
+  * SPONSORED cards reach EVERY plan by default (owner decision, 21 Oct) —
+    always labelled "Sponsored"; the per-card audience can still narrow them;
+  * Premium and Business users NEVER receive ADMOB cards (no AdMob ads is a
+    paid-plan benefit), whatever the card's audience says;
   * the ADMOB slot is for FREE users only, at most ONE, and only when no active
     SPONSORED card is booked for that user (a sponsor always wins the slot).
 
@@ -45,7 +47,7 @@ ROUTE_KEYS = (
     "ride_food", "fall_detect", "lost_stolen", "my_lost_phone", "recovery",
     "phone_safety", "security", "used_phone_check", "sell_phone", "shop_box",
     "analytics", "name_about", "ramadan", "exam", "unseen", "photo_enhance",
-    "circle", "messages", "notifications", "groups", "status", "legal",
+    "circle", "circle_add", "messages", "notifications", "groups", "status", "legal",
     "subscriptions", "finance", "payment_ladder", "notes", "memory", "nominee",
     "contacts", "agent_studio", "jobs", "cv", "resume", "inbox", "guide",
     "nearby", "watch_feed", "business", "bargain_rules", "business_plans",
@@ -108,8 +110,8 @@ def visible_cards(cards, segment, build, now):
         t = c.get("type")
         if t not in TYPES or not c.get("enabled"):
             continue
-        if paid and t in (SPONSORED, ADMOB):
-            continue          # Premium / Business never see paid placements
+        if paid and t == ADMOB:
+            continue          # Premium / Business never see AdMob (plan benefit)
         if not _active_window(c, now):
             continue
         if not _build_ok(c, build):

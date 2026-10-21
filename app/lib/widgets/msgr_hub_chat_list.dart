@@ -7,6 +7,7 @@ import '../l10n/app_localizations.dart';
 import '../messenger_hub_api.dart';
 import '../state.dart';
 import '../theme.dart';
+import 'loading_gate.dart';
 import '../screens/circle_chat_screen.dart';
 import 'msgr_avatar.dart';
 
@@ -25,8 +26,22 @@ import 'msgr_avatar.dart';
 class MsgrHubChatList extends StatefulWidget {
   final IdentityKeyPair? identity;
   final List<Map<String, dynamic>> members;
+
+  /// m3-circle: shown above the list (incoming My Circle requests).
+  final Widget? header;
+
+  /// m3-circle: bump to reload (e.g. after a request was accepted).
+  final int refreshToken;
+
+  /// m3-circle: the empty state offers "Add to My Circle".
+  final VoidCallback? onAdd;
   const MsgrHubChatList(
-      {super.key, required this.identity, required this.members});
+      {super.key,
+      required this.identity,
+      required this.members,
+      this.header,
+      this.refreshToken = 0,
+      this.onAdd});
 
   @override
   State<MsgrHubChatList> createState() => _MsgrHubChatListState();
@@ -57,12 +72,18 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     _load();
   }
 
+  @override
+  void didUpdateWidget(covariant MsgrHubChatList old) {
+    super.didUpdateWidget(old);
+    if (old.refreshToken != widget.refreshToken) _load();
+  }
+
   ApiClient get _api => context.read<AppState>().api;
   AppLocalizations get _t => AppLocalizations.of(context);
 
   Future<void> _load() async {
     try {
-      final r = await _api.getJson('/circle/chats');
+      final r = await loadGuard(_api.getJson('/circle/chats'));
       _chats = ((r['results'] ?? r['chats'] ?? const []) as List)
           .cast<Map<String, dynamic>>();
       _loadFailed = false;
@@ -71,7 +92,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       _loadFailed = true;
     }
     try {
-      _lists = await _api.hubCustomLists();
+      _lists = await loadGuard(_api.hubCustomLists());
     } catch (_) {
       _lists = [];
     }
@@ -200,7 +221,13 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     if (id == null) return;
     try {
       await _api.postJson('messenger/chats/$id/pin', {'pinned': pinning});
-    } catch (_) {}
+    } catch (_) {
+      // m3-circle: never silent — undo the optimistic change and say so.
+      if (mounted) {
+        setState(() => c['pinned'] = !pinning);
+        _toast(_t.grpActionFailed);
+      }
+    }
   }
 
   Future<void> _toggleArchive(Map<String, dynamic> c) async {
@@ -217,7 +244,12 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     if (id == null) return;
     try {
       await _api.postJson('messenger/chats/$id/archive', {'archived': archiving});
-    } catch (_) {}
+    } catch (_) {
+      if (mounted) {
+        setState(() => c['archived'] = !archiving);
+        _toast(_t.grpActionFailed);
+      }
+    }
   }
 
   Future<void> _muteChat(Map<String, dynamic> c) async {
@@ -253,7 +285,12 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     if (id == null) return;
     try {
       await _api.postJson('messenger/chats/$id/mute', {'duration': choice});
-    } catch (_) {}
+    } catch (_) {
+      if (mounted) {
+        setState(() => c['muted'] = false);
+        _toast(_t.grpActionFailed);
+      }
+    }
   }
 
   Future<void> _unmuteChat(Map<String, dynamic> c) async {
@@ -263,7 +300,12 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     if (id == null) return;
     try {
       await _api.postJson('messenger/chats/$id/mute', {'duration': 'off'});
-    } catch (_) {}
+    } catch (_) {
+      if (mounted) {
+        setState(() => c['muted'] = true);
+        _toast(_t.grpActionFailed);
+      }
+    }
   }
 
   Future<void> _markRead(Map<String, dynamic> c) async {
@@ -272,7 +314,9 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     if (id == null) return;
     try {
       await _api.postJson('messenger/chats/$id/read');
-    } catch (_) {}
+    } catch (_) {
+      if (mounted) _toast(_t.grpActionFailed);
+    }
   }
 
   void _toast(String msg) => ScaffoldMessenger.of(context)
@@ -339,21 +383,22 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
   Widget build(BuildContext context) {
     if (_loading) return const Center(child: CircularProgressIndicator());
     if (_loadFailed && _chats.isEmpty) {
-      return Center(
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Text(_t.msgLoadFailed, textAlign: TextAlign.center),
-          const SizedBox(height: Gap.md),
-          FilledButton(
-              onPressed: () {
-                setState(() => _loading = true);
-                _load();
-              },
-              child: Text(_t.retry)),
-        ]),
-      );
+      return Column(children: [
+        if (widget.header != null) widget.header!,
+        Expanded(
+          child: LoadErrorRetry(
+            body: _t.msgLoadFailed,
+            onRetry: () {
+              setState(() => _loading = true);
+              _load();
+            },
+          ),
+        ),
+      ]);
     }
     final visible = _visible;
     return Column(children: [
+      if (widget.header != null) widget.header!,
       _searchBar(),
       if (!_showArchived) _chipsRow(),
       if (_showArchived) _archivedHeader(),
@@ -498,6 +543,18 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
             textAlign: TextAlign.center,
             style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
       ),
+      if (!archived && widget.onAdd != null)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(Gap.xl, Gap.lg, Gap.xl, 0),
+          child: Center(
+            child: FilledButton.icon(
+              key: const Key('m3-empty-add'),
+              onPressed: widget.onAdd,
+              icon: const Icon(Icons.person_add_alt_1),
+              label: Text(t.m3AddToCircle),
+            ),
+          ),
+        ),
     ]);
   }
 

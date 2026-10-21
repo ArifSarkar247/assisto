@@ -144,7 +144,14 @@ class _CircleExtrasScheduledScreenState
   Future<void> _cancel(_ScheduledItem it) async {
     try {
       await _api.postJson('/circle/scheduled/${it.clientMsgId}/cancel', {});
-    } catch (_) {}
+    } catch (_) {
+      // m3-circle: a failed cancel used to show "cancelled" anyway.
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(AppLocalizations.of(context).grpActionFailed)));
+      }
+      return;
+    }
     if (mounted) setState(() => it.status = 'cancelled');
   }
 

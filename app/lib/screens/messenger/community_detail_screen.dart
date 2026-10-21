@@ -184,7 +184,12 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
     if (result == null) return;
     try {
       await _api.communityGroupUpdate('${group['id']}', rules: result.trim());
-    } catch (_) {}
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(AppLocalizations.of(context).grpActionFailed)));
+      }
+    }
     await _load();
   }
 
@@ -213,7 +218,12 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
     if (n == null) return;
     try {
       await _api.communityGroupUpdate('${group['id']}', sizeLimit: n);
-    } catch (_) {}
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(AppLocalizations.of(context).grpActionFailed)));
+      }
+    }
     await _load();
   }
 
