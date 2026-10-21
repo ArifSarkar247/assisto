@@ -485,12 +485,13 @@ class Settings {
     }
   }
 
+  // The in-memory copy is ONLY a fallback for a store that failed; a healthy
+  // store is always the source of truth (so a cleared store reads as empty).
   static Future<bool> getBool(String k, bool def) async {
     final p = await _prefs();
     if (p != null) {
       try {
-        final v = p.getBool(k);
-        if (v != null) return v;
+        return p.getBool(k) ?? def;
       } catch (e) {
         lastError ??= '$e';
       }
@@ -515,8 +516,7 @@ class Settings {
     final p = await _prefs();
     if (p != null) {
       try {
-        final v = p.getString(k);
-        if (v != null) return v;
+        return p.getString(k);
       } catch (e) {
         lastError ??= '$e';
       }

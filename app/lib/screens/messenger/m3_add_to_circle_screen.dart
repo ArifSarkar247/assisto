@@ -312,7 +312,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
               onSubmitted: (_) => _find(),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(
-                    RegExp(r'[0-9+ ()\-.০-৯]')),
+                    RegExp(r'[0-9+ ()\-.\u09E6-\u09EF]')),
               ],
               decoration: InputDecoration(
                 labelText: t.m3NumberLabel,

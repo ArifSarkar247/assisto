@@ -4,6 +4,7 @@ import 'package:assisto/models.dart';
 import 'package:assisto/widgets/home_quick_buttons.dart';
 
 import 'fake_c1_contacts.dart';
+import 'fake_m3_circle.dart';
 import 'fake_discover.dart';
 import 'fake_vehicle.dart';
 
@@ -945,6 +946,8 @@ class FakeApi extends ApiClient {
                 _bn ? 'আগে থেকে থাকার ব্যবস্থা করুন।' : 'Book your stay ahead of time.',
               ]};
     }
+    final m3 = fakeM3Get(path, bn: _bn); // m3-circle (gallery only)
+    if (m3 != null) return m3;
     if (path.startsWith('/circle/requests')) {
       if (mode == FakeMode.fail) _fail();
       return {'results': const []}; // friendly empty state

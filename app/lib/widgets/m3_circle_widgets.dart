@@ -41,6 +41,7 @@ void m3Snack(BuildContext context, String msg, {bool error = false}) {
   final m = ScaffoldMessenger.maybeOf(context);
   if (m == null) return;
   final scheme = Theme.of(context).colorScheme;
+  m.hideCurrentSnackBar(); // the newest result wins (no stale queue)
   m.showSnackBar(SnackBar(
     content: Text(msg),
     backgroundColor: error ? scheme.error : null,
