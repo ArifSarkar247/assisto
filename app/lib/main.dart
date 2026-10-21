@@ -23,6 +23,7 @@ import 'screens/onboarding_screen.dart';
 import 'screens/elderly_home_screen.dart';
 import 'widgets/elderly_mode.dart';
 import 'widgets/chatnav.dart';
+import 'voice/va_launch.dart';
 
 void main() {
   // Nothing in startup may crash the app. Every Dart error — sync, async, or
@@ -182,6 +183,8 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _pollAlerts();
       _maybeSmokeOpen();
+      // Part 3: opened by the assist gesture / wake word? (lazy, guarded)
+      VaLaunch.maybeOpen(context);
     });
   }
 
@@ -203,7 +206,8 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
         // real camera / foreground-service / device-admin / sensor plugins each
         // load once. A native crash kills the process (caught by the smoke
         // test's logcat + liveness check); Dart-level errors stay guarded.
-        const tour = ['voice_sos', 'lost_stolen', 'watch_feed', 'fall_detect'];
+        const tour = ['voice_sos', 'lost_stolen', 'watch_feed', 'fall_detect',
+            'voice_settings'];
         for (final r in tour) {
           if (!mounted) return;
           try {
@@ -233,6 +237,8 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       _pollAlerts();
       // Re-pick up a flag change made while backgrounded (or in Settings).
       _resolveElderly();
+      // Part 3: assist gesture / wake word while Assisto was in background.
+      VaLaunch.maybeOpen(context);
     }
   }
 

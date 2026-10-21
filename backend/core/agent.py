@@ -117,7 +117,8 @@ def parse(text, lang="bn"):
         return {"intent": "music", "query": _strip(text, _MUSIC)}
     if _has(text, _NAVIGATE):
         return {"intent": "navigate", "place": _strip(text, _NAVIGATE + ["যাও", "to"])}
-    if _has(text, _CALL):
+    # "remind me at 5 to call mum" is a REMINDER, not a call (a3-voice).
+    if _has(text, _CALL) and not _has(text, _REMIND):
         return {"intent": "call", "name": _strip(text, _CALL + ["কে", "-কে", "to"])}
 
     # A QUESTION wins over keyword captures (reminder/medicine/memory): it is

@@ -1,0 +1,469 @@
+{
+  "_note": "a3-voice (Part 3 Assisto Voice) ARB keys — all prefixed va.",
+  "en": {
+    "vaTitle": "Assisto Voice",
+    "vaClose": "Close",
+    "vaWelcome": "Hi! What can I do for you?",
+    "vaWelcomeSub": "Speak in Bangla or English. I always ask before calling, messaging or sending SOS.",
+    "vaListening": "Listening…",
+    "vaThinking": "Working on it…",
+    "vaTapToTalk": "Tap the mic and speak",
+    "vaStop": "Stop",
+    "vaStopSpeaking": "Stop speaking",
+    "vaTypeInstead": "Type instead",
+    "vaTypeHint": "Type a command…",
+    "vaSend": "Send",
+    "vaSettingsTitle": "Voice assistant",
+    "vaSettingsTileSub": "Default assistant, “Hey Assisto”, spoken replies",
+    "vaExCall": "Call Ammu",
+    "vaExSms": "Text Rakib I am coming",
+    "vaExYoutube": "Play Bangla songs on YouTube",
+    "vaExAlarm": "Set an alarm for 6:30 am",
+    "vaExTimer": "Timer for 10 minutes",
+    "vaExTorch": "Torch on",
+    "vaExMaps": "Navigate to Dhanmondi",
+    "vaExReminder": "Remind me at 5 pm to call Mum",
+    "vaExExpense": "500 taka groceries expense",
+    "vaExOpenApp": "Open WhatsApp",
+    "vaExSos": "Help me (SOS)",
+    "vaTryTitle": "Try saying",
+    "vaConfirmNote": "Calls, messages, WhatsApp and SOS always wait for your “yes”. Messages open as a draft — you press Send.",
+    "vaConfirmCallTitle": "Call {name}?",
+    "@vaConfirmCallTitle": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "vaConfirmCallSpoken": "Shall I call {name}? Say yes or no.",
+    "@vaConfirmCallSpoken": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "vaConfirmSmsTitle": "Message {name}?",
+    "@vaConfirmSmsTitle": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "vaConfirmSmsSpoken": "Shall I open a message to {name}? Say yes or no.",
+    "@vaConfirmSmsSpoken": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "vaConfirmWaTitle": "WhatsApp {name}?",
+    "@vaConfirmWaTitle": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "vaConfirmWaSpoken": "Shall I open WhatsApp for {name}? Say yes or no.",
+    "@vaConfirmWaSpoken": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "vaConfirmSmsAnyone": "Open a new message?",
+    "vaConfirmWaAnyone": "Open WhatsApp with this message?",
+    "vaNoMessageBody": "No message text — you can type it in the app.",
+    "vaConfirmSosTitle": "Send SOS to your family?",
+    "vaConfirmSosBody": "A 5-second countdown starts, then your family is alerted with your location. You can cancel during the countdown.",
+    "vaSendSos": "Start SOS",
+    "vaCallNow": "Call",
+    "vaOpenDraft": "Open draft",
+    "vaSayYesNo": "Listening — say “yes” or “no”",
+    "vaContinue": "Continue",
+    "vaCancelled": "Okay, cancelled.",
+    "vaContactsReason": "To find who to call or message, Assisto reads your phone contacts on this phone only. Nothing is uploaded.",
+    "vaContactsDenied": "I can't see your contacts, so I can't find the number. You can pick it in the dialer.",
+    "vaNoContact": "I couldn't find “{name}” in your contacts.",
+    "@vaNoContact": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "vaOpenDialer": "Open dialer",
+    "vaDialerOpened": "Dialer opened.",
+    "vaCalling": "Calling {name}…",
+    "@vaCalling": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "vaDialerReady": "{name}'s number is ready in the dialer — tap call.",
+    "@vaDialerReady": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "vaSmsDraftReady": "Your message is ready — tap Send in Messages.",
+    "vaWaDraftReady": "WhatsApp is open with your message — tap Send.",
+    "vaErrNoWhatsapp": "WhatsApp didn't open. Is it installed?",
+    "vaSosStarted": "SOS countdown started.",
+    "vaYoutubeSearching": "Searching YouTube for “{query}”.",
+    "@vaYoutubeSearching": {
+      "placeholders": {
+        "query": {
+          "type": "String"
+        }
+      }
+    },
+    "vaYoutubeTapToPlay": "Tap a video to play it.",
+    "vaOpeningApp": "Opening {name}.",
+    "@vaOpeningApp": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "vaOpening": "Opening it.",
+    "vaNoApp": "I couldn't find an app called “{name}” on this phone.",
+    "@vaNoApp": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "vaNavigating": "Starting directions to {place}.",
+    "@vaNavigating": {
+      "placeholders": {
+        "place": {
+          "type": "String"
+        }
+      }
+    },
+    "vaMapSearching": "Showing {place} on the map.",
+    "@vaMapSearching": {
+      "placeholders": {
+        "place": {
+          "type": "String"
+        }
+      }
+    },
+    "vaOpen": "Open",
+    "vaAlarmLabel": "Assisto alarm",
+    "vaTimerLabel": "Assisto timer",
+    "vaAlarmSet": "Alarm sent to your Clock app for {when}.",
+    "@vaAlarmSet": {
+      "placeholders": {
+        "when": {
+          "type": "String"
+        }
+      }
+    },
+    "vaAlarmPickTime": "Clock app opened — pick the alarm time.",
+    "vaAlarmFallback": "The Clock app didn't take it, so I set an Assisto reminder for {when}.",
+    "@vaAlarmFallback": {
+      "placeholders": {
+        "when": {
+          "type": "String"
+        }
+      }
+    },
+    "vaErrNoClock": "I couldn't open the Clock app on this phone.",
+    "vaTimerSet": "Timer started for {duration}.",
+    "@vaTimerSet": {
+      "placeholders": {
+        "duration": {
+          "type": "String"
+        }
+      }
+    },
+    "vaTimerPick": "Clock app opened — set the timer length.",
+    "vaHours": "{n, plural, =1{1 hour} other{{n} hours}}",
+    "@vaHours": {
+      "placeholders": {
+        "n": {
+          "type": "int",
+          "format": "decimalPattern"
+        }
+      }
+    },
+    "vaMinutes": "{n, plural, =1{1 minute} other{{n} minutes}}",
+    "@vaMinutes": {
+      "placeholders": {
+        "n": {
+          "type": "int",
+          "format": "decimalPattern"
+        }
+      }
+    },
+    "vaSeconds": "{n, plural, =1{1 second} other{{n} seconds}}",
+    "@vaSeconds": {
+      "placeholders": {
+        "n": {
+          "type": "int",
+          "format": "decimalPattern"
+        }
+      }
+    },
+    "vaTodayAt": "today at {time}",
+    "@vaTodayAt": {
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "vaTomorrowAt": "tomorrow at {time}",
+    "@vaTomorrowAt": {
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "vaPartMorning": "morning",
+    "vaPartNoon": "noon",
+    "vaPartAfternoon": "afternoon",
+    "vaPartEvening": "evening",
+    "vaPartNight": "night",
+    "vaTorchOn": "Torch is on.",
+    "vaTorchOff": "Torch is off.",
+    "vaTurnOn": "Turn on",
+    "vaTurnOff": "Turn off",
+    "vaTorchNone": "This phone has no flashlight.",
+    "vaTorchError": "I couldn't control the torch — the camera may be in use.",
+    "vaReminderDefault": "Reminder",
+    "vaReminderSet": "Reminder set: {title} — {when}.",
+    "@vaReminderSet": {
+      "placeholders": {
+        "title": {
+          "type": "String"
+        },
+        "when": {
+          "type": "String"
+        }
+      }
+    },
+    "vaReminderSetNoTime": "Reminder saved without a time: {title}.",
+    "@vaReminderSetNoTime": {
+      "placeholders": {
+        "title": {
+          "type": "String"
+        }
+      }
+    },
+    "vaNoTime": "No time set",
+    "vaExpenseLogged": "Logged {amount} · {category}.",
+    "@vaExpenseLogged": {
+      "placeholders": {
+        "amount": {
+          "type": "String"
+        },
+        "category": {
+          "type": "String"
+        }
+      }
+    },
+    "vaUndo": "Undo",
+    "vaCatGroceries": "Groceries",
+    "vaCatFood": "Food",
+    "vaCatTransport": "Transport",
+    "vaCatBills": "Bills",
+    "vaCatRecharge": "Mobile recharge",
+    "vaCatHealth": "Health",
+    "vaCatShopping": "Shopping",
+    "vaCatEducation": "Education",
+    "vaCatOther": "Other",
+    "vaNotUnderstood": "Sorry, I didn't get that. Try “Call Ammu” or “Torch on”.",
+    "vaErrGeneric": "Something went wrong. Please try again.",
+    "vaErrNoApp": "No app on this phone could open that.",
+    "vaErrOffline": "I couldn't reach Assisto. Check the internet and try again.",
+    "vaNoTtsVoice": "This phone has no Bangla voice installed, so replies are shown as text. You can install one.",
+    "vaInstall": "Install",
+    "vaNeedsUpdate": "This needs the next Assisto update on this phone.",
+    "vaDefTitle": "Make Assisto your phone's assistant",
+    "vaDefBody": "Then press and hold the Home button (or swipe up from a bottom corner) to talk to Assisto from anywhere.",
+    "vaDefIsDefault": "Assisto is your default assistant",
+    "vaDefNotDefault": "Not set yet",
+    "vaDefUnknown": "Can't check on this phone",
+    "vaDefStep1": "Tap “Open settings” below.",
+    "vaDefStep2": "Choose “Digital assistant app” (or “Default digital assistant”).",
+    "vaDefStep3": "Select Assisto, then come back here.",
+    "vaDefColorOs": "Realme / OPPO (ColorOS): Settings > Apps > Default apps > Digital assistant app > Assisto. Some phones name it “Assist & voice input”.",
+    "vaDefOpenSettings": "Open settings",
+    "vaWakeTitle": "“Hey Assisto” wake word",
+    "vaWakeBody": "Say “Hey Assisto” to start talking, without touching the phone. Off unless you turn it on.",
+    "vaWakeChecking": "Checking…",
+    "vaWakeComing": "Coming soon — available once the wake-word key is set up.",
+    "vaWakeEngineMissing": "Not in this app version yet — it arrives with an update.",
+    "vaWakeOffNote": "Off",
+    "vaWakeOnNote": "On — listening for “Hey Assisto”",
+    "vaWakeStartFailed": "Couldn't start the wake word. Please try again.",
+    "vaWakeDownloadFailed": "Couldn't download the wake-word file. Check the internet.",
+    "vaWakeBattery": "Uses some extra battery while on. A notification stays visible the whole time so you always know the mic is listening.",
+    "vaWakePrivacy": "The wake word is detected on this phone. Audio is never uploaded or saved.",
+    "vaWakeConfirmTitle": "Turn on “Hey Assisto”?",
+    "vaWakeConfirmBody": "Assisto will keep the microphone on to listen for “Hey Assisto” — on this phone only, nothing is uploaded. A notification shows while it listens, and it uses some extra battery. You can stop it from the notification any time.",
+    "vaWakeTurnOn": "Turn on",
+    "vaWakeNotifTitle": "Listening for “Hey Assisto”",
+    "vaWakeNotifBody": "Microphone in use on this phone only. Tap Stop to turn off.",
+    "vaWakeTapToTalk": "Tap to talk to Assisto",
+    "vaTtsTitle": "Spoken replies",
+    "vaTtsBody": "Assisto reads its answers aloud in your app language.",
+    "vaTtsInstallBn": "Install or change the Bangla voice"
+  },
+  "bn": {
+    "vaTitle": "অ্যাসিস্টো ভয়েস",
+    "vaClose": "বন্ধ করুন",
+    "vaWelcome": "হ্যালো! কী করে দেব?",
+    "vaWelcomeSub": "বাংলা বা ইংরেজিতে বলুন। কল, মেসেজ বা SOS পাঠানোর আগে সবসময় আপনাকে জিজ্ঞেস করি।",
+    "vaListening": "শুনছি…",
+    "vaThinking": "কাজ করছি…",
+    "vaTapToTalk": "মাইকে চাপ দিয়ে বলুন",
+    "vaStop": "থামান",
+    "vaStopSpeaking": "কথা বলা থামান",
+    "vaTypeInstead": "লিখে বলুন",
+    "vaTypeHint": "একটা কমান্ড লিখুন…",
+    "vaSend": "পাঠান",
+    "vaSettingsTitle": "ভয়েস অ্যাসিস্ট্যান্ট",
+    "vaSettingsTileSub": "ডিফল্ট অ্যাসিস্ট্যান্ট, “হেই অ্যাসিস্টো”, কণ্ঠে উত্তর",
+    "vaExCall": "আম্মুকে ফোন দাও",
+    "vaExSms": "রাকিবকে লিখো আমি আসছি",
+    "vaExYoutube": "ইউটিউবে গান চালাও",
+    "vaExAlarm": "কাল সকাল ৬টায় অ্যালার্ম দাও",
+    "vaExTimer": "১০ মিনিটের টাইমার",
+    "vaExTorch": "টর্চ জ্বালাও",
+    "vaExMaps": "ধানমন্ডি কিভাবে যাব",
+    "vaExReminder": "বিকেল ৫টায় আম্মুকে ফোন করতে মনে করিয়ে দিও",
+    "vaExExpense": "৫০০ টাকা বাজার খরচ",
+    "vaExOpenApp": "হোয়াটসঅ্যাপ খোলো",
+    "vaExSos": "বাঁচাও (SOS)",
+    "vaTryTitle": "এভাবে বলে দেখুন",
+    "vaConfirmNote": "কল, মেসেজ, হোয়াটসঅ্যাপ ও SOS সবসময় আপনার “হ্যাঁ”-এর অপেক্ষা করে। মেসেজ খসড়া হিসেবে খোলে — পাঠান আপনিই চাপবেন।",
+    "vaConfirmCallTitle": "{name}-কে কল করব?",
+    "vaConfirmCallSpoken": "{name}-কে কল করব? হ্যাঁ বা না বলুন।",
+    "vaConfirmSmsTitle": "{name}-কে মেসেজ পাঠাবেন?",
+    "vaConfirmSmsSpoken": "{name}-কে মেসেজ খুলব? হ্যাঁ বা না বলুন।",
+    "vaConfirmWaTitle": "{name}-কে হোয়াটসঅ্যাপ করবেন?",
+    "vaConfirmWaSpoken": "{name}-এর জন্য হোয়াটসঅ্যাপ খুলব? হ্যাঁ বা না বলুন।",
+    "vaConfirmSmsAnyone": "নতুন মেসেজ খুলব?",
+    "vaConfirmWaAnyone": "এই মেসেজসহ হোয়াটসঅ্যাপ খুলব?",
+    "vaNoMessageBody": "মেসেজের লেখা নেই — অ্যাপে লিখে নিতে পারবেন।",
+    "vaConfirmSosTitle": "পরিবারকে SOS পাঠাব?",
+    "vaConfirmSosBody": "৫ সেকেন্ডের কাউন্টডাউন শুরু হবে, তারপর আপনার লোকেশনসহ পরিবারকে জানানো হবে। কাউন্টডাউনের মধ্যে বাতিল করতে পারবেন।",
+    "vaSendSos": "SOS শুরু করুন",
+    "vaCallNow": "কল করুন",
+    "vaOpenDraft": "খসড়া খুলুন",
+    "vaSayYesNo": "শুনছি — “হ্যাঁ” বা “না” বলুন",
+    "vaContinue": "চালিয়ে যান",
+    "vaCancelled": "ঠিক আছে, বাতিল করলাম।",
+    "vaContactsReason": "কাকে কল বা মেসেজ করবেন তা খুঁজতে অ্যাসিস্টো শুধু এই ফোনেই আপনার কন্টাক্ট দেখে। কিছুই আপলোড হয় না।",
+    "vaContactsDenied": "কন্টাক্ট দেখার অনুমতি নেই, তাই নম্বর খুঁজে পাচ্ছি না। ডায়ালার থেকে বেছে নিতে পারেন।",
+    "vaNoContact": "আপনার কন্টাক্টে “{name}” পেলাম না।",
+    "vaOpenDialer": "ডায়ালার খুলুন",
+    "vaDialerOpened": "ডায়ালার খুলেছি।",
+    "vaCalling": "{name}-কে কল করছি…",
+    "vaDialerReady": "{name}-এর নম্বর ডায়ালারে দেওয়া আছে — কল চাপুন।",
+    "vaSmsDraftReady": "মেসেজ তৈরি — মেসেজ অ্যাপে পাঠান চাপুন।",
+    "vaWaDraftReady": "মেসেজসহ হোয়াটসঅ্যাপ খুলেছে — পাঠান চাপুন।",
+    "vaErrNoWhatsapp": "হোয়াটসঅ্যাপ খুলল না। অ্যাপটি কি ইনস্টল করা আছে?",
+    "vaSosStarted": "SOS কাউন্টডাউন শুরু হয়েছে।",
+    "vaYoutubeSearching": "ইউটিউবে “{query}” খুঁজছি।",
+    "vaYoutubeTapToPlay": "চালাতে একটা ভিডিওতে চাপ দিন।",
+    "vaOpeningApp": "{name} খুলছি।",
+    "vaOpening": "খুলছি।",
+    "vaNoApp": "এই ফোনে “{name}” নামে কোনো অ্যাপ পেলাম না।",
+    "vaNavigating": "{place} যাওয়ার পথ দেখাচ্ছি।",
+    "vaMapSearching": "ম্যাপে {place} দেখাচ্ছি।",
+    "vaOpen": "খুলুন",
+    "vaAlarmLabel": "অ্যাসিস্টো অ্যালার্ম",
+    "vaTimerLabel": "অ্যাসিস্টো টাইমার",
+    "vaAlarmSet": "{when}-এর অ্যালার্ম আপনার ঘড়ি অ্যাপে দিয়েছি।",
+    "vaAlarmPickTime": "ঘড়ি অ্যাপ খুলেছি — অ্যালার্মের সময় বেছে নিন।",
+    "vaAlarmFallback": "ঘড়ি অ্যাপ নিল না, তাই {when}-এর জন্য অ্যাসিস্টো রিমাইন্ডার দিয়েছি।",
+    "vaErrNoClock": "এই ফোনে ঘড়ি অ্যাপ খুলতে পারলাম না।",
+    "vaTimerSet": "{duration}-এর টাইমার চালু করেছি।",
+    "vaTimerPick": "ঘড়ি অ্যাপ খুলেছি — টাইমারের সময় দিন।",
+    "vaHours": "{n} ঘণ্টা",
+    "vaMinutes": "{n} মিনিট",
+    "vaSeconds": "{n} সেকেন্ড",
+    "vaTodayAt": "আজ {time}",
+    "vaTomorrowAt": "আগামীকাল {time}",
+    "vaPartMorning": "সকাল",
+    "vaPartNoon": "দুপুর",
+    "vaPartAfternoon": "বিকেল",
+    "vaPartEvening": "সন্ধ্যা",
+    "vaPartNight": "রাত",
+    "vaTorchOn": "টর্চ জ্বালিয়েছি।",
+    "vaTorchOff": "টর্চ নিভিয়েছি।",
+    "vaTurnOn": "জ্বালান",
+    "vaTurnOff": "নেভান",
+    "vaTorchNone": "এই ফোনে ফ্ল্যাশলাইট নেই।",
+    "vaTorchError": "টর্চ চালাতে পারলাম না — ক্যামেরা হয়তো ব্যবহার হচ্ছে।",
+    "vaReminderDefault": "রিমাইন্ডার",
+    "vaReminderSet": "রিমাইন্ডার দিয়েছি: {title} — {when}।",
+    "vaReminderSetNoTime": "সময় ছাড়া রিমাইন্ডার রাখলাম: {title}।",
+    "vaNoTime": "সময় দেওয়া নেই",
+    "vaExpenseLogged": "খরচ লিখেছি: {amount} · {category}।",
+    "vaUndo": "ফিরিয়ে নিন",
+    "vaCatGroceries": "বাজার",
+    "vaCatFood": "খাবার",
+    "vaCatTransport": "যাতায়াত",
+    "vaCatBills": "বিল",
+    "vaCatRecharge": "মোবাইল রিচার্জ",
+    "vaCatHealth": "স্বাস্থ্য",
+    "vaCatShopping": "কেনাকাটা",
+    "vaCatEducation": "পড়াশোনা",
+    "vaCatOther": "অন্যান্য",
+    "vaNotUnderstood": "দুঃখিত, বুঝতে পারিনি। যেমন বলুন “আম্মুকে ফোন দাও” বা “টর্চ জ্বালাও”।",
+    "vaErrGeneric": "কিছু একটা সমস্যা হয়েছে। আবার চেষ্টা করুন।",
+    "vaErrNoApp": "এই ফোনের কোনো অ্যাপ এটা খুলতে পারল না।",
+    "vaErrOffline": "অ্যাসিস্টোর সাথে যোগাযোগ হলো না। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+    "vaNoTtsVoice": "এই ফোনে বাংলা কণ্ঠ ইনস্টল নেই, তাই উত্তর লেখায় দেখাচ্ছি। চাইলে ইনস্টল করতে পারেন।",
+    "vaInstall": "ইনস্টল",
+    "vaNeedsUpdate": "এর জন্য এই ফোনে অ্যাসিস্টোর পরের আপডেট লাগবে।",
+    "vaDefTitle": "অ্যাসিস্টোকে ফোনের অ্যাসিস্ট্যান্ট বানান",
+    "vaDefBody": "তাহলে যেকোনো জায়গা থেকে হোম বাটন চেপে ধরে (বা নিচের কোণ থেকে উপরে টেনে) অ্যাসিস্টোর সাথে কথা বলতে পারবেন।",
+    "vaDefIsDefault": "অ্যাসিস্টো এখন আপনার ডিফল্ট অ্যাসিস্ট্যান্ট",
+    "vaDefNotDefault": "এখনো সেট করা হয়নি",
+    "vaDefUnknown": "এই ফোনে যাচাই করা যাচ্ছে না",
+    "vaDefStep1": "নিচে “সেটিংস খুলুন” চাপুন।",
+    "vaDefStep2": "“ডিজিটাল অ্যাসিস্ট্যান্ট অ্যাপ” (বা “ডিফল্ট ডিজিটাল অ্যাসিস্ট্যান্ট”) বেছে নিন।",
+    "vaDefStep3": "অ্যাসিস্টো বেছে নিয়ে এখানে ফিরে আসুন।",
+    "vaDefColorOs": "রিয়েলমি / অপো (ColorOS): সেটিংস > অ্যাপস > ডিফল্ট অ্যাপস > ডিজিটাল অ্যাসিস্ট্যান্ট অ্যাপ > অ্যাসিস্টো। কিছু ফোনে এর নাম “অ্যাসিস্ট ও ভয়েস ইনপুট”।",
+    "vaDefOpenSettings": "সেটিংস খুলুন",
+    "vaWakeTitle": "“হেই অ্যাসিস্টো” ডাক",
+    "vaWakeBody": "ফোন না ছুঁয়েই “হেই অ্যাসিস্টো” বলে কথা শুরু করুন। আপনি চালু না করলে এটা বন্ধ থাকে।",
+    "vaWakeChecking": "যাচাই করছি…",
+    "vaWakeComing": "শিগগির আসছে — ওয়েক-ওয়ার্ড কি সেট হলেই চালু হবে।",
+    "vaWakeEngineMissing": "এই অ্যাপ সংস্করণে এখনো নেই — আপডেটের সাথে আসবে।",
+    "vaWakeOffNote": "বন্ধ",
+    "vaWakeOnNote": "চালু — “হেই অ্যাসিস্টো” শোনার অপেক্ষায়",
+    "vaWakeStartFailed": "ওয়েক-ওয়ার্ড চালু করা গেল না। আবার চেষ্টা করুন।",
+    "vaWakeDownloadFailed": "ওয়েক-ওয়ার্ড ফাইল নামানো গেল না। ইন্টারনেট দেখুন।",
+    "vaWakeBattery": "চালু থাকলে কিছুটা বাড়তি ব্যাটারি লাগে। পুরো সময় একটা নোটিফিকেশন দেখা যায়, যাতে আপনি সবসময় জানেন মাইক শুনছে।",
+    "vaWakePrivacy": "ডাকটি এই ফোনেই শনাক্ত হয়। কোনো শব্দ আপলোড বা সেভ হয় না।",
+    "vaWakeConfirmTitle": "“হেই অ্যাসিস্টো” চালু করবেন?",
+    "vaWakeConfirmBody": "“হেই অ্যাসিস্টো” শুনতে অ্যাসিস্টো মাইক চালু রাখবে — শুধু এই ফোনেই, কিছু আপলোড হয় না। শোনার সময় একটা নোটিফিকেশন দেখা যাবে এবং কিছুটা বাড়তি ব্যাটারি লাগবে। নোটিফিকেশন থেকে যেকোনো সময় বন্ধ করতে পারবেন।",
+    "vaWakeTurnOn": "চালু করুন",
+    "vaWakeNotifTitle": "“হেই অ্যাসিস্টো” শোনার অপেক্ষায়",
+    "vaWakeNotifBody": "মাইক শুধু এই ফোনেই ব্যবহার হচ্ছে। বন্ধ করতে থামান চাপুন।",
+    "vaWakeTapToTalk": "অ্যাসিস্টোর সাথে কথা বলতে চাপ দিন",
+    "vaTtsTitle": "কণ্ঠে উত্তর",
+    "vaTtsBody": "অ্যাসিস্টো আপনার অ্যাপের ভাষায় উত্তর পড়ে শোনায়।",
+    "vaTtsInstallBn": "বাংলা কণ্ঠ ইনস্টল বা বদলান"
+  }
+}
