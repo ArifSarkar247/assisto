@@ -19,11 +19,11 @@ still-pending request, performs the real, complete, cascading hard delete.
 
 Auth reuse:
   * password      -> user.check_password (Django).
-  * OTP           -> the existing OTPCode model (the same rows the login/reset
-    OTP flow issues). When SMS_ENABLED is False no provider can send an OTP, so
-    OTP is treated as satisfied-if-absent — exactly how the rest of the app
-    degrades with SMS off (see OTPRequestView). If an unused, unexpired OTPCode
-    DOES exist for the user it must match.
+  * OTP           -> o1-otp: a single-use `otp_proof` (purpose=delete_account,
+    bound to the user's own phone) from auth/otp/verify. Required whenever the
+    SMS gateway is CONNECTED and the user has a BD mobile (core/otp.py
+    otp_required_for). With SMS not configured no code can be sent, so OTP
+    degrades honestly to password + PIN (same as before).
   * Security PIN  -> views_security._verify_pin against the primary ProtectedPhone.
 """
 import secrets
@@ -39,7 +39,7 @@ from rest_framework.views import APIView
 
 from datetime import timedelta
 
-from .models import (AccountDeletionRequest, OTPCode, ProtectedPhone, AuditLog)
+from .models import (AccountDeletionRequest, ProtectedPhone, AuditLog)
 from .logic import security as sec
 from .views_security import _primary_phone, _verify_pin, _notify_owner_and_circle
 
@@ -70,28 +70,17 @@ def _deletion_counts(user):
     return {k: v for k, v in counts.items() if v}
 
 
-def _otp_ok(user, otp):
-    """Reuse the OTPCode model for verification.
-
-    If any unused, unexpired OTPCode exists for this user's phone/email, the
-    supplied `otp` must match one of them (and it is burned). When SMS is off
-    no code can have been issued, so OTP is satisfied-if-absent — the same
-    graceful degradation OTPRequestView uses.
-    """
-    now = timezone.now()
-    idents = [i for i in (user.phone, user.email) if i]
-    live = OTPCode.objects.filter(identifier__in=idents, used=False,
-                                  expires_at__gt=now) if idents else OTPCode.objects.none()
-    if not live.exists():
-        # No OTP was ever issued (e.g. SMS_ENABLED False) -> nothing to verify.
-        return True
-    code = str(otp or "").strip()
-    match = live.filter(code=code).first() if code else None
-    if match is None:
-        return False
-    match.used = True
-    match.save(update_fields=["used"])
-    return True
+def _otp_gate(user, proof):
+    """o1-otp: (ok, reason). Proof is consumed (single use) only when required."""
+    from . import otp as otp_mod
+    if not otp_mod.otp_required_for(user):
+        return True, None
+    proof = str(proof or "").strip()
+    if not proof:
+        return False, "otp_required"
+    if otp_mod.consume_proof(proof, "delete_account", user.phone) is None:
+        return False, "bad_otp"
+    return True, None
 
 
 # --------------------------------------------------------------------------
@@ -135,18 +124,20 @@ class AccountDeleteRequestView(APIView):
             return Response({"ok": False, "reason": "bad_password"},
                             status=status.HTTP_403_FORBIDDEN)
 
-        # 2) OTP (reuse OTPCode; satisfied-if-absent when none issued)
-        if not _otp_ok(user, request.data.get("otp")):
-            return Response({"ok": False, "reason": "bad_otp"},
-                            status=status.HTTP_403_FORBIDDEN)
-
-        # 3) Security PIN — required ONLY when the user has set one.
+        # 2) Security PIN — required ONLY when the user has set one.
         phone = _primary_phone(user, create=False)
         if phone and phone.security_pin_hash:
             ok, locked = _verify_pin(phone, request.data.get("security_pin"))
             if not ok:
                 return Response({"ok": False, "reason": "locked" if locked else "bad_pin"},
                                 status=status.HTTP_403_FORBIDDEN)
+
+        # 3) OTP proof (o1-otp) — required when SMS is connected; checked after
+        #    password + PIN so a wrong PIN doesn't burn the single-use proof.
+        ok_otp, why = _otp_gate(user, request.data.get("otp_proof"))
+        if not ok_otp:
+            return Response({"ok": False, "reason": why, "purpose": "delete_account"},
+                            status=status.HTTP_403_FORBIDDEN)
 
         now = timezone.now()
 

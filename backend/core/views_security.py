@@ -230,6 +230,20 @@ class SecurityActionView(APIView):
             return Response({"ok": False, "reason": "bad_pin"},
                             status=status.HTTP_403_FORBIDDEN)
 
+        # o1-otp: Section-8 actions also need a single-use SMS otp_proof
+        # (purpose=section8) whenever the SMS gateway is connected.
+        from . import otp as otp_mod
+        if otp_mod.otp_required_for(request.user):
+            proof = str(request.data.get("otp_proof") or "").strip()
+            if not proof:
+                return Response({"ok": False, "reason": "otp_required",
+                                 "purpose": "section8"},
+                                status=status.HTTP_403_FORBIDDEN)
+            if otp_mod.consume_proof(proof, "section8", request.user.phone) is None:
+                return Response({"ok": False, "reason": "bad_otp",
+                                 "purpose": "section8"},
+                                status=status.HTTP_403_FORBIDDEN)
+
         lat = request.data.get("lat")
         lng = request.data.get("lng")
         lat = float(lat) if lat not in (None, "") else None

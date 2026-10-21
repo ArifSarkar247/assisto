@@ -177,6 +177,38 @@ ANNUAL_PLANS = ("premium",)
 GB = 1024 ** 3
 
 
+# ---- o1-otp ---- OTP limits (admin-editable under cfg["otp"]); bounds clamp.
+_OTP_DEFAULTS = {
+    "ttl_seconds": 300,            # code life: 5 minutes
+    "resend_cooldown_seconds": 60,
+    "max_attempts": 5,             # wrong codes per challenge, then lockout
+    "lockout_minutes": 30,
+    "per_phone_per_hour": 5,
+    "per_ip_per_hour": 20,
+    "per_device_per_hour": 10,
+    "proof_ttl_seconds": 600,      # otp_proof life: 10 minutes, single use
+}
+_OTP_BOUNDS = {
+    "ttl_seconds": (60, 1800), "resend_cooldown_seconds": (15, 900),
+    "max_attempts": (1, 10), "lockout_minutes": (1, 1440),
+    "per_phone_per_hour": (1, 50), "per_ip_per_hour": (1, 500),
+    "per_device_per_hour": (1, 100), "proof_ttl_seconds": (60, 3600),
+}
+
+
+def _norm_otp(raw, base):
+    raw = raw if isinstance(raw, dict) else {}
+    out = {}
+    for k, (lo, hi) in _OTP_BOUNDS.items():
+        out[k] = max(lo, min(hi, _int(raw.get(k), base[k])))
+    return out
+
+
+def otp_limits(cfg):
+    """Normalized OTP limits dict."""
+    return normalize(cfg)["otp"]
+
+
 def DEFAULTS():
     """The shipped default config dict (deep copy each call — never share refs)."""
     return {
@@ -248,6 +280,8 @@ def DEFAULTS():
         "ai_user_daily_limit": 0,
         "referral": dict(_REFERRAL_DEFAULTS),
         "shop": dict(_SHOP_DEFAULTS),
+        # o1-otp: OTP limits (admin-editable)
+        "otp": dict(_OTP_DEFAULTS),
     }
 
 
@@ -359,6 +393,7 @@ def normalize(data):
                                            base["ai_user_daily_limit"])),
         "referral": _norm_referral(d.get("referral"), base["referral"]),
         "shop": _norm_shop(d.get("shop"), base["shop"]),
+        "otp": _norm_otp(d.get("otp"), base["otp"]),
     }
 
 

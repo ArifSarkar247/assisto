@@ -195,12 +195,41 @@ REGISTRY = {
               "guide_en": ["ekPay merchant → credentials → paste → Save"],
               "fields": [_f("merchant_id", "Merchant ID", "Merchant ID", secret=False), _f("api_key", "API Key", "API Key")],
               "test": None},
+    # o1-otp: config-driven HTTP adapter (core/sms_gateway.py) — one entry
+    # covers SSL Wireless / BulkSMSBD / Alpha SMS / MiM SMS / Infobip / custom.
     "sms": {"name": "SMS Gateway", "category": "Messaging",
-            "unlocks_bn": "OTP লগইন, ফ্যামিলি SMS অ্যালার্ট।", "unlocks_en": "OTP login, family SMS alerts.",
-            "guide_bn": ["SSL Wireless/Bulk SMS BD ইত্যাদি → API key + sender ID → পেস্ট → Test"],
-            "guide_en": ["SSL Wireless / Bulk SMS BD etc → API key + sender ID → paste → Test"],
-            "fields": [_f("api_key", "API Key", "API Key"), _f("sender_id", "Sender ID", "Sender ID", secret=False)],
-            "test": None},
+            "unlocks_bn": "OTP সাইন-আপ/লগইন, পাসওয়ার্ড রিসেট, অ্যাকাউন্ট ডিলিট ও সেকশন-৮ নিশ্চিতকরণ।",
+            "unlocks_en": "OTP sign-up/login, password reset, account-delete and Section-8 confirmation.",
+            "guide_bn": ["প্রোভাইডার লিখুন: ssl_wireless / bulksmsbd / alpha_sms / mim_sms / infobip / custom",
+                         "API Key ও Sender ID (BTRC অনুমোদিত মাস্কিং নাম বা নন-মাস্কিং নম্বর) পেস্ট করুন",
+                         "custom হলে API URL ও প্যারামিটারের নাম দিন",
+                         "Balance URL অথবা টেস্ট ফোন নম্বর দিন → Save → Test",
+                         "বিস্তারিত: owner_actions/SMS_GATEWAY_NEEDS.md"],
+            "guide_en": ["Provider: ssl_wireless / bulksmsbd / alpha_sms / mim_sms / infobip / custom",
+                         "Paste API key + Sender ID (BTRC-approved masking name or non-masking number)",
+                         "For custom: API URL + the gateway's parameter names",
+                         "Add a balance URL or a test phone → Save → Test",
+                         "Details: owner_actions/SMS_GATEWAY_NEEDS.md"],
+            "fields": [_f("provider", "প্রোভাইডার", "Provider", secret=False),
+                       _f("api_key", "API Key / Token", "API Key / Token"),
+                       _f("sender_id", "Sender ID / মাস্কিং", "Sender ID / masking", secret=False),
+                       _f("username", "ইউজারনেম (যদি লাগে)", "Username (if required)", secret=False),
+                       _f("api_url", "API URL (custom/override)", "API URL (custom/override)", secret=False),
+                       _f("method", "মেথড GET/POST", "Method GET/POST", secret=False),
+                       _f("body_format", "বডি form/json", "Body form/json", secret=False),
+                       _f("param_to", "নম্বর প্যারামিটার", "Number param name", secret=False),
+                       _f("param_message", "মেসেজ প্যারামিটার", "Message param name", secret=False),
+                       _f("param_api_key", "কি প্যারামিটার", "Key param name", secret=False),
+                       _f("param_sender", "সেন্ডার প্যারামিটার", "Sender param name", secret=False),
+                       _f("body_template", "JSON বডি টেমপ্লেট", "JSON body template", secret=False),
+                       _f("auth_header", "অথ হেডার", "Auth header", secret=False),
+                       _f("number_format", "নম্বর ফরম্যাট 880/+880/0", "Number format 880/+880/0", secret=False),
+                       _f("success_json", "সফলতা JSON (path=value)", "Success JSON (path=value)", secret=False),
+                       _f("success_contains", "সফলতা টেক্সট", "Success text", secret=False),
+                       _f("balance_url", "ব্যালান্স URL", "Balance URL", secret=False),
+                       _f("test_phone", "টেস্ট ফোন নম্বর", "Test phone number", secret=False),
+                       _f("app_hash", "Android অ্যাপ হ্যাশ (ঐচ্ছিক)", "Android app hash (optional)", secret=False)],
+            "test": "test_sms"},
     "ivr": {"name": "IVR / Voice call", "category": "Messaging",
             "unlocks_bn": "ফ্যামিলি কেয়ার ভয়েস কল রিমাইন্ডার।", "unlocks_en": "Family-care voice-call reminders.",
             "guide_bn": ["ভয়েস-কল প্রোভাইডার → credentials → পেস্ট → Save"],
@@ -592,3 +621,12 @@ def test_picovoice(cfg):
     if not data or len(data) > 512 * 1024:
         return (False, "keyword file empty or too large")
     return (True, "✓ keyword file reachable — key verified on first phone use")
+
+
+# ---- o1-otp ----
+def test_sms(cfg):
+    """Honest SMS gateway check (core/sms_gateway.HttpSmsAdapter.check): config
+    complete + a real balance call OR one real test SMS. Never 'working' on a
+    format check alone."""
+    from .sms_gateway import HttpSmsAdapter
+    return HttpSmsAdapter(cfg).check()
