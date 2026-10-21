@@ -122,7 +122,7 @@ class PhoneHashSyncTests(TestCase):
 
     def test_legacy_row_login_still_works(self):
         u = User.objects.create_user(name="L", phone=OWNER_NO, password="x12345")
-        User.objects.filter(pk=u.pk).update(phone=OWNER_NO)  # pre-0051 row
+        User.objects.filter(pk=u.pk).update(phone=OWNER_NO)  # pre-0050 row
         r = APIClient().post("/api/v1/auth/login",
                              {"identifier": "+880 1865 052200",
                               "password": "x12345"}, format="json")
@@ -322,7 +322,7 @@ class ContactsDiscoveryTests(TestCase):
 
 class DataMigrationTests(TestCase):
     def _run(self):
-        mod = importlib.import_module("core.migrations.0051_c1_phone_canonical")
+        mod = importlib.import_module("core.migrations.0050_c1_phone_canonical")
         mod.forwards(django_apps, None)
 
     def test_normalises_backfills_and_reports_collisions(self):
@@ -330,7 +330,7 @@ class DataMigrationTests(TestCase):
         b = User.objects.create_user(name="B", phone="01711000902", password="x")
         c = User.objects.create_user(name="C", phone="01711000903", password="x")
         d = User.objects.create_user(name="D", email="d@example.com", password="x")
-        # simulate pre-0051 rows (bypass the signal)
+        # simulate pre-0050 rows (bypass the signal)
         User.objects.filter(pk=a.pk).update(phone="01711000901")
         User.objects.filter(pk=b.pk).update(phone="+880 1711-000902")
         User.objects.filter(pk=c.pk).update(phone="8801711000901")  # collides w/ A
