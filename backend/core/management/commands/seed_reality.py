@@ -2,7 +2,8 @@
 
     python manage.py seed_reality --settings=assisto_backend.settings_ci [--out f.json]
 
-Creates two demo accounts (A = the phone-under-test, B = the "other phone"),
+Creates three demo accounts (A = the phone-under-test, B = the "other phone",
+C = a second "other phone" registered as 01865052200, NOT connected to A),
 an accepted My-Circle edge between them, family members + emergency card,
 money accounts/transactions/budget, notes/todos/reminders and a business
 (profile, products, khata party). Wherever a REAL API endpoint exists the data
@@ -31,6 +32,11 @@ USERS = {
           "email": "rahim@reality.test"},
     "b": {"name": "Reality Karim", "phone": "01700000002",
           "email": "karim@reality.test"},
+    # m3-circle: the "second phone" for the WhatsApp-style add flow,
+    # registered as 01865052200 (owner order). NOT connected to A: every seed
+    # run removes any A<->C edge so the flow always starts from "not added".
+    "c": {"name": "Reality Nadia", "phone": "01865052200",
+          "email": "nadia@reality.test"},
 }
 
 
@@ -75,7 +81,10 @@ class Command(BaseCommand):
         now = timezone.now()
         users, tokens = {}, {}
         for key, u in USERS.items():
-            user = User.objects.filter(phone=u["phone"]).first()
+            # stored phones are canonical E.164 since c1 (0050): find by any
+            # spelling so a re-run reuses the user instead of failing.
+            from core.phone import find_user
+            user = find_user(u["phone"]) or User.objects.filter(phone=u["phone"]).first()
             if user is None:
                 user = User.objects.create_user(name=u["name"], phone=u["phone"],
                                                 email=u["email"], password=DEMO_PASSWORD)
@@ -113,6 +122,12 @@ class Command(BaseCommand):
         eb = CircleMember.objects.filter(user=users["b"], peer_user=users["a"]).first()
         circle = {"a_member_id": ea.id if ea else None, "a_state": ea.state if ea else None,
                   "b_member_id": eb.id if eb else None, "b_state": eb.state if eb else None}
+
+        # --- m3-circle: A and C start NOT connected (the flow adds C)
+        CircleMember.objects.filter(user=users["a"], peer_user=users["c"]).delete()
+        CircleMember.objects.filter(user=users["c"], peer_user=users["a"]).delete()
+        self.steps.append({"step": "reset A<->C (m3 add flow)", "method": "DB",
+                           "path": "circle", "status": 200, "ok": True})
 
         # --- family + emergency card
         fam = []
