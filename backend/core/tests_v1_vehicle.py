@@ -48,6 +48,26 @@ def T(sec):
 
 
 # =========================================================================== GT06
+
+def _noon_today():
+    """A fixed local noon, so whole-day windows ("00:00"-"23:59") never hit
+    their exclusive last minute when the suite runs at 23:59 Dhaka time."""
+    from zoneinfo import ZoneInfo
+    from django.conf import settings
+    import datetime as _dt
+    local = _dt.datetime.now(_dt.timezone.utc).astimezone(ZoneInfo(settings.TIME_ZONE))
+    return local.replace(hour=12, minute=0, second=0, microsecond=0)
+
+
+_NOON = None
+
+
+def _noon_today_fixed():
+    global _NOON
+    if _NOON is None:
+        _NOON = _noon_today()
+    return _NOON
+
 class GT06ProtocolTests(TestCase):
     def test_login_doc_vector_and_ack(self):
         fr = bytes.fromhex("78780D01012345678901234500018CDD0D0A")
@@ -595,6 +615,7 @@ class PairingAndFeatureTests(_Base):
         self.assertTrue(VehicleCommand.objects.filter(kind="set_interval",
                                                       state="queued").exists())
 
+    @mock.patch("django.utils.timezone.now", new=lambda: _noon_today_fixed())
     def test_obd_decode_carmode_and_ai_without_key(self):
         r = self.client.post("/api/v1/vehicle/obd/decode", {"codes": ["P0171", "zz"]},
                              format="json")

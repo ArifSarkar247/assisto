@@ -3,6 +3,8 @@ import io
 import json
 from datetime import datetime, time as dtime, timedelta
 
+from unittest import mock
+
 from django.utils import timezone
 from rest_framework.test import APITestCase
 
@@ -34,6 +36,26 @@ def _multipart(parts, boundary="assistoBOUNDARY"):
                 + b"\r\nContent-Type: " + ctype.encode() + b"\r\n\r\n" + payload + b"\r\n")
     return "multipart/form-data; boundary=" + boundary, out + b"--" + boundary.encode() + b"--\r\n"
 
+
+
+def _noon_today():
+    """A fixed local noon, so whole-day windows ("00:00"-"23:59") never hit
+    their exclusive last minute when the suite runs at 23:59 Dhaka time."""
+    from zoneinfo import ZoneInfo
+    from django.conf import settings
+    import datetime as _dt
+    local = _dt.datetime.now(_dt.timezone.utc).astimezone(ZoneInfo(settings.TIME_ZONE))
+    return local.replace(hour=12, minute=0, second=0, microsecond=0)
+
+
+_NOON = None
+
+
+def _noon_today_fixed():
+    global _NOON
+    if _NOON is None:
+        _NOON = _noon_today()
+    return _NOON
 
 class CameraHookParserTests(APITestCase):
     def test_hikvision_xml(self):
@@ -143,6 +165,7 @@ class CameraHookViewTests(APITestCase):
         self.assertEqual((r.status_code, r.data["events"]), (200, []))
         self.assertFalse(ShopEvent.objects.exists())
 
+    @mock.patch("django.utils.timezone.now", new=lambda: _noon_today_fixed())
     def test_dahua_motion_open_hours_only_logged(self):
         from core.models import ShopEvent
         self.cam.zone_config = {"hours": {"open": "00:00", "close": "23:59"}}
