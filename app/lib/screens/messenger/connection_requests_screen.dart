@@ -170,11 +170,21 @@ class _ConnectionRequestsScreenState extends State<ConnectionRequestsScreen>
   Widget _list(List<Map<String, dynamic>> items, {required bool incoming}) {
     final t = _t;
     if (items.isEmpty) {
+      // QA a6: bare text -> icon + text like the other messenger empties.
       return Center(
-        child: Text(
-            incoming ? t.msgrNoIncomingRequests : t.msgrNoSentRequests,
-            style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Icon(incoming ? Icons.mark_email_unread_outlined : Icons.outbox_outlined,
+              size: 44,
+              color: Theme.of(context)
+                  .colorScheme
+                  .primary
+                  .withValues(alpha: 0.7)),
+          const SizedBox(height: 12),
+          Text(incoming ? t.msgrNoIncomingRequests : t.msgrNoSentRequests,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        ]),
       );
     }
     return RefreshIndicator(

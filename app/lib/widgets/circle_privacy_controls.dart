@@ -74,21 +74,27 @@ class CircleVisibilityRow extends StatelessWidget {
           Text(_fieldLabel(t),
               style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: Gap.xs),
-          SegmentedButton<String>(
+          // QA a6: full width, one line per label (scaled to fit) — at 1.5x
+          // "My circle" wrapped and was clipped by the pill's rounded corner.
+          SizedBox(
+            width: double.infinity,
+            child: SegmentedButton<String>(
             showSelectedIcon: false,
             segments: [
-              ButtonSegment(
-                  value: CirclePrivacyCodes.visEveryone,
-                  label: Text(t.circlePrivacyAudienceCircle)),
-              ButtonSegment(
-                  value: CirclePrivacyCodes.visFamily,
-                  label: Text(t.circlePrivacyAudienceFamily)),
-              ButtonSegment(
-                  value: CirclePrivacyCodes.visNobody,
-                  label: Text(t.circlePrivacyAudienceNobody)),
+              for (final (v, l) in [
+                (CirclePrivacyCodes.visEveryone, t.circlePrivacyAudienceCircle),
+                (CirclePrivacyCodes.visFamily, t.circlePrivacyAudienceFamily),
+                (CirclePrivacyCodes.visNobody, t.circlePrivacyAudienceNobody),
+              ])
+                ButtonSegment(
+                    value: v,
+                    label: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(l, maxLines: 1, softWrap: false))),
             ],
             selected: {value},
             onSelectionChanged: (s) => onChanged(s.first),
+          ),
           ),
         ],
       ),

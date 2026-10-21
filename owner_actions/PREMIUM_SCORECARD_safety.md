@@ -51,4 +51,54 @@ Layout-error report after fixes: **138/138 shots OK** (0 overflow) — batch 1.
 - **Bangla brand spelling is inconsistent**: 42 bn strings write the brand as "অ্যাসিস্টো", the rest as "Assisto" (e.g. Lost/Stolen, Phone safety). `arb_apply` refuses to change existing values, so this needs a direct ARB edit — recommend "Assisto" everywhere.
 - The **Emergency info card** stays white in dark mode on purpose (it is shown to responders / printed).
 
-## Batch 2 — My Circle (messenger, chats, calls UI) — next
+## Batch 2 — My Circle (messenger, chats, calls UI) + incoming call (35 specs / 33 screens)
+
+Shots: before `…/scratchpad/c1/` (sheets `csheets/`), after `…/scratchpad/c3/` (sheets `csheets3/`).
+Run with `ASSISTO_QA_BATCH=2`. Layout-error report after fixes: **210/210 OK** (before: `msgr_set_chats` overflowed in 4 shots).
+Harness now renders real soft shadows (`debugDisableShadows=false` per shot) — the hard black rings around FABs / hang-up buttons in the default test render were an artefact, not an app bug.
+
+| Screen | Before → After | What was fixed |
+|---|---|---|
+| My Circle hub (`circle`) | 9 → 9 | — |
+| My Circle — empty (`circle_empty`) | 9 → 9 | — |
+| My Circle — error (`circle_error`) | 5 → 9 | A failed load said "Your circle is empty" → "Couldn't load" + Retry. |
+| 1:1 chat (`circle_chat`) | 9 → 9 | Message bubble times now formatted in the app language (`circle_bubble.dart`). |
+| Outgoing voice call (`circle_call_out`) | 7 → 9 | Transport banner always said "ringing arrives when push is enabled" even though FCM is integrated → now driven by `PushService.available` (+ TURN state). Control labels split mid-word ("Speake/r") at 1.5× → single words scale to fit. |
+| Incoming video call screen (`circle_call_video_in`) | 7 → 9 | Same banner + labels. |
+| Push ringing screen (`incoming_call`) | 8 → 9 | Decline/Accept clumped in the centre → each takes half the width (dialer layout). |
+| Call history (`circle_call_history`) | 3 → 9 | **Every row showed "?" and no name**, and call-back had no member id: the backend `/circle/calls` sent no peer at all → now returns `name`, `member_id` (the viewer's own edge), `relation`, `custom_label` (+3 backend tests). Dates were always English ("Oct 10") → app language. |
+| Privacy & controls (`circle_privacy`) | 7.5 → 9 | Audience segmented buttons: at 1.5× "My circle" wrapped and was clipped by the pill corner → full width, labels scale to one line. |
+| Search (`circle_search`) | 9 → 9 | — |
+| Groups list (`circle_groups`) | 8.5 → 9 | "4 জন সদস্য" Latin digit → Bangla digits. |
+| Group chat (`circle_group_chat`) | 8.5 → 9 | Empty state was bare text → icon + text like 1:1 chat. |
+| Group info (`circle_group_info`) | 8.5 → 9 | Member count + size limit in Bangla digits. |
+| Status tray (`circle_status`) | 8 → 9 | "My status / Viewed by" read like a cut-off line → "Seen by N" when the server sends a count, nothing otherwise. |
+| New status (`circle_status_new`) | 8.5 → 9 | "0/700" counter in Bangla digits. |
+| Messenger home (`messenger`, `messenger_empty`) | 9 → 9 | — |
+| Profile (`msgr_profile`) | 8 → 9 | Name/about counters in Bangla digits; name helper text was ellipsized at 1.5× → 2 lines. |
+| Contacts on Assisto (`msgr_contacts`) | 9 → 9 | (brand spelling in bn handled by the integrator) |
+| Contact info (`msgr_contact_info`) | 8.5 → 9 | Media/links/docs + starred counts in Bangla digits. |
+| Discover (`msgr_discover`) | 9 → 9 | — |
+| Connection requests (`msgr_requests`) | 8 → 9 | Bare-text empty state → icon + text. |
+| Channels (`msgr_channels`) | 9 → 9 | — |
+| Communities (`msgr_communities`) | 9 → 9 | — |
+| Starred (`msgr_starred`) | 9 → 9 | Error state verified (honest retry). |
+| Broadcast lists (`msgr_broadcasts`) | 7 → 9 | The info note at the bottom was **covered by the FAB** → moved to a header strip. |
+| Linked devices (`msgr_linked_devices`) | 9 → 9 | — |
+| Messenger settings (`msgr_settings`) | 9 → 9 | — |
+| Account / Privacy / Notifications / Calls / Two-step (`msgr_set_*`) | 8 → 9 | Shared tile: titles were cut to one line ("Two-step verificati…", "Who can message …") at large font → 2 lines; subtitles 3 lines. |
+| Chats settings (`msgr_set_chats`) | 6 → 9 | **Wallpaper row overflowed** (fixed 112px height; labels cut "Cyan to") → height grows with text size. Chat-theme segments "Syste m" → scale to one line. |
+| Storage (`msgr_set_storage`) | 8.5 → 9 | Sizes ("0 MB") in Bangla digits. |
+
+## gen-l10n argument-order bug — a6 call sites (from a1's finding)
+gen-l10n orders a method's parameters by the ARB metadata placeholder order, not the text order. Fixed callers (ARB untouched), pinned by `app/test/arb_arg_order_a6_test.dart` (7 tests):
+
+| Key | Signature | Was showing | Fix |
+|---|---|---|---|
+| `fallCountdownValue` | (seconds, minutes) | minutes ⇄ seconds swapped | `fall_detect_screen.dart` ×2 |
+| `disFamilyInArea` | (area, kind, sev) | "Area — Flood: Severe" | `disaster_alerts_screen.dart` |
+| `disShareHotlines` | (disaster, emergency) | hotlines swapped in the share text | `disaster_alerts_screen.dart` |
+| `refCardCaption` | (days, friends) | "invited 30 friends … 3 Premium days" | `ref_achievement_card.dart` |
+| `storageUsedOf` | (quota, used) | "5 GB of 1 GB" | `storage_meter.dart` |
+| `adRewardedTodayCap` | (cap, done) | "5/2 today" | `rewarded_ad_sheet.dart` (verified on shot: "2/5 today") |
+| `updateVersionLine` | (n = latest, v = current) | "latest • current" | `app_update_screen.dart` |

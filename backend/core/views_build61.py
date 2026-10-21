@@ -556,10 +556,25 @@ class CircleCallsView(APIView):
         rows = CallRecord.objects.filter(
             caller=request.user) | CallRecord.objects.filter(callee=request.user)
         out = []
-        for r in rows.distinct()[:100]:
+        for r in rows.distinct().select_related("caller", "callee", "circle")[:100]:
             outgoing = r.caller_id == request.user.id
+            # QA a6: the history used to carry no peer at all, so every row
+            # showed "?" with no name and call-back had no member id. Resolve
+            # the VIEWER's own edge to the other party (their chat/call id).
+            other = r.callee if outgoing else r.caller
+            edge = r.circle if (outgoing and r.circle is not None
+                                and r.circle.user_id == request.user.id) else None
+            if edge is None and other is not None:
+                edge = CircleMember.objects.filter(
+                    user=request.user, peer_user=other).first()
+            name = ((edge.name if edge is not None else "")
+                    or (getattr(other, "name", "") or "")).strip()
             out.append({
                 "id": r.id, "kind": r.kind, "state": r.state,
+                "name": name,
+                "member_id": edge.id if edge is not None else None,
+                "relation": edge.relation if edge is not None else "friend",
+                "custom_label": edge.custom_label if edge is not None else "",
                 "duration_sec": r.duration_sec,
                 # Formatted mm:ss for a completed (answered) call; blank for
                 # missed/declined so the row shows the outcome instead.

@@ -276,7 +276,7 @@ class CircleBubble extends StatelessWidget {
           Text(t.circleEdited, style: TextStyle(fontSize: 10, color: metaColor)),
           const SizedBox(width: 4),
         ],
-        Text(DateFormat.Hm().format(msg.at),
+        Text(DateFormat.Hm(Localizations.localeOf(context).languageCode).format(msg.at),
             style: TextStyle(fontSize: 11, color: metaColor)),
         if (mine) ...[
           const SizedBox(width: Gap.xs),

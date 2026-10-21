@@ -275,7 +275,7 @@ class _Available extends StatelessWidget {
                             fontWeight: FontWeight.w700,
                             fontSize: 17)),
                     const SizedBox(height: 2),
-                    Text(t.updateVersionLine(current, latest),
+                    Text(t.updateVersionLine(latest, current) /* (n=latest, v=current) */,
                         style: const TextStyle(
                             color: Colors.white, fontSize: 13)),
                   ],

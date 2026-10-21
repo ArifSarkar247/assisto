@@ -310,3 +310,45 @@ class UptimeCheckTests(TestCase):
         self.assertIn("ALERT", out)
         state = json.load(open(self.tmp + "/logs/uptime_state.json"))
         self.assertTrue(state["alerted_down"])
+
+
+# --------------------------------------------------------------- call history
+class CallHistoryNamesTests(APITestCase):
+    """QA a6: /circle/calls carried no peer, so every row showed '?'."""
+
+    def setUp(self):
+        from core.models import CircleMember, CallRecord
+        self.a = User.objects.create_user(name="Amina", phone="01830000031",
+                                          password="x123456")
+        self.b = User.objects.create_user(name="Babu", phone="01830000032",
+                                          password="x123456")
+        self.ab = CircleMember.objects.create(
+            user=self.a, peer_user=self.b, name="Brother", relation="sibling",
+            state="accepted", phone="01830000032")
+        self.ba = CircleMember.objects.create(
+            user=self.b, peer_user=self.a, name="Apu", relation="sibling",
+            state="accepted", phone="01830000031")
+        CallRecord.objects.create(caller=self.a, callee=self.b, circle=self.ab,
+                                  kind="voice", state="ended", duration_sec=65)
+
+    def test_caller_sees_own_edge_name_and_member_id(self):
+        self.client.force_authenticate(self.a)
+        row = self.client.get("/api/v1/circle/calls").data["calls"][0]
+        self.assertEqual(row["name"], "Brother")
+        self.assertEqual(row["member_id"], self.ab.id)
+        self.assertEqual(row["relation"], "sibling")
+        self.assertTrue(row["outgoing"])
+
+    def test_callee_sees_their_own_edge(self):
+        self.client.force_authenticate(self.b)
+        row = self.client.get("/api/v1/circle/calls").data["calls"][0]
+        self.assertEqual(row["name"], "Apu")
+        self.assertEqual(row["member_id"], self.ba.id)
+        self.assertFalse(row["outgoing"])
+
+    def test_falls_back_to_account_name_without_edge(self):
+        self.ba.delete()
+        self.client.force_authenticate(self.b)
+        row = self.client.get("/api/v1/circle/calls").data["calls"][0]
+        self.assertEqual(row["name"], "Amina")
+        self.assertIsNone(row["member_id"])

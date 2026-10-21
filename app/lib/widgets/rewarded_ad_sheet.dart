@@ -202,7 +202,8 @@ class _RewardedAdSheetState extends State<RewardedAdSheet> {
                         style: const TextStyle(fontWeight: FontWeight.w600))),
                 if (cap > 0)
                   Text(t.adRewardedTodayCap(
-                      fmtInt(context, done), fmtInt(context, cap)),
+                      // (cap, done) — gen-l10n metadata order
+                      fmtInt(context, cap), fmtInt(context, done)),
                       style: TextStyle(
                           fontSize: 12, color: scheme.onSurfaceVariant)),
               ]),

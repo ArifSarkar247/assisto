@@ -945,11 +945,21 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(Gap.xl),
-          child: Text(
-              _searching ? _t.grpSearchNoResults : _t.circleGroupNoMessages,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          // QA a6: match the 1:1 chat's empty state (icon + text).
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Icon(_searching ? Icons.search_off : Icons.forum_outlined,
+                size: 44,
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: 0.7)),
+            const SizedBox(height: Gap.md),
+            Text(
+                _searching ? _t.grpSearchNoResults : _t.circleGroupNoMessages,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          ]),
         ),
       );
     }

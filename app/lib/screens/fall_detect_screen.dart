@@ -161,7 +161,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
         builder: (ctx, setD) => AlertDialog(
           title: Text(t.fallCountdownSettingTitle),
           content: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text(t.fallCountdownValue(v ~/ 60, v % 60),
+            Text(t.fallCountdownValue(v % 60, v ~/ 60) /* (seconds, minutes): gen-l10n metadata order */,
                 style: Theme.of(ctx).textTheme.titleLarge),
             const SizedBox(height: Gap.sm),
             Slider(
@@ -369,7 +369,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
                 leading: const Icon(Icons.timer_outlined),
                 title: Text(t.fallCountdownLabel),
                 subtitle:
-                    Text(t.fallCountdownValue(_windowSec ~/ 60, _windowSec % 60)),
+                    Text(t.fallCountdownValue(_windowSec % 60, _windowSec ~/ 60) /* (seconds, minutes) */),
                 trailing: TextButton(
                     onPressed: _setCountdown, child: Text(t.edit)),
               ),

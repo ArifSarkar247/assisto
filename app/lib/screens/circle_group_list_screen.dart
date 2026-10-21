@@ -6,6 +6,7 @@ import '../crypto/e2e.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../widgets/circle_group_create_sheet.dart';
 import 'circle_group_chat_screen.dart';
 
@@ -147,7 +148,7 @@ class _CircleGroupListScreenState extends State<CircleGroupListScreen> {
         child: const Icon(Icons.groups_outlined),
       ),
       title: Text(name),
-      subtitle: Text(_t.circleGroupMemberCount('$count')),
+      subtitle: Text(_t.circleGroupMemberCount(notifLocalizeDigits(context, '$count'))),
       trailing: announcementsOnly
           ? Tooltip(
               message: _t.circleGroupAnnouncementsOnly,

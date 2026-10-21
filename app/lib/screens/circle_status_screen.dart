@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../api.dart';
 import '../crypto/e2e.dart';
 import '../state.dart';
+import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/circle_status_ring.dart';
@@ -166,8 +167,14 @@ class _CircleStatusScreenState extends State<CircleStatusScreen> {
                       icon: (_mine == null) ? Icons.add : null,
                     ),
                     title: Text(s.statusMine),
-                    subtitle:
-                        Text(_mine == null ? s.statusTapToAdd : s.statusViewers),
+                    // QA a6: a bare "Viewed by" read like a cut-off line.
+                    // Show the count when the server sends one.
+                    subtitle: _mine == null
+                        ? Text(s.statusTapToAdd)
+                        : (_mine!['viewer_count'] is num)
+                            ? Text(s.statusSeenBy(notifLocalizeDigits(
+                                context, '${_mine!['viewer_count']}')))
+                            : null,
                     onTap: _mine == null ? _openComposer : _openMine,
                     trailing: IconButton(
                       icon: const Icon(Icons.add_circle_outline),

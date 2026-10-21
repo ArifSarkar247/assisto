@@ -185,7 +185,7 @@ class _StorageMeterState extends State<StorageMeter> {
         ),
         const SizedBox(height: 6),
         Text(
-          t.storageUsedOf(_size(context, used), _size(context, quota)),
+          t.storageUsedOf(_size(context, quota), _size(context, used)) /* (quota, used) */,
           style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant),
         ),
         const SizedBox(height: 4),

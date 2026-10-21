@@ -80,7 +80,10 @@ class _BroadcastListsScreenState extends State<BroadcastListsScreen> {
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
+          // QA a6: the note sat at the bottom where the FAB covered it —
+          // now a header strip.
           : Column(children: [
+              _noteFooter(),
               Expanded(
                 child: _failed
                     ? _error()
@@ -96,7 +99,6 @@ class _BroadcastListsScreenState extends State<BroadcastListsScreen> {
                             ),
                           ),
               ),
-              _noteFooter(),
             ]),
     );
   }

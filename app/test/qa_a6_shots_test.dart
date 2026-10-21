@@ -44,6 +44,45 @@ import 'package:assisto/screens/safety_screen.dart';
 import 'package:assisto/screens/security_screen.dart';
 import 'package:assisto/screens/settings_screen.dart';
 import 'package:assisto/screens/voice_sos_screen.dart';
+import 'package:assisto/screens/disaster_alerts_screen.dart';
+import 'package:assisto/screens/app_update_screen.dart';
+import 'package:assisto/screens/referral_screen.dart';
+import 'package:assisto/screens/credits_screen.dart';
+import 'package:assisto/widgets/rewarded_ad_sheet.dart';
+
+import 'package:assisto/crypto/e2e.dart';
+import 'package:assisto/push/incoming_call_screen.dart';
+import 'package:assisto/push/push_payload.dart';
+import 'package:assisto/screens/circle_call_history_screen.dart';
+import 'package:assisto/screens/circle_call_screen.dart';
+import 'package:assisto/screens/circle_chat_screen.dart';
+import 'package:assisto/screens/circle_group_chat_screen.dart';
+import 'package:assisto/screens/circle_group_info_screen.dart';
+import 'package:assisto/screens/circle_group_list_screen.dart';
+import 'package:assisto/screens/circle_privacy_screen.dart';
+import 'package:assisto/screens/circle_screen.dart';
+import 'package:assisto/screens/circle_search_screen.dart';
+import 'package:assisto/screens/circle_status_composer_screen.dart';
+import 'package:assisto/screens/circle_status_screen.dart';
+import 'package:assisto/screens/messenger/broadcast_lists_screen.dart';
+import 'package:assisto/screens/messenger/channel_list_screen.dart';
+import 'package:assisto/screens/messenger/community_list_screen.dart';
+import 'package:assisto/screens/messenger/connection_requests_screen.dart';
+import 'package:assisto/screens/messenger/contact_info_screen.dart';
+import 'package:assisto/screens/messenger/contacts_screen.dart';
+import 'package:assisto/screens/messenger/discover_screen.dart';
+import 'package:assisto/screens/messenger/linked_devices_screen.dart';
+import 'package:assisto/screens/messenger/messenger_home_screen.dart';
+import 'package:assisto/screens/messenger/messenger_profile_screen.dart';
+import 'package:assisto/screens/messenger/messenger_settings_screen.dart';
+import 'package:assisto/screens/messenger/msgr_set_account_screen.dart';
+import 'package:assisto/screens/messenger/msgr_set_calls_screen.dart';
+import 'package:assisto/screens/messenger/msgr_set_chats_screen.dart';
+import 'package:assisto/screens/messenger/msgr_set_notifications_screen.dart';
+import 'package:assisto/screens/messenger/msgr_set_privacy_screen.dart';
+import 'package:assisto/screens/messenger/msgr_set_storage_screen.dart';
+import 'package:assisto/screens/messenger/msgr_set_twostep_screen.dart';
+import 'package:assisto/screens/messenger/starred_messages_screen.dart';
 
 import 'fake_api.dart';
 
@@ -89,6 +128,30 @@ class _QaApi extends FakeApi {
             {'id': 2, 'name': bn ? 'রাফি' : 'Rafi'},
           ],
           'pending': <dynamic>[],
+        };
+      }
+      if (path == '/ads/wallet') {
+        return {
+          'balance_credits': 3,
+          'caps': {'rewarded': {'cap': 5, 'used': 2, 'remaining': 3}},
+          'ads_configured': false,
+        };
+      }
+      if (path == '/circle/calls') {
+        // backend shape after the QA fix (views_build61.CircleCallsView)
+        return {
+          'calls': [
+            {'id': 1, 'kind': 'voice', 'state': 'ended', 'duration_sec': 65,
+             'duration': bn ? '১:০৫' : '1:05', 'outgoing': true, 'mine': true,
+             'outcome': bn ? 'আউটগোয়িং' : 'Outgoing',
+             'name': bn ? 'আম্মু' : 'Mom', 'member_id': 1, 'relation': 'mother',
+             'started_at': '2026-10-10T09:00:00Z'},
+            {'id': 2, 'kind': 'video', 'state': 'missed', 'duration_sec': 0,
+             'duration': '', 'outgoing': false, 'mine': false,
+             'outcome': bn ? 'মিসড কল' : 'Missed call',
+             'name': bn ? 'রাফি' : 'Rafi', 'member_id': 2, 'relation': 'friend',
+             'started_at': '2026-10-09T20:15:00Z'},
+          ],
         };
       }
       if (path == '/security/lost-phone') {
@@ -155,6 +218,72 @@ final Map<String, Spec> specs = {
   'battery_guidance': (build: () => const BatteryGuidanceScreen(), mode: FakeMode.data),
   'about': (build: () => const AboutScreen(), mode: FakeMode.data),
   'delete_account': (build: () => const DeleteAccountScreen(), mode: FakeMode.data),
+  // ---- gen-l10n arg-order call sites (verify on the shot) ----
+  'disaster': (build: () => const DisasterAlertsScreen(), mode: FakeMode.data),
+  'app_update': (build: () => const AppUpdateScreen(), mode: FakeMode.data),
+  'referral': (build: () => const ReferralScreen(), mode: FakeMode.data),
+  'credits': (build: () => const CreditsScreen(), mode: FakeMode.data),
+  'rewarded_sheet': (build: () => const Scaffold(body: SafeArea(child: RewardedAdSheet())), mode: FakeMode.data),
+};
+
+// ---- batch 2: My Circle ----
+final IdentityKeyPair _identity = SoftwareE2E().generateIdentity();
+Map<String, dynamic> _member(bool bn) => {
+      'id': 1,
+      'name': bn ? 'আম্মু' : 'Mom',
+      'phone': '01710000000',
+      'status': 'accepted',
+      'relation': 'mother',
+      'public_key': _identity.publicKeyB64,
+    };
+Map<String, dynamic> _group(bool bn) => {
+      'id': 5,
+      'name': bn ? 'পরিবার' : 'Family',
+      'my_role': 'admin',
+      'my_member_id': 1,
+      'announcements_only': false,
+      'disappearing': 0,
+      'mute': false,
+      'favourite': false,
+    };
+
+/// Batch-2 specs are built per language (names in the right script).
+final Map<String, ({Widget Function(bool bn) build, FakeMode mode})> circleSpecs = {
+  'circle': (build: (_) => const CircleScreen(), mode: FakeMode.data),
+  'circle_empty': (build: (_) => const CircleScreen(), mode: FakeMode.empty),
+  'circle_error': (build: (_) => const CircleScreen(), mode: FakeMode.fail),
+  'circle_chat': (build: (bn) => CircleChatScreen(member: _member(bn), identity: _identity), mode: FakeMode.data),
+  'circle_call_out': (build: (bn) => CircleCallScreen(member: _member(bn), kind: 'voice'), mode: FakeMode.data),
+  'circle_call_video_in': (build: (bn) => CircleCallScreen(member: _member(bn), kind: 'video', outgoing: false), mode: FakeMode.data),
+  'incoming_call': (build: (bn) => IncomingCallScreen(payload: PushPayload({'kind': 'call', 'call_id': '7', 'chat_id': '3', 'caller_name': bn ? 'আয়েশা রহমান' : 'Ayesha Rahman', 'video': 'false', 'lang': bn ? 'bn' : 'en'})), mode: FakeMode.data),
+  'circle_call_history': (build: (_) => const CircleCallHistoryScreen(), mode: FakeMode.data),
+  'circle_privacy': (build: (_) => const CirclePrivacyScreen(), mode: FakeMode.data),
+  'circle_search': (build: (bn) => CircleSearchScreen(members: [_member(bn)], identity: _identity), mode: FakeMode.data),
+  'circle_groups': (build: (bn) => CircleGroupListScreen(identity: _identity, circleMembers: [_member(bn)]), mode: FakeMode.data),
+  'circle_group_chat': (build: (bn) => CircleGroupChatScreen(group: _group(bn), identity: _identity, circleMembers: [_member(bn)]), mode: FakeMode.data),
+  'circle_group_info': (build: (bn) => CircleGroupInfoScreen(group: _group(bn), identity: _identity, circleMembers: [_member(bn)]), mode: FakeMode.data),
+  'circle_status': (build: (bn) => CircleStatusScreen(identity: _identity, members: [_member(bn)]), mode: FakeMode.data),
+  'circle_status_new': (build: (bn) => CircleStatusComposerScreen(identity: _identity, members: [_member(bn)]), mode: FakeMode.data),
+  'messenger': (build: (_) => const MessengerHomeScreen(), mode: FakeMode.data),
+  'messenger_empty': (build: (_) => const MessengerHomeScreen(), mode: FakeMode.empty),
+  'msgr_profile': (build: (_) => const MessengerProfileScreen(), mode: FakeMode.data),
+  'msgr_contacts': (build: (_) => const ContactsScreen(), mode: FakeMode.data),
+  'msgr_contact_info': (build: (bn) => ContactInfoScreen(member: _member(bn)), mode: FakeMode.data),
+  'msgr_discover': (build: (_) => const DiscoverScreen(), mode: FakeMode.data),
+  'msgr_requests': (build: (_) => const ConnectionRequestsScreen(), mode: FakeMode.data),
+  'msgr_channels': (build: (_) => const ChannelListScreen(), mode: FakeMode.data),
+  'msgr_communities': (build: (_) => CommunityListScreen(identity: _identity), mode: FakeMode.data),
+  'msgr_starred': (build: (bn) => StarredMessagesScreen(identity: _identity, members: [_member(bn)]), mode: FakeMode.data),
+  'msgr_broadcasts': (build: (bn) => BroadcastListsScreen(identity: _identity, members: [_member(bn)]), mode: FakeMode.data),
+  'msgr_linked_devices': (build: (_) => const LinkedDevicesScreen(), mode: FakeMode.data),
+  'msgr_settings': (build: (_) => const MessengerSettingsScreen(), mode: FakeMode.data),
+  'msgr_set_account': (build: (_) => const MsgrSetAccountScreen(), mode: FakeMode.data),
+  'msgr_set_privacy': (build: (_) => const MsgrSetPrivacyScreen(), mode: FakeMode.data),
+  'msgr_set_chats': (build: (_) => const MsgrSetChatsScreen(), mode: FakeMode.data),
+  'msgr_set_notifs': (build: (_) => const MsgrSetNotificationsScreen(), mode: FakeMode.data),
+  'msgr_set_calls': (build: (_) => const MsgrSetCallsScreen(), mode: FakeMode.data),
+  'msgr_set_storage': (build: (_) => const MsgrSetStorageScreen(), mode: FakeMode.data),
+  'msgr_set_twostep': (build: (_) => const MsgrSetTwoStepScreen(), mode: FakeMode.data),
 };
 
 void main() {
@@ -162,6 +291,7 @@ void main() {
 
   setUpAll(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
+
     SharedPreferences.setMockInitialValues({});
     HttpOverrides.global = _NoNet();
     await _loadFont('NotoSansBengali', 'assets/fonts/NotoSansBengali.ttf');
@@ -194,6 +324,9 @@ void main() {
       final msg = d.exceptionAsString().split('\n').first;
       errors.add(msg.length > 160 ? msg.substring(0, 160) : msg);
     };
+    // Real soft shadows (the test default draws elevation as a hard black
+    // outline, which looks like a bug in the shots). Restored in finally.
+    debugDisableShadows = false;
     try {
       await tester.binding.setSurfaceSize(const Size(360, 800));
       final key = GlobalKey();
@@ -253,6 +386,7 @@ void main() {
       errors.add('EXCEPTION: ${'$e'.split('\n').first}');
     } finally {
       FlutterError.onError = prev;
+      debugDisableShadows = true;
     }
     final uniq = errors.toSet().toList();
     report.add('$name $lang ${b.name} x$_scale: '
@@ -263,7 +397,12 @@ void main() {
   final only = (onlyEnv == null || onlyEnv.isEmpty)
       ? null
       : onlyEnv.split(',').toSet();
-  specs.forEach((name, spec) {
+  final batch2 = Platform.environment['ASSISTO_QA_BATCH'] == '2';
+  final Map<String, Spec Function(String lang)> all = batch2
+      ? circleSpecs.map((k, v) => MapEntry(
+          k, (String lang) => (build: () => v.build(lang == 'bn'), mode: v.mode)))
+      : specs.map((k, v) => MapEntry(k, (String _) => v));
+  all.forEach((name, specFor) {
     if (only != null && !only.contains(name)) return;
     for (final lang in ['bn', 'en']) {
       for (final b in [Brightness.light, Brightness.dark]) {
@@ -274,7 +413,7 @@ void main() {
           continue;
         }
         testWidgets('qa $name $lang ${b.name} x$_scale', (tester) async {
-          await shoot(tester, name, lang, b, spec);
+          await shoot(tester, name, lang, b, specFor(lang));
           // swallow anything the framework still holds so the run continues
           tester.takeException();
         });

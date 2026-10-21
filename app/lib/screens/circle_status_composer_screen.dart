@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../api.dart';
 import '../crypto/e2e.dart';
 import '../state.dart';
+import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/circle_status_audience.dart';
@@ -132,6 +133,15 @@ class _CircleStatusComposerScreenState
               controller: _text,
               maxLines: null,
               maxLength: 700,
+              // QA a6: counter in the app's digits
+              buildCounter: (ctx,
+                      {required currentLength,
+                      required isFocused,
+                      required maxLength}) =>
+                  Text(
+                      notifLocalizeDigits(
+                          ctx, '$currentLength/${maxLength ?? ''}'),
+                      style: Theme.of(ctx).textTheme.bodySmall),
               expands: false,
               textCapitalization: TextCapitalization.sentences,
               decoration: InputDecoration(

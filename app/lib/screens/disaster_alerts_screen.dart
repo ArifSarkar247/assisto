@@ -193,7 +193,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
       if (w.title.isNotEmpty) w.title,
       if (w.area.isNotEmpty) t.disShareArea(w.area),
       if (w.source.isNotEmpty) t.disSourceLine(w.source),
-      t.disShareHotlines(kHotlineEmergency, kHotlineDisaster),
+      t.disShareHotlines(kHotlineDisaster, kHotlineEmergency) /* (disaster, emergency) */,
     ];
     await Share.share(lines.join('\n'));
   }
@@ -383,8 +383,9 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
               title: Text(a.name.isEmpty ? a.area : a.name,
                   style: const TextStyle(fontWeight: FontWeight.w700)),
               subtitle: Text(t.disFamilyInArea(
-                  a.area, dSevLabel(context, a.warning.severity),
-                  dKindLabel(context, a.warning.kind))),
+                  // (area, kind, sev) — gen-l10n metadata order
+                  a.area, dKindLabel(context, a.warning.kind),
+                  dSevLabel(context, a.warning.severity))),
               trailing: IconButton(
                 tooltip: t.disOpenFamily,
                 icon: const Icon(Icons.chevron_right),
