@@ -101,8 +101,15 @@ class _MoneyScreenState extends State<MoneyScreen> {
           // 2 lines and use tight padding + a smaller font to fit the longer
           // EN strings ("Loans and Savings").
           bottom: TabBar(
-            isScrollable: false,
-            labelPadding: const EdgeInsets.symmetric(horizontal: 2),
+            // 1.0x: all five fit (2-line labels). Large font: they would break
+            // mid-word ("Summa ry"), so scroll instead.
+            isScrollable: MediaQuery.textScalerOf(context).scale(10) > 11.5,
+            tabAlignment: MediaQuery.textScalerOf(context).scale(10) > 11.5
+                ? TabAlignment.start
+                : null,
+            labelPadding: MediaQuery.textScalerOf(context).scale(10) > 11.5
+                ? const EdgeInsets.symmetric(horizontal: 12)
+                : const EdgeInsets.symmetric(horizontal: 2),
             labelStyle: const TextStyle(fontSize: 12),
             unselectedLabelStyle: const TextStyle(fontSize: 12),
             tabs: [

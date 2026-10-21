@@ -15,6 +15,10 @@ class FakeApi extends ApiClient {
   }
 
   bool get _bn => lang == 'bn';
+
+  /// The plan slug [plan] reports. The gallery sets 'business' for the Shop Box
+  /// shots (Business-only UI) and resets it to 'premium' for everything else.
+  static String planSlug = 'premium';
   Never _fail() => throw ApiException(
       _bn ? 'সংযোগ করা গেল না' : 'Could not connect', 503);
   List<Map<String, dynamic>> _maybe(List<Map<String, dynamic>> data) {
@@ -32,6 +36,31 @@ class FakeApi extends ApiClient {
   Future<List<Map<String, dynamic>>> listItems(String path) async {
     await _slow();
     if (path.startsWith('crm/')) return _crmList(path);
+    // a2-cctv QA batch 3: seeded rows so arg-order fixes are visible on screen
+    if (path == 'spending/notes') {
+      final b = _bn;
+      return _maybe([
+        {'id': 1, 'category': b ? 'খাবার' : 'Food', 'amount': 9000, 'budget': 8000, 'previous': 6000},
+        {'id': 2, 'category': b ? 'যাতায়াত' : 'Transport', 'amount': 2500, 'budget': 4000, 'previous': 3000},
+        {'id': 3, 'category': b ? 'বিল' : 'Bills', 'amount': 1500, 'previous': 1500},
+      ]);
+    }
+    if (path == 'rent_units' || path == 'rent_payments') {
+      final now = DateTime.now();
+      final m = '${now.year}-${now.month.toString().padLeft(2, '0')}';
+      // 3 paid, 2 partial, 1 due: distinct counts make a swap visible
+      if (path == 'rent_units') {
+        return _maybe([
+          for (var i = 1; i <= 6; i++)
+            {'id': i, 'label': '${_bn ? 'ফ্ল্যাট' : 'Flat'} ${i}A', 'tenant_name': _bn ? 'ভাড়াটিয়া $i' : 'Tenant $i', 'rent_poisha': 1500000, 'active': true},
+        ]);
+      }
+      return _maybe([
+        for (var i = 1; i <= 3; i++) {'id': i, 'unit_id': i, 'month': m, 'paid_poisha': 1500000},
+        {'id': 4, 'unit_id': 4, 'month': m, 'paid_poisha': 500000},
+        {'id': 5, 'unit_id': 5, 'month': m, 'paid_poisha': 1000000},
+      ]);
+    }
     switch (path) {
       case 'subscriptions':
         return _maybe([
@@ -409,7 +438,7 @@ class FakeApi extends ApiClient {
 
   @override
   Future<Map<String, dynamic>> plan() async => {
-        'plan': 'premium', 'name': _bn ? 'প্রিমিয়াম' : 'Premium', 'name_bn': _bn ? 'প্রিমিয়াম' : 'Premium',
+        'plan': planSlug, 'name': _bn ? 'প্রিমিয়াম' : 'Premium', 'name_bn': _bn ? 'প্রিমিয়াম' : 'Premium',
         'unlimited_ai': true, 'ads': false, 'credits': 0,
         'trial_active': true, 'trial_until': '2026-10-20T00:00:00',
       };
@@ -1142,6 +1171,41 @@ class FakeApi extends ApiClient {
     if (path.startsWith('/circle/') || path.startsWith('/journey/') || path.startsWith('/referral/')) {
       return const {}; // unmatched build-61 GET -> empty, never throw in gallery
     }
+    // ===== a2-cctv QA batch 3: CRM lead detail + Money Wrapped =====
+    if (RegExp(r'^/crm/leads/\d+/?$').hasMatch(path)) {
+      if (mode == FakeMode.fail) _fail();
+      return _crmLeads().first;
+    }
+    if (RegExp(r'^/crm/leads/\d+/timeline/?$').hasMatch(path)) {
+      final b = _bn;
+      return {
+        'insight': b ? 'গ্রাহক দাম নিয়ে প্রশ্ন করেছেন — একটি ডেমো প্রস্তাব করুন।' : 'The customer asked about price — offer a demo.',
+        'messages': [
+          {'direction': 'in', 'sentiment': 'positive', 'text': b ? 'ভ্যাট রিপোর্ট সহ ইআরপি দরকার, দাম কত?' : 'We need ERP with VAT reports, what is the price?'},
+          {'direction': 'out', 'sentiment': 'neutral', 'text': b ? 'আগামী সপ্তাহে একটি ডেমো দেখাতে পারি।' : 'We can show you a demo next week.'},
+        ],
+        'activities': [
+          {'kind': 'call', 'kind_display': b ? 'কল' : 'Call', 'subject': b ? 'প্রথম কল' : 'Intro call', 'body': b ? 'বাজেট ৳৫-১০ লাখ' : 'Budget ৳5-10L', 'created_at': '2026-10-12T10:00:00'},
+        ],
+      };
+    }
+    if (path.startsWith('/money/wrapped')) {
+      if (mode == FakeMode.fail) _fail();
+      if (mode == FakeMode.empty) return {'enough_data': false, 'min_txns': 5, 'txn_count': 2, 'month': '2026-09'};
+      return {
+        'enough_data': true, 'month': '2026-09', 'txn_count': 64, 'category_count': 7,
+        'total_spent': 18450, 'total_earned': 35000, 'total_saved': 16550, 'savings_rate': 47,
+        'top_category': _bn ? 'খাবার' : 'Food', 'top_category_amount': 6400,
+        'biggest_expense': {'category': _bn ? 'বাজার' : 'Groceries', 'amount': 3200, 'date': '2026-09-14'},
+        'spend_trend': {'has_previous': true, 'up': false, 'pct': 12, 'delta': -2500},
+        'no_spend_days': 6, 'days_in_scope': 30,
+        'busiest_day': {'date': '2026-09-14', 'amount': 4100},
+        'personality': 'steady_balancer',
+      };
+    }
+    // ===== a2-cctv: Shop Box (CCTV Part 4) GET stubs =====
+    final shop = _shopGet(path);
+    if (shop != null) return shop;
     // ===== Business v2 (khata / selling / AI) GET stubs =====
     final biz = _businessGet(path);
     if (biz != null) return biz;
@@ -1228,14 +1292,14 @@ class FakeApi extends ApiClient {
   List<Map<String, dynamic>> _bizOrders() => [
         {
           'id': 101, 'status': 'new', 'customer_name': _bn ? 'নাদিয়া' : 'Nadia',
-          'customer_phone': '01712345678', 'total': 240000, 'items': 2,
+          'customer_phone': '01712345678', 'total': '2400.00', 'items': 2,
           'cod_amount': 240000, 'courier': 'pathao', 'courier_live': false, 'tracking': '',
           'line': _bn ? 'অর্ডার #101: অর্ডার নেওয়া হয়েছে' : 'Order #101: order received',
         },
         {
           'id': 102, 'status': 'shipped', 'customer_name': _bn ? 'সুমন' : 'Sumon',
-          'customer_phone': '01812345678', 'total': 125000, 'items': 1,
-          'cod_amount': 125000, 'courier': 'steadfast', 'courier_live': false,
+          'customer_phone': '01812345678', 'total': '1250.00', 'items': 1,
+          'cod_amount': '1250.00', 'courier': 'steadfast', 'courier_live': false,
           'tracking': 'SF-998877',
           'line': _bn ? 'অর্ডার #102: কুরিয়ারে পাঠানো হয়েছে' : 'Order #102: shipped via courier',
         },
@@ -1262,10 +1326,14 @@ class FakeApi extends ApiClient {
 
     // profiles
     if (bare == 'business/profiles') {
-      return {'profiles': mode == FakeMode.empty ? const [] : [
+      // the real server answers {businesses, selected_id} (ProfilesView);
+      // 'profiles' kept for older callers.
+      final rows = mode == FakeMode.empty ? const <Map<String, dynamic>>[] : [
         {'id': 1, 'name': _bn ? 'আমার দোকান' : 'My Shop', 'type': 'small_shop',
-         'role': 'owner', 'has_staff': true, 'pay_method': 'bkash', 'pay_number': '01712345678'},
-      ], 'role': 'owner'};
+         'role': 'owner', 'has_staff': true, 'pay_method': 'bkash', 'pay_number': '01712345678',
+         'is_premium': true, 'currency': 'BDT', 'selected': true},
+      ];
+      return {'businesses': rows, 'profiles': rows, 'selected_id': 1, 'role': 'owner'};
     }
     // products
     if (bare == 'business/products/' || bare == 'business/products') {
@@ -1396,7 +1464,11 @@ class FakeApi extends ApiClient {
       return {'orders': mode == FakeMode.empty ? const [] : _bizOrders(), 'role': 'owner'};
     }
     if (RegExp(r'^business/orders/\d+$').hasMatch(bare)) {
-      return _bizOrders().first;
+      // the detail view carries the item LIST (the list view only a count)
+      return {..._bizOrders().first, 'items': [
+        {'name': _bn ? 'পাঞ্জাবি' : 'Panjabi', 'qty': 1, 'price': '1200.00'},
+        {'name': _bn ? 'শাড়ি' : 'Saree', 'qty': 1, 'price': '1200.00'},
+      ], 'tracking': '', 'courier': '', 'courier_live': false};
     }
     // payments
     if (bare == 'business/payments/qr') {
@@ -1413,8 +1485,75 @@ class FakeApi extends ApiClient {
     return const {}; // unmatched business GET -> empty, never throw in gallery
   }
 
+  // a2-cctv: Shop Box sample data (signals-only; no video anywhere).
+  Map<String, dynamic>? _shopGet(String path) {
+    if (!path.startsWith('/shop/')) return null;
+    if (mode == FakeMode.fail) _fail();
+    final b = _bn;
+    final now = DateTime.now();
+    final ago = now.subtract(const Duration(hours: 3)).toUtc().toIso8601String();
+    if (path == '/shop/sites') {
+      return {'sites': mode == FakeMode.empty ? [] : [
+        {'id': 1, 'name': b ? 'মিরপুর শাখা' : 'Mirpur branch', 'snapshot_retention_days': 7,
+         'cameras': 3, 'hours': {'open': '09:00', 'close': '22:00'}, 'pos_link': true,
+         'last_seen': now.toUtc().toIso8601String(), 'online': true, 'created': '2026-10-01T10:00:00Z'},
+        {'id': 2, 'name': b ? 'গুদাম' : 'Warehouse', 'snapshot_retention_days': 3,
+         'cameras': 1, 'hours': {}, 'pos_link': false, 'last_seen': ago, 'online': false,
+         'created': '2026-10-05T10:00:00Z'},
+      ]};
+    }
+    if (RegExp(r'^/shop/sites/\d+/cameras$').hasMatch(path)) {
+      return {'included': 4, 'used': 3, 'used_total': 4, 'extra_camera_credits': 20, 'cameras': [
+        {'id': 1, 'name': b ? 'ক্যাশ কাউন্টার' : 'Cash counter', 'kind': 'shopbox', 'enabled': true,
+         'online': true, 'last_seen': now.toUtc().toIso8601String(), 'live_capable': true,
+         'restricted_zone': true, 'hours': null, 'zone_config': {}},
+        {'id': 2, 'name': b ? 'পেছনের দরজা' : 'Back door', 'kind': 'edge_webhook', 'enabled': true,
+         'online': false, 'last_seen': ago, 'live_capable': false, 'restricted_zone': true,
+         'hours': {'open': '08:00', 'close': '23:00'}, 'zone_config': {}},
+        {'id': 3, 'name': b ? 'স্টোর রুম' : 'Store room', 'kind': 'edge_webhook', 'enabled': false,
+         'online': false, 'last_seen': null, 'live_capable': false, 'restricted_zone': false,
+         'hours': null, 'zone_config': {}},
+      ]};
+    }
+    if (RegExp(r'^/shop/sites/\d+/eod$').hasMatch(path)) {
+      return {'today_cash_sales': 1854000, 'today_cash_sale_count': 37, 'tolerance': 5000,
+        'checks': mode == FakeMode.empty ? [] : [
+          {'id': 2, 'day': '2026-10-20', 'counted': 1520000, 'expected': 1545000, 'opening_float': 200000,
+           'cash_sales': 1345000, 'tolerance': 5000, 'difference': -25000, 'status': 'short', 'note': '', 'event_id': 9},
+          {'id': 1, 'day': '2026-10-19', 'counted': 1210000, 'expected': 1212000, 'opening_float': 200000,
+           'cash_sales': 1012000, 'tolerance': 5000, 'difference': -2000, 'status': 'ok', 'note': '', 'event_id': null},
+        ]};
+    }
+    if (RegExp(r'^/shop/cameras/\d+$').hasMatch(path)) {
+      return {'id': 1, 'name': b ? 'ক্যাশ কাউন্টার' : 'Cash counter', 'camera_token': 'demo-cam-token-xyz',
+        'enabled': true, 'online': true, 'restricted_zone': true, 'hours': null};
+    }
+    if (path.startsWith('/shop/events')) {
+      return {'site': 1, 'events': [
+        {'id': 9, 'type': 'eod_mismatch', 'confidence': 0.62, 'possible': false, 'pos_matched': false,
+         'status': 'open', 'signals': {'reason': ['eod_mismatch', 'short_by_25000']}, 'snapshot_url': null,
+         'camera': null, 'created': ago},
+      ]};
+    }
+    if (path.startsWith('/shop/summary')) {
+      return {'site': 1, 'days': 7, 'total_events': 4, 'by_type': {'after_hours': 1, 'void_spike': 1,
+        'eod_mismatch': 1, 'motion': 1}, 'open': 2, 'false_alarms': 1, 'after_hours': 1,
+        'exceptions': {'voids': 5, 'refunds': 0, 'discounts': 11, 'drawer_opens': 0},
+        'pos_by_kind': {'sale': 212, 'void': 5, 'discount': 11}, 'camera_only': false};
+    }
+    return const {};
+  }
+
   @override
   Future<Map<String, dynamic>> postJson(String path, [Map<String, dynamic> body = const {}]) async {
+    if (path == '/shop/live/start') {
+      // the honest offline state the server answers (409 device_offline)
+      throw ApiException(
+          _bn
+              ? 'শপ বক্স ডিভাইসটি এখন অফলাইন — ফোন/পিসি চালু ও ইন্টারনেটে আছে কিনা দেখুন।'
+              : 'The Shop Box device is offline right now — check that the phone/PC is on and connected.',
+          409);
+    }
     // ===== Module 5 (P13+) stubs =====
     if (path.startsWith('/health/tips/emergency')) {
       return {'emergency': false, 'matched': const [],

@@ -51,11 +51,24 @@ INGEST_MAX_PER_WINDOW = 10
 def _resolve_device_site(request):
     """Resolve the ShopSite a DEVICE request is authenticated for, from either a
     `site_token` (enrollment token) or a `camera_token`. Returns
-    (site, camera_or_None) or (None, None). NO user login involved."""
+    (site, camera_or_None) or (None, None). NO user login involved.
+
+    Tokens come from the body, or (for GET device calls) from the
+    `X-Shop-Token` header (a camera OR site token — never the query string, so
+    tokens stay out of access logs). With a SITE token the device may name one
+    of that site's cameras via `camera_id` / `X-Shop-Camera`."""
     from .models import ShopSite, ShopCamera
-    data = request.data if hasattr(request, "data") else {}
-    site_token = (data.get("site_token") or "").strip()
-    cam_token = (data.get("camera_token") or "").strip()
+    try:
+        data = request.data if hasattr(request, "data") else {}
+    except Exception:
+        data = {}
+    if not hasattr(data, "get"):
+        data = {}
+    site_token = str(data.get("site_token") or "").strip()
+    cam_token = str(data.get("camera_token") or "").strip()
+    hdr = (request.META.get("HTTP_X_SHOP_TOKEN") or "").strip()
+    if hdr and not (site_token or cam_token):
+        cam_token = site_token = hdr
     if cam_token:
         cam = ShopCamera.objects.filter(camera_token=cam_token).select_related(
             "site").first()
@@ -64,8 +77,26 @@ def _resolve_device_site(request):
     if site_token:
         site = ShopSite.objects.filter(enrollment_token=site_token).first()
         if site is not None:
-            return (site, None)
+            cid = data.get("camera_id") or request.META.get("HTTP_X_SHOP_CAMERA")
+            cam = None
+            if cid not in (None, ""):
+                try:
+                    cam = site.cameras.filter(pk=int(cid)).first()
+                except (TypeError, ValueError):
+                    cam = None
+            return (site, cam)
     return (None, None)
+
+
+def _touch_seen(site, cam, now):
+    """Any authenticated device call proves the device is alive (a2-cctv)."""
+    from .models import ShopSite, ShopCamera
+    try:
+        ShopSite.objects.filter(pk=site.pk).update(last_seen=now)
+        if cam is not None:
+            ShopCamera.objects.filter(pk=cam.pk).update(last_seen=now)
+    except Exception:
+        pass
 
 
 def _pos_rows_for(site, now, window_s):
@@ -114,6 +145,7 @@ class ShopIngestView(APIView):
 
         # cheap per-site+type rate limit (abuse guard on a public endpoint)
         now = timezone.now()
+        _touch_seen(site, cam, now)
         if self._rate_limited(site, etype, now):
             return _err(lang, "অনেক দ্রুত অনুরোধ।", "Too many requests.",
                         status=429, code="rate_limited")
@@ -167,8 +199,8 @@ class ShopIngestView(APIView):
             # notify in the OWNER's stored language (the device sent no user lang)
             olang = getattr(site.owner, "language", None)
             olang = olang if olang in ("bn", "en") else "bn"
-            cam_name = (cam.name if cam else "") or (
-                "ক্যামেরা" if olang == "bn" else "camera")
+            cam_name = (cam.name if cam else "") or _subject_label(
+                ev.type, olang)
             pct = int(round(ev.confidence * 100))
             reason = ", ".join(ev.signals.get("reason", []))
             title_bn = "একটু দেখে নিন — %s" % cam_name
@@ -210,12 +242,14 @@ class ShopIngestView(APIView):
             pass
 
 
-def _ingest_event(site, cam, cam_event, now, snapshot=None):
+def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None):
     """Shared core of every device ingest (Shop Box POST + camera webhooks):
     run the pure combined-signal guard against recent POS rows; when it raises,
     persist ONE ShopEvent + at most one snapshot and notify the owner.
-    Returns (decision, event_or_None)."""
-    pos_rows = _pos_rows_for(site, now, SG.DEFAULT_WINDOW_S)
+    `pos_rows` overrides the recent-window POS rows (the void/discount spike
+    check passes TODAY's rows). Returns (decision, event_or_None)."""
+    if pos_rows is None:
+        pos_rows = _pos_rows_for(site, now, SG.DEFAULT_WINDOW_S)
     decision = SG.combine(cam_event, pos_rows, now=now.timestamp())
     if not decision["raise"]:
         return decision, None
@@ -289,9 +323,12 @@ class ShopCameraHookView(APIView):
         events = parser(request.content_type or "", request.body[:4 * 1024 * 1024])
         now = timezone.now()
         local_now = timezone.localtime(now)
+        ShopCamera.objects.filter(pk=cam.pk).update(last_seen=now)
+        # hours: the camera's own, else the site's (a2-cctv)
+        zc = effective_zone_config(cam)
         results = []
         for vev in events:
-            mapped = CH.map_event(vev, cam.zone_config, local_now)
+            mapped = CH.map_event(vev, zc, local_now)
             if mapped is None:
                 continue
             etype, signals = mapped
@@ -379,6 +416,16 @@ class ShopSiteDetailView(APIView):
         if "name" in request.data:
             s.name = (request.data.get("name") or "").strip()[:120]
             changed.append("name")
+        if "hours" in request.data:
+            h = coerce_hours(request.data.get("hours"))
+            if h is False:
+                return _err(lang, "সময় HH:MM আকারে দিন।",
+                            "Give hours as HH:MM.", status=422, code="bad_hours")
+            s.hours = h
+            changed.append("hours")
+        if "pos_link" in request.data:
+            s.pos_link = _coerce_bool(request.data.get("pos_link"))
+            changed.append("pos_link")
         if changed:
             s.save(update_fields=changed)
         return Response(_site_row(s, reveal_token=True))
@@ -394,7 +441,9 @@ class ShopCamerasView(APIView):
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
         rows = [_camera_row(c) for c in s.cameras.all()]
         return Response({"cameras": rows, "included": _included_cameras(request.user),
-                         "used": s.cameras.count()})
+                         "used": s.cameras.count(),
+                         "used_total": owner_enabled_cameras(request.user).count(),
+                         "extra_camera_credits": _extra_camera_credits()})
 
     def post(self, request, pk):
         lang = req_lang(request)
@@ -407,7 +456,9 @@ class ShopCamerasView(APIView):
         # must bite even for 'unlimited AI' plans. We debit purchased credits
         # directly (NOT via billing.charge, which exempts unlimited-AI plans).
         included = _included_cameras(request.user)
-        existing = s.cameras.count()
+        # the free allowance is per OWNER (across all their sites), counting
+        # enabled cameras — the same ranking the monthly billing uses.
+        existing = owner_enabled_cameras(request.user).count()
         charge_extra = existing >= included
         need = _extra_camera_credits() if charge_extra else 0
         if charge_extra and int(request.user.ai_credits or 0) < need:
@@ -439,7 +490,9 @@ class ShopCamerasView(APIView):
         cam = ShopCamera.objects.create(
             site=s, name=(request.data.get("name") or "").strip()[:120],
             kind=kind, zone_config=_coerce_json(request.data.get("zone_config")),
-            enabled=bool(request.data.get("enabled", True)))
+            enabled=bool(request.data.get("enabled", True)),
+            billed_until=(timezone.now() + timedelta(days=BILLING_PERIOD_DAYS)
+                          if charged else None))
         out = _camera_row(cam, reveal_token=True)
         out["charged_credits"] = charged
         return Response(out, status=201)
@@ -542,6 +595,20 @@ class ShopSummaryView(APIView):
 # shaping + coercion helpers
 # ---------------------------------------------------------------------------
 
+# what a camera-less alert is about (POS / end-of-day checks), bn + en.
+_SUBJECTS = {
+    "void_spike": ("বাতিল করা বিক্রি", "voided sales"),
+    "discount_spike": ("ছাড়", "discounts"),
+    "refund_spike": ("ফেরত", "refunds"),
+    "eod_mismatch": ("দিনশেষের ক্যাশ হিসাব", "end-of-day cash count"),
+}
+
+
+def _subject_label(etype, lang):
+    bn, en = _SUBJECTS.get(etype, ("ক্যামেরা", "camera"))
+    return bn if lang == "bn" else en
+
+
 def _shop_event_types():
     from .models import ShopEvent
     return ShopEvent.TYPES
@@ -605,10 +672,46 @@ def _debit_camera_credits(user, need, note=""):
     return need
 
 
+def _iso(dt):
+    return dt.isoformat() if dt else None
+
+
+# a device that heartbeated (or a camera that pushed a webhook) within this
+# many seconds counts as ONLINE; the app shows "offline since <last_seen>".
+ONLINE_WINDOW_S = 180
+BILLING_PERIOD_DAYS = 30
+
+
+def is_online(last_seen, now=None):
+    if not last_seen:
+        return False
+    now = now or timezone.now()
+    return (now - last_seen).total_seconds() <= ONLINE_WINDOW_S
+
+
+def effective_zone_config(cam):
+    """The camera's zone_config with hours falling back to its SITE's hours."""
+    zc = dict(cam.zone_config) if isinstance(cam.zone_config, dict) else {}
+    site_hours = getattr(cam.site, "hours", None)
+    if not zc.get("hours") and isinstance(site_hours, dict) and site_hours:
+        zc["hours"] = dict(site_hours)
+    return zc
+
+
+def owner_enabled_cameras(user):
+    """The owner's ENABLED cameras across all their sites, oldest first — the
+    first N (plan's included count) are free; the rest are 'extra'."""
+    from .models import ShopCamera
+    return ShopCamera.objects.filter(site__owner=user, enabled=True).order_by(
+        "created", "id")
+
+
 def _site_row(s, reveal_token=False):
     row = {"id": s.id, "name": s.name,
            "snapshot_retention_days": s.snapshot_retention_days,
            "cameras": s.cameras.count(),
+           "hours": s.hours or {}, "pos_link": s.pos_link,
+           "last_seen": _iso(s.last_seen), "online": is_online(s.last_seen),
            "created": s.created.isoformat()}
     if reveal_token:
         row["enrollment_token"] = s.enrollment_token
@@ -616,8 +719,15 @@ def _site_row(s, reveal_token=False):
 
 
 def _camera_row(c, reveal_token=False):
+    zc = c.zone_config if isinstance(c.zone_config, dict) else {}
+    caps = (c.device_info or {}).get("caps") if isinstance(c.device_info, dict) else []
     row = {"id": c.id, "name": c.name, "kind": c.kind, "enabled": c.enabled,
-           "zone_config": c.zone_config, "created": c.created.isoformat()}
+           "zone_config": c.zone_config, "created": c.created.isoformat(),
+           "hours": zc.get("hours") or None,
+           "restricted_zone": bool(zc.get("restricted_zone", True)),
+           "last_seen": _iso(c.last_seen), "online": is_online(c.last_seen),
+           "live_capable": bool(caps and "live" in caps),
+           "billed_until": _iso(c.billed_until)}
     if reveal_token:
         row["camera_token"] = c.camera_token
     return row
@@ -643,6 +753,26 @@ def _coerce_retention(v, default=7):
     except (TypeError, ValueError):
         return default
     return max(0, min(30, n))
+
+
+def coerce_hours(v):
+    """{"open":"HH:MM","close":"HH:MM"} -> normalised dict; None/{} -> {} (no
+    hours); anything malformed -> False (caller answers 422)."""
+    if v in (None, "", {}):
+        return {}
+    if not isinstance(v, dict):
+        return False
+    from .logic.camera_hooks import _parse_hhmm
+    o, c = _parse_hhmm(v.get("open")), _parse_hhmm(v.get("close"))
+    if o is None or c is None:
+        return False
+    return {"open": o.strftime("%H:%M"), "close": c.strftime("%H:%M")}
+
+
+def _coerce_bool(v):
+    if isinstance(v, str):
+        return v.strip().lower() in ("1", "true", "yes", "on")
+    return bool(v)
 
 
 def _coerce_json(v):

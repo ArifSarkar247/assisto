@@ -397,8 +397,9 @@ class _SamityDetailScreenState extends State<SamityDetailScreen> {
       builder: (ctx) => AlertDialog(
         icon: const Icon(Icons.volunteer_activism_outlined),
         title: Text(t.samityRecordPayoutTitle),
+        // (cycle, name): generated signature order
         content: Text(t.samityRecordPayoutBody(
-            '${recipient['name'] ?? ''}', fmtInt(context, _cycle))),
+            fmtInt(context, _cycle), '${recipient['name'] ?? ''}')),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),

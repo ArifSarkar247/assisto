@@ -92,7 +92,7 @@ class CrmRoutingEditor extends StatelessWidget {
             } catch (e) {
               if (context.mounted) {
                 ScaffoldMessenger.of(context)
-                    .showSnackBar(SnackBar(content: Text(CrmError.from(e).message)));
+                    .showSnackBar(SnackBar(content: Text(CrmError.from(e).textFor(context))));
               }
             }
           },
@@ -147,7 +147,7 @@ class _RuleSheetState extends State<_RuleSheet> {
       });
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
-      setState(() => _err = CrmError.from(e).message);
+      setState(() => _err = CrmError.from(e).textFor(context));
     } finally {
       if (mounted) setState(() => _saving = false);
     }

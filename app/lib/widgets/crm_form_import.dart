@@ -53,7 +53,7 @@ class _CrmFormImportState extends State<CrmFormImport> {
       _unmapped = (r['unmapped'] as Map?)?.cast<String, dynamic>() ?? {};
       _parsed = true;
     } catch (e) {
-      _err = CrmError.from(e).message;
+      _err = CrmError.from(e).textFor(context);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -77,7 +77,7 @@ class _CrmFormImportState extends State<CrmFormImport> {
         });
       }
     } catch (e) {
-      _err = CrmError.from(e).message;
+      _err = CrmError.from(e).textFor(context);
     } finally {
       if (mounted) setState(() => _busy = false);
     }

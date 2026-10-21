@@ -67,11 +67,11 @@ class _CustomersScreenState extends State<CustomersScreen> {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: Text(t.biz_customer)),
+      appBar: AppBar(title: Text(t.shopQaCustomers)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openSheet(),
         icon: const Icon(Icons.person_add_alt),
-        label: Text(t.biz_customer_name),
+        label: Text(t.shopQaAddCustomer),
       ),
       body: Column(children: [
         Padding(
@@ -109,12 +109,12 @@ class _CustomersScreenState extends State<CustomersScreen> {
     if (_items.isEmpty) {
       return StateMessage(
         icon: Icons.people_outline,
-        title: t.biz_customer,
-        message: t.biz_cart_empty,
+        title: t.shopQaNoCustomersTitle,
+        message: t.shopQaNoCustomersBody,
         action: FilledButton.icon(
             onPressed: () => _openSheet(),
             icon: const Icon(Icons.person_add_alt),
-            label: Text(t.biz_customer_name)),
+            label: Text(t.shopQaAddCustomer)),
       );
     }
     return RefreshIndicator(

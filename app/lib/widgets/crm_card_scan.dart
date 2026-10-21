@@ -55,7 +55,7 @@ class _CrmCardScanState extends State<CrmCardScan> {
       _dupeHits = ((r['duplicate_of'] as List?) ?? []).map((e) => (e as num).toInt()).toList();
       _hasDraft = d.isNotEmpty;
     } catch (e) {
-      _err = CrmError.from(e).message;
+      _err = CrmError.from(e).textFor(context);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -83,7 +83,7 @@ class _CrmCardScanState extends State<CrmCardScan> {
         _reset();
       }
     } catch (e) {
-      _err = CrmError.from(e).message;
+      _err = CrmError.from(e).textFor(context);
     } finally {
       if (mounted) setState(() => _busy = false);
     }

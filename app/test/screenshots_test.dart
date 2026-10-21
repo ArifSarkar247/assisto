@@ -133,6 +133,14 @@ import 'package:assisto/screens/crm/crm_leads_screen.dart';
 import 'package:assisto/screens/crm/crm_pipeline_screen.dart';
 import 'package:assisto/screens/crm/crm_dashboard_screen.dart';
 import 'package:assisto/screens/crm/crm_team_screen.dart';
+import 'package:assisto/screens/crm/crm_companies_screen.dart';
+import 'package:assisto/screens/crm/crm_reports_screen.dart';
+import 'package:assisto/screens/crm/crm_lead_detail_screen.dart';
+import 'package:assisto/screens/crm/crm_home_screen.dart';
+import 'package:assisto/screens/money_import_screen.dart';
+import 'package:assisto/screens/crm/crm_proposal_screen.dart';
+import 'package:assisto/screens/business/selling_common.dart' show SellRole;
+import 'package:assisto/screens/business/sale_void_dialog.dart';
 import 'package:assisto/screens/business_screen.dart';
 import 'package:assisto/screens/inbox_screen.dart';
 import 'package:assisto/screens/guide_screen.dart';
@@ -166,6 +174,24 @@ import 'package:assisto/crypto/e2e.dart';
 import 'package:assisto/screens/legal_screen.dart';
 import 'package:assisto/screens/photo_enhance_screen.dart';
 import 'package:assisto/screens/unseen_world_screen.dart';
+import 'package:assisto/screens/shop_box_screen.dart';
+import 'package:assisto/screens/business/business_hub_screen.dart';
+import 'package:assisto/screens/business/products_screen.dart';
+import 'package:assisto/screens/business/khata_screen.dart';
+import 'package:assisto/screens/business/cashbox_screen.dart';
+import 'package:assisto/screens/business/customers_screen.dart';
+import 'package:assisto/screens/business/quick_sell_screen.dart';
+import 'package:assisto/screens/business/reports_screen.dart';
+import 'package:assisto/screens/business/orders_screen.dart';
+import 'package:assisto/screens/business/payments_screen.dart';
+import 'package:assisto/screens/money_report_screen.dart';
+import 'package:assisto/screens/money_networth_screen.dart';
+import 'package:assisto/screens/money_trends_screen.dart';
+import 'package:assisto/screens/money_loan_detail_screen.dart';
+import 'package:assisto/screens/shop_eod_screen.dart';
+import 'package:assisto/screens/shop_live_screen.dart';
+import 'package:assisto/screens/shop_box_mode_screen.dart';
+import 'package:assisto/screens/shop_camera_settings.dart';
 
 import 'package:assisto/push/incoming_call_screen.dart';
 import 'package:assisto/push/push_payload.dart';
@@ -477,6 +503,55 @@ void main() {
     'vehicles': (build: (_) => const MyVehiclesScreen(), mode: FakeMode.data, full: true),
     'smartwatch': (build: (_) => const SmartwatchScreen(), mode: FakeMode.data, full: true),
     'unseen': (build: (_) => const UnseenWorldScreen(), mode: FakeMode.data, full: true),
+    // a2-cctv Premium QA (Business + Money)
+    'biz_hub': (build: (_) => const BusinessHubScreen(), mode: FakeMode.data, full: true),
+    'biz_products': (build: (_) => const ProductsScreen(businessId: 1), mode: FakeMode.data, full: true),
+    'biz_khata': (build: (l) => KhataScreen(business: {'id': 1, 'name': l == 'bn' ? 'আমার দোকান' : 'My Shop', 'role': 'owner'}), mode: FakeMode.data, full: true),
+    'biz_cashbox': (build: (l) => CashboxScreen(business: {'id': 1, 'name': l == 'bn' ? 'আমার দোকান' : 'My Shop', 'role': 'owner'}), mode: FakeMode.data, full: true),
+    'biz_customers': (build: (_) => const CustomersScreen(businessId: 1), mode: FakeMode.data, full: true),
+    'biz_quick_sell': (build: (_) => const QuickSellScreen(businessId: 1), mode: FakeMode.data, full: true),
+    'biz_reports': (build: (_) => const ReportsScreen(businessId: 1), mode: FakeMode.data, full: true),
+    'biz_orders': (build: (_) => const OrdersScreen(), mode: FakeMode.data, full: true),
+    'biz_payments': (build: (_) => const PaymentsScreen(), mode: FakeMode.data, full: true),
+    'money_report': (build: (_) => const MoneyReportScreen(), mode: FakeMode.data, full: true),
+    'money_networth': (build: (_) => const MoneyNetWorthScreen(), mode: FakeMode.data, full: true),
+    'money_trends': (build: (_) => const MoneyTrendsScreen(), mode: FakeMode.data, full: true),
+    'money_loan_detail': (build: (l) => MoneyLoanDetailScreen(item: {'localId': 'l1', 'serverId': 1, 'data': {'id': 1, 'kind': 'given', 'person': l == 'bn' ? 'রহিম' : 'Rahim', 'amount': '2000', 'paid': '500'}}), mode: FakeMode.data, full: true),
+    'biz_products_empty': (build: (_) => const ProductsScreen(businessId: 1), mode: FakeMode.empty, full: false),
+    'biz_khata_error': (build: (l) => KhataScreen(business: const {'id': 1, 'name': 'X', 'role': 'owner'}), mode: FakeMode.fail, full: false),
+    'biz_reports_loading': (build: (_) => const ReportsScreen(businessId: 1), mode: FakeMode.slow, full: false),
+    // a2-cctv Premium QA batch 2
+    'crm_home': (build: (_) => const CrmHomeScreen(previewOrg: 1), mode: FakeMode.data, full: true),
+    'crm_companies': (build: (_) => Scaffold(appBar: AppBar(title: const Text('CRM')), body: const CrmCompaniesScreen(org: 1)), mode: FakeMode.data, full: true),
+    'crm_reports': (build: (_) => Scaffold(appBar: AppBar(title: const Text('CRM')), body: const CrmReportsScreen(org: 1)), mode: FakeMode.data, full: true),
+    'crm_lead_detail': (build: (_) => const CrmLeadDetailScreen(org: 1, leadId: 1), mode: FakeMode.data, full: true),
+    'biz_order_detail': (build: (_) => const OrderDetailScreen(orderId: 101), mode: FakeMode.data, full: true),
+    'money_import': (build: (_) => const MoneyImportScreen(), mode: FakeMode.data, full: true),
+    'shop_cameras': (build: (_) => const ShopBoxScreen(initialTab: 1), mode: FakeMode.data, full: true),
+    'shop_alerts': (build: (_) => const ShopBoxScreen(initialTab: 2), mode: FakeMode.data, full: true),
+    'shop_report': (build: (_) => const ShopBoxScreen(initialTab: 3), mode: FakeMode.data, full: true),
+    'crm_leads_empty': (build: (_) => Scaffold(appBar: AppBar(title: const Text('CRM')), body: const CrmLeadsScreen(org: 1)), mode: FakeMode.empty, full: false),
+    'biz_orders_error': (build: (_) => const OrdersScreen(), mode: FakeMode.fail, full: false),
+    // a2-cctv Premium QA batch 3 (data stubs + sheets/dialogs)
+    'money_wrapped_data': (build: (_) => const MoneyWrappedScreen(), mode: FakeMode.data, full: true),
+    'money_wrapped_thin': (build: (_) => const MoneyWrappedScreen(), mode: FakeMode.empty, full: false),
+    'crm_lead_full': (build: (_) => const CrmLeadDetailScreen(org: 1, leadId: 1), mode: FakeMode.data, full: true),
+    'crm_proposal': (build: (l) => CrmProposalScreen(org: 1, lead: {'id': 1, 'name': l == 'bn' ? 'করিম গার্মেন্টস' : 'Karim Garments', 'company': 'Karim Garments Ltd'}), mode: FakeMode.data, full: true),
+    'sheet_product_new': (build: (_) => const Scaffold(body: SafeArea(child: ProductEditSheet(businessId: 1, role: SellRole('owner')))), mode: FakeMode.data, full: true),
+    'sheet_product_edit': (build: (l) => Scaffold(body: SafeArea(child: ProductEditSheet(businessId: 1, role: const SellRole('owner'), product: {'id': 1, 'name': l == 'bn' ? 'পাঞ্জাবি' : 'Panjabi', 'category': l == 'bn' ? 'পোশাক' : 'Clothing', 'sku': 'PJ-01', 'barcode': '', 'description': '', 'variants': [{'key': '__base__', 'size': '', 'colour': '', 'sell_price': 120000, 'cost_price': 80000, 'min_price': 100000, 'stock': 8, 'barcode': '', 'low_stock_at': 3}]}))), mode: FakeMode.data, full: true),
+    'sheet_product_staff': (build: (_) => const Scaffold(body: SafeArea(child: ProductEditSheet(businessId: 1, role: SellRole('staff')))), mode: FakeMode.data, full: false),
+    'sheet_customer_new': (build: (_) => const Scaffold(body: SafeArea(child: CustomerEditSheet(businessId: 1))), mode: FakeMode.data, full: true),
+    'sheet_customer_edit': (build: (l) => Scaffold(body: SafeArea(child: CustomerEditSheet(businessId: 1, customer: {'id': 1, 'name': l == 'bn' ? 'নাদিয়া' : 'Nadia', 'phone': '01712345678', 'area': l == 'bn' ? 'মিরপুর' : 'Mirpur', 'address': '', 'notes': '', 'vip': true}))), mode: FakeMode.data, full: true),
+    'sheet_khata_due': (build: (l) => Scaffold(body: SafeArea(child: khataEntrySheetPreview({'id': 1, 'name': 'X', 'role': 'owner'}))), mode: FakeMode.data, full: true),
+    'sheet_khata_payment': (build: (l) => Scaffold(body: SafeArea(child: khataEntrySheetPreview({'id': 1, 'name': 'X', 'role': 'owner'}, isDue: false))), mode: FakeMode.data, full: true),
+    'dialog_sale_void': (build: (_) => const Scaffold(body: Center(child: SaleVoidDialog())), mode: FakeMode.data, full: true),
+    // a2-cctv: Shop Box (CCTV Part 4) — Business plan stubbed in FakeApi
+    'shop_box': (build: (_) => const ShopBoxScreen(), mode: FakeMode.data, full: true),
+    'shop_eod': (build: (_) => const ShopEodScreen(siteId: 1), mode: FakeMode.data, full: true),
+    'shop_live_offline': (build: (l) => ShopLiveScreen(cameraId: 1, cameraName: l == 'bn' ? 'ক্যাশ কাউন্টার' : 'Cash counter'), mode: FakeMode.data, full: true),
+    'shop_mode_pair': (build: (_) => const ShopBoxModeScreen(), mode: FakeMode.data, full: true),
+    'shop_mode_paired': (build: (l) => ShopBoxModeScreen(preview: (token: 'demo', cameraId: 1, site: l == 'bn' ? 'মিরপুর শাখা' : 'Mirpur branch', camera: l == 'bn' ? 'ক্যাশ কাউন্টার' : 'Cash counter')), mode: FakeMode.data, full: true),
+    'shop_cam_settings': (build: (l) => Scaffold(body: SafeArea(child: ShopCameraSettingsSheet(camera: {'id': 1, 'name': l == 'bn' ? 'ক্যাশ কাউন্টার' : 'Cash counter', 'enabled': true, 'online': false, 'last_seen': '2026-10-21T03:10:00Z', 'restricted_zone': true, 'hours': {'open': '09:00', 'close': '22:00'}, 'camera_token': 'demo-cam-token-xyz'}))), mode: FakeMode.data, full: true),
     // state variants (single representative each)
     'subscriptions_empty': (build: (_) => const SubscriptionsScreen(), mode: FakeMode.empty, full: false),
     'subscriptions_loading': (build: (_) => const SubscriptionsScreen(), mode: FakeMode.slow, full: false),
@@ -490,6 +565,7 @@ void main() {
     // Real elevation shadows (flutter_test draws them as solid black outlines
     // by default, which looks like a bug in review shots). Restored below.
     debugDisableShadows = false;
+    FakeApi.planSlug = name.startsWith('shop_') ? 'business' : 'premium';
     final tall = name.endsWith('_bottom');
     await tester.binding.setSurfaceSize(Size(360, tall ? 1800 : 800));
     final key = GlobalKey();

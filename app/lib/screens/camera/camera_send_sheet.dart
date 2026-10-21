@@ -117,7 +117,7 @@ class _CameraSendSheetState extends State<_CameraSendSheet> {
     if (!mounted) return;
     setState(() => _sending = false);
     Navigator.of(context).pop(); // close sheet
-    final msg = fail == 0 ? _t.camSentToChats(ok) : _t.camSentPartial(ok, fail);
+    final msg = fail == 0 ? _t.camSentToChats(ok) : _t.camSentPartial(fail, ok); // (fail, ok) per signature
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 

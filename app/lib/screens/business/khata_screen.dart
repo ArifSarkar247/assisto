@@ -46,7 +46,13 @@ class _KhataScreenState extends State<KhataScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(t.khataTitle),
-          bottom: TabBar(tabs: [
+          bottom: TabBar(
+              // large font: scroll instead of cutting "Customers (Dues)"
+              isScrollable: MediaQuery.textScalerOf(context).scale(10) > 11.5,
+              tabAlignment: MediaQuery.textScalerOf(context).scale(10) > 11.5
+                  ? TabAlignment.start
+                  : null,
+              tabs: [
             Tab(child: Text(t.khataCustomers, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
             Tab(child: Text(t.khataSuppliers, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
           ]),
@@ -229,12 +235,15 @@ class _BookTabState extends State<_BookTab> {
                       isCustomer: _isCustomer,
                       isStaff: widget.isStaff),
                   const SizedBox(height: Gap.md),
-                  Row(children: [
-                    Expanded(
-                      child: Text(
-                        _isCustomer ? t.khataCustomers : t.khataSuppliers,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
+                  // Wrap: on a large font the "remind everyone" button moves
+                  // to its own line instead of squeezing the title.
+                  Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                    Text(
+                      _isCustomer ? t.khataCustomers : t.khataSuppliers,
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
                     if (_isCustomer)
                       TextButton.icon(
@@ -1024,3 +1033,9 @@ Future<void> _showTagadaShare(BuildContext context, Map<String, dynamic> party,
     ),
   );
 }
+
+/// Gallery/preview access to the private entry sheet (screenshot harness).
+@visibleForTesting
+Widget khataEntrySheetPreview(Map<String, dynamic> business,
+        {int partyId = 1, String book = 'customer', bool isDue = true}) =>
+    _EntrySheet(business: business, partyId: partyId, book: book, isDue: isDue);

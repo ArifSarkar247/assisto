@@ -111,10 +111,12 @@ class _CrmTeamScreenState extends State<CrmTeamScreen> {
               child: ListTile(
                 leading: const Icon(Icons.alt_route_outlined),
                 title: Text([
-                  if ((r['match_industry'] ?? '').toString().isNotEmpty) r['match_industry'],
+                  if ((r['match_industry'] ?? '').toString().isNotEmpty)
+                    crmIndustryLabel(t, r['match_industry'].toString()),
                   if ((r['match_source'] ?? '').toString().isNotEmpty) r['match_source'],
                 ].join(' · ')),
-                subtitle: Text('${t.crmAssignTo} #${r['assign_to'] ?? '—'}'),
+                // show the member's NAME, not their internal id
+                subtitle: Text('${t.crmAssignTo} ${_memberName(r['assign_to'])}'),
               ),
             ),
       ]),
@@ -125,4 +127,14 @@ class _CrmTeamScreenState extends State<CrmTeamScreen> {
         padding: const EdgeInsets.only(bottom: Gap.xs, top: Gap.sm),
         child: Text(s, style: const TextStyle(fontWeight: FontWeight.w800)),
       );
+
+  String _memberName(Object? id) {
+    for (final m in _members) {
+      if (m['id'] == id || m['user'] == id) {
+        final n = (m['user_name'] ?? '').toString();
+        if (n.isNotEmpty) return n;
+      }
+    }
+    return id == null ? '—' : '#$id';
+  }
 }

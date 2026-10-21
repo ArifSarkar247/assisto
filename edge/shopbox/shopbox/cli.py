@@ -39,11 +39,28 @@ def pair_token(cfg, store, token: str) -> str:
     token = (token or "").strip()
     if not token:
         return "bad"
-    res = IngestClient(cfg.base_url, timeout=cfg.sending.timeout_s).verify_pairing(token)
-    if res.outcome == UNAUTHORIZED:
+    from .device import DeviceClient
+    try:
+        verdict, site_name = DeviceClient(
+            cfg.base_url, timeout=cfg.sending.timeout_s).pair_check(token)
+    except Exception:
+        verdict, site_name = "unsupported", ""
+    if verdict == "bad":
         return "bad"
+    if verdict == "ok":
+        store.set(SITE_TOKEN, token)
+        if site_name and not cfg.site_name:
+            cfg.site_name = site_name[:120]
+        return "ok"
+    if verdict == "unsupported":
+        # older server without shop/pair/check: the ingest-probe fallback
+        res = IngestClient(cfg.base_url, timeout=cfg.sending.timeout_s).verify_pairing(token)
+        if res.outcome == UNAUTHORIZED:
+            return "bad"
+        store.set(SITE_TOKEN, token)
+        return "ok" if res.outcome == SENT else "offline"
     store.set(SITE_TOKEN, token)
-    return "ok" if res.outcome == SENT else "offline"
+    return "offline"
 
 
 def run_headless(cfg, store) -> int:
@@ -88,6 +105,8 @@ def main(argv=None) -> int:
     p.add_argument("--test-camera", metavar="ID")
     p.add_argument("--fetch-model", action="store_true")
     p.add_argument("--self-test", action="store_true")
+    p.add_argument("--live-check", action="store_true",
+                   help="exit 0 if the optional live view (aiortc) is available")
     p.add_argument("--base-url", help="override server base URL (saved)")
     p.add_argument("--version", action="version", version=__version__)
     a = p.parse_args(argv)
@@ -113,6 +132,12 @@ def main(argv=None) -> int:
         det.detect(np.full((360, 640, 3), 114, np.uint8))
         print("detector=%s" % det.name)
         return 0 if det.name != "motion_only" else 3
+
+    if a.live_check:
+        from . import live
+        ok = live.available()
+        print("live_view=%s" % ("available" if ok else "unavailable"))
+        return 0 if ok else 4
 
     needs_store = a.run or a.pair or a.verify or a.test_camera
     store = None

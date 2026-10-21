@@ -1,0 +1,10 @@
+# OPTIONAL live view (WebRTC sender). Pinned to versions compatible with the
+# core pins in requirements.txt (cryptography 43.x). Without these the client
+# still monitors normally and simply does not offer live view.
+aiortc==1.10.1
+av==13.1.0
+pyopenssl==24.2.1
+aioice==0.10.2
+pylibsrtp==1.0.0
+pyee==15.0.0
+google-crc32c==1.9.0

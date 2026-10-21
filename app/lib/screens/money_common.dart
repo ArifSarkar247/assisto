@@ -65,7 +65,9 @@ Widget statCard(BuildContext context, String label, String value, Color color,
           Icon(icon, size: 16, color: color),
           const SizedBox(width: Gap.xs),
           Expanded(
+            // 2 lines: "Income This Month" must not become "Income This Mo…"
             child: Text(label,
+                maxLines: 2,
                 style: TextStyle(
                     fontSize: 12,
                     color: Theme.of(context).colorScheme.onSurfaceVariant),
@@ -73,9 +75,15 @@ Widget statCard(BuildContext context, String label, String value, Color color,
           ),
         ]),
         const SizedBox(height: Gap.xs),
-        Text(value,
-            style: TextStyle(
-                fontSize: 18, fontWeight: FontWeight.bold, color: color)),
+        // big amounts shrink to fit a half-width card instead of clipping
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(value,
+              maxLines: 1,
+              style: TextStyle(
+                  fontSize: 18, fontWeight: FontWeight.bold, color: color)),
+        ),
       ]),
     ),
   );

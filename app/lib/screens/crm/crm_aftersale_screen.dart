@@ -139,7 +139,7 @@ class _CrmCollectionsTabState extends State<CrmCollectionsTab> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('${CrmError.from(e).message}')));
+            .showSnackBar(SnackBar(content: Text('${CrmError.from(e).textFor(context)}')));
       }
     }
   }
@@ -352,7 +352,7 @@ class _CrmAmcTabState extends State<CrmAmcTab> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('${CrmError.from(e).message}')));
+            .showSnackBar(SnackBar(content: Text('${CrmError.from(e).textFor(context)}')));
       }
     }
   }
@@ -462,7 +462,7 @@ class _CrmComplaintsTabState extends State<CrmComplaintsTab> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('${CrmError.from(e).message}')));
+            .showSnackBar(SnackBar(content: Text('${CrmError.from(e).textFor(context)}')));
       }
     }
   }
@@ -569,7 +569,7 @@ class _CrmComplaintsTabState extends State<CrmComplaintsTab> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('${CrmError.from(e).message}')));
+            .showSnackBar(SnackBar(content: Text('${CrmError.from(e).textFor(context)}')));
       }
     }
   }

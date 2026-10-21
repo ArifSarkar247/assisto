@@ -11,6 +11,9 @@ import '../widgets/ladder_common.dart' show fmtInt;
 import '../widgets/skeleton.dart';
 import 'credits_screen.dart';
 import 'plans_screen.dart';
+import 'shop_box_mode_screen.dart';
+import 'shop_camera_settings.dart';
+import 'shop_eod_screen.dart';
 
 /// SHOP BOX — CCTV loss-prevention (Part 4, Business tier). APP UI ONLY; the
 /// Django backend is already built + deployed (core/shop_views.py).
@@ -29,7 +32,9 @@ import 'plans_screen.dart';
 /// Four tabs: Sites · Cameras · Alerts · Report. All strings are ARB keys
 /// (en + bn parity); no Bangla literal lives in this file.
 class ShopBoxScreen extends StatefulWidget {
-  const ShopBoxScreen({super.key});
+  /// 0 Sites · 1 Cameras · 2 Alerts · 3 Report (gallery / deep links).
+  final int initialTab;
+  const ShopBoxScreen({super.key, this.initialTab = 0});
   @override
   State<ShopBoxScreen> createState() => _ShopBoxScreenState();
 }
@@ -118,6 +123,7 @@ class _ShopBoxScreenState extends State<ShopBoxScreen> {
 
     return DefaultTabController(
       length: 4,
+      initialIndex: widget.initialTab.clamp(0, 3),
       child: Scaffold(
         appBar: AppBar(
           title: Text(t.shopBoxTitle),
@@ -228,13 +234,6 @@ class _UpsellBody extends StatelessWidget {
 }
 
 // ======================= SHARED =======================
-String _fmtDate(BuildContext context, dynamic iso) {
-  final d = iso == null ? null : DateTime.tryParse(iso.toString());
-  if (d == null) return '';
-  final lang = Localizations.localeOf(context).languageCode;
-  return DateFormat('d MMM yyyy', lang).format(d.toLocal());
-}
-
 String _fmtDateTime(BuildContext context, dynamic iso) {
   final d = iso == null ? null : DateTime.tryParse(iso.toString());
   if (d == null) return '';
@@ -453,6 +452,8 @@ class _SitesTab extends StatelessWidget {
             // Honest, signals-only explainer at the top.
             _privacyNote(context),
             const SizedBox(height: Gap.md),
+            _shopModeEntry(context),
+            const SizedBox(height: Gap.md),
             for (final s in sites) ...[
               _siteCard(context, t, scheme, s),
               const SizedBox(height: Gap.sm),
@@ -461,6 +462,33 @@ class _SitesTab extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _shopModeEntry(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      margin: EdgeInsets.zero,
+      child: ListTile(
+        leading: Icon(Icons.phone_android, color: scheme.primary),
+        title: Text(t.shopModeEntryTitle,
+            style: const TextStyle(fontWeight: FontWeight.w600)),
+        subtitle: Text(t.shopModeEntrySub, maxLines: 2, overflow: TextOverflow.ellipsis),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const ShopBoxModeScreen())),
+      ),
+    );
+  }
+
+  Future<void> _editHours(BuildContext context, Map<String, dynamic> s) async {
+    final ok = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => ShopSiteHoursSheet(site: s),
+    );
+    if (ok == true) await onReload();
   }
 
   Widget _privacyNote(BuildContext context) {
@@ -541,12 +569,19 @@ class _SitesTab extends StatelessWidget {
                   if (selected)
                     Icon(Icons.check_circle, color: scheme.primary, size: 20),
                 ]),
-                const SizedBox(height: Gap.sm),
-                Row(children: [
+                const SizedBox(height: Gap.xs),
+                ShopSeenPill(row: s),
+                const SizedBox(height: Gap.xs),
+                Wrap(spacing: Gap.xs, children: [
                   TextButton.icon(
                     onPressed: () => _editSite(context, s),
                     icon: const Icon(Icons.vpn_key_outlined, size: 18),
                     label: Text(t.shopBoxEditAndToken),
+                  ),
+                  TextButton.icon(
+                    onPressed: () => _editHours(context, s),
+                    icon: const Icon(Icons.schedule, size: 18),
+                    label: Text(t.shopSiteHoursButton),
                   ),
                 ]),
               ]),
@@ -789,6 +824,16 @@ class _CamerasTabState extends State<_CamerasTab> {
     }
   }
 
+  Future<void> _openSettings(Map<String, dynamic> c) async {
+    await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => ShopCameraSettingsSheet(camera: c),
+    );
+    if (mounted) await _load();
+  }
+
   Future<void> _showCapDialog(Map<String, dynamic> r) async {
     final t = AppLocalizations.of(context);
     final detail = (r['detail'] ?? '').toString();
@@ -909,18 +954,29 @@ class _CamerasTabState extends State<_CamerasTab> {
     return Card(
       margin: EdgeInsets.zero,
       child: ListTile(
+        onTap: () => _openSettings(c),
         leading: CircleAvatar(
           backgroundColor: scheme.primaryContainer,
           child: Icon(Icons.videocam_outlined,
               color: scheme.onPrimaryContainer),
         ),
         title: Text(name.isEmpty ? t.shopBoxUnnamedCamera : name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text('$kindLabel  ·  '
-            '${enabled ? t.shopBoxCameraEnabled : t.shopBoxCameraDisabled}'),
+        subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('$kindLabel  ·  '
+                  '${enabled ? t.shopBoxCameraEnabled : t.shopBoxCameraDisabled}',
+                  maxLines: 1, overflow: TextOverflow.ellipsis),
+              const SizedBox(height: 2),
+              ShopSeenPill(row: c),
+            ]),
         trailing: Icon(
-          enabled ? Icons.check_circle_outline : Icons.pause_circle_outline,
-          color: enabled ? Brand.success : scheme.onSurfaceVariant,
+          enabled ? Icons.tune : Icons.pause_circle_outline,
+          color: enabled ? scheme.primary : scheme.onSurfaceVariant,
         ),
       ),
     );
@@ -1140,7 +1196,7 @@ class _AlertsTabState extends State<_AlertsTab> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // ALWAYS "please check camera X" wording, never theft.
-                        Text(t.shopBoxAlertHeadline,
+                        Text((e['camera'] == null ? t.shopQaPleaseCheck : t.shopBoxAlertHeadline),
                             style: const TextStyle(
                                 fontWeight: FontWeight.w700, fontSize: 14.5)),
                         const SizedBox(height: 2),
@@ -1191,23 +1247,29 @@ class _AlertsTabState extends State<_AlertsTab> {
               ],
               if (isOpen) ...[
                 const SizedBox(height: Gap.md),
-                Row(children: [
-                  Expanded(
-                    child: FilledButton.tonalIcon(
-                      onPressed: () => _mark(e, 'checked'),
-                      icon: const Icon(Icons.check, size: 18),
-                      label: Text(t.shopBoxMarkChecked),
-                    ),
-                  ),
-                  const SizedBox(width: Gap.sm),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => _mark(e, 'false_alarm'),
-                      icon: const Icon(Icons.not_interested, size: 18),
-                      label: Text(t.shopBoxMarkFalseAlarm),
-                    ),
-                  ),
-                ]),
+                Builder(builder: (context) {
+                  final checked = FilledButton.tonalIcon(
+                    onPressed: () => _mark(e, 'checked'),
+                    icon: const Icon(Icons.check, size: 18),
+                    label: Text(t.shopBoxMarkChecked),
+                  );
+                  final falseAlarm = OutlinedButton.icon(
+                    onPressed: () => _mark(e, 'false_alarm'),
+                    icon: const Icon(Icons.not_interested, size: 18),
+                    label: Text(t.shopBoxMarkFalseAlarm),
+                  );
+                  // large font: stack full-width so labels stay on one line
+                  if (MediaQuery.textScalerOf(context).scale(10) > 11.5) {
+                    return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [checked, const SizedBox(height: Gap.sm), falseAlarm]);
+                  }
+                  return Row(children: [
+                    Expanded(child: checked),
+                    const SizedBox(width: Gap.sm),
+                    Expanded(child: falseAlarm),
+                  ]);
+                }),
               ],
             ]),
       ),
@@ -1309,11 +1371,28 @@ class _ReportTabState extends State<_ReportTab> {
         children: [
           _sitePickerBanner(context, widget.site),
           const SizedBox(height: Gap.md),
+          // a2-cctv: end-of-day cash vs Assisto POS sales
+          Card(
+            margin: EdgeInsets.zero,
+            child: ListTile(
+              leading: Icon(Icons.point_of_sale_outlined, color: scheme.primary),
+              title: Text(t.shopEodTitle,
+                  style: const TextStyle(fontWeight: FontWeight.w600)),
+              subtitle: Text(t.shopEodEntrySub, maxLines: 2,
+                  overflow: TextOverflow.ellipsis),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => ShopEodScreen(
+                      siteId: widget.site!['id'] as int,
+                      siteName: (widget.site!['name'] ?? '').toString()))),
+            ),
+          ),
+          const SizedBox(height: Gap.md),
           // days selector
           Wrap(spacing: Gap.sm, children: [
             for (final d in [1, 7, 30, 90])
               ChoiceChip(
-                label: Text(t.shopBoxReportDays(fmtInt(context, d))),
+                label: Text(d == 1 ? t.shopQaOneDay : t.shopBoxReportDays(fmtInt(context, d))),
                 selected: _days == d,
                 onSelected: (_) {
                   setState(() => _days = d);

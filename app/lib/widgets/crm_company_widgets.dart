@@ -310,10 +310,14 @@ class ReportStatTile extends StatelessWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(icon, color: tint ?? scheme.primary),
           const SizedBox(height: Gap.xs),
-          Text(value,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis),
+          // big BDT values shrink to fit a third-width tile, never cut with an ellipsis
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(value,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                maxLines: 1),
+          ),
           Text(label,
               style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
         ]),

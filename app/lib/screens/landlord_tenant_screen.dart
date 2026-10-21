@@ -425,10 +425,11 @@ class _MonthHero extends StatelessWidget {
         ]),
         const SizedBox(height: 2),
         Text(
+          // args follow the generated signature (ARB metadata order), not the text order
           t.rentStatusCounts(
+              fmtInt(context, summary['due_count'] as int),
               fmtInt(context, summary['paid_count'] as int),
-              fmtInt(context, summary['partial_count'] as int),
-              fmtInt(context, summary['due_count'] as int)),
+              fmtInt(context, summary['partial_count'] as int)),
           style: const TextStyle(color: Colors.white70, fontSize: 12),
         ),
       ]),
@@ -493,7 +494,11 @@ class _UnitCard extends StatelessWidget {
           color: scheme.surfaceContainerHighest.withValues(alpha: 0.4),
           borderRadius: BorderRadius.circular(Radii.md),
         ),
-        child: Theme(
+        // Material(transparency): the tile's ink/background must paint above
+        // this tinted box (debug assertion "ink splashes may be invisible")
+        child: Material(
+          type: MaterialType.transparency,
+          child: Theme(
           data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
           child: ExpansionTile(
             tilePadding:
@@ -535,8 +540,8 @@ class _UnitCard extends StatelessWidget {
             subtitle: Padding(
               padding: const EdgeInsets.only(top: 6),
               child: Text(
-                t.rentBillPaid(taka(context, data['paid_poisha'] as int),
-                    taka(context, data['bill_poisha'] as int)),
+                t.rentBillPaid(taka(context, data['bill_poisha'] as int),
+                    taka(context, data['paid_poisha'] as int)), // (bill, paid) per signature
                 style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13),
               ),
             ),
@@ -580,6 +585,7 @@ class _UnitCard extends StatelessWidget {
               ]),
             ],
           ),
+        ),
         ),
       ),
     );

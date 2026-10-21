@@ -427,27 +427,28 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
 
 String _obsText(AppLocalizations tr, _SObservation o) {
   final p = o.params;
+  // args follow the generated signature (ARB metadata order), not the text order
   switch (o.key) {
     case 'top_category':
       return tr.spendObsTopCategory(
-          p['category'].toString(), p['amount'].toString(), p['pct'] as int);
+          p['amount'].toString(), p['category'].toString(), p['pct'] as int);
     case 'big_share':
       return tr.spendObsBigShare(p['category'].toString(), p['pct'] as int);
     case 'total_mom_up':
-      return tr.spendObsMomUp(p['pct'] as int, p['amount'].toString());
+      return tr.spendObsMomUp(p['amount'].toString(), p['pct'] as int);
     case 'total_mom_down':
-      return tr.spendObsMomDown(p['pct'] as int, p['amount'].toString());
+      return tr.spendObsMomDown(p['amount'].toString(), p['pct'] as int);
     case 'total_mom_flat':
       return tr.spendObsMomFlat;
     case 'category_mover_up':
       return tr.spendObsMoverUp(
-          p['category'].toString(), p['amount'].toString(), p['pct'] as int);
+          p['amount'].toString(), p['category'].toString(), p['pct'] as int);
     case 'category_mover_down':
       return tr.spendObsMoverDown(
-          p['category'].toString(), p['amount'].toString(), p['pct'] as int);
+          p['amount'].toString(), p['category'].toString(), p['pct'] as int);
     case 'over_budget':
-      return tr.spendObsOverBudget(p['category'].toString(),
-          p['amount'].toString(), p['budget'].toString());
+      return tr.spendObsOverBudget(p['amount'].toString(),
+          p['budget'].toString(), p['category'].toString());
     case 'savings_pointer':
       return tr.spendObsSavingsPointer(
           p['category'].toString(), p['pct'] as int);

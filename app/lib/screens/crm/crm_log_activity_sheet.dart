@@ -150,7 +150,7 @@ class _CrmLogActivitySheetState extends State<CrmLogActivitySheet> {
       if (!mounted) return;
       setState(() => _saving = false);
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(CrmError.from(e).message)));
+          SnackBar(content: Text(CrmError.from(e).textFor(context))));
     }
   }
 

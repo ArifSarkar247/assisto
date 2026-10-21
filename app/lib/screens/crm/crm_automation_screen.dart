@@ -58,7 +58,7 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(CrmError.from(e).message)));
+            .showSnackBar(SnackBar(content: Text(CrmError.from(e).textFor(context))));
       }
     }
   }
@@ -83,7 +83,7 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(CrmError.from(e).message)));
+            .showSnackBar(SnackBar(content: Text(CrmError.from(e).textFor(context))));
       }
     }
   }
