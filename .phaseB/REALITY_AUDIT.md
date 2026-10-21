@@ -14,7 +14,7 @@ Classes:
 - **C**: partial, UI only, or broken.
 - **D**: not built.
 
-`?` marks a provisional class: no flow screenshot proves it yet.
+`?` marks a provisional class: no flow screenshot proves it yet. **Owner rule (21 Oct night): an `A?`/`B?` is NOT evidence and must never be reported as A/B. A needs a real end-to-end run (emulator flow or the phone checklist).** The owner's audit found "Contacts on Assisto" (rated A? by code reading) to be a facade: the phonebook was never read and UserPhoneHash rows were never created. It is C until the two-phone test passes.
 
 ## How the evidence is produced
 
@@ -55,6 +55,7 @@ Classes:
 | My Circle | Connection requests list (`GET messenger/request` → 405) | — | A? (fixed, m1) | route_check clean | GET list added | |
 | My Circle | Channel discover (`GET channels/discover` missing) | — | A? (fixed, m1) | route_check clean | route built | |
 | My Circle | Channel post "Attach photo/video" button is `onPressed: () {}` | — | B (fixed, m1) | no `onPressed: () {}` left in app/lib | button hidden honestly until channel media upload exists | |
+| My Circle | **Contacts on Assisto (phonebook match, number search)** | — | **C** (owner audit) | permission stub always true; `_runMatch(const [])`; UserPhoneHash never created; no phone normalisation | agent c1-contacts fixing | contacts plugin + READ_CONTACTS (native build) |
 | My Circle | Report a member / mute status | — | A? (fixed) | static | a failed report/mute showed "Reported"/"Muted" anyway (fixed) | |
 | Business | POS sale → receipt → void | business_flow.dart / 17_pos_sale_void | A? | pending first CI run | — | |
 | Business | Product edit / customer save / merchant-QR save | (sweep + `core.tests_reality`) | A? (fixed) | backend tests pass | **fixed C:** all three POSTed to views with **no POST handler (405)**, so the forms never saved; `cost_price` was silently dropped on create (profit wrong) | bKash/Nagad merchant = pointer only |
