@@ -327,13 +327,20 @@ extension MoneyX on int {
   /// poisha → taka (double, for arithmetic only — never stored).
   double get takaValue => this / 100.0;
 
-  /// "৳1,250.50" style display (2 dp, trailing .00 trimmed).
+  /// "৳1,250.50" style display (2 dp, trailing .00 trimmed, thousands
+  /// grouped — matches the money screens).
   String get fmtTaka {
-    final taka = this / 100.0;
-    final s = taka
-        .toStringAsFixed(2)
-        .replaceFirst(RegExp(r'\.00$'), '');
-    return '৳$s';
+    final neg = this < 0;
+    final abs = this.abs();
+    final whole = (abs ~/ 100).toString();
+    final frac = abs % 100;
+    final buf = StringBuffer();
+    for (var i = 0; i < whole.length; i++) {
+      if (i > 0 && (whole.length - i) % 3 == 0) buf.write(',');
+      buf.write(whole[i]);
+    }
+    final dec = frac == 0 ? '' : '.${frac.toString().padLeft(2, '0')}';
+    return '${neg ? '-' : ''}৳$buf$dec';
   }
 }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../business_ai_api.dart';
+import '../../business_selling_api.dart' show MoneyX;
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
@@ -123,20 +124,21 @@ class _OrdersScreenState extends State<OrdersScreen> {
     return Card(
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
-        title: Row(children: [
-          Expanded(
-            child: Text('#${o['id']} · ${o['customer_name'] ?? ''}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
-          ),
-          BizStatusChip(label: statusLabel(tr, status), color: statusColor(status)),
-        ]),
+        // name gets the full width; status/amount/COD wrap below it so a
+        // long Bangla status never squeezes the customer's name to "…".
+        title: Text('#${o['id']} · ${o['customer_name'] ?? ''}',
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontWeight: FontWeight.w700)),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: Gap.xs),
-          child: Row(children: [
-            Text('৳${o['total'] ?? 0}', style: const TextStyle(fontWeight: FontWeight.w600)),
-            const SizedBox(width: Gap.sm),
+          child: Wrap(
+              spacing: Gap.sm,
+              runSpacing: Gap.xs,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+            Text(_takaFmt(o['total']), style: const TextStyle(fontWeight: FontWeight.w600)),
+            BizStatusChip(label: statusLabel(tr, status), color: statusColor(status)),
             if (cod) BizStatusChip(label: tr.bizCod, color: Brand.warning),
           ]),
         ),
@@ -338,11 +340,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           const Divider(),
           Row(children: [
             Expanded(child: Text(tr.bizTotal, style: const TextStyle(fontWeight: FontWeight.w700))),
-            Text('৳${_order['total'] ?? 0}', style: const TextStyle(fontWeight: FontWeight.w800)),
+            Text(_takaFmt(_order['total']), style: const TextStyle(fontWeight: FontWeight.w800)),
           ]),
           if (cod) ...[
             const SizedBox(height: Gap.sm),
-            BizNote(text: tr.bizCodCollect('৳${_order['cod_amount'] ?? _order['total'] ?? 0}'), icon: Icons.payments_outlined, tint: Brand.warning),
+            BizNote(text: tr.bizCodCollect(_takaFmt(_order['cod_amount'] ?? _order['total'])), icon: Icons.payments_outlined, tint: Brand.warning),
           ],
         ]),
       ),
@@ -382,3 +384,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     );
   }
 }
+
+/// Order totals arrive as TAKA decimals ("2400.00") -> "৳2,400".
+String _takaFmt(Object? v) =>
+    ((double.tryParse('${v ?? 0}') ?? 0) * 100).round().fmtTaka;

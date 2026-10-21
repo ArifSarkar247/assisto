@@ -99,9 +99,10 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
         ),
       ),
       const SizedBox(height: Gap.lg),
-      Row(children: [
+      // Wrap (not Row): the two legend chips stack on a large font instead of
+      // overflowing at 360 px.
+      Wrap(spacing: Gap.lg, runSpacing: Gap.xs, children: [
         _legend(context, Brand.success, t.moneyMonthIncome),
-        const SizedBox(width: Gap.lg),
         _legend(context, Brand.danger, t.moneyMonthExpense),
       ]),
       const SizedBox(height: Gap.xl),

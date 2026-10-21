@@ -1232,14 +1232,14 @@ class FakeApi extends ApiClient {
   List<Map<String, dynamic>> _bizOrders() => [
         {
           'id': 101, 'status': 'new', 'customer_name': _bn ? 'নাদিয়া' : 'Nadia',
-          'customer_phone': '01712345678', 'total': 240000, 'items': 2,
+          'customer_phone': '01712345678', 'total': '2400.00', 'items': 2,
           'cod_amount': 240000, 'courier': 'pathao', 'courier_live': false, 'tracking': '',
           'line': _bn ? 'অর্ডার #101: অর্ডার নেওয়া হয়েছে' : 'Order #101: order received',
         },
         {
           'id': 102, 'status': 'shipped', 'customer_name': _bn ? 'সুমন' : 'Sumon',
-          'customer_phone': '01812345678', 'total': 125000, 'items': 1,
-          'cod_amount': 125000, 'courier': 'steadfast', 'courier_live': false,
+          'customer_phone': '01812345678', 'total': '1250.00', 'items': 1,
+          'cod_amount': '1250.00', 'courier': 'steadfast', 'courier_live': false,
           'tracking': 'SF-998877',
           'line': _bn ? 'অর্ডার #102: কুরিয়ারে পাঠানো হয়েছে' : 'Order #102: shipped via courier',
         },
@@ -1266,10 +1266,14 @@ class FakeApi extends ApiClient {
 
     // profiles
     if (bare == 'business/profiles') {
-      return {'profiles': mode == FakeMode.empty ? const [] : [
+      // the real server answers {businesses, selected_id} (ProfilesView);
+      // 'profiles' kept for older callers.
+      final rows = mode == FakeMode.empty ? const <Map<String, dynamic>>[] : [
         {'id': 1, 'name': _bn ? 'আমার দোকান' : 'My Shop', 'type': 'small_shop',
-         'role': 'owner', 'has_staff': true, 'pay_method': 'bkash', 'pay_number': '01712345678'},
-      ], 'role': 'owner'};
+         'role': 'owner', 'has_staff': true, 'pay_method': 'bkash', 'pay_number': '01712345678',
+         'is_premium': true, 'currency': 'BDT', 'selected': true},
+      ];
+      return {'businesses': rows, 'profiles': rows, 'selected_id': 1, 'role': 'owner'};
     }
     // products
     if (bare == 'business/products/' || bare == 'business/products') {

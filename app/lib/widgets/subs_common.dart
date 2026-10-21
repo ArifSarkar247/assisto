@@ -312,7 +312,8 @@ String dueRelative(BuildContext context, AppLocalizations t, dynamic due) {
   final n = daysUntil(due, DateTime.now());
   if (n == null) return t.subsNoDate;
   if (n == 0) return t.subsDueToday;
+  if (n == -1) return t.shopQaOverdueOneDay; // not "1 days"
   if (n < 0) return t.subsOverdue(fmtInt(context, -n));
   if (n == 1) return t.subsDueTomorrow;
-  return t.subsDueInDays(fmtInt(context, n));
+  return t.shopQaDueInDays(fmtInt(context, n));
 }

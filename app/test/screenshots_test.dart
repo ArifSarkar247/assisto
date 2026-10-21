@@ -158,6 +158,19 @@ import 'package:assisto/screens/legal_screen.dart';
 import 'package:assisto/screens/photo_enhance_screen.dart';
 import 'package:assisto/screens/unseen_world_screen.dart';
 import 'package:assisto/screens/shop_box_screen.dart';
+import 'package:assisto/screens/business/business_hub_screen.dart';
+import 'package:assisto/screens/business/products_screen.dart';
+import 'package:assisto/screens/business/khata_screen.dart';
+import 'package:assisto/screens/business/cashbox_screen.dart';
+import 'package:assisto/screens/business/customers_screen.dart';
+import 'package:assisto/screens/business/quick_sell_screen.dart';
+import 'package:assisto/screens/business/reports_screen.dart';
+import 'package:assisto/screens/business/orders_screen.dart';
+import 'package:assisto/screens/business/payments_screen.dart';
+import 'package:assisto/screens/money_report_screen.dart';
+import 'package:assisto/screens/money_networth_screen.dart';
+import 'package:assisto/screens/money_trends_screen.dart';
+import 'package:assisto/screens/money_loan_detail_screen.dart';
 import 'package:assisto/screens/shop_eod_screen.dart';
 import 'package:assisto/screens/shop_live_screen.dart';
 import 'package:assisto/screens/shop_box_mode_screen.dart';
@@ -177,6 +190,9 @@ class _DeadClient implements HttpClient {
 }
 
 // ASSISTO_SHOT_DIR lets a worktree agent write shots outside the main checkout.
+// ASSISTO_SHOT_SCALE (e.g. 1.4) renders a large-font pass; files get `_s1.4`.
+final double _textScale = double.tryParse(Platform.environment['ASSISTO_SHOT_SCALE'] ?? '') ?? 1.0;
+String get _scaleTag => _textScale == 1.0 ? '' : '_s$_textScale';
 final _outDir = Platform.environment['ASSISTO_SHOT_DIR'] ?? '/home/ubuntu/assisto/screenshots';
 
 Future<void> _loadFont(String family, String path) async {
@@ -423,6 +439,23 @@ void main() {
     'legal': (build: (_) => const LegalScreen(), mode: FakeMode.data, full: true),
     'photo_enhance': (build: (_) => const PhotoEnhanceScreen(), mode: FakeMode.data, full: true),
     'unseen': (build: (_) => const UnseenWorldScreen(), mode: FakeMode.data, full: true),
+    // a2-cctv Premium QA (Business + Money)
+    'biz_hub': (build: (_) => const BusinessHubScreen(), mode: FakeMode.data, full: true),
+    'biz_products': (build: (_) => const ProductsScreen(businessId: 1), mode: FakeMode.data, full: true),
+    'biz_khata': (build: (l) => KhataScreen(business: {'id': 1, 'name': l == 'bn' ? 'আমার দোকান' : 'My Shop', 'role': 'owner'}), mode: FakeMode.data, full: true),
+    'biz_cashbox': (build: (l) => CashboxScreen(business: {'id': 1, 'name': l == 'bn' ? 'আমার দোকান' : 'My Shop', 'role': 'owner'}), mode: FakeMode.data, full: true),
+    'biz_customers': (build: (_) => const CustomersScreen(businessId: 1), mode: FakeMode.data, full: true),
+    'biz_quick_sell': (build: (_) => const QuickSellScreen(businessId: 1), mode: FakeMode.data, full: true),
+    'biz_reports': (build: (_) => const ReportsScreen(businessId: 1), mode: FakeMode.data, full: true),
+    'biz_orders': (build: (_) => const OrdersScreen(), mode: FakeMode.data, full: true),
+    'biz_payments': (build: (_) => const PaymentsScreen(), mode: FakeMode.data, full: true),
+    'money_report': (build: (_) => const MoneyReportScreen(), mode: FakeMode.data, full: true),
+    'money_networth': (build: (_) => const MoneyNetWorthScreen(), mode: FakeMode.data, full: true),
+    'money_trends': (build: (_) => const MoneyTrendsScreen(), mode: FakeMode.data, full: true),
+    'money_loan_detail': (build: (l) => MoneyLoanDetailScreen(item: {'localId': 'l1', 'serverId': 1, 'data': {'id': 1, 'kind': 'given', 'person': l == 'bn' ? 'রহিম' : 'Rahim', 'amount': '2000', 'paid': '500'}}), mode: FakeMode.data, full: true),
+    'biz_products_empty': (build: (_) => const ProductsScreen(businessId: 1), mode: FakeMode.empty, full: false),
+    'biz_khata_error': (build: (l) => KhataScreen(business: const {'id': 1, 'name': 'X', 'role': 'owner'}), mode: FakeMode.fail, full: false),
+    'biz_reports_loading': (build: (_) => const ReportsScreen(businessId: 1), mode: FakeMode.slow, full: false),
     // a2-cctv: Shop Box (CCTV Part 4) — Business plan stubbed in FakeApi
     'shop_box': (build: (_) => const ShopBoxScreen(), mode: FakeMode.data, full: true),
     'shop_eod': (build: (_) => const ShopEodScreen(siteId: 1), mode: FakeMode.data, full: true),
@@ -454,7 +487,8 @@ void main() {
       child: RepaintBoundary(
         key: key,
         child: MediaQuery(
-          data: MediaQueryData(size: Size(360, tall ? 1800 : 800)),
+          data: MediaQueryData(size: Size(360, tall ? 1800 : 800),
+              textScaler: TextScaler.linear(_textScale)),
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
             locale: Locale(lang),
@@ -496,7 +530,7 @@ void main() {
         await tester.runAsync(() => boundary.toImage(pixelRatio: 2.0)) as ui.Image;
     final bytes =
         await tester.runAsync(() => image.toByteData(format: ui.ImageByteFormat.png));
-    File('$_outDir/${name}_${lang}_${brightness == Brightness.light ? 'light' : 'dark'}.png')
+    File('$_outDir/${name}_${lang}_${brightness == Brightness.light ? 'light' : 'dark'}$_scaleTag.png')
         .writeAsBytesSync(bytes!.buffer.asUint8List());
     image.dispose();
     // Drain any pending "slow load" timer so the test tears down cleanly.

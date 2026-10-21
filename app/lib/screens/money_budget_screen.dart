@@ -47,7 +47,12 @@ class _MoneyBudgetScreenState extends State<MoneyBudgetScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(t.budgetTitle),
-          bottom: TabBar(tabs: [
+          bottom: TabBar(
+              isScrollable: MediaQuery.textScalerOf(context).scale(10) > 11.5,
+              tabAlignment: MediaQuery.textScalerOf(context).scale(10) > 11.5
+                  ? TabAlignment.start
+                  : null,
+              tabs: [
             Tab(text: t.budgetTabThisMonth),
             Tab(text: t.budgetTabHistory),
             Tab(text: t.budgetTabPlan),

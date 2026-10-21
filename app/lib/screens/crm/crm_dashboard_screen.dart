@@ -87,7 +87,9 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
                     _line(t.crmCommit, bdt(context, forecast['commit'] as num?)),
                     _line(t.crmOpenDeals, fmtInt(context, (forecast['open_count'] as num?)?.toInt() ?? 0)),
                     const SizedBox(height: Gap.xs),
-                    Text('${t.crmMethod}: ${_safeMethod(forecast['method'])}',
+                    // the formula is fixed server-side; show it in the user's
+                    // language (the server's text is English-only)
+                    Text('${t.crmMethod}: ${t.shopQaForecastMethod}',
                         style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
                   ])
                 : Row(children: [
@@ -107,7 +109,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
             padding: const EdgeInsets.all(Gap.md),
             child: winLoss['has_data'] == true
                 ? Column(children: [
-                    _line(t.crmMarkWon, fmtInt(context, (winLoss['won'] as num?)?.toInt() ?? 0)),
+                    _line(t.shopQaWon, fmtInt(context, (winLoss['won'] as num?)?.toInt() ?? 0)),
                     _line(t.crmMarkLost, fmtInt(context, (winLoss['lost'] as num?)?.toInt() ?? 0)),
                     _line(t.crmWinRate, winLoss['win_rate'] == null ? '—' : '${fmtInt(context, (winLoss['win_rate'] as num).toInt())}%'),
                   ])
@@ -121,7 +123,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
         const SizedBox(height: Gap.md),
         // ---- by salesperson ----
         _sectionTitle(t.crmBySalesperson),
-        _rows(byRep, (r) => _line(r['name']?.toString() ?? '—', '${t.crmMarkWon} ${fmtInt(context, (r['won'] as num?)?.toInt() ?? 0)} · ${bdt(context, r['won_value'] as num?)}'), t),
+        _rows(byRep, (r) => _line(r['name']?.toString() ?? '—', '${t.shopQaWon} ${fmtInt(context, (r['won'] as num?)?.toInt() ?? 0)} · ${bdt(context, r['won_value'] as num?)}'), t),
       ]),
     );
   }
@@ -147,7 +149,10 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(icon, color: scheme.primary),
           const SizedBox(height: Gap.xs),
-          Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800), maxLines: 1, overflow: TextOverflow.ellipsis),
+          FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800), maxLines: 1)),
           Text(label, style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
         ]),
       ),
@@ -195,8 +200,4 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
 
   // Swap symbols the app font lacks (render as tofu boxes) for safe ASCII:
   // sigma U+03A3 -> 'Sum ', multiplication sign U+00D7 -> 'x'.
-  String _safeMethod(Object? raw) => (raw ?? '')
-      .toString()
-      .replaceAll('\u03A3', 'Sum ')
-      .replaceAll('\u00D7', 'x');
 }

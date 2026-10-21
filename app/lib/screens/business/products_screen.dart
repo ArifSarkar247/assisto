@@ -89,7 +89,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.biz_product_name),
+        title: Text(t.shopQaProducts),
         actions: [
           if (!_role.isStaff)
             IconButton(
@@ -104,12 +104,12 @@ class _ProductsScreenState extends State<ProductsScreen> {
           : FloatingActionButton.extended(
               onPressed: () => _openSheet(),
               icon: const Icon(Icons.add),
-              label: Text(t.biz_product_name),
+              label: Text(t.shopQaAddProduct),
             ),
       body: Column(children: [
         SellHeader(
             icon: Icons.inventory_2_outlined,
-            title: t.biz_product_name,
+            title: t.shopQaProducts,
             subtitle: null),
         Padding(
           padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.sm),
@@ -174,14 +174,14 @@ class _ProductsScreenState extends State<ProductsScreen> {
     if (_items.isEmpty) {
       return StateMessage(
         icon: Icons.inventory_2_outlined,
-        title: t.biz_product_name,
-        message: t.biz_cart_empty,
+        title: t.shopQaNoProductsTitle,
+        message: t.shopQaNoProductsBody,
         action: _role.isStaff
             ? null
             : FilledButton.icon(
                 onPressed: () => _openSheet(),
                 icon: const Icon(Icons.add),
-                label: Text(t.biz_product_name)),
+                label: Text(t.shopQaAddProduct)),
       );
     }
     return RefreshIndicator(
