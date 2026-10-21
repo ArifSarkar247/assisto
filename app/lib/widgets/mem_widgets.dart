@@ -170,7 +170,10 @@ class MemConsentCard extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: onDismiss,
                 icon: const Icon(Icons.close, size: 16),
-                label: Text(t.memConsentNo),
+                // one line, scaled to fit: never breaks mid-word at large font
+                label: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(t.memConsentNo, maxLines: 1)),
               ),
             ),
             const SizedBox(width: Gap.sm),
@@ -178,7 +181,9 @@ class MemConsentCard extends StatelessWidget {
               child: FilledButton.icon(
                 onPressed: onConfirm,
                 icon: const Icon(Icons.check, size: 16),
-                label: Text(t.memConsentYes),
+                label: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(t.memConsentYes, maxLines: 1)),
               ),
             ),
           ]),

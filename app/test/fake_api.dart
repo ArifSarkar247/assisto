@@ -409,7 +409,7 @@ class FakeApi extends ApiClient {
 
   @override
   Future<Map<String, dynamic>> plan() async => {
-        'plan': 'premium', 'name_bn': _bn ? 'প্রিমিয়াম' : 'Premium',
+        'plan': 'premium', 'name': _bn ? 'প্রিমিয়াম' : 'Premium', 'name_bn': _bn ? 'প্রিমিয়াম' : 'Premium',
         'unlimited_ai': true, 'ads': false, 'credits': 0,
         'trial_active': true, 'trial_until': '2026-10-20T00:00:00',
       };

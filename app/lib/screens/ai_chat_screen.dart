@@ -534,9 +534,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
   Widget _welcome() {
     final scheme = Theme.of(context).colorScheme;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(Gap.xl, Gap.xxl, Gap.xl, Gap.md),
+      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.xl, Gap.lg, Gap.md),
       children: [
-        const SizedBox(height: Gap.xl),
         Center(
           child: Container(
             width: 76,
@@ -560,6 +559,36 @@ class _AiChatScreenState extends State<AiChatScreen> {
         Text(t.aichatWelcomeBody,
             textAlign: TextAlign.center,
             style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+        const SizedBox(height: Gap.xl),
+        // Premium QA: welcome state offers real starting points (tap = send).
+        for (final (icon, text) in [
+          (Icons.edit_note_outlined, t.a1AiSugLeave),
+          (Icons.summarize_outlined, t.a1AiSugWeek),
+          (Icons.campaign_outlined, t.a1AiSugShop),
+          (Icons.receipt_long_outlined, t.a1AiSugBill),
+        ])
+          Padding(
+            padding: const EdgeInsets.only(bottom: Gap.sm),
+            child: Material(
+              color: scheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(Radii.md),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(Radii.md),
+                onTap: _sending ? null : () => _send(text),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: Gap.md, vertical: Gap.md),
+                  child: Row(children: [
+                    Icon(icon, size: 20, color: scheme.primary),
+                    const SizedBox(width: Gap.md),
+                    Expanded(
+                        child: Text(text,
+                            style: const TextStyle(height: 1.3))),
+                  ]),
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }

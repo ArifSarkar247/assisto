@@ -110,7 +110,8 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(tr.savedTitle)),
-      floatingActionButton: FloatingActionButton.extended(
+      // empty state has its own CTA: no duplicate FAB
+      floatingActionButton: result.empty ? null : FloatingActionButton.extended(
         onPressed: _addItem,
         icon: const Icon(Icons.bookmark_add_outlined),
         label: Text(tr.savedAdd),

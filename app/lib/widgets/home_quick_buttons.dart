@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -267,14 +268,24 @@ class _HomeQuickBarState extends State<HomeQuickBar> {
           style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
         ),
       ]),
-      GridView.count(
-        crossAxisCount: 3,
+      GridView(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: Gap.sm,
-        crossAxisSpacing: Gap.sm,
-        childAspectRatio: 1.55,
-        children: [for (final s in items) _tile(context, t, s)],
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          mainAxisSpacing: Gap.sm,
+          crossAxisSpacing: Gap.sm,
+          // tile height follows the font size: icon + 2 label lines never clip
+          mainAxisExtent: math.max(67.0,
+              40 + 28 * math.min(1.2, MediaQuery.textScalerOf(context).scale(1))),
+        ),
+        // Labels cap at 1.2x so a word never breaks mid-word in a 1/3-width
+        // tile (large-font QA); the tile itself still grows with the font.
+        children: [
+          for (final s in items)
+            MediaQuery.withClampedTextScaling(
+                maxScaleFactor: 1.2, child: _tile(context, t, s))
+        ],
       ),
     ]);
   }

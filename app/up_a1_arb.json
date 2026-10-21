@@ -1,11 +1,29 @@
 {
   "en": {
     "a1CmpCreditsPerMonth": "{n} / mo",
-    "@a1CmpCreditsPerMonth": {"placeholders": {"n": {"type": "Object"}}},
-    "a1CmpPacksOrAds": "Packs or ads"
+    "@a1CmpCreditsPerMonth": {
+      "placeholders": {
+        "n": {
+          "type": "Object"
+        }
+      }
+    },
+    "a1CmpPacksOrAds": "Packs or ads",
+    "a1AiSugLeave": "Write a polite leave application for tomorrow",
+    "a1AiSugWeek": "Summarise my reminders and spending this week",
+    "a1AiSugShop": "Draft a Facebook post for my shop's Eid offer",
+    "a1AiSugBill": "Explain my electricity bill in simple words",
+    "a1MemSearchHint": "Search what AI knows",
+    "a1MeetCountOne": "1 meeting"
   },
   "bn": {
     "a1CmpCreditsPerMonth": "মাসে {n}",
-    "a1CmpPacksOrAds": "প্যাক বা বিজ্ঞাপন"
+    "a1CmpPacksOrAds": "প্যাক বা বিজ্ঞাপন",
+    "a1AiSugLeave": "আগামীকালের জন্য একটি ভদ্র ছুটির আবেদন লিখে দাও",
+    "a1AiSugWeek": "এই সপ্তাহের রিমাইন্ডার আর খরচের সারাংশ দাও",
+    "a1AiSugShop": "আমার দোকানের ঈদ অফারের জন্য একটি ফেসবুক পোস্ট লিখে দাও",
+    "a1AiSugBill": "আমার বিদ্যুৎ বিল সহজ ভাষায় বুঝিয়ে দাও",
+    "a1MemSearchHint": "এআই কী জানে, খুঁজুন",
+    "a1MeetCountOne": "১টি মিটিং"
   }
 }
