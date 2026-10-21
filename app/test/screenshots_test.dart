@@ -20,6 +20,8 @@ import 'package:assisto/screens/home_screen.dart';
 import 'package:assisto/screens/agent_thread_screen.dart';
 import 'package:assisto/widgets/home_quick_buttons.dart';
 import 'package:assisto/screens/app_drawer.dart';
+import 'package:assisto/screens/assisto_chats_screen.dart';
+import 'package:assisto/widgets/settings_voice.dart';
 import 'package:assisto/screens/messenger/messenger_home_screen.dart';
 import 'package:assisto/screens/messenger/messenger_settings_screen.dart';
 import 'package:assisto/screens/messenger/contact_info_screen.dart';
@@ -171,7 +173,10 @@ class _DeadClient implements HttpClient {
       throw const SocketException('network disabled in screenshot tests');
 }
 
-const _outDir = '/home/ubuntu/assisto/screenshots';
+// ASSISTO_SHOT_DIR lets a parallel worktree write its gallery elsewhere.
+final _outDir = Platform.environment['ASSISTO_SHOT_DIR']?.isNotEmpty == true
+    ? Platform.environment['ASSISTO_SHOT_DIR']!
+    : '/home/ubuntu/assisto/screenshots';
 
 Future<void> _loadFont(String family, String path) async {
   final loader = FontLoader(family);
@@ -346,6 +351,10 @@ void main() {
     'chat': (build: (l) => Scaffold(appBar: AppBar(title: const Text('Assisto')), body: AgentThreadScreen(debugSeed: _chat(l))), mode: FakeMode.data, full: true),
     'chat_voice': (build: (l) => Scaffold(appBar: AppBar(title: const Text('Assisto')), body: AgentThreadScreen(debugSeed: const [], debugListening: true)), mode: FakeMode.data, full: true),
     'drawer': (build: (_) => Scaffold(body: Row(children: [AppDrawer(onNewChat: () {})])), mode: FakeMode.data, full: true),
+    // Owner order after build 146: sidebar "Assisto AI" -> one chats page.
+    'assisto_chats': (build: (_) => const AssistoChatsScreen(), mode: FakeMode.data, full: true),
+    'assisto_chats_empty': (build: (_) => const AssistoChatsScreen(), mode: FakeMode.empty, full: false),
+    'settings_voice': (build: (_) => const Scaffold(body: SafeArea(child: SingleChildScrollView(child: SettingsVoiceSection()))), mode: FakeMode.data, full: true),
     'home_chat_restored': (build: (_) => Scaffold(appBar: AppBar(title: const Text('Assisto')), body: Column(children: [const HomeQuickBar(compact: true, debugRoutes: HomeQuickButtons.defaults), Expanded(child: AgentThreadScreen(sessionId: '11'))])), mode: FakeMode.data, full: true),
     'quick_grid': (build: (_) => const Scaffold(body: Padding(padding: EdgeInsets.all(16), child: HomeQuickBar(debugRoutes: HomeQuickButtons.defaults))), mode: FakeMode.data, full: true),
     'quick_picker': (build: (_) => const Scaffold(body: QuickButtonsPicker(current: HomeQuickButtons.defaults)), mode: FakeMode.data, full: true),

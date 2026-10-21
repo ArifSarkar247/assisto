@@ -13,6 +13,7 @@ import '../messenger_admin_api.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/elderly_mode.dart';
 import '../widgets/settings_language.dart';
+import '../widgets/settings_voice.dart';
 import '../widgets/settings_theme.dart';
 import '../widgets/settings_autonomy.dart';
 import 'owner_analytics_screen.dart';
@@ -182,6 +183,9 @@ class SettingsScreen extends StatelessWidget {
           ),
           const Divider(),
           const SettingsLanguageSection(),
+          const Divider(),
+          // Settings -> Voice: the only voice-language override (Auto default).
+          const SettingsVoiceSection(),
           const Divider(),
           const SettingsThemeSection(),
           const Divider(),

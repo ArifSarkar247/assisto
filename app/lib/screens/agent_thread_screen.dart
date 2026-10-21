@@ -67,7 +67,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
   bool _sending = false;
 
   // Live speech-to-text into the input (shared with Assisto AI chat).
-  late final VoiceDictation _voice = VoiceDictation(lang: 'bn');
+  late final VoiceDictation _voice = VoiceDictation();
   String? _sessionId;
 
   AppLocalizations get t => AppLocalizations.of(context);
@@ -101,7 +101,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
       return; // previews don't poll
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _voice.loadLang(t.localeName);
+      _voice.loadMode();
       _restoreThread();
     });
   }

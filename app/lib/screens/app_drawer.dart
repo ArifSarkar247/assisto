@@ -3,19 +3,20 @@ import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
-import '../widgets/sidebar_chats.dart';
 import '../widgets/sidebar_sections.dart';
 import 'settings_screen.dart';
 import 'plans_screen.dart';
 import 'messenger/messenger_home_screen.dart';
-import 'ai_chat_screen.dart';
+import 'assisto_chats_screen.dart';
 
 /// Left sidebar — the app's navigation hub (modern AI-chat style). The main
 /// screen is only the chat; everything else lives here.
 ///
 /// Layout (owner-final): the WHOLE drawer is ONE scroll list — nothing pinned
 /// below it.
-///   TOP of scroll: brand header, profile card (name + phone), New chat,
+///   TOP of scroll: brand header, "Assisto AI" (-> [AssistoChatsScreen]:
+///     New chat + every saved chat; owner order after build 146 replaced the
+///     sidebar New-chat button + growing chat list with this one entry),
 ///     Messages hub quick-link ([MessengerHomeScreen]), search box.
 ///   SECTIONS: 8 collapsible [SidebarSections] (My Circle, Reminders & Memory,
 ///     My Account, Family & Safety, Contacts & Profile, Daily Life, Work,
@@ -23,12 +24,12 @@ import 'ai_chat_screen.dart';
 ///   END of scroll: Settings (In-progress / Connected apps / Battery / Legal
 ///     live inside it), Plans & points.
 class AppDrawer extends StatefulWidget {
-  final VoidCallback onNewChat;
+  /// Start a fresh HOME chat (used by the chats page's "New chat").
+  final VoidCallback? onNewChat;
 
-  /// Reopen a saved HOME conversation (sidebar chat history) on the home
-  /// screen. Null in previews → home rows just close the drawer.
+  /// Reopen a saved HOME conversation on the home screen (chats page rows).
   final void Function(String sessionId)? onOpenHomeChat;
-  const AppDrawer({super.key, required this.onNewChat, this.onOpenHomeChat});
+  const AppDrawer({super.key, this.onNewChat, this.onOpenHomeChat});
 
   @override
   State<AppDrawer> createState() => _AppDrawerState();
@@ -73,15 +74,22 @@ class _AppDrawerState extends State<AppDrawer> {
           child: Row(children: [
             _logoMark(44),
             const SizedBox(width: Gap.md),
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('Assisto',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800)),
-              Text(t.tagline,
-                  style: const TextStyle(color: Colors.white70, fontSize: 11)),
-            ]),
+            Expanded(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Assisto',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800)),
+                    Text(t.tagline,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            color: Colors.white70, fontSize: 11)),
+                  ]),
+            ),
           ]),
         ),
         const SizedBox(height: Gap.sm),
@@ -89,23 +97,27 @@ class _AppDrawerState extends State<AppDrawer> {
         // profile now lives as a card at the top of SettingsScreen and in the
         // Messenger hub-settings. The sidebar opens straight into the quick
         // actions below.
-        // ---- new chat + My Circle hub quick-link ----
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: Gap.md),
-          child: FilledButton.tonalIcon(
-            onPressed: () {
-              Navigator.pop(context);
-              widget.onNewChat();
-            },
-            icon: const Icon(Icons.add_comment_outlined, size: 20),
-            label: Row(children: [Text(t.newChat), const Spacer()]),
-            style: FilledButton.styleFrom(
-              alignment: Alignment.centerLeft,
-              minimumSize: const Size.fromHeight(46),
-            ),
-          ),
+        // ---- Assisto AI (chats page) + My Circle hub quick-link ----
+        // ONE entry for all chats: the page has New chat at the top and every
+        // saved chat (home + AI) below, so the sidebar never fills up.
+        ListTile(
+          key: const ValueKey('drawer_assisto_ai'),
+          dense: true,
+          leading: Icon(Icons.auto_awesome, color: scheme.primary),
+          title: Text(t.aichatTitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontWeight: FontWeight.w600)),
+          subtitle: Text(t.p1ChatsSidebarSub,
+              maxLines: 1, overflow: TextOverflow.ellipsis),
+          onTap: () {
+            // Capture the home hooks before the drawer closes.
+            final onNew = widget.onNewChat;
+            final onOpen = widget.onOpenHomeChat;
+            _push((_) => AssistoChatsScreen(
+                onNewHomeChat: onNew, onOpenHomeChat: onOpen));
+          },
         ),
-        const SizedBox(height: Gap.xs),
         // The ONLY entry point to the Messenger hub (Chats · Updates ·
         // Communities · Calls). Labelled "My Circle" — the old expandable
         // "My Circle" sidebar group is gone; circle management (people,
@@ -149,21 +161,6 @@ class _AppDrawerState extends State<AppDrawer> {
           child: ListView(
             padding: const EdgeInsets.symmetric(vertical: Gap.xs),
             children: [
-              // ChatGPT-style history (home + Assisto AI threads). The
-              // old separate "Assisto AI" tile lives here as "New AI chat".
-              SidebarChats(
-                query: _q,
-                onNewAiChat: () => _push((_) => const AiChatScreen()),
-                onOpen: (source, row) {
-                  if (source == 'ai') {
-                    _push((_) => AiChatScreen(initialSession: row));
-                  } else {
-                    Navigator.pop(context);
-                    widget.onOpenHomeChat?.call('${row['id']}');
-                  }
-                },
-              ),
-              const Divider(height: Gap.md),
               if (sections.isEmpty)
                 Padding(
                   padding: const EdgeInsets.all(24),
