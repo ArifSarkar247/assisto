@@ -2,6 +2,10 @@
 
 0. (old) Final order 21 Oct: 1 → 2 (+contract test) → 4 (FCM) → 3 (reality audit) → 5 (voice assistant) → 6 (vehicle) → 7.
 1. 21-Oct NIGHT order (replaces the order above): 1 broken links + contract CI → 2 sidebar/auto voice → 2b DISCOVER MANAGER → 3 FCM + un-park workflows → 4 OTP → 5 reality audit → 6 voice assistant → 7 Photo Studio → 8 vehicle → 9 remote support → Batch 6 → CCTV live + Shop Box → Premium QA. Max 3 agents.
+1a. OWNER BUG — CONTACTS ON ASSISTO IS A FACADE (top priority right after the current build): agent c1-contacts.
+   - Root causes: permission stub always true + phonebook never read (no plugin); UserPhoneHash never created; no phone normalisation (exact-string match).
+   - Fix: E.164 canonical phone everywhere + data migration; UserPhoneHash on register/phone change + backfill; admin flag allow-unverified-matching (ON test, OFF at launch); contacts plugin + READ_CONTACTS + prominent disclosure (native build, needs workflow scope); WhatsApp-style On Assisto / Invite; search any format.
+   - Stays C in the Reality Audit until the two-phone test passes (01865052200 searched as +880 1865-052200 / 8801865052200 / 01865052200).
 1b. DISCOVER MANAGER + SPONSORED CARDS (owner, 21 Oct night; right after priority 2):
    - Link fix axonerp.com → https://axonerpsoftware.com: DONE in build 148.
    - Admin panel: cards CRUD + reorder + enable; image/icon; bn+en title/desc; action = in-app route (picker) or external URL; start/end datetime; audience all/Free/Premium/Business; optional min app version.
