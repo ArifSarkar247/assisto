@@ -1,7 +1,8 @@
 # Integrations — owner key guide (which key unlocks which feature)
 
 The owner manages every external-service key at **`/owner/integrations`**
-(Assisto owner-admin page, superuser-only, rate-limited, audit-logged). Keys are
+(inside the web owner panel — superuser + TOTP 2FA, rate-limited, audit-logged;
+see `owner_actions/OWNER_ADMIN_PANEL.md`). Keys are
 encrypted at rest with Fernet (`INTEGRATIONS_FERNET_KEY` in
 `/home/ubuntu/.assisto_secrets.env`, chmod 600) — never in git, never in logs,
 never shown back in full (only `•••• last4`).
@@ -11,7 +12,8 @@ A feature turns on **automatically** the moment its integration tests OK
 Keep this file in sync with `core/integrations.py::REGISTRY` — one row per slug.
 
 ## How to connect (general)
-1. Open `https://assisto.asalify.com/owner/integrations` and log in (owner only).
+1. Open `https://api.lifeassisto.com/owner/integrations` and log in (owner only,
+   password + authenticator code).
 2. Find the service card (grouped by category; the dashboard at the top shows
    connected / not-working / not-connected counts).
 3. Follow the per-card "How to connect" steps, paste the key(s), press **Save**.
