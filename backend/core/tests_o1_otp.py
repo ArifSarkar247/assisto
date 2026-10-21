@@ -482,7 +482,7 @@ class OtpApiTests(APITestCase):
                              {"name": "N", "phone": PHONE, "password": "pw123456",
                               "otp_proof": proof}, format="json")
         self.assertEqual(r.status_code, 201, r.data)
-        u = User.objects.get(phone=PHONE)
+        u = User.objects.get(phone=CANON)  # c1: stored canonical
         self.assertEqual(PhoneVerification.objects.get(user=u).phone, CANON)
 
     def test_signup_proof_for_other_phone_rejected(self, *_):

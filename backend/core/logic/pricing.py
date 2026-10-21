@@ -301,6 +301,9 @@ def DEFAULTS():
             # a3-voice: YouTube Data API voice lookups per user per day (each
             # search = 100 of the free 10,000 daily quota units). 0 = off.
             "voice_youtube_daily": 40,
+            # c1-contacts: manual find-by-number lookups per user per hour
+            # (anti-enumeration). Contacts match is a separate batch call.
+            "contact_lookups_per_hour": 30,
         },
         "probashi_price_usd": DEFAULT_PROBASHI_PRICE_USD,
         # 0 = use the server env AI_DAILY_BUDGET_USD kill-switch default
@@ -468,6 +471,9 @@ def _norm_limits(raw, base):
             raw.get("business_included_cameras"), base["business_included_cameras"]))),
         "voice_youtube_daily": max(0, min(500, _int(
             raw.get("voice_youtube_daily"), base.get("voice_youtube_daily", 40)))),
+        "contact_lookups_per_hour": max(1, min(500, _int(
+            raw.get("contact_lookups_per_hour"),
+            base.get("contact_lookups_per_hour", 30)))),
     }
 
 

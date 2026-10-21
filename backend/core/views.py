@@ -140,7 +140,7 @@ class RegisterView(APIView):
                 return Response({"ok": False, "reason": "bad_otp",
                                  "detail": otp.message("bad_otp", lang)},
                                 status=status.HTTP_403_FORBIDDEN)
-            ser.validated_data["phone"] = otp.local_form(canon)
+            ser.validated_data["phone"] = canon  # c1: one canonical form
         user = ser.save()
         if canon:
             otp.mark_verified(user, canon)
@@ -162,7 +162,11 @@ class LoginView(APIView):
         ser.is_valid(raise_exception=True)
         ident = ser.validated_data["identifier"].strip()
         password = ser.validated_data["password"]
-        user = (User.objects.filter(phone=ident).first()
+        # c1-contacts: a phone typed in ANY format (01…, +880…, spaces,
+        # Bangla digits) finds the account, including legacy spellings.
+        from .phone import find_user as _find_by_phone
+        user = (_find_by_phone(ident)
+                or User.objects.filter(phone=ident).first()
                 or User.objects.filter(email=ident.lower()).first()
                 or User.objects.filter(username=ident).first())
         if not user or not user.check_password(password) or not user.is_active:

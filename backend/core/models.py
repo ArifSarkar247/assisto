@@ -8,6 +8,9 @@ from django.utils import timezone
 class UserManager(BaseUserManager):
     def _normalize(self, phone, email):
         phone = (phone or "").strip() or None
+        if phone:  # c1-contacts: canonical form when parseable
+            from .phone import canonical_phone
+            phone = canonical_phone(phone) or phone
         email = self.normalize_email(email).strip().lower() if email else None
         return phone, email
 

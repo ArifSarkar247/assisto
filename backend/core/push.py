@@ -428,7 +428,9 @@ def member_peer_user(member):
         phone = (getattr(member, "phone", "") or "").strip()
         if phone:
             from django.contrib.auth import get_user_model
-            return get_user_model().objects.filter(phone=phone).first()
+            from .phone import find_user as _find_by_phone
+            return (_find_by_phone(phone)
+                    or get_user_model().objects.filter(phone=phone).first())
     except Exception:
         pass
     return None

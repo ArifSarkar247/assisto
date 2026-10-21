@@ -52,9 +52,11 @@ User = get_user_model()
 # ===========================================================================
 
 def _match_salt():
-    """The server-wide contact-match salt (NOT per-user). Falls back to the
-    Django SECRET_KEY so matching still works in dev."""
-    return getattr(settings, "SERVER_MATCH_SALT", None) or settings.SECRET_KEY
+    """The server-wide contact-match salt (NOT per-user). c1-contacts: one
+    source of truth in core.phone — SERVER_MATCH_SALT, else a value DERIVED
+    from SECRET_KEY (the SECRET_KEY itself is never exposed)."""
+    from .phone import match_salt
+    return match_salt()
 
 
 def _is_operator(request):
@@ -86,24 +88,64 @@ def _badreq(detail="bad request"):
 # 1. CONTACTS & INVITES + personal CONNECTION REQUEST  (msg_contacts)
 # ===========================================================================
 
+def _circle_status(me, other):
+    """The requester's My Circle relationship to `other` so the app can show
+    Add to My Circle / Requested / Message + Call. Never reveals anything the
+    requester does not already own (their own edges)."""
+    from .views_module5 import _member_dict
+    out = {"state": "none", "member_id": None, "member": None}
+    edges = list(CircleMember.objects.filter(user=me, peer_user=other)
+                 .exclude(state__in=("declined", "blocked", "cancelled"))
+                 .order_by("-id"))
+    best = None
+    for e in edges:
+        if e.state == "accepted":
+            best = e
+            break
+        if best is None:
+            best = e
+    if best is not None:
+        st = best.state
+        if st == "pending" and getattr(best, "direction", "") == "incoming":
+            st = "incoming"
+        out = {"state": st, "member_id": best.id,
+               "member": _member_dict(best) if best.state == "accepted" else None}
+    return out
+
+
+def _match_descriptor(me, u):
+    d = _public_user_descriptor(u)
+    from .phone import canonical_phone
+    d["phone"] = (canonical_phone(u.phone or "") or "") if u.show_phone else ""
+    d["circle"] = _circle_status(me, u)
+    return d
+
+
 class ContactsMatchView(APIView):
     """POST /messenger/contacts/match  body {hashes:[...], permission_granted:bool}
     -> msg_contacts.match_contacts. STORES NOTHING: we look up each uploaded hash
-    in UserPhoneHash (verified users only) and return the matches; non-user hashes
-    are never written anywhere. The request body is never persisted."""
+    in UserPhoneHash (registered users; discoverability gated by the admin flag
+    contacts_match_unverified — OFF = OTP-verified numbers only) and return the
+    matches; non-user hashes are never written anywhere. The request body is
+    never persisted."""
 
     def post(self, request):
+        from .phone import allow_unverified_matching, is_discoverable
         data = request.data or {}
         hashes = data.get("hashes") or []
+        if not isinstance(hashes, list):
+            hashes = []
         permission = bool(data.get("permission_granted", False))
-        # Build {hash: public_user_descriptor} ONLY for verified registered users.
         reg = {}
         if permission and hashes:
+            allow = allow_unverified_matching()
             rows = (UserPhoneHash.objects
                     .filter(phone_hash__in=[str(h) for h in hashes][:5000])
-                    .select_related("user"))
+                    .exclude(user=request.user)
+                    .select_related("user", "user__phone_verification"))
             for r in rows:
-                reg[r.phone_hash] = _public_user_descriptor(r.user)
+                if is_discoverable(r.user, allow_unverified=allow):
+                    reg[r.phone_hash] = _match_descriptor(request.user, r.user)
         result = mc.match_contacts(hashes, reg, permission_granted=permission)
         # result["stored"] is False by contract; we persist nothing here.
         return Response(result)
@@ -111,12 +153,81 @@ class ContactsMatchView(APIView):
 
 class ContactHashingContractView(APIView):
     """GET /messenger/contacts/contract -> the machine-readable client hashing
-    contract so the Flutter client stays in lockstep with the server matcher."""
+    contract so the Flutter client stays in lockstep with the server matcher.
+    c1-contacts: now also carries the match salt + the field names the app
+    reads (salt / country_code / hash_len). Before this the app received no
+    salt at all and hashed with an empty key, so nothing could ever match."""
 
     def get(self, request):
+        from .phone import HASH_HEX_LEN, SALT_VERSION, allow_unverified_matching
         base = getattr(settings, "APP_DEEP_LINK_BASE_HTTPS",
                        "https://assisto.asalify.com")
-        return Response(mc.hashing_contract(base))
+        c = mc.hashing_contract(base)
+        c.update({
+            "salt": _match_salt(),
+            "match_salt": _match_salt(),
+            "salt_version": SALT_VERSION,
+            "country_code": "880",
+            "hash_len": HASH_HEX_LEN,
+            "normalization": "core.phone.canonical_phone (BD -> +8801XXXXXXXXX; "
+                             "Bangla digits, spaces, dashes, brackets, 0/880/"
+                             "+880/00880 prefixes accepted; foreign numbers "
+                             "only with an explicit + or 00)",
+            "unverified_matchable": allow_unverified_matching(),
+        })
+        return Response(c)
+
+
+class ContactLookupView(APIView):
+    """POST /messenger/contacts/lookup {phone} — c1-contacts manual "find by
+    number". Accepts ANY format (01…, 8801…, +880…, 00880…, spaces, dashes,
+    brackets, Bangla digits). Returns
+      {ok, valid, found, phone (canonical), is_self, user?:{id,name,photo,
+       phone, circle:{state, member_id, member}}}
+    so the app can show Add to My Circle / Message / Call — or Invite when the
+    number is not on Assisto. Invalid -> 400 bad_phone (honest). Rate-limited
+    per user per hour (admin-editable limits.contact_lookups_per_hour).
+    Discoverability follows the same admin flag as contacts match."""
+
+    def post(self, request):
+        from django.core.cache import cache
+        from . import billing
+        from .phone import canonical_phone, find_user, is_discoverable
+        lang = req_lang(request)
+        raw = str((request.data or {}).get("phone", "")).strip()[:40]
+        canon = canonical_phone(raw)
+        if not canon:
+            return Response({
+                "ok": False, "valid": False, "found": False,
+                "reason": "bad_phone",
+                "detail": ("নম্বরটি সঠিক নয়। যেমন: ০১৭১২৩৪৫৬৭৮" if lang == "bn"
+                           else "That number doesn't look right. "
+                                "Example: 01712345678")},
+                status=status.HTTP_400_BAD_REQUEST)
+        try:
+            limit = int(billing.cfg()["limits"]["contact_lookups_per_hour"])
+        except Exception:  # noqa: BLE001
+            limit = 30
+        bucket = timezone.now().strftime("%Y%m%d%H")
+        key = f"c1:lookup:{request.user.id}:{bucket}"
+        used = cache.get(key, 0)
+        if used >= limit:
+            return Response({"ok": False, "valid": True, "found": False,
+                             "reason": "rate_limited", "limit": limit},
+                            status=status.HTTP_429_TOO_MANY_REQUESTS)
+        cache.set(key, used + 1, 3600)
+        u = find_user(canon)
+        if u is not None and u.id == request.user.id:
+            return Response({"ok": True, "valid": True, "found": False,
+                             "is_self": True, "phone": canon})
+        if u is None or not is_discoverable(u):
+            # Honest: not (discoverably) on Assisto -> the app offers Invite.
+            return Response({"ok": True, "valid": True, "found": False,
+                             "is_self": False, "phone": canon})
+        d = _match_descriptor(request.user, u)
+        d["phone"] = canon  # the requester typed this number themselves
+        return Response({"ok": True, "valid": True, "found": True,
+                         "is_self": False, "phone": canon, "user": d})
 
 
 class _InviteBase(APIView):
@@ -191,6 +302,13 @@ class InviteSmsView(_InviteBase):
         data = request.data or {}
         relation = str(data.get("relation", "friend")).strip() or "friend"
         to_number = str(data.get("to_number", "")).strip()
+        if to_number:  # c1-contacts: canonical, invalid refused honestly
+            from .phone import canonical_phone
+            canon = canonical_phone(to_number)
+            if not canon:
+                return Response({"detail": "bad_phone", "reason": "bad_phone"},
+                                status=status.HTTP_400_BAD_REQUEST)
+            to_number = canon
         token, link = self._share_link(request, relation)
         InviteOutbound.objects.create(inviter=request.user, channel="sms_own_sim",
                                       token=token)

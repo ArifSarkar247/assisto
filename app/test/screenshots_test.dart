@@ -17,6 +17,7 @@ import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/screens/login_screen.dart';
 import 'package:assisto/screens/otp/otp_verify_screen.dart';
 import 'package:assisto/screens/otp/otp_login_screen.dart';
+import 'fake_c1_contacts.dart';
 import 'fake_otp.dart';
 import 'package:assisto/screens/language_picker_screen.dart';
 import 'package:assisto/screens/home_screen.dart';
@@ -322,6 +323,10 @@ void main() {
     'notification_centre': (build: (_) => const NotificationCentreScreen(), mode: FakeMode.data, full: true),
     'msgr_profile': (build: (_) => const MessengerProfileScreen(), mode: FakeMode.data, full: true),
     'contacts': (build: (_) => const ContactsScreen(), mode: FakeMode.data, full: true),
+    // c1-contacts: disclosure before the OS prompt, then the synced
+    // WhatsApp-style list (On Assisto first, Invite for the rest).
+    'c1_contacts_disclosure': (build: (_) { SharedPreferences.setMockInitialValues({}); return const ContactsScreen(source: C1GallerySource()); }, mode: FakeMode.data, full: true),
+    'c1_contacts_synced': (build: (_) { SharedPreferences.setMockInitialValues({'c1_contacts_consent_v1': true}); return const ContactsScreen(source: C1GallerySource()); }, mode: FakeMode.data, full: true),
     'cam_perm_ask': (build: (_) => CameraPermissionScreen(denied: false, onPrimary: () {}), mode: FakeMode.data, full: true),
     'cam_perm_denied': (build: (_) => CameraPermissionScreen(denied: true, onPrimary: () {}), mode: FakeMode.data, full: true),
     'home_top': (build: (_) => const HomeScreen(), mode: FakeMode.data, full: true),

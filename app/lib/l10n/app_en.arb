@@ -15392,5 +15392,58 @@
         "type": "String"
       }
     }
-  }
+  },
+  "c1Accept": "Accept",
+  "c1Accepted": "You're connected. You can message and call now.",
+  "c1AddToCircle": "Add to My Circle",
+  "c1Call": "Call",
+  "c1ChatOpenFailed": "Couldn't open the chat. Open Messenger once, then try again.",
+  "c1CheckedCount": "{count} contacts checked.",
+  "@c1CheckedCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "c1DisclosureLead": "We only send hashed numbers to find who is on Assisto. Names and phone numbers stay on your phone.",
+  "c1DisclosureNextStep": "Next, Android will ask for permission to read your contacts.",
+  "c1DisclosureTitle": "Find your people on Assisto",
+  "c1InYourCircle": "In your circle",
+  "c1Invite": "Invite",
+  "c1InviteTitle": "Invite to Assisto",
+  "c1Message": "Message",
+  "c1MessageAfterAccept": "Message and call open once they accept.",
+  "c1NoneOnAssisto": "None of your contacts are on Assisto yet. Invite them below.",
+  "c1OnAssistoAs": "On Assisto as {name}",
+  "@c1OnAssistoAs": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "c1OnAssistoTitle": "On Assisto",
+  "c1PhonebookNextUpdateBody": "This version can't read your phonebook yet, so nothing was read from your phone. Type a number above to find someone on Assisto.",
+  "c1PhonebookNextUpdateTitle": "Reading your phonebook arrives in the next update",
+  "c1PullToRefresh": "Pull down to check again.",
+  "c1RequestFailed": "Couldn't send that. Please try again.",
+  "c1RequestSent": "Request sent. You can message once they accept.",
+  "c1Requested": "Requested",
+  "c1SearchFailed": "Couldn't search right now. Please try again.",
+  "c1SearchHint": "Search by number, e.g. 01712345678",
+  "c1SearchInstead": "Find by number instead",
+  "c1SearchInvalid": "That doesn't look like a phone number. Example: 01712345678",
+  "c1SearchLimited": "Too many searches for now. Please try again in a while.",
+  "c1SearchNotFound": "{number} is not on Assisto yet. Invite them?",
+  "@c1SearchNotFound": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "c1SearchSelf": "That's your own number.",
+  "c1WantsToConnect": "Wants to join your circle",
+  "c1FlagContactsMatchUnverified": "Find unverified numbers in Contacts (test builds)"
 }

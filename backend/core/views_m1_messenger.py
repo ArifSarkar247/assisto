@@ -915,11 +915,15 @@ def _sms_off(lang):
 
 
 def _norm_phone(raw):
-    s = "".join(ch for ch in str(raw or "") if ch.isdigit() or ch == "+")
-    digits = s.lstrip("+")
-    if not digits.isdigit() or not (8 <= len(digits) <= 15):
-        return ""
-    return s if s.startswith("+") else digits
+    """c1-contacts: THE canonical form (core.phone); "" when invalid."""
+    from .phone import canonical_phone
+    return canonical_phone(raw) or ""
+
+
+def _phone_taken(phone, me):
+    from .phone import variants
+    return User.objects.filter(phone__in=variants(phone)).exclude(
+        pk=me.pk).exists()
 
 
 class ChangeNumberStatusView(APIView):
@@ -947,7 +951,7 @@ class ChangeNumberRequestView(APIView):
             return _bad("invalid_phone")
         if phone == (request.user.phone or ""):
             return _bad("same_number")
-        if User.objects.filter(phone=phone).exclude(pk=request.user.pk).exists():
+        if _phone_taken(phone, request.user):
             return Response({"ok": False, "detail": "number_in_use"},
                             status=status.HTTP_409_CONFLICT)
         if not sms_configured():
@@ -1013,7 +1017,7 @@ class ChangeNumberConfirmView(APIView):
                              "attempts_left": OTP_MAX_ATTEMPTS
                              - row.pending_attempts},
                             status=status.HTTP_403_FORBIDDEN)
-        if User.objects.filter(phone=phone).exclude(pk=request.user.pk).exists():
+        if _phone_taken(phone, request.user):
             return Response({"ok": False, "detail": "number_in_use"},
                             status=status.HTTP_409_CONFLICT)
         u = request.user
@@ -1025,20 +1029,14 @@ class ChangeNumberConfirmView(APIView):
             u.username = phone
             fields.append("username")
         u.save(update_fields=fields)
+        from .phone import sync_phone_hash, variants as _variants
         if old:
-            CircleMember.objects.filter(phone=old).exclude(user=u).update(
-                phone=phone)
-        try:
-            from .models import UserPhoneHash
-            from .logic import msg_contacts as MC
-            h = UserPhoneHash.objects.filter(user=u).first()
-            if h is not None:
-                salt = getattr(settings, "SERVER_MATCH_SALT", None) or \
-                    settings.SECRET_KEY
-                h.phone_hash = MC.hash_phone(MC.normalize_e164(phone), salt)
-                h.save(update_fields=["phone_hash"])
-        except Exception:
-            pass
+            CircleMember.objects.filter(phone__in=_variants(
+                _norm_phone(old)) or [old]).exclude(user=u).update(phone=phone)
+        # c1-contacts: the UserPhoneHash is created/updated by the User
+        # post_save signal (core.signals_c1_phone); call it explicitly too so
+        # a number change is matchable immediately.
+        sync_phone_hash(u)
         row.pending_phone = ""
         row.pending_code_hash = ""
         row.pending_expires = None

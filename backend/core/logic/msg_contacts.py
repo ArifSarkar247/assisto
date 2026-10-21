@@ -105,23 +105,11 @@ def normalize_e164(raw, default_cc="880"):
       - already '+<cc>...' kept as-is.
     Returns "" for anything that cannot be made into a plausible number.
     """
-    s = (raw or "").strip()
-    if not s:
-        return ""
-    plus = s.startswith("+")
-    digits = "".join(ch for ch in s if ch.isdigit())
-    if not digits:
-        return ""
-    if plus:
-        return "+" + digits
-    # bare international already carrying the country code
-    if digits.startswith(default_cc):
-        return "+" + digits
-    # local national number starting with a trunk 0 (e.g. BD 01XXXXXXXXX)
-    if digits.startswith("0"):
-        return "+" + default_cc + digits[1:]
-    # otherwise assume it already omits the +; prepend default cc
-    return "+" + default_cc + digits
+    # c1-contacts: delegates to THE canonical helper (core.phone) so the
+    # server, the OTP flow and the device all agree byte-for-byte. Invalid
+    # numbers return "" (never hashed, never matched).
+    from ..phone import canonical_phone
+    return canonical_phone(raw) or ""
 
 
 def hash_phone(e164, salt):
@@ -261,7 +249,9 @@ def hashing_contract(base_url="https://assisto.asalify.com"):
         "hex_length": HASH_HEX_LEN,
         "upload_contains": ["salted_hashes", "permission_flag"],
         "upload_never_contains": ["raw_numbers", "names", "non_user_hashes_stored"],
-        "server_stores": "only verified-user phone hashes (computed at signup/verify)",
+        "server_stores": "only registered-user phone hashes (UserPhoneHash, "
+                         "computed at register / phone change; discoverability "
+                         "gated by admin flag contacts_match_unverified)",
         "non_user_retention": "none",           # matcher keeps nothing
         "deep_link_base": base_url,
     }
