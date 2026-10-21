@@ -2,7 +2,7 @@
 
 > ## ✅ বিল্ড ১৫০ পাবলিশড (২২ Oct রাত ২:২৫ ঢাকা, Android 13 লঞ্চ-টেস্ট পাস) — ডাউনলোড: https://api.lifeassisto.com/dl/upZ5N9f4UVrINVYVFbmGRmsD/assisto-part7-build150.apk — সার্ভারও আপডেট (ব্যাকআপ → মাইগ্রেশন ০০৪৯)
 > ১. হোমের Discover কার্ড এখন সার্ভার থেকে আসে — Settings → Discover manager থেকে নতুন কার্ড যোগ/এডিট/ক্রম/চালু-বন্ধ করুন, অ্যাপ আপডেট লাগবে না; AXON ERP লিংক ঠিক (axonerpsoftware.com)।
-> ২. Sponsored কার্ড Premium/Business কখনো দেখে না; প্রতিটি কার্ডের দেখা/ট্যাপ/CTR রিপোর্ট CSV/PDF-এ, আর স্পন্সরের টাকা আপনার P&L-এ যোগ হয়।
+> ২. Sponsored কার্ড এখন সবাই দেখে (Free/Premium/Business — সবসময় "Sponsored" লেখা থাকে; চাইলে প্রতি কার্ডে দর্শক বদলানো যায়), কিন্তু AdMob বিজ্ঞাপন শুধু Free-রা দেখে (Premium-এর সুবিধা); প্রতিটি কার্ডের দেখা/ট্যাপ/CTR রিপোর্ট CSV/PDF-এ, আর স্পন্সরের টাকা আপনার P&L-এ যোগ হয়।
 > ৩. পরের বিল্ড: My Circle (WhatsApp-এর মতো যোগ করা + ফোনবুক + বন্ধ অ্যাপে কল বাজা) — দুই অ্যাকাউন্টে এমুলেটরে প্রমাণ হলে তবেই পাঠাবো।
 
 > ## ✅ বিল্ড ১৪৮ পাবলিশড (২২ Oct রাত ১:২০ ঢাকা, Android 13 লঞ্চ-টেস্ট পাস) — ডাউনলোড: https://api.lifeassisto.com/dl/xNBazSgdmTFGjZlt74Volmaj/assisto-part7-build148.apk
