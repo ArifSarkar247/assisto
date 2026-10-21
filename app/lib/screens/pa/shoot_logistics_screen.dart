@@ -277,7 +277,8 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
           const SizedBox(height: Gap.md),
           // checklist
           _sectionHeader(
-              tr.shootChecklistProgress('$checked', '${checks.length}', '$pct'),
+              tr.shootChecklistProgress(/* (checked, pct, total) */
+                  '$checked', '$pct', '${checks.length}'),
               Icons.checklist, () => _addCheck(sheetId, tr), scheme),
           if (checks.isEmpty)
             _empty(tr.shootNoChecks, scheme)

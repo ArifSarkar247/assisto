@@ -289,9 +289,13 @@ class _RamadanScreenState extends State<RamadanScreen> {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(children: [
-        const Icon(Icons.info_outline, size: 18, color: Color(0xFF8A6D00)),
+        // theme-aware: the fixed dark-amber text was unreadable in dark mode
+        const Icon(Icons.info_outline, size: 18, color: Brand.warning),
         const SizedBox(width: Gap.sm),
-        Expanded(child: Text(msg, style: const TextStyle(color: Color(0xFF8A6D00)))),
+        Expanded(
+            child: Text(msg,
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface))),
       ]),
     );
   }

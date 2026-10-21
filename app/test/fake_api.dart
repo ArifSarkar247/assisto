@@ -1,6 +1,7 @@
 import 'package:assisto/api.dart';
 import 'package:assisto/business_selling_api.dart';
 import 'package:assisto/models.dart';
+import 'package:assisto/widgets/home_quick_buttons.dart';
 
 enum FakeMode { data, empty, fail, slow }
 
@@ -408,29 +409,31 @@ class FakeApi extends ApiClient {
 
   @override
   Future<Map<String, dynamic>> plan() async => {
-        'plan': 'premium', 'name_bn': _bn ? 'প্রিমিয়াম' : 'Premium',
+        'plan': 'premium', 'name': _bn ? 'প্রিমিয়াম' : 'Premium', 'name_bn': _bn ? 'প্রিমিয়াম' : 'Premium',
         'unlimited_ai': true, 'ads': false, 'credits': 0,
         'trial_active': true, 'trial_until': '2026-10-20T00:00:00',
       };
 
   @override
   Future<List<Map<String, dynamic>>> plansPublic() async => _maybe([
+        // Mirrors the real /plans payload (pricing.plan_public defaults):
+        // credits = monthly pool, family = member count, benefits from config.
         {'id': 'free', 'name': _bn ? 'ফ্রি' : 'Free', 'price': 0, 'cur': 'BDT', 'period': 'mo',
-         'desc': _bn ? 'শুরু করার জন্য' : 'To get started',
-         'benefits': _bn ? ['নিরাপত্তা সবসময় ফ্রি', 'দিনে ৩টি AI ক্রেডিট'] : ['Safety always free', '3 AI credits/day'],
-         'unlimited_ai': false, 'ads': true, 'family': false},
-        {'id': 'premium', 'name': _bn ? 'প্রিমিয়াম' : 'Premium', 'price': 299, 'cur': 'BDT', 'period': 'mo',
-         'desc': _bn ? 'পুরো সহকারী' : 'The full assistant',
-         'benefits': _bn ? ['আনলিমিটেড AI', 'বিজ্ঞাপন নেই', 'পরিবারের জন্য'] : ['Unlimited AI', 'No ads', 'For your family'],
-         'unlimited_ai': true, 'ads': false, 'family': true},
-        {'id': 'annual', 'name': _bn ? 'বার্ষিক' : 'Annual', 'price': 2990, 'cur': 'BDT', 'period': 'yr',
-         'desc': _bn ? '২ মাস ফ্রি' : '2 months free',
-         'benefits': _bn ? ['প্রিমিয়ামের সব', '২ মাস সাশ্রয়'] : ['Everything in Premium', 'Save 2 months'],
-         'unlimited_ai': true, 'ads': false, 'family': true},
-        {'id': 'business', 'name': _bn ? 'বিজনেস' : 'Business', 'price': 999, 'cur': 'BDT', 'period': 'mo',
-         'desc': _bn ? 'দোকান ও সেলস' : 'Shop & sales',
-         'benefits': _bn ? ['বিজনেস মোড', 'CRM'] : ['Business mode', 'CRM'],
-         'unlimited_ai': true, 'ads': false, 'family': true},
+         'desc': _bn ? 'শুরু করার জন্য — নিরাপত্তা সবসময় ফ্রি।' : 'To get started — safety is always free.',
+         'benefits': _bn ? ['AI: ক্রেডিট প্যাক কিনে বা বিজ্ঞাপন দেখে', 'রিমাইন্ডার, ভল্ট, হিসাব', 'জরুরি SOS ও স্ক্যাম সতর্কতা (ফ্রি)', 'ওষুধ রিমাইন্ডার (ফ্রি)'] : ['AI with credit packs or rewarded ads', 'Reminders, documents, money', 'Emergency SOS & scam alerts (free)', 'Medicine reminders (free)'],
+         'unlimited_ai': false, 'ads': true, 'family': 0, 'credits': 0},
+        {'id': 'premium', 'name': _bn ? 'প্রিমিয়াম' : 'Premium', 'price': 199, 'cur': 'BDT', 'period': 'mo',
+         'desc': _bn ? 'আনলিমিটেড AI, বিজ্ঞাপন নেই — পরিবারের যত্ন একসাথে।' : 'Unlimited AI, no ads — care for your family together.',
+         'benefits': _bn ? ['আনলিমিটেড AI স্ক্যান ও সহকারী', 'বিজ্ঞাপন নেই', '৫ জন পর্যন্ত কানেক্টেড সার্কেল ও কেয়ারগিভার ড্যাশবোর্ড'] : ['Unlimited AI scans & assistant', 'No ads', 'Up to 5-member Circle & caregiver dashboard'],
+         'unlimited_ai': true, 'ads': false, 'family': 5, 'credits': 90},
+        {'id': 'business', 'name': _bn ? 'বিজনেস' : 'Business', 'price': 499, 'cur': 'BDT', 'period': 'mo',
+         'desc': _bn ? 'ছোট ব্যবসা ও বিক্রয় দলের জন্য।' : 'For small businesses and sales teams.',
+         'benefits': _bn ? ['আনলিমিটেড AI', 'বিজনেস মোড: ক্যাটালগ ও অর্ডার', 'AI CRM (Axon Dynamics)'] : ['Unlimited AI', 'Business mode: catalog & orders', 'AI CRM (Axon Dynamics)'],
+         'unlimited_ai': true, 'ads': false, 'family': 0, 'credits': 240},
+        {'id': 'annual', 'name': _bn ? 'বার্ষিক (প্রিমিয়াম)' : 'Annual (Premium)', 'price': 1910, 'cur': 'BDT', 'period': 'yr',
+         'desc': _bn ? 'প্রিমিয়াম — বছরে, ২০% সাশ্রয়।' : 'Premium — yearly, save 20%.',
+         'benefits': _bn ? ['আনলিমিটেড AI স্ক্যান ও সহকারী', 'বিজ্ঞাপন নেই'] : ['Unlimited AI scans & assistant', 'No ads'],
+         'unlimited_ai': true, 'ads': false, 'family': 5, 'credits': 0},
       ]);
 
   @override
@@ -1697,6 +1700,10 @@ class FakeApi extends ApiClient {
   }
 
   // ---- chat history (sidebar + home persistence previews) ----
+  @override
+  Future<Map<String, dynamic>> homeDefaults() async =>
+      {'quick_buttons': HomeQuickButtons.defaults, 'count': 6};
+
   @override
   Future<List<Map<String, dynamic>>> chatSessions({String? query}) async {
     await _slow();

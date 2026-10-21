@@ -814,8 +814,8 @@ class _CgpaTab extends StatelessWidget {
                   Text(
                       r.honest
                           ? tr.studentCgpaNoGrade
-                          : tr.studentCreditsSummary(
-                              _fmtNum(r.gradedCredits), _bandText(tr, r.classBand)),
+                          : tr.studentCreditsSummary(/* (band, credits) */
+                              _bandText(tr, r.classBand), _fmtNum(r.gradedCredits)),
                       textAlign: TextAlign.center,
                       style: TextStyle(color: scheme.onPrimaryContainer)),
                 ]),
@@ -838,8 +838,9 @@ class _CgpaTab extends StatelessWidget {
                         c.title.isEmpty ? tr.studentUntitled : c.title,
                         maxLines: 1, overflow: TextOverflow.ellipsis),
                     subtitle: Text(c.graded
-                        ? tr.studentCourseMath(c.letter, c.pointDisplay,
-                            _fmtNum(c.credit), c.contributionDisplay)
+                        ? tr.studentCourseMath(/* (contribution, credit, letter, point) */
+                            c.contributionDisplay, _fmtNum(c.credit),
+                            c.letter, c.pointDisplay)
                         : tr.studentCourseNoGrade(_fmtNum(c.credit))),
                     trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                       IconButton(
@@ -889,8 +890,8 @@ class _CgpaTab extends StatelessWidget {
         Text(tr.studentFormulaTitle,
             style: const TextStyle(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.xs),
-        Text(tr.studentFormulaBody(r.qualityPointsDisplay,
-            _fmtNum(r.gradedCredits), r.cgpaDisplay)),
+        Text(tr.studentFormulaBody(/* (cgpa, credits, quality) */ r.cgpaDisplay,
+            _fmtNum(r.gradedCredits), r.qualityPointsDisplay)),
       ]),
     );
   }

@@ -135,6 +135,11 @@ class _AgentStudioScreenState extends State<AgentStudioScreen>
           ),
         ],
         bottom: TabBar(
+          // large font: scroll instead of cutting tab labels
+          isScrollable: MediaQuery.textScalerOf(context).scale(1) > 1.2,
+          tabAlignment: MediaQuery.textScalerOf(context).scale(1) > 1.2
+              ? TabAlignment.start
+              : null,
           controller: _tabs,
           tabs: [
             Tab(child: Text(t.studioTabMine, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),

@@ -362,7 +362,7 @@ class _TodayCard extends StatelessWidget {
                           style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.w700)),
                       if (energy > 0)
-                        Text(tr.moodEnergyValue(energy, 5),
+                        Text(tr.moodEnergyValue(/* (max, value) */ 5, energy),
                             style: TextStyle(
                                 fontSize: 13, color: scheme.onSurfaceVariant)),
                     ]),
@@ -396,7 +396,7 @@ class _TrendCard extends StatelessWidget {
           Text(
             trend.loggedDays == 0
                 ? tr.moodTrendEmpty
-                : tr.moodTrendSummary(trend.loggedDays, trend.days),
+                : tr.moodTrendSummary(/* (days, logged) */ trend.days, trend.loggedDays),
             style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: Gap.md),
@@ -667,7 +667,7 @@ class _CheckInSheetState extends State<_CheckInSheet> {
                 Text(
                     _energy == 0
                         ? tr.moodEnergyUnrated
-                        : tr.moodEnergyValue(_energy, 5),
+                        : tr.moodEnergyValue(/* (max, value) */ 5, _energy),
                     style:
                         TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
               ]),

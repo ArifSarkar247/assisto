@@ -26,6 +26,10 @@ class JobsScreen extends StatefulWidget {
 }
 
 class _JobsScreenState extends State<JobsScreen> {
+  static bool _scrollTabs(BuildContext context) =>
+      MediaQuery.textScalerOf(context).scale(1) > 1.2 ||
+      Localizations.localeOf(context).languageCode == 'bn';
+
   List<Map<String, dynamic>> _jobs = [];
   Set<String> _saved = {};
   bool _loading = true, _error = false;
@@ -143,7 +147,12 @@ class _JobsScreenState extends State<JobsScreen> {
               onPressed: () => _openFilters(tr),
             ),
           ],
-          bottom: TabBar(tabs: [
+          bottom: TabBar(
+              // large font or the longer Bangla labels (the tracker tab):
+              // scroll instead of cutting a tab label
+              isScrollable: _scrollTabs(context),
+              tabAlignment: _scrollTabs(context) ? TabAlignment.start : null,
+              tabs: [
             Tab(child: Text(tr.jobsTabDiscover, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
             Tab(child: Text(tr.jobsTabSaved, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
             Tab(child: Text(tr.jobsTabTracker, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),

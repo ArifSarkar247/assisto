@@ -961,7 +961,7 @@ class _BudgetTile extends StatelessWidget {
       leading: const Icon(Icons.receipt_outlined),
       title: Text(label.isEmpty ? catLabel : label,
           maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text('$catLabel · ${t.paBizEstVsAct(estimated, actual)}',
+      subtitle: Text('$catLabel · ${t.paBizEstVsAct(/* (actual, estimated) */ actual, estimated)}',
           maxLines: 2, overflow: TextOverflow.ellipsis),
       trailing: PopupMenuButton<String>(
         onSelected: (v) => v == 'edit' ? onEdit() : onDelete(),
@@ -1525,7 +1525,7 @@ class _EventSummarySheet extends StatelessWidget {
           const SizedBox(height: Gap.sm),
           Text(t.paBizBudgetHeader,
               style: const TextStyle(fontWeight: FontWeight.w800)),
-          Text(t.paBizEstVsAct(estimated, actual)),
+          Text(t.paBizEstVsAct(/* (actual, estimated) */ actual, estimated)),
           Text('${t.paBizGrandEstimate}: $grandEstimate'),
           if (taskTotal > 0)
             Text(t.paBizChecklistProgress(doneTasks, taskTotal),

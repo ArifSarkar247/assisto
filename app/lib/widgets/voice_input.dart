@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
 import '../l10n/app_localizations.dart';
@@ -23,9 +24,20 @@ import 'permission_reason.dart';
 class VoiceDictation extends ChangeNotifier {
   static const _langKey = 'voice_lang_v1';
 
-  final SpeechToText _speech = SpeechToText();
-  bool _ready = false;
-  bool _initTried = false;
+  /// The voice language is ONE app-wide choice: toggling it on the AI chat
+  /// updates the home chip too (each screen owns its own VoiceDictation).
+  static final ValueNotifier<String?> _langBus = ValueNotifier<String?>(null);
+
+  /// The rationale dialog is shown once per app run, not once per screen.
+  static bool _reasonShown = false;
+
+  /// NOTE: `SpeechToText()` is a process-wide SINGLETON and its `initialize`
+  /// registers status/error callbacks only on the FIRST call. Every start()
+  /// therefore re-claims the engine's listeners for THIS instance, or a second
+  /// screen's mic would never see 'done' / errors (stuck pulsing).
+  final SpeechToText _speech;
+  final Future<bool> Function(BuildContext context) _askReason;
+  final Future<bool> Function() _micDenied;
   List<String> _available = const [];
   String _base = '';
   TextEditingController? _target;
@@ -33,14 +45,51 @@ class VoiceDictation extends ChangeNotifier {
 
   bool listening = false;
 
+  /// True while start() is awaiting the dialog / engine init / listen.
+  bool _starting = false;
+
+  /// stop() (finger released, or a 2nd tap) arrived while still starting.
+  bool _cancelPending = false;
+
   /// 'bn' or 'en' — the language the user wants to SPEAK.
   String lang;
 
-  VoiceDictation({required this.lang});
+  VoiceDictation(
+      {required this.lang,
+      @visibleForTesting SpeechToText? engine,
+      @visibleForTesting Future<bool> Function(BuildContext context)? askReason,
+      @visibleForTesting Future<bool> Function()? micDenied})
+      : _speech = engine ?? SpeechToText(),
+        _askReason = askReason ??
+            ((c) => showPermissionReason(c, PermKind.mic)),
+        _micDenied = micDenied ?? _osMicDenied {
+    _langBus.addListener(_onLangBus);
+  }
+
+  @visibleForTesting
+  static void debugReset() {
+    _langBus.value = null;
+    _reasonShown = false;
+  }
+
+  void _onLangBus() {
+    final v = _langBus.value;
+    if (v != null && v != lang) {
+      lang = v;
+      notifyListeners();
+    }
+  }
 
   /// Loads the remembered voice language (falls back to the UI language).
   Future<void> loadLang(String uiLocale) async {
-    final saved = await Settings.getString(_langKey);
+    String? saved = _langBus.value;
+    if (saved == null) {
+      try {
+        saved = await Settings.getString(_langKey);
+      } catch (_) {}
+    }
+    // a toggle that happened while prefs were loading wins
+    if (_langBus.value != null) saved = _langBus.value;
     lang = (saved == 'bn' || saved == 'en')
         ? saved!
         : (uiLocale.startsWith('bn') ? 'bn' : 'en');
@@ -50,6 +99,7 @@ class VoiceDictation extends ChangeNotifier {
   Future<void> toggleLang() async {
     if (listening) await stop();
     lang = lang == 'bn' ? 'en' : 'bn';
+    _langBus.value = lang;
     notifyListeners();
     HapticFeedback.selectionClick();
     try {
@@ -79,55 +129,70 @@ class VoiceDictation extends ChangeNotifier {
   }
 
   Future<void> toggle(BuildContext context, TextEditingController input) =>
-      listening ? stop() : start(context, input);
+      (listening || _starting) ? stop() : start(context, input);
+
+  void _onStatus(String s) {
+    if ((s == 'done' || s == 'notListening') && listening) {
+      listening = false;
+      notifyListeners();
+    }
+  }
+
+  void _onError(SpeechRecognitionError e) {
+    final wasListening = listening;
+    listening = false;
+    notifyListeners();
+    if (wasListening || e.permanent) _report(e.errorMsg);
+  }
+
+  void _claimEngine() {
+    _speech.statusListener = _onStatus;
+    _speech.errorListener = _onError;
+  }
 
   Future<void> start(BuildContext context, TextEditingController input) async {
-    if (listening) return;
+    if (listening || _starting) return;
+    _starting = true;
+    _cancelPending = false;
     _ctx = context;
     final t = AppLocalizations.of(context);
     HapticFeedback.selectionClick();
     try {
-      if (!_ready) {
-        if (!_initTried) {
-          final ok = await showPermissionReason(context, PermKind.mic);
+      if (!_speech.isAvailable) {
+        if (!_reasonShown) {
+          final ok = await _askReason(context);
           if (!ok || !context.mounted) return;
+          _reasonShown = true;
+          // The dialog took the finger off the mic: the release that ended a
+          // hold is not a "stop" — carry on in tap-toggle mode.
+          _cancelPending = false;
         }
-        _initTried = true;
-        _ready = await _speech.initialize(
-          onStatus: (s) {
-            if ((s == 'done' || s == 'notListening') && listening) {
-              listening = false;
-              notifyListeners();
-            }
-          },
-          onError: (e) {
-            final wasListening = listening;
-            listening = false;
-            notifyListeners();
-            if (wasListening || e.permanent) _report(e.errorMsg);
-          },
-        );
-        if (_ready) {
-          try {
-            _available =
-                (await _speech.locales()).map((l) => l.localeId).toList();
-          } catch (_) {
-            _available = const [];
-          }
+        final ready = await _speech.initialize(
+            onStatus: _onStatus, onError: _onError);
+        if (!ready) {
+          if (context.mounted) await _explainUnavailable(context, t);
+          return;
         }
+        try {
+          _available =
+              (await _speech.locales()).map((l) => l.localeId).toList();
+        } catch (_) {
+          _available = const [];
+        }
+      } else if (_available.isEmpty) {
+        try {
+          _available =
+              (await _speech.locales()).map((l) => l.localeId).toList();
+        } catch (_) {}
       }
-      if (!_ready) {
-        if (context.mounted)
-          _showMessage(context, t.micEnableSpeech, settings: true);
-        return;
-      }
+      _claimEngine();
+      // a very short hold: the finger was already up before the engine was
+      // ready — never start an unwanted listening session.
+      if (_cancelPending || !context.mounted) return;
       final localeId = resolveLocale(_available, lang);
       if (localeId == null) {
-        if (context.mounted) {
-          _showMessage(
-              context, lang == 'bn' ? t.voiceNoBangla : t.voiceNoEnglish,
-              settings: false);
-        }
+        _showMessage(context, lang == 'bn' ? t.voiceNoBangla : t.voiceNoEnglish,
+            settings: false);
         return;
       }
       _target = input;
@@ -152,15 +217,41 @@ class VoiceDictation extends ChangeNotifier {
           pauseFor: const Duration(seconds: 5),
         ),
       );
+      // released while listen() was still spinning up -> stop now
+      _starting = false;
+      if (_cancelPending) await stop();
     } catch (_) {
       listening = false;
       notifyListeners();
       if (context.mounted)
         _showMessage(context, t.micEnableSpeech, settings: true);
+    } finally {
+      _starting = false;
     }
   }
 
+  /// Engine init failed: say WHY (mic permission denied vs no speech service).
+  Future<void> _explainUnavailable(
+      BuildContext context, AppLocalizations t) async {
+    var denied = false;
+    try {
+      denied = await _micDenied().timeout(const Duration(seconds: 3));
+    } catch (_) {}
+    if (!context.mounted) return;
+    _showMessage(context, denied ? t.voiceNoPermission : t.micEnableSpeech,
+        settings: true);
+  }
+
+  static Future<bool> _osMicDenied() async {
+    final st = await Permission.microphone.status;
+    return st.isDenied || st.isPermanentlyDenied || st.isRestricted;
+  }
+
   Future<void> stop() async {
+    if (_starting) {
+      _cancelPending = true;
+      return;
+    }
     try {
       await _speech.stop();
     } catch (_) {}
@@ -222,8 +313,14 @@ class VoiceDictation extends ChangeNotifier {
 
   @override
   void dispose() {
+    _langBus.removeListener(_onLangBus);
+    // The engine is shared: only cancel OUR session, and drop our callbacks.
     try {
-      _speech.cancel();
+      if (listening) _speech.cancel();
+      if (_speech.statusListener == _onStatus) {
+        _speech.statusListener = null;
+        _speech.errorListener = null;
+      }
     } catch (_) {}
     super.dispose();
   }

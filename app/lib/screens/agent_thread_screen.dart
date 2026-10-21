@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../api.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
@@ -54,6 +55,13 @@ class AgentThreadScreen extends StatefulWidget {
 
   /// SharedPreferences key of the home thread that survives restarts.
   static const sessionKey = 'home_session_id';
+
+  /// Whether a failed restore means the saved thread is GONE (deleted, or
+  /// not this user's) and must be forgotten. Offline / timeout / 5xx keep it:
+  /// the thread is still on the server and comes back on the next start.
+  static bool forgetsSession(Object error) =>
+      error is ApiException &&
+      (error.status == 404 || error.status == 403 || error.status == 400);
   @override
   State<AgentThreadScreen> createState() => _AgentThreadScreenState();
 }
@@ -114,11 +122,14 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
   // sidebar history tap shows it). Falls back to the welcome state + alerts.
   Future<void> _restoreThread() async {
     String? sid = widget.sessionId;
-    if (widget.fresh) {
-      await Settings.setString(AgentThreadScreen.sessionKey, '');
-    } else {
-      sid ??= await Settings.getString(AgentThreadScreen.sessionKey);
-    }
+    try {
+      if (widget.fresh) {
+        await Settings.setString(AgentThreadScreen.sessionKey, '');
+      } else {
+        sid ??= await Settings.getString(AgentThreadScreen.sessionKey);
+      }
+    } catch (_) {}
+    if (!mounted) return;
     if (sid == null || sid.isEmpty) {
       _afterRestore();
       return _loadAlerts();
@@ -128,20 +139,29 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
     try {
       final rows = await app.api.chatMessages(sid);
       if (!mounted) return;
-      setState(() {
-        for (final m in rows) {
-          final meta = (m['meta'] is Map) ? m['meta'] as Map : const {};
-          _msgs.add(_Msg(m['role'] == 'user', (m['text'] ?? '').toString(),
-              ((meta['cards'] ?? []) as List).cast<Map<String, dynamic>>()));
-        }
-      });
+      final restored = <_Msg>[
+        for (final m in rows)
+          _Msg(
+              m['role'] == 'user',
+              (m['text'] ?? '').toString(),
+              (((m['meta'] is Map ? m['meta'] as Map : const {})['cards'] ??
+                      []) as List)
+                  .cast<Map<String, dynamic>>()),
+      ];
+      // history goes BEFORE anything the user already sent while it loaded
+      setState(() => _msgs.insertAll(0, restored));
       await Settings.setString(AgentThreadScreen.sessionKey, sid);
       _toBottom();
       _afterRestore();
-    } catch (_) {
-      // deleted/foreign thread → start fresh, never show an error wall
-      _sessionId = null;
-      await Settings.setString(AgentThreadScreen.sessionKey, '');
+    } catch (e) {
+      if (AgentThreadScreen.forgetsSession(e)) {
+        // deleted/foreign thread → start fresh once (no retry loop), never an
+        // error wall. The next send creates a new home session.
+        if (_sessionId == sid) _sessionId = null;
+        try {
+          await Settings.setString(AgentThreadScreen.sessionKey, '');
+        } catch (_) {}
+      }
       _afterRestore();
       _loadAlerts();
     }

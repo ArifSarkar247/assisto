@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -342,7 +343,9 @@ class _HomeSuggestionsState extends State<HomeSuggestions> {
           ),
         ),
         SizedBox(
-          height: 112,
+          // grows with the user's font size (large-font QA: no clipping)
+          height: math.max(
+              112.0, 40 + 70 * MediaQuery.textScalerOf(context).scale(1)),
           child: PageView(
             controller: _page,
             onPageChanged: (i) {

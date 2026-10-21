@@ -830,9 +830,9 @@ class _BudgetTab extends StatelessWidget {
                       margin: const EdgeInsets.only(bottom: Gap.sm),
                       child: ListTile(
                         title: Text(_catLabel(tr, c.category)),
-                        subtitle: Text(tr.weddingEstVsAct(
-                            WeddingEngine.fmtPoisha(c.estimated),
-                            WeddingEngine.fmtPoisha(c.actual))),
+                        subtitle: Text(tr.weddingEstVsAct(/* (actual, estimated) */
+                            WeddingEngine.fmtPoisha(c.actual),
+                            WeddingEngine.fmtPoisha(c.estimated))),
                         trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                           if (c.over)
                             Icon(Icons.warning_amber_rounded,

@@ -84,7 +84,8 @@ class _RamadanFastingTrackerState extends State<RamadanFastingTracker> {
             ),
             Text(
               t.ramadanFastingCount(
-                  _localeNum(context, _kept.length), _localeNum(context, _total)),
+                  // signature is (total, kept) — metadata order, not text order
+                  _localeNum(context, _total), _localeNum(context, _kept.length)),
               style: const TextStyle(
                   fontWeight: FontWeight.w600, color: Brand.purple),
             ),

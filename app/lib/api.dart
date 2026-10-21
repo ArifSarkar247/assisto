@@ -699,6 +699,11 @@ class ApiClient {
   Future<Map<String, dynamic>> adminPnl({int days = 30}) =>
       getJson('/admin/pnl?days=$days');
 
+  /// GET /app/home-defaults -> {quick_buttons: [route x6], count} — the
+  /// owner's default home shortcuts (used only until the user customizes).
+  Future<Map<String, dynamic>> homeDefaults() =>
+      getJson('/app/home-defaults');
+
   // ---- reminders NL parse (server-of-truth; UI also parses offline) ----
   Future<Map<String, dynamic>> parseReminder(String text) =>
       postJson('/reminders/parse', {'text': text});

@@ -12,7 +12,7 @@ import '../l10n/app_localizations.dart';
 /// Each cell is one of:
 ///   - a check (included)
 ///   - a dash  (not included)
-///   - a short localised note (e.g. "15 / month", "Up to 5")
+///   - a short localised note (e.g. "90 / mo" from the live pool, "Up to 5")
 ///
 /// Gate truths encoded here (verified against plans.py + Section 25):
 ///   - text + voice calls are FREE on EVERY plan
@@ -44,12 +44,26 @@ class PlansCompareTable extends StatelessWidget {
     int family(Map<String, dynamic> p) =>
         (p['family'] is num) ? (p['family'] as num).toInt() : 0;
     bool noAds(Map<String, dynamic> p) => p['ads'] != true;
+    int credits(Map<String, dynamic> p) =>
+        (p['credits'] is num) ? (p['credits'] as num).toInt() : 0;
+    // Bangla UI shows Bangla digits (U+09E6..U+09EF).
+    final bnUi = t.localeName.startsWith('bn');
+    String digits(int n) => bnUi
+        ? String.fromCharCodes(
+            '$n'.codeUnits.map((c) => c >= 48 && c <= 57 ? 0x09E6 + c - 48 : c))
+        : '$n';
+    // AI allowance from the LIVE config pool (never a hardcoded "15 / mo").
+    String aiCell(Map<String, dynamic> p) => unlimited(p)
+        ? t.plansCmpUnlimited
+        : credits(p) > 0
+            ? t.a1CmpCreditsPerMonth(digits(credits(p)))
+            : t.a1CmpPacksOrAds;
 
     // A cell value is bool (check/dash) or a String note.
     final rows = <_Group>[
       _Group(t.plansCmpAi, [
         _Row(t.plansCmpAiScans,
-            {for (final p in cols) p['id']: unlimited(p) ? t.plansCmpUnlimited : t.plansCmpScans15}),
+            {for (final p in cols) p['id']: aiCell(p)}),
         _Row(t.plansCmpNoAds, {for (final p in cols) p['id']: noAds(p)}),
         _Row(t.plansCmpBriefings,
             {for (final p in cols) p['id']: unlimited(p)}),
@@ -68,7 +82,7 @@ class PlansCompareTable extends StatelessWidget {
       ]),
       _Group(t.plansCmpFamily, [
         _Row(t.plansCmpMembers,
-            {for (final p in cols) p['id']: family(p) > 0 ? t.plansCmpUpTo(family(p)) : false}),
+            {for (final p in cols) p['id']: family(p) > 0 ? t.plansCmpUpTo(digits(family(p))) : false}),
         _Row(t.plansCmpCaregiver,
             {for (final p in cols) p['id']: family(p) > 0}),
       ]),
@@ -95,7 +109,7 @@ class PlansCompareTable extends StatelessWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           _headerRow(context, cols),
           for (final g in rows) ...[
-            _groupHeader(context, g.title),
+            _groupHeader(context, g.title, cols.length),
             for (final r in g.rows) _featureRow(context, cols, r),
           ],
         ]),
@@ -138,10 +152,13 @@ class PlansCompareTable extends StatelessWidget {
     );
   }
 
-  Widget _groupHeader(BuildContext context, String title) {
+  Widget _groupHeader(BuildContext context, String title, int nCols) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      width: double.infinity,
+      // finite: this sits inside a HORIZONTAL scroll view, where
+      // double.infinity forces an infinite width (layout assertion; the
+      // table rendered blank in release).
+      width: _labelW + _colW * nCols,
       padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 2),
       color: scheme.surfaceContainerHigh.withValues(alpha: 0.4),
       child: Text(title,

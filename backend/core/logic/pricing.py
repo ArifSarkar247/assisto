@@ -25,6 +25,8 @@ The server is the authority; a Dart mirror (if any) is advisory for UX only.
 """
 import math
 
+from . import home_defaults as HD
+
 # --------------------------------------------------------------- currency basis
 # Prices are stored in whole TAKA (BDT), matching core/plans.py `price` (e.g. 199).
 # Provider costs are stored in USD (matching core/ai.py PRICES). The auto-reprice
@@ -47,9 +49,9 @@ _PLAN_META = {
         "name_bn": "ফ্রি", "name_en": "Free",
         "desc_bn": "শুরু করার জন্য — নিরাপত্তা সবসময় ফ্রি।",
         "desc_en": "To get started — safety is always free.",
-        "benefits_bn": ["মাসে ১৫ AI স্ক্যান", "রিমাইন্ডার, ভল্ট, হিসাব",
+        "benefits_bn": ["AI: ক্রেডিট প্যাক কিনে বা বিজ্ঞাপন দেখে", "রিমাইন্ডার, ভল্ট, হিসাব",
                         "জরুরি SOS ও স্ক্যাম সতর্কতা (ফ্রি)", "ওষুধ রিমাইন্ডার (ফ্রি)"],
-        "benefits_en": ["15 AI scans / month", "Reminders, documents, money",
+        "benefits_en": ["AI with credit packs or rewarded ads", "Reminders, documents, money",
                         "Emergency SOS & scam alerts (free)", "Medicine reminders (free)"],
     },
     "premium": {
@@ -129,8 +131,29 @@ _TOPUP_PACKS = [
 DEFAULT_PLAY_FEE = 0.15          # store (Play/App Store) cut
 DEFAULT_GATEWAY_FEE = 0.02       # bkash/nagad/sslcommerz gateway cut
 DEFAULT_VAT = 0.00               # VAT / tax withheld
+# DEFAULTS of the two NET-margin guarantees. Both are admin-editable under
+# cfg["guarantees"] (bounded by GUARANTEE_BOUNDS); every reader goes through
+# net_floor(cfg) / pool_cap(cfg), never these literals directly.
 MARGIN_NET_FLOOR = 0.60          # every action's credit-value must be >= cost / 0.60
 POOL_CAP_PCT_OF_NET = 0.60       # included-pool face value must be <= 60% of NET plan rev
+GUARANTEE_BOUNDS = {"margin_net_floor": (0.10, 0.90),
+                    "pool_cap_pct_of_net": (0.0, 1.0)}
+
+# Other business limits (admin-editable under cfg["limits"]).
+DEFAULT_TRIAL_DAYS = 7
+DEFAULT_TRIAL_CREDITS = 15
+DEFAULT_PROBASHI_PRICE_USD = 4.99
+
+# Referral points economy (admin-editable under cfg["referral"]); mirrors the
+# defaults in core.logic.referral.
+_REFERRAL_DEFAULTS = {
+    "points_per_referral": 50,
+    "welcome_bonus_points": 20,
+    "points_per_premium_day": 25,
+    "min_redeem_points": 25,
+    "monthly_referral_cap": 20,
+    "max_redeem_days": 400,
+}
 
 # Storage we pay for per GB per month (৳). Used by the plan margin check: a
 # plan's worst case is its FULL storage quota in use. ~US$0.025/GB-mo object
@@ -198,6 +221,23 @@ def DEFAULTS():
         # admin-editable. Default ~৳300/day (a small cloud box) as a sensible
         # starting figure the owner tunes from the /admin/pnl dashboard.
         "fixed_cost_per_day": 300.0,
+        # owner DEFAULT home quick buttons (6 ChatNav route keys) — shown to
+        # users who have not customized their own (core.logic.home_defaults).
+        "home_quick_defaults": list(HD.DEFAULT),
+        # NET-margin guarantees (admin-editable, bounded)
+        "guarantees": {"margin_net_floor": MARGIN_NET_FLOOR,
+                       "pool_cap_pct_of_net": POOL_CAP_PCT_OF_NET},
+        # plan/trial/camera limits (admin-editable)
+        "limits": {
+            "trial_days": DEFAULT_TRIAL_DAYS,
+            "trial_credits": DEFAULT_TRIAL_CREDITS,
+            "business_included_cameras": BUSINESS_INCLUDED_CAMERAS,
+        },
+        "probashi_price_usd": DEFAULT_PROBASHI_PRICE_USD,
+        # 0 = use the server env AI_DAILY_BUDGET_USD kill-switch default
+        "ai_daily_budget_usd": 0.0,
+        "ai_user_daily_limit": 0,
+        "referral": dict(_REFERRAL_DEFAULTS),
     }
 
 
@@ -298,7 +338,59 @@ def normalize(data):
         "storage_cost_bdt_per_gb_month": max(0.0, _num(
             d.get("storage_cost_bdt_per_gb_month"),
             base["storage_cost_bdt_per_gb_month"])),
+        "home_quick_defaults": HD.normalize(d.get("home_quick_defaults")),
+        "guarantees": _norm_guarantees(d.get("guarantees"), base["guarantees"]),
+        "limits": _norm_limits(d.get("limits"), base["limits"]),
+        "probashi_price_usd": round(max(0.0, _num(d.get("probashi_price_usd"),
+                                                  base["probashi_price_usd"])), 2),
+        "ai_daily_budget_usd": max(0.0, _num(d.get("ai_daily_budget_usd"),
+                                             base["ai_daily_budget_usd"])),
+        "ai_user_daily_limit": max(0, _int(d.get("ai_user_daily_limit"),
+                                           base["ai_user_daily_limit"])),
+        "referral": _norm_referral(d.get("referral"), base["referral"]),
     }
+
+
+def _norm_guarantees(raw, base):
+    raw = raw if isinstance(raw, dict) else {}
+    out = {}
+    for k, (lo, hi) in GUARANTEE_BOUNDS.items():
+        out[k] = max(lo, min(hi, _num(raw.get(k), base[k])))
+    return out
+
+
+def _norm_limits(raw, base):
+    raw = raw if isinstance(raw, dict) else {}
+    return {
+        "trial_days": max(0, min(90, _int(raw.get("trial_days"), base["trial_days"]))),
+        "trial_credits": max(0, _int(raw.get("trial_credits"), base["trial_credits"])),
+        "business_included_cameras": max(0, min(64, _int(
+            raw.get("business_included_cameras"), base["business_included_cameras"]))),
+    }
+
+
+def _norm_referral(raw, base):
+    raw = raw if isinstance(raw, dict) else {}
+    out = {k: max(0, _int(raw.get(k), v)) for k, v in base.items()}
+    out["points_per_premium_day"] = max(1, out["points_per_premium_day"])
+    out["min_redeem_points"] = max(1, out["min_redeem_points"])
+    out["max_redeem_days"] = max(1, out["max_redeem_days"])
+    return out
+
+
+def net_floor(cfg):
+    """The admin-editable NET-margin floor (default 0.60)."""
+    return normalize(cfg)["guarantees"]["margin_net_floor"]
+
+
+def pool_cap(cfg):
+    """The admin-editable included-pool cap as a share of NET revenue (0.60)."""
+    return normalize(cfg)["guarantees"]["pool_cap_pct_of_net"]
+
+
+def limits(cfg):
+    """The normalized business limits dict (trial, cameras)."""
+    return normalize(cfg)["limits"]
 
 
 def _norm_ad_rewards(raw, base):
@@ -378,7 +470,7 @@ def action_credit_floor(action, cfg):
     if not row or row["provider_cost"] <= 0:
         return 0
     cost_bdt = row["provider_cost"] * cfg["usd_bdt"]
-    need_face_bdt = cost_bdt / MARGIN_NET_FLOOR
+    need_face_bdt = cost_bdt / cfg["guarantees"]["margin_net_floor"]
     return max(1, int(math.ceil(need_face_bdt / cfg["credit_bdt"])))
 
 
@@ -464,6 +556,34 @@ def validate_edit(data):
     cb = _num(d.get("credit_bdt"), None)
     if cb is not None and cb <= 0:
         problems.append("bad_credit_basis")
+    g = d.get("guarantees")
+    if g is not None:
+        if not isinstance(g, dict):
+            problems.append("bad_guarantee")
+        else:
+            for k, (lo, hi) in GUARANTEE_BOUNDS.items():
+                if k in g:
+                    v = _num(g.get(k), None)
+                    if v is None or v < lo or v > hi:
+                        problems.append("bad_guarantee")
+    for sect in ("limits", "referral"):
+        sv = d.get(sect)
+        if sv is None:
+            continue
+        if not isinstance(sv, dict):
+            problems.append("limit_negative")
+            continue
+        for k, v in sv.items():
+            n = _num(v, None)
+            if n is None or n < 0:
+                problems.append("limit_negative")
+    for k in ("probashi_price_usd", "ai_daily_budget_usd", "ai_user_daily_limit"):
+        if k in d:
+            n = _num(d.get(k), None)
+            if n is None or n < 0:
+                problems.append("price_negative")
+    if "home_quick_defaults" in d:
+        problems.extend(HD.validate(d.get("home_quick_defaults")))
 
     # ---- Build 2: NET fee sanity + per-action margin + pool cap ----
     cfg = normalize(d)              # fills defaults so partial edits still validate
@@ -471,7 +591,8 @@ def validate_edit(data):
         fv = _num(d.get(fkey), None)
         if fv is not None and (fv < 0 or fv >= 1):
             problems.append("bad_fee")
-    if (cfg["play_fee"] + cfg["gateway_fee"] + cfg["vat"]) >= 1.0:
+    # tolerance: 0.6 + 0.3 + 0.1 == 0.9999999999999999 in floats
+    if (cfg["play_fee"] + cfg["gateway_fee"] + cfg["vat"]) >= 1.0 - 1e-9:
         problems.append("bad_fee")
 
     # every priced action's credits must be >= the NET-margin floor
@@ -485,7 +606,7 @@ def validate_edit(data):
     for pid, row in cfg["plans"].items():
         net = net_plan_revenue(pid, cfg)
         pool_face = row["credits"] * cfg["credit_bdt"]
-        if net > 0 and pool_face > POOL_CAP_PCT_OF_NET * net:
+        if net > 0 and pool_face > cfg["guarantees"]["pool_cap_pct_of_net"] * net:
             problems.append("pool_exceeds_net")
             break
 
@@ -603,6 +724,44 @@ def plan_margin_report(cfg):
 
 # ---------------------------------------------------------------- plans_public
 
+_BN_DIGITS = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
+
+
+def _bn_num(n):
+    return str(int(n)).translate(_BN_DIGITS)
+
+
+def plan_benefits(pid, lang, cfg):
+    """Localized benefit lines for a config-backed plan, with every NUMBER
+    taken from the live config (never a hardcoded "15 scans" that drifts from
+    the real pool). Lines that state a number are rebuilt here; the rest come
+    from _PLAN_META."""
+    cfg = normalize(cfg)
+    s = cfg["plans"][pid]
+    bn = lang == "bn"
+    lines = list(_PLAN_META[pid]["benefits_" + ("bn" if bn else "en")])
+    if pid == "free":
+        n = s["credits"]
+        if s["unlimited_ai"]:
+            first = "আনলিমিটেড AI" if bn else "Unlimited AI"
+        elif n > 0:
+            first = (f"প্রতি মাসে {_bn_num(n)} AI ক্রেডিট" if bn
+                     else f"{n} AI credits / month")
+        else:
+            first = ("AI: ক্রেডিট প্যাক কিনে বা বিজ্ঞাপন দেখে" if bn
+                     else "AI with credit packs or rewarded ads")
+        lines[0] = first
+    elif pid == "premium":
+        fam = s["family"]
+        if fam > 0:
+            lines[2] = (f"{_bn_num(fam)} জন পর্যন্ত কানেক্টেড সার্কেল ও কেয়ারগিভার ড্যাশবোর্ড"
+                        if bn else
+                        f"Up to {fam}-member Circle & caregiver dashboard")
+        else:
+            lines.pop(2)
+    return lines
+
+
 def plan_public(lang, cfg):
     """Build the localized public plans list from config. REPLACES the hard-coded
     Free/Premium/Business entries in core/plans.py. probashi/founder are handled
@@ -618,7 +777,7 @@ def plan_public(lang, cfg):
             "name": pick(lang, meta["name_bn"], meta["name_en"]),
             "price": s["price"], "cur": CUR, "period": "mo",
             "desc": pick(lang, meta["desc_bn"], meta["desc_en"]),
-            "benefits": meta["benefits_" + lang],
+            "benefits": plan_benefits(pid, lang, cfg),
             "unlimited_ai": s["unlimited_ai"], "ads": s["ads"],
             "family": s["family"], "credits": s["credits"],
             "storage_bytes": s["storage_bytes"],
@@ -634,7 +793,7 @@ def plan_public(lang, cfg):
         "price": yearly, "cur": CUR, "period": "yr",
         "desc": pick(lang, f"প্রিমিয়াম — বছরে, {disc}% সাশ্রয়।",
                      f"Premium — yearly, save {disc}%."),
-        "benefits": _PLAN_META["premium"]["benefits_" + lang],
+        "benefits": plan_benefits("premium", lang, cfg),
         "unlimited_ai": True, "ads": False, "family": prem["family"],
         "credits": 0,
     })

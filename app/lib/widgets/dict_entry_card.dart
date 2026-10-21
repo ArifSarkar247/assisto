@@ -65,7 +65,7 @@ class _DictEntryCardState extends State<DictEntryCard> {
 
   Future<void> _share(AppLocalizations t) async {
     final e = widget.entry;
-    await Share.share(t.dictShareTemplate(e.bn, e.en, _plainText(t)).trim());
+    await Share.share(t.dictShareTemplate(_plainText(t), e.bn, e.en) /* (detail, bn, en) */.trim());
   }
 
   @override

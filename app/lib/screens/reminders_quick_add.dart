@@ -88,6 +88,8 @@ class _QuickAddBarState extends State<QuickAddBar> {
                     focusedBorder: InputBorder.none,
                     filled: false,
                     hintText: t.remQuickAddHint,
+                    // the example is the point of the hint: show it whole
+                    hintMaxLines: 2,
                   ),
                 ),
               ),

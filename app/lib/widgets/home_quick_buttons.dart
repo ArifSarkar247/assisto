@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
 import '../state.dart';
@@ -99,18 +101,59 @@ class HomeQuickButtons {
     return out;
   }
 
-  static Future<List<String>> load() async {
+  /// Last OWNER default fetched from the server (GET /app/home-defaults),
+  /// cached so the next cold start paints it without waiting on the network.
+  static const serverPrefsKey = 'home_quick_server_v1';
+
+  static Future<List<String>?> _readList(String key) async {
     try {
-      final raw = await Settings.getString(prefsKey);
-      if (raw == null || raw.isEmpty) return List.of(defaults);
-      return sanitize((jsonDecode(raw) as List).map((e) => '$e').toList());
+      final raw = await Settings.getString(key);
+      if (raw == null || raw.isEmpty) return null;
+      return (jsonDecode(raw) as List).map((e) => '$e').toList();
     } catch (_) {
-      return List.of(defaults);
+      return null;
     }
+  }
+
+  /// True once the user saved their own choice (prefs key present).
+  static Future<bool> isCustomized() async =>
+      (await _readList(prefsKey)) != null;
+
+  /// The default for a user who has not customized: the cached owner default
+  /// when we have one, else the shipped [defaults].
+  static Future<List<String>> ownerDefault() async {
+    final cached = await _readList(serverPrefsKey);
+    return cached == null ? List.of(defaults) : sanitize(cached);
+  }
+
+  /// What home shows: the user's own six, else the owner default.
+  static Future<List<String>> load() async {
+    final own = await _readList(prefsKey);
+    if (own != null) return sanitize(own);
+    return ownerDefault();
   }
 
   static Future<void> save(List<String> routes) =>
       Settings.setString(prefsKey, jsonEncode(sanitize(routes)));
+
+  /// Fetch the owner default via [fetch] (the `/app/home-defaults` JSON),
+  /// cache it, and return the routes home should now show — or null when
+  /// nothing changes (user customized, bad payload, or network error).
+  /// Never throws; home always painted the hardcoded/cached list first.
+  static Future<List<String>?> refreshOwnerDefault(
+      Future<Map<String, dynamic>> Function() fetch) async {
+    try {
+      final res = await fetch();
+      final raw = res['quick_buttons'];
+      if (raw is! List || raw.isEmpty) return null;
+      final routes = sanitize(raw.map((e) => '$e').toList());
+      await Settings.setString(serverPrefsKey, jsonEncode(routes));
+      if (await isCustomized()) return null;
+      return routes;
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 /// The home strip of the 6 shortcuts. [compact] = one scrollable chip row
@@ -128,6 +171,7 @@ class HomeQuickBar extends StatefulWidget {
 
 class _HomeQuickBarState extends State<HomeQuickBar> {
   List<String> _routes = HomeQuickButtons.defaults;
+  List<String> _ownerDefault = HomeQuickButtons.defaults;
 
   @override
   void initState() {
@@ -135,15 +179,39 @@ class _HomeQuickBarState extends State<HomeQuickBar> {
     if (widget.debugRoutes != null) {
       _routes = HomeQuickButtons.sanitize(widget.debugRoutes!);
     } else {
-      HomeQuickButtons.load().then((r) {
-        if (mounted) setState(() => _routes = r);
-      });
+      // Hardcoded defaults paint first; prefs/cache, then the server owner
+      // default, swap in afterwards. Nothing here can block or crash home.
+      _loadThenRefresh();
     }
+  }
+
+  Future<void> _loadThenRefresh() async {
+    final local = await HomeQuickButtons.load();
+    final owner = await HomeQuickButtons.ownerDefault();
+    if (!mounted) return;
+    setState(() {
+      _routes = local;
+      _ownerDefault = owner;
+    });
+    Future<Map<String, dynamic>> Function()? fetch;
+    try {
+      fetch = context.read<AppState>().api.homeDefaults;
+    } catch (_) {
+      return; // no AppState (previews/tests)
+    }
+    final fresh = await HomeQuickButtons.refreshOwnerDefault(fetch);
+    final cached = await HomeQuickButtons.ownerDefault();
+    if (!mounted) return;
+    setState(() {
+      _ownerDefault = cached;
+      if (fresh != null) _routes = fresh;
+    });
   }
 
   Future<void> _edit() async {
     HapticFeedback.selectionClick();
-    final picked = await showQuickButtonsPicker(context, _routes);
+    final picked = await showQuickButtonsPicker(context, _routes,
+        resetTo: _ownerDefault);
     if (picked == null || !mounted) return;
     setState(() => _routes = HomeQuickButtons.sanitize(picked));
     await HomeQuickButtons.save(_routes);
@@ -200,14 +268,24 @@ class _HomeQuickBarState extends State<HomeQuickBar> {
           style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
         ),
       ]),
-      GridView.count(
-        crossAxisCount: 3,
+      GridView(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: Gap.sm,
-        crossAxisSpacing: Gap.sm,
-        childAspectRatio: 1.55,
-        children: [for (final s in items) _tile(context, t, s)],
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          mainAxisSpacing: Gap.sm,
+          crossAxisSpacing: Gap.sm,
+          // tile height follows the font size: icon + 2 label lines never clip
+          mainAxisExtent: math.max(67.0,
+              40 + 28 * math.min(1.2, MediaQuery.textScalerOf(context).scale(1))),
+        ),
+        // Labels cap at 1.2x so a word never breaks mid-word in a 1/3-width
+        // tile (large-font QA); the tile itself still grows with the font.
+        children: [
+          for (final s in items)
+            MediaQuery.withClampedTextScaling(
+                maxScaleFactor: 1.2, child: _tile(context, t, s))
+        ],
       ),
     ]);
   }
@@ -243,19 +321,23 @@ class _HomeQuickBarState extends State<HomeQuickBar> {
 /// Bottom sheet to choose + order the 6 home shortcuts. Returns the new list,
 /// or null when cancelled.
 Future<List<String>?> showQuickButtonsPicker(
-    BuildContext context, List<String> current) {
+    BuildContext context, List<String> current,
+    {List<String>? resetTo}) {
   return showModalBottomSheet<List<String>>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
-    builder: (_) => QuickButtonsPicker(current: current),
+    builder: (_) => QuickButtonsPicker(current: current, resetTo: resetTo),
   );
 }
 
 /// The picker body (public so the screenshot gallery can render it).
 class QuickButtonsPicker extends StatefulWidget {
   final List<String> current;
-  const QuickButtonsPicker({required this.current});
+
+  /// What "Reset" restores — the owner default (falls back to shipped).
+  final List<String>? resetTo;
+  const QuickButtonsPicker({super.key, required this.current, this.resetTo});
   @override
   State<QuickButtonsPicker> createState() => QuickButtonsPickerState();
 }
@@ -359,7 +441,8 @@ class QuickButtonsPickerState extends State<QuickButtonsPicker> {
                 onPressed: () => setState(() {
                   _sel
                     ..clear()
-                    ..addAll(HomeQuickButtons.defaults);
+                    ..addAll(HomeQuickButtons.sanitize(
+                        widget.resetTo ?? HomeQuickButtons.defaults));
                 }),
                 child: Text(t.quickReset),
               ),

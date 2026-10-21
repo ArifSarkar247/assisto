@@ -187,6 +187,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
             decoration: InputDecoration(
               labelText: t.examUrlField,
               helperText: t.examUrlHelper,
+              helperMaxLines: 3,
               isDense: true,
               suffixIcon: IconButton(
                 icon: const Icon(Icons.open_in_new),

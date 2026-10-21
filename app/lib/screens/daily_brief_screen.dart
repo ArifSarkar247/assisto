@@ -216,6 +216,11 @@ class _DailyBriefScreenState extends State<DailyBriefScreen>
       appBar: AppBar(
         title: Text(t.dbTitle),
         bottom: TabBar(
+          // large font: scroll instead of cutting tab labels
+          isScrollable: MediaQuery.textScalerOf(context).scale(1) > 1.2,
+          tabAlignment: MediaQuery.textScalerOf(context).scale(1) > 1.2
+              ? TabAlignment.start
+              : null,
           controller: _tabs,
           tabs: [
             Tab(text: t.dbTabMorning),
@@ -380,7 +385,7 @@ class _DailyBriefScreenState extends State<DailyBriefScreen>
   Widget _completionBar(int pct, int done, int open) {
     final scheme = Theme.of(context).colorScheme;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(t.dbCompletion(pct, done, done + open),
+      Text(t.dbCompletion(/* (done, pct, total) */ done, pct, done + open),
           style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
       const SizedBox(height: Gap.xs),
       ClipRRect(

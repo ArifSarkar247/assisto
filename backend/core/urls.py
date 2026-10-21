@@ -557,6 +557,10 @@ urlpatterns = [
     # ---- a6-leftovers ----
     # AdMob client config (key-gated; TEST ids until the owner saves real ones)
     path("ads/config", ads_views.AdsConfigView.as_view()),
+
+    # ---- a1-priority ----
+    # Owner DEFAULT home quick buttons (edited in /admin/pricing)
+    path("app/home-defaults", b61.HomeDefaultsView.as_view()),
 ]
 
 urlpatterns += router.urls

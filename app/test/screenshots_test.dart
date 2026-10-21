@@ -20,6 +20,11 @@ import 'package:assisto/screens/home_screen.dart';
 import 'package:assisto/screens/agent_thread_screen.dart';
 import 'package:assisto/widgets/home_quick_buttons.dart';
 import 'package:assisto/screens/app_drawer.dart';
+import 'package:assisto/screens/ai_chat_screen.dart';
+import 'package:assisto/screens/nearby_screen.dart';
+import 'package:assisto/screens/used_phone_check_screen.dart';
+import 'package:assisto/screens/my_vehicles_screen.dart';
+import 'package:assisto/screens/smartwatch_screen.dart';
 import 'package:assisto/screens/messenger/messenger_home_screen.dart';
 import 'package:assisto/screens/messenger/messenger_settings_screen.dart';
 import 'package:assisto/screens/messenger/contact_info_screen.dart';
@@ -174,7 +179,11 @@ class _DeadClient implements HttpClient {
       throw const SocketException('network disabled in screenshot tests');
 }
 
-const _outDir = '/home/ubuntu/assisto/screenshots';
+final _outDir = Platform.environment['ASSISTO_SHOT_DIR'] ?? '/home/ubuntu/assisto/screenshots';
+// Large-font QA pass: ASSISTO_SHOT_SCALE=1.5 renders with that text scale and
+// suffixes files with `_xl` (Premium QA: no clipping at large font).
+final _textScale = double.tryParse(Platform.environment['ASSISTO_SHOT_SCALE'] ?? '') ?? 1.0;
+final _scaleSuffix = _textScale == 1.0 ? '' : '_xl';
 
 Future<void> _loadFont(String family, String path) async {
   final loader = FontLoader(family);
@@ -351,6 +360,8 @@ void main() {
     'drawer': (build: (_) => Scaffold(body: Row(children: [AppDrawer(onNewChat: () {})])), mode: FakeMode.data, full: true),
     'home_chat_restored': (build: (_) => Scaffold(appBar: AppBar(title: const Text('Assisto')), body: Column(children: [const HomeQuickBar(compact: true, debugRoutes: HomeQuickButtons.defaults), Expanded(child: AgentThreadScreen(sessionId: '11'))])), mode: FakeMode.data, full: true),
     'quick_grid': (build: (_) => const Scaffold(body: Padding(padding: EdgeInsets.all(16), child: HomeQuickBar(debugRoutes: HomeQuickButtons.defaults))), mode: FakeMode.data, full: true),
+    // owner default (from /admin/pricing) applied for a not-yet-customized user
+    'quick_grid_owner': (build: (_) => const Scaffold(body: Padding(padding: EdgeInsets.all(16), child: HomeQuickBar(debugRoutes: ['emergency', 'money', 'reminders', 'scam', 'nearby', 'notes']))), mode: FakeMode.data, full: true),
     'quick_picker': (build: (_) => const Scaffold(body: QuickButtonsPicker(current: HomeQuickButtons.defaults)), mode: FakeMode.data, full: true),
     'drawer_bottom': (build: (_) => Scaffold(body: Row(children: [AppDrawer(onNewChat: () {})])), mode: FakeMode.data, full: true),
     'messenger': (build: (_) => const MessengerHomeScreen(), mode: FakeMode.data, full: true),
@@ -422,6 +433,12 @@ void main() {
     'crm_firstrun_join': (build: (_) => Scaffold(body: CrmFirstRunScreen(onReady: () async {}, previewJoin: true)), mode: FakeMode.data, full: true),
     'legal': (build: (_) => const LegalScreen(), mode: FakeMode.data, full: true),
     'photo_enhance': (build: (_) => const PhotoEnhanceScreen(), mode: FakeMode.data, full: true),
+    // ---- a1 Premium QA: screens that had no gallery shot ----
+    'ai_chat': (build: (_) => const AiChatScreen(), mode: FakeMode.data, full: true),
+    'nearby': (build: (_) => const NearbyScreen(), mode: FakeMode.data, full: true),
+    'used_phone_check': (build: (_) => const UsedPhoneCheckScreen(), mode: FakeMode.data, full: true),
+    'vehicles': (build: (_) => const MyVehiclesScreen(), mode: FakeMode.data, full: true),
+    'smartwatch': (build: (_) => const SmartwatchScreen(), mode: FakeMode.data, full: true),
     'unseen': (build: (_) => const UnseenWorldScreen(), mode: FakeMode.data, full: true),
     // state variants (single representative each)
     'subscriptions_empty': (build: (_) => const SubscriptionsScreen(), mode: FakeMode.empty, full: false),
@@ -433,6 +450,9 @@ void main() {
 
   Future<void> shoot(WidgetTester tester, String name, String lang,
       Brightness brightness, Widget screen, FakeMode mode) async {
+    // Real elevation shadows (flutter_test draws them as solid black outlines
+    // by default, which looks like a bug in review shots). Restored below.
+    debugDisableShadows = false;
     final tall = name.endsWith('_bottom');
     await tester.binding.setSurfaceSize(Size(360, tall ? 1800 : 800));
     final key = GlobalKey();
@@ -446,7 +466,7 @@ void main() {
       child: RepaintBoundary(
         key: key,
         child: MediaQuery(
-          data: MediaQueryData(size: Size(360, tall ? 1800 : 800)),
+          data: MediaQueryData(size: Size(360, tall ? 1800 : 800), textScaler: TextScaler.linear(_textScale)),
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
             locale: Locale(lang),
@@ -488,7 +508,7 @@ void main() {
         await tester.runAsync(() => boundary.toImage(pixelRatio: 2.0)) as ui.Image;
     final bytes =
         await tester.runAsync(() => image.toByteData(format: ui.ImageByteFormat.png));
-    File('$_outDir/${name}_${lang}_${brightness == Brightness.light ? 'light' : 'dark'}.png')
+    File('$_outDir/${name}_${lang}_${brightness == Brightness.light ? 'light' : 'dark'}$_scaleSuffix.png')
         .writeAsBytesSync(bytes!.buffer.asUint8List());
     image.dispose();
     // Drain any pending "slow load" timer so the test tears down cleanly.
@@ -498,6 +518,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 1400));
       await tester.pump();
     }
+    debugDisableShadows = true;
   }
 
   final onlyEnv = Platform.environment['ASSISTO_SHOT_ONLY'];

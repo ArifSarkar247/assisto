@@ -352,8 +352,8 @@ class _RemitTab extends StatelessWidget {
                               r.amountDisplay, r.bdtDisplay),
                           style: const TextStyle(fontWeight: FontWeight.w700),
                         ),
-                        subtitle: Text(tr.probashiRateOnDate(
-                            r.rateDisplay, r.dateDisplay)),
+                        subtitle: Text(tr.probashiRateOnDate(/* (date, rate) */
+                            r.dateDisplay, r.rateDisplay)),
                         trailing: PopupMenuButton<String>(
                           onSelected: (v) {
                             if (v == 'edit') onEdit(r.raw);

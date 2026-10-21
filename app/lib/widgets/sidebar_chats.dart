@@ -16,13 +16,10 @@ class SidebarChats extends StatefulWidget {
   /// Open a saved thread: `source` is 'home' or 'ai', `row` the session JSON.
   final void Function(String source, Map<String, dynamic> row) onOpen;
 
-  /// Start a fresh Assisto AI chat.
-  final VoidCallback onNewAiChat;
-  const SidebarChats(
-      {super.key,
-      required this.query,
-      required this.onOpen,
-      required this.onNewAiChat});
+  /// Owner order: the sidebar has ONE "New chat" entry (the drawer's top
+  /// button) — this list only shows history; Assisto AI stays reachable via
+  /// the `ai_chat` home shortcut and ChatNav, and AI rows still reopen there.
+  const SidebarChats({super.key, required this.query, required this.onOpen});
 
   @override
   State<SidebarChats> createState() => _SidebarChatsState();
@@ -145,7 +142,7 @@ class _SidebarChatsState extends State<SidebarChats> {
 
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Padding(
-        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.xs, Gap.sm, 0),
+        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.sm, Gap.xs),
         child: Row(children: [
           Expanded(
             child: Text(t.sidebarChats,
@@ -157,14 +154,6 @@ class _SidebarChatsState extends State<SidebarChats> {
                     letterSpacing: 0.3,
                     color: scheme.onSurfaceVariant)),
           ),
-          if (!searching)
-            TextButton.icon(
-              onPressed: widget.onNewAiChat,
-              icon: Icon(Icons.auto_awesome, size: 16, color: scheme.primary),
-              label: Text(t.sidebarNewAiChat,
-                  maxLines: 1, overflow: TextOverflow.ellipsis),
-              style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
-            ),
         ]),
       ),
       if (_rows == null && !_failed)

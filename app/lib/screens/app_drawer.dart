@@ -149,11 +149,10 @@ class _AppDrawerState extends State<AppDrawer> {
           child: ListView(
             padding: const EdgeInsets.symmetric(vertical: Gap.xs),
             children: [
-              // ChatGPT-style history (home + Assisto AI threads). The
-              // old separate "Assisto AI" tile lives here as "New AI chat".
+              // ChatGPT-style history (home + Assisto AI threads). The ONE
+              // "New chat" button sits above; no second "New AI chat" entry.
               SidebarChats(
                 query: _q,
-                onNewAiChat: () => _push((_) => const AiChatScreen()),
                 onOpen: (source, row) {
                   if (source == 'ai') {
                     _push((_) => AiChatScreen(initialSession: row));
@@ -180,7 +179,7 @@ class _AppDrawerState extends State<AppDrawer> {
                   ListTile(
                     leading: Icon(s.icon, color: scheme.onSurfaceVariant),
                     title: Text(s.title(t),
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(fontWeight: FontWeight.w600)),
                     onTap: () => _push(s.items.first.builder),
@@ -201,7 +200,7 @@ class _AppDrawerState extends State<AppDrawer> {
                     },
                     leading: Icon(s.icon, color: scheme.onSurfaceVariant),
                     title: Text(s.title(t),
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(fontWeight: FontWeight.w600)),
                     childrenPadding: const EdgeInsets.only(left: Gap.sm),
@@ -211,7 +210,7 @@ class _AppDrawerState extends State<AppDrawer> {
                           leading: Icon(item.icon,
                               color: scheme.onSurfaceVariant, size: 22),
                           title: Text(item.label(t),
-                              maxLines: 1, overflow: TextOverflow.ellipsis),
+                              maxLines: 2, overflow: TextOverflow.ellipsis),
                           visualDensity: VisualDensity.compact,
                           onTap: () => _push(item.builder),
                         ),

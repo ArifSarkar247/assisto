@@ -558,12 +558,13 @@ def ShopCamera_kinds():
 
 
 def _included_cameras(user):
-    """Cameras included free for this user's plan: Business includes 4, others 0."""
-    from . import plans
-    from .logic import pricing
+    """Cameras included free for this user's plan: Business includes
+    limits.business_included_cameras (default 4, admin-editable), others 0."""
+    from . import plans, billing
     try:
-        return pricing.BUSINESS_INCLUDED_CAMERAS if \
-            plans.effective_plan(user) == "business" else 0
+        if plans.effective_plan(user) != "business":
+            return 0
+        return int(billing.cfg()["limits"]["business_included_cameras"])
     except Exception:
         return 0
 

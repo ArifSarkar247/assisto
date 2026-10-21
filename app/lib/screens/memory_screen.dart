@@ -194,7 +194,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
               onChanged: (v) => setState(() => _query = v),
               textInputAction: TextInputAction.search,
               decoration: InputDecoration(
-                hintText: t.memorySearchHint,
+                hintText: t.a1MemSearchHint,
                 prefixIcon: const Icon(Icons.psychology_alt_outlined),
                 suffixIcon: _query.isEmpty
                     ? null

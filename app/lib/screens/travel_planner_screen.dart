@@ -166,7 +166,8 @@ class _TravelPlannerScreenState extends State<TravelPlannerScreen> {
     }
     return Scaffold(
       appBar: AppBar(title: Text(tr.tvTitle)),
-      floatingActionButton: FloatingActionButton.extended(
+      // empty state has its own CTA: no duplicate FAB
+      floatingActionButton: _trips.isEmpty ? null : FloatingActionButton.extended(
         onPressed: () => _openTripEditor(),
         icon: const Icon(Icons.add),
         label: Text(tr.tvNewTrip),
@@ -559,7 +560,7 @@ class _ItineraryTab extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: Gap.sm),
               child: Text(
-                  tr.tvItinerarySummary(days.length, totalActivities),
+                  tr.tvItinerarySummary(/* (activities, days) */ totalActivities, days.length),
                   style: TextStyle(
                       color: scheme.onSurfaceVariant,
                       fontWeight: FontWeight.w600)),
@@ -921,9 +922,9 @@ class _BudgetTab extends StatelessWidget {
                 child: ListTile(
                   onTap: () => _edit(context, r),
                   title: Text(_catLabel(tr, '${r['category'] ?? 'other'}')),
-                  subtitle: Text(tr.tvBudgetLine(
-                      _fmtBdt(_toPoisha(r['estimate'])),
-                      _fmtBdt(_toPoisha(r['actual'])))),
+                  subtitle: Text(tr.tvBudgetLine(/* (actual, estimate) */
+                      _fmtBdt(_toPoisha(r['actual'])),
+                      _fmtBdt(_toPoisha(r['estimate'])))),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete_outline),
                     tooltip: tr.delete,

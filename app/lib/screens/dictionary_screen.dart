@@ -216,7 +216,10 @@ class _DictionaryScreenState extends State<DictionaryScreen>
             ),
           ),
           const SizedBox(height: Gap.sm),
-          SegmentedButton<String>(
+          // segment labels cap at 1.2x: never a mid-word break at large font
+          MediaQuery.withClampedTextScaling(
+            maxScaleFactor: 1.2,
+            child: SegmentedButton<String>(
             segments: [
               ButtonSegment(value: 'auto', label: Text(t.dictionaryDirAuto)),
               ButtonSegment(value: 'bn2en', label: Text(t.dictionaryDirBnEn)),
@@ -227,6 +230,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
               setState(() => _directionValue = s.first);
               if (_ctrl.text.trim().isNotEmpty) _lookup(_ctrl.text.trim());
             },
+          ),
           ),
         ]),
       ),

@@ -330,7 +330,10 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
         if (i == 0) {
           return Padding(
             padding: const EdgeInsets.only(bottom: Gap.xs),
-            child: Text(mStrNum(ctx, 'mCount', list.length),
+            child: Text(
+                list.length == 1
+                    ? AppLocalizations.of(ctx).a1MeetCountOne
+                    : mStrNum(ctx, 'mCount', list.length),
                 style: TextStyle(
                     color: Theme.of(ctx).colorScheme.outline, fontSize: 12)),
           );
