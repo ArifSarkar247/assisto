@@ -29,7 +29,7 @@ extension ScamSafetyApi on ApiClient {
   /// Report a scam message to the family (foreground poll today; push when
   /// Firebase is added). POST /scam/report {message}.
   Future<void> scamReportFamily(String message) =>
-      createItem('scam/report', {'message': message});
+      postJson('/scam/report', {'message': message});
 
   // ---- govt guides (for vault renewal steps) ----
 
@@ -47,12 +47,12 @@ extension ScamSafetyApi on ApiClient {
   /// Start a safe-arrival check-in so the family poll can detect overdue
   /// arrivals. POST /safety/checkin {place, eta} (eta ISO-8601).
   Future<void> safetyCheckinStart({String? place, required String etaIso}) =>
-      createItem('safety/checkin', {'place': place ?? '', 'eta': etaIso});
+      postJson('/safety/checkin', {'place': place ?? '', 'eta': etaIso});
 
   /// Mark the active check-in as arrived (clears the pending alert).
   /// POST /safety/checkin/arrived {}.
   Future<void> safetyCheckinArrived() =>
-      createItem('safety/checkin/arrived', const {});
+      postJson('/safety/checkin/arrived', const {});
 
   // ---- documents (send structured fields as a real map, not packed note) ----
 

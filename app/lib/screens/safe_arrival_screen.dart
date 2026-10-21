@@ -151,7 +151,15 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
     await Settings.setString('safety_checkin_eta', '');
     try {
       await context.read<AppState>().api.safetyCheckinArrived();
-    } catch (_) {}
+    } catch (_) {
+      // m2-reality: never a false "arrived" — the server may still alert
+      // family. (Duress keeps its normal-looking cover screen.)
+      if (mounted && !duress) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.of(context).realityArrivedNotSent)));
+      }
+      if (!duress) return;
+    }
     // DURESS: the screen looks like a normal arrival, but a SILENT SOS fires so
     // family is alerted (reuses journeySos(silent:true) — identical to the
     // journey duress path). We never reveal this on-screen.

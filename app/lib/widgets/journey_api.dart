@@ -57,7 +57,7 @@ extension JourneyApi on ApiClient {
 
   /// Mark arrived ("I'm safe") — auto or manual. POST /journey/<id>/arrived
   Future<void> journeyArrived(int id) =>
-      createItem('journey/$id/arrived', const {});
+      postJson('/journey/$id/arrived', const {});
 
   /// Stop a journey early (not at destination). Starts the privacy
   /// auto-delete clock. POST /journey/<id>/stop {pin?} — pin is validated
@@ -68,7 +68,7 @@ extension JourneyApi on ApiClient {
   /// Answer the overdue "Are you OK?" prompt to clear the alert path.
   /// POST /journey/<id>/respond {ok:true}
   Future<void> journeyRespondOk(int id) =>
-      createItem('journey/$id/respond', const {'ok': true});
+      postJson('/journey/$id/respond', const {'ok': true});
 
   /// item 5: the full trip timeline watchers see (last known locations +
   /// events). GET /journey/<id>/timeline
@@ -98,20 +98,11 @@ extension JourneyApi on ApiClient {
   /// A duress PIN that differs from the normal one triggers the silent alert.
   /// POST /journey/duress-pin {pin, duress_pin}
   Future<void> setDuressPin({required String pin, required String duressPin}) =>
-      createItem('journey/duress-pin', {'pin': pin, 'duress_pin': duressPin});
+      postJson('/journey/duress-pin', {'pin': pin, 'duress_pin': duressPin});
 
-  // ---- item 10: "where are you?" consent --------------------------------
-
-  /// A watcher requests the traveller's location (consent required to share).
-  /// POST /journey/where-are-you {member_id}
-  Future<void> whereAreYou(int memberId) =>
-      createItem('journey/where-are-you', {'member_id': memberId});
-
-  /// The traveller responds to a where-are-you request.
-  /// POST /journey/where-are-you/respond {request_id, accept}
-  Future<void> whereAreYouRespond(int requestId, bool accept) =>
-      createItem('journey/where-are-you/respond',
-          {'request_id': requestId, 'accept': accept});
+  // ---- item 10: "where are you?" consent — NOT BUILT (m2-reality removed
+  // two unused client methods that called routes that never existed:
+  // journey/where-are-you[/respond]). Re-add with the backend.
 
   // ---- item 11: nearest help (reuses the existing /nearby provider) -----
 
@@ -139,7 +130,7 @@ extension JourneyApi on ApiClient {
   /// Save/replace a routine journey. POST /journey/routines
   /// {days:["sun",...], time:"18:00", destination:{...}, watcher_ids:[...], enabled}
   Future<void> saveJourneyRoutine(Map<String, dynamic> routine) =>
-      createItem('journey/routines', routine);
+      postJson('/journey/routines', routine);
 
   // ---- item 16: wellness check (parents living alone) -------------------
 
@@ -149,12 +140,12 @@ extension JourneyApi on ApiClient {
   /// Update wellness config. parent_opt_in MUST be true to arm.
   /// POST /journey/wellness
   Future<void> saveWellnessConfig(Map<String, dynamic> cfg) =>
-      createItem('journey/wellness', cfg);
+      postJson('/journey/wellness', cfg);
 
   /// Parent pings "I'm fine" (resets the idle clock / answers a prompt).
   /// POST /journey/wellness/ping
   Future<void> wellnessPing() =>
-      createItem('journey/wellness/ping', const {});
+      postJson('/journey/wellness/ping', const {});
 
   // ---- saved places (Home / Office / College) ---------------------------
 
@@ -166,5 +157,5 @@ extension JourneyApi on ApiClient {
 
   /// Save a place {label, name, lat, lng}. POST /journey/places
   Future<void> saveSavedPlace(Map<String, dynamic> place) =>
-      createItem('journey/places', place);
+      postJson('/journey/places', place);
 }
