@@ -198,6 +198,14 @@ def _apply(card, data):
     return {}, []
 
 
+def _bad(errors, safety):
+    """400 body. The unsafe-content list goes FIRST when present, because the
+    app's ApiException surfaces the first body value as its message."""
+    body = {"safety": safety, "errors": errors} if safety else \
+        {"errors": errors, "safety": []}
+    return Response(body, status=status.HTTP_400_BAD_REQUEST)
+
+
 def _new_key(card):
     base = slugify(card.title_en or card.type.lower())[:40] or "card"
     return "%s-%s" % (base, secrets.token_hex(3))
@@ -286,8 +294,7 @@ class AdminDiscoverCardsView(_OwnerOnly):
                             order=(last.order + 10) if last else 10)
         errors, safety = _apply(card, data)
         if errors or safety:
-            return Response({"errors": errors, "safety": safety},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return _bad(errors, safety)
         card.key = _new_key(card)
         card.save()
         _audit(request.user, "discover.create", {"id": card.id, "type": card.type})
@@ -311,8 +318,7 @@ class AdminDiscoverCardView(_OwnerOnly):
             return Response({"detail": "not found"}, status=404)
         errors, safety = _apply(c, request.data or {})
         if errors or safety:
-            return Response({"errors": errors, "safety": safety},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return _bad(errors, safety)
         c.save()
         _audit(request.user, "discover.update", {"id": c.id})
         return Response(_admin_payload(c, _totals_by_card().get(c.id)))
