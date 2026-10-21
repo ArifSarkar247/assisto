@@ -3159,4 +3159,64 @@ class MsgExport(models.Model):
     message_count = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()
+
+class FamExpense(models.Model):
+    """Family accounting (#61): one shared expense in the OWNER's household
+    ledger. Members are 'self' (the owner) or the owner's FamilyMember ids,
+    stored as strings. All money is INTEGER POISHA. A recorded settle-up is a
+    row with kind='settlement' (payer=from, one share to=amount)."""
+    owner = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name="fam_expenses")
+    kind = models.CharField(max_length=12, default="expense")  # expense|settlement
+    payer = models.CharField(max_length=24)
+    total_poisha = models.BigIntegerField(default=0)
+    category = models.CharField(max_length=20, default="other")
+    mode = models.CharField(max_length=8, default="equal")
+    note = models.CharField(max_length=200, blank=True, default="")
+    date = models.DateField()
+    shares = models.JSONField(default=list, blank=True)  # [{member, share}]
+    shared = models.BooleanField(default=True)
+    ai_captured = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-date", "-id"]
+
+
+class FamPool(models.Model):
+    """Monthly family budget pool target (poisha) + contributions."""
+    owner = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name="fam_pools")
+    month = models.CharField(max_length=7)  # YYYY-MM
+    target_poisha = models.BigIntegerField(default=0)
+    contributions = models.JSONField(default=list, blank=True)  # [{member, amount, at}]
+
+    class Meta:
+        unique_together = [("owner", "month")]
+
+
+class NotifDismissal(models.Model):
+    """'Done' on a notification-centre item that has no done flag of its own
+    (meeting / appointment / birthday occurrence): hides that occurrence."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="notif_dismissals")
+    item_id = models.CharField(max_length=80)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("user", "item_id")]
+
+
+class JourneyPoint(models.Model):
+    """A Safe-Journey location fix for the watcher timeline. Deleted with the
+    journey's privacy expiry (never kept past Journey.expires_at)."""
+    journey = models.ForeignKey("Journey", on_delete=models.CASCADE,
+                                related_name="points")
+    lat = models.FloatField()
+    lng = models.FloatField()
+    battery = models.IntegerField(null=True, blank=True)
+    at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["at"]
 # ---- /m1-messenger ----

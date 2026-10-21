@@ -905,6 +905,9 @@ class JourneyLocationView(APIView):
         lat, lng = d.get("lat"), d.get("lng")
         j.last_location = {"lat": lat, "lng": lng,
                            "at": now.isoformat(), "battery": d.get("battery")}
+        if lat is not None and lng is not None:
+            from .views_m1_routes import record_journey_point  # m1: timeline
+            record_journey_point(j, lat, lng, d.get("battery"))
         j.last_activity_at = now
         arrived = False
         if lat is not None and lng is not None:

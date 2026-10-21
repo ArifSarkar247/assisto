@@ -547,8 +547,15 @@ class GroupExportView(APIView):
         msgs = []
         for x in visible_group_messages(g, request.user):
             own = None
-            if x.sender_id == uid:
-                own = {"self": True}
+            if x.sender_id == uid and isinstance(x.per_recipient, dict) \
+                    and x.per_recipient:
+                # my own message: the copy sealed to one recipient — my device
+                # opens it with MY private key + THAT recipient's public key.
+                k, ent = next(iter(x.per_recipient.items()))
+                if isinstance(ent, dict):
+                    own = {"ciphertext": ent.get("ciphertext", ""),
+                           "nonce": ent.get("nonce", ""),
+                           "peer_member_id": str(k)}
             elif isinstance(x.per_recipient, dict):
                 ent = (x.per_recipient.get(str(mine.id))
                        or x.per_recipient.get(str(uid)))
@@ -1062,13 +1069,19 @@ class MessageRequestsView(APIView):
             makes CommunityMessageView refuse them; report files a moderation
             report (harsh reasons / also_block also block)."""
 
-    def get(self, request):
+    def get(self, request, pk=None):
         rows = (CommunityMessageRequest.objects
                 .filter(recipient=request.user, state="pending")
                 .select_related("sender", "community"))
+        if pk is not None:
+            r = rows.filter(pk=pk).first()
+            return Response(_req_dict(r)) if r else _nf()
         return Response({"requests": [_req_dict(r) for r in rows]})
 
-    def post(self, request, pk):
+    def post(self, request, pk=None):
+        if pk is None:
+            return Response({"detail": "method not allowed"},
+                            status=status.HTTP_405_METHOD_NOT_ALLOWED)
         lang = req_lang(request)
         mr = CommunityMessageRequest.objects.filter(
             pk=pk, recipient=request.user).first()

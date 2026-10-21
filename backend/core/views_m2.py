@@ -225,7 +225,10 @@ class CircleGroupMembersView(APIView):
         mine = _my_membership(g, request.user)
         if mine is None:
             return _not_found()
-        uid = (request.data or {}).get("user_id")
+        # m1-messenger: the app sends {member_id} (its CircleMember edge id);
+        # {user_id} still works.
+        from .views_m1_routes import resolve_add_member
+        uid = resolve_add_member(request, g, request.data or {})
         candidate = User.objects.filter(pk=uid).first() if uid else None
         if candidate is None:
             return _not_found()

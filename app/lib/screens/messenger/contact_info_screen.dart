@@ -9,6 +9,7 @@ import '../../theme.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../../widgets/chat_menu_pickers.dart';
 import '../../widgets/circle_relation.dart';
+import 'starred_messages_screen.dart';
 
 /// CONTACT INFO screen for a 1:1 chat (.phaseB/MESSENGER_UI_FULL.md §4).
 ///
@@ -40,11 +41,11 @@ class ContactInfoScreen extends StatefulWidget {
 class _ContactInfoScreenState extends State<ContactInfoScreen> {
   Map<String, dynamic> _info = const {};
   bool _loading = true;
+  bool _loadFailed = false;
 
   // Local mirrors (confirmed from server payload on load).
   bool _muted = false;
   int _disappearingSec = 0;
-  bool _chatLock = false;
   bool _blocked = false;
 
   ApiClient get _api => context.read<AppState>().api;
@@ -64,16 +65,11 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
       _info = r;
       _muted = r['muted_until'] != null;
       _disappearingSec = (r['disappearing_sec'] as int?) ?? 0;
-      _chatLock = (r['chat_lock'] is Map) && (r['chat_lock']['enabled'] == true);
       _blocked = r['blocked'] == true;
+      _loadFailed = false;
     } catch (_) {
-      // Backend pending: fall back to the member payload we were handed.
-      _info = {
-        'about': widget.member['about'] ?? widget.member['bio'],
-        'phone': widget.member['phone'],
-        'relation': widget.member['relation'],
-        'custom_label': widget.member['custom_label'],
-      };
+      // Honest: show a retry, never a made-up profile.
+      _loadFailed = true;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -81,14 +77,18 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
   void _toast(String msg) => ScaffoldMessenger.of(context)
       .showSnackBar(SnackBar(content: Text(msg)));
 
+  void _fail(Object e) => _toast(e is ApiException && e.message.isNotEmpty
+      ? e.message
+      : _t.grpActionFailed);
+
   // --- controls ---------------------------------------------------------
   Future<void> _toggleMute(bool on) async {
     if (!on) {
-      setState(() => _muted = false);
       try {
         await _api.setChatMute(_peerId, null);
-      } catch (_) {
-        _toast(_t.circleBackendPending);
+        if (mounted) setState(() => _muted = false);
+      } catch (e) {
+        _fail(e);
       }
       return;
     }
@@ -97,31 +97,32 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
     final until = d == Duration.zero
         ? DateTime.utc(2099).toIso8601String()
         : DateTime.now().toUtc().add(d).toIso8601String();
-    setState(() => _muted = true);
     try {
       await _api.setChatMute(_peerId, until);
-    } catch (_) {
-      _toast(_t.circleBackendPending);
+      if (mounted) setState(() => _muted = true);
+    } catch (e) {
+      _fail(e);
     }
   }
 
   Future<void> _editDisappearing() async {
     final sec = await showDisappearingPicker(context, _disappearingSec);
     if (sec == null || !mounted) return;
-    setState(() => _disappearingSec = sec);
     try {
       await _api.setDisappearing(_peerId, sec);
-    } catch (_) {
-      _toast(_t.circleBackendPending);
+      if (mounted) setState(() => _disappearingSec = sec);
+    } catch (e) {
+      _fail(e);
     }
   }
 
   Future<void> _toggleBlock() async {
-    setState(() => _blocked = !_blocked);
+    final next = !_blocked;
     try {
-      await _api.blockContact(_peerId, on: _blocked);
-    } catch (_) {
-      _toast(_t.circleBackendPending);
+      await _api.blockContact(_peerId, on: next);
+      if (mounted) setState(() => _blocked = next);
+    } catch (e) {
+      _fail(e);
     }
   }
 
@@ -140,8 +141,8 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
         if (mounted) setState(() => _blocked = true);
       }
       if (mounted) _toast(_t.msgrChatReportSent);
-    } catch (_) {
-      _toast(_t.circleBackendPending);
+    } catch (e) {
+      _fail(e);
     }
   }
 
@@ -178,7 +179,25 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
       appBar: AppBar(title: Text(_t.msgrChatContactInfo)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : ListView(
+          : _loadFailed
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(Gap.xl),
+                    child: Column(mainAxisSize: MainAxisSize.min, children: [
+                      Text(_t.msgLoadFailed, textAlign: TextAlign.center),
+                      const SizedBox(height: Gap.md),
+                      FilledButton.icon(
+                        icon: const Icon(Icons.refresh),
+                        label: Text(_t.retry),
+                        onPressed: () {
+                          setState(() => _loading = true);
+                          _load();
+                        },
+                      ),
+                    ]),
+                  ),
+                )
+              : ListView(
               children: [
                 _header(scheme, about),
                 const SizedBox(height: Gap.sm),
@@ -196,8 +215,6 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                   leading: const Icon(Icons.perm_media_outlined),
                   title: Text(_t.msgrContactMediaLinksDocs),
                   subtitle: Text(notifLocalizeDigits(context, '$mediaCount · $linkCount · $docCount')),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => _toast(_t.circleBackendPending),
                 ),
                 // Starred
                 ListTile(
@@ -205,7 +222,9 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                   title: Text(_t.msgrContactStarred),
                   subtitle: Text(notifLocalizeDigits(context, '$starredCount')),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () => _toast(_t.circleBackendPending),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => StarredMessagesScreen(
+                          members: [widget.member]))),
                 ),
 
                 const Divider(),
@@ -217,13 +236,6 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                   value: _muted,
                   onChanged: _toggleMute,
                 ),
-                // Custom notifications
-                ListTile(
-                  leading: const Icon(Icons.notifications_active_outlined),
-                  title: Text(_t.msgrContactCustomNotif),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => _toast(_t.circleBackendPending),
-                ),
                 // Disappearing
                 ListTile(
                   leading: const Icon(Icons.timer_outlined),
@@ -231,17 +243,6 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                   subtitle: Text(_disappearingLabel(_disappearingSec)),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: _editDisappearing,
-                ),
-                // Chat lock
-                SwitchListTile(
-                  secondary: const Icon(Icons.lock_outline),
-                  title: Text(_t.msgrContactChatLock),
-                  subtitle: Text(_t.msgrContactChatLockHint),
-                  value: _chatLock,
-                  onChanged: (v) {
-                    setState(() => _chatLock = v);
-                    _toast(_t.circleBackendPending);
-                  },
                 ),
 
                 const Divider(),

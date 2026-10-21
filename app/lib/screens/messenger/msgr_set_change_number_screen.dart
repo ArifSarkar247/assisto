@@ -25,9 +25,44 @@ class _MsgrSetChangeNumberScreenState
     extends State<MsgrSetChangeNumberScreen> {
   final _phone = TextEditingController();
   final _code = TextEditingController();
+  final _pin = TextEditingController();
   int _step = 0; // 0 = enter number, 1 = enter code
   bool _busy = false;
   String? _error;
+  // Server status: is an SMS service connected? does confirm need the PIN?
+  bool _statusLoading = true;
+  bool _statusFailed = false;
+  bool _smsEnabled = false;
+  bool _pinRequired = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStatus();
+  }
+
+  Future<void> _loadStatus() async {
+    setState(() {
+      _statusLoading = true;
+      _statusFailed = false;
+    });
+    try {
+      final r = await _api.changeNumberStatus();
+      _smsEnabled = r['sms_enabled'] == true;
+      _pinRequired = r['two_step_required'] == true;
+    } catch (_) {
+      _statusFailed = true;
+    }
+    if (mounted) setState(() => _statusLoading = false);
+  }
+
+  String _errText(Object e, String fallback) {
+    if (e is ApiException) {
+      if (e.status == 503) return _t.msgChangeNumberSmsOff;
+      if (e.message.isNotEmpty) return e.message;
+    }
+    return fallback;
+  }
 
   ApiClient get _api => context.read<AppState>().api;
   AppLocalizations get _t => AppLocalizations.of(context);
@@ -36,6 +71,7 @@ class _MsgrSetChangeNumberScreenState
   void dispose() {
     _phone.dispose();
     _code.dispose();
+    _pin.dispose();
     super.dispose();
   }
 
@@ -52,8 +88,10 @@ class _MsgrSetChangeNumberScreenState
     try {
       await _api.changeNumberRequest(phone);
       if (mounted) setState(() => _step = 1);
-    } catch (_) {
-      if (mounted) setState(() => _error = _t.msgrSetChangeNumberSendFailed);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _error = _errText(e, _t.msgrSetChangeNumberSendFailed));
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -66,14 +104,16 @@ class _MsgrSetChangeNumberScreenState
     });
     try {
       await _api.changeNumberConfirm(
-          newPhone: _phone.text.trim(), code: _code.text.trim());
+          newPhone: _phone.text.trim(),
+          code: _code.text.trim(),
+          pin: _pinRequired ? _pin.text.trim() : null);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(_t.msgrSetChangeNumberDone)));
       Navigator.of(context).maybePop();
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
-        setState(() => _error = _t.msgrSetChangeNumberCodeFailed);
+        setState(() => _error = _errText(e, _t.msgrSetChangeNumberCodeFailed));
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -91,7 +131,17 @@ class _MsgrSetChangeNumberScreenState
           MsgrSetNote(t.msgrSetChangeNumberIntro,
               icon: Icons.swap_horiz_outlined),
           const SizedBox(height: Gap.sm),
-          if (_step == 0) ...[
+          if (_statusLoading)
+            const Center(child: CircularProgressIndicator())
+          else if (_statusFailed) ...[
+            Text(t.msgLoadFailed),
+            const SizedBox(height: Gap.sm),
+            FilledButton(onPressed: _loadStatus, child: Text(t.retry)),
+          ] else if (!_smsEnabled)
+            // Honest disabled state: no SMS service on the server, so no code
+            // can be sent. The form is not shown at all.
+            MsgrSetNote(t.msgChangeNumberSmsOff, icon: Icons.sms_failed_outlined)
+          else if (_step == 0) ...[
             TextField(
               controller: _phone,
               keyboardType: TextInputType.phone,
@@ -130,6 +180,20 @@ class _MsgrSetChangeNumberScreenState
                 errorText: _error,
               ),
             ),
+            if (_pinRequired) ...[
+              const SizedBox(height: Gap.sm),
+              TextField(
+                controller: _pin,
+                obscureText: true,
+                keyboardType: TextInputType.number,
+                maxLength: 6,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: InputDecoration(
+                  labelText: t.msgTwoStepCurrentPin,
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+            ],
             const SizedBox(height: Gap.sm),
             FilledButton(
               onPressed: _busy ? null : _confirm,

@@ -27,6 +27,7 @@ class _MsgrChatListState extends State<MsgrChatList> {
   bool _loading = true;
   String _query = '';
   List<Map<String, dynamic>> _chats = [];
+  bool _loadFailed = false;
 
   // Local UI overlays keyed by chat id (optimistic; backend persists the real
   // state). Keeps the list snappy on long-press actions.
@@ -48,19 +49,10 @@ class _MsgrChatListState extends State<MsgrChatList> {
       final r = await _api.getJson('/circle/chats');
       _chats = ((r['results'] ?? r['chats'] ?? []) as List)
           .cast<Map<String, dynamic>>();
+      _loadFailed = false;
     } catch (_) {
-      // Not wired / offline: synthesise a chat row per accepted member so the
-      // list still works (empty previews) rather than showing a blank screen.
-      _chats = widget.members
-          .map((m) => <String, dynamic>{
-                'id': '${m['id']}',
-                'member': m,
-                'last_text': '',
-                'unread': 0,
-                'status': '',
-                'at': null,
-              })
-          .toList();
+      // Honest error + retry (no synthesised rows posing as real chats).
+      _loadFailed = true;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -203,6 +195,20 @@ class _MsgrChatListState extends State<MsgrChatList> {
   @override
   Widget build(BuildContext context) {
     if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loadFailed && _chats.isEmpty) {
+      return Center(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Text(_t.msgLoadFailed, textAlign: TextAlign.center),
+          const SizedBox(height: Gap.md),
+          FilledButton(
+              onPressed: () {
+                setState(() => _loading = true);
+                _load();
+              },
+              child: Text(_t.retry)),
+        ]),
+      );
+    }
     final visible = _visible;
     return Column(children: [
       Padding(

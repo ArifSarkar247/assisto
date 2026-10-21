@@ -101,7 +101,9 @@ class _WhoMsg {
   static const circle = 'my_circle';
   static const everyone = 'everyone';
   static const nobody = 'nobody';
-  static const all = [circle, everyone, nobody];
+  // Two real choices: the server REFUSES strangers under my_circle (and the
+  // legacy 'nobody'), and holds one first message in Requests under everyone.
+  static const all = [circle, everyone];
 
   /// Looseness rank — a higher rank is more open (more strangers can reach me).
   static int rank(String v) => switch (v) {
@@ -220,7 +222,7 @@ class _MsgrSetMessagePrivacyScreenState
   String _whoHint(String v) => switch (v) {
         _WhoMsg.everyone => _t.msgrMsgWhoEveryoneHint,
         _WhoMsg.nobody => _t.msgrMsgWhoNobodyHint,
-        _ => _t.msgrMsgWhoCircleHint,
+        _ => _t.msgWhoCircleStrictHint,
       };
 
   @override

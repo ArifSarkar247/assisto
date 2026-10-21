@@ -797,6 +797,11 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   void _toast(String msg) =>
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
 
+  /// Honest failure: the server's own reason, else "couldn't do that".
+  void _fail(Object e) => _toast(e is ApiException && e.message.isNotEmpty
+      ? e.message
+      : _t.grpActionFailed);
+
   void _openContactInfo() {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => ContactInfoScreen(
@@ -816,8 +821,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     try {
       await _api.setChatMute(_memberId ?? 0, until);
       _toast(_t.msgrChatMuted);
-    } catch (_) {
-      _toast(_t.circleBackendPending);
+    } catch (e) {
+      _fail(e);
     }
   }
 
@@ -828,8 +833,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     setState(() => _disappearingSec = sec);
     try {
       await _api.setDisappearing(_memberId ?? 0, sec);
-    } catch (_) {
-      _toast(_t.circleBackendPending);
+    } catch (e) {
+      _fail(e);
     }
   }
 
@@ -840,8 +845,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     setState(() => _chatTheme = token);
     try {
       await _api.setChatTheme(_memberId ?? 0, theme: token);
-    } catch (_) {
-      _toast(_t.circleBackendPending);
+    } catch (e) {
+      _fail(e);
     }
   }
 
@@ -851,8 +856,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     try {
       await _api.setFavourite(_memberId ?? 0, _favourite);
       _toast(_favourite ? _t.msgrChatFavouriteAdded : _t.msgrChatFavouriteRemoved);
-    } catch (_) {
-      _toast(_t.circleBackendPending);
+    } catch (e) {
+      _fail(e);
     }
   }
 
@@ -914,8 +919,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         await _api.setChatList(_memberId ?? 0, listId: int.tryParse(choice.substring(3)));
       }
       _toast(_t.msgrChatAddedToList);
-    } catch (_) {
-      _toast(_t.circleBackendPending);
+    } catch (e) {
+      _fail(e);
     }
   }
 
@@ -958,8 +963,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     try {
       await _api.closeChat(_memberId ?? 0);
       if (mounted) Navigator.of(context).pop();
-    } catch (_) {
-      _toast(_t.circleBackendPending);
+    } catch (e) {
+      _fail(e);
     }
   }
 
@@ -970,15 +975,15 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       final link = '${r['link'] ?? ''}';
       if (!mounted) return;
       if (link.isEmpty) {
-        _toast(_t.circleBackendPending);
+        _toast(_t.grpActionFailed);
         return;
       }
       // The expiring link is built server-side; share via the OS sheet (a chat
       // message carrying the link is the user's choice).
       _input.text = link;
       _toast(_t.msgrChatCallLinkReady);
-    } catch (_) {
-      _toast(_t.circleBackendPending);
+    } catch (e) {
+      _fail(e);
     }
   }
 
@@ -998,8 +1003,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     try {
       await _api.scheduleCall(_memberId ?? 0, atIso: at.toUtc().toIso8601String());
       _toast(_t.msgrChatCallScheduled);
-    } catch (_) {
-      _toast(_t.circleBackendPending);
+    } catch (e) {
+      _fail(e);
     }
   }
 
@@ -1013,7 +1018,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       final r = await _api.circlePlaceCall(_memberId ?? 0, 'voice');
       if (!mounted) return;
       if (r['allowed'] == false) {
-        _toast(_t.circleBackendPending);
+        _toast(_t.grpActionFailed);
         return;
       }
     } catch (_) {}
@@ -1100,8 +1105,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         await _api.blockContact(_memberId ?? 0, on: true);
       }
       if (mounted) _toast(_t.msgrChatReportSent);
-    } catch (_) {
-      _toast(_t.circleBackendPending);
+    } catch (e) {
+      _fail(e);
     }
   }
 
@@ -1121,8 +1126,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     try {
       await _api.blockContact(_memberId ?? 0, on: true);
       _toast(_t.msgrChatBlocked);
-    } catch (_) {
-      _toast(_t.circleBackendPending);
+    } catch (e) {
+      _fail(e);
     }
   }
 
@@ -1139,11 +1144,14 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       ),
     );
     if (ok != true || !mounted) return;
-    setState(() => _messages = []);
     try {
+      // Per-user marker on the server: hidden for me only, the peer keeps theirs.
       await _api.clearChat(_memberId ?? 0);
-    } catch (_) {
-      _toast(_t.circleBackendPending);
+      if (mounted) setState(() => _messages = []);
+    } catch (e) {
+      _toast(e is ApiException && e.message.isNotEmpty
+          ? e.message
+          : _t.grpActionFailed);
     }
   }
 

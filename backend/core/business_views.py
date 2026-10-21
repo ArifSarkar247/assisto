@@ -1118,6 +1118,12 @@ class CashboxView(APIView):
         if bad:
             return bad
         lang = req_lang(request)
+        from datetime import date as _d
+        try:
+            _d.fromisoformat(str(day))
+        except ValueError:   # a bad day used to 500 in the ORM filter
+            return Response({"detail": "bad day (YYYY-MM-DD)"},
+                            status=400)
         from .models import CashboxDay
         cb = CashboxDay.objects.filter(business=prof, day=day).first()
         opening = cb.opening_poisha if cb else 0

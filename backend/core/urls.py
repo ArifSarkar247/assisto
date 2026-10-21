@@ -587,6 +587,7 @@ urlpatterns += [
 # and the Messenger settings screens. PREPENDED so the literal group routes win
 # over the single-segment `circle/groups/<pk>/<slug:setting>` catch-all above.
 from . import views_m1_messenger as m1  # noqa: E402
+from . import views_m1_routes as m1r  # noqa: E402
 urlpatterns[:0] = [
     # 1:1
     path("circle/<int:pk>/info", m1.ChatInfoView.as_view()),
@@ -621,6 +622,31 @@ urlpatterns[:0] = [
     path("circle/settings/notifications", m1.NotificationPrefsView.as_view()),
     path("circle/settings/calls", m1.CallPrefsView.as_view()),
     path("circle/settings/storage", m1.StoragePrefsView.as_view()),
+    # chat list + community request inbox
+    path("circle/chats", m1r.CircleChatsView.as_view()),
+    path("community/message-requests",
+         m1r.CommunityMessageRequestsListView.as_view()),
+    # group: canonical NESTED shapes (old flat routes stay as aliases)
+    path("circle/groups/<int:pk>/polls/<int:pid>/<slug:action>",
+         m1r.GroupPollActNestedView.as_view()),
+    path("circle/groups/<int:pk>/members/<int:mid>",
+         m1r.GroupMemberNestedView.as_view()),
+    path("circle/groups/<int:pk>/media", m1r.GroupMediaView.as_view()),
+    # family accounting (integer poisha)
+    path("family/accounting/summary", m1r.FamSummaryView.as_view()),
+    path("family/accounting/expenses", m1r.FamExpensesView.as_view()),
+    path("family/accounting/expenses/delete",
+         m1r.FamExpenseDeleteView.as_view()),
+    path("family/accounting/pool", m1r.FamPoolView.as_view()),
+    path("family/accounting/pool/contribute",
+         m1r.FamPoolContributeView.as_view()),
+    path("family/accounting/settle", m1r.FamSettleView.as_view()),
+    # notification centre, journey, disaster, medicine-db
+    path("notif/reminders/<str:item_id>/done",
+         m1r.NotifReminderDoneView.as_view()),
+    path("journey/<int:pk>/timeline", m1r.JourneyTimelineView.as_view()),
+    path("disaster/feed", m1r.DisasterFeedView.as_view()),
+    path("medicine-db/report", m1r.MedicineDbReportView.as_view()),
 ]
 # ---- /m1-messenger ----
 
