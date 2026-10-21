@@ -25,6 +25,8 @@ The server is the authority; a Dart mirror (if any) is advisory for UX only.
 """
 import math
 
+from . import home_defaults as HD
+
 # --------------------------------------------------------------- currency basis
 # Prices are stored in whole TAKA (BDT), matching core/plans.py `price` (e.g. 199).
 # Provider costs are stored in USD (matching core/ai.py PRICES). The auto-reprice
@@ -182,6 +184,9 @@ def DEFAULTS():
         # admin-editable. Default ~৳300/day (a small cloud box) as a sensible
         # starting figure the owner tunes from the /admin/pnl dashboard.
         "fixed_cost_per_day": 300.0,
+        # owner DEFAULT home quick buttons (6 ChatNav route keys) — shown to
+        # users who have not customized their own (core.logic.home_defaults).
+        "home_quick_defaults": list(HD.DEFAULT),
     }
 
 
@@ -279,6 +284,7 @@ def normalize(data):
                                            base["profit_guard"]),
         "fixed_cost_per_day": max(0.0, _num(d.get("fixed_cost_per_day"),
                                             base["fixed_cost_per_day"])),
+        "home_quick_defaults": HD.normalize(d.get("home_quick_defaults")),
     }
 
 
@@ -445,6 +451,8 @@ def validate_edit(data):
     cb = _num(d.get("credit_bdt"), None)
     if cb is not None and cb <= 0:
         problems.append("bad_credit_basis")
+    if "home_quick_defaults" in d:
+        problems.extend(HD.validate(d.get("home_quick_defaults")))
 
     # ---- Build 2: NET fee sanity + per-action margin + pool cap ----
     cfg = normalize(d)              # fills defaults so partial edits still validate

@@ -1,6 +1,7 @@
 import 'package:assisto/api.dart';
 import 'package:assisto/business_selling_api.dart';
 import 'package:assisto/models.dart';
+import 'package:assisto/widgets/home_quick_buttons.dart';
 
 enum FakeMode { data, empty, fail, slow }
 
@@ -1697,6 +1698,10 @@ class FakeApi extends ApiClient {
   }
 
   // ---- chat history (sidebar + home persistence previews) ----
+  @override
+  Future<Map<String, dynamic>> homeDefaults() async =>
+      {'quick_buttons': HomeQuickButtons.defaults, 'count': 6};
+
   @override
   Future<List<Map<String, dynamic>>> chatSessions({String? query}) async {
     await _slow();

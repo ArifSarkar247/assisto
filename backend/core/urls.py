@@ -552,6 +552,10 @@ urlpatterns = [
     path("recovery/sp-letter", lost.SpLetterView.as_view()),
     path("recovery/evidence.pdf", lost.EvidencePdfView.as_view()),
     path("recovery/police-stations", lost.PoliceStationsView.as_view()),
+
+    # ---- a1-priority ----
+    # Owner DEFAULT home quick buttons (edited in /admin/pricing)
+    path("app/home-defaults", b61.HomeDefaultsView.as_view()),
 ]
 
 urlpatterns += router.urls

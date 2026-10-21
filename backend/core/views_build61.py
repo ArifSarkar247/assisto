@@ -177,6 +177,8 @@ class PricingConfigView(APIView):
                 merged[dkey] = sub
         if isinstance((patch or {}).get("topup_packs"), list):
             merged["topup_packs"] = patch["topup_packs"]
+        if "home_quick_defaults" in (patch or {}):
+            merged["home_quick_defaults"] = patch["home_quick_defaults"]
         if isinstance((patch or {}).get("plans"), dict):
             merged_plans = {k: dict(v) for k, v in old["plans"].items()}
             for pid, pv in patch["plans"].items():
@@ -206,6 +208,21 @@ class PricingConfigView(APIView):
         row.audit = ([entry] + list(row.audit or []))[:200]
         row.save(update_fields=["data", "audit", "updated_at"])
         return Response(self._snapshot())
+
+
+class HomeDefaultsView(APIView):
+    """GET /app/home-defaults (any signed-in user) -> the owner's DEFAULT 6 home
+    quick buttons: {"quick_buttons": [route, ...], "count": 6}. The app uses it
+    only while the user has not customized their own; it never blocks home.
+    Owner edits it via POST /admin/pricing {"home_quick_defaults": [...]}."""
+    def get(self, request):
+        from . import billing
+        from .logic import home_defaults as HD
+        try:
+            routes = billing.cfg()["home_quick_defaults"]
+        except Exception:
+            routes = list(HD.DEFAULT)
+        return Response({"quick_buttons": routes, "count": HD.COUNT})
 
 
 # ===========================================================================
