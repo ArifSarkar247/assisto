@@ -2093,6 +2093,8 @@ GENERIC_COLLECTIONS = [
     # Anti-theft "My Vehicles" — vehicle profile rows (type, reg/chassis/engine,
     # tax-token/fitness/insurance expiry). No migration; reuses PaCollectionItem.
     "vehicle/records",
+    # v1-vehicle: Car Mode trips (head-unit GPS, summary computed server-side)
+    "vehicle/trips",
 ]
 GENERIC_COLLECTION_VIEWSETS = {
     name: type(

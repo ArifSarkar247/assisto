@@ -585,4 +585,28 @@ urlpatterns += [
 ]
 # ---- /a2-cctv ----
 
+# ---- v1-vehicle ---- Vehicle tracking: GT06/Teltonika trackers, live map,
+# 24h route + trips, engine cut (PIN + speed gate + approval), grants, OBD,
+# AI trip summary, Car Mode trips, Business fleet dashboard.
+from . import views_vehicle as veh  # noqa: E402
+urlpatterns += [
+    path("vehicle/config", veh.VehicleConfigView.as_view()),
+    path("vehicle/trackers", veh.TrackerListView.as_view()),
+    path("vehicle/trackers/<int:pk>", veh.TrackerDetailView.as_view()),
+    path("vehicle/trackers/<int:pk>/route", veh.TrackerRouteView.as_view()),
+    path("vehicle/trackers/<int:pk>/trips", veh.TrackerTripsView.as_view()),
+    path("vehicle/trackers/<int:pk>/commands", veh.TrackerCommandView.as_view()),
+    path("vehicle/trackers/<int:pk>/audit", veh.TrackerAuditView.as_view()),
+    path("vehicle/trackers/<int:pk>/grants", veh.TrackerGrantsView.as_view()),
+    path("vehicle/trackers/<int:pk>/grants/<int:gid>", veh.TrackerGrantDeleteView.as_view()),
+    path("vehicle/trackers/<int:pk>/obd", veh.TrackerObdView.as_view()),
+    path("vehicle/trackers/<int:pk>/ai-summary", veh.TrackerAiSummaryView.as_view()),
+    path("vehicle/commands/<int:cid>/approve", veh.CommandApproveView.as_view()),
+    path("vehicle/commands/<int:cid>/cancel", veh.CommandCancelView.as_view()),
+    path("vehicle/obd/decode", veh.ObdDecodeView.as_view()),
+    path("vehicle/carmode/trip", veh.CarModeTripView.as_view()),
+    path("vehicle/fleet", veh.FleetDashboardView.as_view()),
+]
+# ---- /v1-vehicle ----
+
 urlpatterns += router.urls

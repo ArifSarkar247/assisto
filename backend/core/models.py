@@ -3084,3 +3084,154 @@ class ShopEodCheck(models.Model):
     class Meta:
         ordering = ["-created"]
         indexes = [models.Index(fields=["site", "-created"])]
+
+
+# ===========================================================================
+# ---- v1-vehicle ---- Vehicle tracking (extends anti-theft Batch 7)
+#
+# A VehicleTracker is a hardware GPS tracker (Concox GT06 / Teltonika FMxxx)
+# paired by IMEI to ONE owner, optionally linked to the owner's existing
+# "My Vehicles" record (PaCollectionItem collection='vehicle/records'). The
+# standalone asyncio service in backend/tracker/ writes positions here via the
+# ORM. Only the owner, or users the owner explicitly granted (family / fleet
+# admin), can read location or send commands (core.views_vehicle.access_for).
+# ===========================================================================
+
+class VehicleTracker(models.Model):
+    STATES = [("pending", "pending"),       # waiting for the device to connect
+              ("paired", "paired"),
+              ("expired", "expired"),       # pairing window passed, never connected
+              ("disabled", "disabled")]     # unpaid / owner turned off
+    PROTOCOLS = [("auto", "auto"), ("gt06", "gt06"), ("teltonika", "teltonika")]
+    owner = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name="vehicle_trackers")
+    vehicle_record = models.ForeignKey("PaCollectionItem", null=True, blank=True,
+                                       on_delete=models.SET_NULL,
+                                       related_name="trackers")
+    name = models.CharField(max_length=80, blank=True, default="")
+    imei = models.CharField(max_length=20, unique=True)        # digits only
+    protocol = models.CharField(max_length=10, choices=PROTOCOLS, default="auto")
+    state = models.CharField(max_length=10, choices=STATES, default="pending")
+    disabled_reason = models.CharField(max_length=24, blank=True, default="")
+    pair_expires_at = models.DateTimeField(null=True, blank=True)
+    paired_at = models.DateTimeField(null=True, blank=True)
+    billed_until = models.DateTimeField(null=True, blank=True)
+    # live state (written by the tracker service; the ONLY live store)
+    last_seen_at = models.DateTimeField(null=True, blank=True)
+    last_fix_at = models.DateTimeField(null=True, blank=True)
+    last_lat = models.FloatField(null=True, blank=True)
+    last_lng = models.FloatField(null=True, blank=True)
+    last_speed_kmh = models.FloatField(null=True, blank=True)
+    last_course = models.IntegerField(null=True, blank=True)
+    ignition = models.BooleanField(null=True, blank=True)
+    relay_cut = models.BooleanField(null=True, blank=True)    # as REPORTED by device
+    ext_voltage_v = models.FloatField(null=True, blank=True)
+    battery_v = models.FloatField(null=True, blank=True)
+    obd = models.JSONField(default=dict, blank=True)           # latest OBD IO snapshot
+    # owner settings
+    moving_interval_s = models.IntegerField(default=5)
+    parked_interval_s = models.IntegerField(default=180)
+    speed_limit_kmh = models.IntegerField(default=0)           # 0 = off
+    night_ignition_alert = models.BooleanField(default=True)
+    night_start = models.CharField(max_length=5, default="23:00")
+    night_end = models.CharField(max_length=5, default="05:00")
+    geofences = models.JSONField(default=list, blank=True)     # [{id,name,lat,lng,radius_m}]
+    cutoff_requires_approval = models.BooleanField(default=False)
+    approver = models.ForeignKey("CircleMember", null=True, blank=True,
+                                 on_delete=models.SET_NULL,
+                                 related_name="approver_for_vehicles")
+    alert_state = models.JSONField(default=dict, blank=True)   # evaluate_alerts state
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+
+class VehiclePosition(models.Model):
+    """One GPS fix. Pruned to PricingConfig vehicle.retention_days."""
+    tracker = models.ForeignKey(VehicleTracker, on_delete=models.CASCADE,
+                                related_name="positions")
+    at = models.DateTimeField()                     # device fix time (UTC)
+    lat = models.FloatField()
+    lng = models.FloatField()
+    speed_kmh = models.FloatField(default=0)
+    course = models.IntegerField(default=0)
+    sats = models.IntegerField(default=0)
+    valid = models.BooleanField(default=True)
+    ignition = models.BooleanField(null=True, blank=True)
+    io = models.JSONField(default=dict, blank=True)  # small raw IO subset
+    received_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["at"]
+        indexes = [models.Index(fields=["tracker", "at"])]
+
+
+class VehicleCommand(models.Model):
+    """A remote command with an HONEST lifecycle:
+    awaiting_approval -> queued -> sent -> acked | failed
+    (or cancelled / rejected / expired). 'acked' means the DEVICE replied OK;
+    it is never set from our side alone."""
+    KINDS = [("engine_cut", "engine_cut"), ("engine_restore", "engine_restore"),
+             ("set_interval", "set_interval")]
+    STATES = [("awaiting_approval", "awaiting_approval"), ("queued", "queued"),
+              ("sent", "sent"), ("acked", "acked"), ("failed", "failed"),
+              ("cancelled", "cancelled"), ("rejected", "rejected"),
+              ("expired", "expired")]
+    tracker = models.ForeignKey(VehicleTracker, on_delete=models.CASCADE,
+                                related_name="commands")
+    kind = models.CharField(max_length=16, choices=KINDS)
+    state = models.CharField(max_length=20, choices=STATES, default="queued")
+    requested_by = models.ForeignKey(User, null=True, blank=True,
+                                     on_delete=models.SET_NULL,
+                                     related_name="vehicle_commands")
+    approved_by = models.ForeignKey(User, null=True, blank=True,
+                                    on_delete=models.SET_NULL,
+                                    related_name="vehicle_command_approvals")
+    payload = models.JSONField(default=dict, blank=True)
+    text = models.CharField(max_length=120, blank=True, default="")  # wire text sent
+    server_flag = models.BigIntegerField(default=0)   # GT06 reply matching
+    response = models.TextField(blank=True, default="")
+    fail_reason = models.CharField(max_length=24, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    done_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["tracker", "state"])]
+
+
+class VehicleAccessGrant(models.Model):
+    """Owner-granted access. kind=family -> grantee must be an accepted circle
+    peer; kind=fleet -> grantee must be active staff of the owner's business."""
+    KINDS = [("family", "family"), ("fleet", "fleet")]
+    tracker = models.ForeignKey(VehicleTracker, on_delete=models.CASCADE,
+                                related_name="grants")
+    grantee = models.ForeignKey(User, on_delete=models.CASCADE,
+                                related_name="vehicle_grants")
+    kind = models.CharField(max_length=8, choices=KINDS, default="family")
+    can_command = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("tracker", "grantee")]
+
+
+class VehicleAuditLog(models.Model):
+    """Every pairing, rejected IMEI, command request/denial/state change and
+    grant change. tracker is null for unknown-IMEI connection attempts."""
+    tracker = models.ForeignKey(VehicleTracker, null=True, blank=True,
+                                on_delete=models.CASCADE, related_name="audit")
+    actor = models.ForeignKey(User, null=True, blank=True,
+                              on_delete=models.SET_NULL,
+                              related_name="vehicle_audit")
+    action = models.CharField(max_length=32)
+    imei = models.CharField(max_length=20, blank=True, default="")
+    detail = models.JSONField(default=dict, blank=True)
+    at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-at"]
+# ---- /v1-vehicle ----
