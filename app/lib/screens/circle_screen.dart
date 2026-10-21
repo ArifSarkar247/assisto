@@ -388,15 +388,28 @@ class _CircleScreenState extends State<CircleScreen> {
             Icon(Icons.diversity_1_outlined,
                 size: 56, color: scheme.primary.withValues(alpha: 0.7)),
             const SizedBox(height: Gap.md),
-            Text(_t.circleEmptyTitle,
+            // QA a6: a failed load used to read "Your circle is empty";
+            // now it says it couldn't load and offers Retry.
+            Text(_backendReady ? _t.circleEmptyTitle : _t.loadFailed,
                 style: Theme.of(context).textTheme.titleMedium,
                 textAlign: TextAlign.center),
             const SizedBox(height: Gap.xs),
             Text(
-              _backendReady ? _t.circleEmptyBody : _t.circleBackendPending,
+              _backendReady ? _t.circleEmptyBody : _t.qaLoadFailedRetry,
               textAlign: TextAlign.center,
               style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4),
             ),
+            if (!_backendReady) ...[
+              const SizedBox(height: Gap.md),
+              FilledButton.tonalIcon(
+                onPressed: () {
+                  setState(() => _loading = true);
+                  _load();
+                },
+                icon: const Icon(Icons.refresh),
+                label: Text(_t.retry),
+              ),
+            ],
           ],
         ),
       );

@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import '../../messenger_chat_api.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../../widgets/chat_menu_pickers.dart';
 import '../../widgets/circle_relation.dart';
 
@@ -194,7 +195,7 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                 ListTile(
                   leading: const Icon(Icons.perm_media_outlined),
                   title: Text(_t.msgrContactMediaLinksDocs),
-                  subtitle: Text('$mediaCount · $linkCount · $docCount'),
+                  subtitle: Text(notifLocalizeDigits(context, '$mediaCount · $linkCount · $docCount')),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => _toast(_t.circleBackendPending),
                 ),
@@ -202,7 +203,7 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                 ListTile(
                   leading: const Icon(Icons.star_outline),
                   title: Text(_t.msgrContactStarred),
-                  subtitle: Text('$starredCount'),
+                  subtitle: Text(notifLocalizeDigits(context, '$starredCount')),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => _toast(_t.circleBackendPending),
                 ),

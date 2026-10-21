@@ -240,11 +240,24 @@ class _CreditsScreenState extends State<CreditsScreen> {
         if (_isFree) ...[
           const SizedBox(height: Gap.sm),
           OutlinedButton.icon(
-            onPressed: _watchAds,
+            onPressed: _buying ? null : _watchAds,
             icon: const Icon(Icons.ondemand_video_outlined, size: 18),
             label: Text(t.adEarnCredits),
             style: OutlinedButton.styleFrom(
                 minimumSize: const Size.fromHeight(46)),
+          ),
+        ] else ...[
+          // Premium/Business: NO ads — unless the user opts in here.
+          const SizedBox(height: Gap.sm),
+          Card(
+            margin: EdgeInsets.zero,
+            child: ListTile(
+              leading: const Icon(Icons.ondemand_video_outlined),
+              title: Text(t.adsPaidOptInTitle),
+              subtitle: Text(t.adsPaidOptInSub),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: _buying ? null : _watchAds,
+            ),
           ),
         ],
 

@@ -146,8 +146,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       body: SafeArea(
         child: Column(children: [
           Align(
-            alignment: Alignment.topRight,
-            child: TextButton(onPressed: _finish, child: Text(t.skip)),
+            alignment: AlignmentDirectional.topEnd,
+            child: Padding(
+              padding: const EdgeInsetsDirectional.only(end: Gap.sm, top: Gap.xs),
+              child: TextButton(onPressed: _finish, child: Text(t.skip)),
+            ),
           ),
           Expanded(
             child: PageView(
@@ -232,13 +235,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Widget _langTile(
       ColorScheme scheme, String code, String label, bool selected) {
-    final t = AppLocalizations.of(context);
+    // QA a6: the subtitle used to repeat "Choose your language" on both
+    // tiles. Now: title = the language's OWN name (always readable by its
+    // speakers), subtitle = its name in the current UI language.
+    final native = lookupAppLocalizations(Locale(code));
+    final nativeName =
+        code == 'bn' ? native.languageBangla : native.languageEnglish;
     return OnbChoiceTile(
       icon: Icons.translate_outlined,
-      // `label` is the native language name from the ARB (languageBangla /
-      // languageEnglish) — a localized value, not a hardcoded literal here.
-      title: label,
-      subtitle: t.chooseLanguage,
+      title: nativeName,
+      subtitle: label == nativeName ? '' : label,
       selected: selected,
       onTap: () => context.read<AppState>().setLocale(Locale(code)),
     );

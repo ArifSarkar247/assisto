@@ -181,7 +181,9 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
     final sameDay = at.year == now.year &&
         at.month == now.month &&
         at.day == now.day;
-    if (sameDay) return DateFormat.Hm().format(at);
-    return DateFormat.MMMd().format(at);
+    // QA a6: format in the app's language (was always English "Oct 10").
+    final loc = Localizations.localeOf(context).languageCode;
+    if (sameDay) return DateFormat.Hm(loc).format(at);
+    return DateFormat.MMMd(loc).format(at);
   }
 }

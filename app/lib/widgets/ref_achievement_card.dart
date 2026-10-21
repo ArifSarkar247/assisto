@@ -100,7 +100,7 @@ class RefAchievementCard extends StatelessWidget {
 
   String _caption(AppLocalizations t) {
     final c = (code ?? '').trim();
-    final head = t.refCardCaption(friendsJoined, daysEarnedTotal);
+    final head = t.refCardCaption(daysEarnedTotal, friendsJoined) /* (days, friends) */;
     return c.isNotEmpty ? '$head\n${t.refShareCodeLabel} $c' : head;
   }
 

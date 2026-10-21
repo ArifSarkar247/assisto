@@ -1,6 +1,7 @@
 import '../l10n/app_localizations.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../theme.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:share_plus/share_plus.dart';
@@ -256,10 +257,10 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(children: [
-                const Icon(Icons.cloud_off, size: 18, color: Color(0xFF8A6D00)),
+                Icon(Icons.cloud_off, size: 18, color: Brand.warnInk(context)),
                 const SizedBox(width: 8),
                 Expanded(child: Text(AppLocalizations.of(context).aOffline,
-                    style: const TextStyle(fontSize: 12, color: Color(0xFF8A6D00)))),
+                    style: TextStyle(fontSize: 12, color: Brand.warnInk(context)))),
                 TextButton(onPressed: _load, child: Text(AppLocalizations.of(context).aRetry)),
               ]),
             ),

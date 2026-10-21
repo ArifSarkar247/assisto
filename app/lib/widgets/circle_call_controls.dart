@@ -135,15 +135,28 @@ class _CallButton extends StatelessWidget {
           ),
         ),
         const SizedBox(height: Gap.xs),
+        // QA a6: 64px split "Speake/r" mid-word at 1.5x font.
         SizedBox(
-          width: 64,
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant),
-          ),
+          width: 72,
+          child: label.contains(' ')
+              ? Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style:
+                      TextStyle(fontSize: 11, color: scheme.onSurfaceVariant),
+                )
+              // one word: shrink to fit instead of breaking mid-word
+              : FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    style: TextStyle(
+                        fontSize: 11, color: scheme.onSurfaceVariant),
+                  ),
+                ),
         ),
       ],
     );

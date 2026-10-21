@@ -5,6 +5,7 @@ import '../../api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../messenger_setapi.dart';
 import '../../state.dart';
+import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../../theme.dart';
 import '../../widgets/msgr_set_tiles.dart';
 
@@ -65,13 +66,16 @@ class _MsgrSetStorageScreenState extends State<MsgrSetStorageScreen> {
     } catch (_) {}
   }
 
+  // QA a6: sizes in the app's digits (was "0 MB" in Latin in Bangla).
   String _mb(dynamic bytes) {
     final b = (bytes is num) ? bytes.toDouble() : 0.0;
-    if (b <= 0) return '0 MB';
     final mb = b / (1024 * 1024);
-    return mb >= 1024
-        ? '${(mb / 1024).toStringAsFixed(1)} GB'
-        : '${mb.toStringAsFixed(1)} MB';
+    final s = b <= 0
+        ? '0 MB'
+        : mb >= 1024
+            ? '${(mb / 1024).toStringAsFixed(1)} GB'
+            : '${mb.toStringAsFixed(1)} MB';
+    return notifLocalizeDigits(context, s);
   }
 
   @override

@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../widgets/famacct_section.dart';
 // ---- FAMILY ADVANCED bundle (#67/#73/#75, SPEC v2.1 §21) — isolated sections,
 // each a self-contained widget; none of them touch famacct_section (D5). ----
@@ -32,6 +33,9 @@ class _FamilyScreenState extends State<FamilyScreen> {
   List<Map<String, dynamic>> prescriptions = [];
   Map<String, dynamic>? caregiver;
   bool loading = true;
+  // QA a6: a failed load used to look like "no medicines today" — on a care
+  // screen that is misleading. Now an honest error + retry.
+  bool _failed = false;
 
   @override
   void initState() {
@@ -49,7 +53,10 @@ class _FamilyScreenState extends State<FamilyScreen> {
       doctors = await api.listItems('doctors');
       prescriptions = await api.listItems('prescriptions');
       caregiver = await api.caregiverDashboard();
-    } catch (_) {}
+      _failed = false;
+    } catch (_) {
+      _failed = today.isEmpty && meds.isEmpty;
+    }
     if (mounted) setState(() => loading = false);
   }
 
@@ -130,7 +137,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
       await f.writeAsBytes(bytes);
       await OpenFilex.open(f.path);
     } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text(_t.exportFailed(e))));
+      messenger.showSnackBar(SnackBar(content: Text(_t.qaActionFailed)));
     }
   }
 
@@ -146,7 +153,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
                 icon: const Icon(Icons.shield_outlined),
                 tooltip: t.familyScamCheckTooltip),
             IconButton(onPressed: _load, icon: const Icon(Icons.sync)),
-          ], bottom: TabBar(isScrollable: true, tabs: [
+          ], bottom: TabBar(isScrollable: true, tabAlignment: TabAlignment.start, tabs: [
             Tab(child: Text(t.familyTabToday, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
             Tab(child: Text(t.familyTabMedicines, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
             Tab(child: Text(t.medTabCaregiver, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
@@ -164,6 +171,20 @@ class _FamilyScreenState extends State<FamilyScreen> {
           ])),
           body: loading
               ? const SkeletonList()
+              : _failed
+              ? StateMessage(
+                  icon: Icons.cloud_off_outlined,
+                  title: _t.loadFailed,
+                  tint: Brand.danger,
+                  action: FilledButton.icon(
+                    onPressed: () {
+                      setState(() => loading = true);
+                      _load();
+                    },
+                    icon: const Icon(Icons.refresh),
+                    label: Text(_t.retry),
+                  ),
+                )
               : TabBarView(children: [
                   _todayTab(),
                   _medsTab(),
@@ -188,9 +209,17 @@ class _FamilyScreenState extends State<FamilyScreen> {
   Widget _todayTab() {
     final t = _t;
     if (today.isEmpty) {
-      return StateMessage(
-        icon: Icons.medication_liquid_outlined,
-        title: t.familyNoDosesToday,
+      // QA a6: empty state now has a way forward (opens the Medicines tab).
+      return Builder(
+        builder: (ctx) => StateMessage(
+          icon: Icons.medication_liquid_outlined,
+          title: t.familyNoDosesToday,
+          action: FilledButton.tonalIcon(
+            onPressed: () => DefaultTabController.maybeOf(ctx)?.animateTo(1),
+            icon: const Icon(Icons.add),
+            label: Text(t.familyTabMedicines),
+          ),
+        ),
       );
     }
     return ListView(
@@ -214,20 +243,26 @@ class _FamilyScreenState extends State<FamilyScreen> {
     final prn = d['prn'] == true;
     // A PRN 'log another' row is the one still untaken (slot == 'prn').
     final prnLogAnother = prn && d['slot'] == 'prn';
-    final prnAt = (d['prn_at'] ?? '').toString();
+    // QA a6: show HH:MM (server sends HH:MM:SS) in the user's digits.
+    String hhmm(String v) {
+      final m = RegExp(r'^(\d{1,2}:\d{2})(:\d{2})?$').firstMatch(v.trim());
+      return notifLocalizeDigits(context, m != null ? m.group(1)! : v);
+    }
+    final prnAt = hhmm((d['prn_at'] ?? '').toString());
     final api = context.read<AppState>().api;
     final subtitle = <String>[
       if ((d['dosage'] ?? '').toString().isNotEmpty) d['dosage'].toString(),
       if (_foodLabel(d['food_relation']).isNotEmpty) _foodLabel(d['food_relation']),
       if (d['member_name'] != null) '${_t.medForWhomLabel}: ${d['member_name']}',
-      if (d['days_left'] != null) t.medDaysLeftValue(d['days_left']),
+      if (d['days_left'] != null)
+        t.medDaysLeftValue(notifLocalizeDigits(context, '${d['days_left']}')),
     ].join('  ·  ');
     // PRN label: logged event shows its time; the open row says 'log as-needed'.
     final doseLabel = prn
         ? (prnLogAnother
             ? t.medLogAsNeeded
             : (prnAt.isNotEmpty ? '${t.medAsNeededShort} · $prnAt' : t.medAsNeededShort))
-        : d['slot'].toString();
+        : hhmm(d['slot'].toString());
 
     // Actions live on their OWN full-width row BELOW the text so the medicine
     // details column always gets the full card width (no word-per-line wrap on
@@ -554,7 +589,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
     final adh = (m['adherence_30d'] as num?)?.toInt();
     final sub = <String>[
       if ((m['dosage'] ?? '').toString().isNotEmpty) m['dosage'].toString(),
-      if (prn) t.medAsNeededShort else ((m['times'] ?? []) as List).join(', '),
+      if (prn) t.medAsNeededShort else notifLocalizeDigits(context, ((m['times'] ?? []) as List).join(', ')),
       if (_foodLabel(m['food_relation']).isNotEmpty) _foodLabel(m['food_relation']),
     ].where((e) => e.isNotEmpty).join(' · ');
 
@@ -565,9 +600,9 @@ class _FamilyScreenState extends State<FamilyScreen> {
       stockText = t.medOutOfStockOne(m['name'] ?? '');
     } else if (status == 'soon' && daysLeft != null) {
       stockColor = Brand.warning;
-      stockText = t.medDaysLeftValue(daysLeft);
+      stockText = t.medDaysLeftValue(notifLocalizeDigits(context, '$daysLeft'));
     } else if (daysLeft != null) {
-      stockText = t.medDaysLeftValue(daysLeft);
+      stockText = t.medDaysLeftValue(notifLocalizeDigits(context, '$daysLeft'));
     }
 
     return Padding(
@@ -588,7 +623,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
                 ]),
               ),
               if (adh != null && !prn)
-                Text('$adh%',
+                Text(notifLocalizeDigits(context, '$adh%'),
                     style: TextStyle(
                         fontWeight: FontWeight.w700,
                         color: adh >= 85

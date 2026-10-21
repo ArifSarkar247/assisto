@@ -30,7 +30,7 @@ class MsgrSetSection extends StatelessWidget {
 }
 
 /// A one-line navigation row with icon, title and optional subtitle/trailing.
-/// One-line labels @360dp (title ellipsises, never clips).
+/// Labels @360dp: title up to 2 lines then ellipsises, never clips.
 class MsgrSetRow extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -53,13 +53,15 @@ class MsgrSetRow extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return ListTile(
       leading: Icon(icon, color: color),
+      // QA a6: 2 lines — at large font one line cut titles to
+      // "Create chat backu…".
       title: Text(title,
-          maxLines: 1,
+          maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: color == null ? null : TextStyle(color: color)),
       subtitle: subtitle == null
           ? null
-          : Text(subtitle!, maxLines: 2, overflow: TextOverflow.ellipsis),
+          : Text(subtitle!, maxLines: 3, overflow: TextOverflow.ellipsis),
       trailing: value == null
           ? (onTap == null ? null : const Icon(Icons.chevron_right))
           : Text(value!,

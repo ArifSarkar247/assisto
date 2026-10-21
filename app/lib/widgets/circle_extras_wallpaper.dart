@@ -90,8 +90,10 @@ class WallpaperThemePicker extends StatelessWidget {
           child: Text(t.circleExtrasWallpaperHint,
               style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
         ),
+        // QA a6: fixed 112px overflowed (label 2 lines) and clipped at
+        // large font — height grows with the user's text size.
         SizedBox(
-          height: 112,
+          height: 88 + MediaQuery.textScalerOf(context).scale(34),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
@@ -155,9 +157,17 @@ class WallpaperThemePicker extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: Gap.md),
           child: SegmentedButton<String>(
             segments: [
-              ButtonSegment(value: 'system', label: Text(t.circleExtrasThemeSystem)),
-              ButtonSegment(value: 'light', label: Text(t.circleExtrasThemeLight)),
-              ButtonSegment(value: 'dark', label: Text(t.circleExtrasThemeDark)),
+              // one line per label, scaled to fit ("Syste m" at 1.5x)
+              for (final (v, l) in [
+                ('system', t.circleExtrasThemeSystem),
+                ('light', t.circleExtrasThemeLight),
+                ('dark', t.circleExtrasThemeDark),
+              ])
+                ButtonSegment(
+                    value: v,
+                    label: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(l, maxLines: 1, softWrap: false))),
             ],
             selected: {themeId},
             onSelectionChanged: (s) => onTheme(s.first),

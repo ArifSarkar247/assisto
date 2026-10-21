@@ -1,0 +1,14 @@
+{
+ "en": {
+  "adsPaidOptInTitle": "Earn credits with an optional ad",
+  "adsPaidOptInSub": "Your plan has no ads. Only if you want: watch one short video to get credits.",
+  "adsUnavailableBody": "No ad is available right now. Please try again a little later.",
+  "adsDismissedBody": "The ad was closed before it finished, so no credits were added."
+ },
+ "bn": {
+  "adsPaidOptInTitle": "ঐচ্ছিক বিজ্ঞাপন দেখে ক্রেডিট নিন",
+  "adsPaidOptInSub": "আপনার প্ল্যানে কোনো বিজ্ঞাপন নেই। চাইলে একটি ছোট ভিডিও দেখে ক্রেডিট নিতে পারেন।",
+  "adsUnavailableBody": "এই মুহূর্তে কোনো বিজ্ঞাপন নেই। একটু পরে আবার চেষ্টা করুন।",
+  "adsDismissedBody": "বিজ্ঞাপন শেষ হওয়ার আগে বন্ধ করা হয়েছে, তাই কোনো ক্রেডিট যোগ হয়নি।"
+ }
+}

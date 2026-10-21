@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../widgets/a11y_prefs.dart';
 
 /// TRUE ACCESSIBILITY MODE (#200, SPEC v2.1 §20, ADVANCED).
@@ -257,7 +258,7 @@ class _TextScaleTile extends StatelessWidget {
               child: Text(t.a11yLargeText,
                   style: const TextStyle(fontWeight: FontWeight.w600)),
             ),
-            Text('${(prefs.textScale * 100).round()}%',
+            Text(notifLocalizeDigits(context, '${(prefs.textScale * 100).round()}%'),
                 style: TextStyle(
                     color: cs.primary, fontWeight: FontWeight.w700)),
           ]),
@@ -275,7 +276,7 @@ class _TextScaleTile extends StatelessWidget {
                 min: 0,
                 max: (steps.length - 1).toDouble(),
                 divisions: steps.length - 1,
-                label: '${(steps[current] * 100).round()}%',
+                label: notifLocalizeDigits(context, '${(steps[current] * 100).round()}%'),
                 onChanged: (v) {
                   prefs.setTextScale(steps[v.round()]);
                   if (prefs.haptics) HapticFeedback.selectionClick();

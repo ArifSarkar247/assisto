@@ -5,6 +5,7 @@ import '../../api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../messenger_api.dart';
 import '../../state.dart';
+import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../../theme.dart';
 import '../../widgets/profile_avatar_editor.dart';
 import 'msgr_set_privacy_screen.dart';
@@ -145,6 +146,14 @@ class _MessengerProfileScreenState extends State<MessengerProfileScreen> {
   void _openPrivacy() => Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const MsgrSetPrivacyScreen()));
 
+  /// "3/60" in the app's digits (QA a6: Latin digits in Bangla).
+  Widget? _counter(BuildContext context,
+          {required int currentLength,
+          required bool isFocused,
+          required int? maxLength}) =>
+      Text(notifLocalizeDigits(context, '$currentLength/${maxLength ?? ''}'),
+          style: Theme.of(context).textTheme.bodySmall);
+
   @override
   Widget build(BuildContext context) {
     final t = _t;
@@ -184,9 +193,11 @@ class _MessengerProfileScreenState extends State<MessengerProfileScreen> {
             validator: _validateName,
             onChanged: (_) => setState(() {}), // keeps avatar initial in sync
             maxLength: 60,
+            buildCounter: _counter,
             decoration: InputDecoration(
               hintText: t.msgrDisplayName,
               helperText: AppLocalizations.of(context).pfNameHelper,
+              helperMaxLines: 2, // QA a6: was cut off at large font
             ),
           ),
           const SizedBox(height: Gap.sm),
@@ -199,6 +210,7 @@ class _MessengerProfileScreenState extends State<MessengerProfileScreen> {
             minLines: 2,
             maxLines: 4,
             maxLength: 140,
+            buildCounter: _counter,
             decoration: InputDecoration(hintText: t.msgrAboutHint),
           ),
           const SizedBox(height: Gap.xs),

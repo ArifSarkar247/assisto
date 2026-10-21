@@ -7,6 +7,7 @@ import '../crypto/e2e.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../widgets/circle_group_member_tile.dart';
 
 /// Group info / settings (M2 item 7). Shows group name/photo/description, the
@@ -453,7 +454,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
                   ListTile(
                     leading: const Icon(Icons.people_outline),
                     title: Text(_t.circleGroupSizeLimit),
-                    trailing: Text('${_group['size_limit'] ?? 256}'),
+                    trailing: Text(notifLocalizeDigits(context, '${_group['size_limit'] ?? 256}')),
                     onTap: _editSizeLimit,
                   ),
                   const Divider(),
@@ -472,7 +473,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
                     children: [
                       Expanded(
                         child: Text(
-                          _t.circleGroupMemberCount('${_members.length}'),
+                          _t.circleGroupMemberCount(notifLocalizeDigits(context, '${_members.length}')),
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium

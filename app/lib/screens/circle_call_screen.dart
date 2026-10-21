@@ -10,6 +10,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/circle_call_controls.dart';
 import '../widgets/circle_relation.dart';
+import '../push/push_service.dart';
 
 /// Connected Circle 1:1 voice/video call screen (M1 item 5).
 ///
@@ -64,6 +65,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   // Why the call couldn't start: '' (ok), 'unreachable' (TURN not configured /
   // ports not open yet), 'busy' (server auto-throttled to protect Asalify).
   String _rtcReason = '';
+  bool _turnReady = false;
 
   // Live call duration (counts while active/reconnecting), mirrors the
   // server-side duration measured from answered_at.
@@ -107,6 +109,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       // connect. (The ICE servers feed the RTCPeerConnection once flutter_webrtc
       // is wired — the media seam.)
       final rtc = await _api.rtcTurn();
+      _turnReady = rtc.configured && rtc.callable;
       if (!rtc.callable) {
         if (mounted) {
           setState(() {
@@ -227,7 +230,13 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            const CircleCallTransportBanner(),
+            // QA a6: FCM is integrated — say so honestly for THIS build
+            // instead of always "ringing arrives when push is enabled".
+            ValueListenableBuilder<bool>(
+              valueListenable: PushService.instance.available,
+              builder: (_, pushOn, __) => CircleCallTransportBanner(
+                  pushReady: pushOn, turnReady: _turnReady),
+            ),
             Expanded(
               child: Center(
                 child: Column(

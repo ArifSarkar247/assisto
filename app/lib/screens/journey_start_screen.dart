@@ -184,7 +184,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         const SizedBox(height: 4),
         if (_watchers.isEmpty)
-          Text(t.journeyNoWatchers, style: const TextStyle(color: Colors.grey)),
+          Text(t.journeyNoWatchers, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
         ..._watchers.map((m) {
           final id = (m['id'] as num?)?.toInt();
           return CheckboxListTile(
@@ -258,7 +258,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
                 label: '$_retentionHours',
                 onChanged: (v) => setState(() => _retentionHours = v.round())),
             Text(t.journeyRetentionNote,
-                style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ],
         ),
         const SizedBox(height: 20),

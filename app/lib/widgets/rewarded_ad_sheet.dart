@@ -6,6 +6,8 @@ import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import 'ladder_common.dart' show fmtInt;
+import '../ads/ads_bridge.dart';
+import '../ads/ads_service.dart';
 
 /// REWARDED-AD UNLOCK FLOW (Business Model Build 3, item 4).
 ///
@@ -13,16 +15,15 @@ import 'ladder_common.dart' show fmtInt;
 /// `ads/wallet` for the current ad-wallet balance + caps, then calls
 /// `ads/event {kind:'rewarded'}` when the user opts in.
 ///
-/// HONESTY (hard rule): there is NO AdMob SDK dependency here and NO fake ad /
-/// fake reward. The real SDK is key-gated server-side; when ads are not enabled
-/// `ads/event` comes back not-configured ({enabled:false} / {ok:false} /
-/// state:'needs_provider') and we show the honest "ads not set up yet" message
-/// — we never credit anything the server didn't. When the server DOES credit
-/// (ads enabled + under the daily cap) we show the new balance.
+/// HONESTY (hard rule): no fake ad / fake reward. The ad is played through
+/// [AdsService] (AdMob, under AdRules: rewarded only from the Credits screen,
+/// always user-initiated). `ads/event` is posted ONLY after the SDK reported
+/// the reward; no SDK / no AdMob ids -> the honest "ads not set up yet" state.
+/// The server is still the authority on what is credited (caps, fraud).
 ///
-/// Callers MUST only show this to FREE users and NEVER on safety screens
-/// (helper [RewardedAdSheet.show] is the single entry point; it is the caller's
-/// job to gate on plan — see e.g. the Credits screen).
+/// Free users earn into the ad wallet; Premium/Business users see no ads
+/// unless they open this sheet themselves (opt-in) — their whole credits go
+/// straight to their balance (server side).
 class RewardedAdSheet extends StatefulWidget {
   const RewardedAdSheet({super.key});
 
@@ -55,14 +56,23 @@ class _RewardedAdSheetState extends State<RewardedAdSheet> {
 
   int _int(dynamic v) => v is num ? v.toInt() : 0;
 
+  /// (used today, daily cap) for rewarded. Server shape:
+  /// caps: {rewarded: {cap, used, remaining}}; older flat keys tolerated.
+  (int, int) _rewardedCaps(Map<String, dynamic> w) {
+    final caps = (w['caps'] as Map?)?.cast<String, dynamic>() ?? const {};
+    final r = caps['rewarded'];
+    if (r is Map) return (_int(r['used']), _int(r['cap']));
+    return (_int(caps['rewarded_today']), _int(caps['rewarded_cap']));
+  }
+
+  String? _note;
+
   Future<void> _load() async {
     setState(() => _state = _AdState.loading);
     try {
       final w = await context.read<AppState>().api.adsWallet();
       if (!mounted) return;
-      final caps = (w['caps'] as Map?)?.cast<String, dynamic>() ?? const {};
-      final done = _int(caps['rewarded_today']);
-      final cap = _int(caps['rewarded_cap']);
+      final (done, cap) = _rewardedCaps(w);
       setState(() {
         _wallet = w;
         _state = (cap > 0 && done >= cap) ? _AdState.capReached : _AdState.ready;
@@ -81,14 +91,41 @@ class _RewardedAdSheetState extends State<RewardedAdSheet> {
     }
   }
 
-  /// HONEST reward path. We do NOT render an ad (no SDK). We simply report the
-  /// intent to the server; the server either credits (ads enabled) or tells us
-  /// it is not configured — we reflect exactly that.
+  /// HONEST reward path: play a real rewarded ad first; only a completed ad
+  /// (SDK reward callback) is reported to the server, which decides the credit.
   Future<void> _watch() async {
-    setState(() => _state = _AdState.running);
+    final app = context.read<AppState>();
+    final t = AppLocalizations.of(context);
+    setState(() {
+      _state = _AdState.running;
+      _note = null;
+    });
     try {
-      final r = await context.read<AppState>().api.adsEvent('rewarded');
+      final outcome =
+          await AdsService.instance.showRewarded(app, screen: 'credits');
       if (!mounted) return;
+      if (outcome == RewardOutcome.unavailable) {
+        setState(() {
+          _state = _AdState.notConfigured;
+          _error = AdsService.instance.config.configured
+              ? t.adsUnavailableBody
+              : null;
+        });
+        return;
+      }
+      if (outcome == RewardOutcome.dismissed) {
+        setState(() {
+          _state = _AdState.ready;
+          _note = t.adsDismissedBody;
+        });
+        return;
+      }
+      final r = await app.api.adsEvent('rewarded');
+      if (!mounted) return;
+      if (r['reason'] == 'capped') {
+        setState(() => _state = _AdState.capReached);
+        return;
+      }
       // Decide the outcome from the honest server shape.
       final notConfigured = r['enabled'] == false ||
           r['ok'] == false ||
@@ -121,10 +158,8 @@ class _RewardedAdSheetState extends State<RewardedAdSheet> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final caps = (_wallet['caps'] as Map?)?.cast<String, dynamic>() ?? const {};
     final balance = _int(_wallet['balance_credits']);
-    final done = _int(caps['rewarded_today']);
-    final cap = _int(caps['rewarded_cap']);
+    final (done, cap) = _rewardedCaps(_wallet);
 
     return Padding(
       padding: EdgeInsets.only(
@@ -167,7 +202,8 @@ class _RewardedAdSheetState extends State<RewardedAdSheet> {
                         style: const TextStyle(fontWeight: FontWeight.w600))),
                 if (cap > 0)
                   Text(t.adRewardedTodayCap(
-                      fmtInt(context, done), fmtInt(context, cap)),
+                      // (cap, done) — gen-l10n metadata order
+                      fmtInt(context, cap), fmtInt(context, done)),
                       style: TextStyle(
                           fontSize: 12, color: scheme.onSurfaceVariant)),
               ]),
@@ -231,6 +267,17 @@ class _RewardedAdSheetState extends State<RewardedAdSheet> {
         ]);
       case _AdState.ready:
         return Column(children: [
+          if (_note != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: Gap.md),
+              child: _honestNote(
+                scheme,
+                icon: Icons.info_outline,
+                tint: scheme.secondary,
+                title: t.adWatchNow,
+                body: _note!,
+              ),
+            ),
           if (_credited)
             Padding(
               padding: const EdgeInsets.only(bottom: Gap.md),

@@ -1,0 +1,65 @@
+--- a/.github/workflows/android.yml	2026-10-21 04:52:38.427825347 +0000
++++ b/.github/workflows/android.yml	2026-10-21 04:52:38.451935676 +0000
+@@ -191,6 +191,25 @@
+           )
+           if 'androidx.startup.InitializationProvider' not in s:
+               s = s.replace('</application>', startup_remove + '    </application>', 1)
++          # ---- a6 AdMob ----
++          # APPLICATION_ID is REQUIRED (the Mobile Ads SDK crashes at launch
++          # without it). Value comes from the admobAppId manifestPlaceholder:
++          # secret ADMOB_APP_ID, else Google's TEST app id.
++          admob = (
++              '\n        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID"'
++              ' android:value="${admobAppId}"/>'
++              '\n        <meta-data android:name="com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION"'
++              ' android:value="true"/>'
++              '\n        <meta-data android:name="com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING"'
++              ' android:value="true"/>'
++              # no startup ContentProvider: the SDK initialises when the app
++              # calls MobileAds.initialize() right before the first ad.
++              '\n        <provider android:name="com.google.android.gms.ads.MobileAdsInitProvider"'
++              ' android:authorities="${applicationId}.mobileadsinitprovider"'
++              ' tools:node="remove"/>\n'
++          )
++          if 'com.google.android.gms.ads.APPLICATION_ID' not in s:
++              s = s.replace('</application>', admob + '    </application>', 1)
+           open(p, "w").write(s)
+           print("manifest patched: label, permissions, queries, UCropActivity, native components, androidx.startup removed")
+           PY
+@@ -246,6 +265,17 @@
+           s = _re.sub(r'\n[ \t]*minSdk[A-Za-z]*\s*=?[^\n]*', '', s)
+           inject = '\n        minSdk = 26' if is_kts else '\n        minSdkVersion 26'
+           s = s.replace('defaultConfig {', 'defaultConfig {' + inject, 1)
++          # a6 AdMob app id -> manifest placeholder (secret ADMOB_APP_ID or
++          # Google's TEST app id). Must match the --dart-define below.
++          if 'admobAppId' not in s:
++              test_id = "ca-app-pub-3940256099942544~3347511713"
++              if is_kts:
++                  ph = ('\n        manifestPlaceholders["admobAppId"] = '
++                        '(System.getenv("ADMOB_APP_ID") ?: "").ifBlank { "%s" }' % test_id)
++              else:
++                  ph = ('\n        manifestPlaceholders += [admobAppId: '
++                        '(System.getenv("ADMOB_APP_ID") ?: "") ?: "%s"]' % test_id)
++              s = s.replace('defaultConfig {', 'defaultConfig {' + ph, 1)
+           # compileSdk 36 (required by flutter_plugin_android_lifecycle)
+           s = _re.sub(r'\n[ \t]*compileSdk[A-Za-z]*\s*=?[^\n]*', '', s)
+           cinject = '\n    compileSdk = 36' if is_kts else '\n    compileSdk 36'
+@@ -271,6 +301,8 @@
+ 
+       - name: Build release APK (arm64 only)
+         working-directory: app
++        env:
++          ADMOB_APP_ID: ${{ secrets.ADMOB_APP_ID }}
+         run: |
+           API_BASE="${{ github.event.inputs.api_base || 'https://api.lifeassisto.com' }}"
+           BUILD_TIME="$(date -u +%Y-%m-%dT%H:%MZ)"
+@@ -279,7 +311,8 @@
+             --build-number=${{ github.run_number }} \
+             --build-name=1.0.${{ github.run_number }} \
+             --dart-define=API_BASE="$API_BASE" \
+-            --dart-define=BUILD_TIME="$BUILD_TIME"
++            --dart-define=BUILD_TIME="$BUILD_TIME" \
++            --dart-define=ADMOB_APP_ID="${ADMOB_APP_ID:-ca-app-pub-3940256099942544~3347511713}"
+ 
+       - name: Build x86_64 debug APK (emulator smoke test only — NOT shipped)
+         working-directory: app

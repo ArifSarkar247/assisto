@@ -159,7 +159,9 @@ class _RoundAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Flexible(
+    // QA a6: Flexible let the pair clump in the middle; Expanded gives each
+    // half of the width so Decline/Accept sit apart like a phone dialer.
+    return Expanded(
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         Semantics(
           button: true,

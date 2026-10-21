@@ -15,6 +15,7 @@ from . import views_account_deletion as acctdel
 from . import views_chat as chatv
 from . import shop_views as shop
 from . import views_push as pushv
+from . import views_ads as ads_views
 
 router = DefaultRouter()
 router.register("memory", views.MemoryViewSet, basename="memory")
@@ -552,6 +553,10 @@ urlpatterns = [
     path("recovery/sp-letter", lost.SpLetterView.as_view()),
     path("recovery/evidence.pdf", lost.EvidencePdfView.as_view()),
     path("recovery/police-stations", lost.PoliceStationsView.as_view()),
+
+    # ---- a6-leftovers ----
+    # AdMob client config (key-gated; TEST ids until the owner saves real ones)
+    path("ads/config", ads_views.AdsConfigView.as_view()),
 ]
 
 urlpatterns += router.urls

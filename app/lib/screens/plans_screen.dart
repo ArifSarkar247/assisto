@@ -84,21 +84,14 @@ class _PlansScreenState extends State<PlansScreen> {
     if (mounted) setState(() => _loading = false);
   }
 
+  /// a6: ads never play on the plans/payment screen. The "watch an ad"
+  /// button opens the Credits screen, where the rewarded flow plays a REAL
+  /// ad first (the old direct /credits/rewarded call granted a credit with no
+  /// ad shown once AdMob was enabled).
   Future<void> _rewarded() async {
-    final t = AppLocalizations.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-    setState(() => _busy = true);
-    try {
-      final r = await context.read<AppState>().api.rewardedAd();
-      messenger.showSnackBar(SnackBar(
-          content: Text(r['ok'] == true
-              ? t.plansCreditAdded
-              : (r['msg'] ?? t.plansDailyLimitReached).toString())));
-      await _load();
-    } catch (_) {
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
+    await Navigator.push(
+        context, MaterialPageRoute(builder: (_) => const CreditsScreen()));
+    if (mounted) await _load();
   }
 
   void _notYet() {
