@@ -480,6 +480,12 @@ class Settings {
       return await prefsProvider().timeout(_timeout);
     } catch (e) {
       degraded = true;
+      if (lastError == null) {
+        // Release builds too: the CI launch smoke fails on this marker, so a
+        // broken settings store can never ship silently again.
+        // ignore: avoid_print
+        print('ASSISTO_PREFS_FAIL $e');
+      }
       lastError ??= '$e';
       return null;
     }
