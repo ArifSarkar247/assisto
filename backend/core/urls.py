@@ -747,3 +747,16 @@ urlpatterns += [
     path("web-photo/claim", w1wp.WebPhotoClaimView.as_view()),
 ]
 # ---- /w1-webphoto ----
+
+# ---- h1-home ---- image in chat: on-device first; detailed cloud vision answer
+# funded by the ps1 ad-ticket/SSV ledger (free) or the monthly pool (paid).
+from . import views_h1_home as h1  # noqa: E402
+urlpatterns += [
+    path("chat-vision/config", h1.ChatVisionConfigView.as_view()),
+    path("chat-vision/jobs", h1.ChatVisionJobsView.as_view()),
+    path("chat-vision/jobs/<int:pk>", h1.ChatVisionJobView.as_view()),
+    path("chat-vision/jobs/<int:pk>/ad-ticket", h1.ChatVisionTicketView.as_view()),
+    path("chat-vision/jobs/<int:pk>/fund", h1.ChatVisionFundView.as_view()),
+    path("chat-vision/jobs/<int:pk>/answer", h1.ChatVisionAnswerView.as_view()),
+]
+# ---- /h1-home ----

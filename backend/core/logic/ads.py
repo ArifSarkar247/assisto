@@ -82,25 +82,21 @@ def validate_admob_ids(cfg):
     return True, "IDs look valid — verified on first ad load"
 
 
-def home_hero_config(*, paid, flag_hero, flag_start_muted, refresh_sec):
-    """h1-home: the home hero native ad block of /ads/config. Free plan only;
-    refresh never faster than AdMob's 60 s minimum; video starts muted unless
-    the owner turned the admin flag off."""
+# h1-home: AdMob asks for >= 60 s between refreshes of one native slot.
+HERO_MIN_REFRESH_SEC = 60
+
+
+def hero_refresh_sec(value):
+    """The home hero native-ad refresh, never faster than AdMob allows."""
     try:
-        refresh = int(refresh_sec)
+        v = int(value)
     except (TypeError, ValueError):
-        refresh = 90
-    return {
-        "enabled": bool(flag_hero) and not paid,
-        "start_muted": bool(flag_start_muted),
-        "refresh_sec": max(60, refresh),
-        # where the hero must never appear (home only, never safety screens)
-        "screens": ["home"],
-    }
+        v = 90
+    return max(HERO_MIN_REFRESH_SEC, min(3600, v))
 
 
 def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
-                  flag_app_open, ad_caps, home_hero=None):
+                  flag_app_open, ad_caps, hero_refresh=90):
     """The /ads/config payload. `configured` is True only for owner-saved REAL
     ids that pass validation; otherwise the app falls back to TEST ids and the
     server never credits real money."""
@@ -128,6 +124,9 @@ def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
         "appopen_daily_cap": int(caps.get("appopen_daily_cap", 0) or 0),
         "rewarded_daily_cap": int(caps.get("rewarded_daily_cap", 0) or 0),
         "blocked_screens": list(BLOCKED_SCREENS),
-        "home_hero": home_hero or home_hero_config(
-            paid=paid, flag_hero=False, flag_start_muted=True, refresh_sec=90),
+        # o2-admin: hero ad slot (Free only); start muted unless owner says not
+        "hero_enabled": bool(caps.get("hero_enabled", False)) and not paid,
+        "hero_start_muted": bool(caps.get("hero_start_muted", True)),
+        # h1-home: home hero native-ad refresh (admin: pricing home_hero)
+        "hero_refresh_sec": hero_refresh_sec(hero_refresh),
     }

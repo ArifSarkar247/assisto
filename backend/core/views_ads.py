@@ -34,8 +34,4 @@ class AdsConfigView(APIView):
             plan=plan, paid=paid, admob_cfg=admob_cfg, admob_working=working,
             flag_rewarded=billing.flag_on("ads_rewarded"),
             flag_app_open=billing.flag_on("ads_app_open"),
-            ad_caps=caps,
-            home_hero=A.home_hero_config(
-                paid=paid, flag_hero=billing.flag_on("ads_home_hero"),
-                flag_start_muted=billing.flag_on("ads_hero_start_muted"),
-                refresh_sec=hero_refresh)))
+            ad_caps=caps, hero_refresh=hero_refresh))

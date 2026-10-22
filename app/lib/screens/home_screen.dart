@@ -7,6 +7,7 @@ import '../home_api.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/chatnav.dart';
 import '../widgets/home_badge_icon.dart';
+import '../widgets/home_hero.dart';
 import '../widgets/home_quick_buttons.dart';
 import '../widgets/home_suggestions.dart';
 import 'agent_thread_screen.dart';
@@ -216,8 +217,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             key: _threadKey,
             sessionId: _openSessionId,
             fresh: _fresh,
-            greeting: t.welcomeHeadline,
             initialSend: _pendingSend,
+            // OWNER ORDER (h1-home): the welcome block (logo + "Hi, I'm
+            // Assisto") is the hero slot — Free users may see ONE native ad
+            // there instead (never Premium/Business, never over content);
+            // it collapses on input focus and disappears once a chat starts.
+            heroBuilder: (_, logoBlock, collapsed) => HomeHero(
+                fallback: logoBlock, collapsed: collapsed || keyboardOpen),
             // A1 — collapse the Discover/spotlight area the moment the input
             // gains focus so the chat + input fill the screen and the keyboard
             // never covers what the user is typing.

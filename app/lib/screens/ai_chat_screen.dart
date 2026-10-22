@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import '../chat_vision/chat_photo.dart';
 import '../api.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -39,6 +40,9 @@ class _Msg {
   /// Transient: a streamed assistant message still receiving tokens.
   bool streaming;
 
+  /// h1-home: an attached photo turn (this device only; never saved).
+  final ChatPhotoRequest? photo;
+
   _Msg({
     this.id,
     required this.user,
@@ -46,6 +50,7 @@ class _Msg {
     this.cards = const [],
     this.source,
     this.streaming = false,
+    this.photo,
   });
 
   bool get isBrain {
@@ -446,6 +451,20 @@ class _AiChatScreenState extends State<AiChatScreen> {
     }
   }
 
+  // h1-home: attach a photo and ask about it (typed text = the question).
+  void _attachPhoto(Uint8List bytes) {
+    final q = _input.text.trim();
+    _input.clear();
+    setState(() => _msgs.add(
+        _Msg(user: true, text: q, photo: ChatPhotoRequest(bytes, q))));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scroll.hasClients) {
+        _scroll.animateTo(_scroll.position.maxScrollExtent,
+            duration: Motion.base, curve: Curves.easeOut);
+      }
+    });
+  }
+
   // ---------------- helpers ----------------
   void _snack(String msg) {
     final m = ScaffoldMessenger.of(context);
@@ -595,6 +614,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
 
   // ---------------- bubble ----------------
   Widget _bubble(_Msg m, int i) {
+    final photo = m.photo;
+    if (photo != null) return ChatPhotoTurn(request: photo);
     final scheme = Theme.of(context).colorScheme;
     final isLastAssistant = !m.user && i == _msgs.length - 1 && !m.streaming;
     final isLastUserEditable = m.user &&
@@ -802,7 +823,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
               ),
             ),
           ),
-          const SizedBox(width: Gap.xs),
+          ChatPhotoAttachButton(onPicked: _attachPhoto, enabled: !_sending),
           VoiceMicButton(voice: _voice, input: _input),
           // While a reply is in flight, the send button becomes a Stop control.
           _sending

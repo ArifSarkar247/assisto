@@ -1,0 +1,280 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../ads/ads_service.dart' show AdsService;
+import '../ads/hero_ad.dart';
+import '../ads/hero_binding.dart';
+import '../l10n/app_localizations.dart';
+import '../state.dart';
+import '../theme.dart';
+
+/// HOME HERO slot (h1-home). Shows [fallback] (the logo + "Hi, I'm Assisto"
+/// block) by default — instantly, never a spinner — and, for a Free user with
+/// the owner's hero flag ON and AdMob linked, swaps it IN THE SAME SLOT for
+/// one large native ad with an "Ad" label. See [HeroAdRules] for every rule.
+///
+/// Crash-guarded: any failure keeps the normal logo block.
+class HomeHero extends StatefulWidget {
+  const HomeHero({
+    super.key,
+    required this.fallback,
+    this.collapsed = false,
+    this.bridge,
+    this.loadConfig,
+    this.isHomeVisible,
+  });
+
+  /// The normal logo block (no fill / offline / paid / not linked / collapsed).
+  final Widget fallback;
+
+  /// True while the chat input has focus -> the ad goes away.
+  final bool collapsed;
+
+  /// Injectable for tests / the screenshot gallery.
+  final HeroAdBridge? bridge;
+  final Future<Map<String, dynamic>> Function()? loadConfig;
+  final bool Function()? isHomeVisible;
+
+  @override
+  State<HomeHero> createState() => _HomeHeroState();
+}
+
+class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
+  static Map<String, dynamic>? _cfgCache;
+  static DateTime? _cfgAt;
+
+  late final HeroAdBridge _bridge = widget.bridge ?? createHeroAdBridge();
+  HeroAdConfig _cfg = HeroAdConfig.none;
+  HeroAdHandle? _ad;
+  Timer? _timer;
+  DateTime? _lastLoad;
+  bool _loading = false;
+  bool _resumed = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    // lazy: nothing ad-related before the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) => _start());
+  }
+
+  @override
+  void didUpdateWidget(covariant HomeHero old) {
+    super.didUpdateWidget(old);
+    if (widget.collapsed && !old.collapsed) {
+      _drop();
+    } else if (!widget.collapsed && old.collapsed) {
+      _start();
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _resumed = state == AppLifecycleState.resumed;
+    if (_resumed && _ad == null) _start();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _timer?.cancel();
+    _disposeAd();
+    super.dispose();
+  }
+
+  void _disposeAd() {
+    try {
+      _ad?.dispose();
+    } catch (_) {}
+    _ad = null;
+    HomeAdGuard.heroShowing.value = false;
+  }
+
+  void _drop() {
+    _timer?.cancel();
+    _timer = null;
+    if (_ad != null) setState(_disposeAd);
+  }
+
+  bool _homeVisible() {
+    try {
+      final f = widget.isHomeVisible;
+      if (f != null) return f();
+      return ModalRoute.of(context)?.isCurrent ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<HeroAdConfig> _config() async {
+    try {
+      final fresh = _cfgAt != null &&
+          DateTime.now().difference(_cfgAt!) < const Duration(minutes: 30);
+      if (!fresh || widget.loadConfig != null) {
+        final load = widget.loadConfig ??
+            () => context.read<AppState>().api.getJson('/ads/config');
+        _cfgCache = await load();
+        _cfgAt = DateTime.now();
+      }
+      return HeroAdConfig.fromJson(_cfgCache);
+    } catch (_) {
+      return HeroAdConfig.none; // offline -> normal logo block
+    }
+  }
+
+  double _slotHeight() {
+    final h = MediaQuery.of(context).size.height;
+    return (h * 0.42).clamp(0.0, 340.0);
+  }
+
+  HeroDecision _decide() {
+    bool loggedIn;
+    try {
+      loggedIn = context.read<AppState>().loggedIn;
+    } catch (_) {
+      loggedIn = widget.loadConfig != null; // gallery/tests inject config
+    }
+    return HeroAdRules.decide(
+      config: _cfg,
+      screen: _homeVisible() ? 'home' : 'unknown',
+      loggedIn: loggedIn,
+      collapsed: widget.collapsed,
+      chatStarted: false, // the thread unmounts this slot once a chat starts
+      linked: _bridge.linked,
+      slotHeight: _slotHeight(),
+    );
+  }
+
+  Future<void> _start() async {
+    if (!mounted || _loading || widget.collapsed) return;
+    // AdMob minimum refresh also applies to re-showing after a collapse
+    if (_lastLoad != null &&
+        DateTime.now().difference(_lastLoad!) < HeroAdRules.refreshEvery(_cfg)) {
+      _schedule();
+      return;
+    }
+    _loading = true;
+    try {
+      _cfg = await _config();
+      if (!mounted || !_decide().allowed) return;
+      final unit = _cfg.unit(
+          builtAppId: AdsService.builtAppId, testMode: AdsService.testMode);
+      if (unit == null) return;
+      _lastLoad = DateTime.now();
+      final ad = await _bridge
+          .load(unit, startMuted: AdSound.startMuted(AdFormat.heroNative,
+              heroStartMuted: _cfg.startMuted))
+          .timeout(const Duration(seconds: 12), onTimeout: () => null);
+      if (!mounted || widget.collapsed || !_decide().allowed) {
+        try {
+          ad?.dispose();
+        } catch (_) {}
+        return;
+      }
+      if (ad != null) {
+        final old = _ad;
+        setState(() => _ad = ad);
+        HomeAdGuard.heroShowing.value = true;
+        try {
+          old?.dispose();
+        } catch (_) {}
+      }
+    } catch (_) {
+      // never let an ad problem reach the UI
+    } finally {
+      _loading = false;
+      _schedule();
+    }
+  }
+
+  void _schedule() {
+    _timer?.cancel();
+    if (!mounted || widget.collapsed || !_cfg.enabled) return;
+    _timer = Timer(HeroAdRules.refreshEvery(_cfg), () {
+      if (!mounted) return;
+      // refresh only while home is really on screen and the app is in front
+      if (_resumed && _homeVisible() && !widget.collapsed) {
+        _lastLoad = null;
+        _start();
+      } else {
+        _schedule();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ad = _ad;
+    final child = (ad == null || widget.collapsed)
+        ? KeyedSubtree(key: const ValueKey('hero-logo'), child: widget.fallback)
+        : HeroAdFrame(
+            key: const ValueKey('hero-ad'),
+            height: _slotHeight(),
+            hasVideo: ad.hasVideo,
+            startMuted: _cfg.startMuted,
+            child: ad.view());
+    return AnimatedSwitcher(duration: Motion.base, child: child);
+  }
+}
+
+/// The frame around a native ad: an "Ad" label row OUTSIDE the ad view (so it
+/// never covers ad content) and a fixed-height box so the ad can never grow
+/// into the chat or the input.
+class HeroAdFrame extends StatelessWidget {
+  const HeroAdFrame({
+    super.key,
+    required this.height,
+    required this.child,
+    this.hasVideo = false,
+    this.startMuted = true,
+  });
+  final double height;
+  final Widget child;
+  final bool hasVideo;
+  final bool startMuted;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      container: true,
+      label: t.h1HeroAdSemantics,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Row(children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
+            decoration: BoxDecoration(
+              color: scheme.tertiaryContainer,
+              borderRadius: BorderRadius.circular(Radii.sm),
+            ),
+            child: Text(t.h1AdLabel,
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: scheme.onTertiaryContainer)),
+          ),
+          if (hasVideo && startMuted) ...[
+            const SizedBox(width: Gap.sm),
+            Icon(Icons.volume_off_outlined, size: 16, color: scheme.onSurfaceVariant),
+            const SizedBox(width: Gap.xs),
+            Expanded(
+              child: Text(t.h1HeroMutedHint,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+            ),
+          ],
+        ]),
+        const SizedBox(height: Gap.xs),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(Radii.md),
+          child: SizedBox(height: height, child: child),
+        ),
+      ]),
+    );
+  }
+}

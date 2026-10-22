@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../api.dart';
+import '../chat_vision/chat_photo.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
@@ -13,7 +14,11 @@ class _Msg {
   final bool user;
   final String text;
   final List<Map<String, dynamic>> cards;
-  _Msg(this.user, this.text, [this.cards = const []]);
+
+  /// h1-home: an attached photo turn (kept on this device only — the photo is
+  /// never saved to the chat history).
+  final ChatPhotoRequest? photo;
+  _Msg(this.user, this.text, [this.cards = const [], this.photo]);
 }
 
 /// The heart of the app: a conversation with Assisto. The screen is only the
@@ -43,6 +48,15 @@ class AgentThreadScreen extends StatefulWidget {
   /// Text to send as soon as the thread is ready (a tapped home suggestion) —
   /// it goes through the normal send path, so it is saved like any turn.
   final String? initialSend;
+
+  /// h1-home: builds the top of the empty-thread welcome. Gets the normal
+  /// logo + "Hi, I'm Assisto" block and whether the input has focus; the home
+  /// returns its ad hero (which falls back to that block). Null = the block.
+  final Widget Function(BuildContext context, Widget logoBlock, bool collapsed)?
+      heroBuilder;
+
+  /// Test seam for the photo picker (camera / gallery).
+  final ChatPhotoPicker? photoPicker;
   const AgentThreadScreen(
       {super.key,
       this.debugSeed,
@@ -51,7 +65,9 @@ class AgentThreadScreen extends StatefulWidget {
       this.sessionId,
       this.fresh = false,
       this.greeting,
-      this.initialSend});
+      this.initialSend,
+      this.heroBuilder,
+      this.photoPicker});
 
   /// SharedPreferences key of the home thread that survives restarts.
   static const sessionKey = 'home_session_id';
@@ -80,13 +96,6 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
 
   AppLocalizations get t => AppLocalizations.of(context);
 
-  List<(IconData, String)> get _suggestions => [
-        (Icons.wb_sunny_outlined, t.suggestionToday),
-        (Icons.query_stats_outlined, t.suggestionSpendMonth),
-        (Icons.receipt_long_outlined, t.suggestionExpense),
-        (Icons.medication_outlined, t.suggestionMedicine),
-      ];
-
   @override
   void initState() {
     super.initState();
@@ -96,6 +105,8 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
     _voice.addListener(_rebuild);
     // A1 — the home collapses its Discover cards as soon as the input focuses.
     _inputFocus.addListener(() {
+      // h1-home: the welcome hero collapses while the input has focus
+      if (widget.heroBuilder != null && _msgs.isEmpty) _rebuild();
       if (_inputFocus.hasFocus) {
         widget.onInputFocus?.call();
         _toBottom();
@@ -307,10 +318,13 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
   }
 
   // ---------------- welcome / empty state ----------------
-  Widget _welcome() {
+  // OWNER ORDER (h1-home): no suggestion questions here any more — just the
+  // logo + "Hi, I'm Assisto" block (which the home may swap for its ad hero).
+  Widget _logoBlock() {
     final scheme = Theme.of(context).colorScheme;
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(Gap.xl, Gap.xxl, Gap.xl, Gap.md),
+    return Column(
+      key: const ValueKey('welcome-logo-block'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: Gap.xl),
         Center(child: _logoMark(76)),
@@ -325,40 +339,35 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
         Text(t.welcomeBody,
             textAlign: TextAlign.center,
             style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
-        const SizedBox(height: Gap.xl),
-        for (final s in _suggestions) ...[
-          _suggestionCard(s.$1, s.$2),
-          const SizedBox(height: Gap.sm),
-        ],
       ],
     );
   }
 
-  Widget _suggestionCard(IconData icon, String text) {
-    final scheme = Theme.of(context).colorScheme;
-    return Material(
-      color: scheme.surfaceContainerHighest,
-      borderRadius: BorderRadius.circular(Radii.md),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(Radii.md),
-        onTap: () => _send(text),
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.lg),
-          child: Row(children: [
-            Icon(icon, size: 22, color: scheme.primary),
-            const SizedBox(width: Gap.md),
-            Expanded(
-                child: Text(text,
-                    style: const TextStyle(fontWeight: FontWeight.w500))),
-            Icon(Icons.north_east, size: 16, color: scheme.onSurfaceVariant),
-          ]),
-        ),
-      ),
+  Widget _welcome() {
+    final block = _logoBlock();
+    final hero = widget.heroBuilder;
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(Gap.xl, Gap.lg, Gap.xl, Gap.md),
+      children: [
+        hero == null ? block : hero(context, block, _inputFocus.hasFocus),
+      ],
     );
+  }
+
+  // h1-home: attach a photo and ask about it. The typed text (if any) is the
+  // question; the turn lives only on this device.
+  void _attachPhoto(Uint8List bytes) {
+    final q = _input.text.trim();
+    _input.clear();
+    widget.onInputFocus?.call(); // the home collapses Discover + hero
+    setState(() => _msgs.add(_Msg(true, q, const [], ChatPhotoRequest(bytes, q))));
+    _toBottom();
   }
 
   // ---------------- bubbles ----------------
   Widget _bubble(_Msg m) {
+    final photo = m.photo;
+    if (photo != null) return ChatPhotoTurn(request: photo);
     final scheme = Theme.of(context).colorScheme;
     final bubble = Container(
       constraints:
@@ -435,7 +444,8 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
               ),
             ),
           ),
-          const SizedBox(width: Gap.xs),
+          ChatPhotoAttachButton(
+              onPicked: _attachPhoto, picker: widget.photoPicker),
           // Hold the mic to talk (release stops), tap to toggle; the bn/EN chip
           // picks the voice language. Fills the box, never auto-sends.
           VoiceMicButton(

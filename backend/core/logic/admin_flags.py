@@ -77,12 +77,6 @@ CATALOG = (
     # a6: app-open ad kill-switch (still needs AdMob configured; never shown to
     # Premium/Business, never on safety/payment/login/call screens).
     ("ads_app_open", KIND_FEATURE, "monetization", True),
-    # h1-home: the large native-ad hero on home (free plan only; replaces the
-    # logo block, never overlaps content; no fill -> normal logo block).
-    ("ads_home_hero", KIND_FEATURE, "monetization", True),
-    # h1-home: the hero's video starts MUTED (AdMob VideoOptions startMuted)
-    # with a visible speaker control. Default ON = never autoplay with sound.
-    ("ads_hero_start_muted", KIND_FEATURE, "monetization", True),
     # o1-otp: launch gate. ON = password-only sign-up still allowed (test
     # builds / today). Turn OFF at public launch -> sign-up REQUIRES an
     # OTP-verified phone. Existing users' password login is never affected.

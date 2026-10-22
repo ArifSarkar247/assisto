@@ -41,14 +41,15 @@ _DEFAULTS = {
     "free_detailed_per_day": 1,     # detailed AI answers per free user per day
     "min_ads": 2,                   # owner: "after 2-3 rewarded ads"
     "max_ads": 3,                   # > this -> ads route closed (credits / Premium)
-    "max_image_kb": 6144,           # upload cap (the image is never stored)
+    "max_image_kb": 4096,           # upload cap (the image is never stored;
+                                    # Claude's per-image limit is 5 MB)
     "provider": "",                 # '' = first ready provider
 }
 _BOUNDS = {
     "free_detailed_per_day": (0, 5),
     "min_ads": (1, 3),
     "max_ads": (1, 5),
-    "max_image_kb": (256, 10240),
+    "max_image_kb": (256, 5120),
 }
 
 # Home hero native ad: AdMob asks for >= 60 s between refreshes of one slot.
@@ -163,8 +164,9 @@ _IDENTIFY = (
     "is this person", "face search", "find his profile", "find her profile",
     "eta ke", "ei lok ke", "ei meye ke", "ei chele ke", "ke ei", "chinen naki",
     "এটা কে", "ইনি কে", "উনি কে", "এই লোক কে", "এই মেয়ে কে", "এই ছেলে কে",
-    "লোকটা কে", "মেয়েটা কে", "ছেলেটা কে", "কে এই", "চিনতে পারো", "চেনো", "নাম কী",
-    "নাম কি",
+    "লোকটা কে", "মেয়েটা কে", "ছেলেটা কে", "কে এই", "চিনতে পারো", "চেনো",
+    "লোকটার নাম", "মেয়েটার নাম", "ছেলেটার নাম", "উনার নাম", "ওনার নাম", "ওর নাম",
+    "তার নাম কী", "তার নাম কি",
 )
 
 
@@ -242,8 +244,8 @@ FACE_REFUSAL = {
 
 # "this is Shakib Al Hasan", "he looks like <Name>", "এটি ... এর ছবি"
 _FACE_NAMING = (
-    re.compile(r"\b(this|that|he|she|the (?:man|woman|person|boy|girl))\s+"
-               r"(?:is|appears to be|seems to be|looks like|resembles)\s+"
+    re.compile(r"\b(?i:this|that|he|she|the (?:man|woman|person|boy|girl))\s+"
+               r"(?i:is|appears to be|seems to be|looks like|resembles)\s+"
                r"(?:probably\s+|likely\s+)?[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+"),
     re.compile(r"(?:ইনি|উনি|এটি|এটা|ইনিই)\s+(?:সম্ভবত\s+)?\S+\s*(?:\S+\s*)?(?:এর|র)?\s*ছবি"),
 )
@@ -291,8 +293,9 @@ def postprocess(parsed, *, question="", device_text="", lang="bn", face_in_photo
     label = "%s\n%s" % (parsed.get("label_text") or "", device_text or "")
     out = {"kind": kind, "medicine": False, "doses_removed": 0, "face_refused": False}
 
-    # people: a reply that names someone from their face is replaced
-    for rx in _FACE_NAMING:
+    # people: a reply that names someone from their face is replaced (only
+    # for photos of people — "This is Napa Extra" on a medicine box is fine)
+    for rx in (_FACE_NAMING if (kind == "person" or face_in_photo) else ()):
         if rx.search(answer):
             out.update(answer=FACE_REFUSAL[lang], face_refused=True)
             return out

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../ads/hero_ad.dart' show HomeAdGuard;
 import '../discover_api.dart';
 import '../home_api.dart';
 import '../l10n/app_localizations.dart';
@@ -166,6 +167,10 @@ List<DiscoverItem> parseDiscoverItems(Object? raw) {
 /// Cards this app build can actually render: ADMOB renders nothing (AdMob is
 /// not linked in the app yet), in-app routes must exist in [ChatNav.routes],
 /// external links must be https.
+///
+/// h1-home: when AdMob is linked, an ADMOB card may only render while the home
+/// hero is NOT showing a native ad ([HomeAdGuard.heroShowing]) — one AdMob ad
+/// on home at a time. Today it never renders either way.
 List<DiscoverItem> renderableDiscover(List<DiscoverItem> items) =>
     items.where((c) {
       if (c.isAdmob) return false;
@@ -265,7 +270,8 @@ class _HomeSuggestionsState extends State<HomeSuggestions> {
       final app = context.read<AppState>();
       if (!app.loggedIn) return;
       final build = await _appBuild();
-      final j = await app.api.discoverCards(build: build);
+      final j = await app.api.discoverCards(
+          build: build, heroAd: HomeAdGuard.heroShowing.value);
       final raw = j['cards'];
       if (raw is! List) return;
       final items = parseDiscoverItems(raw);
