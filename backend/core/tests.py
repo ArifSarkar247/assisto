@@ -437,11 +437,12 @@ class IntegrationsStoreTests(TestCase):
     def test_feature_flag_after_test(self):
         from core import integrations as I
         # (a6: admob now has a real-ID format test; use a no-test integration)
-        self.assertFalse(I.is_enabled('play_billing'))
-        I.save('play_billing', {'service_account_json': 'x'})
-        st, _ = I.test('play_billing')  # no-test integration -> working (saved)
+        # (pay1: play_billing now has a real OAuth test; use ekpay instead)
+        self.assertFalse(I.is_enabled('ekpay'))
+        I.save('ekpay', {'merchant_id': 'x', 'api_key': 'y'})
+        st, _ = I.test('ekpay')  # no-test integration -> working (saved)
         self.assertEqual(st, 'working')
-        self.assertTrue(I.is_enabled('play_billing'))
+        self.assertTrue(I.is_enabled('ekpay'))
 
     def test_list_masks_secrets(self):
         from core import integrations as I
