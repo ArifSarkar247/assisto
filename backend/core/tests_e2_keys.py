@@ -190,6 +190,18 @@ class LiveReadTests(TestCase):
             self.b.id, self.c.id)).json()["results"]
         self.assertEqual(ks[str(self.c.id)]["public_key"], "pkC")
         self.assertNotIn("424242", ks)
+        # a keyless group co-member is asked silently (user_id form)
+        d = mk("01710000004", "Dina")
+        CircleGroupMember.objects.create(group=g, member=d)
+        with mock.patch("core.push.safe_push", return_value=True) as sp:
+            r = self.ca.post(V + "/circle/keys/request", {"user_id": d.id},
+                             format="json").json()
+        self.assertTrue(r["queued"])
+        self.assertEqual(sp.call_args.args[:2], (d, "key_request"))
+        stranger = mk("01710000005", "Esha")
+        r = self.ca.post(V + "/circle/keys/request", {"user_id": stranger.id},
+                         format="json")
+        self.assertEqual(r.status_code, 404)
 
 
 class KeyRequestTests(TestCase):

@@ -1,3 +1,4 @@
+import '../crypto/key_wiring.dart';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -240,6 +241,8 @@ class PushService {
 
   void _onForeground(Map<String, dynamic> data) {
     final p = PushPayload.fromData(data);
+    // e2-keys: silent key plumbing (key_request / key_ready) — nothing drawn.
+    if (KeyWiring.instance.onForegroundPush(p.kind, data)) return;
     if (p.isCallCancel) {
       _cancelled.add(p.callId);
       CallRuntime.instance.onPushCancel(p);

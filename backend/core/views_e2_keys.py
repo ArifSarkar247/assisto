@@ -5,8 +5,8 @@ GET  /circle/keys/peer/<member_id>  -> the peer's key LIVE from the per-user
      requested}. When the peer has no key yet a silent key_request push is
      queued for them (throttled) and requested=true — the chat calls this on
      open and before each send, so a sender never dead-ends.
-POST /circle/keys/request {member_id} -> {queued, key} — the outbox asks
-     explicitly (same throttle).
+POST /circle/keys/request {member_id} | {user_id} -> {queued, key} — the
+     outbox asks explicitly (same throttle); user_id = a group co-member.
 GET  /circle/keys/users?ids=1,2,3   -> {results: {"<uid>": key}} for group
      rosters (members of my groups / my contacts only).
 """
@@ -45,9 +45,32 @@ class CirclePeerKeyView(APIView):
         return Response(out)
 
 
+def _shares_group(me, uid):
+    gids = CircleGroupMember.objects.filter(
+        member=me, status="active").values_list("group_id", flat=True)
+    return CircleGroupMember.objects.filter(
+        group_id__in=list(gids), status="active", member_id=uid).exists()
+
+
 class CircleKeyRequestView(APIView):
     def post(self, request):
-        edge = _edge(request.user, (request.data or {}).get("member_id"))
+        d = request.data or {}
+        if d.get("user_id") not in (None, "") and d.get("member_id") in (None, ""):
+            # group fan-out: a co-member who has not published yet
+            from .models import User
+            try:
+                uid = int(d.get("user_id"))
+            except (TypeError, ValueError):
+                return _nf()
+            peer = User.objects.filter(pk=uid).first()
+            if peer is None or not _shares_group(request.user, uid):
+                return _nf()
+            row = e2_keys.key_row(peer)
+            queued = e2_keys.request_key(request.user, peer) if row is None \
+                else False
+            return Response({"queued": queued,
+                             "key": e2_keys.key_dict(row, peer.id)})
+        edge = _edge(request.user, d.get("member_id"))
         if edge is None:
             return _nf()
         peer = e2_keys.edge_peer(edge)

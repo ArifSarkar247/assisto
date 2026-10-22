@@ -511,10 +511,29 @@ class ApiClient {
     final r = await _c.post(AppConfig.api(path),
         headers: _headers(), body: jsonEncode(body));
     if (r.statusCode >= 200 && r.statusCode < 300) {
+      _e2AfterPost(path, body);
       return r.body.isEmpty ? {} : jsonDecode(r.body) as Map<String, dynamic>;
     }
     _fail(r);
   }
+
+  // ---- e2-keys ----
+  /// Fired after ANY successful My Circle accept (request act=accept on the
+  /// circle or messenger path, or an invite redeem) so the device publishes
+  /// its public key at once — wired by crypto/key_wiring.dart.
+  static void Function()? onRequestAccepted;
+  static final RegExp _e2AcceptPath =
+      RegExp(r'^/(circle|messenger)/request/\d+/act$');
+
+  void _e2AfterPost(String path, Map<String, dynamic> body) {
+    try {
+      if ((body['event'] == 'accept' && _e2AcceptPath.hasMatch(path)) ||
+          path == '/circle/invite/redeem') {
+        onRequestAccepted?.call();
+      }
+    } catch (_) {}
+  }
+  // ---- /e2-keys ----
 
   /// Mirror of [postJson] but issues an HTTP PATCH. Messenger edit/setting
   /// endpoints (channel edit, community group update, /me/* privacy toggles)

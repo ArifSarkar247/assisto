@@ -18,6 +18,7 @@ import 'services/startup_guard.dart';
 import 'home_api.dart';
 import 'widgets/a11y_prefs.dart';
 import 'screens/login_screen.dart';
+import 'crypto/key_wiring.dart';
 import 'screens/home_screen.dart';
 import 'screens/language_picker_screen.dart';
 import 'screens/onboarding_screen.dart';
@@ -76,6 +77,12 @@ void main() {
       final safe = await StartupGuard.isSafeMode();
       // Notifications (local scheduling) — self-guarded, not a startup blocker.
       try { await Notifications.init(); } catch (_) {}
+      // e2-keys: publish the PUBLIC key on every start / login / accept and
+      // run the outbox — pure Dart + HTTP, guarded, a few seconds after the
+      // first frame (never on the cold-start path, runs in safe mode too).
+      unawaited(Future<void>.delayed(const Duration(seconds: 3), () {
+        try { KeyWiring.instance.start(appState); } catch (_) {}
+      }));
       if (!safe) {
         // #196 home-widget plugin — only touch the native widget bridge when the
         // last launch was healthy; never at cold start.
