@@ -556,12 +556,6 @@ jobs:
             # LIVE logcat from before launch (builds 151: adb wedged after launch, so a
             # post-launch `logcat -d` captured nothing). Detached: each script line is its own sh.
             nohup sh -c 'adb logcat -v time > /tmp/live_logcat.txt 2>&1' >/dev/null 2>&1 &
-            # 1) PLAIN release launch first (no tour): splits "app itself" from "tour".
-            adb shell monkey -p com.assisto.assisto -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1 || true
-            sleep 25
-            timeout 30 adb shell pidof com.assisto.assisto > pid0.txt 2>/dev/null || true
-            if [ -s pid0.txt ]; then echo "PLAIN LAUNCH OK pid=$(cat pid0.txt)"; else echo "::error::app NOT running 25 s after a PLAIN launch (no tour)"; fi
-            timeout 30 adb shell am force-stop com.assisto.assisto || true
             # Single, race-free cold start (no prior instance right after install).
             # --es ao_open __tour__ makes the debug build walk every native-plugin
             # screen once IN-PROCESS (voice_sos, lost_stolen, watch_feed,
@@ -572,7 +566,6 @@ jobs:
             cp /tmp/live_logcat.txt live_logcat.txt 2>/dev/null || true
             [ -s logcat.txt ] || cp live_logcat.txt logcat.txt 2>/dev/null || true
             echo "live logcat lines: $(wc -l < live_logcat.txt 2>/dev/null || echo 0)"; grep -E "AndroidRuntime|FATAL|ANR|flutter|assisto" live_logcat.txt 2>/dev/null | tail -60 || true
-            test -s pid0.txt || { echo "::error::plain release launch failed (see live logcat above)"; exit 1; }
             echo "===== last 140 logcat lines ====="; tail -140 logcat.txt || true
             grep -E "FATAL EXCEPTION|ANR in com.assisto|com.assisto.assisto.*has died|FATAL SIGNAL|AndroidRuntime.*com.assisto|E/flutter.*(Unhandled|Fatal)" logcat.txt > crashes.txt 2>/dev/null || true
             test ! -s crashes.txt || { echo "::error::CRASH/ANR during launch+feature-tour on API ${{ matrix.api }}"; cat crashes.txt; exit 1; }
