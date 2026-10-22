@@ -444,11 +444,11 @@ jobs:
           # aside and restored, so the signing step still ships arm64.
           REL=build/app/outputs/flutter-apk/app-release.apk
           cp "$REL" /tmp/arm64-release.apk
-          flutter build apk --release --target-platform=android-x64 \
+          flutter build apk --debug --target-platform=android-x64 \
             --dart-define=ASSISTO_SMOKE=true \
             --dart-define=API_BASE="${{ github.event.inputs.api_base || 'https://api.lifeassisto.com' }}" \
             --dart-define=BUILD_TIME="$(date -u +%Y-%m-%dT%H:%MZ)"
-          cp "$REL" emu-x64.apk
+          cp build/app/outputs/flutter-apk/app-debug.apk emu-x64.apk
           cp /tmp/arm64-release.apk "$REL"
           unzip -l "$REL" | grep -q "lib/arm64-v8a/" || { echo "::error::shipped APK is not arm64"; exit 1; }
           unzip -l emu-x64.apk | grep -q "lib/x86_64/" || { echo "::error::smoke APK is not x86_64"; exit 1; }
