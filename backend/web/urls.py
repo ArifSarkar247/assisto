@@ -1,6 +1,7 @@
 from django.urls import include, path
 from . import views
 from .owner.urls import site_robots
+from . import views_legal
 
 urlpatterns = [
     path("", views.landing),
@@ -32,6 +33,14 @@ urlpatterns = [
     path("made30/card.png", views.made30_card),
 
     path("wrapped/card.png", views.wrapped_card),
+
+    # ---- l1-launch: Play/AdMob legal pages, app-ads.txt, sitemap ----
+    path("privacy", views_legal.privacy),
+    path("terms", views_legal.terms),
+    path("delete-account", views_legal.delete_account),
+    path("app-ads.txt", views_legal.app_ads_txt),
+    path("sitemap.xml", views_legal.sitemap_xml),
+    # ---- /l1-launch ----
 
     # m3-circle: My Circle invite link landing (QR / share / SMS)
     path("i/<str:token>", views.circle_invite),

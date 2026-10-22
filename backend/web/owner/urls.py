@@ -26,8 +26,11 @@ def robots(request):
 
 
 def site_robots(request):
-    """Root /robots.txt: keep crawlers off the owner panel."""
-    return HttpResponse("User-agent: *\nDisallow: /owner/\n",
+    """Root /robots.txt: keep crawlers off the owner panel. l1-launch: points
+    crawlers at /sitemap.xml (privacy/terms/delete-account are listed there)."""
+    from django.conf import settings
+    site = getattr(settings, "WEB_PUBLIC_SITE", "https://lifeassisto.com").rstrip("/")
+    return HttpResponse("User-agent: *\nDisallow: /owner/\n\nSitemap: %s/sitemap.xml\n" % site,
                         content_type="text/plain; charset=utf-8")
 
 

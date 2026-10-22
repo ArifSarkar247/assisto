@@ -23,6 +23,7 @@ class Updater extends ChangeNotifier {
   String? error;
 
   Future<void> check() async {
+    if (AppConfig.playStore) return; // l1-launch: Play builds update via Play only
     try {
       final r = await http
           .get(AppConfig.api('/app/latest'))

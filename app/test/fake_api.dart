@@ -922,6 +922,7 @@ class FakeApi extends ApiClient {
               'draft': true,
               'stamp': _bn ? 'খসড়া — মালিকের পর্যালোচনা প্রয়োজন' : 'DRAFT — TO REVIEW BY OWNER',
               'last_updated': '2026-10-13',
+              'web_url': 'https://lifeassisto.com/privacy${_bn ? '' : '?lang=en'}',
               'body': _bn ? 'এটি একটি খসড়া নীতিমালা।' : 'This is a draft policy.'};
     }
     if (path == '/legal' || path.startsWith('/legal?')) {

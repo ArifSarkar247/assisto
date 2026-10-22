@@ -3637,3 +3637,50 @@ class OwnerAudit(models.Model):
     class Meta:
         ordering = ["-created_at", "-id"]
 # ---- /o2-admin ----
+
+
+# ---- l1-launch ----
+class WebDeletionRequest(models.Model):
+    """A "delete my account" request made on lifeassisto.com/delete-account by
+    someone who may not have the app any more (Google Play data-deletion
+    requirement: a web path, not only the in-app one).
+
+    This row is a TICKET for the owner, nothing more. Creating it never
+    deletes, schedules or changes any account. The owner first VERIFIES the
+    requester really owns the account (e.g. calls/SMSes the registered number),
+    then uses the Django admin action, which hands over to the normal
+    AccountDeletionRequest flow (7-day grace, cancel token, purge_deletions).
+
+    `matched_user` is filled server-side when the contact matches an account;
+    it is NEVER shown to the requester (the public page answers the same way
+    whether or not an account exists, so the form can't probe who is a user)."""
+    STATUS_NEW = "new"
+    STATUS_VERIFIED = "verified"
+    STATUS_SCHEDULED = "scheduled"
+    STATUS_REJECTED = "rejected"
+    STATUS_NO_ACCOUNT = "no_account"
+    STATUSES = [(STATUS_NEW, "new — verify the requester"),
+                (STATUS_VERIFIED, "verified"),
+                (STATUS_SCHEDULED, "deletion scheduled (7-day grace)"),
+                (STATUS_REJECTED, "rejected / could not verify"),
+                (STATUS_NO_ACCOUNT, "no matching account")]
+
+    contact = models.CharField(max_length=190)          # canonical phone or email
+    contact_kind = models.CharField(max_length=8, default="phone")  # phone|email
+    name = models.CharField(max_length=120, blank=True, default="")
+    reason = models.TextField(blank=True, default="")
+    lang = models.CharField(max_length=4, default="bn")
+    matched_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                                     blank=True, related_name="web_deletion_requests")
+    status = models.CharField(max_length=12, choices=STATUSES, default=STATUS_NEW)
+    owner_note = models.TextField(blank=True, default="")
+    ip_hash = models.CharField(max_length=64, blank=True, default="", db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"web-deletion #{self.pk} {self.contact_kind} [{self.status}]"
+# ---- /l1-launch ----

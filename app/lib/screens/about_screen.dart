@@ -124,7 +124,12 @@ class _AboutScreenState extends State<AboutScreen> {
             const SizedBox(height: Gap.xl),
             _infoCard(t),
             const SizedBox(height: Gap.lg),
-            _updateSection(t),
+            // l1-launch: the Play build updates through Google Play only.
+            if (AppConfig.playStore)
+              Text(t.l1PlayUpdatesViaStore,
+                  style: Theme.of(context).textTheme.bodyMedium)
+            else
+              _updateSection(t),
           ],
         ),
       ),

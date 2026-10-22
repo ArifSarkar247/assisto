@@ -1,0 +1,107 @@
+{% extends "web/base.html" %}
+{% block title %}{{ page_title }} — Assisto{% endblock %}
+{% block og %}
+<meta property="og:title" content="{{ page_title }} — Assisto">
+<meta property="og:description" content="{{ page_desc }}">
+<meta property="og:type" content="article">
+<meta property="og:url" content="{{ seo.canonical }}">
+{% endblock %}
+{% block head %}
+<meta name="description" content="{{ page_desc }}">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="{{ seo.canonical }}">
+<link rel="alternate" hreflang="bn" href="{{ seo.alt_bn }}">
+<link rel="alternate" hreflang="en" href="{{ seo.alt_en }}">
+<link rel="alternate" hreflang="x-default" href="{{ seo.alt_bn }}">
+<style>
+  .legal h1{font-size:24px;margin:.3em 0 .1em}
+  .legal .upd{color:#5a6680;font-size:13px}
+  .legal h2{font-size:18px;margin:0 0 8px;scroll-margin-top:12px}
+  .legal p,.legal li{font-size:15px}
+  .legal li{margin:4px 0}
+  .legal code{background:#eef2fb;border-radius:6px;padding:1px 5px;font-size:13px}
+  .legal a{text-decoration:underline}
+  .toc{columns:2 220px;column-gap:18px;padding-left:18px;margin:6px 0 0}
+  .toc li{font-size:14px;break-inside:avoid}
+  .perm{border:1px solid #e2e7f2;border-radius:12px;padding:12px;margin:10px 0}
+  .perm h3{font-size:16px;margin:0 0 2px}
+  .perm .pid{font-family:ui-monospace,monospace;font-size:11.5px;color:#5a6680;word-break:break-word}
+  .perm dl{margin:8px 0 0}
+  .perm dt{font-weight:700;font-size:13px;color:#14336E;margin-top:6px}
+  .perm dd{margin:0;font-size:14.5px}
+  .ok{background:#e6f6ef;color:#0b5e4e;border-radius:12px;padding:12px;font-size:15px}
+  .fe{color:#a11;font-size:13px;margin-top:4px}
+  .chk{display:flex;gap:10px;align-items:flex-start;font-weight:400}
+  .chk input{margin-top:5px;width:18px;height:18px;flex:none}
+  .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+  .others{font-size:14px;text-align:center;margin:18px 0 4px}
+</style>
+{% endblock %}
+{% block content %}
+<article class="legal">
+  <h1>{{ page_title }}</h1>
+  <div class="upd">{% if lang == 'en' %}Last updated{% else %}সর্বশেষ হালনাগাদ{% endif %}: {{ updated }}</div>
+
+  {% if sections|length > 3 %}
+  <nav class="card" aria-label="{% if lang == 'en' %}Contents{% else %}সূচিপত্র{% endif %}">
+    <b>{% if lang == 'en' %}Contents{% else %}সূচিপত্র{% endif %}</b>
+    <ol class="toc">{% for s in sections %}<li><a href="#{{ s.id }}">{{ s.heading }}</a></li>{% endfor %}</ol>
+  </nav>
+  {% endif %}
+
+  {% for s in sections %}
+  <section class="card" id="{{ s.id }}">
+    <h2>{{ s.heading }}</h2>
+    {% for b in s.blocks %}
+      {% if b.t == 'p' %}<p>{{ b.html }}</p>
+      {% elif b.t == 'ul' %}<ul>{% for it in b.items %}<li>{{ it }}</li>{% endfor %}</ul>
+      {% elif b.t == 'perms' %}
+        {% for r in b.rows %}
+        <div class="perm" id="perm-{{ r.id }}">
+          <h3>{{ r.name }}</h3>
+          <div class="pid">{{ r.perm }}</div>
+          <dl>
+            <dt>{% if lang == 'en' %}What it is used for{% else %}কী কাজে লাগে{% endif %}</dt><dd>{{ r.why }}</dd>
+            <dt>{% if lang == 'en' %}When it is asked{% else %}কখন চাওয়া হয়{% endif %}</dt><dd>{{ r.when }}</dd>
+            <dt>{% if lang == 'en' %}How to turn it off{% else %}কীভাবে বন্ধ করবেন{% endif %}</dt><dd>{{ r.revoke }}</dd>
+          </dl>
+        </div>
+        {% endfor %}
+      {% endif %}
+    {% endfor %}
+  </section>
+  {% if page_key == 'deletion' and s.id == 'web' %}
+  <section class="card" id="request">
+    <h2>{% if lang == 'en' %}Deletion request form{% else %}মোছার অনুরোধ ফর্ম{% endif %}</h2>
+    {% if sent %}
+      <div class="ok" role="status">{% if lang == 'en' %}Thank you — your request has been received. If an Assisto account uses this number or email, our team will contact it to verify before anything is deleted. Nothing has been deleted yet.{% else %}ধন্যবাদ — আপনার অনুরোধ পেয়েছি। এই নম্বর বা ইমেইলে কোনো Assisto অ্যাকাউন্ট থাকলে, কিছু মোছার আগে আমাদের টিম যাচাইয়ের জন্য সেখানে যোগাযোগ করবে। এখনো কিছু মোছা হয়নি।{% endif %}</div>
+    {% else %}
+    <form method="post" action="/delete-account{{ qlang }}#request" novalidate>
+      {% csrf_token %}
+      <label for="f-contact">{% if lang == 'en' %}Mobile number or email of the account *{% else %}অ্যাকাউন্টের মোবাইল নম্বর বা ইমেইল *{% endif %}</label>
+      <input type="text" id="f-contact" name="contact" value="{{ form.contact }}" autocomplete="username" inputmode="email" maxlength="190" required>
+      {% if errors.contact %}<div class="fe">{{ errors.contact }}</div>{% endif %}
+      <label for="f-name">{% if lang == 'en' %}Your name (optional){% else %}আপনার নাম (ঐচ্ছিক){% endif %}</label>
+      <input type="text" id="f-name" name="name" value="{{ form.name }}" maxlength="120" autocomplete="name">
+      <label for="f-reason">{% if lang == 'en' %}Reason, or what to delete (optional){% else %}কারণ, বা কী মুছতে চান (ঐচ্ছিক){% endif %}</label>
+      <textarea id="f-reason" name="reason" maxlength="1000" style="min-height:90px">{{ form.reason }}</textarea>
+      {% if errors.reason %}<div class="fe">{{ errors.reason }}</div>{% endif %}
+      <div class="hp" aria-hidden="true"><label for="f-website">Website</label><input type="text" id="f-website" name="website" tabindex="-1" autocomplete="off"></div>
+      <label class="chk"><input type="checkbox" name="confirm" value="1" required>
+        <span>{% if lang == 'en' %}I own this account and want it and all its data deleted. I understand this cannot be undone after the 7-day waiting period.{% else %}এই অ্যাকাউন্টটি আমার, এবং আমি অ্যাকাউন্ট ও এর সব ডেটা মুছতে চাই। বুঝেছি যে ৭ দিনের অপেক্ষার পর এটি আর ফেরানো যাবে না।{% endif %}</span></label>
+      {% if errors.confirm %}<div class="fe">{{ errors.confirm }}</div>{% endif %}
+      <div style="margin-top:14px"><button class="btn" type="submit">{% if lang == 'en' %}Send deletion request{% else %}মোছার অনুরোধ পাঠান{% endif %}</button></div>
+      <p class="muted" style="margin-top:10px">{% if lang == 'en' %}We use what you enter here only to handle this request.{% else %}এখানে দেওয়া তথ্য শুধু এই অনুরোধ নিষ্পত্তিতে ব্যবহার হয়।{% endif %}</p>
+    </form>
+    {% endif %}
+  </section>
+  {% endif %}
+  {% endfor %}
+
+  <p class="others">
+    {% if page_key != 'privacy' %}<a href="/privacy{{ qlang }}">{% if lang == 'en' %}Privacy Policy{% else %}গোপনীয়তা নীতি{% endif %}</a> · {% endif %}
+    {% if page_key != 'terms' %}<a href="/terms{{ qlang }}">{% if lang == 'en' %}Terms of Service{% else %}ব্যবহারের শর্তাবলী{% endif %}</a>{% if page_key != 'deletion' %} · {% endif %}{% endif %}
+    {% if page_key != 'deletion' %}<a href="/delete-account{{ qlang }}">{% if lang == 'en' %}Delete account{% else %}অ্যাকাউন্ট মুছুন{% endif %}</a>{% endif %}
+  </p>
+</article>
+{% endblock %}

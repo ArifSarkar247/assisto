@@ -15843,5 +15843,7 @@
   "h1TryAdAgain": "Try the ad again",
   "h1TryAgain": "Try again",
   "h1FaceRefused": "I can't identify real people from their face. I can describe the photo in general terms instead.",
-  "h1PrivacyNote": "Your photo was used only for this answer and was not saved."
+  "h1PrivacyNote": "Your photo was used only for this answer and was not saved.",
+  "l1LegalOpenWeb": "Read the full version on lifeassisto.com",
+  "l1PlayUpdatesViaStore": "This version of Assisto updates through Google Play. Open the Play Store to get the latest update."
 }

@@ -372,6 +372,8 @@ class SettingsScreen extends StatelessWidget {
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const SupportCenterScreen())),
           ),
+          // l1-launch: no self-update tile in the Google Play build.
+          if (!AppConfig.playStore)
           ListTile(
             leading: const Icon(Icons.system_update_outlined),
             title: Text(AppLocalizations.of(context).updateTile),
