@@ -534,7 +534,9 @@ jobs:
           # 'default' image hung >2h without booting. The GMS thrash only ever
           # hurt REPEATED relaunches — the single-cold-start __tour__ below does
           # one launch, so google_apis is both reliable and sufficient.
-          target: google_apis
+          target: default   # AOSP, no Google Play services. 22 Oct: the google_apis image
+          # froze the whole emulator (adb wedged) during Play-services activity on
+          # EVERY run, build 150's previously-passing code included.
           profile: pixel_5
           disable-animations: true
           # Fail fast if an emulator can't boot (a flaky API-30 boot once dragged
@@ -544,11 +546,18 @@ jobs:
           # NOTE: this script runs under /bin/sh in the runner — use only
           # &&/|| one-liners (multi-line if/then/fi breaks it).
           script: |
+            # Let the freshly booted emulator finish its BOOT_COMPLETED broadcast storm
+            # (build 151: Maps/Calendar/NFC were still starting when the tour ran, and
+            # the whole emulator + adb wedged). 2-core runner; ~60 s is enough.
+            sleep 60
             adb install -r apk/*.apk || { echo "install failed"; exit 1; }
             adb shell pm grant com.assisto.assisto android.permission.RECORD_AUDIO 2>/dev/null || true
             adb shell pm grant com.assisto.assisto android.permission.ACTIVITY_RECOGNITION 2>/dev/null || true
             adb shell pm grant com.assisto.assisto android.permission.BODY_SENSORS 2>/dev/null || true
             timeout 60 adb logcat -c || true
+            # LIVE logcat from before launch (builds 151: adb wedged after launch, so a
+            # post-launch `logcat -d` captured nothing). Detached: each script line is its own sh.
+            nohup sh -c 'adb logcat -v time > /tmp/live_logcat.txt 2>&1' >/dev/null 2>&1 &
             # Single, race-free cold start (no prior instance right after install).
             # --es ao_open __tour__ makes the debug build walk every native-plugin
             # screen once IN-PROCESS (voice_sos, lost_stolen, watch_feed,
@@ -556,6 +565,9 @@ jobs:
             adb shell am start -n com.assisto.assisto/com.assisto.assisto.MainActivity --es ao_open __tour__ || adb shell monkey -p com.assisto.assisto -c android.intent.category.LAUNCHER 1
             sleep 60
             timeout 120 adb logcat -d > logcat.txt 2>/dev/null || { echo "::warning::adb logcat -d timed out/failed (adb infra); crash check uses what was captured"; timeout 60 adb logcat -d -t 3000 > logcat.txt 2>/dev/null || true; }
+            cp /tmp/live_logcat.txt live_logcat.txt 2>/dev/null || true
+            [ -s logcat.txt ] || cp live_logcat.txt logcat.txt 2>/dev/null || true
+            echo "live logcat lines: $(wc -l < live_logcat.txt 2>/dev/null || echo 0)"; grep -E "AndroidRuntime|FATAL|ANR|flutter|assisto" live_logcat.txt 2>/dev/null | tail -60 || true
             echo "===== last 140 logcat lines ====="; tail -140 logcat.txt || true
             grep -E "FATAL EXCEPTION|ANR in com.assisto|com.assisto.assisto.*has died|FATAL SIGNAL|AndroidRuntime.*com.assisto|E/flutter.*(Unhandled|Fatal)" logcat.txt > crashes.txt 2>/dev/null || true
             test ! -s crashes.txt || { echo "::error::CRASH/ANR during launch+feature-tour on API ${{ matrix.api }}"; cat crashes.txt; exit 1; }
@@ -584,3 +596,14 @@ jobs:
             test -s pid2.txt || { echo "::error::app died after tapping Continue on API ${{ matrix.api }}"; exit 1; }
             timeout 60 adb shell uiautomator dump /sdcard/after.xml && timeout 60 adb pull /sdcard/after.xml after.xml 2>/dev/null || true
             if grep -q 'English' after.xml 2>/dev/null; then echo "::warning::on-device: still on language picker after tap (likely the UI-automation tap missed; host widget test is the real gate)"; else echo "LEFT the language picker — Continue entered the app OK"; fi
+
+      - name: Upload smoke logcat (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-logcat-${{ matrix.api }}
+          path: |
+            live_logcat.txt
+            logcat.txt
+          retention-days: 7
+          if-no-files-found: warn

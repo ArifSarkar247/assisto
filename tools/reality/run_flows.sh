@@ -18,11 +18,19 @@ A shell settings put global transition_animation_scale 0 || true
 A shell settings put global animator_duration_scale 0 || true
 A logcat -c || true
 
-# Background screen recording, in 170 s chunks (screenrecord's own cap is 180 s).
-( i=0; while [ -f "$OUT/.recording" ]; do
-    i=$((i+1)); timeout 185 adb shell screenrecord --time-limit 170 --bit-rate 2000000 "/sdcard/reality_$i.mp4" >/dev/null 2>&1 || true
-  done ) &
-touch "$OUT/.recording"
+# LIVE logcat for the whole run (a post-run `logcat -d` hung and captured
+# nothing on 21 Oct, when the app died seconds into flow 01).
+( timeout 3600 adb logcat -v time > "$OUT/live_logcat.txt" 2>&1 ) &
+
+# Background screen recording (OFF by default: on the 2-core software-GPU
+# emulator it competes with the app; every flow step already takes a
+# screenshot). REALITY_RECORD=1 turns it back on.
+if [ "${REALITY_RECORD:-0}" = "1" ]; then
+  ( i=0; while [ -f "$OUT/.recording" ]; do
+      i=$((i+1)); timeout 185 adb shell screenrecord --time-limit 170 --bit-rate 2000000 "/sdcard/reality_$i.mp4" >/dev/null 2>&1 || true
+    done ) &
+  touch "$OUT/.recording"
+fi
 
 # Pre-grant runtime permissions so no system dialog blocks a flow (the app is
 # installed by flutter drive; grant again right after install via a poller).
@@ -34,6 +42,10 @@ touch "$OUT/.recording"
       break
     fi; sleep 2; done ) &
 
+# Let the freshly booted emulator finish its BOOT_COMPLETED broadcast storm first
+# (21 Oct: the app died seconds into flow 01 while Maps/Calendar/NFC were still
+# starting, and adb wedged; the APK smoke saw the same).
+echo "== settle 60 s after boot"; sleep 60
 echo "== flutter drive (all flows)"
 REALITY_OUT="$OUT" timeout "${REALITY_DRIVE_TIMEOUT:-3300}" flutter drive \
   --driver=test_driver/integration_test.dart \
@@ -59,5 +71,7 @@ for f in $(T=20 A shell ls /sdcard/ 2>/dev/null | tr -d '\r' | grep '^reality_.*
   T=120 A pull "/sdcard/$f" "$OUT/" >/dev/null 2>&1 || true
 done
 T=120 A logcat -d -t 20000 > "$OUT/logcat.txt" 2>/dev/null || echo "logcat timed out" >> "$OUT/drive.log"
+[ -s "$OUT/logcat.txt" ] || cp "$OUT/live_logcat.txt" "$OUT/logcat.txt" 2>/dev/null || true
+grep -E "FATAL|AndroidRuntime|has died|Killing .*assisto|ANR in|ASSISTO_PREFS_FAIL|signal [0-9]+ \\(SIG" "$OUT/live_logcat.txt" 2>/dev/null | tail -40 || true
 find "$OUT" -maxdepth 3 -type f | head -50
 exit 0
