@@ -1,5 +1,10 @@
 # Assisto — মালিকের জন্য স্ট্যাটাস (নতুন আপডেট উপরে)
 
+> ## ⏳ আপনার কাছ থেকে যা লাগবে (আমি অপেক্ষা না করে বাকি কাজ চালিয়ে যাচ্ছি) — ২২ Oct রাত
+> ১. **Firebase Test Lab** (বিভিন্ন ব্র্যান্ডের আসল ফোনে স্বয়ংক্রিয় My Circle পরীক্ষা): Google Cloud-এ সার্ভিস অ্যাকাউন্ট বানিয়ে JSON GitHub secret `GCP_TESTLAB_SA`-তে দিন — ধাপ `owner_actions/TESTLAB_SETUP.md` (নিরাপত্তার বিষয়, তাই আপনার সিদ্ধান্ত)। ততক্ষণ আসল ফোনের চেকলিস্টই ভরসা।
+> ২. Abul Kashem-এর ফোনে একবার লগআউট + একটি ভয়েস ও ভিডিও কল করে দেখুন (সার্ভার থেকে মেসেজ ঠিক আছে প্রমাণিত)।
+> ৩. আগের তালিকা: EPS/Play কী (`PAYMENTS_SETUP.md`), ঠিকানা [ADDRESS], AdMob publisher ID, keystore ব্যাকআপ পাসফ্রেজ।
+
 > ## ✅ বিল্ড ১৯২ — ক্র্যাশ রিপোর্ট, ব্যাকগ্রাউন্ড গাইড, ডিলিট ঠিক, ফ্রি কল (২২ Oct রাত)
 > ডাউনলোড: https://api.lifeassisto.com/dl/SqAdvzlcMvC9D5qxKqmI6tGt/assisto-part7-build192.apk
 > ১. ক্র্যাশ/ত্রুটি রিপোর্ট: Owner Admin → Reports → অ্যাপের ত্রুটি — ফোনের মডেল, Android, ROM (ColorOS ইত্যাদি), কতবার — কোনো মেসেজ, নাম, নম্বর বা লিংক নয়; ৩০ দিন পর মুছে যায়। Firebase Crashlytics অ্যাপ খোলার কয়েক সেকেন্ড পরে চালু হয় (API-33 লঞ্চ টেস্ট পাস)। লগইনের পর একবার "ব্যাকগ্রাউন্ড ও নোটিফিকেশন" গাইড: OPPO/realme/Xiaomi/vivo/Samsung/Infinix-এর সঠিক সেটিং খোলে।
