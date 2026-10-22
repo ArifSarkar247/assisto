@@ -133,14 +133,21 @@ def force_relay(on):
     rit.Connection = relay_only
 
 
-def ice_config(ice_servers, prefer):
+def ice_config(ice_servers, prefer, relay_only=False):
     """RTCConfiguration from the server's ice_servers. aiortc uses only the
-    FIRST turn url, so put the preferred transport first."""
+    FIRST turn url, so put the preferred transport first.
+    relay_only: drop every stun: URL. aioice's TransportPolicy.RELAY only
+    drops HOST candidates and still gathers server-reflexive ones from STUN,
+    so a "forced relay" run could otherwise connect host<->srflx."""
     out = []
     for s in ice_servers or []:
         urls = s.get("urls") or []
         if isinstance(urls, str):
             urls = [urls]
+        if relay_only:
+            urls = [u for u in urls if not u.startswith("stun:")]
+            if not urls:
+                continue
         if s.get("username"):
             def rank(u):
                 if prefer == "tls":
@@ -358,7 +365,7 @@ async def one_run(A, B, member_id, mode, talk_s):
             return res
         tasks += [asyncio.create_task(heartbeat(A, call_id, stA, stop))]
         ice_a = cfgA_raw.get("ice_servers") or (r.get("ice") or {}).get("iceServers")
-        pcA, holeA = make_pc(ice_config(ice_a, prefer), 440)
+        pcA, holeA = make_pc(ice_config(ice_a, prefer, relay_only=relay), 440)
         offer = await pcA.createOffer()
         await pcA.setLocalDescription(offer)   # aiortc gathers here (no trickle)
         await A.signal(call_id, "offer", {"type": pcA.localDescription.type,
@@ -386,7 +393,7 @@ async def one_run(A, B, member_id, mode, talk_s):
         tasks += [asyncio.create_task(heartbeat(B, call_id, stB, stop))]
         cfgB_raw = await B.turn()
         ice_b = cfgB_raw.get("ice_servers") or (ans.get("ice") or {}).get("iceServers")
-        pcB, holeB = make_pc(ice_config(ice_b, prefer), 660)
+        pcB, holeB = make_pc(ice_config(ice_b, prefer, relay_only=relay), 660)
         offer_sdp = None
         for _ in range(50):
             for e in await B.poll_events(call_id, after=0):

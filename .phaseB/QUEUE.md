@@ -1,5 +1,7 @@
 # Owner work queue (newest order wins)
 
+**STANDING RULE (owner, 22 Oct):** when a question has a safe, reversible Recommended option, pick it, note it in STATUS, keep working. Ask the owner only for irreversible, money, legal or security decisions.
+
 ## MASTER ORDER 22 Oct (single source of truth; earlier orders below are history)
 Rules: max parallel agents (own worktree each), heavy cmds via lock, ship each part immediately, deploy each backend after checks (standing approval), max 1 h on CI problems (gate = release cold start + backend tests + route_check; note missing proof), commit hourly, never idle, blockers in Bangla at top of STATUS, 3 Bangla lines per build.
 
