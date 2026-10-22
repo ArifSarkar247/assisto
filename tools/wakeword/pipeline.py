@@ -374,6 +374,10 @@ def stage_package(c: Ctx):
         "frames": c.cfg["frames"], "files": entries, "thresholds": rep["thresholds"],
         "patience": PATIENCE, "cooldown_ms": COOLDOWN_MS,
         "licence_cleared": cleared,
+        # licence AND the measured targets (Bangla FA, far-field FR). Integrators: do not
+        # copy a build with ship_ready=false into backend/core/wakeword_models/.
+        "ship_ready": bool(cleared and rep["targets"]["met_normal_bangla_fa"]
+                           and rep["targets"]["met_normal_fr_far_field"]),
         "licence_notes": {"features": feat_note,
                           "piper_used": bool(t.get("piper")),
                           "tiny_smoke": bool(c.cfg["tiny"])},
@@ -388,9 +392,9 @@ def stage_package(c: Ctx):
     card = _rt(os.path.join(os.path.dirname(os.path.abspath(__file__)), "MODEL_CARD.md"))
     _wt(os.path.join(out, "MODEL_CARD.md"),
         card + "\n\n---\n\n## This build\n\n```json\n" + json.dumps(
-            {k: manifest[k] for k in ("version", "feature_backend", "thresholds", "licence_cleared",
+            {k: manifest[k] for k in ("version", "feature_backend", "thresholds", "licence_cleared", "ship_ready",
                                       "licence_notes")}, indent=1) + "\n```\n")
-    log("packaged ->", out, "licence_cleared=", cleared)
+    log("packaged ->", out, "licence_cleared=", cleared, "ship_ready=", manifest["ship_ready"])
 
 
 STAGES = {"features": stage_features, "synth": stage_synth, "prepare": stage_prepare,

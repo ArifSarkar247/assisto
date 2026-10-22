@@ -7,10 +7,11 @@ server — it is a 2-CPU box that also runs the live backend.
 ## Run it (integrator)
 1. Push the branch, then GitHub → Actions → **Wake word train (Hey Assisto)** → *Run workflow*.
    - First try `tiny = true` (~3 min): checks the plumbing; its model is never shippable.
-   - Then the real run: `features = e2e`, `steps = 6000`, `n_pos_train = 6000` (≈ 3–4.5 h).
+   - Then the real run: `features = e2e`, `steps = 6000`, `n_pos_train = 6000` (≈ 70 min cold,
+     ≈ 45 min with warm caches; `stage = data` only fills the caches).
 2. Download the artifact `wakeword-model-<run>` and read `eval_report.md` (the real measured
    false accepts / 10 h and false-reject rates). The job summary shows the same table.
-3. If `manifest.json` says `"licence_cleared": true` **and** the numbers are acceptable, copy
+3. If `manifest.json` says `"ship_ready": true` (= licence cleared **and** the Bangla false-accept + far-field false-reject targets met), copy
    `manifest.json`, `assisto_wake.onnx`, `assisto_embed_e2e.onnx`, `MODEL_CARD.md`,
    `eval_report.md` into `backend/core/wakeword_models/`, commit, deploy. The app then shows
    "Hey Assisto" as available (GET /api/v1/voice/config → `available: true`).
