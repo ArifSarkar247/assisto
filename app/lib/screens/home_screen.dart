@@ -222,8 +222,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             // Assisto") is the hero slot — Free users may see ONE native ad
             // there instead (never Premium/Business, never over content);
             // it collapses on input focus and disappears once a chat starts.
-            heroBuilder: (_, logoBlock, collapsed) => HomeHero(
-                fallback: logoBlock, collapsed: collapsed || keyboardOpen),
+            heroBuilder: (_, logoBlock, collapsed, height) => HomeHero(
+                fallback: logoBlock,
+                collapsed: collapsed || keyboardOpen,
+                availableHeight: height),
             // A1 — collapse the Discover/spotlight area the moment the input
             // gains focus so the chat + input fill the screen and the keyboard
             // never covers what the user is typing.

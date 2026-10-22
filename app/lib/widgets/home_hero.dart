@@ -21,6 +21,7 @@ class HomeHero extends StatefulWidget {
     super.key,
     required this.fallback,
     this.collapsed = false,
+    this.availableHeight,
     this.bridge,
     this.loadConfig,
     this.isHomeVisible,
@@ -32,10 +33,30 @@ class HomeHero extends StatefulWidget {
   /// True while the chat input has focus -> the ad goes away.
   final bool collapsed;
 
+  /// The height the welcome area really has (null = use the screen height).
+  /// The ad box never exceeds it, so the ad is never cut off or pushed under
+  /// the input; too little room -> the normal logo block.
+  final double? availableHeight;
+
   /// Injectable for tests / the screenshot gallery.
   final HeroAdBridge? bridge;
   final Future<Map<String, dynamic>> Function()? loadConfig;
   final bool Function()? isHomeVisible;
+
+  /// Screenshot-gallery / test seams for the HomeScreen-hosted hero (which is
+  /// built without arguments). Never set in the app.
+  @visibleForTesting
+  static HeroAdBridge? debugBridge;
+  @visibleForTesting
+  static Future<Map<String, dynamic>> Function()? debugLoadConfig;
+
+  @visibleForTesting
+  static void debugReset() {
+    debugBridge = null;
+    debugLoadConfig = null;
+    _HomeHeroState._cfgCache = null;
+    _HomeHeroState._cfgAt = null;
+  }
 
   @override
   State<HomeHero> createState() => _HomeHeroState();
@@ -45,7 +66,10 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
   static Map<String, dynamic>? _cfgCache;
   static DateTime? _cfgAt;
 
-  late final HeroAdBridge _bridge = widget.bridge ?? createHeroAdBridge();
+  late final HeroAdBridge _bridge =
+      widget.bridge ?? HomeHero.debugBridge ?? createHeroAdBridge();
+  Future<Map<String, dynamic>> Function()? get _injectedConfig =>
+      widget.loadConfig ?? HomeHero.debugLoadConfig;
   HeroAdConfig _cfg = HeroAdConfig.none;
   HeroAdHandle? _ad;
   Timer? _timer;
@@ -113,8 +137,8 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
     try {
       final fresh = _cfgAt != null &&
           DateTime.now().difference(_cfgAt!) < const Duration(minutes: 30);
-      if (!fresh || widget.loadConfig != null) {
-        final load = widget.loadConfig ??
+      if (!fresh || _injectedConfig != null) {
+        final load = _injectedConfig ??
             () => context.read<AppState>().api.getJson('/ads/config');
         _cfgCache = await load();
         _cfgAt = DateTime.now();
@@ -125,17 +149,21 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
     }
   }
 
+  /// The ad box height: the room the slot really has minus the "Ad" label
+  /// row, capped at 340 (AdMob medium template).
   double _slotHeight() {
-    final h = MediaQuery.of(context).size.height;
-    return (h * 0.42).clamp(0.0, 340.0);
+    final avail = widget.availableHeight ?? MediaQuery.of(context).size.height * 0.42;
+    return (avail - _labelRow).clamp(0.0, 340.0);
   }
+
+  static const double _labelRow = 28;
 
   HeroDecision _decide() {
     bool loggedIn;
     try {
       loggedIn = context.read<AppState>().loggedIn;
     } catch (_) {
-      loggedIn = widget.loadConfig != null; // gallery/tests inject config
+      loggedIn = _injectedConfig != null; // gallery/tests inject config
     }
     return HeroAdRules.decide(
       config: _cfg,
@@ -208,7 +236,8 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final ad = _ad;
-    final child = (ad == null || widget.collapsed)
+    final room = _slotHeight() >= HeroAdRules.minSlotHeight;
+    final child = (ad == null || widget.collapsed || !room)
         ? KeyedSubtree(key: const ValueKey('hero-logo'), child: widget.fallback)
         : HeroAdFrame(
             key: const ValueKey('hero-ad'),

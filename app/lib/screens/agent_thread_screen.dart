@@ -50,10 +50,11 @@ class AgentThreadScreen extends StatefulWidget {
   final String? initialSend;
 
   /// h1-home: builds the top of the empty-thread welcome. Gets the normal
-  /// logo + "Hi, I'm Assisto" block and whether the input has focus; the home
-  /// returns its ad hero (which falls back to that block). Null = the block.
-  final Widget Function(BuildContext context, Widget logoBlock, bool collapsed)?
-      heroBuilder;
+  /// logo + "Hi, I'm Assisto" block, whether the input has focus and the
+  /// height the welcome area really has; the home returns its ad hero (which
+  /// falls back to that block). Null = the block.
+  final Widget Function(BuildContext context, Widget logoBlock, bool collapsed,
+      double availableHeight)? heroBuilder;
 
   /// Test seam for the photo picker (camera / gallery).
   final ChatPhotoPicker? photoPicker;
@@ -346,11 +347,16 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
   Widget _welcome() {
     final block = _logoBlock();
     final hero = widget.heroBuilder;
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(Gap.xl, Gap.lg, Gap.xl, Gap.md),
-      children: [
-        hero == null ? block : hero(context, block, _inputFocus.hasFocus),
-      ],
+    return LayoutBuilder(
+      builder: (context, box) => ListView(
+        padding: const EdgeInsets.fromLTRB(Gap.xl, Gap.lg, Gap.xl, Gap.md),
+        children: [
+          hero == null
+              ? block
+              : hero(context, block, _inputFocus.hasFocus,
+                  box.maxHeight.isFinite ? box.maxHeight - Gap.lg - Gap.md : 0),
+        ],
+      ),
     );
   }
 
