@@ -4,7 +4,7 @@
 Rules: max parallel agents (own worktree each), heavy cmds via lock, ship each part immediately, deploy each backend after checks (standing approval), max 1 h on CI problems (gate = release cold start + backend tests + route_check; note missing proof), commit hourly, never idle, blockers in Bangla at top of STATUS, 3 Bangla lines per build.
 
 1. [IN CI] My Circle like WhatsApp (add any format/phonebook/QR/link, requests, messages, voice+video calls, FCM ringing closed app) + settings-store release fix + Phone Safety spinner fix. MISSING PROOF: native tour + two-account emulator audit (hosted emulator wedges adb) — re-run when CI stable.
-2. [WAITING OWNER] Owner account 01627165248 → superuser (backup first). No match in any format on the live server; accounts listed in STATUS; never another number without owner OK.
+2. [DONE 22 Oct] Owner account: owner confirmed id 3 (Arif, 01784056199) → superuser + staff (backup first, AuditLog entry). Superusers: Owner (13) + id 3.
 3. [BUILT, in builds] OTP flow (provider-agnostic, key-gated) + owner_actions/SMS_GATEWAY_NEEDS.md (Bangla). Needs SMS gateway keys.
 4. [READY branch voice] Voice assistant: default assistant (long-press power), optional Hey Assisto (needs Picovoice key), YouTube/YT Music, hands-free, TTS, bn/Banglish/en.
 5. [READY branch admin] Web Owner Admin Panel /owner/ (superuser + 2FA) — deploy right after #1.
