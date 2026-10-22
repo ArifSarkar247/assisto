@@ -453,93 +453,25 @@ class AppState extends ChangeNotifier {
 /// to an in-memory copy for this app session. [degraded] says honestly that
 /// values will not survive an app restart; [lastError] is reported once.
 class Settings {
-  /// Swappable for tests (simulate the device's broken / hanging store).
-  @visibleForTesting
-  static Future<SharedPreferences> Function() prefsProvider =
-      SharedPreferences.getInstance;
-
-  static const Duration _timeout = Duration(seconds: 3);
-  static final Map<String, Object> _memory = {};
-
-  /// True once the persistent store failed in this session.
   static bool degraded = false;
-
-  /// The first storage error seen (for the startup crash report).
   static String? lastError;
-
-  @visibleForTesting
-  static void resetForTest() {
-    _memory.clear();
-    degraded = false;
-    lastError = null;
-    prefsProvider = SharedPreferences.getInstance;
-  }
-
-  static Future<SharedPreferences?> _prefs() async {
-    try {
-      return await prefsProvider().timeout(_timeout);
-    } catch (e) {
-      degraded = true;
-      if (lastError == null) {
-        // Release builds too: the CI launch smoke fails on this marker, so a
-        // broken settings store can never ship silently again.
-        // ignore: avoid_print
-        print('ASSISTO_PREFS_FAIL $e');
-      }
-      lastError ??= '$e';
-      return null;
-    }
-  }
-
-  // The in-memory copy is ONLY a fallback for a store that failed; a healthy
-  // store is always the source of truth (so a cleared store reads as empty).
   static Future<bool> getBool(String k, bool def) async {
-    final p = await _prefs();
-    if (p != null) {
-      try {
-        return p.getBool(k) ?? def;
-      } catch (e) {
-        lastError ??= '$e';
-      }
-    }
-    final m = _memory[k];
-    return m is bool ? m : def;
+    final p = await SharedPreferences.getInstance();
+    return p.getBool(k) ?? def;
   }
 
   static Future<void> setBool(String k, bool v) async {
-    _memory[k] = v;
-    final p = await _prefs();
-    if (p == null) return;
-    try {
-      await p.setBool(k, v).timeout(_timeout);
-    } catch (e) {
-      degraded = true;
-      lastError ??= '$e';
-    }
+    final p = await SharedPreferences.getInstance();
+    await p.setBool(k, v);
   }
 
   static Future<String?> getString(String k) async {
-    final p = await _prefs();
-    if (p != null) {
-      try {
-        return p.getString(k);
-      } catch (e) {
-        lastError ??= '$e';
-      }
-    }
-    final m = _memory[k];
-    return m is String ? m : null;
+    final p = await SharedPreferences.getInstance();
+    return p.getString(k);
   }
 
   static Future<void> setString(String k, String v) async {
-    _memory[k] = v;
-    final p = await _prefs();
-    if (p == null) return;
-    try {
-      await p.setString(k, v).timeout(_timeout);
-    } catch (e) {
-      degraded = true;
-      lastError ??= '$e';
-    }
+    final p = await SharedPreferences.getInstance();
+    await p.setString(k, v);
   }
 }
