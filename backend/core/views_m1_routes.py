@@ -424,7 +424,8 @@ class CommunityMessageRequestsListView(APIView):
                              "sender_key_id": r.sender_key_id, "scheme": ""}
             d["sender"] = {"id": r.sender_id, "name": d["name"],
                            "photo": d["photo"]}
-            d["sender_public_key"] = ""   # no user-level key directory yet
+            from . import e2_keys  # e2-keys: the per-user key directory
+            d["sender_public_key"] = e2_keys.key_of(r.sender_id)[0] or ""
             out.append(d)
         return Response({"results": out})
 

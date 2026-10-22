@@ -172,7 +172,8 @@ class CircleBubble extends StatelessWidget {
     final show = deleted
         ? t.circleDeletedPlaceholder
         : msg.decryptFailed
-            ? t.circleDecryptFailed
+            // e2-keys: honest — sent to another device/key of mine.
+            ? t.e2CantDecryptHere
             : msg.text;
     if (show.isEmpty && msg.contentType != 'text') return const SizedBox.shrink();
     return Text(

@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -13,6 +14,7 @@ import 'package:share_plus/share_plus.dart';
 import '../api.dart';
 import '../config.dart';
 import '../crypto/e2e.dart';
+import '../crypto/key_service.dart';
 import '../l10n/app_localizations.dart';
 import '../messenger_admin_api.dart';
 import '../messenger_group_api.dart';
@@ -102,6 +104,17 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   int get _gid => int.tryParse(_groupId) ?? 0;
   String get _chatKey => 'group:$_gid';
 
+  // e2-keys item 2: reversed + paged, opens at the latest message or at the
+  // "N unread messages" divider — never renders from the top.
+  static const int _pageSize = 50;
+  bool _hasMore = false;
+  bool _loadingOlder = false;
+  bool _loadedOnce = false;
+  int _unreadAtOpen = 0;
+  String? _firstUnreadId;
+  bool _positioned = true;
+  final GlobalKey _dividerKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -110,6 +123,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     unawaited(FlnMsgSink().cancel('group', _gid));
     _rt.acquire();
     _rt.states.addListener(_onRt);
+    _scroll.addListener(_onScroll);
     _load().then((_) => _markSeen());
     _poll = Timer.periodic(const Duration(seconds: 8), (_) => _pollMessages());
     // x2-ticks: live ticks + instant refresh on a new message.
@@ -193,9 +207,10 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     if (ls != null && ls != AppLifecycleState.resumed) return;
     _pollBusy = true;
     try {
-      final msg = await _api.getJson('/circle/groups/$_groupId/messages');
-      final next = ((msg['results'] ?? msg['messages'] ?? []) as List)
-          .cast<Map<String, dynamic>>();
+      final msg = await _api
+          .getJson('/circle/groups/$_groupId/messages?limit=$_pageSize');
+      final next = _withOlder(((msg['results'] ?? msg['messages'] ?? []) as List)
+          .cast<Map<String, dynamic>>());
       final known = _messages.map((m) => '${m['id']}').toSet();
       final fresh = next.any((m) => m['mine'] != true && !known.contains('${m['id']}'));
       final changed = next.length != _messages.length ||
@@ -224,22 +239,56 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   /// core/logic/circle_groups.can_post).
   bool get _canPost => !_announcementsOnly || _myRole == 'admin';
 
+  /// Keep the older pages already loaded (scroll-up) when the newest page
+  /// is re-read.
+  List<Map<String, dynamic>> _withOlder(List<Map<String, dynamic>> page) {
+    if (page.isEmpty) return page;
+    final oldest = int.tryParse('${page.first['id']}');
+    if (oldest == null) return page;
+    final ids = page.map((m) => '${m['id']}').toSet();
+    final older = _messages.where((m) {
+      final n = int.tryParse('${m['id']}');
+      return n != null && n < oldest && !ids.contains('${m['id']}');
+    }).toList();
+    return [...older, ...page];
+  }
+
   Future<void> _load() async {
-    if (mounted && !_loading) setState(() => _loading = true);
+    // Spinner only on the very first load — a reload after send/react/pin
+    // keeps the list on screen (no flash, no jump).
+    if (mounted && !_loading && !_loadedOnce) setState(() => _loading = true);
     try {
       final mem = await _api.getJson('/circle/groups/$_groupId/members');
       _members = ((mem['results'] ?? mem['members'] ?? []) as List)
           .cast<Map<String, dynamic>>();
-      final msg = await _api.getJson('/circle/groups/$_groupId/messages');
-      _messages = ((msg['results'] ?? msg['messages'] ?? []) as List)
+      final msg = await _api
+          .getJson('/circle/groups/$_groupId/messages?limit=$_pageSize');
+      final page = ((msg['results'] ?? msg['messages'] ?? []) as List)
           .cast<Map<String, dynamic>>();
+      if (!_loadedOnce) {
+        _messages = page;
+        _hasMore = msg['has_more'] == true;
+        final unseen = page.where((m) => m['unseen'] == true).toList();
+        _unreadAtOpen = unseen.length;
+        _firstUnreadId = unseen.isEmpty ? null : '${unseen.first['id']}';
+        _positioned = _unreadAtOpen <= 3;
+      } else {
+        _messages = _withOlder(page);
+      }
+      _loadedOnce = true;
       _loadFailed = false;
     } catch (_) {
       // Keep any already-loaded messages visible; only flag the error so the
       // UI can offer Retry instead of silently showing an empty chat.
       _loadFailed = _messages.isEmpty;
     }
-    if (mounted) setState(() => _loading = false);
+    if (mounted) {
+      setState(() => _loading = false);
+      if (!_positioned) {
+        WidgetsBinding.instance
+            .addPostFrameCallback((_) => unawaited(_placeAtDivider()));
+      }
+    }
   }
 
   /// My member id in this group, resolved from the roster (is_self) and falling
@@ -255,13 +304,39 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   /// (is_self / my_member_id) rather than guessing by key_id, so I never
   /// encrypt a copy addressed to myself.
   List<Map<String, dynamic>> get _recipients {
+    return _others
+        .where((m) => '${m['public_key'] ?? ''}'.isNotEmpty)
+        .toList();
+  }
+
+  /// Every other active member, with or without a published key.
+  List<Map<String, dynamic>> get _others {
     final mine = _myMemberId;
     return _members
-        .where((m) =>
-            m['is_self'] != true &&
-            '${_idOf(m)}' != mine &&
-            m['public_key'] != null)
+        .where((m) => m['is_self'] != true && '${_idOf(m)}' != mine)
         .toList();
+  }
+
+  /// e2-keys: re-read the roster (keys are LIVE from the per-user directory)
+  /// and silently ask every keyless co-member's phone to publish. Never
+  /// shown to the user.
+  Future<void> _refreshRosterKeys() async {
+    try {
+      final mem = await _api
+          .getJson('/circle/groups/$_groupId/members')
+          .timeout(const Duration(seconds: 6));
+      final next = ((mem['results'] ?? mem['members'] ?? []) as List)
+          .cast<Map<String, dynamic>>();
+      if (next.isNotEmpty) _members = next;
+    } catch (_) {}
+    for (final m in _others.where((m) => '${m['public_key'] ?? ''}'.isEmpty)) {
+      final uid = m['user_id'];
+      if (uid == null) continue;
+      unawaited(_api
+          .postJson('/circle/keys/request', {'user_id': uid})
+          .then((_) {}, onError: (_) {}));
+      KeyService.instance.log.add('group $_gid: asked member $uid for key');
+    }
   }
 
   /// Encrypt [plaintext] ONCE PER RECIPIENT (fallback fan-out) and POST a single
@@ -271,15 +346,37 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     final text = resendText ?? _input.text.trim();
     if (text.isEmpty || _sending || !_canPost) return;
     _rt.typing('group', _gid, 'stop');
-    // §21: if there is no one to encrypt to, say so instead of a silent no-op.
-    if (_recipients.isEmpty) {
-      _toast(_t.grpNoRecipients);
-      return;
-    }
     setState(() {
       _sending = true;
       _failedText = null;
+      _unreadAtOpen = 0;
+      _firstUnreadId = null;
     });
+    // e2-keys: keys re-read before each send; keyless members are asked
+    // silently. If NOBODY can be encrypted to yet, wait briefly for the
+    // background publish instead of showing a key error.
+    await _refreshRosterKeys();
+    for (var i = 0; i < 3 && _recipients.isEmpty && _others.isNotEmpty; i++) {
+      await Future<void>.delayed(const Duration(seconds: 3));
+      if (!mounted) return;
+      await _refreshRosterKeys();
+    }
+    if (!mounted) return;
+    // §21: if there is no one to encrypt to, say so instead of a silent no-op.
+    if (_others.isEmpty) {
+      setState(() => _sending = false);
+      _toast(_t.grpNoRecipients);
+      return;
+    }
+    if (_recipients.isEmpty) {
+      // Still no key after the wait: the honest generic failed-send banner
+      // (keeps the text, Retry) — never a key error.
+      setState(() {
+        _sending = false;
+        _failedText = text;
+      });
+      return;
+    }
     final perRecipient = <String, dynamic>{};
     final recipientIds = <int>[];
     var skipped = 0;
@@ -301,8 +398,11 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         skipped++;
       }
     }
-    // seam audit: a member whose key is broken used to be dropped silently.
-    if (skipped > 0) _toast(_t.c3SkippedRecipients(skipped));
+    // e2-keys: a member whose key is broken/missing is asked silently (see
+    // _refreshRosterKeys) — logged, never a toast.
+    if (skipped > 0) {
+      KeyService.instance.log.add('group $_gid: skipped $skipped recipient(s)');
+    }
     final mentions = _parseMentions(text);
     var ok = true;
     try {
@@ -1208,12 +1308,127 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         ),
       );
     }
-    return ListView.builder(
-      controller: _scroll,
-      padding: const EdgeInsets.all(Gap.md),
-      itemCount: items.length,
-      itemBuilder: (_, i) => _messageItem(items[i]),
+    // e2-keys item 2: REVERSED — index 0 / offset 0 is the latest message,
+    // so the group opens there without any scroll. Older pages are appended
+    // at the end (= the top) on scroll-up, which keeps the position.
+    final searching = _searching && _searchQuery.trim().isNotEmpty;
+    final showDivider = !searching && _firstUnreadId != null && _unreadAtOpen > 0;
+    final rev = items.reversed.toList();
+    return Opacity(
+      opacity: _positioned ? 1 : 0,
+      child: ListView.builder(
+        key: const Key('e2-group-list'),
+        controller: _scroll,
+        reverse: true,
+        padding: const EdgeInsets.all(Gap.md),
+        itemCount: rev.length + (_hasMore ? 1 : 0),
+        itemBuilder: (_, i) {
+          if (i >= rev.length) {
+            return Padding(
+              padding: const EdgeInsets.all(Gap.md),
+              child: Center(
+                child: _loadingOlder
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2))
+                    : const SizedBox(height: 20),
+              ),
+            );
+          }
+          final msg = rev[i];
+          final item = _messageItem(msg);
+          if (showDivider && '${msg['id']}' == _firstUnreadId) {
+            // reversed: the divider sits ABOVE the first unread message
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [_unreadDivider(), item],
+            );
+          }
+          return item;
+        },
+      ),
     );
+  }
+
+  Widget _unreadDivider() {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      key: _dividerKey,
+      padding: const EdgeInsets.symmetric(vertical: Gap.sm),
+      child: Container(
+        color: scheme.surfaceContainerHighest,
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: Gap.md),
+        child: Text(
+          _t.e2UnreadDivider(_unreadAtOpen),
+          key: const Key('e2-unread-divider'),
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: scheme.onSurfaceVariant),
+        ),
+      ),
+    );
+  }
+
+  /// Many unread: laid out hidden, jumped (no animation) so the divider is
+  /// near the top, then shown — the user never sees a scroll.
+  Future<void> _placeAtDivider() async {
+    try {
+      for (var i = 0; i < 40 && mounted; i++) {
+        final ctx = _dividerKey.currentContext;
+        if (ctx != null) {
+          final ro = ctx.findRenderObject();
+          if (ro != null) {
+            final vp = RenderAbstractViewport.of(ro);
+            final target = vp.getOffsetToReveal(ro, 0.92).offset;
+            final pos = _scroll.position;
+            _scroll.jumpTo(target.clamp(pos.minScrollExtent, pos.maxScrollExtent));
+          }
+          break;
+        }
+        if (!_scroll.hasClients) break;
+        final pos = _scroll.position;
+        if (pos.pixels >= pos.maxScrollExtent) break;
+        _scroll.jumpTo((pos.pixels + pos.viewportDimension)
+            .clamp(pos.minScrollExtent, pos.maxScrollExtent));
+        await WidgetsBinding.instance.endOfFrame;
+      }
+    } catch (_) {}
+    if (mounted) setState(() => _positioned = true);
+  }
+
+  void _onScroll() {
+    if (!_scroll.hasClients || _loadingOlder || !_hasMore) return;
+    final pos = _scroll.position;
+    if (pos.pixels >= pos.maxScrollExtent - 600) unawaited(_loadOlder());
+  }
+
+  Future<void> _loadOlder() async {
+    if (_loadingOlder || !_hasMore) return;
+    final oldest = _messages
+        .map((m) => int.tryParse('${m['id']}'))
+        .whereType<int>()
+        .fold<int?>(null, (a, b) => a == null || b < a ? b : a);
+    if (oldest == null) return;
+    setState(() => _loadingOlder = true);
+    try {
+      final r = await _api.getJson(
+          '/circle/groups/$_groupId/messages?limit=$_pageSize&before=$oldest');
+      final raw = ((r['results'] ?? r['messages'] ?? []) as List)
+          .cast<Map<String, dynamic>>();
+      final have = _messages.map((m) => '${m['id']}').toSet();
+      final older = raw.where((m) => !have.contains('${m['id']}')).toList();
+      if (!mounted) return;
+      setState(() {
+        _messages = [...older, ..._messages];
+        _hasMore = r['has_more'] == true && older.isNotEmpty;
+      });
+    } catch (_) {
+    } finally {
+      if (mounted) setState(() => _loadingOlder = false);
+    }
   }
 
   Widget _messageItem(Map<String, dynamic> msg) {
@@ -1228,7 +1443,10 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         ),
       );
     }
-    final text = _decryptForMe(msg) ?? '';
+    final dec = _decryptForMe(msg);
+    final text = dec ?? '';
+    // e2-keys: honest bubble when this device cannot decrypt it.
+    final undecryptable = dec == null && '${msg['deleted'] ?? ''}' != 'everyone';
     final senderName = _senderName(msg);
     final announcement = msg['announcement'] == true;
     final selected = _selecting && _selected.contains('${msg['id']}');
@@ -1266,7 +1484,14 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                 ],
               ),
               const SizedBox(height: Gap.xs),
-              _highlightMentions(text),
+              if (undecryptable)
+                Text(_t.e2CantDecryptHere,
+                    key: const Key('e2-cant-decrypt'),
+                    style: TextStyle(
+                        fontStyle: FontStyle.italic,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant))
+              else
+                _highlightMentions(text),
               _reactionRow(msg),
               // c3-msg: ticks on my own messages (all members delivered /
               // read → ✓✓ / blue ✓✓; long-press → Info per member).
@@ -1576,7 +1801,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     final sid = '${msg['sender_id'] ?? ''}';
     for (final m in _members) {
       // sender_id is a USER id; the roster carries it as user_id.
-      if ('${m['user_id'] ?? _idOf(m)}' == sid && m['public_key'] != null) {
+      if ('${m['user_id'] ?? _idOf(m)}' == sid && '${m['public_key'] ?? ''}'.isNotEmpty) {
         try {
           return Uint8List.fromList(base64Decode('${m['public_key']}'));
         } catch (_) {}

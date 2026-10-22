@@ -15,6 +15,7 @@ import '../push/push_payload.dart';
 import 'avatar_cache.dart';
 import 'badges_bus.dart';
 import 'msg_prefs.dart';
+import 'outbox.dart';
 
 /// c3-msg — WhatsApp-style message notifications, built ON THE DEVICE.
 ///
@@ -593,7 +594,14 @@ class MsgPushHandler {
       } else {
         final pull = await backend.pull(kind, id, limit: 1);
         final pub = '${((pull['chat'] as Map?) ?? const {})['peer_public_key'] ?? ''}';
-        if (pub.isEmpty) throw StateError('no peer key');
+        if (pub.isEmpty) {
+          // e2-keys: never a key error — queue it in the persistent outbox;
+          // it is encrypted + sent once the peer's key is published.
+          await Outbox.instance.add(OutboxItem(
+              id: clientMsgId(), chatId: id, text: body, at: DateTime.now()));
+          await sink.cancel(kind, id);
+          return true;
+        }
         final ct = e2e.encrypt(
             self: self,
             recipientPublicKey: Uint8List.fromList(base64Decode(pub)),

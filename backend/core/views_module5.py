@@ -424,9 +424,23 @@ def _member_dict(m):
         "relation": m.relation,
         "relation_label": circle.relation_label(m.relation, "bn", m.custom_label),
         "custom_label": m.custom_label, "state": m.state,
-        "public_key": m.public_key, "key_id": m.key_id, "scheme": m.scheme,
+        # e2-keys: the peer's key is read LIVE from the per-user directory
+        # (UserPublicKey) — never from the edge.
+        **_live_key_fields(m),
         "sharing": m.sharing or {},
     }
+
+
+def _live_key_fields(m):
+    from . import e2_keys
+    peer = e2_keys.edge_peer(m)
+    row = e2_keys.key_row(peer)
+    return {"public_key": row.public_key if row else "",
+            "key_id": row.key_id if row else "",
+            "scheme": row.scheme if row else "",
+            "peer_user_id": peer.id if peer is not None else None,
+            "key_changed_at": (row.changed_at.isoformat()
+                               if row and row.changed_at else None)}
 
 
 def _organise_map(user):
@@ -622,27 +636,28 @@ class CircleKeysView(APIView):
             if data.get(forbidden):
                 return Response({"detail": "only the public key may be sent"},
                                 status=status.HTTP_400_BAD_REQUEST)
-        # m2-reality fix: the key used to be DISCARDED, so no peer ever got
-        # `public_key` on GET /circle/members and every 1:1 chat stopped at
-        # "key missing". Publish it onto every edge that points AT me (those
-        # rows' public_key is "the peer's public key" from their owner's view).
+        # e2-keys: the key goes into the per-USER directory (UserPublicKey),
+        # so it is never discarded (it used to be written only onto edges
+        # pointing at me — none existed yet -> lost). Every peer-key read is
+        # LIVE from there; nothing is copied onto edges any more.
+        from . import e2_keys
         pub = str(data.get("public_key", "")).strip()[:200]
-        updated = 0
+        row, created, changed = (None, False, False)
         if pub:
-            updated = CircleMember.objects.filter(peer_user=request.user).update(
-                public_key=pub, key_id=str(data.get("key_id", ""))[:64],
-                scheme=str(data.get("scheme", ""))[:64])
-        return Response({"ok": True, "published": bool(pub), "edges": updated})
+            row, created, changed = e2_keys.publish(
+                request.user, pub, data.get("key_id", ""), data.get("scheme", ""))
+        edges = CircleMember.objects.filter(peer_user=request.user).count() \
+            if pub else 0
+        return Response({"ok": True, "published": bool(pub), "edges": edges,
+                         "created": created, "changed": changed,
+                         "key_id": row.key_id if row else ""})
 
 
 def _published_key(user):
-    """(public_key, key_id, scheme) the user last published, read back from any
-    edge that points at them; empty strings when they never opened the circle."""
-    row = (CircleMember.objects.filter(peer_user=user).exclude(public_key="")
-           .order_by("-id").first()) if user is not None else None
-    if row is None:
-        return "", "", ""
-    return row.public_key, row.key_id, row.scheme
+    """(public_key, key_id, scheme) the user last published — from the
+    per-user directory (e2-keys); empty strings when they never published."""
+    from . import e2_keys
+    return e2_keys.key_of(user)
 
 
 def _thread_q(m):
@@ -710,10 +725,9 @@ class CircleRequestCreateView(APIView):
                               str(data.get("custom_label", "")).strip()[:60])
             if done is not None:
                 return Response(_member_dict(done), status=status.HTTP_200_OK)
-        peer_key = _published_key(peer)  # m2-reality: carry an already-published key
+        # e2-keys: no key is copied onto the edge — _member_dict reads it live.
         # The SENDER's own row is OUTGOING (can only cancel it).
         m = CircleMember.objects.create(
-            public_key=peer_key[0], key_id=peer_key[1], scheme=peer_key[2],
             user=request.user,
             name=str(data.get("name", "")).strip()[:120],
             relation=relation,
@@ -728,13 +742,10 @@ class CircleRequestCreateView(APIView):
         # Mirror an INCOMING row on the recipient's side so they get accept/
         # decline (and see WHO sent it). Only when the recipient has an account.
         if peer is not None and peer.id != request.user.id:
-            my_key = _published_key(request.user)
             CircleMember.objects.get_or_create(
                 user=peer, peer_user=request.user, direction="incoming",
                 state="pending",
                 defaults={
-                    "public_key": my_key[0], "key_id": my_key[1],
-                    "scheme": my_key[2],
                     "name": (getattr(request.user, "name", "") or "").strip(),
                     "phone": (getattr(request.user, "phone", "") or "")[:40],
                     "relation": circle.reciprocal_relation(relation),
@@ -779,6 +790,11 @@ class CircleRequestActView(APIView):
                 if mchanged:
                     mirror.state = mstate
                     mirror.save(update_fields=["state"])
+        # e2-keys: an accept never dead-ends on "key missing" — whichever side
+        # has not published yet gets a silent key_request push.
+        if prev_state != "accepted" and new_state == "accepted":
+            from . import e2_keys
+            e2_keys.ensure_pair_keys(request.user, e2_keys.edge_peer(m))
         # Referral hook: award points when a relationship transitions to accepted.
         if prev_state != "accepted" and new_state == "accepted":
             try:
@@ -854,6 +870,12 @@ class CircleMessagesView(APIView):
         from .views_m1_messenger import visible_conversation
         uid = request.user.id
         msgs = visible_conversation(request.user, m)
+        # e2-keys item 2: optional paging (?limit=&before=) for the reversed
+        # chat list; no params = the whole conversation (older builds).
+        from . import chat_paging
+        meta = None
+        if chat_paging.wants_page(request):
+            msgs, meta = chat_paging.page(request, msgs, request.user)
         out = [{
             "id": x.id, "sender_id": x.sender_id, "content_type": x.content_type,
             "ciphertext": x.ciphertext, "nonce": x.nonce, "blob_ref": x.blob_ref,
@@ -870,6 +892,10 @@ class CircleMessagesView(APIView):
         from . import views_c3_msg as C3
         C3.annotate(out, msgs, request.user)
         C3.mark_fetched(request.user, msgs)   # x2-ticks: ack on any fetch
+        if meta is not None:
+            chat_paging.mark_unseen(out, meta["unseen"])
+            return Response({"results": out, "has_more": meta["has_more"],
+                             "unread_count": meta["unread_count"]})
         return Response({"results": out})
 
     def post(self, request, pk):

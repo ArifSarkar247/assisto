@@ -16078,5 +16078,32 @@
   "x1CallConnectFailed": "Couldn't connect — check internet",
   "@x1CallConnectFailed": {
     "description": "Call screen: the call was answered but media never connected within 20 s (both phones)."
-  }
+  },
+  "e2UnreadDivider": "{count, plural, =1{1 unread message} other{{count} unread messages}}",
+  "@e2UnreadDivider": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "e2SecurityCodeChanged": "Your security code with {name} changed. Tap to learn more.",
+  "@e2SecurityCodeChanged": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "e2SecurityCodeTitle": "Security code changed",
+  "e2SecurityCodeBody": "Messages and calls with {name} stay end-to-end encrypted. Their security code changes when they reinstall Assisto or move to a new phone. Messages sent to their old phone can't be read on the new one.",
+  "@e2SecurityCodeBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "e2CantDecryptHere": "This message can't be decrypted on this device.",
+  "e2WaitingToSend": "Waiting to send — it will go out automatically"
 }

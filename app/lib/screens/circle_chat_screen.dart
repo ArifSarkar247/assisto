@@ -1,14 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../api.dart';
 import '../messaging/badges_bus.dart';
 import '../crypto/e2e.dart';
+import '../crypto/key_service.dart';
 import '../l10n/app_localizations.dart';
 import '../messenger_chat_api.dart';
 import '../state.dart';
@@ -29,6 +30,7 @@ import '../messaging/msg_native.dart';
 import '../messaging/msg_notify.dart';
 import '../messaging/msg_prefs.dart';
 import '../messaging/msg_widgets.dart';
+import '../messaging/outbox.dart';
 import '../messaging/presence_label.dart';
 import '../messaging/receipt_bus.dart';
 import '../messaging/unread_store.dart';
@@ -132,6 +134,25 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   CircleMessage? _replyTo;
   CircleMessage? _editing;
 
+  // e2-keys item 1: the peer key is LIVE (re-fetched on open, before each
+  // send and on key.published) — never only the list snapshot. Older keys
+  // of this peer still decrypt history; a change adds a security note.
+  String _peerB64 = '';
+  List<Uint8List> _peerHistory = const [];
+  List<DateTime> _keyNotes = const [];
+  List<OutboxItem> _queued = const [];
+  StreamSubscription<Map<String, dynamic>>? _keySub;
+
+  // e2-keys item 2: reversed, paged list that OPENS at the latest message
+  // (or at the "N unread messages" divider) with no visible scroll.
+  static const int _pageSize = 50;
+  bool _hasMore = false;
+  bool _loadingOlder = false;
+  int _unreadAtOpen = 0;
+  String? _firstUnreadId;
+  bool _positioned = true; // false only while placing the unread divider
+  final GlobalKey _dividerKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -144,6 +165,10 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     _rt.acquire();
     _rt.states.addListener(_onRt);
     unawaited(_loadBubblePref());
+    _peerB64 = '${widget.member['public_key'] ?? ''}';
+    Outbox.instance.changes.addListener(_onOutbox);
+    _keySub = KeyService.instance.keyEvents.stream.listen(_onKeyEvent);
+    _scroll.addListener(_onScroll);
     _load().then((_) {
       if (widget.forwarding != null) _doForwardInto(widget.forwarding!);
     });
@@ -232,6 +257,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     _visTimer?.cancel();
     ReceiptBus.instance.relax();
     _stopPolling();
+    Outbox.instance.changes.removeListener(_onOutbox);
+    _keySub?.cancel();
     _input.dispose();
     _scroll.dispose();
     super.dispose();
@@ -279,7 +306,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     _polling = true;
     try {
       final peer = _peerPub;
-      final r = await _api.getJson('/circle/$_memberId/messages');
+      final r = await _api.getJson('/circle/$_memberId/messages?limit=$_pageSize');
       final raw = ((r['results'] ?? r['messages'] ?? []) as List)
           .cast<Map<String, dynamic>>();
       final fetched = raw.map((e) => _decryptEnvelope(e, peer)).toList();
@@ -288,7 +315,15 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       final pendingEchoes =
           _messages.where((m) =>
           (m.pending || m.status == 'failed') && !serverIds.contains(m.id));
-      final merged = [...fetched, ...pendingEchoes];
+      // e2-keys item 2: keep the OLDER pages already loaded (scroll-up).
+      final oldest = fetched.isEmpty ? null : int.tryParse(fetched.first.id);
+      final older = oldest == null
+          ? const <CircleMessage>[]
+          : _messages.where((m) {
+              final n = int.tryParse(m.id);
+              return n != null && n < oldest && !serverIds.contains(m.id);
+            }).toList();
+      final merged = [...older, ...fetched, ...pendingEchoes];
       if (!mounted || !_changed(_messages, merged)) return;
       // c3-msg: a new incoming message while the chat is open → seen now
       // (x2-ticks: only if it is really visible; else when uncovered).
@@ -297,14 +332,12 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         _seenPending = true;
         unawaited(_markSeen());
       }
-      final atBottom = _scroll.hasClients &&
-          _scroll.position.pixels >=
-              _scroll.position.maxScrollExtent - 80;
+      // Reversed list: offset 0 IS the bottom, so new messages appear in
+      // place without any programmatic scroll.
       setState(() {
         _messages = merged;
         _resolveReplyPreviews();
       });
-      if (atBottom) _scrollToEnd();
     } catch (_) {
       // Silent: a failed poll just waits for the next tick.
     } finally {
@@ -338,24 +371,126 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   String get _memberName => '${widget.member['name'] ?? ''}';
   int? get _memberId => widget.member['id'] as int?;
 
-  /// The peer's published X25519 public key (base64). The integrator returns it
-  /// on the member payload (`public_key`) from GET /circle/members.
+  /// The peer's published X25519 public key — LIVE (e2-keys): seeded from
+  /// the member payload, then re-fetched from GET /circle/keys/peer/<id> on
+  /// open, before each send and whenever key.published arrives.
   Uint8List? get _peerPub {
-    final b64 = widget.member['public_key'] as String?;
-    if (b64 == null || b64.isEmpty) return null;
+    final b64 = _peerB64;
+    if (b64.isEmpty) return null;
     try {
-      return base64Decode(b64);
+      final k = base64Decode(b64);
+      return k.isEmpty ? null : Uint8List.fromList(k);
     } catch (_) {
       return null;
     }
   }
 
+  /// GET /circle/keys/peer/<id>. When the peer has no key yet the server
+  /// queues a SILENT key_request push to them — nothing is shown here.
+  Future<Uint8List?> _refreshPeerKey() async {
+    final id = _memberId;
+    if (id == null) return _peerPub;
+    try {
+      final k = await _api
+          .getJson('/circle/keys/peer/$id')
+          .timeout(const Duration(seconds: 6));
+      final b64 = '${k['public_key'] ?? ''}';
+      if (b64.isNotEmpty) await _adoptPeerKey(b64);
+    } catch (e) {
+      KeyService.instance.log.add('peer key fetch failed ${e.runtimeType}');
+    }
+    return _peerPub;
+  }
+
+  Future<void> _adoptPeerKey(String b64) async {
+    final was = _peerB64;
+    await PeerKeyBook.instance.observe(_chatKey, b64);
+    final hist = await PeerKeyBook.instance.history(_chatKey);
+    final notes = await PeerKeyBook.instance.notes(_chatKey);
+    if (!mounted) return;
+    setState(() {
+      _peerB64 = b64;
+      _peerHistory = [
+        for (final h in hist)
+          if (h != b64) ...[
+            () {
+              try {
+                return Uint8List.fromList(base64Decode(h));
+              } catch (_) {
+                return Uint8List(0);
+              }
+            }()
+          ]
+      ].where((k) => k.isNotEmpty).toList();
+      _keyNotes = notes;
+    });
+    // A new/changed key may decrypt what failed before — re-read.
+    if (was != b64 && !_loading) unawaited(_pollMessages());
+  }
+
+  void _onKeyEvent(Map<String, dynamic> ev) {
+    if ('${ev['chat'] ?? ''}' != _chatKey) return;
+    unawaited(_refreshPeerKey());
+    unawaited(_reloadQueued());
+  }
+
+  /// The outbox changed (queued, or flushed in this or another isolate).
+  void _onOutbox() => unawaited(_reloadQueued());
+
+  Future<void> _reloadQueued() async {
+    final id = _memberId;
+    if (id == null) return;
+    final now = await Outbox.instance.forChat('member', id);
+    if (!mounted) return;
+    final nowIds = now.map((i) => i.id).toSet();
+    final gone = _queued.where((i) => !nowIds.contains(i.id)).toList();
+    setState(() {
+      _queued = now;
+      // A flushed item stays visible (sent) until the poll brings the
+      // server copy — no flicker.
+      if (gone.isNotEmpty) {
+        final have = _messages.map((m) => m.id).toSet();
+        _messages = [
+          ..._messages,
+          for (final i in gone)
+            if (!have.contains(i.id))
+              CircleMessage(
+                  id: i.id,
+                  text: i.text,
+                  mine: true,
+                  at: i.at,
+                  status: 'sent',
+                  replyToId: i.replyTo),
+        ];
+      }
+    });
+    if (gone.isNotEmpty) unawaited(_pollMessages());
+  }
+
   Future<void> _load() async {
+    // e2-keys: remember the snapshot key, then fetch the LIVE one in
+    // parallel with the history (no extra wait before the first frame).
+    final id = _memberId;
+    if (_peerB64.isNotEmpty) {
+      await PeerKeyBook.instance.observe(_chatKey, _peerB64);
+    }
+    final keyFetch = _refreshPeerKey();
+    if (id != null) {
+      _queued = await Outbox.instance.forChat('member', id);
+      if (_queued.isNotEmpty) unawaited(Outbox.instance.kick(onlyChat: id));
+    }
+    _keyNotes = await PeerKeyBook.instance.notes(_chatKey);
     final peer = _peerPub;
     try {
-      final r = await _api.getJson('/circle/$_memberId/messages');
+      final r = await _api.getJson('/circle/$_memberId/messages?limit=$_pageSize');
       final raw = ((r['results'] ?? r['messages'] ?? []) as List).cast<Map<String, dynamic>>();
       _messages = raw.map((e) => _decryptEnvelope(e, peer)).toList();
+      _hasMore = r['has_more'] == true;
+      // item 2: the first message I have not SEEN yet -> divider.
+      final unseen = raw.where((e) => e['unseen'] == true).toList();
+      _unreadAtOpen = unseen.length;
+      _firstUnreadId = unseen.isEmpty ? null : '${unseen.first['id']}';
+      _positioned = _unreadAtOpen <= 3;
       _resolveReplyPreviews();
       _seenPending = _messages.any((m) => !m.mine); // x2-ticks
       _maybeExpectTicks();
@@ -374,9 +509,82 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     } catch (_) {}
     if (mounted) {
       setState(() => _loading = false);
-      _scrollToEnd();
+      if (!_positioned) {
+        WidgetsBinding.instance
+            .addPostFrameCallback((_) => unawaited(_placeAtDivider()));
+      }
     }
     unawaited(_markSeen());
+    unawaited(keyFetch);
+  }
+
+  /// Many unread: the first frame is laid out hidden, jumped (no
+  /// animation) so the divider sits near the top, then shown — the user
+  /// never sees a scroll. Few unread fit at the bottom, which is offset 0.
+  Future<void> _placeAtDivider() async {
+    try {
+      for (var i = 0; i < 40 && mounted; i++) {
+        final ctx = _dividerKey.currentContext;
+        if (ctx != null) {
+          final ro = ctx.findRenderObject();
+          if (ro != null) {
+            final vp = RenderAbstractViewport.of(ro);
+            final target = vp.getOffsetToReveal(ro, 0.92).offset;
+            final pos = _scroll.position;
+            _scroll.jumpTo(target.clamp(pos.minScrollExtent, pos.maxScrollExtent));
+          }
+          break;
+        }
+        if (!_scroll.hasClients) break;
+        final pos = _scroll.position;
+        if (pos.pixels >= pos.maxScrollExtent) break;
+        _scroll.jumpTo((pos.pixels + pos.viewportDimension)
+            .clamp(pos.minScrollExtent, pos.maxScrollExtent));
+        await WidgetsBinding.instance.endOfFrame;
+      }
+    } catch (_) {}
+    if (mounted) setState(() => _positioned = true);
+  }
+
+  /// Older history on scroll-up (reversed list: the top is maxScrollExtent).
+  /// Appending at the END of a reversed list keeps the visible messages
+  /// exactly where they are — no flicker, no jump.
+  void _onScroll() {
+    if (!_scroll.hasClients || _loadingOlder || !_hasMore) return;
+    final pos = _scroll.position;
+    if (pos.pixels >= pos.maxScrollExtent - 600) unawaited(_loadOlder());
+  }
+
+  Future<void> _loadOlder() async {
+    if (_loadingOlder || !_hasMore) return;
+    final oldest = _messages
+        .map((m) => int.tryParse(m.id))
+        .whereType<int>()
+        .fold<int?>(null, (a, b) => a == null || b < a ? b : a);
+    if (oldest == null) return;
+    setState(() => _loadingOlder = true);
+    try {
+      final r = await _api.getJson(
+          '/circle/$_memberId/messages?limit=$_pageSize&before=$oldest');
+      final raw = ((r['results'] ?? r['messages'] ?? []) as List)
+          .cast<Map<String, dynamic>>();
+      final peer = _peerPub;
+      final have = _messages.map((m) => m.id).toSet();
+      final older = raw
+          .map((e) => _decryptEnvelope(e, peer))
+          .where((m) => !have.contains(m.id))
+          .toList();
+      if (!mounted) return;
+      setState(() {
+        _messages = [...older, ..._messages];
+        _hasMore = r['has_more'] == true && older.isNotEmpty;
+        _resolveReplyPreviews();
+      });
+    } catch (_) {
+      // Silent: the next scroll-up retries.
+    } finally {
+      if (mounted) setState(() => _loadingOlder = false);
+    }
   }
 
   void _onRt() {
@@ -455,7 +663,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     }
     final key = _msgKeys[id];
     if (key?.currentContext == null && _scroll.hasClients && list.length > 1) {
-      final frac = idx / (list.length - 1);
+      // reversed list: index 0 (offset 0) is the NEWEST message
+      final frac = (list.length - 1 - idx) / (list.length - 1);
       _scroll.jumpTo(frac * _scroll.position.maxScrollExtent);
       await Future<void>.delayed(const Duration(milliseconds: 60));
     }
@@ -545,16 +754,25 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       // Nothing to decrypt — the ciphertext was tombstoned server-side.
     } else if (contentType == 'text') {
       try {
-        if (peerPub == null) {
+        if (peerPub == null && _peerHistory.isEmpty) {
           failed = true;
         } else {
+          final usePub = peerPub ?? _peerHistory.last;
           final ct = Ciphertext(
             scheme: '${env['scheme'] ?? _e2e.scheme}',
             ciphertextB64: '${env['ciphertext'] ?? ''}',
             nonceB64: '${env['nonce'] ?? ''}',
             senderKeyId: '${env['sender_key_id'] ?? ''}',
           );
-          final pt = _e2e.decrypt(self: widget.identity, senderPublicKey: peerPub, ct: ct);
+          var pt = _e2e.decrypt(self: widget.identity, senderPublicKey: usePub, ct: ct);
+          // e2-keys: history from before the peer's key change still
+          // decrypts with the key it was sent under.
+          for (final old in _peerHistory) {
+            if (pt != null) break;
+            try {
+              pt = _e2e.decrypt(self: widget.identity, senderPublicKey: old, ct: ct);
+            } catch (_) {}
+          }
           if (pt == null) {
             failed = true;
           } else {
@@ -610,16 +828,14 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       return;
     }
 
-    final peer = _peerPub;
-    if (peer == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_t.circleKeyMissing)));
-      return;
-    }
-    setState(() => _sending = true);
-    final ct = _e2e.encrypt(self: widget.identity, recipientPublicKey: peer, plaintext: plain);
+    // e2-keys: the sender is NEVER blocked by encryption (owner PRODUCT
+    // RULE). The bubble appears at once; the peer key is re-fetched before
+    // the send; with no key yet the message waits in the persistent outbox
+    // (clock icon) and goes out by itself once the peer's phone publishes.
     final clientMsgId = 'local-${DateTime.now().microsecondsSinceEpoch}';
     final replyId = _replyTo?.id;
     final replyPrev = _replyTo?.text;
+    final sentAt = DateTime.now();
 
     // Link preview is built HERE (sender device). We detect the URL locally;
     // the real title/thumbnail fetch + encryption is the integrator's device
@@ -632,18 +848,50 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       id: clientMsgId,
       text: plain,
       mine: true,
-      at: DateTime.now(),
+      at: sentAt,
       status: 'sent',
       pending: true,
       replyToId: replyId,
       replyPreview: (replyPrev ?? '').isEmpty ? null : replyPrev,
     );
     setState(() {
+      _sending = true;
       _messages = [..._messages, echo];
       _input.clear();
       _replyTo = null;
+      _unreadAtOpen = 0; // WhatsApp: replying clears the unread divider
+      _firstUnreadId = null;
     });
     _scrollToEnd();
+
+    final peer = await _refreshPeerKey();
+    if (!mounted) return;
+    if (peer == null) {
+      final id = _memberId;
+      if (id != null) {
+        final item = OutboxItem(
+            id: clientMsgId,
+            chatId: id,
+            text: plain,
+            at: sentAt,
+            replyTo: replyId);
+        await Outbox.instance.add(item);
+        KeyService.instance.log.add('queued in outbox chat=$_chatKey');
+        if (!mounted) return;
+        setState(() {
+          _messages = _messages.where((m) => m.id != clientMsgId).toList();
+          if (!_queued.any((q) => q.id == clientMsgId)) {
+            _queued = [..._queued, item];
+          }
+          _sending = false;
+        });
+        unawaited(Outbox.instance.kick(onlyChat: id));
+      } else if (mounted) {
+        setState(() => _sending = false);
+      }
+      return;
+    }
+    final ct = _e2e.encrypt(self: widget.identity, recipientPublicKey: peer, plaintext: plain);
 
     try {
       final sent = await _api.postJson('/circle/$_memberId/messages', {
@@ -656,16 +904,18 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       // Mark echo confirmed (no longer pending). x2-ticks: re-key it to the
       // SERVER id so live receipt.update events (by id) reach it at once.
       final sid = '${sent['id'] ?? ''}';
-      setState(() {
-        _messages = _messages.map((m) => m.id == clientMsgId
-            ? (sid.isEmpty
-                ? m.copyWith(pending: false)
-                : CircleMessage(
-                    id: sid, text: m.text, mine: true, at: m.at,
-                    status: m.status, replyToId: m.replyToId,
-                    replyPreview: m.replyPreview))
-            : m).toList();
-      });
+      if (mounted) {
+        setState(() {
+          _messages = _messages.map((m) => m.id == clientMsgId
+              ? (sid.isEmpty
+                  ? m.copyWith(pending: false)
+                  : CircleMessage(
+                      id: sid, text: m.text, mine: true, at: m.at,
+                      status: m.status, replyToId: m.replyToId,
+                      replyPreview: m.replyPreview))
+              : m).toList();
+        });
+      }
       ReceiptBus.instance.expect();
     } catch (_) {
       // c3-msg: honest failure — the bubble shows a red "!" (not a clock that
@@ -869,7 +1119,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   }
 
   Future<void> _applyEdit(CircleMessage m, String newText) async {
-    final peer = _peerPub;
+    final peer = _peerPub ?? await _refreshPeerKey();
     final before = _messages;
     setState(() {
       _messages = _messages.map((x) => x.id == m.id ? x.copyWith(text: newText, edited: true) : x).toList();
@@ -900,7 +1150,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       members = ((r['results'] ?? r['members'] ?? const []) as List)
           .whereType<Map>()
           .map((x) => x.cast<String, dynamic>())
-          .where((x) => '${x['public_key'] ?? ''}'.isNotEmpty)
+          // e2-keys: every accepted member — a keyless one gets the
+          // forward through the outbox, never a dead end.
+          .where((x) => '${x['state'] ?? 'accepted'}' == 'accepted')
           .toList();
     } catch (_) {
       if (mounted) _toast(_t.msgLoadFailed);
@@ -957,7 +1209,28 @@ class _CircleChatScreenState extends State<CircleChatScreen>
 
   Future<void> _forwardTo(CircleMessage m, Map<String, dynamic> member) async {
     try {
-      final pub = base64Decode('${member['public_key']}');
+      var b64 = '${member['public_key'] ?? ''}';
+      final mid = member['id'] is int
+          ? member['id'] as int
+          : int.tryParse('${member['id']}') ?? 0;
+      if (b64.isEmpty) {
+        try {
+          b64 = '${(await _api.getJson('/circle/keys/peer/$mid'))['public_key'] ?? ''}';
+        } catch (_) {}
+      }
+      if (b64.isEmpty) {
+        await Outbox.instance.add(OutboxItem(
+            id: 'fwd-${DateTime.now().microsecondsSinceEpoch}',
+            chatId: mid,
+            text: m.text,
+            at: DateTime.now(),
+            forwarded: true,
+            forwardHops: m.forwardHops + 1));
+        unawaited(Outbox.instance.kick(onlyChat: mid));
+        _toast(_t.c3Forwarded('${member['name'] ?? ''}'));
+        return;
+      }
+      final pub = base64Decode(b64);
       final ct = _e2e.encrypt(
           self: widget.identity,
           recipientPublicKey: Uint8List.fromList(pub),
@@ -976,8 +1249,22 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   }
 
   Future<void> _doForwardInto(CircleMessage m) async {
-    final peer = _peerPub;
-    if (peer == null) return;
+    final peer = _peerPub ?? await _refreshPeerKey();
+    if (peer == null) {
+      final id = _memberId;
+      if (id == null) return;
+      final item = OutboxItem(
+          id: 'local-${DateTime.now().microsecondsSinceEpoch}',
+          chatId: id,
+          text: m.text,
+          at: DateTime.now(),
+          forwarded: true,
+          forwardHops: m.forwardHops + 1);
+      await Outbox.instance.add(item);
+      if (mounted) setState(() => _queued = [..._queued, item]);
+      unawaited(Outbox.instance.kick(onlyChat: id));
+      return;
+    }
     final ct = _e2e.encrypt(self: widget.identity, recipientPublicKey: peer, plaintext: m.text);
     final clientMsgId = 'local-${DateTime.now().microsecondsSinceEpoch}';
     final echo = CircleMessage(
@@ -1036,10 +1323,12 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     ));
   }
 
+  /// Reversed list: the latest message is offset 0. Only my OWN send
+  /// animates back down (if I had scrolled up); opening never scrolls.
   void _scrollToEnd() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scroll.hasClients) {
-        _scroll.animateTo(_scroll.position.maxScrollExtent, duration: Motion.base, curve: Curves.easeOut);
+      if (_scroll.hasClients && _scroll.position.pixels > 0) {
+        _scroll.animateTo(0, duration: Motion.base, curve: Curves.easeOut);
       }
     });
   }
@@ -1596,6 +1885,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     final scheme = Theme.of(context).colorScheme;
     final relation = '${widget.member['relation'] ?? 'friend'}';
     final pinned = _messages.where((m) => m.pinned).toList();
+    final rows = _rows; // computed once per build
     return Scaffold(
       appBar: _searching ? _searchAppBar(scheme) : _normalAppBar(scheme, relation),
       body: Column(
@@ -1605,14 +1895,25 @@ class _CircleChatScreenState extends State<CircleChatScreen>
           Expanded(
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
-                : _visible.isEmpty
+                : rows.isEmpty
                     ? _chatEmpty(scheme)
-                    : ListView.builder(
+                    : Opacity(
+                       // hidden only while the unread divider is placed
+                       opacity: _positioned ? 1 : 0,
+                       child: ListView.builder(
+                        key: const Key('e2-chat-list'),
                         controller: _scroll,
+                        // e2-keys item 2: REVERSED — offset 0 is the latest
+                        // message, so the chat opens there with no scroll.
+                        reverse: true,
                         padding: const EdgeInsets.symmetric(vertical: Gap.sm),
-                        itemCount: _visible.length,
-                        itemBuilder: (_, i) {
-                          final m = _visible[i];
+                        itemCount: rows.length + (_hasMore ? 1 : 0),
+                        itemBuilder: (_, ri) {
+                          if (ri >= rows.length) return _olderLoader(scheme);
+                          final row = rows[ri];
+                          if (row.divider) return _unreadDivider(scheme);
+                          if (row.note != null) return _securityNote(scheme, row.note!);
+                          final m = row.msg!;
                           final key =
                               _msgKeys.putIfAbsent(m.id, () => GlobalKey());
                           final bubble = CircleBubble(
@@ -1662,6 +1963,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                           );
                         },
                       ),
+                    ),
           ),
           if (_peerTyping && !_searching) _typingIndicator(scheme),
           if ((_replyTo != null || _editing != null) && !_searching && !_selecting)
@@ -1836,6 +2138,126 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         ),
       );
 
+  /// Display rows NEWEST FIRST (the list is reversed): server messages,
+  /// queued outbox items (clock), "security code changed" notes and the
+  /// "N unread messages" divider just above the first unread message.
+  List<_ChatRow> get _rows {
+    final vis = _visible;
+    final searching = _searching && _searchQuery.trim().isNotEmpty;
+    final items = <_ChatRow>[
+      for (final m in vis) _ChatRow.msg(m),
+      if (!searching)
+        for (final q in _queued)
+          if (!vis.any((m) => m.id == q.id))
+            _ChatRow.msg(CircleMessage(
+                id: q.id,
+                text: q.text,
+                mine: true,
+                at: q.at,
+                status: 'sent',
+                pending: true,
+                replyToId: q.replyTo,
+                forwarded: q.forwarded,
+                forwardHops: q.forwardHops)),
+      if (!searching)
+        for (final n in _keyNotes) _ChatRow.note(n),
+    ];
+    // stable chronological order (server order kept for equal stamps)
+    final indexed = items.asMap().entries.toList()
+      ..sort((a, b) {
+        final c = a.value.at.compareTo(b.value.at);
+        return c != 0 ? c : a.key.compareTo(b.key);
+      });
+    final chrono = indexed.map((e) => e.value).toList();
+    if (!searching && _firstUnreadId != null && _unreadAtOpen > 0) {
+      final i = chrono.indexWhere((r) => r.msg?.id == _firstUnreadId);
+      if (i >= 0) chrono.insert(i, _ChatRow.divider(chrono[i].at));
+    }
+    return chrono.reversed.toList();
+  }
+
+  Widget _unreadDivider(ColorScheme scheme) => Padding(
+        key: _dividerKey,
+        padding: const EdgeInsets.symmetric(vertical: Gap.sm),
+        child: Container(
+          width: double.infinity,
+          color: scheme.surfaceContainerHighest,
+          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: Gap.md),
+          child: Text(
+            _t.e2UnreadDivider(_unreadAtOpen),
+            key: const Key('e2-unread-divider'),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: scheme.onSurfaceVariant),
+          ),
+        ),
+      );
+
+  Widget _securityNote(ColorScheme scheme, DateTime at) => Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+              vertical: Gap.xs, horizontal: Gap.lg),
+          child: Material(
+            color: scheme.secondaryContainer,
+            borderRadius: BorderRadius.circular(10),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(10),
+              onTap: _explainSecurityChange,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: Gap.md, vertical: 6),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.shield_outlined,
+                        size: 14, color: scheme.onSecondaryContainer),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        _t.e2SecurityCodeChanged(_memberName),
+                        key: const Key('e2-security-note'),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: scheme.onSecondaryContainer),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+  void _explainSecurityChange() {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(_t.e2SecurityCodeTitle),
+        content: Text(_t.e2SecurityCodeBody(_memberName)),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: Text(_t.close)),
+        ],
+      ),
+    );
+  }
+
+  Widget _olderLoader(ColorScheme scheme) => Padding(
+        padding: const EdgeInsets.all(Gap.md),
+        child: Center(
+          child: _loadingOlder
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2))
+              : const SizedBox(height: 20),
+        ),
+      );
+
   Widget _chatEmpty(ColorScheme scheme) => Center(
         child: Padding(
           padding: const EdgeInsets.all(Gap.xl),
@@ -1888,4 +2310,28 @@ class _CircleChatScreenState extends State<CircleChatScreen>
           ),
         ),
       );
+}
+
+/// One row of the reversed chat list.
+class _ChatRow {
+  final CircleMessage? msg;
+  final DateTime? note; // "security code changed" at
+  final bool divider;
+  final DateTime _at;
+  _ChatRow.msg(CircleMessage m)
+      : msg = m,
+        note = null,
+        divider = false,
+        _at = m.at;
+  _ChatRow.note(DateTime at)
+      : msg = null,
+        note = at,
+        divider = false,
+        _at = at;
+  _ChatRow.divider(DateTime at)
+      : msg = null,
+        note = null,
+        divider = true,
+        _at = at;
+  DateTime get at => _at;
 }

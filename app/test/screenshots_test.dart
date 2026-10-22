@@ -642,6 +642,8 @@ void main() {
     // x2-ticks: new outgoing bubble + ✓ / ✓✓ / blue ✓✓, photos, receipts off
     'c3_x2_msg_info_off': (build: (l) => Scaffold(appBar: AppBar(), body: Align(alignment: Alignment.bottomCenter, child: Material(elevation: 6, child: MessageInfoView(load: () async => C3Fake.infoOff(l == 'bn'))))), mode: FakeMode.data, full: true),
     'c3_x2_contact_info': (build: (l) => ContactInfoScreen(member: C3Fake.member(l == 'bn')), mode: FakeMode.data, full: true),
+    // e2-keys: opens at the "N unread messages" divider + honest can't-decrypt bubble
+    'c3_e2_chat_unread': (build: (l) => CircleChatScreen(member: C3Fake.member4(l == 'bn'), identity: C3Fake.me), mode: FakeMode.data, full: true),
     // ---- /c3-msg ----
   };
 

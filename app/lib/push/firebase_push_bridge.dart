@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' show WidgetsFlutterBinding;
 
 import '../messaging/receipt_ack.dart';
+import '../crypto/key_wiring.dart';
 import 'push_bridge.dart';
 import 'push_notifier.dart';
 import 'push_payload.dart';
@@ -128,6 +129,9 @@ Future<void> assistoFcmBackgroundHandler(RemoteMessage message) async {
   } catch (_) {}
   try {
     final p = PushPayload.fromData(message.data);
+    // e2-keys: a SILENT key push — publish our public key / flush the outbox
+    // in this isolate, and draw nothing.
+    if (await handleKeyPushInBackground(message.data)) return;
     // c3-msg: a message push is data-only — pull the ciphertext window
     // (= delivered ✓✓ ack), decrypt ON THIS DEVICE and draw the
     // MessagingStyle conversation. Any failure falls back to the plain
