@@ -59,6 +59,9 @@ class DeviceRegisterView(APIView):
                         .order_by("-last_seen", "-id")
                         .values_list("id", flat=True)[:MAX_DEVICES])
             Device.objects.filter(user=user).exclude(id__in=keep).delete()
+        # t1-ticks 1c: the peer-version banner reads User.app_version.
+        from .views_t1_ticks import record_app_version
+        record_app_version(user, app_version)
         return Response({"ok": True, "id": dev.id, "created": created,
                          "reassigned": bool(moved),
                          "push_available": push.is_available()},

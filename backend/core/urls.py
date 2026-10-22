@@ -789,3 +789,9 @@ urlpatterns += [
     path("circle/calls/<int:call_id>", c2calls.CallStatusView.as_view()),
 ]
 # ---- /c2-calls ----
+# ---- t1-ticks ---- My Circle minimum-version gate (+ peer build banner).
+from . import views_t1_ticks as t1ticks  # noqa: E402
+urlpatterns[:0] = [
+    path("circle/t1/gate", t1ticks.McGateView.as_view()),
+]
+# ---- /t1-ticks ----

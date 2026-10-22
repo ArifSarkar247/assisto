@@ -86,6 +86,9 @@ def app_latest(request):
             data.update(json.load(f))
     except Exception:
         pass
+    # t1-ticks 1c: My Circle minimum build (admin: limits.my_circle_min_version)
+    from .views_t1_ticks import min_version
+    data["my_circle_min_version"] = min_version()
     return Response(data)
 
 

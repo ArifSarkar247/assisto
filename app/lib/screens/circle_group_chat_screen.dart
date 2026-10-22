@@ -19,6 +19,9 @@ import '../messenger_group_api.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/circle_group_poll.dart';
+import '../messaging/chat_header.dart'; // t1-ticks
+import '../messaging/date_separators.dart'; // t1-ticks
+import '../messaging/mc_version_gate.dart'; // t1-ticks
 import '../messaging/c3_api.dart';
 import '../messaging/msg_notify.dart';
 import '../messaging/msg_ticks.dart';
@@ -932,35 +935,22 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   }
 
   PreferredSizeWidget _normalAppBar() => AppBar(
-        title: InkWell(
+        titleSpacing: 0,
+        // t1-ticks: WhatsApp-standard header — name line 1, line 2 = member
+        // names ("Rahim, Karim, You") or "Rahim is typing…"; tap -> info.
+        title: GroupHeaderTitle(
+          name: '${widget.group['name'] ?? ''}',
+          memberNames: [
+            for (final m in _members)
+              if (m['is_self'] != true && '${_idOf(m)}' != _myMemberId)
+                '${m['name'] ?? ''}'
+          ],
+          activity: presenceLabel(_t, _rt.stateOf('group', _gid),
+              lang: Localizations.localeOf(context).languageCode,
+              isGroup: true),
+          avatar: HeaderInitialAvatar(
+              name: '${widget.group['name'] ?? ''}', group: true),
           onTap: _openInfo,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('${widget.group['name'] ?? ''}',
-                  maxLines: 1, overflow: TextOverflow.ellipsis),
-              // c3-msg: "Rahim is typing…" / "… recording audio…"
-              if (presenceLabel(_t, _rt.stateOf('group', _gid),
-                      lang: Localizations.localeOf(context).languageCode,
-                      isGroup: true) !=
-                  null)
-                Text(
-                  presenceLabel(_t, _rt.stateOf('group', _gid),
-                      lang: Localizations.localeOf(context).languageCode,
-                      isGroup: true)!,
-                  key: const Key('c3-group-typing'),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? const Color(0xFF4ADE80)
-                          : const Color(0xFF15803D)),
-                ),
-            ],
-          ),
         ),
         actions: [
           IconButton(
@@ -1038,6 +1028,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
               ? _errorRetry()
               : Column(
                   children: [
+                    // t1-ticks: min-version gate (never blocks sending).
+                    if (!_searching && _gid > 0)
+                      McVersionBanner(api: _api, kind: 'group', chatId: _gid),
                     if (pinned.isNotEmpty && !_searching && !_selecting)
                       _pinnedBar(pinned),
                     Expanded(child: _messageList()),
@@ -1161,11 +1154,16 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         ),
       );
     }
-    return ListView.builder(
-      controller: _scroll,
-      padding: const EdgeInsets.all(Gap.md),
-      itemCount: items.length,
-      itemBuilder: (_, i) => _messageItem(items[i]),
+    // t1-ticks: date chips + floating date while scrolling.
+    final rows = insertDateSeparators<Map<String, dynamic>>(items,
+        (m) => DateTime.tryParse('${m['created_at'] ?? m['at'] ?? ''}'));
+    return ChatDateScope(
+      child: ListView.builder(
+        controller: _scroll,
+        padding: const EdgeInsets.all(Gap.md),
+        itemCount: rows.length,
+        itemBuilder: (_, i) => buildChatRow(rows[i], _messageItem),
+      ),
     );
   }
 

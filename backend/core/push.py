@@ -365,6 +365,11 @@ def push_to_user(user, kind, title_bn, title_en, body_bn="", body_en="",
                              android_channel=CHANNELS[kind]):
                 sent += 1
         log.info("push: kind=%s devices=%d sent=%d", kind, len(tokens), sent)
+        if kind == "message" and sent and payload.get("message_id"):
+            # t1-ticks 1b: FCM accepted it for this user's device -> delivered
+            # (best effort — see views_t1_ticks module doc).
+            from .views_t1_ticks import on_fcm_accepted
+            on_fcm_accepted(user, payload.get("message_id"))
         return sent
     except Exception as e:
         log.warning("push: push_to_user error %s", type(e).__name__)

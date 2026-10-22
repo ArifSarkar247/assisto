@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import 'date_separators.dart' show fmtDate, fmtTime;
 import 'msg_ticks.dart';
 
 /// c3-msg — SWIPE TO REPLY. Received messages swipe RIGHT, my own swipe LEFT
@@ -163,13 +163,16 @@ class MessageInfoView extends StatelessWidget {
     final loc = Localizations.localeOf(context).languageCode == 'bn' ? 'bn' : 'en';
     final now = DateTime.now();
     final t = AppLocalizations.of(context);
-    final time = DateFormat.Hm(loc).format(d);
-    final days = DateTime(now.year, now.month, now.day)
-        .difference(DateTime(d.year, d.month, d.day))
-        .inDays;
+    // t1-ticks: real times with Bangla digits in bn.
+    final time = fmtTime(d, loc);
+    final days = (DateTime(now.year, now.month, now.day)
+                .difference(DateTime(d.year, d.month, d.day))
+                .inHours /
+            24)
+        .round();
     if (days <= 0) return t.c3InfoToday(time);
     if (days == 1) return t.c3InfoYesterday(time);
-    return '${DateFormat.yMMMd(loc).format(d)}, $time';
+    return '${fmtDate(loc == 'bn' ? 'd MMMM y' : 'd MMM y', d, loc)}, $time';
   }
 
   @override
@@ -196,6 +199,8 @@ class MessageInfoView extends StatelessWidget {
               .map((m) => m.cast<String, dynamic>())
               .toList();
           final group = d['group'] == true;
+          // t1-ticks 1a: sent before receipts existed -> no fake "Not yet".
+          final legacy = d['receipts_legacy'] == true;
           final tick = tickFrom('${d['status'] ?? ''}');
           return ConstrainedBox(
             constraints: BoxConstraints(
@@ -213,6 +218,19 @@ class MessageInfoView extends StatelessWidget {
                       tick: tick, baseColor: scheme.onSurfaceVariant, size: 18),
                 ]),
                 const SizedBox(height: Gap.sm),
+                if (legacy)
+                  Padding(
+                    key: const Key('t1-info-legacy'),
+                    padding: const EdgeInsets.symmetric(vertical: Gap.sm),
+                    child: Row(children: [
+                      Icon(Icons.history, size: 18, color: scheme.onSurfaceVariant),
+                      const SizedBox(width: Gap.sm),
+                      Expanded(
+                          child: Text(t.t1InfoLegacy,
+                              style: TextStyle(color: scheme.onSurfaceVariant))),
+                    ]),
+                  ),
+                if (!legacy)
                 for (final r in rows) ...[
                   if (group)
                     Padding(

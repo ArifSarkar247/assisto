@@ -22,6 +22,9 @@ import '../widgets/in_chat_ai_sheet.dart';
 import 'circle_call_screen.dart';
 import 'circle_extras_hub_screen.dart';
 import 'messenger/contact_info_screen.dart';
+import '../messaging/chat_header.dart'; // t1-ticks
+import '../messaging/date_separators.dart'; // t1-ticks
+import '../messaging/mc_version_gate.dart'; // t1-ticks
 import '../messaging/c3_api.dart';
 import '../messaging/msg_native.dart';
 import '../messaging/msg_notify.dart';
@@ -1520,18 +1523,28 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       body: Column(
         children: [
           const CircleEncryptionBanner(),
+          // t1-ticks: min-version gate (my build / peer's build) — never blocks.
+          if (!_searching && int.tryParse('${widget.member['id']}') != null)
+            McVersionBanner(
+                api: _api,
+                kind: 'member',
+                chatId: int.parse('${widget.member['id']}')),
           if (pinned.isNotEmpty && !_searching) _pinnedStrip(pinned, scheme),
           Expanded(
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
                 : _visible.isEmpty
                     ? _chatEmpty(scheme)
-                    : ListView.builder(
+                    // t1-ticks: date chips + floating date while scrolling.
+                    : ChatDateScope(child: Builder(builder: (_) {
+                        final rows = insertDateSeparators<CircleMessage>(
+                            _visible, (m) => m.at);
+                        return ListView.builder(
                         controller: _scroll,
                         padding: const EdgeInsets.symmetric(vertical: Gap.sm),
-                        itemCount: _visible.length,
-                        itemBuilder: (_, i) {
-                          final m = _visible[i];
+                        itemCount: rows.length,
+                        itemBuilder: (_, i) => buildChatRow<CircleMessage>(
+                            rows[i], (m) {
                           final key =
                               _msgKeys.putIfAbsent(m.id, () => GlobalKey());
                           final bubble = CircleBubble(
@@ -1579,8 +1592,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                               ),
                             ),
                           );
-                        },
-                      ),
+                        }),
+                      );
+                      })), // t1-ticks: /ChatDateScope
           ),
           if (_peerTyping && !_searching) _typingIndicator(scheme),
           if ((_replyTo != null || _editing != null) && !_searching && !_selecting)
@@ -1606,47 +1620,14 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     if (_selecting) return _selectionAppBar(scheme);
     return AppBar(
       titleSpacing: 0,
-      title: InkWell(
+      // t1-ticks: WhatsApp-standard header (name line 1 full width, status
+      // line 2, tap -> contact info). Presence hidden by privacy -> no line.
+      title: ChatHeaderTitle(
+        name: _memberName,
+        status: _presence,
+        statusActive: _peerTyping,
+        avatar: HeaderInitialAvatar(name: _memberName),
         onTap: _openContactInfo,
-        child: Row(
-          children: [
-            CircleAvatar(
-                radius: 16,
-                child: Text(
-                    _memberName.isEmpty ? '?' : _memberName.characters.first.toUpperCase())),
-            const SizedBox(width: Gap.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(_memberName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleMedium),
-                  // c3-msg: presence replaces the relation label (which
-                  // now lives in the contact profile). Hidden by privacy →
-                  // nothing, like WhatsApp.
-                  if (_presence != null)
-                    Text(
-                      _presence!,
-                      key: const Key('c3-presence'),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight:
-                              _peerTyping ? FontWeight.w600 : FontWeight.w400,
-                          color: _peerTyping
-                              ? (Theme.of(context).brightness == Brightness.dark
-                                  ? const Color(0xFF4ADE80)
-                                  : const Color(0xFF15803D))
-                              : scheme.onSurfaceVariant),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
       actions: [
         IconButton(
@@ -1659,11 +1640,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
           icon: const Icon(Icons.call_outlined),
           onPressed: () => _placeCall('voice'),
         ),
-        IconButton(
-          tooltip: _t.circleSearchInChat,
-          icon: const Icon(Icons.search),
-          onPressed: () => setState(() => _searching = true),
-        ),
+        // t1-ticks: Search moved into the ⋮ menu (ChatMenuAction.search).
         IconButton(
           tooltip: _t.msgrChatMore,
           icon: const Icon(Icons.more_vert),

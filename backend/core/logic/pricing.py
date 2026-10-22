@@ -322,6 +322,10 @@ def DEFAULTS():
             # c1-contacts: manual find-by-number lookups per user per hour
             # (anti-enumeration). Contacts match is a separate batch call.
             "contact_lookups_per_hour": 30,
+            # t1-ticks: My Circle needs at least this app build (ticks,
+            # receipts, calls). Older builds get "Update Assisto"; peers on an
+            # older build get an honest banner. Published in app/latest.
+            "my_circle_min_version": 183,
         },
         "probashi_price_usd": DEFAULT_PROBASHI_PRICE_USD,
         # 0 = use the server env AI_DAILY_BUDGET_USD kill-switch default
@@ -500,6 +504,9 @@ def _norm_limits(raw, base):
         "contact_lookups_per_hour": max(1, min(500, _int(
             raw.get("contact_lookups_per_hour"),
             base.get("contact_lookups_per_hour", 30)))),
+        "my_circle_min_version": max(0, min(1000000, _int(
+            raw.get("my_circle_min_version"),
+            base.get("my_circle_min_version", 183)))),
     }
 
 

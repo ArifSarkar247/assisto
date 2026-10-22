@@ -1,0 +1,63 @@
+{
+  "en": {
+    "t1InfoLegacy": "Sent before read receipts were enabled",
+    "t1Today": "Today",
+    "t1Yesterday": "Yesterday",
+    "t1LastSeenDate": "last seen {date}",
+    "@t1LastSeenDate": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "t1UpdateTitle": "Update Assisto to use My Circle",
+    "t1UpdateBody": "This version of Assisto is too old for My Circle's message ticks, read receipts and calls. Updating takes a minute — your chats stay safe.",
+    "t1UpdateButton": "Update Assisto",
+    "t1UpdateLater": "Not now",
+    "t1PeerOutdated": "{name} needs to update Assisto for ticks and calls",
+    "@t1PeerOutdated": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "t1PeersOutdated": "{names} need to update Assisto for ticks and calls",
+    "@t1PeersOutdated": {
+      "placeholders": {
+        "names": {
+          "type": "String"
+        }
+      }
+    },
+    "t1PeersMore": "{names} and {count} more",
+    "@t1PeersMore": {
+      "placeholders": {
+        "names": {
+          "type": "String"
+        },
+        "count": {
+          "type": "String"
+        }
+      }
+    },
+    "t1SomeoneInChat": "Someone in this chat",
+    "t1GroupTapInfo": "tap here for group info"
+  },
+  "bn": {
+    "t1InfoLegacy": "পড়ার রসিদ চালু হওয়ার আগে পাঠানো",
+    "t1Today": "আজ",
+    "t1Yesterday": "গতকাল",
+    "t1LastSeenDate": "শেষ দেখা {date}",
+    "t1UpdateTitle": "মাই সার্কেল ব্যবহার করতে Assisto আপডেট করুন",
+    "t1UpdateBody": "Assisto-র এই সংস্করণটি মাই সার্কেলের মেসেজ টিক, পড়ার রসিদ আর কলের জন্য পুরনো। আপডেট করতে এক মিনিট লাগে — আপনার চ্যাট নিরাপদ থাকবে।",
+    "t1UpdateButton": "Assisto আপডেট করুন",
+    "t1UpdateLater": "এখন না",
+    "t1PeerOutdated": "টিক ও কলের জন্য {name}-কে Assisto আপডেট করতে হবে",
+    "t1PeersOutdated": "টিক ও কলের জন্য {names}-কে Assisto আপডেট করতে হবে",
+    "t1PeersMore": "{names} ও আরও {count} জন",
+    "t1SomeoneInChat": "এই চ্যাটের কেউ একজন",
+    "t1GroupTapInfo": "গ্রুপের তথ্যের জন্য এখানে চাপুন"
+  }
+}

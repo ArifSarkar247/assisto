@@ -217,20 +217,31 @@ def statuses(msgs, viewer):
     for v in rec.values():
         uids.update(v)
     pm = _privacy_map(list(uids))
+    # t1-ticks 1a: pre-receipts messages stay at a neutral single tick.
+    from .views_t1_ticks import legacy_ids
+    legacy = legacy_ids(mine)
     out = {}
     for x in mine:
-        out[x.id] = status_from(rec.get(x.id, []), rows.get(x.id, {}),
-                                pm[viewer.id], pm)
+        out[x.id] = "sent" if x.id in legacy else status_from(
+            rec.get(x.id, []), rows.get(x.id, {}), pm[viewer.id], pm)
     return out
 
 
 def annotate(out_rows, msgs, viewer):
-    """Add `status` to serialized message dicts (in place). Never raises."""
+    """Add `status` to serialized message dicts (in place). Never raises.
+    t1-ticks: every caller is a message FETCH (history + poll), i.e. the
+    server handing these rows to the viewer's device -> DELIVERED for the
+    incoming ones (1b); pre-receipts rows get `receipts_legacy: true` (1a)."""
+    from . import views_t1_ticks as T1
+    T1.deliver_fetched(viewer, msgs)
     try:
         st = statuses(msgs, viewer)
+        legacy = T1.legacy_ids(msgs)
         for d in out_rows:
             if d.get("id") in st:
                 d["status"] = st[d["id"]]
+            if d.get("id") in legacy:
+                d["receipts_legacy"] = True
     except Exception:
         pass
     return out_rows
@@ -399,6 +410,9 @@ def augment_chat_rows(user, out):
         last_ids = [r["last"]["id"] for r in out if r.get("last")]
         msgs = {x.id: x for x in CircleMessage.objects.filter(
             id__in=last_ids).select_related("sender", "member")}
+        # t1-ticks 1b: the chat list hands each chat's last message over.
+        from .views_t1_ticks import deliver_fetched
+        deliver_fetched(user, list(msgs.values()))
         st = statuses(list(msgs.values()), user)
         for r in out:
             r.setdefault("kind", "member")
@@ -447,6 +461,8 @@ def group_rows(user):
                      and user.id not in (x.read_by or []))
         env = None
         if last is not None:
+            from .views_t1_ticks import deliver_fetched   # t1-ticks 1b
+            deliver_fetched(user, [last])
             env = envelope_for(user, last, {"group": g, "my_gm_id": gm.id})
             st = statuses([last], user)
             if last.id in st:
@@ -556,7 +572,12 @@ class MessageInfoView(APIView):
             return Response({"detail": "not found"},
                             status=status.HTTP_404_NOT_FOUND)
         recips = recipients_map([x]).get(x.id, [])
-        rec = {r.user_id: r for r in CircleReceipt.objects.filter(message=x)}
+        # t1-ticks 1a: a pre-receipts message has no real times (any row was
+        # written later by a sync / chat open) -> say so, never "Not yet".
+        from .views_t1_ticks import is_legacy
+        legacy = is_legacy(x)
+        rec = ({} if legacy else
+               {r.user_id: r for r in CircleReceipt.objects.filter(message=x)})
         pm = _privacy_map(recips + [request.user.id])
         names = dict(User.objects.filter(id__in=recips)
                      .values_list("id", "name"))
@@ -576,6 +597,7 @@ class MessageInfoView(APIView):
                                  z["delivered_at"] is None, z["name"]))
         return Response({
             "id": x.id, "group": bool(x.group_id),
+            "receipts_legacy": legacy,
             "created_at": x.created_at.isoformat(),
             "status": status_from(recips, {u: (r.delivered_at, r.seen_at)
                                            for u, r in rec.items()},

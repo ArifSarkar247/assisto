@@ -191,6 +191,7 @@ import 'package:assisto/screens/legal_screen.dart';
 import 'ps1_shots.dart'; // ps1-photo
 import 'w1_webphoto_shots.dart'; // w1-webphoto
 import 'h1_home_shots.dart'; // h1-home
+import 't1_ticks_shots.dart'; // t1-ticks
 import 'c2_calls_shots.dart'; // c2-calls
 import 'package:assisto/screens/unseen_world_screen.dart';
 import 'package:assisto/screens/shop_box_screen.dart';
@@ -637,6 +638,8 @@ void main() {
     'c3_msg_info': (build: (l) => Scaffold(appBar: AppBar(), body: Align(alignment: Alignment.bottomCenter, child: Material(elevation: 6, child: MessageInfoView(load: () async => C3Fake.info(l == 'bn'))))), mode: FakeMode.data, full: true),
     'c3_notif_settings': (build: (_) => const MsgrSetNotificationsScreen(), mode: FakeMode.data, full: true),
     // ---- /c3-msg ----
+    // t1-ticks: chat headers, date separators, legacy info, version gate
+    for (final e in t1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
   };
 
   Future<void> shoot(WidgetTester tester, String name, String lang,
