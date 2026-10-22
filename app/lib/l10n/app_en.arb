@@ -16527,5 +16527,76 @@
   "atIntruderNeedAdmin": "Allow Assisto as device admin first (it tells Assisto about wrong unlock attempts), then switch this on again.",
   "@atIntruderNeedAdmin": {},
   "atIntruderAdminExplain": "Assisto uses device admin to know about wrong screen-unlock attempts (for the intruder photo) and to lock your phone if it is lost or stolen.",
-  "@atIntruderAdminExplain": {}
+  "@atIntruderAdminExplain": {},
+  "md1Cancel": "Cancel",
+  "md1CancelSend": "Cancel sending",
+  "md1CaptionHint": "Add a caption",
+  "md1DocSendTitle": "Send this file?",
+  "md1DocSendBody": "{size} · locked on your phone before it is sent",
+  "@md1DocSendBody": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "md1Download": "Download ({size})",
+  "@md1Download": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "md1ErrDamaged": "This file arrived damaged and can't be opened. Ask them to send it again.",
+  "md1ErrGone": "This file is no longer on the server. Ask them to send it again.",
+  "md1ErrMissing": "The file is no longer on this phone.",
+  "md1ErrNetwork": "Couldn't download. Check your internet and tap to try again.",
+  "md1Open": "Open",
+  "md1OpenSettings": "Open settings",
+  "md1Pause": "Pause",
+  "md1PermCameraTitle": "Allow the camera",
+  "md1PermCameraBody": "Assisto uses the camera only when you take a photo to send. The photo is locked on your phone before it is sent.",
+  "md1PermContinue": "Continue",
+  "md1PermDeniedCamera": "Camera access is off for Assisto. To take photos, turn it on in Settings.",
+  "md1PermDeniedMic": "Microphone access is off for Assisto. To record voice messages, turn it on in Settings.",
+  "md1PermMicTitle": "Allow the microphone",
+  "md1PermMicBody": "Assisto uses the microphone only while you record a voice message. It is locked on your phone before it is sent.",
+  "md1PermNotNow": "Not now",
+  "md1PickFailed": "Couldn't open that file. Please try another one.",
+  "md1Play": "Play",
+  "md1PlayFailed": "Couldn't play this voice message.",
+  "md1Preparing": "Locking the file…",
+  "md1Remove": "Remove",
+  "md1Retry": "Try again",
+  "md1Save": "Save to phone",
+  "md1SaveOld": "This phone can't save it directly. Use Share to keep a copy.",
+  "md1Saved": "Saved to your phone",
+  "md1Send": "Send",
+  "md1SendFailed": "Not sent",
+  "md1Sending": "Sending…",
+  "md1Share": "Share",
+  "md1TooBig": "This file is too large. You can send up to {mb} MB.",
+  "@md1TooBig": {
+    "placeholders": {
+      "mb": {
+        "type": "String"
+      }
+    }
+  },
+  "md1VoiceDiscard": "Delete recording",
+  "md1VoiceFailed": "Couldn't record on this phone.",
+  "md1VoiceMax": "Voice messages can be up to 15 minutes long.",
+  "md1VoiceRecording": "Recording…",
+  "md1VoiceStopSend": "Send",
+  "md1VoiceTooShort": "Too short to send. Record for at least 1 second.",
+  "md1WaitingNet": "Waiting for internet",
+  "md1SetAutoTitle": "Media auto-download",
+  "md1SetWifi": "On Wi-Fi",
+  "md1SetWifiSub": "Photos, voice messages and documents download by themselves",
+  "md1SetMobileTitle": "On mobile data",
+  "md1SetMobilePhotos": "Photos",
+  "md1SetMobileVoice": "Voice messages",
+  "md1SetMobileDocs": "Documents",
+  "md1SetKeepNote": "Photos, voice messages and documents are end-to-end encrypted. The server keeps only the locked copy until everyone has downloaded it, then deletes it. Save anything you want to keep."
 }
