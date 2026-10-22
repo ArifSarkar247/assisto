@@ -3637,3 +3637,76 @@ class OwnerAudit(models.Model):
     class Meta:
         ordering = ["-created_at", "-id"]
 # ---- /o2-admin ----
+
+
+# ===========================================================================
+# ---- b6-antitheft ---- Batch 6: native always-on Lost/Stolen engine.
+#
+# The user turns protection ON from the Lost/Stolen screen (Security PIN);
+# turning it OFF needs the Security PIN again (Section 8). While ON, an opt-in
+# foreground service on the phone reports heartbeats + events here through a
+# SCOPED engine token (it can only post evidence for this one phone — never
+# read anything, never act as the user). Alerts go ONLY to the owner and the
+# family members the owner approved (family_approver + alert_member_ids).
+# ===========================================================================
+
+class AntiTheftEngine(models.Model):
+    """Per-phone settings + state of the native protection engine."""
+    phone = models.OneToOneField(ProtectedPhone, on_delete=models.CASCADE,
+                                 related_name="engine")
+    enabled = models.BooleanField(default=False)
+    enabled_at = models.DateTimeField(null=True, blank=True)
+    disabled_at = models.DateTimeField(null=True, blank=True)
+    # sha256 of the engine token (the raw token is returned ONCE on enable).
+    token_hash = models.CharField(max_length=64, blank=True, default="",
+                                  db_index=True)
+    snatch_lock = models.BooleanField(default=False)     # lock screen on snatch
+    intruder_photo = models.BooleanField(default=True)   # front photo on N fails
+    failed_unlock_threshold = models.PositiveSmallIntegerField(default=3)
+    # Extra approved family: ids of the owner's ACCEPTED CircleMember rows.
+    alert_member_ids = models.JSONField(default=list, blank=True)
+    # What the phone says it can actually do (honest UI): {camera, phone_state,
+    # location_bg, sdk, brand, ...}. Reported by the engine, display-only.
+    capabilities = models.JSONField(default=dict, blank=True)
+    # Time of the newest location fix we accepted: an older store-and-forward
+    # fix arriving late never overwrites a newer last location.
+    last_fix_at = models.DateTimeField(null=True, blank=True)
+    last_sim = models.JSONField(default=dict, blank=True)
+    recent_ids = models.JSONField(default=list, blank=True)  # heartbeat dedupe ring
+    last_ingest_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class AntiTheftEvent(models.Model):
+    """One event the engine captured (store-and-forward). `at` is WHEN it
+    happened on the phone (clock-corrected), `received_at` when it reached us
+    — a late delivery is shown honestly as late, never as live."""
+    KINDS = [("snatch", "snatch"), ("snatch_cleared", "snatch_cleared"),
+             ("sim_change", "sim_change"), ("offline", "offline"),
+             ("online", "online"), ("low_battery", "low_battery"),
+             ("shutdown", "shutdown"), ("boot", "boot"),
+             ("failed_unlock", "failed_unlock"),
+             ("intruder_photo", "intruder_photo"), ("test", "test"),
+             ("went_dark", "went_dark")]  # went_dark: written by the server cron
+    phone = models.ForeignKey(ProtectedPhone, on_delete=models.CASCADE,
+                              related_name="engine_events")
+    client_id = models.CharField(max_length=64)
+    kind = models.CharField(max_length=20, choices=KINDS)
+    at = models.DateTimeField(db_index=True)
+    received_at = models.DateTimeField(auto_now_add=True)
+    late = models.BooleanField(default=False)
+    data = models.JSONField(default=dict, blank=True)
+    lat = models.FloatField(null=True, blank=True)
+    lng = models.FloatField(null=True, blank=True)
+    accuracy_m = models.FloatField(null=True, blank=True)
+    battery = models.SmallIntegerField(null=True, blank=True)
+    # Intruder photo: Fernet-ENCRYPTED bytes at rest (never a public URL; read
+    # only through a short-lived signed link minted for the owner / approved
+    # family, decrypted per request).
+    photo = models.FileField(upload_to="theft/engine/", null=True, blank=True)
+    alerted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-at", "-id"]
+        unique_together = [("phone", "client_id")]
+# ---- /b6-antitheft ----

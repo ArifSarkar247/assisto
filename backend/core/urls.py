@@ -747,3 +747,20 @@ urlpatterns += [
     path("web-photo/claim", w1wp.WebPhotoClaimView.as_view()),
 ]
 # ---- /w1-webphoto ----
+
+# ---- b6-antitheft ---- Batch 6: native always-on Lost/Stolen engine (opt-in,
+# per-phone engine token for ingestion; alerts only to owner + approved family).
+from . import views_antitheft as atv  # noqa: E402
+urlpatterns += [
+    path("security/engine/state", atv.EngineStateView.as_view()),
+    path("security/engine/enable", atv.EngineEnableView.as_view()),
+    path("security/engine/disable", atv.EngineDisableView.as_view()),
+    path("security/engine/settings", atv.EngineSettingsView.as_view()),
+    path("security/engine/ingest", atv.EngineIngestView.as_view()),
+    path("security/engine/photo", atv.EnginePhotoView.as_view()),
+    path("security/engine/timeline", atv.EngineTimelineView.as_view()),
+    path("security/engine/watching", atv.EngineWatchingView.as_view()),
+    path("security/engine/event/<int:pk>/photo-link", atv.EnginePhotoLinkView.as_view()),
+    path("security/engine/event/<int:pk>/photo", atv.EnginePhotoBytesView.as_view()),
+]
+# ---- /b6-antitheft ----
