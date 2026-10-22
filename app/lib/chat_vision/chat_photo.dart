@@ -295,7 +295,10 @@ class _AnswerCard extends StatelessWidget {
         Text(t.h1OnDeviceLatinOnly,
             style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
       ],
-      if (a.labels.isNotEmpty) ...[
+      // qa1: on-device labels come from ML Kit in English only — in the
+      // Bangla UI they were English chips in a Bangla card, so show them
+      // only when the UI is English.
+      if (a.labels.isNotEmpty && Localizations.localeOf(context).languageCode == 'en') ...[
         const SizedBox(height: Gap.sm),
         Wrap(spacing: Gap.xs, runSpacing: Gap.xs, children: [
           for (final l in a.labels)

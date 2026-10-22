@@ -31,7 +31,7 @@ jobs:
   reality:
     runs-on: ubuntu-latest
     # A hung adb call once held a run for 6h; healthy runs need ~45-60 min.
-    timeout-minutes: 100
+    timeout-minutes: 120
     env:
       ASSISTO_CI_DB: ${{ github.workspace }}/backend/ci_reality.sqlite3
       REALITY_OUT: ${{ github.workspace }}/reality_out
@@ -179,7 +179,7 @@ jobs:
           if-no-files-found: warn
       # A green run must MEAN the flows passed: the first run (21 Oct) showed
       # green with ZERO flows executed (driver crashed, no results.json).
-      - name: Verdict (fail on no results or any C)
+      - name: Verdict (fail on no results or any C/D)
         if: always()
         run: |
           python3 - <<'PY'
@@ -190,11 +190,11 @@ jobs:
           except Exception as e:
               print("::error::no reality summary (%s)" % e); sys.exit(1)
           rows = d.get("rows") or []
-          bad = [r for r in rows if str(r.get("class", "")).startswith("C")]
+          bad = [r for r in rows if str(r.get("class", "")).startswith(("C", "D"))]
           print("flows:", len(rows), "counts:", d.get("counts"))
-          if not rows:
+          if not [r for r in rows if r.get("class") != "D"]:
               print("::error::no flow produced a result (app never wrote results.json)"); sys.exit(1)
           for r in bad:
-              print("::error::C: %s %s %s" % (r.get("id"), r.get("feature"), r.get("detail") or r.get("failed_step") or ""))
+              print("::error::%s: %s %s %s" % (r.get("class"), r.get("id"), r.get("feature"), r.get("detail") or r.get("failed_step") or ""))
           sys.exit(1 if bad else 0)
           PY

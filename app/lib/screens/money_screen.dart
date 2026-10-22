@@ -12,6 +12,7 @@ import 'money_networth_screen.dart';
 import 'money_loan_detail_screen.dart';
 import 'money_budget_screen.dart';
 import 'money_import_screen.dart';
+import '../widgets/bn_day_periods.dart' show appDateLocale;
 
 /// Locale-aware Taka string. Keeps [tkFmt]'s ৳ sign, lakh grouping and decimals
 /// exactly, but renders the digits in Bangla numerals when the locale is bn —
@@ -502,7 +503,7 @@ class _TxnsTabState extends State<_TxnsTab> {
                           child: Row(children: [
                             const Icon(Icons.calendar_today_outlined, size: 16),
                             const SizedBox(width: Gap.xs),
-                            Text(DateFormat('d MMM yyyy').format(date)),
+                            Text(DateFormat('d MMM yyyy', appDateLocale(context)).format(date)),
                           ]),
                         ),
                       ]),
@@ -558,7 +559,7 @@ class _TxnsTabState extends State<_TxnsTab> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final app = context.watch<AppState>();
-    final fmt = DateFormat('d MMM');
+    final fmt = DateFormat('d MMM', appDateLocale(context));
     var items = app.txns.items;
     if (_filterKind != 'all') {
       items = items.where((it) => it['data']['kind'] == _filterKind).toList();

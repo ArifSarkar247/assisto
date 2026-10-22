@@ -10,6 +10,8 @@ import '../widgets/skeleton.dart';
 import '../widgets/wrapped_cards.dart';
 import '../widgets/wrapped_share.dart';
 import 'money_common.dart';
+import '../widgets/bn_day_periods.dart' show appDateLocale;
+import '../widgets/subs_common.dart' show fmtInt;
 
 /// Monthly Money Wrapped (feature #63, SPEC v2.1 §21) — a Spotify-Wrapped-style
 /// recap of ONE month, built from the user's REAL transactions (read-only).
@@ -148,7 +150,8 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
     return StateMessage(
       icon: Icons.auto_awesome_outlined,
       title: t.wrappedEmptyTitle,
-      message: t.wrappedEmptyHint(need, have),
+      // qa1: locale digits (the count had Latin digits in the Bangla UI)
+      message: t.wrappedEmptyHint(fmtInt(context, need), fmtInt(context, have)),
     );
   }
 
@@ -386,6 +389,6 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
   String _dateLabel(dynamic iso) {
     final d = DateTime.tryParse('${iso ?? ''}');
     if (d == null) return '';
-    return DateFormat('d MMM').format(d);
+    return DateFormat('d MMM', appDateLocale(context)).format(d);
   }
 }

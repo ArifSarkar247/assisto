@@ -108,7 +108,7 @@ class MoneyRow extends StatelessWidget {
                   fontWeight: strong ? FontWeight.w700 : FontWeight.w500)),
         ),
         const SizedBox(width: Gap.md),
-        Text(poisha.fmtTaka, style: style),
+        Text(poisha.takaIn(context), style: style),
       ]),
     );
   }
@@ -214,11 +214,23 @@ class SellHeader extends StatelessWidget {
 
 /// Show the bilingual below-min message on a 422 `below_min`. Central so the
 /// hard gate is surfaced identically wherever a sale/price is attempted.
+/// qa1: [MoneyX.fmtTaka] in the UI's digits — the Bangla UI showed every
+/// business amount in Latin digits ("৳1,200") while the rest of the app
+/// writes Bangla digits.
+extension MoneyUiX on int {
+  String takaIn(BuildContext context) {
+    final s = fmtTaka;
+    if (Localizations.localeOf(context).languageCode != 'bn') return s;
+    return s.replaceAllMapped(
+        RegExp('[0-9]'), (m) => String.fromCharCode(0x09E6 + int.parse(m[0]!)));
+  }
+}
+
 void showBelowMin(BuildContext context) {
   final t = AppLocalizations.of(context);
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    content: Text(t.biz_below_min),
-    backgroundColor: Brand.danger,
+    content: Text(t.biz_below_min, style: const TextStyle(color: Colors.white)),
+    backgroundColor: Brand.dangerFill,
   ));
 }
 

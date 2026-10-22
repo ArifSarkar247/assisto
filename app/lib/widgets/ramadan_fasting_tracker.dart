@@ -92,7 +92,7 @@ class _RamadanFastingTrackerState extends State<RamadanFastingTracker> {
           ]),
           const SizedBox(height: Gap.xs),
           Text(t.ramadanFastingHint,
-              style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
           const SizedBox(height: Gap.sm),
           Wrap(
             spacing: 6,
@@ -118,7 +118,7 @@ class _RamadanFastingTrackerState extends State<RamadanFastingTracker> {
                   child: on
                       ? const Icon(Icons.check, size: 18, color: Colors.white)
                       : Text(_localeNum(context, n),
-                          style: TextStyle(color: Colors.grey.shade700)),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                 ),
               );
             }),

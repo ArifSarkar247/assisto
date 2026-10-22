@@ -60,11 +60,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
     final d = _data ?? const {};
     final buf = StringBuffer()
       ..writeln(t.biz_report)
-      ..writeln('${t.biz_report_sales}: ${poishaOf(d['sales']).fmtTaka}');
+      ..writeln('${t.biz_report_sales}: ${poishaOf(d['sales']).takaIn(context)}');
     if (!_profitRedacted) {
-      buf.writeln('${t.biz_report_profit}: ${poishaOf(d['profit']).fmtTaka}');
+      buf.writeln('${t.biz_report_profit}: ${poishaOf(d['profit']).takaIn(context)}');
       buf.writeln(
-          '${t.biz_report_net_profit}: ${poishaOf(d['net_profit']).fmtTaka}');
+          '${t.biz_report_net_profit}: ${poishaOf(d['net_profit']).takaIn(context)}');
     }
     await Share.share(buf.toString(), subject: t.biz_report);
   }
@@ -163,7 +163,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
           Text(t.biz_report_sales,
               style: const TextStyle(color: Colors.white70, fontSize: 13)),
           const SizedBox(height: 4),
-          Text(sales.fmtTaka,
+          Text(sales.takaIn(context),
               style: const TextStyle(
                   color: Colors.white,
                   fontSize: 28,
@@ -174,12 +174,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
         const SizedBox(height: Gap.md),
         Row(children: [
           Expanded(
-              child: _statCard(scheme, t.biz_report_profit, profit.fmtTaka,
+              child: _statCard(scheme, t.biz_report_profit, profit.takaIn(context),
                   Brand.success)),
           const SizedBox(width: Gap.md),
           Expanded(
               child: _statCard(scheme, t.biz_report_expenses,
-                  expenses.fmtTaka, Brand.warning)),
+                  expenses.takaIn(context), Brand.warning)),
         ]),
         const SizedBox(height: Gap.md),
         SellCard(
@@ -199,7 +199,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         const SizedBox(height: 4),
         Text(value,
             style: TextStyle(
-                color: tint, fontSize: 18, fontWeight: FontWeight.w800)),
+                color: Brand.onTint(context, tint), fontSize: 18, fontWeight: FontWeight.w800)),
       ]),
     );
   }
@@ -259,7 +259,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 style: TextStyle(
                     fontSize: 12, color: scheme.onSurfaceVariant)),
           ),
-        Text(amount.fmtTaka,
+        Text(amount.takaIn(context),
             style: const TextStyle(fontWeight: FontWeight.w700)),
       ]),
     );

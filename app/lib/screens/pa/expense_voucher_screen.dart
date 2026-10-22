@@ -224,11 +224,14 @@ class _ExpenseVoucherScreenState extends State<ExpenseVoucherScreen> {
     final vouchers = _vouchers;
     return Scaffold(
       appBar: AppBar(title: Text(t.paVoucherTitle)),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _openVoucherEditor(),
-        icon: const Icon(Icons.add),
-        label: Text(t.paVoucherNew),
-      ),
+      // qa1: the empty state already has this action as its CTA — one is enough
+      floatingActionButton: vouchers.isEmpty
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => _openVoucherEditor(),
+              icon: const Icon(Icons.add),
+              label: Text(t.paVoucherNew),
+            ),
       body: vouchers.isEmpty
           ? StateMessage(
               icon: Icons.receipt_long,

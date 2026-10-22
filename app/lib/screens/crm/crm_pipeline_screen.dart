@@ -1,6 +1,5 @@
 import 'crm_erp_handoff_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/ladder_common.dart';
@@ -214,14 +213,7 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
 
   /// Localised yyyy-MM-dd expected-close date (Bangla numerals in bn). Returns a
   /// dash when empty, or the raw value when it is not a parseable date.
-  String _closeDate(dynamic v) {
-    final s = (v ?? '').toString();
-    if (s.isEmpty) return '—';
-    final d = DateTime.tryParse(s);
-    if (d == null) return s;
-    return DateFormat('yyyy-MM-dd', Localizations.localeOf(context).languageCode)
-        .format(d);
-  }
+  String _closeDate(dynamic v) => crmDate(context, v); // qa1: no ISO dates
 
   int? _stuckAge(Map<String, dynamic> d, Map<String, dynamic> stage) {
     final thresh = (stage['stuck_after_days'] as num?)?.toInt() ?? 0;

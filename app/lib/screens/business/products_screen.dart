@@ -5,6 +5,7 @@ import '../../theme.dart';
 import '../../api.dart';
 import '../../business_selling_api.dart';
 import '../../widgets/skeleton.dart';
+import '../../widgets/subs_common.dart' show fmtInt;
 import '../../l10n/app_localizations.dart';
 import 'selling_common.dart';
 
@@ -244,20 +245,20 @@ class _ProductTile extends StatelessWidget {
                   overflow: TextOverflow.ellipsis),
               const SizedBox(height: 4),
               Wrap(spacing: Gap.sm, runSpacing: 4, children: [
-                _tag('${t.biz_sell_price}: ${sell.fmtTaka}',
+                _tag('${t.biz_sell_price}: ${sell.takaIn(context)}',
                     scheme.primaryContainer, scheme.onPrimaryContainer),
                 if (showCost && min > 0)
-                  _tag('${t.biz_min_price}: ${min.fmtTaka}',
+                  _tag('${t.biz_min_price}: ${min.takaIn(context)}',
                       scheme.tertiaryContainer, scheme.onTertiaryContainer),
                 _stockTag(context, t, stock, lowAt),
                 if (variants.isNotEmpty)
-                  _tag('${variants.length} ${t.biz_product_variant}',
+                  _tag(t.qa1VariantCount(variants.length, fmtInt(context, variants.length)),
                       scheme.surfaceContainerHighest, scheme.onSurfaceVariant),
               ]),
               if (showCost) ...[
                 const SizedBox(height: 6),
                 Text(
-                  '${t.biz_profit}: ${profit.fmtTaka}  ·  ${t.biz_margin}: ${margin.toStringAsFixed(0)}%',
+                  '${t.biz_profit}: ${profit.takaIn(context)}  ·  ${t.biz_margin}: ${margin.toStringAsFixed(0)}%',
                   style: TextStyle(
                       fontSize: 12.5,
                       color: profit >= 0 ? Brand.success : Brand.danger,
@@ -600,7 +601,10 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
 
   Widget _variantsSection(AppLocalizations t, ColorScheme scheme) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+      Wrap( // qa1: heading + action wrap at large font
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
         Text(t.biz_product_variant,
             style: const TextStyle(fontWeight: FontWeight.w700)),
         TextButton.icon(
@@ -859,7 +863,7 @@ class _ProductImportSheetState extends State<ProductImportSheet> {
       contentPadding: EdgeInsets.zero,
       leading: Icon(Icons.check_circle_outline, color: Brand.success, size: 20),
       title: Text((r['name'] ?? '').toString()),
-      trailing: Text(sell.fmtTaka,
+      trailing: Text(sell.takaIn(context),
           style: const TextStyle(fontWeight: FontWeight.w600)),
     );
   }

@@ -40,24 +40,43 @@ Widget _turn(FakeCvBackend b,
   );
 }
 
+String _q(String l) => l == 'bn'
+    ? 'এটা কোন ওষুধ? কীভাবে খাব?'
+    : 'What medicine is this? How should I take it?';
+
 /// name -> builder(lang). Wired into screenshots_test.dart `specs`.
 final Map<String, Widget Function(String)> h1Shots = {
   'home_hero_ad_free': (_) => _home(free: true),
   'home_hero_premium': (_) => _home(free: false),
-  'chat_photo_free_unavailable': (_) => _turn(FakeCvBackend()),
-  'chat_photo_free_ondevice': (_) =>
-      _turn(FakeCvBackend(), reading: kMedicineReading),
-  'chat_photo_free_credits_only': (_) => _turn(
+  // qa1: the server localizes its `message` (chat_vision_service.funding_message),
+  // so the Bangla shots get the Bangla server text and a Bangla question.
+  'chat_photo_free_unavailable': (l) => _turn(FakeCvBackend(), question: _q(l)),
+  'chat_photo_free_ondevice': (l) =>
+      _turn(FakeCvBackend(), reading: kMedicineReading, question: _q(l)),
+  'chat_photo_free_credits_only': (l) => _turn(
       FakeCvBackend(
           reason: 'too_many_ads',
-          message: "Ads can't cover this answer's cost — it needs credits or Premium."),
-      reading: kMedicineReading),
-  'chat_photo_premium_done': (_) =>
-      _turn(FakeCvBackend(plan: 'premium'), reading: kMedicineReading, then: 'pool'),
-  'chat_photo_needs_key': (_) => _turn(FakeCvBackend(
-      reason: 'provider_missing',
-      message: "Detailed photo answers aren't switched on yet — the owner must add a "
-          'Claude, OpenAI or Gemini vision key in Integrations.')),
-  'chat_photo_face_refused': (_) => _turn(FakeCvBackend(plan: 'premium', refuse: true),
-      question: 'Who is this person?', then: 'pool'),
+          message: l == 'bn'
+              ? 'এই উত্তরের খরচ বিজ্ঞাপনে মেটে না — ক্রেডিট বা প্রিমিয়াম লাগবে।'
+              : "Ads can't cover this answer's cost — it needs credits or Premium."),
+      reading: kMedicineReading,
+      question: _q(l)),
+  'chat_photo_premium_done': (l) => _turn(FakeCvBackend(plan: 'premium'),
+      reading: kMedicineReading, then: 'pool', question: _q(l)),
+  'chat_photo_needs_key': (l) => _turn(
+      FakeCvBackend(
+          reason: 'provider_missing',
+          message: l == 'bn'
+              ? 'বিস্তারিত ছবি-উত্তর এখনো চালু হয়নি — মালিককে Integrations-এ Claude, OpenAI বা Gemini ভিশন key যোগ করতে হবে।'
+              : "Detailed photo answers aren't switched on yet — the owner must add a "
+                  'Claude, OpenAI or Gemini vision key in Integrations.'),
+      question: _q(l)),
+  'chat_photo_face_refused': (l) => _turn(
+      FakeCvBackend(
+          plan: 'premium',
+          refuse: true,
+          refuseMessage: l == 'bn'
+              ? 'ছবির মুখ দেখে আসল মানুষ চেনানো হয় না। চাইলে ছবিটা সাধারণভাবে বর্ণনা করতে পারি।'
+              : "I can't identify real people from their face. I can describe the photo in general terms instead."),
+      question: l == 'bn' ? 'এই মানুষটি কে?' : 'Who is this person?', then: 'pool'),
 };

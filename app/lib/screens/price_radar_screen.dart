@@ -172,11 +172,14 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(tr.priceTitle)),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _add(),
-        icon: const Icon(Icons.add),
-        label: Text(tr.priceLogPrice),
-      ),
+      // qa1: the empty state already has this action as its CTA
+      floatingActionButton: _logs.isEmpty
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => _add(),
+              icon: const Icon(Icons.add),
+              label: Text(tr.priceLogPrice),
+            ),
       body: _logs.isEmpty
           ? StateMessage(
               icon: Icons.storefront_outlined,

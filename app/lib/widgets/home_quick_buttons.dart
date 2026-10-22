@@ -446,11 +446,20 @@ class QuickButtonsPickerState extends State<QuickButtonsPicker> {
                 }),
                 child: Text(t.quickReset),
               ),
-              const Spacer(),
-              FilledButton(
-                onPressed:
-                    full ? () => Navigator.pop(context, List.of(_sel)) : null,
-                child: Text(t.aichatSave),
+              // qa1: (picker sheet only — home layout unchanged) Save
+              // scales down instead of overflowing at 2.0x text.
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: FilledButton(
+                      onPressed:
+                          full ? () => Navigator.pop(context, List.of(_sel)) : null,
+                      child: Text(t.aichatSave),
+                    ),
+                  ),
+                ),
               ),
             ]),
           ),

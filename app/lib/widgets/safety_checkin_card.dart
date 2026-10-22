@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/safe_arrival_screen.dart';
 import 'arrival_model.dart';
+import 'bn_day_periods.dart' show appDateLocale;
 
 /// Safe-arrival check-in card. When a check-in is active it shows the place +
 /// ETA with a live status (on-time / grace / overdue) mirroring
@@ -122,8 +123,8 @@ class _SafetyCheckinCardState extends State<SafetyCheckinCard> {
             Expanded(
               child: Text(
                 place == null
-                    ? t.safetyCheckinTargetNoPlace(DateFormat('h:mm a').format(eta!))
-                    : t.safetyCheckinTarget(place!, DateFormat('h:mm a').format(eta!)),
+                    ? t.safetyCheckinTargetNoPlace(DateFormat('h:mm a', appDateLocale(context)).format(eta!))
+                    : t.safetyCheckinTarget(place!, DateFormat('h:mm a', appDateLocale(context)).format(eta!)),
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),

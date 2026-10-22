@@ -97,7 +97,7 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
     final budgets = (d['budgets'] as List?)?.cast<Map<String, dynamic>>() ?? [];
     final biggest = d['biggest_expense'] as Map<String, dynamic>?;
     return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
-      Text(t.moneyReportFor('${d['month']}'),
+      Text(t.moneyReportFor(moneyMonth(context, d['month'])),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
       const SizedBox(height: Gap.md),
       Row(children: [
@@ -128,7 +128,7 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
             leading: const Icon(Icons.local_fire_department_outlined,
                 color: Brand.warning),
             title: Text(t.moneyBiggestExpense),
-            subtitle: Text('${biggest['category']} · ${biggest['date']}'),
+            subtitle: Text('${biggest['category']} · ${moneyDay(context, biggest['date'])}'),
             trailing: Text(tkFmt(biggest['amount']),
                 style: const TextStyle(fontWeight: FontWeight.w700)),
           ),

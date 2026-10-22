@@ -101,6 +101,7 @@ class StateMessage extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Center(
+      child: SingleChildScrollView( // qa1: no bottom overflow at large font
       child: Padding(
         padding: const EdgeInsets.all(Gap.xxl),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -131,6 +132,7 @@ class StateMessage extends StatelessWidget {
             action!,
           ],
         ]),
+      ),
       ),
     );
   }

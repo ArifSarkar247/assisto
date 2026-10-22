@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../notifications.dart';
+import 'bn_day_periods.dart' show appDateLocale;
 
 /// Advanced NOTES + TO-DO building blocks (#22, SPEC v2.1 §21).
 ///
@@ -155,7 +156,7 @@ Future<void> editNote(BuildContext context, {Map<String, dynamic>? item}) async 
                   icon: const Icon(Icons.event_outlined, size: 18),
                   label: Text(due == null
                       ? t.notesSetDue
-                      : DateFormat('d MMM, h:mm a').format(due!)),
+                      : DateFormat('d MMM, h:mm a', appDateLocale(context)).format(due!)),
                   onPressed: () async {
                     final date = await showDatePicker(
                         context: ctx,
@@ -303,7 +304,7 @@ Future<void> editTodo(BuildContext context, {Map<String, dynamic>? item}) async 
                 icon: const Icon(Icons.event_outlined, size: 18),
                 label: Text(due == null
                     ? t.notesSetDue
-                    : DateFormat('d MMM, h:mm a').format(due!)),
+                    : DateFormat('d MMM, h:mm a', appDateLocale(context)).format(due!)),
                 onPressed: () async {
                   final date = await showDatePicker(
                       context: ctx,

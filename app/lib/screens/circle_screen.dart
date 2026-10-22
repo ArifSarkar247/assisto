@@ -452,8 +452,7 @@ class _CircleScreenState extends State<CircleScreen> {
                   FilledButton.icon(
                     icon: const Icon(Icons.check, size: 18),
                     label: Text(_t.circleAccept),
-                    style: FilledButton.styleFrom(
-                        backgroundColor: Brand.success),
+                    style: Brand.successButton(),
                     onPressed: () => _act(r, 'accept'),
                   ),
                 ],

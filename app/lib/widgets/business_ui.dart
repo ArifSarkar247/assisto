@@ -114,7 +114,8 @@ class BizStatusChip extends StatelessWidget {
         Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
         const SizedBox(width: Gap.sm),
         Text(label,
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: color)),
+            style: TextStyle(
+                fontSize: 12, fontWeight: FontWeight.w700, color: Brand.onTint(context, color))),
       ]),
     );
   }

@@ -106,7 +106,7 @@ class _RamadanCalendarState extends State<RamadanCalendar> {
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
               child: Text(t.ramadanSetStartHint,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
             )
           else ...[
             Text(
@@ -142,7 +142,7 @@ class _RamadanCalendarState extends State<RamadanCalendar> {
           fg = Brand.blue;
         } else {
           bg = Colors.grey.withOpacity(0.10);
-          fg = Colors.grey.shade700;
+          fg = Theme.of(context).colorScheme.onSurfaceVariant; // qa1: was 2.8:1 in dark mode
         }
         return Container(
           width: 36,

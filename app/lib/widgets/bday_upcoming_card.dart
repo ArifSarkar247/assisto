@@ -127,16 +127,25 @@ class BdayUpcomingCard extends StatelessWidget {
             color: scheme.primary,
             onPressed: onWish,
           ),
-          IconButton(
-            tooltip: bStr(context, 'bEdit'),
-            icon: const Icon(Icons.edit_outlined),
-            onPressed: onEdit,
-          ),
-          IconButton(
-            tooltip: t.delete,
-            icon: const Icon(Icons.delete_outline),
-            color: scheme.error,
-            onPressed: onDelete,
+          // qa1: three icon buttons squeezed the subtitle into 2-word lines
+          // at 360dp; edit + delete move into one overflow menu.
+          PopupMenuButton<String>(
+            tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+            onSelected: (v) => v == 'edit' ? onEdit() : onDelete(),
+            itemBuilder: (_) => [
+              PopupMenuItem(
+                  value: 'edit',
+                  child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.edit_outlined),
+                      title: Text(bStr(context, 'bEdit')))),
+              PopupMenuItem(
+                  value: 'delete',
+                  child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(Icons.delete_outline, color: scheme.error),
+                      title: Text(t.delete))),
+            ],
           ),
         ]),
       ),

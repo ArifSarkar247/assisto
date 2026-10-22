@@ -12,13 +12,22 @@ import '../../theme.dart';
 /// Accepts a Map, a plain String (already resolved), or null.
 String pair(BuildContext context, dynamic value, {String fallback = ''}) {
   if (value == null) return fallback;
-  if (value is String) return value;
+  if (value is String) return _bnMoneyDigits(context, value);
   if (value is Map) {
     final lang = Localizations.localeOf(context).languageCode;
     final v = value[lang] ?? value['bn'] ?? value['en'];
-    return v?.toString() ?? fallback;
+    return _bnMoneyDigits(context, v?.toString() ?? fallback);
   }
   return value.toString();
+}
+
+/// qa1: the server's khata/cashbox `bn` amounts come as "৳1,500" (Latin
+/// digits) while the rest of the Bangla UI writes Bangla digits. Only strings
+/// that carry a taka sign are touched — phone numbers, codes and ids are not.
+String _bnMoneyDigits(BuildContext context, String s) {
+  if (!s.contains('৳') || Localizations.localeOf(context).languageCode != 'bn') return s;
+  return s.replaceAllMapped(
+      RegExp('[0-9]'), (m) => String.fromCharCode(0x09E6 + int.parse(m[0]!)));
 }
 
 /// Parse a user-typed taka amount (Bangla or Latin digits, optional thousands

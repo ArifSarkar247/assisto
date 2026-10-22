@@ -1,0 +1,213 @@
+{
+  "_comment": "qa1 Premium QA. Delete-account preview: the server sends Django accessor names (reminders, txns, auth_token…); the screen now groups them under these localized labels instead of showing English internal names in the Bangla UI. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_qa1_arb.json",
+  "en": {
+    "delAcctKindMemories": "Memories",
+    "delAcctKindReminders": "Reminders",
+    "delAcctKindNotes": "Notes",
+    "delAcctKindTodos": "To-dos",
+    "delAcctKindDocuments": "Documents",
+    "delAcctKindMoney": "Money records",
+    "delAcctKindContacts": "Contacts",
+    "delAcctKindCircle": "My Circle people",
+    "delAcctKindMessages": "Messages you sent",
+    "delAcctKindAiChats": "Assisto AI chats",
+    "delAcctKindHealth": "Health and medicines",
+    "delAcctKindEvents": "Birthdays and meetings",
+    "delAcctKindFamily": "Family and nominees",
+    "delAcctKindBusiness": "Business records",
+    "delAcctKindProtection": "Phone and vehicle protection",
+    "delAcctKindSafety": "Safe journeys and places",
+    "delAcctKindPa": "Personal assistant lists",
+    "delAcctKindPhotos": "Photo Studio edits",
+    "delAcctKindCrm": "CRM records",
+    "delAcctKindOther": "Other records (settings, history, logs)",
+    "qa1VariantCount": "{count, plural, =1{{n} variant} other{{n} variants}}",
+    "@qa1VariantCount": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        },
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "creditsActionAiChat": "Assisto AI chat",
+    "creditsActionScan": "Document scan",
+    "creditsActionShopCamera": "Shop Box camera",
+    "creditsActionPhotoStudio": "Photo Studio",
+    "creditsActionChatPhoto": "Photo questions in chat",
+    "creditsActionOther": "Other",
+    "qa1CrmScoreParts": "industry fit {fit} + company size {size} + buying signals {signals}",
+    "@qa1CrmScoreParts": {
+      "placeholders": {
+        "fit": {
+          "type": "String"
+        },
+        "size": {
+          "type": "String"
+        },
+        "signals": {
+          "type": "String"
+        }
+      }
+    },
+    "qa1CrmStartShort": "Start your CRM",
+    "qa1OtpResendIn": "Resend code in {seconds}s",
+    "@qa1OtpResendIn": {
+      "placeholders": {
+        "seconds": {
+          "type": "String"
+        }
+      }
+    },
+    "qa1CreditsN": "{count} credits",
+    "@qa1CreditsN": {
+      "placeholders": {
+        "count": {
+          "type": "String"
+        }
+      }
+    },
+    "qa1PsCostAds": "{count, plural, =1{Watch {n} short ad} other{Watch {n} short ads}}",
+    "@qa1PsCostAds": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        },
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "qa1PsGateBody": "{count, plural, =1{Watch {n} short ad to save, share or use this photo in full quality.} other{Watch {n} short ads to save, share or use this photo in full quality.}}",
+    "@qa1PsGateBody": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        },
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "qa1PsGateRunBody": "{count, plural, =1{This edit runs on a paid AI server. Watch {n} short ad first — then it runs.} other{This edit runs on a paid AI server. Watch {n} short ads first — then it runs.}}",
+    "@qa1PsGateRunBody": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        },
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "qa1VehProtocolAuto": "Detect",
+    "qa1WatchAddRateAlert": "Add rate alert"
+  },
+  "bn": {
+    "delAcctKindMemories": "মেমরি",
+    "delAcctKindReminders": "রিমাইন্ডার",
+    "delAcctKindNotes": "নোট",
+    "delAcctKindTodos": "করণীয় কাজ",
+    "delAcctKindDocuments": "ডকুমেন্ট",
+    "delAcctKindMoney": "টাকা-পয়সার হিসাব",
+    "delAcctKindContacts": "কন্টাক্ট",
+    "delAcctKindCircle": "আমার সার্কেলের মানুষ",
+    "delAcctKindMessages": "আপনার পাঠানো মেসেজ",
+    "delAcctKindAiChats": "Assisto AI চ্যাট",
+    "delAcctKindHealth": "স্বাস্থ্য ও ওষুধ",
+    "delAcctKindEvents": "জন্মদিন ও মিটিং",
+    "delAcctKindFamily": "পরিবার ও নমিনি",
+    "delAcctKindBusiness": "ব্যবসার হিসাব",
+    "delAcctKindProtection": "ফোন ও গাড়ির সুরক্ষা",
+    "delAcctKindSafety": "নিরাপদ যাত্রা ও জায়গা",
+    "delAcctKindPa": "পার্সোনাল অ্যাসিস্ট্যান্টের তালিকা",
+    "delAcctKindPhotos": "ফটো স্টুডিওর কাজ",
+    "delAcctKindCrm": "CRM-এর তথ্য",
+    "delAcctKindOther": "অন্যান্য রেকর্ড (সেটিংস, ইতিহাস, লগ)",
+    "qa1VariantCount": "{count, plural, other{{n}টি ভ্যারিয়েন্ট}}",
+    "@qa1VariantCount": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        },
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "creditsActionAiChat": "Assisto AI চ্যাট",
+    "creditsActionScan": "ডকুমেন্ট স্ক্যান",
+    "creditsActionShopCamera": "শপ বক্স ক্যামেরা",
+    "creditsActionPhotoStudio": "ফটো স্টুডিও",
+    "creditsActionChatPhoto": "চ্যাটে ছবির প্রশ্ন",
+    "creditsActionOther": "অন্যান্য",
+    "qa1CrmScoreParts": "ইন্ডাস্ট্রির মিল {fit} + কোম্পানির আকার {size} + কেনার আগ্রহ {signals}",
+    "@qa1CrmScoreParts": {
+      "placeholders": {
+        "fit": {
+          "type": "String"
+        },
+        "size": {
+          "type": "String"
+        },
+        "signals": {
+          "type": "String"
+        }
+      }
+    },
+    "qa1CrmStartShort": "নতুন CRM",
+    "qa1OtpResendIn": "{seconds} সেকেন্ড পরে আবার কোড চাওয়া যাবে",
+    "@qa1OtpResendIn": {
+      "placeholders": {
+        "seconds": {
+          "type": "String"
+        }
+      }
+    },
+    "qa1CreditsN": "{count} ক্রেডিট",
+    "@qa1CreditsN": {
+      "placeholders": {
+        "count": {
+          "type": "String"
+        }
+      }
+    },
+    "qa1PsCostAds": "{count, plural, other{{n}টি ছোট বিজ্ঞাপন দেখুন}}",
+    "@qa1PsCostAds": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        },
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "qa1PsGateBody": "{count, plural, other{পুরো মানে সেভ, শেয়ার বা ব্যবহার করতে {n}টি ছোট বিজ্ঞাপন দেখুন।}}",
+    "@qa1PsGateBody": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        },
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "qa1PsGateRunBody": "{count, plural, other{এই এডিট খরচের AI সার্ভারে চলে। আগে {n}টি ছোট বিজ্ঞাপন দেখুন — তারপর চলবে।}}",
+    "@qa1PsGateRunBody": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        },
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "qa1VehProtocolAuto": "স্বয়ংক্রিয়",
+    "qa1WatchAddRateAlert": "রেটের অ্যালার্ট যোগ করুন"
+  }
+}

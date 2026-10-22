@@ -577,7 +577,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
     if (q.free) parts.add(t.psCostIncluded);
     final a = q.ads;
     if (a != null) {
-      parts.add(t.psCostAds(fmtInt(context, a.ads)) +
+      parts.add(t.qa1PsCostAds(a.ads, fmtInt(context, a.ads)) + // qa1: plural
           (a.trial ? ' · ${t.psFreeTrial}' : ''));
     }
     final c = q.credits;

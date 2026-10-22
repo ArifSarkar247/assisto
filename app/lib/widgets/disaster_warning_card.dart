@@ -96,7 +96,7 @@ class DisasterWarningCard extends StatelessWidget {
             Text(t.disSourceLine(warning.source),
                 style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
           const SizedBox(height: Gap.xs),
-          Row(children: [
+          Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [ // qa1
             FilledButton.tonalIcon(
               onPressed: onSteps,
               icon: const Icon(Icons.checklist_rtl, size: 18),
@@ -129,7 +129,12 @@ class _Pill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = filled ? Colors.white : color;
+    // qa1: white on amber/orange fills was ~2-3:1; pick the readable ink.
+    final fg = filled
+        ? (ThemeData.estimateBrightnessForColor(color) == Brightness.dark
+            ? Colors.white
+            : const Color(0xFF1C1300))
+        : Brand.onTint(context, color);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
@@ -139,9 +144,9 @@ class _Pill extends StatelessWidget {
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 13, color: fg),
         const SizedBox(width: 4),
-        Text(label,
+        Flexible(child: Text(label,
             style: TextStyle(
-                fontSize: 12, fontWeight: FontWeight.w600, color: fg)),
+                fontSize: 12, fontWeight: FontWeight.w600, color: fg))),
       ]),
     );
   }

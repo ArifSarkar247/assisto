@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import 'wrapped_share.dart';
+import 'subs_common.dart' show fmtInt;
 
 /// Shareable referral ACHIEVEMENT card (feature #102 advanced).
 ///
@@ -46,19 +47,22 @@ class RefAchievementCard extends StatelessWidget {
             Row(children: [
               const Icon(Icons.emoji_events, color: Colors.white, size: 22),
               const SizedBox(width: Gap.sm),
-              Text(t.refCardTitle,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 16)),
+              Expanded(
+                child: Text(t.refCardTitle,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 16)),
+              ),
             ]),
             const SizedBox(height: Gap.lg),
-            Row(children: [
-              _stat(context, '$friendsJoined', t.refCardFriends),
+            Wrap(spacing: 0, runSpacing: Gap.sm, children: [ // qa1: wraps at large font
+              // qa1: locale digits (Latin "0 0 120" in the Bangla card)
+              _stat(context, fmtInt(context, friendsJoined), t.refCardFriends),
               const SizedBox(width: Gap.xl),
-              _stat(context, '$daysEarnedTotal', t.refCardDays),
+              _stat(context, fmtInt(context, daysEarnedTotal), t.refCardDays),
               const SizedBox(width: Gap.xl),
-              _stat(context, '$points', t.referralPoints),
+              _stat(context, fmtInt(context, points), t.referralPoints),
             ]),
             if (hasCode) ...[
               const SizedBox(height: Gap.lg),

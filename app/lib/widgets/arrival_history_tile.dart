@@ -2,6 +2,7 @@ import '../l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'arrival_model.dart';
+import 'bn_day_periods.dart' show appDateLocale;
 
 /// One past safe-arrival check-in row. `arrived==true` -> green "Arrived";
 /// otherwise it was MISSED and family was alerted (red). Icon + text carry the
@@ -20,7 +21,7 @@ class ArrivalHistoryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = arrived ? Colors.green : Colors.red;
-    final when = DateFormat('d MMM, h:mm a').format(eta);
+    final when = DateFormat('d MMM, h:mm a', appDateLocale(context)).format(eta);
     return ListTile(
       dense: true,
       contentPadding: EdgeInsets.zero,

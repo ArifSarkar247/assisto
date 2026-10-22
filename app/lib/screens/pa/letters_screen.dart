@@ -152,11 +152,14 @@ class _LettersScreenState extends State<LettersScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: Text(tr.paLetTitle)),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _open(tr),
-        icon: const Icon(Icons.add),
-        label: Text(tr.paLetNew),
-      ),
+      // qa1: the empty state already has this action as its CTA — one is enough
+      floatingActionButton: (!_loading && !_error && _saved.isEmpty)
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => _open(tr),
+              icon: const Icon(Icons.add),
+              label: Text(tr.paLetNew),
+            ),
       body: _loading
           ? const SkeletonList()
           : _error

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import 'bn_day_periods.dart' show appDateLocale;
 
 /// Status pill for a support ticket (#181, §21). Honest 3-state mapping from
 /// the backend SupportTicket fields: a non-empty `reply` means an agent has
@@ -62,7 +63,7 @@ class TicketCard extends StatelessWidget {
     final created = ticket['created_at']?.toString();
     if (created != null && created.isNotEmpty) {
       final dt = DateTime.tryParse(created);
-      if (dt != null) dateStr = DateFormat('d MMM, h:mm a').format(dt.toLocal());
+      if (dt != null) dateStr = DateFormat('d MMM, h:mm a', appDateLocale(context)).format(dt.toLocal());
     }
 
     return Card(

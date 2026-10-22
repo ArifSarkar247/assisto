@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import 'money_common.dart';
+import '../widgets/bn_day_periods.dart' show appDateLocale;
 
 /// One loan: principal, running balance, partial-repayment history + ledger.
 /// Repayments are stored on the synced loan item (data['repayments'] list) so
@@ -79,7 +80,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
                       child: Row(children: [
                         const Icon(Icons.calendar_today_outlined, size: 16),
                         const SizedBox(width: Gap.xs),
-                        Text(DateFormat('d MMM yyyy').format(date)),
+                        Text(DateFormat('d MMM yyyy', appDateLocale(context)).format(date)),
                       ]),
                     ),
                   ]),
@@ -111,7 +112,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
     final principal = dbl(_data['amount']);
     final progress = principal > 0 ? (_paid / principal).clamp(0.0, 1.0) : 1.0;
     final given = _data['kind'] == 'given';
-    final fmt = DateFormat('d MMM yyyy');
+    final fmt = DateFormat('d MMM yyyy', appDateLocale(context));
 
     // ledger: principal first, then each repayment (newest last), with balance
     double running = principal;
@@ -210,7 +211,10 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
                   ? fmt.format(
                       DateTime.tryParse('${e['date']}') ?? DateTime.now())
                   : ''),
-              trailing: Column(
+              isThreeLine: MediaQuery.textScalerOf(context).scale(10) > 12, // qa1
+              // qa1: scale down (never clip) the 2-line amount at large font
+              trailing: FittedBox(fit: BoxFit.scaleDown, child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -219,7 +223,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
                     Text(t.moneyLoanBalanceLabel(tkFmt(e['balance'])),
                         style:
                             TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
-                  ]),
+                  ])),
             ),
           ),
       ]),

@@ -202,7 +202,7 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
               onPressed: () => Navigator.pop(ctx, false),
               child: Text(_t.cancel)),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Brand.danger),
+            style: Brand.dangerButton(),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(_t.communityRemoveMember),
           ),

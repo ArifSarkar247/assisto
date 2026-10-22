@@ -10,6 +10,7 @@ import '../theme.dart';
 import 'payments_api.dart';
 import 'store_billing.dart';
 import '../services/error_report.dart'; // db1
+import '../widgets/subs_common.dart' show fmtInt; // qa1: locale digits
 
 /// Taka sign via code point (no Bangla-block literal in Dart source).
 const _taka = '৳';
@@ -379,8 +380,8 @@ class _CheckoutSheetState extends State<CheckoutSheet>
         const SizedBox(height: 4),
         Text(
             any.isSub
-                ? '${any.title} · $_taka${any.priceBdt} ${_period(t, any)}'
-                : '${t.payCreditsN(any.credits)} · $_taka${any.priceBdt}',
+                ? '${any.title} · $_taka${fmtInt(context, any.priceBdt)} ${_period(t, any)}'
+                : '${t.qa1CreditsN(fmtInt(context, any.credits))} · $_taka${fmtInt(context, any.priceBdt)}',
             style: TextStyle(color: scheme.onSurfaceVariant)),
       ],
       const SizedBox(height: Gap.lg),
@@ -447,7 +448,7 @@ class _CheckoutSheetState extends State<CheckoutSheet>
               ),
               if (p != null) ...[
                 const SizedBox(width: Gap.sm),
-                Text('$_taka${p.priceBdt}',
+                Text('$_taka${fmtInt(context, p.priceBdt)}',
                     style: TextStyle(
                         fontWeight: FontWeight.w800,
                         color: can ? scheme.primary : scheme.onSurfaceVariant)),

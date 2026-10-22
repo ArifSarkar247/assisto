@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:assisto/state.dart';
 import 'package:assisto/models.dart';
 import 'package:assisto/theme.dart';
+import 'package:assisto/widgets/bn_day_periods.dart';
 import 'package:assisto/updater.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/screens/login_screen.dart';
@@ -667,7 +668,7 @@ Map<String, GallerySpec> gallerySpecs() {
     'vault_empty': (build: (_) => const VaultScreen(previewUnlocked: true), mode: FakeMode.empty, full: false),
     'vault_error': (build: (_) => const VaultScreen(previewUnlocked: true), mode: FakeMode.fail, full: false),
     // ---- c3-msg ---- ticks, decrypted previews, typing, unread, presence
-    'c3_chat_list': (build: (_) => Scaffold(appBar: AppBar(title: const Text('My Circle')), body: MsgrHubChatList(identity: C3Fake.me, members: const [])), mode: FakeMode.data, full: true),
+    'c3_chat_list': (build: (_) => Scaffold(appBar: AppBar(title: Builder(builder: (ctx) => Text(AppLocalizations.of(ctx).sidebarMyCircle))), body: MsgrHubChatList(identity: C3Fake.me, members: const [])), mode: FakeMode.data, full: true),
     'c3_chat': (build: (l) => CircleChatScreen(member: C3Fake.member(l == 'bn'), identity: C3Fake.me), mode: FakeMode.data, full: true),
     'c3_msg_info': (build: (l) => Scaffold(appBar: AppBar(), body: Align(alignment: Alignment.bottomCenter, child: Material(elevation: 6, child: MessageInfoView(load: () async => C3Fake.info(l == 'bn'))))), mode: FakeMode.data, full: true),
     'c3_notif_settings': (build: (_) => const MsgrSetNotificationsScreen(), mode: FakeMode.data, full: true),
@@ -751,6 +752,7 @@ void main() {
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
+              BnDayPeriods.delegate, // qa1
             ],
             theme: AssistoTheme.light,
             darkTheme: AssistoTheme.dark,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import 'bn_day_periods.dart' show appDateLocale;
 
 /// NOTIFICATION CENTRE — pure data models + localisation helpers.
 ///
@@ -88,7 +89,7 @@ String notifAgo(BuildContext context, String? iso) {
   } else if (diff.inDays < 7) {
     raw = t.notifDaysAgo('${diff.inDays}');
   } else {
-    raw = DateFormat.MMMd().format(dt);
+    raw = DateFormat.MMMd(appDateLocale(context)).format(dt);
   }
   return notifLocalizeDigits(context, raw);
 }

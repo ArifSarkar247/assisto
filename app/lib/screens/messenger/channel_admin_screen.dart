@@ -850,7 +850,7 @@ class _AdminsTabState extends State<_AdminsTab> {
               onPressed: () => Navigator.pop(ctx, false),
               child: Text(t.channelCancel)),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Brand.danger),
+            style: Brand.dangerButton(),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(t.channelRemoveAdmin),
           ),

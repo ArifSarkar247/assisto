@@ -10,6 +10,7 @@ import 'offline_banner.dart';
 import '../screens/reminders_screen.dart'
     show isOverdue, recurrenceLabel, ruleFromData;
 import '../screens/reminders_quick_add.dart' show editReminder;
+import 'bn_day_periods.dart' show appDateLocale;
 
 /// Advanced combined CALENDAR / agenda view (#22, SPEC v2.1 §21).
 ///
@@ -67,8 +68,8 @@ class _RemCalendarViewState extends State<RemCalendarView> {
   // ---- header: period label + prev/next/today ----------------------------
   Widget _header(BuildContext context, AppLocalizations t) {
     final fmt = _zoom == _Zoom.day
-        ? DateFormat('EEEE, d MMM yyyy')
-        : DateFormat('MMMM yyyy');
+        ? DateFormat('EEEE, d MMM yyyy', appDateLocale(context))
+        : DateFormat('MMMM yyyy', appDateLocale(context));
     final label = fmt.format(_zoom == _Zoom.day ? _selected : _anchor);
     return Padding(
       padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.sm, 0),
@@ -178,7 +179,7 @@ class _RemCalendarViewState extends State<RemCalendarView> {
               Expanded(
                 child: Center(
                   child: Text(
-                    DateFormat('EEE')
+                    DateFormat('EEE', appDateLocale(context))
                         .format(DateTime(2024, 1, 7).add(Duration(days: i))),
                     style: TextStyle(
                         fontSize: 11,
@@ -294,7 +295,7 @@ class _RemCalendarViewState extends State<RemCalendarView> {
                         : null,
                   ),
                   child: Column(children: [
-                    Text(DateFormat('EEE').format(day),
+                    Text(DateFormat('EEE', appDateLocale(context)).format(day),
                         style: TextStyle(
                             fontSize: 11, color: scheme.onSurfaceVariant)),
                     const SizedBox(height: 2),
@@ -479,7 +480,7 @@ class _AgendaRow extends StatelessWidget {
     final done = occ.done;
     final dateOnly = d['date_only'] == true;
     final timeStr =
-        dateOnly ? t.remCalAllDay : DateFormat('h:mm a').format(occ.when);
+        dateOnly ? t.remCalAllDay : DateFormat('h:mm a', appDateLocale(context)).format(occ.when);
     final rule = occ.kind == 'reminder' ? ruleFromData(d) : null;
     final railColor = occ.overdue && !done
         ? Brand.danger
@@ -649,7 +650,7 @@ class _AgendaRow extends StatelessWidget {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
-              '${t.remCalRescheduledTo} ${DateFormat('d MMM, h:mm a').format(when)}')));
+              '${t.remCalRescheduledTo} ${DateFormat('d MMM, h:mm a', appDateLocale(context)).format(when)}')));
     }
   }
 

@@ -114,14 +114,17 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
           child: ListTile(
             title: Text('${c['category']}'),
             subtitle: Text(t.moneyVsLastMonth(tkFmt(c['previous']))),
-            trailing: Column(
+            isThreeLine: MediaQuery.textScalerOf(context).scale(10) > 12, // qa1
+            // qa1: scale down (never clip) the 2-line amount at large font
+            trailing: FittedBox(fit: BoxFit.scaleDown, child: Column(
+                mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(tkFmt(c['current']),
                       style: const TextStyle(fontWeight: FontWeight.w700)),
                   deltaChip(context, dbl(c['delta'])),
-                ]),
+                ])),
           ),
         ),
     ]);
@@ -149,8 +152,8 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
         Builder(builder: (_) {
           // month is 'YYYY-MM'; show 'MM'. Guard null/short strings so a
           // malformed value can't throw RangeError on .substring(5).
-          final ms = '${m['month'] ?? ''}';
-          final label = ms.length >= 6 ? ms.substring(5) : ms;
+          // qa1: "Oct" / Bangla month instead of a bare "10"
+          final label = moneyMonthShort(context, m['month']);
           return Text(label, style: const TextStyle(fontSize: 11));
         }),
       ]),

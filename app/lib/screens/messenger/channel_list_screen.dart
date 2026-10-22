@@ -89,7 +89,7 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
                 onPressed: () => Navigator.pop(ctx, false),
                 child: Text(_t.channelCancel)),
             FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: Brand.danger),
+              style: Brand.dangerButton(),
               onPressed: () => Navigator.pop(ctx, true),
               child: Text(_t.channelUnfollow),
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'selling_common.dart' show MoneyUiX;
 import 'package:provider/provider.dart';
 import '../../business_ai_api.dart';
 import '../../business_selling_api.dart' show MoneyX;
@@ -41,6 +42,13 @@ String statusLabel(AppLocalizations tr, String s) {
     default:
       return s;
   }
+}
+
+/// [statusLabel] for a stand-alone chip: first letter upper-cased (a no-op
+/// for Bangla).
+String statusChipLabel(AppLocalizations tr, String s) {
+  final l = statusLabel(tr, s);
+  return l.isEmpty ? l : l[0].toUpperCase() + l.substring(1);
 }
 
 Color statusColor(String s) {
@@ -137,8 +145,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
               runSpacing: Gap.xs,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-            Text(_takaFmt(o['total']), style: const TextStyle(fontWeight: FontWeight.w600)),
-            BizStatusChip(label: statusLabel(tr, status), color: statusColor(status)),
+            Text(_takaFmt(context, o['total']), style: const TextStyle(fontWeight: FontWeight.w600)),
+            BizStatusChip(label: statusChipLabel(tr, status), color: statusColor(status)),
             if (cod) BizStatusChip(label: tr.bizCod, color: Brand.warning),
           ]),
         ),
@@ -304,7 +312,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         icon: Icons.local_shipping_outlined,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            BizStatusChip(label: statusLabel(tr, _status), color: statusColor(_status)),
+            BizStatusChip(label: statusChipLabel(tr, _status), color: statusColor(_status)),
           ]),
           if (_parcel?['line'] != null) ...[
             const SizedBox(height: Gap.sm),
@@ -338,17 +346,17 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 Expanded(child: Text((it['name'] ?? '').toString())),
                 Text('×${it['qty'] ?? 1}'),
                 const SizedBox(width: Gap.md),
-                Text(_takaFmt(it['price']), style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(_takaFmt(context, it['price']), style: const TextStyle(fontWeight: FontWeight.w600)),
               ]),
             ),
           const Divider(),
           Row(children: [
             Expanded(child: Text(tr.bizTotal, style: const TextStyle(fontWeight: FontWeight.w700))),
-            Text(_takaFmt(_order['total']), style: const TextStyle(fontWeight: FontWeight.w800)),
+            Text(_takaFmt(context, _order['total']), style: const TextStyle(fontWeight: FontWeight.w800)),
           ]),
           if (cod) ...[
             const SizedBox(height: Gap.sm),
-            BizNote(text: tr.bizCodCollect(_takaFmt(_order['cod_amount'] ?? _order['total'])), icon: Icons.payments_outlined, tint: Brand.warning),
+            BizNote(text: tr.bizCodCollect(_takaFmt(context, _order['cod_amount'] ?? _order['total'])), icon: Icons.payments_outlined, tint: Brand.warning),
           ],
         ]),
       ),
@@ -390,5 +398,5 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 }
 
 /// Order totals arrive as TAKA decimals ("2400.00") -> "৳2,400".
-String _takaFmt(Object? v) =>
-    ((double.tryParse('${v ?? 0}') ?? 0) * 100).round().fmtTaka;
+String _takaFmt(BuildContext context, Object? v) =>
+    ((double.tryParse('${v ?? 0}') ?? 0) * 100).round().takaIn(context);

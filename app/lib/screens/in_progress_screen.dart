@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/bn_day_periods.dart' show appDateLocale;
 
 /// "In progress" — everything still open: upcoming reminders and
 /// unfinished to-dos, in one calm list.
@@ -14,7 +15,7 @@ class InProgressScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final app = context.watch<AppState>();
-    final fmt = DateFormat('d MMM, h:mm a');
+    final fmt = DateFormat('d MMM, h:mm a', appDateLocale(context));
 
     Map<String, dynamic> data(Map<String, dynamic> m) =>
         (m['data'] as Map<String, dynamic>?) ?? const {};

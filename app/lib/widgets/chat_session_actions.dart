@@ -65,7 +65,7 @@ class ChatSessionActions {
               onPressed: () => Navigator.pop(ctx, false),
               child: Text(t.aichatCancel)),
           FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: Brand.danger),
+              style: Brand.dangerButton(),
               onPressed: () => Navigator.pop(ctx, true),
               child: Text(t.aichatDelete)),
         ],

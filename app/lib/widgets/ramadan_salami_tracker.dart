@@ -175,7 +175,7 @@ class _RamadanSalamiTrackerState extends State<RamadanSalamiTracker> {
             Padding(
               padding: const EdgeInsets.only(top: Gap.sm),
               child: Text(t.ramadanSalamiEmpty,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
             )
           else
             ..._entries.asMap().entries.map((e) {
@@ -209,7 +209,7 @@ class _RamadanSalamiTrackerState extends State<RamadanSalamiTracker> {
 
   Widget _stat(String label, String value, Color color) {
     return Column(children: [
-      Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+      Text(label, style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
       Text(value,
           style: TextStyle(fontWeight: FontWeight.bold, color: color)),
     ]);

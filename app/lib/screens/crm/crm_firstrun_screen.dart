@@ -146,7 +146,8 @@ class _CrmFirstRunScreenState extends State<CrmFirstRunScreen> {
         // ---- path switch ----
         SegmentedButton<bool>(
           segments: [
-            ButtonSegment(value: false, label: Text(t.crmStartOrg), icon: const Icon(Icons.rocket_launch_outlined)),
+            // qa1: the full bn label wrapped to two lines inside the segment
+            ButtonSegment(value: false, label: Text(t.qa1CrmStartShort), icon: const Icon(Icons.rocket_launch_outlined)),
             ButtonSegment(value: true, label: Text(t.crmJoinTeam), icon: const Icon(Icons.group_add_outlined)),
           ],
           selected: {_joinMode},

@@ -174,7 +174,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                     Text(t.biz_customer_dues,
                         style: TextStyle(
                             fontSize: 11, color: scheme.onSurfaceVariant)),
-                    Text(dues.fmtTaka,
+                    Text(dues.takaIn(context),
                         style: const TextStyle(
                             color: Brand.danger, fontWeight: FontWeight.w800)),
                   ]),
@@ -190,17 +190,17 @@ class _CustomersScreenState extends State<CustomersScreen> {
     );
   }
 
-  Widget _vipBadge(AppLocalizations t) => Container(
+  Widget _vipBadge(AppLocalizations t) => Builder(builder: (context) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         decoration: BoxDecoration(
             color: Brand.warning.withValues(alpha: 0.18),
             borderRadius: BorderRadius.circular(999)),
         child: Text(t.biz_customer_vip,
-            style: const TextStyle(
-                fontSize: 10,
-                color: Brand.warning,
+            style: TextStyle(
+                fontSize: 11,
+                color: Brand.onTint(context, Brand.warning),
                 fontWeight: FontWeight.w700)),
-      );
+      ));
 }
 
 // ============================================================ edit sheet
@@ -425,7 +425,7 @@ class _CustomerHistorySheetState extends State<CustomerHistorySheet> {
                 title: Text((s['date'] ?? s['created_at'] ?? '').toString()),
                 subtitle: Text(
                     '${(s['lines'] as List?)?.length ?? s['items'] ?? 0} · ${(s['payment_method'] ?? '').toString()}'),
-                trailing: Text(poishaOf(s['total']).fmtTaka,
+                trailing: Text(poishaOf(s['total']).takaIn(context),
                     style: const TextStyle(fontWeight: FontWeight.w700)),
               ),
           const SizedBox(height: Gap.lg),

@@ -233,7 +233,8 @@ class _Checking extends StatelessWidget {
                   width: 18,
                   child: CircularProgressIndicator(strokeWidth: 2)),
               const SizedBox(width: Gap.md),
-              Text(label, style: TextStyle(color: scheme.onSurfaceVariant)),
+              Flexible( // qa1: wraps at large font
+                  child: Text(label, style: TextStyle(color: scheme.onSurfaceVariant))),
             ],
           ),
         ),

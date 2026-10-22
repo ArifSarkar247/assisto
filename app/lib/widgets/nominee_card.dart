@@ -153,7 +153,12 @@ class NomineeCard extends StatelessWidget {
             ),
           ]),
           const SizedBox(height: Gap.md),
-          Row(children: [
+          // qa1: status pill + "Manage access" wrap at large font
+          Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              runSpacing: Gap.xs,
+              children: [
             Container(
               padding: const EdgeInsets.symmetric(
                   horizontal: Gap.sm, vertical: Gap.xs),
@@ -171,7 +176,6 @@ class NomineeCard extends StatelessWidget {
                         color: statusColor)),
               ]),
             ),
-            const Spacer(),
             TextButton.icon(
               onPressed: onManageRelease,
               icon: const Icon(Icons.tune, size: 18),

@@ -154,7 +154,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
                 ]),
                 const SizedBox(height: Gap.sm),
                 if ((l['score_reason'] ?? '').toString().isNotEmpty)
-                  Text('${t.crmScoreReason}: ${l['score_reason']}',
+                  Text('${t.crmScoreReason}: ${crmScoreReasonText(context, t, '${l['score_reason']}')}',
                       style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
                 const SizedBox(height: Gap.sm),
                 Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
@@ -213,7 +213,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
                       const SizedBox(width: Gap.xs),
                       Expanded(
                         child: Text((l['next_follow_up'] ?? '').toString().isNotEmpty
-                            ? '${t.crmNextFollowUp}: ${l['next_follow_up']}'
+                            ? '${t.crmNextFollowUp}: ${crmDate(context, l['next_follow_up'])}'
                             : t.crmNextFollowUp),
                       ),
                       Icon(Icons.edit_outlined, size: 14, color: scheme.onSurfaceVariant),
@@ -221,7 +221,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
                   ),
                 ),
                 if (_followup?['ok'] == true) ...[
-                  Text('${t.crmSuggestedContact}: ${_followup!['suggested_contact_date'] ?? '—'}',
+                  Text('${t.crmSuggestedContact}: ${crmDate(context, _followup!['suggested_contact_date'])}',
                       style: TextStyle(color: scheme.onSurfaceVariant)),
                   const SizedBox(height: Gap.xs),
                   Text(_followup!['draft'] ?? '', style: const TextStyle(height: 1.4)),

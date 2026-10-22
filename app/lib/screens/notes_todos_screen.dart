@@ -7,6 +7,7 @@ import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/offline_banner.dart';
 import '../widgets/rem_notes.dart';
+import '../widgets/bn_day_periods.dart' show appDateLocale;
 
 /// Advanced Notes + To-Do (#22, SPEC v2.1 §21).
 ///
@@ -299,7 +300,7 @@ class _NoteCard extends StatelessWidget {
                               Brand.success),
                         if (due != null)
                           _chip(Icons.event,
-                              DateFormat('d MMM, h:mm a').format(due),
+                              DateFormat('d MMM, h:mm a', appDateLocale(context)).format(due),
                               Brand.blue),
                         if (linked)
                           _chip(Icons.alarm_on, t.notesHasReminder,
@@ -419,7 +420,7 @@ class _TodoTile extends StatelessWidget {
               if (due != null)
                 _chip(
                     Icons.event,
-                    DateFormat('d MMM, h:mm a').format(due),
+                    DateFormat('d MMM, h:mm a', appDateLocale(context)).format(due),
                     overdue ? Brand.danger : Brand.blue),
               if (overdue) _chip(Icons.warning_amber_rounded, t.remGroupOverdue, Brand.danger),
             ])

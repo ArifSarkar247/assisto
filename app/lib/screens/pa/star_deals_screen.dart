@@ -225,11 +225,14 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: Text(tr.starDealsTitle)),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _loading ? null : () => _addOrEdit(tr),
-        icon: const Icon(Icons.add),
-        label: Text(tr.starDealsAdd),
-      ),
+      // qa1: the empty state already has this action as its CTA — one is enough
+      floatingActionButton: (!_loading && !_error && _rows.isEmpty)
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: _loading ? null : () => _addOrEdit(tr),
+              icon: const Icon(Icons.add),
+              label: Text(tr.starDealsAdd),
+            ),
       body: _loading
           ? const SkeletonList()
           : _error

@@ -142,6 +142,7 @@ class Harness {
     _out = Directory('${base.path}/reality');
     await _out!.create(recursive: true);
     await Directory('${_out!.path}/shots').create(recursive: true);
+    await Directory('${_out!.path}/acks').create(recursive: true);
     return _out!;
   }
 
@@ -153,6 +154,19 @@ class Harness {
       'flows': [for (final r in results) r.toJson()],
     });
     await File('${d.path}/results.json').writeAsString(body);
+    // The newest flow also goes to stdout/logcat in <=700-char chunks
+    // (`REALITY_RESULT <id> <i>/<n> <json part>`), so the verdict survives
+    // even when the device dies before results.json can be pulled.
+    if (results.isNotEmpty) {
+      final last = results.last;
+      final js = jsonEncode(last.toJson());
+      final n = (js.length / 700).ceil();
+      for (var i = 0; i < n; i++) {
+        final stop = (i + 1) * 700 > js.length ? js.length : (i + 1) * 700;
+        // ignore: avoid_print
+        print('REALITY_RESULT ${last.id} ${i + 1}/$n ${js.substring(i * 700, stop)}');
+      }
+    }
     binding.reportData = {'flows': [for (final r in results) r.toJson()]};
   }
 
@@ -247,6 +261,8 @@ class SkipFlow implements Exception {
   String toString() => 'SKIP: $why';
 }
 
+const _shotMode = String.fromEnvironment('REALITY_SHOT_MODE', defaultValue: 'host');
+
 class RFlow {
   final Harness h;
   final WidgetTester tester;
@@ -281,21 +297,41 @@ class RFlow {
     throw SkipFlow(why);
   }
 
-  /// PNG of the whole app (logical-pixel size, ~400x850) via the boot
-  /// RepaintBoundary. Never fails the flow.
+  /// Screenshot of the device at this moment. Never fails the flow.
+  ///
+  /// Default mode "host": the app prints `REALITY_SHOT <file>` and the CI
+  /// host (tools/reality/run_flows.sh) grabs the REAL screen with
+  /// `adb exec-out screencap`, then touches `<out>/acks/<file>` so the flow
+  /// continues at once. 22 Oct root cause: the in-app path
+  /// (RenderRepaintBoundary.toImage = GPU read-back under Impeller/GLES) took
+  /// down the whole swiftshader emulator at the first shot of flow 01, on
+  /// every run. `--dart-define=REALITY_SHOT_MODE=inapp` keeps the old path.
   Future<String?> shot(String name) async {
     try {
       await tester.pump(const Duration(milliseconds: 300));
-      final ro = h.shotKey.currentContext?.findRenderObject();
-      if (ro is! RenderRepaintBoundary) return null;
       _shotN++;
       final file = '${r.id}_${_shotN.toString().padLeft(2, '0')}_${_safe(name)}.png';
-      await tester.runAsync(() async {
-        final ui.Image img = await ro.toImage(pixelRatio: 1.0);
-        final bd = await img.toByteData(format: ui.ImageByteFormat.png);
+      if (_shotMode == 'inapp') {
+        final ro = h.shotKey.currentContext?.findRenderObject();
+        if (ro is! RenderRepaintBoundary) return null;
+        await tester.runAsync(() async {
+          final ui.Image img = await ro.toImage(pixelRatio: 1.0);
+          final bd = await img.toByteData(format: ui.ImageByteFormat.png);
+          final d = await h.outDir();
+          await File('${d.path}/shots/$file').writeAsBytes(bd!.buffer.asUint8List());
+        });
+      } else {
         final d = await h.outDir();
-        await File('${d.path}/shots/$file').writeAsBytes(bd!.buffer.asUint8List());
-      });
+        final ack = File('${d.path}/acks/$file');
+        // ignore: avoid_print
+        print('REALITY_SHOT $file');
+        final end = DateTime.now().add(const Duration(seconds: 6));
+        while (DateTime.now().isBefore(end)) {
+          await tester.pump(const Duration(milliseconds: 150));
+          final done = await tester.runAsync(() => ack.exists());
+          if (done == true) break;
+        }
+      }
       (_cur ?? (r.steps.isNotEmpty ? r.steps.last : null))?.shots.add(file);
       return file;
     } catch (e) {

@@ -327,7 +327,8 @@ class _DailyBriefScreenState extends State<DailyBriefScreen>
   String _fmtDate(String iso) {
     final d = DateTime.tryParse(iso);
     if (d == null) return iso;
-    return DateFormat.yMMMEd().format(d);
+    // qa1: no locale here printed "Thu, Oct 22, 2026" in the Bangla UI.
+    return DateFormat.yMMMEd(Localizations.localeOf(context).toLanguageTag()).format(d);
   }
 
   Widget _sectionTitle(String label, Color tint) => Padding(
@@ -336,7 +337,7 @@ class _DailyBriefScreenState extends State<DailyBriefScreen>
           Container(width: 8, height: 8,
               decoration: BoxDecoration(color: tint, shape: BoxShape.circle)),
           const SizedBox(width: Gap.sm),
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w800)),
+          Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w800))),
         ]),
       );
 
@@ -379,7 +380,7 @@ class _DailyBriefScreenState extends State<DailyBriefScreen>
     final d = DateTime.tryParse(iso);
     if (d == null) return null;
     if (d.hour == 0 && d.minute == 0) return null;
-    return DateFormat.Hm().format(d);
+    return DateFormat.Hm(Localizations.localeOf(context).toLanguageTag()).format(d);
   }
 
   Widget _completionBar(int pct, int done, int open) {

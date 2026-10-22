@@ -92,7 +92,9 @@ class _FleetDashboardScreenState extends State<FleetDashboardScreen> {
               physics: const NeverScrollableScrollPhysics(),
               mainAxisSpacing: Gap.sm,
               crossAxisSpacing: Gap.sm,
-              childAspectRatio: 2.1,
+              // qa1: taller tiles at large font (fixed ratio overflowed at 2.0x)
+              childAspectRatio:
+                  2.1 / MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.8),
               children: [
                 _tile(tr.vehFleetVehicles, vehNumStr(context, vehInt(tot['vehicles']) ?? 0),
                     Icons.directions_car, Brand.blue),

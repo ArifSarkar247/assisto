@@ -102,7 +102,7 @@ class _PersonalTasksScreenState extends State<PersonalTasksScreen> {
               onPressed: () => Navigator.pop(ctx, false),
               child: Text(t.cancel)),
           FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: Brand.danger),
+              style: Brand.dangerButton(),
               onPressed: () => Navigator.pop(ctx, true),
               child: Text(t.delete)),
         ],

@@ -175,7 +175,7 @@ class _CommunityMessageRequestsScreenState
               child: Text(_t.cancel)),
           FilledButton(
             style: destructive
-                ? FilledButton.styleFrom(backgroundColor: Brand.danger)
+                ? Brand.dangerButton()
                 : null,
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(confirmLabel),

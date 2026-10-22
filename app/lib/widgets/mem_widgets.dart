@@ -46,9 +46,11 @@ class MemTag extends StatelessWidget {
           Icon(icon, size: 12, color: color),
           const SizedBox(width: 3),
         ],
-        Text(text,
-            style: TextStyle(
-                fontSize: 11, color: color, fontWeight: FontWeight.w600)),
+        Flexible(
+          child: Text(text,
+              style: TextStyle(
+                  fontSize: 11, color: color, fontWeight: FontWeight.w600)),
+        ),
       ]),
     );
   }

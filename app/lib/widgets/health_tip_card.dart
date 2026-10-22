@@ -29,7 +29,7 @@ class HealthTipCard extends StatelessWidget {
               const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text(t.healthTipSourceLine(sourceName),
-                    style: TextStyle(fontSize: 11, color: scheme.secondary)),
+                    style: TextStyle(fontSize: 11, color: Brand.onTint(context, scheme.secondary))),
               ),
             ]),
           ],

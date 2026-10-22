@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -142,7 +143,9 @@ class _CashboxScreenState extends State<CashboxScreen> {
                             onPressed: () => _stepDay(-1),
                             icon: const Icon(Icons.chevron_left)),
                         Expanded(
-                          child: Text(_dayKey,
+                          child: Text(
+                              DateFormat.yMMMEd(Localizations.localeOf(context).toLanguageTag())
+                                  .format(_day),
                               textAlign: TextAlign.center,
                               style: Theme.of(context).textTheme.titleMedium),
                         ),
@@ -201,8 +204,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
                         Row(children: [
                           Expanded(
                             child: FilledButton.icon(
-                              style: FilledButton.styleFrom(
-                                  backgroundColor: Brand.success),
+                              style: Brand.successButton(),
                               icon: const Icon(Icons.add),
                               label: Text(t.cashboxCashIn),
                               onPressed: () => _addEntry('in'),
@@ -211,8 +213,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
                           const SizedBox(width: Gap.md),
                           Expanded(
                             child: FilledButton.icon(
-                              style: FilledButton.styleFrom(
-                                  backgroundColor: Brand.danger),
+                              style: Brand.dangerButton(),
                               icon: const Icon(Icons.remove),
                               label: Text(t.cashboxCashOut),
                               onPressed: () => _addEntry('out'),

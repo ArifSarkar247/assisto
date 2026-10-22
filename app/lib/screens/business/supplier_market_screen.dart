@@ -227,11 +227,13 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
               label: Text(tr.supCompareN(_compareIds.length)),
               backgroundColor: _compareIds.length >= 2 ? null : scheme.surfaceContainerHighest,
             )
-          : FloatingActionButton.extended(
-              onPressed: _add,
-              icon: const Icon(Icons.add),
-              label: Text(tr.supAddSupplier),
-            ),
+          : _rows.isEmpty
+              ? null // qa1: the empty state's CTA is the same action
+              : FloatingActionButton.extended(
+                  onPressed: _add,
+                  icon: const Icon(Icons.add),
+                  label: Text(tr.supAddSupplier),
+                ),
       body: _rows.isEmpty
           ? StateMessage(
               icon: Icons.inventory_2_outlined,

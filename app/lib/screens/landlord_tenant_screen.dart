@@ -414,7 +414,7 @@ class _MonthHero extends StatelessWidget {
           ),
         ),
         const SizedBox(height: Gap.sm),
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        Wrap(alignment: WrapAlignment.spaceBetween, spacing: Gap.md, children: [ // qa1
           Text(t.rentBilledLabel(taka(context, billed)),
               style: const TextStyle(color: Colors.white70, fontSize: 12)),
           Text(t.rentDueLabel(taka(context, outstanding)),

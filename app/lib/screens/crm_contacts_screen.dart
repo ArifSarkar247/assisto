@@ -195,7 +195,8 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
           FilledButton(
               onPressed: () => Navigator.pop(ctx, true),
               style: FilledButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.error),
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                  foregroundColor: Theme.of(context).colorScheme.onError), // qa1
               child: Text(tr.delete)),
         ],
       ),

@@ -233,7 +233,10 @@ class _PlansScreenState extends State<PlansScreen> {
       const SizedBox(height: Gap.md),
       // Honest allowance explainer: NOTHING is unlimited. Each paid plan
       // includes a MONTHLY credit pool; when it's used up you buy credits.
-      _allowanceNote(t, scheme),
+      // qa1: the card above reads the server's own `unlimited_ai` for THIS
+      // plan; when the server says unlimited, "Nothing is unlimited" right
+      // under "Unlimited AI" contradicted it — show the note only when true.
+      if (_p?['unlimited_ai'] != true) _allowanceNote(t, scheme),
       const SizedBox(height: Gap.sm),
       // Entry to the Credits screen (balance / packs / usage / storage).
       OutlinedButton.icon(
@@ -697,23 +700,16 @@ class _PlansScreenState extends State<PlansScreen> {
   String _priceLabel(Map<String, dynamic> p) {
     final price = p['price'];
     final cur = (p['cur'] ?? 'BDT').toString();
-    if (price == 0 || price == 0.0) return _curSign(cur) + '0';
+    if (price == 0 || price == 0.0) return _curSign(cur) + fmtInt(context, 0);
     return _curSign(cur) + _fmt(price);
   }
 
   String _curSign(String cur) => cur == 'USD' ? '\$' : '৳';
 
+  // qa1: whole prices through fmtInt (thousands separator + Bangla digits in
+  // the Bangla UI; the old local formatter always wrote Latin digits).
   String _fmt(dynamic n) {
-    if (n is num && n == n.roundToDouble()) {
-      final s = n.round().toString();
-      // thousands separator
-      final b = StringBuffer();
-      for (int i = 0; i < s.length; i++) {
-        if (i > 0 && (s.length - i) % 3 == 0) b.write(',');
-        b.write(s[i]);
-      }
-      return b.toString();
-    }
+    if (n is num && n == n.roundToDouble()) return fmtInt(context, n.round());
     return n.toString();
   }
 

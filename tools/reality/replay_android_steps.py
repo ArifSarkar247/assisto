@@ -27,6 +27,8 @@ WANT = [  # name prefixes, in android.yml order
     "Patch manifest",
     "Enable core library desugaring",
     "Apply google-services Gradle plugin",
+    "Crash reporting (sc1)",          # manifest meta (Gradle plugin only with Firebase config)
+    "Photo Studio native deps",       # onnxruntime + ML Kit face detection (PhotoFaces.kt)
 ]
 
 

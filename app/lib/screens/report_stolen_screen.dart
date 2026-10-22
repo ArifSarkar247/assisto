@@ -211,7 +211,7 @@ class _ReportStolenScreenState extends State<ReportStolenScreen> {
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              style: FilledButton.styleFrom(backgroundColor: Brand.danger),
+              style: Brand.dangerButton(),
               icon: _busy
                   ? const SizedBox(
                       width: 18,
