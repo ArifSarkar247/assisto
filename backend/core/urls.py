@@ -747,3 +747,12 @@ urlpatterns += [
     path("web-photo/claim", w1wp.WebPhotoClaimView.as_view()),
 ]
 # ---- /w1-webphoto ----
+
+# ---- f1-founders ---- in-app "Send feedback / report a problem" (own reports
+# only; screenshots via signed media). Founding Members are owner-panel only.
+from . import views_f1_feedback as f1fb  # noqa: E402
+urlpatterns += [
+    path("feedback", f1fb.FeedbackView.as_view()),
+    path("feedback/<int:pk>", f1fb.FeedbackDetailView.as_view()),
+]
+# ---- /f1-founders ----

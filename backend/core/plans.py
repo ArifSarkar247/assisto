@@ -89,15 +89,34 @@ def trial_active(user):
     return bool(user.trial_until and user.trial_until > timezone.now())
 
 
+def lifetime_founder(user):
+    """The legacy LIFETIME founder (plan "founder"): is_founder with no
+    Founding Member grant date. A Founding Member (f1-founders, founder_since
+    set) is entitled through plan/plan_until like any Premium user — the
+    badge stays, the free Premium ends at founder_until."""
+    return bool(user.is_founder and not getattr(user, "founder_since", None))
+
+
+def founding_member(user):
+    """Badge payload for /me: {"active", "lifetime", "since", "premium_until"}."""
+    if not user.is_founder:
+        return {"active": False, "lifetime": False, "since": None, "premium_until": None}
+    since = getattr(user, "founder_since", None)
+    until = getattr(user, "founder_until", None)
+    return {"active": True, "lifetime": since is None,
+            "since": since.isoformat() if since else None,
+            "premium_until": until.isoformat() if until else None}
+
+
 def plan_active(user):
-    if user.is_founder:
+    if lifetime_founder(user):
         return True
     return bool(user.plan_until and user.plan_until > timezone.now())
 
 
 def effective_plan(user):
     """What the user is actually entitled to right now."""
-    if user.is_founder:
+    if lifetime_founder(user):
         return "founder"
     if plan_active(user):
         # Family was folded into Premium (Build 1); any stray "family" row still

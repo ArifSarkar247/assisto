@@ -94,6 +94,11 @@ SCREEN_SYNONYMS = {
                         "voice assistant", "assisto voice", "hey assisto", "voice mode", "talk to assisto"],
     "voice_settings": ["ডিফল্ট অ্যাসিস্ট্যান্ট", "ডিজিটাল অ্যাসিস্ট্যান্ট", "ওয়েক ওয়ার্ড",
                        "default assistant", "digital assistant", "wake word", "voice settings"],
+    # ---- f1-founders ---- in-app feedback / report a problem (opens the sheet)
+    "feedback": ["ফিডব্যাক", "মতামত দিন", "মতামত জানান", "সমস্যা জানান",
+                 "সমস্যা জানাও", "সমস্যা রিপোর্ট", "সমস্যার রিপোর্ট", "অভিযোগ জানান",
+                 "send feedback", "give feedback", "feedback", "report a problem",
+                 "report a bug", "report bug", "report an issue"],
     "vaultpin": [],  # reserved
 }
 
@@ -153,10 +158,19 @@ def _norm_cmd(text):
     return t
 
 
+_FEEDBACK_WORDS = {"feedback", "send feedback", "give feedback", "report a problem",
+                   "report a bug", "report bug", "report an issue", "report problem",
+                   "ফিডব্যাক", "মতামত", "মতামত দিন", "মতামত জানান", "সমস্যা জানান",
+                   "সমস্যা জানাও", "সমস্যা রিপোর্ট", "সমস্যার রিপোর্ট", "অভিযোগ জানান"}
+
+
 def resolve_command(text):
-    """'circle_add' for a whole-message My Circle command, else None."""
+    """'circle_add' for a whole-message My Circle command, 'feedback' for a
+    whole-message feedback command (f1-founders), else None."""
     if not text:
         return None
+    if _norm_cmd(text) in _FEEDBACK_WORDS:
+        return "feedback"
     low = text.lower()
     for w in SCREEN_SYNONYMS["circle_add"]:
         if w in low:

@@ -21,6 +21,8 @@
     <a href="/owner/ads" class="{% if nav == 'ads' %}on{% endif %}">{{ T.nav_ads }}</a>
     <a href="/owner/integrations" class="{% if nav == 'integrations' %}on{% endif %}">{{ T.nav_integrations }}</a>
     <a href="/owner/users" class="{% if nav == 'users' %}on{% endif %}">{{ T.nav_users }}</a>
+    <a href="/owner/founders" class="{% if nav == 'founders' %}on{% endif %}">{{ T.nav_founders }}</a>
+    <a href="/owner/feedback" class="{% if nav == 'feedback' %}on{% endif %}">{{ T.nav_feedback }}</a>
     <a href="/owner/reports" class="{% if nav == 'reports' %}on{% endif %}">{{ T.nav_reports }}</a>
     <a href="/owner/audit" class="{% if nav == 'audit' %}on{% endif %}">{{ T.nav_audit }}</a>
     <a href="/owner/security" class="{% if nav == 'security' %}on{% endif %}">{{ T.nav_security }}</a>
@@ -35,7 +37,7 @@
       <form method="post" action="/owner/logout">{% include "owner/_csrf.html" %}<button class="btn ghost">{{ T.logout }}</button></form>
     </div>
   </header>
-  {% if msg %}<div class="flash {% if msg in 'invalid,confirm_needed,no_fernet,nothing' %}warn{% endif %}">{% if msg == 'saved' %}{{ T.m_saved }}{% elif msg == 'created' %}{{ T.m_created }}{% elif msg == 'deleted' %}{{ T.m_deleted }}{% elif msg == 'tested' %}{{ T.m_tested }}{% elif msg == 'invalid' %}{{ T.m_invalid }}{% elif msg == 'confirm_needed' %}{{ T.m_confirm_needed }}{% elif msg == 'no_fernet' %}{{ T.m_no_fernet }}{% elif msg == 'nothing' %}{{ T.m_nothing }}{% elif msg == 'recovery_used' %}{{ T.m_recovery_used }}{% endif %}</div>{% endif %}
+  {% if msg %}<div class="flash {% if msg in 'invalid,confirm_needed,no_fernet,nothing' %}warn{% endif %}">{% if msg == 'saved' %}{{ T.m_saved }}{% elif msg == 'created' %}{{ T.m_created }}{% elif msg == 'deleted' %}{{ T.m_deleted }}{% elif msg == 'tested' %}{{ T.m_tested }}{% elif msg == 'invalid' %}{{ T.m_invalid }}{% elif msg == 'confirm_needed' %}{{ T.m_confirm_needed }}{% elif msg == 'no_fernet' %}{{ T.m_no_fernet }}{% elif msg == 'nothing' %}{{ T.m_nothing }}{% elif msg == 'recovery_used' %}{{ T.m_recovery_used }}{% elif msg == 'granted' %}{{ T.m_granted }}{% elif msg == 'revoked' %}{{ T.m_revoked }}{% endif %}</div>{% endif %}
   <main class="content">{% block content %}{% endblock %}</main>
 </div>
 {% endblock %}

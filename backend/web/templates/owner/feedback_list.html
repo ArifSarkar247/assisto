@@ -1,0 +1,18 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_feedback }}{% endblock %}
+{% block content %}
+<div class="tiles">{% for s, n in counts %}<a class="tile" href="?status={{ s }}"><span>{% if s == 'new' %}{{ T.fb_s_new }}{% elif s == 'triaged' %}{{ T.fb_s_triaged }}{% elif s == 'fixed' %}{{ T.fb_s_fixed }}{% else %}{{ T.fb_s_closed }}{% endif %}</span><b>{{ n }}</b></a>{% endfor %}</div>
+<form method="get" class="inline card">
+  <label>{{ T.status }}<select name="status"><option value="">{{ T.all }}</option>{% for s in statuses %}<option value="{{ s }}" {% if s == st %}selected{% endif %}>{% if s == 'new' %}{{ T.fb_s_new }}{% elif s == 'triaged' %}{{ T.fb_s_triaged }}{% elif s == 'fixed' %}{{ T.fb_s_fixed }}{% else %}{{ T.fb_s_closed }}{% endif %}</option>{% endfor %}</select></label>
+  <label>{{ T.fb_category }}<select name="cat"><option value="">{{ T.all }}</option>{% for c in categories %}<option value="{{ c }}" {% if c == cat %}selected{% endif %}>{% if c == 'bug' %}{{ T.fb_c_bug }}{% elif c == 'idea' %}{{ T.fb_c_idea }}{% else %}{{ T.fb_c_other }}{% endif %}</option>{% endfor %}</select></label>
+  <button class="btn ghost">{{ T.show }}</button>
+  <a class="btn ghost" href="/owner/feedback.csv?status={{ st }}&cat={{ cat }}">{{ T.fb_csv }}</a>
+  <span class="mut small">{{ total }}</span>
+</form>
+{% if rows %}
+<div class="card tbl"><table><thead><tr><th>ID</th><th>{{ T.time }}</th><th>{{ T.status }}</th><th>{{ T.fb_category }}</th><th>{{ T.fb_from }}</th><th>{{ T.note }}</th><th>{{ T.fb_screen }}</th></tr></thead><tbody>
+{% for r in rows %}<tr><td><a href="/owner/feedback/{{ r.id }}">#{{ r.id }}</a></td><td>{{ r.created_at|date:"Y-m-d H:i" }}</td><td><span class="pill {% if r.status == 'new' %}spons{% elif r.status == 'fixed' or r.status == 'closed' %}ok{% endif %}">{% if r.status == 'new' %}{{ T.fb_s_new }}{% elif r.status == 'triaged' %}{{ T.fb_s_triaged }}{% elif r.status == 'fixed' %}{{ T.fb_s_fixed }}{% else %}{{ T.fb_s_closed }}{% endif %}</span></td><td>{% if r.category == 'bug' %}{{ T.fb_c_bug }}{% elif r.category == 'idea' %}{{ T.fb_c_idea }}{% else %}{{ T.fb_c_other }}{% endif %}</td><td><a href="/owner/users/{{ r.user_id }}">#{{ r.user_id }} {{ r.user.name|default:"" }}</a></td><td><a href="/owner/feedback/{{ r.id }}">{{ r.note|truncatechars:90 }}</a>{% if r.screenshot %} <span class="pill">{{ T.fb_has_shot }}</span>{% endif %}</td><td>{{ r.route|default:"—" }}</td></tr>{% endfor %}
+</tbody></table></div>
+<div class="row">{% if page_no > 1 %}<a class="btn ghost" href="?status={{ st }}&cat={{ cat }}&page={{ page_no|add:'-1' }}">←</a>{% endif %}{% if has_next %}<a class="btn ghost" href="?status={{ st }}&cat={{ cat }}&page={{ page_no|add:'1' }}">→</a>{% endif %}</div>
+{% else %}<p class="empty">{{ T.fb_none }}</p>{% endif %}
+{% endblock %}

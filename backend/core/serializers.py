@@ -60,6 +60,8 @@ class UserSerializer(serializers.ModelSerializer):
     photo = Base64OrFileImageField(required=False, allow_null=True)
     # Accept the app's visibility token (circle/family/nobody) OR a bool.
     show_phone = VisibilityBooleanField(required=False)
+    # f1-founders: Founding Member badge (read-only; owner-granted only).
+    founding_member = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -68,10 +70,15 @@ class UserSerializer(serializers.ModelSerializer):
                   # Step 3 Messenger profile fields
                   "photo", "photo_link", "photo_url",
                   "show_phone", "communities_who_can_msg",
-                  "public_surfaces_enabled"]
+                  "public_surfaces_enabled", "is_founder", "founding_member"]
         read_only_fields = ["id", "date_joined", "photo_url",
+                            "is_founder", "founding_member",
                             # owner-only switch: never self-set via profile PUT
                             "public_surfaces_enabled"]
+
+    def get_founding_member(self, obj):
+        from . import plans
+        return plans.founding_member(obj)
 
     def get_photo_url(self, obj):
         """Absolute avatar URL served through the authed avatar view (uploaded

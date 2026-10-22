@@ -1,0 +1,24 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_founders }}{% endblock %}
+{% block content %}
+{% if error %}<div class="flash warn" role="alert">{{ error }}</div>{% endif %}
+<div class="tiles">
+  <div class="tile"><span>{{ T.fm_members }}</span><b>{{ members|length }}</b><small>{{ T.fm_badge_note }}</small></div>
+  <div class="tile"><span>{{ T.fm_months }}</span><b>{{ months }}</b><small><a href="/owner/pricing">{{ T.fm_months_edit }}</a></small></div>
+</div>
+<form method="post" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="preview">
+  <h2>{{ T.fm_add_title }}</h2>
+  <p class="mut small">{{ T.fm_add_note }}</p>
+  <label>{{ T.fm_numbers }}<textarea name="numbers" rows="6" placeholder="01712345678&#10;+880 1812-345678&#10;8801912345678">{{ numbers }}</textarea></label>
+  <p class="mut small">{{ T.fm_pick_hint }} <a href="/owner/users">{{ T.nav_users }}</a></p>
+  <button class="btn primary">{{ T.fm_preview_btn }}</button>
+</form>
+<section class="card"><h2>{{ T.fm_members }}</h2>
+{% if members %}<div class="tbl"><table><thead><tr><th>ID</th><th>{{ T.name }}</th><th>{{ T.phone }}</th><th>{{ T.fm_since }}</th><th>{{ T.fm_premium_until }}</th><th>{{ T.plan }}</th><th>{{ T.fm_revoke }}</th></tr></thead><tbody>
+{% for r in members %}<tr><td><a href="/owner/users/{{ r.u.id }}">#{{ r.u.id }}</a></td><td>{{ r.u.name|default:"—" }} <span class="pill fm">{{ T.fm_badge }}</span></td><td>{{ r.u.phone|default:r.u.username }}</td><td>{% if r.lifetime %}{{ T.fm_lifetime }}{% else %}{{ r.u.founder_since|date:"Y-m-d" }}{% endif %}</td><td>{% if r.lifetime %}—{% else %}{{ r.u.founder_until|date:"Y-m-d" }}{% endif %}</td><td>{{ r.eff }}</td>
+<td><form method="post" class="row">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="revoke"><input type="hidden" name="uid" value="{{ r.u.id }}"><input name="reason" required maxlength="200" placeholder="{{ T.reason }}" class="grow"><button class="btn danger small">{{ T.fm_revoke }}</button></form></td></tr>{% endfor %}
+</tbody></table></div>
+<p class="mut small">{{ T.fm_revoke_note }}</p>
+{% else %}<p class="empty">{{ T.fm_none }}</p>{% endif %}
+</section>
+{% endblock %}

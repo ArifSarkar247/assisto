@@ -300,7 +300,7 @@ def plan_segment_counts(now=None):
     from .models import User
     counts = {"free": 0, "premium": 0, "business": 0}
     for u in User.objects.filter(is_active=True).only(
-            "plan", "plan_until", "trial_until", "is_founder"):
+            "plan", "plan_until", "trial_until", "is_founder", "founder_since"):
         try:
             seg = _segment_of(u)
         except Exception:

@@ -1,0 +1,24 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.fb_report }} #{{ r.id }}{% endblock %}
+{% block content %}
+<p><a href="/owner/feedback">← {{ T.nav_feedback }}</a></p>
+{% if error %}<div class="flash warn" role="alert">{{ error }}</div>{% endif %}
+<div class="tiles">
+  <div class="tile"><span>{{ T.fb_category }}</span><b class="sm">{% if r.category == 'bug' %}{{ T.fb_c_bug }}{% elif r.category == 'idea' %}{{ T.fb_c_idea }}{% else %}{{ T.fb_c_other }}{% endif %}</b><small>{{ r.created_at|date:"Y-m-d H:i" }}</small></div>
+  <div class="tile"><span>{{ T.fb_from }}</span><b class="sm"><a href="/owner/users/{{ r.user_id }}">#{{ r.user_id }} {{ r.user.name|default:r.user.username }}</a></b><small>{{ r.language }}</small></div>
+  <div class="tile"><span>{{ T.fb_app }}</span><b class="sm">{{ r.app_version|default:"—" }}{% if r.app_build %} ({{ r.app_build }}){% endif %}</b><small>{{ T.fb_screen }}: {{ r.route|default:"—" }}</small></div>
+  <div class="tile"><span>{{ T.device }}</span><b class="sm">{{ r.device_model|default:"—" }}</b><small>{{ r.os_version|default:"" }}</small></div>
+</div>
+<div class="cols">
+<section class="card"><h2>{{ T.note }}</h2><p class="pre">{{ r.note|linebreaksbr }}</p>
+{% if shot %}<h2>{{ T.fb_shot }}</h2><a class="shot" href="{{ shot }}" target="_blank" rel="noopener"><img src="{{ shot }}" alt="{{ T.fb_shot }}"></a><p class="mut small">{{ T.fb_shot_note }}</p>{% else %}<p class="mut small">{{ T.fb_no_shot }}</p>{% endif %}
+</section>
+<form method="post" class="card">{% include "owner/_csrf.html" %}
+  <h2>{{ T.fb_triage }}</h2>
+  <label>{{ T.status }}<select name="status">{% for s in statuses %}<option value="{{ s }}" {% if s == r.status %}selected{% endif %}>{% if s == 'new' %}{{ T.fb_s_new }}{% elif s == 'triaged' %}{{ T.fb_s_triaged }}{% elif s == 'fixed' %}{{ T.fb_s_fixed }}{% else %}{{ T.fb_s_closed }}{% endif %}</option>{% endfor %}</select></label>
+  <label>{{ T.fb_owner_note }}<textarea name="owner_note" maxlength="2000" rows="5">{{ r.owner_note }}</textarea></label>
+  <p class="mut small">{{ T.fb_owner_note_hint }}</p>
+  <button class="btn primary">{{ T.save }}</button>
+</form>
+</div>
+{% endblock %}
