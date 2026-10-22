@@ -3899,3 +3899,183 @@ class E2KeyRequest(models.Model):
     class Meta:
         unique_together = [("requester", "target")]
 # ---- /e2-keys ----
+
+
+# ---- pay1 ----
+# Payments: ONE entitlement service (core/payments/entitlement.py) fed by two
+# channels — Google Play Billing (Play build) and a payment gateway (EPS; the
+# direct APK + lifeassisto.com/premium). Every channel writes PlanPeriod /
+# credit rows through that service; User.plan / plan_until stay the single
+# field everything else reads.
+class PaymentOrder(models.Model):
+    """One checkout attempt through a hosted payment gateway (EPS today).
+
+    The AMOUNT is copied from the server price table when the order is made;
+    a callback/IPN can never change it. `merchant_tx_id` is our id sent to the
+    gateway (unique); `provider_tx_id` is the gateway's id, unique when set, so
+    one real payment can never be counted twice."""
+    STATUS = [("created", "created"), ("pending", "pending"), ("paid", "paid"),
+              ("failed", "failed"), ("cancelled", "cancelled"),
+              ("refunded", "refunded"), ("expired", "expired")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="payment_orders")
+    channel = models.CharField(max_length=12, default="gateway")   # gateway
+    provider = models.CharField(max_length=16, default="eps")
+    source = models.CharField(max_length=8, default="app")          # app|web
+    sku = models.CharField(max_length=32)
+    kind = models.CharField(max_length=8)                           # sub|pack
+    plan = models.CharField(max_length=16, blank=True, default="")
+    months = models.PositiveSmallIntegerField(default=0)
+    credits = models.IntegerField(default=0)
+    amount_bdt = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=3, default="BDT")
+    fee_pct = models.DecimalField(max_digits=5, decimal_places=4, default=0)
+    merchant_tx_id = models.CharField(max_length=32, unique=True)
+    provider_tx_id = models.CharField(max_length=64, null=True, blank=True,
+                                      unique=True)
+    idempotency_key = models.CharField(max_length=64, blank=True, default="")
+    status = models.CharField(max_length=10, choices=STATUS, default="created")
+    detail = models.CharField(max_length=200, blank=True, default="")
+    raw = models.JSONField(default=dict, blank=True)
+    renew_of = models.ForeignKey("self", on_delete=models.SET_NULL, null=True,
+                                 blank=True, related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    paid_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        indexes = [models.Index(fields=["user", "status"]),
+                   models.Index(fields=["status", "created_at"])]
+        constraints = [models.UniqueConstraint(
+            fields=["user", "idempotency_key"],
+            condition=~models.Q(idempotency_key=""),
+            name="pay1_order_idem_per_user")]
+
+
+class PlayPurchase(models.Model):
+    """One Google Play purchase token (subscription or one-time pack). The
+    token is bound to the FIRST account that verified it (unique token hash),
+    so a token can never unlock a second account."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="play_purchases")
+    token_hash = models.CharField(max_length=64, unique=True)
+    purchase_token = models.TextField()
+    kind = models.CharField(max_length=8)                 # sub|pack
+    product_id = models.CharField(max_length=64)
+    base_plan_id = models.CharField(max_length=64, blank=True, default="")
+    sku = models.CharField(max_length=32, blank=True, default="")
+    order_id = models.CharField(max_length=64, blank=True, default="", db_index=True)
+    state = models.CharField(max_length=48, blank=True, default="")
+    expires_at = models.DateTimeField(null=True, blank=True)
+    auto_renewing = models.BooleanField(default=False)
+    acknowledged = models.BooleanField(default=False)
+    consumed = models.BooleanField(default=False)
+    granted = models.BooleanField(default=False)          # pack credits granted
+    revoked = models.BooleanField(default=False)
+    linked_token_hash = models.CharField(max_length=64, blank=True, default="")
+    price_bdt = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    raw = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+
+
+class PlanPeriod(models.Model):
+    """A paid stretch of a plan from ONE channel. The entitlement service
+    derives User.plan / plan_until from these (+ the non-payment base kept in
+    PaymentAccount). (source, ref) is unique: the same purchase can never
+    create two periods (no double grant)."""
+    STATUS = [("active", "active"), ("revoked", "revoked"),
+              ("converted", "converted"), ("replaced", "replaced")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="plan_periods")
+    source = models.CharField(max_length=10)               # play|gateway
+    ref = models.CharField(max_length=80)
+    plan = models.CharField(max_length=16)
+    starts_at = models.DateTimeField()
+    ends_at = models.DateTimeField()
+    status = models.CharField(max_length=10, choices=STATUS, default="active")
+    auto_renew = models.BooleanField(default=False)
+    order = models.ForeignKey(PaymentOrder, on_delete=models.SET_NULL, null=True,
+                              blank=True, related_name="periods")
+    note = models.CharField(max_length=160, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["starts_at", "id"]
+        constraints = [models.UniqueConstraint(fields=["source", "ref"],
+                                               name="pay1_period_source_ref")]
+        indexes = [models.Index(fields=["user", "status", "ends_at"])]
+
+
+class PaymentAccount(models.Model):
+    """Per-user bookkeeping of the entitlement service: the plan state that
+    did NOT come from a payment (Founding Member, referral days, owner edit)
+    — `base_*` — and what the service last wrote — `written_*` — so a
+    payment never wipes a free grant and a free grant never wipes a payment."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="payment_account")
+    base_plan = models.CharField(max_length=16, blank=True, default="free")
+    base_until = models.DateTimeField(null=True, blank=True)
+    written_plan = models.CharField(max_length=16, blank=True, default="")
+    written_until = models.DateTimeField(null=True, blank=True)
+    has_written = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class PaymentEvent(models.Model):
+    """APPEND-ONLY audit of every payment fact and every entitlement change
+    (grant, extend, convert, revoke, refund, expiry, webhook received).
+    Never holds secrets or full purchase tokens."""
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                             blank=True, related_name="payment_events")
+    kind = models.CharField(max_length=40, db_index=True)
+    channel = models.CharField(max_length=10, blank=True, default="")
+    ref = models.CharField(max_length=80, blank=True, default="")
+    amount_bdt = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    net_bdt = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    detail = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+
+
+class WebhookReceipt(models.Model):
+    """Replay protection for push webhooks: one row per (source, message id).
+    A second delivery of the same Pub/Sub message / gateway IPN is a no-op."""
+    source = models.CharField(max_length=10)            # rtdn|eps_ipn
+    message_id = models.CharField(max_length=128)
+    received_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["source", "message_id"],
+                                               name="pay1_webhook_once")]
+
+
+class PaymentReminder(models.Model):
+    """One expiry reminder sent for a prepaid gateway period (dedupe)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
+    period = models.ForeignKey(PlanPeriod, on_delete=models.CASCADE,
+                               related_name="reminders")
+    days_before = models.PositiveSmallIntegerField()
+    channels = models.CharField(max_length=20, blank=True, default="")  # push,sms
+    sent_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["period", "days_before"],
+                                               name="pay1_reminder_once")]
+
+
+class WebCheckoutSession(models.Model):
+    """lifeassisto.com/premium sign-in by phone OTP: a short-lived, random,
+    hashed session (cookie holds the raw value only)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
+    token_hash = models.CharField(max_length=64, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+# ---- /pay1 ----

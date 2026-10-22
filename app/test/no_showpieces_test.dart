@@ -11,10 +11,16 @@
 //    string literals.
 // 3) Pins the hide-until-shipped switches (wake word, fall detection, plan
 //    checkout, My Circle camera send) and checks the hidden UI really is gone.
+// 4) pay1: Plans "Choose" + Credits pack buy buttons exist ONLY while a
+//    payment channel is live (/payments/config: switch on AND keys added).
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:assisto/l10n/app_localizations.dart';
+import 'package:assisto/models.dart';
+import 'package:assisto/screens/credits_screen.dart';
+import 'package:assisto/screens/plans_screen.dart';
+import 'package:assisto/state.dart';
 import 'package:assisto/screens/fall_detect_screen.dart';
 import 'package:assisto/services/circle_media_gate.dart';
 import 'package:assisto/screens/voice_assistant_settings_screen.dart';
@@ -22,7 +28,10 @@ import 'package:assisto/voice/va_wake.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'fake_api.dart';
 
 /// English "we'll ship it later" phrasing.
 final _enBanned = RegExp(
@@ -167,5 +176,55 @@ void main() {
       expect(find.text(t.vaWakeTitle2), findsNothing);
       expect(find.text(t.vaWakeEngineMissing), findsNothing);
     });
+  });
+
+  // pay1 + NO SHOWPIECES: checkout entry points follow the LIVE channels.
+  group('buy buttons only with a live payment channel', () {
+    Future<void> pumpWith(WidgetTester tester, Widget screen) async {
+      SharedPreferences.setMockInitialValues({});
+      tester.view.physicalSize = const Size(1080, 6000);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(tester.view.reset);
+      final s = AppState()
+        ..api = FakeApi(lang: 'en')
+        ..user = AppUser(
+            id: 1,
+            name: 'Me',
+            phone: '+8801700000000',
+            email: '',
+            autonomyLevel: 2,
+            language: 'en')
+        ..locale = const Locale('en')
+        ..loading = false;
+      await tester.pumpWidget(ChangeNotifierProvider<AppState>.value(
+          value: s, child: _wrap(screen)));
+      await tester.pumpAndSettle();
+    }
+
+    tearDown(() {
+      FakeApi.payLive = false;
+      FakeApi.planSlug = 'premium';
+    });
+
+    for (final live in [false, true]) {
+      testWidgets('Plans: Choose button ${live ? 'shown' : 'hidden'} '
+          '(channel ${live ? 'live' : 'off'})', (tester) async {
+        FakeApi.payLive = live;
+        FakeApi.planSlug = 'free';
+        await pumpWith(tester, const PlansScreen());
+        expect(find.byKey(const ValueKey('plan-buy-premium')),
+            live ? findsOneWidget : findsNothing);
+        expect(find.byKey(const ValueKey('plan-buy-business')),
+            live ? findsOneWidget : findsNothing);
+      });
+
+      testWidgets('Credits: pack buy buttons ${live ? 'shown' : 'hidden'} '
+          '(channel ${live ? 'live' : 'off'})', (tester) async {
+        FakeApi.payLive = live;
+        await pumpWith(tester, const CreditsScreen());
+        expect(find.byKey(const ValueKey('pack-buy-p50')),
+            live ? findsOneWidget : findsNothing);
+      });
+    }
   });
 }

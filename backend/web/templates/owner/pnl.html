@@ -34,6 +34,11 @@
   <tr class="total"><th>{{ T.total }}</th><td class="num">৳{{ ps_totals.revenue }}</td><td class="num">৳{{ ps_totals.cost }}</td><td class="num">৳{{ ps_totals.margin }}</td></tr>
   </tbody></table></div>{% else %}<p class="empty">{{ T.no_ps }}</p>{% endif %}
 </section>
+{% if d.payments_by_channel %}<section class="card"><h2>{{ T.pay_h_pnl }}</h2>
+  <div class="tbl"><table><thead><tr><th></th><th>{{ T.pay_count }}</th><th>{{ T.pay_gross }}</th><th>{{ T.pay_fee }}</th><th>{{ T.pay_refunds }}</th><th>{{ T.pay_net }}</th></tr></thead><tbody>
+  {% for ch, r in d.payments_by_channel.items %}<tr><td>{% if ch == "play" %}{{ T.pay_ch_play }}{% else %}{{ T.pay_ch_gateway }}{% endif %}</td><td class="num">{{ r.count }}</td><td class="num">৳{{ r.gross }}</td><td class="num">৳{{ r.fee }}</td><td class="num">৳{{ r.refunds }}</td><td class="num"><b>৳{{ r.net }}</b></td></tr>{% endfor %}
+  </tbody></table></div><p class="mut small"><a href="/owner/payments">{{ T.nav_payments }}</a></p>
+</section>{% endif %}
 <section class="card"><h2>{{ T.break_even }}</h2>
   {% if d.break_even.covered %}<p class="pos">{{ T.covered }}</p>{% else %}
   <p>{{ T.gap }}: <b>৳{{ d.break_even.gap }}/{{ T.day }}</b> — {% if d.break_even.users_needed is not None %}{{ d.break_even.users_needed }} {{ T.more_paid }} {{ T.or }} {% endif %}৳{{ d.break_even.ad_revenue_needed }} {{ T.more_ads }}</p>{% endif %}

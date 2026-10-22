@@ -394,7 +394,19 @@ def pnl_dashboard(days=30, now=None):
         "sponsored": _sponsored_summary(rows),
         # ps1-photo: Photo Studio ad revenue vs cost, per day per feature
         "photo_studio": _photo_studio_stats(days),
+        # pay1: gross / fee / refunds / NET per payment channel
+        "payments_by_channel": _payments_by_channel(days),
     }
+
+
+def _payments_by_channel(days):
+    try:
+        from .payments import service
+        r = service.channel_pnl(days)
+        return {ch: {k: (float(v) if not isinstance(v, int) else v) for k, v in row.items()}
+                for ch, row in r["channels"].items()}
+    except Exception:
+        return {}
 
 
 def _sponsored_summary(rows):
@@ -655,7 +667,7 @@ def credit(user, source, amount, note=""):
 
 # payment providers that, when enabled, REQUIRE a confirmed payment before any
 # credits are granted (we never grant on a pending purchase with a live provider).
-PAYMENT_PROVIDERS = ("play_billing", "bkash", "nagad", "sslcommerz")
+PAYMENT_PROVIDERS = ("play_billing", "eps", "bkash", "nagad", "sslcommerz")
 
 
 def enabled_payment_provider():
@@ -689,6 +701,11 @@ def start_topup(user, pack_id):
     provider = enabled_payment_provider()
     if not provider:
         return {"ok": False, "state": "needs_provider", "pack": pack}
+    if provider in ("play_billing", "eps"):
+        # pay1: packs are bought through the checkout sheet
+        # (POST /payments/checkout or Play Billing) — never a pending row here.
+        return {"ok": False, "state": "use_checkout", "pack": pack,
+                "sku": "pack_" + pack["id"], "provider": provider}
     from .models import CreditPurchase
     p = CreditPurchase.objects.create(
         user=user, pack_id=pack["id"], price_bdt=pack["price"],

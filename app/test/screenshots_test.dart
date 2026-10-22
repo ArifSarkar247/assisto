@@ -136,6 +136,7 @@ import 'package:assisto/screens/notes_todos_screen.dart';
 import 'package:assisto/screens/memory_screen.dart';
 import 'package:assisto/screens/subscriptions_screen.dart';
 import 'package:assisto/screens/plans_screen.dart';
+import 'package:assisto/screens/credits_screen.dart'; // pay1 gallery
 import 'package:assisto/screens/finance_screen.dart';
 import 'package:assisto/screens/watch_feed_screen.dart';
 import 'package:assisto/screens/jobs_screen.dart';
@@ -193,6 +194,7 @@ import 'w1_webphoto_shots.dart'; // w1-webphoto
 import 'h1_home_shots.dart'; // h1-home
 import 'f1_shots.dart'; // f1-founders
 import 't1_ticks_shots.dart'; // t1-ticks
+import 'pay1_shots.dart'; // pay1
 import 'c2_calls_shots.dart'; // c2-calls
 import 'package:assisto/screens/unseen_world_screen.dart';
 import 'package:assisto/screens/shop_box_screen.dart';
@@ -501,6 +503,10 @@ void main() {
     'in_progress': (build: (_) => const InProgressScreen(), mode: FakeMode.data, full: true),
     'settings': (build: (_) => const SettingsScreen(), mode: FakeMode.data, full: true),
     'plans': (build: (_) => const PlansScreen(), mode: FakeMode.data, full: true),
+    // pay1 + NO SHOWPIECES: buy buttons only with a LIVE payment channel
+    'plans_paylive': (build: (_) => const PlansScreen(), mode: FakeMode.data, full: true),
+    'credits_nopay': (build: (_) => const CreditsScreen(), mode: FakeMode.data, full: true),
+    'credits_paylive': (build: (_) => const CreditsScreen(), mode: FakeMode.data, full: true),
     // a6 push: Settings → Notifications & calls + the ringing screen.
     'push_settings': (build: (_) => const PushSettingsScreen(probe: false), mode: FakeMode.data, full: true),
     'incoming_call': (build: (_) => IncomingCallScreen(payload: PushPayload({'kind': 'call', 'call_id': '7', 'chat_id': '3', 'caller_name': 'Ayesha Rahman', 'video': 'true', 'title': 'Ayesha Rahman'})), mode: FakeMode.data, full: true),
@@ -561,6 +567,8 @@ void main() {
       e.key: (build: e.value, mode: e.key.startsWith('home_hero') ? FakeMode.empty : FakeMode.data, full: true),
     // f1-founders: Founding Member badge + Send feedback sheet
     for (final e in f1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // pay1: checkout sheet (Play first / gateway only / kill-switch / not set up)
+    for (final e in pay1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // ---- a1 Premium QA: screens that had no gallery shot ----
     'ai_chat': (build: (_) => const AiChatScreen(), mode: FakeMode.data, full: true),
     'nearby': (build: (_) => const NearbyScreen(), mode: FakeMode.data, full: true),
@@ -656,6 +664,7 @@ void main() {
     // by default, which looks like a bug in review shots). Restored below.
     debugDisableShadows = false;
     FakeApi.planSlug = (name.startsWith('shop_') || name == 'veh_fleet') ? 'business' : 'premium';
+    FakeApi.payLive = name.endsWith('_paylive'); // pay1 gallery stubs
     fakeM3On = name.startsWith('m3_'); // m3-circle gallery stubs
     fakeC3On = name.startsWith('c3_'); // c3-msg gallery stubs
     if (fakeC3On) C3Fake.seedRealtime();

@@ -1,0 +1,56 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_payments }}{% endblock %}
+{% block content %}
+{% if error %}<div class="flash warn" role="alert">{{ error }}</div>{% endif %}
+{% if flash %}<div class="flash" role="status">{{ flash }}</div>{% endif %}
+<section class="card"><h2>{{ T.pay_h_status }}</h2>
+<p>{% if play_ready %}<span class="pill ok">Google Play · {{ T.pay_ready }}</span>{% else %}<span class="pill off">Google Play · {{ T.pay_not_ready }}</span>{% endif %}
+ {% if gw_ready %}<span class="pill ok">EPS · {{ T.pay_ready }}</span>{% else %}<span class="pill off">EPS · {{ T.pay_not_ready }}</span>{% endif %}
+ <a href="/owner/integrations">{{ T.pay_keys_link }}</a></p>
+<p class="mut small">Success/Fail/Cancel: <code>{{ urls.success }}</code> · <code>{{ urls.fail }}</code> · <code>{{ urls.cancel }}</code><br>IPN: <code>{{ urls.ipn }}</code><br>RTDN: <code>{{ rtdn_url }}</code></p>
+</section>
+
+<form method="post" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="save">
+  <h2>{{ T.pay_h_switch }}</h2>
+  <label class="check"><input type="checkbox" name="play_enabled" {% if p.play_enabled %}checked{% endif %}> {{ T.pay_play_enabled }}</label>
+  <label class="check"><input type="checkbox" name="gateway_enabled" {% if p.gateway_enabled %}checked{% endif %}> {{ T.pay_gateway_enabled }}</label>
+  <label class="check"><input type="checkbox" name="gateway_on_play" {% if p.gateway_on_play %}checked{% endif %}> {{ T.pay_gateway_on_play }}</label>
+  <label class="check"><input type="checkbox" name="web_enabled" {% if p.web_enabled %}checked{% endif %}> {{ T.pay_web_enabled }}</label>
+  <p class="mut small">{{ T.pay_switch_note }}</p>
+  <h2>{{ T.pay_h_fees }}</h2>
+  <div class="kv">
+    <label>{{ T.pay_play_fee_subs }} <input name="play_fee_subs" value="{{ p.play_fee_subs }}" inputmode="decimal"></label>
+    <label>{{ T.pay_play_fee_packs }} <input name="play_fee_packs" value="{{ p.play_fee_packs }}" inputmode="decimal"></label>
+    <label>{{ T.pay_gateway_fee }} <input name="gateway_fee" value="{{ p.gateway_fee }}" inputmode="decimal"></label>
+    <label>{{ T.pay_reminder_days }} <input name="reminder_days" value="{{ reminder_days }}"></label>
+  </div>
+  <h2>{{ T.pay_h_prices }}</h2>
+  <div class="tbl"><table><thead><tr><th>{{ T.pay_sku }}</th><th>{{ T.pay_base }}</th><th>{{ T.pay_ch_play }}</th><th>{{ T.pay_ch_gateway }}</th></tr></thead><tbody>
+  {% for r in rows %}<tr><td><code>{{ r.sku }}</code></td><td>৳{{ r.base }}</td>
+    <td><input name="price_play_{{ r.sku }}" value="{{ r.play }}" placeholder="{{ r.base }}" inputmode="numeric" size="6"></td>
+    <td><input name="price_gateway_{{ r.sku }}" value="{{ r.gateway }}" placeholder="{{ r.base }}" inputmode="numeric" size="6"></td></tr>{% endfor %}
+  </tbody></table></div>
+  <p class="mut small">{{ T.pay_play_price_note }}</p>
+  {% include "owner/_reason.html" with reprice=False %}
+</form>
+
+<section class="card"><h2>{{ T.pay_h_pnl }} ({{ days }})</h2>
+<div class="tbl"><table><thead><tr><th></th><th>{{ T.pay_count }}</th><th>{{ T.pay_gross }}</th><th>{{ T.pay_fee }}</th><th>{{ T.pay_refunds }}</th><th>{{ T.pay_net }}</th></tr></thead><tbody>
+{% for name, r in chan_rows %}<tr><td>{{ name }}</td><td>{{ r.count }}</td><td>৳{{ r.gross }}</td><td>৳{{ r.fee }}</td><td>৳{{ r.refunds }}</td><td><b>৳{{ r.net }}</b></td></tr>{% endfor %}
+<tr><td><b>{{ T.pay_total }}</b></td><td>{{ pnl.total.count }}</td><td>৳{{ pnl.total.gross }}</td><td>৳{{ pnl.total.fee }}</td><td>৳{{ pnl.total.refunds }}</td><td><b>৳{{ pnl.total.net }}</b></td></tr>
+</tbody></table></div></section>
+
+<section class="card"><h2>{{ T.pay_h_orders }}</h2>
+{% if orders %}<div class="tbl"><table><thead><tr><th>#</th><th>{{ T.pay_when }}</th><th>{{ T.pay_user }}</th><th>{{ T.pay_sku }}</th><th>{{ T.pay_amount }}</th><th>{{ T.pay_status }}</th><th></th></tr></thead><tbody>
+{% for o in orders %}<tr><td>{{ o.pk }}</td><td>{{ o.created_at|date:"Y-m-d H:i" }}</td><td><a href="/owner/users/{{ o.user_id }}">#{{ o.user_id }}</a></td><td><code>{{ o.sku }}</code> · {{ o.source }}</td><td>৳{{ o.amount_bdt }}</td><td>{{ o.status }}{% if o.detail %}<br><span class="mut small">{{ o.detail }}</span>{% endif %}</td>
+<td>{% if o.status == "paid" %}<form method="post" class="row">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="refund"><input type="hidden" name="order" value="{{ o.pk }}"><input name="reason" required maxlength="200" placeholder="{{ T.reason }}" class="grow"><button class="btn danger small">{{ T.pay_refund }}</button></form>{% endif %}</td></tr>{% endfor %}
+</tbody></table></div><p class="mut small">{{ T.pay_refund_note }}</p>
+{% else %}<p class="empty">{{ T.pay_none }}</p>{% endif %}
+</section>
+
+<section class="card"><h2>{{ T.pay_h_events }}</h2>
+{% if events %}<div class="tbl"><table><thead><tr><th>{{ T.pay_when }}</th><th>{{ T.pay_kind }}</th><th>{{ T.pay_user }}</th><th>{{ T.pay_amount }}</th><th>Ref</th></tr></thead><tbody>
+{% for e in events %}<tr><td>{{ e.created_at|date:"Y-m-d H:i" }}</td><td>{{ e.kind }} {{ e.channel }}</td><td>{% if e.user_id %}#{{ e.user_id }}{% endif %}</td><td>{% if e.amount_bdt %}৳{{ e.amount_bdt }}{% endif %}</td><td><code>{{ e.ref|truncatechars:28 }}</code></td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="empty">{{ T.pay_none }}</p>{% endif %}
+</section>
+{% endblock %}

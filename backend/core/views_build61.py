@@ -224,7 +224,7 @@ def pricing_apply(actor_id, d):
             merged[key] = patch[key]
     for dkey in ("ad_rewards", "profit_guard", "guarantees", "limits",
                  "referral", "shop", "otp", "vehicle", "photo_studio",
-                     "chat_vision", "home_hero"):
+                     "chat_vision", "home_hero", "payments"):   # pay1: payments
         if (dkey in ("guarantees", "limits", "referral")
                 and dkey in (patch or {})
                 and not isinstance(patch[dkey], dict)):
@@ -291,13 +291,16 @@ class CreditPacksView(APIView):
     """GET /credits/packs -> the purchasable credit packs from PricingConfig.
 
     NO SHOWPIECES: `purchasable` is true only when top-ups are switched on AND
-    a payment provider is connected (Admin -> Integrations). The app hides the
-    pack buttons while it is false instead of offering a buy button that can
-    only answer "payment setup pending"."""
+    a pay1 payment channel is LIVE for this build (owner switch on + keys
+    added; ?flavour=play|apk, default apk). The app hides the pack buttons
+    while it is false instead of offering a buy button that can only answer
+    "payment setup pending"."""
     def get(self, request):
         from . import billing
+        from .payments import service as pay_service   # pay1
+        flavour = "play" if request.query_params.get("flavour") == "play" else "apk"
         purchasable = bool(billing.flag_on("topups_enabled")
-                           and billing.enabled_payment_provider())
+                           and pay_service.any_live(flavour))
         return Response({"packs": billing.cfg()["topup_packs"],
                          "credit_bdt": billing.cfg()["credit_bdt"],
                          "purchasable": purchasable})
@@ -333,7 +336,7 @@ class CreditTopupView(APIView):
                             status=status.HTTP_429_TOO_MANY_REQUESTS)
         res = billing.start_topup(request.user, pack_id)
         if not res.get("ok"):
-            code = (status.HTTP_200_OK if res.get("state") == "needs_provider"
+            code = (status.HTTP_200_OK if res.get("state") in ("needs_provider", "use_checkout")
                     else status.HTTP_400_BAD_REQUEST)
             return Response(res, status=code)
         return Response(res, status=status.HTTP_201_CREATED)

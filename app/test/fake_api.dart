@@ -25,6 +25,73 @@ class FakeApi extends ApiClient {
   /// The plan slug [plan] reports. The gallery sets 'business' for the Shop Box
   /// shots (Business-only UI) and resets it to 'premium' for everything else.
   static String planSlug = 'premium';
+
+  /// pay1 + NO SHOWPIECES: whether a payment channel is LIVE in
+  /// /payments/config (the gallery sets it for the `*_paylive` shots).
+  static bool payLive = false;
+
+  Map<String, dynamic> _payProduct(String sku, int price,
+          {String kind = 'sub', int credits = 0}) =>
+      {
+        'sku': sku, 'kind': kind, 'plan': sku.split('_').first,
+        'period': sku.endsWith('yearly') ? 'yearly' : 'monthly',
+        'months': sku.endsWith('yearly') ? 12 : 1, 'credits': credits,
+        'price_bdt': price, 'title': kind == 'sub' ? 'Premium' : '$credits',
+        'play_product_id': '', 'play_base_plan': '',
+      };
+
+  static const _packs = [
+    {'id': 'p20', 'taka': 20, 'credits': 20, 'valid_months': 12},
+    {'id': 'p50', 'taka': 50, 'credits': 55, 'valid_months': 12},
+    {'id': 'p100', 'taka': 100, 'credits': 115, 'valid_months': 12},
+  ];
+
+  @override
+  Future<List<Map<String, dynamic>>> creditsPacks() async {
+    await _slow();
+    if (mode == FakeMode.fail) _fail();
+    // mirrors the server: purchasable=false -> the client gets no packs
+    return payLive && mode != FakeMode.empty
+        ? [for (final p in _packs) Map<String, dynamic>.from(p)]
+        : const [];
+  }
+
+  Map<String, dynamic>? _pay1Get(String path) {
+    if (path.startsWith('/payments/config')) {
+      final prods = [
+        for (final sku in ['premium_monthly', 'premium_yearly',
+            'business_monthly', 'business_yearly'])
+          _payProduct(sku, sku.startsWith('premium') ? 199 : 499),
+        for (final p in _packs)
+          _payProduct('pack_${p['id']}', p['taka'] as int,
+              kind: 'pack', credits: p['credits'] as int),
+      ];
+      return {
+        'channels': [
+          {'id': 'gateway', 'enabled': payLive, 'ready': payLive,
+            'label': 'bKash / Nagad / Card — EPS'},
+        ],
+        'products': {'gateway': prods},
+        'play_account_id': '',
+      };
+    }
+    if (path == '/payments/state') return {'plan': planSlug};
+    if (path == '/me/usage-summary') {
+      return {
+        'plan': planSlug, 'balance': 312, 'included_pool': 120,
+        'ad_wallet_credits': 0, 'month_total': 48,
+        'month_usage': [
+          {'action': 'ai_chat', 'credits': 30},
+          {'action': 'photo_enhance', 'credits': 18},
+        ],
+        'storage': {'used': 1200000000, 'quota_bytes': 5368709120},
+      };
+    }
+    if (path == '/credits/history') {
+      return {'items': const [], 'expiry_buckets': const []};
+    }
+    return null;
+  }
   Never _fail() => throw ApiException(
       _bn ? 'সংযোগ করা গেল না' : 'Could not connect', 503);
   List<Map<String, dynamic>> _maybe(List<Map<String, dynamic>> data) {
@@ -748,6 +815,11 @@ class FakeApi extends ApiClient {
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
     await _slow();
+    final pay1 = _pay1Get(path); // pay1 (plans / credits / checkout)
+    if (pay1 != null) {
+      if (mode == FakeMode.fail) _fail();
+      return pay1;
+    }
     // v1-vehicle: vehicle tracking stubs (test/fake_vehicle.dart)
     final veh = fakeVehicleGet(path, _bn, mode.name, planSlug);
     if (veh != null) return veh;

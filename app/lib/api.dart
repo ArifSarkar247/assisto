@@ -704,10 +704,13 @@ class ApiClient {
 
   /// GET /credits/packs -> [{id/code, taka, credits, valid_months}].
   Future<List<Map<String, dynamic>>> creditsPacks() async {
-    final r = await _c.get(AppConfig.api('/credits/packs'), headers: _headers());
+    // pay1: the server answers `purchasable` for THIS build's channels.
+    final flavour = AppConfig.playStore ? 'play' : 'apk';
+    final r = await _c.get(AppConfig.api('/credits/packs?flavour=$flavour'),
+        headers: _headers());
     if (r.statusCode == 200) {
       final body = jsonDecode(r.body);
-      // NO SHOWPIECES: no payment provider connected -> no buy buttons (the
+      // NO SHOWPIECES: no LIVE payment channel (pay1) -> no buy buttons (the
       // screen shows "no top-up packs right now"). Older servers omit the
       // flag and keep the old behaviour.
       if (body is Map && body['purchasable'] == false) {
