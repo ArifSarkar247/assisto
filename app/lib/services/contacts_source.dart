@@ -13,7 +13,6 @@
 library;
 
 import 'dart:async';
-import 'device_contacts_source.dart';
 
 /// One phonebook entry: a display name and its raw numbers (as typed on the
 /// phone). Raw numbers stay ON the device — only salted hashes are uploaded.
@@ -76,7 +75,7 @@ class UnavailableContactsSource implements ContactsSource {
 class ContactsSources {
   ContactsSources._();
 
-  static ContactsSource Function() factory = () => DeviceContactsSource();
+  static ContactsSource Function() factory = () => const UnavailableContactsSource();
 
   static ContactsSource create() {
     try {
