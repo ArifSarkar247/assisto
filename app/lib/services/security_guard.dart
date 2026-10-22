@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:provider/provider.dart';
@@ -65,6 +66,22 @@ class SecurityGuard {
 
   static final LocalAuthentication _auth = LocalAuthentication();
 
+  /// hc1: MainActivity is now a FlutterFragmentActivity, so local_auth really
+  /// shows BiometricPrompt. On Android 8.x (API 26/27) androidx.biometric
+  /// draws its own fingerprint dialog, which needs a Theme.AppCompat activity
+  /// theme — ours is the plain Flutter launch theme, so that dialog could
+  /// crash. There we skip the biometric step and rely on the Security PIN
+  /// (always required anyway). Null = unknown (not Android / no answer).
+  static const MethodChannel _device = MethodChannel('com.assisto/device_admin');
+
+  static Future<int?> _androidSdkInt() async {
+    try {
+      final m = await _device.invokeMethod<dynamic>('deviceInfo');
+      if (m is Map && m['sdkInt'] is int) return m['sdkInt'] as int;
+    } catch (_) {}
+    return null;
+  }
+
   /// Try a class-3 (strong) biometric. Returns true if the biometric passed OR
   /// if no biometric is enrolled / available (in which case we rely solely on
   /// the Security PIN). Returns false ONLY when a biometric exists and the user
@@ -77,6 +94,8 @@ class SecurityGuard {
       if (!supported || !canCheck) return true; // no biometric → rely on PIN
       final enrolled = await _auth.getAvailableBiometrics();
       if (enrolled.isEmpty) return true; // nothing enrolled → rely on PIN
+      final sdk = await _androidSdkInt();
+      if (sdk != null && sdk < 28) return true; // Android 8.x → PIN only
       final ok = await _auth.authenticate(
         localizedReason: tr.securityBiometricReason,
         options: const AuthenticationOptions(
