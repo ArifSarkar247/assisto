@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../antitheft_api.dart';
 import '../api.dart';
+import '../config.dart';
 import '../l10n/app_localizations.dart';
 import '../services/antitheft_service.dart';
 import '../services/security_guard.dart';
@@ -220,7 +221,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
   @override
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
-    if (!Platform.isAndroid) {
+    if (Platform.isIOS) {
       return Scaffold(
         appBar: AppBar(title: Text(tr.atTitle)),
         body: Center(
@@ -506,8 +507,10 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
             Row(children: [
               const Icon(Icons.info_outline, size: 18),
               const SizedBox(width: Gap.xs),
-              Text(tr.atLimitsTitle,
-                  style: Theme.of(context).textTheme.titleSmall),
+              Expanded(
+                child: Text(tr.atLimitsTitle,
+                    style: Theme.of(context).textTheme.titleSmall),
+              ),
             ]),
             const SizedBox(height: Gap.xs),
             _bullet(tr.atLimitOffline),

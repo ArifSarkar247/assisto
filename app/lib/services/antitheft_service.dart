@@ -13,7 +13,8 @@ import 'package:flutter/services.dart';
 class AntiTheftService {
   static const _ch = MethodChannel('com.assisto/antitheft');
 
-  static bool get supported => Platform.isAndroid;
+  // Android (and host tests) use the channel; a real iPhone has no engine.
+  static bool get supported => !Platform.isIOS;
 
   /// What the phone can ACTUALLY do (honest UI). Keys the native side fills:
   ///   sdk (int), brand (String), canReadSim (bool), canReadSimNumber (bool),

@@ -8,7 +8,6 @@ import 'dart:math' as math;
 /// SAME rules; keeping an authoritative copy here means the conservative
 /// thresholds and the dedupe/ordering behaviour are tested without an
 /// emulator (the brief's "Kotlin-free logic test where possible").
-library antitheft_logic;
 
 /// Battery-aware heartbeat interval (minutes). MUST match
 /// core/logic/antitheft.heartbeat_interval_min and HeartbeatPolicy.kt.
