@@ -13684,5 +13684,8 @@
   "dlGraceFreshDone": "আপনার নতুন অ্যাকাউন্ট তৈরি হয়ে গেছে।",
   "dlCallsFreeTesting": "ফ্রি (পরীক্ষামূলক)",
   "dlFlagCallsFree": "ফ্রি কল (পরীক্ষামূলক)",
-  "dlFlagGroupCalls": "কল"
+  "dlFlagGroupCalls": "কল",
+  "actionFailedRetry": "কাজটি করা যায়নি। আবার চেষ্টা করুন।",
+  "actionCantOpen": "এই ফোনে এটি খোলা যায়নি।",
+  "actionNeedInput": "আগে কিছু লিখুন।"
 }

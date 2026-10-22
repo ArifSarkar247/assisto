@@ -16286,5 +16286,8 @@
         "type": "String"
       }
     }
-  }
+  },
+  "actionFailedRetry": "Couldn't do that. Please try again.",
+  "actionCantOpen": "Couldn't open it on this phone.",
+  "actionNeedInput": "Type something first."
 }
