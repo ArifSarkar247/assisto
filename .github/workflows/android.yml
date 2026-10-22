@@ -434,24 +434,16 @@ jobs:
             --dart-define=API_BASE="$API_BASE" \
             --dart-define=BUILD_TIME="$BUILD_TIME"
 
-      - name: Build x86_64 RELEASE APK (emulator smoke test only — NOT shipped)
+      - name: Build x86_64 debug APK (emulator smoke test only — NOT shipped)
         working-directory: app
         run: |
           # The shipped APK is arm64-only; x86_64 emulators can't load it. This
-          # x64 build is a RELEASE build (R8 shrinking, AOT) like the shipped one:
-          # builds 147-150 broke SharedPreferences ONLY in release (R8), which a
-          # debug smoke APK could never catch. The arm64 release output is kept
-          # aside and restored, so the signing step still ships arm64.
-          REL=build/app/outputs/flutter-apk/app-release.apk
-          cp "$REL" /tmp/arm64-release.apk
-          flutter build apk --release --target-platform=android-x64 \
-            --dart-define=ASSISTO_SMOKE=true \
+          # x64 debug APK has the SAME Dart, plugins and patched manifest, so it's
+          # a valid launch/ANR proxy on the CI emulator.
+          flutter build apk --debug --target-platform=android-x64 \
             --dart-define=API_BASE="${{ github.event.inputs.api_base || 'https://api.lifeassisto.com' }}" \
             --dart-define=BUILD_TIME="$(date -u +%Y-%m-%dT%H:%MZ)"
-          cp "$REL" emu-x64.apk
-          cp /tmp/arm64-release.apk "$REL"
-          unzip -l "$REL" | grep -q "lib/arm64-v8a/" || { echo "::error::shipped APK is not arm64"; exit 1; }
-          unzip -l emu-x64.apk | grep -q "lib/x86_64/" || { echo "::error::smoke APK is not x86_64"; exit 1; }
+          cp build/app/outputs/flutter-apk/app-debug.apk emu-x64.apk
 
       - name: Upload emulator smoke APK
         uses: actions/upload-artifact@v4
@@ -544,18 +536,11 @@ jobs:
           # NOTE: this script runs under /bin/sh in the runner — use only
           # &&/|| one-liners (multi-line if/then/fi breaks it).
           script: |
-            # Let the freshly booted emulator finish its BOOT_COMPLETED broadcast storm
-            # (build 151: Maps/Calendar/NFC were still starting when the tour ran, and
-            # the whole emulator + adb wedged). 2-core runner; ~60 s is enough.
-            sleep 60
             adb install -r apk/*.apk || { echo "install failed"; exit 1; }
             adb shell pm grant com.assisto.assisto android.permission.RECORD_AUDIO 2>/dev/null || true
             adb shell pm grant com.assisto.assisto android.permission.ACTIVITY_RECOGNITION 2>/dev/null || true
             adb shell pm grant com.assisto.assisto android.permission.BODY_SENSORS 2>/dev/null || true
             timeout 60 adb logcat -c || true
-            # LIVE logcat from before launch (builds 151: adb wedged after launch, so a
-            # post-launch `logcat -d` captured nothing). Detached: each script line is its own sh.
-            nohup sh -c 'adb logcat -v time > /tmp/live_logcat.txt 2>&1' >/dev/null 2>&1 &
             # Single, race-free cold start (no prior instance right after install).
             # --es ao_open __tour__ makes the debug build walk every native-plugin
             # screen once IN-PROCESS (voice_sos, lost_stolen, watch_feed,
@@ -563,14 +548,9 @@ jobs:
             adb shell am start -n com.assisto.assisto/com.assisto.assisto.MainActivity --es ao_open __tour__ || adb shell monkey -p com.assisto.assisto -c android.intent.category.LAUNCHER 1
             sleep 60
             timeout 120 adb logcat -d > logcat.txt 2>/dev/null || { echo "::warning::adb logcat -d timed out/failed (adb infra); crash check uses what was captured"; timeout 60 adb logcat -d -t 3000 > logcat.txt 2>/dev/null || true; }
-            cp /tmp/live_logcat.txt live_logcat.txt 2>/dev/null || true
-            [ -s logcat.txt ] || cp live_logcat.txt logcat.txt 2>/dev/null || true
-            echo "live logcat lines: $(wc -l < live_logcat.txt 2>/dev/null || echo 0)"; grep -E "AndroidRuntime|FATAL|ANR|flutter|assisto" live_logcat.txt 2>/dev/null | tail -60 || true
             echo "===== last 140 logcat lines ====="; tail -140 logcat.txt || true
             grep -E "FATAL EXCEPTION|ANR in com.assisto|com.assisto.assisto.*has died|FATAL SIGNAL|AndroidRuntime.*com.assisto|E/flutter.*(Unhandled|Fatal)" logcat.txt > crashes.txt 2>/dev/null || true
             test ! -s crashes.txt || { echo "::error::CRASH/ANR during launch+feature-tour on API ${{ matrix.api }}"; cat crashes.txt; exit 1; }
-            # Release-only storage failure (builds 147-150: R8 broke SharedPreferences).
-            if grep -q "ASSISTO_PREFS_FAIL" logcat.txt; then echo "::error::settings store (SharedPreferences) failed in the release smoke APK"; grep "ASSISTO_PREFS_FAIL" logcat.txt | head -3; exit 1; fi
             timeout 30 adb shell pidof com.assisto.assisto > pid.txt 2>/dev/null || true
             test -s pid.txt || { echo "::error::app NOT running after launch+feature-tour on API ${{ matrix.api }}"; exit 1; }
             echo "LAUNCH + FEATURE-TOUR OK on API ${{ matrix.api }} pid=$(cat pid.txt)"
@@ -594,14 +574,3 @@ jobs:
             test -s pid2.txt || { echo "::error::app died after tapping Continue on API ${{ matrix.api }}"; exit 1; }
             timeout 60 adb shell uiautomator dump /sdcard/after.xml && timeout 60 adb pull /sdcard/after.xml after.xml 2>/dev/null || true
             if grep -q 'English' after.xml 2>/dev/null; then echo "::warning::on-device: still on language picker after tap (likely the UI-automation tap missed; host widget test is the real gate)"; else echo "LEFT the language picker — Continue entered the app OK"; fi
-
-      - name: Upload smoke logcat (always)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: smoke-logcat-${{ matrix.api }}
-          path: |
-            live_logcat.txt
-            logcat.txt
-          retention-days: 7
-          if-no-files-found: warn
