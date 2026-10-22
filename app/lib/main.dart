@@ -206,8 +206,10 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
   /// exercised once on a device. Completely inert in the shipped release APK
   /// (kDebugMode == false) and when no extra is passed, and it only runs AFTER
   /// the first frame — never on the cold-start critical path.
+  static const bool _smokeBuild = bool.fromEnvironment('ASSISTO_SMOKE');
+
   Future<void> _maybeSmokeOpen() async {
-    if (!kDebugMode) return;
+    if (!kDebugMode && !_smokeBuild) return;
     try {
       const ch = MethodChannel('com.assisto/device_admin');
       final route = await ch.invokeMethod<String>('aoSmokeOpen');
