@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../push/incoming_call_screen.dart';
@@ -10,6 +9,7 @@ import '../realtime/realtime_transport.dart';
 import '../state.dart';
 import 'call_native.dart';
 import 'call_sound_prefs.dart';
+import 'call_log.dart';
 
 /// App-wide call runtime (c2-calls): owns the shared real-time transport and
 /// shows the in-app incoming-call screen INSTANTLY while Assisto is open
@@ -57,15 +57,16 @@ class CallRuntime with WidgetsBindingObserver {
     _started = true;
     try {
       WidgetsBinding.instance.addObserver(this);
-    } catch (_) {}
+    } catch (e) {
+      callLog('call_runtime#1', e);
+    }
     app.addListener(_onApp);
     _onApp();
   }
 
   void setPushAvailable(bool v) {
     _pushAvailable = v;
-    _transport?.idleInterval =
-        Duration(milliseconds: v ? 5000 : 2500);
+    _transport?.idleInterval = Duration(milliseconds: v ? 5000 : 2500);
   }
 
   void _onApp() {
@@ -106,7 +107,9 @@ class CallRuntime with WidgetsBindingObserver {
           unawaited(PushNotifier.cancelCall(id));
         }
       }
-    } catch (_) {}
+    } catch (e) {
+      callLog('call_runtime#2', e);
+    }
   }
 
   /// One-off check (app open / resume) for a call that is ringing for me.
@@ -118,7 +121,9 @@ class CallRuntime with WidgetsBindingObserver {
       for (final c in (r['calls'] as List? ?? const [])) {
         if (c is Map) onIncoming(c.cast<String, dynamic>());
       }
-    } catch (_) {}
+    } catch (e) {
+      callLog('call_runtime#3', e);
+    }
   }
 
   /// A foreground FCM ring (PushService routes it here instead of drawing a
@@ -157,14 +162,17 @@ class CallRuntime with WidgetsBindingObserver {
       'kind': 'call',
       'call_id': id,
       'caller_name': '${row['caller_name'] ?? ''}',
-      'video': row['video'] == true || row['kind'] == 'video' ? 'true' : 'false',
+      'video':
+          row['video'] == true || row['kind'] == 'video' ? 'true' : 'false',
       'chat_id': '${row['chat_id'] ?? ''}',
       'lang': _app?.locale?.languageCode == 'en' ? 'en' : 'bn',
     });
     try {
       nav.push(MaterialPageRoute(
           builder: (_) => IncomingCallScreen(payload: p, ringInApp: true)));
-    } catch (_) {}
+    } catch (e) {
+      callLog('call_runtime#4', e);
+    }
   }
 
   /// In-app ring: the chosen ringtone (phone default when none), respecting
@@ -174,7 +182,9 @@ class CallRuntime with WidgetsBindingObserver {
     try {
       final uri = await CallSoundPrefs.ringtoneFor(p.chatId);
       await CallNative.startRingtone(uri);
-    } catch (_) {}
+    } catch (e) {
+      callLog('call_runtime#5', e);
+    }
   }
 
   Future<void> stopRinging() => CallNative.stopRingtone();
@@ -184,7 +194,9 @@ class CallRuntime with WidgetsBindingObserver {
     if (app == null) return;
     try {
       await app.api.postJson('/circle/calls/$callId/event', {'event': event});
-    } catch (_) {}
+    } catch (e) {
+      callLog('call_runtime#6', e);
+    }
   }
 
   @visibleForTesting

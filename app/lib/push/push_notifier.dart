@@ -8,6 +8,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
+import '../calls/call_log.dart';
 import '../calls/call_sound_prefs.dart';
 import '../config.dart';
 import '../l10n/app_localizations.dart';
@@ -224,7 +225,9 @@ class PushNotifier {
     try {
       await _plugin.cancel(
           PushPayload({'kind': 'call', 'call_id': callId}).notificationId);
-    } catch (_) {}
+    } catch (e) {
+      callLog('push_notifier#call1', e);
+    }
   }
 
   /// Android 14+: is the full-screen-intent permission granted? Asking
@@ -258,7 +261,9 @@ class PushNotifier {
               },
               body: jsonEncode({'event': event}))
           .timeout(const Duration(seconds: 10));
-    } catch (_) {}
+    } catch (e) {
+      callLog('push_notifier#call2', e);
+    }
   }
 
   /// Decline a ringing call on the server (best effort, own HTTP client so it
@@ -276,7 +281,9 @@ class PushNotifier {
               },
               body: jsonEncode({'event': 'decline'}))
           .timeout(const Duration(seconds: 10));
-    } catch (_) {}
+    } catch (e) {
+      callLog('push_notifier#call3', e);
+    }
   }
 }
 
@@ -287,7 +294,9 @@ void assistoNotificationBackground(NotificationResponse r) {
   try {
     WidgetsFlutterBinding.ensureInitialized();
     DartPluginRegistrant.ensureInitialized();
-  } catch (_) {}
+  } catch (e) {
+      callLog('push_notifier#call4', e);
+    }
   final p = PushPayload.decode(r.payload);
   if (p == null) return;
   if (r.actionId == PushNotifier.actionDecline && p.isCall) {

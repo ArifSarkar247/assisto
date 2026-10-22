@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
+import '../../calls/call_sound_tiles.dart';
 import '../../l10n/app_localizations.dart';
 import '../../messenger_chat_api.dart';
 import '../../state.dart';
@@ -236,6 +237,10 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                   value: _muted,
                   onChanged: _toggleMute,
                 ),
+                // c2-calls: per-contact ringtone (the phone's own picker)
+                if (_peerId > 0)
+                  SoundPickTile(
+                      kind: SoundPickKind.contact, chatId: '$_peerId'),
                 // Disappearing
                 ListTile(
                   leading: const Icon(Icons.timer_outlined),

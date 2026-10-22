@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import 'call_controller.dart';
 import 'tone_generator.dart';
+import 'call_log.dart';
 
 /// Dart side of the native "com.assisto/calls" channel (CallsChannel.kt).
 /// Every call is guarded: without the native side (tests, iOS, an old build)
@@ -25,7 +26,9 @@ class CallNative {
         if (call.method == 'pipChanged') inPip.value = call.arguments == true;
         return null;
       });
-    } catch (_) {}
+    } catch (e) {
+      callLog('call_native#1', e);
+    }
   }
 
   static Future<T?> _invoke<T>(String m, [Map<String, dynamic>? a]) async {
@@ -37,8 +40,8 @@ class CallNative {
   }
 
   static Future<bool> playTone(ToneSpec t) async =>
-      await _invoke<bool>('playTone',
-          {'pcm': t.bytes, 'rate': t.sampleRate, 'loop': t.loop}) ==
+      await _invoke<bool>(
+          'playTone', {'pcm': t.bytes, 'rate': t.sampleRate, 'loop': t.loop}) ==
       true;
 
   static Future<void> stopTone() => _invoke<bool>('stopTone');

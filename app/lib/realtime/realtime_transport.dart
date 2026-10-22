@@ -127,7 +127,8 @@ class PollRealtimeTransport {
 
   /// One-off fetch of retained events (e.g. a call's offer that arrived
   /// before the call screen existed). Does not move [seq].
-  Future<List<RealtimeEvent>> backlog({int after = 0, String topics = ''}) async {
+  Future<List<RealtimeEvent>> backlog(
+      {int after = 0, String topics = ''}) async {
     final q = topics.isEmpty ? '' : '&topics=$topics';
     final r = await _get('/rt/events?after=$after$q');
     return _parse(r);

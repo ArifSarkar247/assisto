@@ -37,7 +37,8 @@ class ApiCallSignaling implements CallSignaling {
 
   @override
   Future<void> signal(int callId, String kind, Map<String, dynamic> data) =>
-      transport.send('call.signal', {'call_id': callId, 'kind': kind, 'data': data});
+      transport
+          .send('call.signal', {'call_id': callId, 'kind': kind, 'data': data});
 
   @override
   Future<Map<String, dynamic>> status(int callId) =>

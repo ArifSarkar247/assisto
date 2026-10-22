@@ -5,6 +5,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 import 'call_controller.dart';
 import 'call_video.dart';
+import 'call_log.dart';
 
 /// [CallMedia] on flutter_webrtc — the ONLY call file that touches the
 /// plugin. Loaded with `deferred as` from the call screen, so no WebRTC code
@@ -35,12 +36,16 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
     try {
       await Helper.setAndroidAudioConfiguration(
           AndroidAudioConfiguration.communication);
-    } catch (_) {}
+    } catch (e) {
+      callLog('webrtc_media#1', e);
+    }
     try {
       await localRenderer.initialize();
       await remoteRenderer.initialize();
       _renderersReady = true;
-    } catch (_) {}
+    } catch (e) {
+      callLog('webrtc_media#2', e);
+    }
     try {
       _local = await navigator.mediaDevices.getUserMedia({
         'audio': {
@@ -60,7 +65,8 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
     } catch (e) {
       final s = '$e'.toLowerCase();
       throw MediaOpenException(
-          s.contains('permission') || s.contains('notallowed') ||
+          s.contains('permission') ||
+              s.contains('notallowed') ||
               s.contains('denied'),
           '$e');
     }
@@ -138,21 +144,22 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
 
   @override
   Future<Map<String, dynamic>> acceptOffer(Map<String, dynamic> offer) async {
-    await _peer.setRemoteDescription(
-        RTCSessionDescription(offer['sdp'] as String?, offer['type'] as String?));
+    await _peer.setRemoteDescription(RTCSessionDescription(
+        offer['sdp'] as String?, offer['type'] as String?));
     final ans = await _peer.createAnswer({});
     await _peer.setLocalDescription(ans);
     return {'type': ans.type, 'sdp': ans.sdp};
   }
 
   @override
-  Future<void> setAnswer(Map<String, dynamic> answer) => _peer.setRemoteDescription(
-      RTCSessionDescription(answer['sdp'] as String?, answer['type'] as String?));
+  Future<void> setAnswer(Map<String, dynamic> answer) =>
+      _peer.setRemoteDescription(RTCSessionDescription(
+          answer['sdp'] as String?, answer['type'] as String?));
 
   @override
-  Future<void> addCandidate(Map<String, dynamic> c) => _peer.addCandidate(
-      RTCIceCandidate(c['candidate'] as String?, c['sdpMid'] as String?,
-          (c['sdpMLineIndex'] as num?)?.toInt()));
+  Future<void> addCandidate(Map<String, dynamic> c) =>
+      _peer.addCandidate(RTCIceCandidate(c['candidate'] as String?,
+          c['sdpMid'] as String?, (c['sdpMLineIndex'] as num?)?.toInt()));
 
   @override
   Future<void> setMuted(bool muted) async {
@@ -241,11 +248,15 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
         await t.stop();
       }
       await _local?.dispose();
-    } catch (_) {}
+    } catch (e) {
+      callLog('webrtc_media#3', e);
+    }
     _local = null;
     try {
       await _pc?.close();
-    } catch (_) {}
+    } catch (e) {
+      callLog('webrtc_media#4', e);
+    }
     _pc = null;
     try {
       localRenderer.srcObject = null;
@@ -254,11 +265,15 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
         await localRenderer.dispose();
         await remoteRenderer.dispose();
       }
-    } catch (_) {}
+    } catch (e) {
+      callLog('webrtc_media#5', e);
+    }
     _renderersReady = false;
     try {
       await Helper.clearAndroidCommunicationDevice();
-    } catch (_) {}
+    } catch (e) {
+      callLog('webrtc_media#6', e);
+    }
   }
 }
 

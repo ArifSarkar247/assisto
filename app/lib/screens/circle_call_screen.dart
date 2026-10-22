@@ -112,7 +112,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       memberId: widget.member['id'] as int?,
       callId: widget.callId,
     );
-    _attach(c, media is CallVideoSurface ? media : null);
+    _attach(c, media is CallVideoSurface ? media as CallVideoSurface : null);
     if (_isVideo) unawaited(CallNative.keepScreenOn(true));
     unawaited(CallNative.pipSupported().then((v) {
       if (mounted) setState(() => _pipSupported = v);
@@ -332,8 +332,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   Widget _topBar(CallController? c) {
     final t = _t;
     return Padding(
-      padding:
-          const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xs),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xs),
       child: Row(
         children: [
           if (_isVideo && _pipSupported && c != null && c.isLive)
@@ -722,9 +721,8 @@ class _CtlButton extends StatelessWidget {
     final bg = active
         ? Colors.white
         : Colors.white.withValues(alpha: enabled ? 0.16 : 0.06);
-    final fg = active
-        ? Brand.ink
-        : Colors.white.withValues(alpha: enabled ? 1 : 0.45);
+    final fg =
+        active ? Brand.ink : Colors.white.withValues(alpha: enabled ? 1 : 0.45);
     return Expanded(
       child: Column(
         mainAxisSize: MainAxisSize.min,

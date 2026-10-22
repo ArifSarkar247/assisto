@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'call_log.dart';
 
 /// REAL 1:1 call state machine (c2-calls). Pure Dart: media, signalling and
 /// sounds are injected, so it is unit-tested with fakes and driven in the app
@@ -12,7 +13,15 @@ import 'package:flutter/foundation.dart';
 /// The caller hears ringback ONLY in `ringing` (the callee's phone confirmed
 /// it rings). `connected` is entered ONLY when ICE really connects — there is
 /// no other path to it. A media failure ends the call as `failed` / `media`.
-enum CallPhase { starting, calling, ringing, accepted, connected, reconnecting, ended }
+enum CallPhase {
+  starting,
+  calling,
+  ringing,
+  accepted,
+  connected,
+  reconnecting,
+  ended
+}
 
 /// Why a call ended (server end_reason + client-only reasons).
 enum CallEndReason {
@@ -92,7 +101,14 @@ class MediaStats {
 }
 
 /// ICE / peer-connection state as the media layer reports it.
-enum MediaLinkState { idle, connecting, connected, disconnected, failed, closed }
+enum MediaLinkState {
+  idle,
+  connecting,
+  connected,
+  disconnected,
+  failed,
+  closed
+}
 
 class MediaOpenException implements Exception {
   MediaOpenException(this.denied, [this.detail = '']);
@@ -128,8 +144,7 @@ abstract class CallSignaling {
 
   /// POST /circle/calls/<id>/event {event:'answer'} (callee).
   Future<Map<String, dynamic>> accept(int callId);
-  Future<Map<String, dynamic>> event(int callId, String event,
-      {bool? relayed});
+  Future<Map<String, dynamic>> event(int callId, String event, {bool? relayed});
   Future<void> signal(int callId, String kind, Map<String, dynamic> data);
   Future<Map<String, dynamic>> status(int callId);
 
@@ -216,7 +231,8 @@ class CallController extends ChangeNotifier {
   List<Map<String, dynamic>> _ice = const [];
 
   bool get isEnded => phase == CallPhase.ended;
-  bool get isLive => phase == CallPhase.connected || phase == CallPhase.reconnecting;
+  bool get isLive =>
+      phase == CallPhase.connected || phase == CallPhase.reconnecting;
 
   Duration get elapsed =>
       connectedAt == null ? Duration.zero : now().difference(connectedAt!);
@@ -241,7 +257,8 @@ class CallController extends ChangeNotifier {
     if (p == CallPhase.connected && connectedAt == null) {
       connectedAt = now();
       if (!video) unawaited(sounds.setProximity(true));
-      _statsTimer ??= Timer.periodic(statsEvery, (_) => unawaited(_pollStats()));
+      _statsTimer ??=
+          Timer.periodic(statsEvery, (_) => unawaited(_pollStats()));
     }
   }
 
@@ -252,7 +269,8 @@ class CallController extends ChangeNotifier {
     try {
       final cfg = await signaling.rtcConfig();
       if (cfg != null && cfg['throttled'] == true) {
-        return _finish(CallEndReason.serverBusy);
+        await _finish(CallEndReason.serverBusy);
+        return;
       }
       final turnIce = ((cfg?['ice_servers'] ?? const []) as List)
           .whereType<Map>()
@@ -266,8 +284,8 @@ class CallController extends ChangeNotifier {
       }
     } on MediaOpenException catch (e) {
       log.add('media-open-failed:${e.denied}');
-      await _hangupWith(
-          'fail', e.denied ? CallEndReason.mediaDenied : CallEndReason.mediaError);
+      await _hangupWith('fail',
+          e.denied ? CallEndReason.mediaDenied : CallEndReason.mediaError);
     } catch (e) {
       log.add('start-failed:$e');
       if (!isEnded) {
@@ -277,8 +295,8 @@ class CallController extends ChangeNotifier {
     }
   }
 
-  List<Map<String, dynamic>> _iceFrom(Map<String, dynamic> body,
-      List<Map<String, dynamic>> turnIce) {
+  List<Map<String, dynamic>> _iceFrom(
+      Map<String, dynamic> body, List<Map<String, dynamic>> turnIce) {
     if (turnIce.isNotEmpty) return turnIce;
     final ice = body['ice'];
     if (ice is Map && ice['iceServers'] is List) {
@@ -288,7 +306,9 @@ class CallController extends ChangeNotifier {
           .toList();
     }
     return const [
-      {'urls': ['stun:stun.l.google.com:19302']}
+      {
+        'urls': ['stun:stun.l.google.com:19302']
+      }
     ];
   }
 
@@ -330,7 +350,9 @@ class CallController extends ChangeNotifier {
     _listen();
     final r = await signaling.accept(id);
     final p = phaseFromServer('${r['phase'] ?? ''}');
-    if (p == CallPhase.ended || p == CallPhase.calling || p == CallPhase.ringing) {
+    if (p == CallPhase.ended ||
+        p == CallPhase.calling ||
+        p == CallPhase.ringing) {
       // already over (caller hung up, rang out) — never fake a connect
       return _finish(p == CallPhase.ended
           ? endReasonFromServer('${r['end_reason'] ?? ''}')
@@ -350,7 +372,8 @@ class CallController extends ChangeNotifier {
 
   void _listen() {
     _evSub ??= signaling.events(callId!).listen((e) => unawaited(_onEvent(e)));
-    _statusTimer ??= Timer.periodic(statusEvery, (_) => unawaited(_pollStatus()));
+    _statusTimer ??=
+        Timer.periodic(statusEvery, (_) => unawaited(_pollStatus()));
   }
 
   void _wireMedia() {
@@ -425,7 +448,9 @@ class CallController extends ChangeNotifier {
     for (final c in list) {
       try {
         await media.addCandidate(c);
-      } catch (_) {}
+      } catch (e) {
+        callLog('call_controller#1', e);
+      }
     }
   }
 
@@ -446,7 +471,9 @@ class CallController extends ChangeNotifier {
     try {
       final s = await signaling.status(id);
       _onServerState(s);
-    } catch (_) {}
+    } catch (e) {
+      callLog('call_controller#2', e);
+    }
   }
 
   void _onLink(MediaLinkState s) {
@@ -458,7 +485,8 @@ class CallController extends ChangeNotifier {
         _giveUpTimer?.cancel();
         _giveUpTimer = null;
         final first = connectedAt == null;
-        if (phase == CallPhase.reconnecting || phase.index < CallPhase.connected.index) {
+        if (phase == CallPhase.reconnecting ||
+            phase.index < CallPhase.connected.index) {
           phase = CallPhase.accepted; // allow the forward move below
         }
         _set(CallPhase.connected);
@@ -486,10 +514,14 @@ class CallController extends ChangeNotifier {
       final st = await media.stats();
       relayed = relayed || st.relayed;
       quality = st.quality;
-    } catch (_) {}
+    } catch (e) {
+      callLog('call_controller#3', e);
+    }
     try {
       await signaling.event(callId!, 'connected', relayed: relayed);
-    } catch (_) {}
+    } catch (e) {
+      callLog('call_controller#4', e);
+    }
     if (!first) notifyListeners();
   }
 
@@ -499,7 +531,9 @@ class CallController extends ChangeNotifier {
     phase = CallPhase.reconnecting;
     log.add('phase:reconnecting');
     notifyListeners();
-    unawaited(signaling.event(callId!, 'reconnect').catchError((_) => <String, dynamic>{}));
+    unawaited(signaling
+        .event(callId!, 'reconnect')
+        .catchError((_) => <String, dynamic>{}));
     unawaited(restartIce());
     _giveUpTimer?.cancel();
     _giveUpTimer = Timer(reconnectGiveUp, () {
@@ -531,7 +565,9 @@ class CallController extends ChangeNotifier {
         quality = q;
         notifyListeners();
       }
-    } catch (_) {}
+    } catch (e) {
+      callLog('call_controller#5', e);
+    }
   }
 
   // --------------------------------------------------------------- controls
@@ -540,7 +576,9 @@ class CallController extends ChangeNotifier {
     notifyListeners();
     try {
       await media.setMuted(muted);
-    } catch (_) {}
+    } catch (e) {
+      callLog('call_controller#6', e);
+    }
   }
 
   Future<void> toggleSpeaker() async {
@@ -548,7 +586,9 @@ class CallController extends ChangeNotifier {
     notifyListeners();
     try {
       await media.setSpeaker(speakerOn);
-    } catch (_) {}
+    } catch (e) {
+      callLog('call_controller#7', e);
+    }
     if (!video) unawaited(sounds.setProximity(isLive && !speakerOn));
   }
 
@@ -561,7 +601,9 @@ class CallController extends ChangeNotifier {
       if (callId != null) {
         await signaling.signal(callId!, 'media', {'camera': cameraOn});
       }
-    } catch (_) {}
+    } catch (e) {
+      callLog('call_controller#8', e);
+    }
   }
 
   Future<void> switchCamera() async {
@@ -570,7 +612,9 @@ class CallController extends ChangeNotifier {
       await media.switchCamera();
       frontCamera = !frontCamera;
       notifyListeners();
-    } catch (_) {}
+    } catch (e) {
+      callLog('call_controller#9', e);
+    }
   }
 
   /// The red button. Before connect: caller cancels; callee hangs up.
@@ -584,7 +628,9 @@ class CallController extends ChangeNotifier {
     if (id != null) {
       try {
         await signaling.event(id, event);
-      } catch (_) {}
+      } catch (e) {
+        callLog('call_controller#10', e);
+      }
     }
   }
 
@@ -598,7 +644,9 @@ class CallController extends ChangeNotifier {
     try {
       await sounds.stopAll();
       await sounds.setProximity(false);
-    } catch (_) {}
+    } catch (e) {
+      callLog('call_controller#11', e);
+    }
     await _closeMedia();
     if (!_disposed) notifyListeners();
     // the caller hears WHY it ended (generated tones; never blocks the UI)
@@ -620,7 +668,9 @@ class CallController extends ChangeNotifier {
     _linkSub = null;
     try {
       await media.dispose();
-    } catch (_) {}
+    } catch (e) {
+      callLog('call_controller#12', e);
+    }
   }
 
   void _stopTimers() {

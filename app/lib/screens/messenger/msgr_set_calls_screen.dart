@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
+import '../../calls/call_sound_tiles.dart';
 import '../../l10n/app_localizations.dart';
 import '../../messenger_setapi.dart';
 import '../../state.dart';
@@ -116,6 +117,9 @@ class _MsgrSetCallsScreenState extends State<MsgrSetCallsScreen> {
                       builder: (_) => const CirclePrivacyScreen())),
                 ),
                 if (!_synced) MsgrSetNote(t.msgrSetNotSynced),
+                // c2-calls: ringtone / Assisto melody / message sound
+                const Divider(),
+                const CallSoundsSection(),
               ],
             ),
     );

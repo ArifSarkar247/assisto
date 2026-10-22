@@ -23,7 +23,8 @@ class ToneSpec {
       Duration(microseconds: pcm.length * 1000000 ~/ sampleRate);
 
   /// Little-endian bytes for the native AudioTrack.
-  Uint8List get bytes => pcm.buffer.asUint8List(pcm.offsetInBytes, pcm.lengthInBytes);
+  Uint8List get bytes =>
+      pcm.buffer.asUint8List(pcm.offsetInBytes, pcm.lengthInBytes);
 }
 
 class ToneGenerator {
@@ -64,8 +65,8 @@ class ToneGenerator {
       ToneSpec(_pattern(ringbackHz, const [(1.0, 4.0)]), rate, loop: true);
 
   static ToneSpec busy() => ToneSpec(
-      _pattern(ringbackHz,
-          const [(0.5, 0.5), (0.5, 0.5), (0.5, 0.5), (0.5, 0.5)]),
+      _pattern(
+          ringbackHz, const [(0.5, 0.5), (0.5, 0.5), (0.5, 0.5), (0.5, 0.5)]),
       rate);
 
   static ToneSpec declined() => ToneSpec(
@@ -124,12 +125,10 @@ class ToneGenerator {
     final data = t.bytes;
     final b = BytesBuilder();
     void s(String x) => b.add(x.codeUnits);
-    void u32(int v) => b.add((ByteData(4)..setUint32(0, v, Endian.little))
-        .buffer
-        .asUint8List());
-    void u16(int v) => b.add((ByteData(2)..setUint16(0, v, Endian.little))
-        .buffer
-        .asUint8List());
+    void u32(int v) => b.add(
+        (ByteData(4)..setUint32(0, v, Endian.little)).buffer.asUint8List());
+    void u16(int v) => b.add(
+        (ByteData(2)..setUint16(0, v, Endian.little)).buffer.asUint8List());
     s('RIFF');
     u32(36 + data.length);
     s('WAVE');
