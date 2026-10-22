@@ -182,8 +182,8 @@ void main() {
       expect(VaLockPolicy.isHarmlessQuery('will it rain today'), isTrue);
       expect(VaLockPolicy.isHarmlessQuery('koyta baje'), isTrue);
       expect(VaLockPolicy.isHarmlessQuery('ajker abohawa kemon'), isTrue);
-      expect(VaLockPolicy.isHarmlessQuery('কয়টা বাজে'), isTrue);
-      expect(VaLockPolicy.isHarmlessQuery('আজকে আবহাওয়া কেমন'), isTrue);
+      expect(VaLockPolicy.isHarmlessQuery('\u0995\u09df\u099f\u09be \u09ac\u09be\u099c\u09c7'), isTrue);
+      expect(VaLockPolicy.isHarmlessQuery('\u0986\u099c\u0995\u09c7 \u0986\u09ac\u09b9\u09be\u0993\u09af\u09bc\u09be \u0995\u09c7\u09ae\u09a8'), isTrue);
       expect(VaLockPolicy.isHarmlessQuery('read my messages'), isFalse);
       expect(VaLockPolicy.isHarmlessQuery('what time is my meeting'), isFalse);
       expect(VaLockPolicy.isHarmlessQuery('amar balance koto'), isFalse);

@@ -194,15 +194,15 @@ class VaLockPolicy {
     'date today', "today's date", 'koyta baje', 'kotay baje', 'kota baje',
     'somoy koto', 'abohawa', 'aboh awa', 'abhawa', 'brishti', 'tapmatra',
     'aj ki bar', 'ajke ki bar',
-    'কয়টা বাজে', // koyta baje
-    'কটা বাজে', // kota baje
-    'সময়', // somoy
-    'আবহাওয়া', // abohawa
-    'বৃষ্টি', // brishti
-    'তাপমাত্রা', // tapmatra
-    'আজ কি বার', // aj ki bar
-    'আজকে কী বার', // ajke ki bar
-    'তারিখ', // tarikh
+    '\u0995\u09af\u09bc\u099f\u09be \u09ac\u09be\u099c\u09c7', // koyta baje
+    '\u0995\u099f\u09be \u09ac\u09be\u099c\u09c7', // kota baje
+    '\u09b8\u09ae\u09af\u09bc', // somoy
+    '\u0986\u09ac\u09b9\u09be\u0993\u09af\u09bc\u09be', // abohawa
+    '\u09ac\u09c3\u09b7\u09cd\u099f\u09bf', // brishti
+    '\u09a4\u09be\u09aa\u09ae\u09be\u09a4\u09cd\u09b0\u09be', // tapmatra
+    '\u0986\u099c \u0995\u09bf \u09ac\u09be\u09b0', // aj ki bar
+    '\u0986\u099c\u0995\u09c7 \u0995\u09c0 \u09ac\u09be\u09b0', // ajke ki bar
+    '\u09a4\u09be\u09b0\u09bf\u0996', // tarikh
   ];
 
   // anything that points at the user's own data stays behind the unlock
@@ -210,16 +210,16 @@ class VaLockPolicy {
     'my ', 'mine', 'message', 'sms', 'call', 'contact', 'number', 'remind',
     'note', 'balance', 'account', 'password', 'photo', 'amar', 'amake',
     'meeting', 'calendar', 'schedule', 'appointment',
-    'আমার', // amar
-    'মেসেজ', // message
-    'ফোন', // phone
-    'কল', // call
-    'নম্বর', // number
-    'টাকা', // taka (money)
+    '\u0986\u09ae\u09be\u09b0', // amar
+    '\u09ae\u09c7\u09b8\u09c7\u099c', // message
+    '\u09ab\u09cb\u09a8', // phone
+    '\u0995\u09b2', // call
+    '\u09a8\u09ae\u09cd\u09ac\u09b0', // number
+    '\u099f\u09be\u0995\u09be', // taka (money)
   ];
 
   static bool isHarmlessQuery(String raw) {
-    final s = ' ${raw.toLowerCase().replaceAll('য়', 'য়')} ';
+    final s = ' ${raw.toLowerCase().replaceAll('\u09df', '\u09af\u09bc')} ';
     if (s.trim().isEmpty) return false;
     if (_personalWords.any(s.contains)) return false;
     return _askWords.any(s.contains);
