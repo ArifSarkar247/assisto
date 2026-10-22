@@ -134,6 +134,14 @@ class MainActivity : FlutterActivity() {
             )
         } catch (e: Throwable) {
         }
+        // c2-calls: "com.assisto/calls" (tones, ringtone + picker, proximity,
+        // PiP). Handler only — nothing is created until Dart calls it.
+        try {
+            com.assisto.assisto.calls.CallsChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.assisto/lockscreen")
             .setMethodCallHandler { call, result ->
                 if (call.method == "release") {
@@ -274,7 +282,36 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    // c2-calls: the ringtone picker result + PiP mode changes go to the
+    // calls channel (crash-guarded).
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        val handled = try {
+            com.assisto.assisto.calls.CallsChannel.onActivityResult(requestCode, resultCode, data)
+        } catch (e: Throwable) {
+            false
+        }
+        if (!handled) {
+            @Suppress("DEPRECATION")
+            super.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
+    override fun onPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: android.content.res.Configuration
+    ) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        try {
+            com.assisto.assisto.calls.CallsChannel.onPipChanged(isInPictureInPictureMode)
+        } catch (e: Throwable) {
+        }
+    }
+
     override fun onDestroy() {
+        try {
+            com.assisto.assisto.calls.CallsChannel.release()
+        } catch (e: Throwable) {
+        }
         stopAlarm()
         super.onDestroy()
     }

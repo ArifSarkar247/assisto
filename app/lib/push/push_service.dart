@@ -6,6 +6,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../calls/call_runtime.dart';
 import '../notifications.dart';
 import '../state.dart';
 import '../widgets/chatnav.dart';
@@ -96,6 +97,11 @@ class PushService {
 
     app.addListener(_onAppChanged);
     _onAppChanged();
+    // c2-calls: real-time transport + instant in-app incoming calls.
+    try {
+      await CallRuntime.instance.start(app, _nav ?? appNavigatorKey,
+          pushAvailable: ok);
+    } catch (_) {}
   }
 
   String _lang() {
@@ -171,9 +177,17 @@ class PushService {
 
   void _onForeground(Map<String, dynamic> data) {
     final p = PushPayload.fromData(data);
-    if (p.isCallCancel) _cancelled.add(p.callId);
+    if (p.isCallCancel) {
+      _cancelled.add(p.callId);
+      CallRuntime.instance.onPushCancel(p);
+    }
+    // c2-calls: app open -> the full in-app incoming screen at once (rings
+    // natively), not a heads-up notification.
+    if (p.isCall) {
+      CallRuntime.instance.onPushRing(p);
+      return;
+    }
     // Foreground: draw it ourselves (FCM shows nothing while we're open).
-    // A call rings as a heads-up with Accept/Decline.
     unawaited(PushNotifier.show(p));
   }
 
@@ -210,7 +224,10 @@ class PushService {
         if (action == PushNotifier.actionAccept) {
           nav.push(MaterialPageRoute(
               builder: (_) => CircleCallScreen(
-                  member: member, kind: kind, outgoing: false)));
+                  member: member,
+                  kind: kind,
+                  outgoing: false,
+                  callId: int.tryParse(p.callId))));
         } else {
           // plain tap / full-screen launch: ring first, user decides.
           nav.push(MaterialPageRoute(
