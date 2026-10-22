@@ -378,6 +378,9 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
       floatingActionButton: _tab == 0
           ? FloatingActionButton(
               key: const Key('m3-fab'),
+              // Own hero tag: a tab below may mount another FAB with the
+              // default tag ("multiple heroes share the same tag" on push).
+              heroTag: 'm3-fab',
               tooltip: t.msgrNewChat,
               onPressed: _openNewChat,
               child: const Icon(Icons.chat_outlined),
