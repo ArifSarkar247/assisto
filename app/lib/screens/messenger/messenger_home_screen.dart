@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import '../../messaging/unread_store.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 
@@ -37,8 +38,7 @@ import 'starred_messages_screen.dart';
 ///   • Chats        — the fast, familiar-feeling 1:1 list (reuses the circle
 ///                    E2E chat thread for each conversation).
 ///   • Updates      — Status + Channels (hosts [CircleStatusScreen]).
-///   • Communities  — circle communities (placeholder until the sibling agent
-///                    ships the screen class).
+///   • Communities  — circle communities ([CommunityListScreen]).
 ///   • Calls        — call history (hosts [CircleCallHistoryScreen]).
 ///
 /// The hub owns the on-device identity + the circle member list once and hands
@@ -138,7 +138,10 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
           'key_id': id.keyId,
           'scheme': _e2e.scheme,
         });
-      } catch (_) {}
+      } catch (_) {
+        // Heals itself: the public key is re-published on every hub open
+        // (branch above); peers see the honest "key missing" state meanwhile.
+      }
     } catch (_) {
       // Keep going with a null identity — tabs degrade to a friendly state.
     }
@@ -303,6 +306,8 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
     if (ok != true || !mounted) return;
     try {
       await _api.hubReadAll();
+      UnreadStore.instance.clearAll();
+      if (mounted) setState(() => _refresh++);
       if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(t.msgrReadAllDone)));
@@ -420,15 +425,11 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
             selectedIndex: _tab,
             onDestinationSelected: (i) => setState(() => _tab = i),
             destinations: [
+              // c3-msg: unread chats + incoming requests, live from the
+              // UnreadStore (clears the moment a chat is opened).
               NavigationDestination(
-                icon: Badge(
-                    isLabelVisible: _incoming > 0,
-                    label: Text('$_incoming'),
-                    child: const Icon(Icons.forum_outlined)),
-                selectedIcon: Badge(
-                    isLabelVisible: _incoming > 0,
-                    label: Text('$_incoming'),
-                    child: const Icon(Icons.forum)),
+                icon: _chatsBadge(const Icon(Icons.forum_outlined)),
+                selectedIcon: _chatsBadge(const Icon(Icons.forum)),
                 label: t.msgrTabChats,
               ),
               NavigationDestination(
@@ -453,6 +454,18 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
     );
   }
 
+  Widget _chatsBadge(Widget icon) => ValueListenableBuilder<int>(
+        valueListenable: UnreadStore.instance.total,
+        builder: (_, unread, __) {
+          final n = unread + _incoming;
+          return Badge(
+              key: const Key('c3-tab-badge'),
+              isLabelVisible: n > 0,
+              label: Text(n > 99 ? '99+' : '$n'),
+              child: icon);
+        },
+      );
+
   void _openStatus() {
     if (_identity == null) return;
     Navigator.of(context).push(MaterialPageRoute(
@@ -466,10 +479,10 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
   /// Updates = Status + Channels. Hosts [ChannelListScreen] (which can create /
   /// follow channels and reach [DiscoverScreen]); a header row lets the user
   /// jump into their circle Status ([CircleStatusScreen]). Falls back to a
-  /// friendly placeholder until the on-device identity exists.
+  /// honest "setting up encryption" state until the on-device identity exists.
   Widget _updatesTab() {
     if (_identity == null) {
-      return _placeholder(Icons.auto_awesome_outlined, _t.msgrUpdatesSoon);
+      return _placeholder(Icons.auto_awesome_outlined, _t.c3KeysNotReady);
     }
     final t = _t;
     final scheme = Theme.of(context).colorScheme;
@@ -498,10 +511,10 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
   }
 
   /// Communities = the owner's open community groups. Needs the on-device
-  /// identity; falls back to a friendly placeholder until it exists.
+  /// identity; shows the honest "setting up encryption" state until then.
   Widget _communitiesTab() {
     if (_identity == null) {
-      return _placeholder(Icons.groups_2_outlined, _t.msgrCommunitiesSoon);
+      return _placeholder(Icons.groups_2_outlined, _t.c3KeysNotReady);
     }
     return CommunityListScreen(identity: _identity!);
   }

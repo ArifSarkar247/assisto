@@ -261,6 +261,14 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // Realme-safe proactive alerts: check every time the app comes forward.
+    // c3-msg: delivered-sync + realtime presence follow the foreground.
+    if (state == AppLifecycleState.resumed ||
+        state == AppLifecycleState.paused) {
+      try {
+        PushService.instance
+            .onForegroundChanged(state == AppLifecycleState.resumed);
+      } catch (_) {}
+    }
     if (state == AppLifecycleState.resumed) {
       _pollAlerts();
       // Re-pick up a flag change made while backgrounded (or in Settings).

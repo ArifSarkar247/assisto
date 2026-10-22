@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -18,6 +19,13 @@ import '../messenger_group_api.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/circle_group_poll.dart';
+import '../messaging/c3_api.dart';
+import '../messaging/msg_notify.dart';
+import '../messaging/msg_ticks.dart';
+import '../messaging/msg_widgets.dart';
+import '../messaging/presence_label.dart';
+import '../messaging/unread_store.dart';
+import '../realtime/realtime_channel.dart';
 import '../widgets/group_menu_media.dart';
 import '../widgets/group_export.dart';
 import '../widgets/group_menu_sheet.dart';
@@ -85,17 +93,74 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   final Set<String> _selected = {};
   bool get _isFavourite => widget.group['favourite'] == true;
 
+  // c3-msg: live typing (RealtimeChannel), seen on open, light poll while
+  // open so ticks and new messages update without a manual refresh.
+  final _rt = RealtimeChannel.instance;
+  Timer? _poll;
+  int get _gid => int.tryParse(_groupId) ?? 0;
+  String get _chatKey => 'group:$_gid';
+
   @override
   void initState() {
     super.initState();
-    _load();
+    MsgActiveChat.current = _chatKey;
+    UnreadStore.instance.clear(_chatKey);
+    unawaited(FlnMsgSink().cancel('group', _gid));
+    _rt.acquire();
+    _rt.states.addListener(_onRt);
+    _load().then((_) => _markSeen());
+    _poll = Timer.periodic(const Duration(seconds: 8), (_) => _pollMessages());
   }
 
   @override
   void dispose() {
+    if (MsgActiveChat.current == _chatKey) MsgActiveChat.current = null;
+    _poll?.cancel();
+    _rt.states.removeListener(_onRt);
+    _rt.typing('group', _gid, 'stop');
+    _rt.release();
     _input.dispose();
     _scroll.dispose();
     super.dispose();
+  }
+
+  void _onRt() {
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _markSeen() async {
+    final ls = WidgetsBinding.instance.lifecycleState;
+    if (ls != null && ls != AppLifecycleState.resumed) return;
+    UnreadStore.instance.clear(_chatKey);
+    try {
+      await _api.c3ChatSeen('group', _gid);
+    } catch (_) {
+      // Retried on the next poll tick / reopen; the local badge is already 0.
+    }
+  }
+
+  bool _pollBusy = false;
+  Future<void> _pollMessages() async {
+    if (_pollBusy || _loading || !mounted) return;
+    final ls = WidgetsBinding.instance.lifecycleState;
+    if (ls != null && ls != AppLifecycleState.resumed) return;
+    _pollBusy = true;
+    try {
+      final msg = await _api.getJson('/circle/groups/$_groupId/messages');
+      final next = ((msg['results'] ?? msg['messages'] ?? []) as List)
+          .cast<Map<String, dynamic>>();
+      final known = _messages.map((m) => '${m['id']}').toSet();
+      final fresh = next.any((m) => m['mine'] != true && !known.contains('${m['id']}'));
+      final changed = next.length != _messages.length ||
+          fresh ||
+          [for (var i = 0; i < next.length && i < _messages.length; i++) i]
+              .any((i) => '${next[i]['status']}' != '${_messages[i]['status']}');
+      if (changed && mounted) setState(() => _messages = next);
+      if (fresh) unawaited(_markSeen());
+    } catch (_) {
+    } finally {
+      _pollBusy = false;
+    }
   }
 
   ApiClient get _api => context.read<AppState>().api;
@@ -158,6 +223,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   Future<void> _send({String? resendText}) async {
     final text = resendText ?? _input.text.trim();
     if (text.isEmpty || _sending || !_canPost) return;
+    _rt.typing('group', _gid, 'stop');
     // §21: if there is no one to encrypt to, say so instead of a silent no-op.
     if (_recipients.isEmpty) {
       _toast(_t.grpNoRecipients);
@@ -169,6 +235,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     });
     final perRecipient = <String, dynamic>{};
     final recipientIds = <int>[];
+    var skipped = 0;
     for (final r in _recipients) {
       try {
         final pub = base64Decode('${r['public_key']}');
@@ -183,8 +250,12 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           'ciphertext': ct.ciphertextB64,
           'nonce': ct.nonceB64,
         };
-      } catch (_) {}
+      } catch (_) {
+        skipped++;
+      }
     }
+    // seam audit: a member whose key is broken used to be dropped silently.
+    if (skipped > 0) _toast(_t.c3SkippedRecipients(skipped));
     final mentions = _parseMentions(text);
     var ok = true;
     try {
@@ -221,10 +292,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   /// member (e.g. "@Sa" hitting "Sabrina" instead of "Sadia"). If a token is
   /// ambiguous (matches >1 member) or matches none, it is left as plain text.
   ///
-  /// TODO(M2): replace free-text parsing with an inline @-picker — on "@", show
-  /// the member roster and insert the chosen member's id as a mention token.
-  /// That removes name collisions entirely and is the right UX; left as a
-  /// follow-up to keep this change focused.
+  /// Works today from typed "@Name" text. Later UX upgrade (not a stub): an
+  /// inline @-picker that inserts the member id directly, removing name
+  /// collisions.
   List<int> _parseMentions(String text) {
     final out = <int>[];
     final re = RegExp(r'@([^\s@]+)');
@@ -864,7 +934,33 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   PreferredSizeWidget _normalAppBar() => AppBar(
         title: InkWell(
           onTap: _openInfo,
-          child: Text('${widget.group['name'] ?? ''}'),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('${widget.group['name'] ?? ''}',
+                  maxLines: 1, overflow: TextOverflow.ellipsis),
+              // c3-msg: "Rahim is typing…" / "… recording audio…"
+              if (presenceLabel(_t, _rt.stateOf('group', _gid),
+                      lang: Localizations.localeOf(context).languageCode,
+                      isGroup: true) !=
+                  null)
+                Text(
+                  presenceLabel(_t, _rt.stateOf('group', _gid),
+                      lang: Localizations.localeOf(context).languageCode,
+                      isGroup: true)!,
+                  key: const Key('c3-group-typing'),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? const Color(0xFF4ADE80)
+                          : const Color(0xFF15803D)),
+                ),
+            ],
+          ),
         ),
         actions: [
           IconButton(
@@ -1125,6 +1221,15 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
               const SizedBox(height: Gap.xs),
               _highlightMentions(text),
               _reactionRow(msg),
+              // c3-msg: ticks on my own messages (all members delivered /
+              // read → ✓✓ / blue ✓✓; long-press → Info per member).
+              if (msg['mine'] == true)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TickIcon(
+                      tick: tickFrom('${msg['status'] ?? 'sent'}'),
+                      baseColor: Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
             ],
           ),
         ),
@@ -1222,6 +1327,17 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                 Navigator.pop(ctx);
               },
             ),
+            if (msg['mine'] == true)
+              ListTile(
+                key: const Key('c3-group-info'),
+                leading: const Icon(Icons.info_outline),
+                title: Text(_t.c3InfoTitle),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  showMessageInfoSheet(
+                      context, () => _api.c3MessageInfo('${msg['id']}'));
+                },
+              ),
             if (_myRole == 'admin')
               ListTile(
                 leading: Icon(msg['pinned'] == true
@@ -1305,6 +1421,8 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                 maxLines: 4,
                 textInputAction: TextInputAction.send,
                 onSubmitted: (_) => _send(),
+                onChanged: (v) =>
+                    _rt.typing('group', _gid, v.trim().isEmpty ? 'stop' : 'typing'),
                 decoration: InputDecoration(
                   hintText: _t.circleGroupMessageHint,
                   border: const OutlineInputBorder(
@@ -1350,6 +1468,30 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       // smell). Fail to null loudly in debug so a mis-keyed fan-out is visible.
       final myId = '${msg['my_member_id'] ?? _myMemberId}';
       Map<String, dynamic>? blob;
+      // c3-msg: MY OWN group message has no blob addressed to me (I never
+      // encrypt to myself) — it used to render blank. ECDH is symmetric, so
+      // any recipient's blob decrypts with THAT recipient's public key.
+      if (msg['mine'] == true && per != null && per.isNotEmpty) {
+        for (final e in per.entries) {
+          final r = _members.firstWhere(
+              (m) => '${_idOf(m)}' == e.key && '${m['public_key'] ?? ''}'.isNotEmpty,
+              orElse: () => const {});
+          if (r.isEmpty || e.value is! Map) continue;
+          final b = (e.value as Map).cast<String, dynamic>();
+          final pt = _e2e.decrypt(
+            self: widget.identity,
+            senderPublicKey: Uint8List.fromList(base64Decode('${r['public_key']}')),
+            ct: Ciphertext(
+              scheme: '${msg['scheme'] ?? _e2e.scheme}',
+              ciphertextB64: '${b['ciphertext']}',
+              nonceB64: '${b['nonce']}',
+              senderKeyId: '${msg['sender_key_id'] ?? ''}',
+            ),
+          );
+          if (pt != null) return pt;
+        }
+        return null;
+      }
       if (per != null && per.isNotEmpty) {
         blob = (per[myId] as Map?)?.cast<String, dynamic>();
         if (blob == null && kDebugMode) {

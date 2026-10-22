@@ -67,6 +67,23 @@ class MainActivity : FlutterActivity() {
         setIntent(intent)
         applyLockScreenPolicy(intent)
         applyVoiceLaunch(intent)
+        // c3-msg: conversation shortcut tapped while Assisto is running.
+        try {
+            com.assisto.assisto.messaging.C3MessagingChannel.onNewIntent(intent)
+        } catch (e: Throwable) {
+        }
+    }
+
+    // c3-msg: result of the phone's notification-sound picker.
+    @Deprecated("Activity result API is not available on FlutterActivity")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        try {
+            if (com.assisto.assisto.messaging.C3MessagingChannel
+                    .onActivityResult(this, requestCode, resultCode, data)) return
+        } catch (e: Throwable) {
+        }
+        @Suppress("DEPRECATION")
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     // Part 3 (a3-voice): an assist / wake launch marks "open Assisto Voice"
@@ -132,6 +149,12 @@ class MainActivity : FlutterActivity() {
             com.assisto.assisto.voice.AssistoVoiceChannel.register(
                 this, flutterEngine.dartExecutor.binaryMessenger
             )
+        } catch (e: Throwable) {
+        }
+        // c3-msg: message sound picker, bubbles, conversation launch. Handler
+        // only — nothing runs until Dart calls it.
+        try {
+            com.assisto.assisto.messaging.C3MessagingChannel.register(this, flutterEngine)
         } catch (e: Throwable) {
         }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.assisto/lockscreen")

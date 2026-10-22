@@ -121,6 +121,13 @@ Future<void> assistoFcmBackgroundHandler(RemoteMessage message) async {
   } catch (_) {}
   try {
     final p = PushPayload.fromData(message.data);
+    // c3-msg: a message push is data-only — pull the ciphertext window
+    // (= delivered ✓✓ ack), decrypt ON THIS DEVICE and draw the
+    // MessagingStyle conversation. Any failure falls back to the plain
+    // title/body notification so a message is never lost.
+    if (p.kind == 'message' && message.notification == null) {
+      if (await PushNotifier.showMessageFromBackground(message.data)) return;
+    }
     if (p.isDataOnly || message.notification == null) {
       await PushNotifier.showFromBackground(message.data);
     }

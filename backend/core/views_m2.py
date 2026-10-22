@@ -340,6 +340,9 @@ class CircleGroupMessagesView(APIView):
             "created_at": x.created_at.isoformat(),
             "mine": x.sender_id == request.user.id,
         } for x in msgs]
+        # c3-msg: ticks (sent/delivered/read, all members) on my messages.
+        from . import views_c3_msg as C3
+        C3.annotate(out, msgs, request.user)
         return Response({"results": out})
 
     def post(self, request, pk):

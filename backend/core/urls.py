@@ -760,3 +760,21 @@ urlpatterns += [
     path("chat-vision/jobs/<int:pk>/answer", h1.ChatVisionAnswerView.as_view()),
 ]
 # ---- /h1-home ----
+
+# ---- c3-msg ---- ticks (receipts), seen, notification pull, message info,
+# mark unread, presence + typing. PREPENDED so the literal paths win over the
+# circle/messages/<pk>/<action> and circle/groups/<pk>/<setting> catch-alls.
+from . import views_c3_msg as c3m  # noqa: E402
+urlpatterns[:0] = [
+    path("circle/receipts", c3m.ReceiptsView.as_view()),
+    path("circle/receipts/sync", c3m.ReceiptsSyncView.as_view()),
+    path("circle/<int:pk>/seen", c3m.ChatSeenView.as_view()),
+    path("circle/groups/<int:pk>/seen", c3m.GroupChatSeenView.as_view()),
+    path("circle/messages/<int:pk>/info", c3m.MessageInfoView.as_view()),
+    path("circle/chats/unread", c3m.ChatUnreadFlagView.as_view()),
+    path("circle/notify/pull", c3m.NotifyPullView.as_view()),
+    path("circle/rt/presence", c3m.PresenceView.as_view()),
+    path("circle/rt/typing", c3m.TypingView.as_view()),
+    path("circle/rt/state", c3m.RtStateView.as_view()),
+]
+# ---- /c3-msg ----

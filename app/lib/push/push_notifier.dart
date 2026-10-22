@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 import '../config.dart';
 import '../l10n/app_localizations.dart';
 import 'push_payload.dart';
+import '../messaging/msg_notify.dart';
 
 /// Draws Assisto pushes as local notifications. Usable from the UI isolate AND
 /// from the FCM background isolate (no BuildContext — strings come from
@@ -179,6 +180,31 @@ class PushNotifier {
     }
   }
 
+  /// c3-msg: background message push → MessagingStyle (see
+  /// messaging/msg_notify.dart). False = not drawn (caller falls back).
+  static Future<bool> showMessageFromBackground(Map<String, dynamic> data) async {
+    try {
+      final p = PushPayload.fromData(data);
+      await _ensureBgInit(p.lang);
+      final h = await backgroundMsgHandler(lang: p.lang);
+      if (h == null) return false;
+      return await h.onPush(p);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  static Future<void> _ensureBgInit(String lang) async {
+    if (_bgInitDone) return;
+    await _plugin.initialize(
+      const InitializationSettings(
+          android: AndroidInitializationSettings('@mipmap/ic_launcher')),
+      onDidReceiveBackgroundNotificationResponse: assistoNotificationBackground,
+    );
+    await createChannels(lang);
+    _bgInitDone = true;
+  }
+
   static Future<void> cancelCall(String callId) async {
     try {
       await _plugin.cancel(
@@ -224,6 +250,11 @@ void assistoNotificationBackground(NotificationResponse r) {
     WidgetsFlutterBinding.ensureInitialized();
     DartPluginRegistrant.ensureInitialized();
   } catch (_) {}
+  // c3-msg: inline reply / mark as read (encrypt + send from this isolate).
+  if (r.actionId == kActionReply || r.actionId == kActionRead) {
+    unawaited(handleMsgNotificationAction(r));
+    return;
+  }
   final p = PushPayload.decode(r.payload);
   if (p == null) return;
   if (r.actionId == PushNotifier.actionDecline && p.isCall) {
