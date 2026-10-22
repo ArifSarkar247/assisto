@@ -28,6 +28,7 @@ import math
 from . import home_defaults as HD
 from . import photo_studio as _PS
 from . import chat_vision as _CV
+from . import payments_cfg as _PAY   # pay1
 
 # --------------------------------------------------------------- currency basis
 # Prices are stored in whole TAKA (BDT), matching core/plans.py `price` (e.g. 199).
@@ -342,6 +343,8 @@ def DEFAULTS():
         # h1-home: image-in-chat knobs + the home hero native-ad refresh
         "chat_vision": _CV.defaults(),
         "home_hero": _CV.hero_defaults(),
+        # pay1: payment channels, switches, fees, per-channel prices
+        "payments": _PAY.defaults(),
     }
 
 
@@ -458,6 +461,7 @@ def normalize(data):
         "photo_studio": _PS.normalize_cfg(d.get("photo_studio")),
         "chat_vision": _CV.normalize_cfg(d.get("chat_vision")),
         "home_hero": _CV.normalize_hero(d.get("home_hero")),
+        "payments": _PAY.normalize(d.get("payments")),   # pay1
     }
 
 

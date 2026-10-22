@@ -224,7 +224,7 @@ def pricing_apply(actor_id, d):
             merged[key] = patch[key]
     for dkey in ("ad_rewards", "profit_guard", "guarantees", "limits",
                  "referral", "shop", "otp", "vehicle", "photo_studio",
-                     "chat_vision", "home_hero"):
+                     "chat_vision", "home_hero", "payments"):   # pay1: payments
         if (dkey in ("guarantees", "limits", "referral")
                 and dkey in (patch or {})
                 and not isinstance(patch[dkey], dict)):
@@ -325,7 +325,7 @@ class CreditTopupView(APIView):
                             status=status.HTTP_429_TOO_MANY_REQUESTS)
         res = billing.start_topup(request.user, pack_id)
         if not res.get("ok"):
-            code = (status.HTTP_200_OK if res.get("state") == "needs_provider"
+            code = (status.HTTP_200_OK if res.get("state") in ("needs_provider", "use_checkout")
                     else status.HTTP_400_BAD_REQUEST)
             return Response(res, status=code)
         return Response(res, status=status.HTTP_201_CREATED)

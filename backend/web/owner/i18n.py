@@ -386,3 +386,63 @@ def strings(lang):
     d = _Strings(EN)
     d.update(BN)
     return d
+
+
+# ---- pay1 ---- owner panel: Payments (switches, fees, prices per channel, P&L, orders)
+EN.update({
+    "nav_payments": "Payments",
+    "pay_h_switch": "Ways to pay (applies to everyone, no new app build needed)",
+    "pay_play_enabled": "Google Play Billing in the Play build",
+    "pay_gateway_enabled": "Payment gateway (EPS: bKash / Nagad / card) on the website APK and website",
+    "pay_gateway_on_play": "Also offer the gateway inside the Play build (turn OFF if Google warns us)",
+    "pay_web_enabled": "lifeassisto.com/premium checkout page",
+    "pay_switch_note": "Switches reach the app within minutes. They are never review-only: every user sees the same options.",
+    "pay_h_fees": "Fees (for net revenue and Profit Guard)",
+    "pay_play_fee_subs": "Google Play fee — subscriptions (0.15 = 15%)",
+    "pay_play_fee_packs": "Google Play fee — credit packs",
+    "pay_gateway_fee": "Gateway fee (EPS MDR, e.g. 0.02 = 2%)",
+    "pay_reminder_days": "Renew reminders, days before a prepaid plan ends (comma separated)",
+    "pay_h_prices": "Prices per channel (৳). Empty = the base price from Pricing & plans",
+    "pay_sku": "Item", "pay_base": "Base", "pay_ch_play": "Google Play", "pay_ch_gateway": "Gateway (EPS)",
+    "pay_play_price_note": "Play prices must ALSO be set to the same amount in Play Console — Google charges what is set there.",
+    "pay_h_status": "Connection status", "pay_ready": "Ready", "pay_not_ready": "Keys not added yet",
+    "pay_keys_link": "Add keys in Integrations & keys",
+    "pay_h_pnl": "Net revenue per channel", "pay_gross": "Gross", "pay_fee": "Fees",
+    "pay_refunds": "Refunds", "pay_net": "Net", "pay_count": "Payments", "pay_total": "Total",
+    "pay_h_orders": "Recent gateway orders", "pay_status": "Status", "pay_amount": "Amount",
+    "pay_when": "When", "pay_user": "User", "pay_refund": "Mark refunded",
+    "pay_refund_note": "First refund the money in the EPS merchant panel, then mark it here: the plan or credits are taken back and revenue is reversed.",
+    "pay_none": "No orders yet.", "pay_err_fee": "Fees must be between 0 and 0.5.",
+    "pay_err_price": "Prices must be whole taka above 0 (or empty).",
+    "pay_refunded": "Marked refunded.", "pay_not_refundable": "Only a paid order can be refunded.",
+    "pay_h_events": "Payment audit (latest)", "pay_kind": "Event",
+})
+BN.update({
+    "nav_payments": "পেমেন্ট",
+    "pay_h_switch": "পেমেন্টের উপায় (সবার জন্য প্রযোজ্য, নতুন অ্যাপ বিল্ড লাগে না)",
+    "pay_play_enabled": "Play বিল্ডে Google Play Billing",
+    "pay_gateway_enabled": "ওয়েবসাইট APK ও ওয়েবসাইটে পেমেন্ট গেটওয়ে (EPS: bKash / Nagad / কার্ড)",
+    "pay_gateway_on_play": "Play বিল্ডের ভেতরেও গেটওয়ে দেখান (Google সতর্ক করলে বন্ধ করুন)",
+    "pay_web_enabled": "lifeassisto.com/premium কেনার পেজ",
+    "pay_switch_note": "সুইচ কয়েক মিনিটের মধ্যে অ্যাপে পৌঁছায়। শুধু রিভিউয়ের জন্য লুকানো হয় না: সবাই একই অপশন দেখে।",
+    "pay_h_fees": "ফি (নেট আয় ও প্রফিট গার্ডের জন্য)",
+    "pay_play_fee_subs": "Google Play ফি — সাবস্ক্রিপশন (০.১৫ = ১৫%)",
+    "pay_play_fee_packs": "Google Play ফি — ক্রেডিট প্যাক",
+    "pay_gateway_fee": "গেটওয়ে ফি (EPS MDR, যেমন ০.০২ = ২%)",
+    "pay_reminder_days": "প্রিপেইড প্ল্যান শেষ হওয়ার কত দিন আগে নবায়নের রিমাইন্ডার (কমা দিয়ে)",
+    "pay_h_prices": "চ্যানেল অনুযায়ী দাম (৳)। খালি = দাম ও প্ল্যান পেজের মূল দাম",
+    "pay_sku": "পণ্য", "pay_base": "মূল", "pay_ch_play": "Google Play", "pay_ch_gateway": "গেটওয়ে (EPS)",
+    "pay_play_price_note": "Play-র দাম Play Console-এও একই রাখতে হবে — Google সেখানে যা লেখা থাকে সেটাই কাটে।",
+    "pay_h_status": "সংযোগের অবস্থা", "pay_ready": "প্রস্তুত", "pay_not_ready": "কী এখনও যোগ হয়নি",
+    "pay_keys_link": "ইন্টিগ্রেশন ও কি-তে কী যোগ করুন",
+    "pay_h_pnl": "চ্যানেল অনুযায়ী নেট আয়", "pay_gross": "মোট", "pay_fee": "ফি",
+    "pay_refunds": "রিফান্ড", "pay_net": "নেট", "pay_count": "পেমেন্ট", "pay_total": "সর্বমোট",
+    "pay_h_orders": "সাম্প্রতিক গেটওয়ে অর্ডার", "pay_status": "অবস্থা", "pay_amount": "পরিমাণ",
+    "pay_when": "কখন", "pay_user": "ব্যবহারকারী", "pay_refund": "রিফান্ড হিসেবে চিহ্নিত করুন",
+    "pay_refund_note": "আগে EPS মার্চেন্ট প্যানেলে টাকা ফেরত দিন, তারপর এখানে চিহ্নিত করুন: প্ল্যান বা ক্রেডিট ফেরত নেওয়া হবে এবং আয় বাদ যাবে।",
+    "pay_none": "এখনও কোনো অর্ডার নেই।", "pay_err_fee": "ফি ০ থেকে ০.৫-এর মধ্যে হতে হবে।",
+    "pay_err_price": "দাম ০-এর বেশি পূর্ণ টাকা হতে হবে (অথবা খালি)।",
+    "pay_refunded": "রিফান্ড হিসেবে চিহ্নিত হয়েছে।", "pay_not_refundable": "শুধু পরিশোধিত অর্ডার রিফান্ড করা যায়।",
+    "pay_h_events": "পেমেন্ট অডিট (সর্বশেষ)", "pay_kind": "ঘটনা",
+})
+# ---- /pay1 ----
