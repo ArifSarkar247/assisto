@@ -80,12 +80,22 @@ class MsgrAvatar extends StatelessWidget {
       // cache (AppConfig.authHeadersFor); foreign links load without it.
       return CachedAvatarImage(s, photoV: photoV);
     }
+    // one stable provider per inline photo (a fresh MemoryImage per build
+    // would re-decode and flash the initial on every rebuild)
+    final hit = _inline.remove(s);
+    if (hit != null) return _inline[s] = hit;
     try {
       final b64 = s.startsWith('data:') ? s.split(',').last : s;
-      final bytes = base64Decode(b64);
-      return MemoryImage(Uint8List.fromList(bytes));
+      final img = MemoryImage(Uint8List.fromList(base64Decode(b64)));
+      _inline[s] = img;
+      while (_inline.length > 24) {
+        _inline.remove(_inline.keys.first);
+      }
+      return img;
     } catch (_) {
       return null;
     }
   }
+
+  static final Map<String, MemoryImage> _inline = {};
 }
