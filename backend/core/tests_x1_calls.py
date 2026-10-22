@@ -72,13 +72,16 @@ class X1PlaceTests(_Pair, TestCase):
 
     def test_old_live_call_to_same_person_is_superseded(self):
         a = self._place(self.ca, self.ab, key="k-5")
+        # an accepted (not yet connected) call older than the dedupe window
         CallRecord.objects.filter(pk=a["call_id"]).update(
+            state="connecting", answered_at=timezone.now(),
             started_at=timezone.now() - timedelta(seconds=CS.DEDUPE_WINDOW_S + 1))
         CallSession.objects.filter(call_id=a["call_id"]).update(
-            ringing_at=timezone.now(), caller_seen_at=timezone.now())
+            ringing_at=timezone.now(), caller_seen_at=timezone.now(),
+            callee_seen_at=timezone.now())
         b = self._place(self.ca, self.ab, key="k-6")
         self.assertNotEqual(a["call_id"], b["call_id"])
-        self.assertEqual(CallRecord.objects.get(pk=a["call_id"]).state, "canceled")
+        self.assertEqual(CallRecord.objects.get(pk=a["call_id"]).state, "ended")
         self.assertNotEqual(b["end_reason"], "busy")
 
     # ---- A1-f: glare ----------------------------------------------------------

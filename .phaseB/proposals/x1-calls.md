@@ -1,5 +1,40 @@
 # x1-calls — live-box steps for the integrator (calls fix, owner order A1/A3/A4)
 
+## 0. Root cause (A1-a) — evidence, file:line in the pre-fix tree (5d5fee4)
+
+1. `app/lib/screens/circle_chat_screen.dart:966` (`_placeCall`) POSTed
+   `/circle/<member>/call` as a "video gate pre-check" (`_api.circlePlaceCall`),
+   then `:978` pushed `CircleCallScreen`, whose controller POSTed the SAME call
+   again at `app/lib/calls/call_controller.dart:316`
+   (`signaling.place(...)`). Same in `_newGroupCall` (`:1294` + `:1303`).
+   -> every tap = 2 POSTs ~0–1 s apart from the same phone (nginx log), 201 both.
+2. Server `backend/core/views_c2_calls.py:429-434` (`place_call`): the 2nd
+   POST found the 1st record live for the callee -> `is_busy()` (`:124`, any
+   live row counted, even a ringing one with the SAME caller) -> ended
+   `busy` by the server (the #17/#13/#24/... rows).
+3. That busy end is in `MISSED_REASONS` (`core/logic/call_signal.py:58`) ->
+   `end_call` sent a "Missed call" push + log row to the callee
+   (`views_c2_calls.py:177,189`) -> 6–7 identical Missed rows.
+4. The caller's call SCREEN was attached to the 2nd (busy) record -> showed
+   "Busy — on another call"; it never opened media for the 1st record, so no
+   offer/ICE ever existed for it. The callee's phone rang for the 1st record;
+   Accept -> waited for an offer that never came -> "Connecting…" forever, and
+   no TURN allocation was ever requested (coturn log empty, relayed=False).
+   Repeated taps (07:25:53/55/57/58, 07:34:11/12/26/27/28…) = the same pattern
+   per tap; when both people dialled, `call_runtime.dart:158` also answered the
+   incoming one with an automatic `busy`.
+5. Separately (integrator): coturn `user-quota=6` made allocations fail with
+   486 after a few attempts — fixed live (40/400).
+
+Fixes: the pre-check POST is gone (the call screen's single placement runs
+the same server gate and shows the upgrade screen); `CallController.start()`
+runs once; one live call screen at a time (`CallRuntime.acquireScreen`); every
+placement carries `client_call_id` and the server returns the existing live
+call for a repeat (key match, or same caller->callee within 60 s, under a row
+lock); glare merges into the peer's call (auto-accepted); busy only when the
+callee has a call with media connected and both heartbeats < 15 s; a callee
+"busy" event is ignored unless that is true.
+
 Nothing here was applied by the agent. Apply in this order. Every step is
 reversible; none touches Asalify.
 

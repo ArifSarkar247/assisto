@@ -408,7 +408,10 @@ class SignallingPushTests(_Pair, _PushBase):
         self.ev(self.ca, cid, "connected")
         self.fake.calls.clear()
         self.ev(self.ca, cid, "hangup")
-        self.assertEqual(self.fake.sent_payloads(), [])  # not missed, no ring
+        # not missed, no ring — only the x1 "call_signal" nudge (ids only)
+        # that wakes the other phone to see the hang-up at once
+        kinds = [p["message"]["data"]["kind"] for p in self.fake.sent_payloads()]
+        self.assertEqual(set(kinds), {"call_signal"})
 
     def test_declined_is_not_a_missed_call(self):
         cid = self.place()["call_id"]
