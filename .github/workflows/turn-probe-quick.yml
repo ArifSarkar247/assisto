@@ -34,5 +34,9 @@ jobs:
             else res="FAILED: $(echo "$out" | grep -iE 'error' | head -1)"; fi
             echo "| TURN allocate+relay over $mode 3478 | $res |" >> $GITHUB_STEP_SUMMARY
           done
-          r=$(timeout 8 bash -c 'echo | openssl s_client -connect turn.lifeassisto.com:5349 -servername turn.lifeassisto.com 2>&1 | grep -E "CONNECTED|errno|refused" | head -1'); echo "| TLS 5349 | ${r:-no answer (not configured)} |" >> $GITHUB_STEP_SUMMARY
+          r=$(timeout 8 bash -c 'echo | openssl s_client -connect turn.lifeassisto.com:5349 -servername turn.lifeassisto.com 2>&1 | grep -E "Verify return code|errno|refused" | head -1'); echo "| TLS 5349 handshake | ${r:-no answer} |" >> $GITHUB_STEP_SUMMARY
+          out=$(timeout 25 turnutils_uclient -S -p 5349 -u "$U" -w "$P" -y -n 3 -m 1 $H 2>&1); echo "$out" | tail -6
+          if echo "$out" | grep -q "Total lost packets 0"; then res="RELAY OK (0% loss)"; elif echo "$out" | grep -qi "Total lost packets"; then res="RELAY OK with loss"; else res="FAILED: $(echo "$out" | grep -iE 'error' | head -1)"; fi
+          echo "| TURN allocate+relay over TLS 5349 | $res |" >> $GITHUB_STEP_SUMMARY
+          rp=$(echo "$out" | grep -oiE "relay(ed)? addr[^0-9]*[0-9.]+:[0-9]+" | head -1); echo "| relay address seen | ${rp:-n/a} |" >> $GITHUB_STEP_SUMMARY
           cat $GITHUB_STEP_SUMMARY
