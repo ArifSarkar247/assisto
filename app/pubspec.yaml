@@ -58,8 +58,6 @@ dependencies:
   # FCM push — key-gated by google-services.json (CI secret
   # GOOGLE_SERVICES_JSON_B64). Lazy init after first frame; the auto-init
   # FirebaseInitProvider is removed in the manifest (ColorOS history).
-  firebase_core: 4.15.0
-  firebase_messaging: 16.7.0
   # flutter_webrtc ^1.6.2 is added by the CCTV live-view native build.
   # workmanager REMOVED — its androidx.work startup ContentProvider crashed on
   # launch (ColorOS/Realme) and background exec is throttled there anyway.

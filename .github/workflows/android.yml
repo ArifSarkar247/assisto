@@ -297,8 +297,7 @@ jobs:
               '\n            </intent-filter>'
               '\n        </receiver>\n'
           )
-          if 'AssistoFcmService' not in s:
-              s = s.replace('</application>', push_components + '    </application>', 1)
+          pass  # BISECT: no FCM components
           open(p, "w").write(s)
           print("manifest patched: label, permissions, queries, UCropActivity, native components, androidx.startup removed, FCM push")
           PY
@@ -369,8 +368,7 @@ jobs:
                         # a6 FCM: AssistoFcmService (android_overlay) extends the
                         # plugin's service; the plugins pull Firebase in as
                         # `implementation`, so the app module declares it too.
-                        '    implementation(platform("com.google.firebase:firebase-bom:34.19.0"))\n'
-                        '    implementation("com.google.firebase:firebase-messaging")\n}\n')
+                        '}\n')
               else:
                   s = s.replace("compileOptions {",
                       "compileOptions {\n        coreLibraryDesugaringEnabled true", 1)
