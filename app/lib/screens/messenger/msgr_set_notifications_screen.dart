@@ -7,6 +7,7 @@ import '../../messenger_setapi.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/msgr_set_tiles.dart';
+import '../../messaging/msg_settings_section.dart';
 
 /// Notification preferences for the hub. Toggles are mirrored to the server via
 /// [MessengerSettingsApi.notificationPrefs] / setNotificationPrefs so they
@@ -130,6 +131,9 @@ class _MsgrSetNotificationsScreenState
                 _toggle(Icons.remove_red_eye_outlined, 'show_preview',
                     t.msgrSetNotifPreview, t.msgrSetNotifPreviewSub),
                 if (!_synced) MsgrSetNote(t.msgrSetNotSynced),
+                const Divider(),
+                // c3-msg: hide content, message sound, bubbles (this phone).
+                const MsgDeviceNotifSection(),
               ],
             ),
     );

@@ -18,11 +18,18 @@ import '../widgets/circle_attach_sheet.dart';
 import '../widgets/circle_bubble.dart';
 import '../widgets/circle_media_viewer.dart';
 import '../widgets/circle_message_actions.dart';
-import '../widgets/circle_relation.dart';
 import '../widgets/in_chat_ai_sheet.dart';
 import 'circle_call_screen.dart';
 import 'circle_extras_hub_screen.dart';
 import 'messenger/contact_info_screen.dart';
+import '../messaging/c3_api.dart';
+import '../messaging/msg_native.dart';
+import '../messaging/msg_notify.dart';
+import '../messaging/msg_prefs.dart';
+import '../messaging/msg_widgets.dart';
+import '../messaging/presence_label.dart';
+import '../messaging/unread_store.dart';
+import '../realtime/realtime_channel.dart';
 
 /// End-to-end-encrypted 1:1 chat with a circle member.
 ///
@@ -87,7 +94,19 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   List<CircleMessage> _messages = [];
   bool _loading = true;
   bool _sending = false;
-  bool _peerTyping = false;
+
+  // c3-msg: live presence / typing over the shared RealtimeChannel.
+  final _rt = RealtimeChannel.instance;
+  RtChatState get _live => _rt.stateOf('member', _memberId ?? 0);
+  bool get _peerTyping => _live.active;
+  String get _chatKey => 'member:${_memberId ?? 0}';
+
+  // c3-msg: jump-to-original highlight + per-message keys.
+  String? _highlightId;
+  Timer? _hlTimer;
+  final Map<String, GlobalKey> _msgKeys = {};
+  bool? _bubbleOn;
+  bool _seenInFlight = false;
   bool _searching = false;
   String _searchQuery = '';
 
@@ -108,6 +127,14 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // c3-msg: this chat is on screen → its notifications stop ringing, the
+    // badges clear now, presence/typing go live.
+    MsgActiveChat.current = _chatKey;
+    UnreadStore.instance.clear(_chatKey);
+    if (_memberId != null) unawaited(FlnMsgSink().cancel('member', _memberId!));
+    _rt.acquire();
+    _rt.states.addListener(_onRt);
+    unawaited(_loadBubblePref());
     _load().then((_) {
       if (widget.forwarding != null) _doForwardInto(widget.forwarding!);
     });
@@ -117,6 +144,11 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    if (MsgActiveChat.current == _chatKey) MsgActiveChat.current = null;
+    _rt.states.removeListener(_onRt);
+    if (_memberId != null) _rt.typing('member', _memberId!, 'stop');
+    _rt.release();
+    _hlTimer?.cancel();
     _stopPolling();
     _input.dispose();
     _scroll.dispose();
@@ -129,12 +161,15 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      MsgActiveChat.current = _chatKey;
       _pollMessages(); // catch up on whatever arrived while backgrounded
       _startPolling();
     } else if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive ||
         state == AppLifecycleState.hidden) {
-      // Stop burning requests the moment we leave the foreground.
+      // Stop burning requests the moment we leave the foreground; while
+      // backgrounded this chat's messages notify again.
+      if (MsgActiveChat.current == _chatKey) MsgActiveChat.current = null;
       _stopPolling();
     }
   }
@@ -168,6 +203,11 @@ class _CircleChatScreenState extends State<CircleChatScreen>
           _messages.where((m) => m.pending && !serverIds.contains(m.id));
       final merged = [...fetched, ...pendingEchoes];
       if (!mounted || !_changed(_messages, merged)) return;
+      // c3-msg: a new incoming message while the chat is open → seen now.
+      final known = _messages.map((m) => m.id).toSet();
+      if (merged.any((m) => !m.mine && !known.contains(m.id))) {
+        unawaited(_markSeen());
+      }
       final atBottom = _scroll.hasClients &&
           _scroll.position.pixels >=
               _scroll.position.maxScrollExtent - 80;
@@ -243,6 +283,102 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       setState(() => _loading = false);
       _scrollToEnd();
     }
+    unawaited(_markSeen());
+  }
+
+  void _onRt() {
+    if (mounted) setState(() {});
+  }
+
+  /// c3-msg: the chat is open and visible → server-side seen (receipts +
+  /// read_by: the badge clears on every device, the sender gets blue ✓✓
+  /// unless read receipts are off). Badges/notification clear locally too.
+  Future<void> _markSeen() async {
+    final id = _memberId;
+    if (id == null || _seenInFlight) return;
+    final ls = WidgetsBinding.instance.lifecycleState;
+    if (ls != null && ls != AppLifecycleState.resumed) return;
+    _seenInFlight = true;
+    UnreadStore.instance.clear(_chatKey);
+    try {
+      await _api.c3ChatSeen('member', id);
+    } catch (_) {
+    } finally {
+      _seenInFlight = false;
+    }
+  }
+
+  Future<void> _loadBubblePref() async {
+    final id = _memberId;
+    if (id == null) return;
+    if (!await MsgNative.bubblesSupported()) return;
+    final on = await MsgPrefs.isBubbleChat('member', id);
+    if (mounted) setState(() => _bubbleOn = on);
+  }
+
+  Future<void> _toggleBubble() async {
+    final id = _memberId;
+    if (id == null || _bubbleOn == null) return;
+    final next = !_bubbleOn!;
+    await MsgPrefs.setBubbleChat('member', id, next);
+    if (!next) unawaited(MsgNative.removeBubble('member', id));
+    if (!mounted) return;
+    setState(() => _bubbleOn = next);
+    _toast(next ? _t.c3BubbleOnDone : _t.c3BubbleOffDone);
+    if (next && await MsgNative.bubblesAllowed() == false && mounted) {
+      final open = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(_t.c3BubbleAllowTitle),
+          content: Text(_t.c3BubbleAllowBody),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(_t.cancel)),
+            FilledButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(_t.c3OpenSettings)),
+          ],
+        ),
+      );
+      if (open == true) await MsgNative.openBubbleSettings();
+    }
+  }
+
+  /// Tap a quote → scroll to the original and flash it.
+  Future<void> _jumpTo(String? id) async {
+    if (id == null) return;
+    final list = _visible;
+    final idx = list.indexWhere((m) => m.id == id);
+    if (idx < 0) {
+      _toast(_t.c3QuoteGone);
+      return;
+    }
+    final key = _msgKeys[id];
+    if (key?.currentContext == null && _scroll.hasClients && list.length > 1) {
+      final frac = idx / (list.length - 1);
+      _scroll.jumpTo(frac * _scroll.position.maxScrollExtent);
+      await Future<void>.delayed(const Duration(milliseconds: 60));
+    }
+    final ctx = _msgKeys[id]?.currentContext;
+    if (ctx != null && ctx.mounted) {
+      await Scrollable.ensureVisible(ctx,
+          alignment: 0.4, duration: const Duration(milliseconds: 250));
+    }
+    if (!mounted) return;
+    setState(() => _highlightId = id);
+    _hlTimer?.cancel();
+    _hlTimer = Timer(const Duration(milliseconds: 1400), () {
+      if (mounted) setState(() => _highlightId = null);
+    });
+  }
+
+  void _startReply(CircleMessage m) {
+    if (m.deleted == 'everyone') return;
+    setState(() {
+      _replyTo = m;
+      _editing = null;
+    });
   }
 
   /// Last five messages the user DECRYPTED on THIS device (newest last), used
@@ -367,6 +503,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   Future<void> _send() async {
     final plain = _input.text.trim();
     if (plain.isEmpty || _sending) return;
+    if (_memberId != null) _rt.typing('member', _memberId!, 'stop');
 
     // Edit path: replace an existing message within the window.
     if (_editing != null) {
@@ -449,9 +586,17 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       isPinned: m.pinned,
       canDeleteEveryone: canDeleteEveryone,
       onReact: (emoji) => _react(m, emoji),
+      showInfo: m.mine && !m.pending,
     );
     if (action == null || !mounted) return;
     switch (action) {
+      case CircleMsgAction.info:
+        await showMessageInfoSheet(context, () => _api.c3MessageInfo(m.id));
+        break;
+      case CircleMsgAction.moreReactions:
+        final e = await showMoreReactions(context);
+        if (e != null && mounted) await _react(m, e);
+        break;
       case CircleMsgAction.reply:
         setState(() {
           _replyTo = m;
@@ -620,8 +765,53 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   // Forward
   // -------------------------------------------------------------------------
   Future<void> _startForward(CircleMessage m) async {
-    // The member picker is the circle screen's job; here we expose the hook the
-    // integrator wires. For the in-chat quick path we re-send into THIS chat.
+    // c3-msg: pick ANY My Circle member (WhatsApp forward), encrypted to that
+    // member's key on this device.
+    List<Map<String, dynamic>> members = const [];
+    try {
+      final r = await _api.getJson('/circle/members');
+      members = ((r['results'] ?? r['members'] ?? const []) as List)
+          .whereType<Map>()
+          .map((x) => x.cast<String, dynamic>())
+          .where((x) => '${x['public_key'] ?? ''}'.isNotEmpty)
+          .toList();
+    } catch (_) {}
+    if (!mounted) return;
+    if (members.isNotEmpty) {
+      final pick = await showModalBottomSheet<Map<String, dynamic>>(
+        context: context,
+        showDragHandle: true,
+        isScrollControlled: true,
+        builder: (ctx) => SafeArea(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(ctx).size.height * 0.7),
+            child: ListView(shrinkWrap: true, children: [
+              ListTile(
+                  title: Text(_t.c3ForwardTo,
+                      style: Theme.of(ctx).textTheme.titleMedium)),
+              for (final x in members)
+                ListTile(
+                  leading: CircleAvatar(
+                      child: Text('${x['name'] ?? '?'}'.isEmpty
+                          ? '?'
+                          : '${x['name']}'.characters.first.toUpperCase())),
+                  title: Text('${x['name'] ?? ''}',
+                      maxLines: 1, overflow: TextOverflow.ellipsis),
+                  onTap: () => Navigator.pop(ctx, x),
+                ),
+            ]),
+          ),
+        ),
+      );
+      if (pick == null || !mounted) return;
+      if ('${pick['id']}' != '$_memberId') {
+        await _forwardTo(m, pick);
+        return;
+      }
+      _doForwardInto(m);
+      return;
+    }
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -634,6 +824,26 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       ),
     );
     if (confirm == true) _doForwardInto(m);
+  }
+
+  Future<void> _forwardTo(CircleMessage m, Map<String, dynamic> member) async {
+    try {
+      final pub = base64Decode('${member['public_key']}');
+      final ct = _e2e.encrypt(
+          self: widget.identity,
+          recipientPublicKey: Uint8List.fromList(pub),
+          plaintext: m.text);
+      await _api.postJson('/circle/${member['id']}/messages', {
+        'content_type': 'text',
+        'client_msg_id': 'fwd-${DateTime.now().microsecondsSinceEpoch}',
+        'forwarded': true,
+        'forward_hops': m.forwardHops + 1,
+        ...ct.toEnvelopeFields(),
+      });
+      _toast(_t.c3Forwarded('${member['name'] ?? ''}'));
+    } catch (_) {
+      _toast(_t.grpActionFailed);
+    }
   }
 
   Future<void> _doForwardInto(CircleMessage m) async {
@@ -761,9 +971,13 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   // Chat ⋮ menu dispatch
   // -------------------------------------------------------------------------
   Future<void> _openChatMenu() async {
-    final action = await showChatMenu(context, isFavourite: _favourite);
+    final action = await showChatMenu(context,
+        isFavourite: _favourite, bubbleOn: _bubbleOn);
     if (action == null || !mounted) return;
     switch (action) {
+      case ChatMenuAction.bubble:
+        await _toggleBubble();
+        break;
       case ChatMenuAction.contactInfo:
         _openContactInfo();
         break;
@@ -1292,14 +1506,27 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                         itemCount: _visible.length,
                         itemBuilder: (_, i) {
                           final m = _visible[i];
+                          final key =
+                              _msgKeys.putIfAbsent(m.id, () => GlobalKey());
                           final bubble = CircleBubble(
+                            key: key,
                             msg: m,
+                            highlighted: _highlightId == m.id,
+                            onTapReply: () => _jumpTo(m.replyToId),
                             onLongPress: _selecting ? null : () => _onLongPress(m),
                             onTapMedia: (!_selecting && m.contentType != 'text')
                                 ? () => _openMedia(m)
                                 : null,
                           );
-                          if (!_selecting) return bubble;
+                          if (!_selecting) {
+                            return SwipeToReply(
+                              key: ValueKey('c3-swipe-${m.id}'),
+                              mine: m.mine,
+                              enabled: m.deleted != 'everyone' && !m.pending,
+                              onReply: () => _startReply(m),
+                              child: bubble,
+                            );
+                          }
                           final sel = _selected.contains(m.id);
                           return InkWell(
                             onTap: () => _toggleSelect(m),
@@ -1346,6 +1573,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     );
   }
 
+  String? get _presence => presenceLabel(_t, _live,
+      lang: Localizations.localeOf(context).languageCode);
+
   PreferredSizeWidget _normalAppBar(ColorScheme scheme, String relation) {
     if (_selecting) return _selectionAppBar(scheme);
     return AppBar(
@@ -1367,15 +1597,25 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleMedium),
-                  Text(
-                    _peerTyping
-                        ? _t.circleTyping
-                        : CircleRelation.labelFor(_t, relation,
-                            custom: widget.member['custom_label'] as String?),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
-                  ),
+                  // c3-msg: presence replaces the relation label (which
+                  // now lives in the contact profile). Hidden by privacy →
+                  // nothing, like WhatsApp.
+                  if (_presence != null)
+                    Text(
+                      _presence!,
+                      key: const Key('c3-presence'),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight:
+                              _peerTyping ? FontWeight.w600 : FontWeight.w400,
+                          color: _peerTyping
+                              ? (Theme.of(context).brightness == Brightness.dark
+                                  ? const Color(0xFF4ADE80)
+                                  : const Color(0xFF15803D))
+                              : scheme.onSurfaceVariant),
+                    ),
                 ],
               ),
             ),
@@ -1479,7 +1719,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         alignment: Alignment.centerLeft,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.xs, Gap.lg, Gap.xs),
-          child: Text(_t.circleTyping,
+          child: Text(_live.recording ? _t.c3Recording : _t.c3Typing,
               style: TextStyle(fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant, fontSize: 12)),
         ),
       );
@@ -1518,6 +1758,12 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                   maxLines: 5,
                   textInputAction: TextInputAction.send,
                   onSubmitted: (_) => _send(),
+                  // c3-msg: throttled "typing…" (≤ 1 event / 3 s) + stop.
+                  onChanged: (v) {
+                    final id = _memberId;
+                    if (id == null) return;
+                    _rt.typing('member', id, v.trim().isEmpty ? 'stop' : 'typing');
+                  },
                   decoration: InputDecoration(hintText: _t.circleMessageHint),
                 ),
               ),

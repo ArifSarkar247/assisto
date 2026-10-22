@@ -687,7 +687,7 @@ class PushEnforcementTests(_Base):
                      {"show_preview": False}, format="json")
         self.send(self.ca, self.ab, "m1")
         m = self.fake.sent_payloads()[0]["message"]
-        self.assertEqual(m["notification"]["title"], "New message")
+        self.assertEqual(m["data"]["title"], "New message")  # c3-msg: data-only
         self.assertNotIn("Amina", json.dumps(m))
         self.cb.post("%s/circle/settings/notifications" % V,
                      {"messages": False}, format="json")

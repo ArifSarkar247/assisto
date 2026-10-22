@@ -3637,3 +3637,50 @@ class OwnerAudit(models.Model):
     class Meta:
         ordering = ["-created_at", "-id"]
 # ---- /o2-admin ----
+
+
+# ---- c3-msg ----
+class CircleReceipt(models.Model):
+    """c3-msg: per-recipient DELIVERY + SEEN receipt for one CircleMessage
+    (1:1 and group). delivered_at = the recipient's DEVICE fetched it (push
+    handler pull / app sync); seen_at = the chat was opened. Metadata only —
+    never message content. Exposure to the sender follows the reciprocal
+    read-receipt rule (circle_privacy.can_see_read_receipt)."""
+    message = models.ForeignKey(CircleMessage, on_delete=models.CASCADE,
+                                related_name="receipts")
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="circle_receipts")
+    delivered_at = models.DateTimeField(null=True, blank=True)
+    seen_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = [("message", "user")]
+
+
+class CirclePresence(models.Model):
+    """c3-msg: one row per user — online heartbeat, last seen, and the live
+    "typing… / recording audio…" activity (who/which group it targets, with a
+    short expiry). DB-backed so every gunicorn worker sees the same state."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="c3_presence")
+    last_seen = models.DateTimeField(null=True, blank=True)
+    online_until = models.DateTimeField(null=True, blank=True)
+    activity = models.CharField(max_length=10, blank=True, default="")
+    activity_to_user = models.IntegerField(null=True, blank=True)
+    activity_group = models.IntegerField(null=True, blank=True)
+    activity_until = models.DateTimeField(null=True, blank=True)
+
+
+class CircleChatFlag(models.Model):
+    """c3-msg: the user's manual "Mark as unread" on a chat (WhatsApp style —
+    the messages stay read; the row shows an unread dot until opened)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="c3_chat_flags")
+    chat_kind = models.CharField(max_length=8, default="member")
+    chat_id = models.CharField(max_length=32)
+    marked_unread = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [("user", "chat_kind", "chat_id")]
+# ---- /c3-msg ----

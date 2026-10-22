@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import '../../messaging/unread_store.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 
@@ -303,6 +304,8 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
     if (ok != true || !mounted) return;
     try {
       await _api.hubReadAll();
+      UnreadStore.instance.clearAll();
+      if (mounted) setState(() => _refresh++);
       if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(t.msgrReadAllDone)));
@@ -420,15 +423,11 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
             selectedIndex: _tab,
             onDestinationSelected: (i) => setState(() => _tab = i),
             destinations: [
+              // c3-msg: unread chats + incoming requests, live from the
+              // UnreadStore (clears the moment a chat is opened).
               NavigationDestination(
-                icon: Badge(
-                    isLabelVisible: _incoming > 0,
-                    label: Text('$_incoming'),
-                    child: const Icon(Icons.forum_outlined)),
-                selectedIcon: Badge(
-                    isLabelVisible: _incoming > 0,
-                    label: Text('$_incoming'),
-                    child: const Icon(Icons.forum)),
+                icon: _chatsBadge(const Icon(Icons.forum_outlined)),
+                selectedIcon: _chatsBadge(const Icon(Icons.forum)),
                 label: t.msgrTabChats,
               ),
               NavigationDestination(
@@ -452,6 +451,18 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
       ),
     );
   }
+
+  Widget _chatsBadge(Widget icon) => ValueListenableBuilder<int>(
+        valueListenable: UnreadStore.instance.total,
+        builder: (_, unread, __) {
+          final n = unread + _incoming;
+          return Badge(
+              key: const Key('c3-tab-badge'),
+              isLabelVisible: n > 0,
+              label: Text(n > 99 ? '99+' : '$n'),
+              child: icon);
+        },
+      );
 
   void _openStatus() {
     if (_identity == null) return;

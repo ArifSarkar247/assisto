@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- c3-msg: neutral round "person" avatar for message notifications,
+     conversation shortcuts and bubbles (original vector, no third-party art). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+    <path
+        android:fillColor="#3B6EF6"
+        android:pathData="M48,0a48,48 0,1 1,0 96a48,48 0,1 1,0 -96z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M48,22a14,14 0,1 1,0 28a14,14 0,1 1,0 -28z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M22,78c0,-14 11.6,-22 26,-22s26,8 26,22z" />
+</vector>
