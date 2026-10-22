@@ -291,7 +291,10 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
       try {
         await admin.invokeMethod<bool>(
             'requestAdmin', {'explanation': tr.atIntruderAdminExplain});
-      } catch (_) {/* the snack below tells the owner what to do */}
+      } catch (e) {
+        // best-effort: the snack below tells the owner what to do next.
+        reportNonFatal('antitheft.request_admin', e);
+      }
       _snack(tr.atIntruderNeedAdmin);
       return;
     }
