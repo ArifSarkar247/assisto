@@ -1,5 +1,23 @@
 # Owner work queue (newest order wins)
 
+## MASTER ORDER 22 Oct (single source of truth; earlier orders below are history)
+Rules: max parallel agents (own worktree each), heavy cmds via lock, ship each part immediately, deploy each backend after checks (standing approval), max 1 h on CI problems (gate = release cold start + backend tests + route_check; note missing proof), commit hourly, never idle, blockers in Bangla at top of STATUS, 3 Bangla lines per build.
+
+1. [IN CI] My Circle like WhatsApp (add any format/phonebook/QR/link, requests, messages, voice+video calls, FCM ringing closed app) + settings-store release fix + Phone Safety spinner fix. MISSING PROOF: native tour + two-account emulator audit (hosted emulator wedges adb) — re-run when CI stable.
+2. [WAITING OWNER] Owner account 01627165248 → superuser (backup first). No match in any format on the live server; accounts listed in STATUS; never another number without owner OK.
+3. [BUILT, in builds] OTP flow (provider-agnostic, key-gated) + owner_actions/SMS_GATEWAY_NEEDS.md (Bangla). Needs SMS gateway keys.
+4. [READY branch voice] Voice assistant: default assistant (long-press power), optional Hey Assisto (needs Picovoice key), YouTube/YT Music, hands-free, TTS, bn/Banglish/en.
+5. [READY branch admin] Web Owner Admin Panel /owner/ (superuser + 2FA) — deploy right after #1.
+6. [READY photo / agent h1-home] Photo Studio + home ad hero (remove suggestions, muted hero) + image in chat.
+7. [READY vehicle + webphoto] Vehicle app part (live map, 24h playback, engine cut-off rules, geofence/over-speed, OBD, Car Mode) — verify completeness; website passport funnel.
+8. [AGENT] Remote support (phones + PCs: Assisto Desktop + web client, consent, 2FA, audit).
+9. [SPEC NEEDED for Batch 6 details] Batch 6 native anti-theft engine + [READY cctv] CCTV live view + Android Shop Box mode.
+10. Premium QA every screen >=9/10, full reality audit with real runs, owner phone checklist.
+L. LAUNCH TRACK [AGENT]: Privacy Policy / Terms / Data Deletion pages on lifeassisto.com (bn+en, Play + AdMob compliant, every permission explained); app-ads.txt ready for the AdMob publisher ID; owner_actions/PLAY_STORE_PACK.md (name, short/full description bn+en, feature graphic, 8 screenshots, content rating + Data Safety, permission declarations); signed release AAB per release in CI + upload key + Play App Signing plan.
+Also queued: Health Connect plugin fails to register (MainActivity must become FlutterFragmentActivity) — own native build.
+
+## History
+
 0. (old) Final order 21 Oct: 1 → 2 (+contract test) → 4 (FCM) → 3 (reality audit) → 5 (voice assistant) → 6 (vehicle) → 7.
 1. 21-Oct NIGHT order (replaces the order above): 1 broken links + contract CI → 2 sidebar/auto voice → 2b DISCOVER MANAGER → 3 FCM + un-park workflows → 4 OTP → 5 reality audit → 6 voice assistant → 7 Photo Studio → 8 vehicle → 9 remote support → Batch 6 → CCTV live + Shop Box → Premium QA. Max 3 agents.
 0a. MY CIRCLE LIKE WHATSAPP (top priority, current build): FCM + contacts + New chat / Add to My Circle / requests / no silent failures / Phone Safety Check-up loading fix; ships only after the two-account emulator proof (agent m3-circle).
