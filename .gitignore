@@ -54,6 +54,7 @@ tools/*
 !tools/wakeword/
 !tools/callproof/
 !tools/ticks_proof/
+!tools/photo_model/
 screenshots/
 new-logo.png
 logs/

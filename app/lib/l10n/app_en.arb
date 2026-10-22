@@ -15420,7 +15420,6 @@
   "psStrengthLight": "Light",
   "psStrengthNatural": "Natural",
   "psStrengthStrong": "Strong",
-  "psEnhanceNotInBuild": "On-device AI enhance arrives in the next app update. We never show a fake result.",
   "psEnhancePreparing": "Preparing the photo tool…",
   "psPromptTitle": "Edit by prompt",
   "psPromptHint": "e.g. change the background to a beach",
@@ -15489,7 +15488,6 @@
       }
     }
   },
-  "psIdentityMissing": "Edits on photos with people need the on-device identity check, which arrives in the next update. Nothing was charged.",
   "psIdentityFailed": "The result didn't clearly look like the same person, so we discarded it. Your original is safe.",
   "psRefusedTitle": "We can't make this edit",
   "psExportTitle": "Save & share",
@@ -15510,7 +15508,6 @@
   "psAdUnavailable": "The ad couldn't load. Try again, or use credits.",
   "psPreviewNote": "Free preview: smaller size with a watermark. Full quality after the ads.",
   "psSecureOn": "Screenshots are blocked on this preview.",
-  "psSecureOff": "Screenshot blocking for previews arrives in the next update.",
   "psCornerNote": "Free saves carry a small “Edited with Assisto” mark. Premium saves are clean.",
   "psAiMetaNote": "AI-edited photos are marked as AI-edited in their file info.",
   "psOriginalKept": "Original kept",
@@ -16114,5 +16111,30 @@
   "camShareFile": "Share with another app",
   "camShareFileSub": "WhatsApp, Gmail, Drive, Files… — the full photo or video is shared.",
   "camShareFailed": "Couldn't open the share menu. Please try again.",
-  "camCircleTextOnly": "My Circle chats carry text only for now, so photos and videos go through your phone's share menu."
+  "camCircleTextOnly": "My Circle chats carry text only for now, so photos and videos go through your phone's share menu.",
+  "psIdentityUnavailable": "This phone couldn't run the face check, so edits of photos with people are off here. Nothing was charged.",
+  "psAiTitle": "AI restore & upscale",
+  "psAiSubtitleDownload": "One-time download ({size}) from Assisto, then it works offline.",
+  "@psAiSubtitleDownload": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "psAiDownloading": "Downloading the AI model… {percent}",
+  "@psAiDownloading": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "psAiReady": "Runs on your phone, no internet needed. Best for small or old photos.",
+  "psAiDownloadFailed": "The AI model didn't download. Check the internet and try again.",
+  "psAiFellBack": "The AI result didn't keep the face exactly, so we used the safe enhance instead.",
+  "psAiUsed": "AI restore used · face check passed",
+  "psOwnerAddKey": "Prompt edits (background, passport, product) are hidden for users until an image-AI key is set. Add a key in Admin → Integrations. Only you see this note.",
+  "psEmptyBodyNoPrompt": "Enhance in one tap — on your phone, even offline.",
+  "psEnhanceHow": "White balance, light, noise, sharpness and gentle skin smoothing. Faces keep their shape."
 }

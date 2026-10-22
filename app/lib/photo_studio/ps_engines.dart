@@ -2,41 +2,65 @@ import 'dart:math' as math;
 
 import 'package:flutter/services.dart';
 
+import 'ps_identity.dart';
 import 'ps_models.dart';
 
-/// Photo Studio on-device seams (ps1-photo).
+export 'ps_identity.dart' show IdentityThresholds;
+
+/// Photo Studio on-device seams (ps1-photo, made real by p2-photo).
 ///
-/// Every native piece (on-device super-resolution runtime + models, ML Kit
-/// face detection, face landmarks/embedding, FLAG_SECURE) sits behind one of
-/// these interfaces. In THIS build none of the native parts are linked, so the
-/// default implementations report an honest "not available in this build
-/// yet" state — they never return a fake enhanced image. The integrator binds
-/// real implementations after the native proposal
-/// (`.phaseB/proposals/ps1-photo.md`) passes a launch smoke.
+/// * [EnhanceEngine] — one-tap enhance. The real engine
+///   (`StudioEnhanceEngine`, ps_enhance.dart) runs the classical pipeline on
+///   every phone and, when the AI model is downloaded, Real-ESRGAN on-device.
+/// * [FaceDetector] / [LandmarkProvider] — ML Kit through ps_native.dart.
+/// * [IdentityGuard] — landmark geometry before vs after (ps_identity.dart).
+/// * [SecureScreen] — FLAG_SECURE on the free preview.
+/// None of them ever returns a fake result: an unavailable piece says so and
+/// the studio hides the option that needs it.
 
 // =========================================================================
 // One-tap enhance
 // =========================================================================
 enum EnhanceState {
-  /// The runtime/model is not part of this app build.
-  notInBuild,
+  /// No engine (only fakes / the website-photo flow): the enhance card is
+  /// hidden — never a dead button.
+  unavailable,
 
-  /// Runtime present, model must be downloaded first ("preparing the photo
-  /// tool…").
-  needsDownload,
-  downloading,
+  /// The instant classical pipeline is ready (every phone).
   ready,
 }
 
+/// The optional on-device AI restore/upscale step.
+enum AiState {
+  /// Not on this phone/build or not published by the server: not shown.
+  notOffered,
+
+  /// Offered; needs a one-time download of [EnhanceAvailability.aiBytes].
+  needsDownload,
+  downloading,
+  ready,
+
+  /// The last download failed (network / checksum) — the user can retry.
+  failed,
+}
+
 class EnhanceAvailability {
-  const EnhanceAvailability(this.state, {this.progress = 0, this.maxScale = 2});
+  const EnhanceAvailability(this.state,
+      {this.ai = AiState.notOffered, this.progress = 0, this.aiBytes = 0, this.maxScale = 2});
   final EnhanceState state;
+  final AiState ai;
+
+  /// 0..1 while [ai] == downloading.
   final double progress;
+  final int aiBytes;
 
   /// 2 or 4 — the largest upscale this phone can do.
   final int maxScale;
   bool get ready => state == EnhanceState.ready;
-  static const notInBuild = EnhanceAvailability(EnhanceState.notInBuild);
+  static const unavailable = EnhanceAvailability(EnhanceState.unavailable);
+
+  EnhanceAvailability withAi(AiState a, {double? progress}) => EnhanceAvailability(state,
+      ai: a, progress: progress ?? this.progress, aiBytes: aiBytes, maxScale: maxScale);
 }
 
 class EnhanceRequest {
@@ -48,7 +72,8 @@ class EnhanceRequest {
     this.lowLight = true,
     this.restoreOld = false,
     this.colorize = false,
-    this.faceRestore = true,
+    this.faceRestore = false,
+    this.ai = false,
     this.maxLongEdge,
   });
   final EditStrength strength;
@@ -58,32 +83,33 @@ class EnhanceRequest {
   final bool lowLight;
   final bool restoreOld;
   final bool colorize;
+
+  /// No face-restoration model is used (GFPGAN / CodeFormer are not licence
+  /// clean); kept false.
   final bool faceRestore;
+
+  /// Run the on-device AI restore/upscale step first (when ready).
+  final bool ai;
 
   /// Render at most this long edge (free preview = reduced size).
   final int? maxLongEdge;
 
-  EnhanceRequest withStrength(EditStrength s) => EnhanceRequest(
-      strength: s,
-      upscale: upscale,
-      denoise: denoise,
-      deblur: deblur,
-      lowLight: lowLight,
-      restoreOld: restoreOld,
-      colorize: colorize,
-      faceRestore: faceRestore,
-      maxLongEdge: maxLongEdge);
+  EnhanceRequest copyWith({EditStrength? strength, bool? ai, int? maxLongEdge, bool clearMax = false}) =>
+      EnhanceRequest(
+          strength: strength ?? this.strength,
+          upscale: upscale,
+          denoise: denoise,
+          deblur: deblur,
+          lowLight: lowLight,
+          restoreOld: restoreOld,
+          colorize: colorize,
+          faceRestore: faceRestore,
+          ai: ai ?? this.ai,
+          maxLongEdge: clearMax ? null : (maxLongEdge ?? this.maxLongEdge));
 
-  EnhanceRequest withMaxLongEdge(int? px) => EnhanceRequest(
-      strength: strength,
-      upscale: upscale,
-      denoise: denoise,
-      deblur: deblur,
-      lowLight: lowLight,
-      restoreOld: restoreOld,
-      colorize: colorize,
-      faceRestore: faceRestore,
-      maxLongEdge: px);
+  EnhanceRequest withStrength(EditStrength s) => copyWith(strength: s);
+  EnhanceRequest withMaxLongEdge(int? px) =>
+      px == null ? copyWith(clearMax: true) : copyWith(maxLongEdge: px);
 }
 
 class EnhanceUnavailable implements Exception {
@@ -91,26 +117,44 @@ class EnhanceUnavailable implements Exception {
   final EnhanceState state;
 }
 
+/// What the last [EnhanceEngine.enhance] actually did (shown honestly).
+class EnhanceReport {
+  const EnhanceReport({this.aiUsed = false, this.aiRejected = false, this.ms = 0, this.ep = ''});
+  final bool aiUsed;
+
+  /// The AI result did not keep the face geometry -> the classical-only
+  /// result was used instead.
+  final bool aiRejected;
+  final int ms;
+  final String ep;
+  static const none = EnhanceReport();
+}
+
 abstract class EnhanceEngine {
   Future<EnhanceAvailability> availability();
 
-  /// Start (or resume) the in-app model download. Never a separate install.
-  Future<EnhanceAvailability> prepare();
+  /// Start (or resume) the in-app AI model download. Never a separate install.
+  Future<EnhanceAvailability> prepare({void Function(EnhanceAvailability)? onProgress});
 
   /// Encoded image in -> encoded image out. Throws [EnhanceUnavailable] when
   /// not ready; never returns the input pretending it was enhanced.
   Future<Uint8List> enhance(Uint8List encoded, EnhanceRequest req);
+
+  EnhanceReport get lastReport;
 }
 
 class UnavailableEnhanceEngine implements EnhanceEngine {
   const UnavailableEnhanceEngine();
   @override
-  Future<EnhanceAvailability> availability() async => EnhanceAvailability.notInBuild;
+  Future<EnhanceAvailability> availability() async => EnhanceAvailability.unavailable;
   @override
-  Future<EnhanceAvailability> prepare() async => EnhanceAvailability.notInBuild;
+  Future<EnhanceAvailability> prepare({void Function(EnhanceAvailability)? onProgress}) async =>
+      EnhanceAvailability.unavailable;
   @override
   Future<Uint8List> enhance(Uint8List encoded, EnhanceRequest req) =>
-      Future.error(const EnhanceUnavailable(EnhanceState.notInBuild));
+      Future.error(const EnhanceUnavailable(EnhanceState.unavailable));
+  @override
+  EnhanceReport get lastReport => EnhanceReport.none;
 }
 
 // =========================================================================
@@ -180,44 +224,25 @@ class IdentityVerdict {
 }
 
 /// "Same person, best version": compare BEFORE vs AFTER with
-///  * landmark geometry (normalised by inter-ocular distance), and
-///  * embedding cosine similarity when a licensed embedder is linked.
-/// Missing landmarks -> [IdentityOutcome.cannotVerify] (the caller must NOT
-/// show the result).
+///  * landmark geometry (Procrustes residual in inter-ocular units,
+///    ps_identity.dart), and
+///  * embedding cosine similarity only if a licensed embedder is ever linked
+///    (none is: .phaseB/MODEL_LICENSES.md).
+/// Missing landmarks / a failed detection -> [IdentityOutcome.cannotVerify]
+/// (the caller must NOT show the result).
 class IdentityGuard {
   const IdentityGuard({
     this.landmarks = const UnavailableLandmarks(),
     this.embedder = const UnavailableEmbedder(),
     this.minSimilarity = 0.80,
-    this.maxLandmarkDelta = 0.035,
+    this.thresholds = const IdentityThresholds(),
   });
   final LandmarkProvider landmarks;
   final FaceEmbedder embedder;
   final double minSimilarity;
-  final double maxLandmarkDelta;
+  final IdentityThresholds thresholds;
 
   bool get available => landmarks.available;
-
-  static List<math.Point<double>> normalise(List<math.Point<double>> pts) {
-    if (pts.length < 2) return pts;
-    // first two points are the eye centres by contract
-    final a = pts[0], b = pts[1];
-    final cx = (a.x + b.x) / 2, cy = (a.y + b.y) / 2;
-    final iod = math.max(1e-6, a.distanceTo(b));
-    return [for (final p in pts) math.Point((p.x - cx) / iod, (p.y - cy) / iod)];
-  }
-
-  static double geometryDelta(List<math.Point<double>> before, List<math.Point<double>> after) {
-    final n = math.min(before.length, after.length);
-    if (n == 0) return double.infinity;
-    final b = normalise(before.sublist(0, n));
-    final a = normalise(after.sublist(0, n));
-    var sum = 0.0;
-    for (var i = 0; i < n; i++) {
-      sum += b[i].distanceTo(a[i]);
-    }
-    return sum / n;
-  }
 
   static double cosine(List<double> a, List<double> b) {
     final n = math.min(a.length, b.length);
@@ -235,29 +260,39 @@ class IdentityGuard {
     if (!landmarks.available) {
       return const IdentityVerdict(IdentityOutcome.cannotVerify);
     }
-    final lb = await landmarks.landmarks(before);
-    final la = await landmarks.landmarks(after);
-    if (lb.isEmpty) return const IdentityVerdict(IdentityOutcome.noFaces);
-    if (la.length != lb.length) return const IdentityVerdict(IdentityOutcome.different);
-    var worst = 0.0;
-    for (var i = 0; i < lb.length; i++) {
-      worst = math.max(worst, geometryDelta(lb[i], la[i]));
+    final List<List<math.Point<double>>> lb, la;
+    try {
+      lb = await landmarks.landmarks(before);
+      la = await landmarks.landmarks(after);
+    } catch (_) {
+      return const IdentityVerdict(IdentityOutcome.cannotVerify);
+    }
+    final r = decideIdentity(lb, la, t: thresholds);
+    switch (r.decision) {
+      case IdentityDecision.noFaces:
+        return const IdentityVerdict(IdentityOutcome.noFaces);
+      case IdentityDecision.cannotVerify:
+        return const IdentityVerdict(IdentityOutcome.cannotVerify);
+      case IdentityDecision.different:
+        return IdentityVerdict(IdentityOutcome.different, landmarkDelta: r.worst?.rms);
+      case IdentityDecision.same:
+        break;
     }
     double? sim;
     if (embedder.available) {
       final eb = await embedder.embed(before);
       final ea = await embedder.embed(after);
       if (eb.length != ea.length || eb.isEmpty) {
-        return IdentityVerdict(IdentityOutcome.different, landmarkDelta: worst);
+        return IdentityVerdict(IdentityOutcome.different, landmarkDelta: r.worst?.rms);
       }
       sim = 1.0;
       for (var i = 0; i < eb.length; i++) {
         sim = math.min(sim!, cosine(eb[i], ea[i]));
       }
     }
-    final same = worst <= maxLandmarkDelta && (sim == null || sim >= minSimilarity);
+    final same = sim == null || sim >= minSimilarity;
     return IdentityVerdict(same ? IdentityOutcome.same : IdentityOutcome.different,
-        similarity: sim, landmarkDelta: worst);
+        similarity: sim, landmarkDelta: r.worst?.rms);
   }
 }
 
@@ -344,8 +379,10 @@ abstract class SecureScreen {
   Future<void> disable();
 }
 
-/// Talks to a tiny MainActivity channel (proposal ps1-photo, native part).
-/// Until that ships the channel is missing and this honestly reports false.
+/// Talks to PhotoNativeChannel.kt ("com.assisto/photo_secure"): sets
+/// FLAG_SECURE on the activity window while a free preview is open and
+/// clears it when the user leaves Photo Studio. Off Android (or on an APK
+/// without the channel) it reports false and the screen says nothing.
 class ChannelSecureScreen implements SecureScreen {
   const ChannelSecureScreen();
   static const _ch = MethodChannel('com.assisto/photo_secure');

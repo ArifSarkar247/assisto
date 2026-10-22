@@ -45,8 +45,8 @@ final _bnBanned = RegExp(
 /// Keys still carrying a promise, each owned by a parallel agent / handover.
 /// This list must only SHRINK. When the owner fixes a key, delete it here.
 const _pendingHandover = {
-  // p2-photo (Photo Studio, round 2 item 4a-4c)
-  'psEnhanceNotInBuild', 'psIdentityMissing', 'psSecureOff',
+  // p2-photo (Photo Studio, round 2 item 4a-4c): psEnhanceNotInBuild /
+  // psIdentityMissing / psSecureOff were resolved + removed by p2 (Build B).
   'psSinkUnavailable', 'psGateAdsNotLinked',
   // b2-badges (push / notification settings)
   'pushSetDeliveryOffBuild',

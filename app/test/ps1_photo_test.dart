@@ -215,16 +215,21 @@ void main() {
     test('photos with people + no identity check: no money taken, honest notice', () async {
       final b = FakePsBackend(entryDue: false);
       final ads = FakeAds(b);
+      final eng = FakeEngine();
       final c = PhotoStudioController(
-          fakeDeps(b, ads: ads, landmarks: FakeLandmarks(available: false)));
+          fakeDeps(b, ads: ads, engine: eng, landmarks: FakeLandmarks(available: false)));
       await c.init();
       await c.pick(camera: false);
       await c.runPrompt('change the background to a beach', ScriptUi([FundChoice.ads]));
       expect(c.notice, PsNotice.identityCheckMissing);
       expect(b.jobs, isEmpty);
       expect(ads.rewardedShown, 0);
+      // p2-photo: the classical one-tap enhance is per-pixel (cannot move a
+      // facial feature) -> it runs without the face check
       await c.runEnhance();
-      expect(c.notice, PsNotice.identityCheckMissing);
+      expect(c.notice, PsNotice.none);
+      expect(eng.requests, hasLength(1));
+      expect(c.session!.edited, isTrue);
     });
   });
 
@@ -408,14 +413,12 @@ void main() {
       expect(find.text('Sexual or undressing edits are not allowed.'), findsOneWidget);
     });
 
-    testWidgets('engine not in build: honest notice, no fake result (bn)', (tester) async {
+    testWidgets('no engine (bn): enhance card hidden — never a dead button', (tester) async {
       final b = FakePsBackend(entryDue: false);
       await pumpStudio(tester, fakeDeps(b, engine: FakeEngine(ready: false)), lang: 'bn');
       await tester.tap(find.byKey(const Key('psPickGallery')));
       await tester.pump();
-      await tester.tap(find.byKey(const Key('psEnhance')));
-      await tester.pump();
-      expect(find.textContaining('নকল ফল দেখাই না'), findsWidgets);
+      expect(find.byKey(const Key('psEnhance')), findsNothing);
       expect(find.byKey(const Key('psHistory')), findsOneWidget);
     });
 
