@@ -1,0 +1,26 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_reports }}{% endblock %}
+{% block content %}
+<form method="get" class="inline"><label>{{ T.period }} <select name="days">{% for o in day_options %}<option value="{{ o }}" {% if o == days %}selected{% endif %}>{{ o }} {{ T.days }}</option>{% endfor %}</select></label><button class="btn ghost">{{ T.show }}</button></form>
+<div class="tiles">
+  <div class="tile"><span>{{ T.users_total }}</span><b>{{ users_total }}</b></div>
+  <div class="tile"><span>{{ T.active_7 }}</span><b>{{ users_7 }}</b></div>
+  <div class="tile"><span>{{ T.active_30 }}</span><b>{{ users_30 }}</b></div>
+</div>
+<p class="mut small">{{ T.reports_note }}</p>
+{% for b in blocks %}
+<section class="card"><div class="row-between"><h2>{{ b.title }}</h2><b>{{ T.total }}: {{ b.total }}</b></div>
+  {% if b.has %}<div class="chartbox">{{ b.chart|safe }}</div>
+  <details><summary>{{ T.table }}</summary><div class="tbl"><table><tbody>{% for d, v in b.rows %}<tr><td>{{ d }}</td><td class="num">{{ v }}</td></tr>{% endfor %}</tbody></table></div></details>
+  {% else %}<p class="empty">{{ T.no_data_period }}</p>{% endif %}
+</section>
+{% endfor %}
+<div class="cols">
+<section class="card"><h2>{{ T.top_spend }}</h2>
+{% if top_spend %}<div class="tbl"><table><thead><tr><th>{{ T.feature }}</th><th>{{ T.credits }}</th><th>{{ T.uses }}</th></tr></thead><tbody>{% for r in top_spend %}<tr><td>{{ r.note|default:"—" }}</td><td class="num">{{ r.credits }}</td><td class="num">{{ r.n }}</td></tr>{% endfor %}</tbody></table></div>{% else %}<p class="empty">{{ T.no_data_period }}</p>{% endif %}
+</section>
+<section class="card"><h2>{{ T.top_used }}</h2>
+{% if top_used %}<div class="tbl"><table><thead><tr><th>{{ T.feature }}</th><th>{{ T.users }}</th></tr></thead><tbody>{% for r in top_used %}<tr><td>{{ r.feature }}</td><td class="num">{{ r.users }}</td></tr>{% endfor %}</tbody></table></div>{% else %}<p class="empty">{{ T.no_analytics }}</p>{% endif %}
+</section>
+</div>
+{% endblock %}

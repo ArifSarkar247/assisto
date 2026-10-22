@@ -107,4 +107,7 @@ def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
         "appopen_daily_cap": int(caps.get("appopen_daily_cap", 0) or 0),
         "rewarded_daily_cap": int(caps.get("rewarded_daily_cap", 0) or 0),
         "blocked_screens": list(BLOCKED_SCREENS),
+        # o2-admin: hero ad slot (Free only); start muted unless owner says not
+        "hero_enabled": bool(caps.get("hero_enabled", False)) and not paid,
+        "hero_start_muted": bool(caps.get("hero_start_muted", True)),
     }

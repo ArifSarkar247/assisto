@@ -1,0 +1,29 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.report }} — {{ card.title_en|default:card.key }}{% endblock %}
+{% block content %}
+<p><a href="/owner/discover">← {{ T.nav_discover }}</a></p>
+<form method="get" class="inline card">
+  <label>{{ T.from }} <input type="date" name="from" value="{{ rep.from }}"></label>
+  <label>{{ T.to }} <input type="date" name="to" value="{{ rep.to }}"></label>
+  <button class="btn ghost">{{ T.show }}</button>
+  <a class="btn ghost" href="/owner/discover/{{ card.id }}/report.csv?{{ qs }}">CSV</a>
+  <a class="btn ghost" href="/owner/discover/{{ card.id }}/report.pdf?{{ qs }}">PDF</a>
+</form>
+<div class="tiles">
+  <div class="tile"><span>{{ T.impressions }}</span><b>{{ rep.totals.impressions }}</b></div>
+  <div class="tile"><span>{{ T.clicks }}</span><b>{{ rep.totals.clicks }}</b></div>
+  <div class="tile"><span>CTR</span><b>{{ rep.totals.ctr }}%</b></div>
+  {% if card.type == 'SPONSORED' %}<div class="tile"><span>{{ T.sponsor_revenue }}</span><b>৳{{ card.sponsor_revenue }}</b><small>{{ card.sponsor_name }}</small></div>{% endif %}
+</div>
+<section class="card">
+  <p class="mut small">{{ T.unique_note }}</p>
+  {% if has %}
+  <div class="legend"><span class="key s1"></span>{{ T.impressions }} <span class="key s2"></span>{{ T.clicks }}</div>
+  <div class="chartbox">{{ chart|safe }}</div>
+  {% else %}<p class="empty">{{ T.no_events }}</p>{% endif %}
+  <details><summary>{{ T.table }}</summary>
+  <div class="tbl"><table><thead><tr><th>{{ T.date }}</th><th>{{ T.impressions }}</th><th>{{ T.clicks }}</th><th>CTR</th></tr></thead><tbody>
+  {% for r in rep.rows %}<tr><td>{{ r.date }}</td><td class="num">{{ r.impressions }}</td><td class="num">{{ r.clicks }}</td><td class="num">{{ r.ctr }}%</td></tr>{% endfor %}
+  </tbody></table></div></details>
+</section>
+{% endblock %}

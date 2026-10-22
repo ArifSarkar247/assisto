@@ -1,13 +1,17 @@
-from django.urls import path
+from django.urls import include, path
 from . import views
-from .integrations_admin import integrations_admin
+from .owner.urls import site_robots
 
 urlpatterns = [
     path("", views.landing),
     path("get", views.get_app),
 
-    # Owner-only Integrations admin (Django session auth)
-    path("owner/integrations", integrations_admin),
+    # ---- o2-admin: web owner admin panel (2FA, own session cookie) ----
+    # Replaces the old password-only /owner/integrations page (same URL now
+    # lives inside the panel). robots.txt keeps crawlers off /owner/.
+    path("owner/", include("web.owner.urls")),
+    path("robots.txt", site_robots),
+    # ---- /o2-admin ----
 
     path("cv", views.cv),
     path("cv/r", views.cv_share),

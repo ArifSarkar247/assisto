@@ -1,0 +1,13 @@
+{% extends "owner/_auth_shell.html" %}
+{% block title %}{{ T.mfa_title }}{% endblock %}
+{% block auth %}
+<h2>{{ T.mfa_title }}</h2>
+<p class="mut">{{ T.mfa_sub }}</p>
+<form method="post" action="/owner/2fa">
+  {% include "owner/_csrf.html" %}
+  <label for="code">{{ T.code }}</label>
+  <input id="code" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="12" required autofocus>
+  <button class="btn primary wide">{{ T.verify }}</button>
+</form>
+<p class="mut small">{{ T.mfa_recovery_hint }}</p>
+{% endblock %}
