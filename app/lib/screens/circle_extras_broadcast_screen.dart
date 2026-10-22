@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import '../api.dart';
-import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 
@@ -51,8 +48,6 @@ class _CircleExtrasBroadcastScreenState
     super.dispose();
   }
 
-  ApiClient get _api => context.read<AppState>().api;
-
   Future<void> _send(AppLocalizations t) async {
     final text = _compose.text.trim();
     if (_chosen.isEmpty) {
@@ -69,22 +64,10 @@ class _CircleExtrasBroadcastScreenState
         // (each 1:1 chat has its own key) and posts the per-recipient fan-out.
         await widget.onSend!(ids, text);
       } else {
-        // Fallback seam (review G1): a broadcast is a PER-RECIPIENT FAN-OUT of
-        // N independent 1:1 sends — never a raw recipient_ids group (that would
-        // link recipients server-side). Build one `send` per recipient with a
-        // DISTINCT client_msg_id. The opaque per-recipient envelope is attached
-        // by the chat layer that owns the keys; here it is a routing-only
-        // placeholder (nothing plaintext ever leaves the device).
-        final now = DateTime.now().microsecondsSinceEpoch;
-        final sends = [
-          for (var i = 0; i < ids.length; i++)
-            {
-              'peer_id': ids[i],
-              'client_msg_id': '${now}_${ids[i]}_$i',
-              'envelope': const <String, dynamic>{}, // chat layer seals this
-            }
-        ];
-        await _api.broadcast(sends);
+        // q1-seams: without the chat layer's per-recipient sealing there is
+        // nothing real to send — the old fallback posted EMPTY envelopes via
+        // /circle/broadcast and then said "Sent". Refuse honestly instead.
+        throw StateError('broadcast needs the chat layer to seal envelopes');
       }
       if (!mounted) return;
       ScaffoldMessenger.of(context)
@@ -92,7 +75,11 @@ class _CircleExtrasBroadcastScreenState
               content: Text(t.circleExtrasBroadcastSent('${ids.length}'))));
       Navigator.of(context).maybePop();
     } catch (_) {
-      if (mounted) setState(() => _sending = false);
+      if (mounted) {
+        setState(() => _sending = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(t.grpActionFailed)));
+      }
     }
   }
 

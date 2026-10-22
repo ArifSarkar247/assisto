@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
@@ -215,9 +216,8 @@ class _InviteComposerState extends State<_InviteComposer> {
   }
 }
 
-/// A dialog showing an invite's QR/link + token with copy/share. Drawn with a
-/// simple QR placeholder box (the integrator swaps in a real QR widget) plus the
-/// selectable deep link so it works before that lands.
+/// A dialog showing an invite's real QR (qr_flutter) + the selectable deep
+/// link / token with copy.
 Future<void> showCircleInviteLink(
   BuildContext context, {
   required String? link,
@@ -232,14 +232,19 @@ Future<void> showCircleInviteLink(
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            padding: const EdgeInsets.all(Gap.md),
-            decoration: BoxDecoration(
-              color: Theme.of(ctx).colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(Radii.md),
+          // q1-seams: a REAL scannable QR of the invite link (qr_flutter); it
+          // used to be a QR-shaped icon nobody could scan.
+          if (value != null)
+            Container(
+              key: const ValueKey('q1-invite-qr'),
+              padding: const EdgeInsets.all(Gap.md),
+              decoration: BoxDecoration(
+                color: Colors.white, // dark-on-white so any scanner reads it
+                borderRadius: BorderRadius.circular(Radii.md),
+              ),
+              child: SizedBox.square(
+                  dimension: 180, child: QrImageView(data: value, size: 180)),
             ),
-            child: const Icon(Icons.qr_code_2, size: 120),
-          ),
           const SizedBox(height: Gap.md),
           SelectableText(value ?? t.circleInviteUnavailable, textAlign: TextAlign.center),
         ],

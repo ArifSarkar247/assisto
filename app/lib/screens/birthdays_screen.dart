@@ -162,7 +162,11 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
     await _writeCache();
     try {
       await context.read<AppState>().api.birthdayDelete(id);
-    } catch (_) {}
+    } catch (_) {
+      // q1-seams: the optimistic removal is undone by the reload below — say
+      // why it came back instead of a silent flicker.
+      if (mounted) _snack(AppLocalizations.of(context).grpActionFailed);
+    }
     await _load(silent: true);
   }
 

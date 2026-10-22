@@ -8,6 +8,7 @@ import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/contacts_model.dart';
 import '../widgets/contacts_sheets.dart';
+import 'messenger/m3_add_to_circle_screen.dart';
 
 /// Contacts (feature 24): the PERSONAL phonebook / relationship manager — the
 /// people in your life (family, friends, colleagues). Distinct from the Sales
@@ -131,7 +132,12 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
     final api = context.read<AppState>().api;
     try {
       if (c.id != null) await api.deleteItem('contacts', c.id!);
-    } catch (_) {/* offline: drop locally anyway */}
+    } catch (_) {
+      // q1-seams: it used to vanish locally with "deleted" and come back on
+      // the next sync. A server row is only gone when the server says so.
+      _toast(AppLocalizations.of(context).grpActionFailed);
+      return;
+    }
     _all = _all.where((x) => x != c).toList();
     await _writeCache(_all);
     _toast(cStr(context, 'cContactDeleted'));
@@ -198,13 +204,12 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
   }
 
   void _linkToCircle(Contact c) {
-    // The Circle picker is owned by another screen (not editable here). We set
-    // the family group + a placeholder link so the intent is captured and the
-    // integration doc describes the endpoint that resolves the real user id.
-    c.groups = {...c.groups, kGroupFamily}.toList();
-    c.linkedCircleId ??= -1; // sentinel: "link requested, resolve server-side"
-    _upsert(c);
-    _toast(cStr(context, 'cLinkCircle'));
+    // q1-seams: this used to stamp a -1 "link requested" sentinel (the server
+    // drops it) and toast "Link to Circle" as if done. Now it opens the REAL
+    // My Circle add flow (find by number -> request -> they accept).
+    final number = c.phones.isEmpty ? null : c.phones.first;
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => M3AddToCircleScreen(initialNumber: number)));
   }
 
   Future<void> _exportAll() async {

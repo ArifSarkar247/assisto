@@ -6,6 +6,10 @@ import '../../widgets/crm_aftersale_api.dart';
 import '../../widgets/crm_aftersale_widgets.dart';
 import 'crm_common.dart';
 
+/// q1-seams: true only once a customer-facing acceptance PAGE exists (an
+/// absolute https link that renders accept / decline), not a JSON API path.
+const bool kQuoteAcceptPageWired = false;
+
 /// ADVANCED proposal/quote surface (CRM_SPEC §6): version history (v1/v2…),
 /// discount-approval workflow, validity/expiry, branded-PDF data model (honest
 /// preview when no PDF lib), tokenized customer acceptance link (mock) and
@@ -333,7 +337,11 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
                       .approveDiscount((p['id'] as num).toInt())),
                   icon: const Icon(Icons.gavel_outlined, size: 18),
                   label: Text(t.crmApproveDiscount)),
-            if (status == 'sent' || status == 'viewed' || status == 'approved')
+            // q1-seams: hidden — the server hands back a RELATIVE JSON API
+            // path (/api/crm/accept/<token>/), not a page a customer can open,
+            // so sharing it could never get a real acceptance.
+            if (kQuoteAcceptPageWired &&
+                (status == 'sent' || status == 'viewed' || status == 'approved'))
               OutlinedButton.icon(
                   onPressed: () => _showAcceptanceLink(t, p),
                   icon: const Icon(Icons.link_outlined, size: 18),

@@ -7,7 +7,7 @@ string comes from crm/i18n.py so bn/en never mix inside a label. The pipeline is
 a drag-and-drop kanban (HTML5 DnD → a small JSON endpoint). Forecasts come only
 from real pipeline data (forecast.py); AI features show a clear needs-key state.
 
-Reached at /crm/ once the integrator adds the root include (see report).
+Reached at /crm/ (root include `crm.weburls` in assisto_backend/urls.py).
 """
 import csv
 import io

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme.dart';
@@ -10,11 +11,8 @@ import '../l10n/app_localizations.dart';
 /// Three honest delivery routes, each embedding the user's referral CODE so a
 /// join can be attributed back to the inviter:
 ///   • Share link  — system share sheet with the deep link (+ code).
-///   • QR          — shows the link + code as a scannable card. A real QR widget
-///                   is the integrator's drop-in (no QR package is bundled yet),
-///                   so until then we show the same placeholder box the circle
-///                   invite dialog uses, plus the selectable link/code — honest
-///                   about what is and isn't drawn.
+///   • QR          — a real scannable QR (qr_flutter) of the link + code, plus
+///                   the selectable link/code.
 ///   • Own-SIM SMS — opens the phone's SMS composer (sms: URI) pre-filled; the
 ///                   USER presses send from their own number. Nothing is sent
 ///                   on their behalf.
@@ -151,14 +149,19 @@ class RefShareSheet extends StatelessWidget {
       builder: (ctx) => AlertDialog(
         title: Text(t.refShareQr),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
-          Container(
-            padding: const EdgeInsets.all(Gap.md),
-            decoration: BoxDecoration(
-              color: scheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(Radii.md),
+          // q1-seams: a REAL scannable QR (qr_flutter is bundled); it used to
+          // be a QR-shaped icon nobody could scan.
+          if (value.isNotEmpty)
+            Container(
+              key: const ValueKey('q1-ref-qr'),
+              padding: const EdgeInsets.all(Gap.md),
+              decoration: BoxDecoration(
+                color: Colors.white, // dark-on-white so any scanner reads it
+                borderRadius: BorderRadius.circular(Radii.md),
+              ),
+              child: SizedBox.square(
+                  dimension: 180, child: QrImageView(data: value, size: 180)),
             ),
-            child: const Icon(Icons.qr_code_2, size: 140),
-          ),
           const SizedBox(height: Gap.md),
           SelectableText(value.isNotEmpty ? value : t.refShareUnavailable,
               textAlign: TextAlign.center),

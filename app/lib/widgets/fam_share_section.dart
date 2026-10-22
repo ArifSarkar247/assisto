@@ -65,6 +65,53 @@ class _FamShareSectionState extends State<FamShareSection> {
   // log; this is the immediate, honest echo of this session's changes.
   final List<Map<String, dynamic>> _audit = [];
 
+  // q1-seams: the grid used to start EMPTY on every open (never read from the
+  // server), so it could say "nothing shared" while the server still shared,
+  // and a failed toggle/revoke was swallowed. Now the server's consent model
+  // is loaded, every write re-applies the server's answer, and a failure says
+  // so and reloads the truth.
+  bool _serverLoadFailed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadServer();
+  }
+
+  /// Apply GET/POST family/sharing/* consent payload {rows:[{member_id, items}]}.
+  void _applyServer(Map<String, dynamic> r) {
+    final rows = r['rows'];
+    if (rows is! List) return;
+    _grants.clear();
+    for (final row in rows) {
+      if (row is! Map) continue;
+      final mid = (row['member_id'] as num?)?.toInt();
+      final items = row['items'];
+      if (mid == null || items is! Map) continue;
+      final on = <String>{
+        for (final e in items.entries)
+          if (e.value == true) '${e.key}',
+      };
+      if (on.isNotEmpty) _grants[mid] = on;
+    }
+  }
+
+  Future<void> _loadServer() async {
+    try {
+      final r = await context
+          .read<AppState>()
+          .api
+          .getJson('/family/sharing/consent');
+      if (!mounted) return;
+      setState(() {
+        _serverLoadFailed = false;
+        _applyServer(r);
+      });
+    } catch (_) {
+      if (mounted) setState(() => _serverLoadFailed = true);
+    }
+  }
+
   bool _granted(int mid, String item) => _grants[mid]?.contains(item) ?? false;
 
   void _toggle(int mid, String name, String item, bool on) {
@@ -115,15 +162,20 @@ class _FamShareSectionState extends State<FamShareSection> {
   }
 
   Future<void> _post(String op, {Map<String, dynamic>? body}) async {
-    // Non-fatal: the UI already reflects the owner's intent; the endpoint is the
-    // authoritative enforcement point. Swallow errors so a missing wiring never
-    // crashes the tab (honest offline behaviour).
+    // The endpoint is the authoritative enforcement point: re-apply its answer;
+    // on failure say so and reload the server's real state (q1-seams).
     try {
-      await context
+      final r = await context
           .read<AppState>()
           .api
           .createItem('family/sharing/$op', body ?? const {});
-    } catch (_) {}
+      if (mounted) setState(() => _applyServer(r));
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(AppLocalizations.of(context).grpActionFailed)));
+      await _loadServer();
+    }
   }
 
   int get _totalShared =>
@@ -152,6 +204,22 @@ class _FamShareSectionState extends State<FamShareSection> {
       children: [
         _header(scheme),
         const SizedBox(height: Gap.md),
+        if (_serverLoadFailed)
+          Card(
+            key: const ValueKey('q1-famshare-load-failed'),
+            color: scheme.errorContainer,
+            child: ListTile(
+              leading: Icon(Icons.cloud_off_outlined,
+                  color: scheme.onErrorContainer),
+              title: Text(AppLocalizations.of(context).q1FamShareLoadFailed,
+                  style: TextStyle(color: scheme.onErrorContainer)),
+              trailing: IconButton(
+                tooltip: AppLocalizations.of(context).retry,
+                icon: Icon(Icons.refresh, color: scheme.onErrorContainer),
+                onPressed: _loadServer,
+              ),
+            ),
+          ),
         // consent screen: per-member, per-item grid
         for (final m in widget.members) _memberCard(m, scheme),
         const SizedBox(height: Gap.sm),

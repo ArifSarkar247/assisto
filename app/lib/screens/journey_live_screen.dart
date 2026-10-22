@@ -94,6 +94,9 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
     }
   }
 
+  void _snackText(String msg) => ScaffoldMessenger.of(context)
+      .showSnackBar(SnackBar(content: Text(msg)));
+
   void _onArrived() {
     final t = AppLocalizations.of(context);
     _ticker?.cancel();
@@ -123,9 +126,16 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
     );
     if (!mounted) return;
     if (ok == true) {
+      // q1-seams: a failed "I'm OK" used to be silent, so the server could
+      // still escalate to family while the user believed it was handled.
       try {
         await context.read<AppState>().api.journeyRespondOk(widget.journeyId);
-      } catch (_) {}
+      } catch (_) {
+        if (mounted) _snackText(AppLocalizations.of(context).grpActionFailed);
+        // _asked=false so the next overdue tick asks again.
+        if (mounted) setState(() => _asked = false);
+        return;
+      }
       setState(() => _asked = false);
     } else {
       _openSos();
@@ -136,7 +146,14 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
     final api = context.read<AppState>().api;
     try {
       await api.journeyArrived(widget.journeyId);
-    } catch (_) {}
+    } catch (_) {
+      // q1-seams: never a false "arrived safely" — the server did not hear it,
+      // so family may still be alerted. Stay on the live screen.
+      if (mounted) {
+        _snackText(AppLocalizations.of(context).realityArrivedNotSent);
+      }
+      return;
+    }
     if (mounted) _onArrived();
   }
 
@@ -159,7 +176,12 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
     if (confirm != true) return;
     try {
       await context.read<AppState>().api.journeyStop(widget.journeyId);
-    } catch (_) {}
+    } catch (_) {
+      // q1-seams: the journey is still live on the server (watchers still
+      // see it) — say so and keep the screen instead of a silent close.
+      if (mounted) _snackText(AppLocalizations.of(context).grpActionFailed);
+      return;
+    }
     _ticker?.cancel();
     if (mounted && Navigator.canPop(context)) Navigator.pop(context);
   }

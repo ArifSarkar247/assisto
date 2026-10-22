@@ -310,11 +310,16 @@ class AppState extends ChangeNotifier {
   }
 
   /// Patch profile fields (safety settings, elderly mode, etc.) via /me.
-  Future<void> saveProfile(Map<String, dynamic> fields) async {
+  /// Returns false when the server did not take the change (q1-seams: callers
+  /// that show a setting as saved must check this — it used to be swallowed).
+  Future<bool> saveProfile(Map<String, dynamic> fields) async {
     try {
       user = await api.updateProfile(fields);
       notifyListeners();
-    } catch (_) {}
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   /// Adopt an authoritative user returned by the backend (e.g. after the

@@ -59,8 +59,8 @@ extension ScamSafetyApi on ApiClient {
   /// Create a document whose type-specific fields travel as a dedicated
   /// `details` MAP (JSON object) alongside the free-text `note` — NEVER packed
   /// into a single delimited string. POST /documents/ {title, doc_type,
-  /// expiry_date?, details{}, note}. The integrator adds Document.details
-  /// (JSONField) + a serializer 'details' field (see MIGRATION NOTE).
+  /// expiry_date?, details{}, note}. Document.details (JSONField) exists on
+  /// the server (q1-seams 22 Oct: the "integrator adds" note was stale).
   Future<void> createDocumentWithDetails({
     required String title,
     required String docType,

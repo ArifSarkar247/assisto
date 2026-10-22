@@ -4,14 +4,21 @@ import 'package:provider/provider.dart';
 import '../api.dart';
 import '../state.dart';
 import '../theme.dart';
-import '../widgets/circle_extras_backup.dart';
-import '../widgets/circle_extras_stickers.dart';
-import '../widgets/circle_extras_wallpaper.dart';
-import 'circle_extras_broadcast_screen.dart';
-import 'circle_extras_scheduled_screen.dart';
+import 'package:share_plus/share_plus.dart';
 import '../l10n/app_localizations.dart';
 
-/// Per-chat EXTRAS hub (M2 items 9 + 10). Opened from a chat's menu. Gathers:
+/// Per-chat EXTRAS hub (M2 items 9 + 10). Opened from a chat's menu.
+///
+/// q1-seams (reality audit 22 Oct): only what REALLY works is offered here —
+/// the server-enforced disappearing timer and a real on-device export through
+/// the share sheet. Scheduled messages (no dispatcher ever sent them, and no
+/// envelope was attached), broadcast (sent EMPTY envelopes), backup/restore
+/// (claimed "done" without sealing or uploading anything), stickers/GIF (the
+/// pick was dropped), wallpaper/theme and the view-once default (never read
+/// by the chat) and "link a device" (no linking exists) are hidden behind one
+/// honest "not available yet" note until each is wired for real.
+///
+/// The original M2 design gathered:
 ///   - Disappearing-messages timer (24h / 7d / 90d) + view-once toggle
 ///   - Per-chat wallpaper + theme (ON-DEVICE preference, persisted locally)
 ///   - Sticker + GIF picker entry
@@ -61,9 +68,6 @@ class _CircleExtrasHubScreenState extends State<CircleExtrasHubScreen> {
   static const _d90d = 90 * 24 * 3600;
 
   int _disappearing = _off;
-  bool _viewOnceDefault = false;
-  String _wallpaper = 'default';
-  String _theme = 'system';
   bool _loading = true;
 
   @override
@@ -74,19 +78,9 @@ class _CircleExtrasHubScreenState extends State<CircleExtrasHubScreen> {
 
   ApiClient get _api => context.read<AppState>().api;
   int get _peer => widget.member['id'] as int;
-  String get _wpKey => 'circle_wp_$_peer';
-  String get _themeKey => 'circle_theme_$_peer';
-  String get _viewOnceKey => 'circle_viewonce_$_peer';
 
   Future<void> _load() async {
-    // Wallpaper/theme + view-once default are on-device prefs (ChatSettings
-    // only persists disappearing_sec server-side; view-once is a per-device
-    // send-time default, not server state). TODO(M2): if a future ChatSettings
-    // field exposes a shared view-once default, mirror it here via the API.
-    _wallpaper = await Settings.getString(_wpKey) ?? 'default';
-    _theme = await Settings.getString(_themeKey) ?? 'system';
-    _viewOnceDefault = await Settings.getBool(_viewOnceKey, false);
-    // Disappearing timer is server routing metadata.
+    // Disappearing timer is server routing metadata (enforced server-side).
     try {
       final r = await _api.getJson('messenger/chat/$_peer/settings');
       final s = (r['disappearing_sec'] as num?)?.toInt() ?? 0;
@@ -108,16 +102,6 @@ class _CircleExtrasHubScreenState extends State<CircleExtrasHubScreen> {
             SnackBar(content: Text(AppLocalizations.of(context).grpActionFailed)));
       }
     }
-  }
-
-  Future<void> _saveWallpaper(String id) async {
-    setState(() => _wallpaper = id);
-    await Settings.setString(_wpKey, id);
-  }
-
-  Future<void> _saveTheme(String id) async {
-    setState(() => _theme = id);
-    await Settings.setString(_themeKey, id);
   }
 
   void _openTimerSheet(AppLocalizations t) {
@@ -148,57 +132,31 @@ class _CircleExtrasHubScreenState extends State<CircleExtrasHubScreen> {
     );
   }
 
-  void _openStickerSheet() {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) => StickerGifSheet(
-        mediaBytesAvailable: widget.mediaBytesAvailable,
-        gifProviderKey: widget.gifProviderKey,
-        onSticker: (_) {}, // chat screen wires the actual send
-        onGif: (_) {},
-      ),
-    );
-  }
-
-  void _openBackup(AppLocalizations t) {
+  /// Real export: the transcript is built ON-DEVICE from the chat's already
+  /// decrypted messages and handed to the OS share sheet (q1-seams: this used
+  /// to show "export ready" without sharing anything).
+  Future<void> _exportChat(AppLocalizations t) async {
     final msgs = widget.decryptedMessages?.call() ?? const [];
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) => BackupSheet(
-        messageCount: msgs.length,
-        // The chat layer seals + uploads using KeyBackup + build_backup_envelope.
-        onConfirm: (code, hint) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(
-                  content: Text(t.circleExtrasBackupDone('${msgs.length}'))));
-        },
-      ),
-    );
-  }
-
-  void _openRestore(AppLocalizations t) {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) => RestoreSheet(
-        onRestore: (_) {
-          Navigator.of(context).maybePop();
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(t.circleExtrasRestoreOk)));
-        },
-      ),
-    );
-  }
-
-  void _exportChat(AppLocalizations t) {
-    final msgs = widget.decryptedMessages?.call() ?? const [];
-    // The chat layer assembles the file via circle_extras.export_chat_text /
-    // export_chat_json (on-device, decrypted locally) and shares it.
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(
-            content: Text(t.circleExtrasExportReady('${msgs.length}'))));
+    if (msgs.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(t.q1ExtrasExportEmpty)));
+      return;
+    }
+    final name = '${widget.member['name'] ?? ''}';
+    final buf = StringBuffer('Assisto — $name
+');
+    for (final m in msgs) {
+      final who = m['mine'] == true ? '→' : '←';
+      buf.writeln('[${m['at'] ?? ''}] $who ${m['text'] ?? ''}');
+    }
+    try {
+      await Share.share(buf.toString(), subject: t.circleExtrasExportChat);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(t.grpActionFailed)));
+      }
+    }
   }
 
   @override
@@ -214,7 +172,7 @@ class _CircleExtrasHubScreenState extends State<CircleExtrasHubScreen> {
               children: [
                 _header(t, scheme),
 
-                // --- disappearing / view-once ---
+                // --- disappearing (server-enforced) ---
                 _sectionHeader(t.circleExtrasDisappearing, scheme),
                 ListTile(
                   leading: const Icon(Icons.timer_outlined),
@@ -225,90 +183,27 @@ class _CircleExtrasHubScreenState extends State<CircleExtrasHubScreen> {
                       style: TextStyle(color: scheme.primary)),
                   onTap: () => _openTimerSheet(t),
                 ),
-                SwitchListTile(
-                  secondary: const Icon(Icons.visibility_off_outlined),
-                  title: Text(t.circleExtrasViewOnce),
-                  subtitle: Text(t.circleExtrasViewOnceHint,
-                      style: const TextStyle(fontSize: 12)),
-                  value: _viewOnceDefault,
-                  onChanged: (v) {
-                    setState(() => _viewOnceDefault = v);
-                    Settings.setBool(_viewOnceKey, v);
-                  },
-                ),
                 const Divider(),
 
-                // --- wallpaper / theme (on-device) ---
-                _sectionHeader(t.circleExtrasWallpaper, scheme),
-                WallpaperThemePicker(
-                  wallpaperId: _wallpaper,
-                  themeId: _theme,
-                  onWallpaper: _saveWallpaper,
-                  onTheme: _saveTheme,
-                ),
-                const Divider(),
-
-                // --- stickers + GIF ---
+                // --- export (on-device, real share sheet) ---
                 ListTile(
-                  leading: const Icon(Icons.emoji_emotions_outlined),
-                  title: Text(t.circleExtrasStickers),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: _openStickerSheet,
-                ),
-                const Divider(),
-
-                // --- scheduled ---
-                ListTile(
-                  leading: const Icon(Icons.schedule_send_outlined),
-                  title: Text(t.circleExtrasScheduled),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) =>
-                        CircleExtrasScheduledScreen(member: widget.member),
-                  )),
-                ),
-
-                // --- broadcast ---
-                ListTile(
-                  leading: const Icon(Icons.campaign_outlined),
-                  title: Text(t.circleExtrasBroadcast),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => CircleExtrasBroadcastScreen(
-                        members: widget.circleMembers),
-                  )),
-                ),
-                const Divider(),
-
-                // --- backup / restore / export ---
-                _sectionHeader(t.circleExtrasBackup, scheme),
-                ListTile(
-                  leading: const Icon(Icons.lock_outline),
-                  title: Text(t.circleExtrasCreateBackup),
-                  subtitle: Text(t.circleExtrasBackupHint,
-                      style: const TextStyle(fontSize: 12)),
-                  onTap: () => _openBackup(t),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.restore),
-                  title: Text(t.circleExtrasRestore),
-                  onTap: () => _openRestore(t),
-                ),
-                ListTile(
+                  key: const ValueKey('q1-extras-export'),
                   leading: const Icon(Icons.ios_share),
                   title: Text(t.circleExtrasExportChat),
-                  subtitle:
-                      Text(t.circleExtrasExportHint, style: const TextStyle(fontSize: 12)),
+                  subtitle: Text(t.circleExtrasExportHint,
+                      style: const TextStyle(fontSize: 12)),
                   onTap: () => _exportChat(t),
                 ),
                 const Divider(),
 
-                // --- linked devices (item 10) ---
-                _sectionHeader(t.circleExtrasLinkedDevices, scheme),
-                LinkedDevicesCard(
-                  thisDeviceName: t.circleExtrasThisDevice,
-                  onLink: () => ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(t.circleExtrasScanToLink))),
+                // --- honest: what is NOT available yet (q1-seams) ---
+                ListTile(
+                  key: const ValueKey('q1-extras-not-yet'),
+                  leading: Icon(Icons.hourglass_empty_outlined,
+                      color: scheme.onSurfaceVariant),
+                  title: Text(t.q1ExtrasNotYetTitle),
+                  subtitle: Text(t.q1ExtrasNotYetBody,
+                      style: const TextStyle(fontSize: 12)),
                 ),
 
                 Padding(

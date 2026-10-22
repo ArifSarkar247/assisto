@@ -233,7 +233,7 @@ class CrmError {
       List.generate(6, (_) => _alphabet[_rand.nextInt(_alphabet.length)]).join();
 
   /// Build from any thrown error. Prefers the server's ref (carried on
-  /// ApiException via a dynamic `ref` getter the integrator adds in api.dart);
+  /// ApiException.ref, parsed in api.dart);
   /// falls back to a locally-minted, locally-logged code.
   factory CrmError.from(Object e) {
     String? serverRef;
@@ -246,9 +246,8 @@ class CrmError {
     if (e is ApiException) {
       message = e.message;
       status = e.status;
-      // `ref` is an optional field on ApiException (integrator adds it so the
-      // server's reference code flows through). Read it defensively so this
-      // file compiles whether or not that field exists yet.
+      // `ref` is ApiException's optional server reference code. Read
+      // defensively (it may be null).
       try {
         final dynamic dyn = e;
         final r = dyn.ref;

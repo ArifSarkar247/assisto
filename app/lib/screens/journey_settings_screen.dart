@@ -64,7 +64,15 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
         'quiet_start': _quietStart,
         'quiet_end': _quietEnd,
       });
-    } catch (_) {}
+    } catch (_) {
+      // q1-seams: a failed save used to be silent — the switch looked on while
+      // the server never started the wellness check. Say so and reload the
+      // server's real state.
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(AppLocalizations.of(context).grpActionFailed)));
+      await _load();
+    }
   }
 
   Future<void> _setDuressPin() async {

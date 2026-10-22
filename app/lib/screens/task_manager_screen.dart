@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
@@ -146,7 +147,13 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
         if (t.id != null) await api.deleteItem(_taskPath, t.id!);
       }
       if (p.id != null) await api.deleteItem(_projPath, p.id!);
-    } catch (_) {/* offline: drop locally anyway */}
+    } catch (_) {
+      // q1-seams: never "deleted" while the server still has it (it came back
+      // on the next sync). Reload the real state instead.
+      _toast(AppLocalizations.of(context).grpActionFailed);
+      await _load(silent: true);
+      return;
+    }
     _tasks = _tasks.where((t) => t.projectId != p.id).toList();
     _projects = _projects.where((x) => x.id != p.id).toList();
     await _writeCache();
@@ -179,7 +186,10 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
     final api = context.read<AppState>().api;
     try {
       if (t.id != null) await api.deleteItem(_taskPath, t.id!);
-    } catch (_) {/* offline */}
+    } catch (_) {
+      _toast(AppLocalizations.of(context).grpActionFailed); // q1-seams
+      return;
+    }
     _tasks = _tasks.where((x) => x.id != t.id).toList();
     await _writeCache();
     _toast(tmStr(context, 'tmTaskDeleted'));

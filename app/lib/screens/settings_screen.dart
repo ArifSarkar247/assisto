@@ -831,8 +831,16 @@ class _SafetySectionState extends State<_SafetySection> {
     _sec = (u?.fallCountdownSec ?? 120).toDouble().clamp(30, 600);
   }
 
-  void _save() => context.read<AppState>().saveProfile(
-      {'fall_detect': _fall, 'fall_countdown_sec': _sec.round()});
+  Future<void> _save() async {
+    final ok = await context.read<AppState>().saveProfile(
+        {'fall_detect': _fall, 'fall_countdown_sec': _sec.round()});
+    // q1-seams: never a silent failure — the switch must not look saved when
+    // the server kept the old value.
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context).saveFailed)));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
