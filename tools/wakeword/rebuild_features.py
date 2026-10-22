@@ -132,29 +132,47 @@ def sha256(p):
 
 # ---- 1. front end as ONNX ----------------------------------------------------
 
-def frontend_nodes(mel_matrix, out_name):
-    """[1, WINDOW] audio -> [1, FRAMES, 32] log-mel, as ONNX nodes + initialisers."""
+def frontend_nodes(mel_matrix, out_name, variant="dft"):
+    """[1, WINDOW] audio -> [1, FRAMES, 32] log-mel, as ONNX nodes + initialisers.
+
+    variant "dft":    ONNX DFT op (opset 17; ORT runs a radix-2 FFT for 512) — same
+                      algorithm family as TF's RFFT, so near-silent bins agree best.
+    variant "matmul": Hann-folded DFT matrices + MatMul (any opset; fallback)."""
     from onnx import helper, numpy_helper
     n = np.arange(FRAME_LEN, dtype=np.float64)
     hann = 0.5 - 0.5 * np.cos(2.0 * np.pi * n / FRAME_LEN)  # periodic, = tf.signal.hann_window
-    k = np.arange(FFT // 2 + 1, dtype=np.float64)
-    ang = 2.0 * np.pi * np.outer(n, k) / FFT  # zero-padding to 512 is implicit
-    cos_m = (hann[:, None] * np.cos(ang)).astype(np.float32)
-    sin_m = (hann[:, None] * -np.sin(ang)).astype(np.float32)
     idx = (np.arange(FRAMES)[:, None] * FRAME_STEP + np.arange(FRAME_LEN)[None, :]).astype(np.int64)
-    inits = [numpy_helper.from_array(idx, "fe_idx"), numpy_helper.from_array(cos_m, "fe_cos"),
-             numpy_helper.from_array(sin_m, "fe_sin"),
+    inits = [numpy_helper.from_array(idx, "fe_idx"),
              numpy_helper.from_array(mel_matrix.astype(np.float32), "fe_mel"),
              numpy_helper.from_array(np.array(LOG_OFFSET, np.float32), "fe_eps")]
-    nodes = [
-        helper.make_node("Gather", ["audio", "fe_idx"], ["fe_frames"], axis=1),   # [1, 76, 400]
-        helper.make_node("MatMul", ["fe_frames", "fe_cos"], ["fe_re"]),           # [1, 76, 257]
-        helper.make_node("MatMul", ["fe_frames", "fe_sin"], ["fe_im"]),
-        helper.make_node("Mul", ["fe_re", "fe_re"], ["fe_re2"]),
-        helper.make_node("Mul", ["fe_im", "fe_im"], ["fe_im2"]),
-        helper.make_node("Add", ["fe_re2", "fe_im2"], ["fe_pow"]),
+    nodes = [helper.make_node("Gather", ["audio", "fe_idx"], ["fe_frames"], axis=1)]  # [1, 76, 400]
+    if variant == "dft":
+        inits += [numpy_helper.from_array(hann.astype(np.float32), "fe_hann"),
+                  numpy_helper.from_array(np.array([0, 0, 0, 0, 0, FFT - FRAME_LEN], np.int64), "fe_pads"),
+                  numpy_helper.from_array(np.array([3], np.int64), "fe_ax3")]
+        nodes += [
+            helper.make_node("Mul", ["fe_frames", "fe_hann"], ["fe_win"]),
+            helper.make_node("Pad", ["fe_win", "fe_pads"], ["fe_pad"]),               # [1, 76, 512]
+            helper.make_node("Unsqueeze", ["fe_pad", "fe_ax3"], ["fe_real"]),         # [1, 76, 512, 1]
+            helper.make_node("DFT", ["fe_real"], ["fe_spec"], axis=2, onesided=1),    # [1, 76, 257, 2]
+            helper.make_node("Mul", ["fe_spec", "fe_spec"], ["fe_sq"]),
+            helper.make_node("ReduceSum", ["fe_sq", "fe_ax3"], ["fe_pow"], keepdims=0),
+        ]
+    else:
+        k = np.arange(FFT // 2 + 1, dtype=np.float64)
+        ang = 2.0 * np.pi * np.outer(n, k) / FFT  # zero-padding to 512 is implicit
+        inits += [numpy_helper.from_array((hann[:, None] * np.cos(ang)).astype(np.float32), "fe_cos"),
+                  numpy_helper.from_array((hann[:, None] * -np.sin(ang)).astype(np.float32), "fe_sin")]
+        nodes += [
+            helper.make_node("MatMul", ["fe_frames", "fe_cos"], ["fe_re"]),           # [1, 76, 257]
+            helper.make_node("MatMul", ["fe_frames", "fe_sin"], ["fe_im"]),
+            helper.make_node("Mul", ["fe_re", "fe_re"], ["fe_re2"]),
+            helper.make_node("Mul", ["fe_im", "fe_im"], ["fe_im2"]),
+            helper.make_node("Add", ["fe_re2", "fe_im2"], ["fe_pow"]),
+        ]
+    nodes += [
         helper.make_node("Sqrt", ["fe_pow"], ["fe_mag"]),
-        helper.make_node("MatMul", ["fe_mag", "fe_mel"], ["fe_melspec"]),         # [1, 76, 32]
+        helper.make_node("MatMul", ["fe_mag", "fe_mel"], ["fe_melspec"]),             # [1, 76, 32]
         helper.make_node("Add", ["fe_melspec", "fe_eps"], ["fe_mel_eps"]),
         helper.make_node("Log", ["fe_mel_eps"], [out_name]),
     ]
@@ -190,7 +208,7 @@ def main():
     ap.add_argument("--cache", default=os.environ.get("TFHUB_CACHE_DIR", os.path.expanduser("~/.cache/tfhub_modules")))
     ap.add_argument("--real-audio", default="", help="comma-separated int16 .npy streams (prepared real speech)")
     ap.add_argument("--tol", type=float, default=1e-3)
-    ap.add_argument("--opset", type=int, default=13)
+    ap.add_argument("--opset", type=int, default=17)  # 17 = first opset with DFT
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     os.makedirs(a.cache, exist_ok=True)
@@ -242,27 +260,30 @@ def main():
                                             output_names=["m/" + OUT_NODE + ":0"], opset=a.opset)
     net_in, net_out = net.graph.input[0].name, net.graph.output[0].name
 
-    fe_nodes, fe_inits = frontend_nodes(mel_w, net_in)
-    graph = helper.make_graph(
-        fe_nodes + list(net.graph.node) + [helper.make_node("Identity", [net_out], ["embedding"])],
-        "assisto_embed_e2e",
-        [helper.make_tensor_value_info("audio", onnx.TensorProto.FLOAT, [1, WINDOW])],
-        [helper.make_tensor_value_info("embedding", onnx.TensorProto.FLOAT, [1, 1, 1, EMB])],
-        fe_inits + list(net.graph.initializer))
-    model = helper.make_model(graph, opset_imports=list(net.opset_import), producer_name="assisto-rebuild_features")
-    model.ir_version = net.ir_version
-    model.doc_string = ("Google speech_embedding v1 (Apache-2.0) rebuilt for Assisto: log-mel front end as ONNX "
-                        "ops + the module's frozen MudpuppyLite conv net. Input: 12400 samples, 16 kHz, [-1, 1].")
-    onnx.checker.check_model(model, full_check=True)
-    path = os.path.join(a.out, "assisto_embed_e2e.onnx")
-    onnx.save(model, path)
     net_path = os.path.join(a.out, "speech_embedding_net.onnx")  # conv net alone: [1,76,32] log-mel -> 96
     onnx.save(net, net_path)
-
     so = ort.SessionOptions()
     so.intra_op_num_threads = 1
-    e2e = ort.InferenceSession(path, so, providers=["CPUExecutionProvider"])
     netx = ort.InferenceSession(net_path, so, providers=["CPUExecutionProvider"])
+
+    def build(variant):
+        fe_nodes, fe_inits = frontend_nodes(mel_w, net_in, variant)
+        graph = helper.make_graph(
+            fe_nodes + list(net.graph.node) + [helper.make_node("Identity", [net_out], ["embedding"])],
+            "assisto_embed_e2e",
+            [helper.make_tensor_value_info("audio", onnx.TensorProto.FLOAT, [1, WINDOW])],
+            [helper.make_tensor_value_info("embedding", onnx.TensorProto.FLOAT, [1, 1, 1, EMB])],
+            fe_inits + list(net.graph.initializer))
+        model = helper.make_model(graph, opset_imports=list(net.opset_import),
+                                  producer_name="assisto-rebuild_features")
+        model.ir_version = net.ir_version
+        model.doc_string = ("Google speech_embedding v1 (Apache-2.0) rebuilt for Assisto: log-mel front end ("
+                            + variant + ") as ONNX ops + the module's frozen MudpuppyLite conv net. "
+                            "Input: 12400 samples, 16 kHz, [-1, 1]. Output: one 96-d embedding.")
+        onnx.checker.check_model(model, full_check=True)
+        p = os.path.join(a.out, f"assisto_embed_e2e.{variant}.onnx")
+        onnx.save(model, p)
+        return p
 
     # ---- 3. verification ------------------------------------------------------
     rng = np.random.default_rng(0)
@@ -278,19 +299,38 @@ def main():
         tests.append((name, x))
     for name, x in real_snippets(a.real_audio, rng):
         tests.append((name, x))
-
-    rows, worst, worst_mel, worst_net = [], 0.0, 0.0, 0.0
+    refs = []
+    worst_net = 0.0
     for name, x in tests:
         x = np.clip(np.asarray(x, np.float32), -1, 1)[None, :WINDOW]
         mel_ref, emb_ref = tf_run(x)
-        got = e2e.run(None, {"audio": x})[0]
+        refs.append((name, x, mel_ref, emb_ref))
         net_got = netx.run(None, {net_in: mel_ref.astype(np.float32)})[0]
-        d = float(np.max(np.abs(got - emb_ref)))
-        rows.append({"test": name, "max_abs": d, "ref_max": float(np.max(np.abs(emb_ref)))})
-        worst = max(worst, d)
         worst_net = max(worst_net, float(np.max(np.abs(net_got - emb_ref))))
-        fe_only = onnx_logmel(x, mel_w)
-        worst_mel = max(worst_mel, float(np.max(np.abs(fe_only - mel_ref[0]))))
+
+    results = {}
+    for variant in ("dft", "matmul"):
+        try:
+            p = build(variant)
+            sess_v = ort.InferenceSession(p, so, providers=["CPUExecutionProvider"])
+        except Exception as e:  # noqa: BLE001
+            log(f"front end {variant}: build/load failed: {e}")
+            continue
+        rows, worst = [], 0.0
+        for name, x, _mel, emb_ref in refs:
+            d = float(np.max(np.abs(sess_v.run(None, {"audio": x})[0] - emb_ref)))
+            rows.append({"test": name, "max_abs": d, "ref_max": float(np.max(np.abs(emb_ref)))})
+            worst = max(worst, d)
+        results[variant] = (worst, rows, p, sess_v)
+        log(f"front end {variant}: worst max|onnx-tf| = {worst:.2e}")
+    if not results:
+        raise SystemExit("no front-end variant could be built")
+    variant = min(results, key=lambda v: results[v][0])
+    worst, rows, vpath, e2e = results[variant]
+    path = os.path.join(a.out, "assisto_embed_e2e.onnx")
+    shutil.copyfile(vpath, path)
+    worst_mel = max(float(np.max(np.abs(onnx_logmel(x, mel_w) - mel[0]))) for _, x, mel, _ in refs)
+
     # streaming: TF on one long clip == ONNX on sliding 12400 windows every 1280
     stream_src = next((x for n, x in tests if n.startswith("real")), None)
     if stream_src is None:
@@ -307,7 +347,7 @@ def main():
         stream = max(stream, float(np.max(np.abs(got[0, 0, 0] - full[0, k, 0]))))
     for r in rows:
         log(f"  {r['test']:<22} max|onnx-tf| = {r['max_abs']:.2e}   (|emb| max {r['ref_max']:.1f})")
-    log(f"worst e2e {worst:.2e} | conv-net alone {worst_net:.2e} | log-mel front end {worst_mel:.2e} | "
+    log(f"worst e2e {worst:.2e} | conv-net alone {worst_net:.2e} | numpy-fp64 log-mel vs TF {worst_mel:.2e} | "
         f"streaming (11 hops) {stream:.2e} | tol {a.tol}")
     info = {
         "file": "assisto_embed_e2e.onnx", "window_samples": WINDOW, "hop_samples": HOP,
@@ -315,10 +355,11 @@ def main():
         "source": SOURCE_PAGE, "downloaded_from": got_from.split("?")[0],
         "licence": "Apache-2.0 (Google speech_embedding v1, TF-Hub / Kaggle Models)",
         "licence_check": licence,
-        "front_end": {"stft": [FRAME_LEN, FRAME_STEP, FFT], "window": "hann periodic", "mel_bins": N_MEL,
+        "front_end": {"variant": variant, "variants_worst": {k: v[0] for k, v in results.items()},
+                      "stft": [FRAME_LEN, FRAME_STEP, FFT], "window": "hann periodic", "mel_bins": N_MEL,
                       "mel_hz": [MEL_LO, MEL_HI], "log_offset": LOG_OFFSET, "module_constants": params},
         "verify": {"tol": a.tol, "max_abs_diff_vs_tf": worst, "conv_net_only": worst_net,
-                   "logmel_front_end": worst_mel, "streaming_11_hops": stream, "tests": rows},
+                   "numpy_fp64_logmel_vs_tf": worst_mel, "streaming_11_hops": stream, "tests": rows},
         "max_abs_diff_vs_tf": max(worst, stream),
         "sha256": sha256(path), "size": os.path.getsize(path),
         "versions": {"tensorflow": tf.__version__, "tf2onnx": tf2onnx.__version__, "onnx": onnx.__version__,
@@ -335,7 +376,7 @@ def main():
 
 
 def onnx_logmel(x, mel_w):
-    """Front-end only, in numpy (float32 like ORT) — diagnostics for the report."""
+    """Front end in numpy float64 — diagnostic: how far TF's own float32 log-mel is from exact."""
     idx = np.arange(FRAMES)[:, None] * FRAME_STEP + np.arange(FRAME_LEN)[None, :]
     fr = x[0][idx].astype(np.float32)
     n = np.arange(FRAME_LEN)

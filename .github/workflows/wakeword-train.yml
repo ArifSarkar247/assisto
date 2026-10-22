@@ -137,7 +137,7 @@ jobs:
           cp "$WORK/features/e2e_info.json" "$WORK/out/" 2>/dev/null || true
           [ -f "$WORK/out/assisto_embed_e2e.onnx" ] || cp "$WORK/features/assisto_embed_e2e.onnx" "$WORK/out/" 2>/dev/null || true
           if [ -f "$WORK/features/e2e_info.json" ]; then
-            python -c "import json,sys; i=json.load(open(sys.argv[1])); v=i['verify']; print('### e2e extractor check\n\n| check | max abs diff vs TF |\n|---|---|'); [print(f'| {k} | {v[k]:.2e} |') for k in ('max_abs_diff_vs_tf','conv_net_only','logmel_front_end','streaming_11_hops')]; print(f\"\nsize {i['size']} bytes, licence field: {i['licence_check'].get('licenseName')}\n\")" "$WORK/features/e2e_info.json" >> "$GITHUB_STEP_SUMMARY" || true
+            python -c "import json,sys; i=json.load(open(sys.argv[1])); v=i['verify']; print('### e2e extractor check\n\n| check | max abs diff vs TF |\n|---|---|'); [print(f'| {k} | {v[k]:.2e} |') for k in ('max_abs_diff_vs_tf','conv_net_only','numpy_fp64_logmel_vs_tf','streaming_11_hops')]; print(f\"\nsize {i['size']} bytes, licence field: {i['licence_check'].get('licenseName')}\n\")" "$WORK/features/e2e_info.json" >> "$GITHUB_STEP_SUMMARY" || true
           fi
           [ -f "$WORK/out/eval_report.md" ] && cat "$WORK/out/eval_report.md" >> "$GITHUB_STEP_SUMMARY" || echo "no report" >> "$GITHUB_STEP_SUMMARY"
           ls -la "$WORK/out" || true
