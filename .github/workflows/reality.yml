@@ -128,6 +128,16 @@ jobs:
             --dart-define=REALITY_API_BASE=http://10.0.2.2:8700
 
       # ------------------------------------------------ emulator + flows
+      - name: Free the runner for the emulator (stop Gradle/Kotlin daemons)
+        working-directory: app
+        run: |
+          # The pre-build leaves Gradle + Kotlin daemons resident (GBs of RAM); with
+          # Django and the 2-core emulator on the same runner, the emulator stalled
+          # and adb wedged seconds into flow 01 (21-22 Oct runs).
+          (cd android && timeout 60 ./gradlew --stop) || true
+          pkill -f 'KotlinCompileDaemon' || true
+          pkill -f 'GradleDaemon' || true
+          free -m
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -140,7 +150,9 @@ jobs:
         with:
           api-level: 33
           arch: x86_64
-          target: google_apis
+          target: default   # AOSP, no Google Play services. 22 Oct: the google_apis image
+          # froze the whole emulator (adb wedged) during Play-services activity on
+          # EVERY run, build 150's previously-passing code included.
           profile: pixel_5
           disable-animations: true
           emulator-boot-timeout: 480
@@ -165,3 +177,24 @@ jobs:
             !reality_out/.recording
           retention-days: 14
           if-no-files-found: warn
+      # A green run must MEAN the flows passed: the first run (21 Oct) showed
+      # green with ZERO flows executed (driver crashed, no results.json).
+      - name: Verdict (fail on no results or any C)
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json, os, sys
+          p = os.path.join(os.environ["REALITY_OUT"], "reality_summary.json")
+          try:
+              d = json.load(open(p))
+          except Exception as e:
+              print("::error::no reality summary (%s)" % e); sys.exit(1)
+          rows = d.get("rows") or []
+          bad = [r for r in rows if str(r.get("class", "")).startswith("C")]
+          print("flows:", len(rows), "counts:", d.get("counts"))
+          if not rows:
+              print("::error::no flow produced a result (app never wrote results.json)"); sys.exit(1)
+          for r in bad:
+              print("::error::C: %s %s %s" % (r.get("id"), r.get("feature"), r.get("detail") or r.get("failed_step") or ""))
+          sys.exit(1 if bad else 0)
+          PY

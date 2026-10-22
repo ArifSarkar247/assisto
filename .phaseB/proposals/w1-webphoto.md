@@ -78,7 +78,7 @@ expired drops, and a claimed drop is deleted immediately.
 
 ## 4. Migration
 
-`core/migrations/0052_w1_webphoto.py` (depends on `0051_ps1_photo_studio`):
+`core/migrations/0053_w1_webphoto.py` (depends on `0052_ps1_photo_studio`):
 one table `core_webphotodrop` (token, preset, image BYTEA, ip_hash,
 created_at, expires_at). Re-chain if another 0052 lands first.
 

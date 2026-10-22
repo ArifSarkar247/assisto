@@ -3578,3 +3578,62 @@ class WebPhotoDrop(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField(db_index=True)
 # ---- /w1-webphoto ----
+# ---- o2-admin: web owner admin panel (/owner/) ----
+class OwnerTOTP(models.Model):
+    """The owner's TOTP 2FA enrolment for the web owner panel. The secret is
+    stored ENCRYPTED (Fernet key derived from SECRET_KEY) and is never shown
+    again after enrolment; recovery codes are stored only as hashes."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="owner_totp")
+    secret_enc = models.TextField(blank=True, default="")
+    confirmed_at = models.DateTimeField(null=True, blank=True)
+    last_counter = models.BigIntegerField(default=0)    # anti-replay
+    recovery_hashes = models.JSONField(default=list, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class OwnerSession(models.Model):
+    """A web owner-panel session (cookie `assisto_owner`, path /owner/). Only a
+    SHA-256 of the cookie value is stored. stage: 'mfa' (password OK, TOTP
+    pending) | 'enrol' (password OK, first-time 2FA enrolment) | 'full'."""
+    key_hash = models.CharField(max_length=64, unique=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="owner_sessions")
+    stage = models.CharField(max_length=8, default="mfa")
+    csrf = models.CharField(max_length=64)
+    lang = models.CharField(max_length=2, default="bn")
+    pending_secret_enc = models.TextField(blank=True, default="")
+    ip = models.CharField(max_length=64, blank=True, default="")
+    ua = models.CharField(max_length=200, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_seen = models.DateTimeField()
+
+
+class OwnerThrottle(models.Model):
+    """Login / 2FA failure counter with exponential lockout (per IP and per
+    account). DB-backed so every gunicorn worker sees the same count."""
+    key = models.CharField(max_length=120, unique=True)
+    fails = models.IntegerField(default=0)
+    locked_until = models.DateTimeField(null=True, blank=True)
+    last_fail_at = models.DateTimeField(null=True, blank=True)
+
+
+class OwnerAudit(models.Model):
+    """Append-only audit of the web owner panel: every login (success/fail)
+    and every change — who, what, before/after, IP, time. Secrets are never
+    written here (key changes log only field names + last 4)."""
+    actor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                              blank=True, related_name="owner_audit")
+    action = models.CharField(max_length=60)
+    target = models.CharField(max_length=160, blank=True, default="")
+    before = models.JSONField(null=True, blank=True)
+    after = models.JSONField(null=True, blank=True)
+    ok = models.BooleanField(default=True)
+    ip = models.CharField(max_length=64, blank=True, default="")
+    ua = models.CharField(max_length=200, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+# ---- /o2-admin ----

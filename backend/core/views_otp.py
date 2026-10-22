@@ -149,6 +149,11 @@ class OtpLoginView(APIView):
         user = otp.find_user_by_phone(canon)
         if user is None or not user.is_active:
             return _fail("bad_otp", lang, status.HTTP_401_UNAUTHORIZED)
+        from .account_block import is_blocked, blocked_message
+        if is_blocked(user):   # o2-admin: blocked accounts cannot sign in
+            return Response({"ok": False, "reason": "account_blocked",
+                             "detail": blocked_message(lang)},
+                            status=status.HTTP_403_FORBIDDEN)
         otp.mark_verified(user, canon)
         token, _ = Token.objects.get_or_create(user=user)
         _log(user, "account.login", method="otp")

@@ -211,6 +211,87 @@ def _new_key(card):
     return "%s-%s" % (base, secrets.token_hex(3))
 
 
+# ------------------------------------------------------- shared service API
+# The owner admin API below AND the web owner panel (/owner/discover) call
+# these — one set of business rules.
+def create_card(data, user=None):
+    """Validate + create. Returns (card|None, errors, safety)."""
+    from .models import DiscoverCard
+    data = data or {}
+    last = DiscoverCard.objects.order_by("-order").first()
+    card = DiscoverCard(type=str(data.get("type") or ""),
+                        order=(last.order + 10) if last else 10)
+    errors, safety = _apply(card, data)
+    if errors or safety:
+        return None, errors, safety
+    card.key = _new_key(card)
+    card.save()
+    _audit(user, "discover.create", {"id": card.id, "type": card.type})
+    return card, {}, []
+
+
+def update_card(card, data, user=None):
+    """Validate + save a partial edit. Returns (errors, safety)."""
+    errors, safety = _apply(card, data or {})
+    if errors or safety:
+        return errors, safety
+    card.save()
+    _audit(user, "discover.update", {"id": card.id})
+    return {}, []
+
+
+def delete_card(card, user=None):
+    pk = card.pk
+    if card.image:
+        try:
+            card.image.delete(save=False)
+        except Exception:
+            pass
+    card.delete()
+    _audit(user, "discover.delete", {"id": pk})
+
+
+def save_card_image(card, f, user=None):
+    """Validate (size, real PNG/JPEG/WEBP) + store. Returns an error code or ''."""
+    if not f:
+        return "required"
+    if f.size > MAX_IMAGE_BYTES:
+        return "too_large"
+    try:
+        from PIL import Image
+        img = Image.open(f)
+        img.verify()
+        if (img.format or "").upper() not in ("PNG", "JPEG", "WEBP"):
+            raise ValueError("format")
+        f.seek(0)
+    except Exception:
+        return "not_an_image"
+    if card.image:
+        try:
+            card.image.delete(save=False)
+        except Exception:
+            pass
+    card.image.save(f.name or "card.png", f, save=True)
+    _audit(user, "discover.image", {"id": card.id})
+    return ""
+
+
+def reorder_cards(ids, user=None):
+    """ids = full desired order. Returns an error code or ''."""
+    from .models import DiscoverCard
+    if not isinstance(ids, list) or not ids:
+        return "required"
+    try:
+        ids = [int(i) for i in ids]
+    except (TypeError, ValueError):
+        return "invalid"
+    with transaction.atomic():
+        for n, pk in enumerate(ids):
+            DiscoverCard.objects.filter(pk=pk).update(order=(n + 1) * 10)
+    _audit(user, "discover.reorder", {"ids": ids})
+    return ""
+
+
 # ------------------------------------------------------------------ app API
 class DiscoverCardsView(APIView):
     """GET /discover/cards?build=N — the cards THIS user may see, already
@@ -287,17 +368,9 @@ class AdminDiscoverCardsView(_OwnerOnly):
                          "can_manage": True})
 
     def post(self, request):
-        from .models import DiscoverCard
-        data = request.data or {}
-        last = DiscoverCard.objects.order_by("-order").first()
-        card = DiscoverCard(type=str(data.get("type") or ""),
-                            order=(last.order + 10) if last else 10)
-        errors, safety = _apply(card, data)
+        card, errors, safety = create_card(request.data or {}, request.user)
         if errors or safety:
             return _bad(errors, safety)
-        card.key = _new_key(card)
-        card.save()
-        _audit(request.user, "discover.create", {"id": card.id, "type": card.type})
         return Response(_admin_payload(card), status=status.HTTP_201_CREATED)
 
 
@@ -316,24 +389,16 @@ class AdminDiscoverCardView(_OwnerOnly):
         c = self._get(pk)
         if not c:
             return Response({"detail": "not found"}, status=404)
-        errors, safety = _apply(c, request.data or {})
+        errors, safety = update_card(c, request.data or {}, request.user)
         if errors or safety:
             return _bad(errors, safety)
-        c.save()
-        _audit(request.user, "discover.update", {"id": c.id})
         return Response(_admin_payload(c, _totals_by_card().get(c.id)))
 
     def delete(self, request, pk):
         c = self._get(pk)
         if not c:
             return Response({"detail": "not found"}, status=404)
-        if c.image:
-            try:
-                c.image.delete(save=False)
-            except Exception:
-                pass
-        c.delete()
-        _audit(request.user, "discover.delete", {"id": pk})
+        delete_card(c, request.user)
         return Response({"ok": True})
 
 
@@ -345,27 +410,9 @@ class AdminDiscoverImageView(_OwnerOnly):
         c = DiscoverCard.objects.filter(pk=pk).first()
         if not c:
             return Response({"detail": "not found"}, status=404)
-        f = request.FILES.get("image")
-        if not f:
-            return Response({"errors": {"image": "required"}}, status=400)
-        if f.size > MAX_IMAGE_BYTES:
-            return Response({"errors": {"image": "too_large"}}, status=400)
-        try:
-            from PIL import Image
-            img = Image.open(f)
-            img.verify()
-            if (img.format or "").upper() not in ("PNG", "JPEG", "WEBP"):
-                raise ValueError("format")
-            f.seek(0)
-        except Exception:
-            return Response({"errors": {"image": "not_an_image"}}, status=400)
-        if c.image:
-            try:
-                c.image.delete(save=False)
-            except Exception:
-                pass
-        c.image.save(f.name or "card.png", f, save=True)
-        _audit(request.user, "discover.image", {"id": c.id})
+        err = save_card_image(c, request.FILES.get("image"), request.user)
+        if err:
+            return Response({"errors": {"image": err}}, status=400)
         return Response(_admin_payload(c))
 
     def delete(self, request, pk):
@@ -380,18 +427,9 @@ class AdminDiscoverImageView(_OwnerOnly):
 
 class AdminDiscoverReorderView(_OwnerOnly):
     def post(self, request):
-        from .models import DiscoverCard
-        ids = (request.data or {}).get("ids")
-        if not isinstance(ids, list) or not ids:
-            return Response({"errors": {"ids": "required"}}, status=400)
-        try:
-            ids = [int(i) for i in ids]
-        except (TypeError, ValueError):
-            return Response({"errors": {"ids": "invalid"}}, status=400)
-        with transaction.atomic():
-            for n, pk in enumerate(ids):
-                DiscoverCard.objects.filter(pk=pk).update(order=(n + 1) * 10)
-        _audit(request.user, "discover.reorder", {"ids": ids})
+        err = reorder_cards((request.data or {}).get("ids"), request.user)
+        if err:
+            return Response({"errors": {"ids": err}}, status=400)
         return Response({"ok": True})
 
 
@@ -414,6 +452,13 @@ class AdminDiscoverPreviewView(_OwnerOnly):
 
 
 # -------------------------------------------------------------------- report
+def card_report_range(card, date_from, date_to):
+    """card_report over an explicit [date_from, date_to] local-date range."""
+    if date_from > date_to:
+        date_from, date_to = date_to, date_from
+    return card_report(card, (date_to - date_from).days + 1, today=date_to)
+
+
 def card_report(card, days=30, today=None):
     """Per-day impressions / clicks / CTR for one card over the last `days`
     local days (zero-filled — every day in the window is listed)."""
