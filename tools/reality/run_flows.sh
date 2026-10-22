@@ -22,6 +22,23 @@ A logcat -c || true
 # nothing on 21 Oct, when the app died seconds into flow 01).
 ( timeout 3600 adb logcat -v time > "$OUT/live_logcat.txt" 2>&1 ) &
 
+# Host-side screenshots. The app prints `REALITY_SHOT <file>` (harness.dart
+# shot()); we grab the real screen with screencap and touch an ack file in the
+# app's external dir so the flow continues at once (the app gives up after 6 s
+# if the ack never lands, so a broken ack path only slows the run down).
+# 22 Oct root cause of "NO RESULTS": the old in-app RenderRepaintBoundary.toImage
+# (GPU read-back, Impeller/GLES on swiftshader) killed the whole emulator at the
+# first screenshot of flow 01, on every run, AOSP and google_apis images alike.
+DEV=/sdcard/Android/data/$PKG/files/reality
+( timeout 3600 tail -n +1 -F "$OUT/live_logcat.txt" 2>/dev/null \
+    | grep --line-buffered -oE 'REALITY_SHOT [A-Za-z0-9_.-]+\.png' \
+    | while read -r _ f; do
+        timeout 20 adb exec-out screencap -p > "$OUT/shots/$f" 2>/dev/null || true
+        [ -s "$OUT/shots/$f" ] || rm -f "$OUT/shots/$f"
+        timeout 10 adb shell "mkdir -p $DEV/acks && touch $DEV/acks/$f" >/dev/null 2>&1 || true
+        echo "$(date +%T) $f $( [ -s "$OUT/shots/$f" ] && echo ok || echo MISSING)" >> "$OUT/shots.log"
+      done ) &
+
 # Background screen recording (OFF by default: on the 2-core software-GPU
 # emulator it competes with the app; every flow step already takes a
 # screenshot). REALITY_RECORD=1 turns it back on.
@@ -64,7 +81,6 @@ T=30 A shell pkill -INT screenrecord || true
 sleep 3
 
 echo "== pull evidence"
-DEV=/sdcard/Android/data/$PKG/files/reality
 T=180 A pull "$DEV" "$OUT/device/" >/dev/null 2>&1 \
   || { echo "external pull failed; trying run-as"; T=180 A exec-out run-as $PKG sh -c 'cd files 2>/dev/null && tar c reality' 2>/dev/null | tar x -C "$OUT/device" 2>/dev/null || true; }
 for f in $(T=20 A shell ls /sdcard/ 2>/dev/null | tr -d '\r' | grep '^reality_.*\.mp4$'); do
