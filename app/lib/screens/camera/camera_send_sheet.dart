@@ -3,12 +3,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../api.dart';
 import '../../crypto/e2e.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../services/circle_media_gate.dart';
 import '../../widgets/msgr_avatar.dart';
 import '../circle_status_composer_screen.dart';
 
@@ -28,6 +30,13 @@ import '../circle_status_composer_screen.dart';
 ///     owner's spec: "Posting as Status reuses the existing status composer
 ///     flow"). The caption is pre-filled there; photo/video status stays
 ///     key-gated exactly as that composer already shows.
+///
+/// NO SHOWPIECES (round 2 item 4): while My Circle's encrypted media storage
+/// is OFF ([kCircleMediaStorageOn]) a chat or status send could carry only the
+/// caption, never the photo. So the sheet then offers ONE real action — share
+/// the actual file through the phone's share menu — and hides the
+/// caption-only paths.
+
 Future<void> showCameraSendSheet(
   BuildContext context, {
   required File file,
@@ -121,6 +130,67 @@ class _CameraSendSheetState extends State<_CameraSendSheet> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
+  /// Real today: hand the captured/edited file itself to the phone's share
+  /// menu (WhatsApp, Gmail, Drive, Files …) with the caption.
+  Future<void> _shareFile() async {
+    final t = _t;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await Share.shareXFiles(
+        [
+          XFile(widget.file.path,
+              mimeType: widget.isVideo ? 'video/mp4' : 'image/jpeg')
+        ],
+        text: widget.caption.isEmpty ? null : widget.caption,
+      );
+      if (mounted) Navigator.of(context).pop();
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(t.camShareFailed)));
+    }
+  }
+
+  Widget _shareOnly(AppLocalizations t, ColorScheme scheme) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, Gap.md),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(t.camSendTitle,
+                style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: Gap.sm),
+            ListTile(
+              key: const Key('cam-share-file'),
+              contentPadding: EdgeInsets.zero,
+              leading: CircleAvatar(
+                backgroundColor: scheme.primaryContainer,
+                child: Icon(Icons.ios_share, color: scheme.onPrimaryContainer),
+              ),
+              title: Text(t.camShareFile),
+              subtitle: Text(t.camShareFileSub,
+                  maxLines: 2, overflow: TextOverflow.ellipsis),
+              onTap: _shareFile,
+            ),
+            const SizedBox(height: Gap.xs),
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Icon(Icons.info_outline,
+                  size: 16, color: scheme.onSurfaceVariant),
+              const SizedBox(width: Gap.xs),
+              Expanded(
+                child: Text(t.camCircleTextOnly,
+                    style: TextStyle(
+                        fontSize: 12,
+                        height: 1.3,
+                        color: scheme.onSurfaceVariant)),
+              ),
+            ]),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _postAsStatus() {
     final id = widget.identity;
     Navigator.of(context).pop(); // close sheet first
@@ -139,6 +209,7 @@ class _CameraSendSheetState extends State<_CameraSendSheet> {
   Widget build(BuildContext context) {
     final t = _t;
     final scheme = Theme.of(context).colorScheme;
+    if (!kCircleMediaStorageOn) return _shareOnly(t, scheme);
     final canSend = widget.identity != null;
     return SafeArea(
       child: Padding(
@@ -212,26 +283,7 @@ class _CameraSendSheetState extends State<_CameraSendSheet> {
             const SizedBox(height: Gap.sm),
             Row(
               children: [
-                // Gated-media honesty note (mirrors the rest of the app).
-                Expanded(
-                  child: Row(
-                    children: [
-                      Icon(Icons.lock_clock_outlined,
-                          size: 16, color: scheme.onSurfaceVariant),
-                      const SizedBox(width: Gap.xs),
-                      Expanded(
-                        child: Text(
-                          t.camMediaGatedNote,
-                          style: TextStyle(
-                              fontSize: 11,
-                              height: 1.3,
-                              color: scheme.onSurfaceVariant),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: Gap.sm),
+                const Spacer(),
                 FilledButton.icon(
                   onPressed:
                       (canSend && _selected.isNotEmpty && !_sending)

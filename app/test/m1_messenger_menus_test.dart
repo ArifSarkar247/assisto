@@ -385,7 +385,7 @@ void main() {
     await _dispose(tester);
   });
 
-  testWidgets('storage: real usage rows + disabled auto-download',
+  testWidgets('storage: real usage rows, no dead auto-download switches',
       (tester) async {
     final api = _RecApi({
       '/circle/settings/storage': {'total_bytes': 5 * 1024 * 1024,
@@ -395,9 +395,8 @@ void main() {
     await _pump(tester, api, const MsgrSetStorageScreen());
     expect(find.text(t.msgStorageBackups), findsOneWidget);
     expect(find.text(t.msgStorageQuota), findsOneWidget);
-    expect(find.text(t.msgAutoDlNotYet), findsOneWidget);
-    final sw = tester.widgetList<SwitchListTile>(find.byType(SwitchListTile));
-    expect(sw.every((s) => s.onChanged == null), isTrue);
+    expect(find.text(t.msgrSetStorageAutoDlSection), findsNothing);
+    expect(find.byType(SwitchListTile), findsNothing);
     await _dispose(tester);
   });
 }

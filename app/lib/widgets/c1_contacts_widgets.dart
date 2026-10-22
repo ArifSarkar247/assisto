@@ -132,7 +132,8 @@ class C1Disclosure extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Honest "not in this build" banner (UnavailableContactsSource).
+// Honest "couldn't read contacts on this phone" banner (no reader / the OS
+// refused to start it).
 // ---------------------------------------------------------------------------
 class C1InfoBanner extends StatelessWidget {
   const C1InfoBanner(

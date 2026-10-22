@@ -52,6 +52,7 @@ import 'security_checkup_screen.dart';
 import 'delete_account_screen.dart';
 import 'voice_assistant_settings_screen.dart';
 import '../theme.dart';
+import 'fall_detect_screen.dart';
 
 
 /// m2-reality: flip to true once the server-address override is actually
@@ -880,6 +881,8 @@ class _SafetySectionState extends State<_SafetySection> {
         child: Text(t.safety,
             style: const TextStyle(fontWeight: FontWeight.bold)),
       ),
+      // NO SHOWPIECES: no fall sensor engine yet -> no fall switch.
+      if (FallDetectScreen.engineShipped)
       SwitchListTile(
         value: _fall,
         onChanged: (v) {
@@ -891,7 +894,7 @@ class _SafetySectionState extends State<_SafetySection> {
             style: const TextStyle(fontSize: 12)),
         isThreeLine: true,
       ),
-      if (_fall)
+      if (_fall && FallDetectScreen.engineShipped)
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -973,16 +976,9 @@ class _HomeWidgetTileState extends State<_HomeWidgetTile> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    // iOS: no widget extension is shipped. Show an honest disabled tile with a
-    // "coming soon" note instead of a toggle that would do nothing.
-    if (!HomeWidgetService.isSupported) {
-      return ListTile(
-        leading: const Icon(Icons.widgets_outlined),
-        title: Text(t.hwTile),
-        subtitle: Text(t.hwIosSoon, style: const TextStyle(fontSize: 12)),
-        enabled: false,
-      );
-    }
+    // iOS: no widget extension is shipped. NO SHOWPIECES: hide the tile
+    // entirely (no "coming soon" row, no toggle that would do nothing).
+    if (!HomeWidgetService.isSupported) return const SizedBox.shrink();
     return SwitchListTile(
       secondary: const Icon(Icons.widgets_outlined),
       value: _enabled,

@@ -367,7 +367,7 @@ void main() {
   });
 
   group('ChatPhotoTurn widget', () {
-    testWidgets('free: on-device unavailable text + ads/credits offer -> answer',
+    testWidgets('free: no on-device block when unavailable + ads/credits offer -> answer',
         (tester) async {
       final b = FakeCvBackend();
       final c = CvController(
@@ -383,7 +383,8 @@ void main() {
       await tester.runAsync(c.start);
       await _settle(tester);
       final t = _t(tester, ChatPhotoTurn);
-      expect(find.text(t.h1OnDeviceUnavailable), findsOneWidget);
+      // NO SHOWPIECES: no "not in this version yet" block, no on-device title.
+      expect(find.text(t.h1OnDeviceTitle), findsNothing);
       expect(find.text(t.h1DetailedAds('2')), findsOneWidget);
       expect(find.text(t.h1UseCredits('3')), findsOneWidget);
       await tester.tap(find.text(t.h1DetailedAds('2')));

@@ -606,7 +606,6 @@ class _LogFormState extends State<_LogForm> {
   @override
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
     final insets = MediaQuery.of(context).viewInsets.bottom;
     return Padding(
       padding: EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg + insets),
@@ -677,9 +676,6 @@ class _LogFormState extends State<_LogForm> {
                   prefixIcon: const Icon(Icons.restaurant_outlined),
                   border: const OutlineInputBorder()),
             ),
-            const SizedBox(height: Gap.xs),
-            Text(tr.wellPhotoSeam,
-                style: TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant)),
             const SizedBox(height: Gap.lg),
             Row(children: [
               Expanded(

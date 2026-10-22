@@ -710,52 +710,9 @@ class _EncryptedBackupScreenState extends State<EncryptedBackupScreen>
             ],
           ),
         ),
-        const SizedBox(height: 24),
-        // ---- Cloud (Google Drive) — honest key-gated seam.
-        Text(t.bkCloudTitle, style: _sectionStyle()),
-        const SizedBox(height: 8),
-        Opacity(
-          opacity: 0.85,
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: cs.outlineVariant),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(children: [
-                  Icon(Icons.cloud_outlined, color: cs.onSurfaceVariant),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(t.bkCloudCardTitle,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16)),
-                  ),
-                ]),
-                const SizedBox(height: 8),
-                Text(t.bkCloudBody,
-                    style: TextStyle(color: cs.onSurfaceVariant)),
-                const SizedBox(height: 12),
-                FilledButton.tonalIcon(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(t.bkCloudNotConfigured)));
-                  },
-                  icon: const Icon(Icons.link),
-                  label: Text(t.bkCloudConnect),
-                ),
-                const SizedBox(height: 6),
-                Text(t.bkCloudSeamNote,
-                    style: TextStyle(
-                        color: cs.onSurfaceVariant,
-                        fontSize: 12,
-                        fontStyle: FontStyle.italic)),
-              ],
-            ),
-          ),
-        ),
+        // NO SHOWPIECES: the Google Drive cloud-backup card (a Connect button
+        // that could only say "not enabled yet") is hidden until a Drive
+        // connection really exists. Local encrypted backup above works fully.
       ],
     );
   }

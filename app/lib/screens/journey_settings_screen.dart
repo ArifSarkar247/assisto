@@ -4,7 +4,6 @@ import '../state.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/password_field.dart';
 import '../widgets/journey_api.dart';
-import '../widgets/sos_native_hooks.dart';
 
 /// Safe Journey settings (items 7, 8, 14, 16, 18). Hosts:
 ///   - SOS countdown + siren default
@@ -241,9 +240,9 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
         ],
         const Divider(height: 28),
 
-        // native triggers — honest gating
-        const SosNativeHooksSection(),
-        const Divider(height: 28),
+        // (NO SHOWPIECES: the native discreet-trigger rows — power button,
+        // shake, lock-screen tile, widget, background service — were "coming
+        // in a later update" placeholders and are hidden until they ship.)
 
         // privacy
         Text(t.journeyPrivacySection,

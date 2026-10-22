@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../theme.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -18,6 +17,7 @@ import 'journey_live_screen.dart';
 import 'journey_sos_screen.dart';
 import 'journey_settings_screen.dart';
 import '../widgets/journey_api.dart';
+import 'fall_detect_screen.dart';
 
 /// Advanced family-safety hub (benchmarked vs Life360 / bSafe):
 ///   - SOS with a configurable countdown (so a mis-tap can be cancelled)
@@ -39,7 +39,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
   bool _fallAlarm = true;
   bool _fallVibration = true;
   // the native accelerometer/fall sensor plugin is not wired yet.
-  static const bool _sensorAvailable = false;
+  static bool get _sensorAvailable => FallDetectScreen.engineShipped;
 
   // check-in (local, surfaced to family via foreground poll)
   String? _checkinPlace;
@@ -342,24 +342,12 @@ class _SafetyScreenState extends State<SafetyScreen> {
         ),
         const Divider(height: 28),
 
+        // NO SHOWPIECES: the fall switch is hidden until a real fall sensor
+        // engine ships (FallDetectScreen.engineShipped).
+        if (_sensorAvailable) ...[
         // Fall / accident detection
         Text(t.safetyFallSection, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         const SizedBox(height: 4),
-        if (!_sensorAvailable)
-          Container(
-            padding: const EdgeInsets.all(10),
-            margin: const EdgeInsets.only(bottom: 8),
-            decoration: BoxDecoration(
-              color: Colors.amber.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(children: [
-              Icon(Icons.sensors_off, size: 18, color: Brand.warnInk(context)),
-              const SizedBox(width: 8),
-              Expanded(child: Text(t.safetyFallSensorGated,
-                  style: TextStyle(fontSize: 12, color: Brand.warnInk(context)))),
-            ]),
-          ),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
           title: Text(t.safetyFallEnable),
@@ -407,6 +395,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
             label: Text(t.safetyFallPreview),
             onPressed: () => _previewFall(t),
           ),
+        ],
         ],
         const SizedBox(height: 20),
         Text(t.safetyFooterNote, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),

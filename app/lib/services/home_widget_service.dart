@@ -43,7 +43,7 @@ class HomeWidgetService {
 
   /// Whether the home-screen widget is supported on this platform. Android only:
   /// no iOS WidgetKit extension is shipped yet, so on iOS every call here is a
-  /// no-op and the Settings tile shows an honest "coming soon".
+  /// no-op and the Settings tile is hidden.
   static bool get isSupported => Platform.isAndroid;
 
   /// One-time init. Safe to call more than once. No-op on iOS (no widget

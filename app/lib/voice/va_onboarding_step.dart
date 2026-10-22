@@ -100,7 +100,7 @@ class _VaOnboardingStepState extends State<VaOnboardingStep>
               final ok = await VaNative.openAssistantSettings();
               if (!ok && context.mounted) {
                 ScaffoldMessenger.maybeOf(context)
-                    ?.showSnackBar(SnackBar(content: Text(t.vaNeedsUpdate)));
+                    ?.showSnackBar(SnackBar(content: Text(t.vaSettingsOpenFailed)));
               }
             },
             icon: const Icon(Icons.assistant_outlined),

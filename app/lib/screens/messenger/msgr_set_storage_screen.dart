@@ -27,13 +27,6 @@ class _MsgrSetStorageScreenState extends State<MsgrSetStorageScreen> {
   bool _usageAvailable = false;
   Map<String, dynamic> _usage = {};
 
-  final Map<String, bool> _autoDl = {
-    'photos': true,
-    'audio': false,
-    'video': false,
-    'docs': false,
-  };
-
   ApiClient get _api => context.read<AppState>().api;
   AppLocalizations get _t => AppLocalizations.of(context);
 
@@ -47,10 +40,6 @@ class _MsgrSetStorageScreenState extends State<MsgrSetStorageScreen> {
     try {
       final r = await _api.storageUsage();
       _usage = r;
-      final ad = (r['auto_download'] as Map?)?.cast<String, dynamic>() ?? {};
-      for (final k in _autoDl.keys) {
-        if (ad[k] is bool) _autoDl[k] = ad[k] as bool;
-      }
       _usageAvailable = true;
     } catch (_) {
       _usageAvailable = false;
@@ -110,25 +99,9 @@ class _MsgrSetStorageScreenState extends State<MsgrSetStorageScreen> {
                 ] else
                   MsgrSetNote(t.msgrSetStorageUnavailable,
                       icon: Icons.info_outline),
-                const Divider(),
-                MsgrSetSection(t.msgrSetStorageAutoDlSection),
-                for (final e in <(String, IconData, String)>[
-                  ('photos', Icons.image_outlined, t.msgrSetStoragePhotos),
-                  ('audio', Icons.audiotrack_outlined, t.msgrSetStorageAudio),
-                  ('video', Icons.videocam_outlined, t.msgrSetStorageVideo),
-                  ('docs', Icons.insert_drive_file_outlined,
-                      t.msgrSetStorageDocsDl),
-                ])
-                  // Chats don't carry media yet, so auto-download has
-                  // nothing to act on: honest disabled switches + reason.
-                  SwitchListTile(
-                    secondary: Icon(e.$2),
-                    title: Text(e.$3,
-                        maxLines: 1, overflow: TextOverflow.ellipsis),
-                    value: _autoDl[e.$1] ?? false,
-                    onChanged: null,
-                  ),
-                MsgrSetNote(t.msgAutoDlNotYet, icon: Icons.info_outline),
+                // NO SHOWPIECES: My Circle chats don't carry media yet, so
+                // the media auto-download switches (which could do nothing)
+                // are hidden until media ships.
               ],
             ),
     );

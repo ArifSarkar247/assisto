@@ -707,6 +707,12 @@ class ApiClient {
     final r = await _c.get(AppConfig.api('/credits/packs'), headers: _headers());
     if (r.statusCode == 200) {
       final body = jsonDecode(r.body);
+      // NO SHOWPIECES: no payment provider connected -> no buy buttons (the
+      // screen shows "no top-up packs right now"). Older servers omit the
+      // flag and keep the old behaviour.
+      if (body is Map && body['purchasable'] == false) {
+        return const <Map<String, dynamic>>[];
+      }
       final list = body is Map ? (body['packs'] ?? body['items'] ?? []) : body;
       return (list as List).cast<Map<String, dynamic>>();
     }

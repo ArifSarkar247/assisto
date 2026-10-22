@@ -23,13 +23,19 @@ import '../widgets/fall_alarm_overlay.dart';
 ///   * In ELDERLY MODE a child may set it for a parent ONLY after an explicit
 ///     parent-permission confirmation.
 ///
-/// Honesty: there is NO native accelerometer yet. Detection is clearly marked
-/// "needs device motion access (coming soon)" / key-gated; a "simulate fall"
-/// test trigger exercises the full flow. The countdown mirrors the backend
+/// Honesty: there is NO native accelerometer yet. NO SHOWPIECES: until
+/// [FallDetectScreen.engineShipped] is true the "turn on fall detection"
+/// switches (here, in Settings and in Safety) and the sidebar entry are
+/// HIDDEN — a switch that detects nothing is a showpiece. The screen stays
+/// reachable only through the internal ChatNav route (CI native tour) with the
+/// honest sensor banner and the "simulate a fall" test. The countdown mirrors the backend
 /// safety fall-phase logic (core.logic.safety.fall_prompt_phase) with a local
 /// timer matching the 30s–10min setting — there is no fall endpoint to call.
 class FallDetectScreen extends StatefulWidget {
   const FallDetectScreen({super.key});
+
+  /// Flip to true when a real on-device fall sensor engine ships.
+  static bool get engineShipped => false;
   @override
   State<FallDetectScreen> createState() => _FallDetectScreenState();
 }
@@ -39,8 +45,8 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
   static const int _winMin = 30;
   static const int _winMax = 600; // 10 minutes
   static const int _winDefault = 120; // 2 minutes
-  // The native fall sensor plugin is not wired on this build.
-  static const bool _sensorAvailable = false;
+  // The native fall sensor plugin is not wired yet (see engineShipped).
+  static bool get _sensorAvailable => FallDetectScreen.engineShipped;
 
   bool _enabled = false;
   int _windowSec = _winDefault;
@@ -346,6 +352,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
               t.fallNoFamily, t.fallNoFamilyHelp),
         ],
 
+        if (_sensorAvailable) ...[
         const SizedBox(height: Gap.lg),
         Text(t.fallSectionSettings,
             style: Theme.of(context).textTheme.titleMedium),
@@ -396,6 +403,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
           ]),
         ),
 
+        ],
         const SizedBox(height: Gap.lg),
         Text(t.fallSectionTest,
             style: Theme.of(context).textTheme.titleMedium),

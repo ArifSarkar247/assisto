@@ -1,0 +1,20 @@
+{
+  "en": {
+    "c1PhonebookCantReadTitle": "Couldn't read contacts on this phone",
+    "c1PhonebookCantReadBody": "Your phone didn't let Assisto open its contacts list, so nothing was read. Type a number above to find someone on Assisto.",
+    "vaSettingsOpenFailed": "Your phone didn't open that settings page. Please open it from your phone's Settings app.",
+    "camShareFile": "Share with another app",
+    "camShareFileSub": "WhatsApp, Gmail, Drive, Files… — the full photo or video is shared.",
+    "camShareFailed": "Couldn't open the share menu. Please try again.",
+    "camCircleTextOnly": "My Circle chats carry text only for now, so photos and videos go through your phone's share menu."
+  },
+  "bn": {
+    "c1PhonebookCantReadTitle": "এই ফোনে ফোনবুক পড়া গেল না",
+    "c1PhonebookCantReadBody": "আপনার ফোন Assisto-কে ফোনবুক খুলতে দেয়নি, তাই কিছুই পড়া হয়নি। Assisto-তে কাউকে খুঁজতে ওপরে একটি নম্বর লিখুন।",
+    "vaSettingsOpenFailed": "আপনার ফোন ওই সেটিংস পেজটি খোলেনি। ফোনের সেটিংস অ্যাপ থেকে খুলে নিন।",
+    "camShareFile": "অন্য অ্যাপে শেয়ার করুন",
+    "camShareFileSub": "হোয়াটসঅ্যাপ, জিমেইল, ড্রাইভ, ফাইলস… — পুরো ছবি বা ভিডিও শেয়ার হবে।",
+    "camShareFailed": "শেয়ার মেনু খোলা গেল না। আবার চেষ্টা করুন।",
+    "camCircleTextOnly": "মাই সার্কেলের চ্যাটে এখন শুধু লেখা যায়, তাই ছবি ও ভিডিও ফোনের শেয়ার মেনু দিয়ে পাঠানো হয়।"
+  }
+}

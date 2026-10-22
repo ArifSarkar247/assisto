@@ -296,6 +296,20 @@ void main() {
     expect(api.lookups.length, before);
   });
 
+  testWidgets('reader refused on this phone: honest reason, no Allow loop',
+      (tester) async {
+    final src = _FakeSource(_book, grant: ContactsPermission.unavailable);
+    final api = _Api();
+    await _pump(tester, api, src);
+    await _allow(tester);
+    final t = _t(tester);
+    expect(find.byKey(const Key('c1-unavailable')), findsOneWidget);
+    expect(find.text(t.c1PhonebookCantReadTitle), findsOneWidget);
+    expect(find.text(t.msgrContactsAllow), findsNothing);
+    expect(src.reads, 0);
+    expect(api.matchBodies, isEmpty);
+  });
+
   testWidgets('unavailable source is honest: no disclosure, no fake read',
       (tester) async {
     final api = _Api();
@@ -303,7 +317,7 @@ void main() {
     final t = _t(tester);
     expect(find.byKey(const Key('c1-disclosure')), findsNothing);
     expect(find.byKey(const Key('c1-unavailable')), findsOneWidget);
-    expect(find.text(t.c1PhonebookNextUpdateTitle), findsOneWidget);
+    expect(find.text(t.c1PhonebookCantReadTitle), findsOneWidget);
     expect(find.byKey(const Key('c1-section-on')), findsNothing);
     expect(api.matchBodies, isEmpty);
     // search still works

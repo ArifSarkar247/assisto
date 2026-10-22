@@ -94,11 +94,9 @@ class _PlansScreenState extends State<PlansScreen> {
     if (mounted) await _load();
   }
 
-  void _notYet() {
-    final t = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(t.plansBillingComingSoon)));
-  }
+  // NO SHOWPIECES: there is no in-app plan checkout yet, so the old
+  // "Choose <plan>" button could only say "billing isn't connected" — it is
+  // removed. Add it back together with a real checkout.
 
   int _int(dynamic v) => v is num ? v.toInt() : 0;
 
@@ -557,18 +555,6 @@ class _PlansScreenState extends State<PlansScreen> {
                   minimumSize: const Size.fromHeight(44)),
               child: Text(t.plansCurrentTag),
             )
-          else
-            FilledButton.icon(
-              onPressed: _notYet,
-              icon: const Icon(Icons.lock_open_outlined, size: 18),
-              style: FilledButton.styleFrom(
-                  minimumSize: const Size.fromHeight(44),
-                  backgroundColor:
-                      highlighted ? null : scheme.secondaryContainer,
-                  foregroundColor:
-                      highlighted ? null : scheme.onSecondaryContainer),
-              label: Text(t.plansChoose(_planLabel(p))),
-            ),
         ]),
       ),
     );

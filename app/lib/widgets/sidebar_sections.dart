@@ -251,9 +251,11 @@ class SidebarSections {
       SidebarItem(Icons.verified_user_outlined, (t) => t.scamTitle,
           (_) => const ScamScreen(),
           synonyms: ['scam', 'fraud', 'protection']),
-      SidebarItem(Icons.monitor_heart_outlined, (t) => t.fallDetectTitle,
-          (_) => const FallDetectScreen(),
-          synonyms: ['fall', 'fall detection', 'accident', 'elderly safety']),
+      // NO SHOWPIECES: hidden until a real fall sensor engine ships.
+      if (FallDetectScreen.engineShipped)
+        SidebarItem(Icons.monitor_heart_outlined, (t) => t.fallDetectTitle,
+            (_) => const FallDetectScreen(),
+            synonyms: ['fall', 'fall detection', 'accident', 'elderly safety']),
       // #80 Lost / stolen phone protection (device-admin: lock / alarm /
       // locate / lost-message). Chat-openable via ChatNav route 'lost_stolen'.
       SidebarItem(Icons.phonelink_lock_outlined, (t) => t.lostStolenTitle,
