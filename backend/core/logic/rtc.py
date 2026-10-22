@@ -37,7 +37,22 @@ def turn_credentials(secret, user_id, now_ts, ttl=TURN_DEFAULT_TTL):
 def ice_servers(host, port, creds):
     """The `iceServers` array the client feeds to RTCPeerConnection: a STUN entry
     (for reflexive candidates; host is a DOMAIN so a server move = DNS change) + a TURN entry over UDP and TCP (relay fallback
-    when a direct/NAT path fails)."""
+    when a direct/NAT path fails).
+
+    t9-turnscale: when a TURN server LIST is configured (Owner Admin / env
+    TURN_SERVERS) core.turn_pool builds the list instead; with no list the
+    output below is unchanged (plus managed-TURN overflow only if switched on).
+    Any error there falls back to this exact output."""
+    legacy = _legacy_ice(host, port, creds)
+    try:
+        from core import turn_pool
+        pooled = turn_pool.pooled_ice_servers(creds)
+        return pooled if pooled else turn_pool.with_overflow(legacy, creds)
+    except Exception:
+        return legacy
+
+
+def _legacy_ice(host, port, creds):
     return [
         {"urls": [f"stun:{host}:{port}"]},
         {

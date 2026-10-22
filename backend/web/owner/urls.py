@@ -6,6 +6,7 @@ from . import security as S
 from . import views_auth as A
 from . import views_sections as V
 from . import views_f1 as F1
+from . import views_t9 as T9
 
 _ASSETS = {"owner.css": "text/css; charset=utf-8",
            "owner.js": "application/javascript; charset=utf-8"}
@@ -66,4 +67,5 @@ urlpatterns = [
     path("feedback.csv", F1.feedback_csv),
     path("feedback/<int:pk>", F1.feedback_detail),
     # ---- /f1-founders ----
+    path("calls", T9.calls),          # t9-turnscale: Call relay (TURN)
 ]

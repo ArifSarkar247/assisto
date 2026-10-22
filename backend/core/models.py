@@ -3854,3 +3854,65 @@ class FeedbackReport(models.Model):
     class Meta:
         ordering = ["-created_at", "-id"]
 # ---- /f1-founders ----
+
+
+# ====================================================================
+# ---- t9-turnscale ---- TURN server list (owner-editable), coturn capacity
+# samples, and per-TURN-session relay usage (Profit Guard cost per minute).
+# No secrets live here: a server entry only names the env var of its secret.
+# ====================================================================
+
+class TurnConfig(models.Model):
+    """Singleton (pk=1). `servers_text` is the owner-edited list (same format as
+    env TURN_SERVERS; empty = use the env / single TURN_HOST). `thresholds`
+    overrides the alert defaults; `health` + `alert_state` are written by the
+    turn_monitor command (per-host STUN probe; alert de-duplication)."""
+    servers_text = models.TextField(blank=True, default="")
+    thresholds = models.JSONField(default=dict, blank=True)
+    health = models.JSONField(default=dict, blank=True)
+    alert_state = models.JSONField(default=dict, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    @classmethod
+    def load(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+
+class TurnSample(models.Model):
+    """One per-minute coturn sample (kept TURN_SAMPLE_KEEP_DAYS, ~20k rows).
+    Nullable fields = that source was not available (never a made-up 0)."""
+    at = models.DateTimeField(db_index=True)
+    allocations = models.IntegerField(null=True, blank=True)     # live relay sockets
+    cli_sessions = models.IntegerField(null=True, blank=True)    # coturn CLI 'ps'
+    relay_in_bps = models.BigIntegerField(null=True, blank=True)   # bytes/s (CLI)
+    relay_out_bps = models.BigIntegerField(null=True, blank=True)  # bytes/s (CLI)
+    nic_in_bps = models.BigIntegerField(null=True, blank=True)     # bytes/s, whole box
+    nic_out_bps = models.BigIntegerField(null=True, blank=True)    # bytes/s, whole box
+    turn_cpu_pct = models.FloatField(null=True, blank=True)      # % of ONE vCPU
+    steal_pct = models.FloatField(null=True, blank=True)
+    quota_errors = models.IntegerField(default=0)                # 486 allocation quota
+    bw_quota_errors = models.IntegerField(default=0)             # 486 bandwidth quota
+    alloc_errors = models.IntegerField(default=0)                # cannot complete allocation
+    auth_errors = models.IntegerField(default=0)                 # 401 / unknown user
+    relay_bytes_out = models.BigIntegerField(default=0)          # closed sessions this minute
+    healthy_servers = models.IntegerField(null=True, blank=True)
+    sources = models.CharField(max_length=60, blank=True, default="")
+
+    class Meta:
+        ordering = ["-at"]
+
+
+class TurnRelayUsage(models.Model):
+    """Bytes of ONE closed coturn session (log 'usage' line), matched to the
+    relayed call it most likely carried. Feeds the measured cost per minute."""
+    at = models.DateTimeField(db_index=True)
+    user_id = models.IntegerField(null=True, blank=True)
+    bytes_in = models.BigIntegerField(default=0)
+    bytes_out = models.BigIntegerField(default=0)                # egress = AWS-billed
+    call_kind = models.CharField(max_length=8, blank=True, default="")  # voice|video
+    call_id = models.IntegerField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-at"]
+# ---- /t9-turnscale ----
