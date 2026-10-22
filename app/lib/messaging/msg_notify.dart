@@ -5,7 +5,6 @@ import 'dart:ui' show Locale;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 import '../config.dart';
@@ -17,6 +16,7 @@ import 'avatar_cache.dart';
 import 'badges_bus.dart';
 import 'msg_prefs.dart';
 import 'outbox.dart';
+import '../security/secret_store.dart';
 
 /// c3-msg — WhatsApp-style message notifications, built ON THE DEVICE.
 ///
@@ -661,7 +661,6 @@ class MsgPushHandler {
 // ---------------------------------------------------------------------------
 // Isolate entry helpers (no BuildContext, own storage + HTTP)
 // ---------------------------------------------------------------------------
-const _secure = FlutterSecureStorage();
 
 /// The stored identity (secure storage, then the encrypted fallback); never
 /// creates one in a background isolate.
@@ -675,7 +674,7 @@ Future<IdentityKeyPair?> loadStoredIdentity() async {
 
 Future<MsgPushHandler?> backgroundMsgHandler({String lang = 'bn', String? token}) async {
   try {
-    token ??= await _secure.read(key: 'token');
+    token ??= await SecretStore.instance.read('token');
     if (token == null || token.isEmpty) return null;
     return MsgPushHandler(
       backend: HttpMsgBackend(token, lang: lang),

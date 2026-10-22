@@ -3,147 +3,146 @@ import 'dart:io';
 
 import 'package:assisto/crypto/identity_vault.dart';
 import 'package:assisto/crypto/key_service.dart';
+import 'package:assisto/security/secret_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// In-memory slot that can be told to throw or hang (ColorOS Keystore modes).
-class FakeSlot implements IdentitySlot {
-  FakeSlot(this.name);
-  @override
-  final String name;
-  String? value;
-  Object? readError;
-  Object? writeError;
+/// The old Keystore slot, forced into each ColorOS/MIUI failure mode.
+class FakeLegacy implements LegacySecrets {
+  final Map<String, String> values = {};
   bool hang = false;
+  bool fail = false;
   int reads = 0;
-  int writes = 0;
 
   @override
-  Future<String?> read() async {
+  Future<String?> read(String name) async {
     reads++;
-    if (hang) return Completer<String?>().future;
-    if (readError != null) throw readError!;
-    return value;
+    if (hang) return Completer<String?>().future.timeout(
+        const Duration(milliseconds: 200), onTimeout: () => null);
+    if (fail) return null; // KeystoreLegacy swallows errors -> null
+    return values[name];
   }
 
   @override
-  Future<void> write(String v) async {
-    writes++;
+  Future<void> delete(String name) async {
     if (hang) return Completer<void>().future;
-    if (writeError != null) throw writeError!;
-    value = v;
+    values.remove(name);
   }
-}
-
-class KeystoreError implements Exception {
-  @override
-  String toString() => 'PlatformException(KeyStoreException)';
 }
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late Directory tmp;
+  late FakeLegacy legacy;
+
+  SecretStore store() =>
+      SecretStore(dir: () async => Directory('${tmp.path}/no_backup/s'), legacy: legacy);
+
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
-    tmp = await Directory.systemTemp.createTemp('idv');
+    tmp = await Directory.systemTemp.createTemp('sec');
+    legacy = FakeLegacy();
   });
   tearDown(() async => tmp.delete(recursive: true));
 
-  FileSlot fileSlot() => FileSlot(dir: () async => Directory('${tmp.path}/nb'));
+  group('SecretStore (app sandbox, Keystore never required)', () {
+    test('write/read/delete round trip, survives a new instance (app restart)', () async {
+      expect(await store().write('token', 'abc123'), isTrue);
+      expect(await store().read('token'), 'abc123');
+      await store().delete('token');
+      expect(await store().read('token'), isNull);
+    });
 
-  test('healthy secure storage: creates once, stores in both, same key after restart', () async {
-    final sec = FakeSlot('secure');
-    final v1 = IdentityVault(secure: sec, fallback: fileSlot());
-    final a = await v1.get();
-    expect(sec.value, isNotNull);
-    expect(v1.volatile, isFalse);
-    final v2 = IdentityVault(secure: sec, fallback: fileSlot());
-    final b = await v2.get();
-    expect(b.keyId, a.keyId);
+    test('Keystore forced to fail: token still saved and read back', () async {
+      legacy.fail = true;
+      expect(await store().write('token', 't-1'), isTrue);
+      expect(await store().read('token'), 't-1');
+    });
+
+    test('Keystore hangs: delete (logout) does not wait for it', () async {
+      legacy.hang = true;
+      await store().write('token', 't-2');
+      final sw = Stopwatch()..start();
+      await store().delete('token');
+      expect(sw.elapsedMilliseconds, lessThan(1000));
+      expect(await store().read('token'), isNull);
+    });
+
+    test('old Keystore value is migrated once into the sandbox', () async {
+      legacy.values['token'] = 'old-token';
+      expect(await store().read('token'), 'old-token');
+      legacy.values.clear();
+      expect(await store().read('token'), 'old-token', reason: 'now from the file');
+    });
+
+    test('files are sealed: no plaintext, tamper detected', () async {
+      await store().write('token', 'very-secret-token-value');
+      final f = File('${tmp.path}/no_backup/s/token.bin');
+      final bytes = await f.readAsBytes();
+      expect(String.fromCharCodes(bytes).contains('very-secret'), isFalse);
+      bytes[20] ^= 0xFF;
+      await f.writeAsBytes(bytes);
+      final s = store();
+      expect(await s.read('token'), isNull);
+      expect(s.lastError, startsWith('file:'));
+    });
+
+    test('lives under no_backup (excluded from cloud backup)', () async {
+      await store().write('x', 'y');
+      expect(Directory('${tmp.path}/no_backup/s').existsSync(), isTrue);
+    });
   });
 
-  test('Keystore always throws (OPPO case): identity survives restarts via the encrypted fallback', () async {
-    final sec = FakeSlot('secure')..readError = KeystoreError()..writeError = KeystoreError();
-    final v1 = IdentityVault(secure: sec, fallback: fileSlot());
-    final a = await v1.get();
-    expect(v1.volatile, isFalse);
-    expect(v1.lastError, contains('secure:'));
-    expect(sec.reads, 2, reason: 'one retry after a failure');
-    final v2 = IdentityVault(secure: sec, fallback: fileSlot());
-    final b = await v2.get();
-    expect(b.keyId, a.keyId, reason: 'same identity after app restart');
-    expect(b.privateKey, a.privateKey);
-  });
+  group('IdentityVault', () {
+    test('Keystore forced to fail: identity created, kept across restarts', () async {
+      legacy.fail = true;
+      final a = await IdentityVault(store: store()).get();
+      final b = await IdentityVault(store: store()).get();
+      expect(b.keyId, a.keyId);
+      expect(b.privateKey, a.privateKey);
+    });
 
-  test('Keystore hangs: get() still completes (timeouts) and uses the fallback', () async {
-    final sec = FakeSlot('secure')..hang = true;
-    final v = IdentityVault(secure: sec, fallback: fileSlot());
-    final a = await v.get().timeout(const Duration(seconds: 15));
-    final again = await IdentityVault(secure: FakeSlot('secure')..hang = true, fallback: fileSlot())
-        .get()
-        .timeout(const Duration(seconds: 15));
-    expect(again.keyId, a.keyId);
-  }, timeout: const Timeout(Duration(seconds: 40)));
+    test('existing identity from an older build (Keystore) is migrated, not replaced', () async {
+      final seed = await IdentityVault(store: SecretStore(
+          dir: () async => Directory('${tmp.path}/seed'), legacy: legacy)).get();
+      legacy.values[IdentityVault.slot] =
+          (await SecretStore(dir: () async => Directory('${tmp.path}/seed'), legacy: FakeLegacy())
+              .read(IdentityVault.slot))!;
+      final got = await IdentityVault(store: store()).get();
+      expect(got.keyId, seed.keyId);
+    });
 
-  test('both stores fail: volatile identity, still returned (chat opens, key publishes)', () async {
-    final sec = FakeSlot('secure')..readError = KeystoreError()..writeError = KeystoreError();
-    final file = FakeSlot('file')..readError = const FileSystemException('ro')..writeError = const FileSystemException('ro');
-    final v = IdentityVault(secure: sec, fallback: file);
-    final id = await v.get();
-    expect(id.publicKey.length, 32);
-    expect(v.volatile, isTrue);
-    expect((await v.get()).keyId, id.keyId, reason: 'cached for the session');
-  });
+    test('unreadable stored identity -> safe re-key (never an empty identity)', () async {
+      await store().write(IdentityVault.slot, '{broken');
+      final v = IdentityVault(store: store());
+      final id = await v.get();
+      expect(id.publicKey.length, 32);
+      expect(v.rekeyed, isTrue);
+      expect((await IdentityVault(store: store()).get()).keyId, id.keyId);
+    });
 
-  test('existing secure identity is never replaced and is mirrored to the fallback', () async {
-    final sec = FakeSlot('secure');
-    final seed = await IdentityVault(secure: sec, fallback: FakeSlot('x')).get();
-    final file = fileSlot();
-    final v = IdentityVault(secure: sec, fallback: file);
-    expect((await v.get()).keyId, seed.keyId);
-    await Future<void>.delayed(const Duration(milliseconds: 50));
-    // Keystore breaks later: the mirror keeps the SAME key.
-    final broken = FakeSlot('secure')..readError = KeystoreError();
-    expect((await IdentityVault(secure: broken, fallback: fileSlot()).get()).keyId, seed.keyId);
-  });
+    test('concurrent callers get ONE identity', () async {
+      final v = IdentityVault(store: store());
+      final r = await Future.wait([v.get(), v.get(), v.get()]);
+      expect(r.map((e) => e.keyId).toSet().length, 1);
+    });
 
-  test('concurrent callers get ONE identity', () async {
-    final sec = FakeSlot('secure');
-    final v = IdentityVault(secure: sec, fallback: fileSlot());
-    final r = await Future.wait([v.get(), v.get(), v.get()]);
-    expect(r.map((e) => e.keyId).toSet().length, 1);
-    expect(sec.writes, 1);
-  });
+    test('peek() never creates (background isolate)', () async {
+      expect(await IdentityVault(store: store()).peek(), isNull);
+    });
 
-  test('fallback file is sealed (no plaintext key, tamper detected)', () async {
-    final sec = FakeSlot('secure')..readError = KeystoreError()..writeError = KeystoreError();
-    final id = await IdentityVault(secure: sec, fallback: fileSlot()).get();
-    final f = File('${tmp.path}/nb/id_v1.bin');
-    final bytes = await f.readAsBytes();
-    expect(String.fromCharCodes(bytes).contains(id.publicKeyB64), isFalse);
-    bytes[20] ^= 0xFF;
-    await f.writeAsBytes(bytes);
-    final v = IdentityVault(secure: sec, fallback: fileSlot());
-    expect(await v.peek(), isNull);
-    expect(v.lastError, contains('file:'));
-  });
-
-  test('peek() never creates an identity (background isolate)', () async {
-    final v = IdentityVault(secure: FakeSlot('secure'), fallback: fileSlot());
-    expect(await v.peek(), isNull);
-  });
-
-  test('key publish works even when the Keystore always throws', () async {
-    final sec = FakeSlot('secure')..readError = KeystoreError()..writeError = KeystoreError();
-    IdentityVault.instance = IdentityVault(secure: sec, fallback: fileSlot());
-    final posted = <Map<String, dynamic>>[];
-    final ks = KeyService(store: const SecureIdentityStore(), sleep: (_) async {});
-    final ok = await ks.publish((path, body) async {
-      posted.add(body);
-      return <String, dynamic>{};
-    }, reason: 'test');
-    expect(ok, isTrue);
-    expect(posted.single['key_id'], (await IdentityVault.instance.get()).keyId);
-    IdentityVault.instance = IdentityVault();
+    test('key publish works with the Keystore forced to fail', () async {
+      legacy.fail = true;
+      IdentityVault.instance = IdentityVault(store: store());
+      final posted = <Map<String, dynamic>>[];
+      final ks = KeyService(store: const SecureIdentityStore(), sleep: (_) async {});
+      final ok = await ks.publish((path, body) async {
+        posted.add(body);
+        return <String, dynamic>{};
+      }, reason: 'test');
+      expect(ok, isTrue);
+      expect(posted.single['key_id'], (await IdentityVault.instance.get()).keyId);
+      IdentityVault.instance = IdentityVault();
+    });
   });
 }

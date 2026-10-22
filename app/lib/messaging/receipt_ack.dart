@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config.dart';
+import '../security/secret_store.dart';
 
 /// x2-ticks — DELIVERED acks from THIS phone, from any isolate.
 ///
@@ -15,7 +15,7 @@ import '../config.dart';
 /// is on this phone" calls [delivered] with its id:
 ///   * the FCM background isolate (data-only `message` / silent `msg_sync`
 ///     push) — FIRST thing, before it even pulls / decrypts, using the auth
-///     token stored by the app (flutter_secure_storage 'token');
+///     token stored by the app (SecretStore 'token');
 ///   * the UI isolate's foreground push handler;
 ///   * the realtime `msg.new` event when the app is open.
 /// One tiny request: POST /circle/receipts {delivered:[ids]}. The server
@@ -42,12 +42,11 @@ class ReceiptAck {
   final String lang;
   final Duration timeout;
 
-  static const _secure = FlutterSecureStorage();
 
   /// The token the app stored at sign-in (AppState writes key 'token').
   static Future<String?> storedToken() async {
     try {
-      return await _secure.read(key: 'token');
+      return await SecretStore.instance.read('token');
     } catch (_) {
       return null;
     }

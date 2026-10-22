@@ -7,6 +7,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../api.dart';
 import '../calls/call_runtime.dart';
 import '../notifications.dart';
 import '../state.dart';
@@ -242,13 +243,15 @@ class PushService {
 
   /// Call BEFORE the auth token is cleared so the server stops sending this
   /// account's pushes to this phone.
-  Future<void> onLogout() async {
-    final app = _app;
+  /// [api] carries the signed-out session's token (AppState.logout clears
+  /// the shared client first so the login screen shows at once).
+  Future<void> onLogout({ApiClient? api}) async {
+    final client = api ?? _app?.api;
     final tok = _registeredToken;
     _registeredToken = null;
-    if (app != null && tok != null) {
+    if (client != null && tok != null) {
       try {
-        await app.api.pushUnregister(tok).timeout(const Duration(seconds: 6));
+        await client.pushUnregister(tok).timeout(const Duration(seconds: 6));
       } catch (_) {}
     }
     try {

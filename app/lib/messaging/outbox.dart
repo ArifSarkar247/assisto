@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../crypto/e2e.dart';
 import '../crypto/key_service.dart';
+import '../security/secret_store.dart';
 
 /// e2-keys — the persistent LOCAL outbox (owner PRODUCT RULE: the sender is
 /// never blocked by encryption).
@@ -350,7 +350,7 @@ class Outbox {
 
   static Future<String?> _readToken() async {
     try {
-      return await const FlutterSecureStorage().read(key: 'token');
+      return await SecretStore.instance.read('token');
     } catch (_) {
       return null;
     }

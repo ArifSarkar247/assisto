@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../api.dart';
 import '../../c1_contacts_api.dart';
 import '../../crypto/e2e.dart';
+import '../../crypto/identity_vault.dart';
 import '../../l10n/app_localizations.dart';
 import '../../messenger_api.dart';
 import '../../services/contacts_source.dart';
@@ -423,38 +422,9 @@ class _ContactsScreenState extends State<ContactsScreen> {
     };
   }
 
-  /// The on-device E2E identity (same storage key as the Messenger hub). The
-  /// PRIVATE key never leaves the device.
-  Future<IdentityKeyPair?> _identity() async {
-    const secure = FlutterSecureStorage();
-    try {
-      final stored = await secure.read(key: 'circle_identity_v1');
-      if (stored != null) {
-        final j = jsonDecode(stored) as Map<String, dynamic>;
-        return IdentityKeyPair(base64Decode(j['priv'] as String),
-            base64Decode(j['pub'] as String), j['kid'] as String);
-      }
-      final e2e = SoftwareE2E();
-      final id = e2e.generateIdentity();
-      await secure.write(
-          key: 'circle_identity_v1',
-          value: jsonEncode({
-            'priv': base64Encode(id.privateKey),
-            'pub': base64Encode(id.publicKey),
-            'kid': id.keyId,
-          }));
-      try {
-        await _api.postJson('/circle/keys', {
-          'public_key': id.publicKeyB64,
-          'key_id': id.keyId,
-          'scheme': e2e.scheme,
-        });
-      } catch (_) {}
-      return id;
-    } catch (_) {
-      return null;
-    }
-  }
+  /// The on-device E2E identity via [IdentityVault] (never null; the key is
+  /// published at sign-in and on every app start).
+  Future<IdentityKeyPair?> _identity() => IdentityVault.instance.get();
 
   Future<void> _message(Map<String, dynamic> user) async {
     final member = _memberOf(user);

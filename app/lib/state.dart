@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart' show ThemeMode, Locale;
 import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api.dart';
@@ -12,9 +11,13 @@ import 'models.dart';
 import 'sync_repo.dart';
 import 'background.dart';
 import 'push/push_service.dart';
+import 'security/secret_store.dart';
+import 'services/error_report.dart';
+import 'crypto/e2e.dart';
+import 'crypto/key_service.dart';
+import 'crypto/identity_vault.dart';
 
 class AppState extends ChangeNotifier {
-  final _secure = const FlutterSecureStorage();
   ApiClient api = ApiClient(); // non-final so tests/previews can inject a fake
   final LocalDb db = LocalDb.instance;
 
@@ -68,7 +71,7 @@ class AppState extends ChangeNotifier {
       prefsError ??= 'prefs write locale: $e';
     }
     try {
-      await _secure.write(key: _localeKey, value: code).timeout(_ioTimeout);
+      await SecretStore.instance.write(_localeKey, code).timeout(_ioTimeout);
     } catch (e) {
       prefsError ??= 'secure write locale: $e';
     }
@@ -108,7 +111,7 @@ class AppState extends ChangeNotifier {
       prefsError ??= 'prefs read locale: $e';
     }
     try {
-      final v = await _secure.read(key: _localeKey).timeout(_ioTimeout);
+      final v = await SecretStore.instance.read(_localeKey).timeout(_ioTimeout);
       if (v != null && v.isNotEmpty) {
         // heal the primary store when it lost the value
         unawaited(Settings.setString(_localeKey, v)
@@ -193,7 +196,7 @@ class AppState extends ChangeNotifier {
     } catch (_) {}
     String? t;
     try {
-      t = await _secure.read(key: 'token');
+      t = await SecretStore.instance.read('token');
       api.token = t;
     } catch (_) {}
     try {
@@ -242,35 +245,29 @@ class AppState extends ChangeNotifier {
         email: email,
         password: password,
         otpProof: otpProof);
-    api.token = res.token;
-    user = res.user;
-    await _secure.write(key: 'token', value: res.token);
-    await reconcileLanguage();
-    unawaited(Background.start());
-    await sync();
-    _syncAll();
-    notifyListeners();
+    await _finishSignIn(res.token, res.user);
   }
 
   Future<void> login(
       {required String identifier, required String password}) async {
     final res = await api.login(identifier: identifier, password: password);
-    api.token = res.token;
-    user = res.user;
-    await _secure.write(key: 'token', value: res.token);
-    await reconcileLanguage();
-    unawaited(Background.start());
-    await sync();
-    _syncAll();
-    notifyListeners();
+    await _finishSignIn(res.token, res.user);
   }
 
   /// o1-otp: adopt a session issued by a non-password sign-in (OTP login).
-  /// Same post-login steps as [login].
-  Future<void> adoptSession(String token, AppUser signedIn) async {
+  Future<void> adoptSession(String token, AppUser signedIn) =>
+      _finishSignIn(token, signedIn);
+
+  /// Shared post-sign-in steps. The token goes to the app-sandbox
+  /// [SecretStore] (never fails because of the Keystore), and sign-in is not
+  /// done until our E2E public key is on the server (owner rule 22 Oct).
+  Future<void> _finishSignIn(String token, AppUser signedIn) async {
     api.token = token;
     user = signedIn;
-    await _secure.write(key: 'token', value: token);
+    if (!await SecretStore.instance.write('token', token)) {
+      reportNonFatal('auth.token_write', SecretStore.instance.lastError);
+    }
+    await _publishIdentityKey();
     await reconcileLanguage();
     unawaited(Background.start());
     await sync();
@@ -278,36 +275,91 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> logout() async {
-    // Stop this account's pushes landing on this phone (needs the token, so
-    // before api.logout clears it). Guarded + time-boxed inside.
-    try {
-      await PushService.instance.onLogout();
-    } catch (_) {}
-    await api.logout();
-    await _clearSession();
-    await db.clearAll();
-    for (final r in _repos) {
-      await r.clear();
+  /// Create (if needed) and upload the E2E public key, with retry. If the
+  /// network keeps failing, the key service carries on with its backoff and
+  /// every app start publishes again — never a silent empty identity.
+  Future<void> _publishIdentityKey() async {
+    const waits = [Duration(seconds: 1), Duration(seconds: 2), Duration(seconds: 4)];
+    for (var attempt = 0; attempt <= waits.length; attempt++) {
+      try {
+        final id = await IdentityVault.instance.get();
+        await api.postJson('/circle/keys', {
+          'public_key': id.publicKeyB64,
+          'key_id': id.keyId,
+          'scheme': SoftwareE2E().scheme,
+        }).timeout(const Duration(seconds: 8));
+        return;
+      } catch (e) {
+        reportNonFatal('auth.key_publish', e);
+        if (attempt < waits.length) await Future<void>.delayed(waits[attempt]);
+      }
     }
-    memory = [];
-    notifyListeners();
+    unawaited(KeyService.instance
+        .publish((p, b) => api.postJson(p, b), reason: 'login'));
   }
 
-  Future<void> _clearSession() async {
+  /// Local sign-out ALWAYS completes and the login screen shows at once —
+  /// on every phone, even when the network or the Keystore hangs (owner bug:
+  /// logout did nothing on OPPO). Server + push cleanup run afterwards in the
+  /// background, each step time-boxed and independent.
+  Future<void> logout() async {
+    final oldToken = api.token;
+    await _signOutLocally();
+    unawaited(_serverSignOut(oldToken));
+  }
+
+  /// Uses its OWN client carrying the old token, so the app's shared client
+  /// never gets a signed-out token back.
+  Future<void> _serverSignOut(String? oldToken) async {
+    if (oldToken == null) return;
+    final cleanup = ApiClient.detached(oldToken);
+    try {
+      await PushService.instance
+          .onLogout(api: cleanup)
+          .timeout(const Duration(seconds: 8));
+    } catch (e) {
+      reportNonFatal('logout.push', e);
+    }
+    try {
+      await cleanup.logout().timeout(const Duration(seconds: 8));
+    } catch (e) {
+      reportNonFatal('logout.server', e);
+    }
+  }
+
+  /// Clear this phone's session + local data. Every step is independent and
+  /// time-boxed; the UI is told first so the login screen appears at once.
+  Future<void> _signOutLocally() async {
     api.token = null;
     user = null;
-    await _secure.delete(key: 'token');
-    await Background.stop();
-  }
-
-  Future<void> deleteAccount() async {
-    await api.deleteAccount();
-    await _clearSession();
-    await db.clearAll();
     memory = [];
     notifyListeners();
+    await _step('logout.token', SecretStore.instance.delete('token'));
+    await _step('logout.background', Background.stop());
+    await _step('logout.db', db.clearAll());
+    for (final r in _repos) {
+      await _step('logout.repo', r.clear());
+    }
+    notifyListeners();
   }
+
+  Future<void> _step(String where, Future<void> f) async {
+    try {
+      await f.timeout(const Duration(seconds: 2));
+    } catch (e) {
+      reportNonFatal(where, e);
+    }
+  }
+
+  Future<void> _clearSession() => _signOutLocally();
+
+  Future<void> deleteAccount() async {
+    // The server must accept the deletion first (that can fail — the caller
+    // shows the honest error); after that the local wipe always completes.
+    await api.deleteAccount().timeout(const Duration(seconds: 20));
+    await _signOutLocally();
+  }
+
 
   /// Patch profile fields (safety settings, elderly mode, etc.) via /me.
   /// Returns false when the server did not take the change (q1-seams: callers

@@ -77,7 +77,8 @@ void main() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final safe = await StartupGuard.isSafeMode();
       // Notifications (local scheduling) — self-guarded, not a startup blocker.
-      try { await Notifications.init(); } catch (_) {}
+      // Time-boxed: a hang here must not delay key publishing below.
+      try { await Notifications.init().timeout(const Duration(seconds: 5)); } catch (_) {}
       // e2-keys: publish the PUBLIC key on every start / login / accept and
       // run the outbox — pure Dart + HTTP, guarded, a few seconds after the
       // first frame (never on the cold-start path, runs in safe mode too).
@@ -200,6 +201,7 @@ class _Root extends StatefulWidget {
 }
 
 class _RootState extends State<_Root> with WidgetsBindingObserver {
+  bool _wasLoggedIn = false;
   // Elderly simple-mode route-swap (SPEC §29). The LOCAL `elderly_mode` flag is
   // the router's source of truth (works offline); resolved once we know the user
   // is past login/onboarding, and re-resolved on resume (so the Settings toggle
@@ -323,7 +325,18 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     if (app.locale == null) {
       return const LanguagePickerScreen();
     }
-    if (!app.loggedIn) return const LoginScreen();
+    if (!app.loggedIn) {
+      // Signed out (logout, delete account, expired session): drop every
+      // pushed screen (e.g. Settings) so the login screen is really visible.
+      if (_wasLoggedIn) {
+        _wasLoggedIn = false;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          appNavigatorKey.currentState?.popUntil((r) => r.isFirst);
+        });
+      }
+      return const LoginScreen();
+    }
+    _wasLoggedIn = true;
     if (!app.onboarded) {
       return OnboardingScreen(onDone: app.markOnboarded);
     }

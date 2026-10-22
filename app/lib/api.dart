@@ -26,6 +26,10 @@ class ApiClient {
     this.token = token;
   }
 
+  /// A client for background cleanup with an OLD session's token: it does not
+  /// touch [AppConfig.authToken], so the signed-out app never reuses it.
+  ApiClient.detached(String token) : _token = token;
+
   String? get token => _token;
 
   /// Setting the token also mirrors it into [AppConfig.authToken] so avatar

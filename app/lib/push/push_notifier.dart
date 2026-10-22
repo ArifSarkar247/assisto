@@ -5,7 +5,6 @@ import 'dart:ui' show DartPluginRegistrant, Locale;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' show WidgetsFlutterBinding;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 import '../calls/call_avatar.dart';
@@ -15,6 +14,7 @@ import '../config.dart';
 import '../l10n/app_localizations.dart';
 import 'push_payload.dart';
 import '../messaging/msg_notify.dart';
+import '../security/secret_store.dart';
 
 /// Draws Assisto pushes as local notifications. Usable from the UI isolate AND
 /// from the FCM background isolate (no BuildContext — strings come from
@@ -294,7 +294,7 @@ class PushNotifier {
       {String? token}) async {
     if (callId.isEmpty) return;
     try {
-      token ??= await const FlutterSecureStorage().read(key: 'token');
+      token ??= await SecretStore.instance.read('token');
       if (token == null || token.isEmpty) return;
       await http
           .post(AppConfig.api('/circle/calls/$callId/event'),
@@ -314,7 +314,7 @@ class PushNotifier {
   static Future<void> declineCall(String callId, {String? token}) async {
     if (callId.isEmpty) return;
     try {
-      token ??= await const FlutterSecureStorage().read(key: 'token');
+      token ??= await SecretStore.instance.read('token');
       if (token == null || token.isEmpty) return;
       await http
           .post(AppConfig.api('/circle/calls/$callId/event'),

@@ -2,13 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config.dart';
 import 'e2e.dart';
 import 'identity_vault.dart';
+import '../security/secret_store.dart';
 
 /// e2-keys (owner order 22 Oct, item 1) — the device's PUBLIC key is
 /// published to the per-user key directory (POST /circle/keys) so that every
@@ -155,12 +155,15 @@ class KeyService {
   Future<bool> _run(KeyPost post, String reason) async {
     for (var attempt = 0;; attempt++) {
       try {
-        final id = await identity();
+        final id = await identity().timeout(const Duration(seconds: 15));
+        // Time-boxed: a hung request must never become a never-ending shared
+        // [_inflight] that blocks every later trigger (start, login, all
+        // key_request pushes) — what happened on user 18's OPPO.
         await post('/circle/keys', {
           'public_key': id.publicKeyB64,
           'key_id': id.keyId,
           'scheme': _e2e.scheme,
-        });
+        }).timeout(const Duration(seconds: 20));
         lastPublishedAt = DateTime.now();
         lastPublishedKeyId = id.keyId;
         log.add('published reason=$reason attempt=${attempt + 1}');
@@ -229,8 +232,7 @@ class KeyService {
   static Future<bool> publishFromBackground(
       {String? token, http.Client? client}) async {
     try {
-      const s = FlutterSecureStorage();
-      token ??= await s.read(key: 'token');
+      token ??= await SecretStore.instance.read('token');
       if (token == null || token.isEmpty) return false;
       final c = client ?? http.Client();
       final svc = KeyService(backoff: const [
