@@ -315,7 +315,7 @@ Each line matches `https://lifeassisto.com/privacy#permissions`.
 | Permission | Console form? | Justification to paste |
 |---|---|---|
 | `USE_FULL_SCREEN_INTENT` | **Yes** (App content → Full-screen intent) | "Assisto has voice and video calling between family members. Full-screen intent is used only to show the incoming-call screen when the phone is locked, so the call can be answered. It is never used for ads or other notifications." Category: **Calling**. |
-| `FOREGROUND_SERVICE_MICROPHONE` | **Yes** (App content → Foreground service permissions) | "Hands-free voice SOS and the optional 'Hey Assisto' wake word: the user switches it on; a persistent notification with Stop is shown while the microphone listens for the SOS phrase with the screen off. Wake-word audio is processed on device." Provide a short video: Settings → voice SOS → on → notification visible → Stop. |
+| `FOREGROUND_SERVICE_MICROPHONE` | **Yes** (App content → Foreground service permissions) | Two user-started features: hands-free voice SOS and the optional "Hey Assisto" wake word. Full declaration text + demo-video script: **§6c** below. |
 | `FOREGROUND_SERVICE_LOCATION` | **Yes** (same form) | "During an active SOS started by the user, the foreground service sends the user's location to their trusted contacts until the SOS ends; a persistent notification is shown." |
 | Health Connect reads (`READ_STEPS`, `READ_HEART_RATE`, `READ_SLEEP`, `READ_ACTIVE_CALORIES_BURNED`) | **Yes** (Health Connect permissions declaration + Health apps form) | "Shown only on the Smartwatch & Fitness screen as today's and 7-day summaries. Read-only, never uploaded to our servers, never used for ads, never shared." Needs proposal C (privacy-policy activity) in the build. |
 | `ACTIVITY_RECOGNITION` | No form | Used with Health Connect step data. |
@@ -331,6 +331,42 @@ Each line matches `https://lifeassisto.com/privacy#permissions`.
 Also in App content: **Government apps** No · **Financial features**: personal
 finance tracking only · **Health**: see §3 · **Data safety**: §5 · **Ads**: §4 ·
 **Target audience**: §3 · **Privacy policy**: URL above.
+
+---
+
+## 6c. Foreground service — microphone: "Hey Assisto" declaration (k1-wake)
+
+Play Console → App content → **Foreground service permissions** → `FOREGROUND_SERVICE_MICROPHONE`.
+
+**Task type to tick:** "Microphone" / user-initiated, ongoing, user-visible task
+(continues while the app is in the background).
+
+**Description (paste, EN — ≤ 500 chars):**
+> Assisto has an optional hands-free mode, "Hey Assisto". It is OFF by default. When the user
+> turns it on in Settings → Assisto Voice (after an in-app disclosure), a foreground service
+> keeps the microphone open so the on-device wake-word model can hear "Hey Assisto" with the
+> screen off. Audio is analysed on the phone in 80 ms pieces and discarded; nothing is recorded
+> or uploaded before the wake word. A persistent notification with "Pause 1 h" and "Turn off" is
+> shown the whole time. The same permission is used for hands-free voice SOS.
+
+**Why it must be a foreground service:** the wake word must be heard while the user is not in
+the app (screen off, other apps open); Android only allows background microphone access in a
+user-visible foreground service. It is never started at app launch or from boot.
+
+**User impact if denied/stopped:** the user can still tap the mic or long-press home/power
+(default assistant) — only hands-free start is lost.
+
+**Prominent disclosure:** full-screen in-app disclosure (`WakeDisclosureScreen`) shown before
+the Android microphone prompt, with "I agree — turn on" / "Not now". Text keys `vaWkDisc*`.
+
+### Demo video script (≈ 45 s, screen recording + one shot of the locked phone; upload unlisted to YouTube and paste the link)
+1. (0–5 s) Open Assisto → menu → Settings → **Assisto Voice**. Show "“Hey Assisto” — hands-free" switch OFF.
+2. (5–12 s) Tap the switch → the **disclosure screen** appears; scroll slowly so every line is readable → tap **I agree — turn on**.
+3. (12–17 s) Android microphone permission prompt → **While using the app**. (Notification permission → Allow.)
+4. (17–22 s) Pull down the notification shade: "Listening for “Hey Assisto”" with **Pause 1 h** and **Turn off**.
+5. (22–32 s) Press power (screen off/locked). Say "Hey Assisto, what's the time?" → chime + vibration → Assisto Voice opens over the lock screen and answers.
+6. (32–38 s) Say "Hey Assisto, call Ammu" → Assisto asks to **unlock first** (personal action).
+7. (38–45 s) Notification → **Pause 1 h** (status: paused) → **Turn off** (notification disappears, switch OFF in Settings).
 
 ---
 
