@@ -28,12 +28,16 @@ class C3Fake {
 
   static String pub(IdentityKeyPair k) => base64Encode(k.publicKey);
 
+  /// x2-ticks (A3): a real (generated) profile photo for the shots.
+  static const avatar = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAIAAABt+uBvAAADIUlEQVR42u2cS29SQRSAZxoT21pd+tj4A3zEuFJjjN24FOUhBUrrvr/AH9M0Le9WhHuhbRo0bVAQ7Mu3f8ECTRcmvla4IBKioTzunDNz556TuyABhjkfH3PmQS6/+KTKKLrHCU4MegDiTaJABpFBZBAZRAaRQWQQGURBBpFBZJADDXrz+GS3p24s/XauQdXuXP5nd1MSKTkGVWZHh6N5K/ILuasjnDHkawg6nWSRe4ttUHlmzGILr2dHb0d/6mmQdTptyhoa9Co8LrC10szYndgPfQwSS6dNXBODitOngFp+GR6/G/9ub4Pg6LTpa1XFIAI0BViDtkITCIC2QhNkkDSJNFnNw2UBaNDzwBk0QC+Cp++lvpFBEiTSZ0cRKBEyiAwig8ggMogMsq9BgGsxV/oIjY4rfURrMVqLKbkWG+G8CXe5M4cIdNyZQ7gUdDAINAVYgzhverMNUDrebAO0/xinGj4wRr5sQ5NzsUdG/enDs8Lb5PADBN7Jqt+oC+y336hreDY/ZdaWH5wT0g7HKi7Y/+4ImDWLPQ6YNZ3/3cEYC+YOkq7zQ7+X405M5MyDQrkDxlhiEEytt+D3VuZabDr/tfUgfv9Cz9dwSTNaJWbS4b8UkGfJ9tgP+rKSPv4Fl/w+qYBkfOrnXlC6EbyMDgvVoE/Lz0SRvTLl1cegj5a5HMP6KjAp8NU8BJ1/6IP2H9Cg96kMzq/gQyrDGLsW8NjJIDQ6nd+HPQx6m8zKKsnvklnG2PWgW12DJNLp/IYU3VHcTxiK7FLvJwxRSQkzaE8ZOq3YSxgKGbQbN5l6sRs3lTBoR0k6rdiJm5IN2o7lmNqxHcvR2XyPsJKjJYOq0bwtAFWjeQljUMUmdFpRieadezbf7w8NcyZdjqzaDlA5sopUxUpLazaVqLS0RlVMcEVz3L07OPQYVFxctzWg4uI6VTGREjnx/kEDpTxYFdtc2NAA0ObCBlUxYRI59A5U/WdNBokbgwrzBW0AFeYLNAaJkci5d8HrM3EyiAwig8ggMogMIoPIIKcaNMCOomduUhs6nrlJ2lGk1TzKap4M6hF/AGNc+V/d3JNoAAAAAElFTkSuQmCC';
+
   static Map<String, dynamic> member(bool bn) => {
         'id': 1,
         'name': bn ? 'রহিম' : 'Rahim',
         'relation': 'friend',
         'state': 'accepted',
         'public_key': pub(rahim),
+        'photo': avatar, // x2-ticks
       };
 
   /// Live states for the shots (typing in a row, online in a header).
@@ -59,7 +63,7 @@ class C3Fake {
           },
           {
             'id': '2', 'kind': 'member',
-            'member': {'id': 2, 'name': bn ? 'নাদিয়া' : 'Nadia', 'public_key': pub(nadia)},
+            'member': {'id': 2, 'name': bn ? 'নাদিয়া' : 'Nadia', 'public_key': pub(nadia), 'photo': avatar},
             'unread': 0, 'at': _ago(const Duration(minutes: 20)),
             'last': {'id': 19, 'mine': true, 'status': 'read', 'content_type': 'text', 'peer_public_key': pub(nadia),
                      ...env(bn ? 'ঠিক আছে, কাল দেখা হবে' : 'Okay, see you tomorrow', me, nadia)},
@@ -109,6 +113,19 @@ class C3Fake {
     }
     return null;
   }
+
+  /// x2-ticks: 1:1 Message info when read receipts are off (reciprocal).
+  static Map<String, dynamic> infoOff(bool bn) => {
+        'id': 5,
+        'group': false,
+        'status': 'delivered',
+        'my_read_receipts': true,
+        'recipients': [
+          {'user_id': 20, 'name': bn ? 'রহিম' : 'Rahim',
+           'delivered_at': _ago(const Duration(minutes: 7)), 'seen_at': null,
+           'seen_hidden': false, 'receipts_off': true},
+        ],
+      };
 
   static Map<String, dynamic> info(bool bn) => {
         'id': 3,

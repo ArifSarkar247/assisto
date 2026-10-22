@@ -136,10 +136,12 @@ def _can_access(user, x):
 # ---------------------------------------------------------------------------
 # marking receipts
 # ---------------------------------------------------------------------------
-def mark(user, msgs, seen=False, now=None):
+def mark(user, msgs, seen=False, now=None, publish=True):
     """Record delivered (and seen) for `user` on incoming `msgs` (never on the
     user's own). Idempotent; legacy read_by/delivered_to stay in step (unread
-    counts use read_by). Returns the number of rows that changed."""
+    counts use read_by). Returns the number of rows that changed.
+    x2-ticks: every change is pushed to the SENDER at once as a
+    `receipt.update` realtime event (publish_receipts) — no chat reload."""
     now = now or _now()
     msgs = [x for x in msgs if x.sender_id != user.id]
     if not msgs:
@@ -148,12 +150,14 @@ def mark(user, msgs, seen=False, now=None):
     have = {r.message_id: r for r in
             CircleReceipt.objects.filter(user=user, message_id__in=ids)}
     create, changed = [], 0
+    touched = []
     for x in msgs:
         r = have.get(x.id)
         if r is None:
             create.append(CircleReceipt(message=x, user=user, delivered_at=now,
                                         seen_at=now if seen else None))
             changed += 1
+            touched.append(x)
             continue
         fields = []
         if r.delivered_at is None:
@@ -165,6 +169,7 @@ def mark(user, msgs, seen=False, now=None):
         if fields:
             r.save(update_fields=fields)
             changed += 1
+            touched.append(x)
     if create:
         CircleReceipt.objects.bulk_create(create, ignore_conflicts=True)
     for x in msgs:
@@ -182,7 +187,88 @@ def mark(user, msgs, seen=False, now=None):
                 upd.append("read_by")
         if upd:
             x.save(update_fields=upd)
+    if publish and touched:
+        publish_receipts(touched)
     return changed
+
+
+# ---- x2-ticks ---- realtime receipt events to the SENDER -------------------
+RECEIPT_EVENT_CHUNK = 200
+
+
+def _sender_chat_key(x, cache):
+    """The SENDER's chat key for message x: 'group:<gid>' or
+    'member:<the sender's own edge id>' (what the sender's chat screen and
+    chat list use). None when the sender has no edge for it."""
+    if x.group_id:
+        return "group:%d" % x.group_id
+    edge = x.member
+    if edge is None:
+        return None
+    if edge.user_id == x.sender_id:
+        return "member:%d" % edge.id
+    k = (x.sender_id, edge.user_id)
+    if k not in cache:
+        from . import push
+        rev = push._reverse_edge(x.sender, edge.user)
+        cache[k] = rev.id if rev is not None else None
+    return ("member:%d" % cache[k]) if cache[k] else None
+
+
+def publish_receipts(msgs):
+    """`receipt.update` {chat, statuses: {"<id>": sent|delivered|read}} to
+    each sender of `msgs`, computed by statuses() — so the reciprocal
+    read-receipt rule is applied server-side and a hidden read is never
+    sent (the sender sees delivered). Never raises; returns events queued."""
+    try:
+        from .views_c2_calls import rt_publish
+        by_sender = {}
+        for x in msgs:
+            if x.sender_id:
+                by_sender.setdefault(x.sender_id, []).append(x)
+        if not by_sender:
+            return 0
+        senders = {u.id: u for u in User.objects.filter(id__in=list(by_sender))}
+        n, cache = 0, {}
+        for sid, xs in by_sender.items():
+            sender = senders.get(sid)
+            if sender is None:
+                continue
+            st = statuses(xs, sender)
+            chats = {}
+            for x in xs:
+                key = _sender_chat_key(x, cache)
+                if key:
+                    chats.setdefault(key, {})[str(x.id)] = st.get(x.id, "sent")
+            for key, m in chats.items():
+                items = sorted(m.items(), key=lambda kv: int(kv[0]))
+                for i in range(0, len(items), RECEIPT_EVENT_CHUNK):
+                    if rt_publish(sender, "receipt.update", {
+                            "chat": key,
+                            "statuses": dict(items[i:i + RECEIPT_EVENT_CHUNK]),
+                            }):
+                        n += 1
+        return n
+    except Exception:
+        return 0
+
+
+def mark_fetched(user, msgs):
+    """'Ack on any fetch': the recipient's device just downloaded these rows
+    (chat open / poll) -> delivered for every incoming one still without a
+    receipt. Cheap: one query for the existing receipts."""
+    try:
+        incoming = [x for x in msgs if x.sender_id != user.id]
+        if not incoming:
+            return 0
+        have = set(CircleReceipt.objects.filter(
+            user=user, message_id__in=[x.id for x in incoming],
+            delivered_at__isnull=False).values_list("message_id", flat=True))
+        todo = [x for x in incoming if x.id not in have]
+        return mark(user, todo) if todo else 0
+    except Exception:
+        return 0
+# ---- /x2-ticks ----
 
 
 # ---------------------------------------------------------------------------
@@ -575,6 +661,9 @@ class MessageInfoView(APIView):
                 "delivered_at": delivered.isoformat() if delivered else None,
                 "seen_at": seen.isoformat() if seen else None,
                 "seen_hidden": bool(r and r.seen_at and not seen_ok),
+                # x2-ticks: the EFFECTIVE state, shown honestly in Message
+                # info ("Read receipts are off") — reciprocal, either side.
+                "receipts_off": not seen_ok,
             })
         rows.sort(key=lambda z: (z["seen_at"] is None, z["seen_at"] or "",
                                  z["delivered_at"] is None, z["name"]))
@@ -584,6 +673,8 @@ class MessageInfoView(APIView):
             "status": status_from(recips, {u: (r.delivered_at, r.seen_at)
                                            for u, r in rec.items()},
                                   pm[request.user.id], pm),
+            "my_read_receipts": bool(pm[request.user.id].get(
+                "read_receipts", True)),   # x2-ticks
             "recipients": rows})
 
 
@@ -613,16 +704,20 @@ class NotifyPullView(APIView):
                 group=g, member=request.user).first()
             ctx["my_gm_id"] = row.id if row else None
             title, peer_pub = g.name, ""
+            photo, photo_v = "", ""
         else:
             from .views_module5 import _member_dict
             md = _member_dict(ctx["edge"])
             title, peer_pub = md.get("name", ""), ctx["edge"].public_key or ""
+            photo, photo_v = md.get("photo", ""), md.get("photo_v", "")
         cache = {}
         msgs = [envelope_for(request.user, x, ctx, cache) for x in window]
         return Response({
             "chat": {"kind": kind, "id": int(d.get("chat_id")),
                      "title": title, "is_group": kind == "group",
-                     "peer_public_key": peer_pub},
+                     "peer_public_key": peer_pub,
+                     # x2-ticks: the notification's Person icon
+                     "photo": photo, "photo_v": photo_v},
             "me": {"id": request.user.id, "name": request.user.name or ""},
             "unseen": len(unseen), "messages": msgs})
 

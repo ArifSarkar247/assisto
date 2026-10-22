@@ -395,6 +395,10 @@ class CircleChatsView(APIView):
         # c3-msg: my last message's tick, sender names, decrypt key hint,
         # GROUP chats, and the manual "marked unread" flag.
         from . import views_c3_msg as C3
+        try:   # x2-ticks: the chat list fetch is a delivered ack too
+            C3.sync_delivered(request.user)
+        except Exception:
+            pass
         out = C3.augment_chat_rows(request.user, out)
         out = B2.fix_chat_rows(request.user, out)
         return Response({"results": out})

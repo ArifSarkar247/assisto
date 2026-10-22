@@ -404,10 +404,23 @@ def _resolve_peer(m):
     return name, photo
 
 
+def x2_photo_v(photo):
+    """x2-ticks: a STABLE version tag for an avatar URL. The signed media
+    link's ?e=&s= rotate every hour; the stored file name (a fresh name per
+    upload) does not — so clients cache by this and refetch only when the
+    contact really changed their photo."""
+    if not photo:
+        return ""
+    import hashlib
+    base = str(photo).split("?", 1)[0] if "/m/" in str(photo) else str(photo)
+    return hashlib.sha1(base.encode()).hexdigest()[:12]
+
+
 def _member_dict(m):
     name, photo = _resolve_peer(m)
     return {
         "id": m.id, "name": name, "display_name": name, "photo": photo,
+        "photo_v": x2_photo_v(photo),   # x2-ticks
         "relation": m.relation,
         "relation_label": circle.relation_label(m.relation, "bn", m.custom_label),
         "custom_label": m.custom_label, "state": m.state,
@@ -856,6 +869,7 @@ class CircleMessagesView(APIView):
         # c3-msg: ticks (sent/delivered/read) on my own messages.
         from . import views_c3_msg as C3
         C3.annotate(out, msgs, request.user)
+        C3.mark_fetched(request.user, msgs)   # x2-ticks: ack on any fetch
         return Response({"results": out})
 
     def post(self, request, pk):
@@ -903,8 +917,13 @@ class CircleMessagesView(APIView):
             return Response({"ok": True, "dropped": True,
                              "reason": decision["reason"]},
                             status=status.HTTP_200_OK)
-        notify = circle_privacy.should_notify(
-            {"muted": bool(getattr(m, "muted_until", None))}, decision["inbox"])
+        # x2-ticks ROOT-CAUSE FIX: `m` is the SENDER's own edge. Its
+        # muted_until (the sender muted THIS chat — and bool() of a long-
+        # expired timestamp is still True) used to suppress the push to the
+        # RECIPIENT, so their phone never acked delivery and the tick stayed
+        # ✓. The recipient's own mute is applied in push.hook_circle_message
+        # (silent delivery ping there), so only the inbox routing counts here.
+        notify = circle_privacy.should_notify({}, decision["inbox"])
         fh = int(env.get("forward_hops", 0) or 0)
         x = CircleMessage.objects.create(
             member=m, sender=request.user,

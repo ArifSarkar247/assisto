@@ -17,6 +17,7 @@ import '../widgets/chat_menu_pickers.dart';
 import '../widgets/chat_menu_sheet.dart';
 import '../widgets/circle_attach_sheet.dart';
 import '../widgets/circle_bubble.dart';
+import '../widgets/msgr_avatar.dart';
 import '../widgets/circle_media_viewer.dart';
 import '../widgets/circle_message_actions.dart';
 import '../widgets/in_chat_ai_sheet.dart';
@@ -29,6 +30,7 @@ import '../messaging/msg_notify.dart';
 import '../messaging/msg_prefs.dart';
 import '../messaging/msg_widgets.dart';
 import '../messaging/presence_label.dart';
+import '../messaging/receipt_bus.dart';
 import '../messaging/unread_store.dart';
 import '../realtime/realtime_channel.dart';
 
@@ -108,6 +110,12 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   final Map<String, GlobalKey> _msgKeys = {};
   bool? _bubbleOn;
   bool _seenInFlight = false;
+  // x2-ticks: live ticks + visibility-gated seen.
+  StreamSubscription<ReceiptUpdate>? _rcptSub;
+  StreamSubscription<String>? _newSub;
+  Timer? _visTimer;
+  bool _wasVisible = true;
+  bool _seenPending = false;
   bool _searching = false;
   String _searchQuery = '';
 
@@ -140,6 +148,75 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       if (widget.forwarding != null) _doForwardInto(widget.forwarding!);
     });
     _startPolling();
+    // x2-ticks: the server's receipt.update (✓✓ / blue ✓✓) lands here in
+    // the next realtime poll; msg.new refreshes the thread at once.
+    _rcptSub = ReceiptBus.instance.updates.listen(_onReceipt);
+    _newSub = ReceiptBus.instance.newMessages.listen((chat) {
+      if (chat == _chatKey) unawaited(_pollMessages());
+    });
+    _startVisWatch();
+  }
+
+  /// x2-ticks: apply a live receipt (never downgrades a tick).
+  void _onReceipt(ReceiptUpdate u) {
+    if (!mounted || u.chat != _chatKey) return;
+    var changed = false;
+    final next = _messages.map((m) {
+      final s = u.statuses[m.id];
+      if (s == null || !m.mine) return m;
+      final merged = mergeStatus(m.status, s);
+      if (merged == m.status) return m;
+      changed = true;
+      return m.copyWith(status: merged);
+    }).toList();
+    if (changed) setState(() => _messages = next);
+    _maybeExpectTicks();
+  }
+
+  /// x2-ticks: the chat is REALLY on the user's screen: app resumed, this
+  /// route on top (nothing pushed over it) and not offstage.
+  bool get _visibleNow {
+    if (!mounted) return false;
+    final ls = WidgetsBinding.instance.lifecycleState;
+    if (ls != null && ls != AppLifecycleState.resumed) return false;
+    final route = ModalRoute.of(context);
+    if (route != null && !route.isCurrent) return false;
+    return TickerMode.valuesOf(context).enabled;
+  }
+
+  /// A covered chat (another screen on top) is not "read"; when it is
+  /// uncovered again, the pending seen goes out at once.
+  void _startVisWatch() {
+    _visTimer?.cancel();
+    _visTimer = Timer.periodic(const Duration(seconds: 1), (_) => _visTick());
+  }
+
+  void _visTick() {
+    if (!mounted) return;
+    final v = _visibleNow;
+    if (v == _wasVisible) return;
+    _wasVisible = v;
+    if (v) {
+      MsgActiveChat.current = _chatKey;
+      if (_seenPending) unawaited(_markSeen());
+      _maybeExpectTicks();
+    } else if (MsgActiveChat.current == _chatKey) {
+      MsgActiveChat.current = null; // covered → its notifications ring again
+    }
+  }
+
+  /// Fast realtime polling while one of MY recent messages still waits for
+  /// ✓✓ / blue ✓✓ in this open, visible chat.
+  void _maybeExpectTicks() {
+    if (!_visibleNow) return;
+    final cutoff = DateTime.now().subtract(const Duration(minutes: 10));
+    if (_messages.any((m) =>
+        m.mine && !m.pending && m.status != 'read' && m.status != 'failed' &&
+        m.at.isAfter(cutoff))) {
+      ReceiptBus.instance.expect();
+    } else {
+      ReceiptBus.instance.relax(); // everything read → idle cadence
+    }
   }
 
   @override
@@ -150,6 +227,10 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     if (_memberId != null) _rt.typing('member', _memberId!, 'stop');
     _rt.release();
     _hlTimer?.cancel();
+    _rcptSub?.cancel(); // x2-ticks
+    _newSub?.cancel();
+    _visTimer?.cancel();
+    ReceiptBus.instance.relax();
     _stopPolling();
     _input.dispose();
     _scroll.dispose();
@@ -162,7 +243,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      MsgActiveChat.current = _chatKey;
+      // x2-ticks: active (and seen) only if this route is really on top.
+      _wasVisible = false;
+      _visTick();
       _pollMessages(); // catch up on whatever arrived while backgrounded
       _startPolling();
     } else if (state == AppLifecycleState.paused ||
@@ -171,6 +254,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       // Stop burning requests the moment we leave the foreground; while
       // backgrounded this chat's messages notify again.
       if (MsgActiveChat.current == _chatKey) MsgActiveChat.current = null;
+      _wasVisible = false; // x2-ticks
+      ReceiptBus.instance.relax();
       _stopPolling();
     }
   }
@@ -205,9 +290,11 @@ class _CircleChatScreenState extends State<CircleChatScreen>
           (m.pending || m.status == 'failed') && !serverIds.contains(m.id));
       final merged = [...fetched, ...pendingEchoes];
       if (!mounted || !_changed(_messages, merged)) return;
-      // c3-msg: a new incoming message while the chat is open → seen now.
+      // c3-msg: a new incoming message while the chat is open → seen now
+      // (x2-ticks: only if it is really visible; else when uncovered).
       final known = _messages.map((m) => m.id).toSet();
       if (merged.any((m) => !m.mine && !known.contains(m.id))) {
+        _seenPending = true;
         unawaited(_markSeen());
       }
       final atBottom = _scroll.hasClients &&
@@ -270,6 +357,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       final raw = ((r['results'] ?? r['messages'] ?? []) as List).cast<Map<String, dynamic>>();
       _messages = raw.map((e) => _decryptEnvelope(e, peer)).toList();
       _resolveReplyPreviews();
+      _seenPending = _messages.any((m) => !m.mine); // x2-ticks
+      _maybeExpectTicks();
     } catch (_) {
       // Offline: keep any optimistic local echoes already shown, and SAY so
       // (seam audit: this used to be silent).
@@ -300,8 +389,12 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   Future<void> _markSeen() async {
     final id = _memberId;
     if (id == null || _seenInFlight) return;
-    final ls = WidgetsBinding.instance.lifecycleState;
-    if (ls != null && ls != AppLifecycleState.resumed) return;
+    // x2-ticks: blue ✓✓ only when the chat is open AND visible.
+    if (!_visibleNow) {
+      _seenPending = true;
+      return;
+    }
+    _seenPending = false;
     _seenInFlight = true;
     UnreadStore.instance.clear(_chatKey);
     try {
@@ -553,17 +646,27 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     _scrollToEnd();
 
     try {
-      await _api.postJson('/circle/$_memberId/messages', {
+      final sent = await _api.postJson('/circle/$_memberId/messages', {
         'content_type': 'text',
         'client_msg_id': clientMsgId,
         if (replyId != null) 'reply_to': replyId,
         if (firstUrl != null) 'has_link': true, // integrator attaches encrypted preview
         ...ct.toEnvelopeFields(),
       });
-      // Mark echo confirmed (no longer pending).
+      // Mark echo confirmed (no longer pending). x2-ticks: re-key it to the
+      // SERVER id so live receipt.update events (by id) reach it at once.
+      final sid = '${sent['id'] ?? ''}';
       setState(() {
-        _messages = _messages.map((m) => m.id == clientMsgId ? m.copyWith(pending: false) : m).toList();
+        _messages = _messages.map((m) => m.id == clientMsgId
+            ? (sid.isEmpty
+                ? m.copyWith(pending: false)
+                : CircleMessage(
+                    id: sid, text: m.text, mine: true, at: m.at,
+                    status: m.status, replyToId: m.replyToId,
+                    replyPreview: m.replyPreview))
+            : m).toList();
       });
+      ReceiptBus.instance.expect();
     } catch (_) {
       // c3-msg: honest failure — the bubble shows a red "!" (not a clock that
       // never resolves); long-press it to resend.
@@ -1588,10 +1691,15 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         onTap: _openContactInfo,
         child: Row(
           children: [
-            CircleAvatar(
-                radius: 16,
-                child: Text(
-                    _memberName.isEmpty ? '?' : _memberName.characters.first.toUpperCase())),
+            // x2-ticks (A3): the contact's real photo (cached, refreshed on
+            // change); initials when there is none.
+            MsgrAvatar(
+                key: const Key('x2-header-avatar'),
+                name: _memberName,
+                radius: 18,
+                photoUrl:
+                    '${widget.member['photo_link'] ?? widget.member['photo'] ?? ''}',
+                photoV: '${widget.member['photo_v'] ?? ''}'),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Column(

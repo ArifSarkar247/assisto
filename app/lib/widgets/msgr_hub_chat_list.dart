@@ -18,6 +18,7 @@ import '../messaging/chat_preview.dart';
 import '../messaging/msg_notify.dart';
 import '../messaging/msg_ticks.dart';
 import '../messaging/presence_label.dart';
+import '../messaging/receipt_bus.dart';
 import '../messaging/unread_store.dart';
 import '../realtime/realtime_channel.dart';
 import 'msgr_avatar.dart';
@@ -89,10 +90,40 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     _rt.acquire();
     _rt.states.addListener(_onRt);
     _load();
+    // x2-ticks: my last message's tick updates live (no list reload); a
+    // new message for me reloads the list at once.
+    _rcptSub = ReceiptBus.instance.updates.listen(_onReceipt);
+    _newSub = ReceiptBus.instance.newMessages.listen((_) {
+      if (mounted) _load();
+    });
+  }
+
+  StreamSubscription<ReceiptUpdate>? _rcptSub;
+  StreamSubscription<String>? _newSub;
+
+  void _onReceipt(ReceiptUpdate u) {
+    if (!mounted) return;
+    var changed = false;
+    for (final c in _chats) {
+      final last = c['last'];
+      if (last is! Map || last['mine'] != true || _key(c) != u.chat) continue;
+      final s = u.statuses['${last['id']}'];
+      if (s == null) continue;
+      final merged = mergeStatus('${last['status'] ?? 'sent'}', s);
+      if (merged != '${last['status'] ?? 'sent'}') {
+        try {
+          last['status'] = merged;
+          changed = true;
+        } catch (_) {} // an unmodifiable (test) row
+      }
+    }
+    if (changed) setState(() {});
   }
 
   @override
   void dispose() {
+    _rcptSub?.cancel(); // x2-ticks
+    _newSub?.cancel();
     _rt.states.removeListener(_onRt);
     _rt.release();
     super.dispose();
@@ -704,7 +735,9 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
                   child: Icon(Icons.groups_2_outlined,
                       color: scheme.onSecondaryContainer))
               : MsgrAvatar(
-                  name: name, photoUrl: '${m['photo_link'] ?? m['photo'] ?? ''}'),
+                  name: name,
+                  photoUrl: '${m['photo_link'] ?? m['photo'] ?? ''}',
+                  photoV: '${m['photo_v'] ?? ''}'), // x2-ticks: cached
           const SizedBox(width: Gap.md),
           Expanded(
             child: Column(

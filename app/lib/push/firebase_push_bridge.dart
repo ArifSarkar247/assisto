@@ -6,6 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' show WidgetsFlutterBinding;
 
+import '../messaging/receipt_ack.dart';
 import 'push_bridge.dart';
 import 'push_notifier.dart';
 import 'push_payload.dart';
@@ -118,6 +119,12 @@ Future<void> assistoFcmBackgroundHandler(RemoteMessage message) async {
     if (Firebase.apps.isEmpty) {
       await Firebase.initializeApp();
     }
+  } catch (_) {}
+  // x2-ticks: DELIVERED ✓✓ first — by message id, with the stored token,
+  // queued if offline — so a failed pull / decrypt / draw can never leave
+  // the sender on ✓. A silent `msg_sync` ping (muted chat) stops here.
+  try {
+    if (await ackPushDelivery(message.data)) return;
   } catch (_) {}
   try {
     final p = PushPayload.fromData(message.data);

@@ -19,6 +19,7 @@ import '../messenger_group_api.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/circle_group_poll.dart';
+import '../messaging/receipt_bus.dart';
 import '../messaging/badges_bus.dart';
 import '../messaging/c3_api.dart';
 import '../messaging/msg_notify.dart';
@@ -111,12 +112,53 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     _rt.states.addListener(_onRt);
     _load().then((_) => _markSeen());
     _poll = Timer.periodic(const Duration(seconds: 8), (_) => _pollMessages());
+    // x2-ticks: live ticks + instant refresh on a new message.
+    _rcptSub = ReceiptBus.instance.updates.listen(_onReceipt);
+    _newSub = ReceiptBus.instance.newMessages.listen((c) {
+      if (c == _chatKey) unawaited(_pollMessages());
+    });
   }
+
+  // ---- x2-ticks ----
+  StreamSubscription<ReceiptUpdate>? _rcptSub;
+  StreamSubscription<String>? _newSub;
+  bool _seenPending = false;
+
+  void _onReceipt(ReceiptUpdate u) {
+    if (!mounted || u.chat != _chatKey) return;
+    var changed = false;
+    final next = [
+      for (final m in _messages)
+        if (m['mine'] == true && u.statuses['${m['id']}'] != null)
+          () {
+            final merged = mergeStatus(
+                '${m['status'] ?? 'sent'}', u.statuses['${m['id']}']!);
+            if (merged == '${m['status'] ?? 'sent'}') return m;
+            changed = true;
+            return {...m, 'status': merged};
+          }()
+        else
+          m
+    ];
+    if (changed) setState(() => _messages = next);
+  }
+
+  /// Blue ✓✓ only when this chat is really on screen (route on top).
+  bool get _visibleNow {
+    if (!mounted) return false;
+    final ls = WidgetsBinding.instance.lifecycleState;
+    if (ls != null && ls != AppLifecycleState.resumed) return false;
+    final route = ModalRoute.of(context);
+    return route == null || route.isCurrent;
+  }
+  // ---- /x2-ticks ----
 
   @override
   void dispose() {
     if (MsgActiveChat.current == _chatKey) MsgActiveChat.current = null;
     _poll?.cancel();
+    _rcptSub?.cancel(); // x2-ticks
+    _newSub?.cancel();
     _rt.states.removeListener(_onRt);
     _rt.typing('group', _gid, 'stop');
     _rt.release();
@@ -130,8 +172,11 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   }
 
   Future<void> _markSeen() async {
-    final ls = WidgetsBinding.instance.lifecycleState;
-    if (ls != null && ls != AppLifecycleState.resumed) return;
+    if (!_visibleNow) {
+      _seenPending = true; // x2-ticks: covered / backgrounded → not read yet
+      return;
+    }
+    _seenPending = false;
     UnreadStore.instance.clear(_chatKey);
     try {
       await _api.c3ChatSeen('group', _gid);
@@ -158,7 +203,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           [for (var i = 0; i < next.length && i < _messages.length; i++) i]
               .any((i) => '${next[i]['status']}' != '${_messages[i]['status']}');
       if (changed && mounted) setState(() => _messages = next);
-      if (fresh) unawaited(_markSeen());
+      if (fresh || _seenPending) unawaited(_markSeen());
     } catch (_) {
     } finally {
       _pollBusy = false;
