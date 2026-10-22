@@ -79,7 +79,8 @@ Insert after the existing `Upload APK artifact` step of job `build-apk`
 +            --dart-define=PLAY_STORE=true
 +          AAB=build/app/outputs/bundle/release/app-release.aab
 +          # the bundle's own (protobuf) manifest keeps permission names as text
-+          if unzip -p "$AAB" base/manifest/AndroidManifest.xml | grep -a -q REQUEST_INSTALL_PACKAGES; then
++          unzip -p "$AAB" base/manifest/AndroidManifest.xml > /tmp/play-manifest.pb
++          if grep -a -q REQUEST_INSTALL_PACKAGES /tmp/play-manifest.pb; then
 +            echo "::error::REQUEST_INSTALL_PACKAGES still in the Play bundle manifest"; exit 1
 +          fi
 +          # 3) Pick the key: Play upload key if configured, else the release key.
