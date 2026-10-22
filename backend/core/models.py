@@ -62,6 +62,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     plan_until = models.DateTimeField(null=True, blank=True)      # paid plan expiry
     trial_until = models.DateTimeField(null=True, blank=True)     # 7-day full trial
     is_founder = models.BooleanField(default=False)
+    #   founder_since None + is_founder  -> legacy LIFETIME founder (plan "founder")
+    #   founder_since set  + is_founder  -> Founding Member: badge + free Premium
+    #                                       via plan/plan_until (until founder_until)
+    founder_since = models.DateTimeField(null=True, blank=True)
+    founder_until = models.DateTimeField(null=True, blank=True)
     ai_credits = models.IntegerField(default=0)                  # consumable AI credits
     elderly_mode = models.BooleanField(default=False)            # feature 29 simple mode
     # accident/fall detection (owner-configurable; OFF by default)
