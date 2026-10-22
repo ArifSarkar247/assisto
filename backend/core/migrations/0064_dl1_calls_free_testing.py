@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0062_t9_turnscale'),
+        ('core', '0063_sc1_client_errors'),
     ]
 
     operations = [
