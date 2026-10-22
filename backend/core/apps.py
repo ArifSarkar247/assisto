@@ -9,3 +9,6 @@ class CoreConfig(AppConfig):
         # c1-contacts: canonical User.phone + UserPhoneHash sync.
         from . import signals_c1_phone
         signals_c1_phone.connect()
+        # b2-badges: badges.update realtime events (new message / notif).
+        from . import b2_badges
+        b2_badges.connect()

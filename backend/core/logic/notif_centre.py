@@ -398,3 +398,74 @@ def badges(chat_unread, events, settings_enabled=None):
         "my_circle_unread": max(0, int(chat_unread or 0)),
         "notif_unseen": unseen_count(events, settings_enabled),
     }
+
+
+# ---- b2-badges: badge watermark (Facebook / WhatsApp style) ----------------
+# Opening the centre clears the BADGE (a watermark moves to "now"); the items
+# themselves stay unread / bold until tapped. SOS + family alerts are never
+# cleared by opening — they keep counting until handled (tapped / dismissed).
+URGENT_TYPES = frozenset({TYPE_SOS, TYPE_FAMILY_ALERT})
+
+
+def is_urgent(item):
+    """SOS / family alert (incl. any row relayed from a FamilyAlert)."""
+    if (item.get("type") or "") in URGENT_TYPES:
+        return True
+    meta = item.get("meta") or {}
+    return isinstance(meta, dict) and meta.get("source") == "family_alert"
+
+
+def badge_count(events, cleared_at=None, settings_enabled=None):
+    """Badge = unseen items newer than `cleared_at` + every unseen urgent item
+    (whatever its age). cleared_at None = never opened -> every unseen item."""
+    cut = _full_dt(cleared_at)
+    n = 0
+    for it in build_feed(events, settings_enabled):
+        if it["seen"]:
+            continue
+        if is_urgent(it) or cut is None:
+            n += 1
+            continue
+        at = _full_dt(it.get("at"))
+        if at is not None and _cmp_after(at, cut):
+            n += 1
+    return n
+
+
+def reminders_badge(feed, now, cleared_at=None):
+    """Reminders-tab badge from a build_reminders() feed: items that are DUE
+    (missed, or today and already at/after their time) and became due after
+    the tab was last opened. Upcoming items never count."""
+    cut = _full_dt(cleared_at)
+    nowd = _full_dt(now)
+    n = 0
+    for sec in (SEC_MISSED, SEC_TODAY):
+        for it in feed.get(sec, []):
+            if it.get("done"):
+                continue
+            when = _full_dt(it.get("when"))
+            if when is None or (nowd is not None and _cmp_after(when, nowd)):
+                continue
+            if cut is None or _cmp_after(when, cut):
+                n += 1
+    return n
+
+
+def _cmp_after(a, b):
+    """a > b, tolerating a naive/aware mix (naive = same wall clock)."""
+    try:
+        return a > b
+    except TypeError:
+        return a.replace(tzinfo=None) > b.replace(tzinfo=None)
+
+
+def _full_dt(v):
+    """Like _as_dt but keeps sub-second precision of ISO strings (a badge
+    watermark and an event can fall in the same second)."""
+    if isinstance(v, str):
+        try:
+            d = datetime.fromisoformat(v.strip().replace(" ", "T"))
+            return d.replace(tzinfo=None) if d.tzinfo else d
+        except ValueError:
+            pass
+    return _as_dt(v)

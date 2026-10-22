@@ -359,6 +359,7 @@ class CircleChatsView(APIView):
     def get(self, request):
         from .views_module5 import _member_dict, _organise_map
         from .views_m1_messenger import (member_favourite, visible_conversation)
+        from . import b2_badges as B2
         uid = request.user.id
         org = _organise_map(request.user)
         lists = list(ChatList.objects.filter(user=request.user))
@@ -367,8 +368,9 @@ class CircleChatsView(APIView):
                                              state="accepted"):
             rows = visible_conversation(request.user, m)
             last = rows[-1] if rows else None
-            unread = sum(1 for x in rows if x.sender_id != uid
-                         and uid not in (x.read_by or []))
+            # b2-badges: the SAME count the home badge sums (blocked = 0,
+            # deleted-for-everyone never counted).
+            unread = B2.member_unread(request.user, m, rows)
             o = org.get(str(m.id), {})
             out.append({
                 "id": str(m.id), "member": _member_dict(m),
@@ -394,6 +396,7 @@ class CircleChatsView(APIView):
         # GROUP chats, and the manual "marked unread" flag.
         from . import views_c3_msg as C3
         out = C3.augment_chat_rows(request.user, out)
+        out = B2.fix_chat_rows(request.user, out)
         return Response({"results": out})
 
 

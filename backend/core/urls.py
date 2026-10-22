@@ -789,3 +789,9 @@ urlpatterns += [
     path("circle/calls/<int:call_id>", c2calls.CallStatusView.as_view()),
 ]
 # ---- /c2-calls ----
+# ---- b2-badges ---- bell / Reminders-tab badge watermark (opening clears
+# the badge; items stay unread until tapped; SOS/family alerts keep counting)
+urlpatterns += [
+    path("notif/opened", views.notif_opened),
+]
+# ---- /b2-badges ----
