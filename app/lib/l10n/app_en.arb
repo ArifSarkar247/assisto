@@ -15843,5 +15843,190 @@
   "h1TryAdAgain": "Try the ad again",
   "h1TryAgain": "Try again",
   "h1FaceRefused": "I can't identify real people from their face. I can describe the photo in general terms instead.",
-  "h1PrivacyNote": "Your photo was used only for this answer and was not saved."
+  "h1PrivacyNote": "Your photo was used only for this answer and was not saved.",
+  "q1ExtrasNotYetTitle": "More chat tools are not available yet",
+  "q1ExtrasNotYetBody": "Scheduled messages, broadcast lists, chat backup and restore, stickers, chat wallpaper, view-once by default and linked devices will appear here only when they really work.",
+  "q1ExtrasExportEmpty": "There are no messages to export in this chat yet.",
+  "q1FamShareLoadFailed": "Couldn't load what you share right now. The list below may be out of date — tap retry.",
+  "c3BubbleAllowBody": "Android asks you to allow bubbles for Assisto once. Open the setting and choose \"All conversations\" or \"Selected conversations\".",
+  "c3BubbleAllowTitle": "Allow chat bubbles",
+  "c3BubbleOff": "Stop showing as bubble",
+  "c3BubbleOffDone": "This chat won't open as a bubble",
+  "c3BubbleOn": "Show as bubble",
+  "c3BubbleOnDone": "New messages from this chat will float as a bubble",
+  "c3ForwardTo": "Forward to…",
+  "c3Forwarded": "Forwarded to {name}",
+  "@c3Forwarded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "c3GroupRecording": "{name} is recording audio…",
+  "@c3GroupRecording": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "c3GroupTyping": "{name} is typing…",
+  "@c3GroupTyping": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "c3InfoDelivered": "Delivered",
+  "c3InfoPending": "Not yet",
+  "c3InfoRead": "Read",
+  "c3InfoReadHidden": "Read receipts are off",
+  "c3InfoTitle": "Message info",
+  "c3InfoToday": "Today, {time}",
+  "@c3InfoToday": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "c3InfoYesterday": "Yesterday, {time}",
+  "@c3InfoYesterday": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "c3LastSeenOn": "last seen {date} at {time}",
+  "@c3LastSeenOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "c3LastSeenToday": "last seen today at {time}",
+  "@c3LastSeenToday": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "c3LastSeenYesterday": "last seen yesterday at {time}",
+  "@c3LastSeenYesterday": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "c3MarkUnread": "Mark as unread",
+  "c3NotifEncrypted": "New message",
+  "c3NotifHiddenCount": "{count, plural, =1{1 new message} other{{count} new messages}}",
+  "@c3NotifHiddenCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "c3NotifMarkRead": "Mark as read",
+  "c3NotifReply": "Reply",
+  "c3NotifReplyFailed": "Not sent — open the chat to try again",
+  "c3NotifReplyHint": "Type a reply",
+  "c3NotifSummary": "{count, plural, =1{1 chat} other{{count} chats}}",
+  "@c3NotifSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "c3Online": "online",
+  "c3OpenSettings": "Open settings",
+  "c3PreviewEncrypted": "Encrypted message",
+  "c3QuoteGone": "The original message isn't here any more",
+  "c3ReactMore": "More reactions",
+  "c3Recording": "recording audio…",
+  "c3SetBubbles": "Chat bubbles",
+  "c3SetBubblesSub": "Chats you mark \"Show as bubble\" float on screen (Android 11+)",
+  "c3SetBubblesSystem": "Android bubble settings",
+  "c3SetHideContent": "Hide message content",
+  "c3SetHideContentSub": "Notifications show only \"New message\", never the text",
+  "c3SetOnThisPhone": "On this phone",
+  "c3SetSound": "Message sound",
+  "c3SetSoundDefault": "Phone default",
+  "c3Typing": "typing…",
+  "c3Yesterday": "Yesterday",
+  "c3You": "You",
+  "c3SendFailed": "Not sent. Long-press the message to try again.",
+  "c3SkippedRecipients": "{count, plural, =1{1 member couldn't be reached (their key is not ready)} other{{count} members couldn't be reached (their keys are not ready)}}",
+  "@c3SkippedRecipients": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "c3KeysNotReady": "Setting up encryption on this phone… If this stays, close and reopen My Circle.",
+  "c2CallStarting": "Starting…",
+  "c2CallCalling": "Calling…",
+  "c2CallRinging": "Ringing…",
+  "c2CallNoRelay": "Our call relay server isn't reachable right now, so on some networks the call may not connect.",
+  "c2CallPip": "Picture-in-picture",
+  "c2CallEncrypted": "Encrypted call",
+  "c2CallReconnectHint": "The network changed — reconnecting the call.",
+  "c2CallRemoteCameraOff": "Their camera is off",
+  "c2CallOpenSettings": "Open settings",
+  "c2CallAgain": "Call again",
+  "c2CallEarpiece": "Earpiece",
+  "c2CallFlip": "Flip",
+  "c2CallHangup": "End call",
+  "c2CallNoAnswer": "No answer",
+  "c2CallMissed": "Missed call",
+  "c2CallBusy": "Busy — on another call",
+  "c2CallDeclined": "Declined",
+  "c2CallOffline": "Offline — their phone couldn't be reached",
+  "c2CallCanceled": "Call canceled",
+  "c2CallFailedMedia": "Call failed — the audio couldn't connect",
+  "c2CallLost": "Connection lost",
+  "c2CallPermission": "Microphone or camera permission is off for Assisto",
+  "c2CallMediaError": "Couldn't start the microphone or camera",
+  "c2CallUnavailable": "Not available for calls right now",
+  "c2CallNetwork": "Couldn't reach Assisto. Please check your internet.",
+  "c2CallQualityGood": "Good connection",
+  "c2CallQualityFair": "Fair connection",
+  "c2CallQualityPoor": "Poor connection",
+  "c2ChMissedCalls": "Missed calls",
+  "c2ChMissedCallsDesc": "Calls you didn't answer in My Circle",
+  "c2SoundsHeader": "Sounds",
+  "c2SoundRingtone": "Ringtone",
+  "c2SoundMessage": "Message notification sound",
+  "c2SoundContactRingtone": "Custom ringtone",
+  "c2SoundSameAsDefault": "Same as my ringtone",
+  "c2SoundPhoneDefault": "Phone default",
+  "c2SoundSilent": "Silent",
+  "c2SoundCustom": "Custom sound",
+  "c2SoundReset": "Back to default",
+  "c2SoundSignature": "Assisto ringtone",
+  "c2SoundSignatureSub": "An original Assisto melody instead of the phone's ringtone",
+  "c2SoundSignatureUnsupported": "This phone can't add the Assisto ringtone (needs Android 10 or newer). Your phone's ringtone stays on.",
+  "c2SoundPreview": "Play preview",
+  "c2ChOngoing": "Ongoing calls",
+  "c2CallOngoingTitle": "Call with {name}",
+  "@c2CallOngoingTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "c2CallOngoingText": "Assisto call in progress — tap to return"
 }

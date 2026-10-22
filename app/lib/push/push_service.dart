@@ -166,13 +166,13 @@ class PushService {
     if (!now || app.loading) return;
     unawaited(_register(null));
     unawaited(_maybeAskPermission());
-    // c3-msg: realtime transport (HTTP poll now; c2-calls' WebSocket later)
-    // + the delivered sync. Nothing polls until a My Circle screen acquires.
+    // c3-msg presence/typing ride the app's ONE real-time loop (c2-calls'
+    // PollRealtimeTransport, owned by CallRuntime) + the delivered sync.
     try {
       if (!RealtimeChannel.instance.hasTransport) {
-        RealtimeChannel.instance.useTransport(PollingTransport(
-            get: (p) => app.api.getJson(p),
-            post: (p, b) => app.api.postJson(p, b)));
+        RealtimeChannel.instance.useTransport(SharedPollTransport(
+            CallRuntime.instance.transportFor(app),
+            get: (p) => app.api.getJson(p)));
       }
     } catch (_) {}
     unawaited(_syncReceipts());

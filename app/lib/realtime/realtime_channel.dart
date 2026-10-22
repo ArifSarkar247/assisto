@@ -2,39 +2,71 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-/// c3-msg — the app's ONE real-time channel for My Circle.
+import 'realtime_transport.dart';
+
+/// c3-msg — My Circle's live presence ("online" / "last seen") and
+/// typing / recording-audio, on the app's ONE real-time loop.
 ///
-/// Presence ("online" / "last seen"), typing / recording-audio, and — once
-/// c2-calls plugs in — call signaling all travel over the same channel, so
-/// the phone keeps at most one live connection (battery).
+/// mc-int unification: there is NO second poll loop. Live events arrive on
+/// c2-calls' shared [PollRealtimeTransport] (GET rt/events?after=<seq>, the
+/// same queue that carries call signalling; 2.5 s app open / 5 s with FCM,
+/// 0.5 s in a call, paused in background):
+///   * presence.update {chat, online, last_seen, until}
+///   * typing.update   {chat, activity, who, ttl_s}
+/// Outbound goes through POST rt/send: `typing.set` (throttled here to one
+/// per 3 s per chat, changes at once) and `presence.set {state: away}`.
 ///
-/// The transport is behind [RealtimeTransport]:
-///   * [PollingTransport] (here, now): a sparse HTTP poll of GET
-///     /circle/rt/state that ONLY runs while a My Circle screen is visible
-///     and the app is foregrounded (refcounted [acquire]/[release]). The poll
-///     doubles as the presence heartbeat (`?online=1`), so there is no extra
-///     heartbeat request.
-///   * a WebSocket transport (c2-calls): implement [RealtimeTransport] and
-///     call [RealtimeChannel.useTransport]; screens don't change. Call
-///     signaling events ride [send]/[events] with `type: 'call.*'`.
+/// Battery:
+///   * the presence heartbeat is a FLAG on that same poll (`online=1`, only
+///     while a My Circle screen is visible and the app is foregrounded); the
+///     server writes it at most once per 30 s;
+///   * GET /circle/rt/state (snapshot) runs only when a My Circle screen
+///     appears, on resume, and once when a contact's `until` lapses (their
+///     phone stopped heartbeating without saying "away").
 ///
-/// Event shapes (identical for every transport):
-///   {type: 'state', chats: {'member:12': {online, last_seen, activity, who}}}
-///   {type: 'call.offer' | 'call.answer' | 'call.ice' | …}   (c2-calls)
+/// [RealtimeTransport] is the seam: [SharedPollTransport] adapts the shared
+/// poll loop; a WebSocket transport would implement the same four members.
 abstract class RealtimeTransport {
-  /// Fetch one snapshot of chat states (polling) — a push transport may
-  /// return the last cached snapshot.
+  /// Snapshot of my chats' states. [online] = also count as a heartbeat.
   Future<Map<String, dynamic>> snapshot({required bool online});
 
-  /// Fire-and-forget outbound event (typing, presence away, call signaling).
-  Future<void> send(Map<String, dynamic> event);
+  /// One event on the shared queue (POST rt/send {topic, payload}).
+  Future<void> send(String topic, Map<String, dynamic> payload);
 
-  /// Push-style transports emit inbound events here; polling emits nothing.
-  Stream<Map<String, dynamic>> get inbound => const Stream.empty();
+  /// Live presence.* / typing.* events from the shared loop.
+  Stream<RealtimeEvent> get events;
 
-  /// Polling cadence; a push transport returns null (no polling).
-  Duration? get pollInterval;
+  /// While true the shared poll carries the presence heartbeat.
+  set heartbeat(bool on);
 
+  void close() {}
+}
+
+/// The production transport: c2-calls' [PollRealtimeTransport] (owned by
+/// CallRuntime — never closed from here) + the c3 snapshot endpoint.
+class SharedPollTransport implements RealtimeTransport {
+  SharedPollTransport(this.poll, {required this.get});
+
+  final PollRealtimeTransport poll;
+  final RtGet get;
+
+  @override
+  Future<Map<String, dynamic>> snapshot({required bool online}) =>
+      get(online ? '/circle/rt/state?online=1' : '/circle/rt/state');
+
+  @override
+  Future<void> send(String topic, Map<String, dynamic> payload) async {
+    await poll.send(topic, payload);
+  }
+
+  @override
+  Stream<RealtimeEvent> get events => poll.events.where((e) =>
+      e.topic.startsWith('presence.') || e.topic.startsWith('typing.'));
+
+  @override
+  set heartbeat(bool on) => poll.heartbeat = on;
+
+  @override
   void close() {}
 }
 
@@ -51,8 +83,33 @@ class RtChatState {
   /// Group: who is typing.
   final String who;
 
+  /// When the server's "online" lapses unless the person's phone heartbeats
+  /// again (a phone that died never says "away") — the channel re-checks
+  /// with one snapshot then. null = not online / hidden.
+  final DateTime? until;
+
   const RtChatState(
-      {this.online, this.lastSeen, this.activity = '', this.who = ''});
+      {this.online,
+      this.lastSeen,
+      this.activity = '',
+      this.who = '',
+      this.until});
+
+  RtChatState copyWith(
+          {Object? online = _keep,
+          Object? lastSeen = _keep,
+          String? activity,
+          String? who,
+          Object? until = _keep}) =>
+      RtChatState(
+        online: identical(online, _keep) ? this.online : online as bool?,
+        lastSeen:
+            identical(lastSeen, _keep) ? this.lastSeen : lastSeen as DateTime?,
+        activity: activity ?? this.activity,
+        who: who ?? this.who,
+        until: identical(until, _keep) ? this.until : until as DateTime?,
+      );
+  static const _keep = Object();
 
   bool get typing => activity == 'typing';
   bool get recording => activity == 'recording';
@@ -63,6 +120,7 @@ class RtChatState {
         lastSeen: DateTime.tryParse('${j['last_seen'] ?? ''}')?.toLocal(),
         activity: '${j['activity'] ?? ''}',
         who: '${j['who'] ?? ''}',
+        until: DateTime.tryParse('${j['until'] ?? ''}')?.toLocal(),
       );
 
   @override
@@ -71,10 +129,11 @@ class RtChatState {
       other.online == online &&
       other.lastSeen == lastSeen &&
       other.activity == activity &&
-      other.who == who;
+      other.who == who &&
+      other.until == until;
 
   @override
-  int get hashCode => Object.hash(online, lastSeen, activity, who);
+  int get hashCode => Object.hash(online, lastSeen, activity, who, until);
 }
 
 /// Key for a chat in the state map: 'member:<edge id>' / 'group:<group id>'.
@@ -85,22 +144,16 @@ class RealtimeChannel {
   static final RealtimeChannel instance = RealtimeChannel._();
 
   RealtimeTransport? _transport;
-  Timer? _timer;
+  StreamSubscription<RealtimeEvent>? _sub;
   int _refs = 0;
   bool _busy = false;
   bool _foreground = true;
-  StreamSubscription<Map<String, dynamic>>? _inSub;
+  Timer? _expiry;
+  final Map<String, Timer> _typingTimers = {};
 
   /// Live chat states, keyed by [rtKey].
   final ValueNotifier<Map<String, RtChatState>> states =
       ValueNotifier<Map<String, RtChatState>>(const {});
-
-  final StreamController<Map<String, dynamic>> _events =
-      StreamController<Map<String, dynamic>>.broadcast();
-
-  /// Every inbound event (state snapshots + whatever a push transport sends,
-  /// e.g. call signaling for c2-calls).
-  Stream<Map<String, dynamic>> get events => _events.stream;
 
   // typing throttle: one "typing" per chat per [typingEvery]
   static const typingEvery = Duration(seconds: 3);
@@ -113,93 +166,150 @@ class RealtimeChannel {
   RtChatState stateOf(String kind, int id) =>
       states.value[rtKey(kind, id)] ?? const RtChatState();
 
-  /// Install / replace the transport (the polling one by default; c2-calls'
-  /// WebSocket later).
+  /// Install / replace the transport ([SharedPollTransport] in the app).
   void useTransport(RealtimeTransport t) {
     _transport?.close();
-    _inSub?.cancel();
+    _sub?.cancel();
     _transport = t;
-    _inSub = t.inbound.listen(_onInbound, onError: (_) {});
-    _reschedule();
+    _sub = t.events.listen(onEvent, onError: (_) {});
+    _applyHeartbeat();
   }
 
   bool get hasTransport => _transport != null;
+
+  bool get _live => _refs > 0 && _foreground;
+
+  void _applyHeartbeat() {
+    try {
+      _transport?.heartbeat = _live;
+    } catch (_) {}
+  }
 
   /// A My Circle screen became visible.
   void acquire() {
     _refs++;
     if (_refs == 1) {
-      _reschedule();
-      unawaited(refresh());
+      _applyHeartbeat();
+      if (_foreground) unawaited(refresh());
     }
   }
 
-  /// …and went away. At 0 the poll stops and we tell the server "away".
+  /// …and went away. At 0 the heartbeat stops and we tell the server "away".
   void release() {
     if (_refs == 0) return;
     _refs--;
     if (_refs == 0) {
-      _stop();
-      unawaited(_sendSafe({'type': 'presence', 'state': 'away'}));
+      _applyHeartbeat();
+      _cancelExpiry();
+      if (_foreground) unawaited(_sendSafe('presence.set', {'state': 'away'}));
     }
   }
 
-  /// App lifecycle: polling only while foregrounded.
+  /// App lifecycle (the shared poll itself is paused by CallRuntime).
   void setForeground(bool fg) {
     if (_foreground == fg) return;
     _foreground = fg;
+    _applyHeartbeat();
     if (!fg) {
-      _stop();
+      _cancelExpiry();
       if (_refs > 0) {
-        unawaited(_sendSafe({'type': 'presence', 'state': 'away'}));
+        unawaited(_sendSafe('presence.set', {'state': 'away'}));
       }
     } else if (_refs > 0) {
-      _reschedule();
       unawaited(refresh());
     }
   }
 
-  void _stop() {
-    _timer?.cancel();
-    _timer = null;
-  }
-
-  void _reschedule() {
-    _stop();
-    final t = _transport;
-    if (t == null || _refs == 0 || !_foreground) return;
-    final every = t.pollInterval;
-    if (every == null) return;
-    _timer = Timer.periodic(every, (_) => unawaited(refresh()));
-  }
-
-  /// One snapshot now (also the presence heartbeat). Silent on failure.
+  /// One snapshot now (screen opened / resume / an `until` lapsed). Also
+  /// counts as a heartbeat while a My Circle screen is visible.
   Future<void> refresh() async {
     final t = _transport;
     if (t == null || _busy) return;
     _busy = true;
     try {
-      final s = await t.snapshot(online: _foreground && _refs > 0);
-      _onInbound({'type': 'state', ...s});
+      final s = await t.snapshot(online: _live);
+      _applySnapshot(s);
     } catch (_) {
     } finally {
       _busy = false;
     }
   }
 
-  void _onInbound(Map<String, dynamic> e) {
-    try {
-      if (e['type'] == 'state' && e['chats'] is Map) {
-        final next = <String, RtChatState>{};
-        (e['chats'] as Map).forEach((k, v) {
-          if (v is Map) {
-            next['$k'] = RtChatState.fromJson(v.cast<String, dynamic>());
-          }
-        });
-        if (!mapEquals(next, states.value)) states.value = next;
+  void _applySnapshot(Map<String, dynamic> s) {
+    if (s['chats'] is! Map) return;
+    final next = <String, RtChatState>{};
+    (s['chats'] as Map).forEach((k, v) {
+      if (v is Map) {
+        next['$k'] = RtChatState.fromJson(v.cast<String, dynamic>());
       }
-      _events.add(e);
+    });
+    _set(next);
+  }
+
+  /// A live event from the shared loop (public for tests / FCM mirroring).
+  void onEvent(RealtimeEvent e) {
+    try {
+      final key = '${e.payload['chat'] ?? ''}';
+      if (key.isEmpty) return;
+      final cur = states.value[key] ?? const RtChatState();
+      if (e.topic == 'presence.update') {
+        final p = e.payload;
+        _put(
+            key,
+            cur.copyWith(
+              online: p['online'] is bool ? p['online'] as bool : null,
+              lastSeen: DateTime.tryParse('${p['last_seen'] ?? ''}')?.toLocal(),
+              until: DateTime.tryParse('${p['until'] ?? ''}')?.toLocal(),
+            ));
+      } else if (e.topic == 'typing.update') {
+        final act = '${e.payload['activity'] ?? ''}';
+        _typingTimers.remove(key)?.cancel();
+        _put(key, cur.copyWith(activity: act, who: '${e.payload['who'] ?? ''}'));
+        if (act.isNotEmpty) {
+          final ttl = (e.payload['ttl_s'] as num?)?.toInt() ?? 8;
+          _typingTimers[key] = Timer(Duration(seconds: ttl.clamp(1, 60)), () {
+            _typingTimers.remove(key);
+            final c = states.value[key];
+            if (c != null && c.active) _put(key, c.copyWith(activity: ''));
+          });
+        }
+      }
     } catch (_) {}
+  }
+
+  void _put(String key, RtChatState s) {
+    final next = Map<String, RtChatState>.from(states.value)..[key] = s;
+    _set(next);
+  }
+
+  void _set(Map<String, RtChatState> next) {
+    if (!mapEquals(next, states.value)) states.value = next;
+    _scheduleExpiry();
+  }
+
+  /// One timer for the earliest lapsing "online" (+2 s grace) -> snapshot.
+  void _scheduleExpiry() {
+    _cancelExpiry();
+    if (!_live) return;
+    DateTime? first;
+    for (final s in states.value.values) {
+      final u = s.until;
+      if (s.online == true && u != null && (first == null || u.isBefore(first))) {
+        first = u;
+      }
+    }
+    if (first == null) return;
+    var d = first.difference(now()) + const Duration(seconds: 2);
+    if (d < const Duration(seconds: 5)) d = const Duration(seconds: 5);
+    _expiry = Timer(d, () {
+      _expiry = null;
+      unawaited(refresh());
+    });
+  }
+
+  void _cancelExpiry() {
+    _expiry?.cancel();
+    _expiry = null;
   }
 
   /// I am typing / recording / stopped in chat (kind,id). Throttled: the same
@@ -219,25 +329,26 @@ class RealtimeChannel {
     }
     _lastTyping[key] = t;
     _lastTypingState[key] = state;
-    unawaited(_sendSafe(
-        {'type': 'typing', 'chat_kind': kind, 'chat_id': id, 'state': state}));
+    unawaited(_sendSafe('typing.set',
+        {'chat_kind': kind == 'group' ? 'group' : 'member', 'chat_id': id, 'state': state}));
     return true;
   }
 
-  /// Generic outbound (c2-calls signaling uses this too).
-  Future<void> send(Map<String, dynamic> event) => _sendSafe(event);
-
-  Future<void> _sendSafe(Map<String, dynamic> e) async {
+  Future<void> _sendSafe(String topic, Map<String, dynamic> payload) async {
     try {
-      await _transport?.send(e);
+      await _transport?.send(topic, payload);
     } catch (_) {}
   }
 
   @visibleForTesting
   void resetForTest() {
-    _stop();
-    _inSub?.cancel();
-    _inSub = null;
+    _cancelExpiry();
+    for (final t in _typingTimers.values) {
+      t.cancel();
+    }
+    _typingTimers.clear();
+    _sub?.cancel();
+    _sub = null;
     _transport = null;
     _refs = 0;
     _busy = false;
@@ -250,43 +361,11 @@ class RealtimeChannel {
 
   @visibleForTesting
   int get refs => _refs;
+
+  /// The shared poll currently carries the presence heartbeat.
   @visibleForTesting
-  bool get polling => _timer != null;
-}
+  bool get heartbeating => _live && _transport != null;
 
-/// HTTP polling transport over the c3 endpoints. [get]/[post] are injected
-/// (ApiClient.getJson/postJson) so tests use a fake.
-class PollingTransport extends RealtimeTransport {
-  final Future<Map<String, dynamic>> Function(String path) get;
-  final Future<Map<String, dynamic>> Function(
-      String path, Map<String, dynamic> body) post;
-  @override
-  final Duration? pollInterval;
-
-  PollingTransport(
-      {required this.get,
-      required this.post,
-      this.pollInterval = const Duration(seconds: 4)});
-
-  @override
-  Future<Map<String, dynamic>> snapshot({required bool online}) =>
-      get(online ? '/circle/rt/state?online=1' : '/circle/rt/state');
-
-  @override
-  Future<void> send(Map<String, dynamic> event) async {
-    switch (event['type']) {
-      case 'typing':
-        await post('/circle/rt/typing', {
-          'chat_kind': event['chat_kind'],
-          'chat_id': event['chat_id'],
-          'state': event['state'],
-        });
-        return;
-      case 'presence':
-        await post('/circle/rt/presence', {'state': event['state']});
-        return;
-      default:
-        return; // call.* events need the WebSocket transport (c2-calls)
-    }
-  }
+  @visibleForTesting
+  bool get expiryArmed => _expiry != null;
 }

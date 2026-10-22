@@ -56,3 +56,18 @@ in the manifest, i.e. once per CI build — same as the other entries.)
 * BubbleHelper runs only inside the FCM service after a message push, on the
   main looper with short delays, fully try/catch.
 * New drawable `res/drawable/c3_person_avatar.xml` (vector, original).
+
+## Integration status (mc-int, branch mycircle2)
+* BubbleActivity is APPLIED in `.github/workflows/android.yml` as its own
+  idempotent block (`if 'messaging.BubbleActivity' not in s`), so it is added
+  even on a manifest that already has the other native components.
+* Real-time: RealtimeChannel no longer polls on its own. It rides c2-calls'
+  shared `PollRealtimeTransport` through `SharedPollTransport`
+  (realtime_channel.dart). `POST /circle/rt/presence` and
+  `POST /circle/rt/typing` were removed; they are now `rt/send` producers
+  `presence.set` / `typing.set` (views_c3_msg registers them) and the
+  heartbeat is `online=1` on `GET rt/events` (poll hook, written ≤ 1 per
+  30 s). `GET /circle/rt/state` stays as the snapshot.
+* Message sound: ONE picker (Settings → Notifications) on c2's shared keys
+  `snd_msg_uri` / `snd_msg_title`. `MsgNative.pickSound` (Dart) was removed;
+  the native `pickSound` handler in C3MessagingChannel is now unused.

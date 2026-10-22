@@ -14,11 +14,12 @@ Ticks (sender view):
                (circle_privacy.can_see_read_receipt: if either side turned read
                receipts off, the tick stays at delivered — like WhatsApp).
 
-Presence / typing (real-time over the RealtimeChannel; HTTP poll transport for
-now, WebSocket when the calls signaling lands — same event shapes):
-  POST /circle/rt/presence  {state: online|away}
-  POST /circle/rt/typing    {chat_kind, chat_id, state: typing|recording|stop}
-  GET  /circle/rt/state     -> {now, chats:{"member:12": {...}}}
+Presence / typing ride the ONE shared real-time queue (views_c2_calls
+RtEvent, GET rt/events — see the "presence + typing" section below):
+  POST rt/send {topic: "typing.set",   payload: {chat_kind, chat_id, state}}
+  POST rt/send {topic: "presence.set", payload: {state: online|away}}
+  GET  rt/events?after=<seq>&online=1   (heartbeat while My Circle is open)
+  GET  /circle/rt/state     -> snapshot {now, chats:{"member:12": {...}}}
 Visibility: last seen = circle_privacy 'last_seen', online = 'active_status',
 both RECIPROCAL (if I hide mine I can't see yours); typing follows
 can_see_typing (reciprocal `typing` flag).
@@ -623,16 +624,41 @@ class NotifyPullView(APIView):
 
 
 # ---------------------------------------------------------------------------
-# presence + typing
+# presence + typing — over the SHARED real-time queue (mc-int unification)
 # ---------------------------------------------------------------------------
+# The phone runs ONE poll loop: c2-calls' GET rt/events?after=<seq>
+# (PollRealtimeTransport). This module plugs into it:
+#   * poll hook: `online=1` on that poll (sent only while a My Circle screen is
+#     visible) is the presence heartbeat — written at most once per
+#     HEARTBEAT_EVERY_S; an offline -> online flip fans out presence.update.
+#   * producers on POST rt/send:
+#       typing.set   {chat_kind, chat_id, state: typing|recording|stop}
+#                    -> typing.update to the recipient(s) allowed to see it
+#       presence.set {state: online|away} -> presence.update on a flip
+#   * GET circle/rt/state stays as the SNAPSHOT (screen open, or when a
+#     contact's `until` lapses — a phone that died never says "away").
+# Event payloads (RtEvent envelope {"seq","topic","payload","ts"}):
+#   presence.update {chat: "member:<recipient's edge id>", online, last_seen,
+#                    until}
+#   typing.update   {chat: "member:<id>" | "group:<id>", activity, who, ttl_s}
+HEARTBEAT_EVERY_S = 30
+
+
 def _presence(user):
     row, _ = CirclePresence.objects.get_or_create(user=user)
     return row
 
 
-def heartbeat(user, online=True, now=None):
+def heartbeat(user, online=True, now=None, force=False):
+    """Record online / away. Returns (row, flipped) — flipped = the visible
+    online state changed (the caller fans out presence.update). An online
+    heartbeat that is still fresh is NOT written (battery + DB friendly)."""
     now = now or _now()
     row = _presence(user)
+    was_online = bool(row.online_until and row.online_until > now)
+    if (online and was_online and not force and row.online_until - now
+            > timedelta(seconds=ONLINE_TTL_S - HEARTBEAT_EVERY_S)):
+        return row, False
     row.last_seen = now
     row.online_until = now + timedelta(seconds=ONLINE_TTL_S) if online else None
     fields = ["last_seen", "online_until"]
@@ -640,51 +666,7 @@ def heartbeat(user, online=True, now=None):
         row.activity, row.activity_until = "", None
         fields += ["activity", "activity_until"]
     row.save(update_fields=fields)
-    return row
-
-
-class PresenceView(APIView):
-    """POST /circle/rt/presence {state: online|away}."""
-
-    def post(self, request):
-        st = str((request.data or {}).get("state", "online"))
-        heartbeat(request.user, online=(st != "away"))
-        return Response({"ok": True, "online": st != "away",
-                         "ttl_s": ONLINE_TTL_S})
-
-
-class TypingView(APIView):
-    """POST /circle/rt/typing {chat_kind, chat_id, state} — typing / recording
-    / stop. Throttle on the device (one per ~3 s); lives TYPING_TTL_S."""
-
-    def post(self, request):
-        d = request.data or {}
-        kind = "group" if str(d.get("chat_kind", "")) == "group" else "member"
-        st = str(d.get("state", "typing"))
-        if st not in ("typing", "recording", "stop"):
-            st = "typing"
-        rows, ctx = _chat_rows(request.user, kind, d.get("chat_id"))
-        if rows is None:
-            return Response({"detail": "not found"},
-                            status=status.HTTP_404_NOT_FOUND)
-        now = _now()
-        row = _presence(request.user)
-        row.last_seen = now
-        row.online_until = now + timedelta(seconds=ONLINE_TTL_S)
-        if st == "stop":
-            row.activity, row.activity_until = "", None
-            row.activity_to_user = row.activity_group = None
-        else:
-            row.activity = st
-            row.activity_until = now + timedelta(seconds=TYPING_TTL_S)
-            if kind == "group":
-                row.activity_group, row.activity_to_user = ctx["group"].id, None
-            else:
-                p = _peer_user(ctx["edge"])
-                row.activity_to_user = p.id if p else None
-                row.activity_group = None
-        row.save()
-        return Response({"ok": True, "state": st, "ttl_s": TYPING_TTL_S})
+    return row, was_online != bool(online)
 
 
 def _visible_presence(viewer, owner, owner_priv, viewer_priv, relation,
@@ -702,9 +684,130 @@ def _visible_presence(viewer, owner, owner_priv, viewer_priv, relation,
     return can_on, can_ls
 
 
+def _member_entry(viewer, e, p, r, pm, now):
+    """What `viewer` (owner of edge `e` pointing at user `p`) may see of p's
+    presence row `r` (None = no row)."""
+    from . import push
+    rev = push._reverse_edge(p, viewer)
+    blocked = bool(e.blocked or (rev is not None and rev.blocked))
+    rel = rev.relation if rev is not None else ""
+    can_on, can_ls = _visible_presence(viewer, p, pm[p.id], pm[viewer.id],
+                                       rel, blocked)
+    online = bool(r and r.online_until and r.online_until > now)
+    act = ""
+    if (r and r.activity and r.activity_until and r.activity_until > now
+            and r.activity_to_user == viewer.id and not blocked
+            and CP.can_see_typing(pm[viewer.id], pm[p.id])):
+        act = r.activity
+    on = (online or bool(act)) if can_on else None
+    return {
+        "online": on,
+        "last_seen": (r.last_seen.isoformat() if (r and r.last_seen
+                                                  and can_ls) else None),
+        "until": (r.online_until.isoformat() if (on and r and r.online_until)
+                  else None),
+        "activity": act, "who": "",
+    }
+
+
+def _contact_edges_of(user):
+    """Accepted CircleMember rows OTHER users hold for `user` (their chat id
+    for me) — same matching as push._reverse_edge (peer_user, else phone)."""
+    q = dj_models.Q(peer_user=user)
+    phone = (getattr(user, "phone", "") or "").strip()
+    if phone:
+        q |= dj_models.Q(peer_user__isnull=True, phone=phone)
+    return list(CircleMember.objects.filter(q, state="accepted")
+                .exclude(user=user).select_related("user"))
+
+
+def publish_presence(user, now=None):
+    """presence.update to every contact, each with THEIR chat key and only
+    what THEY may see (hidden -> nothing is sent). Returns the count."""
+    from .views_c2_calls import rt_publish
+    now = now or _now()
+    try:
+        r = _presence(user)
+        edges = _contact_edges_of(user)
+        if not edges:
+            return 0
+        pm = _privacy_map([user.id] + [e.user_id for e in edges])
+        n = 0
+        for e in edges:
+            ent = _member_entry(e.user, e, user, r, pm, now)
+            if ent["online"] is None and ent["last_seen"] is None:
+                continue
+            rt_publish(e.user, "presence.update", {
+                "chat": "member:%d" % e.id, "online": ent["online"],
+                "last_seen": ent["last_seen"], "until": ent["until"]})
+            n += 1
+        return n
+    except Exception:
+        return 0
+
+
+def set_typing(user, kind, chat_id, st, now=None):
+    """typing / recording / stop in one chat: stores it on the presence row
+    (for snapshots) and pushes typing.update to whoever may see it.
+    Returns False when the chat isn't the user's."""
+    from . import push
+    from .views_c2_calls import rt_publish
+    rows, ctx = _chat_rows(user, kind, chat_id)
+    if rows is None:
+        return False
+    now = now or _now()
+    row = _presence(user)
+    was_online = bool(row.online_until and row.online_until > now)
+    row.last_seen = now
+    row.online_until = now + timedelta(seconds=ONLINE_TTL_S)
+    peer = None
+    if st == "stop":
+        row.activity, row.activity_until = "", None
+        row.activity_to_user = row.activity_group = None
+    else:
+        row.activity = st
+        row.activity_until = now + timedelta(seconds=TYPING_TTL_S)
+        if kind == "group":
+            row.activity_group, row.activity_to_user = ctx["group"].id, None
+        else:
+            peer = _peer_user(ctx["edge"])
+            row.activity_to_user = peer.id if peer else None
+            row.activity_group = None
+    row.save()
+    act = "" if st == "stop" else st
+    try:
+        if kind == "group":
+            g = ctx["group"]
+            gms = list(CircleGroupMember.objects.filter(
+                group=g, status="active").exclude(member=user)
+                .select_related("member"))
+            pm = _privacy_map([user.id] + [x.member_id for x in gms])
+            for gm in gms:
+                if CP.can_see_typing(pm[gm.member_id], pm[user.id]):
+                    rt_publish(gm.member, "typing.update", {
+                        "chat": "group:%d" % g.id, "activity": act,
+                        "who": user.name or "", "ttl_s": TYPING_TTL_S})
+        else:
+            edge = ctx["edge"]
+            peer = peer or _peer_user(edge)
+            if peer is not None and peer.id != user.id and not edge.blocked:
+                rev = push._reverse_edge(peer, user)
+                pm = _privacy_map([user.id, peer.id])
+                if (rev is not None and not rev.blocked
+                        and CP.can_see_typing(pm[peer.id], pm[user.id])):
+                    rt_publish(peer, "typing.update", {
+                        "chat": "member:%d" % rev.id, "activity": act,
+                        "who": "", "ttl_s": TYPING_TTL_S})
+    except Exception:
+        pass
+    if not was_online:
+        publish_presence(user, now)
+    return True
+
+
 def rt_state(viewer, now=None):
-    """Live state of every chat of `viewer`: peer presence (1:1) and who is
-    typing / recording to me (1:1) or in my groups."""
+    """Live state of every chat of `viewer` (the snapshot): peer presence
+    (1:1) and who is typing / recording to me (1:1) or in my groups."""
     from . import push
     now = now or _now()
     edges = list(CircleMember.objects.filter(user=viewer, state="accepted"))
@@ -724,24 +827,8 @@ def rt_state(viewer, now=None):
                  .values_list("id", "name"))
     chats = {}
     for eid, (e, p) in peers.items():
-        r = pres.get(p.id)
-        rev = push._reverse_edge(p, viewer)
-        blocked = bool(e.blocked or (rev is not None and rev.blocked))
-        rel = rev.relation if rev is not None else ""
-        can_on, can_ls = _visible_presence(viewer, p, pm[p.id], pm[viewer.id],
-                                           rel, blocked)
-        online = bool(r and r.online_until and r.online_until > now)
-        act = ""
-        if (r and r.activity and r.activity_until and r.activity_until > now
-                and r.activity_to_user == viewer.id and not blocked
-                and CP.can_see_typing(pm[viewer.id], pm[p.id])):
-            act = r.activity
-        chats["member:%d" % eid] = {
-            "online": (online or bool(act)) if can_on else None,
-            "last_seen": (r.last_seen.isoformat() if (r and r.last_seen
-                                                      and can_ls) else None),
-            "activity": act, "who": "",
-        }
+        chats["member:%d" % eid] = _member_entry(viewer, e, p, pres.get(p.id),
+                                                 pm, now)
     for gm in gms:
         acts = [r for r in pres.values()
                 if r.activity_group == gm.group_id and r.user_id != viewer.id
@@ -757,10 +844,54 @@ def rt_state(viewer, now=None):
 
 
 class RtStateView(APIView):
-    """GET /circle/rt/state[?online=1] — live presence/typing for my chats.
-    `online=1` doubles as the heartbeat (one request per poll tick)."""
+    """GET /circle/rt/state[?online=1] — snapshot of presence/typing for my
+    chats. `online=1` also counts as a heartbeat (screen just opened)."""
 
     def get(self, request):
         if request.query_params.get("online") == "1":
-            heartbeat(request.user, online=True)
+            _, flipped = heartbeat(request.user, online=True)
+            if flipped:
+                publish_presence(request.user)
         return Response(rt_state(request.user))
+
+
+# ---- producers / poll hook on the shared queue (views_c2_calls) ----------
+def _produce_typing(request, topic, payload):
+    if topic != "typing.set":
+        return {"detail": "bad topic", "code": "bad_topic"}, 422
+    kind = "group" if str(payload.get("chat_kind", "")) == "group" else "member"
+    st = str(payload.get("state", "typing"))
+    if st not in ("typing", "recording", "stop"):
+        st = "typing"
+    if not set_typing(request.user, kind, payload.get("chat_id"), st):
+        return {"detail": "not found"}, 404
+    return {"ok": True, "state": st, "ttl_s": TYPING_TTL_S}, 200
+
+
+def _produce_presence(request, topic, payload):
+    if topic != "presence.set":
+        return {"detail": "bad topic", "code": "bad_topic"}, 422
+    online = str(payload.get("state", "online")) != "away"
+    _, flipped = heartbeat(request.user, online=online, force=True)
+    if flipped:
+        publish_presence(request.user)
+    return {"ok": True, "online": online, "ttl_s": ONLINE_TTL_S}, 200
+
+
+def _poll_heartbeat(request, now):
+    """rt/events?online=1 — the poll IS the heartbeat (throttled write)."""
+    if request.query_params.get("online") != "1":
+        return
+    _, flipped = heartbeat(request.user, online=True, now=now)
+    if flipped:
+        publish_presence(request.user, now)
+
+
+def _register_rt():
+    from . import views_c2_calls as C2
+    C2.register_producer("typing.", _produce_typing)
+    C2.register_producer("presence.", _produce_presence)
+    C2.register_poll_hook(_poll_heartbeat)
+
+
+_register_rt()

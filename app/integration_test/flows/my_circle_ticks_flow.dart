@@ -100,13 +100,20 @@ void registerMyCircleTicksFlows() {
     });
 
     await f.step('B types → "typing…" in A\'s header; then "online"', () async {
-      await f.net(() => apiB.postJson('/circle/rt/typing',
-          {'chat_kind': 'member', 'chat_id': edgeB['id'], 'state': 'typing'}));
+      await f.net(() => apiB.postJson('/rt/send', {
+            'topic': 'typing.set',
+            'payload': {'chat_kind': 'member', 'chat_id': edgeB['id'], 'state': 'typing'}
+          }));
       await f.waitFor(find.text(f.t.c3Typing), seconds: 15, what: 'typing… in the header');
       await f.shot('header-typing');
-      await f.net(() => apiB.postJson('/circle/rt/typing',
-          {'chat_kind': 'member', 'chat_id': edgeB['id'], 'state': 'stop'}));
-      await f.net(() => apiB.postJson('/circle/rt/presence', {'state': 'online'}));
+      await f.net(() => apiB.postJson('/rt/send', {
+            'topic': 'typing.set',
+            'payload': {'chat_kind': 'member', 'chat_id': edgeB['id'], 'state': 'stop'}
+          }));
+      await f.net(() => apiB.postJson('/rt/send', {
+            'topic': 'presence.set',
+            'payload': {'state': 'online'}
+          }));
       await f.waitFor(find.text(f.t.c3Online), seconds: 15, what: 'online in the header');
       await f.shot('header-online');
     });

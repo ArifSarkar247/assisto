@@ -9,7 +9,9 @@ import 'call_sound_prefs.dart';
 import 'tone_generator.dart';
 import 'call_log.dart';
 
-/// Settings → Calls "Sounds" rows (c2-calls). The phone's own sound picker
+/// Settings → Calls "Sounds" rows (c2-calls): ringtone + Assisto melody.
+/// [SoundPickTile] with [SoundPickKind.message] is reused by Settings →
+/// Notifications (the ONE message-sound picker). The phone's own sound picker
 /// (RingtoneManager) is used — Assisto ships no audio files.
 class CallSoundsSection extends StatelessWidget {
   const CallSoundsSection({super.key});
@@ -31,7 +33,8 @@ class CallSoundsSection extends StatelessWidget {
         ),
         const SoundPickTile(kind: SoundPickKind.ringtone),
         const AssistoSignatureTile(),
-        const SoundPickTile(kind: SoundPickKind.message),
+        // The message sound is NOT here: its one picker lives in
+        // Settings → Notifications (MsgDeviceNotifSection), same keys.
       ],
     );
   }

@@ -99,3 +99,17 @@ and `after=<seq>` resume. Nothing else in the call code changes.
   test passes.
 * Call waiting: a second incoming call while in a call is answered "busy".
 * Group calls (circle/groups/<id>/call, messenger/group-call) are untouched.
+
+## Integration status (mc-int, branch mycircle2)
+* Migration renamed to `0054_c2_calls` (depends 0053_w1_webphoto);
+  c3's `0055_c3_msg` depends on it.
+* PiP attribute APPLIED in the android.yml manifest patch (c2-calls block,
+  after w1-webphoto). Verified on a fresh `flutter create`: valid XML,
+  idempotent.
+* MainActivity: c3 and c2 each had an `onActivityResult` override; merged
+  into ONE override that asks C3MessagingChannel (0xC3) then CallsChannel
+  (0x5a11), each try/catch, then `super`.
+* `views_c2_calls.register_poll_hook(fn)` added so c3's presence heartbeat
+  rides `GET rt/events?online=1` (no second loop on the phone).
+* The message-sound row moved out of Settings → Calls into Settings →
+  Notifications (the ONE message-sound picker; same keys).

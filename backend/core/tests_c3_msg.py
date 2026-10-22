@@ -309,26 +309,35 @@ class PresenceTypingTests(_Base):
     def state(self, c, key):
         return c.get(V + "/circle/rt/state").json()["chats"].get(key)
 
+    # mc-int: presence/typing ride the shared queue (rt/send producers).
+    def presence(self, c, st):
+        r = c.post(V + "/rt/send", {"topic": "presence.set",
+                                    "payload": {"state": st}}, format="json")
+        self.assertEqual(r.status_code, 200, r.content)
+        return r
+
+    def typing(self, c, payload):
+        return c.post(V + "/rt/send", {"topic": "typing.set",
+                                       "payload": payload}, format="json")
+
     def test_online_last_seen_and_typing(self):
         # default policy (family) hides from a "friend"; open it to My Circle
         for u in (self.a, self.b):
             CirclePrivacy.objects.create(user=u, visibility={
                 "last_seen": "everyone", "active_status": "everyone"})
-        self.cb.post(V + "/circle/rt/presence", {"state": "online"},
-                     format="json")
+        self.presence(self.cb, "online")
         s = self.state(self.ca, "member:%d" % self.ab.id)
         self.assertTrue(s["online"])
         self.assertIsNotNone(s["last_seen"])
         self.assertEqual(s["activity"], "")
-        self.cb.post(V + "/circle/rt/typing", {"chat_kind": "member",
-                                              "chat_id": self.ba.id,
-                                              "state": "typing"}, format="json")
+        self.typing(self.cb, {"chat_kind": "member",
+                              "chat_id": self.ba.id,
+                              "state": "typing"})
         self.assertEqual(self.state(self.ca, "member:%d" % self.ab.id)
                          ["activity"], "typing")
-        self.cb.post(V + "/circle/rt/typing", {"chat_kind": "member",
-                                              "chat_id": self.ba.id,
-                                              "state": "recording"},
-                     format="json")
+        self.typing(self.cb, {"chat_kind": "member",
+                              "chat_id": self.ba.id,
+                              "state": "recording"})
         self.assertEqual(self.state(self.ca, "member:%d" % self.ab.id)
                          ["activity"], "recording")
         # expiry
@@ -339,8 +348,7 @@ class PresenceTypingTests(_Base):
         self.assertEqual(s["activity"], "")
         self.assertFalse(s["online"])
         # away
-        self.cb.post(V + "/circle/rt/presence", {"state": "away"},
-                     format="json")
+        self.presence(self.cb, "away")
         self.assertFalse(self.state(self.ca, "member:%d" % self.ab.id)["online"])
 
     def test_privacy_nobody_and_reciprocal(self):
@@ -348,23 +356,20 @@ class PresenceTypingTests(_Base):
             "last_seen": "nobody", "active_status": "nobody"})
         CirclePrivacy.objects.create(user=self.a, visibility={
             "last_seen": "everyone", "active_status": "everyone"})
-        self.cb.post(V + "/circle/rt/presence", {"state": "online"},
-                     format="json")
+        self.presence(self.cb, "online")
         s = self.state(self.ca, "member:%d" % self.ab.id)
         self.assertIsNone(s["online"])
         self.assertIsNone(s["last_seen"])
         # reciprocal: B hid theirs, so B can't see A's either
-        self.ca.post(V + "/circle/rt/presence", {"state": "online"},
-                     format="json")
+        self.presence(self.ca, "online")
         s = self.state(self.cb, "member:%d" % self.ba.id)
         self.assertIsNone(s["online"])
         self.assertIsNone(s["last_seen"])
 
     def test_typing_off_is_reciprocal(self):
         CirclePrivacy.objects.create(user=self.a, typing=False)
-        self.cb.post(V + "/circle/rt/typing", {"chat_kind": "member",
-                                              "chat_id": self.ba.id},
-                     format="json")
+        self.typing(self.cb, {"chat_kind": "member",
+                              "chat_id": self.ba.id})
         self.assertEqual(self.state(self.ca, "member:%d" % self.ab.id)
                          ["activity"], "")
 
@@ -372,13 +377,96 @@ class PresenceTypingTests(_Base):
         g = CircleGroup.objects.create(creator=self.a, name="Family")
         for u in (self.a, self.b):
             CircleGroupMember.objects.create(group=g, member=u)
-        self.cb.post(V + "/circle/rt/typing", {"chat_kind": "group",
-                                              "chat_id": g.id}, format="json")
+        self.typing(self.cb, {"chat_kind": "group",
+                              "chat_id": g.id})
         s = self.state(self.ca, "group:%d" % g.id)
         self.assertEqual((s["activity"], s["who"]), ("typing", "Bilal"))
         # not shown to the typer themself
         self.assertIsNone(self.state(self.cb, "group:%d" % g.id))
         # strangers can't post typing into a group they aren't in
-        self.assertEqual(self.cc.post(V + "/circle/rt/typing",
-                                      {"chat_kind": "group", "chat_id": g.id},
-                                      format="json").status_code, 404)
+        self.assertEqual(self.typing(self.cc, {"chat_kind": "group",
+                                               "chat_id": g.id}).status_code,
+                         404)
+
+    # ---- mc-int: live updates over the ONE shared queue (rt/events) ----
+    def events(self, c, topics=""):
+        q = "?after=0" + ("&topics=" + topics if topics else "")
+        return [e for e in c.get(V + "/rt/events" + q).json()["events"]]
+
+    def test_typing_update_pushed_to_peer_with_their_chat_key(self):
+        self.typing(self.cb, {"chat_kind": "member", "chat_id": self.ba.id,
+                              "state": "typing"})
+        evs = self.events(self.ca, topics="typing")
+        self.assertEqual(len(evs), 1)
+        self.assertEqual(evs[0]["payload"]["chat"], "member:%d" % self.ab.id)
+        self.assertEqual(evs[0]["payload"]["activity"], "typing")
+        self.typing(self.cb, {"chat_kind": "member", "chat_id": self.ba.id,
+                              "state": "stop"})
+        evs = self.events(self.ca, topics="typing")
+        self.assertEqual(evs[-1]["payload"]["activity"], "")
+        # the typer gets nothing about themself
+        self.assertEqual(self.events(self.cb, topics="typing"), [])
+
+    def test_typing_update_respects_reciprocal_off_and_block(self):
+        CirclePrivacy.objects.create(user=self.a, typing=False)
+        self.typing(self.cb, {"chat_kind": "member", "chat_id": self.ba.id})
+        self.assertEqual(self.events(self.ca, topics="typing"), [])
+        CirclePrivacy.objects.filter(user=self.a).update(typing=True)
+        CircleMember.objects.filter(pk=self.ab.pk).update(blocked=True)
+        self.typing(self.cb, {"chat_kind": "member", "chat_id": self.ba.id})
+        self.assertEqual(self.events(self.ca, topics="typing"), [])
+
+    def test_group_typing_update_to_members_only(self):
+        g = CircleGroup.objects.create(creator=self.a, name="Family")
+        for u in (self.a, self.b, self.c):
+            CircleGroupMember.objects.create(group=g, member=u)
+        self.typing(self.cb, {"chat_kind": "group", "chat_id": g.id,
+                              "state": "recording"})
+        for c in (self.ca, self.cc):
+            p = self.events(c, topics="typing")[0]["payload"]
+            self.assertEqual((p["chat"], p["activity"], p["who"]),
+                             ("group:%d" % g.id, "recording", "Bilal"))
+        self.assertEqual(self.events(self.cb, topics="typing"), [])
+
+    def test_poll_is_heartbeat_and_flip_fans_out_presence(self):
+        for u in (self.a, self.b):
+            CirclePrivacy.objects.create(user=u, visibility={
+                "last_seen": "everyone", "active_status": "everyone"})
+        # a poll WITHOUT online=1 (app open, My Circle not on screen): no
+        # heartbeat, nothing fanned out
+        self.cb.get(V + "/rt/events?after=0")
+        self.assertEqual(self.events(self.ca, topics="presence"), [])
+        self.cb.get(V + "/rt/events?after=0&online=1")
+        evs = self.events(self.ca, topics="presence")
+        self.assertEqual(len(evs), 1)
+        p = evs[0]["payload"]
+        self.assertEqual(p["chat"], "member:%d" % self.ab.id)
+        self.assertTrue(p["online"])
+        self.assertIsNotNone(p["until"])
+        # still fresh: further polls neither write nor fan out (battery/DB)
+        before = CirclePresence.objects.get(user=self.b).last_seen
+        self.cb.get(V + "/rt/events?after=0&online=1")
+        self.assertEqual(CirclePresence.objects.get(user=self.b).last_seen,
+                         before)
+        self.assertEqual(len(self.events(self.ca, topics="presence")), 1)
+        # away flips it back
+        self.presence(self.cb, "away")
+        evs = self.events(self.ca, topics="presence")
+        self.assertEqual(len(evs), 2)
+        self.assertFalse(evs[-1]["payload"]["online"])
+        self.assertIsNotNone(evs[-1]["payload"]["last_seen"])
+
+    def test_presence_hidden_by_privacy_is_not_sent(self):
+        CirclePrivacy.objects.create(user=self.b, visibility={
+            "last_seen": "nobody", "active_status": "nobody"})
+        self.presence(self.cb, "online")
+        self.assertEqual(self.events(self.ca, topics="presence"), [])
+
+    def test_bad_topics_on_shared_send(self):
+        r = self.ca.post(V + "/rt/send", {"topic": "typing.zzz",
+                                          "payload": {}}, format="json")
+        self.assertEqual(r.status_code, 422)
+        r = self.ca.post(V + "/rt/send", {"topic": "presence.zzz",
+                                          "payload": {}}, format="json")
+        self.assertEqual(r.status_code, 422)
+

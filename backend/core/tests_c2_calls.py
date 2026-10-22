@@ -337,6 +337,7 @@ class SignallingNoPushTests(_Pair, TestCase):
     def test_producer_registry_for_other_topics(self):
         from core import views_c2_calls as C2
         seen = []
+        prev = C2.RT_PRODUCERS.get("typing.")  # c3-msg's real producer
         C2.register_producer("typing.", lambda req, t, p: (seen.append(t) or
                                                            ({"ok": True}, 200)))
         try:
@@ -346,7 +347,10 @@ class SignallingNoPushTests(_Pair, TestCase):
             self.assertEqual(r.status_code, 200)
             self.assertEqual(seen, ["typing.start"])
         finally:
-            C2.RT_PRODUCERS.pop("typing.", None)
+            if prev is not None:
+                C2.register_producer("typing.", prev)
+            else:
+                C2.RT_PRODUCERS.pop("typing.", None)
 
 
 class SignallingPushTests(_Pair, _PushBase):

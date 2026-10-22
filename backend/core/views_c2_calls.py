@@ -16,7 +16,8 @@ SHORT polling: GET rt/events?after=<seq> answers at once (never held open, so
 polls cannot starve the 3 workers). Phones poll ~0.5 s while a call is being
 set up / typing is shown, ~2.5 s otherwise, slower in background. The same
 queue carries call.* (this module), presence.* and typing.* (c3-msg adds
-those producers via register_producer). WebSocket upgrade path:
+those producers via register_producer and its heartbeat via
+register_poll_hook — views_c3_msg). WebSocket upgrade path:
 .phaseB/proposals/c2-calls.md.
 
 Event envelope (what a phone receives):
@@ -274,13 +275,30 @@ def register_producer(prefix, fn):
     RT_PRODUCERS[prefix] = fn
 
 
+RT_POLL_HOOKS = []
+
+
+def register_poll_hook(fn):
+    """fn(request, now) runs on every rt/events poll (never raises into the
+    poll). c3-msg's presence heartbeat (`online=1`) rides here, so the phone
+    needs no second request loop."""
+    if fn not in RT_POLL_HOOKS:
+        RT_POLL_HOOKS.append(fn)
+
+
 class RtEventsView(APIView):
-    """GET rt/events?after=<seq>&topics=call,typing — returns immediately."""
+    """GET rt/events?after=<seq>&topics=call,typing[&online=1] — returns
+    immediately. `online=1` = a My Circle screen is open (c3 heartbeat)."""
     def get(self, request):
         me = request.user
         now = timezone.now()
         touch_presence(me, now)
         _sweep_mine(me, now)
+        for hook in list(RT_POLL_HOOKS):
+            try:
+                hook(request, now)
+            except Exception:
+                pass
         try:
             after = int(request.query_params.get("after") or 0)
         except (TypeError, ValueError):

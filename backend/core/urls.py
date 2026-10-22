@@ -762,7 +762,9 @@ urlpatterns += [
 # ---- /h1-home ----
 
 # ---- c3-msg ---- ticks (receipts), seen, notification pull, message info,
-# mark unread, presence + typing. PREPENDED so the literal paths win over the
+# mark unread, presence/typing snapshot (live presence + typing ride the
+# shared rt/events queue; views_c3_msg registers its producers there).
+# PREPENDED so the literal paths win over the
 # circle/messages/<pk>/<action> and circle/groups/<pk>/<setting> catch-alls.
 from . import views_c3_msg as c3m  # noqa: E402
 urlpatterns[:0] = [
@@ -773,13 +775,12 @@ urlpatterns[:0] = [
     path("circle/messages/<int:pk>/info", c3m.MessageInfoView.as_view()),
     path("circle/chats/unread", c3m.ChatUnreadFlagView.as_view()),
     path("circle/notify/pull", c3m.NotifyPullView.as_view()),
-    path("circle/rt/presence", c3m.PresenceView.as_view()),
-    path("circle/rt/typing", c3m.TypingView.as_view()),
     path("circle/rt/state", c3m.RtStateView.as_view()),
 ]
 # ---- /c3-msg ----
 # ---- c2-calls ---- REAL call signalling + the shared real-time event queue
-# (call.* now; presence.* / typing.* producers register in views_c2_calls).
+# (call.* here; presence.* / typing.* producers + the presence heartbeat
+# poll hook are registered by views_c3_msg).
 from . import views_c2_calls as c2calls  # noqa: E402
 urlpatterns += [
     path("rt/events", c2calls.RtEventsView.as_view()),

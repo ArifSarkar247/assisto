@@ -117,7 +117,7 @@ class _MsgrSetCallsScreenState extends State<MsgrSetCallsScreen> {
                       builder: (_) => const CirclePrivacyScreen())),
                 ),
                 if (!_synced) MsgrSetNote(t.msgrSetNotSynced),
-                // c2-calls: ringtone / Assisto melody / message sound
+                // c2-calls: ringtone / Assisto melody (message sound: Notifications)
                 const Divider(),
                 const CallSoundsSection(),
               ],

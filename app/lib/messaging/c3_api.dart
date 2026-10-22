@@ -33,12 +33,19 @@ extension C3MsgApi on ApiClient {
       postJson('/circle/notify/pull',
           {'chat_kind': kind, 'chat_id': id, 'limit': limit});
 
-  Future<Map<String, dynamic>> c3Presence(bool online) =>
-      postJson('/circle/rt/presence', {'state': online ? 'online' : 'away'});
+  // Live presence / typing go through the shared real-time queue
+  // (POST /rt/send presence.set / typing.set — RealtimeChannel); only the
+  // snapshot stays a c3 endpoint.
+  Future<Map<String, dynamic>> c3Presence(bool online) => postJson('/rt/send', {
+        'topic': 'presence.set',
+        'payload': {'state': online ? 'online' : 'away'}
+      });
 
   Future<Map<String, dynamic>> c3Typing(String kind, int id, String state) =>
-      postJson('/circle/rt/typing',
-          {'chat_kind': kind, 'chat_id': id, 'state': state});
+      postJson('/rt/send', {
+        'topic': 'typing.set',
+        'payload': {'chat_kind': kind, 'chat_id': id, 'state': state}
+      });
 
   Future<Map<String, dynamic>> c3RtState({bool online = false}) =>
       getJson(online ? '/circle/rt/state?online=1' : '/circle/rt/state');

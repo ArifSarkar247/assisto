@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../calls/call_sound_tiles.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/msgr_set_tiles.dart';
 import 'msg_native.dart';
@@ -7,8 +8,9 @@ import 'msg_prefs.dart';
 
 /// c3-msg — "On this phone" block of My Circle → Settings → Notifications:
 ///   * Hide message content in notifications (privacy; device-level)
-///   * Message sound: the phone's default, or any notification sound picked
-///     from the phone (system picker — no bundled audio)
+///   * Message sound: the ONE picker (c2-calls' [SoundPickTile], shared keys
+///     snd_msg_uri / snd_msg_title — phone default, silent, or any phone
+///     notification sound via the system picker; no bundled audio)
 ///   * Chat bubbles: global on/off (Android 11+) + the system bubble page.
 class MsgDeviceNotifSection extends StatefulWidget {
   const MsgDeviceNotifSection({super.key});
@@ -21,8 +23,6 @@ class _MsgDeviceNotifSectionState extends State<MsgDeviceNotifSection> {
   bool _hide = false;
   bool _bubbles = true;
   bool _bubblesSupported = false;
-  String _soundTitle = '';
-  String _soundUri = '';
 
   @override
   void initState() {
@@ -34,26 +34,11 @@ class _MsgDeviceNotifSectionState extends State<MsgDeviceNotifSection> {
     final hide = await MsgPrefs.hideContent();
     final b = await MsgPrefs.bubblesOn();
     final sup = await MsgNative.bubblesSupported();
-    final st = await MsgPrefs.soundTitle();
-    final su = await MsgPrefs.soundUri();
     if (!mounted) return;
     setState(() {
       _hide = hide;
       _bubbles = b;
       _bubblesSupported = sup;
-      _soundTitle = st;
-      _soundUri = su;
-    });
-  }
-
-  Future<void> _pickSound() async {
-    final r = await MsgNative.pickSound(_soundUri);
-    if (r == null || !mounted) return;
-    await MsgPrefs.setSound(r['uri'] ?? '', r['title'] ?? '');
-    if (!mounted) return;
-    setState(() {
-      _soundUri = r['uri'] ?? '';
-      _soundTitle = r['title'] ?? '';
     });
   }
 
@@ -75,19 +60,7 @@ class _MsgDeviceNotifSectionState extends State<MsgDeviceNotifSection> {
             await MsgPrefs.setHideContent(v);
           },
         ),
-        ListTile(
-          key: const Key('c3-msg-sound'),
-          leading: const Icon(Icons.music_note_outlined),
-          title: Text(t.c3SetSound),
-          subtitle: Text(
-              _soundUri.isEmpty || _soundTitle.isEmpty
-                  ? t.c3SetSoundDefault
-                  : _soundTitle,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: _pickSound,
-        ),
+        const SoundPickTile(kind: SoundPickKind.message),
         if (_bubblesSupported) ...[
           SwitchListTile(
             key: const Key('c3-bubbles-global'),

@@ -1,5 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../calls/call_sound_prefs.dart';
+
 /// c3-msg — device-level message-notification + bubble preferences.
 ///
 /// Stored in SharedPreferences so the FCM background isolate, the
@@ -13,9 +15,11 @@ class MsgPrefs {
   static const kHideContent = 'c3_msg_hide_content';
   static const kBubblesOn = 'c3_bubbles_on';
   static const kBubbleChats = 'c3_bubble_chats'; // "member:12,group:3"
-  static const kSoundUri = 'c3_msg_sound_uri'; // '' = phone default
-  static const kSoundTitle = 'c3_msg_sound_title';
-  static const kChannelVer = 'c3_msg_channel_v';
+  /// Message sound — the ONE shared key pair (c2-calls' CallSoundPrefs,
+  /// picked in Settings → Notifications): absent = the phone's default
+  /// notification sound, '' = silent, else a content:// uri.
+  static const kSoundUri = CallSoundPrefs.msgUri; // 'snd_msg_uri'
+  static const kSoundTitle = CallSoundPrefs.msgTitle; // 'snd_msg_title'
 
   static Future<SharedPreferences?> _p() async {
     try {
@@ -58,26 +62,32 @@ class MsgPrefs {
     await p.setString(kBubbleChats, (s.toList()..sort()).join(','));
   }
 
-  static Future<String> soundUri() async =>
-      (await _p())?.getString(kSoundUri) ?? '';
+  /// null = phone default, '' = silent, else the picked uri.
+  static Future<String?> soundUri() async => (await _p())?.getString(kSoundUri);
   static Future<String> soundTitle() async =>
       (await _p())?.getString(kSoundTitle) ?? '';
 
   /// Android notification channels can't change their sound after creation,
-  /// so a new sound = a new channel id ("messages_s<n>"); '' = the original
-  /// "messages" channel (phone default sound).
-  static Future<String> channelId() async {
-    final p = await _p();
-    final uri = p?.getString(kSoundUri) ?? '';
-    if (uri.isEmpty) return 'messages';
-    return 'messages_s${p?.getInt(kChannelVer) ?? 1}';
+  /// so each sound has its own channel id: 'messages' = phone default (the
+  /// original channel), 'messages_silent', or 'messages_<hash of uri>'.
+  static String channelIdFor(String? uri) {
+    if (uri == null) return 'messages';
+    if (uri.isEmpty) return 'messages_silent';
+    return CallSoundPrefs.channelIdFor(uri).replaceFirst('calls_', 'messages_');
   }
 
-  static Future<void> setSound(String uri, String title) async {
+  static Future<String> channelId() async => channelIdFor(await soundUri());
+
+  /// [uri] null = back to the phone default; '' = silent.
+  static Future<void> setSound(String? uri, String title) async {
     final p = await _p();
     if (p == null) return;
+    if (uri == null) {
+      await p.remove(kSoundUri);
+      await p.remove(kSoundTitle);
+      return;
+    }
     await p.setString(kSoundUri, uri);
     await p.setString(kSoundTitle, title);
-    await p.setInt(kChannelVer, (p.getInt(kChannelVer) ?? 0) + 1);
   }
 }

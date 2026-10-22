@@ -33,9 +33,9 @@ typedef RtGet = Future<Map<String, dynamic>> Function(String path);
 typedef RtPost = Future<Map<String, dynamic>> Function(
     String path, Map<String, dynamic> body);
 
-/// The real-time transport behind the app's RealtimeChannel (c3-msg owns
-/// the abstract interface in realtime_channel.dart; this is the
-/// implementation the integrator binds to it).
+/// The app's ONE real-time loop: call signalling (c2-calls) AND My Circle
+/// presence/typing (c3-msg's RealtimeChannel reaches it through
+/// SharedPollTransport in realtime_channel.dart).
 ///
 /// WHY POLLING: the backend runs on gunicorn sync workers without Django
 /// Channels, so a WebSocket would hold a worker per phone. This transport
@@ -78,6 +78,10 @@ class PollRealtimeTransport {
   int _failures = 0;
   Timer? _timer;
   bool _inFlight = false;
+
+  /// c3-msg presence heartbeat rides THIS poll (`&online=1`) while a My
+  /// Circle screen is visible — set by RealtimeChannel, no extra request.
+  bool heartbeat = false;
 
   int get seq => _seq;
   bool get running => _running && !_paused;
@@ -149,7 +153,8 @@ class PollRealtimeTransport {
     _inFlight = true;
     var more = false;
     try {
-      final q = _topics.isEmpty ? '' : '&topics=${_topics.join(',')}';
+      final q = (_topics.isEmpty ? '' : '&topics=${_topics.join(',')}') +
+          (heartbeat ? '&online=1' : '');
       final r = await _get('/rt/events?after=$_seq$q');
       final evs = _parse(r);
       final latest = (r['seq'] as num?)?.toInt() ?? _seq;

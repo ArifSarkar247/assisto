@@ -18,14 +18,6 @@ class MsgNative {
     }
   }
 
-  /// Opens the phone's own notification-sound picker. Returns
-  /// {uri, title} or null (cancelled / unavailable). '' uri = "Default".
-  static Future<Map<String, String>?> pickSound(String current) async {
-    final r = await _call<Map<dynamic, dynamic>>('pickSound', {'current': current});
-    if (r == null) return null;
-    return {'uri': '${r['uri'] ?? ''}', 'title': '${r['title'] ?? ''}'};
-  }
-
   /// Android 11+ has bubbles; returns false on older phones.
   static Future<bool> bubblesSupported() async =>
       (await _call<bool>('bubblesSupported')) ?? false;

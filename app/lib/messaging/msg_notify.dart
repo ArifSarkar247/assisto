@@ -363,13 +363,17 @@ class FlnMsgSink implements MsgNotifSink {
   Future<String> _ensureChannel(AppLocalizations t) async {
     final id = await MsgPrefs.channelId();
     try {
+      // shared key snd_msg_uri: null = phone default, '' = silent
       final uri = await MsgPrefs.soundUri();
       await _android?.createNotificationChannel(AndroidNotificationChannel(
         id,
         t.pushChMessages,
         description: t.pushChMessagesDesc,
         importance: Importance.high,
-        sound: uri.isEmpty ? null : UriAndroidNotificationSound(uri),
+        playSound: uri == null || uri.isNotEmpty,
+        sound: (uri == null || uri.isEmpty)
+            ? null
+            : UriAndroidNotificationSound(uri),
       ));
     } catch (_) {}
     return id;
