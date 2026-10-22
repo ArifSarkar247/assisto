@@ -81,7 +81,7 @@ class _Msg {
   const _Msg(this.text, this.mine, this.at);
 }
 
-Widget _separators(String l, {bool floating = true}) => Builder(builder: (ctx) {
+Widget _separators(String l, {bool floating = false}) => Builder(builder: (ctx) {
       final now = DateTime.now();
       final d0 = DateTime(now.year, now.month, now.day);
       DateTime at(int daysAgo, int h) =>
@@ -105,6 +105,9 @@ Widget _separators(String l, {bool floating = true}) => Builder(builder: (ctx) {
             avatar: const HeaderInitialAvatar(name: 'R'))),
         body: Stack(children: [
           ListView.builder(
+            // mid-scroll for the floating-chip shot: the top edge is inside
+            // the oldest day, so the floating chip shows that day
+            controller: ScrollController(initialScrollOffset: floating ? 150 : 0),
             padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: rows.length,
             itemBuilder: (_, i) => buildChatRow<_Msg>(
@@ -134,7 +137,7 @@ Widget _separators(String l, {bool floating = true}) => Builder(builder: (ctx) {
                 left: 0,
                 right: 0,
                 child: DateSeparatorChip(
-                    day: d0.subtract(const Duration(days: 3)), floating: true)),
+                    day: d0.subtract(const Duration(days: 12)), floating: true)),
         ]),
       );
     });
@@ -200,6 +203,7 @@ Widget _gate(String l) => Scaffold(
 final Map<String, Widget Function(String)> t1Shots = {
   't1_headers': _headers,
   't1_date_separators': _separators,
+  't1_date_floating': (l) => _separators(l, floating: true),
   't1_msg_info_real': (l) => _info(l, legacy: false),
   't1_msg_info_legacy': (l) => _info(l, legacy: true),
   't1_version_banners': _gate,
