@@ -16,7 +16,7 @@ import 'dart:io';
 
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/screens/fall_detect_screen.dart';
-import 'package:assisto/screens/camera/camera_send_sheet.dart';
+import 'package:assisto/services/circle_media_gate.dart';
 import 'package:assisto/screens/voice_assistant_settings_screen.dart';
 import 'package:assisto/voice/va_wake.dart';
 import 'package:flutter/material.dart';

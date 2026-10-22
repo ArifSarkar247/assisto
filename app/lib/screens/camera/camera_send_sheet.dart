@@ -10,6 +10,7 @@ import '../../crypto/e2e.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../services/circle_media_gate.dart';
 import '../../widgets/msgr_avatar.dart';
 import '../circle_status_composer_screen.dart';
 
@@ -31,12 +32,10 @@ import '../circle_status_composer_screen.dart';
 ///     key-gated exactly as that composer already shows.
 ///
 /// NO SHOWPIECES (round 2 item 4): while My Circle's encrypted media storage
-/// is OFF ([kCircleMediaStorageOn], mirror of backend
-/// core/logic/circle.MEDIA_UNLOCKED) a chat or status send could carry only the
+/// is OFF ([kCircleMediaStorageOn]) a chat or status send could carry only the
 /// caption, never the photo. So the sheet then offers ONE real action — share
 /// the actual file through the phone's share menu — and hides the
-/// caption-only paths. Flip the const when blob storage ships.
-bool get kCircleMediaStorageOn => false;
+/// caption-only paths.
 
 Future<void> showCameraSendSheet(
   BuildContext context, {

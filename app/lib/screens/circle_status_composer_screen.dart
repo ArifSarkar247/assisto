@@ -8,6 +8,7 @@ import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/circle_status_audience.dart';
+import '../services/circle_media_gate.dart';
 
 /// Compose a 24-hour status (M2 item 8).
 ///
@@ -97,6 +98,15 @@ class _CircleStatusComposerScreenState
   Widget build(BuildContext context) {
     final s = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
+
+    // NO SHOWPIECES: no media storage yet -> no Photo/Video tabs that could
+    // only say "available when storage is enabled"; text status works.
+    if (!kCircleMediaStorageOn) {
+      return Scaffold(
+        appBar: AppBar(title: Text(s.statusAdd)),
+        body: _textTab(s, scheme),
+      );
+    }
 
     return DefaultTabController(
       length: 3,

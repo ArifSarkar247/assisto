@@ -12729,12 +12729,6 @@
   "bkTransferStep3": "Tell them the transfer code and passphrase out loud (don't message them).",
   "bkTransferStep4": "On the new phone, open the Restore tab, add the file and enter the passphrase.",
   "bkTransferHonest": "This is not a magic cloud sync. You move the file yourself; the code only verifies, and nothing opens without the passphrase.",
-  "bkCloudTitle": "Cloud backup",
-  "bkCloudCardTitle": "Automatic backup to Google Drive",
-  "bkCloudBody": "Optionally, your encrypted backup can be stored automatically in your Google Drive. This needs a Google Drive connection, which isn't set up yet.",
-  "bkCloudConnect": "Connect Google Drive",
-  "bkCloudNotConfigured": "Google Drive connection isn't enabled yet. Until then, local encrypted backup works fully.",
-  "bkCloudSeamNote": "Local encrypted backup already works with no connection needed.",
   "bkBytes": "{n} B",
   "@bkBytes": {
     "placeholders": {
