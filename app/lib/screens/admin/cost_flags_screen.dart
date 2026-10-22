@@ -116,6 +116,8 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
         return t.otpFlagPasswordOnlySignup;
       case 'contacts_match_unverified':
         return t.c1FlagContactsMatchUnverified;
+      case 'calls_free_testing':
+        return t.dlFlagCallsFree;
       default:
         return id;
     }
@@ -135,6 +137,8 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
         return t.flagGroupFeatures;
       case 'ops':
         return t.flagGroupOps;
+      case 'calls':
+        return t.dlFlagGroupCalls;
       default:
         return g;
     }

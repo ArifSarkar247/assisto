@@ -1,0 +1,77 @@
+{
+  "en": {
+    "delAcctCancelDeletion": "Cancel deletion",
+    "delAcctAlreadyPending": "Your account is already scheduled for deletion on {date}. You can cancel any time before then.",
+    "delAcctGuidanceTitle": "Is something not working?",
+    "delAcctGuidanceBody": "Deleting your account does not fix app problems. If something isn't working, contact support or send feedback first.",
+    "delAcctSendFeedback": "Send feedback",
+    "delAcctContactSupport": "Contact support",
+    "dlGraceTitle": "Your account is scheduled for deletion",
+    "dlGraceBody": "Your account and all its data will be deleted on {date}. What would you like to do?",
+    "dlGraceRestore": "Restore account",
+    "dlGraceRestoreHint": "Cancel the deletion and keep using Assisto with all your data.",
+    "dlGraceFresh": "Delete now and start fresh",
+    "dlGraceFreshHint": "Everything in the old account is deleted right away, and you get a new, empty account with the same number.",
+    "dlGraceSignOut": "Sign out and keep the deletion scheduled",
+    "dlGraceRestored": "Welcome back. Your account is restored.",
+    "dlGraceFreshTitle": "Delete everything now?",
+    "dlGraceFreshBody": "This permanently deletes the old account and all its data right now. It cannot be undone. Then a new, empty account opens for the same number.",
+    "dlGraceOtpOn": "We will also send a code to your number by SMS.",
+    "dlGraceOtpOff": "SMS codes are not available yet, so we confirm with your password and the word below.",
+    "dlGracePasswordLabel": "Your password",
+    "dlGraceTypeToConfirm": "Type {word} to confirm",
+    "dlGraceFreshButton": "Delete everything and start fresh",
+    "dlGraceFreshDone": "Your new account is ready.",
+    "dlCallsFreeTesting": "Free (testing)",
+    "dlFlagCallsFree": "Free calls (testing)",
+    "dlFlagGroupCalls": "Calls",
+    "@delAcctAlreadyPending": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "@dlGraceBody": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "@dlGraceTypeToConfirm": {
+      "placeholders": {
+        "word": {
+          "type": "String"
+        }
+      }
+    }
+  },
+  "bn": {
+    "delAcctCancelDeletion": "মুছে ফেলা বাতিল করুন",
+    "delAcctAlreadyPending": "আপনার অ্যাকাউন্ট আগেই {date} তারিখে মুছে ফেলার জন্য ঠিক করা আছে। এর আগে যেকোনো সময় বাতিল করতে পারবেন।",
+    "delAcctGuidanceTitle": "কোনো কিছু ঠিকমতো কাজ করছে না?",
+    "delAcctGuidanceBody": "অ্যাকাউন্ট মুছে ফেললে অ্যাপের সমস্যা ঠিক হয় না। কিছু কাজ না করলে আগে সাপোর্টে যোগাযোগ করুন বা মতামত পাঠান।",
+    "delAcctSendFeedback": "মতামত পাঠান",
+    "delAcctContactSupport": "সাপোর্টে যোগাযোগ",
+    "dlGraceTitle": "আপনার অ্যাকাউন্ট মুছে ফেলার জন্য ঠিক করা আছে",
+    "dlGraceBody": "আপনার অ্যাকাউন্ট ও এর সব তথ্য {date} তারিখে মুছে যাবে। আপনি কী করতে চান?",
+    "dlGraceRestore": "অ্যাকাউন্ট ফিরিয়ে আনুন",
+    "dlGraceRestoreHint": "মুছে ফেলা বাতিল করে সব তথ্যসহ Assisto ব্যবহার চালিয়ে যান।",
+    "dlGraceFresh": "এখনই মুছে নতুন করে শুরু করুন",
+    "dlGraceFreshHint": "পুরোনো অ্যাকাউন্টের সবকিছু এখনই মুছে যাবে, আর একই নম্বরে একটি নতুন, খালি অ্যাকাউন্ট পাবেন।",
+    "dlGraceSignOut": "সাইন আউট করুন, মুছে ফেলার সময় যেমন আছে থাকুক",
+    "dlGraceRestored": "আবার স্বাগতম। আপনার অ্যাকাউন্ট ফিরিয়ে আনা হয়েছে।",
+    "dlGraceFreshTitle": "সবকিছু এখনই মুছে ফেলবেন?",
+    "dlGraceFreshBody": "এতে পুরোনো অ্যাকাউন্ট ও এর সব তথ্য এখনই স্থায়ীভাবে মুছে যাবে, আর ফেরানো যাবে না। তারপর একই নম্বরে একটি নতুন, খালি অ্যাকাউন্ট খুলবে।",
+    "dlGraceOtpOn": "আপনার নম্বরে SMS-এ একটি কোডও পাঠানো হবে।",
+    "dlGraceOtpOff": "SMS কোড এখনো চালু হয়নি, তাই আপনার পাসওয়ার্ড আর নিচের শব্দটি দিয়ে নিশ্চিত করা হবে।",
+    "dlGracePasswordLabel": "আপনার পাসওয়ার্ড",
+    "dlGraceTypeToConfirm": "নিশ্চিত করতে {word} লিখুন",
+    "dlGraceFreshButton": "সব মুছে নতুন করে শুরু করুন",
+    "dlGraceFreshDone": "আপনার নতুন অ্যাকাউন্ট তৈরি হয়ে গেছে।",
+    "dlCallsFreeTesting": "ফ্রি (পরীক্ষামূলক)",
+    "dlFlagCallsFree": "ফ্রি কল (পরীক্ষামূলক)",
+    "dlFlagGroupCalls": "কল"
+  }
+}

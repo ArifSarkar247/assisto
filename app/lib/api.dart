@@ -461,6 +461,35 @@ class ApiClient {
   Future<Map<String, dynamic>> accountDeleteStatus() =>
       getJson('/account/delete/status');
 
+  /// dl1: signed in during the grace period and chose "Delete now and start
+  /// fresh". POST account/delete/start-fresh {password, confirm_text,
+  /// otp_proof?} -> 201 {token, user, start_fresh} | 400/403/409/423 bodies
+  /// ({reason: confirm_required|bad_password|otp_required|bad_otp|no_pending}
+  /// or {state: blocked}) returned with `_status` so the screen can branch.
+  Future<Map<String, dynamic>> accountStartFresh({
+    required String password,
+    required String confirmText,
+    String? otpProof,
+  }) async {
+    final r = await _c.post(AppConfig.api('/account/delete/start-fresh'),
+        headers: _headers(),
+        body: jsonEncode({
+          'password': password,
+          'confirm_text': confirmText,
+          if (otpProof != null && otpProof.isNotEmpty) 'otp_proof': otpProof,
+        }));
+    if (r.statusCode >= 200 && r.statusCode < 300) {
+      return r.body.isEmpty ? {} : jsonDecode(r.body) as Map<String, dynamic>;
+    }
+    if (const [400, 403, 409, 423].contains(r.statusCode)) {
+      final body = r.body.isEmpty ? {} : jsonDecode(r.body);
+      if (body is Map<String, dynamic>) {
+        return {...body, '_status': r.statusCode};
+      }
+    }
+    _fail(r);
+  }
+
   /// Request a one-time code for [identifier] (phone or email) — hits the SAME
   /// existing endpoint the login/reset OTP flow uses (OTPRequestView). When no
   /// SMS provider is configured the server degrades gracefully (503 +

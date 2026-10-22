@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../calls/call_runtime.dart';
 import '../notifications.dart';
 import '../state.dart';
+import '../screens/delete_account_screen.dart';
 import '../widgets/chatnav.dart';
 import '../screens/circle_call_screen.dart';
 import 'incoming_call_screen.dart';
@@ -360,7 +361,11 @@ class PushService {
         }
         return;
       }
-      final b = ChatNav.routes[target.chatNavRoute];
+      // dl1: the deletion notice opens the "Cancel deletion" screen (a
+      // notice-only route, deliberately not in ChatNav.routes).
+      final b = target.chatNavRoute == ChatNav.accountDeleteRoute
+          ? (BuildContext _) => const DeleteAccountScreen()
+          : ChatNav.routes[target.chatNavRoute];
       if (b != null) nav.push(MaterialPageRoute(builder: b));
     } catch (e) {
       if (kDebugMode) debugPrint('push open failed: $e');

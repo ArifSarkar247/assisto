@@ -30,6 +30,7 @@ import '../screens/my_lost_phone_screen.dart';
 import '../screens/recovery_screen.dart';
 import '../screens/phone_safety_screen.dart';
 import '../screens/security_screen.dart';
+import '../screens/delete_account_screen.dart';
 import '../screens/sell_my_phone_screen.dart';
 import '../screens/shop_box_screen.dart';
 import '../screens/used_phone_check_screen.dart';
@@ -107,6 +108,9 @@ class ChatNav {
 
   /// Canonical route -> screen builder. Keep the route keys in lock-step with
   /// `core/screen_synonyms.py` SCREEN_SYNONYMS.
+  /// dl1: notice-only route (see [push]); not a chat/Discover target.
+  static const accountDeleteRoute = 'account_delete';
+
   static final Map<String, WidgetBuilder> routes = {
     'money': (_) => const MoneyScreen(),
     'documents': (_) => const VaultScreen(),
@@ -398,6 +402,18 @@ class ChatNav {
 
   /// Push the screen for a canonical [route]. Returns true if a screen existed.
   static bool push(BuildContext context, String? route) {
+    if (route == accountDeleteRoute) {
+      // dl1: the account-deletion notice opens the screen with "Cancel
+      // deletion". Kept OUT of [routes] on purpose: those keys are also
+      // Discover-card / chat targets, and nothing should deep-link a user
+      // into account deletion except their own deletion notice.
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (_) => const DeleteAccountScreen(),
+              settings: const RouteSettings(name: accountDeleteRoute)));
+      return true;
+    }
     final b = route == null ? null : routes[route];
     if (b == null) return false;
     if (route == 'feedback') {

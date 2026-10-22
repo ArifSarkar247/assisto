@@ -1089,7 +1089,14 @@ class PlansPublicView(APIView):
 
     def get(self, request):
         from . import plans
-        return Response(plans.plans_public(req_lang(request)))
+        from .calls_free import calls_free
+        rows = plans.plans_public(req_lang(request))
+        # dl1: while "Free calls (testing)" is ON the comparison table shows
+        # calls as free on every plan (the server stays the authority).
+        if calls_free() and isinstance(rows, list):
+            rows = [dict(r, calls_free=True) if isinstance(r, dict) else r
+                    for r in rows]
+        return Response(rows)
 
 
 # ---------- money (features 7-11) ----------

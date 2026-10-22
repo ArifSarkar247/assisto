@@ -5,6 +5,16 @@
 {% if warning_text %}<div class="flash warn"><b>{{ T.margin_warnings }}</b><ul>{% for w in warning_text %}<li>{{ w.plan }} ({{ w.period }}): {{ w.text }}{% if w.max_safe is not None %} — {{ T.max_safe }} {{ w.max_safe }}%{% endif %}</li>{% endfor %}</ul></div>{% endif %}
 <p class="mut small">{{ T.pricing_note }}</p>
 
+<section class="card" id="calls_free"><h2>{{ T.calls_free_title }}</h2>
+<form method="post" class="inline flag">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="calls_free">
+  <b>{{ T.calls_free_label }}</b>
+  {% if calls_free %}<span class="pill ok">{{ T.on }}</span>{% else %}<span class="pill off">{{ T.off }}</span>{% endif %}
+  {% if not calls_free %}<input type="hidden" name="value" value="on">{% endif %}
+  <input name="reason" maxlength="200" placeholder="{{ T.reason_ph }}">
+  <button class="btn ghost">{% if calls_free %}{{ T.turn_off }}{% else %}{{ T.turn_on }}{% endif %}</button>
+</form>
+<p class="mut small">{{ T.calls_free_note }}</p></section>
+
 <form method="post" class="card" id="plans">{% include "owner/_csrf.html" %}<input type="hidden" name="section" value="plans">
   <h2>{{ T.plans }}</h2>
   <div class="tbl"><table><thead><tr><th></th>{% for c in plan_cols %}<th>{{ c }}</th>{% endfor %}</tr></thead><tbody>

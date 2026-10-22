@@ -8,8 +8,8 @@ Two halves, both deliberately boring:
   the same way whether or not the contact belongs to a user (no probing).
 * `schedule_verified(...)` is run by the owner from the Django admin AFTER
   verifying the requester. It hands over to the existing in-app flow
-  (AccountDeletionRequest: 7-day grace, one-tap cancel token sent to the
-  account owner + trusted contacts, real delete only by purge_deletions).
+  (AccountDeletionRequest: 7-day grace, an in-app "Cancel deletion" notice
+  for the account owner + a neutral notice to trusted contacts, real delete only by purge_deletions).
 """
 import secrets
 from datetime import timedelta
@@ -131,8 +131,16 @@ def schedule_verified(queryset, actor=None):
             continue
         effective_at = now + timedelta(days=GRACE_DAYS)
         token = secrets.token_urlsafe(24)
+        cur = AccountDeletionRequest.objects.filter(user=user).first()
+        if cur is not None and cur.state == AccountDeletionRequest.STATE_PENDING:
+            # dl1: already scheduled (in the app or an earlier web request) —
+            # keep that date; no new token or notice.
+            t.status = WebDeletionRequest.STATUS_SCHEDULED
+            t.save(update_fields=["status", "updated_at"])
+            done += 1
+            continue
         with transaction.atomic():
-            AccountDeletionRequest.objects.update_or_create(
+            req, _ = AccountDeletionRequest.objects.update_or_create(
                 user=user,
                 defaults={"requested_at": now, "effective_at": effective_at,
                           "state": AccountDeletionRequest.STATE_PENDING,
@@ -144,21 +152,12 @@ def schedule_verified(queryset, actor=None):
                                     detail={"ticket": t.pk,
                                             "effective_at": effective_at.isoformat(),
                                             "by": getattr(actor, "pk", None)})
-        # Same "this wasn't me" safety net as the in-app request: the account
-        # owner and their trusted contacts get the notice + cancel token.
+        # Same safety net as the in-app request: the owner gets the notice with
+        # an in-app "Cancel deletion" button; trusted contacts a neutral
+        # heads-up. dl1: no link or token in any text (token stays server-side).
         try:
-            from django.conf import settings
-            from core.views_security import _notify_owner_and_circle
-            base = getattr(settings, "APP_DEEP_LINK_BASE", "assisto://")
-            _notify_owner_and_circle(
-                user, "Account deletion scheduled",
-                ("A request (made on lifeassisto.com) to delete this Assisto "
-                 "account and ALL its data was verified. It takes effect on "
-                 f"{effective_at:%Y-%m-%d %H:%M}. If this was NOT you, cancel: "
-                 f"{base}account/delete/cancel?token={token}"),
-                kind="security", ntype="security", route="account/delete",
-                meta={"effective_at": effective_at.isoformat(),
-                      "cancel_token": token})
+            from core.views_account_deletion import notify_deletion_scheduled
+            notify_deletion_scheduled(user, req)
         except Exception:
             pass
         done += 1

@@ -163,6 +163,7 @@ class PushRouting {
     'business/shop-box': 'shop_box',
     'business': 'business',
     'owner': 'analytics',
+    'account/delete': 'account_delete', // dl1
   };
 
   /// kind -> fallback route when `route` is missing/unknown.

@@ -1158,6 +1158,9 @@ class CallRecord(models.Model):
     ended_at = models.DateTimeField(null=True, blank=True)
     duration_sec = models.IntegerField(default=0)
     low_data = models.BooleanField(default=False)
+    # dl1: placed while the owner's "Free calls (testing)" switch was ON — the
+    # caller was charged nothing; P&L shows its relay cost as free (testing).
+    free_testing = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-started_at"]

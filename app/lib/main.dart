@@ -29,6 +29,7 @@ import 'widgets/chatnav.dart';
 import 'voice/va_launch.dart';
 import 'photo_studio/ps_web_import.dart';
 import 'screens/web_photo_link_screen.dart';
+import 'screens/deletion_grace_screen.dart';
 
 void main() {
   // Nothing in startup may crash the app. Every Dart error — sync, async, or
@@ -324,6 +325,8 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       return const LanguagePickerScreen();
     }
     if (!app.loggedIn) return const LoginScreen();
+    // dl1: signed in during a deletion grace period -> decide first.
+    if (app.deletionGraceAt != null) return const DeletionGraceScreen();
     if (!app.onboarded) {
       return OnboardingScreen(onDone: app.markOnboarded);
     }

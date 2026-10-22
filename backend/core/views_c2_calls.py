@@ -665,8 +665,10 @@ def place_call(request, member, peer, kind, client_call_id=""):
                     theirs.refresh_from_db()
                 return _existing_body(request, theirs, "callee", lang,
                                       merged=True, role="callee")
+        from .calls_free import calls_free   # dl1
         rec = CallRecord.objects.create(caller=me, callee=callee, circle=member,
-                                        kind=kind, state="ringing")
+                                        kind=kind, state="ringing",
+                                        free_testing=calls_free())
         sess = CallSession.objects.create(call=rec, caller_seen_at=now,
                                           client_call_id=key)
         outcome = ""

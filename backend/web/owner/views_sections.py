@@ -396,7 +396,23 @@ def pricing(request):
     cfg = snap["config"]
     ctx = {}
     status = 200
-    if request.method == "POST":
+    if request.method == "POST" and request.POST.get("action") == "calls_free":
+        # dl1: "Free calls (testing)" — an owner kill-switch (AdminFlagState),
+        # flipped through the same audited flags engine as the Ads switches.
+        from core.calls_free import FLAG, calls_free
+        from core.views_build61 import flags_flip
+        reason = request.POST.get("reason", "")[:200]
+        value = request.POST.get("value") == "on"
+        old = calls_free()
+        ok, payload = flags_flip(request.owner.id, FLAG, value, reason)
+        if ok:
+            S.audit(request, request.owner, "flag.flip", "flag:%s" % FLAG,
+                    before={FLAG: old}, after={FLAG: value, "_reason": reason})
+            return done("/owner/pricing#calls_free")
+        T0 = _T(request)
+        ctx["problem_text_flag"] = [T0.get("f_" + p, p) for p in payload["problems"]]
+        status = 400
+    elif request.method == "POST":
         sec, patch, bad = _pricing_patch(request, cfg)
         if bad:
             ctx["problems"] = ["invalid_number"]
@@ -417,7 +433,9 @@ def pricing(request):
             S.audit(request, request.owner, "pricing.rejected", "pricing:%s" % sec,
                     after={"problems": payload["problems"]}, ok=False)
     T = _T(request)
+    from core.calls_free import calls_free as _calls_free
     ctx.update({
+        "calls_free": _calls_free(),
         "cfg": cfg, "audit": (snap.get("audit") or [])[:15],
         "margin_check": snap.get("margin_check"), "warnings": snap.get("warnings") or [],
         "scalars": _fields_of({k: cfg[k] for k in _SCALARS if k in cfg}),
@@ -432,7 +450,8 @@ def pricing(request):
         "sections": [(s, _fields_of(cfg[s])) for s in _DICT_SECTIONS
                      if isinstance(cfg.get(s), dict)],
         "home_quick": ", ".join(cfg.get("home_quick_defaults") or []),
-        "problem_text": [T.get("p_" + p, p) for p in ctx.get("problems", [])],
+        "problem_text": ([T.get("p_" + p, p) for p in ctx.get("problems", [])]
+                         + ctx.get("problem_text_flag", [])),
         "warning_text": [{"text": T.get("w_" + w.get("code", ""), w.get("code", "")),
                           "plan": w.get("plan"), "period": w.get("period"),
                           "max_safe": w.get("max_safe_discount_pct")}

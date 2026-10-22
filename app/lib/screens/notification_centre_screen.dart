@@ -13,6 +13,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/notif_models.dart';
 import '../widgets/notif_reminder_card.dart';
 import '../widgets/notif_feed_card.dart';
+import '../push/push_payload.dart' show PushRouting;
 
 /// NOTIFICATION CENTRE — the bell screen (per owner).
 ///
@@ -545,7 +546,10 @@ class _FeedTabState extends State<_FeedTab>
         } catch (_) {/* keep optimistic state */}
       }
     }
-    if (mounted) ChatNav.push(context, e.route);
+    // dl1: backend routes (e.g. account/delete) map to ChatNav keys.
+    if (mounted) {
+      ChatNav.push(context, PushRouting.routeMap[e.route] ?? e.route);
+    }
   }
 
   Future<void> _markAllRead() async {

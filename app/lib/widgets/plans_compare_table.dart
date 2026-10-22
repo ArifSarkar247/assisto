@@ -36,6 +36,8 @@ class PlansCompareTable extends StatelessWidget {
     // separately). Founder is already excluded by the backend.
     final cols = plans.where((p) => (p['id'] ?? '') != 'annual').toList();
     if (cols.isEmpty) return const SizedBox.shrink();
+    // dl1: "Free calls (testing)" is ON server-side (every row carries it).
+    final callsFree = plans.any((p) => p['calls_free'] == true);
 
     Map<String, dynamic> byId(String id) =>
         plans.firstWhere((p) => (p['id'] ?? '') == id, orElse: () => const {});
@@ -76,9 +78,14 @@ class PlansCompareTable extends StatelessWidget {
       ]),
       _Group(t.plansCmpCalls, [
         _Row(t.plansCmpTextVoice, {for (final p in cols) p['id']: true}),
-        // Video is premium (caller-pays): everyone except the free plan.
-        _Row(t.plansCmpVideo,
-            {for (final p in cols) p['id']: (p['id'] ?? '') != 'free'}),
+        // Video is premium (caller-pays): everyone except the free plan —
+        // unless the server says calls are free while testing (dl1).
+        _Row(t.plansCmpVideo, {
+          for (final p in cols)
+            p['id']: callsFree
+                ? t.dlCallsFreeTesting
+                : (p['id'] ?? '') != 'free'
+        }),
       ]),
       _Group(t.plansCmpFamily, [
         _Row(t.plansCmpMembers,
