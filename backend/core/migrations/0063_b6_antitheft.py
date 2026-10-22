@@ -7,9 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        # integrator re-chains if needed: final target is ("core", "0062_t9_turnscale");
-        # 0061_pay1 / 0062_t9 are not on main yet, so this temporarily chains to 0060.
-        ('core', '0060_e2_keys'),  # integrator re-chains if needed -> ("core", "0062_t9_turnscale")
+        ("core", "0062_t9_turnscale"),  # integrator re-chains if needed
     ]
 
     operations = [

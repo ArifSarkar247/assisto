@@ -60,6 +60,46 @@ TURN_PORT = int(os.getenv("TURN_PORT", "3478"))
 # phones as the LAST TURN URL (udp/tcp 3478 stay first). 0 = not offered.
 TURN_TLS_PORT = int(os.getenv("TURN_TLS_PORT", "5349"))
 
+# ---- t9-turnscale: TURN server LIST as config (core/turn_pool.py) ----
+# Empty (default) = the single TURN_HOST above, output byte-identical to before.
+# Set it to hand the app several TURN boxes — adding a box = DNS name + one
+# entry here (or in Owner Admin → Call relay), never an app update. Either JSON
+#   [{"host":"turn.lifeassisto.com","weight":1,"tls_port":5349},
+#    {"host":"turn2.lifeassisto.com","weight":2,"secret_env":"TURN2_SECRET"}]
+# or a comma list:  turn.lifeassisto.com, turn2.lifeassisto.com:3478|w=2|tls=5349
+# Secrets are NEVER in this list — only the NAME of an env var (secret_env);
+# entries without one share TURN_STATIC_SECRET.
+TURN_SERVERS = os.getenv("TURN_SERVERS", "")
+TURN_MAX_ICE_HOSTS = int(os.getenv("TURN_MAX_ICE_HOSTS", "3"))
+# Mirrors of /etc/turnserver.conf limits (the monitor alerts BEFORE these):
+TURN_TOTAL_QUOTA = int(os.getenv("TURN_TOTAL_QUOTA", "600"))           # allocations
+TURN_BPS_CAPACITY = int(os.getenv("TURN_BPS_CAPACITY", "31250000"))    # bytes/s, 0 = off
+TURN_MAX_BPS = int(os.getenv("TURN_MAX_BPS", "250000"))                # bytes/s per allocation
+# Relay bandwidth budget the bandwidth alert compares against (bytes/s;
+# 31250000 = 250 Mbit/s = half the t3.large 512 Mbit/s network baseline).
+TURN_RELAY_BUDGET_BYTES_S = int(os.getenv("TURN_RELAY_BUDGET_BYTES_S", "31250000"))
+TURN_RELAY_PORT_MIN = int(os.getenv("TURN_RELAY_PORT_MIN", "49152"))
+TURN_RELAY_PORT_MAX = int(os.getenv("TURN_RELAY_PORT_MAX", "65535"))
+TURN_RELAY_IP = os.getenv("TURN_RELAY_IP", "")              # e.g. 172.31.2.185; "" = any
+TURN_LOG_PATH = os.getenv("TURN_LOG_PATH", "/var/log/turnserver/turn*.log")  # glob: newest wins
+TURN_CLI_HOST = os.getenv("TURN_CLI_HOST", "127.0.0.1")
+TURN_CLI_PORT = int(os.getenv("TURN_CLI_PORT", "5766"))
+TURN_CLI_PASSWORD = os.getenv("TURN_CLI_PASSWORD", "")      # "" = CLI source off
+TURN_NET_IFACE = os.getenv("TURN_NET_IFACE", "")            # "" = first non-lo iface
+TURN_SAMPLE_KEEP_DAYS = int(os.getenv("TURN_SAMPLE_KEEP_DAYS", "14"))
+# Relay egress price (Profit Guard). AWS EC2 "Data Transfer OUT from Amazon EC2
+# to Internet", Asia Pacific (Mumbai) ap-south-1, first 10 TB/month tier:
+# USD 0.1093 per GB (https://aws.amazon.com/ec2/pricing/on-demand/ → Data
+# Transfer; the first 100 GB/month across the account is free and is NOT
+# deducted here, so the number is conservative). Inbound transfer is free.
+# Re-check the page when AWS changes prices; override with the env var.
+TURN_EGRESS_USD_PER_GB = float(os.getenv("TURN_EGRESS_USD_PER_GB", "0.1093"))
+# Bitrate ESTIMATES (kbit/s per direction, incl. RTP/UDP/IP + TURN overhead)
+# used only until measured relay bytes exist: Opus voice ~32 kbit/s payload
+# + ~20 kbit/s headers at 50 pkt/s; mobile WebRTC video ~0.6-1.2 Mbit/s.
+TURN_EST_VOICE_KBPS = float(os.getenv("TURN_EST_VOICE_KBPS", "52"))
+TURN_EST_VIDEO_KBPS = float(os.getenv("TURN_EST_VIDEO_KBPS", "1000"))
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",

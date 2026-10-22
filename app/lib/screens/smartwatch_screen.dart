@@ -61,7 +61,8 @@ enum _Phase { checking, unavailable, needsPermission, loading, ready, error }
 const List<int> _windowDays = [7, 30, 90];
 const int _maxWindowDays = 90;
 
-class _SmartwatchScreenState extends State<SmartwatchScreen> {
+class _SmartwatchScreenState extends State<SmartwatchScreen>
+    with WidgetsBindingObserver {
   final Health _health = Health();
   _Phase _phase = _Phase.checking;
   _Summary? _summary;
@@ -74,7 +75,26 @@ class _SmartwatchScreenState extends State<SmartwatchScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _boot();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// hc1: back from the Play Store / Health Connect after tapping Install —
+  /// check again so the screen never stays on "not installed" after the user
+  /// actually installed (or updated) Health Connect.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed &&
+        mounted &&
+        _phase == _Phase.unavailable) {
+      _boot();
+    }
   }
 
   Future<void> _boot() async {
@@ -93,7 +113,11 @@ class _SmartwatchScreenState extends State<SmartwatchScreen> {
     } catch (_) {
       status = null;
     }
-    if (status == HealthConnectSdkStatus.sdkUnavailable) {
+    // hc1: anything but "available" — not installed (common on ColorOS /
+    // Android 13), installed but needs a Play Store update, or the plugin
+    // could not answer — shows the honest install/update step. Connecting
+    // would only fail in those states, so never offer it.
+    if (status != HealthConnectSdkStatus.sdkAvailable) {
       if (mounted) setState(() => _phase = _Phase.unavailable);
       return;
     }
@@ -228,7 +252,7 @@ class _SmartwatchScreenState extends State<SmartwatchScreen> {
           icon: Icons.watch_off_outlined,
           tint: Brand.purple,
           title: tr.swUnavailableTitle,
-          message: tr.swUnavailableBody,
+          message: tr.swUnavailableBody2,
           action: FilledButton.icon(
             onPressed: _openSettings,
             icon: const Icon(Icons.download_outlined),

@@ -10,6 +10,9 @@ import '../widgets/plans_referral_section.dart';
 import '../widgets/plans_faq.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import 'credits_screen.dart';
+import '../payments/checkout_sheet.dart'; // pay1
+import '../payments/payments_api.dart'
+    show ApiPaymentsBackend, PayConfig, payFlavour; // pay1
 
 /// Plans / monetization — the "why pay (or earn) it" surface (SPEC v2.1 §21).
 ///
@@ -31,8 +34,9 @@ import 'credits_screen.dart';
 /// Data: `api.plan()` -> current entitlement; `api.plansPublic()` -> every
 /// purchasable plan; `api.referralBalance()` + `api.referralHistory()` ->
 /// points balance / redeemable days / ledger; `api.referralRedeem()` applies
-/// Premium days server-side. Billing is not wired yet, so upgrade shows a
-/// clean "available when ___" state instead of a dead button.
+/// Premium days server-side. pay1: "Choose" opens the ONE checkout sheet
+/// (Google Play first on the Play build, EPS bKash/Nagad/card on the website
+/// APK); `payments/state` drives the prepaid renew banner.
 class PlansScreen extends StatefulWidget {
   const PlansScreen({super.key});
   @override
@@ -50,6 +54,10 @@ class _PlansScreenState extends State<PlansScreen> {
   bool _refFailed = false;
 
   bool _loading = true, _error = false, _busy = false, _annual = false;
+  // pay1: entitlement summary (renew banner / managed by Play); optional.
+  Map<String, dynamic>? _pay;
+  // pay1 + NO SHOWPIECES: which payment channels are live (null = none).
+  PayConfig? _payCfg;
   bool _showHistory = false;
 
   @override
@@ -71,6 +79,17 @@ class _PlansScreenState extends State<PlansScreen> {
       _all = (res[1] as List).cast<Map<String, dynamic>>();
     } catch (_) {
       _error = true;
+    }
+    // pay1: payment state loads separately too (never blanks the paywall).
+    try {
+      _pay = await api.getJson('/payments/state');
+    } catch (_) {
+      _pay = null;
+    }
+    try {
+      _payCfg = await ApiPaymentsBackend(api).config(payFlavour());
+    } catch (_) {
+      _payCfg = null;
     }
     // Referral loads separately so a referral outage never blanks the paywall.
     try {
@@ -94,9 +113,21 @@ class _PlansScreenState extends State<PlansScreen> {
     if (mounted) await _load();
   }
 
-  // NO SHOWPIECES: there is no in-app plan checkout yet, so the old
-  // "Choose <plan>" button could only say "billing isn't connected" — it is
-  // removed. Add it back together with a real checkout.
+  /// pay1: the sku the tapped card shows the price of.
+  String _skuFor(String id) {
+    if (id == 'annual') return 'premium_yearly';
+    return '${id}_${_annual && id != 'business' ? 'yearly' : 'monthly'}';
+  }
+
+  /// NO SHOWPIECES + pay1: a Choose / Renew button exists only when a payment
+  /// channel is really live for this build (owner switch on AND keys added,
+  /// per /payments/config) and sells this sku. Otherwise it stays hidden.
+  bool _canBuy(String sku) => _payCfg?.canBuy(sku, payFlavour()) ?? false;
+
+  Future<void> _buy(String sku) async {
+    final ok = await CheckoutSheet.show(context, sku, flavour: payFlavour());
+    if (ok == true && mounted) await _load();
+  }
 
   int _int(dynamic v) => v is num ? v.toInt() : 0;
 
@@ -196,6 +227,7 @@ class _PlansScreenState extends State<PlansScreen> {
     return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
       if (!online) _offlineBanner(t, scheme),
       _currentCard(t),
+      ..._payBanner(t, scheme),
       const SizedBox(height: Gap.lg),
       _safetyPromise(t, scheme),
       const SizedBox(height: Gap.md),
@@ -255,9 +287,13 @@ class _PlansScreenState extends State<PlansScreen> {
         PlansCompareTable(plans: _all, current: current),
       ],
 
-      const SizedBox(height: Gap.sm),
-      Text(t.purchasingTurnsOnWhenA,
-          style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+      // No live payment channel: no footer at all (NO SHOWPIECES — users are
+      // never told "purchasing turns on later"; the owner sees that in Admin).
+      if (_payCfg?.anyUsable(payFlavour()) ?? false) ...[
+        const SizedBox(height: Gap.sm),
+        Text(t.paySafeNote,
+            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+      ],
 
       // ---- Earn Premium days by inviting (referral) ----
       const SizedBox(height: Gap.xl),
@@ -374,6 +410,70 @@ class _PlansScreenState extends State<PlansScreen> {
       ]),
     );
   }
+
+  /// pay1: prepaid renew reminder (one tap) or "managed by Google Play".
+  List<Widget> _payBanner(AppLocalizations t, ColorScheme scheme) {
+    final p = _pay;
+    if (p == null) return const [];
+    final renew = (p['renew'] as Map?)?.cast<String, dynamic>();
+    if (p['managed_by_play'] == true) {
+      return [
+        const SizedBox(height: Gap.md),
+        _note(scheme, Icons.shop_outlined, t.payManagedByPlay),
+      ];
+    }
+    if (renew == null) return const [];
+    final ends = DateTime.tryParse('${renew['ends_at'] ?? ''}')?.toLocal();
+    if (ends == null) return const [];
+    final soon = ends.difference(DateTime.now()).inDays <= 7;
+    final date =
+        MaterialLocalizations.of(context).formatMediumDate(ends);
+    final plan = _planLabel(_p ?? const {});
+    return [
+      const SizedBox(height: Gap.md),
+      Container(
+        padding: const EdgeInsets.all(Gap.md),
+        decoration: BoxDecoration(
+          color: (soon ? Brand.warning : scheme.primary).withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(Radii.md),
+          border: Border.all(
+              color: (soon ? Brand.warning : scheme.primary).withValues(alpha: 0.35)),
+        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Icon(Icons.event_repeat,
+                size: 20, color: soon ? Brand.warning : scheme.primary),
+            const SizedBox(width: Gap.sm),
+            Expanded(child: Text(t.payRenewBanner(plan, date))),
+          ]),
+          // NO SHOWPIECES: the one-tap renew exists only with a live channel.
+          if (_canBuy('${renew['sku']}')) ...[
+            const SizedBox(height: Gap.sm),
+            FilledButton.tonalIcon(
+              key: const ValueKey('pay-renew'),
+              onPressed: () => _buy('${renew['sku']}'),
+              icon: const Icon(Icons.autorenew, size: 18),
+              label: Text(t.payRenewAction),
+            ),
+          ],
+        ]),
+      ),
+    ];
+  }
+
+  Widget _note(ColorScheme scheme, IconData icon, String text) => Container(
+        padding: const EdgeInsets.all(Gap.md),
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(Radii.md),
+          border: Border.all(color: scheme.outlineVariant),
+        ),
+        child: Row(children: [
+          Icon(icon, size: 20, color: scheme.primary),
+          const SizedBox(width: Gap.md),
+          Expanded(child: Text(text, style: const TextStyle(fontSize: 13))),
+        ]),
+      );
 
   Widget _pill(String text) => Container(
         padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
@@ -555,6 +655,19 @@ class _PlansScreenState extends State<PlansScreen> {
                   minimumSize: const Size.fromHeight(44)),
               child: Text(t.plansCurrentTag),
             )
+          else if (_canBuy(_skuFor(id)))
+            FilledButton.icon(
+              key: ValueKey('plan-buy-$id'),
+              onPressed: () => _buy(_skuFor(id)),
+              icon: const Icon(Icons.lock_open_outlined, size: 18),
+              style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(44),
+                  backgroundColor:
+                      highlighted ? null : scheme.secondaryContainer,
+                  foregroundColor:
+                      highlighted ? null : scheme.onSecondaryContainer),
+              label: Text(t.plansChoose(_planLabel(p))),
+            ),
         ]),
       ),
     );

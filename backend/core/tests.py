@@ -437,11 +437,12 @@ class IntegrationsStoreTests(TestCase):
     def test_feature_flag_after_test(self):
         from core import integrations as I
         # (a6: admob now has a real-ID format test; use a no-test integration)
-        self.assertFalse(I.is_enabled('play_billing'))
-        I.save('play_billing', {'service_account_json': 'x'})
-        st, _ = I.test('play_billing')  # no-test integration -> working (saved)
+        # (pay1: play_billing now has a real OAuth test; use ekpay instead)
+        self.assertFalse(I.is_enabled('ekpay'))
+        I.save('ekpay', {'merchant_id': 'x', 'api_key': 'y'})
+        st, _ = I.test('ekpay')  # no-test integration -> working (saved)
         self.assertEqual(st, 'working')
-        self.assertTrue(I.is_enabled('play_billing'))
+        self.assertTrue(I.is_enabled('ekpay'))
 
     def test_list_masks_secrets(self):
         from core import integrations as I
@@ -2865,10 +2866,26 @@ class BusinessModelV2Tests(APITestCase):
         self.assertIs(r.data["purchasable"], False)
 
     def test_packs_purchasable_once_provider_connected(self):
-        self._enable("bkash")
+        # pay1: purchasable iff a payment CHANNEL is live (EPS keys + switch)
+        from core.tests_pay1 import enable_eps
+        self._enable("bkash")      # a legacy provider alone is not a checkout
         self.client.force_authenticate(self.u)
         r = self.client.get("/api/v1/credits/packs")
+        self.assertIs(r.data["purchasable"], False)
+        enable_eps()
+        r = self.client.get("/api/v1/credits/packs")
         self.assertIs(r.data["purchasable"], True)
+
+    def test_packs_not_purchasable_when_owner_switches_channel_off(self):
+        from core import billing
+        from core.tests_pay1 import enable_eps
+        from core.views_build61 import pricing_apply
+        enable_eps()
+        pricing_apply(1, {"config": {"payments": {
+            **billing.cfg()["payments"], "gateway_enabled": False}}})
+        self.client.force_authenticate(self.u)
+        r = self.client.get("/api/v1/credits/packs")
+        self.assertIs(r.data["purchasable"], False)
 
     # ---- topup: honest no-provider + confirmed grant with 12mo expiry -----
     def test_topup_needs_provider_when_none_configured(self):

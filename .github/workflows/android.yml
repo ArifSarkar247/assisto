@@ -637,6 +637,26 @@ jobs:
               print("MlKitInitProvider removed (lazy MlKit.initialize in PhotoFaces.kt)")
           PY
       # ---- /p2-photo ----
+      # ---- pay1 ---- the website APK never uses Google Play Billing: drop the
+      # BILLING permission the in_app_purchase plugin merges in (the Play AAB
+      # step below puts it back). Nothing calls Play Billing on this build
+      # anyway (AppConfig.playStore is false; the plugin is a deferred import).
+      - name: Website APK manifest — no Play Billing permission (pay1)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          p = "android/app/src/main/AndroidManifest.xml"
+          s = open(p).read()
+          if 'xmlns:tools=' not in s:
+              s = s.replace('<manifest ', '<manifest xmlns:tools="http://schemas.android.com/tools" ', 1)
+          line = '<uses-permission android:name="com.android.vending.BILLING" tools:node="remove"/>'
+          if line not in s:
+              import re
+              s = re.sub(r'(<manifest[^>]*>)', r'\1\n    ' + line, s, count=1)
+          open(p, "w").write(s)
+          print("APK manifest: com.android.vending.BILLING removed")
+          PY
+      # ---- /pay1 ----
 
       - name: Build release APK (arm64 only)
         working-directory: app
@@ -741,6 +761,12 @@ jobs:
           assert 'REQUEST_INSTALL_PACKAGES" tools:node="remove"' in s, "manifest patch not found"
           open(p, "w").write(s)
           print("Play manifest: REQUEST_INSTALL_PACKAGES removed")
+          # ---- pay1 ---- the Play build DOES use Play Billing: undo the APK-only removal
+          s = open(p).read()
+          s = s.replace('<uses-permission android:name="com.android.vending.BILLING" tools:node="remove"/>', '')
+          open(p, "w").write(s)
+          print("Play manifest: BILLING permission kept (merged from in_app_purchase)")
+          # ---- /pay1 ----
           PY
           # 2) Build the bundle (all ABIs; Play serves each phone its own split).
           flutter build appbundle --release \
@@ -755,6 +781,11 @@ jobs:
           if grep -a -q REQUEST_INSTALL_PACKAGES /tmp/play-manifest.pb; then
             echo "::error::REQUEST_INSTALL_PACKAGES still in the Play bundle manifest"; exit 1
           fi
+          # ---- pay1 ---- Play Billing needs the BILLING permission in the bundle
+          if ! grep -a -q com.android.vending.BILLING /tmp/play-manifest.pb; then
+            echo "::error::com.android.vending.BILLING missing from the Play bundle manifest"; exit 1
+          fi
+          # ---- /pay1 ----
           # 3) Pick the key: Play upload key if configured, else the release key.
           if [ -n "${UP_KS_B64:-}" ]; then
             printf '%s' "$UP_KS_B64" | base64 -d > /tmp/aab.p12

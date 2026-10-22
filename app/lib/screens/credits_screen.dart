@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
-import '../api.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
@@ -11,12 +10,9 @@ import '../widgets/storage_meter.dart';
 import '../widgets/rewarded_ad_sheet.dart';
 import '../ads/ads_service.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
-
-/// Taka sign (U+09F3) via code point so no Bangla-block literal lives in source
-/// (keeps the language gate strict — mirrors ladder_common). Pack prices come
-/// from the server as whole-taka ints, so we format them directly rather than
-/// via [taka] (which expects poisha).
-const _takaSign = '\u09F3';
+import '../payments/checkout_sheet.dart'; // pay1
+import '../payments/payments_api.dart'
+    show ApiPaymentsBackend, PayConfig, payFlavour; // pay1
 
 /// CREDITS screen (Business Model Build 3, item 2).
 ///
@@ -28,10 +24,9 @@ const _takaSign = '\u09F3';
 ///  - the always-visible storage meter (reused widget), and
 ///  - a "pool used up -> buy credits" explainer.
 ///
-/// HONESTY: every number comes from the server. Tapping a pack calls
-/// `credits/topup`; with no payment provider wired the server returns
-/// `needs_provider` and we show the honest "payment setup pending" state — we
-/// NEVER render a fake checkout. The rewarded-ad option is shown to FREE users
+/// HONESTY: every number comes from the server. Tapping a pack opens the
+/// pay1 checkout sheet; with no payment channel set up it says so honestly —
+/// we NEVER render a fake checkout or grant credits on the device. The rewarded-ad option is shown to FREE users
 /// only and is itself honest when AdMob is not enabled.
 class CreditsScreen extends StatefulWidget {
   const CreditsScreen({super.key});
@@ -50,6 +45,8 @@ class _CreditsScreenState extends State<CreditsScreen> {
   // NO SHOWPIECES: the "watch an ad" entry shows only when a rewarded ad can
   // really play (AdMob configured server-side).
   bool _adsReady = false;
+  // pay1 + NO SHOWPIECES: live payment channels (null = none / unknown).
+  PayConfig? _payCfg;
 
   @override
   void initState() {
@@ -77,6 +74,21 @@ class _CreditsScreenState extends State<CreditsScreen> {
     } catch (_) {
       _error = true;
     }
+    // NO SHOWPIECES: a pack is buyable only through a LIVE channel
+    // (/payments/config: owner switch on AND keys added). No channel -> no
+    // buy buttons; the "no packs right now" strip shows instead.
+    try {
+      _payCfg = await ApiPaymentsBackend(api).config(payFlavour());
+    } catch (_) {
+      _payCfg = null;
+    }
+    final cfg = _payCfg;
+    _packs = cfg == null
+        ? const []
+        : _packs
+            .where((p) => cfg.canBuy(
+                'pack_${p['code'] ?? p['id'] ?? ''}', payFlavour()))
+            .toList();
     if (mounted) {
       _adsReady = await AdsService.instance
           .rewardedAvailable(context.read<AppState>());
@@ -89,71 +101,20 @@ class _CreditsScreenState extends State<CreditsScreen> {
     return plan.isEmpty || plan == 'free';
   }
 
+  /// pay1: a pack opens the ONE checkout sheet (Google Play first on the
+  /// Play build; EPS bKash/Nagad/card on the website APK). Credits are added
+  /// only after our server verified the payment.
   Future<void> _topup(Map<String, dynamic> pack) async {
-    final t = AppLocalizations.of(context);
     final code = (pack['code'] ?? pack['id'] ?? '').toString();
     if (code.isEmpty) return;
     setState(() => _buying = true);
     try {
-      final r = await context.read<AppState>().api.creditsTopup(code);
-      if (!mounted) return;
-      final state = (r['state'] ?? '').toString();
-      if (state == 'confirmed') {
-        await _load();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(t.creditsTopupConfirmed)));
-        }
-      } else {
-        // 'needs_provider' | 'pending' | anything else -> honest sheet.
-        _showTopupStateSheet(state, r);
-      }
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      _showTopupStateSheet('needs_provider', {'message': e.message});
-    } catch (_) {
-      if (!mounted) return;
-      _showTopupStateSheet('needs_provider', const {});
+      final ok =
+          await CheckoutSheet.show(context, 'pack_$code', flavour: payFlavour());
+      if (ok == true && mounted) await _load();
     } finally {
       if (mounted) setState(() => _buying = false);
     }
-  }
-
-  void _showTopupStateSheet(String state, Map<String, dynamic> r) {
-    final t = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
-    final pending = state == 'pending';
-    showModalBottomSheet(
-      context: context,
-      showDragHandle: true,
-      builder: (_) => Padding(
-        padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.xl),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(pending ? Icons.schedule : Icons.construction_outlined,
-              size: 44, color: pending ? scheme.secondary : Brand.warning),
-          const SizedBox(height: Gap.md),
-          Text(pending ? t.creditsTopupPendingTitle : t.creditsNoProviderTitle,
-              style: Theme.of(context).textTheme.titleMedium,
-              textAlign: TextAlign.center),
-          const SizedBox(height: Gap.sm),
-          Text(
-            (r['message'] ?? '').toString().isNotEmpty
-                ? '${r['message']}'
-                : (pending
-                    ? t.creditsTopupPendingBody
-                    : t.creditsNoProviderBody),
-            textAlign: TextAlign.center,
-            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4),
-          ),
-          const SizedBox(height: Gap.lg),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-                onPressed: () => Navigator.pop(context), child: Text(t.ok)),
-          ),
-        ]),
-      ),
-    );
   }
 
   Future<void> _watchAds() async {
@@ -420,9 +381,11 @@ class _CreditsScreenState extends State<CreditsScreen> {
           ),
           const SizedBox(width: Gap.sm),
           FilledButton(
+            key: ValueKey('pack-buy-${p['code'] ?? p['id'] ?? ''}'),
             onPressed: _buying ? null : () => _topup(p),
             style: FilledButton.styleFrom(minimumSize: const Size(92, 42)),
-            child: Text('\$_takaSign${fmtInt(context, takaAmt)}'),
+            // Taka sign by code point (keeps the language gate strict).
+            child: Text('\u09F3${fmtInt(context, takaAmt)}'),
           ),
         ]),
       ),

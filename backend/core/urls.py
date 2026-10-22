@@ -839,3 +839,19 @@ urlpatterns += [
     path("security/engine/event/<int:pk>/photo", atv.EnginePhotoBytesView.as_view()),
 ]
 # ---- /b6-antitheft ----
+
+# ---- pay1 ---- payments: Google Play Billing + gateway (EPS), ONE
+# entitlement service (core/payments/). RTDN + IPN are unauthenticated by
+# DRF but verified inside (Pub/Sub OIDC/secret; gateway status API).
+from . import views_pay1 as pay1  # noqa: E402
+urlpatterns += [
+    path("payments/config", pay1.PaymentsConfigView.as_view()),
+    path("payments/state", pay1.PaymentsStateView.as_view()),
+    path("payments/checkout", pay1.PaymentsCheckoutView.as_view()),
+    path("payments/orders/<int:pk>", pay1.PaymentsOrderView.as_view()),
+    path("payments/play/precheck", pay1.PlayPrecheckView.as_view()),
+    path("payments/play/verify", pay1.PlayVerifyView.as_view()),
+    path("payments/play/rtdn", pay1.PlayRtdnView.as_view()),
+    path("payments/gateway/ipn", pay1.GatewayIpnView.as_view()),
+]
+# ---- /pay1 ----

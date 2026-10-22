@@ -1,0 +1,88 @@
+{% extends "web/base.html" %}
+{% block title %}{{ P.title }} — Assisto{% endblock %}
+{% block head %}<meta name="robots" content="noindex">
+<style>
+  .plan{border:1px solid #dde3ef;border-radius:14px;padding:14px;margin:10px 0}
+  .plan h3{margin:0 0 4px;font-size:18px}
+  .price{font-size:24px;font-weight:800;color:var(--navy2)}
+  .row2{display:flex;gap:8px;flex-wrap:wrap}
+  .row2 form{flex:1;min-width:140px}
+  .ok{background:#e7f7ee;color:#0b5e3c;padding:10px 12px;border-radius:10px;font-size:14px}
+  .small{font-size:12px;color:#5a6680}
+  input[type=tel],input[type=text].code{width:100%;padding:12px;border:1px solid #cdd5e5;border-radius:10px;font-family:inherit;font-size:16px}
+</style>{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>{{ P.title }}</h1>
+  <p class="muted">{{ P.lead }}</p>
+  <p class="small">{{ P.safety }}</p>
+</div>
+{% if error %}<div class="err" role="alert">{{ error }}</div>{% endif %}
+{% if info %}<div class="ok" role="status">{{ info }}</div>{% endif %}
+{% if not web_on %}
+  <div class="warn">{{ P.off }}</div>
+{% elif not gw_ready %}
+  <div class="warn">{{ P.not_ready }}</div>
+{% endif %}
+
+{% if not user %}
+<div class="card">
+  <h2>{{ P.login_h }}</h2>
+  {% if step == "code" %}
+  <form method="post" action="/premium{{ qlang }}">{% csrf_token %}
+    <input type="hidden" name="action" value="verify">
+    <input type="hidden" name="phone" value="{{ phone }}">
+    <label for="code">{{ P.code }}</label>
+    <input id="code" class="code" type="text" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required>
+    <p></p><button class="btn">{{ P.verify }}</button>
+  </form>
+  {% else %}
+  <form method="post" action="/premium{{ qlang }}">{% csrf_token %}
+    <input type="hidden" name="action" value="send">
+    <label for="phone">{{ P.phone }}</label>
+    <input id="phone" type="tel" name="phone" value="{{ phone }}" placeholder="01XXXXXXXXX" autocomplete="tel" required>
+    <p></p><button class="btn">{{ P.send }}</button>
+  </form>
+  {% endif %}
+</div>
+{% else %}
+<div class="card">
+  <div class="row2" style="align-items:center;justify-content:space-between">
+    <div><b>{{ P.signed_in }}</b> · {{ user.name|default:user.phone }}<br>
+      <span class="small">{{ P.current }}: <b>{{ state.plan }}</b>{% if state.plan_until %} · {{ P.until }} {{ state.plan_until|slice:":10" }}{% endif %} · {{ state.credits }} {{ P.credits }}</span></div>
+    <form method="post" action="/premium{{ qlang }}">{% csrf_token %}<input type="hidden" name="action" value="logout"><button class="btn ghost sm">{{ P.logout }}</button></form>
+  </div>
+</div>
+{% endif %}
+
+{% for s in subs %}
+<div class="plan">
+  <h3>{{ s.title }}</h3>
+  <div class="row2">
+    {% if s.monthly %}<form method="post" action="/premium{{ qlang }}">{% csrf_token %}
+      <input type="hidden" name="action" value="buy"><input type="hidden" name="sku" value="{{ s.monthly.sku }}">
+      <div class="price">৳{{ s.monthly.price_bdt }}<span class="small">{{ P.per_mo }}</span></div>
+      <button class="btn{% if renew == s.monthly.sku %} gold{% endif %}" {% if not user or not web_on or not gw_ready %}disabled{% endif %}>{% if renew == s.monthly.sku %}{{ P.renew }}{% else %}{{ P.buy }} · {{ P.monthly }}{% endif %}</button>
+    </form>{% endif %}
+    {% if s.yearly %}<form method="post" action="/premium{{ qlang }}">{% csrf_token %}
+      <input type="hidden" name="action" value="buy"><input type="hidden" name="sku" value="{{ s.yearly.sku }}">
+      <div class="price">৳{{ s.yearly.price_bdt }}<span class="small">{{ P.per_yr }}</span></div>
+      <button class="btn{% if renew == s.yearly.sku %} gold{% endif %}" {% if not user or not web_on or not gw_ready %}disabled{% endif %}>{% if renew == s.yearly.sku %}{{ P.renew }}{% else %}{{ P.buy }} · {{ P.yearly }}{% endif %}</button>
+    </form>{% endif %}
+  </div>
+</div>
+{% endfor %}
+
+{% if packs %}
+<div class="card">
+  <h2>{{ P.packs }}</h2>
+  <div class="row2">
+  {% for p in packs %}<form method="post" action="/premium{{ qlang }}">{% csrf_token %}
+    <input type="hidden" name="action" value="buy"><input type="hidden" name="sku" value="{{ p.sku }}">
+    <button class="btn ghost" {% if not user or not web_on or not gw_ready %}disabled{% endif %}>{{ p.credits }} {{ P.credits }} · ৳{{ p.price_bdt }}</button>
+  </form>{% endfor %}
+  </div>
+</div>
+{% endif %}
+<p class="small">{{ P.pay_note }}</p>
+{% endblock %}

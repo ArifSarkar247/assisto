@@ -160,17 +160,53 @@ REGISTRY = {
                    _f("publisher_id", "Publisher ID (app-ads.txt, যেমন pub-XXXXXXXXXXXXXXXX)", "Publisher ID (app-ads.txt, e.g. pub-XXXXXXXXXXXXXXXX)", secret=False)],
         "test": "test_admob",
     },
+    # pay1: Google Play Billing — server verification + RTDN (core/payments/play.py)
     "play_billing": {
         "name": "Google Play Billing",
         "category": "Monetization",
-        "unlocks_bn": "অ্যাপে সাবস্ক্রিপশন/ক্রেডিট কেনা।",
-        "unlocks_en": "In-app subscriptions / credit purchase.",
-        "guide_bn": ["Play Console → Monetize → Products (subs + credit packs)",
-                     "Service account JSON তৈরি → পেস্ট → Save"],
-        "guide_en": ["Play Console → Monetize → Products (subs + credit packs)",
-                     "Create service-account JSON → paste → Save"],
-        "fields": [_f("service_account_json", "Service account JSON", "Service account JSON")],
-        "test": None,
+        "unlocks_bn": "Play স্টোর বিল্ডে Premium/Business সাবস্ক্রিপশন ও ক্রেডিট প্যাক কেনা (সার্ভারে যাচাই + RTDN)।",
+        "unlocks_en": "Premium/Business subscriptions and credit packs in the Play build (server-verified + RTDN).",
+        "guide_bn": ["Play Console → Monetize → Subscriptions: assisto_premium ও assisto_business (base plan: monthly, yearly); In-app products: credits_p20, credits_p50, credits_p100, credits_p200",
+                     "Google Cloud → Service account → JSON key; Play Console → Users and permissions → সেই ইমেইলকে Financial data + Manage orders অনুমতি দিন",
+                     "Pub/Sub topic তৈরি → Play Console → Monetization setup → RTDN topic দিন; push subscription URL: https://api.lifeassisto.com/api/v1/payments/play/rtdn (authentication চালু)",
+                     "নিচে JSON, package name, push audience, push service-account ইমেইল পেস্ট করুন → Save → Test",
+                     "বিস্তারিত: owner_actions/PAYMENTS_SETUP.md"],
+        "guide_en": ["Play Console → Monetize → Subscriptions: assisto_premium and assisto_business (base plans monthly, yearly); In-app products: credits_p20, credits_p50, credits_p100, credits_p200",
+                     "Google Cloud → service account → JSON key; Play Console → Users and permissions → give that email Financial data + Manage orders",
+                     "Create a Pub/Sub topic → Play Console → Monetization setup → RTDN topic; push subscription URL https://api.lifeassisto.com/api/v1/payments/play/rtdn (enable authentication)",
+                     "Paste the JSON, package name, push audience and push service-account email below → Save → Test",
+                     "Details: owner_actions/PAYMENTS_SETUP.md"],
+        "fields": [_f("service_account_json", "Service account JSON", "Service account JSON"),
+                   _f("package_name", "প্যাকেজ নাম (com.assisto.assisto)", "Package name (com.assisto.assisto)", secret=False),
+                   _f("rtdn_audience", "RTDN push audience", "RTDN push audience", secret=False),
+                   _f("rtdn_sa_email", "RTDN push service-account ইমেইল", "RTDN push service-account email", secret=False),
+                   _f("rtdn_token", "RTDN গোপন টোকেন (ঐচ্ছিক, ?token=)", "RTDN shared token (optional, ?token=)")],
+        "test": "test_play_billing",
+    },
+    # pay1: EPS (Easy Payment System) hosted checkout — bKash / Nagad / cards
+    "eps": {
+        "name": "EPS payment gateway (bKash / Nagad / Card)",
+        "category": "Payment",
+        "unlocks_bn": "ওয়েবসাইট APK ও lifeassisto.com/premium-এ bKash/Nagad/কার্ডে Premium, Business ও ক্রেডিট কেনা।",
+        "unlocks_en": "Premium, Business and credits via bKash/Nagad/card on the website APK and lifeassisto.com/premium.",
+        "guide_bn": ["EPS মার্চেন্ট প্যানেল থেকে Merchant ID, Store ID, Username, Password, Hash Key নিন",
+                     "প্রথমে mode = sandbox রাখুন, পরীক্ষা শেষে live লিখুন",
+                     "EPS-কে এই URL গুলো দিন: Success/Fail/Cancel https://lifeassisto.com/pay/return , IPN https://api.lifeassisto.com/api/v1/payments/gateway/ipn",
+                     "IPN key EPS দিলে সেটিও পেস্ট করুন → Save → Test",
+                     "বিস্তারিত: owner_actions/PAYMENTS_SETUP.md"],
+        "guide_en": ["From the EPS merchant panel: Merchant ID, Store ID, Username, Password, Hash Key",
+                     "Keep mode = sandbox first; type live after testing",
+                     "Give EPS these URLs: Success/Fail/Cancel https://lifeassisto.com/pay/return , IPN https://api.lifeassisto.com/api/v1/payments/gateway/ipn",
+                     "Paste the IPN key if EPS gives one → Save → Test",
+                     "Details: owner_actions/PAYMENTS_SETUP.md"],
+        "fields": [_f("merchant_id", "Merchant ID", "Merchant ID", secret=False),
+                   _f("store_id", "Store ID", "Store ID", secret=False),
+                   _f("username", "Username", "Username", secret=False),
+                   _f("password", "Password", "Password"),
+                   _f("hash_key", "Hash Key", "Hash Key"),
+                   _f("ipn_key", "IPN key (ঐচ্ছিক)", "IPN key (optional)"),
+                   _f("mode", "মোড: sandbox / live", "Mode: sandbox / live", secret=False)],
+        "test": "test_eps",
     },
     "bkash": {
         "name": "bKash Payment",
@@ -468,6 +504,27 @@ REGISTRY = {
              "guide_en": ["newsapi.org (or similar) → API key → paste → Save (RSS fallback if no key)"],
              "fields": [_f("provider", "Provider", "Provider", secret=False), _f("api_key", "API Key", "API Key")],
              "test": None},
+    # ---- t9-turnscale ---- managed-TURN overflow (OFF by default)
+    "turn_overflow": {
+        "name": "Managed TURN overflow (Cloudflare Calls)", "category": "Calls",
+        "unlocks_bn": "আমাদের কল-রিলে সার্ভার ভরে গেলে (বা বন্ধ থাকলে) বাড়তি কল Cloudflare-এর TURN দিয়ে চলবে। ডিফল্ট বন্ধ; এতে প্রতি GB খরচ আছে।",
+        "unlocks_en": "When our own call relay is near full (or down), extra calls relay through Cloudflare's TURN. Off by default; it is billed per GB.",
+        "guide_bn": ["dash.cloudflare.com → Calls → TURN → Create TURN key",
+                     "Turn Token ID লিখুন (key_id) ও API Token পেস্ট করুন",
+                     "mode: overflow (শুধু ভরে গেলে) বা always; threshold_pct: যেমন 70",
+                     "enabled: on লিখুন → Save → Test (সফল হলে চালু হবে)",
+                     "বন্ধ করতে enabled: off লিখে Save করুন"],
+        "guide_en": ["dash.cloudflare.com → Calls → TURN → Create TURN key",
+                     "Enter the Turn Token ID (key_id) and paste the API Token",
+                     "mode: overflow (only when ours is near full) or always; threshold_pct e.g. 70",
+                     "enabled: on → Save → Test (active only after a passing test)",
+                     "To switch off: enabled: off → Save"],
+        "fields": [_f("key_id", "Turn Token ID", "Turn Token ID", secret=False),
+                   _f("api_token", "API Token", "API Token"),
+                   _f("mode", "মোড (overflow/always)", "Mode (overflow/always)", secret=False),
+                   _f("threshold_pct", "সীমা % (যেমন 70)", "Threshold % (e.g. 70)", secret=False),
+                   _f("enabled", "চালু (on/off)", "Enabled (on/off)", secret=False)],
+        "test": "test_turn_overflow"},
 }
 
 
@@ -756,3 +813,52 @@ def test_sms(cfg):
     format check alone."""
     from .sms_gateway import HttpSmsAdapter
     return HttpSmsAdapter(cfg).check()
+
+
+# ---- pay1 ----
+def test_eps(cfg):
+    from .payments import eps
+    g = eps.EpsGateway()
+    g.c = cfg
+    return g.test()
+
+
+def test_play_billing(cfg):
+    """Honest: a real OAuth token exchange with the pasted service account."""
+    from .payments import play
+    import json as _json
+    sa = cfg.get("service_account_json")
+    try:
+        sa = _json.loads(sa) if isinstance(sa, str) else sa
+    except ValueError:
+        return False, "service account JSON is not valid JSON"
+    if not (isinstance(sa, dict) and sa.get("client_email") and sa.get("private_key")):
+        return False, "service account JSON needs client_email + private_key"
+    c = {"sa": sa, "package_name": (cfg.get("package_name") or "com.assisto.assisto")}
+    try:
+        play.reset_cache()
+        play.access_token(c)
+    except play.PlayError as e:
+        return False, "Google OAuth: %s %s" % (e.reason, e.detail)
+    except Exception as e:  # noqa: BLE001
+        return False, "Google OAuth: %s" % type(e).__name__
+    return True, "✓ Google Play API টোকেন পাওয়া গেছে / token OK (%s)" % sa["client_email"]
+# ---- /pay1 ----
+# ---- t9-turnscale ----
+def test_turn_overflow(cfg):
+    """Mint ONE short-lived (5 min) credential from Cloudflare Calls TURN with
+    the saved key (real API call). Passing = the provider handed back a TURN
+    entry with a username — only then can overflow switch on."""
+    from . import turn_pool
+    key_id = (cfg.get("key_id") or "").strip()
+    token = (cfg.get("api_token") or "").strip()
+    if not (key_id and token):
+        return (False, "Turn Token ID and API Token are both needed")
+    try:
+        ice = turn_pool.cf_generate(key_id, token, 300)
+    except Exception as e:  # noqa: BLE001
+        return (False, ("provider error: %s" % e)[:200])
+    if any("username" in e for e in ice):
+        on = turn_pool._truthy(cfg.get("enabled"))
+        return (True, "✓ credentials minted" + ("" if on else " — enabled is off, overflow stays OFF"))
+    return (False, "no TURN credentials in the provider response")

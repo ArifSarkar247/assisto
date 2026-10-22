@@ -1,0 +1,61 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_calls }}{% endblock %}
+{% block content %}
+{% if problems %}<div class="flash warn" role="alert"><b>{{ T.not_saved }}</b><ul>{% for p in problems %}<li>{{ p }}</li>{% endfor %}</ul></div>{% endif %}
+{% if active_alerts %}<div class="flash warn" role="alert"><b>{{ T.t9_alert_active }}</b> {{ active_alerts|join:", " }}</div>{% endif %}
+{% if not cur %}<p class="empty">{{ T.t9_no_samples }}</p>{% else %}
+{% if summ.stale %}<div class="flash warn">{{ T.t9_stale }} {{ cur.at|date:"Y-m-d H:i" }}</div>{% endif %}
+<div class="tiles">
+  <div class="tile"><span>{{ T.t9_allocations }}</span><b>{% if cur.allocations is not None %}{{ cur.allocations }}{% else %}—{% endif %}</b><small>{{ T.t9_limit }} {{ lim.alloc_limit }}{% if pct_alloc is not None %} · {{ pct_alloc }}%{% endif %} · {{ T.t9_peak24 }} {{ summ.peak.alloc|default_if_none:"—" }}</small></div>
+  <div class="tile"><span>{{ T.t9_bandwidth }}</span><b>{% if cur_relay_out is not None %}{{ cur_relay_out }} Mbit/s{% elif cur_nic_out is not None %}{{ cur_nic_out }} Mbit/s*{% else %}—{% endif %}</b><small>{{ T.t9_budget }} {{ budget_mbit }} Mbit/s{% if pct_bw is not None %} · {{ pct_bw }}%{% endif %} · {{ T.t9_peak24 }} {% if peak_relay_out is not None %}{{ peak_relay_out }}{% else %}{{ peak_nic_out|default_if_none:"—" }}*{% endif %}</small></div>
+  <div class="tile"><span>{{ T.t9_cpu }}</span><b>{% if cur.turn_cpu_pct is not None %}{{ cur.turn_cpu_pct }}%{% else %}—{% endif %}</b><small>{{ T.t9_steal }} {{ cur.steal_pct|default_if_none:"—" }}% · {{ T.t9_peak24 }} {{ summ.peak.cpu|default_if_none:"—" }}%</small></div>
+  <div class="tile"><span>{{ T.t9_errors24 }}</span><b class="{% if quota24 %}neg{% endif %}">{{ quota24 }}</b><small>{{ T.t9_alloc_err }} {{ summ.peak.ae|default:0 }} · {{ T.t9_auth_err }} {{ summ.peak.au|default:0 }}</small></div>
+</div>
+{% if cur_relay_out is None and cur_nic_out is not None %}<p class="mut small">* {{ T.t9_nic_note }}</p>{% endif %}
+<p class="mut small">{{ T.t9_sources }}: {{ cur.sources|default:"—" }}</p>
+{% endif %}
+
+<section class="card"><h2>{{ T.t9_servers }}</h2>
+  <p class="small">{{ T.t9_servers_note }}</p>
+  <div class="tbl"><table><thead><tr><th>{{ T.t9_host }}</th><th>{{ T.t9_ports }}</th><th>{{ T.t9_weight }}</th><th>{{ T.t9_secret }}</th><th>{{ T.status }}</th></tr></thead><tbody>
+  {% for s in servers %}<tr><td>{{ s.host }}</td><td>{{ s.port }}{% if s.tls_port %} · TLS {{ s.tls_port }}{% endif %}</td><td class="num">{{ s.weight }}</td><td>{{ s.secret_env|default:"TURN_STATIC_SECRET" }}</td><td>{% if s.h %}{% if s.h.ok %}<span class="pill ok">{{ T.t9_up }}</span>{% else %}<span class="pill bad">{{ T.t9_down }}</span>{% endif %}{% else %}<span class="mut">—</span>{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="5" class="mut">{{ T.t9_single_host }}</td></tr>{% endfor %}
+  </tbody></table></div>
+  {% if health %}<p class="small">{{ T.t9_health }}: {% for k, h in health.items %}<span class="pill {% if h.ok %}ok{% else %}bad{% endif %}">{{ k }} {% if h.ok %}{{ T.t9_up }}{% else %}{{ T.t9_down }}{% endif %}</span> {% endfor %}</p>{% endif %}
+  <p class="mut small">{{ T.t9_source }}: {% if source == 'owner' %}{{ T.t9_src_owner }}{% elif source == 'env' %}{{ T.t9_src_env }}{% else %}{{ T.t9_src_single }}{% endif %}</p>
+  <form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="servers">
+    <label>{{ T.t9_list_label }}<textarea name="servers_text" rows="4" placeholder="turn.lifeassisto.com, turn2.lifeassisto.com|w=2|secret_env=TURN2_SECRET">{{ servers_text }}</textarea></label>
+    <p class="mut small">{{ T.t9_list_help }}</p>
+    <button class="btn primary">{{ T.save }}</button>
+  </form>
+</section>
+
+<section class="card"><h2>{{ T.t9_thresholds }}</h2>
+  <p class="small">{{ T.t9_thresholds_note }}</p>
+  <form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="thresholds">
+    <div class="cols">{% for k, v, custom in thresholds %}<label>{{ k }}{% if custom %} <span class="pos small">✓</span>{% endif %}<input name="{{ k }}" value="{{ v }}" inputmode="decimal"></label>{% endfor %}</div>
+    <p class="mut small">{{ T.t9_limits }}: total-quota {{ lim.total_quota }} · bps-capacity {{ lim.bps_capacity }} B/s · max-bps {{ lim.max_bps }} B/s → {{ T.t9_eff_limit }} {{ lim.alloc_limit }}</p>
+    <button class="btn primary">{{ T.save }}</button>
+  </form>
+</section>
+
+<section class="card"><h2>{{ T.t9_overflow }}</h2>
+  <p>{% if overflow_active %}<span class="pill ok">{{ T.t9_on }}</span> {{ overflow_mode }}{% else %}<span class="pill off">{{ T.t9_off }}</span>{% endif %}</p>
+  <p class="small">{{ T.t9_overflow_note }} <a href="/owner/integrations#i-turn_overflow">{{ T.nav_integrations }}</a></p>
+</section>
+
+{% if cost %}<section class="card"><h2>{{ T.t9_cost }}</h2>
+  {% include "owner/_t9_cost.html" %}
+</section>{% endif %}
+
+<section class="card"><h2>{{ T.t9_recent }}</h2>
+  {% if rows %}<div class="tbl"><table><thead><tr><th>{{ T.time }}</th><th>{{ T.t9_allocations }}</th><th>CLI</th><th>{{ T.t9_relay_mbit }}</th><th>{{ T.t9_nic_mbit }}</th><th>CPU%</th><th>steal%</th><th>486</th><th>{{ T.t9_alloc_err }}</th><th>{{ T.t9_auth_err }}</th></tr></thead><tbody>
+  {% for r in rows %}<tr><td>{{ r.at|date:"m-d H:i" }}</td><td class="num">{{ r.alloc|default_if_none:"—" }}</td><td class="num">{{ r.sess|default_if_none:"—" }}</td><td class="num">{{ r.relay_out|default_if_none:"—" }}</td><td class="num">{{ r.nic_out|default_if_none:"—" }}</td><td class="num">{{ r.cpu|default_if_none:"—" }}</td><td class="num">{{ r.steal|default_if_none:"—" }}</td><td class="num {% if r.errs %}neg{% endif %}">{{ r.errs }}</td><td class="num">{{ r.alloc_errs }}</td><td class="num">{{ r.auth }}</td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<p class="empty">{{ T.t9_no_samples }}</p>{% endif %}
+</section>
+
+<section class="card"><h2>{{ T.alerts }}</h2>
+  {% if summ.alerts %}<ul class="alerts">{% for a in summ.alerts %}<li><b>{{ a.title }}</b> {{ a.body|linebreaksbr }} <small class="mut">{{ a.at }}</small></li>{% endfor %}</ul>{% else %}<p class="empty">{{ T.no_alerts }}</p>{% endif %}
+  <p class="mut small">{{ T.t9_guide }}</p>
+</section>
+{% endblock %}

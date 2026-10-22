@@ -34,6 +34,11 @@
   <tr class="total"><th>{{ T.total }}</th><td class="num">৳{{ ps_totals.revenue }}</td><td class="num">৳{{ ps_totals.cost }}</td><td class="num">৳{{ ps_totals.margin }}</td></tr>
   </tbody></table></div>{% else %}<p class="empty">{{ T.no_ps }}</p>{% endif %}
 </section>
+{% if d.payments_by_channel %}<section class="card"><h2>{{ T.pay_h_pnl }}</h2>
+  <div class="tbl"><table><thead><tr><th></th><th>{{ T.pay_count }}</th><th>{{ T.pay_gross }}</th><th>{{ T.pay_fee }}</th><th>{{ T.pay_refunds }}</th><th>{{ T.pay_net }}</th></tr></thead><tbody>
+  {% for ch, r in d.payments_by_channel.items %}<tr><td>{% if ch == "play" %}{{ T.pay_ch_play }}{% else %}{{ T.pay_ch_gateway }}{% endif %}</td><td class="num">{{ r.count }}</td><td class="num">৳{{ r.gross }}</td><td class="num">৳{{ r.fee }}</td><td class="num">৳{{ r.refunds }}</td><td class="num"><b>৳{{ r.net }}</b></td></tr>{% endfor %}
+  </tbody></table></div><p class="mut small"><a href="/owner/payments">{{ T.nav_payments }}</a></p>
+</section>{% endif %}
 <section class="card"><h2>{{ T.break_even }}</h2>
   {% if d.break_even.covered %}<p class="pos">{{ T.covered }}</p>{% else %}
   <p>{{ T.gap }}: <b>৳{{ d.break_even.gap }}/{{ T.day }}</b> — {% if d.break_even.users_needed is not None %}{{ d.break_even.users_needed }} {{ T.more_paid }} {{ T.or }} {% endif %}৳{{ d.break_even.ad_revenue_needed }} {{ T.more_ads }}</p>{% endif %}
@@ -42,6 +47,7 @@
 <section class="card"><h2>{{ T.alerts }}</h2>
   {% if d.alerts %}<ul class="alerts">{% for a in d.alerts %}<li><b>{{ a.title }}</b> {{ a.body }} <small class="mut">{{ a.at }}</small></li>{% endfor %}</ul>{% else %}<p class="empty">{{ T.no_alerts }}</p>{% endif %}
 </section>
+{% if cost %}<section class="card"><h2>{{ T.t9_cost }}</h2>{% include "owner/_t9_cost.html" %}<p class="small"><a href="/owner/calls">{{ T.nav_calls }}</a></p></section>{% endif %}
 <section class="card"><h2>{{ T.margin_per_feature }}</h2>
   <div class="tbl"><table><thead><tr><th>{{ T.action }}</th><th>{{ T.credits }}</th><th>{{ T.charge }}</th><th>{{ T.provider_cost }}</th><th>{{ T.margin }}</th></tr></thead><tbody>
   {% for m in d.margin_per_feature %}<tr><td>{{ m.action }}</td><td class="num">{{ m.credits }}</td><td class="num">৳{{ m.charge_bdt }}</td><td class="num">৳{{ m.provider_cost_bdt }}</td><td class="num">{% if m.margin is not None %}{{ m.margin }}{% else %}—{% endif %}</td></tr>{% endfor %}

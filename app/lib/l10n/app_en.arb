@@ -16137,6 +16137,66 @@
   "psOwnerAddKey": "Prompt edits (background, passport, product) are hidden for users until an image-AI key is set. Add a key in Admin → Integrations. Only you see this note.",
   "psEmptyBodyNoPrompt": "Enhance in one tap — on your phone, even offline.",
   "psEnhanceHow": "White balance, light, noise, sharpness and gentle skin smoothing. Faces keep their shape.",
+  "payChooseTitle": "Choose how to pay",
+  "payPlayTitle": "Google Play",
+  "payPlaySub": "Pay with your Google Play account",
+  "payGatewayTitle": "bKash / Nagad / Card — EPS",
+  "payGatewaySub": "Secure EPS payment page",
+  "payNoneAvailable": "Online payment is not available yet. Your current plan keeps working.",
+  "paySafeNote": "Every payment is checked by our server first. We never see your card or PIN.",
+  "payWorking": "Please wait…",
+  "payNetwork": "Could not reach Assisto. Check the internet and try again.",
+  "payWaitingTitle": "Finish the payment",
+  "payWaitingBody": "We opened the secure payment page. Pay there, then come back — we check automatically.",
+  "payCheckNow": "I have paid — check now",
+  "payLater": "Check later",
+  "payStillPending": "Not confirmed yet. If money was taken it shows within a few minutes — nothing is lost.",
+  "payOpenFailed": "Could not open the payment page. Please try again.",
+  "paySuccessTitle": "Payment received",
+  "paySuccessPlan": "{plan} is on for your account — on every device.",
+  "@paySuccessPlan": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "paySuccessCredits": "{count} credits added to your account.",
+  "@paySuccessCredits": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "payCreditsN": "{count} credits",
+  "@payCreditsN": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "payDone": "Done",
+  "payFailedTitle": "Payment not completed",
+  "payFailedBody": "No money was taken, or the payment was cancelled. You can try again.",
+  "payCancelled": "Payment cancelled.",
+  "payPlayPending": "Google Play is still processing this payment. It turns on as soon as Google confirms.",
+  "payPlayUnavailable": "Google Play billing is not available on this phone. Use bKash / Nagad / Card instead.",
+  "payRenewBanner": "Your prepaid {plan} ends on {date}.",
+  "@payRenewBanner": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "payRenewAction": "Renew in one tap",
+  "payManagedByPlay": "Your subscription runs through Google Play. Change or cancel it in the Play Store.",
+  "swUnavailableBody2": "To show your watch or fitness-band data, this phone needs Health Connect. Install or update it from the Play Store, then come back here — Assisto checks again by itself.",
   "atTitle": "Always-on protection",
   "@atTitle": {},
   "atHubSubtitle": "Keep watch for snatch, SIM change and going offline",
