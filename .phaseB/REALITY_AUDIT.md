@@ -49,7 +49,7 @@ Classes:
 | Safety | SOS countdown → Cancel (nothing sent) | family_circle_flow.dart / 14_sos_countdown | A? | pending first CI run | — | a real SOS → phone checklist 12 |
 | Safety | Check-in / arrived / Safe Journey | sweep (S026/S028) | A? (fixed) | route_check now clean for these | **fixed C:** check-in "arrived", journey arrived / respond-OK / duress PIN / places / routines / wellness all used `createItem()` → trailing `/` → **404 on every call**. Failures were swallowed with a fake "arrived" / silent check-in. They now use the real routes and show honest failure messages. | |
 | My Circle | E2E message A→B **and** B→A between seeded users | family_circle_flow.dart / 15_circle_message | A? (fixed) | pending first CI run; backend round trip proven by `core.tests_reality` | **fixed C (critical):** (1) `POST /circle/keys` discarded the key, so no peer ever got `public_key` and every chat stopped at "key missing"; (2) a message lived only on the sender's edge, so **the peer never received it**. Keys are now published onto peer edges (and re-published on every open), the recipient reads the mirror edge, the recipient can react, and unread counts include incoming messages. | |
-| My Circle | Call screen opens / hangs up | family_circle_flow.dart / 16_circle_call | B? | pending first CI run | — | TURN_STATIC_SECRET + FCM + second phone (checklist 16) |
+| My Circle | **Calls (voice + video)** | family_circle_flow.dart / 16_circle_call | **C** (owner code audit + q1 seam audit 22 Oct) | no real media yet: flutter_webrtc not in pubspec, `circle_call_screen.dart` carries "SFU/TURN SEAM … integrator adds" + a "dev affordance" connect path | c2-calls building real WebRTC | stays **C until a real two-device test passes: voice AND video, Wi-Fi ↔ mobile data (TURN), app open AND app closed** |
 | My Circle | Group chat react / pin / vote / member events | — | A? (fixed, m1) | route_check clean | m1: group URL shapes aligned | |
 | My Circle | Messenger TODO(backend) routes (info, clear, two-step, change-number, settings/*, group export/ai, community leave/notifications, circle/chats, community/message-requests) | — | A? (fixed, m1) | route_check clean (all 25 TODO(backend) built; see .phaseB/MESSENGER_ROUTES.md) | — | |
 | My Circle | Connection requests list (`GET messenger/request` → 405) | — | A? (fixed, m1) | route_check clean | GET list added | |
@@ -196,3 +196,104 @@ Earlier run (before m1 landed):
 - `core.tests_api_contract`: **red until m1 lands** (42 problems: 40 on m1's list + 2 messenger rows).
 - Full backend suite, 21 Oct: **2415 tests, 1 failure.** The failure is exactly the contract test above.
 - Local HTTP check: `settings_ci` + `seed_reality` on :8790. B published a key → A's `/circle/members` returned it. A posted → B's `/circle/2/messages` returned it (`mine:false`). The server was stopped afterwards.
+
+## Seam audit 22 Oct (q1-seams — owner order MYCIRCLE2 item 6)
+
+**Scope.** `app/lib`, `backend` (tests, migrations, `*_snippets.py` excluded), `app/android_overlay`, `edge/`. Patterns: `SEAM`, `integrator adds`, `stub`, `placeholder`, `TODO(`, `dev affordance`, `mock`, `fake`, `dummy`, `not implemented`, `coming soon`, `onPressed: () {}` (and any no-op `on…: (_) {}` callback), `catch (_) {}`, plus a heuristic sweep for "API call in `try`, silent `catch`, success toast right after" (fake success without server confirmation). Calls/RTC (c2-calls) and messenger ticks / chat list / message notifications / bubbles (c3-msg) are **listed, not edited**.
+
+**Classes in this section.** **A** real (a test seam, a documented internal seam, honest cleanup, or a feature name) · **B** honest key-gated / "not available yet" state shown to the user · **C** facade or fake success → **fixed** (wired for real) or **hidden** (entry point removed / honest "not available yet").
+
+### Counts
+
+| pattern | hits in scope | A | B | C → fixed | C → hidden | owned by c2/c3 (listed only) |
+|---|---|---|---|---|---|---|
+| `SEAM` (case-sensitive) | 55 | 21 (internal doc seams: reminder/points/storage/save-this/server-enforcement) | 32 (key-gated AI/partner/feed/booking seams, honest state) | — | — | 2 (c2: `circle_call_screen.dart` 135, 316) |
+| `integrator adds` | 15 | 9 (6 stale comments, 5 corrected: contacts_source, scam_safety_api, crm_common ×2, crm_aftersale_api, crm/webviews) + 3 backend key-registry notes | 3 (supplier_market / price_radar / demand_map: no provider key yet, honest) | — | — | 3 (c2: call_controls, circle_call_screen 32; c3: circle_privacy_controls) |
+| `stub` | 21 | 19 (test stubs, gated voice-note transcription, poll bound check, linked-device design data, Kotlin notes) | — | 1 (reports "export stub" claimed PDF/Excel) | 1 (products "Excel import" via a media picker) | — |
+| `placeholder` | 135 | 125 (hint texts, skeletons, ARB placeholders, deleted-message placeholder, owner-review prices) | 3 (NEIR registry, merchant-QR icon tile + number text, daily-brief key slots) | 3 (circle invite QR, referral QR, CRM contact "link to Circle" -1 sentinel) | 1 (sticker placeholder tiles, via the extras hub) | 3 (c3: discover QR icon, messenger_home communities, group_menu_media) |
+| `TODO(` | 10 (7 are `Todo(`/`editTodo` false positives) | 2 (`TODO(M2)` UX notes) | — | — | 1 (`TODO(excel-import)`) | 1 (c3: group-chat @-picker TODO) |
+| `dev affordance` | 1 | — | — | — | — | 1 (c2: `circle_call_screen.dart` 316 fake "connect") |
+| `mock` | 517 | 41 (tests, "Mock interview" feature name, sms_gateway test hook) | 476 (deterministic mocks flagged `mock:true` + honest banner: business AI, courier `*-MOCK-*` + `courier_live:false`, payment link `live:false`, quick tools, social, blog, in-chat AI, bday wish, nearby, meet ETA, PA tiers, filing/minutes) | — | — | (c3: circle_chat in-chat AI mock is labelled — B) |
+| `fake` / `dummy` | 166 | 166 (test fakes, the safety "fake incoming call" feature, scam-pattern words, CI-only seed users — `seed_reality` refuses a non-CI DB) | — | — | — | — |
+| `not implemented` | 0 | — | — | — | — | — |
+| `coming soon` | 8 | — | 8 (vehicle live tracking, wake word, billing, fall sensor, home widget, msgr settings panel, SMS-command trigger, backend reason strings) | — | — | — |
+| `onPressed: () {}` / no-op callbacks | 2 (`onSticker: (_) {}`, `onGif: (_) {}`) | — | — | — | 2 (extras hub) | — |
+| `catch (_) {}` | 196 (163 in scope) | 147 (dispose/cleanup, prefs/cache, plugin probes, permission requests, launchUrl/share, JSON parse fallbacks, best-effort telemetry, list loads that then reload) | — | 13 (see table) | — | 33 (push_*, circle_chat, circle_group_chat, circle_call, messenger/*) |
+| fake success (heuristic) | 32 flagged | 18 (already honest: they set `ok=false`/`failed++` and show it) | — | 7 | 3 (scheduled msg, broadcast, extras backup/restore) | 4 (c3 messenger, all already honest) |
+
+**Totals in scope: C = 32 (22 fixed for real + 10 hidden honestly).** Every C has a regression test (below).
+
+### C findings — what was done
+
+| file:line (after fix) | finding | class | action taken | regression test |
+|---|---|---|---|---|
+| app/lib/screens/journey_live_screen.dart:148 | "I've arrived safely": a failed `/journey/<id>/arrived` was swallowed and the screen still said **arrived safely** and closed — family could still get the overdue alert | C | **fixed**: honest `realityArrivedNotSent`, stays on the live screen | `q1_seams_test.dart` "failed arrived…" |
+| app/lib/screens/journey_live_screen.dart:178 | "Stop journey": failure swallowed, screen closed — watchers still saw a live journey | C | **fixed**: `grpActionFailed`, screen stays | "failed stop…" |
+| app/lib/screens/journey_live_screen.dart:132 | overdue "I'm OK": failure swallowed — server could escalate while the user thought it was cleared | C | **fixed**: says so; the next overdue tick asks again | (same file, path covered by arrived/stop harness) |
+| app/lib/screens/journey_settings_screen.dart:60 | wellness check (parents living alone) save swallowed — switch looked ON while the server never armed it | C | **fixed**: `grpActionFailed` + reload server state | "journey settings: a failed wellness save says so" |
+| app/lib/screens/safe_arrival_screen.dart:129 | Safe Arrival check-in start swallowed — local-only check-in, family never alerted when late | C | **fixed**: `realityCheckinNotSent` (same copy as safety_screen) | static (same pattern as safety_screen, already verified) |
+| app/lib/screens/safe_arrival_screen.dart:259 | "alert if not home by 9pm" routine added optimistically; failure swallowed — would never alert | C | **fixed**: rolled back + `grpActionFailed` | static |
+| app/lib/screens/safe_arrival_screen.dart:171 | duress PIN → silent SOS tried once, failure swallowed | C | **fixed**: 3 quiet retries (2 s / 4 s back-off); the cover screen must stay normal, so nothing is shown | static |
+| app/lib/state.dart:315 + app/lib/screens/settings_screen.dart:834 | `AppState.saveProfile` swallowed every error; Settings → Safety fall toggle looked saved | C | **fixed**: returns `bool`; Settings shows `saveFailed` | "AppState.saveProfile reports a failed save" |
+| app/lib/widgets/fam_share_section.dart:61-110 | Family **selective sharing** grid never loaded the server's grants — always showed "nothing shared" (privacy: could hide real sharing) | C | **fixed**: loads `GET family/sharing/consent`; load failure shows an error card + retry | "a failed load is shown…" |
+| app/lib/widgets/fam_share_section.dart:164 | grant / revoke / revoke-all failures swallowed ("Non-fatal: UI already reflects intent") — a failed **revoke** looked revoked | C | **fixed**: every write re-applies the server answer; failure → `grpActionFailed` + reload | "loads the server grants and a failed toggle says so" |
+| app/lib/screens/circle_extras_hub_screen.dart:201 / circle_extras_scheduled_screen.dart:134 | **Scheduled messages**: POST carried no envelope, failure swallowed, then "Message scheduled." — and **no dispatcher exists** (no job ever sends a `ScheduledMessage`) | C | **hidden** from the hub; the screen itself now shows `grpActionFailed` on failure | "chat extras: only real tools…" |
+| app/lib/screens/circle_extras_hub_screen.dart:201 / circle_extras_broadcast_screen.dart:70 | **Broadcast list**: hub passed no members and no sealing callback; fallback posted **empty envelopes** to `/circle/broadcast` then said "Sent to N" | C | **hidden**; the fallback now refuses with an honest error instead of posting empty envelopes | same |
+| app/lib/screens/circle_extras_hub_screen.dart:201 | **Create backup**: "Backup done (N messages)" without sealing or uploading anything | C | **hidden** (real backup: Settings → encrypted backup screen) | same |
+| app/lib/screens/circle_extras_hub_screen.dart:201 | **Restore**: "Restored" without restoring | C | **hidden** | same |
+| app/lib/screens/circle_extras_hub_screen.dart:138 | **Export chat**: "Export ready" toast, nothing shared | C | **fixed**: builds the transcript on-device from decrypted messages → OS share sheet; empty chat → `q1ExtrasExportEmpty` | same |
+| app/lib/screens/circle_extras_hub_screen.dart:201 | **Stickers/GIF**: `onSticker: (_) {}` / `onGif: (_) {}` — the pick was dropped | C | **hidden** | same |
+| app/lib/screens/circle_extras_hub_screen.dart:201 | **Wallpaper/theme** and **view-once by default**: saved to prefs that no chat screen ever reads | C | **hidden** | same |
+| app/lib/screens/circle_extras_hub_screen.dart:201 | **Link a device**: snackbar "Scan this code…" with no code and no linking | C | **hidden** (the real flow is messenger → linked devices, c3) | same |
+| app/lib/screens/crm_contacts_screen.dart:206 | Contacts → "Link to Circle" stamped a `-1` sentinel the server drops, then toasted "Link to Circle" | C | **fixed**: opens the real My Circle add flow (`M3AddToCircleScreen`, number pre-filled) | static (M3 flow has its own tests in `m3_circle_test.dart`) |
+| app/lib/screens/crm_contacts_screen.dart:134 | contact delete: server failure → removed locally + "deleted" → came back on sync | C | **fixed**: `grpActionFailed`, row kept | static |
+| app/lib/screens/task_manager_screen.dart:149, 188 | project / task delete: same "drop locally anyway" + "deleted" | C | **fixed**: `grpActionFailed`; project delete reloads the real state | static |
+| app/lib/widgets/circle_invite_sheet.dart:239 | "Invite by QR" showed a QR-shaped **icon** nobody can scan (qr_flutter was already bundled) | C | **fixed**: real `QrImageView` of the invite link | "circle invite dialog shows a real QR" |
+| app/lib/widgets/ref_share_sheet.dart:156 | referral "Show QR code": same icon | C | **fixed**: real QR | "referral share sheet QR is a real QR" |
+| app/lib/screens/business/reports_screen.dart:84 | export menu offered **PDF / Excel** but always shared plain text | C | **fixed**: one honest "Share" (text summary) | "business reports: no PDF/Excel claim" |
+| app/lib/screens/business/products_screen.dart:100 | "Import from Excel" used `ImagePicker.pickMedia` — can never pick an .xlsx/.csv | C | **hidden** (`kProductImportPickerWired=false`); proposal: file_picker | "products: the media-picker import is hidden" |
+| app/lib/screens/crm/crm_proposal_advanced_screen.dart:343 | quote "acceptance link" = a **relative JSON API path** (`/api/crm/accept/<token>/`), not a page a customer can open | C | **hidden** (`kQuoteAcceptPageWired=false`); proposal 2 | unit assert in `q1_seams_test.dart` |
+| backend/crm/views.py:548, 907 + crm/whatsapp.py | with a WhatsApp key connected, a send answered `state:"queued"` → "Message queued for sending" — **nothing ever POSTs it** | C | **fixed**: API reports `draft` + `live_send:false` while `LIVE_SEND_BUILT=False` (1:1 and bulk) | `crm.tests_q1_seams` (3 tests) |
+| app/lib/screens/birthdays_screen.dart:164 | optimistic delete; failure swallowed (row silently reappeared) | C | **fixed**: says why | static |
+| app/lib/screens/security_checkup_screen.dart:96, 131 | check-up toggle + reset failures swallowed | C | **fixed**: `saveFailed` | static |
+
+### Notable A/B (kept, with why)
+
+| file:line | finding | class | why it is fine |
+|---|---|---|---|
+| app/lib/screens/camera/camera_send_sheet.dart:107 | "Send to chats" posts caption + `media_gated:true` | B | the sheet shows `camMediaGatedNote` ("for now the caption is sent") before Send |
+| app/lib/screens/business/payments_screen.dart:96 | merchant "QR" tile is an icon + the number as text | B | a bKash/Nagad merchant QR needs the provider's official payload; the number is shown in full; link card carries `BizMockBanner` |
+| app/lib/screens/business/orders_screen.dart:209, 322 | courier booking `*-MOCK-*` | B | `courier_live:false` → honest banner on the order |
+| backend/core/business_views.py:1590 | webhook-send descriptor `mock:false` with a Meta key | A | backend-only descriptor, not used by the app, never claims delivery |
+| app/lib/screens/journey_live_screen.dart:76 | battery % for low-battery trigger is always null | A | no UI promises it (no ARB string) — documented seam |
+| app/lib/screens/pa/*.dart (`listItems` catch → `[]`) | load failure looks like an empty list | A (risk) | not a fake success; same "offline looks empty" risk as messenger lists (phone checklist) |
+| backend/core/logic/circle_extras.py:405 | voice-note transcription "stub" | B | returns `available:false` + bilingual gate reason until a model is present |
+| backend/core/management/commands/seed_reality.py:29 | fixed demo password | A | CI-only: refuses any DB that is not the CI sqlite |
+
+### Owned by c2-calls / c3-msg — listed, NOT edited (hand-over)
+
+| file:line | finding | owner | suggested action |
+|---|---|---|---|
+| app/lib/screens/circle_call_screen.dart:32, 135 | "SFU/TURN SEAM … the integrator adds" — no RTCPeerConnection, no media | **c2** | real flutter_webrtc (order item 0) |
+| app/lib/screens/circle_call_screen.dart:316 | "SFU/TURN SEAM (dev affordance)": a connect path with no media | **c2** | remove; honest error if media fails |
+| app/lib/screens/circle_call_screen.dart:166 | `catch (_) {}` on call teardown | c2 | fine if teardown-only; verify |
+| app/lib/widgets/circle_call_controls.dart:12 | "integrator adds them from the report's ARB JSON" (stale) | c2 | refresh comment |
+| app/lib/screens/circle_chat_screen.dart:972 | `_exportChat` toasts `msgrChatExportReady` **before** anything is exported, then opens the extras hub | **c3** | drop the toast (the hub export now really shares) |
+| app/lib/screens/circle_chat_screen.dart:241, 903, 1057 | silent `catch (_) {}` | c3 | verify none hides a send/delete failure |
+| app/lib/screens/circle_group_list_screen.dart:81 | create group: failure swallowed (silent; reload shows no group) | c3 | `grpActionFailed` on failure |
+| app/lib/screens/circle_group_chat_screen.dart:224 | `TODO(M2)` free-text @-mention parsing | c3 | UX only (A) |
+| app/lib/screens/circle_group_chat_screen.dart:186, 339, 1393 | silent `catch (_) {}` | c3 | verify |
+| app/lib/screens/circle_screen.dart:133 | `/circle/keys` publish failure swallowed (peers can't encrypt to me until a later open re-publishes) | c3 | retry / surface "can't receive messages yet" |
+| app/lib/screens/messenger/discover_screen.dart:291 | invite "QR placeholder" icon (not scannable) | c3 | `QrImageView` (as fixed here for circle invite) |
+| app/lib/screens/messenger/messenger_home_screen.dart:40 | "Communities — placeholder until the sibling agent…" | c3 | check the tab is real or honest |
+| app/lib/widgets/circle_privacy_controls.dart:13 | "integrator adds" ARB note (stale) | c3 | refresh comment |
+| app/lib/push/push_service.dart, push_notifier.dart, firebase_push_bridge.dart, push_payload.dart (14 `catch (_) {}`) | message-notification paths swallow errors | c3 (message) / c2 (call push) | each must degrade to "no push" honestly, never drop a visible notification silently |
+| app/lib/screens/messenger/*.dart (12 `catch (_) {}`) | contacts/channel_admin/twostep/community | c3 | heuristic found them already honest (`_loadFailed`, revert + reload) — re-verify after c3 |
+
+### Calls
+
+**Calls stay C** until a real two-device test passes: **voice and video, Wi-Fi ↔ mobile data (through TURN), with the app open AND closed** (phone checklist 16). Code-reading evidence today: no media stack at all (see the c2 rows above).
+
+### Checks run for this section
+
+See the q1-seams finish report (analyze, `test/q1_seams_test.dart`, backend `crm.tests_q1_seams` + core suite, lang gate, `route_check --report-only`, `makemigrations --check`).
