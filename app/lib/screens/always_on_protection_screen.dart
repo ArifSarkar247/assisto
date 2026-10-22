@@ -15,6 +15,7 @@ import '../services/security_guard.dart';
 import '../state.dart';
 import '../theme.dart';
 import 'phone_safety_screen.dart';
+import '../services/error_report.dart';
 
 /// b6-antitheft — "Always-on protection" (the native Lost/Stolen engine).
 ///
@@ -77,7 +78,11 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
       Map<String, dynamic> caps = const {};
       try {
         caps = await AntiTheftService.capabilities();
-      } catch (_) {}
+      } catch (e) {
+        // best-effort: unknown capabilities -> the screen shows the safe
+        // defaults (camera option disabled with its reason).
+        reportNonFatal('antitheft.capabilities', e);
+      }
       var running = await AntiTheftService.isRunning();
       // After a restart (or if the OS stopped it) the native engine still has
       // its scoped token: resume it now that the owner is looking at this
@@ -141,7 +146,11 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
         // reports "not running"). Asked here, from the open app, once.
         try {
           await Permission.locationWhenInUse.request();
-        } catch (_) {/* no plugin (tests) / denied: handled natively */}
+        } catch (e) {
+          // best-effort: a refused/absent permission is reported honestly by
+          // the native side ("not running") on this same screen.
+          reportNonFatal('antitheft.location_permission', e);
+        }
         // Start the native foreground service (Android only; never throws).
         await AntiTheftService.start(
           engineToken: token,
