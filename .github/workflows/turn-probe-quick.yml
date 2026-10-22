@@ -1,0 +1,38 @@
+# Manual: probe our TURN server from OUTSIDE AWS (GitHub runner).
+# Uses a short-lived TURN REST credential stored as temporary secrets
+# TURN_PROBE_USER / TURN_PROBE_PASS (minted on the server, 2 h TTL, deleted after).
+name: TURN probe (quick, outside AWS)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Install coturn utils
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq coturn >/dev/null && which turnutils_uclient
+      - name: Probe
+        env:
+          U: ${{ secrets.TURN_PROBE_USER }}
+          P: ${{ secrets.TURN_PROBE_PASS }}
+        run: |
+          set +e
+          H=turn.lifeassisto.com
+          echo "| test | result |" >> $GITHUB_STEP_SUMMARY; echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          getent hosts $H | tee -a /tmp/dns.txt
+          echo "| DNS | $(cat /tmp/dns.txt) |" >> $GITHUB_STEP_SUMMARY
+          r=$(timeout 15 turnutils_stunclient $H 2>&1 | grep -i "UDP reflexive" | head -1); echo "STUN UDP: $r"
+          echo "| STUN UDP 3478 | ${r:-FAILED} |" >> $GITHUB_STEP_SUMMARY
+          for mode in udp tcp; do
+            flag=""; [ "$mode" = tcp ] && flag="-t"
+            out=$(timeout 25 turnutils_uclient $flag -u "$U" -w "$P" -y -n 3 -m 1 $H 2>&1)
+            echo "$out" | tail -8
+            if echo "$out" | grep -q "Total lost packets 0"; then res="RELAY OK (0% loss)";
+            elif echo "$out" | grep -qi "Total lost packets"; then res="RELAY OK with loss: $(echo "$out" | grep -i 'Total lost packets' | tail -1)";
+            else res="FAILED: $(echo "$out" | grep -iE 'error' | head -1)"; fi
+            echo "| TURN allocate+relay over $mode 3478 | $res |" >> $GITHUB_STEP_SUMMARY
+          done
+          r=$(timeout 8 bash -c 'echo | openssl s_client -connect turn.lifeassisto.com:5349 -servername turn.lifeassisto.com 2>&1 | grep -E "CONNECTED|errno|refused" | head -1'); echo "| TLS 5349 | ${r:-no answer (not configured)} |" >> $GITHUB_STEP_SUMMARY
+          cat $GITHUB_STEP_SUMMARY
