@@ -89,10 +89,10 @@ jobs:
       - name: Rebuild licence-clean feature extractor (Google speech_embedding -> ONNX)
         if: ${{ !inputs.tiny && inputs.features == 'e2e' }}
         run: |
-          python -m venv /mnt/tfenv
-          /mnt/tfenv/bin/pip install -q "tensorflow-cpu==2.15.1" "tf-keras==2.15.1" \
+          python -m venv /mnt/ww/tfenv
+          /mnt/ww/tfenv/bin/pip install -q "tensorflow-cpu==2.15.1" "tf-keras==2.15.1" \
             "tensorflow-hub==0.16.1" "tf2onnx==1.16.1" "onnx==1.16.2" "onnxruntime==1.18.1" "numpy==1.26.4"
-          TFHUB_CACHE_DIR=~/.cache/tfhub_modules /mnt/tfenv/bin/python tools/wakeword/rebuild_features.py --out "$WORK/features"
+          TFHUB_CACHE_DIR=~/.cache/tfhub_modules /mnt/ww/tfenv/bin/python tools/wakeword/rebuild_features.py --out "$WORK/features"
 
       - name: Config
         run: |
