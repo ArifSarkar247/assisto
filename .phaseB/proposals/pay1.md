@@ -47,12 +47,14 @@ App
    flutter_webrtc: ^1.6.2
 +  # ---- pay1 ---- Google Play Billing (BSD-3-Clause, flutter/packages).
 +  in_app_purchase: 3.3.1
++  in_app_purchase_android: 0.5.3
 +  # ---- /pay1 ----
 ```
-- `in_app_purchase` 3.3.1 (published 2026-09-18), licence **BSD-3-Clause**
-  (flutter/packages). It resolves `in_app_purchase_android` 0.5.x (Google Play
-  Billing Library, needs Flutter >= 3.44 — we are on 3.47.7) and
-  `in_app_purchase_storekit` (iOS, unused).
+- `in_app_purchase` 3.3.1 (published 2026-09-18) + `in_app_purchase_android`
+  0.5.3 (published 2026-08-28; 0.5.5 was only 3 days old so not taken), both
+  licence **BSD-3-Clause** (flutter/packages); needs Flutter >= 3.44 (we are on
+  3.47.7). Transitive: `in_app_purchase_platform_interface`,
+  `in_app_purchase_storekit` (iOS, unused). Play Billing Library 8.0.0 (com.android.billingclient:billing). pubspec.lock is committed.
 - Why exact: owner rule (no surprise upgrades in a payment path).
 - Lazy: the plugin's Android side only registers a method channel at engine
   start; no BillingClient is created until `buy()` is called. On the Dart side
