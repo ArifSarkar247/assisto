@@ -54,7 +54,7 @@ class HomeSuggestions extends StatefulWidget {
 }
 
 /// FIRST-RUN fallback only (no cache and no network yet). Mirrors the server
-/// seed (migration 0049) so the first launch looks the same either way.
+/// seed (migrations 0049 + 0056) so the first launch looks the same either way.
 const List<DiscoverItem> kDiscoverFallback = [
   DiscoverItem(
       key: 'photo_enhance',
@@ -129,7 +129,9 @@ const List<DiscoverItem> kDiscoverFallback = [
 ];
 
 // Top-level tear-offs so the fallback entries can stay `const`.
-String _tEnhanceTitle(AppLocalizations t) => t.discoverEnhanceTitle;
+// b2-badges: the card opens Photo Studio, so it is named Photo Studio
+// (server seed renamed by migration 0056).
+String _tEnhanceTitle(AppLocalizations t) => t.b2PhotoStudioTitle;
 String _tEnhanceBenefit(AppLocalizations t) => t.discoverEnhanceBenefit;
 String _tAntiTheftTitle(AppLocalizations t) => t.discoverAntiTheftTitle;
 String _tAntiTheftBenefit(AppLocalizations t) => t.discoverAntiTheftBenefit;
