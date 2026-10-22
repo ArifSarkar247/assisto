@@ -1522,7 +1522,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       appBar: _searching ? _searchAppBar(scheme) : _normalAppBar(scheme, relation),
       body: Column(
         children: [
-          const CircleEncryptionBanner(),
+          // t1-ticks (owner B2): the E2E notice is no longer pinned — it is
+          // the first history item (insertDateSeparators e2eNotice).
           // t1-ticks: min-version gate (my build / peer's build) — never blocks.
           if (!_searching && int.tryParse('${widget.member['id']}') != null)
             McVersionBanner(
@@ -1534,11 +1535,14 @@ class _CircleChatScreenState extends State<CircleChatScreen>
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
                 : _visible.isEmpty
-                    ? _chatEmpty(scheme)
+                    ? Column(children: [ // t1-ticks: E2E notice first
+                        if (!_searching) const E2eNoticeChip(),
+                        Expanded(child: _chatEmpty(scheme)),
+                      ])
                     // t1-ticks: date chips + floating date while scrolling.
                     : ChatDateScope(child: Builder(builder: (_) {
                         final rows = insertDateSeparators<CircleMessage>(
-                            _visible, (m) => m.at);
+                            _visible, (m) => m.at, e2eNotice: !_searching);
                         return ListView.builder(
                         controller: _scroll,
                         padding: const EdgeInsets.symmetric(vertical: Gap.sm),

@@ -43,7 +43,8 @@
       }
     },
     "t1SomeoneInChat": "Someone in this chat",
-    "t1GroupTapInfo": "tap here for group info"
+    "t1GroupTapInfo": "tap here for group info",
+    "t1E2eInfoBody": "Messages and calls in My Circle are locked with keys that live only on your phone and the other person's phone. Nobody else can read or listen to them — not even Assisto's server or its AI."
   },
   "bn": {
     "t1InfoLegacy": "পড়ার রসিদ চালু হওয়ার আগে পাঠানো",
@@ -58,6 +59,7 @@
     "t1PeersOutdated": "টিক ও কলের জন্য {names}-কে Assisto আপডেট করতে হবে",
     "t1PeersMore": "{names} ও আরও {count} জন",
     "t1SomeoneInChat": "এই চ্যাটের কেউ একজন",
-    "t1GroupTapInfo": "গ্রুপের তথ্যের জন্য এখানে চাপুন"
+    "t1GroupTapInfo": "গ্রুপের তথ্যের জন্য এখানে চাপুন",
+    "t1E2eInfoBody": "মাই সার্কেলের মেসেজ ও কল এমন চাবি দিয়ে তালাবদ্ধ, যা শুধু আপনার ও অন্যজনের ফোনে থাকে। আর কেউ সেগুলো পড়তে বা শুনতে পারে না — Assisto-র সার্ভার বা এর এআই-ও না।"
   }
 }

@@ -25,6 +25,17 @@ sealed class ChatRow<T> {
   const ChatRow();
 }
 
+/// The "end-to-end encrypted" notice: ONE small chip as the very FIRST
+/// (oldest) item of the history — scrolls away with it, never pinned; tap =
+/// what end-to-end encryption means.
+class ChatNoticeRow<T> extends ChatRow<T> {
+  const ChatNoticeRow();
+  @override
+  bool operator ==(Object other) => other is ChatNoticeRow;
+  @override
+  int get hashCode => 7;
+}
+
 /// One message (or any list item) and its local calendar day.
 class ChatItemRow<T> extends ChatRow<T> {
   final T item;
@@ -62,16 +73,18 @@ DateTime dhakaWallClock(DateTime at) {
 /// [items] are in DISPLAY order: oldest → newest normally, or newest → oldest
 /// when [newestFirst] (a `reverse: true` ListView). In the newest-first case
 /// the separator is placed AFTER the day's oldest item, which a reversed list
-/// paints ABOVE that day's messages. Items whose time is unknown (`atOf`
+/// paints ABOVE that day's messages. [e2eNotice] adds one [ChatNoticeRow] at
+/// the OLDEST end (top of the history). Items whose time is unknown (`atOf`
 /// returns null) stay with the day before them and never start a day.
 List<ChatRow<T>> insertDateSeparators<T>(
   List<T> items,
   DateTime? Function(T) atOf, {
   bool newestFirst = false,
   DateTime Function(DateTime)? toLocal,
+  bool e2eNotice = false,
 }) {
   final chrono = newestFirst ? items.reversed.toList() : items;
-  final out = <ChatRow<T>>[];
+  final out = <ChatRow<T>>[if (e2eNotice) ChatNoticeRow<T>()];
   DateTime? current;
   for (final it in chrono) {
     final at = atOf(it);
@@ -204,6 +217,7 @@ class ChatDateScopeState extends State<ChatDateScope> {
   DateTime? _day;
   bool _shown = false;
   Timer? _hide;
+  bool _pending = false;
 
   /// The day the floating chip shows (null = none) — for tests.
   DateTime? get floatingDay => _shown ? _day : null;
@@ -240,18 +254,26 @@ class ChatDateScopeState extends State<ChatDateScope> {
   bool _onScroll(ScrollNotification n) {
     if (n.depth != 0) return false;
     if (n is ScrollUpdateNotification || n is OverscrollNotification) {
-      final d = _topDay();
       _hide?.cancel();
-      if (d != _day || !_shown) {
-        setState(() {
-          _day = d;
-          _shown = d != null;
+      // positions are read after this frame's layout (not mid-layout)
+      if (!_pending) {
+        _pending = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _pending = false;
+          if (!mounted) return;
+          final d = _topDay();
+          if (d != _day || _shown != (d != null)) {
+            setState(() {
+              _day = d;
+              _shown = d != null;
+            });
+          }
         });
       }
     } else if (n is ScrollEndNotification) {
       _hide?.cancel();
       _hide = Timer(widget.idle, () {
-        if (mounted && _shown) setState(() => _shown = false);
+        if (mounted && _shown && !_pending) setState(() => _shown = false);
       });
     }
     return false;
@@ -341,8 +363,71 @@ class _ChatDayMarkerState extends State<ChatDayMarker> {
 /// row, else [buildItem] wrapped in a [ChatDayMarker].
 Widget buildChatRow<T>(ChatRow<T> row, Widget Function(T item) buildItem) {
   return switch (row) {
+    ChatNoticeRow<T>() => const E2eNoticeChip(),
     ChatDateRow<T>(:final day) => DateSeparatorChip(day: day),
     ChatItemRow<T>(:final item, :final day) =>
       ChatDayMarker(day: day, child: buildItem(item)),
   };
+}
+
+/// The first-item "end-to-end encrypted" chip (owner B2: not pinned).
+class E2eNoticeChip extends StatelessWidget {
+  const E2eNoticeChip({super.key});
+
+  void _info(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        icon: const Icon(Icons.lock_outline),
+        title: Text(t.trustE2eTitle, textAlign: TextAlign.center),
+        content: Text(t.t1E2eInfoBody),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: Text(t.close)),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    // amber note like WhatsApp's, contrast-checked on both themes
+    final bg = dark ? const Color(0xFF3A3220) : const Color(0xFFFFF4CC);
+    final fg = dark ? const Color(0xFFF5D88A) : const Color(0xFF5C4400);
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(28, 8, 28, 6),
+        child: Material(
+          key: const Key('t1-e2e-notice'),
+          color: bg,
+          borderRadius: BorderRadius.circular(10),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(10),
+            onTap: () => _info(context),
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.lock_outline, size: 14, color: fg),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(t.circleE2eBanner,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 12, height: 1.3, color: fg)),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

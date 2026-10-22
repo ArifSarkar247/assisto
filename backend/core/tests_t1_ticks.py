@@ -252,3 +252,11 @@ class MinVersionTests(_Base):
         u = mk("01710000009", "Zed")
         self.assertEqual(self.cl(u).get(V + "/circle/t1/gate", {
             "kind": "group", "id": g.id}).status_code, 404)
+
+
+class ServerDeliveredSwitchTests(_Base):
+    def test_switch_off_disables_fetch_marking(self):
+        mid = self.send(self.ca, self.ab, "m1")
+        with override_settings(CIRCLE_SERVER_DELIVERED=False):
+            self.msgs(self.cb, self.ba)
+        self.assertFalse(CircleReceipt.objects.filter(message_id=mid).exists())

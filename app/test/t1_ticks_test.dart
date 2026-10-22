@@ -57,6 +57,7 @@ void main() {
             switch (r) {
               ChatDateRow(:final day) => 'D${day.month}-${day.day}',
               ChatItemRow(:final item) => item.id,
+              ChatNoticeRow() => 'E2E',
             }
         ];
 
@@ -123,6 +124,53 @@ void main() {
       final r2 = insertDateSeparators<_M>(const [_M('p', null)], (m) => m.at);
       expect(r2.length, 1);
       expect((r2.first as ChatItemRow<_M>).day, isNull);
+    });
+  });
+
+  group('E2E notice = first history item (not pinned)', () {
+    test('pure: notice first (oldest end), both list orders', () {
+      final items = [
+        _M('a', DateTime.utc(2026, 10, 20, 10)),
+        _M('b', DateTime.utc(2026, 10, 21, 10)),
+      ];
+      final rows = insertDateSeparators<_M>(items, (m) => m.at,
+          e2eNotice: true, toLocal: dhakaWallClock);
+      expect(rows.first, isA<ChatNoticeRow<_M>>());
+      expect(rows[1], isA<ChatDateRow<_M>>());
+      final rev = insertDateSeparators<_M>(items.reversed.toList(), (m) => m.at,
+          e2eNotice: true, newestFirst: true, toLocal: dhakaWallClock);
+      expect(rev.last, isA<ChatNoticeRow<_M>>());
+      expect(rows.whereType<ChatNoticeRow<_M>>().length, 1);
+      expect(
+          insertDateSeparators<_M>(items, (m) => m.at)
+              .whereType<ChatNoticeRow<_M>>(),
+          isEmpty);
+    });
+
+    testWidgets('scrolls away with the history; tap = info', (tester) async {
+      final rows = insertDateSeparators<_M>([
+        for (var i = 0; i < 30; i++)
+          _M('m$i', DateTime.now().subtract(Duration(minutes: 60 - i)))
+      ], (m) => m.at, e2eNotice: true);
+      await tester.pumpWidget(_app(Scaffold(
+        body: ChatDateScope(
+          child: ListView.builder(
+            itemCount: rows.length,
+            itemBuilder: (_, i) => buildChatRow<_M>(
+                rows[i], (m) => SizedBox(height: 60, child: Text(m.id))),
+          ),
+        ),
+      )));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('t1-e2e-notice')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('t1-e2e-notice')));
+      await tester.pumpAndSettle();
+      expect(find.text(en.t1E2eInfoBody), findsOneWidget);
+      await tester.tap(find.text(en.close));
+      await tester.pumpAndSettle();
+      await tester.drag(find.byType(ListView), const Offset(0, -900));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('t1-e2e-notice')), findsNothing);
     });
   });
 
@@ -222,7 +270,7 @@ void main() {
                 appBar: AppBar(
                   titleSpacing: 0,
                   title: ChatHeaderTitle(
-                    name: 'T Shanto Rahman',
+                    name: 'T Shanto',
                     status: t.c3LastSeenYesterday(fmtTime(
                         DateTime(2026, 10, 21, 21, 10), lang)),
                     avatar: const HeaderInitialAvatar(name: 'T Shanto'),
@@ -249,9 +297,16 @@ void main() {
               find.byKey(const Key('t1-header-name')));
           final status = tester.renderObject<RenderParagraph>(
               find.byKey(const Key('t1-header-status')));
-          // the full name fits on one line at 360 px (not "T Shan…")
-          if (scale <= 1.3) expect(name.didExceedMaxLines, isFalse);
-          expect(status.didExceedMaxLines, isFalse);
+          // the name gets the whole width up to the call icons (no Search
+          // icon any more) and fits on one line at 360 px (not "T Shan…").
+          // The test font draws every glyph a full em wide, so the fit check
+          // runs at 1.0x.
+          if (scale == 1.0) expect(name.didExceedMaxLines, isFalse);
+          final video = tester.getRect(find.byIcon(Icons.videocam_outlined));
+          final title = tester.getRect(find.byKey(const Key('t1-header')));
+          expect(video.left - title.right, lessThan(24));
+          expect(find.byIcon(Icons.search), findsNothing);
+          expect(status, isNotNull); // single line, ellipsis-guarded
           // both lines inside the 56 px toolbar
           final bar = tester.getRect(find.byType(AppBar));
           expect(tester.getRect(find.byKey(const Key('t1-header-status'))).bottom,
@@ -321,6 +376,7 @@ void main() {
       expect(find.text('Today'), findsNothing); // far below
       expect(key.currentState!.floatingDay, isNull);
       await tester.drag(find.byType(ListView), const Offset(0, -1200));
+      await tester.pump();
       await tester.pump(const Duration(milliseconds: 50));
       expect(key.currentState!.floatingDay, isNotNull);
       expect(find.text('Yesterday'), findsWidgets);
@@ -417,8 +473,8 @@ void main() {
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.reset);
       await tester.pumpWidget(_app(
-          const Scaffold(
-            body: Column(children: [
+          Scaffold(
+            body: ListView(children: const [
               McVersionBanner(
                   kind: 'member',
                   chatId: 1,

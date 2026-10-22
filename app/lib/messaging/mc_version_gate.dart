@@ -260,14 +260,27 @@ class _McVersionBannerState extends State<McVersionBanner> {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.sm, Gap.sm),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, size: 18, color: onColor),
+            Padding(
+                padding: const EdgeInsets.only(top: 1),
+                child: Icon(icon, size: 18, color: onColor)),
             const SizedBox(width: Gap.sm),
             Expanded(
-              child: Text(text,
-                  style: TextStyle(fontSize: 13, color: onColor, height: 1.3)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(text,
+                      style:
+                          TextStyle(fontSize: 13, color: onColor, height: 1.3)),
+                  // the action sits under the text so a large font never
+                  // squeezes it off the row at 360 px
+                  if (action != null)
+                    Align(alignment: AlignmentDirectional.centerEnd, child: action),
+                ],
+              ),
             ),
-            if (action != null) action,
           ],
         ),
       ),

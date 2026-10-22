@@ -25,6 +25,12 @@
         without having the message. Switch off with
         settings.CIRCLE_FCM_MARKS_DELIVERED = False.
     SEEN stays client-driven (opening the chat / mark as read).
+    OWNERSHIP NOTE (round 2 scope change): delivered/read marking now belongs
+    to x2-ticks. This 1b code is deliberately ISOLATED for the integrator to
+    keep or drop: deliver_fetched() + on_fcm_accepted() here, called from ONE
+    line each in views_c3_msg.annotate / augment_chat_rows / group_rows and
+    push.push_to_user. settings.CIRCLE_SERVER_DELIVERED = False turns all of
+    it off without touching code.
 
 1c  Minimum-version gate. `limits.my_circle_min_version` in the admin pricing
     config (/admin/pricing, default 183) is published in GET app/latest and in
@@ -110,6 +116,8 @@ def deliver_fetched(viewer, msgs):
     number of receipts changed. delivered_to (kept in step by c3 mark()) is
     the cheap pre-filter so a poll that changes nothing writes nothing."""
     try:
+        if not getattr(settings, "CIRCLE_SERVER_DELIVERED", True):
+            return 0
         from .views_c3_msg import mark
         uid = viewer.id
         todo = [x for x in msgs if x.sender_id != uid

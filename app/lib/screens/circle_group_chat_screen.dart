@@ -1133,6 +1133,19 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   Widget _messageList() {
     final items = _visible;
     if (items.isEmpty) {
+      if (!_searching) {
+        // t1-ticks: the E2E notice is the first history item, even when empty
+        return Column(children: [
+          const E2eNoticeChip(),
+          Expanded(child: _emptyState()),
+        ]);
+      }
+      return _emptyState();
+    }
+    return _historyList(items);
+  }
+
+  Widget _emptyState() {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(Gap.xl),
@@ -1153,10 +1166,13 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           ]),
         ),
       );
-    }
+  }
+
+  Widget _historyList(List<Map<String, dynamic>> items) {
     // t1-ticks: date chips + floating date while scrolling.
     final rows = insertDateSeparators<Map<String, dynamic>>(items,
-        (m) => DateTime.tryParse('${m['created_at'] ?? m['at'] ?? ''}'));
+        (m) => DateTime.tryParse('${m['created_at'] ?? m['at'] ?? ''}'),
+        e2eNotice: !_searching);
     return ChatDateScope(
       child: ListView.builder(
         controller: _scroll,
