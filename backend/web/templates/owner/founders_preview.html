@@ -1,0 +1,24 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.fm_preview_title }}{% endblock %}
+{% block content %}
+<p><a href="/owner/founders">← {{ T.nav_founders }}</a></p>
+<div class="tiles">
+  <div class="tile"><span>{{ T.fm_found }}</span><b>{{ rows|length }}</b><small>{{ T.fm_will_change }}: {{ will_change }}</small></div>
+  <div class="tile"><span>{{ T.fm_unknown }}</span><b class="{% if unknown %}neg{% endif %}">{{ unknown|length }}</b><small>{{ T.fm_invalid }}: {{ invalid|length }}</small></div>
+  <div class="tile"><span>{{ T.fm_months }}</span><b>{{ months }}</b><small>{{ T.fm_no_shorten }}</small></div>
+</div>
+{% if rows %}
+<form method="post" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="apply">{% if back %}<input type="hidden" name="back" value="{{ back }}">{% endif %}
+  <h2>{{ T.fm_who }}</h2>
+  <div class="tbl"><table><thead><tr><th>ID</th><th>{{ T.name }}</th><th>{{ T.phone }}</th><th>{{ T.fm_now }}</th><th>{{ T.fm_after }}</th></tr></thead><tbody>
+  {% for r in rows %}<tr><td>#{{ r.u.id }}<input type="hidden" name="uid" value="{{ r.u.id }}"></td><td>{{ r.u.name|default:"—" }}</td><td>{{ r.u.phone|default:r.u.username }}</td><td>{{ r.effective }}{% if r.u.plan_until %} · {{ T.until }} {{ r.u.plan_until|date:"Y-m-d" }}{% endif %}</td>
+  <td>{% if r.outcome == 'grant' %}<span class="pill ok">{{ T.fm_o_grant }}</span> {{ T.until }} {{ r.new_until|date:"Y-m-d" }}{% elif r.outcome == 'extend' %}<span class="pill ok">{{ T.fm_o_extend }}</span> {{ T.until }} {{ r.new_until|date:"Y-m-d" }}{% elif r.outcome == 'keep_longer' %}<span class="pill">{{ T.fm_o_keep_longer }}</span> {{ T.until }} {{ r.new_until|date:"Y-m-d" }}{% elif r.outcome == 'keep_business' %}<span class="pill">{{ T.fm_o_keep_business }}</span>{% elif r.outcome == 'already' %}<span class="pill off">{{ T.fm_o_already }}</span>{% else %}<span class="pill off">{{ T.fm_o_lifetime }}</span>{% endif %}</td></tr>{% endfor %}
+  </tbody></table></div>
+  <div class="reason"><label>{{ T.reason }}<input name="reason" required maxlength="200" placeholder="{{ T.reason_ph }}"></label><label class="check"><input type="checkbox" name="confirm" required> {{ T.fm_confirm }}</label><button class="btn primary">{{ T.fm_apply_btn }}</button></div>
+</form>
+{% endif %}
+{% if unknown or invalid %}<section class="card"><h2>{{ T.fm_not_matched }}</h2>
+{% if unknown %}<p class="mut small">{{ T.fm_unknown_note }}</p><ul>{% for x in unknown %}<li><code>{{ x }}</code></li>{% endfor %}</ul>{% endif %}
+{% if invalid %}<p class="mut small">{{ T.fm_invalid_note }}</p><ul>{% for x in invalid %}<li><code>{{ x }}</code></li>{% endfor %}</ul>{% endif %}
+</section>{% endif %}
+{% endblock %}

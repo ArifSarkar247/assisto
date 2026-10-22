@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'l10n/app_localizations.dart';
+import 'feedback/feedback_capture.dart';
 import 'alerts_fg.dart';
 import 'state.dart';
 import 'theme.dart';
@@ -135,6 +136,7 @@ class AssistoApp extends StatelessWidget {
             : AssistoTheme.dark;
         return MaterialApp(
           navigatorKey: appNavigatorKey,
+          navigatorObservers: [ScreenTracker.instance], // f1-founders
           title: 'Assisto',
           debugShowCheckedModeBanner: false,
           theme: light,
@@ -164,7 +166,12 @@ class AssistoApp extends StatelessWidget {
                 highContrast: mq.highContrast || a.highContrast,
                 disableAnimations: mq.disableAnimations || a.reduceMotion,
               ),
-              child: child ?? const SizedBox.shrink(),
+              // f1-founders: the root boundary the feedback sheet renders
+              // to a screenshot (AppShot.capture; no plugin, lazy).
+              child: RepaintBoundary(
+                key: AppShot.boundaryKey,
+                child: child ?? const SizedBox.shrink(),
+              ),
             );
           },
           home: const _Root(),

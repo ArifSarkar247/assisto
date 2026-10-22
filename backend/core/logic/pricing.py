@@ -322,6 +322,11 @@ def DEFAULTS():
             # c1-contacts: manual find-by-number lookups per user per hour
             # (anti-enumeration). Contacts match is a separate batch call.
             "contact_lookups_per_hour": 30,
+            # f1-founders: free Premium months a "Founding Member" grant gives,
+            # and the in-app feedback rate limit (per user).
+            "founding_member_months": 12,
+            "feedback_per_hour": 5,
+            "feedback_per_day": 20,
         },
         "probashi_price_usd": DEFAULT_PROBASHI_PRICE_USD,
         # 0 = use the server env AI_DAILY_BUDGET_USD kill-switch default
@@ -500,6 +505,12 @@ def _norm_limits(raw, base):
         "contact_lookups_per_hour": max(1, min(500, _int(
             raw.get("contact_lookups_per_hour"),
             base.get("contact_lookups_per_hour", 30)))),
+        "founding_member_months": max(1, min(120, _int(
+            raw.get("founding_member_months"), base.get("founding_member_months", 12)))),
+        "feedback_per_hour": max(1, min(100, _int(
+            raw.get("feedback_per_hour"), base.get("feedback_per_hour", 5)))),
+        "feedback_per_day": max(1, min(500, _int(
+            raw.get("feedback_per_day"), base.get("feedback_per_day", 20)))),
     }
 
 

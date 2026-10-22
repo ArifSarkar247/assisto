@@ -834,7 +834,7 @@ def audit_log(request):
         r.before_json = json.dumps(r.before, ensure_ascii=False, default=str) if r.before else ""
         r.after_json = json.dumps(r.after, ensure_ascii=False, default=str) if r.after else ""
     prefixes = ("login", "2fa", "logout", "discover", "pricing", "ads", "flag",
-                "integration", "user", "security")
+                "integration", "user", "security", "founders", "feedback")
     return page(request, "owner/audit.html",
                 {"rows": rows, "act": act, "page_no": pg, "total": total,
                  "has_next": pg * 50 < total, "prefixes": prefixes}, nav="audit")

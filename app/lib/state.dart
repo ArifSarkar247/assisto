@@ -338,7 +338,11 @@ class AppState extends ChangeNotifier {
           phone: prev.phone,
           email: prev.email,
           autonomyLevel: level,
-          language: prev.language);
+          language: prev.language,
+          photoUrl: prev.photoUrl,
+          isFounder: prev.isFounder,
+          founderSince: prev.founderSince,
+          founderPremiumUntil: prev.founderPremiumUntil);
     }
     notifyListeners();
   }

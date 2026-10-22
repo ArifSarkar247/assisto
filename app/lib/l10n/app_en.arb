@@ -15845,5 +15845,48 @@
   "h1FaceRefused": "I can't identify real people from their face. I can describe the photo in general terms instead.",
   "h1PrivacyNote": "Your photo was used only for this answer and was not saved.",
   "l1LegalOpenWeb": "Read the full version on lifeassisto.com",
-  "l1PlayUpdatesViaStore": "This version of Assisto updates through Google Play. Open the Play Store to get the latest update."
+  "l1PlayUpdatesViaStore": "This version of Assisto updates through Google Play. Open the Play Store to get the latest update.",
+  "fbTile": "Send feedback / report a problem",
+  "fbTileSub": "Tell us what's broken or what you'd love — a screenshot helps",
+  "fbTitle": "Send feedback",
+  "fbSubtitle": "Only the Assisto team reads this. We read every report.",
+  "fbCategoryLabel": "What is it about?",
+  "fbCatBug": "Problem",
+  "fbCatIdea": "Idea",
+  "fbCatOther": "Other",
+  "fbNoteLabel": "Your note",
+  "fbNoteHint": "What happened, and what did you expect?",
+  "fbNoteHintIdea": "What would make Assisto better for you?",
+  "fbNoteRequired": "Please write a short note",
+  "fbShotTitle": "Screenshot of the screen you were on",
+  "fbShotPrivacy": "Check that it shows nothing private before sending.",
+  "fbShotRemove": "Remove",
+  "fbShotRemoved": "Screenshot removed",
+  "fbShotUndo": "Add it back",
+  "fbShotNone": "No screenshot attached",
+  "fbDetailsTitle": "Also sent with your note",
+  "fbDetailsApp": "App version",
+  "fbDetailsDevice": "Device",
+  "fbDetailsOs": "System",
+  "fbDetailsLanguage": "Language",
+  "fbDetailsScreen": "Screen",
+  "fbDetailsUnknown": "Not available",
+  "fbPrivacyNote": "Nothing else from your phone is attached.",
+  "fbSend": "Send",
+  "fbSending": "Sending…",
+  "fbSent": "Thank you — your report reached the Assisto team.",
+  "fbErrOffline": "Couldn't send — check your internet and try again. Your note is kept.",
+  "fbErrServer": "Couldn't send right now. Your note is kept — please try again.",
+  "fbErrRate": "You've sent several reports just now. Please try again a little later.",
+  "fbRetry": "Try again",
+  "fmBadge": "Founding Member",
+  "fmPremiumUntil": "Free Premium until {date}",
+  "@fmPremiumUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "fmThanks": "Thank you for believing in Assisto early."
 }

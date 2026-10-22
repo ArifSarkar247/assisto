@@ -74,6 +74,8 @@ import '../screens/ai_chat_screen.dart';
 import '../screens/voice_assistant_screen.dart';
 import '../screens/voice_assistant_settings_screen.dart';
 import '../screens/assisto_chats_screen.dart';
+import '../feedback/feedback_capture.dart'; // f1-founders
+import '../feedback/feedback_sheet.dart'; // f1-founders
 
 /// open-from-chat configuration (Phase B).
 ///
@@ -210,6 +212,10 @@ class ChatNav {
     // (default-assistant setup, wake word, spoken replies).
     'voice_assistant': (_) => const VoiceAssistantScreen(),
     'voice_settings': (_) => const VoiceAssistantSettingsScreen(),
+    // f1-founders: Send feedback / report a problem. ChatNav.push opens the
+    // sheet over the CURRENT screen (screenshot first); this full-page form
+    // is the fallback for other callers.
+    'feedback': (_) => const FeedbackScreen(route: 'home'),
   };
 
   /// Local ENGLISH subject vocabulary (ASCII only). Mirrors the English tokens
@@ -319,6 +325,9 @@ class ChatNav {
         'talk to assisto', 'voice mode', 'hands free'],
     'voice_settings': ['default assistant', 'digital assistant',
         'wake word', 'voice settings', 'assistant settings'],
+    // f1-founders
+    'feedback': ['send feedback', 'give feedback', 'feedback',
+        'report a problem', 'report a bug', 'report an issue'],
   };
 
   /// English verbs marking an explicit "open the screen" intent, so a plain
@@ -375,14 +384,32 @@ class ChatNav {
         .trim()
         .replaceFirst(RegExp(r'^please '), '')
         .replaceFirst(RegExp(r' please$'), '');
+    if (_feedbackCommands.contains(t)) return 'feedback';
     return _circleCommands.contains(t) ? 'circle_add' : null;
   }
+
+  /// f1-founders: whole-message feedback commands (no open-verb needed).
+  /// Bangla synonyms resolve server-side (screen_synonyms.resolve_command).
+  static const Set<String> _feedbackCommands = {
+    'feedback', 'send feedback', 'give feedback', 'report a problem',
+    'report a bug', 'report bug', 'report an issue', 'report problem',
+    'i want to give feedback',
+  };
 
   /// Push the screen for a canonical [route]. Returns true if a screen existed.
   static bool push(BuildContext context, String? route) {
     final b = route == null ? null : routes[route];
     if (b == null) return false;
-    Navigator.push(context, MaterialPageRoute(builder: b));
+    if (route == 'feedback') {
+      // f1-founders: a sheet over the screen the user is on (captured first).
+      FeedbackSheet.open(context,
+          route: ScreenTracker.instance.current ?? 'home');
+      return true;
+    }
+    // The route key doubles as RouteSettings.name so a feedback report can
+    // say which screen it came from (ScreenTracker).
+    Navigator.push(context,
+        MaterialPageRoute(builder: b, settings: RouteSettings(name: route)));
     return true;
   }
 }

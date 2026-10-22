@@ -11,6 +11,13 @@ class AppUser {
   /// Absolute, cache-busted avatar URL from the backend (`photo_url`), or ''.
   final String photoUrl;
 
+  /// f1-founders: owner-granted "Founding Member" badge (`/me` is_founder +
+  /// founding_member). [founderPremiumUntil] is the ISO end of the free
+  /// Premium (null for a lifetime founder or a non-member).
+  final bool isFounder;
+  final String? founderSince;
+  final String? founderPremiumUntil;
+
   AppUser({
     required this.id,
     required this.name,
@@ -22,7 +29,15 @@ class AppUser {
     this.fallDetect = false,
     this.fallCountdownSec = 120,
     this.photoUrl = '',
+    this.isFounder = false,
+    this.founderSince,
+    this.founderPremiumUntil,
   });
+
+  static Map<String, dynamic> _fm(Map<String, dynamic> j) {
+    final v = j['founding_member'];
+    return v is Map ? v.cast<String, dynamic>() : const {};
+  }
 
   factory AppUser.fromJson(Map<String, dynamic> j) => AppUser(
         id: j['id'] as int,
@@ -35,6 +50,9 @@ class AppUser {
         fallDetect: (j['fall_detect'] ?? false) as bool,
         fallCountdownSec: (j['fall_countdown_sec'] ?? 120) as int,
         photoUrl: (j['photo_url'] ?? j['photo_link'] ?? '') as String,
+        isFounder: j['is_founder'] == true || _fm(j)['active'] == true,
+        founderSince: _fm(j)['since'] as String?,
+        founderPremiumUntil: _fm(j)['premium_until'] as String?,
       );
 
   Map<String, dynamic> toJson() => {
@@ -45,6 +63,12 @@ class AppUser {
         'autonomy_level': autonomyLevel,
         'language': language,
         'photo_url': photoUrl,
+        'is_founder': isFounder,
+        'founding_member': {
+          'active': isFounder,
+          'since': founderSince,
+          'premium_until': founderPremiumUntil,
+        },
       };
 }
 

@@ -3,8 +3,11 @@
 {% block content %}
 <form method="get" class="inline card"><input name="q" value="{{ q }}" placeholder="{{ T.user_search_ph }}" class="grow" autofocus><button class="btn primary">{{ T.search }}</button></form>
 {% if rows %}
-<div class="card tbl"><table><thead><tr><th>ID</th><th>{{ T.name }}</th><th>{{ T.phone }}</th><th>{{ T.plan }}</th><th>{{ T.credits }}</th><th>{{ T.status }}</th><th>{{ T.joined }}</th></tr></thead><tbody>
-{% for r in rows %}<tr><td><a href="/owner/users/{{ r.u.id }}">#{{ r.u.id }}</a></td><td><a href="/owner/users/{{ r.u.id }}">{{ r.u.name|default:"—" }}</a>{% if r.u.is_superuser %} <span class="pill">owner</span>{% endif %}</td><td>{{ r.u.phone|default:r.u.username }}</td><td>{{ r.eff }}</td><td class="num">{{ r.u.ai_credits }}</td><td>{% if r.u.account_status == 'active' %}<span class="pill ok">{{ T.active }}</span>{% else %}<span class="pill bad">{{ r.u.account_status }}</span>{% endif %}</td><td>{{ r.u.date_joined|date:"Y-m-d" }}</td></tr>{% endfor %}
+<form method="post" action="/owner/founders" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="preview">
+<div class="row-between"><p class="mut small">{{ T.fm_pick_note }}</p><button class="btn primary small">{{ T.fm_pick_btn }}</button></div>
+<div class="tbl"><table><thead><tr><th><span class="mut">{{ T.fm_badge }}</span></th><th>ID</th><th>{{ T.name }}</th><th>{{ T.phone }}</th><th>{{ T.plan }}</th><th>{{ T.credits }}</th><th>{{ T.status }}</th><th>{{ T.joined }}</th></tr></thead><tbody>
+{% for r in rows %}<tr><td><label class="check"><input type="checkbox" name="uid" value="{{ r.u.id }}" aria-label="#{{ r.u.id }}"></label></td><td><a href="/owner/users/{{ r.u.id }}">#{{ r.u.id }}</a></td><td><a href="/owner/users/{{ r.u.id }}">{{ r.u.name|default:"—" }}</a>{% if r.u.is_superuser %} <span class="pill">owner</span>{% endif %}{% if r.u.is_founder %} <span class="pill fm">{{ T.fm_badge }}</span>{% endif %}</td><td>{{ r.u.phone|default:r.u.username }}</td><td>{{ r.eff }}</td><td class="num">{{ r.u.ai_credits }}</td><td>{% if r.u.account_status == 'active' %}<span class="pill ok">{{ T.active }}</span>{% else %}<span class="pill bad">{{ r.u.account_status }}</span>{% endif %}</td><td>{{ r.u.date_joined|date:"Y-m-d" }}</td></tr>{% endfor %}
 </tbody></table></div>
+</form>
 {% else %}<p class="empty">{{ T.no_users }}</p>{% endif %}
 {% endblock %}

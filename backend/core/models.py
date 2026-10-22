@@ -62,6 +62,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     plan_until = models.DateTimeField(null=True, blank=True)      # paid plan expiry
     trial_until = models.DateTimeField(null=True, blank=True)     # 7-day full trial
     is_founder = models.BooleanField(default=False)
+    # f1-founders: "Founding Member" grant (owner panel /owner/founders).
+    #   founder_since None + is_founder  -> legacy LIFETIME founder (plan "founder")
+    #   founder_since set  + is_founder  -> Founding Member: badge + free Premium
+    #                                       via plan/plan_until (until founder_until)
+    founder_since = models.DateTimeField(null=True, blank=True)
+    founder_until = models.DateTimeField(null=True, blank=True)
     ai_credits = models.IntegerField(default=0)                  # consumable AI credits
     elderly_mode = models.BooleanField(default=False)            # feature 29 simple mode
     # accident/fall detection (owner-configurable; OFF by default)
@@ -3675,6 +3681,56 @@ class WebDeletionRequest(models.Model):
     status = models.CharField(max_length=12, choices=STATUSES, default=STATUS_NEW)
     owner_note = models.TextField(blank=True, default="")
     ip_hash = models.CharField(max_length=64, blank=True, default="", db_index=True)
+# ---- f1-founders ----
+class FounderGrant(models.Model):
+    """One Founding Member grant (owner panel). Keeps what the user's plan was
+    BEFORE so a revoke can restore it exactly — but only when nothing changed
+    the plan since (a payment or another owner edit always wins)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="founder_grants")
+    months = models.PositiveSmallIntegerField()
+    granted_at = models.DateTimeField()
+    granted_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                                   blank=True, related_name="+")
+    reason = models.CharField(max_length=200, blank=True, default="")
+    prev_plan = models.CharField(max_length=16, blank=True, default="")
+    prev_plan_until = models.DateTimeField(null=True, blank=True)
+    new_plan_until = models.DateTimeField(null=True, blank=True)
+    plan_changed = models.BooleanField(default=False)
+    revoked_at = models.DateTimeField(null=True, blank=True)
+    revoked_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                                   blank=True, related_name="+")
+    revoke_reason = models.CharField(max_length=200, blank=True, default="")
+
+    class Meta:
+        ordering = ["-granted_at", "-id"]
+
+
+def _feedback_upload(instance, filename):
+    import uuid
+    return "feedback/%s.%s" % (uuid.uuid4().hex, (filename.rsplit(".", 1)[-1] or "png")[:4])
+
+
+class FeedbackReport(models.Model):
+    """In-app "Send feedback / report a problem". The optional screenshot is a
+    private upload (signed, expiring link via core.media_sign — never /media);
+    only the reporter (API) and the owner (panel) can see a report."""
+    CATEGORIES = ("bug", "idea", "other")
+    STATUSES = ("new", "triaged", "fixed", "closed")
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="feedback_reports")
+    category = models.CharField(max_length=8, default="bug")
+    note = models.TextField()
+    screenshot = models.FileField(upload_to=_feedback_upload, null=True, blank=True)
+    screenshot_bytes = models.PositiveIntegerField(default=0)
+    app_version = models.CharField(max_length=32, blank=True, default="")
+    app_build = models.CharField(max_length=16, blank=True, default="")
+    device_model = models.CharField(max_length=80, blank=True, default="")
+    os_version = models.CharField(max_length=40, blank=True, default="")
+    language = models.CharField(max_length=8, blank=True, default="")
+    route = models.CharField(max_length=80, blank=True, default="")
+    status = models.CharField(max_length=8, default="new", db_index=True)
+    owner_note = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -3684,3 +3740,5 @@ class WebDeletionRequest(models.Model):
     def __str__(self):
         return f"web-deletion #{self.pk} {self.contact_kind} [{self.status}]"
 # ---- /l1-launch ----
+        ordering = ["-created_at", "-id"]
+# ---- /f1-founders ----
