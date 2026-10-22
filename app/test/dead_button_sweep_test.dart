@@ -76,6 +76,8 @@ import 'screenshots_test.dart' as gallery;
 const Map<String, String> _allowDead = {
   // (A) gallery fixtures with `() {}` callbacks — not app code.
   't1_*|IconButton "icon:0x': 'A: t1_ticks_shots.dart header icons use onPressed: () {}',
+  'mr1_last_seen_*|IconButton "icon:0x': 'A: mr1_shots.dart header call icons use onPressed: () {}; the real chat header wires calls',
+  'mr1_requests_list|TextButton "See all"': 'A: mr1_shots.dart passes onSeeAll: () {}; MessengerHome wires it to _openRequests',
   'm3_new_chat|key=m3-new-': 'A: spec passes M3NewChatActions(onAdd: () {}, …); the real header in MessengerHome._openNewChat is wired',
   'cam_perm_*|Continue': 'A: spec passes onPrimary: () {}; CameraPermissionGate wires the real request',
   'voice_results|Turn off': 'A: spec passes VaButton(…, () async {})',
