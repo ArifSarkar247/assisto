@@ -197,6 +197,12 @@ def stage_prepare(c: Ctx):
             np.save(os.path.join(pd, name + ".npy"), noise(sec))
         _wj({"tiny": True}, os.path.join(pd, "report.json"))
         return
+    names = ("neg_train", "val_bn", "eval_bn", "eval_tv", "eval_en")
+    rp = os.path.join(pd, "report.json")
+    if os.path.exists(rp) and not _rj(rp).get("tiny") and all(
+            os.path.exists(os.path.join(pd, n + ".npy")) for n in names):
+        log("prepare: already done (cache) —", _rj(rp))
+        return
     d = c.cfg["data"]
     dl = c.p("downloads")
     rep = {}

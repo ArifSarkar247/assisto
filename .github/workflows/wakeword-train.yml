@@ -26,6 +26,10 @@ on:
         description: "Tiny smoke run (fake extractor, no downloads, ~2 min)"
         type: boolean
         default: false
+      rebuild_check:
+        description: "With tiny: ALSO rebuild + verify the real e2e extractor (no dataset downloads, +~4 min)"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -86,14 +90,6 @@ jobs:
             ~/.cache/tfhub_modules
           key: ww-models-v1
 
-      - name: Rebuild licence-clean feature extractor (Google speech_embedding -> ONNX)
-        if: ${{ !inputs.tiny && inputs.features == 'e2e' }}
-        run: |
-          python -m venv /mnt/ww/tfenv
-          /mnt/ww/tfenv/bin/pip install -q "tensorflow-cpu==2.15.1" "tf-keras==2.15.1" \
-            "tensorflow-hub==0.16.1" "tf2onnx==1.16.1" "onnx==1.16.2" "onnxruntime==1.18.1" "numpy==1.26.4"
-          TFHUB_CACHE_DIR=~/.cache/tfhub_modules /mnt/ww/tfenv/bin/python tools/wakeword/rebuild_features.py --out "$WORK/features"
-
       - name: Config
         run: |
           python - <<'PY'
@@ -106,19 +102,43 @@ jobs:
           print(json.dumps(c, indent=1))
           PY
 
+      - name: Prepare real audio (LibriSpeech / FLEURS / SLR53 / MUSAN -> int16 streams)
+        if: ${{ !inputs.tiny }}
+        run: python tools/wakeword/pipeline.py --work "$WORK" --config "$WORK/config.json" prepare
+
+      - name: Rebuild licence-clean feature extractor (Google speech_embedding -> ONNX)
+        if: ${{ inputs.features == 'e2e' && (!inputs.tiny || inputs.rebuild_check) }}
+        run: |
+          python -m venv "$WORK/tfenv"
+          "$WORK/tfenv/bin/pip" install -q "tensorflow-cpu==2.15.1" "tf2onnx==1.16.1" \
+            "onnx==1.16.2" "onnxruntime==1.18.1" "numpy==1.26.4"
+          REAL=""
+          for f in eval_en eval_bn; do
+            [ -f "$WORK/prepared/$f.npy" ] && REAL="$REAL${REAL:+,}$WORK/prepared/$f.npy"
+          done
+          "$WORK/tfenv/bin/python" tools/wakeword/rebuild_features.py --out "$WORK/features" \
+            --cache ~/.cache/tfhub_modules --real-audio "$REAL" --tol 1e-3
+          rm -rf "$WORK/tfenv"   # ~1.5 GB; not needed after this step
+
       - name: Train + evaluate
         run: |
           if [ "${{ inputs.tiny }}" = "true" ]; then
             python tools/wakeword/pipeline.py --work "$WORK" --tiny all
           else
-            python tools/wakeword/pipeline.py --work "$WORK" --config "$WORK/config.json" all
+            python tools/wakeword/pipeline.py --work "$WORK" --config "$WORK/config.json" \
+              features synth prepare windows train evaluate package
           fi
           cp "$WORK/model/train_history.json" "$WORK/config.used.json" "$WORK/out/" || true
-          cp "$WORK/features/e2e_info.json" "$WORK/out/" 2>/dev/null || true
 
       - name: Report
         if: always()
         run: |
+          mkdir -p "$WORK/out"
+          cp "$WORK/features/e2e_info.json" "$WORK/out/" 2>/dev/null || true
+          [ -f "$WORK/out/assisto_embed_e2e.onnx" ] || cp "$WORK/features/assisto_embed_e2e.onnx" "$WORK/out/" 2>/dev/null || true
+          if [ -f "$WORK/features/e2e_info.json" ]; then
+            python -c "import json,sys; i=json.load(open(sys.argv[1])); v=i['verify']; print('### e2e extractor check\n\n| check | max abs diff vs TF |\n|---|---|'); [print(f'| {k} | {v[k]:.2e} |') for k in ('max_abs_diff_vs_tf','conv_net_only','logmel_front_end','streaming_11_hops')]; print(f\"\nsize {i['size']} bytes, licence field: {i['licence_check'].get('licenseName')}\n\")" "$WORK/features/e2e_info.json" >> "$GITHUB_STEP_SUMMARY" || true
+          fi
           [ -f "$WORK/out/eval_report.md" ] && cat "$WORK/out/eval_report.md" >> "$GITHUB_STEP_SUMMARY" || echo "no report" >> "$GITHUB_STEP_SUMMARY"
           ls -la "$WORK/out" || true
 
