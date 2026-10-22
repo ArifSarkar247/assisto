@@ -7,6 +7,7 @@ import '../theme.dart';
 import '../notifications.dart';
 import '../widgets/reminders_nlp.dart';
 import 'reminders_screen.dart' show recurrenceLabel;
+import '../widgets/bn_day_periods.dart' show appDateLocale;
 
 /// A single-line natural-language quick-add with a live parsed preview.
 /// Typing "every friday 8am jumma" shows a preview chip row (time, recurrence)
@@ -134,8 +135,8 @@ class _Preview extends StatelessWidget {
     if (parsed.dateTime != null) {
       final dt = parsed.dateTime!;
       final label = parsed.dateOnly
-          ? DateFormat('d MMM').format(dt)
-          : DateFormat('d MMM, h:mm a').format(dt);
+          ? DateFormat('d MMM', appDateLocale(context)).format(dt)
+          : DateFormat('d MMM, h:mm a', appDateLocale(context)).format(dt);
       chips.add(_chip(Icons.schedule, label, scheme.primary));
     }
     if (parsed.recurrence != null) {
@@ -383,8 +384,8 @@ Future<void> editReminder(BuildContext context,
                   label: Text(due == null
                       ? t.remSetTime
                       : (dateOnly
-                          ? DateFormat('d MMM').format(due!)
-                          : DateFormat('d MMM, h:mm a').format(due!))),
+                          ? DateFormat('d MMM', appDateLocale(context)).format(due!)
+                          : DateFormat('d MMM, h:mm a', appDateLocale(context)).format(due!))),
                   onPressed: () async {
                     final d = await showDatePicker(
                         context: ctx,
@@ -521,10 +522,10 @@ Future<void> editReminder(BuildContext context,
       'notes': notes.text.trim(),
       'due_at': due?.toUtc().toIso8601String(),
       'recurrence': rule?.freq ?? 'none',
-      'recurrence_rule': rule?.toJson(),
+      'recurrence_rule': rule?.toJson() ?? <String, dynamic>{}, // qa1
       'date_only': dateOnly,
       'done': data['done'] ?? false,
-      'link': link,
+      'link': link ?? <String, dynamic>{}, // qa1: never null
     };
     Map<String, dynamic>? lidSource = item;
     if (item == null) {

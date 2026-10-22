@@ -11,6 +11,7 @@ import '../widgets/reminders_nlp.dart';
 import '../widgets/rem_calendar.dart';
 import '../widgets/offline_banner.dart';
 import 'reminders_quick_add.dart';
+import '../widgets/bn_day_periods.dart' show appDateLocale;
 
 /// Reminders & Memory brain — the daily natural-language reminder screen.
 ///
@@ -224,7 +225,8 @@ class _RemindersScreenState extends State<RemindersScreen>
       'notes': '',
       'due_at': parsed.dateTime?.toUtc().toIso8601String(),
       'recurrence': parsed.recurrence?.freq ?? 'none',
-      'recurrence_rule': parsed.recurrence?.toJson(),
+      // qa1: {} not null (the API used to 400 on null; see tests_qa1_reminders)
+      'recurrence_rule': parsed.recurrence?.toJson() ?? <String, dynamic>{},
       'date_only': parsed.dateOnly,
       'done': false,
       'source': 'nlp',
@@ -527,14 +529,14 @@ class _ReminderCard extends StatelessWidget {
         dt.month == tomorrow.month &&
         dt.day == tomorrow.day;
     final dateOnly = d['date_only'] == true;
-    final timeStr = DateFormat('h:mm a').format(dt);
+    final timeStr = DateFormat('h:mm a', appDateLocale(context)).format(dt);
     if (sameDay) return dateOnly ? t.remGroupToday : '${t.remGroupToday}, $timeStr';
     if (isTomorrow) {
       return dateOnly ? t.remTomorrow : '${t.remTomorrow}, $timeStr';
     }
     return dateOnly
-        ? DateFormat('d MMM').format(dt)
-        : DateFormat('d MMM, h:mm a').format(dt);
+        ? DateFormat('d MMM', appDateLocale(context)).format(dt)
+        : DateFormat('d MMM, h:mm a', appDateLocale(context)).format(dt);
   }
 
   Future<void> _snooze(BuildContext context, Map<String, dynamic> it) async {
@@ -559,7 +561,7 @@ class _ReminderCard extends StatelessWidget {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
-              '${t.remSnoozedTo} ${DateFormat('d MMM, h:mm a').format(chosen)}')));
+              '${t.remSnoozedTo} ${DateFormat('d MMM, h:mm a', appDateLocale(context)).format(chosen)}')));
     }
   }
 
@@ -739,7 +741,7 @@ class _MetaChip extends StatelessWidget {
     return Row(mainAxisSize: MainAxisSize.min, children: [
       Icon(icon, size: 13, color: tint),
       const SizedBox(width: 3),
-      Text(label, style: TextStyle(fontSize: 12, color: tint)),
+      Flexible(child: Text(label, style: TextStyle(fontSize: 12, color: tint))), // qa1
     ]);
   }
 }

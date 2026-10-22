@@ -204,6 +204,17 @@ class AuditLogSerializer(serializers.ModelSerializer):
 
 
 class ReminderSerializer(serializers.ModelSerializer):
+    # qa1 (reality audit, flow 08): the app sends null for "no rule" / "no
+    # link"; the model stores {} — null used to 400 and the reminder never synced.
+    recurrence_rule = serializers.JSONField(required=False, allow_null=True)
+    link = serializers.JSONField(required=False, allow_null=True)
+
+    def validate_recurrence_rule(self, value):
+        return value or {}
+
+    def validate_link(self, value):
+        return value or {}
+
     class Meta:
         model = Reminder
         fields = ["id", "title", "notes", "due_at", "recurrence",
