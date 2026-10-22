@@ -21,6 +21,12 @@ class AppConfig {
   static const String apiPrefix = '/api/v1';
   static const String appVersionLabel = '1.0';
 
+  /// l1-launch: true ONLY in the Google Play build (CI AAB step passes
+  /// --dart-define=PLAY_STORE=true). Play forbids self-updating outside the
+  /// store, so this build never checks /app/latest, never downloads an APK and
+  /// ships without REQUEST_INSTALL_PACKAGES. The website APK keeps its updater.
+  static const bool playStore = bool.fromEnvironment('PLAY_STORE');
+
   /// UTC build timestamp, injected by CI (--dart-define=BUILD_TIME=...). Empty
   /// on local/dev builds. Shown only in Settings → About.
   static const String buildTime = String.fromEnvironment('BUILD_TIME', defaultValue: '');

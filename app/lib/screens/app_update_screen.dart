@@ -156,7 +156,16 @@ class _AppUpdateScreenState extends State<AppUpdateScreen> {
     final t = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(t.updateTitle)),
-      body: SafeArea(child: _body(t)),
+      body: SafeArea(
+          child: AppConfig.playStore
+              // l1-launch: Play builds never download/install an APK.
+              ? StateMessage(
+                  icon: Icons.shop_outlined,
+                  title: t.updateTitle,
+                  message: t.l1PlayUpdatesViaStore,
+                  tint: Brand.blue,
+                )
+              : _body(t)),
     );
   }
 

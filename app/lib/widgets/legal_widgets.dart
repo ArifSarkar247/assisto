@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 
@@ -19,6 +20,10 @@ class LegalPageData {
   final String body; // flat back-compat body
   final List<LegalSection> sections;
 
+  /// l1-launch: the full public page on lifeassisto.com (privacy / terms /
+  /// delete-account); null when the page is in-app only.
+  final String? webUrl;
+
   const LegalPageData({
     required this.key,
     required this.title,
@@ -27,6 +32,7 @@ class LegalPageData {
     required this.sections,
     this.lastUpdated,
     this.contact,
+    this.webUrl,
   });
 
   factory LegalPageData.fromJson(Map<String, dynamic> j) {
@@ -49,9 +55,17 @@ class LegalPageData {
       stamp: (j['stamp'] as String?) ?? '',
       lastUpdated: j['last_updated'] as String?,
       contact: j['contact'] as String?,
+      webUrl: _httpsOrNull(j['web_url']),
       body: body,
       sections: sections,
     );
+  }
+
+  /// Only an https URL is ever opened (the value comes from our backend).
+  static String? _httpsOrNull(Object? v) {
+    if (v is! String || v.isEmpty) return null;
+    final u = Uri.tryParse(v);
+    return (u != null && u.scheme == 'https' && u.host.isNotEmpty) ? v : null;
   }
 
   /// Does this page (title or any section) match [q] (case-insensitive)?
@@ -222,6 +236,23 @@ class LegalPageFooter extends StatelessWidget {
                     TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
           ),
         ]),
+      ],
+      if (page.webUrl != null) ...[
+        const SizedBox(height: Gap.md),
+        // l1-launch: the full, public version (the one Google Play links to).
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            icon: const Icon(Icons.open_in_new, size: 18),
+            label: Text(t.l1LegalOpenWeb, textAlign: TextAlign.center),
+            onPressed: () async {
+              try {
+                await launchUrl(Uri.parse(page.webUrl!),
+                    mode: LaunchMode.externalApplication);
+              } catch (_) {/* no browser: the in-app summary stays */}
+            },
+          ),
+        ),
       ],
       const SizedBox(height: Gap.sm),
       Align(
