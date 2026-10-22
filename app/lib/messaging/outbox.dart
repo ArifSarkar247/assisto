@@ -32,6 +32,10 @@ class OutboxItem {
   final bool forwarded;
   final int forwardHops;
   final DateTime at;
+  // md1: a FORWARDED media message (the text is its media descriptor, to be
+  // encrypted for the peer; the blob is already on the server, no re-upload).
+  final String contentType;
+  final String? blobRef;
 
   const OutboxItem({
     required this.id,
@@ -42,6 +46,8 @@ class OutboxItem {
     this.replyTo,
     this.forwarded = false,
     this.forwardHops = 0,
+    this.contentType = 'text',
+    this.blobRef,
   });
 
   Map<String, dynamic> toJson() => {
@@ -53,6 +59,8 @@ class OutboxItem {
         if (forwarded) 'fwd': true,
         if (forwardHops > 0) 'hops': forwardHops,
         'at': at.toUtc().toIso8601String(),
+        if (contentType != 'text') 'ct': contentType,
+        if (blobRef != null) 'blob': blobRef,
       };
 
   static OutboxItem? fromJson(Map<String, dynamic> j) {
@@ -68,6 +76,8 @@ class OutboxItem {
       forwarded: j['fwd'] == true,
       forwardHops: (j['hops'] as int?) ?? 0,
       at: DateTime.tryParse('${j['at'] ?? ''}')?.toLocal() ?? DateTime.now(),
+      contentType: '${j['ct'] ?? 'text'}',
+      blobRef: j['blob'] == null ? null : '${j['blob']}',
     );
   }
 }
@@ -232,7 +242,8 @@ class Outbox {
             final ct = _e2e.encrypt(
                 self: me, recipientPublicKey: pub, plaintext: i.text);
             await transport.send(e.key, {
-              'content_type': 'text',
+              'content_type': i.contentType,
+              if (i.blobRef != null) 'blob_ref': i.blobRef,
               'client_msg_id': i.id,
               if (i.replyTo != null) 'reply_to': i.replyTo,
               if (i.forwarded) 'forwarded': true,

@@ -6,6 +6,7 @@ import 'package:assisto/widgets/home_quick_buttons.dart';
 import 'fake_c1_contacts.dart';
 import 'fake_c3_msg.dart';
 import 'mr1_shots.dart' show fakeMr1Get;
+import 'md1_shots.dart' show fakeMd1Get;
 import 'fake_m3_circle.dart';
 import 'fake_discover.dart';
 import 'fake_vehicle.dart';
@@ -841,6 +842,8 @@ class FakeApi extends ApiClient {
     if (c1 != null) return c1;
     final mr1 = fakeMr1Get(path, _bn); // mr1 message requests (gallery)
     if (mr1 != null) return mr1;
+    final md1 = fakeMd1Get(path, _bn); // md1 E2E media (gallery)
+    if (md1 != null) return md1;
     final c3 = C3Fake.get(path, _bn); // c3-msg (gallery only)
     if (c3 != null) return c3;
     // ===== Home / Notification centre stubs =====

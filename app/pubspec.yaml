@@ -83,6 +83,19 @@ dependencies:
   # Android side pinned too (>= 2 weeks old; Play Billing Library inside).
   in_app_purchase_android: 0.5.3
   # ---- /pay1 ----
+  # ---- md1 ---- My Circle E2E media (see .phaseB/proposals/md1.md).
+  # crypto: dart-lang (BSD-3), pure Dart, already in the tree transitively —
+  # streaming SHA-256 of the ciphertext. Same version as the lock.
+  crypto: 3.0.7
+  # record (BSD-3, llfbandit): voice-note recording, AAC-LC .m4a via the
+  # platform MediaCodec/MediaRecorder. LAZY: only the recorder sheet creates
+  # an AudioRecorder, after the mic permission; no startup ContentProvider.
+  record: 7.1.1
+  # audioplayers (MIT, bluefireteam): inline voice-note playback (Android
+  # MediaPlayer — no ExoPlayer). LAZY: one player, created on the first play
+  # tap; no startup ContentProvider.
+  audioplayers: 6.8.1
+  # ---- /md1 ----
   # workmanager REMOVED — its androidx.work startup ContentProvider crashed on
   # launch (ColorOS/Realme) and background exec is throttled there anyway.
   # Family alerts now poll on app open/resume (see AppState). FCM later.

@@ -53,4 +53,25 @@ class MsgNative {
   /// Drop a chat's conversation shortcut + bubble (per-chat bubble off).
   static Future<void> removeBubble(String kind, int id) =>
       _call<void>('removeBubble', {'chat': '$kind:$id'});
+
+  // ---- md1: My Circle media -------------------------------------------------
+
+  /// Is the active network metered (mobile data / metered Wi-Fi)?
+  /// null = unknown (callers treat it as metered: careful with data).
+  static Future<bool?> isMetered() => _call<bool>('isMetered');
+
+  /// The phone's own document picker (any file type). The chosen file is
+  /// copied into the app cache: {path, name, size, mime}; {error: 'too_big',
+  /// size, name} when larger than [maxBytes]; null when cancelled/failed.
+  static Future<Map<String, dynamic>?> pickDocument(int maxBytes) async {
+    final r = await _call<Map<Object?, Object?>>('pickDocument', {'max': maxBytes});
+    return r?.map((k, v) => MapEntry('$k', v));
+  }
+
+  /// Save a decrypted file the user chose to keep: photos go to Pictures/
+  /// Assisto (gallery), everything else to Download/Assisto. Android 10+;
+  /// returns 'ok', 'unsupported' (older phone: use Share) or 'error'.
+  static Future<String> saveToPhone(String path, String mime, String name) async =>
+      (await _call<String>('saveToPhone', {'path': path, 'mime': mime, 'name': name})) ??
+      'error';
 }

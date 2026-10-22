@@ -77,7 +77,10 @@ const Map<String, String> _allowDead = {
   // (A) gallery fixtures with `() {}` callbacks — not app code.
   't1_*|IconButton "icon:0x': 'A: t1_ticks_shots.dart header icons use onPressed: () {}',
   'mr1_last_seen_*|IconButton "icon:0x': 'A: mr1_shots.dart header call icons use onPressed: () {}; the real chat header wires calls',
-  'mr1_requests_list|TextButton "See all"': 'A: mr1_shots.dart passes onSeeAll: () {}; MessengerHome wires it to _openRequests',
+  'md1_attach_sheet|key=attach-': 'A: md1_shots.dart renders CircleAttachGrid(onPick: (_) {}); the real sheet pops the kind and the chat runs the picker (md1_media_test / mr1_test cover it)',
+  'md1_viewer|key=mv-': 'A: md1_shots.dart passes onSave/onShare: (_) {}; media_actions.dart wires MediaStore save + share sheet',
+  'md1_recorder|key=md1-rec-': 'A: md1_shots.dart pins VoiceRecorderSheet as a static bottomSheet (no route to pop) with a fake recorder; md1_media_test proves Send returns the draft',
+  'mr1_requests_list|TextButton "See all"':'A: mr1_shots.dart passes onSeeAll: () {}; MessengerHome wires it to _openRequests',
   'm3_new_chat|key=m3-new-': 'A: spec passes M3NewChatActions(onAdd: () {}, …); the real header in MessengerHome._openNewChat is wired',
   'cam_perm_*|Continue': 'A: spec passes onPrimary: () {}; CameraPermissionGate wires the real request',
   'voice_results|Turn off': 'A: spec passes VaButton(…, () async {})',

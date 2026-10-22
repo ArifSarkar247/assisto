@@ -37,3 +37,8 @@ PUSH_SYNC = True
 # Django serves signed media itself in tests (prod uses nginx X-Accel).
 MEDIA_X_ACCEL = False
 CALLS_FREE_TESTING_DEFAULT = False   # dl1: tests exercise the paid plan gate unless a test flips the switch
+
+# md1: E2E media ciphertext goes to a throw-away temp dir in tests.
+import tempfile as _tf  # noqa: E402
+CIRCLE_BLOB_ROOT = _tf.mkdtemp(prefix="md1_blobs_")
+CIRCLE_BLOB_X_ACCEL = False

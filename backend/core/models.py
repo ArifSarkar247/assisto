@@ -1081,7 +1081,9 @@ class CircleMessage(models.Model):
     content_type = models.CharField(max_length=16, default="text")
     ciphertext = models.TextField(blank=True, default="")
     nonce = models.CharField(max_length=128, blank=True, default="")
-    blob_ref = models.CharField(max_length=256, blank=True, default="")
+    # md1: indexed — media access checks + retention look messages up by it.
+    blob_ref = models.CharField(max_length=256, blank=True, default="",
+                                db_index=True)
     sender_key_id = models.CharField(max_length=64, blank=True, default="")
     scheme = models.CharField(max_length=64, blank=True, default="")
     delivered_to = models.JSONField(default=list, blank=True)
@@ -4185,3 +4187,39 @@ class ClientErrorReport(models.Model):
         constraints = [models.UniqueConstraint(
             fields=["fingerprint", "user", "model", "day"], name="sc1_err_dedupe")]
 # ---- /sc1 ----
+
+
+# ---- md1 ---- My Circle E2E media blobs (ciphertext only)
+class CircleMediaBlob(models.Model):
+    """One encrypted file of a My Circle chat (photo / voice note / document).
+
+    PRIVACY: the phone encrypts the file with a random per-file key BEFORE
+    upload; only that ciphertext is stored (core.circle_blobs keeps it in a
+    private directory OUTSIDE MEDIA_ROOT and serves it only through a
+    short-lived signed link to chat participants). The key, nonce, file name,
+    mime type and thumbnail travel inside the per-recipient E2E message, never
+    in this row — ``kind`` is only the routing class used for the size cap.
+
+    Retention (purge_l1_retention, hourly; owner-editable limits): deleted
+    ``circle_media_keep_days`` after every recipient downloaded it, at most
+    ``circle_media_max_days`` after upload, at once on delete-for-everyone,
+    and 24 h after an unfinished / never-sent upload."""
+    ref = models.CharField(max_length=40, unique=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name="circle_media_blobs")
+    kind = models.CharField(max_length=12, default="document")
+    size = models.BigIntegerField(default=0)          # declared ciphertext bytes
+    received = models.BigIntegerField(default=0)      # bytes stored so far
+    sha256 = models.CharField(max_length=64, default="")  # of the ciphertext
+    complete = models.BooleanField(default=False)
+    recipients = models.JSONField(default=list, blank=True)     # user ids
+    downloaded_by = models.JSONField(default=list, blank=True)  # user ids
+    all_downloaded_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["owner", "created_at"],
+                                name="md1_blob_owner_day")]
+# ---- /md1 ----

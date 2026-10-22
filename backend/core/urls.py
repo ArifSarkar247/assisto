@@ -848,3 +848,17 @@ urlpatterns += [
     path("payments/gateway/ipn", pay1.GatewayIpnView.as_view()),
 ]
 # ---- /pay1 ----
+
+# ---- md1 ---- My Circle E2E media blobs (ciphertext only; core/circle_blobs).
+# PREPENDED so the literal circle/media/... paths always win.
+from . import views_md1_media as md1  # noqa: E402
+urlpatterns[:0] = [
+    path("circle/media/limits", md1.MediaLimitsView.as_view()),
+    path("circle/media/blobs", md1.MediaBlobsView.as_view()),
+    path("circle/media/blobs/<str:ref>", md1.MediaBlobView.as_view()),
+    path("circle/media/blobs/<str:ref>/finish",
+         md1.MediaBlobFinishView.as_view()),
+    path("circle/media/blobs/<str:ref>/url", md1.MediaBlobUrlView.as_view()),
+    path("circle/media/dl/<str:ref>", md1.MediaBlobDownloadView.as_view()),
+]
+# ---- /md1 ----

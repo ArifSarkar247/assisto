@@ -281,21 +281,48 @@ void main() {
 
   // -------------------------------------------------------------------------
   group('3. no media showpieces', () {
-    test('nothing can be attached while encrypted media storage is off', () {
-      expect(circleAttachKinds(), isEmpty);
-      expect(circleAttachKinds(storageOn: true), hasLength(8));
+    // md1: E2E photo / voice / document really send now; everything else
+    // (video, contact, location, live location) stays hidden.
+    test('only the kinds that work end to end can be attached', () {
+      expect(circleAttachKinds(), [
+        CircleAttachKind.gallery,
+        CircleAttachKind.camera,
+        CircleAttachKind.voice,
+        CircleAttachKind.document,
+      ]);
+      expect(circleAttachKinds(kinds: const {}), isEmpty);
     });
 
-    testWidgets('chat composer has NO attach button', (tester) async {
+    testWidgets('a message request has NO attach button (media after accept)',
+        (tester) async {
       final api = _Api()
         ..replies['/circle/5/messages'] = {'results': <dynamic>[]};
       await _host(tester, api,
-          CircleChatScreen(member: _member('accepted', 'outgoing'), identity: _me));
+          CircleChatScreen(member: _member('pending', 'outgoing'), identity: _me));
       await _settle(tester);
       expect(find.byType(TextField), findsOneWidget);
       expect(find.byTooltip(en.circleAttach), findsNothing);
       expect(find.byIcon(Icons.add_circle_outline), findsNothing);
       expect(find.text(en.circleMediaGenericGated), findsNothing);
+      await _dispose(tester);
+    });
+
+    testWidgets('an accepted chat shows "+" with only the working kinds',
+        (tester) async {
+      final api = _Api()
+        ..replies['/circle/5/messages'] = {'results': <dynamic>[]};
+      await _host(tester, api,
+          CircleChatScreen(member: _member('accepted', 'outgoing'), identity: _me));
+      await _settle(tester);
+      await tester.tap(find.byTooltip(en.circleAttach));
+      await _settle(tester);
+      expect(find.byKey(const Key('attach-gallery')), findsOneWidget);
+      expect(find.byKey(const Key('attach-camera')), findsOneWidget);
+      expect(find.byKey(const Key('attach-voice')), findsOneWidget);
+      expect(find.byKey(const Key('attach-document')), findsOneWidget);
+      for (final k in ['video', 'contact', 'location', 'liveLocation']) {
+        expect(find.byKey(Key('attach-$k')), findsNothing, reason: k);
+      }
       await _dispose(tester);
     });
 

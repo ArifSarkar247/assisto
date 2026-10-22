@@ -13,6 +13,7 @@ import 'package:assisto/screens/messenger/msgr_set_notifications_screen.dart';
 import 'package:assisto/screens/messenger/msgr_set_storage_screen.dart';
 import 'package:assisto/screens/messenger/msgr_set_twostep_screen.dart';
 import 'package:assisto/state.dart';
+import 'package:assisto/messaging/media/media_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -385,8 +386,12 @@ void main() {
     await _dispose(tester);
   });
 
-  testWidgets('storage: real usage rows, no dead auto-download switches',
+  // md1: My Circle media is real now, so the device-level auto-download
+  // switches exist (and really change MediaPrefs); the old server-side
+  // auto-download section stays gone.
+  testWidgets('storage: real usage rows + live md1 auto-download switches',
       (tester) async {
+    SharedPreferences.setMockInitialValues({});
     final api = _RecApi({
       '/circle/settings/storage': {'total_bytes': 5 * 1024 * 1024,
         'quota_bytes': 1024 * 1024 * 1024, 'media_bytes': 0,
@@ -395,8 +400,12 @@ void main() {
     await _pump(tester, api, const MsgrSetStorageScreen());
     expect(find.text(t.msgStorageBackups), findsOneWidget);
     expect(find.text(t.msgStorageQuota), findsOneWidget);
-    expect(find.text(t.msgrSetStorageAutoDlSection), findsNothing);
-    expect(find.byType(SwitchListTile), findsNothing);
+    expect(find.text(t.msgrSetStorageAutoDlSection), findsOneWidget);
+    expect(find.byType(SwitchListTile), findsNWidgets(4));
+    expect(await MediaPrefs.mobileAuto('photo'), isFalse);
+    await tester.tap(find.byKey(const Key('md1-auto-mobile-photo')));
+    await tester.pump();
+    expect(await MediaPrefs.mobileAuto('photo'), isTrue);
     await _dispose(tester);
   });
 }

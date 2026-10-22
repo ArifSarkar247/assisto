@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../api.dart';
 import '../../l10n/app_localizations.dart';
+import '../../messaging/media/media_store.dart'; // md1
 import '../../messenger_setapi.dart';
 import '../../state.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
@@ -26,6 +27,9 @@ class _MsgrSetStorageScreenState extends State<MsgrSetStorageScreen> {
   bool _loading = true;
   bool _usageAvailable = false;
   Map<String, dynamic> _usage = {};
+  // md1: device-level media auto-download (WhatsApp-like defaults).
+  bool _wifi = true;
+  final Map<String, bool> _mobile = {'photo': false, 'voice': false, 'document': false};
 
   ApiClient get _api => context.read<AppState>().api;
   AppLocalizations get _t => AppLocalizations.of(context);
@@ -37,6 +41,10 @@ class _MsgrSetStorageScreenState extends State<MsgrSetStorageScreen> {
   }
 
   Future<void> _load() async {
+    _wifi = await MediaPrefs.wifiAuto();
+    for (final k in _mobile.keys.toList()) {
+      _mobile[k] = await MediaPrefs.mobileAuto(k);
+    }
     try {
       final r = await _api.storageUsage();
       _usage = r;
@@ -99,9 +107,36 @@ class _MsgrSetStorageScreenState extends State<MsgrSetStorageScreen> {
                 ] else
                   MsgrSetNote(t.msgrSetStorageUnavailable,
                       icon: Icons.info_outline),
-                // NO SHOWPIECES: My Circle chats don't carry media yet, so
-                // the media auto-download switches (which could do nothing)
-                // are hidden until media ships.
+                // md1: My Circle chats carry E2E photos / voice / documents.
+                MsgrSetSection(t.md1SetAutoTitle),
+                SwitchListTile(
+                  key: const Key('md1-auto-wifi'),
+                  secondary: const Icon(Icons.wifi),
+                  title: Text(t.md1SetWifi),
+                  subtitle: Text(t.md1SetWifiSub),
+                  value: _wifi,
+                  onChanged: (v) async {
+                    setState(() => _wifi = v);
+                    await MediaPrefs.setWifiAuto(v);
+                  },
+                ),
+                MsgrSetSection(t.md1SetMobileTitle),
+                for (final (k, icon, label) in [
+                  ('photo', Icons.photo_outlined, t.md1SetMobilePhotos),
+                  ('voice', Icons.mic_none_outlined, t.md1SetMobileVoice),
+                  ('document', Icons.description_outlined, t.md1SetMobileDocs),
+                ])
+                  SwitchListTile(
+                    key: Key('md1-auto-mobile-$k'),
+                    secondary: Icon(icon),
+                    title: Text(label),
+                    value: _mobile[k] ?? false,
+                    onChanged: (v) async {
+                      setState(() => _mobile[k] = v);
+                      await MediaPrefs.setMobileAuto(k, v);
+                    },
+                  ),
+                MsgrSetNote(t.md1SetKeepNote, icon: Icons.lock_outline),
               ],
             ),
     );

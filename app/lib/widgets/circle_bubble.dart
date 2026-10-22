@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -5,6 +7,9 @@ import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'circle_message_actions.dart';
 import '../messaging/msg_ticks.dart';
+import '../messaging/media/media_bubble.dart';
+import '../messaging/media/media_descriptor.dart';
+import '../messaging/media/media_outbox.dart';
 
 /// One decrypted message in the circle chat. The plaintext here NEVER came from
 /// the server — it was decrypted on-device (see crypto/e2e.dart). The server
@@ -31,6 +36,10 @@ class CircleMessage {
   final String contentType; // text | photo | video | voice | document | contact | location
   final String? mediaCaption; // decrypted caption for a media bubble
   final bool mediaGated; // media kind not yet unlocked
+  // md1: a decrypted E2E media descriptor (photo / voice / document), or a
+  // send still on its way (progress ring + cancel).
+  final MediaDescriptor? media;
+  final MediaJob? mediaJob;
 
   const CircleMessage({
     required this.id,
@@ -52,6 +61,8 @@ class CircleMessage {
     this.contentType = 'text',
     this.mediaCaption,
     this.mediaGated = false,
+    this.media,
+    this.mediaJob,
   });
 
   CircleMessage copyWith({
@@ -84,6 +95,8 @@ class CircleMessage {
         contentType: contentType,
         mediaCaption: mediaCaption,
         mediaGated: mediaGated,
+        media: media,
+        mediaJob: mediaJob,
       );
 }
 
@@ -91,6 +104,9 @@ class CircleBubble extends StatelessWidget {
   final CircleMessage msg;
   final VoidCallback? onLongPress;
   final VoidCallback? onTapMedia;
+
+  /// md1: open a decrypted media file (photo viewer / document sheet).
+  final void Function(File file, MediaDescriptor desc)? onOpenFile;
 
   /// c3-msg: tap the quoted reply → jump to + highlight the original.
   final VoidCallback? onTapReply;
@@ -102,6 +118,7 @@ class CircleBubble extends StatelessWidget {
       required this.msg,
       this.onLongPress,
       this.onTapMedia,
+      this.onOpenFile,
       this.onTapReply,
       this.highlighted = false});
 
@@ -189,6 +206,19 @@ class CircleBubble extends StatelessWidget {
   }
 
   Widget _mediaBody(BuildContext context, AppLocalizations t, Color fg) {
+    if (msg.media != null || msg.mediaJob != null) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: Gap.xs),
+        child: MediaBubbleBody(
+          key: ValueKey('md1-${msg.media?.ref ?? msg.mediaJob?.id}'),
+          desc: msg.media,
+          job: msg.mediaJob,
+          mine: msg.mine,
+          fg: fg,
+          onOpen: onOpenFile,
+        ),
+      );
+    }
     final icon = {
       'photo': Icons.photo_outlined,
       'video': Icons.videocam_outlined,

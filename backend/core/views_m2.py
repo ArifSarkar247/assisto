@@ -391,6 +391,17 @@ class CircleGroupMessagesView(APIView):
         if not ok:
             return Response({"detail": reason},
                             status=status.HTTP_400_BAD_REQUEST)
+        # md1: E2E media = encrypted descriptor (per recipient) + its blob.
+        md1_blob = None
+        if env["content_type"] in ("photo", "voice", "document", "video"):
+            from . import circle_blobs as CB
+            md1_blob, why = CB.attach_check(request.user, env.get("blob_ref"),
+                                            env["content_type"])
+            if why or env["content_type"] not in CB.CHAT_MEDIA_KINDS:
+                why = why or "bad_kind"
+                return Response({"detail": CB.reason_text(why, lang),
+                                 "reason": why},
+                                status=status.HTTP_400_BAD_REQUEST)
         # idempotent dedupe on (sender, group, client_msg_id).
         cmid = str(env.get("client_msg_id", ""))[:64]
         if cmid:
@@ -413,6 +424,11 @@ class CircleGroupMessagesView(APIView):
             mentions=mentions or None,
             announcement=bool(env.get("announcement", False)),
             client_msg_id=cmid)
+        if md1_blob is not None:   # md1: every active member must download
+            from . import circle_blobs as CB
+            CB.add_recipients(md1_blob, CircleGroupMember.objects.filter(
+                group=g, status=G.MEMBERSHIP_ACTIVE).exclude(
+                member=request.user).values_list("member_id", flat=True))
         push.hook_group_message(request.user, g, x)   # key-gated, never raises
         return Response({"id": x.id, "ok": True, "mentions": mentions},
                         status=status.HTTP_201_CREATED)

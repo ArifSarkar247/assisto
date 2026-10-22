@@ -8,6 +8,11 @@
     (scheduled / rejected / no_account) are removed 180 days after creation.
   * sc1: app crash/error reports (ClientErrorReport) are removed 30 days after
     they were last seen.
+  * md1: My Circle E2E media ciphertext (CircleMediaBlob + its file) is
+    removed `circle_media_keep_days` after every recipient downloaded it, at
+    most `circle_media_max_days` after upload, once its last message was
+    deleted for everyone, and 24 h after an unfinished / never-sent upload
+    (owner-editable in admin pricing limits; core/circle_blobs.purge).
 
 Idempotent, cheap, only touches Assisto's own DB. Crontab (hourly):
     25 * * * *  cd /home/ubuntu/assisto/backend && /home/ubuntu/assisto/.venv/bin/python manage.py purge_l1_retention >> /home/ubuntu/assisto/logs/purge_l1_retention.log 2>&1
@@ -40,13 +45,17 @@ class Command(BaseCommand):
             created_at__lt=now - timedelta(days=TICKET_KEEP_DAYS))
         crashes = ClientErrorReport.objects.filter(
             last_at__lt=now - timedelta(days=CRASH_KEEP_DAYS))
+        from core import circle_blobs
         if dry:
             self.stdout.write(f"[dry-run] journey points={pts.count()} "
-                              f"tickets={closed.count()} crash reports={crashes.count()}")
+                              f"tickets={closed.count()} crash reports={crashes.count()} "
+                              f"circle media={circle_blobs.purge(now, dry=True)}")
             return
         n_pts, _ = pts.delete()
         n_loc = expired.filter(last_location__isnull=False).update(last_location=None)
         n_t, _ = closed.delete()
         n_c, _ = crashes.delete()
+        n_m = circle_blobs.purge(now)
         self.stdout.write(f"journey points deleted={n_pts} last_location cleared={n_loc} "
-                          f"tickets deleted={n_t} crash reports deleted={n_c}")
+                          f"tickets deleted={n_t} crash reports deleted={n_c} "
+                          f"circle media deleted={n_m}")

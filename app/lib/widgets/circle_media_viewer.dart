@@ -39,12 +39,14 @@ class CircleMediaViewer extends StatefulWidget {
   final int initialIndex;
   final ValueChanged<MediaViewerItem>? onSave;
   final ValueChanged<MediaViewerItem>? onForward;
+  final ValueChanged<MediaViewerItem>? onShare; // md1
   const CircleMediaViewer({
     super.key,
     required this.items,
     this.initialIndex = 0,
     this.onSave,
     this.onForward,
+    this.onShare,
   });
 
   @override
@@ -82,6 +84,14 @@ class _CircleMediaViewerState extends State<CircleMediaViewer> {
               tooltip: t.circleActionSave,
               icon: const Icon(Icons.save_alt_outlined),
               onPressed: () => widget.onSave!.call(item),
+            ),
+          if (item != null && !item.gated && item.bytes != null &&
+              widget.onShare != null)
+            IconButton(
+              key: const Key('mv-share'),
+              tooltip: t.md1Share,
+              icon: const Icon(Icons.share_outlined),
+              onPressed: () => widget.onShare!.call(item),
             ),
           if (item != null && !item.gated && item.bytes != null &&
               widget.onForward != null)

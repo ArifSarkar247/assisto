@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -35,6 +36,11 @@ import '../messaging/msg_prefs.dart';
 import '../messaging/msg_request_widgets.dart'; // mr1
 import '../messaging/msg_widgets.dart';
 import '../messaging/outbox.dart';
+import '../messaging/media/media_actions.dart'; // md1
+import '../messaging/media/media_descriptor.dart';
+import '../messaging/media/media_outbox.dart';
+import '../messaging/media/media_send.dart';
+import '../messaging/media/media_store.dart';
 import '../messaging/presence_label.dart';
 import '../messaging/receipt_bus.dart';
 import '../messaging/unread_store.dart';
@@ -148,6 +154,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   List<DateTime> _keyNotes = const [];
   List<OutboxItem> _queued = const [];
   StreamSubscription<Map<String, dynamic>>? _keySub;
+  // md1: photo / voice / document sends of this chat still on their way.
+  List<MediaJob> _mediaJobs = const [];
+  StreamSubscription<MediaSent>? _mediaSentSub;
 
   // e2-keys item 2: reversed, paged list that OPENS at the latest message
   // (or at the "N unread messages" divider) with no visible scroll.
@@ -174,6 +183,19 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     _peerB64 = '${widget.member['public_key'] ?? ''}';
     Outbox.instance.changes.addListener(_onOutbox);
     _keySub = KeyService.instance.keyEvents.stream.listen(_onKeyEvent);
+    // md1: media sends (progress ring) + the decrypted-file directory.
+    MediaOutbox.instance.identity ??= () async => widget.identity;
+    MediaOutbox.instance.changes.addListener(_onMediaJobs);
+    _mediaSentSub = MediaOutbox.instance.sent.listen((s) {
+      if (s.chatKind == 'member' && s.chatId == _memberId) {
+        ReceiptBus.instance.expect();
+        unawaited(_pollMessages());
+      }
+    });
+    unawaited(_onMediaJobsAsync());
+    unawaited(MediaDirs.root().then((_) {
+      if (mounted) setState(() {});
+    }, onError: (Object e) => KeyService.instance.log.add('md1 dir ${e.runtimeType}')));
     _scroll.addListener(_onScroll);
     _load().then((_) {
       if (widget.forwarding != null) _doForwardInto(widget.forwarding!);
@@ -264,6 +286,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     ReceiptBus.instance.relax();
     _stopPolling();
     Outbox.instance.changes.removeListener(_onOutbox);
+    MediaOutbox.instance.changes.removeListener(_onMediaJobs);
+    _mediaSentSub?.cancel();
     _keySub?.cancel();
     _input.dispose();
     _inputFocus.dispose(); // db1
@@ -366,6 +390,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
           x.edited != y.edited ||
           x.pinned != y.pinned ||
           x.starred != y.starred ||
+          x.media?.ref != y.media?.ref ||
           x.reactions.length != y.reactions.length) {
         return true;
       }
@@ -444,6 +469,16 @@ class _CircleChatScreenState extends State<CircleChatScreen>
 
   /// The outbox changed (queued, or flushed in this or another isolate).
   void _onOutbox() => unawaited(_reloadQueued());
+
+  /// md1: the media outbox changed (queued / progress state / sent / failed).
+  void _onMediaJobs() => unawaited(_onMediaJobsAsync());
+
+  Future<void> _onMediaJobsAsync() async {
+    final id = _memberId;
+    if (id == null) return;
+    final jobs = await MediaOutbox.instance.forChat('member', id);
+    if (mounted) setState(() => _mediaJobs = jobs);
+  }
 
   Future<void> _reloadQueued() async {
     final id = _memberId;
@@ -731,7 +766,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         status: m.status,
         decryptFailed: m.decryptFailed,
         replyToId: m.replyToId,
-        replyPreview: src.text.isEmpty ? null : src.text,
+        replyPreview: src.text.isNotEmpty
+            ? src.text
+            : (src.media != null ? md1KindLabel(_t, src.media!) : null),
         reactions: m.reactions,
         edited: m.edited,
         deleted: m.deleted,
@@ -742,6 +779,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         contentType: m.contentType,
         mediaCaption: m.mediaCaption,
         mediaGated: m.mediaGated,
+        media: m.media,
+        mediaJob: m.mediaJob,
       );
     }).toList();
   }
@@ -759,9 +798,11 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     var text = '';
     var failed = false;
 
+    MediaDescriptor? media;
+    final isMedia = kMd1Kinds.contains(contentType);
     if (deleted == 'everyone') {
       // Nothing to decrypt — the ciphertext was tombstoned server-side.
-    } else if (contentType == 'text') {
+    } else if (contentType == 'text' || isMedia) {
       try {
         if (peerPub == null && _peerHistory.isEmpty) {
           failed = true;
@@ -784,6 +825,14 @@ class _CircleChatScreenState extends State<CircleChatScreen>
           }
           if (pt == null) {
             failed = true;
+          } else if (isMedia) {
+            // md1: the plaintext is the media descriptor (file key, sha…).
+            media = MediaDescriptor.tryParse(pt);
+            if (media == null) {
+              failed = true;
+            } else {
+              text = media.caption;
+            }
           } else {
             text = pt;
           }
@@ -809,7 +858,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       starred: ((env['starred_by'] as List?) ?? const []).contains(context.read<AppState>().user?.id),
       pinned: env['pinned'] == true,
       contentType: contentType,
-      mediaGated: contentType != 'text', // blob storage key-gated for now
+      // md1: photo / voice / document really work; other kinds stay gated
+      mediaGated: contentType != 'text' && !isMedia,
+      media: media,
     );
   }
 
@@ -1244,10 +1295,12 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         await Outbox.instance.add(OutboxItem(
             id: 'fwd-${DateTime.now().microsecondsSinceEpoch}',
             chatId: mid,
-            text: m.text,
+            text: m.media?.encode() ?? m.text,
             at: DateTime.now(),
             forwarded: true,
-            forwardHops: m.forwardHops + 1));
+            forwardHops: m.forwardHops + 1,
+            contentType: m.media?.kind ?? 'text',
+            blobRef: m.media?.ref));
         unawaited(Outbox.instance.kick(onlyChat: mid));
         _toast(_t.c3Forwarded('${member['name'] ?? ''}'));
         return;
@@ -1256,9 +1309,10 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       final ct = _e2e.encrypt(
           self: widget.identity,
           recipientPublicKey: Uint8List.fromList(pub),
-          plaintext: m.text);
+          plaintext: m.media?.encode() ?? m.text);
       await _api.postJson('/circle/${member['id']}/messages', {
-        'content_type': 'text',
+        'content_type': m.media?.kind ?? 'text',
+        if (m.media != null) 'blob_ref': m.media!.ref,
         'client_msg_id': 'fwd-${DateTime.now().microsecondsSinceEpoch}',
         'forwarded': true,
         'forward_hops': m.forwardHops + 1,
@@ -1278,16 +1332,21 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       final item = OutboxItem(
           id: 'local-${DateTime.now().microsecondsSinceEpoch}',
           chatId: id,
-          text: m.text,
+          text: m.media?.encode() ?? m.text,
           at: DateTime.now(),
           forwarded: true,
-          forwardHops: m.forwardHops + 1);
+          forwardHops: m.forwardHops + 1,
+          contentType: m.media?.kind ?? 'text',
+          blobRef: m.media?.ref);
       await Outbox.instance.add(item);
       if (mounted) setState(() => _queued = [..._queued, item]);
       unawaited(Outbox.instance.kick(onlyChat: id));
       return;
     }
-    final ct = _e2e.encrypt(self: widget.identity, recipientPublicKey: peer, plaintext: m.text);
+    final ct = _e2e.encrypt(
+        self: widget.identity,
+        recipientPublicKey: peer,
+        plaintext: m.media?.encode() ?? m.text);
     final clientMsgId = 'local-${DateTime.now().microsecondsSinceEpoch}';
     final echo = CircleMessage(
       id: clientMsgId,
@@ -1298,12 +1357,15 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       pending: true,
       forwarded: true,
       forwardHops: m.forwardHops + 1,
+      contentType: m.media?.kind ?? 'text',
+      media: m.media,
     );
     setState(() => _messages = [..._messages, echo]);
     _scrollToEnd();
     try {
       await _api.postJson('/circle/$_memberId/messages', {
-        'content_type': 'text',
+        'content_type': m.media?.kind ?? 'text',
+        if (m.media != null) 'blob_ref': m.media!.ref,
         'client_msg_id': clientMsgId,
         'forwarded': true,
         'forward_hops': m.forwardHops + 1,
@@ -1327,16 +1389,41 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   // the button is hidden instead of answering "available when encrypted
   // storage is enabled". The storage build wires each kind's picker here.
   // -------------------------------------------------------------------------
-  bool get _canAttach => circleAttachKinds().isNotEmpty;
+  // md1: photo / voice / document really send (E2E, see messaging/media/).
+  // A message request carries text only until it is accepted (server rule).
+  bool get _canAttach =>
+      circleAttachKinds().isNotEmpty && _edgeState == 'accepted' && _memberId != null;
 
   Future<void> _attach() async {
     final kind = await showCircleAttachSheet(context);
     if (kind == null || !mounted) return;
-    if (kind == CircleAttachKind.liveLocation) {
-      final dur = await showLiveLocationDurations(context);
-      if (dur == null) return;
+    final id = _memberId;
+    if (id == null) return;
+    final draft = await pickMediaDraft(context, _api, kind);
+    if (draft == null || !mounted) return;
+    final job = await confirmAndQueueMedia(context, draft,
+        chatKind: 'member', chatId: id, replyTo: _replyTo?.id);
+    if (job == null || !mounted) return;
+    setState(() {
+      _mediaJobs = [..._mediaJobs.where((j) => j.id != job.id), job];
+      _replyTo = null;
+      _unreadAtOpen = 0;
+      _firstUnreadId = null;
+    });
+    _scrollToEnd();
+  }
+
+  /// md1: open a decrypted photo (viewer) or document (open / save / share).
+  void _openFile(File f, MediaDescriptor d) {
+    if (d.kind == 'photo') {
+      unawaited(openPhotoViewer(context, f, d));
+    } else if (d.kind == 'document') {
+      unawaited(openDocumentSheet(context, f, d));
     }
   }
+
+  String _previewOf(CircleMessage m) =>
+      m.text.isNotEmpty ? m.text : (m.media != null ? md1KindLabel(_t, m.media!) : m.text);
 
   void _openMedia(CircleMessage m) {
     // When storage is enabled, decrypted bytes flow here. For now, show the
@@ -1963,12 +2050,15 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                             highlighted: _highlightId == m.id,
                             onTapReply: () => _jumpTo(m.replyToId),
                             // mr1: a request I have not accepted is read-only
-                            onLongPress: (_selecting || _reqIn)
+                            onLongPress: (_selecting || _reqIn || m.mediaJob != null)
                                 ? null
                                 : () => _onLongPress(m),
-                            onTapMedia: (!_selecting && m.contentType != 'text')
+                            onTapMedia: (!_selecting &&
+                                    m.contentType != 'text' &&
+                                    m.media == null)
                                 ? () => _openMedia(m)
                                 : null,
+                            onOpenFile: _selecting ? null : _openFile,
                           );
                           if (!_selecting) {
                             return SwipeToReply(
@@ -2014,7 +2104,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
           if (_peerTyping && !_searching) _typingIndicator(scheme),
           if ((_replyTo != null || _editing != null) && !_searching && !_selecting)
             CircleComposerContext(
-              preview: (_editing ?? _replyTo)!.text,
+              preview: _previewOf((_editing ?? _replyTo)!),
               isEdit: _editing != null,
               onCancel: () => setState(() {
                 _replyTo = null;
@@ -2291,6 +2381,19 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                 replyToId: q.replyTo,
                 forwarded: q.forwarded,
                 forwardHops: q.forwardHops)),
+      if (!searching)
+        for (final j in _mediaJobs)
+          if (!vis.any((m) => m.id == j.id))
+            _ChatRow.msg(CircleMessage(
+                id: j.id,
+                text: j.caption,
+                mine: true,
+                at: j.at,
+                status: 'sent',
+                pending: true,
+                replyToId: j.replyTo,
+                contentType: j.kind,
+                mediaJob: j)),
       if (!searching)
         for (final n in _keyNotes) _ChatRow.note(n),
     ];
