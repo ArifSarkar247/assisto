@@ -15,7 +15,7 @@ import android.os.Vibrator
 import android.os.VibratorManager
 import android.os.VibrationEffect
 import android.provider.Settings
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
@@ -26,6 +26,15 @@ import io.flutter.plugin.common.MethodChannel
  * generates (same package/path). The default is an empty
  * `class MainActivity: FlutterActivity()`; everything Flutter needs is still
  * here — we only add configureFlutterEngine to wire one channel.
+ *
+ * hc1: the base is FlutterFragmentActivity (an androidx FragmentActivity /
+ * ComponentActivity). The `health` plugin casts the activity to
+ * ComponentActivity to registerForActivityResult (Health Connect permission
+ * screen), so on a plain FlutterActivity it failed to attach ("Error
+ * registering plugin health"); local_auth likewise answered every
+ * authenticate() with "no_fragment_activity".
+ * Every override below exists on FlutterFragmentActivity with the same
+ * signature; see .phaseB/proposals/hc1.md.
  *
  * Channel: "com.assisto/device_admin"
  *   isAdminActive()            -> Bool
@@ -38,7 +47,7 @@ import io.flutter.plugin.common.MethodChannel
  * Every call that needs admin re-checks isAdminActive() so Dart can never fake
  * a protection that the OS hasn't actually granted.
  */
-class MainActivity : FlutterActivity() {
+class MainActivity : FlutterFragmentActivity() {
 
     private val channelName = "com.assisto/device_admin"
     private var alarmPlayer: MediaPlayer? = null
@@ -75,8 +84,11 @@ class MainActivity : FlutterActivity() {
     }
 
     // c3-msg + c2-calls: results of the phone's sound pickers. Each channel
-    // answers true only for its own request code; the rest go to plugins.
-    @Deprecated("Activity result API is not available on FlutterActivity")
+    // answers true only for its own request code (0xC3 / 0x5a11); everything
+    // else goes to super, which on ComponentActivity first dispatches
+    // ActivityResultRegistry results (the health plugin's Health Connect
+    // permission launcher) and then forwards to plugins via FlutterFragment.
+    @Deprecated("Legacy result path kept for the startActivityForResult pickers")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         try {
             if (com.assisto.assisto.messaging.C3MessagingChannel
