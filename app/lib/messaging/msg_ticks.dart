@@ -21,6 +21,8 @@ MsgTick tickFrom(String? status, {bool pending = false, bool failed = false}) {
       return MsgTick.read;
     case 'delivered':
       return MsgTick.delivered;
+    case 'failed':
+      return MsgTick.failed;
     default:
       return MsgTick.sent;
   }

@@ -83,6 +83,8 @@ object BubbleHelper {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return true
         return try {
             val nm = context.getSystemService(NotificationManager::class.java) ?: return true
+            // Until the manifest entry lands (proposal c3-msg), skip quietly.
+            if (!bubbleActivityDeclared(context)) return true
             val tag = tagFor(kind, id)
             val sbn = nm.activeNotifications.firstOrNull { it.tag == tag } ?: return false
             val n = sbn.notification
@@ -117,6 +119,15 @@ object BubbleHelper {
             Log.w(TAG, "bubble attach skipped: ${t.javaClass.simpleName}")
             true
         }
+    }
+
+    private fun bubbleActivityDeclared(context: Context): Boolean = try {
+        context.packageManager.getActivityInfo(
+            android.content.ComponentName(context, BubbleActivity::class.java), 0
+        )
+        true
+    } catch (t: Throwable) {
+        false
     }
 
     private fun avatarIcon(context: Context): Icon {

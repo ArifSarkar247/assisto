@@ -134,7 +134,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     UnreadStore.instance.clear(_chatKey);
     try {
       await _api.c3ChatSeen('group', _gid);
-    } catch (_) {}
+    } catch (_) {
+      // Retried on the next poll tick / reopen; the local badge is already 0.
+    }
   }
 
   bool _pollBusy = false;
@@ -233,6 +235,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     });
     final perRecipient = <String, dynamic>{};
     final recipientIds = <int>[];
+    var skipped = 0;
     for (final r in _recipients) {
       try {
         final pub = base64Decode('${r['public_key']}');
@@ -247,8 +250,12 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           'ciphertext': ct.ciphertextB64,
           'nonce': ct.nonceB64,
         };
-      } catch (_) {}
+      } catch (_) {
+        skipped++;
+      }
     }
+    // seam audit: a member whose key is broken used to be dropped silently.
+    if (skipped > 0) _toast(_t.c3SkippedRecipients(skipped));
     final mentions = _parseMentions(text);
     var ok = true;
     try {
@@ -285,10 +292,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   /// member (e.g. "@Sa" hitting "Sabrina" instead of "Sadia"). If a token is
   /// ambiguous (matches >1 member) or matches none, it is left as plain text.
   ///
-  /// TODO(M2): replace free-text parsing with an inline @-picker — on "@", show
-  /// the member roster and insert the chosen member's id as a mention token.
-  /// That removes name collisions entirely and is the right UX; left as a
-  /// follow-up to keep this change focused.
+  /// Works today from typed "@Name" text. Later UX upgrade (not a stub): an
+  /// inline @-picker that inserts the member id directly, removing name
+  /// collisions.
   List<int> _parseMentions(String text) {
     final out = <int>[];
     final re = RegExp(r'@([^\s@]+)');

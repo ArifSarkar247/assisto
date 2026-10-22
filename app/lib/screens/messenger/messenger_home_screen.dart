@@ -38,8 +38,7 @@ import 'starred_messages_screen.dart';
 ///   • Chats        — the fast, familiar-feeling 1:1 list (reuses the circle
 ///                    E2E chat thread for each conversation).
 ///   • Updates      — Status + Channels (hosts [CircleStatusScreen]).
-///   • Communities  — circle communities (placeholder until the sibling agent
-///                    ships the screen class).
+///   • Communities  — circle communities ([CommunityListScreen]).
 ///   • Calls        — call history (hosts [CircleCallHistoryScreen]).
 ///
 /// The hub owns the on-device identity + the circle member list once and hands
@@ -139,7 +138,10 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
           'key_id': id.keyId,
           'scheme': _e2e.scheme,
         });
-      } catch (_) {}
+      } catch (_) {
+        // Heals itself: the public key is re-published on every hub open
+        // (branch above); peers see the honest "key missing" state meanwhile.
+      }
     } catch (_) {
       // Keep going with a null identity — tabs degrade to a friendly state.
     }
@@ -477,10 +479,10 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
   /// Updates = Status + Channels. Hosts [ChannelListScreen] (which can create /
   /// follow channels and reach [DiscoverScreen]); a header row lets the user
   /// jump into their circle Status ([CircleStatusScreen]). Falls back to a
-  /// friendly placeholder until the on-device identity exists.
+  /// honest "setting up encryption" state until the on-device identity exists.
   Widget _updatesTab() {
     if (_identity == null) {
-      return _placeholder(Icons.auto_awesome_outlined, _t.msgrUpdatesSoon);
+      return _placeholder(Icons.auto_awesome_outlined, _t.c3KeysNotReady);
     }
     final t = _t;
     final scheme = Theme.of(context).colorScheme;
@@ -509,10 +511,10 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
   }
 
   /// Communities = the owner's open community groups. Needs the on-device
-  /// identity; falls back to a friendly placeholder until it exists.
+  /// identity; shows the honest "setting up encryption" state until then.
   Widget _communitiesTab() {
     if (_identity == null) {
-      return _placeholder(Icons.groups_2_outlined, _t.msgrCommunitiesSoon);
+      return _placeholder(Icons.groups_2_outlined, _t.c3KeysNotReady);
     }
     return CommunityListScreen(identity: _identity!);
   }

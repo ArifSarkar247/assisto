@@ -200,7 +200,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       // Preserve any optimistic local echoes the server hasn't confirmed yet.
       final serverIds = fetched.map((m) => m.id).toSet();
       final pendingEchoes =
-          _messages.where((m) => m.pending && !serverIds.contains(m.id));
+          _messages.where((m) =>
+          (m.pending || m.status == 'failed') && !serverIds.contains(m.id));
       final merged = [...fetched, ...pendingEchoes];
       if (!mounted || !_changed(_messages, merged)) return;
       // c3-msg: a new incoming message while the chat is open → seen now.
@@ -269,7 +270,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       _messages = raw.map((e) => _decryptEnvelope(e, peer)).toList();
       _resolveReplyPreviews();
     } catch (_) {
-      // Offline/not-wired: keep any optimistic local echoes already shown.
+      // Offline: keep any optimistic local echoes already shown, and SAY so
+      // (seam audit: this used to be silent).
+      if (mounted) _toast(_t.msgLoadFailed);
     }
     // Per-chat settings (disappearing is server-authoritative; favourite/theme
     // are opaque prefs). Failures just leave the honest defaults.
@@ -559,7 +562,18 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         _messages = _messages.map((m) => m.id == clientMsgId ? m.copyWith(pending: false) : m).toList();
       });
     } catch (_) {
-      // Offline/not-wired: the pending echo stays; the queue retries on reload.
+      // c3-msg: honest failure — the bubble shows a red "!" (not a clock that
+      // never resolves); long-press it to resend.
+      if (mounted) {
+        setState(() {
+          _messages = _messages
+              .map((m) => m.id == clientMsgId
+                  ? m.copyWith(pending: false, status: 'failed')
+                  : m)
+              .toList();
+        });
+        _toast(_t.c3SendFailed);
+      }
     }
     if (mounted) setState(() => _sending = false);
   }
@@ -574,6 +588,13 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   // -------------------------------------------------------------------------
   Future<void> _onLongPress(CircleMessage m) async {
     if (m.deleted == 'everyone') return;
+    if (m.mine && m.status == 'failed') {
+      // resend the failed message
+      setState(() => _messages = _messages.where((x) => x.id != m.id).toList());
+      _input.text = m.text;
+      await _send();
+      return;
+    }
     final pinnedCount = _messages.where((x) => x.pinned).length;
     final canEdit = m.mine && m.contentType == 'text' && DateTime.now().difference(m.at).inMinutes < _kEditWindowMin;
     final canDeleteEveryone = m.mine && DateTime.now().difference(m.at).inMinutes < _kDeleteEveryoneWindowMin;
@@ -775,7 +796,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
           .map((x) => x.cast<String, dynamic>())
           .where((x) => '${x['public_key'] ?? ''}'.isNotEmpty)
           .toList();
-    } catch (_) {}
+    } catch (_) {
+      if (mounted) _toast(_t.msgLoadFailed);
+    }
     if (!mounted) return;
     if (members.isNotEmpty) {
       final pick = await showModalBottomSheet<Map<String, dynamic>>(
@@ -1114,7 +1137,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     try {
       final r = await _api.chatLists();
       lists = ((r['lists'] ?? []) as List).cast<Map<String, dynamic>>();
-    } catch (_) {}
+    } catch (_) {
+      if (mounted) _toast(_t.msgLoadFailed);
+    }
     if (!mounted) return;
     final controller = TextEditingController();
     final choice = await showModalBottomSheet<String>(
@@ -1183,7 +1208,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     // The transcript is built ON-DEVICE from already-decrypted text (never from
     // the server). Hand it to the extras hub, which owns the OS share sheet +
     // optional media attach.
-    _toast(_t.msgrChatExportReady);
+    // seam audit: no "export ready" toast before anything is exported — the
+    // extras hub really shares the transcript.
     if (!mounted) return;
     _openExtrasHub();
   }

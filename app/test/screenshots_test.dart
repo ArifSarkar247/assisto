@@ -172,6 +172,10 @@ import 'package:assisto/screens/ramadan_screen.dart';
 import 'package:assisto/screens/exam_result_screen.dart';
 import 'package:assisto/screens/circle_screen.dart';
 import 'package:assisto/screens/circle_chat_screen.dart';
+import 'package:assisto/messaging/msg_widgets.dart';
+import 'package:assisto/widgets/msgr_hub_chat_list.dart';
+import 'package:assisto/screens/messenger/msgr_set_notifications_screen.dart';
+import 'fake_c3_msg.dart';
 import 'package:assisto/screens/circle_call_screen.dart';
 import 'package:assisto/screens/circle_call_history_screen.dart';
 import 'package:assisto/screens/circle_privacy_screen.dart';
@@ -627,6 +631,12 @@ void main() {
     'subscriptions_error': (build: (_) => const SubscriptionsScreen(), mode: FakeMode.fail, full: false),
     'vault_empty': (build: (_) => const VaultScreen(previewUnlocked: true), mode: FakeMode.empty, full: false),
     'vault_error': (build: (_) => const VaultScreen(previewUnlocked: true), mode: FakeMode.fail, full: false),
+    // ---- c3-msg ---- ticks, decrypted previews, typing, unread, presence
+    'c3_chat_list': (build: (_) => Scaffold(appBar: AppBar(title: const Text('My Circle')), body: MsgHubChatList(identity: C3Fake.me, members: const [])), mode: FakeMode.data, full: true),
+    'c3_chat': (build: (l) => CircleChatScreen(member: C3Fake.member(l == 'bn'), identity: C3Fake.me), mode: FakeMode.data, full: true),
+    'c3_msg_info': (build: (l) => Scaffold(appBar: AppBar(), body: Align(alignment: Alignment.bottomCenter, child: Material(elevation: 6, child: MessageInfoView(load: () async => C3Fake.info(l == 'bn'))))), mode: FakeMode.data, full: true),
+    'c3_notif_settings': (build: (_) => const MsgrSetNotificationsScreen(), mode: FakeMode.data, full: true),
+    // ---- /c3-msg ----
   };
 
   Future<void> shoot(WidgetTester tester, String name, String lang,
@@ -636,6 +646,8 @@ void main() {
     debugDisableShadows = false;
     FakeApi.planSlug = (name.startsWith('shop_') || name == 'veh_fleet') ? 'business' : 'premium';
     fakeM3On = name.startsWith('m3_'); // m3-circle gallery stubs
+    fakeC3On = name.startsWith('c3_'); // c3-msg gallery stubs
+    if (fakeC3On) C3Fake.seedRealtime();
     final tall = name.endsWith('_bottom');
     await tester.binding.setSurfaceSize(Size(360, tall ? 1800 : 800));
     final key = GlobalKey();

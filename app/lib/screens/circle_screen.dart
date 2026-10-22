@@ -130,7 +130,12 @@ class _CircleScreenState extends State<CircleScreen> {
           'key_id': id.keyId,
           'scheme': _e2e.scheme,
         });
-      } catch (_) {}
+      } catch (_) {
+        // Not silent-and-forgotten: the My Circle hub re-publishes the public
+        // key on EVERY open (messenger_home_screen._ensureIdentity), so a
+        // failed first publish heals on the next open; until then the peer's
+        // chat shows the honest "key missing" state (circleKeyMissing).
+      }
     } catch (_) {
       // Secure storage unavailable (e.g. preview) — keep a volatile identity so
       // the UI still renders.

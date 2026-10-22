@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -288,8 +289,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       );
 }
 
-/// Invite sheet: a shareable link + a QR placeholder (the integrator swaps in a
-/// real QR widget) + copy / share-to-other-apps. Matches the app's existing
+/// Invite sheet: a shareable link + its real QR code (qr_flutter) + copy /
+/// share-to-other-apps. Matches the app's existing
 /// invite-sheet convention.
 class _InviteSheet extends StatelessWidget {
   final String url;
@@ -299,7 +300,6 @@ class _InviteSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final cs = Theme.of(context).colorScheme;
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(Gap.lg),
@@ -311,14 +311,16 @@ class _InviteSheet extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: Gap.lg),
             Center(
+              // seam audit: a REAL scannable QR of the invite link (was an
+              // icon). White quiet zone so it scans in dark mode too.
               child: Container(
-                width: 160,
-                height: 160,
+                padding: const EdgeInsets.all(Gap.sm),
                 decoration: BoxDecoration(
-                  color: cs.surfaceContainerHighest,
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(Radii.md),
                 ),
-                child: Icon(Icons.qr_code_2, size: 120, color: cs.onSurface),
+                child: QrImageView(
+                    key: const Key('discover-invite-qr'), data: url, size: 160),
               ),
             ),
             const SizedBox(height: Gap.lg),

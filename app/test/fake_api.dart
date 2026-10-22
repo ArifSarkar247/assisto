@@ -4,6 +4,7 @@ import 'package:assisto/models.dart';
 import 'package:assisto/widgets/home_quick_buttons.dart';
 
 import 'fake_c1_contacts.dart';
+import 'fake_c3_msg.dart';
 import 'fake_m3_circle.dart';
 import 'fake_discover.dart';
 import 'fake_vehicle.dart';
@@ -755,6 +756,8 @@ class FakeApi extends ApiClient {
     if (disc != null) return disc;
     final c1 = fakeC1Get(path); // c1-contacts
     if (c1 != null) return c1;
+    final c3 = C3Fake.get(path, _bn); // c3-msg (gallery only)
+    if (c3 != null) return c3;
     // ===== Home / Notification centre stubs =====
     if (path == '/home/badges') return {'my_circle_unread': 3, 'notif_unseen': 5};
     if (path.startsWith('/home/suggestions')) {

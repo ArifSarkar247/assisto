@@ -10,7 +10,7 @@ import '../theme.dart';
 /// the UI that edits the stored policy (POST back to the backend, which then
 /// enforces on every read/message/call). Changing them client-side only changes
 /// the *request* — the server still decides. No Bangla literals; labels come
-/// from AppLocalizations keys the integrator adds from the report's ARB JSON.
+/// from AppLocalizations (lib/l10n).
 
 /// Audience policy values — keep in lock-step with circle_privacy.VIS_* and
 /// CALLS_* machine codes (ASCII, stored).
