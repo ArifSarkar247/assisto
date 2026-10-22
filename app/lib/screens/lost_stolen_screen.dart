@@ -15,6 +15,7 @@ import '../theme.dart';
 import '../widgets/journey_api.dart';
 import 'my_lost_phone_screen.dart';
 import 'recovery_screen.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// #80 — Lost / stolen phone protection (device-admin).
 ///
@@ -227,7 +228,9 @@ class _LostStolenScreenState extends State<LostStolenScreen>
     if (stop == true) {
       try {
         await _channel.invokeMethod('stopAlarm');
-      } catch (_) {/* ignore */}
+      } catch (e) {
+        showActionFailed(context, 'lostStolen.stopAlarm', e); // db1
+      }
     }
   }
 

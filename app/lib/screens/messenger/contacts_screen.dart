@@ -310,7 +310,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
 
   Future<void> _runSearch() async {
     final raw = _search.text.trim();
-    if (raw.isEmpty) return;
+    // db1: an empty search now shows the "enter a number" hint (was a dead tap).
     final canon = PhoneCanon.canonical(raw);
     if (canon == null) {
       setState(() {

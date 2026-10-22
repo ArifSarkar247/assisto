@@ -314,23 +314,26 @@ Map<String, dynamic> _circleMember(String lang) => {
       'public_key': _identity.publicKeyB64,
     };
 
-void main() {
-  setUpAll(() async {
-    TestWidgetsFlutterBinding.ensureInitialized();
-    // Screens like SafetyScreen/EmergencyScreen read SharedPreferences in
-    // initState; provide an in-memory store so the gallery renders them.
-    SharedPreferences.setMockInitialValues({});
-    HttpOverrides.global = _NoNet();
-    await _loadFont('NotoSansBengali', 'assets/fonts/NotoSansBengali.ttf');
-    final root = Platform.environment['FLUTTER_ROOT'] ??
-        '${Platform.environment['HOME']}/assisto/tools/flutter';
-    final icons = '$root/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf';
-    if (File(icons).existsSync()) await _loadFont('MaterialIcons', icons);
-    Directory(_outDir).createSync(recursive: true);
-  });
+// db1: the gallery spec table is top-level so the dead-button sweep
+// (dead_button_sweep_test.dart) can pump exactly the same screens.
+typedef GallerySpec = ({Widget Function(String) build, FakeMode mode, bool full});
 
+/// db1: public seam over the gallery's AppState stub.
+AppState galleryStub({required String lang, FakeMode mode = FakeMode.data}) =>
+    _stub(lang: lang, mode: mode);
+
+/// db1: the per-shot fake switches (shared with the dead-button sweep).
+void galleryPrime(String name) {
+    FakeApi.planSlug = (name.startsWith('shop_') || name == 'veh_fleet') ? 'business' : 'premium';
+    FakeApi.payLive = name.contains('_paylive'); // pay1 gallery stubs
+    fakeM3On = name.startsWith('m3_'); // m3-circle gallery stubs
+    fakeC3On = name.startsWith('c3_'); // c3-msg gallery stubs
+    if (fakeC3On) C3Fake.seedRealtime();
+}
+
+Map<String, GallerySpec> gallerySpecs() {
   // name -> (builder, mode, fullMatrix)
-  final specs = <String, ({Widget Function(String) build, FakeMode mode, bool full})>{
+  return <String, GallerySpec>{
     'login': (build: (_) => const LoginScreen(), mode: FakeMode.data, full: true),
     'language_picker': (build: (_) => const LanguagePickerScreen(), mode: FakeMode.data, full: true),
     'home_welcome': (build: (_) => const HomeScreen(), mode: FakeMode.data, full: true),
@@ -658,17 +661,32 @@ void main() {
     // t1-ticks: chat headers, date separators, legacy info, version gate
     for (final e in t1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
   };
+}
+
+void main() {
+  setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    // Screens like SafetyScreen/EmergencyScreen read SharedPreferences in
+    // initState; provide an in-memory store so the gallery renders them.
+    SharedPreferences.setMockInitialValues({});
+    HttpOverrides.global = _NoNet();
+    await _loadFont('NotoSansBengali', 'assets/fonts/NotoSansBengali.ttf');
+    final root = Platform.environment['FLUTTER_ROOT'] ??
+        '${Platform.environment['HOME']}/assisto/tools/flutter';
+    final icons = '$root/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf';
+    if (File(icons).existsSync()) await _loadFont('MaterialIcons', icons);
+    Directory(_outDir).createSync(recursive: true);
+  });
+
+  final specs = gallerySpecs(); // db1
+
 
   Future<void> shoot(WidgetTester tester, String name, String lang,
       Brightness brightness, Widget screen, FakeMode mode) async {
     // Real elevation shadows (flutter_test draws them as solid black outlines
     // by default, which looks like a bug in review shots). Restored below.
     debugDisableShadows = false;
-    FakeApi.planSlug = (name.startsWith('shop_') || name == 'veh_fleet') ? 'business' : 'premium';
-    FakeApi.payLive = name.contains('_paylive'); // pay1 gallery stubs
-    fakeM3On = name.startsWith('m3_'); // m3-circle gallery stubs
-    fakeC3On = name.startsWith('c3_'); // c3-msg gallery stubs
-    if (fakeC3On) C3Fake.seedRealtime();
+    galleryPrime(name); // db1
     final tall = name.endsWith('_bottom');
     await tester.binding.setSurfaceSize(Size(360, tall ? 1800 : 800));
     final key = GlobalKey();

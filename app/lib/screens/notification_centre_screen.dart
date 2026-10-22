@@ -542,7 +542,7 @@ class _FeedTabState extends State<_FeedTab>
       if (!_offline) {
         try {
           await _api.notifSeen(e.id);
-        } catch (_) {/* keep optimistic state */}
+        } catch (_) {/* best-effort: keep optimistic state */}
       }
     }
     if (mounted) ChatNav.push(context, e.route);

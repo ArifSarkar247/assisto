@@ -10,6 +10,7 @@ import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
 import 'camera_permission_gate.dart';
 import 'camera_preview_edit_screen.dart';
+import '../../services/action_feedback.dart'; // db1
 
 /// The in-app CAMERA — opened from the "My Circle" hub camera button.
 ///
@@ -252,7 +253,9 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
     setState(() => _flash = next);
     try {
       await _controller?.setFlashMode(next);
-    } catch (_) {}
+    } catch (e) {
+      showActionFailed(context, 'camera.flash', e); // db1
+    }
   }
 
   void _openEdit(File file, {required bool isVideo}) {

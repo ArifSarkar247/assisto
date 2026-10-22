@@ -9,6 +9,7 @@ import '../widgets/exam_board_picker.dart';
 import '../widgets/exam_gpa_explainer.dart';
 import '../widgets/exam_result_card.dart';
 import '../widgets/exam_student_watch.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// ADVANCED exam-result module (SPEC v2.1 §21) for BD board/university results
 /// (SSC / HSC / JSC / PSC / Dakhil / Alim …).
@@ -129,10 +130,8 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
   Future<void> _openUrl() async {
     final url = _url.text.trim();
     if (url.isEmpty) return;
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
+    await openForUser(context, Uri.parse(url), // db1
+        where: 'exam.openBoard', mode: LaunchMode.externalApplication);
   }
 
   @override

@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/nearby_screen.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// THE single rich-card renderer shared by every chat surface (the HOME
 /// [AgentThreadScreen] and the full-history [AiChatScreen]). Previously the
@@ -23,13 +24,20 @@ class ChatCard extends StatelessWidget {
 
   const ChatCard(this.card, {super.key, this.onUndo});
 
-  Future<void> _launch(String url, {bool external = true}) async {
+  Future<void> _launch(BuildContext context, String url,
+      {bool external = true}) async {
     try {
-      await launchUrl(Uri.parse(url),
+      final ok = await launchUrl(Uri.parse(url),
           mode: external
               ? LaunchMode.externalApplication
               : LaunchMode.platformDefault);
-    } catch (_) {}
+      if (!ok) throw StateError('no app for $url'); // db1
+    } catch (e) {
+      // db1: tell the user instead of a silent dead tap.
+      if (context.mounted) {
+        showActionFailed(context, 'chatCard.launch', e, open: true);
+      }
+    }
   }
 
   @override
@@ -48,19 +56,19 @@ class ChatCard extends StatelessWidget {
     if (c['type'] == 'music') {
       return _actionCard(context, c, Icons.music_note, [
         FilledButton.icon(
-            onPressed: () => _launch(c['youtube'] ?? ''),
+            onPressed: () => _launch(context, c['youtube'] ?? ''),
             icon: const Icon(Icons.play_arrow, size: 18),
             label: const Text('YouTube')),
         if (c['spotify'] != null)
           OutlinedButton(
-              onPressed: () => _launch(c['spotify']),
+              onPressed: () => _launch(context, c['spotify']),
               child: const Text('Spotify')),
       ]);
     }
     if (c['type'] == 'navigate') {
       return _actionCard(context, c, Icons.navigation_outlined, [
         FilledButton.icon(
-            onPressed: () => _launch(c['maps'] ?? ''),
+            onPressed: () => _launch(context, c['maps'] ?? ''),
             icon: const Icon(Icons.map_outlined, size: 18),
             label: Text(t.open)),
       ]);
@@ -70,7 +78,7 @@ class ChatCard extends StatelessWidget {
       return _actionCard(context, c, Icons.call, [
         FilledButton.icon(
             onPressed:
-                phone.isEmpty ? null : () => _launch('tel:$phone', external: false),
+                phone.isEmpty ? null : () => _launch(context, 'tel:$phone', external: false),
             icon: const Icon(Icons.call, size: 18),
             label: Text(t.call)),
       ]);

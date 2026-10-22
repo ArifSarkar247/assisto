@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// Link a parent (or any loved one) in under 2 minutes.
 ///
@@ -83,8 +83,7 @@ class _OnbLinkParentState extends State<OnbLinkParent> {
   }
 
   Future<void> _tel(AppLocalizations t) => _withInvite(t, () async {
-        final uri = Uri.parse('tel:$_number');
-        if (await canLaunchUrl(uri)) await launchUrl(uri);
+        await openForUser(context, Uri.parse('tel:$_number'), where: 'onb.call'); // db1
       });
 
   Future<void> _sms(AppLocalizations t) => _withInvite(t, () async {
@@ -92,7 +91,7 @@ class _OnbLinkParentState extends State<OnbLinkParent> {
         // no gateway (matches parent_link.invite_non_user_sms).
         final uri = Uri.parse(
             'sms:$_number?body=${Uri.encodeComponent(_invite(t))}');
-        if (await canLaunchUrl(uri)) await launchUrl(uri);
+        await openForUser(context, uri, where: 'onb.sms'); // db1
       });
 
   Future<void> _copyLink(AppLocalizations t) => _withInvite(t, () async {

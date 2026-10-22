@@ -287,16 +287,21 @@ class _TriggerEditor extends StatelessWidget {
           const SizedBox(height: Gap.sm),
           Row(children: [
             Expanded(
-              child: SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                dense: true,
-                title: Text(t.studioFieldMonthly, style: const TextStyle(fontSize: 13)),
-                value: trigger.dayOfMonth != null,
-                onChanged: (v) {
-                  trigger.dayOfMonth = v ? 1 : null;
-                  if (v) trigger.days = [1, 2, 3, 4, 5, 6, 7];
-                  onChanged();
-                },
+              // db1: transparent Material so the tile's ripple shows on the
+              // tinted card (Flutter flagged invisible ink in the tap sweep).
+              child: Material(
+                type: MaterialType.transparency,
+                child: SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  title: Text(t.studioFieldMonthly, style: const TextStyle(fontSize: 13)),
+                  value: trigger.dayOfMonth != null,
+                  onChanged: (v) {
+                    trigger.dayOfMonth = v ? 1 : null;
+                    if (v) trigger.days = [1, 2, 3, 4, 5, 6, 7];
+                    onChanged();
+                  },
+                ),
               ),
             ),
           ]),

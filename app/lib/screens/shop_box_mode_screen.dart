@@ -12,6 +12,7 @@ import '../shop_motion.dart';
 import '../theme.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import 'shop_live_rtc.dart' deferred as rtc;
+import '../services/error_report.dart'; // db1
 
 /// SHOP BOX MODE — an old Android phone becomes the shop's camera.
 ///
@@ -197,7 +198,10 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
       await _secure.write(key: _kCamera, value: camId?.toString() ?? '');
       await _secure.write(key: _kSite, value: site);
       await _secure.write(key: _kCamName, value: camName);
-    } catch (_) {}
+    } catch (e) {
+      // db1: pairing works for this session; only the saved copy failed.
+      reportNonFatal('shopBox.savePairing', e);
+    }
     setState(() {
       _token = tok;
       _cameraId = camId;
@@ -213,7 +217,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
       for (final k in [_kToken, _kCamera, _kSite, _kCamName]) {
         await _secure.delete(key: k);
       }
-    } catch (_) {}
+    } catch (_) {} // best-effort: local key cleanup; the server unpair already happened
     if (mounted) {
       setState(() {
         _token = null;
@@ -249,7 +253,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
     await _closeCamera();
     try {
       await _channel.invokeMethod('keepScreenOn', {'on': false});
-    } catch (_) {}
+    } catch (_) {} // best-effort: screen-on flag cleanup
     _running = false;
     if (!silent && mounted) setState(() => _status = '');
   }
@@ -505,7 +509,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
         await prefs.setStringList(
             _kZone, [valid.left, valid.top, valid.right, valid.bottom].map((e) => '$e').toList());
       }
-    } catch (_) {}
+    } catch (_) {} // best-effort: the zone is applied now; only its saved copy can fail
   }
 
   // ------------------------------------------------------------------ UI

@@ -5,6 +5,7 @@ import '../state.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/scam_result_card.dart';
 import '../widgets/scam_safety_api.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// Scam protection — paste a suspicious message to get a named-pattern verdict
 /// (benchmarked vs GASA / Truecaller fraud-awareness), plus a "learn the scams"
@@ -33,7 +34,10 @@ class _ScamScreenState extends State<ScamScreen> {
 
   Future<void> _check() async {
     final text = _msg.text.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty) {
+      showNeedInput(context); // db1: was a dead tap
+      return;
+    }
     FocusScope.of(context).unfocus();
     setState(() {
       _checking = true;

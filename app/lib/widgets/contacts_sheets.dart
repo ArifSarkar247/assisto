@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'contacts_model.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// Detail + editor bottom sheets for the personal-CRM contact.
 /// Returns are driven back to the screen (save / delete / log-contact), which
@@ -15,10 +16,13 @@ import 'contacts_model.dart';
 // ---------------------------------------------------------------------------
 Future<void> _launch(BuildContext c, Uri uri) async {
   try {
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    // db1: no silent dead end — if no app can handle it, say so.
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      throw StateError('no handler for ${uri.scheme}');
     }
-  } catch (_) {/* no dead end: silently ignore an unavailable handler */}
+  } catch (e) {
+    if (c.mounted) showActionFailed(c, 'contacts.launch', e, open: true);
+  }
 }
 
 String _onlyPhone(String s) {

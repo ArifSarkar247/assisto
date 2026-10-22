@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/ride_deeplink.dart';
 import '../widgets/ride_store.dart';
 import '../widgets/ride_widgets.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// Ride & food (module-5 "Life") — ADVANCED (SPEC v2.1 §21).
 ///
@@ -110,7 +111,10 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
   Future<void> _saveDest(String kind) async {
     final addr = _dest.text.trim();
     final t = AppLocalizations.of(context);
-    if (addr.isEmpty) return;
+    if (addr.isEmpty) {
+      showNeedInput(context); // db1: was a dead tap
+      return;
+    }
     final label = kind == SavedPlace.home
         ? t.rideFoodPlaceHome
         : kind == SavedPlace.work
@@ -128,7 +132,10 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
 
   Future<void> _saveCraving() async {
     final q = _food.text.trim();
-    if (q.isEmpty) return;
+    if (q.isEmpty) {
+      showNeedInput(context); // db1: was a dead tap
+      return;
+    }
     final list = await _store.saveCraving(q);
     if (mounted) setState(() => _cravings = list);
   }

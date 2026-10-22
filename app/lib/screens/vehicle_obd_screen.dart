@@ -82,7 +82,7 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
       if (st == ObdBtState.noPermission) {
         try {
           await Permission.bluetoothConnect.request();
-        } catch (_) {}
+        } catch (_) {} // best-effort: the state is re-checked right below
         st = await ObdBluetooth.state();
       }
       if (st != ObdBtState.ready) {

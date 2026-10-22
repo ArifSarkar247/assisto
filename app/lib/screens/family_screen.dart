@@ -17,6 +17,7 @@ import '../widgets/fam_share_section.dart';
 import '../widgets/fam_card_section.dart';
 import '../widgets/fam_probashi_section.dart';
 import 'medicine_history_screen.dart';
+import '../services/action_feedback.dart'; // db1
 
 class FamilyScreen extends StatefulWidget {
   const FamilyScreen({super.key});
@@ -120,7 +121,9 @@ class _FamilyScreenState extends State<FamilyScreen> {
                                           onPressed: () => Navigator.pop(context),
                                           child: Text(_t.ok))
                                     ]));
-                      } catch (_) {}
+                      } catch (e) {
+                        showActionFailed(context, 'family.scamCheck', e); // db1
+                      }
                     },
                     child: Text(_t.commonVerify)),
               ],
@@ -269,26 +272,26 @@ class _FamilyScreenState extends State<FamilyScreen> {
     // narrow 360dp phones — this is a safety screen). Same actions/behavior.
     final Widget actions = taken
         ? TextButton(
-            onPressed: () async {
+            onPressed: () => runUserAction(context, 'med.undo', () async { // db1
               await api.medicineTaken(d['medicine_id'], d['slot'], taken: false);
               _load();
-            },
+            }),
             child: Text(t.medUndo))
         : Row(mainAxisSize: MainAxisSize.min, children: [
             // PRN 'log another' row: just a logging action (no skip — PRN
             // doses are not scheduled, so there's nothing to skip).
             if (!prnLogAnother)
               TextButton(
-                  onPressed: () async {
+                  onPressed: () => runUserAction(context, 'med.skip', () async { // db1
                     await api.medicineTaken(d['medicine_id'], d['slot'], skipped: true);
                     _load();
-                  },
+                  }),
                   child: Text(t.medSkip)),
             FilledButton(
-                onPressed: () async {
+                onPressed: () => runUserAction(context, 'med.take', () async { // db1
                   await api.medicineTaken(d['medicine_id'], d['slot'], taken: true);
                   _load();
-                },
+                }),
                 child: Text(prnLogAnother ? t.medLogAsNeeded : t.medTakeNow)),
           ]);
 

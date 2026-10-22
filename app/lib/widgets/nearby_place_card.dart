@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'nearby_data.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// One place row: name, category, distance, open/closed + hours, one-tap call,
 /// directions deep-link, save favourite. All copy via AppLocalizations.
@@ -121,7 +122,7 @@ class NearbyPlaceCard extends StatelessWidget {
             if (phone != null && phone.isNotEmpty)
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () => launchUrl(Uri.parse('tel:$phone')),
+                  onPressed: () => openForUser(context, Uri.parse('tel:$phone'), where: 'nearby.call'), // db1
                   icon: const Icon(Icons.call, size: 18, color: Brand.success),
                   label: FittedBox(
                       fit: BoxFit.scaleDown,
@@ -131,8 +132,8 @@ class NearbyPlaceCard extends StatelessWidget {
             if (phone != null && phone.isNotEmpty) const SizedBox(width: Gap.sm),
             Expanded(
               child: FilledButton.tonalIcon(
-                onPressed: () => launchUrl(Uri.parse(place.directionsUrl),
-                    mode: LaunchMode.externalApplication),
+                onPressed: () => openForUser(context, Uri.parse(place.directionsUrl), // db1
+                    where: 'nearby.directions', mode: LaunchMode.externalApplication),
                 icon: const Icon(Icons.directions, size: 18),
                 // one line, scaled to fit (large font broke "Direction s")
                 label: FittedBox(

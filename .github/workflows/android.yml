@@ -124,7 +124,9 @@ jobs:
       # no emulator — gates the whole pipeline, so a broken Continue can't ship.
       - name: First-run language flow test (Continue must enter the app)
         working-directory: app
-        run: flutter test test/language_flow_test.dart test/widget_test.dart
+        # db1: + dead-button sweep (every gallery screen, every enabled tap must
+        # do something) and the swallowed-catch static check.
+        run: flutter test test/language_flow_test.dart test/widget_test.dart test/swallowed_catch_test.dart test/dead_button_sweep_test.dart
 
       - name: Generate launcher icons (adaptive)
         working-directory: app

@@ -81,6 +81,7 @@ class CircleGroupChatScreen extends StatefulWidget {
 class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   final _e2e = SoftwareE2E();
   final _input = TextEditingController();
+  final _inputFocus = FocusNode(); // db1
   final _scroll = ScrollController();
 
   List<Map<String, dynamic>> _messages = [];
@@ -180,6 +181,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     _rt.typing('group', _gid, 'stop');
     _rt.release();
     _input.dispose();
+    _inputFocus.dispose(); // db1
     _scroll.dispose();
     super.dispose();
   }
@@ -347,6 +349,11 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   /// only. Mirrors core/logic/circle_groups.build_group_fanout.
   Future<void> _send({String? resendText}) async {
     final text = resendText ?? _input.text.trim();
+    // db1: Send on an empty box opens the keyboard instead of doing nothing.
+    if (text.isEmpty && resendText == null && !_sending && _canPost) {
+      _inputFocus.requestFocus();
+      return;
+    }
     if (text.isEmpty || _sending || !_canPost) return;
     _rt.typing('group', _gid, 'stop');
     setState(() {
@@ -556,7 +563,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           opts.add({'ciphertext': o.ciphertextB64, 'nonce': o.nonceB64});
         }
         optionsCt['$id'] = opts;
-      } catch (_) {}
+      } catch (_) {} // best-effort: a member whose key cannot encrypt is skipped, same as the message fan-out
     }
     try {
       await _api.postJson('/circle/groups/$_groupId/polls', {
@@ -1704,6 +1711,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
             Expanded(
               child: TextField(
                 controller: _input,
+                focusNode: _inputFocus, // db1
                 minLines: 1,
                 maxLines: 4,
                 textInputAction: TextInputAction.send,

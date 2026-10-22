@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../l10n/app_localizations.dart';
@@ -11,6 +10,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/disaster_model.dart';
 import '../widgets/disaster_warning_card.dart';
 import '../widgets/disaster_safety_sheet.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// DISASTER ALERTS (ADVANCED) — SPEC v2.1 §21 / Appendix-A #44 (good → advanced).
 ///
@@ -168,8 +168,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
   // actions
   // ---------------------------------------------------------------------------
   Future<void> _call(String number) async {
-    final uri = Uri.parse('tel:$number');
-    if (await canLaunchUrl(uri)) await launchUrl(uri);
+    await openForUser(context, Uri.parse('tel:$number'), where: 'disaster.call'); // db1
   }
 
   void _openSteps(String kind) {

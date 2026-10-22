@@ -9,6 +9,7 @@ import '../state.dart';
 import '../theme.dart';
 import 'payments_api.dart';
 import 'store_billing.dart';
+import '../services/error_report.dart'; // db1
 
 /// Taka sign via code point (no Bangla-block literal in Dart source).
 const _taka = '৳';
@@ -242,7 +243,11 @@ class _CheckoutSheetState extends State<CheckoutSheet>
     if (good) {
       try {
         await billing.finish(res.purchaseToken);
-      } catch (_) {}
+      } catch (e) {
+        // db1: the purchase is already verified + granted server-side; a
+        // failed local acknowledge is reported, not shown.
+        reportNonFatal('checkout.finishPurchase', e);
+      }
       return _success(t, v.data);
     }
     setState(() {

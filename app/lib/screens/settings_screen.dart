@@ -53,6 +53,7 @@ import 'delete_account_screen.dart';
 import 'voice_assistant_settings_screen.dart';
 import '../theme.dart';
 import 'fall_detect_screen.dart';
+import '../services/action_feedback.dart'; // db1
 
 
 /// m2-reality: flip to true once the server-address override is actually
@@ -128,7 +129,9 @@ class SettingsScreen extends StatelessWidget {
           SelectableText(inv['share_text'] ?? '', textAlign: TextAlign.center),
         ]),
         actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context).ok))]));
-    } catch (_) {}
+    } catch (e) {
+      showActionFailed(context, 'settings.invite', e); // db1
+    }
   }
 
   // The old one-tap instant delete is gone. Everything now routes through the
@@ -743,7 +746,14 @@ class _SourcesScreenState extends State<SourcesScreen> {
                     value: s['enabled'] == true,
                     onChanged: (v) async {
                       setState(() => s['enabled'] = v);
-                      await app.api.toggleSource(s['source'], v);
+                      try {
+                        await app.api.toggleSource(s['source'], v);
+                      } catch (e) {
+                        // db1: put the switch back and say so.
+                        if (!mounted) return;
+                        setState(() => s['enabled'] = !v);
+                        showActionFailed(context, 'sources.toggle', e);
+                      }
                     },
                   ),
               ],
@@ -772,13 +782,17 @@ class _SupportScreenState extends State<SupportScreen> {
   }
 
   Future<void> _send() async {
-    if (_msg.text.trim().isEmpty) return;
+    if (_msg.text.trim().isEmpty) {
+      showNeedInput(context); // db1: was a dead tap
+      return;
+    }
     setState(() => _sending = true);
     try {
       await context.read<AppState>().api
           .sendSupport(_kind, _msg.text.trim(), AppConfig.appVersionLabel);
       setState(() => _sent = true);
-    } catch (_) {
+    } catch (e) {
+      showActionFailed(context, 'support.send', e); // db1
     } finally {
       setState(() => _sending = false);
     }

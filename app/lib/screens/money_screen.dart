@@ -64,7 +64,7 @@ class _MoneyScreenState extends State<MoneyScreen> {
       final s = await app.api.moneySummary();
       if (mounted) setState(() => _summary = s);
     } catch (_) {
-      // offline — tabs fall back to local repo data
+      // best-effort: offline — tabs fall back to local repo data
     } finally {
       if (mounted) setState(() => _loading = false);
     }

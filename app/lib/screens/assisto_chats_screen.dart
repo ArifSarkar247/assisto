@@ -100,7 +100,7 @@ class _AssistoChatsScreenState extends State<AssistoChatsScreen> {
           _hits = {for (final r in rows) '${r['id']}'};
           _hitsFor = q;
         });
-      } catch (_) {/* local title search still works */}
+      } catch (_) {/* best-effort: local title search still works */}
     });
   }
 

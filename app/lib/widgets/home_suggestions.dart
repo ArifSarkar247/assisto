@@ -13,6 +13,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import 'chatnav.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// HOME "Discover" spotlight — an auto-rotating, swipeable PageView of
 /// spotlight cards.
@@ -344,7 +345,9 @@ class _HomeSuggestionsState extends State<HomeSuggestions> {
     if (c.url.startsWith('https://')) {
       try {
         await launchUrl(Uri.parse(c.url), mode: LaunchMode.externalApplication);
-      } catch (_) {}
+      } catch (e) {
+        showActionFailed(context, 'discover.openUrl', e, open: true); // db1
+      }
     }
   }
 

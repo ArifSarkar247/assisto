@@ -5,6 +5,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// #70 SMARTWATCH & FITNESS — Health Connect bridge (SPEC: wearables).
 ///
@@ -142,7 +143,7 @@ class _SmartwatchScreenState extends State<SmartwatchScreen>
     // required by the OEM; request the common runtime permission defensively.
     try {
       await Permission.activityRecognition.request();
-    } catch (_) {}
+    } catch (_) {} // best-effort: optional OEM permission; Health Connect permission is requested next
     bool ok = false;
     try {
       ok = await _health.requestAuthorization(_types, permissions: _access);
@@ -164,10 +165,12 @@ class _SmartwatchScreenState extends State<SmartwatchScreen>
     try {
       await _health.installHealthConnect();
       return;
-    } catch (_) {}
+    } catch (_) {} // best-effort: falls back to app settings below
     try {
       await openAppSettings();
-    } catch (_) {}
+    } catch (e) {
+      showActionFailed(context, 'smartwatch.settings', e, open: true); // db1
+    }
   }
 
   Future<void> _loadData() async {

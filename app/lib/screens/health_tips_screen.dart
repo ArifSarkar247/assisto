@@ -7,6 +7,7 @@ import '../widgets/health_api.dart';
 import '../widgets/htips_tip_card.dart';
 import '../widgets/htips_seasonal.dart';
 import '../widgets/htips_store.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// ADVANCED Health-tips library — trusted public-health guidance
 /// (DGHS / WHO / IEDCR), grouped by topic, every tip SOURCE-NAMED and dated.
@@ -117,7 +118,10 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
 
   Future<void> _checkEmergency() async {
     final text = _emergencyText.text.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty) {
+      showNeedInput(context); // db1: was a dead tap
+      return;
+    }
     FocusScope.of(context).unfocus();
     setState(() {
       _emergencyChecking = true;

@@ -9,6 +9,8 @@ import '../../theme.dart';
 import '../../business_khata_api.dart';
 import '../../widgets/skeleton.dart';
 import 'business_common.dart';
+import '../../services/action_feedback.dart'; // db1
+import '../../services/error_report.dart'; // db1
 
 /// Digital Khata (plan §2): two-sided dues — customer receivables +
 /// supplier payables. The supplier tab is hidden for staff (they must
@@ -177,7 +179,9 @@ class _BookTabState extends State<_BookTab> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(t.tagadaSentCount(reminders.length))));
-    } catch (_) {}
+    } catch (e) {
+      showActionFailed(context, 'khata.bulkTagada', e); // db1
+    }
   }
 
   @override
@@ -315,7 +319,11 @@ class _NetHeaderState extends State<_NetHeader> {
           .read<AppState>()
           .api
           .khataNetPosition(widget.businessId);
-    } catch (_) {}
+    } catch (e) {
+      // db1: automatic load (not a tap). On failure the card is HIDDEN —
+      // never a fake ৳0 net position.
+      reportNonFatal('khata.netPosition', e);
+    }
     if (mounted) setState(() => _loading = false);
   }
 
@@ -328,6 +336,7 @@ class _NetHeaderState extends State<_NetHeader> {
               padding: EdgeInsets.all(Gap.lg),
               child: Skeleton(width: 160, height: 16)));
     }
+    if (_np == null) return const SizedBox.shrink(); // db1: load failed
     final np = _np ?? const {};
     final label = widget.isCustomer ? t.netReceivable : t.netPayable;
     final value = widget.isCustomer
@@ -553,7 +562,9 @@ class _PartyStatementScreenState extends State<_PartyStatementScreen> {
     setState(() => _loading = true);
     try {
       _stmt = await context.read<AppState>().api.khataStatement(_partyId);
-    } catch (_) {}
+    } catch (e) {
+      showActionFailed(context, 'khata.statement', e); // db1
+    }
     if (mounted) setState(() => _loading = false);
   }
 
@@ -800,7 +811,10 @@ class _EntrySheetState extends State<_EntrySheet> {
 
   Future<void> _save() async {
     final poisha = takaToPoisha(_amount.text);
-    if (poisha == null || poisha <= 0) return;
+    if (poisha == null || poisha <= 0) {
+      showNeedInput(context); // db1: was a dead tap
+      return;
+    }
     setState(() => _saving = true);
     try {
       final api = context.read<AppState>().api;

@@ -10,6 +10,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/support_widgets.dart';
 import 'legal_screen.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// IN-APP SUPPORT CENTER (#181, SPEC v2.1 §21, advanced).
 ///
@@ -89,6 +90,10 @@ class _GetHelpTabState extends State<_GetHelpTab> {
 
   Future<void> _submit() async {
     final text = _msg.text.trim();
+    if (text.isEmpty && !_sending) {
+      showNeedInput(context); // db1: was a dead tap
+      return;
+    }
     if (text.isEmpty || _sending) return;
     final t = AppLocalizations.of(context);
     setState(() {
@@ -102,7 +107,7 @@ class _GetHelpTabState extends State<_GetHelpTab> {
         if (info.version.isNotEmpty) {
           appVersion = '${info.version}+${info.buildNumber}';
         }
-      } catch (_) {}
+      } catch (_) {} // best-effort: falls back to the compile-time version label
 
       // Fold the category into the message so no choice is silently lost until
       // a dedicated `category` field is wired by the integrator.
@@ -138,7 +143,7 @@ class _GetHelpTabState extends State<_GetHelpTab> {
     var ok = false;
     try {
       ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (_) {}
+    } catch (_) {} // best-effort: ok stays false: supportContactFailed is shown below
     if (!ok) {
       messenger.showSnackBar(SnackBar(content: Text(t.supportContactFailed)));
     }

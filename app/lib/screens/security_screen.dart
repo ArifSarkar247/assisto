@@ -62,7 +62,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
             .cast<Map<String, dynamic>>()
             .where((e) => '${e['state'] ?? 'accepted'}' == 'accepted')
             .toList();
-      } catch (_) {/* approver picker is best-effort */}
+      } catch (_) {/* best-effort: approver picker is best-effort */}
       if (!mounted) return;
       setState(() {
         _state = s;

@@ -418,7 +418,7 @@ class _VaultScreenState extends State<VaultScreen> {
     List<Map<String, dynamic>> services = [];
     try {
       services = await context.read<AppState>().api.govtGuides();
-    } catch (_) {}
+    } catch (_) {} // best-effort: the sheet then says vaultRenewalUnavailable
     if (!mounted) return;
     Map<String, dynamic>? svc;
     for (final s in services) {

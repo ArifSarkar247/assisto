@@ -10,6 +10,7 @@ import '../widgets/journey_api.dart';
 import '../widgets/sos_button.dart';
 import 'journey_sos_screen.dart';
 import 'journey_fake_call_screen.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// In-app LIVE journey screen (item 2). Works NOW: while open it pushes the
 /// device location (+battery) to the server every ~15s, which runs the
@@ -194,7 +195,9 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
       if (url.isNotEmpty) {
         await Share.share(t.journeyShareLinkText(url));
       }
-    } catch (_) {}
+    } catch (e) {
+      showActionFailed(context, 'journey.shareLink', e, open: true); // db1
+    }
   }
 
   void _openSos() {

@@ -12,6 +12,7 @@ import '../crypto/e2e.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// ENCRYPTED BACKUP & PHONE TRANSFER (#197, SPEC v2.1 §21, ADVANCED).
 ///
@@ -248,7 +249,9 @@ class _EncryptedBackupScreenState extends State<EncryptedBackupScreen>
       final f = await _writeBundleFile(r.bundleText);
       // Share the ENCRYPTED file only. The code + passphrase go out-of-band.
       await Share.shareXFiles([XFile(f.path)], text: t.bkShareNote);
-    } catch (_) {}
+    } catch (e) {
+      showActionFailed(context, 'backup.share', e, open: true); // db1
+    }
   }
 
   // =====================================================================

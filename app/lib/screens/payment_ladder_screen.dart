@@ -8,6 +8,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/ladder_common.dart';
 import '../widgets/ladder_cards.dart';
 import '../widgets/ladder_builder_sheet.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// PAYMENT / AUTO-PAY LADDER (SPEC v2.1 §21, advanced).
 ///
@@ -227,10 +228,15 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
 
   Future<void> _togglePause(Map<String, dynamic> row) async {
     final paused = row['paused'] == true;
-    await context
-        .read<AppState>()
-        .api
-        .updateItem(_path, row['id'] as int, {'paused': !paused});
+    try {
+      await context
+          .read<AppState>()
+          .api
+          .updateItem(_path, row['id'] as int, {'paused': !paused});
+    } catch (e) {
+      if (mounted) showActionFailed(context, 'ladder.pause', e); // db1
+      return;
+    }
     await _load();
   }
 

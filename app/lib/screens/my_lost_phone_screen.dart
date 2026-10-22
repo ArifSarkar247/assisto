@@ -11,6 +11,7 @@ import '../services/security_guard.dart';
 import '../state.dart';
 import '../theme.dart';
 import 'recovery_screen.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// Anti-theft Batch 5 — "My lost phone".
 ///
@@ -84,10 +85,12 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
         await launchUrl(geo, mode: LaunchMode.externalApplication);
         return;
       }
-    } catch (_) {/* fall through to web */}
+    } catch (_) {/* best-effort: fall through to web */}
     try {
       await launchUrl(web, mode: LaunchMode.externalApplication);
-    } catch (_) {/* ignore */}
+    } catch (e) {
+      showActionFailed(context, 'lostPhone.maps', e, open: true); // db1
+    }
   }
 
   void _snack(String msg) {
@@ -590,8 +593,8 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
       final res = await const SecurityGuard().run(context, 'turn_off_lost');
       if (!mounted) return;
       if (res.state == SecActionState.applied) await _load();
-    } catch (_) {
-      // crash-guarded; guard shows its own message on failure
+    } catch (e) {
+      showActionFailed(context, 'lostPhone.turnOff', e); // db1
     }
   }
 

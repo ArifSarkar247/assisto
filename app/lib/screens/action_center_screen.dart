@@ -113,7 +113,10 @@ class _PendingTabState extends State<_PendingTab> {
   }
 
   void _reload() {
-    setState(() => _future = context.read<AppState>().api.pendingActions());
+    // db1: block body — an arrow returned the Future and setState asserted.
+    setState(() {
+      _future = context.read<AppState>().api.pendingActions();
+    });
   }
 
   void _snack(String msg) {
@@ -232,7 +235,9 @@ class _DoneTabState extends State<_DoneTab> {
   }
 
   void _reload() {
-    setState(() => _future = context.read<AppState>().api.actionHistory());
+    setState(() {
+      _future = context.read<AppState>().api.actionHistory(); // db1
+    });
   }
 
   Future<void> _undo(AuditEntry e) async {

@@ -8,6 +8,7 @@ import '../widgets/nominee_scope_picker.dart';
 import '../widgets/nominee_release_sheet.dart';
 import '../widgets/nominee_card.dart';
 import '../widgets/nominee_consent_banner.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// Nominee / family access (feature 36) — ADVANCED.
 ///
@@ -284,7 +285,9 @@ class _NomineeScreenState extends State<NomineeScreen> {
     if (ok == true) {
       try {
         await context.read<AppState>().api.deleteItem('nominees', n['id']);
-      } catch (_) {}
+      } catch (e) {
+        showActionFailed(context, 'nominee.delete', e); // db1
+      }
       await _load();
     }
   }
