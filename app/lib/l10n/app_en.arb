@@ -16105,5 +16105,50 @@
     }
   },
   "e2CantDecryptHere": "This message can't be decrypted on this device.",
-  "e2WaitingToSend": "Waiting to send — it will go out automatically"
+  "e2WaitingToSend": "Waiting to send — it will go out automatically",
+  "t1InfoLegacy": "Sent before read receipts were enabled",
+  "t1Today": "Today",
+  "t1Yesterday": "Yesterday",
+  "t1LastSeenDate": "last seen {date}",
+  "@t1LastSeenDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "t1UpdateTitle": "Update Assisto to use My Circle",
+  "t1UpdateBody": "This version of Assisto is too old for My Circle's message ticks, read receipts and calls. Updating takes a minute — your chats stay safe.",
+  "t1UpdateButton": "Update Assisto",
+  "t1UpdateLater": "Not now",
+  "t1PeerOutdated": "{name} needs to update Assisto for ticks and calls",
+  "@t1PeerOutdated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "t1PeersOutdated": "{names} need to update Assisto for ticks and calls",
+  "@t1PeersOutdated": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "t1PeersMore": "{names} and {count} more",
+  "@t1PeersMore": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "t1SomeoneInChat": "Someone in this chat",
+  "t1GroupTapInfo": "tap here for group info",
+  "t1E2eInfoBody": "Messages and calls in My Circle are locked with keys that live only on your phone and the other person's phone. Nobody else can read or listen to them — not even Assisto's server or its AI."
 }

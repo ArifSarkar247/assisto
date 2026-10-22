@@ -23,6 +23,9 @@ import '../theme.dart';
 import '../widgets/circle_group_poll.dart';
 import '../messaging/receipt_bus.dart';
 import '../messaging/badges_bus.dart';
+import '../messaging/chat_header.dart'; // t1-ticks
+import '../messaging/date_separators.dart'; // t1-ticks
+import '../messaging/mc_version_gate.dart'; // t1-ticks
 import '../messaging/c3_api.dart';
 import '../messaging/msg_notify.dart';
 import '../messaging/msg_ticks.dart';
@@ -1079,35 +1082,22 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   }
 
   PreferredSizeWidget _normalAppBar() => AppBar(
-        title: InkWell(
+        titleSpacing: 0,
+        // t1-ticks: WhatsApp-standard header — name line 1, line 2 = member
+        // names ("Rahim, Karim, You") or "Rahim is typing…"; tap -> info.
+        title: GroupHeaderTitle(
+          name: '${widget.group['name'] ?? ''}',
+          memberNames: [
+            for (final m in _members)
+              if (m['is_self'] != true && '${_idOf(m)}' != _myMemberId)
+                '${m['name'] ?? ''}'
+          ],
+          activity: presenceLabel(_t, _rt.stateOf('group', _gid),
+              lang: Localizations.localeOf(context).languageCode,
+              isGroup: true),
+          avatar: HeaderInitialAvatar(
+              name: '${widget.group['name'] ?? ''}', group: true),
           onTap: _openInfo,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('${widget.group['name'] ?? ''}',
-                  maxLines: 1, overflow: TextOverflow.ellipsis),
-              // c3-msg: "Rahim is typing…" / "… recording audio…"
-              if (presenceLabel(_t, _rt.stateOf('group', _gid),
-                      lang: Localizations.localeOf(context).languageCode,
-                      isGroup: true) !=
-                  null)
-                Text(
-                  presenceLabel(_t, _rt.stateOf('group', _gid),
-                      lang: Localizations.localeOf(context).languageCode,
-                      isGroup: true)!,
-                  key: const Key('c3-group-typing'),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? const Color(0xFF4ADE80)
-                          : const Color(0xFF15803D)),
-                ),
-            ],
-          ),
         ),
         actions: [
           IconButton(
@@ -1185,6 +1175,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
               ? _errorRetry()
               : Column(
                   children: [
+                    // t1-ticks: min-version gate (never blocks sending).
+                    if (!_searching && _gid > 0)
+                      McVersionBanner(api: _api, kind: 'group', chatId: _gid),
                     if (pinned.isNotEmpty && !_searching && !_selecting)
                       _pinnedBar(pinned),
                     Expanded(child: _messageList()),
@@ -1287,6 +1280,19 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   Widget _messageList() {
     final items = _visible;
     if (items.isEmpty) {
+      if (!_searching) {
+        // t1-ticks: the E2E notice is the first history item, even when empty
+        return Column(children: [
+          const E2eNoticeChip(),
+          Expanded(child: _emptyState()),
+        ]);
+      }
+      return _emptyState();
+    }
+    return _historyList(items);
+  }
+
+  Widget _emptyState() {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(Gap.xl),
@@ -1307,23 +1313,31 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           ]),
         ),
       );
-    }
+  }
+
+  Widget _historyList(List<Map<String, dynamic>> items) {
     // e2-keys item 2: REVERSED — index 0 / offset 0 is the latest message,
     // so the group opens there without any scroll. Older pages are appended
     // at the end (= the top) on scroll-up, which keeps the position.
     final searching = _searching && _searchQuery.trim().isNotEmpty;
     final showDivider = !searching && _firstUnreadId != null && _unreadAtOpen > 0;
     final rev = items.reversed.toList();
+    // t1-ticks: date chips + floating date while scrolling, interleaved into
+    // the newest-first rows; the E2E notice is the OLDEST item once the whole
+    // history is loaded.
+    final rows = insertDateSeparators<Map<String, dynamic>>(rev,
+        (m) => DateTime.tryParse('${m['created_at'] ?? m['at'] ?? ''}'),
+        newestFirst: true, e2eNotice: !_searching && !_hasMore);
     return Opacity(
       opacity: _positioned ? 1 : 0,
-      child: ListView.builder(
+      child: ChatDateScope(child: ListView.builder(
         key: const Key('e2-group-list'),
         controller: _scroll,
         reverse: true,
         padding: const EdgeInsets.all(Gap.md),
-        itemCount: rev.length + (_hasMore ? 1 : 0),
+        itemCount: rows.length + (_hasMore ? 1 : 0),
         itemBuilder: (_, i) {
-          if (i >= rev.length) {
+          if (i >= rows.length) {
             return Padding(
               padding: const EdgeInsets.all(Gap.md),
               child: Center(
@@ -1336,18 +1350,19 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
               ),
             );
           }
-          final msg = rev[i];
-          final item = _messageItem(msg);
-          if (showDivider && '${msg['id']}' == _firstUnreadId) {
-            // reversed: the divider sits ABOVE the first unread message
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [_unreadDivider(), item],
-            );
-          }
-          return item;
+          return buildChatRow<Map<String, dynamic>>(rows[i], (msg) {
+            final item = _messageItem(msg);
+            if (showDivider && '${msg['id']}' == _firstUnreadId) {
+              // reversed: the divider sits ABOVE the first unread message
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [_unreadDivider(), item],
+              );
+            }
+            return item;
+          });
         },
-      ),
+      )), // t1-ticks: /ChatDateScope
     );
   }
 

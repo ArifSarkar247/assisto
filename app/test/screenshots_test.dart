@@ -192,6 +192,7 @@ import 'ps1_shots.dart'; // ps1-photo
 import 'w1_webphoto_shots.dart'; // w1-webphoto
 import 'h1_home_shots.dart'; // h1-home
 import 'f1_shots.dart'; // f1-founders
+import 't1_ticks_shots.dart'; // t1-ticks
 import 'c2_calls_shots.dart'; // c2-calls
 import 'package:assisto/screens/unseen_world_screen.dart';
 import 'package:assisto/screens/shop_box_screen.dart';
@@ -645,6 +646,8 @@ void main() {
     // e2-keys: opens at the "N unread messages" divider + honest can't-decrypt bubble
     'c3_e2_chat_unread': (build: (l) => CircleChatScreen(member: C3Fake.member4(l == 'bn'), identity: C3Fake.me), mode: FakeMode.data, full: true),
     // ---- /c3-msg ----
+    // t1-ticks: chat headers, date separators, legacy info, version gate
+    for (final e in t1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
   };
 
   Future<void> shoot(WidgetTester tester, String name, String lang,

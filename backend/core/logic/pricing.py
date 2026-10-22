@@ -327,6 +327,10 @@ def DEFAULTS():
             "founding_member_months": 12,
             "feedback_per_hour": 5,
             "feedback_per_day": 20,
+            # t1-ticks: My Circle needs at least this app build (ticks,
+            # receipts, calls). Older builds get "Update Assisto"; peers on an
+            # older build get an honest banner. Published in app/latest.
+            "my_circle_min_version": 183,
         },
         "probashi_price_usd": DEFAULT_PROBASHI_PRICE_USD,
         # 0 = use the server env AI_DAILY_BUDGET_USD kill-switch default
@@ -511,6 +515,9 @@ def _norm_limits(raw, base):
             raw.get("feedback_per_hour"), base.get("feedback_per_hour", 5)))),
         "feedback_per_day": max(1, min(500, _int(
             raw.get("feedback_per_day"), base.get("feedback_per_day", 20)))),
+        "my_circle_min_version": max(0, min(1000000, _int(
+            raw.get("my_circle_min_version"),
+            base.get("my_circle_min_version", 183)))),
     }
 
 

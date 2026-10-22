@@ -218,7 +218,7 @@ void main() {
           'last seen yesterday at 21:03');
       expect(
           presenceLabel(en, RtChatState(lastSeen: DateTime(2026, 10, 12, 9, 0)), lang: 'en', now: now),
-          startsWith('last seen Oct 12'));
+          'last seen 12 Oct');
     });
 
     test('hidden by privacy → nothing', () {

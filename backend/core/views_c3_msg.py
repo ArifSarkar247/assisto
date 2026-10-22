@@ -303,20 +303,29 @@ def statuses(msgs, viewer):
     for v in rec.values():
         uids.update(v)
     pm = _privacy_map(list(uids))
+    # t1-ticks 1a: pre-receipts messages stay at a neutral single tick.
+    from .views_t1_ticks import legacy_ids
+    legacy = legacy_ids(mine)
     out = {}
     for x in mine:
-        out[x.id] = status_from(rec.get(x.id, []), rows.get(x.id, {}),
-                                pm[viewer.id], pm)
+        out[x.id] = "sent" if x.id in legacy else status_from(
+            rec.get(x.id, []), rows.get(x.id, {}), pm[viewer.id], pm)
     return out
 
 
 def annotate(out_rows, msgs, viewer):
-    """Add `status` to serialized message dicts (in place). Never raises."""
+    """Add `status` to serialized message dicts (in place). Never raises.
+    t1-ticks 1a: pre-receipts rows get `receipts_legacy: true`. (DELIVERED
+    on fetch is x2-ticks' mark_fetched(), called by the fetch views.)"""
+    from . import views_t1_ticks as T1
     try:
         st = statuses(msgs, viewer)
+        legacy = T1.legacy_ids(msgs)
         for d in out_rows:
             if d.get("id") in st:
                 d["status"] = st[d["id"]]
+            if d.get("id") in legacy:
+                d["receipts_legacy"] = True
     except Exception:
         pass
     return out_rows
@@ -652,7 +661,12 @@ class MessageInfoView(APIView):
             return Response({"detail": "not found"},
                             status=status.HTTP_404_NOT_FOUND)
         recips = recipients_map([x]).get(x.id, [])
-        rec = {r.user_id: r for r in CircleReceipt.objects.filter(message=x)}
+        # t1-ticks 1a: a pre-receipts message has no real times (any row was
+        # written later by a sync / chat open) -> say so, never "Not yet".
+        from .views_t1_ticks import is_legacy
+        legacy = is_legacy(x)
+        rec = ({} if legacy else
+               {r.user_id: r for r in CircleReceipt.objects.filter(message=x)})
         pm = _privacy_map(recips + [request.user.id])
         names = dict(User.objects.filter(id__in=recips)
                      .values_list("id", "name"))
@@ -675,6 +689,7 @@ class MessageInfoView(APIView):
                                  z["delivered_at"] is None, z["name"]))
         return Response({
             "id": x.id, "group": bool(x.group_id),
+            "receipts_legacy": legacy,
             "created_at": x.created_at.isoformat(),
             "status": status_from(recips, {u: (r.delivered_at, r.seen_at)
                                            for u, r in rec.items()},

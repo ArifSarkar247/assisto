@@ -25,6 +25,9 @@ import '../widgets/in_chat_ai_sheet.dart';
 import 'circle_call_screen.dart';
 import 'circle_extras_hub_screen.dart';
 import 'messenger/contact_info_screen.dart';
+import '../messaging/chat_header.dart'; // t1-ticks
+import '../messaging/date_separators.dart'; // t1-ticks
+import '../messaging/mc_version_gate.dart'; // t1-ticks
 import '../messaging/c3_api.dart';
 import '../messaging/msg_native.dart';
 import '../messaging/msg_notify.dart';
@@ -1886,31 +1889,47 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     final relation = '${widget.member['relation'] ?? 'friend'}';
     final pinned = _messages.where((m) => m.pinned).toList();
     final rows = _rows; // computed once per build
+    // t1-ticks: date chips (+ the E2E notice as the OLDEST item once the
+    // whole history is loaded) interleaved into e2's newest-first rows.
+    final dated = insertDateSeparators<_ChatRow>(rows, (r) => r.at,
+        newestFirst: true, e2eNotice: !_searching && !_hasMore);
     return Scaffold(
       appBar: _searching ? _searchAppBar(scheme) : _normalAppBar(scheme, relation),
       body: Column(
         children: [
-          const CircleEncryptionBanner(),
+          // t1-ticks (owner B2): the E2E notice is no longer pinned — it is
+          // the first history item (insertDateSeparators e2eNotice).
+          // t1-ticks: min-version gate (my build / peer's build) — never blocks.
+          if (!_searching && int.tryParse('${widget.member['id']}') != null)
+            McVersionBanner(
+                api: _api,
+                kind: 'member',
+                chatId: int.parse('${widget.member['id']}')),
           if (pinned.isNotEmpty && !_searching) _pinnedStrip(pinned, scheme),
           Expanded(
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
                 : rows.isEmpty
-                    ? _chatEmpty(scheme)
+                    ? Column(children: [ // t1-ticks: E2E notice first
+                        if (!_searching) const E2eNoticeChip(),
+                        Expanded(child: _chatEmpty(scheme)),
+                      ])
+                    // t1-ticks: date chips + floating date while scrolling,
+                    // over e2's REVERSED paged list (rows are newest first).
                     : Opacity(
                        // hidden only while the unread divider is placed
                        opacity: _positioned ? 1 : 0,
-                       child: ListView.builder(
+                       child: ChatDateScope(child: ListView.builder(
                         key: const Key('e2-chat-list'),
                         controller: _scroll,
                         // e2-keys item 2: REVERSED — offset 0 is the latest
                         // message, so the chat opens there with no scroll.
                         reverse: true,
                         padding: const EdgeInsets.symmetric(vertical: Gap.sm),
-                        itemCount: rows.length + (_hasMore ? 1 : 0),
+                        itemCount: dated.length + (_hasMore ? 1 : 0),
                         itemBuilder: (_, ri) {
-                          if (ri >= rows.length) return _olderLoader(scheme);
-                          final row = rows[ri];
+                          if (ri >= dated.length) return _olderLoader(scheme);
+                          return buildChatRow<_ChatRow>(dated[ri], (row) {
                           if (row.divider) return _unreadDivider(scheme);
                           if (row.note != null) return _securityNote(scheme, row.note!);
                           final m = row.msg!;
@@ -1961,8 +1980,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                               ),
                             ),
                           );
+                          });
                         },
-                      ),
+                      )), // t1-ticks: /ChatDateScope
                     ),
           ),
           if (_peerTyping && !_searching) _typingIndicator(scheme),
@@ -1989,52 +2009,22 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     if (_selecting) return _selectionAppBar(scheme);
     return AppBar(
       titleSpacing: 0,
-      title: InkWell(
+      // t1-ticks: WhatsApp-standard header (name line 1 full width, status
+      // line 2, tap -> contact info). Presence hidden by privacy -> no line.
+      title: ChatHeaderTitle(
+        name: _memberName,
+        status: _presence,
+        statusActive: _peerTyping,
         onTap: _openContactInfo,
-        child: Row(
-          children: [
-            // x2-ticks (A3): the contact's real photo (cached, refreshed on
-            // change); initials when there is none.
-            MsgrAvatar(
-                key: const Key('x2-header-avatar'),
-                name: _memberName,
-                radius: 18,
-                photoUrl:
-                    '${widget.member['photo_link'] ?? widget.member['photo'] ?? ''}',
-                photoV: '${widget.member['photo_v'] ?? ''}'),
-            const SizedBox(width: Gap.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(_memberName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleMedium),
-                  // c3-msg: presence replaces the relation label (which
-                  // now lives in the contact profile). Hidden by privacy →
-                  // nothing, like WhatsApp.
-                  if (_presence != null)
-                    Text(
-                      _presence!,
-                      key: const Key('c3-presence'),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight:
-                              _peerTyping ? FontWeight.w600 : FontWeight.w400,
-                          color: _peerTyping
-                              ? (Theme.of(context).brightness == Brightness.dark
-                                  ? const Color(0xFF4ADE80)
-                                  : const Color(0xFF15803D))
-                              : scheme.onSurfaceVariant),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
+        // x2-ticks (A3): the contact's real photo (cached, refreshed on
+        // change); initials when there is none.
+        avatar: MsgrAvatar(
+            key: const Key('x2-header-avatar'),
+            name: _memberName,
+            radius: 18,
+            photoUrl:
+                '${widget.member['photo_link'] ?? widget.member['photo'] ?? ''}',
+            photoV: '${widget.member['photo_v'] ?? ''}'),
       ),
       actions: [
         IconButton(
@@ -2047,11 +2037,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
           icon: const Icon(Icons.call_outlined),
           onPressed: () => _placeCall('voice'),
         ),
-        IconButton(
-          tooltip: _t.circleSearchInChat,
-          icon: const Icon(Icons.search),
-          onPressed: () => setState(() => _searching = true),
-        ),
+        // t1-ticks: Search moved into the ⋮ menu (ChatMenuAction.search).
         IconButton(
           tooltip: _t.msgrChatMore,
           icon: const Icon(Icons.more_vert),
