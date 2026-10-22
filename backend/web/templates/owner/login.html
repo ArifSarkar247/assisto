@@ -1,0 +1,15 @@
+{% extends "owner/_auth_shell.html" %}
+{% block title %}{{ T.login_title }}{% endblock %}
+{% block auth %}
+<h2>{{ T.login_title }}</h2>
+<p class="mut">{{ T.login_sub }}</p>
+<form method="post" action="/owner/login" autocomplete="on">
+  {% csrf_token %}<input type="hidden" name="lang" value="{{ lang }}">
+  <label for="phone">{{ T.phone }}</label>
+  <input id="phone" name="phone" inputmode="tel" autocomplete="username" required>
+  <label for="password">{{ T.password }}</label>
+  <input id="password" name="password" type="password" autocomplete="current-password" required>
+  <button class="btn primary wide">{{ T.login_btn }}</button>
+</form>
+<p class="mut small">{{ T.login_note }}</p>
+{% endblock %}
