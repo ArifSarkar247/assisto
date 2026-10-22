@@ -122,7 +122,6 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     BadgesBus.instance.reset();
-    BadgesBus.instance.debounce = Duration.zero;
   });
 
   testWidgets('My Circle: 14 → open chats → 0; new message → 1 → open → 0; '

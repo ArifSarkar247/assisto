@@ -13,7 +13,8 @@ import '../realtime/realtime_transport.dart';
 ///     (a new message for me, a new notification, my other device read a
 ///     chat) — [attach] wires the stream once, after sign-in.
 ///
-/// Pokes are coalesced ([debounce]) so a burst of events = one request. The
+/// Pokes in the same event-loop turn are coalesced (one microtask, never a
+/// Timer — nothing is left pending when a screen closes). The
 /// counts themselves always come from the SERVER, so they survive an app
 /// kill / relaunch.
 class BadgesBus {
@@ -25,17 +26,16 @@ class BadgesBus {
   /// Incremented once per (debounced) refresh request.
   final ValueNotifier<int> tick = ValueNotifier<int>(0);
 
-  Duration debounce = const Duration(milliseconds: 300);
-  Timer? _timer;
+  bool _scheduled = false;
   StreamSubscription<RealtimeEvent>? _sub;
 
   void poke() {
-    _timer?.cancel();
-    if (debounce == Duration.zero) {
+    if (_scheduled) return;
+    _scheduled = true;
+    scheduleMicrotask(() {
+      _scheduled = false;
       tick.value++;
-      return;
-    }
-    _timer = Timer(debounce, () => tick.value++);
+    });
   }
 
   /// Listen to the shared real-time loop for `badges.update` (idempotent).
@@ -50,11 +50,9 @@ class BadgesBus {
 
   @visibleForTesting
   void reset() {
-    _timer?.cancel();
-    _timer = null;
+    _scheduled = false;
     _sub?.cancel();
     _sub = null;
     tick.value = 0;
-    debounce = const Duration(milliseconds: 300);
   }
 }
