@@ -26,7 +26,14 @@ class LimitsLogicTests(SimpleTestCase):
                                        "feedback_per_day": 20,  # f1
                                        "my_circle_min_version": 183,  # t1
                                        "message_request_max_msgs": 5,  # mr1
-                                       "message_requests_per_day": 20})  # mr1
+                                       "message_requests_per_day": 20,  # mr1
+                                       "circle_media_photo_max_mb": 16,  # md1
+                                       "circle_media_voice_max_mb": 16,
+                                       "circle_media_doc_max_mb": 25,
+                                       "circle_media_daily_mb": 300,
+                                       "circle_media_uploads_per_hour": 60,
+                                       "circle_media_keep_days": 30,
+                                       "circle_media_max_days": 90})
         self.assertEqual(c["guarantees"], {"margin_net_floor": 0.60,
                                            "pool_cap_pct_of_net": 0.60})
         self.assertEqual(c["probashi_price_usd"], 4.99)

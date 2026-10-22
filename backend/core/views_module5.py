@@ -977,6 +977,27 @@ class CircleMessagesView(APIView):
         ok, reason = circle_messaging.validate_message_envelope(env)
         if not ok:
             return Response({"detail": reason}, status=status.HTTP_400_BAD_REQUEST)
+        # md1: an E2E media message = an encrypted descriptor (key, nonce,
+        # sha256, name, thumb — inline ciphertext) + the blob it points at.
+        md1_blob = None
+        if env["content_type"] in ("photo", "voice", "document", "video"):
+            from . import circle_blobs as CB
+            if not env.get("ciphertext") or not env.get("nonce"):
+                return Response({"detail": "missing ciphertext"},
+                                status=status.HTTP_400_BAD_REQUEST)
+            if m.state != "accepted":   # message request: text only (abuse)
+                return Response(
+                    {"detail": CB.reason_text("media_after_accept",
+                                              req_lang(request)),
+                     "reason": "media_after_accept"},
+                    status=status.HTTP_403_FORBIDDEN)
+            md1_blob, why = CB.attach_check(request.user, env.get("blob_ref"),
+                                            env["content_type"])
+            if why or env["content_type"] not in CB.CHAT_MEDIA_KINDS:
+                why = why or "bad_kind"
+                return Response({"detail": CB.reason_text(why, req_lang(request)),
+                                 "reason": why},
+                                status=status.HTTP_400_BAD_REQUEST)
         # M1 send gate: both sides accepted + not blocked (circle-only).
         blocked_either = bool(getattr(m, "blocked", False))
         # mr1: a MESSAGE REQUEST (my outgoing pending edge) may carry up to
@@ -1061,6 +1082,9 @@ class CircleMessagesView(APIView):
             forward_hops=fh,
             link_preview=env.get("link_preview"),
         )
+        if md1_blob is not None:   # md1: retention knows who must download
+            from . import circle_blobs as CB
+            CB.add_recipients(md1_blob, [m.peer_user_id])
         # c3-msg: keep the quoted-reply link (it was dropped, so a reply lost
         # its quote after a reload). Only a message of THIS conversation.
         try:
@@ -1150,6 +1174,9 @@ class CircleMessageActionView(APIView):
                 x.ciphertext = ""
                 x.nonce = ""
                 x.save(update_fields=["deleted", "ciphertext", "nonce"])
+                if x.blob_ref:   # md1: the encrypted file goes too
+                    from . import circle_blobs as CB
+                    CB.release(x.blob_ref)
             else:
                 hidden = set(x.hidden_for or [])
                 hidden.add(mid)

@@ -198,6 +198,7 @@ import 'h1_home_shots.dart'; // h1-home
 import 'f1_shots.dart'; // f1-founders
 import 't1_ticks_shots.dart'; // t1-ticks
 import 'mr1_shots.dart'; // mr1
+import 'md1_shots.dart'; // md1
 import 'pay1_shots.dart'; // pay1
 import 'tl1_shots.dart'; // tl1 OEM background guide
 import 'c2_calls_shots.dart'; // c2-calls
@@ -334,6 +335,8 @@ void galleryPrime(String name) {
     fakeM3On = name.startsWith('m3_'); // m3-circle gallery stubs
     fakeC3On = name.startsWith('c3_'); // c3-msg gallery stubs
     fakeMr1On = name.startsWith('mr1_'); // mr1 gallery stubs
+    fakeMd1On = false;
+    if (name.startsWith('md1_')) md1Prime(); // md1 E2E media gallery stubs
     if (fakeC3On) C3Fake.seedRealtime();
 }
 
@@ -678,6 +681,8 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in t1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // mr1: message requests + full last seen
     for (final e in mr1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // md1: E2E media (attach sheet, bubbles, chat, viewer, preview, recorder)
+    for (final e in md1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
   };
 }
 

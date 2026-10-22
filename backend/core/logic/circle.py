@@ -342,7 +342,9 @@ def scope_label(scope, lang="bn"):
 # Content types.  'text' ciphertext is stored inline (small).  Media is a blob
 # reference (the encrypted file lives in object storage; still ciphertext-only).
 
-CONTENT_TYPES = ("text", "voice", "photo", "video", "key_exchange", "system")
+# md1: "document" (blob) and "location" (a static point, inline ciphertext).
+CONTENT_TYPES = ("text", "voice", "photo", "video", "document", "location",
+                 "key_exchange", "system")
 
 # Metadata the server is permitted to persist on an envelope (ROUTING ONLY).
 ALLOWED_META_KEYS = {
@@ -375,12 +377,12 @@ def validate_envelope(env):
     if bad:
         return False, "forbidden plaintext/secret field(s): " + ",".join(sorted(bad))
     # Text + key_exchange carry inline ciphertext; media carry a blob reference.
-    if ct in ("text", "key_exchange"):
+    if ct in ("text", "key_exchange", "location"):
         if not env.get("ciphertext"):
             return False, "missing ciphertext"
         if not env.get("nonce"):
             return False, "missing nonce"
-    elif ct in ("voice", "photo", "video"):
+    elif ct in ("voice", "photo", "video", "document"):
         if not env.get("blob_ref"):
             return False, "missing blob_ref for media"
     # recipients must be present (routing)

@@ -536,6 +536,9 @@ class GroupMessageActView(APIView):
                 x.per_recipient = None
                 x.save(update_fields=["deleted", "ciphertext", "nonce",
                                       "per_recipient"])
+                if x.blob_ref:   # md1: the encrypted file goes too
+                    from . import circle_blobs as CB
+                    CB.release(x.blob_ref)
                 return Response({"ok": True, "deleted": "everyone"})
             hidden = set(x.hidden_for or [])
             hidden.add(uid)

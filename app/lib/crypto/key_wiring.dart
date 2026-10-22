@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 
 import '../api.dart';
 import '../calls/call_runtime.dart';
+import '../messaging/media/media_outbox.dart';
 import '../messaging/outbox.dart';
 import '../state.dart';
 import 'key_service.dart';
@@ -80,6 +81,16 @@ class KeyWiring with WidgetsBindingObserver {
         },
         keyEvents: KeyService.instance.keyEvents.stream,
       );
+      // md1: queued photo / voice / document sends resume after a restart
+      // (prefs read only; nothing native here).
+      MediaOutbox.instance.identity = () async {
+        try {
+          return await KeyService.instance.identity();
+        } catch (_) {
+          return null;
+        }
+      };
+      unawaited(MediaOutbox.instance.kick());
     } catch (_) {}
   }
 
@@ -87,6 +98,9 @@ class KeyWiring with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       unawaited(Outbox.instance.kick());
+      if (MediaOutbox.instance.identity != null) {
+        unawaited(MediaOutbox.instance.kick()); // md1
+      }
     }
   }
 
@@ -108,6 +122,9 @@ class KeyWiring with WidgetsBindingObserver {
         KeyService.instance.keyEvents
             .add({'chat': 'member:${id ?? 0}', 'push': true});
         unawaited(Outbox.instance.kick(onlyChat: id));
+        if (MediaOutbox.instance.identity != null) {
+          unawaited(MediaOutbox.instance.kick()); // md1: media waits on keys too
+        }
         return true;
       }
     } catch (_) {}

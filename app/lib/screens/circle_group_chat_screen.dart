@@ -22,6 +22,13 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/circle_group_poll.dart';
 import '../messaging/receipt_bus.dart';
+import '../messaging/media/media_actions.dart'; // md1
+import '../messaging/media/media_bubble.dart';
+import '../messaging/media/media_descriptor.dart';
+import '../messaging/media/media_outbox.dart';
+import '../messaging/media/media_send.dart';
+import '../messaging/media/media_store.dart';
+import '../widgets/circle_attach_sheet.dart';
 import '../messaging/badges_bus.dart';
 import '../messaging/chat_header.dart'; // t1-ticks
 import '../messaging/date_separators.dart'; // t1-ticks
@@ -130,11 +137,69 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     _scroll.addListener(_onScroll);
     _load().then((_) => _markSeen());
     _poll = Timer.periodic(const Duration(seconds: 8), (_) => _pollMessages());
+    // md1: media sends of this group (progress ring) + decrypted-file dir.
+    MediaOutbox.instance.identity ??= () async => widget.identity;
+    MediaOutbox.instance.changes.addListener(_onMediaJobs);
+    _mediaSentSub = MediaOutbox.instance.sent.listen((s) {
+      if (s.chatKind == 'group' && s.chatId == _gid) unawaited(_pollMessages());
+    });
+    unawaited(_onMediaJobsAsync());
+    unawaited(MediaDirs.root().then((_) {
+      if (mounted) setState(() {});
+    }, onError: (Object e) => KeyService.instance.log.add('md1 dir ${e.runtimeType}')));
     // x2-ticks: live ticks + instant refresh on a new message.
     _rcptSub = ReceiptBus.instance.updates.listen(_onReceipt);
     _newSub = ReceiptBus.instance.newMessages.listen((c) {
       if (c == _chatKey) unawaited(_pollMessages());
     });
+  }
+
+  // ---- md1: E2E media ----
+  List<MediaJob> _mediaJobs = const [];
+  StreamSubscription<MediaSent>? _mediaSentSub;
+  // decrypted plaintext per message (BigInt X25519 is slow on low-end
+  // phones; never re-decrypt the same envelope on every frame)
+  final Map<String, String> _ptCache = {};
+
+  void _onMediaJobs() => unawaited(_onMediaJobsAsync());
+
+  Future<void> _onMediaJobsAsync() async {
+    final jobs = await MediaOutbox.instance.forChat('group', _gid);
+    if (mounted) setState(() => _mediaJobs = jobs);
+  }
+
+  bool get _canAttach => circleAttachKinds().isNotEmpty;
+
+  Future<void> _attach() async {
+    final kind = await showCircleAttachSheet(context);
+    if (kind == null || !mounted) return;
+    final draft = await pickMediaDraft(context, _api, kind);
+    if (draft == null || !mounted) return;
+    final job = await confirmAndQueueMedia(context, draft,
+        chatKind: 'group',
+        chatId: _gid,
+        replyTo: _replyTo == null ? null : '${_replyTo!['id']}');
+    if (job == null || !mounted) return;
+    setState(() {
+      _mediaJobs = [..._mediaJobs.where((j) => j.id != job.id), job];
+      _replyTo = null;
+    });
+  }
+
+  /// The media descriptor of a photo / voice / document message, decrypted
+  /// on this phone (null for text or when it can't be decrypted here).
+  MediaDescriptor? _mediaOf(Map<String, dynamic> msg) {
+    if (!kMd1Kinds.contains('${msg['content_type'] ?? 'text'}')) return null;
+    final raw = _decryptRaw(msg);
+    return raw == null ? null : MediaDescriptor.tryParse(raw);
+  }
+
+  void _openFile(File f, MediaDescriptor d) {
+    if (d.kind == 'photo') {
+      unawaited(openPhotoViewer(context, f, d));
+    } else if (d.kind == 'document') {
+      unawaited(openDocumentSheet(context, f, d));
+    }
   }
 
   // ---- x2-ticks ----
@@ -175,6 +240,8 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   void dispose() {
     if (MsgActiveChat.current == _chatKey) MsgActiveChat.current = null;
     _poll?.cancel();
+    MediaOutbox.instance.changes.removeListener(_onMediaJobs);
+    _mediaSentSub?.cancel();
     _rcptSub?.cancel(); // x2-ticks
     _newSub?.cancel();
     _rt.states.removeListener(_onRt);
@@ -1285,7 +1352,20 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   }
 
   Widget _messageList() {
-    final items = _visible;
+    final searching = _searching && _searchQuery.trim().isNotEmpty;
+    final have = _messages.map((m) => '${m['client_msg_id'] ?? m['id']}').toSet();
+    final items = [
+      ..._visible,
+      if (!searching)
+        for (final j in _mediaJobs)
+          if (!have.contains(j.id))
+            <String, dynamic>{
+              'id': j.id,
+              'md1_job': j,
+              'mine': true,
+              'created_at': j.at.toUtc().toIso8601String(),
+            },
+    ];
     if (items.isEmpty) {
       if (!_searching) {
         // t1-ticks: the E2E notice is the first history item, even when empty
@@ -1454,6 +1534,31 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   }
 
   Widget _messageItem(Map<String, dynamic> msg) {
+    final job = msg['md1_job'];
+    if (job is MediaJob) {
+      // md1: a send still on its way (progress ring + cancel / retry)
+      return Align(
+        alignment: Alignment.centerRight,
+        child: Card(
+          margin: const EdgeInsets.symmetric(vertical: Gap.xs),
+          child: Padding(
+            padding: const EdgeInsets.all(Gap.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                MediaBubbleBody(
+                    key: ValueKey('md1-job-${job.id}'),
+                    job: job,
+                    mine: true,
+                    fg: Theme.of(context).colorScheme.onSurface),
+                if (job.caption.isNotEmpty) Text(job.caption),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
     // A poll message renders the poll widget; otherwise a decrypted text bubble.
     if (msg['kind'] == 'poll' || msg['poll'] != null) {
       final poll = (msg['poll'] as Map?)?.cast<String, dynamic>() ?? msg;
@@ -1467,6 +1572,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     }
     final dec = _decryptForMe(msg);
     final text = dec ?? '';
+    final media = _mediaOf(msg); // md1
     // e2-keys: honest bubble when this device cannot decrypt it.
     final undecryptable = dec == null && '${msg['deleted'] ?? ''}' != 'everyone';
     final senderName = _senderName(msg);
@@ -1506,6 +1612,17 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                 ],
               ),
               const SizedBox(height: Gap.xs),
+              if (media != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: Gap.xs),
+                  child: MediaBubbleBody(
+                    key: ValueKey('md1-${media.ref}'),
+                    desc: media,
+                    mine: msg['mine'] == true,
+                    fg: Theme.of(context).colorScheme.onSurface,
+                    onOpen: _selecting ? null : _openFile,
+                  ),
+                ),
               if (undecryptable)
                 Text(_t.e2CantDecryptHere,
                     key: const Key('e2-cant-decrypt'),
@@ -1703,6 +1820,13 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         padding: const EdgeInsets.fromLTRB(Gap.sm, Gap.xs, Gap.sm, Gap.xs),
         child: Row(
           children: [
+            if (_canAttach)
+              IconButton(
+                key: const Key('md1-group-attach'),
+                tooltip: _t.circleAttach,
+                icon: const Icon(Icons.add_circle_outline),
+                onPressed: _attach,
+              ),
             IconButton(
               tooltip: _t.circleGroupCreatePoll,
               icon: const Icon(Icons.poll_outlined),
@@ -1754,7 +1878,28 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   /// Decrypt the per-recipient blob addressed to me. The fallback fan-out ships
   /// a per_recipient map; my entry is keyed by my member id. On MLS this would
   /// be a single group ciphertext decrypted with the group key.
+  /// Text of a message for display / copy / search: for md1 media the
+  /// caption (never the descriptor with its file key).
   String? _decryptForMe(Map<String, dynamic> msg) {
+    final raw = _decryptRaw(msg);
+    if (raw == null) return null;
+    if (kMd1Kinds.contains('${msg['content_type'] ?? 'text'}')) {
+      final d = MediaDescriptor.tryParse(raw);
+      return d?.caption;
+    }
+    return raw;
+  }
+
+  String? _decryptRaw(Map<String, dynamic> msg) {
+    final ck = '${msg['id']}|${msg['deleted'] ?? ''}';
+    final hit = _ptCache[ck];
+    if (hit != null) return hit;
+    final pt = _decryptUncached(msg);
+    if (pt != null) _ptCache[ck] = pt;
+    return pt;
+  }
+
+  String? _decryptUncached(Map<String, dynamic> msg) {
     try {
       final per = (msg['per_recipient'] as Map?)?.cast<String, dynamic>();
       // Resolve MY entry only: prefer the per-message my_member_id, else the

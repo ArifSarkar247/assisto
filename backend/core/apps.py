@@ -12,3 +12,7 @@ class CoreConfig(AppConfig):
         # b2-badges: badges.update realtime events (new message / notif).
         from . import b2_badges
         b2_badges.connect()
+        # md1: deleting a CircleMediaBlob row (purge, delete-for-everyone,
+        # account deletion cascade) removes its ciphertext file.
+        from . import circle_blobs
+        circle_blobs.connect()

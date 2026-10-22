@@ -6,96 +6,105 @@ import '../theme.dart';
 
 /// The "+" attach sheet for a circle chat.
 ///
-/// mr1 — NO SHOWPIECES: every kind here needs My Circle's encrypted media
-/// storage ([kCircleMediaStorageOn]); none of them can really be sent until
-/// that ships (see .phaseB/proposals/mr1-media.md). So [circleAttachKinds]
-/// lists ONLY kinds that really work today — currently none — and the chat
-/// hides the attach button entirely when the list is empty. Nothing in the
-/// sheet ever answers "available when encrypted storage is enabled".
+/// NO SHOWPIECES: [circleAttachKinds] lists ONLY kinds that really send end
+/// to end (md1: photo from the gallery or camera, voice message, document —
+/// [kCircleChatMediaKinds]); video, contact and location stay hidden until
+/// each is really built. The chat hides the "+" button when the list is empty
+/// (and during a message request: media only after acceptance).
 enum CircleAttachKind { gallery, camera, voice, video, document, contact, location, liveLocation }
 
 /// The kinds that can really be sent right now, in sheet order.
-List<CircleAttachKind> circleAttachKinds({bool? storageOn}) {
-  final on = storageOn ?? kCircleMediaStorageOn;
-  if (!on) return const [];
-  return const [
-    CircleAttachKind.gallery,
-    CircleAttachKind.camera,
-    CircleAttachKind.voice,
-    CircleAttachKind.video,
-    CircleAttachKind.document,
-    CircleAttachKind.contact,
-    CircleAttachKind.location,
-    CircleAttachKind.liveLocation,
+List<CircleAttachKind> circleAttachKinds({Set<String>? kinds}) {
+  final on = kinds ?? kCircleChatMediaKinds;
+  return [
+    if (on.contains('photo')) CircleAttachKind.gallery,
+    if (on.contains('photo')) CircleAttachKind.camera,
+    if (on.contains('voice')) CircleAttachKind.voice,
+    if (on.contains('video')) CircleAttachKind.video,
+    if (on.contains('document')) CircleAttachKind.document,
+    if (on.contains('contact')) CircleAttachKind.contact,
+    if (on.contains('location')) CircleAttachKind.location,
+    if (on.contains('live_location')) CircleAttachKind.liveLocation,
   ];
 }
 
 /// Returns the chosen attach kind, or null. Only shows [circleAttachKinds].
 Future<CircleAttachKind?> showCircleAttachSheet(BuildContext context,
     {List<CircleAttachKind>? kinds}) {
-  final t = AppLocalizations.of(context);
-  final scheme = Theme.of(context).colorScheme;
   final list = kinds ?? circleAttachKinds();
-
-  (IconData, String) look(CircleAttachKind k) => switch (k) {
-        CircleAttachKind.gallery => (Icons.photo_library_outlined, t.circleAttachGallery),
-        CircleAttachKind.camera => (Icons.photo_camera_outlined, t.circleAttachCamera),
-        CircleAttachKind.voice => (Icons.mic_none_outlined, t.circleVoiceNote),
-        CircleAttachKind.video => (Icons.videocam_outlined, t.circleVideo),
-        CircleAttachKind.document => (Icons.insert_drive_file_outlined, t.circleAttachDocument),
-        CircleAttachKind.contact => (Icons.contact_page_outlined, t.circleAttachContact),
-        CircleAttachKind.location => (Icons.location_on_outlined, t.circleAttachLocation),
-        CircleAttachKind.liveLocation => (Icons.my_location_outlined, t.circleAttachLiveLocation),
-      };
-
-  Widget grid(BuildContext ctx, CircleAttachKind kind) {
-    final (icon, label) = look(kind);
-    return InkWell(
-      key: Key('attach-${kind.name}'),
-      borderRadius: BorderRadius.circular(Radii.md),
-      onTap: () => Navigator.pop(ctx, kind),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: Gap.md),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircleAvatar(
-              radius: 26,
-              backgroundColor: scheme.secondaryContainer,
-              child: Icon(icon, color: scheme.onSecondaryContainer),
-            ),
-            const SizedBox(height: Gap.xs),
-            SizedBox(
-              width: 72,
-              child: Text(label,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  style: const TextStyle(fontSize: 12)),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   if (list.isEmpty) return Future.value(null);
   return showModalBottomSheet<CircleAttachKind>(
     context: context,
     showDragHandle: true,
     builder: (ctx) => SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
-        child: GridView.count(
-          crossAxisCount: 4,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          // db1: 0.82 clipped two-line labels by 12px at 360dp (tap sweep).
-          childAspectRatio: 0.68,
-          children: [for (final k in list) grid(ctx, k)],
-        ),
-      ),
+      child: CircleAttachGrid(kinds: list, onPick: (k) => Navigator.pop(ctx, k)),
     ),
   );
+}
+
+/// The sheet's grid (also used by the gallery shot).
+class CircleAttachGrid extends StatelessWidget {
+  final List<CircleAttachKind> kinds;
+  final ValueChanged<CircleAttachKind> onPick;
+  const CircleAttachGrid({super.key, required this.kinds, required this.onPick});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    (IconData, String) look(CircleAttachKind k) => switch (k) {
+          CircleAttachKind.gallery => (Icons.photo_library_outlined, t.circleAttachGallery),
+          CircleAttachKind.camera => (Icons.photo_camera_outlined, t.circleAttachCamera),
+          CircleAttachKind.voice => (Icons.mic_none_outlined, t.circleVoiceNote),
+          CircleAttachKind.video => (Icons.videocam_outlined, t.circleVideo),
+          CircleAttachKind.document => (Icons.insert_drive_file_outlined, t.circleAttachDocument),
+          CircleAttachKind.contact => (Icons.contact_page_outlined, t.circleAttachContact),
+          CircleAttachKind.location => (Icons.location_on_outlined, t.circleAttachLocation),
+          CircleAttachKind.liveLocation => (Icons.my_location_outlined, t.circleAttachLiveLocation),
+        };
+
+    Widget cell(CircleAttachKind kind) {
+      final (icon, label) = look(kind);
+      return InkWell(
+        key: Key('attach-${kind.name}'),
+        borderRadius: BorderRadius.circular(Radii.md),
+        onTap: () => onPick(kind),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: Gap.md),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircleAvatar(
+                radius: 26,
+                backgroundColor: scheme.secondaryContainer,
+                child: Icon(icon, color: scheme.onSecondaryContainer),
+              ),
+              const SizedBox(height: Gap.xs),
+              SizedBox(
+                width: 72,
+                child: Text(label,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    style: const TextStyle(fontSize: 12)),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
+      child: GridView.count(
+        crossAxisCount: 4,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        // db1: 0.82 clipped two-line labels by 12px at 360dp (tap sweep).
+        childAspectRatio: 0.68,
+        children: [for (final k in kinds) cell(k)],
+      ),
+    );
+  }
 }
 
 /// The live-location duration chooser (15m / 1h / 8h) — mirrors

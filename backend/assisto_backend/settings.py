@@ -215,6 +215,12 @@ STORAGES = {
 }
 # nginx streams the bytes (X-Accel-Redirect → internal /protected-media/).
 MEDIA_X_ACCEL = env_bool("MEDIA_X_ACCEL", False)
+# md1: My Circle E2E media ciphertext lives OUTSIDE MEDIA_ROOT (never under
+# /media/); served only via 10-min signed links (core/circle_blobs.py). In
+# production nginx streams it: internal location /protected-circle-blobs/
+# aliasing this dir, then CIRCLE_BLOB_X_ACCEL=1 (see .phaseB/proposals/md1.md).
+CIRCLE_BLOB_ROOT = os.getenv("CIRCLE_BLOB_ROOT", str(BASE_DIR / "private" / "circle_blobs"))
+CIRCLE_BLOB_X_ACCEL = env_bool("CIRCLE_BLOB_X_ACCEL", False)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 15 * 1024 * 1024  # 15MB uploads (screenshots/photos)
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
