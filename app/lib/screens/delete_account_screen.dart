@@ -392,7 +392,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
 
   // --- Step 0: preview ------------------------------------------------------
   Widget _previewBody(AppLocalizations t) {
-    final entries = _counts.entries.toList();
+    final entries = _groupedCounts(t);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -422,7 +422,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                   ListTile(
                     dense: true,
                     leading: const Icon(Icons.delete_outline, size: 20),
-                    title: Text(_prettyType(e.key)),
+                    title: Text(e.key),
                     trailing: Text(fmtInt(context, e.value),
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                   ),
@@ -468,7 +468,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
           )
         else
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Brand.danger),
+            style: Brand.dangerButton(),
             onPressed: _busy
                 ? null
                 : () => setState(() {
@@ -558,7 +558,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
           const SizedBox(height: Gap.sm),
         ],
         FilledButton(
-          style: FilledButton.styleFrom(backgroundColor: Brand.danger),
+          style: Brand.dangerButton(),
           onPressed: _busy || !_canSubmit() ? null : _submit,
           child: _busy
               ? const SizedBox(
@@ -792,13 +792,46 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     return DateFormat.yMMMMd(locale).add_jm().format(dt);
   }
 
-  /// Best-effort humanisation of a backend reverse-relation accessor name
-  /// (e.g. "reminder_set" -> "Reminders"). Localized labels aren't available
-  /// per-type, so we present the server's key in a readable form.
-  String _prettyType(String key) {
-    var s = key.replaceAll('_set', '').replaceAll('_', ' ').trim();
-    if (s.isEmpty) return key;
-    return s[0].toUpperCase() + s.substring(1);
+  /// The server counts every reverse relation of the user by its Django
+  /// accessor name ("reminders", "txns", "auth_token", …). Show people what
+  /// they recognise, in their language: known kinds under a localized label
+  /// (several accessors can share one), the rest summed into "Other records".
+  /// QA qa1: the old "Reminder set"-style English names showed in Bangla UI.
+  List<MapEntry<String, int>> _groupedCounts(AppLocalizations t) {
+    final groups = <String, List<String>>{
+      t.delAcctKindMemories: ['memories'],
+      t.delAcctKindReminders: ['reminders'],
+      t.delAcctKindNotes: ['notes'],
+      t.delAcctKindTodos: ['todos'],
+      t.delAcctKindDocuments: ['documents'],
+      t.delAcctKindMoney: ['txns', 'accounts', 'budgets', 'loans', 'goals',
+          'autopay_rules', 'bill_templates', 'fam_expenses', 'fam_pools'],
+      t.delAcctKindContacts: ['contacts'],
+      t.delAcctKindCircle: ['circle_members', 'circle_groups', 'circle_invites'],
+      t.delAcctKindMessages: ['circle_sent', 'scheduled_messages', 'channel_posts'],
+      t.delAcctKindAiChats: ['chat_sessions', 'chat_threads'],
+      t.delAcctKindHealth: ['medicines', 'prescriptions', 'doctors', 'appointments'],
+      t.delAcctKindEvents: ['birthdays', 'meetings'],
+      t.delAcctKindFamily: ['family', 'nominees', 'emergency'],
+      t.delAcctKindBusiness: ['products', 'sales', 'orders', 'sale_customers',
+          'business_expenses', 'business', 'shop_sites', 'product_categories'],
+      t.delAcctKindProtection: ['vehicle_trackers', 'protected_phones', 'stolen_reports'],
+      t.delAcctKindSafety: ['journeys', 'saved_places', 'checkins'],
+      t.delAcctKindPa: ['pa_items', 'school_items'],
+      t.delAcctKindPhotos: ['photo_jobs', 'photo_exports'],
+      t.delAcctKindCrm: ['crm_orgs', 'crm_memberships'],
+    };
+    final known = <String>{for (final g in groups.values) ...g};
+    final out = <MapEntry<String, int>>[];
+    groups.forEach((label, keys) {
+      final n = keys.fold<int>(0, (a, k) => a + (_counts[k] ?? 0));
+      if (n > 0) out.add(MapEntry(label, n));
+    });
+    final other = _counts.entries
+        .where((e) => !known.contains(e.key))
+        .fold<int>(0, (a, e) => a + e.value);
+    if (other > 0) out.add(MapEntry(t.delAcctKindOther, other));
+    return out;
   }
 
   static DateTime? _parseDate(dynamic v) {

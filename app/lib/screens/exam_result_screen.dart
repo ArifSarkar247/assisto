@@ -9,6 +9,7 @@ import '../widgets/exam_board_picker.dart';
 import '../widgets/exam_gpa_explainer.dart';
 import '../widgets/exam_result_card.dart';
 import '../widgets/exam_student_watch.dart';
+import '../widgets/bn_day_periods.dart' show appDateLocale;
 import '../services/action_feedback.dart'; // db1
 
 /// ADVANCED exam-result module (SPEC v2.1 §21) for BD board/university results
@@ -138,7 +139,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final phase = _phase();
-    final df = DateFormat('d MMM yyyy');
+    final df = DateFormat('d MMM yyyy', appDateLocale(context));
     final urlText = _url.text.trim();
     final urlFlag = urlText.isNotEmpty && !isOfficialResultUrl(urlText);
 

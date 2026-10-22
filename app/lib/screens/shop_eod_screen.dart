@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
@@ -256,13 +257,19 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
 
   Widget _historyTile(BuildContext context, AppLocalizations t, ColorScheme scheme,
       Map<String, dynamic> c) {
+    String dayLabel(BuildContext context, dynamic v) {
+      final d = DateTime.tryParse('${v ?? ''}');
+      if (d == null) return '${v ?? ''}';
+      return DateFormat.MMMEd(Localizations.localeOf(context).toLanguageTag()).format(d);
+    }
     final (color, icon, label) = _statusLook(t, scheme, (c['status'] ?? 'ok').toString());
     final diff = _i(c['difference']);
     return Card(
       margin: const EdgeInsets.only(bottom: Gap.sm),
       child: ListTile(
         leading: Icon(icon, color: color),
-        title: Text('${(c['day'] ?? '').toString()}  ·  $label',
+        // qa1: localized day (was ISO "2026-10-20" in both languages)
+        title: Text('${dayLabel(context, c['day'])}  ·  $label',
             maxLines: 2, overflow: TextOverflow.ellipsis),
         subtitle: Text(
             '${t.shopEodCountedShort}: ${taka(context, _i(c['counted']))}  ·  '

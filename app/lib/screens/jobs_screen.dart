@@ -8,6 +8,7 @@ import '../widgets/jobs_store.dart';
 import '../widgets/jobs_card.dart';
 import '../widgets/jobs_filters.dart';
 import '../widgets/jobs_detail.dart';
+import '../widgets/subs_common.dart' show fmtInt;
 
 /// Job Hunter — ADVANCED (feature 37, SPEC v2.1 §21). Three tabs:
 ///   • Discover — curated sample feed + search/filters + salary insight, with an
@@ -248,6 +249,9 @@ class _JobsScreenState extends State<JobsScreen> {
         ]),
       );
 
+  /// qa1: thousands separators + locale digits for the salary insight line.
+  String _n(dynamic v) => v is num ? fmtInt(context, v.round()) : '${v ?? ''}';
+
   Widget _salaryInsight(AppLocalizations tr, ColorScheme scheme, Map<String, dynamic> ins) => Container(
         margin: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
         padding: const EdgeInsets.all(Gap.md),
@@ -267,7 +271,7 @@ class _JobsScreenState extends State<JobsScreen> {
           // though the rendered string reads "min – median – max". Pass values
           // in the SIGNATURE order so each placeholder gets its intended value
           // and the range reads ascending (min ≤ median ≤ max).
-          Text(tr.jobsSalaryRange('${ins['median']}', '${ins['min']}', '${ins['max']}', '${ins['count']}'),
+          Text(tr.jobsSalaryRange(_n(ins['median']), _n(ins['min']), _n(ins['max']), _n(ins['count'])),
               style: TextStyle(color: scheme.onSurface)),
           Text(tr.jobsSalarySourceNote,
               style: TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant)),

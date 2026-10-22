@@ -80,7 +80,7 @@ class _RamadanZakatState extends State<RamadanZakat> {
           ]),
           const SizedBox(height: Gap.xs),
           Text(t.ramadanZakatRateNote,
-              style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
           const SizedBox(height: Gap.sm),
           _field(_cash, t.ramadanZakatCash),
           _field(_gold, t.ramadanZakatGold),
@@ -90,7 +90,7 @@ class _RamadanZakatState extends State<RamadanZakat> {
           _field(_nisab, t.ramadanZakatNisab),
           const SizedBox(height: 2),
           Text(t.ramadanNisabNote,
-              style: const TextStyle(fontSize: 11, color: Colors.grey)),
+              style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
           const SizedBox(height: Gap.sm),
           SizedBox(
             width: double.infinity,

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../api.dart';
@@ -500,6 +501,29 @@ List<({String code, String label})> moduleOptions(AppLocalizations t) => [
       (code: 'production', label: t.crmModProduction),
       (code: 'sales', label: t.crmModSales),
     ];
+
+/// QA qa1: CRM dates came through as ISO "2026-10-13" in both languages.
+/// A date-only/ISO string becomes a localized medium date ("13 Oct 2026" /
+/// Bangla digits and month); anything unparsable is shown as-is, empty as "—".
+String crmDate(BuildContext context, dynamic v) {
+  final s = (v ?? '').toString();
+  if (s.isEmpty) return '—';
+  final d = DateTime.tryParse(s);
+  if (d == null) return s;
+  return DateFormat.yMMMd(Localizations.localeOf(context).toLanguageTag()).format(d);
+}
+
+/// QA qa1: the server's score reason is a formula with internal keys
+/// ("industry_fit=25 + company_size=25 + buying_signals=50 (…) = 95"). Show it
+/// as words in the user's language; an unknown format falls back to the raw
+/// text (it is still the honest reason).
+String crmScoreReasonText(BuildContext context, AppLocalizations t, String raw) {
+  final m = RegExp(r'industry_fit=(\d+).*?company_size=(\d+).*?buying_signals=(\d+)')
+      .firstMatch(raw);
+  if (m == null) return raw;
+  String n(int i) => fmtInt(context, int.parse(m.group(i)!));
+  return t.qa1CrmScoreParts(n(1), n(2), n(3));
+}
 
 // The backend's by_industry rows carry the raw industry CODE (rmg/pharma/…).
 // Map known codes to their proper labels (matches crm_firstrun) and title-

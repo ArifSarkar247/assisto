@@ -270,8 +270,10 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
               size: 18,
               color: isDefault ? Brand.success : Brand.warning),
           const SizedBox(width: Gap.sm),
-          Text(isDefault ? t.srvCurrentDefault : t.srvCurrentCustom,
-              style: const TextStyle(fontWeight: FontWeight.w700)),
+          Expanded(
+            child: Text(isDefault ? t.srvCurrentDefault : t.srvCurrentCustom,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
+          ),
         ]),
         const SizedBox(height: Gap.sm),
         SelectableText(current,

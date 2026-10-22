@@ -32,6 +32,33 @@ class Brand {
   static const warning = Color(0xFFE0A500);
   static const danger = Color(0xFFE0485A);
 
+  /// Fill for destructive FILLED buttons/snackbars: white text on it is 5.6:1
+  /// (Brand.danger is 4.0:1 with white, and with only a background set the
+  /// dark theme drew its dark onPrimary text on it — ~2:1, QA qa1).
+  static const dangerFill = Color(0xFFC62839);
+
+  /// Fill for positive FILLED buttons (white text 5.3:1; Brand.success is
+  /// 3.4:1 with white — below AA for button text).
+  static const successFill = Color(0xFF1E7A50);
+
+  /// The one positive FilledButton style (white text, both themes).
+  static ButtonStyle successButton() => FilledButton.styleFrom(
+      backgroundColor: successFill, foregroundColor: Colors.white);
+
+  /// Readable text/icon colour for a semantic [color] drawn on its own light
+  /// tint (status chips, badges): pulled toward the theme's onSurface so
+  /// amber/blue/green labels pass AA on both themes (QA qa1: amber "order
+  /// received" on its pale tint was ~2:1).
+  static Color onTint(BuildContext context, Color color) {
+    final s = Theme.of(context).colorScheme;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return Color.lerp(color, s.onSurface, dark ? 0.25 : 0.45)!;
+  }
+
+  /// The one destructive FilledButton style (white text, both themes).
+  static ButtonStyle dangerButton() => FilledButton.styleFrom(
+      backgroundColor: dangerFill, foregroundColor: Colors.white);
+
   // Brand gradient (login / splash / hero surfaces / logo tint)
   static const gradient = LinearGradient(
     begin: Alignment.topLeft,
@@ -93,7 +120,12 @@ class AssistoTheme {
       primary: isDark ? const Color(0xFF6FA0FF) : Brand.blue,
       secondary: isDark ? Brand.cyan : const Color(0xFF0E9FB8),
       tertiary: isDark ? const Color(0xFFC08BFF) : Brand.purple,
-      error: Brand.danger,
+      // qa1 contrast: error buttons/text were E0485A with fromSeed's onError
+      // (white 4.0:1 in light; dark-on-red 3.2:1 in dark). Light: a deeper red
+      // (white 5.6:1, as text on surface 5.3:1). Dark: a lighter red with dark
+      // ink (6.8:1), readable as text on the dark surface too (6.7:1).
+      error: isDark ? const Color(0xFFFF6B78) : Brand.dangerFill,
+      onError: isDark ? const Color(0xFF2D0006) : Colors.white,
     );
 
     final base = ThemeData(

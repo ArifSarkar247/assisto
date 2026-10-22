@@ -1020,7 +1020,7 @@ class _HistorySheetState extends State<_HistorySheet> {
               child: Text(t.aichatCancel)),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: FilledButton.styleFrom(backgroundColor: Brand.danger),
+            style: Brand.dangerButton(),
             child: Text(t.aichatDelete),
           ),
         ],

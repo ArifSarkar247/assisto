@@ -7,6 +7,7 @@ import '../theme.dart';
 import '../vehicle/veh_format.dart';
 import '../vehicle/vehicle_api.dart';
 import '../services/action_feedback.dart'; // db1
+import '../widgets/notif_models.dart' show notifLocalizeDigits; // qa1
 
 /// Owner-only tracker settings: alerts (over-speed, night ignition,
 /// geofences), reporting interval, engine-cut family approval, who can see /
@@ -308,14 +309,17 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
             value: _night,
             onChanged: (v) => setState(() => _night = v),
             title: Text(tr.vehNightAlert),
-            subtitle: Text(tr.vehNightWindow(_nightStart, _nightEnd)),
+            // qa1: the "HH:mm" values (kept as-is for the API) shown in the UI's digits
+            subtitle: Text(notifLocalizeDigits(context, tr.vehNightWindow(_nightStart, _nightEnd))),
           ),
           if (_night)
             Wrap(spacing: Gap.sm, children: [
               OutlinedButton(
-                  onPressed: () => _pickTime(true), child: Text(tr.vehNightFrom(_nightStart))),
+                  onPressed: () => _pickTime(true),
+                  child: Text(notifLocalizeDigits(context, tr.vehNightFrom(_nightStart)))),
               OutlinedButton(
-                  onPressed: () => _pickTime(false), child: Text(tr.vehNightTo(_nightEnd))),
+                  onPressed: () => _pickTime(false),
+                  child: Text(notifLocalizeDigits(context, tr.vehNightTo(_nightEnd)))),
             ]),
           section(tr.vehFencesSection),
           if (_fences.isEmpty)

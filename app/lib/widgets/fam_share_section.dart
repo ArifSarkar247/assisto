@@ -395,7 +395,7 @@ class _FamShareSectionState extends State<FamShareSection> {
                     child: Text(t.cancel)),
                 FilledButton(
                     style:
-                        FilledButton.styleFrom(backgroundColor: Brand.danger),
+                        Brand.dangerButton(),
                     onPressed: () => Navigator.pop(ctx, true),
                     child: Text(famLabel(context, 'famShareRevokeMember'))),
               ],
@@ -422,7 +422,7 @@ class _FamShareSectionState extends State<FamShareSection> {
                     child: Text(t.cancel)),
                 FilledButton(
                     style:
-                        FilledButton.styleFrom(backgroundColor: Brand.danger),
+                        Brand.dangerButton(),
                     onPressed: () => Navigator.pop(ctx, true),
                     child: Text(famLabel(context, 'famShareRevokeAll'))),
               ],

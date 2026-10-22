@@ -367,7 +367,8 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
       const SizedBox(height: Gap.xs),
       SegmentedButton<String>(
         segments: [
-          ButtonSegment(value: 'auto', label: Text(tr.vehProtocolAuto)),
+          // qa1: the long Bangla label wrapped to 2 lines in the segment
+          ButtonSegment(value: 'auto', label: Text(tr.qa1VehProtocolAuto)),
           const ButtonSegment(value: 'gt06', label: Text('GT06')),
           const ButtonSegment(value: 'teltonika', label: Text('Teltonika')),
         ],

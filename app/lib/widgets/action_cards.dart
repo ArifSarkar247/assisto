@@ -5,12 +5,14 @@ import '../models.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import 'action_models.dart';
+import 'bn_day_periods.dart' show appDateLocale;
 
 /// Presentation atoms for the Action Center (SPEC v2.1 §21, feature #9).
 /// Pure widgets — no network, no Bangla literals (all copy via
 /// `AppLocalizations`, emitted to `.phaseB/up_action_arb.json`).
 
-final DateFormat _fmt = DateFormat('d MMM, h:mm a');
+DateFormat _fmtFor(BuildContext context) =>
+    DateFormat('d MMM, h:mm a', appDateLocale(context)); // qa1: UI locale
 
 /// Transparency banner shown at the top of both tabs: "Assisto only acts
 /// within your autonomy setting." Also states the current level so the promise
@@ -128,7 +130,7 @@ class PendingActionCard extends StatelessWidget {
                           style: const TextStyle(fontWeight: FontWeight.w700)),
                       const SizedBox(height: 2),
                       Text(
-                        '${moduleLabel(t, item.module)} · ${_fmt.format(item.createdAt.toLocal())}',
+                        '${moduleLabel(t, item.module)} · ${_fmtFor(context).format(item.createdAt.toLocal())}',
                         style:
                             TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
                       ),
@@ -230,7 +232,7 @@ class DoneActionTile extends StatelessWidget {
       title: Text(actionLabel(t, entry.action),
           style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
       subtitle: Text(
-        '${moduleLabel(t, module)} · ${_fmt.format(entry.createdAt.toLocal())}',
+        '${moduleLabel(t, module)} · ${_fmtFor(context).format(entry.createdAt.toLocal())}',
         style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
       ),
       trailing: undoable

@@ -23,6 +23,31 @@ String tkSigned(dynamic v) {
   return s;
 }
 
+/// qa1: localized month for a server 'YYYY-MM' ("October 2026" / Bangla);
+/// anything else is returned unchanged.
+String moneyMonth(BuildContext context, dynamic ym) {
+  final s = '${ym ?? ''}';
+  final d = DateTime.tryParse(s.length == 7 ? '$s-01' : '');
+  if (d == null) return s;
+  return DateFormat.yMMMM(Localizations.localeOf(context).toLanguageTag()).format(d);
+}
+
+/// qa1: short localized month ("Oct" / Bangla) for chart axes.
+String moneyMonthShort(BuildContext context, dynamic ym) {
+  final s = '${ym ?? ''}';
+  final d = DateTime.tryParse(s.length == 7 ? '$s-01' : '');
+  if (d == null) return s;
+  return DateFormat.MMM(Localizations.localeOf(context).toLanguageTag()).format(d);
+}
+
+/// qa1: localized day for a server 'YYYY-MM-DD' ("5 Oct 2026" / Bangla).
+String moneyDay(BuildContext context, dynamic ymd) {
+  final s = '${ymd ?? ''}';
+  final d = DateTime.tryParse(s);
+  if (d == null) return s;
+  return DateFormat.yMMMd(Localizations.localeOf(context).toLanguageTag()).format(d);
+}
+
 /// Lenient double parse (handles strings, nulls, ints).
 double dbl(dynamic v) => double.tryParse('${v ?? 0}') ?? 0;
 
@@ -114,7 +139,7 @@ Future<void> confirmDelete(BuildContext context, VoidCallback onConfirm) async {
             const SizedBox(width: Gap.md),
             Expanded(
               child: FilledButton(
-                  style: FilledButton.styleFrom(backgroundColor: Brand.danger),
+                  style: Brand.dangerButton(),
                   onPressed: () => Navigator.pop(ctx, true),
                   child: Text(t.delete)),
             ),

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../../otp_api.dart';
 import '../../widgets/otp_code_input.dart';
+import '../../widgets/subs_common.dart' show fmtInt;
 
 /// o1-otp — the shared "enter the code" step used by every OTP flow
 /// (sign-up, login, forgot password, delete-account, Section 8).
@@ -272,7 +273,8 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                         key: const Key('otp-resend'),
                         onPressed: (_resendLeft > 0 || _busy) ? null : _send,
                         child: Text(_resendLeft > 0
-                            ? t.otpResendIn(_resendLeft)
+                            // qa1: int placeholder printed "60" in the Bangla UI
+                            ? t.qa1OtpResendIn(fmtInt(context, _resendLeft))
                             : t.otpResend),
                       ),
                       const SizedBox(height: 8),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'jobs_store.dart';
+import 'subs_common.dart' show fmtInt;
 
 /// A single job row for the Discover / Saved lists — match score, title/company,
 /// quick facts (location · type · salary) and a bookmark toggle. Taps open the
@@ -37,7 +38,8 @@ class JobsCard extends StatelessWidget {
     final facts = <String>[
       if (location.isNotEmpty) location,
       if (type.isNotEmpty) type,
-      if (salary is num) tr.jobsSalaryBdt('${salary.toInt()}'),
+      // qa1: "45000" -> "45,000" / Bangla digits
+      if (salary is num) tr.jobsSalaryBdt(fmtInt(context, salary.toInt())),
     ];
 
     return Card(

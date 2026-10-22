@@ -4,6 +4,7 @@ import '../state.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/password_field.dart';
 import '../widgets/journey_api.dart';
+import '../widgets/subs_common.dart' show fmtInt;
 
 /// Safe Journey settings (items 7, 8, 14, 16, 18). Hosts:
 ///   - SOS countdown + siren default
@@ -146,7 +147,7 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         ListTile(
             contentPadding: EdgeInsets.zero,
-            title: Text(t.safetySosCountdownValue(_sosCountdown))),
+            title: Text(t.safetySosCountdownValue(fmtInt(context, _sosCountdown)))), // qa1
         Slider(
             value: _sosCountdown.toDouble(),
             min: 0,

@@ -51,7 +51,7 @@ class RamadanDuas extends StatelessWidget {
           ]),
           const SizedBox(height: Gap.xs),
           Text(t.ramadanDuasSourceNote,
-              style: const TextStyle(fontSize: 11, color: Colors.grey)),
+              style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
           const SizedBox(height: Gap.sm),
           ...duas.map((d) => _tile(context, d)),
         ]),

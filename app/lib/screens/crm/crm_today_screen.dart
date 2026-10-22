@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/ladder_common.dart';
@@ -150,12 +149,7 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
   /// Localised yyyy-MM-dd (Bangla numerals in bn). Falls back to a dash / the
   /// raw value when the string is empty or not a parseable date.
   String _date(dynamic v) {
-    final s = (v ?? '').toString();
-    if (s.isEmpty) return '—';
-    final d = DateTime.tryParse(s);
-    if (d == null) return s;
-    return DateFormat('yyyy-MM-dd', Localizations.localeOf(context).languageCode)
-        .format(d);
+    return crmDate(context, v);
   }
 
   void _openLead(int id) => Navigator.push(context,
@@ -229,7 +223,7 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
         child: Row(children: [
           Icon(icon, size: 18, color: tint),
           const SizedBox(width: Gap.sm),
-          Text(text, style: const TextStyle(fontWeight: FontWeight.w800)),
+          Expanded(child: Text(text, style: const TextStyle(fontWeight: FontWeight.w800))),
         ]),
       );
 }

@@ -4,6 +4,8 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+// qa1: the insight engine builds Latin-digit strings; show them in the UI's digits.
+import '../widgets/notif_models.dart' show notifLocalizeDigits;
 
 /// AI SPENDING ADVICE — ADVANCED (#51, SPEC v2.1 §21).
 ///
@@ -253,7 +255,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
             Text(tr.spendTotalSpent,
                 style: TextStyle(color: scheme.onSurfaceVariant)),
             const SizedBox(height: 2),
-            Text(r.totalSpentDisplay,
+            Text(notifLocalizeDigits(context, r.totalSpentDisplay),
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w800, color: scheme.primary)),
             if (r.totalDeltaDisplay != null) ...[
@@ -270,8 +272,8 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
                 const SizedBox(width: 6),
                 Flexible(
                   child: Text(
-                    tr.spendVsPrevious(
-                        r.totalDeltaDisplay!, r.totalDeltaPct.abs()),
+                    notifLocalizeDigits(context, tr.spendVsPrevious(
+                        r.totalDeltaDisplay!, r.totalDeltaPct.abs())),
                     style: TextStyle(color: scheme.onSurfaceVariant),
                   ),
                 ),
@@ -295,7 +297,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
               size: 20, color: over ? scheme.error : scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
-            child: Text(_obsText(tr, o),
+            child: Text(notifLocalizeDigits(context, _obsText(tr, o)),
                 style: const TextStyle(height: 1.4)),
           ),
         ]),
@@ -316,7 +318,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
               child: Text(c.category,
                   style: const TextStyle(fontWeight: FontWeight.w700)),
             ),
-            Text(c.spentDisplay,
+            Text(notifLocalizeDigits(context, c.spentDisplay),
                 style: TextStyle(
                     fontWeight: FontWeight.w700, color: scheme.primary)),
             PopupMenuButton<String>(
@@ -370,7 +372,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
         title: Text((r['category'] ?? '').toString(),
             style: const TextStyle(fontWeight: FontWeight.w700)),
         subtitle:
-            Text(_SMath.fmtBdt(_SMath.toMinor(r['amount']))),
+            Text(notifLocalizeDigits(context, _SMath.fmtBdt(_SMath.toMinor(r['amount'])))),
         trailing: PopupMenuButton<String>(
           onSelected: (v) {
             if (v == 'edit') onEdit(r);
@@ -418,7 +420,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(label,
+      child: Text(notifLocalizeDigits(context, label),
           style: TextStyle(
               fontSize: 11.5, fontWeight: FontWeight.w600, color: color)),
     );

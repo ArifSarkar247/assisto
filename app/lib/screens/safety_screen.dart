@@ -18,6 +18,7 @@ import 'journey_sos_screen.dart';
 import 'journey_settings_screen.dart';
 import '../widgets/journey_api.dart';
 import 'fall_detect_screen.dart';
+import '../widgets/subs_common.dart' show fmtInt;
 
 /// Advanced family-safety hub (benchmarked vs Life360 / bSafe):
 ///   - SOS with a configurable countdown (so a mis-tap can be cancelled)
@@ -148,7 +149,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
       builder: (ctx) => StatefulBuilder(builder: (ctx, setD) => AlertDialog(
             title: Text(t.safetySosCountdownTitle),
             content: Column(mainAxisSize: MainAxisSize.min, children: [
-              Text(t.safetySosCountdownValue(v)),
+              Text(t.safetySosCountdownValue(fmtInt(context, v))), // qa1
               Slider(
                 value: v.toDouble(), min: 0, max: 30, divisions: 30,
                 label: '$v',
@@ -315,7 +316,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
           dense: true,
           contentPadding: EdgeInsets.zero,
           leading: const Icon(Icons.timer_outlined),
-          title: Text(t.safetySosCountdownValue(_sosCountdown)),
+          title: Text(t.safetySosCountdownValue(fmtInt(context, _sosCountdown))), // qa1
           trailing: TextButton(onPressed: _setCountdown, child: Text(t.edit)),
         ),
         // Hands-free Voice SOS (feature #79) — opt-in, OFF by default.

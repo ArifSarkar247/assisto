@@ -142,8 +142,8 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
       if (mounted) {
         final t = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(t.biz_sale_done),
-          backgroundColor: Brand.success,
+          content: Text(t.biz_sale_done, style: const TextStyle(color: Colors.white)),
+          backgroundColor: Brand.successFill,
         ));
       }
     }
@@ -249,7 +249,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
                     style: const TextStyle(
                         fontWeight: FontWeight.w600, fontSize: 13)),
                 const SizedBox(height: 2),
-                Text(oos ? t.biz_out_of_stock : sell.fmtTaka,
+                Text(oos ? t.biz_out_of_stock : sell.takaIn(context),
                     style: TextStyle(
                         color: oos ? scheme.error : scheme.primary,
                         fontWeight: FontWeight.w800)),
@@ -279,7 +279,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
               ),
               const SizedBox(width: Gap.md),
               Expanded(
-                child: Text('${t.biz_total}: ${total.fmtTaka}',
+                child: Text('${t.biz_total}: ${total.takaIn(context)}',
                     style: const TextStyle(
                         fontWeight: FontWeight.w800, fontSize: 16)),
               ),
@@ -400,10 +400,10 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
               after();
             },
             icon: const Icon(Icons.edit_outlined, size: 16),
-            label: Text('${unit.fmtTaka}'),
+            label: Text('${unit.takaIn(context)}'),
           ),
           const SizedBox(width: Gap.sm),
-          Text(lineTotal.fmtTaka,
+          Text(lineTotal.takaIn(context),
               style: const TextStyle(fontWeight: FontWeight.w800)),
         ]),
       ]),
@@ -456,7 +456,7 @@ class _VariantPicker extends StatelessWidget {
             ].where((s) => s.isNotEmpty).join(' / ')),
             subtitle: Text('${t.biz_stock}: ${v['stock'] ?? 0}'),
             trailing: Text(
-                poishaOf(v['sell_price'] ?? v['price']).fmtTaka,
+                poishaOf(v['sell_price'] ?? v['price']).takaIn(context),
                 style: const TextStyle(fontWeight: FontWeight.w700)),
             enabled: ((v['stock'] ?? 0) as num) > 0,
             onTap: () => Navigator.pop(context, v['id'] as int),
@@ -497,7 +497,7 @@ class _PriceDialogState extends State<_PriceDialog> {
           controller: widget.controller,
           label: t.biz_sell_price,
           helper: widget.canSeeMin && widget.min > 0
-              ? '${t.biz_min_price}: ${widget.min.fmtTaka}'
+              ? '${t.biz_min_price}: ${widget.min.takaIn(context)}'
               : null,
           onChanged: (_) => setState(() {
             _err = _belowMin(parseTaka(widget.controller.text))
@@ -661,14 +661,14 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
       final qty = (m['qty'] ?? 1);
       final unit = poishaOf(m['unit_price']);
       buf.writeln(
-          '${m['product_name'] ?? ''} x$qty  ${(unit * (qty as num).toInt()).fmtTaka}');
+          '${m['product_name'] ?? ''} x$qty  ${(unit * (qty as num).toInt()).takaIn(context)}');
     }
-    buf.writeln('${t.biz_total}: ${poishaOf(sale['total']).fmtTaka}');
+    buf.writeln('${t.biz_total}: ${poishaOf(sale['total']).takaIn(context)}');
     if (poishaOf(sale['change']) > 0) {
-      buf.writeln('${t.biz_change}: ${poishaOf(sale['change']).fmtTaka}');
+      buf.writeln('${t.biz_change}: ${poishaOf(sale['change']).takaIn(context)}');
     }
     if (poishaOf(sale['due']) > 0) {
-      buf.writeln('${t.biz_due}: ${poishaOf(sale['due']).fmtTaka}');
+      buf.writeln('${t.biz_due}: ${poishaOf(sale['due']).takaIn(context)}');
     }
     await Share.share(buf.toString());
   }

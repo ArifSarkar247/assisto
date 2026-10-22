@@ -181,7 +181,7 @@ class _RamadanScreenState extends State<RamadanScreen> {
       ]),
       const SizedBox(height: Gap.sm),
       Text(t.ramadanMethodNote('${tm['method'] ?? 'karachi'}'),
-          style: const TextStyle(fontSize: 11, color: Colors.grey)),
+          style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
       const SizedBox(height: Gap.md),
 
       // other prayer times
@@ -236,7 +236,7 @@ class _RamadanScreenState extends State<RamadanScreen> {
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.ramadanWakeCallComing,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
             ),
           ]),
         ),

@@ -113,7 +113,8 @@ class HtipsTipCard extends StatelessWidget {
                   reviewed.isEmpty
                       ? t.healthTipSourceLine(sourceName)
                       : t.htipsSourceDateLine(sourceName, reviewed),
-                  style: TextStyle(fontSize: 11, color: scheme.secondary),
+                  // qa1: 11px light-theme teal on the card was 2.8:1
+                  style: TextStyle(fontSize: 11, color: Brand.onTint(context, scheme.secondary)),
                 ),
               ),
             ]),

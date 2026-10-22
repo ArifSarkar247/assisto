@@ -148,8 +148,11 @@ class FakeCvBackend implements CvBackend {
     this.answerText =
         'This is NAPA 500 mg (paracetamol). The label says 500 mg per tablet.\n\nPlease consult a doctor or pharmacist before taking any medicine.',
     this.refuse = false,
+    this.refuseMessage = "I can't identify real people from their face.",
     this.offline = false,
   });
+  /// The server's (already localized) refusal text.
+  final String refuseMessage;
   final String plan;
   final String reason;
   final String message;
@@ -201,8 +204,8 @@ class FakeCvBackend implements CvBackend {
   Future<CvReply> create({required String via, required String question}) async {
     creates++;
     if (refuse) {
-      return const CvReply(422, {'ok': false, 'refused': true, 'reason': 'identify_person',
-        'message': "I can't identify real people from their face."});
+      return CvReply(422, {'ok': false, 'refused': true, 'reason': 'identify_person',
+        'message': refuseMessage});
     }
     funding = via;
     status = via == 'ads' ? 'awaiting_funds' : 'funded';

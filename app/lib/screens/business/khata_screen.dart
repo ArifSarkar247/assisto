@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
@@ -885,8 +886,9 @@ class _EntrySheetState extends State<_EntrySheet> {
           contentPadding: EdgeInsets.zero,
           leading: const Icon(Icons.event_outlined),
           title: Text(t.entryDate),
-          trailing: Text(
-              '${_at.year}-${_at.month.toString().padLeft(2, '0')}-${_at.day.toString().padLeft(2, '0')}'),
+          // qa1: localized date (was ISO "2026-10-22" in both languages)
+          trailing: Text(DateFormat.yMMMd(Localizations.localeOf(context).toLanguageTag())
+              .format(_at)),
           onTap: () async {
             final picked = await showDatePicker(
               context: context,

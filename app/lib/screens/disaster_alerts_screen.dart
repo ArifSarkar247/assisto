@@ -488,7 +488,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
     return Row(children: [
       Icon(icon, size: 18, color: tint),
       const SizedBox(width: Gap.sm),
-      Text(title, style: TextStyle(fontWeight: FontWeight.w700, color: tint)),
+      Expanded(child: Text(title, style: TextStyle(fontWeight: FontWeight.w700, color: tint))),
     ]);
   }
 

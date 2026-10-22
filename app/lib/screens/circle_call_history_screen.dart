@@ -169,7 +169,13 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
           ),
           if (duration.isNotEmpty && !missed && !declined) ...[
             const SizedBox(width: Gap.xs),
-            Text(duration,
+            // qa1: the server sends "01:05"; the row's time already uses
+            // Bangla digits, so the duration must too.
+            Text(
+                Localizations.localeOf(context).languageCode == 'bn'
+                    ? duration.replaceAllMapped(RegExp('[0-9]'),
+                        (m) => String.fromCharCode(0x09E6 + int.parse(m[0]!)))
+                    : duration,
                 style:
                     TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
           ],

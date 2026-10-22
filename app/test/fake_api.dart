@@ -86,7 +86,7 @@ class FakeApi extends ApiClient {
         'plan': planSlug, 'balance': 312, 'included_pool': 120,
         'ad_wallet_credits': 0, 'month_total': 48,
         'month_usage': [
-          {'action': 'ai_chat', 'credits': 30},
+          {'action': 'ai_msg_cheap', 'credits': 30}, // the server's real code
           {'action': 'photo_enhance', 'credits': 18},
         ],
         'storage': {'used': 1200000000, 'quota_bytes': 5368709120},
@@ -1701,7 +1701,7 @@ class FakeApi extends ApiClient {
   @override
   Future<Map<String, dynamic>> postJson(String path, [Map<String, dynamic> body = const {}]) async {
     if (path == '/account/delete/preview') {
-      return {'counts': {'memories': 42, 'reminders': 12, 'documents': 5},
+      return {'counts': {'memories': 42, 'reminders': 12, 'documents': 5, 'txns': 230, 'accounts': 3, 'auth_token': 1, 'notif_events': 88},
               'export_downloaded': false, 'grace_days': 7};
     }
     final vehP = fakeVehiclePost(path, body, _bn); // v1-vehicle

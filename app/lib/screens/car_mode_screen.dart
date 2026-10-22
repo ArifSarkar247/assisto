@@ -236,7 +236,9 @@ class _CarModeScreenState extends State<CarModeScreen> {
               crossAxisCount: wide ? 3 : 2,
               mainAxisSpacing: Gap.md,
               crossAxisSpacing: Gap.md,
-              childAspectRatio: wide ? 1.5 : 1.05,
+              // qa1: taller tiles at large font (fixed ratio overflowed at 2.0x)
+              childAspectRatio: (wide ? 1.5 : 1.05) /
+                  MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.6),
               children: tiles,
             ),
             const SizedBox(height: Gap.md),

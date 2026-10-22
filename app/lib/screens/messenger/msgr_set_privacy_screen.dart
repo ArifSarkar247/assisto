@@ -252,8 +252,8 @@ class _MsgrSetMessagePrivacyScreenState
                         groupValue: _whoCanMessage,
                         // No clipping: the policy label + its explanation must
                         // read in full (longest at 360dp wraps to 2 / 4 lines).
-                        title: Text(_whoLabel(v), maxLines: 2),
-                        subtitle: Text(_whoHint(v), maxLines: 4),
+                        title: Text(_whoLabel(v)),
+                        subtitle: Text(_whoHint(v)), // qa1: the bn hint needed a 5th line and was cut
                         isThreeLine: true,
                         onChanged: (nv) {
                           if (nv != null) _onWhoChanged(nv);
@@ -263,10 +263,10 @@ class _MsgrSetMessagePrivacyScreenState
                     MsgrSetSection(t.msgrMsgPrivacyPhoneSection),
                     SwitchListTile(
                       secondary: const Icon(Icons.phone_disabled_outlined),
-                      title: Text(t.msgrMsgPrivacyPhoneHidden,
-                          maxLines: 2, overflow: TextOverflow.ellipsis),
-                      subtitle: Text(t.msgrMsgPrivacyPhoneHiddenHint,
-                          maxLines: 3, overflow: TextOverflow.ellipsis),
+                      // qa1: the Bangla hint was cut with "…" at 3 lines;
+                      // explanatory text must never be clipped.
+                      title: Text(t.msgrMsgPrivacyPhoneHidden),
+                      subtitle: Text(t.msgrMsgPrivacyPhoneHiddenHint),
                       value: _phoneHidden,
                       onChanged: (v) => setState(() {
                         _phoneHidden = v;

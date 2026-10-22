@@ -114,7 +114,7 @@ class _MoneyNetWorthScreenState extends State<MoneyNetWorthScreen> {
       for (final p in series.reversed)
         ListTile(
           dense: true,
-          title: Text('${p['month']}'),
+          title: Text(moneyMonth(context, p['month'])),
           trailing: Row(mainAxisSize: MainAxisSize.min, children: [
             Text(tkFmt(p['net_worth']),
                 style: const TextStyle(fontWeight: FontWeight.w600)),

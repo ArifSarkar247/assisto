@@ -262,7 +262,7 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
                   child: Text(t.cancel)),
               FilledButton(
                 style: danger
-                    ? FilledButton.styleFrom(backgroundColor: Brand.danger)
+                    ? Brand.dangerButton()
                     : null,
                 onPressed: hasReason
                     ? () {

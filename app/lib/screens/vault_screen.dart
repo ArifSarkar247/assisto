@@ -15,6 +15,7 @@ import '../widgets/permission_reason.dart';
 import '../widgets/vault_doc_types.dart';
 import '../widgets/scam_safety_api.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
+import '../theme.dart' show Brand; // qa1
 
 class VaultScreen extends StatefulWidget {
   /// Preview/screenshot: skip the PIN gate and load straight to the list.
@@ -569,7 +570,8 @@ class _VaultScreenState extends State<VaultScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(color: c.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),
-      child: Text(t, style: TextStyle(fontSize: 11, color: c)));
+      // qa1: orange/green 11px on their own pale tint was ~2.5:1
+      child: Text(t, style: TextStyle(fontSize: 11, color: Brand.onTint(context, c))));
   }
 
   // ------------------------------------------------------------------ build

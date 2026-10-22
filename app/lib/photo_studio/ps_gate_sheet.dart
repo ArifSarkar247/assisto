@@ -46,7 +46,10 @@ class PsGateSheet extends StatelessWidget {
             ]),
             const SizedBox(height: Gap.md),
             if (adsPossible)
-              Text(forRun ? t.psGateRunBody(n) : t.psGateBody(n),
+              // qa1: plural-aware ("Watch 1 short ads" in English)
+              Text(forRun
+                      ? t.qa1PsGateRunBody(need.adsRemaining, n)
+                      : t.qa1PsGateBody(need.adsRemaining, n),
                   style: Theme.of(context).textTheme.bodyLarge)
             else
               Text(need.reason == 'trial_used' ? t.psGateTrialUsed : t.psGateCreditsOnly,

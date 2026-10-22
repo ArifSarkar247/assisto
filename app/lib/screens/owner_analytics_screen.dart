@@ -710,7 +710,9 @@ class _MetricGrid extends StatelessWidget {
       crossAxisCount: cols,
       mainAxisSpacing: Gap.md,
       crossAxisSpacing: Gap.md,
-      childAspectRatio: 1.55,
+      // qa1: taller tiles at large font (fixed ratio overflowed at 2.0x)
+      childAspectRatio:
+          1.55 / MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.9),
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       children: cards,

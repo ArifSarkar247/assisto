@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'arrival_model.dart';
+import 'bn_day_periods.dart' show appDateLocale;
 
 /// The active safe-arrival target card (ADVANCED). Shows the destination + ETA,
 /// a LIVE countdown that advances on_time -> grace -> overdue every second, the
@@ -129,7 +130,7 @@ class _ArrivalTargetCardState extends State<ArrivalTargetCard> {
         label = AppLocalizations.of(context).aOnTime;
     }
 
-    final timeStr = DateFormat('h:mm a').format(eta);
+    final timeStr = DateFormat('h:mm a', appDateLocale(context)).format(eta);
     final cdText = aMin(context, cd.overdue ? 'aMinLate' : 'aMinLeft', cd.totalMinutes);
 
     return Card(

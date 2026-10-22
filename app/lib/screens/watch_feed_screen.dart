@@ -10,6 +10,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/watch_item.dart';
 import '../widgets/watch_card.dart';
 import '../widgets/watch_sources_sheet.dart';
+import '../widgets/bn_day_periods.dart' show appDateLocale;
 import '../services/action_feedback.dart'; // db1
 
 /// WATCH FEED (ADVANCED) — the user's single "what needs me now" digest.
@@ -398,7 +399,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addUsdWatcher,
         icon: const Icon(Icons.add_alert_outlined),
-        label: Text(t.watchAddRateWatcher),
+        label: Text(t.qa1WatchAddRateAlert), // qa1: clearer copy (bn read awkwardly)
       ),
       body: _loading
           ? Column(children: [
@@ -410,8 +411,10 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
                       width: 16,
                       child: CircularProgressIndicator(strokeWidth: 2)),
                   const SizedBox(width: Gap.sm),
-                  Text(t.watchLoadingTitle,
-                      style: TextStyle(color: scheme.onSurfaceVariant)),
+                  Flexible( // qa1: wraps at large font
+                    child: Text(t.watchLoadingTitle,
+                        style: TextStyle(color: scheme.onSurfaceVariant)),
+                  ),
                 ]),
               ),
               const Expanded(child: SkeletonList()),
@@ -565,7 +568,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
   }
 
   Widget _watchersSection(AppLocalizations t) {
-    final fmt = DateFormat('d MMM, h:mm a');
+    final fmt = DateFormat('d MMM, h:mm a', appDateLocale(context));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'bn_day_periods.dart' show appDateLocale;
 
 /// Meeting/appointment model helpers + bilingual string table for the ADVANCED
 /// MeetingsScreen. Mirrors backend/core/logic/meetings.py so the app and the
@@ -330,7 +331,7 @@ Set<int> conflictIndices(List<Map<String, dynamic>> list) {
 // share / invite text — mirrors meetings.share_text (localized in-app).
 // ---------------------------------------------------------------------------
 String shareText(BuildContext c, Map<String, dynamic> a) {
-  final df = DateFormat('EEE d MMM, h:mm a');
+  final df = DateFormat('EEE d MMM, h:mm a', appDateLocale(c));
   final lines = <String>['${a['title']}'];
   final s = DateTime.tryParse('${a['start']}');
   if (s != null) lines.add('${mStr(c, "mShareWhen")}: ${df.format(s)}');

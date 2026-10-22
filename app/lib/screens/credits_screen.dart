@@ -10,6 +10,7 @@ import '../widgets/storage_meter.dart';
 import '../widgets/rewarded_ad_sheet.dart';
 import '../ads/ads_service.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
+import '../widgets/bn_day_periods.dart' show appDateLocale;
 import '../payments/checkout_sheet.dart'; // pay1
 import '../payments/payments_api.dart'
     show ApiPaymentsBackend, PayConfig, payFlavour; // pay1
@@ -303,11 +304,13 @@ class _CreditsScreenState extends State<CreditsScreen> {
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(icon, size: 14, color: Colors.white),
           const SizedBox(width: 6),
-          Text(text,
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600)),
+          Flexible( // qa1: wraps at large font
+            child: Text(text,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600)),
+          ),
         ]),
       );
 
@@ -471,7 +474,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
     String when = at;
     final dt = DateTime.tryParse(at);
     if (dt != null) {
-      when = DateFormat('d MMM, h:mm a').format(dt.toLocal());
+      when = DateFormat('d MMM, h:mm a', appDateLocale(context)).format(dt.toLocal());
     }
     final color = credit ? Brand.success : scheme.onSurface;
     return Padding(
@@ -496,10 +499,23 @@ class _CreditsScreenState extends State<CreditsScreen> {
     );
   }
 
-  /// Localized label for a usage/ledger action code; unknown codes fall back to
-  /// the raw code (never a crash, never "null").
+  /// Localized label for a usage/ledger action code (the ledger `note` the
+  /// server groups by: billing.charge action, "photo:<feature>",
+  /// "vision:chat", "shop_extra_camera"). QA qa1: the most common codes
+  /// (ai_msg_cheap / ai_msg_strong) were missing and showed raw to users;
+  /// unknown codes now read "Other" instead of an internal name.
   String _actionLabel(AppLocalizations t, String code) {
+    if (code.startsWith('photo:')) return t.creditsActionPhotoStudio;
+    if (code.startsWith('vision:')) return t.creditsActionChatPhoto;
     switch (code) {
+      case 'ai_msg_cheap':
+      case 'ai_msg_strong':
+      case 'ai_chat':
+        return t.creditsActionAiChat;
+      case 'scan_ocr':
+        return t.creditsActionScan;
+      case 'shop_extra_camera':
+        return t.creditsActionShopCamera;
       case 'ai_reply':
       case 'ai_drafting':
         return t.creditsActionAiDraft;
@@ -524,7 +540,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
       case 'included':
         return t.creditsActionMonthlyPool;
       default:
-        return code;
+        return t.creditsActionOther;
     }
   }
 

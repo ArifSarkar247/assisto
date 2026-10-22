@@ -102,7 +102,7 @@ class _RamadanCountdownState extends State<RamadanCountdown> {
 
   Widget _mini(String label, String value, Color color) {
     return Column(children: [
-      Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+      Text(label, style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
       Text(value,
           style: TextStyle(
               color: color,

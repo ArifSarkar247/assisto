@@ -28,6 +28,7 @@ import 'screens/onboarding_screen.dart';
 import 'screens/elderly_home_screen.dart';
 import 'widgets/elderly_mode.dart';
 import 'widgets/chatnav.dart';
+import 'widgets/bn_day_periods.dart';
 import 'voice/va_launch.dart';
 import 'photo_studio/ps_web_import.dart';
 import 'screens/web_photo_link_screen.dart';
@@ -173,6 +174,7 @@ class AssistoApp extends StatelessWidget {
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
+            BnDayPeriods.delegate, // qa1: after Global* (they load the date data)
           ],
           localeResolutionCallback: (device, supported) {
             if (app.locale != null) return app.locale;

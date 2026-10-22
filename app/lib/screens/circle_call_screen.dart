@@ -18,6 +18,7 @@ import '../push/lock_screen_guard.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/robo_id.dart';
+import '../widgets/notif_models.dart' show notifLocalizeDigits; // qa1
 
 /// My Circle 1:1 voice / video call — REAL media (c2-calls).
 ///
@@ -250,7 +251,9 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     final s = d.inSeconds;
     String two(int n) => n.toString().padLeft(2, '0');
     final h = s ~/ 3600, m = (s % 3600) ~/ 60, sec = s % 60;
-    return h > 0 ? '$h:${two(m)}:${two(sec)}' : '${two(m)}:${two(sec)}';
+    final raw = h > 0 ? '$h:${two(m)}:${two(sec)}' : '${two(m)}:${two(sec)}';
+    // qa1: the call timer in the UI's digits (Latin "04:07" in the Bangla UI)
+    return mounted ? notifLocalizeDigits(context, raw) : raw;
   }
 
   String _status(CallController? c) {
@@ -513,9 +516,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
           if (canCallAgain(c, hasMember: widget.member['id'] is int))
             FilledButton.icon(
               key: const Key('call-again'),
-              style: FilledButton.styleFrom(
-                  backgroundColor: Brand.success,
-                  foregroundColor: Colors.white),
+              style: Brand.successButton(), // qa1: white on success was 3.4:1
               icon: Icon(_isVideo ? Icons.videocam : Icons.call),
               label: Text(t.c2CallAgain),
               onPressed: _retry,

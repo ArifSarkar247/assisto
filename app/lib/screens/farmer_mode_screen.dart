@@ -275,7 +275,7 @@ class _FarmerModeScreenState extends State<FarmerModeScreen> {
                 onPressed: () => Navigator.pop(ctx, false),
                 child: Text(_t.cancel, style: const TextStyle(fontSize: _bodySize))),
             FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: Brand.danger),
+              style: Brand.dangerButton(),
               onPressed: () => Navigator.pop(ctx, true),
               child: Text(_t.delete, style: const TextStyle(fontSize: _bodySize)),
             ),
@@ -1032,7 +1032,8 @@ class _WelcomeState extends StatelessWidget {
         child: FilledButton.icon(
           style: FilledButton.styleFrom(
             backgroundColor: green,
-            foregroundColor: Colors.white,
+            // qa1: white on the lifted dark-mode green was 2.5:1
+            foregroundColor: isDark ? const Color(0xFF0B2A0D) : Colors.white,
           ),
           onPressed: onCta,
           icon: const Icon(Icons.add, size: 26),

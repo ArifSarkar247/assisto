@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import 'subs_common.dart';
+import 'bn_day_periods.dart' show appDateLocale;
 
 /// Advanced add/edit bottom sheet for a subscription.
 ///
@@ -271,7 +272,7 @@ class _SubsEditSheetState extends State<SubsEditSheet> {
         Expanded(
           child: Text(value == null
               ? label
-              : '$label: ${DateFormat('d MMM yyyy').format(value)}'),
+              : '$label: ${DateFormat('d MMM yyyy', appDateLocale(context)).format(value)}'),
         ),
         if (value != null)
           GestureDetector(

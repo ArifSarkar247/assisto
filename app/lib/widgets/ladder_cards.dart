@@ -283,7 +283,7 @@ class LadderDebtCard extends StatelessWidget {
               ]),
             ],
             const SizedBox(height: Gap.sm),
-            Row(children: [
+            Wrap(children: [ // qa1: wraps at large font
               if (!paid)
                 TextButton.icon(
                   onPressed: onMarkPaid,

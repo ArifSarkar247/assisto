@@ -376,8 +376,10 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
       child: Row(children: [
         Icon(icon, size: 18, color: scheme.primary),
         const SizedBox(width: Gap.sm),
-        Text(label,
-            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+        Expanded(
+          child: Text(label,
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+        ),
       ]),
     );
   }

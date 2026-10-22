@@ -237,14 +237,12 @@ class _ShopCameraSettingsSheetState extends State<ShopCameraSettingsSheet> {
             Gap.lg, 0, Gap.lg, Gap.xl + MediaQuery.of(context).viewInsets.bottom),
         child: SingleChildScrollView(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(children: [
-              Expanded(
-                child: Text(t.shopCamSettingsTitle,
-                    style: Theme.of(context).textTheme.titleLarge,
-                    maxLines: 1, overflow: TextOverflow.ellipsis),
-              ),
-              ShopSeenPill(row: widget.camera),
-            ]),
+            // qa1: title + status pill shared one row and the title was cut
+            // to "Camera…" by a long "Offline since …" pill — stack them.
+            Text(t.shopCamSettingsTitle,
+                style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: Gap.xs),
+            ShopSeenPill(row: widget.camera),
             const SizedBox(height: Gap.md),
             TextField(
               controller: _name,
