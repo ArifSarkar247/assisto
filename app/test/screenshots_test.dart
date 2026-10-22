@@ -322,6 +322,21 @@ void main() {
     // initState; provide an in-memory store so the gallery renders them.
     SharedPreferences.setMockInitialValues({});
     HttpOverrides.global = _NoNet();
+    // b6-antitheft: the engine channel answers like a running Realme engine
+    // (an unanswered channel left the protection screen on its spinner).
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(const MethodChannel('com.assisto/antitheft'),
+            (call) async {
+      switch (call.method) {
+        case 'capabilities':
+          return {'sdk': 33, 'brand': 'realme', 'canCamera': true,
+                  'canReadSimNumber': false};
+        case 'isRunning':
+          return true;
+        default:
+          return null;
+      }
+    });
     await _loadFont('NotoSansBengali', 'assets/fonts/NotoSansBengali.ttf');
     final root = Platform.environment['FLUTTER_ROOT'] ??
         '${Platform.environment['HOME']}/assisto/tools/flutter';

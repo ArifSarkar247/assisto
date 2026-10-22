@@ -203,6 +203,24 @@ PERMISSIONS = [
                    "The notification's Stop button, or switch it off in the app's settings."),
     },
     {
+        "id": "fgs_antitheft",
+        "perm": "FOREGROUND_SERVICE_CAMERA (FOREGROUND_SERVICE_LOCATION)",
+        "name": ("সার্বক্ষণিক চুরি-সুরক্ষা (লোকেশন, ক্যামেরা)", "Always-on anti-theft (location, camera)"),
+        "why": ("আপনার নিজের ফোন হারালে/চুরি হলে শেষ লোকেশন, সিম বদল ও অফলাইন হওয়ার খবর আপনাকে ও আপনার অনুমোদিত "
+                "পরিবারকে জানানো। ক্যামেরা শুধু তখনই ব্যবহার হয় যদি আপনি \"অনুপ্রবেশকারীর ছবি\" চালু করেন: কয়েকবার "
+                "ভুল স্ক্রিন-আনলক চেষ্টার পর সামনের ক্যামেরায় একটি ছবি, এনক্রিপ্ট করা, শুধু আপনি ও অনুমোদিত পরিবার "
+                "দেখতে পারেন। চলার সময় সবসময় একটি নোটিফিকেশন দেখা যায়।",
+                "Telling you and the family you approved the last location, a SIM change or the phone going "
+                "offline if your own phone is lost or stolen. The camera is used only if you turn on \"intruder "
+                "photo\": one front-camera photo after several wrong screen-unlock attempts, encrypted, visible "
+                "only to you and your approved family. A notification is always visible while it runs."),
+        "when": ("শুধু আপনি সিকিউরিটি পিন দিয়ে সুরক্ষা চালু করলে। লঞ্চ বা রিস্টার্টে নিজে থেকে চালু হয় না।",
+                 "Only when you turn protection on with your Security PIN. It never starts by itself at launch "
+                 "or after a restart."),
+        "revoke": ("অ্যাপে সার্বক্ষণিক সুরক্ষা বন্ধ করুন (সিকিউরিটি পিন), অথবা ক্যামেরার অনুমতি তুলে নিন।",
+                   "Turn always-on protection off in the app (Security PIN), or remove the camera permission."),
+    },
+    {
         "id": "call_phone",
         "perm": "CALL_PHONE",
         "name": ("ফোন কল করা", "Make phone calls"),
