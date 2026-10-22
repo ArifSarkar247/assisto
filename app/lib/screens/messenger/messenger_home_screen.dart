@@ -363,6 +363,7 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
                 // Incoming requests at the TOP of My Circle (Accept/Decline).
                 header: M3RequestsBanner(
                   key: _bannerKey,
+                  identity: _identity, // mr1: request previews
                   onSeeAll: _openRequests,
                   onChanged: (n, accepted) {
                     if (!mounted) return;

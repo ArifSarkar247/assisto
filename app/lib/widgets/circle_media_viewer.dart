@@ -72,25 +72,25 @@ class _CircleMediaViewerState extends State<CircleMediaViewer> {
         foregroundColor: Colors.white,
         title: Text('${_index + 1} / ${widget.items.length}'),
         actions: [
-          IconButton(
-            tooltip: t.circleActionSave,
-            icon: const Icon(Icons.save_alt_outlined),
-            // §21 honest disabled-reason: a gated item can't be saved yet, so
-            // instead of a dead-disabled icon, tap explains why.
-            onPressed: item == null
-                ? null
-                : (item.gated || item.bytes == null)
-                    ? () => ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(t.circleMediaSavingSoon)))
-                    : () => widget.onSave?.call(item),
-          ),
-          IconButton(
-            tooltip: t.circleActionForward,
-            icon: const Icon(Icons.forward_outlined),
-            onPressed: item == null || item.gated
-                ? null
-                : () => widget.onForward?.call(item),
-          ),
+          // mr1 NO SHOWPIECES: Save / Forward exist only for an item that is
+          // really here (decrypted bytes) and a handler that really acts —
+          // never a "saving will work when storage is enabled" answer.
+          if (item != null && !item.gated && item.bytes != null &&
+              widget.onSave != null)
+            IconButton(
+              key: const Key('mv-save'),
+              tooltip: t.circleActionSave,
+              icon: const Icon(Icons.save_alt_outlined),
+              onPressed: () => widget.onSave!.call(item),
+            ),
+          if (item != null && !item.gated && item.bytes != null &&
+              widget.onForward != null)
+            IconButton(
+              key: const Key('mv-forward'),
+              tooltip: t.circleActionForward,
+              icon: const Icon(Icons.forward_outlined),
+              onPressed: () => widget.onForward!.call(item),
+            ),
         ],
       ),
       body: PageView.builder(
@@ -130,7 +130,7 @@ class _CircleMediaViewerState extends State<CircleMediaViewer> {
             const SizedBox(height: Gap.md),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: Gap.xl),
-              child: Text(t.circleMediaGenericGated,
+              child: Text(t.mr1MediaNotShown,
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.white70, height: 1.4)),
             ),

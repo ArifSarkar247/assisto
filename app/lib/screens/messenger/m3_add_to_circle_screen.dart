@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../m3_circle_api.dart';
+import '../../messaging/msg_request_widgets.dart'; // mr1
 import '../../services/contacts_source.dart';
 import '../../services/phone_canon.dart';
 import '../../state.dart';
@@ -471,15 +472,19 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                   ),
                 ]),
                 const SizedBox(height: Gap.md),
-                if (st == 'accepted')
+                if (st == 'accepted') ...[
                   Text(t.c1InYourCircle,
                       key: const Key('m3-already'),
-                      style: TextStyle(color: scheme.primary))
-                else if (st == 'pending')
+                      style: TextStyle(color: scheme.primary)),
+                  const SizedBox(height: Gap.sm),
+                  _messageButton(u),
+                ] else if (st == 'pending') ...[
                   Text(t.m3AlreadyRequested,
                       key: const Key('m3-pending'),
-                      style: TextStyle(color: scheme.onSurfaceVariant))
-                else if (st == 'incoming') ...[
+                      style: TextStyle(color: scheme.onSurfaceVariant)),
+                  const SizedBox(height: Gap.sm),
+                  _messageButton(u),
+                ] else if (st == 'incoming') ...[
                   Text(t.c1WantsToConnect),
                   const SizedBox(height: Gap.sm),
                   FilledButton.icon(
@@ -489,6 +494,17 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                     label: Text(t.circleAccept),
                   ),
                 ] else ...[
+                  // mr1: WhatsApp-like — message right away (a message
+                  // request); calls open once they accept.
+                  _messageButton(u),
+                  const SizedBox(height: Gap.xs),
+                  Text(t.mr1MessageNowHint,
+                      style: TextStyle(
+                          color: scheme.onSurfaceVariant, fontSize: 12.5)),
+                  const SizedBox(height: Gap.md),
+                  Text(t.mr1OrAddToCircle,
+                      style: Theme.of(context).textTheme.titleSmall),
+                  const SizedBox(height: Gap.xs),
                   M3RelationPicker(onChanged: (r) => setState(() => _rel = r)),
                   if (_relTried && _rel == null)
                     Padding(
@@ -522,6 +538,26 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
         ];
     }
   }
+
+  bool _opening = false;
+
+  /// mr1: open the chat with this person — a normal chat when connected,
+  /// a message request otherwise (POST /circle/message-request/start).
+  Widget _messageButton(Map<String, dynamic> u) => FilledButton.tonalIcon(
+        key: const Key('mr1-msg-found'),
+        onPressed: _opening
+            ? null
+            : () async {
+                setState(() => _opening = true);
+                final ok = await openMessageRequestChat(context,
+                    toUserId: (u['id'] as num?)?.toInt(), phone: _canon);
+                if (!mounted) return;
+                if (ok) _changed = true;
+                setState(() => _opening = false);
+              },
+        icon: const Icon(Icons.chat_bubble_outline),
+        label: Text(_t.c1Message),
+      );
 
   Widget _sentView() {
     final t = _t;

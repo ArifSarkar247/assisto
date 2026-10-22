@@ -211,14 +211,14 @@ void main() {
       expect(
           presenceLabel(en, RtChatState(online: false, lastSeen: DateTime(2026, 10, 22, 10, 14)),
               lang: 'en', now: now),
-          'last seen today at 10:14');
+          'last seen today at 10:14 am');
       expect(
           presenceLabel(en, RtChatState(online: false, lastSeen: DateTime(2026, 10, 21, 21, 3)),
               lang: 'en', now: now),
-          'last seen yesterday at 21:03');
+          'last seen yesterday at 9:03 pm');
       expect(
           presenceLabel(en, RtChatState(lastSeen: DateTime(2026, 10, 12, 9, 0)), lang: 'en', now: now),
-          'last seen 12 Oct');
+          'last seen 12 Oct at 9:00 am');
     });
 
     test('hidden by privacy → nothing', () {

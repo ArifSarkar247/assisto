@@ -208,7 +208,11 @@ class CircleBubble extends StatelessWidget {
             const SizedBox(width: Gap.sm),
             Flexible(
               child: Text(
-                msg.mediaGated ? t.circleMediaGenericGated : _mediaLabel(t),
+                // mr1: an honest label, never "available when storage is
+                // enabled" (not tappable while gated).
+                msg.mediaGated
+                    ? '${_mediaLabel(t)} · ${t.mr1MediaNotShown}'
+                    : _mediaLabel(t),
                 style: TextStyle(color: fg, fontSize: 13),
               ),
             ),

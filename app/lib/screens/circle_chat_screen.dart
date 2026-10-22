@@ -32,6 +32,7 @@ import '../messaging/c3_api.dart';
 import '../messaging/msg_native.dart';
 import '../messaging/msg_notify.dart';
 import '../messaging/msg_prefs.dart';
+import '../messaging/msg_request_widgets.dart'; // mr1
 import '../messaging/msg_widgets.dart';
 import '../messaging/outbox.dart';
 import '../messaging/presence_label.dart';
@@ -314,6 +315,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       final raw = ((r['results'] ?? r['messages'] ?? []) as List)
           .cast<Map<String, dynamic>>();
       final fetched = raw.map((e) => _decryptEnvelope(e, peer)).toList();
+      _applyEdge(r['edge']); // mr1: request accepted while open
       // Preserve any optimistic local echoes the server hasn't confirmed yet.
       final serverIds = fetched.map((m) => m.id).toSet();
       final pendingEchoes =
@@ -489,6 +491,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       final r = await _api.getJson('/circle/$_memberId/messages?limit=$_pageSize');
       final raw = ((r['results'] ?? r['messages'] ?? []) as List).cast<Map<String, dynamic>>();
       _messages = raw.map((e) => _decryptEnvelope(e, peer)).toList();
+      _applyEdge(r['edge']); // mr1
       _hasMore = r['has_more'] == true;
       // item 2: the first message I have not SEEN yet -> divider.
       final unseen = raw.where((e) => e['unseen'] == true).toList();
@@ -921,7 +924,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         });
       }
       ReceiptBus.instance.expect();
-    } catch (_) {
+      if (mounted) _countRequestSend(); // mr1: pre-accept budget
+    } catch (e) {
       // c3-msg: honest failure — the bubble shows a red "!" (not a clock that
       // never resolves); long-press it to resend.
       if (mounted) {
@@ -932,7 +936,14 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                   : m)
               .toList();
         });
-        _toast(_t.c3SendFailed);
+        // mr1: a request refused by the server says why (limit reached /
+        // they only take messages from their circle) — never a vague error.
+        if (_reqOut && e is ApiException && e.status == 403) {
+          setState(() => _reqInfo = {...?_reqInfo, 'can_send': false});
+          _toast(e.message.isNotEmpty ? e.message : _t.c3SendFailed);
+        } else {
+          _toast(_t.c3SendFailed);
+        }
       }
     }
     if (mounted) setState(() => _sending = false);
@@ -1303,8 +1314,14 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   }
 
   // -------------------------------------------------------------------------
-  // Media attach (all kinds key-gated until encrypted blob storage is on)
+  // Media attach. mr1 NO SHOWPIECES: the "+" button only exists when at least
+  // one kind REALLY sends (circleAttachKinds); today that list is empty
+  // (encrypted media storage not built — .phaseB/proposals/mr1-media.md), so
+  // the button is hidden instead of answering "available when encrypted
+  // storage is enabled". The storage build wires each kind's picker here.
   // -------------------------------------------------------------------------
+  bool get _canAttach => circleAttachKinds().isNotEmpty;
+
   Future<void> _attach() async {
     final kind = await showCircleAttachSheet(context);
     if (kind == null || !mounted) return;
@@ -1312,9 +1329,6 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       final dur = await showLiveLocationDurations(context);
       if (dur == null) return;
     }
-    // Every media kind is key-gated now (circle_media.media_gate_notice). Show
-    // the reason instead of a picker the storage can't yet back.
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_t.circleMediaGenericGated)));
   }
 
   void _openMedia(CircleMessage m) {
@@ -1941,7 +1955,10 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                             msg: m,
                             highlighted: _highlightId == m.id,
                             onTapReply: () => _jumpTo(m.replyToId),
-                            onLongPress: _selecting ? null : () => _onLongPress(m),
+                            // mr1: a request I have not accepted is read-only
+                            onLongPress: (_selecting || _reqIn)
+                                ? null
+                                : () => _onLongPress(m),
                             onTapMedia: (!_selecting && m.contentType != 'text')
                                 ? () => _openMedia(m)
                                 : null,
@@ -1950,7 +1967,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                             return SwipeToReply(
                               key: ValueKey('c3-swipe-${m.id}'),
                               mine: m.mine,
-                              enabled: m.deleted != 'everyone' && !m.pending,
+                              enabled: m.deleted != 'everyone' && !m.pending &&
+                                  !_reqIn,
                               onReply: () => _startReply(m),
                               child: bubble,
                             );
@@ -1997,14 +2015,126 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                 if (_editing == null) _input.clear();
               }),
             ),
-          if (!_searching && !_selecting) _composer(scheme),
+          // mr1: message requests — the sender's neutral waiting line (and
+          // the pre-accept limit note instead of a dead composer); the
+          // recipient's read-only Accept / Block / Report / Delete bar.
+          if (_reqOut && !_searching && !_selecting)
+            MsgRequestWaitingLine(name: _memberName),
+          if (_reqIn && !_searching && !_selecting)
+            MsgRequestActionBar(
+              name: _memberName,
+              phone: '${widget.member['request_phone'] ?? ''}',
+              busy: _reqBusy,
+              onAccept: _acceptRequest,
+              onBlock: () => _requestAct('block'),
+              onReport: () => _requestAct('report'),
+              onDelete: () => _requestAct('delete'),
+            )
+          else if (_reqOutFull && !_searching && !_selecting)
+            MsgRequestLimitNote(name: _memberName)
+          else if (!_searching && !_selecting)
+            _composer(scheme),
         ],
       ),
     );
   }
 
+  // -------------------------------------------------------------------------
+  // mr1: message requests
+  // -------------------------------------------------------------------------
+  late String _edgeState = '${widget.member['state'] ?? 'accepted'}';
+  late String _edgeDir = '${widget.member['direction'] ?? 'outgoing'}';
+  late Map<String, dynamic>? _reqInfo =
+      (widget.member['request'] as Map?)?.cast<String, dynamic>();
+  bool _reqBusy = false;
+
+  /// Someone I don't know messaged me and I have not accepted yet.
+  bool get _reqIn => _edgeState == 'pending' && _edgeDir == 'incoming';
+
+  /// I messaged someone who has not accepted yet.
+  bool get _reqOut => _edgeState == 'pending' && _edgeDir != 'incoming';
+
+  /// No calls (and nothing tappable for them) until the request is accepted.
+  bool get _callsOpen => _edgeState == 'accepted';
+
+  bool get _reqOutFull => _reqOut && _reqInfo?['can_send'] == false;
+
+  /// The server's `edge` block on every message fetch keeps this live: the
+  /// moment the other person accepts, the waiting line goes and calls appear.
+  void _applyEdge(Object? e) {
+    if (e is! Map) return;
+    final st = '${e['state'] ?? _edgeState}';
+    final dir = '${e['direction'] ?? _edgeDir}';
+    final info = (e['request'] as Map?)?.cast<String, dynamic>();
+    if (st == _edgeState && dir == _edgeDir &&
+        '${info?['can_send']}' == '${_reqInfo?['can_send']}') {
+      return;
+    }
+    if (!mounted) return;
+    setState(() {
+      _edgeState = st;
+      _edgeDir = dir;
+      _reqInfo = info;
+    });
+  }
+
+  /// One of my request messages went out: count it against the budget.
+  void _countRequestSend() {
+    final info = _reqInfo;
+    if (!_reqOut || info == null) return;
+    final sent = ((info['sent'] as num?)?.toInt() ?? 0) + 1;
+    final limit = (info['limit'] as num?)?.toInt() ?? 5;
+    setState(() => _reqInfo = {...info, 'sent': sent, 'can_send': sent < limit});
+  }
+
+  Future<void> _acceptRequest() async {
+    final id = _memberId;
+    if (id == null || _reqBusy) return;
+    setState(() => _reqBusy = true);
+    try {
+      await _api.postJson('/circle/request/$id/act', {'event': 'accept'});
+      if (!mounted) return;
+      setState(() {
+        _edgeState = 'accepted';
+        _reqInfo = null;
+      });
+      _toast(_t.mr1AcceptedToast(_memberName));
+      unawaited(_markSeen()); // now it really is read
+    } catch (e) {
+      _fail(e);
+    } finally {
+      if (mounted) setState(() => _reqBusy = false);
+    }
+  }
+
+  Future<void> _requestAct(String action) async {
+    final id = _memberId;
+    if (id == null || _reqBusy) return;
+    final ok = await showMsgRequestConfirm(context, action, _memberName);
+    if (ok != true || !mounted) return;
+    setState(() => _reqBusy = true);
+    try {
+      await _api.postJson('/circle/request/$id/msgreq', {
+        'action': action,
+        if (action == 'report') 'reason': 'spam',
+      });
+      if (!mounted) return;
+      _toast(switch (action) {
+        'block' => _t.mr1BlockedToast,
+        'report' => _t.mr1ReportedToast,
+        _ => _t.mr1DeletedToast,
+      });
+      Navigator.of(context).pop(true);
+    } catch (e) {
+      _fail(e);
+      if (mounted) setState(() => _reqBusy = false);
+    }
+  }
+
+  // mr1: the full WhatsApp last-seen line, in the phone's 12/24-hour format.
   String? get _presence => presenceLabel(_t, _live,
-      lang: Localizations.localeOf(context).languageCode);
+      lang: Localizations.localeOf(context).languageCode,
+      use24h: MediaQuery.of(context).alwaysUse24HourFormat);
 
   PreferredSizeWidget _normalAppBar(ColorScheme scheme, String relation) {
     if (_selecting) return _selectionAppBar(scheme);
@@ -2016,7 +2146,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         name: _memberName,
         status: _presence,
         statusActive: _peerTyping,
-        onTap: _openContactInfo,
+        // mr1: a request I have not accepted shows no contact info
+        onTap: _reqIn ? null : _openContactInfo,
         // x2-ticks (A3): the contact's real photo (cached, refreshed on
         // change); initials when there is none.
         avatar: MsgrAvatar(
@@ -2028,24 +2159,29 @@ class _CircleChatScreenState extends State<CircleChatScreen>
             photoV: '${widget.member['photo_v'] ?? ''}'),
       ),
       actions: [
-        IconButton(
-          tooltip: _t.circleVideo,
-          icon: const Icon(Icons.videocam_outlined),
-          onPressed: () => _placeCall('video'),
-        ),
-        RoboId(id: 'tl_chat_voice_call', // tl1: Test Lab Robo target
-          child: IconButton(
-            tooltip: _t.circleVoiceCall,
-            icon: const Icon(Icons.call_outlined),
-            onPressed: () => _placeCall('voice'),
+        // mr1: calls open the moment a message request is accepted — until
+        // then there is nothing tappable for them (no dead buttons).
+        if (_callsOpen) ...[
+          IconButton(
+            tooltip: _t.circleVideo,
+            icon: const Icon(Icons.videocam_outlined),
+            onPressed: () => _placeCall('video'),
           ),
-        ),
+          RoboId(id: 'tl_chat_voice_call', // tl1: Test Lab Robo target
+            child: IconButton(
+              tooltip: _t.circleVoiceCall,
+              icon: const Icon(Icons.call_outlined),
+              onPressed: () => _placeCall('voice'),
+            ),
+          ),
+        ],
         // t1-ticks: Search moved into the ⋮ menu (ChatMenuAction.search).
-        IconButton(
-          tooltip: _t.msgrChatMore,
-          icon: const Icon(Icons.more_vert),
-          onPressed: _openChatMenu,
-        ),
+        if (!_reqIn)
+          IconButton(
+            tooltip: _t.msgrChatMore,
+            icon: const Icon(Icons.more_vert),
+            onPressed: _openChatMenu,
+          ),
       ],
     );
   }
@@ -2269,11 +2405,14 @@ class _CircleChatScreenState extends State<CircleChatScreen>
           padding: const EdgeInsets.fromLTRB(Gap.sm, Gap.xs, Gap.sm, Gap.sm),
           child: Row(
             children: [
-              IconButton(
-                icon: const Icon(Icons.add_circle_outline),
-                tooltip: _t.circleAttach,
-                onPressed: _attach,
-              ),
+              if (_canAttach)
+                IconButton(
+                  icon: const Icon(Icons.add_circle_outline),
+                  tooltip: _t.circleAttach,
+                  onPressed: _attach,
+                )
+              else
+                const SizedBox(width: Gap.sm),
               Expanded(
                 child: RoboId(id: 'tl_chat_input', // tl1: Test Lab Robo target
                   child: TextField(

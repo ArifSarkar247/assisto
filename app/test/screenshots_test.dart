@@ -196,6 +196,7 @@ import 'w1_webphoto_shots.dart'; // w1-webphoto
 import 'h1_home_shots.dart'; // h1-home
 import 'f1_shots.dart'; // f1-founders
 import 't1_ticks_shots.dart'; // t1-ticks
+import 'mr1_shots.dart'; // mr1
 import 'pay1_shots.dart'; // pay1
 import 'tl1_shots.dart'; // tl1 OEM background guide
 import 'c2_calls_shots.dart'; // c2-calls
@@ -666,6 +667,8 @@ void main() {
     // ---- /c3-msg ----
     // t1-ticks: chat headers, date separators, legacy info, version gate
     for (final e in t1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // mr1: message requests + full last seen
+    for (final e in mr1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
   };
 
   Future<void> shoot(WidgetTester tester, String name, String lang,
@@ -677,6 +680,7 @@ void main() {
     FakeApi.payLive = name.contains('_paylive'); // pay1 gallery stubs
     fakeM3On = name.startsWith('m3_'); // m3-circle gallery stubs
     fakeC3On = name.startsWith('c3_'); // c3-msg gallery stubs
+    fakeMr1On = name.startsWith('mr1_'); // mr1 gallery stubs
     if (fakeC3On) C3Fake.seedRealtime();
     final tall = name.endsWith('_bottom');
     await tester.binding.setSurfaceSize(Size(360, tall ? 1800 : 800));
