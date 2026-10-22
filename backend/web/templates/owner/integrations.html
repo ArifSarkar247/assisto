@@ -1,0 +1,29 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_integrations }}{% endblock %}
+{% block content %}
+{% if err %}<div class="flash warn" role="alert">{{ T.m_no_fernet }}</div>{% endif %}
+{% if summary %}<div class="tiles">
+  <div class="tile"><span>{{ T.connected }}</span><b class="pos">{{ summary.counts.connected }}</b></div>
+  <div class="tile"><span>{{ T.needs_fix }}</span><b class="neg">{{ summary.counts.not_working }}</b></div>
+  <div class="tile"><span>{{ T.needs_key }}</span><b class="mut">{{ summary.counts.not_connected }}</b></div>
+  <div class="tile"><span>{{ T.total }}</span><b>{{ summary.counts.total }}</b></div>
+</div>{% endif %}
+<p class="mut small">{{ T.keys_note }}</p>
+{% for cat, items in cats %}
+<h2 class="cat">{{ cat }}</h2>
+<div class="grid-cards">
+{% for r in items %}
+<form method="post" class="card integ" id="i-{{ r.slug }}">{% include "owner/_csrf.html" %}<input type="hidden" name="slug" value="{{ r.slug }}">
+  <div class="row-between"><h3>{{ r.name }}</h3>{% if r.status == 'working' %}<span class="pill ok">{{ T.connected }}</span>{% elif r.status == 'failing' %}<span class="pill bad">{{ T.not_working }}</span>{% else %}<span class="pill off">{{ T.needs_key }}</span>{% endif %}</div>
+  <p class="small">{{ r.unlocks }}</p>
+  <details><summary class="small">{{ T.how_to }}</summary><ol class="small">{% for g in r.guide %}<li>{{ g }}</li>{% endfor %}</ol></details>
+  {% for f in r.fields %}<label>{{ f.label }}{% if f.set %} <span class="pos small">✓ {% if f.secret %}{{ f.masked }}{% else %}{{ T.saved_value }}: {{ f.masked }}{% endif %}</span>{% endif %}
+    <input name="{{ f.key }}" {% if f.secret %}type="password"{% endif %} autocomplete="off" placeholder="{% if f.set %}{{ T.replace_ph }}{% else %}{{ T.paste_ph }}{% endif %}"></label>{% endfor %}
+  <p class="mut small">{{ T.last_checked }}: {{ r.last_tested_human }}{% if r.detail %} · {{ r.detail }}{% endif %}</p>
+  <div class="row"><button class="btn primary" name="action" value="save">{{ T.save }}</button>{% if r.testable %}<button class="btn ghost" name="action" value="test">{{ T.test }}</button>{% else %}<button class="btn ghost" name="action" value="test">{{ T.mark_saved }}</button>{% endif %}</div>
+</form>
+{% endfor %}
+</div>
+{% empty %}{% if not err %}<p class="empty">{{ T.empty }}</p>{% endif %}
+{% endfor %}
+{% endblock %}

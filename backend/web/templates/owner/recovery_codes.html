@@ -1,0 +1,9 @@
+{% extends "owner/_auth_shell.html" %}
+{% block title %}{{ T.rc_title }}{% endblock %}
+{% block auth %}
+<h2>{{ T.rc_title }}</h2>
+<p>{{ T.rc_sub }}</p>
+<ul class="codes">{% for c in codes %}<li><code>{{ c }}</code></li>{% endfor %}</ul>
+<p class="flash warn">{{ T.rc_warn }}</p>
+<a class="btn primary wide" href="/owner/">{{ T.rc_done }}</a>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_users }}{% endblock %}
+{% block content %}
+<form method="get" class="inline card"><input name="q" value="{{ q }}" placeholder="{{ T.user_search_ph }}" class="grow" autofocus><button class="btn primary">{{ T.search }}</button></form>
+{% if rows %}
+<div class="card tbl"><table><thead><tr><th>ID</th><th>{{ T.name }}</th><th>{{ T.phone }}</th><th>{{ T.plan }}</th><th>{{ T.credits }}</th><th>{{ T.status }}</th><th>{{ T.joined }}</th></tr></thead><tbody>
+{% for r in rows %}<tr><td><a href="/owner/users/{{ r.u.id }}">#{{ r.u.id }}</a></td><td><a href="/owner/users/{{ r.u.id }}">{{ r.u.name|default:"—" }}</a>{% if r.u.is_superuser %} <span class="pill">owner</span>{% endif %}</td><td>{{ r.u.phone|default:r.u.username }}</td><td>{{ r.eff }}</td><td class="num">{{ r.u.ai_credits }}</td><td>{% if r.u.account_status == 'active' %}<span class="pill ok">{{ T.active }}</span>{% else %}<span class="pill bad">{{ r.u.account_status }}</span>{% endif %}</td><td>{{ r.u.date_joined|date:"Y-m-d" }}</td></tr>{% endfor %}
+</tbody></table></div>
+{% else %}<p class="empty">{{ T.no_users }}</p>{% endif %}
+{% endblock %}

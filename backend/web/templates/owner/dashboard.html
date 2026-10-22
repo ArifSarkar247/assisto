@@ -1,0 +1,19 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_home }}{% endblock %}
+{% block content %}
+<div class="tiles">
+  <div class="tile"><span>{{ T.users_total }}</span><b>{{ segments.total|default:"0" }}</b><small>{{ T.paid }}: {{ segments.paid|default:"0" }} · {{ T.signups_today }}: {{ signups_today }}</small></div>
+  <div class="tile"><span>{{ T.rev_7d }}</span>{% if pnl7_has %}<b>৳{{ pnl7.revenue }}</b><small>{{ T.profit }}: ৳{{ pnl7.profit }}</small>{% else %}<b class="mut">—</b><small>{{ T.no_ledger }}</small>{% endif %}</div>
+  <div class="tile"><span>{{ T.guard }}</span>{% if guard %}<b class="st-{{ guard.state }}">{{ guard.state }}</b>{% else %}<b class="mut">—</b>{% endif %}<small>{{ T.guard_note }}</small></div>
+  <div class="tile"><span>{{ T.nav_integrations }}</span>{% if integ %}<b>{{ integ.connected }}/{{ integ.total }}</b><small>{{ T.needs_fix }}: {{ integ.not_working }}</small>{% else %}<b class="mut">—</b>{% endif %}</div>
+  <div class="tile"><span>{{ T.nav_discover }}</span><b>{{ discover_live }}/{{ discover_total }}</b><small>{{ T.live_cards }}</small></div>
+</div>
+<section class="card">
+  <h2>{{ T.recent_activity }}</h2>
+  {% if recent %}
+  <div class="tbl"><table><thead><tr><th>{{ T.time }}</th><th>{{ T.action }}</th><th>{{ T.target }}</th><th>IP</th></tr></thead><tbody>
+  {% for r in recent %}<tr class="{% if not r.ok %}bad{% endif %}"><td>{{ r.created_at|date:"Y-m-d H:i" }}</td><td>{{ r.action }}</td><td>{{ r.target }}</td><td>{{ r.ip }}</td></tr>{% endfor %}
+  </tbody></table></div>
+  {% else %}<p class="empty">{{ T.empty }}</p>{% endif %}
+</section>
+{% endblock %}

@@ -53,7 +53,7 @@ chk "telegram webhook inert" 200 "$API/telegram/webhook" POST '{"message":{"text
 
 # --- web growth tools (server-rendered) ---
 chk "web: made30"            200 "$BASE/made30"
-chk "owner integrations pg"  200 "$BASE/owner/integrations"
+chk "owner panel login"      200 "$BASE/owner/login"
 
 # --- auth round-trip (register a throwaway, login, hit /me, delete) ---
 echo "-- auth round-trip --"
