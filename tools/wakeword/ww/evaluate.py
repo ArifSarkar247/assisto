@@ -90,7 +90,12 @@ def pick_thresholds(val_neg_scores: np.ndarray, val_hours: float, val_pos_scores
       low    = halfway between normal and 1 (fewer false wakes, 2-frame patience)
       high   = lowest t with <= 5x target (more responsive)
     Returns thresholds + the validation curve for the report."""
-    grid = np.round(np.arange(0.05, 0.991, 0.01), 3)
+    # Fine steps near 1: a well-trained sigmoid saturates, and a 0.99 ceiling left
+    # every level pinned at 0.99 (run 39856717991) with FA still above target.
+    grid = np.unique(np.round(np.concatenate([
+        np.arange(0.05, 0.991, 0.01), np.arange(0.991, 0.9991, 0.001),
+        np.arange(0.9992, 0.99991, 0.0001)]), 4))
+    top = float(grid[-1])
     curve = []
     for t in grid:
         fa = count_triggers(val_neg_scores, Decider(threshold=float(t), patience=1))
@@ -102,9 +107,9 @@ def pick_thresholds(val_neg_scores: np.ndarray, val_hours: float, val_pos_scores
         for row in curve:
             if row["fa_per_hour"] <= limit:
                 return row["t"]
-        return 0.99
+        return top
 
     normal = lowest(target_fa_per_hour)
     high = min(normal, lowest(target_fa_per_hour * 5))
-    low = round(normal + (1 - normal) * 0.5, 3)
-    return {"thresholds": {"low": min(0.99, low), "normal": normal, "high": high}, "curve": curve}
+    low = round(normal + (1 - normal) * 0.5, 5)
+    return {"thresholds": {"low": min(top, low), "normal": normal, "high": high}, "curve": curve}
