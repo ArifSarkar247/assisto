@@ -6,7 +6,7 @@ Rules: max parallel agents (own worktree each), heavy cmds via lock, ship each p
 1. [SHIPPED build 176 + backend deployed] My Circle like WhatsApp (add any format/phonebook/QR/link, requests, messages, voice+video calls, FCM ringing closed app) + settings-store release fix + Phone Safety spinner fix. MISSING PROOF: native tour + two-account emulator audit (hosted emulator wedges adb) — re-run when CI stable.
 2. [DONE 22 Oct] Owner account: owner confirmed id 3 (Arif, 01784056199) → superuser + staff (backup first, AuditLog entry). Superusers: Owner (13) + id 3.
 3. [BUILT, in builds] OTP flow (provider-agnostic, key-gated) + owner_actions/SMS_GATEWAY_NEEDS.md (Bangla). Needs SMS gateway keys.
-4. [READY branch voice] Voice assistant: default assistant (long-press power), optional Hey Assisto (needs Picovoice key), YouTube/YT Music, hands-free, TTS, bn/Banglish/en.
+4. [SHIPPED build 177] Voice assistant: default assistant (long-press power), optional Hey Assisto (needs Picovoice key), YouTube/YT Music, hands-free, TTS, bn/Banglish/en.
 5. [LIVE 22 Oct] Web Owner Admin Panel https://api.lifeassisto.com/owner/ (migration 0051_o2; login steps in STATUS, Bangla).
 6. [READY photo / agent h1-home] Photo Studio + home ad hero (remove suggestions, muted hero) + image in chat.
 7. [READY vehicle + webphoto] Vehicle app part (live map, 24h playback, engine cut-off rules, geofence/over-speed, OBD, Car Mode) — verify completeness; website passport funnel.
