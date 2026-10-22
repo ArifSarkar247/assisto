@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../api.dart';
 import '../crypto/e2e.dart';
+import '../crypto/identity_vault.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -85,10 +86,11 @@ class _MsgrChatListState extends State<MsgrChatList> {
   Map<String, dynamic> _memberOf(Map<String, dynamic> c) =>
       (c['member'] as Map?)?.cast<String, dynamic>() ?? const {};
 
-  void _openChat(Map<String, dynamic> c) {
+  Future<void> _openChat(Map<String, dynamic> c) async {
     final member = _memberOf(c);
-    final identity = widget.identity;
-    if (identity == null) return;
+    // Never a silent no-op (see IdentityVault).
+    final identity = widget.identity ?? await IdentityVault.instance.get();
+    if (!mounted) return;
     // Opening a chat clears its unread badge locally.
     setState(() => c['unread'] = 0);
     Navigator.of(context)

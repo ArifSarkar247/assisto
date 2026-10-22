@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config.dart';
 import 'e2e.dart';
+import 'identity_vault.dart';
 
 /// e2-keys (owner order 22 Oct, item 1) — the device's PUBLIC key is
 /// published to the per-user key directory (POST /circle/keys) so that every
@@ -36,25 +37,16 @@ abstract class IdentityStore {
 
 class SecureIdentityStore implements IdentityStore {
   const SecureIdentityStore();
-  static const _s = FlutterSecureStorage();
 
+  /// Goes through [IdentityVault]: secure storage with retry + encrypted
+  /// app-private fallback, never null — so a Keystore failure on ColorOS /
+  /// MIUI can no longer stop the key from being published.
   @override
-  Future<IdentityKeyPair?> load() async {
-    final raw = await _s.read(key: kIdentitySlot);
-    if (raw == null) return null;
-    final j = jsonDecode(raw) as Map<String, dynamic>;
-    return IdentityKeyPair(base64Decode(j['priv'] as String),
-        base64Decode(j['pub'] as String), j['kid'] as String);
-  }
+  Future<IdentityKeyPair?> load() => IdentityVault.instance.get();
 
+  /// The vault already stored it (both places when possible).
   @override
-  Future<void> save(IdentityKeyPair id) => _s.write(
-      key: kIdentitySlot,
-      value: jsonEncode({
-        'priv': base64Encode(id.privateKey),
-        'pub': base64Encode(id.publicKey),
-        'kid': id.keyId,
-      }));
+  Future<void> save(IdentityKeyPair id) async {}
 }
 
 class MemoryIdentityStore implements IdentityStore {

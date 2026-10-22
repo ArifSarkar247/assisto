@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 
 import '../config.dart';
 import '../crypto/e2e.dart';
+import '../crypto/identity_vault.dart';
 import '../l10n/app_localizations.dart';
 import '../push/push_payload.dart';
 import 'avatar_cache.dart';
@@ -662,13 +663,11 @@ class MsgPushHandler {
 // ---------------------------------------------------------------------------
 const _secure = FlutterSecureStorage();
 
+/// The stored identity (secure storage, then the encrypted fallback); never
+/// creates one in a background isolate.
 Future<IdentityKeyPair?> loadStoredIdentity() async {
   try {
-    final s = await _secure.read(key: 'circle_identity_v1');
-    if (s == null) return null;
-    final j = jsonDecode(s) as Map<String, dynamic>;
-    return IdentityKeyPair(base64Decode(j['priv'] as String),
-        base64Decode(j['pub'] as String), j['kid'] as String);
+    return await IdentityVault.instance.peek();
   } catch (_) {
     return null;
   }

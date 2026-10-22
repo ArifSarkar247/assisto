@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../../api.dart';
 import '../../crypto/e2e.dart';
+import '../../crypto/identity_vault.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../messenger_hub_api.dart';
@@ -89,7 +90,11 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
     try {
       await loadGuard(_ensureIdentity(), timeout: const Duration(seconds: 8));
     } catch (_) {
-      // identity stays null -> tabs show their honest "not ready" state.
+      // Timed out: the spinner still ends; the SAME vault load (single-flight)
+      // fills the identity in moments later so taps open the chat.
+      unawaited(IdentityVault.instance.get().then((id) {
+        if (mounted) setState(() => _identity ??= id);
+      }, onError: (_) {}));
     }
     await _loadMembers();
     if (mounted) setState(() => _loading = false);
@@ -103,48 +108,18 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
   /// hub. The PRIVATE key never leaves the device; only the PUBLIC key is
   /// published so peers can encrypt to us.
   Future<void> _ensureIdentity() async {
-    try {
-      final stored = await _secure.read(key: 'circle_identity_v1');
-      if (stored != null) {
-        final j = jsonDecode(stored) as Map<String, dynamic>;
-        _identity = IdentityKeyPair(
-          base64Decode(j['priv'] as String),
-          base64Decode(j['pub'] as String),
-          j['kid'] as String,
-        );
-        // Re-publish the PUBLIC key on every open (fire-and-forget): edges
-        // created since the first publish (new connections) only learn our
-        // key this way — without it the peer's chat stays at "key missing".
-        unawaited(_api.postJson('/circle/keys', {
-          'public_key': _identity!.publicKeyB64,
-          'key_id': _identity!.keyId,
-          'scheme': _e2e.scheme,
-        }).then((_) {}, onError: (_) {}));
-        return;
-      }
-      final id = _e2e.generateIdentity();
-      await _secure.write(
-        key: 'circle_identity_v1',
-        value: jsonEncode({
-          'priv': base64Encode(id.privateKey),
-          'pub': base64Encode(id.publicKey),
-          'kid': id.keyId,
-        }),
-      );
-      _identity = id;
-      try {
-        await _api.postJson('/circle/keys', {
-          'public_key': id.publicKeyB64,
-          'key_id': id.keyId,
-          'scheme': _e2e.scheme,
-        });
-      } catch (_) {
-        // Heals itself: the public key is re-published on every hub open
-        // (branch above); peers see the honest "key missing" state meanwhile.
-      }
-    } catch (_) {
-      // Keep going with a null identity — tabs degrade to a friendly state.
-    }
+    // IdentityVault: secure storage with retry + encrypted app-private
+    // fallback; never null, so the chat always opens and the key always
+    // publishes even when the Keystore fails (ColorOS / MIUI).
+    final id = await IdentityVault.instance.get();
+    _identity = id;
+    // Publish the PUBLIC key on every open (fire-and-forget; the key service
+    // also retries with backoff): new connections only learn our key this way.
+    unawaited(_api.postJson('/circle/keys', {
+      'public_key': id.publicKeyB64,
+      'key_id': id.keyId,
+      'scheme': _e2e.scheme,
+    }).then((_) {}, onError: (_) {}));
   }
 
   Future<void> _loadMembers() async {

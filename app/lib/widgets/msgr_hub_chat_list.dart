@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../api.dart';
 import '../crypto/e2e.dart';
+import '../crypto/identity_vault.dart';
 import '../l10n/app_localizations.dart';
 import '../messenger_hub_api.dart';
 import '../state.dart';
@@ -297,9 +298,11 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     if (id != null) unawaited(FlnMsgSink().cancel(kind, id));
   }
 
-  void _openChat(Map<String, dynamic> c) {
-    final identity = widget.identity;
-    if (identity == null) return;
+  Future<void> _openChat(Map<String, dynamic> c) async {
+    // Never a silent no-op: if the hub has no identity yet, wait for the
+    // vault (secure storage or its encrypted fallback; never null).
+    final identity = widget.identity ?? await IdentityVault.instance.get();
+    if (!mounted) return;
     _clearUnreadLocal(c);
     final Widget screen;
     if (_isGroup(c)) {
