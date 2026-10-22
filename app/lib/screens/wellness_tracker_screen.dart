@@ -606,7 +606,6 @@ class _LogFormState extends State<_LogForm> {
   @override
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
     final insets = MediaQuery.of(context).viewInsets.bottom;
     return Padding(
       padding: EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg + insets),
