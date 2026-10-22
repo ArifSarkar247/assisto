@@ -13,8 +13,12 @@ class ApiCallSignaling implements CallSignaling {
   final PollRealtimeTransport transport;
 
   @override
-  Future<Map<String, dynamic>> place(int memberId, String kind) =>
-      api.postJson('/circle/$memberId/call', {'kind': kind});
+  Future<Map<String, dynamic>> place(int memberId, String kind,
+          {String? clientCallId}) =>
+      api.postJson('/circle/$memberId/call', {
+        'kind': kind,
+        if (clientCallId != null) 'client_call_id': clientCallId,
+      });
 
   @override
   Future<Map<String, dynamic>> accept(int callId) async {
@@ -67,7 +71,8 @@ class ApiCallSignaling implements CallSignaling {
   @override
   Future<List<Map<String, dynamic>>> backlog(int callId) async {
     try {
-      final evs = await transport.backlog(topics: 'call.signal');
+      final evs =
+          await transport.backlog(topics: 'call.signal', callId: callId);
       return evs.where((e) => _mine(e, callId)).map(_env).toList();
     } catch (_) {
       return const [];

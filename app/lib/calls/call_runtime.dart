@@ -131,6 +131,8 @@ class CallRuntime with WidgetsBindingObserver {
   void onPushRing(PushPayload p) => onIncoming({
         'call_id': p.callId,
         'caller_name': p.callerName,
+        'caller_photo': p.callerPhoto,
+        'caller_id': p.callerId,
         'video': p.isVideo,
         'chat_id': p.chatId,
         'lang': p.lang,
@@ -146,9 +148,59 @@ class CallRuntime with WidgetsBindingObserver {
     if (callId.isNotEmpty) _shown.add(callId);
   }
 
+  /// x1-calls glare: this phone's own call screen joined call [callId] (the
+  /// server merged "both called each other"), so a ringing screen or ring
+  /// notification for it must go away — and must never appear later.
+  void claim(String callId) {
+    if (callId.isEmpty) return;
+    _shown.add(callId);
+    _ended.add(callId);
+    unawaited(PushNotifier.cancelCall(callId));
+    unawaited(stopRinging().catchError((_) {}));
+  }
+
+  Object? _screenOwner;
+  bool Function()? _screenLive;
+
+  /// x1-calls: ONE live call screen at a time. A second screen (double tap
+  /// in Contacts / the call log, a stacked route) is refused while the first
+  /// one's call is still live; an ENDED screen ("Busy", "Call again") yields.
+  bool acquireScreen(Object owner, bool Function() live) {
+    final cur = _screenOwner;
+    if (cur != null && !identical(cur, owner)) {
+      bool busy;
+      try {
+        busy = _screenLive?.call() ?? false;
+      } catch (_) {
+        busy = false;
+      }
+      if (busy) return false;
+    }
+    _screenOwner = owner;
+    _screenLive = live;
+    return true;
+  }
+
+  void releaseScreen(Object owner) {
+    if (identical(_screenOwner, owner)) {
+      _screenOwner = null;
+      _screenLive = null;
+    }
+  }
+
+  /// FCM "call_signal" nudge (x1-calls): poll the real-time queue NOW.
+  void nudge() {
+    try {
+      unawaited(_transport?.reconnect());
+    } catch (e) {
+      callLog('call_runtime#7', e);
+    }
+  }
+
   void onIncoming(Map<String, dynamic> row) {
     final id = '${row['call_id'] ?? ''}';
     if (id.isEmpty || _shown.contains(id)) return;
+    if (activeCallId != null && '$activeCallId' == id) return; // in it already
     final nav = _nav?.currentState;
     if (nav == null) return;
     _shown.add(id);
@@ -162,6 +214,8 @@ class CallRuntime with WidgetsBindingObserver {
       'kind': 'call',
       'call_id': id,
       'caller_name': '${row['caller_name'] ?? ''}',
+      'caller_photo': '${row['caller_photo'] ?? ''}',
+      'caller_id': '${row['caller_id'] ?? ''}',
       'video':
           row['video'] == true || row['kind'] == 'video' ? 'true' : 'false',
       'chat_id': '${row['chat_id'] ?? ''}',
@@ -207,6 +261,8 @@ class CallRuntime with WidgetsBindingObserver {
     _transport = null;
     _shown.clear();
     activeCallId = null;
+    _screenOwner = null;
+    _screenLive = null;
     _app?.removeListener(_onApp);
     _app = null;
     _started = false;

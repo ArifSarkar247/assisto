@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../calls/call_avatar.dart';
 import '../calls/call_runtime.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/circle_call_screen.dart';
@@ -85,7 +86,11 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
     unawaited(PushNotifier.cancelCall(p.callId));
     Navigator.of(context).pushReplacement(MaterialPageRoute(
       builder: (_) => CircleCallScreen(
-        member: {'id': int.tryParse(p.chatId), 'name': p.callerName},
+        member: {
+          'id': int.tryParse(p.chatId),
+          'name': p.callerName,
+          'photo_url': p.callerPhoto,
+        },
         kind: p.isVideo ? 'video' : 'voice',
         outgoing: false,
         callId: int.tryParse(p.callId),
@@ -114,7 +119,6 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
   Widget _body(BuildContext context) {
     final t = AppLocalizations.of(context);
     final name = p.callerName.isNotEmpty ? p.callerName : p.title;
-    final initial = name.isNotEmpty ? name.characters.first.toUpperCase() : '?';
     return Scaffold(
       backgroundColor: Brand.ink,
       body: Container(
@@ -126,15 +130,8 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
             child: Column(
               children: [
                 const Spacer(),
-                CircleAvatar(
-                  radius: 52,
-                  backgroundColor: Colors.white.withValues(alpha: 0.14),
-                  child: Text(initial,
-                      style: const TextStyle(
-                          fontSize: 42,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700)),
-                ),
+                // x1-calls A3: the caller's real photo (cached)
+                CallAvatar(name: name, photoUrl: p.callerPhoto, radius: 64),
                 const SizedBox(height: Gap.lg),
                 Text(name,
                     textAlign: TextAlign.center,

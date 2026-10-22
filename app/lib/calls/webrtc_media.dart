@@ -79,7 +79,11 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
       'iceServers': iceServers,
       'sdpSemantics': 'unified-plan',
       'bundlePolicy': 'max-bundle',
-      'iceCandidatePoolSize': 2,
+      // x1-calls: no pre-gathered pool — each pooled candidate set holds an
+      // extra TURN allocation (coturn user-quota); gathering starts with
+      // setLocalDescription, which is early enough (the offer is pre-sent
+      // while it rings).
+      'iceCandidatePoolSize': 0,
     });
     _pc = pc;
     final local = _local;
@@ -200,11 +204,21 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
     double? rtt;
     var relayed = false;
     var lost = 0, recv = 0;
+    // x1-calls: the standard way to find the pair in use is
+    // transport.selectedCandidatePairId (Android libwebrtc has no
+    // `selected` flag on candidate-pair) — so `relayed` is reported right.
+    final selectedIds = <String>{
+      for (final r in reports)
+        if (r.type == 'transport' && r.values['selectedCandidatePairId'] != null)
+          '${r.values['selectedCandidatePairId']}'
+    };
     for (final r in reports) {
       final v = r.values;
       if (r.type == 'candidate-pair') {
-        final selected = v['selected'] == true ||
-            (v['nominated'] == true && v['state'] == 'succeeded');
+        final selected = selectedIds.isNotEmpty
+            ? selectedIds.contains(r.id)
+            : (v['selected'] == true ||
+                (v['nominated'] == true && v['state'] == 'succeeded'));
         if (!selected) continue;
         final cr = v['currentRoundTripTime'];
         if (cr is num) rtt = cr * 1000;

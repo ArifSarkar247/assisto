@@ -530,7 +530,9 @@ class RtcTurnView(APIView):
         creds = RTC.turn_credentials(secret, request.user.id,
                                      timezone.now().timestamp())
         return Response({"configured": True, "throttled": False,
-                         "ice_servers": RTC.ice_servers(host, port, creds),
+                         "ice_servers": RTC.ice_servers(
+                             host, port, creds,
+                             tls_port=getattr(settings, "TURN_TLS_PORT", 0)),
                          "ttl": creds["ttl"]})
 
 
@@ -673,8 +675,14 @@ class CircleCallsView(APIView):
                                 request.user.id, lang)),
                 "end_reason": C2.history_reason(r),
                 "started_at": r.started_at.isoformat(),
+                # x1-calls A3: the other party's photo (signed, cached by
+                # photo_v on the phone) + the grouping key.
+                "peer_id": other.id if other is not None else None,
+                "photo_url": C2.photo_of(other, request)[0],
+                "photo_v": C2.photo_of(other, request)[1],
             })
-        return Response({"calls": out})
+        return Response({"calls": out, "groups": C2.history_groups(
+            out, request.user)})
 
 
 class CirclePlaceCallView(APIView):
@@ -726,8 +734,10 @@ class CirclePlaceCallView(APIView):
             peer = PUSH.member_peer_user(m)
         except Exception:
             peer = None
-        return Response(C2.place_call(request, m, peer, kind),
-                        status=status.HTTP_201_CREATED)
+        return Response(C2.place_call(
+            request, m, peer, kind,
+            client_call_id=(request.data or {}).get("client_call_id") or ""),
+            status=status.HTTP_201_CREATED)
 
 
 class CircleAnswerCallView(CirclePlaceCallView):

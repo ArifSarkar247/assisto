@@ -1,0 +1,23 @@
+"""x1-calls A1-e: run the call timeouts on every live call row.
+
+Cron (every minute, as the app user, from backend/):
+  * * * * * ubuntu cd /home/ubuntu/assisto/backend && /home/ubuntu/assisto/.venv/bin/python manage.py calls_sweep >/dev/null 2>&1
+
+Ringing > 45 s -> no_answer; never acked > 20 s -> offline; accepted but not
+connected > 20 s -> failed; a phone silent > 15 s -> lost/failed. Both
+phones get call.state ended (+ the FCM nudge) so nobody is left on
+"Connecting…".
+"""
+from django.core.management.base import BaseCommand
+
+
+class Command(BaseCommand):
+    help = "End stale live calls (ringing/connecting/no heartbeat)."
+
+    def handle(self, *args, **opts):
+        from core.views_c2_calls import sweep_all
+        out = sweep_all()
+        n = sum(out.values())
+        if n:
+            self.stdout.write("calls_sweep: ended %d (%s)" % (
+                n, ", ".join("%s=%d" % kv for kv in sorted(out.items()))))

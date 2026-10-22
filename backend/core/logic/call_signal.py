@@ -31,12 +31,18 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 # ---- timeouts (seconds) ----------------------------------------------------
+# x1-calls (owner order A1-e): stale calls die fast so nobody is ever shown
+# "Busy" or left on "Connecting…" by a dead row.
 OFFLINE_ACK_S = 20      # placed, but the callee phone never said "ringing"
-RING_TIMEOUT_S = 45     # ringing with no answer -> no_answer
-CONNECT_TIMEOUT_S = 40  # accepted but ICE never connected -> failed
-STALE_S = 40            # a side stopped polling during a live call -> lost
+RING_TIMEOUT_S = 45     # ringing at most 45 s from placement -> no_answer
+CONNECT_TIMEOUT_S = 20  # accepted but ICE never connected -> failed (both)
+HEARTBEAT_S = 15        # a side stopped polling during a live call -> lost
+STALE_S = HEARTBEAT_S   # (old name, kept for callers/tests)
 PRESENCE_S = 30         # in-app poll seen this recently = phone is reachable
 BUSY_WINDOW_S = 3 * 3600  # an "active" call older than this is never busy
+# x1-calls: a second "place" for the same caller -> callee inside this window
+# returns the EXISTING live call (double tap, gate pre-check, retry).
+DEDUPE_WINDOW_S = 60
 
 PHASES = ("calling", "ringing", "accepted", "connected", "reconnecting", "ended")
 END_REASONS = ("no_answer", "busy", "declined", "offline", "canceled",
@@ -120,24 +126,25 @@ def sweep_decision(state, now, started_at, ringing_at=None, answered_at=None,
                    caller_seen=None, callee_seen=None, connected_at=None):
     """Lazy server-side timeout check.  Returns an end_reason or None.
 
-      ringing, never acked, > OFFLINE_ACK_S        -> offline
-      ringing, acked,  > RING_TIMEOUT_S since ack  -> no_answer
-      connecting (accepted), > CONNECT_TIMEOUT_S   -> failed
-      any live phase: a side silent > STALE_S      -> lost / canceled
+      ringing, never acked, > OFFLINE_ACK_S          -> offline
+      ringing, > RING_TIMEOUT_S since placement      -> no_answer
+      ringing, caller silent > HEARTBEAT_S           -> canceled
+      connecting (accepted), > CONNECT_TIMEOUT_S     -> failed
+      any live phase: a side silent > HEARTBEAT_S    -> lost (failed when
+                                                         media never connected)
     """
     if not is_live(state):
         return None
     now_s = _ts(now)
     started = _ts(started_at) or now_s
     if state == "ringing":
-        if ringing_at is None:
-            if now_s - started > OFFLINE_ACK_S:
-                return "offline"
-        elif now_s - _ts(ringing_at) > RING_TIMEOUT_S:
+        if ringing_at is None and now_s - started > OFFLINE_ACK_S:
+            return "offline"
+        if now_s - started > RING_TIMEOUT_S:
             return "no_answer"
         # the caller closed the app / lost network while ringing
         cs = _ts(caller_seen)
-        if cs is not None and now_s - cs > STALE_S:
+        if cs is not None and now_s - cs > HEARTBEAT_S:
             return "canceled"
         return None
     if state == "connecting":
@@ -146,9 +153,62 @@ def sweep_decision(state, now, started_at, ringing_at=None, answered_at=None,
             return "failed"
     for seen in (caller_seen, callee_seen):
         s = _ts(seen)
-        if s is not None and now_s - s > STALE_S:
-            return "lost"
+        if s is not None and now_s - s > HEARTBEAT_S:
+            return "lost" if connected_at is not None else "failed"
     return None
+
+
+def is_truly_active(state, now, connected_at=None, caller_seen=None,
+                    callee_seen=None):
+    """BUSY rule (A1-f): a call makes its parties busy ONLY when media really
+    connected AND both phones polled within HEARTBEAT_S. Ringing/connecting
+    calls, or a connected call whose phones went silent, never cause busy."""
+    if state not in ("active", "reconnecting") or connected_at is None:
+        return False
+    now_s = _ts(now)
+    for seen in (caller_seen, callee_seen):
+        s = _ts(seen)
+        if s is None or now_s - s > HEARTBEAT_S:
+            return False
+    return True
+
+
+def dedupe_match(started_at, now, window=DEDUPE_WINDOW_S):
+    """Is a live call placed at `started_at` recent enough to be returned for
+    a repeated place request?"""
+    st = _ts(started_at)
+    return st is not None and _ts(now) - st <= window
+
+
+def group_history(rows):
+    """WhatsApp-style call-log grouping (A1-g). `rows` newest first, each a
+    dict with peer_key, outgoing, category ('missed'|'answered'|'other'),
+    day ('YYYY-MM-DD') and id. Consecutive rows with the same peer,
+    direction, category and day collapse into one group:
+        {"first": <row>, "count": n, "ids": [...]}"""
+    groups = []
+    for r in rows:
+        g = groups[-1] if groups else None
+        if g is not None:
+            f = g["first"]
+            if (f.get("peer_key") == r.get("peer_key")
+                    and f.get("outgoing") == r.get("outgoing")
+                    and f.get("category") == r.get("category")
+                    and f.get("day") == r.get("day")):
+                g["count"] += 1
+                g["ids"].append(r.get("id"))
+                continue
+        groups.append({"first": r, "count": 1, "ids": [r.get("id")]})
+    return groups
+
+
+def history_category(state, end_reason, outgoing):
+    if end_reason in ("hangup", "lost") or state == "ended":
+        return "answered"
+    if not outgoing and (state in ("missed", "canceled")
+                         or end_reason in MISSED_REASONS):
+        return "missed"
+    return "other:%s" % (end_reason or state)
 
 
 def is_presence_fresh(seen_at, now):

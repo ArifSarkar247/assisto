@@ -8,6 +8,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
+import '../calls/call_avatar.dart';
 import '../calls/call_log.dart';
 import '../calls/call_sound_prefs.dart';
 import '../config.dart';
@@ -98,8 +99,12 @@ class PushNotifier {
         audioAttributesUsage: AudioAttributesUsage.notificationRingtone);
   }
 
-  static NotificationDetails detailsFor(PushPayload p, {String? ringtoneUri}) {
+  static NotificationDetails detailsFor(PushPayload p,
+      {String? ringtoneUri, Uint8List? largeIcon}) {
     final t = _t(p.lang);
+    // x1-calls A3: the caller's photo as the large icon (ring + missed)
+    final AndroidBitmap<Object>? icon =
+        largeIcon == null ? null : ByteArrayAndroidBitmap(largeIcon);
     final ch = channels(p.lang).firstWhere((c) => c.id == p.channel,
         orElse: () => channels(p.lang).first);
     if (p.isMissedCall) {
@@ -109,6 +114,9 @@ class PushNotifier {
             importance: Importance.high,
             priority: Priority.high,
             category: AndroidNotificationCategory.missedCall,
+            largeIcon: icon,
+            // x1-calls A1-g: one notification per caller, replaced in place
+            onlyAlertOnce: false,
             autoCancel: true),
       );
     }
@@ -120,6 +128,7 @@ class PushNotifier {
             importance: Importance.max,
             priority: Priority.max,
             category: AndroidNotificationCategory.call,
+            largeIcon: icon,
             sound: cc.sound,
             audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
             fullScreenIntent: true,
@@ -193,8 +202,16 @@ class PushNotifier {
           }
         }
       }
+      Uint8List? face;
+      if ((p.isCall || p.isMissedCall) && p.callerPhoto.isNotEmpty) {
+        // cached on disk after the first time; never delays a ring > 2.5 s
+        face = await CallPhotoCache.instance
+            .load(p.callerPhoto, timeout: const Duration(milliseconds: 2500))
+            .catchError((_) => null);
+      }
       await _plugin.show(p.notificationId, titleFor(p),
-          p.body.isEmpty ? null : p.body, detailsFor(p, ringtoneUri: ring),
+          p.body.isEmpty ? null : p.body,
+          detailsFor(p, ringtoneUri: ring, largeIcon: face),
           payload: p.encode());
     } catch (e) {
       if (kDebugMode) debugPrint('push show failed: $e');

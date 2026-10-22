@@ -1,0 +1,9 @@
+{
+  "en": {
+    "x1CallConnectFailed": "Couldn't connect — check internet",
+    "@x1CallConnectFailed": {"description": "Call screen: the call was answered but media never connected within 20 s (both phones)."}
+  },
+  "bn": {
+    "x1CallConnectFailed": "সংযোগ হয়নি — ইন্টারনেট সংযোগ দেখে নিন"
+  }
+}

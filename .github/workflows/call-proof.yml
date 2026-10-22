@@ -1,0 +1,62 @@
+# A4 CALL PROOF: two real clients (Python aiortc) place, answer, talk 30 s and
+# hang up a My Circle voice call against the LIVE server + LIVE TURN, from a
+# GitHub runner (outside AWS). Runs: forced relay (TURN only) and direct.
+# Results table (connect time, relay used, RTP packets both ways, hang-up
+# latency, PASS/FAIL) goes to the job summary; any FAIL turns the job red.
+# Secrets: CALL_PROOF_A_PHONE, CALL_PROOF_A_PASSWORD, CALL_PROOF_B_PHONE,
+# CALL_PROOF_B_PASSWORD (two accepted My Circle contacts); optional
+# CALL_PROOF_A_MEMBER_ID. Script: tools/callproof/call_proof.py.
+name: Call proof
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_base:
+        description: API base
+        default: https://api.lifeassisto.com/api/v1
+        required: true
+      runs:
+        description: Comma list of relay | direct | relay-tcp | relay-tls
+        default: relay,direct
+        required: true
+      rounds:
+        description: How many times to repeat the run list
+        default: '1'
+        required: true
+      talk_seconds:
+        description: Audio time per call
+        default: '30'
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: call-proof
+  cancel-in-progress: false
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install aiortc (pinned)
+        run: |
+          python -m pip install --upgrade pip==24.2
+          pip install aiortc==1.9.0 aioice==0.10.2 av==12.3.0 requests==2.32.3
+      - name: Two-client call proof (live server + live TURN)
+        env:
+          API_BASE: ${{ inputs.api_base }}
+          CALL_PROOF_RUNS: ${{ inputs.runs }}
+          CALL_PROOF_ROUNDS: ${{ inputs.rounds }}
+          CALL_PROOF_A_PHONE: ${{ secrets.CALL_PROOF_A_PHONE }}
+          CALL_PROOF_A_PASSWORD: ${{ secrets.CALL_PROOF_A_PASSWORD }}
+          CALL_PROOF_B_PHONE: ${{ secrets.CALL_PROOF_B_PHONE }}
+          CALL_PROOF_B_PASSWORD: ${{ secrets.CALL_PROOF_B_PASSWORD }}
+          CALL_PROOF_A_MEMBER_ID: ${{ secrets.CALL_PROOF_A_MEMBER_ID }}
+          CALL_PROOF_TALK: ${{ inputs.talk_seconds }}
+        run: python tools/callproof/call_proof.py

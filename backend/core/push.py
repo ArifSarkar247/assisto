@@ -651,9 +651,20 @@ def hook_call_placed(caller, member, call):
                          data={"call_id": call.id, "caller_id": caller.id,
                                "caller_name": name, "video": video,
                                "chat_id": edge.id if edge is not None else "",
+                               # x1-calls A3: caller photo for the full-screen
+                               # ring + notification large icon
+                               "caller_photo": _x1_photo(caller),
                                "route": "circle/call"})
     except Exception:
         return False
+
+
+def _x1_photo(user):
+    try:
+        from .views_c2_calls import photo_of
+        return photo_of(user)[0]
+    except Exception:
+        return ""
 
 
 def hook_call_cancel(call, reason):

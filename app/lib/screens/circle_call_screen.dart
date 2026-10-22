@@ -6,6 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 import '../calls/api_call_signaling.dart';
+import '../calls/call_avatar.dart';
 import '../calls/call_controller.dart';
 import '../calls/call_keepalive.dart';
 import '../calls/call_native.dart';
@@ -71,9 +72,18 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   bool _pip = false;
   bool _pipSupported = false;
   bool _closed = false;
+  bool _beginning = false;
+  bool _claimed = false;
+
+  /// Direction of the CURRENT controller: an incoming call that failed can
+  /// be called back ("Call again" places a new outgoing call).
+  late bool _outgoing = widget.outgoing;
 
   bool get _isVideo => widget.kind == 'video';
   String get _name => '${widget.member['name'] ?? ''}';
+  String get _photo =>
+      '${widget.member['photo_url'] ?? widget.member['photo'] ?? widget.member['caller_photo'] ?? ''}';
+  String get _photoV => '${widget.member['photo_v'] ?? ''}';
   AppLocalizations get _t => AppLocalizations.of(context);
 
   @override
@@ -84,16 +94,38 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       _attach(widget.controller!, widget.surface, initial: true);
     } else {
       _owns = true;
+      if (!CallRuntime.instance.acquireScreen(this, _screenLive)) {
+        // another call screen is already live: never place a second call
+        _owns = false;
+        _duplicate = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) => _close());
+        return;
+      }
       WidgetsBinding.instance.addPostFrameCallback((_) => _begin());
     }
   }
+
+  bool _duplicate = false;
+  bool _screenLive() => mounted && !_closed && (_c == null || !_c!.isEnded);
 
   void _onPip() {
     if (mounted) setState(() => _pip = CallNative.inPip.value);
   }
 
   Future<void> _begin() async {
-    if (!mounted) return;
+    // x1-calls: ONE controller start per screen / per "Call again" — a
+    // rebuild, a route event or a second frame callback can never place a
+    // second call.
+    if (!mounted || _beginning || _c != null) return;
+    _beginning = true;
+    try {
+      await _beginOnce();
+    } finally {
+      _beginning = false;
+    }
+  }
+
+  Future<void> _beginOnce() async {
     final app = context.read<AppState>();
     final transport = CallRuntime.instance.transportFor(app);
     CallMedia media;
@@ -109,9 +141,9 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       signaling: ApiCallSignaling(app.api, transport),
       sounds: NativeCallSounds(),
       video: _isVideo,
-      outgoing: widget.outgoing,
+      outgoing: _outgoing,
       memberId: widget.member['id'] as int?,
-      callId: widget.callId,
+      callId: _outgoing ? null : widget.callId,
     );
     _attach(c, media is CallVideoSurface ? media as CallVideoSurface : null);
     if (_isVideo) unawaited(CallNative.keepScreenOn(true));
@@ -139,6 +171,11 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     if (_owns) {
       if (c.callId != null && !c.isEnded) {
         CallRuntime.instance.activeCallId = c.callId;
+        if (c.merged && !_claimed) {
+          // glare merged into the peer's call: drop its ringing screen
+          _claimed = true;
+          CallRuntime.instance.claim('${c.callId}');
+        }
       }
       // keep the mic alive if the user leaves the app mid-call
       if (c.phase == CallPhase.accepted || c.isLive) {
@@ -188,7 +225,8 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       unawaited(CallNative.keepScreenOn(false));
       unawaited(CallKeepAlive.stop());
     }
-    LockScreenGuard.release();
+    CallRuntime.instance.releaseScreen(this);
+    if (!_duplicate) LockScreenGuard.release();
     super.dispose();
   }
 
@@ -202,6 +240,8 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     setState(() => _c = null);
     if (_owns) old?.dispose();
     _owns = true;
+    _outgoing = true; // "Call again" always places a NEW call
+    _claimed = false;
     _begin();
   }
 
@@ -386,18 +426,8 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     );
   }
 
-  Widget _avatar(double r) {
-    final initial = _name.isEmpty ? '?' : _name.characters.first.toUpperCase();
-    return CircleAvatar(
-      radius: r,
-      backgroundColor: Colors.white.withValues(alpha: 0.14),
-      child: Text(initial,
-          style: TextStyle(
-              fontSize: r * 0.8,
-              color: Colors.white,
-              fontWeight: FontWeight.w700)),
-    );
-  }
+  Widget _avatar(double r) =>
+      CallAvatar(name: _name, photoUrl: _photo, version: _photoV, radius: r);
 
   Widget _nameAndStatus(CallController? c) {
     final ended = c?.isEnded ?? false;
@@ -479,7 +509,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
               label: Text(t.c2CallOpenSettings),
               onPressed: () => openAppSettings(),
             ),
-          if (c.outgoing && c.endReason != CallEndReason.hangup)
+          if (canCallAgain(c, hasMember: widget.member['id'] is int))
             FilledButton.icon(
               key: const Key('call-again'),
               style: FilledButton.styleFrom(
@@ -632,12 +662,26 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
 /// A failure the user should notice (red status), vs a normal outcome.
 bool isFailureReason(CallEndReason r) => const {
       CallEndReason.failed,
+      CallEndReason.connectFailed,
       CallEndReason.lost,
       CallEndReason.mediaDenied,
       CallEndReason.mediaError,
       CallEndReason.serverBusy,
       CallEndReason.network,
     }.contains(r);
+
+/// "Call again" (A1-d): the caller after any unsuccessful end; the callee
+/// too when the call could not connect / dropped (calls the person back).
+bool canCallAgain(CallController c, {required bool hasMember}) {
+  if (!hasMember || c.endReason == CallEndReason.hangup) return false;
+  if (c.outgoing) return true;
+  return const {
+    CallEndReason.connectFailed,
+    CallEndReason.failed,
+    CallEndReason.lost,
+    CallEndReason.network,
+  }.contains(c.endReason);
+}
 
 String endReasonLabel(AppLocalizations t, CallEndReason r,
     {required bool outgoing}) {
@@ -654,6 +698,8 @@ String endReasonLabel(AppLocalizations t, CallEndReason r,
       return outgoing ? t.c2CallCanceled : t.c2CallMissed;
     case CallEndReason.failed:
       return t.c2CallFailedMedia;
+    case CallEndReason.connectFailed:
+      return t.x1CallConnectFailed;
     case CallEndReason.lost:
       return t.c2CallLost;
     case CallEndReason.mediaDenied:

@@ -958,40 +958,26 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   // Top-bar: calls (video is Premium-gated SERVER-SIDE — caller pays)
   // -------------------------------------------------------------------------
   Future<void> _placeCall(String kind) async {
-    // Ask the server first. can_place_call(caller,callee,'video') is the plan
-    // gate: a FREE caller requesting video gets upgrade_required back and we
-    // show the upgrade prompt — the client never starts video media itself.
-    // Voice is free for everyone.
+    // x1-calls ROOT CAUSE FIX: this used to POST /circle/<id>/call as a
+    // "gate check" and then the call screen POSTed it AGAIN — two live
+    // records 0–1 s apart; the server ended the second as "busy" (caller saw
+    // Busy, callee got Missed rows) while the callee answered the first one
+    // nobody was on (stuck "Connecting…"). The call screen's ONE placement
+    // runs the same server gate (can_place_call) and shows the upgrade
+    // screen for a free video caller, so we just open it — once.
+    if (_callOpening) return;
+    _callOpening = true;
     try {
-      final r = await _api.circlePlaceCall(_memberId ?? 0, kind);
-      if (!mounted) return;
-      if (r['allowed'] == false || r['upgrade_required'] == true) {
-        _showVideoUpgrade();
-        return;
-      }
-    } catch (_) {
-      // Backend pending: still open the call screen, which re-runs the gate
-      // and renders the honest blocked/upgrade state if the server refuses.
+      await Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => CircleCallScreen(member: widget.member, kind: kind),
+      ));
+    } finally {
+      _callOpening = false;
     }
-    if (!mounted) return;
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => CircleCallScreen(member: widget.member, kind: kind),
-    ));
   }
 
-  void _showVideoUpgrade() {
-    showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(_t.msgrChatVideoPremiumTitle),
-        content: Text(_t.msgrChatVideoPremiumBody),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(_t.close)),
-          FilledButton(onPressed: () => Navigator.pop(ctx), child: Text(_t.msgrChatGetPremium)),
-        ],
-      ),
-    );
-  }
+  /// A second tap while the call screen is opening never stacks a 2nd call.
+  bool _callOpening = false;
 
   // -------------------------------------------------------------------------
   // Chat ⋮ menu dispatch
@@ -1288,20 +1274,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   Future<void> _newGroupCall() async {
     // Starting a group call from a 1:1 means adding more circle members; the
     // group-call launch reuses circle_calls. The picker is the group screen's
-    // job, so from here we open the call screen with this member and the
-    // honest "add people" affordance lives in the call controls.
-    try {
-      final r = await _api.circlePlaceCall(_memberId ?? 0, 'voice');
-      if (!mounted) return;
-      if (r['allowed'] == false) {
-        _toast(_t.grpActionFailed);
-        return;
-      }
-    } catch (_) {}
-    if (!mounted) return;
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => CircleCallScreen(member: widget.member, kind: 'voice'),
-    ));
+    // job, so from here we open the call screen with this member (x1-calls:
+    // no pre-check POST — the screen places the ONE call itself).
+    await _placeCall('voice');
   }
 
   // ---- Assisto extras (AI MOCK, key-gated honest) -------------------------

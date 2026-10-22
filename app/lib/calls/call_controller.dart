@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'call_log.dart';
@@ -35,6 +36,7 @@ enum CallEndReason {
   failed,
   lost,
   // client-side
+  connectFailed, // x1: never reached ICE connected within the timeout
   mediaDenied, // mic / camera permission refused
   mediaError, // getUserMedia / RTCPeerConnection failed
   serverBusy, // TURN/box throttled
@@ -139,8 +141,11 @@ abstract class CallMedia {
 
 /// Server signalling + call events (ApiCallSignaling in the app).
 abstract class CallSignaling {
-  /// POST /circle/<member>/call. Returns the server body.
-  Future<Map<String, dynamic>> place(int memberId, String kind);
+  /// POST /circle/<member>/call. Returns the server body. [clientCallId] is
+  /// the idempotency key of THIS tap: the server returns the same call for a
+  /// repeated request (x1-calls), never a second "busy" record.
+  Future<Map<String, dynamic>> place(int memberId, String kind,
+      {String? clientCallId});
 
   /// POST /circle/calls/<id>/event {event:'answer'} (callee).
   Future<Map<String, dynamic>> accept(int callId);
@@ -186,13 +191,29 @@ class CallController extends ChangeNotifier {
     this.reconnectGrace = const Duration(seconds: 2),
     this.reconnectGiveUp = const Duration(seconds: 20),
     this.statsEvery = const Duration(seconds: 2),
-  });
+    this.connectTimeout = const Duration(seconds: 20),
+    String? clientCallId,
+  }) : clientCallId = clientCallId ?? newClientCallId();
 
   final CallMedia media;
   final CallSignaling signaling;
   final CallSounds sounds;
   final bool video;
-  final bool outgoing;
+
+  /// true = this phone is the CALLER (offerer). Starts as "I tapped call";
+  /// becomes false when the server merges a glare (both called each other
+  /// at once) into the peer's call, where this phone is the callee.
+  bool outgoing;
+
+  /// true when the server merged this tap into the peer's ringing call.
+  bool merged = false;
+
+  /// Idempotency key of this placement (one per tap / Call again).
+  final String clientCallId;
+
+  /// A1-d: not connected within this after accept -> a real "fail" on both
+  /// sides (server ends the call, both screens say "Couldn't connect").
+  final Duration connectTimeout;
   final int? memberId;
   int? callId;
   final DateTime Function() now;
@@ -223,6 +244,11 @@ class CallController extends ChangeNotifier {
   Timer? _statsTimer;
   Timer? _reconnectTimer;
   Timer? _giveUpTimer;
+  Timer? _connectTimer;
+  bool _started = false;
+  bool _peerReady = false;
+  int _preConnectRestarts = 0;
+  final List<Map<String, dynamic>> _early = [];
   bool _remoteSet = false;
   bool _offerHandled = false;
   bool _disposed = false;
@@ -246,7 +272,25 @@ class CallController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Random idempotency key (no extra dependency).
+  static String newClientCallId() {
+    final r = Random.secure();
+    return List<String>.generate(
+        16, (_) => r.nextInt(256).toRadixString(16).padLeft(2, '0')).join();
+  }
+
+  void _armConnectTimer() {
+    if (_connectTimer != null || connectedAt != null || isEnded) return;
+    _connectTimer = Timer(connectTimeout, () {
+      if (connectedAt == null && !isEnded) {
+        log.add('connect-timeout');
+        unawaited(_hangupWith('fail', CallEndReason.connectFailed));
+      }
+    });
+  }
+
   void _onPhase(CallPhase prev, CallPhase p) {
+    if (p == CallPhase.accepted) _armConnectTimer();
     if (outgoing) {
       if (p == CallPhase.ringing) {
         unawaited(sounds.startRingback());
@@ -256,6 +300,7 @@ class CallController extends ChangeNotifier {
     }
     if (p == CallPhase.connected && connectedAt == null) {
       connectedAt = now();
+      _connectTimer?.cancel();
       if (!video) unawaited(sounds.setProximity(true));
       _statsTimer ??=
           Timer.periodic(statsEvery, (_) => unawaited(_pollStats()));
@@ -263,8 +308,15 @@ class CallController extends ChangeNotifier {
   }
 
   // ------------------------------------------------------------------ start
-  /// Caller: place the call. Callee: accept [callId].
+  /// Caller: place the call. Callee: accept [callId]. Runs ONCE per
+  /// controller — rebuilds, route events or a second tap can never place a
+  /// second call (x1-calls root cause: the call was POSTed twice).
   Future<void> start() async {
+    if (_started || _disposed) {
+      log.add('start-ignored');
+      return;
+    }
+    _started = true;
     signaling.setFast(true);
     try {
       final cfg = await signaling.rtcConfig();
@@ -313,7 +365,8 @@ class CallController extends ChangeNotifier {
   }
 
   Future<void> _startOutgoing(List<Map<String, dynamic>> turnIce) async {
-    final r = await signaling.place(memberId!, video ? 'video' : 'voice');
+    final r = await signaling.place(memberId!, video ? 'video' : 'voice',
+        clientCallId: clientCallId);
     if (r['allowed'] == false) {
       if (r['upgrade_required'] == true) {
         upgradePrompt = (r['prompt'] as Map?)?.cast<String, dynamic>() ?? {};
@@ -324,6 +377,14 @@ class CallController extends ChangeNotifier {
     callId = (r['call_id'] as num?)?.toInt();
     if (callId == null) return _finish(CallEndReason.network);
     log.add('placed:$callId');
+    if (r['merged'] == true && r['role'] == 'callee') {
+      // glare: the peer called me at the same moment — the server joined me
+      // to THEIR call as its callee (already accepted). Never "busy".
+      merged = true;
+      outgoing = false;
+      log.add('merged:$callId');
+      return _startIncoming(turnIce, accepted: r);
+    }
     _listen();
     final p = phaseFromServer('${r['phase'] ?? 'calling'}');
     if (p == CallPhase.ended) {
@@ -334,21 +395,45 @@ class CallController extends ChangeNotifier {
     // Open the mic/camera while it rings, then pre-send the offer so the
     // call connects the moment the callee accepts.
     await media.open(video: video);
-    if (isEnded) return;
+    if (await _endedDuringSetup()) return;
     await media.setSpeaker(speakerOn);
     await media.createPeer(_ice);
+    if (await _endedDuringSetup()) return;
     _wireMedia();
     final offer = await media.createOffer();
-    if (isEnded) return;
+    if (await _endedDuringSetup()) return;
     await signaling.signal(callId!, 'offer', offer);
     log.add('offer-sent');
+    await _peerUp();
   }
 
-  Future<void> _startIncoming(List<Map<String, dynamic>> turnIce) async {
+  /// The call ended (hang-up, server end, timeout) while the mic / peer
+  /// connection was still being created: release them NOW, so no mic stays
+  /// open and no TURN allocation leaks (coturn counts allocations per user).
+  Future<bool> _endedDuringSetup() async {
+    if (!isEnded) return false;
+    log.add('setup-after-end:released');
+    await _closeMedia();
+    return true;
+  }
+
+  /// The peer connection exists: replay signals that arrived before it.
+  Future<void> _peerUp() async {
+    _peerReady = true;
+    final early = List<Map<String, dynamic>>.from(_early)
+      ..sort((a, b) => ((a['seq'] as num?) ?? 0).compareTo((b['seq'] as num?) ?? 0));
+    _early.clear();
+    for (final e in early) {
+      await _onEvent(e, replay: true);
+    }
+  }
+
+  Future<void> _startIncoming(List<Map<String, dynamic>> turnIce,
+      {Map<String, dynamic>? accepted}) async {
     final id = callId;
     if (id == null) return _finish(CallEndReason.network);
     _listen();
-    final r = await signaling.accept(id);
+    final r = accepted ?? await signaling.accept(id);
     final p = phaseFromServer('${r['phase'] ?? ''}');
     if (p == CallPhase.ended ||
         p == CallPhase.calling ||
@@ -361,13 +446,15 @@ class CallController extends ChangeNotifier {
     _set(CallPhase.accepted);
     _ice = _iceFrom(r, turnIce);
     await media.open(video: video);
-    if (isEnded) return;
+    if (await _endedDuringSetup()) return;
     await media.setSpeaker(speakerOn);
     await media.createPeer(_ice);
+    if (await _endedDuringSetup()) return;
     _wireMedia();
     for (final s in await signaling.backlog(id)) {
-      await _onEvent(s);
+      _early.add(s);
     }
+    await _peerUp();
   }
 
   void _listen() {
@@ -386,11 +473,17 @@ class CallController extends ChangeNotifier {
   }
 
   // ----------------------------------------------------------------- events
-  Future<void> _onEvent(Map<String, dynamic> e) async {
+  Future<void> _onEvent(Map<String, dynamic> e, {bool replay = false}) async {
     if (_disposed) return;
+    final topic = '${e['topic'] ?? ''}';
+    if (topic == 'call.signal' && !_peerReady && !replay) {
+      // A1-c: an offer / ICE candidate that arrives before our peer
+      // connection exists is queued, never dropped or applied to nothing.
+      _early.add(e);
+      return;
+    }
     final seq = (e['seq'] as num?)?.toInt();
     if (seq != null && !_seenSeq.add(seq)) return;
-    final topic = '${e['topic'] ?? ''}';
     final p = (e['payload'] is Map)
         ? (e['payload'] as Map).cast<String, dynamic>()
         : const <String, dynamic>{};
@@ -457,7 +550,13 @@ class CallController extends ChangeNotifier {
   void _onServerState(Map<String, dynamic> s) {
     final p = phaseFromServer('${s['phase'] ?? ''}');
     if (p == CallPhase.ended) {
-      unawaited(_finish(endReasonFromServer('${s['end_reason'] ?? ''}')));
+      var reason = endReasonFromServer('${s['end_reason'] ?? ''}');
+      if (connectedAt == null &&
+          (reason == CallEndReason.failed || reason == CallEndReason.lost) &&
+          phase.index >= CallPhase.accepted.index) {
+        reason = CallEndReason.connectFailed; // answered, never connected
+      }
+      unawaited(_finish(reason));
       return;
     }
     // The server never moves us INTO connected — only our own ICE does.
@@ -500,8 +599,14 @@ class CallController extends ChangeNotifier {
       case MediaLinkState.failed:
         if (isLive) {
           _beginReconnect();
+        } else if (outgoing && _preConnectRestarts < 1) {
+          // first ICE attempt failed before connecting: one ICE restart
+          // (fresh candidates incl. TURN/TCP) inside the 20 s window.
+          _preConnectRestarts++;
+          unawaited(restartIce());
         } else {
-          unawaited(_hangupWith('fail', CallEndReason.failed));
+          // the 20 s connect timer turns this into a real fail on both sides
+          _armConnectTimer();
         }
         break;
       default:
@@ -624,14 +729,15 @@ class CallController extends ChangeNotifier {
   Future<void> _hangupWith(String event, CallEndReason reason) async {
     if (isEnded) return;
     final id = callId;
+    // A1-h: tell the server FIRST (the other phone ends within one poll),
+    // then release our media.
+    final told = id == null
+        ? Future<void>.value()
+        : signaling.event(id, event).then<void>((_) {}, onError: (Object e) {
+            callLog('call_controller#10', e);
+          });
     await _finish(reason, tone: event == 'fail');
-    if (id != null) {
-      try {
-        await signaling.event(id, event);
-      } catch (e) {
-        callLog('call_controller#10', e);
-      }
-    }
+    await told;
   }
 
   Future<void> _finish(CallEndReason reason, {bool tone = true}) async {
@@ -674,6 +780,7 @@ class CallController extends ChangeNotifier {
   }
 
   void _stopTimers() {
+    _connectTimer?.cancel();
     _statusTimer?.cancel();
     _statsTimer?.cancel();
     _reconnectTimer?.cancel();

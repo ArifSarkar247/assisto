@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../api.dart';
+import '../calls/call_avatar.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -42,8 +43,13 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
   Future<void> _load() async {
     try {
       final r = await _api.getJson('/circle/calls');
-      _calls = ((r['results'] ?? r['calls'] ?? []) as List)
-          .cast<Map<String, dynamic>>();
+      // x1-calls A1-g: the server's WhatsApp-style groups ("Name (6)");
+      // an older server without them -> grouped here the same way.
+      final raw = ((r['groups'] ?? r['results'] ?? r['calls'] ?? []) as List)
+          .whereType<Map>()
+          .map((e) => e.cast<String, dynamic>())
+          .toList();
+      _calls = r['groups'] is List ? raw : groupCallRows(raw);
       _backendReady = true;
     } catch (_) {
       _backendReady = false;
@@ -58,6 +64,8 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
           'id': call['member_id'],
           'name': call['name'],
           'relation': call['relation'],
+          'photo_url': call['photo_url'],
+          'photo_v': call['photo_v'],
         };
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) =>
@@ -103,6 +111,7 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
 
   Widget _callTile(Map<String, dynamic> call, ColorScheme scheme) {
     final name = '${call['name'] ?? call['member_name'] ?? ''}';
+    final count = (call['count'] as num?)?.toInt() ?? 1;
     final relation = '${call['relation'] ?? 'friend'}';
     final kind = '${call['kind'] ?? 'voice'}';
     final state = '${call['state'] ?? 'ended'}';
@@ -120,11 +129,17 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
     final dirColor = missed ? scheme.error : scheme.onSurfaceVariant;
 
     return ListTile(
-      leading: CircleAvatar(
-        child: Text(name.isEmpty ? '?' : name.characters.first.toUpperCase()),
-      ),
+      leading: CallAvatar(
+          name: name,
+          photoUrl: '${call['photo_url'] ?? ''}',
+          version: '${call['photo_v'] ?? ''}',
+          radius: 22,
+          onDark: false),
       title: Text(
-        name,
+        count > 1 ? '$name ($count)' : name,
+        key: Key('call-log-title-${call['id']}'),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(color: missed ? scheme.error : scheme.onSurface),
       ),
       subtitle: Row(
@@ -188,4 +203,31 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
     if (sameDay) return DateFormat.Hm(loc).format(at);
     return DateFormat.MMMd(loc).format(at);
   }
+}
+
+
+/// x1-calls A1-g (fallback for a server without `groups`): consecutive rows
+/// (newest first) with the same person, direction, outcome and day collapse
+/// into one row carrying `count` — "T Shanto BD (6)".
+List<Map<String, dynamic>> groupCallRows(List<Map<String, dynamic>> rows) {
+  String key(Map<String, dynamic> r) {
+    final at = DateTime.tryParse('${r['started_at'] ?? ''}')?.toLocal();
+    final day = at == null ? '' : '${at.year}-${at.month}-${at.day}';
+    final who = '${r['peer_id'] ?? r['member_id'] ?? r['name'] ?? ''}';
+    return '$who|${r['outgoing'] == true}|${r['state']}|${r['end_reason'] ?? ''}|$day';
+  }
+
+  final out = <Map<String, dynamic>>[];
+  String? last;
+  for (final r in rows) {
+    final k = key(r);
+    if (k == last && out.isNotEmpty) {
+      final g = out.last;
+      g['count'] = ((g['count'] as num?)?.toInt() ?? 1) + 1;
+      continue;
+    }
+    out.add({...r, 'count': 1});
+    last = k;
+  }
+  return out;
 }
