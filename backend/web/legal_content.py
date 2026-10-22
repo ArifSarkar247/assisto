@@ -34,8 +34,21 @@ PLACEHOLDERS = {
 _MISSING = ("(শিগগিরই যোগ করা হবে)", "(to be added)")
 
 
+# Owner-approved public facts (22 Oct 2026). A server setting / env var with the
+# same name still overrides them. The address is pending from the owner.
+_OWNER_DEFAULTS = {
+    "LEGAL_ENTITY_NAME": "AXON ERP Software",
+    "LEGAL_ADDRESS": "[ADDRESS]",
+    "LEGAL_CONTACT_EMAIL": "axonadmin001@gmail.com",
+    "LEGAL_GRIEVANCE_OFFICER": "Arif (owner) — axonadmin001@gmail.com",
+    "LEGAL_GOVERNING_LAW": "the laws of Bangladesh",
+    "LEGAL_HOSTING": "Amazon Web Services (AWS), ap-south-1 region (Mumbai, India)",
+}
+
+
 def _fact(key, lang):
-    v = (getattr(settings, key, "") or os.getenv(key, "") or "").strip()
+    v = (getattr(settings, key, "") or os.getenv(key, "") or
+         _OWNER_DEFAULTS.get(key, "") or "").strip()
     if v:
         return escape(v)
     return _MISSING[0] if lang == "bn" else _MISSING[1]
@@ -57,8 +70,13 @@ def facts(lang):
 
 def missing_facts():
     """Env keys the owner has not set yet (for tests / the report)."""
-    return [k for k in PLACEHOLDERS
-            if not (getattr(settings, k, "") or os.getenv(k, "")).strip()]
+    out = []
+    for k in PLACEHOLDERS:
+        v = (getattr(settings, k, "") or os.getenv(k, "") or
+             _OWNER_DEFAULTS.get(k, "")).strip()
+        if not v or v.startswith("["):     # "[ADDRESS]" = still pending
+            out.append(k)
+    return out
 
 
 # ---------------------------------------------------------------- builders

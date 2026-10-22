@@ -3681,6 +3681,17 @@ class WebDeletionRequest(models.Model):
     status = models.CharField(max_length=12, choices=STATUSES, default=STATUS_NEW)
     owner_note = models.TextField(blank=True, default="")
     ip_hash = models.CharField(max_length=64, blank=True, default="", db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"web-deletion #{self.pk} {self.contact_kind} [{self.status}]"
+# ---- /l1-launch ----
+
+
 # ---- f1-founders ----
 class FounderGrant(models.Model):
     """One Founding Member grant (owner panel). Keeps what the user's plan was
@@ -3735,10 +3746,5 @@ class FeedbackReport(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self):
-        return f"web-deletion #{self.pk} {self.contact_kind} [{self.status}]"
-# ---- /l1-launch ----
         ordering = ["-created_at", "-id"]
 # ---- /f1-founders ----

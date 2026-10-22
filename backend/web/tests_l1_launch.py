@@ -81,7 +81,11 @@ class LegalPagesTests(TestCase):
         wf = pathlib.Path(__file__).resolve().parents[2] / ".github/workflows/android.yml"
         if not wf.exists():
             self.skipTest("workflow not in this checkout")
-        declared = set(re.findall(r'android\.permission\.([A-Za-z_.]+)"', wf.read_text()))
+        # only REQUESTED permissions (<uses-permission ...>), not android:permission=
+        # guards on components (e.g. START_VIEW_PERMISSION_USAGE on the Health
+        # Connect alias, BIND_* on services), which the app never asks the user for
+        declared = set(re.findall(r'uses-permission android:name="android\.permission\.([A-Za-z_.]+)"',
+                                  wf.read_text()))
         declared |= {"SET_ALARM"} if "alarm.permission.SET_ALARM" in wf.read_text() else set()
         explained = " ".join(p["perm"] for p in LC.PERMISSIONS)
         # BODY_SENSORS only appears in the emulator `pm grant` line, not the manifest
@@ -106,9 +110,14 @@ class LegalPagesTests(TestCase):
         self.assertIn("আমার অ্যাকাউন্ট মুছে ফেলুন", bn)
         self.assertIn("সেটিংস", bn)
 
-    def test_owner_placeholders_render_honestly_then_from_env(self):
+    def test_owner_approved_facts_then_env_override(self):
         html = self.c.get("/privacy?lang=en").content.decode()
-        self.assertIn("(to be added)", html)
+        self.assertIn("AXON ERP Software", html)
+        self.assertIn("axonadmin001@gmail.com", html)
+        self.assertIn("Mumbai", html)
+        self.assertNotIn("Singapore", html)
+        self.assertIn("[ADDRESS]", html)                 # still pending
+        self.assertEqual(LC.missing_facts(), ["LEGAL_ADDRESS"])
         with mock.patch.dict("os.environ", {"LEGAL_ENTITY_NAME": "Example <Ltd>",
                                             "LEGAL_CONTACT_EMAIL": "privacy@example.com"}):
             html = self.c.get("/privacy?lang=en").content.decode()
