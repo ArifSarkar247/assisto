@@ -5,6 +5,10 @@
 **PERMANENT RULE (owner, 22 Oct) — ALL ANDROID PHONES:** the app must work on every Android phone common in Bangladesh — OPPO, Realme, Xiaomi/Redmi/POCO, Samsung, vivo, Walton, Symphony, Infinix/Tecno — Android 8 to 16. Secure storage must fall back (Keystore failures never break identity/chats); Crashlytics + Owner Admin → Reports (device model + OS + error, NO message content/PII); Firebase Test Lab device matrix + robo (login → My Circle → chat → send → call screen) before each My Circle build, pass/fail per device in STATUS; OEM background guide once after login.
 D. [AGENTS sc1 (secure-storage fallback + Crashlytics + Owner Reports), tl1 (Test Lab workflow + robo + OEM guide)] Evidence: user 18 (OPPO Reno 12 F 5G, ColorOS) on build 188 never POSTs /circle/keys; 15 key_request pushes unanswered.
 
+**ORDER OF WORK (owner, 22 Oct evening):** finish My Circle FIRST — E1 OPPO secure-storage key fix (integrator, IdentityVault) + deletion UX + Free calls switch (agent dl1) in ONE emergency build; then message requests like WhatsApp, messages never wait on keys, full last-seen time, Crashlytics (sc1), device matrix (tl1). When My Circle passes, continue the rest of QUEUE automatically — ship each item with proof + Bangla 3-line STATUS.
+E. [DONE 22 Oct] user 18 deletion cancelled (owner order), notifications removed, account + My Circle link intact.
+F. [AGENT dl1] FREE CALLS (testing): My Circle voice+video calls 0 credits for all plans incl. relayed minutes; Owner Admin switch 'Free calls (testing)' = ON; keep relay cost in P&L.
+
 ## MASTER ORDER 22 Oct (single source of truth; earlier orders below are history)
 Rules: max parallel agents (own worktree each), heavy cmds via lock, ship each part immediately, deploy each backend after checks (standing approval), max 1 h on CI problems (gate = release cold start + backend tests + route_check; note missing proof), commit hourly, never idle, blockers in Bangla at top of STATUS, 3 Bangla lines per build.
 
