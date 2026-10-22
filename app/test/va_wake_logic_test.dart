@@ -162,7 +162,7 @@ void main() {
   });
 
   group('locked-phone policy', () {
-    VaIntent i(String raw) => VaIntent.parse(raw);
+    VaIntent i(String raw) => VoiceIntentParser.parse(raw);
     test('harmless actions run while locked', () {
       for (final a in [VaAction.torchOn, VaAction.sos, VaAction.alarm, VaAction.timer, VaAction.youtube]) {
         expect(VaLockPolicy.needsUnlock(VaIntent(a, 'x')), isFalse, reason: '$a');

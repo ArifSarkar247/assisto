@@ -434,6 +434,7 @@ class _VoiceAssistantSettingsScreenState
                 child: CircularProgressIndicator(
                     strokeWidth: 2, value: _progress))
             : Switch(
+                key: const Key('va-wake-switch'),
                 value: on,
                 onChanged: blocked && !on ? null : _toggleWake,
               ),

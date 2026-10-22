@@ -53,7 +53,12 @@ Future<void> _settle(WidgetTester tester) async {
   }
 }
 
-Finder _wakeSwitch() => find.byType(Switch).first;
+Finder _wakeSwitch() => find.byKey(const Key('va-wake-switch'));
+
+Future<void> _scrollTo(WidgetTester tester, Finder f) async {
+  await tester.scrollUntilVisible(f, 250, scrollable: find.byType(Scrollable).first);
+  await _settle(tester);
+}
 
 void main() {
   setUp(() {
@@ -64,7 +69,7 @@ void main() {
   testWidgets('disclosure before first enable; Not now keeps it off', (tester) async {
     await _pump(tester, const VoiceAssistantSettingsScreen(debugStatic: true));
     final t = _t(tester);
-    await tester.ensureVisible(_wakeSwitch());
+    await _scrollTo(tester, _wakeSwitch());
     expect(tester.widget<Switch>(_wakeSwitch()).value, isFalse);
 
     await tester.tap(_wakeSwitch());
@@ -91,7 +96,7 @@ void main() {
     SharedPreferences.setMockInitialValues({'va_wake_disclosure_v1': true});
     Settings.resetForTest();
     await _pump(tester, const VoiceAssistantSettingsScreen(debugStatic: true));
-    await tester.ensureVisible(_wakeSwitch());
+    await _scrollTo(tester, _wakeSwitch());
     await tester.tap(_wakeSwitch());
     await _settle(tester);
     expect(find.byType(WakeDisclosureScreen), findsNothing);
@@ -102,7 +107,7 @@ void main() {
     await _pump(tester, const VoiceAssistantSettingsScreen(debugStatic: true));
     final t = _t(tester);
     final high = find.text(t.vaWkSensHigh);
-    await tester.ensureVisible(high);
+    await _scrollTo(tester, high);
     await tester.tap(high);
     await _settle(tester);
     expect(await VaWake.level(), WakeLevel.high);
@@ -119,6 +124,7 @@ void main() {
                 wanted: true,
                 pausedUntil: DateTime(2026, 10, 22, 15, 30))));
     final t = _t(tester);
+    await _scrollTo(tester, find.text(t.vaWkResume));
     expect(find.text(t.vaWkResume), findsOneWidget);
     expect(find.textContaining('3:30'), findsOneWidget);
   });
