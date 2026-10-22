@@ -74,12 +74,19 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    // c3-msg: result of the phone's notification-sound picker.
+    // c3-msg + c2-calls: results of the phone's sound pickers. Each channel
+    // answers true only for its own request code; the rest go to plugins.
     @Deprecated("Activity result API is not available on FlutterActivity")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         try {
             if (com.assisto.assisto.messaging.C3MessagingChannel
                     .onActivityResult(this, requestCode, resultCode, data)) return
+        } catch (e: Throwable) {
+        }
+        // c2-calls: the ringtone picker result (request code 0x5a11 only).
+        try {
+            if (com.assisto.assisto.calls.CallsChannel
+                    .onActivityResult(requestCode, resultCode, data)) return
         } catch (e: Throwable) {
         }
         @Suppress("DEPRECATION")
@@ -155,6 +162,14 @@ class MainActivity : FlutterActivity() {
         // only — nothing runs until Dart calls it.
         try {
             com.assisto.assisto.messaging.C3MessagingChannel.register(this, flutterEngine)
+        } catch (e: Throwable) {
+        }
+        // c2-calls: "com.assisto/calls" (tones, ringtone + picker, proximity,
+        // PiP). Handler only — nothing is created until Dart calls it.
+        try {
+            com.assisto.assisto.calls.CallsChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
         } catch (e: Throwable) {
         }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.assisto/lockscreen")
@@ -297,7 +312,23 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    // c2-calls: PiP mode changes go to the calls channel (crash-guarded).
+    override fun onPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: android.content.res.Configuration
+    ) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        try {
+            com.assisto.assisto.calls.CallsChannel.onPipChanged(isInPictureInPictureMode)
+        } catch (e: Throwable) {
+        }
+    }
+
     override fun onDestroy() {
+        try {
+            com.assisto.assisto.calls.CallsChannel.release()
+        } catch (e: Throwable) {
+        }
         stopAlarm()
         super.onDestroy()
     }

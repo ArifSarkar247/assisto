@@ -18,8 +18,9 @@ class PushChannels {
   static const reminders = 'reminders';
   static const alerts = 'alerts';
   static const sos = 'sos';
+  static const missedCalls = 'missed_calls'; // c2-calls
 
-  static const all = [messages, calls, reminders, alerts, sos];
+  static const all = [messages, calls, reminders, alerts, sos, missedCalls];
 
   /// kind -> channel (mirror of push.CHANNELS; used when `channel` is absent).
   static const byKind = {
@@ -31,6 +32,7 @@ class PushChannels {
     'owner_alert': alerts,
     'shop_alert': alerts,
     'sos': sos,
+    'missed_call': missedCalls,
   };
 }
 
@@ -84,6 +86,7 @@ class PushPayload {
   bool get isKnownKind => PushChannels.byKind.containsKey(kind);
   bool get isCall => kind == 'call';
   bool get isCallCancel => kind == 'call_cancel';
+  bool get isMissedCall => kind == 'missed_call'; // c2-calls
   bool get isSos => kind == 'sos';
 
   /// Calls and SOS take over the screen (full-screen intent).
@@ -99,6 +102,8 @@ class PushPayload {
     String key;
     if ((isCall || isCallCancel) && callId.isNotEmpty) {
       key = 'call-$callId';
+    } else if (isMissedCall && callId.isNotEmpty) {
+      key = 'missed-$callId';
     } else if (kind == 'message' && chatId.isNotEmpty) {
       key = 'chat-${_s('chat_kind')}-$chatId';
     } else if (kind == 'reminder' && _s('reminder_id').isNotEmpty) {
@@ -143,6 +148,7 @@ class PushRouting {
     'circle/chat': 'messages',
     'circle/group': 'messages',
     'circle/call': 'circle_calls',
+    'circle/calls': 'circle_calls',
     'reminders': 'reminders',
     'alerts': 'notifications',
     'safety/sos': 'family',
@@ -155,6 +161,7 @@ class PushRouting {
   static const kindMap = {
     'message': 'messages',
     'call_cancel': 'circle_calls',
+    'missed_call': 'circle_calls',
     'reminder': 'reminders',
     'family_alert': 'notifications',
     'owner_alert': 'notifications',

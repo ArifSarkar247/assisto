@@ -8,6 +8,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
+import '../calls/call_log.dart';
+import '../calls/call_sound_prefs.dart';
 import '../config.dart';
 import '../l10n/app_localizations.dart';
 import 'push_payload.dart';
@@ -56,6 +58,9 @@ class PushNotifier {
           sound: const UriAndroidNotificationSound(
               'content://settings/system/ringtone'),
           audioAttributesUsage: AudioAttributesUsage.notificationRingtone),
+      // c2-calls: quiet-ish "Missed call" (default notification sound).
+      AndroidNotificationChannel(PushChannels.missedCalls, t.c2ChMissedCalls,
+          description: t.c2ChMissedCallsDesc, importance: Importance.high),
       AndroidNotificationChannel(PushChannels.reminders, t.pushChReminders,
           description: t.pushChRemindersDesc, importance: Importance.high),
       AndroidNotificationChannel(PushChannels.alerts, t.pushChAlerts,
@@ -80,19 +85,42 @@ class PushNotifier {
   }
 
   /// Notification details for one payload (pure apart from the strings).
-  static NotificationDetails detailsFor(PushPayload p) {
+  /// c2-calls: the ringing channel for a chosen ringtone ([ringtoneUri]
+  /// null = the phone's default ringtone, channel 'calls').
+  static AndroidNotificationChannel callChannel(String lang, String? ringtoneUri) {
+    final t = _t(lang);
+    return AndroidNotificationChannel(
+        CallSoundPrefs.channelIdFor(ringtoneUri), t.pushChCalls,
+        description: t.pushChCallsDesc,
+        importance: Importance.max,
+        sound: UriAndroidNotificationSound(
+            ringtoneUri ?? 'content://settings/system/ringtone'),
+        audioAttributesUsage: AudioAttributesUsage.notificationRingtone);
+  }
+
+  static NotificationDetails detailsFor(PushPayload p, {String? ringtoneUri}) {
     final t = _t(p.lang);
     final ch = channels(p.lang).firstWhere((c) => c.id == p.channel,
         orElse: () => channels(p.lang).first);
-    if (p.isCall) {
+    if (p.isMissedCall) {
       return NotificationDetails(
         android: AndroidNotificationDetails(ch.id, ch.name,
             channelDescription: ch.description,
+            importance: Importance.high,
+            priority: Priority.high,
+            category: AndroidNotificationCategory.missedCall,
+            autoCancel: true),
+      );
+    }
+    if (p.isCall) {
+      final cc = callChannel(p.lang, ringtoneUri);
+      return NotificationDetails(
+        android: AndroidNotificationDetails(cc.id, cc.name,
+            channelDescription: cc.description,
             importance: Importance.max,
             priority: Priority.max,
             category: AndroidNotificationCategory.call,
-            sound: const UriAndroidNotificationSound(
-                'content://settings/system/ringtone'),
+            sound: cc.sound,
             audioAttributesUsage: AudioAttributesUsage.notificationRingtone,
             fullScreenIntent: true,
             ongoing: true,
@@ -151,8 +179,22 @@ class PushNotifier {
         return;
       }
       if (!p.isKnownKind) return;
+      String? ring;
+      if (p.isCall) {
+        // c2-calls: tell the caller this phone is REALLY ringing, and ring
+        // with the chosen (per-contact / Assisto / picked) ringtone.
+        unawaited(ackRinging(p.callId));
+        ring = await CallSoundPrefs.ringtoneFor(p.chatId);
+        if (ring != null) {
+          try {
+            await _android?.createNotificationChannel(callChannel(p.lang, ring));
+          } catch (_) {
+            ring = null;
+          }
+        }
+      }
       await _plugin.show(p.notificationId, titleFor(p),
-          p.body.isEmpty ? null : p.body, detailsFor(p),
+          p.body.isEmpty ? null : p.body, detailsFor(p, ringtoneUri: ring),
           payload: p.encode());
     } catch (e) {
       if (kDebugMode) debugPrint('push show failed: $e');
@@ -209,7 +251,9 @@ class PushNotifier {
     try {
       await _plugin.cancel(
           PushPayload({'kind': 'call', 'call_id': callId}).notificationId);
-    } catch (_) {}
+    } catch (e) {
+      callLog('push_notifier#call1', e);
+    }
   }
 
   /// Android 14+: is the full-screen-intent permission granted? Asking
@@ -220,6 +264,31 @@ class PushNotifier {
       return await _android?.requestFullScreenIntentPermission();
     } catch (_) {
       return null;
+    }
+  }
+
+  /// c2-calls: "this phone is ringing" (best effort; own HTTP client so it
+  /// works from the FCM background isolate). Only after this does the caller
+  /// see "Ringing…" and hear ringback.
+  static Future<void> ackRinging(String callId, {String? token}) =>
+      _callEvent(callId, 'ringing', token: token);
+
+  static Future<void> _callEvent(String callId, String event,
+      {String? token}) async {
+    if (callId.isEmpty) return;
+    try {
+      token ??= await const FlutterSecureStorage().read(key: 'token');
+      if (token == null || token.isEmpty) return;
+      await http
+          .post(AppConfig.api('/circle/calls/$callId/event'),
+              headers: {
+                'Authorization': 'Token $token',
+                'Content-Type': 'application/json',
+              },
+              body: jsonEncode({'event': event}))
+          .timeout(const Duration(seconds: 10));
+    } catch (e) {
+      callLog('push_notifier#call2', e);
     }
   }
 
@@ -238,7 +307,9 @@ class PushNotifier {
               },
               body: jsonEncode({'event': 'decline'}))
           .timeout(const Duration(seconds: 10));
-    } catch (_) {}
+    } catch (e) {
+      callLog('push_notifier#call3', e);
+    }
   }
 }
 
@@ -249,7 +320,9 @@ void assistoNotificationBackground(NotificationResponse r) {
   try {
     WidgetsFlutterBinding.ensureInitialized();
     DartPluginRegistrant.ensureInitialized();
-  } catch (_) {}
+  } catch (e) {
+    callLog('push_notifier#call4', e);
+  }
   // c3-msg: inline reply / mark as read (encrypt + send from this isolate).
   if (r.actionId == kActionReply || r.actionId == kActionRead) {
     unawaited(handleMsgNotificationAction(r));

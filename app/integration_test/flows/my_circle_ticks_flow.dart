@@ -33,7 +33,7 @@ List<Map<String, dynamic>> _rows(Map<String, dynamic> r) =>
         .toList();
 
 void registerMyCircleTicksFlows() {
-  realityFlow('18_circle_ticks', 'My Circle',
+  realityFlow('19_circle_ticks', 'My Circle',
       'Ticks sent → delivered → read, typing/online in the header, decrypted chat-list preview, unread badge clears, inline reply',
       (f) async {
     await f.home();

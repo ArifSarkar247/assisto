@@ -778,3 +778,13 @@ urlpatterns[:0] = [
     path("circle/rt/state", c3m.RtStateView.as_view()),
 ]
 # ---- /c3-msg ----
+# ---- c2-calls ---- REAL call signalling + the shared real-time event queue
+# (call.* now; presence.* / typing.* producers register in views_c2_calls).
+from . import views_c2_calls as c2calls  # noqa: E402
+urlpatterns += [
+    path("rt/events", c2calls.RtEventsView.as_view()),
+    path("rt/send", c2calls.RtSendView.as_view()),
+    path("circle/calls/incoming", c2calls.IncomingCallsView.as_view()),
+    path("circle/calls/<int:call_id>", c2calls.CallStatusView.as_view()),
+]
+# ---- /c2-calls ----

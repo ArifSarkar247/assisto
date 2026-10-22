@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0053_w1_webphoto'),
+        ('core', '0054_c2_calls'),
     ]
 
     operations = [

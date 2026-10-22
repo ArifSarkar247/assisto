@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../calls/call_runtime.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/circle_call_screen.dart';
 import '../theme.dart';
@@ -15,9 +16,15 @@ import 'push_service.dart';
 /// existing [CircleCallScreen] (incoming); Decline tells the server. Closes
 /// itself on `call_cancel` or after the ring window.
 class IncomingCallScreen extends StatefulWidget {
-  const IncomingCallScreen({super.key, required this.payload});
+  const IncomingCallScreen(
+      {super.key, required this.payload, this.ringInApp = false});
 
   final PushPayload payload;
+
+  /// true when the app was OPEN and showed this screen itself (real-time /
+  /// foreground push): we ring with the chosen ringtone natively. false when
+  /// launched from the call notification, which is already ringing.
+  final bool ringInApp;
 
   @override
   State<IncomingCallScreen> createState() => _IncomingCallScreenState();
@@ -25,6 +32,7 @@ class IncomingCallScreen extends StatefulWidget {
 
 class _IncomingCallScreenState extends State<IncomingCallScreen> {
   StreamSubscription<String>? _sub;
+  StreamSubscription<String>? _rtSub;
   Timer? _timeout;
   bool _ended = false;
   bool _accepted = false;
@@ -37,13 +45,26 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
     _sub = PushService.instance.callCancelled.listen((id) {
       if (id == p.callId) _end();
     });
-    _timeout = Timer(const Duration(seconds: 45), _end);
+    CallRuntime.instance.markShown(p.callId);
+    // c2-calls: the caller hung up / it rang out (real-time queue)
+    _rtSub = CallRuntime.instance.endedCalls.listen((id) {
+      if (id == p.callId) _end();
+    });
+    if (widget.ringInApp) {
+      unawaited(CallRuntime.instance.startRinging(p));
+    } else {
+      // launched from the notification: still confirm we are ringing
+      unawaited(PushNotifier.ackRinging(p.callId));
+    }
+    _timeout = Timer(const Duration(seconds: 60), _end);
   }
 
   @override
   void dispose() {
     _sub?.cancel();
+    _rtSub?.cancel();
     _timeout?.cancel();
+    unawaited(CallRuntime.instance.stopRinging());
     // accepted -> CircleCallScreen releases when the call ends
     if (!_accepted) LockScreenGuard.release();
     super.dispose();
@@ -51,6 +72,7 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
 
   void _end() {
     if (!mounted || _ended) return;
+    unawaited(CallRuntime.instance.stopRinging());
     setState(() => _ended = true);
     Future<void>.delayed(const Duration(milliseconds: 1200), () {
       if (mounted) Navigator.of(context).maybePop();
@@ -59,17 +81,20 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
 
   void _accept() {
     _accepted = true;
+    unawaited(CallRuntime.instance.stopRinging());
     unawaited(PushNotifier.cancelCall(p.callId));
     Navigator.of(context).pushReplacement(MaterialPageRoute(
       builder: (_) => CircleCallScreen(
         member: {'id': int.tryParse(p.chatId), 'name': p.callerName},
         kind: p.isVideo ? 'video' : 'voice',
         outgoing: false,
+        callId: int.tryParse(p.callId),
       ),
     ));
   }
 
   void _decline() {
+    unawaited(CallRuntime.instance.stopRinging());
     unawaited(PushNotifier.declineCall(p.callId));
     unawaited(PushNotifier.cancelCall(p.callId));
     Navigator.of(context).maybePop();

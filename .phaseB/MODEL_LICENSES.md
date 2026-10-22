@@ -41,3 +41,13 @@ Gemini image editing, OpenAI images, Replicate-class. Their outputs are covered
 by each provider's own commercial API terms (owner must accept them when
 creating the key). On Replicate, **only** models whose page shows a commercial
 licence may be configured (the integration guide says so).
+
+## Call sounds (c2-calls) — no audio files, nothing copyrighted
+
+| Sound | Origin |
+|---|---|
+| Incoming ringtone | The phone's OWN default ringtone (RingtoneManager TYPE_RINGTONE) or one the user picks from the phone's sounds. Assisto ships no ringtone file. |
+| Ringback (caller "toot… toot…") | Generated in code (`app/lib/calls/tone_generator.dart`): a 425 Hz sine, 1 s on / 4 s off — a standard telephony cadence (ITU-T E.180 style), not a recording. |
+| Busy / declined / ended tones | Generated in code: 425 Hz, 0.5/0.5 s ×4; 0.25/0.25 s ×3; two short pips. |
+| "Assisto" signature ringtone (optional, OFF by default) | ORIGINAL melody written for Assisto on 2026-10-22 by the c2-calls agent (score in `ToneGenerator.signatureScore`: E5 G#5 B5 E6 · D6 B5 C#6 · E5 G#5 B5 E6 F#6), synthesised in code with a bell-like additive voice. Not derived from any existing tune. Installed on the phone as "Assisto.wav" (Android 10+) only when the user turns it on. |
+| Message notification sound | The phone's default notification sound, or one the user picks from the phone's sounds. |

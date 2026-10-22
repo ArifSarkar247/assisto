@@ -3684,3 +3684,47 @@ class CircleChatFlag(models.Model):
     class Meta:
         unique_together = [("user", "chat_kind", "chat_id")]
 # ---- /c3-msg ----
+
+
+# ---- c2-calls ----
+class CallSession(models.Model):
+    """Live-call bookkeeping for one CallRecord (c2-calls): the callee phone's
+    ring acknowledgement, ICE-connected time, the honest end reason and each
+    side's last poll (so a phone that vanished ends the call). Media never
+    touches the server; only SDP/ICE text passes through CallSignal."""
+    call = models.OneToOneField(CallRecord, on_delete=models.CASCADE,
+                                related_name="session")
+    ringing_at = models.DateTimeField(null=True, blank=True)
+    connected_at = models.DateTimeField(null=True, blank=True)
+    end_reason = models.CharField(max_length=16, blank=True, default="")
+    ended_by = models.CharField(max_length=8, blank=True, default="")
+    caller_seen_at = models.DateTimeField(null=True, blank=True)
+    callee_seen_at = models.DateTimeField(null=True, blank=True)
+    missed_notified = models.BooleanField(default=False)
+    relayed = models.BooleanField(default=False)
+
+
+class RtEvent(models.Model):
+    """One real-time event for ONE recipient (c2-calls transport, shared with
+    presence/typing). The row id is the sequence number the phone polls after
+    (GET rt/events?after=<seq>). Topics: call.* (signal/state), presence.*,
+    typing.*. Short-lived: pruned after ~10 minutes."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="rt_events")
+    topic = models.CharField(max_length=40)
+    payload = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["id"]
+        indexes = [models.Index(fields=["user", "id"], name="c2_rtev_user_id")]
+
+
+class RtPresence(models.Model):
+    """When this user's phone last polled the real-time channel (= app open
+    and reachable). Calls use it to ring a phone without FCM; presence
+    ("online") can read the same row."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="rt_presence")
+    seen_at = models.DateTimeField()
+# ---- /c2-calls ----

@@ -9,6 +9,7 @@
 // (pulled by tools/reality/run_flows.sh) + the driver's response JSON.
 // A single flow's failure is recorded (class C) and the next flow still runs.
 import 'flows/business_flow.dart';
+import 'flows/circle_real_call_flow.dart';
 import 'flows/docs_voice_settings_flow.dart';
 import 'flows/family_circle_flow.dart';
 import 'flows/home_flow.dart';
@@ -29,6 +30,7 @@ void main() {
   if (on('family')) registerFamilyCircleFlows();
   if (on('family') || on('circle')) registerMyCircleAddFlows(); // m3-circle
   if (on('family') || on('circle')) registerMyCircleTicksFlows(); // c3-msg
+  if (on('family') || on('circle') || on('calls')) registerCircleRealCallFlows(); // c2-calls
   if (on('business')) registerBusinessFlows();
   if (on('docs')) registerDocsVoiceSettingsFlows();
   if (on('sweep')) registerSweepFlow();

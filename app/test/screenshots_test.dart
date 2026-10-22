@@ -176,7 +176,6 @@ import 'package:assisto/messaging/msg_widgets.dart';
 import 'package:assisto/widgets/msgr_hub_chat_list.dart';
 import 'package:assisto/screens/messenger/msgr_set_notifications_screen.dart';
 import 'fake_c3_msg.dart';
-import 'package:assisto/screens/circle_call_screen.dart';
 import 'package:assisto/screens/circle_call_history_screen.dart';
 import 'package:assisto/screens/circle_privacy_screen.dart';
 import 'package:assisto/screens/circle_search_screen.dart';
@@ -192,6 +191,7 @@ import 'package:assisto/screens/legal_screen.dart';
 import 'ps1_shots.dart'; // ps1-photo
 import 'w1_webphoto_shots.dart'; // w1-webphoto
 import 'h1_home_shots.dart'; // h1-home
+import 'c2_calls_shots.dart'; // c2-calls
 import 'package:assisto/screens/unseen_world_screen.dart';
 import 'package:assisto/screens/shop_box_screen.dart';
 import 'package:assisto/screens/business/business_hub_screen.dart';
@@ -533,7 +533,6 @@ void main() {
     'circle': (build: (_) => const CircleScreen(), mode: FakeMode.data, full: true),
     // build-61: Connected Circle chat/call/privacy + Safe Journey + referral + CRM first-run
     'circle_chat': (build: (l) => CircleChatScreen(member: _circleMember(l), identity: _identity), mode: FakeMode.data, full: true),
-    'circle_call': (build: (l) => CircleCallScreen(member: _circleMember(l), kind: 'voice'), mode: FakeMode.data, full: true),
     'circle_call_history': (build: (_) => const CircleCallHistoryScreen(), mode: FakeMode.data, full: true),
     'circle_privacy': (build: (_) => const CirclePrivacyScreen(), mode: FakeMode.data, full: true),
     'circle_search': (build: (l) => CircleSearchScreen(members: [_circleMember(l)], identity: _identity), mode: FakeMode.data, full: true),
@@ -553,6 +552,7 @@ void main() {
     for (final e in ps1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // w1-webphoto: lifeassisto.com/photo deep link -> Photo Studio (gate kept)
     for (final e in w1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    for (final e in c2Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // c2-calls
     // h1-home: home ad hero (free / premium) + image in chat
     // (home hero shots: no urgent cards, so the welcome slot is visible)
     for (final e in h1Shots.entries)
