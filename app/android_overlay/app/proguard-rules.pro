@@ -31,3 +31,8 @@
 -keep class kotlin.coroutines.intrinsics.CoroutineSingletons { *; }
 -keep class kotlin.coroutines.Continuation { *; }
 -keep class com.github.dart_lang.jni_flutter.** { *; }
+
+# ---- k1-wake ---- ONNX Runtime (on-device "Hey Assisto"): its JNI library
+# creates / reads ai.onnxruntime Java objects by name and the AAR ships no
+# consumer rules, so R8 must keep the whole package.
+-keep class ai.onnxruntime.** { *; }

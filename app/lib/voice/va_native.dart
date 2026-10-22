@@ -142,29 +142,42 @@ class VaNative {
   static Future<bool> openYoutubeVideo(String id) async =>
       (await _call<bool>('openYoutubeVideo', {'id': id})) == true;
 
-  // ---- wake word -------------------------------------------------------------
+  // ---- wake word (k1-wake: openWakeWord on ONNX Runtime) --------------------
 
-  /// 'running' | 'stopped' | 'engine_missing' | 'error:<msg>' | null.
-  static Future<String?> wakeStatus() => _call<String>('wakeStatus');
+  /// {state: listening|paused|stopped|error|engine_missing, reason,
+  ///  pausedUntil (ms), wanted, level} or null when native is missing.
+  static Future<Map<Object?, Object?>?> wakeStatus() =>
+      _call<Map<Object?, Object?>>('wakeStatus');
 
-  static Future<String?> wakeStart({
-    required String accessKey,
-    required String keywordPath,
-    required double sensitivity,
-    required String title,
-    required String body,
-    required String stopLabel,
-    required String tapText,
-  }) =>
-      _call<String>('wakeStart', {
-        'accessKey': accessKey,
-        'keywordPath': keywordPath,
-        'sensitivity': sensitivity,
-        'title': title,
-        'body': body,
-        'stopLabel': stopLabel,
-        'tapText': tapText,
-      });
+  /// [configJson] = VaWake.nativeConfig(...). 'running' | 'engine_missing' |
+  /// 'error:<why>' | null.
+  static Future<String?> wakeStart(String configJson) =>
+      _call<String>('wakeStart', {'config': configJson});
 
   static Future<void> wakeStop() => _call<void>('wakeStop');
+
+  static Future<void> wakePause(int minutes) =>
+      _call<void>('wakePause', {'minutes': minutes});
+
+  static Future<void> wakeResume() => _call<void>('wakeResume');
+
+  /// True once the native side has stored the user's on/off choice.
+  static Future<bool> wakeHasNativeChoice() async =>
+      (await _call<bool>('wakeHasNativeChoice')) == true;
+
+  /// Hex sha256 of a local file (model verification), null on failure.
+  static Future<String?> sha256(String path) =>
+      _call<String>('sha256', {'path': path});
+
+  /// {manufacturer, brand, model, sdk, ignoringBattery}.
+  static Future<Map<Object?, Object?>?> deviceInfo() =>
+      _call<Map<Object?, Object?>>('deviceInfo');
+
+  /// kind: 'autostart' | 'battery' -> 'oem' | 'generic' | 'none' | null.
+  static Future<String?> openOemSettings(String kind) =>
+      _call<String>('openOemSettings', {'kind': kind});
+
+  /// Long-press power / side-key setting -> 'oem' | 'generic' | 'none' | null.
+  static Future<String?> openPowerKeySettings() =>
+      _call<String>('openPowerKeySettings');
 }

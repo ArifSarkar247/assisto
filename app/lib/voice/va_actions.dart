@@ -12,6 +12,7 @@ import '../widgets/chatnav.dart';
 import '../widgets/reminders_nlp.dart';
 import 'va_confirm_sheet.dart';
 import 'va_native.dart';
+import 'va_wake_logic.dart';
 import 'voice_intents.dart';
 
 /// A follow-up button on a result card.
@@ -52,8 +53,9 @@ class VaExecutor {
   final BuildContext context;
   final VaConfirmVoice? confirmVoice;
 
-  /// Opened over the lock screen: everything except the torch and SOS asks
-  /// Android to unlock first (calls, messages, apps, data are private).
+  /// Opened over the lock screen: personal actions (calls, messages,
+  /// contacts, apps, maps, the user's data) ask Android to unlock first;
+  /// harmless ones run ([VaLockPolicy]).
   final bool locked;
   final VoidCallback? onUnlocked;
 
@@ -78,10 +80,9 @@ class VaExecutor {
   static const _agentSessionKey = 'va_agent_session';
 
   Future<VaOutcome> run(VaIntent i) async {
-    if (locked &&
-        i.action != VaAction.torchOn &&
-        i.action != VaAction.torchOff &&
-        i.action != VaAction.sos) {
+    // k1-wake locked-phone rules: harmless actions (music, time, weather,
+    // alarm, timer, torch, SOS) run; personal ones ask to unlock first.
+    if (locked && VaLockPolicy.needsUnlock(i)) {
       final ok = await VaNative.requestUnlock();
       if (!ok) {
         return VaOutcome(t.vaUnlockNeeded, icon: Icons.lock_outline, ok: false);

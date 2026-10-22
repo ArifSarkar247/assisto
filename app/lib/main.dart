@@ -26,6 +26,7 @@ import 'screens/elderly_home_screen.dart';
 import 'widgets/elderly_mode.dart';
 import 'widgets/chatnav.dart';
 import 'voice/va_launch.dart';
+import 'voice/va_wake.dart';
 import 'photo_studio/ps_web_import.dart';
 import 'screens/web_photo_link_screen.dart';
 
@@ -211,6 +212,9 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       _maybeSmokeOpen();
       // Part 3: opened by the assist gesture / wake word? (lazy, guarded)
       VaLaunch.maybeOpen(context);
+      // k1-wake: "Hey Assisto" was on but Android stopped it -> restart it now
+      // that Assisto is in the foreground (no-op unless the user enabled it).
+      VaWake.maybeRestart(context);
       // w1-webphoto: cold-start App Link (lifeassisto.com/photo/app?t=…)
       WebPhotoLink.maybeOpenColdStart(
           context,
@@ -274,6 +278,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       _resolveElderly();
       // Part 3: assist gesture / wake word while Assisto was in background.
       VaLaunch.maybeOpen(context);
+      VaWake.maybeRestart(context);
     }
   }
 

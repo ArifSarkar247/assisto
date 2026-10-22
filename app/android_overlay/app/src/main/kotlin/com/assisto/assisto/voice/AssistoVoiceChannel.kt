@@ -113,17 +113,35 @@ object AssistoVoiceChannel {
                     "youtubeSearch" -> result.success(youtubeSearch(activity, call.argument<String>("query") ?: ""))
                     "wakeStatus" -> result.success(WakeWordService.status(activity))
                     "wakeStart" -> result.success(
-                        WakeWordService.start(
-                            activity,
-                            call.argument<String>("accessKey") ?: "",
-                            call.argument<String>("keywordPath") ?: "",
-                            (call.argument<Double>("sensitivity") ?: 0.6).toFloat(),
-                            call.argument<String>("title") ?: "Assisto",
-                            call.argument<String>("body") ?: "",
-                            call.argument<String>("stopLabel") ?: "Stop",
-                            call.argument<String>("tapText") ?: ""
+                        WakeWordService.start(activity, call.argument<String>("config") ?: "{}")
+                    )
+                    "wakePause" -> {
+                        WakeWordService.pause(activity, call.argument<Int>("minutes") ?: 60)
+                        result.success(null)
+                    }
+                    "wakeHasNativeChoice" -> result.success(
+                        WakeWordService.prefs(activity).contains("wanted")
+                    )
+                    "wakeResume" -> {
+                        WakeWordService.resume(activity)
+                        result.success(null)
+                    }
+                    "sha256" -> result.success(
+                        try { OwwEngine.sha256(call.argument<String>("path") ?: "") } catch (e: Throwable) { null }
+                    )
+                    "deviceInfo" -> result.success(
+                        mapOf(
+                            "manufacturer" to (Build.MANUFACTURER ?: ""),
+                            "brand" to (Build.BRAND ?: ""),
+                            "model" to (Build.MODEL ?: ""),
+                            "sdk" to Build.VERSION.SDK_INT,
+                            "ignoringBattery" to isIgnoringBattery(activity),
                         )
                     )
+                    "openOemSettings" -> result.success(
+                        openOemSettings(activity, call.argument<String>("kind") ?: "battery")
+                    )
+                    "openPowerKeySettings" -> result.success(openPowerKeySettings(activity))
                     "isLocked" -> result.success(isLocked(activity))
                     "requestUnlock" -> requestUnlock(activity, result)
                     "leaveLockScreen" -> {
@@ -289,6 +307,98 @@ object AssistoVoiceChannel {
         } catch (ignored: Exception) {
             null
         }
+    }
+
+    // ---- k1-wake: OEM background / autostart screens -----------------------------
+
+    private fun isIgnoringBattery(ctx: Context): Boolean? = try {
+        (ctx.getSystemService(Context.POWER_SERVICE) as android.os.PowerManager)
+            .isIgnoringBatteryOptimizations(ctx.packageName)
+    } catch (ignored: Throwable) {
+        null
+    }
+
+    private fun comp(pkg: String, cls: String) =
+        Intent().setComponent(android.content.ComponentName(pkg, cls))
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+    private fun appDetails(ctx: Context) =
+        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + ctx.packageName))
+
+    /**
+     * kind = "autostart" | "battery". Tries the maker's own screen first
+     * (component names known for MIUI/HyperOS, ColorOS/realme UI, Funtouch/
+     * OriginOS, One UI), then Android's generic screens. Returns "oem",
+     * "generic" or "none" so the UI can show the manual steps honestly.
+     */
+    private fun openOemSettings(activity: Activity, kind: String): String {
+        val m = (Build.MANUFACTURER ?: "").lowercase()
+        val oem = ArrayList<Intent>()
+        when {
+            m.contains("xiaomi") || m.contains("redmi") || m.contains("poco") -> {
+                if (kind == "autostart") {
+                    oem += comp("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity")
+                } else {
+                    oem += comp("com.miui.powerkeeper", "com.miui.powerkeeper.ui.HiddenAppsConfigActivity")
+                        .putExtra("package_name", activity.packageName)
+                        .putExtra("package_label", "Assisto")
+                }
+            }
+            m.contains("oppo") || m.contains("realme") || m.contains("oneplus") -> {
+                if (kind == "autostart") {
+                    oem += comp("com.coloros.safecenter", "com.coloros.safecenter.permission.startup.StartupAppListActivity")
+                    oem += comp("com.coloros.safecenter", "com.coloros.safecenter.startupapp.StartupAppListActivity")
+                    oem += comp("com.oppo.safe", "com.oppo.safe.permission.startup.StartupAppListActivity")
+                } else {
+                    oem += comp("com.coloros.oppoguardelf", "com.coloros.powermanager.fuelgaue.PowerUsageModelActivity")
+                }
+            }
+            m.contains("vivo") || m.contains("iqoo") -> {
+                if (kind == "autostart") {
+                    oem += comp("com.vivo.permissionmanager", "com.vivo.permissionmanager.activity.BgStartUpManagerActivity")
+                    oem += comp("com.iqoo.secure", "com.iqoo.secure.ui.phoneoptimize.BgStartUpManager")
+                } else {
+                    oem += comp("com.iqoo.secure", "com.iqoo.secure.ui.phoneoptimize.AddWhiteListActivity")
+                }
+            }
+            m.contains("samsung") -> {
+                if (kind == "battery") {
+                    oem += comp("com.samsung.android.lool", "com.samsung.android.sm.battery.ui.BatteryActivity")
+                    oem += comp("com.samsung.android.sm", "com.samsung.android.sm.ui.battery.BatteryActivity")
+                }
+            }
+        }
+        for (i in oem) if (startSafely(activity, i)) return "oem"
+        val generic = if (kind == "battery") {
+            listOf(appDetails(activity), Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
+        } else {
+            listOf(appDetails(activity))
+        }
+        for (i in generic) if (startSafely(activity, i)) return "generic"
+        return "none"
+    }
+
+    /**
+     * Long-press power / side key → assistant. Samsung One UI: Settings →
+     * Advanced features → Side button; Xiaomi: Settings → Additional settings
+     * → Gesture shortcuts; stock Android 12+: System → Gestures → Press and
+     * hold power button. Component names vary by firmware, so each is tried
+     * and the generic assistant screen is the fallback ("generic").
+     */
+    private fun openPowerKeySettings(activity: Activity): String {
+        val m = (Build.MANUFACTURER ?: "").lowercase()
+        val oem = ArrayList<Intent>()
+        if (m.contains("samsung")) {
+            oem += comp("com.android.settings", "com.android.settings.Settings\$FunctionKeySettingsActivity")
+            oem += comp("com.android.settings", "com.samsung.android.settings.usefulfeature.functionkey.FunctionKeySettingsActivity")
+        } else if (m.contains("xiaomi") || m.contains("redmi") || m.contains("poco")) {
+            oem += comp("com.android.settings", "com.android.settings.Settings\$KeyShortcutSettingsActivity")
+            oem += comp("com.android.settings", "com.android.settings.KeyShortcutSettingsActivity")
+        } else {
+            oem += Intent("android.settings.POWER_MENU_SETTINGS").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        for (i in oem) if (startSafely(activity, i)) return "oem"
+        return if (openAssistantSettings(activity)) "generic" else "none"
     }
 
     private fun openAssistantSettings(activity: Activity): Boolean {
