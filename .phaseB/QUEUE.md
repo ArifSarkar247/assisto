@@ -2,6 +2,9 @@
 
 **STANDING RULE (owner, 22 Oct):** when a question has a safe, reversible Recommended option, pick it, note it in STATUS, keep working. Ask the owner only for irreversible, money, legal or security decisions.
 
+**PERMANENT RULE (owner, 22 Oct) — ALL ANDROID PHONES:** the app must work on every Android phone common in Bangladesh — OPPO, Realme, Xiaomi/Redmi/POCO, Samsung, vivo, Walton, Symphony, Infinix/Tecno — Android 8 to 16. Secure storage must fall back (Keystore failures never break identity/chats); Crashlytics + Owner Admin → Reports (device model + OS + error, NO message content/PII); Firebase Test Lab device matrix + robo (login → My Circle → chat → send → call screen) before each My Circle build, pass/fail per device in STATUS; OEM background guide once after login.
+D. [AGENTS sc1 (secure-storage fallback + Crashlytics + Owner Reports), tl1 (Test Lab workflow + robo + OEM guide)] Evidence: user 18 (OPPO Reno 12 F 5G, ColorOS) on build 188 never POSTs /circle/keys; 15 key_request pushes unanswered.
+
 ## MASTER ORDER 22 Oct (single source of truth; earlier orders below are history)
 Rules: max parallel agents (own worktree each), heavy cmds via lock, ship each part immediately, deploy each backend after checks (standing approval), max 1 h on CI problems (gate = release cold start + backend tests + route_check; note missing proof), commit hourly, never idle, blockers in Bangla at top of STATUS, 3 Bangla lines per build.
 
