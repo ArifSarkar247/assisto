@@ -461,7 +461,13 @@ def pnl(request):
     by_cost = [(t, round(sum(d["variable"].get(t, 0) for d in series), 2))
                for t in PG.COST_TYPES]
     ps = data.get("photo_studio") or {}
+    try:  # t9-turnscale: relayed-call cost per minute (Profit Guard)
+        from core import turn_monitor
+        relay_cost = turn_monitor.relay_cost(days)
+    except Exception:
+        relay_cost = None
     return page(request, "owner/pnl.html", {
+        "cost": relay_cost,
         "d": data, "days": days, "chart": chart, "series": list(reversed(series)),
         "by_source": by_source, "by_cost": by_cost,
         "ps_features": [{"feature": f.get("feature"),

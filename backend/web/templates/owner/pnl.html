@@ -47,6 +47,7 @@
 <section class="card"><h2>{{ T.alerts }}</h2>
   {% if d.alerts %}<ul class="alerts">{% for a in d.alerts %}<li><b>{{ a.title }}</b> {{ a.body }} <small class="mut">{{ a.at }}</small></li>{% endfor %}</ul>{% else %}<p class="empty">{{ T.no_alerts }}</p>{% endif %}
 </section>
+{% if cost %}<section class="card"><h2>{{ T.t9_cost }}</h2>{% include "owner/_t9_cost.html" %}<p class="small"><a href="/owner/calls">{{ T.nav_calls }}</a></p></section>{% endif %}
 <section class="card"><h2>{{ T.margin_per_feature }}</h2>
   <div class="tbl"><table><thead><tr><th>{{ T.action }}</th><th>{{ T.credits }}</th><th>{{ T.charge }}</th><th>{{ T.provider_cost }}</th><th>{{ T.margin }}</th></tr></thead><tbody>
   {% for m in d.margin_per_feature %}<tr><td>{{ m.action }}</td><td class="num">{{ m.credits }}</td><td class="num">৳{{ m.charge_bdt }}</td><td class="num">৳{{ m.provider_cost_bdt }}</td><td class="num">{% if m.margin is not None %}{{ m.margin }}{% else %}—{% endif %}</td></tr>{% endfor %}

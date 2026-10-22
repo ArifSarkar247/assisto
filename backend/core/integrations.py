@@ -504,6 +504,27 @@ REGISTRY = {
              "guide_en": ["newsapi.org (or similar) → API key → paste → Save (RSS fallback if no key)"],
              "fields": [_f("provider", "Provider", "Provider", secret=False), _f("api_key", "API Key", "API Key")],
              "test": None},
+    # ---- t9-turnscale ---- managed-TURN overflow (OFF by default)
+    "turn_overflow": {
+        "name": "Managed TURN overflow (Cloudflare Calls)", "category": "Calls",
+        "unlocks_bn": "আমাদের কল-রিলে সার্ভার ভরে গেলে (বা বন্ধ থাকলে) বাড়তি কল Cloudflare-এর TURN দিয়ে চলবে। ডিফল্ট বন্ধ; এতে প্রতি GB খরচ আছে।",
+        "unlocks_en": "When our own call relay is near full (or down), extra calls relay through Cloudflare's TURN. Off by default; it is billed per GB.",
+        "guide_bn": ["dash.cloudflare.com → Calls → TURN → Create TURN key",
+                     "Turn Token ID লিখুন (key_id) ও API Token পেস্ট করুন",
+                     "mode: overflow (শুধু ভরে গেলে) বা always; threshold_pct: যেমন 70",
+                     "enabled: on লিখুন → Save → Test (সফল হলে চালু হবে)",
+                     "বন্ধ করতে enabled: off লিখে Save করুন"],
+        "guide_en": ["dash.cloudflare.com → Calls → TURN → Create TURN key",
+                     "Enter the Turn Token ID (key_id) and paste the API Token",
+                     "mode: overflow (only when ours is near full) or always; threshold_pct e.g. 70",
+                     "enabled: on → Save → Test (active only after a passing test)",
+                     "To switch off: enabled: off → Save"],
+        "fields": [_f("key_id", "Turn Token ID", "Turn Token ID", secret=False),
+                   _f("api_token", "API Token", "API Token"),
+                   _f("mode", "মোড (overflow/always)", "Mode (overflow/always)", secret=False),
+                   _f("threshold_pct", "সীমা % (যেমন 70)", "Threshold % (e.g. 70)", secret=False),
+                   _f("enabled", "চালু (on/off)", "Enabled (on/off)", secret=False)],
+        "test": "test_turn_overflow"},
 }
 
 
@@ -823,3 +844,21 @@ def test_play_billing(cfg):
         return False, "Google OAuth: %s" % type(e).__name__
     return True, "✓ Google Play API টোকেন পাওয়া গেছে / token OK (%s)" % sa["client_email"]
 # ---- /pay1 ----
+# ---- t9-turnscale ----
+def test_turn_overflow(cfg):
+    """Mint ONE short-lived (5 min) credential from Cloudflare Calls TURN with
+    the saved key (real API call). Passing = the provider handed back a TURN
+    entry with a username — only then can overflow switch on."""
+    from . import turn_pool
+    key_id = (cfg.get("key_id") or "").strip()
+    token = (cfg.get("api_token") or "").strip()
+    if not (key_id and token):
+        return (False, "Turn Token ID and API Token are both needed")
+    try:
+        ice = turn_pool.cf_generate(key_id, token, 300)
+    except Exception as e:  # noqa: BLE001
+        return (False, ("provider error: %s" % e)[:200])
+    if any("username" in e for e in ice):
+        on = turn_pool._truthy(cfg.get("enabled"))
+        return (True, "✓ credentials minted" + ("" if on else " — enabled is off, overflow stays OFF"))
+    return (False, "no TURN credentials in the provider response")
