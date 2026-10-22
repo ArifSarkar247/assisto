@@ -144,7 +144,7 @@ Future<void> _pump(WidgetTester tester, _Api api) async {
         GlobalCupertinoLocalizations.delegate,
       ],
       theme: AssistoTheme.light,
-      home: Scaffold(body: MsgHubChatList(identity: _me, members: const [])),
+      home: Scaffold(body: MsgrHubChatList(identity: _me, members: const [])),
     ),
   ));
   for (var i = 0; i < 6; i++) {

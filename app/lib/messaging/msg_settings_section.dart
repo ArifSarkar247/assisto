@@ -23,7 +23,6 @@ class _MsgDeviceNotifSectionState extends State<MsgDeviceNotifSection> {
   bool _bubblesSupported = false;
   String _soundTitle = '';
   String _soundUri = '';
-  bool _ready = false;
 
   @override
   void initState() {
@@ -44,7 +43,6 @@ class _MsgDeviceNotifSectionState extends State<MsgDeviceNotifSection> {
       _bubblesSupported = sup;
       _soundTitle = st;
       _soundUri = su;
-      _ready = true;
     });
   }
 
@@ -62,7 +60,6 @@ class _MsgDeviceNotifSectionState extends State<MsgDeviceNotifSection> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    if (!_ready) return const SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

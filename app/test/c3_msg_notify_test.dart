@@ -58,7 +58,7 @@ class _Backend implements MsgBackend {
   Map<String, dynamic> pullResp;
   _Backend(this.pullResp);
   final sent = <Map<String, dynamic>>[];
-  final seen = <String>[];
+  final seenCalls = <String>[];
   bool failSend = false;
   List<Map<String, dynamic>> roster = const [];
 
@@ -67,7 +67,7 @@ class _Backend implements MsgBackend {
       pullResp;
   @override
   Future<void> seen(String kind, int id) async => seenAdd('$kind:$id');
-  void seenAdd(String k) => seen.add(k);
+  void seenAdd(String k) => seenCalls.add(k);
   @override
   Future<Map<String, dynamic>> send(String kind, int id, Map<String, dynamic> env) async {
     if (failSend) throw StateError('offline');
@@ -199,7 +199,16 @@ void main() {
       expect(s.shown.single.lines.single.text, 'hello');
     });
 
-    test('read elsewhere → cancel', () async {
+    test('account-wide "Message preview" off (push preview=0) → hidden', () async {
+      final b = _Backend(_pull([_msg(1, 'very private')]));
+      final s = _Sink();
+      final p0 = PushPayload({'kind': 'message', 'chat_kind': 'member', 'chat_id': '12', 'lang': 'en', 'preview': '0'});
+      await handler(b, s).onPush(p0);
+      expect(s.shown.single.hidden, isTrue);
+      expect(s.shown.single.lines.single.text, isNot(contains('private')));
+    });
+
+        test('read elsewhere → cancel', () async {
       final b = _Backend(_pull(const []));
       final s = _Sink();
       await handler(b, s).onPush(push);
@@ -226,7 +235,7 @@ void main() {
               nonceB64: '${env['nonce']}',
               senderKeyId: '${env['sender_key_id']}'));
       expect(pt, 'yes!');
-      expect(b.seen, ['member:12']);
+      expect(b.seenCalls, ['member:12']);
       expect(s.cancelled, ['member:12']);
     });
 
@@ -253,7 +262,7 @@ void main() {
                   nonceB64: '${forChaya['nonce']}',
                   senderKeyId: _me.keyId)),
           'ok');
-      expect(b.seen, ['group:7']);
+      expect(b.seenCalls, ['group:7']);
     });
 
     test('reply failure → notification redrawn with "Not sent"', () async {
@@ -261,7 +270,7 @@ void main() {
       final s = _Sink();
       expect(await handler(b, s).reply('member', 12, 'yes', lang: 'en'), isFalse);
       expect(s.shown.single.lines.last.text, _t.c3NotifReplyFailed);
-      expect(b.seen, isEmpty);
+      expect(b.seenCalls, isEmpty);
     });
 
     test('empty reply does nothing; mark read → seen + cancel', () async {
@@ -271,7 +280,7 @@ void main() {
       expect(await h.reply('member', 12, '   '), isFalse);
       expect(b.sent, isEmpty);
       await h.markRead('member', 12);
-      expect(b.seen, ['member:12']);
+      expect(b.seenCalls, ['member:12']);
       expect(s.cancelled, ['member:12']);
     });
 

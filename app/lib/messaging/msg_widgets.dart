@@ -220,7 +220,12 @@ class MessageInfoView extends StatelessWidget {
                       child: Text('${r['name'] ?? ''}',
                           style: const TextStyle(fontWeight: FontWeight.w700)),
                     ),
-                  _line(context, Icons.done_all, readTickColor(context),
+                  _line(
+                      context,
+                      Icons.done_all,
+                      r['seen_at'] != null
+                          ? readTickColor(context)
+                          : scheme.onSurfaceVariant,
                       t.c3InfoRead,
                       r['seen_at'] != null
                           ? _fmt(context, '${r['seen_at']}')

@@ -7,6 +7,7 @@ import 'package:assisto/messaging/presence_label.dart';
 import 'package:assisto/realtime/realtime_channel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class _FakeTransport extends RealtimeTransport {
@@ -29,6 +30,10 @@ class _FakeTransport extends RealtimeTransport {
 
 void main() {
   final rt = RealtimeChannel.instance;
+  setUpAll(() async {
+    await initializeDateFormatting('en');
+    await initializeDateFormatting('bn');
+  });
   setUp(rt.resetForTest);
 
   group('typing throttle', () {

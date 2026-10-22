@@ -397,6 +397,7 @@ class HookTests(_PushBase):
         # title still names the sender, never the text.
         self.assertNotIn("notification", m)
         self.assertEqual(m["data"]["title"], "New message from Amina")
+        self.assertEqual(m["data"]["preview"], "1")
         self.assertEqual(m["data"]["chat_id"], str(self.ba.id))
         blob = json.dumps(m)
         self.assertNotIn("U0VDUkVUIFBMQUlOVEVYVA", blob)

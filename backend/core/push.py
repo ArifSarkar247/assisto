@@ -574,6 +574,8 @@ def hook_circle_message(sender, member, message):
             "chat_id": edge.id if edge is not None else "",
             "sender_id": sender.id,
             "sender_name": display_name(sender) if preview else "",
+            # c3-msg: the device honours the account-wide preview switch too
+            "preview": "1" if preview else "0",
             "route": "circle/chat"}, high_priority=True)
     except Exception:
         return False
@@ -608,6 +610,7 @@ def hook_group_message(sender, group, message):
                 "chat_id": group.id, "group_id": group.id,
                 "sender_id": sender.id,
                 "sender_name": display_name(sender) if preview else "",
+                "preview": "1" if preview else "0",
                 "route": "circle/group"}, high_priority=True)
             sent += 1
         return sent > 0

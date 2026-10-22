@@ -56,7 +56,7 @@ IconData tickIcon(MsgTick t) {
 Color readTickColor(BuildContext context, {bool onMyBubble = false}) {
   final dark = Theme.of(context).brightness == Brightness.dark;
   if (onMyBubble) {
-    return dark ? const Color(0xFF003B4A) : const Color(0xFFA5F3FC);
+    return dark ? const Color(0xFF0030C0) : const Color(0xFF67E8F9);
   }
   return dark ? const Color(0xFF53BDEB) : const Color(0xFF0B7FD1);
 }
@@ -79,7 +79,8 @@ class TickIcon extends StatelessWidget {
     final color = switch (tick) {
       MsgTick.read => readTickColor(context, onMyBubble: onMyBubble),
       MsgTick.failed => Theme.of(context).colorScheme.error,
-      _ => baseColor,
+      // on my bubble the grey ticks are dimmed so the "seen" colour pops
+      _ => onMyBubble ? baseColor.withValues(alpha: 0.6) : baseColor,
     };
     return Icon(tickIcon(tick),
         key: ValueKey('tick-${tick.name}'), size: size, color: color);

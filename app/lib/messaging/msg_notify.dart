@@ -490,7 +490,8 @@ class MsgPushHandler {
     try {
       final pull = await backend.pull(chat.kind, chat.id);
       final self = await identity();
-      final hide = await hideContent();
+      // this phone's switch OR the account-wide "Message preview" off
+      final hide = await hideContent() || p.data['preview'] == '0';
       final model = buildMsgNotifModel(pull,
           decrypt: self == null ? (_) => null : e2eDecryptor(self, e2e: e2e),
           hide: hide,

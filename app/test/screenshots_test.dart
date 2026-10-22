@@ -632,7 +632,7 @@ void main() {
     'vault_empty': (build: (_) => const VaultScreen(previewUnlocked: true), mode: FakeMode.empty, full: false),
     'vault_error': (build: (_) => const VaultScreen(previewUnlocked: true), mode: FakeMode.fail, full: false),
     // ---- c3-msg ---- ticks, decrypted previews, typing, unread, presence
-    'c3_chat_list': (build: (_) => Scaffold(appBar: AppBar(title: const Text('My Circle')), body: MsgHubChatList(identity: C3Fake.me, members: const [])), mode: FakeMode.data, full: true),
+    'c3_chat_list': (build: (_) => Scaffold(appBar: AppBar(title: const Text('My Circle')), body: MsgrHubChatList(identity: C3Fake.me, members: const [])), mode: FakeMode.data, full: true),
     'c3_chat': (build: (l) => CircleChatScreen(member: C3Fake.member(l == 'bn'), identity: C3Fake.me), mode: FakeMode.data, full: true),
     'c3_msg_info': (build: (l) => Scaffold(appBar: AppBar(), body: Align(alignment: Alignment.bottomCenter, child: Material(elevation: 6, child: MessageInfoView(load: () async => C3Fake.info(l == 'bn'))))), mode: FakeMode.data, full: true),
     'c3_notif_settings': (build: (_) => const MsgrSetNotificationsScreen(), mode: FakeMode.data, full: true),

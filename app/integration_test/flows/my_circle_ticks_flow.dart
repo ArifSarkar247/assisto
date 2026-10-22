@@ -18,7 +18,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:assisto/api.dart';
 import 'package:assisto/crypto/e2e.dart';
 import 'package:assisto/messaging/msg_notify.dart';
 import 'package:assisto/screens/circle_chat_screen.dart';
