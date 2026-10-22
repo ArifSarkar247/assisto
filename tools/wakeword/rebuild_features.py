@@ -283,7 +283,15 @@ def main():
         onnx.checker.check_model(model, full_check=True)
         p = os.path.join(a.out, f"assisto_embed_e2e.{variant}.onnx")
         onnx.save(model, p)
-        return p
+        fe = helper.make_model(helper.make_graph(
+            fe_nodes, "logmel_" + variant,
+            [helper.make_tensor_value_info("audio", onnx.TensorProto.FLOAT, [1, WINDOW])],
+            [helper.make_tensor_value_info(net_in, onnx.TensorProto.FLOAT, [1, FRAMES, N_MEL])], fe_inits),
+            opset_imports=list(net.opset_import))
+        fe.ir_version = net.ir_version
+        fp = os.path.join(a.out, f"logmel.{variant}.onnx")
+        onnx.save(fe, fp)
+        return p, fp
 
     # ---- 3. verification ------------------------------------------------------
     rng = np.random.default_rng(0)
@@ -308,28 +316,42 @@ def main():
         net_got = netx.run(None, {net_in: mel_ref.astype(np.float32)})[0]
         worst_net = max(worst_net, float(np.max(np.abs(net_got - emb_ref))))
 
+    # Pure tones leave most mel bins near log(0.001); there float32 rounding in ANY
+    # FFT (TF's included) is amplified by the log. So: strict tol on noise / speech /
+    # real audio / streaming; for the tone sweep (diagnostic) the ONNX log-mel must
+    # be no further from an exact float64 log-mel than TF's own float32 log-mel is.
+    STRICT = lambda name: name != "sweep"  # noqa: E731
+    exact = {name: onnx_logmel(x, mel_w) for name, x, _m, _e in refs}
+    tf_fe_err = {name: float(np.max(np.abs(m[0] - exact[name]))) for name, _x, m, _e in refs}
     results = {}
     for variant in ("dft", "matmul"):
         try:
-            p = build(variant)
+            p, fp = build(variant)
             sess_v = ort.InferenceSession(p, so, providers=["CPUExecutionProvider"])
+            fe_v = ort.InferenceSession(fp, so, providers=["CPUExecutionProvider"])
         except Exception as e:  # noqa: BLE001
             log(f"front end {variant}: build/load failed: {e}")
             continue
-        rows, worst = [], 0.0
+        rows, worst, ok = [], 0.0, True
         for name, x, _mel, emb_ref in refs:
             d = float(np.max(np.abs(sess_v.run(None, {"audio": x})[0] - emb_ref)))
-            rows.append({"test": name, "max_abs": d, "ref_max": float(np.max(np.abs(emb_ref)))})
-            worst = max(worst, d)
-        results[variant] = (worst, rows, p, sess_v)
-        log(f"front end {variant}: worst max|onnx-tf| = {worst:.2e}")
+            fe_err = float(np.max(np.abs(fe_v.run(None, {"audio": x})[0][0] - exact[name])))
+            r = {"test": name, "strict": STRICT(name), "max_abs": d, "ref_max": float(np.max(np.abs(emb_ref))),
+                 "logmel_err_vs_fp64": fe_err, "tf_logmel_err_vs_fp64": tf_fe_err[name]}
+            r["pass"] = (d <= a.tol) if r["strict"] else (d <= a.tol or fe_err <= 2 * tf_fe_err[name] + 1e-5)
+            ok = ok and r["pass"]
+            rows.append(r)
+            if r["strict"]:
+                worst = max(worst, d)
+        results[variant] = (worst, rows, p, sess_v, ok)
+        log(f"front end {variant}: worst strict max|onnx-tf| = {worst:.2e}, all pass = {ok}")
     if not results:
         raise SystemExit("no front-end variant could be built")
-    variant = min(results, key=lambda v: results[v][0])
-    worst, rows, vpath, e2e = results[variant]
+    variant = min(results, key=lambda v: (not results[v][4], results[v][0]))
+    worst, rows, vpath, e2e, all_ok = results[variant]
     path = os.path.join(a.out, "assisto_embed_e2e.onnx")
     shutil.copyfile(vpath, path)
-    worst_mel = max(float(np.max(np.abs(onnx_logmel(x, mel_w) - mel[0]))) for _, x, mel, _ in refs)
+    worst_mel = max(tf_fe_err.values())
 
     # streaming: TF on one long clip == ONNX on sliding 12400 windows every 1280
     stream_src = next((x for n, x in tests if n.startswith("real")), None)
@@ -345,8 +367,11 @@ def main():
     for k in range(k_n):
         got = e2e.run(None, {"audio": long[:, k * HOP: k * HOP + WINDOW]})[0]
         stream = max(stream, float(np.max(np.abs(got[0, 0, 0] - full[0, k, 0]))))
+    log("chosen front end:", variant)
     for r in rows:
-        log(f"  {r['test']:<22} max|onnx-tf| = {r['max_abs']:.2e}   (|emb| max {r['ref_max']:.1f})")
+        log(f"  {r['test']:<22} max|onnx-tf| = {r['max_abs']:.2e}  (|emb| max {r['ref_max']:.1f})  "
+            f"log-mel err vs fp64: onnx {r['logmel_err_vs_fp64']:.1e} / tf {r['tf_logmel_err_vs_fp64']:.1e}"
+            f"{'' if r['strict'] else '  [diagnostic]'}  {'ok' if r['pass'] else 'FAIL'}")
     log(f"worst e2e {worst:.2e} | conv-net alone {worst_net:.2e} | numpy-fp64 log-mel vs TF {worst_mel:.2e} | "
         f"streaming (11 hops) {stream:.2e} | tol {a.tol}")
     info = {
@@ -358,7 +383,7 @@ def main():
         "front_end": {"variant": variant, "variants_worst": {k: v[0] for k, v in results.items()},
                       "stft": [FRAME_LEN, FRAME_STEP, FFT], "window": "hann periodic", "mel_bins": N_MEL,
                       "mel_hz": [MEL_LO, MEL_HI], "log_offset": LOG_OFFSET, "module_constants": params},
-        "verify": {"tol": a.tol, "max_abs_diff_vs_tf": worst, "conv_net_only": worst_net,
+        "verify": {"tol": a.tol, "all_pass": all_ok, "max_abs_diff_vs_tf": worst, "conv_net_only": worst_net,
                    "numpy_fp64_logmel_vs_tf": worst_mel, "streaming_11_hops": stream, "tests": rows},
         "max_abs_diff_vs_tf": max(worst, stream),
         "sha256": sha256(path), "size": os.path.getsize(path),
@@ -367,8 +392,9 @@ def main():
     }
     with open(os.path.join(a.out, "e2e_info.json"), "w") as f:
         json.dump(info, f, indent=1)
-    if max(worst, stream) > a.tol:
-        raise SystemExit(f"ONNX vs TensorFlow mismatch {max(worst, stream):.2e} > tol {a.tol}")
+    if max(worst, stream) > a.tol or not all_ok:
+        raise SystemExit(f"ONNX vs TensorFlow mismatch: strict {worst:.2e}, streaming {stream:.2e}, "
+                         f"all tests pass = {all_ok} (tol {a.tol})")
     lic = licence.get("licenseName") or []
     if lic and not all("apache" in (x or "").lower() for x in lic):
         raise SystemExit(f"model page licence is not Apache: {lic} — do not ship")
