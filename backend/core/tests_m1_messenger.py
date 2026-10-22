@@ -44,6 +44,10 @@ class _Base(TestCase):
         self.ba = CircleMember.objects.create(
             user=self.b, peer_user=self.a, name="Amina", state="accepted",
             phone=self.a.phone, direction="incoming", public_key="pkA")
+        # e2-keys: keys live in the per-user directory (edge columns unused)
+        from .models import UserPublicKey
+        UserPublicKey.objects.create(user=self.b, public_key="pkB", key_id="kB")
+        UserPublicKey.objects.create(user=self.a, public_key="pkA")
         self.ca = self.client_for(self.a)
         self.cb = self.client_for(self.b)
         self.cc = self.client_for(self.c)

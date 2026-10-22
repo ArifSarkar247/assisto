@@ -87,15 +87,13 @@ def _rel_state_to(viewer, other_user):
 
 
 def _peer_key_for(viewer, member_user):
-    """(public_key, key_id) the VIEWER uses to encrypt to `member_user`, resolved
-    from the viewer's own CircleMember edge (keys are published per-edge). Empty
-    strings when the viewer has no recorded edge yet."""
-    phone = (getattr(member_user, "phone", "") or "").strip()
-    if phone:
-        edge = CircleMember.objects.filter(user=viewer, phone__in=_c1_variants(phone)).first()
-        if edge:
-            return edge.public_key, edge.key_id
-    return "", ""
+    """(public_key, key_id) the VIEWER uses to encrypt to `member_user` — read
+    LIVE from the per-user key directory (e2-keys). Public keys are public, so
+    no edge is needed (group members are circle-gated on join). Empty strings
+    when the member never published."""
+    from . import e2_keys
+    pub, kid, _ = e2_keys.key_of(member_user)
+    return pub, kid
 
 
 def _group_dict(group, me):
@@ -328,6 +326,10 @@ class CircleGroupMessagesView(APIView):
         # m1-messenger: hide what I cleared / deleted-for-me / what expired.
         from .views_m1_messenger import visible_group_messages
         msgs = visible_group_messages(g, request.user)
+        from . import chat_paging  # e2-keys item 2: optional paging
+        meta = None
+        if chat_paging.wants_page(request):
+            msgs, meta = chat_paging.page(request, msgs, request.user)
         out = [{
             "id": x.id, "sender_id": x.sender_id, "content_type": x.content_type,
             "ciphertext": x.ciphertext, "nonce": x.nonce, "blob_ref": x.blob_ref,
@@ -343,6 +345,10 @@ class CircleGroupMessagesView(APIView):
         # c3-msg: ticks (sent/delivered/read, all members) on my messages.
         from . import views_c3_msg as C3
         C3.annotate(out, msgs, request.user)
+        if meta is not None:
+            chat_paging.mark_unseen(out, meta["unseen"])
+            return Response({"results": out, "has_more": meta["has_more"],
+                             "unread_count": meta["unread_count"]})
         return Response({"results": out})
 
     def post(self, request, pk):

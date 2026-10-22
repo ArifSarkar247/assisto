@@ -286,6 +286,14 @@ def parse_mute_until(value):
     return dt if dt > timezone.now() else None
 
 
+def _live_encryption(m):
+    """e2-keys: the peer's key LIVE from the per-user directory."""
+    from . import e2_keys
+    pub, kid, scheme = e2_keys.edge_key(m)
+    return {"scheme": scheme or "x25519", "fingerprint": _fingerprint(pub),
+            "public_key": pub, "key_id": kid}
+
+
 def _fingerprint(public_key):
     import hashlib
     if not public_key:
@@ -350,8 +358,7 @@ class ChatInfoView(APIView):
             "media_count": media, "link_count": links, "doc_count": docs,
             "starred_count": starred, "message_count": len(rows),
             "groups_in_common": common,
-            "encryption": {"scheme": m.scheme or "x25519",
-                           "fingerprint": _fingerprint(m.public_key)},
+            "encryption": _live_encryption(m),
             "muted_until": mu.isoformat() if hasattr(mu, "isoformat") else mu,
             "disappearing_sec": cs.disappearing_sec if cs else 0,
             "blocked": bool(m.blocked),

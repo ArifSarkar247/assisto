@@ -406,6 +406,12 @@ class ConnectionRequestActView(APIView):
             defaults={"name": (req_u.name or "").strip(),
                       "phone": (req_u.phone or "")[:40], "relation": recip,
                       "state": "accepted", "sharing": circle.default_sharing(recip)})
+        # e2-keys: both edges carry NO key column on purpose — every reader
+        # gets the peer key live from the per-user directory. Whoever has not
+        # published yet gets a silent key_request push, so the pair can text
+        # immediately (owner PRODUCT RULE).
+        from . import e2_keys
+        e2_keys.ensure_pair_keys(req_u, tgt_u)
 
 
 class ConnectionRequestMessageView(APIView):

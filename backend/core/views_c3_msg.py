@@ -312,10 +312,8 @@ def sync_delivered(user):
 # ---------------------------------------------------------------------------
 def _peer_key(viewer, user_id):
     from .views_m2 import _peer_key_for
-    u = User.objects.filter(pk=user_id).first()
-    if u is None:
-        return ""
-    return _peer_key_for(viewer, u)[0] or ""
+    from . import e2_keys  # e2-keys: live per-user directory
+    return e2_keys.key_of(user_id)[0] or ""
 
 
 def envelope_for(viewer, x, ctx, key_cache=None):
@@ -356,7 +354,11 @@ def envelope_for(viewer, x, ctx, key_cache=None):
             peer_pub = key_cache[x.sender_id]
     else:
         edge = ctx.get("edge")
-        peer_pub = (edge.public_key or "") if edge is not None else ""
+        if edge is not None:
+            if "edge_key" not in ctx:
+                from . import e2_keys
+                ctx["edge_key"] = e2_keys.edge_key(edge)[0] or ""
+            peer_pub = ctx["edge_key"]
     return {
         "id": x.id, "sender_id": x.sender_id, "mine": mine,
         "sender_name": (x.sender.name or "") if x.sender_id else "",
@@ -414,7 +416,11 @@ def augment_chat_rows(user, out):
             last["sender_name"] = x.sender.name or ""
             last["sender_key_id"] = x.sender_key_id
             edge = edges.get(str(r.get("id")))
-            last["peer_public_key"] = (edge.public_key or "") if edge else ""
+            if edge is not None:
+                from . import e2_keys
+                last["peer_public_key"] = e2_keys.edge_key(edge)[0] or ""
+            else:
+                last["peer_public_key"] = ""
             last["created_at"] = x.created_at.isoformat()
     except Exception:
         pass
@@ -612,7 +618,7 @@ class NotifyPullView(APIView):
         else:
             from .views_module5 import _member_dict
             md = _member_dict(ctx["edge"])
-            title, peer_pub = md.get("name", ""), ctx["edge"].public_key or ""
+            title, peer_pub = md.get("name", ""), md.get("public_key", "")
         cache = {}
         msgs = [envelope_for(request.user, x, ctx, cache) for x in window]
         return Response({

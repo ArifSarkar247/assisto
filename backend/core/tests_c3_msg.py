@@ -36,6 +36,10 @@ class _Base(TestCase):
         self.ba = CircleMember.objects.create(
             user=self.b, peer_user=self.a, name="Amina", state="accepted",
             phone=self.a.phone, direction="incoming", public_key="pkA")
+        # e2-keys: keys live in the per-user directory (edge columns unused)
+        from .models import UserPublicKey
+        UserPublicKey.objects.create(user=self.b, public_key="pkB", key_id="kB")
+        UserPublicKey.objects.create(user=self.a, public_key="pkA")
         self.ca, self.cb, self.cc = (self.cl(self.a), self.cl(self.b),
                                      self.cl(self.c))
 
@@ -143,6 +147,8 @@ class GroupTickTests(_Base):
         CircleMember.objects.create(user=self.a, peer_user=self.c, name="Chaya",
                                     state="accepted", phone=self.c.phone,
                                     public_key="pkC")
+        from .models import UserPublicKey
+        UserPublicKey.objects.create(user=self.c, public_key="pkC")
 
     def gsend(self):
         r = self.ca.post("%s/circle/groups/%d/messages" % (V, self.g.id), {

@@ -789,3 +789,13 @@ urlpatterns += [
     path("circle/calls/<int:call_id>", c2calls.CallStatusView.as_view()),
 ]
 # ---- /c2-calls ----
+
+# ---- e2-keys ---- per-user public key directory: peer key lookup (live) +
+# silent key_request. PREPENDED so the literal paths win over catch-alls.
+from . import views_e2_keys as e2k  # noqa: E402
+urlpatterns[:0] = [
+    path("circle/keys/peer/<int:pk>", e2k.CirclePeerKeyView.as_view()),
+    path("circle/keys/request", e2k.CircleKeyRequestView.as_view()),
+    path("circle/keys/users", e2k.CircleUserKeysView.as_view()),
+]
+# ---- /e2-keys ----

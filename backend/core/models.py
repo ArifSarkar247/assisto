@@ -3728,3 +3728,40 @@ class RtPresence(models.Model):
                                 related_name="rt_presence")
     seen_at = models.DateTimeField()
 # ---- /c2-calls ----
+
+
+# ---- e2-keys ---- per-USER public key directory (owner order 22 Oct, item 1).
+# A user's PUBLIC X25519 key lives here, once per user (never on a circle edge
+# again); every payload that carries a peer key reads it LIVE from this table.
+class UserPublicKey(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="e2_public_key")
+    public_key = models.TextField(blank=True, default="")
+    key_id = models.CharField(max_length=64, blank=True, default="")
+    scheme = models.CharField(max_length=64, blank=True, default="")
+    # When a DIFFERENT key replaced the previous one (reinstall / new phone):
+    # drives the WhatsApp-style "security code changed" note on peers' chats.
+    changed_at = models.DateTimeField(null=True, blank=True)
+    previous_key_id = models.CharField(max_length=64, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class E2KeyRequest(models.Model):
+    """`requester` wants to encrypt to `target`, who has no published key yet.
+    The server sends `target` a silent FCM data push (kind=key_request) so
+    their app publishes in the background; when it does, the requester gets
+    a key.published real-time event + a silent key_ready push so its outbox
+    encrypts + sends. One row per pair; throttles the push."""
+    requester = models.ForeignKey(User, on_delete=models.CASCADE,
+                                  related_name="e2_key_requests_made")
+    target = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name="e2_key_requests_got")
+    requested_at = models.DateTimeField()
+    pushed_at = models.DateTimeField(null=True, blank=True)
+    push_count = models.IntegerField(default=0)
+    fulfilled_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = [("requester", "target")]
+# ---- /e2-keys ----

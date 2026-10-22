@@ -78,6 +78,8 @@ def mutual_add(me, peer, relation, custom_label=""):
                                                direction="outgoing",
                                                state="pending"):
             _accept(out)
+    from . import e2_keys  # e2-keys: never a keyless dead-end
+    e2_keys.ensure_pair_keys(me, peer)
     return inc
 
 
@@ -89,8 +91,7 @@ def _token_from(raw):
 
 
 def _edge(owner, peer, direction, relation, custom_label=""):
-    from .views_module5 import _published_key
-    key = _published_key(peer)
+    # e2-keys: keys are read live from the per-user directory, never copied.
     row = (CircleMember.objects.filter(user=owner, peer_user=peer)
            .exclude(state__in=("blocked",)).order_by("-id").first())
     if row is None:
@@ -99,7 +100,6 @@ def _edge(owner, peer, direction, relation, custom_label=""):
             name=(getattr(peer, "name", "") or "").strip()[:120],
             phone=(getattr(peer, "phone", "") or "")[:40],
             relation=relation, custom_label=custom_label[:60],
-            public_key=key[0], key_id=key[1], scheme=key[2],
             state="accepted", sharing=circle.default_sharing(relation))
     else:
         _accept(row)
@@ -164,6 +164,8 @@ class CircleInviteRedeemView(APIView):
             if not inv.used:
                 inv.used = True
                 inv.save(update_fields=["used"])
+        from . import e2_keys  # e2-keys: never a keyless dead-end
+        e2_keys.ensure_pair_keys(request.user, inviter)
         return Response({"ok": True, "member": _member_dict(mine),
                          "inviter": {"id": inviter.id,
                                      "name": (inviter.name or "").strip()}},

@@ -49,24 +49,31 @@ HTTP_TIMEOUT_S = 8
 TOKEN_REFRESH_MARGIN_S = 300          # refresh ~5 min before expiry
 
 KINDS = ("message", "call", "call_cancel", "reminder", "family_alert", "sos",
-         "owner_alert", "shop_alert", "missed_call")
+         "owner_alert", "shop_alert", "missed_call",
+         # e2-keys: SILENT data pushes (nothing is drawn): key_request asks the
+         # device to publish its PUBLIC key in the background; key_ready tells
+         # a waiting sender the peer's key arrived (its outbox sends).
+         "key_request", "key_ready")
 # Kinds that must ALWAYS be data-only + high priority (app draws the UI).
 # c3-msg: "message" is data-only too, so the DEVICE draws the WhatsApp-style
 # MessagingStyle notification (decrypted on device), acks delivery and offers
 # inline reply. Older app builds still draw data-only pushes (background
 # handler shows title/body when there is no notification block).
 # c2-calls: "missed_call" is data-only (the app draws it on its own channel).
-DATA_ONLY_KINDS = ("call", "call_cancel", "sos", "message", "missed_call")
+DATA_ONLY_KINDS = ("call", "call_cancel", "sos", "message", "missed_call",
+                   "key_request", "key_ready")
 # Per-kind TTL (seconds). A ring older than 30 s is useless; SOS keeps a
 # little longer so a phone that briefly lost signal still gets it.
 TTL_S = {"call": 30, "call_cancel": 60, "sos": 600, "message": 86400,
          "reminder": 3600, "family_alert": 86400, "owner_alert": 86400,
-         "shop_alert": 3600, "missed_call": 86400}
+         "shop_alert": 3600, "missed_call": 86400,
+         "key_request": 86400, "key_ready": 86400}
 # Android notification channel ids the app must create.
 CHANNELS = {"message": "messages", "call": "calls", "call_cancel": "calls",
             "reminder": "reminders", "family_alert": "alerts", "sos": "sos",
             "owner_alert": "alerts", "shop_alert": "alerts",
-            "missed_call": "missed_calls"}
+            "missed_call": "missed_calls",
+            "key_request": "messages", "key_ready": "messages"}
 # FCM rejects these data keys.
 _RESERVED_DATA_KEYS = ("from", "notification", "message_type", "collapse_key")
 
@@ -355,6 +362,8 @@ def push_to_user(user, kind, title_bn, title_en, body_bn="", body_en="",
         collapse = None
         if kind == "message" and payload.get("chat_id"):
             collapse = "chat-%s" % payload["chat_id"]
+        elif kind in ("key_request", "key_ready"):
+            collapse = kind   # one pending per device is enough
         elif kind in ("call", "call_cancel") and payload.get("call_id"):
             collapse = "call-%s" % payload["call_id"]
         sent = 0
