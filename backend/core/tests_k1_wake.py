@@ -50,6 +50,7 @@ class WakeConfigTests(APITestCase):
         w = self._cfg()
         self.assertTrue(w["available"])
         self.assertEqual([f["role"] for f in w["files"]], ["mel", "embed", "wake"])
+        self.assertEqual(w["feature_backend"], "oww")
         self.assertTrue(w["files"][2]["url"].endswith("/api/v1/voice/wake-model/assisto_wake.onnx"))
         self.assertEqual(len(w["files"][0]["sha256"]), 64)
         self.assertAlmostEqual(w["thresholds"]["normal"], 0.6)
@@ -63,6 +64,17 @@ class WakeConfigTests(APITestCase):
         with self.settings(WAKEWORD_DIR=self.dir):
             r = self.client.get("/api/v1/voice/wake-model/assisto_wake.onnx")
         self.assertEqual(r.status_code, 404)
+
+    def test_e2e_backend(self):
+        self._install(roles=("e2e", "wake"))
+        w = self._cfg()
+        self.assertTrue(w["available"])
+        self.assertEqual(w["feature_backend"], "e2e")
+        self.assertEqual([f["role"] for f in w["files"]], ["e2e", "wake"])
+
+    def test_mixed_roles_rejected(self):
+        self._install(roles=("e2e", "mel", "wake"))
+        self.assertFalse(self._cfg()["available"])
 
     def test_incomplete_manifest_is_pending(self):
         self._install(roles=("mel", "wake"))

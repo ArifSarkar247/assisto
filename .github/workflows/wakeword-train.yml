@@ -1,0 +1,131 @@
+# k1-wake: train + evaluate the on-device "Hey Assisto" wake-word model.
+# MANUAL ONLY (workflow_dispatch). Never runs on push. Runs on GitHub's
+# ubuntu-latest runner (4 vCPU / 16 GB); nothing heavy ever runs on the
+# Assisto server. Output artifact "wakeword-model-<run>" = the files to copy
+# into backend/core/wakeword_models/ + eval_report.md (REAL measured numbers).
+name: Wake word train (Hey Assisto)
+
+on:
+  workflow_dispatch:
+    inputs:
+      features:
+        description: "Feature extractor: e2e (Google speech_embedding, Apache-2.0, licence-clean) | oww (openWakeWord files, licence UNCONFIRMED -> not served)"
+        required: true
+        default: e2e
+        type: choice
+        options: [e2e, oww]
+      steps:
+        description: "Classifier training steps"
+        required: true
+        default: "6000"
+      n_pos_train:
+        description: "Synthetic positive clips (train)"
+        required: true
+        default: "6000"
+      tiny:
+        description: "Tiny smoke run (fake extractor, no downloads, ~2 min)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wakeword-train
+  cancel-in-progress: false
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    env:
+      WORK: /mnt/ww
+      WW_THREADS: "4"
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Free disk (MUSAN is 11 GB) + work dir on /mnt
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL || true
+          sudo mkdir -p "$WORK" && sudo chown "$USER" "$WORK"
+          df -h / /mnt
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: System packages (eSpeak NG = TTS voices + Kokoro G2P fallback)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq espeak-ng libsndfile1
+
+      - name: Python deps (pinned)
+        run: |
+          python -m pip install -q "numpy==1.26.4" "scipy==1.13.1" "onnx==1.16.2" \
+            "onnxruntime==1.18.1" "soundfile==0.12.1"
+          if [ "${{ inputs.tiny }}" != "true" ]; then
+            python -m pip install -q --extra-index-url https://download.pytorch.org/whl/cpu \
+              "torch==2.4.1" "kokoro==0.9.4" "misaki[en]==0.9.4"
+          fi
+
+      - name: Unit tests (tiny synthetic data)
+        run: python -m unittest discover -s tools/wakeword/tests -v
+
+      - name: Cache prepared background audio (int16 streams, not raw datasets)
+        if: ${{ !inputs.tiny }}
+        uses: actions/cache@v4
+        with:
+          path: /mnt/ww/prepared
+          key: ww-prepared-v1-${{ hashFiles('tools/wakeword/ww/datasets.py', 'tools/wakeword/config.json') }}
+
+      - name: Cache TTS + TF-Hub models
+        if: ${{ !inputs.tiny }}
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/huggingface
+            ~/.cache/tfhub_modules
+          key: ww-models-v1
+
+      - name: Rebuild licence-clean feature extractor (Google speech_embedding -> ONNX)
+        if: ${{ !inputs.tiny && inputs.features == 'e2e' }}
+        run: |
+          python -m venv /mnt/tfenv
+          /mnt/tfenv/bin/pip install -q "tensorflow-cpu==2.15.1" "tf-keras==2.15.1" \
+            "tensorflow-hub==0.16.1" "tf2onnx==1.16.1" "onnx==1.16.2" "onnxruntime==1.18.1" "numpy==1.26.4"
+          TFHUB_CACHE_DIR=~/.cache/tfhub_modules /mnt/tfenv/bin/python tools/wakeword/rebuild_features.py --out "$WORK/features"
+
+      - name: Config
+        run: |
+          python - <<'PY'
+          import json, os
+          c = json.load(open("tools/wakeword/config.json"))
+          c["features"]["backend"] = "${{ inputs.features }}"
+          c["steps"] = int("${{ inputs.steps }}")
+          c["tts"]["n_pos_train"] = int("${{ inputs.n_pos_train }}")
+          json.dump(c, open(os.environ["WORK"] + "/config.json", "w"), indent=1)
+          print(json.dumps(c, indent=1))
+          PY
+
+      - name: Train + evaluate
+        run: |
+          if [ "${{ inputs.tiny }}" = "true" ]; then
+            python tools/wakeword/pipeline.py --work "$WORK" --tiny all
+          else
+            python tools/wakeword/pipeline.py --work "$WORK" --config "$WORK/config.json" all
+          fi
+          cp "$WORK/model/train_history.json" "$WORK/config.used.json" "$WORK/out/" || true
+          cp "$WORK/features/e2e_info.json" "$WORK/out/" 2>/dev/null || true
+
+      - name: Report
+        if: always()
+        run: |
+          [ -f "$WORK/out/eval_report.md" ] && cat "$WORK/out/eval_report.md" >> "$GITHUB_STEP_SUMMARY" || echo "no report" >> "$GITHUB_STEP_SUMMARY"
+          ls -la "$WORK/out" || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wakeword-model-${{ github.run_number }}
+          path: /mnt/ww/out
+          retention-days: 30
+          if-no-files-found: warn

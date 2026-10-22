@@ -35,7 +35,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 # ---- k1-wake ----
-_ROLES = ("mel", "embed", "wake")
+# Two feature back-ends (tools/wakeword/ww/features.py): openWakeWord's split
+# mel + embedding models, or one Google speech_embedding "e2e" model.
+_ROLE_SETS = ({"mel", "embed", "wake"}, {"e2e", "wake"})
+_ROLE_ORDER = ("mel", "embed", "e2e", "wake")
 _NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,80}\.onnx$")
 _SHA_RE = re.compile(r"^[0-9a-f]{64}$")
 SENSITIVITY_DEFAULTS = {"low": 0.7, "normal": 0.5, "high": 0.3}
@@ -51,7 +54,8 @@ def load_manifest():
 
     manifest.json = {"version": "2026.10.1", "engine": "openwakeword",
       "licence_cleared": true, "frames": 16,
-      "files": [{"role": "mel"|"embed"|"wake", "name": "x.onnx", "sha256": "…", "size": n}],
+      "feature_backend": "e2e"|"oww", "window_samples": 12400,
+      "files": [{"role": "mel"|"embed"|"e2e"|"wake", "name": "x.onnx", "sha256": "…", "size": n}],
       "thresholds": {"low": .., "normal": .., "high": ..},
       "eval": {...measured numbers from the CI evaluation...}}
     """
@@ -69,13 +73,17 @@ def load_manifest():
         if not isinstance(e, dict):
             return None
         name, sha, role = str(e.get("name", "")), str(e.get("sha256", "")).lower(), e.get("role")
-        if role not in _ROLES or not _NAME_RE.match(name) or not _SHA_RE.match(sha):
+        if role not in _ROLE_ORDER or not _NAME_RE.match(name) or not _SHA_RE.match(sha):
             return None
         if not os.path.isfile(os.path.join(wake_dir(), name)):
             return None
         roles[role] = {"role": role, "name": name, "sha256": sha,
                        "size": int(e.get("size") or os.path.getsize(os.path.join(wake_dir(), name)))}
-    if set(roles) != set(_ROLES):
+    if set(roles) not in _ROLE_SETS:
+        return None
+    try:
+        window = int(m.get("window_samples") or 12400)
+    except (TypeError, ValueError):
         return None
     th = dict(SENSITIVITY_DEFAULTS)
     for k, v in (m.get("thresholds") or {}).items():
@@ -89,8 +97,10 @@ def load_manifest():
     except (TypeError, ValueError):
         frames = 16
     return {"version": str(m.get("version") or ""), "licence_cleared": m.get("licence_cleared") is True,
-            "files": [roles[r] for r in _ROLES], "thresholds": th,
-            "frames": min(64, max(4, frames))}
+            "files": [roles[r] for r in _ROLE_ORDER if r in roles], "thresholds": th,
+            "frames": min(64, max(4, frames)),
+            "feature_backend": "e2e" if "e2e" in roles else "oww",
+            "window_samples": min(48000, max(1280, window))}
 
 
 def wake_config(request=None):
@@ -110,7 +120,8 @@ def wake_config(request=None):
         url = request.build_absolute_uri(path) if request is not None else path
         files.append({**e, "url": url})
     return {**base, "available": True, "reason": "", "files": files,
-            "thresholds": m["thresholds"], "frames": m["frames"], "version": m["version"]}
+            "thresholds": m["thresholds"], "frames": m["frames"], "version": m["version"],
+            "feature_backend": m["feature_backend"], "window_samples": m["window_samples"]}
 
 
 class VoiceConfigView(APIView):
