@@ -16196,5 +16196,49 @@
   },
   "payRenewAction": "Renew in one tap",
   "payManagedByPlay": "Your subscription runs through Google Play. Change or cancel it in the Play Store.",
-  "swUnavailableBody2": "To show your watch or fitness-band data, this phone needs Health Connect. Install or update it from the Play Store, then come back here — Assisto checks again by itself."
+  "swUnavailableBody2": "To show your watch or fitness-band data, this phone needs Health Connect. Install or update it from the Play Store, then come back here — Assisto checks again by itself.",
+  "oemGuideTitle": "Background & notifications",
+  "oemGuideTileSub": "So calls, messages and SOS alerts reach you when Assisto is closed",
+  "oemGuideIntro": "Many phones stop apps in the background to save battery. Then calls, messages and family SOS alerts can arrive late, or not at all. These steps take about a minute.",
+  "oemGuideYourPhone": "Your phone: {device}",
+  "@oemGuideYourPhone": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "oemGuidePickBrand": "Not your phone? Choose your brand:",
+  "oemGuideBrandOther": "Other (Walton, Symphony, Nokia…)",
+  "oemGuideOpenAppInfo": "Open App info",
+  "oemGuideDoneState": "Already done",
+  "oemGuideCantCheck": "Assisto can't check this setting itself. Please make sure it is on.",
+  "oemGuideNoScreen": "This phone doesn't let Assisto open that screen. Please follow the steps above by hand.",
+  "oemGuideOpenedDetails": "Opened Assisto's App info. Look for \"Battery\" or \"Auto launch\" there.",
+  "oemGuideByHand": "Do this one by hand. There is no settings screen to open for it.",
+  "oemGuideLater": "Later",
+  "oemGuideReopenHint": "You can open this again any time from Settings • Background & notifications.",
+  "oemGuideAllSet": "All set. This phone already lets Assisto run in the background.",
+  "oemStepBatteryOptTitle": "Turn off battery optimisation for Assisto",
+  "oemStepBatteryOptBody": "In the list that opens, choose \"All apps\", find Assisto and pick \"Don't optimise\" (it may say \"Not optimised\" or \"Allow\").",
+  "oemStepBgRestrictedTitle": "Allow background use",
+  "oemStepBgRestrictedBody": "Android has restricted Assisto in the background. Open App info • Battery and remove the restriction (choose \"Unrestricted\" or \"Allow background activity\").",
+  "oemStepUnrestrictedTitle": "Set battery to \"Unrestricted\"",
+  "oemStepUnrestrictedBody": "App info • Battery • choose \"Unrestricted\".",
+  "oemStepAutostartTitle": "Turn on auto-start",
+  "oemStepAutostartXiaomi": "Security app • Permissions • Autostart • turn on Assisto. On HyperOS: Settings • Apps • Permissions • Autostart.",
+  "oemStepAutostartOppo": "Settings • Apps • App management • Assisto • turn on \"Allow auto launch\". Older ColorOS: Phone Manager • Privacy permissions • Startup manager.",
+  "oemStepAutostartRealme": "Settings • Apps • Auto launch (or App management • Assisto • \"Allow auto launch\") • turn on Assisto.",
+  "oemStepAutostartOneplus": "Settings • Apps • App management • Assisto • turn on \"Auto launch\".",
+  "oemStepAutostartVivo": "i Manager • App manager • Autostart manager • turn on Assisto. Newer phones: Settings • Apps • Autostart.",
+  "oemStepAutostartTranssion": "Phone Master • Toolbox • Auto-start management • turn on Assisto. Newer XOS / HiOS: Settings • App management • Auto-start.",
+  "oemStepOemBatteryTitle": "Remove the phone's own battery limit",
+  "oemStepSleepingTitle": "Remove Assisto from sleeping apps",
+  "oemStepOemBatteryXiaomi": "App info • Battery saver • choose \"No restrictions\".",
+  "oemStepOemBatteryOppo": "App info • Battery usage • turn on \"Allow background activity\" (and \"Allow foreground activity\" if shown).",
+  "oemStepOemBatteryVivo": "Settings • Battery • Background power consumption management • Assisto • \"Allow\". Older phones: High background power consumption • allow Assisto.",
+  "oemStepOemBatterySamsung": "Settings • Battery • Background usage limits • open \"Sleeping apps\" and \"Deep sleeping apps\" and remove Assisto from both lists.",
+  "oemStepOemBatteryTranssion": "Phone Master • Power saving • App power saving (or Smart power saving) • turn it off for Assisto.",
+  "oemStepLockTitle": "Lock Assisto in Recent apps",
+  "oemStepLockBody": "Open the Recent apps screen, press and hold (or pull down) Assisto's card and tap the lock icon, so \"Clear all\" doesn't close it."
 }
