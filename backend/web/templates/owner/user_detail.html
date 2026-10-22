@@ -1,0 +1,38 @@
+{% extends "owner/base.html" %}
+{% block heading %}#{{ u.id }} {{ u.name|default:u.username }}{% endblock %}
+{% block content %}
+<p><a href="/owner/users">← {{ T.nav_users }}</a></p>
+{% if error %}<div class="flash warn" role="alert">{{ error }}</div>{% endif %}
+<div class="tiles">
+  <div class="tile"><span>{{ T.plan }}</span><b>{{ state.effective }}</b><small>{{ T.stored_plan }}: {{ u.plan }}{% if u.plan_until %} · {{ T.until }} {{ u.plan_until|date:"Y-m-d" }}{% endif %}{% if u.trial_until %} · {{ T.trial_until }} {{ u.trial_until|date:"Y-m-d" }}{% endif %}</small></div>
+  <div class="tile"><span>{{ T.credits }}</span><b>{{ state.ai_credits }}</b><small>{{ T.ad_wallet }}: {{ state.ad_wallet }}</small></div>
+  <div class="tile"><span>{{ T.status }}</span><b class="{% if blocked %}neg{% else %}pos{% endif %}">{{ u.account_status }}</b><small>{{ T.joined }} {{ u.date_joined|date:"Y-m-d" }}</small></div>
+  <div class="tile"><span>{{ T.phone }}</span><b class="sm">{{ u.phone|default:"—" }}</b><small>{{ u.email|default:"" }}</small></div>
+</div>
+<div class="cols">
+<form method="post" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="credits">
+  <h2>{{ T.adjust_credits }}</h2>
+  <label>{{ T.delta }}<input name="delta" type="number" required placeholder="+10 / -5"></label>
+  <label>{{ T.reason }}<input name="reason" required maxlength="200"></label>
+  <button class="btn primary">{{ T.apply }}</button>
+</form>
+<form method="post" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="plan">
+  <h2>{{ T.change_plan }}</h2>
+  <label>{{ T.plan }}<select name="plan">{% for p in plan_ids %}<option value="{{ p }}" {% if p == u.plan %}selected{% endif %}>{{ p }}</option>{% endfor %}</select></label>
+  <label>{{ T.days_valid }}<input name="days" type="number" min="1" max="3660" value="30"></label>
+  <label>{{ T.reason }}<input name="reason" required maxlength="200"></label>
+  <button class="btn primary">{{ T.apply }}</button>
+</form>
+<form method="post" class="card {% if not blocked %}danger{% endif %}">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="{% if blocked %}unblock{% else %}block{% endif %}">
+  <h2>{% if blocked %}{{ T.unblock }}{% else %}{{ T.block }}{% endif %}</h2>
+  <p class="mut small">{% if blocked %}{{ T.unblock_note }}{% else %}{{ T.block_note }}{% endif %}</p>
+  <label>{{ T.reason }}<input name="reason" required maxlength="200"></label>
+  <button class="btn {% if blocked %}primary{% else %}danger{% endif %}">{% if blocked %}{{ T.unblock }}{% else %}{{ T.block }}{% endif %}</button>
+</form>
+</div>
+<section class="card"><h2>{{ T.credit_history }}</h2>
+{% if ledger %}<div class="tbl"><table><thead><tr><th>{{ T.time }}</th><th>{{ T.delta }}</th><th>{{ T.kind }}</th><th>{{ T.note }}</th></tr></thead><tbody>
+{% for l in ledger %}<tr><td>{{ l.created_at|date:"Y-m-d H:i" }}</td><td class="num {% if l.delta < 0 %}neg{% else %}pos{% endif %}">{{ l.delta }}</td><td>{{ l.reason }}</td><td>{{ l.note }}</td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="empty">{{ T.empty }}</p>{% endif %}
+</section>
+{% endblock %}

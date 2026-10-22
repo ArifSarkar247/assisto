@@ -1,0 +1,29 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_security }}{% endblock %}
+{% block content %}
+{% if error %}<div class="flash warn" role="alert">{{ error }}</div>{% endif %}
+<div class="tiles">
+  <div class="tile"><span>{{ T.twofa }}</span><b class="pos">{{ T.on }}</b><small>{{ enrolled_at|date:"Y-m-d" }}</small></div>
+  <div class="tile"><span>{{ T.codes_left }}</span><b class="{% if codes_left < 3 %}neg{% endif %}">{{ codes_left }}</b></div>
+  <div class="tile"><span>{{ T.idle_timeout }}</span><b>{{ idle_min }} {{ T.min }}</b></div>
+</div>
+<section class="card"><h2>{{ T.sessions }}</h2>
+<div class="tbl"><table><thead><tr><th>{{ T.started }}</th><th>{{ T.last_seen }}</th><th>IP</th><th>{{ T.device }}</th></tr></thead><tbody>
+{% for s in sessions %}<tr><td>{{ s.created_at|date:"Y-m-d H:i" }}{% if s.id == current_id %} <span class="pill ok">{{ T.this_session }}</span>{% endif %}</td><td>{{ s.last_seen|date:"Y-m-d H:i" }}</td><td>{{ s.ip }}</td><td class="small">{{ s.ua|truncatechars:60 }}</td></tr>{% endfor %}
+</tbody></table></div>
+<form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="revoke_others"><button class="btn ghost">{{ T.revoke_others }}</button></form>
+</section>
+<div class="cols">
+<form method="post" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="new_codes">
+  <h2>{{ T.new_codes }}</h2><p class="mut small">{{ T.new_codes_note }}</p>
+  <label>{{ T.code }}<input name="code" inputmode="numeric" maxlength="6" required autocomplete="one-time-code"></label>
+  <button class="btn primary">{{ T.generate }}</button>
+</form>
+<form method="post" class="card danger">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="reset_2fa">
+  <h2>{{ T.reset_2fa }}</h2><p class="mut small">{{ T.reset_2fa_note }}</p>
+  <label>{{ T.password }}<input name="password" type="password" required autocomplete="current-password"></label>
+  <label>{{ T.code_or_recovery }}<input name="code" maxlength="12" required autocomplete="one-time-code"></label>
+  <button class="btn danger">{{ T.reset_2fa }}</button>
+</form>
+</div>
+{% endblock %}
