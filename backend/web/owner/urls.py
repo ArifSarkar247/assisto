@@ -8,6 +8,7 @@ from . import views_sections as V
 from . import views_f1 as F1
 from . import views_pay1 as PAY1   # pay1
 from . import views_t9 as T9
+from . import views_sc1 as SC1   # sc1 app errors
 
 _ASSETS = {"owner.css": "text/css; charset=utf-8",
            "owner.js": "application/javascript; charset=utf-8"}
@@ -60,6 +61,8 @@ urlpatterns = [
     path("users", V.users),
     path("users/<int:pk>", V.user_detail),
     path("reports", V.reports),
+    path("reports/errors", SC1.app_errors),                 # sc1
+    path("reports/errors/<str:fp>", SC1.app_error_detail),  # sc1
     path("audit", V.audit_log),
     path("security", V.security),
     # ---- f1-founders ----

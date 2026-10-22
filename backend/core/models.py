@@ -4141,3 +4141,44 @@ class TurnRelayUsage(models.Model):
     class Meta:
         ordering = ["-at"]
 # ---- /t9-turnscale ----
+
+
+# ---- sc1 ---- app crash / error reports (Owner Admin → Reports → App errors)
+class ClientErrorReport(models.Model):
+    """One scrubbed app error, deduplicated by (fingerprint, user, model, day):
+    a repeat on the same phone the same day only bumps ``count``/``last_at``.
+
+    PRIVACY: ``message``/``frames`` are scrubbed twice (on the phone, then by
+    core.logic.crash_scrub) — no message text, phone numbers, e-mails, URLs,
+    file names or tokens. ``user`` is shown only on the owner-only panel;
+    ``user_hash`` is the opaque tag. Purged 30 days after ``last_at``
+    (purge_l1_retention, hourly)."""
+    fingerprint = models.CharField(max_length=24, db_index=True)
+    day = models.DateField(db_index=True)
+    user = models.ForeignKey(User, null=True, blank=True,
+                             on_delete=models.SET_NULL, related_name="+")
+    user_hash = models.CharField(max_length=16, blank=True, default="")
+    source = models.CharField(max_length=12, default="app")   # app | startup
+    fatal = models.BooleanField(default=False)
+    error_type = models.CharField(max_length=80, blank=True, default="")
+    message = models.CharField(max_length=320, blank=True, default="")
+    frames = models.JSONField(default=list, blank=True)
+    where = models.CharField(max_length=40, blank=True, default="")
+    version = models.CharField(max_length=32, blank=True, default="")
+    build = models.CharField(max_length=16, blank=True, default="", db_index=True)
+    brand = models.CharField(max_length=40, blank=True, default="", db_index=True)
+    manufacturer = models.CharField(max_length=40, blank=True, default="")
+    model = models.CharField(max_length=60, blank=True, default="")
+    android = models.CharField(max_length=16, blank=True, default="")
+    sdk = models.IntegerField(default=0)
+    rom = models.CharField(max_length=24, blank=True, default="")
+    display = models.CharField(max_length=64, blank=True, default="")
+    count = models.IntegerField(default=1)
+    first_at = models.DateTimeField(db_index=True)
+    last_at = models.DateTimeField(db_index=True)
+
+    class Meta:
+        ordering = ["-last_at"]
+        constraints = [models.UniqueConstraint(
+            fields=["fingerprint", "user", "model", "day"], name="sc1_err_dedupe")]
+# ---- /sc1 ----

@@ -20,6 +20,8 @@ import 'home_api.dart';
 import 'widgets/a11y_prefs.dart';
 import 'screens/login_screen.dart';
 import 'crypto/key_wiring.dart';
+import 'diag/crash_boot.dart';
+import 'diag/crash_reporter.dart';
 import 'screens/home_screen.dart';
 import 'screens/language_picker_screen.dart';
 import 'screens/onboarding_screen.dart';
@@ -40,9 +42,14 @@ void main() {
     FlutterError.onError = (details) {
       FlutterError.presentError(details);
       if (kDebugMode) debugPrint('FlutterError: ${details.exceptionAsString()}');
+      // sc1: in-memory capture only (scrubbed + sent after the first frame,
+      // once the user is signed in and past onboarding)
+      CrashReporter.instance
+          .capture(details.exception, details.stack, where: 'flutter');
     };
     PlatformDispatcher.instance.onError = (error, stack) {
       debugPrint('Uncaught (platform): $error');
+      CrashReporter.instance.capture(error, stack, where: 'platform');
       return true; // handled — do not crash
     };
 
@@ -76,6 +83,11 @@ void main() {
     // never reached the home screen, we SKIP all of this and the app still opens.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final safe = await StartupGuard.isSafeMode();
+      // sc1 crash reporting: 4 s after the first frame, guarded; Crashlytics
+      // (Firebase) only outside safe mode, our own server sink always.
+      unawaited(Future<void>.delayed(const Duration(seconds: 4), () async {
+        try { await CrashBoot.start(appState, safeMode: safe); } catch (_) {}
+      }));
       // Notifications (local scheduling) — self-guarded, not a startup blocker.
       try { await Notifications.init(); } catch (_) {}
       // e2-keys: publish the PUBLIC key on every start / login / accept and
@@ -97,6 +109,7 @@ void main() {
       }
     });
   }, (error, stack) {
+    CrashReporter.instance.capture(error, stack, where: 'zone');
     StartupGuard.recordError('$error\n$stack');
     debugPrint('Uncaught (zone): $error\n$stack');
   });

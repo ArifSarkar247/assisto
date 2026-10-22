@@ -8,6 +8,7 @@
   <div class="tile"><span>{{ T.active_30 }}</span><b>{{ users_30 }}</b></div>
 </div>
 <p class="mut small">{{ T.reports_note }}</p>
+<p><a class="btn ghost" href="/owner/reports/errors">{{ T.ae_title }}</a> <span class="mut small">{{ T.ae_link_note }}</span></p>
 {% for b in blocks %}
 <section class="card"><div class="row-between"><h2>{{ b.title }}</h2><b>{{ T.total }}: {{ b.total }}</b></div>
   {% if b.has %}<div class="chartbox">{{ b.chart|safe }}</div>
