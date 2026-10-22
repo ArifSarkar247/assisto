@@ -237,10 +237,6 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                   value: _muted,
                   onChanged: _toggleMute,
                 ),
-                // c2-calls: per-contact ringtone (the phone's own picker)
-                if (_peerId > 0)
-                  SoundPickTile(
-                      kind: SoundPickKind.contact, chatId: '$_peerId'),
                 // Disappearing
                 ListTile(
                   leading: const Icon(Icons.timer_outlined),
@@ -285,6 +281,13 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                       title: Text('${(g is Map ? g['name'] : g) ?? ''}',
                           maxLines: 1, overflow: TextOverflow.ellipsis),
                     ),
+                ],
+
+                // c2-calls: per-contact ringtone (the phone's own picker)
+                if (_peerId > 0) ...[
+                  const Divider(),
+                  SoundPickTile(
+                      kind: SoundPickKind.contact, chatId: '$_peerId'),
                 ],
 
                 const Divider(),
