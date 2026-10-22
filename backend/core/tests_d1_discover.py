@@ -158,7 +158,7 @@ class SeedAndFeedTests(_Base):
         axon = next(c for c in cards if c["key"] == "axon")
         self.assertEqual(axon["url"], "https://axonerpsoftware.com")
         self.assertEqual(cards[0]["route"], "photo_enhance")
-        self.assertEqual(cards[0]["title"]["en"], "Enhance photo")
+        self.assertEqual(cards[0]["title"]["en"], "Photo Studio")  # b2-badges rename (0056)
         self.assertTrue(cards[0]["title"]["bn"])
 
     def test_seed_copy_passes_safety(self):

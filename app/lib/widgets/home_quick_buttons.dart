@@ -48,7 +48,7 @@ class HomeQuickButtons {
     QuickShortcut('budget', Icons.pie_chart_outline, (t) => t.budgetTitle),
     QuickShortcut('money_voice', Icons.mic_none_outlined, (t) => t.mvoiceTitle),
     QuickShortcut('photo_enhance', Icons.auto_fix_high_outlined,
-        (t) => t.homeEnhancePhoto),
+        (t) => t.b2PhotoStudioTitle), // b2: opens Photo Studio
     QuickShortcut('birthdays', Icons.cake_outlined, (t) => t.birthdaysTitle),
     QuickShortcut('meetings', Icons.event_outlined, (t) => t.meetingsTitle),
     QuickShortcut('memory', Icons.psychology_outlined, (t) => t.navMemory),

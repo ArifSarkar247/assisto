@@ -62,6 +62,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     plan_until = models.DateTimeField(null=True, blank=True)      # paid plan expiry
     trial_until = models.DateTimeField(null=True, blank=True)     # 7-day full trial
     is_founder = models.BooleanField(default=False)
+    is_founder = models.BooleanField(default=False)
     #   founder_since None + is_founder  -> legacy LIFETIME founder (plan "founder")
     #   founder_since set  + is_founder  -> Founding Member: badge + free Premium
     #                                       via plan/plan_until (until founder_until)
@@ -3733,6 +3734,21 @@ class RtPresence(models.Model):
                                 related_name="rt_presence")
     seen_at = models.DateTimeField()
 # ---- /c2-calls ----
+
+
+# ---- b2-badges ----
+class NotifBadgeState(models.Model):
+    """b2-badges: per-user badge watermarks (Facebook / WhatsApp style).
+    Opening the notification centre moves `badge_cleared_at` (home bell);
+    showing a tab moves its own watermark. A badge counts only items NEWER
+    than its watermark — except SOS / family alerts, which keep counting
+    until handled. Items stay unread (bold) until tapped individually."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="b2_badge_state")
+    badge_cleared_at = models.DateTimeField(null=True, blank=True)
+    feed_tab_cleared_at = models.DateTimeField(null=True, blank=True)
+    reminders_cleared_at = models.DateTimeField(null=True, blank=True)
+# ---- /b2-badges ----
 
 
 # ---- l1-launch ----

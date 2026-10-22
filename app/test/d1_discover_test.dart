@@ -167,7 +167,7 @@ void main() {
     await _pump(tester, api);
     expect(find.text('Cached product'), findsOneWidget);
     expect(find.text(_t(tester).discoverOurProducts), findsOneWidget);
-    expect(find.text(_t(tester).discoverEnhanceTitle), findsNothing);
+    expect(find.text(_t(tester).b2PhotoStudioTitle), findsNothing);
     await _unmount(tester);
   });
 
@@ -176,7 +176,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final api = _Api()..fail = true;
     await _pump(tester, api);
-    expect(find.text(_t(tester).discoverEnhanceTitle), findsOneWidget);
+    expect(find.text(_t(tester).b2PhotoStudioTitle), findsOneWidget);
     // fallback cards carry no server id -> nothing is tracked
     expect(api.tracked, isEmpty);
     await _unmount(tester);

@@ -3110,20 +3110,12 @@ def _collect_events(user, lang="bn"):
 
 
 def _chat_unread(user):
-    """My Circle unread CHAT count — incoming CircleMessages the user hasn't
-    read. This is the ONLY place chat is counted; it never enters the notif
-    centre feed."""
-    from .models import CircleMessage
-    uid = user.id
-    n = 0
-    from django.db.models import Q
-    # m2-reality: incoming 1:1 messages live on the SENDER's edge (peer_user=me)
-    qs = (CircleMessage.objects.filter(Q(member__user=user) | Q(member__peer_user=user))
-          .exclude(sender=user).exclude(deleted="everyone"))
-    for m in qs.only("read_by").iterator():
-        if uid not in (m.read_by or []):
-            n += 1
-    return n
+    """My Circle unread CHAT count for the home badge. b2-badges: delegated to
+    the ONE shared function the chat list uses (core/b2_badges.py), so the
+    badge always equals the sum the chat list shows and never counts messages
+    the user cannot open. Chat never enters the notif centre feed."""
+    from . import b2_badges as B2
+    return B2.badge_total(user)
 
 
 @api_view(["GET"])
@@ -3138,10 +3130,15 @@ def notif_reminders(request):
     raw = [r for r in raw if r.get("id") not in gone]
     feed = _nc.build_reminders(raw, now)
     counts = {s: len(feed[s]) for s in _nc.SECTIONS}
+    from . import b2_badges as B2
+    marks = B2.watermarks(request.user)
     return Response({
         "now": now.isoformat(),
         "sections": feed,
         "counts": counts,
+        # b2-badges: Reminders-tab badge (due items newer than the tab's
+        # last opening; POST notif/opened {scope: reminders} clears it)
+        "badge": _nc.reminders_badge(feed, now, _dt(marks["reminders"])),
         "snooze_options": list(_nc.SNOOZE_PRESETS),
     })
 
@@ -3188,9 +3185,17 @@ def notif_feed(request):
     events = _collect_events(request.user, lang)
     feed = _nc.build_feed(events, settings_enabled=settings_enabled,
                           type_filter=type_filter)
+    from . import b2_badges as B2
+    marks = B2.watermarks(request.user)
     return Response({
         "items": feed,
         "unseen": _nc.unseen_count(events, settings_enabled=settings_enabled),
+        # b2-badges: Notifications-tab badge + the home bell badge. Items stay
+        # unseen (bold) until tapped; SOS / family alerts always count.
+        "badge": _nc.badge_count(events, _dt(marks["feed"]),
+                                 settings_enabled=settings_enabled),
+        "bell_badge": _nc.badge_count(events, _dt(marks["bell"]),
+                                      settings_enabled=settings_enabled),
         "types": list(_nc.NOTIF_TYPES),
     })
 
@@ -3393,7 +3398,33 @@ def home_badges(request):
     settings_enabled = _notif_settings(request.user)
     events = _collect_events(request.user, req_lang(request))
     chat_unread = _chat_unread(request.user)
-    return Response(_nc.badges(chat_unread, events, settings_enabled=settings_enabled))
+    out = _nc.badges(chat_unread, events, settings_enabled=settings_enabled)
+    # b2-badges: the bell counts only items newer than the last time the
+    # centre was opened (POST notif/opened) + every unhandled SOS/family alert.
+    from . import b2_badges as B2
+    marks = B2.watermarks(request.user)
+    out["notif_unseen"] = _nc.badge_count(
+        events, _dt(marks["bell"]), settings_enabled=settings_enabled)
+    return Response(out)
+
+
+@api_view(["POST"])
+def notif_opened(request):
+    """POST notif/opened {scope: bell|feed|reminders | scopes: [...]} — the
+    notification centre (default: bell) or one of its tabs was opened: that
+    badge clears (watermark = now). Nothing is marked seen; SOS / family
+    alerts keep counting until handled."""
+    from . import b2_badges as B2
+    d = request.data or {}
+    scopes = d.get("scopes") or [d.get("scope") or "bell"]
+    if isinstance(scopes, str):
+        scopes = [scopes]
+    scopes = [s for s in scopes if s in B2.SCOPES]
+    if not scopes:
+        return Response({"ok": False, "error": "bad_scope"},
+                        status=status.HTTP_400_BAD_REQUEST)
+    at = B2.mark_opened(request.user, scopes)
+    return Response({"ok": True, "scopes": scopes, "at": at.isoformat()})
 
 
 # ---------- #67 Selective sharing (SPEC v2.1 §21) — server-enforced consent ----

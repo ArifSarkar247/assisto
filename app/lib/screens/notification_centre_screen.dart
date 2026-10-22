@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -6,6 +7,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../api.dart';
 import '../notif_api.dart';
+import '../messaging/badges_bus.dart';
 import '../widgets/chatnav.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/notif_models.dart';
@@ -30,44 +32,147 @@ import '../widgets/notif_feed_card.dart';
 ///
 /// The backend already applies each module's notification settings; the UI
 /// renders what it is given and does NOT re-filter by settings.
-class NotificationCentreScreen extends StatelessWidget {
+class NotificationCentreScreen extends StatefulWidget {
   const NotificationCentreScreen({super.key});
+
+  @override
+  State<NotificationCentreScreen> createState() =>
+      _NotificationCentreScreenState();
+}
+
+/// b2-badges (Facebook / WhatsApp style): OPENING the centre clears the home
+/// bell badge (POST notif/opened {scope: bell}); SHOWING a tab clears that
+/// tab's badge (scope reminders / feed). Items stay bold until tapped one by
+/// one, and SOS / family alerts keep counting until handled (server rule).
+class _NotificationCentreScreenState extends State<NotificationCentreScreen>
+    with SingleTickerProviderStateMixin {
+  static const _scopes = ['reminders', 'feed'];
+  late final TabController _tabs = TabController(length: 2, vsync: this);
+  final List<ValueNotifier<int>> _badges = [
+    ValueNotifier<int>(0),
+    ValueNotifier<int>(0),
+  ];
+  final Set<int> _cleared = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _tabs.addListener(_onTab);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _opened(const ['bell']);
+      _clearTab(_tabs.index);
+      _peekFeedBadge();
+    });
+  }
+
+  /// TabBarView builds a tab only when it is shown, so the Notifications
+  /// tab's count is fetched once here (the Reminders tab is the first view).
+  Future<void> _peekFeedBadge() async {
+    try {
+      final j = await context.read<AppState>().api.notifFeed();
+      if (!_cleared.contains(1)) _report(1, _asCount(j['badge']));
+    } catch (_) {}
+  }
+
+  @override
+  void dispose() {
+    _tabs.removeListener(_onTab);
+    _tabs.dispose();
+    for (final b in _badges) {
+      b.dispose();
+    }
+    super.dispose();
+  }
+
+  void _onTab() {
+    if (!_tabs.indexIsChanging) _clearTab(_tabs.index);
+  }
+
+  void _clearTab(int i) {
+    _badges[i].value = 0;
+    if (_cleared.add(i)) _opened([_scopes[i]]);
+  }
+
+  /// A tab reports its server badge after loading; the visible tab is
+  /// already being looked at, so it shows none.
+  void _report(int i, int n) {
+    if (!mounted) return;
+    _badges[i].value = _tabs.index == i ? 0 : n;
+  }
+
+  Future<void> _opened(List<String> scopes) async {
+    if (!mounted) return;
+    try {
+      await context.read<AppState>().api.notifOpened(scopes);
+      BadgesBus.instance.poke();
+    } catch (_) {/* offline: the badge clears on the next open */}
+  }
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(t.notifCentreTitle),
-          bottom: TabBar(
-            tabs: [
-              Tab(
-                child: Text(t.notifTabReminders,
-                    maxLines: 1,
-                    softWrap: false,
-                    overflow: TextOverflow.ellipsis),
-              ),
-              Tab(
-                child: Text(t.notifTabNotifications,
-                    maxLines: 1,
-                    softWrap: false,
-                    overflow: TextOverflow.ellipsis),
-              ),
-            ],
-          ),
-        ),
-        body: const TabBarView(
-          children: [
-            _RemindersTab(),
-            _FeedTab(),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(t.notifCentreTitle),
+        bottom: TabBar(
+          controller: _tabs,
+          tabs: [
+            Tab(child: _TabLabel(t.notifTabReminders, _badges[0])),
+            Tab(child: _TabLabel(t.notifTabNotifications, _badges[1])),
           ],
         ),
+      ),
+      body: TabBarView(
+        controller: _tabs,
+        children: [
+          _RemindersTab(onBadge: (n) => _report(0, n)),
+          _FeedTab(onBadge: (n) => _report(1, n)),
+        ],
       ),
     );
   }
 }
+
+/// Tab title + its count bubble (hidden at 0). The title ellipsizes so a
+/// long Bangla label never clips at 360 px / large font.
+class _TabLabel extends StatelessWidget {
+  final String text;
+  final ValueListenable<int> count;
+  const _TabLabel(this.text, this.count);
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return ValueListenableBuilder<int>(
+      valueListenable: count,
+      builder: (_, n, __) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(text,
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.ellipsis),
+          ),
+          if (n > 0) ...[
+            const SizedBox(width: Gap.xs),
+            Badge(
+              key: const ValueKey('notifTabBadge'),
+              backgroundColor: scheme.error,
+              textColor: scheme.onError,
+              label: Text(n > 99
+                  ? '${99}${String.fromCharCode(0x2B)}'
+                  : '$n'),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+int _asCount(Object? v) =>
+    v is num ? v.toInt() : int.tryParse('${v ?? ''}') ?? 0;
 
 /// Shared offline banner shown above cached content.
 class _OfflineNote extends StatelessWidget {
@@ -101,7 +206,8 @@ class _OfflineNote extends StatelessWidget {
 // ===========================================================================
 
 class _RemindersTab extends StatefulWidget {
-  const _RemindersTab();
+  final ValueChanged<int>? onBadge;
+  const _RemindersTab({this.onBadge});
   @override
   State<_RemindersTab> createState() => _RemindersTabState();
 }
@@ -150,6 +256,7 @@ class _RemindersTabState extends State<_RemindersTab>
       final j = await _api.notifReminders();
       await Settings.setString(NotifCache.remindersKey, NotifCache.encode(j));
       if (!mounted) return;
+      widget.onBadge?.call(_asCount(j['badge']));
       setState(() {
         _apply(j);
         _loading = false;
@@ -363,7 +470,8 @@ class _Section extends StatelessWidget {
 // ===========================================================================
 
 class _FeedTab extends StatefulWidget {
-  const _FeedTab();
+  final ValueChanged<int>? onBadge;
+  const _FeedTab({this.onBadge});
   @override
   State<_FeedTab> createState() => _FeedTabState();
 }
@@ -403,6 +511,7 @@ class _FeedTabState extends State<_FeedTab>
       final j = await _api.notifFeed();
       await Settings.setString(NotifCache.feedKey, NotifCache.encode(j));
       if (!mounted) return;
+      widget.onBadge?.call(_asCount(j['badge']));
       setState(() {
         _events = _parse(j);
         _loading = false;

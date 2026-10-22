@@ -6,7 +6,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0055_c3_msg'),
+        ('core', '0056_b2_badges'),
     ]
 
     operations = [

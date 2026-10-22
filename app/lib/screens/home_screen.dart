@@ -5,6 +5,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../home_api.dart';
 import '../l10n/app_localizations.dart';
+import '../messaging/badges_bus.dart';
 import '../widgets/chatnav.dart';
 import '../widgets/home_badge_icon.dart';
 import '../widgets/home_hero.dart';
@@ -55,11 +56,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     // ChatNav) reopens home chats / starts a new one here.
     HomeChatLink.register(onNew: _newChat, onOpen: _openHomeChat);
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadBadges());
+    // b2-badges: re-fetch when a chat / the notification centre was opened
+    // anywhere (drawer, notification tap) or the server pushed badges.update.
+    BadgesBus.instance.tick.addListener(_onBadgesTick);
+  }
+
+  void _onBadgesTick() {
+    if (mounted) _loadBadges();
   }
 
   @override
   void dispose() {
     HomeChatLink.unregister(_newChat);
+    BadgesBus.instance.tick.removeListener(_onBadgesTick);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -142,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           // Studio (owner-approved change, 21 Oct: the old tool is removed).
           IconButton(
             icon: const Icon(Icons.auto_fix_high_outlined),
-            tooltip: t.homeEnhancePhoto,
+            tooltip: t.b2PhotoStudioTitle,
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const PhotoStudioScreen()),

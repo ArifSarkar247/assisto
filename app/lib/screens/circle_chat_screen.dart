@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../api.dart';
+import '../messaging/badges_bus.dart';
 import '../crypto/e2e.dart';
 import '../l10n/app_localizations.dart';
 import '../messenger_chat_api.dart';
@@ -305,6 +306,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     UnreadStore.instance.clear(_chatKey);
     try {
       await _api.c3ChatSeen('member', id);
+      // b2-badges: the home My Circle badge re-fetches from the server.
+      BadgesBus.instance.poke();
     } catch (_) {
     } finally {
       _seenInFlight = false;

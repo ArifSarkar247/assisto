@@ -19,6 +19,7 @@ import '../messenger_group_api.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/circle_group_poll.dart';
+import '../messaging/badges_bus.dart';
 import '../messaging/c3_api.dart';
 import '../messaging/msg_notify.dart';
 import '../messaging/msg_ticks.dart';
@@ -134,6 +135,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     UnreadStore.instance.clear(_chatKey);
     try {
       await _api.c3ChatSeen('group', _gid);
+      BadgesBus.instance.poke(); // b2-badges: home badge re-fetch
     } catch (_) {
       // Retried on the next poll tick / reopen; the local badge is already 0.
     }

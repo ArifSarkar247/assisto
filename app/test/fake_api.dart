@@ -774,7 +774,7 @@ class FakeApi extends ApiClient {
       if (mode == FakeMode.fail) _fail();
       final b=_bn;
       Map<String,dynamic> it(id,ttl_bn,ttl_en,sec,route)=>{'id':id,'source_module':route,'title':{'bn':ttl_bn,'en':ttl_en},'when':'2026-10-14T18:00:00','section':sec,'route':route,'actions':['done','snooze','open']};
-      return {'now':'2026-10-14T09:00:00','snooze_options':['15m','1h','tomorrow','custom'],'counts':{'today':2,'upcoming':1,'missed':1},'sections':{
+      return {'now':'2026-10-14T09:00:00','badge':1,'snooze_options':['15m','1h','tomorrow','custom'],'counts':{'today':2,'upcoming':1,'missed':1},'sections':{
         'missed':[it('reminder:1','গতকালের ওষুধ মিস','Missed yesterday\'s medicine','missed','family')],
         'today':[it('reminder:2','দুপুরের ওষুধ','Noon medicine','today','family'),it('sub:3','নেটফ্লিক্স নবায়ন ৳৫০০','Netflix renews ৳500','today','subscriptions')],
         'upcoming':[it('meeting:4','ক্লায়েন্ট মিটিং','Client meeting','upcoming','meetings')]}};
@@ -783,7 +783,7 @@ class FakeApi extends ApiClient {
       if (mode == FakeMode.fail) _fail();
       final b=_bn;
       Map<String,dynamic> ev(id,type,title,bd_bn,bd_en,seen,route)=>{'id':id,'type':type,'title':{'bn':title,'en':title},'body':{'bn':bd_bn,'en':bd_en},'at':'2026-10-14T08:30:00','seen':seen,'route':route};
-      return {'unseen':3,'types':['circle_request','family_alert','business','security'],'items':[
+      return {'unseen':3,'badge':2,'bell_badge':0,'types':['circle_request','family_alert','business','security'],'items':[
         ev('notif:1','circle_request',b?'নতুন সার্কেল রিকোয়েস্ট':'New circle request','করিম যুক্ত হতে চান','Karim wants to connect',false,'circle'),
         ev('notif:2','family_alert',b?'পরিবার সতর্কতা':'Family alert','আম্মু ওষুধ মিস করেছেন','Mom missed a dose',false,'family'),
         ev('notif:3','business',b?'নতুন অর্ডার':'New order','৩টি নতুন অর্ডার','3 new orders',true,'business'),

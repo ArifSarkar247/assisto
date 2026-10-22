@@ -265,7 +265,11 @@ def mark_chat_seen(user, kind, chat_id):
     if rows is None:
         return None
     set_marked_unread(user, kind, chat_id, False)
-    return mark(user, rows, seen=True)
+    n = mark(user, rows, seen=True)
+    # b2-badges: my other devices' home badge refreshes at once.
+    from . import b2_badges as B2
+    B2.publish([user.id], "seen")
+    return n
 
 
 def set_marked_unread(user, kind, chat_id, on):
@@ -443,8 +447,8 @@ def group_rows(user):
         g = gm.group
         msgs = visible_group_messages(g, user)
         last = msgs[-1] if msgs else None
-        unread = sum(1 for x in msgs if x.sender_id != user.id
-                     and user.id not in (x.read_by or []))
+        from . import b2_badges as B2   # the ONE shared unread count
+        unread = B2.count_unread(user, msgs)
         env = None
         if last is not None:
             env = envelope_for(user, last, {"group": g, "my_gm_id": gm.id})

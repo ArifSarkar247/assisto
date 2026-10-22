@@ -17,6 +17,7 @@ import 'push_binding.dart';
 import 'push_bridge.dart';
 import 'push_notifier.dart';
 import 'push_payload.dart';
+import '../messaging/badges_bus.dart';
 import '../messaging/c3_api.dart';
 import '../messaging/chat_opener.dart';
 import '../messaging/msg_native.dart';
@@ -174,6 +175,8 @@ class PushService {
             CallRuntime.instance.transportFor(app),
             get: (p) => app.api.getJson(p)));
       }
+      // b2-badges: `badges.update` on the same loop refreshes the home icons.
+      BadgesBus.instance.attach(CallRuntime.instance.transportFor(app).events);
     } catch (_) {}
     unawaited(_syncReceipts());
     final pc = _pendingChat;

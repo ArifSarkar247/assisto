@@ -88,6 +88,12 @@ extension NotifApi on ApiClient {
   Future<Map<String, dynamic>> notifSeen(String id) =>
       postJson('/notif/$id/seen', const {});
 
+  /// POST /notif/opened {scopes: [bell|feed|reminders]} — b2-badges: the
+  /// centre (bell) or a tab was opened → that BADGE clears (server watermark).
+  /// Nothing is marked seen; SOS / family alerts keep counting until handled.
+  Future<Map<String, dynamic>> notifOpened(List<String> scopes) =>
+      postJson('/notif/opened', {'scopes': scopes});
+
   /// POST /notif/read-all — mark every feed event as seen.
   Future<Map<String, dynamic>> notifReadAll() =>
       postJson('/notif/read-all', const {});

@@ -68,7 +68,7 @@ List<Map<String, dynamic>> _seed() {
         'title': {'bn': tbn, 'en': ten}, 'description': {'bn': dbn, 'en': den},
         'icon': icon, 'image_url': '', 'route': route, 'url': url};
   return [
-    c(1, 'photo_enhance', 'FEATURE', 'auto_fix_high', 'photo_enhance', '', 'ছবি উন্নত করুন', 'Enhance photo',
+    c(1, 'photo_enhance', 'FEATURE', 'auto_fix_high', 'photo_enhance', '', 'ফটো স্টুডিও', 'Photo Studio',
         'যেকোনো ছবি কয়েক সেকেন্ডে পরিষ্কার ও উজ্জ্বল করুন।', 'Sharpen and brighten any photo in seconds.'),
     c(2, 'phone_safety', 'FEATURE', 'phonelink_lock', 'phone_safety', '', 'চুরি-প্রতিরোধ', 'Anti-theft',
         'ফোন হারালে বা চুরি হলে সুরক্ষিত রাখুন।', 'Protect your phone if it is lost or stolen.'),
@@ -92,7 +92,7 @@ List<Map<String, dynamic>> fakeDiscoverAdminCards() {
   return [
     a(20, 'SPONSORED', 'ফ্রেশ মার্কেট', 'Fresh Market', 'shopping_bag', url: 'https://shop.example.com',
         audience: 'free', imp: 2380, clk: 81, sponsor: 'Fresh Market Ltd', rev: 5000),
-    a(1, 'FEATURE', 'ছবি উন্নত করুন', 'Enhance photo', 'auto_fix_high', route: 'photo_enhance', imp: 940, clk: 57),
+    a(1, 'FEATURE', 'ফটো স্টুডিও', 'Photo Studio', 'auto_fix_high', route: 'photo_enhance', imp: 940, clk: 57),
     a(2, 'FEATURE', 'চুরি-প্রতিরোধ', 'Anti-theft', 'phonelink_lock', route: 'phone_safety', imp: 812, clk: 33),
     a(9, 'OUR_PRODUCT', 'Asalify', 'Asalify', 'storefront', url: 'https://asalify.com', imp: 650, clk: 21),
     a(30, 'ADMOB', '', '', 'campaign', enabled: false, live: false, audience: 'free'),

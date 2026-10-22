@@ -12,6 +12,7 @@ import '../config.dart';
 import '../crypto/e2e.dart';
 import '../l10n/app_localizations.dart';
 import '../push/push_payload.dart';
+import 'badges_bus.dart';
 import 'msg_prefs.dart';
 
 /// c3-msg — WhatsApp-style message notifications, built ON THE DEVICE.
@@ -518,6 +519,7 @@ class MsgPushHandler {
   Future<void> markRead(String kind, int id) async {
     try {
       await backend.seen(kind, id);
+      BadgesBus.instance.poke(); // b2-badges
     } catch (_) {}
     await sink.cancel(kind, id);
   }
