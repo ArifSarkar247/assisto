@@ -3,11 +3,11 @@
 ## MASTER ORDER 22 Oct (single source of truth; earlier orders below are history)
 Rules: max parallel agents (own worktree each), heavy cmds via lock, ship each part immediately, deploy each backend after checks (standing approval), max 1 h on CI problems (gate = release cold start + backend tests + route_check; note missing proof), commit hourly, never idle, blockers in Bangla at top of STATUS, 3 Bangla lines per build.
 
-1. [IN CI] My Circle like WhatsApp (add any format/phonebook/QR/link, requests, messages, voice+video calls, FCM ringing closed app) + settings-store release fix + Phone Safety spinner fix. MISSING PROOF: native tour + two-account emulator audit (hosted emulator wedges adb) — re-run when CI stable.
+1. [SHIPPED build 176 + backend deployed] My Circle like WhatsApp (add any format/phonebook/QR/link, requests, messages, voice+video calls, FCM ringing closed app) + settings-store release fix + Phone Safety spinner fix. MISSING PROOF: native tour + two-account emulator audit (hosted emulator wedges adb) — re-run when CI stable.
 2. [DONE 22 Oct] Owner account: owner confirmed id 3 (Arif, 01784056199) → superuser + staff (backup first, AuditLog entry). Superusers: Owner (13) + id 3.
 3. [BUILT, in builds] OTP flow (provider-agnostic, key-gated) + owner_actions/SMS_GATEWAY_NEEDS.md (Bangla). Needs SMS gateway keys.
 4. [READY branch voice] Voice assistant: default assistant (long-press power), optional Hey Assisto (needs Picovoice key), YouTube/YT Music, hands-free, TTS, bn/Banglish/en.
-5. [READY branch admin] Web Owner Admin Panel /owner/ (superuser + 2FA) — deploy right after #1.
+5. [LIVE 22 Oct] Web Owner Admin Panel https://api.lifeassisto.com/owner/ (migration 0051_o2; login steps in STATUS, Bangla).
 6. [READY photo / agent h1-home] Photo Studio + home ad hero (remove suggestions, muted hero) + image in chat.
 7. [READY vehicle + webphoto] Vehicle app part (live map, 24h playback, engine cut-off rules, geofence/over-speed, OBD, Car Mode) — verify completeness; website passport funnel.
 8. [NOT IN THIS SESSION] Remote support — owner's full spec saved in .phaseB/REMOTE_SUPPORT_SPEC.md; the first launch here was stopped by a safety system before it ran, so it must be built in a separate session.
