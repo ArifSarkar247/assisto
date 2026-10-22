@@ -247,7 +247,7 @@ void main() {
     expect(await ok.saveProfile({'fall_detect': true}), isTrue);
   });
 
-  testWidgets('chat extras: only real tools, one honest "not yet" note',
+  testWidgets('chat extras: only real tools, no "not yet" row',
       (tester) async {
     await _pump(
         tester,
@@ -258,7 +258,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.text(_en.circleExtrasDisappearing), findsWidgets);
     expect(find.byKey(const ValueKey('q1-extras-export')), findsOneWidget);
-    expect(find.byKey(const ValueKey('q1-extras-not-yet')), findsOneWidget);
+    expect(find.byKey(const ValueKey('q1-extras-not-yet')), findsNothing);
     for (final gone in [
       _en.circleExtrasScheduled,
       _en.circleExtrasBroadcast,

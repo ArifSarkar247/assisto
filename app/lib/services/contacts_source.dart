@@ -1,9 +1,10 @@
 /// c1-contacts — the phonebook behind an interface, so the screen never
 /// pretends it read contacts it could not read.
 ///
-/// * [UnavailableContactsSource] (this build): `available == false`. The
-///   screen says honestly that reading the phonebook arrives in the next
-///   update and offers find-by-number instead. It never returns fake rows.
+/// * [UnavailableContactsSource] (fallback when the real reader can't be
+///   created): `available == false`. The screen says plainly that it couldn't
+///   read contacts on this phone and offers find-by-number instead. It never
+///   returns fake rows and never promises a future update.
 /// * `DeviceContactsSource` (flutter_contacts + READ_CONTACTS, now bundled —
 ///   q1-seams 22 Oct: the old "integrator adds" note was stale). It is the
 ///   default [ContactsSource.factory]. It is created lazily on the

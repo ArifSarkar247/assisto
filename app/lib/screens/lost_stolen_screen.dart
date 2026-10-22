@@ -57,7 +57,6 @@ class _LostStolenScreenState extends State<LostStolenScreen>
   static const _kAlarm = 'ls_action_alarm';
   static const _kMessage = 'ls_action_message';
   static const _kLocate = 'ls_action_locate';
-  static const _kSmsSeam = 'ls_sms_trigger'; // gated seam, off by default
   static const _kOwnerName = 'ls_owner_name';
   static const _kOwnerPhone = 'ls_owner_phone';
   static const _kLostMsg = 'ls_lost_message';
@@ -73,7 +72,6 @@ class _LostStolenScreenState extends State<LostStolenScreen>
   bool _alarm = true;
   bool _message = true;
   bool _locate = true;
-  bool _smsSeam = false;
 
   String _ownerName = '';
   String _ownerPhone = '';
@@ -104,7 +102,6 @@ class _LostStolenScreenState extends State<LostStolenScreen>
     _alarm = await Settings.getBool(_kAlarm, true);
     _message = await Settings.getBool(_kMessage, true);
     _locate = await Settings.getBool(_kLocate, true);
-    _smsSeam = await Settings.getBool(_kSmsSeam, false);
     _ownerName = await Settings.getString(_kOwnerName) ?? '';
     _ownerPhone = await Settings.getString(_kOwnerPhone) ?? '';
     _lostMsg = await Settings.getString(_kLostMsg) ?? '';
@@ -794,17 +791,10 @@ class _LostStolenScreenState extends State<LostStolenScreen>
             const SizedBox(height: Gap.xs),
             Text(tr.lostStolenTriggersBody,
                 style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: Gap.sm),
-            // SMS-command trigger is a SEAM: it needs a separate native SMS
-            // BroadcastReceiver (RECEIVE_SMS). That receiver is NOT shipped in
-            // this build, so the toggle is honestly marked "coming soon" and
-            // disabled — never pretend remote SMS control is live.
-            SwitchListTile(
-              value: _smsSeam,
-              title: Text(tr.lostStolenSmsTrigger),
-              subtitle: Text(tr.lostStolenSmsTriggerSoon),
-              onChanged: null, // gated: native SMS receiver not shipped yet
-            ),
+            // SMS-command trigger needs a separate native SMS
+            // BroadcastReceiver (RECEIVE_SMS) that is NOT shipped. NO
+            // SHOWPIECES: the disabled "coming soon" toggle is hidden until
+            // the receiver ships — never pretend remote SMS control is live.
           ],
         ),
       ),

@@ -254,20 +254,7 @@ class LinkedDevicesCard extends StatelessWidget {
           title: Text(t.circleExtrasLinkDevice),
           onTap: onLink,
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.md),
-          child: Row(
-            children: [
-              Icon(Icons.public_off, size: 14, color: scheme.onSurfaceVariant),
-              const SizedBox(width: Gap.xs),
-              Expanded(
-                child: Text(t.circleExtrasWebAfterMobile,
-                    style: TextStyle(
-                        fontSize: 11, color: scheme.onSurfaceVariant)),
-              ),
-            ],
-          ),
-        ),
+        const SizedBox(height: Gap.md),
       ],
     );
   }

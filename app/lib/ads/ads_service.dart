@@ -164,6 +164,32 @@ class AdsService with WidgetsBindingObserver {
     }
   }
 
+  /// NO SHOWPIECES: whether a rewarded ad could really play on [screen] right
+  /// now (server config on + a usable unit). Callers hide their "watch an ad"
+  /// entry point while this is false instead of opening an "ads aren't set up"
+  /// sheet. Never throws; no SDK work.
+  Future<bool> rewardedAvailable(AppState app,
+      {String screen = 'credits'}) async {
+    _app ??= app;
+    try {
+      final cfg = await refreshConfig();
+      final d = AdRules.decide(
+        kind: AdKind.rewarded,
+        screen: screen,
+        config: cfg,
+        now: DateTime.now(),
+        loggedIn: app.loggedIn,
+        userOptedIn: true,
+      );
+      return d.allowed &&
+          cfg.unitFor(AdKind.rewarded,
+                  builtAppId: builtAppId, testMode: testMode) !=
+              null;
+    } catch (_) {
+      return false;
+    }
+  }
+
   static String _day(DateTime t) =>
       '${t.year}-${t.month.toString().padLeft(2, '0')}-${t.day.toString().padLeft(2, '0')}';
 

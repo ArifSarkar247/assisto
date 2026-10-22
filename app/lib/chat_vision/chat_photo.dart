@@ -239,10 +239,14 @@ class _AnswerCard extends StatelessWidget {
             children: c.phase == CvPhase.reading
                 ? [_Busy(text: t.h1PhotoReading)]
                 : [
-                    _onDevice(context, t, scheme),
-                    const SizedBox(height: Gap.md),
-                    Divider(height: 1, color: scheme.outlineVariant),
-                    const SizedBox(height: Gap.md),
+                    // NO SHOWPIECES: no on-device reader in this app -> no
+                    // "isn't in this version yet" block, just the answer.
+                    if (c.reading.status != OnDeviceStatus.unavailable) ...[
+                      _onDevice(context, t, scheme),
+                      const SizedBox(height: Gap.md),
+                      Divider(height: 1, color: scheme.outlineVariant),
+                      const SizedBox(height: Gap.md),
+                    ],
                     _detailed(context, t, scheme),
                   ],
           ),
@@ -256,14 +260,6 @@ class _AnswerCard extends StatelessWidget {
     final title = Text(t.h1OnDeviceTitle,
         style: TextStyle(fontWeight: FontWeight.w700, color: scheme.onSurface));
     final r = c.reading;
-    if (r.status == OnDeviceStatus.unavailable) {
-      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        title,
-        const SizedBox(height: Gap.xs),
-        Text(t.h1OnDeviceUnavailable,
-            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
-      ]);
-    }
     if (r.status == OnDeviceStatus.failed) {
       return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         title,

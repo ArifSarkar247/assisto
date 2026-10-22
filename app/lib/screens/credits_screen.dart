@@ -9,6 +9,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/storage_meter.dart';
 import '../widgets/rewarded_ad_sheet.dart';
+import '../ads/ads_service.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 
 /// Taka sign (U+09F3) via code point so no Bangla-block literal lives in source
@@ -46,6 +47,9 @@ class _CreditsScreenState extends State<CreditsScreen> {
   Map<String, dynamic> _usage = const {}; // me/usage-summary
   Map<String, dynamic> _history = const {}; // credits/history
   List<Map<String, dynamic>> _packs = const [];
+  // NO SHOWPIECES: the "watch an ad" entry shows only when a rewarded ad can
+  // really play (AdMob configured server-side).
+  bool _adsReady = false;
 
   @override
   void initState() {
@@ -72,6 +76,10 @@ class _CreditsScreenState extends State<CreditsScreen> {
       _packs = (res[2] as List).cast<Map<String, dynamic>>();
     } catch (_) {
       _error = true;
+    }
+    if (mounted) {
+      _adsReady = await AdsService.instance
+          .rewardedAvailable(context.read<AppState>());
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -237,7 +245,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
           for (final p in _packs) _packCard(t, scheme, p),
 
         // FREE users: honest "earn via ads" option.
-        if (_isFree) ...[
+        if (_adsReady && _isFree) ...[
           const SizedBox(height: Gap.sm),
           OutlinedButton.icon(
             onPressed: _buying ? null : _watchAds,
@@ -246,7 +254,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
             style: OutlinedButton.styleFrom(
                 minimumSize: const Size.fromHeight(46)),
           ),
-        ] else ...[
+        ] else if (_adsReady) ...[
           // Premium/Business: NO ads — unless the user opts in here.
           const SizedBox(height: Gap.sm),
           Card(

@@ -11,8 +11,9 @@ import 'battery_guidance_screen.dart';
 import '../voice/va_wake.dart';
 
 /// Assisto Voice settings: make Assisto the phone's default digital
-/// assistant, the optional "Hey Assisto" wake word (OFF by default, key-gated,
-/// honest about battery/privacy), and spoken replies.
+/// assistant, the optional "Hey Assisto" wake word (OFF by default, honest
+/// about battery/privacy — HIDDEN until [VaWake.shipped] and the engine is
+/// really ready on this phone), and spoken replies.
 class VoiceAssistantSettingsScreen extends StatefulWidget {
   /// Gallery/tests: skip native + network probes.
   final bool debugStatic;
@@ -169,8 +170,10 @@ class _VoiceAssistantSettingsScreenState
         children: [
           _defaultCard(scheme),
           const SizedBox(height: Gap.lg),
-          _wakeCard(scheme),
-          const SizedBox(height: Gap.lg),
+          if (_showWake) ...[
+            _wakeCard(scheme),
+            const SizedBox(height: Gap.lg),
+          ],
           _ttsCard(scheme),
           const SizedBox(height: Gap.lg),
           _musicCard(scheme),
@@ -292,30 +295,40 @@ class _VoiceAssistantSettingsScreenState
             child: Text('${t.vaDefColorOs}\n\n${t.vaDefPowerNote}',
                 style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
           ),
-          const SizedBox(height: Gap.md),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: !_native && !widget.debugStatic
-                  ? () => _snack(t.vaNeedsUpdate)
-                  : () async {
-                      final ok = await VaNative.openAssistantSettings();
-                      if (!ok) _snack(t.vaNeedsUpdate);
-                    },
-              icon: const Icon(Icons.open_in_new),
-              label: Text(t.vaDefOpenSettings),
+          // NO SHOWPIECES: without the native bridge the button could only
+          // say "needs an update" -> hide it; the steps above still guide.
+          if (_native || widget.debugStatic) ...[
+            const SizedBox(height: Gap.md),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: () async {
+                  final ok = await VaNative.openAssistantSettings();
+                  if (!ok) _snack(t.vaSettingsOpenFailed);
+                },
+                icon: const Icon(Icons.open_in_new),
+                label: Text(t.vaDefOpenSettings),
+              ),
             ),
-          ),
+          ],
         ]);
   }
+
+  /// NO SHOWPIECES: the wake-word card shows only when the feature has
+  /// shipped AND it can really be switched on (or is running) on this phone.
+  /// Key missing / engine missing / still checking -> no card at all.
+  bool get _showWake =>
+      VaWake.shipped &&
+      (_wake == _Wake.ready ||
+          _wake == _Wake.running ||
+          _wake == _Wake.error);
 
   Widget _wakeCard(ColorScheme scheme) {
     final running = _wake == _Wake.running;
     final canToggle = running || _wake == _Wake.ready;
     final note = switch (_wake) {
       _Wake.loading => t.vaWakeChecking,
-      _Wake.keyMissing => t.vaWakeComing,
-      _Wake.engineMissing => t.vaWakeEngineMissing,
+      _Wake.keyMissing || _Wake.engineMissing => t.vaWakeEngineMissing,
       _Wake.ready => t.vaWakeOffNote,
       _Wake.running => t.vaWakeOnNote,
       _Wake.error => t.vaWakeStartFailed,
@@ -391,7 +404,7 @@ class _VoiceAssistantSettingsScreenState
             child: TextButton.icon(
               onPressed: () async {
                 final ok = await VaNative.openTtsSettings();
-                if (!ok) _snack(t.vaNeedsUpdate);
+                if (!ok) _snack(t.vaSettingsOpenFailed);
               },
               icon: const Icon(Icons.download_outlined),
               label: Text(t.vaTtsInstallBn),

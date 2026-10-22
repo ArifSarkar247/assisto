@@ -39,10 +39,12 @@ import 'connection_requests_screen.dart';
 /// * Re-sync on pull-to-refresh and whenever [ContactsSource.changes] fires.
 /// * Find-by-number (/messenger/contacts/lookup) accepts ANY format.
 ///
-/// HONESTY: the phonebook comes from a [ContactsSource]. This build ships the
-/// [UnavailableContactsSource] (no contacts plugin yet), so the screen says
-/// "reading the phonebook arrives in the next update" and offers search by
-/// number — it never pretends it read the phonebook.
+/// HONESTY: the phonebook comes from a [ContactsSource] (the real
+/// flutter_contacts reader since build 176). Only when this phone truly can't
+/// open its contacts (no reader, or the OS/plugin refused to start it) the
+/// screen says so plainly ("couldn't read contacts on this phone") and offers
+/// search by number — it never pretends it read the phonebook and never
+/// promises a future update (NO SHOWPIECES rule).
 class ContactsScreen extends StatefulWidget {
   const ContactsScreen({super.key, this.source, this.title, this.header});
 
@@ -79,6 +81,10 @@ class _ContactsScreenState extends State<ContactsScreen> {
   CmProgress _progress = const CmProgress(phase: CmPhase.reading);
   bool _syncing = false;
   bool _synced = false; // the phonebook was really read at least once
+  // The reader exists but the OS/plugin could not start it on this phone
+  // (status/request came back `unavailable`). Shown as an honest reason
+  // instead of an Allow button that would loop.
+  bool _cantRead = false;
 
   // Hashing contract (from the server).
   String _salt = '';
@@ -145,6 +151,11 @@ class _ContactsScreenState extends State<ContactsScreen> {
     if (!mounted) return;
     if (st == ContactsPermission.granted) {
       await _sync();
+    } else if (st == ContactsPermission.unavailable) {
+      setState(() {
+        _cantRead = true;
+        _stage = CmStage.results;
+      });
     } else {
       setState(() => _stage = CmStage.disclosure);
     }
@@ -170,7 +181,10 @@ class _ContactsScreenState extends State<ContactsScreen> {
       case ContactsPermission.permanentlyDenied:
         setState(() => _stage = CmStage.denied);
       case ContactsPermission.unavailable:
-        setState(() => _stage = CmStage.results);
+        setState(() {
+          _cantRead = true;
+          _stage = CmStage.results;
+        });
     }
   }
 
@@ -789,14 +803,14 @@ class _ContactsScreenState extends State<ContactsScreen> {
       if (widget.header != null) widget.header!,
       _searchBar(),
       if (searchCard != null) searchCard,
-      if (!_source.available)
+      if (!_source.available || _cantRead)
         C1InfoBanner(
           key: const Key('c1-unavailable'),
-          icon: Icons.update,
-          title: t.c1PhonebookNextUpdateTitle,
-          body: t.c1PhonebookNextUpdateBody,
+          icon: Icons.contacts_outlined,
+          title: t.c1PhonebookCantReadTitle,
+          body: t.c1PhonebookCantReadBody,
         ),
-      if (_source.available && !_synced)
+      if (_source.available && !_cantRead && !_synced)
         Padding(
           padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
           child: OutlinedButton.icon(
@@ -853,7 +867,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
       physics: const AlwaysScrollableScrollPhysics(),
       children: children,
     );
-    if (!_source.available) return list;
+    if (!_source.available || _cantRead) return list;
     return RefreshIndicator(onRefresh: _sync, child: list);
   }
 }

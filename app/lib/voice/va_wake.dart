@@ -45,6 +45,15 @@ class VaWakeConfig {
 class VaWake {
   VaWake._();
 
+  /// NO SHOWPIECES (owner rule, round 2 item 4e): the "Hey Assisto" wake word
+  /// stays HIDDEN until the wake-word build ships a working engine. The
+  /// wake-word branch flips this to `true` (or builds with
+  /// `--dart-define=ASSISTO_WAKE_WORD=true`). Even then the settings card only
+  /// appears when the engine + server config are really ready on this phone —
+  /// never a "coming soon" row.
+  static const bool shipped =
+      bool.fromEnvironment('ASSISTO_WAKE_WORD', defaultValue: false);
+
   static const prefKey = 'va_wake_on'; // bool, default false
   static const ttsKey = 'va_tts_on'; // bool, default true
 

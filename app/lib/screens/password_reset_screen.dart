@@ -153,17 +153,17 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
               selected: _channel == RecoveryChannel.email,
               onTap: () => setState(() => _channel = RecoveryChannel.email),
             ),
-            ResetChannelTile(
-              key: const Key('reset-sms-tile'),
-              channel: RecoveryChannel.sms,
-              available: _smsReady, // 🔑 only when the SMS gateway is connected
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => OtpResetScreen(backend: widget.otpBackend))),
-            ),
-            const ResetChannelTile(
-              channel: RecoveryChannel.securityQuestion,
-              available: false, // honest: not configured for this account yet
-            ),
+            // NO SHOWPIECES: SMS reset is listed only once the owner has
+            // connected an SMS gateway; the security-question channel has no
+            // setup flow yet, so it is not listed at all (no locked rows).
+            if (_smsReady)
+              ResetChannelTile(
+                key: const Key('reset-sms-tile'),
+                channel: RecoveryChannel.sms,
+                available: true,
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => OtpResetScreen(backend: widget.otpBackend))),
+              ),
             const SizedBox(height: 16),
 
             // ---- email entry (the one working channel) ----

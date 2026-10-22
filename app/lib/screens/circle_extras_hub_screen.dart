@@ -195,15 +195,8 @@ class _CircleExtrasHubScreenState extends State<CircleExtrasHubScreen> {
                 ),
                 const Divider(),
 
-                // --- honest: what is NOT available yet (q1-seams) ---
-                ListTile(
-                  key: const ValueKey('q1-extras-not-yet'),
-                  leading: Icon(Icons.hourglass_empty_outlined,
-                      color: scheme.onSurfaceVariant),
-                  title: Text(t.q1ExtrasNotYetTitle),
-                  subtitle: Text(t.q1ExtrasNotYetBody,
-                      style: const TextStyle(fontSize: 12)),
-                ),
+                // NO SHOWPIECES: tools that don't work yet are simply not
+                // listed (no "not available yet" row).
 
                 Padding(
                   padding: const EdgeInsets.all(Gap.lg),

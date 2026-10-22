@@ -2861,6 +2861,14 @@ class BusinessModelV2Tests(APITestCase):
         p200 = next(p for p in r.data["packs"] if p["id"] == "p200")
         self.assertEqual(p200["credits"], 240)
         self.assertEqual(p200["valid_months"], 12)
+        # NO SHOWPIECES: no payment provider -> the app hides buy buttons
+        self.assertIs(r.data["purchasable"], False)
+
+    def test_packs_purchasable_once_provider_connected(self):
+        self._enable("bkash")
+        self.client.force_authenticate(self.u)
+        r = self.client.get("/api/v1/credits/packs")
+        self.assertIs(r.data["purchasable"], True)
 
     # ---- topup: honest no-provider + confirmed grant with 12mo expiry -----
     def test_topup_needs_provider_when_none_configured(self):

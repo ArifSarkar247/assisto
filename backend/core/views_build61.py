@@ -288,11 +288,19 @@ class HomeDefaultsView(APIView):
 # Business Model — Build 2: credit top-up / history / packs + ad wallet
 # ===========================================================================
 class CreditPacksView(APIView):
-    """GET /credits/packs -> the purchasable credit packs from PricingConfig."""
+    """GET /credits/packs -> the purchasable credit packs from PricingConfig.
+
+    NO SHOWPIECES: `purchasable` is true only when top-ups are switched on AND
+    a payment provider is connected (Admin -> Integrations). The app hides the
+    pack buttons while it is false instead of offering a buy button that can
+    only answer "payment setup pending"."""
     def get(self, request):
         from . import billing
+        purchasable = bool(billing.flag_on("topups_enabled")
+                           and billing.enabled_payment_provider())
         return Response({"packs": billing.cfg()["topup_packs"],
-                         "credit_bdt": billing.cfg()["credit_bdt"]})
+                         "credit_bdt": billing.cfg()["credit_bdt"],
+                         "purchasable": purchasable})
 
 
 class CreditHistoryView(APIView):
