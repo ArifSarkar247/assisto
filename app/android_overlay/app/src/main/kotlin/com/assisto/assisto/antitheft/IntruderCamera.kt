@@ -2,39 +2,53 @@ package com.assisto.assisto.antitheft
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.ImageFormat
+import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraManager
+import android.hardware.camera2.CaptureRequest
+import android.media.ImageReader
 import android.os.Build
+import android.os.Handler
+import android.os.HandlerThread
+import android.os.Looper
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
+import android.util.Size
 import java.io.File
+import java.security.KeyStore
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
+import javax.crypto.spec.GCMParameterSpec
 
 /**
- * b6-antitheft — one front-camera intruder photo, NO preview UI.
+ * b6-antitheft — ONE front-camera intruder photo, no preview UI, plain
+ * Camera2 (platform API: no CameraX, no new Gradle dependency, no
+ * androidx.startup provider).
  *
- * HONEST ANDROID LIMITS (documented, not worked around):
- *   * Android 9+ (API 28+) blocks camera access from the background for normal
- *     apps. A no-preview capture only works when our process is in the
- *     foreground — which here means right after the user (or a thief) brought
- *     a screen up, or while our own activity/foreground path is visible.
- *     On modern locked phones a silent background photo is NOT possible; we
- *     report that to the server as kind=failed_unlock (no photo) and the UI
- *     says so. We never pretend a photo was taken.
- *   * We use CameraX ImageCapture with no PreviewView. CameraX is loaded by
- *     REFLECTION so this file compiles and the app runs whether or not the
- *     `androidx.camera:*` dependency is in the Gradle build (see the proposal).
- *     Without it, [available] is false and callers fall back honestly.
+ * WHEN it runs: only from the running, user-opted-in AntiTheftService, on its
+ * worker thread, after the device-admin receiver reported the owner's chosen
+ * number of wrong unlock attempts (onPasswordFailed). Never at launch, never on
+ * boot, never on the main thread.
  *
- * The returned file holds raw JPEG bytes; the caller encrypts/queues it. The
- * server stores it encrypted at rest and only the owner + approved family can
- * ever see it.
+ * WHY it can work on a locked phone: Android 11+ only lets an app use the
+ * camera from the background while a foreground service that declared the
+ * CAMERA type is running AND was started while the app was visible. The
+ * service adds that type only when the owner switched "Intruder photo" on and
+ * granted the camera permission (from the open app). If either is missing,
+ * [canAttempt] is false and the caller records a photo-less failed_unlock —
+ * we never pretend a photo was taken. Vendor ROMs may still refuse the camera
+ * (the open fails / times out): that also returns null.
+ *
+ * Every step is try/catch + timed out; all camera objects are closed in
+ * `finally`. A failure here can never crash the service or the lock screen.
  */
 object IntruderCamera {
-
-    fun available(): Boolean = try {
-        Class.forName("androidx.camera.lifecycle.ProcessCameraProvider")
-        Class.forName("androidx.camera.core.ImageCapture")
-        true
-    } catch (_: Throwable) {
-        false
-    }
 
     fun hasFrontCamera(ctx: Context): Boolean = try {
         ctx.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)
@@ -42,83 +56,238 @@ object IntruderCamera {
         false
     }
 
-    fun canAttempt(ctx: Context): Boolean {
-        if (!available() || !hasFrontCamera(ctx)) return false
-        return try {
-            ctx.checkSelfPermission(android.Manifest.permission.CAMERA) ==
-                PackageManager.PERMISSION_GRANTED
-        } catch (_: Throwable) {
-            false
+    fun hasPermission(ctx: Context): Boolean = try {
+        ctx.checkSelfPermission(android.Manifest.permission.CAMERA) ==
+            PackageManager.PERMISSION_GRANTED
+    } catch (_: Throwable) {
+        false
+    }
+
+    fun canAttempt(ctx: Context): Boolean = hasFrontCamera(ctx) && hasPermission(ctx)
+
+    private fun frontId(cm: CameraManager): String? {
+        for (id in cm.cameraIdList) {
+            try {
+                val f = cm.getCameraCharacteristics(id).get(CameraCharacteristics.LENS_FACING)
+                if (f == CameraCharacteristics.LENS_FACING_FRONT) return id
+            } catch (_: Throwable) {
+            }
         }
+        return null
+    }
+
+    /** Largest JPEG size that fits 1280x960 (keeps the upload well < 2 MB). */
+    private fun pickJpeg(sizes: Array<Size>?): Size? {
+        if (sizes.isNullOrEmpty()) return null
+        val fit = sizes.filter { it.width * it.height <= 1280 * 960 }
+        return if (fit.isNotEmpty()) fit.maxByOrNull { it.width * it.height }
+        else sizes.minByOrNull { it.width * it.height }
+    }
+
+    /** Smallest YUV size >= 320x240 — only used to let auto-exposure settle. */
+    private fun pickWarm(sizes: Array<Size>?): Size? {
+        if (sizes.isNullOrEmpty()) return null
+        val ok = sizes.filter { it.width * it.height >= 320 * 240 }
+        return (if (ok.isNotEmpty()) ok else sizes.toList()).minByOrNull { it.width * it.height }
     }
 
     /**
-     * Try to capture one JPEG from the front camera into [outFile].
-     * Returns the file on success, or null on ANY failure (no permission,
-     * background-blocked, timeout, missing dependency). Never throws.
-     *
-     * Implemented with reflection against CameraX. Because a blocking capture
-     * off the main thread is awkward with CameraX's lifecycle API, this method
-     * is intentionally conservative: if anything is uncertain it returns null
-     * so the caller records a photo-less failed_unlock event.
+     * Capture one JPEG. BLOCKING — call from a worker thread only (returns
+     * null on the main thread). Returns the JPEG bytes, or null on ANY failure
+     * (no permission, no front camera, ROM refused, timeout). Never throws.
      */
-    fun capture(ctx: Context, outFile: File, timeoutMs: Long = 4000): File? {
+    @Suppress("DEPRECATION")
+    fun captureJpeg(ctx: Context, timeoutMs: Long = 6000): ByteArray? {
         if (!canAttempt(ctx)) return null
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            // Background camera is blocked for normal apps on API 28+. Only a
-            // foreground-visible path can succeed; the service checks that via
-            // canAttempt + process state before calling us. We still guard here.
-        }
+        if (Looper.myLooper() == Looper.getMainLooper()) return null
+        val ht = HandlerThread("assisto-intruder-cam")
+        var device: CameraDevice? = null
+        var session: CameraCaptureSession? = null
+        var jpegReader: ImageReader? = null
+        var warmReader: ImageReader? = null
         return try {
-            CameraXReflect.captureBlocking(ctx, outFile, timeoutMs)
+            ht.start()
+            val h = Handler(ht.looper)
+            val cm = ctx.getSystemService(Context.CAMERA_SERVICE) as? CameraManager
+                ?: return null
+            val id = frontId(cm) ?: return null
+            val chars = cm.getCameraCharacteristics(id)
+            val map = chars.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+                ?: return null
+            val jSize = pickJpeg(map.getOutputSizes(ImageFormat.JPEG)) ?: return null
+            val wSize = pickWarm(map.getOutputSizes(ImageFormat.YUV_420_888))
+
+            val out = AtomicReference<ByteArray?>(null)
+            val gotJpeg = CountDownLatch(1)
+            jpegReader = ImageReader.newInstance(jSize.width, jSize.height, ImageFormat.JPEG, 2)
+            jpegReader.setOnImageAvailableListener({ r ->
+                try {
+                    val img = r.acquireLatestImage()
+                    if (img != null) {
+                        try {
+                            val buf = img.planes[0].buffer
+                            val b = ByteArray(buf.remaining())
+                            buf.get(b)
+                            out.set(b)
+                        } finally {
+                            img.close()
+                        }
+                    }
+                } catch (_: Throwable) {
+                }
+                gotJpeg.countDown()
+            }, h)
+            if (wSize != null) {
+                warmReader = ImageReader.newInstance(
+                    wSize.width, wSize.height, ImageFormat.YUV_420_888, 2)
+                warmReader.setOnImageAvailableListener({ r ->
+                    try { r.acquireLatestImage()?.close() } catch (_: Throwable) {}
+                }, h)
+            }
+
+            val opened = CountDownLatch(1)
+            cm.openCamera(id, object : CameraDevice.StateCallback() {
+                override fun onOpened(d: CameraDevice) {
+                    device = d
+                    opened.countDown()
+                }
+                override fun onDisconnected(d: CameraDevice) {
+                    try { d.close() } catch (_: Throwable) {}
+                    opened.countDown()
+                    gotJpeg.countDown()
+                }
+                override fun onError(d: CameraDevice, error: Int) {
+                    try { d.close() } catch (_: Throwable) {}
+                    opened.countDown()
+                    gotJpeg.countDown()
+                }
+            }, h)
+            if (!opened.await(timeoutMs, TimeUnit.MILLISECONDS)) return null
+            val dev = device ?: return null
+
+            val surfaces = ArrayList<android.view.Surface>()
+            surfaces.add(jpegReader.surface)
+            warmReader?.let { surfaces.add(it.surface) }
+            val configured = CountDownLatch(1)
+            dev.createCaptureSession(surfaces, object : CameraCaptureSession.StateCallback() {
+                override fun onConfigured(s: CameraCaptureSession) {
+                    session = s
+                    configured.countDown()
+                }
+                override fun onConfigureFailed(s: CameraCaptureSession) {
+                    configured.countDown()
+                }
+            }, h)
+            if (!configured.await(timeoutMs, TimeUnit.MILLISECONDS)) return null
+            val ses = session ?: return null
+
+            // ~0.9 s of preview frames so auto-exposure / white balance settle
+            // (otherwise the first frame is often black or green).
+            warmReader?.let { wr ->
+                try {
+                    val warm = dev.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+                    warm.addTarget(wr.surface)
+                    warm.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
+                    ses.setRepeatingRequest(warm.build(), null, h)
+                    Thread.sleep(900)
+                    ses.stopRepeating()
+                } catch (_: Throwable) {
+                }
+            }
+
+            val still = dev.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
+            still.addTarget(jpegReader.surface)
+            still.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
+            still.set(CaptureRequest.JPEG_QUALITY, 80.toByte())
+            try {
+                val sensor = chars.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 270
+                still.set(CaptureRequest.JPEG_ORIENTATION, sensor)
+            } catch (_: Throwable) {
+            }
+            ses.capture(still.build(), null, h)
+            if (!gotJpeg.await(timeoutMs, TimeUnit.MILLISECONDS)) return null
+            val b = out.get()
+            if (b != null && b.size > 4 && b[0] == 0xFF.toByte() && b[1] == 0xD8.toByte()) b else null
         } catch (_: Throwable) {
             null
+        } finally {
+            try { session?.close() } catch (_: Throwable) {}
+            try { device?.close() } catch (_: Throwable) {}
+            try { jpegReader?.close() } catch (_: Throwable) {}
+            try { warmReader?.close() } catch (_: Throwable) {}
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) ht.quitSafely()
+                else ht.quit()
+            } catch (_: Throwable) {
+            }
         }
     }
 }
 
 /**
- * Minimal reflection wrapper so the project compiles with or without CameraX.
- * When CameraX is present (added via the proposal), this drives
- * ProcessCameraProvider + ImageCapture to take one photo with no preview.
+ * b6-antitheft — intruder photos are stored ENCRYPTED on the phone while they
+ * wait in the store-and-forward queue: AES-256-GCM with a key that lives in
+ * the Android Keystore (never in app storage, never leaves the phone). The file
+ * is decrypted only in memory, right before the upload; the server then keeps
+ * it encrypted at rest and shows it only to the owner (+ approved family).
+ * Files are deleted as soon as the server accepted them (AntiTheftQueue.ack)
+ * or when protection is turned off ([wipe]).
  */
-private object CameraXReflect {
-    fun captureBlocking(ctx: Context, outFile: File, timeoutMs: Long): File? {
-        val providerCls = Class.forName("androidx.camera.lifecycle.ProcessCameraProvider")
-        val getInstance = providerCls.getMethod("getInstance", Context::class.java)
-        @Suppress("UNCHECKED_CAST")
-        val future = getInstance.invoke(null, ctx)
-        // ListenableFuture.get(timeout) — block briefly for the provider.
-        val futureGet = future.javaClass.getMethod(
-            "get", Long::class.javaPrimitiveType, TimeUnit::class.java
+object IntruderVault {
+    private const val ALIAS = "assisto_antitheft_photo_v1"
+    private const val DIR = "antitheft_photos"
+
+    private fun key(): SecretKey {
+        val ks = KeyStore.getInstance("AndroidKeyStore")
+        ks.load(null)
+        (ks.getKey(ALIAS, null) as? SecretKey)?.let { return it }
+        val kg = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
+        kg.init(
+            KeyGenParameterSpec.Builder(
+                ALIAS, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
+                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                .setKeySize(256)
+                .build()
         )
-        val provider = futureGet.invoke(future, timeoutMs, TimeUnit.MILLISECONDS)
+        return kg.generateKey()
+    }
 
-        // Build ImageCapture.
-        val icCls = Class.forName("androidx.camera.core.ImageCapture")
-        val icBuilderCls = Class.forName("androidx.camera.core.ImageCapture\$Builder")
-        val icBuilder = icBuilderCls.getConstructor().newInstance()
-        val imageCapture = icBuilderCls.getMethod("build").invoke(icBuilder)
+    private fun dir(ctx: Context): File =
+        File(ctx.applicationContext.filesDir, DIR).apply { mkdirs() }
 
-        // Front camera selector.
-        val selectorCls = Class.forName("androidx.camera.core.CameraSelector")
-        val frontSelector = selectorCls.getField("DEFAULT_FRONT_CAMERA").get(null)
-
-        // We cannot bind to a LifecycleOwner off a real lifecycle here without a
-        // foreground component; a headless bind is unreliable across vendors.
-        // To stay HONEST we do not fake a capture: if we cannot bind safely we
-        // return null and the caller records a photo-less failed_unlock.
-        // (The production wiring binds to the foreground AssistoVoice/Activity
-        // lifecycle when one is visible; see the proposal's note.)
-        provider?.let {
-            try {
-                it.javaClass.getMethod("unbindAll").invoke(it)
-            } catch (_: Throwable) {
-            }
+    /** Encrypt [jpeg] to a private file; returns its path or null. */
+    fun seal(ctx: Context, cid: String, jpeg: ByteArray): String? = try {
+        val c = Cipher.getInstance("AES/GCM/NoPadding")
+        c.init(Cipher.ENCRYPT_MODE, key())
+        val iv = c.iv
+        val ct = c.doFinal(jpeg)
+        val safe = cid.replace(Regex("[^A-Za-z0-9_-]"), "_").take(60)
+        val f = File(dir(ctx), "$safe.enc")
+        f.outputStream().use { o ->
+            o.write(iv.size)
+            o.write(iv)
+            o.write(ct)
         }
-        // Reference kept so the compiler keeps the reflection chain; capture
-        // itself is deferred to the foreground-bound path.
-        if (imageCapture == null || frontSelector == null) return null
-        return null
+        f.absolutePath
+    } catch (_: Throwable) {
+        null
+    }
+
+    /** Decrypt a sealed file in memory; null if missing/corrupt. */
+    fun open(path: String): ByteArray? = try {
+        val all = File(path).readBytes()
+        val n = all[0].toInt() and 0xFF
+        val iv = all.copyOfRange(1, 1 + n)
+        val c = Cipher.getInstance("AES/GCM/NoPadding")
+        c.init(Cipher.DECRYPT_MODE, key(), GCMParameterSpec(128, iv))
+        c.doFinal(all, 1 + n, all.size - 1 - n)
+    } catch (_: Throwable) {
+        null
+    }
+
+    /** Delete every queued photo file (protection turned off). */
+    fun wipe(ctx: Context) {
+        try { dir(ctx).listFiles()?.forEach { it.delete() } } catch (_: Throwable) {}
     }
 }

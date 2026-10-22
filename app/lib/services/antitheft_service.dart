@@ -73,6 +73,20 @@ class AntiTheftService {
     } catch (_) {/* ignore */}
   }
 
+  /// Hand the running engine the owner's new settings (from the server's
+  /// settings response). Called only from the open app, so the engine may
+  /// re-declare its foreground types (e.g. add CAMERA for the opt-in intruder
+  /// photo). Returns false when the engine is not running or on any error.
+  static Future<bool> configure(Map<String, dynamic> config) async {
+    if (!supported) return false;
+    try {
+      return await _ch.invokeMethod<bool>('configure', {'config': config}) ??
+          false;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Ask the engine to try an immediate heartbeat + flush its queue now (e.g.
   /// right after enabling, or on app resume). Best-effort; never throws.
   static Future<void> flushNow() async {

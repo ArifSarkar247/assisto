@@ -586,6 +586,12 @@ class EnginePhotoView(APIView):
             return _revoked()
         phone = eng.phone
         now = timezone.now()
+        # Opt-in: the owner must have switched "Intruder photo" on. A photo
+        # taken before they switched it off is refused (403 = the engine drops
+        # it, never retries).
+        if not eng.intruder_photo:
+            return Response({"ok": False, "reason": "intruder_photo_off"},
+                            status=status.HTTP_403_FORBIDDEN)
         f = request.FILES.get("file") or request.FILES.get("photo")
         if f is None:
             return Response({"ok": False, "reason": "no_file"},

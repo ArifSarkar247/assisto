@@ -1,5 +1,18 @@
 # Proposal — b6-antitheft (native always-on Lost/Stolen engine)
 
+> **b6r (re-based on main, 2026-10-22): APPLIED.** The manifest block is in
+> `.github/workflows/android.yml` (`# ---- b6-antitheft ----`, idempotent:
+> `if 'antitheft.AntiTheftService' not in s`), plus ONE new permission
+> `FOREGROUND_SERVICE_CAMERA` (normal/install-time). The service type is
+> `location|camera`; the CAMERA type is only *declared at runtime* when the
+> owner opted in to the intruder photo and granted the camera from the open
+> app. The intruder photo is now REAL and uses the platform **Camera2** API
+> (no CameraX, no Gradle change, no androidx.startup provider) — section 3
+> below is superseded. Migration is `0063_b6_antitheft.py` (section 5
+> superseded). Play Console: declare FGS types *location* (lost-phone last
+> location) and *camera* (opt-in intruder photo after wrong unlocks), and the
+> device-admin use (lock + wrong-unlock detection for anti-theft only).
+
 The integrator applies these. Native Kotlin files under
 `app/android_overlay/app/src/main/kotlin/com/assisto/assisto/antitheft/` and the
 one-line channel registration + `onPasswordFailed` hook are already committed on

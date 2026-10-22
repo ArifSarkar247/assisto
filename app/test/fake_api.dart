@@ -755,7 +755,7 @@ class FakeApi extends ApiClient {
         'enabled': on,
         'has_pin': true,
         'snatch_lock': true,
-        'intruder_photo': true,
+        'intruder_photo': false, // opt-in: off until the owner turns it on
         'failed_unlock_threshold': 3,
         'alert_member_ids': on ? [1] : <int>[],
         'alert_members': on ? [{'id': 1, 'name': _bn ? 'বাবা' : 'Dad'}] : [],
@@ -788,6 +788,8 @@ class FakeApi extends ApiClient {
            'late': true, 'data': {'reason': 'airplane'}, 'has_photo': false},
           {'id': 3, 'kind': 'low_battery', 'at': iso(const Duration(hours: 3)),
            'late': false, 'battery': 9, 'has_photo': false},
+          {'id': 4, 'kind': 'failed_unlock', 'at': iso(const Duration(hours: 5)),
+           'late': false, 'data': {'count': 3}, 'has_photo': false},
         ],
       };
     }

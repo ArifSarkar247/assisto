@@ -19,6 +19,9 @@ import org.json.JSONObject
  *   start({engineToken, apiBase, config, notifTitle, notifBody}) -> Bool
  *   stop()         -> void
  *   flush()        -> void  try an immediate check-in + queue drain
+ *   configure({config}) -> Bool  new settings from the open app (re-declares
+ *                        the foreground types, e.g. adds CAMERA for the
+ *                        opt-in intruder photo)
  *
  * Every branch is try/catch so a vendor quirk returns a safe value, never a
  * crash.
@@ -49,6 +52,10 @@ object AntiTheftChannel {
                     }
                     "stop" -> { AntiTheftService.stop(app); result.success(null) }
                     "flush" -> { AntiTheftService.flush(app); result.success(null) }
+                    "configure" -> {
+                        val cfgMap = call.argument<Map<String, Any?>>("config") ?: emptyMap()
+                        result.success(AntiTheftService.configure(app, JSONObject(cfgMap)))
+                    }
                     else -> result.notImplemented()
                 }
             } catch (e: Throwable) {
@@ -63,11 +70,12 @@ object AntiTheftChannel {
             m["sdk"] = Build.VERSION.SDK_INT
             m["brand"] = Build.MANUFACTURER ?: ""
             m["model"] = Build.MODEL ?: ""
-            // Camera in the background is blocked for normal apps on API 28+.
-            m["canCamera"] = IntruderCamera.canAttempt(ctx) &&
-                Build.VERSION.SDK_INT < Build.VERSION_CODES.P
+            // Intruder photo is possible on this phone if it has a front
+            // camera; it then still needs the camera permission (asked from
+            // the open app when the owner switches it on) + device admin.
+            m["canCamera"] = IntruderCamera.hasFrontCamera(ctx)
             m["hasFrontCamera"] = IntruderCamera.hasFrontCamera(ctx)
-            m["cameraXBundled"] = IntruderCamera.available()
+            m["cameraPermission"] = IntruderCamera.hasPermission(ctx)
             // SIM carrier is sometimes readable; the SIM phone NUMBER almost
             // never is on modern Android, so we always advertise false there.
             m["canReadSim"] = SimInfo.carrier(ctx) != null

@@ -58,9 +58,9 @@
     "@atOptSnatchLockBody": {},
     "atOptIntruder": "Take an intruder photo",
     "@atOptIntruder": {},
-    "atOptIntruderBody": "After several wrong unlock attempts, take one front-camera photo. It is encrypted and only you and your approved family can see it.",
+    "atOptIntruderBody": "Off until you turn it on. After several wrong screen-unlock attempts (3 by default), take one front-camera photo. It is encrypted, and only you and your approved family can see it.",
     "@atOptIntruderBody": {},
-    "atOptIntruderBlocked": "This phone's Android version blocks the camera in the background, so Assisto cannot take an intruder photo here.",
+    "atOptIntruderBlocked": "This phone has no front camera, so an intruder photo is not possible here.",
     "@atOptIntruderBlocked": {},
     "atWhoAlertsTitle": "Who gets the alerts",
     "@atWhoAlertsTitle": {},
@@ -80,12 +80,18 @@
     "@atLimitSim": {},
     "atLimitSimReadable": "This phone can read some SIM details, so a SIM change alert may include the carrier.",
     "@atLimitSimReadable": {},
-    "atLimitCamera": "Modern Android limits using the camera in the background, so an intruder photo is not guaranteed on every phone.",
+    "atLimitCamera": "Some phones (strict battery saving or brand rules) can still block the camera, so an intruder photo is not guaranteed on every phone. Then only the wrong attempts are recorded.",
     "@atLimitCamera": {},
     "atLimitBattery": "To survive power-off, also turn on your phone maker's own lock (below) and keep Assisto allowed to run in the background.",
     "@atLimitBattery": {},
     "atAndroidVersion": "Your phone: Android API level {sdk}.",
-    "@atAndroidVersion": {"placeholders": {"sdk": {"type": "String"}}},
+    "@atAndroidVersion": {
+      "placeholders": {
+        "sdk": {
+          "type": "String"
+        }
+      }
+    },
     "atBrandLockTitle": "Turn on your phone maker's lock too",
     "@atBrandLockTitle": {},
     "atBrandLockBody": "Samsung, Xiaomi and Google each have a built-in anti-theft lock. Open the Phone Safety guide to set yours up.",
@@ -113,11 +119,35 @@
     "atKindWentDark": "Stopped checking in",
     "@atKindWentDark": {},
     "atWentDarkBanner": "Your phone stopped checking in around {when}. It may be off, in airplane mode, or out of signal.",
-    "@atWentDarkBanner": {"placeholders": {"when": {"type": "String"}}},
+    "@atWentDarkBanner": {
+      "placeholders": {
+        "when": {
+          "type": "String"
+        }
+      }
+    },
     "atNoEvents": "No events yet. When protection is on, check-ins and alerts show here.",
     "@atNoEvents": {},
     "atLateAt": "Happened at {when} (reached Assisto later, while offline)",
-    "@atLateAt": {"placeholders": {"when": {"type": "String"}}}
+    "@atLateAt": {
+      "placeholders": {
+        "when": {
+          "type": "String"
+        }
+      }
+    },
+    "atIntruderDiscTitle": "Intruder photo: please read",
+    "@atIntruderDiscTitle": {},
+    "atIntruderDiscBody": "When this is on:\n• After several wrong screen-unlock attempts (3 by default), Assisto takes ONE photo with the front camera, with no sound and no preview. The phone's camera dot may light up for a moment.\n• The photo is encrypted on this phone and on our server. Only you and the family you approved can see it, in the protection timeline.\n• It needs the camera permission and Assisto as device admin. Device admin is used only to know about wrong unlock attempts (and to lock the phone, if you chose that).\n• You can turn it off any time here (Security PIN).",
+    "@atIntruderDiscBody": {},
+    "atIntruderDiscAgree": "Agree and turn on",
+    "@atIntruderDiscAgree": {},
+    "atIntruderNeedCamera": "Allow the camera so Assisto can take the intruder photo.",
+    "@atIntruderNeedCamera": {},
+    "atIntruderNeedAdmin": "Allow Assisto as device admin first (it tells Assisto about wrong unlock attempts), then switch this on again.",
+    "@atIntruderNeedAdmin": {},
+    "atIntruderAdminExplain": "Assisto uses device admin to know about wrong screen-unlock attempts (for the intruder photo) and to lock your phone if it is lost or stolen.",
+    "@atIntruderAdminExplain": {}
   },
   "bn": {
     "atTitle": "সার্বক্ষণিক সুরক্ষা",
@@ -149,8 +179,8 @@
     "atOptSnatchLock": "ছিনতাই টের পেলে স্ক্রিন লক করুন",
     "atOptSnatchLockBody": "টান-দিয়ে-দৌড় ধরা পড়লে সঙ্গে সঙ্গে ফোন লক করে দেবে (ডিভাইস-অ্যাডমিন লাগবে)।",
     "atOptIntruder": "অনুপ্রবেশকারীর ছবি তুলুন",
-    "atOptIntruderBody": "কয়েকবার ভুল আনলক চেষ্টার পর সামনের ক্যামেরায় একটি ছবি তুলবে। ছবিটি এনক্রিপ্ট করা থাকে এবং শুধু আপনি ও আপনার অনুমোদিত পরিবার দেখতে পারবে।",
-    "atOptIntruderBlocked": "এই ফোনের অ্যান্ড্রয়েড সংস্করণ ব্যাকগ্রাউন্ডে ক্যামেরা ব্যবহার আটকায়, তাই এখানে Assisto অনুপ্রবেশকারীর ছবি তুলতে পারবে না।",
+    "atOptIntruderBody": "আপনি চালু না করা পর্যন্ত বন্ধ থাকে। কয়েকবার ভুল স্ক্রিন-আনলক চেষ্টার পর (সাধারণত ৩ বার) সামনের ক্যামেরায় একটি ছবি তুলবে। ছবিটি এনক্রিপ্ট করা থাকে, শুধু আপনি ও আপনার অনুমোদিত পরিবার দেখতে পারবেন।",
+    "atOptIntruderBlocked": "এই ফোনে সামনের ক্যামেরা নেই, তাই এখানে অনুপ্রবেশকারীর ছবি তোলা সম্ভব নয়।",
     "atWhoAlertsTitle": "সতর্কতা কারা পাবে",
     "atWhoAlertsBody": "সতর্কতা যাবে আপনার কাছে এবং কেবল এখানে বেছে নেওয়া পরিবারের সদস্যদের কাছে। আর কেউ আপনার ফোনের অবস্থান বা ছবি দেখতে পারবে না।",
     "atNoCircle": "আগে My Circle-এ পরিবার যোগ করুন, তারপর কারা সতর্কতা পাবে বেছে নিন।",
@@ -160,7 +190,7 @@
     "atLimitOffline": "কোনো অ্যাপ এয়ারপ্লেন মোড বা ফোন বন্ধ করা আটকাতে পারে না। এমন হলে আমরা শেষ অবস্থান ও অফলাইন হওয়ার সময় পাঠাই।",
     "atLimitSim": "বেশিরভাগ ফোনে অ্যান্ড্রয়েড অ্যাপকে নতুন সিমের নম্বর পড়তে দেয় না। আমরা জানাই যে সিম বদলেছে, কখন বদলেছে, আর ফোন পারলে অপারেটরের নাম।",
     "atLimitSimReadable": "এই ফোন কিছু সিম তথ্য পড়তে পারে, তাই সিম পরিবর্তনের সতর্কতায় অপারেটরের নাম থাকতে পারে।",
-    "atLimitCamera": "আধুনিক অ্যান্ড্রয়েড ব্যাকগ্রাউন্ডে ক্যামেরা ব্যবহার সীমিত করে, তাই প্রতিটি ফোনে অনুপ্রবেশকারীর ছবি নিশ্চিত নয়।",
+    "atLimitCamera": "কিছু ফোন (কড়া ব্যাটারি সেভিং বা ব্র্যান্ডের নিয়মে) তবুও ক্যামেরা আটকে দিতে পারে, তাই প্রতিটি ফোনে অনুপ্রবেশকারীর ছবি নিশ্চিত নয়। তখন শুধু ভুল চেষ্টাগুলো রেকর্ড হয়।",
     "atLimitBattery": "ফোন বন্ধ হলেও যেন কাজ করে, তার জন্য আপনার ফোন প্রস্তুতকারকের নিজস্ব লকও (নিচে) চালু করুন এবং Assisto-কে ব্যাকগ্রাউন্ডে চলতে দিন।",
     "atAndroidVersion": "আপনার ফোন: অ্যান্ড্রয়েড API লেভেল {sdk}।",
     "atBrandLockTitle": "আপনার ফোন প্রস্তুতকারকের লকও চালু করুন",
@@ -178,6 +208,12 @@
     "atKindWentDark": "হাজিরা দেওয়া বন্ধ",
     "atWentDarkBanner": "আপনার ফোন প্রায় {when} সময় থেকে হাজিরা দেওয়া বন্ধ করেছে। এটি বন্ধ, এয়ারপ্লেন মোডে বা নেটওয়ার্কের বাইরে থাকতে পারে।",
     "atNoEvents": "এখনো কোনো ঘটনা নেই। সুরক্ষা চালু থাকলে হাজিরা ও সতর্কতা এখানে দেখা যাবে।",
-    "atLateAt": "ঘটেছে {when} সময়ে (অফলাইন থাকায় পরে Assisto-তে পৌঁছেছে)"
+    "atLateAt": "ঘটেছে {when} সময়ে (অফলাইন থাকায় পরে Assisto-তে পৌঁছেছে)",
+    "atIntruderDiscTitle": "অনুপ্রবেশকারীর ছবি: একবার পড়ে নিন",
+    "atIntruderDiscBody": "এটি চালু থাকলে:\n• কয়েকবার ভুল স্ক্রিন-আনলক চেষ্টার পর (সাধারণত ৩ বার) Assisto সামনের ক্যামেরায় একটি মাত্র ছবি তুলবে, কোনো শব্দ বা প্রিভিউ ছাড়া। ফোনের ক্যামেরা-চিহ্নটি এক মুহূর্তের জন্য জ্বলে উঠতে পারে।\n• ছবিটি এই ফোনে ও আমাদের সার্ভারে এনক্রিপ্ট করা থাকে। শুধু আপনি ও আপনার অনুমোদিত পরিবার সুরক্ষার টাইমলাইনে দেখতে পারবেন।\n• এর জন্য ক্যামেরার অনুমতি এবং Assisto-কে ডিভাইস অ্যাডমিন করা লাগবে। ডিভাইস অ্যাডমিন শুধু ভুল আনলক চেষ্টা জানতে (আর আপনি চাইলে ফোন লক করতে) ব্যবহার হয়।\n• যেকোনো সময় এখান থেকে বন্ধ করতে পারবেন (সিকিউরিটি পিন লাগবে)।",
+    "atIntruderDiscAgree": "রাজি, চালু করুন",
+    "atIntruderNeedCamera": "অনুপ্রবেশকারীর ছবি তুলতে Assisto-কে ক্যামেরার অনুমতি দিন।",
+    "atIntruderNeedAdmin": "আগে Assisto-কে ডিভাইস অ্যাডমিন হিসেবে অনুমতি দিন (এতে ভুল আনলক চেষ্টার খবর পাওয়া যায়), তারপর আবার এটি চালু করুন।",
+    "atIntruderAdminExplain": "ভুল স্ক্রিন-আনলক চেষ্টা জানতে (অনুপ্রবেশকারীর ছবির জন্য) এবং ফোন হারালে বা চুরি হলে লক করতে Assisto ডিভাইস অ্যাডমিন ব্যবহার করে।"
   }
 }

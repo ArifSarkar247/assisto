@@ -26,8 +26,8 @@ void _mockNative({bool running = false}) {
       .setMockMethodCallHandler(_channel, (call) async {
     switch (call.method) {
       case 'capabilities':
-        return {'sdk': 33, 'brand': 'realme', 'canCamera': false,
-                'canReadSimNumber': false};
+        return {'sdk': 33, 'brand': 'realme', 'canCamera': true,
+                'cameraPermission': false, 'canReadSimNumber': false};
       case 'isRunning':
         return running;
       case 'start':
@@ -133,6 +133,51 @@ void main() {
     await tester.pumpAndSettle();
     // Security PIN prompt (Section 8) — a text field asking for the PIN
     expect(find.byType(TextField), findsWidgets);
+  });
+
+  testWidgets('intruder photo is opt-in: off by default, disclosure first',
+      (tester) async {
+    _mockNative(running: true);
+    final api = FakeApi(mode: FakeMode.data, lang: 'en');
+    await _pump(tester, const AlwaysOnProtectionScreen(), api);
+    final t = AppLocalizations.of(
+        tester.element(find.byType(AlwaysOnProtectionScreen)));
+    final tile = find.widgetWithText(SwitchListTile, t.atOptIntruder);
+    await tester.dragUntilVisible(
+        tile, find.byType(Scrollable).first, const Offset(0, -200));
+    await tester.ensureVisible(tile);
+    await tester.pumpAndSettle();
+    expect(tester.widget<SwitchListTile>(tile).value, isFalse);
+    await tester.tap(find.descendant(of: tile, matching: find.byType(Switch)));
+    await tester.pumpAndSettle();
+    // plain disclosure BEFORE any permission / PIN prompt
+    expect(find.text(t.atIntruderDiscTitle), findsOneWidget);
+    expect(find.text(t.atIntruderDiscAgree), findsOneWidget);
+    await tester.tap(find.text(t.cancel));
+    await tester.pumpAndSettle();
+    // cancelled: nothing changed, no PIN prompt
+    expect(find.text(t.atIntruderDiscTitle), findsNothing);
+    expect(find.byType(TextField), findsNothing);
+    expect(tester.widget<SwitchListTile>(tile).value, isFalse);
+  });
+
+  testWidgets('no front camera: the intruder switch is disabled and says why',
+      (tester) async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(_channel, (call) async {
+      if (call.method == 'capabilities') return {'sdk': 33, 'canCamera': false};
+      if (call.method == 'isRunning') return true;
+      return null;
+    });
+    await _pump(tester, const AlwaysOnProtectionScreen(),
+        FakeApi(mode: FakeMode.data, lang: 'en'));
+    final t = AppLocalizations.of(
+        tester.element(find.byType(AlwaysOnProtectionScreen)));
+    final tile = find.widgetWithText(SwitchListTile, t.atOptIntruder);
+    await tester.dragUntilVisible(
+        tile, find.byType(Scrollable).first, const Offset(0, -200));
+    expect(tester.widget<SwitchListTile>(tile).onChanged, isNull);
+    expect(find.text(t.atOptIntruderBlocked), findsOneWidget);
   });
 
   testWidgets('timeline renders events with an honest late label',

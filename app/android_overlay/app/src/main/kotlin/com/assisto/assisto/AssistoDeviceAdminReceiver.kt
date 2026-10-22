@@ -55,11 +55,12 @@ class AssistoDeviceAdminReceiver : DeviceAdminReceiver() {
      * engine's store-and-forward queue, and ask the service to flush. The
      * server only alerts family once the count reaches the owner's threshold.
      *
-     * HONEST CAMERA LIMIT: Android 9+ (API 28+) blocks the camera from the
-     * background for normal apps, so a silent intruder PHOTO is not possible
-     * from here on a locked phone — we record the attempt (not a fake photo)
-     * and the UI explains the limit. Fully crash-guarded: an error here must
-     * never affect the lock screen.
+     * INTRUDER PHOTO (opt-in): if the engine is running with the CAMERA
+     * foreground type (owner switched "Intruder photo" on + granted the camera
+     * from the open app), AntiTheftService takes ONE front photo on its worker
+     * thread once the count reaches the owner's threshold. Otherwise only the
+     * attempt is recorded (never a fake photo). Fully crash-guarded: an error
+     * here must never affect the lock screen.
      */
     override fun onPasswordFailed(context: Context, intent: Intent) {
         super.onPasswordFailed(context, intent)
@@ -78,7 +79,7 @@ class AssistoDeviceAdminReceiver : DeviceAdminReceiver() {
             q.add("fail-" + System.currentTimeMillis(), "failed_unlock",
                 System.currentTimeMillis(), null, null, null,
                 JSONObject().put("count", count))
-            AntiTheftService.flush(context)
+            AntiTheftService.onFailedUnlock(context, count)
         } catch (_: Throwable) {
             // never disturb the lock screen
         }

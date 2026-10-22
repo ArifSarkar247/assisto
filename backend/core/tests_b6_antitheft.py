@@ -279,7 +279,18 @@ class PrivacyTests(_Base):
 class IntruderPhotoTests(_Base):
     def setUp(self):
         super().setUp()
-        self._enable()
+        self._enable(intruder_photo=True)
+
+    def test_intruder_photo_is_opt_in(self):
+        # a fresh engine has the intruder photo OFF; photos are refused
+        eng = AntiTheftEngine.objects.get(phone=self.phone)
+        eng.intruder_photo = False
+        eng.save()
+        r = self._post_photo()
+        self.assertEqual(r.status_code, 403)
+        self.assertEqual(r.data["reason"], "intruder_photo_off")
+        self.assertFalse(AntiTheftEvent.objects.filter(kind="intruder_photo").exists())
+        self.assertFalse(AntiTheftEngine._meta.get_field("intruder_photo").default)
 
     def _post_photo(self, token=None):
         f = io.BytesIO(_jpeg())

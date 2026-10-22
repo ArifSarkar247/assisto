@@ -1,8 +1,9 @@
 import 'dart:io' show Platform;
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 import '../antitheft_api.dart';
@@ -134,6 +135,13 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
       }
       final token = '${resp['engine_token'] ?? ''}';
       if (token.isNotEmpty) {
+        // The engine reports the phone's LAST location, so it needs the
+        // while-in-use location permission (Android 14 refuses a location
+        // foreground service without it; the native side then honestly
+        // reports "not running"). Asked here, from the open app, once.
+        try {
+          await Permission.locationWhenInUse.request();
+        } catch (_) {/* no plugin (tests) / denied: handled natively */}
         // Start the native foreground service (Android only; never throws).
         await AntiTheftService.start(
           engineToken: token,
@@ -212,6 +220,12 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
         alertMemberIds: alertIds,
       );
       if (resp['ok'] == true) {
+        // Hand the running engine its new settings (adds/removes the camera
+        // foreground type for the intruder photo). Best-effort, never throws.
+        final cfg = resp['config'];
+        if (cfg is Map) {
+          await AntiTheftService.configure(cfg.cast<String, dynamic>());
+        }
         await _load();
       } else {
         _snack(tr.securityBadPin);
@@ -221,6 +235,58 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  /// Intruder photo is OPT-IN: turning it on shows a plain disclosure, asks
+  /// for the camera permission and needs Assisto as device admin (the OS only
+  /// tells a device admin about wrong unlock attempts). Then the Security PIN
+  /// saves it and the engine re-declares its camera foreground type.
+  Future<void> _toggleIntruder(bool on) async {
+    if (!on) return _saveSettings(intruderPhoto: false);
+    final tr = AppLocalizations.of(context);
+    final agree = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(tr.atIntruderDiscTitle),
+        content: SingleChildScrollView(child: Text(tr.atIntruderDiscBody)),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false), child: Text(tr.cancel)),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(tr.atIntruderDiscAgree)),
+        ],
+      ),
+    );
+    if (agree != true || !mounted) return;
+    var camOk = false;
+    try {
+      camOk = (await Permission.camera.request()).isGranted;
+    } catch (_) {
+      camOk = false;
+    }
+    if (!mounted) return;
+    if (!camOk) {
+      _snack(tr.atIntruderNeedCamera);
+      return;
+    }
+    const admin = MethodChannel('com.assisto/device_admin');
+    var adminOk = false;
+    try {
+      adminOk = await admin.invokeMethod<bool>('isAdminActive') ?? false;
+    } catch (_) {
+      adminOk = false;
+    }
+    if (!mounted) return;
+    if (!adminOk) {
+      try {
+        await admin.invokeMethod<bool>(
+            'requestAdmin', {'explanation': tr.atIntruderAdminExplain});
+      } catch (_) {/* the snack below tells the owner what to do */}
+      _snack(tr.atIntruderNeedAdmin);
+      return;
+    }
+    await _saveSettings(intruderPhoto: true);
   }
 
   // ---- build -------------------------------------------------------------
@@ -432,7 +498,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
                   : tr.atOptIntruderBlocked),
               onChanged: (_busy || !canCamera)
                   ? null
-                  : (v) => _saveSettings(intruderPhoto: v),
+                  : (v) => _toggleIntruder(v),
             ),
           ],
         ),

@@ -62,14 +62,38 @@ class AntiTheftService : Service(), SensorEventListener {
         const val ACTION_STOP = "com.assisto.assisto.antitheft.STOP"
         const val ACTION_FLUSH = "com.assisto.assisto.antitheft.FLUSH"
         const val ACTION_SNATCH = "com.assisto.assisto.antitheft.SNATCH" // internal
+        // Re-read config + re-declare the foreground types. Sent ONLY from the
+        // open app (AntiTheftChannel.configure), so adding the CAMERA type is
+        // allowed (Android 11+/14 while-in-use rule).
+        const val ACTION_RECONFIG = "com.assisto.assisto.antitheft.RECONFIG"
 
         @Volatile var running = false
             private set
 
+        // The live service (null when not running). Used by the device-admin
+        // receiver to ask for an intruder photo without starting anything.
+        @Volatile private var instance: AntiTheftService? = null
+
         private const val PREFS = "assisto_antitheft_engine"
+
+        private fun hasLocationPerm(ctx: Context): Boolean = try {
+            ctx.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) ==
+                android.content.pm.PackageManager.PERMISSION_GRANTED ||
+                ctx.checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                android.content.pm.PackageManager.PERMISSION_GRANTED
+        } catch (_: Throwable) { false }
 
         fun start(ctx: Context, token: String, apiBase: String,
                   config: JSONObject, title: String, body: String): Boolean {
+            // Android 14+: startForeground() with a location/camera type throws
+            // without that permission, and a startForegroundService() that
+            // never reaches startForeground() kills the process. So we refuse
+            // to start (false -> the UI shows the honest "not running" state)
+            // unless at least one declared type is actually allowed.
+            if (Build.VERSION.SDK_INT >= 34 && !hasLocationPerm(ctx) &&
+                !(config.optBoolean("intruder_photo", false) && IntruderCamera.canAttempt(ctx))) {
+                return false
+            }
             return try {
                 ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
                     .putString("token", token)
@@ -93,6 +117,8 @@ class AntiTheftService : Service(), SensorEventListener {
         fun stop(ctx: Context) {
             try {
                 ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().clear().apply()
+                // protection off: queued intruder photos are deleted on the phone
+                IntruderVault.wipe(ctx)
                 ctx.stopService(Intent(ctx, AntiTheftService::class.java))
             } catch (_: Throwable) {
             }
@@ -103,6 +129,38 @@ class AntiTheftService : Service(), SensorEventListener {
             try {
                 val i = Intent(ctx, AntiTheftService::class.java).setAction(ACTION_FLUSH)
                 ctx.startService(i)
+            } catch (_: Throwable) {
+            }
+        }
+
+        /** Owner changed settings in the open app: store + re-declare types. */
+        fun configure(ctx: Context, config: JSONObject): Boolean {
+            return try {
+                val p = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                if ((p.getString("token", "") ?: "").isBlank()) return false
+                p.edit().putString("config", config.toString()).apply()
+                ctx.startService(
+                    Intent(ctx, AntiTheftService::class.java).setAction(ACTION_RECONFIG))
+                true
+            } catch (_: Throwable) {
+                false
+            }
+        }
+
+        /**
+         * Device-admin onPasswordFailed: the failed_unlock event is already
+         * queued by the receiver. If the engine is running, it decides (on its
+         * worker thread) whether this attempt reached the owner's threshold
+         * and takes ONE intruder photo. Never starts the service, never throws.
+         */
+        fun onFailedUnlock(ctx: Context, count: Int) {
+            try {
+                val svc = instance
+                if (svc != null && running) {
+                    svc.postFailedUnlock(count)
+                } else {
+                    flush(ctx)
+                }
             } catch (_: Throwable) {
             }
         }
@@ -118,7 +176,12 @@ class AntiTheftService : Service(), SensorEventListener {
     private var notifTitle = "Assisto protection is on"
     private var notifBody = ""
     private var snatchLock = false
-    private var intruderPhoto = true
+    private var intruderPhoto = false   // opt-in (server default is off too)
+    private var failThreshold = 3
+    // Foreground-service types actually granted by startForeground (-1 = not
+    // foreground yet). The camera is used only if CAMERA is in here (API 30+).
+    private var fgTypes = -1
+    private var lastPhotoAt = 0L
 
     private var sensorMgr: SensorManager? = null
     private val snatch = SnatchDetector()
@@ -141,8 +204,15 @@ class AntiTheftService : Service(), SensorEventListener {
                 stopSelf()
                 return START_NOT_STICKY
             }
-            ensureForeground()
             loadPrefs()
+            // startForeground() only when needed: on the first start, or when
+            // the open app (START / RECONFIG) asks to re-declare the types.
+            // Never re-declared from a background flush (Android 14 would
+            // reject a camera/location type from the background).
+            if (fgTypes == -1 || intent?.action == ACTION_START ||
+                intent?.action == ACTION_RECONFIG) {
+                ensureForeground()
+            }
             if (token.isBlank()) {
                 stopSelf()
                 return START_NOT_STICKY
@@ -151,6 +221,7 @@ class AntiTheftService : Service(), SensorEventListener {
                 startWorker()
                 registerReceivers()
                 startSnatch()
+                instance = this
                 running = true
             }
             // Any start/flush intent kicks an immediate check-in + queue drain.
@@ -175,6 +246,17 @@ class AntiTheftService : Service(), SensorEventListener {
     }
 
     // ---- foreground notification ------------------------------------------
+
+    private fun wantedTypes(): Int {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return 0
+        var t = 0
+        if (hasLocationPerm(this)) t = t or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && intruderPhoto &&
+            IntruderCamera.canAttempt(this)) {
+            t = t or ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA
+        }
+        return t
+    }
 
     private fun ensureForeground() {
         val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -201,15 +283,39 @@ class AntiTheftService : Service(), SensorEventListener {
             .setOngoing(true)
             .also { if (pi != null) it.setContentIntent(pi) }
             .build()
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                startForeground(NOTIF_ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
-            } else {
-                startForeground(NOTIF_ID, n)
-            }
-        } catch (_: Throwable) {
-            try { startForeground(NOTIF_ID, n) } catch (_: Throwable) {}
+        val want = wantedTypes()
+        // Try the full set, then without the camera, then (pre-Android-14
+        // only, where types are not permission-checked) the manifest default.
+        val attempts = ArrayList<Int>()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && want != 0) {
+            attempts.add(want)
+            val noCam = want and ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA.inv()
+            if (noCam != want && noCam != 0) attempts.add(noCam)
         }
+        for (t in attempts) {
+            try {
+                startForeground(NOTIF_ID, n, t)
+                fgTypes = t
+                return
+            } catch (_: Throwable) {
+            }
+        }
+        if (Build.VERSION.SDK_INT < 34) {
+            try {
+                startForeground(NOTIF_ID, n)
+                fgTypes = 0
+            } catch (_: Throwable) {
+            }
+        }
+    }
+
+    /** Can the camera be used right now from this service? */
+    private fun cameraReady(): Boolean {
+        if (fgTypes == -1 || !IntruderCamera.canAttempt(this)) return false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return (fgTypes and ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA) != 0
+        }
+        return true // API 26-29: a foreground service counts as foreground
     }
 
     private fun loadPrefs() {
@@ -221,7 +327,8 @@ class AntiTheftService : Service(), SensorEventListener {
         try {
             val cfg = JSONObject(p.getString("config", "{}") ?: "{}")
             snatchLock = cfg.optBoolean("snatch_lock", false)
-            intruderPhoto = cfg.optBoolean("intruder_photo", true)
+            intruderPhoto = cfg.optBoolean("intruder_photo", false)
+            failThreshold = cfg.optInt("failed_unlock_threshold", 3).coerceIn(2, 10)
         } catch (_: Throwable) {
         }
     }
@@ -272,6 +379,96 @@ class AntiTheftService : Service(), SensorEventListener {
             for (i in 0 until q.length()) items.put(q.get(i))
         }
         uploadIngest(items)
+        if (running) uploadPhotos()
+    }
+
+    // ---- intruder photo -----------------------------------------------------
+
+    internal fun postFailedUnlock(count: Int) {
+        try {
+            if (!this::bg.isInitialized) return
+            bg.post {
+                try { onFailedUnlockBg(count) } catch (_: Throwable) {}
+                try { doHeartbeat() } catch (_: Throwable) {}
+            }
+        } catch (_: Throwable) {
+        }
+    }
+
+    /** Worker thread. One photo per streak (>= threshold, 60 s apart). */
+    private fun onFailedUnlockBg(count: Int) {
+        if (!intruderPhoto || count < failThreshold) return
+        if (!cameraReady()) return // the photo-less failed_unlock is already queued
+        val now = System.currentTimeMillis()
+        if (now - lastPhotoAt < 60_000L) return
+        lastPhotoAt = now
+        val jpeg = IntruderCamera.captureJpeg(applicationContext) ?: return
+        val cid = "intr-" + UUID.randomUUID().toString().take(12)
+        val path = IntruderVault.seal(applicationContext, cid, jpeg) ?: return
+        val loc = LastLocation.get(applicationContext)
+        queue?.add(cid, "intruder_photo", now, loc?.first, loc?.second, batteryPct(),
+            JSONObject().put("count", count), path)
+    }
+
+    /** Upload up to 3 queued (encrypted) photos; keep them on a network error. */
+    private fun uploadPhotos() {
+        if (token.isBlank() || apiBase.isBlank()) return
+        for (n in 0 until 3) {
+            val row = queue?.nextPhotoRow() ?: return
+            val path = row.photo ?: return
+            val bytes = IntruderVault.open(path)
+            if (bytes == null) { // unreadable (key lost / corrupt) -> drop it
+                queue?.ack(listOf(row.cid))
+                continue
+            }
+            val code = postPhoto(row, bytes)
+            when {
+                code in 200..299 -> queue?.ack(listOf(row.cid))
+                code == 401 -> { stop(applicationContext); return }
+                // 400 bad / 403 owner switched it off / 413 too big: permanent
+                code == 400 || code == 403 || code == 413 -> queue?.ack(listOf(row.cid))
+                else -> return // offline / 429 / 5xx: retry on a later heartbeat
+            }
+        }
+    }
+
+    private fun postPhoto(row: AntiTheftQueue.Row, jpeg: ByteArray): Int {
+        var conn: HttpURLConnection? = null
+        return try {
+            val boundary = "assisto" + UUID.randomUUID().toString().replace("-", "")
+            val url = URL(apiBase.trimEnd('/') + "/security/engine/photo")
+            conn = (url.openConnection() as HttpURLConnection).apply {
+                requestMethod = "POST"
+                connectTimeout = 10000
+                readTimeout = 20000
+                doOutput = true
+                setRequestProperty("Content-Type", "multipart/form-data; boundary=$boundary")
+                setRequestProperty("X-Assisto-Engine", token)
+            }
+            conn.outputStream.use { os: OutputStream ->
+                fun field(name: String, value: String) {
+                    os.write(("--$boundary\r\nContent-Disposition: form-data; name=\"$name\"" +
+                        "\r\n\r\n$value\r\n").toByteArray(Charsets.UTF_8))
+                }
+                field("id", row.cid)
+                field("at", row.at.toString())
+                field("sent_at", nowIso())
+                row.lat?.let { field("lat", it.toString()) }
+                row.lng?.let { field("lng", it.toString()) }
+                row.battery?.let { field("battery", it.toString()) }
+                field("data", row.data)
+                os.write(("--$boundary\r\nContent-Disposition: form-data; name=\"file\"; " +
+                    "filename=\"intruder.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n")
+                    .toByteArray(Charsets.UTF_8))
+                os.write(jpeg)
+                os.write("\r\n--$boundary--\r\n".toByteArray(Charsets.UTF_8))
+            }
+            conn.responseCode
+        } catch (_: Throwable) {
+            -1
+        } finally {
+            try { conn?.disconnect() } catch (_: Throwable) {}
+        }
     }
 
     /** Queue an event; try to send immediately, keep it on failure. */
@@ -452,6 +649,7 @@ class AntiTheftService : Service(), SensorEventListener {
 
     override fun onDestroy() {
         running = false
+        if (instance === this) instance = null
         try { sensorMgr?.unregisterListener(this) } catch (_: Throwable) {}
         try { sysReceiver?.let { unregisterReceiver(it) } } catch (_: Throwable) {}
         try { if (this::bg.isInitialized) bg.removeCallbacksAndMessages(null) } catch (_: Throwable) {}

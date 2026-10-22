@@ -117,6 +117,28 @@ class AntiTheftQueue(ctx: Context) : SQLiteOpenHelper(ctx.applicationContext, DB
         return null
     }
 
+    /** Oldest queued photo event as a full row (for the multipart upload). */
+    fun nextPhotoRow(): Row? {
+        try {
+            readableDatabase.rawQuery(
+                "SELECT cid,kind,at,lat,lng,battery,data,photo FROM q " +
+                    "WHERE photo IS NOT NULL ORDER BY at ASC LIMIT 1", null
+            ).use { c ->
+                if (c.moveToNext()) {
+                    return Row(
+                        c.getString(0), c.getString(1), c.getLong(2),
+                        if (c.isNull(3)) null else c.getDouble(3),
+                        if (c.isNull(4)) null else c.getDouble(4),
+                        if (c.isNull(5)) null else c.getInt(5),
+                        c.getString(6) ?: "{}", c.getString(7)
+                    )
+                }
+            }
+        } catch (_: Throwable) {
+        }
+        return null
+    }
+
     /** Delete rows the server accepted or already had. */
     fun ack(cids: Collection<String>) {
         if (cids.isEmpty()) return
