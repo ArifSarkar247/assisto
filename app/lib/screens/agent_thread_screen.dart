@@ -306,13 +306,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
       Expanded(
         child: _msgs.isEmpty
             ? _welcome()
-            : ListView.builder(
-                controller: _scroll,
-                padding:
-                    const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.sm),
-                itemCount: _msgs.length,
-                itemBuilder: (_, i) => _bubble(_msgs[i]),
-              ),
+            : _thread(),
       ),
       _inputBar(),
     ]);
@@ -357,6 +351,31 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
                   box.maxHeight.isFinite ? box.maxHeight - Gap.lg - Gap.md : 0),
         ],
       ),
+    );
+  }
+
+  // Messages. On the home, until the user has sent anything (only proactive
+  // urgent cards so far), the logo + "Hi, I'm Assisto" block stays on top —
+  // never the ad: urgent cards come first, nothing pushes them down.
+  Widget _thread() {
+    final hero = widget.heroBuilder;
+    final header = hero != null && !_msgs.any((m) => m.user);
+    return ListView.builder(
+      controller: _scroll,
+      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.sm),
+      itemCount: _msgs.length + (header ? 1 : 0),
+      itemBuilder: (_, i) {
+        if (header) {
+          if (i == 0) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: Gap.lg),
+              child: hero(context, _logoBlock(), true, 0),
+            );
+          }
+          return _bubble(_msgs[i - 1]);
+        }
+        return _bubble(_msgs[i]);
+      },
     );
   }
 

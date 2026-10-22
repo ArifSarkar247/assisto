@@ -245,7 +245,13 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
             hasVideo: ad.hasVideo,
             startMuted: _cfg.startMuted,
             child: ad.view());
-    return AnimatedSwitcher(duration: Motion.base, child: child);
+    // Only the CURRENT child is laid out (the old one is dropped at once), so
+    // the ad and the logo block never overlap, not even mid-fade.
+    return AnimatedSwitcher(
+      duration: Motion.base,
+      layoutBuilder: (current, previous) => current ?? const SizedBox.shrink(),
+      child: child,
+    );
   }
 }
 

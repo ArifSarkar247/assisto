@@ -550,7 +550,9 @@ void main() {
     // w1-webphoto: lifeassisto.com/photo deep link -> Photo Studio (gate kept)
     for (final e in w1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // h1-home: home ad hero (free / premium) + image in chat
-    for (final e in h1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // (home hero shots: no urgent cards, so the welcome slot is visible)
+    for (final e in h1Shots.entries)
+      e.key: (build: e.value, mode: e.key.startsWith('home_hero') ? FakeMode.empty : FakeMode.data, full: true),
     // ---- a1 Premium QA: screens that had no gallery shot ----
     'ai_chat': (build: (_) => const AiChatScreen(), mode: FakeMode.data, full: true),
     'nearby': (build: (_) => const NearbyScreen(), mode: FakeMode.data, full: true),
