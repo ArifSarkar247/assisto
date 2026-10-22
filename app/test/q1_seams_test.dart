@@ -302,6 +302,7 @@ void main() {
                 body: TextButton(
                     onPressed: () => showModalBottomSheet<void>(
                         context: c,
+                        isScrollControlled: true, // as referral_screen.dart
                         builder: (_) => const RefShareSheet(
                             link: 'https://lifeassisto.com/r/XYZ',
                             code: 'XYZ',

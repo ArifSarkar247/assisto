@@ -143,8 +143,7 @@ class _CircleExtrasHubScreenState extends State<CircleExtrasHubScreen> {
       return;
     }
     final name = '${widget.member['name'] ?? ''}';
-    final buf = StringBuffer('Assisto — $name
-');
+    final buf = StringBuffer()..writeln('Assisto — $name');
     for (final m in msgs) {
       final who = m['mine'] == true ? '→' : '←';
       buf.writeln('[${m['at'] ?? ''}] $who ${m['text'] ?? ''}');
