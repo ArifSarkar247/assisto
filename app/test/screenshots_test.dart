@@ -31,6 +31,7 @@ import 'package:assisto/screens/app_drawer.dart';
 import 'package:assisto/screens/ai_chat_screen.dart';
 import 'package:assisto/screens/nearby_screen.dart';
 import 'package:assisto/screens/used_phone_check_screen.dart';
+import 'package:assisto/screens/always_on_protection_screen.dart';
 import 'package:assisto/screens/my_vehicles_screen.dart';
 import 'package:assisto/screens/smartwatch_screen.dart';
 import 'package:assisto/screens/assisto_chats_screen.dart';
@@ -565,6 +566,10 @@ void main() {
     'ai_chat': (build: (_) => const AiChatScreen(), mode: FakeMode.data, full: true),
     'nearby': (build: (_) => const NearbyScreen(), mode: FakeMode.data, full: true),
     'used_phone_check': (build: (_) => const UsedPhoneCheckScreen(), mode: FakeMode.data, full: true),
+    // b6-antitheft: always-on Lost/Stolen engine (status, options, honest limits)
+    'at_protection_off': (build: (_) => const AlwaysOnProtectionScreen(), mode: FakeMode.empty, full: true),
+    'at_protection_on': (build: (_) => const AlwaysOnProtectionScreen(), mode: FakeMode.data, full: true),
+    'at_timeline': (build: (_) => const AntiTheftTimelineScreen(), mode: FakeMode.data, full: true),
     'vehicles': (build: (_) => const MyVehiclesScreen(), mode: FakeMode.data, full: true),
     'smartwatch': (build: (_) => const SmartwatchScreen(), mode: FakeMode.data, full: true),
     'unseen': (build: (_) => const UnseenWorldScreen(), mode: FakeMode.data, full: true),
