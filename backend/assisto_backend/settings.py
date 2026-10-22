@@ -123,7 +123,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.TokenAuthentication",
+        # o2-admin: TokenAuthentication that also refuses blocked accounts
+        "core.account_block.BlockAwareTokenAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
@@ -177,3 +178,8 @@ CORS_ALLOWED_ORIGINS = env_list("CORS_ALLOWED_ORIGINS", "")
 # Behind Caddy (TLS terminated there)
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
+
+# o2-admin: web owner panel (/owner/). HTTPS-only by default (set to false only
+# for a local http dev server); idle sign-out in minutes.
+OWNER_ADMIN_REQUIRE_HTTPS = env_bool("OWNER_ADMIN_REQUIRE_HTTPS", True)
+OWNER_ADMIN_IDLE_MIN = int(os.getenv("OWNER_ADMIN_IDLE_MIN", "30"))

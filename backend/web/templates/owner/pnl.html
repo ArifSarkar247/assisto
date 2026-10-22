@@ -1,0 +1,50 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_pnl }}{% endblock %}
+{% block content %}
+<form method="get" class="inline"><label>{{ T.period }} <select name="days">{% for o in day_options %}<option value="{{ o }}" {% if o == days %}selected{% endif %}>{{ o }} {{ T.days }}</option>{% endfor %}</select></label><button class="btn ghost">{{ T.show }}</button></form>
+<div class="tiles">
+  <div class="tile"><span>{{ T.revenue }}</span><b>৳{{ d.totals.revenue }}</b></div>
+  <div class="tile"><span>{{ T.variable_cost }}</span><b>৳{{ d.totals.variable }}</b></div>
+  <div class="tile"><span>{{ T.fixed_cost }}</span><b>৳{{ d.totals.fixed }}</b><small>৳{{ d.fixed_cost_per_day }}/{{ T.day }}</small></div>
+  <div class="tile"><span>{{ T.profit }}</span><b class="{% if d.totals.profit < 0 %}neg{% else %}pos{% endif %}">৳{{ d.totals.profit }}</b></div>
+  <div class="tile"><span>{{ T.guard }}</span><b class="st-{{ d.guard.state }}">{{ d.guard.state }}</b><small>{{ T.cost7d }} ৳{{ d.guard.cost7d }} · {{ T.rev7d }} ৳{{ d.guard.rev7d }} · {{ T.cap }} ৳{{ d.guard.cap }}</small></div>
+</div>
+<section class="card">
+  <h2>{{ T.daily_series }}</h2>
+  {% if chart %}
+  <div class="legend"><span class="key s1"></span>{{ T.revenue }} <span class="key s2"></span>{{ T.cost_total }}</div>
+  <div class="chartbox">{{ chart|safe }}</div>
+  <details><summary>{{ T.table }}</summary><div class="tbl"><table><thead><tr><th>{{ T.date }}</th><th>{{ T.revenue }}</th><th>{{ T.variable_cost }}</th><th>{{ T.fixed_cost }}</th><th>{{ T.profit }}</th></tr></thead><tbody>
+  {% for r in series %}<tr><td>{{ r.date }}</td><td class="num">৳{{ r.revenue.total }}</td><td class="num">৳{{ r.variable.total }}</td><td class="num">৳{{ r.fixed }}</td><td class="num {% if r.profit < 0 %}neg{% endif %}">৳{{ r.profit }}</td></tr>{% endfor %}
+  </tbody></table></div></details>
+  {% else %}<p class="empty">{{ T.no_ledger }}</p>{% endif %}
+</section>
+<div class="cols">
+<section class="card"><h2>{{ T.revenue_by_source }}</h2>
+  <div class="tbl"><table><tbody>{% for s, v in by_source %}<tr><th>{% if s == 'sponsored' %}{{ T.sponsored }}{% else %}{{ s }}{% endif %}</th><td class="num">৳{{ v }}</td></tr>{% endfor %}</tbody></table></div>
+  <p class="mut small">{{ T.sponsored_pnl_note }} ৳{{ d.sponsored.total }}</p>
+</section>
+<section class="card"><h2>{{ T.cost_by_type }}</h2>
+  <div class="tbl"><table><tbody>{% for t, v in by_cost %}<tr><th>{{ t }}</th><td class="num">৳{{ v }}</td></tr>{% endfor %}</tbody></table></div>
+</section>
+</div>
+<section class="card"><h2>{{ T.photo_studio }}</h2>
+  {% if ps_features %}<div class="tbl"><table><thead><tr><th>{{ T.feature }}</th><th>{{ T.revenue }}</th><th>{{ T.cost }}</th><th>{{ T.margin }}</th></tr></thead><tbody>
+  {% for f in ps_features %}<tr><td>{{ f.feature }}</td><td class="num">৳{{ f.revenue }}</td><td class="num">৳{{ f.cost }}</td><td class="num {% if f.margin < 0 %}neg{% endif %}">৳{{ f.margin }}</td></tr>{% endfor %}
+  <tr class="total"><th>{{ T.total }}</th><td class="num">৳{{ ps_totals.revenue }}</td><td class="num">৳{{ ps_totals.cost }}</td><td class="num">৳{{ ps_totals.margin }}</td></tr>
+  </tbody></table></div>{% else %}<p class="empty">{{ T.no_ps }}</p>{% endif %}
+</section>
+<section class="card"><h2>{{ T.break_even }}</h2>
+  {% if d.break_even.covered %}<p class="pos">{{ T.covered }}</p>{% else %}
+  <p>{{ T.gap }}: <b>৳{{ d.break_even.gap }}/{{ T.day }}</b> — {% if d.break_even.users_needed is not None %}{{ d.break_even.users_needed }} {{ T.more_paid }} {{ T.or }} {% endif %}৳{{ d.break_even.ad_revenue_needed }} {{ T.more_ads }}</p>{% endif %}
+  <p class="mut small">{{ T.paid }}: {{ d.segments.paid }} · free: {{ d.segments.free }} · ARPU/{{ T.day }}: ৳{{ d.break_even.arpu_per_day }}</p>
+</section>
+<section class="card"><h2>{{ T.alerts }}</h2>
+  {% if d.alerts %}<ul class="alerts">{% for a in d.alerts %}<li><b>{{ a.title }}</b> {{ a.body }} <small class="mut">{{ a.at }}</small></li>{% endfor %}</ul>{% else %}<p class="empty">{{ T.no_alerts }}</p>{% endif %}
+</section>
+<section class="card"><h2>{{ T.margin_per_feature }}</h2>
+  <div class="tbl"><table><thead><tr><th>{{ T.action }}</th><th>{{ T.credits }}</th><th>{{ T.charge }}</th><th>{{ T.provider_cost }}</th><th>{{ T.margin }}</th></tr></thead><tbody>
+  {% for m in d.margin_per_feature %}<tr><td>{{ m.action }}</td><td class="num">{{ m.credits }}</td><td class="num">৳{{ m.charge_bdt }}</td><td class="num">৳{{ m.provider_cost_bdt }}</td><td class="num">{% if m.margin is not None %}{{ m.margin }}{% else %}—{% endif %}</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endblock %}

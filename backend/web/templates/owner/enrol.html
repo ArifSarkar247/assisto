@@ -1,0 +1,20 @@
+{% extends "owner/_auth_shell.html" %}
+{% block title %}{{ T.enrol_title }}{% endblock %}
+{% block auth %}
+<h2>{{ T.enrol_title }}</h2>
+<ol class="steps">
+  <li>{{ T.enrol_s1 }}</li>
+  <li>{{ T.enrol_s2 }}</li>
+  <li>{{ T.enrol_s3 }}</li>
+</ol>
+<div class="qr">{{ qr|safe }}</div>
+<p class="mut small">{{ T.enrol_manual }}</p>
+<code class="secret">{{ secret }}</code>
+<p class="mut small">{{ T.account }}: {{ account }}</p>
+<form method="post" action="/owner/enrol">
+  {% include "owner/_csrf.html" %}
+  <label for="code">{{ T.code }}</label>
+  <input id="code" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required>
+  <button class="btn primary wide">{{ T.enrol_confirm }}</button>
+</form>
+{% endblock %}
