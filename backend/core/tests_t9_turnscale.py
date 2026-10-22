@@ -338,7 +338,7 @@ class MonitorTests(TestCase):
             self.assertEqual(keys, {"alloc", "quota"})
             self.assertEqual(no.call_count, 1)
             self.assertEqual(FamilyAlert.objects.filter(user=owner, kind="turn_capacity").count(), 1)
-            cpu2 = dict(cpu, ticks=160, total=13000, steal=1200)
+            cpu2 = dict(cpu, ticks=160, total=13000, steal=600)
             later = timezone.now() + timedelta(seconds=60)
             st["ts"] = later.timestamp() - 60
             s2, sends2, st = M.run_once(st, now=later, probe=lambda h, p: True,
@@ -346,7 +346,7 @@ class MonitorTests(TestCase):
                                         net_text="", cpu=cpu2)
             self.assertEqual(sends2, [])                      # de-duplicated
             self.assertEqual(s2.turn_cpu_pct, 1.0)            # 60 ticks/100Hz/60s
-            self.assertEqual(s2.steal_pct, 10.0)
+            self.assertEqual(s2.steal_pct, 5.0)
         self.assertFalse(TurnSample.objects.filter(at__lt=timezone.now() - timedelta(days=15)).exists())
         self.assertEqual(TurnRelayUsage.objects.count(), 2)
 
