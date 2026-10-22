@@ -146,6 +146,18 @@ def mark(user, msgs, seen=False, now=None, publish=True):
     msgs = [x for x in msgs if x.sender_id != user.id]
     if not msgs:
         return 0
+    if seen:
+        # mr1: a message REQUEST is delivered when my phone gets it, but it
+        # is READ only after I accept — no blue ticks from a request preview.
+        from . import msgreq
+        pend = msgreq.pending_senders(
+            user, {x.sender_id for x in msgs if not x.group_id})
+        if pend:
+            later = [x for x in msgs if not x.group_id and x.sender_id in pend]
+            msgs = [x for x in msgs if x not in later]
+            changed = mark(user, later, seen=False, now=now, publish=publish)
+            return changed + (mark(user, msgs, seen=True, now=now,
+                                   publish=publish) if msgs else 0)
     ids = [x.id for x in msgs]
     have = {r.message_id: r for r in
             CircleReceipt.objects.filter(user=user, message_id__in=ids)}
@@ -392,7 +404,10 @@ def sync_delivered(user):
     from .views_m1_messenger import conversation_rows
     now = _now()
     n = 0
-    for edge in CircleMember.objects.filter(user=user, state="accepted"):
+    from django.db.models import Q
+    for edge in CircleMember.objects.filter(
+            Q(state="accepted") | Q(state="pending", direction="incoming"),
+            user=user):  # mr1: a request's messages are delivered too
         qs = (conversation_rows(edge).exclude(sender=user)
               .exclude(receipts__user=user))[:SYNC_CAP]
         n += mark(user, list(qs), now=now)
@@ -496,7 +511,7 @@ def augment_chat_rows(user, out):
     raises — a failure leaves the original rows."""
     try:
         edges = {str(m.id): m for m in CircleMember.objects.filter(
-            user=user, state="accepted")}
+            user=user, state__in=("accepted", "pending"))}  # mr1
         last_ids = [r["last"]["id"] for r in out if r.get("last")]
         msgs = {x.id: x for x in CircleMessage.objects.filter(
             id__in=last_ids).select_related("sender", "member")}

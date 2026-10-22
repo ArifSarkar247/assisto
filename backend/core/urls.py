@@ -721,6 +721,14 @@ urlpatterns += [
 ]
 # ---- /m3-circle ----
 
+# ---- mr1 ---- My Circle message requests (WhatsApp-like)
+from . import views_mr1 as mr1  # noqa: E402
+urlpatterns += [
+    path("circle/message-request/start", mr1.MessageRequestStartView.as_view()),
+    path("circle/request/<int:pk>/msgreq", mr1.MessageRequestActView.as_view()),
+]
+# ---- /mr1 ----
+
 urlpatterns += router.urls
 
 # ---- ps1-photo ---- Photo Studio: config, safety, entry ad, jobs (funding taken

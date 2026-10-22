@@ -364,9 +364,17 @@ class CircleChatsView(APIView):
         org = _organise_map(request.user)
         lists = list(ChatList.objects.filter(user=request.user))
         out = []
-        for m in CircleMember.objects.filter(user=request.user,
-                                             state="accepted"):
+        # mr1: my OUTGOING message requests show as normal chats too (the
+        # chat says "Waiting for <name> to accept"), once I sent something.
+        edges = list(CircleMember.objects.filter(user=request.user,
+                                                 state="accepted"))
+        edges += list(CircleMember.objects.filter(
+            user=request.user, state="pending", direction="outgoing",
+            peer_user__isnull=False, messages__isnull=False).distinct())
+        for m in edges:
             rows = visible_conversation(request.user, m)
+            if m.state != "accepted" and not rows:
+                continue
             last = rows[-1] if rows else None
             # b2-badges: the SAME count the home badge sums (blocked = 0,
             # deleted-for-everyone never counted).
@@ -387,6 +395,7 @@ class CircleChatsView(APIView):
                 "archived": bool(o.get("archived")),
                 "muted": bool(o.get("muted")),
                 "favourite": member_favourite(request.user, m.id),
+                "request": "outgoing" if m.state != "accepted" else None,
                 "lists": [cl.id for cl in lists
                           if m.id in (cl.member_refs or [])
                           or str(m.id) in [str(x) for x in (cl.member_refs or [])]],

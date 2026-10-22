@@ -706,16 +706,20 @@ def who_can_message_label(policy, lang="bn"):
 def who_can_message_hint(policy, lang="bn"):
     """HONEST consequence line under each who-can-message option (§21)."""
     hints = {
+        # mr1: a stranger's messages wait in Message requests; ONE
+        # notification per person; reply + calls only after you accept.
         WHO_MSG_CIRCLE: (
-            "আপনার সার্কেলের লোকজন সরাসরি মেসেজ করতে পারবেন; অপরিচিতদের প্রথম মেসেজ "
-            "আলাদা 'অনুরোধ' বক্সে জমা হবে — কোনো নোটিফিকেশন ছাড়া।",
-            "People in your circle can message directly; a stranger's first "
-            "message waits in a separate requests box — with no notification."),
+            "আপনার সার্কেলের মানুষ সরাসরি মেসেজ করতে পারবেন। অন্য কেউ আপনার নম্বর "
+            "দিয়ে মেসেজ পাঠালে তা 'মেসেজ অনুরোধ'-এ থাকবে — আপনি গ্রহণ করলে তবেই "
+            "উত্তর দিতে ও কল করতে পারবেন।",
+            "People in your circle can message you directly. Anyone else who "
+            "messages your number waits in Message requests — you reply and "
+            "call only after you accept."),
         WHO_MSG_EVERYONE: (
-            "যে কেউ মেসেজ পাঠাতে পারবেন, তবে অপরিচিতদের মেসেজও আগে 'অনুরোধ' বক্সে "
-            "যাবে; আপনি গ্রহণ না করা পর্যন্ত কোনো নোটিফিকেশন আসবে না।",
-            "Anyone can message, but strangers still land in the requests box "
-            "first; nothing notifies until you accept."),
+            "যে কেউ মেসেজ পাঠাতে পারবেন, কমিউনিটির সদস্যরাও। অপরিচিতদের মেসেজ "
+            "আগে 'মেসেজ অনুরোধ'-এ যাবে; প্রতিজনের জন্য একটি নোটিফিকেশন আসবে।",
+            "Anyone can message you, community members too. Strangers land in "
+            "Message requests first, with one notification per person."),
         WHO_MSG_NOBODY: (
             "অপরিচিত কেউ মেসেজ পাঠাতে পারবেন না; শুধু আপনার সার্কেলই মেসেজ করতে পারবে।",
             "Strangers can't message you at all; only your circle can."),

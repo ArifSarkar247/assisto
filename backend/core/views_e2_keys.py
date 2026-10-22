@@ -39,7 +39,7 @@ class CirclePeerKeyView(APIView):
         row = e2_keys.key_row(peer)
         out = e2_keys.key_dict(row, peer.id if peer is not None else None)
         out["requested"] = False
-        if row is None and peer is not None and edge.state == "accepted":
+        if row is None and peer is not None and edge.state in ("accepted", "pending"):
             out["requested"] = e2_keys.request_key(request.user, peer)
             out["pending"] = True
         return Response(out)
@@ -76,7 +76,7 @@ class CircleKeyRequestView(APIView):
         peer = e2_keys.edge_peer(edge)
         row = e2_keys.key_row(peer)
         queued = False
-        if row is None and peer is not None and edge.state == "accepted":
+        if row is None and peer is not None and edge.state in ("accepted", "pending"):
             queued = e2_keys.request_key(request.user, peer)
         return Response({"queued": queued,
                          "key": e2_keys.key_dict(
