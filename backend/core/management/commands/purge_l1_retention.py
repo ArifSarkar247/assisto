@@ -6,6 +6,8 @@
     timeline after expiry.
   * Web data-deletion tickets (lifeassisto.com/delete-account) that are closed
     (scheduled / rejected / no_account) are removed 180 days after creation.
+  * sc1: app crash/error reports (ClientErrorReport) are removed 30 days after
+    they were last seen.
 
 Idempotent, cheap, only touches Assisto's own DB. Crontab (hourly):
     25 * * * *  cd /home/ubuntu/assisto/backend && /home/ubuntu/assisto/.venv/bin/python manage.py purge_l1_retention >> /home/ubuntu/assisto/logs/purge_l1_retention.log 2>&1
@@ -16,6 +18,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 TICKET_KEEP_DAYS = 180
+CRASH_KEEP_DAYS = 30   # sc1
 
 
 class Command(BaseCommand):
@@ -25,7 +28,7 @@ class Command(BaseCommand):
         parser.add_argument("--dry-run", action="store_true")
 
     def handle(self, *args, **opts):
-        from core.models import Journey, JourneyPoint, WebDeletionRequest
+        from core.models import ClientErrorReport, Journey, JourneyPoint, WebDeletionRequest
         now = timezone.now()
         dry = opts.get("dry_run")
         expired = Journey.objects.filter(expires_at__isnull=False, expires_at__lte=now)
@@ -35,12 +38,15 @@ class Command(BaseCommand):
                         WebDeletionRequest.STATUS_REJECTED,
                         WebDeletionRequest.STATUS_NO_ACCOUNT),
             created_at__lt=now - timedelta(days=TICKET_KEEP_DAYS))
+        crashes = ClientErrorReport.objects.filter(
+            last_at__lt=now - timedelta(days=CRASH_KEEP_DAYS))
         if dry:
             self.stdout.write(f"[dry-run] journey points={pts.count()} "
-                              f"tickets={closed.count()}")
+                              f"tickets={closed.count()} crash reports={crashes.count()}")
             return
         n_pts, _ = pts.delete()
         n_loc = expired.filter(last_location__isnull=False).update(last_location=None)
         n_t, _ = closed.delete()
+        n_c, _ = crashes.delete()
         self.stdout.write(f"journey points deleted={n_pts} last_location cleared={n_loc} "
-                          f"tickets deleted={n_t}")
+                          f"tickets deleted={n_t} crash reports deleted={n_c}")

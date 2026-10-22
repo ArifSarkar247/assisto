@@ -516,3 +516,28 @@ BN.update({
     "pay_h_events": "পেমেন্ট অডিট (সর্বশেষ)", "pay_kind": "ঘটনা",
 })
 # ---- /pay1 ----
+
+# ---- sc1 ---- Reports → App errors
+EN.update({
+    "ae_title": "App errors", "ae_link_note": "Crashes and errors from phones (scrubbed, last 30 days)",
+    "ae_brand": "Brand", "ae_build": "Build", "ae_model": "Model", "ae_models": "Phone models",
+    "ae_fatal": "crash", "ae_nonfatal": "non-fatal", "ae_events": "Events", "ae_phones": "Phones",
+    "ae_groups": "Different errors", "ae_error": "Error", "ae_count": "Count", "ae_first": "First seen",
+    "ae_last": "Last seen", "ae_builds": "Builds", "ae_frames": "Top code frames",
+    "ae_user": "User", "ae_where": "Source",
+    "ae_none": "No app errors in this period.",
+    "ae_note": "Grouped by error + code location. One row per phone per day; repeats only raise the count. Messages are scrubbed on the phone and again on the server: no message text, numbers, e-mails, links or file names. Kept 30 days. Crashes that happen before the app has started Firebase appear here as \"startup\" (from the next launch).",
+    "ae_scrub_note": "Scrubbed: quoted text, numbers of 5+ digits, phone numbers, e-mails, links, file paths and long tokens are removed before storing.",
+})
+BN.update({
+    "ae_title": "অ্যাপের ত্রুটি", "ae_link_note": "ফোন থেকে আসা ক্র্যাশ ও ত্রুটি (পরিষ্কার করা, শেষ ৩০ দিন)",
+    "ae_brand": "ব্র্যান্ড", "ae_build": "বিল্ড", "ae_model": "মডেল", "ae_models": "ফোনের মডেল",
+    "ae_fatal": "ক্র্যাশ", "ae_nonfatal": "নন-ফেটাল", "ae_events": "ঘটনা", "ae_phones": "ফোন",
+    "ae_groups": "আলাদা ত্রুটি", "ae_error": "ত্রুটি", "ae_count": "সংখ্যা", "ae_first": "প্রথম দেখা",
+    "ae_last": "শেষ দেখা", "ae_builds": "বিল্ড", "ae_frames": "কোডের প্রথম লাইনগুলো",
+    "ae_user": "ব্যবহারকারী", "ae_where": "উৎস",
+    "ae_none": "এই সময়ে অ্যাপের কোনো ত্রুটি নেই।",
+    "ae_note": "ত্রুটি ও কোডের জায়গা অনুযায়ী সাজানো। প্রতিটি ফোনের জন্য দিনে একটি সারি; একই ত্রুটি আবার হলে শুধু সংখ্যা বাড়ে। বার্তা ফোনে ও সার্ভারে দুইবার পরিষ্কার করা হয়: কোনো মেসেজের লেখা, নম্বর, ইমেইল, লিংক বা ফাইলের নাম থাকে না। ৩০ দিন রাখা হয়। অ্যাপ Firebase চালু করার আগে যে ক্র্যাশ হয়, সেগুলো পরের বার অ্যাপ খুললে \"startup\" হিসেবে এখানে আসে।",
+    "ae_scrub_note": "পরিষ্কার করা: উদ্ধৃতির লেখা, ৫+ অঙ্কের সংখ্যা, ফোন নম্বর, ইমেইল, লিংক, ফাইলের পথ ও লম্বা টোকেন সংরক্ষণের আগেই সরিয়ে ফেলা হয়।",
+})
+# ---- /sc1 ----

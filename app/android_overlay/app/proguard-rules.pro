@@ -36,3 +36,9 @@
 # library creates / reads ai.onnxruntime Java objects by name and the AAR ships
 # no consumer rules (same rule as k1-wake; a duplicate -keep is harmless).
 -keep class ai.onnxruntime.** { *; }
+
+# ---- sc1 ---- Crashlytics: readable JVM stack traces (Firebase docs). The SDK
+# and the firebase_crashlytics plugin ship their own consumer rules; these only
+# keep file/line info and exception class names (mapping upload is off).
+-keepattributes SourceFile,LineNumberTable
+-keep public class * extends java.lang.Exception

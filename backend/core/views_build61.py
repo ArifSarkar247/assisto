@@ -488,27 +488,82 @@ class TelegramWebhookView(APIView):
 
 
 class ClientCrashReportView(APIView):
-    """POST /client/crash-report — a device uploads a startup crash/ANR log that
-    StartupGuard captured on the previous bad launch. Appended to a server-side
-    file the owner can read (.phaseB/client_crash_reports.log). No model/migration.
+    """POST /client/crash-report — scrubbed app crash/error reports.
+
+    sc1: stored in the DB (ClientErrorReport) instead of the old
+    .phaseB/client_crash_reports.log file, shown in Owner Admin → Reports →
+    App errors. Two body shapes:
+      * v2 (lib/diag/crash_reporter.dart): error_type, message, frames, fatal,
+        where, version, build, device{brand, manufacturer, model, android, sdk,
+        rom, display};
+      * v1 (StartupGuard breadcrumb of a bad previous launch): log, version,
+        platform (+ device since sc1) — stored as fatal, source=startup.
+    Everything is scrubbed again here (core.logic.crash_scrub); the fingerprint
+    is computed server-side. Dedupe: one row per fingerprint per phone (user +
+    model) per day, repeats bump count. Rate limit: 30 reports / hour / phone
+    (over the limit -> 200 {stored:false}; the phone never retries).
     Best-effort: never 500s on a bad payload."""
+    RATE_PER_HOUR = 30
+
     def post(self, request):
-        import os
-        from django.conf import settings as _s
-        d = request.data or {}
-        log = str(d.get("log", ""))[:8000]
-        ver = str(d.get("version", ""))[:32]
-        plat = str(d.get("platform", ""))[:32]
+        from django.core.cache import cache
+        from django.db import IntegrityError, transaction
+        from django.db.models import F
+        from .logic import crash_scrub as CS
+        from .models import ClientErrorReport
+        d = request.data if isinstance(request.data, dict) else {}
+        dev = d.get("device") if isinstance(d.get("device"), dict) else {}
+        model = CS.field(dev.get("model"), 60)
+        uid = request.user.id
+        key = "sc1-crash-rate:%s:%s" % (uid, CS.fingerprint("", [model]))
         try:
-            path = os.path.join(str(getattr(_s, "BASE_DIR", ".")), "..",
-                                ".phaseB", "client_crash_reports.log")
-            os.makedirs(os.path.dirname(path), exist_ok=True)
-            with open(path, "a", encoding="utf-8") as f:
-                f.write(f"\n===== user={request.user.id} v={ver} {plat} "
-                        f"{timezone.now().isoformat()} =====\n{log}\n")
+            n = cache.get(key, 0)
+            if n >= self.RATE_PER_HOUR:
+                return Response({"ok": True, "stored": False, "reason": "rate_limited"})
+            cache.set(key, n + 1, 3600)
         except Exception:
             pass
-        return Response({"ok": True})
+        try:
+            if "log" in d and "error_type" not in d:
+                log = str(d.get("log", ""))[:8000]
+                etype, msg = CS.type_and_message_from_log(log)
+                frs = CS.frames_from_text(log)
+                fatal, source, where = True, "startup", "startup"
+            else:
+                etype = CS.error_type(d.get("error_type"))
+                msg = CS.message(d.get("message"))
+                frs = CS.frames(d.get("frames"))
+                fatal, source = bool(d.get("fatal")), "app"
+                where = CS.field(d.get("where"), 40)
+            try:
+                sdk = max(0, min(int(dev.get("sdk") or 0), 99))
+            except (TypeError, ValueError):
+                sdk = 0
+            fp = CS.fingerprint(etype, frs)
+            now = timezone.now()
+            day = timezone.localdate()
+            fields = dict(
+                user_hash=CS.user_hash(uid), source=source, fatal=fatal,
+                error_type=etype, message=msg, frames=frs, where=where,
+                version=CS.field(d.get("version"), 32), build=CS.field(d.get("build"), 16),
+                brand=CS.field(dev.get("brand"), 40).lower(),
+                manufacturer=CS.field(dev.get("manufacturer"), 40),
+                android=CS.field(dev.get("android"), 16), sdk=sdk,
+                rom=CS.field(dev.get("rom"), 24), display=CS.field(dev.get("display"), 64),
+                first_at=now, last_at=now)
+            ident = dict(fingerprint=fp, user_id=uid, model=model, day=day)
+            updated = ClientErrorReport.objects.filter(**ident).update(
+                count=F("count") + 1, last_at=now)
+            if not updated:
+                try:
+                    with transaction.atomic():
+                        ClientErrorReport.objects.create(**ident, **fields)
+                except IntegrityError:   # a parallel request created it
+                    ClientErrorReport.objects.filter(**ident).update(
+                        count=F("count") + 1, last_at=now)
+        except Exception:
+            return Response({"ok": True, "stored": False})
+        return Response({"ok": True, "stored": True})
 
 
 class RtcTurnView(APIView):

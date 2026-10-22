@@ -1,0 +1,31 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.ae_title }}{% endblock %}
+{% block content %}
+<p class="small"><a href="/owner/reports">← {{ T.nav_reports }}</a></p>
+<form method="get" class="inline card">
+  <label>{{ T.period }} <select name="days">{% for o in day_options %}<option value="{{ o }}" {% if o == f.days %}selected{% endif %}>{{ o }} {{ T.days }}</option>{% endfor %}</select></label>
+  <label>{{ T.ae_brand }} <select name="brand"><option value="">{{ T.all }}</option>{% for b in brands %}<option value="{{ b }}" {% if b == f.brand %}selected{% endif %}>{{ b }}</option>{% endfor %}</select></label>
+  <label>{{ T.ae_build }} <select name="build"><option value="">{{ T.all }}</option>{% for b in build_list %}<option value="{{ b }}" {% if b == f.build %}selected{% endif %}>{{ b }}</option>{% endfor %}</select></label>
+  <label>{{ T.type }} <select name="kind"><option value="">{{ T.all }}</option><option value="fatal" {% if f.kind == 'fatal' %}selected{% endif %}>{{ T.ae_fatal }}</option><option value="nonfatal" {% if f.kind == 'nonfatal' %}selected{% endif %}>{{ T.ae_nonfatal }}</option></select></label>
+  <button class="btn ghost">{{ T.show }}</button>
+</form>
+<div class="tiles">
+  <div class="tile"><span>{{ T.ae_events }}</span><b>{{ total }}</b></div>
+  <div class="tile"><span>{{ T.ae_phones }}</span><b>{{ phones }}</b></div>
+  <div class="tile"><span>{{ T.ae_groups }}</span><b>{{ groups|length }}</b></div>
+</div>
+<p class="mut small">{{ T.ae_note }}</p>
+{% if groups %}
+<div class="card tbl"><table><thead><tr><th>{{ T.ae_error }}</th><th>{{ T.ae_models }}</th><th>Android</th><th>ROM</th><th>{{ T.ae_count }}</th><th>{{ T.ae_phones }}</th><th>{{ T.ae_first }}</th><th>{{ T.ae_last }}</th><th>{{ T.ae_builds }}</th></tr></thead><tbody>
+{% for g in groups %}<tr>
+  <td><a href="/owner/reports/errors/{{ g.fingerprint }}"><b>{{ g.type }}</b></a>{% if g.fatal %} <span class="pill bad">{{ T.ae_fatal }}</span>{% endif %}<br><small class="mut">{{ g.message|truncatechars:110 }}</small></td>
+  <td>{{ g.models|join:", " }}{% if g.more_models %} …{% endif %}</td>
+  <td>{{ g.androids|join:", " }}</td>
+  <td>{{ g.roms|join:", "|default:"—" }}</td>
+  <td class="num">{{ g.total }}</td><td class="num">{{ g.phones }}</td>
+  <td>{{ g.first|date:"m-d H:i" }}</td><td>{{ g.last|date:"m-d H:i" }}</td>
+  <td>{{ g.builds|join:", "|default:"—" }}{% if g.more_builds %} …{% endif %}</td>
+</tr>{% endfor %}
+</tbody></table></div>
+{% else %}<p class="empty">{{ T.ae_none }}</p>{% endif %}
+{% endblock %}

@@ -60,6 +60,15 @@ dependencies:
   # FirebaseInitProvider is removed in the manifest (ColorOS history).
   firebase_core: 4.15.0
   firebase_messaging: 16.7.0
+  # sc1 crash reporting — same FlutterFire release train as firebase_messaging
+  # 16.7.0 (both 2026-09-14, firebase_core ^4.14.0). LAZY like push: only
+  # touched after the first frame through lib/push/firebase_lazy.dart, and
+  # collection is OFF until the user is signed in and past onboarding
+  # (manifest meta-data firebase_crashlytics_collection_enabled=false).
+  firebase_crashlytics: 5.4.0
+  # sc1: device brand/model/Android version/ROM for crash reports (already in
+  # the tree as a transitive dependency — pinned to the same version).
+  device_info_plus: 12.4.0
   # CCTV Part 4 (a2-cctv): Shop Box LIVE VIEW over WebRTC — P2P first, TURN
   # relay fallback (relayed minutes cost credits). Media never touches our
   # server and is never recorded. LAZY: only the live-view screen and Shop Box

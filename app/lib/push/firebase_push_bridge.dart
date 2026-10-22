@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart' show WidgetsFlutterBinding;
 
 import '../messaging/receipt_ack.dart';
 import '../crypto/key_wiring.dart';
+import 'firebase_lazy.dart';
 import 'push_bridge.dart';
 import 'push_notifier.dart';
 import 'push_payload.dart';
@@ -35,9 +36,8 @@ class FirebasePushBridge implements PushBridge {
   Future<bool> init() async {
     if (_ok) return true;
     try {
-      if (Firebase.apps.isEmpty) {
-        await Firebase.initializeApp();
-      }
+      // sc1: shared single-flight lazy init (push + crash reporting)
+      if (!await FirebaseLazy.ensure()) throw StateError('no firebase');
       FirebaseMessaging.onBackgroundMessage(assistoFcmBackgroundHandler);
       // We draw foreground notifications ourselves (PushNotifier), so FCM must
       // not ALSO show its own heads-up for notification messages.

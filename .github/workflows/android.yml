@@ -564,6 +564,72 @@ jobs:
                   break
           PY
 
+      # ---- sc1 ---- crash reporting (proposal: .phaseB/proposals/sc1.md)
+      #  * Crashlytics collection OFF by manifest meta-data; the app turns it on
+      #    only after sign-in + onboarding (lib/diag/crash_boot.dart).
+      #  * NO startup ContentProvider is added: firebase-crashlytics 20.1.1,
+      #    firebase-sessions 3.0.8, transport-runtime 3.3.0 and the
+      #    firebase_crashlytics 5.4.0 plugin declare only ComponentDiscoveryService
+      #    registrars / a JobService / a receiver (checked from their AARs);
+      #    FirebaseInitProvider stays removed (a6 step above).
+      #  * Crashlytics Gradle plugin 3.0.8 only when google-services.json exists;
+      #    mapping upload OFF (no network/secret dependency in the build).
+      - name: Crash reporting (sc1)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          import os, re
+          m = "android/app/src/main/AndroidManifest.xml"
+          x = open(m).read()
+          if 'xmlns:tools' not in x:
+              x = x.replace('<manifest ', '<manifest xmlns:tools="http://schemas.android.com/tools" ', 1)
+          if 'firebase_crashlytics_collection_enabled' not in x:
+              x = x.replace('</application>',
+                  '\n        <meta-data android:name="firebase_crashlytics_collection_enabled"'
+                  ' android:value="false"/>\n    </application>', 1)
+          open(m, "w").write(x)
+          print("manifest: crashlytics collection off by default")
+          if not os.path.exists("android/app/google-services.json"):
+              print("no google-services.json - Crashlytics Gradle plugin NOT applied (crash reports go to our server only)")
+              raise SystemExit(0)
+          CR = "3.0.8"
+          for settings in ("android/settings.gradle.kts", "android/settings.gradle"):
+              if os.path.exists(settings):
+                  s = open(settings).read()
+                  if "com.google.firebase.crashlytics" not in s:
+                      kts = settings.endswith(".kts")
+                      line = ('    id("com.google.firebase.crashlytics") version "%s" apply false' % CR
+                              if kts else
+                              '    id "com.google.firebase.crashlytics" version "%s" apply false' % CR)
+                      s, n = re.subn(r'(\n[ \t]*id[ (]+"com\.google\.gms\.google-services"[^\n]*)',
+                                     lambda mm: mm.group(1) + "\n" + line, s, count=1)
+                      assert n == 1, "google-services line not found in " + settings
+                      open(settings, "w").write(s)
+                  print("crashlytics plugin declared in", settings)
+                  break
+          for app in ("android/app/build.gradle.kts", "android/app/build.gradle"):
+              if os.path.exists(app):
+                  s = open(app).read()
+                  if "com.google.firebase.crashlytics" not in s:
+                      kts = app.endswith(".kts")
+                      line = ('    id("com.google.firebase.crashlytics")' if kts
+                              else '    id "com.google.firebase.crashlytics"')
+                      s, n = re.subn(r'(\n[ \t]*id[ (]+"com\.google\.gms\.google-services"[^\n]*)',
+                                     lambda mm: mm.group(1) + "\n" + line, s, count=1)
+                      assert n == 1, "google-services line not found in " + app
+                      if kts:
+                          s += ('\n\nandroid {\n    buildTypes {\n        getByName("release") {\n'
+                                '            configure<com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension> {\n'
+                                '                mappingFileUploadEnabled = false\n            }\n        }\n    }\n}\n')
+                      else:
+                          s += ('\n\nandroid {\n    buildTypes {\n        release {\n'
+                                '            firebaseCrashlytics { mappingFileUploadEnabled false }\n'
+                                '        }\n    }\n}\n')
+                      open(app, "w").write(s)
+                  print("crashlytics plugin applied in", app, "(mapping upload off)")
+                  break
+          PY
+      # ---- /sc1 ----
       # ---- p2-photo ---- Photo Studio on-device AI (proposal: .phaseB/proposals/p2-photo.md)
       #  * ONNX Runtime Android 1.23.2 (MIT) — the SAME version/guard as k1-wake,
       #    so the app ships one runtime even when both branches are merged;

@@ -1,0 +1,20 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.ae_title }}: {{ head.error_type }}{% endblock %}
+{% block content %}
+<p class="small"><a href="/owner/reports/errors">← {{ T.ae_title }}</a></p>
+<section class="card">
+  <p><b>{{ head.error_type }}</b>{% if head.fatal %} <span class="pill bad">{{ T.ae_fatal }}</span>{% else %} <span class="pill">{{ T.ae_nonfatal }}</span>{% endif %} · {{ T.ae_count }} {{ total }} · <span class="mut">{{ fp }}</span></p>
+  <p>{{ head.message|default:"—" }}</p>
+  {% if head.frames %}<h2>{{ T.ae_frames }}</h2><pre class="small">{% for fr in head.frames %}{{ fr }}
+{% endfor %}</pre>{% endif %}
+  <p class="mut small">{{ T.ae_scrub_note }}</p>
+</section>
+<section class="card"><h2>{{ T.ae_models }}</h2>
+<div class="tbl"><table><thead><tr><th>{{ T.ae_brand }}</th><th>{{ T.ae_model }}</th><th>Android</th><th>ROM</th><th>{{ T.ae_count }}</th><th>{{ T.ae_phones }}</th></tr></thead><tbody>
+{% for m in by_model %}<tr><td>{{ m.brand|default:"—" }}</td><td>{{ m.model|default:"—" }}</td><td>{{ m.android|default:"—" }} (SDK {{ m.sdk }})</td><td>{{ m.rom|default:"—" }}</td><td class="num">{{ m.n }}</td><td class="num">{{ m.phones }}</td></tr>{% endfor %}
+</tbody></table></div></section>
+<section class="card"><h2>{{ T.ae_events }}</h2>
+<div class="tbl"><table><thead><tr><th>{{ T.ae_last }}</th><th>{{ T.ae_first }}</th><th>{{ T.ae_count }}</th><th>{{ T.ae_user }}</th><th>{{ T.ae_model }}</th><th>Android</th><th>ROM</th><th>{{ T.ae_build }}</th><th>{{ T.ae_where }}</th></tr></thead><tbody>
+{% for r in rows %}<tr><td>{{ r.last_at|date:"m-d H:i" }}</td><td>{{ r.first_at|date:"m-d H:i" }}</td><td class="num">{{ r.count }}</td><td>{% if r.user_id %}<a href="/owner/users/{{ r.user_id }}">#{{ r.user_id }}</a>{% else %}—{% endif %} <small class="mut">{{ r.user_hash }}</small></td><td>{{ r.brand }} {{ r.model }}</td><td>{{ r.android }} ({{ r.sdk }})</td><td>{{ r.rom|default:"—" }}<br><small class="mut">{{ r.display }}</small></td><td>{{ r.version }}{% if r.build %} ({{ r.build }}){% endif %}</td><td>{{ r.source }}{% if r.where %} · {{ r.where }}{% endif %}</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% endblock %}
