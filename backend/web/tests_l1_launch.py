@@ -55,7 +55,7 @@ class LegalPagesTests(TestCase):
             self.assertIn('id="%s"' % sid, html, sid)
         for needle in ("do not sell", "non-personalised", "AdMob", "Advertising ID",
                        "Firebase Cloud Messaging", "Anthropic", "OpenAI", "Gemini",
-                       "SMS gateway", "TURN", "Picovoice", "end-to-end",
+                       "SMS gateway", "TURN", "wake-word model", "end-to-end",
                        "1 hour", "7-day", "Disappearing messages", "under 13",
                        "/delete-account"):
             self.assertIn(needle, html, needle)

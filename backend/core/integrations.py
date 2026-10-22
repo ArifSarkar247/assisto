@@ -353,24 +353,10 @@ REGISTRY = {
                 "guide_en": ["openweathermap.org (or similar) → API key → paste → Save"],
                 "fields": [_f("provider", "Provider", "Provider", secret=False), _f("api_key", "API Key", "API Key")],
                 "test": None},
-    # ---- a3-voice ---- Part 3: optional on-device "Hey Assisto" wake word.
-    "picovoice": {"name": "Picovoice wake word (Hey Assisto)", "category": "AI",
-                  "unlocks_bn": "ঐচ্ছিক “হেই অ্যাসিস্টো” ডাক — ফোনেই শনাক্ত হয়, কোনো শব্দ সার্ভারে আসে না।",
-                  "unlocks_en": "Optional “Hey Assisto” wake word — detected on the phone, no audio reaches the server.",
-                  "guide_bn": ["console.picovoice.ai-এ অ্যাকাউন্ট খুলুন → AccessKey কপি করুন",
-                               "Porcupine → wake word “Hey Assisto” ও “Hi Assisto” → Platform: Android → দুটি .ppn ফাইল নামান",
-                               ".ppn ফাইল https লিংকে রাখুন → লিংকগুলো কমা দিয়ে আলাদা করে ও AccessKey নিচে দিন → Save → Test",
-                               "অ্যাপে একটি আপডেট লাগবে (Porcupine লাইব্রেরি) — integrator proposal a3-voice ধাপ ২",
-                               "বাণিজ্যিক ব্যবহারে Picovoice-এর পেইড প্ল্যান লাগতে পারে — শর্ত দেখে নিন"],
-                  "guide_en": ["Create an account at console.picovoice.ai → copy the AccessKey",
-                               "Porcupine → wake words “Hey Assisto” and “Hi Assisto” → Platform: Android → download both .ppn files",
-                               "Host the .ppn files at https URLs → paste the URLs (comma-separated) + AccessKey below → Save → Test",
-                               "The app needs one update (Porcupine library) — integrator proposal a3-voice stage 2",
-                               "Commercial use may need a paid Picovoice plan — check their terms"],
-                  "fields": [_f("access_key", "AccessKey", "AccessKey"),
-                             _f("keyword_url", "কিওয়ার্ড ফাইলের লিংক (.ppn, কমা দিয়ে একাধিক)", "Keyword file URL(s) (.ppn, comma-separated)", secret=False),
-                             _f("sensitivity", "সংবেদনশীলতা (০.১–০.৯৫)", "Sensitivity (0.1–0.95)", secret=False)],
-                  "test": "test_picovoice"},
+    # ---- k1-wake ---- The old Picovoice entry is gone (its Free Tier ended on
+    # 30 Jun 2026; we do not ship a paid per-user engine). "Hey Assisto" now
+    # runs on openWakeWord with our own model, served from core/wakeword_models
+    # (see views_voice.wake_config). It needs no owner key.
     # ---- ps1-photo ---- Photo Studio cloud image providers (edit / generate /
     # heavy enhance). Switchable: the owner connects one or more and picks the
     # active one in /admin/pricing photo_studio.provider ('' = first connected).
@@ -711,29 +697,6 @@ def test_replicate(cfg):
         return (True, "✓ working")
     except urllib.error.HTTPError as e:
         return (False, f"HTTP {e.code}")
-
-
-# ---- a3-voice ----
-def test_picovoice(cfg):
-    """Honest check: AccessKey present + the keyword file downloads over https
-    and looks like a Porcupine .ppn (non-empty, small). The key itself can only
-    be validated on-device by the Porcupine engine."""
-    import urllib.request
-    key = (cfg.get("access_key") or "").strip()
-    urls = [u.strip() for u in (cfg.get("keyword_url") or "").split(",") if u.strip()]
-    if not key:
-        return (False, "AccessKey missing")
-    if not urls or not all(u.startswith("https://") for u in urls):
-        return (False, "keyword_url must be https://")
-    for url in urls:
-        try:
-            with urllib.request.urlopen(url, timeout=15) as r:
-                data = r.read(512 * 1024 + 1)
-        except Exception as e:  # noqa: BLE001
-            return (False, f"keyword file: {str(e)[:120]}")
-        if not data or len(data) > 512 * 1024:
-            return (False, "keyword file empty or too large")
-    return (True, f"✓ {len(urls)} keyword file(s) reachable — key verified on first phone use")
 
 
 def test_youtube(cfg):

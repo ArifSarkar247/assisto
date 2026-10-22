@@ -1,4 +1,4 @@
-"""a3-voice — Part 3 Assisto Voice backend: wake-word config is key-gated,
+"""a3-voice — Part 3 Assisto Voice backend: wake-word config is model-gated,
 voice routes resolve, and a reminder that mentions "call" stays a reminder."""
 from unittest import mock
 
@@ -16,40 +16,22 @@ class VoiceConfigTests(APITestCase):
         r = self.client.get("/api/v1/voice/config")
         self.assertIn(r.status_code, (401, 403))
 
-    def test_off_until_key_set(self):
+    def test_off_until_model_installed(self):
+        # k1-wake: Picovoice is gone; the wake word is honestly OFF until our
+        # own trained model is installed (tests_k1_wake covers the rest).
         self.client.force_authenticate(self.u)
-        r = self.client.get("/api/v1/voice/config")
+        with self.settings(WAKEWORD_DIR="/nonexistent-k1"):
+            r = self.client.get("/api/v1/voice/config")
         self.assertEqual(r.status_code, 200)
         w = r.data["wake"]
         self.assertFalse(w["available"])
-        self.assertEqual(w["access_key"], "")
-        self.assertEqual(w["keyword_url"], "")
+        self.assertEqual(w["reason"], "model_pending")
+        self.assertNotIn("access_key", w)
 
-    def test_available_when_integration_working(self):
-        self.client.force_authenticate(self.u)
-        cfg = {"access_key": "fake-key-123", "keyword_url": "https://example.com/hey.ppn",
-               "sensitivity": "0.7"}
-        with mock.patch("core.integrations.is_enabled", return_value=True), \
-                mock.patch("core.integrations.get", return_value=cfg):
-            w = self.client.get("/api/v1/voice/config").data["wake"]
-        self.assertTrue(w["available"])
-        self.assertEqual(w["keyword_url"], "https://example.com/hey.ppn")
-        self.assertAlmostEqual(w["sensitivity"], 0.7)
-
-    def test_http_keyword_url_rejected(self):
-        self.client.force_authenticate(self.u)
-        cfg = {"access_key": "k", "keyword_url": "http://insecure/hey.ppn"}
-        with mock.patch("core.integrations.is_enabled", return_value=True), \
-                mock.patch("core.integrations.get", return_value=cfg):
-            w = self.client.get("/api/v1/voice/config").data["wake"]
-        self.assertFalse(w["available"])
-        self.assertEqual(w["access_key"], "")
-
-    def test_registry_has_picovoice(self):
+    def test_registry_has_no_picovoice(self):
         from core import integrations
-        self.assertIn("picovoice", integrations.REGISTRY)
-        ok, _ = integrations.test_picovoice({"access_key": "", "keyword_url": "https://x"})
-        self.assertFalse(ok)
+        self.assertNotIn("picovoice", integrations.REGISTRY)
+        self.assertFalse(hasattr(integrations, "test_picovoice"))
 
 
 class VoiceRoutingTests(APITestCase):
@@ -130,10 +112,3 @@ class VoiceYoutubeTests(APITestCase):
         self.assertEqual(pricing.limits(cfg)["voice_youtube_daily"], 40)
         cfg["limits"]["voice_youtube_daily"] = 5
         self.assertEqual(pricing.limits(cfg)["voice_youtube_daily"], 5)
-
-    def test_wake_two_keywords(self):
-        cfg = {"access_key": "k", "keyword_url": "https://a/hey.ppn, https://a/hi.ppn"}
-        with mock.patch("core.integrations.is_enabled", return_value=True), \
-                mock.patch("core.integrations.get", return_value=cfg):
-            w = self.client.get("/api/v1/voice/config").data["wake"]
-        self.assertEqual(w["keyword_urls"], ["https://a/hey.ppn", "https://a/hi.ppn"])

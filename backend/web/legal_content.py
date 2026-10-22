@@ -196,9 +196,14 @@ PERMISSIONS = [
                 "Letting hands-free voice SOS and the optional \"Hey Assisto\" wake word listen while the screen "
                 "is off, and sending location during an SOS. While it runs a notification is always visible, "
                 "with a Stop button."),
-        "when": ("শুধু আপনি নিজে ভয়েস SOS বা ওয়েক-ওয়ার্ড চালু করলে। লঞ্চ বা রিস্টার্টে নিজে থেকে চালু হয় না।",
-                 "Only when you switch voice SOS or the wake word on yourself. It never starts by itself at "
-                 "launch or after a restart."),
+        "when": ("শুধু আপনি নিজে ভয়েস SOS বা ওয়েক-ওয়ার্ড চালু করলে। আপনি চালু রাখলে, অ্যান্ড্রয়েড বন্ধ করে দিলে "
+                 "Assisto খুললে আবার চালু হয়; ফোন রিস্টার্টের পর নিজে থেকে মাইক চালু হয় না — শুধু একটি নোটিফিকেশন "
+                 "আসে, ট্যাপ করলে তবেই চালু হয়। কল চলাকালীন, ব্যাটারি ১৫%-এর নিচে, বা অন্য অ্যাপ মাইক ব্যবহার "
+                 "করলে ওয়েক-ওয়ার্ড নিজে থেকে থেমে থাকে।",
+                 "Only when you switch voice SOS or the wake word on yourself. If you left it on and Android "
+                 "stopped it, it starts again when you open Assisto; after a phone restart the microphone is "
+                 "never turned on by itself — you only get a notification, and it starts when you tap it. The "
+                 "wake word pauses itself during calls, below 15% battery, and while another app uses the mic."),
         "revoke": ("নোটিফিকেশনের Stop বোতাম, অথবা অ্যাপের সেটিংসে সুইচ বন্ধ করুন।",
                    "The notification's Stop button, or switch it off in the app's settings."),
     },
@@ -421,8 +426,8 @@ PRIVACY = [
           "<b>AI providers</b> (Anthropic, OpenAI, Google Gemini, Replicate): only when you use an AI feature."),
          ("<b>SMS গেটওয়ে</b> (বাংলাদেশি SMS প্রদানকারী): OTP ও SMS সতর্কবার্তা পাঠাতে — আপনার নম্বর ও বার্তার লেখা।",
           "<b>SMS gateway</b> (a Bangladeshi SMS provider): to send OTPs and SMS alerts — your number and the message text."),
-         ("<b>Picovoice:</b> \"Hey Assisto\" ইঞ্জিন চালু করতে লাইসেন্স কী ও কীওয়ার্ড ফাইল নামানো হয়; আপনার অডিও যায় না।",
-          "<b>Picovoice:</b> a licence key and keyword file are downloaded to run the \"Hey Assisto\" engine; your audio is not sent."),
+         ("<b>\"Hey Assisto\" মডেল:</b> ফোনে ওয়েক-ওয়ার্ড চেনার ছোট মডেল ফাইল (open-source openWakeWord ভিত্তিক, আমাদের নিজস্ব) আমাদের সার্ভার থেকে নামানো হয়; আপনার অডিও কোথাও যায় না।",
+          "<b>\"Hey Assisto\" wake-word model:</b> a small on-device model file (our own, built on open-source openWakeWord) is downloaded from our server; your audio is never sent."),
          ("<b>কল:</b> ভয়েস/ভিডিও কল সরাসরি দুই ফোনের মধ্যে (WebRTC) চলে; সম্ভব না হলে আমাদের নিজস্ব রিলে (TURN) সার্ভার দিয়ে — এনক্রিপ্টেড, রেকর্ড ছাড়া।",
           "<b>Calls:</b> voice/video calls run directly between the two phones (WebRTC); when that isn't possible, through our own relay (TURN) server — encrypted, never recorded."),
          ("<b>আপনি নিজে যুক্ত করেন এমন সার্ভিস:</b> যেমন WhatsApp Business/Facebook/Instagram, Telegram, কুরিয়ার, পেমেন্ট প্রদানকারী — শুধু আপনি সংযোগ দিলে, সেই কাজের জন্য।",
