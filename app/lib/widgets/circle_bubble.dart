@@ -110,8 +110,10 @@ class CircleBubble extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final mine = msg.mine;
-    final bg = mine ? scheme.primary : scheme.surfaceContainerHighest;
-    final fg = mine ? scheme.onPrimary : scheme.onSurface;
+    // x2-ticks: my bubble is a calm WhatsApp-like neutral green / teal so
+    // grey ✓✓ and blue ✓✓ are unmistakable (MsgPalette, WCAG-checked).
+    final bg = mine ? MsgPalette.outBubble(context) : scheme.surfaceContainerHighest;
+    final fg = mine ? MsgPalette.outText(context) : scheme.onSurface;
     final deleted = msg.deleted == 'everyone';
 
     return AnimatedContainer(
@@ -144,8 +146,8 @@ class CircleBubble extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (msg.forwarded && !deleted) _forwardedLabel(t, mine, scheme),
-                    if (msg.replyPreview != null && !deleted) _replyPreview(mine, scheme),
+                    if (msg.forwarded && !deleted) _forwardedLabel(context, t, mine, scheme),
+                    if (msg.replyPreview != null && !deleted) _replyPreview(context, mine, scheme),
                     if (!deleted && msg.contentType != 'text') _mediaBody(context, t, fg),
                     _bodyText(context, t, fg, deleted),
                     const SizedBox(height: Gap.xs),
@@ -239,8 +241,11 @@ class CircleBubble extends StatelessWidget {
     }
   }
 
-  Widget _forwardedLabel(AppLocalizations t, bool mine, ColorScheme scheme) {
-    final color = (mine ? scheme.onPrimary : scheme.onSurfaceVariant).withValues(alpha: 0.8);
+  Widget _forwardedLabel(
+      BuildContext context, AppLocalizations t, bool mine, ColorScheme scheme) {
+    final color = mine
+        ? MsgPalette.outMeta(context)
+        : scheme.onSurfaceVariant.withValues(alpha: 0.8);
     return Padding(
       padding: const EdgeInsets.only(bottom: 2),
       child: Row(
@@ -257,9 +262,10 @@ class CircleBubble extends StatelessWidget {
     );
   }
 
-  Widget _replyPreview(bool mine, ColorScheme scheme) {
-    final stripe = mine ? scheme.onPrimary : scheme.primary;
-    final txt = (mine ? scheme.onPrimary : scheme.onSurface).withValues(alpha: 0.85);
+  Widget _replyPreview(BuildContext context, bool mine, ColorScheme scheme) {
+    final stripe = mine ? MsgPalette.outMeta(context) : scheme.primary;
+    final txt = (mine ? MsgPalette.outText(context) : scheme.onSurface)
+        .withValues(alpha: 0.85);
     return GestureDetector(
       key: ValueKey('c3-quote-${msg.id}'),
       onTap: onTapReply,
@@ -267,7 +273,8 @@ class CircleBubble extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: Gap.xs),
       padding: const EdgeInsets.fromLTRB(Gap.sm, Gap.xs, Gap.sm, Gap.xs),
       decoration: BoxDecoration(
-        color: (mine ? scheme.onPrimary : scheme.primary).withValues(alpha: 0.12),
+        color: (mine ? MsgPalette.outText(context) : scheme.primary)
+            .withValues(alpha: mine ? 0.07 : 0.12),
         border: Border(left: BorderSide(color: stripe, width: 3)),
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
@@ -283,7 +290,9 @@ class CircleBubble extends StatelessWidget {
 
   Widget _metaRow(BuildContext context, bool mine, ColorScheme scheme) {
     final t = AppLocalizations.of(context);
-    final metaColor = (mine ? scheme.onPrimary : scheme.onSurfaceVariant).withValues(alpha: 0.8);
+    final metaColor = mine
+        ? MsgPalette.outMeta(context)
+        : scheme.onSurfaceVariant.withValues(alpha: 0.8);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [

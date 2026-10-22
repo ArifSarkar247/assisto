@@ -658,29 +658,36 @@ class PushEnforcementTests(_Base):
         self.addCleanup(push.reset_cache)
         Device.objects.create(user=self.b, push_token="bdev")
 
+    def _ringing(self):
+        """x2-ticks: a muted / notifications-off chat still gets the SILENT
+        delivery ping (kind msg_sync, draws nothing) — only real
+        notifications count as "a push" here."""
+        return [p for p in self.fake.sent_payloads()
+                if p["message"]["data"].get("kind") != "msg_sync"]
+
     def test_group_mute_suppresses_push(self):
         g = self.group()
         self.cb.post("%s/circle/groups/%d/mute" % (V, g.id),
                      {"duration": "always"}, format="json")
         x = self.gmsg(g, self.a)
         push.hook_group_message(self.a, g, x)
-        self.assertEqual(self.fake.send_calls, [])
+        self.assertEqual(self._ringing(), [])
         self.cb.post("%s/circle/groups/%d/mute" % (V, g.id),
                      {"duration": "off"}, format="json")
         push.hook_group_message(self.a, g, x)
-        self.assertEqual(len(self.fake.send_calls), 1)
+        self.assertEqual(len(self._ringing()), 1)
 
     def test_one_to_one_iso_mute_suppresses_push(self):
         self.cb.post("%s/circle/%d/controls" % (V, self.ba.id),
                      {"muted_until": "2099-01-01T00:00:00Z"}, format="json")
         self.send(self.ca, self.ab, "m1")
-        self.assertEqual(self.fake.send_calls, [])
+        self.assertEqual(self._ringing(), [])
 
     def test_hub_organise_mute_suppresses_push(self):
         self.cb.post("%s/messenger/chats/%d/mute" % (V, self.ba.id),
                      {"duration": "8h"}, format="json")
         self.send(self.ca, self.ab, "m1")
-        self.assertEqual(self.fake.send_calls, [])
+        self.assertEqual(self._ringing(), [])
 
     def test_messages_pref_off_and_no_preview(self):
         self.cb.post("%s/circle/settings/notifications" % V,
@@ -692,9 +699,9 @@ class PushEnforcementTests(_Base):
         self.assertNotIn("Amina", json.dumps(m))
         self.cb.post("%s/circle/settings/notifications" % V,
                      {"messages": False}, format="json")
-        n = len(self.fake.send_calls)
+        n = len(self._ringing())
         self.send(self.ca, self.ab, "m2")
-        self.assertEqual(len(self.fake.send_calls), n)
+        self.assertEqual(len(self._ringing()), n)
 
     def test_silence_unknown_callers(self):
         self.cb.post("%s/circle/settings/calls" % V,

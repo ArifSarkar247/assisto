@@ -50,15 +50,36 @@ IconData tickIcon(MsgTick t) {
   }
 }
 
-/// The "seen" blue. On a surface (chat list) it is a saturated blue; on my own
-/// (brand-blue) bubble it is a light cyan that still clears 3:1 against the
-/// bubble, and distinct from the white-ish "delivered" ticks.
+/// x2-ticks — the OUTGOING bubble + tick palette (WhatsApp-like, owner
+/// order 22 Oct: on the old brand-blue bubble a blue ✓✓ was invisible).
+/// WCAG (checked): light bubble #D9FDD3 — text #0B141A 16.8:1, grey ticks /
+/// time #5B6B63 5.1:1, read ticks #0E86D4 3.5:1; dark bubble #005C4B — text
+/// #E9EDEF 6.8:1, grey #AEBAC1 4.0:1, read #34B7F1 3.5:1. On plain surfaces
+/// (chat list, group cards, Message info) read is #0E86D4 (3.9:1 on white)
+/// / #34B7F1 (8.2:1 on dark). Grey vs bright blue also differs in HUE, so the
+/// three states never look alike.
+class MsgPalette {
+  MsgPalette._();
+  static const outLight = Color(0xFFD9FDD3);
+  static const outLightText = Color(0xFF0B141A);
+  static const outLightMeta = Color(0xFF5B6B63);
+  static const outDark = Color(0xFF005C4B);
+  static const outDarkText = Color(0xFFE9EDEF);
+  static const outDarkMeta = Color(0xFFAEBAC1);
+  static const readLight = Color(0xFF0E86D4);
+  static const readDark = Color(0xFF34B7F1);
+
+  static bool _dark(BuildContext c) =>
+      Theme.of(c).brightness == Brightness.dark;
+  static Color outBubble(BuildContext c) => _dark(c) ? outDark : outLight;
+  static Color outText(BuildContext c) => _dark(c) ? outDarkText : outLightText;
+  static Color outMeta(BuildContext c) => _dark(c) ? outDarkMeta : outLightMeta;
+}
+
+/// The "seen" bright blue — the same hue on my bubble and on surfaces.
 Color readTickColor(BuildContext context, {bool onMyBubble = false}) {
   final dark = Theme.of(context).brightness == Brightness.dark;
-  if (onMyBubble) {
-    return dark ? const Color(0xFF0030C0) : const Color(0xFF67E8F9);
-  }
-  return dark ? const Color(0xFF53BDEB) : const Color(0xFF0B7FD1);
+  return dark ? MsgPalette.readDark : MsgPalette.readLight;
 }
 
 /// One tick glyph. [baseColor] is the muted meta colour for sent/delivered.
@@ -79,8 +100,8 @@ class TickIcon extends StatelessWidget {
     final color = switch (tick) {
       MsgTick.read => readTickColor(context, onMyBubble: onMyBubble),
       MsgTick.failed => Theme.of(context).colorScheme.error,
-      // on my bubble the grey ticks are dimmed so the "seen" colour pops
-      _ => onMyBubble ? baseColor.withValues(alpha: 0.6) : baseColor,
+      // x2-ticks: ✓ and ✓✓ stay a solid, readable grey (no alpha games).
+      _ => onMyBubble ? MsgPalette.outMeta(context) : baseColor,
     };
     return Icon(tickIcon(tick),
         key: ValueKey('tick-${tick.name}'), size: size, color: color);

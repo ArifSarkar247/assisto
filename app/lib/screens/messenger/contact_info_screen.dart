@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../widgets/msgr_avatar.dart';
 import '../../api.dart';
 import '../../calls/call_sound_tiles.dart';
 import '../../l10n/app_localizations.dart';
@@ -317,15 +318,14 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
       padding: const EdgeInsets.symmetric(vertical: Gap.lg),
       child: Column(
         children: [
-          CircleAvatar(
+          // x2-ticks (A3): cached real photo (signed link resolved,
+          // refreshed when the contact changes it), initials otherwise.
+          MsgrAvatar(
+            key: const Key('x2-info-avatar'),
+            name: _name,
             radius: 44,
-            backgroundImage: photo.isNotEmpty ? NetworkImage(photo) : null,
-            child: photo.isEmpty
-                ? Text(
-                    _name.isEmpty ? '?' : _name.characters.first.toUpperCase(),
-                    style: const TextStyle(fontSize: 32),
-                  )
-                : null,
+            photoUrl: photo,
+            photoV: '${widget.member['photo_v'] ?? ''}',
           ),
           const SizedBox(height: Gap.md),
           Text(_name,

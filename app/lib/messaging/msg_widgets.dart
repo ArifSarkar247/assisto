@@ -229,7 +229,11 @@ class MessageInfoView extends StatelessWidget {
                       t.c3InfoRead,
                       r['seen_at'] != null
                           ? _fmt(context, '${r['seen_at']}')
-                          : (r['seen_hidden'] == true
+                          // x2-ticks: the EFFECTIVE state, honestly —
+                          // reciprocal, either side turned receipts off.
+                          : (r['seen_hidden'] == true ||
+                                  r['receipts_off'] == true ||
+                                  d['my_read_receipts'] == false
                               ? t.c3InfoReadHidden
                               : t.c3InfoPending)),
                   _line(context, Icons.done_all, scheme.onSurfaceVariant,

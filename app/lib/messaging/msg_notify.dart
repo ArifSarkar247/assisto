@@ -12,6 +12,7 @@ import '../config.dart';
 import '../crypto/e2e.dart';
 import '../l10n/app_localizations.dart';
 import '../push/push_payload.dart';
+import 'avatar_cache.dart';
 import 'badges_bus.dart';
 import 'msg_prefs.dart';
 
@@ -64,6 +65,11 @@ class MsgNotifModel {
   final int unseen;
   final bool hidden;
   final String lang;
+
+  /// x2-ticks (A3): the 1:1 peer's photo (signed link) + stable version —
+  /// drawn as the MessagingStyle Person icon / large icon.
+  final String photo;
+  final String photoV;
   const MsgNotifModel({
     required this.kind,
     required this.chatId,
@@ -73,6 +79,8 @@ class MsgNotifModel {
     required this.unseen,
     required this.hidden,
     required this.lang,
+    this.photo = '',
+    this.photoV = '',
   });
 
   bool get isEmpty => lines.isEmpty;
@@ -232,13 +240,20 @@ MsgNotifModel buildMsgNotifModel(
     hidden: false,
     lang: lang,
     lines: lines,
+    // x2-ticks: never a photo in hidden-content mode (branch above)
+    photo: isGroup ? '' : '${chat['photo'] ?? ''}',
+    photoV: isGroup ? '' : '${chat['photo_v'] ?? ''}',
   );
 }
 
 /// The Android notification for a model.
 NotificationDetails msgNotificationDetails(MsgNotifModel m, AppLocalizations t,
-    {required String channelId, bool silent = false}) {
+    {required String channelId, bool silent = false, String? peerIconPath}) {
   const avatar = DrawableResourceAndroidIcon(kAvatarDrawable);
+  // x2-ticks (A3): the contact's real (circle-cropped, cached) photo.
+  final peerIcon = peerIconPath == null
+      ? avatar
+      : BitmapFilePathAndroidIcon(peerIconPath);
   final me = Person(name: t.c3You, key: 'me', icon: avatar);
   final style = MessagingStyleInformation(
     me,
@@ -252,7 +267,10 @@ NotificationDetails msgNotificationDetails(MsgNotifModel m, AppLocalizations t,
             l.mine
                 ? null
                 : Person(
-                    name: l.sender, key: l.senderKey, icon: avatar, important: true)),
+                    name: l.sender,
+                    key: l.senderKey,
+                    icon: m.isGroup ? avatar : peerIcon,
+                    important: true)),
     ],
   );
   return NotificationDetails(
@@ -264,6 +282,8 @@ NotificationDetails msgNotificationDetails(MsgNotifModel m, AppLocalizations t,
       priority: Priority.high,
       category: AndroidNotificationCategory.message,
       styleInformation: style,
+      largeIcon:
+          peerIconPath == null ? null : FilePathAndroidBitmap(peerIconPath),
       groupKey: kMsgGroupKey,
       tag: m.tag,
       shortcutId: m.shortcutId,
@@ -389,11 +409,22 @@ class FlnMsgSink implements MsgNotifSink {
       }
       final ch = await _ensureChannel(t);
       final last = m.lines.last;
+      String? icon;
+      if (!m.hidden && m.photo.isNotEmpty) {
+        try {
+          icon = await AvatarCache.instance
+              .circleFile(m.photo, avatarStableKey(m.photo, photoV: m.photoV))
+              .timeout(const Duration(seconds: 6));
+        } catch (_) {
+          icon = null; // offline / slow: the default person icon
+        }
+      }
       await _plugin.show(
         m.notificationId,
         m.isGroup ? m.title : last.sender,
         last.text,
-        msgNotificationDetails(m, t, channelId: ch, silent: silent),
+        msgNotificationDetails(m, t,
+            channelId: ch, silent: silent, peerIconPath: icon),
         payload: m.payload,
       );
       await _summary(t, ch);

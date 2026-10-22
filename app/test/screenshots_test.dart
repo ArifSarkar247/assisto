@@ -636,6 +636,9 @@ void main() {
     'c3_chat': (build: (l) => CircleChatScreen(member: C3Fake.member(l == 'bn'), identity: C3Fake.me), mode: FakeMode.data, full: true),
     'c3_msg_info': (build: (l) => Scaffold(appBar: AppBar(), body: Align(alignment: Alignment.bottomCenter, child: Material(elevation: 6, child: MessageInfoView(load: () async => C3Fake.info(l == 'bn'))))), mode: FakeMode.data, full: true),
     'c3_notif_settings': (build: (_) => const MsgrSetNotificationsScreen(), mode: FakeMode.data, full: true),
+    // x2-ticks: new outgoing bubble + ✓ / ✓✓ / blue ✓✓, photos, receipts off
+    'c3_x2_msg_info_off': (build: (l) => Scaffold(appBar: AppBar(), body: Align(alignment: Alignment.bottomCenter, child: Material(elevation: 6, child: MessageInfoView(load: () async => C3Fake.infoOff(l == 'bn'))))), mode: FakeMode.data, full: true),
+    'c3_x2_contact_info': (build: (l) => ContactInfoScreen(member: C3Fake.member(l == 'bn')), mode: FakeMode.data, full: true),
     // ---- /c3-msg ----
   };
 

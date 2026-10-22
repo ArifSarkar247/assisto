@@ -22,6 +22,8 @@ import '../messaging/c3_api.dart';
 import '../messaging/chat_opener.dart';
 import '../messaging/msg_native.dart';
 import '../messaging/msg_notify.dart';
+import '../messaging/receipt_ack.dart';
+import '../messaging/receipt_bus.dart';
 import '../realtime/realtime_channel.dart';
 
 /// App-wide navigator, so a tapped push can open a screen from anywhere.
@@ -131,11 +133,17 @@ class PushService {
       RealtimeChannel.instance.setForeground(fg);
     } catch (_) {}
     if (fg) unawaited(_syncReceipts());
+    if (!fg) ReceiptBus.instance.relax(); // x2-ticks: no fast poll in bg
   }
 
   Future<void> _syncReceipts() async {
     final app = _app;
     if (app == null || !app.loggedIn) return;
+    // x2-ticks: acks queued while offline (any isolate) go out first.
+    try {
+      final tok = app.api.token;
+      await ReceiptAck(token: () async => tok).flush();
+    } catch (_) {}
     try {
       await app.api.c3ReceiptsSync().timeout(const Duration(seconds: 10));
     } catch (_) {}
@@ -177,6 +185,12 @@ class PushService {
       }
       // b2-badges: `badges.update` on the same loop refreshes the home icons.
       BadgesBus.instance.attach(CallRuntime.instance.transportFor(app).events);
+      // x2-ticks: live ticks (receipt.update) + instant delivered acks
+      // (msg.new) on the same loop.
+      final rt = CallRuntime.instance.transportFor(app);
+      ReceiptBus.instance.attach(rt.events,
+          ack: () => ReceiptAck(token: () async => app.api.token),
+          setFast: rt.setFast);
     } catch (_) {}
     unawaited(_syncReceipts());
     final pc = _pendingChat;
@@ -242,6 +256,16 @@ class PushService {
   }
 
   void _onForeground(Map<String, dynamic> data) {
+    // x2-ticks: delivered ✓✓ at once (by message id) — even for the chat
+    // that is open on screen; a silent msg_sync ping draws nothing.
+    if (kX2AckKinds.contains('${data['kind'] ?? ''}')) {
+      final tok = _app?.api.token;
+      unawaited(ackPushDelivery(data,
+          ack: (tok == null || tok.isEmpty)
+              ? null
+              : ReceiptAck(token: () async => tok)));
+      if ('${data['kind']}' == 'msg_sync') return;
+    }
     final p = PushPayload.fromData(data);
     if (p.isCallCancel) {
       _cancelled.add(p.callId);
