@@ -504,7 +504,8 @@ void main() {
     'settings': (build: (_) => const SettingsScreen(), mode: FakeMode.data, full: true),
     'plans': (build: (_) => const PlansScreen(), mode: FakeMode.data, full: true),
     // pay1 + NO SHOWPIECES: buy buttons only with a LIVE payment channel
-    'plans_paylive': (build: (_) => const PlansScreen(), mode: FakeMode.data, full: true),
+    'plans_nopay_bottom': (build: (_) => const PlansScreen(), mode: FakeMode.data, full: true),
+    'plans_paylive_bottom': (build: (_) => const PlansScreen(), mode: FakeMode.data, full: true),
     'credits_nopay': (build: (_) => const CreditsScreen(), mode: FakeMode.data, full: true),
     'credits_paylive': (build: (_) => const CreditsScreen(), mode: FakeMode.data, full: true),
     // a6 push: Settings → Notifications & calls + the ringing screen.
@@ -664,7 +665,7 @@ void main() {
     // by default, which looks like a bug in review shots). Restored below.
     debugDisableShadows = false;
     FakeApi.planSlug = (name.startsWith('shop_') || name == 'veh_fleet') ? 'business' : 'premium';
-    FakeApi.payLive = name.endsWith('_paylive'); // pay1 gallery stubs
+    FakeApi.payLive = name.contains('_paylive'); // pay1 gallery stubs
     fakeM3On = name.startsWith('m3_'); // m3-circle gallery stubs
     fakeC3On = name.startsWith('c3_'); // c3-msg gallery stubs
     if (fakeC3On) C3Fake.seedRealtime();
