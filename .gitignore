@@ -53,6 +53,7 @@ tools/*
 !tools/reality/
 !tools/wakeword/
 !tools/callproof/
+!tools/ticks_proof/
 screenshots/
 new-logo.png
 logs/
