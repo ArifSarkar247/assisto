@@ -917,9 +917,10 @@ class CommunityCallView(APIView):
         # Video is Premium + caller-gated (text+voice free) — reuse circle_calls.
         kind = str(data.get("kind", "voice"))
         if kind == "video":
+            from .calls_free import entitle   # dl1: Free calls (testing)
             call_gate = circle_calls.can_place_call(
-                {"plan": getattr(request.user, "plan", "free"),
-                 "video_unlocked": False, "accepted": True},
+                entitle({"plan": getattr(request.user, "plan", "free"),
+                         "video_unlocked": False, "accepted": True}),
                 {"accepted": True}, kind)
             if not call_gate.get("allowed"):
                 return _forbidden(call_gate.get("reason", "video_premium"))
@@ -1849,10 +1850,11 @@ class LinkedDeviceRevokeView(APIView):
 # ---- CALLS ----
 
 def _caller_descriptor(user):
-    return {"id": user.id, "plan": user.plan,
-            "video_unlocked": any(
-                CircleMember.objects.filter(
-                    user=user, video_unlocked=True).values_list("id", flat=True)[:1])}
+    from .calls_free import entitle   # dl1: Free calls (testing)
+    return entitle({"id": user.id, "plan": user.plan,
+                    "video_unlocked": any(
+                        CircleMember.objects.filter(
+                            user=user, video_unlocked=True).values_list("id", flat=True)[:1])})
 
 
 class CallLinkView(APIView):
@@ -1862,8 +1864,9 @@ class CallLinkView(APIView):
     def post(self, request):
         lang = req_lang(request)
         d = request.data or {}
+        from .calls_free import entitle   # dl1: Free calls (testing)
         out = mui.mint_call_link(
-            {"id": request.user.id, "plan": request.user.plan},
+            entitle({"id": request.user.id, "plan": request.user.plan}),
             kind=d.get("kind", "voice"), base_url=_app_base(request))
         if not out["ok"]:
             return Response(
@@ -1886,7 +1889,8 @@ class ScheduleCallView(APIView):
     def post(self, request):
         lang = req_lang(request)
         d = request.data or {}
-        organiser = {"id": request.user.id, "plan": request.user.plan}
+        from .calls_free import entitle   # dl1: Free calls (testing)
+        organiser = entitle({"id": request.user.id, "plan": request.user.plan})
         try:
             built = mui.build_scheduled_call(
                 organiser, d.get("invitee_member_ids") or [],
@@ -1922,8 +1926,9 @@ class GroupCallView(APIView):
         members = CircleMember.objects.filter(user=request.user, id__in=ids)
         invitees = [{"id": m.id, "accepted": m.state == "accepted",
                      "blocked": m.blocked} for m in members]
+        from .calls_free import entitle   # dl1: Free calls (testing)
         plan = mui.plan_group_call(
-            {"id": request.user.id, "plan": request.user.plan},
+            entitle({"id": request.user.id, "plan": request.user.plan}),
             invitees, kind=d.get("kind", "voice"))
         if not plan["allowed"]:
             if plan["reason"] == "video_requires_premium":

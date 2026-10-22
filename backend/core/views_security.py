@@ -268,23 +268,23 @@ class SecurityActionView(APIView):
             cancel_token=secrets.token_urlsafe(24), approver=approver,
             payload={"trusted": trusted, "lat": lat, "lng": lng})
 
-        cancel_link = (f"{getattr(settings, 'APP_DEEP_LINK_BASE', 'assisto://')}"
-                       f"security/cancel/{pending.id}?token={pending.cancel_token}")
+        # dl1: no raw link / token in any user-visible text (in-app, push,
+        # email). The owner cancels from Assisto -> Security; the cancel token
+        # stays server-side only.
         if state == "awaiting_approval":
             title = "A sensitive change needs your approver's OK"
             body = (f"A '{action}' request on your Assisto-protected phone is "
                     f"waiting for your family approver. If this was not you, "
-                    f"cancel it: {cancel_link}")
+                    f"open Assisto and cancel it in Security.")
         else:
             eff = effective_at.strftime("%Y-%m-%d %H:%M") if effective_at else ""
             title = "A sensitive change was requested on your phone"
             body = (f"A '{action}' request from an untrusted location will take "
-                    f"effect at {eff}. If this was not you, cancel it now: "
-                    f"{cancel_link}")
+                    f"effect at {eff}. If this was not you, open Assisto and "
+                    f"cancel it in Security.")
         _notify_owner_and_circle(
             request.user, title, body,
             meta={"action": action, "pending_id": pending.id,
-                  "cancel_token": pending.cancel_token,
                   "effective_at": effective_at.isoformat() if effective_at else None})
 
         return Response({"state": state,

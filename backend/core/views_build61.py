@@ -96,6 +96,11 @@ class _FlagsBase(APIView):
     def _snapshot(row):
         from .logic import admin_flags as AF
         state = AF.normalize_state(row.state)
+        # dl1: show the EFFECTIVE Free-calls value (its unset default comes
+        # from settings.CALLS_FREE_TESTING_DEFAULT, not only the catalog).
+        from .calls_free import FLAG as _CF, calls_free as _calls_free
+        if _CF not in (row.state or {}):
+            state[_CF] = _calls_free()
         flags = [dict(c, value=state[c["id"]]) for c in AF.catalog()]
         return {"flags": flags, "audit": row.audit, "summary": AF.summarize(state),
                 "can_manage": True}
@@ -135,6 +140,10 @@ def flags_flip(actor_id, flag, value, reason=""):
     and the web owner panel."""
     from .logic import admin_flags as AF
     row = _FlagsBase._row()
+    from .calls_free import FLAG as _CF, calls_free as _calls_free
+    if flag == _CF and _CF not in (row.state or {}):
+        # dl1: flip from the EFFECTIVE value (settings default when unset).
+        row.state = dict(row.state or {}, **{_CF: _calls_free()})
     res = AF.apply_flip(row.state, flag, value,
                         actor=actor_id, reason=reason,
                         at_iso=timezone.now().isoformat())
@@ -683,12 +692,13 @@ def award_referral_on_accept(inviter_id, invitee_id, device_id="",
 # Connected Circle — calls (video plan gate SERVER-ENFORCED)
 # ===========================================================================
 def _caller_dict(user, member):
-    return {
+    from .calls_free import entitle   # dl1: Free calls (testing)
+    return entitle({
         "id": user.id, "plan": plans.effective_plan(user),
         "video_unlocked": bool(getattr(member, "video_unlocked", False)),
         "accepted": (member.state == "accepted") if member else True,
         "blocked": bool(getattr(member, "blocked", False)),
-    }
+    })
 
 
 def _callee_dict(member):
@@ -782,8 +792,8 @@ class CirclePlaceCallView(APIView):
                                  "upgrade_required": False,
                                  "reason": "unavailable"},
                                 status=status.HTTP_200_OK)
-        gate = CC.can_place_call(_caller_dict(request.user, m), _callee_dict(m),
-                                 kind)
+        caller = _caller_dict(request.user, m)
+        gate = CC.can_place_call(caller, _callee_dict(m), kind)
         if not gate["allowed"]:
             lang = req_lang(request)
             body = {"allowed": False, "kind": kind,
@@ -800,10 +810,12 @@ class CirclePlaceCallView(APIView):
             peer = PUSH.member_peer_user(m)
         except Exception:
             peer = None
-        return Response(C2.place_call(
+        body = C2.place_call(
             request, m, peer, kind,
-            client_call_id=(request.data or {}).get("client_call_id") or ""),
-            status=status.HTTP_201_CREATED)
+            client_call_id=(request.data or {}).get("client_call_id") or "")
+        if isinstance(body, dict):
+            body["calls_free"] = bool(caller.get("calls_free"))
+        return Response(body, status=status.HTTP_201_CREATED)
 
 
 class CircleAnswerCallView(CirclePlaceCallView):

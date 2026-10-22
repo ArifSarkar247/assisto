@@ -504,7 +504,8 @@ class _DeletePendingBannerState extends State<_DeletePendingBanner> {
                 context,
                 MaterialPageRoute(
                     builder: (_) => const DeleteAccountScreen())),
-            child: Text(t.delAcctCancelNotMe),
+            key: const Key('settings-cancel-deletion'),
+            child: Text(t.delAcctCancelDeletion),
           ),
         ),
       ),

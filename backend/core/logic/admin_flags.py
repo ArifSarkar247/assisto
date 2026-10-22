@@ -85,6 +85,13 @@ CATALOG = (
     # account with a phone can be found by contacts match / number search.
     # Turn OFF before public launch -> only OTP-verified numbers are found.
     ("contacts_match_unverified", KIND_FEATURE, "ops", True),
+    # dl1: "Free calls (testing)". ON = My Circle voice + video calls (1:1 and
+    # group, relayed or not) cost nothing and never show a Premium/upgrade
+    # gate for ANY plan; relay minutes + their real cost are still recorded
+    # and shown in P&L as "free (testing)". A cost switch (we pay the relay,
+    # earn nothing), so flips both ways need a typed reason. OFF = the normal
+    # plan gate (video needs Premium or a referral unlock).
+    ("calls_free_testing", KIND_COST, "calls", True),
 )
 
 _BY_ID = {row[0]: row for row in CATALOG}

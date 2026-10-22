@@ -36,3 +36,4 @@ PUSH_SYNC = True
 
 # Django serves signed media itself in tests (prod uses nginx X-Accel).
 MEDIA_X_ACCEL = False
+CALLS_FREE_TESTING_DEFAULT = False   # dl1: tests exercise the paid plan gate unless a test flips the switch

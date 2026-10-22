@@ -156,6 +156,7 @@ urlpatterns = [
     path("account/delete/request", acctdel.AccountDeleteRequestView.as_view()),
     path("account/delete/cancel", acctdel.AccountDeleteCancelView.as_view()),
     path("account/delete/status", acctdel.AccountDeleteStatusView.as_view()),
+    path("account/delete/start-fresh", acctdel.AccountStartFreshView.as_view()),  # dl1
 
     # Integrations admin (owner-only)
     path("admin/integrations", views.IntegrationsListView.as_view()),

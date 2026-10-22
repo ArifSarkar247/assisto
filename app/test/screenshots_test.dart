@@ -125,6 +125,8 @@ import 'package:assisto/screens/safe_arrival_screen.dart';
 import 'package:assisto/screens/elderly_home_screen.dart';
 import 'package:assisto/screens/payment_ladder_screen.dart';
 import 'package:assisto/screens/settings_screen.dart';
+import 'package:assisto/screens/delete_account_screen.dart';
+import 'package:assisto/screens/deletion_grace_screen.dart';
 import 'package:assisto/screens/in_progress_screen.dart';
 import 'package:assisto/screens/money_screen.dart';
 import 'package:assisto/screens/vault_screen.dart';
@@ -503,6 +505,11 @@ void main() {
     'connected_apps': (build: (_) => SourcesScreen(), mode: FakeMode.data, full: true),
     'in_progress': (build: (_) => const InProgressScreen(), mode: FakeMode.data, full: true),
     'settings': (build: (_) => const SettingsScreen(), mode: FakeMode.data, full: true),
+    // dl1: sign-in grace screen (both steps) + the delete flow's honest guidance
+    'dl1_grace': (build: (_) => const DeletionGraceScreen(), mode: FakeMode.data, full: true),
+    'dl1_grace_fresh': (build: (_) => const DeletionGraceScreen(startOnFreshStep: true), mode: FakeMode.data, full: true),
+    'dl1_delete_preview_bottom': (build: (_) => const DeleteAccountScreen(), mode: FakeMode.data, full: true),
+    'dl1_delete_pending': (build: (_) => const DeleteAccountScreen(), mode: FakeMode.data, full: true),
     'plans': (build: (_) => const PlansScreen(), mode: FakeMode.data, full: true),
     // pay1 + NO SHOWPIECES: buy buttons only with a LIVE payment channel
     'plans_nopay_bottom': (build: (_) => const PlansScreen(), mode: FakeMode.data, full: true),
@@ -676,6 +683,8 @@ void main() {
     final key = GlobalKey();
     final app = _stub(lang: lang, mode: mode);
     if (name.startsWith('fm_')) app.user = f1Founder(app.user!); // f1-founders
+    FakeApi.delPending = name.startsWith('dl1_') && name.contains('pending'); // dl1
+    if (name.startsWith('dl1_grace')) app.deletionGraceAt = DateTime(2026, 10, 29); // dl1
     final mode2 = brightness == Brightness.light ? ThemeMode.light : ThemeMode.dark;
     await tester.pumpWidget(MultiProvider(
       providers: [

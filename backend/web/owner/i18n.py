@@ -115,6 +115,10 @@ EN = {
     "ads_value_note": "User rewards are capped at 70% of the real ad value (revenue_share, ad_value_share).",
     "f_unknown_flag": "Unknown switch.", "f_bad_value": "Bad value.", "f_no_op": "It is already in that state.",
     "f_reason_required": "Please give a reason for this change.",
+    # dl1: Free calls (testing)
+    "calls_free_title": "Calls pricing", "calls_free_label": "Free calls (testing)",
+    "calls_free_note": "While ON, My Circle voice and video calls (1:1 and group, including relayed minutes) cost 0 credits on every plan and never show a Premium prompt. Relay usage and its real cost are still recorded and shown in P&L as \"free (testing)\". Turning it OFF brings back the normal plan rules (video needs Premium or a referral unlock).",
+    "t9_free_testing": "of which free (testing)",
     # integrations
     "needs_key": "Needs a key", "not_working": "Not working",
     "keys_note": "Keys are encrypted on the server and never shown again — only the last 4 characters. Leave a box empty to keep the saved value.",
@@ -335,6 +339,10 @@ BN = {
     "ads_value_note": "ব্যবহারকারীর পুরস্কার আসল বিজ্ঞাপন মূল্যের সর্বোচ্চ ৭০% (revenue_share, ad_value_share)।",
     "f_unknown_flag": "অজানা সুইচ।", "f_bad_value": "ভুল মান।", "f_no_op": "এটি আগে থেকেই এই অবস্থায় আছে।",
     "f_reason_required": "এই পরিবর্তনের একটি কারণ লিখুন।",
+    # dl1: Free calls (testing)
+    "calls_free_title": "কলের দাম", "calls_free_label": "ফ্রি কল (পরীক্ষামূলক)",
+    "calls_free_note": "চালু থাকলে My Circle-এর ভয়েস ও ভিডিও কল (একজনের সাথে ও গ্রুপে, রিলে হওয়া মিনিটসহ) সব প্ল্যানে ০ ক্রেডিট লাগে এবং প্রিমিয়ামের কোনো বার্তা দেখায় না। রিলে ব্যবহার ও তার আসল খরচ তবুও রেকর্ড হয় এবং P&L-এ \"ফ্রি (পরীক্ষামূলক)\" হিসেবে দেখায়। বন্ধ করলে আগের প্ল্যানের নিয়ম ফিরে আসে (ভিডিওর জন্য প্রিমিয়াম বা রেফারেল আনলক লাগে)।",
+    "t9_free_testing": "এর মধ্যে ফ্রি (পরীক্ষামূলক)",
     "needs_key": "কি লাগবে", "not_working": "কাজ করছে না",
     "keys_note": "কি সার্ভারে এনক্রিপ্ট করে রাখা হয় এবং আর কখনো দেখানো হয় না — শুধু শেষ ৪টি অক্ষর। আগের মান রাখতে ঘর ফাঁকা রাখুন।",
     "how_to": "কীভাবে সংযুক্ত করবেন", "saved_value": "সংরক্ষিত", "replace_ph": "বদলাতে নতুন মান পেস্ট করুন",

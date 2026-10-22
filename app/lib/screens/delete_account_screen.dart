@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../api.dart';
+import '../feedback/feedback_sheet.dart';
 import '../l10n/app_localizations.dart';
 import '../services/security_guard.dart';
 import '../state.dart';
@@ -15,6 +16,7 @@ import '../widgets/ladder_common.dart';
 import '../widgets/password_field.dart';
 import '../otp_api.dart';
 import 'otp/otp_verify_screen.dart';
+import 'settings_screen.dart' show SupportScreen;
 
 /// Secure, Play-compliant "Delete my profile & all data".
 ///
@@ -49,6 +51,9 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
 
   // Pending.
   DateTime? _effectiveAt;
+  // dl1: the deletion was ALREADY scheduled (opened again, or a second
+  // request) — say so plainly with the same date + the Cancel button.
+  bool _alreadyPending = false;
   String? _blockedReason; // 'theft_signal' | 'frozen'
 
   // Verify inputs.
@@ -85,6 +90,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
       if ('${st['state']}' == 'pending') {
         setState(() {
           _effectiveAt = _parseDate(st['effective_at']);
+          _alreadyPending = true;
           _phase = _Phase.pending;
         });
         return;
@@ -293,6 +299,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
       setState(() {
         _busy = false;
         _effectiveAt = _parseDate(resp['effective_at']);
+        _alreadyPending = resp['already_pending'] == true;
         _phase = _Phase.pending;
       });
       return;
@@ -316,6 +323,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
         messenger.showSnackBar(SnackBar(content: Text(t.delAcctCancelled)));
         // Back to normal — reload the preview so the screen is reusable.
         _effectiveAt = null;
+        _alreadyPending = false;
         await _loadPreview();
         return;
       }
@@ -444,6 +452,8 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                 style: Theme.of(context).textTheme.bodySmall),
           ]),
         ],
+        const SizedBox(height: Gap.xl),
+        _problemGuidance(t),
         const SizedBox(height: Gap.xl),
         if (_inlineError != null) ...[
           _inlineErr(_inlineError!),
@@ -596,7 +606,11 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                   ),
                 ]),
                 const SizedBox(height: Gap.sm),
-                Text(t.delAcctScheduledBody(when)),
+                Text(
+                    _alreadyPending
+                        ? t.delAcctAlreadyPending(when)
+                        : t.delAcctScheduledBody(when),
+                    key: const Key('del-acct-pending-body')),
                 const SizedBox(height: Gap.sm),
                 Text(t.delAcctAlertedContacts,
                     style: Theme.of(context).textTheme.bodySmall),
@@ -610,12 +624,12 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
           const SizedBox(height: Gap.sm),
         ],
         FilledButton.icon(
+          key: const Key('del-acct-cancel'),
           onPressed: _busy ? null : _cancel,
           icon: const Icon(Icons.undo),
-          label: Text(t.delAcctCancelNotMe),
+          label: Text(t.delAcctCancelDeletion),
           style: FilledButton.styleFrom(
-              minimumSize: const Size.fromHeight(52),
-              backgroundColor: Brand.success),
+              minimumSize: const Size.fromHeight(52)),
         ),
         const SizedBox(height: Gap.sm),
         TextButton(
@@ -652,6 +666,71 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
           child: Text(t.delAcctClose),
         ),
       ],
+    );
+  }
+
+  // --- dl1: honest guidance before anyone deletes to "fix" a problem --------
+  Widget _problemGuidance(AppLocalizations t) {
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      key: const Key('del-acct-guidance'),
+      color: scheme.secondaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.support_agent_outlined,
+                    color: scheme.onSecondaryContainer),
+                const SizedBox(width: Gap.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(t.delAcctGuidanceTitle,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: scheme.onSecondaryContainer)),
+                      const SizedBox(height: Gap.xs),
+                      Text(t.delAcctGuidanceBody,
+                          style: TextStyle(color: scheme.onSecondaryContainer)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: Gap.md),
+            Wrap(
+              spacing: Gap.sm,
+              runSpacing: Gap.sm,
+              children: [
+                OutlinedButton.icon(
+                  key: const Key('del-acct-feedback'),
+                  onPressed: () =>
+                      FeedbackSheet.open(context, route: 'account_delete'),
+                  icon: const Icon(Icons.feedback_outlined),
+                  label: Text(t.delAcctSendFeedback),
+                ),
+                OutlinedButton.icon(
+                  key: const Key('del-acct-support'),
+                  onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const SupportScreen())),
+                  icon: const Icon(Icons.help_outline),
+                  label: Text(t.delAcctContactSupport),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 

@@ -187,6 +187,56 @@ class AppState extends ChangeNotifier {
 
   bool get loggedIn => api.token != null && user != null;
 
+  // ---------- dl1: signed in during an account-deletion grace period ----------
+  /// Set right after a sign-in when the account has a PENDING deletion: the
+  /// root then shows the grace screen ("Restore account" / "Delete now and
+  /// start fresh") before anything else. Null = nothing pending.
+  DateTime? deletionGraceAt;
+
+  /// Whether "Delete now and start fresh" will also ask for an SMS code
+  /// (server: SMS connected + a BD mobile on the account).
+  bool deletionGraceOtp = false;
+
+  /// Best-effort: never blocks or fails a sign-in.
+  Future<void> _checkDeletionGrace() async {
+    deletionGraceAt = null;
+    deletionGraceOtp = false;
+    try {
+      final st = await api
+          .accountDeleteStatus()
+          .timeout(const Duration(seconds: 8));
+      if ('${st['state']}' == 'pending') {
+        deletionGraceAt =
+            DateTime.tryParse('${st['effective_at']}')?.toLocal() ??
+                DateTime.now();
+        deletionGraceOtp = st['otp_required'] == true;
+      }
+    } catch (_) {}
+  }
+
+  /// The user restored the account: leave the grace screen and continue
+  /// into the app.
+  void clearDeletionGrace() {
+    deletionGraceAt = null;
+    deletionGraceOtp = false;
+    notifyListeners();
+  }
+
+  /// "Delete now and start fresh" succeeded: the old account is gone on the
+  /// server, so drop its local data and adopt the new, empty account.
+  Future<void> adoptFreshAccount(String token, AppUser fresh) async {
+    try {
+      await db.clearAll();
+      for (final r in _repos) {
+        await r.clear();
+      }
+    } catch (_) {}
+    memory = [];
+    deletionGraceAt = null;
+    deletionGraceOtp = false;
+    await adoptSession(token, fresh, checkGrace: false);
+  }
+
   Future<void> init() async {
     // Startup must ALWAYS finish (loading=false) even if storage/db/network
     // misbehave — otherwise the app hangs on the splash spinner. Each piece is
@@ -255,18 +305,22 @@ class AppState extends ChangeNotifier {
   }
 
   /// o1-otp: adopt a session issued by a non-password sign-in (OTP login).
-  Future<void> adoptSession(String token, AppUser signedIn) =>
-      _finishSignIn(token, signedIn);
+  /// [checkGrace] false = the start-fresh flow (dl1), already decided.
+  Future<void> adoptSession(String token, AppUser signedIn,
+          {bool checkGrace = true}) =>
+      _finishSignIn(token, signedIn, checkGrace: checkGrace);
 
   /// Shared post-sign-in steps. The token goes to the app-sandbox
   /// [SecretStore] (never fails because of the Keystore), and sign-in is not
   /// done until our E2E public key is on the server (owner rule 22 Oct).
-  Future<void> _finishSignIn(String token, AppUser signedIn) async {
+  Future<void> _finishSignIn(String token, AppUser signedIn,
+      {bool checkGrace = true}) async {
     api.token = token;
     user = signedIn;
     if (!await SecretStore.instance.write('token', token)) {
       reportNonFatal('auth.token_write', SecretStore.instance.lastError);
     }
+    if (checkGrace) await _checkDeletionGrace();
     await _publishIdentityKey();
     await reconcileLanguage();
     unawaited(Background.start());
@@ -332,6 +386,8 @@ class AppState extends ChangeNotifier {
   Future<void> _signOutLocally() async {
     api.token = null;
     user = null;
+    deletionGraceAt = null;
+    deletionGraceOtp = false;
     memory = [];
     notifyListeners();
     await _step('logout.token', SecretStore.instance.delete('token'));

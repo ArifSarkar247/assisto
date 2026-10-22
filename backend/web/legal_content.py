@@ -547,9 +547,9 @@ DELETION = [
          ("পাসওয়ার্ড, OTP (SMS চালু থাকলে) ও সিকিউরিটি PIN (সেট করা থাকলে) দিয়ে নিশ্চিত করুন।", "Confirm with your password, an OTP (when SMS is available) and your Security PIN (if set)."))),
     S("web", "অ্যাপ নেই? ওয়েব থেকে অনুরোধ করুন", "No app? Request it on the web",
       P("নিচের ফর্মে আপনার অ্যাকাউন্টের মোবাইল নম্বর বা ইমেইল দিন। এতে সঙ্গে সঙ্গে কিছু মোছা হয় না — আমাদের টিম আগে নিশ্চিত হবে অনুরোধটি সত্যিই অ্যাকাউন্টের মালিকের (সাধারণত ওই নম্বরে কল/SMS করে)। "
-        "যাচাই হলে অ্যাপের মতোই ৭ দিনের অপেক্ষা শুরু হয় এবং অ্যাকাউন্টের মালিক ও বিশ্বস্ত পরিচিতজনরা বাতিলের লিংকসহ নোটিশ পান। যাচাই না হলে কিছুই মোছা হয় না।",
+        "যাচাই হলে অ্যাপের মতোই ৭ দিনের অপেক্ষা শুরু হয়; অ্যাকাউন্টের মালিক অ্যাপে একটি নোটিশ পান, যেখান থেকে এক চাপে মুছে ফেলা বাতিল করা যায়, আর বিশ্বস্ত পরিচিতজনরা একটি সাধারণ নোটিশ পান। যাচাই না হলে কিছুই মোছা হয় না।",
         "Enter your account's mobile number or email in the form below. Nothing is deleted straight away — our team first checks the request really comes from the account owner (usually by calling/texting that number). "
-        "Once verified, the same 7-day wait as in the app starts, and the account owner and their trusted contacts get a notice with a cancel link. If it can't be verified, nothing is deleted.")),
+        "Once verified, the same 7-day wait as in the app starts: the account owner gets an in-app notice with a one-tap \"Cancel deletion\" button, and their trusted contacts get a plain heads-up. If it can't be verified, nothing is deleted.")),
     S("what", "কী মুছে যায়", "What is deleted",
       UL(("অ্যাকাউন্ট, প্রোফাইল ও প্রোফাইল ছবি।", "Your account, profile and profile photo."),
          ("রিমাইন্ডার, নোট, মেমরি, হিসাব, বাজেট, ধার, ভল্টের সব ফাইল, স্বাস্থ্য রেকর্ড, পরিবারের তথ্য।", "Reminders, notes, memories, money records, budgets, loans, every vault file, health records, family details."),
@@ -563,9 +563,9 @@ DELETION = [
          ("পরিচয়হীন খরচ-হিসাব (যেমন কতগুলো AI অনুরোধ হয়েছিল) — আপনার সাথে আর যুক্ত থাকে না।", "Anonymous cost counters (such as how many AI requests were made) — no longer linked to you."),
          ("আইন মানতে বাধ্য হলে যতটুকু রাখতে হয়, ততটুকু, সেই সময় পর্যন্ত।", "Anything the law requires us to keep, for as long as it requires."))),
     S("timing", "সময়সূচি ও বাতিল", "Timing and cancelling",
-      P("অনুরোধের ৭ দিন পর প্রতি ঘণ্টার পরিষ্কার-প্রক্রিয়া অ্যাকাউন্টটি স্থায়ীভাবে মুছে দেয়। এর আগে অ্যাপে সেটিংস থেকে বা নোটিশের \"এটা আমি না\" লিংক থেকে বাতিল করা যায়। "
+      P("অনুরোধের ৭ দিন পর প্রতি ঘণ্টার পরিষ্কার-প্রক্রিয়া অ্যাকাউন্টটি স্থায়ীভাবে মুছে দেয়। এর আগে অ্যাপে নোটিশ বা সেটিংস থেকে \"মুছে ফেলা বাতিল করুন\" চেপে, কিংবা আবার সাইন ইন করে বাতিল করা যায়। "
         "চুরি-সুরক্ষার সতর্কতা সক্রিয় থাকলে চোর যাতে আপনার ডেটা মুছতে না পারে, সেজন্য অনুরোধ আটকে থাকে।",
-        "7 days after the request, an hourly clean-up permanently deletes the account. Before then you can cancel in the app's Settings or with the \"This wasn't me\" link in the notice. "
+        "7 days after the request, an hourly clean-up permanently deletes the account. Before then you can cancel in the app — tap \"Cancel deletion\" in the notice or in Settings, or simply sign in again. "
         "While an anti-theft alert is active the request is blocked, so a thief can't wipe your data.")),
     S("data_only", "শুধু কিছু তথ্য মুছতে চান?", "Want to delete only some data?",
       P("অ্যাকাউন্ট না মুছেও অ্যাপের ভেতরে যেকোনো রিমাইন্ডার, নোট, হিসাব, ভল্টের ফাইল, বার্তা বা ছবি আলাদাভাবে মুছতে পারেন; চ্যাটে ডিসঅ্যাপিয়ারিং মেসেজও চালু করতে পারেন। অ্যাপ ছাড়া এমন অনুরোধ করতে নিচের ফর্মের \"কারণ\" ঘরে লিখুন।",

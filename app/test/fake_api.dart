@@ -30,6 +30,10 @@ class FakeApi extends ApiClient {
   /// /payments/config (the gallery sets it for the `*_paylive` shots).
   static bool payLive = false;
 
+  /// dl1: whether /account/delete/status reports a PENDING deletion (the
+  /// gallery sets it for the `dl1_*pending*` / grace shots).
+  static bool delPending = false;
+
   Map<String, dynamic> _payProduct(String sku, int price,
           {String kind = 'sub', int credits = 0}) =>
       {
@@ -815,6 +819,12 @@ class FakeApi extends ApiClient {
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
     await _slow();
+    if (path == '/account/delete/status') {
+      return delPending
+          ? {'state': 'pending', 'effective_at': '2026-10-29T10:00:00Z',
+              'otp_required': false}
+          : {'state': null};
+    }
     final pay1 = _pay1Get(path); // pay1 (plans / credits / checkout)
     if (pay1 != null) {
       if (mode == FakeMode.fail) _fail();
@@ -1641,6 +1651,10 @@ class FakeApi extends ApiClient {
 
   @override
   Future<Map<String, dynamic>> postJson(String path, [Map<String, dynamic> body = const {}]) async {
+    if (path == '/account/delete/preview') {
+      return {'counts': {'memories': 42, 'reminders': 12, 'documents': 5},
+              'export_downloaded': false, 'grace_days': 7};
+    }
     final vehP = fakeVehiclePost(path, body, _bn); // v1-vehicle
     if (vehP != null) return vehP;
     final c1P = fakeC1Post(path, body); // c1-contacts

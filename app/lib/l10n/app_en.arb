@@ -16240,5 +16240,51 @@
   "oemStepOemBatterySamsung": "Settings • Battery • Background usage limits • open \"Sleeping apps\" and \"Deep sleeping apps\" and remove Assisto from both lists.",
   "oemStepOemBatteryTranssion": "Phone Master • Power saving • App power saving (or Smart power saving) • turn it off for Assisto.",
   "oemStepLockTitle": "Lock Assisto in Recent apps",
-  "oemStepLockBody": "Open the Recent apps screen, press and hold (or pull down) Assisto's card and tap the lock icon, so \"Clear all\" doesn't close it."
+  "oemStepLockBody": "Open the Recent apps screen, press and hold (or pull down) Assisto's card and tap the lock icon, so \"Clear all\" doesn't close it.",
+  "delAcctCancelDeletion": "Cancel deletion",
+  "delAcctAlreadyPending": "Your account is already scheduled for deletion on {date}. You can cancel any time before then.",
+  "delAcctGuidanceTitle": "Is something not working?",
+  "delAcctGuidanceBody": "Deleting your account does not fix app problems. If something isn't working, contact support or send feedback first.",
+  "delAcctSendFeedback": "Send feedback",
+  "delAcctContactSupport": "Contact support",
+  "dlGraceTitle": "Your account is scheduled for deletion",
+  "dlGraceBody": "Your account and all its data will be deleted on {date}. What would you like to do?",
+  "dlGraceRestore": "Restore account",
+  "dlGraceRestoreHint": "Cancel the deletion and keep using Assisto with all your data.",
+  "dlGraceFresh": "Delete now and start fresh",
+  "dlGraceFreshHint": "Everything in the old account is deleted right away, and you get a new, empty account with the same number.",
+  "dlGraceSignOut": "Sign out and keep the deletion scheduled",
+  "dlGraceRestored": "Welcome back. Your account is restored.",
+  "dlGraceFreshTitle": "Delete everything now?",
+  "dlGraceFreshBody": "This permanently deletes the old account and all its data right now. It cannot be undone. Then a new, empty account opens for the same number.",
+  "dlGraceOtpOn": "We will also send a code to your number by SMS.",
+  "dlGraceOtpOff": "SMS codes are not available yet, so we confirm with your password and the word below.",
+  "dlGracePasswordLabel": "Your password",
+  "dlGraceTypeToConfirm": "Type {word} to confirm",
+  "dlGraceFreshButton": "Delete everything and start fresh",
+  "dlGraceFreshDone": "Your new account is ready.",
+  "dlCallsFreeTesting": "Free (testing)",
+  "dlFlagCallsFree": "Free calls (testing)",
+  "dlFlagGroupCalls": "Calls",
+  "@delAcctAlreadyPending": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@dlGraceBody": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@dlGraceTypeToConfirm": {
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  }
 }

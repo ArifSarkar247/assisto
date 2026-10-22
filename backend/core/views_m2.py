@@ -748,10 +748,11 @@ class CircleGroupCallView(APIView):
         if mine is None:
             return _not_found()
         kind = CC.normalize_kind((request.data or {}).get("kind", "voice"))
-        initiator = {
+        from .calls_free import entitle   # dl1: Free calls (testing)
+        initiator = entitle({
             "id": request.user.id, "plan": plans.effective_plan(request.user),
             "video_unlocked": False, "role": mine.role,
-        }
+        })
         gate = G.can_place_group_call(initiator, kind,
                                       member_count=_active_count(g))
         if not gate["allowed"]:
@@ -763,7 +764,8 @@ class CircleGroupCallView(APIView):
             return Response(body, status=status.HTTP_200_OK)
         return Response({"allowed": True, "kind": kind,
                          "group_video": gate.get("group_video", False),
-                         "member_count": gate.get("member_count")},
+                         "member_count": gate.get("member_count"),
+                         "calls_free": bool(initiator.get("calls_free"))},
                         status=status.HTTP_200_OK)
 
 

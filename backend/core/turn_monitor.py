@@ -425,6 +425,10 @@ def relay_cost(days=30, now=None):
         calls = CallRecord.objects.filter(kind=kind, started_at__gte=since,
                                           session__relayed=True)
         relayed_min = (calls.aggregate(s=Sum("duration_sec"))["s"] or 0) / 60.0
+        # dl1: minutes placed under "Free calls (testing)" — real relay cost,
+        # zero revenue. Kept in the totals; split out so P&L can label them.
+        free_min = (calls.filter(free_testing=True).aggregate(
+            s=Sum("duration_sec"))["s"] or 0) / 60.0
         used = TurnRelayUsage.objects.filter(call_kind=kind, at__gte=since,
                                              call_id__isnull=False)
         ids = set(used.values_list("call_id", flat=True))
@@ -441,6 +445,8 @@ def relay_cost(days=30, now=None):
             "usd_per_min": round(usd_min, 6), "bdt_per_min": round(usd_min * usd_bdt, 4),
             "relayed_calls": calls.count(), "relayed_min": round(relayed_min, 1),
             "total_bdt": round(usd_min * usd_bdt * relayed_min, 2),
+            "free_min": round(free_min, 1),
+            "free_bdt": round(usd_min * usd_bdt * free_min, 2),
             "est_kbps": est[kind]}
     live_s = ShopLiveSession.objects.filter(created__gte=since, relayed=True).aggregate(
         s=Sum("seconds"))["s"] or 0
@@ -449,8 +455,16 @@ def relay_cost(days=30, now=None):
     rows["live"] = {"relayed_min": round(live_min, 1),
                     "bdt_per_min": vid["bdt_per_min"], "estimate": vid["estimate"],
                     "total_bdt": round(vid["bdt_per_min"] * live_min, 2)}
+    try:
+        from .calls_free import calls_free
+        free_now = calls_free()
+    except Exception:
+        free_now = False
     return {"days": days, "usd_per_gb": price, "usd_bdt": usd_bdt,
             "free_tier_note": True, "rows": rows,
+            "calls_free_now": free_now,
+            "free_testing_bdt": round(rows["voice"]["free_bdt"]
+                                      + rows["video"]["free_bdt"], 2),
             "total_bdt": round(sum(r["total_bdt"] for r in rows.values()), 2)}
 
 
