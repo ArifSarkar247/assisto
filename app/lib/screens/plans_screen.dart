@@ -287,12 +287,13 @@ class _PlansScreenState extends State<PlansScreen> {
         PlansCompareTable(plans: _all, current: current),
       ],
 
-      const SizedBox(height: Gap.sm),
-      Text(
-          (_payCfg?.anyUsable(payFlavour()) ?? false)
-              ? t.paySafeNote
-              : t.purchasingTurnsOnWhenA,
-          style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+      // No live payment channel: no footer at all (NO SHOWPIECES — users are
+      // never told "purchasing turns on later"; the owner sees that in Admin).
+      if (_payCfg?.anyUsable(payFlavour()) ?? false) ...[
+        const SizedBox(height: Gap.sm),
+        Text(t.paySafeNote,
+            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+      ],
 
       // ---- Earn Premium days by inviting (referral) ----
       const SizedBox(height: Gap.xl),
