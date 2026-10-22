@@ -220,9 +220,10 @@ class _MsgrSetMessagePrivacyScreenState
       };
 
   String _whoHint(String v) => switch (v) {
-        _WhoMsg.everyone => _t.msgrMsgWhoEveryoneHint,
+        // mr1: strangers who have my number land in Message requests.
+        _WhoMsg.everyone => _t.mr1WhoEveryoneHint,
         _WhoMsg.nobody => _t.msgrMsgWhoNobodyHint,
-        _ => _t.msgWhoCircleStrictHint,
+        _ => _t.mr1WhoCircleHint,
       };
 
   @override

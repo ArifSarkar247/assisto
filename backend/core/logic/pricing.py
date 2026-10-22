@@ -332,6 +332,11 @@ def DEFAULTS():
             # receipts, calls). Older builds get "Update Assisto"; peers on an
             # older build get an honest banner. Published in app/latest.
             "my_circle_min_version": 183,
+            # mr1: My Circle message requests — messages a stranger may send
+            # before the recipient accepts, and new requests per sender per
+            # day (abuse cap).
+            "message_request_max_msgs": 5,
+            "message_requests_per_day": 20,
         },
         "probashi_price_usd": DEFAULT_PROBASHI_PRICE_USD,
         # 0 = use the server env AI_DAILY_BUDGET_USD kill-switch default
@@ -522,6 +527,12 @@ def _norm_limits(raw, base):
         "my_circle_min_version": max(0, min(1000000, _int(
             raw.get("my_circle_min_version"),
             base.get("my_circle_min_version", 183)))),
+        "message_request_max_msgs": max(1, min(50, _int(
+            raw.get("message_request_max_msgs"),
+            base.get("message_request_max_msgs", 5)))),
+        "message_requests_per_day": max(1, min(500, _int(
+            raw.get("message_requests_per_day"),
+            base.get("message_requests_per_day", 20)))),
     }
 
 

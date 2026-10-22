@@ -33,6 +33,7 @@ class PushChannels {
     'shop_alert': alerts,
     'sos': sos,
     'missed_call': missedCalls,
+    'message_request': messages, // mr1
   };
 }
 
@@ -112,6 +113,9 @@ class PushPayload {
       key = 'missed-${_s('group_key')}';
     } else if (isMissedCall && callId.isNotEmpty) {
       key = 'missed-$callId';
+    } else if (kind == 'message_request' && _s('sender_id').isNotEmpty) {
+      // mr1: ONE notification per sender (a new message replaces it)
+      key = 'msgreq-${_s('sender_id')}';
     } else if (kind == 'message' && chatId.isNotEmpty) {
       key = 'chat-${_s('chat_kind')}-$chatId';
     } else if (kind == 'reminder' && _s('reminder_id').isNotEmpty) {
@@ -155,6 +159,7 @@ class PushRouting {
   static const routeMap = {
     'circle/chat': 'messages',
     'circle/group': 'messages',
+    'circle/requests': 'messages', // mr1
     'circle/call': 'circle_calls',
     'circle/calls': 'circle_calls',
     'reminders': 'reminders',
@@ -169,6 +174,7 @@ class PushRouting {
   /// kind -> fallback route when `route` is missing/unknown.
   static const kindMap = {
     'message': 'messages',
+    'message_request': 'messages', // mr1
     'call_cancel': 'circle_calls',
     'missed_call': 'circle_calls',
     'reminder': 'reminders',

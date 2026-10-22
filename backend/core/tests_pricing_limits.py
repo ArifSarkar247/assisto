@@ -24,7 +24,9 @@ class LimitsLogicTests(SimpleTestCase):
                                        "founding_member_months": 12,  # f1
                                        "feedback_per_hour": 5,  # f1
                                        "feedback_per_day": 20,  # f1
-                                       "my_circle_min_version": 183})  # t1
+                                       "my_circle_min_version": 183,  # t1
+                                       "message_request_max_msgs": 5,  # mr1
+                                       "message_requests_per_day": 20})  # mr1
         self.assertEqual(c["guarantees"], {"margin_net_floor": 0.60,
                                            "pool_cap_pct_of_net": 0.60})
         self.assertEqual(c["probashi_price_usd"], 4.99)
