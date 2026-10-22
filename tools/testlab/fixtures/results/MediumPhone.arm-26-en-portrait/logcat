@@ -1,0 +1,7 @@
+10-22 18:03:01.000   900   900 I ActivityManager: Start proc 2222:com.assisto.assisto/u0a120 for top-activity
+10-22 18:03:59.000   900   950 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+10-22 18:03:59.000   900   950 F DEBUG   : pid: 2222, tid: 2240, name: 1.ui  >>> com.assisto.assisto <<<
+10-22 18:03:59.000   900   950 F DEBUG   : signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x0
+10-22 18:03:59.000   900   950 F DEBUG   : backtrace:
+10-22 18:03:59.000   900   950 F DEBUG   :     #00 pc 0000000000a1b2c4  /data/app/com.assisto.assisto-1/lib/arm64/libflutter.so
+10-22 18:03:59.000   900   950 F DEBUG   :     #01 pc 0000000000a1b000  /data/app/com.assisto.assisto-1/lib/arm64/libflutter.so
