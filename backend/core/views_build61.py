@@ -223,7 +223,8 @@ def pricing_apply(actor_id, d):
         if key in (patch or {}):
             merged[key] = patch[key]
     for dkey in ("ad_rewards", "profit_guard", "guarantees", "limits",
-                 "referral", "shop", "otp", "vehicle", "photo_studio"):
+                 "referral", "shop", "otp", "vehicle", "photo_studio",
+                     "chat_vision", "home_hero"):
         if (dkey in ("guarantees", "limits", "referral")
                 and dkey in (patch or {})
                 and not isinstance(patch[dkey], dict)):

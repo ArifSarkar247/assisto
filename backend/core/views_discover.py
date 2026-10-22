@@ -86,11 +86,12 @@ def app_payload(c):
     }
 
 
-def cards_for(segment, build, now=None):
+def cards_for(segment, build, now=None, hero_ad=False):
     from .models import DiscoverCard
     now = now or timezone.now()
     rows = [_rule_row(c) for c in DiscoverCard.objects.all()]
-    return [r["obj"] for r in D.visible_cards(rows, segment, build, now)]
+    return [r["obj"] for r in D.visible_cards(rows, segment, build, now,
+                                              hero_ad=hero_ad)]
 
 
 def _admin_payload(c, totals=None):
@@ -299,7 +300,9 @@ class DiscoverCardsView(APIView):
     def get(self, request):
         seg = _segment(request.user)
         build = _build_param(request.query_params.get("build"))
-        cards = cards_for(seg, build)
+        # h1-home: ?hero_ad=1 while the home hero shows an AdMob native ad
+        hero_ad = (request.query_params.get("hero_ad") or "") in ("1", "true")
+        cards = cards_for(seg, build, hero_ad=hero_ad)
         return Response({"cards": [app_payload(c) for c in cards],
                          "segment": seg})
 

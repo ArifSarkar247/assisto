@@ -98,7 +98,7 @@ def _audience_ok(card, segment):
     return aud == "all" or aud == segment
 
 
-def visible_cards(cards, segment, build, now):
+def visible_cards(cards, segment, build, now, hero_ad=False):
     """Filter + order `cards` (plain dicts) for one user. Returns a new list.
 
     `segment` ∈ free / premium / business (unknown -> free). `build` = the app
@@ -124,7 +124,9 @@ def visible_cards(cards, segment, build, now):
     out, admob_used = [], False
     for c in base:
         if c.get("type") == ADMOB:
-            if paid or has_sponsor or admob_used:
+            # h1-home: only ONE AdMob ad on home — while the home hero is
+            # showing a native ad the Discover AdMob slot is dropped.
+            if paid or has_sponsor or admob_used or hero_ad:
                 continue
             admob_used = True
         out.append(c)

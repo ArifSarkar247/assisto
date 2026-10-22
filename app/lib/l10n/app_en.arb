@@ -15770,5 +15770,78 @@
   "m3SecureStoreNotReady": "Your phone's secure storage isn't ready yet. Close and reopen Assisto, then try again.",
   "m3SeeAll": "See all",
   "m3StorageDegraded": "This phone couldn't save your ticks. They stay until you close the app.",
-  "m3WantsToAdd": "Wants to add you to their My Circle"
+  "m3WantsToAdd": "Wants to add you to their My Circle",
+  "h1AdLabel": "Ad",
+  "h1HeroAdSemantics": "Advertisement",
+  "h1HeroMutedHint": "Video starts muted. Tap the speaker on the ad for sound.",
+  "h1AttachPhoto": "Attach a photo",
+  "h1PhotoSheetTitle": "Ask about a photo",
+  "h1PhotoSheetBody": "Medicine box, bill, plant, document — type your question first if you like.",
+  "h1PhotoCamera": "Take a photo",
+  "h1PhotoGallery": "Choose from gallery",
+  "h1PhotoYouSent": "Photo you sent",
+  "h1PhotoReading": "Reading your photo…",
+  "h1OnDeviceTitle": "On your phone",
+  "h1OnDeviceUnavailable": "Reading photos on the phone isn't in this app version yet. You can still get a detailed answer below.",
+  "h1OnDeviceFailed": "The phone couldn't read this photo. Try a clearer, well-lit photo, or get a detailed answer below.",
+  "h1OnDeviceTextFound": "Text on the photo",
+  "h1OnDeviceNoText": "No readable text was found.",
+  "h1OnDeviceLatinOnly": "The phone reads English text only. Bangla text is read in the detailed answer.",
+  "h1MedicineNote": "Take a dose only as printed on the label. Please consult a doctor or pharmacist first.",
+  "h1KindMedicine": "This looks like a medicine.",
+  "h1KindBill": "This looks like a bill or receipt.",
+  "h1KindDocument": "This looks like a document.",
+  "h1KindPlant": "This looks like a plant.",
+  "h1KindFood": "This looks like food.",
+  "h1KindOther": "Here is what the phone found.",
+  "h1DetailedTitle": "Detailed answer",
+  "h1DetailedPreparing": "Getting ready…",
+  "h1DetailedWatching": "Playing the ad…",
+  "h1DetailedVerifying": "Checking ad {done} of {total}…",
+  "@h1DetailedVerifying": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "h1DetailedAnswering": "Assisto is looking at your photo…",
+  "h1DetailedPaidBody": "Assisto AI reads the whole photo — including Bangla text — and answers your question.",
+  "h1DetailedFreeBody": "One detailed answer a day after short ads. Assisto AI reads the whole photo, including Bangla text.",
+  "h1DetailedPool": "Get answer · {credits} credits",
+  "@h1DetailedPool": {
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      }
+    }
+  },
+  "h1DetailedAds": "Watch {count} ads",
+  "@h1DetailedAds": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "h1UseCredits": "Use {credits} credits",
+  "@h1UseCredits": {
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      }
+    }
+  },
+  "h1DetailedUnavailable": "Detailed answers aren't available right now.",
+  "h1DetailedOffline": "Couldn't reach Assisto. Check the internet and try again.",
+  "h1DetailedError": "Something went wrong. Try again — you won't be charged twice.",
+  "h1AdFailed": "The ad didn't finish, so nothing was unlocked. Try again or use credits.",
+  "h1NotEnoughCredits": "Not enough credits.",
+  "h1TryAdAgain": "Try the ad again",
+  "h1TryAgain": "Try again",
+  "h1FaceRefused": "I can't identify real people from their face. I can describe the photo in general terms instead.",
+  "h1PrivacyNote": "Your photo was used only for this answer and was not saved."
 }

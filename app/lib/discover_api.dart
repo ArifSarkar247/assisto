@@ -19,8 +19,12 @@ import 'l10n/app_localizations.dart';
 /// Built on the public [ApiClient] helpers so api.dart stays untouched.
 extension DiscoverApi on ApiClient {
   /// GET /discover/cards?build=N -> {cards:[...], segment}
-  Future<Map<String, dynamic>> discoverCards({int? build}) =>
-      getJson('/discover/cards${build == null ? '' : '?build=$build'}');
+  /// h1-home: [heroAd] = the home hero is showing an AdMob native ad right
+  /// now -> the server drops the Discover AdMob slot (one AdMob ad on home).
+  Future<Map<String, dynamic>> discoverCards({int? build, bool heroAd = false}) {
+    final q = [if (build != null) 'build=$build', if (heroAd) 'hero_ad=1'];
+    return getJson('/discover/cards${q.isEmpty ? '' : '?${q.join('&')}'}');
+  }
 
   /// POST /discover/track {card_id, event: impression|click}
   Future<Map<String, dynamic>> discoverTrack(int cardId, String event) =>

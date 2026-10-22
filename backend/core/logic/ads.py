@@ -23,6 +23,8 @@ TEST_UNITS = {
     "rewarded": "ca-app-pub-3940256099942544/5224354917",
     "banner": "ca-app-pub-3940256099942544/6300978111",
     "interstitial": "ca-app-pub-3940256099942544/1033173712",
+    # h1-home: native advanced (the video sample is .../1044960115)
+    "native": "ca-app-pub-3940256099942544/2247696110",
 }
 TEST_PUBLISHER = "ca-app-pub-3940256099942544"
 
@@ -31,7 +33,8 @@ _UNIT_RE = re.compile(r"^ca-app-pub-\d{16}/\d{6,12}$")
 
 # integration field -> client unit key
 UNIT_FIELDS = {"app_open_unit": "app_open", "rewarded_unit": "rewarded",
-               "banner_unit": "banner", "interstitial_unit": "interstitial"}
+               "banner_unit": "banner", "interstitial_unit": "interstitial",
+               "native_unit": "native"}
 
 # Screens where an ad must NEVER appear (server copy; the app has the same
 # hard list and treats any unknown screen as blocked).
@@ -79,8 +82,21 @@ def validate_admob_ids(cfg):
     return True, "IDs look valid — verified on first ad load"
 
 
+# h1-home: AdMob asks for >= 60 s between refreshes of one native slot.
+HERO_MIN_REFRESH_SEC = 60
+
+
+def hero_refresh_sec(value):
+    """The home hero native-ad refresh, never faster than AdMob allows."""
+    try:
+        v = int(value)
+    except (TypeError, ValueError):
+        v = 90
+    return max(HERO_MIN_REFRESH_SEC, min(3600, v))
+
+
 def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
-                  flag_app_open, ad_caps):
+                  flag_app_open, ad_caps, hero_refresh=90):
     """The /ads/config payload. `configured` is True only for owner-saved REAL
     ids that pass validation; otherwise the app falls back to TEST ids and the
     server never credits real money."""
@@ -111,4 +127,6 @@ def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
         # o2-admin: hero ad slot (Free only); start muted unless owner says not
         "hero_enabled": bool(caps.get("hero_enabled", False)) and not paid,
         "hero_start_muted": bool(caps.get("hero_start_muted", True)),
+        # h1-home: home hero native-ad refresh (admin: pricing home_hero)
+        "hero_refresh_sec": hero_refresh_sec(hero_refresh),
     }

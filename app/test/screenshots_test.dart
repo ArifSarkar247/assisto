@@ -187,6 +187,7 @@ import 'package:assisto/crypto/e2e.dart';
 import 'package:assisto/screens/legal_screen.dart';
 import 'ps1_shots.dart'; // ps1-photo
 import 'w1_webphoto_shots.dart'; // w1-webphoto
+import 'h1_home_shots.dart'; // h1-home
 import 'package:assisto/screens/unseen_world_screen.dart';
 import 'package:assisto/screens/shop_box_screen.dart';
 import 'package:assisto/screens/business/business_hub_screen.dart';
@@ -548,6 +549,10 @@ void main() {
     for (final e in ps1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // w1-webphoto: lifeassisto.com/photo deep link -> Photo Studio (gate kept)
     for (final e in w1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // h1-home: home ad hero (free / premium) + image in chat
+    // (home hero shots: no urgent cards, so the welcome slot is visible)
+    for (final e in h1Shots.entries)
+      e.key: (build: e.value, mode: e.key.startsWith('home_hero') ? FakeMode.empty : FakeMode.data, full: true),
     // ---- a1 Premium QA: screens that had no gallery shot ----
     'ai_chat': (build: (_) => const AiChatScreen(), mode: FakeMode.data, full: true),
     'nearby': (build: (_) => const NearbyScreen(), mode: FakeMode.data, full: true),
