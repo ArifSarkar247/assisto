@@ -1,5 +1,10 @@
 # Assisto — মালিকের জন্য স্ট্যাটাস (নতুন আপডেট উপরে)
 
+> ## ✅ বিল্ড ১৮০ পাবলিশড (২২ Oct দুপুর ১২:১০ ঢাকা) — CCTV লাইভ ভিউ — https://api.lifeassisto.com/dl/wMqfZFBorQe17D-K_XGP3Jwb/assisto-part7-build180.apk
+> ১. Shop Box → লাইভ দেখুন: দোকানের "Shop Box ফোন" থেকে সরাসরি ভিডিও আপনার ফোনে (WebRTC — সরাসরি সংযোগ, না হলে TURN দিয়ে; রিলে মিনিটে ক্রেডিট লাগে), কোথাও রেকর্ড হয় না।
+> ২. পুরনো Android ফোনকে Shop Box বানানো (Shop Box mode): স্ক্রিন জেগে থাকে, চার্জিং অবস্থা দেখায়; স্ক্রিন খোলা থাকলেই কাজ করে (সৎ সীমা)।
+> ৩. পরের বিল্ড: ওয়েবসাইটের পাসপোর্ট-ফটো টুল → হোমের নতুন হিরো + ছবিতে প্রশ্ন → লিগ্যাল পেজ/Founding Member/ফিডব্যাক। My Circle-এর আসল কল ও WhatsApp-মানের মেসেজিং এজেন্টরা বানাচ্ছে।
+
 > ## ✅ বিল্ড ১৭৯ পাবলিশড (২২ Oct সকাল ১১:১০ ঢাকা) — গাড়ির OBD — https://api.lifeassisto.com/dl/2wi66pmAt3WgFt5_fuJIBvjQ/assisto-part7-build179.apk
 > ১. My Vehicles → Live tracking → Car health (OBD): ব্লুটুথ ELM327 ডঙ্গল (ফোনের Bluetooth-এ একবার pair করে নিন) থেকে গাড়ির ত্রুটি-কোড পড়া যাবে; শুধু pair করা ডিভাইস, কোনো স্ক্যান নয়।
 > ২. গাড়ি ট্র্যাকিং সার্ভার (GT06/Teltonika, track.lifeassisto.com:5023) আগে থেকেই চালু — ট্র্যাকারে SMS দিয়ে সার্ভার সেট করার নিয়ম deploy/tracker/INSTALL.md-এ।
