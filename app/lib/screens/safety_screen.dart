@@ -96,7 +96,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
     try {
       final r = await context.read<AppState>().api.journeyActive();
       if (r['status'] == 'active') activeId = (r['id'] as num?)?.toInt();
-    } catch (_) {}
+    } catch (_) {} // best-effort: no active journey known: the start flow opens instead
     if (!mounted) return;
     navigator.push(MaterialPageRoute(
         builder: (_) => activeId != null

@@ -88,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     try {
       final b = await app.api.homeBadges();
       if (mounted) setState(() => _badges = b);
-    } catch (_) {/* offline/server down — keep last counts */}
+    } catch (_) {/* best-effort: offline/server down — keep last counts */}
   }
 
   // "New chat": a fresh, empty home thread (the old one stays in the Assisto

@@ -145,7 +145,7 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
       }
       // 'cancel' AND 'duress' both LOOK cancelled (duress fired silently server-side)
     } catch (_) {
-      // offline: treat as normal cancel of the local UI; server reconciles.
+      // best-effort: offline: treat as normal cancel of the local UI; server reconciles.
     }
     _timer?.cancel();
     if (mounted) {

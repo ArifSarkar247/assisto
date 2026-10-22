@@ -91,7 +91,7 @@ class _AppUpdateScreenState extends State<AppUpdateScreen> {
         if (info.version.isNotEmpty) current = info.version;
         currentCode = int.tryParse(info.buildNumber) ?? 0;
       } catch (_) {
-        // package_info unavailable (e.g. tests) — keep the compile-time label.
+        // best-effort: package_info unavailable (e.g. tests) — keep the compile-time label.
       }
 
       final r = await http

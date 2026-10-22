@@ -1,0 +1,12 @@
+{
+ "en": {
+  "actionFailedRetry": "Couldn't do that. Please try again.",
+  "actionCantOpen": "Couldn't open it on this phone.",
+  "actionNeedInput": "Type something first."
+ },
+ "bn": {
+  "actionFailedRetry": "কাজটি করা যায়নি। আবার চেষ্টা করুন।",
+  "actionCantOpen": "এই ফোনে এটি খোলা যায়নি।",
+  "actionNeedInput": "আগে কিছু লিখুন।"
+ }
+}

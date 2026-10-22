@@ -129,7 +129,7 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
     final scheme = Theme.of(context).colorScheme;
     final status = (p['status'] ?? 'draft').toString();
     final reviewed = p['prices_reviewed'] == true;
-    final total = (p['total'] as num?) ?? 0;
+    final total = _dec(p['total']) ?? 0;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
@@ -140,9 +140,9 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
           ]),
           const SizedBox(height: Gap.xs),
           if (total > 0) ...[
-            _line(t.crmSubtotal, bdt(context, p['subtotal'] as num?)),
-            if ((p['discount_amount'] as num? ?? 0) > 0) _line(t.crmDiscount, '- ${bdt(context, p['discount_amount'] as num?)}'),
-            _line('${t.crmTax} (${p['tax_pct']}%)', bdt(context, p['tax_amount'] as num?)),
+            _line(t.crmSubtotal, bdt(context, _dec(p['subtotal']))),
+            if ((_dec(p['discount_amount']) ?? 0) > 0) _line(t.crmDiscount, '- ${bdt(context, _dec(p['discount_amount']))}'),
+            _line('${t.crmTax} (${p['tax_pct']}%)', bdt(context, _dec(p['tax_amount']))),
             const Divider(),
             _line(t.crmTotal, bdt(context, total), bold: true),
           ],
@@ -242,7 +242,7 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
   List<Map<String, dynamic>> get _active =>
       widget.products.where((p) => p['active'] != false).toList();
 
-  double _unit(Map<String, dynamic> p) => ((p['unit_price'] as num?) ?? 0).toDouble();
+  double _unit(Map<String, dynamic> p) => (_dec(p['unit_price']) ?? 0).toDouble();
 
   double get _subtotal {
     double s = 0;
@@ -387,7 +387,7 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(p['name']?.toString() ?? sku, style: const TextStyle(fontWeight: FontWeight.w700)),
-              Text('${bdt(context, (p['unit_price'] as num?))} · $sku',
+              Text('${bdt(context, (_dec(p['unit_price'])))} · $sku',
                   style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
               if (!reviewed)
                 Text(t.crmToReview, style: const TextStyle(color: Brand.warning, fontWeight: FontWeight.w700, fontSize: 11)),
@@ -420,3 +420,7 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
         child: Text(s, style: const TextStyle(fontWeight: FontWeight.w800)),
       );
 }
+
+/// db1: Django DecimalFields arrive as JSON strings ("1200.00"); a bare
+/// `as num?` cast threw and broke the quote card (found by the tap sweep).
+num? _dec(dynamic v) => v is num ? v : num.tryParse('${v ?? ''}');

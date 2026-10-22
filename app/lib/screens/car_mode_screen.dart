@@ -84,7 +84,7 @@ class _CarModeScreenState extends State<CarModeScreen> {
           'speed_kmh': (p.speed.isFinite && p.speed > 0) ? p.speed * 3.6 : 0,
         });
         if (mounted) setState(() => _speedKmh = p.speed * 3.6);
-      }, onError: (_) {});
+      }, onError: (_) {}); // best-effort: a GPS hiccup must not stop the trip
       await _keepOn(true);
       setState(() => _logging = true);
     } catch (_) {
@@ -141,7 +141,7 @@ class _CarModeScreenState extends State<CarModeScreen> {
       final ok = await launchUrl(Uri.parse('google.navigation:q=$q'),
           mode: LaunchMode.externalApplication);
       if (ok) return;
-    } catch (_) {}
+    } catch (_) {} // best-effort: falls through to the web-maps link, which shows vehCarNoMaps on failure
     try {
       await launchUrl(
           Uri.parse('https://www.google.com/maps/dir/?api=1&destination=$q'),

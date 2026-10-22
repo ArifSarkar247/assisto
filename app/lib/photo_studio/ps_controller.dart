@@ -586,6 +586,15 @@ class PhotoStudioController extends ChangeNotifier {
     return s.current.jobId ?? _jobOfVersion[s.index];
   }
 
-  void undo() => session?.undo();
-  void redo() => session?.redo();
+  // db1: the screen listens to the controller, not the session — without
+  // this notify, Undo/Redo changed nothing on screen (dead-button sweep).
+  void undo() {
+    session?.undo();
+    if (!disposed) notifyListeners();
+  }
+
+  void redo() {
+    session?.redo();
+    if (!disposed) notifyListeners();
+  }
 }

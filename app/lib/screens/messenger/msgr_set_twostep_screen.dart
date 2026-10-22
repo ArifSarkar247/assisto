@@ -49,7 +49,7 @@ class _MsgrSetTwoStepScreenState extends State<MsgrSetTwoStepScreen> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('msgr_twostep_pin');
       await prefs.remove('msgr_twostep_enabled');
-    } catch (_) {}
+    } catch (_) {} // best-effort: wipes a legacy local copy; nothing for the user to see
     try {
       final r = await _api.twoStepStatus();
       _enabled = r['enabled'] == true;

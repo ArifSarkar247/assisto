@@ -192,7 +192,7 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
     final secs = _liveSince == null ? 0 : DateTime.now().difference(_liveSince!).inSeconds;
     try {
       await _peer?.dispose();
-    } catch (_) {}
+    } catch (_) {} // best-effort: WebRTC teardown
     _peer = null;
     final sid = _sid;
     if (sid != null) {
@@ -200,7 +200,7 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
         await _send('bye', const {});
         final r = await _api.shopLiveEnd(sid, relayed: _relayed, seconds: secs);
         _charged = (r['charged_credits'] as num?)?.toInt() ?? 0;
-      } catch (_) {}
+      } catch (_) {} // best-effort: the server closes a silent session by timeout
     }
     if (!silent && mounted) setState(() => _phase = _Phase.ended);
   }

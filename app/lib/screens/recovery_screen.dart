@@ -13,6 +13,7 @@ import '../api.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// Anti-theft Batch 5 — Recovery help.
 ///
@@ -177,10 +178,13 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
   Future<void> _open(String url) async {
     try {
       final uri = Uri.parse(url);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      // db1: a failed open is told to the user, never a silent dead tap.
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        throw StateError('no app for $url');
       }
-    } catch (_) {/* ignore */}
+    } catch (e) {
+      if (mounted) showActionFailed(context, 'recovery.open', e, open: true);
+    }
   }
 
   Future<void> _call(String phone) => _open('tel:$phone');

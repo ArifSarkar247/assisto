@@ -71,7 +71,7 @@ class _ProactiveAiScreenState extends State<ProactiveAiScreen> {
       List<Map<String, dynamic>> dismissed = const [];
       try {
         dismissed = await _api.listItems(_dismissedPath);
-      } catch (_) {/* dismissals are best-effort; empty is fine */}
+      } catch (_) {/* best-effort: dismissals are best-effort; empty is fine */}
       if (!mounted) return;
       setState(() {
         _signals = signals;

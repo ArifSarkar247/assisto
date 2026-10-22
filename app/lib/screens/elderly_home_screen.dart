@@ -154,7 +154,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
       if (!mounted) return;
       if (ChatNav.push(context, r['route'] as String?)) return;
     } catch (_) {
-      // fall through to the snackbar below; never crash on offline/AI failure.
+      // best-effort: fall through to the snackbar below; never crash on offline/AI failure.
     }
     if (!mounted) return;
     // Nothing resolved: give honest, localized feedback (same copy chat uses

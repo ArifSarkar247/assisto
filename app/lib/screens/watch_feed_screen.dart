@@ -10,6 +10,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/watch_item.dart';
 import '../widgets/watch_card.dart';
 import '../widgets/watch_sources_sheet.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// WATCH FEED (ADVANCED) — the user's single "what needs me now" digest.
 ///
@@ -276,7 +277,12 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
       case WatchAction.markDone:
         final id = int.tryParse(it.id.split(':').last);
         if (id != null) {
-          await _api.updateItem('reminders', id, {'done': true});
+          try {
+            await _api.updateItem('reminders', id, {'done': true});
+          } catch (e) {
+            if (mounted) showActionFailed(context, 'watch.markDone', e); // db1
+            return;
+          }
         }
         setState(() => _dismissed.add(it.id));
         break;
@@ -285,7 +291,12 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
         final id = int.tryParse(parts.length > 1 ? parts[1] : '');
         final slot = parts.length > 2 ? parts[2] : '';
         if (id != null && slot.isNotEmpty) {
-          await _api.medicineTaken(id, slot, taken: true);
+          try {
+            await _api.medicineTaken(id, slot, taken: true);
+          } catch (e) {
+            if (mounted) showActionFailed(context, 'watch.markTaken', e); // db1
+            return;
+          }
         }
         setState(() => _dismissed.add(it.id));
         break;
@@ -576,10 +587,10 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
               trailing: IconButton(
                 tooltip: t.watchRemoveWatcher,
                 icon: const Icon(Icons.delete_outline),
-                onPressed: () async {
+                onPressed: () => runUserAction(context, 'watch.removeWatcher', () async { // db1
                   await _api.deleteItem('watchers', w['id']);
                   _load();
-                },
+                }),
               ),
             ),
           ),

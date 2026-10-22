@@ -92,6 +92,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     with WidgetsBindingObserver {
   final _e2e = SoftwareE2E();
   final _input = TextEditingController();
+  final _inputFocus = FocusNode(); // db1
   final _scroll = ScrollController();
 
   // Live foreground poll (see _kPollInterval). Null when not scheduled.
@@ -264,6 +265,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     Outbox.instance.changes.removeListener(_onOutbox);
     _keySub?.cancel();
     _input.dispose();
+    _inputFocus.dispose(); // db1
     _scroll.dispose();
     super.dispose();
   }
@@ -823,6 +825,11 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   // -------------------------------------------------------------------------
   Future<void> _send() async {
     final plain = _input.text.trim();
+    // db1: Send on an empty box opens the keyboard instead of doing nothing.
+    if (plain.isEmpty && !_sending) {
+      _inputFocus.requestFocus();
+      return;
+    }
     if (plain.isEmpty || _sending) return;
     if (_memberId != null) _rt.typing('member', _memberId!, 'stop');
 
@@ -2278,6 +2285,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                 child: RoboId(id: 'tl_chat_input', // tl1: Test Lab Robo target
                   child: TextField(
                   controller: _input,
+                  focusNode: _inputFocus, // db1
                   minLines: 1,
                   maxLines: 5,
                   textInputAction: TextInputAction.send,

@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import 'ladder_common.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// "Leave now" (bn label supplied via l10n) card for an appointment.
 ///
@@ -93,10 +94,8 @@ class _LifeLeaveNowCardState extends State<LifeLeaveNowCard> {
   Future<void> _openMaps() async {
     final url = _mapsDirUrl();
     if (url == null) return;
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
+    await openForUser(context, Uri.parse(url), // db1
+        where: 'leaveNow.maps', mode: LaunchMode.externalApplication);
   }
 
   Future<void> _setTravel() async {

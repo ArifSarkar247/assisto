@@ -166,7 +166,7 @@ class _DailyBriefScreenState extends State<DailyBriefScreen>
         });
       }
     } catch (_) {
-      // pa_schedule merge failed — fall back to appointments-only events.
+      // best-effort: pa_schedule merge failed — fall back to appointments-only events.
     }
 
     // birthdays endpoint → {upcoming:[{name, next_date, days_until}]}

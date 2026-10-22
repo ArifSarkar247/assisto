@@ -8,6 +8,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import 'permission_reason.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// Shared live speech-to-text for every chat input (home + Assisto AI).
 ///
@@ -342,9 +343,16 @@ class VoiceDictation extends ChangeNotifier {
           ? SnackBarAction(
               label: t.open,
               onPressed: () {
-                try {
-                  openAppSettings();
-                } catch (_) {}
+                // db1: the snackbar is gone by now; a failure is reported and
+                // told with a fresh snackbar.
+                openAppSettings().then((ok) {
+                  if (!ok) throw StateError('app settings unavailable');
+                }).catchError((Object e) {
+                  if (context.mounted) {
+                    showActionFailed(context, 'voice.openSettings', e,
+                        open: true);
+                  }
+                });
               })
           : null,
     ));

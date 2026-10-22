@@ -12,6 +12,7 @@ import '../widgets/ladder_common.dart' show taka, takaToPoisha, fmtInt;
 import 'registry_imei.dart';
 import 'report_stolen_screen.dart';
 import 'used_phone_check_screen.dart' show copyToClipboard;
+import '../services/action_feedback.dart'; // db1
 
 /// Sell-my-phone safely (Family & Safety). Two parts:
 ///   (a) a persisted guided checklist so a factory reset doesn't leave the
@@ -149,8 +150,8 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
       final res = await const SecurityGuard().run(context, 'disarm');
       if (!mounted) return;
       if (res.state == SecActionState.applied) await _toggle(stepId, true);
-    } catch (_) {
-      // crash-guarded; leave the step unticked if the gate errors
+    } catch (e) {
+      showActionFailed(context, 'sellPhone.disarm', e); // db1
     }
   }
 

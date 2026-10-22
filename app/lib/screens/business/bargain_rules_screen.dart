@@ -146,10 +146,12 @@ class _BargainRulesScreenState extends State<BargainRulesScreen> {
 
   Widget _kv(String k, String v) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.xs),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('$k: ', style: _label()),
-          Expanded(child: Text(v, style: const TextStyle(fontWeight: FontWeight.w600))),
-        ]),
+        // db1: one wrapping run — a fixed label overflowed the half-width
+        // "Minimum price (floor)" column by 11px at 360dp (tap sweep).
+        child: Text.rich(TextSpan(children: [
+          TextSpan(text: '$k: ', style: _label()),
+          TextSpan(text: v, style: const TextStyle(fontWeight: FontWeight.w600)),
+        ])),
       );
 
   TextStyle _label() =>

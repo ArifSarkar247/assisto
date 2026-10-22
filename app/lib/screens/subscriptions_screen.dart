@@ -8,6 +8,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/subs_common.dart';
 import '../widgets/subs_cards.dart';
 import '../widgets/subs_edit_sheet.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// Advanced subscription tracker (benchmarked on Bobby / Rocket Money, adapted
 /// to Bangladesh: bKash/Nagad/card/cash; Netflix/Spotify/Daraz/ISP/gym/recharge).
@@ -103,10 +104,16 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
   Future<void> _markPaid(Map<String, dynamic> sub) async {
     final next = rollNextDue(sub, DateTime.now());
     final t = AppLocalizations.of(context);
-    await context
-        .read<AppState>()
-        .api
-        .updateItem('subscriptions', sub['id'] as int, {'next_due': next});
+    try {
+      await context
+          .read<AppState>()
+          .api
+          .updateItem('subscriptions', sub['id'] as int, {'next_due': next});
+    } catch (e) {
+      // db1: offline / server error — say so; nothing was marked paid.
+      if (mounted) showActionFailed(context, 'subs.markPaid', e);
+      return;
+    }
     // The new cycle now has a next_due — schedule its reminder (same stable id
     // ⇒ the previous one is replaced, not duplicated).
     _scheduleDueReminder(t, sub['id'], sub['name'], next);

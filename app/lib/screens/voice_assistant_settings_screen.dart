@@ -132,7 +132,7 @@ class _VoiceAssistantSettingsScreenState
       }
       try {
         await Permission.notification.request();
-      } catch (_) {}
+      } catch (_) {} // best-effort: optional; the wake listener works without it
       if (!mounted) return;
       final r = await VaWake.start(_cfg,
           title: t.vaWakeNotifTitle,

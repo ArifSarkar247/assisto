@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// Nearest-help finder. Reuses the EXISTING /nearby provider (api.nearby) to
 /// list the closest hospital + police station, with one-tap directions and
@@ -63,7 +64,7 @@ class _EmergencyNearestHelpState extends State<EmergencyNearestHelp> {
           for (final p in items.take(2)) {
             results.add({...p, 'kind': type});
           }
-        } catch (_) {/* one type failing shouldn't kill the other */}
+        } catch (_) {/* best-effort: one type failing shouldn't kill the other */}
       }
       if (!mounted) return;
       setState(() {
@@ -82,15 +83,12 @@ class _EmergencyNearestHelpState extends State<EmergencyNearestHelp> {
   Future<void> _directions(Map<String, dynamic> p) async {
     final lat = p['lat'], lng = p['lng'] ?? p['lon'];
     if (lat == null || lng == null) return;
-    final uri = Uri.parse('https://maps.google.com/?daddr=$lat,$lng');
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
+    await openForUser(context, Uri.parse('https://maps.google.com/?daddr=$lat,$lng'), // db1
+        where: 'nearestHelp.directions', mode: LaunchMode.externalApplication);
   }
 
   Future<void> _call(String phone) async {
-    final uri = Uri.parse('tel:$phone');
-    if (await canLaunchUrl(uri)) await launchUrl(uri);
+    await openForUser(context, Uri.parse('tel:$phone'), where: 'nearestHelp.call'); // db1
   }
 
   @override

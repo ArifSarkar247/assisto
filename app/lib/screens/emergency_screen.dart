@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,6 +13,7 @@ import '../widgets/emergency_first_aid.dart';
 import '../widgets/emergency_nearest_help.dart';
 import '../widgets/emergency_sos_panel.dart';
 import 'safety_screen.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// ADVANCED Emergency + SOS screen.
 ///
@@ -129,7 +129,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
       try {
         _apply(jsonDecode(cached) as Map<String, dynamic>);
         _offline = true;
-      } catch (_) {}
+      } catch (_) {} // best-effort: corrupt cache is ignored; the server copy loads next
     }
     _sosCountdown = int.tryParse(await Settings.getString('safety_sos_cd') ?? '') ?? 5;
     try {
@@ -138,7 +138,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
       _offline = false;
       await prefs.setString(_cacheKey, jsonEncode(_collect()));
     } catch (_) {
-      // keep whatever cache we had; _offline stays true if we had cache,
+      // best-effort: keep whatever cache we had; _offline stays true if we had cache,
       // and empty state shows if we didn't.
     }
     if (mounted) setState(() => _loading = false);
@@ -168,8 +168,8 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
   }
 
   Future<void> _call(String phone) async {
-    final uri = Uri.parse('tel:$phone');
-    if (await canLaunchUrl(uri)) await launchUrl(uri);
+    // db1: an emergency call that cannot start must SAY so, never stay silent.
+    await openForUser(context, Uri.parse('tel:$phone'), where: 'emergency.call');
   }
 
   // Build the shareable plain-text (mirrors safety.emergency_card_text order).

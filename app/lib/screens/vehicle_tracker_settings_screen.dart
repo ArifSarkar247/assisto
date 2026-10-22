@@ -6,6 +6,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../vehicle/veh_format.dart';
 import '../vehicle/vehicle_api.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// Owner-only tracker settings: alerts (over-speed, night ignition,
 /// geofences), reporting interval, engine-cut family approval, who can see /
@@ -216,7 +217,9 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
   Future<void> _revoke(int gid) async {
     try {
       await context.read<AppState>().api.vehRevokeGrant(_id, gid);
-    } catch (_) {}
+    } catch (e) {
+      showActionFailed(context, 'vehSettings.revoke', e); // db1
+    }
     _loadPeople();
   }
 

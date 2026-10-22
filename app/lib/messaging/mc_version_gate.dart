@@ -87,7 +87,7 @@ Future<void> openAssistoUpdate(BuildContext context) async {
       final ok = await launchUrl(Uri.parse(kPlayListing),
           mode: LaunchMode.externalApplication);
       if (ok) return;
-    } catch (_) {}
+    } catch (_) {} // best-effort: falls through to the in-app update screen below
   }
   if (!context.mounted) return;
   await Navigator.of(context)

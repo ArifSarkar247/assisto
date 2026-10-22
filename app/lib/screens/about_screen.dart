@@ -100,7 +100,7 @@ class _AboutScreenState extends State<AboutScreen> {
         android = '${m['androidRelease'] ?? ''}'.trim();
       }
     } catch (_) {
-      // channel absent (iOS/desktop/test) — copy the build line alone.
+      // best-effort: channel absent (iOS/desktop/test) — copy the build line alone.
     }
     final parts = <String>['Build $_build'];
     if (model.isNotEmpty) parts.add(model);

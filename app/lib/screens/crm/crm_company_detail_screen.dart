@@ -4,6 +4,7 @@ import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/crm_company_widgets.dart';
 import 'crm_common.dart';
+import '../../services/action_feedback.dart'; // db1
 
 /// Company 360 (CRM_SPEC §2). A single screen that gathers everything about a
 /// B2B account: profile + custom fields, all its PEOPLE (with inferred role
@@ -343,7 +344,9 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
     try {
       await launchUrl(Uri.parse('tel:$number'),
           mode: LaunchMode.externalApplication);
-    } catch (_) {}
+    } catch (e) {
+      showActionFailed(context, 'crm.call', e, open: true); // db1
+    }
   }
 
   Future<void> _mail(String email) async {

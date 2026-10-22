@@ -75,7 +75,7 @@ class _MoneyImportScreenState extends State<MoneyImportScreen> {
         try {
           await app.api.moneyLearnCategory(
               '${p['counterparty']}', '${p['category_guess']}');
-        } catch (_) {}
+        } catch (_) {} // best-effort: category learning; the import itself succeeded
       }
       n++;
     }

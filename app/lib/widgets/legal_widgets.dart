@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// Legal / policy centre — ADVANCED shared widgets (SPEC v2.1 §21/§22).
 ///
@@ -249,7 +250,9 @@ class LegalPageFooter extends StatelessWidget {
               try {
                 await launchUrl(Uri.parse(page.webUrl!),
                     mode: LaunchMode.externalApplication);
-              } catch (_) {/* no browser: the in-app summary stays */}
+              } catch (e) {
+                showActionFailed(context, 'legal.openWeb', e, open: true); // db1
+              }
             },
           ),
         ),

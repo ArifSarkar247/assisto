@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/journey_api.dart';
 import '../widgets/permission_reason.dart';
 import 'journey_live_screen.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// Start a Safe Journey (item 1 + 3): pick a destination (saved place or map
 /// lat/lng), an expected-arrival time, the watchers (circle members), and
@@ -77,7 +78,9 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
           'lng': pos.longitude
         };
       });
-    } catch (_) {}
+    } catch (e) {
+      showActionFailed(context, 'journey.currentLocation', e); // db1
+    }
   }
 
   Future<void> _start() async {

@@ -1543,8 +1543,9 @@ class FakeApi extends ApiClient {
       };
     }
     if (bare == 'business/ai/channels') {
-      return {'connected': false, 'whatsapp': false, 'messenger': false,
-              'whatsapp_cloud': false, 'needs_key': true};
+      // db1: same shape as backend business_views (per-channel dicts).
+      return {'whatsapp_cloud': {'connected': false, 'needs_key': true, 'number': null},
+              'messenger': {'connected': false, 'needs_key': true, 'page': null}};
     }
     if (bare == 'business/ai/insights') {
       return {'insights': mode == FakeMode.empty ? const [] : [
@@ -1555,13 +1556,13 @@ class FakeApi extends ApiClient {
     if (bare == 'business/bargain/rules') {
       return {'rules': mode == FakeMode.empty ? const [] : [
         {'id': 1, 'product_id': 1, 'product_name': _bn ? 'পাঞ্জাবি' : 'Panjabi',
-         'list_price': 120000, 'min_price': 100000, 'discount_steps': '5,10',
+         'list_price': 120000, 'min_price': 100000, 'discount_steps': [5, 10],
          'free_delivery_over': 200000, 'bundle_min_qty': 3, 'tone': _bn ? 'ভদ্র' : 'Polite'},
       ], 'role': 'owner'};
     }
     if (RegExp(r'^business/bargain/rules/\d+$').hasMatch(bare)) {
       return {'id': 1, 'product_id': 1, 'product_name': _bn ? 'পাঞ্জাবি' : 'Panjabi',
-              'list_price': 120000, 'min_price': 100000, 'discount_steps': '5,10',
+              'list_price': 120000, 'min_price': 100000, 'discount_steps': [5, 10],
               'free_delivery_over': 200000, 'bundle_min_qty': 3, 'tone': _bn ? 'ভদ্র' : 'Polite'};
     }
     // orders

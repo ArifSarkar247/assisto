@@ -72,7 +72,8 @@ Future<CircleAttachKind?> showCircleAttachSheet(BuildContext context) {
           crossAxisCount: 4,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          childAspectRatio: 0.82,
+          // db1: 0.82 clipped two-line labels by 12px at 360dp (tap sweep).
+          childAspectRatio: 0.68,
           children: [
             grid(Icons.photo_library_outlined, t.circleAttachGallery, CircleAttachKind.gallery),
             grid(Icons.photo_camera_outlined, t.circleAttachCamera, CircleAttachKind.camera),

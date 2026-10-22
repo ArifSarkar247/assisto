@@ -141,7 +141,7 @@ class _CrmLogActivitySheetState extends State<CrmLogActivitySheet> {
                 localId, t.crmNextFollowUp, type.label(t), when);
           }
         }
-      } catch (_) {/* best-effort only */}
+      } catch (_) {/* best-effort: the follow-up reminder is optional; the activity is saved */}
       if (!mounted) return;
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(t.crmActionLogged)));

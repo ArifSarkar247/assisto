@@ -168,7 +168,7 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
     if (v == null) return;
     try {
       await VaNative.stopSpeaking();
-    } catch (_) {}
+    } catch (_) {} // best-effort: stop TTS before listening
     _ctrl.clear();
     if (!mounted) return;
     await v.start(context, _ctrl);

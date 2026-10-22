@@ -14,6 +14,7 @@ import '../vehicle/vehicle_api.dart';
 import '../widgets/skeleton.dart';
 import 'vehicle_obd_screen.dart';
 import 'vehicle_tracker_settings_screen.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// ONE tracker: live position, animated 24 h route playback, trips / stops /
 /// mileage (computed server-side), remote engine cut-off with an honest
@@ -123,7 +124,9 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
     final uri = Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
     try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (_) {}
+    } catch (e) {
+      showActionFailed(context, 'vehTracker.maps', e, open: true); // db1
+    }
   }
 
   Future<void> _command(String kind) async {

@@ -13,6 +13,7 @@ import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/home_suggestions.dart' show DiscoverCardTile;
 import '../../widgets/skeleton.dart';
+import '../../services/action_feedback.dart'; // db1
 
 /// OWNER "Discover manager" (d1-discover) — add / edit / delete / reorder /
 /// enable-disable the home Discover cards, pick an in-app route, preview what a
@@ -760,7 +761,9 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
                           _card = {..._card!, 'image_url': ''};
                           _changed = true;
                         });
-                      } catch (_) {}
+                      } catch (e) {
+                        showActionFailed(context, 'discover.removeImage', e); // db1
+                      }
                     },
                     child: Text(t.discoverMgrImageRemove),
                   ),

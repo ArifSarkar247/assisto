@@ -11,6 +11,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/chat_cards.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import '../widgets/voice_input.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// Part 3 — Assisto AI: the ChatGPT-like full-history chat.
 ///
@@ -224,6 +225,11 @@ class _AiChatScreenState extends State<AiChatScreen> {
   // ---------------- send / stream ----------------
   Future<void> _send([String? preset]) async {
     final text = (preset ?? _input.text).trim();
+    // db1: Send on an empty box is never a dead tap — it opens the keyboard.
+    if (text.isEmpty && preset == null && !_sending) {
+      _inputFocus.requestFocus();
+      return;
+    }
     if (text.isEmpty || _sending) return;
     HapticFeedback.selectionClick();
     _input.clear();
@@ -393,7 +399,9 @@ class _AiChatScreenState extends State<AiChatScreen> {
   Future<void> _share(_Msg m) async {
     try {
       await Share.share(m.text);
-    } catch (_) {}
+    } catch (e) {
+      showActionFailed(context, 'aichat.share', e, open: true); // db1
+    }
   }
 
   Future<void> _regenerate(_Msg assistant, {String? edit}) async {
@@ -981,7 +989,9 @@ class _HistorySheetState extends State<_HistorySheet> {
     try {
       await _api.chatUpdateSession(s.id, title: name.trim());
       if (mounted) setState(() => s.title = name.trim());
-    } catch (_) {}
+    } catch (e) {
+      showActionFailed(context, 'aichat.rename', e); // db1
+    }
   }
 
   Future<void> _togglePin(_Session s) async {
@@ -994,7 +1004,9 @@ class _HistorySheetState extends State<_HistorySheet> {
               .sort((a, b) => (b.pinned ? 1 : 0).compareTo(a.pinned ? 1 : 0));
         });
       }
-    } catch (_) {}
+    } catch (e) {
+      showActionFailed(context, 'aichat.pin', e); // db1
+    }
   }
 
   Future<void> _delete(_Session s) async {
@@ -1018,7 +1030,9 @@ class _HistorySheetState extends State<_HistorySheet> {
     try {
       await _api.chatDeleteSession(s.id);
       if (mounted) setState(() => _sessions.remove(s));
-    } catch (_) {}
+    } catch (e) {
+      showActionFailed(context, 'aichat.delete', e); // db1
+    }
   }
 
   @override

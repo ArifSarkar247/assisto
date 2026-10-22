@@ -98,7 +98,7 @@ Future<void> openExternal(
   try {
     final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (ok) return;
-  } catch (_) {/* fall through to copy */}
+  } catch (_) {/* best-effort: fall through to copy */}
   await Clipboard.setData(ClipboardData(text: url));
   if (context.mounted) {
     ScaffoldMessenger.of(context)

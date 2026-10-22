@@ -24,6 +24,8 @@ import 'supplier_market_screen.dart';
 import 'demand_map_screen.dart';
 import 'bargain_rules_screen.dart';
 import 'business_plans_screen.dart';
+import '../../services/action_feedback.dart'; // db1
+import '../../services/error_report.dart'; // db1
 
 /// Business HUB — the new home for Assisto Business v2 (replaces the old
 /// name/price/stock business screen). Shows the selected business, a switcher
@@ -84,7 +86,9 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
     setState(() => _selected = b);
     try {
       await context.read<AppState>().api.businessSelect(id);
-    } catch (_) {}
+    } catch (e) {
+      showActionFailed(context, 'bizhub.switch', e); // db1
+    }
   }
 
   void _showSwitcher() {
@@ -446,7 +450,11 @@ class _NetPositionCardState extends State<_NetPositionCard> {
           .read<AppState>()
           .api
           .khataNetPosition(widget.businessId);
-    } catch (_) {}
+    } catch (e) {
+      // db1: automatic load (not a tap). On failure the card is HIDDEN —
+      // never a fake ৳0 net position.
+      reportNonFatal('bizhub.netPosition', e);
+    }
     if (mounted) setState(() => _loading = false);
   }
 
@@ -462,6 +470,7 @@ class _NetPositionCardState extends State<_NetPositionCard> {
         ),
       );
     }
+    if (_np == null) return const SizedBox.shrink(); // db1: load failed
     final np = _np ?? const {};
     final ahead = np['ahead'] == true;
     return Card(

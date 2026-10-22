@@ -241,6 +241,11 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
 
   Future<void> _send([String? preset]) async {
     final text = (preset ?? _input.text).trim();
+    // db1: Send on an empty box is never a dead tap — it opens the keyboard.
+    if (text.isEmpty && preset == null && !_sending) {
+      _inputFocus.requestFocus();
+      return;
+    }
     if (text.isEmpty || _sending) return;
     HapticFeedback.selectionClick();
 

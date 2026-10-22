@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'safety_sos_countdown.dart';
+import '../services/action_feedback.dart'; // db1
 
 /// Advanced one-tap SOS control for the Emergency screen.
 ///
@@ -96,8 +96,7 @@ class _EmergencySosPanelState extends State<EmergencySosPanel> {
   }
 
   Future<void> _call(String phone) async {
-    final uri = Uri.parse('tel:$phone');
-    if (await canLaunchUrl(uri)) await launchUrl(uri);
+    await openForUser(context, Uri.parse('tel:$phone'), where: 'sos.call'); // db1
   }
 
   Future<void> _fire(AppLocalizations t, Map<String, dynamic> primary) async {

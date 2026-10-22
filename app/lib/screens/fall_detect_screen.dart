@@ -201,7 +201,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
         await context
             .read<AppState>()
             .saveProfile({'fall_countdown_sec': v});
-      } catch (_) {}
+      } catch (_) {} // best-effort: the countdown is saved on this phone above; the profile copy syncs on the next save
     }
   }
 

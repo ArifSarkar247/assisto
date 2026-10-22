@@ -241,7 +241,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
       final v = clip?.text ?? '';
       if (v.contains('/i/')) c.text = v.trim();
     } catch (_) {
-      // Clipboard unavailable: the user just types/pastes the link.
+      // best-effort: Clipboard unavailable: the user just types/pastes the link.
     }
     if (!mounted) return;
     final link = await showDialog<String>(
