@@ -344,6 +344,9 @@ class ChatInfoView(APIView):
         return Response({
             "id": m.id, "name": name,
             "photo": getattr(peer, "photo_url", "") if peer else "",
+            # x2-ticks: stable avatar cache tag (refresh only on a new photo)
+            "photo_v": _x2_photo_v(getattr(peer, "photo_url", "")
+                                   if peer else ""),
             "phone": phone, "about": "",
             "relation": m.relation, "custom_label": m.custom_label,
             "state": m.state,
@@ -1234,3 +1237,10 @@ def _fsize(f):
         return int(f.size) if f else 0
     except Exception:
         return 0
+
+
+# ---- x2-ticks ----
+def _x2_photo_v(photo):
+    from .views_module5 import x2_photo_v
+    return x2_photo_v(photo)
+# ---- /x2-ticks ----

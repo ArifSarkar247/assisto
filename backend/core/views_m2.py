@@ -343,6 +343,7 @@ class CircleGroupMessagesView(APIView):
         # c3-msg: ticks (sent/delivered/read, all members) on my messages.
         from . import views_c3_msg as C3
         C3.annotate(out, msgs, request.user)
+        C3.mark_fetched(request.user, msgs)   # x2-ticks: ack on any fetch
         return Response({"results": out})
 
     def post(self, request, pk):

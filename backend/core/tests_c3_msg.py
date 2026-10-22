@@ -213,7 +213,8 @@ class ChatListAndBadgeTests(_Base):
         self.assertFalse(row["last"]["mine"])
         self.assertNotIn("status", row["last"])
         arow = self.ca.get(V + "/circle/chats").json()["results"][0]
-        self.assertEqual(arow["last"]["status"], "sent")
+        # x2-ticks: B's chat-list fetch is a delivered ack (✓✓)
+        self.assertEqual(arow["last"]["status"], "delivered")
 
     def test_unread_badge_regression_10_then_open_is_0(self):
         """Owner bug: open a chat, read everything -> list still said 10."""

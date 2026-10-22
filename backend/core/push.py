@@ -49,24 +49,29 @@ HTTP_TIMEOUT_S = 8
 TOKEN_REFRESH_MARGIN_S = 300          # refresh ~5 min before expiry
 
 KINDS = ("message", "call", "call_cancel", "reminder", "family_alert", "sos",
-         "owner_alert", "shop_alert", "missed_call")
+         "owner_alert", "shop_alert", "missed_call", "msg_sync")
 # Kinds that must ALWAYS be data-only + high priority (app draws the UI).
 # c3-msg: "message" is data-only too, so the DEVICE draws the WhatsApp-style
 # MessagingStyle notification (decrypted on device), acks delivery and offers
 # inline reply. Older app builds still draw data-only pushes (background
 # handler shows title/body when there is no notification block).
 # c2-calls: "missed_call" is data-only (the app draws it on its own channel).
-DATA_ONLY_KINDS = ("call", "call_cancel", "sos", "message", "missed_call")
+DATA_ONLY_KINDS = ("call", "call_cancel", "sos", "message", "missed_call",
+                   "msg_sync")
+# x2-ticks: "msg_sync" = a SILENT delivery ping (muted chat / message
+# notifications off). The device only acks DELIVERED (✓✓ for the sender) and
+# draws nothing. Older builds ignore unknown kinds (PushPayload.isKnownKind),
+# so it can never ring a muted chat on an old phone.
 # Per-kind TTL (seconds). A ring older than 30 s is useless; SOS keeps a
 # little longer so a phone that briefly lost signal still gets it.
 TTL_S = {"call": 30, "call_cancel": 60, "sos": 600, "message": 86400,
          "reminder": 3600, "family_alert": 86400, "owner_alert": 86400,
-         "shop_alert": 3600, "missed_call": 86400}
+         "shop_alert": 3600, "missed_call": 86400, "msg_sync": 86400}
 # Android notification channel ids the app must create.
 CHANNELS = {"message": "messages", "call": "calls", "call_cancel": "calls",
             "reminder": "reminders", "family_alert": "alerts", "sos": "sos",
             "owner_alert": "alerts", "shop_alert": "alerts",
-            "missed_call": "missed_calls"}
+            "missed_call": "missed_calls", "msg_sync": "messages"}
 # FCM rejects these data keys.
 _RESERVED_DATA_KEYS = ("from", "notification", "message_type", "collapse_key")
 
@@ -553,21 +558,54 @@ def _message_texts(sender_name):
             "পড়তে Assisto খুলুন", "Open Assisto to read")
 
 
+# ---- x2-ticks ---- delivery pings -------------------------------------------
+def _x2_notify_new(recipient, chat_kind, chat_id, message_id):
+    """`msg.new` on the shared realtime queue for an app that is OPEN: it acks
+    DELIVERED at once (POST circle/receipts) and refreshes the open chat. Ids
+    only. Never raises."""
+    try:
+        if recipient is None or chat_id is None:
+            return 0
+        from .views_c2_calls import rt_publish
+        return rt_publish(recipient, "msg.new", {
+            "chat": "%s:%s" % (chat_kind, chat_id),
+            "message_id": message_id})
+    except Exception:
+        return 0
+
+
+def _x2_silent_sync(recipient, chat_kind, chat_id, message_id, sender_id):
+    """Data-only, high-priority, draws NOTHING: the phone acks delivered."""
+    return safe_push(recipient, "msg_sync", "", "", "", "", data={
+        "message_id": message_id, "chat_kind": chat_kind,
+        "chat_id": chat_id, "sender_id": sender_id, "silent": "1"},
+        high_priority=True)
+# ---- /x2-ticks ----
+
+
 def hook_circle_message(sender, member, message):
     """1:1 circle message relayed on `member` (the SENDER's edge). Push carries
     the sender's display name + ids ONLY — never ciphertext/plaintext."""
     try:
-        if not is_available():
-            return False
         recipient = member_peer_user(member)
         if recipient is None or recipient.pk == sender.pk:
             return False
         edge = _reverse_edge(recipient, sender)
-        if _recipient_silenced(edge):
+        # x2-ticks: the realtime queue tells an OPEN app at once (delivered
+        # ack without waiting for FCM) — works with or without Firebase.
+        _x2_notify_new(recipient, "member", edge.id if edge else None,
+                       message.id)
+        if not is_available():
+            return False
+        if edge is not None and getattr(edge, "blocked", False):
             return False
         prefs = _m1_notif(recipient)
-        if not prefs.get("messages", True):
-            return False
+        if _recipient_silenced(edge) or not prefs.get("messages", True):
+            # x2-ticks: muted / notifications off -> no ring, but the phone
+            # must still ack DELIVERED (WhatsApp: ✓✓ even for a muted chat).
+            return _x2_silent_sync(recipient, "member",
+                                   edge.id if edge else "", message.id,
+                                   sender.id)
         preview = prefs.get("show_preview", True)
         tb, te, bb, be = (_message_texts(display_name(sender)) if preview
                           else _private_texts())
@@ -586,11 +624,13 @@ def hook_circle_message(sender, member, message):
 def hook_group_message(sender, group, message):
     """Group message -> every ACTIVE member except the sender (names + ids only)."""
     try:
-        if not is_available():
-            return False
         from .models import CircleGroupMember
         rows = (CircleGroupMember.objects.filter(group=group, status="active")
                 .exclude(member=sender).select_related("member"))
+        for r in rows:   # x2-ticks: realtime "new message" (delivered ack)
+            _x2_notify_new(r.member, "group", group.id, message.id)
+        if not is_available():
+            return False
         tb, te, bb, be = _message_texts(display_name(sender))
         gname = (getattr(group, "name", "") or "").strip()
         if gname:
@@ -600,10 +640,12 @@ def hook_group_message(sender, group, message):
         for r in rows:
             # m1-messenger: a member who muted this group, or switched group
             # notifications off, gets nothing; show_preview=false hides names.
-            if organise_muted(r.member, "group", group.id):
-                continue
             prefs = _m1_notif(r.member)
-            if not prefs.get("groups", True):
+            if (organise_muted(r.member, "group", group.id)
+                    or not prefs.get("groups", True)):
+                # x2-ticks: silent delivery ping (no ring, ✓✓ still works)
+                _x2_silent_sync(r.member, "group", group.id, message.id,
+                                sender.id)
                 continue
             preview = prefs.get("show_preview", True)
             t = (tb, te, bb, be) if preview else _private_texts()

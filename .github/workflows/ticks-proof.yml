@@ -1,0 +1,44 @@
+name: Ticks proof (two clients, LIVE)
+
+# x2-ticks A4: A sends an app-format encrypted message, B acks DELIVERED the
+# way the FCM background isolate does, then opens the chat; A's realtime
+# queue must show ✓✓ (< 2 s) and blue ✓✓ (< 1 s). Timings land in the job
+# summary. Manual only — it writes a few test messages between the two
+# proof accounts (the same accounts as the call proof).
+on:
+  workflow_dispatch:
+    inputs:
+      api_base:
+        description: "Backend base URL"
+        required: false
+        default: "https://api.lifeassisto.com"
+      rounds:
+        description: "Messages to send"
+        required: false
+        default: "3"
+
+permissions:
+  contents: read
+
+jobs:
+  ticks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install crypto
+        run: pip install "cryptography>=42"
+      - name: Crypto self-test (matches the app's SoftwareE2E vector)
+        run: python3 tools/ticks_proof/ticks_proof.py --selftest
+      - name: Two-client ticks proof
+        env:
+          API_BASE: ${{ inputs.api_base }}
+          TICKS_PROOF_ROUNDS: ${{ inputs.rounds }}
+          CALL_PROOF_A_PHONE: ${{ secrets.CALL_PROOF_A_PHONE }}
+          CALL_PROOF_A_PASSWORD: ${{ secrets.CALL_PROOF_A_PASSWORD }}
+          CALL_PROOF_B_PHONE: ${{ secrets.CALL_PROOF_B_PHONE }}
+          CALL_PROOF_B_PASSWORD: ${{ secrets.CALL_PROOF_B_PASSWORD }}
+        run: python3 tools/ticks_proof/ticks_proof.py

@@ -405,10 +405,16 @@ class HookTests(_PushBase):
         self.assertNotIn("ciphertext", blob)
 
     def test_muted_recipient_gets_no_push(self):
+        # x2-ticks: no RINGING push — only the silent delivery ping
+        # (msg_sync: data-only, empty title/body, the phone draws nothing).
         self.ba.muted_until = timezone.now() + timedelta(hours=1)
         self.ba.save()
         self._send_msg()
-        self.assertEqual(self.fake.send_calls, [])
+        self.assertEqual(len(self.fake.send_calls), 1)
+        m = json.loads(self.fake.send_calls[0][1])["message"]
+        self.assertEqual(m["data"]["kind"], "msg_sync")
+        self.assertEqual((m["data"]["title"], m["data"]["body"]), ("", ""))
+        self.assertNotIn("notification", m)
 
     def test_hook_failure_never_breaks_request(self):
         with mock.patch.object(push, "push_to_user", side_effect=RuntimeError):
