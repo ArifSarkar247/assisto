@@ -38,7 +38,7 @@ PAGES = (
     "admin_transparency",
 )
 
-LAST_UPDATED = "2026-10-14"
+LAST_UPDATED = "2026-10-22"
 
 CONTACT_BN = "প্রশ্ন বা অনুরোধ: অ্যাপের ভেতরে সাপোর্ট থেকে আমাদের জানান।"
 CONTACT_EN = "Questions or requests: reach us from Support inside the app."
@@ -102,9 +102,11 @@ def _privacy(lang):
     sections = [
         _sec(lang, "সারকথা", "In short",
              "Assisto আপনার ব্যক্তিগত ডেটা শুধু আপনাকে সহায়তা করতেই ব্যবহার "
-             "করে। আমরা ডেটা বিক্রি করি না এবং বিজ্ঞাপন ট্র্যাকার ব্যবহার করি না।",
+             "করে। আমরা ডেটা বিক্রি করি না। পুরো নীতি, প্রতিটি অনুমতির কারণসহ: "
+             "lifeassisto.com/privacy",
              "Assisto uses your personal data only to help you. We do not sell "
-             "your data and we use no advertising trackers."),
+             "your data. The full policy, with the reason for every permission: "
+             "lifeassisto.com/privacy"),
         _sec(lang, "আমরা কী সংগ্রহ করি", "What we collect",
              "আপনি নিজে যোগ করা তথ্য (খরচ, রিমাইন্ডার, নোট, পরিবারের তথ্য), "
              "অ্যাকাউন্ট তথ্য (নাম, ফোন/ইমেইল), এবং সম্মতি থাকলে ব্যবহারের "
@@ -113,10 +115,17 @@ def _privacy(lang):
              "details), account info (name, phone/email), and — only with your "
              "consent — anonymous usage statistics."),
         _sec(lang, "আমরা কী করি না", "What we do NOT do",
-             "আপনার ডেটা বিক্রি করি না, তৃতীয় পক্ষের বিজ্ঞাপন ট্র্যাকার রাখি "
-             "না, এবং পরিসংখ্যান ইভেন্টে কোনো নাম/ফোন/ইমেইল রাখি না।",
-             "We do not sell your data, we keep no third-party ad trackers, and "
-             "we store no name/phone/email in an analytics event."),
+             "আপনার ডেটা বিক্রি করি না, আপনার তথ্য দিয়ে বিজ্ঞাপনের প্রোফাইল "
+             "বানাই না, এবং পরিসংখ্যান ইভেন্টে কোনো নাম/ফোন/ইমেইল রাখি না।",
+             "We do not sell your data, we build no advertising profile from "
+             "it, and we store no name/phone/email in an analytics event."),
+        _sec(lang, "বিজ্ঞাপন", "Ads",
+             "চালু হলে শুধু ফ্রি প্ল্যানে Google AdMob-এর নন-পার্সোনালাইজড "
+             "বিজ্ঞাপন; SOS, নিরাপত্তা, পেমেন্ট, লগইন বা কলের স্ক্রিনে কখনো নয়। "
+             "Google-এর SDK বিজ্ঞাপন আইডি, IP ও ডিভাইস তথ্য সংগ্রহ করে।",
+             "When switched on: Google AdMob non-personalised ads on the Free "
+             "plan only; never on SOS, safety, payment, sign-in or call screens. "
+             "Google's SDK collects the Advertising ID, IP and device info."),
         _sec(lang, "পরিসংখ্যান", "Analytics",
              "ব্যবহারের পরিসংখ্যান বেনামি ও সম্মতিভিত্তিক — আপনি সেটিংস থেকে "
              "যেকোনো সময় বন্ধ করতে পারেন।",
@@ -246,10 +255,13 @@ def _data_safety(lang):
              "User-entered content and account info, for app functionality and "
              "account management."),
         _sec(lang, "ভাগাভাগি", "Sharing",
-             "তৃতীয় পক্ষের সাথে বিক্রি বা ভাগ করা হয় না।",
-             "Not sold or shared with third parties."),
-        _sec(lang, "বিজ্ঞাপন ট্র্যাকার", "Ad trackers",
-             "নেই।", "None."),
+             "ডেটা বিক্রি হয় না। বিজ্ঞাপন চালু হলে Google AdMob ডিভাইস আইডি ও "
+             "বিজ্ঞাপনের তথ্য পায় (শুধু নন-পার্সোনালাইজড বিজ্ঞাপন)।",
+             "Data is never sold. When ads are on, Google AdMob receives the "
+             "device ID and ad interaction data (non-personalised ads only)."),
+        _sec(lang, "বিজ্ঞাপন", "Ads",
+             "শুধু ফ্রি প্ল্যানে, নন-পার্সোনালাইজড (Google AdMob)।",
+             "Free plan only, non-personalised (Google AdMob)."),
         _sec(lang, "এনক্রিপশন", "Encryption",
              "ডেটা ট্রানজিটে এনক্রিপ্ট করা হয়।",
              "Data is encrypted in transit."),
@@ -365,7 +377,23 @@ def page(key, lang="bn"):
         "sections": sections,
         "body": _flatten(sections),
         "contact": _contact(lang),
+        # l1-launch: the full public page on lifeassisto.com (None = in-app only)
+        "web_url": web_url(key, lang),
     }
+
+
+# l1-launch — public web versions (backend/web/views_legal.py)
+WEB_PAGES = {"privacy": "/privacy", "terms": "/terms", "data_safety": "/privacy",
+             "data_rights": "/delete-account"}
+
+
+def web_url(key, lang="bn"):
+    from django.conf import settings
+    path = WEB_PAGES.get(key)
+    if not path:
+        return None
+    site = getattr(settings, "WEB_PUBLIC_SITE", "https://lifeassisto.com").rstrip("/")
+    return site + path + ("?lang=en" if lang == "en" else "")
 
 
 def index(lang="bn"):
