@@ -36,6 +36,9 @@ import '../messaging/msg_prefs.dart';
 import '../messaging/msg_request_widgets.dart'; // mr1
 import '../messaging/msg_widgets.dart';
 import '../messaging/outbox.dart';
+import '../messaging/echo_reconcile.dart'; // md2
+import '../messaging/forward.dart'; // md2
+import '../services/action_feedback.dart';
 import '../messaging/media/media_actions.dart'; // md1
 import '../messaging/media/media_descriptor.dart';
 import '../messaging/media/media_outbox.dart';
@@ -157,6 +160,11 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   // md1: photo / voice / document sends of this chat still on their way.
   List<MediaJob> _mediaJobs = const [];
   StreamSubscription<MediaSent>? _mediaSentSub;
+  // md2: sent bubbles held until their server copy is in the list.
+  final SentEchoes _sentEchoes = SentEchoes();
+  // md2: client_msg_ids of my rows in the last fetched page (a job / queued
+  // item whose server copy is already listed is not drawn twice).
+  Set<String> _serverCmids = const {};
 
   // e2-keys item 2: reversed, paged list that OPENS at the latest message
   // (or at the "N unread messages" divider) with no visible scroll.
@@ -344,9 +352,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       _applyEdge(r['edge']); // mr1: request accepted while open
       // Preserve any optimistic local echoes the server hasn't confirmed yet.
       final serverIds = fetched.map((m) => m.id).toSet();
-      final pendingEchoes =
-          _messages.where((m) =>
-          (m.pending || m.status == 'failed') && !serverIds.contains(m.id));
+      final cmids = fetchedClientIds(raw);
+      final pendingEchoes = _localEchoes(serverIds, cmids);
+      _serverCmids = cmids;
       // e2-keys item 2: keep the OLDER pages already loaded (scroll-up).
       final oldest = fetched.isEmpty ? null : int.tryParse(fetched.first.id);
       final older = oldest == null
@@ -375,6 +383,20 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     } finally {
       _polling = false;
     }
+  }
+
+  /// md2: the local bubbles a fetched page does not replace yet — still
+  /// sending / failed, or SENT but the server copy is not in the page (the
+  /// poll raced the send). A bubble whose server row (same id or same
+  /// client_msg_id) IS in the page is dropped in that same frame: never
+  /// missing, never twice.
+  List<CircleMessage> _localEchoes(Set<String> serverIds, Set<String> cmids) {
+    final waiting = _sentEchoes.awaiting(ids: serverIds, cmids: cmids);
+    return _messages.where((m) {
+      if (serverIds.contains(m.id) || cmids.contains(m.id)) return false;
+      if (waiting.contains(m.id)) return true;
+      return m.pending || m.status == 'failed';
+    }).toList();
   }
 
   /// Shallow identity+state diff so a quiet poll never rebuilds the list for
@@ -477,7 +499,34 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     final id = _memberId;
     if (id == null) return;
     final jobs = await MediaOutbox.instance.forChat('member', id);
-    if (mounted) setState(() => _mediaJobs = jobs);
+    if (!mounted) return;
+    final now = jobs.map((j) => j.id).toSet();
+    setState(() {
+      // md2: a job that finished becomes its final bubble in the SAME frame
+      // (held until the poll brings the server copy) — no gap.
+      final have = _messages.map((m) => m.id).toSet();
+      for (final j in _mediaJobs) {
+        if (now.contains(j.id)) continue;
+        final s = MediaOutbox.instance.recentlySent[j.id];
+        if (s == null || s.desc == null) continue; // cancelled: gone
+        final lid = s.serverId.isNotEmpty ? s.serverId : j.id;
+        if (have.contains(lid) || _serverCmids.contains(j.id)) continue;
+        _sentEchoes.track(lid, j.id);
+        _messages = [
+          ..._messages,
+          CircleMessage(
+              id: lid,
+              text: s.desc!.caption,
+              mine: true,
+              at: s.at ?? j.at,
+              status: 'sent',
+              replyToId: s.replyTo,
+              contentType: s.desc!.kind,
+              media: s.desc),
+        ];
+      }
+      _mediaJobs = jobs;
+    });
   }
 
   Future<void> _reloadQueued() async {
@@ -493,6 +542,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       // server copy — no flicker.
       if (gone.isNotEmpty) {
         final have = _messages.map((m) => m.id).toSet();
+        for (final i in gone) {
+          _sentEchoes.track(i.id, i.id); // md2: held until the server copy
+        }
         _messages = [
           ..._messages,
           for (final i in gone)
@@ -527,7 +579,12 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     try {
       final r = await _api.getJson('/circle/$_memberId/messages?limit=$_pageSize');
       final raw = ((r['results'] ?? r['messages'] ?? []) as List).cast<Map<String, dynamic>>();
-      _messages = raw.map((e) => _decryptEnvelope(e, peer)).toList();
+      final fetched = raw.map((e) => _decryptEnvelope(e, peer)).toList();
+      // md2: a send that finished before this page was read keeps its bubble
+      final cmids = fetchedClientIds(raw);
+      final keep = _localEchoes(fetched.map((m) => m.id).toSet(), cmids);
+      _serverCmids = cmids;
+      _messages = [...fetched, ...keep];
       _applyEdge(r['edge']); // mr1
       _hasMore = r['has_more'] == true;
       // item 2: the first message I have not SEEN yet -> divider.
@@ -969,6 +1026,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       // Mark echo confirmed (no longer pending). x2-ticks: re-key it to the
       // SERVER id so live receipt.update events (by id) reach it at once.
       final sid = '${sent['id'] ?? ''}';
+      // md2: the bubble stays until the poll holds its server copy
+      _sentEchoes.track(sid.isEmpty ? clientMsgId : sid, clientMsgId);
       if (mounted) {
         setState(() {
           _messages = _messages.map((m) => m.id == clientMsgId
@@ -1215,51 +1274,19 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   // Forward
   // -------------------------------------------------------------------------
   Future<void> _startForward(CircleMessage m) async {
-    // c3-msg: pick ANY My Circle member (WhatsApp forward), encrypted to that
-    // member's key on this device.
-    List<Map<String, dynamic>> members = const [];
+    // c3-msg + md2: pick ANY My Circle member OR group (WhatsApp forward);
+    // the text / media descriptor is sealed again for the new recipients.
+    List<ForwardTarget> targets = const [];
     try {
-      final r = await _api.getJson('/circle/members');
-      members = ((r['results'] ?? r['members'] ?? const []) as List)
-          .whereType<Map>()
-          .map((x) => x.cast<String, dynamic>())
-          // e2-keys: every accepted member — a keyless one gets the
-          // forward through the outbox, never a dead end.
-          .where((x) => '${x['state'] ?? 'accepted'}' == 'accepted')
-          .toList();
-    } catch (_) {
-      if (mounted) _toast(_t.msgLoadFailed);
+      targets = await loadForwardTargets(_api);
+    } catch (e) {
+      if (mounted) showActionFailed(context, 'md2_fwd_targets', e);
     }
     if (!mounted) return;
-    if (members.isNotEmpty) {
-      final pick = await showModalBottomSheet<Map<String, dynamic>>(
-        context: context,
-        showDragHandle: true,
-        isScrollControlled: true,
-        builder: (ctx) => SafeArea(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(ctx).size.height * 0.7),
-            child: ListView(shrinkWrap: true, children: [
-              ListTile(
-                  title: Text(_t.c3ForwardTo,
-                      style: Theme.of(ctx).textTheme.titleMedium)),
-              for (final x in members)
-                ListTile(
-                  leading: CircleAvatar(
-                      child: Text('${x['name'] ?? '?'}'.isEmpty
-                          ? '?'
-                          : '${x['name']}'.characters.first.toUpperCase())),
-                  title: Text('${x['name'] ?? ''}',
-                      maxLines: 1, overflow: TextOverflow.ellipsis),
-                  onTap: () => Navigator.pop(ctx, x),
-                ),
-            ]),
-          ),
-        ),
-      );
+    if (targets.isNotEmpty) {
+      final pick = await pickForwardTarget(context, targets);
       if (pick == null || !mounted) return;
-      if ('${pick['id']}' != '$_memberId') {
+      if (pick.isGroup || pick.id != _memberId) {
         await _forwardTo(m, pick);
         return;
       }
@@ -1280,47 +1307,23 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     if (confirm == true) _doForwardInto(m);
   }
 
-  Future<void> _forwardTo(CircleMessage m, Map<String, dynamic> member) async {
+  /// md2: a forward to another chat (member or group). Media reuses the
+  /// same blob + key (no re-upload).
+  Future<void> _forwardTo(CircleMessage m, ForwardTarget target) async {
+    final payload = ForwardPayload(
+        plaintext: m.media?.encode() ?? m.text,
+        contentType: m.media?.kind ?? 'text',
+        blobRef: m.media?.ref,
+        hops: m.forwardHops + 1);
     try {
-      var b64 = '${member['public_key'] ?? ''}';
-      final mid = member['id'] is int
-          ? member['id'] as int
-          : int.tryParse('${member['id']}') ?? 0;
-      if (b64.isEmpty) {
-        try {
-          b64 = '${(await _api.getJson('/circle/keys/peer/$mid'))['public_key'] ?? ''}';
-        } catch (_) {}
+      if (target.isGroup) {
+        await forwardToGroup(_api, widget.identity, target.id, payload, e2e: _e2e);
+      } else {
+        await forwardToMember(_api, widget.identity, target, payload, e2e: _e2e);
       }
-      if (b64.isEmpty) {
-        await Outbox.instance.add(OutboxItem(
-            id: 'fwd-${DateTime.now().microsecondsSinceEpoch}',
-            chatId: mid,
-            text: m.media?.encode() ?? m.text,
-            at: DateTime.now(),
-            forwarded: true,
-            forwardHops: m.forwardHops + 1,
-            contentType: m.media?.kind ?? 'text',
-            blobRef: m.media?.ref));
-        unawaited(Outbox.instance.kick(onlyChat: mid));
-        _toast(_t.c3Forwarded('${member['name'] ?? ''}'));
-        return;
-      }
-      final pub = base64Decode(b64);
-      final ct = _e2e.encrypt(
-          self: widget.identity,
-          recipientPublicKey: Uint8List.fromList(pub),
-          plaintext: m.media?.encode() ?? m.text);
-      await _api.postJson('/circle/${member['id']}/messages', {
-        'content_type': m.media?.kind ?? 'text',
-        if (m.media != null) 'blob_ref': m.media!.ref,
-        'client_msg_id': 'fwd-${DateTime.now().microsecondsSinceEpoch}',
-        'forwarded': true,
-        'forward_hops': m.forwardHops + 1,
-        ...ct.toEnvelopeFields(),
-      });
-      _toast(_t.c3Forwarded('${member['name'] ?? ''}'));
-    } catch (_) {
-      _toast(_t.grpActionFailed);
+      if (mounted) _toast(_t.c3Forwarded(target.name));
+    } catch (e) {
+      if (mounted) showActionFailed(context, 'md2_forward', e);
     }
   }
 
@@ -1371,6 +1374,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         'forward_hops': m.forwardHops + 1,
         ...ct.toEnvelopeFields(),
       });
+      _sentEchoes.track(clientMsgId, clientMsgId); // md2
       setState(() {
         _messages = _messages.map((x) => x.id == clientMsgId ? x.copyWith(pending: false) : x).toList();
       });
@@ -2370,7 +2374,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       for (final m in vis) _ChatRow.msg(m),
       if (!searching)
         for (final q in _queued)
-          if (!vis.any((m) => m.id == q.id))
+          if (!vis.any((m) => m.id == q.id) && !_serverCmids.contains(q.id))
             _ChatRow.msg(CircleMessage(
                 id: q.id,
                 text: q.text,
@@ -2383,7 +2387,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                 forwardHops: q.forwardHops)),
       if (!searching)
         for (final j in _mediaJobs)
-          if (!vis.any((m) => m.id == j.id))
+          if (!vis.any((m) => m.id == j.id) && !_serverCmids.contains(j.id))
             _ChatRow.msg(CircleMessage(
                 id: j.id,
                 text: j.caption,

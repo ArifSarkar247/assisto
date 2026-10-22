@@ -2,7 +2,21 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import '../crypto/e2e.dart';
+import 'media/media_descriptor.dart';
 import 'msg_ticks.dart';
+
+/// md2: the decrypted detail a media preview shows after its icon + label:
+/// a photo's caption, a document's file name ('' = just the label).
+String mediaPreviewDetail(String contentType, String plaintext) {
+  final d = MediaDescriptor.tryParse(plaintext);
+  if (d == null) return '';
+  final v = switch (contentType) {
+    'photo' || 'image' => d.caption,
+    'document' => d.name,
+    _ => '',
+  };
+  return v.replaceAll('\n', ' ').trim();
+}
 
 /// What the chat-list row shows under the name.
 enum PreviewKind {
@@ -94,25 +108,36 @@ class ChatPreview {
 
     final deleted = '${last['deleted'] ?? ''}';
     if (deleted == 'everyone') return of(PreviewKind.deleted);
-    if (ct != 'text') return of(PreviewKind.media);
+    final isMedia = ct != 'text';
     final self = identity;
     final peer = _b64('${last['peer_public_key'] ?? ''}') ??
         _b64('${((row['member'] as Map?) ?? const {})['public_key'] ?? ''}');
     final cipher = '${last['ciphertext'] ?? ''}';
     if (self == null || peer == null || cipher.isEmpty) {
-      return of(PreviewKind.encrypted);
+      return of(isMedia ? PreviewKind.media : PreviewKind.encrypted);
     }
     final engine = e2e ?? SoftwareE2E();
-    final pt = engine.decrypt(
-      self: self,
-      senderPublicKey: peer,
-      ct: Ciphertext(
-        scheme: '${last['scheme'] ?? engine.scheme}',
-        ciphertextB64: cipher,
-        nonceB64: '${last['nonce'] ?? ''}',
-        senderKeyId: '${last['sender_key_id'] ?? ''}',
-      ),
-    );
+    String? pt;
+    try {
+      pt = engine.decrypt(
+        self: self,
+        senderPublicKey: peer,
+        ct: Ciphertext(
+          scheme: '${last['scheme'] ?? engine.scheme}',
+          ciphertextB64: cipher,
+          nonceB64: '${last['nonce'] ?? ''}',
+          senderKeyId: '${last['sender_key_id'] ?? ''}',
+        ),
+      );
+    } catch (_) {
+      pt = null;
+    }
+    if (isMedia) {
+      // md2: a photo's caption / a document's NAME (decrypted here - the
+      // server never has it); the label + icon otherwise. Never the
+      // descriptor itself (it carries the file key).
+      return of(PreviewKind.media, pt == null ? '' : mediaPreviewDetail(ct, pt));
+    }
     if (pt == null) return of(PreviewKind.encrypted);
     return of(PreviewKind.text, pt.replaceAll('\n', ' ').trim());
   }

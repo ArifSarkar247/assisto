@@ -341,6 +341,10 @@ class CircleGroupMessagesView(APIView):
             "starred": request.user.id in (x.starred_by or []),
             "created_at": x.created_at.isoformat(),
             "mine": x.sender_id == request.user.id,
+            "forwarded": x.forwarded, "forward_hops": x.forward_hops,
+            # md2: in-place swap of my local bubble (same client_msg_id).
+            "client_msg_id": (x.client_msg_id
+                              if x.sender_id == request.user.id else ""),
         } for x in msgs]
         # c3-msg: ticks (sent/delivered/read, all members) on my messages.
         from . import views_c3_msg as C3
@@ -411,7 +415,16 @@ class CircleGroupMessagesView(APIView):
                 return Response({"id": dup.id, "ok": True, "deduped": True},
                                 status=status.HTTP_200_OK)
         mentions = G.mention_targets(env)
+        # md2: forward into a group (the "Forwarded" label + hop count, the
+        # same metadata a 1:1 forward carries; never content).
+        try:
+            fh = max(0, min(int(env.get("forward_hops", 0) or 0), 10000))
+        except (TypeError, ValueError):
+            return Response({"detail": "bad forward_hops"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        fwd = env.get("forwarded") is True or fh > 0
         x = CircleMessage.objects.create(
+            forwarded=fwd, forward_hops=fh if fwd else 0,
             member=None, sender=request.user, group=g,
             recipient_ids=env.get("recipient_ids", []),
             content_type=env["content_type"],
