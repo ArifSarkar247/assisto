@@ -9,6 +9,9 @@ D. [SHIPPED: 191 SecretStore/IdentityVault emergency (user 18 PROVEN: key + 5 qu
 E. [DONE 22 Oct] user 18 deletion cancelled (owner order), notifications removed, account + My Circle link intact.
 F. [AGENT dl1] FREE CALLS (testing): My Circle voice+video calls 0 credits for all plans incl. relayed minutes; Owner Admin switch 'Free calls (testing)' = ON; keep relay cost in P&L.
 
+G. [AGENT md1] MY CIRCLE E2E MEDIA (photo, voice note, document, video if reliable): encrypt on device, ciphertext blob via signed URLs, key inside the E2E message, quotas + retention; attach button stays hidden until each kind truly works. (from mr1 design note)
+H. [SHIPPED/IN CI] mr1: message requests like WhatsApp + full last-seen + media showpieces hidden (live smoke passed with test accounts A/C). DECISION (reversible, noted in STATUS): default 'who can message me' = My Circle now lets people with your number send a REQUEST (WhatsApp-like); 'nobody' blocks strangers.
+
 ## MASTER ORDER 22 Oct (single source of truth; earlier orders below are history)
 Rules: max parallel agents (own worktree each), heavy cmds via lock, ship each part immediately, deploy each backend after checks (standing approval), max 1 h on CI problems (gate = release cold start + backend tests + route_check; note missing proof), commit hourly, never idle, blockers in Bangla at top of STATUS, 3 Bangla lines per build.
 
