@@ -42,7 +42,17 @@
     "c2SoundSignature": "Assisto ringtone",
     "c2SoundSignatureSub": "An original Assisto melody instead of the phone's ringtone",
     "c2SoundSignatureUnsupported": "This phone can't add the Assisto ringtone (needs Android 10 or newer). Your phone's ringtone stays on.",
-    "c2SoundPreview": "Play preview"
+    "c2SoundPreview": "Play preview",
+    "c2ChOngoing": "Ongoing calls",
+    "c2CallOngoingTitle": "Call with {name}",
+    "@c2CallOngoingTitle": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "c2CallOngoingText": "Assisto call in progress — tap to return"
   },
   "bn": {
     "c2CallStarting": "শুরু হচ্ছে…",
@@ -87,6 +97,9 @@
     "c2SoundSignature": "Assisto রিংটোন",
     "c2SoundSignatureSub": "ফোনের রিংটোনের বদলে Assisto-র নিজস্ব একটি মৌলিক সুর",
     "c2SoundSignatureUnsupported": "এই ফোনে Assisto রিংটোন যোগ করা যাচ্ছে না (Android 10 বা নতুন লাগবে)। ফোনের রিংটোনই চালু থাকবে।",
-    "c2SoundPreview": "শুনে দেখুন"
+    "c2SoundPreview": "শুনে দেখুন",
+    "c2ChOngoing": "চলমান কল",
+    "c2CallOngoingTitle": "{name}-এর সাথে কল",
+    "c2CallOngoingText": "Assisto কল চলছে — ফিরে যেতে চাপুন"
   }
 }

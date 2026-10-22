@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../calls/api_call_signaling.dart';
 import '../calls/call_controller.dart';
+import '../calls/call_keepalive.dart';
 import '../calls/call_native.dart';
 import '../calls/call_runtime.dart';
 import '../calls/call_video.dart';
@@ -139,11 +140,20 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       if (c.callId != null && !c.isEnded) {
         CallRuntime.instance.activeCallId = c.callId;
       }
+      // keep the mic alive if the user leaves the app mid-call
+      if (c.phase == CallPhase.accepted || c.isLive) {
+        final t = _t;
+        unawaited(CallKeepAlive.start(
+            channelName: t.c2ChOngoing,
+            title: t.c2CallOngoingTitle(_name),
+            text: t.c2CallOngoingText));
+      }
       if (c.isEnded) {
         if (CallRuntime.instance.activeCallId == c.callId) {
           CallRuntime.instance.activeCallId = null;
         }
         unawaited(CallNative.keepScreenOn(false));
+        unawaited(CallKeepAlive.stop());
         if (c.endReason == CallEndReason.hangup) {
           _autoClose ??= Timer(const Duration(milliseconds: 1400), _close);
         }
@@ -174,7 +184,10 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
         c.dispose(); // hangs up if still live
       }
     }
-    if (_owns) unawaited(CallNative.keepScreenOn(false));
+    if (_owns) {
+      unawaited(CallNative.keepScreenOn(false));
+      unawaited(CallKeepAlive.stop());
+    }
     LockScreenGuard.release();
     super.dispose();
   }

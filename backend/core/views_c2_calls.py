@@ -93,10 +93,15 @@ def _call_for(user, call_id):
 
 
 def touch_presence(user, now=None):
+    """Mark the phone as reachable. At most one write per 10 s per user (the
+    app polls every 0.5–5 s)."""
     now = now or timezone.now()
     try:
-        RtPresence.objects.update_or_create(user=user,
-                                              defaults={"seen_at": now})
+        n = RtPresence.objects.filter(
+            user=user, seen_at__lt=now - timedelta(seconds=10)
+        ).update(seen_at=now)
+        if not n and not RtPresence.objects.filter(user=user).exists():
+            RtPresence.objects.create(user=user, seen_at=now)
     except Exception:
         pass
 
