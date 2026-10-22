@@ -1,0 +1,922 @@
+[
+ {
+  "file": "01_portrait.jpg",
+  "kind": "portrait",
+  "source": "https://commons.wikimedia.org/wiki/File:2024_Clay_Higgins_(cropped).jpg",
+  "licence": "Public domain",
+  "w": 601,
+  "h": 800,
+  "faces_haar": 1,
+  "classical": {
+   "psnr_degraded": 16.26,
+   "psnr_light": 22.24,
+   "psnr_natural": 25.22,
+   "psnr_strong": 22.05,
+   "cast_degraded": 34.87,
+   "cast_light": 14.95,
+   "cast_natural": 3.37,
+   "cast_strong": 9.66,
+   "sharp_ref": 2933.0,
+   "sharp_degraded": 2389.5,
+   "sharp_light": 4894.9,
+   "sharp_natural": 6604.0,
+   "sharp_strong": 8346.8,
+   "ms": {
+    "light": 238,
+    "natural": 210,
+    "strong": 239
+   }
+  },
+  "ai": {
+   "input": [
+    300,
+    400
+   ],
+   "tiles": 12,
+   "seconds": 7.2,
+   "psnr_bicubic": 27.27,
+   "psnr_esrgan_raw": 26.04,
+   "psnr_shipped": 26.18,
+   "psnr_shipped_natural": 22.59,
+   "sharp_bicubic": 61.4,
+   "sharp_esrgan_raw": 401.2,
+   "sharp_shipped": 343.0,
+   "sharp_ref": 2937.7,
+   "faces_haar_after": 1
+  }
+ },
+ {
+  "file": "02_portrait.jpg",
+  "kind": "portrait",
+  "source": "https://commons.wikimedia.org/wiki/File:Pete_Aguilar_(118th_Congress).jpg",
+  "licence": "Public domain",
+  "w": 335,
+  "h": 410,
+  "faces_haar": 1,
+  "classical": {
+   "psnr_degraded": 15.62,
+   "psnr_light": 19.21,
+   "psnr_natural": 19.85,
+   "psnr_strong": 18.99,
+   "cast_degraded": 39.97,
+   "cast_light": 22.35,
+   "cast_natural": 18.93,
+   "cast_strong": 19.49,
+   "sharp_ref": 166.5,
+   "sharp_degraded": 158.4,
+   "sharp_light": 265.8,
+   "sharp_natural": 369.8,
+   "sharp_strong": 495.5,
+   "ms": {
+    "light": 55,
+    "natural": 61,
+    "strong": 77
+   }
+  },
+  "ai": {
+   "input": [
+    167,
+    205
+   ],
+   "tiles": 4,
+   "seconds": 2.55,
+   "psnr_bicubic": 30.72,
+   "psnr_esrgan_raw": 27.37,
+   "psnr_shipped": 28.38,
+   "psnr_shipped_natural": 24.52,
+   "sharp_bicubic": 50.6,
+   "sharp_esrgan_raw": 502.0,
+   "sharp_shipped": 351.5,
+   "sharp_ref": 167.0,
+   "faces_haar_after": 1
+  }
+ },
+ {
+  "file": "03_portrait.jpg",
+  "kind": "portrait",
+  "source": "https://commons.wikimedia.org/wiki/File:Rep._Mark_Alford_official_photo,_118th_Congress_(cropped).jpg",
+  "licence": "Public domain",
+  "w": 686,
+  "h": 796,
+  "faces_haar": 1,
+  "classical": {
+   "psnr_degraded": 16.09,
+   "psnr_light": 21.01,
+   "psnr_natural": 24.72,
+   "psnr_strong": 24.7,
+   "cast_degraded": 36.13,
+   "cast_light": 19.51,
+   "cast_natural": 9.03,
+   "cast_strong": 2.98,
+   "sharp_ref": 381.0,
+   "sharp_degraded": 477.8,
+   "sharp_light": 852.9,
+   "sharp_natural": 1188.0,
+   "sharp_strong": 1626.8,
+   "ms": {
+    "light": 289,
+    "natural": 255,
+    "strong": 262
+   }
+  },
+  "ai": {
+   "input": [
+    343,
+    398
+   ],
+   "tiles": 12,
+   "seconds": 10.21,
+   "psnr_bicubic": 32.03,
+   "psnr_esrgan_raw": 29.08,
+   "psnr_shipped": 29.56,
+   "psnr_shipped_natural": 26.37,
+   "sharp_bicubic": 45.9,
+   "sharp_esrgan_raw": 364.3,
+   "sharp_shipped": 294.5,
+   "sharp_ref": 381.0,
+   "faces_haar_after": 1
+  }
+ },
+ {
+  "file": "04_portrait.jpg",
+  "kind": "portrait",
+  "source": "https://commons.wikimedia.org/wiki/File:Rep._Mark_Alford_official_photo,_118th_Congress.jpg",
+  "licence": "Public domain",
+  "w": 640,
+  "h": 800,
+  "faces_haar": 1,
+  "classical": {
+   "psnr_degraded": 16.3,
+   "psnr_light": 22.25,
+   "psnr_natural": 23.7,
+   "psnr_strong": 19.47,
+   "cast_degraded": 33.02,
+   "cast_light": 13.0,
+   "cast_natural": 6.05,
+   "cast_strong": 16.6,
+   "sharp_ref": 878.1,
+   "sharp_degraded": 497.8,
+   "sharp_light": 917.6,
+   "sharp_natural": 1266.2,
+   "sharp_strong": 1736.1,
+   "ms": {
+    "light": 276,
+    "natural": 300,
+    "strong": 231
+   }
+  },
+  "ai": {
+   "input": [
+    320,
+    400
+   ],
+   "tiles": 12,
+   "seconds": 6.88,
+   "psnr_bicubic": 29.04,
+   "psnr_esrgan_raw": 26.8,
+   "psnr_shipped": 26.66,
+   "psnr_shipped_natural": 17.8,
+   "sharp_bicubic": 76.7,
+   "sharp_esrgan_raw": 694.4,
+   "sharp_shipped": 605.8,
+   "sharp_ref": 878.1,
+   "faces_haar_after": 1
+  }
+ },
+ {
+  "file": "05_portrait.jpg",
+  "kind": "portrait",
+  "source": "https://commons.wikimedia.org/wiki/File:Colin_Allred_portrait_(118th_Congress).jpg",
+  "licence": "Public domain",
+  "w": 335,
+  "h": 410,
+  "faces_haar": 1,
+  "classical": {
+   "psnr_degraded": 15.37,
+   "psnr_light": 17.2,
+   "psnr_natural": 17.82,
+   "psnr_strong": 18.23,
+   "cast_degraded": 41.35,
+   "cast_light": 31.53,
+   "cast_natural": 26.97,
+   "cast_strong": 22.43,
+   "sharp_ref": 205.8,
+   "sharp_degraded": 227.7,
+   "sharp_light": 396.3,
+   "sharp_natural": 533.2,
+   "sharp_strong": 692.3,
+   "ms": {
+    "light": 59,
+    "natural": 57,
+    "strong": 67
+   }
+  },
+  "ai": {
+   "input": [
+    167,
+    205
+   ],
+   "tiles": 4,
+   "seconds": 2.6,
+   "psnr_bicubic": 29.79,
+   "psnr_esrgan_raw": 27.6,
+   "psnr_shipped": 27.8,
+   "psnr_shipped_natural": 21.37,
+   "sharp_bicubic": 61.5,
+   "sharp_esrgan_raw": 453.8,
+   "sharp_shipped": 362.3,
+   "sharp_ref": 206.4,
+   "faces_haar_after": 1
+  }
+ },
+ {
+  "file": "06_portrait.jpg",
+  "kind": "portrait",
+  "source": "https://commons.wikimedia.org/wiki/File:Gabe_Amo_118th_Congress_Official_Portrait.jpg",
+  "licence": "Public domain",
+  "w": 663,
+  "h": 800,
+  "faces_haar": 2,
+  "classical": {
+   "psnr_degraded": 15.29,
+   "psnr_light": 19.17,
+   "psnr_natural": 22.1,
+   "psnr_strong": 22.4,
+   "cast_degraded": 41.7,
+   "cast_light": 26.34,
+   "cast_natural": 15.29,
+   "cast_strong": 6.14,
+   "sharp_ref": 1267.2,
+   "sharp_degraded": 773.7,
+   "sharp_light": 1471.8,
+   "sharp_natural": 2293.7,
+   "sharp_strong": 3558.1,
+   "ms": {
+    "light": 385,
+    "natural": 287,
+    "strong": 265
+   }
+  },
+  "ai": {
+   "input": [
+    331,
+    400
+   ],
+   "tiles": 12,
+   "seconds": 7.72,
+   "psnr_bicubic": 28.06,
+   "psnr_esrgan_raw": 26.85,
+   "psnr_shipped": 27.44,
+   "psnr_shipped_natural": 22.12,
+   "sharp_bicubic": 43.1,
+   "sharp_esrgan_raw": 285.1,
+   "sharp_shipped": 144.5,
+   "sharp_ref": 1267.9,
+   "faces_haar_after": 1
+  }
+ },
+ {
+  "file": "07_portrait.jpg",
+  "kind": "portrait",
+  "source": "https://commons.wikimedia.org/wiki/File:Rep._Gabe_Amo_official_portrait,_118th_Congress.jpg",
+  "licence": "Public domain",
+  "w": 533,
+  "h": 800,
+  "faces_haar": 2,
+  "classical": {
+   "psnr_degraded": 14.71,
+   "psnr_light": 17.83,
+   "psnr_natural": 19.96,
+   "psnr_strong": 20.28,
+   "cast_degraded": 43.62,
+   "cast_light": 28.52,
+   "cast_natural": 17.76,
+   "cast_strong": 11.01,
+   "sharp_ref": 2044.8,
+   "sharp_degraded": 1007.8,
+   "sharp_light": 2365.2,
+   "sharp_natural": 4049.5,
+   "sharp_strong": 6938.7,
+   "ms": {
+    "light": 228,
+    "natural": 267,
+    "strong": 208
+   }
+  },
+  "ai": {
+   "input": [
+    266,
+    400
+   ],
+   "tiles": 12,
+   "seconds": 7.55,
+   "psnr_bicubic": 27.25,
+   "psnr_esrgan_raw": 26.23,
+   "psnr_shipped": 26.64,
+   "psnr_shipped_natural": 21.34,
+   "sharp_bicubic": 42.5,
+   "sharp_esrgan_raw": 316.7,
+   "sharp_shipped": 182.3,
+   "sharp_ref": 2045.6,
+   "faces_haar_after": 1
+  }
+ },
+ {
+  "file": "08_portrait.jpg",
+  "kind": "portrait",
+  "source": "https://commons.wikimedia.org/wiki/File:Angie_Craig_portrait_(118th_Congress).jpg",
+  "licence": "Public domain",
+  "w": 335,
+  "h": 410,
+  "faces_haar": 1,
+  "classical": {
+   "psnr_degraded": 15.83,
+   "psnr_light": 19.6,
+   "psnr_natural": 21.11,
+   "psnr_strong": 21.08,
+   "cast_degraded": 37.56,
+   "cast_light": 20.1,
+   "cast_natural": 14.34,
+   "cast_strong": 11.41,
+   "sharp_ref": 277.5,
+   "sharp_degraded": 228.8,
+   "sharp_light": 442.0,
+   "sharp_natural": 667.8,
+   "sharp_strong": 988.4,
+   "ms": {
+    "light": 68,
+    "natural": 56,
+    "strong": 64
+   }
+  },
+  "ai": {
+   "input": [
+    167,
+    205
+   ],
+   "tiles": 4,
+   "seconds": 2.21,
+   "psnr_bicubic": 29.71,
+   "psnr_esrgan_raw": 26.92,
+   "psnr_shipped": 27.99,
+   "psnr_shipped_natural": 23.84,
+   "sharp_bicubic": 59.0,
+   "sharp_esrgan_raw": 434.1,
+   "sharp_shipped": 267.8,
+   "sharp_ref": 278.2,
+   "faces_haar_after": 1
+  }
+ },
+ {
+  "file": "09_portrait.jpg",
+  "kind": "portrait",
+  "source": "https://commons.wikimedia.org/wiki/File:Auchincloss_Jake_119th_Congress.jpg",
+  "licence": "Public domain",
+  "w": 600,
+  "h": 750,
+  "faces_haar": 1,
+  "classical": {
+   "psnr_degraded": 16.94,
+   "psnr_light": 23.37,
+   "psnr_natural": 25.28,
+   "psnr_strong": 20.1,
+   "cast_degraded": 31.01,
+   "cast_light": 12.4,
+   "cast_natural": 4.03,
+   "cast_strong": 16.27,
+   "sharp_ref": 520.7,
+   "sharp_degraded": 308.3,
+   "sharp_light": 595.6,
+   "sharp_natural": 860.6,
+   "sharp_strong": 1291.9,
+   "ms": {
+    "light": 330,
+    "natural": 306,
+    "strong": 272
+   }
+  },
+  "ai": {
+   "input": [
+    300,
+    375
+   ],
+   "tiles": 9,
+   "seconds": 5.97,
+   "psnr_bicubic": 30.31,
+   "psnr_esrgan_raw": 27.24,
+   "psnr_shipped": 27.08,
+   "psnr_shipped_natural": 18.65,
+   "sharp_bicubic": 86.9,
+   "sharp_esrgan_raw": 790.9,
+   "sharp_shipped": 747.4,
+   "sharp_ref": 520.7,
+   "faces_haar_after": 1
+  }
+ },
+ {
+  "file": "10_portrait.jpg",
+  "kind": "portrait",
+  "source": "https://commons.wikimedia.org/wiki/File:Jake_Auchincloss_portrait_(118th_Congress).jpg",
+  "licence": "Public domain",
+  "w": 335,
+  "h": 410,
+  "faces_haar": 1,
+  "classical": {
+   "psnr_degraded": 14.15,
+   "psnr_light": 17.42,
+   "psnr_natural": 19.96,
+   "psnr_strong": 20.87,
+   "cast_degraded": 47.32,
+   "cast_light": 32.94,
+   "cast_natural": 23.04,
+   "cast_strong": 15.52,
+   "sharp_ref": 193.1,
+   "sharp_degraded": 205.1,
+   "sharp_light": 359.4,
+   "sharp_natural": 507.8,
+   "sharp_strong": 704.6,
+   "ms": {
+    "light": 88,
+    "natural": 76,
+    "strong": 67
+   }
+  },
+  "ai": {
+   "input": [
+    167,
+    205
+   ],
+   "tiles": 4,
+   "seconds": 5.91,
+   "psnr_bicubic": 30.15,
+   "psnr_esrgan_raw": 27.39,
+   "psnr_shipped": 27.84,
+   "psnr_shipped_natural": 21.41,
+   "sharp_bicubic": 54.8,
+   "sharp_esrgan_raw": 482.6,
+   "sharp_shipped": 368.9,
+   "sharp_ref": 193.7,
+   "faces_haar_after": 1
+  }
+ },
+ {
+  "file": "11_scene.jpg",
+  "kind": "scene",
+  "source": "https://commons.wikimedia.org/wiki/File:1998_Pontiac_Grand_Prix,_front_left,_4-5-2021.jpg",
+  "licence": "CC0",
+  "w": 800,
+  "h": 600,
+  "faces_haar": 0,
+  "classical": {
+   "psnr_degraded": 15.16,
+   "psnr_light": 17.76,
+   "psnr_natural": 18.46,
+   "psnr_strong": 17.79,
+   "cast_degraded": 39.62,
+   "cast_light": 26.04,
+   "cast_natural": 18.8,
+   "cast_strong": 14.28,
+   "sharp_ref": 9787.0,
+   "sharp_degraded": 8109.1,
+   "sharp_light": 16947.8,
+   "sharp_natural": 24403.0,
+   "sharp_strong": 33078.5,
+   "ms": {
+    "light": 150,
+    "natural": 154,
+    "strong": 157
+   }
+  },
+  "ai": {
+   "input": [
+    400,
+    300
+   ],
+   "tiles": 12,
+   "seconds": 7.47,
+   "psnr_bicubic": 20.51,
+   "psnr_esrgan_raw": 20.16,
+   "psnr_shipped": 20.19,
+   "psnr_shipped_natural": 19.25,
+   "sharp_bicubic": 456.9,
+   "sharp_esrgan_raw": 1986.3,
+   "sharp_shipped": 1984.4,
+   "sharp_ref": 9787.0,
+   "faces_haar_after": 0
+  }
+ },
+ {
+  "file": "12_scene.jpg",
+  "kind": "scene",
+  "source": "https://commons.wikimedia.org/wiki/File:!_Bright_Lights_Ceiling_!.jpg",
+  "licence": "CC0",
+  "w": 800,
+  "h": 450,
+  "faces_haar": 0,
+  "classical": {
+   "psnr_degraded": 15.04,
+   "psnr_light": 17.62,
+   "psnr_natural": 19.98,
+   "psnr_strong": 21.56,
+   "cast_degraded": 44.44,
+   "cast_light": 32.5,
+   "cast_natural": 22.78,
+   "cast_strong": 13.14,
+   "sharp_ref": 537.0,
+   "sharp_degraded": 428.2,
+   "sharp_light": 893.4,
+   "sharp_natural": 1431.7,
+   "sharp_strong": 2291.1,
+   "ms": {
+    "light": 113,
+    "natural": 130,
+    "strong": 152
+   }
+  },
+  "ai": {
+   "input": [
+    400,
+    225
+   ],
+   "tiles": 8,
+   "seconds": 5.37,
+   "psnr_bicubic": 30.42,
+   "psnr_esrgan_raw": 30.47,
+   "psnr_shipped": 30.44,
+   "psnr_shipped_natural": 23.21,
+   "sharp_bicubic": 60.9,
+   "sharp_esrgan_raw": 340.7,
+   "sharp_shipped": 339.8,
+   "sharp_ref": 537.0,
+   "faces_haar_after": 0
+  }
+ },
+ {
+  "file": "13_scene.jpg",
+  "kind": "scene",
+  "source": "https://commons.wikimedia.org/wiki/File:!_Russisch-Orthodoxe_Kirche_(Dresden)_Glockenturm.jpg",
+  "licence": "CC0",
+  "w": 800,
+  "h": 692,
+  "faces_haar": 0,
+  "classical": {
+   "psnr_degraded": 15.07,
+   "psnr_light": 18.01,
+   "psnr_natural": 20.95,
+   "psnr_strong": 23.97,
+   "cast_degraded": 39.17,
+   "cast_light": 27.59,
+   "cast_natural": 18.62,
+   "cast_strong": 10.33,
+   "sharp_ref": 730.4,
+   "sharp_degraded": 406.0,
+   "sharp_light": 725.6,
+   "sharp_natural": 969.2,
+   "sharp_strong": 1258.0,
+   "ms": {
+    "light": 219,
+    "natural": 202,
+    "strong": 190
+   }
+  },
+  "ai": {
+   "input": [
+    400,
+    346
+   ],
+   "tiles": 12,
+   "seconds": 9.22,
+   "psnr_bicubic": 30.1,
+   "psnr_esrgan_raw": 29.71,
+   "psnr_shipped": 29.66,
+   "psnr_shipped_natural": 25.84,
+   "sharp_bicubic": 75.4,
+   "sharp_esrgan_raw": 438.3,
+   "sharp_shipped": 436.5,
+   "sharp_ref": 730.4,
+   "faces_haar_after": 0
+  }
+ },
+ {
+  "file": "14_scene.jpg",
+  "kind": "scene",
+  "source": "https://commons.wikimedia.org/wiki/File:!_Russisch-Orthodoxe_Kirche_(Dresden)_Zwiebelt%C3%BCrme.JPG",
+  "licence": "CC0",
+  "w": 800,
+  "h": 600,
+  "faces_haar": 0,
+  "classical": {
+   "psnr_degraded": 16.26,
+   "psnr_light": 20.87,
+   "psnr_natural": 22.9,
+   "psnr_strong": 20.85,
+   "cast_degraded": 34.05,
+   "cast_light": 16.72,
+   "cast_natural": 5.94,
+   "cast_strong": 4.6,
+   "sharp_ref": 2182.7,
+   "sharp_degraded": 1530.4,
+   "sharp_light": 2905.5,
+   "sharp_natural": 3965.2,
+   "sharp_strong": 5386.6,
+   "ms": {
+    "light": 260,
+    "natural": 170,
+    "strong": 183
+   }
+  },
+  "ai": {
+   "input": [
+    400,
+    300
+   ],
+   "tiles": 12,
+   "seconds": 8.34,
+   "psnr_bicubic": 25.8,
+   "psnr_esrgan_raw": 25.48,
+   "psnr_shipped": 25.4,
+   "psnr_shipped_natural": 21.53,
+   "sharp_bicubic": 231.1,
+   "sharp_esrgan_raw": 1495.8,
+   "sharp_shipped": 1490.5,
+   "sharp_ref": 2182.7,
+   "faces_haar_after": 0
+  }
+ },
+ {
+  "file": "15_scene.jpg",
+  "kind": "scene",
+  "source": "https://commons.wikimedia.org/wiki/File:!941_Lincoln_Continental_Coupe,_Series_57_-_Automobile_Driving_Museum_-_El_Segundo,_CA_-_DSC01970.jpg",
+  "licence": "CC0",
+  "w": 800,
+  "h": 533,
+  "faces_haar": 0,
+  "classical": {
+   "psnr_degraded": 16.39,
+   "psnr_light": 20.87,
+   "psnr_natural": 22.83,
+   "psnr_strong": 21.03,
+   "cast_degraded": 33.85,
+   "cast_light": 17.33,
+   "cast_natural": 6.08,
+   "cast_strong": 3.64,
+   "sharp_ref": 3749.8,
+   "sharp_degraded": 2799.3,
+   "sharp_light": 5246.7,
+   "sharp_natural": 6954.3,
+   "sharp_strong": 9041.1,
+   "ms": {
+    "light": 152,
+    "natural": 145,
+    "strong": 332
+   }
+  },
+  "ai": {
+   "input": [
+    400,
+    266
+   ],
+   "tiles": 12,
+   "seconds": 8.17,
+   "psnr_bicubic": 22.56,
+   "psnr_esrgan_raw": 21.77,
+   "psnr_shipped": 21.7,
+   "psnr_shipped_natural": 19.48,
+   "sharp_bicubic": 338.0,
+   "sharp_esrgan_raw": 2127.4,
+   "sharp_shipped": 2110.4,
+   "sharp_ref": 3755.1,
+   "faces_haar_after": 1
+  }
+ },
+ {
+  "file": "16_scene.jpg",
+  "kind": "scene",
+  "source": "https://commons.wikimedia.org/wiki/File:!941_Lincoln_Continental_Coupe,_Series_57_-_Automobile_Driving_Museum_-_El_Segundo,_CA_-_DSC01972.jpg",
+  "licence": "CC0",
+  "w": 800,
+  "h": 669,
+  "faces_haar": 0,
+  "classical": {
+   "psnr_degraded": 16.59,
+   "psnr_light": 21.33,
+   "psnr_natural": 22.48,
+   "psnr_strong": 20.21,
+   "cast_degraded": 30.29,
+   "cast_light": 13.25,
+   "cast_natural": 5.63,
+   "cast_strong": 6.84,
+   "sharp_ref": 4294.2,
+   "sharp_degraded": 3056.9,
+   "sharp_light": 6059.2,
+   "sharp_natural": 8388.7,
+   "sharp_strong": 11314.4,
+   "ms": {
+    "light": 194,
+    "natural": 212,
+    "strong": 204
+   }
+  },
+  "ai": {
+   "input": [
+    400,
+    334
+   ],
+   "tiles": 12,
+   "seconds": 9.92,
+   "psnr_bicubic": 21.79,
+   "psnr_esrgan_raw": 21.62,
+   "psnr_shipped": 21.52,
+   "psnr_shipped_natural": 19.11,
+   "sharp_bicubic": 464.2,
+   "sharp_esrgan_raw": 2541.4,
+   "sharp_shipped": 2507.3,
+   "sharp_ref": 4300.5,
+   "faces_haar_after": 0
+  }
+ },
+ {
+  "file": "17_scene.jpg",
+  "kind": "scene",
+  "source": "https://commons.wikimedia.org/wiki/File:!941_Lincoln_Continental_Coupe,_Series_57_-_Automobile_Driving_Museum_-_El_Segundo,_CA_-_DSC01975.jpg",
+  "licence": "CC0",
+  "w": 800,
+  "h": 533,
+  "faces_haar": 0,
+  "classical": {
+   "psnr_degraded": 16.2,
+   "psnr_light": 20.74,
+   "psnr_natural": 22.55,
+   "psnr_strong": 20.83,
+   "cast_degraded": 33.93,
+   "cast_light": 16.73,
+   "cast_natural": 6.43,
+   "cast_strong": 3.8,
+   "sharp_ref": 3757.1,
+   "sharp_degraded": 2723.2,
+   "sharp_light": 5243.8,
+   "sharp_natural": 7099.1,
+   "sharp_strong": 9458.2,
+   "ms": {
+    "light": 148,
+    "natural": 142,
+    "strong": 146
+   }
+  },
+  "ai": {
+   "input": [
+    400,
+    266
+   ],
+   "tiles": 12,
+   "seconds": 7.6,
+   "psnr_bicubic": 22.56,
+   "psnr_esrgan_raw": 22.11,
+   "psnr_shipped": 22.06,
+   "psnr_shipped_natural": 19.91,
+   "sharp_bicubic": 373.9,
+   "sharp_esrgan_raw": 2183.5,
+   "sharp_shipped": 2170.2,
+   "sharp_ref": 3760.7,
+   "faces_haar_after": 0
+  }
+ },
+ {
+  "file": "18_scene.jpg",
+  "kind": "scene",
+  "source": "https://commons.wikimedia.org/wiki/File:!941_Lincoln_Continental_Coupe,_Series_57_-_Automobile_Driving_Museum_-_El_Segundo,_CA_-_DSC01976.jpg",
+  "licence": "CC0",
+  "w": 800,
+  "h": 533,
+  "faces_haar": 0,
+  "classical": {
+   "psnr_degraded": 16.5,
+   "psnr_light": 21.04,
+   "psnr_natural": 22.95,
+   "psnr_strong": 21.37,
+   "cast_degraded": 32.46,
+   "cast_light": 16.71,
+   "cast_natural": 6.44,
+   "cast_strong": 2.02,
+   "sharp_ref": 2653.6,
+   "sharp_degraded": 2106.5,
+   "sharp_light": 3930.4,
+   "sharp_natural": 5209.8,
+   "sharp_strong": 6702.7,
+   "ms": {
+    "light": 208,
+    "natural": 143,
+    "strong": 144
+   }
+  },
+  "ai": {
+   "input": [
+    400,
+    266
+   ],
+   "tiles": 12,
+   "seconds": 7.45,
+   "psnr_bicubic": 23.24,
+   "psnr_esrgan_raw": 22.13,
+   "psnr_shipped": 22.12,
+   "psnr_shipped_natural": 19.81,
+   "sharp_bicubic": 300.4,
+   "sharp_esrgan_raw": 1762.6,
+   "sharp_shipped": 1647.1,
+   "sharp_ref": 2657.6,
+   "faces_haar_after": 0
+  }
+ },
+ {
+  "file": "19_scene.jpg",
+  "kind": "scene",
+  "source": "https://commons.wikimedia.org/wiki/File:!Defurovy_La%C5%BEany_-_n%C3%A1m%C4%9Bst%C3%AD.jpg",
+  "licence": "CC0",
+  "w": 800,
+  "h": 600,
+  "faces_haar": 0,
+  "classical": {
+   "psnr_degraded": 14.84,
+   "psnr_light": 18.28,
+   "psnr_natural": 20.25,
+   "psnr_strong": 20.42,
+   "cast_degraded": 42.35,
+   "cast_light": 26.56,
+   "cast_natural": 17.31,
+   "cast_strong": 10.52,
+   "sharp_ref": 4708.9,
+   "sharp_degraded": 3102.0,
+   "sharp_light": 6329.3,
+   "sharp_natural": 8911.7,
+   "sharp_strong": 12221.4,
+   "ms": {
+    "light": 159,
+    "natural": 186,
+    "strong": 188
+   }
+  },
+  "ai": {
+   "input": [
+    400,
+    300
+   ],
+   "tiles": 12,
+   "seconds": 7.46,
+   "psnr_bicubic": 23.32,
+   "psnr_esrgan_raw": 22.99,
+   "psnr_shipped": 23.0,
+   "psnr_shipped_natural": 21.62,
+   "sharp_bicubic": 300.1,
+   "sharp_esrgan_raw": 1575.8,
+   "sharp_shipped": 1573.1,
+   "sharp_ref": 4708.9,
+   "faces_haar_after": 0
+  }
+ },
+ {
+  "file": "20_scene.jpg",
+  "kind": "scene",
+  "source": "https://commons.wikimedia.org/wiki/File:!Irinka_1932.jpg",
+  "licence": "CC0",
+  "w": 800,
+  "h": 590,
+  "faces_haar": 1,
+  "classical": {
+   "psnr_degraded": 14.38,
+   "psnr_light": 16.43,
+   "psnr_natural": 17.68,
+   "psnr_strong": 18.13,
+   "cast_degraded": 46.34,
+   "cast_light": 35.67,
+   "cast_natural": 28.79,
+   "cast_strong": 23.5,
+   "sharp_ref": 972.2,
+   "sharp_degraded": 726.3,
+   "sharp_light": 1473.5,
+   "sharp_natural": 2251.7,
+   "sharp_strong": 3374.5,
+   "ms": {
+    "light": 243,
+    "natural": 194,
+    "strong": 236
+   }
+  },
+  "ai": {
+   "input": [
+    400,
+    295
+   ],
+   "tiles": 12,
+   "seconds": 6.84,
+   "psnr_bicubic": 28.32,
+   "psnr_esrgan_raw": 24.07,
+   "psnr_shipped": 24.08,
+   "psnr_shipped_natural": 20.6,
+   "sharp_bicubic": 158.0,
+   "sharp_esrgan_raw": 1889.4,
+   "sharp_shipped": 1867.1,
+   "sharp_ref": 972.2,
+   "faces_haar_after": 1
+  }
+ }
+]

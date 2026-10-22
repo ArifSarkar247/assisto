@@ -26,7 +26,7 @@ typedef Pt = math.Point<double>;
 /// position is ≥ 0.10 IOD. To be re-checked with real phone logs (Bangla
 /// checklist in .phaseB/proposals/p2-photo.md).
 class IdentityThresholds {
-  const IdentityThresholds({this.maxRms = 0.05, this.maxPoint = 0.09});
+  const IdentityThresholds({this.maxRms = 0.045, this.maxPoint = 0.07});
   final double maxRms;
   final double maxPoint;
 }

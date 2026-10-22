@@ -413,14 +413,12 @@ void main() {
       expect(find.text('Sexual or undressing edits are not allowed.'), findsOneWidget);
     });
 
-    testWidgets('engine not in build: honest notice, no fake result (bn)', (tester) async {
+    testWidgets('no engine (bn): enhance card hidden — never a dead button', (tester) async {
       final b = FakePsBackend(entryDue: false);
       await pumpStudio(tester, fakeDeps(b, engine: FakeEngine(ready: false)), lang: 'bn');
       await tester.tap(find.byKey(const Key('psPickGallery')));
       await tester.pump();
-      await tester.tap(find.byKey(const Key('psEnhance')));
-      await tester.pump();
-      expect(find.textContaining('নকল ফল দেখাই না'), findsWidgets);
+      expect(find.byKey(const Key('psEnhance')), findsNothing);
       expect(find.byKey(const Key('psHistory')), findsOneWidget);
     });
 

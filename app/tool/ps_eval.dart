@@ -42,8 +42,10 @@ void main(List<String> args) {
     final hdr = ByteData(8)
       ..setUint32(0, w, Endian.little)
       ..setUint32(4, h, Endian.little);
-    File('${args[1]}_${s.name}.rgba')
-        .writeAsBytesSync([...hdr.buffer.asUint8List(), ...out], flush: true);
+    final f = File('${args[1]}_${s.name}.rgba').openSync(mode: FileMode.write);
+    f.writeFromSync(hdr.buffer.asUint8List());
+    f.writeFromSync(out);
+    f.closeSync();
     stdout.writeln(jsonEncode(
         {'level': s.name, 'ms': sw.elapsedMilliseconds, 'w': w, 'h': h}));
   }

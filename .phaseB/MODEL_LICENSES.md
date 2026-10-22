@@ -51,3 +51,23 @@ licence may be configured (the integration guide says so).
 | Busy / declined / ended tones | Generated in code: 425 Hz, 0.5/0.5 s ×4; 0.25/0.25 s ×3; two short pips. |
 | "Assisto" signature ringtone (optional, OFF by default) | ORIGINAL melody written for Assisto on 2026-10-22 by the c2-calls agent (score in `ToneGenerator.signatureScore`: E5 G#5 B5 E6 · D6 B5 C#6 · E5 G#5 B5 E6 F#6), synthesised in code with a bell-like additive voice. Not derived from any existing tune. Installed on the phone as "Assisto.wav" (Android 10+) only when the user turns it on. |
 | Message notification sound | The phone's default notification sound, or one the user picks from the phone's sounds. |
+
+
+## Photo Studio — what p2-photo actually ships (22 Oct 2026)
+
+| Purpose | Model / runtime / data | Source | Licence | Commercial OK? | Shipped how |
+|---|---|---|---|---|---|
+| AI restore & upscale (optional, small/old photos) | **Real-ESRGAN `realesr-general-x4v3`** blended 50/50 (DNI, Real-ESRGAN's own `--denoise_strength 0.5`) with **`realesr-general-wdn-x4v3`** | github.com/xinntao/Real-ESRGAN releases **v0.2.5.0**; sha256 x4v3 `8dc7edb9…6292`, wdn `1641f8c4…9dca` | **BSD-3-Clause** (repo LICENSE; the release ships no separate weight terms). Notice reproduced in the app licence page (`ps_enhance.dart` → LicenseRegistry) and `backend/core/photo_models/README.md` | **Yes** (BSD-3: keep the notice). *Note:* the authors trained on DIV2K/Flickr2K/OST, whose dataset pages say "academic research"; the weights themselves are released under BSD-3 — same position as every Real-ESRGAN commercial user; owner order names Real-ESRGAN as allowed. | Converted to ONNX by `tools/photo_model/convert_realesrgan.py` (numpy+onnx, no torch), served by OUR server (`/api/v1/photo-studio/model/…`, licence-gated manifest), downloaded once in the app, never in the APK. ~4.9 MB fp32. |
+| On-device inference runtime | **ONNX Runtime Android 1.23.2** (`com.microsoft.onnxruntime:onnxruntime-android`) | Maven Central | **MIT** | Yes | Gradle dep (same version + guard as k1-wake → one runtime) |
+| Face boxes + 8 landmarks (identity check, skin mask, AI face-lock) | **Google ML Kit Face Detection 16.1.7, bundled model** (`com.google.mlkit:face-detection`) | Google Maven | ML Kit Terms (Google APIs ToS) — free, commercial use allowed; AAR carries `third_party_licenses.txt` | Yes | Gradle dep; its startup `MlKitInitProvider` removed, `MlKit.initialize` on first use |
+| Classical enhance (WB, levels, guided-filter denoise, CLAHE, skin smoothing, unsharp, vibrance) | our own code (`ps_classic.dart`) | — | ours | Yes | Dart isolate |
+| Evaluation photos (20) | 10 official US-Congress portraits (US federal works, **public domain**) + 10 **CC0** photos | Wikimedia Commons (per-file links in `.phaseB/photo_studio_eval/sources.json`) | PD / CC0 | Yes (thumbnails only in the repo) | not shipped |
+| Haar face cascade (evaluation only, stands in for ML Kit on the desktop) | OpenCV `haarcascade_frontalface_default.xml` | opencv-python-headless 4.10 | Intel/OpenCV licence (BSD-style) / Apache-2.0 | Yes | not shipped |
+
+Still NOT used: GFPGAN (weights/deps unclear, see above), CodeFormer (non-commercial), any
+face-restoration model. **Face-embedding re-check (22 Oct 2026):** InsightFace packs —
+non-commercial; OpenCV-Zoo SFace — Apache-2.0 files but training data undisclosed;
+**fal AuraFace-v1** — Apache-2.0, card says trained on a *commercially licensed* face dataset
+(the cleanest found) — but it is a ResNet-100 ArcFace (~250 MB ONNX, heavy per face), not
+practical as a phone download/on-device model; candidate for a future server-side check only.
+So the identity check stays landmark geometry (ML Kit) + face-lock.
