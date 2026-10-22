@@ -297,8 +297,8 @@ def main():
     rng = np.random.default_rng(0)
     tests = []
     for s in (0.003, 0.03, 0.3):
-        for _ in range(3):
-            tests.append((f"noise{s}", (rng.standard_normal(WINDOW) * s)))
+        for j in range(3):
+            tests.append((f"noise{s}-{j}", (rng.standard_normal(WINDOW) * s)))
     tests.append(("near-silence", rng.standard_normal(WINDOW) * 1e-4))
     t = np.arange(WINDOW) / SR
     tests.append(("sweep", 0.5 * np.sin(2 * np.pi * (100 + 1900 * t / t[-1]) * t)))
@@ -307,6 +307,8 @@ def main():
         tests.append((name, x))
     for name, x in real_snippets(a.real_audio, rng):
         tests.append((name, x))
+    if len({n for n, _ in tests}) != len(tests):
+        raise SystemExit("test names must be unique")
     refs = []
     worst_net = 0.0
     for name, x in tests:

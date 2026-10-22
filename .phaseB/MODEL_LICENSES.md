@@ -71,3 +71,11 @@ non-commercial; OpenCV-Zoo SFace — Apache-2.0 files but training data undisclo
 (the cleanest found) — but it is a ResNet-100 ArcFace (~250 MB ONNX, heavy per face), not
 practical as a phone download/on-device model; candidate for a future server-side check only.
 So the identity check stays landmark geometry (ML Kit) + face-lock.
+
+## Wake word feature extractor — rebuild check (agent/ww2, 22 Oct 2026)
+
+| Item | Source | Licence (how confirmed) | Commercial OK? | Notes |
+|---|---|---|---|---|
+| Google **speech_embedding** v1 (TF1 Hub module, 2.8 MB) | tfhub.dev/google/speech_embedding/1 → Kaggle Models `google/speech-embedding` (TensorFlow1 instance) | **Apache-2.0** — Kaggle Models API `GET /api/v1/models/google/speech-embedding/get` returns `"licenseName": "Apache 2.0"` for the TensorFlow1 instance; fetched by `rebuild_features.py` in CI at every build and stored verbatim in `e2e_info.json → licence_check` (the step fails if the field is not Apache) | **Yes** (keep the Apache-2.0 notice) | Rebuilt as `assisto_embed_e2e.onnx`: our own ONNX log-mel front end (parameters read from the module graph) + the module's frozen conv net (weights unchanged). A derived work of Apache-2.0 weights → ship with the Apache-2.0 notice + "modified: converted to ONNX". |
+| eSpeak NG (also a training TTS voice — see the k1-wake register) | Ubuntu package | GPL-3.0 (program); its audio output is not covered by the GPL | Yes for generated audio; the program is never shipped | Here only generates verification speech for the conversion check |
+| tensorflow-cpu 2.15.1, tf2onnx 1.16.1 (build tools only) | PyPI | Apache-2.0 | Yes | not shipped |
