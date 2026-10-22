@@ -413,8 +413,36 @@ jobs:
               j = s.find('</activity>', i) if i != -1 else -1
               if j != -1:
                   s = s[:j] + applink + s[j:]
+          # ---- c3-msg ---- chat bubbles (Android 11+ Bubbles API): the bubble
+          # expands this activity, so it must be embeddable + resizeable and
+          # launch as its own document (several bubbles at once). Not
+          # exported; only our own mutable PendingIntent opens it. Never
+          # started at launch. No SYSTEM_ALERT_WINDOW.
+          bubble_activity = (
+              '\n        <activity android:name="com.assisto.assisto.messaging.BubbleActivity"'
+              ' android:exported="false"'
+              ' android:allowEmbedded="true"'
+              ' android:resizeableActivity="true"'
+              ' android:documentLaunchMode="always"'
+              ' android:hardwareAccelerated="true"'
+              ' android:windowSoftInputMode="adjustResize"'
+              ' android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"'
+              ' android:theme="@style/LaunchTheme">'
+              '\n            <meta-data android:name="io.flutter.embedding.android.NormalTheme"'
+              ' android:resource="@style/NormalTheme"/>'
+              '\n        </activity>\n'
+          )
+          if 'messaging.BubbleActivity' not in s:
+              s = s.replace('</application>', bubble_activity + '    </application>', 1)
+          # ---- c2-calls ---- video calls can shrink to picture-in-picture
+          # (Flutter's default MainActivity configChanges already include
+          # orientation|screenSize|smallestScreenSize|screenLayout).
+          if 'android:supportsPictureInPicture' not in s:
+              i = s.find('android:name=".MainActivity"')
+              if i != -1:
+                  s = s[:i] + 'android:supportsPictureInPicture="true"\n            ' + s[i:]
           open(p, "w").write(s)
-          print("manifest patched: label, permissions, queries, UCropActivity, native components, androidx.startup removed, FCM push")
+          print("manifest patched: label, permissions, queries, UCropActivity, native components, androidx.startup removed, FCM push, chat bubbles, PiP")
           PY
 
       - name: Patch iOS Info.plist (camera/mic/photos usage strings)

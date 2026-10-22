@@ -1,0 +1,21 @@
+{
+  "_comment": "Production training config for .github/workflows/wakeword-train.yml. Licences of every source: .phaseB/MODEL_LICENSES.md",
+  "frames": 16,
+  "hidden": 64,
+  "steps": 6000,
+  "batch": 512,
+  "lr": 0.001,
+  "max_neg_weight": 30.0,
+  "features": {"backend": "e2e"},
+  "oww_feature_licence_confirmed": false,
+  "tts": {"kokoro": true, "espeak": true, "piper": false, "piper_voices": [],
+          "n_pos_train": 6000, "n_pos_test": 600, "n_neg_tts": 3000, "n_neg_tts_test": 300},
+  "augment_rounds": 2,
+  "stream_stride": 3,
+  "data": {"fleurs_bn_hours": 6.0, "fleurs_bn_dev_hours": 2.5, "librispeech_hours": 3.0,
+           "librispeech_test_hours": 2.0, "musan_files": 2500, "eval_bn_hours": 10.0},
+  "target_fa_per_hour": 0.1,
+  "target_fr": 0.10,
+  "real_positive_dir": "",
+  "seed": 1234
+}

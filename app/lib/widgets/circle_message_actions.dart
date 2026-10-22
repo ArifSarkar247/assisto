@@ -7,11 +7,12 @@ import '../theme.dart';
 /// reply, react, copy, forward, star, pin, edit (own + in window), delete.
 /// Mirrors core/logic/circle_messaging.py semantics; the screen wires the
 /// callbacks. No Bangla literals here (labels via AppLocalizations).
-enum CircleMsgAction { reply, react, copy, forward, star, pin, edit, deleteMe, deleteEveryone }
+enum CircleMsgAction { reply, react, copy, forward, star, pin, edit, deleteMe, deleteEveryone, info, moreReactions }
 
 /// A compact emoji strip shown above the long-press action sheet. The emoji are
 /// unicode graphemes (NOT Bangla text), allowed as quick-reaction tokens.
-const List<String> kQuickReactions = ['\u{1F44D}', '❤️', '\u{1F602}', '\u{1F62E}', '\u{1F622}', '\u{1F64F}'];
+// c3-msg order (WhatsApp): 😂 ❤️ 👍 😮 😢 🙏, then "+" for more.
+const List<String> kQuickReactions = ['\u{1F602}', '\u{2764}\u{FE0F}', '\u{1F44D}', '\u{1F62E}', '\u{1F622}', '\u{1F64F}'];
 
 /// Shows the long-press menu for a message. Returns the chosen action, or a
 /// reaction emoji via [onReact] (handled inline so the sheet can close fast).
@@ -23,12 +24,15 @@ Future<CircleMsgAction?> showCircleMessageActions(
   required bool isPinned,
   required bool canDeleteEveryone,
   required ValueChanged<String> onReact,
+  bool showInfo = false,
 }) {
   final t = AppLocalizations.of(context);
   return showModalBottomSheet<CircleMsgAction>(
     context: context,
     showDragHandle: true,
+    isScrollControlled: true,
     builder: (ctx) => SafeArea(
+      child: SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -50,6 +54,13 @@ Future<CircleMsgAction?> showCircleMessageActions(
                       child: Text(e, style: const TextStyle(fontSize: 26)),
                     ),
                   ),
+                IconButton(
+                  key: const Key('c3-react-more'),
+                  tooltip: t.c3ReactMore,
+                  icon: const Icon(Icons.add_reaction_outlined),
+                  onPressed: () =>
+                      Navigator.pop(ctx, CircleMsgAction.moreReactions),
+                ),
               ],
             ),
           ),
@@ -63,12 +74,15 @@ Future<CircleMsgAction?> showCircleMessageActions(
               isPinned ? t.circleActionUnpin : t.circleActionPin, CircleMsgAction.pin),
           if (mine && canEdit)
             _tile(ctx, Icons.edit_outlined, t.circleActionEdit, CircleMsgAction.edit),
+          if (showInfo)
+            _tile(ctx, Icons.info_outline, t.c3InfoTitle, CircleMsgAction.info),
           _tile(ctx, Icons.delete_outline, t.circleActionDeleteMe, CircleMsgAction.deleteMe),
           if (mine && canDeleteEveryone)
             _tile(ctx, Icons.delete_forever_outlined, t.circleActionDeleteEveryone,
                 CircleMsgAction.deleteEveryone,
                 danger: true),
         ],
+      ),
       ),
     ),
   );

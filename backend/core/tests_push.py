@@ -393,7 +393,11 @@ class HookTests(_PushBase):
         m = msgs[0]
         self.assertEqual(m["token"], "bdev")         # recipient only
         self.assertEqual(m["data"]["kind"], "message")
-        self.assertEqual(m["notification"]["title"], "New message from Amina")
+        # c3-msg: data-only (the device draws MessagingStyle); the fallback
+        # title still names the sender, never the text.
+        self.assertNotIn("notification", m)
+        self.assertEqual(m["data"]["title"], "New message from Amina")
+        self.assertEqual(m["data"]["preview"], "1")
         self.assertEqual(m["data"]["chat_id"], str(self.ba.id))
         blob = json.dumps(m)
         self.assertNotIn("U0VDUkVUIFBMQUlOVEVYVA", blob)

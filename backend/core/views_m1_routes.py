@@ -390,6 +390,10 @@ class CircleChatsView(APIView):
                           or str(m.id) in [str(x) for x in (cl.member_refs or [])]],
             })
         out.sort(key=lambda r: r["at"] or "", reverse=True)
+        # c3-msg: my last message's tick, sender names, decrypt key hint,
+        # GROUP chats, and the manual "marked unread" flag.
+        from . import views_c3_msg as C3
+        out = C3.augment_chat_rows(request.user, out)
         return Response({"results": out})
 
 

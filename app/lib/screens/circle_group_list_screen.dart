@@ -78,7 +78,13 @@ class _CircleGroupListScreenState extends State<CircleGroupListScreen> {
         if (draft.photoRef != null) 'photo_ref': draft.photoRef,
         'member_ids': draft.memberIds,
       });
-    } catch (_) {}
+    } catch (_) {
+      // seam audit: a failed create used to vanish silently.
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(AppLocalizations.of(context).grpActionFailed)));
+      }
+    }
     await _load();
   }
 

@@ -8,7 +8,7 @@ import '../../l10n/app_localizations.dart';
 import 'selling_common.dart';
 
 /// Reports (§3): daily / weekly / monthly sales, profit, top products, top
-/// customers, by payment method, net profit after expenses; export stubs.
+/// customers, by payment method, net profit after expenses; text-summary share.
 ///
 /// A staff role receives a report with profit / cost / net already stripped by
 /// the server (`full_report(..., role='staff')`). The screen hides those rows
@@ -53,10 +53,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
     return !d.containsKey('profit') && !d.containsKey('net_profit');
   }
 
-  Future<void> _export(String kind) async {
+  Future<void> _export() async {
     final t = AppLocalizations.of(context);
-    // Export is a share stub for now (no pdf/excel package bundled). Shares a
-    // plain-text summary; the integrator swaps in a real PDF/Excel builder.
+    // A plain-text summary through the share sheet (no pdf/excel package is
+    // bundled, so the UI no longer claims PDF/Excel).
     final d = _data ?? const {};
     final buf = StringBuffer()
       ..writeln(t.biz_report)
@@ -66,7 +66,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       buf.writeln(
           '${t.biz_report_net_profit}: ${poishaOf(d['net_profit']).fmtTaka}');
     }
-    await Share.share(buf.toString(), subject: '${t.biz_report} ($kind)');
+    await Share.share(buf.toString(), subject: t.biz_report);
   }
 
   @override
@@ -77,13 +77,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
       appBar: AppBar(
         title: Text(t.biz_report),
         actions: [
-          PopupMenuButton<String>(
+          // q1-seams: the menu offered "PDF" / "Excel" but always shared plain
+          // text. Until a real PDF/Excel builder exists it is one honest
+          // "Share" action for the text summary.
+          IconButton(
+            key: const ValueKey('q1-report-share'),
+            tooltip: t.share,
             icon: const Icon(Icons.ios_share),
-            onSelected: _export,
-            itemBuilder: (_) => [
-              PopupMenuItem(value: 'pdf', child: Text('PDF')),
-              PopupMenuItem(value: 'excel', child: Text('Excel')),
-            ],
+            onPressed: _export,
           ),
         ],
       ),

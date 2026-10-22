@@ -67,6 +67,30 @@ class MainActivity : FlutterActivity() {
         setIntent(intent)
         applyLockScreenPolicy(intent)
         applyVoiceLaunch(intent)
+        // c3-msg: conversation shortcut tapped while Assisto is running.
+        try {
+            com.assisto.assisto.messaging.C3MessagingChannel.onNewIntent(intent)
+        } catch (e: Throwable) {
+        }
+    }
+
+    // c3-msg + c2-calls: results of the phone's sound pickers. Each channel
+    // answers true only for its own request code; the rest go to plugins.
+    @Deprecated("Activity result API is not available on FlutterActivity")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        try {
+            if (com.assisto.assisto.messaging.C3MessagingChannel
+                    .onActivityResult(this, requestCode, resultCode, data)) return
+        } catch (e: Throwable) {
+        }
+        // c2-calls: the ringtone picker result (request code 0x5a11 only).
+        try {
+            if (com.assisto.assisto.calls.CallsChannel
+                    .onActivityResult(requestCode, resultCode, data)) return
+        } catch (e: Throwable) {
+        }
+        @Suppress("DEPRECATION")
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     // Part 3 (a3-voice): an assist / wake launch marks "open Assisto Voice"
@@ -130,6 +154,20 @@ class MainActivity : FlutterActivity() {
         // a handler only — TTS / camera / wake word are created on first use.
         try {
             com.assisto.assisto.voice.AssistoVoiceChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
+        // c3-msg: message sound picker, bubbles, conversation launch. Handler
+        // only — nothing runs until Dart calls it.
+        try {
+            com.assisto.assisto.messaging.C3MessagingChannel.register(this, flutterEngine)
+        } catch (e: Throwable) {
+        }
+        // c2-calls: "com.assisto/calls" (tones, ringtone + picker, proximity,
+        // PiP). Handler only — nothing is created until Dart calls it.
+        try {
+            com.assisto.assisto.calls.CallsChannel.register(
                 this, flutterEngine.dartExecutor.binaryMessenger
             )
         } catch (e: Throwable) {
@@ -274,7 +312,23 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    // c2-calls: PiP mode changes go to the calls channel (crash-guarded).
+    override fun onPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: android.content.res.Configuration
+    ) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        try {
+            com.assisto.assisto.calls.CallsChannel.onPipChanged(isInPictureInPictureMode)
+        } catch (e: Throwable) {
+        }
+    }
+
     override fun onDestroy() {
+        try {
+            com.assisto.assisto.calls.CallsChannel.release()
+        } catch (e: Throwable) {
+        }
         stopAlarm()
         super.onDestroy()
     }

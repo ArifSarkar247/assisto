@@ -63,7 +63,13 @@ class _ChannelAdminScreenState extends State<ChannelAdminScreen>
       final j = await _api.channelGet(widget.channelId);
       _channel = (j['channel'] ?? {}).cast<String, dynamic>();
       _posts = ((j['posts'] ?? []) as List).cast<Map<String, dynamic>>();
-    } catch (_) {}
+    } catch (_) {
+      // seam audit: say so instead of an empty screen posing as "no data".
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.of(context).msgLoadFailed)));
+      }
+    }
     if (mounted) setState(() => _loading = false);
   }
 
@@ -663,7 +669,13 @@ class _AnalyticsTabState extends State<_AnalyticsTab> {
   Future<void> _load() async {
     try {
       _data = await _api.channelAnalytics(widget.channelId);
-    } catch (_) {}
+    } catch (_) {
+      // seam audit: say so instead of an empty screen posing as "no data".
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.of(context).msgLoadFailed)));
+      }
+    }
     if (mounted) setState(() => _loading = false);
   }
 
@@ -778,7 +790,13 @@ class _AdminsTabState extends State<_AdminsTab> {
     try {
       final j = await _api.channelAdmins(_id);
       _admins = ((j['admins'] ?? []) as List).cast<Map<String, dynamic>>();
-    } catch (_) {}
+    } catch (_) {
+      // seam audit: say so instead of an empty screen posing as "no data".
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.of(context).msgLoadFailed)));
+      }
+    }
     if (mounted) setState(() => _loading = false);
   }
 

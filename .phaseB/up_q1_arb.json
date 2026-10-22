@@ -1,0 +1,14 @@
+{
+  "en": {
+    "q1ExtrasNotYetTitle": "More chat tools are not available yet",
+    "q1ExtrasNotYetBody": "Scheduled messages, broadcast lists, chat backup and restore, stickers, chat wallpaper, view-once by default and linked devices will appear here only when they really work.",
+    "q1ExtrasExportEmpty": "There are no messages to export in this chat yet.",
+    "q1FamShareLoadFailed": "Couldn't load what you share right now. The list below may be out of date — tap retry."
+  },
+  "bn": {
+    "q1ExtrasNotYetTitle": "চ্যাটের আরও কিছু সুবিধা এখনো চালু হয়নি",
+    "q1ExtrasNotYetBody": "নির্ধারিত সময়ে মেসেজ, ব্রডকাস্ট তালিকা, চ্যাট ব্যাকআপ ও রিস্টোর, স্টিকার, চ্যাটের ওয়ালপেপার, ডিফল্ট একবার-দেখা এবং যুক্ত ডিভাইস — এগুলো সত্যিই কাজ করলে তবেই এখানে দেখা যাবে।",
+    "q1ExtrasExportEmpty": "এই চ্যাটে এখনো এক্সপোর্ট করার মতো কোনো মেসেজ নেই।",
+    "q1FamShareLoadFailed": "আপনি কী কী শেয়ার করছেন তা এখন লোড করা গেল না। নিচের তালিকা পুরোনো হতে পারে — আবার চেষ্টা করুন চাপুন।"
+  }
+}

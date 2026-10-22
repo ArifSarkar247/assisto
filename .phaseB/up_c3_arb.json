@@ -1,0 +1,182 @@
+{
+  "en": {
+    "c3BubbleAllowBody": "Android asks you to allow bubbles for Assisto once. Open the setting and choose \"All conversations\" or \"Selected conversations\".",
+    "c3BubbleAllowTitle": "Allow chat bubbles",
+    "c3BubbleOff": "Stop showing as bubble",
+    "c3BubbleOffDone": "This chat won't open as a bubble",
+    "c3BubbleOn": "Show as bubble",
+    "c3BubbleOnDone": "New messages from this chat will float as a bubble",
+    "c3ForwardTo": "Forward to…",
+    "c3Forwarded": "Forwarded to {name}",
+    "@c3Forwarded": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "c3GroupRecording": "{name} is recording audio…",
+    "@c3GroupRecording": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "c3GroupTyping": "{name} is typing…",
+    "@c3GroupTyping": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "c3InfoDelivered": "Delivered",
+    "c3InfoPending": "Not yet",
+    "c3InfoRead": "Read",
+    "c3InfoReadHidden": "Read receipts are off",
+    "c3InfoTitle": "Message info",
+    "c3InfoToday": "Today, {time}",
+    "@c3InfoToday": {
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "c3InfoYesterday": "Yesterday, {time}",
+    "@c3InfoYesterday": {
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "c3LastSeenOn": "last seen {date} at {time}",
+    "@c3LastSeenOn": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        },
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "c3LastSeenToday": "last seen today at {time}",
+    "@c3LastSeenToday": {
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "c3LastSeenYesterday": "last seen yesterday at {time}",
+    "@c3LastSeenYesterday": {
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "c3MarkUnread": "Mark as unread",
+    "c3NotifEncrypted": "New message",
+    "c3NotifHiddenCount": "{count, plural, =1{1 new message} other{{count} new messages}}",
+    "@c3NotifHiddenCount": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
+    "c3NotifMarkRead": "Mark as read",
+    "c3NotifReply": "Reply",
+    "c3NotifReplyFailed": "Not sent — open the chat to try again",
+    "c3NotifReplyHint": "Type a reply",
+    "c3NotifSummary": "{count, plural, =1{1 chat} other{{count} chats}}",
+    "@c3NotifSummary": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
+    "c3Online": "online",
+    "c3OpenSettings": "Open settings",
+    "c3PreviewEncrypted": "Encrypted message",
+    "c3QuoteGone": "The original message isn't here any more",
+    "c3ReactMore": "More reactions",
+    "c3Recording": "recording audio…",
+    "c3SetBubbles": "Chat bubbles",
+    "c3SetBubblesSub": "Chats you mark \"Show as bubble\" float on screen (Android 11+)",
+    "c3SetBubblesSystem": "Android bubble settings",
+    "c3SetHideContent": "Hide message content",
+    "c3SetHideContentSub": "Notifications show only \"New message\", never the text",
+    "c3SetOnThisPhone": "On this phone",
+    "c3SetSound": "Message sound",
+    "c3SetSoundDefault": "Phone default",
+    "c3Typing": "typing…",
+    "c3Yesterday": "Yesterday",
+    "c3You": "You",
+    "c3SendFailed": "Not sent. Long-press the message to try again.",
+    "c3SkippedRecipients": "{count, plural, =1{1 member couldn't be reached (their key is not ready)} other{{count} members couldn't be reached (their keys are not ready)}}",
+    "@c3SkippedRecipients": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
+    "c3KeysNotReady": "Setting up encryption on this phone… If this stays, close and reopen My Circle."
+  },
+  "bn": {
+    "c3BubbleAllowBody": "Assisto-র জন্য বাবল চালু করতে Android একবার অনুমতি চায়। সেটিং খুলে \"সব কথোপকথন\" বা \"বাছাই করা কথোপকথন\" বেছে নিন।",
+    "c3BubbleAllowTitle": "চ্যাট বাবল চালু করুন",
+    "c3BubbleOff": "বাবল হিসেবে আর দেখাবেন না",
+    "c3BubbleOffDone": "এই চ্যাট আর বাবল হিসেবে খুলবে না",
+    "c3BubbleOn": "বাবল হিসেবে দেখান",
+    "c3BubbleOnDone": "এই চ্যাটের নতুন মেসেজ বাবল হয়ে ভেসে থাকবে",
+    "c3ForwardTo": "কাকে পাঠাবেন…",
+    "c3Forwarded": "{name}-কে ফরোয়ার্ড করা হয়েছে",
+    "c3GroupRecording": "{name} অডিও রেকর্ড করছেন…",
+    "c3GroupTyping": "{name} লিখছেন…",
+    "c3InfoDelivered": "পৌঁছেছে",
+    "c3InfoPending": "এখনও না",
+    "c3InfoRead": "পড়েছেন",
+    "c3InfoReadHidden": "পড়ার রসিদ বন্ধ",
+    "c3InfoTitle": "মেসেজের তথ্য",
+    "c3InfoToday": "আজ, {time}",
+    "c3InfoYesterday": "গতকাল, {time}",
+    "c3LastSeenOn": "শেষ দেখা {date}, {time}",
+    "c3LastSeenToday": "শেষ দেখা আজ {time}",
+    "c3LastSeenYesterday": "শেষ দেখা গতকাল {time}",
+    "c3MarkUnread": "না-পড়া হিসেবে চিহ্নিত করুন",
+    "c3NotifEncrypted": "নতুন মেসেজ",
+    "c3NotifHiddenCount": "{count, plural, =1{১টি নতুন মেসেজ} other{{count}টি নতুন মেসেজ}}",
+    "c3NotifMarkRead": "পড়া হয়েছে",
+    "c3NotifReply": "উত্তর দিন",
+    "c3NotifReplyFailed": "পাঠানো যায়নি — আবার চেষ্টা করতে চ্যাট খুলুন",
+    "c3NotifReplyHint": "উত্তর লিখুন",
+    "c3NotifSummary": "{count, plural, =1{১টি চ্যাট} other{{count}টি চ্যাট}}",
+    "c3Online": "অনলাইনে",
+    "c3OpenSettings": "সেটিং খুলুন",
+    "c3PreviewEncrypted": "এনক্রিপ্ট করা মেসেজ",
+    "c3QuoteGone": "মূল মেসেজটি আর নেই",
+    "c3ReactMore": "আরও রিঅ্যাকশন",
+    "c3Recording": "অডিও রেকর্ড করছেন…",
+    "c3SetBubbles": "চ্যাট বাবল",
+    "c3SetBubblesSub": "যে চ্যাটে \"বাবল হিসেবে দেখান\" চালু, সেগুলো স্ক্রিনে ভেসে থাকবে (Android 11+)",
+    "c3SetBubblesSystem": "Android-এর বাবল সেটিং",
+    "c3SetHideContent": "মেসেজের লেখা লুকান",
+    "c3SetHideContentSub": "নোটিফিকেশনে শুধু \"নতুন মেসেজ\" দেখাবে, লেখা কখনও না",
+    "c3SetOnThisPhone": "এই ফোনে",
+    "c3SetSound": "মেসেজের শব্দ",
+    "c3SetSoundDefault": "ফোনের ডিফল্ট",
+    "c3Typing": "লিখছেন…",
+    "c3Yesterday": "গতকাল",
+    "c3You": "আপনি",
+    "c3SendFailed": "পাঠানো যায়নি। আবার চেষ্টা করতে মেসেজটি চেপে ধরে রাখুন।",
+    "c3SkippedRecipients": "{count, plural, =1{১ জন সদস্যের কাছে পাঠানো যায়নি (তাঁর কী এখনও তৈরি নয়)} other{{count} জন সদস্যের কাছে পাঠানো যায়নি (তাঁদের কী এখনও তৈরি নয়)}}",
+    "c3KeysNotReady": "এই ফোনে এনক্রিপশন চালু হচ্ছে… এভাবেই থাকলে My Circle বন্ধ করে আবার খুলুন।"
+  }
+}

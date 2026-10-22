@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'circle_message_actions.dart';
+import '../messaging/msg_ticks.dart';
 
 /// One decrypted message in the circle chat. The plaintext here NEVER came from
 /// the server — it was decrypted on-device (see crypto/e2e.dart). The server
@@ -90,7 +91,19 @@ class CircleBubble extends StatelessWidget {
   final CircleMessage msg;
   final VoidCallback? onLongPress;
   final VoidCallback? onTapMedia;
-  const CircleBubble({super.key, required this.msg, this.onLongPress, this.onTapMedia});
+
+  /// c3-msg: tap the quoted reply → jump to + highlight the original.
+  final VoidCallback? onTapReply;
+
+  /// c3-msg: briefly tinted after a jump-to-original.
+  final bool highlighted;
+  const CircleBubble(
+      {super.key,
+      required this.msg,
+      this.onLongPress,
+      this.onTapMedia,
+      this.onTapReply,
+      this.highlighted = false});
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +114,12 @@ class CircleBubble extends StatelessWidget {
     final fg = mine ? scheme.onPrimary : scheme.onSurface;
     final deleted = msg.deleted == 'everyone';
 
-    return Align(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 350),
+      color: highlighted
+          ? scheme.primary.withValues(alpha: 0.18)
+          : Colors.transparent,
+      child: Align(
       alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
       child: GestureDetector(
         onLongPress: deleted ? null : onLongPress,
@@ -143,6 +161,7 @@ class CircleBubble extends StatelessWidget {
             ],
           ),
         ),
+      ),
       ),
     );
   }
@@ -241,7 +260,10 @@ class CircleBubble extends StatelessWidget {
   Widget _replyPreview(bool mine, ColorScheme scheme) {
     final stripe = mine ? scheme.onPrimary : scheme.primary;
     final txt = (mine ? scheme.onPrimary : scheme.onSurface).withValues(alpha: 0.85);
-    return Container(
+    return GestureDetector(
+      key: ValueKey('c3-quote-${msg.id}'),
+      onTap: onTapReply,
+      child: Container(
       margin: const EdgeInsets.only(bottom: Gap.xs),
       padding: const EdgeInsets.fromLTRB(Gap.sm, Gap.xs, Gap.sm, Gap.xs),
       decoration: BoxDecoration(
@@ -255,6 +277,7 @@ class CircleBubble extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
         style: TextStyle(fontSize: 12, color: txt),
       ),
+    ),
     );
   }
 
@@ -280,26 +303,15 @@ class CircleBubble extends StatelessWidget {
             style: TextStyle(fontSize: 11, color: metaColor)),
         if (mine) ...[
           const SizedBox(width: Gap.xs),
-          Icon(
-            msg.pending ? Icons.schedule : _statusIcon(msg.status),
-            size: 14,
-            color: msg.status == 'read' && !msg.pending
-                ? scheme.tertiaryContainer
-                : metaColor,
+          // c3-msg: ✓ sent → ✓✓ delivered → blue ✓✓ read.
+          TickIcon(
+            tick: tickFrom(msg.status, pending: msg.pending),
+            baseColor: metaColor,
+            onMyBubble: true,
           ),
         ],
       ],
     );
-  }
-
-  IconData _statusIcon(String status) {
-    switch (status) {
-      case 'read':
-      case 'delivered':
-        return Icons.done_all;
-      default:
-        return Icons.done;
-    }
   }
 }
 

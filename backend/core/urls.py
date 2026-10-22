@@ -768,3 +768,32 @@ urlpatterns += [
     path("feedback/<int:pk>", f1fb.FeedbackDetailView.as_view()),
 ]
 # ---- /f1-founders ----
+
+# ---- c3-msg ---- ticks (receipts), seen, notification pull, message info,
+# mark unread, presence/typing snapshot (live presence + typing ride the
+# shared rt/events queue; views_c3_msg registers its producers there).
+# PREPENDED so the literal paths win over the
+# circle/messages/<pk>/<action> and circle/groups/<pk>/<setting> catch-alls.
+from . import views_c3_msg as c3m  # noqa: E402
+urlpatterns[:0] = [
+    path("circle/receipts", c3m.ReceiptsView.as_view()),
+    path("circle/receipts/sync", c3m.ReceiptsSyncView.as_view()),
+    path("circle/<int:pk>/seen", c3m.ChatSeenView.as_view()),
+    path("circle/groups/<int:pk>/seen", c3m.GroupChatSeenView.as_view()),
+    path("circle/messages/<int:pk>/info", c3m.MessageInfoView.as_view()),
+    path("circle/chats/unread", c3m.ChatUnreadFlagView.as_view()),
+    path("circle/notify/pull", c3m.NotifyPullView.as_view()),
+    path("circle/rt/state", c3m.RtStateView.as_view()),
+]
+# ---- /c3-msg ----
+# ---- c2-calls ---- REAL call signalling + the shared real-time event queue
+# (call.* here; presence.* / typing.* producers + the presence heartbeat
+# poll hook are registered by views_c3_msg).
+from . import views_c2_calls as c2calls  # noqa: E402
+urlpatterns += [
+    path("rt/events", c2calls.RtEventsView.as_view()),
+    path("rt/send", c2calls.RtSendView.as_view()),
+    path("circle/calls/incoming", c2calls.IncomingCallsView.as_view()),
+    path("circle/calls/<int:call_id>", c2calls.CallStatusView.as_view()),
+]
+# ---- /c2-calls ----

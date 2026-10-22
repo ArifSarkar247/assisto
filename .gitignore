@@ -51,6 +51,7 @@ app/lib/l10n/app_localizations*.dart
 tools/*
 !tools/route_check.py
 !tools/reality/
+!tools/wakeword/
 screenshots/
 new-logo.png
 logs/

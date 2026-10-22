@@ -128,7 +128,14 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
     try {
       await context.read<AppState>().api.safetyCheckinStart(
           place: _place, etaIso: _eta!.toIso8601String());
-    } catch (_) {}
+    } catch (_) {
+      // q1-seams: the family poll only sees a SERVER check-in — say so instead
+      // of a silent local-only check-in (same copy as safety_screen).
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.of(context).realityCheckinNotSent)));
+      }
+    }
   }
 
   // ---- arrived (plain) -------------------------------------------------
@@ -164,9 +171,19 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
     // family is alerted (reuses journeySos(silent:true) — identical to the
     // journey duress path). We never reveal this on-screen.
     if (duress) {
-      try {
-        await context.read<AppState>().api.journeySos(silent: true);
-      } catch (_) {}
+      // q1-seams: one silent attempt used to be the only one. The cover screen
+      // must stay normal, so retry quietly a few times before giving up.
+      final api = context.read<AppState>().api;
+      for (var attempt = 0; attempt < 3; attempt++) {
+        try {
+          await api.journeySos(silent: true);
+          break;
+        } catch (_) {
+          if (attempt < 2) {
+            await Future<void>.delayed(Duration(seconds: 2 * (attempt + 1)));
+          }
+        }
+      }
     }
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -240,7 +257,15 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
     setState(() => _routines = [..._routines, routine]);
     try {
       await context.read<AppState>().api.saveJourneyRoutine(routine);
-    } catch (_) {}
+    } catch (_) {
+      // q1-seams: an optimistic routine that never reached the server would
+      // never alert anyone — take it back out and say so.
+      if (!mounted) return;
+      setState(() => _routines =
+          _routines.where((r) => !identical(r, routine)).toList());
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(AppLocalizations.of(context).grpActionFailed)));
+    }
   }
 
   @override

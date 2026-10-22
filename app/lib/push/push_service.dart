@@ -6,6 +6,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../calls/call_runtime.dart';
 import '../notifications.dart';
 import '../state.dart';
 import '../widgets/chatnav.dart';
@@ -16,6 +17,11 @@ import 'push_binding.dart';
 import 'push_bridge.dart';
 import 'push_notifier.dart';
 import 'push_payload.dart';
+import '../messaging/c3_api.dart';
+import '../messaging/chat_opener.dart';
+import '../messaging/msg_native.dart';
+import '../messaging/msg_notify.dart';
+import '../realtime/realtime_channel.dart';
 
 /// App-wide navigator, so a tapped push can open a screen from anywhere.
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
@@ -96,6 +102,54 @@ class PushService {
 
     app.addListener(_onAppChanged);
     _onAppChanged();
+    // c2-calls: real-time transport + instant in-app incoming calls.
+    try {
+      await CallRuntime.instance.start(app, _nav ?? appNavigatorKey,
+          pushAvailable: ok);
+    } catch (_) {}
+
+    // c3-msg: a bubble / conversation shortcut asked for one chat.
+    MsgNative.onOpenChat((key) {
+      final c = ChatOpener.parse(key);
+      if (c != null) _openChat(c.kind, c.id);
+    });
+    try {
+      final key = await MsgNative.takeLaunchChat();
+      final c = ChatOpener.parse(key);
+      if (c != null) {
+        _openChat(c.kind, c.id);
+      }
+    } catch (_) {}
+  }
+
+  /// c3-msg: app foregrounded (start / resume) — tell the server this device
+  /// has fetched (delivered ✓✓ for senders) and resume the realtime channel.
+  /// One cheap request; silent on failure.
+  void onForegroundChanged(bool fg) {
+    try {
+      RealtimeChannel.instance.setForeground(fg);
+    } catch (_) {}
+    if (fg) unawaited(_syncReceipts());
+  }
+
+  Future<void> _syncReceipts() async {
+    final app = _app;
+    if (app == null || !app.loggedIn) return;
+    try {
+      await app.api.c3ReceiptsSync().timeout(const Duration(seconds: 10));
+    } catch (_) {}
+  }
+
+  ({String kind, int id})? _pendingChat;
+
+  void _openChat(String kind, int id) {
+    final app = _app;
+    final nav = _nav?.currentState;
+    if (app == null || app.loading || !app.loggedIn || nav == null) {
+      _pendingChat = (kind: kind, id: id);
+      return;
+    }
+    unawaited(ChatOpener.open(nav, app.api, kind, id));
   }
 
   String _lang() {
@@ -112,6 +166,21 @@ class PushService {
     if (!now || app.loading) return;
     unawaited(_register(null));
     unawaited(_maybeAskPermission());
+    // c3-msg presence/typing ride the app's ONE real-time loop (c2-calls'
+    // PollRealtimeTransport, owned by CallRuntime) + the delivered sync.
+    try {
+      if (!RealtimeChannel.instance.hasTransport) {
+        RealtimeChannel.instance.useTransport(SharedPollTransport(
+            CallRuntime.instance.transportFor(app),
+            get: (p) => app.api.getJson(p)));
+      }
+    } catch (_) {}
+    unawaited(_syncReceipts());
+    final pc = _pendingChat;
+    if (pc != null) {
+      _pendingChat = null;
+      _openChat(pc.kind, pc.id);
+    }
     final p = _pending;
     if (p != null) {
       _pending = null;
@@ -171,13 +240,41 @@ class PushService {
 
   void _onForeground(Map<String, dynamic> data) {
     final p = PushPayload.fromData(data);
-    if (p.isCallCancel) _cancelled.add(p.callId);
+    if (p.isCallCancel) {
+      _cancelled.add(p.callId);
+      CallRuntime.instance.onPushCancel(p);
+    }
+    // c2-calls: app open -> the full in-app incoming screen at once (rings
+    // natively), not a heads-up notification.
+    if (p.isCall) {
+      CallRuntime.instance.onPushRing(p);
+      return;
+    }
+    // c3-msg: messages → on-device MessagingStyle (skipped for the chat that
+    // is open on screen — it polls and marks seen itself).
+    final chat = MsgPushHandler.chatOf(p);
+    final app = _app;
+    final tok = app?.api.token;
+    if (chat != null && tok != null && tok.isNotEmpty) {
+      if (MsgActiveChat.isOpen(chat.kind, chat.id)) return;
+      final h = MsgPushHandler(
+          backend: HttpMsgBackend(tok, lang: p.lang),
+          identity: loadStoredIdentity,
+          sink: FlnMsgSink());
+      unawaited(h.onPush(p).then((ok) {
+        if (!ok) unawaited(PushNotifier.show(p));
+      }));
+      return;
+    }
     // Foreground: draw it ourselves (FCM shows nothing while we're open).
-    // A call rings as a heads-up with Accept/Decline.
     unawaited(PushNotifier.show(p));
   }
 
   void _onLocalResponse(NotificationResponse r) {
+    if (r.actionId == kActionReply || r.actionId == kActionRead) {
+      unawaited(handleMsgNotificationAction(r));
+      return;
+    }
     final p = PushPayload.decode(r.payload);
     if (p == null) return;
     if (r.actionId == PushNotifier.actionDecline) {
@@ -196,6 +293,12 @@ class PushService {
       _pending = (payload: p, action: action);
       return;
     }
+    // c3-msg: a message tap opens THAT chat (not just the hub).
+    final chat = MsgPushHandler.chatOf(p);
+    if (chat != null && action == null) {
+      _openChat(chat.kind, chat.id);
+      return;
+    }
     final target = PushRouting.targetFor(p, action: action);
     final nav = _nav?.currentState;
     if (target == null || nav == null) return;
@@ -210,7 +313,10 @@ class PushService {
         if (action == PushNotifier.actionAccept) {
           nav.push(MaterialPageRoute(
               builder: (_) => CircleCallScreen(
-                  member: member, kind: kind, outgoing: false)));
+                  member: member,
+                  kind: kind,
+                  outgoing: false,
+                  callId: int.tryParse(p.callId))));
         } else {
           // plain tap / full-screen launch: ring first, user decides.
           nav.push(MaterialPageRoute(

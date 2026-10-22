@@ -3,6 +3,7 @@ package com.assisto.assisto.push
 import android.content.Context
 import android.util.Log
 import com.google.firebase.FirebaseApp
+import com.google.firebase.messaging.RemoteMessage
 import io.flutter.plugins.firebase.messaging.ContextHolder
 import io.flutter.plugins.firebase.messaging.FlutterFirebaseMessagingService
 
@@ -36,6 +37,20 @@ class AssistoFcmService : FlutterFirebaseMessagingService() {
         }
         ensureFirebase(this)
         super.onCreate()
+    }
+
+    // c3-msg: the plugin's own receiver hands the push to Dart (which
+    // decrypts + draws the MessagingStyle conversation); here we only
+    // schedule the optional BUBBLE upgrade of that notification. Guarded.
+    override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        super.onMessageReceived(remoteMessage)
+        try {
+            com.assisto.assisto.messaging.BubbleHelper.onMessagePush(
+                applicationContext, remoteMessage.data
+            )
+        } catch (t: Throwable) {
+            Log.w(TAG, "bubble hook skipped: ${t.javaClass.simpleName}")
+        }
     }
 
     companion object {

@@ -526,17 +526,16 @@ class ChatReadView(APIView):
     """Mark every message in this 1:1 chat read by the viewer (adds the viewer
     to CircleMessage.read_by). Honest: no-op if nothing is unread."""
     def post(self, request, pk):
-        from .models import CircleMessage
-        uid = request.user.id
-        n = 0
-        for msg in CircleMessage.objects.filter(member_id=pk).exclude(
-                sender_id=uid):
-            rb = list(msg.read_by or [])
-            if uid not in rb:
-                rb.append(uid)
-                msg.read_by = rb
-                msg.save(update_fields=["read_by"])
-                n += 1
+        # c3-msg UNREAD-BADGE FIX: the peer's messages live on THEIR reverse
+        # edge, so filtering member_id=pk never touched them and the badge
+        # stayed at "10" forever. Mark the whole conversation seen (receipts +
+        # read_by) and clear a manual "marked unread" flag.
+        from . import views_c3_msg as C3
+        n = C3.mark_chat_seen(request.user, "member", pk)
+        if n is None:
+            return Response({"detail": "not found"},
+                            status=status.HTTP_404_NOT_FOUND)
+        C3.set_marked_unread(request.user, "member", pk, False)
         return Response({"ok": True, "marked": n})
 
 
@@ -854,6 +853,9 @@ class CircleMessagesView(APIView):
             "edited_at": x.edited_at.isoformat() if x.edited_at else None,
             "forwarded": x.forwarded,
         } for x in msgs]
+        # c3-msg: ticks (sent/delivered/read) on my own messages.
+        from . import views_c3_msg as C3
+        C3.annotate(out, msgs, request.user)
         return Response({"results": out})
 
     def post(self, request, pk):
@@ -918,6 +920,17 @@ class CircleMessagesView(APIView):
             forward_hops=fh,
             link_preview=env.get("link_preview"),
         )
+        # c3-msg: keep the quoted-reply link (it was dropped, so a reply lost
+        # its quote after a reload). Only a message of THIS conversation.
+        try:
+            rid = int(env.get("reply_to") or 0)
+        except (TypeError, ValueError):
+            rid = 0
+        if rid:
+            from .views_m1_messenger import conversation_rows
+            if conversation_rows(m).filter(pk=rid).exists():
+                x.reply_to_id = rid
+                x.save(update_fields=["reply_to"])
         if notify:
             # FCM (key-gated, async, never raises): name + ids only, no text.
             from . import push

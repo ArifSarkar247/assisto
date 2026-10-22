@@ -6,7 +6,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0053_w1_webphoto'),
+        ('core', '0055_c3_msg'),
     ]
 
     operations = [

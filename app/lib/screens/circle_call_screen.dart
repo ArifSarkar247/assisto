@@ -1,49 +1,61 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
-import '../api.dart';
-import '../rtc_api.dart';
+import '../calls/api_call_signaling.dart';
+import '../calls/call_controller.dart';
+import '../calls/call_keepalive.dart';
+import '../calls/call_native.dart';
+import '../calls/call_runtime.dart';
+import '../calls/call_video.dart';
+import '../calls/webrtc_media.dart' deferred as rtc;
 import '../l10n/app_localizations.dart';
 import '../push/lock_screen_guard.dart';
 import '../state.dart';
 import '../theme.dart';
-import '../widgets/circle_call_controls.dart';
-import '../widgets/circle_relation.dart';
-import '../push/push_service.dart';
 
-/// Connected Circle 1:1 voice/video call screen (M1 item 5).
+/// My Circle 1:1 voice / video call — REAL media (c2-calls).
 ///
-/// WHAT WORKS NOW: WebRTC signalling runs via the server relay WHILE THE APP IS
-/// OPEN. App-closed ring (FCM data / APNs PushKit + CallKit) and a production
-/// TURN relay are KEY-GATED on infra the owner provisions — the transport
-/// banner states this honestly (mirrors core/logic/circle_calls.transport_status).
+/// flutter_webrtc RTCPeerConnection + getUserMedia (mic; + camera for video),
+/// ICE from GET /rtc/turn (our coturn: STUN + TURN with time-limited
+/// credentials), signalling through our server's real-time queue. The phase
+/// shown is the TRUE one ([CallController]): "Calling…" until the callee's
+/// phone reports ringing, "Ringing…" (+ generated 425 Hz ringback), then
+/// "Connecting…" after accept and "Connected" + timer ONLY when ICE really
+/// connects. Any failure is shown as what it is — there is no fake path.
 ///
-/// THE VIDEO GATE IS SERVER-SIDE. Before this screen ever starts a video call,
-/// the client asks the backend (POST /circle/<id>/call with kind), which calls
-/// core/logic/circle_calls.can_place_call(caller, callee, kind). A FREE caller
-/// requesting video gets `upgrade_required` back and we show the upgrade prompt
-/// instead of starting media. The client cannot bypass this by setting
-/// kind='video' locally — the server refuses to issue the WebRTC offer.
-///
-/// This screen renders the call UI + controls and drives the call-record state
-/// machine through the relay. The actual RTCPeerConnection wiring (flutter_webrtc
-/// renderers) is a platform package the integrator adds; the seam is marked.
+/// The video gate stays SERVER-SIDE (POST /circle/<id>/call runs
+/// circle_calls.can_place_call); a free caller gets the upgrade screen.
 class CircleCallScreen extends StatefulWidget {
   final Map<String, dynamic> member;
 
-  /// 'voice' | 'video'. For video the server gate must pass first (see above).
+  /// 'voice' | 'video'.
   final String kind;
 
-  /// true when THIS user placed the call (outgoing); false for incoming.
+  /// true when THIS user placed the call.
   final bool outgoing;
+
+  /// The ringing call to accept (incoming).
+  final int? callId;
+
+  /// Pre-built controller (gallery / widget tests). When given, the screen
+  /// renders it and starts nothing itself.
+  final CallController? controller;
+
+  /// Optional video surface for [controller] (tests / gallery).
+  final CallVideoSurface? surface;
 
   const CircleCallScreen({
     super.key,
     required this.member,
     required this.kind,
     this.outgoing = true,
+    this.callId,
+    this.controller,
+    this.surface,
   });
 
   @override
@@ -51,363 +63,533 @@ class CircleCallScreen extends StatefulWidget {
 }
 
 class _CircleCallScreenState extends State<CircleCallScreen> {
-  // Local mirror of core/logic/circle_calls default_controls().
-  late bool _muted;
-  late bool _speakerOn;
-  late bool _cameraOn;
-  late bool _lowData;
-
-  // Call-record state mirror. Mirrors core/logic/circle_calls CALL_* states:
-  // ringing -> connecting -> active (<-> reconnecting) -> ended, plus failed.
-  String _state = 'ringing';
-  String? _callId;
-  bool _starting = true;
-  bool _blockedByGate = false;
-  // Why the call couldn't start: '' (ok), 'unreachable' (TURN not configured /
-  // ports not open yet), 'busy' (server auto-throttled to protect Asalify).
-  String _rtcReason = '';
-  bool _turnReady = false;
-
-  // Live call duration (counts while active/reconnecting), mirrors the
-  // server-side duration measured from answered_at.
-  DateTime? _answeredAt;
+  CallController? _c;
+  CallVideoSurface? _surface;
+  bool _owns = false;
   Timer? _ticker;
-  Duration _elapsed = Duration.zero;
+  Timer? _autoClose;
+  bool _pip = false;
+  bool _pipSupported = false;
+  bool _closed = false;
 
   bool get _isVideo => widget.kind == 'video';
-  bool get _isConnected => _state == 'active' || _state == 'reconnecting';
+  String get _name => '${widget.member['name'] ?? ''}';
+  AppLocalizations get _t => AppLocalizations.of(context);
 
   @override
   void initState() {
     super.initState();
-    _muted = false;
-    _speakerOn = _isVideo;
-    _cameraOn = _isVideo;
-    _lowData = false;
-    _start();
+    CallNative.inPip.addListener(_onPip);
+    if (widget.controller != null) {
+      _attach(widget.controller!, widget.surface, initial: true);
+    } else {
+      _owns = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _begin());
+    }
+  }
+
+  void _onPip() {
+    if (mounted) setState(() => _pip = CallNative.inPip.value);
+  }
+
+  Future<void> _begin() async {
+    if (!mounted) return;
+    final app = context.read<AppState>();
+    final transport = CallRuntime.instance.transportFor(app);
+    CallMedia media;
+    try {
+      await rtc.loadLibrary();
+      media = rtc.createWebRtcCallMedia();
+    } catch (_) {
+      media = _BrokenMedia();
+    }
+    if (!mounted) return;
+    final c = CallController(
+      media: media,
+      signaling: ApiCallSignaling(app.api, transport),
+      sounds: NativeCallSounds(),
+      video: _isVideo,
+      outgoing: widget.outgoing,
+      memberId: widget.member['id'] as int?,
+      callId: widget.callId,
+    );
+    _attach(c, media is CallVideoSurface ? media as CallVideoSurface : null);
+    if (_isVideo) unawaited(CallNative.keepScreenOn(true));
+    unawaited(CallNative.pipSupported().then((v) {
+      if (mounted) setState(() => _pipSupported = v);
+    }));
+    await c.start();
+  }
+
+  void _attach(CallController c, CallVideoSurface? s, {bool initial = false}) {
+    _c = c;
+    _surface = s;
+    c.addListener(_onChange);
+    s?.hasRemoteVideo.addListener(_onChange);
+    _ticker?.cancel();
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted && (_c?.isLive ?? false)) setState(() {});
+    });
+    if (!initial) setState(() {});
+  }
+
+  void _onChange() {
+    final c = _c;
+    if (c == null || !mounted) return;
+    if (_owns) {
+      if (c.callId != null && !c.isEnded) {
+        CallRuntime.instance.activeCallId = c.callId;
+      }
+      // keep the mic alive if the user leaves the app mid-call
+      if (c.phase == CallPhase.accepted || c.isLive) {
+        final t = _t;
+        unawaited(CallKeepAlive.start(
+            channelName: t.c2ChOngoing,
+            title: t.c2CallOngoingTitle(_name),
+            text: t.c2CallOngoingText));
+      }
+      if (c.isEnded) {
+        if (CallRuntime.instance.activeCallId == c.callId) {
+          CallRuntime.instance.activeCallId = null;
+        }
+        unawaited(CallNative.keepScreenOn(false));
+        unawaited(CallKeepAlive.stop());
+        if (c.endReason == CallEndReason.hangup) {
+          _autoClose ??= Timer(const Duration(milliseconds: 1400), _close);
+        }
+      }
+    }
+    setState(() {});
+  }
+
+  void _close() {
+    if (_closed || !mounted) return;
+    _closed = true;
+    Navigator.of(context).maybePop();
   }
 
   @override
   void dispose() {
+    CallNative.inPip.removeListener(_onPip);
     _ticker?.cancel();
+    _autoClose?.cancel();
+    _surface?.hasRemoteVideo.removeListener(_onChange);
+    final c = _c;
+    if (c != null) {
+      c.removeListener(_onChange);
+      if (_owns) {
+        if (CallRuntime.instance.activeCallId == c.callId) {
+          CallRuntime.instance.activeCallId = null;
+        }
+        c.dispose(); // hangs up if still live
+      }
+    }
+    if (_owns) {
+      unawaited(CallNative.keepScreenOn(false));
+      unawaited(CallKeepAlive.stop());
+    }
     LockScreenGuard.release();
     super.dispose();
   }
 
-  ApiClient get _api => context.read<AppState>().api;
-  AppLocalizations get _t => AppLocalizations.of(context);
-  int? get _memberId => widget.member['id'] as int?;
-  String get _name => '${widget.member['name'] ?? ''}';
+  void _retry() {
+    final old = _c;
+    old?.removeListener(_onChange);
+    _surface?.hasRemoteVideo.removeListener(_onChange);
+    _ticker?.cancel();
+    _autoClose?.cancel();
+    _autoClose = null;
+    setState(() => _c = null);
+    if (_owns) old?.dispose();
+    _owns = true;
+    _begin();
+  }
 
-  /// Place / accept the call through the relay. The backend runs the SERVER-SIDE
-  /// gate (can_place_call) and the incoming-call policy (allow_call) and returns
-  /// either a signalling session or an upgrade/denied reason.
-  Future<void> _start() async {
-    try {
-      // Step 6 M3: ask the server for ICE (STUN/TURN) config first. It also
-      // decides whether a call may start — if the TURN server isn't reachable
-      // yet (ports not open) or the box is auto-throttled to protect Asalify,
-      // we surface an honest state instead of attempting a call that can't
-      // connect. (The ICE servers feed the RTCPeerConnection once flutter_webrtc
-      // is wired — the media seam.)
-      final rtc = await _api.rtcTurn();
-      _turnReady = rtc.configured && rtc.callable;
-      if (!rtc.callable) {
-        if (mounted) {
-          setState(() {
-            _starting = false;
-            _state = 'failed';
-            _rtcReason = rtc.configured ? 'busy' : 'unreachable';
-          });
-        }
-        return;
-      }
-      final r = widget.outgoing
-          ? await _api.postJson('/circle/$_memberId/call', {'kind': widget.kind})
-          : await _api
-              .postJson('/circle/$_memberId/call/answer', {'kind': widget.kind});
-      // Server decision is authoritative.
-      if (r['allowed'] == false || r['upgrade_required'] == true) {
-        if (mounted) setState(() => _blockedByGate = true);
-        return;
-      }
-      _callId = '${r['call_id'] ?? r['id'] ?? ''}';
-      // SFU/TURN SEAM: here the integrator opens the RTCPeerConnection with
-      // r['ice'] servers (core/logic/circle_calls.ice_config) and exchanges the
-      // offer/answer through the relay; onIceConnectionState drives
-      // _markConnecting / _markActive / _markReconnecting / _markFailed. Until
-      // flutter_webrtc + the self-hosted SFU/TURN are wired, we model the
-      // relay-connect flow so the UI + controls + call-record states are
-      // exercisable WITHOUT faking a media stream.
-      if (mounted) {
-        setState(() {
-          _starting = false;
-          _state = widget.outgoing ? 'ringing' : 'connecting';
-        });
-      }
-    } catch (_) {
-      // Offline / relay unreachable — surface an honest failure the user can
-      // retry, rather than pretending the call connected.
-      if (mounted) {
-        setState(() {
-          _starting = false;
-          _state = 'failed';
-        });
-      }
+  String _fmt(Duration d) {
+    final s = d.inSeconds;
+    String two(int n) => n.toString().padLeft(2, '0');
+    final h = s ~/ 3600, m = (s % 3600) ~/ 60, sec = s % 60;
+    return h > 0 ? '$h:${two(m)}:${two(sec)}' : '${two(m)}:${two(sec)}';
+  }
+
+  String _status(CallController? c) {
+    final t = _t;
+    if (c == null) return t.c2CallStarting;
+    switch (c.phase) {
+      case CallPhase.starting:
+        return t.c2CallStarting;
+      case CallPhase.calling:
+        return c.outgoing ? t.c2CallCalling : t.circleCallConnecting;
+      case CallPhase.ringing:
+        return c.outgoing ? t.c2CallRinging : t.circleCallConnecting;
+      case CallPhase.accepted:
+        return t.circleCallConnecting;
+      case CallPhase.connected:
+        return _fmt(c.elapsed);
+      case CallPhase.reconnecting:
+        return t.circleCallReconnecting;
+      case CallPhase.ended:
+        return endReasonLabel(t, c.endReason, outgoing: c.outgoing);
     }
   }
 
-  Future<void> _event(String event) async {
-    // Advance the server-side call record; mirrors circle_calls.finalize_call.
-    try {
-      if (_callId != null && _callId!.isNotEmpty) {
-        await _api.postJson('/circle/calls/$_callId/event', {'event': event});
-      }
-    } catch (_) {}
-  }
-
-  /// Media connected (ICE connected) — start the live duration clock. Called by
-  /// the integrator from onIceConnectionState==connected.
-  void _markActive() {
-    _event('connected');
-    _answeredAt ??= DateTime.now();
-    _ticker?.cancel();
-    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (!mounted || _answeredAt == null) return;
-      setState(() => _elapsed = DateTime.now().difference(_answeredAt!));
-    });
-    if (mounted) setState(() => _state = 'active');
-  }
-
-  /// ICE dropped mid-call — the clock keeps running while ICE restarts.
-  void _markReconnecting() {
-    _event('reconnect');
-    if (mounted) setState(() => _state = 'reconnecting');
-  }
-
-  /// Transport/negotiation failure — stop the clock, offer a retry.
-  void _markFailed() {
-    _event('fail');
-    _ticker?.cancel();
-    if (mounted) setState(() => _state = 'failed');
-  }
-
-  void _retry() {
-    setState(() {
-      _starting = true;
-      _state = 'ringing';
-      _callId = null;
-      _answeredAt = null;
-      _elapsed = Duration.zero;
-    });
-    _start();
-  }
-
-  void _hangup() {
-    _ticker?.cancel();
-    _event(_isConnected ? 'hangup' : 'cancel');
-    if (mounted) Navigator.of(context).pop();
-  }
-
-  String _fmtElapsed() {
-    final s = _elapsed.inSeconds;
-    final h = s ~/ 3600;
-    final m = (s % 3600) ~/ 60;
-    final sec = s % 60;
-    String two(int n) => n.toString().padLeft(2, '0');
-    return h > 0 ? '$h:${two(m)}:${two(sec)}' : '$m:${two(sec)}';
-  }
-
-  // Release the lock screen as the pop STARTS (hang-up, decline, ring
-  // timeout or the system back gesture), so the screen underneath never
-  // shows on a locked phone.
   @override
   Widget build(BuildContext context) => PopScope(
         onPopInvokedWithResult: (didPop, _) {
           if (didPop) LockScreenGuard.release();
         },
-        child: _body(context),
+        child: AnnotatedRegion<SystemUiOverlayStyle>(
+          value: SystemUiOverlayStyle.light,
+          child: _body(context),
+        ),
       );
 
   Widget _body(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final relation = '${widget.member['relation'] ?? 'friend'}';
-
-    if (_blockedByGate) {
-      return _gateScreen(scheme);
+    final c = _c;
+    if (c != null && c.isEnded && c.endReason == CallEndReason.upgrade) {
+      return _gateScreen(Theme.of(context).colorScheme);
     }
-
+    final surface = _surface;
+    final remoteVideo = _isVideo &&
+        c != null &&
+        c.isLive &&
+        c.remoteCameraOn &&
+        surface != null &&
+        surface.hasRemoteVideo.value;
+    if (_pip) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(child: remoteVideo ? surface.remoteView() : _avatar(40)),
+      );
+    }
+    final showSelf =
+        _isVideo && c != null && c.cameraOn && !c.isEnded && surface != null;
     return Scaffold(
-      backgroundColor: scheme.surfaceContainerHighest,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // QA a6: FCM is integrated — say so honestly for THIS build
-            // instead of always "ringing arrives when push is enabled".
-            ValueListenableBuilder<bool>(
-              valueListenable: PushService.instance.available,
-              builder: (_, pushOn, __) => CircleCallTransportBanner(
-                  pushReady: pushOn, turnReady: _turnReady),
-            ),
-            Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircleAvatar(
-                      radius: 48,
-                      child: Text(
-                        _name.isEmpty
-                            ? '?'
-                            : _name.characters.first.toUpperCase(),
-                        style: const TextStyle(fontSize: 36),
-                      ),
-                    ),
-                    const SizedBox(height: Gap.lg),
-                    Text(_name,
-                        style: Theme.of(context).textTheme.headlineSmall),
-                    const SizedBox(height: Gap.xs),
-                    Text(
-                      CircleRelation.labelFor(_t, relation,
-                          custom: widget.member['custom_label'] as String?),
-                      style: TextStyle(color: scheme.onSurfaceVariant),
-                    ),
-                    const SizedBox(height: Gap.md),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(_state == 'failed'
-                                ? Icons.error_outline
-                                : _isVideo
-                                    ? Icons.videocam
-                                    : Icons.call,
-                            size: 16,
-                            color: _state == 'failed'
-                                ? scheme.error
-                                : scheme.onSurfaceVariant),
-                        const SizedBox(width: Gap.xs),
-                        Text(_statusLabel(),
-                            style: TextStyle(
-                                color: _state == 'failed'
-                                    ? scheme.error
-                                    : scheme.onSurfaceVariant)),
-                      ],
-                    ),
-                    // Live duration while media is flowing (counts through a
-                    // mid-call reconnect, like the server-side record).
-                    if (_isConnected && _answeredAt != null) ...[
-                      const SizedBox(height: Gap.xs),
-                      Text(_fmtElapsed(),
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(
-                                  color: scheme.onSurface,
-                                  fontWeight: FontWeight.w600)),
+      backgroundColor: Brand.ink,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (remoteVideo)
+            Positioned.fill(child: surface.remoteView())
+          else
+            const DecoratedBox(
+                decoration: BoxDecoration(gradient: Brand.heroDark)),
+          if (remoteVideo)
+            const Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Color(0x99000000),
+                      Color(0x00000000),
+                      Color(0x00000000),
+                      Color(0xB3000000)
                     ],
-                    if (_state == 'failed') ...[
-                      const SizedBox(height: Gap.lg),
-                      FilledButton.tonalIcon(
-                        icon: const Icon(Icons.refresh),
-                        label: Text(_t.circleCallRetry),
-                        onPressed: _retry,
-                      ),
-                    ],
-                    // SFU/TURN SEAM (dev affordance): until flutter_webrtc +
-                    // the self-hosted SFU/TURN are wired, these map the ICE
-                    // connection-state callbacks the integrator will attach:
-                    //   onIceConnectionState==connected    -> _markActive()
-                    //   ==disconnected/checking (mid-call) -> _markReconnecting()
-                    //   ==failed                           -> _markFailed()
-                    // They drive the real call-record events server-side. The
-                    // screen never fabricates a media stream; it only models the
-                    // state the real transport will report.
-                    if (!_starting &&
-                        (_state == 'ringing' ||
-                            _state == 'connecting' ||
-                            _isConnected)) ...[
-                      const SizedBox(height: Gap.lg),
-                      Wrap(
-                        alignment: WrapAlignment.center,
-                        spacing: Gap.sm,
-                        children: [
-                          if (!_isConnected)
-                            TextButton(
-                                onPressed: _markActive,
-                                child: Text(_t.circleCallRelayConnected)),
-                          if (_state == 'active')
-                            TextButton(
-                                onPressed: _markReconnecting,
-                                child: Text(_t.circleCallRelayDropped)),
-                          if (_isConnected)
-                            TextButton(
-                                onPressed: _markFailed,
-                                child: Text(_t.circleCallRelayFailed)),
-                        ],
-                      ),
-                    ],
-                    if (_isVideo && _state != 'failed') ...[
-                      const SizedBox(height: Gap.lg),
-                      Text(_t.circleCallVideoPlaceholder,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 12, color: scheme.onSurfaceVariant)),
-                    ],
-                  ],
+                    stops: [0, 0.25, 0.65, 1],
+                  ),
                 ),
               ),
             ),
-            CircleCallControls(
-              isVideo: _isVideo,
-              muted: _muted,
-              speakerOn: _speakerOn,
-              cameraOn: _cameraOn,
-              lowData: _lowData,
-              onToggleMute: () => setState(() => _muted = !_muted),
-              onToggleSpeaker: () => setState(() => _speakerOn = !_speakerOn),
-              onToggleCamera: () => setState(() => _cameraOn = !_cameraOn),
-              onSwitchCamera: () {
-                // Integrator: RTCVideoRenderer switchCamera().
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(_t.circleCallSwitchCamera)));
-              },
-              onToggleLowData: () => setState(() => _lowData = !_lowData),
-              onHangup: _hangup,
+          SafeArea(
+            child: Column(
+              children: [
+                _topBar(c),
+                const Spacer(),
+                if (!remoteVideo) ...[
+                  _avatar(56),
+                  const SizedBox(height: Gap.lg),
+                ],
+                _nameAndStatus(c),
+                if (c != null && c.isEnded) _endedActions(c),
+                if (c != null &&
+                    !c.isEnded &&
+                    !c.turnAvailable &&
+                    c.phase != CallPhase.starting &&
+                    c.phase.index <= CallPhase.accepted.index)
+                  Padding(
+                    padding:
+                        const EdgeInsets.fromLTRB(Gap.xl, Gap.md, Gap.xl, 0),
+                    child: Text(_t.c2CallNoRelay,
+                        key: const Key('call-no-relay'),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white.withValues(alpha: 0.7))),
+                  ),
+                const Spacer(flex: 2),
+                if (c == null || !c.isEnded) _controls(c),
+              ],
             ),
-          ],
-        ),
+          ),
+          if (showSelf)
+            Positioned(
+              right: Gap.lg,
+              top: MediaQuery.paddingOf(context).top + 64,
+              width: 104,
+              height: 150,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: ColoredBox(
+                  color: Colors.black,
+                  child: surface.localView(mirror: c.frontCamera),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
 
-  String _statusLabel() {
-    if (_starting) return _t.circleCallConnecting;
-    switch (_state) {
-      case 'ringing':
-        return widget.outgoing
-            ? _t.circleCallRinging
-            : _t.circleCallIncoming;
-      case 'connecting':
-        return _t.circleCallConnecting;
-      case 'active':
-        return _t.circleCallActive;
-      case 'reconnecting':
-        return _t.circleCallReconnecting;
-      case 'failed':
-        if (_rtcReason == 'unreachable') return _t.circleCallServerUnreachable;
-        if (_rtcReason == 'busy') return _t.circleCallServerBusy;
-        return _t.circleCallFailed;
-      default:
-        return _t.circleCallEnded;
-    }
+  Widget _topBar(CallController? c) {
+    final t = _t;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xs),
+      child: Row(
+        children: [
+          if (_isVideo && _pipSupported && c != null && c.isLive)
+            IconButton(
+              key: const Key('call-pip'),
+              tooltip: t.c2CallPip,
+              color: Colors.white,
+              icon: const Icon(Icons.picture_in_picture_alt_outlined),
+              onPressed: () => CallNative.enterPip(w: 9, h: 16),
+            )
+          else
+            const SizedBox(width: 48),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.lock_outline,
+                    size: 13, color: Colors.white.withValues(alpha: 0.7)),
+                const SizedBox(width: Gap.xs),
+                Flexible(
+                  child: Text(t.c2CallEncrypted,
+                      maxLines: 2,
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white.withValues(alpha: 0.7))),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            width: 48,
+            child: c != null && c.isLive ? _QualityBars(c.quality) : null,
+          ),
+        ],
+      ),
+    );
   }
 
-  /// Shown when the SERVER refused a video call for a free caller. We never
-  /// start media; we offer the upgrade / points path (referral unlock).
+  Widget _avatar(double r) {
+    final initial = _name.isEmpty ? '?' : _name.characters.first.toUpperCase();
+    return CircleAvatar(
+      radius: r,
+      backgroundColor: Colors.white.withValues(alpha: 0.14),
+      child: Text(initial,
+          style: TextStyle(
+              fontSize: r * 0.8,
+              color: Colors.white,
+              fontWeight: FontWeight.w700)),
+    );
+  }
+
+  Widget _nameAndStatus(CallController? c) {
+    final ended = c?.isEnded ?? false;
+    final bad = c != null && ended && isFailureReason(c.endReason);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: Gap.xl),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(_name,
+              key: const Key('call-name'),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                  fontSize: 26,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700)),
+          const SizedBox(height: Gap.sm),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!ended)
+                Icon(_isVideo ? Icons.videocam_outlined : Icons.call_outlined,
+                    size: 16, color: Colors.white.withValues(alpha: 0.8)),
+              if (bad)
+                const Icon(Icons.error_outline,
+                    size: 16, color: Color(0xFFFFB3BB)),
+              const SizedBox(width: Gap.xs),
+              Flexible(
+                child: Text(_status(c),
+                    key: const Key('call-status'),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                        color: bad
+                            ? const Color(0xFFFFB3BB)
+                            : Colors.white.withValues(alpha: 0.85))),
+              ),
+            ],
+          ),
+          if (c != null && c.phase == CallPhase.reconnecting)
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.xs),
+              child: Text(_t.c2CallReconnectHint,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white.withValues(alpha: 0.7))),
+            ),
+          if (c != null && c.isLive && _isVideo && !c.remoteCameraOn)
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.xs),
+              child: Text(_t.c2CallRemoteCameraOff,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white.withValues(alpha: 0.7))),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _endedActions(CallController c) {
+    final t = _t;
+    final denied = c.endReason == CallEndReason.mediaDenied;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.xl, Gap.lg, 0),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: Gap.md,
+        runSpacing: Gap.sm,
+        children: [
+          if (denied)
+            FilledButton.tonalIcon(
+              icon: const Icon(Icons.settings_outlined),
+              label: Text(t.c2CallOpenSettings),
+              onPressed: () => openAppSettings(),
+            ),
+          if (c.outgoing && c.endReason != CallEndReason.hangup)
+            FilledButton.icon(
+              key: const Key('call-again'),
+              style: FilledButton.styleFrom(
+                  backgroundColor: Brand.success,
+                  foregroundColor: Colors.white),
+              icon: Icon(_isVideo ? Icons.videocam : Icons.call),
+              label: Text(t.c2CallAgain),
+              onPressed: _retry,
+            ),
+          OutlinedButton(
+            key: const Key('call-close'),
+            style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.white,
+                side: BorderSide(color: Colors.white.withValues(alpha: 0.5))),
+            onPressed: _close,
+            child: Text(t.close),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _controls(CallController? c) {
+    final t = _t;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, Gap.xl),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(
+                vertical: Gap.md, horizontal: Gap.sm),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(28),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _CtlButton(
+                  key: const Key('call-speaker'),
+                  icon: (c?.speakerOn ?? false)
+                      ? Icons.volume_up
+                      : Icons.phone_in_talk_outlined,
+                  label: (c?.speakerOn ?? false)
+                      ? t.circleCallSpeaker
+                      : t.c2CallEarpiece,
+                  active: c?.speakerOn ?? false,
+                  onTap: c == null ? null : c.toggleSpeaker,
+                ),
+                if (_isVideo)
+                  _CtlButton(
+                    key: const Key('call-camera'),
+                    icon: (c?.cameraOn ?? true)
+                        ? Icons.videocam_outlined
+                        : Icons.videocam_off_outlined,
+                    label: t.circleCallCamera,
+                    active: !(c?.cameraOn ?? true),
+                    onTap: c == null ? null : c.toggleCamera,
+                  ),
+                if (_isVideo)
+                  _CtlButton(
+                    key: const Key('call-flip'),
+                    icon: Icons.cameraswitch_outlined,
+                    label: t.c2CallFlip,
+                    active: false,
+                    onTap: c == null || !c.cameraOn ? null : c.switchCamera,
+                  ),
+                _CtlButton(
+                  key: const Key('call-mute'),
+                  icon: (c?.muted ?? false) ? Icons.mic_off : Icons.mic_none,
+                  label: t.circleCallMute,
+                  active: c?.muted ?? false,
+                  onTap: c == null ? null : c.toggleMute,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: Gap.lg),
+          Semantics(
+            button: true,
+            label: t.c2CallHangup,
+            child: Material(
+              color: Brand.danger,
+              shape: const CircleBorder(),
+              child: InkWell(
+                key: const Key('call-hangup'),
+                customBorder: const CircleBorder(),
+                onTap: () async {
+                  final cc = _c;
+                  if (cc != null) await cc.hangup();
+                  _close();
+                },
+                child: const SizedBox(
+                    width: 68,
+                    height: 68,
+                    child: Icon(Icons.call_end, color: Colors.white, size: 32)),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// The SERVER refused video for a free caller: upgrade / points path.
   Widget _gateScreen(ColorScheme scheme) => Scaffold(
         appBar: AppBar(title: Text(_t.circleCallVideoPremiumTitle)),
         body: Center(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(Gap.xl),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -421,7 +603,8 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                 const SizedBox(height: Gap.sm),
                 Text(_t.circleCallVideoPremiumBody,
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+                    style:
+                        TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
                 const SizedBox(height: Gap.xl),
                 FilledButton.icon(
                   icon: const Icon(Icons.workspace_premium),
@@ -444,4 +627,179 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
           ),
         ),
       );
+}
+
+/// A failure the user should notice (red status), vs a normal outcome.
+bool isFailureReason(CallEndReason r) => const {
+      CallEndReason.failed,
+      CallEndReason.lost,
+      CallEndReason.mediaDenied,
+      CallEndReason.mediaError,
+      CallEndReason.serverBusy,
+      CallEndReason.network,
+    }.contains(r);
+
+String endReasonLabel(AppLocalizations t, CallEndReason r,
+    {required bool outgoing}) {
+  switch (r) {
+    case CallEndReason.noAnswer:
+      return outgoing ? t.c2CallNoAnswer : t.c2CallMissed;
+    case CallEndReason.busy:
+      return outgoing ? t.c2CallBusy : t.c2CallMissed;
+    case CallEndReason.declined:
+      return t.c2CallDeclined;
+    case CallEndReason.offline:
+      return outgoing ? t.c2CallOffline : t.c2CallMissed;
+    case CallEndReason.canceled:
+      return outgoing ? t.c2CallCanceled : t.c2CallMissed;
+    case CallEndReason.failed:
+      return t.c2CallFailedMedia;
+    case CallEndReason.lost:
+      return t.c2CallLost;
+    case CallEndReason.mediaDenied:
+      return t.c2CallPermission;
+    case CallEndReason.mediaError:
+      return t.c2CallMediaError;
+    case CallEndReason.serverBusy:
+      return t.circleCallServerBusy;
+    case CallEndReason.unavailable:
+      return t.c2CallUnavailable;
+    case CallEndReason.network:
+      return t.c2CallNetwork;
+    case CallEndReason.upgrade:
+      return t.circleCallVideoPremiumTitle;
+    case CallEndReason.hangup:
+    case CallEndReason.none:
+      return t.circleCallEnded;
+  }
+}
+
+class _QualityBars extends StatelessWidget {
+  const _QualityBars(this.q);
+  final CallQuality q;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final (Color color, int bars, String label) = switch (q) {
+      CallQuality.good => (const Color(0xFF5BD69A), 3, t.c2CallQualityGood),
+      CallQuality.fair => (const Color(0xFFFFC857), 2, t.c2CallQualityFair),
+      CallQuality.poor => (const Color(0xFFFF6B78), 1, t.c2CallQualityPoor),
+      CallQuality.unknown => (Colors.white54, 0, ''),
+    };
+    if (bars == 0) return const SizedBox.shrink();
+    return Tooltip(
+      message: label,
+      child: Semantics(
+        label: label,
+        child: Row(
+          key: Key('call-quality-${q.name}'),
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            for (var i = 0; i < 3; i++)
+              Container(
+                width: 4,
+                height: 6.0 + i * 4,
+                margin: const EdgeInsets.symmetric(horizontal: 1),
+                decoration: BoxDecoration(
+                  color: i < bars ? color : Colors.white24,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CtlButton extends StatelessWidget {
+  const _CtlButton({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.active,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool active;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = onTap != null;
+    final bg = active
+        ? Colors.white
+        : Colors.white.withValues(alpha: enabled ? 0.16 : 0.06);
+    final fg =
+        active ? Brand.ink : Colors.white.withValues(alpha: enabled ? 1 : 0.45);
+    return Expanded(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Semantics(
+            button: true,
+            toggled: active,
+            label: label,
+            child: Material(
+              color: bg,
+              shape: const CircleBorder(),
+              child: InkWell(
+                customBorder: const CircleBorder(),
+                onTap: onTap,
+                child: SizedBox(
+                    width: 52, height: 52, child: Icon(icon, color: fg)),
+              ),
+            ),
+          ),
+          const SizedBox(height: Gap.xs),
+          Text(label,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                  fontSize: 12, color: Colors.white.withValues(alpha: 0.85))),
+        ],
+      ),
+    );
+  }
+}
+
+/// Used only if the WebRTC library can't load: every call fails honestly.
+class _BrokenMedia implements CallMedia {
+  @override
+  Future<void> open({required bool video}) async =>
+      throw MediaOpenException(false, 'webrtc unavailable');
+  @override
+  Future<void> createPeer(List<Map<String, dynamic>> iceServers) async =>
+      throw StateError('webrtc unavailable');
+  @override
+  Future<Map<String, dynamic>> createOffer({bool iceRestart = false}) async =>
+      throw StateError('webrtc unavailable');
+  @override
+  Future<Map<String, dynamic>> acceptOffer(Map<String, dynamic> offer) async =>
+      throw StateError('webrtc unavailable');
+  @override
+  Future<void> setAnswer(Map<String, dynamic> answer) async {}
+  @override
+  Future<void> addCandidate(Map<String, dynamic> c) async {}
+  @override
+  Stream<Map<String, dynamic>> get localCandidates => const Stream.empty();
+  @override
+  Stream<MediaLinkState> get linkState => const Stream.empty();
+  @override
+  Future<void> setMuted(bool muted) async {}
+  @override
+  Future<void> setCameraEnabled(bool on) async {}
+  @override
+  Future<void> switchCamera() async {}
+  @override
+  Future<void> setSpeaker(bool on) async {}
+  @override
+  Future<MediaStats> stats() async => const MediaStats();
+  @override
+  Future<void> dispose() async {}
 }

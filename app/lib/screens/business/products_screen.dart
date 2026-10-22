@@ -8,6 +8,9 @@ import '../../widgets/skeleton.dart';
 import '../../l10n/app_localizations.dart';
 import 'selling_common.dart';
 
+/// q1-seams: true only once a real xlsx/csv file picker is bundled.
+const bool kProductImportPickerWired = false;
+
 /// Products catalogue (§3). Photos, variants (size/colour), selling / cost /
 /// MINIMUM price, stock per variant, categories, barcode, Excel import.
 ///
@@ -91,7 +94,10 @@ class _ProductsScreenState extends State<ProductsScreen> {
       appBar: AppBar(
         title: Text(t.shopQaProducts),
         actions: [
-          if (!_role.isStaff)
+          // q1-seams: hidden until a real spreadsheet picker ships — the sheet
+          // used ImagePicker.pickMedia, which can never select an .xlsx/.csv
+          // (proposal: file_picker in .phaseB/proposals/q1-seams.md).
+          if (!_role.isStaff && kProductImportPickerWired)
             IconButton(
               tooltip: t.biz_import_title,
               icon: const Icon(Icons.upload_file_outlined),

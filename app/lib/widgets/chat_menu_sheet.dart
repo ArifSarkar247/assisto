@@ -15,6 +15,7 @@ enum ChatMenuAction {
   chatTheme,
   addFavourite,
   addToList,
+  bubble, // c3-msg: per-chat "Show as bubble" (Android 11+)
   exportChat,
   closeChat,
   // --- divider ---
@@ -54,6 +55,7 @@ String _favLabel(AppLocalizations t, bool isFav) =>
 Future<ChatMenuAction?> showChatMenu(
   BuildContext context, {
   required bool isFavourite,
+  bool? bubbleOn, // c3-msg: null = hide the row (no bubbles on this phone)
 }) {
   final t = AppLocalizations.of(context);
   final rows = <_Row>[
@@ -65,6 +67,9 @@ Future<ChatMenuAction?> showChatMenu(
     _Row(ChatMenuAction.chatTheme, Icons.palette_outlined, (t) => t.msgrChatTheme),
     _Row(ChatMenuAction.addFavourite, Icons.star_outline, (t) => _favLabel(t, isFavourite)),
     _Row(ChatMenuAction.addToList, Icons.playlist_add, (t) => t.msgrChatAddToList, submenu: true),
+    if (bubbleOn != null)
+      _Row(ChatMenuAction.bubble, Icons.bubble_chart_outlined,
+          (t) => bubbleOn ? t.c3BubbleOff : t.c3BubbleOn),
     _Row(ChatMenuAction.exportChat, Icons.ios_share, (t) => t.msgrChatExport),
     _Row(ChatMenuAction.closeChat, Icons.archive_outlined, (t) => t.msgrChatClose),
     const _Row.divider(),

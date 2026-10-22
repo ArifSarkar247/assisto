@@ -49,18 +49,24 @@ HTTP_TIMEOUT_S = 8
 TOKEN_REFRESH_MARGIN_S = 300          # refresh ~5 min before expiry
 
 KINDS = ("message", "call", "call_cancel", "reminder", "family_alert", "sos",
-         "owner_alert", "shop_alert")
+         "owner_alert", "shop_alert", "missed_call")
 # Kinds that must ALWAYS be data-only + high priority (app draws the UI).
-DATA_ONLY_KINDS = ("call", "call_cancel", "sos")
+# c3-msg: "message" is data-only too, so the DEVICE draws the WhatsApp-style
+# MessagingStyle notification (decrypted on device), acks delivery and offers
+# inline reply. Older app builds still draw data-only pushes (background
+# handler shows title/body when there is no notification block).
+# c2-calls: "missed_call" is data-only (the app draws it on its own channel).
+DATA_ONLY_KINDS = ("call", "call_cancel", "sos", "message", "missed_call")
 # Per-kind TTL (seconds). A ring older than 30 s is useless; SOS keeps a
 # little longer so a phone that briefly lost signal still gets it.
 TTL_S = {"call": 30, "call_cancel": 60, "sos": 600, "message": 86400,
          "reminder": 3600, "family_alert": 86400, "owner_alert": 86400,
-         "shop_alert": 3600}
+         "shop_alert": 3600, "missed_call": 86400}
 # Android notification channel ids the app must create.
 CHANNELS = {"message": "messages", "call": "calls", "call_cancel": "calls",
             "reminder": "reminders", "family_alert": "alerts", "sos": "sos",
-            "owner_alert": "alerts", "shop_alert": "alerts"}
+            "owner_alert": "alerts", "shop_alert": "alerts",
+            "missed_call": "missed_calls"}
 # FCM rejects these data keys.
 _RESERVED_DATA_KEYS = ("from", "notification", "message_type", "collapse_key")
 
@@ -570,6 +576,8 @@ def hook_circle_message(sender, member, message):
             "chat_id": edge.id if edge is not None else "",
             "sender_id": sender.id,
             "sender_name": display_name(sender) if preview else "",
+            # c3-msg: the device honours the account-wide preview switch too
+            "preview": "1" if preview else "0",
             "route": "circle/chat"}, high_priority=True)
     except Exception:
         return False
@@ -604,6 +612,7 @@ def hook_group_message(sender, group, message):
                 "chat_id": group.id, "group_id": group.id,
                 "sender_id": sender.id,
                 "sender_name": display_name(sender) if preview else "",
+                "preview": "1" if preview else "0",
                 "route": "circle/group"}, high_priority=True)
             sent += 1
         return sent > 0

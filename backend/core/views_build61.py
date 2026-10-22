@@ -634,11 +634,13 @@ def _callee_dict(member):
 
 class CircleCallsView(APIView):
     def get(self, request):
+        from . import views_c2_calls as C2
         lang = req_lang(request)
         rows = CallRecord.objects.filter(
             caller=request.user) | CallRecord.objects.filter(callee=request.user)
         out = []
-        for r in rows.distinct().select_related("caller", "callee", "circle")[:100]:
+        for r in rows.distinct().select_related("caller", "callee", "circle",
+                                               "session")[:100]:
             outgoing = r.caller_id == request.user.id
             # QA a6: the history used to carry no peer at all, so every row
             # showed "?" with no name and call-back had no member id. Resolve
@@ -664,9 +666,12 @@ class CircleCallsView(APIView):
                              if r.duration_sec else ""),
                 "mine": outgoing,
                 "outgoing": outgoing,
-                "outcome": CC.call_outcome_label(
-                    {"state": r.state, "caller_id": r.caller_id,
-                     "duration_sec": r.duration_sec}, request.user.id, lang),
+                "outcome": (C2.history_outcome(r, request.user.id, lang)
+                            or CC.call_outcome_label(
+                                {"state": r.state, "caller_id": r.caller_id,
+                                 "duration_sec": r.duration_sec},
+                                request.user.id, lang)),
+                "end_reason": C2.history_reason(r),
                 "started_at": r.started_at.isoformat(),
             })
         return Response({"calls": out})
@@ -680,6 +685,12 @@ class CirclePlaceCallView(APIView):
             return Response({"detail": "not found"},
                             status=status.HTTP_404_NOT_FOUND)
         kind = CC.normalize_kind((request.data or {}).get("kind", "voice"))
+        if answer:
+            # c2-calls: the callee accepts the EXISTING ringing record. The
+            # video gate is the CALLER's (checked at placement) — a free
+            # callee may answer a video call.
+            from . import views_c2_calls as C2
+            return C2.answer_existing(request, m)
         if not answer:
             # m1-messenger: the callee blocked me, or switched incoming calls
             # off -> refuse without ringing (same neutral reason for both, so
@@ -707,29 +718,16 @@ class CirclePlaceCallView(APIView):
             if gate.get("upgrade_required"):
                 body["prompt"] = CC.upgrade_prompt(lang)
             return Response(body, status=status.HTTP_200_OK)
+        # c2-calls: answering accepts the EXISTING ringing record (it used to
+        # create a second "active" record); placing decides busy / offline
+        # and rings (views_c2_calls.place_call).
+        from . import views_c2_calls as C2
         try:
             peer = PUSH.member_peer_user(m)
         except Exception:
             peer = None
-        rec = CallRecord.objects.create(
-            # the real other party, so their decline/history works; a contact
-            # without an Assisto account falls back to the caller (as before).
-            caller=request.user, callee=peer or request.user,
-            circle=m, kind=kind,
-            state=("active" if answer else "ringing"))
-        if not answer:
-            # App-closed ring via FCM data message (key-gated, never raises).
-            PUSH.hook_call_placed(request.user, m, rec)
-        turn_ready = bool(getattr(settings, "CIRCLE_TURN_READY", False))
-        push_ready = bool(getattr(settings, "CIRCLE_PUSH_READY", False)) \
-            or PUSH.is_available()
-        return Response({
-            "allowed": True, "kind": kind, "call_id": rec.id,
-            "ice": CC.ice_config(turn_ready=turn_ready,
-                                 turn=getattr(settings, "CIRCLE_TURN", None)),
-            "transport": CC.transport_status(push_ready, turn_ready,
-                                             req_lang(request)),
-        }, status=status.HTTP_201_CREATED)
+        return Response(C2.place_call(request, m, peer, kind),
+                        status=status.HTTP_201_CREATED)
 
 
 class CircleAnswerCallView(CirclePlaceCallView):
@@ -738,30 +736,10 @@ class CircleAnswerCallView(CirclePlaceCallView):
 
 
 class CircleCallEventView(APIView):
+    """c2-calls: one state machine for every call event (views_c2_calls)."""
     def post(self, request, call_id):
-        rec = CallRecord.objects.filter(pk=call_id).filter(
-            caller=request.user).first() or CallRecord.objects.filter(
-            pk=call_id, callee=request.user).first()
-        if rec is None:
-            return Response({"detail": "not found"},
-                            status=status.HTTP_404_NOT_FOUND)
-        event = str((request.data or {}).get("event", ""))
-        state = {"state": rec.state,
-                 "answered_at": rec.answered_at.isoformat() if rec.answered_at else None,
-                 "started_at": rec.started_at.isoformat()}
-        fin = CC.finalize_call(state, event)
-        was_ringing = rec.state == "ringing"
-        rec.state = fin.get("state", rec.state)
-        rec.duration_sec = int(fin.get("duration_sec", rec.duration_sec) or 0)
-        if fin.get("state") in ("ended", "missed", "declined"):
-            rec.ended_at = timezone.now()
-        if event == "answer" and rec.answered_at is None:
-            rec.answered_at = timezone.now()
-        rec.save()
-        if was_ringing and CC.is_terminal(rec.state):
-            # ended before answer -> stop the callee's ringing (FCM, key-gated)
-            PUSH.hook_call_cancel(rec, rec.state)
-        return Response({"state": rec.state, "duration_sec": rec.duration_sec})
+        from . import views_c2_calls as C2
+        return C2.CallEventView().post(request, call_id)
 
 
 # ===========================================================================

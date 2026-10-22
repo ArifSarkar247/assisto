@@ -130,7 +130,16 @@ class _CircleExtrasScheduledScreenState
         // envelope is attached by the chat screen (it holds the e2e session);
         // this screen carries only the schedule intent.
       });
-    } catch (_) {}
+    } catch (_) {
+      // q1-seams: never "Message scheduled." when the server refused it.
+      // (This screen is not reachable from the extras hub until a real
+      // envelope + dispatcher exist — see REALITY_AUDIT "Seam audit 22 Oct".)
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(t.grpActionFailed)));
+      }
+      return;
+    }
     if (!mounted) return;
     setState(() {
       _items.add(_ScheduledItem(cid, w, text, 'pending'));

@@ -107,7 +107,9 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
     final kind = '${call['kind'] ?? 'voice'}';
     final state = '${call['state'] ?? 'ended'}';
     final outgoing = call['outgoing'] == true;
-    final missed = state == 'missed' || state == 'canceled';
+    // c2-calls: only an INCOMING call can be "missed" (an outgoing one that
+    // rang out is "No answer" / "Busy" / "Offline" — the server label).
+    final missed = !outgoing && (state == 'missed' || state == 'canceled');
     final declined = state == 'declined';
     // Server provides the localized outcome label; fall back to a direction cue.
     final outcome = '${call['outcome'] ?? ''}';

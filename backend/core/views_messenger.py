@@ -1993,22 +1993,22 @@ class ReadAllView(APIView):
     (append the user id to read_by on unread incoming messages). Idempotent."""
 
     def post(self, request):
-        from .models import CircleMessage
         members = CircleMember.objects.filter(
             user=request.user, state="accepted")
         refs = [{"chat_kind": "member", "chat_id": m.id} for m in members]
         plan = mui.read_all_plan(refs)
-        uid = request.user.id
+        # c3-msg UNREAD-BADGE FIX: incoming 1:1 messages live on the SENDER's
+        # edge, so `member__user=me` never matched them. Mark every chat
+        # (1:1 + groups) seen through the receipts path.
+        from . import views_c3_msg as C3
+        from .models import CircleGroupMember
         marked = 0
-        qs = CircleMessage.objects.filter(
-            member__user=request.user).exclude(sender=request.user)
-        for msg in qs.iterator():
-            rb = msg.read_by or []
-            if uid not in rb:
-                rb.append(uid)
-                msg.read_by = rb
-                msg.save(update_fields=["read_by"])
-                marked += 1
+        for m in members:
+            marked += C3.mark_chat_seen(request.user, "member", m.id) or 0
+        for gid in CircleGroupMember.objects.filter(
+                member=request.user, status="active").values_list(
+                "group_id", flat=True):
+            marked += C3.mark_chat_seen(request.user, "group", gid) or 0
         return Response({"ok": True, "chats": plan["count"],
                          "messages_marked": marked})
 

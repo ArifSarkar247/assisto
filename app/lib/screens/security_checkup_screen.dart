@@ -92,7 +92,12 @@ class _SecurityCheckupScreenState extends State<SecurityCheckupScreen> {
         await api.updateItem(_collection, _rowId!, body);
       }
     } catch (_) {
-      // best-effort: keep the optimistic on-screen state; it re-saves next toggle
+      // Keep the optimistic on-screen state (the whole map re-saves on the
+      // next toggle) but q1-seams: never silently — say it isn't saved yet.
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(t.saveFailed)));
+      }
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -128,7 +133,14 @@ class _SecurityCheckupScreenState extends State<SecurityCheckupScreen> {
       } else {
         await api.updateItem(_collection, _rowId!, body);
       }
-    } catch (_) {}
+    } catch (_) {
+      // q1-seams: the reset looked saved but the server kept the old answers
+      // (they came back on the next open). Say so.
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(t.saveFailed)));
+      }
+    }
   }
 
   @override

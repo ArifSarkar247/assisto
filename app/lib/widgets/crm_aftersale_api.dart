@@ -8,8 +8,8 @@ import '../state.dart';
 /// modified) — every call uses the existing generic ApiClient helpers.
 ///
 /// All of these endpoints are described in
-/// `.phaseB/crm_aftersale_integration.md`; until the integrator adds them the
-/// screens surface a clean CrmStateView.error with a reference code.
+/// `.phaseB/crm_aftersale_integration.md` and resolve (route_check); any
+/// server failure surfaces a clean CrmStateView.error with a reference code.
 class CrmAfterSaleApi {
   final ApiClient _c;
   CrmAfterSaleApi(this._c);

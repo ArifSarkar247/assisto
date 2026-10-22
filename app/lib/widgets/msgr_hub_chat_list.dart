@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../api.dart';
@@ -9,6 +12,14 @@ import '../state.dart';
 import '../theme.dart';
 import 'loading_gate.dart';
 import '../screens/circle_chat_screen.dart';
+import '../screens/circle_group_chat_screen.dart';
+import '../messaging/c3_api.dart';
+import '../messaging/chat_preview.dart';
+import '../messaging/msg_notify.dart';
+import '../messaging/msg_ticks.dart';
+import '../messaging/presence_label.dart';
+import '../messaging/unread_store.dart';
+import '../realtime/realtime_channel.dart';
 import 'msgr_avatar.dart';
 
 /// MY CIRCLE HUB — the Chats tab (SPEC .phaseB/MESSENGER_UI_FULL.md §2).
@@ -66,10 +77,57 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
   bool _loadFailed = false;
   List<Map<String, dynamic>> _lists = [];
 
+  /// c3-msg: decrypted previews, cached per (row id, last message id) so a
+  /// reload never re-runs X25519 for an unchanged row.
+  final Map<String, ChatPreview> _previews = {};
+  final _e2e = SoftwareE2E();
+  final _rt = RealtimeChannel.instance;
+
   @override
   void initState() {
     super.initState();
+    _rt.acquire();
+    _rt.states.addListener(_onRt);
     _load();
+  }
+
+  @override
+  void dispose() {
+    _rt.states.removeListener(_onRt);
+    _rt.release();
+    super.dispose();
+  }
+
+  void _onRt() {
+    if (mounted) setState(() {});
+  }
+
+  /// 'member:<edge id>' / 'group:<group id>' — the key shared with the
+  /// realtime channel, the unread store and the notifications.
+  String _key(Map<String, dynamic> c) => _isGroup(c)
+      ? 'group:${c['group_id'] ?? (c['group'] as Map?)?['id'] ?? ''}'
+      : 'member:${c['id']}';
+
+  bool _isGroup(Map<String, dynamic> c) =>
+      c['is_group'] == true || c['kind'] == 'group';
+
+  int _groupId(Map<String, dynamic> c) =>
+      int.tryParse('${c['group_id'] ?? (c['group'] as Map?)?['id'] ?? ''}') ?? 0;
+
+  ChatPreview _preview(Map<String, dynamic> c) {
+    final last = c['last'] as Map?;
+    final ck = '${_key(c)}|${last?['id']}|${last?['status']}|${last?['deleted']}'
+        '|${widget.identity?.keyId}';
+    return _previews.putIfAbsent(
+        ck, () => ChatPreview.fromRow(c, identity: widget.identity, e2e: _e2e));
+  }
+
+  void _publishUnread() {
+    UnreadStore.instance.setAll({
+      for (final c in _chats)
+        if (!_isArchived(c) && ChatPreview.unreadOf(c) > 0)
+          _key(c): ChatPreview.unreadOf(c),
+    });
   }
 
   @override
@@ -87,6 +145,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       _chats = ((r['results'] ?? r['chats'] ?? const []) as List)
           .cast<Map<String, dynamic>>();
       _loadFailed = false;
+      _publishUnread();
     } catch (_) {
       // Honest error + retry (no synthesised rows posing as real chats).
       _loadFailed = true;
@@ -107,7 +166,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       case 'all':
         return true;
       case 'unread':
-        return ((c['unread'] as int?) ?? 0) > 0;
+        return ChatPreview.unreadOf(c) > 0;
       case 'favourites':
         return c['favourite'] == true || c['is_favourite'] == true;
       case 'groups':
@@ -147,8 +206,8 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
         .toList();
     if (q.isNotEmpty) {
       list = list.where((c) {
-        final name = '${_memberOf(c)['name'] ?? ''}'.toLowerCase();
-        final last = '${c['last_text'] ?? ''}'.toLowerCase();
+        final name = _nameOf(c).toLowerCase();
+        final last = _preview(c).text.toLowerCase();
         return name.contains(q) || last.contains(q);
       }).toList();
     }
@@ -187,15 +246,41 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
   /// msg_organise.search_chats 'no_results' state).
   bool get _isNoResults => _foldedQuery().isNotEmpty && _visible.isEmpty;
 
+  String _nameOf(Map<String, dynamic> c) => _isGroup(c)
+      ? '${(c['group'] as Map?)?['name'] ?? _memberOf(c)['name'] ?? ''}'
+      : '${_memberOf(c)['name'] ?? ''}';
+
+  /// UNREAD-BADGE FIX: opening a chat clears the row, the tab badge and the
+  /// app-icon badge source in the SAME frame, cancels that chat's
+  /// notification, and tells the server (receipts + read_by → other devices
+  /// and the sender's blue ✓✓). The chat screen repeats the server call on
+  /// open, so a failure here is healed there.
+  void _clearUnreadLocal(Map<String, dynamic> c) {
+    setState(() {
+      c['unread'] = 0;
+      c['marked_unread'] = false;
+    });
+    UnreadStore.instance.clear(_key(c));
+    final kind = _isGroup(c) ? 'group' : 'member';
+    final id = _isGroup(c) ? _groupId(c) : _chatId(c);
+    if (id != null) unawaited(FlnMsgSink().cancel(kind, id));
+  }
+
   void _openChat(Map<String, dynamic> c) {
     final identity = widget.identity;
     if (identity == null) return;
-    setState(() => c['unread'] = 0);
+    _clearUnreadLocal(c);
+    final Widget screen;
+    if (_isGroup(c)) {
+      final g = Map<String, dynamic>.from((c['group'] as Map?) ?? const {});
+      g['id'] ??= _groupId(c);
+      screen = CircleGroupChatScreen(
+          group: g, identity: identity, circleMembers: widget.members);
+    } else {
+      screen = CircleChatScreen(member: _memberOf(c), identity: identity);
+    }
     Navigator.of(context)
-        .push(MaterialPageRoute(
-          builder: (_) =>
-              CircleChatScreen(member: _memberOf(c), identity: identity),
-        ))
+        .push(MaterialPageRoute(builder: (_) => screen))
         .then((_) => _load());
   }
 
@@ -309,13 +394,33 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
   }
 
   Future<void> _markRead(Map<String, dynamic> c) async {
-    setState(() => c['unread'] = 0);
-    final id = _chatId(c);
+    _clearUnreadLocal(c);
+    final kind = _isGroup(c) ? 'group' : 'member';
+    final id = _isGroup(c) ? _groupId(c) : _chatId(c);
     if (id == null) return;
     try {
-      await _api.postJson('messenger/chats/$id/read');
+      await _api.c3MarkUnread(kind, id, false);
     } catch (_) {
       if (mounted) _toast(_t.grpActionFailed);
+    }
+  }
+
+  /// WhatsApp "Mark as unread": the messages stay read for the sender; the
+  /// row (and badges) show 1 until the chat is opened again.
+  Future<void> _markUnread(Map<String, dynamic> c) async {
+    setState(() => c['marked_unread'] = true);
+    UnreadStore.instance.set(_key(c), ChatPreview.unreadOf(c));
+    final kind = _isGroup(c) ? 'group' : 'member';
+    final id = _isGroup(c) ? _groupId(c) : _chatId(c);
+    if (id == null) return;
+    try {
+      await _api.c3MarkUnread(kind, id, true);
+    } catch (_) {
+      if (mounted) {
+        setState(() => c['marked_unread'] = false);
+        UnreadStore.instance.set(_key(c), ChatPreview.unreadOf(c));
+        _toast(_t.grpActionFailed);
+      }
     }
   }
 
@@ -327,7 +432,8 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     final muted = c['muted'] == true;
     final pinned = _isPinned(c);
     final archived = _isArchived(c);
-    final unread = (c['unread'] as int?) ?? 0;
+    final unread = ChatPreview.unreadOf(c);
+    final group = _isGroup(c);
     await showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
@@ -335,7 +441,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (!archived)
+            if (!archived && !group)
               ListTile(
                 leading: Icon(pinned ? Icons.push_pin : Icons.push_pin_outlined),
                 title: Text(pinned ? t.msgrChatUnpin : t.msgrChatPin),
@@ -344,7 +450,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
                   _togglePin(c);
                 },
               ),
-            if (!archived)
+            if (!archived && !group)
               ListTile(
                 leading: Icon(muted
                     ? Icons.notifications_active_outlined
@@ -355,15 +461,27 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
                   muted ? _unmuteChat(c) : _muteChat(c);
                 },
               ),
-            if (unread > 0 && !archived)
+            if (unread > 0)
               ListTile(
+                key: const Key('c3-mark-read'),
                 leading: const Icon(Icons.mark_chat_read_outlined),
                 title: Text(t.msgrChatMarkRead),
                 onTap: () {
                   Navigator.pop(ctx);
                   _markRead(c);
                 },
+              )
+            else
+              ListTile(
+                key: const Key('c3-mark-unread'),
+                leading: const Icon(Icons.mark_chat_unread_outlined),
+                title: Text(t.c3MarkUnread),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _markUnread(c);
+                },
               ),
+            if (!group)
             ListTile(
               leading: Icon(
                   archived ? Icons.unarchive_outlined : Icons.archive_outlined),
@@ -562,66 +680,218 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     final scheme = Theme.of(context).colorScheme;
     final t = _t;
     final m = _memberOf(c);
-    final name = '${m['name'] ?? ''}';
-    final unread = (c['unread'] as int?) ?? 0;
-    final preview = '${c['last_text'] ?? ''}';
+    final group = _isGroup(c);
+    final name = _nameOf(c);
+    final unread = ChatPreview.unreadOf(c);
+    final pv = _preview(c);
     final pinned = _isPinned(c);
     final muted = c['muted'] == true;
+    final lang = Localizations.localeOf(context).languageCode;
+    final rt = _rt.states.value[_key(c)] ?? const RtChatState();
+    final activity = activityLabel(t, rt, isGroup: group);
 
     return InkWell(
+      key: ValueKey('c3-row-${_key(c)}'),
       onTap: () => _openChat(c),
       onLongPress: () => _organiseSheet(c),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: 10),
         child: Row(children: [
-          MsgrAvatar(
-              name: name, photoUrl: '${m['photo_link'] ?? m['photo'] ?? ''}'),
+          group
+              ? CircleAvatar(
+                  radius: 24,
+                  backgroundColor: scheme.secondaryContainer,
+                  child: Icon(Icons.groups_2_outlined,
+                      color: scheme.onSecondaryContainer))
+              : MsgrAvatar(
+                  name: name, photoUrl: '${m['photo_link'] ?? m['photo'] ?? ''}'),
           const SizedBox(width: Gap.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name.isEmpty ? '?' : name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w700, fontSize: 15)),
+                Row(children: [
+                  Expanded(
+                    child: Text(name.isEmpty ? '?' : name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            fontWeight:
+                                unread > 0 ? FontWeight.w800 : FontWeight.w700,
+                            fontSize: 15)),
+                  ),
+                  if (pv.at != null)
+                    Padding(
+                      padding: const EdgeInsets.only(left: Gap.sm),
+                      child: Text(chatListTime(t, pv.at!, lang),
+                          key: const Key('c3-row-time'),
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: unread > 0
+                                  ? FontWeight.w700
+                                  : FontWeight.w400,
+                              color: unread > 0
+                                  ? scheme.primary
+                                  : scheme.onSurfaceVariant)),
+                    ),
+                ]),
                 const SizedBox(height: 3),
-                Text(preview.isEmpty ? t.msgrNoMessagesYet : preview,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        fontSize: 13,
-                        color: scheme.onSurfaceVariant,
-                        fontStyle: preview.isEmpty
-                            ? FontStyle.italic
-                            : FontStyle.normal)),
+                Row(children: [
+                  Expanded(
+                    child: activity != null
+                        ? Text(activity,
+                            key: const Key('c3-row-activity'),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: typingGreen(context)))
+                        : _previewLine(pv, scheme, t),
+                  ),
+                  if (muted)
+                    Padding(
+                      padding: const EdgeInsets.only(left: Gap.sm),
+                      child: Icon(Icons.notifications_off,
+                          size: 16, color: scheme.onSurfaceVariant),
+                    ),
+                  if (pinned)
+                    Padding(
+                      padding: const EdgeInsets.only(left: Gap.xs),
+                      child:
+                          Icon(Icons.push_pin, size: 16, color: scheme.primary),
+                    ),
+                  if (unread > 0)
+                    Padding(
+                      padding: const EdgeInsets.only(left: Gap.sm),
+                      child: c['marked_unread'] == true &&
+                              ((c['unread'] as int?) ?? 0) == 0
+                          ? Container(
+                              key: const Key('c3-unread-dot'),
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                  color: scheme.primary,
+                                  shape: BoxShape.circle))
+                          : _UnreadBadge(count: unread),
+                    ),
+                ]),
               ],
             ),
           ),
-          // Trailing cluster: mute + pin glyphs, then the unread badge. Each is
-          // an honest state reflection of the chat's organise flags.
-          if (muted)
-            Padding(
-              padding: const EdgeInsets.only(left: Gap.sm),
-              child: Icon(Icons.notifications_off,
-                  size: 16, color: scheme.onSurfaceVariant),
-            ),
-          if (pinned)
-            Padding(
-              padding: const EdgeInsets.only(left: Gap.xs),
-              child: Icon(Icons.push_pin, size: 16, color: scheme.primary),
-            ),
-          if (unread > 0)
-            Padding(
-              padding: const EdgeInsets.only(left: Gap.sm),
-              child: _UnreadBadge(count: unread),
-            ),
         ]),
       ),
     );
   }
+
+  /// "✓✓ You: hi" / "Rahim: hello" / "🔒 Encrypted message" / media label —
+  /// "No messages yet" ONLY when the chat really has no messages.
+  Widget _previewLine(ChatPreview pv, ColorScheme scheme, AppLocalizations t) {
+    final muted = scheme.onSurfaceVariant;
+    String body;
+    IconData? lead;
+    var italic = false;
+    switch (pv.kind) {
+      case PreviewKind.empty:
+        body = t.msgrNoMessagesYet;
+        italic = true;
+      case PreviewKind.deleted:
+        body = t.circleDeletedPlaceholder;
+        lead = Icons.block;
+        italic = true;
+      case PreviewKind.encrypted:
+        body = t.c3PreviewEncrypted;
+        lead = Icons.lock_outline;
+        italic = true;
+      case PreviewKind.media:
+        body = mediaPreviewLabel(t, pv.contentType);
+        lead = mediaPreviewIcon(pv.contentType);
+      case PreviewKind.text:
+        body = pv.text;
+    }
+    final prefix = pv.kind == PreviewKind.empty
+        ? ''
+        : (pv.mine
+            ? (pv.isGroup ? '${t.c3You}: ' : '')
+            : (pv.isGroup && pv.senderName.isNotEmpty
+                ? '${pv.senderName}: '
+                : ''));
+    return Row(children: [
+      if (pv.mine && pv.tick != null) ...[
+        TickIcon(tick: pv.tick!, baseColor: muted, size: 16),
+        const SizedBox(width: 3),
+      ],
+      if (lead != null) ...[
+        Icon(lead, size: 14, color: muted),
+        const SizedBox(width: 3),
+      ],
+      Expanded(
+        child: Text('$prefix$body',
+            key: const Key('c3-row-preview'),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+                fontSize: 13,
+                color: muted,
+                fontStyle: italic ? FontStyle.italic : FontStyle.normal)),
+      ),
+    ]);
+  }
 }
+
+/// WhatsApp-style chat-list time: today → 10:14, yesterday → "Yesterday",
+/// this week → weekday, else a short date.
+String chatListTime(AppLocalizations t, DateTime at, String lang,
+    {DateTime? now}) {
+  final n = now ?? DateTime.now();
+  final loc = lang == 'bn' ? 'bn' : 'en';
+  final d0 = DateTime(n.year, n.month, n.day);
+  final d1 = DateTime(at.year, at.month, at.day);
+  final diff = d0.difference(d1).inDays;
+  if (diff <= 0) return DateFormat.Hm(loc).format(at);
+  if (diff == 1) return t.c3Yesterday;
+  if (diff < 7) return DateFormat.E(loc).format(at);
+  return DateFormat.yMd(loc).format(at);
+}
+
+/// The live "typing…" green (readable in light + dark).
+Color typingGreen(BuildContext context) =>
+    Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xFF4ADE80)
+        : const Color(0xFF15803D);
+
+String mediaPreviewLabel(AppLocalizations t, String ct) {
+  switch (ct) {
+    case 'photo':
+    case 'image':
+      return t.circlePhoto;
+    case 'video':
+      return t.circleVideo;
+    case 'voice':
+    case 'audio':
+      return t.circleVoiceNote;
+    case 'document':
+      return t.circleAttachDocument;
+    case 'contact':
+      return t.circleAttachContact;
+    case 'location':
+      return t.circleAttachLocation;
+    default:
+      return t.circleAttach;
+  }
+}
+
+IconData mediaPreviewIcon(String ct) => const {
+      'photo': Icons.photo_outlined,
+      'image': Icons.photo_outlined,
+      'video': Icons.videocam_outlined,
+      'voice': Icons.mic_none_outlined,
+      'audio': Icons.mic_none_outlined,
+      'document': Icons.insert_drive_file_outlined,
+      'contact': Icons.contact_page_outlined,
+      'location': Icons.location_on_outlined,
+    }[ct] ??
+    Icons.attachment_outlined;
 
 /// A neutral count pill (archived count) — brand-neutral surface, our own glyph.
 class _CountPill extends StatelessWidget {

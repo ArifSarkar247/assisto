@@ -543,7 +543,10 @@ class LeadViewSet(CrmErrorMixin, viewsets.ModelViewSet):
         act = _log_wa_activity(lead, member, "out", rendered)
         return Response({
             "ok": True,
-            "state": plan["state"],           # 'queued' (key) or 'needs_key'
+            # q1-seams: 'queued' is reported as 'draft' until a live sender
+            # exists (wa.LIVE_SEND_BUILT) — never "queued for sending".
+            "state": wa.honest_state(plan["state"]),
+            "live_send": bool(wa.LIVE_SEND_BUILT and plan["state"] == "queued"),
             "mode": plan["mode"],
             "paid_template": plan["paid_template"],
             "rendered": rendered,
@@ -899,6 +902,15 @@ class WhatsAppBulkSendView(CrmErrorMixin, APIView):
             if res["allowed"] and res["state"] in ("queued", "needs_key"):
                 _log_wa_activity(by_id[res["lead"]], member, "out",
                                  res.get("rendered") or "")
+        # q1-seams: no live sender yet — report 'queued' honestly as 'draft'.
+        for res in plan["results"]:
+            res["state"] = wa.honest_state(res["state"])
+        counts = {}
+        for k, v in plan["counts"].items():
+            hk = wa.honest_state(k)
+            counts[hk] = counts.get(hk, 0) + v
+        plan["counts"] = counts
+        plan["live_send"] = bool(wa.LIVE_SEND_BUILT)
         return Response(plan)
 
 

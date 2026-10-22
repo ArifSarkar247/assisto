@@ -64,6 +64,21 @@ def render_template(body, params=None):
     return _PARAM_RE.sub(_sub, body or "")
 
 
+# q1-seams (reality audit 22 Oct): nothing in the codebase POSTs the assembled
+# Graph request, so a "queued" send would sit forever while the user was told
+# "queued for sending". Until a real sender exists, the VIEWS report such a
+# send honestly as a logged DRAFT (plan_send itself stays pure for the tests).
+LIVE_SEND_BUILT = False
+
+
+def honest_state(state):
+    """The state the API may tell a user. 'queued' becomes 'draft' while no
+    live sender exists (LIVE_SEND_BUILT is False) — never a claimed send."""
+    if state == "queued" and not LIVE_SEND_BUILT:
+        return "draft"
+    return state
+
+
 def plan_send(*, last_inbound_ts, now_ts, has_key, opted_in=True,
               text=None, template_name=None, template_body=None,
               template_params=None, to=""):

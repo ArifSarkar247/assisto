@@ -54,7 +54,6 @@ import 'package:assisto/crypto/e2e.dart';
 import 'package:assisto/push/incoming_call_screen.dart';
 import 'package:assisto/push/push_payload.dart';
 import 'package:assisto/screens/circle_call_history_screen.dart';
-import 'package:assisto/screens/circle_call_screen.dart';
 import 'package:assisto/screens/circle_chat_screen.dart';
 import 'package:assisto/screens/circle_group_chat_screen.dart';
 import 'package:assisto/screens/circle_group_info_screen.dart';
@@ -84,6 +83,7 @@ import 'package:assisto/screens/messenger/msgr_set_storage_screen.dart';
 import 'package:assisto/screens/messenger/msgr_set_twostep_screen.dart';
 import 'package:assisto/screens/messenger/starred_messages_screen.dart';
 
+import 'c2_calls_shots.dart';
 import 'fake_api.dart';
 
 class _NoNet extends HttpOverrides {
@@ -253,8 +253,10 @@ final Map<String, ({Widget Function(bool bn) build, FakeMode mode})> circleSpecs
   'circle_empty': (build: (_) => const CircleScreen(), mode: FakeMode.empty),
   'circle_error': (build: (_) => const CircleScreen(), mode: FakeMode.fail),
   'circle_chat': (build: (bn) => CircleChatScreen(member: _member(bn), identity: _identity), mode: FakeMode.data),
-  'circle_call_out': (build: (bn) => CircleCallScreen(member: _member(bn), kind: 'voice'), mode: FakeMode.data),
-  'circle_call_video_in': (build: (bn) => CircleCallScreen(member: _member(bn), kind: 'video', outgoing: false), mode: FakeMode.data),
+  // c2-calls: the real call screen starts WebRTC + the real-time transport,
+  // so its gallery states live in c2_calls_shots.dart (frozen controllers).
+  'circle_call_out': (build: (bn) => c2Shots['c2_call_calling']!(bn ? 'bn' : 'en'), mode: FakeMode.data),
+  'circle_call_video_in': (build: (bn) => c2Shots['c2_call_video_connected']!(bn ? 'bn' : 'en'), mode: FakeMode.data),
   'incoming_call': (build: (bn) => IncomingCallScreen(payload: PushPayload({'kind': 'call', 'call_id': '7', 'chat_id': '3', 'caller_name': bn ? 'আয়েশা রহমান' : 'Ayesha Rahman', 'video': 'false', 'lang': bn ? 'bn' : 'en'})), mode: FakeMode.data),
   'circle_call_history': (build: (_) => const CircleCallHistoryScreen(), mode: FakeMode.data),
   'circle_privacy': (build: (_) => const CirclePrivacyScreen(), mode: FakeMode.data),

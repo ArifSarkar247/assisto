@@ -9,7 +9,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0054_l1_launch_web_deletion'),
+        ('core', '0056_l1_launch_web_deletion'),
     ]
 
     operations = [

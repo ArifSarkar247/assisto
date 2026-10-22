@@ -62,12 +62,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     plan_until = models.DateTimeField(null=True, blank=True)      # paid plan expiry
     trial_until = models.DateTimeField(null=True, blank=True)     # 7-day full trial
     is_founder = models.BooleanField(default=False)
-    # f1-founders: "Founding Member" grant (owner panel /owner/founders).
-    #   founder_since None + is_founder  -> legacy LIFETIME founder (plan "founder")
-    #   founder_since set  + is_founder  -> Founding Member: badge + free Premium
-    #                                       via plan/plan_until (until founder_until)
-    founder_since = models.DateTimeField(null=True, blank=True)
-    founder_until = models.DateTimeField(null=True, blank=True)
     ai_credits = models.IntegerField(default=0)                  # consumable AI credits
     elderly_mode = models.BooleanField(default=False)            # feature 29 simple mode
     # accident/fall detection (owner-configurable; OFF by default)
@@ -3643,6 +3637,97 @@ class OwnerAudit(models.Model):
     class Meta:
         ordering = ["-created_at", "-id"]
 # ---- /o2-admin ----
+
+
+# ---- c3-msg ----
+class CircleReceipt(models.Model):
+    """c3-msg: per-recipient DELIVERY + SEEN receipt for one CircleMessage
+    (1:1 and group). delivered_at = the recipient's DEVICE fetched it (push
+    handler pull / app sync); seen_at = the chat was opened. Metadata only —
+    never message content. Exposure to the sender follows the reciprocal
+    read-receipt rule (circle_privacy.can_see_read_receipt)."""
+    message = models.ForeignKey(CircleMessage, on_delete=models.CASCADE,
+                                related_name="receipts")
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="circle_receipts")
+    delivered_at = models.DateTimeField(null=True, blank=True)
+    seen_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = [("message", "user")]
+
+
+class CirclePresence(models.Model):
+    """c3-msg: one row per user — online heartbeat, last seen, and the live
+    "typing… / recording audio…" activity (who/which group it targets, with a
+    short expiry). DB-backed so every gunicorn worker sees the same state."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="c3_presence")
+    last_seen = models.DateTimeField(null=True, blank=True)
+    online_until = models.DateTimeField(null=True, blank=True)
+    activity = models.CharField(max_length=10, blank=True, default="")
+    activity_to_user = models.IntegerField(null=True, blank=True)
+    activity_group = models.IntegerField(null=True, blank=True)
+    activity_until = models.DateTimeField(null=True, blank=True)
+
+
+class CircleChatFlag(models.Model):
+    """c3-msg: the user's manual "Mark as unread" on a chat (WhatsApp style —
+    the messages stay read; the row shows an unread dot until opened)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="c3_chat_flags")
+    chat_kind = models.CharField(max_length=8, default="member")
+    chat_id = models.CharField(max_length=32)
+    marked_unread = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [("user", "chat_kind", "chat_id")]
+# ---- /c3-msg ----
+
+
+# ---- c2-calls ----
+class CallSession(models.Model):
+    """Live-call bookkeeping for one CallRecord (c2-calls): the callee phone's
+    ring acknowledgement, ICE-connected time, the honest end reason and each
+    side's last poll (so a phone that vanished ends the call). Media never
+    touches the server; only SDP/ICE text passes through CallSignal."""
+    call = models.OneToOneField(CallRecord, on_delete=models.CASCADE,
+                                related_name="session")
+    ringing_at = models.DateTimeField(null=True, blank=True)
+    connected_at = models.DateTimeField(null=True, blank=True)
+    end_reason = models.CharField(max_length=16, blank=True, default="")
+    ended_by = models.CharField(max_length=8, blank=True, default="")
+    caller_seen_at = models.DateTimeField(null=True, blank=True)
+    callee_seen_at = models.DateTimeField(null=True, blank=True)
+    missed_notified = models.BooleanField(default=False)
+    relayed = models.BooleanField(default=False)
+
+
+class RtEvent(models.Model):
+    """One real-time event for ONE recipient (c2-calls transport, shared with
+    presence/typing). The row id is the sequence number the phone polls after
+    (GET rt/events?after=<seq>). Topics: call.* (signal/state), presence.*,
+    typing.*. Short-lived: pruned after ~10 minutes."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="rt_events")
+    topic = models.CharField(max_length=40)
+    payload = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["id"]
+        indexes = [models.Index(fields=["user", "id"], name="c2_rtev_user_id")]
+
+
+class RtPresence(models.Model):
+    """When this user's phone last polled the real-time channel (= app open
+    and reachable). Calls use it to ring a phone without FCM; presence
+    ("online") can read the same row."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="rt_presence")
+    seen_at = models.DateTimeField()
+# ---- /c2-calls ----
 
 
 # ---- l1-launch ----
