@@ -203,6 +203,15 @@ class MainActivity : FlutterFragmentActivity() {
             )
         } catch (e: Throwable) {
         }
+        // b6-antitheft: Lost/Stolen engine channel "com.assisto/antitheft".
+        // Handler registration only — the foreground service starts lazily when
+        // Dart calls start() after the user turns protection on (crash-guarded).
+        try {
+            com.assisto.assisto.antitheft.AntiTheftChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.assisto/lockscreen")
             .setMethodCallHandler { call, result ->
                 if (call.method == "release") {

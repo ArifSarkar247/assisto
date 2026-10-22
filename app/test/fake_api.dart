@@ -825,6 +825,51 @@ class FakeApi extends ApiClient {
               'otp_required': false}
           : {'state': null};
     }
+    // b6-antitheft: Lost/Stolen engine stubs (empty mode => OFF screen)
+    if (path == '/security/engine/state') {
+      final on = mode != FakeMode.empty;
+      return {
+        'enabled': on,
+        'has_pin': true,
+        'snatch_lock': true,
+        'intruder_photo': false, // opt-in: off until the owner turns it on
+        'failed_unlock_threshold': 3,
+        'alert_member_ids': on ? [1] : <int>[],
+        'alert_members': on ? [{'id': 1, 'name': _bn ? 'বাবা' : 'Dad'}] : [],
+        'candidates': [
+          {'id': 1, 'name': _bn ? 'বাবা' : 'Dad'},
+          {'id': 2, 'name': _bn ? 'বড় ভাই' : 'Brother'},
+        ],
+        'capabilities': {'sdk': 33, 'brand': 'realme', 'canCamera': false,
+                         'canReadSimNumber': false},
+        'last_ingest_at': DateTime.now().toUtc().toIso8601String(),
+        'interval_min': 15,
+        'frozen': false,
+        'lost_mode': false,
+        'recent': const [],
+      };
+    }
+    if (path.startsWith('/security/engine/timeline')) {
+      final now = DateTime.now().toUtc();
+      String iso(Duration d) => now.subtract(d).toIso8601String();
+      return {
+        'viewer': 'owner',
+        'enabled': true,
+        'lost_mode': false,
+        'went_dark_at': null,
+        'last_location': {'lat': 23.78, 'lng': 90.41, 'at': iso(const Duration(minutes: 5))},
+        'events': mode == FakeMode.empty ? [] : [
+          {'id': 1, 'kind': 'sim_change', 'at': iso(const Duration(minutes: 20)),
+           'late': false, 'data': {'state': 'inserted', 'carrier': 'Robi'}, 'has_photo': false},
+          {'id': 2, 'kind': 'offline', 'at': iso(const Duration(hours: 2)),
+           'late': true, 'data': {'reason': 'airplane'}, 'has_photo': false},
+          {'id': 3, 'kind': 'low_battery', 'at': iso(const Duration(hours: 3)),
+           'late': false, 'battery': 9, 'has_photo': false},
+          {'id': 4, 'kind': 'failed_unlock', 'at': iso(const Duration(hours: 5)),
+           'late': false, 'data': {'count': 3}, 'has_photo': false},
+        ],
+      };
+    }
     final pay1 = _pay1Get(path); // pay1 (plans / credits / checkout)
     if (pay1 != null) {
       if (mode == FakeMode.fail) _fail();

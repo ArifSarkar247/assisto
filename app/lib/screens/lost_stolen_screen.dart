@@ -13,6 +13,7 @@ import '../services/security_guard.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/journey_api.dart';
+import 'always_on_protection_screen.dart';
 import 'my_lost_phone_screen.dart';
 import 'recovery_screen.dart';
 import '../services/action_feedback.dart'; // db1
@@ -576,6 +577,18 @@ class _LostStolenScreenState extends State<LostStolenScreen>
     return Card(
       child: Column(
         children: [
+          ListTile(
+            leading: const Icon(Icons.shield_moon_outlined),
+            title: Text(tr.atTitle),
+            subtitle: Text(tr.atHubSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => const AlwaysOnProtectionScreen()),
+            ),
+          ),
+          const Divider(height: 1),
           ListTile(
             leading: const Icon(Icons.travel_explore_outlined),
             title: Text(tr.mlpTitle),
