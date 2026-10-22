@@ -416,7 +416,7 @@ class AntiTheftService : Service(), SensorEventListener {
         for (n in 0 until 3) {
             val row = queue?.nextPhotoRow() ?: return
             val path = row.photo ?: return
-            val bytes = IntruderVault.open(path)
+            val bytes = IntruderVault.open(applicationContext, path)
             if (bytes == null) { // unreadable (key lost / corrupt) -> drop it
                 queue?.ack(listOf(row.cid))
                 continue

@@ -12,6 +12,12 @@
 > superseded). Play Console: declare FGS types *location* (lost-phone last
 > location) and *camera* (opt-in intruder photo after wrong unlocks), and the
 > device-admin use (lock + wrong-unlock detection for anti-theft only).
+>
+> **Owner rule 22 Oct — no Android Keystore.** Intruder photos are encrypted
+> AES-256-GCM with a random 32-byte key FILE in
+> `noBackupFilesDir/assisto_antitheft/photo.key` (WhatsApp-style, excluded from
+> backup); unusable storage falls back to an in-memory key (photo never
+> dropped, nothing blocks). Proof: `tools/antitheft_crypto/CryptoCheck.kt`.
 
 The integrator applies these. Native Kotlin files under
 `app/android_overlay/app/src/main/kotlin/com/assisto/assisto/antitheft/` and the

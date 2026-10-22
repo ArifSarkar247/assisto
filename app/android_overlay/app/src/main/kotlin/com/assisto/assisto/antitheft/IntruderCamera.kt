@@ -13,18 +13,11 @@ import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
-import android.security.keystore.KeyGenParameterSpec
-import android.security.keystore.KeyProperties
 import android.util.Size
 import java.io.File
-import java.security.KeyStore
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
-import javax.crypto.Cipher
-import javax.crypto.KeyGenerator
-import javax.crypto.SecretKey
-import javax.crypto.spec.GCMParameterSpec
 
 /**
  * b6-antitheft — ONE front-camera intruder photo, no preview UI, plain
@@ -226,68 +219,51 @@ object IntruderCamera {
 
 /**
  * b6-antitheft — intruder photos are stored ENCRYPTED on the phone while they
- * wait in the store-and-forward queue: AES-256-GCM with a key that lives in
- * the Android Keystore (never in app storage, never leaves the phone). The file
- * is decrypted only in memory, right before the upload; the server then keeps
- * it encrypted at rest and shows it only to the owner (+ approved family).
- * Files are deleted as soon as the server accepted them (AntiTheftQueue.ack)
- * or when protection is turned off ([wipe]).
+ * wait in the store-and-forward queue (AES-256-GCM, see [IntruderCrypto]). The
+ * key is a random file in the app sandbox — NOT the Android Keystore (owner
+ * rule: Keystore fails/hangs on some ColorOS/MIUI phones). Key and photos live
+ * under noBackupFilesDir/assisto_antitheft/, which Android never backs up.
+ * A photo is decrypted only in memory, right before the upload; the server
+ * keeps it encrypted at rest and shows it only to the owner (+ approved
+ * family). Files are deleted as soon as the server accepted them
+ * (AntiTheftQueue.ack) or when protection is turned off ([wipe]).
  */
 object IntruderVault {
-    private const val ALIAS = "assisto_antitheft_photo_v1"
-    private const val DIR = "antitheft_photos"
+    private const val DIR = "assisto_antitheft"
+    private const val PHOTOS = "photos"
 
-    private fun key(): SecretKey {
-        val ks = KeyStore.getInstance("AndroidKeyStore")
-        ks.load(null)
-        (ks.getKey(ALIAS, null) as? SecretKey)?.let { return it }
-        val kg = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
-        kg.init(
-            KeyGenParameterSpec.Builder(
-                ALIAS, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
-                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                .setKeySize(256)
-                .build()
-        )
-        return kg.generateKey()
+    private fun base(ctx: Context): File {
+        val c = ctx.applicationContext
+        val root = try { c.noBackupFilesDir } catch (_: Throwable) { c.filesDir }
+        return File(root, DIR).apply { mkdirs() }
     }
 
-    private fun dir(ctx: Context): File =
-        File(ctx.applicationContext.filesDir, DIR).apply { mkdirs() }
+    private fun photos(ctx: Context): File = File(base(ctx), PHOTOS).apply { mkdirs() }
 
     /** Encrypt [jpeg] to a private file; returns its path or null. */
     fun seal(ctx: Context, cid: String, jpeg: ByteArray): String? = try {
-        val c = Cipher.getInstance("AES/GCM/NoPadding")
-        c.init(Cipher.ENCRYPT_MODE, key())
-        val iv = c.iv
-        val ct = c.doFinal(jpeg)
-        val safe = cid.replace(Regex("[^A-Za-z0-9_-]"), "_").take(60)
-        val f = File(dir(ctx), "$safe.enc")
-        f.outputStream().use { o ->
-            o.write(iv.size)
-            o.write(iv)
-            o.write(ct)
+        val blob = IntruderCrypto.sealIn(base(ctx), jpeg)
+        if (blob == null) {
+            null
+        } else {
+            val safe = cid.replace(Regex("[^A-Za-z0-9_-]"), "_").take(60)
+            val f = File(photos(ctx), "$safe.enc")
+            f.writeBytes(blob)
+            f.absolutePath
         }
-        f.absolutePath
     } catch (_: Throwable) {
         null
     }
 
     /** Decrypt a sealed file in memory; null if missing/corrupt. */
-    fun open(path: String): ByteArray? = try {
-        val all = File(path).readBytes()
-        val n = all[0].toInt() and 0xFF
-        val iv = all.copyOfRange(1, 1 + n)
-        val c = Cipher.getInstance("AES/GCM/NoPadding")
-        c.init(Cipher.DECRYPT_MODE, key(), GCMParameterSpec(128, iv))
-        c.doFinal(all, 1 + n, all.size - 1 - n)
+    fun open(ctx: Context, path: String): ByteArray? = try {
+        IntruderCrypto.openIn(base(ctx), File(path).readBytes())
     } catch (_: Throwable) {
         null
     }
 
-    /** Delete every queued photo file (protection turned off). */
+    /** Delete every queued photo file (protection turned off). The key stays. */
     fun wipe(ctx: Context) {
-        try { dir(ctx).listFiles()?.forEach { it.delete() } } catch (_: Throwable) {}
+        try { photos(ctx).listFiles()?.forEach { it.delete() } } catch (_: Throwable) {}
     }
 }
