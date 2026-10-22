@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 
 import 'package:assisto/photo_studio/ps_controller.dart';
 import 'package:assisto/photo_studio/ps_engines.dart';
+import 'package:assisto/photo_studio/ps_native.dart';
 import 'package:assisto/photo_studio/ps_export.dart';
 import 'package:assisto/photo_studio/ps_gate_sheet.dart';
 import 'package:assisto/photo_studio/ps_session.dart';
@@ -95,14 +96,39 @@ class _PicturePicker implements PhotoPicker {
 }
 
 class _SampleEngine extends FakeEngine {
+  _SampleEngine({this.ai = AiState.notOffered, this.progress = 0, this.report = EnhanceReport.none});
+  final AiState ai;
+  final double progress;
+  final EnhanceReport report;
   @override
-  Future<Uint8List> enhance(Uint8List encoded, EnhanceRequest req) async => _after;
+  Future<EnhanceAvailability> availability() async => EnhanceAvailability(EnhanceState.ready,
+      ai: ai, progress: progress, aiBytes: 4858595);
+  @override
+  Future<Uint8List> enhance(Uint8List encoded, EnhanceRequest req) async {
+    lastReport = report;
+    return _after;
+  }
 }
 
-PsDeps _deps(FakePsBackend b, {bool engine = true, bool secureWorks = false}) => PsDeps(
+// p2-photo: AI restore states (the switch only shows for small/old photos)
+Widget _aiStudio(AiState ai, {double progress = 0, bool run = false,
+        EnhanceReport report = EnhanceReport.none}) =>
+    _studio(
+        _deps(FakePsBackend(entryDue: false, providerReady: false),
+            eng: _SampleEngine(ai: ai, progress: progress, report: report)), (c) async {
+      await c.pick(camera: false);
+      c.aiEligible = true;
+      c.aiOn = ai == AiState.ready || ai == AiState.downloading;
+      if (run) await c.runEnhance();
+      c.setStrength(c.strength);
+    });
+
+PsDeps _deps(FakePsBackend b, {bool engine = true, bool secureWorks = true, FakeEngine? eng}) =>
+    PsDeps(
       backend: b,
       ads: FakeAds(b),
-      engine: engine ? _SampleEngine() : FakeEngine(ready: false),
+      native: const NoPhotoNative(),
+      engine: eng ?? (engine ? _SampleEngine() : FakeEngine(ready: false)),
       guard: IdentityGuard(landmarks: FakeLandmarks()),
       sink: FakeSink(),
       renderer: FakeRenderer(),
@@ -150,10 +176,22 @@ final Map<String, Widget Function(String)> ps1Shots = {
         await c.pick(camera: false);
         await c.runEnhance();
       }),
-  'photo_studio_unavailable_bottom': (_) => _studio(
-          _deps(FakePsBackend(entryDue: false, providerReady: false), engine: false), (c) async {
+  // p2-photo: no cloud key -> no prompt section for users (no dead button)
+  'photo_studio_nokey_user': (_) => _studio(
+          _deps(FakePsBackend(entryDue: false, providerReady: false)), (c) async {
         await c.pick(camera: false);
+        await c.runEnhance();
       }),
+  // ... the owner sees one small "Admin -> Integrations" note instead
+  'photo_studio_nokey_owner': (_) => _studio(
+          _deps(FakePsBackend(entryDue: false, providerReady: false, isOwner: true)),
+          (c) async {}),
+  'photo_studio_ai_download': (_) => _aiStudio(AiState.needsDownload),
+  'photo_studio_ai_downloading': (_) => _aiStudio(AiState.downloading, progress: 0.42),
+  'photo_studio_ai_used': (_) => _aiStudio(AiState.ready,
+      run: true, report: const EnhanceReport(aiUsed: true)),
+  'photo_studio_ai_fellback': (_) => _aiStudio(AiState.ready,
+      run: true, report: const EnhanceReport(aiRejected: true)),
   'photo_studio_refusal': (l) => _studio(
           _deps(FakePsBackend(
               entryDue: false,

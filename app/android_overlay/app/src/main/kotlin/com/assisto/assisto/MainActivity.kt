@@ -172,6 +172,16 @@ class MainActivity : FlutterActivity() {
             )
         } catch (e: Throwable) {
         }
+        // ---- p2-photo ---- Photo Studio: ML Kit faces + ONNX Runtime upscaler
+        // ("com.assisto/photo_native") and FLAG_SECURE for free previews
+        // ("com.assisto/photo_secure"). Handlers only — ML Kit / ORT are created
+        // on the first call from an open Photo Studio, never at launch.
+        try {
+            com.assisto.assisto.photo.PhotoNativeChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.assisto/lockscreen")
             .setMethodCallHandler { call, result ->
                 if (call.method == "release") {

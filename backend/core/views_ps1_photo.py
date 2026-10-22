@@ -28,7 +28,7 @@ from .logic import photo_studio as PS
 
 class PhotoStudioConfigView(APIView):
     def get(self, request):
-        return Response(S.client_config(request.user, req_lang(request)))
+        return Response(S.client_config(request.user, req_lang(request), request))
 
 
 class PhotoStudioSafetyView(APIView):
@@ -135,3 +135,27 @@ class AdminPhotoStudioPnlView(APIView):
         out["days_window"] = days
         out["can_manage"] = True
         return Response(out)
+
+
+# ---- p2-photo ---- on-device AI model (download once, then offline)
+from . import photo_models as PM  # noqa: E402
+
+
+class PhotoModelManifestView(APIView):
+    """GET photo-studio/model -> {available, reason, files:[{name, sha256, size, url}], ...}"""
+
+    def get(self, request):
+        return Response(PM.client_manifest(request))
+
+
+class PhotoModelFileView(APIView):
+    """GET photo-studio/model/<name> — public (open model, no user data), only
+    manifest-listed names, licence-gated, HTTP Range for resumable downloads."""
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def get(self, request, name):
+        return PM.serve_file(request, name)
+
+    def head(self, request, name):
+        return PM.serve_file(request, name)

@@ -699,7 +699,7 @@ def unlock(user, job, kind, lang="bn"):
 
 
 # ------------------------------------------------------------------ config view
-def client_config(user, lang="bn"):
+def client_config(user, lang="bn", request=None):
     c = _cfg()
     ps = ps_cfg(c)
     plan = plan_of(user)
@@ -721,7 +721,20 @@ def client_config(user, lang="bn"):
         "export_kinds": list(PS.EXPORT_KINDS),
         "preview_max_px": ps["preview_max_px"],
         "balance": int(getattr(user, "ai_credits", 0) or 0),
+        # ---- p2-photo ---- on-device AI restore model (download once, offline)
+        # and whether this viewer is the owner (only the owner sees the
+        # "add an image-AI key" note when no cloud provider is connected).
+        "ai_model": _ai_model(request),
+        "is_owner": bool(getattr(user, "is_superuser", False)),
     }
+
+
+def _ai_model(request):
+    from . import photo_models
+    try:
+        return photo_models.client_manifest(request)
+    except Exception:
+        return {"available": False, "reason": "model_pending", "files": [], "version": ""}
 
 
 # ------------------------------------------------------------------ owner stats

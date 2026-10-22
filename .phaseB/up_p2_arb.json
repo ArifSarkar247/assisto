@@ -1,0 +1,48 @@
+{
+  "_note": "p2-photo ARB proposal. ALSO REMOVE these now-unused showpiece keys from app_en.arb + app_bn.arb: psEnhanceNotInBuild, psIdentityMissing, psSecureOff (no Dart code references them any more).",
+  "_remove": [
+    "psEnhanceNotInBuild",
+    "psIdentityMissing",
+    "psSecureOff"
+  ],
+  "en": {
+    "psIdentityUnavailable": "This phone couldn't run the face check, so edits of photos with people are off here. Nothing was charged.",
+    "psAiTitle": "AI restore & upscale",
+    "psAiSubtitleDownload": "One-time download ({size}) from Assisto, then it works offline.",
+    "@psAiSubtitleDownload": {
+      "placeholders": {
+        "size": {
+          "type": "String"
+        }
+      }
+    },
+    "psAiDownloading": "Downloading the AI model… {percent}",
+    "@psAiDownloading": {
+      "placeholders": {
+        "percent": {
+          "type": "String"
+        }
+      }
+    },
+    "psAiReady": "Runs on your phone, no internet needed. Best for small or old photos.",
+    "psAiDownloadFailed": "The AI model didn't download. Check the internet and try again.",
+    "psAiFellBack": "The AI result didn't keep the face exactly, so we used the safe enhance instead.",
+    "psAiUsed": "AI restore used · face check passed",
+    "psOwnerAddKey": "Prompt edits (background, passport, product) are hidden for users until an image-AI key is set. Add a key in Admin → Integrations. Only you see this note.",
+    "psEmptyBodyNoPrompt": "Enhance in one tap — on your phone, even offline.",
+    "psEnhanceHow": "White balance, light, noise, sharpness and gentle skin smoothing. Faces keep their shape."
+  },
+  "bn": {
+    "psIdentityUnavailable": "এই ফোনে মুখ যাচাই চালানো যায়নি, তাই মানুষের ছবিতে এই এডিট এখানে বন্ধ। কোনো চার্জ কাটা হয়নি।",
+    "psAiTitle": "AI দিয়ে রিস্টোর ও বড় করা",
+    "psAiSubtitleDownload": "Assisto থেকে একবার ডাউনলোড ({size}), তারপর ইন্টারনেট ছাড়াই চলে।",
+    "psAiDownloading": "AI মডেল ডাউনলোড হচ্ছে… {percent}",
+    "psAiReady": "আপনার ফোনেই চলে, ইন্টারনেট লাগে না। ছোট বা পুরোনো ছবির জন্য সবচেয়ে ভালো।",
+    "psAiDownloadFailed": "AI মডেল ডাউনলোড হয়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+    "psAiFellBack": "AI-এর ফলাফলে মুখ হুবহু থাকেনি, তাই নিরাপদ এনহান্স ব্যবহার করা হয়েছে।",
+    "psAiUsed": "AI রিস্টোর ব্যবহার হয়েছে · মুখ যাচাই পাস",
+    "psOwnerAddKey": "ইমেজ-AI key না দেওয়া পর্যন্ত প্রম্পট এডিট (ব্যাকগ্রাউন্ড, পাসপোর্ট, প্রোডাক্ট) ব্যবহারকারীদের কাছে লুকানো থাকবে। Admin → Integrations-এ একটি key যোগ করুন। এই নোট শুধু আপনি দেখছেন।",
+    "psEmptyBodyNoPrompt": "এক ট্যাপে এনহান্স — আপনার ফোনেই, ইন্টারনেট ছাড়াও।",
+    "psEnhanceHow": "সাদা রঙের ভারসাম্য, আলো, নয়েজ, স্পষ্টতা আর হালকা ত্বক মসৃণ করা। মুখের গড়ন একই থাকে।"
+  }
+}

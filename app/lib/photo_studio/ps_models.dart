@@ -3,6 +3,8 @@
 /// cap and safety decision; these mirror it for UI only.
 library;
 
+import 'ps_model.dart';
+
 enum ExportKind { save, share, wallpaper, copy, openIn }
 
 extension ExportKindWire on ExportKind {
@@ -104,6 +106,8 @@ class PsConfig {
     this.trialsLeft,
     this.previewMaxPx = 1024,
     this.balance = 0,
+    this.aiModel = AiModelInfo.none,
+    this.isOwner = false,
   });
   final String plan;
   final bool free;
@@ -117,6 +121,13 @@ class PsConfig {
   final int? trialsLeft;
   final int previewMaxPx;
   final int balance;
+
+  /// p2-photo: the on-device AI restore model published by our server.
+  final AiModelInfo aiModel;
+
+  /// p2-photo: the viewer is the owner (superuser) — only they see the
+  /// "add an image-AI key" note when no cloud provider is connected.
+  final bool isOwner;
 
   FeatureQuote quote(PsFeature f) => features[f.wire] ?? FeatureQuote.none;
 
@@ -141,6 +152,8 @@ class PsConfig {
       trialsLeft: j['trials_left_today'] is num ? _i(j['trials_left_today']) : null,
       previewMaxPx: _i(j['preview_max_px']) == 0 ? 1024 : _i(j['preview_max_px']),
       balance: _i(j['balance']),
+      aiModel: AiModelInfo.fromJson(j['ai_model']),
+      isOwner: j['is_owner'] == true,
     );
   }
 }

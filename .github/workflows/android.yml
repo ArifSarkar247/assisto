@@ -546,6 +546,48 @@ jobs:
                   break
           PY
 
+      # ---- p2-photo ---- Photo Studio on-device AI (proposal: .phaseB/proposals/p2-photo.md)
+      #  * ONNX Runtime Android 1.23.2 (MIT) — the SAME version/guard as k1-wake,
+      #    so the app ships one runtime even when both branches are merged;
+      #  * ML Kit face detection 16.1.7, BUNDLED model (offline, ML Kit terms:
+      #    free incl. commercial use) — landmarks for the identity check, face
+      #    boxes for the skin mask / face-lock;
+      #  * ML Kit's startup ContentProvider (MlKitInitProvider) is REMOVED: no
+      #    startup providers (ColorOS launch history). PhotoFaces.kt calls
+      #    MlKit.initialize() on the first face request instead.
+      - name: Photo Studio native deps (p2-photo)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          import os
+          kts = "android/app/build.gradle.kts"
+          p, is_kts = (kts, True) if os.path.exists(kts) else ("android/app/build.gradle", False)
+          s = open(p).read()
+          deps = []
+          if "onnxruntime-android" not in s:
+              deps.append("com.microsoft.onnxruntime:onnxruntime-android:1.23.2")
+          if "com.google.mlkit:face-detection" not in s:
+              deps.append("com.google.mlkit:face-detection:16.1.7")
+          if deps:
+              body = "".join(('    implementation("%s")\n' if is_kts else "    implementation '%s'\n") % d
+                             for d in deps)
+              s += "\n\ndependencies {\n" + body + "}\n"
+              open(p, "w").write(s)
+          print("photo deps:", deps or "already present", "in", p)
+          m = "android/app/src/main/AndroidManifest.xml"
+          x = open(m).read()
+          if "MlKitInitProvider" not in x:
+              if 'xmlns:tools' not in x:
+                  x = x.replace('<manifest ', '<manifest xmlns:tools="http://schemas.android.com/tools" ', 1)
+              x = x.replace('</application>',
+                  '\n        <provider android:name="com.google.mlkit.common.internal.MlKitInitProvider"'
+                  ' android:authorities="${applicationId}.mlkitinitprovider"'
+                  ' tools:node="remove"/>\n    </application>', 1)
+              open(m, "w").write(x)
+              print("MlKitInitProvider removed (lazy MlKit.initialize in PhotoFaces.kt)")
+          PY
+      # ---- /p2-photo ----
+
       - name: Build release APK (arm64 only)
         working-directory: app
         run: |

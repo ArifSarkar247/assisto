@@ -26,8 +26,12 @@ import 'plans_screen.dart';
 ///   copy / open-in) goes through [PhotoStudioController.export] -> the one
 ///   export gate (rewarded ads verified server-side, or credits).
 /// * Premium / Business: no ads ever, clean full-quality saves.
-/// * One-tap enhance runs on-device behind [EnhanceEngine]; in this build the
-///   engine is not linked and the screen says so honestly.
+/// * One-tap enhance runs on-device ([StudioEnhanceEngine]): the instant
+///   classical pipeline on every phone + optional AI restore (downloaded once
+///   from our server, then offline), the AI result kept only when the face
+///   check passes.
+/// * Prompt edits need the cloud image-AI key: without it the section is
+///   hidden; the owner sees a small "add a key" note instead.
 class PhotoStudioScreen extends StatefulWidget {
   const PhotoStudioScreen(
       {super.key, this.deps, this.controller, this.webImport});
@@ -93,9 +97,10 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
   }
 
   String _noticeText(AppLocalizations t, PsNotice n) => switch (n) {
-        PsNotice.enhanceNotInBuild => t.psEnhanceNotInBuild,
         PsNotice.enhancePreparing => t.psEnhancePreparing,
-        PsNotice.identityCheckMissing => t.psIdentityMissing,
+        PsNotice.identityCheckMissing => t.psIdentityUnavailable,
+        PsNotice.aiFellBack => t.psAiFellBack,
+        PsNotice.aiDownloadFailed => t.psAiDownloadFailed,
         PsNotice.identityFailed => t.psIdentityFailed,
         PsNotice.providerMissing => t.psProviderMissing(_c.noticeText),
         PsNotice.sinkUnavailable => t.psSinkUnavailable,
@@ -191,11 +196,16 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
           if (_c.webImport)
             _webCard(t)
           else ...[
-            if (s != null) ...[
+            if (s != null && _c.enhance.ready) ...[
               _enhanceCard(t),
               const SizedBox(height: Gap.lg)
             ],
-            _promptCard(t),
+            // d) prompt edits only exist with a cloud image-AI key; without
+            // one users see nothing (never a dead button), the owner a note.
+            if (_c.config.providerReady)
+              _promptCard(t)
+            else if (_c.config.isOwner)
+              _ownerKeyNote(t),
           ],
           const SizedBox(height: Gap.lg),
           if (s != null) _exportCard(t),
@@ -260,7 +270,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
                 .headlineSmall
                 ?.copyWith(fontWeight: FontWeight.w800, height: 1.25)),
         const SizedBox(height: Gap.sm),
-        Text(t.psEmptyBody,
+        Text(_c.config.providerReady ? t.psEmptyBody : t.psEmptyBodyNoPrompt,
             style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
         const SizedBox(height: Gap.lg),
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
@@ -360,11 +370,8 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
       if (_c.free) ...[
         const SizedBox(height: Gap.xs),
         _infoLine(Icons.lock_outline, t.psPreviewNote),
-        _infoLine(
-            _c.secureActive
-                ? Icons.no_photography_outlined
-                : Icons.info_outline,
-            _c.secureActive ? t.psSecureOn : t.psSecureOff),
+        if (_c.secureActive)
+          _infoLine(Icons.no_photography_outlined, t.psSecureOn),
       ],
     ]);
   }
@@ -472,39 +479,83 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
               onSelectionChanged: (v) => _c.setStrength(v.first),
             ),
           ),
-          const SizedBox(height: Gap.md),
-          if (av.state == EnhanceState.notInBuild)
-            _statusBox(Icons.hourglass_top_rounded, t.psEnhanceNotInBuild,
-                Brand.warnInk(context))
-          else if (av.state == EnhanceState.needsDownload ||
-              av.state == EnhanceState.downloading) ...[
-            _statusBox(Icons.downloading_rounded, t.psEnhancePreparing,
-                scheme.primary),
-            if (av.state == EnhanceState.downloading) ...[
-              const SizedBox(height: Gap.sm),
-              LinearProgressIndicator(value: av.progress),
-            ],
+          if (_c.aiEligible && av.ai != AiState.notOffered) ...[
+            const SizedBox(height: Gap.sm),
+            _aiRow(t, av),
           ],
           const SizedBox(height: Gap.md),
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
               key: const Key('psEnhance'),
-              onPressed: _c.busy
-                  ? null
-                  : (av.state == EnhanceState.needsDownload
-                      ? _c.prepareEnhance
-                      : _c.runEnhance),
+              onPressed: _c.busy ? null : _c.runEnhance,
               icon: const Icon(Icons.auto_awesome),
               label: Text(t.psEnhanceButton),
             ),
           ),
+          const SizedBox(height: Gap.xs),
+          _infoLine(Icons.face_retouching_natural, t.psEnhanceHow),
+          if (_c.lastReport.aiUsed && _c.session?.edited == true) ...[
+            const SizedBox(height: Gap.sm),
+            _pill(Icons.verified_user_outlined, t.psAiUsed, Brand.success),
+          ],
+          if (_c.lastReport.aiRejected && _c.session?.edited == true)
+            _infoLine(Icons.info_outline, t.psAiFellBack),
           if (_c.free) ...[
             const SizedBox(height: Gap.sm),
             _costLine(t, _c.config.quote(PsFeature.enhanceHd)),
           ],
         ]);
   }
+
+  /// p2-photo: AI restore & upscale switch with its honest download state.
+  Widget _aiRow(AppLocalizations t, EnhanceAvailability av) {
+    final scheme = Theme.of(context).colorScheme;
+    final tenths = (av.aiBytes / (1024 * 1024) * 10).round();
+    final size = '${fmtInt(context, tenths ~/ 10)}.${fmtInt(context, tenths % 10)} MB';
+    final String sub;
+    switch (av.ai) {
+      case AiState.needsDownload:
+        sub = t.psAiSubtitleDownload(size);
+      case AiState.downloading:
+        sub = t.psAiDownloading('${fmtInt(context, (av.progress * 100).round())}%');
+      case AiState.failed:
+        sub = t.psAiDownloadFailed;
+      case AiState.ready:
+      case AiState.notOffered:
+        sub = t.psAiReady;
+    }
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      SwitchListTile(
+        key: const Key('psAiSwitch'),
+        contentPadding: EdgeInsets.zero,
+        secondary: Icon(Icons.auto_fix_high_outlined, color: scheme.primary),
+        title: Text(t.psAiTitle, style: const TextStyle(fontWeight: FontWeight.w600)),
+        subtitle: Text(sub, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.3)),
+        value: _c.aiOn,
+        onChanged: (_c.busy || av.ai == AiState.downloading) ? null : _c.setAi,
+      ),
+      if (av.ai == AiState.downloading)
+        LinearProgressIndicator(key: const Key('psAiProgress'), value: av.progress),
+      if (av.ai == AiState.failed && _c.aiOn)
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton.icon(
+            key: const Key('psAiRetry'),
+            onPressed: _c.busy ? null : _c.prepareEnhance,
+            icon: const Icon(Icons.refresh, size: 18),
+            label: Text(t.retry),
+          ),
+        ),
+    ]);
+  }
+
+  /// p2-photo d): owner-only note when no cloud image-AI key is connected.
+  Widget _ownerKeyNote(AppLocalizations t) => Container(
+        key: const Key('psOwnerKeyNote'),
+        child: _statusBox(Icons.key_outlined, t.psOwnerAddKey,
+            Theme.of(context).colorScheme.onSurfaceVariant),
+      );
 
   Widget _statusBox(IconData icon, String text, Color color) => Container(
         width: double.infinity,
@@ -649,15 +700,8 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
             ],
           ],
           const SizedBox(height: Gap.md),
-          if (!_c.config.providerReady)
-            _statusBox(
-                Icons.key_outlined,
-                t.psProviderMissing(_c.config.providerNeeds),
-                scheme.onSurfaceVariant),
-          if (_c.config.providerReady) _costLine(t, q),
-          if (_c.free &&
-              _c.config.trialsLeft != null &&
-              _c.config.providerReady) ...[
+          _costLine(t, q),
+          if (_c.free && _c.config.trialsLeft != null) ...[
             const SizedBox(height: Gap.xs),
             Text(t.psTrialsLeft(fmtInt(context, _c.config.trialsLeft!)),
                 style:

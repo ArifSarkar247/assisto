@@ -47,7 +47,9 @@ class FakePsBackend implements PsBackend {
     this.adsPerCloudJob = 1,
     this.trialsPerDay = 1,
     this.refuseMessage = 'Sexual or undressing edits are not allowed.',
+    this.isOwner = false,
   });
+  bool isOwner;
   final String refuseMessage;
 
   bool free;
@@ -115,6 +117,7 @@ class FakePsBackend implements PsBackend {
         },
         'trials_left_today': free ? math.max(0, trialsPerDay - trialsUsed) : null,
         'preview_max_px': 1024,
+        'is_owner': isOwner,
       });
 
   @override
@@ -257,14 +260,17 @@ class FakeEngine implements EnhanceEngine {
   final bool ready;
   final requests = <EnhanceRequest>[];
   @override
+  EnhanceReport lastReport = EnhanceReport.none;
+  @override
   Future<EnhanceAvailability> availability() async => ready
       ? const EnhanceAvailability(EnhanceState.ready)
-      : EnhanceAvailability.notInBuild;
+      : EnhanceAvailability.unavailable;
   @override
-  Future<EnhanceAvailability> prepare() => availability();
+  Future<EnhanceAvailability> prepare({void Function(EnhanceAvailability)? onProgress}) =>
+      availability();
   @override
   Future<Uint8List> enhance(Uint8List encoded, EnhanceRequest req) async {
-    if (!ready) throw const EnhanceUnavailable(EnhanceState.notInBuild);
+    if (!ready) throw const EnhanceUnavailable(EnhanceState.unavailable);
     requests.add(req);
     return kTinyPng;
   }

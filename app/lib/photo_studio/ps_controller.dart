@@ -6,8 +6,10 @@ import 'package:image_picker/image_picker.dart';
 import 'ps_ads.dart';
 import 'ps_backend.dart';
 import 'ps_engines.dart';
+import 'ps_enhance.dart';
 import 'ps_export.dart';
 import 'ps_models.dart';
+import 'ps_native.dart';
 import 'ps_session.dart';
 import 'ps_web_import.dart';
 
@@ -33,21 +35,54 @@ class ImagePickerPhotoPicker implements PhotoPicker {
 }
 
 /// Everything Photo Studio depends on, injectable for tests + the gallery.
+///
+/// p2-photo: by default the REAL on-device parts are wired: one lazy
+/// [ChannelPhotoNative] (ML Kit faces + ONNX Runtime upscaler) feeds the
+/// face detector, the identity guard (landmarks) and [StudioEnhanceEngine].
+/// Nothing touches the platform until Photo Studio opens ([PhotoStudioController.init]).
 class PsDeps {
-  PsDeps({
-    required this.backend,
+  factory PsDeps({
+    required PsBackend backend,
     PhotoAdBridge? ads,
-    this.engine = const UnavailableEnhanceEngine(),
-    this.faces = const UnavailableFaceDetector(),
-    this.guard = const IdentityGuard(),
-    this.secure = const ChannelSecureScreen(),
-    this.sink = const PlatformExportSink(),
-    this.renderer = const UiExportRenderer(),
+    PhotoNative? native,
+    EnhanceEngine? engine,
+    FaceDetector? faces,
+    IdentityGuard? guard,
+    SecureScreen secure = const ChannelSecureScreen(),
+    ExportSink sink = const PlatformExportSink(),
+    ExportRenderer renderer = const UiExportRenderer(),
     PhotoPicker? picker,
-  })  : ads = ads ?? createPhotoAdBridge(),
-        picker = picker ?? ImagePickerPhotoPicker();
+  }) {
+    final n = native ?? ChannelPhotoNative();
+    final g = guard ?? IdentityGuard(landmarks: NativeLandmarks(n));
+    return PsDeps._(
+      backend: backend,
+      ads: ads ?? createPhotoAdBridge(),
+      native: n,
+      engine: engine ?? StudioEnhanceEngine(native: n, guard: g),
+      faces: faces ?? NativeFaceDetector(n),
+      guard: g,
+      secure: secure,
+      sink: sink,
+      renderer: renderer,
+      picker: picker ?? ImagePickerPhotoPicker(),
+    );
+  }
+  PsDeps._({
+    required this.backend,
+    required this.ads,
+    required this.native,
+    required this.engine,
+    required this.faces,
+    required this.guard,
+    required this.secure,
+    required this.sink,
+    required this.renderer,
+    required this.picker,
+  });
   final PsBackend backend;
   final PhotoAdBridge ads;
+  final PhotoNative native;
   final EnhanceEngine engine;
   final FaceDetector faces;
   final IdentityGuard guard;
@@ -62,9 +97,17 @@ enum PsPhase { loading, entryAd, open, error }
 /// Honest notices the screen renders (localised there).
 enum PsNotice {
   none,
-  enhanceNotInBuild,
   enhancePreparing,
+
+  /// p2-photo: a cloud edit of a photo with people, on a phone where the
+  /// on-device face check could not run (ML Kit failed) — nothing charged.
   identityCheckMissing,
+
+  /// p2-photo: the AI result did not keep the face -> classical result used.
+  aiFellBack,
+
+  /// p2-photo: the one-time AI model download failed (retry possible).
+  aiDownloadFailed,
   identityFailed,
   providerMissing,
   sinkUnavailable,
@@ -91,7 +134,16 @@ class PhotoStudioController extends ChangeNotifier {
   PsPhase phase = PsPhase.loading;
   PsConfig config = const PsConfig();
   PhotoSession? session;
-  EnhanceAvailability enhance = EnhanceAvailability.notInBuild;
+  EnhanceAvailability enhance = EnhanceAvailability.unavailable;
+
+  /// p2-photo: the user's "AI restore & upscale" switch, and whether the
+  /// current photo is small enough for it (big photos don't need it).
+  bool aiOn = false;
+  bool aiEligible = false;
+
+  /// Faces ML Kit found in the current photo (null = detector unavailable).
+  int? facesFound;
+  EnhanceReport lastReport = EnhanceReport.none;
   EditStrength strength = EditStrength.natural;
   final Set<String> options = {};
   final Set<String> beauty = {};
@@ -123,11 +175,20 @@ class PhotoStudioController extends ChangeNotifier {
       _notify();
       return;
     }
+    // p2-photo: probe the native parts now (cheap class lookups) — never at
+    // app launch, only when Photo Studio opens.
+    try {
+      await deps.native.probe();
+    } catch (_) {}
+    final eng = deps.engine;
+    if (eng is StudioEnhanceEngine) eng.model = config.aiModel;
     try {
       enhance = await deps.engine.availability();
     } catch (_) {
-      enhance = EnhanceAvailability.notInBuild;
+      enhance = EnhanceAvailability.unavailable;
     }
+    // model already on the phone: AI restore starts switched on
+    aiOn = enhance.ai == AiState.ready;
     // ENTRY AD: free users only, server-capped (30 min default), shown BEFORE
     // the studio opens with a natural transition. Never for Premium/Business.
     if (config.free && config.entryAdDue) {
@@ -179,6 +240,31 @@ class PhotoStudioController extends ChangeNotifier {
     session = PhotoSession(b);
     refusal = null;
     notice = PsNotice.none;
+    facesFound = null;
+    lastReport = EnhanceReport.none;
+    _notify();
+    await _inspect(b);
+  }
+
+  /// p2-photo: ML Kit faces -> "There are people in this photo" switch is
+  /// set from what the phone actually sees (the user can still change it);
+  /// and is this photo small enough for the AI step?
+  Future<void> _inspect(Uint8List b) async {
+    final eng = deps.engine;
+    try {
+      aiEligible = eng is StudioEnhanceEngine ? await eng.aiEligible(b) : false;
+    } catch (_) {
+      aiEligible = false;
+    }
+    if (deps.faces.available) {
+      try {
+        final f = await deps.faces.detect(b);
+        if (identical(session?.original.bytes, b)) {
+          facesFound = f.length;
+          hasPeople = f.isNotEmpty;
+        }
+      } catch (_) {}
+    }
     _notify();
   }
 
@@ -242,14 +328,31 @@ class PhotoStudioController extends ChangeNotifier {
   }
 
   // ------------------------------------------------------------------ enhance
+  /// Start/resume the one-time AI model download (progress is shown live).
   Future<void> prepareEnhance() async {
     try {
-      enhance = await deps.engine.prepare();
+      enhance = await deps.engine.prepare(onProgress: (a) {
+        enhance = a;
+        _notify();
+      });
     } catch (_) {
-      enhance = EnhanceAvailability.notInBuild;
+      enhance = enhance.withAi(AiState.failed);
     }
+    if (enhance.ai == AiState.failed) _say(PsNotice.aiDownloadFailed);
     _notify();
   }
+
+  /// The "AI restore & upscale" switch. Turning it on downloads the model
+  /// the first time (in the app, from our server); after that it is offline.
+  Future<void> setAi(bool on) async {
+    aiOn = on;
+    _notify();
+    if (on && (enhance.ai == AiState.needsDownload || enhance.ai == AiState.failed)) {
+      await prepareEnhance();
+    }
+  }
+
+  bool get _aiForRun => aiOn && aiEligible && enhance.ai == AiState.ready;
 
   /// One-tap enhance (on-device). Preview only for free users; the full-HD
   /// render happens after the export gate.
@@ -257,32 +360,25 @@ class PhotoStudioController extends ChangeNotifier {
     final s = session;
     if (s == null) return _say(PsNotice.needPhoto);
     if (webImport) return _say(PsNotice.webImportNoEdit);
-    if (!enhance.ready) {
-      return _say(enhance.state == EnhanceState.notInBuild
-          ? PsNotice.enhanceNotInBuild
-          : PsNotice.enhancePreparing);
-    }
-    if (hasPeople && !deps.guard.available) return _say(PsNotice.identityCheckMissing);
+    if (!enhance.ready) return _say(PsNotice.failed);
     busy = true;
     _notify();
     try {
-      final req = EnhanceRequest(strength: strength)
+      // The classical pipeline only changes tone/noise/sharpness per pixel —
+      // it cannot move a facial feature, so it needs no identity check. The
+      // optional AI step is checked INSIDE the engine (fallback to classical).
+      final ai = _aiForRun;
+      final req = EnhanceRequest(strength: strength, ai: ai)
           .withMaxLongEdge(config.free ? config.previewMaxPx : null);
-      final res = await GuardedEdit(deps.guard).run(
-          s.original.bytes, strength, (st) => deps.engine.enhance(s.original.bytes, req.withStrength(st)),
-          hasPeople: hasPeople);
-      if (res.image == null) {
-        _say(res.verdict.outcome == IdentityOutcome.cannotVerify
-            ? PsNotice.identityCheckMissing
-            : PsNotice.identityFailed);
-      } else {
-        s.push(PhotoVersion(
-            bytes: res.image!, feature: 'enhance_hd', previewOnly: config.free));
-        _versionStrength[s.index] = res.strength;
-        notice = PsNotice.none;
-      }
+      final out = await deps.engine.enhance(s.original.bytes, req);
+      lastReport = deps.engine.lastReport;
+      s.push(PhotoVersion(bytes: out, feature: 'enhance_hd', previewOnly: config.free));
+      _versionStrength[s.index] = strength;
+      _versionAi[s.index] = ai && lastReport.aiUsed;
+      notice = PsNotice.none;
+      if (lastReport.aiRejected) _say(PsNotice.aiFellBack);
     } on EnhanceUnavailable {
-      _say(PsNotice.enhanceNotInBuild);
+      _say(PsNotice.failed);
     } catch (_) {
       _say(PsNotice.failed);
     } finally {
@@ -451,7 +547,8 @@ class PhotoStudioController extends ChangeNotifier {
         full = await deps.backend.download(grant.resultUrl);
       } else {
         final st = _versionStrength[s.index] ?? strength;
-        full = await deps.engine.enhance(s.original.bytes, EnhanceRequest(strength: st));
+        full = await deps.engine.enhance(s.original.bytes,
+            EnhanceRequest(strength: st, ai: _versionAi[s.index] ?? false));
       }
       if (full == null) return _say(PsNotice.failed);
       final png = await deps.renderer.render(full,
@@ -470,7 +567,7 @@ class PhotoStudioController extends ChangeNotifier {
         DeliverResult.failed => PsNotice.failed,
       });
     } on EnhanceUnavailable {
-      _say(PsNotice.enhanceNotInBuild);
+      _say(PsNotice.failed);
     } catch (_) {
       _say(PsNotice.failed);
     } finally {
@@ -479,6 +576,7 @@ class PhotoStudioController extends ChangeNotifier {
     }
   }
 
+  final Map<int, bool> _versionAi = {};
   final Map<int, int> _jobOfVersion = {};
   final Map<int, int?> _creditPrice = {};
 

@@ -31,3 +31,8 @@
 -keep class kotlin.coroutines.intrinsics.CoroutineSingletons { *; }
 -keep class kotlin.coroutines.Continuation { *; }
 -keep class com.github.dart_lang.jni_flutter.** { *; }
+
+# ---- p2-photo ---- Photo Studio on-device AI (ONNX Runtime upscaler): the JNI
+# library creates / reads ai.onnxruntime Java objects by name and the AAR ships
+# no consumer rules (same rule as k1-wake; a duplicate -keep is harmless).
+-keep class ai.onnxruntime.** { *; }
