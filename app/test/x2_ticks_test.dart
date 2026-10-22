@@ -444,7 +444,10 @@ class _ChatApi extends ApiClient {
 
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
-    if (path == '/circle/4/messages') return {'results': List.of(rows)};
+    // e2-keys pages the history (`?limit=` / `?before=`): match the path only.
+    if (path.split('?').first == '/circle/4/messages') {
+      return {'results': List.of(rows), 'has_more': false};
+    }
     return {};
   }
 
