@@ -636,6 +636,8 @@ void main() {
     'c3_chat': (build: (l) => CircleChatScreen(member: C3Fake.member(l == 'bn'), identity: C3Fake.me), mode: FakeMode.data, full: true),
     'c3_msg_info': (build: (l) => Scaffold(appBar: AppBar(), body: Align(alignment: Alignment.bottomCenter, child: Material(elevation: 6, child: MessageInfoView(load: () async => C3Fake.info(l == 'bn'))))), mode: FakeMode.data, full: true),
     'c3_notif_settings': (build: (_) => const MsgrSetNotificationsScreen(), mode: FakeMode.data, full: true),
+    // e2-keys: opens at the "N unread messages" divider + honest can't-decrypt bubble
+    'c3_e2_chat_unread': (build: (l) => CircleChatScreen(member: C3Fake.member4(l == 'bn'), identity: C3Fake.me), mode: FakeMode.data, full: true),
     // ---- /c3-msg ----
   };
 

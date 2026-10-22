@@ -88,7 +88,8 @@ class C3Fake {
         ],
       };
     }
-    if (path == '/circle/1/messages') {
+    // e2-keys: the chat now asks for a page (?limit=50)
+    if (path.split('?').first == '/circle/1/messages') {
       final t0 = DateTime.now().subtract(const Duration(minutes: 30));
       String at(int m) => t0.add(Duration(minutes: m)).toUtc().toIso8601String();
       return {
@@ -107,8 +108,38 @@ class C3Fake {
         ],
       };
     }
+    // e2-keys gallery: a chat that opens at the "N unread messages" divider,
+    // with one message this device cannot decrypt (honest bubble).
+    if (path.split('?').first == '/circle/4/messages') {
+      final t0 = DateTime.now().subtract(const Duration(minutes: 40));
+      String at(int m) => t0.add(Duration(minutes: m)).toUtc().toIso8601String();
+      final stranger = e2e.generateIdentity();
+      return {
+        'results': [
+          {'id': 31, 'sender_id': 50, 'mine': false, 'created_at': at(0), 'content_type': 'text',
+           ...env(bn ? 'কাল দোকানে আসবে?' : 'Coming to the shop tomorrow?', karim, me)},
+          {'id': 32, 'sender_id': 9, 'mine': true, 'status': 'read', 'created_at': at(3), 'content_type': 'text',
+           ...env(bn ? 'হ্যাঁ, সকালে' : 'Yes, in the morning', me, karim)},
+          {'id': 33, 'sender_id': 50, 'mine': false, 'created_at': at(8), 'content_type': 'text',
+           ...env('?', stranger, me)},
+          {'id': 34, 'sender_id': 50, 'mine': false, 'created_at': at(20), 'content_type': 'text', 'unseen': true,
+           ...env(bn ? 'নতুন মাল এসেছে' : 'New stock arrived', karim, me)},
+          {'id': 35, 'sender_id': 50, 'mine': false, 'created_at': at(22), 'content_type': 'text', 'unseen': true,
+           ...env(bn ? 'দাম আগের মতোই' : 'Same price as before', karim, me)},
+        ],
+        'has_more': false,
+      };
+    }
     return null;
   }
+
+  static Map<String, dynamic> member4(bool bn) => {
+        'id': 4,
+        'name': bn ? 'আবুল কাশেম' : 'Abul Kashem',
+        'relation': 'friend',
+        'state': 'accepted',
+        'public_key': pub(karim),
+      };
 
   static Map<String, dynamic> info(bool bn) => {
         'id': 3,

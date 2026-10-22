@@ -132,9 +132,9 @@ class _CircleScreenState extends State<CircleScreen> {
         });
       } catch (_) {
         // Not silent-and-forgotten: the My Circle hub re-publishes the public
-        // key on EVERY open (messenger_home_screen._ensureIdentity), so a
-        // failed first publish heals on the next open; until then the peer's
-        // chat shows the honest "key missing" state (circleKeyMissing).
+        // key on EVERY open, and e2-keys publishes at every app start /
+        // login / accept / silent key_request (crypto/key_service.dart) with
+        // backoff; until then the peer's messages wait in their outbox.
       }
     } catch (_) {
       // Secure storage unavailable (e.g. preview) — keep a volatile identity so
