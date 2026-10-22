@@ -32,6 +32,12 @@ class SecretStore {
 
   static SecretStore instance = SecretStore();
 
+  /// TESTS ONLY (test/flutter_test_config.dart): back the store with the
+  /// mocked flutter_secure_storage plugin, which each test resets — real file
+  /// I/O never completes under the widget-test fake clock. Never used in the
+  /// app.
+  factory SecretStore.forTests() = _PluginBackedForTests;
+
   final Future<Directory> Function() _dirFn;
   final LegacySecrets _legacy;
 
@@ -178,6 +184,37 @@ class KeystoreLegacy implements LegacySecrets {
   Future<void> delete(String name) async {
     try {
       await _s.delete(key: name).timeout(_timeout);
+    } catch (_) {}
+  }
+}
+
+class _PluginBackedForTests extends SecretStore {
+  _PluginBackedForTests() : super();
+  static const _s = FlutterSecureStorage();
+
+  @override
+  Future<String?> read(String name) async {
+    try {
+      return await _s.read(key: name);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Future<bool> write(String name, String value) async {
+    try {
+      await _s.write(key: name, value: value);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  @override
+  Future<void> delete(String name) async {
+    try {
+      await _s.delete(key: name);
     } catch (_) {}
   }
 }
