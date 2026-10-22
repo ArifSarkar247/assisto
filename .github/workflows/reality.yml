@@ -150,7 +150,9 @@ jobs:
         with:
           api-level: 33
           arch: x86_64
-          target: google_apis
+          target: default   # AOSP, no Google Play services. 22 Oct: the google_apis image
+          # froze the whole emulator (adb wedged) during Play-services activity on
+          # EVERY run, build 150's previously-passing code included.
           profile: pixel_5
           disable-animations: true
           emulator-boot-timeout: 480
