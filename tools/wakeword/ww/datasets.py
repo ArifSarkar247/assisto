@@ -62,15 +62,28 @@ def download(url: str, dest: str) -> str:
         return dest
     os.makedirs(os.path.dirname(dest), exist_ok=True)
     tmp = dest + ".part"
-    req = urllib.request.Request(url, headers={"User-Agent": "assisto-wakeword-train/1"})
-    with urllib.request.urlopen(req, timeout=120) as r, open(tmp, "wb") as f:
-        while True:
-            b = r.read(1 << 20)
-            if not b:
-                break
-            f.write(b)
-    os.replace(tmp, dest)
-    return dest
+    # OpenSLR's main host is slow from CI (MUSAN = 11 GB); its official mirrors
+    # serve the same files (EU mirror measured ~30x faster). Try EU, US, then the original.
+    urls = [url]
+    if url.startswith("https://www.openslr.org/"):
+        tail = url[len("https://www.openslr.org/"):]
+        urls = ["https://openslr.elda.org/" + tail, "https://us.openslr.org/" + tail, url]
+    last = None
+    for u in urls:
+        try:
+            req = urllib.request.Request(u, headers={"User-Agent": "assisto-wakeword-train/1"})
+            with urllib.request.urlopen(req, timeout=120) as r, open(tmp, "wb") as f:
+                while True:
+                    b = r.read(1 << 20)
+                    if not b:
+                        break
+                    f.write(b)
+            os.replace(tmp, dest)
+            return dest
+        except Exception as e:  # noqa: BLE001
+            last = e
+            print(f"download failed ({u}): {e}", flush=True)
+    raise RuntimeError(f"download failed for {url}: {last}")
 
 
 def _iter_archive(path: str, prefixes=()):

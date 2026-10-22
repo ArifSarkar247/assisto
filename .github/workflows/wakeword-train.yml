@@ -30,6 +30,11 @@ on:
         description: "With tiny: ALSO rebuild + verify the real e2e extractor (no dataset downloads, +~4 min)"
         type: boolean
         default: false
+      stage:
+        description: "all = full run | data = only download/prepare + extractor + TTS clips (fills the caches, no training)"
+        type: choice
+        default: all
+        options: [all, data]
 
 permissions:
   contents: read
@@ -74,21 +79,34 @@ jobs:
       - name: Unit tests (tiny synthetic data)
         run: python -m unittest discover -s tools/wakeword/tests -v
 
-      - name: Cache prepared background audio (int16 streams, not raw datasets)
+      # Caches are restored here and SAVED right after the step that fills them
+      # (not at job end), so a run that later times out still leaves the slow
+      # parts (dataset downloads ~1 h, Kokoro clips) for the next run.
+      - name: Restore prepared background audio (int16 streams, not raw datasets)
+        id: prep_cache
         if: ${{ !inputs.tiny }}
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: /mnt/ww/prepared
-          key: ww-prepared-v1-${{ hashFiles('tools/wakeword/ww/datasets.py', 'tools/wakeword/config.json') }}
+          key: ww-prepared-v2-${{ hashFiles('tools/wakeword/ww/datasets.py', 'tools/wakeword/config.json') }}
 
-      - name: Cache TTS + TF-Hub models
+      - name: Restore TTS + TF-Hub models
+        id: models_cache
         if: ${{ !inputs.tiny }}
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: |
             ~/.cache/huggingface
             ~/.cache/tfhub_modules
-          key: ww-models-v1
+          key: ww-models-v2
+
+      - name: Restore synthesized clips
+        id: clips_cache
+        if: ${{ !inputs.tiny }}
+        uses: actions/cache/restore@v4
+        with:
+          path: /mnt/ww/clips
+          key: ww-clips-v1-${{ inputs.n_pos_train }}-${{ hashFiles('tools/wakeword/ww/synth.py', 'tools/wakeword/config.json') }}
 
       - name: Config
         run: |
@@ -104,7 +122,17 @@ jobs:
 
       - name: Prepare real audio (LibriSpeech / FLEURS / SLR53 / MUSAN -> int16 streams)
         if: ${{ !inputs.tiny }}
-        run: python tools/wakeword/pipeline.py --work "$WORK" --config "$WORK/config.json" prepare
+        run: |
+          python tools/wakeword/pipeline.py --work "$WORK" --config "$WORK/config.json" prepare
+          rm -rf "$WORK/downloads"   # raw archives (~5 GB) are not needed once prepared
+          du -sh "$WORK/prepared"; df -h /mnt
+
+      - name: Save prepared audio cache
+        if: ${{ !inputs.tiny && steps.prep_cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: /mnt/ww/prepared
+          key: ${{ steps.prep_cache.outputs.cache-primary-key }}
 
       - name: Rebuild licence-clean feature extractor (Google speech_embedding -> ONNX)
         if: ${{ inputs.features == 'e2e' && (!inputs.tiny || inputs.rebuild_check) }}
@@ -120,7 +148,28 @@ jobs:
             --cache ~/.cache/tfhub_modules --real-audio "$REAL" --tol 1e-3
           rm -rf "$WORK/tfenv"   # ~1.5 GB; not needed after this step
 
+      - name: Synthesize clips (Kokoro + eSpeak NG)
+        if: ${{ !inputs.tiny }}
+        run: python tools/wakeword/pipeline.py --work "$WORK" --config "$WORK/config.json" features synth
+
+      - name: Save clips cache
+        if: ${{ !inputs.tiny && steps.clips_cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: /mnt/ww/clips
+          key: ${{ steps.clips_cache.outputs.cache-primary-key }}
+
+      - name: Save models cache
+        if: ${{ !inputs.tiny && steps.models_cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cache/huggingface
+            ~/.cache/tfhub_modules
+          key: ${{ steps.models_cache.outputs.cache-primary-key }}
+
       - name: Train + evaluate
+        if: ${{ inputs.tiny || inputs.stage == 'all' }}
         run: |
           if [ "${{ inputs.tiny }}" = "true" ]; then
             python tools/wakeword/pipeline.py --work "$WORK" --tiny all
