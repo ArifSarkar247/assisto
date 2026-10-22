@@ -13561,5 +13561,6 @@
   "c2SoundPreview": "শুনে দেখুন",
   "c2ChOngoing": "চলমান কল",
   "c2CallOngoingTitle": "{name}-এর সাথে কল",
-  "c2CallOngoingText": "Assisto কল চলছে — ফিরে যেতে চাপুন"
+  "c2CallOngoingText": "Assisto কল চলছে — ফিরে যেতে চাপুন",
+  "b2PhotoStudioTitle": "ফটো স্টুডিও"
 }

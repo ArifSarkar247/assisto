@@ -16028,5 +16028,6 @@
       }
     }
   },
-  "c2CallOngoingText": "Assisto call in progress — tap to return"
+  "c2CallOngoingText": "Assisto call in progress — tap to return",
+  "b2PhotoStudioTitle": "Photo Studio"
 }
