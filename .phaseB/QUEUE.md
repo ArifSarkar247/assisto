@@ -15,7 +15,9 @@ Rules: max parallel agents (own worktree each), heavy cmds via lock, ship each p
 10. Premium QA every screen >=9/10, full reality audit with real runs, owner phone checklist.
 L. LAUNCH TRACK [AGENT]: Privacy Policy / Terms / Data Deletion pages on lifeassisto.com (bn+en, Play + AdMob compliant, every permission explained); app-ads.txt ready for the AdMob publisher ID; owner_actions/PLAY_STORE_PACK.md (name, short/full description bn+en, feature graphic, 8 screenshots, content rating + Data Safety, permission declarations); signed release AAB per release in CI + upload key + Play App Signing plan.
 L2. [AGENT f1-founders] FOUNDING TESTERS: owner admin action grants "Founding Member" (free Premium N months, admin-editable default 12, + badge) to a pasted list of accounts (first 12–20 Play closed testers); in-app "Send feedback / report a problem" (screenshot + note) landing in the owner admin panel.
-Also queued: Health Connect plugin fails to register (MainActivity must become FlutterFragmentActivity) — own native build.
+L3. [LATER] Google UMP consent flow for AdMob (EEA/UK/Switzerland) — then re-add those countries in Play.
+L4. [AGENT k1-wake] "Hey Assisto" wake word on openWakeWord (Picovoice removed): custom model trained in a CI workflow, opt-in mic FGS + disclosure, auto-pause, locked-phone rules, reboot honesty, OEM guide, default-assistant step, Play declaration; real-phone proof before shipping.
+Also queued: Health Connect plugin fails to register (MainActivity must become FlutterFragmentActivity) — own native build (the HC privacy activity is now in the launch build).
 
 ## History
 

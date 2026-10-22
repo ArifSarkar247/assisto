@@ -15,7 +15,7 @@ Public URLs the Play Console asks for (live once this branch is deployed):
 | Account / data deletion (Data safety → "Delete account URL") | https://lifeassisto.com/delete-account |
 | Website (store listing "Website") — must be the domain that serves app-ads.txt | https://lifeassisto.com |
 | app-ads.txt | https://lifeassisto.com/app-ads.txt |
-| Contact email (store listing, required) | **[OWNER]** — same as `LEGAL_CONTACT_EMAIL` |
+| Contact email (store listing, required) | **axonadmin001@gmail.com** (owner-approved 22 Oct; same as the privacy/grievance contact on lifeassisto.com) |
 
 ---
 
@@ -362,5 +362,5 @@ finance tracking only · **Health**: see §3 · **Data safety**: §5 · **Ads**:
 2. Apply `.phaseB/proposals/l1-launch.md` A (+ C), get one green CI run, download `assisto-aab`.
 3. Do Play App Signing (owner_actions/PLAY_APP_SIGNING.md).
 4. Upload the AAB to **Internal testing** first; install from Play on the Realme 9i; check: opens, sign-in, notifications prompt, Settings shows no "Update" tile, About says "updates through Google Play", Settings → Legal → Privacy → "Read the full version on lifeassisto.com" opens the site.
-5. Decide EEA/UK distribution (proposal D.5 — UMP consent is not built).
+5. **Distribution (owner decision 22 Oct): EXCLUDE the EEA, the UK and Switzerland** for now — Google's UMP consent flow for ads is not built yet (queued). Play Console → Production → Countries/regions: untick all EEA countries, United Kingdom and Switzerland.
 6. Fill §2–§6, then promote to Production.
