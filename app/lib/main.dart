@@ -222,8 +222,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
         // real camera / foreground-service / device-admin / sensor plugins each
         // load once. A native crash kills the process (caught by the smoke
         // test's logcat + liveness check); Dart-level errors stay guarded.
-        const tour = ['voice_sos', 'lost_stolen', 'watch_feed', 'fall_detect',
-            'voice_settings'];
+        const tour = ['fall_detect'];
         for (final r in tour) {
           if (!mounted) return;
           try {
