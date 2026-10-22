@@ -232,15 +232,34 @@ void main() {
       c.dispose();
     });
 
-    test('ICE failed before connect -> failed', () async {
+    test(
+        'ICE failed before connect -> one ICE restart, then the 20 s connect '
+        'timeout fails BOTH sides as "couldn\'t connect"', () async {
       final m = FakeCallMedia(), s = FakeSignaling();
-      final c = mk(m, s, FakeSounds());
+      final c = CallController(
+        media: m,
+        signaling: s,
+        sounds: FakeSounds(),
+        video: false,
+        outgoing: true,
+        memberId: 7,
+        statusEvery: const Duration(seconds: 30),
+        connectTimeout: const Duration(milliseconds: 300),
+      );
       await c.start();
       s.state('accepted');
       await settle();
       m.link.add(MediaLinkState.failed);
       await settle();
-      expect(c.endReason, CallEndReason.failed);
+      expect(m.log, contains('offer:restart'));
+      expect(c.isEnded, isFalse);
+      m.link.add(MediaLinkState.failed);
+      await settle();
+      expect(c.isEnded, isFalse, reason: 'the timer decides, not one failure');
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+      await settle();
+      expect(c.endReason, CallEndReason.connectFailed);
+      expect(s.eventLog, contains('fail'));
       c.dispose();
     });
 

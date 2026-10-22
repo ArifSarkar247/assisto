@@ -67,7 +67,8 @@ def ice_for(user):
         from .logic import rtc as RTC
         creds = RTC.turn_credentials(secret, user.id, timezone.now().timestamp())
         return {"iceServers": RTC.ice_servers(
-            host, getattr(settings, "TURN_PORT", 3478), creds),
+            host, getattr(settings, "TURN_PORT", 3478), creds,
+            tls_port=getattr(settings, "TURN_TLS_PORT", 0)),
             "turn": True, "ttl": creds["ttl"]}
     return {"iceServers": STUN_FALLBACK, "turn": False, "ttl": 0}
 
@@ -121,19 +122,118 @@ def is_reachable(user, now=None):
     return bool(p and CS.is_presence_fresh(p.seen_at, now))
 
 
-def is_busy(user, exclude_id=None, now=None):
-    """Is `user` in another live call (after sweeping stale ones)?"""
+def is_busy(user, exclude_id=None, now=None, exclude_peer=None):
+    """Is `user` REALLY in another call (x1-calls A1-f)? Only a call whose
+    media connected and whose two phones both polled within HEARTBEAT_S
+    counts — a ringing / connecting / silent row never makes anyone busy.
+    Calls between `user` and `exclude_peer` never count (that is glare or a
+    repeat, handled by place_call)."""
     now = now or timezone.now()
     live = CallRecord.objects.filter(
         Q(caller=user) | Q(callee=user), state__in=CS.LIVE_STATES,
         started_at__gte=now - timedelta(seconds=CS.BUSY_WINDOW_S))
     if exclude_id:
         live = live.exclude(pk=exclude_id)
+    if exclude_peer is not None:
+        live = live.exclude(Q(caller=exclude_peer) | Q(callee=exclude_peer))
     for r in live:
         sweep(r, now)
-        if CS.is_live(r.state) and r.caller_id != r.callee_id:
+        if not CS.is_live(r.state) or r.caller_id == r.callee_id:
+            continue
+        sess = session_of(r)
+        if CS.is_truly_active(r.state, now, sess.connected_at,
+                              sess.caller_seen_at, sess.callee_seen_at):
             return True
     return False
+
+
+# x1-calls A1-c: the call-time poll is the primary path (~0.3 s while a call
+# is set up); a high-priority FCM DATA push "call_signal" (ids only — never
+# SDP, never names) nudges the other phone to poll NOW when its poll is slow
+# (Doze, backgrounded during the call). Unknown to old app builds -> ignored.
+NUDGE_SIGNAL_KINDS = ("offer", "answer", "restart_offer", "restart_answer")
+
+
+def _nudge_send(tokens, data, collapse):
+    from django.db import close_old_connections
+    try:
+        close_old_connections()
+        for tok in tokens:
+            PUSH.send_to_token(tok, data, None, priority="high", ttl_s=20,
+                               collapse_key=collapse)
+    except Exception:
+        pass
+
+
+def nudge_call(rec, what, to_user_id=None):
+    """Fire-and-forget FCM nudge to one party (or both). Never raises."""
+    try:
+        if not PUSH.is_available():
+            return False
+        ids = [to_user_id] if to_user_id else list(
+            dict.fromkeys([rec.caller_id, rec.callee_id]))
+        tokens = list(Device.objects.filter(user_id__in=ids)
+                      .exclude(push_token="").values_list("push_token", flat=True))
+        if not tokens:
+            return False
+        data = {"kind": "call_signal", "call_id": rec.id, "what": str(what)[:20]}
+        collapse = "callsig-%s" % rec.id
+        if getattr(settings, "PUSH_SYNC", False):
+            _nudge_send(tokens, data, collapse)
+        else:
+            PUSH._get_executor().submit(_nudge_send, tokens, data, collapse)
+        return True
+    except Exception:
+        return False
+
+
+def photo_of(user, request=None):
+    """(absolute-or-relative signed photo URL, cache version) for `user`.
+    The version changes only when the photo changes (new upload / link), so
+    phones cache the image per (user, version) and refresh on change."""
+    try:
+        if user is None:
+            return "", ""
+        url = getattr(user, "photo_url", "") or ""
+        if not url:
+            return "", ""
+        import hashlib
+        key = str(user.photo.name) if user.photo else (user.photo_link or "")
+        ver = hashlib.md5(key.encode()).hexdigest()[:8]
+        if url.startswith("/"):
+            if request is not None:
+                url = request.build_absolute_uri(url)
+            else:
+                base = (getattr(settings, "ASSISTO_BASE_URL", "") or "").rstrip("/")
+                url = base + url if base.startswith("http") else url
+        return url, ver
+    except Exception:
+        return "", ""
+
+
+def missed_streak(rec):
+    """How many calls in a row from this caller the callee missed (this one
+    included, last 24 h, back to the last call between them that was not a
+    missed incoming one) — the "T Shanto BD (6)" count."""
+    try:
+        since = timezone.now() - timedelta(hours=24)
+        rows = CallRecord.objects.filter(
+            Q(caller_id=rec.caller_id, callee_id=rec.callee_id)
+            | Q(caller_id=rec.callee_id, callee_id=rec.caller_id),
+            started_at__gte=since).exclude(state__in=CS.LIVE_STATES) \
+            .order_by("-started_at", "-id").select_related("session")[:50]
+        n = 0
+        for r in rows:
+            if r.caller_id != rec.caller_id:
+                break
+            reason = history_reason(r)
+            if r.state in ("missed", "canceled") or reason in CS.MISSED_REASONS:
+                n += 1
+            else:
+                break
+        return max(1, n)
+    except Exception:
+        return 1
 
 
 def hook_missed_call(rec, reason):
@@ -146,21 +246,33 @@ def hook_missed_call(rec, reason):
         name = PUSH.display_name(caller)
         edge = PUSH._reverse_edge(rec.callee, caller)
         video = rec.kind == "video"
+        # x1-calls A1-g: ONE notification per caller, WhatsApp-style
+        # "T Shanto BD (6)" — the app replaces it by caller_id (group_key).
+        n = missed_streak(rec)
+        photo, ver = photo_of(caller)
+        if n > 1:
+            title_bn, title_en = "%s (%d)" % (name, n), "%s (%d)" % (name, n)
+            body_bn, body_en = "%dটি মিসড কল" % n, "%d missed calls" % n
+        else:
+            title_bn, title_en = ("%s-এর মিসড কল" % name,
+                                  "Missed call from %s" % name)
+            body_bn = "ভিডিও কল" if video else "ভয়েস কল"
+            body_en = "Video call" if video else "Voice call"
         return PUSH.safe_push(
-            rec.callee, "missed_call",
-            "%s-এর মিসড কল" % name, "Missed call from %s" % name,
-            "ভিডিও কল" if video else "ভয়েস কল",
-            "Video call" if video else "Voice call",
+            rec.callee, "missed_call", title_bn, title_en, body_bn, body_en,
             data={"call_id": rec.id, "caller_id": caller.id,
                   "caller_name": name, "video": video, "reason": reason,
+                  "missed_count": n, "group_key": "caller-%s" % caller.id,
+                  "caller_photo": photo, "caller_photo_v": ver,
                   "chat_id": edge.id if edge is not None else "",
                   "route": "circle/calls"})
     except Exception:
         return False
 
 
-def end_call(rec, reason, by="server", now=None, sess=None):
-    """Move a live record to its terminal state for `reason` (idempotent)."""
+def end_call(rec, reason, by="server", now=None, sess=None, notify=True):
+    """Move a live record to its terminal state for `reason` (idempotent).
+    notify=False (one-time stale cleanup): no push, no missed-call alert."""
     now = now or timezone.now()
     if not CS.is_live(rec.state):
         return rec
@@ -174,7 +286,7 @@ def end_call(rec, reason, by="server", now=None, sess=None):
     sess.end_reason = reason
     sess.ended_by = by
     upd = ["end_reason", "ended_by"]
-    if reason in CS.MISSED_REASONS and not sess.missed_notified:
+    if notify and reason in CS.MISSED_REASONS and not sess.missed_notified:
         sess.missed_notified = True
         upd.append("missed_notified")
         notify_missed = True
@@ -182,7 +294,11 @@ def end_call(rec, reason, by="server", now=None, sess=None):
         notify_missed = False
     sess.save(update_fields=upd)
     publish_state(rec)
-    if was_ringing:
+    if notify and not was_ringing:
+        # accepted / live call ended: wake the other phone now (a ringing
+        # end already sends call_cancel to the callee)
+        nudge_call(rec, "state")
+    if was_ringing and notify:
         # stop the callee's ring on every device (FCM, key-gated)
         PUSH.hook_call_cancel(rec, rec.state if reason == "canceled" else reason)
     if notify_missed:
@@ -204,6 +320,54 @@ def sweep(rec, now=None):
     return rec
 
 
+def sweep_user(user, now=None):
+    """Sweep every live call of `user` (on every call event, A1-e)."""
+    now = now or timezone.now()
+    if user is None:
+        return
+    for r in CallRecord.objects.filter(
+            Q(caller=user) | Q(callee=user), state__in=CS.LIVE_STATES):
+        sweep(r, now)
+
+
+def sweep_all(now=None):
+    """Cron (`manage.py calls_sweep`, every minute): run the lazy timeouts on
+    every live row. Returns {reason: count}."""
+    now = now or timezone.now()
+    out = {}
+    for r in CallRecord.objects.filter(state__in=CS.LIVE_STATES):
+        before = r.state
+        sweep(r, now)
+        if r.state != before:
+            reason = session_of(r).end_reason or r.state
+            out[reason] = out.get(reason, 0) + 1
+    return out
+
+
+def stale_cleanup(now=None, apply=False):
+    """One-time cleanup (`manage.py calls_cleanup_stale [--apply]`): every
+    live row the timeouts say is dead, or that is older than BUSY_WINDOW_S,
+    is ended WITHOUT pushes (old rows must not ring/alert anyone). Returns a
+    list of (id, state, reason) that were (or would be) ended."""
+    now = now or timezone.now()
+    out = []
+    for r in CallRecord.objects.filter(state__in=CS.LIVE_STATES).order_by("id"):
+        sess = session_of(r)
+        reason = CS.sweep_decision(
+            r.state, now, r.started_at, ringing_at=sess.ringing_at,
+            answered_at=r.answered_at, caller_seen=sess.caller_seen_at,
+            callee_seen=sess.callee_seen_at, connected_at=sess.connected_at)
+        if reason is None and (now - r.started_at).total_seconds() > CS.BUSY_WINDOW_S:
+            reason = "lost" if sess.connected_at else (
+                "no_answer" if r.state == "ringing" else "failed")
+        if reason is None:
+            continue
+        out.append((r.id, r.state, reason))
+        if apply:
+            end_call(r, reason, "server", now, sess, notify=False)
+    return out
+
+
 def _mark_seen(sess, side, now):
     field = "caller_seen_at" if side == "caller" else "callee_seen_at"
     prev = getattr(sess, field)
@@ -223,6 +387,8 @@ def status_row(rec, side, lang="bn"):
         "ended_by": sess.ended_by or "",
         "connected_at": sess.connected_at.isoformat() if sess.connected_at else None,
         "duration_sec": rec.duration_sec,
+        "relayed": bool(sess.relayed),
+        "connect_timeout_s": CS.CONNECT_TIMEOUT_S,
         "server_time": timezone.now().isoformat(),
     }
 
@@ -313,6 +479,12 @@ class RtEventsView(APIView):
             for t in topics:
                 f |= Q(topic__startswith=t)
             rows = rows.filter(f)
+        try:
+            only_call = int(request.query_params.get("call_id") or 0)
+        except (TypeError, ValueError):
+            only_call = 0
+        if only_call:
+            rows = rows.filter(payload__call_id=only_call)
         out = [{"seq": e.id, "topic": e.topic, "payload": e.payload,
                 "ts": e.created_at.isoformat()}
                for e in rows.order_by("id")[:RT_MAX_BATCH]]
@@ -378,6 +550,8 @@ def _produce_call(request, topic, payload):
                      {"call_id": rec.id, "kind": kind, "from": side,
                       "data": data})
     _mark_seen(session_of(rec), side, timezone.now())
+    if kind in NUDGE_SIGNAL_KINDS:
+        nudge_call(rec, kind, to_user_id=other.id)
     return {"ok": True, "seq": seq, "state": rec.state}, 201
 
 
@@ -408,46 +582,116 @@ def incoming_row(rec, me):
         "call_id": rec.id, "kind": rec.kind, "video": rec.kind == "video",
         "caller_id": rec.caller_id,
         "caller_name": PUSH.display_name(rec.caller),
+        "caller_photo": photo_of(rec.caller)[0],
+        "caller_photo_v": photo_of(rec.caller)[1],
         "chat_id": edge.id if edge is not None else None,
         "phase": CS.phase(rec.state, session_of(rec).ringing_at),
     }
 
 
 # ---------------------------------------------------------------- placing
-def place_call(request, member, peer, kind):
-    """Create the record + session for an allowed call and decide up front:
-    busy (callee in another call), offline (no way to ring the phone), else
-    ring by push. Returns the JSON body (status 201)."""
+def _lock_users(*users):
+    """Serialise placements between the same people (row locks in id order;
+    a no-op on SQLite). Two POSTs ~0 s apart from one phone, or both people
+    calling each other at once, can then never create two live records."""
+    ids = sorted({u.pk for u in users if u is not None})
+    if ids:
+        from .models import User
+        list(User.objects.select_for_update().filter(pk__in=ids).order_by("pk")
+             .values_list("pk", flat=True))
+
+
+def _existing_body(request, rec, side, lang, **flags):
+    body = {"allowed": True, "kind": rec.kind, "call_id": rec.id,
+            "ice": ice_for(request.user)}
+    body.update(flags)
+    body.update(status_row(rec, side, lang=lang))
+    return body
+
+
+def place_call(request, member, peer, kind, client_call_id=""):
+    """Create the record + session for an allowed call and decide up front
+    (x1-calls rules, A1-a/f):
+
+      * IDEMPOTENT: the same client_call_id from this caller -> the same call.
+      * DEDUPE: a live call me -> peer placed < DEDUPE_WINDOW_S ago is
+        returned as is (never a second record, never "busy" against myself).
+      * GLARE: the peer is calling ME right now -> merge: I join THAT call as
+        its callee (it is accepted at once) — never "busy".
+      * BUSY only when the peer has a really active call with someone else
+        (media connected + fresh heartbeat); OFFLINE when the phone cannot
+        ring at all; else ring by push + the real-time queue.
+    Returns the JSON body (status 201)."""
     now = timezone.now()
     me = request.user
     callee = peer or me
-    rec = CallRecord.objects.create(caller=me, callee=callee, circle=member,
-                                    kind=kind, state="ringing")
-    sess = CallSession.objects.create(call=rec, caller_seen_at=now)
-    outcome = ""
-    if peer is not None and peer.pk != me.pk:
-        if is_busy(peer, exclude_id=rec.id, now=now):
-            outcome = "busy"
-        elif not is_reachable(peer, now):
-            outcome = "offline"
-    if outcome:
-        end_call(rec, outcome, "server", now, sess)
-    else:
-        # In-app ring over the real-time queue (app open, works without FCM)
-        # + app-closed ring via FCM data message (key-gated, never raises).
-        if ring_allowed(callee, me):
-            rt_publish(callee, "call.incoming", incoming_row(rec, callee))
+    lang = req_lang(request)
+    key = str(client_call_id or "").strip()[:64]
+    with transaction.atomic():
+        _lock_users(me, peer)
+        sweep_user(me, now)
+        if peer is not None and peer.pk != me.pk:
+            sweep_user(peer, now)
+        if key:
+            sess = CallSession.objects.filter(
+                client_call_id=key, call__caller=me).select_related("call") \
+                .order_by("-id").first()
+            if sess is not None:
+                return _existing_body(request, sess.call, "caller", lang,
+                                      deduped=True)
+        mine = CallRecord.objects.filter(
+            caller=me, callee=callee, state__in=CS.LIVE_STATES) \
+            .order_by("-started_at", "-id")
+        for old in mine:
+            if CS.dedupe_match(old.started_at, now) and old.kind == kind:
+                if key:
+                    s0 = session_of(old)
+                    if not s0.client_call_id:
+                        s0.client_call_id = key
+                        s0.save(update_fields=["client_call_id"])
+                return _existing_body(request, old, "caller", lang,
+                                      deduped=True)
+            # an older live call to the same person is superseded by this tap
+            end_call(old, "canceled" if old.state == "ringing" else "hangup",
+                     "caller", now)
+        if peer is not None and peer.pk != me.pk:
+            theirs = CallRecord.objects.filter(
+                caller=peer, callee=me, state__in=("ringing", "connecting")) \
+                .order_by("-started_at", "-id").first()
+            if theirs is not None:
+                # glare: both tapped call -> ONE call, I am its callee
+                if theirs.state == "ringing":
+                    accept_call(theirs, now)
+                    theirs.refresh_from_db()
+                return _existing_body(request, theirs, "callee", lang,
+                                      merged=True, role="callee")
+        rec = CallRecord.objects.create(caller=me, callee=callee, circle=member,
+                                        kind=kind, state="ringing")
+        sess = CallSession.objects.create(call=rec, caller_seen_at=now,
+                                          client_call_id=key)
+        outcome = ""
+        if peer is not None and peer.pk != me.pk:
+            if is_busy(peer, exclude_id=rec.id, now=now, exclude_peer=me):
+                outcome = "busy"
+            elif not is_reachable(peer, now):
+                outcome = "offline"
+        if outcome:
+            end_call(rec, outcome, "server", now, sess)
         else:
-            # the callee silences this caller: no ring on their side, but it
-            # is not "offline" either — it rings out as no answer (+ log).
-            sess.ringing_at = now
-            sess.save(update_fields=["ringing_at"])
-        PUSH.hook_call_placed(me, member, rec)
+            # In-app ring over the real-time queue (app open, works without
+            # FCM) + app-closed ring via FCM data message (key-gated).
+            if ring_allowed(callee, me):
+                rt_publish(callee, "call.incoming", incoming_row(rec, callee))
+            else:
+                # the callee silences this caller: no ring on their side, but
+                # it is not "offline" either — it rings out as no answer.
+                sess.ringing_at = now
+                sess.save(update_fields=["ringing_at"])
+            PUSH.hook_call_placed(me, member, rec)
     turn_ready = bool(getattr(settings, "TURN_STATIC_SECRET", "")) or \
         bool(getattr(settings, "CIRCLE_TURN_READY", False))
     push_ready = bool(getattr(settings, "CIRCLE_PUSH_READY", False)) \
         or PUSH.is_available()
-    lang = req_lang(request)
     body = {
         "allowed": True, "kind": kind, "call_id": rec.id,
         "ice": ice_for(me),
@@ -475,6 +719,10 @@ def accept_call(rec, now=None):
     # stop the ring on the callee's OTHER devices
     PUSH.hook_call_cancel(rec, "answered")
     return True
+
+
+def request_user_of(rec, side):
+    return rec.caller if side == "caller" else rec.callee
 
 
 def apply_event(rec, side, event, data=None, now=None):
@@ -519,6 +767,12 @@ def apply_event(rec, side, event, data=None, now=None):
         return rec
     if event in ("busy", "decline") and side != "callee":
         return rec
+    if event == "busy" and not is_busy(request_user_of(rec, side), now=now,
+                                       exclude_id=rec.id,
+                                       exclude_peer=rec.caller):
+        # A1-f: the phone thinks it is busy, but it has no really active call
+        # (only a ringing / connecting / dead one) -> keep ringing.
+        return rec
     reason = CS.end_reason_for_event(rec.state, event, side == "caller")
     if reason and CS.is_live(rec.state):
         end_call(rec, reason, side, now, sess)
@@ -539,6 +793,7 @@ class CallEventView(APIView):
             return Response({"detail": "not found"}, status=404)
         side = side_of(rec, request.user)
         event = str((request.data or {}).get("event", "")).strip()
+        sweep_user(request.user)  # A1-e: sweep on every call event
         with transaction.atomic():
             rec = CallRecord.objects.select_for_update().get(pk=rec.pk)
             apply_event(rec, side, event, request.data or {})
@@ -643,6 +898,35 @@ def history_outcome(rec, viewer_id, lang):
     kind_word = CC.pick(lang, "ভিডিও" if video else "ভয়েস",
                         "Video" if video else "Voice")
     return "%s · %s" % (kind_word, CC.pick(lang, word[0], word[1]))
+
+
+def history_groups(rows, viewer):
+    """A1-g: the call log grouped WhatsApp-style — consecutive calls with the
+    same person, direction, outcome and day become ONE row "Name (n)".
+    `rows` = the CircleCallsView dicts (newest first). Each group is the
+    newest row + "count" + "ids"."""
+    from django.utils.dateparse import parse_datetime
+    keyed = []
+    for r in rows:
+        try:
+            day = timezone.localtime(parse_datetime(
+                r["started_at"])).date().isoformat()
+        except Exception:
+            day = str(r.get("started_at", ""))[:10]
+        keyed.append({
+            "id": r["id"], "peer_key": r.get("peer_id") or r.get("name"),
+            "outgoing": bool(r.get("outgoing")),
+            "category": CS.history_category(r.get("state", ""),
+                                            r.get("end_reason", ""),
+                                            bool(r.get("outgoing"))),
+            "day": day, "row": r})
+    out = []
+    for g in CS.group_history(keyed):
+        row = dict(g["first"]["row"])
+        row["count"] = g["count"]
+        row["ids"] = g["ids"]
+        out.append(row)
+    return out
 
 
 def history_reason(rec):

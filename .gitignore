@@ -52,6 +52,7 @@ tools/*
 !tools/route_check.py
 !tools/reality/
 !tools/wakeword/
+!tools/callproof/
 screenshots/
 new-logo.png
 logs/

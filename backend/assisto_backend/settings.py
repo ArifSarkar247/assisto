@@ -55,6 +55,10 @@ AI_USER_DAILY_LIMIT = int(os.getenv("AI_USER_DAILY_LIMIT", "40"))    # per-user/
 TURN_STATIC_SECRET = os.getenv("TURN_STATIC_SECRET", "")
 TURN_HOST = os.getenv("TURN_HOST", "turn.lifeassisto.com")
 TURN_PORT = int(os.getenv("TURN_PORT", "3478"))
+# x1-calls: TURN over TLS port — coturn tls-listening-port=5349 with the
+# Let's Encrypt cert of turn.lifeassisto.com (live since 22 Oct). Offered to
+# phones as the LAST TURN URL (udp/tcp 3478 stay first). 0 = not offered.
+TURN_TLS_PORT = int(os.getenv("TURN_TLS_PORT", "5349"))
 
 INSTALLED_APPS = [
     "django.contrib.admin",

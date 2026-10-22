@@ -80,6 +80,11 @@ class PushPayload {
   String get callId => _s('call_id');
   String get chatId => _s('chat_id');
   String get callerName => _s('caller_name');
+  String get callerPhoto => _s('caller_photo'); // x1-calls (signed URL)
+  String get callerId => _s('caller_id');
+
+  /// x1-calls: FCM "call_signal" nudge — poll the call queue now (no UI).
+  bool get isCallNudge => kind == 'call_signal';
   bool get isVideo => _s('video') == 'true';
   bool get silent => _s('silent') == 'true';
 
@@ -102,6 +107,9 @@ class PushPayload {
     String key;
     if ((isCall || isCallCancel) && callId.isNotEmpty) {
       key = 'call-$callId';
+    } else if (isMissedCall && _s('group_key').isNotEmpty) {
+      // x1-calls A1-g: ONE "T Shanto BD (6)" notification per caller
+      key = 'missed-${_s('group_key')}';
     } else if (isMissedCall && callId.isNotEmpty) {
       key = 'missed-$callId';
     } else if (kind == 'message' && chatId.isNotEmpty) {

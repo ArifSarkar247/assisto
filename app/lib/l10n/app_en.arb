@@ -16074,5 +16074,9 @@
       }
     }
   },
-  "fmThanks": "Thank you for believing in Assisto early."
+  "fmThanks": "Thank you for believing in Assisto early.",
+  "x1CallConnectFailed": "Couldn't connect — check internet",
+  "@x1CallConnectFailed": {
+    "description": "Call screen: the call was answered but media never connected within 20 s (both phones)."
+  }
 }

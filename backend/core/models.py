@@ -3854,3 +3854,12 @@ class FeedbackReport(models.Model):
     class Meta:
         ordering = ["-created_at", "-id"]
 # ---- /f1-founders ----
+# ---- x1-calls ----
+# Idempotent call placement (owner order A1): the phone sends one random
+# client_call_id per user tap; a repeated POST with the same key (double tap,
+# retry, the old chat-screen gate pre-check) returns the SAME call instead of
+# creating a second record that the server then ends as "busy".
+CallSession.add_to_class(
+    "client_call_id",
+    models.CharField(max_length=64, blank=True, default="", db_index=True))
+# ---- /x1-calls ----

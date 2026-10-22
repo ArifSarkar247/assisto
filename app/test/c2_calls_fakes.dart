@@ -131,9 +131,13 @@ class FakeSignaling implements CallSignaling {
         'payload': {'call_id': 42, 'kind': kind, 'from': from, 'data': data}
       });
 
+  final placeKeys = <String?>[];
+
   @override
-  Future<Map<String, dynamic>> place(int memberId, String kind) async {
+  Future<Map<String, dynamic>> place(int memberId, String kind,
+      {String? clientCallId}) async {
     eventLog.add('place:$memberId:$kind');
+    placeKeys.add(clientCallId);
     return placeBody;
   }
 

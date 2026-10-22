@@ -243,6 +243,11 @@ class PushService {
 
   void _onForeground(Map<String, dynamic> data) {
     final p = PushPayload.fromData(data);
+    // x1-calls: call-signal nudge -> poll the call queue now (no UI)
+    if (p.isCallNudge) {
+      CallRuntime.instance.nudge();
+      return;
+    }
     if (p.isCallCancel) {
       _cancelled.add(p.callId);
       CallRuntime.instance.onPushCancel(p);
@@ -311,6 +316,7 @@ class PushService {
         final member = <String, dynamic>{
           'id': int.tryParse(p.chatId),
           'name': p.callerName,
+          'photo_url': p.callerPhoto,
         };
         final kind = p.isVideo ? 'video' : 'voice';
         if (action == PushNotifier.actionAccept) {

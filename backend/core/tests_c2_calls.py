@@ -230,13 +230,28 @@ class SignallingNoPushTests(_Pair, TestCase):
                          format="json")
         other = r.json()["call_id"]
         self.assertEqual(r.json()["phase"], "calling")
+        # x1-calls A1-f: a RINGING call elsewhere never makes the callee busy
+        self.online(self.b)
+        first = self.place()
+        self.assertEqual(first["phase"], "calling")
+        self.ev(self.ca, first["call_id"], "cancel")
+        # ... only a really active one (media connected + fresh heartbeat)
+        now = timezone.now()
+        CallRecord.objects.filter(pk=other).update(state="active")
+        CallSession.objects.filter(call_id=other).update(
+            connected_at=now, caller_seen_at=now, callee_seen_at=now)
         body = self.place()
         self.assertEqual(body["end_reason"], "busy")
         self.assertEqual(CallRecord.objects.get(pk=body["call_id"]).state, "missed")
-        # callee may also press "busy" on a ringing call
+        # callee may also press "busy" on a ringing call while really busy
         CallRecord.objects.filter(pk=other).update(state="ended")
         self.online(self.b)
         cid = self.place()["call_id"]
+        self.assertEqual(self.ev(self.cb, cid, "busy")["phase"], "calling")
+        CallRecord.objects.filter(pk=other).update(state="active")
+        CallSession.objects.filter(call_id=other).update(
+            connected_at=now, caller_seen_at=timezone.now(),
+            callee_seen_at=timezone.now())
         self.assertEqual(self.ev(self.cb, cid, "busy")["end_reason"], "busy")
 
     def test_no_answer_after_ringing_timeout(self):
@@ -393,7 +408,10 @@ class SignallingPushTests(_Pair, _PushBase):
         self.ev(self.ca, cid, "connected")
         self.fake.calls.clear()
         self.ev(self.ca, cid, "hangup")
-        self.assertEqual(self.fake.sent_payloads(), [])  # not missed, no ring
+        # not missed, no ring — only the x1 "call_signal" nudge (ids only)
+        # that wakes the other phone to see the hang-up at once
+        kinds = [p["message"]["data"]["kind"] for p in self.fake.sent_payloads()]
+        self.assertEqual(set(kinds), {"call_signal"})
 
     def test_declined_is_not_a_missed_call(self):
         cid = self.place()["call_id"]
@@ -459,7 +477,11 @@ class PureLogicTests(TestCase):
         self.assertEqual(CS.sweep_decision("connecting", now, old, answered_at=old),
                          "failed")
         self.assertEqual(CS.sweep_decision("active", now, old, answered_at=old,
-                                           caller_seen=now, callee_seen=old), "lost")
+                                           caller_seen=now, callee_seen=old,
+                                           connected_at=old), "lost")
+        self.assertEqual(CS.sweep_decision("active", now, old, answered_at=old,
+                                           caller_seen=now, callee_seen=old),
+                         "failed")
         self.assertIsNone(CS.sweep_decision("ended", now, old))
 
 

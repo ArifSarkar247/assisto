@@ -2,12 +2,32 @@
 // REAL call (frozen controllers, fake video surface) + the honest outcomes.
 import 'package:flutter/material.dart';
 
+import 'package:assisto/calls/call_avatar.dart';
 import 'package:assisto/calls/call_controller.dart';
 import 'package:assisto/push/incoming_call_screen.dart';
 import 'package:assisto/push/push_payload.dart';
 import 'package:assisto/screens/circle_call_screen.dart';
 
 import 'c2_calls_fakes.dart';
+import 'x1_calls_fixtures.dart';
+
+const _x1Photo = '/api/v1/m/avatars/x1-demo.png?e=1&s=demo';
+
+Widget _x1(String l, CallPhase p,
+    {bool outgoing = true, CallEndReason r = CallEndReason.none}) {
+  CallPhotoCache.instance.seed(_x1Photo, x1TestPhoto);
+  return CircleCallScreen(
+    member: {
+      'id': 5,
+      'name': l == 'bn' ? 'টি শান্ত বিডি' : 'T Shanto BD',
+      'photo': _x1Photo,
+    },
+    kind: 'voice',
+    outgoing: outgoing,
+    controller: previewController(
+        video: false, outgoing: outgoing, phase: p, reason: r),
+  );
+}
 
 Map<String, dynamic> _m(String l) =>
     {'id': 1, 'name': l == 'bn' ? 'নাদিয়া' : 'Nadia', 'relation': 'friend'};
@@ -55,6 +75,26 @@ final Map<String, Widget Function(String)> c2Shots = {
   'c2_call_failed': (l) => _call(l, CallPhase.ended, r: CallEndReason.failed),
   'c2_call_permission': (l) =>
       _call(l, CallPhase.ended, r: CallEndReason.mediaDenied),
+  // x1-calls: "Couldn't connect — check internet" + Call again, BOTH sides
+  'x1_call_connect_failed': (l) =>
+      _x1(l, CallPhase.ended, r: CallEndReason.connectFailed),
+  'x1_call_connect_failed_callee': (l) => _x1(l, CallPhase.ended,
+      outgoing: false, r: CallEndReason.connectFailed),
+  'x1_call_photo_ringing': (l) => _x1(l, CallPhase.ringing),
+  'x1_call_photo_connected': (l) => _x1(l, CallPhase.connected),
+  'x1_call_incoming_photo': (l) {
+    CallPhotoCache.instance.seed(_x1Photo, x1TestPhoto);
+    return IncomingCallScreen(
+        payload: PushPayload.fromData({
+      'kind': 'call',
+      'call_id': '43',
+      'caller_name': l == 'bn' ? 'টি শান্ত বিডি' : 'T Shanto BD',
+      'caller_photo': _x1Photo,
+      'video': 'false',
+      'chat_id': '5',
+      'lang': l,
+    }));
+  },
   'c2_call_incoming_video': (l) => IncomingCallScreen(
       payload: PushPayload.fromData({
         'kind': 'call',

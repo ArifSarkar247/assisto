@@ -970,7 +970,11 @@ class FakeApi extends ApiClient {
       if (mode == FakeMode.fail) _fail();
       return {
         'calls': mode == FakeMode.empty ? const [] : [
-          {'id': 1, 'kind': 'voice', 'state': 'ended', 'duration_sec': 65, 'mine': true, 'peer': _bn ? 'Ammu' : 'Mom', 'started_at': '2026-10-10T09:00:00Z'},
+          // x1-calls: 6 missed calls in a row from one person -> ONE row
+          // "T Shanto BD (6)" (grouped WhatsApp-style), then a normal call.
+          for (var i = 0; i < 6; i++)
+            {'id': 20 - i, 'kind': 'voice', 'state': 'missed', 'end_reason': 'no_answer', 'outgoing': false, 'peer_id': 20, 'member_id': 5, 'name': 'T Shanto BD', 'outcome': _bn ? 'ভয়েস · মিসড কল' : 'Voice · Missed call', 'started_at': '2026-10-22T07:3${5 - i}:00Z'},
+          {'id': 1, 'kind': 'voice', 'state': 'ended', 'duration_sec': 65, 'duration': '01:05', 'mine': true, 'outgoing': true, 'peer_id': 3, 'name': _bn ? 'Ammu' : 'Mom', 'peer': _bn ? 'Ammu' : 'Mom', 'started_at': '2026-10-10T09:00:00Z'},
         ],
       };
     }

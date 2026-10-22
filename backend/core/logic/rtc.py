@@ -34,17 +34,23 @@ def turn_credentials(secret, user_id, now_ts, ttl=TURN_DEFAULT_TTL):
             "ttl": int(ttl), "expiry": expiry}
 
 
-def ice_servers(host, port, creds):
+def ice_servers(host, port, creds, tls_port=0):
     """The `iceServers` array the client feeds to RTCPeerConnection: a STUN entry
     (for reflexive candidates; host is a DOMAIN so a server move = DNS change) + a TURN entry over UDP and TCP (relay fallback
     when a direct/NAT path fails)."""
+    urls = [
+        f"turn:{host}:{port}?transport=udp",
+        f"turn:{host}:{port}?transport=tcp",
+    ]
+    if tls_port:
+        # x1-calls: TURN over TLS (coturn tls-listening-port with the Let's
+        # Encrypt cert of `host`) — gets through networks that block UDP and
+        # odd TCP ports. ALWAYS the last URL, so udp/tcp 3478 are tried first.
+        urls.append(f"turns:{host}:{int(tls_port)}?transport=tcp")
     return [
         {"urls": [f"stun:{host}:{port}"]},
         {
-            "urls": [
-                f"turn:{host}:{port}?transport=udp",
-                f"turn:{host}:{port}?transport=tcp",
-            ],
+            "urls": urls,
             "username": creds["username"],
             "credential": creds["credential"],
         },

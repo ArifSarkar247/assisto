@@ -52,7 +52,9 @@ class PollRealtimeTransport {
   PollRealtimeTransport({
     required RtGet get,
     required RtPost post,
-    this.fastInterval = const Duration(milliseconds: 500),
+    // x1-calls A1-c: ~0.3 s while a call is set up / live, so offer, answer,
+    // ICE and hang-up reach the other phone in well under 1 s.
+    this.fastInterval = const Duration(milliseconds: 300),
     this.idleInterval = const Duration(milliseconds: 2500),
   })  : _get = get,
         _post = post;
@@ -132,8 +134,11 @@ class PollRealtimeTransport {
   /// One-off fetch of retained events (e.g. a call's offer that arrived
   /// before the call screen existed). Does not move [seq].
   Future<List<RealtimeEvent>> backlog(
-      {int after = 0, String topics = ''}) async {
-    final q = topics.isEmpty ? '' : '&topics=$topics';
+      {int after = 0, String topics = '', int? callId}) async {
+    // x1-calls: `call_id` = only THAT call's signals (a busy queue can no
+    // longer push a fresh offer past the 200-event batch).
+    final q = (topics.isEmpty ? '' : '&topics=$topics') +
+        (callId == null ? '' : '&call_id=$callId');
     final r = await _get('/rt/events?after=$after$q');
     return _parse(r);
   }

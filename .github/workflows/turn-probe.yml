@@ -1,0 +1,46 @@
+# A1-b: test the LIVE coturn (turn.lifeassisto.com) from OUTSIDE AWS.
+# Manual only. Runs on a GitHub-hosted runner (public internet, like a phone)
+# and writes a reachable/blocked table + the exact AWS security-group rules to
+# the job summary. A blocked port does NOT fail the job; only a script error
+# does. Credentials (never printed, masked):
+#   CALL_PROOF_A_PHONE / CALL_PROOF_A_PASSWORD -> log in, GET /rtc/turn (like the app)
+#   TURN_STATIC_SECRET (optional fallback)     -> mint REST credentials locally
+# Script: tools/callproof/turn_probe.py (stdlib only).
+name: TURN probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      host:
+        description: TURN host
+        default: turn.lifeassisto.com
+        required: true
+      api_base:
+        description: API base (for /auth/login + /rtc/turn)
+        default: https://api.lifeassisto.com/api/v1
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: turn-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Probe STUN / TURN (UDP 3478, TCP 3478, TLS 5349, relay range)
+        env:
+          TURN_PROBE_HOST: ${{ inputs.host }}
+          API_BASE: ${{ inputs.api_base }}
+          CALL_PROOF_A_PHONE: ${{ secrets.CALL_PROOF_A_PHONE }}
+          CALL_PROOF_A_PASSWORD: ${{ secrets.CALL_PROOF_A_PASSWORD }}
+          TURN_STATIC_SECRET: ${{ secrets.TURN_STATIC_SECRET }}
+        run: python3 tools/callproof/turn_probe.py
