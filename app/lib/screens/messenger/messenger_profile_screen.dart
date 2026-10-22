@@ -8,6 +8,7 @@ import '../../state.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../../theme.dart';
 import '../../widgets/profile_avatar_editor.dart';
+import '../../widgets/founder_badge.dart';
 import 'msgr_set_privacy_screen.dart';
 
 /// The Messenger profile — ADVANCED (SPEC v2.1 §21, #98): photo (pick / crop /
@@ -181,6 +182,13 @@ class _MessengerProfileScreenState extends State<MessengerProfileScreen> {
             currentPhoto: _currentPhoto,
             onChanged: (v) => setState(() => _photoB64 = v),
           ),
+          // f1-founders: Founding Member badge (+ free Premium end date).
+          if (context.watch<AppState>().user?.isFounder == true) ...[
+            const SizedBox(height: Gap.md),
+            Center(
+                child: FounderBadgeBlock(
+                    user: context.watch<AppState>().user)),
+          ],
           const SizedBox(height: Gap.lg),
 
           // ---- name (validated) ----

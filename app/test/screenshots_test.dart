@@ -187,6 +187,7 @@ import 'package:assisto/crypto/e2e.dart';
 import 'package:assisto/screens/legal_screen.dart';
 import 'ps1_shots.dart'; // ps1-photo
 import 'w1_webphoto_shots.dart'; // w1-webphoto
+import 'f1_shots.dart'; // f1-founders
 import 'package:assisto/screens/unseen_world_screen.dart';
 import 'package:assisto/screens/shop_box_screen.dart';
 import 'package:assisto/screens/business/business_hub_screen.dart';
@@ -548,6 +549,8 @@ void main() {
     for (final e in ps1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // w1-webphoto: lifeassisto.com/photo deep link -> Photo Studio (gate kept)
     for (final e in w1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // f1-founders: Founding Member badge + Send feedback sheet
+    for (final e in f1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // ---- a1 Premium QA: screens that had no gallery shot ----
     'ai_chat': (build: (_) => const AiChatScreen(), mode: FakeMode.data, full: true),
     'nearby': (build: (_) => const NearbyScreen(), mode: FakeMode.data, full: true),
@@ -635,6 +638,7 @@ void main() {
     await tester.binding.setSurfaceSize(Size(360, tall ? 1800 : 800));
     final key = GlobalKey();
     final app = _stub(lang: lang, mode: mode);
+    if (name.startsWith('fm_')) app.user = f1Founder(app.user!); // f1-founders
     final mode2 = brightness == Brightness.light ? ThemeMode.light : ThemeMode.dark;
     await tester.pumpWidget(MultiProvider(
       providers: [

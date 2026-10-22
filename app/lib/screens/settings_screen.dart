@@ -16,6 +16,8 @@ import '../widgets/settings_language.dart';
 import '../widgets/settings_voice.dart';
 import '../widgets/settings_theme.dart';
 import '../widgets/settings_autonomy.dart';
+import '../widgets/founder_badge.dart';
+import '../feedback/feedback_sheet.dart';
 import 'owner_analytics_screen.dart';
 import 'name_about_screen.dart';
 import 'about_screen.dart';
@@ -175,12 +177,23 @@ class SettingsScreen extends StatelessWidget {
                         fontWeight: FontWeight.w700, fontSize: 17),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
-                subtitle: Text(
-                    [u?.phone, u?.email]
-                        .where((e) => e != null && e.isNotEmpty)
-                        .join(' · '),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                        [u?.phone, u?.email]
+                            .where((e) => e != null && e.isNotEmpty)
+                            .join(' · '),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
+                    // f1-founders: owner-granted Founding Member badge.
+                    if (u?.isFounder == true) ...[
+                      const SizedBox(height: 6),
+                      const FounderBadge(dense: true),
+                    ],
+                  ],
+                ),
                 trailing: const Icon(Icons.edit_outlined),
                 onTap: () => Navigator.push(
                     context,
@@ -365,6 +378,15 @@ class SettingsScreen extends StatelessWidget {
             title: Text(AppLocalizations.of(context).legalTitle),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const LegalScreen())),
+          ),
+          // f1-founders: Send feedback / report a problem — a sheet over
+          // this screen (screenshot captured first, removable).
+          ListTile(
+            key: const Key('settings-feedback'),
+            leading: const Icon(Icons.rate_review_outlined),
+            title: Text(t.fbTile),
+            subtitle: Text(t.fbTileSub),
+            onTap: () => FeedbackSheet.open(context, route: 'settings'),
           ),
           ListTile(
             leading: const Icon(Icons.support_agent_outlined),

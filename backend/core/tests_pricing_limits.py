@@ -20,7 +20,10 @@ class LimitsLogicTests(SimpleTestCase):
         self.assertEqual(c["limits"], {"trial_days": 7, "trial_credits": 15,
                                        "business_included_cameras": 4,
                                        "voice_youtube_daily": 40,  # a3-voice
-                                       "contact_lookups_per_hour": 30})  # c1
+                                       "contact_lookups_per_hour": 30,  # c1
+                                       "founding_member_months": 12,  # f1
+                                       "feedback_per_hour": 5,  # f1
+                                       "feedback_per_day": 20})  # f1
         self.assertEqual(c["guarantees"], {"margin_net_floor": 0.60,
                                            "pool_cap_pct_of_net": 0.60})
         self.assertEqual(c["probashi_price_usd"], 4.99)

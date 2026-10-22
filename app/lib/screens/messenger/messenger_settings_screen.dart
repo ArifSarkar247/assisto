@@ -14,6 +14,7 @@ import 'msgr_set_chats_screen.dart';
 import 'msgr_set_notifications_screen.dart';
 import 'msgr_set_privacy_screen.dart';
 import 'msgr_set_storage_screen.dart';
+import '../../widgets/founder_badge.dart';
 
 /// Full-spec hub Settings for "My Circle" (MESSENGER_UI_FULL §2). A tappable
 /// profile card sits at the TOP (photo · name · bio · phone · edit →
@@ -126,9 +127,19 @@ class MessengerSettingsScreen extends StatelessWidget {
                         fontWeight: FontWeight.w700, fontSize: 16),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
-                subtitle: Text(
-                    phone.isEmpty ? t.msgrSetProfileHint : phone,
-                    maxLines: 1, overflow: TextOverflow.ellipsis),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(phone.isEmpty ? t.msgrSetProfileHint : phone,
+                        maxLines: 1, overflow: TextOverflow.ellipsis),
+                    // f1-founders: Founding Member badge on My Circle profile.
+                    if (u?.isFounder == true) ...[
+                      const SizedBox(height: 6),
+                      const FounderBadge(dense: true),
+                    ],
+                  ],
+                ),
                 trailing:
                     Icon(Icons.edit_outlined, color: scheme.onSurfaceVariant),
                 onTap: () => _open(context, const MessengerProfileScreen()),
