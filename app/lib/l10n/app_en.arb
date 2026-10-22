@@ -16598,5 +16598,108 @@
   "md1SetMobilePhotos": "Photos",
   "md1SetMobileVoice": "Voice messages",
   "md1SetMobileDocs": "Documents",
-  "md1SetKeepNote": "Photos, voice messages and documents are end-to-end encrypted. The server keeps only the locked copy until everyone has downloaded it, then deletes it. Save anything you want to keep."
+  "md1SetKeepNote": "Photos, voice messages and documents are end-to-end encrypted. The server keeps only the locked copy until everyone has downloaded it, then deletes it. Save anything you want to keep.",
+  "delAcctKindMemories": "Memories",
+  "delAcctKindReminders": "Reminders",
+  "delAcctKindNotes": "Notes",
+  "delAcctKindTodos": "To-dos",
+  "delAcctKindDocuments": "Documents",
+  "delAcctKindMoney": "Money records",
+  "delAcctKindContacts": "Contacts",
+  "delAcctKindCircle": "My Circle people",
+  "delAcctKindMessages": "Messages you sent",
+  "delAcctKindAiChats": "Assisto AI chats",
+  "delAcctKindHealth": "Health and medicines",
+  "delAcctKindEvents": "Birthdays and meetings",
+  "delAcctKindFamily": "Family and nominees",
+  "delAcctKindBusiness": "Business records",
+  "delAcctKindProtection": "Phone and vehicle protection",
+  "delAcctKindSafety": "Safe journeys and places",
+  "delAcctKindPa": "Personal assistant lists",
+  "delAcctKindPhotos": "Photo Studio edits",
+  "delAcctKindCrm": "CRM records",
+  "delAcctKindOther": "Other records (settings, history, logs)",
+  "qa1VariantCount": "{count, plural, =1{{n} variant} other{{n} variants}}",
+  "@qa1VariantCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "creditsActionAiChat": "Assisto AI chat",
+  "creditsActionScan": "Document scan",
+  "creditsActionShopCamera": "Shop Box camera",
+  "creditsActionPhotoStudio": "Photo Studio",
+  "creditsActionChatPhoto": "Photo questions in chat",
+  "creditsActionOther": "Other",
+  "qa1CrmScoreParts": "industry fit {fit} + company size {size} + buying signals {signals}",
+  "@qa1CrmScoreParts": {
+    "placeholders": {
+      "fit": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      },
+      "signals": {
+        "type": "String"
+      }
+    }
+  },
+  "qa1CrmStartShort": "Start your CRM",
+  "qa1OtpResendIn": "Resend code in {seconds}s",
+  "@qa1OtpResendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "qa1CreditsN": "{count} credits",
+  "@qa1CreditsN": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "qa1PsCostAds": "{count, plural, =1{Watch {n} short ad} other{Watch {n} short ads}}",
+  "@qa1PsCostAds": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "qa1PsGateBody": "{count, plural, =1{Watch {n} short ad to save, share or use this photo in full quality.} other{Watch {n} short ads to save, share or use this photo in full quality.}}",
+  "@qa1PsGateBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "qa1PsGateRunBody": "{count, plural, =1{This edit runs on a paid AI server. Watch {n} short ad first — then it runs.} other{This edit runs on a paid AI server. Watch {n} short ads first — then it runs.}}",
+  "@qa1PsGateRunBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "qa1VehProtocolAuto": "Detect",
+  "qa1WatchAddRateAlert": "Add rate alert"
 }

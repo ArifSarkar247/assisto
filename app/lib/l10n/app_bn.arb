@@ -13833,5 +13833,108 @@
   "md1SetMobilePhotos": "ছবি",
   "md1SetMobileVoice": "ভয়েস মেসেজ",
   "md1SetMobileDocs": "ডকুমেন্ট",
-  "md1SetKeepNote": "ছবি, ভয়েস মেসেজ ও ডকুমেন্ট এন্ড-টু-এন্ড এনক্রিপ্টেড। সবাই ডাউনলোড না করা পর্যন্ত সার্ভারে শুধু তালাবদ্ধ কপিটি থাকে, তারপর মুছে ফেলা হয়। যা রাখতে চান, সেভ করে রাখুন।"
+  "md1SetKeepNote": "ছবি, ভয়েস মেসেজ ও ডকুমেন্ট এন্ড-টু-এন্ড এনক্রিপ্টেড। সবাই ডাউনলোড না করা পর্যন্ত সার্ভারে শুধু তালাবদ্ধ কপিটি থাকে, তারপর মুছে ফেলা হয়। যা রাখতে চান, সেভ করে রাখুন।",
+  "delAcctKindMemories": "মেমরি",
+  "delAcctKindReminders": "রিমাইন্ডার",
+  "delAcctKindNotes": "নোট",
+  "delAcctKindTodos": "করণীয় কাজ",
+  "delAcctKindDocuments": "ডকুমেন্ট",
+  "delAcctKindMoney": "টাকা-পয়সার হিসাব",
+  "delAcctKindContacts": "কন্টাক্ট",
+  "delAcctKindCircle": "আমার সার্কেলের মানুষ",
+  "delAcctKindMessages": "আপনার পাঠানো মেসেজ",
+  "delAcctKindAiChats": "Assisto AI চ্যাট",
+  "delAcctKindHealth": "স্বাস্থ্য ও ওষুধ",
+  "delAcctKindEvents": "জন্মদিন ও মিটিং",
+  "delAcctKindFamily": "পরিবার ও নমিনি",
+  "delAcctKindBusiness": "ব্যবসার হিসাব",
+  "delAcctKindProtection": "ফোন ও গাড়ির সুরক্ষা",
+  "delAcctKindSafety": "নিরাপদ যাত্রা ও জায়গা",
+  "delAcctKindPa": "পার্সোনাল অ্যাসিস্ট্যান্টের তালিকা",
+  "delAcctKindPhotos": "ফটো স্টুডিওর কাজ",
+  "delAcctKindCrm": "CRM-এর তথ্য",
+  "delAcctKindOther": "অন্যান্য রেকর্ড (সেটিংস, ইতিহাস, লগ)",
+  "qa1VariantCount": "{count, plural, other{{n}টি ভ্যারিয়েন্ট}}",
+  "@qa1VariantCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "creditsActionAiChat": "Assisto AI চ্যাট",
+  "creditsActionScan": "ডকুমেন্ট স্ক্যান",
+  "creditsActionShopCamera": "শপ বক্স ক্যামেরা",
+  "creditsActionPhotoStudio": "ফটো স্টুডিও",
+  "creditsActionChatPhoto": "চ্যাটে ছবির প্রশ্ন",
+  "creditsActionOther": "অন্যান্য",
+  "qa1CrmScoreParts": "ইন্ডাস্ট্রির মিল {fit} + কোম্পানির আকার {size} + কেনার আগ্রহ {signals}",
+  "@qa1CrmScoreParts": {
+    "placeholders": {
+      "fit": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      },
+      "signals": {
+        "type": "String"
+      }
+    }
+  },
+  "qa1CrmStartShort": "নতুন CRM",
+  "qa1OtpResendIn": "{seconds} সেকেন্ড পরে আবার কোড চাওয়া যাবে",
+  "@qa1OtpResendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "qa1CreditsN": "{count} ক্রেডিট",
+  "@qa1CreditsN": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "qa1PsCostAds": "{count, plural, other{{n}টি ছোট বিজ্ঞাপন দেখুন}}",
+  "@qa1PsCostAds": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "qa1PsGateBody": "{count, plural, other{পুরো মানে সেভ, শেয়ার বা ব্যবহার করতে {n}টি ছোট বিজ্ঞাপন দেখুন।}}",
+  "@qa1PsGateBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "qa1PsGateRunBody": "{count, plural, other{এই এডিট খরচের AI সার্ভারে চলে। আগে {n}টি ছোট বিজ্ঞাপন দেখুন — তারপর চলবে।}}",
+  "@qa1PsGateRunBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "qa1VehProtocolAuto": "স্বয়ংক্রিয়",
+  "qa1WatchAddRateAlert": "রেটের অ্যালার্ট যোগ করুন"
 }
