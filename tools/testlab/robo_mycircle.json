@@ -1,0 +1,257 @@
+[
+  {
+    "id": 1000,
+    "description": "tl1 My Circle path: language -> login (test account A) -> skip onboarding -> close the one-time background guide -> My Circle -> chat with Call Proof Test B -> type + send -> voice call -> hang up. Each text field is clicked first (Flutter only offers set-text on a focused field). Resource ids are Flutter Semantics identifiers (tl_*) set in app/lib; __TL_*__ placeholders are filled by .github/workflows/testlab.yml from secrets at run time (never committed).",
+    "crawlStage": "crawl",
+    "priority": 1,
+    "maxNumberOfRuns": 1,
+    "actions": [
+      {
+        "eventType": "WAIT_FOR_ELEMENT",
+        "delayTime": 30000,
+        "optional": true,
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_lang_en"
+          }
+        ]
+      },
+      {
+        "eventType": "VIEW_CLICKED",
+        "optional": true,
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_lang_en"
+          }
+        ]
+      },
+      {
+        "eventType": "VIEW_CLICKED",
+        "optional": true,
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_lang_continue"
+          }
+        ]
+      },
+      {
+        "eventType": "WAIT_FOR_ELEMENT",
+        "delayTime": 30000,
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_login_id"
+          }
+        ]
+      },
+      {
+        "eventType": "VIEW_CLICKED",
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_login_id"
+          }
+        ]
+      },
+      {
+        "eventType": "VIEW_TEXT_CHANGED",
+        "replacementText": "__TL_PHONE__",
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_login_id"
+          }
+        ]
+      },
+      {
+        "eventType": "VIEW_CLICKED",
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_login_password"
+          }
+        ]
+      },
+      {
+        "eventType": "VIEW_TEXT_CHANGED",
+        "replacementText": "__TL_PASSWORD__",
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_login_password"
+          }
+        ]
+      },
+      {
+        "eventType": "DISABLE_KEYBOARD"
+      },
+      {
+        "eventType": "VIEW_CLICKED",
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_login_submit"
+          }
+        ]
+      },
+      {
+        "eventType": "WAIT_FOR_ELEMENT",
+        "delayTime": 20000,
+        "optional": true,
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_onb_skip"
+          }
+        ]
+      },
+      {
+        "eventType": "VIEW_CLICKED",
+        "optional": true,
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_onb_skip"
+          }
+        ]
+      },
+      {
+        "eventType": "WAIT_FOR_ELEMENT",
+        "delayTime": 12000,
+        "optional": true,
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_oem_later"
+          }
+        ]
+      },
+      {
+        "eventType": "VIEW_CLICKED",
+        "optional": true,
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_oem_later"
+          }
+        ]
+      },
+      {
+        "eventType": "VIEW_CLICKED",
+        "optional": true,
+        "elementDescriptors": [
+          {
+            "contentDescription": "Open navigation menu"
+          }
+        ]
+      },
+      {
+        "eventType": "WAIT_FOR_ELEMENT",
+        "delayTime": 8000,
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_drawer_my_circle"
+          }
+        ]
+      },
+      {
+        "eventType": "VIEW_CLICKED",
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_drawer_my_circle"
+          }
+        ]
+      },
+      {
+        "eventType": "WAIT_FOR_ELEMENT",
+        "delayTime": 20000,
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_chat_row"
+          }
+        ]
+      },
+      {
+        "eventType": "VIEW_CLICKED",
+        "optional": true,
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_chat_row",
+            "contentDescriptionRegex": "(?s).*Call Proof Test B.*"
+          }
+        ]
+      },
+      {
+        "eventType": "VIEW_CLICKED",
+        "optional": true,
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_chat_row",
+            "textRegex": "(?s).*Call Proof Test B.*"
+          }
+        ]
+      },
+      {
+        "eventType": "WAIT_FOR_ELEMENT",
+        "delayTime": 20000,
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_chat_input"
+          }
+        ]
+      },
+      {
+        "eventType": "VIEW_CLICKED",
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_chat_input"
+          }
+        ]
+      },
+      {
+        "eventType": "VIEW_TEXT_CHANGED",
+        "replacementText": "__TL_MSG__",
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_chat_input"
+          }
+        ]
+      },
+      {
+        "eventType": "VIEW_CLICKED",
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_chat_send"
+          }
+        ]
+      },
+      {
+        "eventType": "WAIT",
+        "delayTime": 3000
+      },
+      {
+        "eventType": "VIEW_CLICKED",
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_chat_voice_call"
+          }
+        ]
+      },
+      {
+        "eventType": "WAIT_FOR_ELEMENT",
+        "delayTime": 20000,
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_call_hangup"
+          }
+        ]
+      },
+      {
+        "eventType": "WAIT",
+        "delayTime": 5000
+      },
+      {
+        "eventType": "VIEW_CLICKED",
+        "elementDescriptors": [
+          {
+            "resourceId": "tl_call_hangup"
+          }
+        ]
+      },
+      {
+        "eventType": "WAIT",
+        "delayTime": 3000
+      }
+    ]
+  }
+]

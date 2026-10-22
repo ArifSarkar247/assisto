@@ -1,0 +1,304 @@
+# tl1 FIREBASE TEST LAB: Robo + device matrix on real phones, run by hand
+# before each My Circle build. Downloads the release APK of an android.yml run
+# (or the latest PUBLISHED APK from api.lifeassisto.com/api/v1/app/latest),
+# runs a Robo script (tools/testlab/robo_mycircle.json: login with test account
+# A -> My Circle -> chat with "Call Proof Test B" -> send -> call -> hang up)
+# on a device matrix picked from the LIVE Test Lab catalog, and writes a
+# per-device table (brand/model, Android, Robo outcome, crash + top frame,
+# screenshots link, PASS/FAIL) to the job summary + artifact testlab-summary.md.
+#
+# Secrets: GCP_TESTLAB_SA (service-account JSON, project assisto-247 — see
+# owner_actions/TESTLAB_SETUP.md), CALL_PROOF_A_PHONE, CALL_PROOF_A_PASSWORD
+# (clearly-marked test account; filled into the Robo script at run time only,
+# masked in logs; the filled script is uploaded to the PROJECT's private
+# results bucket by gcloud — never committed).
+# Quota: Spark (free) allows only a few tests per day (owner doc); "smoke" = 3
+# devices fits; "full" is capped by the "plan" input.
+name: Test Lab (Robo + devices)
+
+on:
+  workflow_dispatch:
+    inputs:
+      apk_source:
+        description: 'android.yml run id (its assisto-apk artifact) or "latest-published"'
+        default: latest-published
+        required: true
+      device_set:
+        description: 'smoke = 3 devices, full = every BD brand Test Lab has (capped by plan)'
+        type: choice
+        options: [smoke, full]
+        default: smoke
+      robo_timeout:
+        description: 'Robo time per device (e.g. 300s; max 45m physical)'
+        default: 300s
+        required: true
+      plan:
+        description: 'Firebase plan: spark (free daily caps) or blaze (paid per device-minute)'
+        type: choice
+        options: [spark, blaze]
+        default: spark
+      results_bucket:
+        description: 'Optional gs:// bucket for raw results (empty = Test Lab default bucket)'
+        default: ''
+        required: false
+
+permissions:
+  contents: read
+  actions: read   # gh run download of the android.yml artifact
+
+concurrency:
+  group: testlab
+  cancel-in-progress: false
+
+env:
+  PROJECT: assisto-247
+  # STATIC FALLBACK device list — used ONLY when the catalog query fails. The
+  # job always prints the live catalog brands and picks from it (see
+  # tools/testlab/pick_devices.py); refresh this list from that printout.
+  STATIC_PHYSICAL: >-
+    model=a10,version=29,locale=en,orientation=portrait
+    model=oriole,version=33,locale=en,orientation=portrait
+  STATIC_VIRTUAL: >-
+    model=MediumPhone.arm,version=26,locale=en,orientation=portrait
+    model=MediumPhone.arm,version=30,locale=en,orientation=portrait
+    model=MediumPhone.arm,version=34,locale=en,orientation=portrait
+
+jobs:
+  testlab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Lint Robo script + dry-run the parsers (no credentials)
+        run: |
+          pip install pyyaml==6.0.2
+          python3 tools/testlab/robo_lint.py tools/testlab/robo_mycircle.json
+          python3 tools/testlab/test_testlab.py
+
+      - name: Prerequisites present?
+        env:
+          SA: ${{ secrets.GCP_TESTLAB_SA }}
+          A_PHONE: ${{ secrets.CALL_PROOF_A_PHONE }}
+          A_PASS: ${{ secrets.CALL_PROOF_A_PASSWORD }}
+        run: |
+          missing=""
+          [ -n "$SA" ] || missing="$missing GCP_TESTLAB_SA"
+          [ -n "$A_PHONE" ] || missing="$missing CALL_PROOF_A_PHONE"
+          [ -n "$A_PASS" ] || missing="$missing CALL_PROOF_A_PASSWORD"
+          if [ -n "$missing" ]; then
+            {
+              echo "### Firebase Test Lab — NOT RUN"
+              echo "Missing secret(s):$missing. Follow owner_actions/TESTLAB_SETUP.md."
+            } | tee -a "$GITHUB_STEP_SUMMARY" > testlab-summary.md
+            echo "::error::missing secrets:$missing"
+            exit 1
+          fi
+
+      - name: Get the APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SRC: ${{ inputs.apk_source }}
+        run: |
+          set -euo pipefail
+          mkdir -p apk
+          if [ "$SRC" = "latest-published" ]; then
+            curl -fsSL https://api.lifeassisto.com/api/v1/app/latest -o latest.json
+            URL=$(python3 -c "import json;print(json.load(open('latest.json'))['apk_url'])")
+            echo "published: $(python3 -c "import json;d=json.load(open('latest.json'));print(d.get('version_name'),d.get('version_code'))")"
+            curl -fsSL "$URL" -o apk/app.apk
+          else
+            case "$SRC" in (*[!0-9]*|'') echo "::error::apk_source must be a run id or latest-published"; exit 1;; esac
+            gh run download "$SRC" -R "$GITHUB_REPOSITORY" -n assisto-apk -D apk/dl
+            cp "$(ls apk/dl/*.apk | head -1)" apk/app.apk
+            # x86_64 release smoke APK (kept 3 days) for x86 virtual devices
+            if gh run download "$SRC" -R "$GITHUB_REPOSITORY" -n assisto-apk-emu -D apk/emu 2>/dev/null; then
+              cp apk/emu/emu-x64.apk apk/app-x64.apk
+            fi
+          fi
+          ls -la apk
+          unzip -l apk/app.apk > apk/list.txt
+          if grep -q "lib/arm64-v8a/" apk/list.txt; then echo "APK ABI: arm64-v8a"; else echo "::warning::APK has no arm64-v8a libs"; fi
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2.1.7
+        with:
+          credentials_json: ${{ secrets.GCP_TESTLAB_SA }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2.1.2
+        with:
+          project_id: assisto-247
+
+      - name: Device catalog -> matrix
+        env:
+          SET: ${{ inputs.device_set }}
+          PLAN: ${{ inputs.plan }}
+        run: |
+          set -uo pipefail
+          gcloud config set project "$PROJECT"
+          if gcloud firebase test android models list --format=json > catalog.json 2> catalog.err; then
+            if [ "$PLAN" = "blaze" ]; then CAPS="--max-physical 12 --max-virtual 11"; else CAPS="--max-physical 4 --max-virtual 8"; fi
+            # Virtual devices: ARM images for the arm64 APK; x86 when the run
+            # also gave us the x86_64 smoke APK.
+            VABI=arm64-v8a; [ -f apk/app-x64.apk ] && VABI=x86_64
+            python3 tools/testlab/pick_devices.py catalog.json --set "$SET" $CAPS --form physical > phys.txt 2> picker.txt
+            python3 tools/testlab/pick_devices.py catalog.json --set "$SET" $CAPS --abi "$VABI" --form virtual > virt.txt 2> picker_v.txt
+            {
+              echo "### Test Lab catalog (live)"
+              echo '```'
+              cat picker.txt
+              echo '```'
+              echo "Virtual picks ($VABI):"
+              echo '```'
+              grep '^pick' picker_v.txt || true
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            cat picker.txt picker_v.txt
+          else
+            cat catalog.err
+            echo "::warning::catalog query failed — using the STATIC fallback list"
+            echo "[]" > catalog.json
+            echo "$STATIC_PHYSICAL" | tr ' ' '\n' > phys.txt
+            echo "$STATIC_VIRTUAL" | tr ' ' '\n' > virt.txt
+            if [ "$SET" = "smoke" ]; then head -2 phys.txt > p && mv p phys.txt; head -1 virt.txt > v && mv v virt.txt; fi
+          fi
+          # Virtual picks are re-filtered so a "smoke" run stays at 3 in total.
+          if [ "$SET" = "smoke" ]; then
+            NP=$(grep -c . phys.txt || true); KEEP=$((3 - NP)); [ $KEEP -lt 0 ] && KEEP=0
+            head -n "$KEEP" virt.txt > v && mv v virt.txt
+          fi
+          echo "physical:"; cat phys.txt; echo "virtual:"; cat virt.txt
+
+      - name: Fill the Robo script (secrets masked, never committed)
+        env:
+          A_PHONE: ${{ secrets.CALL_PROOF_A_PHONE }}
+          A_PASS: ${{ secrets.CALL_PROOF_A_PASSWORD }}
+        run: |
+          set -euo pipefail
+          echo "::add-mask::$A_PHONE"
+          echo "::add-mask::$A_PASS"
+          python3 - <<'PY'
+          import json, os
+          src = open("tools/testlab/robo_mycircle.json").read()
+          msg = "Test Lab robo %s-%s" % (os.environ["GITHUB_RUN_ID"], os.environ["GITHUB_RUN_ATTEMPT"])
+          for k, v in (("__TL_PHONE__", os.environ["A_PHONE"]),
+                       ("__TL_PASSWORD__", os.environ["A_PASS"]),
+                       ("__TL_MSG__", msg)):
+              src = src.replace(k, json.dumps(v)[1:-1])
+          out = os.path.join(os.environ["RUNNER_TEMP"], "robo.json")
+          open(out, "w").write(src)
+          PY
+          python3 tools/testlab/robo_lint.py "$RUNNER_TEMP/robo.json" --filled
+
+      - name: Run Robo on the matrix
+        env:
+          TIMEOUT: ${{ inputs.robo_timeout }}
+          BUCKET: ${{ inputs.results_bucket }}
+        run: |
+          set -uo pipefail
+          run_matrix () {  # $1 = label, $2 = devices file, $3 = apk
+            local label="$1" devs="$2" apk="$3"
+            if ! grep -q . "$devs"; then echo "[]" > "out_$label.json"; : > "log_$label.txt"; return 0; fi
+            local args=()
+            while read -r d; do [ -n "$d" ] && args+=(--device "$d"); done < "$devs"
+            local extra=()
+            [ -n "$BUCKET" ] && extra+=(--results-bucket "$BUCKET")
+            gcloud firebase test android run \
+              --type robo \
+              --app "$apk" \
+              --robo-script "$RUNNER_TEMP/robo.json" \
+              "${args[@]}" \
+              --timeout "$TIMEOUT" \
+              --no-auto-google-login \
+              --results-dir "tl-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-$label" \
+              --client-details "matrixLabel=assisto-tl1-$label" \
+              "${extra[@]}" \
+              --format=json > "out_$label.json" 2> "log_$label.txt"
+            local rc=$?
+            # gcloud: 0 all passed, 10 some failed, 15/18/19 infra/inconclusive
+            echo "gcloud ($label) exit $rc"; cat "log_$label.txt"
+            [ -s "out_$label.json" ] || echo "[]" > "out_$label.json"
+            return 0
+          }
+          run_matrix physical phys.txt apk/app.apk
+          VAPK=apk/app.apk; [ -f apk/app-x64.apk ] && VAPK=apk/app-x64.apk
+          run_matrix virtual virt.txt "$VAPK"
+
+      - name: Fetch per-device logcats (crash detection)
+        if: always()
+        run: |
+          set -uo pipefail
+          for label in physical virtual; do
+            [ -f "log_$label.txt" ] || continue
+            URL=$(grep -oE 'https://console\.(developers|cloud)\.google\.com/storage/browser/[^] ]+' "log_$label.txt" | head -1 || true)
+            [ -n "$URL" ] || continue
+            GS="gs://${URL#*storage/browser/}"; GS="${GS%/}"
+            for d in $(gcloud storage ls "$GS/" 2>/dev/null); do
+              axis=$(basename "$d")
+              mkdir -p "res_$label/$axis"
+              gcloud storage cp "${d%/}/logcat" "res_$label/$axis/logcat" 2>/dev/null || true
+            done
+          done
+          ls -R res_* 2>/dev/null | head -50 || true
+
+      - name: Summary table
+        if: always()
+        run: |
+          set -uo pipefail
+          # Prerequisite failure already wrote a NOT RUN note: keep it.
+          if ! ls out_*.json > /dev/null 2>&1; then
+            [ -s testlab-summary.md ] || echo "### Firebase Test Lab — no results (see log)" > testlab-summary.md
+            exit 0
+          fi
+          : > testlab-summary.md
+          for label in physical virtual; do
+            [ -f "out_$label.json" ] || continue
+            python3 tools/testlab/summarize.py --outcome "out_$label.json" \
+              --log "log_$label.txt" --catalog catalog.json \
+              --results "res_$label" --label "$label" >> testlab-summary.md
+            echo >> testlab-summary.md
+          done
+          [ -s testlab-summary.md ] || echo "### Firebase Test Lab — no results (see log)" > testlab-summary.md
+          cat testlab-summary.md >> "$GITHUB_STEP_SUMMARY"
+          cat testlab-summary.md
+
+      - name: Upload testlab-summary.md
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: testlab-summary
+          path: testlab-summary.md
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Verdict (any device not PASS = red)
+        run: |
+          python3 - <<'PY'
+          import json, os, sys
+          sys.path.insert(0, "tools/testlab")
+          import summarize
+          cat = json.load(open("catalog.json")) if os.path.exists("catalog.json") else []
+          bad = []
+          for label, devs in (("physical", "phys.txt"), ("virtual", "virt.txt")):
+              wanted = [l for l in open(devs).read().split() if l] if os.path.exists(devs) else []
+              if not wanted:
+                  continue
+              try:
+                  out = json.load(open("out_%s.json" % label))
+              except Exception:
+                  out = []
+              log = open("log_%s.txt" % label, errors="replace").read() if os.path.exists("log_%s.txt" % label) else ""
+              res = "res_%s" % label
+              _, rows = summarize.summarize(out, log, cat, res if os.path.isdir(res) else None, label)
+              if not rows:
+                  bad.append("%s: no results" % label)
+              bad += ["%s %s: %s" % (label, r["model"], r["verdict"]) for r in rows if r["verdict"] != "PASS"]
+          for b in bad:
+              print("::error::" + b)
+          sys.exit(1 if bad else 0)
+          PY

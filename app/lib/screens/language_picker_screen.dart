@@ -3,6 +3,7 @@ import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/robo_id.dart';
 
 /// First-launch language choice. Intentionally bilingual — the user hasn't
 /// picked a language yet, so every label shows both scripts. Default is Bangla.
@@ -43,10 +44,13 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
             const SizedBox(height: Gap.md),
             _option('en', 'English', AppLocalizations.of(context).languageEnglish),
             const Spacer(),
-            FilledButton(
-              onPressed: () =>
-                  context.read<AppState>().setLocale(Locale(_code)),
-              child: Text(_code == 'bn' ? AppLocalizations.of(context).continueWord : 'Continue'),
+            // tl1: Semantics identifier = Android resource-id for Test Lab Robo.
+            RoboId(id: 'tl_lang_continue',
+              child: FilledButton(
+                onPressed: () =>
+                    context.read<AppState>().setLocale(Locale(_code)),
+                child: Text(_code == 'bn' ? AppLocalizations.of(context).continueWord : 'Continue'),
+              ),
             ),
             const SizedBox(height: Gap.xs),
             Text(
@@ -65,7 +69,8 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
   Widget _option(String code, String title, String sub) {
     final scheme = Theme.of(context).colorScheme;
     final selected = _code == code;
-    return InkWell(
+    return RoboId(id: 'tl_lang_$code',
+      child: InkWell(
       borderRadius: BorderRadius.circular(Radii.md),
       onTap: () => setState(() => _code = code),
       child: AnimatedContainer(
@@ -90,6 +95,7 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
           Icon(selected ? Icons.check_circle : Icons.circle_outlined,
               color: selected ? scheme.primary : scheme.outline),
         ]),
+      ),
       ),
     );
   }

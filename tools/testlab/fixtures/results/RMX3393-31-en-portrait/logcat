@@ -1,0 +1,7 @@
+10-22 18:05:01.100  2101  2101 I ActivityManager: Start proc 9876:com.assisto.assisto/u0a201 for top-activity
+10-22 18:05:09.412  9876  9876 E AndroidRuntime: FATAL EXCEPTION: main
+10-22 18:05:09.412  9876  9876 E AndroidRuntime: Process: com.assisto.assisto, PID: 9876
+10-22 18:05:09.412  9876  9876 E AndroidRuntime: java.lang.SecurityException: Permission Denial: starting Intent { cmp=com.coloros.safecenter/.startupapp.StartupAppListActivity }
+10-22 18:05:09.412  9876  9876 E AndroidRuntime: 	at android.app.Instrumentation.checkStartActivityResult(Instrumentation.java:2215)
+10-22 18:05:09.412  9876  9876 E AndroidRuntime: 	at android.app.Activity.startActivity(Activity.java:5810)
+10-22 18:05:09.500  2101  2200 W ActivityManager:   Force finishing activity com.assisto.assisto/.MainActivity

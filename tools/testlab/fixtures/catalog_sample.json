@@ -1,0 +1,13 @@
+[
+  {"id": "a10", "brand": "samsung", "manufacturer": "Samsung", "name": "Galaxy A10", "form": "PHYSICAL", "formFactor": "PHONE", "supportedVersionIds": ["29"], "supportedAbis": ["arm64-v8a", "armeabi-v7a"], "tags": []},
+  {"id": "a51", "brand": "samsung", "manufacturer": "Samsung", "name": "Galaxy A51", "form": "PHYSICAL", "formFactor": "PHONE", "supportedVersionIds": ["31"], "supportedAbis": ["arm64-v8a"], "tags": []},
+  {"id": "dm1q", "brand": "samsung", "manufacturer": "Samsung", "name": "Galaxy S23", "form": "PHYSICAL", "formFactor": "PHONE", "supportedVersionIds": ["33", "34"], "supportedAbis": ["arm64-v8a"], "tags": ["default"]},
+  {"id": "old_j7", "brand": "samsung", "manufacturer": "Samsung", "name": "Galaxy J7", "form": "PHYSICAL", "formFactor": "PHONE", "supportedVersionIds": ["27"], "supportedAbis": ["armeabi-v7a"], "tags": ["deprecated=27"]},
+  {"id": "begonia", "brand": "Redmi", "manufacturer": "Xiaomi", "name": "Redmi Note 8 Pro", "form": "PHYSICAL", "formFactor": "PHONE", "supportedVersionIds": ["28"], "supportedAbis": ["arm64-v8a"], "tags": []},
+  {"id": "RMX3393", "brand": "realme", "manufacturer": "realme", "name": "realme 9 Pro+", "form": "PHYSICAL", "formFactor": "PHONE", "supportedVersionIds": ["31"], "supportedAbis": ["arm64-v8a"], "tags": []},
+  {"id": "OP4ED5", "brand": "OPPO", "manufacturer": "OPPO", "name": "OPPO A54", "form": "PHYSICAL", "formFactor": "PHONE", "supportedVersionIds": ["30"], "supportedAbis": ["arm64-v8a"], "tags": []},
+  {"id": "oriole", "brand": "google", "manufacturer": "Google", "name": "Pixel 6", "form": "PHYSICAL", "formFactor": "PHONE", "supportedVersionIds": ["31", "32", "33"], "supportedAbis": ["arm64-v8a"], "tags": []},
+  {"id": "tokay", "brand": "google", "manufacturer": "Google", "name": "Pixel 9", "form": "PHYSICAL", "formFactor": "PHONE", "supportedVersionIds": ["35", "36"], "supportedAbis": ["arm64-v8a"], "tags": []},
+  {"id": "MediumPhone.arm", "brand": "Generic", "manufacturer": "Generic", "name": "MediumPhone (Arm)", "form": "VIRTUAL", "formFactor": "PHONE", "supportedVersionIds": ["26", "27", "28", "29", "30", "31", "32", "33", "34", "35"], "supportedAbis": ["arm64-v8a"], "tags": []},
+  {"id": "MediumPhone", "brand": "Generic", "manufacturer": "Generic", "name": "MediumPhone (x86)", "form": "VIRTUAL", "formFactor": "PHONE", "supportedVersionIds": ["26", "28", "30", "33", "34", "35", "36"], "supportedAbis": ["x86_64"], "tags": []}
+]

@@ -17,6 +17,7 @@ import '../l10n/app_localizations.dart';
 import '../push/lock_screen_guard.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/robo_id.dart';
 
 /// My Circle 1:1 voice / video call — REAL media (c2-calls).
 ///
@@ -589,7 +590,8 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
             ),
           ),
           const SizedBox(height: Gap.lg),
-          Semantics(
+          RoboId(id: 'tl_call_hangup', // tl1: Test Lab Robo target
+            child: Semantics(
             button: true,
             label: t.c2CallHangup,
             child: Material(
@@ -609,6 +611,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                     child: Icon(Icons.call_end, color: Colors.white, size: 32)),
               ),
             ),
+          ),
           ),
         ],
       ),

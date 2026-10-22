@@ -1,0 +1,6 @@
+10-22 18:04:01.000  1500  1500 I ActivityManager: Start proc 4321:com.assisto.assisto/u0a190 for top-activity
+10-22 18:04:20.000  6000  6000 E AndroidRuntime: FATAL EXCEPTION: main
+10-22 18:04:20.000  6000  6000 E AndroidRuntime: Process: com.google.android.apps.messaging, PID: 6000
+10-22 18:04:20.000  6000  6000 E AndroidRuntime: java.lang.IllegalStateException: someone else's crash
+10-22 18:04:20.000  6000  6000 E AndroidRuntime: 	at com.google.Foo.bar(Foo.java:1)
+10-22 18:06:00.000  4321  4400 I flutter : tl1 robo: message sent

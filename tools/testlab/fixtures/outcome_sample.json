@@ -1,0 +1,6 @@
+[
+  {"axis_value": "a10-29-en-portrait", "outcome": "Passed", "test_details": "--"},
+  {"axis_value": "RMX3393-31-en-portrait", "outcome": "Failed", "test_details": "Application crashed."},
+  {"axis_value": "oriole-33-en-portrait", "outcome": "Passed", "test_details": "--"},
+  {"axis_value": "MediumPhone.arm-26-en-portrait", "outcome": "Inconclusive", "test_details": "Test timed out."}
+]

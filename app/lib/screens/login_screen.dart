@@ -7,6 +7,7 @@ import 'password_reset_screen.dart';
 import '../otp_api.dart';
 import 'otp/otp_login_screen.dart';
 import 'otp/otp_verify_screen.dart';
+import '../widgets/robo_id.dart';
 
 class LoginScreen extends StatefulWidget {
   /// o1-otp: injectable for widget tests; defaults to the real API.
@@ -139,14 +140,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       decoration: InputDecoration(labelText: t.emailOptional),
                     ),
                   ] else
-                    TextField(
-                      controller: _identifier,
-                      decoration: InputDecoration(labelText: t.phoneOrEmail),
+                    // tl1: identifiers = Android resource-ids for Test Lab Robo.
+                    RoboId(id: 'tl_login_id',
+                      child: TextField(
+                        controller: _identifier,
+                        decoration: InputDecoration(labelText: t.phoneOrEmail),
+                      ),
                     ),
                   const SizedBox(height: 12),
-                  ObscureTextField(
-                    controller: _password,
-                    decoration: InputDecoration(labelText: t.password),
+                  RoboId(id: 'tl_login_password',
+                    child: ObscureTextField(
+                      controller: _password,
+                      decoration: InputDecoration(labelText: t.password),
+                    ),
                   ),
                   if (_error != null) ...[
                     const SizedBox(height: 12),
@@ -154,7 +160,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: const TextStyle(color: Colors.red)),
                   ],
                   const SizedBox(height: 20),
-                  FilledButton(
+                  RoboId(id: 'tl_login_submit',
+                    child: FilledButton(
                     onPressed: _busy ? null : _submit,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -165,6 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: CircularProgressIndicator(strokeWidth: 2))
                           : Text(_register ? t.register : t.login),
                     ),
+                  ),
                   ),
                   const SizedBox(height: 8),
                   TextButton(

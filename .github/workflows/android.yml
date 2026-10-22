@@ -207,6 +207,26 @@ jobs:
               '\n      <package android:name="com.google.android.apps.youtube.music"/>'
               '\n      <package android:name="com.spotify.music"/>'
               '\n      <package android:name="com.whatsapp"/>'
+              # tl1 OEM background guide: vendor settings apps + the two
+              # Settings screens, so resolveActivity can verify a screen
+              # exists before an "Open" button is shown (API 30+ visibility).
+              '\n      <intent><action android:name="android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS"/></intent>'
+              '\n      <intent><action android:name="android.settings.APPLICATION_DETAILS_SETTINGS"/>'
+              '<data android:scheme="package"/></intent>'
+              '\n      <intent><action android:name="miui.intent.action.OP_AUTO_START"/></intent>'
+              '\n      <package android:name="com.miui.securitycenter"/>'
+              '\n      <package android:name="com.miui.powerkeeper"/>'
+              '\n      <package android:name="com.coloros.safecenter"/>'
+              '\n      <package android:name="com.oppo.safe"/>'
+              '\n      <package android:name="com.coloros.oppoguardelf"/>'
+              '\n      <package android:name="com.oneplus.security"/>'
+              '\n      <package android:name="com.vivo.permissionmanager"/>'
+              '\n      <package android:name="com.iqoo.secure"/>'
+              '\n      <package android:name="com.vivo.abe"/>'
+              '\n      <package android:name="com.iqoo.powersaving"/>'
+              '\n      <package android:name="com.samsung.android.lool"/>'
+              '\n      <package android:name="com.samsung.android.sm"/>'
+              '\n      <package android:name="com.transsion.phonemaster"/>'
               '\n    </queries>\n'
           )
           # flutter create ALREADY writes a <queries> block (PROCESS_TEXT), so
