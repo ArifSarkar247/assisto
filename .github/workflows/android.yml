@@ -555,7 +555,6 @@ jobs:
             timeout 60 adb logcat -c || true
             # LIVE logcat from before launch (builds 151: adb wedged after launch, so a
             # post-launch `logcat -d` captured nothing). Detached: each script line is its own sh.
-            nohup sh -c 'adb logcat -v time > /tmp/live_logcat.txt 2>&1' >/dev/null 2>&1 &
             # Single, race-free cold start (no prior instance right after install).
             # --es ao_open __tour__ makes the debug build walk every native-plugin
             # screen once IN-PROCESS (voice_sos, lost_stolen, watch_feed,
