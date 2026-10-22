@@ -9,8 +9,11 @@ runs at launch). Below is everything that touches the SHARED build files
 
 Apply ONLY after a real API-33 launch smoke passes (owner rule: native builds
 are not publish-on-cancel). Nothing here runs at app launch, on a
-ContentProvider, via WorkManager, or on boot UNLESS the user turned protection
-on (token stored in prefs); even then the boot path is fully try/catch-wrapped.
+ContentProvider, via WorkManager, or on boot. On BOOT_COMPLETED the receiver
+only queues a 'boot' event (if protection was on); it never starts the
+service, because a location FGS started from the background can throw in
+startForeground on Android 14+ and take the process down. The engine resumes
+when the owner opens the Always-on protection screen.
 
 ---
 
@@ -48,13 +51,12 @@ the same `native_components` block the manifest patch writes:
     # ---- b6-antitheft: always-on Lost/Stolen engine ----
     # Opt-in foreground service (location type: it reports the lost phone's
     # last location; a permanent notification is always shown). Started ONLY
-    # from Dart after the user turns protection on; never at launch/boot
-    # (except the user-opted-in boot re-arm in ShutdownReceiver, crash-guarded).
+    # from Dart after the user turns protection on; never at launch or boot.
     '\n        <service android:name="com.assisto.assisto.antitheft.AntiTheftService"'
     ' android:foregroundServiceType="location"'
     ' android:exported="false"/>'
-    # ACTION_SHUTDOWN (best-effort last location) + BOOT_COMPLETED (re-arm only
-    # if the user had protection ON). Does no heavy work; cannot block boot.
+    # ACTION_SHUTDOWN (best-effort last location) + BOOT_COMPLETED (queues a
+    # 'boot' event only; starts nothing). Does no heavy work; cannot block boot.
     '\n        <receiver android:name="com.assisto.assisto.antitheft.ShutdownReceiver"'
     ' android:exported="false">'
     '\n            <intent-filter>'

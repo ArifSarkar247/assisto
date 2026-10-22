@@ -77,7 +77,14 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
       try {
         caps = await AntiTheftService.capabilities();
       } catch (_) {}
-      final running = await AntiTheftService.isRunning();
+      var running = await AntiTheftService.isRunning();
+      // After a restart (or if the OS stopped it) the native engine still has
+      // its scoped token: resume it now that the owner is looking at this
+      // screen in the foreground. Never at app launch, only here.
+      if (st['enabled'] == true && !running) {
+        await AntiTheftService.flushNow();
+        running = await AntiTheftService.isRunning();
+      }
       if (!mounted) return;
       setState(() {
         _state = st;

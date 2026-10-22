@@ -339,6 +339,29 @@ class IntruderPhotoTests(_Base):
 
 
 class WentDarkWiringTests(_Base):
+    def test_went_dark_for_engine_phone_alerts_approved_only(self):
+        # an extra accepted circle member who is NOT approved for alerts
+        other = User.objects.create_user(name="x", phone="01710000009", password="x")
+        CircleMember.objects.create(user=self.owner, peer_user=other, name="x",
+                                    state="accepted", direction="outgoing")
+        self._enable()
+        self.phone.refresh_from_db()
+        self.assertFalse(self.phone.armed)   # engine alone is enough
+        self.phone.heartbeat_interval_min = 10
+        self.phone.last_heartbeat_at = timezone.now() - timedelta(hours=2)
+        self.phone.went_dark_alerted = False
+        self.phone.save()
+        from django.core.management import call_command
+        call_command("check_went_dark")
+        self.phone.refresh_from_db()
+        self.assertTrue(self.phone.went_dark_alerted)
+        self.assertTrue(AntiTheftEvent.objects.filter(phone=self.phone,
+                                                      kind="went_dark").exists())
+        self.assertTrue(FamilyAlert.objects.filter(
+            user=self.family, payload__antitheft_kind="went_dark").exists())
+        self.assertFalse(FamilyAlert.objects.filter(
+            user=other, payload__antitheft_kind="went_dark").exists())
+
     def test_check_went_dark_uses_engine_heartbeats(self):
         self._enable()
         self.phone.armed = True

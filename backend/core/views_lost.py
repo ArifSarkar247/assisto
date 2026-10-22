@@ -67,7 +67,12 @@ def _went_dark_since(phone, now=None):
     last-seen time (so the UI can say "last seen at ..."). A phone that never
     reported a heartbeat is NOT considered dark (we have nothing to compare)."""
     now = now or timezone.now()
-    if not phone.armed or not phone.last_heartbeat_at:
+    engine_on = False
+    try:  # b6-antitheft: an enabled native engine also counts as "watching"
+        engine_on = bool(phone.engine.enabled)
+    except Exception:
+        engine_on = False
+    if not (phone.armed or engine_on) or not phone.last_heartbeat_at:
         return None
     interval = phone.heartbeat_interval_min or 10
     threshold = max(interval * WENT_DARK_MULTIPLE, WENT_DARK_FLOOR_MIN)
