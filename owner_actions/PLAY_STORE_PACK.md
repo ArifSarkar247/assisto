@@ -334,6 +334,28 @@ finance tracking only · **Health**: see §3 · **Data safety**: §5 · **Ads**:
 
 ---
 
+## 6b. app-ads.txt (AdMob)
+
+- Served at https://lifeassisto.com/app-ads.txt by Django (no file to upload).
+- Source of the publisher ID, first match wins: env `ADMOB_PUBLISHER_ID` →
+  Owner panel → Integrations → Google AdMob → "Publisher ID" → derived from the
+  saved real AdMob App ID (`ca-app-pub-XXXXXXXXXXXXXXXX~…` → `pub-XXXXXXXXXXXXXXXX`).
+  You can paste the bare `pub-…`, the `ca-app-pub-…` form or the whole line.
+  Google's public test publisher is never served.
+- Once set, the file is exactly:
+  `google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0`
+- Until set, it is a valid file with comment lines only (`# …not configured
+  yet`). That authorises no seller — honest. AdMob will show the app as
+  "app-ads.txt: not verified / no matching entry" until you set the ID; ads can
+  still serve meanwhile, but unverified inventory may get less demand.
+- AdMob crawls the **developer website from the Play listing** (root domain),
+  so the listing's Website must be `https://lifeassisto.com`. After setting the
+  ID, AdMob → Apps → your app → app-ads.txt → "Check for updates" (it re-crawls
+  within about a day).
+- `robots.txt` does not block `/app-ads.txt`; `/sitemap.xml` lists the policy pages.
+
+---
+
 ## 7. Before you press "Send for review"
 
 1. Deploy this branch; set the §0 env vars; open the three URLs in a phone browser (bn + en).
