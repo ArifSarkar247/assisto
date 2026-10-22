@@ -14,6 +14,7 @@ import '../l10n/app_localizations.dart';
 import '../push/push_payload.dart';
 import 'avatar_cache.dart';
 import 'badges_bus.dart';
+import 'chat_preview.dart' show mediaPreviewDetail;
 import 'msg_prefs.dart';
 import 'outbox.dart';
 import '../security/secret_store.dart';
@@ -137,18 +138,24 @@ EnvelopeDecrypt e2eDecryptor(IdentityKeyPair self, {E2E? e2e}) {
   };
 }
 
-String _mediaLabel(AppLocalizations t, String ct) {
+/// md2 — the notification line of a media message, WhatsApp style:
+/// "📷 Photo" (or "📷 <caption>"), "🎤 Voice message", "📄 <file name>".
+/// [plaintext] is the decrypted descriptor (null = could not decrypt here:
+/// the plain label). Only used when previews are SHOWN — hidden previews
+/// never reach here (no file name, no caption).
+String mediaNotifText(AppLocalizations t, String ct, {String? plaintext}) {
+  final detail = plaintext == null ? '' : mediaPreviewDetail(ct, plaintext);
   switch (ct) {
     case 'photo':
     case 'image':
-      return t.circlePhoto;
+      return '\u{1F4F7} ${detail.isNotEmpty ? detail : t.circlePhoto}';
     case 'video':
-      return t.circleVideo;
+      return '\u{1F3A5} ${t.circleVideo}';
     case 'voice':
     case 'audio':
-      return t.circleVoiceNote;
+      return '\u{1F3A4} ${t.msgrVoiceMessage}';
     case 'document':
-      return t.circleAttachDocument;
+      return '\u{1F4C4} ${detail.isNotEmpty ? detail : t.circleAttachDocument}';
     case 'contact':
       return t.circleAttachContact;
     case 'location':
@@ -215,7 +222,7 @@ MsgNotifModel buildMsgNotifModel(
     if ('${m['deleted'] ?? ''}' == 'everyone') {
       text = t.circleDeletedPlaceholder;
     } else if (ct != 'text') {
-      text = _mediaLabel(t, ct);
+      text = mediaNotifText(t, ct, plaintext: decrypt(m));
     } else {
       text = decrypt(m) ?? t.c3NotifEncrypted;
     }

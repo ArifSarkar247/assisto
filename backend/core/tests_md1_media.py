@@ -313,8 +313,10 @@ class MessageAndDownloadTests(_Base):
         # B forwards A's photo back (same blob_ref + key, no re-upload)
         r = self.send_media(ref, client=self.cb, edge=self.ba, cmid="f1")
         self.assertEqual(r.status_code, 201, r.content)
-        self.assertEqual(sorted(CircleMediaBlob.objects.get(ref=ref).recipients),
-                         sorted([self.a.id, self.b.id]))
+        # md2: the uploader never downloads their own file, so a forward back
+        # to them does not count them (else "all downloaded" never happens).
+        self.assertEqual(CircleMediaBlob.objects.get(ref=ref).recipients,
+                         [self.b.id])
 
     def test_delete_for_everyone_removes_blob(self):
         ref = self.upload()

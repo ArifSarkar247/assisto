@@ -845,7 +845,8 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
         lead = Icons.lock_outline;
         italic = true;
       case PreviewKind.media:
-        body = mediaPreviewLabel(t, pv.contentType);
+        // md2: a photo caption / the document name when decrypted here
+        body = pv.text.isNotEmpty ? pv.text : mediaPreviewLabel(t, pv.contentType);
         lead = mediaPreviewIcon(pv.contentType);
       case PreviewKind.text:
         body = pv.text;
@@ -910,7 +911,7 @@ String mediaPreviewLabel(AppLocalizations t, String ct) {
       return t.circleVideo;
     case 'voice':
     case 'audio':
-      return t.circleVoiceNote;
+      return t.msgrVoiceMessage; // md2: "Voice message"
     case 'document':
       return t.circleAttachDocument;
     case 'contact':

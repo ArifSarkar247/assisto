@@ -183,7 +183,13 @@ class MediaSent {
   final String serverId;
   final String chatKind;
   final int chatId;
-  const MediaSent(this.jobId, this.serverId, this.chatKind, this.chatId);
+  // md2: what the finished bubble shows until the server copy is polled in
+  // (the screen swaps it in place — no frame without the message).
+  final MediaDescriptor? desc;
+  final DateTime? at;
+  final String? replyTo;
+  const MediaSent(this.jobId, this.serverId, this.chatKind, this.chatId,
+      {this.desc, this.at, this.replyTo});
 }
 
 class MediaOutbox {
@@ -211,6 +217,24 @@ class MediaOutbox {
 
   final Set<String> _cancelled = {};
   Future<IdentityKeyPair?> Function()? identity;
+
+  /// md2: job id -> its finished send, recorded BEFORE the job leaves the
+  /// queue, so a screen that sees the job gone can show the finished bubble
+  /// in the same frame (never a gap until the next poll). Last 50 only.
+  final Map<String, MediaSent> recentlySent = {};
+
+  /// The last step of a send: remember it, drop the job, tell the screens.
+  @visibleForTesting
+  Future<void> finishSent(MediaJob job, String serverId) async {
+    final s = MediaSent(job.id, serverId, job.chatKind, job.chatId,
+        desc: job.descriptor(), at: job.at, replyTo: job.replyTo);
+    recentlySent[job.id] = s;
+    while (recentlySent.length > 50) {
+      recentlySent.remove(recentlySent.keys.first);
+    }
+    await _drop(job.id);
+    _sent.add(s);
+  }
 
   Future<List<MediaJob>> all() async =>
       (await store.load()).map(MediaJob.fromJson).whereType<MediaJob>().toList();
@@ -475,8 +499,7 @@ class MediaOutbox {
       } catch (e) {
         reportNonFatal('md1_enc_cleanup', e);
       }
-      await _drop(job.id);
-      _sent.add(MediaSent(job.id, '${res['id'] ?? ''}', job.chatKind, job.chatId));
+      await finishSent(job, '${res['id'] ?? ''}');
       return MediaStep.sent;
     } on MediaHttpError catch (e) {
       if (e.permanent) {

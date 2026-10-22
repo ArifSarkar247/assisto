@@ -300,7 +300,8 @@ class MsgRequestRow extends StatelessWidget {
         identity: identity, e2e: SoftwareE2E());
     final String body = switch (pv.kind) {
       PreviewKind.text => pv.text,
-      PreviewKind.media => mediaPreviewLabel(t, pv.contentType),
+      PreviewKind.media =>
+        pv.text.isNotEmpty ? pv.text : mediaPreviewLabel(t, pv.contentType),
       PreviewKind.deleted => t.circleDeletedPlaceholder,
       PreviewKind.encrypted => t.c3PreviewEncrypted,
       PreviewKind.empty => t.m3WantsToAdd,

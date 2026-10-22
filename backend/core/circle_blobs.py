@@ -227,7 +227,13 @@ def _live_messages(ref):
 
 def can_access(user, ref):
     """True when `user` sent, or is a participant of a chat holding, a live
-    message that references this blob (1:1 both sides; group ACTIVE members)."""
+    message that references this blob (1:1 both sides; group ACTIVE members).
+
+    md2: a forward is a NEW message (1:1 or group) carrying the SAME
+    blob_ref, so the blob <-> message link is every live message with that
+    ref: members of every chat it was forwarded into can open it, and losing
+    one chat (left the group, that copy deleted for everyone) never affects
+    the others."""
     from .models import CircleGroupMember
     uid = user.id
     for x in _live_messages(ref).select_related("member"):
@@ -261,8 +267,13 @@ def attach_check(user, ref, kind):
 
 
 def add_recipients(blob, user_ids):
-    ids = sorted(set(int(i) for i in (blob.recipients or [])) |
-                 set(int(i) for i in user_ids if i))
+    """Union of everyone who must download this blob, across EVERY chat it
+    was sent or forwarded into (md2: 1:1 + groups). The uploader never
+    downloads their own file, so a forward back to them never counts them —
+    otherwise "all downloaded" could never be reached and the keep_days rule
+    would silently become max_days."""
+    ids = sorted((set(int(i) for i in (blob.recipients or [])) |
+                  set(int(i) for i in user_ids if i)) - {blob.owner_id})
     if ids != (blob.recipients or []):
         blob.recipients = ids
         _refresh_all_downloaded(blob)

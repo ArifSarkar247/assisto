@@ -22,6 +22,9 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/circle_group_poll.dart';
 import '../messaging/receipt_bus.dart';
+import '../messaging/echo_reconcile.dart'; // md2
+import '../messaging/forward.dart'; // md2
+import '../services/action_feedback.dart';
 import '../messaging/media/media_actions.dart'; // md1
 import '../messaging/media/media_bubble.dart';
 import '../messaging/media/media_descriptor.dart';
@@ -157,6 +160,11 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   // ---- md1: E2E media ----
   List<MediaJob> _mediaJobs = const [];
   StreamSubscription<MediaSent>? _mediaSentSub;
+  // md2: my SENT messages whose server copy is not in the list yet (text
+  // and finished media). Drawn until the row with the same id /
+  // client_msg_id is listed, then dropped in that same frame — no flicker.
+  List<Map<String, dynamic>> _echoes = const [];
+  final SentEchoes _sentEchoes = SentEchoes();
   // decrypted plaintext per message (BigInt X25519 is slow on low-end
   // phones; never re-decrypt the same envelope on every frame)
   final Map<String, String> _ptCache = {};
@@ -165,7 +173,108 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
 
   Future<void> _onMediaJobsAsync() async {
     final jobs = await MediaOutbox.instance.forChat('group', _gid);
-    if (mounted) setState(() => _mediaJobs = jobs);
+    if (!mounted) return;
+    final now = jobs.map((j) => j.id).toSet();
+    setState(() {
+      // md2: a finished job becomes its final bubble in the SAME frame.
+      final have = _listedIds();
+      for (final j in _mediaJobs) {
+        if (now.contains(j.id)) continue;
+        final s = MediaOutbox.instance.recentlySent[j.id];
+        if (s == null || s.desc == null) continue; // cancelled: gone
+        final lid = s.serverId.isNotEmpty ? s.serverId : j.id;
+        if (have.contains(lid) || have.contains(j.id)) continue;
+        _addEcho({
+          'id': lid,
+          'client_msg_id': j.id,
+          'mine': true,
+          'content_type': s.desc!.kind,
+          'md1_desc': s.desc,
+          'sender_id': _myUserId,
+          'status': 'sent',
+          'created_at': (s.at ?? j.at).toUtc().toIso8601String(),
+        });
+      }
+      _mediaJobs = jobs;
+    });
+  }
+
+  /// md2: forward a text / photo / voice / document to any chat (member or
+  /// group). Media reuses the same blob + key — no re-upload.
+  Future<void> _forward(Map<String, dynamic> msg) async {
+    final media = _mediaOf(msg);
+    final plain = media != null ? media.encode() : _decryptForMe(msg);
+    if (plain == null || plain.isEmpty) return;
+    List<ForwardTarget> targets;
+    try {
+      targets = await loadForwardTargets(_api);
+    } catch (e) {
+      if (mounted) showActionFailed(context, 'md2_fwd_targets', e);
+      return;
+    }
+    if (!mounted) return;
+    if (targets.isEmpty) {
+      _toast(_t.grpActionFailed);
+      return;
+    }
+    final pick = await pickForwardTarget(context, targets);
+    if (pick == null || !mounted) return;
+    final hops = (msg['forward_hops'] is int ? msg['forward_hops'] as int : 0) + 1;
+    final payload = ForwardPayload(
+        plaintext: plain,
+        contentType: media?.kind ?? 'text',
+        blobRef: media?.ref,
+        hops: hops);
+    final cmid = 'fwd-${DateTime.now().microsecondsSinceEpoch}';
+    try {
+      if (pick.isGroup) {
+        final sid = await forwardToGroup(_api, widget.identity, pick.id, payload,
+            e2e: _e2e, clientMsgId: cmid);
+        if (pick.id == _gid && mounted) {
+          setState(() => _addEcho({
+                'id': sid.isEmpty ? cmid : sid,
+                'client_msg_id': cmid,
+                'mine': true,
+                'content_type': payload.contentType,
+                if (media != null) 'md1_desc': media else 'md2_plain': plain,
+                'sender_id': _myUserId,
+                'forwarded': true,
+                'forward_hops': hops,
+                'status': 'sent',
+                'created_at': DateTime.now().toUtc().toIso8601String(),
+              }));
+          unawaited(_pollMessages());
+        }
+      } else {
+        await forwardToMember(_api, widget.identity, pick, payload,
+            e2e: _e2e, clientMsgId: cmid);
+      }
+      if (mounted) _toast(_t.c3Forwarded(pick.name));
+    } catch (e) {
+      if (mounted) showActionFailed(context, 'md2_forward', e);
+    }
+  }
+
+  /// Every id AND client_msg_id in the fetched list.
+  Set<String> _listedIds() => {
+        for (final m in _messages) ...[
+          '${m['id']}',
+          if ('${m['client_msg_id'] ?? ''}'.isNotEmpty) '${m['client_msg_id']}',
+        ]
+      };
+
+  void _addEcho(Map<String, dynamic> e) {
+    _sentEchoes.track('${e['id']}', '${e['client_msg_id'] ?? ''}');
+    _echoes = [..._echoes.where((x) => x['id'] != e['id']), e];
+  }
+
+  /// Drop the echoes whose server copy is now in [_messages].
+  void _pruneEchoes() {
+    if (_echoes.isEmpty) return;
+    final ids = {for (final m in _messages) '${m['id']}'};
+    final cmids = fetchedClientIds(_messages);
+    final waiting = _sentEchoes.awaiting(ids: ids, cmids: cmids);
+    _echoes = _echoes.where((e) => waiting.contains('${e['id']}')).toList();
   }
 
   bool get _canAttach => circleAttachKinds().isNotEmpty;
@@ -189,6 +298,8 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   /// The media descriptor of a photo / voice / document message, decrypted
   /// on this phone (null for text or when it can't be decrypted here).
   MediaDescriptor? _mediaOf(Map<String, dynamic> msg) {
+    final local = msg['md1_desc']; // md2: my finished send (local bubble)
+    if (local is MediaDescriptor) return local;
     if (!kMd1Kinds.contains('${msg['content_type'] ?? 'text'}')) return null;
     final raw = _decryptRaw(msg);
     return raw == null ? null : MediaDescriptor.tryParse(raw);
@@ -289,7 +400,12 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           fresh ||
           [for (var i = 0; i < next.length && i < _messages.length; i++) i]
               .any((i) => '${next[i]['status']}' != '${_messages[i]['status']}');
-      if (changed && mounted) setState(() => _messages = next);
+      if (changed && mounted) {
+        setState(() {
+          _messages = next;
+          _pruneEchoes(); // md2: same frame as the server copy appearing
+        });
+      }
       if (fresh || _seenPending) unawaited(_markSeen());
     } catch (_) {
     } finally {
@@ -349,6 +465,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       }
       _loadedOnce = true;
       _loadFailed = false;
+      _pruneEchoes(); // md2
     } catch (_) {
       // Keep any already-loaded messages visible; only flag the error so the
       // UI can offer Retry instead of silently showing an empty chat.
@@ -482,16 +599,32 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     }
     final mentions = _parseMentions(text);
     var ok = true;
+    final cmid = 'local-${DateTime.now().microsecondsSinceEpoch}';
     try {
-      await _api.postJson('/circle/groups/$_groupId/messages', {
+      final res = await _api.postJson('/circle/groups/$_groupId/messages', {
         'recipient_ids': recipientIds,
         'per_recipient': perRecipient,
         'sender_key_id': widget.identity.keyId,
         'scheme': _e2e.scheme,
         if (mentions.isNotEmpty) 'mentions': mentions,
         if (_replyTo != null) 'reply_to': '${_replyTo!['id']}',
-        'client_msg_id': DateTime.now().microsecondsSinceEpoch.toString(),
+        'client_msg_id': cmid,
       });
+      // md2: the sent text stays on screen (my bubble) until the reload /
+      // poll lists its server copy — never a frame where it is missing.
+      final sid = '${res['id'] ?? ''}';
+      if (mounted) {
+        _addEcho({
+          'id': sid.isEmpty ? cmid : sid,
+          'client_msg_id': cmid,
+          'mine': true,
+          'content_type': 'text',
+          'md2_plain': text,
+          'sender_id': _myUserId,
+          'status': 'sent',
+          'created_at': DateTime.now().toUtc().toIso8601String(),
+        });
+      }
     } catch (_) {
       ok = false;
     }
@@ -1353,12 +1486,18 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
 
   Widget _messageList() {
     final searching = _searching && _searchQuery.trim().isNotEmpty;
-    final have = _messages.map((m) => '${m['client_msg_id'] ?? m['id']}').toSet();
+    final have = _listedIds();
+    final echoes = [
+      for (final e in _echoes)
+        if (!have.contains('${e['id']}') && !have.contains('${e['client_msg_id']}')) e
+    ];
+    final echoed = {for (final e in echoes) '${e['client_msg_id']}'};
     final items = [
       ..._visible,
+      if (!searching) ...echoes,
       if (!searching)
         for (final j in _mediaJobs)
-          if (!have.contains(j.id))
+          if (!have.contains(j.id) && !echoed.contains(j.id))
             <String, dynamic>{
               'id': j.id,
               'md1_job': j,
@@ -1612,6 +1751,24 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                 ],
               ),
               const SizedBox(height: Gap.xs),
+              if (msg['forwarded'] == true && '${msg['deleted'] ?? ''}' != 'everyone')
+                Padding(
+                  // md2: the WhatsApp "Forwarded" label in groups too
+                  padding: const EdgeInsets.only(bottom: Gap.xs),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    Icon(Icons.forward_outlined,
+                        size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    const SizedBox(width: 3),
+                    Text(
+                        ((msg['forward_hops'] as int?) ?? 0) >= 5
+                            ? _t.circleForwardedMany
+                            : _t.circleForwarded,
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontStyle: FontStyle.italic,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  ]),
+                ),
               if (media != null)
                 Padding(
                   padding: const EdgeInsets.only(bottom: Gap.xs),
@@ -1738,6 +1895,17 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                 Navigator.pop(ctx);
               },
             ),
+            if ('${msg['deleted'] ?? ''}' != 'everyone' &&
+                (_mediaOf(msg) != null || (_decryptForMe(msg) ?? '').isNotEmpty))
+              ListTile(
+                key: const Key('md2-group-forward'),
+                leading: const Icon(Icons.forward_outlined),
+                title: Text(_t.circleActionForward),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  unawaited(_forward(msg));
+                },
+              ),
             if (msg['mine'] == true)
               ListTile(
                 key: const Key('c3-group-info'),
@@ -1881,6 +2049,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   /// Text of a message for display / copy / search: for md1 media the
   /// caption (never the descriptor with its file key).
   String? _decryptForMe(Map<String, dynamic> msg) {
+    final local = msg['md1_desc']; // md2: local bubbles of my own sends
+    if (local is MediaDescriptor) return local.caption;
+    if (msg['md2_plain'] != null) return '${msg['md2_plain']}';
     final raw = _decryptRaw(msg);
     if (raw == null) return null;
     if (kMd1Kinds.contains('${msg['content_type'] ?? 'text'}')) {
