@@ -29,6 +29,8 @@ import 'widgets/chatnav.dart';
 import 'voice/va_launch.dart';
 import 'photo_studio/ps_web_import.dart';
 import 'screens/web_photo_link_screen.dart';
+import 'screens/battery_guidance_screen.dart';
+import 'services/oem_guide.dart';
 
 void main() {
   // Nothing in startup may crash the app. Every Dart error — sync, async, or
@@ -339,6 +341,11 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
         } catch (_) {}
       });
     }
+    // tl1: OEM background guide, shown ONCE after login as a pushed route
+    // (never part of the home screen). Android only; runs seconds after the
+    // first frame, one prefs read + one native lookup, all crash-guarded.
+    OemGuideGate.schedule(
+        context, () => const BatteryGuidanceScreen(firstRun: true));
     // Only resolve the home swap once we're past login + onboarding, so the
     // normal startup flow is never disturbed.
     _resolveElderly();

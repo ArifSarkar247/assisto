@@ -8,6 +8,7 @@ import 'settings_screen.dart';
 import 'plans_screen.dart';
 import 'messenger/messenger_home_screen.dart';
 import 'assisto_chats_screen.dart';
+import '../widgets/robo_id.dart';
 
 /// Left sidebar — the app's navigation hub (modern AI-chat style). The main
 /// screen is only the chat; everything else lives here.
@@ -127,12 +128,14 @@ class _AppDrawerState extends State<AppDrawer> {
         // Communities · Calls). Labelled "My Circle" — the old expandable
         // "My Circle" sidebar group is gone; circle management (people,
         // privacy, calls) now lives INSIDE the hub (OWNER UI FIX v2 §1–2).
-        ListTile(
-          dense: true,
-          leading:
-              Icon(Icons.diversity_3_outlined, color: scheme.onSurfaceVariant),
-          title: Text(t.sidebarMyCircle),
-          onTap: () => _push((_) => const MessengerHomeScreen()),
+        RoboId(id: 'tl_drawer_my_circle', // tl1: Test Lab Robo target
+          child: ListTile(
+            dense: true,
+            leading:
+                Icon(Icons.diversity_3_outlined, color: scheme.onSurfaceVariant),
+            title: Text(t.sidebarMyCircle),
+            onTap: () => _push((_) => const MessengerHomeScreen()),
+          ),
         ),
         // ---- search box ----
         Padding(

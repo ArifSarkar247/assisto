@@ -349,8 +349,8 @@ class SettingsScreen extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.battery_charging_full_outlined),
-            title: Text(AppLocalizations.of(context).reliableRemindersTile),
-            subtitle: Text(AppLocalizations.of(context).reliableRemindersSubtitle),
+            title: Text(AppLocalizations.of(context).oemGuideTitle),
+            subtitle: Text(AppLocalizations.of(context).oemGuideTileSub),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const BatteryGuidanceScreen())),
           ),

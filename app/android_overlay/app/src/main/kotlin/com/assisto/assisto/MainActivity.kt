@@ -182,6 +182,15 @@ class MainActivity : FlutterActivity() {
             )
         } catch (e: Throwable) {
         }
+        // ---- tl1 ---- OEM background guide ("com.assisto/oem_guide"): device
+        // + battery-state lookups and the vendor settings screens. Handler only
+        // — nothing is resolved or started until the guide screen calls it.
+        try {
+            com.assisto.assisto.oem.OemGuideChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.assisto/lockscreen")
             .setMethodCallHandler { call, result ->
                 if (call.method == "release") {

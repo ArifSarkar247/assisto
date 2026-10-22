@@ -38,6 +38,7 @@ import '../messaging/presence_label.dart';
 import '../messaging/receipt_bus.dart';
 import '../messaging/unread_store.dart';
 import '../realtime/realtime_channel.dart';
+import '../widgets/robo_id.dart';
 
 /// End-to-end-encrypted 1:1 chat with a circle member.
 ///
@@ -2032,10 +2033,12 @@ class _CircleChatScreenState extends State<CircleChatScreen>
           icon: const Icon(Icons.videocam_outlined),
           onPressed: () => _placeCall('video'),
         ),
-        IconButton(
-          tooltip: _t.circleVoiceCall,
-          icon: const Icon(Icons.call_outlined),
-          onPressed: () => _placeCall('voice'),
+        RoboId(id: 'tl_chat_voice_call', // tl1: Test Lab Robo target
+          child: IconButton(
+            tooltip: _t.circleVoiceCall,
+            icon: const Icon(Icons.call_outlined),
+            onPressed: () => _placeCall('voice'),
+          ),
         ),
         // t1-ticks: Search moved into the ⋮ menu (ChatMenuAction.search).
         IconButton(
@@ -2272,7 +2275,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                 onPressed: _attach,
               ),
               Expanded(
-                child: TextField(
+                child: RoboId(id: 'tl_chat_input', // tl1: Test Lab Robo target
+                  child: TextField(
                   controller: _input,
                   minLines: 1,
                   maxLines: 5,
@@ -2286,11 +2290,14 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                   },
                   decoration: InputDecoration(hintText: _t.circleMessageHint),
                 ),
+                ),
               ),
               const SizedBox(width: Gap.xs),
-              IconButton.filled(
-                onPressed: _sending ? null : _send,
-                icon: Icon(_editing != null ? Icons.check : Icons.send),
+              RoboId(id: 'tl_chat_send',
+                child: IconButton.filled(
+                  onPressed: _sending ? null : _send,
+                  icon: Icon(_editing != null ? Icons.check : Icons.send),
+                ),
               ),
             ],
           ),

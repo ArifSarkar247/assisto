@@ -13,6 +13,7 @@ import 'family_screen.dart';
 import 'money_screen.dart';
 import 'vault_screen.dart';
 import 'journey_start_screen.dart';
+import '../widgets/robo_id.dart';
 
 /// First-run ADVANCED onboarding — a <60s "wow" that teaches the main features
 /// through a quick interactive flow (SPEC v2.1 §21).
@@ -150,7 +151,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             alignment: AlignmentDirectional.topEnd,
             child: Padding(
               padding: const EdgeInsetsDirectional.only(end: Gap.sm, top: Gap.xs),
-              child: TextButton(onPressed: _finish, child: Text(t.skip)),
+              child: RoboId(id: 'tl_onb_skip',
+                  child: TextButton(onPressed: _finish, child: Text(t.skip))),
             ),
           ),
           Expanded(

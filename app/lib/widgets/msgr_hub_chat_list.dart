@@ -22,6 +22,7 @@ import '../messaging/receipt_bus.dart';
 import '../messaging/unread_store.dart';
 import '../realtime/realtime_channel.dart';
 import 'msgr_avatar.dart';
+import 'robo_id.dart';
 
 /// MY CIRCLE HUB — the Chats tab (SPEC .phaseB/MESSENGER_UI_FULL.md §2).
 ///
@@ -721,7 +722,10 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     final rt = _rt.states.value[_key(c)] ?? const RtChatState();
     final activity = activityLabel(t, rt, isGroup: group);
 
-    return InkWell(
+    // tl1: one shared identifier (Android resource-id) on every chat row, so a
+    // Test Lab Robo script can pick a row by resource-id + its name text.
+    return RoboId(id: 'tl_chat_row',
+      child: InkWell(
       key: ValueKey('c3-row-${_key(c)}'),
       onTap: () => _openChat(c),
       onLongPress: () => _organiseSheet(c),
@@ -813,6 +817,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
             ),
           ),
         ]),
+      ),
       ),
     );
   }
