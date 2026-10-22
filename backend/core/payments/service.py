@@ -156,7 +156,7 @@ def checkout(user, sku, *, source="app", idem="", flavour="apk", ip="", lang="bn
             order = PaymentOrder.objects.create(
                 user=user, channel="gateway", provider=gw.slug, source=source, sku=sku,
                 kind=d["kind"], plan=d["plan"], months=d["months"], credits=d["credits"],
-                amount_bdt=Decimal(amount), fee_pct=Decimal(str(catalog.fee_pct(sku, "gateway"))),
+                amount_bdt=Decimal(amount).quantize(Decimal("0.01")), fee_pct=Decimal(str(catalog.fee_pct(sku, "gateway"))),
                 merchant_tx_id=_new_tx(), idempotency_key=idem, status="created")
     except IntegrityError:
         prev = PaymentOrder.objects.filter(user=user, idempotency_key=idem).first()

@@ -192,6 +192,7 @@ import 'ps1_shots.dart'; // ps1-photo
 import 'w1_webphoto_shots.dart'; // w1-webphoto
 import 'h1_home_shots.dart'; // h1-home
 import 'f1_shots.dart'; // f1-founders
+import 'pay1_shots.dart'; // pay1
 import 'c2_calls_shots.dart'; // c2-calls
 import 'package:assisto/screens/unseen_world_screen.dart';
 import 'package:assisto/screens/shop_box_screen.dart';
@@ -560,6 +561,8 @@ void main() {
       e.key: (build: e.value, mode: e.key.startsWith('home_hero') ? FakeMode.empty : FakeMode.data, full: true),
     // f1-founders: Founding Member badge + Send feedback sheet
     for (final e in f1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // pay1: checkout sheet (Play first / gateway only / kill-switch / not set up)
+    for (final e in pay1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // ---- a1 Premium QA: screens that had no gallery shot ----
     'ai_chat': (build: (_) => const AiChatScreen(), mode: FakeMode.data, full: true),
     'nearby': (build: (_) => const NearbyScreen(), mode: FakeMode.data, full: true),

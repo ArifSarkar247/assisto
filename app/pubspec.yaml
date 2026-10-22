@@ -65,6 +65,15 @@ dependencies:
   # server and is never recorded. LAZY: only the live-view screen and Shop Box
   # mode import it (deferred); nothing at app launch.
   flutter_webrtc: ^1.6.2
+  # ---- pay1 ---- Google Play Billing (BSD-3-Clause, flutter/packages).
+  # Exact pin. LAZY: only lib/payments/play_billing_impl.dart imports it, as a
+  # DEFERRED library loaded on the first "Google Play" tap in the Play build
+  # (AppConfig.playStore). The website APK never calls it; its manifest drops
+  # the BILLING permission (android.yml, marked ---- pay1 ----).
+  in_app_purchase: 3.3.1
+  # Android side pinned too (>= 2 weeks old; Play Billing Library inside).
+  in_app_purchase_android: 0.5.3
+  # ---- /pay1 ----
   # workmanager REMOVED — its androidx.work startup ContentProvider crashed on
   # launch (ColorOS/Realme) and background exec is throttled there anyway.
   # Family alerts now poll on app open/resume (see AppState). FCM later.

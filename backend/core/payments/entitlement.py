@@ -93,6 +93,12 @@ def _coverage_end(rows, now):
     return end
 
 
+class _Base:
+    """The non-payment base as a pseudo period (for coverage math only)."""
+    def __init__(self, plan, starts_at, ends_at):
+        self.plan, self.starts_at, self.ends_at = plan, starts_at, ends_at
+
+
 def _active_rows(user, now):
     from ..models import PlanPeriod
     return list(PlanPeriod.objects.filter(user=user, status="active",
@@ -124,19 +130,21 @@ def recompute(user, now=None, reason="recompute"):
             # something other than a payment set the plan (founder grant,
             # referral redeem, owner edit, legacy data) -> that is the base.
             acct.base_plan, acct.base_until = cur
-        paid_plan, paid_until = paid_state(u, now)
         base_ok = bool(acct.base_until and acct.base_until > now
                        and tier(acct.base_plan) > 0)
-        if paid_plan and base_ok:
-            if tier(acct.base_plan) > tier(paid_plan):
-                final = (acct.base_plan, acct.base_until)
-            elif tier(acct.base_plan) == tier(paid_plan):
-                final = (paid_plan, max(paid_until, acct.base_until))
-            else:
-                final = (paid_plan, paid_until)
-        elif paid_plan:
-            final = (paid_plan, paid_until)
-        else:
+        rows = _active_rows(u, now)
+        if base_ok:
+            rows.append(_Base(acct.base_plan, now - timedelta(seconds=1), acct.base_until))
+        final = None
+        for t_ in sorted({tier(r.plan) for r in rows}, reverse=True):
+            same = [r for r in rows if tier(r.plan) == t_]
+            end = _coverage_end(same, now)
+            if end:
+                paid = [r for r in same if not isinstance(r, _Base)]
+                name = (paid[0].plan if paid else acct.base_plan)
+                final = (name, end)
+                break
+        if final is None:
             final = (acct.base_plan or "free", acct.base_until)
         changed = cur != final
         if changed:
@@ -339,6 +347,10 @@ def summary(user, now=None):
     from .. import plans
     now = now or timezone.now()
     recompute(user, now)
+    try:
+        user.refresh_from_db(fields=["ai_credits", "plan", "plan_until"])
+    except Exception:
+        pass
     rows = PlanPeriod.objects.filter(user=user, status="active",
                                      ends_at__gt=now).order_by("starts_at")
     periods = [{"source": r.source, "plan": r.plan, "starts_at": r.starts_at.isoformat(),

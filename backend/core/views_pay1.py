@@ -73,6 +73,7 @@ class PaymentsOrderView(APIView):
             return _err("not_found", req_lang(request), 404)
         if o.status in ("pending", "cancelled", "failed"):
             o = S.complete(o, via="poll")
+        o.refresh_from_db()
         return Response({"ok": True, "order": _order_json(o), "state": E.summary(request.user)})
 
 
@@ -126,7 +127,7 @@ class PlayVerifyView(APIView):
             log.info("play verify refused: %s", e.reason)
             return _err(e.reason, lang, e.status if e.status in (400, 403, 409, 503) else 502)
         r.pop("user", None)
-        return Response({"ok": bool(r.get("ok")), **r, "state": E.summary(request.user)})
+        return Response({"ok": bool(r.get("ok")), **r, "entitlement": E.summary(request.user)})
 
 
 class PlayRtdnView(APIView):
