@@ -10,7 +10,7 @@ Rules: max parallel agents (own worktree each), heavy cmds via lock, ship each p
 5. [READY branch admin] Web Owner Admin Panel /owner/ (superuser + 2FA) — deploy right after #1.
 6. [READY photo / agent h1-home] Photo Studio + home ad hero (remove suggestions, muted hero) + image in chat.
 7. [READY vehicle + webphoto] Vehicle app part (live map, 24h playback, engine cut-off rules, geofence/over-speed, OBD, Car Mode) — verify completeness; website passport funnel.
-8. [AGENT] Remote support (phones + PCs: Assisto Desktop + web client, consent, 2FA, audit).
+8. [PAUSED] Remote support — not started in this session (the agent launch was stopped before it ran; nothing written). Needs a separate scoping discussion with the owner before work begins.
 9. [SPEC NEEDED for Batch 6 details] Batch 6 native anti-theft engine + [READY cctv] CCTV live view + Android Shop Box mode.
 10. Premium QA every screen >=9/10, full reality audit with real runs, owner phone checklist.
 L. LAUNCH TRACK [AGENT]: Privacy Policy / Terms / Data Deletion pages on lifeassisto.com (bn+en, Play + AdMob compliant, every permission explained); app-ads.txt ready for the AdMob publisher ID; owner_actions/PLAY_STORE_PACK.md (name, short/full description bn+en, feature graphic, 8 screenshots, content rating + Data Safety, permission declarations); signed release AAB per release in CI + upload key + Play App Signing plan.
