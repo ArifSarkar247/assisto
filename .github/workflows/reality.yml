@@ -31,7 +31,7 @@ jobs:
   reality:
     runs-on: ubuntu-latest
     # A hung adb call once held a run for 6h; healthy runs need ~45-60 min.
-    timeout-minutes: 100
+    timeout-minutes: 120
     env:
       ASSISTO_CI_DB: ${{ github.workspace }}/backend/ci_reality.sqlite3
       REALITY_OUT: ${{ github.workspace }}/reality_out

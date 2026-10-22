@@ -57,21 +57,28 @@ def from_logs(out):
 
 
 def load(out):
-    for p in (out / "device" / "reality" / "results.json", out / "device" / "results.json"):
-        if p.exists():
-            try:
-                return json.loads(p.read_text())["flows"], str(p)
-            except (ValueError, KeyError):
-                pass
-    p = out / "driver_response.json"
-    if p.exists():
+    """Merge every source (flows run in groups, one app process each, so each
+    results.json / driver_response holds only its own group; the logcat lines
+    are cumulative). Later sources win per flow id."""
+    merged, srcs = {}, []
+    flows, src = from_logs(out)
+    if flows:
+        merged.update({f["id"]: f for f in flows})
+        srcs.append(src)
+    for p in (out / "driver_response.json", out / "device" / "reality" / "results.json",
+              out / "device" / "results.json"):
+        if not p.exists():
+            continue
         try:
-            flows = (json.loads(p.read_text()) or {}).get("flows", [])
-            if flows:
-                return flows, str(p)
+            d = json.loads(p.read_text()) or {}
         except ValueError:
-            pass
-    return from_logs(out)
+            continue
+        fl = d.get("flows") or []
+        if fl:
+            merged.update({f["id"]: f for f in fl})
+            srcs.append(str(p))
+    order = {f: i for i, f in enumerate(merged)}
+    return sorted(merged.values(), key=lambda f: order[f["id"]]), (" + ".join(srcs) or None)
 
 
 def expected_flows():
