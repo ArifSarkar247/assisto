@@ -1,0 +1,55 @@
+// h1-home — real OnDeviceVision (Google ML Kit, on-device, offline, free).
+// Copy to app/lib/chat_vision/mlkit_on_device_vision.dart and switch
+// createOnDeviceVision() in app/lib/chat_vision/on_device_vision.dart to
+// `MlKitOnDeviceVision()` AFTER the pubspec part of
+// .phaseB/proposals/h1-home.md §B is applied and CI smoke (API 33) passed.
+//
+// * Text recognition v2, LATIN script only (ML Kit has no Bengali model —
+//   checked; Bangla text is read by the detailed cloud answer).
+// * Image labeling with the bundled base model, confidence >= 0.6.
+// * Lazy: recognisers are created on the first photo, never at launch.
+//   Every call is try/caught -> OnDeviceReading.failed (honest message).
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:google_mlkit_image_labeling/google_mlkit_image_labeling.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:path_provider/path_provider.dart';
+
+import 'on_device_vision.dart';
+
+class MlKitOnDeviceVision implements OnDeviceVision {
+  TextRecognizer? _text;
+  ImageLabeler? _labels;
+
+  @override
+  bool get available => true;
+
+  @override
+  Future<OnDeviceReading> read(Uint8List bytes) async {
+    File? tmp;
+    try {
+      // ML Kit's Flutter API reads files; the temp copy is deleted right after.
+      final dir = await getTemporaryDirectory();
+      tmp = File('${dir.path}/cv_${DateTime.now().microsecondsSinceEpoch}.jpg');
+      await tmp.writeAsBytes(bytes, flush: true);
+      final input = InputImage.fromFilePath(tmp.path);
+      _text ??= TextRecognizer(script: TextRecognitionScript.latin);
+      _labels ??= ImageLabeler(options: ImageLabelerOptions(confidenceThreshold: 0.6));
+      final text = await _text!.processImage(input);
+      final labels = await _labels!.processImage(input);
+      return OnDeviceReading(
+        status: OnDeviceStatus.ok,
+        text: text.text,
+        labels: [for (final l in labels) l.label],
+        latinOnly: true,
+      );
+    } catch (_) {
+      return OnDeviceReading.failed;
+    } finally {
+      try {
+        await tmp?.delete();
+      } catch (_) {}
+    }
+  }
+}

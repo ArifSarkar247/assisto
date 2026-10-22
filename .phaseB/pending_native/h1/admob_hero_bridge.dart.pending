@@ -1,0 +1,114 @@
+// h1-home — real HeroAdBridge (google_mobile_ads 9.1.0, the SAME version and
+// the SAME lazy MobileAds init as a6/ps1). Copy to
+// app/lib/ads/admob_hero_bridge.dart and switch createHeroAdBridge() in
+// app/lib/ads/hero_binding.dart to `AdmobHeroAdBridge()` AFTER the a6 AdMob
+// native part (pubspec + manifest APPLICATION_ID) is live.
+//
+// * Native ad rendered by AdMob's own Flutter NATIVE TEMPLATE (medium) — no
+//   Kotlin NativeAdFactory needed, and the template carries the AdChoices
+//   icon, the "Ad" attribution badge and the MediaView (image or video).
+// * VideoOptions(startMuted) comes from the owner flag
+//   ad_rewards.hero_start_muted (default ON). customControlsRequested=false
+//   -> the SDK draws its own video controls, including the speaker
+//   (mute/unmute) toggle on the video.
+// * Every SDK call is wrapped: an ad failure is a null (= normal logo block),
+//   never a crash. Lazy: the SDK initialises on the first hero load, which
+//   happens after the first frame of home.
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+
+import 'hero_ad.dart';
+
+class AdmobHeroAdBridge implements HeroAdBridge {
+  static bool _ready = false;
+  static const _request = AdRequest(nonPersonalizedAds: true);
+
+  Future<bool> _init() async {
+    if (_ready) return true;
+    try {
+      await MobileAds.instance.initialize();
+      // full-screen ads keep their sound (owner order §3)
+      try {
+        await MobileAds.instance.setAppMuted(AdSound.appMuted);
+      } catch (_) {}
+      _ready = true;
+    } catch (_) {
+      _ready = false;
+    }
+    return _ready;
+  }
+
+  @override
+  bool get linked => true;
+
+  @override
+  Future<HeroAdHandle?> load(String unitId, {required bool startMuted}) async {
+    if (unitId.isEmpty || !await _init()) return null;
+    final done = Completer<HeroAdHandle?>();
+    NativeAd? ad;
+    try {
+      ad = NativeAd(
+        adUnitId: unitId,
+        request: _request,
+        nativeAdOptions: NativeAdOptions(
+          adChoicesPlacement: AdChoicesPlacement.topRightCorner,
+          mediaAspectRatio: MediaAspectRatio.landscape,
+          videoOptions: VideoOptions(
+            startMuted: startMuted,
+            clickToExpandRequested: false,
+            customControlsRequested: false,
+          ),
+        ),
+        nativeTemplateStyle: NativeTemplateStyle(
+          templateType: TemplateType.medium,
+          cornerRadius: 14,
+        ),
+        listener: NativeAdListener(
+          onAdLoaded: (a) {
+            if (!done.isCompleted) done.complete(_Handle(a as NativeAd));
+          },
+          onAdFailedToLoad: (a, _) {
+            try {
+              a.dispose();
+            } catch (_) {}
+            if (!done.isCompleted) done.complete(null);
+          },
+        ),
+      );
+      await ad.load();
+    } catch (_) {
+      try {
+        ad?.dispose();
+      } catch (_) {}
+      if (!done.isCompleted) done.complete(null);
+    }
+    return done.future.timeout(const Duration(seconds: 12), onTimeout: () {
+      try {
+        ad?.dispose();
+      } catch (_) {}
+      return null;
+    });
+  }
+}
+
+class _Handle implements HeroAdHandle {
+  _Handle(this.ad);
+  final NativeAd ad;
+
+  // The Flutter plugin does not expose the media type; the SDK's own video
+  // controls show the speaker whenever the creative is a video.
+  @override
+  bool get hasVideo => false;
+
+  @override
+  Widget view() => AdWidget(ad: ad);
+
+  @override
+  void dispose() {
+    try {
+      ad.dispose();
+    } catch (_) {}
+  }
+}
