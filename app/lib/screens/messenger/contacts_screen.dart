@@ -13,6 +13,7 @@ import '../../crypto/e2e.dart';
 import '../../crypto/identity_vault.dart';
 import '../../l10n/app_localizations.dart';
 import '../../messenger_api.dart';
+import '../../messaging/msg_request_widgets.dart'; // mr1
 import '../../services/contacts_source.dart';
 import '../../services/phone_canon.dart';
 import '../../state.dart';
@@ -427,6 +428,14 @@ class _ContactsScreenState extends State<ContactsScreen> {
   Future<IdentityKeyPair?> _identity() => IdentityVault.instance.get();
 
   Future<void> _message(Map<String, dynamic> user) async {
+    final c = user['circle'];
+    final st = c is Map ? '${c['state'] ?? 'none'}' : 'none';
+    if (st != 'accepted') {
+      // mr1: not connected yet -> a message request (texts go out now).
+      await openMessageRequestChat(context,
+          toUserId: (user['id'] as num?)?.toInt());
+      return;
+    }
     final member = _memberOf(user);
     if (member == null) return;
     final id = await _identity();

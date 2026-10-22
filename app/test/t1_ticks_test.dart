@@ -223,27 +223,27 @@ void main() {
       expect(
           presenceLabel(en, RtChatState(lastSeen: DateTime(2026, 10, 22, 12, 45)),
               lang: 'en', now: now),
-          'last seen today at 12:45');
+          'last seen today at 12:45 pm');
       expect(
           presenceLabel(en, RtChatState(lastSeen: DateTime(2026, 10, 21, 21, 10)),
               lang: 'en', now: now),
-          'last seen yesterday at 21:10');
+          'last seen yesterday at 9:10 pm');
       expect(
           presenceLabel(en, RtChatState(lastSeen: DateTime(2026, 10, 18, 9)),
               lang: 'en', now: now),
-          'last seen 18 Oct');
+          'last seen Sunday at 9:00 am');
       expect(
           presenceLabel(en, RtChatState(lastSeen: DateTime(2025, 12, 30, 9)),
               lang: 'en', now: now),
-          'last seen 30 Dec 2025');
+          'last seen 30 Dec 2025 at 9:00 am');
     });
     test('bn: Bangla digits, no Latin digits', () {
       final today = presenceLabel(
           bn, RtChatState(lastSeen: DateTime(2026, 10, 22, 12, 45)),
           lang: 'bn', now: now)!;
-      expect(today, bn.c3LastSeenToday(localDigits('12:45', 'bn')));
+      expect(today, bn.c3LastSeenToday('${bn.mr1PeriodNoon} ${localDigits('12:45', 'bn')}')); // mr1
       final old = presenceLabel(
-          bn, RtChatState(lastSeen: DateTime(2026, 10, 18, 9)),
+          bn, RtChatState(lastSeen: DateTime(2026, 9, 18, 9)), // mr1: a date
           lang: 'bn', now: now)!;
       expect(_hasLatinDigit(old), isFalse, reason: old);
       expect(old, contains(localDigits('18', 'bn')));

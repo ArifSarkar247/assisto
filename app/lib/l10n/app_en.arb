@@ -16290,6 +16290,96 @@
   "actionFailedRetry": "Couldn't do that. Please try again.",
   "actionCantOpen": "Couldn't open it on this phone.",
   "actionNeedInput": "Type something first.",
+  "mr1LastSeenOn": "last seen {date} at {time}",
+  "@mr1LastSeenOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "mr1Am": "am",
+  "mr1Pm": "pm",
+  "mr1PeriodMorning": "morning",
+  "mr1PeriodNoon": "noon",
+  "mr1PeriodAfternoon": "afternoon",
+  "mr1PeriodEvening": "evening",
+  "mr1PeriodNight": "night",
+  "mr1Waiting": "Waiting for {name} to accept your message request",
+  "@mr1Waiting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mr1LimitNote": "You can send more messages once {name} accepts your request.",
+  "@mr1LimitNote": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mr1NotInContacts": "Not in your contacts",
+  "mr1RequestFrom": "{name} sent you a message",
+  "@mr1RequestFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mr1RequestExplainer": "Accept to reply and call. Until then, they won't know you've read their messages.",
+  "mr1BlockTitle": "Block {name}?",
+  "@mr1BlockTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mr1BlockBody": "They won't be able to message or call you.",
+  "mr1ReportTitle": "Report {name}?",
+  "@mr1ReportTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mr1ReportBody": "Assisto will be told about this account and it will be blocked. Your messages stay end-to-end encrypted.",
+  "mr1DeleteTitle": "Delete this request?",
+  "mr1DeleteBody": "{name} won't be told.",
+  "@mr1DeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mr1AcceptedToast": "You and {name} can now text and call.",
+  "@mr1AcceptedToast": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mr1BlockedToast": "Blocked",
+  "mr1ReportedToast": "Reported and blocked",
+  "mr1DeletedToast": "Request deleted",
+  "mr1RequestsTitle": "Message requests",
+  "mr1StartFailed": "Couldn't open the chat. Check your internet and try again.",
+  "mr1MessageNowHint": "Message now — calls open once they accept.",
+  "mr1OrAddToCircle": "Or add to My Circle",
+  "mr1CallsAfterAccept": "You can message now; calls open once they accept.",
+  "mr1WhoCircleHint": "People in your circle message you directly. Anyone else who messages your number waits in Message requests — you reply and call only after you accept.",
+  "mr1WhoEveryoneHint": "Anyone can message you, community members too. Strangers land in Message requests first, with one notification per person.",
+  "mr1MediaNotShown": "Can't be opened here",
   "atTitle": "Always-on protection",
   "@atTitle": {},
   "atHubSubtitle": "Keep watch for snatch, SIM change and going offline",

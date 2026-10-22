@@ -6,8 +6,12 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../api.dart';
+import '../crypto/e2e.dart';
+import '../crypto/identity_vault.dart';
 import '../l10n/app_localizations.dart';
 import '../m3_circle_api.dart';
+import '../messaging/msg_request_widgets.dart'; // mr1
+import '../screens/circle_chat_screen.dart';
 import '../services/phone_canon.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -572,11 +576,15 @@ class M3RequestsBanner extends StatefulWidget {
     this.onChanged,
     this.onSeeAll,
     this.maxShown = 3,
+    this.identity,
   });
 
   final void Function(int incoming, bool accepted)? onChanged;
   final VoidCallback? onSeeAll;
   final int maxShown;
+
+  /// mr1: my E2E identity (decrypts request previews); loaded when null.
+  final IdentityKeyPair? identity;
 
   @override
   State<M3RequestsBanner> createState() => M3RequestsBannerState();
@@ -584,14 +592,45 @@ class M3RequestsBanner extends StatefulWidget {
 
 class M3RequestsBannerState extends State<M3RequestsBanner>
     with M3RequestsLogic<M3RequestsBanner> {
+  IdentityKeyPair? _loadedId; // mr1: decrypts the request previews
+  IdentityKeyPair? get _identity => widget.identity ?? _loadedId;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => loadRequests());
   }
 
+  bool _idAsked = false;
+
+  /// Only when a request with messages is on screen (needs decrypting).
+  void _needIdentity() {
+    if (_idAsked || widget.identity != null) return;
+    _idAsked = true;
+    unawaited(IdentityVault.instance.get().then((id) {
+      if (mounted) setState(() => _loadedId = id);
+    }).catchError((Object _) {}));
+  }
+
   /// Public so the hub can refresh it (pull-to-refresh, back from a screen).
   Future<void> reload() => loadRequests();
+
+  /// mr1: open the read-only request conversation (Accept / Block / Report
+  /// / Delete live there); back -> the list reloads (accepted ones move into
+  /// the chats, deleted / blocked ones disappear).
+  Future<void> _open(Map<String, dynamic> r) async {
+    final id = _identity ?? await IdentityVault.instance.get();
+    if (!mounted) return;
+    await Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) =>
+            CircleChatScreen(member: msgRequestMember(r), identity: id)));
+    if (!mounted) return;
+    final before = incomingCount;
+    await loadRequests();
+    if (mounted && incomingCount < before) {
+      widget.onChanged?.call(incomingCount, true);
+    }
+  }
 
   @override
   void onRequestsChanged(int incomingCount, {bool accepted = false}) =>
@@ -608,6 +647,7 @@ class M3RequestsBannerState extends State<M3RequestsBanner>
     }
     final inc = requests.where(m3IsIncoming).toList();
     if (inc.isEmpty) return const SizedBox.shrink();
+    if (inc.any(msgRequestHasMessages)) _needIdentity();
     return Column(
       key: const Key('m3-requests-banner'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -621,7 +661,7 @@ class M3RequestsBannerState extends State<M3RequestsBanner>
             ),
             const SizedBox(width: Gap.md),
             Expanded(
-              child: Text(t.m3RequestsTitle,
+              child: Text(t.mr1RequestsTitle,
                   style: TextStyle(
                       fontWeight: FontWeight.w700, color: scheme.primary)),
             ),
@@ -630,13 +670,19 @@ class M3RequestsBannerState extends State<M3RequestsBanner>
           ]),
         ),
         for (final r in inc.take(widget.maxShown))
-          M3RequestTile(
-            request: r,
-            busy: reqBusy.contains('${r['id']}'),
-            onAccept: () => actOn(r, 'accept'),
-            onDecline: () => actOn(r, 'decline'),
-            onCancel: () => actOn(r, 'cancel'),
-          ),
+          // mr1: a request that carries messages opens its conversation;
+          // a plain "add me" request keeps inline Accept / Decline.
+          if (msgRequestHasMessages(r))
+            MsgRequestRow(
+                request: r, identity: _identity, onOpen: () => _open(r))
+          else
+            M3RequestTile(
+              request: r,
+              busy: reqBusy.contains('${r['id']}'),
+              onAccept: () => actOn(r, 'accept'),
+              onDecline: () => actOn(r, 'decline'),
+              onCancel: () => actOn(r, 'cancel'),
+            ),
         const Divider(height: Gap.md),
       ],
     );

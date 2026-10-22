@@ -229,7 +229,7 @@ class C1AssistoUserRow extends StatelessWidget {
       if (contactName.isNotEmpty && name.isNotEmpty && name != contactName)
         t.c1OnAssistoAs(name),
       if (state == C1CircleState.accepted) t.c1InYourCircle,
-      if (state == C1CircleState.pending) t.c1MessageAfterAccept,
+      if (state == C1CircleState.pending) t.mr1CallsAfterAccept, // mr1
       if (state == C1CircleState.incoming) t.c1WantsToConnect,
     ];
     final actions = <Widget>[
@@ -239,6 +239,15 @@ class C1AssistoUserRow extends StatelessWidget {
           onPressed: busy ? null : onAdd,
           icon: const Icon(Icons.person_add_alt_1, size: 18),
           label: Text(t.c1AddToCircle),
+        ),
+      // mr1: WhatsApp-like — anyone on Assisto can be messaged at once (a
+      // message request until they accept; calls open after).
+      if (state == C1CircleState.none || state == C1CircleState.pending)
+        FilledButton.tonalIcon(
+          key: Key('mr1-msg-${user['id']}'),
+          onPressed: busy ? null : onMessage,
+          icon: const Icon(Icons.chat_bubble_outline, size: 18),
+          label: Text(t.c1Message),
         ),
       if (state == C1CircleState.pending)
         Chip(

@@ -11,6 +11,8 @@ import '../../theme.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../../widgets/chat_menu_pickers.dart';
 import '../../widgets/circle_relation.dart';
+import '../../messaging/presence_label.dart';
+import '../../realtime/realtime_channel.dart';
 import 'starred_messages_screen.dart';
 
 /// CONTACT INFO screen for a 1:1 chat (.phaseB/MESSENGER_UI_FULL.md §4).
@@ -331,6 +333,25 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
           Text(_name,
               style: Theme.of(context).textTheme.titleLarge,
               textAlign: TextAlign.center),
+          // mr1: the same full last-seen line as the chat header (live;
+          // hidden by privacy -> no line).
+          ValueListenableBuilder<Map<String, RtChatState>>(
+            valueListenable: RealtimeChannel.instance.states,
+            builder: (ctx, _, __) {
+              final p = presenceLabel(
+                  _t, RealtimeChannel.instance.stateOf('member', _peerId),
+                  lang: Localizations.localeOf(ctx).languageCode,
+                  use24h: MediaQuery.of(ctx).alwaysUse24HourFormat);
+              if (p == null || p.isEmpty) return const SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsets.only(top: Gap.xs),
+                child: Text(p,
+                    key: const Key('mr1-info-last-seen'),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: scheme.onSurfaceVariant)),
+              );
+            },
+          ),
         ],
       ),
     );

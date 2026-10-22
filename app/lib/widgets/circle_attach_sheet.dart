@@ -1,52 +1,68 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
+import '../services/circle_media_gate.dart';
 import '../theme.dart';
 
-/// The "+" attach sheet for a circle chat. Lists every media kind
-/// (gallery/camera/voice/video/document/contact/current+live location). Each
-/// kind is KEY-GATED until encrypted blob storage is enabled (mirrors
-/// core/logic/circle_media.py media_gate_notice + circle.py media_available):
-/// gated rows show a lock and, on tap, a "Available when encrypted storage
-/// enabled" notice instead of opening a (non-existent) picker.
+/// The "+" attach sheet for a circle chat.
+///
+/// mr1 — NO SHOWPIECES: every kind here needs My Circle's encrypted media
+/// storage ([kCircleMediaStorageOn]); none of them can really be sent until
+/// that ships (see .phaseB/proposals/mr1-media.md). So [circleAttachKinds]
+/// lists ONLY kinds that really work today — currently none — and the chat
+/// hides the attach button entirely when the list is empty. Nothing in the
+/// sheet ever answers "available when encrypted storage is enabled".
 enum CircleAttachKind { gallery, camera, voice, video, document, contact, location, liveLocation }
 
-/// Returns the chosen attach kind (the screen decides gated vs live). Only
-/// kinds whose storage is available actually proceed; the rest surface a
-/// gated-reason snackbar handled by the caller.
-Future<CircleAttachKind?> showCircleAttachSheet(BuildContext context) {
+/// The kinds that can really be sent right now, in sheet order.
+List<CircleAttachKind> circleAttachKinds({bool? storageOn}) {
+  final on = storageOn ?? kCircleMediaStorageOn;
+  if (!on) return const [];
+  return const [
+    CircleAttachKind.gallery,
+    CircleAttachKind.camera,
+    CircleAttachKind.voice,
+    CircleAttachKind.video,
+    CircleAttachKind.document,
+    CircleAttachKind.contact,
+    CircleAttachKind.location,
+    CircleAttachKind.liveLocation,
+  ];
+}
+
+/// Returns the chosen attach kind, or null. Only shows [circleAttachKinds].
+Future<CircleAttachKind?> showCircleAttachSheet(BuildContext context,
+    {List<CircleAttachKind>? kinds}) {
   final t = AppLocalizations.of(context);
   final scheme = Theme.of(context).colorScheme;
+  final list = kinds ?? circleAttachKinds();
 
-  Widget grid(IconData icon, String label, CircleAttachKind kind, {bool gated = true}) {
+  (IconData, String) look(CircleAttachKind k) => switch (k) {
+        CircleAttachKind.gallery => (Icons.photo_library_outlined, t.circleAttachGallery),
+        CircleAttachKind.camera => (Icons.photo_camera_outlined, t.circleAttachCamera),
+        CircleAttachKind.voice => (Icons.mic_none_outlined, t.circleVoiceNote),
+        CircleAttachKind.video => (Icons.videocam_outlined, t.circleVideo),
+        CircleAttachKind.document => (Icons.insert_drive_file_outlined, t.circleAttachDocument),
+        CircleAttachKind.contact => (Icons.contact_page_outlined, t.circleAttachContact),
+        CircleAttachKind.location => (Icons.location_on_outlined, t.circleAttachLocation),
+        CircleAttachKind.liveLocation => (Icons.my_location_outlined, t.circleAttachLiveLocation),
+      };
+
+  Widget grid(BuildContext ctx, CircleAttachKind kind) {
+    final (icon, label) = look(kind);
     return InkWell(
+      key: Key('attach-${kind.name}'),
       borderRadius: BorderRadius.circular(Radii.md),
-      onTap: () => Navigator.pop(context, kind),
+      onTap: () => Navigator.pop(ctx, kind),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: Gap.md),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                CircleAvatar(
-                  radius: 26,
-                  backgroundColor: scheme.secondaryContainer,
-                  child: Icon(icon, color: scheme.onSecondaryContainer),
-                ),
-                if (gated)
-                  Positioned(
-                    right: -2,
-                    bottom: -2,
-                    child: CircleAvatar(
-                      radius: 9,
-                      backgroundColor: scheme.surface,
-                      child: Icon(Icons.lock_clock_outlined,
-                          size: 12, color: scheme.onSurfaceVariant),
-                    ),
-                  ),
-              ],
+            CircleAvatar(
+              radius: 26,
+              backgroundColor: scheme.secondaryContainer,
+              child: Icon(icon, color: scheme.onSecondaryContainer),
             ),
             const SizedBox(height: Gap.xs),
             SizedBox(
@@ -62,6 +78,7 @@ Future<CircleAttachKind?> showCircleAttachSheet(BuildContext context) {
     );
   }
 
+  if (list.isEmpty) return Future.value(null);
   return showModalBottomSheet<CircleAttachKind>(
     context: context,
     showDragHandle: true,
@@ -74,16 +91,7 @@ Future<CircleAttachKind?> showCircleAttachSheet(BuildContext context) {
           physics: const NeverScrollableScrollPhysics(),
           // db1: 0.82 clipped two-line labels by 12px at 360dp (tap sweep).
           childAspectRatio: 0.68,
-          children: [
-            grid(Icons.photo_library_outlined, t.circleAttachGallery, CircleAttachKind.gallery),
-            grid(Icons.photo_camera_outlined, t.circleAttachCamera, CircleAttachKind.camera),
-            grid(Icons.mic_none_outlined, t.circleVoiceNote, CircleAttachKind.voice),
-            grid(Icons.videocam_outlined, t.circleVideo, CircleAttachKind.video),
-            grid(Icons.insert_drive_file_outlined, t.circleAttachDocument, CircleAttachKind.document),
-            grid(Icons.contact_page_outlined, t.circleAttachContact, CircleAttachKind.contact),
-            grid(Icons.location_on_outlined, t.circleAttachLocation, CircleAttachKind.location),
-            grid(Icons.my_location_outlined, t.circleAttachLiveLocation, CircleAttachKind.liveLocation),
-          ],
+          children: [for (final k in list) grid(ctx, k)],
         ),
       ),
     ),

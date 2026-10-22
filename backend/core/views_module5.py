@@ -18,7 +18,7 @@ from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
-from .i18n import req_lang
+from .i18n import pick, req_lang
 from .logic import (health_tips, medicine_db, birthdays as bdays,
                     meetings, dictionary, ramadan, exam, circle,
                     circle_messaging, circle_privacy)
@@ -424,11 +424,22 @@ def _member_dict(m):
         "relation": m.relation,
         "relation_label": circle.relation_label(m.relation, "bn", m.custom_label),
         "custom_label": m.custom_label, "state": m.state,
+        # mr1: message requests — direction + the pre-accept send budget
+        "direction": getattr(m, "direction", "outgoing") or "outgoing",
+        "request": _msgreq_info(m),
         # e2-keys: the peer's key is read LIVE from the per-user directory
         # (UserPublicKey) — never from the edge.
         **_live_key_fields(m),
         "sharing": m.sharing or {},
     }
+
+
+def _msgreq_info(m):
+    from . import msgreq
+    try:
+        return msgreq.info(m)
+    except Exception:  # noqa: BLE001 — a payload never fails on this
+        return None
 
 
 def _live_key_fields(m):
@@ -621,10 +632,55 @@ class CircleRequestsView(APIView):
         out = []
         for m in rows:
             name, photo = _resolve_peer(m)
-            out.append(circle.serialize_request(
+            d = circle.serialize_request(
                 m, direction=getattr(m, "direction", "outgoing"),
-                display_name=name, photo=photo, lang=lang))
+                display_name=name, photo=photo, lang=lang)
+            _mr1_enrich(request.user, m, d)
+            out.append(d)
+        # mr1: newest activity first (a request with a fresh message on top)
+        out.sort(key=lambda r: r.get("at") or r.get("created_at") or "",
+                 reverse=True)
         return Response({"results": out})
+
+
+def _mr1_enrich(viewer, m, d):
+    """mr1: a request row also carries the conversation so far (the latest
+    message envelope for the on-device preview, the count), the member
+    payload to open the read-only request chat, and the sender's number
+    ONLY when the sender allows it (show_phone) — else "" and the card says
+    "Not in your contacts". Never raises."""
+    try:
+        from . import msgreq
+        from .views_m1_messenger import visible_conversation
+        d["photo_v"] = x2_photo_v(d.get("photo") or "")
+        d["member"] = _member_dict(m)
+        d["not_in_contacts"] = True
+        peer = getattr(m, "peer_user", None)
+        d["phone"] = msgreq.public_phone(peer) if (
+            peer is not None and d.get("direction") == "incoming") else ""
+        rows = list(visible_conversation(viewer, m))
+        d["msg_count"] = len(rows)
+        last = rows[-1] if rows else None
+        if last is not None:
+            from . import e2_keys
+            d["last"] = {"id": last.id, "ciphertext": last.ciphertext,
+                         "nonce": last.nonce, "scheme": last.scheme,
+                         "sender_key_id": last.sender_key_id,
+                         "content_type": last.content_type,
+                         "mine": last.sender_id == viewer.id,
+                         "deleted": last.deleted or "",
+                         "peer_public_key": e2_keys.edge_key(m)[0] or "",
+                         "created_at": last.created_at.isoformat()}
+            d["at"] = last.created_at.isoformat()
+            unseen = [x for x in rows if x.sender_id != viewer.id
+                      and viewer.id not in (x.read_by or [])]
+            d["unread"] = len(unseen)
+        else:
+            d["last"] = None
+            d["unread"] = 0
+    except Exception:  # noqa: BLE001
+        pass
+    return d
 
 
 class CircleKeysView(APIView):
@@ -725,6 +781,11 @@ class CircleRequestCreateView(APIView):
                               str(data.get("custom_label", "")).strip()[:60])
             if done is not None:
                 return Response(_member_dict(done), status=status.HTTP_200_OK)
+        # mr1: new requests per sender per day are capped (abuse).
+        from . import msgreq
+        if peer is not None and msgreq.over_daily_limit(request.user):
+            from .views_mr1 import refusal
+            return refusal(req_lang(request), "rate_limited")
         # e2-keys: no key is copied onto the edge — _member_dict reads it live.
         # The SENDER's own row is OUTGOING (can only cancel it).
         m = CircleMember.objects.create(
@@ -892,11 +953,15 @@ class CircleMessagesView(APIView):
         from . import views_c3_msg as C3
         C3.annotate(out, msgs, request.user)
         C3.mark_fetched(request.user, msgs)   # x2-ticks: ack on any fetch
+        # mr1: the chat learns live when a message request is accepted
+        edge = {"state": m.state, "direction": m.direction or "outgoing",
+                "request": _msgreq_info(m)}
         if meta is not None:
             chat_paging.mark_unseen(out, meta["unseen"])
             return Response({"results": out, "has_more": meta["has_more"],
-                             "unread_count": meta["unread_count"]})
-        return Response({"results": out})
+                             "unread_count": meta["unread_count"],
+                             "edge": edge})
+        return Response({"results": out, "edge": edge})
 
     def post(self, request, pk):
         m = CircleMember.objects.filter(user=request.user, pk=pk).first()
@@ -914,8 +979,39 @@ class CircleMessagesView(APIView):
             return Response({"detail": reason}, status=status.HTTP_400_BAD_REQUEST)
         # M1 send gate: both sides accepted + not blocked (circle-only).
         blocked_either = bool(getattr(m, "blocked", False))
+        # mr1: a MESSAGE REQUEST (my outgoing pending edge) may carry up to
+        # N messages before the recipient accepts (core/msgreq.py).
+        mr1_first = None
+        if m.state != "accepted" and not blocked_either:
+            from . import msgreq
+            ok_r, why, first = msgreq.send_gate(m)
+            _cm = str(env.get("client_msg_id", ""))[:64]
+            if not ok_r and why == "request_limit" and _cm:
+                dup = CircleMessage.objects.filter(
+                    sender=request.user, member=m, client_msg_id=_cm).first()
+                if dup is not None:   # an outbox retry of a stored message
+                    return Response({"id": dup.id, "ok": True,
+                                     "deduped": True},
+                                    status=status.HTTP_200_OK)
+            if not ok_r:
+                lang = req_lang(request)
+                detail = {
+                    "request_limit": pick(
+                        lang, "গ্রহণ না করা পর্যন্ত আর মেসেজ পাঠানো যাবে না।",
+                        "You can send more after they accept."),
+                    "accept_first": pick(
+                        lang, "উত্তর দিতে আগে অনুরোধটি গ্রহণ করুন।",
+                        "Accept the request to reply."),
+                    "strangers_refused": pick(
+                        lang, "এই মানুষটি শুধু তাঁর সার্কেলের লোকজনের মেসেজ নেন।",
+                        "This person only takes messages from their circle."),
+                }.get(why)
+                body = {"detail": detail or why, "reason": why}
+                return Response(body, status=status.HTTP_403_FORBIDDEN)
+            mr1_first = first
         ok2, pre = circle_messaging.send_precheck(
-            m.state, "accepted", blocked_either=blocked_either,
+            "accepted" if mr1_first is not None else m.state, "accepted",
+            blocked_either=blocked_either,
             restricted=bool(getattr(m, "restricted", False)))
         if not ok2:
             return Response({"detail": pre}, status=status.HTTP_403_FORBIDDEN)
@@ -976,7 +1072,11 @@ class CircleMessagesView(APIView):
             if conversation_rows(m).filter(pk=rid).exists():
                 x.reply_to_id = rid
                 x.save(update_fields=["reply_to"])
-        if notify:
+        if mr1_first is not None:
+            # mr1: request push (one per sender) + silent delivery ping only.
+            from . import msgreq
+            msgreq.notify(request.user, m, x, mr1_first)
+        elif notify:
             # FCM (key-gated, async, never raises): name + ids only, no text.
             from . import push
             push.hook_circle_message(request.user, m, x)

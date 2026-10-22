@@ -8,8 +8,10 @@ import '../l10n/app_localizations.dart';
 ///           only video + voice icons sit beside it); ellipsis only when the
 ///           name really doesn't fit.
 ///   line 2  smaller status: online / typing… / recording audio… / last seen
-///           today at 12:45 / last seen yesterday at 21:10 / last seen 18 Oct
-///           (see presence_label.dart). Hidden by privacy -> no line at all.
+///           today at 9:40 pm / yesterday at 8:15 am / Monday at 9:40 pm /
+///           18 Oct at 9:40 pm — always with the time, in the phone's 12/24-
+///           hour format (mr1, see presence_label.dart). Hidden by privacy ->
+///           no line at all.
 ///           Groups: member names ("Rahim, Karim, You") or "Rahim is typing…".
 ///   tap     the whole title opens contact / group info.
 ///
