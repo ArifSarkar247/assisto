@@ -13621,5 +13621,6 @@
   "payPlayUnavailable": "এই ফোনে Google Play বিলিং পাওয়া যাচ্ছে না। বিকাশ / নগদ / কার্ড ব্যবহার করুন।",
   "payRenewBanner": "আপনার প্রিপেইড {plan} শেষ হবে {date} তারিখে।",
   "payRenewAction": "এক ট্যাপে নবায়ন করুন",
-  "payManagedByPlay": "আপনার সাবস্ক্রিপশন Google Play থেকে চলছে। পরিবর্তন বা বাতিল করতে Play Store-এ যান।"
+  "payManagedByPlay": "আপনার সাবস্ক্রিপশন Google Play থেকে চলছে। পরিবর্তন বা বাতিল করতে Play Store-এ যান।",
+  "swUnavailableBody2": "আপনার ঘড়ি বা ফিটনেস ব্যান্ডের তথ্য দেখাতে এই ফোনে Health Connect দরকার। Play Store থেকে ইনস্টল বা আপডেট করে এখানে ফিরে আসুন — Assisto নিজেই আবার দেখে নেবে।"
 }
