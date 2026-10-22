@@ -8,7 +8,7 @@ Rules: max parallel agents (own worktree each), heavy cmds via lock, ship each p
 3. [BUILT, in builds] OTP flow (provider-agnostic, key-gated) + owner_actions/SMS_GATEWAY_NEEDS.md (Bangla). Needs SMS gateway keys.
 4. [SHIPPED build 177] Voice assistant: default assistant (long-press power), optional Hey Assisto (needs Picovoice key), YouTube/YT Music, hands-free, TTS, bn/Banglish/en.
 5. [LIVE 22 Oct] Web Owner Admin Panel https://api.lifeassisto.com/owner/ (migration 0051_o2; login steps in STATUS, Bangla).
-6. [READY photo / agent h1-home] Photo Studio + home ad hero (remove suggestions, muted hero) + image in chat.
+6. [SHIPPED build 178: Photo Studio; home hero + image in chat merged, next] Photo Studio + home ad hero (remove suggestions, muted hero) + image in chat.
 7. [READY vehicle + webphoto] Vehicle app part (live map, 24h playback, engine cut-off rules, geofence/over-speed, OBD, Car Mode) — verify completeness; website passport funnel.
 8. [NOT IN THIS SESSION] Remote support — owner's full spec saved in .phaseB/REMOTE_SUPPORT_SPEC.md; the first launch here was stopped by a safety system before it ran, so it must be built in a separate session.
 9. [AGENT b6-antitheft, spec .phaseB/BATCH6_ORDER.md] Batch 6 native lost/stolen engine (opt-in, own phone: heartbeat, snatch, SIM/airplane/battery/shutdown guards, intruder photo, store-and-forward) + [READY cctv] CCTV live view + Android Shop Box mode.
