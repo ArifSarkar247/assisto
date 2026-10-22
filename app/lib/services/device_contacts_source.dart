@@ -1,6 +1,5 @@
-// c1-contacts — REAL phonebook source. Kept OUT of lib/ until the integrator
-// adds `flutter_contacts` + READ_CONTACTS (see .phaseB/proposals/c1-contacts.md).
-// Copy to app/lib/services/device_contacts_source.dart in the native build.
+// c1-contacts — REAL phonebook source (flutter_contacts + READ_CONTACTS,
+// see .phaseB/proposals/c1-contacts.md).
 //
 // Written against:
 //   flutter_contacts 1.1.9+2 (MIT):  FlutterContacts.getContacts(

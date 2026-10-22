@@ -25,6 +25,8 @@ import 'screens/elderly_home_screen.dart';
 import 'widgets/elderly_mode.dart';
 import 'widgets/chatnav.dart';
 import 'voice/va_launch.dart';
+import 'photo_studio/ps_web_import.dart';
+import 'screens/web_photo_link_screen.dart';
 
 void main() {
   // Nothing in startup may crash the app. Every Dart error — sync, async, or
@@ -166,6 +168,11 @@ class AssistoApp extends StatelessWidget {
             );
           },
           home: const _Root(),
+          // w1-webphoto: https://lifeassisto.com/photo/app?t=… (Android App
+          // Link, Flutter's built-in deep linking — no plugin). Only that
+          // path is handled; every other name returns null exactly as before.
+          onGenerateRoute: (s) => WebPhotoLink.route(
+              s, (token) => WebPhotoLinkScreen(token: token)),
         );
       }),
     );
@@ -197,17 +204,26 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       _maybeSmokeOpen();
       // Part 3: opened by the assist gesture / wake word? (lazy, guarded)
       VaLaunch.maybeOpen(context);
+      // w1-webphoto: cold-start App Link (lifeassisto.com/photo/app?t=…)
+      WebPhotoLink.maybeOpenColdStart(
+          context,
+          PlatformDispatcher.instance.defaultRouteName,
+          (token) => WebPhotoLinkScreen(token: token));
     });
   }
 
-  /// DEBUG-ONLY launch-safety probe. Lets the CI emulator smoke test open one
+  /// SMOKE-ONLY launch-safety probe. Lets the CI emulator smoke test open one
   /// named feature screen (via `am start --es ao_open <route>`) so a real
   /// native plugin (camera / health / device-admin / foreground-service) is
-  /// exercised once on a device. Completely inert in the shipped release APK
-  /// (kDebugMode == false) and when no extra is passed, and it only runs AFTER
-  /// the first frame — never on the cold-start critical path.
+  /// exercised once on a device. Active only in debug builds and in the CI
+  /// x86_64 smoke APK (a release build compiled with --dart-define=
+  /// ASSISTO_SMOKE=true, so release-only R8 bugs are caught). Completely inert
+  /// in the shipped arm64 APK (no define) and when no extra is passed, and it
+  /// only runs AFTER the first frame — never on the cold-start critical path.
+  static const bool _smokeBuild = bool.fromEnvironment('ASSISTO_SMOKE');
+
   Future<void> _maybeSmokeOpen() async {
-    if (!kDebugMode) return;
+    if (!kDebugMode && !_smokeBuild) return;
     try {
       const ch = MethodChannel('com.assisto/device_admin');
       final route = await ch.invokeMethod<String>('aoSmokeOpen');
@@ -288,6 +304,18 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     if (!app.loggedIn) return const LoginScreen();
     if (!app.onboarded) {
       return OnboardingScreen(onDone: app.markOnboarded);
+    }
+    // w1-webphoto: a website-photo link that arrived signed out opens now.
+    final webTok = WebPhotoLink.pending;
+    if (webTok != null) {
+      WebPhotoLink.pending = null;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        try {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => WebPhotoLinkScreen(token: webTok)));
+        } catch (_) {}
+      });
     }
     // Only resolve the home swap once we're past login + onboarding, so the
     // normal startup flow is never disturbed.

@@ -18,6 +18,10 @@ import 'package:assisto/screens/login_screen.dart';
 import 'package:assisto/screens/otp/otp_verify_screen.dart';
 import 'package:assisto/screens/otp/otp_login_screen.dart';
 import 'fake_c1_contacts.dart';
+import 'fake_m3_circle.dart';
+import 'package:assisto/screens/messenger/m3_add_to_circle_screen.dart';
+import 'package:assisto/screens/messenger/m3_requests_screen.dart';
+import 'package:assisto/widgets/m3_circle_widgets.dart';
 import 'fake_otp.dart';
 import 'package:assisto/screens/language_picker_screen.dart';
 import 'package:assisto/screens/home_screen.dart';
@@ -182,6 +186,7 @@ import 'package:assisto/screens/crm/crm_firstrun_screen.dart';
 import 'package:assisto/crypto/e2e.dart';
 import 'package:assisto/screens/legal_screen.dart';
 import 'ps1_shots.dart'; // ps1-photo
+import 'w1_webphoto_shots.dart'; // w1-webphoto
 import 'package:assisto/screens/unseen_world_screen.dart';
 import 'package:assisto/screens/shop_box_screen.dart';
 import 'package:assisto/screens/business/business_hub_screen.dart';
@@ -327,6 +332,12 @@ void main() {
     // WhatsApp-style list (On Assisto first, Invite for the rest).
     'c1_contacts_disclosure': (build: (_) { SharedPreferences.setMockInitialValues({}); return const ContactsScreen(source: C1GallerySource()); }, mode: FakeMode.data, full: true),
     'c1_contacts_synced': (build: (_) { SharedPreferences.setMockInitialValues({'c1_contacts_consent_v1': true}); return const ContactsScreen(source: C1GallerySource()); }, mode: FakeMode.data, full: true),
+    // m3-circle: My Circle like WhatsApp — Add flow states, New chat, Requests.
+    'm3_add_circle': (build: (_) => const M3AddToCircleScreen(), mode: FakeMode.data, full: true),
+    'm3_add_found': (build: (_) => const M3AddToCircleScreen(initialNumber: '+880 1865-052200'), mode: FakeMode.data, full: true),
+    'm3_add_notfound': (build: (_) => const M3AddToCircleScreen(initialNumber: '01999 888 777'), mode: FakeMode.data, full: true),
+    'm3_new_chat': (build: (_) { SharedPreferences.setMockInitialValues({'c1_contacts_consent_v1': true}); return Builder(builder: (ctx) => ContactsScreen(source: const C1GallerySource(), title: AppLocalizations.of(ctx).msgrNewChat, header: M3NewChatActions(onAdd: () {}, onNewGroup: () {}, onNewCommunity: () {}, onInvite: () {}))); }, mode: FakeMode.data, full: true),
+    'm3_requests': (build: (_) => const M3RequestsScreen(), mode: FakeMode.data, full: true),
     'cam_perm_ask': (build: (_) => CameraPermissionScreen(denied: false, onPrimary: () {}), mode: FakeMode.data, full: true),
     'cam_perm_denied': (build: (_) => CameraPermissionScreen(denied: true, onPrimary: () {}), mode: FakeMode.data, full: true),
     'home_top': (build: (_) => const HomeScreen(), mode: FakeMode.data, full: true),
@@ -535,6 +546,8 @@ void main() {
     'legal': (build: (_) => const LegalScreen(), mode: FakeMode.data, full: true),
     // ps1-photo: Photo Studio (free / premium / unavailable / refusal / export gate)
     for (final e in ps1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // w1-webphoto: lifeassisto.com/photo deep link -> Photo Studio (gate kept)
+    for (final e in w1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // ---- a1 Premium QA: screens that had no gallery shot ----
     'ai_chat': (build: (_) => const AiChatScreen(), mode: FakeMode.data, full: true),
     'nearby': (build: (_) => const NearbyScreen(), mode: FakeMode.data, full: true),
@@ -617,6 +630,7 @@ void main() {
     // by default, which looks like a bug in review shots). Restored below.
     debugDisableShadows = false;
     FakeApi.planSlug = (name.startsWith('shop_') || name == 'veh_fleet') ? 'business' : 'premium';
+    fakeM3On = name.startsWith('m3_'); // m3-circle gallery stubs
     final tall = name.endsWith('_bottom');
     await tester.binding.setSurfaceSize(Size(360, tall ? 1800 : 800));
     final key = GlobalKey();

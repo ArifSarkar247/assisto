@@ -5,7 +5,8 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
-import 'circle_screen.dart';
+import '../widgets/loading_gate.dart';
+import 'messenger/messenger_home_screen.dart';
 
 /// Phone Safety Check-up — premium, HONEST anti-theft phone-hardening guidance.
 ///
@@ -64,10 +65,29 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
     _load();
   }
 
+  // m3-circle: the screen used to await Settings with no try/catch; on the
+  // owner's phone SharedPreferences throws (PlatformException) so `_loading`
+  // never became false -> endless spinner. Now: guarded (15 s) and ALWAYS
+  // ends in content or an error with Retry.
+  bool _loadFailed = false;
+
   Future<void> _load() async {
-    final saved = await Settings.getString(_brandKey);
-    if (saved != null && _brands.any((b) => b.id == saved)) _brand = saved;
-    await _loadConfirmations();
+    if (mounted && !_loading) {
+      setState(() {
+        _loading = true;
+        _loadFailed = false;
+      });
+    }
+    try {
+      await loadGuard(() async {
+        final saved = await Settings.getString(_brandKey);
+        if (saved != null && _brands.any((b) => b.id == saved)) _brand = saved;
+        await _loadConfirmations();
+      }());
+      _loadFailed = false;
+    } catch (_) {
+      _loadFailed = true;
+    }
     if (mounted) setState(() => _loading = false);
   }
 
@@ -236,6 +256,12 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
         body: const Center(child: CircularProgressIndicator()),
       );
     }
+    if (_loadFailed) {
+      return Scaffold(
+        appBar: AppBar(title: Text(t.phoneSafetyTitle)),
+        body: LoadErrorRetry(onRetry: _load),
+      );
+    }
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: Text(t.phoneSafetyTitle), actions: [
@@ -248,6 +274,26 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
       body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
         _ScoreCard(score: _score, confirmed: _confirmedCount, total: _steps.length),
         const SizedBox(height: Gap.md),
+        // Honest: this phone's storage failed, ticks last until the app closes.
+        if (Settings.degraded) ...[
+          Card(
+            key: const Key('phonesafe-degraded'),
+            color: scheme.errorContainer,
+            child: Padding(
+              padding: const EdgeInsets.all(Gap.md),
+              child: Row(children: [
+                Icon(Icons.save_outlined, color: scheme.onErrorContainer, size: 20),
+                const SizedBox(width: Gap.sm),
+                Expanded(
+                  child: Text(t.m3StorageDegraded,
+                      style: TextStyle(
+                          color: scheme.onErrorContainer, fontSize: 13)),
+                ),
+              ]),
+            ),
+          ),
+          const SizedBox(height: Gap.md),
+        ],
         // Honesty banner — Assisto never reads or enforces these settings.
         Card(
           color: scheme.tertiaryContainer,
@@ -330,7 +376,7 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
             icon: const Icon(Icons.diversity_1_outlined),
             label: Text(t.phoneSafeCheckFamily),
             onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const CircleScreen())),
+                MaterialPageRoute(builder: (_) => const MessengerHomeScreen())),
           ),
         ),
         const SizedBox(height: Gap.sm),

@@ -10,8 +10,9 @@ import 'l10n/app_localizations.dart';
 /// HOME "Discover" cards — server-driven (slot d1-discover).
 ///
 /// The backend (`core/views_discover.py` + `core/logic/discover.py`) decides
-/// WHO sees WHICH card (plan, audience, date window, min build, Premium never
-/// gets sponsored/AdMob, AdMob only when no sponsor is booked). The app only
+/// WHO sees WHICH card (plan, audience, date window, min build; sponsored
+/// reaches every plan, AdMob only Free users and only when no sponsor is
+/// booked). The app only
 /// renders what it receives, records impressions/taps (fire-and-forget) and
 /// caches the last set so Discover works offline.
 ///

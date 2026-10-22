@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../api.dart';
 import '../rtc_api.dart';
 import '../l10n/app_localizations.dart';
+import '../push/lock_screen_guard.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/circle_call_controls.dart';
@@ -89,6 +90,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   @override
   void dispose() {
     _ticker?.cancel();
+    LockScreenGuard.release();
     super.dispose();
   }
 
@@ -216,8 +218,18 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     return h > 0 ? '$h:${two(m)}:${two(sec)}' : '$m:${two(sec)}';
   }
 
+  // Release the lock screen as the pop STARTS (hang-up, decline, ring
+  // timeout or the system back gesture), so the screen underneath never
+  // shows on a locked phone.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => PopScope(
+        onPopInvokedWithResult: (didPop, _) {
+          if (didPop) LockScreenGuard.release();
+        },
+        child: _body(context),
+      );
+
+  Widget _body(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final relation = '${widget.member['relation'] ?? 'friend'}';
 

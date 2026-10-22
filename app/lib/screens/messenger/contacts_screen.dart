@@ -21,7 +21,7 @@ import '../../theme.dart';
 import '../../widgets/c1_contacts_widgets.dart';
 import '../../widgets/contacts_match_model.dart';
 import '../../widgets/contacts_match_widgets.dart';
-import '../../widgets/msgr_connect_sheet.dart';
+import '../../widgets/m3_circle_widgets.dart';
 import '../circle_call_screen.dart';
 import '../circle_chat_screen.dart';
 import '../referral_screen.dart';
@@ -44,10 +44,16 @@ import 'connection_requests_screen.dart';
 /// "reading the phonebook arrives in the next update" and offers search by
 /// number — it never pretends it read the phonebook.
 class ContactsScreen extends StatefulWidget {
-  const ContactsScreen({super.key, this.source});
+  const ContactsScreen({super.key, this.source, this.title, this.header});
 
   /// Injected for tests; defaults to [ContactsSources.create] (lazy).
   final ContactsSource? source;
+
+  /// m3-circle: the same screen is My Circle's "New chat" — a different title
+  /// and the WhatsApp-style actions (Add to My Circle, New group, New
+  /// community, Invite a friend) on top of the "On Assisto" list.
+  final String? title;
+  final Widget? header;
 
   @override
   State<ContactsScreen> createState() => _ContactsScreenState();
@@ -341,17 +347,21 @@ class _ContactsScreenState extends State<ContactsScreen> {
   }
 
   Future<void> _addToCircle(Map<String, dynamic> user) async {
+    // m3-circle: Family / Friend / Colleague / Custom with SERVER relation
+    // codes (the old sheet sent "family", which the server stored as an
+    // unnamed "custom" relation).
     final res =
-        await showMsgrConnectSheet(context, peerName: '${user['name'] ?? ''}');
+        await showM3RelationSheet(context, peerName: '${user['name'] ?? ''}');
     if (res == null || !mounted) return;
+    final (rel, note) = res;
     final id = '${user['id']}';
     setState(() => _busy.add(id));
     try {
       final m = await _api.circleAddByUser(
         toUserId: (user['id'] as num).toInt(),
-        relation: res.relation,
-        customLabel: res.customLabel,
-        note: res.note,
+        relation: rel.code,
+        customLabel: rel.customLabel,
+        note: note,
       );
       final st = '${m['state'] ?? 'pending'}';
       _setCircle(id, {
@@ -360,8 +370,8 @@ class _ContactsScreenState extends State<ContactsScreen> {
         'member': st == 'accepted' ? m : null,
       });
       _snack(st == 'accepted' ? _t.c1Accepted : _t.c1RequestSent);
-    } catch (_) {
-      _snack(_t.c1RequestFailed);
+    } catch (e) {
+      _snack(m3ErrorText(_t, e));
     } finally {
       if (mounted) setState(() => _busy.remove(id));
     }
@@ -478,8 +488,11 @@ class _ContactsScreenState extends State<ContactsScreen> {
     final card = _inviteCard;
     try {
       final d = await _api.inviteShareLink(relation: 'friend');
-      final url = '${d['url'] ?? card?.link ?? ''}';
-      final text = _localized(d['text']) ?? _defaultInviteText(url);
+      // m3-circle: the server returns `link` + `share_text` (the old code read
+      // `url` / `text`, so the server's invite link was never used).
+      final url = '${d['link'] ?? d['url'] ?? card?.link ?? ''}';
+      final text = _localized(d['share_text'] ?? d['text']) ??
+          _defaultInviteText(url);
       await Share.share(text.contains(url) ? text : '$text $url');
       _snack(_t.msgrInviteSent);
     } catch (_) {
@@ -595,7 +608,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
     final t = _t;
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.msgrContactsTitle),
+        title: Text(widget.title ?? t.msgrContactsTitle),
         actions: [
           IconButton(
             tooltip: cmLabel(context, 'cmPrivacyLearnMore'),
@@ -610,7 +623,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
           ),
         ],
       ),
-      body: switch (_stage) {
+      body: _withHeader(switch (_stage) {
         CmStage.disclosure => C1Disclosure(
             onAllow: _allow,
             onDeny: () => setState(() => _stage = CmStage.results),
@@ -642,8 +655,16 @@ class _ContactsScreenState extends State<ContactsScreen> {
             onSecondary: () => setState(() => _stage = CmStage.results),
           ),
         CmStage.results => _results(),
-      },
+      }),
     );
+  }
+
+  /// The New-chat actions sit on top of every stage (inside the results list
+  /// so they scroll with it; above the disclosure / denied / offline views).
+  Widget _withHeader(Widget body) {
+    final h = widget.header;
+    if (h == null || _stage == CmStage.results) return body;
+    return Column(children: [h, Expanded(child: body)]);
   }
 
   Widget _searchBar() {
@@ -765,6 +786,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
           .compareTo('${b['contact']}'.toLowerCase()));
     final searchCard = _searchCard();
     final children = <Widget>[
+      if (widget.header != null) widget.header!,
       _searchBar(),
       if (searchCard != null) searchCard,
       if (!_source.available)

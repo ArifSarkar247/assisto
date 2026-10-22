@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/circle_call_screen.dart';
 import '../theme.dart';
+import 'lock_screen_guard.dart';
 import 'push_notifier.dart';
 import 'push_payload.dart';
 import 'push_service.dart';
@@ -26,6 +27,7 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
   StreamSubscription<String>? _sub;
   Timer? _timeout;
   bool _ended = false;
+  bool _accepted = false;
 
   PushPayload get p => widget.payload;
 
@@ -42,6 +44,8 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
   void dispose() {
     _sub?.cancel();
     _timeout?.cancel();
+    // accepted -> CircleCallScreen releases when the call ends
+    if (!_accepted) LockScreenGuard.release();
     super.dispose();
   }
 
@@ -54,6 +58,7 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
   }
 
   void _accept() {
+    _accepted = true;
     unawaited(PushNotifier.cancelCall(p.callId));
     Navigator.of(context).pushReplacement(MaterialPageRoute(
       builder: (_) => CircleCallScreen(
@@ -70,8 +75,18 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
     Navigator.of(context).maybePop();
   }
 
+  // Release the lock screen as the pop STARTS (decline, ring timeout or the
+  // system back gesture), so the screen underneath never shows on a locked
+  // phone. Accept replaces this route; the call screen releases later.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => PopScope(
+        onPopInvokedWithResult: (didPop, _) {
+          if (didPop) LockScreenGuard.release();
+        },
+        child: _body(context),
+      );
+
+  Widget _body(BuildContext context) {
     final t = AppLocalizations.of(context);
     final name = p.callerName.isNotEmpty ? p.callerName : p.title;
     final initial = name.isNotEmpty ? name.characters.first.toUpperCase() : '?';

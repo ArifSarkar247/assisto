@@ -713,6 +713,13 @@ urlpatterns += [
 ]
 # ---- /c1-contacts ----
 
+# ---- m3-circle ----
+from . import views_m3_circle as m3c  # noqa: E402
+urlpatterns += [
+    path("circle/invite/redeem", m3c.CircleInviteRedeemView.as_view()),
+]
+# ---- /m3-circle ----
+
 urlpatterns += router.urls
 
 # ---- ps1-photo ---- Photo Studio: config, safety, entry ad, jobs (funding taken
@@ -732,3 +739,11 @@ urlpatterns += [
     path("admin/photo-studio/pnl", ps1.AdminPhotoStudioPnlView.as_view()),
 ]
 # ---- /ps1-photo ----
+
+# ---- w1-webphoto ---- the app claims a lifeassisto.com/photo result by its
+# deep-link token (login, once, <= 1h) into a Photo Studio job (normal gate).
+from . import views_w1_webphoto as w1wp  # noqa: E402
+urlpatterns += [
+    path("web-photo/claim", w1wp.WebPhotoClaimView.as_view()),
+]
+# ---- /w1-webphoto ----

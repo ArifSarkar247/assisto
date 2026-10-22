@@ -15317,7 +15317,7 @@
   "discoverMgrTypeSponsored": "Sponsored",
   "discoverMgrTypeAdmob": "AdMob slot",
   "discoverMgrAdmobNote": "AdMob is not linked in the app yet, so this slot shows nothing to users for now. It is only filled for Free users when no sponsored card is booked.",
-  "discoverMgrPaidNote": "Premium and Business users never see sponsored or AdMob cards.",
+  "discoverMgrPaidNote": "Sponsored cards are shown to every plan (always labelled \"Sponsored\"); AdMob cards only to Free users.",
   "discoverMgrType": "Card type",
   "discoverMgrTitleBn": "Title (Bangla)",
   "discoverMgrTitleEn": "Title (English)",
@@ -15627,5 +15627,148 @@
   "psOwnerFeatGenerate": "Generate",
   "psOwnerFeatEntry": "Entry ad",
   "psOwnerEmpty": "No Photo Studio activity in this period yet.",
-  "psGateTrialUsed": "Today's free trial is used — continue with credits or Premium."
+  "psGateTrialUsed": "Today's free trial is used — continue with credits or Premium.",
+  "psWebTitle": "Your photo from lifeassisto.com",
+  "@psWebTitle": {
+    "description": "w1-webphoto: card title when Photo Studio opens a passport/visa photo made on the website"
+  },
+  "psWebBody": "This passport/visa photo was made on the website and is ready to save or print below. Saving follows the usual Photo Studio rule. To edit it, use your original photo.",
+  "@psWebBody": {
+    "description": "w1-webphoto: explains the website photo and the normal export rule"
+  },
+  "psWebPickOriginal": "Edit with my original photo",
+  "@psWebPickOriginal": {
+    "description": "w1-webphoto: button to pick the original photo from the gallery instead"
+  },
+  "psWebEditNote": "This photo came from the website. To edit it, choose your original photo first.",
+  "@psWebEditNote": {
+    "description": "w1-webphoto: snackbar when the user tries to edit the website preview"
+  },
+  "psWebOpening": "Opening your photo…",
+  "@psWebOpening": {
+    "description": "w1-webphoto: loading text while the deep-linked photo is fetched"
+  },
+  "psWebLoginTitle": "Sign in to open your photo",
+  "@psWebLoginTitle": {
+    "description": "w1-webphoto: deep link arrived while signed out"
+  },
+  "psWebLoginBody": "Sign in to Assisto and your photo opens right after. The link works for up to 1 hour.",
+  "@psWebLoginBody": {
+    "description": "w1-webphoto: deep link arrived while signed out"
+  },
+  "psWebLoginBtn": "Sign in",
+  "@psWebLoginBtn": {
+    "description": "w1-webphoto: goes back to the sign-in screen"
+  },
+  "psWebExpiredTitle": "This link has expired",
+  "@psWebExpiredTitle": {
+    "description": "w1-webphoto: token expired or already used"
+  },
+  "psWebExpiredBody": "Website photos are deleted after 1 hour, or as soon as they open in the app. Make it again on lifeassisto.com/photo, or open your own photo in Photo Studio.",
+  "@psWebExpiredBody": {
+    "description": "w1-webphoto: token expired or already used"
+  },
+  "psWebOpenStudio": "Open Photo Studio",
+  "@psWebOpenStudio": {
+    "description": "w1-webphoto: open the studio without the website photo"
+  },
+  "psWebFailed": "Couldn't fetch the photo. Check your internet and try again.",
+  "@psWebFailed": {
+    "description": "w1-webphoto: network/server error while claiming the photo"
+  },
+  "m3AcceptedName": "You and {name} are now connected. You can message and call.",
+  "@m3AcceptedName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "m3AddAnother": "Add someone else",
+  "m3AddLead": "Type their mobile number in any format — 01XXXXXXXXX, +880…, 880…, with spaces or dashes. We check if they're on Assisto.",
+  "m3AddToCircle": "Add to My Circle",
+  "m3AlreadyRequested": "Request already sent. They'll see it at the top of their My Circle.",
+  "m3Cancelled": "Request cancelled",
+  "m3ChooseRelation": "How do you know them?",
+  "m3ConnectedWith": "You're connected with {name}",
+  "@m3ConnectedWith": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "m3CopyLink": "Copy link",
+  "m3Declined": "Request declined",
+  "m3EnterNumber": "Enter a mobile number first",
+  "m3ErrNotAllowed": "You're not allowed to do that. Please sign in again and retry.",
+  "m3ErrOffline": "No internet connection. Check your data or Wi-Fi and try again.",
+  "m3ErrServer": "Assisto's server didn't answer properly. Please try again in a minute.",
+  "m3ErrTimeout": "This is taking too long. Check your internet and try again.",
+  "m3Find": "Find",
+  "m3InviteDefaultText": "Join me on Assisto — let's stay connected in My Circle.",
+  "m3InviteFriend": "Invite a friend",
+  "m3InviteNoWhatsapp": "WhatsApp isn't installed. Use SMS or Share instead.",
+  "m3InviteOpened": "Invite ready — press Send in the app that opened.",
+  "m3InviteShare": "Share link",
+  "m3InviteSms": "SMS",
+  "m3InviteThem": "Invite them",
+  "m3InviteWhatsapp": "WhatsApp",
+  "m3Join": "Join",
+  "m3MyQr": "Show my QR code",
+  "m3MyQrBody": "Let them scan this with their phone camera, or share the link. When they open it in Assisto, you're connected.",
+  "m3MyQrSub": "Or share your invite link",
+  "m3MyQrTitle": "My Circle invite",
+  "m3NoRequests": "No requests right now",
+  "m3NotOnAssisto": "{number} is not on Assisto yet",
+  "@m3NotOnAssisto": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "m3NotOnAssistoBody": "Invite them — once they join with this number, you can add them here.",
+  "m3NumberHint": "e.g. 01712345678 or +880 1712-345678",
+  "m3NumberLabel": "Mobile number",
+  "m3OnAssistoNumber": "On Assisto · {number}",
+  "@m3OnAssistoNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "m3OtherWays": "Other ways to add",
+  "m3PasteLink": "Paste an invite link",
+  "m3PasteLinkHint": "Paste the link they sent you",
+  "m3PasteLinkSub": "Someone sent you their My Circle link",
+  "m3PasteLinkTitle": "Join with an invite link",
+  "m3PickContacts": "Pick from phone contacts",
+  "m3PickContactsSub": "See which of your contacts are on Assisto",
+  "m3RequestSentBody": "They'll see your request at the top of their My Circle. Once they accept, you can message and call each other.",
+  "m3RequestSentTo": "Request sent to {name}",
+  "@m3RequestSentTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "m3RequestWaiting": "Waiting for them to accept",
+  "m3RequestsCount": "Requests ({count})",
+  "@m3RequestsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "m3RequestsLoadFailed": "Couldn't load your My Circle requests.",
+  "m3RequestsTitle": "Requests",
+  "m3ScanLater": "Scanning a QR code inside Assisto comes in a later update. For now, open their QR with your phone camera, or ask them to share the link.",
+  "m3SecureStoreNotReady": "Your phone's secure storage isn't ready yet. Close and reopen Assisto, then try again.",
+  "m3SeeAll": "See all",
+  "m3StorageDegraded": "This phone couldn't save your ticks. They stay until you close the app.",
+  "m3WantsToAdd": "Wants to add you to their My Circle"
 }

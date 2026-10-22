@@ -13,6 +13,7 @@
 library;
 
 import 'dart:async';
+import 'device_contacts_source.dart';
 
 /// One phonebook entry: a display name and its raw numbers (as typed on the
 /// phone). Raw numbers stay ON the device — only salted hashes are uploaded.
@@ -68,16 +69,14 @@ class UnavailableContactsSource implements ContactsSource {
   Future<bool> openSettings() async => false;
 }
 
-/// Process-wide factory. The integrator swaps this for the device source in
-/// the native build (one line in the screen-opening code or main), e.g.
-/// `ContactsSources.factory = () => DeviceContactsSource();`.
+/// Process-wide factory: the real phonebook ([DeviceContactsSource],
+/// flutter_contacts). Tests swap it (or inject a source into the screen).
 /// A factory (not an instance) keeps creation lazy: nothing is touched until
 /// the contacts screen opens.
 class ContactsSources {
   ContactsSources._();
 
-  static ContactsSource Function() factory =
-      () => const UnavailableContactsSource();
+  static ContactsSource Function() factory = () => DeviceContactsSource();
 
   static ContactsSource create() {
     try {

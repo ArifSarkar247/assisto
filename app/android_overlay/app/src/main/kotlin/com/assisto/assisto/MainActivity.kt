@@ -8,6 +8,9 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.RingtoneManager
 import android.os.Build
+import android.os.Bundle
+import android.view.WindowManager
+import org.json.JSONObject
 import android.os.Vibrator
 import android.os.VibratorManager
 import android.os.VibrationEffect
@@ -46,8 +49,100 @@ class MainActivity : FlutterActivity() {
     private val dpm: DevicePolicyManager
         get() = getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
 
+    // ---- lock screen: ONLY a ringing call may show Assisto on a locked phone.
+    // Nothing in the manifest makes the app visible over the keyguard; the
+    // permission is granted per launch, when the full-screen intent of a call
+    // notification (flutter_local_notifications puts our payload JSON in the
+    // "payload" extra) starts or re-enters this activity, and is taken back
+    // when the call screen closes (Dart "release") or the app leaves the
+    // screen (onStop). SOS alerts ring loudly but need an unlock to open.
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        applyLockScreenPolicy(intent)
+        applyVoiceLaunch(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        applyLockScreenPolicy(intent)
+        applyVoiceLaunch(intent)
+    }
+
+    // Part 3 (a3-voice): an assist / wake launch marks "open Assisto Voice"
+    // and, on a locked phone, lets THAT launch show over the keyguard (the
+    // voice screen asks to unlock before anything private and releases the
+    // lock screen as it closes; onStop releases it too). Runs AFTER the call
+    // policy, which clears the flag for every non-call launch.
+    private fun applyVoiceLaunch(i: Intent?) {
+        try {
+            com.assisto.assisto.voice.AssistoVoiceChannel.applyLaunchIntent(this, i)
+        } catch (e: Throwable) {
+        }
+    }
+
+    override fun onStop() {
+        setOverLockScreen(false)
+        super.onStop()
+    }
+
+    private fun applyLockScreenPolicy(i: Intent?) {
+        val isCall = try {
+            val raw = i?.getStringExtra("payload")
+            raw != null && JSONObject(raw).optString("kind") == "call"
+        } catch (e: Exception) {
+            false
+        }
+        setOverLockScreen(isCall)
+    }
+
+    private fun setOverLockScreen(on: Boolean) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                setShowWhenLocked(on)
+                setTurnScreenOn(on)
+            } else {
+                @Suppress("DEPRECATION")
+                val flags = WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                if (on) window.addFlags(flags) else window.clearFlags(flags)
+            }
+        } catch (e: Exception) {
+            // never crash the app over a window flag
+        }
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        // CCTV Part 4 Shop Box mode: keep-screen-on + charging state. Handler
+        // registration only — nothing runs until Dart calls it (lazy).
+        try {
+            com.assisto.assisto.shopbox.ShopBoxChannel.register(flutterEngine, this)
+        } catch (e: Throwable) {
+        }
+        // v1-vehicle: ELM327 OBD over classic Bluetooth. Registering is free;
+        // the adapter is only touched when Dart calls it from the OBD screen.
+        try {
+            com.assisto.assisto.vehicle.ObdBtChannel.register(flutterEngine, this)
+        } catch (e: Throwable) {
+        }
+        // Part 3 (a3-voice): Assisto Voice channel "com.assisto/voice". Installs
+        // a handler only — TTS / camera / wake word are created on first use.
+        try {
+            com.assisto.assisto.voice.AssistoVoiceChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.assisto/lockscreen")
+            .setMethodCallHandler { call, result ->
+                if (call.method == "release") {
+                    setOverLockScreen(false)
+                    result.success(null)
+                } else {
+                    result.notImplemented()
+                }
+            }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, channelName)
             .setMethodCallHandler { call, result ->
                 when (call.method) {

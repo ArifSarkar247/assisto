@@ -18,6 +18,8 @@ urlpatterns = [
     path("scam/card.png", views.scam_card),
 
     path("photo", views.photo),
+    path("photo/app", views.photo_app),          # w1-webphoto App Link target (no image bytes)
+    path(".well-known/assetlinks.json", views.assetlinks),
 
     path("festival", views.festival),
     path("festival/card.png", views.festival_card),
@@ -26,4 +28,7 @@ urlpatterns = [
     path("made30/card.png", views.made30_card),
 
     path("wrapped/card.png", views.wrapped_card),
+
+    # m3-circle: My Circle invite link landing (QR / share / SMS)
+    path("i/<str:token>", views.circle_invite),
 ]
