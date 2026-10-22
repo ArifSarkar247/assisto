@@ -30,22 +30,8 @@ class _SkeletonState extends State<Skeleton>
     final base = scheme.surfaceContainerHighest;
     final hi = Color.alphaBlend(
         scheme.onSurface.withValues(alpha: 0.06), base);
-    return AnimatedBuilder(
-      animation: _c,
-      builder: (_, __) => Container(
-        width: widget.width,
-        height: widget.height,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(widget.radius),
-          gradient: LinearGradient(
-            begin: Alignment(-1 - 2 * _c.value, 0),
-            end: Alignment(1 - 2 * _c.value, 0),
-            colors: [base, hi, base],
-            stops: const [0.3, 0.5, 0.7],
-          ),
-        ),
-      ),
-    );
+    // BISECT: static box, no animation/gradient
+    return Container(width: widget.width, height: widget.height, color: hi);
   }
 }
 
