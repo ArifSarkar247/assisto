@@ -175,11 +175,17 @@ void registerMyCircleAddFlows() {
         await f.waitFor(find.byType(CircleCallScreen), what: '$kind call screen');
         await f.shot('$kind-call');
         f.expectHttp('GET', '/rtc/turn', since: mark);
-        final hang = find.byIcon(Icons.call_end);
+        // The call screen has no AppBar back button. Live/ringing shows the
+        // red hang-up; a call that already ended (no answer on the emulator)
+        // shows Close instead — tap whichever the user would see.
+        final hang = find.byKey(const Key('call-hangup'));
+        final close = find.byKey(const Key('call-close'));
         if (hang.evaluate().isNotEmpty) {
           await f.tap(hang, settleSeconds: 3);
+        } else if (close.evaluate().isNotEmpty) {
+          await f.tap(close, settleSeconds: 3);
         } else {
-          await f.back();
+          throw TestFailure('$kind call screen shows neither hang-up nor Close');
         }
         await f.shot('$kind-hung-up');
         expect(find.byType(CircleCallScreen), findsNothing);
