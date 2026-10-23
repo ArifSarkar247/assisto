@@ -945,3 +945,10 @@ urlpatterns += [
     path("world/hub/<str:hub>/ai", p4w.WorldHubAiView.as_view()),
 ]
 # ---- /p4-world ----
+# ---- cde-chat ---- order 6 D + E: shared chat theme + nicknames.
+from . import views_cde as cde  # noqa: E402
+urlpatterns += [
+    path("circle/decor/member/<int:pk>", cde.DecorMemberView.as_view()),
+    path("circle/decor/group/<int:pk>", cde.DecorGroupView.as_view()),
+]
+# ---- /cde-chat ----

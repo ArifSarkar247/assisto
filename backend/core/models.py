@@ -4681,3 +4681,25 @@ class WorldAnswer(models.Model):
     class Meta:
         ordering = ["-created_at"]
 # ---- /p4-world ----
+
+
+# ---- cde-chat ---- order 6 D + E: shared per-chat theme + nicknames.
+class ChatDecor(models.Model):
+    """ONE row per chat, shared by every side of it: a 1:1 pair
+    (kind="member", key="<low uid>:<high uid>") or a group (kind="group",
+    key="<group id>"). Holds only a theme id and the nicknames — never a key,
+    never a photo: a custom photo theme is an E2E media message (the server
+    only knows `theme == "custom"`). The phones learn changes through E2E
+    control messages; this row lets a reinstall / second phone catch up."""
+    kind = models.CharField(max_length=8)                 # member | group
+    key = models.CharField(max_length=40)
+    theme = models.CharField(max_length=24, blank=True, default="")
+    theme_by = models.IntegerField(null=True, blank=True)  # user id
+    theme_at = models.DateTimeField(null=True, blank=True)
+    # {"<user id>": {"n": nickname, "by": user id, "at": iso}}
+    nicknames = models.JSONField(default=dict, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [("kind", "key")]
+# ---- /cde-chat ----
