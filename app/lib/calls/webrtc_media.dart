@@ -48,29 +48,148 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
     }
     try {
       _local = await navigator.mediaDevices.getUserMedia({
-        'audio': {
-          'echoCancellation': true,
-          'noiseSuppression': true,
-          'autoGainControl': true,
-        },
-        'video': video
-            ? {
-                'facingMode': 'user',
-                'width': {'ideal': 640},
-                'height': {'ideal': 480},
-                'frameRate': {'ideal': 24},
-              }
-            : false,
+        'audio': _audioConstraints,
+        'video': video ? _videoConstraints : false,
       });
     } catch (e) {
-      final s = '$e'.toLowerCase();
-      throw MediaOpenException(
-          s.contains('permission') ||
-              s.contains('notallowed') ||
-              s.contains('denied'),
-          '$e');
+      if (!video) throw _openError(e);
+      // b1-calls (reality run 39946885424): the camera can fail on its own
+      // ("Failed to create new track" — busy, OEM HAL, emulator) while the
+      // mic works. Join with the camera OFF instead of failing the call.
+      callLog('webrtc_media#7', e);
+      try {
+        _local = await navigator.mediaDevices
+            .getUserMedia({'audio': _audioConstraints, 'video': false});
+        cameraUnavailable = true;
+      } catch (e2) {
+        throw _openError(e2);
+      }
     }
-    if (video && _renderersReady) localRenderer.srcObject = _local;
+    final v = _local?.getVideoTracks() ?? const <MediaStreamTrack>[];
+    _videoTrack = v.isEmpty ? null : v.first;
+    if (_videoTrack != null && _renderersReady) {
+      localRenderer.srcObject = _local;
+    }
+  }
+
+  static const Map<String, dynamic> _audioConstraints = {
+    'echoCancellation': true,
+    'noiseSuppression': true,
+    'autoGainControl': true,
+  };
+
+  static const Map<String, dynamic> _videoConstraints = {
+    'facingMode': 'user',
+    'width': {'ideal': 640},
+    'height': {'ideal': 480},
+    'frameRate': {'ideal': 24},
+  };
+
+  static MediaOpenException _openError(Object e) {
+    final s = '$e'.toLowerCase();
+    return MediaOpenException(
+        s.contains('permission') ||
+            s.contains('notallowed') ||
+            s.contains('denied'),
+        '$e');
+  }
+
+  /// b1: the camera track in use (from [open] or [startVideo]) + its sender.
+  MediaStreamTrack? _videoTrack;
+  MediaStream? _cam;
+  RTCRtpSender? _videoSender;
+
+  @override
+  bool cameraUnavailable = false;
+
+  @override
+  Future<void> startVideo() async {
+    final pc = _peer;
+    MediaStream cam;
+    try {
+      cam = await navigator.mediaDevices
+          .getUserMedia({'audio': false, 'video': _videoConstraints});
+    } catch (e) {
+      throw _openError(e);
+    }
+    final tracks = cam.getVideoTracks();
+    if (tracks.isEmpty) {
+      await cam.dispose();
+      throw MediaOpenException(false, 'no camera track');
+    }
+    // drop a previous camera (never two cameras open)
+    await _releaseCamera();
+    _cam = cam;
+    final track = tracks.first;
+    _videoTrack = track;
+    final sender = _videoSender;
+    if (sender != null) {
+      // used before (video -> voice -> video): same m-line, same stream id
+      await sender.replaceTrack(track);
+    } else {
+      // first time: reuses the receive-only video transceiver of the voice
+      // offer and tags the track with the AUDIO stream id, so the other
+      // phone's onTrack gets one stream with both (its renderer shows it).
+      final local = _local;
+      _videoSender = local != null
+          ? await pc.addTrack(track, local)
+          : await pc.addTrack(track, cam);
+    }
+    cameraUnavailable = false;
+    if (_renderersReady) localRenderer.srcObject = cam;
+  }
+
+  @override
+  Future<void> stopVideo() async {
+    try {
+      await _videoSender?.replaceTrack(null);
+    } catch (e) {
+      callLog('webrtc_media#8', e);
+    }
+    await _releaseCamera();
+    try {
+      if (_renderersReady) localRenderer.srcObject = null;
+    } catch (e) {
+      callLog('webrtc_media#9', e);
+    }
+  }
+
+  Future<void> _releaseCamera() async {
+    final t = _videoTrack;
+    _videoTrack = null;
+    try {
+      await t?.stop();
+    } catch (e) {
+      callLog('webrtc_media#10', e);
+    }
+    final cam = _cam;
+    _cam = null;
+    try {
+      await cam?.dispose();
+    } catch (e) {
+      callLog('webrtc_media#11', e);
+    }
+  }
+
+  @override
+  Future<List<AudioRoute>> audioRoutes() async {
+    final out = <AudioRoute>[];
+    for (final d in await Helper.audiooutputs) {
+      final r = audioRouteFromId(d.deviceId);
+      if (r != null && !out.contains(r)) out.add(r);
+    }
+    out.sort((a, b) => a.index.compareTo(b.index));
+    return out;
+  }
+
+  @override
+  Future<void> setAudioRoute(AudioRoute r) async {
+    if (r == AudioRoute.speaker) {
+      await Helper.setSpeakerphoneOn(true);
+    } else if (r == AudioRoute.earpiece) {
+      await Helper.setSpeakerphoneOn(false);
+    }
+    await Helper.selectAudioOutput(audioRouteId(r));
   }
 
   @override
@@ -89,7 +208,8 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
     final local = _local;
     if (local != null) {
       for (final t in local.getTracks()) {
-        await pc.addTrack(t, local);
+        final s = await pc.addTrack(t, local);
+        if (t.kind == 'video') _videoSender = s;
       }
     }
     pc.onIceCandidate = (RTCIceCandidate c) {
@@ -124,8 +244,19 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
     };
     pc.onTrack = (RTCTrackEvent e) {
       if (e.streams.isEmpty) return;
-      if (_renderersReady) remoteRenderer.srcObject = e.streams.first;
-      if (e.track.kind == 'video') hasRemoteVideo.value = true;
+      final s = e.streams.first;
+      if (e.track.kind == 'video') {
+        // b1: a video track added mid-call (voice -> video) joins the SAME
+        // remote stream as the audio: point the renderer at that track.
+        if (_renderersReady) {
+          unawaited(remoteRenderer
+              .setSrcObject(stream: s, trackId: e.track.id)
+              .catchError((Object err) => callLog('webrtc_media#12', err)));
+        }
+        hasRemoteVideo.value = true;
+      } else if (_renderersReady && !hasRemoteVideo.value) {
+        remoteRenderer.srcObject = s;
+      }
     };
   }
 
@@ -174,15 +305,14 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
 
   @override
   Future<void> setCameraEnabled(bool on) async {
-    for (final t in _local?.getVideoTracks() ?? const <MediaStreamTrack>[]) {
-      t.enabled = on;
-    }
+    final t = _videoTrack;
+    if (t != null) t.enabled = on;
   }
 
   @override
   Future<void> switchCamera() async {
-    final v = _local?.getVideoTracks() ?? const <MediaStreamTrack>[];
-    if (v.isNotEmpty) await Helper.switchCamera(v.first);
+    final t = _videoTrack;
+    if (t != null) await Helper.switchCamera(t);
   }
 
   @override
@@ -201,7 +331,7 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
     for (final r in reports) {
       byId[r.id] = r.values;
     }
-    double? rtt;
+    double? rtt, jitter, avail;
     var relayed = false;
     var lost = 0, recv = 0;
     // x1-calls: the standard way to find the pair in use is
@@ -222,6 +352,8 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
         if (!selected) continue;
         final cr = v['currentRoundTripTime'];
         if (cr is num) rtt = cr * 1000;
+        final ab = v['availableOutgoingBitrate'];
+        if (ab is num && ab > 0) avail = ab / 1000;
         final l = byId['${v['localCandidateId']}'];
         final rm = byId['${v['remoteCandidateId']}'];
         if (l?['candidateType'] == 'relay' || rm?['candidateType'] == 'relay') {
@@ -232,6 +364,13 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
         final pr = v['packetsReceived'];
         if (pl is num) lost += pl.toInt();
         if (pr is num) recv += pr.toInt();
+        // jitter (seconds) of the AUDIO stream — what people hear
+        final j = v['jitter'];
+        final kind = v['kind'] ?? v['mediaType'];
+        if (j is num && (kind == null || kind == 'audio')) {
+          final ms = j * 1000.0;
+          jitter = jitter == null ? ms : (ms > jitter ? ms : jitter);
+        }
       }
     }
     final dl = lost - _lastLost, dr = recv - _lastRecv;
@@ -239,7 +378,12 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
     _lastRecv = recv;
     double? loss;
     if (dl + dr > 0) loss = 100.0 * dl.clamp(0, 1 << 30) / (dl + dr);
-    return MediaStats(rttMs: rtt, lossPct: loss, relayed: relayed);
+    return MediaStats(
+        rttMs: rtt,
+        lossPct: loss,
+        jitterMs: jitter,
+        availableKbps: avail,
+        relayed: relayed);
   }
 
   @override
@@ -257,6 +401,8 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
 
   @override
   Future<void> dispose() async {
+    await _releaseCamera();
+    _videoSender = null;
     try {
       for (final t in _local?.getTracks() ?? const <MediaStreamTrack>[]) {
         await t.stop();

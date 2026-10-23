@@ -216,7 +216,7 @@ void main() {
       c.dispose();
     });
 
-    test('reconnect gives up -> failed (never stuck "connected")', () async {
+    test('reconnect gives up -> lost (never stuck "connected")', () async {
       final m = FakeCallMedia(), s = FakeSignaling();
       final c = mk(m, s, FakeSounds());
       await c.start();
@@ -227,7 +227,7 @@ void main() {
       expect(c.phase, CallPhase.reconnecting);
       await Future<void>.delayed(const Duration(milliseconds: 500));
       await settle();
-      expect(c.endReason, CallEndReason.failed);
+      expect(c.endReason, CallEndReason.lost);
       expect(s.eventLog, contains('fail'));
       c.dispose();
     });
@@ -278,7 +278,7 @@ void main() {
           containsAllInOrder(
               ['muted:true', 'speaker:false', 'camera:false', 'switch']));
       expect(s.signals.last.$1, 'media');
-      expect(s.signals.last.$2, {'camera': false});
+      expect(s.signals.last.$2, {'camera': false, 'mic': false, 'video': true});
       expect(c.frontCamera, isFalse);
       s.remoteSignal('media', {'camera': false});
       await settle();

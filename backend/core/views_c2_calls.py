@@ -33,6 +33,10 @@ Endpoints (Token auth):
        | busy | cancel | hangup | fail | connected | reconnect | timeout
   POST rt/send {topic:"call.signal", payload:{call_id, kind, data}}
        kind: offer | answer | ice | restart_offer | restart_answer | media
+       b1-calls: video_request (plan-gated, 402 upgrade_required) |
+             video_accept (record becomes kind=video) | video_decline |
+             video_cancel | video_off | reneg_offer | reneg_answer |
+             reneg_request | restart_request;  media data {camera, mic, video}
 """
 from __future__ import annotations
 
@@ -161,7 +165,11 @@ def is_busy(user, exclude_id=None, now=None, exclude_peer=None):
 # is set up); a high-priority FCM DATA push "call_signal" (ids only — never
 # SDP, never names) nudges the other phone to poll NOW when its poll is slow
 # (Doze, backgrounded during the call). Unknown to old app builds -> ignored.
-NUDGE_SIGNAL_KINDS = ("offer", "answer", "restart_offer", "restart_answer")
+NUDGE_SIGNAL_KINDS = ("offer", "answer", "restart_offer", "restart_answer",
+                      # b1-calls: a video request / renegotiation / restart
+                      # request must reach a backgrounded (slow-poll) phone
+                      "video_request", "reneg_offer", "reneg_answer",
+                      "restart_request")
 
 
 def _nudge_send(tokens, data, collapse):
@@ -560,6 +568,23 @@ def _produce_call(request, topic, payload):
     verdict = CS.validate_signal(kind, len(json.dumps(data, default=str)), sent)
     if verdict != "ok":
         return {"detail": verdict, "code": verdict}, 422
+    if kind == "video_request" and rec.kind != "video":
+        # b1-calls: switching a voice call to video runs THE SAME plan gate
+        # as placing a video call, for the person asking (the one who
+        # accepts may be free). "Free calls (testing)" lifts it (entitle()).
+        gate = video_upgrade_gate(rec, request.user)
+        if not gate.get("allowed"):
+            return {"detail": CC.pick(
+                lang, "ভিডিও কলের জন্য প্রিমিয়াম লাগবে।",
+                "Video calling needs Premium."),
+                "code": "upgrade_required", "upgrade_required": True,
+                "prompt": CC.upgrade_prompt(lang)}, 402
+    if kind == "video_accept" and rec.kind != "video":
+        # b1-calls: the call is a VIDEO call from now on — history shows it
+        # and the P&L relay-cost estimate (turn_monitor, per kind) uses the
+        # video bitrate for it.
+        rec.kind = "video"
+        rec.save(update_fields=["kind"])
     other = rec.callee if side == "caller" else rec.caller
     seq = rt_publish(other, "call.signal",
                      {"call_id": rec.id, "kind": kind, "from": side,
@@ -571,6 +596,25 @@ def _produce_call(request, topic, payload):
 
 
 register_producer("call.", _produce_call)
+
+
+def video_upgrade_gate(rec, user):
+    """b1-calls: may `user` (a party of `rec`) switch it to video? The same
+    circle_calls.can_place_call gate as placing a video call, with the
+    asker as the "caller". Never raises (an error means allowed=False)."""
+    try:
+        from .views_build61 import _callee_dict, _caller_dict
+        other = rec.callee if user.id == rec.caller_id else rec.caller
+        edge = (rec.circle if (rec.circle is not None
+                               and rec.circle.user_id == user.id) else None)
+        if edge is None:
+            edge = CircleMember.objects.filter(user=user,
+                                               peer_user=other).first()
+        return CC.can_place_call(_caller_dict(user, edge),
+                                 _callee_dict(edge), "video")
+    except Exception:
+        log.exception("b1 video_upgrade_gate")
+        return {"allowed": False, "reason": "error"}
 
 
 def ring_allowed(callee, caller):

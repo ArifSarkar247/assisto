@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -51,6 +52,10 @@ class CircleCallScreen extends StatefulWidget {
   /// Optional video surface for [controller] (tests / gallery).
   final CallVideoSurface? surface;
 
+  /// b1: re-opened from the minimized-call bar — this screen takes the LIVE
+  /// [controller] back from [CallRuntime] and owns it again.
+  final bool resumed;
+
   const CircleCallScreen({
     super.key,
     required this.member,
@@ -59,7 +64,22 @@ class CircleCallScreen extends StatefulWidget {
     this.callId,
     this.controller,
     this.surface,
+    this.resumed = false,
   });
+
+  /// b1: how the mini call bar re-opens a minimized call.
+  static void registerReopen() {
+    CallRuntime.instance.reopenCall ??= (nav, o) => nav.push(
+        MaterialPageRoute<void>(
+            builder: (_) => CircleCallScreen(
+                member: o.member,
+                kind: o.kind,
+                outgoing: o.controller.outgoing,
+                callId: o.controller.callId,
+                controller: o.controller,
+                surface: o.surface,
+                resumed: true)));
+  }
 
   @override
   State<CircleCallScreen> createState() => _CircleCallScreenState();
@@ -77,11 +97,23 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   bool _beginning = false;
   bool _claimed = false;
 
+  /// b1: the live call went to the mini bar (minimized) — this screen must
+  /// not hang it up or stop its foreground service when it is disposed.
+  bool _handedOff = false;
+  int _noticeSeq = 0;
+  CallNotice _noticeShown = CallNotice.none;
+  Timer? _noticeTimer;
+  bool? _screenOnSent;
+
   /// Direction of the CURRENT controller: an incoming call that failed can
   /// be called back ("Call again" places a new outgoing call).
   late bool _outgoing = widget.outgoing;
 
-  bool get _isVideo => widget.kind == 'video';
+  /// How the call STARTED (the controller is created with this).
+  bool get _startsVideo => widget.kind == 'video';
+
+  /// b1: the call is in VIDEO mode right now (voice <-> video switch).
+  bool get _isVideo => _c?.videoOn ?? _startsVideo;
   String get _name => '${widget.member['name'] ?? ''}';
   String get _photo =>
       '${widget.member['photo_url'] ?? widget.member['photo'] ?? widget.member['caller_photo'] ?? ''}';
@@ -92,7 +124,19 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   void initState() {
     super.initState();
     CallNative.inPip.addListener(_onPip);
-    if (widget.controller != null) {
+    CircleCallScreen.registerReopen();
+    if (widget.controller != null && widget.resumed) {
+      // b1: back from the mini bar — own the live call again
+      CallRuntime.instance.takeOngoing();
+      _owns = true;
+      CallRuntime.instance.acquireScreen(this, _screenLive);
+      _noticeSeq = widget.controller!.noticeSeq; // no stale notice
+      _attach(widget.controller!, widget.surface, initial: true);
+      unawaited(CallNative.pipSupported().then((v) {
+        if (mounted) setState(() => _pipSupported = v);
+      }));
+      WidgetsBinding.instance.addPostFrameCallback((_) => _onChange());
+    } else if (widget.controller != null) {
       _attach(widget.controller!, widget.surface, initial: true);
     } else {
       _owns = true;
@@ -142,13 +186,13 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       media: media,
       signaling: ApiCallSignaling(app.api, transport),
       sounds: NativeCallSounds(),
-      video: _isVideo,
+      video: _startsVideo,
       outgoing: _outgoing,
       memberId: widget.member['id'] as int?,
       callId: _outgoing ? null : widget.callId,
     );
     _attach(c, media is CallVideoSurface ? media as CallVideoSurface : null);
-    if (_isVideo) unawaited(CallNative.keepScreenOn(true));
+    if (_startsVideo) unawaited(CallNative.keepScreenOn(true));
     unawaited(CallNative.pipSupported().then((v) {
       if (mounted) setState(() => _pipSupported = v);
     }));
@@ -164,13 +208,65 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted && (_c?.isLive ?? false)) setState(() {});
     });
+    _syncNotice(c);
     if (!initial) setState(() {});
+  }
+
+  /// b1: show a NEW controller notice for a few seconds.
+  void _syncNotice(CallController c) {
+    if (c.noticeSeq == _noticeSeq) return;
+    _noticeSeq = c.noticeSeq;
+    _noticeShown = c.notice;
+    _noticeTimer?.cancel();
+    _noticeTimer = Timer(const Duration(seconds: 5), () {
+      if (mounted) setState(() => _noticeShown = CallNotice.none);
+    });
+  }
+
+  /// b1: back / "Minimize" during a live call. A video call shrinks into
+  /// picture-in-picture when the phone supports it; otherwise (and for voice)
+  /// the call moves to the in-app bar and the user can use the app.
+  Future<void> _minimizeOrPip() async {
+    final c = _c;
+    if (c == null || !c.isLive || !_owns) {
+      _close();
+      return;
+    }
+    if (c.videoOn && _pipSupported) {
+      if (await CallNative.enterPip(w: 9, h: 16)) return;
+    }
+    _handOff(c);
+  }
+
+  void _handOff(CallController c) {
+    if (_handedOff || !mounted) return;
+    _handedOff = true;
+    _owns = false;
+    c.removeListener(_onChange);
+    CallRuntime.instance.releaseScreen(this);
+    unawaited(CallNative.setAutoPip(false));
+    CallRuntime.instance.minimize(OngoingCall(
+        controller: c,
+        surface: _surface,
+        member: widget.member,
+        kind: widget.kind));
+    _closed = true;
+    _popSelf();
   }
 
   void _onChange() {
     final c = _c;
     if (c == null || !mounted) return;
+    _syncNotice(c);
     if (_owns) {
+      // b1: video mode keeps the screen on and allows Home -> PiP
+      final screenOn = c.videoOn && !c.isEnded;
+      if (_screenOnSent != screenOn) {
+        _screenOnSent = screenOn;
+        unawaited(CallNative.keepScreenOn(screenOn));
+      }
+      unawaited(
+          CallNative.setAutoPip(_pipSupported && c.videoOn && c.isLive));
       if (c.callId != null && !c.isEnded) {
         CallRuntime.instance.activeCallId = c.callId;
         if (c.merged && !_claimed) {
@@ -204,7 +300,21 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   void _close() {
     if (_closed || !mounted) return;
     _closed = true;
-    Navigator.of(context).maybePop();
+    _popSelf();
+  }
+
+  /// Pops THIS route even while its PopScope still says "can't pop" (the
+  /// scope only guards the system back gesture during a live call).
+  void _popSelf() {
+    final route = ModalRoute.of(context);
+    final nav = Navigator.of(context);
+    if (route != null && route.isCurrent && nav.canPop()) {
+      nav.pop();
+    } else if (route != null && route.isActive && !route.isCurrent) {
+      nav.removeRoute(route);
+    } else {
+      nav.maybePop();
+    }
   }
 
   @override
@@ -212,8 +322,16 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     CallNative.inPip.removeListener(_onPip);
     _ticker?.cancel();
     _autoClose?.cancel();
+    _noticeTimer?.cancel();
     _surface?.hasRemoteVideo.removeListener(_onChange);
     final c = _c;
+    if (_handedOff) {
+      // b1: the call lives on in the mini bar — nothing to stop here
+      if (!_duplicate) LockScreenGuard.release();
+      super.dispose();
+      return;
+    }
+    if (_owns) unawaited(CallNative.setAutoPip(false));
     if (c != null) {
       c.removeListener(_onChange);
       if (_owns) {
@@ -279,8 +397,15 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
 
   @override
   Widget build(BuildContext context) => PopScope(
+        // b1: back during a LIVE call never hangs up — it minimizes (PiP for
+        // video, the in-app call bar otherwise), like WhatsApp.
+        canPop: !(_owns && !_closed && (_c?.isLive ?? false)),
         onPopInvokedWithResult: (didPop, _) {
-          if (didPop) LockScreenGuard.release();
+          if (didPop) {
+            LockScreenGuard.release();
+          } else {
+            unawaited(_minimizeOrPip());
+          }
         },
         child: AnnotatedRegion<SystemUiOverlayStyle>(
           value: SystemUiOverlayStyle.light,
@@ -303,11 +428,22 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     if (_pip) {
       return Scaffold(
         backgroundColor: Colors.black,
-        body: Center(child: remoteVideo ? surface.remoteView() : _avatar(40)),
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            Center(child: remoteVideo ? surface.remoteView() : _avatar(40)),
+            if (c != null && c.isLive && !c.remoteMicOn)
+              const Positioned(
+                left: 8,
+                bottom: 8,
+                child: Icon(Icons.mic_off, color: Colors.white, size: 20),
+              ),
+          ],
+        ),
       );
     }
-    final showSelf =
-        _isVideo && c != null && c.cameraOn && !c.isEnded && surface != null;
+    final live = c != null && c.isLive;
+    final showSelf = _isVideo && c != null && !c.isEnded && surface != null;
     return Scaffold(
       backgroundColor: Brand.ink,
       body: Stack(
@@ -363,6 +499,8 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                             color: Colors.white.withValues(alpha: 0.7))),
                   ),
                 const Spacer(flex: 2),
+                if (live) _noticeBanner(c),
+                if (live) _upgradeCard(c),
                 if (c == null || !c.isEnded) _controls(c),
               ],
             ),
@@ -377,7 +515,16 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                 borderRadius: BorderRadius.circular(14),
                 child: ColoredBox(
                   color: Colors.black,
-                  child: surface.localView(mirror: c.frontCamera),
+                  child: c.cameraOn
+                      ? surface.localView(mirror: c.frontCamera)
+                      : Center(
+                          key: const Key('call-self-camera-off'),
+                          child: Semantics(
+                            label: _t.b1CallCameraOffSelf,
+                            child: const Icon(Icons.videocam_off_outlined,
+                                color: Colors.white70, size: 32),
+                          ),
+                        ),
                 ),
               ),
             ),
@@ -388,20 +535,33 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
 
   Widget _topBar(CallController? c) {
     final t = _t;
+    final live = c != null && c.isLive;
+    Widget lead;
+    if (_isVideo && _pipSupported && live) {
+      lead = IconButton(
+        key: const Key('call-pip'),
+        tooltip: t.c2CallPip,
+        color: Colors.white,
+        icon: const Icon(Icons.picture_in_picture_alt_outlined),
+        onPressed: () => CallNative.enterPip(w: 9, h: 16),
+      );
+    } else if (live && _owns) {
+      // b1: keep talking while using the rest of the app
+      lead = IconButton(
+        key: const Key('call-minimize'),
+        tooltip: t.b1CallMinimize,
+        color: Colors.white,
+        icon: const Icon(Icons.keyboard_arrow_down),
+        onPressed: () => _handOff(c),
+      );
+    } else {
+      lead = const SizedBox(width: 48);
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xs),
       child: Row(
         children: [
-          if (_isVideo && _pipSupported && c != null && c.isLive)
-            IconButton(
-              key: const Key('call-pip'),
-              tooltip: t.c2CallPip,
-              color: Colors.white,
-              icon: const Icon(Icons.picture_in_picture_alt_outlined),
-              onPressed: () => CallNative.enterPip(w: 9, h: 16),
-            )
-          else
-            const SizedBox(width: 48),
+          lead,
           Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -423,7 +583,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
           ),
           SizedBox(
             width: 48,
-            child: c != null && c.isLive ? _QualityBars(c.quality) : null,
+            child: live ? _QualityBars(c.quality) : null,
           ),
         ],
       ),
@@ -433,9 +593,15 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   Widget _avatar(double r) =>
       CallAvatar(name: _name, photoUrl: _photo, version: _photoV, radius: r);
 
+  TextStyle get _hintStyle =>
+      TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.75));
+
   Widget _nameAndStatus(CallController? c) {
+    final t = _t;
     final ended = c?.isEnded ?? false;
     final bad = c != null && ended && isFailureReason(c.endReason);
+    final live = c != null && c.isLive;
+    final q = c?.quality ?? CallQuality.unknown;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: Gap.xl),
       child: Column(
@@ -477,65 +643,261 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
           if (c != null && c.phase == CallPhase.reconnecting)
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
-              child: Text(_t.c2CallReconnectHint,
+              child: Text(t.c2CallReconnectHint,
+                  key: const Key('call-reconnect-hint'),
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.white.withValues(alpha: 0.7))),
+                  style: _hintStyle),
             ),
-          if (c != null && c.isLive && _isVideo && !c.remoteCameraOn)
+          // b1: short quality text when the network is weak (bars always)
+          if (live &&
+              c.phase == CallPhase.connected &&
+              (q == CallQuality.fair || q == CallQuality.poor))
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
-              child: Text(_t.c2CallRemoteCameraOff,
+              child: Text(
+                  q == CallQuality.poor
+                      ? t.c2CallQualityPoor
+                      : t.c2CallQualityFair,
+                  key: const Key('call-quality-text'),
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.white.withValues(alpha: 0.7))),
+                  style: _hintStyle),
+            ),
+          if (live && kDebugMode)
+            Text(c.relayed ? t.b1CallDebugRelay : t.b1CallDebugDirect,
+                key: const Key('call-debug-path'),
+                style: _hintStyle.copyWith(fontSize: 11)),
+          if (live && _isVideo && !c.remoteCameraOn)
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.xs),
+              child: _badge(Icons.videocam_off_outlined,
+                  t.c2CallRemoteCameraOff, const Key('call-remote-camera-off')),
+            ),
+          if (live && !c.remoteMicOn)
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.xs),
+              child: _badge(Icons.mic_off, t.b1CallRemoteMuted(_name),
+                  const Key('call-remote-muted')),
             ),
         ],
       ),
     );
   }
 
-  Widget _endedActions(CallController c) {
+  Widget _badge(IconData icon, String text, Key key) => Container(
+        key: key,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.35),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 14, color: Colors.white),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(text,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 12, color: Colors.white)),
+            ),
+          ],
+        ),
+      );
+
+  /// b1: the honest one-line notice (declined, no answer, camera, …).
+  Widget _noticeBanner(CallController c) {
     final t = _t;
-    final denied = c.endReason == CallEndReason.mediaDenied;
+    final String? text = switch (_noticeShown) {
+      CallNotice.none => null,
+      CallNotice.videoDeclined => t.b1CallNoticeDeclined(_name),
+      CallNotice.videoNoAnswer => t.b1CallNoticeNoAnswer,
+      CallNotice.videoFailed => t.b1CallNoticeVideoFailed,
+      CallNotice.videoPremium => t.b1CallNoticePremium,
+      CallNotice.cameraBlocked => t.b1CallNoticeCamera,
+      CallNotice.remoteSwitchedToVoice => t.b1CallNoticeRemoteVoice(_name),
+      CallNotice.reconnected => t.b1CallNoticeReconnected,
+    };
+    if (text == null) return const SizedBox.shrink();
     return Padding(
-      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.xl, Gap.lg, 0),
-      child: Wrap(
-        alignment: WrapAlignment.center,
-        spacing: Gap.md,
-        runSpacing: Gap.sm,
-        children: [
-          if (denied)
-            FilledButton.tonalIcon(
-              icon: const Icon(Icons.settings_outlined),
-              label: Text(t.c2CallOpenSettings),
-              onPressed: () => openAppSettings(),
-            ),
-          if (canCallAgain(c, hasMember: widget.member['id'] is int))
-            FilledButton.icon(
-              key: const Key('call-again'),
-              style: Brand.successButton(), // qa1: white on success was 3.4:1
-              icon: Icon(_isVideo ? Icons.videocam : Icons.call),
-              label: Text(t.c2CallAgain),
-              onPressed: _retry,
-            ),
-          OutlinedButton(
-            key: const Key('call-close'),
-            style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.white,
-                side: BorderSide(color: Colors.white.withValues(alpha: 0.5))),
-            onPressed: _close,
-            child: Text(t.close),
+      padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.md),
+      child: Semantics(
+        liveRegion: true,
+        child: Container(
+          key: const Key('call-notice'),
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(
+              horizontal: Gap.md, vertical: Gap.sm),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.45),
+            borderRadius: BorderRadius.circular(14),
           ),
-        ],
+          child: Text(text,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 13, color: Colors.white)),
+        ),
       ),
     );
+  }
+
+  /// b1: voice -> video request states (incoming prompt / waiting).
+  Widget _upgradeCard(CallController c) {
+    final t = _t;
+    switch (c.upgrade) {
+      case VideoUpgrade.none:
+        return const SizedBox.shrink();
+      case VideoUpgrade.switching:
+        return Padding(
+          padding: const EdgeInsets.only(bottom: Gap.md),
+          child: Text(t.b1CallVideoSwitching,
+              key: const Key('call-video-switching'),
+              textAlign: TextAlign.center,
+              style: _hintStyle.copyWith(fontSize: 13)),
+        );
+      case VideoUpgrade.requesting:
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.md),
+          child: Row(
+            key: const Key('call-video-waiting'),
+            children: [
+              const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                      strokeWidth: 2, color: Colors.white)),
+              const SizedBox(width: Gap.sm),
+              Expanded(
+                child: Text(t.b1CallVideoWaiting(_name),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 13, color: Colors.white)),
+              ),
+              TextButton(
+                key: const Key('call-video-cancel'),
+                style: TextButton.styleFrom(foregroundColor: Colors.white),
+                onPressed: c.cancelVideoRequest,
+                child: Text(t.b1CallVideoCancel),
+              ),
+            ],
+          ),
+        );
+      case VideoUpgrade.incoming:
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.md),
+          child: Container(
+            key: const Key('call-video-prompt'),
+            padding: const EdgeInsets.all(Gap.md),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.videocam, color: Colors.white),
+                    const SizedBox(width: Gap.sm),
+                    Expanded(
+                      child: Text(t.b1CallVideoAsk(_name),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              fontSize: 15,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: Gap.sm),
+                Wrap(
+                  alignment: WrapAlignment.end,
+                  spacing: Gap.sm,
+                  runSpacing: Gap.xs,
+                  children: [
+                    OutlinedButton(
+                      key: const Key('call-video-decline'),
+                      style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          side: BorderSide(
+                              color: Colors.white.withValues(alpha: 0.6))),
+                      onPressed: c.declineVideo,
+                      child: Text(t.b1CallVideoNotNow),
+                    ),
+                    FilledButton.icon(
+                      key: const Key('call-video-accept'),
+                      style: Brand.successButton(),
+                      icon: const Icon(Icons.videocam),
+                      onPressed: c.acceptVideo,
+                      label: Text(t.b1CallVideoAccept),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+    }
+  }
+
+  IconData _routeIcon(AudioRoute r) => switch (r) {
+        AudioRoute.earpiece => Icons.phone_in_talk_outlined,
+        AudioRoute.speaker => Icons.volume_up,
+        AudioRoute.bluetooth => Icons.bluetooth_audio,
+        AudioRoute.wired => Icons.headphones,
+      };
+
+  String _routeLabel(AudioRoute r) => switch (r) {
+        AudioRoute.earpiece => _t.c2CallEarpiece,
+        AudioRoute.speaker => _t.circleCallSpeaker,
+        AudioRoute.bluetooth => _t.b1CallRouteBluetooth,
+        AudioRoute.wired => _t.b1CallRouteWired,
+      };
+
+  /// b1: Bluetooth / wired headset connected -> a picker; otherwise the
+  /// classic earpiece <-> speaker toggle.
+  Future<void> _onRouteTap(CallController c) async {
+    final routes = await c.refreshRoutes();
+    if (!mounted) return;
+    final extra = routes
+        .any((r) => r == AudioRoute.bluetooth || r == AudioRoute.wired);
+    if (!extra) {
+      await c.toggleSpeaker();
+      return;
+    }
+    final picked = await showModalBottomSheet<AudioRoute>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.sm),
+              child: Text(_t.b1CallRouteTitle,
+                  style: Theme.of(ctx).textTheme.titleMedium),
+            ),
+            for (final r in routes)
+              ListTile(
+                key: Key('call-route-${r.name}'),
+                leading: Icon(_routeIcon(r)),
+                title: Text(_routeLabel(r)),
+                trailing: r == c.route ? const Icon(Icons.check) : null,
+                onTap: () => Navigator.of(ctx).pop(r),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (picked != null) await c.setRoute(picked);
   }
 
   Widget _controls(CallController? c) {
     final t = _t;
+    final live = c != null && c.isLive;
+    final route = c?.route ??
+        (_startsVideo ? AudioRoute.speaker : AudioRoute.earpiece);
+    final waitingVideo = c != null && c.upgrade != VideoUpgrade.none;
     return Padding(
       padding: const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, Gap.xl),
       child: Column(
@@ -553,14 +915,10 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
               children: [
                 _CtlButton(
                   key: const Key('call-speaker'),
-                  icon: (c?.speakerOn ?? false)
-                      ? Icons.volume_up
-                      : Icons.phone_in_talk_outlined,
-                  label: (c?.speakerOn ?? false)
-                      ? t.circleCallSpeaker
-                      : t.c2CallEarpiece,
-                  active: c?.speakerOn ?? false,
-                  onTap: c == null ? null : c.toggleSpeaker,
+                  icon: _routeIcon(route),
+                  label: _routeLabel(route),
+                  active: route != AudioRoute.earpiece,
+                  onTap: c == null ? null : () => unawaited(_onRouteTap(c)),
                 ),
                 if (_isVideo)
                   _CtlButton(
@@ -579,6 +937,23 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                     label: t.c2CallFlip,
                     active: false,
                     onTap: c == null || !c.cameraOn ? null : c.switchCamera,
+                  ),
+                // b1: voice -> video (asks the other person) / video -> voice
+                if (!_isVideo && live)
+                  _CtlButton(
+                    key: const Key('call-to-video'),
+                    icon: Icons.videocam_outlined,
+                    label: t.b1CallToVideo,
+                    active: waitingVideo,
+                    onTap: waitingVideo ? null : c.requestVideo,
+                  ),
+                if (_isVideo && live)
+                  _CtlButton(
+                    key: const Key('call-to-voice'),
+                    icon: Icons.phone_outlined,
+                    label: t.b1CallToVoice,
+                    active: false,
+                    onTap: c.switchToVoice,
                   ),
                 _CtlButton(
                   key: const Key('call-mute'),
@@ -613,6 +988,43 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
               ),
             ),
           ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _endedActions(CallController c) {
+    final t = _t;
+    final denied = c.endReason == CallEndReason.mediaDenied;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.xl, Gap.lg, 0),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: Gap.md,
+        runSpacing: Gap.sm,
+        children: [
+          if (denied)
+            FilledButton.tonalIcon(
+              icon: const Icon(Icons.settings_outlined),
+              label: Text(t.c2CallOpenSettings),
+              onPressed: () => openAppSettings(),
+            ),
+          if (canCallAgain(c, hasMember: widget.member['id'] is int))
+            FilledButton.icon(
+              key: const Key('call-again'),
+              style: Brand.successButton(), // qa1: white on success was 3.4:1
+              icon: Icon(_startsVideo ? Icons.videocam : Icons.call),
+              label: Text(t.c2CallAgain),
+              onPressed: _retry,
+            ),
+          OutlinedButton(
+            key: const Key('call-close'),
+            style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.white,
+                side: BorderSide(color: Colors.white.withValues(alpha: 0.5))),
+            onPressed: _close,
+            child: Text(t.close),
           ),
         ],
       ),
@@ -791,7 +1203,11 @@ class _CtlButton extends StatelessWidget {
     final fg =
         active ? Brand.ink : Colors.white.withValues(alpha: enabled ? 1 : 0.45);
     return Expanded(
-      child: Column(
+      // b1: the label is part of the tap target too (2-line labels at 1.5x)
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Semantics(
@@ -817,6 +1233,7 @@ class _CtlButton extends StatelessWidget {
               style: TextStyle(
                   fontSize: 12, color: Colors.white.withValues(alpha: 0.85))),
         ],
+      ),
       ),
     );
   }
@@ -856,4 +1273,15 @@ class _BrokenMedia implements CallMedia {
   Future<MediaStats> stats() async => const MediaStats();
   @override
   Future<void> dispose() async {}
+  @override
+  bool get cameraUnavailable => true;
+  @override
+  Future<void> startVideo() async =>
+      throw MediaOpenException(false, 'webrtc unavailable');
+  @override
+  Future<void> stopVideo() async {}
+  @override
+  Future<List<AudioRoute>> audioRoutes() async => const [];
+  @override
+  Future<void> setAudioRoute(AudioRoute r) async {}
 }
