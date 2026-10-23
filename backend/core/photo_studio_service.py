@@ -480,6 +480,19 @@ def ssv_callback(raw_query, params):
             return 200, {"ok": True, "ignored": "replay"}
         if t.status != "pending" or (uid and uid != str(t.user_id)):
             return 200, {"ok": True, "ignored": "not_pending"}
+        if t.placement == "credits" and t.job is None:
+            # p2-money: rewarded ad for credits - Google verified it, credit
+            # the ad wallet now (daily cap + fraud guard inside ad_event).
+            res = billing.ad_event(t.user, "rewarded", ad_id=txn[:80],
+                                   verified=True)
+            t.status = "verified" if res.get("ok") else "rejected"
+            t.transaction_id = txn
+            t.ad_unit = (params.get("ad_unit") or "")[:80]
+            t.value_bdt = float(res.get("credited_paisa") or 0) / 100.0
+            t.source = "ssv"
+            t.verified_at = timezone.now()
+            t.save()
+            return 200, {"ok": True}
         c = _cfg()
         val = PS.ad_value_bdt(c.get("photo_studio"), c["ad_rewards"])
         t.status = "verified"

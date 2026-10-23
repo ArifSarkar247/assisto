@@ -82,6 +82,10 @@ def validate_admob_ids(cfg):
     return True, "IDs look valid — verified on first ad load"
 
 
+# p2-money: app entry sources after which no app-open ad is ever shown.
+BLOCKED_ENTRIES = ("notification", "deeplink", "call", "sos", "share",
+                   "widget", "assist")
+
 # h1-home: AdMob asks for >= 60 s between refreshes of one native slot.
 HERO_MIN_REFRESH_SEC = 60
 
@@ -132,7 +136,7 @@ def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
         "rewarded_enabled": bool(flag_rewarded) and int(caps.get("rewarded_daily_cap", 0) or 0) > 0,
         "app_open_enabled": bool(flag_app_open) and not paid
                             and int(caps.get("appopen_daily_cap", 0) or 0) > 0,
-        "appopen_min_gap_sec": max(3 * 3600, gap),
+        "appopen_min_gap_sec": max(3600, gap),
         "appopen_daily_cap": int(caps.get("appopen_daily_cap", 0) or 0),
         "rewarded_daily_cap": int(caps.get("rewarded_daily_cap", 0) or 0),
         "blocked_screens": list(BLOCKED_SCREENS),
@@ -146,4 +150,15 @@ def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
         "consent_debug_eea": bool(caps.get("consent_debug_eea", False)),
         "consent_test_devices": ump_test_devices(admob_cfg.get("ump_test_devices"))
                                 if caps.get("consent_debug_eea") else [],
+        # p2-money: app-open rules (server re-checks every one in /ads/slot)
+        "appopen_start_day": max(1, int(caps.get("appopen_start_day", 2) or 1)),
+        "appopen_skip_after_s": max(5, min(15, int(caps.get("appopen_skip_after_s", 5) or 5))),
+        "sponsors_enabled": bool(caps.get("sponsors_enabled", True)) and not paid,
+        "community_sponsored_enabled": bool(caps.get("community_sponsored_enabled", True))
+                                       and not paid,
+        "community_sponsored_min_members": int(caps.get("community_sponsored_min_members", 500)
+                                               or 500),
+        "offers_enabled": bool(caps.get("offers_enabled", True)),
+        "offer_notif_daily_cap": int(caps.get("offer_notif_daily_cap", 2) or 0),
+        "blocked_entries": list(BLOCKED_ENTRIES),
     }

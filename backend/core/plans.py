@@ -5,7 +5,7 @@ Prices/limits from spec §17 + owner's 23-Sept plan. Credits are consumable AI
 units. NOTHING is unlimited in any plan (owner decision 2026-10): every paid
 plan carries a monthly credit POOL (Premium 90, Business 240 — live values in
 PricingConfig), granted once per calendar month by billing.grant_monthly_pool,
-and every AI action debits credits. Safety actions stay free. New users get a 7-day full trial. Rewarded ads grant +1 credit
+and every AI action debits credits. Safety actions stay free. New users may start a 3-day Premium trial once (p2-money; live length in limits.trial_days). Rewarded ads grant +1 credit
 (daily cap). Ads only on free, non-personalized, never on sensitive screens
 (enforced in the app).
 """
@@ -182,6 +182,9 @@ def entitlements(user, lang="bn"):
         "credits": user.ai_credits,
         "trial_active": trial_active(user),
         "trial_until": user.trial_until.isoformat() if user.trial_until else None,
+        # p2-money: the "Start free trial" button (once per user)
+        "trial_available": trial_available(user),
+        "trial_days": trial_days(),
         "plan_until": user.plan_until.isoformat() if user.plan_until else None,
     }
 
@@ -210,6 +213,40 @@ def plans_public(lang="bn"):
             "credits": (c["plans"]["premium"]["credits"] if c else s["credits"]),
         })
     return out
+
+
+def trial_on_signup():
+    c = _cfg()
+    try:
+        return bool(c["limits"].get("trial_on_signup", False)) if c else False
+    except Exception:
+        return False
+
+
+def trial_available(user):
+    """p2-money: may this user START the Premium trial now? Once per user
+    (trial_until is set forever after — an expired trial is a used trial),
+    Free users only, no card needed."""
+    if user is None or getattr(user, "trial_until", None):
+        return False
+    if user.is_founder or plan_active(user):
+        return False
+    return trial_days() > 0
+
+
+def start_trial_button(user):
+    """POST /plans/trial/start -> (ok, reason). Server-enforced once."""
+    from django.db import transaction
+    from .models import User
+    with transaction.atomic():
+        u = User.objects.select_for_update().get(pk=user.pk)
+        if u.trial_until:
+            return False, "trial_used"
+        if not trial_available(u):
+            return False, "not_eligible"
+        start_trial(u)
+    user.refresh_from_db()
+    return True, "ok"
 
 
 def start_trial(user):

@@ -1,0 +1,61 @@
+{% extends "owner/base.html" %}
+{% block heading %}{% if c %}{{ c.name }}{% else %}{{ T.p2_new_campaign }}{% endif %}{% endblock %}
+{% block content %}
+<p><a href="/owner/sponsors">← {{ T.nav_sponsors }}</a>{% if c %} · <a href="/owner/campaigns/{{ c.id }}/report">{{ T.report }}</a>{% endif %}</p>
+{% if safety %}<div class="flash warn" role="alert"><b>{{ T.safety_block }}</b><ul>{% for s in safety %}<li>{{ s }}</li>{% endfor %}</ul></div>{% endif %}
+{% if c and c.safety_issues %}<div class="flash warn" role="alert"><b>{{ T.p2_safety_found }}</b><ul>{% for s in c.safety_issues %}<li>{{ s }}</li>{% endfor %}</ul></div>{% endif %}
+{% if errors %}<div class="flash warn" role="alert"><b>{{ T.fix_fields }}</b><ul>{% for k, val in errors.items %}<li>{{ k }}: {{ val }}</li>{% endfor %}</ul></div>{% endif %}
+{% if approve_error %}<div class="flash warn" role="alert">{{ approve_error }}</div>{% endif %}
+{% if sent %}<div class="flash">{{ T.p2_sent }}: {{ sent.sent }}{% if sent.skipped %} · {{ T.p2_skipped }}: {% for k, n in sent.skipped.items %}{{ k }} {{ n }}{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}</div>{% endif %}
+
+{% if c %}
+<section class="card">
+  <h2>{{ T.status }}: {% if c.status == 'approved' %}<span class="pill ok">{{ c.status }}</span>{% else %}<span class="pill off">{{ c.status }}</span>{% endif %}</h2>
+  <p class="mut small">{{ T.p2_status_note }}</p>
+  <div class="bar">
+  {% if c.status != 'approved' %}<form method="post" class="inline">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="approve"><input name="reason" maxlength="200" placeholder="{{ T.reason_ph }}"><button class="btn primary" {% if not can_approve %}disabled title="{{ T.p2_err_checklist }}"{% endif %}>{{ T.p2_approve }}</button></form>{% endif %}
+  {% if c.status == 'approved' %}<form method="post" class="inline">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="pause"><button class="btn ghost">{{ T.p2_pause }}</button></form>{% endif %}
+  {% if c.status != 'rejected' %}<form method="post" class="inline">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="reject"><button class="btn ghost">{{ T.p2_reject }}</button></form>{% endif %}
+  {% if c.status != 'ended' %}<form method="post" class="inline">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="end"><button class="btn ghost">{{ T.p2_end }}</button></form>{% endif %}
+  {% if discover_ready %}<form method="post" class="inline">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="discover_card"><button class="btn ghost">{% if c.discover_card %}{{ T.p2_discover_update }}{% else %}{{ T.p2_discover_make }}{% endif %}</button></form>{% if c.discover_card %} <a href="/owner/discover/{{ c.discover_card_id }}">{{ T.nav_discover }}</a>{% endif %}{% endif %}
+  {% if offer_ready %}<form method="post" class="inline">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="send_offer"><input name="reason" maxlength="200" placeholder="{{ T.reason_ph }}"><button class="btn ghost">{{ T.p2_send_offer }}</button></form><p class="mut small">{{ T.p2_send_offer_note }}</p>{% endif %}
+  </div>
+</section>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data" class="card grid2" action="{% if c %}/owner/campaigns/{{ c.id }}{% else %}/owner/campaigns/new{% endif %}">
+  {% include "owner/_csrf.html" %}<input type="hidden" name="action" value="save">
+  {% if not c %}<label>{{ T.p2_sponsor }}<select name="sponsor" required>{% for s in sponsors %}<option value="{{ s.id }}" {% if sponsor and sponsor.id == s.id %}selected{% endif %}>{{ s.name }}</option>{% endfor %}</select></label>{% else %}<p><b>{{ T.p2_sponsor }}:</b> <a href="/owner/sponsors/{{ c.sponsor_id }}">{{ c.sponsor.name }}</a></p>{% endif %}
+  <label>{{ T.p2_campaign }}<input name="name" maxlength="80" value="{{ v.name }}" required></label>
+  <label>{{ T.p2_placement }}<select name="placement">{% for p in placements %}<option value="{{ p }}" {% if v.placement == p %}selected{% endif %}>{{ p }}</option>{% endfor %}</select></label>
+  <label>{{ T.p2_pricing }}<select name="pricing"><option value="flat" {% if v.pricing == 'flat' %}selected{% endif %}>{{ T.p2_flat }}</option><option value="cpm" {% if v.pricing == 'cpm' %}selected{% endif %}>CPM</option></select></label>
+  <label>{{ T.p2_price }} (৳)<input name="price_bdt" type="number" step="0.01" min="0" value="{{ v.price_bdt }}"></label>
+  <label>{{ T.p2_budget }} (৳)<input name="budget_bdt" type="number" step="0.01" min="0" value="{{ v.budget_bdt }}"></label>
+  <label>{{ T.start }}<input name="start_at" type="datetime-local" value="{{ v.start_local }}" required></label>
+  <label>{{ T.end }}<input name="end_at" type="datetime-local" value="{{ v.end_local }}" required></label>
+  <label>{{ T.p2_daily_cap }}<input name="daily_imp_cap" type="number" min="0" value="{{ v.daily_imp_cap|default:0 }}"></label>
+  <label>{{ T.p2_priority }}<input name="priority" type="number" min="-100" max="100" value="{{ v.priority|default:0 }}"></label>
+  <p class="mut small span2">{{ T.p2_pricing_note }}</p>
+  <fieldset class="span2"><legend>{{ T.p2_audience }}</legend>
+    <p class="mut small">{{ T.p2_audience_note }}</p>
+    {% for k in categories %}<label class="check"><input type="checkbox" name="categories" value="{{ k }}" {% if k in cats_on %}checked{% endif %}> {{ k }}</label>{% endfor %}
+    <p class="mut small">{{ T.p2_divisions_note }}</p>
+    {% for k in divisions %}<label class="check"><input type="checkbox" name="divisions" value="{{ k }}" {% if k in divs_on %}checked{% endif %}> {{ k }}</label>{% endfor %}
+  </fieldset>
+  <label>{{ T.title }} (বাংলা)<input name="title_bn" maxlength="80" value="{{ v.title_bn }}" required></label>
+  <label>{{ T.title }} (English)<input name="title_en" maxlength="80" value="{{ v.title_en }}" required></label>
+  <label>{{ T.description }} (বাংলা)<textarea name="body_bn" maxlength="240">{{ v.body_bn }}</textarea></label>
+  <label>{{ T.description }} (English)<textarea name="body_en" maxlength="240">{{ v.body_en }}</textarea></label>
+  <label>{{ T.p2_cta }} (বাংলা)<input name="cta_bn" maxlength="30" value="{{ v.cta_bn }}"></label>
+  <label>{{ T.p2_cta }} (English)<input name="cta_en" maxlength="30" value="{{ v.cta_en }}"></label>
+  <label class="span2">URL (https)<input name="link_url" type="url" maxlength="300" value="{{ v.link_url }}" placeholder="https://"></label>
+  <label class="span2">{{ T.image }} (PNG/JPEG/WEBP ≤ 2 MB)<input name="image" type="file" accept="image/png,image/jpeg,image/webp"></label>
+  {% if c and c.image %}<div class="span2 imgrow"><img src="{{ c.image.url }}" alt="" class="thumb"><label class="check"><input type="checkbox" name="remove_image"> {{ T.remove_image }}</label></div>{% endif %}
+  {% if c %}<fieldset class="span2"><legend>{{ T.p2_checklist }}</legend>
+    <p class="mut small">{{ T.p2_checklist_note }}</p>
+    {% for k in checklist_keys %}<label class="check"><input type="checkbox" name="chk_{{ k }}" {% for ck, cv in checks_on.items %}{% if ck == k and cv %}checked{% endif %}{% endfor %}> {% if k == 'no_scam' %}{{ T.p2_chk_no_scam }}{% elif k == 'no_gambling' %}{{ T.p2_chk_no_gambling }}{% elif k == 'no_adult' %}{{ T.p2_chk_no_adult }}{% elif k == 'no_fake_claims' %}{{ T.p2_chk_no_fake_claims }}{% elif k == 'landing_page_checked' %}{{ T.p2_chk_landing }}{% else %}{{ T.p2_chk_sponsor }}{% endif %}</label><br>{% endfor %}
+  </fieldset>{% endif %}
+  <label class="span2">{{ T.p2_notes }}<textarea name="notes" maxlength="1000">{{ v.notes }}</textarea></label>
+  <div class="span2"><input name="reason" maxlength="200" placeholder="{{ T.reason_ph }}"> <button class="btn primary">{{ T.save }}</button></div>
+</form>
+{% endblock %}

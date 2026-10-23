@@ -888,7 +888,7 @@ def _ad_reward_paisa(ad_cfg):
     return int(round(per_impression_bdt * float(ad_cfg["revenue_share"]) * 100))
 
 
-def ad_event(user, kind, device_id="", ad_id="", now=None):
+def ad_event(user, kind, device_id="", ad_id="", now=None, verified=False):
     """Record one ad impression for a FREE user and, if the caps/fraud checks
     pass AND AdMob is configured, credit the ad wallet at <=70% of the eCPM floor.
 
@@ -905,6 +905,12 @@ def ad_event(user, kind, device_id="", ad_id="", now=None):
     valid_kinds = {"app_open", "rewarded", "native", "interstitial"}
     if kind not in valid_kinds:
         return {"ok": False, "reason": "bad_kind"}
+    # p2-money: a REWARDED ad is credited ONLY from Google's signed SSV
+    # callback (verified=True, core.photo_studio_service.ssv_callback ->
+    # placement "credits"). A client "I watched it" claim earns nothing.
+    if kind == "rewarded" and not verified:
+        return {"ok": False, "reason": "ssv_required", "credited_paisa": 0,
+                "credited_credits": 0}
     # The ad wallet is a FREE-tier mechanism. Paid (Premium/Business) users see
     # NO ads — except a rewarded ad they explicitly opt into for credits (a6):
     # its sub-credit value accumulates in the wallet and every WHOLE credit is

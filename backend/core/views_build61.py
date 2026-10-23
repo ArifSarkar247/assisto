@@ -393,6 +393,16 @@ class AdEventView(APIView):
                             status=status.HTTP_429_TOO_MANY_REQUESTS)
         res = billing.ad_event(request.user, kind, device_id=device_id,
                                ad_id=ad_id)
+        # p2-money: an AdMob ad the app really showed counts toward this
+        # user's exposure (app-open cap + retention impact), credited or not.
+        if kind in ("app_open", "native", "interstitial") and \
+                res.get("reason") not in ("fraud", "bad_kind", "not_free"):
+            try:
+                from . import sponsor_service as SS
+                SS.add_exposure(request.user, {"native": "hero"}.get(kind, kind),
+                                "admob")
+            except Exception:
+                pass
         return Response(res)
 
 
