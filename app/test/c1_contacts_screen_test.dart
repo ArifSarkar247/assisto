@@ -222,7 +222,8 @@ void main() {
     expect(find.byKey(const Key('c1-add-2')), findsOneWidget);
     // an accepted circle member gets Message + Call
     expect(find.byKey(const Key('c1-msg-3')), findsOneWidget);
-    expect(find.text(t.c1Call), findsOneWidget);
+    // qa2: Call is the trailing icon action (tooltip = its label)
+    expect(find.byTooltip(t.c1Call), findsOneWidget);
     // the non-user is below with Invite; the invalid number is dropped
     final zara = tester.getTopLeft(find.text('Zara'));
     expect(zara.dy, greaterThan(inv.dy));

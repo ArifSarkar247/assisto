@@ -151,7 +151,10 @@ class CircleBubble extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.md),
                 decoration: BoxDecoration(
-                  color: msg.decryptFailed ? scheme.errorContainer : bg,
+                  // qa2: a message this device can't read is not an error
+                  // the user caused — normal bubble + lock line (WhatsApp),
+                  // not a saturated red block.
+                  color: bg,
                   borderRadius: BorderRadius.only(
                     topLeft: const Radius.circular(Radii.lg),
                     topRight: const Radius.circular(Radii.lg),
@@ -193,6 +196,18 @@ class CircleBubble extends StatelessWidget {
             ? t.e2CantDecryptHere
             : msg.text;
     if (show.isEmpty && msg.contentType != 'text') return const SizedBox.shrink();
+    if (msg.decryptFailed && !deleted) {
+      final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+      return Row(mainAxisSize: MainAxisSize.min, children: [
+        Icon(Icons.lock_outline, size: 16, color: muted),
+        const SizedBox(width: Gap.xs),
+        Flexible(
+          child: Text(show,
+              style: TextStyle(
+                  color: muted, fontStyle: FontStyle.italic, height: 1.4)),
+        ),
+      ]);
+    }
     return Text(
       show,
       style: TextStyle(

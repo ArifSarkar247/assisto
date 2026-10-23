@@ -10,6 +10,7 @@ import '../widgets/budget_card.dart';
 import '../widgets/budget_insights.dart';
 import '../widgets/budget_sheets.dart';
 import 'money_common.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// BUDGET module (#50) — advanced per-category budgeting.
 ///
@@ -505,6 +506,7 @@ class _CategoryHistoryState extends State<_CategoryHistory> {
   Map<String, dynamic>? _data;
   bool _loading = true;
   bool _failed = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -519,8 +521,9 @@ class _CategoryHistoryState extends State<_CategoryHistory> {
     });
     try {
       _data = await context.read<AppState>().api.budgetHistory(widget.category);
-    } catch (_) {
+    } catch (e) {
       _failed = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -543,7 +546,7 @@ class _CategoryHistoryState extends State<_CategoryHistory> {
               ? StateMessage(
                   icon: Icons.cloud_off_outlined,
                   title: widget.category,
-                  message: t.budgetOffline,
+                  message: honestFailText(t, _failCause, otherwise: t.budgetOffline),
                   action:
                       FilledButton(onPressed: _load, child: Text(t.retry)),
                 )

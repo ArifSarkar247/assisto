@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// AREA / NEIGHBOURHOOD BOARD — ADVANCED (#194, SPEC v2.1 §20).
 ///
@@ -49,6 +50,7 @@ const List<String> _categories = [
 class _AreaCommunityScreenState extends State<AreaCommunityScreen> {
   List<Map<String, dynamic>> _posts = [];
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   // The area the user is browsing. Lives for the session; blank = show all.
   String _area = '';
   String _filter = 'all';
@@ -77,8 +79,9 @@ class _AreaCommunityScreenState extends State<AreaCommunityScreen> {
           }
         }
       }
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -162,7 +165,7 @@ class _AreaCommunityScreenState extends State<AreaCommunityScreen> {
           icon: Icons.cloud_off,
           tint: scheme.error,
           title: tr.loadFailed,
-          message: tr.areaLoadError,
+          message: honestFailText(tr, _failCause, otherwise: tr.areaLoadError),
           action: FilledButton.tonalIcon(
             onPressed: _load,
             icon: const Icon(Icons.refresh),

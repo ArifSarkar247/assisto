@@ -2423,7 +2423,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
           color: scheme.surfaceContainerHighest,
           padding: const EdgeInsets.symmetric(vertical: 6, horizontal: Gap.md),
           child: Text(
-            _t.e2UnreadDivider(_unreadAtOpen),
+            localDigits(_t.e2UnreadDivider(_unreadAtOpen),
+                Localizations.localeOf(context).languageCode), // qa2
             key: const Key('e2-unread-divider'),
             textAlign: TextAlign.center,
             style: TextStyle(

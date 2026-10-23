@@ -11,6 +11,7 @@ import '../widgets/plans_faq.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import 'credits_screen.dart';
 import '../payments/checkout_sheet.dart'; // pay1
+import '../services/error_kind.dart' show serverFailText; // qa2
 import '../payments/payments_api.dart'
     show ApiPaymentsBackend, PayConfig, payFlavour; // pay1
 
@@ -54,6 +55,8 @@ class _PlansScreenState extends State<PlansScreen> {
   bool _refFailed = false;
 
   bool _loading = true, _error = false, _busy = false, _annual = false;
+
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   // pay1: entitlement summary (renew banner / managed by Play); optional.
   Map<String, dynamic>? _pay;
   // pay1 + NO SHOWPIECES: which payment channels are live (null = none).
@@ -77,8 +80,9 @@ class _PlansScreenState extends State<PlansScreen> {
       final res = await Future.wait([api.plan(), api.plansPublic()]);
       _p = res[0] as Map<String, dynamic>;
       _all = (res[1] as List).cast<Map<String, dynamic>>();
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     // pay1: payment state loads separately too (never blanks the paywall).
     try {
@@ -187,6 +191,7 @@ class _PlansScreenState extends State<PlansScreen> {
                   icon: Icons.cloud_off,
                   tint: scheme.error,
                   title: t.loadFailed,
+                  message: serverFailText(t, _failCause),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
                       icon: const Icon(Icons.refresh),

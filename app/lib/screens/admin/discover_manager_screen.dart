@@ -14,6 +14,8 @@ import '../../theme.dart';
 import '../../widgets/home_suggestions.dart' show DiscoverCardTile;
 import '../../widgets/skeleton.dart';
 import '../../services/action_feedback.dart'; // db1
+import '../../services/error_kind.dart' show honestFailText; // qa2
+import '../../messaging/date_separators.dart' show localDigits, fmtDate; // qa2
 
 /// OWNER "Discover manager" (d1-discover) — add / edit / delete / reorder /
 /// enable-disable the home Discover cards, pick an in-app route, preview what a
@@ -54,6 +56,7 @@ String _audLabel(AppLocalizations t, String a) => switch (a) {
 
 class _DiscoverManagerScreenState extends State<DiscoverManagerScreen> {
   _St _st = _St.loading;
+  Object? _failCause; // qa2: honest error (5xx = our server)
   List<Map<String, dynamic>> _cards = [];
   Map<String, dynamic> _meta = const {};
 
@@ -79,9 +82,11 @@ class _DiscoverManagerScreenState extends State<DiscoverManagerScreen> {
       });
     } on ApiException catch (e) {
       if (!mounted) return;
+      _failCause = e;
       setState(() => _st = e.status == 403 ? _St.ownerOnly : _St.error);
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
+      _failCause = e;
       setState(() => _st = _St.error);
     }
   }
@@ -204,7 +209,8 @@ class _DiscoverManagerScreenState extends State<DiscoverManagerScreen> {
         _St.error => StateMessage(
             icon: Icons.cloud_off_outlined,
             title: t.loadFailed,
-            message: t.loadFailedBody,
+            message:
+                honestFailText(t, _failCause, otherwise: t.loadFailedBody),
             tint: Brand.danger,
             action: FilledButton.icon(
                 onPressed: _load,
@@ -226,7 +232,7 @@ class _DiscoverManagerScreenState extends State<DiscoverManagerScreen> {
       padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 96),
       header: Padding(
         padding: const EdgeInsets.only(bottom: Gap.sm),
-        child: Text('${t.discoverMgrReorderHint}\n${t.discoverMgrPaidNote}',
+        child: Text('${t.discoverMgrReorderHint}\n${t.qa2DiscoverPaidNote}',
             style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
       ),
       itemCount: _cards.length,
@@ -554,7 +560,9 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
           .showSnackBar(SnackBar(content: Text(t.discoverMgrSaved)));
     } on ApiException catch (e) {
       if (!mounted) return;
-      setState(() => _error = e.status == 400 ? _explain400(t, e) : t.discoverMgrSaveFailed);
+      setState(() => _error = e.status == 400
+          ? _explain400(t, e)
+          : honestFailText(t, e, otherwise: t.discoverMgrSaveFailed)); // qa2
     } catch (_) {
       if (mounted) setState(() => _error = t.discoverMgrSaveFailed);
     } finally {
@@ -661,7 +669,7 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
                   style: TextStyle(color: scheme.onSurfaceVariant))
             else
               DiscoverCardTile(item: _previewItem),
-            const SizedBox(height: Gap.lg),
+            const SizedBox(height: Gap.xl),
             DropdownButtonFormField<String>(
               initialValue: _type,
               isExpanded: true,
@@ -680,12 +688,12 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
             if (_isSponsored || _isAdmob)
               Padding(
                 padding: const EdgeInsets.only(top: Gap.xs),
-                child: Text(t.discoverMgrPaidNote,
+                child: Text(t.qa2DiscoverPaidNote,
                     style: TextStyle(
                         color: scheme.onSurfaceVariant, fontSize: 12)),
               ),
             if (!_isAdmob) ...[
-              const SizedBox(height: Gap.md),
+              const SizedBox(height: Gap.lg + Gap.xs),
               _field(_titleBn, t.discoverMgrTitleBn, max: 80),
               _field(_titleEn, t.discoverMgrTitleEn, max: 80),
               _field(_descBn, t.discoverMgrDescBn, max: 200, lines: 2),
@@ -699,16 +707,16 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
                   ButtonSegment(
                       value: false,
                       icon: const Icon(Icons.apps_outlined),
-                      label: Text(t.discoverMgrActionRoute)),
+                      label: Text(t.qa2DiscoverActionRoute)),
                   ButtonSegment(
                       value: true,
                       icon: const Icon(Icons.language_outlined),
-                      label: Text(t.discoverMgrActionUrl)),
+                      label: Text(t.qa2DiscoverActionUrl)),
                 ],
                 selected: {_useUrl},
                 onSelectionChanged: (s) => setState(() => _useUrl = s.first),
               ),
-              const SizedBox(height: Gap.sm),
+              const SizedBox(height: Gap.lg + Gap.xs),
               if (_useUrl)
                 _field(_url, t.discoverMgrUrl,
                     keyboard: TextInputType.url, onChanged: true)
@@ -723,7 +731,7 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
                   ],
                   onChanged: (v) => setState(() => _route = v ?? ''),
                 ),
-              const SizedBox(height: Gap.md),
+              const SizedBox(height: Gap.lg + Gap.xs),
               DropdownButtonFormField<String>(
                 initialValue: _icons.contains(_icon) ? _icon : null,
                 isExpanded: true,
@@ -732,13 +740,14 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
                   for (final name in _icons)
                     DropdownMenuItem(
                       value: name,
-                      child: Row(children: [
-                        Icon(kDiscoverIcons[name] ?? Icons.auto_awesome_outlined,
-                            size: 20),
-                        const SizedBox(width: Gap.sm),
-                        Flexible(
-                            child: Text(name, overflow: TextOverflow.ellipsis)),
-                      ]),
+                      // qa2: the icon is the choice — its internal name
+                      // ("shopping_bag") was English text in the Bangla UI.
+                      child: Semantics(
+                        label: name.replaceAll('_', ' '),
+                        child: Icon(
+                            kDiscoverIcons[name] ?? Icons.auto_awesome_outlined,
+                            size: 24),
+                      ),
                     ),
                 ],
                 onChanged: (v) => setState(() => _icon = v ?? ''),
@@ -769,7 +778,7 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
                   ),
               ]),
             ],
-            const SizedBox(height: Gap.md),
+            const SizedBox(height: Gap.lg + Gap.xs),
             DropdownButtonFormField<String>(
               initialValue: _audience,
               isExpanded: true,
@@ -825,7 +834,7 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
   Widget _field(TextEditingController c, String label,
       {int? max, int lines = 1, TextInputType? keyboard, bool onChanged = false}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: Gap.sm),
+      padding: const EdgeInsets.only(bottom: Gap.lg + Gap.xs), // qa2: the floated label sits on the top edge — give it room
       child: TextField(
         controller: c,
         maxLength: max,
@@ -877,6 +886,7 @@ class _DiscoverReportScreenState extends State<DiscoverReportScreen> {
   int _days = 30;
   Map<String, dynamic>? _data;
   bool _failed = false;
+  Object? _failCause; // qa2: a 5xx is our server, not the owner's internet
   bool _exporting = false;
 
   @override
@@ -896,8 +906,13 @@ class _DiscoverReportScreenState extends State<DiscoverReportScreen> {
           .api
           .adminDiscoverReport(widget.cardId, days: _days);
       if (mounted) setState(() => _data = r);
-    } catch (_) {
-      if (mounted) setState(() => _failed = true);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _failed = true;
+          _failCause = e;
+        });
+      }
     }
   }
 
@@ -931,13 +946,22 @@ class _DiscoverReportScreenState extends State<DiscoverReportScreen> {
     final rows = _maps(d?['rows']).reversed.toList(); // newest first
     final totals = (d?['totals'] as Map?)?.cast<String, dynamic>() ?? const {};
     final card = (d?['card'] as Map?)?.cast<String, dynamic>() ?? const {};
+    // qa2: Bangla digits + "23 Oct" dates in the Bangla UI (the server sends
+    // ISO dates and Latin numbers; the CSV/PDF exports keep those).
+    final lang = Localizations.localeOf(context).languageCode;
+    String ld(Object? v) => localDigits('${v ?? 0}', lang);
+    String day(Object? iso) {
+      final dt = DateTime.tryParse('${iso ?? ''}');
+      return dt == null ? ld(iso) : fmtDate('d MMM', dt, lang);
+    }
     return Scaffold(
       appBar: AppBar(title: Text(t.discoverMgrReportTitle)),
       body: _failed
           ? StateMessage(
               icon: Icons.cloud_off_outlined,
               title: t.loadFailed,
-              message: t.loadFailedBody,
+              message:
+                  honestFailText(t, _failCause, otherwise: t.loadFailedBody),
               tint: Brand.danger,
               action: FilledButton.icon(
                   onPressed: _load,
@@ -962,7 +986,8 @@ class _DiscoverReportScreenState extends State<DiscoverReportScreen> {
                       segments: [
                         for (final n in const [7, 30, 90])
                           ButtonSegment(
-                              value: n, label: Text(t.discoverMgrDays(n))),
+                              value: n,
+                              label: Text(localDigits(t.discoverMgrDays(n), lang))),
                       ],
                       selected: {_days},
                       onSelectionChanged: (s) {
@@ -972,8 +997,10 @@ class _DiscoverReportScreenState extends State<DiscoverReportScreen> {
                     ),
                     const SizedBox(height: Gap.md),
                     Text(
-                      t.discoverMgrStats(_i(totals['impressions']),
-                          _i(totals['clicks']), '${totals['ctr'] ?? 0}'),
+                      localDigits(
+                          t.discoverMgrStats(_i(totals['impressions']),
+                              _i(totals['clicks']), '${totals['ctr'] ?? 0}'),
+                          lang),
                       style: const TextStyle(fontWeight: FontWeight.w800),
                     ),
                     Text(t.discoverMgrUniqueNote,
@@ -993,8 +1020,13 @@ class _DiscoverReportScreenState extends State<DiscoverReportScreen> {
                       ),
                     ]),
                     const SizedBox(height: Gap.md),
-                    SingleChildScrollView(
+                    // qa2: the table spans the full width (it stopped at
+                    // ~80% and looked unfinished); scrolls only when wider.
+                    LayoutBuilder(
+                      builder: (context, box) => SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
+                      child: ConstrainedBox(
+                      constraints: BoxConstraints(minWidth: box.maxWidth),
                       child: DataTable(
                         columnSpacing: Gap.lg,
                         columns: [
@@ -1010,20 +1042,22 @@ class _DiscoverReportScreenState extends State<DiscoverReportScreen> {
                         rows: [
                           for (final r in rows)
                             DataRow(cells: [
-                              DataCell(Text('${r['date']}')),
-                              DataCell(Text('${r['impressions']}')),
-                              DataCell(Text('${r['clicks']}')),
-                              DataCell(Text('${r['ctr']}')),
+                              DataCell(Text(day(r['date']))),
+                              DataCell(Text(ld(r['impressions']))),
+                              DataCell(Text(ld(r['clicks']))),
+                              DataCell(Text(ld(r['ctr']))),
                             ]),
                           DataRow(cells: [
                             DataCell(Text(t.discoverMgrTotal,
                                 style: const TextStyle(
                                     fontWeight: FontWeight.w800))),
-                            DataCell(Text('${totals['impressions'] ?? 0}')),
-                            DataCell(Text('${totals['clicks'] ?? 0}')),
-                            DataCell(Text('${totals['ctr'] ?? 0}')),
+                            DataCell(Text(ld(totals['impressions']))),
+                            DataCell(Text(ld(totals['clicks']))),
+                            DataCell(Text(ld(totals['ctr']))),
                           ]),
                         ],
+                      ),
+                      ),
                       ),
                     ),
                   ],

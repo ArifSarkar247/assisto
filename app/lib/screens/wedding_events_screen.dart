@@ -5,6 +5,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/wedding_engine.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// WEDDING & EVENTS — ADVANCED (#189, SPEC v2.1 §20).
 ///
@@ -45,6 +46,7 @@ class _WeddingEventsScreenState extends State<WeddingEventsScreen> {
   List<Map<String, dynamic>> _budget = [];
   List<Map<String, dynamic>> _tasks = [];
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -69,8 +71,9 @@ class _WeddingEventsScreenState extends State<WeddingEventsScreen> {
       _guests = res[1];
       _budget = res[2];
       _tasks = res[3];
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -100,7 +103,7 @@ class _WeddingEventsScreenState extends State<WeddingEventsScreen> {
           icon: Icons.cloud_off,
           tint: scheme.error,
           title: tr.loadFailed,
-          message: tr.weddingLoadError,
+          message: honestFailText(tr, _failCause, otherwise: tr.weddingLoadError),
           action: FilledButton.tonalIcon(
             onPressed: _load,
             icon: const Icon(Icons.refresh),

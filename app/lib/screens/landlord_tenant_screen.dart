@@ -5,6 +5,7 @@ import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/samity_rent_common.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// LANDLORD-TENANT rent tracker (Bariwala-Bharatiya, feature #185, SPEC v2.1
 /// section 20, built to the section 21 ADVANCED standard).
@@ -41,6 +42,7 @@ class _LandlordTenantScreenState extends State<LandlordTenantScreen>
   List<Map<String, dynamic>> _payments = [];
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   bool _offline = false;
   late String _month = isoMonth(DateTime.now());
 
@@ -70,9 +72,10 @@ class _LandlordTenantScreenState extends State<LandlordTenantScreen>
       _units = all[0];
       _payments = all[1];
       _offline = false;
-    } catch (_) {
+    } catch (e) {
       if (_units.isEmpty) {
         _error = true;
+        _failCause = e;
       } else {
         _offline = true;
       }
@@ -170,7 +173,7 @@ class _LandlordTenantScreenState extends State<LandlordTenantScreen>
                   icon: Icons.cloud_off,
                   tint: Theme.of(context).colorScheme.error,
                   title: t.rentLoadFailed,
-                  message: t.commonLoadFailedBody,
+                  message: honestFailText(t, _failCause, otherwise: t.commonLoadFailedBody),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
                       icon: const Icon(Icons.refresh),

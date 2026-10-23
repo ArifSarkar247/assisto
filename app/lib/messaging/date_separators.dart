@@ -218,9 +218,16 @@ class ChatDateScopeState extends State<ChatDateScope> {
   bool _shown = false;
   Timer? _hide;
   bool _pending = false;
+  // qa2: an inline date separator is sitting where the floating chip would
+  // be — the chip steps aside (WhatsApp) instead of drawing two pills.
+  bool _covered = false;
 
-  /// The day the floating chip shows (null = none) — for tests.
+  /// The day the floating chip tracks (null = none) — for tests.
   DateTime? get floatingDay => _shown ? _day : null;
+
+  /// Whether the floating chip is actually drawn (not hidden by an inline
+  /// separator right under it) — for tests.
+  bool get floatingVisible => _shown && _day != null && !_covered;
 
   void _add(_ChatDayMarkerState m) => _markers.add(m);
   void _remove(_ChatDayMarkerState m) => _markers.remove(m);
@@ -251,6 +258,21 @@ class ChatDateScopeState extends State<ChatDateScope> {
     return covering ?? below;
   }
 
+  /// An inline separator overlaps the floating chip's band at the top.
+  bool _separatorAtTop() {
+    final host = context.findRenderObject();
+    if (host is! RenderBox || !host.hasSize) return false;
+    const band = 44.0; // chip (≈36dp) + its top offset + a little air
+    for (final m in _markers) {
+      if (!m.widget.separator) continue;
+      final ro = m.context.findRenderObject();
+      if (ro is! RenderBox || !ro.attached || !ro.hasSize) continue;
+      final y = ro.localToGlobal(Offset.zero, ancestor: host).dy;
+      if (y < band && y + ro.size.height > 0) return true;
+    }
+    return false;
+  }
+
   bool _onScroll(ScrollNotification n) {
     if (n.depth != 0) return false;
     if (n is ScrollUpdateNotification || n is OverscrollNotification) {
@@ -262,10 +284,12 @@ class ChatDateScopeState extends State<ChatDateScope> {
           _pending = false;
           if (!mounted) return;
           final d = _topDay();
-          if (d != _day || _shown != (d != null)) {
+          final covered = _separatorAtTop();
+          if (d != _day || _shown != (d != null) || covered != _covered) {
             setState(() {
               _day = d;
               _shown = d != null;
+              _covered = covered;
             });
           }
         });
@@ -299,7 +323,7 @@ class ChatDateScopeState extends State<ChatDateScope> {
             child: IgnorePointer(
               child: AnimatedOpacity(
                 key: const Key('t1-floating-date'),
-                opacity: _shown && _day != null ? 1 : 0,
+                opacity: floatingVisible ? 1 : 0,
                 duration: const Duration(milliseconds: 220),
                 child: _day == null
                     ? const SizedBox.shrink()
@@ -319,7 +343,15 @@ class ChatDateScopeState extends State<ChatDateScope> {
 class ChatDayMarker extends StatefulWidget {
   final DateTime? day;
   final Widget child;
-  const ChatDayMarker({super.key, required this.day, required this.child});
+
+  /// This row IS an inline date separator (qa2: the floating chip hides
+  /// while one sits under it).
+  final bool separator;
+  const ChatDayMarker(
+      {super.key,
+      required this.day,
+      required this.child,
+      this.separator = false});
 
   @override
   State<ChatDayMarker> createState() => _ChatDayMarkerState();
@@ -364,7 +396,8 @@ class _ChatDayMarkerState extends State<ChatDayMarker> {
 Widget buildChatRow<T>(ChatRow<T> row, Widget Function(T item) buildItem) {
   return switch (row) {
     ChatNoticeRow<T>() => const E2eNoticeChip(),
-    ChatDateRow<T>(:final day) => DateSeparatorChip(day: day),
+    ChatDateRow<T>(:final day) => ChatDayMarker(
+        day: day, separator: true, child: DateSeparatorChip(day: day)),
     ChatItemRow<T>(:final item, :final day) =>
       ChatDayMarker(day: day, child: buildItem(item)),
   };

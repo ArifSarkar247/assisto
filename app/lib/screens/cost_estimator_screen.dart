@@ -7,6 +7,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/ladder_common.dart';
 import '../widgets/skeleton.dart';
+import '../services/error_kind.dart' show serverFailText; // qa2
 
 /// COST / TIME ESTIMATOR (#36, SPEC v2.1 §8, ADVANCED).
 ///
@@ -129,6 +130,7 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
 
   List<Map<String, dynamic>> _saved = [];
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   AppLocalizations get t => AppLocalizations.of(context);
 
@@ -177,10 +179,11 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
         _saved = list;
         _loading = false;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() {
         _error = true;
+        _failCause = e;
         _loading = false;
       });
     }
@@ -389,6 +392,7 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
         icon: Icons.cloud_off,
         tint: Brand.danger,
         title: t.ceLoadError,
+        message: serverFailText(t, _failCause),
         action: FilledButton.tonal(onPressed: _load, child: Text(t.retry)),
       );
     }

@@ -10,6 +10,7 @@ import '../../messenger_setapi.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/msgr_set_tiles.dart';
+import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// Two-step verification PIN (set / change / turn off). The PIN lives ONLY on
 /// the server, as a Django password hash ([MessengerSettingsApi.twoStepSet]);
@@ -26,6 +27,7 @@ class MsgrSetTwoStepScreen extends StatefulWidget {
 class _MsgrSetTwoStepScreenState extends State<MsgrSetTwoStepScreen> {
   bool _loading = true;
   bool _loadFailed = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   bool _enabled = false;
   bool _busy = false;
   int _lockedSec = 0;
@@ -54,8 +56,9 @@ class _MsgrSetTwoStepScreenState extends State<MsgrSetTwoStepScreen> {
       final r = await _api.twoStepStatus();
       _enabled = r['enabled'] == true;
       _lockedSec = (r['retry_after_sec'] as num?)?.toInt() ?? 0;
-    } catch (_) {
+    } catch (e) {
       _loadFailed = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -152,7 +155,7 @@ class _MsgrSetTwoStepScreenState extends State<MsgrSetTwoStepScreen> {
           : _loadFailed
               ? Center(
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    Text(t.msgLoadFailed, textAlign: TextAlign.center),
+                    Text(honestFailText(t, _failCause, otherwise: t.msgLoadFailed), textAlign: TextAlign.center),
                     const SizedBox(height: Gap.md),
                     FilledButton(onPressed: _load, child: Text(t.retry)),
                   ]),

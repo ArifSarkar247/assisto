@@ -7,6 +7,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// PA Secretary Mode · CORPORATE · Departmental update — ADVANCED (#117, §14).
 ///
@@ -47,6 +48,7 @@ List<String> _bullets(String raw) => raw
 class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
   List<Map<String, dynamic>> _saved = [];
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -61,8 +63,9 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
     });
     try {
       _saved = await context.read<AppState>().api.listItems('pa/deptupdates');
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -191,7 +194,7 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
                   icon: Icons.cloud_off,
                   tint: scheme.error,
                   title: tr.loadFailed,
-                  message: tr.paDeptLoadError,
+                  message: honestFailText(tr, _failCause, otherwise: tr.paDeptLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
                       icon: const Icon(Icons.refresh),

@@ -9,6 +9,7 @@ import '../widgets/elderly_mode.dart';
 import '../widgets/elderly_tile.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/voice_command_sheet.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// SPEC v2.1 feature 29 — ELDERLY SIMPLE-MODE home.
 ///
@@ -50,6 +51,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
     with WidgetsBindingObserver {
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   bool _offline = false;
 
   List<Map<String, dynamic>> _contacts = const [];
@@ -93,11 +95,12 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
         _medsDueToday = 0;
       }
       _offline = false;
-    } catch (_) {
+    } catch (e) {
       // Keep last-known contacts; show a clear offline/error banner. If we have
       // nothing cached this is a hard error with a retry.
       if (_contacts.isEmpty) {
         _error = true;
+        _failCause = e;
       } else {
         _offline = true;
       }
@@ -320,7 +323,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
       );
     }
     if (_error) {
-      return _ErrorRetry(message: t.elderlyLoadError, cta: t.retry, onRetry: () {
+      return _ErrorRetry(message: honestFailText(t, _failCause, otherwise: t.elderlyLoadError), cta: t.retry, onRetry: () {
         setState(() => _loading = true);
         _load();
       });

@@ -5,6 +5,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import 'money_common.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// Net worth: assets + receivables - liabilities, plus a net-worth-over-time
 /// line. Data from GET /money/networth (money_engine.net_worth + net_worth_series).
@@ -18,6 +19,7 @@ class _MoneyNetWorthScreenState extends State<MoneyNetWorthScreen> {
   Map<String, dynamic>? _data;
   bool _loading = true;
   bool _failed = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -32,8 +34,9 @@ class _MoneyNetWorthScreenState extends State<MoneyNetWorthScreen> {
     });
     try {
       _data = await context.read<AppState>().api.moneyNetWorth();
-    } catch (_) {
+    } catch (e) {
       _failed = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -51,7 +54,7 @@ class _MoneyNetWorthScreenState extends State<MoneyNetWorthScreen> {
               ? StateMessage(
                   icon: Icons.cloud_off_outlined,
                   title: t.moneyNetWorthTitle,
-                  message: t.moneySummaryOffline,
+                  message: honestFailText(t, _failCause, otherwise: t.moneySummaryOffline),
                   action: FilledButton(onPressed: _load, child: Text(t.retry)),
                 )
               : _body(context, t),

@@ -8,6 +8,7 @@ import '../widgets/jobs_store.dart';
 import '../widgets/jobs_card.dart';
 import '../widgets/jobs_filters.dart';
 import '../widgets/jobs_detail.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/subs_common.dart' show fmtInt;
 
 /// Job Hunter — ADVANCED (feature 37, SPEC v2.1 §21). Three tabs:
@@ -34,6 +35,7 @@ class _JobsScreenState extends State<JobsScreen> {
   List<Map<String, dynamic>> _jobs = [];
   Set<String> _saved = {};
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   JobFilter _filter = JobFilter();
   final _search = TextEditingController();
 
@@ -59,10 +61,13 @@ class _JobsScreenState extends State<JobsScreen> {
     try {
       _jobs = await context.read<AppState>().api.listItems('jobs');
       _saved = await JobsLocal.savedIds();
-    } catch (_) {
+    } catch (e) {
       // offline / token issue — keep any saved bookmarks working
       _saved = await JobsLocal.savedIds();
-      if (_jobs.isEmpty) _error = true;
+      if (_jobs.isEmpty) {
+        _error = true;
+        _failCause = e;
+      }
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -168,7 +173,7 @@ class _JobsScreenState extends State<JobsScreen> {
                     icon: Icons.cloud_off,
                     tint: scheme.error,
                     title: tr.loadFailed,
-                    message: tr.jobsOfflineSavedHint,
+                    message: honestFailText(tr, _failCause, otherwise: tr.jobsOfflineSavedHint),
                     action: FilledButton.tonalIcon(
                         onPressed: _load, icon: const Icon(Icons.refresh), label: Text(tr.retry)))
                 : TabBarView(children: [

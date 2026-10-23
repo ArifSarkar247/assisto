@@ -5,6 +5,7 @@ import '../api.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// GROUP MEDIA — the shared-media grid reached from the group ⋮ "Group media".
 ///
@@ -27,6 +28,7 @@ class _GroupMediaScreenState extends State<GroupMediaScreen> {
   bool _loading = true;
   bool _backendReady = true; // false => key-gated backend pending (honest empty)
   bool _loadFailed = false; // true => transient fetch error (offer Retry)
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   List<Map<String, dynamic>> _items = [];
 
   ApiClient get _api => context.read<AppState>().api;
@@ -52,8 +54,9 @@ class _GroupMediaScreenState extends State<GroupMediaScreen> {
       // real fetch error -> Retry.
       _backendReady = r['backend_ready'] != false;
       _loadFailed = false;
-    } catch (_) {
+    } catch (e) {
       _loadFailed = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -182,7 +185,7 @@ class _GroupMediaScreenState extends State<GroupMediaScreen> {
               Icon(Icons.cloud_off_outlined,
                   size: 48, color: scheme.onSurfaceVariant),
               const SizedBox(height: Gap.md),
-              Text(_t.grpMediaLoadFailed,
+              Text(honestFailText(_t, _failCause, otherwise: _t.grpMediaLoadFailed),
                   textAlign: TextAlign.center,
                   style: TextStyle(color: scheme.onSurfaceVariant)),
               const SizedBox(height: Gap.lg),

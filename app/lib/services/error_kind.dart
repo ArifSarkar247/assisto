@@ -40,3 +40,8 @@ String honestFailText(AppLocalizations t, Object? e, {String? otherwise}) {
   if (e != null && isServerFailure(e)) return t.m3ErrServer;
   return otherwise ?? t.qaLoadFailedRetry;
 }
+
+/// qa2 — for an error state that names no cause (title only): a server 5xx
+/// adds the "our server had a problem" line; anything else adds nothing.
+String? serverFailText(AppLocalizations t, Object? e) =>
+    e != null && isServerFailure(e) ? t.m3ErrServer : null;

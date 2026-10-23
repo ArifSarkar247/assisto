@@ -16,6 +16,7 @@ import '../state.dart';
 import '../theme.dart';
 import 'phone_safety_screen.dart';
 import '../services/error_report.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// b6-antitheft — "Always-on protection" (the native Lost/Stolen engine).
 ///
@@ -41,6 +42,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
     with WidgetsBindingObserver {
   bool _loading = true;
   bool _failed = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   bool _busy = false;
   bool _running = false; // native foreground-service truth
   Map<String, dynamic> _state = const {};
@@ -98,10 +100,11 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
         _running = running;
         _loading = false;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() {
         _failed = true;
+        _failCause = e;
         _loading = false;
       });
     }
@@ -336,7 +339,8 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
           const SizedBox(height: Gap.xxl),
           const Icon(Icons.cloud_off_outlined, size: 48),
           const SizedBox(height: Gap.md),
-          Text(tr.mlpLoadFailed, textAlign: TextAlign.center),
+          Text(honestFailText(tr, _failCause, otherwise: tr.mlpLoadFailed),
+              textAlign: TextAlign.center),
           const SizedBox(height: Gap.md),
           Center(child: FilledButton(onPressed: _load, child: Text(tr.retry))),
         ],
@@ -642,6 +646,7 @@ class AntiTheftTimelineScreen extends StatefulWidget {
 class _AntiTheftTimelineScreenState extends State<AntiTheftTimelineScreen> {
   bool _loading = true;
   bool _failed = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   Map<String, dynamic> _data = const {};
 
   @override
@@ -665,10 +670,11 @@ class _AntiTheftTimelineScreenState extends State<AntiTheftTimelineScreen> {
         _data = d;
         _loading = false;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() {
         _failed = true;
+        _failCause = e;
         _loading = false;
       });
     }
@@ -748,7 +754,7 @@ class _AntiTheftTimelineScreenState extends State<AntiTheftTimelineScreen> {
             : _failed
                 ? ListView(padding: const EdgeInsets.all(Gap.lg), children: [
                     const SizedBox(height: Gap.xxl),
-                    Text(tr.mlpLoadFailed, textAlign: TextAlign.center),
+                    Text(honestFailText(tr, _failCause, otherwise: tr.mlpLoadFailed), textAlign: TextAlign.center),
                     const SizedBox(height: Gap.md),
                     Center(
                         child: FilledButton(
@@ -827,6 +833,7 @@ class _IntruderThumbState extends State<_IntruderThumb> {
   Uint8List? _bytes;
   bool _loading = true;
   bool _failed = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -846,11 +853,12 @@ class _IntruderThumbState extends State<_IntruderThumb> {
         _bytes = Uint8List.fromList(bytes);
         _loading = false;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() {
         _loading = false;
         _failed = true;
+        _failCause = e;
       });
     }
   }
@@ -865,7 +873,7 @@ class _IntruderThumbState extends State<_IntruderThumb> {
     }
     if (_failed || _bytes == null) {
       return SizedBox(
-          height: 120, child: Center(child: Text(tr.mlpPhotoFailed)));
+          height: 120, child: Center(child: Text(honestFailText(tr, _failCause, otherwise: tr.mlpPhotoFailed))));
     }
     return ClipRRect(
       borderRadius: BorderRadius.circular(Radii.sm),

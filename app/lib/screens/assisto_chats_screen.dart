@@ -9,6 +9,7 @@ import '../theme.dart';
 import '../widgets/chat_session_actions.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import 'ai_chat_screen.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// Lets the Assisto AI chats page reach the HOME chat (the app's main chat)
 /// even when it was opened from a generic route (the home "Assisto AI" quick
@@ -58,6 +59,7 @@ class _AssistoChatsScreenState extends State<AssistoChatsScreen> {
   final _searchCtrl = TextEditingController();
   List<Map<String, dynamic>>? _rows;
   bool _failed = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   String _q = '';
   // Server-side search hits (message text) for [_hitsFor].
   Set<String> _hits = const {};
@@ -82,8 +84,11 @@ class _AssistoChatsScreenState extends State<AssistoChatsScreen> {
     try {
       final rows = await context.read<AppState>().api.chatSessions();
       if (mounted) setState(() => _rows = ChatSessionActions.sort(rows));
-    } catch (_) {
-      if (mounted) setState(() => _failed = true);
+    } catch (e) {
+      if (mounted) setState(() {
+        _failed = true;
+        _failCause = e;
+      });
     }
   }
 
@@ -258,7 +263,7 @@ class _AssistoChatsScreenState extends State<AssistoChatsScreen> {
             Icon(Icons.cloud_off_outlined,
                 size: 40, color: scheme.onSurfaceVariant),
             const SizedBox(height: Gap.md),
-            Text(t.aichatLoadFailed, textAlign: TextAlign.center),
+            Text(honestFailText(t, _failCause, otherwise: t.aichatLoadFailed), textAlign: TextAlign.center),
             const SizedBox(height: Gap.md),
             FilledButton.tonal(onPressed: _load, child: Text(t.aichatRetry)),
           ]),

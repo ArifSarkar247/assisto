@@ -8,6 +8,7 @@ import '../../theme.dart';
 import '../../business_khata_api.dart';
 import '../../widgets/skeleton.dart';
 import 'business_common.dart';
+import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// Cashbox (plan §2): one business day's drawer — opening cash, cash in/out
 /// entries, and end-of-day reconciliation (expected vs counted + variance).
@@ -26,6 +27,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
   Map<String, dynamic>? _summary;
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   String get _dayKey =>
       '${_day.year}-${_day.month.toString().padLeft(2, '0')}-${_day.day.toString().padLeft(2, '0')}';
@@ -44,8 +46,9 @@ class _CashboxScreenState extends State<CashboxScreen> {
     try {
       _summary =
           await context.read<AppState>().api.cashboxDay(_bizId, _dayKey);
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -128,7 +131,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
               ? StateMessage(
                   icon: Icons.cloud_off_outlined,
                   title: t.cashboxTitle,
-                  message: t.businessLoadFailed,
+                  message: honestFailText(t, _failCause, otherwise: t.businessLoadFailed),
                   action:
                       FilledButton(onPressed: _load, child: Text(t.retry)),
                 )

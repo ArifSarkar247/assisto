@@ -7,6 +7,7 @@ import '../api.dart';
 import '../widgets/chatnav.dart';
 import '../widgets/ladder_common.dart';
 import '../widgets/skeleton.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// PROACTIVE AI — ADVANCED (#6, SPEC v2.1 §21).
 ///
@@ -45,6 +46,7 @@ const List<String> _urgencies = ['now', 'soon', 'fyi'];
 
 class _ProactiveAiScreenState extends State<ProactiveAiScreen> {
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   List<_Sug> _signals = [];
   // dismissed rows: {id (backend row id), sid, epoch}
   List<Map<String, dynamic>> _dismissed = [];
@@ -78,10 +80,11 @@ class _ProactiveAiScreenState extends State<ProactiveAiScreen> {
         _dismissed = dismissed;
         _loading = false;
       });
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         setState(() {
           _error = true;
+          _failCause = e;
           _loading = false;
         });
       }
@@ -295,7 +298,7 @@ class _ProactiveAiScreenState extends State<ProactiveAiScreen> {
           icon: Icons.cloud_off,
           tint: scheme.error,
           title: tr.loadFailed,
-          message: tr.proLoadError,
+          message: honestFailText(tr, _failCause, otherwise: tr.proLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
               icon: const Icon(Icons.refresh),

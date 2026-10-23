@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// PA Secretary Mode · CORPORATE · VIP & stakeholder tracker — ADVANCED
 /// (#118, §14).
@@ -128,6 +129,7 @@ String _isoFromDate(DateTime d) =>
 class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
   List<Map<String, dynamic>> _saved = [];
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   // `now` = device local date reduced to a UTC midnight date for pure day math.
   DateTime get _now {
@@ -148,8 +150,9 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
     });
     try {
       _saved = await context.read<AppState>().api.listItems('pa/vip');
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -247,7 +250,7 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
                   icon: Icons.cloud_off,
                   tint: scheme.error,
                   title: tr.loadFailed,
-                  message: tr.paVipLoadError,
+                  message: honestFailText(tr, _failCause, otherwise: tr.paVipLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
                       icon: const Icon(Icons.refresh),

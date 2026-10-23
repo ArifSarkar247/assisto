@@ -12,6 +12,7 @@ import '../widgets/ref_share_sheet.dart';
 import '../widgets/ref_leaderboard.dart';
 import '../widgets/ref_achievement_card.dart';
 import '../widgets/ref_audit.dart';
+import '../services/error_kind.dart' show serverFailText; // qa2
 
 /// Referral points — ADVANCED (feature #102, SPEC v2.1 §21).
 ///
@@ -49,6 +50,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
   Map<String, dynamic>? _bal;
   List<Map<String, dynamic>> _history = [];
   bool _loading = true, _error = false, _busy = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -67,8 +69,9 @@ class _ReferralScreenState extends State<ReferralScreen> {
       _bal = res[0];
       _history =
           (((res[1])['history'] ?? []) as List).cast<Map<String, dynamic>>();
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -181,6 +184,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
                     icon: Icons.cloud_off,
                     tint: scheme.error,
                     title: t.loadFailed,
+                    message: serverFailText(t, _failCause),
                     action: FilledButton.tonalIcon(
                         onPressed: _load,
                         icon: const Icon(Icons.refresh),

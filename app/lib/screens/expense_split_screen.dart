@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// EXPENSE SPLITTING (Splitwise-style) — ADVANCED (#183, SPEC v2.1 §20).
 ///
@@ -43,6 +44,7 @@ class _ExpenseSplitScreenState extends State<ExpenseSplitScreen> {
   List<Map<String, dynamic>> _people = [];
   List<Map<String, dynamic>> _expenses = [];
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -61,8 +63,9 @@ class _ExpenseSplitScreenState extends State<ExpenseSplitScreen> {
           [api.listItems(_peoplePath), api.listItems(_expensesPath)]);
       _people = res[0];
       _expenses = res[1];
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -94,7 +97,7 @@ class _ExpenseSplitScreenState extends State<ExpenseSplitScreen> {
           icon: Icons.cloud_off,
           tint: scheme.error,
           title: tr.loadFailed,
-          message: tr.splitLoadError,
+          message: honestFailText(tr, _failCause, otherwise: tr.splitLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
               icon: const Icon(Icons.refresh),

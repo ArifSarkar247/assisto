@@ -10,6 +10,7 @@ import '../../theme.dart';
 import '../../widgets/profile_avatar_editor.dart';
 import '../../widgets/founder_badge.dart';
 import 'msgr_set_privacy_screen.dart';
+import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// The Messenger profile — ADVANCED (SPEC v2.1 §21, #98): photo (pick / crop /
 /// change / remove via image_picker), display name, about/bio, phone (shown
@@ -36,6 +37,7 @@ class _MessengerProfileScreenState extends State<MessengerProfileScreen> {
 
   bool _loading = true;
   bool _loadError = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   bool _saving = false;
   String _phone = '';
   String? _photoB64; // null = untouched, '' = removed, else new base64
@@ -74,12 +76,15 @@ class _MessengerProfileScreenState extends State<MessengerProfileScreen> {
       _phoneVisibility = _norm('${me['show_phone'] ?? 'circle'}');
       _communitiesWhoCanMsg =
           _norm('${me['communities_who_can_msg'] ?? 'circle'}');
-    } catch (_) {
+    } catch (e) {
       // Fall back to the cached user; if even that is missing, show the honest
       // load-error state with a retry.
       final u = context.read<AppState>().user;
       if (u == null) {
-        if (mounted) setState(() => _loadError = true);
+        if (mounted) setState(() {
+          _loadError = true;
+          _failCause = e;
+        });
       } else {
         _name.text = u.name;
         _phone = u.phone ?? '';
@@ -163,7 +168,7 @@ class _MessengerProfileScreenState extends State<MessengerProfileScreen> {
       body: _loading
           ? _LoadingState()
           : _loadError
-              ? _LoadErrorState(onRetry: _load)
+              ? _LoadErrorState(error: _failCause, onRetry: _load)
               : _form(context, t),
     );
   }
@@ -320,7 +325,8 @@ class _LoadingState extends StatelessWidget {
 
 class _LoadErrorState extends StatelessWidget {
   final VoidCallback onRetry;
-  const _LoadErrorState({required this.onRetry});
+  final Object? error; // qa2: a 5xx is our server, not the internet
+  const _LoadErrorState({required this.onRetry, this.error});
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
@@ -338,7 +344,7 @@ class _LoadErrorState extends StatelessWidget {
                   .titleMedium
                   ?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.xs),
-          Text(AppLocalizations.of(context).pfLoadErrorBody,
+          Text(honestFailText(t, error, otherwise: t.pfLoadErrorBody),
               textAlign: TextAlign.center,
               style: TextStyle(color: scheme.onSurfaceVariant)),
           const SizedBox(height: Gap.lg),

@@ -5,6 +5,7 @@ import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/samity_rent_common.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// SAMITY / COMMITTEE tracker (Samity, feature #184, SPEC v2.1 section 20, built
 /// to the section 21 ADVANCED standard).
@@ -39,6 +40,7 @@ class _SamityScreenState extends State<SamityScreen> {
   List<Map<String, dynamic>> _groups = [];
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   bool _offline = false;
 
   @override
@@ -55,9 +57,10 @@ class _SamityScreenState extends State<SamityScreen> {
     try {
       _groups = await context.read<AppState>().api.listItems(kColSamity);
       _offline = false;
-    } catch (_) {
+    } catch (e) {
       if (_groups.isEmpty) {
         _error = true;
+        _failCause = e;
       } else {
         _offline = true;
       }
@@ -121,7 +124,7 @@ class _SamityScreenState extends State<SamityScreen> {
                   icon: Icons.cloud_off,
                   tint: Theme.of(context).colorScheme.error,
                   title: t.samityLoadFailed,
-                  message: t.commonLoadFailedBody,
+                  message: honestFailText(t, _failCause, otherwise: t.commonLoadFailedBody),
                   action: FilledButton.tonalIcon(
                     onPressed: _load,
                     icon: const Icon(Icons.refresh),
@@ -282,6 +285,7 @@ class _SamityDetailScreenState extends State<SamityDetailScreen> {
   List<Map<String, dynamic>> _payouts = [];
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   int _cycle = 1;
 
   int get _samityId => widget.group['id'] as int;
@@ -441,7 +445,7 @@ class _SamityDetailScreenState extends State<SamityDetailScreen> {
                   icon: Icons.cloud_off,
                   tint: Theme.of(context).colorScheme.error,
                   title: t.samityLoadFailed,
-                  message: t.commonLoadFailedBody,
+                  message: honestFailText(t, _failCause, otherwise: t.commonLoadFailedBody),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
                       icon: const Icon(Icons.refresh),

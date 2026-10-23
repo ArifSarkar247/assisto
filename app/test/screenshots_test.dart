@@ -439,11 +439,16 @@ Map<String, GallerySpec> gallerySpecs() {
     // cards, the outgoing-action confirm sheet, and the settings card.
     'voice_assistant': (build: (_) => const VoiceAssistantScreen(autoListen: false), mode: FakeMode.data, full: true),
     'voice_listening': (build: (l) => VoiceAssistantScreen(autoListen: false, debugListening: true, debugPartial: l == 'bn' ? 'আম্মুকে ফোন দাও' : 'Call Ammu'), mode: FakeMode.data, full: true),
-    'voice_results': (build: (_) => Builder(builder: (ctx) {
+    'voice_results': (build: (l) => Builder(builder: (ctx) {
       final t = AppLocalizations.of(ctx);
+      // qa2: the values va_actions really produces (_clock/_time + the
+      // parsed title, NumberFormat amount) — not literal '5:00' / '৳500'.
+      final when = t.vaTodayAt(l == 'bn' ? '${t.vaPartAfternoon} ৫:০০' : '5:00 PM');
+      final who = l == 'bn' ? 'আম্মুকে ফোন' : 'Call Mum';
+      final amt = l == 'bn' ? '৳৫০০' : '৳500';
       return VoiceAssistantScreen(autoListen: false, debugTurns: [
-        VaTurn(t.vaExReminder, VaOutcome(t.vaReminderSet(t.vaReminderDefault, t.vaTomorrowAt('5:00')), icon: Icons.notifications_active_outlined, title: t.vaReminderDefault, subtitle: t.vaTomorrowAt('5:00'), buttons: [VaButton(t.vaUndo, Icons.undo, () async {})])),
-        VaTurn(t.vaExExpense, VaOutcome(t.vaExpenseLogged('৳500', t.vaCatGroceries), icon: Icons.receipt_long_outlined, title: '৳500', subtitle: t.vaCatGroceries, buttons: [VaButton(t.vaUndo, Icons.undo, () async {})])),
+        VaTurn(t.vaExReminder, VaOutcome(t.vaReminderSet(who, when), icon: Icons.notifications_active_outlined, title: who, subtitle: when, buttons: [VaButton(t.vaUndo, Icons.undo, () async {})])),
+        VaTurn(t.vaExExpense, VaOutcome(t.vaExpenseLogged(amt, t.vaCatGroceries), icon: Icons.receipt_long_outlined, title: amt, subtitle: t.vaCatGroceries, buttons: [VaButton(t.vaUndo, Icons.undo, () async {})])),
         VaTurn(t.vaExTorch, VaOutcome(t.vaTorchOn, icon: Icons.flashlight_on, buttons: [VaButton(t.vaTurnOff, Icons.flashlight_off, () async {})])),
       ]);
     }), mode: FakeMode.data, full: true),

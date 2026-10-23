@@ -1,0 +1,13 @@
+{
+  "_comment": "qa2 Premium QA. Owner-only Discover editor: the paid-card note no longer quotes English chip names in Bangla; the 'when tapped' choice has short labels that fit one line at 360dp. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_qa2_arb.json",
+  "en": {
+    "qa2DiscoverPaidNote": "Sponsored cards are shown on every plan and are always marked “Sponsored”. AdMob ads are shown to Free users only.",
+    "qa2DiscoverActionRoute": "App screen",
+    "qa2DiscoverActionUrl": "Website"
+  },
+  "bn": {
+    "qa2DiscoverPaidNote": "স্পনসরড কার্ড সব প্ল্যানের ব্যবহারকারীরা দেখেন, আর তাতে সবসময় “স্পনসরড” লেখা থাকে। AdMob বিজ্ঞাপন শুধু ফ্রি প্ল্যানের ব্যবহারকারীরা দেখেন।",
+    "qa2DiscoverActionRoute": "অ্যাপের স্ক্রিন",
+    "qa2DiscoverActionUrl": "ওয়েবসাইট"
+  }
+}

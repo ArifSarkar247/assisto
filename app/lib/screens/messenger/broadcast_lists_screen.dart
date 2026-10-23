@@ -8,6 +8,7 @@ import '../../messenger_hub_api.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../circle_extras_broadcast_screen.dart';
+import '../../services/error_kind.dart' show serverFailText; // qa2
 
 /// MY CIRCLE HUB ⋮ → Broadcast lists (SPEC §2).
 ///
@@ -33,6 +34,7 @@ class BroadcastListsScreen extends StatefulWidget {
 class _BroadcastListsScreenState extends State<BroadcastListsScreen> {
   bool _loading = true;
   bool _failed = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   List<Map<String, dynamic>> _lists = [];
 
   @override
@@ -53,9 +55,10 @@ class _BroadcastListsScreenState extends State<BroadcastListsScreen> {
       // Broadcast lists are a flavour of custom list; reuse the list endpoint.
       _lists = await _api.hubCustomLists();
       _failed = false;
-    } catch (_) {
+    } catch (e) {
       _lists = [];
       _failed = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -144,7 +147,8 @@ class _BroadcastListsScreenState extends State<BroadcastListsScreen> {
     final t = _t;
     return ListView(children: [
       const SizedBox(height: 96),
-      _centeredState(Icons.cloud_off_outlined, t.msgrHubLoadFailed, ''),
+      _centeredState(Icons.cloud_off_outlined, t.msgrHubLoadFailed,
+          serverFailText(t, _failCause) ?? ''),
       const SizedBox(height: Gap.md),
       Center(
         child: OutlinedButton.icon(

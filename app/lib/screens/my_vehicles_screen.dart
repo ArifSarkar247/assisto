@@ -8,6 +8,7 @@ import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import 'vehicle_tracking_screen.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// MY VEHICLES — anti-theft module Batch 2 (vehicle profile + expiry reminders
 /// + an HONEST buying guide). CODE ONLY.
@@ -44,6 +45,7 @@ const String _vehiclePath = 'vehicle/records';
 class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
   List<Map<String, dynamic>> _vehicles = [];
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -59,8 +61,9 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
     final api = context.read<AppState>().api;
     try {
       _vehicles = await api.listItems(_vehiclePath);
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -223,7 +226,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
         icon: Icons.cloud_off,
         tint: scheme.error,
         title: tr.loadFailed,
-        message: tr.vehiclesLoadError,
+        message: honestFailText(tr, _failCause, otherwise: tr.vehiclesLoadError),
         action: FilledButton.tonalIcon(
             onPressed: _load,
             icon: const Icon(Icons.refresh),

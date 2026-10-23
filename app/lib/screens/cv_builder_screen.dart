@@ -7,6 +7,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// CV / RESUME BUILDER — standalone, KEY-FREE (student & job-seeker front door).
 ///
@@ -116,6 +117,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
 
   int? _recordId; // the single CV row id (null until first save)
   bool _loading = true, _error = false, _saving = false, _dirty = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   bool _started = false; // user tapped "start" on the first-run empty state
 
   AppLocalizations get t => AppLocalizations.of(context);
@@ -151,8 +153,9 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
       if (rows.isNotEmpty) {
         _applyRecord(rows.first);
       }
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -321,7 +324,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
           icon: Icons.cloud_off,
           tint: scheme.error,
           title: t.loadFailed,
-          message: t.cvLoadError,
+          message: honestFailText(t, _failCause, otherwise: t.cvLoadError),
           action: FilledButton.tonalIcon(
             onPressed: _load,
             icon: const Icon(Icons.refresh),

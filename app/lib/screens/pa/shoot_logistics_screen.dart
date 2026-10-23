@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// PA Secretary Mode · CELEBRITY tier — Shooting / concert logistics call-sheet
 /// (#124, §14).
@@ -38,6 +39,7 @@ const List<String> _checkKinds = ['wardrobe', 'equipment', 'prep'];
 class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
   List<Map<String, dynamic>> _rows = [];
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   int? _activeSheetId;
 
   @override
@@ -53,8 +55,9 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
     });
     try {
       _rows = await context.read<AppState>().api.listItems('star/callsheets');
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) {
       // default active sheet = first sheet if none chosen or chosen gone
@@ -225,7 +228,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
                   icon: Icons.cloud_off,
                   tint: scheme.error,
                   title: tr.loadFailed,
-                  message: tr.shootLoadError,
+                  message: honestFailText(tr, _failCause, otherwise: tr.shootLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
                       icon: const Icon(Icons.refresh),

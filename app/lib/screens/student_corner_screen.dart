@@ -5,6 +5,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/student_gpa_engine.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// STUDENT CORNER — ADVANCED (#192, SPEC v2.1 §20).
 ///
@@ -46,6 +47,7 @@ class _StudentCornerScreenState extends State<StudentCornerScreen> {
   List<Map<String, dynamic>> _courses = [];
   List<Map<String, dynamic>> _goals = [];
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -70,8 +72,9 @@ class _StudentCornerScreenState extends State<StudentCornerScreen> {
       _assignments = res[1];
       _courses = res[2];
       _goals = res[3];
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -99,7 +102,7 @@ class _StudentCornerScreenState extends State<StudentCornerScreen> {
           icon: Icons.cloud_off,
           tint: scheme.error,
           title: tr.loadFailed,
-          message: tr.studentLoadError,
+          message: honestFailText(tr, _failCause, otherwise: tr.studentLoadError),
           action: FilledButton.tonalIcon(
             onPressed: _load,
             icon: const Icon(Icons.refresh),

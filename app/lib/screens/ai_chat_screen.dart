@@ -12,6 +12,7 @@ import '../widgets/chat_cards.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import '../widgets/voice_input.dart';
 import '../services/action_feedback.dart'; // db1
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// Part 3 — Assisto AI: the ChatGPT-like full-history chat.
 ///
@@ -910,6 +911,7 @@ class _HistorySheetState extends State<_HistorySheet> {
   List<_Session> _sessions = [];
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   String _q = '';
   Timer? _debounce;
 
@@ -949,11 +951,12 @@ class _HistorySheetState extends State<_HistorySheet> {
           _loading = false;
         });
       }
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         setState(() {
           _loading = false;
           _error = true;
+          _failCause = e;
         });
       }
     }
@@ -1080,7 +1083,7 @@ class _HistorySheetState extends State<_HistorySheet> {
     if (_error) {
       return Center(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Text(t.aichatLoadFailed, textAlign: TextAlign.center),
+          Text(honestFailText(t, _failCause, otherwise: t.aichatLoadFailed), textAlign: TextAlign.center),
           const SizedBox(height: Gap.md),
           FilledButton(onPressed: _load, child: Text(t.aichatRetry)),
         ]),

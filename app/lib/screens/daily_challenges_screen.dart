@@ -5,6 +5,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/chal_bank.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// DAILY CHALLENGES / QUIZ — ADVANCED (#173, §21).
 ///
@@ -50,6 +51,7 @@ String _today() {
 class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
   List<Map<String, dynamic>> _progress = [];
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -65,8 +67,9 @@ class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
     final api = context.read<AppState>().api;
     try {
       _progress = await api.listItems(_progressPath);
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -101,7 +104,7 @@ class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
           icon: Icons.cloud_off,
           tint: scheme.error,
           title: tr.loadFailed,
-          message: tr.chalLoadError,
+          message: honestFailText(tr, _failCause, otherwise: tr.chalLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
               icon: const Icon(Icons.refresh),

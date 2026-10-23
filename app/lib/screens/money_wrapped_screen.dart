@@ -10,6 +10,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/wrapped_cards.dart';
 import '../widgets/wrapped_share.dart';
 import 'money_common.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/bn_day_periods.dart' show appDateLocale;
 import '../widgets/subs_common.dart' show fmtInt;
 
@@ -39,6 +40,7 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
   Map<String, dynamic>? _data;
   bool _loading = true;
   bool _failed = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   int _page = 0;
   final _pageController = PageController();
   // One capture key per card so we can share exactly the visible slide.
@@ -65,10 +67,16 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
     try {
       final d = await app.api.moneyWrapped(month: widget.month);
       if (mounted) setState(() => _data = d);
-    } on ApiException catch (_) {
-      if (mounted) setState(() => _failed = true);
-    } catch (_) {
-      if (mounted) setState(() => _failed = true);
+    } on ApiException catch (e) {
+      if (mounted) setState(() {
+        _failed = true;
+        _failCause = e;
+      });
+    } catch (e) {
+      if (mounted) setState(() {
+        _failed = true;
+        _failCause = e;
+      });
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -136,7 +144,7 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
   Widget _errorState(AppLocalizations t) => StateMessage(
         icon: Icons.cloud_off_outlined,
         title: t.wrappedErrorTitle,
-        message: t.wrappedErrorHint,
+        message: honestFailText(t, _failCause, otherwise: t.wrappedErrorHint),
         action: FilledButton.icon(
           onPressed: _load,
           icon: const Icon(Icons.refresh),

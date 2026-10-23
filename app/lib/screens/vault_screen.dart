@@ -14,6 +14,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/permission_reason.dart';
 import '../widgets/vault_doc_types.dart';
 import '../widgets/scam_safety_api.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/ladder_common.dart' show fmtInt;
 import '../theme.dart' show Brand; // qa1
 
@@ -32,6 +33,7 @@ class _VaultScreenState extends State<VaultScreen> {
   List<Map<String, dynamic>> _docs = [];
   bool _loading = false;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   String _query = '';
 
   @override
@@ -119,8 +121,9 @@ class _VaultScreenState extends State<VaultScreen> {
     });
     try {
       _docs = await context.read<AppState>().api.listDocuments();
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -607,7 +610,7 @@ class _VaultScreenState extends State<VaultScreen> {
                   icon: Icons.cloud_off,
                   tint: Theme.of(context).colorScheme.error,
                   title: t.loadFailed,
-                  message: t.checkInternetRetry,
+                  message: honestFailText(t, _failCause, otherwise: t.checkInternetRetry),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
                       icon: const Icon(Icons.refresh),

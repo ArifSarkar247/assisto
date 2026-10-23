@@ -19,8 +19,8 @@ Score guide: 10 = would ship at Apple/Google; 9 = premium, only nit-level notes;
 ## Summary
 
 - Screens scored: **338** (shots; a few screens have several state shots)
-- Average before: **8.72** -> after: **8.98**
-- Below 9 before: **78** -> after: **8**
+- Average before: **8.72** -> after: **8.98** -> after qa2: **9.00**
+- Below 9 before: **78** -> after: **8** -> after qa2: **1** (home, frozen)
 - Not scored as final (other agents are changing them): My Circle chat attach/media (agent md1), wake word / voice (k1 / ww2) — listed with their current score, not changed here.
 - Home screen: frozen (owner rule) — scored, never changed.
 
@@ -60,16 +60,37 @@ never reached the server and the offline queue retried it on every launch. Fixed
 
 ## Still below 9 (and why)
 
+qa2 (23 Oct 2026) took the other seven to 9 — see "qa2 pass" below.
+
 | Screen | Score | Why it is not fixed here |
 |---|---|---|
-| `c1_contacts_synced` | 8 | per-row action buttons wrap onto separate lines in bn (Message / Requested stacked) - uneven rhythm  |
-| `c3_e2_chat_unread` *(in progress — md1 / k1 / ww2)* | 8 | can't-decrypt bubble is a heavy saturated red in dark mode (md1/c3 area, not changed)  |
-| `discover_edit` | 8 | owner-only: bn helper quotes English chip names ("Sponsored"); segment label wraps (owner screen, left)  |
-| `discover_report` | 8 | owner-only report table: ISO dates + Latin digits in bn (left: owner data table)  |
 | `home_chat_restored` *(home — frozen)* | 8 | HOME (frozen, not changed): restored reminder card shows "2026-10-21 09:00" (card subtitle from the server)  |
-| `ramadan` | 8 | day numbers grey.shade700 on dark ~2.8:1, 11-12px Colors.grey hints 2.7:1 on light (7 Ramadan widgets) -> FIXED (onSurfaceVariant); REMAINS: day tiles are 36dp (<48dp) — a 7-column 30-day grid cannot fit 48dp at 360dp width  |
-| `t1_date_floating` *(in progress — md1 / k1 / ww2)* | 8 | floating date pill overlaps the static separator under the header (two pills stacked at top) — My Circle chat (md1 area, not changed)  |
-| `voice_results` *(in progress — md1 / k1 / ww2)* | 8 | bn "আগামীকাল 5:00" — gallery fixture passes a literal '5:00' (voice area; not changed while k1/ww2 are on voice)  |
+
+## qa2 pass (23 Oct 2026) — the last below-9 screens
+
+Re-shot at 360x800, bn + en, light + dark, text scale 1.0 and 2.0, and looked at before/after.
+
+| Screen | Before | After | What changed |
+|---|---|---|---|
+| `c1_contacts_synced` | 8 | 9 | qa2: ONE primary action per row as a pill (Add to My Circle / Message / Accept), the secondary as a trailing 48dp icon button with a tooltip (Message / Call); "Requested" is a status line, not a chip; invite numbers in Bangla digits; long names get 2 lines. No wrapping at 1.0 or 2.0 |
+| `c3_e2_chat_unread` | 8 | 9 | qa2: can't-decrypt message is a normal bubble with a lock + muted italic line (no saturated red block); "2টি অপঠিত" -> "২টি অপঠিত" (Bangla digits, 1:1 + group) |
+| `discover_edit` | 8 | 9 | qa2: paid-card note in natural Bangla (no quoted English chip names); "When tapped" segments are short (App screen / Website) and fit one line; icon picker shows the icon, not "shopping_bag"; more air for floated field labels; 5xx save error says our server |
+| `discover_report` | 8 | 9 | qa2: dates "23 Oct" / "২৩ অক্টো", Bangla digits for counts, CTR, totals and the 7/30/90 segments; the table spans the full width; 5xx load error says our server (CSV/PDF exports unchanged) |
+| `ramadan` | 8 | 9 | qa2: 30-day grid is 5 columns x 48dp rows on a 360dp phone (6 when it fits), cells edge-to-edge, real InkWell + button semantics; the calendar grid uses the same layout. Passes text scale 2.0 |
+| `t1_date_floating` | 8 | 9 | qa2: the floating date chip now steps aside while an inline date separator sits under it (no two pills stacked); the gallery fixture scrolls a real long day so the inline separator is gone, as on a phone |
+| `voice_results` | 8 | 9 | qa2: the result card no longer repeats the reply as a second title/subtitle block (it said everything twice); Undo/Turn off aligned under the text; a restored conversation opens at the newest turn; fixture uses the real formatter output ("আজ বিকেল ৫:০০", "৳৫০০"). Wake word untouched |
+
+Average after qa2: **9.00** (338 screens; below 9: **1**, the frozen home card).
+
+**Honest errors (qa2).** 100+ screens kept only a true/false error flag; most said "check your internet"
+(or "check your connection") for every failure. Each now keeps the failure object next to the flag
+(`_failCause`) and the error line goes through `services/error_kind.dart`: `honestFailText` (a 5xx shows
+"Assisto's server didn't answer properly", anything else keeps the screen's own line), `LoadErrorRetry(error:)`,
+or the new `serverFailText` for title-only error states (adds the server line only on a 5xx). Covered
+explicitly: nominee, vault, inbox (+ test `test/qa2_honest_flags_test.dart`: 500 -> server line, no
+connection -> internet line, for all three). Left as they were (no internet claim, or offline-cache logic
+that is already honest): daily brief, dictionary, guide, finance net worth, meetings, notification centre,
+My Circle channel/community previews, blocked/requests lists.
 
 ## Every screen
 
@@ -109,7 +130,7 @@ never reached the server and the offline queue retried it on every launch. Fixed
 | `blood` | 9 | 9 | — |
 | `business` | 9 | 9 | (same screen as biz_hub) |
 | `c1_contacts_disclosure` | 9 | 9 | — |
-| `c1_contacts_synced` | 8 | 8 | per-row action buttons wrap onto separate lines in bn (Message / Requested stacked) - uneven rhythm |
+| `c1_contacts_synced` | 8 | 9 | per-row action buttons wrap onto separate lines in bn (Message / Requested stacked) - uneven rhythm -> qa2: ONE primary action per row as a pill (Add to My Circle / Message / Accept), the secondary as a trailing 48dp icon button with a tooltip (Message / Call); "Requested" is a status line, not a chip; invite numbers in Bangla digits; long names get 2 lines. No wrapping at 1.0 or 2.0 |
 | `c2_call_busy` | 8 | 9 | "Call again" white on success green 3.4:1 -> FIXED (successButton) |
 | `c2_call_calling` | 9 | 9 | — |
 | `c2_call_connected_voice` | 9 | 9 | — |
@@ -126,7 +147,7 @@ never reached the server and the offline queue retried it on every launch. Fixed
 | `c2_call_video_remote_cam_off` | 9 | 9 | — |
 | `c3_chat` *(in progress — md1 / k1 / ww2)* | 9 | 9 | (emoji boxes = test font only). My Circle chat: md1 area, scored, not changed |
 | `c3_chat_list` | 9 | 9 | gallery fixture had a hard-coded English "My Circle" title (fixture fixed; app uses ARB) |
-| `c3_e2_chat_unread` *(in progress — md1 / k1 / ww2)* | 8 | 8 | can't-decrypt bubble is a heavy saturated red in dark mode (md1/c3 area, not changed) |
+| `c3_e2_chat_unread` | 8 | 9 | can't-decrypt bubble is a heavy saturated red in dark mode (md1/c3 area, not changed) -> qa2: can't-decrypt message is a normal bubble with a lock + muted italic line (no saturated red block); "2টি অপঠিত" -> "২টি অপঠিত" (Bangla digits, 1:1 + group) |
 | `c3_msg_info` | 9 | 9 | — |
 | `c3_notif_settings` | 9 | 9 | — |
 | `c3_x2_contact_info` | 9 | 9 | — |
@@ -177,9 +198,9 @@ never reached the server and the offline queue retried it on every launch. Fixed
 | `dialog_sale_void` | 9 | 9 | — |
 | `dictionary` | 9 | 9 | — |
 | `disaster_alerts` | 7 | 9 | filled severity pills: white text on amber/orange ~2-3:1; tinted pills amber-on-amber -> FIXED (readable ink) |
-| `discover_edit` | 8 | 8 | owner-only: bn helper quotes English chip names ("Sponsored"); segment label wraps (owner screen, left) |
+| `discover_edit` | 8 | 9 | owner-only: bn helper quotes English chip names ("Sponsored"); segment label wraps (owner screen, left) -> qa2: paid-card note in natural Bangla (no quoted English chip names); "When tapped" segments are short (App screen / Website) and fit one line; icon picker shows the icon, not "shopping_bag"; more air for floated field labels; 5xx save error says our server |
 | `discover_mgr` | 9 | 9 | — |
-| `discover_report` | 8 | 8 | owner-only report table: ISO dates + Latin digits in bn (left: owner data table) |
+| `discover_report` | 8 | 9 | owner-only report table: ISO dates + Latin digits in bn (left: owner data table) -> qa2: dates "23 Oct" / "২৩ অক্টো", Bangla digits for counts, CTR, totals and the 7/30/90 segments; the table spans the full width; 5xx load error says our server (CSV/PDF exports unchanged) |
 | `dl1_delete_pending` | 8 | 9 | bn "১০:০০ AM" -> FIXED globally (BnDayPeriods) |
 | `dl1_delete_preview_bottom` | 7 | 9 | preview item names were English internal names in the Bangla UI; red Continue had dark text on red in dark mode -> FIXED |
 | `dl1_grace` | 9 | 9 | — |
@@ -324,7 +345,7 @@ never reached the server and the offline queue retried it on every launch. Fixed
 | `quick_picker` | 9 | 9 | — |
 | `quick_tools` | 9 | 9 | — |
 | `qurbani` | 9 | 9 | — |
-| `ramadan` | 8 | 8 | day numbers grey.shade700 on dark ~2.8:1, 11-12px Colors.grey hints 2.7:1 on light (7 Ramadan widgets) -> FIXED (onSurfaceVariant); REMAINS: day tiles are 36dp (<48dp) — a 7-column 30-day grid cannot fit 48dp at 360dp width |
+| `ramadan` | 8 | 9 | day numbers grey.shade700 on dark ~2.8:1, 11-12px Colors.grey hints 2.7:1 on light (7 Ramadan widgets) -> FIXED (onSurfaceVariant); REMAINS: day tiles are 36dp (<48dp) — a 7-column 30-day grid cannot fit 48dp at 360dp width -> qa2: 30-day grid is 5 columns x 48dp rows on a 360dp phone (6 when it fits), cells edge-to-edge, real InkWell + button semantics; the calendar grid uses the same layout. Passes text scale 2.0 |
 | `referral` | 8 | 9 | bn achievement card numbers in Latin digits -> FIXED |
 | `reminders` | 8 | 9 | bn dates "14 Oct, 10:00 AM" (no locale) -> FIXED |
 | `ride_food` | 9 | 9 | — |
@@ -366,7 +387,7 @@ never reached the server and the offline queue retried it on every launch. Fixed
 | `supplier` | 8 | 9 | empty state shows the same "Add supplier" action twice (CTA + FAB) -> FIXED (FAB hidden when empty); same fix: price_radar, pa_star_deals, pa_voucher, pa_letters |
 | `support` | 9 | 9 | — |
 | `support_center` | 9 | 9 | — |
-| `t1_date_floating` *(in progress — md1 / k1 / ww2)* | 8 | 8 | floating date pill overlaps the static separator under the header (two pills stacked at top) — My Circle chat (md1 area, not changed) |
+| `t1_date_floating` | 8 | 9 | floating date pill overlaps the static separator under the header (two pills stacked at top) — My Circle chat (md1 area, not changed) -> qa2: the floating date chip now steps aside while an inline date separator sits under it (no two pills stacked); the gallery fixture scrolls a real long day so the inline separator is gone, as on a phone |
 | `t1_date_separators` | 9 | 9 | — |
 | `t1_headers` | 9 | 9 | — |
 | `t1_msg_info_legacy` | 9 | 9 | — |
@@ -398,7 +419,7 @@ never reached the server and the offline queue retried it on every launch. Fixed
 | `voice_confirm` *(in progress — md1 / k1 / ww2)* | 9 | 9 | — |
 | `voice_listening` *(in progress — md1 / k1 / ww2)* | 9 | 9 | — |
 | `voice_onboarding` *(in progress — md1 / k1 / ww2)* | 9 | 9 | — |
-| `voice_results` *(in progress — md1 / k1 / ww2)* | 8 | 8 | bn "আগামীকাল 5:00" — gallery fixture passes a literal '5:00' (voice area; not changed while k1/ww2 are on voice) |
+| `voice_results` | 8 | 9 | bn "আগামীকাল 5:00" — gallery fixture passes a literal '5:00' (voice area; not changed while k1/ww2 are on voice) -> qa2: the result card no longer repeats the reply as a second title/subtitle block (it said everything twice); Undo/Turn off aligned under the text; a restored conversation opens at the newest turn; fixture uses the real formatter output ("আজ বিকেল ৫:০০", "৳৫০০"). Wake word untouched |
 | `voice_settings` *(in progress — md1 / k1 / ww2)* | 9 | 9 | — |
 | `voice_settings_bottom` *(in progress — md1 / k1 / ww2)* | 9 | 9 | — |
 | `voice_sos_confirm` *(in progress — md1 / k1 / ww2)* | 9 | 9 | — |

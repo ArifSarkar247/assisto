@@ -12,6 +12,7 @@ import '../../widgets/skeleton.dart';
 import 'business_common.dart';
 import '../../services/action_feedback.dart'; // db1
 import '../../services/error_report.dart'; // db1
+import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// Digital Khata (plan §2): two-sided dues — customer receivables +
 /// supplier payables. The supplier tab is hidden for staff (they must
@@ -97,6 +98,7 @@ class _BookTabState extends State<_BookTab> {
   List<Map<String, dynamic>> _parties = [];
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   bool _selecting = false; // bulk-tagada selection mode
   final Set<int> _picked = {};
 
@@ -119,8 +121,9 @@ class _BookTabState extends State<_BookTab> {
           .api
           .khataParties(widget.businessId, widget.book);
       _parties = ((r['parties'] ?? []) as List).cast<Map<String, dynamic>>();
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -193,7 +196,7 @@ class _BookTabState extends State<_BookTab> {
       return StateMessage(
         icon: Icons.cloud_off_outlined,
         title: t.khataTitle,
-        message: t.businessLoadFailed,
+        message: honestFailText(t, _failCause, otherwise: t.businessLoadFailed),
         action: FilledButton(onPressed: _load, child: Text(t.retry)),
       );
     }

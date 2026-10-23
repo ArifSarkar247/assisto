@@ -10,6 +10,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import 'journey_start_screen.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// Section 8 — Stolen-While-Unlocked Protection hub.
 ///
@@ -36,6 +37,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
 
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   bool _busy = false;
   Map<String, dynamic> _state = const {};
   List<Map<String, dynamic>> _members = const [];
@@ -69,11 +71,12 @@ class _SecurityScreenState extends State<SecurityScreen> {
         _members = members;
         _loading = false;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() {
         _loading = false;
         _error = true;
+        _failCause = e;
       });
     }
   }
@@ -340,7 +343,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
             children: [
               const Icon(Icons.cloud_off, size: 48),
               const SizedBox(height: Gap.md),
-              Text(tr.securityLoadFailed, textAlign: TextAlign.center),
+              Text(honestFailText(tr, _failCause, otherwise: tr.securityLoadFailed), textAlign: TextAlign.center),
               const SizedBox(height: Gap.md),
               FilledButton(
                   onPressed: _load, child: Text(tr.securityRetry)),

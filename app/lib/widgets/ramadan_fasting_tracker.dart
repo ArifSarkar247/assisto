@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme.dart';
+import 'ramadan_day_grid.dart';
 import '../l10n/app_localizations.dart';
 
 /// Locale-aware integer (Bangla via codepoints when bn — no Bangla glyphs here).
@@ -94,34 +95,40 @@ class _RamadanFastingTrackerState extends State<RamadanFastingTracker> {
           Text(t.ramadanFastingHint,
               style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
           const SizedBox(height: Gap.sm),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: List.generate(_total, (i) {
-              final n = i + 1;
+          RamadanDayGrid(
+            count: _total,
+            cell: (context, n, _) {
               final on = _kept.contains(n);
-              return GestureDetector(
-                onTap: () => _toggle(n),
-                child: Container(
-                  width: 36,
-                  height: 36,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: on
-                        ? Brand.purple
-                        : Colors.grey.withOpacity(0.10),
-                    borderRadius: BorderRadius.circular(8),
-                    border: on
-                        ? null
-                        : Border.all(color: Colors.grey.withOpacity(0.3)),
+              final scheme = Theme.of(context).colorScheme;
+              return Semantics(
+                button: true,
+                selected: on,
+                label: _localeNum(context, n),
+                excludeSemantics: true,
+                child: Material(
+                  color: on ? Brand.purple : scheme.onSurface.withValues(alpha: 0.06),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    side: on
+                        ? BorderSide.none
+                        : BorderSide(color: scheme.outlineVariant),
                   ),
-                  child: on
-                      ? const Icon(Icons.check, size: 18, color: Colors.white)
-                      : Text(_localeNum(context, n),
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  clipBehavior: Clip.antiAlias,
+                  child: InkWell(
+                    onTap: () => _toggle(n),
+                    child: Center(
+                      child: on
+                          ? const Icon(Icons.check,
+                              size: 20, color: Colors.white)
+                          : Text(_localeNum(context, n),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  color: scheme.onSurface)),
+                    ),
+                  ),
                 ),
               );
-            }),
+            },
           ),
         ]),
       ),

@@ -9,6 +9,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/contacts_model.dart';
 import '../widgets/contacts_sheets.dart';
 import 'messenger/m3_add_to_circle_screen.dart';
+import '../services/error_kind.dart' show serverFailText; // qa2
 
 /// Contacts (feature 24): the PERSONAL phonebook / relationship manager — the
 /// people in your life (family, friends, colleagues). Distinct from the Sales
@@ -30,6 +31,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
 
   List<Contact> _all = [];
   bool _loading = true, _error = false, _offline = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   String _query = '';
   String _group = ''; // '' = all
   bool _favOnly = false;
@@ -89,10 +91,10 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
       _offline = false;
       _error = false;
       await _writeCache(_all);
-    } catch (_) {
+    } catch (e) {
       // keep whatever we have (cache); only hard-error if we have nothing.
       _offline = true;
-      if (_all.isEmpty) _error = true;
+      if (_all.isEmpty) _error = true; _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -347,6 +349,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
                   icon: Icons.cloud_off,
                   tint: scheme.error,
                   title: tr.loadFailed,
+                  message: serverFailText(tr, _failCause),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
                       icon: const Icon(Icons.refresh),

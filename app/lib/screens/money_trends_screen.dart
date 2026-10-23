@@ -6,6 +6,7 @@ import '../theme.dart';
 import '../widgets/skeleton.dart';
 import 'money_common.dart';
 import 'money_report_screen.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// Trends: month-over-month income/expense/net bars + per-category movement.
 /// Data from GET /money/trends (money_engine.month_over_month + category_trends).
@@ -19,6 +20,7 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
   Map<String, dynamic>? _data;
   bool _loading = true;
   bool _failed = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -33,8 +35,9 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
     });
     try {
       _data = await context.read<AppState>().api.moneyTrends();
-    } catch (_) {
+    } catch (e) {
       _failed = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -57,7 +60,7 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
               ? StateMessage(
                   icon: Icons.cloud_off_outlined,
                   title: t.moneyTrendsTitle,
-                  message: t.moneySummaryOffline,
+                  message: honestFailText(t, _failCause, otherwise: t.moneySummaryOffline),
                   action: FilledButton(
                       onPressed: _load, child: Text(t.retry)),
                 )

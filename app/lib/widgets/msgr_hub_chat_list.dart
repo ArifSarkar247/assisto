@@ -78,6 +78,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
 
   List<Map<String, dynamic>> _chats = [];
   bool _loadFailed = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   List<Map<String, dynamic>> _lists = [];
 
   /// c3-msg: decrypted previews, cached per (row id, last message id) so a
@@ -179,9 +180,10 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
           .cast<Map<String, dynamic>>();
       _loadFailed = false;
       _publishUnread();
-    } catch (_) {
+    } catch (e) {
       // Honest error + retry (no synthesised rows posing as real chats).
       _loadFailed = true;
+      _failCause = e;
     }
     try {
       _lists = await loadGuard(_api.hubCustomLists());
@@ -540,6 +542,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
         if (widget.header != null) widget.header!,
         Expanded(
           child: LoadErrorRetry(
+            error: _failCause,
             body: _t.msgLoadFailed,
             onRetry: () {
               setState(() => _loading = true);

@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// PROBASHI CORNER — ADVANCED (#191, SPEC v2.1 §20) for Bangladeshis abroad.
 ///
@@ -55,6 +56,7 @@ class _ProbashiScreenState extends State<ProbashiScreen> {
   List<Map<String, dynamic>> _remits = [];
   List<Map<String, dynamic>> _docs = [];
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   // abroad UTC offset in minutes; default Gulf (+4:00) — editable, persisted
   // in a tiny local preference-less field (lives for the session).
   int _abroadOffsetMin = 4 * 60;
@@ -78,8 +80,9 @@ class _ProbashiScreenState extends State<ProbashiScreen> {
       ]);
       _remits = res[0];
       _docs = res[1];
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -107,7 +110,7 @@ class _ProbashiScreenState extends State<ProbashiScreen> {
           icon: Icons.cloud_off,
           tint: scheme.error,
           title: tr.loadFailed,
-          message: tr.probashiLoadError,
+          message: honestFailText(tr, _failCause, otherwise: tr.probashiLoadError),
           action: FilledButton.tonalIcon(
             onPressed: _load,
             icon: const Icon(Icons.refresh),

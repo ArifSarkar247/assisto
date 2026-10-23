@@ -11,6 +11,7 @@ import '../widgets/disaster_model.dart';
 import '../widgets/disaster_warning_card.dart';
 import '../widgets/disaster_safety_sheet.dart';
 import '../services/action_feedback.dart'; // db1
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// DISASTER ALERTS (ADVANCED) — SPEC v2.1 §21 / Appendix-A #44 (good → advanced).
 ///
@@ -39,6 +40,7 @@ class DisasterAlertsScreen extends StatefulWidget {
 class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   /// Feed state (mirror of disaster.feed_state): 'no_key' | 'empty' | 'active'.
   String _feedState = 'no_key';
@@ -91,10 +93,11 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
         _family = fam;
         _loading = false;
       });
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         setState(() {
           _error = true;
+          _failCause = e;
           _loading = false;
         });
       }
@@ -233,7 +236,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
                   icon: Icons.cloud_off,
                   tint: scheme.error,
                   title: t.disErrorTitle,
-                  message: t.disErrorBody,
+                  message: honestFailText(t, _failCause, otherwise: t.disErrorBody),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
                       icon: const Icon(Icons.refresh),

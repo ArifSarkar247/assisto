@@ -12,6 +12,7 @@ import '../state.dart';
 import '../theme.dart';
 import 'recovery_screen.dart';
 import '../services/action_feedback.dart'; // db1
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// Anti-theft Batch 5 — "My lost phone".
 ///
@@ -37,6 +38,7 @@ class MyLostPhoneScreen extends StatefulWidget {
 class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
   bool _loading = true;
   bool _failed = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   Map<String, dynamic> _data = const {};
 
   @override
@@ -58,10 +60,11 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
         _data = d;
         _loading = false;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() {
         _failed = true;
+        _failCause = e;
         _loading = false;
       });
     }
@@ -124,7 +127,8 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
         Icon(Icons.cloud_off_outlined,
             size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
         const SizedBox(height: Gap.md),
-        Text(t.mlpLoadFailed, textAlign: TextAlign.center),
+        Text(honestFailText(t, _failCause, otherwise: t.mlpLoadFailed),
+            textAlign: TextAlign.center),
         const SizedBox(height: Gap.md),
         Center(
           child: FilledButton(onPressed: _load, child: Text(t.retry)),
@@ -621,6 +625,7 @@ class _IntruderPhotoState extends State<_IntruderPhoto> {
   Uint8List? _bytes;
   bool _loading = true;
   bool _failed = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -646,11 +651,12 @@ class _IntruderPhotoState extends State<_IntruderPhoto> {
         _bytes = Uint8List.fromList(bytes);
         _loading = false;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() {
         _loading = false;
         _failed = true;
+        _failCause = e;
       });
     }
   }
@@ -666,7 +672,7 @@ class _IntruderPhotoState extends State<_IntruderPhoto> {
       child = Center(
         child: Padding(
           padding: const EdgeInsets.all(Gap.xs),
-          child: Text(t.mlpPhotoFailed,
+          child: Text(honestFailText(t, _failCause, otherwise: t.mlpPhotoFailed),
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall),
         ),

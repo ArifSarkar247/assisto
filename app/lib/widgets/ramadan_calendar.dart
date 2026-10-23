@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme.dart';
+import 'ramadan_day_grid.dart';
 import '../l10n/app_localizations.dart';
 
 /// Locale-aware integer (Western digits, or Bangla via codepoints when bn).
@@ -125,11 +126,11 @@ class _RamadanCalendarState extends State<RamadanCalendar> {
   }
 
   Widget _grid(BuildContext context, int? today) {
-    return Wrap(
-      spacing: 6,
-      runSpacing: 6,
-      children: List.generate(_length, (i) {
-        final n = i + 1;
+    // qa2: shared 6/5-column grid, 48dp rows (was 7 x 36dp).
+    return RamadanDayGrid(
+      count: _length,
+      cell: (context, n, _) {
+        final scheme = Theme.of(context).colorScheme;
         final isToday = today == n;
         final isPast = today != null && n < today;
         final Color bg;
@@ -138,26 +139,24 @@ class _RamadanCalendarState extends State<RamadanCalendar> {
           bg = Brand.purple;
           fg = Colors.white;
         } else if (isPast) {
-          bg = Brand.blue.withOpacity(0.14);
-          fg = Brand.blue;
+          bg = Brand.blue.withValues(alpha: 0.14);
+          fg = Brand.onTint(context, Brand.blue);
         } else {
-          bg = Colors.grey.withOpacity(0.10);
-          fg = Theme.of(context).colorScheme.onSurfaceVariant; // qa1: was 2.8:1 in dark mode
+          bg = scheme.onSurface.withValues(alpha: 0.06);
+          fg = scheme.onSurfaceVariant; // qa1: was 2.8:1 in dark mode
         }
         return Container(
-          width: 36,
-          height: 36,
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: bg,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(10),
           ),
           child: Text(_localeNum(context, n),
               style: TextStyle(
                   color: fg,
                   fontWeight: isToday ? FontWeight.bold : FontWeight.w500)),
         );
-      }),
+      },
     );
   }
 }
