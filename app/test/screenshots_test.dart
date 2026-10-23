@@ -201,6 +201,7 @@ import 't1_ticks_shots.dart'; // t1-ticks
 import 'mr1_shots.dart'; // mr1
 import 'md1_shots.dart'; // md1
 import 'pay1_shots.dart'; // pay1
+import 'p1_bizagent_shots.dart'; // p1-bizagent
 import 'tl1_shots.dart'; // tl1 OEM background guide
 import 'c2_calls_shots.dart'; // c2-calls
 import 'package:assisto/screens/unseen_world_screen.dart';
@@ -594,6 +595,8 @@ Map<String, GallerySpec> gallerySpecs() {
     // pay1: checkout sheet (Play first / gateway only / kill-switch / not set up)
     for (final e in pay1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     for (final e in tl1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // tl1
+    // p1-bizagent: Business AI Agent (home, first run, setup, approvals, inbox, chat)
+    for (final e in p1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // ---- a1 Premium QA: screens that had no gallery shot ----
     'ai_chat': (build: (_) => const AiChatScreen(), mode: FakeMode.data, full: true),
     'nearby': (build: (_) => const NearbyScreen(), mode: FakeMode.data, full: true),

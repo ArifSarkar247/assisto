@@ -532,12 +532,16 @@ class OrderStatusView(APIView):
         if target == "delivered":
             S.record_sale(o)
         if target == "cancelled":
-            from .models import Product
+            from .models import Product, ProductVariant
             from django.db.models import F
-            for it in o.items or []:
+            for it in o.items or []:   # give the reserved stock back
                 if it.get("product_id"):
-                    Product.objects.filter(pk=it["product_id"]).update(
-                        stock=F("stock") + int(it.get("qty") or 1))
+                    q = int(it.get("qty") or 1)
+                    Product.objects.filter(pk=it["product_id"]).update(stock=F("stock") + q)
+                    if it.get("variant"):
+                        ProductVariant.objects.filter(product_id=it["product_id"],
+                                                      vkey=it["variant"]).update(
+                            stock=F("stock") + q)
         return Response({"ok": True, "status": o.status, "sale_id": o.sale_id})
 
 

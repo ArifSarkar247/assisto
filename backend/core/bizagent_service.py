@@ -405,7 +405,9 @@ def kick(ids):
                 connection.close()
             except Exception:
                 pass
-    threading.Thread(target=run, daemon=True, name="bizagent").start()
+    # after commit, so the worker always sees the stored rows
+    transaction.on_commit(
+        lambda: threading.Thread(target=run, daemon=True, name="bizagent").start())
 
 
 def process_event_id(pk):
