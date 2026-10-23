@@ -33,7 +33,7 @@ AppState _state(FakeApi api, String lang) {
 
 Future<AppLocalizations> _pump(WidgetTester tester, Widget home,
     {String lang = 'en', FakeMode mode = FakeMode.data, bool dark = false}) async {
-  await tester.binding.setSurfaceSize(const Size(360, 2400));
+  await tester.binding.setSurfaceSize(const Size(360, 6000));
   await tester.pumpWidget(ChangeNotifierProvider<AppState>.value(
     value: _state(FakeApi(mode: mode, lang: lang), lang),
     child: MaterialApp(

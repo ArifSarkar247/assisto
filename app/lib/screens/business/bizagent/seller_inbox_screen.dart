@@ -421,6 +421,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
                       errorBuilder: (_, __, ___) => const Icon(Icons.broken_image_outlined)),
                 ),
               ),
+            if ('${m['text'] ?? ''}'.isNotEmpty || kind != 'image')
             Text(bd(context, m['text']),
                 style: TextStyle(
                     height: 1.4,

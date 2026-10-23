@@ -221,7 +221,7 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
                 controller: _resume,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                    labelText: t.g1ResumeLabel, border: const OutlineInputBorder()),
+                    helperText: t.g1ResumeLabel, border: const OutlineInputBorder()),
               ),
             ),
             const SizedBox(width: Gap.sm),
@@ -293,7 +293,7 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
                 controller: _bundleQty,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                    labelText: t.g1BundleQty, border: const OutlineInputBorder()),
+                    helperText: t.g1BundleQty, border: const OutlineInputBorder()),
               ),
             ),
             const SizedBox(width: Gap.sm),
@@ -302,7 +302,7 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
                 controller: _bundlePct,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(
-                    labelText: t.g1BundlePct, border: const OutlineInputBorder()),
+                    helperText: t.g1BundlePct, border: const OutlineInputBorder()),
               ),
             ),
           ]),
@@ -616,12 +616,13 @@ class _AgentAnswersScreenState extends State<AgentAnswersScreen> {
         BizCard(
           title: t.g1FaqTitle,
           icon: Icons.quiz_outlined,
-          trailing: TextButton.icon(
-            onPressed: _busy ? null : _learn,
-            icon: const Icon(Icons.auto_awesome_outlined, size: 18),
-            label: Text(t.g1FaqLearn),
-          ),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            OutlinedButton.icon(
+              onPressed: _busy ? null : _learn,
+              icon: const Icon(Icons.auto_awesome_outlined, size: 18),
+              label: Text(t.g1FaqLearn),
+            ),
+            const SizedBox(height: Gap.sm),
             if (_faqs.isEmpty) Text(t.g1FaqEmpty, style: const TextStyle(height: 1.4)),
             for (final f in suggested) _faqTile(t, f, suggested: true),
             for (final f in approved) _faqTile(t, f),
@@ -667,6 +668,7 @@ class _AgentAnswersScreenState extends State<AgentAnswersScreen> {
     final id = (f['id'] as num).toInt();
     final api = context.read<AppState>().api;
     return Container(
+      width: double.infinity,
       margin: const EdgeInsets.only(bottom: Gap.sm),
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
