@@ -18,6 +18,7 @@ statuses) to --out (default: ci_reality_seed.json next to manage.py). The
 passwords are fixed, obviously-fake CI values, not secrets.
 """
 import json
+import os
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -71,7 +72,17 @@ class Command(BaseCommand):
     # ------------------------------------------------------------ main
     def handle(self, *args, **opts):
         engine = settings.DATABASES["default"]["ENGINE"]
-        if "sqlite" not in engine:
+        # rt1: reality.yml's throw-away Postgres service container is also
+        # allowed — ONLY inside GitHub Actions, only the CI database that
+        # settings_ci built from ASSISTO_CI_PG_NAME, only on localhost.
+        ci_pg = (
+            "postgresql" in engine
+            and os.environ.get("GITHUB_ACTIONS") == "true"
+            and os.environ.get("ASSISTO_CI_PG_NAME")
+            and settings.DATABASES["default"].get("NAME") == os.environ["ASSISTO_CI_PG_NAME"]
+            and settings.DATABASES["default"].get("HOST") in ("127.0.0.1", "localhost")
+        )
+        if "sqlite" not in engine and not ci_pg:
             raise CommandError("seed_reality only runs against the CI sqlite DB "
                                f"(got {engine}); refusing to touch a real database.")
         from rest_framework.authtoken.models import Token
