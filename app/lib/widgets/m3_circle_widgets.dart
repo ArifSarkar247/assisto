@@ -643,7 +643,10 @@ class M3RequestsBannerState extends State<M3RequestsBanner>
     if (reqLoading) return const SizedBox.shrink();
     if (reqError != null) {
       return LoadErrorRetry(
-          compact: true, body: t.m3RequestsLoadFailed, onRetry: loadRequests);
+          compact: true,
+          body: t.m3RequestsLoadFailed,
+          error: reqError,
+          onRetry: loadRequests);
     }
     final inc = requests.where(m3IsIncoming).toList();
     if (inc.isEmpty) return const SizedBox.shrink();

@@ -672,6 +672,7 @@ bool isFailureReason(CallEndReason r) => const {
       CallEndReason.mediaError,
       CallEndReason.serverBusy,
       CallEndReason.network,
+      CallEndReason.serverError,
     }.contains(r);
 
 /// "Call again" (A1-d): the caller after any unsuccessful end; the callee
@@ -684,6 +685,7 @@ bool canCallAgain(CallController c, {required bool hasMember}) {
     CallEndReason.failed,
     CallEndReason.lost,
     CallEndReason.network,
+    CallEndReason.serverError,
   }.contains(c.endReason);
 }
 
@@ -716,6 +718,8 @@ String endReasonLabel(AppLocalizations t, CallEndReason r,
       return t.c2CallUnavailable;
     case CallEndReason.network:
       return t.c2CallNetwork;
+    case CallEndReason.serverError:
+      return t.m3ErrServer; // "Assisto's server didn't answer properly…
     case CallEndReason.upgrade:
       return t.circleCallVideoPremiumTitle;
     case CallEndReason.hangup:

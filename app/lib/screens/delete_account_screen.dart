@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import '../api.dart';
 import '../feedback/feedback_sheet.dart';
 import '../l10n/app_localizations.dart';
+import '../services/error_kind.dart' show isServerFailure;
 import '../services/security_guard.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -120,6 +121,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     if (e is ApiException && e.message.trim().isNotEmpty && (e.status ?? 0) < 500) {
       return e.message;
     }
+    if (isServerFailure(e)) return t.m3ErrServer; // rt2: our server, not the user's net
     return load ? t.qaLoadFailedRetry : t.qaActionFailed;
   }
 

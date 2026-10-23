@@ -37,6 +37,7 @@ Endpoints (Token auth):
 from __future__ import annotations
 
 import json
+import logging
 from datetime import timedelta
 
 from django.conf import settings
@@ -54,6 +55,14 @@ from .models import (CallRecord, CallSession, CircleMember, Device, RtEvent,
                      RtPresence)
 
 STUN_FALLBACK = [{"urls": ["stun:stun.l.google.com:19302"]}]
+
+# rt2: the real-time writes below stay NON-FATAL for the request (a lost
+# typing ping must never 500 a call), but they are no longer silent: reality
+# run 39859999833 lost a `call.incoming` ("database is locked") with no trace.
+# Each failure is logged with its traceback (ERROR -> the server error log /
+# crash reporting) and runs in its own savepoint, so a failed insert cannot
+# poison an outer transaction on Postgres.
+log = logging.getLogger("assisto.rt")
 
 
 # ---------------------------------------------------------------- helpers
@@ -99,13 +108,14 @@ def touch_presence(user, now=None):
     app polls every 0.5–5 s)."""
     now = now or timezone.now()
     try:
-        n = RtPresence.objects.filter(
-            user=user, seen_at__lt=now - timedelta(seconds=10)
-        ).update(seen_at=now)
-        if not n and not RtPresence.objects.filter(user=user).exists():
-            RtPresence.objects.create(user=user, seen_at=now)
+        with transaction.atomic():
+            n = RtPresence.objects.filter(
+                user=user, seen_at__lt=now - timedelta(seconds=10)
+            ).update(seen_at=now)
+            if not n and not RtPresence.objects.filter(user=user).exists():
+                RtPresence.objects.create(user=user, seen_at=now)
     except Exception:
-        pass
+        log.exception("rt: touch_presence failed (user=%s)", getattr(user, "pk", None))
 
 
 def is_reachable(user, now=None):
@@ -401,12 +411,15 @@ RT_MAX_PAYLOAD = 16 * 1024
 
 def rt_publish(user, topic, payload):
     """Queue one event for `user`. Never raises; returns the seq or 0."""
+    if user is None:
+        return 0
     try:
-        if user is None:
-            return 0
-        return RtEvent.objects.create(user=user, topic=str(topic)[:40],
-                                      payload=payload or {}).id
+        with transaction.atomic():
+            return RtEvent.objects.create(user=user, topic=str(topic)[:40],
+                                          payload=payload or {}).id
     except Exception:
+        log.exception("rt: rt_publish lost an event (user=%s topic=%s)",
+                      getattr(user, "pk", None), str(topic)[:40])
         return 0
 
 
@@ -415,10 +428,12 @@ def publish_state(rec):
     for side, user_id in (("caller", rec.caller_id), ("callee", rec.callee_id)):
         try:
             row = status_row(rec, side)
-            RtEvent.objects.create(user_id=user_id, topic="call.state",
-                                   payload=row)
+            with transaction.atomic():
+                RtEvent.objects.create(user_id=user_id, topic="call.state",
+                                       payload=row)
         except Exception:
-            pass
+            log.exception("rt: publish_state lost call.state (call=%s user=%s)",
+                          getattr(rec, "pk", None), user_id)
         if rec.caller_id == rec.callee_id:
             break
 

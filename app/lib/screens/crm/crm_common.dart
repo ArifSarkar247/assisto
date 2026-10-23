@@ -223,9 +223,17 @@ class CrmError {
 
   /// What to show the user: the server's message, or a plain-language line
   /// for a technical (network) failure — never a raw exception/URL.
-  String textFor(BuildContext context) => message.isNotEmpty
-      ? message
-      : AppLocalizations.of(context).shopQaLoadFailedBody;
+  String textFor(BuildContext context) =>
+      _honest(AppLocalizations.of(context));
+
+  /// rt2: a 5xx with no human sentence (the client's generic "Something went
+  /// wrong (500)" or an empty body) is OUR server's fault — say so; the
+  /// "check your internet" line only when the server never answered.
+  String _honest(AppLocalizations t) {
+    final generic = message.isEmpty || message.startsWith('Something went wrong (');
+    if ((status ?? 0) >= 500 && generic) return t.m3ErrServer;
+    return message.isNotEmpty ? message : t.shopQaLoadFailedBody;
+  }
 
   static final _rand = Random();
   // Unambiguous alphabet (no 0/O/1/I), matching the server's ref_code().
@@ -319,7 +327,7 @@ class CrmStateView extends StatelessWidget {
       icon: Icons.cloud_off,
       tint: scheme.error,
       title: title ?? t.loadFailed,
-      message: (error?.message ?? '').isEmpty ? t.shopQaLoadFailedBody : error!.message,
+      message: error == null ? t.shopQaLoadFailedBody : error!._honest(t),
       action: Column(mainAxisSize: MainAxisSize.min, children: [
         if (error != null && error!.ref.isNotEmpty) RefCodeChip(error!.ref),
         if (onRetry != null) ...[

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
+import '../services/error_kind.dart';
 import '../theme.dart';
 
 /// GLOBAL RULE (owner order 21 Oct, after "Phone Safety Check-up spins
@@ -89,7 +90,10 @@ class _LoadingGateState<T> extends State<LoadingGate<T>> {
     }
     if (_error != null) {
       return LoadErrorRetry(
-          title: widget.errorTitle, body: widget.errorBody, onRetry: _run);
+          title: widget.errorTitle,
+          body: widget.errorBody,
+          error: _error,
+          onRetry: _run);
     }
     final d = _data as T;
     if (widget.isEmpty?.call(d) == true && widget.emptyBuilder != null) {
@@ -106,12 +110,17 @@ class LoadErrorRetry extends StatelessWidget {
     super.key,
     this.title,
     this.body,
+    this.error,
     required this.onRetry,
     this.compact = false,
   });
 
   final String? title;
   final String? body;
+
+  /// rt2: the failure itself — a server 5xx then says "Assisto's server had
+  /// a problem" instead of blaming the user's internet.
+  final Object? error;
   final VoidCallback onRetry;
   final bool compact;
 
@@ -119,6 +128,9 @@ class LoadErrorRetry extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
+    final text = error != null && isServerFailure(error!)
+        ? t.m3ErrServer
+        : (body ?? t.qaLoadFailedRetry);
     final retry = FilledButton.tonalIcon(
       key: const Key('load-retry'),
       onPressed: onRetry,
@@ -138,7 +150,7 @@ class LoadErrorRetry extends StatelessWidget {
           Icon(Icons.cloud_off_outlined, color: scheme.onErrorContainer),
           const SizedBox(width: Gap.sm),
           Expanded(
-            child: Text(body ?? t.qaLoadFailedRetry,
+            child: Text(text,
                 style: TextStyle(color: scheme.onErrorContainer, height: 1.35)),
           ),
           const SizedBox(width: Gap.sm),
@@ -157,7 +169,7 @@ class LoadErrorRetry extends StatelessWidget {
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: Gap.xs),
-          Text(body ?? t.qaLoadFailedRetry,
+          Text(text,
               textAlign: TextAlign.center,
               style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
           const SizedBox(height: Gap.md),
