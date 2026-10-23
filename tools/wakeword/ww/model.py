@@ -136,6 +136,7 @@ class FramePool:
     def __init__(self, E, starts, kind, frames):
         self.E, self.starts, self.kind, self.frames = E, starts, kind, frames
         self._ar = np.arange(frames)
+        self._by_kind = {k: np.nonzero(kind == k)[0] for k in (0, 1)}
 
     @staticmethod
     def from_parts(window_sets, streams, frames: int, dtype=np.float16) -> "FramePool":
@@ -173,8 +174,8 @@ class FramePool:
     def sample(self, rng, n, kind=None):
         if kind is None:
             return rng.integers(0, len(self), n)
-        pool = np.nonzero(self.kind == kind)[0]
-        if not len(pool):
+        pool = self._by_kind.get(kind)
+        if pool is None or not len(pool):
             return rng.integers(0, len(self), n)
         return pool[rng.integers(0, len(pool), n)]
 

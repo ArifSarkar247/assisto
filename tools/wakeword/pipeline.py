@@ -360,16 +360,18 @@ def stage_embed(c: Ctx):
         bn = c.prep("bn_train", False)
         hi = c.prep("hi_train", False)
         tv_en_cap = int(d.get("tv_en_train_hours", 4.0) * 3600 * audio.SR)
+        # built one at a time (each TV mix is several GB as float32 while mixing)
         streams = {
-            "s_bn": bn, "s_hi": hi, "s_en": c.prep("en_train", False), "s_mspeech": msp["train"],
-            "s_musan": np.asarray(mus["train"][: int(d.get("musan_train_stream_hours", 6.0) * 3600 * audio.SR)]),
-            "s_tv_bn": datasets.tv_like_mix(bn, mus["train"], seed=31, rirs=rir_tr),
-            "s_tv_hi": datasets.tv_like_mix(hi, mus["train"], seed=32, rirs=rir_tr),
-            "s_tv_en": datasets.tv_like_mix(np.asarray(msp["train"][:tv_en_cap]), mus["train"],
-                                            seed=33, rirs=rir_tr),
+            "s_bn": lambda: bn, "s_hi": lambda: hi, "s_en": lambda: c.prep("en_train", False),
+            "s_mspeech": lambda: msp["train"],
+            "s_musan": lambda: np.asarray(mus["train"][: int(d.get("musan_train_stream_hours", 6.0) * 3600 * audio.SR)]),
+            "s_tv_bn": lambda: datasets.tv_like_mix(bn, mus["train"], seed=31, rirs=rir_tr),
+            "s_tv_hi": lambda: datasets.tv_like_mix(hi, mus["train"], seed=32, rirs=rir_tr),
+            "s_tv_en": lambda: datasets.tv_like_mix(np.asarray(msp["train"][:tv_en_cap]), mus["train"],
+                                                    seed=33, rirs=rir_tr),
         }
-        for name, arr in streams.items():
-            stream(name, arr, np.float16)
+        for name, make in streams.items():
+            stream(name, make(), np.float16)
         del streams
         info["train_streams"] = ["s_bn", "s_hi", "s_en", "s_mspeech", "s_musan", "s_tv_bn",
                                  "s_tv_hi", "s_tv_en"]
