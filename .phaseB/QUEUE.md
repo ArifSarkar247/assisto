@@ -13,6 +13,82 @@ G2. [SHIPPED 197] media follow-ups: group media forward (same blob), send-to-pol
 G. [SHIPPED build 196 + backend live (0066, nginx internal location, live blob proof)] MY CIRCLE E2E MEDIA (photo, voice note, document, video if reliable): encrypt on device, ciphertext blob via signed URLs, key inside the E2E message, quotas + retention; attach button stays hidden until each kind truly works. (from mr1 design note)
 H. [SHIPPED/IN CI] mr1: message requests like WhatsApp + full last-seen + media showpieces hidden (live smoke passed with test accounts A/C). DECISION (reversible, noted in STATUS): default 'who can message me' = My Circle now lets people with your number send a REQUEST (WhatsApp-like); 'nobody' blocks strangers.
 
+## NEW ORDER 23 Oct (owner, ~/order.txt) — DO FIRST, in order A, B, C, D, F, E
+Status: A [agent a1 starting], B-F [queued]. Pricing (no unlimited, Premium 90) + disk alert 80% [agent pr1]. Reality audit 202 [DONE b26ccc0].
+```
+OWNER ORDER 23 Oct - My Circle polish + calls like WhatsApp/Messenger + chat themes +
+Photo Studio like Remini + Silicon Valley design. Order: A, B, C, D, F, E.
+
+A. BUGS from my phone (build 202):
+ 1. Chat list shows "Abul Kashem" TWICE (one with messages, one "No messages yet") - merge
+    duplicate threads/edges (request thread vs circle edge); one row per person, always.
+ 2. Chat list preview shows "Encrypted message" instead of the decrypted last message - fix
+    on-device preview decryption (incl. after a key change).
+ 3. Header still shows "last seen today at..." cut off - full time must be visible
+    (shorten the name first; 2 lines or marquee). Test 360 dp, bn + en.
+ 4. Call events must appear INSIDE the chat like WhatsApp ("Missed voice call 10:05",
+    "Video call 3:12") with tap to call back.
+
+B. CALLS (must match WhatsApp/Messenger):
+ 1. Switch voice -> video during a call (request + accept on the other side) and back.
+ 2. Mute mic, camera on/off, flip camera, speaker/earpiece/Bluetooth; each person sees
+    who has camera/mic off.
+ 3. Add people during a call -> group call; group voice/video calls from groups. Use a
+    self-hosted SFU (e.g. LiveKit, Apache-2.0) on our server for 3+ people; 1:1 stays P2P.
+    Active speaker, grid, host can mute others, leave/rejoin.
+ 4. Screen share during a call (Android MediaProjection, foreground service, clear banner).
+ 5. Call recording ONLY with consent: asking person requests, everyone must accept,
+    visible "Recording" banner for all, saved encrypted on the requester's phone only,
+    legal note in Privacy Policy (bn + en). No silent recording ever.
+ 6. Picture-in-picture, call quality indicator, reconnect on network change.
+ Measure server cost (SFU bandwidth) in P&L; respect the "Free calls (testing)" switch.
+
+C. CHAT THEMES like Messenger:
+ 1. A default premium-looking chat theme (bubbles, background, typography) in light/dark.
+ 2. Per-chat themes: 10+ ready themes (colour gradients, bubble colours, wallpapers incl.
+    Bangla-inspired designs), custom colour + own photo wallpaper; both sides see the
+    chosen theme (synced), with a "Theme changed" note in the chat.
+
+D. PHOTO STUDIO like Remini, but better - the on-device enhance FAILED on my phone:
+ 1. Find and fix the root cause first (report in STATUS with device + error).
+ 2. Feature set (our OWN licence-clean models only - never copy Remini code, models,
+    design or brand): Enhance face (face restoration), Unblur/deblur, Old photo restore,
+    Colorize B/W, Upscale 2x/4x, Denoise, Low-light fix, Background blur, Before/after
+    slider, batch of photos. Candidates (check licences for commercial use): Real-ESRGAN
+    (BSD), NAFNet (MIT), DDColor (Apache-2.0), SwinIR (Apache-2.0), GFPGAN only if weights
+    allow; NOT CodeFormer (non-commercial).
+ 3. Light tasks on-device (free to us); heavy tasks on our server or a pay-per-use GPU
+    API behind Admin keys, charged in credits/ads with Profit Guard - never a loss.
+ 4. Face must stay the same person; never change identity. Results in < 10 s on a
+    mid-range phone for light tasks; show progress; never a fake result.
+ 5. Compare our results side by side with Remini on 20 test photos (portraits, old,
+    blurry, low light) and report honestly in STATUS.
+
+F. APP-WIDE DESIGN UPGRADE to Silicon Valley standard (owner order; home screen look may
+   change too, but keep its structure):
+ 1. Typography: English = Inter; Bangla = compare Hind Siliguri vs Noto Sans Bengali (also
+    Anek Bangla) on real screens and pick the best; all fonts bundled (OFL), never
+    downloaded at runtime. One clear type scale (display, title, body, label, caption),
+    correct Bangla line-height so letters never clip, tabular figures for amounts/times.
+ 2. Design system: colour tokens (light + dark, WCAG AA contrast), 4/8 pt spacing, radius,
+    elevation, one icon set (Material Symbols Rounded or Phosphor, same weight everywhere),
+    consistent buttons, inputs, cards, lists, sheets, empty states, loading skeletons,
+    smooth 150-300 ms motion. No random colours or sizes anywhere.
+ 3. Apply to ALL screens (316): My Circle and call screens first, then home, Assisto AI
+    chat, Photo Studio, settings, business tools.
+ 4. Accessibility: works at 200% font size, screen reader labels, tap targets >= 48 dp.
+ 5. Proof: before/after screenshots of the 30 most-used screens (bn + en, light + dark) in
+    .phaseB/design_shots/ + Bangla summary in STATUS. Show home + My Circle before/after
+    first; continue with the rest without waiting.
+
+E. DO MORE ON YOUR OWN: compare My Circle with WhatsApp, Messenger and Telegram, write a
+   gap table (feature | them | us | plan) in owner_actions/MYCIRCLE_GAPS_BN.md and build the
+   high-value missing ones (e.g. chat lock, disappearing messages, view-once media, pinned/
+   archived chats, polls, message search, voice note speed), each one really working.
+
+Rules: no showpieces, prove each part (tests + live), Bangla 3-line STATUS per build.
+```
+
 ## MASTER ORDER 22 Oct (single source of truth; earlier orders below are history)
 Rules: max parallel agents (own worktree each), heavy cmds via lock, ship each part immediately, deploy each backend after checks (standing approval), max 1 h on CI problems (gate = release cold start + backend tests + route_check; note missing proof), commit hourly, never idle, blockers in Bangla at top of STATUS, 3 Bangla lines per build.
 
