@@ -11,6 +11,7 @@ from . import views_t9 as T9
 from . import views_sc1 as SC1   # sc1 app errors
 from . import views_p1 as P1     # p1-bizagent sellers
 from . import views_p2 as P2     # p2-money
+from . import views_p4 as P4     # p4-world
 
 _ASSETS = {"owner.css": "text/css; charset=utf-8",
            "owner.js": "application/javascript; charset=utf-8"}
@@ -84,4 +85,5 @@ urlpatterns = [
     path("campaigns/<int:pk>/report", P2.campaign_report),
     path("campaigns/<int:pk>/report.<str:fmt>", P2.campaign_report),
     path("impact", P2.ad_impact),
+    path("world", P4.world),          # p4-world: Unseen World data sources
 ]

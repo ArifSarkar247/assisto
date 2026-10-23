@@ -1,0 +1,5 @@
+# p4-world: Unseen World feed cache + capped job alerts.
+# Install (main session, after deploying the backend + migration 0072_p4_world):
+# append both lines to the ubuntu crontab on the Assisto box (Asia/Dhaka).
+*/15 * * * * cd /home/ubuntu/assisto/backend && /home/ubuntu/assisto/.venv/bin/python manage.py world_refresh >> /home/ubuntu/assisto/logs/world_refresh.log 2>&1
+30 9 * * * cd /home/ubuntu/assisto/backend && /home/ubuntu/assisto/.venv/bin/python manage.py world_job_alerts >> /home/ubuntu/assisto/logs/world_job_alerts.log 2>&1

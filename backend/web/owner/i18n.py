@@ -731,3 +731,35 @@ BN.update({
     "ak_offers_premium_notifs": "প্রিমিয়াম ব্যবহারকারীরাও ব্র্যান্ড অফার পাবেন (ডিফল্ট বন্ধ)",
 })
 # ---- /p2-money ----
+# ---- p4-world ---- owner panel: Unseen World data sources + gold/fuel values
+EN.update({
+    "nav_world": "Unseen World",
+    "w_sources": "Data sources", "w_source": "Source", "w_kind": "Kind",
+    "w_last_ok": "Last refresh", "w_last_err": "Last error", "w_calls": "Calls today",
+    "w_cost": "Cost today (USD)", "w_items": "Items", "w_on": "On", "w_off": "Off",
+    "w_turn_on": "Turn on", "w_turn_off": "Turn off", "w_never": "never",
+    "w_sources_note": "Every feed is fetched by the server on a schedule (manage.py world_refresh, every 15 min; intervals under Pricing → world) and shared by all users. News = official publisher RSS: headline + the feed's own short summary (max 200 characters) + link, never the article. A feed that is off, failing or stale simply shows nothing to users.",
+    "w_keys": "Keys (Integrations)", "w_key_on": "connected", "w_key_off": "not connected — hidden for users",
+    "w_web": "Web answers (last 24 h)", "w_web_new": "New answers", "w_web_cached": "Served from cache (free)",
+    "w_web_cost": "Provider cost (USD)", "w_web_credits": "Credits charged",
+    "w_values": "Gold and fuel prices (entered by you)",
+    "w_values_note": "BAJUS (gold) and BPC (fuel) publish prices on their websites but have no API. Type the official price here; users see it with \"updated by Assisto on <date>\" and a link to the official page. Leave empty to hide the card. Every change is in the audit log.",
+    "w_value": "Price (৳)", "w_date": "Price effective date", "w_updated": "Last saved",
+    "w_open_official": "Open official page",
+})
+BN.update({
+    "nav_world": "অদেখা দুনিয়া",
+    "w_sources": "তথ্যের উৎস", "w_source": "উৎস", "w_kind": "ধরন",
+    "w_last_ok": "শেষ হালনাগাদ", "w_last_err": "শেষ ত্রুটি", "w_calls": "আজকের কল",
+    "w_cost": "আজকের খরচ (USD)", "w_items": "আইটেম", "w_on": "চালু", "w_off": "বন্ধ",
+    "w_turn_on": "চালু করুন", "w_turn_off": "বন্ধ করুন", "w_never": "কখনো না",
+    "w_sources_note": "প্রতিটি ফিড সার্ভার নির্দিষ্ট সময় পরপর আনে (manage.py world_refresh, প্রতি ১৫ মিনিট; সময়ের ব্যবধান Pricing → world-এ) এবং সব ব্যবহারকারী একই কপি দেখেন। খবর = প্রকাশকের অফিশিয়াল RSS: শিরোনাম + ফিডের নিজের ছোট সারাংশ (সর্বোচ্চ ২০০ অক্ষর) + লিংক, কখনো পুরো লেখা নয়। বন্ধ, ব্যর্থ বা পুরোনো ফিড ব্যবহারকারীকে কিছুই দেখায় না।",
+    "w_keys": "কি (Integrations)", "w_key_on": "সংযুক্ত", "w_key_off": "সংযুক্ত নয় — ব্যবহারকারীর কাছে লুকানো",
+    "w_web": "ওয়েব উত্তর (গত ২৪ ঘণ্টা)", "w_web_new": "নতুন উত্তর", "w_web_cached": "ক্যাশ থেকে (ফ্রি)",
+    "w_web_cost": "প্রোভাইডার খরচ (USD)", "w_web_credits": "কাটা ক্রেডিট",
+    "w_values": "সোনা ও জ্বালানির দাম (আপনার লেখা)",
+    "w_values_note": "বাজুস (সোনা) ও বিপিসি (জ্বালানি) ওয়েবসাইটে দাম প্রকাশ করে, কিন্তু কোনো API নেই। এখানে অফিশিয়াল দাম লিখুন; ব্যবহারকারী দেখবেন \"Assisto হালনাগাদ করেছে <তারিখ>\" ও অফিশিয়াল পাতার লিংক। খালি রাখলে কার্ডটি লুকানো থাকবে। প্রতিটি পরিবর্তন অডিট লগে থাকে।",
+    "w_value": "দাম (৳)", "w_date": "দাম কার্যকরের তারিখ", "w_updated": "শেষ সেভ",
+    "w_open_official": "অফিশিয়াল পাতা খুলুন",
+})
+# ---- /p4-world ----

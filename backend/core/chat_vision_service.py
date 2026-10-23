@@ -272,6 +272,7 @@ def answer(user, job, data, lang="bn"):
     if not slug:
         return 409, {"ok": False, "reason": "provider_missing",
                      "message": funding_message("provider_missing", lang)}
+    purpose = CV.purpose_of(data.get("purpose"))      # p4-world: crop / rx
     device_text = str(data.get("device_text") or "")[:4000]
     labels = [str(x)[:40] for x in (data.get("device_labels") or []) if isinstance(x, str)][:12]
     q_text = question or pick(lang, "এই ছবিতে কী আছে? সহজ ভাষায় বুঝিয়ে বলুন।",
@@ -285,7 +286,7 @@ def answer(user, job, data, lang="bn"):
     job.save(update_fields=["status", "runs", "provider"])
     try:
         reply = VP.ask(slug, conf, image_bytes=raw, mime=mime,
-                       system=CV.system_prompt(lang), question=q_text)
+                       system=CV.system_prompt(lang, purpose), question=q_text)
     except VP.VisionError as e:
         job.error = str(e)[:200]
         if job.runs >= 3:
@@ -306,6 +307,7 @@ def answer(user, job, data, lang="bn"):
     table = c["action_costs"].get(CV.ACTION) or {}
     cost_usd = max(prov_cost, float(table.get("provider_cost") or 0))
     # only the TEXT answer is kept (no image, no device text, no question)
+    out["answer"] = CV.add_purpose_note(out["answer"], purpose, lang)   # p4-world
     job.options = {"answer": out["answer"][:6000], "kind": out["kind"],
                    "medicine": out["medicine"], "doses_removed": out["doses_removed"],
                    "face_refused": out["face_refused"]}

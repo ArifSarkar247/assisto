@@ -17696,5 +17696,200 @@
   "p3DeleteStory": "Delete story",
   "p3DeleteStoryBody": "It will be removed for everyone now.",
   "p3StoryCantOpen": "This story can't be opened on this phone.",
-  "p3ReplySent": "Reply sent"
+  "p3ReplySent": "Reply sent",
+  "uwTitle": "Unseen World",
+  "uwIntro": "News, prices, prayer times, jobs and official guides — in one place, in your language, with your voice.",
+  "uwVoiceHint": "Tap the mic to ask by voice, and the speaker to hear any answer or guide read aloud.",
+  "uwAskTitle": "Ask anything",
+  "uwAskTileSub": "Live web answers with numbered sources",
+  "uwTodayTitle": "Today",
+  "uwTodayTileSub": "Prayer times, weather, rates, prices, headlines",
+  "uwJobsTitle": "Jobs hub",
+  "uwJobsTileSub": "Official job sites and alerts",
+  "uwHubExpat": "Expats",
+  "uwHubExpatSub": "Visa basics, official channels, sending money home",
+  "uwHubStudents": "Students",
+  "uwHubStudentsSub": "SSC/HSC results, admissions, BCS practice",
+  "uwHubFarmers": "Farmers",
+  "uwHubFarmersSub": "Crop problems, expert help, safe spraying",
+  "uwHubGov": "Government services",
+  "uwHubGovSub": "Passport, NID, birth registration, land, licence",
+  "uwHubHealth": "Health helpers",
+  "uwHubHealthSub": "Prescription reader and helplines",
+  "uwAskHint": "Ask a question…",
+  "uwAskSend": "Ask",
+  "uwAskWelcomeTitle": "Ask about anything happening now",
+  "uwAskWelcomeBody": "Assisto searches the web, then answers in short with numbered sources you can open and check.",
+  "uwAskCost": "Each new answer uses {credits} credits. Asking the same question again soon is free.",
+  "@uwAskCost": {
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      }
+    }
+  },
+  "uwAskEx1": "What is today's news about the budget?",
+  "uwAskEx2": "How do I renew an e-passport?",
+  "uwAskEx3": "Which countries are hiring workers from Bangladesh now?",
+  "uwAskSearching": "Searching the web and checking sources…",
+  "uwAskFailed": "Couldn't get an answer right now. Please try again.",
+  "uwAskCached": "Answered from a recent search — no credits used.",
+  "uwAskCharged": "{credits} credits used for this answer.",
+  "@uwAskCharged": {
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      }
+    }
+  },
+  "uwSources": "Sources",
+  "uwAiReview": "AI-generated — please check the sources before you act.",
+  "uwGetCredits": "Get credits",
+  "uwOffline": "No connection. Check your internet and try again.",
+  "uwCouldNotOpen": "Couldn't open this link.",
+  "uwListen": "Listen",
+  "uwTtsNoVoice": "This phone has no voice for this language yet.",
+  "uwTtsSettings": "Voice settings",
+  "uwTtsUnavailable": "Read-aloud isn't available on this phone.",
+  "uwSourceIs": "Source: {source}",
+  "@uwSourceIs": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "uwUpdatedAt": "Updated {when}",
+  "@uwUpdatedAt": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "uwReviewedOn": "Last reviewed by Assisto: {date}",
+  "@uwReviewedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "uwCustomize": "Choose cards",
+  "uwCustomizeTitle": "Your Today cards",
+  "uwCustomizeBody": "Turn cards on or off. Your choice is saved to your account.",
+  "uwCity": "City for prayer times and weather",
+  "uwSave": "Save",
+  "uwSaved": "Saved",
+  "uwSaveFailed": "Couldn't save. Please try again.",
+  "uwNotEnteredYet": "Not available yet",
+  "uwNotAvailableNow": "Not available right now",
+  "uwCachedCopy": "You're offline — showing the last saved copy.",
+  "uwNoCardsTitle": "No cards to show",
+  "uwNoCardsBody": "Turn on a card with \"Choose cards\" at the top.",
+  "uwCardPrayer": "Prayer times",
+  "uwCardWeather": "Weather",
+  "uwCardCurrency": "Exchange rates (Taka)",
+  "uwCardGold": "Gold and silver price",
+  "uwCardFuel": "Fuel price",
+  "uwCardNewsBd": "Bangladesh headlines",
+  "uwCardNewsWorld": "World headlines",
+  "uwCardCricket": "Cricket live",
+  "uwCardFootball": "Football live",
+  "uwFajr": "Fajr",
+  "uwSunrise": "Sunrise",
+  "uwDhuhr": "Dhuhr",
+  "uwAsr": "Asr",
+  "uwMaghrib": "Maghrib",
+  "uwIsha": "Isha",
+  "uwHumidityWind": "Humidity {humidity}% · Wind {wind} m/s",
+  "@uwHumidityWind": {
+    "placeholders": {
+      "humidity": {
+        "type": "String"
+      },
+      "wind": {
+        "type": "String"
+      }
+    }
+  },
+  "uwEnteredByAssisto": "Official price, updated by Assisto on {date}",
+  "@uwEnteredByAssisto": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "uwNewsNote": "Headlines and short summaries from each publisher's official feed. Tap to read the full story on their site.",
+  "uwNoLiveMatches": "No live match right now.",
+  "uwAll": "All",
+  "uwTrackApplications": "Track my applications",
+  "uwJobAlerts": "Job alerts",
+  "uwJobAlertsOn": "Send me new jobs",
+  "uwJobAlertsCap": "At most one alert a day, title and link only.",
+  "uwJobTypesPick": "Job types (up to 5)",
+  "uwSteps": "Steps",
+  "uwDocs": "Documents you need",
+  "uwFee": "Fee",
+  "uwTips": "Good to know",
+  "uwMoreTools": "More tools in Assisto",
+  "uwOpenProbashi": "Open Probashi corner (remittance log)",
+  "uwOpenExamResult": "Open exam result watcher",
+  "uwOpenStudentCorner": "Open Student corner (routine, CGPA)",
+  "uwOpenFarmerMode": "Open Farmer mode (ledger, crop calendar)",
+  "uwOpenServiceGuide": "Open the full service guide",
+  "uwOpenMedicinePrice": "Look up official medicine prices",
+  "uwCropTitle": "Check a crop with a photo",
+  "uwCropBody": "Take a clear photo of the affected leaf or fruit. Assisto suggests the likely problem and general care. Always confirm with your Upazila Agriculture Officer or call 16123.",
+  "uwCropQuestion": "What is wrong with this crop and how should I take care of it?",
+  "uwRxTitle": "Read a prescription",
+  "uwRxBody": "Take a photo of the prescription. Assisto lists the medicines exactly as written. Always check with your doctor or pharmacist.",
+  "uwRxQuestion": "Please list the medicines in this prescription exactly as written.",
+  "uwAiHelpTitle": "Ask Assisto AI",
+  "uwAiHelpBody": "Ask in your own words. Answers are general guidance; check the official site before you act.",
+  "uwAiHelpHint": "Type or say your question…",
+  "uwFormHelpTitle": "AI help filling forms",
+  "uwFormHelpBody": "Tell Assisto which form and field you're stuck on. It explains the field and drafts text for you to copy. Assisto never submits a form for you.",
+  "uwFormHelpHint": "e.g. What do I write in \"permanent address\" on the passport form?",
+  "uwAiAsk": "Ask",
+  "uwAiCostNote": "Uses AI credits for each answer.",
+  "uwMcqTitle": "BCS practice",
+  "uwMcqStart": "Start BCS practice",
+  "uwMcqProgress": "Question {n} of {total}",
+  "@uwMcqProgress": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "uwMcqNext": "Next",
+  "uwMcqBack": "Back",
+  "uwMcqFinish": "See my score",
+  "uwMcqScore": "{correct} of {total} correct",
+  "@uwMcqScore": {
+    "placeholders": {
+      "correct": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "uwMcqRightAnswer": "Right answer: {answer}",
+  "@uwMcqRightAnswer": {
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
+  "uwMcqAgain": "Practise again",
+  "uwMcqHistory": "Your recent scores",
+  "uwMcqOriginal": "All questions are written by Assisto for practice — not taken from any question bank."
 }

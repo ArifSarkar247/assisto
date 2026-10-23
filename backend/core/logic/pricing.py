@@ -124,7 +124,43 @@ _ACTION_DEFAULTS = {
     # Gemini vision). The live call uses the larger of this estimate and the
     # connected provider's own "cost per image" field.
     "chat_vision_image":   {"provider_cost": 0.01, "credits": 3},
+    # p4-world: one live web-search AI answer with numbered sources. Search
+    # (Brave ~$0.005 / Tavily ~$0.008) + a cheap-tier LLM (~$0.006).
+    # NET floor = ceil(0.015*120/0.60) = 3; margin rule = 3; 4 keeps >=40%.
+    "web_answer":          {"provider_cost": 0.015, "credits": 4},
 }
+
+# p4-world: Unseen World knobs (admin-editable via /admin/pricing "world").
+_WORLD_DEFAULTS = {
+    "web_answers_per_day": 30,     # per user, a hard cap (nothing unlimited)
+    "answer_cache_hours": 3,       # same question+lang reuses the answer, free
+    "news_interval_min": 30,       # RSS refresh
+    "sports_interval_min": 5,      # live-score refresh
+    "sports_max_calls_day": 100,   # per sports API — the free-plan ceiling
+    "job_alerts_per_day": 1,       # owner rule: notifications capped
+}
+_WORLD_BOUNDS = {
+    "web_answers_per_day": (1, 200),
+    "answer_cache_hours": (0, 48),
+    "news_interval_min": (10, 720),
+    "sports_interval_min": (2, 120),
+    "sports_max_calls_day": (0, 100000),
+    "job_alerts_per_day": (0, 3),
+}
+
+
+def _norm_world(raw, base):
+    raw = raw if isinstance(raw, dict) else {}
+    out = {}
+    for k, dflt in base.items():
+        lo, hi = _WORLD_BOUNDS[k]
+        out[k] = max(lo, min(hi, _int(raw.get(k), dflt)))
+    return out
+
+
+def world_cfg(cfg):
+    """The normalized Unseen World block of a pricing config."""
+    return normalize(cfg)["world"]
 
 # Vehicle tracking knobs (admin-editable via /admin/pricing "vehicle" block).
 # (min, max) bounds keep a bad edit from ever making the tracker unsafe.
@@ -398,6 +434,7 @@ def DEFAULTS():
         # p1-bizagent: seller AI-agent plans (monthly AI replies), trial,
         # WhatsApp per-message cost, per-channel kill switches
         "seller_agent": _BA.cfg_defaults(),
+        "world": dict(_WORLD_DEFAULTS),   # p4-world
     }
 
 
@@ -519,6 +556,7 @@ def normalize(data):
         "home_hero": _CV.normalize_hero(d.get("home_hero")),
         "payments": _PAY.normalize(d.get("payments")),   # pay1
         "seller_agent": _BA.cfg_normalize(d.get("seller_agent")),   # p1
+        "world": _norm_world(d.get("world"), base["world"]),   # p4-world
     }
 
 

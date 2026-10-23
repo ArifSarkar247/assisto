@@ -1,0 +1,45 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_world }}{% endblock %}
+{% block content %}
+{% if problems %}<div class="flash warn" role="alert"><b>{{ T.not_saved }}</b><ul>{% for p in problems %}<li>{{ p }}</li>{% endfor %}</ul></div>{% endif %}
+
+<section class="card"><h2>{{ T.w_keys }}</h2>
+  <p>{% for slug, on in keys %}<span class="pill {% if on %}ok{% else %}off{% endif %}">{{ slug }} — {% if on %}{{ T.w_key_on }}{% else %}{{ T.w_key_off }}{% endif %}</span> {% endfor %}</p>
+  <p class="small"><a href="/owner/integrations">{{ T.nav_integrations }}</a> · owner_actions/UNSEEN_WORLD_KEYS_BN.md</p>
+</section>
+
+<section class="card"><h2>{{ T.w_web }}</h2>
+<div class="tiles">
+  <div class="tile"><span>{{ T.w_web_new }}</span><b>{{ web.answers_24h }}</b></div>
+  <div class="tile"><span>{{ T.w_web_cached }}</span><b>{{ web.cached_24h }}</b></div>
+  <div class="tile"><span>{{ T.w_web_cost }}</span><b>{{ web.cost_usd_24h }}</b></div>
+  <div class="tile"><span>{{ T.w_web_credits }}</span><b>{{ web.credits_24h }}</b></div>
+</div>
+</section>
+
+<section class="card"><h2>{{ T.w_sources }}</h2>
+  <p class="small">{{ T.w_sources_note }}</p>
+  <div class="tbl"><table><thead><tr><th>{{ T.w_source }}</th><th>{{ T.w_kind }}</th><th>{{ T.status }}</th><th>{{ T.w_last_ok }}</th><th>{{ T.w_last_err }}</th><th>{{ T.w_items }}</th><th>{{ T.w_calls }}</th><th>{{ T.w_cost }}</th><th></th></tr></thead><tbody>
+  {% for f in feeds %}<tr>
+    <td>{{ f.name }}</td><td>{{ f.kind }}</td>
+    <td>{% if f.enabled %}<span class="pill ok">{{ T.w_on }}</span>{% else %}<span class="pill off">{{ T.w_off }}</span>{% endif %}</td>
+    <td>{% if f.last_ok_at %}{{ f.last_ok_at|date:"m-d H:i" }}{% else %}<span class="mut">{{ T.w_never }}</span>{% endif %}</td>
+    <td>{% if f.last_error %}<span class="neg">{{ f.last_error|truncatechars:80 }}</span> <small class="mut">{{ f.last_error_at|date:"m-d H:i" }}</small> ({{ f.error_count }}){% else %}—{% endif %}</td>
+    <td class="num">{{ f.items }}</td><td class="num">{{ f.calls_today }}</td><td class="num">{{ f.cost_usd_today }}</td>
+    <td><form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="feed"><input type="hidden" name="slug" value="{{ f.slug }}"><input type="hidden" name="on" value="{% if f.enabled %}0{% else %}1{% endif %}"><button class="btn">{% if f.enabled %}{{ T.w_turn_off }}{% else %}{{ T.w_turn_on }}{% endif %}</button></form></td>
+  </tr>{% endfor %}
+  </tbody></table></div>
+</section>
+
+<section class="card"><h2>{{ T.w_values }}</h2>
+  <p class="small">{{ T.w_values_note }}</p>
+  <div class="tbl"><table><thead><tr><th>{{ T.w_source }}</th><th>{{ T.w_value }}</th><th>{{ T.w_date }}</th><th>{{ T.w_updated }}</th><th></th></tr></thead><tbody>
+  {% for v in values %}<tr><td>{{ v.label }} <a class="small" href="{{ v.url }}" rel="noopener noreferrer" target="_blank">{{ T.w_open_official }}</a></td>
+    <td colspan="3"><form method="post" class="cols">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="value"><input type="hidden" name="key" value="{{ v.key }}">
+      <input name="value" value="{% if v.value is not None %}{{ v.value }}{% endif %}" inputmode="decimal" aria-label="{{ T.w_value }}">
+      <input name="effective_date" type="date" value="{{ v.effective_date }}" aria-label="{{ T.w_date }}">
+      <small class="mut">{{ v.updated_at|default:"—" }}</small>
+      <button class="btn primary">{{ T.save }}</button></form></td><td></td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endblock %}
