@@ -124,6 +124,9 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
         PsNotice.noSubject => t.d1psNoSubject,
         PsNotice.tooBig => t.d1psTooBig,
         PsNotice.batchDone => t.d1psBatchDone,
+        PsNotice.limitReached => _c.noticeText.isNotEmpty ? _c.noticeText : t.d1psLimitReached,
+        PsNotice.stillWorking => t.d1psStillWorking,
+        PsNotice.reported => t.d1psReported,
         PsNotice.refused || PsNotice.none => '',
       };
 
@@ -173,7 +176,9 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
             : t.psWorking,
         PsStage.mask => t.d1psStageMask,
         PsStage.classic => t.d1psStageClassic,
-        PsStage.server => t.d1psStageServer,
+        PsStage.server => p.item > 1
+            ? t.d1psStageQueue(fmtInt(context, p.item))
+            : t.d1psStageServer,
         PsStage.batch => t.d1psStageBatch(fmtInt(context, p.item), fmtInt(context, p.items)),
       };
 
@@ -264,6 +269,10 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
             ],
             if (s != null && _c.tools.any) ...[
               _toolsCard(t),
+              const SizedBox(height: Gap.lg)
+            ],
+            if (s != null && _templates.isNotEmpty) ...[
+              _templatesCard(t),
               const SizedBox(height: Gap.lg)
             ],
             if (s != null && _showRestore) ...[
@@ -420,6 +429,81 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
         _infoLine(Icons.face_outlined, t.d1psOwnerNoFaceModel),
       ],
     ]);
+  }
+
+  // ------------------------------------------------------------------ d1 v2 templates
+  List<PsTemplate> get _templates => [
+        for (final tp in _c.config.templates)
+          if (tp.feature.isRestore
+              ? _c.config.restoreReady(tp.feature)
+              : _c.config.providerReady)
+            tp
+      ];
+
+  Widget _templatesCard(AppLocalizations t) {
+    final scheme = Theme.of(context).colorScheme;
+    final lim = _c.config.limits, use = _c.config.usage;
+    final perDay = lim['free_enhance_per_day'] ?? 0;
+    final left = (perDay - (use['enhance_today'] ?? 0)).clamp(0, perDay);
+    final gifts = ((lim['free_gen_lifetime'] ?? 0) - (use['gen_lifetime'] ?? 0)).clamp(0, 99);
+    return _card(icon: Icons.bolt_outlined, title: t.d1psTemplatesTitle, children: [
+      Text(t.d1psTemplatesBody, style: TextStyle(color: scheme.onSurfaceVariant)),
+      const SizedBox(height: Gap.md),
+      Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+        for (final tp in _templates)
+          ActionChip(
+            key: Key('psTpl_${tp.id}'),
+            avatar: Icon(
+                tp.feature == PsFeature.enhanceServer
+                    ? Icons.hd_outlined
+                    : (tp.feature.isRestore ? Icons.history_edu_outlined : Icons.auto_awesome_outlined),
+                size: 18,
+                color: scheme.primary),
+            label: Text(tp.label),
+            onPressed: _c.busy
+                ? null
+                : () => _c.runTemplate(
+                    tp, SheetGateUi(context, forRun: true, onPremium: _c.free ? _openPlans : null)),
+          ),
+      ]),
+      if (_c.free) ...[
+        const SizedBox(height: Gap.sm),
+        _infoLine(Icons.hd_outlined,
+            t.d1psFreeHdLeft(fmtInt(context, left), fmtInt(context, lim['free_enhance_ads'] ?? 1))),
+        if (gifts > 0) _infoLine(Icons.card_giftcard_outlined, t.d1psFreeAiLeft(fmtInt(context, gifts))),
+      ],
+      _infoLine(Icons.lock_person_outlined, t.d1psFaceLockPromise),
+    ]);
+  }
+
+  Future<void> _reportSheet(AppLocalizations t) async {
+    final reasons = <String, String>{
+      'face_changed': t.d1psReportFace,
+      'offensive': t.d1psReportOffensive,
+      'sexual': t.d1psReportSexual,
+      'fake_person': t.d1psReportFake,
+      'child': t.d1psReportChild,
+      'other': t.d1psReportOther,
+    };
+    final pick = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: ListView(shrinkWrap: true, children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
+            child: Text(t.d1psReportAi, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+          ),
+          for (final e in reasons.entries)
+            ListTile(
+              key: Key('psReport_${e.key}'),
+              title: Text(e.value),
+              onTap: () => Navigator.of(ctx).pop(e.key),
+            ),
+        ]),
+      ),
+    );
+    if (pick != null) await _c.reportCurrent(pick);
   }
 
   bool get _showRestore {
@@ -625,9 +709,39 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
             child: SizedBox(
                 height: 300, width: double.infinity, child: _image(cur.bytes)),
           );
+    final fl = _c.currentFaceLock;
+    final canReport = s.current.aiEdited && _c.jobForCurrent() != null;
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       img,
       const SizedBox(height: Gap.sm),
+      // d1-photo v2: FACE LOCK badge — only when the check really ran
+      if (fl != null && fl.locked) ...[
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: Container(
+            key: const Key('psFaceLock'),
+            child: _pill(
+                Icons.lock_person_outlined,
+                fl.restored > 0
+                    ? t.d1psFaceLockRestored
+                    : (fl.score == null
+                        ? t.d1psFaceLock
+                        : t.d1psFaceLockScore('${fmtInt(context, (fl.score! * 100).round())}%')),
+                Brand.success),
+          ),
+        ),
+        const SizedBox(height: Gap.xs),
+      ],
+      if (canReport)
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton.icon(
+            key: const Key('psReportAi'),
+            onPressed: _c.busy ? null : () => _reportSheet(t),
+            icon: const Icon(Icons.flag_outlined, size: 18),
+            label: Text(t.d1psReportAi),
+          ),
+        ),
       if (!_c.webImport)
       Wrap(
           spacing: Gap.sm,
@@ -975,6 +1089,9 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
                 const Key('psHasPeople')),
             _switch(t.psOthers, _c.othersInPhoto, _c.setOthers,
                 const Key('psOthers')),
+            if (_c.othersInPhoto)
+              _switch(t.d1psConsent, _c.consentOthers, _c.setConsent,
+                  const Key('psConsent')),
             _switch(
                 t.psChild, _c.childInPhoto, _c.setChild, const Key('psChild')),
             if (_c.othersInPhoto)

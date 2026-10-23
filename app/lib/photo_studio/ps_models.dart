@@ -21,7 +21,12 @@ extension ExportKindWire on ExportKind {
 /// old-photo restore: ONNX Runtime on the server CPU) or a pay-per-use GPU API
 /// behind an Admin key (deblur: NAFNet). They are shown only when the server
 /// quote says ok (model installed / key connected) — never a dead button.
-enum PsFeature { enhanceHd, enhanceCloud, promptEdit, generate, deblur, colorize, oldRestore }
+enum PsFeature {
+  enhanceHd, enhanceCloud, promptEdit, generate, deblur, colorize, oldRestore,
+
+  /// d1-photo v2: HD enhance on OUR photo worker (+ FACE LOCK).
+  enhanceServer,
+}
 
 extension PsFeatureWire on PsFeature {
   String get wire => switch (this) {
@@ -32,12 +37,19 @@ extension PsFeatureWire on PsFeature {
         PsFeature.deblur => 'deblur',
         PsFeature.colorize => 'colorize',
         PsFeature.oldRestore => 'old_restore',
+        PsFeature.enhanceServer => 'enhance_server',
       };
   bool get isCloud => this != PsFeature.enhanceHd;
 
   /// d1-photo: server restore jobs (no prompt, no generative edit).
   bool get isRestore =>
-      this == PsFeature.deblur || this == PsFeature.colorize || this == PsFeature.oldRestore;
+      this == PsFeature.deblur ||
+      this == PsFeature.colorize ||
+      this == PsFeature.oldRestore ||
+      this == PsFeature.enhanceServer;
+
+  static PsFeature? fromWire(String w) =>
+      PsFeature.values.where((f) => f.wire == w).firstOrNull;
 }
 
 enum EditStrength { light, natural, strong }
@@ -88,6 +100,9 @@ class FeatureQuote {
       options.where((o) => o.via == 'credits' || o.via == 'pool').firstOrNull;
   bool get free => options.any((o) => o.via == 'free');
 
+  /// d1-photo v2: one of the free user's lifetime free AI generations.
+  bool get gift => options.any((o) => o.via == 'gift');
+
   factory FeatureQuote.fromJson(Map? j) {
     if (j == null) return none;
     return FeatureQuote(
@@ -120,6 +135,9 @@ class PsConfig {
     this.aiModel = AiModelInfo.none,
     this.isOwner = false,
     this.restoreNeeds = const {},
+    this.templates = const [],
+    this.limits = const {},
+    this.usage = const {},
   });
   final String plan;
   final bool free;
@@ -146,6 +164,13 @@ class PsConfig {
   final Map<String, String> restoreNeeds;
 
   FeatureQuote quote(PsFeature f) => features[f.wire] ?? FeatureQuote.none;
+
+  /// d1-photo v2: one-tap templates from the server.
+  final List<PsTemplate> templates;
+
+  /// Owner-editable limits (free_enhance_per_day …) and this user's usage.
+  final Map<String, int> limits;
+  final Map<String, int> usage;
 
   /// A restore job is offered only when the server can really run + price it.
   bool restoreReady(PsFeature f) => f.isRestore && quote(f).ok;
@@ -178,6 +203,17 @@ class PsConfig {
           if (e.value is Map && (e.value as Map)['ready'] != true)
             '${e.key}': _s((e.value as Map)['needs']),
       },
+      templates: ((j['templates'] as List?) ?? const [])
+          .whereType<Map>()
+          .map(PsTemplate.fromJson)
+          .whereType<PsTemplate>()
+          .toList(),
+      limits: {
+        for (final e in ((j['limits'] as Map?) ?? const {}).entries) '${e.key}': _i(e.value)
+      },
+      usage: {
+        for (final e in ((j['usage'] as Map?) ?? const {}).entries) '${e.key}': _i(e.value)
+      },
     );
   }
 }
@@ -194,6 +230,8 @@ class PsJob {
     this.previewUrl = '',
     this.cornerMark = true,
     this.flags = const {},
+    this.queuePosition = 0,
+    this.faceLock,
   });
   final int id;
   final String feature;
@@ -206,7 +244,14 @@ class PsJob {
   final bool cornerMark;
   final Map<String, dynamic> flags;
 
+  /// d1-photo v2: waiting for the photo worker (1 = next).
+  final int queuePosition;
+
+  /// d1-photo v2: what FACE LOCK did on the server (null = no check ran).
+  final FaceLockInfo? faceLock;
+
   bool get funded => status == 'funded' || status == 'done';
+  bool get waiting => status == 'queued' || status == 'running';
 
   factory PsJob.fromJson(Map j) => PsJob(
         id: _i(j['id']),
@@ -219,7 +264,50 @@ class PsJob {
         previewUrl: _s(j['preview']),
         cornerMark: j['corner_mark'] != false,
         flags: ((j['flags'] as Map?) ?? const {}).cast<String, dynamic>(),
+        queuePosition: _i(j['queue_position']),
+        faceLock: FaceLockInfo.fromJson(j['face_lock']),
       );
+}
+
+/// d1-photo v2: FACE LOCK result for one AI image.
+class FaceLockInfo {
+  const FaceLockInfo({required this.action, this.faces = 0, this.restored = 0, this.score});
+
+  /// kept | restored_original_face | no_faces | unavailable
+  final String action;
+  final int faces, restored;
+
+  /// Identity similarity 0..1 of the delivered face(s) (worst face).
+  final double? score;
+
+  /// The badge is only shown when the check REALLY ran on a face.
+  bool get locked => faces > 0 && (action == 'kept' || action == 'restored_original_face');
+
+  static FaceLockInfo? fromJson(Object? raw) {
+    if (raw is! Map) return null;
+    final a = _s(raw['action']);
+    if (a.isEmpty) return null;
+    final sc = raw['min_score'];
+    return FaceLockInfo(
+        action: a,
+        faces: _i(raw['faces']),
+        restored: _i(raw['restored']),
+        score: sc is num ? sc.toDouble() : null);
+  }
+}
+
+/// d1-photo v2: a one-tap template (prompt is server-owned).
+class PsTemplate {
+  const PsTemplate(this.id, this.feature, this.label);
+  final String id;
+  final PsFeature feature;
+  final String label;
+
+  static PsTemplate? fromJson(Map j) {
+    final f = PsFeatureWire.fromWire(_s(j['feature']));
+    if (f == null) return null;
+    return PsTemplate(_s(j['id']), f, _s(j['label']));
+  }
 }
 
 class SafetyVerdict {

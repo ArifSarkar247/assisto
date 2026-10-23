@@ -472,6 +472,7 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
         'deblur' => t.d1psFeatDeblur,
         'colorize' => t.d1psFeatColorize,
         'old_restore' => t.d1psFeatOldRestore,
+        'enhance_server' => t.d1psFeatEnhanceServer,
         _ => f,
       };
 

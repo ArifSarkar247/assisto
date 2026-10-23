@@ -120,3 +120,16 @@ model cards via the HF API `cardData.license`). "Commercial OK" = code AND weigh
 | Old-photo scratch/dust cleanup, fade fix | our code (`core/photo_restore.py`: adaptive median defect mask, levels) | ours | — | — | Yes | server |
 | Server inference runtime | ONNX Runtime 1.19.2 (Python) | MIT | — | — | Yes | server (pip, backend venv) |
 | Evaluation photos (20) | 10 US-Congress portraits (public domain) + 10 CC0 photos, Wikimedia Commons (`.phaseB/photo_studio_eval/sources.json`) | — | — | — | Yes (only small contact sheets in the repo) | not shipped |
+
+## Photo Studio v2 (owner order 6) — FACE LOCK + worker models (23 Oct 2026)
+
+| Purpose | Model | Licence (how checked, 23 Oct 2026) | Commercial OK? | Where |
+|---|---|---|---|---|
+| Face detection + 5 landmarks (FACE LOCK, face detail pass) | **YuNet** `face_detection_yunet_2023mar.onnx` (OpenCV Zoo, 230 KB, sha256 `8f2383e4…2fa4`) | **MIT** (opencv_zoo/models/face_detection_yunet/LICENSE, Copyright (c) 2020 Shiqi Yu) | **Yes** | photo worker (server) |
+| Face IDENTITY score (FACE LOCK) | **AuraFace-v1** `glintr100.onnx` (fal.ai, ResNet-100 ArcFace-style, 260 MB, sha256 `a7933ea5…5c60`) | **Apache-2.0** (HF card + LICENSE.md); README: "trained on commercially and publicly available data sources to enable its usage in commercial setting" | **Yes** | photo worker (server) |
+| (NOT used, same HF repo) | `scrfd_10g_bnkps.onnx`, `2d106det.onnx`, `genderage.onnx`, `1k3d68.onnx` in fal/AuraFace-v1 | byte-identical (same sha256 as the copies in public antelopev2 mirrors) to **InsightFace** models = **non-commercial** | **NO** — never downloaded (install.sh fetches glintr100.onnx only) | — |
+| (NOT used) | InsightFace antelopev2 / buffalo_l (incl. its own `glintr100.onnx`, sha256 `4ab1d643…4cdf`) | non-commercial research only | **NO** | — |
+| Seamless paste-back of the original face | OpenCV `seamlessClone` (Poisson blending) | Apache-2.0 (opencv-python-headless 4.10) | Yes | photo worker |
+| Face RESTORATION (GAN face prior) | GFPGAN / CodeFormer / RestoreFormer … | see above: NVIDIA NC parts / S-Lab NC / FFHQ-NC training data | **NO** | **not offered**. Best clean alternative shipped: a *face detail pass* = Real-ESRGAN (BSD-3) on the face crop at native resolution, luminance only, then FACE LOCK. Honest consequence: faces get crisper but not "re-imagined" like Remini's. |
+| Premium HD fast path (optional) | Real-ESRGAN on Replicate (`face_enhance=false` — GFPGAN is never requested) | BSD-3 model; Replicate API terms | Yes | GPU API, key-gated (`photo_restore_gpu.enhance_version`) |
+| Prompt edit (“Nano Banana” / GPT Image / Flux) | Google Gemini image models, OpenAI GPT Image, Replicate-hosted models (e.g. FLUX Kontext **[pro]** only — FLUX [dev] weights are non-commercial) | provider API terms (owner accepts them when adding the key) | Yes via the paid API | cloud, key-gated, switchable in Owner Admin (`photo_studio.provider`); every result goes through FACE LOCK on the worker |

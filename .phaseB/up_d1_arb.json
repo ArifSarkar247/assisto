@@ -163,7 +163,59 @@
   },
   "d1psFeatDeblur": "Remove blur (GPU)",
   "d1psFeatColorize": "Colourise (server)",
-  "d1psFeatOldRestore": "Old photo restore (server)"
+  "d1psFeatOldRestore": "Old photo restore (server)",
+  "d1psLimitReached": "Today's free limit is used — more tomorrow, or go Premium.",
+  "d1psStillWorking": "Our server is still working on it. Please try again in a few minutes — nothing extra will be charged.",
+  "d1psReported": "Thank you — we will review this image.",
+  "d1psStageQueue": "Waiting in line: you are number {n}…",
+  "@d1psStageQueue": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "d1psConsent": "They agreed to this AI edit",
+  "d1psFaceLock": "Face Lock: same person",
+  "d1psFaceLockScore": "Face Lock: same person ({score})",
+  "@d1psFaceLockScore": {
+   "placeholders": {
+    "score": {
+     "type": "String"
+    }
+   }
+  },
+  "d1psFaceLockRestored": "Face Lock: your original face was put back",
+  "d1psFaceLockPromise": "Face Lock: after every AI result we check the face is still yours; if not, your original face is put back.",
+  "d1psReportAi": "Report this AI image",
+  "d1psReportFace": "The face was changed",
+  "d1psReportOffensive": "Offensive or harmful",
+  "d1psReportSexual": "Sexual content",
+  "d1psReportFake": "A fake of a real person",
+  "d1psReportChild": "Involves a child",
+  "d1psReportOther": "Something else",
+  "d1psTemplatesTitle": "One-tap looks",
+  "d1psTemplatesBody": "Ready-made edits. Heavier ones run on our server and take up to a minute.",
+  "d1psFreeHdLeft": "Free HD today: {n} left · {ads} ad each",
+  "@d1psFreeHdLeft": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    },
+    "ads": {
+     "type": "String"
+    }
+   }
+  },
+  "d1psFreeAiLeft": "Free AI images left: {n}",
+  "@d1psFreeAiLeft": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "d1psFeatEnhanceServer": "HD enhance (worker)"
  },
  "bn": {
   "d1psToolsTitle": "ছবির টুল",
@@ -216,6 +268,27 @@
   "d1psBatchPhoto": "ছবি {n}",
   "d1psFeatDeblur": "ঝাপসা দূর (GPU)",
   "d1psFeatColorize": "রং দেওয়া (সার্ভার)",
-  "d1psFeatOldRestore": "পুরোনো ছবি মেরামত (সার্ভার)"
+  "d1psFeatOldRestore": "পুরোনো ছবি মেরামত (সার্ভার)",
+  "d1psLimitReached": "আজকের ফ্রি সীমা শেষ — কাল আবার পাবেন, বা প্রিমিয়াম নিন।",
+  "d1psStillWorking": "আমাদের সার্ভারে এখনো কাজ চলছে। কয়েক মিনিট পরে আবার চেষ্টা করুন — বাড়তি কিছু কাটা হবে না।",
+  "d1psReported": "ধন্যবাদ — ছবিটি আমরা দেখব।",
+  "d1psStageQueue": "লাইনে অপেক্ষা: আপনি {n} নম্বরে…",
+  "d1psConsent": "তাঁরা এই AI এডিটে রাজি আছেন",
+  "d1psFaceLock": "ফেস লক: একই মানুষ",
+  "d1psFaceLockScore": "ফেস লক: একই মানুষ ({score})",
+  "d1psFaceLockRestored": "ফেস লক: আপনার আসল মুখ ফিরিয়ে দেওয়া হয়েছে",
+  "d1psFaceLockPromise": "ফেস লক: প্রতিটি AI ফলাফলের পর যাচাই করি মুখটা আপনারই আছে কি না; না থাকলে আপনার আসল মুখ ফিরিয়ে দিই।",
+  "d1psReportAi": "এই AI ছবি রিপোর্ট করুন",
+  "d1psReportFace": "মুখ বদলে গেছে",
+  "d1psReportOffensive": "আপত্তিকর বা ক্ষতিকর",
+  "d1psReportSexual": "যৌন বিষয়বস্তু",
+  "d1psReportFake": "আসল কোনো মানুষের ভুয়া ছবি",
+  "d1psReportChild": "শিশুর বিষয়ে",
+  "d1psReportOther": "অন্য কিছু",
+  "d1psTemplatesTitle": "এক ট্যাপে",
+  "d1psTemplatesBody": "তৈরি করা এডিট। ভারী কাজগুলো আমাদের সার্ভারে চলে, এক মিনিট পর্যন্ত লাগতে পারে।",
+  "d1psFreeHdLeft": "আজ ফ্রি HD: আর {n}টি · প্রতিটিতে {ads}টি বিজ্ঞাপন",
+  "d1psFreeAiLeft": "ফ্রি AI ছবি বাকি: {n}টি",
+  "d1psFeatEnhanceServer": "HD এনহ্যান্স (ওয়ার্কার)"
  }
 }

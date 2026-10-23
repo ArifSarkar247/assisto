@@ -262,6 +262,13 @@ class FakePsBackend implements PsBackend {
 
   @override
   Future<Uint8List?> download(String url) async => kTinyPng;
+
+  final reports = <String>[];
+  @override
+  Future<PsReply> report(int id, String reason, {String note = ''}) async {
+    reports.add(reason);
+    return const PsReply(201, {'ok': true, 'message': 'Thank you'});
+  }
 }
 
 /// Ads: each rewarded ad pops the next outcome; on `earned` the fake fires

@@ -182,6 +182,16 @@ enum PsNotice {
 
   /// d1-photo: a batch finished (counts in [PhotoStudioController.batch]).
   batchDone,
+
+  /// d1-photo v2: today's free HD enhances / this week's free AI are used
+  /// (server message in noticeText; the screen offers Premium).
+  limitReached,
+
+  /// d1-photo v2: the server photo worker is still busy after the wait.
+  stillWorking,
+
+  /// d1-photo v2: "Report this AI image" sent.
+  reported,
 }
 
 class PhotoStudioController extends ChangeNotifier {
@@ -236,6 +246,18 @@ class PhotoStudioController extends ChangeNotifier {
 
   /// d1-photo: old-photo restore also colourises (black & white photos).
   bool restoreColorize = true;
+
+  /// d1-photo v2: the user confirmed the OTHER people in the photo agreed
+  /// to an AI edit (server refuses realistic AI edits of others without it).
+  bool consentOthers = false;
+
+  /// d1-photo v2: FACE LOCK result per version index (server AI results).
+  final Map<int, FaceLockInfo> faceLockOf = {};
+  FaceLockInfo? get currentFaceLock => session == null ? null : faceLockOf[session!.index];
+
+  /// Poll interval / max wait for a queued server job (tests shorten them).
+  Duration pollEvery = const Duration(seconds: 2);
+  Duration pollMax = const Duration(minutes: 8);
 
   /// Batch run (at most [batchMax] photos — nothing unlimited).
   static const batchMax = 10;
@@ -707,7 +729,13 @@ class PhotoStudioController extends ChangeNotifier {
   /// identity check on the result before it is shown.
   Future<void> runRestore(PsFeature f, GateUi ui) async {
     if (!f.isRestore) return;
-    if (!config.restoreReady(f)) return _say(PsNotice.providerMissing, config.quote(f).message);
+    if (!config.restoreReady(f)) {
+      final q = config.quote(f);
+      if (q.reason == 'daily_limit' || q.reason == 'fair_use_cap') {
+        return _say(PsNotice.limitReached, q.message);
+      }
+      return _say(PsNotice.providerMissing, q.message);
+    }
     await _runCloud(f, '', ui, extra: {
       if (f == PsFeature.oldRestore) 'restore_colorize': restoreColorize,
     });
@@ -724,6 +752,7 @@ class PhotoStudioController extends ChangeNotifier {
         'others_in_photo': othersInPhoto,
         'own_photo': !othersInPhoto,
         'child_in_photo': childInPhoto,
+        if (othersInPhoto) 'consent': consentOthers,
       };
 
   /// Edit (with a photo) or generate (without). Safety -> identity-guard
@@ -761,7 +790,9 @@ class PhotoStudioController extends ChangeNotifier {
       final q = config.quote(feature);
       final body = {..._jobBody(feature, prompt), ...extra};
       if (config.free) {
-        if (q.ads != null) {
+        if (q.gift) {
+          body['via'] = 'gift'; // a lifetime free AI generation (no ads)
+        } else if (q.ads != null) {
           body['via'] = 'ads';
         } else {
           final c = await ui.chooseFunding(GateNeed(
@@ -798,7 +829,14 @@ class PhotoStudioController extends ChangeNotifier {
         }
         return _say(PsNotice.failed, rr.message);
       }
-      final job = rr.job!;
+      var job = rr.job!;
+      // d1-photo v2: queued on the photo worker -> wait honestly (position)
+      if (job.waiting) {
+        final waited = await _waitForJob(job);
+        if (waited == null) return _say(PsNotice.stillWorking);
+        job = waited;
+        if (job.status != 'done') return _say(PsNotice.failed, job.status);
+      }
       final prev = job.previewUrl.isEmpty ? null : await deps.backend.download(job.previewUrl);
       if (prev == null) return _say(PsNotice.failed);
       if (s != null && hasPeople) {
@@ -818,6 +856,8 @@ class PhotoStudioController extends ChangeNotifier {
       } else {
         s.push(ver);
       }
+      final fl = job.faceLock;
+      if (fl != null) faceLockOf[session!.index] = fl;
       notice = PsNotice.none;
       // trials left / pool balance changed on the server
       try {
@@ -926,6 +966,56 @@ class PhotoStudioController extends ChangeNotifier {
       progress = null;
       _notify();
     }
+  }
+
+  /// Poll a queued job until done/failed. null = still running after
+  /// [pollMax] or the user pressed Cancel (the job keeps its funds).
+  Future<PsJob?> _waitForJob(PsJob job) async {
+    _batchCancel = false;
+    final sw = Stopwatch()..start();
+    var j = job;
+    while (j.waiting) {
+      if (_batchCancel || sw.elapsed > pollMax) return null;
+      progress = PsProgress(PsStage.server, item: j.queuePosition);
+      _notify();
+      await Future<void>.delayed(pollEvery);
+      final r = await deps.backend.job(j.id);
+      if (r.job != null) j = r.job!;
+    }
+    return j;
+  }
+
+  /// d1-photo v2: one-tap template.
+  Future<void> runTemplate(PsTemplate t, GateUi ui) async {
+    switch (t.feature) {
+      case PsFeature.enhanceServer:
+      case PsFeature.oldRestore:
+      case PsFeature.colorize:
+      case PsFeature.deblur:
+        return runRestore(t.feature, ui);
+      default:
+        if (session == null) return _say(PsNotice.needPhoto);
+        if (!config.providerReady) return _say(PsNotice.providerMissing, config.providerNeeds);
+        return _runCloud(t.feature, '', ui, extra: {'template': t.id});
+    }
+  }
+
+  /// d1-photo v2: "Report this AI image".
+  Future<void> reportCurrent(String reason, {String note = ''}) async {
+    final id = jobForCurrent();
+    if (id == null) return;
+    try {
+      final r = await deps.backend.report(id, reason, note: note);
+      _say(r.ok ? PsNotice.reported : PsNotice.failed, r.message);
+    } catch (e) {
+      _report('report', e);
+      _say(PsNotice.failed);
+    }
+  }
+
+  void setConsent(bool v) {
+    consentOthers = v;
+    _notify();
   }
 
   final Map<int, bool> _versionAi = {};
