@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../crypto/e2e.dart';
 import '../l10n/app_localizations.dart';
 import '../p3/p3_api.dart';
+import '../services/action_feedback.dart';
 import '../p3/story_crypto.dart';
 import '../p3/story_privacy_sheet.dart';
 import '../state.dart';
@@ -101,8 +102,7 @@ class _CircleStatusScreenState extends State<CircleStatusScreen> {
         list.add((author: aid, name: _nameOf(aid, '${x['name'] ?? ''}'), text: txt));
       }
       _notes = list;
-    } catch (_) {
-      // notes are optional decoration of the tab: stories still show
+    } catch (_) { // best-effort: notes are optional; the stories still show
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -146,7 +146,7 @@ class _CircleStatusScreenState extends State<CircleStatusScreen> {
     StoryPrivacy cur = StoryPrivacy.contacts;
     try {
       cur = StoryPrivacy.fromJson((await api.privacyDefaults())['status']);
-    } catch (_) {}
+    } catch (_) {} // best-effort: the sheet opens on "My contacts" and saving still reports
     if (!mounted) return;
     final p = await showStoryPrivacySheet(context,
         members: widget.members, initial: cur, title: t.p3PrivStoryTitle);
@@ -195,7 +195,10 @@ class _CircleStatusScreenState extends State<CircleStatusScreen> {
     if (go != true || !mounted) return;
     try {
       await context.read<AppState>().api.muteStories(authorId, !muted);
-    } catch (_) {}
+    } catch (e) {
+      if (mounted) showActionFailed(context, 'p3.story.mute', e);
+      return;
+    }
     _load();
   }
 
@@ -489,7 +492,10 @@ class _NoteSheetState extends State<NoteSheet> {
   Future<void> _delete() async {
     try {
       await context.read<AppState>().api.clearNote();
-    } catch (_) {}
+    } catch (e) {
+      if (mounted) showActionFailed(context, 'p3.note.delete', e);
+      return;
+    }
     if (mounted) Navigator.of(context).pop(true);
   }
 
