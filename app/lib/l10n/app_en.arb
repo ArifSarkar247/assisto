@@ -16704,5 +16704,8 @@
   "qa1WatchAddRateAlert": "Add rate alert",
   "qa2DiscoverPaidNote": "Sponsored cards are shown on every plan and are always marked “Sponsored”. AdMob ads are shown to Free users only.",
   "qa2DiscoverActionRoute": "App screen",
-  "qa2DiscoverActionUrl": "Website"
+  "qa2DiscoverActionUrl": "Website",
+  "l3AdPrivacyTitle": "Ad privacy choices",
+  "l3AdPrivacySub": "Review or change how ads may use your data",
+  "l3AdPrivacyFailed": "Couldn't open ad privacy choices. Please try again."
 }
