@@ -162,8 +162,16 @@ def find_product(text, catalog, post_product=None):
         stripped = " ".join(strip_suffix(w) for w in _norm(text).split())
         hits = BZ.match_products(stripped, catalog, limit=5)
     if hits:
-        hits.sort(key=lambda p: int(p.get("stock") or 0) <= 0)   # in stock first (stable)
-        return hits[0]
+        low = _norm(text)
+        stripped = " ".join(strip_suffix(w) for w in low.split())
+        full = [p for p in hits if _norm(p.get("name") or "") in low
+                or _norm(p.get("name") or "") in stripped]
+        if full:
+            full.sort(key=lambda p: int(p.get("stock") or 0) <= 0)   # in stock first (stable)
+            return full[0]
+        if len(hits) == 1:
+            return hits[0]
+        return None          # several partial hits = ambiguous → the AI / a person decides
     return post_product
 
 

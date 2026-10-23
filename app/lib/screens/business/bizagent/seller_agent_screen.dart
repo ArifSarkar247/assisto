@@ -11,6 +11,7 @@ import '../../../state.dart';
 import '../../../theme.dart';
 import '../../../widgets/business_ui.dart';
 import '../../../widgets/skeleton.dart';
+import 'agent_g1_screens.dart';
 import 'approvals_screen.dart';
 import 'seller_inbox_screen.dart';
 import 'seller_setup_screen.dart';
@@ -250,6 +251,30 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
               subtitle: Text(t.baInboxSub),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => _open(const SellerInboxScreen()),
+            ),
+            const Divider(height: 1),
+            ListTile(
+              leading: const Icon(Icons.schedule_outlined),
+              title: Text(t.g1BehaviourTitle),
+              subtitle: Text(t.g1BehaviourSub),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _open(const AgentBehaviourScreen()),
+            ),
+            const Divider(height: 1),
+            ListTile(
+              leading: const Icon(Icons.bolt_outlined),
+              title: Text(t.g1AnswersTitle),
+              subtitle: Text(t.g1AnswersSub),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _open(const AgentAnswersScreen()),
+            ),
+            const Divider(height: 1),
+            ListTile(
+              leading: const Icon(Icons.insights_outlined),
+              title: Text(t.g1ReportTitle),
+              subtitle: Text(t.g1ReportSub),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _open(const AgentReportScreen()),
             ),
             const Divider(height: 1),
             ListTile(

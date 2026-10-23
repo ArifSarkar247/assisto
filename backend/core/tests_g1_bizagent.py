@@ -139,6 +139,19 @@ class PureTests(TestCase):
         self.assertIsNone(a("refund chai", self.ctx()))
         self.assertIn("PIN", R.answer("payment kivabe?", self.ctx(lang="en"))["text"])
 
+    def test_partial_name_never_overrides_chosen_product(self):
+        # found by the live-proof run: "Name: Selftest Buyer" partially matched
+        # "Selftest Pajama" and replaced the product the customer chose by photo
+        cat = [{"id": 1, "name": "Selftest Panjabi", "price": "1200", "stock": 5},
+               {"id": 2, "name": "Selftest Pajama", "price": "500", "stock": 5}]
+        d = BZ.extract_order("2 ta nibo. Name: Selftest Buyer, phone 01900000000",
+                             {"product_id": 1, "product": "Selftest Panjabi"}, cat)
+        self.assertEqual((d["product_id"], d["qty"]), (1, 2))
+        self.assertNotIn("product_id", BZ.extract_order("Name: Selftest Buyer", {}, cat))
+        self.assertEqual(BZ.extract_order("Selftest Pajama 1 ta", {"product_id": 1}, cat)
+                         ["product_id"], 2)                  # a FULL name still switches
+        self.assertIsNone(R.find_product("Selftest dam koto", cat))   # ambiguous → AI
+
     def test_faq_alternatives_and_threshold(self):
         faqs = [{"id": 5, "q": "dokan kothay | আপনাদের দোকান কোথায়", "a": "মিরপুর ১০"}]
         self.assertEqual(R.answer("apnader dokan kothay?", self.ctx(faqs=faqs))["faq_id"], 5)

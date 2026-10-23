@@ -150,11 +150,12 @@ void main() {
     final t = await _pump(tester, const SellerChatScreen(threadId: 5));
     expect(find.text(t.baByAi), findsWidgets);
     expect(find.textContaining('Mirpur 10'), findsWidgets);
-    expect(find.text(t.baHandoverOff), findsOneWidget);
-    await tester.tap(find.byType(Switch));
+    // g1: the per-chat toggle "Let AI reply / I will reply" replaced the switch
+    expect(find.text(t.g1LetAiReply), findsOneWidget);
+    await tester.tap(find.text(t.g1IWillReply));
     await tester.pump(const Duration(milliseconds: 200));
-    expect(p1Posts.last.key, '/bizagent/threads/5/handover');
-    expect(p1Posts.last.value['on'], isTrue);
+    expect(p1Posts.last.key, '/bizagent/threads/5/mode');
+    expect(p1Posts.last.value['mode'], 'human');
     await tester.enterText(find.byType(TextField), 'Ami dekhchi');
     await tester.pump(); // Send enables once there is text
     await tester.tap(find.byTooltip(t.baSend));

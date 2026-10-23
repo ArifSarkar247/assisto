@@ -609,6 +609,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in tl1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // tl1
     // p1-bizagent: Business AI Agent (home, first run, setup, approvals, inbox, chat)
     for (final e in p1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    for (final e in g1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // g1-bizagent
     for (final e in p4WorldShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // p4-world
     // ---- a1 Premium QA: screens that had no gallery shot ----
     'ai_chat': (build: (_) => const AiChatScreen(), mode: FakeMode.data, full: true),

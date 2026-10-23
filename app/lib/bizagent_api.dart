@@ -77,4 +77,49 @@ extension BizAgentApi on ApiClient {
   /// only while plan['purchasable'] is true (gateway on + configured).
   Future<Map<String, dynamic>> bizAgentCheckout(String plan) =>
       postJson('/bizagent/plan/checkout', {'plan': plan, 'flavour': payFlavour()});
+
+  // ---------------------------------------------------------------- g1
+  // Server: backend/core/views_bizagent_g1.py.
+
+  /// Per-chat toggle: 'human' = I will reply (AI silent here) · 'ai' = Let
+  /// AI reply (also ends a pause after a human reply).
+  Future<Map<String, dynamic>> bizAgentReplyMode(int threadId, String mode) =>
+      postJson('/bizagent/threads/$threadId/mode', {'mode': mode});
+
+  Future<Map<String, dynamic>> bizAgentFaqs() => getJson('/bizagent/faqs');
+
+  Future<Map<String, dynamic>> bizAgentAddFaq(String question, String answer) =>
+      postJson('/bizagent/faqs', {'question': question, 'answer': answer});
+
+  /// status: approved | suggested | rejected (and/or edited text).
+  Future<Map<String, dynamic>> bizAgentEditFaq(int id, Map<String, dynamic> body) =>
+      postJson('/bizagent/faqs/$id', body);
+
+  Future<Map<String, dynamic>> bizAgentDeleteFaq(int id) =>
+      postJson('/bizagent/faqs/$id/delete');
+
+  /// Suggestions learned from the owner's past replies (never auto-used).
+  Future<Map<String, dynamic>> bizAgentLearnFaqs() => postJson('/bizagent/faqs/learn');
+
+  Future<Map<String, dynamic>> bizAgentPostLinks() => getJson('/bizagent/post-links');
+
+  Future<Map<String, dynamic>> bizAgentAddPostLink(String postId, int productId) =>
+      postJson('/bizagent/post-links', {'post_id': postId, 'product_id': productId});
+
+  Future<Map<String, dynamic>> bizAgentDeletePostLink(int id) =>
+      postJson('/bizagent/post-links/$id/delete');
+
+  /// Chats, orders, revenue the agent brought, AI cost, profit + rules vs AI.
+  Future<Map<String, dynamic>> bizAgentReport({int days = 30}) =>
+      getJson('/bizagent/agent-report?days=$days');
+
+  Future<Map<String, dynamic>> bizAgentWidget() => getJson('/bizagent/widget');
+
+  Future<Map<String, dynamic>> bizAgentSaveWidget(Map<String, dynamic> body) =>
+      postJson('/bizagent/widget', body);
+
+  /// The OWNER marks a customer's payment verified/rejected after checking
+  /// their own wallet — a screenshot never confirms a payment.
+  Future<Map<String, dynamic>> bizAgentVerifyPayment(int orderId, String status) =>
+      postJson('/bizagent/orders/$orderId/payment', {'status': status});
 }

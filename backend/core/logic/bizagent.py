@@ -622,7 +622,16 @@ def extract_order(text, draft, catalog):
     single obvious default qty=1 once a product is chosen)."""
     d = dict(draft or {})
     t = text or ""
-    prods = match_products(t, catalog, limit=1)
+    prods = match_products(t, catalog, limit=2)
+    low = norm_digits(t.lower())
+    full = [p for p in prods if (p.get("name") or "").lower() in low]
+    if full:
+        prods = full[:1]
+    elif len(prods) > 1 or (prods and d.get("product_id")):
+        # g1: a PARTIAL name hit is ambiguous ("Name: Selftest Buyer" vs the
+        # products "Selftest Panjabi" / "Selftest Pajama") — it never picks a
+        # product, and never replaces the one already chosen (e.g. by photo)
+        prods = []
     if prods:
         p = prods[0]
         d["product_id"] = p.get("id")
