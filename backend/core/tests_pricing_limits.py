@@ -17,7 +17,9 @@ from core.models import User, ReferralGrant
 class LimitsLogicTests(SimpleTestCase):
     def test_defaults_preserve_shipped_behaviour(self):
         c = P.normalize({})
-        self.assertEqual(c["limits"], {"trial_days": 7, "trial_credits": 15,
+        # p2-money: 3-day trial, started from the button (not at sign-up)
+        self.assertEqual(c["limits"], {"trial_days": 3, "trial_credits": 15,
+                                       "trial_on_signup": False,
                                        "business_included_cameras": 4,
                                        "voice_youtube_daily": 40,  # a3-voice
                                        "contact_lookups_per_hour": 30,  # c1
@@ -89,7 +91,7 @@ class LimitsTakeEffectTests(APITestCase):
         r = self.client.post("/api/v1/admin/pricing",
                              {"config": {"limits": {"trial_days": 30}}}, format="json")
         self.assertEqual(r.status_code, 403)
-        self.assertEqual(billing.cfg()["limits"]["trial_days"], 7)
+        self.assertEqual(billing.cfg()["limits"]["trial_days"], 3)
 
     def test_trial_days_and_credits(self):
         self._edit({"limits": {"trial_days": 14, "trial_credits": 40}})

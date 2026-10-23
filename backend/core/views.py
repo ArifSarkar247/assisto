@@ -149,7 +149,8 @@ class RegisterView(APIView):
             otp.mark_verified(user, canon)
         token, _ = Token.objects.get_or_create(user=user)
         from . import plans
-        plans.start_trial(user)   # 7-day full trial for new users
+        if plans.trial_on_signup():   # p2-money: default OFF — trial button
+            plans.start_trial(user)
         log(user, "account.register")
         return Response(
             {"token": token.key, "user": UserSerializer(user).data},
@@ -1832,10 +1833,13 @@ class RewardedAdView(APIView):
             return Response({"ok": False, "reason": "ads_not_configured",
                              "msg": pick(lang, "চালু হবে যখন AdMob যোগ হবে",
                                          "Available when AdMob is added")})
-        ok, remaining = plans.reward_ad(request.user)
-        log(request.user, "credit.rewarded", granted=ok)
-        return Response({"ok": ok, "remaining_today": remaining,
-                         "credits": request.user.ai_credits})
+        # p2-money: a client claim never earns a credit — rewarded ads are
+        # credited only from Google's signed SSV callback
+        # (POST /credits/rewarded/ticket -> AdMob -> GET /ads/ssv).
+        lang = req_lang(request)
+        return Response({"ok": False, "reason": "ssv_required",
+                         "msg": pick(lang, "অ্যাপ আপডেট করুন — যাচাই করা বিজ্ঞাপনেই ক্রেডিট মেলে",
+                                     "Update the app — credits come only from verified ads")})
 
 
 class WaitlistView(APIView):

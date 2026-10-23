@@ -458,12 +458,16 @@ class AccountStartFreshView(APIView):
                         "purged_at": now.isoformat(), "otp": otp_used})
         # A NEW account gets the normal sign-up trial only if the old one never
         # had one (starting fresh must not be a way to repeat the trial).
-        if not keep["had_trial"]:
-            try:
-                from . import plans
+        # p2-money: a used trial stays used (an expired trial_until marks it).
+        try:
+            from . import plans
+            if keep["had_trial"]:
+                new.trial_until = now
+                new.save(update_fields=["trial_until"])
+            elif plans.trial_on_signup():
                 plans.start_trial(new)
-            except Exception:
-                pass
+        except Exception:
+            pass
         return Response({"ok": True, "start_fresh": True, "token": token.key,
                          "user": UserSerializer(new, context={"request": request}).data},
                         status=status.HTTP_201_CREATED)

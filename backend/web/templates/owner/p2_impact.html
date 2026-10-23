@@ -1,0 +1,33 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_impact }}{% endblock %}
+{% block content %}
+<section class="card">
+  <form method="get" class="inline"><label>{{ T.p2_days }} <select name="days">{% for d in day_options %}<option value="{{ d }}" {% if d == days %}selected{% endif %}>{{ d }}</option>{% endfor %}</select></label><button class="btn ghost">{{ T.show }}</button></form>
+  <p class="mut small">{% if pnl.admob_linked %}<span class="pill ok">AdMob {{ T.connected }}</span>{% else %}<span class="pill off">AdMob {{ T.not_connected }}</span> {{ T.p2_admob_off_note }}{% endif %}</p>
+</section>
+<section class="card">
+  <h2>{{ T.p2_pnl_h }} ({{ pnl.from }} → {{ pnl.to }})</h2>
+  <div class="tbl"><table><thead><tr><th>{{ T.p2_placement }}</th><th>{{ T.p2_direct }} (৳)</th><th>{{ T.p2_admob_est }} (৳)</th><th>{{ T.p2_admob_imps }}</th><th>{{ T.p2_total }} (৳)</th></tr></thead><tbody>
+  {% for p, v in summary %}<tr><td>{{ p }}</td><td class="num">{{ v.direct }}</td><td class="num">{{ v.admob_est }}</td><td class="num">{{ v.admob_impressions }}</td><td class="num"><b>{{ v.total }}</b></td></tr>{% endfor %}
+  <tr><td><b>{{ T.p2_total }}</b></td><td></td><td></td><td></td><td class="num"><b>{{ total }}</b></td></tr>
+  </tbody></table></div>
+  <p class="mut small">{{ T.p2_pnl_note }}</p>
+  {% if pnl.rows %}<details><summary>{{ T.p2_per_day }}</summary><div class="tbl"><table><thead><tr><th>{{ T.p2_date }}</th><th>{{ T.p2_placement }}</th><th>{{ T.p2_direct }}</th><th>{{ T.p2_admob_est }}</th><th>{{ T.p2_total }}</th></tr></thead><tbody>
+  {% for r in pnl.rows %}<tr><td>{{ r.date }}</td><td>{{ r.placement }}</td><td class="num">{{ r.direct }}</td><td class="num">{{ r.admob_est }}</td><td class="num">{{ r.total }}</td></tr>{% endfor %}
+  </tbody></table></div></details>{% endif %}
+</section>
+<section class="card">
+  <h2>{{ T.p2_ret_h }}</h2>
+  {% if any_small %}<div class="flash warn" role="alert">{{ T.p2_small_sample }}</div>{% endif %}
+  <p class="mut small">{{ T.p2_ret_note }}</p>
+  <div class="tbl"><table><thead><tr><th>{{ T.p2_bucket }}</th><th>{{ T.p2_users }}</th><th>D1</th><th>D7</th><th>{{ T.p2_stopped }}</th><th></th></tr></thead><tbody>
+  {% for name, b in buckets %}<tr><td>{% if name == 'none' %}{{ T.p2_b_none }}{% elif name == 'light' %}{{ T.p2_b_light }}{% elif name == 'medium' %}{{ T.p2_b_medium }}{% else %}{{ T.p2_b_heavy }}{% endif %}</td>
+    <td class="num">{{ b.n }}</td>
+    <td class="num">{% if b.d1_pct is not None %}{{ b.d1_pct }}% <small class="mut">({{ b.d1 }}/{{ b.d1_n }})</small>{% else %}—{% endif %}</td>
+    <td class="num">{% if b.d7_pct is not None %}{{ b.d7_pct }}% <small class="mut">({{ b.d7 }}/{{ b.d7_n }})</small>{% else %}—{% endif %}</td>
+    <td class="num">{% if b.stopped_pct is not None %}{{ b.stopped_pct }}% <small class="mut">({{ b.stopped }}/{{ b.stopped_n }})</small>{% else %}—{% endif %}</td>
+    <td>{% if b.small_sample %}<span class="pill off">{{ T.p2_small }}</span>{% endif %}</td></tr>{% endfor %}
+  </tbody></table></div>
+  <p class="mut small">{{ T.p2_users }}: {{ ret.users }} · {{ ret.days }} {{ T.p2_days }}</p>
+</section>
+{% endblock %}

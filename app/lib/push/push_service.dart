@@ -19,6 +19,7 @@ import 'push_api.dart';
 import 'push_binding.dart';
 import 'push_bridge.dart';
 import 'push_notifier.dart';
+import '../ads/app_open_gate.dart' show AppEntry;
 import 'push_payload.dart';
 import '../messaging/badges_bus.dart';
 import '../messaging/c3_api.dart';
@@ -356,6 +357,7 @@ class PushService {
   }
 
   void _onLocalResponse(NotificationResponse r) {
+    AppEntry.mark('notification'); // p2-money: no app-open ad for this entry
     if (r.actionId == kActionReply || r.actionId == kActionRead) {
       unawaited(handleMsgNotificationAction(r));
       return;
@@ -373,6 +375,7 @@ class PushService {
   }
 
   void _open(PushPayload p, String? action) {
+    AppEntry.mark(p.isCall ? 'call' : (p.isSos ? 'sos' : 'notification'));
     final app = _app;
     if (app == null || app.loading || !app.loggedIn) {
       _pending = (payload: p, action: action);

@@ -19,6 +19,12 @@ abstract class AdsBridge {
   /// reported the reward callback.
   Future<RewardOutcome> showRewarded(String unitId);
 
+  /// p2-money: a rewarded ad carrying AdMob ServerSideVerificationOptions
+  /// (userId + customData = the server ticket nonce). ONLY Google's signed
+  /// SSV callback credits anything; [RewardOutcome.earned] alone never does.
+  Future<RewardOutcome> showRewardedSsv(String unitId,
+      {required String userId, required String customData});
+
   bool get linked;
 }
 
@@ -30,6 +36,10 @@ class NoopAdsBridge implements AdsBridge {
   Future<bool> showAppOpen(String unitId) async => false;
   @override
   Future<RewardOutcome> showRewarded(String unitId) async =>
+      RewardOutcome.unavailable;
+  @override
+  Future<RewardOutcome> showRewardedSsv(String unitId,
+          {required String userId, required String customData}) async =>
       RewardOutcome.unavailable;
   @override
   bool get linked => false;

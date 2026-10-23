@@ -189,7 +189,9 @@ GUARANTEE_BOUNDS = {"margin_net_floor": (0.10, 0.90),
                     "pool_cap_pct_of_net": (0.0, 1.0)}
 
 # Other business limits (admin-editable under cfg["limits"]).
-DEFAULT_TRIAL_DAYS = 7
+# p2-money: owner order — a 3-day Premium trial the user STARTS from a button
+# (once per user, no card), not an automatic sign-up trial.
+DEFAULT_TRIAL_DAYS = 3
 DEFAULT_TRIAL_CREDITS = 15
 DEFAULT_PROBASHI_PRICE_USD = 4.99
 
@@ -290,7 +292,11 @@ def DEFAULTS():
             "ecpm_bdt": 30.0,          # BD eCPM floor (৳ per 1000 impressions)
             "revenue_share": 0.70,     # credit the user at <=70% of the floor
             "appopen_min_gap_sec": 3 * 3600,   # app-open >= 3h apart
-            "appopen_daily_cap": 4,
+            # p2-money (owner order): app-open from day 2 after sign-up, at
+            # most 3 a day, skippable after 5 s. All bounded (AD_BOUNDS).
+            "appopen_daily_cap": 3,
+            "appopen_start_day": 2,
+            "appopen_skip_after_s": 5,
             "rewarded_daily_cap": 5,
             "interstitial_daily_cap": 10,
             "native_daily_cap": 20,
@@ -303,6 +309,18 @@ def DEFAULTS():
             # Google honours it only on the AdMob integration's UMP test
             # devices). OFF = real geography.
             "consent_debug_eea": False,
+            # p2-money: direct sponsors first, AdMob fills empty slots.
+            "sponsors_enabled": True,
+            # Telegram-style "Sponsored" post at the END of a large
+            # community/channel (member/follower count >= threshold).
+            "community_sponsored_enabled": True,
+            "community_sponsored_min_members": 500,
+            "community_sponsored_daily_cap": 6,
+            # brand offers by interest: offer notifications per user per day,
+            # and whether Premium users ever get them (default: never).
+            "offers_enabled": True,
+            "offer_notif_daily_cap": 2,
+            "offers_premium_notifs": False,
         },
         # daily profit guard thresholds (admin-editable)
         "profit_guard": {
@@ -323,6 +341,9 @@ def DEFAULTS():
         "limits": {
             "trial_days": DEFAULT_TRIAL_DAYS,
             "trial_credits": DEFAULT_TRIAL_CREDITS,
+            # p2-money: start the trial automatically at sign-up (old
+            # behaviour) or only from the "Start free trial" button (default).
+            "trial_on_signup": False,
             "business_included_cameras": BUSINESS_INCLUDED_CAMERAS,
             # a3-voice: YouTube Data API voice lookups per user per day (each
             # search = 100 of the free 10,000 daily quota units). 0 = off.
@@ -538,6 +559,8 @@ def _norm_limits(raw, base):
     return {
         "trial_days": max(0, min(90, _int(raw.get("trial_days"), base["trial_days"]))),
         "trial_credits": max(0, _int(raw.get("trial_credits"), base["trial_credits"])),
+        "trial_on_signup": _bool(raw.get("trial_on_signup"),
+                                 base.get("trial_on_signup", False)),
         "business_included_cameras": max(0, min(64, _int(
             raw.get("business_included_cameras"), base["business_included_cameras"]))),
         "voice_youtube_daily": max(0, min(500, _int(
@@ -604,28 +627,59 @@ def limits(cfg):
     return normalize(cfg)["limits"]
 
 
+# p2-money: (min, max) for every numeric ad knob. normalize() clamps into
+# these; validate_edit refuses an edit outside them ("bad_ad_cap") so the
+# owner sees the mistake instead of a silent clamp. Nothing is unlimited.
+AD_BOUNDS = {
+    "ecpm_bdt": (0, 5000),
+    "appopen_min_gap_sec": (3600, 86400),
+    "appopen_daily_cap": (0, 6),
+    "appopen_start_day": (1, 30),
+    "appopen_skip_after_s": (5, 15),
+    "rewarded_daily_cap": (0, 20),
+    "interstitial_daily_cap": (0, 20),
+    "native_daily_cap": (0, 50),
+    "community_sponsored_min_members": (50, 10000000),
+    "community_sponsored_daily_cap": (0, 20),
+    "offer_notif_daily_cap": (0, 5),
+}
+AD_BOOLS = ("hero_enabled", "hero_start_muted", "consent_debug_eea",
+            "sponsors_enabled", "community_sponsored_enabled",
+            "offers_enabled", "offers_premium_notifs")
+
+
 def _norm_ad_rewards(raw, base):
     raw = raw if isinstance(raw, dict) else {}
-    return {
-        "ecpm_bdt": max(0.0, _num(raw.get("ecpm_bdt"), base["ecpm_bdt"])),
+    out = {
+        "ecpm_bdt": max(0.0, min(5000.0, _num(raw.get("ecpm_bdt"), base["ecpm_bdt"]))),
         "revenue_share": max(0.0, min(0.70, _num(raw.get("revenue_share"),
                                                  base["revenue_share"]))),
-        "appopen_min_gap_sec": max(0, _int(raw.get("appopen_min_gap_sec"),
-                                           base["appopen_min_gap_sec"])),
-        "appopen_daily_cap": max(0, _int(raw.get("appopen_daily_cap"),
-                                         base["appopen_daily_cap"])),
-        "rewarded_daily_cap": max(0, _int(raw.get("rewarded_daily_cap"),
-                                          base["rewarded_daily_cap"])),
-        "interstitial_daily_cap": max(0, _int(raw.get("interstitial_daily_cap"),
-                                              base["interstitial_daily_cap"])),
-        "native_daily_cap": max(0, _int(raw.get("native_daily_cap"),
-                                        base["native_daily_cap"])),
-        "hero_enabled": _bool(raw.get("hero_enabled"), base["hero_enabled"]),
-        "hero_start_muted": _bool(raw.get("hero_start_muted"),
-                                  base["hero_start_muted"]),
-        "consent_debug_eea": _bool(raw.get("consent_debug_eea"),
-                                   base["consent_debug_eea"]),
     }
+    for k, (lo, hi) in AD_BOUNDS.items():
+        if k == "ecpm_bdt":
+            continue
+        out[k] = max(lo, min(hi, _int(raw.get(k), base[k])))
+    for k in AD_BOOLS:
+        out[k] = _bool(raw.get(k), base[k])
+    return out
+
+
+def ad_bounds_problems(raw):
+    """[] or ["bad_ad_cap"] for a proposed ad_rewards dict (pure)."""
+    if raw is None:
+        return []
+    if not isinstance(raw, dict):
+        return ["bad_ad_cap"]
+    for k, (lo, hi) in AD_BOUNDS.items():
+        if k in raw:
+            v = _num(raw.get(k), None)
+            if v is None or v < lo or v > hi:
+                return ["bad_ad_cap"]
+    if "revenue_share" in raw:
+        v = _num(raw.get("revenue_share"), None)
+        if v is None or v < 0 or v > 0.70:
+            return ["bad_ad_cap"]
+    return []
 
 
 def _norm_profit_guard(raw, base):
@@ -794,6 +848,8 @@ def validate_edit(data):
             problems.append("limit_negative")
             continue
         for k, v in sv.items():
+            if isinstance(v, bool):      # p2-money: on/off switches (trial_on_signup)
+                continue
             n = _num(v, None)
             if n is None or n < 0:
                 problems.append("limit_negative")
@@ -806,6 +862,8 @@ def validate_edit(data):
         problems.extend(HD.validate(d.get("home_quick_defaults")))
     if "photo_studio" in d:
         problems.extend(_PS.validate_cfg(d.get("photo_studio")))
+    if "ad_rewards" in d:
+        problems.extend(ad_bounds_problems(d.get("ad_rewards")))
     for blk in ("chat_vision", "home_hero"):
         if blk in d:
             problems.extend(_CV.validate_cfg(d.get(blk), blk))
@@ -871,20 +929,49 @@ def margin_warnings(cfg):
             if yr:
                 w["discount_pct"] = row.get("discount_pct")
                 w["max_safe_discount_pct"] = row.get("max_safe_discount_pct")
+                w["applied_discount_pct"] = row.get("applied_discount_pct")
             out.append(w)
+        if yr and row.get("discount_pct", 0) > row.get("max_safe_discount_pct", 0):
+            # p2-money: the app sells the CLAMPED price; say so to the owner.
+            out.append({"code": "annual_discount_clamped", "plan": row["plan"],
+                        "period": "yr", "discount_pct": row["discount_pct"],
+                        "max_safe_discount_pct": row["max_safe_discount_pct"],
+                        "applied_discount_pct": row.get("applied_discount_pct"),
+                        "applied_price": row.get("applied_price"),
+                        "price": row["price"]})
     return out
 
 
 # ---------------------------------------------------------------- plan margins
 
-def annual_price(plan_id, cfg):
-    """Yearly price (whole ৳) of a plan = monthly * 12 * (1 - discount)."""
+def annual_price_at(plan_id, cfg, disc):
+    """Yearly price (whole ৳) of a plan at `disc` % off 12 months. Pure."""
     cfg = normalize(cfg)
     row = cfg["plans"].get(plan_id)
     if not row:
         return 0
-    disc = cfg["annual_discount_pct"]
+    disc = max(0, min(90, int(disc)))
     return int(round(row["price"] * 12 * (100 - disc) / 100.0))
+
+
+def stored_annual_price(plan_id, cfg):
+    """The yearly price at the owner's STORED discount (what the margin report
+    checks — may be unsafe; never what we sell)."""
+    return annual_price_at(plan_id, cfg, normalize(cfg)["annual_discount_pct"])
+
+
+def effective_annual_discount_pct(plan_id, cfg):
+    """p2-money: the discount we actually OFFER = the owner's stored discount
+    clamped to max_safe_annual_discount_pct. The stored value is never
+    changed; Owner Admin shows the warning while it is above the safe max."""
+    cfg = normalize(cfg)
+    return min(cfg["annual_discount_pct"], max_safe_annual_discount_pct(plan_id, cfg))
+
+
+def annual_price(plan_id, cfg):
+    """Yearly price (whole ৳) we SELL = monthly * 12 * (1 - discount), where the
+    discount is ALWAYS clamped to the safe-margin maximum (p2-money)."""
+    return annual_price_at(plan_id, cfg, effective_annual_discount_pct(plan_id, cfg))
 
 
 def _storage_cost_month(row, cfg):
@@ -922,9 +1009,8 @@ def max_safe_annual_discount_pct(plan_id, cfg):
     if plan_id not in cfg["plans"]:
         return 0
     for disc in range(90, -1, -1):
-        trial = dict(cfg, annual_discount_pct=disc)
-        r = _margin_row(plan_id, "yr", annual_price(plan_id, trial), 12,
-                        cfg["plans"][plan_id], trial)
+        r = _margin_row(plan_id, "yr", annual_price_at(plan_id, cfg, disc), 12,
+                        cfg["plans"][plan_id], cfg)
         if r["pool_ok"] and r["cost_ok"]:
             return disc
     return 0
@@ -945,9 +1031,13 @@ def plan_margin_report(cfg):
         row = cfg["plans"].get(pid)
         if not row:
             continue
-        r = _margin_row(pid, "yr", annual_price(pid, cfg), 12, row, cfg)
+        # the row checks the owner's STORED discount (so the warning stays
+        # visible); what is sold is clamped (applied_discount_pct).
+        r = _margin_row(pid, "yr", stored_annual_price(pid, cfg), 12, row, cfg)
         r["discount_pct"] = cfg["annual_discount_pct"]
         r["max_safe_discount_pct"] = max_safe_annual_discount_pct(pid, cfg)
+        r["applied_discount_pct"] = effective_annual_discount_pct(pid, cfg)
+        r["applied_price"] = annual_price(pid, cfg)
         out.append(r)
     return out
 
@@ -1017,7 +1107,8 @@ def plan_public(lang, cfg):
         out.append(entry)
     # annual (Premium yearly with discount) — derived, not a separate plan row
     prem = cfg["plans"]["premium"]
-    disc = cfg["annual_discount_pct"]
+    # p2-money: never offer more than the safe-margin discount
+    disc = effective_annual_discount_pct("premium", cfg)
     yearly = annual_price("premium", cfg)
     out.append({
         "id": "annual",
@@ -1028,6 +1119,8 @@ def plan_public(lang, cfg):
         "benefits": plan_benefits("premium", lang, cfg),
         "unlimited_ai": False, "ads": False, "family": prem["family"],
         "credits": prem["credits"],         # the same monthly pool, every month
+        "discount_pct": disc,
+        "monthly_equiv": round(yearly / 12.0, 2),
     })
     return out
 

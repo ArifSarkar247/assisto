@@ -110,10 +110,12 @@ void main() {
           .allowed, isTrue);
     });
 
-    test('server can lengthen the gap but never shorten it below 3 h', () {
+    test('server can change the gap but never below 1 h (p2-money)', () {
       final short = free(gapSec: 60);
-      expect(appOpen(short, last: now.subtract(const Duration(hours: 1)))
+      expect(appOpen(short, last: now.subtract(const Duration(minutes: 59)))
           .reason, 'too_soon');
+      expect(appOpen(short, last: now.subtract(const Duration(hours: 1)))
+          .allowed, isTrue);
       final long = free(gapSec: 6 * 3600);
       expect(appOpen(long, last: now.subtract(const Duration(hours: 4)))
           .reason, 'too_soon');

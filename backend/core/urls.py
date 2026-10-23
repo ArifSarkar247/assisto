@@ -906,3 +906,21 @@ urlpatterns += [
     path("bizagent/plan/checkout", p1.PlanCheckoutView.as_view()),
 ]
 # ---- /p1-bizagent ----
+
+# ---- p2-money ---- sponsors / app-open / offers / rewarded SSV / trial
+from . import views_p2_money as p2m  # noqa: E402
+
+urlpatterns += [
+    path("ads/slot", p2m.AdsSlotView.as_view()),
+    path("ads/sponsor/event", p2m.SponsorEventView.as_view()),
+    path("ads/why", p2m.SponsorWhyView.as_view()),
+    path("offers/prefs", p2m.OfferPrefsView.as_view()),
+    path("offers/feed", p2m.OfferFeedView.as_view()),
+    path("offers/brands", p2m.OfferBrandsView.as_view()),
+    path("offers/brands/<int:pk>/mute", p2m.OfferBrandMuteView.as_view()),
+    path("credits/rewarded/ticket", p2m.RewardTicketView.as_view()),
+    path("credits/rewarded/ticket/<str:nonce>", p2m.RewardTicketStateView.as_view()),
+    path("premium/offer", p2m.PremiumOfferView.as_view()),
+    path("plans/trial/start", p2m.TrialStartView.as_view()),
+]
+# ---- /p2-money ----

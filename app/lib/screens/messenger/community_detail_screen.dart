@@ -14,6 +14,7 @@ import '../../widgets/msgr_mod_report_sheet.dart';
 import 'community_members_screen.dart';
 import 'community_message_requests_screen.dart';
 import 'community_settings_screen.dart';
+import '../../ads/sponsor_widgets.dart' show SponsoredPostSlot; // p2-money
 
 /// Assisto Messenger — COMMUNITY detail (Step 3, item 2).
 ///
@@ -403,6 +404,11 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                           style: TextStyle(color: scheme.onSurfaceVariant)),
                     ),
                   for (final g in _topics) _groupCard(g),
+                  // p2-money: "Sponsored" post at the end of a LARGE
+                  // community (server-gated; nothing for admins / Premium).
+                  if (!_isAdmin && int.tryParse(_cid) != null)
+                    SponsoredPostSlot(
+                        ctxKind: 'community', ctxId: int.parse(_cid)),
                 ],
               ),
             ),

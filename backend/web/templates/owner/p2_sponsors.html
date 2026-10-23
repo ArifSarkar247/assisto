@@ -1,0 +1,47 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_sponsors }}{% endblock %}
+{% block content %}
+<section class="card"><p class="mut small">{{ T.p2_sponsors_note }}</p></section>
+{% if error %}<div class="flash warn" role="alert">{{ error }}</div>{% endif %}
+<section class="card">
+  <h2>{{ T.p2_campaigns }}</h2>
+  {% if campaigns %}
+  <div class="tbl"><table><thead><tr><th>{{ T.p2_campaign }}</th><th>{{ T.p2_sponsor }}</th><th>{{ T.p2_placement }}</th><th>{{ T.status }}</th><th>{{ T.p2_price }}</th><th>{{ T.impressions }}</th><th>{{ T.clicks }}</th><th>CTR</th><th></th></tr></thead><tbody>
+  {% for r in campaigns %}
+  <tr>
+    <td><a href="/owner/campaigns/{{ r.c.id }}"><b>{{ r.c.name }}</b></a></td>
+    <td><a href="/owner/sponsors/{{ r.c.sponsor_id }}">{{ r.c.sponsor.name }}</a></td>
+    <td>{{ r.c.placement }}</td>
+    <td>{% if r.live %}<span class="pill ok">{{ T.live }}</span>{% elif r.c.status == 'approved' %}<span class="pill">{{ T.scheduled }}</span>{% else %}<span class="pill off">{{ r.c.status }}</span>{% endif %}</td>
+    <td class="num">৳{{ r.c.price_bdt }} {% if r.c.pricing == 'cpm' %}/ 1000{% endif %}</td>
+    <td class="num">{{ r.imp }}</td><td class="num">{{ r.clk }}</td><td class="num">{{ r.ctr }}%</td>
+    <td><a class="btn ghost small" href="/owner/campaigns/{{ r.c.id }}/report">{{ T.report }}</a></td>
+  </tr>
+  {% endfor %}
+  </tbody></table></div>
+  {% else %}<p class="empty">{{ T.p2_no_campaigns }}</p>{% endif %}
+</section>
+<section class="card">
+  <h2>{{ T.nav_sponsors }}</h2>
+  {% if sponsors %}
+  <div class="tbl"><table><thead><tr><th>{{ T.p2_sponsor }}</th><th>{{ T.p2_category }}</th><th>{{ T.status }}</th><th></th></tr></thead><tbody>
+  {% for s in sponsors %}
+  <tr><td><a href="/owner/sponsors/{{ s.id }}"><b>{{ s.name }}</b></a></td><td>{{ s.category }}</td>
+    <td>{% if s.active %}<span class="pill ok">{{ T.on }}</span>{% else %}<span class="pill off">{{ T.off }}</span>{% endif %}</td>
+    <td><a class="btn ghost small" href="/owner/campaigns/new?sponsor={{ s.id }}">+ {{ T.p2_new_campaign }}</a></td></tr>
+  {% endfor %}
+  </tbody></table></div>
+  {% else %}<p class="empty">{{ T.p2_no_sponsors }}</p>{% endif %}
+</section>
+<form method="post" class="card grid2">{% include "owner/_csrf.html" %}
+  <h2 class="span2">+ {{ T.p2_new_sponsor }}</h2>
+  <label>{{ T.p2_sponsor_name }}<input name="name" maxlength="80" required></label>
+  <label>{{ T.p2_category }}<input name="category" maxlength="24"></label>
+  <label>{{ T.p2_website }}<input name="website" type="url" maxlength="300" placeholder="https://"></label>
+  <label>{{ T.p2_contact_name }}<input name="contact_name" maxlength="80"></label>
+  <label>{{ T.p2_contact_phone }}<input name="contact_phone" maxlength="24"></label>
+  <label>{{ T.p2_contact_email }}<input name="contact_email" maxlength="120"></label>
+  <label class="span2">{{ T.p2_notes }}<textarea name="notes" maxlength="300"></textarea></label>
+  <div class="span2"><button class="btn primary">{{ T.save }}</button></div>
+</form>
+{% endblock %}

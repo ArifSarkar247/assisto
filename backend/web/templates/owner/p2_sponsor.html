@@ -1,0 +1,23 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ s.name }}{% endblock %}
+{% block content %}
+<p><a href="/owner/sponsors">← {{ T.nav_sponsors }}</a></p>
+{% if error %}<div class="flash warn" role="alert">{{ error }}</div>{% endif %}
+<form method="post" class="card grid2">{% include "owner/_csrf.html" %}
+  <label>{{ T.p2_sponsor_name }}<input name="name" maxlength="80" value="{{ s.name }}" required></label>
+  <label>{{ T.p2_category }}<input name="category" maxlength="24" value="{{ s.category }}"></label>
+  <label>{{ T.p2_website }}<input name="website" type="url" maxlength="300" value="{{ s.website }}"></label>
+  <label>{{ T.p2_contact_name }}<input name="contact_name" maxlength="80" value="{{ s.contact_name }}"></label>
+  <label>{{ T.p2_contact_phone }}<input name="contact_phone" maxlength="24" value="{{ s.contact_phone }}"></label>
+  <label>{{ T.p2_contact_email }}<input name="contact_email" maxlength="120" value="{{ s.contact_email }}"></label>
+  <label class="span2">{{ T.p2_notes }}<textarea name="notes" maxlength="300">{{ s.notes }}</textarea></label>
+  <label class="check"><input type="checkbox" name="active" {% if s.active %}checked{% endif %}> {{ T.p2_active }}</label>
+  <div class="span2"><button class="btn primary">{{ T.save }}</button></div>
+</form>
+<section class="card">
+  <h2>{{ T.p2_campaigns }}</h2>
+  <p><a class="btn primary" href="/owner/campaigns/new?sponsor={{ s.id }}">+ {{ T.p2_new_campaign }}</a></p>
+  {% if campaigns %}<ul>{% for c in campaigns %}<li><a href="/owner/campaigns/{{ c.id }}">{{ c.name }}</a> · {{ c.placement }} · {{ c.status }}</li>{% endfor %}</ul>
+  {% else %}<p class="empty">{{ T.p2_no_campaigns }}</p>{% endif %}
+</section>
+{% endblock %}

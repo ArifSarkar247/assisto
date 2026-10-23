@@ -17062,5 +17062,176 @@
   "baSend": "Send",
   "baByAi": "AI assistant",
   "baByYou": "You",
-  "baAwaitingApproval": "Waiting for approval"
+  "baAwaitingApproval": "Waiting for approval",
+  "p2Sponsored": "Sponsored",
+  "p2SkipIn": "Skip in {seconds}",
+  "@p2SkipIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "p2Skip": "Skip",
+  "p2WhyAd": "Why am I seeing this?",
+  "p2WhyTitle": "Why you're seeing this",
+  "p2AdBy": "From {sponsor}",
+  "@p2AdBy": {
+    "placeholders": {
+      "sponsor": {
+        "type": "String"
+      }
+    }
+  },
+  "p2HideAd": "Hide this",
+  "p2MuteBrand": "Mute {brand}",
+  "@p2MuteBrand": {
+    "placeholders": {
+      "brand": {
+        "type": "String"
+      }
+    }
+  },
+  "p2RemoveAds": "No ads with Premium",
+  "p2AdHidden": "Hidden. You won't see this one again.",
+  "p2BrandMuted": "{brand} muted — no more ads or offers from it.",
+  "@p2BrandMuted": {
+    "placeholders": {
+      "brand": {
+        "type": "String"
+      }
+    }
+  },
+  "p2Learn": "Learn more",
+  "p2GetPremium": "Get Premium",
+  "p2ChOffers": "Offers",
+  "p2ChOffersDesc": "Brand offers you chose (at most 2 a day)",
+  "p2OffersTitle": "Offers & brands",
+  "p2OffersSettingsSub": "Pick what you like, mute any brand",
+  "p2OffersIntro": "Pick the categories you like — offers from those come first. We never share your messages, contacts or location with brands.",
+  "p2OffersCats": "Categories you like",
+  "p2OffersNotifs": "Offer notifications",
+  "p2OffersNotifsSub": "At most {n} a day, only for what you picked",
+  "@p2OffersNotifsSub": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "p2OffersDivision": "Your division (optional)",
+  "p2OffersDivisionNone": "Not set",
+  "p2OffersBrands": "Brands",
+  "p2OffersBrandsEmpty": "No brands with offers right now.",
+  "p2OffersMuted": "Muted — no ads or offers",
+  "p2OffersShown": "Shown",
+  "p2OffersFeedOpen": "See current offers",
+  "p2OffersFeedTitle": "Offers",
+  "p2OffersFeedEmpty": "No offers right now. Check back later.",
+  "p2OffersPremiumOff": "Premium has no ads, so brand offers are off for you.",
+  "p2OffersForYou": "Matches you",
+  "p2OffersEnds": "Ends {date}",
+  "@p2OffersEnds": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "p2OffersSaved": "Saved",
+  "p2OnbOffersTitle": "Offers you care about",
+  "p2OnbOffersSub": "Optional: pick a few categories, or just tap Next. You can change this any time in Settings, under “Offers & brands”.",
+  "p2CatMobile": "Mobile phones",
+  "p2CatElectronics": "Electronics",
+  "p2CatFashion": "Fashion",
+  "p2CatGrocery": "Groceries",
+  "p2CatFood": "Food & restaurants",
+  "p2CatHealth": "Health",
+  "p2CatBeauty": "Beauty & care",
+  "p2CatEducation": "Education",
+  "p2CatTravel": "Travel",
+  "p2CatHome": "Home & furniture",
+  "p2CatKids": "Kids",
+  "p2CatAuto": "Cars & bikes",
+  "p2CatTelecom": "Mobile packages",
+  "p2CatBanking": "Banking & payments",
+  "p2DivDhaka": "Dhaka",
+  "p2DivChattogram": "Chattogram",
+  "p2DivRajshahi": "Rajshahi",
+  "p2DivKhulna": "Khulna",
+  "p2DivBarishal": "Barishal",
+  "p2DivSylhet": "Sylhet",
+  "p2DivRangpur": "Rangpur",
+  "p2DivMymensingh": "Mymensingh",
+  "p2PayTitle": "Get more with Premium",
+  "p2PayReasonCredits": "You're out of AI credits",
+  "p2PayReasonCreditsBody": "Premium adds a monthly AI credit pool. Or buy a small credit pack — your choice.",
+  "p2PayReasonVideo": "Video calls are Premium",
+  "p2PayReasonVideoBody": "Voice calls stay free. Video calls need Premium.",
+  "p2PayReasonFamily": "Your family circle is full",
+  "p2PayReasonFamilyBody": "Premium lets you add more family members and see the caregiver dashboard.",
+  "p2PayReasonAdFree": "Use Assisto without ads",
+  "p2PayReasonAdFreeBody": "Ads keep Assisto free. Premium removes every ad.",
+  "p2PayReasonStorage": "Your storage is full",
+  "p2PayReasonStorageBody": "Premium gives you more storage for documents and photos.",
+  "p2PayReasonGenericBody": "Here is exactly what Premium adds — nothing more, nothing less.",
+  "p2PayOnlyPremium": "Only in Premium",
+  "p2PayMonthly": "৳{price} / month",
+  "@p2PayMonthly": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "p2PayYearly": "৳{price} / year · save {pct}%",
+  "@p2PayYearly": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "p2PayYearlyPlain": "৳{price} / year",
+  "@p2PayYearlyPlain": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "p2PayYearlyEquiv": "about ৳{price} a month",
+  "@p2PayYearlyEquiv": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "p2PayTrial": "Start {days}-day free trial",
+  "@p2PayTrial": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "p2PayTrialNote": "Once per account. No card needed. It ends by itself — nothing is charged.",
+  "p2PayTrialStarted": "Your {days}-day Premium trial has started.",
+  "@p2PayTrialStarted": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "p2PayTrialUsed": "The free trial is once per account — you already used it.",
+  "p2PaySeePlans": "See plans",
+  "p2PayNotNow": "Not now",
+  "p2PayLoadFail": "Couldn't load Premium details. Check your internet and try again.",
+  "p2RewardPending": "Google hasn't confirmed this ad yet. If it does, the credit appears within a few minutes.",
+  "p2RewardRejected": "Not credited — today's limit is reached or the ad wasn't confirmed."
 }

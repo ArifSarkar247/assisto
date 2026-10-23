@@ -45,7 +45,8 @@ class AnnualMarginTests(SimpleTestCase):
         self.assertEqual(c["annual_discount_pct"], 20)      # price unchanged
         self.assertEqual(P.validate_edit(c), [])            # not blocking
         w = P.margin_warnings(c)
-        self.assertEqual([x["code"] for x in w], ["annual_pool_exceeds_net"])
+        self.assertEqual([x["code"] for x in w],
+                         ["annual_pool_exceeds_net", "annual_discount_clamped"])
         self.assertEqual(w[0]["plan"], "premium")
         self.assertEqual(w[0]["max_safe_discount_pct"], 9)
 
@@ -75,10 +76,11 @@ class AnnualMarginTests(SimpleTestCase):
         self.assertEqual(P.normalize({})["storage_cost_bdt_per_gb_month"],
                          P.DEFAULT_STORAGE_COST_BDT_PER_GB_MONTH)
 
-    def test_public_annual_price_unchanged(self):
+    def test_public_annual_price_clamped_to_safe(self):
+        # p2-money: never sell above the safe-margin discount (9% here)
         ann = next(p for p in P.plan_public("en", P.DEFAULTS())
                    if p["id"] == "annual")
-        self.assertEqual(ann["price"], 1910)
+        self.assertEqual(ann["price"], 2173)
 
 
 class AdminPricingCheckTests(APITestCase):
@@ -150,11 +152,16 @@ class AdmobValidatorTests(SimpleTestCase):
         self.assertTrue(c["rewarded_enabled"])      # opt-in only
         self.assertEqual(c["units"]["app_open"], REAL_AO)
 
-    def test_gap_never_below_3h(self):
+    def test_gap_never_below_1h(self):
+        # p2-money: owner-editable 1h..24h (default 3h)
         caps = dict(P.DEFAULTS()["ad_rewards"], appopen_min_gap_sec=60)
         c = A.client_config(plan="free", paid=False, admob_cfg={},
                             admob_working=False, flag_rewarded=True,
                             flag_app_open=True, ad_caps=caps)
+        self.assertEqual(c["appopen_min_gap_sec"], 3600)
+        c = A.client_config(plan="free", paid=False, admob_cfg={},
+                            admob_working=False, flag_rewarded=True,
+                            flag_app_open=True, ad_caps=P.DEFAULTS()["ad_rewards"])
         self.assertEqual(c["appopen_min_gap_sec"], 3 * 3600)
 
 
@@ -227,10 +234,14 @@ class AdsApiTests(APITestCase):
         self._admob()
         self._ecpm(3000.0)        # 210 paisa per impression -> 2 credits
         self.client.force_authenticate(self.paid)
+        # p2-money: a client claim earns nothing; only the SSV path credits
         r = self.client.post("/api/v1/ads/event", {"kind": "rewarded"},
                              format="json")
-        self.assertTrue(r.data["ok"], r.data)
-        self.assertEqual(r.data["moved_to_balance"], 2)
+        self.assertEqual(r.data["reason"], "ssv_required")
+        from core import billing
+        res = billing.ad_event(self.paid, "rewarded", verified=True)
+        self.assertTrue(res["ok"], res)
+        self.assertEqual(res["moved_to_balance"], 2)
         self.paid.refresh_from_db()
         self.assertEqual(self.paid.ai_credits, 2)
         from core.models import AdWallet, CreditLedger
@@ -247,10 +258,9 @@ class AdsApiTests(APITestCase):
             self.assertEqual(r.data["reason"], "not_free", kind)
 
     def test_paid_rewarded_not_credited_without_admob(self):
-        self.client.force_authenticate(self.paid)
-        r = self.client.post("/api/v1/ads/event", {"kind": "rewarded"},
-                             format="json")
-        self.assertEqual(r.data["reason"], "ads_not_configured")
+        from core import billing
+        self.assertEqual(billing.ad_event(self.paid, "rewarded", verified=True)["reason"],
+                         "ads_not_configured")
         self.paid.refresh_from_db()
         self.assertEqual(self.paid.ai_credits, 0)
 

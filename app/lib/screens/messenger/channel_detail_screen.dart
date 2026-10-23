@@ -13,6 +13,7 @@ import '../../widgets/msgr_channel_common.dart';
 import '../../widgets/msgr_channel_post_card.dart';
 import '../../widgets/msgr_mod_report_sheet.dart';
 import 'channel_admin_screen.dart';
+import '../../ads/sponsor_widgets.dart' show SponsoredPostSlot; // p2-money
 
 /// Assisto Messenger — CHANNEL detail (Step 3).
 ///
@@ -393,6 +394,11 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
               // Followers never see per-post views or a pin control.
               showViews: false,
             ),
+        // p2-money: one Telegram-style "Sponsored" post at the end of a
+        // LARGE channel (server checks Free plan + follower threshold + cap;
+        // never in the admin's own channel). Renders nothing otherwise.
+        if (_posts.isNotEmpty && !_isAdmin)
+          SponsoredPostSlot(ctxKind: 'channel', ctxId: widget.channelId),
         const SizedBox(height: Gap.xxl),
       ],
     );

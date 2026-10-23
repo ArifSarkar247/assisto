@@ -14,6 +14,7 @@ import 'updater.dart';
 import 'notifications.dart';
 import 'calls/call_mini_bar.dart'; // b1: in-app minimized-call bar
 import 'push/push_service.dart';
+import 'ads/ads_service.dart' show AdsService;
 import 'services/home_widget_service.dart';
 import 'services/security_guard.dart' show SecurityHeartbeat;
 import 'services/startup_guard.dart';
@@ -236,6 +237,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
   // its onExit flips our local state straight back to the normal chat home.
   bool _elderly = false;
   bool _resolving = false; // in-flight guard so builds don't stack reads
+  bool _adsStarted = false; // p2-money
 
   @override
   void initState() {
@@ -389,6 +391,18 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     // Only resolve the home swap once we're past login + onboarding, so the
     // normal startup flow is never disturbed.
     _resolveElderly();
+    // p2-money: app-open ads (Free, day 2+, max N/day, never after a
+    // notification/deep-link entry, never in elderly simple mode). Lazy:
+    // AdsService waits ~8 s after this before doing anything.
+    AdsService.instance.suppressAppOpen = _elderly;
+    if (!_adsStarted) {
+      _adsStarted = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        try {
+          unawaited(AdsService.instance.start(app));
+        } catch (_) {}
+      });
+    }
     if (_elderly) {
       return ElderlyHomeScreen(onExit: () => setState(() => _elderly = false));
     }

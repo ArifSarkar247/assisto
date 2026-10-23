@@ -6,6 +6,9 @@ import 'package:provider/provider.dart';
 import '../ads/ads_service.dart' show AdsService;
 import '../ads/hero_ad.dart';
 import '../ads/hero_binding.dart';
+import '../ads/sponsor_api.dart';
+import '../ads/sponsor_models.dart';
+import '../ads/sponsor_widgets.dart' show SponsorHeroCard;
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -14,6 +17,11 @@ import '../theme.dart';
 /// block) by default — instantly, never a spinner — and, for a Free user with
 /// the owner's hero flag ON and AdMob linked, swaps it IN THE SAME SLOT for
 /// one large native ad with an "Ad" label. See [HeroAdRules] for every rule.
+///
+/// p2-money: a DIRECT sponsor campaign for the hero (owner-sold, server
+/// served, works without AdMob) is shown FIRST in the same slot with a
+/// "Sponsored" label; AdMob's native ad only fills the slot when no direct
+/// campaign is live (and only once AdMob is linked).
 ///
 /// Crash-guarded: any failure keeps the normal logo block.
 class HomeHero extends StatefulWidget {
@@ -25,6 +33,7 @@ class HomeHero extends StatefulWidget {
     this.bridge,
     this.loadConfig,
     this.isHomeVisible,
+    this.sponsor,
   });
 
   /// The normal logo block (no fill / offline / paid / not linked / collapsed).
@@ -43,6 +52,9 @@ class HomeHero extends StatefulWidget {
   final Future<Map<String, dynamic>> Function()? loadConfig;
   final bool Function()? isHomeVisible;
 
+  /// p2-money: injectable direct-sponsor backend (tests / gallery).
+  final SponsorBackend? sponsor;
+
   /// Screenshot-gallery / test seams for the HomeScreen-hosted hero (which is
   /// built without arguments). Never set in the app.
   @visibleForTesting
@@ -51,9 +63,13 @@ class HomeHero extends StatefulWidget {
   static Future<Map<String, dynamic>> Function()? debugLoadConfig;
 
   @visibleForTesting
+  static SponsorBackend? debugSponsor;
+
+  @visibleForTesting
   static void debugReset() {
     debugBridge = null;
     debugLoadConfig = null;
+    debugSponsor = null;
     _HomeHeroState._cfgCache = null;
     _HomeHeroState._cfgAt = null;
   }
@@ -72,6 +88,7 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
       widget.loadConfig ?? HomeHero.debugLoadConfig;
   HeroAdConfig _cfg = HeroAdConfig.none;
   HeroAdHandle? _ad;
+  SponsorCreative? _direct; // p2-money
   Timer? _timer;
   DateTime? _lastLoad;
   bool _loading = false;
@@ -98,7 +115,7 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _resumed = state == AppLifecycleState.resumed;
-    if (_resumed && _ad == null) _start();
+    if (_resumed && _ad == null && _direct == null) _start();
   }
 
   @override
@@ -114,13 +131,14 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
       _ad?.dispose();
     } catch (_) {}
     _ad = null;
+    _direct = null;
     HomeAdGuard.heroShowing.value = false;
   }
 
   void _drop() {
     _timer?.cancel();
     _timer = null;
-    if (_ad != null) setState(_disposeAd);
+    if (_ad != null || _direct != null) setState(_disposeAd);
   }
 
   bool _homeVisible() {
@@ -158,7 +176,7 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
 
   static const double _labelRow = 28;
 
-  HeroDecision _decide() {
+  HeroDecision _decide({bool direct = false}) {
     bool loggedIn;
     try {
       loggedIn = context.read<AppState>().loggedIn;
@@ -171,9 +189,55 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
       loggedIn: loggedIn,
       collapsed: widget.collapsed,
       chatStarted: false, // the thread unmounts this slot once a chat starts
-      linked: _bridge.linked,
+      linked: direct || _bridge.linked,
       slotHeight: _slotHeight(),
     );
+  }
+
+  SponsorBackend? get _sponsor {
+    try {
+      return widget.sponsor ??
+          HomeHero.debugSponsor ??
+          ApiSponsorBackend(context.read<AppState>().api);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// p2-money: direct sponsor first. true = the slot is handled (direct
+  /// creative shown, or the server said nothing may fill it).
+  Future<bool> _tryDirect() async {
+    if (!_decide(direct: true).allowed) return false;
+    final b = _sponsor;
+    if (b == null) return false;
+    try {
+      final s = await b.slot('hero');
+      if (!mounted || widget.collapsed || !_decide(direct: true).allowed) {
+        return true;
+      }
+      if (s.isDirect) {
+        _lastLoad = DateTime.now();
+        setState(() {
+          _disposeAdOnly();
+          _direct = s.creative;
+        });
+        HomeAdGuard.heroShowing.value = true;
+        unawaited(b.event(s.creative!.token, 'impression'));
+        return true;
+      }
+      // 'admob' -> let AdMob fill; 'none' (no fill / blocked) -> AdMob may
+      // still try when linked (the server only says admob when it is).
+      return !s.isAdmob && !_bridge.linked;
+    } catch (_) {
+      return false; // offline / old server -> the AdMob path decides
+    }
+  }
+
+  void _disposeAdOnly() {
+    try {
+      _ad?.dispose();
+    } catch (_) {}
+    _ad = null;
   }
 
   Future<void> _start() async {
@@ -187,6 +251,8 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
     _loading = true;
     try {
       _cfg = await _config();
+      if (!mounted) return;
+      if (await _tryDirect()) return;
       if (!mounted || !_decide().allowed) return;
       final unit = _cfg.unit(
           builtAppId: AdsService.builtAppId, testMode: AdsService.testMode);
@@ -204,7 +270,10 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
       }
       if (ad != null) {
         final old = _ad;
-        setState(() => _ad = ad);
+        setState(() {
+          _ad = ad;
+          _direct = null;
+        });
         HomeAdGuard.heroShowing.value = true;
         try {
           old?.dispose();
@@ -236,8 +305,16 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final ad = _ad;
+    final direct = _direct;
     final room = _slotHeight() >= HeroAdRules.minSlotHeight;
-    final child = (ad == null || widget.collapsed || !room)
+    final child = (direct != null && !widget.collapsed && room)
+        ? KeyedSubtree(
+            key: const ValueKey('hero-sponsor'),
+            child: SponsorHeroCard(
+                creative: direct,
+                height: _slotHeight(),
+                onClick: () => unawaited(_sponsor?.event(direct.token, 'click'))))
+        : (ad == null || widget.collapsed || !room)
         ? KeyedSubtree(key: const ValueKey('hero-logo'), child: widget.fallback)
         : HeroAdFrame(
             key: const ValueKey('hero-ad'),

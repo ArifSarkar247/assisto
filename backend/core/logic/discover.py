@@ -55,6 +55,7 @@ ROUTE_KEYS = (
     "disaster", "offline", "budget", "tax", "wrapped", "money_voice", "ai_chat",
     "voice_assistant", "voice_settings", "photo_studio",
     "feedback",  # f1-founders
+    "offers",  # p2-money: brand offers feed
 )
 
 # Icon names the app knows how to draw (app/lib/widgets/home_suggestions.dart

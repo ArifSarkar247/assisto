@@ -136,7 +136,8 @@ class CatalogTests(TestCase):
     def test_prices_from_server_table(self):
         self.assertEqual(catalog.price("premium_monthly", "gateway"), 199)
         self.assertEqual(catalog.price("business_monthly", "play"), 499)
-        self.assertEqual(catalog.price("premium_yearly", "gateway"), 1910)  # 199*12*0.8
+        # p2-money: the stored 20% is clamped to the safe 9% -> 199*12*0.91
+        self.assertEqual(catalog.price("premium_yearly", "gateway"), 2173)
         self.assertEqual(catalog.price("pack_p50", "gateway"), 50)
         self.assertIsNone(catalog.price("premium_weekly", "gateway"))
         self.assertIsNone(catalog.price("pack_nope", "gateway"))
@@ -985,7 +986,7 @@ class WebsiteCheckoutTests(PayBase):
         self.assertEqual(r.status_code, 302)
         self.assertTrue(r["Location"].startswith("https://sandboxpg.eps.com.bd/"))
         o = PaymentOrder.objects.get()
-        self.assertEqual((o.source, o.amount_bdt), ("web", Decimal("1910.00")))
+        self.assertEqual((o.source, o.amount_bdt), ("web", Decimal("2173.00")))
         self.fake.pay(o.merchant_tx_id)
         r = self.client.get("/pay/return", {"r": "success", "MerchantTransactionId": o.merchant_tx_id})
         self.assertContains(r, "পেমেন্ট সফল")

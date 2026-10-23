@@ -3,7 +3,8 @@
 {% block content %}
 {% if problems %}<div class="flash warn" role="alert"><b>{{ T.not_saved }}</b><ul>{% for p in problems %}<li>{{ p }}</li>{% endfor %}</ul></div>{% endif %}
 <section class="card"><p>{% if admob %}<span class="pill ok">AdMob {{ T.connected }}</span>{% else %}<span class="pill off">AdMob {{ T.not_connected }}</span> <a href="/owner/integrations">{{ T.nav_integrations }}</a>{% endif %}</p>
-<p class="mut small">{{ T.ads_rules }}</p></section>
+<p class="mut small">{{ T.ads_rules }}</p>
+<p class="mut small">{{ T.p2_ads_rules }} <a href="/owner/sponsors">{{ T.nav_sponsors }}</a> · <a href="/owner/impact">{{ T.nav_impact }}</a></p></section>
 <section class="card"><h2>{{ T.kill_switches }}</h2>
 {% for f in flags %}
 <form method="post" class="inline flag">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="flag"><input type="hidden" name="flag" value="{{ f.id }}">
@@ -17,7 +18,7 @@
 </section>
 <form method="post" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="settings">
   <h2>{{ T.ad_caps }}</h2>
-  <div class="kv">{% for k, v, kind in ar %}<label>{% if k == 'hero_enabled' %}{{ T.hero_enabled }}{% elif k == 'hero_start_muted' %}{{ T.hero_start_muted }}{% elif k == 'consent_debug_eea' %}{{ T.consent_debug_eea }}{% else %}{{ k }}{% endif %} {% with name="ad_rewards."|add:k label=k value=v %}{% include "owner/_field.html" %}{% endwith %}</label>{% endfor %}</div>
+  <div class="kv">{% for k, v, kind, lbl in ar %}<label>{% if k == 'hero_enabled' %}{{ T.hero_enabled }}{% elif k == 'hero_start_muted' %}{{ T.hero_start_muted }}{% elif k == 'consent_debug_eea' %}{{ T.consent_debug_eea }}{% else %}{{ lbl }}{% endif %} {% with name="ad_rewards."|add:k label=k value=v %}{% include "owner/_field.html" %}{% endwith %}</label>{% endfor %}</div>
   <h2>{{ T.ps_ads }}</h2>
   <div class="kv">{% for k, v, kind in ps %}<label>{% if k == 'entry_interstitial_enabled' %}{{ T.entry_enabled }}{% elif k == 'entry_interstitial_gap_min' %}{{ T.entry_gap }}{% else %}{{ k }}{% endif %} {% with name="photo_studio."|add:k label=k value=v %}{% include "owner/_field.html" %}{% endwith %}</label>{% endfor %}</div>
   <p class="mut small">{{ T.ads_value_note }}</p>

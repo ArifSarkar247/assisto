@@ -96,6 +96,13 @@ class _FakeAds implements AdsBridge {
     log.calls.add('ads.rewarded');
     return RewardOutcome.earned;
   }
+
+  @override
+  Future<RewardOutcome> showRewardedSsv(String unitId,
+      {required String userId, required String customData}) async {
+    log.calls.add('ads.rewardedSsv');
+    return RewardOutcome.earned;
+  }
 }
 
 class _Api extends ApiClient {

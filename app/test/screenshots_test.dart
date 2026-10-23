@@ -24,6 +24,7 @@ import 'package:assisto/screens/messenger/m3_add_to_circle_screen.dart';
 import 'package:assisto/screens/messenger/m3_requests_screen.dart';
 import 'package:assisto/widgets/m3_circle_widgets.dart';
 import 'fake_otp.dart';
+import 'p2_shots.dart'; // p2-money
 import 'package:assisto/screens/language_picker_screen.dart';
 import 'package:assisto/screens/home_screen.dart';
 import 'package:assisto/screens/agent_thread_screen.dart';
@@ -697,6 +698,8 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in a1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // md1: E2E media (attach sheet, bubbles, chat, viewer, preview, recorder)
     for (final e in md1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // p2-money: sponsor card, Sponsored post, offers, paywall
+    for (final e in p2Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
   };
 }
 

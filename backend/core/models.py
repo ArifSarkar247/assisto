@@ -4424,3 +4424,153 @@ class BizAgentReport(models.Model):
         constraints = [models.UniqueConstraint(fields=["business", "day"],
                                                name="p1_report_once")]
 # ---- /p1-bizagent ----
+# ---- p2-money ---- direct sponsors, brand offers, ad exposure (monetization)
+class Sponsor(models.Model):
+    """A brand that buys direct placements from the owner (Owner Admin ->
+    Sponsors). Contact details are owner-only and never sent to the app."""
+    name = models.CharField(max_length=80)
+    category = models.CharField(max_length=24, blank=True, default="")
+    website = models.URLField(max_length=300, blank=True, default="")
+    contact_name = models.CharField(max_length=80, blank=True, default="")
+    contact_phone = models.CharField(max_length=24, blank=True, default="")
+    contact_email = models.CharField(max_length=120, blank=True, default="")
+    notes = models.TextField(blank=True, default="")
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["name", "id"]
+
+
+class SponsorCampaign(models.Model):
+    """One sold campaign: ONE placement, a price (flat for the run, or CPM),
+    a run window, an audience (always Free users only, optional interest
+    categories + divisions), one creative (image + bn/en copy + link) and the
+    owner's content-safety checklist. Only status=approved inside its window
+    is ever served (core.logic.sponsor)."""
+    PLACEMENTS = [("app_open", "app open"), ("hero", "home hero"),
+                  ("discover", "discover card"),
+                  ("community_post", "community / channel post"),
+                  ("brand_offer", "brand offer")]
+    STATUSES = [("draft", "draft"), ("approved", "approved"),
+                ("paused", "paused"), ("rejected", "rejected"),
+                ("ended", "ended")]
+    PRICING = [("flat", "flat"), ("cpm", "cpm")]
+    sponsor = models.ForeignKey(Sponsor, on_delete=models.CASCADE,
+                                related_name="campaigns")
+    name = models.CharField(max_length=80)
+    placement = models.CharField(max_length=16, choices=PLACEMENTS)
+    status = models.CharField(max_length=10, choices=STATUSES, default="draft")
+    pricing = models.CharField(max_length=4, choices=PRICING, default="flat")
+    price_bdt = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    budget_bdt = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    start_at = models.DateTimeField(null=True, blank=True)
+    end_at = models.DateTimeField(null=True, blank=True)
+    categories = models.JSONField(default=list, blank=True)
+    divisions = models.JSONField(default=list, blank=True)
+    daily_imp_cap = models.PositiveIntegerField(default=0)    # 0 = no cap
+    priority = models.IntegerField(default=0)
+    title_bn = models.CharField(max_length=80, blank=True, default="")
+    title_en = models.CharField(max_length=80, blank=True, default="")
+    body_bn = models.CharField(max_length=240, blank=True, default="")
+    body_en = models.CharField(max_length=240, blank=True, default="")
+    cta_bn = models.CharField(max_length=30, blank=True, default="")
+    cta_en = models.CharField(max_length=30, blank=True, default="")
+    link_url = models.URLField(max_length=300, blank=True, default="")
+    image = models.ImageField(upload_to="sponsors/creative/", null=True,
+                              blank=True)
+    checklist = models.JSONField(default=dict, blank=True)
+    safety_issues = models.JSONField(default=list, blank=True)
+    approved_by = models.ForeignKey(User, null=True, blank=True,
+                                    on_delete=models.SET_NULL,
+                                    related_name="approved_campaigns")
+    approved_at = models.DateTimeField(null=True, blank=True)
+    discover_card = models.OneToOneField("DiscoverCard", null=True, blank=True,
+                                         on_delete=models.SET_NULL,
+                                         related_name="campaign")
+    notes = models.TextField(blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["placement", "status"],
+                                name="p2_camp_place_status")]
+
+
+class SponsorDailyStat(models.Model):
+    """Per campaign per local day: what the sponsor report + P&L read."""
+    campaign = models.ForeignKey(SponsorCampaign, on_delete=models.CASCADE,
+                                 related_name="daily")
+    date = models.DateField()
+    impressions = models.PositiveIntegerField(default=0)
+    clicks = models.PositiveIntegerField(default=0)
+    hides = models.PositiveIntegerField(default=0)
+    notifs = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = [("campaign", "date")]
+        ordering = ["date"]
+
+
+class SponsorSeen(models.Model):
+    """Dedupe/fraud ledger: per user per campaign per day, how many
+    impressions / clicks were counted (counted impressions are capped)."""
+    campaign = models.ForeignKey(SponsorCampaign, on_delete=models.CASCADE,
+                                 related_name="seen")
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="sponsor_seen")
+    date = models.DateField()
+    impressions = models.PositiveIntegerField(default=0)
+    clicks = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = [("campaign", "user", "date")]
+
+
+class AdExposure(models.Model):
+    """Per user per local day per placement + source (direct | admob): how
+    many ads this user really saw. Drives the server-side app-open cap and
+    the retention-impact buckets in Owner Admin. Counts only — no content."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="ad_exposure")
+    date = models.DateField()
+    placement = models.CharField(max_length=16)
+    source = models.CharField(max_length=6, default="direct")
+    count = models.PositiveIntegerField(default=0)
+    last_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = [("user", "date", "placement", "source")]
+        indexes = [models.Index(fields=["date", "placement"],
+                                name="p2_exposure_day_place")]
+
+
+class OfferPrefs(models.Model):
+    """Brand offers by interest (Settings -> Offers & brands): favourite
+    categories + brands, muted brands, hidden campaigns, and the master
+    "offer notifications" switch."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="offer_prefs")
+    categories = models.JSONField(default=list, blank=True)
+    brands = models.JSONField(default=list, blank=True)        # sponsor ids
+    muted_brands = models.JSONField(default=list, blank=True)  # sponsor ids
+    hidden_campaigns = models.JSONField(default=list, blank=True)
+    notifs_on = models.BooleanField(default=True)
+    division = models.CharField(max_length=16, blank=True, default="")
+    onboarding_done = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class OfferNotifLog(models.Model):
+    """One offer notification sent to one user (the daily cap counts these)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="offer_notifs")
+    campaign = models.ForeignKey(SponsorCampaign, on_delete=models.CASCADE,
+                                 related_name="notif_log")
+    sent_at = models.DateTimeField(default=timezone.now, db_index=True)
+
+    class Meta:
+        unique_together = [("user", "campaign")]
+# ---- /p2-money ----

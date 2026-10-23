@@ -1,0 +1,262 @@
+{
+  "_comment": "p2-money (monetization: app-open sponsor card, Sponsored posts, offers & brands, paywall, SSV rewarded). All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_p2_money_arb.json (named so because .phaseB/up_p2_arb.json already holds the applied p2-photo proposal)",
+  "en": {
+    "p2Sponsored": "Sponsored",
+    "p2SkipIn": "Skip in {seconds}",
+    "@p2SkipIn": {
+      "placeholders": {
+        "seconds": {
+          "type": "String"
+        }
+      }
+    },
+    "p2Skip": "Skip",
+    "p2WhyAd": "Why am I seeing this?",
+    "p2WhyTitle": "Why you're seeing this",
+    "p2AdBy": "From {sponsor}",
+    "@p2AdBy": {
+      "placeholders": {
+        "sponsor": {
+          "type": "String"
+        }
+      }
+    },
+    "p2HideAd": "Hide this",
+    "p2MuteBrand": "Mute {brand}",
+    "@p2MuteBrand": {
+      "placeholders": {
+        "brand": {
+          "type": "String"
+        }
+      }
+    },
+    "p2RemoveAds": "No ads with Premium",
+    "p2AdHidden": "Hidden. You won't see this one again.",
+    "p2BrandMuted": "{brand} muted — no more ads or offers from it.",
+    "@p2BrandMuted": {
+      "placeholders": {
+        "brand": {
+          "type": "String"
+        }
+      }
+    },
+    "p2Learn": "Learn more",
+    "p2GetPremium": "Get Premium",
+    "p2ChOffers": "Offers",
+    "p2ChOffersDesc": "Brand offers you chose (at most 2 a day)",
+    "p2OffersTitle": "Offers & brands",
+    "p2OffersSettingsSub": "Pick what you like, mute any brand",
+    "p2OffersIntro": "Pick the categories you like — offers from those come first. We never share your messages, contacts or location with brands.",
+    "p2OffersCats": "Categories you like",
+    "p2OffersNotifs": "Offer notifications",
+    "p2OffersNotifsSub": "At most {n} a day, only for what you picked",
+    "@p2OffersNotifsSub": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "p2OffersDivision": "Your division (optional)",
+    "p2OffersDivisionNone": "Not set",
+    "p2OffersBrands": "Brands",
+    "p2OffersBrandsEmpty": "No brands with offers right now.",
+    "p2OffersMuted": "Muted — no ads or offers",
+    "p2OffersShown": "Shown",
+    "p2OffersFeedOpen": "See current offers",
+    "p2OffersFeedTitle": "Offers",
+    "p2OffersFeedEmpty": "No offers right now. Check back later.",
+    "p2OffersPremiumOff": "Premium has no ads, so brand offers are off for you.",
+    "p2OffersForYou": "Matches you",
+    "p2OffersEnds": "Ends {date}",
+    "@p2OffersEnds": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "p2OffersSaved": "Saved",
+    "p2OnbOffersTitle": "Offers you care about",
+    "p2OnbOffersSub": "Optional: pick a few categories, or just tap Next. You can change this any time in Settings, under “Offers & brands”.",
+    "p2CatMobile": "Mobile phones",
+    "p2CatElectronics": "Electronics",
+    "p2CatFashion": "Fashion",
+    "p2CatGrocery": "Groceries",
+    "p2CatFood": "Food & restaurants",
+    "p2CatHealth": "Health",
+    "p2CatBeauty": "Beauty & care",
+    "p2CatEducation": "Education",
+    "p2CatTravel": "Travel",
+    "p2CatHome": "Home & furniture",
+    "p2CatKids": "Kids",
+    "p2CatAuto": "Cars & bikes",
+    "p2CatTelecom": "Mobile packages",
+    "p2CatBanking": "Banking & payments",
+    "p2DivDhaka": "Dhaka",
+    "p2DivChattogram": "Chattogram",
+    "p2DivRajshahi": "Rajshahi",
+    "p2DivKhulna": "Khulna",
+    "p2DivBarishal": "Barishal",
+    "p2DivSylhet": "Sylhet",
+    "p2DivRangpur": "Rangpur",
+    "p2DivMymensingh": "Mymensingh",
+    "p2PayTitle": "Get more with Premium",
+    "p2PayReasonCredits": "You're out of AI credits",
+    "p2PayReasonCreditsBody": "Premium adds a monthly AI credit pool. Or buy a small credit pack — your choice.",
+    "p2PayReasonVideo": "Video calls are Premium",
+    "p2PayReasonVideoBody": "Voice calls stay free. Video calls need Premium.",
+    "p2PayReasonFamily": "Your family circle is full",
+    "p2PayReasonFamilyBody": "Premium lets you add more family members and see the caregiver dashboard.",
+    "p2PayReasonAdFree": "Use Assisto without ads",
+    "p2PayReasonAdFreeBody": "Ads keep Assisto free. Premium removes every ad.",
+    "p2PayReasonStorage": "Your storage is full",
+    "p2PayReasonStorageBody": "Premium gives you more storage for documents and photos.",
+    "p2PayReasonGenericBody": "Here is exactly what Premium adds — nothing more, nothing less.",
+    "p2PayOnlyPremium": "Only in Premium",
+    "p2PayMonthly": "৳{price} / month",
+    "@p2PayMonthly": {
+      "placeholders": {
+        "price": {
+          "type": "String"
+        }
+      }
+    },
+    "p2PayYearly": "৳{price} / year · save {pct}%",
+    "@p2PayYearly": {
+      "placeholders": {
+        "price": {
+          "type": "String"
+        },
+        "pct": {
+          "type": "String"
+        }
+      }
+    },
+    "p2PayYearlyPlain": "৳{price} / year",
+    "@p2PayYearlyPlain": {
+      "placeholders": {
+        "price": {
+          "type": "String"
+        }
+      }
+    },
+    "p2PayYearlyEquiv": "about ৳{price} a month",
+    "@p2PayYearlyEquiv": {
+      "placeholders": {
+        "price": {
+          "type": "String"
+        }
+      }
+    },
+    "p2PayTrial": "Start {days}-day free trial",
+    "@p2PayTrial": {
+      "placeholders": {
+        "days": {
+          "type": "String"
+        }
+      }
+    },
+    "p2PayTrialNote": "Once per account. No card needed. It ends by itself — nothing is charged.",
+    "p2PayTrialStarted": "Your {days}-day Premium trial has started.",
+    "@p2PayTrialStarted": {
+      "placeholders": {
+        "days": {
+          "type": "String"
+        }
+      }
+    },
+    "p2PayTrialUsed": "The free trial is once per account — you already used it.",
+    "p2PaySeePlans": "See plans",
+    "p2PayNotNow": "Not now",
+    "p2PayLoadFail": "Couldn't load Premium details. Check your internet and try again.",
+    "p2RewardPending": "Google hasn't confirmed this ad yet. If it does, the credit appears within a few minutes.",
+    "p2RewardRejected": "Not credited — today's limit is reached or the ad wasn't confirmed."
+  },
+  "bn": {
+    "p2Sponsored": "স্পনসরড",
+    "p2SkipIn": "{seconds} সেকেন্ড পর স্কিপ",
+    "p2Skip": "স্কিপ",
+    "p2WhyAd": "কেন এটি দেখছি?",
+    "p2WhyTitle": "কেন আপনি এটি দেখছেন",
+    "p2AdBy": "{sponsor}-এর পক্ষ থেকে",
+    "p2HideAd": "এটি লুকান",
+    "p2MuteBrand": "{brand} মিউট করুন",
+    "p2RemoveAds": "প্রিমিয়ামে কোনো বিজ্ঞাপন নেই",
+    "p2AdHidden": "লুকানো হয়েছে। এটি আর দেখবেন না।",
+    "p2BrandMuted": "{brand} মিউট করা হয়েছে — এর আর কোনো বিজ্ঞাপন বা অফার আসবে না।",
+    "p2Learn": "আরও জানুন",
+    "p2GetPremium": "প্রিমিয়াম নিন",
+    "p2ChOffers": "অফার",
+    "p2ChOffersDesc": "আপনার বেছে নেওয়া ব্র্যান্ডের অফার (দিনে সর্বোচ্চ ২টি)",
+    "p2OffersTitle": "অফার ও ব্র্যান্ড",
+    "p2OffersSettingsSub": "পছন্দ বাছুন, যেকোনো ব্র্যান্ড মিউট করুন",
+    "p2OffersIntro": "যে বিভাগগুলো পছন্দ করেন বাছুন — সেগুলোর অফার আগে আসবে। আপনার মেসেজ, কন্টাক্ট বা অবস্থান আমরা কোনো ব্র্যান্ডকে দিই না।",
+    "p2OffersCats": "আপনার পছন্দের বিভাগ",
+    "p2OffersNotifs": "অফারের নোটিফিকেশন",
+    "p2OffersNotifsSub": "দিনে সর্বোচ্চ {n}টি, শুধু আপনার বাছাই করা বিষয়ে",
+    "p2OffersDivision": "আপনার বিভাগ (ঐচ্ছিক)",
+    "p2OffersDivisionNone": "বাছাই করা নেই",
+    "p2OffersBrands": "ব্র্যান্ড",
+    "p2OffersBrandsEmpty": "এখন কোনো ব্র্যান্ডের অফার নেই।",
+    "p2OffersMuted": "মিউট — কোনো বিজ্ঞাপন বা অফার নয়",
+    "p2OffersShown": "দেখানো হয়",
+    "p2OffersFeedOpen": "এখনকার অফার দেখুন",
+    "p2OffersFeedTitle": "অফার",
+    "p2OffersFeedEmpty": "এখন কোনো অফার নেই। পরে আবার দেখুন।",
+    "p2OffersPremiumOff": "প্রিমিয়ামে কোনো বিজ্ঞাপন নেই, তাই আপনার জন্য ব্র্যান্ড অফার বন্ধ।",
+    "p2OffersForYou": "আপনার পছন্দের",
+    "p2OffersEnds": "শেষ {date}",
+    "p2OffersSaved": "সেভ হয়েছে",
+    "p2OnbOffersTitle": "আপনার পছন্দের অফার",
+    "p2OnbOffersSub": "ঐচ্ছিক: কয়েকটি বিভাগ বাছুন, অথবা শুধু ‘পরবর্তী’ চাপুন। পরে যেকোনো সময় সেটিংসের ‘অফার ও ব্র্যান্ড’ থেকে বদলাতে পারবেন।",
+    "p2CatMobile": "মোবাইল ফোন",
+    "p2CatElectronics": "ইলেকট্রনিক্স",
+    "p2CatFashion": "পোশাক ও ফ্যাশন",
+    "p2CatGrocery": "বাজার-সদাই",
+    "p2CatFood": "খাবার ও রেস্টুরেন্ট",
+    "p2CatHealth": "স্বাস্থ্য",
+    "p2CatBeauty": "সৌন্দর্য ও যত্ন",
+    "p2CatEducation": "শিক্ষা",
+    "p2CatTravel": "ভ্রমণ",
+    "p2CatHome": "ঘর ও আসবাব",
+    "p2CatKids": "শিশু",
+    "p2CatAuto": "গাড়ি ও বাইক",
+    "p2CatTelecom": "মোবাইল প্যাকেজ",
+    "p2CatBanking": "ব্যাংক ও পেমেন্ট",
+    "p2DivDhaka": "ঢাকা",
+    "p2DivChattogram": "চট্টগ্রাম",
+    "p2DivRajshahi": "রাজশাহী",
+    "p2DivKhulna": "খুলনা",
+    "p2DivBarishal": "বরিশাল",
+    "p2DivSylhet": "সিলেট",
+    "p2DivRangpur": "রংপুর",
+    "p2DivMymensingh": "ময়মনসিংহ",
+    "p2PayTitle": "প্রিমিয়ামে আরও বেশি",
+    "p2PayReasonCredits": "আপনার AI ক্রেডিট শেষ",
+    "p2PayReasonCreditsBody": "প্রিমিয়ামে প্রতি মাসে AI ক্রেডিট যোগ হয়। চাইলে ছোট একটি ক্রেডিট প্যাকও কিনতে পারেন — আপনার ইচ্ছা।",
+    "p2PayReasonVideo": "ভিডিও কল প্রিমিয়ামে",
+    "p2PayReasonVideoBody": "ভয়েস কল ফ্রিই থাকবে। ভিডিও কলের জন্য প্রিমিয়াম লাগবে।",
+    "p2PayReasonFamily": "আপনার পরিবার সার্কেল পূর্ণ",
+    "p2PayReasonFamilyBody": "প্রিমিয়ামে পরিবারের আরও সদস্য যোগ করা ও কেয়ারগিভার ড্যাশবোর্ড দেখা যায়।",
+    "p2PayReasonAdFree": "বিজ্ঞাপন ছাড়া Assisto ব্যবহার করুন",
+    "p2PayReasonAdFreeBody": "বিজ্ঞাপনের কারণেই Assisto ফ্রি। প্রিমিয়ামে কোনো বিজ্ঞাপন থাকে না।",
+    "p2PayReasonStorage": "আপনার স্টোরেজ পূর্ণ",
+    "p2PayReasonStorageBody": "প্রিমিয়ামে ডকুমেন্ট ও ছবির জন্য বেশি স্টোরেজ পাবেন।",
+    "p2PayReasonGenericBody": "প্রিমিয়ামে ঠিক কী কী বাড়তি পাবেন — এর বেশিও না, কমও না।",
+    "p2PayOnlyPremium": "শুধু প্রিমিয়ামে",
+    "p2PayMonthly": "৳{price} / মাস",
+    "p2PayYearly": "৳{price} / বছর · {pct}% সাশ্রয়",
+    "p2PayYearlyPlain": "৳{price} / বছর",
+    "p2PayYearlyEquiv": "মাসে প্রায় ৳{price}",
+    "p2PayTrial": "{days} দিনের ফ্রি ট্রায়াল শুরু করুন",
+    "p2PayTrialNote": "প্রতি অ্যাকাউন্টে একবার। কোনো কার্ড লাগবে না। নিজে থেকেই শেষ হয় — কোনো টাকা কাটা হয় না।",
+    "p2PayTrialStarted": "আপনার {days} দিনের প্রিমিয়াম ট্রায়াল শুরু হয়েছে।",
+    "p2PayTrialUsed": "ফ্রি ট্রায়াল প্রতি অ্যাকাউন্টে একবারই — আপনি আগেই নিয়েছেন।",
+    "p2PaySeePlans": "প্ল্যান দেখুন",
+    "p2PayNotNow": "এখন না",
+    "p2PayLoadFail": "প্রিমিয়ামের তথ্য আনা যায়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+    "p2RewardPending": "Google এখনো বিজ্ঞাপনটি নিশ্চিত করেনি। নিশ্চিত হলে কয়েক মিনিটের মধ্যে ক্রেডিট যোগ হবে।",
+    "p2RewardRejected": "ক্রেডিট যোগ হয়নি — আজকের সীমা শেষ, অথবা বিজ্ঞাপনটি নিশ্চিত হয়নি।"
+  }
+}

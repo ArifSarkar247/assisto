@@ -77,6 +77,7 @@ import '../screens/voice_assistant_settings_screen.dart';
 import '../screens/assisto_chats_screen.dart';
 import '../feedback/feedback_capture.dart'; // f1-founders
 import '../feedback/feedback_sheet.dart'; // f1-founders
+import '../screens/offers_screens.dart' show OffersFeedScreen; // p2-money
 
 /// open-from-chat configuration (Phase B).
 ///
@@ -121,6 +122,7 @@ class ChatNav {
     'car_mode': (_) => const CarModeScreen(), // v1-vehicle
     'emergency': (_) => const EmergencyScreen(),
     'plans': (_) => const PlansScreen(),
+    'offers': (_) => const OffersFeedScreen(), // p2-money
     'scam': (_) => const ScamScreen(),
     'safety': (_) => const SafetyScreen(),
     'voice_sos': (_) => const VoiceSosScreen(),

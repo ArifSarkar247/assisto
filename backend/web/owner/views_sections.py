@@ -523,8 +523,13 @@ def pnl(request):
 
 # ====================================================================== ads
 _AD_REWARD_KEYS = ("ecpm_bdt", "revenue_share", "appopen_min_gap_sec", "appopen_daily_cap",
+                   "appopen_start_day", "appopen_skip_after_s",
                    "rewarded_daily_cap", "interstitial_daily_cap", "native_daily_cap",
-                   "hero_enabled", "hero_start_muted", "consent_debug_eea")
+                   "hero_enabled", "hero_start_muted", "consent_debug_eea",
+                   # p2-money
+                   "sponsors_enabled", "community_sponsored_enabled",
+                   "community_sponsored_min_members", "community_sponsored_daily_cap",
+                   "offers_enabled", "offer_notif_daily_cap", "offers_premium_notifs")
 _PS_AD_KEYS = ("entry_interstitial_enabled", "entry_interstitial_gap_min", "enhance_hd_ads",
                "max_ads_per_job", "free_prompt_trials_per_day", "ad_value_bdt",
                "ad_value_share", "ticket_ttl_min")
@@ -596,7 +601,7 @@ def ads(request):
         admob = False
     ctx.update({
         "ar": [(k, cfg["ad_rewards"].get(k), "bool" if isinstance(cfg["ad_rewards"].get(k), bool)
-                else "num") for k in _AD_REWARD_KEYS if k in cfg["ad_rewards"]],
+                else "num", T.get("ak_" + k, k)) for k in _AD_REWARD_KEYS if k in cfg["ad_rewards"]],
         "ps": [(k, (cfg.get("photo_studio") or {}).get(k),
                 "bool" if isinstance((cfg.get("photo_studio") or {}).get(k), bool) else "num")
                for k in _PS_AD_KEYS if k in (cfg.get("photo_studio") or {})],

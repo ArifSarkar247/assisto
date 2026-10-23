@@ -10,6 +10,7 @@ from . import views_pay1 as PAY1   # pay1
 from . import views_t9 as T9
 from . import views_sc1 as SC1   # sc1 app errors
 from . import views_p1 as P1     # p1-bizagent sellers
+from . import views_p2 as P2     # p2-money
 
 _ASSETS = {"owner.css": "text/css; charset=utf-8",
            "owner.js": "application/javascript; charset=utf-8"}
@@ -75,4 +76,12 @@ urlpatterns = [
     path("payments", PAY1.payments),   # pay1
     path("calls", T9.calls),          # t9-turnscale: Call relay (TURN)
     path("sellers", P1.sellers),      # p1-bizagent: Sellers (AI agent)
+    # ---- p2-money ---- direct sponsors, campaigns, reports, ad impact
+    path("sponsors", P2.sponsors),
+    path("sponsors/<int:pk>", P2.sponsor_edit),
+    path("campaigns/new", P2.campaign_new),
+    path("campaigns/<int:pk>", P2.campaign_edit),
+    path("campaigns/<int:pk>/report", P2.campaign_report),
+    path("campaigns/<int:pk>/report.<str:fmt>", P2.campaign_report),
+    path("impact", P2.ad_impact),
 ]

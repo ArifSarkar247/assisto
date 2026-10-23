@@ -70,6 +70,11 @@ class PushNotifier {
           description: t.pushChSosDesc,
           importance: Importance.max,
           audioAttributesUsage: AudioAttributesUsage.alarm),
+      // p2-money: brand offers the user opted into — LOW importance (no
+      // sound, no pop-up), max 2 a day server-side; the user can turn the
+      // whole channel off in Android settings too.
+      AndroidNotificationChannel(PushChannels.offers, t.p2ChOffers,
+          description: t.p2ChOffersDesc, importance: Importance.low),
     ];
   }
 

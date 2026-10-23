@@ -1,0 +1,25 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.report }} · {{ c.name }}{% endblock %}
+{% block content %}
+<p><a href="/owner/campaigns/{{ c.id }}">← {{ c.name }}</a></p>
+<section class="card">
+  <form method="get" class="inline">
+    <label>{{ T.p2_from }} <input type="date" name="from" value="{{ rep.from }}"></label>
+    <label>{{ T.p2_to }} <input type="date" name="to" value="{{ rep.to }}"></label>
+    <button class="btn ghost">{{ T.show }}</button>
+    <a class="btn ghost" href="/owner/campaigns/{{ c.id }}/report.csv?{{ qs }}">CSV</a>
+  </form>
+  <p><b>{{ rep.sponsor }}</b> · {{ rep.placement }} · {% if rep.pricing == 'cpm' %}CPM ৳{{ c.price_bdt }}{% else %}{{ T.p2_flat }} ৳{{ c.price_bdt }}{% endif %}</p>
+  <div class="kv">
+    <div><small>{{ T.impressions }}</small><b>{{ rep.totals.impressions }}</b></div>
+    <div><small>{{ T.clicks }}</small><b>{{ rep.totals.clicks }}</b></div>
+    <div><small>CTR</small><b>{{ rep.totals.ctr }}%</b></div>
+    <div><small>{{ T.p2_hides }}</small><b>{{ rep.totals.hides }}</b></div>
+    <div><small>{{ T.revenue }}</small><b>৳{{ rep.totals.revenue }}</b></div>
+  </div>
+  <p class="mut small">{{ T.p2_report_note }}</p>
+</section>
+<section class="card"><div class="tbl"><table><thead><tr><th>{{ T.p2_date }}</th><th>{{ T.impressions }}</th><th>{{ T.clicks }}</th><th>CTR</th><th>{{ T.p2_hides }}</th><th>{{ T.revenue }} (৳)</th></tr></thead><tbody>
+{% for r in rep.rows %}<tr><td>{{ r.date }}</td><td class="num">{{ r.impressions }}</td><td class="num">{{ r.clicks }}</td><td class="num">{{ r.ctr }}%</td><td class="num">{{ r.hides }}</td><td class="num">{{ r.revenue }}</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% endblock %}
