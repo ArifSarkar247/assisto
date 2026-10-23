@@ -1,171 +1,221 @@
 {
  "en": {
-  "discoverSponsored": "Sponsored",
-  "discoverMgrTile": "Discover manager",
-  "discoverMgrTileSub": "Home spotlight cards, sponsors and reports",
-  "discoverMgrTitle": "Discover cards",
-  "discoverMgrOwnerOnly": "Only the app owner can manage Discover cards.",
-  "discoverMgrEmpty": "No cards yet. Add the first one.",
-  "discoverMgrAdd": "Add card",
-  "discoverMgrEdit": "Edit card",
-  "discoverMgrPreview": "Preview",
-  "discoverMgrPreviewAs": "What a user sees right now",
-  "discoverMgrPreviewEmpty": "This user would see no cards.",
-  "discoverMgrSegFree": "Free",
-  "discoverMgrSegPremium": "Premium",
-  "discoverMgrSegBusiness": "Business",
-  "discoverMgrAudienceAll": "Everyone",
-  "discoverMgrTypeFeature": "Assisto feature",
-  "discoverMgrTypeProduct": "Our product",
-  "discoverMgrTypeSponsored": "Sponsored",
-  "discoverMgrTypeAdmob": "AdMob slot",
-  "discoverMgrAdmobNote": "AdMob is not linked in the app yet, so this slot shows nothing to users for now. It is only filled for Free users when no sponsored card is booked.",
-  "discoverMgrPaidNote": "Premium and Business users never see sponsored or AdMob cards.",
-  "discoverMgrType": "Card type",
-  "discoverMgrTitleBn": "Title (Bangla)",
-  "discoverMgrTitleEn": "Title (English)",
-  "discoverMgrDescBn": "Description (Bangla)",
-  "discoverMgrDescEn": "Description (English)",
-  "discoverMgrAction": "When tapped",
-  "discoverMgrActionRoute": "Open an app screen",
-  "discoverMgrActionUrl": "Open a website",
-  "discoverMgrRoute": "App screen",
-  "discoverMgrUrl": "Website link (https only)",
-  "discoverMgrIcon": "Icon",
-  "discoverMgrImage": "Image",
-  "discoverMgrImagePick": "Upload image",
-  "discoverMgrImageRemove": "Remove image",
-  "discoverMgrImageSaveFirst": "Save the card first, then add an image.",
-  "discoverMgrImageFailed": "Image not accepted. Use PNG, JPG or WEBP up to 2 MB.",
-  "discoverMgrAudience": "Who sees it",
-  "discoverMgrStart": "Starts",
-  "discoverMgrEnd": "Ends",
-  "discoverMgrNoDate": "Not set",
-  "discoverMgrClear": "Clear",
-  "discoverMgrMinBuild": "Minimum app build (optional)",
-  "discoverMgrSponsorName": "Sponsor name",
-  "discoverMgrSponsorRevenue": "Sponsor revenue (৳)",
-  "discoverMgrSponsorNote": "Added to the P&L dashboard, spread across the days the card runs.",
-  "discoverMgrEnabled": "Show this card",
-  "discoverMgrSaved": "Saved",
-  "discoverMgrDeleteConfirm": "Delete this card? Its report will be deleted too.",
-  "discoverMgrLive": "Live",
-  "discoverMgrOff": "Off",
-  "discoverMgrNotLive": "Not live now",
-  "discoverMgrStats": "{impressions} views · {clicks} taps · {ctr}% CTR",
-  "discoverMgrReport": "Report",
-  "discoverMgrReportTitle": "Sponsor report",
-  "discoverMgrDays": "{days} days",
-  "discoverMgrColDate": "Date",
-  "discoverMgrColViews": "Views",
-  "discoverMgrColTaps": "Taps",
-  "discoverMgrColCtr": "CTR %",
-  "discoverMgrTotal": "Total",
-  "discoverMgrExportCsv": "Export CSV",
-  "discoverMgrExportPdf": "Export PDF",
-  "discoverMgrExportFailed": "Could not export the report.",
-  "discoverMgrUniqueNote": "Views and taps are counted once per user per day.",
-  "discoverMgrErrSafety": "This text or link is not allowed: gambling, adult or scam-like wording, a non-https link, a link inside the text, or a link shortener.",
-  "discoverMgrErrFields": "Please check: {fields}",
-  "discoverMgrSaveFailed": "Could not save. Please try again.",
-  "discoverMgrReorderHint": "Drag a card to change its order. Users see live cards in this order.",
-  "@discoverMgrStats": {
+  "d1psToolsTitle": "Photo tools",
+  "d1psToolsBody": "These run on your phone. After the one-time setup they work without internet.",
+  "d1psToolUpscale2x": "Upscale 2×",
+  "d1psToolUpscale4x": "Upscale 4×",
+  "d1psToolDenoise": "Remove noise",
+  "d1psToolLowLight": "Fix low light",
+  "d1psToolBgBlur": "Blur background",
+  "d1psAbout": "about {time}",
+  "@d1psAbout": {
    "placeholders": {
-    "impressions": {
-     "type": "int"
-    },
-    "clicks": {
-     "type": "int"
-    },
-    "ctr": {
+    "time": {
      "type": "String"
     }
    }
   },
-  "@discoverMgrDays": {
+  "d1psSeconds": "{n} s",
+  "@d1psSeconds": {
    "placeholders": {
-    "days": {
-     "type": "int"
-    }
-   }
-  },
-  "@discoverMgrErrFields": {
-   "placeholders": {
-    "fields": {
+    "n": {
      "type": "String"
     }
    }
-  }
+  },
+  "d1psMinutes": "{n} min",
+  "@d1psMinutes": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "d1psFirstDownload": "First use downloads {size}",
+  "@d1psFirstDownload": {
+   "placeholders": {
+    "size": {
+     "type": "String"
+    }
+   }
+  },
+  "d1psToolsNone": "No tools are available for this photo on this phone.",
+  "d1psAiCopy": "Works on a {px} px copy · {about}",
+  "@d1psAiCopy": {
+   "placeholders": {
+    "px": {
+     "type": "String"
+    },
+    "about": {
+     "type": "String"
+    }
+   }
+  },
+  "d1psAiFull": "Output {px} px · {about}",
+  "@d1psAiFull": {
+   "placeholders": {
+    "px": {
+     "type": "String"
+    },
+    "about": {
+     "type": "String"
+    }
+   }
+  },
+  "d1psRestoreTitle": "Repair on our server",
+  "d1psRestoreBody": "Heavier repairs run on Assisto's server. Before you see the result, your phone checks the face is still you.",
+  "d1psRestoreDeblur": "Remove blur",
+  "d1psRestoreColorize": "Colour a black & white photo",
+  "d1psRestoreOld": "Restore an old photo",
+  "d1psRestoreColorizeToo": "Also add colour if it is black & white",
+  "d1psOwnerRestoreNeeds": "Owner only — to switch on {tool}: {needs}",
+  "@d1psOwnerRestoreNeeds": {
+   "placeholders": {
+    "tool": {
+     "type": "String"
+    },
+    "needs": {
+     "type": "String"
+    }
+   }
+  },
+  "d1psOwnerNoFaceModel": "Owner only — face restoration is not offered: no face model with a licence that allows commercial use was found (GFPGAN and CodeFormer are not allowed).",
+  "d1psStageDownload": "Downloading the AI model… {pct}",
+  "@d1psStageDownload": {
+   "placeholders": {
+    "pct": {
+     "type": "String"
+    }
+   }
+  },
+  "d1psStageAnalyse": "Looking at the photo…",
+  "d1psStageAi": "AI: part {done} of {total}",
+  "@d1psStageAi": {
+   "placeholders": {
+    "done": {
+     "type": "String"
+    },
+    "total": {
+     "type": "String"
+    }
+   }
+  },
+  "d1psStageMask": "Finding the person…",
+  "d1psStageClassic": "Finishing…",
+  "d1psStageServer": "Working on our server — this can take up to a minute…",
+  "d1psStageBatch": "Photo {item} of {items}",
+  "@d1psStageBatch": {
+   "placeholders": {
+    "item": {
+     "type": "String"
+    },
+    "items": {
+     "type": "String"
+    }
+   }
+  },
+  "d1psLeft": "{time} left",
+  "@d1psLeft": {
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "d1psAiStepFailed": "The AI step didn't run on this phone, so the safe enhance was used. The problem was reported to us.",
+  "d1psToolFailed": "That didn't work on this phone — nothing was changed. The problem was reported to us.",
+  "d1psNoSubject": "Couldn't find a clear person in this photo, so the background was not blurred.",
+  "d1psTooBig": "This photo is already too big for that size.",
+  "d1psBatchDone": "All photos are done.",
+  "d1psBatchButton": "Many photos",
+  "d1psBatchTitle": "Many photos ({n})",
+  "@d1psBatchTitle": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "d1psBatchBody": "Pick one action for all of them. They run one after another and you can stop any time. Each result is saved the normal way.",
+  "d1psBatchLimit": "Up to {n} photos at a time.",
+  "@d1psBatchLimit": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "d1psBatchEnhance": "Enhance all",
+  "d1psBatchWaiting": "Waiting",
+  "d1psBatchRunning": "Working…",
+  "d1psBatchOpen": "Done — tap to open",
+  "d1psBatchFailed": "Didn't work",
+  "d1psBatchSkipped": "Skipped",
+  "d1psBatchStopped": "Stopped",
+  "d1psBatchClear": "Clear list",
+  "d1psBatchPhoto": "Photo {n}",
+  "@d1psBatchPhoto": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "d1psFeatDeblur": "Remove blur (GPU)",
+  "d1psFeatColorize": "Colourise (server)",
+  "d1psFeatOldRestore": "Old photo restore (server)"
  },
  "bn": {
-  "discoverSponsored": "স্পনসরড",
-  "discoverMgrTile": "আবিষ্কার কার্ড পরিচালনা",
-  "discoverMgrTileSub": "হোমের স্পটলাইট কার্ড, স্পনসর ও রিপোর্ট",
-  "discoverMgrTitle": "আবিষ্কার কার্ড",
-  "discoverMgrOwnerOnly": "শুধু অ্যাপের মালিক আবিষ্কার কার্ড পরিচালনা করতে পারেন।",
-  "discoverMgrEmpty": "এখনো কোনো কার্ড নেই। প্রথমটি যোগ করুন।",
-  "discoverMgrAdd": "কার্ড যোগ করুন",
-  "discoverMgrEdit": "কার্ড সম্পাদনা",
-  "discoverMgrPreview": "প্রিভিউ",
-  "discoverMgrPreviewAs": "এখন একজন ব্যবহারকারী যা দেখবেন",
-  "discoverMgrPreviewEmpty": "এই ব্যবহারকারী কোনো কার্ড দেখবেন না।",
-  "discoverMgrSegFree": "ফ্রি",
-  "discoverMgrSegPremium": "প্রিমিয়াম",
-  "discoverMgrSegBusiness": "বিজনেস",
-  "discoverMgrAudienceAll": "সবাই",
-  "discoverMgrTypeFeature": "অ্যাসিস্টো ফিচার",
-  "discoverMgrTypeProduct": "আমাদের প্রোডাক্ট",
-  "discoverMgrTypeSponsored": "স্পনসরড",
-  "discoverMgrTypeAdmob": "AdMob বিজ্ঞাপনের জায়গা",
-  "discoverMgrAdmobNote": "অ্যাপে এখনো AdMob যুক্ত হয়নি, তাই এই জায়গাটি আপাতত ব্যবহারকারীদের কিছুই দেখাবে না। কোনো স্পনসরড কার্ড না থাকলে শুধু ফ্রি ব্যবহারকারীদের জন্য এটি পূরণ হয়।",
-  "discoverMgrPaidNote": "প্রিমিয়াম ও বিজনেস ব্যবহারকারীরা কখনো স্পনসরড বা AdMob কার্ড দেখেন না।",
-  "discoverMgrType": "কার্ডের ধরন",
-  "discoverMgrTitleBn": "শিরোনাম (বাংলা)",
-  "discoverMgrTitleEn": "শিরোনাম (ইংরেজি)",
-  "discoverMgrDescBn": "বিবরণ (বাংলা)",
-  "discoverMgrDescEn": "বিবরণ (ইংরেজি)",
-  "discoverMgrAction": "ট্যাপ করলে",
-  "discoverMgrActionRoute": "অ্যাপের স্ক্রিন খুলবে",
-  "discoverMgrActionUrl": "ওয়েবসাইট খুলবে",
-  "discoverMgrRoute": "অ্যাপের স্ক্রিন",
-  "discoverMgrUrl": "ওয়েবসাইট লিংক (শুধু https)",
-  "discoverMgrIcon": "আইকন",
-  "discoverMgrImage": "ছবি",
-  "discoverMgrImagePick": "ছবি আপলোড করুন",
-  "discoverMgrImageRemove": "ছবি সরান",
-  "discoverMgrImageSaveFirst": "আগে কার্ডটি সংরক্ষণ করুন, তারপর ছবি যোগ করুন।",
-  "discoverMgrImageFailed": "ছবিটি নেওয়া যায়নি। ২ MB পর্যন্ত PNG, JPG বা WEBP দিন।",
-  "discoverMgrAudience": "কারা দেখবেন",
-  "discoverMgrStart": "শুরু",
-  "discoverMgrEnd": "শেষ",
-  "discoverMgrNoDate": "ঠিক করা নেই",
-  "discoverMgrClear": "মুছুন",
-  "discoverMgrMinBuild": "সর্বনিম্ন অ্যাপ বিল্ড (ঐচ্ছিক)",
-  "discoverMgrSponsorName": "স্পনসরের নাম",
-  "discoverMgrSponsorRevenue": "স্পনসর আয় (৳)",
-  "discoverMgrSponsorNote": "এই আয় P&L ড্যাশবোর্ডে যোগ হয়, কার্ড যতদিন চলে সেই দিনগুলোতে ভাগ করে।",
-  "discoverMgrEnabled": "এই কার্ড দেখান",
-  "discoverMgrSaved": "সংরক্ষিত হয়েছে",
-  "discoverMgrDeleteConfirm": "এই কার্ডটি মুছবেন? এর রিপোর্টও মুছে যাবে।",
-  "discoverMgrLive": "চালু",
-  "discoverMgrOff": "বন্ধ",
-  "discoverMgrNotLive": "এখন চালু নেই",
-  "discoverMgrStats": "{impressions} বার দেখা · {clicks} ট্যাপ · CTR {ctr}%",
-  "discoverMgrReport": "রিপোর্ট",
-  "discoverMgrReportTitle": "স্পনসর রিপোর্ট",
-  "discoverMgrDays": "{days} দিন",
-  "discoverMgrColDate": "তারিখ",
-  "discoverMgrColViews": "দেখা",
-  "discoverMgrColTaps": "ট্যাপ",
-  "discoverMgrColCtr": "CTR %",
-  "discoverMgrTotal": "মোট",
-  "discoverMgrExportCsv": "CSV এক্সপোর্ট",
-  "discoverMgrExportPdf": "PDF এক্সপোর্ট",
-  "discoverMgrExportFailed": "রিপোর্ট এক্সপোর্ট করা যায়নি।",
-  "discoverMgrUniqueNote": "প্রতিটি ব্যবহারকারীর দেখা ও ট্যাপ দিনে একবার গোনা হয়।",
-  "discoverMgrErrSafety": "এই লেখা বা লিংক অনুমোদিত নয়: জুয়া, প্রাপ্তবয়স্ক বা প্রতারণার মতো শব্দ, https ছাড়া লিংক, লেখার ভেতরে লিংক, অথবা শর্ট লিংক।",
-  "discoverMgrErrFields": "দয়া করে দেখে নিন: {fields}",
-  "discoverMgrSaveFailed": "সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
-  "discoverMgrReorderHint": "ক্রম বদলাতে কার্ড টেনে সরান। ব্যবহারকারীরা চালু কার্ডগুলো এই ক্রমেই দেখেন।"
+  "d1psToolsTitle": "ছবির টুল",
+  "d1psToolsBody": "এগুলো আপনার ফোনেই চলে। একবার সেট হলে ইন্টারনেট ছাড়াই চলে।",
+  "d1psToolUpscale2x": "২ গুণ বড় করুন",
+  "d1psToolUpscale4x": "৪ গুণ বড় করুন",
+  "d1psToolDenoise": "দানা দূর করুন",
+  "d1psToolLowLight": "কম আলো ঠিক করুন",
+  "d1psToolBgBlur": "পেছনটা ঝাপসা করুন",
+  "d1psAbout": "প্রায় {time}",
+  "d1psSeconds": "{n} সেকেন্ড",
+  "d1psMinutes": "{n} মিনিট",
+  "d1psFirstDownload": "প্রথমবার {size} ডাউনলোড হবে",
+  "d1psToolsNone": "এই ফোনে এই ছবির জন্য কোনো টুল চালানো যাচ্ছে না।",
+  "d1psAiCopy": "{px} পিক্সেলের একটি কপিতে চলে · {about}",
+  "d1psAiFull": "ফলাফল {px} পিক্সেল · {about}",
+  "d1psRestoreTitle": "আমাদের সার্ভারে মেরামত",
+  "d1psRestoreBody": "ভারী মেরামত Assisto-র সার্ভারে হয়। ফলাফল দেখানোর আগে আপনার ফোন যাচাই করে মুখটা আপনারই আছে কি না।",
+  "d1psRestoreDeblur": "ঝাপসা ভাব দূর করুন",
+  "d1psRestoreColorize": "সাদা-কালো ছবিতে রং দিন",
+  "d1psRestoreOld": "পুরোনো ছবি ঠিক করুন",
+  "d1psRestoreColorizeToo": "সাদা-কালো হলে রংও দিন",
+  "d1psOwnerRestoreNeeds": "শুধু মালিক দেখছেন — {tool} চালু করতে: {needs}",
+  "d1psOwnerNoFaceModel": "শুধু মালিক দেখছেন — মুখ রিস্টোর রাখা হয়নি: বাণিজ্যিক ব্যবহারের অনুমতি আছে এমন কোনো মুখের মডেল পাওয়া যায়নি (GFPGAN ও CodeFormer অনুমোদিত নয়)।",
+  "d1psStageDownload": "AI মডেল ডাউনলোড হচ্ছে… {pct}",
+  "d1psStageAnalyse": "ছবিটা দেখা হচ্ছে…",
+  "d1psStageAi": "AI: {total}টির মধ্যে {done}টি অংশ",
+  "d1psStageMask": "মানুষটিকে খোঁজা হচ্ছে…",
+  "d1psStageClassic": "শেষ করা হচ্ছে…",
+  "d1psStageServer": "আমাদের সার্ভারে কাজ চলছে — এক মিনিট পর্যন্ত লাগতে পারে…",
+  "d1psStageBatch": "{items}টির মধ্যে {item} নম্বর ছবি",
+  "d1psLeft": "আর {time}",
+  "d1psAiStepFailed": "এই ফোনে AI ধাপটি চলেনি, তাই নিরাপদ এনহ্যান্স ব্যবহার করা হয়েছে। সমস্যাটি আমাদের কাছে পাঠানো হয়েছে।",
+  "d1psToolFailed": "এই ফোনে এটি কাজ করেনি — কিছুই বদলানো হয়নি। সমস্যাটি আমাদের কাছে পাঠানো হয়েছে।",
+  "d1psNoSubject": "এই ছবিতে মানুষটিকে স্পষ্ট পাওয়া যায়নি, তাই পেছনটা ঝাপসা করা হয়নি।",
+  "d1psTooBig": "এই ছবিটি ওই মাপে বড় করার জন্য এমনিতেই অনেক বড়।",
+  "d1psBatchDone": "সব ছবির কাজ শেষ।",
+  "d1psBatchButton": "একসাথে অনেক ছবি",
+  "d1psBatchTitle": "একসাথে অনেক ছবি ({n}টি)",
+  "d1psBatchBody": "সবগুলোর জন্য একটি কাজ বেছে নিন। একটার পর একটা চলবে, যেকোনো সময় থামাতে পারবেন। প্রতিটি ফলাফল স্বাভাবিক নিয়মে সেভ হবে।",
+  "d1psBatchLimit": "একবারে সর্বোচ্চ {n}টি ছবি।",
+  "d1psBatchEnhance": "সব এনহ্যান্স করুন",
+  "d1psBatchWaiting": "অপেক্ষায়",
+  "d1psBatchRunning": "চলছে…",
+  "d1psBatchOpen": "শেষ — খুলতে ট্যাপ করুন",
+  "d1psBatchFailed": "হয়নি",
+  "d1psBatchSkipped": "বাদ দেওয়া হয়েছে",
+  "d1psBatchStopped": "থামানো হয়েছে",
+  "d1psBatchClear": "তালিকা মুছুন",
+  "d1psBatchPhoto": "ছবি {n}",
+  "d1psFeatDeblur": "ঝাপসা দূর (GPU)",
+  "d1psFeatColorize": "রং দেওয়া (সার্ভার)",
+  "d1psFeatOldRestore": "পুরোনো ছবি মেরামত (সার্ভার)"
  }
 }

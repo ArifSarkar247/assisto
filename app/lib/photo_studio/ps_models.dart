@@ -17,7 +17,11 @@ extension ExportKindWire on ExportKind {
       };
 }
 
-enum PsFeature { enhanceHd, enhanceCloud, promptEdit, generate }
+/// d1-photo adds three HEAVY restore jobs that run on OUR server (colorize,
+/// old-photo restore: ONNX Runtime on the server CPU) or a pay-per-use GPU API
+/// behind an Admin key (deblur: NAFNet). They are shown only when the server
+/// quote says ok (model installed / key connected) — never a dead button.
+enum PsFeature { enhanceHd, enhanceCloud, promptEdit, generate, deblur, colorize, oldRestore }
 
 extension PsFeatureWire on PsFeature {
   String get wire => switch (this) {
@@ -25,8 +29,15 @@ extension PsFeatureWire on PsFeature {
         PsFeature.enhanceCloud => 'enhance_cloud',
         PsFeature.promptEdit => 'prompt_edit',
         PsFeature.generate => 'generate',
+        PsFeature.deblur => 'deblur',
+        PsFeature.colorize => 'colorize',
+        PsFeature.oldRestore => 'old_restore',
       };
   bool get isCloud => this != PsFeature.enhanceHd;
+
+  /// d1-photo: server restore jobs (no prompt, no generative edit).
+  bool get isRestore =>
+      this == PsFeature.deblur || this == PsFeature.colorize || this == PsFeature.oldRestore;
 }
 
 enum EditStrength { light, natural, strong }
@@ -108,6 +119,7 @@ class PsConfig {
     this.balance = 0,
     this.aiModel = AiModelInfo.none,
     this.isOwner = false,
+    this.restoreNeeds = const {},
   });
   final String plan;
   final bool free;
@@ -129,7 +141,14 @@ class PsConfig {
   /// "add an image-AI key" note when no cloud provider is connected.
   final bool isOwner;
 
+  /// d1-photo: per restore feature, what the OWNER must still do (empty =
+  /// ready). Users never see these; the owner sees one note.
+  final Map<String, String> restoreNeeds;
+
   FeatureQuote quote(PsFeature f) => features[f.wire] ?? FeatureQuote.none;
+
+  /// A restore job is offered only when the server can really run + price it.
+  bool restoreReady(PsFeature f) => f.isRestore && quote(f).ok;
 
   factory PsConfig.fromJson(Map<String, dynamic> j) {
     final entry = (j['entry_ad'] as Map?) ?? const {};
@@ -154,6 +173,11 @@ class PsConfig {
       balance: _i(j['balance']),
       aiModel: AiModelInfo.fromJson(j['ai_model']),
       isOwner: j['is_owner'] == true,
+      restoreNeeds: {
+        for (final e in ((j['restore'] as Map?) ?? const {}).entries)
+          if (e.value is Map && (e.value as Map)['ready'] != true)
+            '${e.key}': _s((e.value as Map)['needs']),
+      },
     );
   }
 }

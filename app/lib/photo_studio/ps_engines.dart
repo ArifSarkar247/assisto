@@ -119,8 +119,13 @@ class EnhanceUnavailable implements Exception {
 
 /// What the last [EnhanceEngine.enhance] actually did (shown honestly).
 class EnhanceReport {
-  const EnhanceReport({this.aiUsed = false, this.aiRejected = false, this.ms = 0, this.ep = ''});
+  const EnhanceReport(
+      {this.aiUsed = false, this.aiRejected = false, this.aiFailed = false, this.ms = 0, this.ep = ''});
   final bool aiUsed;
+
+  /// d1-photo: the AI step itself failed on this phone (reported to Owner
+  /// Admin -> App errors); the classical result was used and the user is told.
+  final bool aiFailed;
 
   /// The AI result did not keep the face geometry -> the classical-only
   /// result was used instead.

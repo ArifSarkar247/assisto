@@ -44,8 +44,13 @@ class ClassicParams {
     required this.skin,
     required this.sharpen,
     required this.vibrance,
+    this.gammaFloor = 0.55,
   });
   final double wb, levels, lift, denoise, clahe, claheClip, skin, sharpen, vibrance;
+
+  /// d1-photo: strongest allowed gamma for the dark-photo lift (smaller =
+  /// brighter). 0.55 for the enhance strengths; the Low-light tool uses 0.40.
+  final double gammaFloor;
 
   static const light = ClassicParams(
       wb: 0.35, levels: 0.45, lift: 0.35, denoise: 0.30, clahe: 0.15,
@@ -68,6 +73,19 @@ class ClassicParams {
         'clahe': clahe, 'claheClip': claheClip, 'skin': skin,
         'sharpen': sharpen, 'vibrance': vibrance,
       };
+
+  /// d1-photo tools (on-device, instant, geometry-preserving like the rest).
+  /// Denoise: only the edge-preserving luminance/chroma denoise (+ a touch of
+  /// sharpening so edges don't go soft) — tone and colour untouched.
+  static const denoiseTool = ClassicParams(
+      wb: 0, levels: 0, lift: 0, denoise: 1.0, clahe: 0,
+      claheClip: 2.0, skin: 0, sharpen: 0.12, vibrance: 0);
+
+  /// Low-light fix: full levels stretch, strong gamma lift (floor 0.40),
+  /// heavy denoise (dark photos are noisy), local contrast.
+  static const lowLightTool = ClassicParams(
+      wb: 0.6, levels: 1.0, lift: 1.0, denoise: 0.85, clahe: 0.40,
+      claheClip: 2.6, skin: 0.2, sharpen: 0.25, vibrance: 0.10, gammaFloor: 0.40);
 }
 
 /// A face ellipse in normalised 0..1 image coordinates (same as FaceBox, but
@@ -202,7 +220,7 @@ ClassicPlan analyse(Uint8List rgba, int w, int h, ClassicParams p) {
   var gamma = 1.0;
   if (mStretched > 0.02 && mStretched < 0.42) {
     final g = math.log(0.42) / math.log(mStretched); // < 1 brightens
-    gamma = 1 + (g.clamp(0.55, 1.0) - 1) * p.lift;
+    gamma = 1 + (g.clamp(p.gammaFloor, 1.0) - 1) * p.lift;
   }
 
   // ---- 4. CLAHE tables on the toned luminance

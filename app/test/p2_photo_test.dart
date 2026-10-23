@@ -191,8 +191,13 @@ class _FakeNative implements PhotoNative {
     }
     final f = File('${Directory.systemTemp.createTempSync('p2up').path}/o.raw')
       ..writeAsBytesSync(_enc(out, w, h));
-    return NativeUpscaleResult(ok: true, path: f.path, w: w, h: h, ep: 'cpu');
+    return NativeUpscaleResult(ok: true, path: f.path, w: w, h: h, ep: 'cpu', ms: 800, tiles: 1);
   }
+
+  @override
+  Future<NativeMaskResult> segment(
+          {required Uint8List encoded, required String modelPath, required int side}) async =>
+      const NativeMaskResult(ok: false, error: 'unavailable');
 
   @override
   Future<void> cancel() async {}
@@ -500,16 +505,37 @@ void main() {
 
   // ============================================================== AI sizing
   group('AI plan', () {
-    test('2x target, ≤640 px model input, preview cap respected', () {
-      var p = AiPlan.of(800);
+    test('2x target, ≤640 px model input, preview cap respected (no budget)', () {
+      var p = AiPlan.of(800, 800);
       expect((p.maxInputLong, p.targetLong), (640, 1600));
-      p = AiPlan.of(800, maxLongEdge: 1024);
+      p = AiPlan.of(800, 800, maxLongEdge: 1024);
       expect((p.maxInputLong, p.targetLong), (512, 1024));
-      p = AiPlan.of(300);
+      p = AiPlan.of(300, 200);
       expect((p.maxInputLong, p.targetLong), (300, 600));
-      p = AiPlan.of(1600);
+      p = AiPlan.of(1600, 1200);
       expect((p.maxInputLong, p.targetLong), (640, 2560));
       expect(AiPlan.tiles(640, 480, 128), 5 * 4);
+    });
+    test('d1 root cause: a 4080x3060 camera photo is planned (never silently skipped)', () {
+      // the first-run budget for a mid-range phone: 7.5 s / 1.1 s per tile
+      final budget = AiPlan.budgetTiles(AiPlan.defaultMsPerTile);
+      expect(budget, 6);
+      final p = AiPlan.of(4080, 3060, maxTiles: budget);
+      expect(p.tileCount, lessThanOrEqualTo(budget));
+      expect(p.tileCount, greaterThan(0));
+      // honest: big photos are worked on a smaller copy (shown in the UI)
+      expect(p.targetLong, lessThan(4080));
+      expect(p.targetLong, lessThanOrEqualTo(p.maxInputLong * 4));
+      // a faster phone gets a bigger copy
+      final fast = AiPlan.of(4080, 3060, maxTiles: AiPlan.budgetTiles(400));
+      expect(fast.targetLong, greaterThan(p.targetLong));
+      // free preview (1024) of the same photo
+      final prev = AiPlan.of(4080, 3060, maxLongEdge: 1024, maxTiles: budget);
+      expect(prev.targetLong, lessThanOrEqualTo(1024));
+    });
+    test('tile counts match the native tiler', () {
+      expect(AiPlan.tilesAt(4080, 3060, 512, 128), 4 * 3);
+      expect(AiPlan.tilesAt(300, 200, 640, 128), 3 * 2);
     });
   });
 
@@ -637,17 +663,14 @@ void main() {
       expect(out, isNotEmpty);
     });
 
-    test('big photos are not eligible for the AI step', () async {
-      final e = StudioEnhanceEngine(
-          native: _FakeNative(),
-          guard: IdentityGuard(landmarks: NativeLandmarks(_FakeNative())),
-          model: model(),
-          downloader: ModelDownloader(http: _MemHttp(blob), dir: dir),
-          codec: _RawCodec(),
-          runner: syncClassicRunner,
-          aiMaxSourceLong: 40);
+    test('d1 root cause: big photos ARE eligible for the AI step (on a budgeted copy)', () async {
+      final e = eng(_FakeNative());
       await e.availability();
-      expect(await e.aiEligible(photo), isFalse);
+      final big = _enc(_scene(2400, 1800), 2400, 1800);
+      expect(await e.aiEligible(big), isTrue);
+      final plan = await e.aiPlanFor(big);
+      expect(plan, isNotNull);
+      expect(plan!.tileCount, lessThanOrEqualTo(AiPlan.budgetTiles(AiPlan.defaultMsPerTile)));
     });
   });
 

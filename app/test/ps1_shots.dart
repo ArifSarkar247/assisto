@@ -93,6 +93,8 @@ final Uint8List _after = _png(180, 240, (x, y) => _scene(x, y, 180, 240, after: 
 class _PicturePicker implements PhotoPicker {
   @override
   Future<Uint8List?> pick({required bool camera}) async => _before;
+  @override
+  Future<List<Uint8List>> pickMany({int limit = 10}) async => [_before];
 }
 
 class _SampleEngine extends FakeEngine {

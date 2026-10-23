@@ -139,11 +139,17 @@ class Sha256 {
 
 // =================================================================== manifest
 class AiModelFile {
-  const AiModelFile({required this.name, required this.sha256, required this.size, required this.url});
+  const AiModelFile(
+      {required this.name, required this.sha256, required this.size, required this.url,
+       this.role = 'upscale'});
   final String name;
   final String sha256;
   final int size;
   final String url;
+
+  /// d1-photo: 'upscale' (Real-ESRGAN) or 'segment' (U²-Net-p background
+  /// mask). A manifest without roles (older server) means 'upscale'.
+  final String role;
 }
 
 class AiModelInfo {
@@ -155,14 +161,28 @@ class AiModelInfo {
     this.tile = 144,
     this.pad = 8,
     this.file,
+    this.segment,
+    this.segSide = 320,
   });
   final bool available;
   final String reason;
   final String version;
   final int scale, tile, pad;
+
+  /// The upscaler (role 'upscale'). [tile] is its FIXED square input side
+  /// (144 = 128 useful + 2*8 pad) — the ONNX file accepts nothing else.
   final AiModelFile? file;
 
+  /// d1-photo: optional background-mask model (role 'segment', fixed
+  /// [segSide] x [segSide] input). null = background blur is hidden.
+  final AiModelFile? segment;
+  final int segSide;
+
   bool get usable => available && file != null;
+  bool get segmentUsable => available && segment != null;
+
+  /// Every model file name this manifest lists (the downloader keeps these).
+  Set<String> get names => {if (file != null) file!.name, if (segment != null) segment!.name};
   static const none = AiModelInfo();
 
   static final _sha = RegExp(r'^[0-9a-f]{64}$');
@@ -171,7 +191,7 @@ class AiModelInfo {
   factory AiModelInfo.fromJson(Object? raw) {
     if (raw is! Map) return none;
     int i(Object? v, int d) => v is num ? v.toInt() : int.tryParse('$v') ?? d;
-    AiModelFile? file;
+    AiModelFile? file, segment;
     final files = raw['files'];
     if (files is List) {
       for (final f in files) {
@@ -180,10 +200,15 @@ class AiModelInfo {
         final sha = '${f['sha256'] ?? ''}'.toLowerCase();
         final url = '${f['url'] ?? ''}';
         final size = i(f['size'], 0);
+        final role = '${f['role'] ?? 'upscale'}';
         if (_name.hasMatch(name) && _sha.hasMatch(sha) && size > 0 &&
             (url.startsWith('https://') || url.startsWith('http://'))) {
-          file = AiModelFile(name: name, sha256: sha, size: size, url: url);
-          break;
+          final m = AiModelFile(name: name, sha256: sha, size: size, url: url, role: role);
+          if (role == 'upscale') {
+            file ??= m;
+          } else if (role == 'segment') {
+            segment ??= m;
+          }
         }
       }
     }
@@ -195,6 +220,8 @@ class AiModelInfo {
       tile: i(raw['tile'], 144).clamp(16, 1024),
       pad: i(raw['pad'], 8).clamp(0, 64),
       file: file,
+      segment: segment,
+      segSide: i(raw['seg_side'], 320).clamp(64, 1024),
     );
   }
 }
@@ -252,6 +279,10 @@ class ModelDownloader {
   final Directory dir;
   final int maxAttempts;
 
+  /// d1-photo: names of the OTHER current model files (e.g. the background
+  /// mask model next to the upscaler) — never deleted as "old versions".
+  Set<String> keep = const {};
+
   File _final(AiModelFile f) => File('${dir.path}/${f.name}');
   File _part(AiModelFile f) => File('${dir.path}/${f.name}.part');
   File _ok(AiModelFile f) => File('${dir.path}/${f.name}.ok');
@@ -279,8 +310,13 @@ class ModelDownloader {
     try {
       await for (final e in dir.list()) {
         final n = e.path.split('/').last;
-        if (e is File && n.endsWith('.onnx') && n != f.name) await e.delete();
-        if (e is File && n.endsWith('.onnx.ok') && n != '${f.name}.ok') await e.delete();
+        if (e is File && n.endsWith('.onnx') && n != f.name && !keep.contains(n)) {
+          await e.delete();
+        }
+        if (e is File && n.endsWith('.onnx.ok') && n != '${f.name}.ok' &&
+            !keep.contains(n.substring(0, n.length - 3))) {
+          await e.delete();
+        }
       }
     } catch (_) {}
     Object? last;

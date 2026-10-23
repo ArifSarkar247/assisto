@@ -469,6 +469,9 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
         'prompt_edit' => t.psOwnerFeatPrompt,
         'generate' => t.psOwnerFeatGenerate,
         'entry' => t.psOwnerFeatEntry,
+        'deblur' => t.d1psFeatDeblur,
+        'colorize' => t.d1psFeatColorize,
+        'old_restore' => t.d1psFeatOldRestore,
         _ => f,
       };
 

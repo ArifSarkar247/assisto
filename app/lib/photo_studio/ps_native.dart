@@ -28,11 +28,27 @@ class NativeFace {
 class NativeUpscaleResult {
   const NativeUpscaleResult(
       {required this.ok, this.path = '', this.w = 0, this.h = 0, this.ms = 0,
-       this.ep = '', this.error = ''});
+       this.ep = '', this.error = '', this.tiles = 0});
   final bool ok;
   final String path;
   final int w, h, ms;
   final String ep;
+
+  /// Short native error code ('cancelled', 'model_shape', 'ort_session: …',
+  /// 'decode', 'oom', …) — never a path or message text.
+  final String error;
+  final int tiles;
+  bool get cancelled => error == 'cancelled';
+}
+
+/// d1-photo: background mask from the U²-Net-p model ([side]×[side], 0..255,
+/// 255 = foreground/person).
+class NativeMaskResult {
+  const NativeMaskResult({required this.ok, this.mask, this.side = 0, this.ms = 0,
+      this.error = ''});
+  final bool ok;
+  final Uint8List? mask;
+  final int side, ms;
   final String error;
 }
 
@@ -55,6 +71,10 @@ abstract class PhotoNative {
     double faceAi = 0.25,
     void Function(int done, int total)? onProgress,
   });
+
+  /// d1-photo: run the background-mask model (fixed [side]×[side] input).
+  Future<NativeMaskResult> segment(
+      {required Uint8List encoded, required String modelPath, required int side});
   Future<void> cancel();
 }
 
@@ -173,11 +193,41 @@ class ChannelPhotoNative implements PhotoNative {
           w: (r['w'] as num?)?.toInt() ?? 0,
           h: (r['h'] as num?)?.toInt() ?? 0,
           ms: (r['ms'] as num?)?.toInt() ?? 0,
+          tiles: (r['tiles'] as num?)?.toInt() ?? 0,
           ep: '${r['ep'] ?? ''}');
     } catch (e) {
-      return NativeUpscaleResult(ok: false, error: '$e');
+      // PlatformException / MissingPluginException: the TYPE only
+      return NativeUpscaleResult(ok: false, error: 'channel: ${e.runtimeType}');
     } finally {
       _progress = null;
+      if (inPath != null) unawaited(File(inPath).delete().then((_) {}, onError: (_) {}));
+    }
+  }
+
+  @override
+  Future<NativeMaskResult> segment(
+      {required Uint8List encoded, required String modelPath, required int side}) async {
+    if (!_up) return const NativeMaskResult(ok: false, error: 'unavailable');
+    String? inPath;
+    try {
+      inPath = await _tmp(encoded, 'seg');
+      final r = await _ch.invokeMethod<Map>('segment', {
+        'input': inPath,
+        'model': modelPath,
+        'side': side,
+      });
+      if (r == null || r['ok'] != true) {
+        return NativeMaskResult(ok: false, error: '${r?['error'] ?? 'failed'}');
+      }
+      final m = r['mask'];
+      final sd = (r['side'] as num?)?.toInt() ?? 0;
+      if (m is! Uint8List || sd <= 0 || m.length != sd * sd) {
+        return const NativeMaskResult(ok: false, error: 'bad_mask');
+      }
+      return NativeMaskResult(ok: true, mask: m, side: sd, ms: (r['ms'] as num?)?.toInt() ?? 0);
+    } catch (e) {
+      return NativeMaskResult(ok: false, error: 'channel: ${e.runtimeType}');
+    } finally {
       if (inPath != null) unawaited(File(inPath).delete().then((_) {}, onError: (_) {}));
     }
   }
@@ -215,6 +265,10 @@ class NoPhotoNative implements PhotoNative {
     void Function(int done, int total)? onProgress,
   }) async =>
       const NativeUpscaleResult(ok: false, error: 'unavailable');
+  @override
+  Future<NativeMaskResult> segment(
+          {required Uint8List encoded, required String modelPath, required int side}) async =>
+      const NativeMaskResult(ok: false, error: 'unavailable');
   @override
   Future<void> cancel() async {}
 }
