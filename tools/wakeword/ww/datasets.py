@@ -46,6 +46,16 @@ SOURCES = {
         "licence": "CC BY 4.0 (corpus); per-file licences in LICENSE files", "commercial_ok": True,
         "use": "train-negative + augmentation noise (85%), eval (15%)",
     },
+    "fleurs_bn_test": {
+        "what": "Bengali read speech (FLEURS, bn_in, test split) - extra VALIDATION hours",
+        "url": "https://huggingface.co/datasets/google/fleurs/resolve/main/data/bn_in/audio/test.tar.gz",
+        "licence": "CC BY 4.0", "commercial_ok": True, "use": "validation",
+    },
+    "fleurs_hi_dev": {
+        "what": "Hindi read speech (FLEURS, hi_in, dev split) - VALIDATION",
+        "url": "https://huggingface.co/datasets/google/fleurs/resolve/main/data/hi_in/audio/dev.tar.gz",
+        "licence": "CC BY 4.0", "commercial_ok": True, "use": "validation",
+    },
     "fleurs_hi": {
         "what": "Hindi read speech (FLEURS, hi_in, train split) - 'Hindi serial on the TV' negatives",
         "url": "https://huggingface.co/datasets/google/fleurs/resolve/main/data/hi_in/audio/train.tar.gz",
@@ -286,6 +296,42 @@ def tv_like_mix(speech: np.ndarray, music: np.ndarray, snr_db=(0, 20), seed: int
         x = x * (10 ** (lv / 20.0) / (audio.rms(x) + 1e-9))
         out[a:b] = x
     return (np.clip(out, -1, 1) * 32767).astype(np.int16)
+
+
+def speed_stream(x: np.ndarray, factor: float, max_samples: int | None = None,
+                 seg_s: int = 60) -> np.ndarray:
+    """Speed-perturbed copy of an int16 stream (tempo + pitch, = new synthetic
+    'speakers'), processed in segments."""
+    out, n = [], 0
+    seg = seg_s * audio.SR
+    for a in range(0, len(x), seg):
+        y = audio.speed(x[a: a + seg].astype(np.float32) / 32768.0, factor)
+        out.append((np.clip(y, -1, 1) * 32767).astype(np.int16))
+        n += len(y)
+        if max_samples and n >= max_samples:
+            break
+    y = np.concatenate(out) if out else np.zeros(0, np.int16)
+    return y[:max_samples] if max_samples else y
+
+
+def babble_mix(x: np.ndarray, seed: int = 0, snr_db=(0.0, 10.0), max_samples: int | None = None,
+               rirs: np.ndarray | None = None) -> np.ndarray:
+    """Two talkers at once (talk-show / crowded room): the stream over a
+    time-shifted copy of itself at 0-10 dB, per 30 s segment, through a room."""
+    rng = np.random.default_rng(seed)
+    n = min(len(x), max_samples or len(x))
+    out = np.zeros(n, np.int16)
+    seg = audio.SR * 30
+    for a in range(0, n, seg):
+        b = min(n, a + seg)
+        s = x[a:b].astype(np.float32) / 32768.0
+        o = audio.random_crop(rng, x, b - a).astype(np.float32) / 32768.0
+        y = audio.mix_at_snr(s, o, float(rng.uniform(*snr_db)))
+        if rng.random() < 0.7:
+            y = audio.convolve(y, pick_rir(rng, rirs))[: b - a]
+        y = y * (10 ** (float(rng.uniform(-36, -18)) / 20.0) / (audio.rms(y) + 1e-9))
+        out[a:b] = (np.clip(y, -1, 1) * 32767).astype(np.int16)
+    return out
 
 
 def clips_stream(clips, seed: int = 0, gap_s=(0.5, 2.0)) -> np.ndarray:

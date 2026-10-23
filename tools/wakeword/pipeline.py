@@ -130,7 +130,7 @@ def sha256(path):
 
 # Bump when stage_embed changes what it writes (pipeline.py is not hashed into the key,
 # so training/evaluation edits keep the expensive embeddings cache).
-EMBED_VERSION = 1
+EMBED_VERSION = 2  # v2: bigger validation (FLEURS bn test + hi dev), babble + speed-perturbed Bangla negatives
 
 
 def embed_key(cfg) -> str:
@@ -226,7 +226,7 @@ def stage_synth(c: Ctx):
     _gen(c, "neg_test", t["n_neg_tts_test"], False)
 
 
-PREPARED = ("bn_train", "hi_train", "en_train", "val_bn", "eval_bn", "eval_tv_src", "eval_en",
+PREPARED = ("bn_train", "hi_train", "en_train", "val_bn", "val_bn2", "val_hi", "eval_bn", "eval_tv_src", "eval_en",
             "musan_train", "musan_val", "musan_eval", "mspeech_train", "mspeech_val",
             "mspeech_eval", "rir_train", "rir_val", "rir_eval")
 
@@ -243,6 +243,7 @@ def stage_prepare(c: Ctx):
             x -= np.convolve(x, np.ones(400) / 400, mode="same")
             return (np.clip(x / (np.abs(x).max() + 1e-9) * 0.3, -1, 1) * 32767).astype(np.int16)
         for name, sec in (("bn_train", 60), ("hi_train", 20), ("en_train", 20), ("val_bn", 40),
+                          ("val_bn2", 20), ("val_hi", 10),
                           ("eval_bn", 60), ("eval_tv_src", 40), ("eval_en", 20),
                           ("musan_train", 40), ("musan_val", 20), ("musan_eval", 20),
                           ("mspeech_train", 30), ("mspeech_val", 20), ("mspeech_eval", 20)):
@@ -292,6 +293,8 @@ def stage_prepare(c: Ctx):
     save("en_train", datasets.archive_to_stream(get("librispeech_dev"), d["librispeech_hours"], seed=2))
     drop("librispeech_dev")
     save("val_bn", datasets.archive_to_stream(get("fleurs_bn_dev"), d["fleurs_bn_dev_hours"], seed=4))
+    save("val_bn2", datasets.archive_to_stream(get("fleurs_bn_test"), d.get("fleurs_bn_test_hours", 4.0), seed=12))
+    save("val_hi", datasets.archive_to_stream(get("fleurs_hi_dev"), d.get("fleurs_hi_dev_hours", 1.5), seed=13))
     save("eval_bn", datasets.archive_to_stream(get("slr53_bn"), d["eval_bn_hours"], seed=5))
     drop("slr53_bn")
     save("eval_tv_src", datasets.archive_to_stream(get("slr53_bn_1"), d["eval_tv_hours"], seed=6))
@@ -376,12 +379,15 @@ def stage_embed(c: Ctx):
             "s_tv_hi": lambda: datasets.tv_like_mix(hi, mus["train"], seed=32, rirs=rir_tr),
             "s_tv_en": lambda: datasets.tv_like_mix(np.asarray(msp["train"][:tv_en_cap]), mus["train"],
                                                     seed=33, rirs=rir_tr),
+            "s_babble_bn": lambda: datasets.babble_mix(bn, seed=34, rirs=rir_tr,
+                                                       max_samples=int(4 * 3600 * audio.SR)),
+            "s_bn_slow": lambda: datasets.speed_stream(bn[len(bn) // 2:], 0.9, int(3 * 3600 * audio.SR)),
+            "s_bn_fast": lambda: datasets.speed_stream(bn[: len(bn) // 2], 1.1, int(3 * 3600 * audio.SR)),
         }
         for name, make in streams.items():
             stream(name, make(), np.float16)
+        info["train_streams"] = list(streams)
         del streams
-        info["train_streams"] = ["s_bn", "s_hi", "s_en", "s_mspeech", "s_musan", "s_tv_bn",
-                                 "s_tv_hi", "s_tv_en"]
         noise_tr = [mus["train"], msp["train"]]  # music/noise OR TV-like speech underneath
         aug_tr = dict(dist=(0.3, 3.0), snr=(0.0, 20.0), p_rir=0.8, p_real_rir=0.5, p_band=0.15)
         pos = embed.clip_windows(spec, _clips(c, "pos_train"), noise_tr, fr, seed * 10 + 1,
@@ -403,8 +409,10 @@ def stage_embed(c: Ctx):
                                 spec_window=sw, **aug_va)
         np.save(os.path.join(ed, "pos_val.npy"), pv)
         val_bn = c.prep("val_bn", False)
-        vals = {"v_bn": val_bn,
+        val_bn2 = c.prep("val_bn2", False)
+        vals = {"v_bn": val_bn, "v_bn2": val_bn2, "v_hi": c.prep("val_hi", False),
                 "v_tv_bn": datasets.tv_like_mix(val_bn, mus["val"], seed=41, rirs=rir_va),
+                "v_tv_bn2": datasets.tv_like_mix(val_bn2, mus["val"], seed=44, rirs=rir_va),
                 "v_tv_en": datasets.tv_like_mix(msp["val"], mus["val"], seed=42, rirs=rir_va),
                 "v_tts": datasets.clips_stream(_clips(c, "neg_test"), seed=43)}
         for name, arr in vals.items():
