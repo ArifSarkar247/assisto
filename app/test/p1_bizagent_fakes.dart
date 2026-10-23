@@ -209,7 +209,7 @@ Map<String, dynamic>? fakeBizAgentGet(String path, bool bn, FakeMode mode) {
   }
   if (p == '/bizagent/widget') {
     return {'enabled': true, 'key': 'w_demoKey123', 'origins': 'https://rupafashion.example',
-            'snippet': '<script src="https://api.lifeassisto.com/w/chat.js" data-key="w_demoKey123" async></script>'};
+            'snippet': '<script src="https://api.lifeassisto.com/api/v1/bizagent/chat.js" data-key="w_demoKey123" async></script>'};
   }
   if (p.startsWith('/bizagent/threads/')) {
     return {
@@ -239,7 +239,7 @@ Map<String, dynamic>? fakeBizAgentPost(String path, Map<String, dynamic> body, b
   if (path == '/bizagent/faqs/learn') return {'ok': true, 'suggested': 2};
   if (path == '/bizagent/widget') {
     return {'ok': true, 'enabled': body['enabled'] ?? true, 'key': 'w_demoKey123',
-            'origins': body['origins'] ?? '', 'snippet': '<script src="https://api.lifeassisto.com/w/chat.js" data-key="w_demoKey123" async></script>'};
+            'origins': body['origins'] ?? '', 'snippet': '<script src="https://api.lifeassisto.com/api/v1/bizagent/chat.js" data-key="w_demoKey123" async></script>'};
   }
   if (path == '/bizagent/channels') {
     return {'ok': true, 'channel': {'id': 9, 'kind': body['kind'], 'external_id': body['external_id'],

@@ -926,6 +926,7 @@ urlpatterns += [
     path("bizagent/agent-report", g1.AgentReportView.as_view()),
     path("bizagent/widget", g1.WidgetView.as_view()),
     path("bizagent/orders/<int:pk>/payment", g1.OrderPaymentView.as_view()),
+    path("bizagent/chat.js", g1.widget_js),          # embeddable website chat script
     path("bizagent/widget/<str:key>/send", g1.widget_send),
     path("bizagent/widget/<str:key>/messages", g1.widget_messages),
 ]

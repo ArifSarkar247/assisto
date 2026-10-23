@@ -726,5 +726,5 @@ def agent_by_widget_key(key):
 
 
 def widget_snippet(key):
-    return ('<script src="%s/w/chat.js" data-key="%s" async></script>'
+    return ('<script src="%s/api/v1/bizagent/chat.js" data-key="%s" async></script>'
             % (getattr(settings, "PUBLIC_API_BASE", PUBLIC_BASE), key))

@@ -15,7 +15,8 @@ SELLER (signed-in business owner; staff may read + reply):
   POST orders/<id>/payment {status: verified|rejected}   the OWNER verifies a payment
 
 PUBLIC (website chat widget; per-business key, origin-checked, rate-limited):
-  GET  /w/chat.js                           the embeddable script (served from our domain)
+  GET  chat.js                              the embeddable script (served from our domain,
+                                            under /api/ so no new web-server route is needed)
   POST widget/<key>/send {visitor, text}
   GET  widget/<key>/messages?visitor=&after=
 """
@@ -364,11 +365,11 @@ def widget_messages(request, key):
 
 
 WIDGET_JS = r"""/* Assisto website chat widget — the shop's AI sales assistant (official, rule-first,
-   prices from the shop's catalog). Embed: <script src="https://api.lifeassisto.com/w/chat.js" data-key="w_..." async></script> */
+   prices from the shop's catalog). Embed: <script src="https://api.lifeassisto.com/api/v1/bizagent/chat.js" data-key="w_..." async></script> */
 (function(){
-  var s=document.currentScript||document.querySelector('script[data-key][src*="/w/chat.js"]');
+  var s=document.currentScript||document.querySelector('script[data-key][src*="/bizagent/chat.js"]');
   if(!s||window.__assistoChat)return; window.__assistoChat=1;
-  var key=s.getAttribute('data-key')||'', base=s.src.replace(/\/w\/chat\.js.*$/,'')+'/api/v1/bizagent/widget/'+encodeURIComponent(key);
+  var key=s.getAttribute('data-key')||'', base=s.src.replace(/\/chat\.js.*$/,'')+'/widget/'+encodeURIComponent(key);
   var bn=(document.documentElement.lang||navigator.language||'bn').indexOf('en')!==0;
   var T=bn?{t:'আমাদের সাথে চ্যাট করুন',p:'মেসেজ লিখুন…',s:'পাঠান',a:'এটি দোকানের AI সহকারী। প্রয়োজনে দোকানের একজন উত্তর দেবেন।',e:'পাঠানো যায়নি, আবার চেষ্টা করুন।'}
               :{t:'Chat with us',p:'Type a message…',s:'Send',a:"This is the shop's AI assistant. A person from the shop replies when needed.",e:'Could not send, please try again.'};

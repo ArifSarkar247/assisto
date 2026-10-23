@@ -100,3 +100,14 @@ Model contract unchanged: `assisto_embed_e2e.onnx` ([1, 12400] → 96-d, Google 
 Apache-2.0) + `assisto_wake.onnx` ([N, 16, 96] → [N, 1]). The ww3 classifier graph may contain a seed
 ensemble, a 2-position min ("in-graph smoothing") and a temperature — all plain ONNX ops (Slice, Reshape,
 Sub, Div, Gemm, Relu, Sum, Mul, Min, Sigmoid; opset 13), checked in CI with ONNX Runtime 1.23.2.
+
+## G1 — Business AI Agent: matching a customer's photo to the catalog
+
+| Option | Licence (weights) | Decision |
+|---|---|---|
+| **Perceptual hash + colour histogram** (average hash 8×8, difference hash 9×8, 64-bin RGB histogram; our own code on Pillow, `core/bizagent_media.py`) | no model weights at all | **USED** — runs on our CPU, cost 0; matches a re-sent product photo or a phone screenshot of the post (white/black bars trimmed) |
+| Cloud vision (Claude / OpenAI / Gemini — the existing "image in chat" adapters) | provider terms (commercial API) | **USED, key-gated** — only when the hash is not sure; charged `ai_sales_vision` credits; describes + reads text; the price always comes from the catalog in code |
+| OpenAI CLIP ViT-B/32 | code + weights MIT, but the model card puts deployed use out of scope | not used |
+| Google SigLIP base (patch16-224) | Apache-2.0 | candidate for later (needs onnxruntime on the server, ~200M params — not installed, not shipped) |
+| Apple MobileCLIP | Apple ML research licence (non-commercial) | **never** |
+| OpenCLIP LAION-2B checkpoints | MIT weights, LAION data-provenance concerns | not used |

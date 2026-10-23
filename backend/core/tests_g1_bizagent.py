@@ -626,7 +626,7 @@ class WidgetTests(G1Base):
         key = r.data["key"]
         self.assertTrue(key.startswith("w_"))
         self.assertIn('data-key="%s"' % key, r.data["snippet"])
-        js = self.client.get("/w/chat.js")
+        js = self.client.get("/api/v1/bizagent/chat.js")
         self.assertEqual(js.status_code, 200)
         self.assertIn(b"assisto", js.content.lower())
         self.c.logout()
