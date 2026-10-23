@@ -28,9 +28,11 @@ void main() {
   if (on('home')) registerHomeFlows();
   if (on('personal')) registerPersonalFlows();
   if (on('family')) registerFamilyCircleFlows();
-  if (on('family') || on('circle')) registerMyCircleAddFlows(); // m3-circle
-  if (on('family') || on('circle')) registerMyCircleTicksFlows(); // c3-msg
-  if (on('family') || on('circle') || on('calls')) registerCircleRealCallFlows(); // c2-calls
+  // rt2: My Circle is its own CI group (its own runner + emulator), so a
+  // device death in the long family+circle run can no longer cost both.
+  if (on('circle')) registerMyCircleAddFlows(); // m3-circle
+  if (on('circle')) registerMyCircleTicksFlows(); // c3-msg
+  if (on('circle') || on('calls')) registerCircleRealCallFlows(); // c2-calls
   if (on('business')) registerBusinessFlows();
   if (on('docs')) registerDocsVoiceSettingsFlows();
   if (on('sweep')) registerSweepFlow();

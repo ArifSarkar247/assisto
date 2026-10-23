@@ -17,9 +17,13 @@ on:
   workflow_dispatch:
     inputs:
       only:
-        description: "Comma list of flow groups (start,home,personal,family,business,docs,sweep); empty = all"
+        description: "Comma list of flow groups (start,home,personal,family,circle,business,docs,sweep); empty = all"
         required: false
         default: ""
+      emu_gpu:
+        description: "Emulator -gpu mode (swiftshader_indirect, swangle_indirect, guest)"
+        required: false
+        default: "swiftshader_indirect"
   schedule:
     - cron: "30 20 * * *"   # nightly, 02:30 Asia/Dhaka
 
@@ -28,10 +32,38 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  reality:
+  # rt2: one job PER flow group (matrix). The hosted emulator dies a few
+  # minutes after a (re)boot; on one shared runner that death cascaded into
+  # every later group (runs 39878171841 / 39884806316: 7 flows never got a
+  # verdict). Each group now gets its own runner, backend and fresh emulator,
+  # and runs "start+<group>" (log in, then the group) in ONE app process.
+  plan:
     runs-on: ubuntu-latest
-    # A hung adb call once held a run for 6h; healthy runs need ~45-60 min.
-    timeout-minutes: 120
+    outputs:
+      groups: ${{ steps.p.outputs.groups }}
+    steps:
+      - id: p
+        env:
+          ONLY: ${{ github.event.inputs.only }}
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          allg = ["start", "home", "personal", "family", "circle", "business", "docs", "sweep"]
+          want = [g.strip() for g in (os.environ.get("ONLY") or "").split(",") if g.strip()]
+          sel = [g for g in allg if not want or g in want] or allg
+          print("groups=" + json.dumps(sel))
+          PY
+
+  reality:
+    needs: plan
+    runs-on: ubuntu-latest
+    # A hung adb call once held a run for 6h; one group needs ~20-30 min.
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        group: ${{ fromJson(needs.plan.outputs.groups) }}
+    name: reality (${{ matrix.group }})
     # rt1: a throw-away Postgres (production's engine) instead of the sqlite
     # file — run 39859999833 hit "database is locked" (POST /circle/1/call
     # 500, a call.incoming silently never queued) under the threaded server.
@@ -50,6 +82,9 @@ jobs:
       ASSISTO_CI_PG_NAME: assisto_ci
       ASSISTO_CI_PG_PASSWORD: ci-reality-throwaway
       REALITY_OUT: ${{ github.workspace }}/reality_out
+      # "start+personal" = one drive: Start flows log in, then the group.
+      REALITY_DRIVE: ${{ matrix.group == 'start' && 'start' || format('start+{0}', matrix.group) }}
+      REALITY_GPU: ${{ github.event.inputs.emu_gpu || 'swiftshader_indirect' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -144,12 +179,18 @@ jobs:
           flutter analyze integration_test test_driver > ia.txt 2>&1; cat ia.txt
           grep -qE "error •" ia.txt && { echo "::error::integration flows do not compile"; exit 1; }
           exit 0
-      - name: Pre-build the x86_64 debug test APK (warms Gradle before the emulator)
+      - name: Build the x86_64 debug test APK ONCE (before the emulator; drive installs it)
         working-directory: app
         run: |
+          # rt2: REALITY_ONLY is a compile-time define, so this job's groups
+          # are baked in; run_flows.sh then uses --use-application-binary and
+          # no Gradle runs while the emulator is up.
           timeout 1800 flutter build apk --debug --target-platform=android-x64 \
             --target=integration_test/reality_all_test.dart \
-            --dart-define=REALITY_API_BASE=http://10.0.2.2:8700
+            --dart-define=REALITY_API_BASE=http://10.0.2.2:8700 \
+            --dart-define=REALITY_ONLY="${REALITY_DRIVE//+/,}"
+          ls -la build/app/outputs/flutter-apk/
+          echo "REALITY_APK=$PWD/build/app/outputs/flutter-apk/app-debug.apk" >> "$GITHUB_ENV"
 
       # ------------------------------------------------ emulator + flows
       - name: Free the runner for the emulator (stop Gradle/Kotlin daemons)
@@ -170,7 +211,9 @@ jobs:
       - name: Run reality flows on API 33
         uses: reactivecircus/android-emulator-runner@v2
         env:
-          REALITY_ONLY: ${{ github.event.inputs.only }}
+          REALITY_ONLY: ${{ env.REALITY_DRIVE }}
+          REALITY_TOTAL_SECONDS: "1800"
+          REALITY_EMU_OPTS: -no-snapshot -no-window -gpu ${{ env.REALITY_GPU }} -noaudio -no-boot-anim -camera-back none -camera-front none
         with:
           api-level: 33
           arch: x86_64
@@ -180,14 +223,24 @@ jobs:
           profile: pixel_5
           disable-animations: true
           emulator-boot-timeout: 480
-          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          # rt2: more guest RAM / heap and cores (the 4-vCPU 16 GB runner now
+          # runs no Gradle next to the emulator), no camera HALs.
+          ram-size: 4096M
+          heap-size: 576M
+          cores: 3
+          emulator-options: -no-snapshot -no-window -gpu ${{ env.REALITY_GPU }} -noaudio -no-boot-anim -camera-back none -camera-front none
           # /bin/sh one-liner: all logic (and every adb timeout) is in the script
           script: bash tools/reality/run_flows.sh
 
-      # ------------------------------------------------ verdict + evidence
-      - name: Summarize (A/B/C table)
+      # ------------------------------------------------ evidence (per group)
+      - name: Summarize this group
         if: always()
-        run: python3 tools/reality/summarize.py "$REALITY_OUT"
+        env:
+          REALITY_ONLY: ${{ env.REALITY_DRIVE }}
+          GITHUB_STEP_SUMMARY: ""
+        run: |
+          cp -r /tmp/android-runner "$REALITY_OUT/emu_crash" 2>/dev/null || true
+          python3 tools/reality/summarize.py "$REALITY_OUT" | head -60
       - name: Stop Django
         if: always()
         run: kill "$(cat "$REALITY_OUT/django.pid" 2>/dev/null)" 2>/dev/null || true
@@ -195,22 +248,45 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: reality-evidence
+          name: reality-evidence-${{ matrix.group }}
           path: |
             reality_out/
             !reality_out/.recording
+            !reality_out/.attempt.log
           retention-days: 14
           if-no-files-found: warn
+
+  # ------------------------------------------------ verdict (all groups)
+  verdict:
+    needs: [plan, reality]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: reality-evidence-*
+          path: groups
+      - name: Merge per-group results (A/B/C/D table)
+        run: |
+          for d in groups/reality-evidence-*; do [ -d "$d" ] && mv "$d" "groups/${d#groups/reality-evidence-}"; done
+          ls groups
+          python3 tools/reality/merge_groups.py groups
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reality-summary
+          path: |
+            groups/reality_summary.json
+            groups/reality_summary.md
       # A green run must MEAN the flows passed: the first run (21 Oct) showed
       # green with ZERO flows executed (driver crashed, no results.json).
       - name: Verdict (fail on no results or any C/D)
-        if: always()
         run: |
           python3 - <<'PY'
-          import json, os, sys
-          p = os.path.join(os.environ["REALITY_OUT"], "reality_summary.json")
+          import json, sys
           try:
-              d = json.load(open(p))
+              d = json.load(open("groups/reality_summary.json"))
           except Exception as e:
               print("::error::no reality summary (%s)" % e); sys.exit(1)
           rows = d.get("rows") or []
@@ -219,6 +295,6 @@ jobs:
           if not [r for r in rows if r.get("class") != "D"]:
               print("::error::no flow produced a result (app never wrote results.json)"); sys.exit(1)
           for r in bad:
-              print("::error::%s: %s %s %s" % (r.get("class"), r.get("id"), r.get("feature"), r.get("detail") or r.get("failed_step") or ""))
+              print("::error::%s: %s [%s] %s %s" % (r.get("class"), r.get("id"), r.get("job"), r.get("feature"), r.get("detail") or r.get("failed_step") or ""))
           sys.exit(1 if bad else 0)
           PY
