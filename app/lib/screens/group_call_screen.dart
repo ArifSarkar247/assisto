@@ -568,13 +568,27 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
                   video
                 else
                   Center(
-                    child: Opacity(
-                      opacity: tl.ringing ? 0.55 : 1,
-                      child: CallAvatar(
-                          name: tl.name,
-                          photoUrl: tl.photo,
-                          radius: large ? 56 : 30),
-                    ),
+                    child: Column(mainAxisSize: MainAxisSize.min, children: [
+                      Opacity(
+                        opacity: tl.ringing ? 0.55 : 1,
+                        child: CallAvatar(
+                            name: tl.name,
+                            photoUrl: tl.photo,
+                            radius: large ? 56 : 30),
+                      ),
+                      if (tl.ringing)
+                        Padding(
+                          padding: const EdgeInsets.only(top: Gap.xs),
+                          child: Text(t.b3Ringing,
+                              key: Key('group-ringing-${tl.id}'),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  color:
+                                      Colors.white.withValues(alpha: 0.75))),
+                        ),
+                    ]),
                   ),
                 Positioned(
                   left: Gap.xs,
@@ -607,11 +621,7 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            tl.ringing
-                                ? '$name · ${t.b3Ringing}'
-                                : tl.isHost
-                                    ? '$name · ${t.b3Host}'
-                                    : name,
+                            tl.isHost ? '$name · ${t.b3Host}' : name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
@@ -695,10 +705,37 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
   // ------------------------------------------------------------- controls
   Widget _controls(GroupCallController c) {
     final t = _t;
-    final live = c.isLive;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, Gap.lg),
-      child: Container(
+      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, Gap.md),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        _row(c),
+        const SizedBox(height: Gap.md),
+        Semantics(
+          button: true,
+          label: t.b3Leave,
+          child: Material(
+            color: Brand.danger,
+            shape: const CircleBorder(),
+            child: InkWell(
+              key: const Key('group-leave'),
+              customBorder: const CircleBorder(),
+              onTap: () => unawaited(c.leave()),
+              child: const SizedBox(
+                  width: 64,
+                  height: 64,
+                  child:
+                      Icon(Icons.call_end, color: Colors.white, size: 30)),
+            ),
+          ),
+        ),
+      ]),
+    );
+  }
+
+  Widget _row(GroupCallController c) {
+    final t = _t;
+    final live = c.isLive;
+    return Container(
         padding:
             const EdgeInsets.symmetric(vertical: Gap.md, horizontal: Gap.sm),
         decoration: BoxDecoration(
@@ -747,38 +784,8 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
               active: false,
               onTap: live ? () => _more(c) : null,
             ),
-            Expanded(
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-                Semantics(
-                  button: true,
-                  label: t.b3Leave,
-                  child: Material(
-                    color: Brand.danger,
-                    shape: const CircleBorder(),
-                    child: InkWell(
-                      key: const Key('group-leave'),
-                      customBorder: const CircleBorder(),
-                      onTap: () => unawaited(c.leave()),
-                      child: const SizedBox(
-                          width: 52,
-                          height: 52,
-                          child: Icon(Icons.call_end, color: Colors.white)),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: Gap.xs),
-                Text(t.b3Leave,
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white.withValues(alpha: 0.85))),
-              ]),
-            ),
           ],
         ),
-      ),
     );
   }
 

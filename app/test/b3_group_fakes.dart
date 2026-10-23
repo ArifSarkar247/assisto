@@ -267,10 +267,11 @@ GroupCallController previewGroup({
   RecordingSession? session,
   List<String> names = const ['Nadia', 'Rafi', 'Mitu', 'Sumon', 'Lima',
     'Tanvir', 'Ruma', 'Jamal'],
+  String selfName = 'Arif',
 }) {
   final a = api ?? FakeGroupApi(host: host, kind: video ? 'video' : 'voice');
   final peers = <GroupMediaPeer>[
-    GroupMediaPeer(id: '1', name: 'Me', isLocal: true, camOn: video),
+    GroupMediaPeer(id: '1', name: selfName, isLocal: true, camOn: video),
     for (var i = 0; i < people - 1; i++)
       GroupMediaPeer(
           id: '${i + 2}',
@@ -281,7 +282,7 @@ GroupCallController previewGroup({
           speaking: '${i + 2}' == speaking),
   ];
   a.participants = [
-    {'user_id': 1, 'name': 'Me', 'role': host ? 'host' : 'member', 'state': 'joined'},
+    {'user_id': 1, 'name': selfName, 'role': host ? 'host' : 'member', 'state': 'joined'},
     for (final p in peers.skip(1))
       {'user_id': int.parse(p.id), 'name': p.name, 'role': 'member', 'state': 'joined'},
     if (ringing)

@@ -596,7 +596,7 @@ void main() {
         expect(find.byKey(Key('group-tile-$id')), findsOneWidget, reason: id);
       }
       expect(find.byKey(const Key('group-mic-off-3')), findsOneWidget);
-      expect(find.text('Jamal · Ringing…'), findsOneWidget);
+      expect(find.byKey(const Key('group-ringing-99')), findsOneWidget);
       await tester.tap(find.byKey(const Key('group-tile-2')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('host-mute')));
