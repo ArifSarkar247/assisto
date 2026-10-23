@@ -752,6 +752,7 @@ urlpatterns += [
     path("photo-studio/jobs/<int:pk>/fund", ps1.PhotoStudioFundView.as_view()),
     path("photo-studio/jobs/<int:pk>/run", ps1.PhotoStudioRunView.as_view()),
     path("photo-studio/jobs/<int:pk>/unlock", ps1.PhotoStudioUnlockView.as_view()),
+    path("photo-studio/jobs/<int:pk>/report", ps1.PhotoStudioReportView.as_view()),  # d1-photo v2
     path("ads/ssv", ps1.AdMobSsvView.as_view()),
     path("admin/photo-studio/pnl", ps1.AdminPhotoStudioPnlView.as_view()),
     # ---- p2-photo ---- on-device AI model: manifest + resumable file download

@@ -1,0 +1,1580 @@
+{
+ "summary": {
+  "blurry": {
+   "n": 5,
+   "damaged": {
+    "psnr": 25.048,
+    "ssim": 0.738,
+    "sharp": 29.8,
+    "identity": 0.874,
+    "identity_min": 0.872
+   },
+   "assisto": {
+    "psnr": 22.734,
+    "ssim": 0.737,
+    "sharp": 9.4,
+    "identity": 0.878,
+    "identity_min": 0.874
+   },
+   "clean_sharp": 1208,
+   "ms_mean": 17676,
+   "face_lock_restored": 0
+  },
+  "dark_skin": {
+   "n": 12,
+   "damaged": {
+    "psnr": 17.975,
+    "ssim": 0.592,
+    "sharp": 131.333,
+    "identity": 0.873,
+    "identity_min": 0.793
+   },
+   "assisto": {
+    "psnr": 24.443,
+    "ssim": 0.784,
+    "sharp": 681.417,
+    "identity": 0.877,
+    "identity_min": 0.835
+   },
+   "clean_sharp": 1227,
+   "ms_mean": 4522,
+   "face_lock_restored": 0
+  },
+  "group": {
+   "n": 6,
+   "damaged": {
+    "psnr": 22.938,
+    "ssim": 0.592,
+    "sharp": 27.333,
+    "identity": 0.01,
+    "identity_min": 0.0
+   },
+   "assisto": {
+    "psnr": 20.075,
+    "ssim": 0.601,
+    "sharp": 442.667,
+    "identity": -0.005,
+    "identity_min": -0.03
+   },
+   "clean_sharp": 2365,
+   "ms_mean": 18433,
+   "face_lock_restored": 5
+  },
+  "low_light": {
+   "n": 9,
+   "damaged": {
+    "psnr": 8.363,
+    "ssim": 0.379,
+    "sharp": 504.333,
+    "identity": 0.379,
+    "identity_min": 0.379
+   },
+   "assisto": {
+    "psnr": 20.601,
+    "ssim": 0.719,
+    "sharp": 2342.333,
+    "identity": 0.586,
+    "identity_min": 0.586
+   },
+   "clean_sharp": 2092,
+   "ms_mean": 274,
+   "face_lock_restored": 0
+  },
+  "old": {
+   "n": 5,
+   "damaged": {
+    "psnr": 15.346,
+    "ssim": 0.633,
+    "sharp": 28.8,
+    "identity": 0.772,
+    "identity_min": 0.734
+   },
+   "assisto": {
+    "psnr": 13.482,
+    "ssim": 0.613,
+    "sharp": 109.0,
+    "identity": 0.712,
+    "identity_min": 0.665
+   },
+   "clean_sharp": 2134,
+   "ms_mean": 12897,
+   "face_lock_restored": 0
+  },
+  "old_real": {
+   "n": 8,
+   "damaged": {
+    "sharp": 788.125,
+    "identity": 0.962,
+    "identity_min": 0.814
+   },
+   "assisto": {
+    "sharp": 416.5,
+    "identity": 0.864,
+    "identity_min": 0.763
+   },
+   "clean_sharp": 787,
+   "ms_mean": 18482,
+   "face_lock_restored": 6
+  },
+  "portrait": {
+   "n": 5,
+   "damaged": {
+    "psnr": 28.102,
+    "ssim": 0.848,
+    "sharp": 10.4,
+    "identity": 0.93,
+    "identity_min": 0.908
+   },
+   "assisto": {
+    "psnr": 28.24,
+    "ssim": 0.861,
+    "sharp": 152.2,
+    "identity": 0.93,
+    "identity_min": 0.908
+   },
+   "clean_sharp": 682,
+   "ms_mean": 10494,
+   "face_lock_restored": 0
+  }
+ },
+ "photos": [
+  {
+   "photo": "01_portrait.jpg",
+   "kind": "portrait",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:2024_Clay_Higgins_(cropped).jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 10,
+     "identity": 0.908,
+     "psnr": 27.15,
+     "ssim": 0.8068
+    },
+    "assisto": {
+     "sharp": 100,
+     "identity": 0.911,
+     "psnr": 27.6,
+     "ssim": 0.8233
+    },
+    "clean": {
+     "sharp": 1980
+    }
+   },
+   "run": {
+    "path": "server_hd",
+    "tiles": 12,
+    "face_lock": "kept",
+    "restored": 0,
+    "ms": 14340
+   }
+  },
+  {
+   "photo": "02_portrait.jpg",
+   "kind": "portrait",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:Pete_Aguilar_(118th_Congress).jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 10,
+     "identity": 0.953,
+     "psnr": 28.99,
+     "ssim": 0.894
+    },
+    "assisto": {
+     "sharp": 148,
+     "identity": 0.95,
+     "psnr": 29.23,
+     "ssim": 0.9078
+    },
+    "clean": {
+     "sharp": 166
+    }
+   },
+   "run": {
+    "path": "server_hd",
+    "tiles": 4,
+    "face_lock": "kept",
+    "restored": 0,
+    "ms": 4754
+   }
+  },
+  {
+   "photo": "03_portrait.jpg",
+   "kind": "portrait",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:Rep._Mark_Alford_official_photo,_118th_Congress_(cropped).jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 9,
+     "identity": 0.959,
+     "psnr": 29.3,
+     "ssim": 0.8349
+    },
+    "assisto": {
+     "sharp": 116,
+     "identity": 0.95,
+     "psnr": 28.54,
+     "ssim": 0.8367
+    },
+    "clean": {
+     "sharp": 380
+    }
+   },
+   "run": {
+    "path": "server_hd",
+    "tiles": 12,
+    "face_lock": "kept",
+    "restored": 0,
+    "ms": 19468
+   }
+  },
+  {
+   "photo": "04_portrait.jpg",
+   "kind": "portrait",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:Rep._Mark_Alford_official_photo,_118th_Congress.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 14,
+     "identity": 0.913,
+     "psnr": 26.99,
+     "ssim": 0.7965
+    },
+    "assisto": {
+     "sharp": 269,
+     "identity": 0.908,
+     "psnr": 26.82,
+     "ssim": 0.8117
+    },
+    "clean": {
+     "sharp": 680
+    }
+   },
+   "run": {
+    "path": "server_hd",
+    "tiles": 12,
+    "face_lock": "kept",
+    "restored": 0,
+    "ms": 9139
+   }
+  },
+  {
+   "photo": "05_portrait.jpg",
+   "kind": "portrait",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:Colin_Allred_portrait_(118th_Congress).jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 9,
+     "identity": 0.917,
+     "psnr": 28.08,
+     "ssim": 0.9093
+    },
+    "assisto": {
+     "sharp": 128,
+     "identity": 0.93,
+     "psnr": 29.01,
+     "ssim": 0.9272
+    },
+    "clean": {
+     "sharp": 205
+    }
+   },
+   "run": {
+    "path": "server_hd",
+    "tiles": 4,
+    "face_lock": "kept",
+    "restored": 0,
+    "ms": 4770
+   }
+  },
+  {
+   "photo": "06_portrait.jpg",
+   "kind": "old",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:Gabe_Amo_118th_Congress_Official_Portrait.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 18,
+     "identity": 0.734,
+     "psnr": 13.27,
+     "ssim": 0.6891
+    },
+    "assisto": {
+     "sharp": 64,
+     "identity": 0.718,
+     "psnr": 12.53,
+     "ssim": 0.6218
+    },
+    "clean": {
+     "sharp": 945
+    }
+   },
+   "run": {
+    "path": "server_old",
+    "colorized": true,
+    "face_lock": "kept",
+    "restored": 0,
+    "ms": 11973
+   }
+  },
+  {
+   "photo": "07_portrait.jpg",
+   "kind": "old",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:Rep._Gabe_Amo_official_portrait,_118th_Congress.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 24,
+     "identity": 0.829,
+     "psnr": 13.3,
+     "ssim": 0.6421
+    },
+    "assisto": {
+     "sharp": 43,
+     "identity": 0.753,
+     "psnr": 12.27,
+     "ssim": 0.6014
+    },
+    "clean": {
+     "sharp": 1457
+    }
+   },
+   "run": {
+    "path": "server_old",
+    "colorized": true,
+    "face_lock": "kept",
+    "restored": 0,
+    "ms": 11797
+   }
+  },
+  {
+   "photo": "08_portrait.jpg",
+   "kind": "old",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:Angie_Craig_portrait_(118th_Congress).jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 39,
+     "identity": 0.753,
+     "psnr": 12.61,
+     "ssim": 0.706
+    },
+    "assisto": {
+     "sharp": 97,
+     "identity": 0.665,
+     "psnr": 12.43,
+     "ssim": 0.7776
+    },
+    "clean": {
+     "sharp": 276
+    }
+   },
+   "run": {
+    "path": "server_old",
+    "colorized": true,
+    "face_lock": "kept",
+    "restored": 0,
+    "ms": 14420
+   }
+  },
+  {
+   "photo": "09_portrait.jpg",
+   "kind": "blurry",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:Auchincloss_Jake_119th_Congress.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 32,
+     "identity": 0.872,
+     "psnr": 26.04,
+     "ssim": 0.8234
+    },
+    "assisto": {
+     "sharp": 9,
+     "identity": 0.874,
+     "psnr": 26.4,
+     "ssim": 0.8553
+    },
+    "clean": {
+     "sharp": 521
+    }
+   },
+   "run": {
+    "path": "server_hd",
+    "tiles": 30,
+    "face_lock": "kept",
+    "restored": 0,
+    "ms": 22726
+   }
+  },
+  {
+   "photo": "10_portrait.jpg",
+   "kind": "blurry",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:Jake_Auchincloss_portrait_(118th_Congress).jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 29,
+     "identity": 0.876,
+     "psnr": 28.22,
+     "ssim": 0.8425
+    },
+    "assisto": {
+     "sharp": 8,
+     "identity": 0.882,
+     "psnr": 15.66,
+     "ssim": 0.7526
+    },
+    "clean": {
+     "sharp": 192
+    }
+   },
+   "run": {
+    "path": "server_hd",
+    "tiles": 12,
+    "face_lock": "kept",
+    "restored": 0,
+    "ms": 12516
+   }
+  },
+  {
+   "photo": "11_scene.jpg",
+   "kind": "old",
+   "licence": "CC0",
+   "page": "https://commons.wikimedia.org/wiki/File:1998_Pontiac_Grand_Prix,_front_left,_4-5-2021.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 43,
+     "identity": null,
+     "psnr": 16.11,
+     "ssim": 0.4274
+    },
+    "assisto": {
+     "sharp": 266,
+     "identity": null,
+     "psnr": 18.56,
+     "ssim": 0.4717
+    },
+    "clean": {
+     "sharp": 7567
+    }
+   },
+   "run": {
+    "path": "server_old",
+    "colorized": true,
+    "face_lock": "no_faces",
+    "restored": 0,
+    "ms": 16420
+   }
+  },
+  {
+   "photo": "12_scene.jpg",
+   "kind": "old",
+   "licence": "CC0",
+   "page": "https://commons.wikimedia.org/wiki/File:!_Bright_Lights_Ceiling_!.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 20,
+     "identity": null,
+     "psnr": 21.44,
+     "ssim": 0.7017
+    },
+    "assisto": {
+     "sharp": 75,
+     "identity": null,
+     "psnr": 11.62,
+     "ssim": 0.5949
+    },
+    "clean": {
+     "sharp": 425
+    }
+   },
+   "run": {
+    "path": "server_old",
+    "colorized": true,
+    "face_lock": "no_faces",
+    "restored": 0,
+    "ms": 9876
+   }
+  },
+  {
+   "photo": "13_scene.jpg",
+   "kind": "blurry",
+   "licence": "CC0",
+   "page": "https://commons.wikimedia.org/wiki/File:!_Russisch-Orthodoxe_Kirche_(Dresden)_Glockenturm.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 27,
+     "identity": null,
+     "psnr": 27.32,
+     "ssim": 0.7775
+    },
+    "assisto": {
+     "sharp": 6,
+     "identity": null,
+     "psnr": 27.59,
+     "ssim": 0.8025
+    },
+    "clean": {
+     "sharp": 586
+    }
+   },
+   "run": {
+    "path": "server_hd",
+    "tiles": 36,
+    "face_lock": "no_faces",
+    "restored": 0,
+    "ms": 19266
+   }
+  },
+  {
+   "photo": "14_scene.jpg",
+   "kind": "blurry",
+   "licence": "CC0",
+   "page": "https://commons.wikimedia.org/wiki/File:!_Russisch-Orthodoxe_Kirche_(Dresden)_Zwiebelt%C3%BCrme.JPG",
+   "metrics": {
+    "damaged": {
+     "sharp": 29,
+     "identity": null,
+     "psnr": 22.96,
+     "ssim": 0.6455
+    },
+    "assisto": {
+     "sharp": 10,
+     "identity": null,
+     "psnr": 23.13,
+     "ssim": 0.6574
+    },
+    "clean": {
+     "sharp": 1719
+    }
+   },
+   "run": {
+    "path": "server_hd",
+    "tiles": 30,
+    "face_lock": "no_faces",
+    "restored": 0,
+    "ms": 15862
+   }
+  },
+  {
+   "photo": "15_scene.jpg",
+   "kind": "blurry",
+   "licence": "CC0",
+   "page": "https://commons.wikimedia.org/wiki/File:!941_Lincoln_Continental_Coupe,_Series_57_-_Automobile_Driving_Museum_-_El_Segundo,_CA_-_DSC01970.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 32,
+     "identity": null,
+     "psnr": 20.7,
+     "ssim": 0.6015
+    },
+    "assisto": {
+     "sharp": 14,
+     "identity": null,
+     "psnr": 20.89,
+     "ssim": 0.6151
+    },
+    "clean": {
+     "sharp": 3021
+    }
+   },
+   "run": {
+    "path": "server_hd",
+    "tiles": 24,
+    "face_lock": "no_faces",
+    "restored": 0,
+    "ms": 18012
+   }
+  },
+  {
+   "photo": "16_scene.jpg",
+   "kind": "low_light",
+   "licence": "CC0",
+   "page": "https://commons.wikimedia.org/wiki/File:!941_Lincoln_Continental_Coupe,_Series_57_-_Automobile_Driving_Museum_-_El_Segundo,_CA_-_DSC01972.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 745,
+     "identity": null,
+     "psnr": 9.62,
+     "ssim": 0.3567
+    },
+    "assisto": {
+     "sharp": 4023,
+     "identity": null,
+     "psnr": 19.88,
+     "ssim": 0.6926
+    },
+    "clean": {
+     "sharp": 3459
+    }
+   },
+   "run": {
+    "path": "phone_lowlight",
+    "classic_ms": 168,
+    "ms": 365
+   }
+  },
+  {
+   "photo": "17_scene.jpg",
+   "kind": "low_light",
+   "licence": "CC0",
+   "page": "https://commons.wikimedia.org/wiki/File:!941_Lincoln_Continental_Coupe,_Series_57_-_Automobile_Driving_Museum_-_El_Segundo,_CA_-_DSC01975.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 788,
+     "identity": null,
+     "psnr": 9.06,
+     "ssim": 0.3526
+    },
+    "assisto": {
+     "sharp": 3476,
+     "identity": null,
+     "psnr": 21.44,
+     "ssim": 0.6967
+    },
+    "clean": {
+     "sharp": 3017
+    }
+   },
+   "run": {
+    "path": "phone_lowlight",
+    "classic_ms": 141,
+    "ms": 267
+   }
+  },
+  {
+   "photo": "18_scene.jpg",
+   "kind": "low_light",
+   "licence": "CC0",
+   "page": "https://commons.wikimedia.org/wiki/File:!941_Lincoln_Continental_Coupe,_Series_57_-_Automobile_Driving_Museum_-_El_Segundo,_CA_-_DSC01976.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 591,
+     "identity": null,
+     "psnr": 9.36,
+     "ssim": 0.3691
+    },
+    "assisto": {
+     "sharp": 2438,
+     "identity": null,
+     "psnr": 21.31,
+     "ssim": 0.7243
+    },
+    "clean": {
+     "sharp": 2144
+    }
+   },
+   "run": {
+    "path": "phone_lowlight",
+    "classic_ms": 136,
+    "ms": 248
+   }
+  },
+  {
+   "photo": "19_scene.jpg",
+   "kind": "low_light",
+   "licence": "CC0",
+   "page": "https://commons.wikimedia.org/wiki/File:!Defurovy_La%C5%BEany_-_n%C3%A1m%C4%9Bst%C3%AD.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 663,
+     "identity": null,
+     "psnr": 8.01,
+     "ssim": 0.3494
+    },
+    "assisto": {
+     "sharp": 3598,
+     "identity": null,
+     "psnr": 21.15,
+     "ssim": 0.7626
+    },
+    "clean": {
+     "sharp": 3669
+    }
+   },
+   "run": {
+    "path": "phone_lowlight",
+    "classic_ms": 153,
+    "ms": 258
+   }
+  },
+  {
+   "photo": "20_scene.jpg",
+   "kind": "low_light",
+   "licence": "CC0",
+   "page": "https://commons.wikimedia.org/wiki/File:!Irinka_1932.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 302,
+     "identity": 0.379,
+     "psnr": 6.32,
+     "ssim": 0.4833
+    },
+    "assisto": {
+     "sharp": 1099,
+     "identity": 0.586,
+     "psnr": 15.47,
+     "ssim": 0.7329
+    },
+    "clean": {
+     "sharp": 789
+    }
+   },
+   "run": {
+    "path": "phone_lowlight",
+    "classic_ms": 163,
+    "ms": 294
+   }
+  },
+  {
+   "photo": "21_darkskin.jpg",
+   "kind": "dark_skin",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:Jim_Clyburn_portrait_(118th_Congress).jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 113,
+     "identity": 0.793,
+     "psnr": 8.95,
+     "ssim": 0.3128
+    },
+    "assisto": {
+     "sharp": 451,
+     "identity": 0.843,
+     "psnr": 25.59,
+     "ssim": 0.7523
+    },
+    "clean": {
+     "sharp": 297
+    }
+   },
+   "run": {
+    "path": "phone_lowlight",
+    "classic_ms": 63,
+    "ms": 139
+   }
+  },
+  {
+   "photo": "22_darkskin.jpg",
+   "kind": "dark_skin",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:Gus_Bilirakis,_official_portrait,_118th_Congress_(cropped).jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 11,
+     "identity": 0.901,
+     "psnr": 26.04,
+     "ssim": 0.8261
+    },
+    "assisto": {
+     "sharp": 170,
+     "identity": 0.892,
+     "psnr": 25.92,
+     "ssim": 0.8273
+    },
+    "clean": {
+     "sharp": 2145
+    }
+   },
+   "run": {
+    "path": "server_hd",
+    "tiles": 9,
+    "face_lock": "kept",
+    "restored": 0,
+    "ms": 7592
+   }
+  },
+  {
+   "photo": "23_darkskin.jpg",
+   "kind": "dark_skin",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:Gus_Bilirakis,_official_portrait,_118th_Congress.png",
+   "metrics": {
+    "damaged": {
+     "sharp": 131,
+     "identity": 0.859,
+     "psnr": 9.52,
+     "ssim": 0.3858
+    },
+    "assisto": {
+     "sharp": 923,
+     "identity": 0.845,
+     "psnr": 18.77,
+     "ssim": 0.6181
+    },
+    "clean": {
+     "sharp": 688
+    }
+   },
+   "run": {
+    "path": "phone_lowlight",
+    "classic_ms": 297,
+    "ms": 449
+   }
+  },
+  {
+   "photo": "24_darkskin.jpg",
+   "kind": "dark_skin",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:Gus_Bilirakis,_official_portrait,_118th_Congress.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 11,
+     "identity": 0.871,
+     "psnr": 28.65,
+     "ssim": 0.8635
+    },
+    "assisto": {
+     "sharp": 161,
+     "identity": 0.877,
+     "psnr": 28.44,
+     "ssim": 0.8654
+    },
+    "clean": {
+     "sharp": 675
+    }
+   },
+   "run": {
+    "path": "server_hd",
+    "tiles": 12,
+    "face_lock": "kept",
+    "restored": 0,
+    "ms": 9229
+   }
+  },
+  {
+   "photo": "25_darkskin.jpg",
+   "kind": "dark_skin",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:Gus_Bilirakis,_official_portrait,_118th_Congress_(head_crop).jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 502,
+     "identity": 0.864,
+     "psnr": 8.36,
+     "ssim": 0.3703
+    },
+    "assisto": {
+     "sharp": 2607,
+     "identity": 0.843,
+     "psnr": 21.25,
+     "ssim": 0.7636
+    },
+    "clean": {
+     "sharp": 3142
+    }
+   },
+   "run": {
+    "path": "phone_lowlight",
+    "classic_ms": 53,
+    "ms": 141
+   }
+  },
+  {
+   "photo": "26_darkskin.jpg",
+   "kind": "dark_skin",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:Gus_Bilirakis,_official_portrait,_118th_Congress_(half_crop).jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 11,
+     "identity": 0.87,
+     "psnr": 25.6,
+     "ssim": 0.8258
+    },
+    "assisto": {
+     "sharp": 172,
+     "identity": 0.85,
+     "psnr": 25.55,
+     "ssim": 0.8305
+    },
+    "clean": {
+     "sharp": 2761
+    }
+   },
+   "run": {
+    "path": "server_hd",
+    "tiles": 6,
+    "face_lock": "kept",
+    "restored": 0,
+    "ms": 5919
+   }
+  },
+  {
+   "photo": "27_darkskin.jpg",
+   "kind": "dark_skin",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:Ami_Bera_117th_Congress_(cropped_2).jpeg",
+   "metrics": {
+    "damaged": {
+     "sharp": 448,
+     "identity": 0.875,
+     "psnr": 9.54,
+     "ssim": 0.2848
+    },
+    "assisto": {
+     "sharp": 2394,
+     "identity": 0.9,
+     "psnr": 20.88,
+     "ssim": 0.6664
+    },
+    "clean": {
+     "sharp": 2762
+    }
+   },
+   "run": {
+    "path": "phone_lowlight",
+    "classic_ms": 238,
+    "ms": 395
+   }
+  },
+  {
+   "photo": "28_darkskin.jpg",
+   "kind": "dark_skin",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:Ami_Bera_117th_Congress.jpeg",
+   "metrics": {
+    "damaged": {
+     "sharp": 13,
+     "identity": 0.921,
+     "psnr": 27.04,
+     "ssim": 0.8069
+    },
+    "assisto": {
+     "sharp": 218,
+     "identity": 0.914,
+     "psnr": 26.6,
+     "ssim": 0.8147
+    },
+    "clean": {
+     "sharp": 882
+    }
+   },
+   "run": {
+    "path": "server_hd",
+    "tiles": 12,
+    "face_lock": "kept",
+    "restored": 0,
+    "ms": 12446
+   }
+  },
+  {
+   "photo": "29_darkskin.jpg",
+   "kind": "dark_skin",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:Congresswoman_Jasmine_Crockett_-_118th_Congress.png",
+   "metrics": {
+    "damaged": {
+     "sharp": 230,
+     "identity": 0.872,
+     "psnr": 7.58,
+     "ssim": 0.4302
+    },
+    "assisto": {
+     "sharp": 588,
+     "identity": 0.904,
+     "psnr": 20.15,
+     "ssim": 0.8177
+    },
+    "clean": {
+     "sharp": 485
+    }
+   },
+   "run": {
+    "path": "phone_lowlight",
+    "classic_ms": 435,
+    "ms": 838
+   }
+  },
+  {
+   "photo": "30_darkskin.jpg",
+   "kind": "dark_skin",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:Congresswoman_Jasmine_Crockett_-_118th_Congress_(cropped).png",
+   "metrics": {
+    "damaged": {
+     "sharp": 9,
+     "identity": 0.948,
+     "psnr": 27.25,
+     "ssim": 0.7816
+    },
+    "assisto": {
+     "sharp": 61,
+     "identity": 0.943,
+     "psnr": 27.02,
+     "ssim": 0.7834
+    },
+    "clean": {
+     "sharp": 471
+    }
+   },
+   "run": {
+    "path": "server_hd",
+    "tiles": 12,
+    "face_lock": "kept",
+    "restored": 0,
+    "ms": 12246
+   }
+  },
+  {
+   "photo": "31_darkskin.jpg",
+   "kind": "dark_skin",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:Gus_Bilirakis_118th_ID.jpeg",
+   "metrics": {
+    "damaged": {
+     "sharp": 85,
+     "identity": 0.841,
+     "psnr": 8.96,
+     "ssim": 0.33
+    },
+    "assisto": {
+     "sharp": 311,
+     "identity": 0.88,
+     "psnr": 23.36,
+     "ssim": 0.7702
+    },
+    "clean": {
+     "sharp": 207
+    }
+   },
+   "run": {
+    "path": "phone_lowlight",
+    "classic_ms": 55,
+    "ms": 133
+   }
+  },
+  {
+   "photo": "32_darkskin.jpg",
+   "kind": "dark_skin",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:Gus_Bilirakis_portrait_(118th_Congress).jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 12,
+     "identity": 0.858,
+     "psnr": 28.21,
+     "ssim": 0.8839
+    },
+    "assisto": {
+     "sharp": 121,
+     "identity": 0.835,
+     "psnr": 29.78,
+     "ssim": 0.9043
+    },
+    "clean": {
+     "sharp": 207
+    }
+   },
+   "run": {
+    "path": "server_hd",
+    "tiles": 4,
+    "face_lock": "kept",
+    "restored": 0,
+    "ms": 4742
+   }
+  },
+  {
+   "photo": "33_old_real.jpg",
+   "kind": "old_real",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:%22$30_every_Thursday%22_pension_plan_out_as_President_discusses_political_situation_with_California_candidates._Washington,_D.C.,_Sept._27._Sheridan_Downey,_who_defeated_Senator_William_Gibbs_LCCN2016874059_Trim.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 536,
+     "identity": 0.991
+    },
+    "assisto": {
+     "sharp": 307,
+     "identity": 0.763
+    },
+    "clean": {
+     "sharp": 535
+    }
+   },
+   "run": {
+    "path": "server_old",
+    "colorized": true,
+    "face_lock": "restored_original_face",
+    "restored": 3,
+    "ms": 20093
+   }
+  },
+  {
+   "photo": "34_old_real.jpg",
+   "kind": "old_real",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:%22$30_every_Thursday%22_pension_plan_out_as_President_discusses_political_situation_with_California_candidates._Washington,_D.C.,_Sept._27._Sheridan_Downey,_who_defeated_Senator_William_Gibbs_LCCN2016874059.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 935,
+     "identity": 0.997
+    },
+    "assisto": {
+     "sharp": 570,
+     "identity": 0.848
+    },
+    "clean": {
+     "sharp": 934
+    }
+   },
+   "run": {
+    "path": "server_old",
+    "colorized": true,
+    "face_lock": "restored_original_face",
+    "restored": 3,
+    "ms": 23467
+   }
+  },
+  {
+   "photo": "35_old_real.jpg",
+   "kind": "old_real",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:%22Alex,%22_prize_German_police_dog_and_pet_of_Miss_Ailsa_Mellon,_daughter_of_Treas._smokes_cigarettes_n%27everything._Alex%27s_father_is_the_$12,000_prize_police_dog_%22Wolfe%22_LCCN2016893563.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 1934,
+     "identity": null
+    },
+    "assisto": {
+     "sharp": 648,
+     "identity": null
+    },
+    "clean": {
+     "sharp": 1933
+    }
+   },
+   "run": {
+    "path": "server_old",
+    "colorized": true,
+    "face_lock": "no_faces",
+    "restored": 0,
+    "ms": 13790
+   }
+  },
+  {
+   "photo": "36_old_real.jpg",
+   "kind": "old_real",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:%22America%27s_typical_boy%22_has_birdhouse_exhibit_in_Washington._Barrett_of_Farmingham,_Mass.,_who_was_selected_(...)_artist_Alberto_Barretto_as_the_American_boy,_is_now_exhibiting_his_skill_LCCN2016888693.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 420,
+     "identity": 0.998
+    },
+    "assisto": {
+     "sharp": 202,
+     "identity": 0.968
+    },
+    "clean": {
+     "sharp": 418
+    }
+   },
+   "run": {
+    "path": "server_old",
+    "colorized": true,
+    "face_lock": "restored_original_face",
+    "restored": 1,
+    "ms": 15401
+   }
+  },
+  {
+   "photo": "37_old_real.jpg",
+   "kind": "old_real",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:%22Baby_Service,_Inc.%22_Washington,_D.C.,_Aug._18._%22Enjoy_your_baby,_let_us_work_for_him%22_is_the_motto_of_a_brand_new_business_started_here_recently_by_Mrs._John_McGee,_the_former_Narcissa_LCCN2016872185.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 810,
+     "identity": 0.977
+    },
+    "assisto": {
+     "sharp": 479,
+     "identity": 0.945
+    },
+    "clean": {
+     "sharp": 808
+    }
+   },
+   "run": {
+    "path": "server_old",
+    "colorized": true,
+    "face_lock": "restored_original_face",
+    "restored": 1,
+    "ms": 24426
+   }
+  },
+  {
+   "photo": "38_old_real.jpg",
+   "kind": "old_real",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:%22Chief_tooth_puller_for_the_president.%22_Washington,_D.C.,_Nov_25._Commander_Arther_H._Yando,_Dental_Corp_of_the_U.S._Army,_who_has_been_taking_of_the_President%27s_dental_needs_and_who_pulled_LCCN2016872649.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 792,
+     "identity": 0.814
+    },
+    "assisto": {
+     "sharp": 517,
+     "identity": 0.811
+    },
+    "clean": {
+     "sharp": 791
+    }
+   },
+   "run": {
+    "path": "server_old",
+    "colorized": true,
+    "face_lock": "restored_original_face",
+    "restored": 2,
+    "ms": 16135
+   }
+  },
+  {
+   "photo": "39_old_real.jpg",
+   "kind": "old_real",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:%22Chief_tooth_puller_for_the_president.%22_Washington,_D.C.,_Nov_25._Commander_Arther_H._Yando,_Dental_Corp_of_the_U.S._Army,_who_has_been_taking_of_the_President%27s_dental_needs_and_who_pulled_LCCN2016872649.tif",
+   "metrics": {
+    "damaged": {
+     "sharp": 584,
+     "identity": 0.995
+    },
+    "assisto": {
+     "sharp": 504,
+     "identity": 0.847
+    },
+    "clean": {
+     "sharp": 582
+    }
+   },
+   "run": {
+    "path": "server_old",
+    "colorized": true,
+    "face_lock": "restored_original_face",
+    "restored": 2,
+    "ms": 16654
+   }
+  },
+  {
+   "photo": "40_old_real.jpg",
+   "kind": "old_real",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:%22General%22_the_horse_picked_by_Pres._Coolidge_as_his_mount_LCCN2016892556.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 294,
+     "identity": null
+    },
+    "assisto": {
+     "sharp": 105,
+     "identity": null
+    },
+    "clean": {
+     "sharp": 292
+    }
+   },
+   "run": {
+    "path": "server_old",
+    "colorized": true,
+    "face_lock": "no_faces",
+    "restored": 0,
+    "ms": 17886
+   }
+  },
+  {
+   "photo": "41_group.jpg",
+   "kind": "group",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:190324-Z-UM727-0063_-_KC-135_Stratotanker_57-1419.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 25,
+     "identity": 0.0,
+     "psnr": 22.79,
+     "ssim": 0.7341
+    },
+    "assisto": {
+     "sharp": 378,
+     "identity": 0.0,
+     "psnr": 24.24,
+     "ssim": 0.7958
+    },
+    "clean": {
+     "sharp": 2207
+    }
+   },
+   "run": {
+    "path": "server_hd",
+    "tiles": 12,
+    "face_lock": "no_faces",
+    "restored": 0,
+    "ms": 6312
+   }
+  },
+  {
+   "photo": "42_group.jpg",
+   "kind": "group",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:1923%E2%80%9324_Genoa_CFC.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 26,
+     "identity": 0.0,
+     "psnr": 24.2,
+     "ssim": 0.6434
+    },
+    "assisto": {
+     "sharp": 308,
+     "identity": 0.0,
+     "psnr": 24.53,
+     "ssim": 0.6714
+    },
+    "clean": {
+     "sharp": 880
+    }
+   },
+   "run": {
+    "path": "server_hd",
+    "tiles": 12,
+    "face_lock": "restored_original_face",
+    "restored": 11,
+    "ms": 24802
+   }
+  },
+  {
+   "photo": "43_group.jpg",
+   "kind": "group",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:1924%E2%80%9325_Bologna_Football_Club.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 30,
+     "identity": 0.0,
+     "psnr": 20.05,
+     "ssim": 0.3843
+    },
+    "assisto": {
+     "sharp": 491,
+     "identity": 0.0,
+     "psnr": 20.55,
+     "ssim": 0.4369
+    },
+    "clean": {
+     "sharp": 5080
+    }
+   },
+   "run": {
+    "path": "server_hd",
+    "tiles": 12,
+    "face_lock": "restored_original_face",
+    "restored": 12,
+    "ms": 25041
+   }
+  },
+  {
+   "photo": "44_group.jpg",
+   "kind": "group",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:1928_CONI_Cup_Award_Ceremony.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 26,
+     "identity": 0.0,
+     "psnr": 24.73,
+     "ssim": 0.6979
+    },
+    "assisto": {
+     "sharp": 294,
+     "identity": 0.0,
+     "psnr": 17.24,
+     "ssim": 0.64
+    },
+    "clean": {
+     "sharp": 827
+    }
+   },
+   "run": {
+    "path": "server_hd",
+    "tiles": 12,
+    "face_lock": "restored_original_face",
+    "restored": 16,
+    "ms": 26435
+   }
+  },
+  {
+   "photo": "45_group.jpg",
+   "kind": "group",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:1931%E2%80%9332_Associazione_Sportiva_Roma.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 28,
+     "identity": 0.058,
+     "psnr": 21.85,
+     "ssim": 0.4541
+    },
+    "assisto": {
+     "sharp": 556,
+     "identity": -0.03,
+     "psnr": 15.4,
+     "ssim": 0.4499
+    },
+    "clean": {
+     "sharp": 4479
+    }
+   },
+   "run": {
+    "path": "server_hd",
+    "tiles": 6,
+    "face_lock": "restored_original_face",
+    "restored": 9,
+    "ms": 19436
+   }
+  },
+  {
+   "photo": "46_group.jpg",
+   "kind": "group",
+   "licence": "Public domain",
+   "page": "https://commons.wikimedia.org/wiki/File:1934%E2%80%9335_Serie_A_-_Juventus_7th_Scudetto_celebrations.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 29,
+     "identity": 0.0,
+     "psnr": 24.01,
+     "ssim": 0.6393
+    },
+    "assisto": {
+     "sharp": 629,
+     "identity": 0.0,
+     "psnr": 18.49,
+     "ssim": 0.6149
+    },
+    "clean": {
+     "sharp": 719
+    }
+   },
+   "run": {
+    "path": "server_hd",
+    "tiles": 8,
+    "face_lock": "restored_original_face",
+    "restored": 3,
+    "ms": 8574
+   }
+  },
+  {
+   "photo": "47_low_light_cc0.jpg",
+   "kind": "low_light",
+   "licence": "CC0",
+   "page": "https://commons.wikimedia.org/wiki/File:!_Bright_Lights_Ceiling_!.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 157,
+     "identity": null,
+     "psnr": 8.5,
+     "ssim": 0.3262
+    },
+    "assisto": {
+     "sharp": 521,
+     "identity": null,
+     "psnr": 24.17,
+     "ssim": 0.7913
+    },
+    "clean": {
+     "sharp": 425
+    }
+   },
+   "run": {
+    "path": "phone_lowlight",
+    "classic_ms": 121,
+    "ms": 233
+   }
+  },
+  {
+   "photo": "48_low_light_cc0.jpg",
+   "kind": "low_light",
+   "licence": "CC0",
+   "page": "https://commons.wikimedia.org/wiki/File:!_Russisch-Orthodoxe_Kirche_(Dresden)_Glockenturm.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 132,
+     "identity": null,
+     "psnr": 7.21,
+     "ssim": 0.4464
+    },
+    "assisto": {
+     "sharp": 394,
+     "identity": null,
+     "psnr": 19.75,
+     "ssim": 0.6723
+    },
+    "clean": {
+     "sharp": 586
+    }
+   },
+   "run": {
+    "path": "phone_lowlight",
+    "classic_ms": 171,
+    "ms": 251
+   }
+  },
+  {
+   "photo": "49_low_light_cc0.jpg",
+   "kind": "low_light",
+   "licence": "CC0",
+   "page": "https://commons.wikimedia.org/wiki/File:!_Russisch-Orthodoxe_Kirche_(Dresden)_Zwiebelt%C3%BCrme.JPG",
+   "metrics": {
+    "damaged": {
+     "sharp": 464,
+     "identity": null,
+     "psnr": 8.32,
+     "ssim": 0.3661
+    },
+    "assisto": {
+     "sharp": 2102,
+     "identity": null,
+     "psnr": 21.15,
+     "ssim": 0.6993
+    },
+    "clean": {
+     "sharp": 1719
+    }
+   },
+   "run": {
+    "path": "phone_lowlight",
+    "classic_ms": 172,
+    "ms": 296
+   }
+  },
+  {
+   "photo": "50_low_light_cc0.jpg",
+   "kind": "low_light",
+   "licence": "CC0",
+   "page": "https://commons.wikimedia.org/wiki/File:!941_Lincoln_Continental_Coupe,_Series_57_-_Automobile_Driving_Museum_-_El_Segundo,_CA_-_DSC01970.jpg",
+   "metrics": {
+    "damaged": {
+     "sharp": 697,
+     "identity": null,
+     "psnr": 8.87,
+     "ssim": 0.3636
+    },
+    "assisto": {
+     "sharp": 3430,
+     "identity": null,
+     "psnr": 21.09,
+     "ssim": 0.6946
+    },
+    "clean": {
+     "sharp": 3021
+    }
+   },
+   "run": {
+    "path": "phone_lowlight",
+    "classic_ms": 138,
+    "ms": 254
+   }
+  }
+ ]
+}

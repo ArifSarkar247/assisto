@@ -29,7 +29,17 @@ import java.util.concurrent.atomic.AtomicBoolean
  *            faces: [[x,y,w,h] 0..1 …], faceAi: 0.25})
  *        -> {ok, path, w, h, ms, ep, tiles} | {ok:false, error}
  *        progress events to Dart: "upscaleProgress" {done, total}
+ *   segment({input, model, side})        -> {ok, mask: ByteArray side*side (0..255,
+ *                                            255 = subject), side, ms} | {ok:false, error}
+ *        (d1-photo: U2-Net-p background mask for the blur tool, CPU only)
  *   cancel()                              -> null
+ *
+ * d1-photo: every error answer is a SHORT CODE ("cancelled", "decode",
+ * "model_shape", "ort_session: OrtException", "oom", "ort_run: ...") - never a
+ * message with a path - so Dart can report it to Owner Admin as-is. The model
+ * input shape is checked against the requested tile BEFORE the first tile
+ * (the published ONNX has a FIXED 144x144 input; anything else is refused
+ * with "model_shape" instead of failing mid-photo).
  *   faces({path})  -> {ok, w, h, faces:[{box:[x,y,w,h] (0..1), points:[x0,y0,…]
  *                     (pixels; LEFT_EYE, RIGHT_EYE, NOSE_BASE, MOUTH_LEFT,
  *                     MOUTH_RIGHT, MOUTH_BOTTOM, LEFT_CHEEK, RIGHT_CHEEK),
@@ -70,8 +80,25 @@ object PhotoNativeChannel {
                         worker.execute {
                             val r = try {
                                 upscale(ctx, args)
+                            } catch (t: OutOfMemoryError) {
+                                fail("oom")
                             } catch (t: Throwable) {
-                                mapOf("ok" to false, "error" to (t.message ?: t.javaClass.simpleName))
+                                fail("ort_run: " + t.javaClass.simpleName)
+                            }
+                            main.post { result.success(r) }
+                        }
+                    }
+                    "segment" -> {
+                        cancelled.set(false)
+                        val args = HashMap<String, Any?>()
+                        for (k in listOf("input", "model", "side")) args[k] = call.argument<Any>(k)
+                        worker.execute {
+                            val r = try {
+                                segment(args)
+                            } catch (t: OutOfMemoryError) {
+                                fail("oom")
+                            } catch (t: Throwable) {
+                                fail("seg_run: " + t.javaClass.simpleName)
                             }
                             main.post { result.success(r) }
                         }
@@ -186,7 +213,14 @@ object PhotoNativeChannel {
         val oh = ih * scale
         val outPx = IntArray(ow * oh)
         val tiles = UpscaleTiler.plan(iw, ih, tile)
-        var runner = OrtRunner.get(ctx, model, side, false)
+        var runner = try {
+            OrtRunner.get(ctx, model, side, false)
+        } catch (t: OutOfMemoryError) {
+            return fail("oom")
+        } catch (t: Throwable) {
+            return fail("ort_session: " + t.javaClass.simpleName)
+        }
+        if (!runner.inputMatches(side)) return fail("model_shape")
         val inBuf = FloatArray(3 * side * side)
         for ((i, t) in tiles.withIndex()) {
             if (cancelled.get()) return fail("cancelled")
@@ -200,6 +234,7 @@ object PhotoNativeChannel {
                 runner = OrtRunner.get(ctx, model, side, true)
                 runner.run(inBuf)
             }
+            if (o.size != 3 * side * scale * side * scale) return fail("model_shape")
             UpscaleTiler.place(o, t, pad, side, scale, outPx, ow)
             progress(i + 1, tiles.size)
         }
@@ -232,6 +267,122 @@ object PhotoNativeChannel {
     }
 
     private fun fail(e: String) = mapOf("ok" to false, "error" to e)
+
+    /**
+     * d1-photo: U2-Net-p salient-object mask (Apache-2.0 weights, ONNX
+     * [1,3,side,side] -> first output [1,1,side,side]). CPU only, one cached
+     * session. Pre-processing as in the model's reference code: RGB / 255,
+     * ImageNet mean/std; output min-max normalised to 0..255.
+     */
+    private fun segment(a: Map<String, Any?>): Map<String, Any?> {
+        val t0 = SystemClock.elapsedRealtime()
+        val input = a["input"] as? String ?: return fail("no input")
+        val model = a["model"] as? String ?: return fail("no model")
+        val side = intArg(a, "side", 320).coerceIn(64, 1024)
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeFile(input, bounds)
+        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return fail("decode")
+        var sample = 1
+        while (maxOf(bounds.outWidth, bounds.outHeight) / (sample * 2) >= side * 2) sample *= 2
+        val src = BitmapFactory.decodeFile(input, BitmapFactory.Options().apply {
+            inSampleSize = sample
+            inPreferredConfig = Bitmap.Config.ARGB_8888
+        }) ?: return fail("decode")
+        val sq = Bitmap.createScaledBitmap(src, side, side, true)
+        if (sq !== src) src.recycle()
+        val px = IntArray(side * side)
+        sq.getPixels(px, 0, side, 0, 0, side, side)
+        sq.recycle()
+        val plane = side * side
+        val chw = FloatArray(3 * plane)
+        val mean = floatArrayOf(0.485f, 0.456f, 0.406f)
+        val std = floatArrayOf(0.229f, 0.224f, 0.225f)
+        for (i in 0 until plane) {
+            val c = px[i]
+            chw[i] = (((c shr 16) and 0xFF) / 255f - mean[0]) / std[0]
+            chw[plane + i] = (((c shr 8) and 0xFF) / 255f - mean[1]) / std[1]
+            chw[2 * plane + i] = ((c and 0xFF) / 255f - mean[2]) / std[2]
+        }
+        if (cancelled.get()) return fail("cancelled")
+        val seg = try {
+            SegRunner.get(model)
+        } catch (t: OutOfMemoryError) {
+            return fail("oom")
+        } catch (t: Throwable) {
+            return fail("ort_session: " + t.javaClass.simpleName)
+        }
+        if (!seg.inputMatches(side)) return fail("model_shape")
+        val out = seg.run(chw, side)
+        if (out.size < plane) return fail("model_shape")
+        var mi = Float.MAX_VALUE
+        var ma = -Float.MAX_VALUE
+        for (i in 0 until plane) {
+            if (out[i] < mi) mi = out[i]
+            if (out[i] > ma) ma = out[i]
+        }
+        val range = if (ma - mi > 1e-6f) ma - mi else 1f
+        val mask = ByteArray(plane)
+        for (i in 0 until plane) {
+            val v = Math.round((out[i] - mi) / range * 255f).coerceIn(0, 255)
+            mask[i] = v.toByte()
+        }
+        return mapOf("ok" to true, "mask" to mask, "side" to side,
+            "ms" to (SystemClock.elapsedRealtime() - t0))
+    }
+}
+
+/** d1-photo: one CPU session for the background-mask model. */
+class SegRunner private constructor(private val session: ai.onnxruntime.OrtSession) {
+    private val env = ai.onnxruntime.OrtEnvironment.getEnvironment()
+    private val inputName: String = session.inputNames.iterator().next()
+
+    fun inputMatches(side: Int): Boolean = try {
+        val info = session.inputInfo[inputName]?.info as? ai.onnxruntime.TensorInfo
+        val sh = info?.shape
+        sh != null && sh.size == 4 && sh[1] == 3L &&
+            (sh[2] == side.toLong() || sh[2] < 0) && (sh[3] == side.toLong() || sh[3] < 0)
+    } catch (t: Throwable) {
+        false
+    }
+
+    fun run(chw: FloatArray, side: Int): FloatArray {
+        val shape = longArrayOf(1, 3, side.toLong(), side.toLong())
+        ai.onnxruntime.OnnxTensor.createTensor(env, FloatBuffer.wrap(chw), shape).use { x ->
+            session.run(mapOf(inputName to x)).use { r ->
+                val t = r.get(0) as ai.onnxruntime.OnnxTensor
+                val fb = t.floatBuffer
+                val out = FloatArray(fb.remaining())
+                fb.get(out)
+                return out
+            }
+        }
+    }
+
+    fun close() {
+        try {
+            session.close()
+        } catch (t: Throwable) {
+        }
+    }
+
+    companion object {
+        @Volatile private var cached: SegRunner? = null
+        @Volatile private var cachedKey = ""
+
+        @Synchronized
+        fun get(model: String): SegRunner {
+            val key = model + "#" + File(model).length()
+            cached?.let { if (cachedKey == key) return it }
+            cached?.close()
+            val env = ai.onnxruntime.OrtEnvironment.getEnvironment()
+            val o = ai.onnxruntime.OrtSession.SessionOptions()
+            o.setIntraOpNumThreads(Runtime.getRuntime().availableProcessors().coerceIn(1, 4))
+            val r = SegRunner(env.createSession(model, o))
+            cached = r
+            cachedKey = key
+            return r
+        }
+    }
 }
 
 /**
@@ -246,12 +397,27 @@ class OrtRunner private constructor(
 ) {
     private val env = ai.onnxruntime.OrtEnvironment.getEnvironment()
     private val shape = longArrayOf(1, 3, side.toLong(), side.toLong())
+    private val inputName: String = try {
+        session.inputNames.iterator().next()
+    } catch (t: Throwable) {
+        "input"
+    }
+
+    /** d1-photo: the ONNX input is FIXED (e.g. 1x3x144x144) - check first. */
+    fun inputMatches(side: Int): Boolean = try {
+        val info = session.inputInfo[inputName]?.info as? ai.onnxruntime.TensorInfo
+        val sh = info?.shape
+        sh != null && sh.size == 4 && sh[1] == 3L &&
+            (sh[2] == side.toLong() || sh[2] < 0) && (sh[3] == side.toLong() || sh[3] < 0)
+    } catch (t: Throwable) {
+        false
+    }
 
     fun run(chw: FloatArray): FloatArray = run(session, chw)
 
     private fun run(s: ai.onnxruntime.OrtSession, chw: FloatArray): FloatArray {
         ai.onnxruntime.OnnxTensor.createTensor(env, FloatBuffer.wrap(chw), shape).use { x ->
-            s.run(mapOf("input" to x)).use { r ->
+            s.run(mapOf(inputName to x)).use { r ->
                 val t = r.get(0) as ai.onnxruntime.OnnxTensor
                 val fb = t.floatBuffer
                 val out = FloatArray(fb.remaining())

@@ -93,6 +93,8 @@ final Uint8List _after = _png(180, 240, (x, y) => _scene(x, y, 180, 240, after: 
 class _PicturePicker implements PhotoPicker {
   @override
   Future<Uint8List?> pick({required bool camera}) async => _before;
+  @override
+  Future<List<Uint8List>> pickMany({int limit = 10}) async => [_before];
 }
 
 class _SampleEngine extends FakeEngine {
@@ -211,3 +213,7 @@ final Map<String, Widget Function(String)> ps1Shots = {
   'photo_studio_gate_credits_only': (_) =>
       _sheet(const GateNeed(adsRemaining: 0, adsTotal: 0, credits: 9, reason: 'trial_used')),
 };
+
+// d1-photo: the synthetic sample pair, shared with d1_photo_shots.dart.
+Uint8List get ps1SampleBefore => _before;
+Uint8List get ps1SampleAfter => _after;

@@ -527,18 +527,20 @@ class CloudJobTests(_Base):
 
     def test_free_trial_ads_taken_before_work_then_run(self):
         self.provider(cost="0.04")
-        self.set_ps(ad_value_bdt=5.0)        # 4.8 ÷ (0.7 × 5) -> 2 ads
+        # d1-photo v2: lifetime gifts used up -> 1 per week after >= 3 ads
+        # (4.8 ÷ (0.7 × 5) = 2 ads would cover the cost; the owner's minimum is 3)
+        self.set_ps(ad_value_bdt=5.0, free_gen_lifetime=0)
         self.as_(self.free)
         r = self.job("prompt_edit", "ads", prompt="change the background to a beach",
                      options=["bg_change"])
         self.assertEqual(r.status_code, 201, r.content)
         jid = r.json()["job"]["id"]
-        self.assertEqual(r.json()["job"]["ads_required"], 2)
+        self.assertEqual(r.json()["job"]["ads_required"], 3)
         # cannot run before the ads
         r = self.client.post("/api/v1/photo-studio/jobs/%d/run" % jid,
                              {"image_b64": base64.b64encode(_png()).decode()}, format="json")
         self.assertEqual(r.status_code, 402)
-        for i in range(2):
+        for i in range(3):
             t = self.ticket(jid).json()
             self.ssv(t["nonce"], self.free, "trial-%d" % i)
         out = _png(color=(10, 200, 30))
@@ -552,12 +554,12 @@ class CloudJobTests(_Base):
             job = PhotoStudioJob.objects.get(pk=jid)
             self.assertEqual(job.status, "done")
             self.assertTrue(job.preview_name)
-            # revenue (2 ads × 5 × 0.7 = 7) >= booked cost (4.8)
+            # revenue (3 ads × 5 × 0.7 = 10.5) >= booked cost (4.8)
             self.assertGreaterEqual(0.7 * job.revenue_bdt + 1e-9, job.cost_bdt)
             r = self.unlock(jid, "share")
             self.assertEqual(r.status_code, 200)
             self.assertIn("/api/v1/m/", r.json()["result"])
-        # second trial today -> ads closed, credits only
+        # second one this week -> ads closed, credits only
         q = self.client.get("/api/v1/photo-studio/config").json()["features"]["prompt_edit"]
         self.assertEqual([o["via"] for o in q["options"]], ["credits"])
         r = self.job("prompt_edit", "ads", prompt="blue sky")

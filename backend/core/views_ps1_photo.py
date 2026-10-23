@@ -41,7 +41,8 @@ class PhotoStudioSafetyView(APIView):
                         child_in_photo=bool(d.get("child_in_photo")),
                         others_in_photo=bool(d.get("others_in_photo")),
                         own_photo=bool(d.get("own_photo", True)),
-                        feature=str(d.get("feature") or "prompt_edit"))
+                        feature=str(d.get("feature") or "prompt_edit"),
+                        consent=d.get("consent") if isinstance(d.get("consent"), bool) else None)
         if not v["allowed"]:
             v["message"] = S.refusal_message(v["reason"], lang)
         return Response(v)
@@ -100,6 +101,18 @@ class PhotoStudioRunView(APIView):
         return Response(body, status=code)
 
 
+class PhotoStudioReportView(APIView):
+    """d1-photo v2: "Report this AI image" (Google Play AI-content policy)."""
+    def post(self, request, pk):
+        job = _job_or_404(request, pk)
+        if job is None:
+            return Response({"ok": False}, status=status.HTTP_404_NOT_FOUND)
+        d = request.data or {}
+        code, body = S.report_ai_image(request.user, job, str(d.get("reason") or "other"),
+                                       str(d.get("note") or ""), req_lang(request))
+        return Response(body, status=code)
+
+
 class PhotoStudioUnlockView(APIView):
     def post(self, request, pk):
         job = _job_or_404(request, pk)
@@ -133,6 +146,7 @@ class AdminPhotoStudioPnlView(APIView):
             days = 30
         out = S.owner_stats(days)
         out["days_window"] = days
+        out["free_tier_guard"] = S.free_tier_guard(days)   # d1-photo v2
         out["can_manage"] = True
         return Response(out)
 

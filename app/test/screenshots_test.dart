@@ -196,6 +196,7 @@ import 'package:assisto/screens/crm/crm_firstrun_screen.dart';
 import 'package:assisto/crypto/e2e.dart';
 import 'package:assisto/screens/legal_screen.dart';
 import 'ps1_shots.dart'; // ps1-photo
+import 'd1_photo_shots.dart'; // d1-photo
 import 'w1_webphoto_shots.dart'; // w1-webphoto
 import 'h1_home_shots.dart'; // h1-home
 import 'f1_shots.dart'; // f1-founders
@@ -595,6 +596,8 @@ Map<String, GallerySpec> gallerySpecs() {
     'legal': (build: (_) => const LegalScreen(), mode: FakeMode.data, full: true),
     // ps1-photo: Photo Studio (free / premium / unavailable / refusal / export gate)
     for (final e in ps1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // d1-photo: tools, progress + cancel, server restore, batch
+    for (final e in d1PhotoShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // w1-webphoto: lifeassisto.com/photo deep link -> Photo Studio (gate kept)
     for (final e in w1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     for (final e in c2Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // c2-calls

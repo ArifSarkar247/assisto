@@ -48,8 +48,13 @@ class FakePsBackend implements PsBackend {
     this.trialsPerDay = 1,
     this.refuseMessage = 'Sexual or undressing edits are not allowed.',
     this.isOwner = false,
+    this.restoreReady = false,
   });
   bool isOwner;
+
+  /// d1-photo: server restore jobs (colorize / old_restore / deblur) ready.
+  bool restoreReady;
+  static const restoreFeatures = ['deblur', 'colorize', 'old_restore'];
   final String refuseMessage;
 
   bool free;
@@ -67,6 +72,28 @@ class FakePsBackend implements PsBackend {
   int _next = 1;
 
   Map<String, dynamic> _quote(String f) {
+    if (restoreFeatures.contains(f)) {
+      if (!restoreReady) {
+        return {'ok': false, 'reason': 'provider_missing', 'options': [], 'message': 'not installed'};
+      }
+      return free
+          ? {
+              'ok': true,
+              'reason': 'ok',
+              'options': [
+                {'via': 'ads', 'ads': 1, 'trial': false},
+                {'via': 'credits', 'credits': 3}
+              ]
+            }
+          : {
+              'ok': true,
+              'reason': 'ok',
+              'paid_plan': true,
+              'options': [
+                {'via': 'pool', 'credits': 3}
+              ]
+            };
+    }
     if (!free) {
       return {
         'ok': true,
@@ -109,7 +136,15 @@ class FakePsBackend implements PsBackend {
         'free': free,
         'entry_ad': {'due': free && entryDue, 'gap_min': 30, 'interstitial_unit': 'u-int'},
         'features': {
-          for (final f in ['enhance_hd', 'enhance_cloud', 'prompt_edit', 'generate']) f: _quote(f)
+          for (final f in ['enhance_hd', 'enhance_cloud', 'prompt_edit', 'generate', ...restoreFeatures])
+            f: _quote(f)
+        },
+        'restore': {
+          for (final f in restoreFeatures)
+            f: {
+              'ready': restoreReady,
+              'needs': restoreReady ? '' : (f == 'deblur' ? 'GPU key (Replicate) + cost per run' : 'server model not installed')
+            }
         },
         'providers': {
           'ready': providerReady,
@@ -132,8 +167,12 @@ class FakePsBackend implements PsBackend {
     return const PsReply(200, {'ok': true});
   }
 
+  /// d1-photo: the last job body the app sent.
+  Map<String, dynamic> lastBody = const {};
+
   @override
   Future<PsReply> createJob(Map<String, dynamic> body) async {
+    lastBody = body;
     final f = '${body['feature']}';
     final q = _quote(f);
     if (q['ok'] != true) return PsReply(409, {'reason': q['reason']});
@@ -223,6 +262,13 @@ class FakePsBackend implements PsBackend {
 
   @override
   Future<Uint8List?> download(String url) async => kTinyPng;
+
+  final reports = <String>[];
+  @override
+  Future<PsReply> report(int id, String reason, {String note = ''}) async {
+    reports.add(reason);
+    return const PsReply(201, {'ok': true, 'message': 'Thank you'});
+  }
 }
 
 /// Ads: each rewarded ad pops the next outcome; on `earned` the fake fires
@@ -312,9 +358,11 @@ class FakeSink implements ExportSink {
 class FakeRenderer implements ExportRenderer {
   final marks = <bool>[];
   final notes = <String>[];
+  final inputs = <Uint8List>[];
   @override
   Future<Uint8List> render(Uint8List full,
       {required bool cornerMark, required String note, bool generated = false}) async {
+    inputs.add(full);
     marks.add(cornerMark);
     notes.add(note);
     return full;
@@ -322,8 +370,12 @@ class FakeRenderer implements ExportRenderer {
 }
 
 class FakePicker implements PhotoPicker {
+  FakePicker({this.many = const []});
+  final List<Uint8List> many;
   @override
   Future<Uint8List?> pick({required bool camera}) async => kTinyPng;
+  @override
+  Future<List<Uint8List>> pickMany({int limit = 10}) async => many.take(limit).toList();
 }
 
 class FakeSecure implements SecureScreen {

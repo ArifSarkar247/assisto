@@ -100,3 +100,36 @@ Model contract unchanged: `assisto_embed_e2e.onnx` ([1, 12400] → 96-d, Google 
 Apache-2.0) + `assisto_wake.onnx` ([N, 16, 96] → [N, 1]). The ww3 classifier graph may contain a seed
 ensemble, a 2-position min ("in-graph smoothing") and a temperature — all plain ONNX ops (Slice, Reshape,
 Sub, Div, Gemm, Relu, Sum, Mul, Min, Sigmoid; opset 13), checked in CI with ONNX Runtime 1.23.2.
+
+## Photo Studio — d1-photo re-check and additions (23 Oct 2026)
+
+Licence texts re-read on 23 Oct 2026 (repo LICENSE files fetched from GitHub; Hugging Face
+model cards via the HF API `cardData.license`). "Commercial OK" = code AND weights allow it.
+
+| Purpose | Model | Code licence | Weights licence / source | Training data note | Commercial OK? | Where it runs |
+|---|---|---|---|---|---|---|
+| Upscale 2x/4x, AI enhance, old-photo detail | Real-ESRGAN `realesr-general-x4v3` (+ wdn, DNI 0.5) | BSD-3-Clause | BSD-3 (official release v0.2.5.0, sha256 pinned) | DIV2K/Flickr2K/OST (academic datasets) | **Yes** (unchanged from p2) | phone (ONNX, downloaded once) + server (old-photo restore) |
+| Background blur mask | **U²-Net-p** (`u2netp`, 4.6 MB) | **Apache-2.0** (github.com/xuebinqin/U-2-Net LICENSE, read 23 Oct) | released by the authors with the repo (Apache-2.0); ONNX export from the rembg project release v0.0.0 (rembg = MIT), sha256 `309c8469…ddd8` pinned in `tools/photo_model/install_d1_models.py` | DUTS-TR (research dataset) — same position as Real-ESRGAN | **Yes** (keep the Apache notice — added to the app licence page) | phone (ONNX, downloaded on first blur) |
+| Colorize B&W, old-photo colour | **DDColor-tiny** (`ddcolor_paper_tiny`, ConvNeXt-T) | **Apache-2.0** (github.com/piddnad/DDColor LICENSE, commit 2adb63f2) | **Apache-2.0** (HF `piddnad/ddcolor_paper_tiny` model card, read 23 Oct) | ImageNet (the image collection's own terms are research-only; the authors release the weights under Apache-2.0 — same position as every ImageNet-pretrained model) | **Yes** (keep the notice; owner may re-confirm) | **server only** (ONNX ~270 MB, never sent to phones) |
+| Deblur | **NAFNet** (megvii-research) | **MIT** (LICENSE read 23 Oct) | released with the repo (MIT); trained on GoPro (CC BY 4.0) / REDS | — | **Yes** | **pay-per-use GPU API** (Replicate model `megvii-research/nafnet`) behind the Admin key `photo_restore_gpu` — hidden until connected and priced. We never host these weights. Replicate's own API terms apply to the call. |
+| (considered) super-resolution | SwinIR | Apache-2.0 (LICENSE read 23 Oct) | released with the repo | DIV2K/Flickr2K | Yes | **not used**: far slower than Real-ESRGAN compact on CPU/phone for the same job |
+| Face restoration | GFPGAN v1.3/1.4 | Apache-2.0 code, BUT the repo LICENSE itself carries the **NVIDIA Source Code License** for StyleGAN2 parts (non-commercial, line 88+ of LICENSE, re-read 23 Oct) and the weights build on an FFHQ-trained StyleGAN2 prior (FFHQ = CC BY-NC-SA 4.0) | — | — | **NO — NOT USED** | — |
+| Face restoration | CodeFormer | S-Lab License 1.0 (non-commercial) | — | — | **NO — never** | — |
+| Face restoration | any other (RestoreFormer, VQFR, DiffBIR face …) | various | all trained on FFHQ / CelebA (non-commercial datasets) or unclear | — | **not cleared** | **Face restoration is therefore NOT offered** in Photo Studio (the app tells the owner why; users simply don't see it). Faces are protected instead: face-lock (25 % of AI detail inside face ellipses) + the on-device identity check on every result. |
+| Low light, denoise | our classical code (`ps_classic.dart` presets `lowLightTool`, `denoiseTool`) | ours | — | — | Yes | phone |
+| Old-photo scratch/dust cleanup, fade fix | our code (`core/photo_restore.py`: adaptive median defect mask, levels) | ours | — | — | Yes | server |
+| Server inference runtime | ONNX Runtime 1.19.2 (Python) | MIT | — | — | Yes | server (pip, backend venv) |
+| Evaluation photos (20) | 10 US-Congress portraits (public domain) + 10 CC0 photos, Wikimedia Commons (`.phaseB/photo_studio_eval/sources.json`) | — | — | — | Yes (only small contact sheets in the repo) | not shipped |
+
+## Photo Studio v2 (owner order 6) — FACE LOCK + worker models (23 Oct 2026)
+
+| Purpose | Model | Licence (how checked, 23 Oct 2026) | Commercial OK? | Where |
+|---|---|---|---|---|
+| Face detection + 5 landmarks (FACE LOCK, face detail pass) | **YuNet** `face_detection_yunet_2023mar.onnx` (OpenCV Zoo, 230 KB, sha256 `8f2383e4…2fa4`) | **MIT** (opencv_zoo/models/face_detection_yunet/LICENSE, Copyright (c) 2020 Shiqi Yu) | **Yes** | photo worker (server) |
+| Face IDENTITY score (FACE LOCK) | **AuraFace-v1** `glintr100.onnx` (fal.ai, ResNet-100 ArcFace-style, 260 MB, sha256 `a7933ea5…5c60`) | **Apache-2.0** (HF card + LICENSE.md); README: "trained on commercially and publicly available data sources to enable its usage in commercial setting" | **Yes** | photo worker (server) |
+| (NOT used, same HF repo) | `scrfd_10g_bnkps.onnx`, `2d106det.onnx`, `genderage.onnx`, `1k3d68.onnx` in fal/AuraFace-v1 | byte-identical (same sha256 as the copies in public antelopev2 mirrors) to **InsightFace** models = **non-commercial** | **NO** — never downloaded (install.sh fetches glintr100.onnx only) | — |
+| (NOT used) | InsightFace antelopev2 / buffalo_l (incl. its own `glintr100.onnx`, sha256 `4ab1d643…4cdf`) | non-commercial research only | **NO** | — |
+| Seamless paste-back of the original face | OpenCV `seamlessClone` (Poisson blending) | Apache-2.0 (opencv-python-headless 4.10) | Yes | photo worker |
+| Face RESTORATION (GAN face prior) | GFPGAN / CodeFormer / RestoreFormer … | see above: NVIDIA NC parts / S-Lab NC / FFHQ-NC training data | **NO** | **not offered**. Best clean alternative shipped: a *face detail pass* = Real-ESRGAN (BSD-3) on the face crop at native resolution, luminance only, then FACE LOCK. Honest consequence: faces get crisper but not "re-imagined" like Remini's. |
+| Premium HD fast path (optional) | Real-ESRGAN on Replicate (`face_enhance=false` — GFPGAN is never requested) | BSD-3 model; Replicate API terms | Yes | GPU API, key-gated (`photo_restore_gpu.enhance_version`) |
+| Prompt edit (“Nano Banana” / GPT Image / Flux) | Google Gemini image models, OpenAI GPT Image, Replicate-hosted models (e.g. FLUX Kontext **[pro]** only — FLUX [dev] weights are non-commercial) | provider API terms (owner accepts them when adding the key) | Yes via the paid API | cloud, key-gated, switchable in Owner Admin (`photo_studio.provider`); every result goes through FACE LOCK on the worker |

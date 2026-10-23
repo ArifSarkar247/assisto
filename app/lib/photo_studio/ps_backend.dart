@@ -20,6 +20,9 @@ abstract class PsBackend {
   Future<PsReply> run(int id, {String imageB64 = '', List<List<double>>? faceBoxes});
   Future<PsReply> unlock(int id, ExportKind kind);
   Future<Uint8List?> download(String url);
+
+  /// d1-photo v2: "Report this AI image" (Google Play AI-content policy).
+  Future<PsReply> report(int id, String reason, {String note = ''});
 }
 
 class ApiPsBackend implements PsBackend {
@@ -75,6 +78,10 @@ class ApiPsBackend implements PsBackend {
   @override
   Future<PsReply> unlock(int id, ExportKind kind) async =>
       _r(await api.postJsonRaw('/photo-studio/jobs/$id/unlock', {'kind': kind.wire}));
+
+  @override
+  Future<PsReply> report(int id, String reason, {String note = ''}) async =>
+      _r(await api.postJsonRaw('/photo-studio/jobs/$id/report', {'reason': reason, 'note': note}));
 
   @override
   Future<Uint8List?> download(String url) async {

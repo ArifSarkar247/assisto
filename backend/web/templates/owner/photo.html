@@ -1,0 +1,56 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_photo }}{% endblock %}
+{% block content %}
+{% if guard.alert %}<div class="flash warn" role="alert"><b>{{ T.ph_guard_alert }}</b> {{ T.ph_guard_alert_body }}</div>{% endif %}
+
+<section class="card"><h2>{{ T.ph_guard_title }}</h2>
+  <p class="small">{{ T.ph_guard_note }}</p>
+  <div class="tiles">
+    <div class="tile"><span>{{ T.ph_free_users }}</span><b>{{ guard.free_users }}</b><small>{{ guard.days }} {{ T.ph_days }}</small></div>
+    <div class="tile"><span>{{ T.ph_ai_cost }}</span><b>৳{{ guard.cost_bdt }}</b></div>
+    <div class="tile"><span>{{ T.ph_ad_rev }}</span><b>৳{{ guard.ad_bdt }}</b></div>
+    <div class="tile"><span>{{ T.ph_net }}</span><b class="{% if guard.net_bdt < 0 %}neg{% else %}pos{% endif %}">৳{{ guard.net_bdt }}</b><small>{{ T.ph_losing }} {{ guard.losing_users }}</small></div>
+  </div>
+  {% if guard.worst %}<div class="tbl"><table><thead><tr><th>user</th><th>{{ T.ph_ai_cost }}</th><th>{{ T.ph_ad_rev }}</th><th>jobs</th><th>{{ T.ph_gifts }}</th></tr></thead><tbody>
+  {% for r in guard.worst %}<tr><td><a href="/owner/users/{{ r.user_id }}">#{{ r.user_id }}</a></td><td class="num">৳{{ r.cost_bdt }}</td><td class="num">৳{{ r.ad_bdt }}</td><td class="num">{{ r.jobs }}</td><td class="num">{{ r.gifts }}</td></tr>{% endfor %}
+  </tbody></table></div>{% endif %}
+  <p class="mut small">{{ T.ph_pricing_link }} <a href="/owner/pricing">{{ T.nav_pricing }}</a></p>
+</section>
+
+<section class="card" id="ab"><h2>{{ T.ph_ab_title }}</h2>
+  <p class="small">{{ T.ph_ab_note }}</p>
+  {% if not pairs_total %}<p class="empty">{{ T.ph_ab_empty }}</p>
+  {% elif pair %}
+    <p class="mut small">{{ my_votes }} / {{ pairs_total }} · {{ pair.category }}</p>
+    <div class="cols">
+      <figure><img src="/owner/photo/ab/{{ pair.pk }}/in" alt="input" style="max-width:100%"><figcaption>{{ T.ph_ab_input }}</figcaption></figure>
+      <figure><img src="/owner/photo/ab/{{ pair.pk }}/{{ left_tag }}" alt="A" style="max-width:100%"><figcaption>A</figcaption></figure>
+      <figure><img src="/owner/photo/ab/{{ pair.pk }}/{{ right_tag }}" alt="B" style="max-width:100%"><figcaption>B</figcaption></figure>
+    </div>
+    <form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="vote">
+      <input type="hidden" name="pair" value="{{ pair.pk }}"><input type="hidden" name="left_was" value="{{ left_was }}">
+      <button class="btn primary" name="pick" value="left">{{ T.ph_ab_a }}</button>
+      <button class="btn" name="pick" value="same">{{ T.ph_ab_same }}</button>
+      <button class="btn primary" name="pick" value="right">{{ T.ph_ab_b }}</button>
+    </form>
+  {% else %}<p class="pos">{{ T.ph_ab_all_done }}</p>{% endif %}
+  {% if results %}<h3>{{ T.ph_ab_results }}</h3>
+  <div class="tbl"><table><thead><tr><th>{{ T.ph_category }}</th><th>Assisto</th><th>Remini</th><th>{{ T.ph_ab_same }}</th></tr></thead><tbody>
+  {% for cat, r in results %}<tr><td>{{ cat }}</td><td class="num">{{ r.assisto }}</td><td class="num">{{ r.remini }}</td><td class="num">{{ r.same }}</td></tr>{% endfor %}
+  <tr><td><b>Σ</b></td><td class="num"><b>{{ totals.assisto }}</b></td><td class="num"><b>{{ totals.remini }}</b></td><td class="num"><b>{{ totals.same }}</b></td></tr>
+  </tbody></table></div>
+  <p class="mut small">{{ T.ph_ab_honest }}</p>{% endif %}
+</section>
+
+<section class="card" id="reports"><h2>{{ T.ph_reports_title }}</h2>
+  {% if reports %}<div class="tbl"><table><thead><tr><th>{{ T.time }}</th><th>job</th><th>{{ T.ph_reason }}</th><th>{{ T.ph_note }}</th><th>{{ T.status }}</th><th></th></tr></thead><tbody>
+  {% for r in reports %}<tr><td>{{ r.created_at|date:"m-d H:i" }}</td><td>{% if r.job %}#{{ r.job.pk }} {{ r.job.feature }}{% else %}—{% endif %}</td><td>{{ r.reason }}</td><td>{{ r.note }}</td><td>{{ r.status }}</td>
+  <td>{% if r.status == "open" %}<form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="close_report"><input type="hidden" name="rid" value="{{ r.pk }}"><button class="btn">{{ T.ph_close }}</button></form>{% endif %}</td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<p class="empty">{{ T.ph_reports_empty }}</p>{% endif %}
+</section>
+
+<section class="card"><h2>{{ T.ph_queue_title }}</h2>
+  <p>{% if worker_on %}<span class="pill ok">{{ T.ph_worker_on }}</span>{% else %}<span class="pill off">{{ T.ph_worker_off }}</span>{% endif %}</p>
+  <p class="small">queued {{ queue.queued }} · running {{ queue.running }} · done 24h {{ queue.done_24h }} · failed 24h {{ queue.failed_24h }}</p>
+</section>
+{% endblock %}

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
@@ -10,12 +11,17 @@ import 'ps_enhance.dart';
 import 'ps_export.dart';
 import 'ps_models.dart';
 import 'ps_native.dart';
+import 'ps_report.dart';
 import 'ps_session.dart';
+import 'ps_tools.dart';
 import 'ps_web_import.dart';
 
 /// Image source seam (gallery / camera). Tests inject bytes.
 abstract class PhotoPicker {
   Future<Uint8List?> pick({required bool camera});
+
+  /// d1-photo batch: several gallery photos (at most [limit]).
+  Future<List<Uint8List>> pickMany({int limit = PhotoStudioController.batchMax});
 }
 
 class ImagePickerPhotoPicker implements PhotoPicker {
@@ -32,6 +38,33 @@ class ImagePickerPhotoPicker implements PhotoPicker {
       return null;
     }
   }
+
+  @override
+  Future<List<Uint8List>> pickMany({int limit = PhotoStudioController.batchMax}) async {
+    try {
+      final xs = await _p.pickMultiImage(imageQuality: 97, limit: limit);
+      final out = <Uint8List>[];
+      for (final x in xs.take(limit)) {
+        out.add(await x.readAsBytes());
+      }
+      return out;
+    } catch (_) {
+      return const [];
+    }
+  }
+}
+
+/// d1-photo batch: one photo of a batch run.
+enum BatchStatus { waiting, running, done, failed, skipped, cancelled }
+
+class BatchItem {
+  BatchItem(this.input);
+  final Uint8List input;
+  Uint8List? output;
+  BatchStatus status = BatchStatus.waiting;
+
+  /// For failed/skipped: a PsNotice the screen localises.
+  PsNotice reason = PsNotice.none;
 }
 
 /// Everything Photo Studio depends on, injectable for tests + the gallery.
@@ -52,14 +85,17 @@ class PsDeps {
     ExportSink sink = const PlatformExportSink(),
     ExportRenderer renderer = const UiExportRenderer(),
     PhotoPicker? picker,
+    PsReporter? reporter,
   }) {
     final n = native ?? ChannelPhotoNative();
     final g = guard ?? IdentityGuard(landmarks: NativeLandmarks(n));
+    final rep = reporter ?? defaultPsReporter;
     return PsDeps._(
       backend: backend,
       ads: ads ?? createPhotoAdBridge(),
       native: n,
-      engine: engine ?? StudioEnhanceEngine(native: n, guard: g),
+      engine: engine ?? StudioEnhanceEngine(native: n, guard: g, reporter: rep),
+      reporter: rep,
       faces: faces ?? NativeFaceDetector(n),
       guard: g,
       secure: secure,
@@ -79,6 +115,7 @@ class PsDeps {
     required this.sink,
     required this.renderer,
     required this.picker,
+    required this.reporter,
   });
   final PsBackend backend;
   final PhotoAdBridge ads;
@@ -90,6 +127,9 @@ class PsDeps {
   final ExportSink sink;
   final ExportRenderer renderer;
   final PhotoPicker picker;
+
+  /// d1-photo: every Photo Studio failure -> crash-report pipe (non-PII).
+  final PsReporter reporter;
 }
 
 enum PsPhase { loading, entryAd, open, error }
@@ -125,6 +165,33 @@ enum PsNotice {
   /// w1-webphoto: the website photo is a (watermarked) preview of a server
   /// job — it is exported as-is; editing needs the user's original photo.
   webImportNoEdit,
+
+  /// d1-photo: the AI step failed on this phone (reported); the safe
+  /// classical result is shown instead.
+  aiStepFailed,
+
+  /// d1-photo: a tool failed for real (reported) — nothing was changed.
+  toolFailed,
+
+  /// d1-photo: background blur found no clear person/subject (or it would
+  /// have blurred a face) — nothing was changed.
+  noSubject,
+
+  /// d1-photo: the photo is too big for this upscale factor.
+  tooBig,
+
+  /// d1-photo: a batch finished (counts in [PhotoStudioController.batch]).
+  batchDone,
+
+  /// d1-photo v2: today's free HD enhances / this week's free AI are used
+  /// (server message in noticeText; the screen offers Premium).
+  limitReached,
+
+  /// d1-photo v2: the server photo worker is still busy after the wait.
+  stillWorking,
+
+  /// d1-photo v2: "Report this AI image" sent.
+  reported,
 }
 
 class PhotoStudioController extends ChangeNotifier {
@@ -165,6 +232,73 @@ class PhotoStudioController extends ChangeNotifier {
 
   bool get free => config.free;
 
+  // ------------------------------------------------------------------ d1-photo
+  /// Live progress of the running job (null = nothing running). Real counts
+  /// from the engine: model bytes, AI tiles, batch photos.
+  PsProgress? progress;
+
+  /// Cancel was pressed; the engine stops after the current tile.
+  bool cancelling = false;
+
+  /// d1-photo: tools this phone can run on the current photo.
+  ToolsAvailability tools = ToolsAvailability.none;
+
+  /// The AI step's plan for the current photo (size it works at + tiles) —
+  /// shown honestly next to the switch.
+  AiPlan? aiPlan;
+
+  /// d1-photo: old-photo restore also colourises (black & white photos).
+  bool restoreColorize = true;
+
+  /// d1-photo v2: the user confirmed the OTHER people in the photo agreed
+  /// to an AI edit (server refuses realistic AI edits of others without it).
+  bool consentOthers = false;
+
+  /// d1-photo v2: FACE LOCK result per version index (server AI results).
+  final Map<int, FaceLockInfo> faceLockOf = {};
+  FaceLockInfo? get currentFaceLock => session == null ? null : faceLockOf[session!.index];
+
+  /// Poll interval / max wait for a queued server job (tests shorten them).
+  Duration pollEvery = const Duration(seconds: 2);
+  Duration pollMax = const Duration(minutes: 8);
+
+  /// Batch run (at most [batchMax] photos — nothing unlimited).
+  static const batchMax = 10;
+  final List<BatchItem> batch = [];
+  bool batchRunning = false;
+  bool _batchCancel = false;
+  PsTool? batchTool;
+
+  PhotoToolEngine? get _tools {
+    final e = deps.engine;
+    return e is PhotoToolEngine ? e as PhotoToolEngine : null;
+  }
+
+  void _onProgress(PsProgress p) {
+    progress = p;
+    _notify();
+  }
+
+  /// Report a failure (non-PII) — never throws.
+  void _report(String stage, Object e) {
+    try {
+      deps.reporter(e is PhotoStudioFailure
+          ? e
+          : PhotoStudioFailure(stage, psErrorCode(e), model: config.aiModel.version));
+    } catch (_) {}
+  }
+
+  /// Stop the running job: the engine stops after the current tile; nothing
+  /// is kept and nothing is charged.
+  Future<void> cancelRun() async {
+    _batchCancel = true;
+    cancelling = true; // the overlay says "Stopping…" until the tile ends
+    _notify();
+    try {
+      await _tools?.cancel();
+    } catch (_) {}
+  }
+
   Future<void> init() async {
     phase = PsPhase.loading;
     _notify();
@@ -182,12 +316,16 @@ class PhotoStudioController extends ChangeNotifier {
     } catch (_) {}
     final eng = deps.engine;
     if (eng is StudioEnhanceEngine) eng.model = config.aiModel;
+    final te = _tools;
+    if (te != null) te.progress = _onProgress;
     try {
       enhance = await deps.engine.availability();
-    } catch (_) {
+    } catch (e) {
+      _report('availability', e);
       enhance = EnhanceAvailability.unavailable;
     }
-    // model already on the phone: AI restore starts switched on
+    // model already on the phone: AI restore starts switched on (for big
+    // photos it is switched off again in _inspect — it works on a copy)
     aiOn = enhance.ai == AiState.ready;
     // ENTRY AD: free users only, server-capped (30 min default), shown BEFORE
     // the studio opens with a natural transition. Never for Premium/Business.
@@ -256,6 +394,20 @@ class PhotoStudioController extends ChangeNotifier {
     } catch (_) {
       aiEligible = false;
     }
+    // d1-photo: the honest size/time line + tool list for THIS photo
+    aiPlan = null;
+    if (eng is StudioEnhanceEngine && aiEligible) {
+      aiPlan = await eng.aiPlanFor(b, maxLongEdge: config.free ? config.previewMaxPx : null);
+      final s = await _sizeOf(b);
+      // the AI step SHRINKS big photos (it works on a copy): off by default
+      // there, on by default for small/old photos once the model is here
+      if (s != null && aiPlan != null && aiPlan!.targetLong < math.max(s.w, s.h)) {
+        aiOn = false;
+      } else if (enhance.ai == AiState.ready) {
+        aiOn = true;
+      }
+    }
+    await _refreshTools(b);
     if (deps.faces.available) {
       try {
         final f = await deps.faces.detect(b);
@@ -335,9 +487,12 @@ class PhotoStudioController extends ChangeNotifier {
         enhance = a;
         _notify();
       });
-    } catch (_) {
+    } catch (e) {
+      _report('download', e);
       enhance = enhance.withAi(AiState.failed);
     }
+    final b = session?.current.bytes;
+    if (b != null) await _refreshTools(b);
     if (enhance.ai == AiState.failed) _say(PsNotice.aiDownloadFailed);
     _notify();
   }
@@ -362,6 +517,7 @@ class PhotoStudioController extends ChangeNotifier {
     if (webImport) return _say(PsNotice.webImportNoEdit);
     if (!enhance.ready) return _say(PsNotice.failed);
     busy = true;
+    progress = const PsProgress(PsStage.analyse);
     _notify();
     try {
       // The classical pipeline only changes tone/noise/sharpness per pixel —
@@ -377,26 +533,234 @@ class PhotoStudioController extends ChangeNotifier {
       _versionAi[s.index] = ai && lastReport.aiUsed;
       notice = PsNotice.none;
       if (lastReport.aiRejected) _say(PsNotice.aiFellBack);
+      if (lastReport.aiFailed) _say(PsNotice.aiStepFailed);
+    } on PsCancelled {
+      _say(PsNotice.cancelled);
     } on EnhanceUnavailable {
       _say(PsNotice.failed);
-    } catch (_) {
+    } catch (e) {
+      _report('enhance', e);
       _say(PsNotice.failed);
     } finally {
       busy = false;
+      progress = null;
+      cancelling = false;
       _notify();
     }
+  }
+
+  // ------------------------------------------------------------------ tools
+  Future<({int w, int h})?> _sizeOf(Uint8List b) async {
+    final eng = deps.engine;
+    if (eng is! StudioEnhanceEngine) return null;
+    try {
+      return await eng.codec.size(b);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _refreshTools(Uint8List b) async {
+    final te = _tools;
+    if (te == null) {
+      tools = ToolsAvailability.none;
+      return;
+    }
+    try {
+      tools = await te.tools(b);
+    } catch (e) {
+      _report('tool', e);
+      tools = ToolsAvailability.none;
+    }
+  }
+
+  /// Run one on-device tool on the CURRENT version (tools chain: e.g.
+  /// enhance, then blur the background). The result is full quality; free
+  /// users still see it only as a protected preview and export through the
+  /// same gate.
+  Future<void> runTool(PsTool tool) async {
+    final s = session;
+    if (s == null) return _say(PsNotice.needPhoto);
+    if (webImport) return _say(PsNotice.webImportNoEdit);
+    final te = _tools;
+    if (te == null || !tools.has(tool)) return _say(PsNotice.toolFailed);
+    busy = true;
+    progress = const PsProgress(PsStage.analyse);
+    _notify();
+    try {
+      final out = await _runToolOn(te, tool, s.current.bytes);
+      s.push(PhotoVersion(
+          bytes: out, feature: 'enhance_hd', previewOnly: config.free, fullQuality: true,
+          aiEdited: tool.usesAi));
+      _versionAi[s.index] = tool.usesAi;
+      notice = PsNotice.none;
+      await _refreshTools(out);
+    } on PsCancelled {
+      _say(PsNotice.cancelled);
+    } on PsIdentityRejected {
+      _say(PsNotice.identityFailed);
+    } on PsNoSubject {
+      _say(PsNotice.noSubject);
+    } on PhotoStudioFailure catch (f) {
+      // already reported by the engine
+      _say(f.code == 'too_big' ? PsNotice.tooBig : PsNotice.toolFailed);
+    } catch (e) {
+      _report('tool', e);
+      _say(PsNotice.toolFailed);
+    } finally {
+      busy = false;
+      progress = null;
+      cancelling = false;
+      _notify();
+    }
+  }
+
+  Future<Uint8List> _runToolOn(PhotoToolEngine te, PsTool tool, Uint8List bytes) async {
+    if ((tool.usesAi && tools.needsUpscaleModel) || (tool == PsTool.bgBlur && tools.needsMaskModel)) {
+      progress = const PsProgress(PsStage.download);
+      _notify();
+      if (!await te.prepareTool(tool)) {
+        throw const PhotoStudioFailure('download', 'failed');
+      }
+      if (tool.usesAi) enhance = enhance.withAi(AiState.ready, progress: 1);
+      tools = await te.tools(bytes);
+    }
+    return te.runTool(tool, bytes);
+  }
+
+  // ------------------------------------------------------------------ batch
+  /// Pick up to [batchMax] photos and run ONE tool (or the one-tap enhance
+  /// when [tool] is null) on each, one after another, with progress. Each
+  /// result can then be opened and exported through the normal gate.
+  Future<void> pickBatch() async {
+    final list = await deps.picker.pickMany(limit: batchMax);
+    if (list.isEmpty) return;
+    batch
+      ..clear()
+      ..addAll(list.take(batchMax).map(BatchItem.new));
+    _notify();
+  }
+
+  void clearBatch() {
+    if (batchRunning) return;
+    batch.clear();
+    _notify();
+  }
+
+  Future<void> runBatch({PsTool? tool}) async {
+    if (batch.isEmpty || batchRunning) return;
+    batchRunning = true;
+    _batchCancel = false;
+    batchTool = tool;
+    busy = true;
+    _notify();
+    final te = _tools;
+    try {
+      for (var i = 0; i < batch.length; i++) {
+        final it = batch[i];
+        if (it.status == BatchStatus.done) continue;
+        if (_batchCancel) {
+          it.status = BatchStatus.cancelled;
+          continue;
+        }
+        it.status = BatchStatus.running;
+        progress = PsProgress(PsStage.batch, done: i, total: batch.length, item: i + 1, items: batch.length);
+        _notify();
+        try {
+          if (tool == null) {
+            it.output = await deps.engine.enhance(
+                it.input,
+                EnhanceRequest(strength: strength, ai: aiOn && enhance.ai == AiState.ready)
+                    .withMaxLongEdge(config.free ? config.previewMaxPx : null));
+          } else {
+            if (te == null) throw const PhotoStudioFailure('batch', 'no_engine');
+            final av = await te.tools(it.input);
+            if (!av.has(tool)) {
+              it.status = BatchStatus.skipped;
+              it.reason = PsNotice.tooBig;
+              continue;
+            }
+            tools = av;
+            it.output = await _runToolOn(te, tool, it.input);
+          }
+          it.status = BatchStatus.done;
+        } on PsCancelled {
+          it.status = BatchStatus.cancelled;
+          _batchCancel = true;
+        } on PsIdentityRejected {
+          it.status = BatchStatus.skipped;
+          it.reason = PsNotice.identityFailed;
+        } on PsNoSubject {
+          it.status = BatchStatus.skipped;
+          it.reason = PsNotice.noSubject;
+        } catch (e) {
+          if (e is! PhotoStudioFailure) _report('batch', e);
+          it.status = BatchStatus.failed;
+          it.reason = PsNotice.toolFailed;
+        }
+        _notify();
+      }
+      _say(PsNotice.batchDone);
+    } finally {
+      batchRunning = false;
+      busy = false;
+      progress = null;
+      cancelling = false;
+      _notify();
+    }
+  }
+
+  /// Open one finished batch result in the studio (export via the gate).
+  void openBatchItem(int i) {
+    if (i < 0 || i >= batch.length) return;
+    final it = batch[i];
+    final out = it.output;
+    if (out == null) return;
+    webImport = false;
+    final s = PhotoSession(it.input);
+    s.push(PhotoVersion(
+        bytes: out, feature: 'enhance_hd', previewOnly: config.free, fullQuality: batchTool != null));
+    if (batchTool == null) {
+      _versionStrength[s.index] = strength;
+      _versionAi[s.index] = aiOn && enhance.ai == AiState.ready;
+    }
+    session = s;
+    notice = PsNotice.none;
+    _notify();
+    unawaited(_refreshTools(out));
+  }
+
+  // ------------------------------------------------------------------ restore (server)
+  /// d1-photo: heavy restore on OUR server (colorize / old-photo restore) or
+  /// the key-gated GPU API (deblur). Same money path as a prompt edit:
+  /// safety -> funding TAKEN (ads/credits/pool, Profit Guard) -> run -> the
+  /// identity check on the result before it is shown.
+  Future<void> runRestore(PsFeature f, GateUi ui) async {
+    if (!f.isRestore) return;
+    if (!config.restoreReady(f)) {
+      final q = config.quote(f);
+      if (q.reason == 'daily_limit' || q.reason == 'fair_use_cap') {
+        return _say(PsNotice.limitReached, q.message);
+      }
+      return _say(PsNotice.providerMissing, q.message);
+    }
+    await _runCloud(f, '', ui, extra: {
+      if (f == PsFeature.oldRestore) 'restore_colorize': restoreColorize,
+    });
   }
 
   // ------------------------------------------------------------------ prompt edit
   Map<String, dynamic> _jobBody(PsFeature f, String prompt) => {
         'feature': f.wire,
         'prompt': prompt,
-        'options': options.toList(),
-        'beauty': beauty.toList(),
+        // d1-photo: restore jobs are faithful (no generative options)
+        'options': f.isRestore ? const <String>[] : options.toList(),
+        'beauty': f.isRestore ? const <String>[] : beauty.toList(),
         'strength': strength.wire,
         'others_in_photo': othersInPhoto,
         'own_photo': !othersInPhoto,
         'child_in_photo': childInPhoto,
+        if (othersInPhoto) 'consent': consentOthers,
       };
 
   /// Edit (with a photo) or generate (without). Safety -> identity-guard
@@ -406,8 +770,17 @@ class PhotoStudioController extends ChangeNotifier {
     final feature = s == null ? PsFeature.generate : PsFeature.promptEdit;
     if (webImport) return _say(PsNotice.webImportNoEdit);
     if (prompt.trim().isEmpty && options.isEmpty) return _say(PsNotice.needPrompt);
+    await _runCloud(feature, prompt, ui);
+  }
+
+  Future<void> _runCloud(PsFeature feature, String prompt, GateUi ui,
+      {Map<String, dynamic> extra = const {}}) async {
+    final s = session;
+    if (webImport) return _say(PsNotice.webImportNoEdit);
+    if (feature.isRestore && s == null) return _say(PsNotice.needPhoto);
     refusal = null;
     busy = true;
+    progress = feature.isRestore ? const PsProgress(PsStage.server) : null;
     _notify();
     try {
       final v = await deps.backend.safety(_jobBody(feature, prompt));
@@ -415,15 +788,19 @@ class PhotoStudioController extends ChangeNotifier {
         refusal = v;
         return _say(PsNotice.refused, v.message);
       }
-      if (!config.providerReady) return _say(PsNotice.providerMissing, config.providerNeeds);
+      if (!feature.isRestore && !config.providerReady) {
+        return _say(PsNotice.providerMissing, config.providerNeeds);
+      }
       // never take money for a result we could not show
       if (s != null && hasPeople && !deps.guard.available) {
         return _say(PsNotice.identityCheckMissing);
       }
       final q = config.quote(feature);
-      final body = _jobBody(feature, prompt);
+      final body = {..._jobBody(feature, prompt), ...extra};
       if (config.free) {
-        if (q.ads != null) {
+        if (q.gift) {
+          body['via'] = 'gift'; // a lifetime free AI generation (no ads)
+        } else if (q.ads != null) {
           body['via'] = 'ads';
         } else {
           final c = await ui.chooseFunding(GateNeed(
@@ -454,8 +831,20 @@ class PhotoStudioController extends ChangeNotifier {
       final rr = await deps.backend.run(cr.job!.id,
           imageB64: s == null ? '' : ApiPsBackend.b64(s.current.bytes),
           faceBoxes: faces.map((e) => e.toList()).toList());
-      if (!rr.ok || rr.job == null) return _say(PsNotice.failed, rr.message);
-      final job = rr.job!;
+      if (!rr.ok || rr.job == null) {
+        if (feature.isRestore) {
+          _report('server', PhotoStudioFailure('server', '${feature.wire}:${rr.status}:${rr.reason}'));
+        }
+        return _say(PsNotice.failed, rr.message);
+      }
+      var job = rr.job!;
+      // d1-photo v2: queued on the photo worker -> wait honestly (position)
+      if (job.waiting) {
+        final waited = await _waitForJob(job);
+        if (waited == null) return _say(PsNotice.stillWorking);
+        job = waited;
+        if (job.status != 'done') return _say(PsNotice.failed, job.status);
+      }
       final prev = job.previewUrl.isEmpty ? null : await deps.backend.download(job.previewUrl);
       if (prev == null) return _say(PsNotice.failed);
       if (s != null && hasPeople) {
@@ -475,15 +864,20 @@ class PhotoStudioController extends ChangeNotifier {
       } else {
         s.push(ver);
       }
+      final fl = job.faceLock;
+      if (fl != null) faceLockOf[session!.index] = fl;
       notice = PsNotice.none;
       // trials left / pool balance changed on the server
       try {
         config = await deps.backend.config();
       } catch (_) {}
-    } catch (_) {
+    } catch (e) {
+      _report(feature.isRestore ? 'server' : 'prompt', e);
       _say(PsNotice.failed);
     } finally {
       busy = false;
+      progress = null;
+      cancelling = false;
       _notify();
     }
   }
@@ -545,6 +939,9 @@ class PhotoStudioController extends ChangeNotifier {
       Uint8List? full;
       if (grant.resultUrl.isNotEmpty) {
         full = await deps.backend.download(grant.resultUrl);
+      } else if (v.fullQuality) {
+        // d1-photo tool / batch result: already full quality on the phone
+        full = v.bytes;
       } else {
         final st = _versionStrength[s.index] ?? strength;
         full = await deps.engine.enhance(s.original.bytes,
@@ -568,12 +965,67 @@ class PhotoStudioController extends ChangeNotifier {
       });
     } on EnhanceUnavailable {
       _say(PsNotice.failed);
-    } catch (_) {
+    } on PsCancelled {
+      _say(PsNotice.cancelled);
+    } catch (e) {
+      _report('export', e);
       _say(PsNotice.failed);
     } finally {
       busy = false;
+      progress = null;
+      cancelling = false;
       _notify();
     }
+  }
+
+  /// Poll a queued job until done/failed. null = still running after
+  /// [pollMax] or the user pressed Cancel (the job keeps its funds).
+  Future<PsJob?> _waitForJob(PsJob job) async {
+    _batchCancel = false;
+    final sw = Stopwatch()..start();
+    var j = job;
+    while (j.waiting) {
+      if (_batchCancel || sw.elapsed > pollMax) return null;
+      progress = PsProgress(PsStage.server, item: j.queuePosition);
+      _notify();
+      await Future<void>.delayed(pollEvery);
+      final r = await deps.backend.job(j.id);
+      if (r.job != null) j = r.job!;
+    }
+    return j;
+  }
+
+  /// d1-photo v2: one-tap template.
+  Future<void> runTemplate(PsTemplate t, GateUi ui) async {
+    switch (t.feature) {
+      case PsFeature.enhanceServer:
+      case PsFeature.oldRestore:
+      case PsFeature.colorize:
+      case PsFeature.deblur:
+        return runRestore(t.feature, ui);
+      default:
+        if (session == null) return _say(PsNotice.needPhoto);
+        if (!config.providerReady) return _say(PsNotice.providerMissing, config.providerNeeds);
+        return _runCloud(t.feature, '', ui, extra: {'template': t.id});
+    }
+  }
+
+  /// d1-photo v2: "Report this AI image".
+  Future<void> reportCurrent(String reason, {String note = ''}) async {
+    final id = jobForCurrent();
+    if (id == null) return;
+    try {
+      final r = await deps.backend.report(id, reason, note: note);
+      _say(r.ok ? PsNotice.reported : PsNotice.failed, r.message);
+    } catch (e) {
+      _report('report', e);
+      _say(PsNotice.failed);
+    }
+  }
+
+  void setConsent(bool v) {
+    consentOthers = v;
+    _notify();
   }
 
   final Map<int, bool> _versionAi = {};

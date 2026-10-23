@@ -1,0 +1,830 @@
+{
+ "summary": {
+  "portrait": {
+   "damaged": {
+    "psnr": 28.102,
+    "ssim": 0.848,
+    "sharp": 10.4,
+    "dL": 1.838,
+    "colour": 24.88,
+    "n": 5
+   },
+   "assisto": {
+    "psnr": 22.692,
+    "ssim": 0.825,
+    "sharp": 255.2,
+    "dL": 5.616,
+    "colour": 25.44,
+    "n": 5,
+    "improved_psnr": 0
+   },
+   "clean_sharp": 682,
+   "ms_mean": 3116
+  },
+  "old": {
+   "damaged": {
+    "psnr": 15.346,
+    "ssim": 0.633,
+    "sharp": 28.8,
+    "dL": 6.808,
+    "colour": 6.86,
+    "n": 5
+   },
+   "assisto": {
+    "psnr": 13.482,
+    "ssim": 0.613,
+    "sharp": 109.0,
+    "dL": 13.4,
+    "colour": 12.12,
+    "n": 5,
+    "improved_psnr": 1
+   },
+   "clean_sharp": 2134,
+   "ms_mean": 10970
+  },
+  "blurry": {
+   "damaged": {
+    "psnr": 25.048,
+    "ssim": 0.738,
+    "sharp": 29.8,
+    "dL": 3.202,
+    "colour": 16.24,
+    "n": 5
+   },
+   "assisto": {
+    "psnr": 21.584,
+    "ssim": 0.776,
+    "sharp": 283.8,
+    "dL": 6.276,
+    "colour": 17.1,
+    "n": 5,
+    "improved_psnr": 1
+   },
+   "clean_sharp": 1208,
+   "ms_mean": 3813
+  },
+  "low_light": {
+   "damaged": {
+    "psnr": 8.474,
+    "ssim": 0.382,
+    "sharp": 617.8,
+    "dL": 35.996,
+    "colour": 7.62,
+    "n": 5
+   },
+   "assisto": {
+    "psnr": 19.85,
+    "ssim": 0.722,
+    "sharp": 2926.8,
+    "dL": 8.322,
+    "colour": 18.08,
+    "n": 5,
+    "improved_psnr": 5
+   },
+   "clean_sharp": 2616,
+   "ms_mean": 353
+  }
+ },
+ "photos": [
+  {
+   "photo": "01_portrait.jpg",
+   "category": "portrait",
+   "metrics": {
+    "damaged": {
+     "psnr": 27.15,
+     "ssim": 0.8068,
+     "sharp": 10,
+     "dL": 2.22,
+     "colour": 15.1,
+     "faces": 1
+    },
+    "assisto": {
+     "psnr": 23.71,
+     "ssim": 0.7982,
+     "sharp": 178,
+     "dL": 5.64,
+     "colour": 16.7,
+     "faces": 1
+    },
+    "clean": {
+     "sharp": 1980,
+     "colour": 15.3,
+     "faces": 1
+    }
+   },
+   "run": {
+    "ai_tiles": 6,
+    "ai_ms": 3274,
+    "classic_ms": 208,
+    "faces_in": 1,
+    "total_ms": 3697
+   },
+   "out_size": [
+    601,
+    800
+   ]
+  },
+  {
+   "photo": "02_portrait.jpg",
+   "category": "portrait",
+   "metrics": {
+    "damaged": {
+     "psnr": 28.99,
+     "ssim": 0.894,
+     "sharp": 10,
+     "dL": 1.55,
+     "colour": 29.2,
+     "faces": 1
+    },
+    "assisto": {
+     "psnr": 24.9,
+     "ssim": 0.8941,
+     "sharp": 195,
+     "dL": 2.68,
+     "colour": 26.3,
+     "faces": 1
+    },
+    "clean": {
+     "sharp": 166,
+     "colour": 29.7,
+     "faces": 1
+    }
+   },
+   "run": {
+    "ai_tiles": 4,
+    "ai_ms": 2106,
+    "classic_ms": 58,
+    "faces_in": 1,
+    "total_ms": 2246
+   },
+   "out_size": [
+    334,
+    410
+   ]
+  },
+  {
+   "photo": "03_portrait.jpg",
+   "category": "portrait",
+   "metrics": {
+    "damaged": {
+     "psnr": 29.3,
+     "ssim": 0.8349,
+     "sharp": 9,
+     "dL": 1.81,
+     "colour": 23.7,
+     "faces": 1
+    },
+    "assisto": {
+     "psnr": 25.69,
+     "ssim": 0.8191,
+     "sharp": 208,
+     "dL": 3.26,
+     "colour": 22.8,
+     "faces": 1
+    },
+    "clean": {
+     "sharp": 380,
+     "colour": 24.0,
+     "faces": 1
+    }
+   },
+   "run": {
+    "ai_tiles": 6,
+    "ai_ms": 3425,
+    "classic_ms": 333,
+    "faces_in": 1,
+    "total_ms": 3987
+   },
+   "out_size": [
+    687,
+    796
+   ]
+  },
+  {
+   "photo": "04_portrait.jpg",
+   "category": "portrait",
+   "metrics": {
+    "damaged": {
+     "psnr": 26.99,
+     "ssim": 0.7965,
+     "sharp": 14,
+     "dL": 2.24,
+     "colour": 22.5,
+     "faces": 1
+    },
+    "assisto": {
+     "psnr": 17.88,
+     "ssim": 0.7147,
+     "sharp": 502,
+     "dL": 11.21,
+     "colour": 32.6,
+     "faces": 1
+    },
+    "clean": {
+     "sharp": 680,
+     "colour": 23.3,
+     "faces": 1
+    }
+   },
+   "run": {
+    "ai_tiles": 6,
+    "ai_ms": 3101,
+    "classic_ms": 229,
+    "faces_in": 1,
+    "total_ms": 3530
+   },
+   "out_size": [
+    640,
+    800
+   ]
+  },
+  {
+   "photo": "05_portrait.jpg",
+   "category": "portrait",
+   "metrics": {
+    "damaged": {
+     "psnr": 28.08,
+     "ssim": 0.9093,
+     "sharp": 9,
+     "dL": 1.37,
+     "colour": 33.9,
+     "faces": 1
+    },
+    "assisto": {
+     "psnr": 21.28,
+     "ssim": 0.9003,
+     "sharp": 193,
+     "dL": 5.29,
+     "colour": 28.8,
+     "faces": 1
+    },
+    "clean": {
+     "sharp": 205,
+     "colour": 34.7,
+     "faces": 1
+    }
+   },
+   "run": {
+    "ai_tiles": 4,
+    "ai_ms": 1981,
+    "classic_ms": 55,
+    "faces_in": 1,
+    "total_ms": 2119
+   },
+   "out_size": [
+    334,
+    410
+   ]
+  },
+  {
+   "photo": "06_portrait.jpg",
+   "category": "old",
+   "metrics": {
+    "damaged": {
+     "psnr": 13.27,
+     "ssim": 0.6891,
+     "sharp": 18,
+     "dL": 6.19,
+     "colour": 6.7,
+     "faces": 1
+    },
+    "assisto": {
+     "psnr": 12.53,
+     "ssim": 0.6218,
+     "sharp": 64,
+     "dL": 16.01,
+     "colour": 10.2,
+     "faces": 2
+    },
+    "clean": {
+     "sharp": 945,
+     "colour": 33.4,
+     "faces": 2
+    }
+   },
+   "run": {
+    "scratch_share": 0.08812688821752265,
+    "colorized": true,
+    "server_ms": 11731,
+    "total_ms": 11731
+   },
+   "out_size": [
+    1324,
+    1600
+   ]
+  },
+  {
+   "photo": "07_portrait.jpg",
+   "category": "old",
+   "metrics": {
+    "damaged": {
+     "psnr": 13.3,
+     "ssim": 0.6421,
+     "sharp": 24,
+     "dL": 6.45,
+     "colour": 6.5,
+     "faces": 2
+    },
+    "assisto": {
+     "psnr": 12.27,
+     "ssim": 0.6014,
+     "sharp": 43,
+     "dL": 16.55,
+     "colour": 9.8,
+     "faces": 2
+    },
+    "clean": {
+     "sharp": 1457,
+     "colour": 31.3,
+     "faces": 2
+    }
+   },
+   "run": {
+    "scratch_share": 0.12853383458646617,
+    "colorized": true,
+    "server_ms": 12911,
+    "total_ms": 12911
+   },
+   "out_size": [
+    1064,
+    1600
+   ]
+  },
+  {
+   "photo": "08_portrait.jpg",
+   "category": "old",
+   "metrics": {
+    "damaged": {
+     "psnr": 12.61,
+     "ssim": 0.706,
+     "sharp": 39,
+     "dL": 6.57,
+     "colour": 7.6,
+     "faces": 1
+    },
+    "assisto": {
+     "psnr": 12.43,
+     "ssim": 0.7776,
+     "sharp": 97,
+     "dL": 4.62,
+     "colour": 16.2,
+     "faces": 1
+    },
+    "clean": {
+     "sharp": 276,
+     "colour": 38.1,
+     "faces": 1
+    }
+   },
+   "run": {
+    "scratch_share": 0.1768949905067913,
+    "colorized": true,
+    "server_ms": 9852,
+    "total_ms": 9852
+   },
+   "out_size": [
+    668,
+    820
+   ]
+  },
+  {
+   "photo": "11_scene.jpg",
+   "category": "old",
+   "metrics": {
+    "damaged": {
+     "psnr": 16.11,
+     "ssim": 0.4274,
+     "sharp": 43,
+     "dL": 11.2,
+     "colour": 8.2,
+     "faces": 0
+    },
+    "assisto": {
+     "psnr": 18.56,
+     "ssim": 0.4717,
+     "sharp": 266,
+     "dL": 6.82,
+     "colour": 10.0,
+     "faces": 0
+    },
+    "clean": {
+     "sharp": 7567,
+     "colour": 9.5,
+     "faces": 0
+    }
+   },
+   "run": {
+    "scratch_share": 0.17036666666666667,
+    "colorized": true,
+    "server_ms": 11181,
+    "total_ms": 11181
+   },
+   "out_size": [
+    1600,
+    1200
+   ]
+  },
+  {
+   "photo": "12_scene.jpg",
+   "category": "old",
+   "metrics": {
+    "damaged": {
+     "psnr": 21.44,
+     "ssim": 0.7017,
+     "sharp": 20,
+     "dL": 3.63,
+     "colour": 5.3,
+     "faces": 0
+    },
+    "assisto": {
+     "psnr": 11.62,
+     "ssim": 0.5949,
+     "sharp": 75,
+     "dL": 23.0,
+     "colour": 14.4,
+     "faces": 0
+    },
+    "clean": {
+     "sharp": 425,
+     "colour": 5.6,
+     "faces": 0
+    }
+   },
+   "run": {
+    "scratch_share": 0.11746666666666666,
+    "colorized": true,
+    "server_ms": 9175,
+    "total_ms": 9175
+   },
+   "out_size": [
+    1600,
+    900
+   ]
+  },
+  {
+   "photo": "09_portrait.jpg",
+   "category": "blurry",
+   "metrics": {
+    "damaged": {
+     "psnr": 26.04,
+     "ssim": 0.8234,
+     "sharp": 32,
+     "dL": 2.41,
+     "colour": 21.1,
+     "faces": 1
+    },
+    "assisto": {
+     "psnr": 19.46,
+     "ssim": 0.7972,
+     "sharp": 380,
+     "dL": 9.88,
+     "colour": 28.5,
+     "faces": 1
+    },
+    "clean": {
+     "sharp": 521,
+     "colour": 21.7,
+     "faces": 1
+    }
+   },
+   "run": {
+    "ai_tiles": 6,
+    "ai_ms": 3046,
+    "classic_ms": 575,
+    "faces_in": 1,
+    "total_ms": 3931
+   },
+   "out_size": [
+    956,
+    1196
+   ]
+  },
+  {
+   "photo": "10_portrait.jpg",
+   "category": "blurry",
+   "metrics": {
+    "damaged": {
+     "psnr": 28.22,
+     "ssim": 0.8425,
+     "sharp": 29,
+     "dL": 1.88,
+     "colour": 35.4,
+     "faces": 1
+    },
+    "assisto": {
+     "psnr": 19.62,
+     "ssim": 0.8505,
+     "sharp": 9,
+     "dL": 7.35,
+     "colour": 29.4,
+     "faces": 1
+    },
+    "clean": {
+     "sharp": 192,
+     "colour": 35.9,
+     "faces": 1
+    }
+   },
+   "run": {
+    "ai_tiles": 6,
+    "ai_ms": 2963,
+    "classic_ms": 285,
+    "faces_in": 1,
+    "total_ms": 3430
+   },
+   "out_size": [
+    671,
+    820
+   ]
+  },
+  {
+   "photo": "13_scene.jpg",
+   "category": "blurry",
+   "metrics": {
+    "damaged": {
+     "psnr": 27.32,
+     "ssim": 0.7775,
+     "sharp": 27,
+     "dL": 2.25,
+     "colour": 4.1,
+     "faces": 1
+    },
+    "assisto": {
+     "psnr": 25.93,
+     "ssim": 0.8233,
+     "sharp": 164,
+     "dL": 3.18,
+     "colour": 4.5,
+     "faces": 1
+    },
+    "clean": {
+     "sharp": 586,
+     "colour": 4.3,
+     "faces": 0
+    }
+   },
+   "run": {
+    "ai_tiles": 6,
+    "ai_ms": 3084,
+    "classic_ms": 475,
+    "faces_in": 1,
+    "total_ms": 3830
+   },
+   "out_size": [
+    1100,
+    952
+   ]
+  },
+  {
+   "photo": "14_scene.jpg",
+   "category": "blurry",
+   "metrics": {
+    "damaged": {
+     "psnr": 22.96,
+     "ssim": 0.6455,
+     "sharp": 29,
+     "dL": 4.09,
+     "colour": 7.4,
+     "faces": 0
+    },
+    "assisto": {
+     "psnr": 21.92,
+     "ssim": 0.7222,
+     "sharp": 341,
+     "dL": 5.3,
+     "colour": 8.4,
+     "faces": 0
+    },
+    "clean": {
+     "sharp": 1719,
+     "colour": 8.0,
+     "faces": 0
+    }
+   },
+   "run": {
+    "ai_tiles": 6,
+    "ai_ms": 3197,
+    "classic_ms": 515,
+    "faces_in": 0,
+    "total_ms": 4056
+   },
+   "out_size": [
+    1300,
+    976
+   ]
+  },
+  {
+   "photo": "15_scene.jpg",
+   "category": "blurry",
+   "metrics": {
+    "damaged": {
+     "psnr": 20.7,
+     "ssim": 0.6015,
+     "sharp": 32,
+     "dL": 5.38,
+     "colour": 13.2,
+     "faces": 0
+    },
+    "assisto": {
+     "psnr": 20.99,
+     "ssim": 0.6891,
+     "sharp": 525,
+     "dL": 5.67,
+     "colour": 14.7,
+     "faces": 1
+    },
+    "clean": {
+     "sharp": 3021,
+     "colour": 13.9,
+     "faces": 1
+    }
+   },
+   "run": {
+    "ai_tiles": 6,
+    "ai_ms": 3068,
+    "classic_ms": 453,
+    "faces_in": 0,
+    "total_ms": 3818
+   },
+   "out_size": [
+    1416,
+    944
+   ]
+  },
+  {
+   "photo": "16_scene.jpg",
+   "category": "low_light",
+   "metrics": {
+    "damaged": {
+     "psnr": 9.62,
+     "ssim": 0.3567,
+     "sharp": 745,
+     "dL": 29.92,
+     "colour": 11.3,
+     "faces": 0
+    },
+    "assisto": {
+     "psnr": 19.88,
+     "ssim": 0.6926,
+     "sharp": 4023,
+     "dL": 6.72,
+     "colour": 28.5,
+     "faces": 0
+    },
+    "clean": {
+     "sharp": 3459,
+     "colour": 27.8,
+     "faces": 0
+    }
+   },
+   "run": {
+    "classic_ms": 169,
+    "total_ms": 329
+   },
+   "out_size": [
+    800,
+    669
+   ]
+  },
+  {
+   "photo": "17_scene.jpg",
+   "category": "low_light",
+   "metrics": {
+    "damaged": {
+     "psnr": 9.06,
+     "ssim": 0.3526,
+     "sharp": 788,
+     "dL": 32.04,
+     "colour": 6.6,
+     "faces": 0
+    },
+    "assisto": {
+     "psnr": 21.44,
+     "ssim": 0.6967,
+     "sharp": 3476,
+     "dL": 6.24,
+     "colour": 16.7,
+     "faces": 0
+    },
+    "clean": {
+     "sharp": 3017,
+     "colour": 14.1,
+     "faces": 0
+    }
+   },
+   "run": {
+    "classic_ms": 151,
+    "total_ms": 269
+   },
+   "out_size": [
+    800,
+    533
+   ]
+  },
+  {
+   "photo": "18_scene.jpg",
+   "category": "low_light",
+   "metrics": {
+    "damaged": {
+     "psnr": 9.36,
+     "ssim": 0.3691,
+     "sharp": 591,
+     "dL": 31.03,
+     "colour": 11.6,
+     "faces": 0
+    },
+    "assisto": {
+     "psnr": 21.31,
+     "ssim": 0.7243,
+     "sharp": 2438,
+     "dL": 5.68,
+     "colour": 28.3,
+     "faces": 0
+    },
+    "clean": {
+     "sharp": 2144,
+     "colour": 26.8,
+     "faces": 1
+    }
+   },
+   "run": {
+    "classic_ms": 187,
+    "total_ms": 312
+   },
+   "out_size": [
+    800,
+    533
+   ]
+  },
+  {
+   "photo": "19_scene.jpg",
+   "category": "low_light",
+   "metrics": {
+    "damaged": {
+     "psnr": 8.01,
+     "ssim": 0.3494,
+     "sharp": 663,
+     "dL": 39.52,
+     "colour": 4.4,
+     "faces": 0
+    },
+    "assisto": {
+     "psnr": 21.15,
+     "ssim": 0.7626,
+     "sharp": 3598,
+     "dL": 7.63,
+     "colour": 10.0,
+     "faces": 0
+    },
+    "clean": {
+     "sharp": 3669,
+     "colour": 9.7,
+     "faces": 0
+    }
+   },
+   "run": {
+    "classic_ms": 172,
+    "total_ms": 284
+   },
+   "out_size": [
+    800,
+    600
+   ]
+  },
+  {
+   "photo": "20_scene.jpg",
+   "category": "low_light",
+   "metrics": {
+    "damaged": {
+     "psnr": 6.32,
+     "ssim": 0.4833,
+     "sharp": 302,
+     "dL": 47.47,
+     "colour": 4.2,
+     "faces": 0
+    },
+    "assisto": {
+     "psnr": 15.47,
+     "ssim": 0.7329,
+     "sharp": 1099,
+     "dL": 15.34,
+     "colour": 6.9,
+     "faces": 0
+    },
+    "clean": {
+     "sharp": 789,
+     "colour": 5.4,
+     "faces": 0
+    }
+   },
+   "run": {
+    "classic_ms": 296,
+    "total_ms": 572
+   },
+   "out_size": [
+    800,
+    590
+   ]
+  }
+ ]
+}

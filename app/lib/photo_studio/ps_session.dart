@@ -10,6 +10,7 @@ class PhotoVersion {
     this.jobId,
     this.aiEdited = false,
     this.previewOnly = false,
+    this.fullQuality = false,
     DateTime? at,
   }) : at = at ?? DateTime.now();
 
@@ -24,6 +25,11 @@ class PhotoVersion {
   /// true when [bytes] is a reduced, watermarked preview (full quality only
   /// comes through the export gate).
   final bool previewOnly;
+
+  /// d1-photo: [bytes] already ARE the full-quality result (an on-device
+  /// tool / batch result) — the export uses them after the gate instead of
+  /// re-rendering.
+  final bool fullQuality;
   final DateTime at;
 }
 

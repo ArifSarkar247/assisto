@@ -763,3 +763,41 @@ BN.update({
     "w_open_official": "অফিশিয়াল পাতা খুলুন",
 })
 # ---- /p4-world ----
+
+# ---- d1-photo v2: Owner Admin → Photo Studio ----
+EN.update({
+    "nav_photo": "Photo Studio",
+    "ph_guard_title": "Free tier: AI cost vs ad revenue (per free user)",
+    "ph_guard_note": "Every free user's AI cost (free AI generations, cloud jobs) against the SSV-verified rewarded-ad revenue they brought in, last 30 days.",
+    "ph_guard_alert": "The free tier is losing money.",
+    "ph_guard_alert_body": "AI cost is higher than ad revenue. Lower the free AI allowance or raise the ads per unlock in Pricing.",
+    "ph_free_users": "Free users", "ph_days": "days", "ph_ai_cost": "AI cost", "ph_ad_rev": "Ad revenue",
+    "ph_net": "Net", "ph_losing": "losing users:", "ph_gifts": "free AI", "ph_pricing_link": "Change the limits in",
+    "ph_ab_title": "Blind A/B test: Assisto vs Remini",
+    "ph_ab_note": "The same damaged photo, two results. A and B are shuffled on every vote and the names stay hidden. Load the pairs with manage.py photo_ab_import <eval folder> <your Remini folder>.",
+    "ph_ab_empty": "No pairs yet — the Remini results from your phone are needed first (owner_actions/PHOTO_COMPARE_BN.md).",
+    "ph_ab_input": "Damaged input", "ph_ab_a": "A is better", "ph_ab_b": "B is better", "ph_ab_same": "Same",
+    "ph_ab_all_done": "You have voted on every pair.", "ph_ab_results": "Results", "ph_category": "Category",
+    "ph_ab_honest": "Never say “better than Remini” anywhere unless these blind votes show it.",
+    "ph_reports_title": "“Report this AI image” (from the app)", "ph_reports_empty": "No reports.",
+    "ph_reason": "Reason", "ph_note": "Note", "ph_close": "Close",
+    "ph_queue_title": "Photo worker queue", "ph_worker_on": "worker on", "ph_worker_off": "worker not installed",
+})
+BN.update({
+    "nav_photo": "ফটো স্টুডিও",
+    "ph_guard_title": "ফ্রি ব্যবহারকারী: AI খরচ বনাম বিজ্ঞাপনের আয় (প্রতিজনে)",
+    "ph_guard_note": "গত ৩০ দিনে প্রতিটি ফ্রি ব্যবহারকারীর AI খরচ (ফ্রি AI ছবি, ক্লাউড কাজ) আর তাঁর আনা যাচাই-করা রিওয়ার্ডেড বিজ্ঞাপনের আয়।",
+    "ph_guard_alert": "ফ্রি অংশে লোকসান হচ্ছে।",
+    "ph_guard_alert_body": "AI খরচ বিজ্ঞাপনের আয়ের চেয়ে বেশি। Pricing-এ ফ্রি AI কমান বা আনলকের বিজ্ঞাপন বাড়ান।",
+    "ph_free_users": "ফ্রি ব্যবহারকারী", "ph_days": "দিন", "ph_ai_cost": "AI খরচ", "ph_ad_rev": "বিজ্ঞাপনের আয়",
+    "ph_net": "নিট", "ph_losing": "লোকসানের ব্যবহারকারী:", "ph_gifts": "ফ্রি AI", "ph_pricing_link": "সীমা বদলান:",
+    "ph_ab_title": "অন্ধ A/B পরীক্ষা: Assisto বনাম Remini",
+    "ph_ab_note": "একই নষ্ট ছবি, দুটি ফলাফল। প্রতিবার A আর B এলোমেলো হয়, নাম লুকানো থাকে। জোড়াগুলো আনতে: manage.py photo_ab_import <eval ফোল্ডার> <আপনার Remini ফোল্ডার>।",
+    "ph_ab_empty": "এখনো কোনো জোড়া নেই — আগে আপনার ফোনের Remini ফলাফল লাগবে (owner_actions/PHOTO_COMPARE_BN.md)।",
+    "ph_ab_input": "নষ্ট ছবি", "ph_ab_a": "A ভালো", "ph_ab_b": "B ভালো", "ph_ab_same": "একই রকম",
+    "ph_ab_all_done": "সব জোড়ায় ভোট দেওয়া হয়ে গেছে।", "ph_ab_results": "ফলাফল", "ph_category": "ধরন",
+    "ph_ab_honest": "এই অন্ধ ভোটে প্রমাণ না হওয়া পর্যন্ত কোথাও “Remini-র চেয়ে ভালো” বলা যাবে না।",
+    "ph_reports_title": "“এই AI ছবি রিপোর্ট করুন” (অ্যাপ থেকে)", "ph_reports_empty": "কোনো রিপোর্ট নেই।",
+    "ph_reason": "কারণ", "ph_note": "মন্তব্য", "ph_close": "বন্ধ করুন",
+    "ph_queue_title": "ফটো ওয়ার্কারের সারি", "ph_worker_on": "ওয়ার্কার চালু", "ph_worker_off": "ওয়ার্কার ইনস্টল হয়নি",
+})

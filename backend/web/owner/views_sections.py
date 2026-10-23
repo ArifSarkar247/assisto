@@ -532,7 +532,10 @@ _AD_REWARD_KEYS = ("ecpm_bdt", "revenue_share", "appopen_min_gap_sec", "appopen_
                    "offers_enabled", "offer_notif_daily_cap", "offers_premium_notifs")
 _PS_AD_KEYS = ("entry_interstitial_enabled", "entry_interstitial_gap_min", "enhance_hd_ads",
                "max_ads_per_job", "free_prompt_trials_per_day", "ad_value_bdt",
-               "ad_value_share", "ticket_ttl_min")
+               "ad_value_share", "ticket_ttl_min",
+               # d1-photo v2 pricing (owner order 6)
+               "free_enhance_per_day", "free_enhance_ads", "premium_enhance_daily_cap",
+               "free_gen_lifetime", "free_gen_per_week", "free_gen_min_ads")
 _AD_FLAGS = ("ads_rewarded", "ads_app_open")
 
 

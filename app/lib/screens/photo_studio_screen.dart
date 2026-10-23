@@ -8,8 +8,11 @@ import '../l10n/app_localizations.dart';
 import '../photo_studio/ps_backend.dart';
 import '../photo_studio/ps_controller.dart';
 import '../photo_studio/ps_engines.dart';
+import '../photo_studio/ps_enhance.dart' show AiPlan, StudioEnhanceEngine;
 import '../photo_studio/ps_gate_sheet.dart';
 import '../photo_studio/ps_models.dart';
+import '../photo_studio/ps_report.dart';
+import '../photo_studio/ps_tools.dart';
 import '../photo_studio/ps_web_import.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -116,7 +119,67 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
         PsNotice.needPhoto => t.psNeedPhoto,
         PsNotice.needPrompt => t.psNeedPrompt,
         PsNotice.webImportNoEdit => t.psWebEditNote,
+        PsNotice.aiStepFailed => t.d1psAiStepFailed,
+        PsNotice.toolFailed => t.d1psToolFailed,
+        PsNotice.noSubject => t.d1psNoSubject,
+        PsNotice.tooBig => t.d1psTooBig,
+        PsNotice.batchDone => t.d1psBatchDone,
+        PsNotice.limitReached => _c.noticeText.isNotEmpty ? _c.noticeText : t.d1psLimitReached,
+        PsNotice.stillWorking => t.d1psStillWorking,
+        PsNotice.reported => t.d1psReported,
         PsNotice.refused || PsNotice.none => '',
+      };
+
+  // ------------------------------------------------------------------ d1-photo helpers
+  /// "12 s" / "2 min" (localised) from milliseconds (rounded up, never 0).
+  String _dur(AppLocalizations t, int ms) {
+    final sec = math.max(1, (ms / 1000).ceil());
+    if (sec < 90) return t.d1psSeconds(fmtInt(context, sec));
+    return t.d1psMinutes(fmtInt(context, (sec / 60).ceil()));
+  }
+
+  String _mb(int bytes) {
+    final tenths = (bytes / (1024 * 1024) * 10).round();
+    return '${fmtInt(context, tenths ~/ 10)}.${fmtInt(context, tenths % 10)} MB';
+  }
+
+  String _toolLabel(AppLocalizations t, PsTool tool) => switch (tool) {
+        PsTool.upscale2x => t.d1psToolUpscale2x,
+        PsTool.upscale4x => t.d1psToolUpscale4x,
+        PsTool.denoise => t.d1psToolDenoise,
+        PsTool.lowLight => t.d1psToolLowLight,
+        PsTool.bgBlur => t.d1psToolBgBlur,
+      };
+
+  IconData _toolIcon(PsTool tool) => switch (tool) {
+        PsTool.upscale2x => Icons.zoom_in_rounded,
+        PsTool.upscale4x => Icons.zoom_out_map_rounded,
+        PsTool.denoise => Icons.grain_rounded,
+        PsTool.lowLight => Icons.light_mode_outlined,
+        PsTool.bgBlur => Icons.blur_on_rounded,
+      };
+
+  String _restoreLabel(AppLocalizations t, PsFeature f) => switch (f) {
+        PsFeature.deblur => t.d1psRestoreDeblur,
+        PsFeature.colorize => t.d1psRestoreColorize,
+        PsFeature.oldRestore => t.d1psRestoreOld,
+        _ => f.wire,
+      };
+
+  String _stageText(AppLocalizations t, PsProgress p) => switch (p.stage) {
+        PsStage.download => t.d1psStageDownload(p.fraction == null
+            ? ''
+            : '${fmtInt(context, (p.fraction! * 100).round())}%'),
+        PsStage.analyse => t.d1psStageAnalyse,
+        PsStage.ai => p.total > 0
+            ? t.d1psStageAi(fmtInt(context, p.done), fmtInt(context, p.total))
+            : t.psWorking,
+        PsStage.mask => t.d1psStageMask,
+        PsStage.classic => t.d1psStageClassic,
+        PsStage.server => p.item > 1
+            ? t.d1psStageQueue(fmtInt(context, p.item))
+            : t.d1psStageServer,
+        PsStage.batch => t.d1psStageBatch(fmtInt(context, p.item), fmtInt(context, p.items)),
       };
 
   void _openPlans() => Navigator.of(context)
@@ -196,8 +259,24 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
           if (_c.webImport)
             _webCard(t)
           else ...[
+            if (_c.batch.isNotEmpty) ...[
+              _batchCard(t),
+              const SizedBox(height: Gap.lg)
+            ],
             if (s != null && _c.enhance.ready) ...[
               _enhanceCard(t),
+              const SizedBox(height: Gap.lg)
+            ],
+            if (s != null && _c.tools.any) ...[
+              _toolsCard(t),
+              const SizedBox(height: Gap.lg)
+            ],
+            if (s != null && _templates.isNotEmpty) ...[
+              _templatesCard(t),
+              const SizedBox(height: Gap.lg)
+            ],
+            if (s != null && _showRestore) ...[
+              _restoreCard(t),
               const SizedBox(height: Gap.lg)
             ],
             // d) prompt edits only exist with a cloud image-AI key; without
@@ -217,24 +296,297 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
         Positioned.fill(
           child: ColoredBox(
             color: Colors.black26,
-            child: Center(
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(Gap.lg),
-                  child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    const SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(strokeWidth: 2.4)),
-                    const SizedBox(width: Gap.md),
-                    Text(t.psWorking),
-                  ]),
-                ),
-              ),
-            ),
+            child: Center(child: _progressCard(t)),
           ),
         ),
     ]);
+  }
+
+  /// d1-photo: honest progress — the real stage, real tile/photo counts from
+  /// the engine, a time left estimate from THIS phone's measured speed, and
+  /// Cancel (nothing is kept or charged).
+  Widget _progressCard(AppLocalizations t) {
+    final p = _c.progress;
+    final scheme = Theme.of(context).colorScheme;
+    final canCancel = p != null && p.stage != PsStage.server;
+    final eta = p?.etaMs;
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 340),
+      child: Card(
+        key: const Key('psProgress'),
+        margin: const EdgeInsets.symmetric(horizontal: Gap.lg),
+        child: Padding(
+          padding: const EdgeInsets.all(Gap.lg),
+          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Row(children: [
+              const SizedBox(
+                  width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.4)),
+              const SizedBox(width: Gap.md),
+              Expanded(
+                  child: Text(
+                      _c.cancelling ? t.d1psStopping : (p == null ? t.psWorking : _stageText(t, p)),
+                      style: const TextStyle(fontWeight: FontWeight.w600))),
+            ]),
+            if (p?.fraction != null) ...[
+              const SizedBox(height: Gap.md),
+              LinearProgressIndicator(key: const Key('psProgressBar'), value: p!.fraction),
+            ],
+            if (eta != null && eta > 0) ...[
+              const SizedBox(height: Gap.xs),
+              Text(t.d1psLeft(_dur(t, eta)),
+                  style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+            ],
+            if (canCancel) ...[
+              const SizedBox(height: Gap.sm),
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: TextButton.icon(
+                  key: const Key('psCancelRun'),
+                  onPressed: _c.cancelling ? null : _c.cancelRun,
+                  icon: const Icon(Icons.close_rounded, size: 18),
+                  label: Text(t.cancel),
+                ),
+              ),
+            ],
+          ]),
+        ),
+      ),
+    );
+  }
+
+  // ------------------------------------------------------------------ d1 tools
+  Widget _toolsCard(AppLocalizations t) {
+    final scheme = Theme.of(context).colorScheme;
+    final av = _c.tools;
+    final list = [for (final x in PsTool.values) if (av.has(x)) x];
+    final dl = (av.needsUpscaleModel ? _c.enhance.aiBytes : 0) +
+        (av.needsMaskModel ? (_c.config.aiModel.segment?.size ?? 0) : 0);
+    return _card(icon: Icons.handyman_outlined, title: t.d1psToolsTitle, children: [
+      Text(t.d1psToolsBody, style: TextStyle(color: scheme.onSurfaceVariant)),
+      const SizedBox(height: Gap.md),
+      Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+        for (final tool in list)
+          ActionChip(
+            key: Key('psTool_${tool.wire}'),
+            avatar: Icon(_toolIcon(tool), size: 18, color: scheme.primary),
+            label: Text(av.etaMs[tool] == null
+                ? _toolLabel(t, tool)
+                : '${_toolLabel(t, tool)} · ${t.d1psAbout(_dur(t, av.etaMs[tool]!))}'),
+            onPressed: _c.busy ? null : () => _c.runTool(tool),
+          ),
+      ]),
+      if (dl > 0) _infoLine(Icons.download_outlined, t.d1psFirstDownload(_mb(dl))),
+      if (_c.free) ...[
+        const SizedBox(height: Gap.sm),
+        _costLine(t, _c.config.quote(PsFeature.enhanceHd)),
+      ],
+    ]);
+  }
+
+  /// Server / GPU restore: only the jobs the server can really run AND
+  /// price are shown; the owner sees what is still missing.
+  Widget _restoreCard(AppLocalizations t) {
+    final scheme = Theme.of(context).colorScheme;
+    const feats = [PsFeature.oldRestore, PsFeature.colorize, PsFeature.deblur];
+    final ready = [for (final f in feats) if (_c.config.restoreReady(f)) f];
+    final owner = _c.config.isOwner;
+    return _card(icon: Icons.auto_fix_normal_outlined, title: t.d1psRestoreTitle, children: [
+      Text(t.d1psRestoreBody, style: TextStyle(color: scheme.onSurfaceVariant)),
+      if (ready.isNotEmpty) ...[
+        const SizedBox(height: Gap.md),
+        for (final f in ready) ...[
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              key: Key('psRestore_${f.wire}'),
+              onPressed: _c.busy
+                  ? null
+                  : () => _c.runRestore(
+                      f, SheetGateUi(context, forRun: true, onPremium: _c.free ? _openPlans : null)),
+              icon: const Icon(Icons.cloud_upload_outlined),
+              label: Text(_restoreLabel(t, f)),
+            ),
+          ),
+          if (f == PsFeature.oldRestore)
+            SwitchListTile(
+              key: const Key('psRestoreColorize'),
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+              title: Text(t.d1psRestoreColorizeToo),
+              value: _c.restoreColorize,
+              onChanged: _c.busy ? null : (v) => setState(() => _c.restoreColorize = v),
+            ),
+          if (_c.free) _costLine(t, _c.config.quote(f)),
+          const SizedBox(height: Gap.sm),
+        ],
+      ],
+      if (owner) ...[
+        for (final f in feats)
+          if (!_c.config.restoreReady(f))
+            _infoLine(
+                Icons.key_outlined,
+                t.d1psOwnerRestoreNeeds(_restoreLabel(t, f),
+                    _c.config.restoreNeeds[f.wire] ?? _c.config.quote(f).message)),
+        _infoLine(Icons.face_outlined, t.d1psOwnerNoFaceModel),
+      ],
+    ]);
+  }
+
+  // ------------------------------------------------------------------ d1 v2 templates
+  List<PsTemplate> get _templates => [
+        for (final tp in _c.config.templates)
+          if (tp.feature.isRestore
+              ? _c.config.restoreReady(tp.feature)
+              : _c.config.providerReady)
+            tp
+      ];
+
+  Widget _templatesCard(AppLocalizations t) {
+    final scheme = Theme.of(context).colorScheme;
+    final lim = _c.config.limits, use = _c.config.usage;
+    final perDay = lim['free_enhance_per_day'] ?? 0;
+    final left = (perDay - (use['enhance_today'] ?? 0)).clamp(0, perDay);
+    final gifts = ((lim['free_gen_lifetime'] ?? 0) - (use['gen_lifetime'] ?? 0)).clamp(0, 99);
+    return _card(icon: Icons.bolt_outlined, title: t.d1psTemplatesTitle, children: [
+      Text(t.d1psTemplatesBody, style: TextStyle(color: scheme.onSurfaceVariant)),
+      const SizedBox(height: Gap.md),
+      Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+        for (final tp in _templates)
+          ActionChip(
+            key: Key('psTpl_${tp.id}'),
+            avatar: Icon(
+                tp.feature == PsFeature.enhanceServer
+                    ? Icons.hd_outlined
+                    : (tp.feature.isRestore ? Icons.history_edu_outlined : Icons.auto_awesome_outlined),
+                size: 18,
+                color: scheme.primary),
+            label: Text(tp.label),
+            onPressed: _c.busy
+                ? null
+                : () => _c.runTemplate(
+                    tp, SheetGateUi(context, forRun: true, onPremium: _c.free ? _openPlans : null)),
+          ),
+      ]),
+      if (_c.free) ...[
+        const SizedBox(height: Gap.sm),
+        _infoLine(Icons.hd_outlined,
+            t.d1psFreeHdLeft(fmtInt(context, left), fmtInt(context, lim['free_enhance_ads'] ?? 1))),
+        if (gifts > 0) _infoLine(Icons.card_giftcard_outlined, t.d1psFreeAiLeft(fmtInt(context, gifts))),
+      ],
+      _infoLine(Icons.lock_person_outlined, t.d1psFaceLockPromise),
+    ]);
+  }
+
+  Future<void> _reportSheet(AppLocalizations t) async {
+    final reasons = <String, String>{
+      'face_changed': t.d1psReportFace,
+      'offensive': t.d1psReportOffensive,
+      'sexual': t.d1psReportSexual,
+      'fake_person': t.d1psReportFake,
+      'child': t.d1psReportChild,
+      'other': t.d1psReportOther,
+    };
+    final pick = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: ListView(shrinkWrap: true, children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
+            child: Text(t.d1psReportAi, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+          ),
+          for (final e in reasons.entries)
+            ListTile(
+              key: Key('psReport_${e.key}'),
+              title: Text(e.value),
+              onTap: () => Navigator.of(ctx).pop(e.key),
+            ),
+        ]),
+      ),
+    );
+    if (pick != null) await _c.reportCurrent(pick);
+  }
+
+  bool get _showRestore {
+    const feats = [PsFeature.oldRestore, PsFeature.colorize, PsFeature.deblur];
+    return _c.config.isOwner || feats.any(_c.config.restoreReady);
+  }
+
+  // ------------------------------------------------------------------ d1 batch
+  Widget _batchCard(AppLocalizations t) {
+    final scheme = Theme.of(context).colorScheme;
+    final av = _c.tools;
+    String status(BatchItem it) => switch (it.status) {
+          BatchStatus.waiting => t.d1psBatchWaiting,
+          BatchStatus.running => t.d1psBatchRunning,
+          BatchStatus.done => t.d1psBatchOpen,
+          BatchStatus.failed => t.d1psBatchFailed,
+          BatchStatus.skipped => t.d1psBatchSkipped,
+          BatchStatus.cancelled => t.d1psBatchStopped,
+        };
+    final running = _c.batchRunning;
+    return _card(
+        icon: Icons.burst_mode_outlined,
+        title: t.d1psBatchTitle(fmtInt(context, _c.batch.length)),
+        children: [
+          Text(t.d1psBatchBody, style: TextStyle(color: scheme.onSurfaceVariant)),
+          _infoLine(Icons.info_outline, t.d1psBatchLimit(fmtInt(context, PhotoStudioController.batchMax))),
+          const SizedBox(height: Gap.md),
+          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+            FilledButton.icon(
+              key: const Key('psBatchEnhance'),
+              onPressed: running || _c.busy ? null : () => _c.runBatch(),
+              icon: const Icon(Icons.auto_awesome, size: 18),
+              label: Text(t.d1psBatchEnhance),
+            ),
+            for (final tool in const [PsTool.lowLight, PsTool.denoise, PsTool.bgBlur])
+              if (tool != PsTool.bgBlur || av.bgBlur)
+                OutlinedButton.icon(
+                  key: Key('psBatch_${tool.wire}'),
+                  onPressed: running || _c.busy ? null : () => _c.runBatch(tool: tool),
+                  icon: Icon(_toolIcon(tool), size: 18),
+                  label: Text(_toolLabel(t, tool)),
+                ),
+          ]),
+          const SizedBox(height: Gap.md),
+          for (var i = 0; i < _c.batch.length; i++)
+            ListTile(
+              key: Key('psBatchItem_$i'),
+              contentPadding: EdgeInsets.zero,
+              leading: ClipRRect(
+                borderRadius: BorderRadius.circular(Radii.xs),
+                child: SizedBox(
+                    width: 48,
+                    height: 48,
+                    child: Image.memory(_c.batch[i].output ?? _c.batch[i].input,
+                        fit: BoxFit.cover, cacheWidth: 96, gaplessPlayback: true)),
+              ),
+              title: Text(t.d1psBatchPhoto(fmtInt(context, i + 1))),
+              subtitle: Text(_c.batch[i].status == BatchStatus.skipped ||
+                      _c.batch[i].status == BatchStatus.failed
+                  ? '${status(_c.batch[i])} — ${_noticeText(t, _c.batch[i].reason)}'
+                  : status(_c.batch[i])),
+              trailing: _c.batch[i].status == BatchStatus.done
+                  ? const Icon(Icons.open_in_full_rounded)
+                  : (_c.batch[i].status == BatchStatus.running
+                      ? const SizedBox(
+                          width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                      : null),
+              onTap: _c.batch[i].status == BatchStatus.done && !running
+                  ? () => _c.openBatchItem(i)
+                  : null,
+            ),
+          if (!running)
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton.icon(
+                key: const Key('psBatchClear'),
+                onPressed: _c.clearBatch,
+                icon: const Icon(Icons.clear_all_rounded, size: 18),
+                label: Text(t.d1psBatchClear),
+              ),
+            ),
+        ]);
   }
 
   // ------------------------------------------------------------------ hero
@@ -285,6 +637,13 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
             icon: const Icon(Icons.photo_camera_outlined),
             label: Text(t.psPickCamera),
           ),
+          if (_c.enhance.ready)
+            OutlinedButton.icon(
+              key: const Key('psPickBatch'),
+              onPressed: _c.busy ? null : _c.pickBatch,
+              icon: const Icon(Icons.burst_mode_outlined),
+              label: Text(t.d1psBatchButton),
+            ),
         ]),
         if (!_c.free) ...[
           const SizedBox(height: Gap.md),
@@ -351,9 +710,39 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
             child: SizedBox(
                 height: 300, width: double.infinity, child: _image(cur.bytes)),
           );
+    final fl = _c.currentFaceLock;
+    final canReport = s.current.aiEdited && _c.jobForCurrent() != null;
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       img,
       const SizedBox(height: Gap.sm),
+      // d1-photo v2: FACE LOCK badge — only when the check really ran
+      if (fl != null && fl.locked) ...[
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: Container(
+            key: const Key('psFaceLock'),
+            child: _pill(
+                Icons.lock_person_outlined,
+                fl.restored > 0
+                    ? t.d1psFaceLockRestored
+                    : (fl.score == null
+                        ? t.d1psFaceLock
+                        : t.d1psFaceLockScore('${fmtInt(context, (fl.score! * 100).round())}%')),
+                Brand.success),
+          ),
+        ),
+        const SizedBox(height: Gap.xs),
+      ],
+      if (canReport)
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton.icon(
+            key: const Key('psReportAi'),
+            onPressed: _c.busy ? null : () => _reportSheet(t),
+            icon: const Icon(Icons.flag_outlined, size: 18),
+            label: Text(t.d1psReportAi),
+          ),
+        ),
       if (!_c.webImport)
       Wrap(
           spacing: Gap.sm,
@@ -525,13 +914,20 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
       case AiState.notOffered:
         sub = t.psAiReady;
     }
+    // d1-photo: what the AI step will really do for THIS photo
+    final plan = _c.aiPlan;
+    final planLine = plan == null
+        ? null
+        : t.d1psAiCopy(fmtInt(context, plan.targetLong),
+            t.d1psAbout(_dur(t, plan.tileCount * _msPerTile)));
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       SwitchListTile(
         key: const Key('psAiSwitch'),
         contentPadding: EdgeInsets.zero,
         secondary: Icon(Icons.auto_fix_high_outlined, color: scheme.primary),
         title: Text(t.psAiTitle, style: const TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text(sub, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.3)),
+        subtitle: Text(planLine == null ? sub : '$sub\n$planLine',
+            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.3)),
         value: _c.aiOn,
         onChanged: (_c.busy || av.ai == AiState.downloading) ? null : _c.setAi,
       ),
@@ -548,6 +944,11 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
           ),
         ),
     ]);
+  }
+
+  int get _msPerTile {
+    final e = _c.deps.engine;
+    return e is StudioEnhanceEngine ? e.perf.msPerTile : AiPlan.defaultMsPerTile;
   }
 
   /// p2-photo d): owner-only note when no cloud image-AI key is connected.
@@ -689,6 +1090,9 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
                 const Key('psHasPeople')),
             _switch(t.psOthers, _c.othersInPhoto, _c.setOthers,
                 const Key('psOthers')),
+            if (_c.othersInPhoto)
+              _switch(t.d1psConsent, _c.consentOthers, _c.setConsent,
+                  const Key('psConsent')),
             _switch(
                 t.psChild, _c.childInPhoto, _c.setChild, const Key('psChild')),
             if (_c.othersInPhoto)
