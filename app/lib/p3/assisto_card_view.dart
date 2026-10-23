@@ -78,6 +78,7 @@ class AssistoCardView extends StatelessWidget {
                 color: urgent ? Brand.dangerFill : scheme.outlineVariant,
                 width: urgent ? 1.5 : 1),
           ),
+          clipBehavior: Clip.antiAlias,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
@@ -87,7 +88,6 @@ class AssistoCardView extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: urgent ? null : Brand.gradient,
                   color: urgent ? Brand.dangerFill : null,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(Radii.md)),
                 ),
               ),
               Padding(

@@ -239,7 +239,7 @@ void main() {
           authorName: 'Rahim',
           authorKey: author.publicKey,
           preloaded: [
-            {'id': 1, ...mine, 'scheme': kFallbackScheme, 'kind': 'text',
+            {'id': 1, ...mine, 'scheme': kFallbackScheme, 'sender_key_id': author.keyId, 'kind': 'text',
               'created_at': DateTime.now().toIso8601String()},
             {'id': 2, 'ciphertext': 'AAAA', 'nonce': 'AAAA', 'kind': 'text',
               'created_at': DateTime.now().toIso8601String()},

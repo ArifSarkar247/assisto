@@ -51,7 +51,7 @@
     "p3ActList": "Shopping list",
     "p3ActListSub": "A shared list everyone can tick",
     "p3ActTranslate": "Translate",
-    "p3ActTranslateSub": "Bangla ↔ English",
+    "p3ActTranslateSub": "Bangla and English",
     "p3ActAsk": "Ask a question",
     "p3ActAskSub": "Assisto answers here",
     "p3SafetyTitle": "Family safety",
@@ -413,7 +413,7 @@
         }
       }
     },
-    "p3PrivExcludedN": "{n} excluded · tap to change",
+    "p3PrivExcludedN": "{n} excluded",
     "@p3PrivExcludedN": {
       "placeholders": {
         "n": {
@@ -431,7 +431,7 @@
         }
       }
     },
-    "p3PrivIncludedN": "{n} selected · tap to change",
+    "p3PrivIncludedN": "{n} selected",
     "@p3PrivIncludedN": {
       "placeholders": {
         "n": {
@@ -495,7 +495,7 @@
     "p3ActList": "বাজারের লিস্ট",
     "p3ActListSub": "সবাই টিক দিতে পারে এমন লিস্ট",
     "p3ActTranslate": "অনুবাদ",
-    "p3ActTranslateSub": "বাংলা ↔ ইংরেজি",
+    "p3ActTranslateSub": "বাংলা ও ইংরেজি",
     "p3ActAsk": "প্রশ্ন করুন",
     "p3ActAskSub": "অ্যাসিস্টো এখানেই উত্তর দেবে",
     "p3SafetyTitle": "পরিবারের নিরাপত্তা",
@@ -658,11 +658,11 @@
     "p3PrivExcept": "আমার কন্টাক্ট, কয়েকজন ছাড়া…",
     "p3PrivExceptSub": "কয়েকজনের কাছ থেকে লুকান",
     "p3PrivExceptN": "আমার কন্টাক্ট, {n} জন ছাড়া",
-    "p3PrivExcludedN": "{n} জন বাদ · বদলাতে ট্যাপ করুন",
+    "p3PrivExcludedN": "{n} জন বাদ",
     "p3PrivOnly": "শুধু যাদের সাথে…",
     "p3PrivOnlySub": "মানুষ বেছে নিন",
     "p3PrivOnlyN": "শুধু {n} জন",
-    "p3PrivIncludedN": "{n} জন বাছাই · বদলাতে ট্যাপ করুন",
+    "p3PrivIncludedN": "{n} জন বাছাই",
     "p3PrivPickExcept": "যাদের থেকে লুকাবেন",
     "p3PrivPickOnly": "শুধু যাদের সাথে শেয়ার করবেন",
     "p3PrivChoose": "মানুষ বেছে নিন",

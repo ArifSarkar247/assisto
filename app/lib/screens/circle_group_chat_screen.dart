@@ -863,12 +863,15 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         await _scheduleCall();
       case GroupMenuAction.newGroupCall:
         await _call('video'); // group video = Premium-gated at placement
+      // p3: the E2E-safe @Assisto flow — shows exactly what is sent + its
+      // credit cost and asks first (the old path sent every decrypted
+      // message to the server without a notice).
       case GroupMenuAction.summarise:
-        await _aiTask('summarise', _t.grpSummariseTitle);
+        await _openAssisto(intent: const AssistoIntent(AssistoAction.summarize));
       case GroupMenuAction.makeReminder:
-        await _makeReminder();
+        await _openAssisto(intent: const AssistoIntent(AssistoAction.remind));
       case GroupMenuAction.translate:
-        await _translate();
+        await _openAssisto(intent: const AssistoIntent(AssistoAction.translate));
       case GroupMenuAction.addMembers:
         _openInfo(); // add-members lives in Group info (circle-only, admin)
       case GroupMenuAction.exitGroup:
@@ -1083,69 +1086,6 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     } catch (e) {
       _fail(e);
     }
-  }
-
-  /// Assisto extras (Summarise / Translate) — the AI runs ONLY on the group's
-  /// already-decrypted messages collected on this device; the server AI never
-  /// sees group ciphertext.
-  Future<void> _aiTask(String task, String title, {String lang = ''}) async {
-    final plain = _messages
-        .map(_decryptForMe)
-        .whereType<String>()
-        .where((s) => s.trim().isNotEmpty)
-        .toList();
-    if (plain.isEmpty) {
-      _toast(_t.grpNothingToProcess);
-      return;
-    }
-    try {
-      final r = await _api.groupAiTask(_groupId, task,
-          messages: plain, targetLang: lang);
-      if (r['allowed'] == false) {
-        // Honest server state: no AI key / budget / not enough credits.
-        _toast('${r['message'] ?? _t.grpActionFailed}');
-        return;
-      }
-      var result = '${r['result'] ?? ''}';
-      final rem = r['reminder'];
-      if (task == 'reminder' && rem is Map) {
-        result = _t.msgReminderSaved('${rem['title'] ?? ''}');
-      }
-      if (!mounted) return;
-      showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text(title),
-          content: SingleChildScrollView(
-              child: Text(result.isEmpty ? _t.grpNoResult : result)),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(ctx), child: Text(_t.close)),
-          ],
-        ),
-      );
-    } catch (e) {
-      _fail(e);
-    }
-  }
-
-  Future<void> _translate() async {
-    final lang = await showGroupOptionPicker(
-      context,
-      title: _t.grpMenuTranslate,
-      options: [
-        ('bn', _t.grpLangBangla),
-        ('en', _t.grpLangEnglish),
-      ],
-    );
-    if (lang == null) return;
-    await _aiTask('translate', _t.grpTranslateTitle, lang: lang);
-  }
-
-  /// Make a reminder from the chat — route into the Assisto reminders flow via
-  /// the extras AI task; the server returns a draft the reminders module books.
-  Future<void> _makeReminder() async {
-    await _aiTask('reminder', _t.grpMakeReminderTitle);
   }
 
   Future<void> _exitGroup() async {

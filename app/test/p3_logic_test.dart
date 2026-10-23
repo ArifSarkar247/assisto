@@ -256,8 +256,8 @@ void main() {
           audience: audienceOf(members, StoryPrivacy.contacts),
           plaintext: StoryContent.encodeText('Eid Mubarak', 2));
       expect(per.keys.toSet(), {'1', '2', '3'});
-      final rahimRow = (per['2'] as Map).cast<String, dynamic>();
-      final mine = (per['1'] as Map).cast<String, dynamic>();
+      final rahimRow = {...(per['2'] as Map).cast<String, dynamic>(), 'sender_key_id': me.keyId};
+      final mine = {...(per['1'] as Map).cast<String, dynamic>(), 'sender_key_id': me.keyId};
       final pt = openSealed(e2e: e2e, me: rahim, senderKeys: [me.publicKey], row: rahimRow);
       expect(StoryContent.parse(pt!)!.text, 'Eid Mubarak');
       expect(StoryContent.parse(pt)!.bg, 2);

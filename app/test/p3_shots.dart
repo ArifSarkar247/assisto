@@ -139,7 +139,7 @@ List<Map<String, dynamic>> _members(bool bn) => [
 
 Map<String, dynamic> _sealed(String text, IdentityKeyPair from, IdentityKeyPair to) {
   final ct = _e2e.encrypt(self: from, recipientPublicKey: to.publicKey, plaintext: text);
-  return {'ciphertext': ct.ciphertextB64, 'nonce': ct.nonceB64, 'scheme': ct.scheme};
+  return {'ciphertext': ct.ciphertextB64, 'nonce': ct.nonceB64, 'scheme': ct.scheme, 'sender_key_id': ct.senderKeyId};
 }
 
 Map<String, dynamic> _notes(bool bn) => {
@@ -148,7 +148,7 @@ Map<String, dynamic> _notes(bool bn) => {
         'visibility': {'mode': 'everyone'},
       },
       'notes': [
-        {'author_id': 2, 'name': 'Rahim', ..._sealed(_n(bn, 'At Cox\'s Bazar 🌊', 'কক্সবাজারে আছি 🌊'), C3Fake.rahim, C3Fake.me)},
+        {'author_id': 2, 'name': 'Rahim', ..._sealed(_n(bn, 'At Cox\'s Bazar', 'কক্সবাজারে আছি'), C3Fake.rahim, C3Fake.me)},
         {'author_id': 3, 'name': 'Nadia', ..._sealed(_n(bn, 'Biryani tonight?', 'আজ রাতে বিরিয়ানি?'), C3Fake.nadia, C3Fake.me)},
         {'author_id': 4, 'name': 'Karim', ..._sealed(_n(bn, 'Back in Dhaka on Friday', 'শুক্রবার ঢাকায় ফিরছি'), C3Fake.karim, C3Fake.me)},
       ],
@@ -237,7 +237,7 @@ final Map<String, Widget Function(String)> p3Shots = {
       ]),
   'p3_story_viewer': (l) {
     final bn = l == 'bn';
-    final ct = _sealed(StoryContent.encodeText(_n(bn, 'Reached Sylhet safely! Tea gardens are beautiful 🍃', 'নিরাপদে সিলেট পৌঁছেছি! চা-বাগান খুব সুন্দর 🍃'), 1), C3Fake.rahim, C3Fake.me);
+    final ct = _sealed(StoryContent.encodeText(_n(bn, 'Reached Sylhet safely! Tea gardens are beautiful', 'নিরাপদে সিলেট পৌঁছেছি! চা-বাগান খুব সুন্দর'), 1), C3Fake.rahim, C3Fake.me);
     return _withApi(
         l,
         () => const [],

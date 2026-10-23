@@ -22,7 +22,6 @@ import '../widgets/circle_bubble.dart';
 import '../widgets/msgr_avatar.dart';
 import '../widgets/circle_media_viewer.dart';
 import '../widgets/circle_message_actions.dart';
-import '../widgets/in_chat_ai_sheet.dart';
 import 'circle_call_screen.dart';
 import 'circle_extras_hub_screen.dart';
 import 'messenger/contact_info_screen.dart';
@@ -2005,68 +2004,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     await _placeCall('voice');
   }
 
-  // ---- Assisto extras (AI MOCK, key-gated honest) -------------------------
-  //
-  // These read the LAST FEW decrypted messages ON-DEVICE and show a MOCK
-  // result plus an honest "needs the AI key" note (no AI key is wired in this
-  // build; nothing is ever sent to a server for AI). "Make reminder from chat"
-  // additionally offers to open the on-device reminder flow (nlp_datetime),
-  // which works WITHOUT any AI key.
-  void _aiExtra(String title) {
-    final recent = _lastFiveDecrypted();
-    final preview = recent.isEmpty
-        ? ''
-        : recent.map((m) => m['text']).whereType<String>().join(' · ');
-    showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(title),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(_t.msgrChatAiMock),
-            if (preview.isNotEmpty) ...[
-              const SizedBox(height: Gap.sm),
-              Text(preview,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(ctx).textTheme.bodySmall),
-            ],
-            const SizedBox(height: Gap.sm),
-            Text(_t.msgrChatAiNeedsKey,
-                style: Theme.of(ctx).textTheme.bodySmall),
-          ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(_t.close)),
-        ],
-      ),
-    );
-  }
-
-  // ---- In-chat AI helper (#97, bounded MOCK, key-gated honest) ------------
-  //
-  // One bounded entry (⋮ → Summarise opens the helper). Offers summarise-thread
-  // / translate-message / adjust-tone over text DECRYPTED on THIS device. Each
-  // result is a deterministic MOCK (in_chat_ai_engine.dart) carrying an honest
-  // "AI-generated — review" marker; translate honestly shows the "needs AI key"
-  // state and never fabricates a translation. The helper NEVER auto-sends — it
-  // only returns text to INSERT into the composer for the user to send.
-  Future<void> _openInChatAi() async {
-    final seed = _input.text.trim();
-    final insert = await showInChatAiSheet(
-      context,
-      decryptedRecent: _lastFiveDecrypted(),
-      seedText: seed.isEmpty ? null : seed,
-    );
-    if (insert == null || insert.isEmpty || !mounted) return;
-    // INSERT only — never auto-send. The user reviews + taps send themselves.
-    setState(() {
-      _input.text = insert;
-      _input.selection = TextSelection.collapsed(offset: insert.length);
-    });
-  }
+  // p3: the old MOCK "Assisto extras" and in-chat AI helper are replaced by
+  // the real @Assisto actions (_openAssisto; credits + consent, P3_DESIGN.md).
 
   // ---- Report (sends the LAST 5 decrypted messages to moderation) ---------
   Future<void> _reportFlow() async {
