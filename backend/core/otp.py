@@ -26,6 +26,7 @@ Security properties
 """
 import hashlib
 import hmac
+import os
 import re
 import secrets
 from datetime import timedelta
@@ -63,7 +64,40 @@ def normalize_bd_phone(raw):
     Spaces, dashes, dots, brackets and Bangla digits are accepted. Anything
     else → None. c1-contacts: delegates to THE canonical helper core.phone."""
     from .phone import canonical_bd
-    return canonical_bd(raw)
+    c = canonical_bd(raw)
+    if c:
+        return c
+    rc = reviewer_canon()
+    if rc:  # the Play reviewer number is outside the real BD mobile ranges
+        from .phone import to_ascii_digits
+        d = re.sub(r"\D", "", to_ascii_digits(str(raw or "")))
+        if d.startswith("00"):
+            d = d[2:]
+        if d.startswith("880"):
+            d = "0" + d[3:]
+        if d == "0" + rc[4:]:
+            return rc
+    return None
+
+
+# ------------------------------------------------------- Play reviewer login
+# Google Play's review team signs in with ONE fixed demo number and ONE fixed
+# login code. Both live only in the server's .env (PLAY_REVIEWER_PHONE,
+# PLAY_REVIEWER_OTP), never in git. Only that number, only purpose "login",
+# no SMS is sent; attempts/lockout/cooldown limits still apply.
+def reviewer_canon():
+    d = re.sub(r"\D", "", os.environ.get("PLAY_REVIEWER_PHONE", ""))
+    if len(d) == 11 and d.startswith("01"):
+        return "+880" + d[1:]
+    return None
+
+
+def _reviewer_code(canon, purpose):
+    code = re.sub(r"\D", "", os.environ.get("PLAY_REVIEWER_OTP", ""))
+    if (purpose == "login" and canon and canon == reviewer_canon()
+            and len(code) == CODE_LENGTH):
+        return code
+    return None
 
 
 def local_form(canon):
@@ -294,7 +328,8 @@ def issue(phone, purpose, request=None, user=None, lang=None, send=True):
     OtpChallenge.objects.filter(phone=canon, purpose=purpose,
                                 consumed_at__isnull=True).update(consumed_at=now)
 
-    code = _gen_code() if send else ""
+    fixed = _reviewer_code(canon, purpose) if send else None
+    code = (fixed or _gen_code()) if send else ""
     salt = secrets.token_hex(16)
     ch = OtpChallenge.objects.create(
         phone=canon, purpose=purpose,
@@ -305,6 +340,13 @@ def issue(phone, purpose, request=None, user=None, lang=None, send=True):
     if not send:
         ch.detail = "not sent (no account)"
         ch.save(update_fields=["detail"])
+        return out
+
+    if fixed:  # Play reviewer: no SMS, the reviewer already has the code
+        del code
+        ch.sent = True
+        ch.detail = "play reviewer (fixed code, no SMS)"
+        ch.save(update_fields=["sent", "detail"])
         return out
 
     from . import sms_gateway
