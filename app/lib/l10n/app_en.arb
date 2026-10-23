@@ -16701,5 +16701,8 @@
     }
   },
   "qa1VehProtocolAuto": "Detect",
-  "qa1WatchAddRateAlert": "Add rate alert"
+  "qa1WatchAddRateAlert": "Add rate alert",
+  "qa2DiscoverPaidNote": "Sponsored cards are shown on every plan and are always marked “Sponsored”. AdMob ads are shown to Free users only.",
+  "qa2DiscoverActionRoute": "App screen",
+  "qa2DiscoverActionUrl": "Website"
 }

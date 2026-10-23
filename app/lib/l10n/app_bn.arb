@@ -13936,5 +13936,8 @@
     }
   },
   "qa1VehProtocolAuto": "স্বয়ংক্রিয়",
-  "qa1WatchAddRateAlert": "রেটের অ্যালার্ট যোগ করুন"
+  "qa1WatchAddRateAlert": "রেটের অ্যালার্ট যোগ করুন",
+  "qa2DiscoverPaidNote": "স্পনসরড কার্ড সব প্ল্যানের ব্যবহারকারীরা দেখেন, আর তাতে সবসময় “স্পনসরড” লেখা থাকে। AdMob বিজ্ঞাপন শুধু ফ্রি প্ল্যানের ব্যবহারকারীরা দেখেন।",
+  "qa2DiscoverActionRoute": "অ্যাপের স্ক্রিন",
+  "qa2DiscoverActionUrl": "ওয়েবসাইট"
 }
