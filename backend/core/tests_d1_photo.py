@@ -115,16 +115,18 @@ class _NearestX4:
 
 
 class _FakeColor:
-    """Fake DDColor: constant warm ab (a=+20, b=+30) at 512x512."""
+    """Fake DDColor: spatially varying ab (like real colours: not a function
+    of the lightness) at 512x512."""
     def get_inputs(self):
         return [mock.Mock(name="input", shape=[1, 3, 512, 512])]
 
     def run(self, _out, feeds):
         x = list(feeds.values())[0]
         assert x.shape == (1, 3, 512, 512)
+        yy, xx = np.mgrid[0:512, 0:512].astype(np.float32)
         ab = np.zeros((1, 2, 512, 512), dtype=np.float32)
-        ab[0, 0] = 20.0
-        ab[0, 1] = 30.0
+        ab[0, 0] = 25.0 * np.sin(xx / 40.0)
+        ab[0, 1] = 30.0 * np.cos(yy / 50.0)
         return [ab]
 
 
@@ -177,6 +179,10 @@ class RestoreMathTests(SimpleTestCase):
         self.assertLess(float(np.mean(dl)), 1.0)     # gamut clipping only
         self.assertFalse(R.is_grey(out))
         self.assertTrue(R.is_grey(g))
+        # a sepia print (colour = a function of lightness) counts as monochrome
+        y = R.luma_of(g)
+        sepia = np.stack([y + 0.06, y * 0.9 + 0.04, y * 0.72 + 0.02], -1).clip(0, 1)
+        self.assertTrue(R.is_grey(sepia))
 
     def test_face_lock_merge(self):
         base = np.full((100, 100, 3), 0.5, np.float32)

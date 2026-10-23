@@ -128,7 +128,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
       };
 
   // ------------------------------------------------------------------ d1-photo helpers
-  /// "12 s" / "২ মিনিট" from milliseconds (rounded up, never "0 s").
+  /// "12 s" / "2 min" (localised) from milliseconds (rounded up, never 0).
   String _dur(AppLocalizations t, int ms) {
     final sec = math.max(1, (ms / 1000).ceil());
     if (sec < 90) return t.d1psSeconds(fmtInt(context, sec));
