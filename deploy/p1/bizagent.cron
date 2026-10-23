@@ -1,0 +1,6 @@
+# p1-bizagent: Business AI Agent jobs. Install (main session): append to the
+# ubuntu crontab on the Assisto box (lifeassisto). Times are server-local;
+# the daily report runs at 21:00 Asia/Dhaka (15:00 UTC).
+* * * * * cd /home/ubuntu/assisto/backend && /home/ubuntu/assisto/.venv/bin/python manage.py bizagent_process >> /home/ubuntu/assisto/logs/bizagent_process.log 2>&1
+*/30 * * * * cd /home/ubuntu/assisto/backend && /home/ubuntu/assisto/.venv/bin/python manage.py bizagent_couriers >> /home/ubuntu/assisto/logs/bizagent_couriers.log 2>&1
+0 15 * * * cd /home/ubuntu/assisto/backend && /home/ubuntu/assisto/.venv/bin/python manage.py bizagent_daily >> /home/ubuntu/assisto/logs/bizagent_daily.log 2>&1
