@@ -13,6 +13,81 @@ G2. [SHIPPED 197] media follow-ups: group media forward (same blob), send-to-pol
 G. [SHIPPED build 196 + backend live (0066, nginx internal location, live blob proof)] MY CIRCLE E2E MEDIA (photo, voice note, document, video if reliable): encrypt on device, ciphertext blob via signed URLs, key inside the E2E message, quotas + retention; attach button stays hidden until each kind truly works. (from mr1 design note)
 H. [SHIPPED/IN CI] mr1: message requests like WhatsApp + full last-seen + media showpieces hidden (live smoke passed with test accounts A/C). DECISION (reversible, noted in STATUS): default 'who can message me' = My Circle now lets people with your number send a REQUEST (WhatsApp-like); 'nobody' blocks strangers.
 
+## MASTER STRATEGY 23 Oct (owner, ~/order3.txt) — INCOME FIRST; overrides the A-F order's sequence
+MERGED ORDER: 1) A My Circle bugs [agent a1 running] -> 2) P1 Business AI Agent [next free slot] -> 3) P2 monetization -> 4) P3 My Circle differentiators -> 5) P4 Unseen World -> 6) B calls [b1 batch running: wrapping up B1/B2/B6 + flow-18 fix], D Photo Studio, F design, C themes, E gaps -> 7) P5 growth. P6 BUSINESS_PLAN_BN.md written early (doc) [integrator writing now].
+Done today: pricing nothing-unlimited (Premium 90/mo) + disk alert 80% [build 203, backend LIVE]; reality audit 202 [b26ccc0]; C4 POS sale/void now A (run 39946885424).
+```
+OWNER MASTER STRATEGY 23 Oct - INCOME FIRST. Assisto = Bangla super-app + real AI agent.
+Profit must beat cost every day; nothing unlimited; credits + Profit Guard on every AI/API
+cost; no showpieces; follow laws + Google Play + Meta policies; never touch Asalify.
+
+NEW PRIORITY ORDER (merge with today's A-F order):
+1) Finish A (My Circle bugs) -> 2) P1 Business AI Agent -> 3) P2 monetization ->
+4) P3 My Circle differentiators -> 5) P4 Unseen World -> 6) B calls, D Photo Studio,
+F design, C themes, E gaps -> 7) P5 growth + P6 business plan (write P6 early, it is a doc).
+
+P1. ASSISTO BUSINESS AI AGENT for Bangladeshi F-commerce sellers (main revenue):
+ - Connect Facebook Page (Messenger + comments), Instagram DM, WhatsApp Business (Cloud API).
+ - AI replies 24/7 in Bangla/Banglish/English from the seller's product catalog, prices,
+   stock, delivery charges, policies; takes orders, confirms COD, collects address/phone.
+ - Courier booking + tracking: Pathao, Steadfast, RedX (official merchant APIs, keys in
+   Admin); invoice to customer; daily sales/orders report; low-stock alert.
+ - Human handover button, seller approves risky replies, never invents prices/stock.
+ - Plans for sellers (e.g. Starter/Pro by monthly AI replies), 7-day free trial, credit
+   packs; Profit Guard per AI reply + per WhatsApp conversation cost.
+ - Owner steps in Bangla (owner_actions/BUSINESS_AGENT_SETUP.md): Meta developer app,
+   business verification, App Review for page messaging permissions, WhatsApp Business
+   number, courier merchant accounts. Build + test with sandboxes/test pages until then.
+ - Later (doc only now): integration API so Asalify / AXON ERP shops can connect.
+
+P2. MONETIZATION (free plan only; never on safety, payment, login, call screens):
+ - App Open ad: from day 2 after signup, max 3 per day, skippable after 5 s; all caps
+   editable in Owner Admin so I can raise/lower them.
+ - Home hero native ad (exists), Telegram-style "Sponsored" post at the end of large
+   communities/channels (Admin threshold), rewarded ads for credits.
+ - Direct sponsors first: brand offers + Discover cards sold by me via Owner Admin
+   (price, dates, audience, reports); AdMob fills empty slots.
+ - Brand offers by interest: users pick favourite brands/categories; max 2 offer
+   notifications/day; mute any brand.
+ - Premium must be worth buying: list the premium-only benefits clearly, paywall at
+   the moment of need, 3-day trial, yearly discount within the safe margin.
+ - P&L per placement + uninstall/retention impact.
+
+P3. MY CIRCLE = WhatsApp + AI assistant + family safety:
+ - "@Assisto" inside chats/groups: summarize unread, set reminders for everyone, split a
+   bill, make a shopping list, translate, answer questions (credits).
+ - Family safety links: missed medicine alert to family, safe-arrival, SOS, lost phone,
+   scam message warning inside chats.
+ - Stories (24 h) + profile Notes in the Updates tab, privacy controls.
+
+P4. UNSEEN WORLD (everything in one place, Bangla, voice):
+ - AI answers anything with LIVE web search + cited sources (search API key in Admin,
+   credits per answer).
+ - Daily cards (user can turn each on/off): live cricket/football scores (licensed API,
+   cost shown), currency rates, gold, fuel, weather, prayer times, news headlines +
+   snippet + link only (reputable outlets, never copy articles), world news too.
+ - Jobs hub (link out, never copy): bpsc.gov.bd, Bdjobs.com, alljobs.teletalk.com.bd,
+   erecruitment.bb.org.bd, LinkedIn.com/jobs, boesl.gov.bd, Chakri.com,
+   Careerjet.com.bd, Bangladesh.gov.bd, ngoforum.org.bd; job-type alerts where a lawful
+   feed exists.
+ - Hubs: Expats (visa, remittance, overseas jobs, country rules), Students (SSC/HSC/
+   admission/BCS practice), Farmers (crop photo -> disease + treatment, with "ask an
+   agri officer" note), Government services (passport, NID, birth cert, land: steps,
+   documents, fees, links, AI help filling forms), Health helpers (prescription reader,
+   medicine price; always "consult a doctor").
+
+P5. GROWTH: referral (invite -> credits for both), share AI answers/cards with Assisto
+   branding, Founding Members, Facebook page content kit; Owner Admin funnel: installs,
+   activation, D1/D7/D30 retention, paying users, revenue per user.
+
+P6. owner_actions/BUSINESS_PLAN_BN.md (Bangla): who pays and why, pricing, unit
+   economics per plan, 12-month revenue scenarios (honest assumptions), first 10,000
+   users plan, partners to sign (payments, couriers, tickets, brands), risks, and a
+   1-page investor summary.
+
+Each part: real proof (tests + live), Bangla 3-line STATUS, owner tasks listed clearly.
+```
+
 ## NEW ORDER 23 Oct (owner, ~/order.txt) — DO FIRST, in order A, B, C, D, F, E
 Status: A [agent a1 starting], B-F [queued]. Pricing (no unlimited, Premium 90) + disk alert 80% [agent pr1]. Reality audit 202 [DONE b26ccc0].
 ```
