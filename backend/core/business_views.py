@@ -544,7 +544,7 @@ class CartAddView(APIView):
         if bad:
             return bad
         lang = req_lang(request)
-        cart = request.data.get("cart") or selling.new_cart()
+        cart = selling.normalize_cart(request.data.get("cart"))
         p = request.user.products.filter(pk=request.data.get("product")).first()
         if not p:
             return _err(lang, "পণ্য পাওয়া যায়নি।", "Product not found.", status=404)
@@ -569,7 +569,7 @@ class CartSetPriceView(APIView):
         if bad:
             return bad
         lang = req_lang(request)
-        cart = request.data.get("cart") or selling.new_cart()
+        cart = selling.normalize_cart(request.data.get("cart"))
         cart, reason = selling.cart_set_price(
             cart, int(line_id), request.data.get("price"))
         if reason == selling.R_BELOW_MIN:
@@ -585,7 +585,7 @@ class CartSetQtyView(APIView):
         if bad:
             return bad
         lang = req_lang(request)
-        cart = request.data.get("cart") or selling.new_cart()
+        cart = selling.normalize_cart(request.data.get("cart"))
         cart, reason = selling.cart_set_qty(
             cart, int(line_id), request.data.get("qty"),
             stock=request.data.get("stock"))
@@ -601,7 +601,7 @@ class CartRemoveView(APIView):
         if bad:
             return bad
         lang = req_lang(request)
-        cart = request.data.get("cart") or selling.new_cart()
+        cart = selling.normalize_cart(request.data.get("cart"))
         cart, reason = selling.cart_remove_line(cart, int(line_id))
         if reason != selling.R_OK:
             return _err(lang, "লাইন পাওয়া যায়নি।", "Line not found.", status=404)
@@ -617,7 +617,7 @@ class CartRemovePostView(APIView):
         if bad:
             return bad
         lang = req_lang(request)
-        cart = request.data.get("cart") or selling.new_cart()
+        cart = selling.normalize_cart(request.data.get("cart"))
         cart, reason = selling.cart_remove_line(cart, int(line_id))
         if reason != selling.R_OK:
             return _err(lang, "লাইন পাওয়া যায়নি।", "Line not found.", status=404)
@@ -630,7 +630,7 @@ class CartDiscountPreviewView(APIView):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
-        cart = request.data.get("cart") or selling.new_cart()
+        cart = selling.normalize_cart(request.data.get("cart"))
         eff, reason = selling.apply_cart_discount(cart, request.data.get("discount", 0))
         return Response({"discount": eff,
                          "discount_clamped": reason == selling.R_BELOW_MIN,

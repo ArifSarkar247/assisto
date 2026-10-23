@@ -160,4 +160,13 @@ grep -c "REALITY_RESULT" "$OUT/live_logcat.txt" 2>/dev/null || true
 pkill -f "tail -n +1 -F $OUT/live_logcat.txt" 2>/dev/null || true
 pkill -f "adb logcat -v time" 2>/dev/null || true
 jobs -p | xargs -r kill 2>/dev/null || true
+pkill -f "timeout 3000" 2>/dev/null || true
+# rt2: run 39895738392 — the flows ended at 03:48 but the step hung until it
+# was cancelled: after the action's own `adb emu kill` the emulator never
+# exited (netsim "GOAWAY"), and run 39884806316 idled 26 min the same way.
+# Stop it here, hard, so the step ends with the flows.
+timeout 20 adb emu kill >/dev/null 2>&1 || true
+sleep 5
+pkill -9 -f qemu-system 2>/dev/null || true
+pkill -9 -f netsimd 2>/dev/null || true
 exit 0

@@ -21,7 +21,7 @@ on:
         required: false
         default: ""
       emu_gpu:
-        description: "Emulator -gpu mode (swiftshader_indirect, swangle_indirect, guest)"
+        description: "Emulator -gpu mode(s), comma list = one job per group per mode (swiftshader_indirect, swangle_indirect, guest)"
         required: false
         default: "swiftshader_indirect"
   schedule:
@@ -41,10 +41,12 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       groups: ${{ steps.p.outputs.groups }}
+      gpus: ${{ steps.p.outputs.gpus }}
     steps:
       - id: p
         env:
           ONLY: ${{ github.event.inputs.only }}
+          GPUS: ${{ github.event.inputs.emu_gpu }}
         run: |
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os
@@ -52,6 +54,8 @@ jobs:
           want = [g.strip() for g in (os.environ.get("ONLY") or "").split(",") if g.strip()]
           sel = [g for g in allg if not want or g in want] or allg
           print("groups=" + json.dumps(sel))
+          gpus = [g.strip() for g in (os.environ.get("GPUS") or "").split(",") if g.strip()]
+          print("gpus=" + json.dumps(gpus or ["swiftshader_indirect"]))
           PY
 
   reality:
@@ -63,7 +67,8 @@ jobs:
       fail-fast: false
       matrix:
         group: ${{ fromJson(needs.plan.outputs.groups) }}
-    name: reality (${{ matrix.group }})
+        gpu: ${{ fromJson(needs.plan.outputs.gpus) }}
+    name: reality (${{ matrix.group }}, ${{ matrix.gpu }})
     # rt1: a throw-away Postgres (production's engine) instead of the sqlite
     # file — run 39859999833 hit "database is locked" (POST /circle/1/call
     # 500, a call.incoming silently never queued) under the threaded server.
@@ -84,7 +89,7 @@ jobs:
       REALITY_OUT: ${{ github.workspace }}/reality_out
       # "start+personal" = one drive: Start flows log in, then the group.
       REALITY_DRIVE: ${{ matrix.group == 'start' && 'start' || format('start+{0}', matrix.group) }}
-      REALITY_GPU: ${{ github.event.inputs.emu_gpu || 'swiftshader_indirect' }}
+      REALITY_GPU: ${{ matrix.gpu }}
     steps:
       - uses: actions/checkout@v4
 
@@ -248,7 +253,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: reality-evidence-${{ matrix.group }}
+          name: reality-evidence-${{ matrix.group }}--${{ matrix.gpu }}
           path: |
             reality_out/
             !reality_out/.recording
@@ -267,18 +272,31 @@ jobs:
         with:
           pattern: reality-evidence-*
           path: groups
-      - name: Merge per-group results (A/B/C/D table)
+      - name: Merge per-group results (one A/B/C/D table per gpu mode)
+        env:
+          GPUS: ${{ needs.plan.outputs.gpus }}
         run: |
-          for d in groups/reality-evidence-*; do [ -d "$d" ] && mv "$d" "groups/${d#groups/reality-evidence-}"; done
-          ls groups
-          python3 tools/reality/merge_groups.py groups
+          # reality-evidence-<group>--<gpu>  ->  by_gpu/<gpu>/<group>
+          for d in groups/reality-evidence-*; do
+            [ -d "$d" ] || continue
+            n="${d#groups/reality-evidence-}"; g="${n%%--*}"; m="${n#*--}"
+            mkdir -p "by_gpu/$m"; mv "$d" "by_gpu/$m/$g"
+          done
+          ls by_gpu/*
+          for m in by_gpu/*; do
+            echo "### gpu: ${m#by_gpu/}" >> "$GITHUB_STEP_SUMMARY"
+            python3 tools/reality/merge_groups.py "$m"
+          done
+          # the Verdict judges the FIRST mode in the list (the default one)
+          first=$(python3 -c "import json,os;print(json.loads(os.environ['GPUS'])[0])")
+          mkdir -p groups && cp "by_gpu/$first/reality_summary.json" "by_gpu/$first/reality_summary.md" groups/ || true
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: reality-summary
           path: |
-            groups/reality_summary.json
-            groups/reality_summary.md
+            by_gpu/*/reality_summary.json
+            by_gpu/*/reality_summary.md
       # A green run must MEAN the flows passed: the first run (21 Oct) showed
       # green with ZERO flows executed (driver crashed, no results.json).
       - name: Verdict (fail on no results or any C/D)

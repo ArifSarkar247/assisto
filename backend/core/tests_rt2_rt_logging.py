@@ -75,3 +75,30 @@ class RtWritesAreLoggedTests(TestCase):
             self.assertEqual(User.objects.filter(pk=self.u.pk).count(), 1)
             ok = C2.rt_publish(self.u, "call.state", {"phase": "calling"})
             self.assertGreater(ok, 0)
+
+
+class CartWithoutNextIdTests(TestCase):
+    """rt2: reality run 39895738392 — POST business/cart/add answered 500
+    (KeyError '_next_id') for the cart the phone sent back."""
+
+    def _prod(self):
+        from core.logic import business_selling as B
+        return B.make_product("Rice 1kg", variants=[B.make_variant(
+            size="", colour="", sell=100, cost=80, minimum=90, stock=5,
+            low_stock_at=1)])
+
+    def test_cart_add_line_accepts_cart_without_next_id(self):
+        from core.logic import business_selling as B
+        for start in ({}, {"lines": []}, None, {"lines": "x"}):
+            cart, line, r = B.cart_add_line(start, self._prod(), qty=1)
+            self.assertEqual(r, B.R_OK, start)
+            self.assertEqual(line["id"], 1)
+            self.assertEqual(cart["_next_id"], 2)
+
+    def test_next_id_moves_past_existing_lines(self):
+        from core.logic import business_selling as B
+        cart, line, _ = B.cart_add_line(B.new_cart(), self._prod(), qty=1)
+        cart.pop("_next_id")
+        cart, line2, r = B.cart_add_line(cart, self._prod(), qty=1)
+        self.assertEqual(r, B.R_OK)
+        self.assertEqual(line2["id"], 2)
