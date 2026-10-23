@@ -231,7 +231,7 @@ class PushNotifier {
       if (!_bgInitDone) {
         await _plugin.initialize(
           const InitializationSettings(
-              android: AndroidInitializationSettings('@mipmap/ic_launcher')),
+              android: AndroidInitializationSettings('@drawable/ic_stat_assisto')),
           onDidReceiveBackgroundNotificationResponse:
               assistoNotificationBackground,
         );
@@ -262,7 +262,7 @@ class PushNotifier {
     if (_bgInitDone) return;
     await _plugin.initialize(
       const InitializationSettings(
-          android: AndroidInitializationSettings('@mipmap/ic_launcher')),
+          android: AndroidInitializationSettings('@drawable/ic_stat_assisto')),
       onDidReceiveBackgroundNotificationResponse: assistoNotificationBackground,
     );
     await createChannels(lang);

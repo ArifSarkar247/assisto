@@ -33,7 +33,7 @@ class Notifications {
       try {
         tz.setLocalLocation(tz.getLocation('Asia/Dhaka'));
       } catch (_) {}
-      const android = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const android = AndroidInitializationSettings('@drawable/ic_stat_assisto');
       await _plugin.initialize(
         const InitializationSettings(android: android),
         // Push taps/actions (calls: Accept/Decline). PushService sets

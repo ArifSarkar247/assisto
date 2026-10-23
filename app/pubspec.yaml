@@ -128,11 +128,18 @@ flutter_launcher_icons:
   image_path: "assets/icon/icon.png"
   adaptive_icon_background: "assets/icon/bg.png"
   adaptive_icon_foreground: "assets/icon/fg.png"
+  adaptive_icon_monochrome: "assets/icon/monochrome.png"   # Android 13+ themed icon
+  # fg.png/monochrome.png are already laid out on the full 108dp canvas (logo
+  # sized to the circle mask) — the default 16% inset would shrink the A to
+  # ~44% of the icon (owner: "too small on OPPO").
+  adaptive_icon_foreground_inset: 0
   min_sdk_android: 21
 
 flutter_native_splash:
-  color: "#030B28"
+  # Android 11 and older: the brand gradient + white logo (owner icon C)
+  background_image: assets/branding/splash_bg.png
   image: assets/branding/splash_logo.png
   android_12:
-    color: "#030B28"
+    # Android 12+ masks the icon to a circle; white logo inside its safe circle
+    color: "#0A9BD0"
     image: assets/branding/splash_logo.png
