@@ -48,6 +48,7 @@ import '../widgets/group_export.dart';
 import '../widgets/group_menu_sheet.dart';
 import '../widgets/msgr_mod_report_sheet.dart';
 import 'circle_group_info_screen.dart';
+import '../widgets/paywall_sheet.dart'; // p2-money
 
 /// End-to-end-encrypted GROUP chat (M2 item 7).
 ///
@@ -724,7 +725,11 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           TextButton(
               onPressed: () => Navigator.pop(ctx), child: Text(_t.close)),
           FilledButton(
-              onPressed: () => Navigator.pop(ctx),
+              onPressed: () {
+                Navigator.pop(ctx);
+                // p2-money: paywall at the moment of need, with the reason
+                PaywallSheet.show(context, PaywallReason.videoCall);
+              },
               child: Text(_t.circleGroupGetPremium)),
         ],
       ),

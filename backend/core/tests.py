@@ -2946,11 +2946,14 @@ class BusinessModelV2Tests(APITestCase):
                          {"config": {"ad_rewards": {"ecpm_bdt": 3000.0}}},
                          format="json")
         self.client.force_authenticate(self.u)
+        # p2-money: a client claim earns nothing — only the SSV path credits
         r = self.client.post("/api/v1/ads/event", {"kind": "rewarded"},
                              format="json")
-        self.assertTrue(r.data["ok"])
+        self.assertEqual(r.data["reason"], "ssv_required")
+        r = billing.ad_event(self.u, "rewarded", verified=True)
+        self.assertTrue(r["ok"])
         # 3000 ৳/1000 * 0.70 = ৳2.10 -> 210 paisa -> 2 whole credits
-        self.assertEqual(r.data["credited_credits"], 2)
+        self.assertEqual(r["credited_credits"], 2)
         w = self.client.get("/api/v1/ads/wallet")
         self.assertEqual(w.data["balance_credits"], 2)
 
@@ -2970,17 +2973,17 @@ class BusinessModelV2Tests(APITestCase):
     def test_ad_fraud_impossible_frequency_rejected(self):
         from core import billing
         self._enable("admob")
-        r1 = billing.ad_event(self.u, "rewarded", device_id="DEV1")
+        r1 = billing.ad_event(self.u, "rewarded", device_id="DEV1", verified=True)
         self.assertTrue(r1["ok"])
         # same device, same instant -> impossible frequency -> fraud reject
-        r2 = billing.ad_event(self.u, "rewarded", device_id="DEV1")
+        r2 = billing.ad_event(self.u, "rewarded", device_id="DEV1", verified=True)
         self.assertFalse(r2["ok"])
         self.assertEqual(r2["reason"], "fraud")
 
     def test_ad_not_configured_grants_nothing(self):
         from core import billing
         # AdMob OFF -> honest: no crediting (never fake ad revenue)
-        r = billing.ad_event(self.u, "rewarded")
+        r = billing.ad_event(self.u, "rewarded", verified=True)
         self.assertFalse(r["ok"])
         self.assertEqual(r["reason"], "ads_not_configured")
         self.assertEqual(billing.ad_wallet_credits(self.u), 0)
@@ -2994,7 +2997,7 @@ class BusinessModelV2Tests(APITestCase):
                          {"config": {"ad_rewards": {"ecpm_bdt": 3000.0}}},
                          format="json")
         # earn 2 ad-wallet credits
-        billing.ad_event(self.u, "rewarded")
+        billing.ad_event(self.u, "rewarded", verified=True)
         self.assertEqual(billing.ad_wallet_credits(self.u), 2)
         # a 1-credit costly action is paid from the ad wallet
         r = billing.charge(self.u, "ai_msg_cheap")   # 1 credit

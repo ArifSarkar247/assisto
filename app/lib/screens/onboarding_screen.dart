@@ -14,6 +14,7 @@ import 'money_screen.dart';
 import 'vault_screen.dart';
 import 'journey_start_screen.dart';
 import '../widgets/robo_id.dart';
+import 'offers_screens.dart' show OnbOffersStep; // p2-money
 
 /// First-run ADVANCED onboarding — a <60s "wow" that teaches the main features
 /// through a quick interactive flow (SPEC v2.1 §21).
@@ -49,7 +50,9 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   static const _resumeKey = 'onb_step';
-  static const _steps = 6; // welcome+lang, who, perms, assistant (Part 3), first-win, link-parent
+  // welcome+lang, who, perms, assistant (Part 3), offers (p2-money,
+  // optional), first-win, link-parent
+  static const _steps = 7;
 
   final _pc = PageController();
   int _page = 0;
@@ -169,6 +172,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 const OnbPermissions(),
                 // Part 3: set Assisto as the default digital assistant.
                 const VaOnboardingStep(),
+                // p2-money: optional — pick offer categories or just Next
+                const OnbOffersStep(),
                 OnbFirstWin(role: _role, onPick: _openWin),
                 OnbLinkParent(
                   ivrEnabled: widget.ivrEnabled,
@@ -199,10 +204,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     // just offers "start chatting". Earlier steps advance with Next; the role
     // step requires a pick before Next lights up.
     // (page 3 = the Part 3 assistant step: plain Next, it is optional)
-    if (_page == 4) {
+    if (_page == 5) {
       return TextButton(onPressed: _next, child: Text(t.onbMaybeLater));
     }
-    if (_page == 5) {
+    if (_page == 6) {
       return TextButton(onPressed: _finish, child: Text(t.justStartChatting));
     }
     final canNext = _page != 1 || _role != null;

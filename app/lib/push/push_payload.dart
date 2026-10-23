@@ -19,8 +19,9 @@ class PushChannels {
   static const alerts = 'alerts';
   static const sos = 'sos';
   static const missedCalls = 'missed_calls'; // c2-calls
+  static const offers = 'offers'; // p2-money: brand offers (opt-in, max 2/day)
 
-  static const all = [messages, calls, reminders, alerts, sos, missedCalls];
+  static const all = [messages, calls, reminders, alerts, sos, missedCalls, offers];
 
   /// kind -> channel (mirror of push.CHANNELS; used when `channel` is absent).
   static const byKind = {
@@ -34,6 +35,7 @@ class PushChannels {
     'sos': sos,
     'missed_call': missedCalls,
     'message_request': messages, // mr1
+    'offer': offers, // p2-money
   };
 }
 

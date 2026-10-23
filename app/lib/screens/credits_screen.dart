@@ -14,6 +14,7 @@ import '../widgets/bn_day_periods.dart' show appDateLocale;
 import '../payments/checkout_sheet.dart'; // pay1
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../payments/payments_api.dart'
+import '../widgets/paywall_sheet.dart'; // p2-money
     show ApiPaymentsBackend, PayConfig, payFlavour; // pay1
 
 /// CREDITS screen (Business Model Build 3, item 2).
@@ -189,6 +190,17 @@ class _CreditsScreenState extends State<CreditsScreen> {
         // Pool-used-up explainer (also the "nothing unlimited" honesty line).
         _poolExplainer(t, scheme, poolUsedUp, pool),
         const SizedBox(height: Gap.lg),
+        // p2-money: out of credits on Free -> the paywall with that reason
+        if (_isFree && balance + adWallet <= 0) ...[
+          FilledButton.tonalIcon(
+            key: const Key('p2-credits-paywall'),
+            onPressed: () => PaywallSheet.show(context, PaywallReason.outOfCredits),
+            icon: const Icon(Icons.workspace_premium_outlined),
+            label: Text(t.p2GetPremium),
+            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(46)),
+          ),
+          const SizedBox(height: Gap.lg),
+        ],
 
         // Storage meter (reused widget). Buy-storage CTA just nudges to packs
         // below (same credits economy) — honest, no fake purchase.

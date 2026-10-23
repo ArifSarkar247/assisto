@@ -843,6 +843,8 @@ def validate_edit(data):
             problems.append("limit_negative")
             continue
         for k, v in sv.items():
+            if isinstance(v, bool):      # p2-money: on/off switches (trial_on_signup)
+                continue
             n = _num(v, None)
             if n is None or n < 0:
                 problems.append("limit_negative")

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../screens/voice_assistant_screen.dart';
 import '../state.dart';
 import 'va_native.dart';
+import '../ads/app_open_gate.dart' show AppEntry;
 
 /// Opens Assisto Voice when the app was started by the "Digital assistant"
 /// gesture (long-press home / assist button) or by the "Hey Assisto" wake
@@ -29,6 +30,7 @@ class VaLaunch {
       }
       if (!app.loggedIn || !app.onboarded || app.locale == null) return;
       if (!await VaNative.consumeAssistLaunch()) return;
+      AppEntry.mark('assist'); // p2-money: no app-open ad for this entry
       if (!context.mounted) return;
       if (VoiceAssistantScreen.isOpen) {
         relisten.value++;

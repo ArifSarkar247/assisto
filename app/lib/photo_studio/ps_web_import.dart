@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import '../api.dart';
 import 'ps_backend.dart';
 import 'ps_models.dart';
+import '../ads/app_open_gate.dart' show AppEntry;
 
 /// w1-webphoto — a passport/visa photo made on lifeassisto.com/photo, opened
 /// in Photo Studio through the deep link https://lifeassisto.com/photo/app?t=…
@@ -128,6 +129,7 @@ class WebPhotoLink {
     if (defaultRouteName.startsWith('/')) return; // handled by [route]
     final t = tokenFrom(defaultRouteName);
     if (t == null) return;
+    AppEntry.mark('deeplink'); // p2-money: no app-open ad for this entry
     try {
       Navigator.of(context).push(PageRouteBuilder<void>(
         settings: const RouteSettings(name: path),

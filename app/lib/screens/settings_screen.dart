@@ -55,6 +55,7 @@ import '../theme.dart';
 import '../ads/ad_privacy_tile.dart';
 import 'fall_detect_screen.dart';
 import '../services/action_feedback.dart'; // db1
+import 'offers_screens.dart' show OffersSettingsScreen; // p2-money
 
 
 /// m2-reality: flip to true once the server-address override is actually
@@ -343,6 +344,16 @@ class SettingsScreen extends StatelessWidget {
               onBuyStorage: () => Navigator.push(context,
                   MaterialPageRoute(builder: (_) => const CreditsScreen())),
             ),
+          ),
+          // p2-money: brand offers by interest (categories, mute brands,
+          // offer notifications max N/day).
+          ListTile(
+            key: const Key('settings-offers'),
+            leading: const Icon(Icons.local_offer_outlined),
+            title: Text(t.p2OffersTitle),
+            subtitle: Text(t.p2OffersSettingsSub),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const OffersSettingsScreen())),
           ),
           ListTile(
             leading: const Icon(Icons.autorenew),

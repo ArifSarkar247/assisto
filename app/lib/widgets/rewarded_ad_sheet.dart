@@ -8,6 +8,7 @@ import '../l10n/app_localizations.dart';
 import 'ladder_common.dart' show fmtInt;
 import '../ads/ads_bridge.dart';
 import '../ads/ads_service.dart';
+import '../ads/sponsor_api.dart';
 
 /// REWARDED-AD UNLOCK FLOW (Business Model Build 3, item 4).
 ///
@@ -15,17 +16,22 @@ import '../ads/ads_service.dart';
 /// `ads/wallet` for the current ad-wallet balance + caps, then calls
 /// `ads/event {kind:'rewarded'}` when the user opts in.
 ///
-/// HONESTY (hard rule): no fake ad / fake reward. The ad is played through
-/// [AdsService] (AdMob, under AdRules: rewarded only from the Credits screen,
-/// always user-initiated). `ads/event` is posted ONLY after the SDK reported
-/// the reward; no SDK / no AdMob ids -> the honest "ads not set up yet" state.
-/// The server is still the authority on what is credited (caps, fraud).
+/// HONESTY (hard rule): no fake ad / fake reward. p2-money: the server issues
+/// an SSV ticket (`POST /credits/rewarded/ticket`), the ad is played through
+/// [AdsService] with AdMob ServerSideVerification (userId + ticket nonce),
+/// and ONLY Google's signed callback to the server credits the wallet — the
+/// app then just reads the ticket state. No AdMob linked / daily cap reached
+/// -> the server says so and no ad is played (no free bypass).
 ///
 /// Free users earn into the ad wallet; Premium/Business users see no ads
 /// unless they open this sheet themselves (opt-in) — their whole credits go
 /// straight to their balance (server side).
 class RewardedAdSheet extends StatefulWidget {
   const RewardedAdSheet({super.key});
+
+  /// p2-money: injectable SSV-ticket backend for tests.
+  @visibleForTesting
+  static SponsorBackend? debugBackend;
 
   /// Convenience launcher. Returns true if the ad wallet was credited (so the
   /// caller can refresh balances), false/null otherwise.
@@ -91,18 +97,38 @@ class _RewardedAdSheetState extends State<RewardedAdSheet> {
     }
   }
 
-  /// HONEST reward path: play a real rewarded ad first; only a completed ad
-  /// (SDK reward callback) is reported to the server, which decides the credit.
+  /// HONEST reward path (p2-money): server ticket -> real rewarded ad with
+  /// SSV -> the server credits ONLY on Google's signed callback.
   Future<void> _watch() async {
     final app = context.read<AppState>();
     final t = AppLocalizations.of(context);
+    final b = RewardedAdSheet.debugBackend ?? ApiSponsorBackend(app.api);
     setState(() {
       _state = _AdState.running;
       _note = null;
     });
     try {
-      final outcome =
-          await AdsService.instance.showRewarded(app, screen: 'credits');
+      final ticket = await b.rewardTicket();
+      if (!mounted) return;
+      if (ticket['ok'] != true) {
+        if (ticket['reason'] == 'capped') {
+          setState(() => _state = _AdState.capReached);
+        } else {
+          setState(() {
+            _state = _AdState.notConfigured;
+            _error = (ticket['msg'] ?? '').toString().isEmpty
+                ? null
+                : '${ticket['msg']}';
+          });
+        }
+        return;
+      }
+      final nonce = '${ticket['nonce'] ?? ''}';
+      final outcome = await AdsService.instance.showRewardedSsv(app,
+          screen: 'credits',
+          userId: '${ticket['user_id'] ?? ''}',
+          customData: '${ticket['custom_data'] ?? nonce}',
+          unit: '${ticket['rewarded_unit'] ?? ''}');
       if (!mounted) return;
       if (outcome == RewardOutcome.unavailable) {
         setState(() {
@@ -120,28 +146,26 @@ class _RewardedAdSheetState extends State<RewardedAdSheet> {
         });
         return;
       }
-      final r = await app.api.adsEvent('rewarded');
+      // earned on the device: wait (briefly) for Google's signed callback
+      String status = 'pending';
+      for (var i = 0; i < 6 && status == 'pending'; i++) {
+        if (i > 0) await Future<void>.delayed(const Duration(milliseconds: 1500));
+        if (!mounted) return;
+        try {
+          final st = await b.rewardTicketState(nonce);
+          status = '${st['status'] ?? 'pending'}';
+        } catch (_) {}
+      }
       if (!mounted) return;
-      if (r['reason'] == 'capped') {
-        setState(() => _state = _AdState.capReached);
+      if (status == 'verified') {
+        _credited = true;
+        await _load();
         return;
       }
-      // Decide the outcome from the honest server shape.
-      final notConfigured = r['enabled'] == false ||
-          r['ok'] == false ||
-          r['state'] == 'needs_provider' ||
-          r['state'] == 'not_configured' ||
-          r['configured'] == false;
-      if (notConfigured) {
-        setState(() {
-          _state = _AdState.notConfigured;
-          _error = (r['message'] ?? r['detail'])?.toString();
-        });
-        return;
-      }
-      // Credited — refresh the wallet to show the new balance honestly.
-      _credited = true;
-      await _load();
+      setState(() {
+        _state = _AdState.ready;
+        _note = status == 'pending' ? t.p2RewardPending : t.p2RewardRejected;
+      });
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() {

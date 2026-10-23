@@ -68,7 +68,16 @@ class AdmobAdsBridge implements AdsBridge {
   }
 
   @override
-  Future<RewardOutcome> showRewarded(String unitId) async {
+  Future<RewardOutcome> showRewardedSsv(String unitId,
+          {required String userId, required String customData}) =>
+      _rewarded(unitId, ssv: ServerSideVerificationOptions(
+          userId: userId, customData: customData));
+
+  @override
+  Future<RewardOutcome> showRewarded(String unitId) => _rewarded(unitId);
+
+  Future<RewardOutcome> _rewarded(String unitId,
+      {ServerSideVerificationOptions? ssv}) async {
     if (!await init()) return RewardOutcome.unavailable;
     final done = Completer<RewardOutcome>();
     var earned = false;
@@ -78,6 +87,11 @@ class AdmobAdsBridge implements AdsBridge {
         request: _request,
         rewardedAdLoadCallback: RewardedAdLoadCallback(
           onAdLoaded: (ad) {
+            if (ssv != null) {
+              try {
+                ad.setServerSideOptions(ssv);
+              } catch (_) {}
+            }
             ad.fullScreenContentCallback = FullScreenContentCallback(
               onAdDismissedFullScreenContent: (a) {
                 a.dispose();

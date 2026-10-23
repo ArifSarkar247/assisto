@@ -6,8 +6,9 @@
 ///    ads — except a rewarded ad the user explicitly opts into for credits.
 ///  * NEVER on safety/SOS, payment/top-up/checkout, login/OTP or call screens.
 ///    Unknown screens are treated as blocked (default-deny allowlist).
-///  * App-open at most once per 3 hours (server may only make it LONGER) and
-///    within the server's daily cap.
+///  * App-open at most once per the server gap (default 3 h; the owner may
+///    set 1 h .. 24 h — never below 1 h) and within the server's daily cap
+///    (default 3), from day 2 after sign-up, skippable after 5 s (p2-money).
 ///  * Until the owner saves REAL ids the app only uses Google's TEST ids, and
 ///    in a release build shows nothing unless QA test-mode is on.
 library;
@@ -36,6 +37,9 @@ class AdConfig {
     this.appOpenMinGap = AdRules.minAppOpenGap,
     this.appOpenDailyCap = 0,
     this.blockedScreens = const {},
+    this.appOpenStartDay = 2,
+    this.appOpenSkipAfterS = 5,
+    this.sponsorsEnabled = true,
   });
 
   final bool configured;
@@ -49,6 +53,13 @@ class AdConfig {
   final Duration appOpenMinGap;
   final int appOpenDailyCap;
   final Set<String> blockedScreens;
+
+  /// p2-money: app-open from day N after sign-up; Skip after N seconds.
+  final int appOpenStartDay;
+  final int appOpenSkipAfterS;
+
+  /// p2-money: direct sponsor slots on (server; Free users only).
+  final bool sponsorsEnabled;
 
   static const none = AdConfig();
 
@@ -67,11 +78,18 @@ class AdConfig {
       paid: j['paid'] == true || plan != 'free',
       appOpenEnabled: j['app_open_enabled'] == true,
       rewardedEnabled: j['rewarded_enabled'] == true,
-      appOpenMinGap: Duration(seconds: i(j['appopen_min_gap_sec'])),
+      appOpenMinGap: Duration(
+          seconds: i(j['appopen_min_gap_sec']) > 0
+              ? i(j['appopen_min_gap_sec'])
+              : 3 * 3600),
       appOpenDailyCap: i(j['appopen_daily_cap']),
       blockedScreens: ((j['blocked_screens'] as List?) ?? const [])
           .map((e) => '$e'.toLowerCase())
           .toSet(),
+      appOpenStartDay:
+          i(j['appopen_start_day']) < 1 ? 2 : i(j['appopen_start_day']),
+      appOpenSkipAfterS: i(j['appopen_skip_after_s']).clamp(5, 15),
+      sponsorsEnabled: j['sponsors_enabled'] != false,
     );
   }
 
@@ -104,7 +122,8 @@ class AdDecision {
 class AdRules {
   AdRules._();
 
-  static const minAppOpenGap = Duration(hours: 3);
+  /// The floor for the app-open gap (owner-editable 1 h .. 24 h).
+  static const minAppOpenGap = Duration(hours: 1);
 
   /// Hard block — substrings, so 'circle_call', 'payment_ladder',
   /// 'otp_verify', 'voice_sos' etc. are all caught.
