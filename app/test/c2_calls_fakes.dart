@@ -22,7 +22,11 @@ class FakeCallMedia implements CallMedia {
     log.add('open:${video ? 'video' : 'audio'}');
     final e = openError;
     if (e != null) throw e;
+    if (video && cameraFailsAtOpen) cameraUnavailable = true;
   }
+
+  /// b1: the camera refuses at open (mic works) — like the CI emulator.
+  bool cameraFailsAtOpen = false;
 
   @override
   Future<void> createPeer(List<Map<String, dynamic>> iceServers) async {
@@ -70,6 +74,31 @@ class FakeCallMedia implements CallMedia {
     disposed = true;
     log.add('dispose');
   }
+
+  // ---- b1-calls ----
+  @override
+  bool cameraUnavailable = false;
+
+  /// set to make startVideo() fail like a refused / busy camera.
+  MediaOpenException? cameraError;
+  List<AudioRoute> routeList = const [AudioRoute.earpiece, AudioRoute.speaker];
+
+  @override
+  Future<void> startVideo() async {
+    log.add('start-video');
+    final e = cameraError;
+    if (e != null) throw e;
+    cameraUnavailable = false;
+  }
+
+  @override
+  Future<void> stopVideo() async => log.add('stop-video');
+
+  @override
+  Future<List<AudioRoute>> audioRoutes() async => routeList;
+
+  @override
+  Future<void> setAudioRoute(AudioRoute r) async => log.add('route:${r.name}');
 }
 
 class FakeSignaling implements CallSignaling {
@@ -227,6 +256,12 @@ CallController previewController({
   bool muted = false,
   bool speaker = false,
   bool remoteCamera = true,
+  bool remoteMic = true,
+  bool videoNow = false,
+  bool cameraOn = true,
+  VideoUpgrade upgrade = VideoUpgrade.none,
+  CallNotice notice = CallNotice.none,
+  AudioRoute? route,
 }) {
   final c = CallController(
     media: FakeCallMedia(),
@@ -245,6 +280,16 @@ CallController previewController({
   c.muted = muted;
   c.speakerOn = speaker || video;
   c.remoteCameraOn = remoteCamera;
+  c.remoteMicOn = remoteMic;
+  c.videoOn = video || videoNow;
+  c.cameraOn = c.videoOn && cameraOn;
+  c.upgrade = upgrade;
+  if (notice != CallNotice.none) {
+    c.notice = notice;
+    c.noticeSeq = 1;
+  }
+  c.route = route ??
+      (c.videoOn || speaker ? AudioRoute.speaker : AudioRoute.earpiece);
   if (phase == CallPhase.connected || phase == CallPhase.reconnecting) {
     c.connectedAt = DateTime(2026, 10, 22, 10, 0, 0);
   }

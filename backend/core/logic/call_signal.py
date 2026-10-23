@@ -66,7 +66,17 @@ MISSED_REASONS = ("no_answer", "busy", "offline", "canceled")
 LIVE_STATES = ("ringing", "connecting", "active", "reconnecting")
 
 SIGNAL_KINDS = ("offer", "answer", "ice", "restart_offer", "restart_answer",
-                "media")
+                "media",
+                # b1-calls: voice <-> video mid-call + renegotiation + the
+                # callee asking the caller for an ICE restart.
+                "video_request", "video_accept", "video_decline",
+                "video_cancel", "video_off", "reneg_offer", "reneg_answer",
+                "reneg_request", "restart_request")
+
+# b1-calls: a side that is RECONNECTING (Wi-Fi <-> mobile data) may be silent
+# longer than HEARTBEAT_S while its new network comes up; the phones give up
+# after 30 s themselves, so the server waits a little longer than that.
+RECONNECT_GRACE_S = 35
 MAX_SIGNAL_BYTES = 16 * 1024
 MAX_SIGNALS_PER_CALL = 400
 
@@ -132,6 +142,7 @@ def sweep_decision(state, now, started_at, ringing_at=None, answered_at=None,
       connecting (accepted), > CONNECT_TIMEOUT_S     -> failed
       any live phase: a side silent > HEARTBEAT_S    -> lost (failed when
                                                          media never connected)
+      reconnecting: a side silent > RECONNECT_GRACE_S -> lost (b1-calls)
     """
     if not is_live(state):
         return None
@@ -151,9 +162,10 @@ def sweep_decision(state, now, started_at, ringing_at=None, answered_at=None,
         ans = _ts(answered_at) or started
         if now_s - ans > CONNECT_TIMEOUT_S:
             return "failed"
+    silent_limit = RECONNECT_GRACE_S if state == "reconnecting" else HEARTBEAT_S
     for seen in (caller_seen, callee_seen):
         s = _ts(seen)
-        if s is not None and now_s - s > HEARTBEAT_S:
+        if s is not None and now_s - s > silent_limit:
             return "lost" if connected_at is not None else "failed"
     return None
 

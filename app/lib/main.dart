@@ -12,6 +12,7 @@ import 'state.dart';
 import 'theme.dart';
 import 'updater.dart';
 import 'notifications.dart';
+import 'calls/call_mini_bar.dart'; // b1: in-app minimized-call bar
 import 'push/push_service.dart';
 import 'services/home_widget_service.dart';
 import 'services/security_guard.dart' show SecurityHeartbeat;
@@ -202,7 +203,9 @@ class AssistoApp extends StatelessWidget {
               // to a screenshot (AppShot.capture; no plugin, lazy).
               child: RepaintBoundary(
                 key: AppShot.boundaryKey,
-                child: child ?? const SizedBox.shrink(),
+                // b1-calls: "tap to return to the call" bar while a call is
+                // minimized (nothing extra is drawn otherwise).
+                child: CallMiniBarHost(child: child ?? const SizedBox.shrink()),
               ),
             );
           },

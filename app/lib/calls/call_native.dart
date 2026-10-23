@@ -87,6 +87,19 @@ class CallNative {
     _ensureHandler();
     return await _invoke<bool>('enterPip', {'w': w, 'h': h}) == true;
   }
+
+  static bool _autoPip = false;
+
+  /// b1-calls: Home / the recents gesture shrinks a LIVE video call into
+  /// picture-in-picture (API 31+ auto-enter; 26-30 user-leave hint). Only
+  /// changes the native side when the wanted state changes.
+  static Future<bool> setAutoPip(bool on, {int w = 9, int h = 16}) async {
+    if (on == _autoPip) return on;
+    _autoPip = on;
+    _ensureHandler();
+    return await _invoke<bool>('setAutoPip', {'on': on, 'w': w, 'h': h}) ==
+        true;
+  }
 }
 
 /// [CallSounds] for the app: generated tones through the native AudioTrack.

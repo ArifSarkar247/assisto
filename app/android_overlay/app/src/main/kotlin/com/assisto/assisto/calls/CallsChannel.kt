@@ -48,6 +48,7 @@ import io.flutter.plugin.common.MethodChannel
  *   keepScreenOn(on: Bool)                           -> Bool
  *   pipSupported()                                   -> Bool
  *   enterPip(w: Int, h: Int)                         -> Bool
+ *   setAutoPip(on: Bool, w: Int, h: Int)             -> Bool  (b1: Home -> PiP)
  *   Dart callback: "pipChanged"(Bool)
  */
 object CallsChannel {
@@ -96,6 +97,13 @@ object CallsChannel {
                     "pipSupported" -> result.success(pipSupported())
                     "enterPip" -> result.success(
                         enterPip(call.argument<Int>("w") ?: 9, call.argument<Int>("h") ?: 16)
+                    )
+                    "setAutoPip" -> result.success(
+                        setAutoPip(
+                            call.argument<Boolean>("on") == true,
+                            call.argument<Int>("w") ?: 9,
+                            call.argument<Int>("h") ?: 16
+                        )
                     )
                     else -> result.notImplemented()
                 }
@@ -374,6 +382,54 @@ object CallsChannel {
         }
     }
 
+    // b1-calls: auto picture-in-picture while a VIDEO call is live. Dart turns
+    // it on only for a connected video call and off again when it ends.
+    @Volatile private var autoPip = false
+    private var pipW = 9
+    private var pipH = 16
+    private var leaveHintHooked = false
+
+    /** API 31+: PictureInPictureParams.setAutoEnterEnabled (the home gesture
+     *  shrinks the call into PiP). API 26-30: the activity's user-leave-hint
+     *  listener (androidx.activity, looked up by reflection so an old
+     *  androidx can never break the build or crash) enters PiP on Home.
+     *  Every path is guarded; false = not available on this phone. */
+    private fun setAutoPip(on: Boolean, w: Int, h: Int): Boolean {
+        autoPip = on
+        pipW = w.coerceIn(1, 100)
+        pipH = h.coerceIn(1, 100)
+        val a = activity ?: return false
+        if (!pipSupported()) return false
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                a.setPictureInPictureParams(
+                    PictureInPictureParams.Builder()
+                        .setAspectRatio(Rational(pipW, pipH))
+                        .setAutoEnterEnabled(on)
+                        .build()
+                )
+            } else {
+                hookLeaveHint(a)
+            }
+            true
+        } catch (e: Throwable) {
+            false
+        }
+    }
+
+    private fun hookLeaveHint(a: Activity) {
+        if (leaveHintHooked) return
+        try {
+            val m = a.javaClass.getMethod("addOnUserLeaveHintListener", Runnable::class.java)
+            m.invoke(a, Runnable {
+                try {
+                    if (autoPip) enterPip(pipW, pipH)
+                } catch (ignored: Throwable) {}
+            })
+            leaveHintHooked = true
+        } catch (ignored: Throwable) {}
+    }
+
     /** MainActivity forwards onPictureInPictureModeChanged here. */
     fun onPipChanged(inPip: Boolean) {
         main.post {
@@ -382,6 +438,7 @@ object CallsChannel {
     }
 
     fun release() {
+        autoPip = false
         stopTone()
         stopRingtone()
         setProximity(false)

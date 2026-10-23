@@ -1,15 +1,36 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 import '../push/incoming_call_screen.dart';
 import '../push/push_notifier.dart';
 import '../push/push_payload.dart';
 import '../realtime/realtime_transport.dart';
 import '../state.dart';
+import 'call_controller.dart';
+import 'call_keepalive.dart';
 import 'call_native.dart';
 import 'call_sound_prefs.dart';
 import 'call_log.dart';
+import 'call_video.dart';
+
+/// b1-calls: a live call that left its screen (minimized inside the app).
+class OngoingCall {
+  OngoingCall({
+    required this.controller,
+    required this.member,
+    required this.kind,
+    this.surface,
+  });
+  final CallController controller;
+  final CallVideoSurface? surface;
+  final Map<String, dynamic> member;
+
+  /// how the call started ('voice' | 'video').
+  final String kind;
+  String get name => '${member['name'] ?? ''}';
+}
 
 /// App-wide call runtime (c2-calls): owns the shared real-time transport and
 /// shows the in-app incoming-call screen INSTANTLY while Assisto is open
@@ -210,6 +231,92 @@ class CallRuntime with WidgetsBindingObserver {
     }
   }
 
+  // ------------------------------------------- b1: minimized (in-app) call
+  /// The live call whose screen was minimized (back / "Minimize") while the
+  /// user moves around the app. The mini call bar ([CallMiniBarHost]) shows
+  /// it; tapping it re-opens the call screen with the SAME controller.
+  final ValueNotifier<OngoingCall?> ongoing = ValueNotifier<OngoingCall?>(null);
+
+  /// Opens the call screen for a minimized call (the mini bar's tap). Set by
+  /// the call screen library, so this file never imports it.
+  void Function(NavigatorState nav, OngoingCall o)? reopenCall;
+
+  /// The call screen hands its live call over (it is about to pop). The call
+  /// keeps running; this runtime holds the one-call-screen lock for it.
+  void minimize(OngoingCall o) {
+    final old = ongoing.value;
+    if (old != null && !identical(old, o)) _dropOngoing(old);
+    o.controller.addListener(_onOngoing);
+    _setOngoing(o);
+    acquireScreen(o, () => !o.controller.isEnded);
+  }
+
+  /// The call screen takes the minimized call back (null = none / ended).
+  OngoingCall? takeOngoing() {
+    final o = ongoing.value;
+    if (o == null) return null;
+    o.controller.removeListener(_onOngoing);
+    releaseScreen(o);
+    _setOngoing(null);
+    return o.controller.isEnded ? null : o;
+  }
+
+  /// Changing [ongoing] rebuilds the app-wide bar: never during a build
+  /// (a call screen takes its call back in initState) — then after it.
+  void _setOngoing(OngoingCall? o) {
+    final phase = SchedulerBinding.instance.schedulerPhase;
+    if (phase == SchedulerPhase.persistentCallbacks ||
+        phase == SchedulerPhase.midFrameMicrotasks) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        // only if nothing newer was set meanwhile
+        if (o == null || !o.controller.isEnded) ongoing.value = o;
+      });
+    } else {
+      ongoing.value = o;
+    }
+  }
+
+  /// Mini bar tap: back to the full call screen.
+  void restoreOngoing() {
+    final o = ongoing.value;
+    final nav = _nav?.currentState;
+    if (o == null || nav == null) return;
+    try {
+      reopenCall?.call(nav, o);
+    } catch (e) {
+      callLog('call_runtime#8', e);
+    }
+  }
+
+  void _onOngoing() {
+    final o = ongoing.value;
+    if (o == null || !o.controller.isEnded) return;
+    _dropOngoing(o);
+  }
+
+  /// The minimized call ended (other side hung up, network lost, red button
+  /// on the bar): release everything the screen would have released.
+  void _dropOngoing(OngoingCall o) {
+    o.controller.removeListener(_onOngoing);
+    releaseScreen(o);
+    if (identical(ongoing.value, o)) _setOngoing(null);
+    if (activeCallId != null && activeCallId == o.controller.callId) {
+      activeCallId = null;
+    }
+    unawaited(CallKeepAlive.stop());
+    unawaited(CallNative.keepScreenOn(false));
+    unawaited(CallNative.setAutoPip(false));
+    final c = o.controller;
+    // let the end tone play, then free the controller
+    Timer(const Duration(seconds: 2), () {
+      try {
+        c.dispose();
+      } catch (e) {
+        callLog('call_runtime#9', e);
+      }
+    });
+  }
+
   /// FCM "call_signal" nudge (x1-calls): poll the real-time queue NOW.
   void nudge() {
     try {
@@ -283,6 +390,7 @@ class CallRuntime with WidgetsBindingObserver {
     _transport = null;
     _shown.clear();
     activeCallId = null;
+    ongoing.value = null;
     _screenOwner = null;
     _screenLive = null;
     _app?.removeListener(_onApp);

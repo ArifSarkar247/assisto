@@ -40,9 +40,19 @@ class ApiCallSignaling implements CallSignaling {
           {'event': event, if (relayed != null) 'relayed': relayed});
 
   @override
-  Future<void> signal(int callId, String kind, Map<String, dynamic> data) =>
-      transport
+  Future<void> signal(
+      int callId, String kind, Map<String, dynamic> data) async {
+    try {
+      await transport
           .send('call.signal', {'call_id': callId, 'kind': kind, 'data': data});
+    } on ApiException catch (e) {
+      // b1: the server's plan gate refused switching this call to video
+      if (kind == 'video_request' && (e.status == 402 || e.status == 403)) {
+        throw const CallUpgradeRequired();
+      }
+      rethrow;
+    }
+  }
 
   @override
   Future<Map<String, dynamic>> status(int callId) =>
