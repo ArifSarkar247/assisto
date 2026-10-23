@@ -181,23 +181,29 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
         title: t.g1ModeTitle,
         icon: Icons.schedule_outlined,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          for (final m in const ['always', 'outside_hours', 'off'])
-            RadioListTile<String>(
-              contentPadding: EdgeInsets.zero,
-              value: m,
-              groupValue: mode,
-              title: Text(m == 'always'
-                  ? t.g1ModeAlways
-                  : m == 'outside_hours'
-                      ? t.g1ModeOutside
-                      : t.g1ModeOff),
-              subtitle: Text(m == 'always'
-                  ? t.g1ModeAlwaysSub
-                  : m == 'outside_hours'
-                      ? t.g1ModeOutsideSub
-                      : t.g1ModeOffSub),
-              onChanged: _busy ? null : (v) => _save({'ai_mode': v}),
-            ),
+          RadioGroup<String>(
+            groupValue: mode,
+            onChanged: (v) {
+              if (v != null && !_busy) _save({'ai_mode': v});
+            },
+            child: Column(children: [
+              for (final m in const ['always', 'outside_hours', 'off'])
+                RadioListTile<String>(
+                  contentPadding: EdgeInsets.zero,
+                  value: m,
+                  title: Text(m == 'always'
+                      ? t.g1ModeAlways
+                      : m == 'outside_hours'
+                          ? t.g1ModeOutside
+                          : t.g1ModeOff),
+                  subtitle: Text(m == 'always'
+                      ? t.g1ModeAlwaysSub
+                      : m == 'outside_hours'
+                          ? t.g1ModeOutsideSub
+                          : t.g1ModeOffSub),
+                ),
+            ]),
+          ),
           if (mode == 'outside_hours' && hours['start'] == null)
             BizNote(text: t.g1ModeNeedsHours, icon: Icons.info_outline, tint: Brand.warning),
         ]),
@@ -530,7 +536,7 @@ class _AgentAnswersScreenState extends State<AgentAnswersScreen> {
               else
                 DropdownButtonFormField<int>(
                   isExpanded: true,
-                  value: pid,
+                  initialValue: pid,
                   decoration: InputDecoration(labelText: t.g1Product),
                   items: [
                     for (final p in products)

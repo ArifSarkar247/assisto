@@ -848,13 +848,14 @@ def _out_of_replies(thread, agent, lang, reason, comment_id=""):
 
 
 def _deliver_ai(thread, agent, text, lang, kind="text", comment_id="", public_too=False,
-                source="ai", meta=None, extra_credits=0, cost_bdt=0.0):
+                source="ai", meta=None, extra_credits=0, cost_bdt=0.0, prepaid=False):
     """Pay for + send one agent reply (disclosure on the first AI reply).
     g1: ONLY an LLM reply (source 'ai') uses a plan reply / credits; a rule
     reply (FAQ, price, stock, order flow, …) is instant and costs 0.
     extra_credits / cost_bdt = an already-charged vision/voice call (stored
-    on the row for the agent report + Profit Guard)."""
-    if source == "ai":
+    on the row for the agent report + Profit Guard). prepaid=True: the reply
+    IS that paid vision answer (one charge, not two)."""
+    if source == "ai" and not prepaid:
         via, charged = consume_reply(agent)
         if via is None:
             return _out_of_replies(thread, agent, lang, charged, comment_id=comment_id)
@@ -865,7 +866,7 @@ def _deliver_ai(thread, agent, text, lang, kind="text", comment_id="", public_to
     m = send_text(thread, body, kind=kind, is_ai=True, comment_id=comment_id,
                   meta=meta, source=source)
     if m.status in ("failed", "blocked", "queued"):
-        if source == "ai":
+        if source == "ai" and not prepaid:
             refund_reply(agent, via, charged)
         if m.status == "failed":
             notify_seller(thread.business, "errors", "মেসেজ পাঠানো যায়নি",
@@ -874,7 +875,8 @@ def _deliver_ai(thread, agent, text, lang, kind="text", comment_id="", public_to
         return m.status
     m.meta["billed"] = via
     m.credits = (int(charged or 0) if via == "credits" else 0) + int(extra_credits or 0)
-    m.cost_bdt = float(cost_bdt or 0) + (reply_cost_bdt() if source == "ai" else 0.0)
+    m.cost_bdt = float(cost_bdt or 0) + (reply_cost_bdt() if source == "ai" and not prepaid
+                                         else 0.0)
     m.save(update_fields=["meta", "credits", "cost_bdt"])
     if first:
         thread.ai_disclosed = True
@@ -1051,7 +1053,7 @@ def _send_reply(t, agent, d, lang, comment_id, started):
     res = _deliver_ai(t, agent, d["text"], lang, kind=d.get("kind") or "text",
                       comment_id=comment_id, public_too=bool(comment_id), source=src,
                       meta=meta, extra_credits=d.get("extra_credits", 0),
-                      cost_bdt=d.get("cost_bdt", 0.0))
+                      cost_bdt=d.get("cost_bdt", 0.0), prepaid=bool(d.get("charged_vision")))
     if res == "ok" and d.get("photos"):
         G1S.send_photos(t, d["photos"], lang)
     return res

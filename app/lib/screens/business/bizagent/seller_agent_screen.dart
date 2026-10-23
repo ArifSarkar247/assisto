@@ -55,6 +55,8 @@ String baChannelLabel(AppLocalizations t, String kind) {
       return t.baChInstagram;
     case 'whatsapp_cloud':
       return t.baChWhatsapp;
+    case 'website':
+      return t.g1WidgetTitle; // g1: website chat widget
     default:
       return kind;
   }
@@ -66,6 +68,8 @@ IconData baChannelIcon(String kind) {
       return Icons.camera_alt_outlined;
     case 'whatsapp_cloud':
       return Icons.chat_outlined;
+    case 'website':
+      return Icons.language_outlined;
     default:
       return Icons.forum_outlined;
   }

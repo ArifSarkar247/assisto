@@ -527,6 +527,8 @@ class PhotoTests(G1Base):
         self.assertGreater(out.cost_bdt, 0)                      # cost per image booked
         self.user.refresh_from_db()
         self.assertEqual(self.user.ai_credits, 34)
+        self.agent.refresh_from_db()
+        self.assertEqual(self.agent.replies_used, 0)             # one charge, not two
         st = G1S.rules_stats()
         self.assertEqual(st["vision_images"], 1)
         self.assertGreater(st["vision_cost_per_image"], 0)
