@@ -157,7 +157,13 @@ jobs:
 
       - name: Precache iOS artifacts
         working-directory: app
-        run: flutter precache --ios
+        # ra1: CocoaPods only. With Swift Package Manager on, the build rsyncs
+        # plugin packages into build/ios/SourcePackages and failed every run
+        # ("mkdir ... firebase_crashlytics-5.4.0: No such file or directory").
+        run: |
+          flutter config --no-enable-swift-package-manager
+          mkdir -p build/ios/SourcePackages
+          flutter precache --ios
 
       - name: CocoaPods install (pod repo update)
         working-directory: app/ios
@@ -171,7 +177,7 @@ jobs:
         # --no-codesign compiles + links without a signing identity. This proves
         # the Dart + all plugin pods build for iOS. It does NOT create an IPA.
         run: |
-          API_BASE="https://assisto.asalify.com"
+          API_BASE="https://api.lifeassisto.com"
           flutter build ios --release --no-codesign \
             --dart-define=API_BASE="$API_BASE"
 

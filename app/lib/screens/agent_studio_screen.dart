@@ -175,7 +175,9 @@ class _AgentStudioScreenState extends State<AgentStudioScreen>
         icon: Icons.cloud_off,
         tint: Brand.danger,
         title: t.studioLoadError,
-        message: t.checkInternetRetry,
+        // ra1: automations live on this phone (SharedPreferences), so the
+        // internet is never the cause — don't tell the user to check it.
+        message: t.notifErrorBody,
         action: FilledButton.tonal(onPressed: _load, child: Text(t.retry)),
       );
     }
