@@ -464,7 +464,8 @@ class GroupIncomingView(APIView):
         for p in GroupCallParticipant.objects.filter(
                 user=me, state="invited", room__state="live",
                 invited_at__gte=now - timedelta(seconds=RING_S)
-        ).select_related("room", "room__host", "room__group"):
+        ).exclude(room__host=me).exclude(invited_by=me).select_related(
+                "room", "room__host", "room__group"):
             sweep_room(p.room, now)
             if p.room.state == "live":
                 out.append(_incoming_row(p.room, me))

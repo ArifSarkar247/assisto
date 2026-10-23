@@ -274,6 +274,9 @@ class UpgradeAndTokenTests(_Group, TestCase):
         self.assertEqual(inc[0]["host_name"], "Amina")
         self.assertEqual([x["room"] for x in self.cc.get(
             f"{V}/circle/calls/group/incoming").json()["rooms"]], [room])
+        # the host's own phone never rings for its own room
+        self.assertEqual(self.ca.get(
+            f"{V}/circle/calls/group/incoming").json()["rooms"], [])
         # A's own join token came back with the start
         c = SFU.jwt_decode(body["join"]["token"], LK["LIVEKIT_API_SECRET"],
                            now_ts=timezone.now().timestamp())

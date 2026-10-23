@@ -48,7 +48,7 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
     try {
       final l = await RecordingVault.instance.list();
       if (mounted) setState(() => _recordings = l.length);
-    } catch (_) {}
+    } catch (_) {} // best-effort: the recordings entry just stays hidden
   }
 
   ApiClient get _api => context.read<AppState>().api;

@@ -18,6 +18,7 @@ import '../calls/group_call.dart';
 import '../calls/livekit_room.dart' deferred as lk;
 import '../l10n/app_localizations.dart';
 import '../push/lock_screen_guard.dart';
+import '../realtime/realtime_transport.dart';
 import '../state.dart';
 import '../theme.dart';
 
@@ -81,6 +82,7 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
   int _page = 0;
   CallController? _handover;
   bool _keepAlive = false;
+  PollRealtimeTransport? _transport;
 
   AppLocalizations get _t => AppLocalizations.of(context);
 
@@ -147,6 +149,7 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
     );
     _attach(c);
     transport.setFast(true);
+    _transport = transport;
     CallRuntime.instance.activeCallId ??= 0; // busy for 1:1 rings
     setState(() {});
     await c.start();
@@ -212,10 +215,10 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
       c.removeListener(_onChange);
       c.recording?.removeListener(_onChange);
       if (_owns) {
-        c.recording?.dispose();
-        c.dispose(); // leaves if still in the room
-        final app = context.read<AppState>();
-        CallRuntime.instance.transportFor(app).setFast(false);
+        final rec = c.recording;
+        c.dispose(); // leaves if still in the room (finishes a recording)
+        rec?.dispose();
+        _transport?.setFast(false);
         if (CallRuntime.instance.activeCallId == 0) {
           CallRuntime.instance.activeCallId = null;
         }
