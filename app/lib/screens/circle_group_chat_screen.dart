@@ -569,10 +569,10 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     await _refreshRosterKeys();
     for (var i = 0; i < 3 && _recipients.isEmpty && _others.isNotEmpty; i++) {
       await Future<void>.delayed(const Duration(seconds: 3));
-      if (!mounted) return;
+      if (!mounted) return false;
       await _refreshRosterKeys();
     }
-    if (!mounted) return;
+    if (!mounted) return false;
     // §21: if there is no one to encrypt to, say so instead of a silent no-op.
     if (_others.isEmpty) {
       setState(() => _sending = false);

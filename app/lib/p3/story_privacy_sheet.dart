@@ -120,16 +120,14 @@ class _StoryPrivacySheetState extends State<StoryPrivacySheet> {
         RadioListTile<String>(
           key: ValueKey('p3-priv-$mode'),
           value: mode,
-          groupValue: _mode,
-          onChanged: (v) {
-            if (onPick != null) {
-              onPick();
-            } else {
-              setState(() => _mode = v!);
-            }
-          },
           title: Text(title),
           subtitle: Text(sub),
+          secondary: onPick == null
+              ? null
+              : IconButton(
+                  tooltip: t.p3PrivChoose,
+                  icon: const Icon(Icons.edit_outlined),
+                  onPressed: onPick),
         );
     return SafeArea(
       child: SingleChildScrollView(
@@ -146,13 +144,25 @@ class _StoryPrivacySheetState extends State<StoryPrivacySheet> {
               child: Text(widget.note ?? t.p3PrivWho,
                   style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
             ),
-            option(StoryPrivacy.everyone, t.p3PrivContacts, t.p3PrivContactsSub),
-            option(StoryPrivacy.except, t.p3PrivExcept,
-                _except.isEmpty ? t.p3PrivExceptSub : t.p3PrivExcludedN(n(_except.length)),
-                onPick: () => _pick(false)),
-            option(StoryPrivacy.chosen, t.p3PrivOnly,
-                _allow.isEmpty ? t.p3PrivOnlySub : t.p3PrivIncludedN(n(_allow.length)),
-                onPick: () => _pick(true)),
+            RadioGroup<String>(
+              groupValue: _mode,
+              onChanged: (v) {
+                if (v == StoryPrivacy.everyone) {
+                  setState(() => _mode = v!);
+                } else if (v != null) {
+                  _pick(v == StoryPrivacy.chosen);
+                }
+              },
+              child: Column(children: [
+                option(StoryPrivacy.everyone, t.p3PrivContacts, t.p3PrivContactsSub),
+                option(StoryPrivacy.except, t.p3PrivExcept,
+                    _except.isEmpty ? t.p3PrivExceptSub : t.p3PrivExcludedN(n(_except.length)),
+                    onPick: () => _pick(false)),
+                option(StoryPrivacy.chosen, t.p3PrivOnly,
+                    _allow.isEmpty ? t.p3PrivOnlySub : t.p3PrivIncludedN(n(_allow.length)),
+                    onPick: () => _pick(true)),
+              ]),
+            ),
             Padding(
               padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xs),
               child: Row(children: [

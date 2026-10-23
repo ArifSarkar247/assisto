@@ -15,6 +15,10 @@ import '../../messaging/presence_label.dart';
 import '../../realtime/realtime_channel.dart';
 import 'starred_messages_screen.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
+import '../../crypto/e2e.dart'; // p3: profile note
+import '../../crypto/key_service.dart';
+import '../../p3/p3_api.dart';
+import '../../p3/story_crypto.dart';
 
 /// CONTACT INFO screen for a 1:1 chat (.phaseB/MESSENGER_UI_FULL.md §4).
 ///
@@ -53,6 +57,7 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
   bool _muted = false;
   int _disappearingSec = 0;
   bool _blocked = false;
+  String? _note; // p3: their 24 h profile note, decrypted on this phone
 
   ApiClient get _api => context.read<AppState>().api;
   AppLocalizations get _t => AppLocalizations.of(context);
@@ -79,6 +84,27 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
       _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
+    _loadNote();
+  }
+
+  /// p3: the contact's profile Note (E2E: my sealed copy, opened here).
+  Future<void> _loadNote() async {
+    try {
+      final peer = int.tryParse('${widget.member['peer_user_id'] ?? ''}');
+      final key = keyOf(widget.member);
+      if (peer == null || key == null) return;
+      final r = await _api.notes().timeout(const Duration(seconds: 8));
+      Map<String, dynamic>? row;
+      for (final n in ((r['notes'] ?? []) as List).cast<Map<String, dynamic>>()) {
+        if ((n['author_id'] as num?)?.toInt() == peer) row = n;
+      }
+      if (row == null) return;
+      final me = await KeyService.instance.identity().timeout(const Duration(seconds: 5));
+      final txt = openSealed(e2e: SoftwareE2E(), me: me, senderKeys: [key], row: row);
+      if (mounted && txt != null && txt.trim().isNotEmpty) setState(() => _note = txt.trim());
+    } catch (_) {
+      // a note is optional: the profile shows without it
+    }
   }
 
   void _toast(String msg) => ScaffoldMessenger.of(context)
@@ -209,6 +235,9 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                 _header(scheme, about),
                 const SizedBox(height: Gap.sm),
 
+                // p3: profile note (24 h)
+                if (_note != null)
+                  _tile(Icons.sticky_note_2_outlined, _t.p3NoteOnProfile, _note!),
                 // About / phone
                 if (about.isNotEmpty)
                   _tile(Icons.info_outline, _t.msgrContactAbout, about),
