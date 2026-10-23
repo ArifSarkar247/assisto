@@ -111,6 +111,12 @@ void main() {
         unawaited(Future<void>.delayed(const Duration(seconds: 2), () async {
           try { await PushService.instance.start(appState); } catch (_) {}
         }));
+      } else {
+        // ty1: safe mode still rings My Circle calls in-app and shows
+        // typing / online (pure Dart polling, no Firebase / native init).
+        unawaited(Future<void>.delayed(const Duration(seconds: 4), () async {
+          try { await PushService.instance.start(appState, realtimeOnly: true); } catch (_) {}
+        }));
       }
     });
   }, (error, stack) {

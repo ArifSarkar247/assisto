@@ -31,7 +31,7 @@ import 'package:assisto/api.dart';
 import 'package:assisto/config.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/main.dart' show AssistoApp;
-import 'package:assisto/push/push_service.dart' show appNavigatorKey;
+import 'package:assisto/push/push_service.dart' show PushService, appNavigatorKey;
 import 'package:assisto/widgets/chatnav.dart';
 import 'package:assisto/state.dart';
 import 'package:assisto/updater.dart';
@@ -213,6 +213,14 @@ class Harness {
       ),
     ));
     app = a;
+    // ty1: lib/main.dart's deferred init starts the app's real-time loop
+    // (in-app incoming calls, typing / online, live ticks) a few seconds
+    // after the first frame. The harness pumps AssistoApp directly, so
+    // before ty1 that loop NEVER ran here: 18_circle_real_call could not ring
+    // in-app (B's call ended "offline" after the 20 s ack window) and
+    // 19_circle_ticks never saw "typing…". Firebase stays off (no FCM on
+    // CI), exactly like startup safe mode. Re-boots re-bind the new AppState.
+    unawaited(PushService.instance.start(a, realtimeOnly: true));
     await settle(tester, seconds: 4);
     return a;
   }
