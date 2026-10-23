@@ -237,6 +237,9 @@ class PhotoStudioController extends ChangeNotifier {
   /// from the engine: model bytes, AI tiles, batch photos.
   PsProgress? progress;
 
+  /// Cancel was pressed; the engine stops after the current tile.
+  bool cancelling = false;
+
   /// d1-photo: tools this phone can run on the current photo.
   ToolsAvailability tools = ToolsAvailability.none;
 
@@ -289,6 +292,8 @@ class PhotoStudioController extends ChangeNotifier {
   /// is kept and nothing is charged.
   Future<void> cancelRun() async {
     _batchCancel = true;
+    cancelling = true; // the overlay says "Stopping…" until the tile ends
+    _notify();
     try {
       await _tools?.cancel();
     } catch (_) {}
@@ -539,6 +544,7 @@ class PhotoStudioController extends ChangeNotifier {
     } finally {
       busy = false;
       progress = null;
+      cancelling = false;
       _notify();
     }
   }
@@ -604,6 +610,7 @@ class PhotoStudioController extends ChangeNotifier {
     } finally {
       busy = false;
       progress = null;
+      cancelling = false;
       _notify();
     }
   }
@@ -698,6 +705,7 @@ class PhotoStudioController extends ChangeNotifier {
       batchRunning = false;
       busy = false;
       progress = null;
+      cancelling = false;
       _notify();
     }
   }
@@ -869,6 +877,7 @@ class PhotoStudioController extends ChangeNotifier {
     } finally {
       busy = false;
       progress = null;
+      cancelling = false;
       _notify();
     }
   }
@@ -964,6 +973,7 @@ class PhotoStudioController extends ChangeNotifier {
     } finally {
       busy = false;
       progress = null;
+      cancelling = false;
       _notify();
     }
   }

@@ -323,7 +323,8 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
                   width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.4)),
               const SizedBox(width: Gap.md),
               Expanded(
-                  child: Text(p == null ? t.psWorking : _stageText(t, p),
+                  child: Text(
+                      _c.cancelling ? t.d1psStopping : (p == null ? t.psWorking : _stageText(t, p)),
                       style: const TextStyle(fontWeight: FontWeight.w600))),
             ]),
             if (p?.fraction != null) ...[
@@ -341,7 +342,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
                 alignment: AlignmentDirectional.centerEnd,
                 child: TextButton.icon(
                   key: const Key('psCancelRun'),
-                  onPressed: _c.cancelRun,
+                  onPressed: _c.cancelling ? null : _c.cancelRun,
                   icon: const Icon(Icons.close_rounded, size: 18),
                   label: Text(t.cancel),
                 ),

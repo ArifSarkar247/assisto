@@ -215,7 +215,8 @@
     }
    }
   },
-  "d1psFeatEnhanceServer": "HD enhance (worker)"
+  "d1psFeatEnhanceServer": "HD enhance (worker)",
+  "d1psStopping": "Stopping…"
  },
  "bn": {
   "d1psToolsTitle": "ছবির টুল",
@@ -289,6 +290,7 @@
   "d1psTemplatesBody": "তৈরি করা এডিট। ভারী কাজগুলো আমাদের সার্ভারে চলে, এক মিনিট পর্যন্ত লাগতে পারে।",
   "d1psFreeHdLeft": "আজ ফ্রি HD: আর {n}টি · প্রতিটিতে {ads}টি বিজ্ঞাপন",
   "d1psFreeAiLeft": "ফ্রি AI ছবি বাকি: {n}টি",
-  "d1psFeatEnhanceServer": "HD এনহ্যান্স (ওয়ার্কার)"
+  "d1psFeatEnhanceServer": "HD এনহ্যান্স (ওয়ার্কার)",
+  "d1psStopping": "থামানো হচ্ছে…"
  }
 }
