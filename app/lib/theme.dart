@@ -478,11 +478,11 @@ class AssistoTheme {
           animationDuration: Motion.fast,
         ),
       ),
+      // IconButton keeps M3's 40 dp visual size; `materialTapTargetSize:
+      // padded` (above) already gives it a 48 dp hit area. Forcing a 48 dp
+      // layout size widened every app bar's actions by 8 dp each.
       iconButtonTheme: IconButtonThemeData(
-        style: IconButton.styleFrom(
-          minimumSize: const Size(kMinTap, kMinTap),
-          animationDuration: Motion.fast,
-        ),
+        style: IconButton.styleFrom(animationDuration: Motion.fast),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: scheme.primaryContainer,

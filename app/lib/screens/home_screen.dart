@@ -141,7 +141,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 width: 30, height: 30, fit: BoxFit.cover),
           ),
           const SizedBox(width: Gap.sm),
-          const Text('Assisto', style: TextStyle(fontWeight: FontWeight.w800)),
+          // f1-design: app-bar titles are now a real 20 sp title style; the
+          // name may shrink-ellipsize on very narrow / 200% text, never overflow.
+          const Flexible(
+            child: Text('Assisto',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontWeight: FontWeight.w800)),
+          ),
         ]),
         // OWNER UI FIX: bell (notifications) to the LEFT, My Circle at the
         // far-right corner (its original place). actions render left→right, so
