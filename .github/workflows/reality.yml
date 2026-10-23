@@ -32,8 +32,23 @@ jobs:
     runs-on: ubuntu-latest
     # A hung adb call once held a run for 6h; healthy runs need ~45-60 min.
     timeout-minutes: 120
+    # rt1: a throw-away Postgres (production's engine) instead of the sqlite
+    # file — run 39859999833 hit "database is locked" (POST /circle/1/call
+    # 500, a call.incoming silently never queued) under the threaded server.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: assisto_ci
+          POSTGRES_PASSWORD: ci-reality-throwaway   # disposable container, not a secret
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s
+          --health-timeout 5s --health-retries 20
     env:
       ASSISTO_CI_DB: ${{ github.workspace }}/backend/ci_reality.sqlite3
+      ASSISTO_CI_PG_NAME: assisto_ci
+      ASSISTO_CI_PG_PASSWORD: ci-reality-throwaway
       REALITY_OUT: ${{ github.workspace }}/reality_out
     steps:
       - uses: actions/checkout@v4
@@ -96,7 +111,16 @@ jobs:
                             "  flutter_driver:\n    sdk: flutter\n", 1)
               assert "integration_test:" in s, "dev_dependencies block not found"
               open(p, "w").write(s)
-          print("dev deps ready")
+          # rt1: a REAL build number. pubspec says 1.0.0+1, so the test APK
+          # was "build 1" and My Circle's minimum-version gate (183) blocked
+          # every circle flow with "Update Assisto to use My Circle".
+          import os, re
+          n = 9000 + int(os.environ.get("GITHUB_RUN_NUMBER", "0"))
+          s = open(p).read()
+          s, k = re.subn(r"(?m)^version: .*$", "version: 1.0.%d+%d" % (n, n), s, count=1)
+          assert k == 1, "pubspec version line not found"
+          open(p, "w").write(s)
+          print("dev deps ready; version 1.0.%d+%d" % (n, n))
           PY
       - name: Replay android.yml build prep (create, overlay, pub get, icons, splash, manifest, gradle)
         run: python3 tools/reality/replay_android_steps.py

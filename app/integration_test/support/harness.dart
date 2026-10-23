@@ -469,7 +469,12 @@ class RFlow {
     await waitFor(search, what: 'drawer search');
     await tester.enterText(search.first, label);
     await pumpFor(const Duration(milliseconds: 900));
-    final hit = find.descendant(of: find.byType(Drawer), matching: find.text(label));
+    // A drawer ROW (ListTile) with that text — never the search box itself,
+    // whose EditableText also "finds" the typed label (rt1: the old finder
+    // tapped the search field and reported the drawer path as working).
+    final hit = find.descendant(
+        of: find.descendant(of: find.byType(Drawer), matching: find.byType(ListTile)),
+        matching: find.text(label));
     await waitFor(hit, what: 'drawer item "$label"');
     await tester.tap(hit.last, warnIfMissed: false);
     await pumpFor(const Duration(seconds: 3));

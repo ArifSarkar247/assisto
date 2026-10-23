@@ -29,15 +29,37 @@ for _k in ("ANTHROPIC_API_KEY", "AI_API_KEY", "FCM_SERVICE_ACCOUNT_FILE",
 
 DEBUG = False
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.getenv("ASSISTO_CI_DB", str(BASE_DIR / "ci_reality.sqlite3")),
-        # the dev server serves requests on threads while seed/asserts may
-        # write; give sqlite room instead of "database is locked".
-        "OPTIONS": {"timeout": 30},
+if os.getenv("ASSISTO_CI_PG_NAME"):
+    # rt1: reality.yml runs a throw-away Postgres service container (same
+    # engine as production). The threaded dev server + two phones polling
+    # every 0.5-5 s made the sqlite file fail writes with "database is
+    # locked" (run 39859999833: POST /circle/1/call 500, and rt_publish /
+    # touch_presence swallow that error, so a call never rang).
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ["ASSISTO_CI_PG_NAME"],
+            "USER": os.getenv("ASSISTO_CI_PG_USER", "postgres"),
+            "PASSWORD": os.getenv("ASSISTO_CI_PG_PASSWORD", ""),
+            "HOST": os.getenv("ASSISTO_CI_PG_HOST", "127.0.0.1"),
+            "PORT": os.getenv("ASSISTO_CI_PG_PORT", "5432"),
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": os.getenv("ASSISTO_CI_DB", str(BASE_DIR / "ci_reality.sqlite3")),
+            # Local fallback: WAL (readers never block the writer) + IMMEDIATE
+            # transactions (no read->write upgrade deadlock, which fails at
+            # once with "database is locked" whatever the timeout).
+            "OPTIONS": {
+                "timeout": 30,
+                "transaction_mode": "IMMEDIATE",
+                "init_command": "PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL;",
+            },
+        }
+    }
 
 ALLOWED_HOSTS = ["10.0.2.2", "127.0.0.1", "localhost", "testserver"]
 CSRF_TRUSTED_ORIGINS = ["http://10.0.2.2:8700", "http://127.0.0.1:8700"]

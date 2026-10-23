@@ -53,21 +53,24 @@ void registerHomeFlows() {
 
   realityFlow('06_sidebar_history', 'Home', 'Sidebar chat history', (f) async {
     await f.home();
-    await f.step('open the drawer; history lists the chat', () async {
-      final open = find.byTooltip('Open navigation menu');
-      await f.tap(open, settleSeconds: 3);
+    // Current UI (rt1): the drawer's "Assisto AI" entry opens the chats page
+    // (every saved home + AI chat); history is no longer listed in the drawer.
+    final mark = f.httpMark;
+    await f.step('drawer -> Assisto AI lists the home chat', () async {
+      await f.tap(find.byTooltip('Open navigation menu'), settleSeconds: 2);
       await f.shot('drawer');
-      f.expectHttp('GET', '/chat/sessions');
-      final row = find.descendant(of: find.byType(Drawer), matching: find.textContaining('Reality ping'));
-      if (!await f.appears(row, seconds: 8)) {
-        throw TestFailure('sidebar history does not list the home chat');
+      await f.tap(find.byKey(const ValueKey('drawer_assisto_ai')), settleSeconds: 4);
+      await f.shot('chats');
+      f.expectHttp('GET', '/chat/sessions', since: mark);
+      if (!await f.appears(find.textContaining('Reality ping'), seconds: 10)) {
+        throw TestFailure('Assisto AI chats page does not list the home chat');
       }
     });
-    await f.step('tapping the history row reopens that chat', () async {
-      await f.tap(find.descendant(of: find.byType(Drawer), matching: find.textContaining('Reality ping')),
-          settleSeconds: 4);
-      await f.shot('reopened');
+    await f.step('tapping the history row reopens that chat on home', () async {
+      await f.tap(find.textContaining('Reality ping'), settleSeconds: 5);
+      await f.waitFor(find.text(f.t.inputHint), what: 'home input after reopening');
       await f.waitFor(find.textContaining(_ping), what: 'reopened conversation');
+      await f.shot('reopened');
     });
   });
 
@@ -82,10 +85,19 @@ void registerHomeFlows() {
     });
     String? added;
     await f.step('swap one shortcut and save', () async {
-      // uncheck the first currently-selected shortcut, check the first free one
+      // Uncheck the first selected shortcut, then check a DIFFERENT free one
+      // (rt1: the one just unchecked is itself "free" and first in the list,
+      // so the old step re-added it and only the order changed).
+      String label(Widget w) {
+        final tt = (w as CheckboxListTile).title;
+        return tt is Text ? (tt.data ?? '') : '';
+      }
       final checked = find.byWidgetPredicate((w) => w is CheckboxListTile && w.value == true);
+      await f.waitFor(checked);
+      final removed = label(f.tester.widget(checked.first));
       await f.tap(checked.first, settleSeconds: 0.6);
-      final free = find.byWidgetPredicate((w) => w is CheckboxListTile && w.value == false && w.onChanged != null);
+      final free = find.byWidgetPredicate((w) =>
+          w is CheckboxListTile && w.value == false && w.onChanged != null && label(w) != removed);
       await f.tap(free.first, settleSeconds: 0.6);
       await f.shot('changed');
       await f.tapText(f.t.aichatSave, settleSeconds: 2);

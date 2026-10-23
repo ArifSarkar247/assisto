@@ -51,7 +51,7 @@ void registerPersonalFlows() {
       await f.shot('notes');
     });
     await f.step('add a note', () async {
-      await f.tap(find.byType(FloatingActionButton));
+      await f.tap(find.byType(FloatingActionButton).hitTestable());
       await f.enter(title, label: f.t.title);
       await f.enter('written by the reality flow', label: f.t.notesBody);
       await f.shot('note-form');
@@ -71,7 +71,7 @@ void registerPersonalFlows() {
       await f.shot('todos');
     });
     await f.step('add a task', () async {
-      await f.tap(find.byType(FloatingActionButton).last);
+      await f.tap(find.byType(FloatingActionButton).hitTestable().last);
       await f.enter(title, label: f.t.notesTaskField);
       await f.tapSave();
       await f.waitFor(find.textContaining(title));
@@ -100,7 +100,11 @@ void registerPersonalFlows() {
       f.expectHttp('GET', '/money/summary');
     });
     await f.step('add a 75 taka expense', () async {
-      await f.tap(find.byType(FloatingActionButton));
+      // Current UI (rt1): Money opens on Summary; adding lives on the
+      // Transaction tab's "+ Transaction" button.
+      await f.tap(find.descendant(of: find.byType(TabBar),
+          matching: find.text(f.t.moneyTransactionFallback)), settleSeconds: 2);
+      await f.tap(find.byType(FloatingActionButton).hitTestable());
       await f.waitFor(find.text(f.t.moneyNewTransaction));
       await f.enter('75', label: f.t.moneyFieldAmountRequired);
       await f.enter('food', label: f.t.moneyFieldCategoryHint);
@@ -120,7 +124,7 @@ void registerPersonalFlows() {
       await f.shot('budget');
     });
     await f.step('add a 3000 taka transport budget', () async {
-      await f.tap(find.byType(FloatingActionButton));
+      await f.tap(find.byType(FloatingActionButton).hitTestable());
       await f.enter(cat, label: f.t.budgetFieldCategory);
       await f.enter('3000', label: f.t.budgetFieldLimit);
       await f.shot('budget-form');

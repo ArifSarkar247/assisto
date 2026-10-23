@@ -19,6 +19,11 @@ void registerFamilyCircleFlows() {
       await f.openFeature(f.t.moduleFamily, 'family');
       await f.shot('family');
       f.expectHttp('GET', '/family');
+      // Current UI (rt1): Family Care opens on "Today's medicines"; the
+      // members list is its "Family" tab.
+      await f.tap(find.descendant(of: find.byType(TabBar), matching: find.text(f.t.moduleFamily)),
+          settleSeconds: 2);
+      await f.shot('members-tab');
       await f.waitFor(find.textContaining('Ammu'), what: 'seeded member "Ammu"');
     });
   });
@@ -113,6 +118,7 @@ void registerFamilyCircleFlows() {
 
   realityFlow('16_circle_call', 'My Circle', 'My Circle: call screen opens and ends cleanly', (f) async {
     await f.home();
+    final mark = f.httpMark;
     await f.step('open chat with B -> voice call', () async {
       await f.openRoute('circle');
       await f.tap(find.text(Seed.nameB), settleSeconds: 3);
@@ -120,12 +126,17 @@ void registerFamilyCircleFlows() {
       await f.shot('call-screen');
       await f.waitFor(find.byType(CircleCallScreen), what: 'call screen');
       f.expectHttp('POST', '/circle/');
+      f.expectNoServerErrors(since: mark);
       f.needsKey('TURN_STATIC_SECRET (coturn) + a second real phone with FCM for a connected call');
     });
     await f.step('hang up returns to the chat', () async {
       final hang = find.byIcon(Icons.call_end);
+      final close = find.text(f.t.close);
       if (hang.evaluate().isNotEmpty) {
         await f.tap(hang, settleSeconds: 3);
+      } else if (close.evaluate().isNotEmpty) {
+        // ended/failed call screen: its own Close button (no app-bar back)
+        await f.tap(close, settleSeconds: 3);
       } else {
         await f.back();
       }

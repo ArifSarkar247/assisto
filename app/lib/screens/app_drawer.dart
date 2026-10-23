@@ -191,14 +191,11 @@ class _AppDrawerState extends State<AppDrawer> {
                 // (tap opens that item). Applies to every section now and
                 // in future (e.g. Contacts).
                 if (s.items.length == 1)
-                  ListTile(
-                    leading: Icon(s.icon, color: scheme.onSurfaceVariant),
-                    title: Text(s.title(t),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.w600)),
-                    onTap: () => _push(s.items.first.builder),
-                  )
+                  // rt1 (reality audit): a SEARCH that narrows a group to one
+                  // hit shows that ITEM (its own icon + name, the group as a
+                  // hint) — not the group's name, which hid what was found
+                  // ("Notes/Tasks" used to show only "Reminders & Memory").
+                  _singleEntry(s, searching, scheme, t)
                 else
                   ExpansionTile(
                     key: PageStorageKey('sidebar_${s.id}_$searching'),
@@ -254,6 +251,26 @@ class _AppDrawerState extends State<AppDrawer> {
           ),
         ),
       ]),
+    );
+  }
+
+  Widget _singleEntry(SidebarSection s, bool searching, ColorScheme scheme,
+      AppLocalizations t) {
+    final item = s.items.first;
+    final itemLabel = item.label(t);
+    final group = s.title(t);
+    final showItem = searching && itemLabel != group;
+    return ListTile(
+      leading: Icon(showItem ? item.icon : s.icon,
+          color: scheme.onSurfaceVariant),
+      title: Text(showItem ? itemLabel : group,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontWeight: FontWeight.w600)),
+      subtitle: showItem
+          ? Text(group, maxLines: 1, overflow: TextOverflow.ellipsis)
+          : null,
+      onTap: () => _push(item.builder),
     );
   }
 
