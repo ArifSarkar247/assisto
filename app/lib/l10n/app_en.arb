@@ -16718,5 +16718,64 @@
   "a1CallFailed": "Call failed",
   "a1CallBack": "Tap to call back",
   "a1NotOnAssistoYet": "Hasn't opened Assisto yet",
-  "a1Invite": "Invite"
+  "a1Invite": "Invite",
+  "b1CallMinimize": "Minimize call",
+  "b1CallToVideo": "Video",
+  "b1CallToVoice": "Voice only",
+  "b1CallVideoAsk": "{name} wants to switch to video",
+  "@b1CallVideoAsk": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "b1CallVideoAccept": "Accept",
+  "b1CallVideoNotNow": "Not now",
+  "b1CallVideoWaiting": "Asking {name} to switch to video…",
+  "@b1CallVideoWaiting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "b1CallVideoCancel": "Cancel",
+  "b1CallVideoSwitching": "Switching to video…",
+  "b1CallNoticeDeclined": "{name} wants to stay on voice for now",
+  "@b1CallNoticeDeclined": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "b1CallNoticeNoAnswer": "No answer to the video request — still on a voice call",
+  "b1CallNoticeVideoFailed": "Couldn't switch to video — the voice call goes on",
+  "b1CallNoticePremium": "Video calling needs Premium — your voice call goes on",
+  "b1CallNoticeCamera": "The camera couldn't start. Please check the camera permission or close other apps using the camera.",
+  "b1CallNoticeRemoteVoice": "{name} switched to a voice call",
+  "@b1CallNoticeRemoteVoice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "b1CallNoticeReconnected": "Reconnected",
+  "b1CallRemoteMuted": "{name} is muted",
+  "@b1CallRemoteMuted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "b1CallCameraOffSelf": "Your camera is off",
+  "b1CallRouteTitle": "Play call audio on",
+  "b1CallRouteBluetooth": "Bluetooth",
+  "b1CallRouteWired": "Headphones",
+  "b1CallOngoingTap": "Tap to return to the call",
+  "b1CallDebugRelay": "Path: relay (TURN)",
+  "b1CallDebugDirect": "Path: direct"
 }
