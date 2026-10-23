@@ -1,0 +1,680 @@
+{
+  "en": {
+    "p3Assisto": "Assisto",
+    "p3You": "You",
+    "p3YouName": "{name} (you)",
+    "@p3YouName": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "p3Someone": "Someone",
+    "p3Done": "Done",
+    "p3Close": "Close",
+    "p3Delete": "Delete",
+    "p3Free": "Free",
+    "p3Sent": "Sent",
+    "p3SendFailed": "Couldn't send. Please try again.",
+    "p3SaveFailed": "Couldn't save. Please try again.",
+    "p3Copy": "Copy",
+    "p3Copied": "Copied",
+    "p3SendToChat": "Send to chat",
+    "p3SendAlert": "Send alert",
+    "p3MenuTitle": "Ask Assisto",
+    "p3MenuPrivacy": "Your chat stays end-to-end encrypted. Assisto reads only what you choose to send, and only when you tap.",
+    "p3MentionHint": "Assisto actions — this won't be sent to the chat",
+    "p3UsesCredits": "Uses credits",
+    "p3CreditsN": "{n} credit(s)",
+    "@p3CreditsN": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "p3ActSummarize": "Summarize unread",
+    "p3ActSummarizeSub": "A short summary of recent messages",
+    "p3ActSummarizeSubN": "{n} unread messages",
+    "@p3ActSummarizeSubN": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "p3ActRemind": "Set a reminder",
+    "p3ActRemindSub": "For you, or for everyone here",
+    "p3ActSplit": "Split a bill",
+    "p3ActSplitSub": "Who owes how much",
+    "p3ActList": "Shopping list",
+    "p3ActListSub": "A shared list everyone can tick",
+    "p3ActTranslate": "Translate",
+    "p3ActTranslateSub": "Bangla ↔ English",
+    "p3ActAsk": "Ask a question",
+    "p3ActAskSub": "Assisto answers here",
+    "p3SafetyTitle": "Family safety",
+    "p3SafeArrived": "I reached safely",
+    "p3SafeArrivedSub": "Tell this chat you arrived",
+    "p3SafeSos": "SOS",
+    "p3SafeSosSub": "Emergency alert with your location",
+    "p3SafeMed": "Medicine update",
+    "p3SafeMedSub": "Missed or taken doses today",
+    "p3SafeLost": "Lost phone alert",
+    "p3SafeLostSub": "Warn family not to trust requests from it",
+    "p3ConsentTitle": "Send to Assisto AI?",
+    "p3ConsentBody": "This sends these messages to Assisto AI. My Circle chats are end-to-end encrypted, so Assisto can't read them on its own — only the text you choose leaves your phone, for this one request. Assisto does not keep it.",
+    "p3ConsentRemember": "Don't show this again",
+    "p3ConsentOk": "Send",
+    "p3SendsUnread": "These {n} unread messages will be sent to Assisto AI:",
+    "@p3SendsUnread": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "p3SendsRecent": "No unread messages. The last {n} messages will be sent to Assisto AI:",
+    "@p3SendsRecent": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "p3NothingToSummarize": "There are no messages to summarize yet.",
+    "p3SrcDraft": "My draft",
+    "p3SrcLast": "Last message",
+    "p3SrcType": "Type text",
+    "p3TranslateHint": "Text to translate",
+    "p3NothingToTranslate": "Nothing to translate yet",
+    "p3ToBangla": "To Bangla",
+    "p3ToEnglish": "To English",
+    "p3SendsThisText": "Only this text will be sent to Assisto AI.",
+    "p3AskHint": "Ask anything…",
+    "p3AskPrivacy": "Only your question is sent — not the chat.",
+    "p3QuoteFailed": "Couldn't check your credits. Please try again.",
+    "p3AiOff": "Assisto AI is not available right now. Nothing was charged.",
+    "p3CheckingCredits": "Checking credits…",
+    "p3RunFor": "Run · uses {n} credit(s)",
+    "@p3RunFor": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "p3Balance": "You have {n} credits",
+    "@p3Balance": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "p3Working": "Assisto is working…",
+    "p3AiMarker": "AI-generated — check important details",
+    "p3CreditsUsed": "{n} credit(s) used",
+    "@p3CreditsUsed": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "p3UseInMessage": "Use in my message",
+    "p3ShareInChat": "Share in chat",
+    "p3ShareNote": "Shared cards are end-to-end encrypted like any message.",
+    "p3ErrCredits": "You're out of credits for this.",
+    "p3ErrPaused": "Free AI is paused for today. Please try tomorrow or get credits.",
+    "p3ErrLimit": "You've reached today's AI limit. Please try tomorrow.",
+    "p3ErrNet": "No connection. Please check the internet and try again.",
+    "p3ErrBusy": "Assisto AI is busy. Please try again in a moment.",
+    "p3NotCharged": "Nothing was charged.",
+    "p3GetCredits": "Get credits",
+    "p3CardSummary": "Summary",
+    "p3CardAnswer": "Answer",
+    "p3CardTranslate": "Translation",
+    "p3CardReminder": "Reminder",
+    "p3CardSplit": "Bill split",
+    "p3CardList": "Shopping list",
+    "p3CardArrived": "Reached safely",
+    "p3CardSos": "SOS — emergency",
+    "p3CardMed": "Medicine update",
+    "p3CardLost": "Lost phone",
+    "p3SummaryOf": "Summary of {n} messages",
+    "@p3SummaryOf": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "p3ReminderBy": "Reminder from {name}",
+    "@p3ReminderBy": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "p3ReminderForAllBy": "For everyone · from {name}",
+    "@p3ReminderForAllBy": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "p3AddedBy": "Added by: {names}",
+    "@p3AddedBy": {
+      "placeholders": {
+        "names": {
+          "type": "String"
+        }
+      }
+    },
+    "p3InYourReminders": "In your reminders",
+    "p3AddToMyReminders": "Add to my reminders",
+    "p3SplitTotal": "Total {amount}",
+    "@p3SplitTotal": {
+      "placeholders": {
+        "amount": {
+          "type": "String"
+        }
+      }
+    },
+    "p3PaidBy": "Paid by {name}",
+    "@p3PaidBy": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "p3SplitNote": "Settle up yourselves — Assisto holds no money.",
+    "p3ListProgress": "{done} of {total} done",
+    "@p3ListProgress": {
+      "placeholders": {
+        "done": {
+          "type": "String"
+        },
+        "total": {
+          "type": "String"
+        }
+      }
+    },
+    "p3TickedBy": "by {name}",
+    "@p3TickedBy": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "p3ArrivedLine": "{name} reached safely",
+    "@p3ArrivedLine": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "p3SosLine": "{name} needs help now",
+    "@p3SosLine": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "p3OpenLocation": "Open location",
+    "p3NoLocation": "Location wasn't available. Call them now.",
+    "p3MedLine": "Medicine update from {name}",
+    "@p3MedLine": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "p3MedMissed": "Missed",
+    "p3MedTaken": "Taken",
+    "p3LostLine": "{name}'s phone is lost",
+    "@p3LostLine": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "p3LostAdvice": "Don't share OTPs, PINs or send money if anyone asks from that number — call first on another number.",
+    "p3LastSeenPlace": "Last known place",
+    "p3FbSummary": "Assisto summary",
+    "p3FbAnswer": "Assisto answer",
+    "p3FbTranslate": "Translation",
+    "p3FbReminder": "Reminder",
+    "p3FbSplit": "Bill split",
+    "p3FbArrived": "I reached safely",
+    "p3FbSos": "SOS — I need help",
+    "p3FbMedMissed": "Missed medicine",
+    "p3FbMedTaken": "Today's medicines taken",
+    "p3FbLost": "My phone is lost — don't trust requests from it",
+    "p3FbAck": "Added the reminder: {title}",
+    "@p3FbAck": {
+      "placeholders": {
+        "title": {
+          "type": "String"
+        }
+      }
+    },
+    "p3FbTicked": "Got: {item}",
+    "@p3FbTicked": {
+      "placeholders": {
+        "item": {
+          "type": "String"
+        }
+      }
+    },
+    "p3FbUnticked": "Still needed: {item}",
+    "@p3FbUnticked": {
+      "placeholders": {
+        "item": {
+          "type": "String"
+        }
+      }
+    },
+    "p3ReminderWhat": "What to remind",
+    "p3ForMe": "For me",
+    "p3ForEveryone": "For everyone",
+    "p3ForBoth": "For both of us",
+    "p3ForMeNote": "Saved only in your reminders. Nothing is sent to the chat.",
+    "p3ForEveryoneNote": "Others get a card and add it with one tap — nobody gets a reminder without agreeing.",
+    "p3SaveReminder": "Save reminder",
+    "p3SendReminder": "Send reminder card",
+    "p3ReminderSavedMe": "Reminder saved",
+    "p3ReminderSentAll": "Saved for you and sent to the chat",
+    "p3ReminderAdded": "Added to your reminders",
+    "p3SplitWhat": "What for",
+    "p3SplitDefaultTitle": "Bill",
+    "p3SplitAmount": "Total amount",
+    "p3SplitWho": "Split equally between",
+    "p3SplitSaveBook": "Also save in my Expense split",
+    "p3SplitSend": "Send split card",
+    "p3SplitSent": "Split sent and saved",
+    "p3SplitSentNotSaved": "Split sent. Couldn't save it in Expense split.",
+    "p3ListTitle": "List name",
+    "p3ListDefaultTitle": "Shopping list",
+    "p3ListItems": "Items (one per line)",
+    "p3ListItemsHint": "Rice\nOil\nEggs",
+    "p3ListNote": "Everyone in the chat can tick items. Ticks stay end-to-end encrypted.",
+    "p3ListSend": "Send list ({n} items)",
+    "@p3ListSend": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "p3SosConfirmTitle": "Send SOS?",
+    "p3SosConfirmBody": "This sends an SOS with your location to {name} and alerts your safety contacts.",
+    "@p3SosConfirmBody": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "p3SosSend": "Send SOS",
+    "p3SosSent": "SOS sent",
+    "p3MedLoadFailed": "Couldn't load today's medicines.",
+    "p3MedNone": "No medicines are scheduled for today.",
+    "p3MedNote": "This update goes only to {name}.",
+    "@p3MedNote": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "p3LostConfirmTitle": "Send a lost-phone alert?",
+    "p3ScamWhy": "Why?",
+    "p3ScamMaybe": "This may be a scam",
+    "p3ScamWhyTitle": "Why Assisto warned you",
+    "p3ScamOtpTitle": "Asks for an OTP or PIN",
+    "p3ScamOtpWhy": "No bank, bKash, Nagad or office ever asks for your OTP, PIN or password in a message. Anyone who has it can empty your account.",
+    "p3ScamMfsTitle": "Fake bKash / Nagad agent",
+    "p3ScamMfsWhy": "Scammers pretend to be an agent or customer care, say money was sent by mistake or your account will be blocked, and ask you to send money or share a code.",
+    "p3ScamPrizeTitle": "Prize or lottery bait",
+    "p3ScamPrizeWhy": "You can't win a lottery you never entered. 'Pay a fee to get your prize' is how they take your money.",
+    "p3ScamLinkTitle": "Look-alike link",
+    "p3ScamLinkWhy": "The link {domain} looks like a known site but isn't the real one. It may steal your login.",
+    "@p3ScamLinkWhy": {
+      "placeholders": {
+        "domain": {
+          "type": "String"
+        }
+      }
+    },
+    "p3ScamMoneyTitle": "Urgent money request",
+    "p3ScamMoneyWhy": "An urgent request for money from a new number is a common trick. The real person may not know about it.",
+    "p3ScamWhatToDo": "What to do",
+    "p3ScamAdvice": "Don't share codes or send money. Call the person on a number you already know. If unsure, ask family first.",
+    "p3ScamOnDevice": "This check ran only on your phone. The message was not sent anywhere.",
+    "p3ViewedUpdates": "Viewed updates",
+    "p3MutedUpdates": "Muted updates ({n})",
+    "@p3MutedUpdates": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "p3MuteStories": "Mute {name}'s updates",
+    "@p3MuteStories": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "p3UnmuteStories": "Unmute {name}'s updates",
+    "@p3UnmuteStories": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "p3MuteNote": "They won't be told.",
+    "p3StoriesE2e": "Stories and notes are end-to-end encrypted and disappear after 24 hours.",
+    "p3YourNote": "Your note",
+    "p3AddNote": "Share a thought…",
+    "p3NoteTitle": "Your note",
+    "p3NoteSub": "A short note on your profile for 24 hours.",
+    "p3NoteHint": "What's on your mind?",
+    "p3NoteShare": "Share note",
+    "p3NoteDelete": "Delete note",
+    "p3PrivStoryTitle": "Story privacy",
+    "p3PrivNoteTitle": "Who sees your note",
+    "p3PrivThisStory": "Who sees this story",
+    "p3PrivWho": "Choose who can see your updates.",
+    "p3PrivContacts": "My contacts",
+    "p3PrivContactsSub": "Everyone in My Circle",
+    "p3PrivExcept": "My contacts except…",
+    "p3PrivExceptSub": "Hide from some people",
+    "p3PrivExceptN": "My contacts except {n}",
+    "@p3PrivExceptN": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "p3PrivExcludedN": "{n} excluded · tap to change",
+    "@p3PrivExcludedN": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "p3PrivOnly": "Only share with…",
+    "p3PrivOnlySub": "Pick the people",
+    "p3PrivOnlyN": "Only {n} people",
+    "@p3PrivOnlyN": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "p3PrivIncludedN": "{n} selected · tap to change",
+    "@p3PrivIncludedN": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "p3PrivPickExcept": "Hide from",
+    "p3PrivPickOnly": "Share only with",
+    "p3PrivNoContacts": "No contacts in My Circle yet.",
+    "p3PrivE2e": "Only the people you choose get a copy they can open — Assisto's servers can't.",
+    "p3PrivSaved": "Privacy saved",
+    "p3AudienceN": "{n} contacts will see this",
+    "@p3AudienceN": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "p3AudienceNone": "None of your contacts can see this yet.",
+    "p3PhotoFailed": "Couldn't open the photo.",
+    "p3PickGallery": "Gallery",
+    "p3PickCamera": "Camera",
+    "p3RemovePhoto": "Remove photo",
+    "p3CaptionHint": "Add a caption",
+    "p3DeleteStory": "Delete story",
+    "p3DeleteStoryBody": "It will be removed for everyone now.",
+    "p3StoryCantOpen": "This story can't be opened on this phone.",
+    "p3ReplySent": "Reply sent"
+  },
+  "bn": {
+    "p3Assisto": "অ্যাসিস্টো",
+    "p3You": "আপনি",
+    "p3YouName": "{name} (আপনি)",
+    "p3Someone": "একজন",
+    "p3Done": "ঠিক আছে",
+    "p3Close": "বন্ধ করুন",
+    "p3Delete": "মুছুন",
+    "p3Free": "ফ্রি",
+    "p3Sent": "পাঠানো হয়েছে",
+    "p3SendFailed": "পাঠানো যায়নি। আবার চেষ্টা করুন।",
+    "p3SaveFailed": "সেভ করা যায়নি। আবার চেষ্টা করুন।",
+    "p3Copy": "কপি করুন",
+    "p3Copied": "কপি হয়েছে",
+    "p3SendToChat": "চ্যাটে পাঠান",
+    "p3SendAlert": "সতর্কবার্তা পাঠান",
+    "p3MenuTitle": "অ্যাসিস্টোকে বলুন",
+    "p3MenuPrivacy": "আপনার চ্যাট এন্ড-টু-এন্ড এনক্রিপ্টেড থাকে। আপনি ট্যাপ করলে, শুধু যেটুকু পাঠাতে চান সেটুকুই অ্যাসিস্টো পড়ে।",
+    "p3MentionHint": "অ্যাসিস্টোর কাজগুলো দেখুন — এটা চ্যাটে যাবে না",
+    "p3UsesCredits": "ক্রেডিট লাগে",
+    "p3CreditsN": "{n} ক্রেডিট",
+    "p3ActSummarize": "না-পড়া মেসেজের সারাংশ",
+    "p3ActSummarizeSub": "সাম্প্রতিক মেসেজের ছোট সারাংশ",
+    "p3ActSummarizeSubN": "{n}টি না-পড়া মেসেজ",
+    "p3ActRemind": "রিমাইন্ডার সেট করুন",
+    "p3ActRemindSub": "আপনার জন্য, বা এখানে সবার জন্য",
+    "p3ActSplit": "বিল ভাগ করুন",
+    "p3ActSplitSub": "কে কত দেবে",
+    "p3ActList": "বাজারের লিস্ট",
+    "p3ActListSub": "সবাই টিক দিতে পারে এমন লিস্ট",
+    "p3ActTranslate": "অনুবাদ",
+    "p3ActTranslateSub": "বাংলা ↔ ইংরেজি",
+    "p3ActAsk": "প্রশ্ন করুন",
+    "p3ActAskSub": "অ্যাসিস্টো এখানেই উত্তর দেবে",
+    "p3SafetyTitle": "পরিবারের নিরাপত্তা",
+    "p3SafeArrived": "আমি নিরাপদে পৌঁছেছি",
+    "p3SafeArrivedSub": "এই চ্যাটে জানান যে আপনি পৌঁছেছেন",
+    "p3SafeSos": "এসওএস",
+    "p3SafeSosSub": "আপনার লোকেশনসহ জরুরি সতর্কবার্তা",
+    "p3SafeMed": "ওষুধের খবর",
+    "p3SafeMedSub": "আজ কোন ডোজ খাওয়া হয়েছে বা বাদ গেছে",
+    "p3SafeLost": "ফোন হারানোর সতর্কবার্তা",
+    "p3SafeLostSub": "পরিবারকে সাবধান করুন, ওই ফোনের অনুরোধে যেন বিশ্বাস না করে",
+    "p3ConsentTitle": "অ্যাসিস্টো এআই-তে পাঠাবেন?",
+    "p3ConsentBody": "এটি এই মেসেজগুলো অ্যাসিস্টো এআই-তে পাঠাবে। মাই সার্কেলের চ্যাট এন্ড-টু-এন্ড এনক্রিপ্টেড, তাই অ্যাসিস্টো নিজে থেকে পড়তে পারে না — শুধু আপনার বেছে নেওয়া লেখাটুকু এই একটি কাজের জন্য আপনার ফোন থেকে যায়। অ্যাসিস্টো তা রেখে দেয় না।",
+    "p3ConsentRemember": "আর দেখাবেন না",
+    "p3ConsentOk": "পাঠান",
+    "p3SendsUnread": "এই {n}টি না-পড়া মেসেজ অ্যাসিস্টো এআই-তে যাবে:",
+    "p3SendsRecent": "কোনো না-পড়া মেসেজ নেই। শেষ {n}টি মেসেজ অ্যাসিস্টো এআই-তে যাবে:",
+    "p3NothingToSummarize": "সারাংশ করার মতো কোনো মেসেজ এখনো নেই।",
+    "p3SrcDraft": "আমার লেখা",
+    "p3SrcLast": "শেষ মেসেজ",
+    "p3SrcType": "লিখে দিন",
+    "p3TranslateHint": "যা অনুবাদ করবেন",
+    "p3NothingToTranslate": "অনুবাদ করার মতো কিছু নেই",
+    "p3ToBangla": "বাংলায়",
+    "p3ToEnglish": "ইংরেজিতে",
+    "p3SendsThisText": "শুধু এই লেখাটুকুই অ্যাসিস্টো এআই-তে যাবে।",
+    "p3AskHint": "যা খুশি জিজ্ঞেস করুন…",
+    "p3AskPrivacy": "শুধু আপনার প্রশ্নটাই যাবে — চ্যাট নয়।",
+    "p3QuoteFailed": "আপনার ক্রেডিট দেখা যায়নি। আবার চেষ্টা করুন।",
+    "p3AiOff": "অ্যাসিস্টো এআই এখন চালু নেই। কোনো ক্রেডিট কাটা হয়নি।",
+    "p3CheckingCredits": "ক্রেডিট দেখা হচ্ছে…",
+    "p3RunFor": "চালান · {n} ক্রেডিট লাগবে",
+    "p3Balance": "আপনার আছে {n} ক্রেডিট",
+    "p3Working": "অ্যাসিস্টো কাজ করছে…",
+    "p3AiMarker": "এআই তৈরি করেছে — গুরুত্বপূর্ণ তথ্য মিলিয়ে নিন",
+    "p3CreditsUsed": "{n} ক্রেডিট খরচ হয়েছে",
+    "p3UseInMessage": "আমার মেসেজে বসান",
+    "p3ShareInChat": "চ্যাটে শেয়ার করুন",
+    "p3ShareNote": "শেয়ার করা কার্ড অন্য মেসেজের মতোই এন্ড-টু-এন্ড এনক্রিপ্টেড।",
+    "p3ErrCredits": "এর জন্য আপনার যথেষ্ট ক্রেডিট নেই।",
+    "p3ErrPaused": "আজকের জন্য ফ্রি এআই বন্ধ আছে। কাল চেষ্টা করুন বা ক্রেডিট নিন।",
+    "p3ErrLimit": "আজকের এআই সীমা শেষ। কাল আবার চেষ্টা করুন।",
+    "p3ErrNet": "সংযোগ নেই। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+    "p3ErrBusy": "অ্যাসিস্টো এআই এখন ব্যস্ত। একটু পরে আবার চেষ্টা করুন।",
+    "p3NotCharged": "কোনো ক্রেডিট কাটা হয়নি।",
+    "p3GetCredits": "ক্রেডিট নিন",
+    "p3CardSummary": "সারাংশ",
+    "p3CardAnswer": "উত্তর",
+    "p3CardTranslate": "অনুবাদ",
+    "p3CardReminder": "রিমাইন্ডার",
+    "p3CardSplit": "বিল ভাগ",
+    "p3CardList": "বাজারের লিস্ট",
+    "p3CardArrived": "নিরাপদে পৌঁছেছেন",
+    "p3CardSos": "এসওএস — জরুরি",
+    "p3CardMed": "ওষুধের খবর",
+    "p3CardLost": "ফোন হারিয়েছে",
+    "p3SummaryOf": "{n}টি মেসেজের সারাংশ",
+    "p3ReminderBy": "{name}-এর রিমাইন্ডার",
+    "p3ReminderForAllBy": "সবার জন্য · {name}-এর পক্ষ থেকে",
+    "p3AddedBy": "যোগ করেছেন: {names}",
+    "p3InYourReminders": "আপনার রিমাইন্ডারে আছে",
+    "p3AddToMyReminders": "আমার রিমাইন্ডারে যোগ করুন",
+    "p3SplitTotal": "মোট {amount}",
+    "p3PaidBy": "দিয়েছেন {name}",
+    "p3SplitNote": "নিজেরা মিটিয়ে নিন — অ্যাসিস্টো কোনো টাকা রাখে না।",
+    "p3ListProgress": "{total}টির মধ্যে {done}টি হয়েছে",
+    "p3TickedBy": "{name} করেছেন",
+    "p3ArrivedLine": "{name} নিরাপদে পৌঁছেছেন",
+    "p3SosLine": "{name}-এর এখনই সাহায্য দরকার",
+    "p3OpenLocation": "লোকেশন দেখুন",
+    "p3NoLocation": "লোকেশন পাওয়া যায়নি। এখনই ফোন করুন।",
+    "p3MedLine": "{name}-এর ওষুধের খবর",
+    "p3MedMissed": "বাদ গেছে",
+    "p3MedTaken": "খাওয়া হয়েছে",
+    "p3LostLine": "{name}-এর ফোন হারিয়ে গেছে",
+    "p3LostAdvice": "ওই নম্বর থেকে কেউ চাইলে ওটিপি, পিন দেবেন না বা টাকা পাঠাবেন না — আগে অন্য নম্বরে ফোন করে নিশ্চিত হন।",
+    "p3LastSeenPlace": "সর্বশেষ জানা জায়গা",
+    "p3FbSummary": "অ্যাসিস্টোর সারাংশ",
+    "p3FbAnswer": "অ্যাসিস্টোর উত্তর",
+    "p3FbTranslate": "অনুবাদ",
+    "p3FbReminder": "রিমাইন্ডার",
+    "p3FbSplit": "বিল ভাগ",
+    "p3FbArrived": "আমি নিরাপদে পৌঁছেছি",
+    "p3FbSos": "এসওএস — আমার সাহায্য দরকার",
+    "p3FbMedMissed": "ওষুধ বাদ গেছে",
+    "p3FbMedTaken": "আজকের ওষুধ খাওয়া হয়েছে",
+    "p3FbLost": "আমার ফোন হারিয়েছে — ওই ফোনের অনুরোধে বিশ্বাস করবেন না",
+    "p3FbAck": "রিমাইন্ডার যোগ করেছি: {title}",
+    "p3FbTicked": "নেওয়া হয়েছে: {item}",
+    "p3FbUnticked": "এখনো লাগবে: {item}",
+    "p3ReminderWhat": "কী মনে করাবে",
+    "p3ForMe": "আমার জন্য",
+    "p3ForEveryone": "সবার জন্য",
+    "p3ForBoth": "দুজনের জন্য",
+    "p3ForMeNote": "শুধু আপনার রিমাইন্ডারে থাকবে। চ্যাটে কিছু যাবে না।",
+    "p3ForEveryoneNote": "অন্যরা একটি কার্ড পাবেন এবং এক ট্যাপে যোগ করবেন — কেউ রাজি না হলে তার রিমাইন্ডার হবে না।",
+    "p3SaveReminder": "রিমাইন্ডার সেভ করুন",
+    "p3SendReminder": "রিমাইন্ডার কার্ড পাঠান",
+    "p3ReminderSavedMe": "রিমাইন্ডার সেভ হয়েছে",
+    "p3ReminderSentAll": "আপনার জন্য সেভ হয়েছে এবং চ্যাটে পাঠানো হয়েছে",
+    "p3ReminderAdded": "আপনার রিমাইন্ডারে যোগ হয়েছে",
+    "p3SplitWhat": "কিসের জন্য",
+    "p3SplitDefaultTitle": "বিল",
+    "p3SplitAmount": "মোট টাকা",
+    "p3SplitWho": "সমানভাবে ভাগ হবে",
+    "p3SplitSaveBook": "আমার খরচ ভাগের খাতায়ও রাখুন",
+    "p3SplitSend": "বিল ভাগের কার্ড পাঠান",
+    "p3SplitSent": "বিল ভাগ পাঠানো ও সেভ হয়েছে",
+    "p3SplitSentNotSaved": "বিল ভাগ পাঠানো হয়েছে। খরচ ভাগের খাতায় সেভ করা যায়নি।",
+    "p3ListTitle": "লিস্টের নাম",
+    "p3ListDefaultTitle": "বাজারের লিস্ট",
+    "p3ListItems": "জিনিস (প্রতি লাইনে একটি)",
+    "p3ListItemsHint": "চাল\nতেল\nডিম",
+    "p3ListNote": "চ্যাটের সবাই টিক দিতে পারবেন। টিকগুলোও এন্ড-টু-এন্ড এনক্রিপ্টেড থাকে।",
+    "p3ListSend": "লিস্ট পাঠান ({n}টি জিনিস)",
+    "p3SosConfirmTitle": "এসওএস পাঠাবেন?",
+    "p3SosConfirmBody": "এটি আপনার লোকেশনসহ {name}-কে এসওএস পাঠাবে এবং আপনার নিরাপত্তা কন্টাক্টদের সতর্ক করবে।",
+    "p3SosSend": "এসওএস পাঠান",
+    "p3SosSent": "এসওএস পাঠানো হয়েছে",
+    "p3MedLoadFailed": "আজকের ওষুধের তথ্য আনা যায়নি।",
+    "p3MedNone": "আজ কোনো ওষুধের সময়সূচি নেই।",
+    "p3MedNote": "এই খবর শুধু {name}-এর কাছে যাবে।",
+    "p3LostConfirmTitle": "ফোন হারানোর সতর্কবার্তা পাঠাবেন?",
+    "p3ScamWhy": "কেন?",
+    "p3ScamMaybe": "এটি প্রতারণা হতে পারে",
+    "p3ScamWhyTitle": "অ্যাসিস্টো কেন সতর্ক করল",
+    "p3ScamOtpTitle": "ওটিপি বা পিন চাওয়া হচ্ছে",
+    "p3ScamOtpWhy": "কোনো ব্যাংক, বিকাশ, নগদ বা অফিস মেসেজে কখনো আপনার ওটিপি, পিন বা পাসওয়ার্ড চায় না। এটা যার হাতে যাবে, সে আপনার অ্যাকাউন্ট খালি করে দিতে পারে।",
+    "p3ScamMfsTitle": "ভুয়া বিকাশ / নগদ এজেন্ট",
+    "p3ScamMfsWhy": "প্রতারকেরা এজেন্ট বা কাস্টমার কেয়ার সেজে বলে ভুল করে টাকা গেছে বা অ্যাকাউন্ট বন্ধ হবে, তারপর টাকা পাঠাতে বা কোড দিতে বলে।",
+    "p3ScamPrizeTitle": "পুরস্কার বা লটারির টোপ",
+    "p3ScamPrizeWhy": "যে লটারিতে অংশ নেননি, তাতে জেতা যায় না। 'পুরস্কার পেতে আগে ফি দিন' — এভাবেই টাকা নিয়ে যায়।",
+    "p3ScamLinkTitle": "নকল লিংক",
+    "p3ScamLinkWhy": "{domain} লিংকটি পরিচিত সাইটের মতো দেখালেও আসল নয়। এটি আপনার লগইন তথ্য চুরি করতে পারে।",
+    "p3ScamMoneyTitle": "জরুরি টাকা চাওয়া",
+    "p3ScamMoneyWhy": "নতুন নম্বর থেকে জরুরি টাকা চাওয়া একটি সাধারণ কৌশল। আসল মানুষটি হয়তো এর কিছুই জানেন না।",
+    "p3ScamWhatToDo": "কী করবেন",
+    "p3ScamAdvice": "কোড দেবেন না, টাকা পাঠাবেন না। আগে থেকে জানা নম্বরে ফোন করে নিশ্চিত হন। সন্দেহ হলে পরিবারের কাউকে জিজ্ঞেস করুন।",
+    "p3ScamOnDevice": "এই যাচাই শুধু আপনার ফোনে হয়েছে। মেসেজটি কোথাও পাঠানো হয়নি।",
+    "p3ViewedUpdates": "দেখা আপডেট",
+    "p3MutedUpdates": "মিউট করা আপডেট ({n})",
+    "p3MuteStories": "{name}-এর আপডেট মিউট করুন",
+    "p3UnmuteStories": "{name}-এর আপডেট আনমিউট করুন",
+    "p3MuteNote": "তাঁকে জানানো হবে না।",
+    "p3StoriesE2e": "স্টোরি ও নোট এন্ড-টু-এন্ড এনক্রিপ্টেড এবং ২৪ ঘণ্টা পর মুছে যায়।",
+    "p3YourNote": "আপনার নোট",
+    "p3AddNote": "মনের কথা লিখুন…",
+    "p3NoteTitle": "আপনার নোট",
+    "p3NoteSub": "২৪ ঘণ্টার জন্য প্রোফাইলে একটি ছোট নোট।",
+    "p3NoteHint": "কী ভাবছেন?",
+    "p3NoteShare": "নোট শেয়ার করুন",
+    "p3NoteDelete": "নোট মুছুন",
+    "p3PrivStoryTitle": "স্টোরির প্রাইভেসি",
+    "p3PrivNoteTitle": "আপনার নোট কারা দেখবে",
+    "p3PrivThisStory": "এই স্টোরি কারা দেখবে",
+    "p3PrivWho": "আপনার আপডেট কারা দেখতে পাবে বেছে নিন।",
+    "p3PrivContacts": "আমার কন্টাক্ট",
+    "p3PrivContactsSub": "মাই সার্কেলের সবাই",
+    "p3PrivExcept": "আমার কন্টাক্ট, কয়েকজন ছাড়া…",
+    "p3PrivExceptSub": "কয়েকজনের কাছ থেকে লুকান",
+    "p3PrivExceptN": "আমার কন্টাক্ট, {n} জন ছাড়া",
+    "p3PrivExcludedN": "{n} জন বাদ · বদলাতে ট্যাপ করুন",
+    "p3PrivOnly": "শুধু যাদের সাথে…",
+    "p3PrivOnlySub": "মানুষ বেছে নিন",
+    "p3PrivOnlyN": "শুধু {n} জন",
+    "p3PrivIncludedN": "{n} জন বাছাই · বদলাতে ট্যাপ করুন",
+    "p3PrivPickExcept": "যাদের থেকে লুকাবেন",
+    "p3PrivPickOnly": "শুধু যাদের সাথে শেয়ার করবেন",
+    "p3PrivNoContacts": "মাই সার্কেলে এখনো কোনো কন্টাক্ট নেই।",
+    "p3PrivE2e": "শুধু আপনার বেছে নেওয়া মানুষেরা খুলতে পারে এমন কপি পান — অ্যাসিস্টোর সার্ভার পারে না।",
+    "p3PrivSaved": "প্রাইভেসি সেভ হয়েছে",
+    "p3AudienceN": "{n} জন কন্টাক্ট এটি দেখবেন",
+    "p3AudienceNone": "আপনার কোনো কন্টাক্ট এখনো এটি দেখতে পাবেন না।",
+    "p3PhotoFailed": "ছবিটি খোলা যায়নি।",
+    "p3PickGallery": "গ্যালারি",
+    "p3PickCamera": "ক্যামেরা",
+    "p3RemovePhoto": "ছবি সরান",
+    "p3CaptionHint": "ক্যাপশন লিখুন",
+    "p3DeleteStory": "স্টোরি মুছুন",
+    "p3DeleteStoryBody": "এখনই সবার কাছ থেকে মুছে যাবে।",
+    "p3StoryCantOpen": "এই ফোনে স্টোরিটি খোলা যাচ্ছে না।",
+    "p3ReplySent": "উত্তর পাঠানো হয়েছে"
+  }
+}

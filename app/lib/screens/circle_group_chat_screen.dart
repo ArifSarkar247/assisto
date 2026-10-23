@@ -4,6 +4,12 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../p3/assisto_card.dart'; // p3
+import '../p3/assisto_card_view.dart';
+import '../p3/assisto_intent.dart';
+import '../p3/assisto_sheet.dart';
+import '../p3/scam_banner.dart';
+import '../p3/scam_guard.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -459,6 +465,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         final unseen = page.where((m) => m['unseen'] == true).toList();
         _unreadAtOpen = unseen.length;
         _firstUnreadId = unseen.isEmpty ? null : '${unseen.first['id']}';
+        _p3UnreadFrom ??= _firstUnreadId; // p3: "summarize unread" anchor
         _positioned = _unreadAtOpen <= 3;
       } else {
         _messages = _withOlder(page);
@@ -531,15 +538,25 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   /// Encrypt [plaintext] ONCE PER RECIPIENT (fallback fan-out) and POST a single
   /// envelope with a per_recipient ciphertext map. The server stores ciphertext
   /// only. Mirrors core/logic/circle_groups.build_group_fanout.
-  Future<void> _send({String? resendText}) async {
+  Future<bool> _send({String? resendText, bool asCard = false}) async {
     final text = resendText ?? _input.text.trim();
     // db1: Send on an empty box opens the keyboard instead of doing nothing.
     if (text.isEmpty && resendText == null && !_sending && _canPost) {
       _inputFocus.requestFocus();
-      return;
+      return false;
     }
-    if (text.isEmpty || _sending || !_canPost) return;
+    if (text.isEmpty || _sending || !_canPost) return false;
     _rt.typing('group', _gid, 'stop');
+    // p3: "@Assisto …" is a command to Assisto, never sent to the group.
+    final p3i = (resendText == null && !asCard) ? parseAssisto(text) : null;
+    if (p3i != null) {
+      setState(() {
+        _input.clear();
+        _p3HintShown = false;
+      });
+      unawaited(_openAssisto(intent: p3i));
+      return false;
+    }
     setState(() {
       _sending = true;
       _failedText = null;
@@ -560,16 +577,16 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     if (_others.isEmpty) {
       setState(() => _sending = false);
       _toast(_t.grpNoRecipients);
-      return;
+      return false;
     }
     if (_recipients.isEmpty) {
       // Still no key after the wait: the honest generic failed-send banner
       // (keeps the text, Retry) — never a key error.
       setState(() {
         _sending = false;
-        _failedText = text;
+        if (!asCard) _failedText = text;
       });
-      return;
+      return false;
     }
     final perRecipient = <String, dynamic>{};
     final recipientIds = <int>[];
@@ -597,7 +614,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     if (skipped > 0) {
       KeyService.instance.log.add('group $_gid: skipped $skipped recipient(s)');
     }
-    final mentions = _parseMentions(text);
+    final mentions = asCard ? const <int>[] : _parseMentions(text);
     var ok = true;
     final cmid = 'local-${DateTime.now().microsecondsSinceEpoch}';
     try {
@@ -607,7 +624,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         'sender_key_id': widget.identity.keyId,
         'scheme': _e2e.scheme,
         if (mentions.isNotEmpty) 'mentions': mentions,
-        if (_replyTo != null) 'reply_to': '${_replyTo!['id']}',
+        if (_replyTo != null && !asCard) 'reply_to': '${_replyTo!['id']}',
         'client_msg_id': cmid,
       });
       // md2: the sent text stays on screen (my bubble) until the reload /
@@ -628,10 +645,12 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     } catch (_) {
       ok = false;
     }
-    if (ok) {
+    if (ok && !asCard) {
       _input.clear();
       _replyTo = null;
       _failedText = null;
+    } else if (asCard) {
+      // p3: a card never touches the draft / reply context
     } else {
       // §21 honest failed-send: keep the text so the user can resend, and
       // surface a failure banner (rendered above the composer).
@@ -639,6 +658,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     }
     if (mounted) setState(() => _sending = false);
     if (ok) await _load();
+    return ok;
   }
 
   /// Parse @mentions into MEMBER IDS (never names leave the device as plaintext
@@ -1547,7 +1567,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     // at the end (= the top) on scroll-up, which keeps the position.
     final searching = _searching && _searchQuery.trim().isNotEmpty;
     final showDivider = !searching && _firstUnreadId != null && _unreadAtOpen > 0;
-    final rev = items.reversed.toList();
+    final rev = items.where((m) => !_p3Hidden(m)).toList().reversed.toList(); // p3
     // t1-ticks: date chips + floating date while scrolling, interleaved into
     // the newest-first rows; the E2E notice is the OLDEST item once the whole
     // history is loaded.
@@ -1712,13 +1732,30 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     }
     final dec = _decryptForMe(msg);
     final text = dec ?? '';
+    // p3: an Assisto card (E2E like any message)
+    final p3c = _p3Card(msg);
+    if (p3c != null) {
+      return AssistoCardView(
+        card: p3c,
+        mine: msg['mine'] == true,
+        senderName: _senderName(msg),
+        ledger: _p3Ledger,
+        onAddReminder: (c) => acceptReminderCard(context, c, _p3MyName, _sendCard),
+        onTick: (c, i, on) => sendTick(c, i, on, _p3MyName, _sendCard, _t),
+        onLongPress: _selecting ? null : () => _showActions(msg),
+      );
+    }
     final media = _mediaOf(msg); // md1
     // e2-keys: honest bubble when this device cannot decrypt it.
     final undecryptable = dec == null && '${msg['deleted'] ?? ''}' != 'everyone';
     final senderName = _senderName(msg);
     final announcement = msg['announcement'] == true;
     final selected = _selecting && _selected.contains('${msg['id']}');
-    return GestureDetector(
+    // p3: on-device scam warning under an incoming message
+    final scam = (msg['mine'] == true || media != null || text.isEmpty)
+        ? ScamVerdict.none
+        : _p3Scam.putIfAbsent('${msg['id']}', () => checkScam(text));
+    final bubble = GestureDetector(
       onLongPress: _selecting ? null : () => _showActions(msg),
       onTap: _selecting ? () => _toggleSelect(msg) : null,
       child: Card(
@@ -1803,6 +1840,12 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           ),
         ),
       ),
+    );
+    if (!scam.flagged) return bubble;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [bubble, ScamWarningBanner(verdict: scam)],
     );
   }
 
@@ -1985,7 +2028,17 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       );
     }
     return SafeArea(
-      child: Padding(
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+      if (_p3HintShown)
+        AssistoMentionHint(onTap: () {
+          final i = parseAssisto(_input.text);
+          setState(() {
+            _input.clear();
+            _p3HintShown = false;
+          });
+          unawaited(_openAssisto(intent: i));
+        }),
+      Padding(
         padding: const EdgeInsets.fromLTRB(Gap.sm, Gap.xs, Gap.sm, Gap.xs),
         child: Row(
           children: [
@@ -2009,8 +2062,13 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                 maxLines: 4,
                 textInputAction: TextInputAction.send,
                 onSubmitted: (_) => _send(),
-                onChanged: (v) =>
-                    _rt.typing('group', _gid, v.trim().isEmpty ? 'stop' : 'typing'),
+                onChanged: (v) {
+                  // p3: show / hide the @Assisto hint as the user types
+                  final hint = hasAssistoMention(v) || isTypingMention(v);
+                  if (hint != _p3HintShown) setState(() => _p3HintShown = hint);
+                  if (v.trimLeft().toLowerCase().startsWith('@assisto')) return;
+                  _rt.typing('group', _gid, v.trim().isEmpty ? 'stop' : 'typing');
+                },
                 decoration: InputDecoration(
                   hintText: _t.circleGroupMessageHint,
                   border: const OutlineInputBorder(
@@ -2020,6 +2078,13 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                       horizontal: Gap.lg, vertical: Gap.sm),
                 ),
               ),
+            ),
+            // p3: the Assisto button (same actions as typing "@Assisto")
+            IconButton(
+              key: const ValueKey('p3-assisto-btn'),
+              icon: const Icon(Icons.auto_awesome_outlined),
+              tooltip: _t.p3Assisto,
+              onPressed: () => _openAssisto(),
             ),
             IconButton.filled(
               icon: _sending
@@ -2033,8 +2098,101 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           ],
         ),
       ),
+      ]),
     );
   }
+
+  // -------------------------------------------------------------------------
+  // p3: @Assisto + cards + scam warning (.phaseB/P3_DESIGN.md)
+  // -------------------------------------------------------------------------
+  String? _p3UnreadFrom;
+  bool _p3HintShown = false;
+  final Map<String, AssistoCard?> _p3Cards = {};
+  final Map<String, ScamVerdict> _p3Scam = {};
+
+  String get _p3MyName {
+    final n = (context.read<AppState>().user?.name ?? '').trim();
+    return n.isEmpty ? _t.p3You : n;
+  }
+
+  AssistoCard? _p3Card(Map<String, dynamic> msg) {
+    if ('${msg['deleted'] ?? ''}' == 'everyone' || _mediaOf(msg) != null) return null;
+    final id = '${msg['id']}';
+    if (_p3Cards.containsKey(id)) return _p3Cards[id];
+    final dec = _decryptForMe(msg);
+    if (dec == null) return null; // not decryptable yet: decide again later
+    return _p3Cards[id] = isCardText(dec) ? decodeCard(dec) : null;
+  }
+
+  bool _p3Hidden(Map<String, dynamic> msg) => _p3Card(msg)?.hidden ?? false;
+
+  DateTime _p3At(Map<String, dynamic> m) =>
+      DateTime.tryParse('${m['created_at'] ?? m['at'] ?? ''}') ?? DateTime.now();
+
+  CardLedger get _p3Ledger => CardLedger.fold([
+        for (final m in _messages)
+          if (_p3Card(m) case final c?)
+            CardEvent(c, _senderName(m), m['mine'] == true, _p3At(m)),
+      ]);
+
+  bool _p3Readable(Map<String, dynamic> m) {
+    if (_mediaOf(m) != null || '${m['deleted'] ?? ''}' == 'everyone') return false;
+    final d = _decryptForMe(m);
+    return d != null && d.isNotEmpty && _p3Card(m) == null;
+  }
+
+  Map<String, String> _p3Line(Map<String, dynamic> m) => {
+        'from': m['mine'] == true ? _p3MyName : _senderName(m),
+        'text': _decryptForMe(m) ?? '',
+      };
+
+  AssistoChatPort get _p3Port => AssistoChatPort(
+        isGroup: true,
+        chatName: '${widget.group['name'] ?? ''}',
+        myName: _p3MyName,
+        memberNames: [
+          for (final m in _members)
+            if (m['is_self'] != true && '${_idOf(m)}' != _myMemberId &&
+                '${m['name'] ?? ''}'.trim().isNotEmpty)
+              '${m['name']}'
+        ],
+        unread: () {
+          final from = _p3UnreadFrom;
+          if (from == null) return const [];
+          final i = _messages.indexWhere((m) => '${m['id']}' == from);
+          if (i < 0) return const [];
+          return [
+            for (final m in _messages.skip(i))
+              if (m['mine'] != true && _p3Readable(m)) _p3Line(m),
+          ];
+        },
+        recent: () {
+          final r = [for (final m in _messages) if (_p3Readable(m)) _p3Line(m)];
+          return r.length > 40 ? r.sublist(r.length - 40) : r;
+        },
+        draft: () => _input.text,
+        setDraft: (v) => setState(() {
+          _input.text = v;
+          _input.selection = TextSelection.collapsed(offset: v.length);
+        }),
+        lastIncoming: () {
+          for (final m in _messages.reversed) {
+            if (m['mine'] != true && _p3Readable(m)) return _decryptForMe(m) ?? '';
+          }
+          return '';
+        },
+        send: _sendCard,
+      );
+
+  Future<void> _openAssisto({AssistoIntent? intent}) async {
+    if (!_canPost) return;
+    await showAssistoMenu(context, _p3Port, intent: intent);
+  }
+
+  /// Send an Assisto card / event to the group: the same per-recipient E2E
+  /// fan-out as a text message. The draft and reply context are untouched.
+  Future<bool> _sendCard(String plaintext) =>
+      _send(resendText: plaintext, asCard: true);
 
   String _senderName(Map<String, dynamic> msg) {
     final sid = '${msg['sender_id'] ?? ''}';

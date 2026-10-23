@@ -51,6 +51,12 @@ import '../messaging/receipt_bus.dart';
 import '../messaging/unread_store.dart';
 import '../realtime/realtime_channel.dart';
 import '../widgets/robo_id.dart';
+import '../p3/assisto_card.dart'; // p3
+import '../p3/assisto_card_view.dart';
+import '../p3/assisto_intent.dart';
+import '../p3/assisto_sheet.dart';
+import '../p3/scam_banner.dart';
+import '../p3/scam_guard.dart';
 
 /// End-to-end-encrypted 1:1 chat with a circle member.
 ///
@@ -620,6 +626,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       final unseen = raw.where((e) => e['unseen'] == true).toList();
       _unreadAtOpen = unseen.length;
       _firstUnreadId = unseen.isEmpty ? null : '${unseen.first['id']}';
+      _p3UnreadFrom ??= _firstUnreadId; // p3: "summarize unread" anchor
       _positioned = _unreadAtOpen <= 3;
       _resolveReplyPreviews();
       _seenPending = _messages.any((m) => !m.mine); // x2-ticks
@@ -1004,6 +1011,14 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     if (plain.isEmpty || _sending) return;
     if (_memberId != null) _rt.typing('member', _memberId!, 'stop');
 
+    // p3: "@Assisto …" is a command to Assisto, never sent to the peer.
+    final p3i = _editing == null ? parseAssisto(plain) : null;
+    if (p3i != null) {
+      setState(() => _input.clear());
+      unawaited(_openAssisto(intent: p3i));
+      return;
+    }
+
     // Edit path: replace an existing message within the window.
     if (_editing != null) {
       await _applyEdit(_editing!, plain);
@@ -1126,6 +1141,148 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     if (mounted) setState(() => _sending = false);
   }
 
+  // -------------------------------------------------------------------------
+  // p3: @Assisto + cards + scam warning (.phaseB/P3_DESIGN.md)
+  // -------------------------------------------------------------------------
+  String? _p3UnreadFrom;
+  bool _p3HintShown = false;
+  final Map<String, AssistoCard?> _p3Cards = {};
+  final Map<String, ScamVerdict> _p3Scam = {};
+
+  String get _p3MyName {
+    final n = (context.read<AppState>().user?.name ?? '').trim();
+    return n.isEmpty ? _t.p3You : n;
+  }
+
+  AssistoCard? _p3Card(CircleMessage m) {
+    if (m.contentType != 'text' || m.decryptFailed || m.deleted == 'everyone') {
+      return null;
+    }
+    final k = '${m.id}|${m.text.length}';
+    return _p3Cards.putIfAbsent(k, () => isCardText(m.text) ? decodeCard(m.text) : null);
+  }
+
+  bool _p3Hidden(CircleMessage m) => _p3Card(m)?.hidden ?? false;
+
+  CardLedger get _p3Ledger => CardLedger.fold([
+        for (final m in _messages)
+          if (_p3Card(m) case final c?) CardEvent(c, m.mine ? '' : _memberName, m.mine, m.at),
+      ]);
+
+  ScamVerdict _scamOf(CircleMessage m) {
+    if (m.mine || m.contentType != 'text' || m.text.isEmpty || m.decryptFailed) {
+      return ScamVerdict.none;
+    }
+    // a chat I have never replied in counts as a NEW contact
+    final fresh = !_messages.any((x) => x.mine);
+    return _p3Scam.putIfAbsent('${m.id}|$fresh',
+        () => checkScam(m.text, newContact: fresh));
+  }
+
+  Map<String, String> _p3Line(CircleMessage m) => {
+        'from': m.mine ? _p3MyName : _memberName,
+        'text': cardFallback(m.text),
+      };
+
+  bool _p3Readable(CircleMessage m) =>
+      m.contentType == 'text' && !m.decryptFailed && m.text.isNotEmpty &&
+      m.deleted != 'everyone' && _p3Card(m) == null;
+
+  AssistoChatPort get _p3Port => AssistoChatPort(
+        isGroup: false,
+        chatName: _memberName,
+        myName: _p3MyName,
+        memberNames: [_memberName],
+        unread: () {
+          final from = _p3UnreadFrom;
+          if (from == null) return const [];
+          final i = _messages.indexWhere((m) => m.id == from);
+          if (i < 0) return const [];
+          return [
+            for (final m in _messages.skip(i))
+              if (!m.mine && _p3Readable(m)) _p3Line(m),
+          ];
+        },
+        recent: () {
+          final r = [for (final m in _messages) if (_p3Readable(m)) _p3Line(m)];
+          return r.length > 30 ? r.sublist(r.length - 30) : r;
+        },
+        draft: () => _input.text,
+        setDraft: (v) => setState(() {
+          _input.text = v;
+          _input.selection = TextSelection.collapsed(offset: v.length);
+        }),
+        lastIncoming: () {
+          for (final m in _messages.reversed) {
+            if (!m.mine && _p3Readable(m)) return m.text;
+          }
+          return '';
+        },
+        send: _sendCard,
+      );
+
+  Future<void> _openAssisto({AssistoIntent? intent}) async {
+    if (_reqIn) return; // a request I have not accepted is read-only
+    await showAssistoMenu(context, _p3Port, intent: intent);
+  }
+
+  /// Send an Assisto card / event: E2E-encrypted to the peer exactly like a
+  /// text message (the plaintext never reaches the server). Keeps the draft.
+  Future<bool> _sendCard(String plaintext) async {
+    final id = _memberId;
+    if (id == null) return false;
+    final clientMsgId = 'local-${DateTime.now().microsecondsSinceEpoch}';
+    final sentAt = DateTime.now();
+    final echo = CircleMessage(
+        id: clientMsgId, text: plaintext, mine: true, at: sentAt,
+        status: 'sent', pending: true);
+    setState(() => _messages = [..._messages, echo]);
+    _scrollToEnd();
+    final peer = await _refreshPeerKey();
+    if (!mounted) return false;
+    if (peer == null) {
+      final item = OutboxItem(id: clientMsgId, chatId: id, text: plaintext, at: sentAt);
+      await Outbox.instance.add(item);
+      if (!mounted) return true;
+      setState(() {
+        _messages = _messages.where((m) => m.id != clientMsgId).toList();
+        if (!_queued.any((q) => q.id == clientMsgId)) _queued = [..._queued, item];
+      });
+      unawaited(Outbox.instance.kick(onlyChat: id));
+      return true;
+    }
+    final ct = _e2e.encrypt(self: widget.identity, recipientPublicKey: peer, plaintext: plaintext);
+    try {
+      final sent = await _api.postJson('/circle/$id/messages', {
+        'content_type': 'text',
+        'client_msg_id': clientMsgId,
+        ...ct.toEnvelopeFields(),
+      });
+      final sid = '${sent['id'] ?? ''}';
+      _sentEchoes.track(sid.isEmpty ? clientMsgId : sid, clientMsgId);
+      if (mounted) {
+        setState(() {
+          _messages = _messages.map((m) => m.id == clientMsgId
+              ? (sid.isEmpty
+                  ? m.copyWith(pending: false)
+                  : CircleMessage(id: sid, text: m.text, mine: true, at: m.at, status: m.status))
+              : m).toList();
+        });
+      }
+      ReceiptBus.instance.expect();
+      return true;
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _messages = _messages
+              .map((m) => m.id == clientMsgId ? m.copyWith(pending: false, status: 'failed') : m)
+              .toList();
+        });
+      }
+      return false;
+    }
+  }
+
   String? _firstUrl(String text) {
     final m = RegExp(r'https?://[^\s<>"]+', caseSensitive: false).firstMatch(text);
     return m?.group(0);
@@ -1175,7 +1332,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       case CircleMsgAction.react:
         break;
       case CircleMsgAction.copy:
-        await Clipboard.setData(ClipboardData(text: m.text));
+        await Clipboard.setData(ClipboardData(text: cardFallback(m.text)));
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_t.circleCopied)));
         }
@@ -1601,14 +1758,14 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       case ChatMenuAction.newGroupCall:
         await _newGroupCall();
         break;
-      case ChatMenuAction.summarise:
-        await _openInChatAi();
+      case ChatMenuAction.summarise: // p3: real @Assisto actions
+        await _openAssisto(intent: const AssistoIntent(AssistoAction.summarize));
         break;
       case ChatMenuAction.makeReminder:
-        _aiExtra(_t.msgrChatMakeReminder);
+        await _openAssisto(intent: const AssistoIntent(AssistoAction.remind));
         break;
       case ChatMenuAction.translate:
-        _aiExtra(_t.msgrChatTranslate);
+        await _openAssisto(intent: const AssistoIntent(AssistoAction.translate));
         break;
       case ChatMenuAction.report:
         await _reportFlow();
@@ -2002,7 +2159,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   }
 
   Future<void> _bulkCopy() async {
-    final text = _selectedMsgs.map((m) => m.text).where((t) => t.isNotEmpty).join('\n');
+    final text = _selectedMsgs.map((m) => cardFallback(m.text)).where((t) => t.isNotEmpty).join('\n');
     await Clipboard.setData(ClipboardData(text: text));
     if (!mounted) return;
     _toast(_t.circleCopied);
@@ -2120,7 +2277,28 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                           final m = row.msg!;
                           final key =
                               _msgKeys.putIfAbsent(m.id, () => GlobalKey());
-                          final bubble = CircleBubble(
+                          // p3: an Assisto card (E2E like any message)
+                          final p3c = _p3Card(m);
+                          if (p3c != null) {
+                            return AssistoCardView(
+                              key: key,
+                              card: p3c,
+                              mine: m.mine,
+                              senderName: _memberName,
+                              ledger: _p3Ledger,
+                              onAddReminder: _reqIn
+                                  ? null
+                                  : (c) => acceptReminderCard(
+                                      context, c, _p3MyName, _sendCard),
+                              onTick: _reqIn
+                                  ? null
+                                  : (c, i, on) => sendTick(
+                                      c, i, on, _p3MyName, _sendCard, _t),
+                              onLongPress: _selecting ? null : () => _onLongPress(m),
+                            );
+                          }
+                          final scam = _scamOf(m);
+                          final bubble0 = CircleBubble(
                             key: key,
                             msg: m,
                             highlighted: _highlightId == m.id,
@@ -2136,6 +2314,13 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                                 : null,
                             onOpenFile: _selecting ? null : _openFile,
                           );
+                          // p3: on-device scam warning under an incoming message
+                          final Widget bubble = scam.flagged
+                              ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [bubble0, ScamWarningBanner(verdict: scam)])
+                              : bubble0;
                           if (!_selecting) {
                             return SwipeToReply(
                               key: ValueKey('c3-swipe-${m.id}'),
@@ -2443,7 +2628,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     final vis = _visible;
     final searching = _searching && _searchQuery.trim().isNotEmpty;
     final items = <_ChatRow>[
-      for (final m in vis) _ChatRow.msg(m),
+      for (final m in vis)
+        if (!_p3Hidden(m)) _ChatRow.msg(m), // p3: tick / ack events fold into their card
       if (!searching)
         for (final q in _queued)
           if (!vis.any((m) => m.id == q.id) && !_serverCmids.contains(q.id))
@@ -2594,7 +2780,18 @@ class _CircleChatScreenState extends State<CircleChatScreen>
 
   Widget _composer(ColorScheme scheme) => SafeArea(
         top: false,
-        child: Padding(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          // p3: typing "@Assisto" offers the Assisto actions (never sent)
+          if (_p3HintShown)
+            AssistoMentionHint(onTap: () {
+              final i = parseAssisto(_input.text);
+              setState(() {
+                _input.clear();
+                _p3HintShown = false;
+              });
+              unawaited(_openAssisto(intent: i));
+            }),
+          Padding(
           padding: const EdgeInsets.fromLTRB(Gap.sm, Gap.xs, Gap.sm, Gap.sm),
           child: Row(
             children: [
@@ -2618,14 +2815,23 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                   // c3-msg: throttled "typing…" (≤ 1 event / 3 s) + stop.
                   onChanged: (v) {
                     final id = _memberId;
-                    if (id == null) return;
+                    // p3: show / hide the @Assisto hint as the user types
+                    final hint = hasAssistoMention(v) || isTypingMention(v);
+                    if (hint != _p3HintShown) setState(() => _p3HintShown = hint);
+                    if (id == null || v.trimLeft().startsWith('@')) return;
                     _rt.typing('member', id, v.trim().isEmpty ? 'stop' : 'typing');
                   },
                   decoration: InputDecoration(hintText: _t.circleMessageHint),
                 ),
                 ),
               ),
-              const SizedBox(width: Gap.xs),
+              // p3: the Assisto button (same actions as typing "@Assisto")
+              IconButton(
+                key: const ValueKey('p3-assisto-btn'),
+                icon: const Icon(Icons.auto_awesome_outlined),
+                tooltip: _t.p3Assisto,
+                onPressed: _reqIn ? null : () => _openAssisto(),
+              ),
               RoboId(id: 'tl_chat_send',
                 child: IconButton.filled(
                   onPressed: _sending ? null : _send,
@@ -2635,6 +2841,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
             ],
           ),
         ),
+        ]),
       );
 }
 

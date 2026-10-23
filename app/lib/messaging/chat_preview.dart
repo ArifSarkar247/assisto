@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import '../crypto/e2e.dart';
 import 'media/media_descriptor.dart';
 import 'msg_ticks.dart';
+import '../p3/assisto_card.dart' show cardFallback;
 
 /// md2: the decrypted detail a media preview shows after its icon + label:
 /// a photo's caption, a document's file name ('' = just the label).
@@ -152,7 +153,8 @@ class ChatPreview {
       final c = (cachedText ?? '').trim();
       return c.isNotEmpty ? of(PreviewKind.text, c) : of(PreviewKind.encrypted);
     }
-    return of(PreviewKind.text, pt.replaceAll('\n', ' ').trim());
+    // p3: an Assisto card previews as its readable first line
+    return of(PreviewKind.text, cardFallback(pt).replaceAll('\n', ' ').trim());
   }
 
   /// Every public key this phone knows for the row's peer, current first,

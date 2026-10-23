@@ -1,3 +1,4 @@
+import '../p3/assisto_card.dart' show cardFallback;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
@@ -224,7 +225,9 @@ MsgNotifModel buildMsgNotifModel(
     } else if (ct != 'text') {
       text = mediaNotifText(t, ct, plaintext: decrypt(m));
     } else {
-      text = decrypt(m) ?? t.c3NotifEncrypted;
+      final pt = decrypt(m);
+      // p3: an Assisto card notifies with its readable first line
+      text = pt == null ? t.c3NotifEncrypted : cardFallback(pt);
     }
     final sender = mine
         ? t.c3You
