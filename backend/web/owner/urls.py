@@ -9,6 +9,7 @@ from . import views_f1 as F1
 from . import views_pay1 as PAY1   # pay1
 from . import views_t9 as T9
 from . import views_sc1 as SC1   # sc1 app errors
+from . import views_p1 as P1     # p1-bizagent sellers
 
 _ASSETS = {"owner.css": "text/css; charset=utf-8",
            "owner.js": "application/javascript; charset=utf-8"}
@@ -73,4 +74,5 @@ urlpatterns = [
     # ---- /f1-founders ----
     path("payments", PAY1.payments),   # pay1
     path("calls", T9.calls),          # t9-turnscale: Call relay (TURN)
+    path("sellers", P1.sellers),      # p1-bizagent: Sellers (AI agent)
 ]

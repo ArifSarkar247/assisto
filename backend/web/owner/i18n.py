@@ -559,3 +559,48 @@ BN.update({
     "ae_scrub_note": "পরিষ্কার করা: উদ্ধৃতির লেখা, ৫+ অঙ্কের সংখ্যা, ফোন নম্বর, ইমেইল, লিংক, ফাইলের পথ ও লম্বা টোকেন সংরক্ষণের আগেই সরিয়ে ফেলা হয়।",
 })
 # ---- /sc1 ----
+
+# ---- p1-bizagent ---- Sellers (Business AI Agent)
+EN.update({
+    "nav_sellers": "Sellers (AI agent)",
+    "sl_list": "Sellers", "sl_list_note": "Last 30 days. Cost = AI replies × the worst-case cost per reply (ai_sales). Revenue = seller-plan payments after the gateway fee + credits spent on replies.",
+    "sl_business": "Business", "sl_plan": "Plan", "sl_used": "Replies used", "sl_ai30": "AI replies (30 d)",
+    "sl_cost": "AI cost", "sl_revenue": "Revenue", "sl_margin": "Margin", "sl_channels": "Channels",
+    "sl_credits": "credits", "sl_ai_off": "AI off", "sl_disabled": "disabled", "sl_disable": "Disable",
+    "sl_enable": "Enable", "sl_no_channels": "No channel connected", "sl_none": "No seller has set up the AI agent yet.",
+    "sl_kill": "Kill switches", "sl_kill_note": "A ticked channel type is OFF for every seller at once (messages are still saved; nothing is sent). \"Stop all AI\" stops AI replies everywhere; sellers can still reply by hand.",
+    "sl_kill_off": "Turn off", "sl_ai_kill": "Stop all AI replies",
+    "sl_plans": "Seller plans, trial and WhatsApp cost", "sl_plans_note": "Every plan must keep at least the margin target after the gateway fee when all replies are used. Worst-case cost per AI reply",
+    "sl_per_reply": "cost per reply", "sl_replies": "AI replies / month", "sl_net_gw": "Net (gateway)",
+    "sl_margin_play": "Margin if sold via Play", "sl_trial_days": "Trial days", "sl_trial_replies": "Trial AI replies",
+    "sl_low_stock": "Default low-stock threshold",
+    "sl_wa_cost": "WhatsApp cost per billable message (৳)", "sl_wa_cost_note": "Meta's real rate for Bangladesh, per category. We charge the seller this plus the margin from credits. 0 = not set.",
+    "sl_public_reply": "Post a short public \"sent to your inbox\" reply under comments (never a price)",
+    "sl_webhooks": "Webhook URLs (Meta app)", "sl_webhooks_note": "Paste these in the Meta developer app (Webhooks + WhatsApp → Configuration) with the verify token saved under Integrations → Meta app.",
+    "sl_w_wa_cost": "WhatsApp cost per message is not set (0). Business-initiated WhatsApp messages are not charged to sellers until you set Meta's real rate below.",
+    "sl_w_play": "Plan %(plan)s keeps only %(pct)s%% margin if sold through Google Play — sell it through the payment gateway, or set a higher Play price.",
+    "p_seller_plan_breaks_margin": "A seller plan would earn less than the margin target if all its AI replies are used. Raise the price or lower the replies.",
+    "p_seller_negative": "Seller plan numbers cannot be negative.",
+})
+BN.update({
+    "nav_sellers": "বিক্রেতা (AI এজেন্ট)",
+    "sl_list": "বিক্রেতা", "sl_list_note": "শেষ ৩০ দিন। খরচ = AI উত্তর × প্রতি উত্তরের সর্বোচ্চ খরচ (ai_sales)। আয় = গেটওয়ে ফি বাদে বিক্রেতা-প্ল্যানের পেমেন্ট + উত্তরে খরচ হওয়া ক্রেডিট।",
+    "sl_business": "ব্যবসা", "sl_plan": "প্ল্যান", "sl_used": "ব্যবহৃত উত্তর", "sl_ai30": "AI উত্তর (৩০ দিন)",
+    "sl_cost": "AI খরচ", "sl_revenue": "আয়", "sl_margin": "মার্জিন", "sl_channels": "চ্যানেল",
+    "sl_credits": "ক্রেডিট", "sl_ai_off": "AI বন্ধ", "sl_disabled": "বন্ধ", "sl_disable": "বন্ধ করুন",
+    "sl_enable": "চালু করুন", "sl_no_channels": "কোনো চ্যানেল যুক্ত নেই", "sl_none": "এখনো কোনো বিক্রেতা AI এজেন্ট চালু করেননি।",
+    "sl_kill": "কিল সুইচ", "sl_kill_note": "টিক দেওয়া চ্যানেলের ধরন সব বিক্রেতার জন্য একসাথে বন্ধ হবে (মেসেজ সংরক্ষণ হবে, কিছু পাঠানো হবে না)। \"সব AI বন্ধ\" দিলে কোথাও AI উত্তর যাবে না; বিক্রেতা নিজে উত্তর দিতে পারবেন।",
+    "sl_kill_off": "বন্ধ করুন", "sl_ai_kill": "সব AI উত্তর বন্ধ",
+    "sl_plans": "বিক্রেতা প্ল্যান, ট্রায়াল ও WhatsApp খরচ", "sl_plans_note": "সব উত্তর ব্যবহার হলেও গেটওয়ে ফি বাদে প্রতিটি প্ল্যানে লক্ষ্য মার্জিন থাকতে হবে। প্রতি AI উত্তরের সর্বোচ্চ খরচ",
+    "sl_per_reply": "প্রতি উত্তরের খরচ", "sl_replies": "মাসিক AI উত্তর", "sl_net_gw": "নিট (গেটওয়ে)",
+    "sl_margin_play": "Play দিয়ে বিক্রি হলে মার্জিন", "sl_trial_days": "ট্রায়ালের দিন", "sl_trial_replies": "ট্রায়ালে AI উত্তর",
+    "sl_low_stock": "কম স্টকের ডিফল্ট সীমা",
+    "sl_wa_cost": "প্রতি বিলযোগ্য WhatsApp মেসেজের খরচ (৳)", "sl_wa_cost_note": "বাংলাদেশের জন্য Meta-র আসল রেট, ধরন অনুযায়ী। এর সাথে মার্জিন যোগ করে বিক্রেতার ক্রেডিট থেকে কাটা হয়। ০ = এখনো বসানো হয়নি।",
+    "sl_public_reply": "কমেন্টের নিচে ছোট একটি পাবলিক উত্তর দিন \"ইনবক্সে পাঠানো হয়েছে\" (কখনো দাম নয়)",
+    "sl_webhooks": "Webhook URL (Meta app)", "sl_webhooks_note": "এগুলো Meta developer app-এ (Webhooks + WhatsApp → Configuration) পেস্ট করুন, সাথে Integrations → Meta app-এ রাখা verify token।",
+    "sl_w_wa_cost": "প্রতি WhatsApp মেসেজের খরচ বসানো হয়নি (০)। নিচে Meta-র আসল রেট না বসানো পর্যন্ত ব্যবসা-শুরু করা WhatsApp মেসেজের টাকা বিক্রেতার কাছ থেকে কাটা হবে না।",
+    "sl_w_play": "প্ল্যান %(plan)s Google Play দিয়ে বিক্রি হলে মার্জিন মাত্র %(pct)s%% — পেমেন্ট গেটওয়ে দিয়ে বিক্রি করুন, অথবা Play-এর দাম বাড়ান।",
+    "p_seller_plan_breaks_margin": "সব AI উত্তর ব্যবহার হলে একটি বিক্রেতা-প্ল্যানে লক্ষ্য মার্জিনের চেয়ে কম লাভ হবে। দাম বাড়ান বা উত্তর কমান।",
+    "p_seller_negative": "বিক্রেতা-প্ল্যানের সংখ্যা ঋণাত্মক হতে পারে না।",
+})
+# ---- /p1-bizagent ----
