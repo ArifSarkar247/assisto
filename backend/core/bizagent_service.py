@@ -97,7 +97,7 @@ def catalog_for(business):
         out.append({
             "id": p.id, "name": p.name, "price": str(p.price), "stock": p.stock,
             "min_price": str(p.min_price), "description": p.description,
-            "low_stock_at": p.low_stock_at,
+            "low_stock_at": p.low_stock_at, "sku": p.sku, "category": p.category,
             "variants": [{"vkey": v.vkey, "size": v.size, "colour": v.colour,
                           "price": str(v.sell_price or p.price), "stock": v.stock,
                           "min_price": str(v.min_price)}
@@ -321,8 +321,19 @@ def charge_wa_billable(channel, status_event):
 
 
 # ===================================================================== push
-def notify_seller(business, kind, title_bn, title_en, body_bn="", body_en="", data=None):
+def notify_seller(business, kind, title_bn, title_en, body_bn="", body_en="", data=None,
+                  force=False):
+    """Push to the seller. g1: inside the seller's QUIET HOURS pushes are held
+    (they are in the morning summary); force=True (the morning summary
+    itself) always goes."""
     from . import push
+    if not force:
+        try:
+            from . import bizagent_g1_service as G1S
+            if G1S.in_quiet(agent_for(business)):
+                return
+        except Exception:
+            pass
     payload = {"route": "bizagent", "section": kind}
     payload.update(data or {})
     try:
@@ -487,15 +498,18 @@ def _channel_off(ch, cfg):
 
 # ===================================================================== send
 def send_text(thread, text, *, kind="text", is_ai=True, comment_id="", public=False,
-              status_on_ok="sent", meta=None):
+              status_on_ok="sent", meta=None, source=None):
     """Send one message on the thread's official channel and record it.
     Honest: no token → 'queued' (needs key), outside 24 h → 'blocked', Graph
-    error → 'failed' with the reason. test_mode channels never hit the network."""
+    error → 'failed' with the reason. test_mode channels never hit the network.
+    g1: `source` = rule | ai | fallback | human | system (rules-vs-AI stats);
+    the website widget channel stores the reply for the visitor's poll."""
     from .models import Message
     ch = thread.seller_channel
     now = timezone.now()
     m = Message(thread=thread, direction="out", text=text, is_ai=is_ai, kind=kind,
-                meta=dict(meta or {}))
+                meta=dict(meta or {}),
+                reply_source=(source or ("human" if not is_ai else ""))[:12])
     if comment_id:
         m.meta["comment_id"] = comment_id
     if ch is None:
@@ -505,6 +519,10 @@ def send_text(thread, text, *, kind="text", is_ai=True, comment_id="", public=Fa
     if ch.test_mode:
         m.status, m.external_id = status_on_ok, "test-" + uuid.uuid4().hex[:16]
         m.meta["test_mode"] = True
+        m.save()
+        return m
+    if ch.kind == "website":
+        m.status, m.external_id = status_on_ok, "web-" + uuid.uuid4().hex[:16]
         m.save()
         return m
     token = channel_token(ch)
@@ -533,6 +551,42 @@ def send_text(thread, text, *, kind="text", is_ai=True, comment_id="", public=Fa
         m.status, m.external_id = status_on_ok, r.get("id", "")[:128]
     else:
         m.status, m.send_error = "failed", r.get("error", "")[:200]
+    m.save()
+    return m
+
+
+def send_image(thread, url, caption=""):
+    """g1: one product photo (+ caption) on the thread's channel. Same honesty
+    rules as send_text (test channels never hit the network)."""
+    from .models import Message
+    ch = thread.seller_channel
+    m = Message(thread=thread, direction="out", text=caption, is_ai=True, kind="image",
+                meta={"image_url": url}, reply_source="rule")
+    now = timezone.now()
+    if ch is None:
+        m.status, m.send_error = "queued", "no_channel"
+    elif ch.test_mode or ch.kind == "website":
+        m.status, m.external_id = "sent", "test-" + uuid.uuid4().hex[:16]
+        m.meta["test_mode"] = ch.test_mode
+    else:
+        token = channel_token(ch)
+        last_in = thread.last_inbound_at.timestamp() if thread.last_inbound_at else None
+        if not token:
+            m.status, m.send_error = "queued", "no_token"
+        elif not bai.within_service_window(last_in, now.timestamp()):
+            m.status, m.send_error = "blocked", "outside_24h_window"
+        else:
+            if ch.kind == BZ.CH_WHATSAPP:
+                r = G.send_whatsapp_image(token, ch.external_id, thread.external_user_id, url,
+                                          caption)
+            else:
+                r = G.send_messenger_image(token, thread.external_user_id, url,
+                                           page_id=ch.external_id if ch.kind == BZ.CH_MESSENGER
+                                           else "me")
+            if r["ok"]:
+                m.status, m.external_id = "sent", r.get("id", "")[:128]
+            else:
+                m.status, m.send_error = "failed", r.get("error", "")[:200]
     m.save()
     return m
 
@@ -571,7 +625,11 @@ def _llm_draft(ctx, lang, tone, text, history):
     if not ai.key_present():
         return None
     try:
-        out, _cost = ai.generate(task=BZ.llm_task(ctx, lang, tone), data=text, tier="cheap",
+        task = BZ.llm_task(ctx, lang, tone)
+        if ctx.get("style"):
+            task += ("\n\nTONE ONLY (the owner's own past wording — copy the style, never "
+                     "facts or numbers from it):\n" + str(ctx["style"])[:400])
+        out, _cost = ai.generate(task=task, data=text, tier="cheap",
                                  max_tokens=300, feature="bizagent.reply", user=None,
                                  history=history)
     except ai.AIUnavailable:
@@ -601,11 +659,22 @@ def _offer_in(text):
     return None
 
 
-def compose(business, agent, thread, text, lang, *, allow_order=True):
+def compose(business, agent, thread, text, lang, *, allow_order=True, post_id=""):
     """Decide the reply. Returns dict:
-      {"text", "kind", "risk", "proposal", "confidence", "order_action"}
+      {"text", "kind", "risk", "proposal", "confidence", "order_action", "source"}
     risk != None → the customer gets `text` (an honest holding line) and the
-    seller gets `proposal` to approve/edit/reject."""
+    seller gets `proposal` to approve/edit/reject.
+    g1: source = rule (deterministic: order flow, bargaining arithmetic, the
+    RULE-FIRST layer — instant, cost 0, no credit) | ai (an LLM call — the only
+    replies that use a plan reply or credits) | fallback (no key: mock)."""
+    from . import bizagent_g1_service as G1S
+    d = _compose(business, agent, thread, text, lang, allow_order=allow_order, post_id=post_id,
+                 G1S=G1S)
+    d.setdefault("source", "rule")
+    return d
+
+
+def _compose(business, agent, thread, text, lang, *, allow_order, post_id, G1S):
     catalog = catalog_for(business)
     matched = BZ.match_products(text, catalog)
     intent = bai.classify_intent(text)
@@ -642,7 +711,7 @@ def compose(business, agent, thread, text, lang, *, allow_order=True):
             thread.order_draft = draft
             thread.save(update_fields=["order_draft"])
             if draft.get("product"):
-                priced = BZ.price_order(draft, catalog, delivery_for(business))
+                priced = G1S.price_for(draft, catalog, business, agent)
                 if priced and not priced["stock_ok"]:
                     return {"text": BZ.out_of_stock_line(lang, priced["product"], priced["stock"]),
                             "kind": "text", "risk": None, "confidence": 1.0}
@@ -650,7 +719,7 @@ def compose(business, agent, thread, text, lang, *, allow_order=True):
             if miss:
                 return {"text": BZ.ask_missing(lang, miss, draft.get("phone_invalid")),
                         "kind": "order", "risk": None, "confidence": 1.0}
-            priced = BZ.price_order(draft, catalog, delivery_for(business))
+            priced = G1S.price_for(draft, catalog, business, agent)
             if priced is None:
                 return {"text": BZ.holding_message(lang, BZ.RISK_UNKNOWN_PRODUCT, hours),
                         "kind": "holding", "risk": BZ.RISK_UNKNOWN_PRODUCT,
@@ -661,12 +730,15 @@ def compose(business, agent, thread, text, lang, *, allow_order=True):
             thread.order_draft = draft
             thread.save(update_fields=["order_draft"])
             summary = BZ.order_summary(lang, draft, priced)
+            extra_lines, extra_nums = G1S.summary_extras(lang, priced, business)
+            if extra_lines:
+                summary = summary + "\n" + "\n".join(extra_lines)
             if big:
                 return {"text": BZ.holding_message(lang, BZ.RISK_BIG_ORDER, hours),
                         "kind": "holding", "risk": BZ.RISK_BIG_ORDER, "proposal": summary,
                         "confidence": 1.0}
             return {"text": summary, "kind": "order", "risk": None, "confidence": 1.0,
-                    "extra": [priced["subtotal"], priced["total"], priced["unit"]]}
+                    "extra": [priced["subtotal"], priced["total"], priced["unit"]] + extra_nums}
 
     # ---- bargaining: arithmetic only, the minimum price is never crossed ----
     offer_decision = None
@@ -691,6 +763,13 @@ def compose(business, agent, thread, text, lang, *, allow_order=True):
                         "extra": [neg.get("price"), neg.get("counter"), offer]}
             proposal = neg.get("message") or neg.get("text") or ""
 
+    # ---- g1 RULE-FIRST: FAQ / price / stock / sizes / delivery / hours /
+    # payment / returns / order status from the seller's own data — no AI ----
+    if not offer_decision:
+        r = G1S.rule_answer(business, agent, thread, text, lang, catalog, post_id)
+        if r:
+            return r
+
     risk = BZ.pre_risk(text, intent, matched, offer_decision)
     if risk:
         if not proposal:
@@ -710,29 +789,33 @@ def compose(business, agent, thread, text, lang, *, allow_order=True):
                                        else "", "shop_name": business.shop_name})
     reply = (d.get("text") or "").strip()
     conf = float(d.get("confidence") or 0)
+    src = "ai" if used_ai else "fallback"
     problems = BZ.check_numbers(reply, ctx, text)
     if problems:
         return {"text": BZ.holding_message(lang, BZ.RISK_NUMBERS, hours), "kind": "holding",
                 "risk": BZ.RISK_NUMBERS, "proposal": reply, "confidence": conf,
-                "problems": problems, "used_ai": used_ai}
+                "problems": problems, "used_ai": used_ai, "source": src}
     if not reply or conf < bai.HANDOFF_CONFIDENCE:
         return {"text": BZ.holding_message(lang, BZ.RISK_LOW_CONF, hours), "kind": "holding",
                 "risk": BZ.RISK_LOW_CONF, "proposal": reply, "confidence": conf,
-                "used_ai": used_ai}
+                "used_ai": used_ai, "source": src}
     if agent.approve_all:
         return {"text": "", "kind": "text", "risk": BZ.RISK_APPROVE_ALL, "proposal": reply,
-                "confidence": conf, "used_ai": used_ai}
-    return {"text": reply, "kind": "text", "risk": None, "confidence": conf, "used_ai": used_ai}
+                "confidence": conf, "used_ai": used_ai, "source": src}
+    return {"text": reply, "kind": "text", "risk": None, "confidence": conf, "used_ai": used_ai,
+            "source": src}
 
 
 # ===================================================================== handlers
-def _queue_approval(thread, proposal, risk, *, comment_id="", problems=None, confidence=0.0):
+def _queue_approval(thread, proposal, risk, *, comment_id="", problems=None, confidence=0.0,
+                    source="ai"):
     from .models import Message
+    meta = {"comment_id": comment_id} if comment_id else {"problems": problems or []}
+    meta["source"] = source
     m = Message.objects.create(
         thread=thread, direction="out", text=proposal or "", is_ai=True,
         status="pending_approval", risk_reason=risk, needs_human=True,
-        handoff_reason=risk, confidence=confidence, kind="text",
-        meta={"comment_id": comment_id} if comment_id else {"problems": problems or []})
+        handoff_reason=risk, confidence=confidence, kind="text", meta=meta)
     notify_seller(thread.business, "approvals",
                   "অনুমোদন দরকার", "Approval needed",
                   "একটি AI উত্তর আপনার অনুমোদনের অপেক্ষায়।",
@@ -764,23 +847,35 @@ def _out_of_replies(thread, agent, lang, reason, comment_id=""):
     return "out_of_replies"
 
 
-def _deliver_ai(thread, agent, text, lang, kind="text", comment_id="", public_too=False):
-    """Pay for + send one AI reply (disclosure on the first AI reply)."""
-    via, charged = consume_reply(agent)
-    if via is None:
-        return _out_of_replies(thread, agent, lang, charged, comment_id=comment_id)
+def _deliver_ai(thread, agent, text, lang, kind="text", comment_id="", public_too=False,
+                source="ai", meta=None, extra_credits=0, cost_bdt=0.0):
+    """Pay for + send one agent reply (disclosure on the first AI reply).
+    g1: ONLY an LLM reply (source 'ai') uses a plan reply / credits; a rule
+    reply (FAQ, price, stock, order flow, …) is instant and costs 0.
+    extra_credits / cost_bdt = an already-charged vision/voice call (stored
+    on the row for the agent report + Profit Guard)."""
+    if source == "ai":
+        via, charged = consume_reply(agent)
+        if via is None:
+            return _out_of_replies(thread, agent, lang, charged, comment_id=comment_id)
+    else:
+        via, charged = "free", 0
     first = not thread.ai_disclosed
     body = BZ.with_disclosure(lang, text, first)
-    m = send_text(thread, body, kind=kind, is_ai=True, comment_id=comment_id)
+    m = send_text(thread, body, kind=kind, is_ai=True, comment_id=comment_id,
+                  meta=meta, source=source)
     if m.status in ("failed", "blocked", "queued"):
-        refund_reply(agent, via, charged)
+        if source == "ai":
+            refund_reply(agent, via, charged)
         if m.status == "failed":
             notify_seller(thread.business, "errors", "মেসেজ পাঠানো যায়নি",
                           "A message could not be sent", m.send_error, m.send_error,
                           data={"thread_id": str(thread.pk)})
         return m.status
     m.meta["billed"] = via
-    m.save(update_fields=["meta"])
+    m.credits = (int(charged or 0) if via == "credits" else 0) + int(extra_credits or 0)
+    m.cost_bdt = float(cost_bdt or 0) + (reply_cost_bdt() if source == "ai" else 0.0)
+    m.save(update_fields=["meta", "credits", "cost_bdt"])
     if first:
         thread.ai_disclosed = True
         thread.save(update_fields=["ai_disclosed"])
@@ -790,6 +885,13 @@ def _deliver_ai(thread, agent, text, lang, kind="text", comment_id="", public_to
     return "ok"
 
 
+def reply_cost_bdt():
+    try:
+        return round(BZ.reply_cost_bdt(full_cfg()), 4)
+    except Exception:
+        return 0.0
+
+
 def handle_message(ch, e):
     from .models import Message
     if e.get("event_id") and Message.objects.filter(thread__seller_channel=ch,
@@ -797,49 +899,169 @@ def handle_message(ch, e):
         return "skipped"
     t = thread_for(ch, e["user_id"], e.get("name", ""))
     text = e.get("text") or ""
-    lang = bai.reply_lang(text)
+    atts = [a for a in (e.get("attachments") or []) if isinstance(a, dict)]
+    if atts and text in ("[attachment]", "[image]", "[audio]"):
+        text = ""
+    lang = bai.reply_lang(text) if text else (t.lang or "bn")
     at = _ts(e)
     t.last_inbound_at = at
     t.last_message_at = at
     t.lang = lang
     t.save(update_fields=["last_inbound_at", "last_message_at", "lang"])
-    Message.objects.create(thread=t, direction="in", text=text, external_id=e.get("event_id", ""),
-                           status="received", kind="text")
-    return respond(ch, t, text, lang)
+    image = next((a for a in atts if a.get("type") == "image"), None)
+    audio = next((a for a in atts if a.get("type") == "audio"), None)
+    kind = "image" if image else ("voice" if audio else "text")
+    meta = {"attachments": [{"type": a.get("type")} for a in atts]} if atts else {}
+    inbound = Message.objects.create(thread=t, direction="in", text=text or ("[%s]" % kind if atts else ""),
+                                     external_id=e.get("event_id", ""), status="received",
+                                     kind=kind, meta=meta)
+    # g1: opt-out of follow-ups ("stop") is honoured at once
+    from .logic import bizagent_g1 as G1
+    if text and G1.is_opt_out(text):
+        t.opted_out = True
+        t.save(update_fields=["opted_out"])
+        send_text(t, G1.opt_out_ack(lang), kind="text", is_ai=True, source="system")
+        return "opted_out"
+    media = None
+    if image or audio:
+        media = {"att": image or audio, "type": "image" if image else "audio",
+                 "inbound_id": inbound.pk}
+    return respond(ch, t, text, lang, media=media, inbound=inbound)
 
 
-def respond(ch, t, text, lang, comment_id=""):
+def _media_bytes(ch, att):
+    from . import bizagent_media as M
+    return M.fetch_attachment(ch, att, channel_token(ch) if not ch.test_mode else "")
+
+
+def respond(ch, t, text, lang, comment_id="", *, media=None, inbound=None, resumed=False,
+            post_id=""):
+    """Decide + send ONE reply for the customer's latest message.
+    g1: who replies is decided first (business mode, per-chat toggle, the
+    human pause); the reply runs under a per-chat lease so two workers can
+    never answer the same chat at once; if a person replied while we were
+    composing, our reply is dropped (never two replies at once)."""
+    from . import bizagent_g1_service as G1S
+    from .models import Message
     cfg = sa_cfg()
     biz = ch.business
     agent = agent_for(biz)
     if _channel_off(ch, cfg):
         return "channel_off"
-    if t.owner_takeover or not agent.ai_enabled or cfg["ai_kill"]:
+    allowed, why = G1S.ai_state(agent, t)
+    if not allowed:
         notify_seller(biz, "inbox", "নতুন মেসেজ", "New message",
-                      (t.customer_name or "") + ": " + text[:80],
-                      (t.customer_name or "") + ": " + text[:80],
+                      (t.customer_name or "") + ": " + (text or "[media]")[:80],
+                      (t.customer_name or "") + ": " + (text or "[media]")[:80],
                       data={"thread_id": str(t.pk)})
-        return "human"
-    d = compose(biz, agent, t, text, lang, allow_order=not comment_id)
+        return "paused" if why == "paused" else "human"
+    if not G1S.acquire(t):
+        # another worker is replying in this chat: it picks this message up
+        if inbound is not None:
+            inbound.meta = dict(inbound.meta or {}, deferred=True)
+            inbound.save(update_fields=["meta"])
+        return "deferred"
+    started = timezone.now()
+    try:
+        res = _respond_locked(ch, t, biz, agent, text, lang, comment_id, media, started,
+                              post_id=post_id)
+        # a message that arrived while we held the lease → answer the newest one
+        for _ in range(2):
+            later = t.messages.filter(direction="in", created_at__gte=started,
+                                      meta__deferred=True).order_by("-created_at", "-id").first()
+            if later is None:
+                break
+            for dm in Message.objects.filter(thread=t, direction="in", meta__deferred=True):
+                dm.meta = {k: v for k, v in (dm.meta or {}).items() if k != "deferred"}
+                dm.meta["deferred_done"] = True
+                dm.save(update_fields=["meta"])
+            started = timezone.now()
+            res = _respond_locked(ch, t, biz, agent, later.text, bai.reply_lang(later.text),
+                                  "", None, started)
+        return res
+    finally:
+        G1S.release(t)
+
+
+def _respond_locked(ch, t, biz, agent, text, lang, comment_id, media, started, post_id=""):
+    from . import bizagent_g1_service as G1S
+    d = None
+    if media and media["type"] == "audio":
+        data, mime, err = _media_bytes(ch, media["att"])
+        heard, info = ("", {"error": err})
+        if data:
+            heard, info = G1S.voice_text(biz, agent, t, data, mime, lang)
+        if not heard:
+            notify_seller(biz, "inbox", "ভয়েস মেসেজ", "Voice message",
+                          "একজন গ্রাহক ভয়েস মেসেজ পাঠিয়েছেন — শুনে উত্তর দিন।",
+                          "A customer sent a voice message — please listen and reply.",
+                          data={"thread_id": str(t.pk)})
+            return _send_reply(t, agent, {"text": G1S.voice_fallback_line(lang), "kind": "holding",
+                                          "source": "rule", "rule": "voice_unavailable",
+                                          "meta": {"voice_error": info.get("error", "")}},
+                               lang, comment_id, started)
+        from .models import Message
+        Message.objects.filter(pk=media["inbound_id"]).update(
+            text=heard[:2000], meta={"voice": True, "transcribed": True,
+                                     "attachments": [{"type": "audio"}]})
+        lang = bai.reply_lang(heard)
+        text = heard
+        d = compose(biz, agent, t, text, lang, allow_order=not comment_id, post_id=post_id)
+        d["extra_credits"] = info.get("charged", 0)
+        d["cost_bdt"] = info.get("cost_bdt", 0.0)
+        d.setdefault("meta", {})["voice"] = True
+    elif media and media["type"] == "image":
+        data, mime, err = _media_bytes(ch, media["att"])
+        if not data:
+            d = {"text": BZ.holding_message(lang, BZ.RISK_UNKNOWN_PRODUCT), "kind": "holding",
+                 "risk": BZ.RISK_UNKNOWN_PRODUCT, "source": "rule", "confidence": 0.0,
+                 "proposal": bai.pick(lang, "গ্রাহক একটি ছবি পাঠিয়েছেন (খোলা যায়নি) — দেখে উত্তর দিন।",
+                                      "The customer sent a photo (could not be opened) — please reply."),
+                 "meta": {"image": True, "fetch_error": err}}
+        else:
+            d = G1S.compose_image(biz, agent, t, data, mime, text, lang)
+            d["extra_credits"] = d.pop("credits", 0)
+    else:
+        d = compose(biz, agent, t, text, lang, allow_order=not comment_id, post_id=post_id)
+    return _send_reply(t, agent, d, lang, comment_id, started)
+
+
+def _send_reply(t, agent, d, lang, comment_id, started):
+    from . import bizagent_g1_service as G1S
+    t.refresh_from_db(fields=["owner_takeover", "ai_paused_until", "order_draft"])
+    if G1S.human_replied_since(t, started) or not G1S.ai_state(agent, t)[0]:
+        return "human_replied"          # a person answered meanwhile: stay quiet
     if d.get("order_action") == "confirm":
         return confirm_order(t, agent, lang)
     if d.get("order_action") == "cancel":
         t.order_draft = {}
         t.save(update_fields=["order_draft"])
+    meta = dict(d.get("meta") or {})
+    if d.get("rule"):
+        meta["rule"] = d["rule"]
+    src = d.get("source") or "rule"
     if d.get("risk"):
         if d.get("text"):
-            send_text(t, d["text"], kind="holding", is_ai=True, comment_id=comment_id)
+            send_text(t, d["text"], kind="holding", is_ai=True, comment_id=comment_id,
+                      meta=meta, source="system")
         _queue_approval(t, d.get("proposal", ""), d["risk"], comment_id=comment_id,
-                        problems=d.get("problems"), confidence=d.get("confidence", 0.0))
+                        problems=d.get("problems"), confidence=d.get("confidence", 0.0),
+                        source=src)
         return "approval"
-    return _deliver_ai(t, agent, d["text"], lang, kind=d.get("kind") or "text",
-                       comment_id=comment_id, public_too=bool(comment_id))
+    res = _deliver_ai(t, agent, d["text"], lang, kind=d.get("kind") or "text",
+                      comment_id=comment_id, public_too=bool(comment_id), source=src,
+                      meta=meta, extra_credits=d.get("extra_credits", 0),
+                      cost_bdt=d.get("cost_bdt", 0.0))
+    if res == "ok" and d.get("photos"):
+        G1S.send_photos(t, d["photos"], lang)
+    return res
 
 
 def handle_comment(ch, e):
     from .models import Message
     if e.get("user_id") and str(e["user_id"]) == str(ch.external_id):
         return "skipped"           # the Page's own comment
+    agent = agent_for(ch.business)
     t = thread_for(ch, "comment:" + (e.get("user_id") or e.get("comment_id")), e.get("name", ""))
     text = e.get("text") or ""
     lang = bai.reply_lang(text)
@@ -849,12 +1071,23 @@ def handle_comment(ch, e):
     Message.objects.create(thread=t, direction="in", text=text, external_id=e["event_id"],
                            status="received", kind="comment",
                            meta={"comment_id": e.get("comment_id"), "post_id": e.get("post_id")})
-    return respond(ch, t, text, lang, comment_id=e.get("comment_id", ""))
+    if not agent.comment_dm:
+        return "comment_dm_off"
+    # Meta rule: ONE private reply per comment (Messenger/IG inbox)
+    if Message.objects.filter(thread__seller_channel=ch, direction="out",
+                              meta__comment_id=e.get("comment_id", "")).exists():
+        return "skipped"
+    return respond(ch, t, text, lang, comment_id=e.get("comment_id", ""),
+                   post_id=e.get("post_id", ""))
 
 
 def handle_echo(ch, e):
-    """A message the Page sent. Ours → already recorded. A person replying from
-    Meta Business Suite → record it and HAND OVER (AI pauses on that thread)."""
+    """A message the Page sent. Ours → already recorded. A person replying
+    from Meta Business Suite / the WhatsApp Business app → record it and
+    PAUSE the AI in that chat only; it resumes after the seller's timeout
+    (default 15 min) if the customer is still waiting (g1 correction:
+    24/7 by default, human takeover any time)."""
+    from . import bizagent_g1_service as G1S
     from .models import Message
     if Message.objects.filter(external_id=e["event_id"]).exists():
         return "skipped"
@@ -864,10 +1097,8 @@ def handle_echo(ch, e):
     t = thread_for(ch, e["user_id"])
     Message.objects.create(thread=t, direction="out", text=e.get("text") or "", is_ai=False,
                            external_id=e["event_id"], status="sent", kind="text",
-                           meta={"from": "page_inbox"})
-    if not t.owner_takeover:
-        t.owner_takeover = True
-        t.save(update_fields=["owner_takeover"])
+                           reply_source="human", meta={"from": "page_inbox"})
+    G1S.pause_for_human(t, "echo")
     return "ok"
 
 
@@ -891,7 +1122,10 @@ def handle_status(ch, e):
 
 # ===================================================================== approvals
 def approve(message, text=None, actor=None):
-    """Seller approves (optionally edited) → send now (billing applies)."""
+    """Seller approves (optionally edited) → send now. An unedited LLM draft
+    is billed as an AI reply; an unedited rule proposal is free; an edited
+    text is the seller's own (human) message and pauses the AI in that chat."""
+    from . import bizagent_g1_service as G1S
     t = message.thread
     agent = agent_for(t.business)
     if message.status != "pending_approval":
@@ -906,10 +1140,13 @@ def approve(message, text=None, actor=None):
     message.save(update_fields=["status", "meta"])
     if edited:
         # the seller wrote it: a human message, not billed as an AI reply
-        m = send_text(t, body, kind="text", is_ai=False, comment_id=comment_id)
+        m = send_text(t, body, kind="text", is_ai=False, comment_id=comment_id, source="human")
+        G1S.pause_for_human(t, "app", agent)
         res = m.status
     else:
-        res = _deliver_ai(t, agent, body, t.lang or "bn", comment_id=comment_id)
+        src = (message.meta or {}).get("source") or "ai"
+        res = _deliver_ai(t, agent, body, t.lang or "bn", comment_id=comment_id,
+                          source="ai" if src == "ai" else "rule")
     return {"ok": res in ("ok", "sent"), "status": res}
 
 
@@ -922,8 +1159,13 @@ def reject(message):
 
 
 def seller_send(thread, text):
-    """Seller types a reply in the app (human, not billed as AI)."""
-    return send_text(thread, text, kind="text", is_ai=False)
+    """Seller/staff types a reply in the app (human, not billed as AI). g1:
+    the AI pauses in THIS chat for the resume timeout."""
+    from . import bizagent_g1_service as G1S
+    m = send_text(thread, text, kind="text", is_ai=False, source="human")
+    if m.status in ("sent", "queued"):
+        G1S.pause_for_human(thread, "app")
+    return m
 
 
 # ===================================================================== orders
@@ -942,18 +1184,22 @@ def _decrement_stock(item):
 
 
 def confirm_order(thread, agent, lang):
-    """Customer said yes → create the real Order (stock reserved atomically),
-    upsert the Customer, send the invoice."""
+    """Customer said yes → create the real Order (stock reduced atomically),
+    upsert the Customer, send the invoice with the order number (+ one polite
+    upsell), optionally book the courier. COD by default; a payment
+    screenshot only ever makes it payment-PENDING (the owner verifies)."""
+    from . import bizagent_g1_service as G1S
     from .models import Customer, Order
     from .logic import business_selling as selling
     biz = thread.business
     draft = dict(thread.order_draft or {})
     catalog = catalog_for(biz)
-    priced = BZ.price_order(draft, catalog, delivery_for(biz))
+    priced = G1S.price_for(draft, catalog, biz, agent)
     if not priced or BZ.missing_fields(draft):
         thread.order_draft = {}
         thread.save(update_fields=["order_draft"])
-        return _deliver_ai(thread, agent, BZ.ask_missing(lang, BZ.ORDER_FIELDS), lang)
+        return _deliver_ai(thread, agent, BZ.ask_missing(lang, BZ.ORDER_FIELDS), lang,
+                           source="rule")
     item = {"product_id": draft["product_id"], "name": priced["product"]
             + ((" " + draft["variant_label"]) if draft.get("variant_label") else ""),
             "qty": priced["qty"], "price": str(priced["unit"]), "variant": draft.get("variant", "")}
@@ -967,11 +1213,12 @@ def confirm_order(thread, agent, lang):
                 user=biz.user, business=biz, thread=thread, customer_name=draft["name"][:120],
                 customer_phone=draft["phone"], address=draft["address"], items=[item],
                 total=priced["total"], delivery_charge=priced["delivery"], area=draft["area"],
-                status="confirmed", payment="cod", channel=thread.channel)
+                status="confirmed", payment="cod", channel=thread.channel, via_agent=True,
+                payment_status="pending_verification" if draft.get("payment_proof") else "")
     if not ok:
         fresh = BZ.price_order(draft, catalog_for(biz), delivery_for(biz))
         return _deliver_ai(thread, agent, BZ.out_of_stock_line(
-            lang, priced["product"], fresh["stock"] if fresh else 0), lang)
+            lang, priced["product"], fresh["stock"] if fresh else 0), lang, source="rule")
     key = selling.normalize_phone(draft["phone"])
     if key and not Customer.objects.filter(user=biz.user, business=biz, phone_key=key).exists():
         Customer.objects.create(user=biz.user, business=biz, name=draft["name"][:120],
@@ -983,7 +1230,14 @@ def confirm_order(thread, agent, lang):
     thread.save(update_fields=["order_draft", "customer_phone"])
     inv = BZ.invoice_text(lang, {"id": o.id, "items": [item], "delivery_charge": o.delivery_charge,
                                  "total": o.total}, biz.shop_name)
-    res = _deliver_ai(thread, agent, inv, lang, kind="invoice")
+    if o.payment_status == "pending_verification":
+        inv += "\n" + bai.pick(lang, "আপনার পাঠানো পেমেন্ট স্ক্রিনশট দোকানের মালিক যাচাই করবেন; যাচাইয়ের আগে এটি পরিশোধিত ধরা হবে না।",
+                               "The owner will verify the payment screenshot you sent; until then it is not treated as paid.")
+    up = G1S.upsell_text(agent, thread, catalog, draft["product_id"], lang)
+    if up:
+        inv += "\n" + up
+    res = _deliver_ai(thread, agent, inv, lang, kind="invoice", source="rule",
+                      meta={"order_id": o.id, "rule": "order_confirmed"})
     if res == "ok":
         o.invoice_sent_at = timezone.now()
         o.save(update_fields=["invoice_sent_at"])
@@ -991,6 +1245,7 @@ def confirm_order(thread, agent, lang):
                   "অর্ডার #%s — ৳%s" % (o.id, BZ._fmt_money(o.total)),
                   "Order #%s — ৳%s" % (o.id, BZ._fmt_money(o.total)),
                   data={"order_id": str(o.id)})
+    G1S.auto_courier(o, agent, thread, lang)
     return "order_created"
 
 

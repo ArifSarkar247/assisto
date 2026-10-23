@@ -172,16 +172,19 @@ class WebhookTests(Base):
         self.assertEqual(Message.objects.filter(direction="in").count(), 1)
         self.assertEqual(Message.objects.filter(direction="out", is_ai=True).count(), 1)
 
-    def test_price_question_mock_reply_with_disclosure_and_billing(self):
+    def test_price_question_rule_reply_with_disclosure_free(self):
+        # g1 rule-first: a catalog price question is answered WITHOUT the AI
+        # (instant, cost 0, no plan reply used) — still with the AI disclosure
         self.post_meta(mpayload("Panjabi dam koto?", "mid.2"))
         out = self.outs()
         self.assertEqual(len(out), 1)
         self.assertEqual(out[0].status, "sent")
         self.assertIn("1200", out[0].text)
+        self.assertEqual(out[0].reply_source, "rule")
         self.assertEqual(out[0].text.count(BZ.bai.assistant_disclosure("bn")["short"]), 1)
         self.assertTrue(self.thread().ai_disclosed)
         self.agent.refresh_from_db()
-        self.assertEqual(self.agent.replies_used, 1)
+        self.assertEqual(self.agent.replies_used, 0)
         # the Graph Send API was called with the page token, RESPONSE type
         method, url, body = self.fake.calls[-1]
         self.assertIn("/%s/messages" % PAGE, url)
@@ -272,7 +275,7 @@ class PostCheckTests(Base):
     def test_invented_price_blocked_to_approval(self):
         with mock.patch.object(S, "_llm_draft",
                                return_value={"text": "Panjabi is only 900 taka!", "confidence": 0.9}):
-            self.post_meta(mpayload("Panjabi er dam koto?", "m.pc"))
+            self.post_meta(mpayload("Panjabi ta ki cotton?", "m.pc"))
         outs = self.outs()
         self.assertEqual(outs[0].kind, "holding")
         self.assertEqual(outs[0].status, "sent")
@@ -296,7 +299,7 @@ class PostCheckTests(Base):
         with mock.patch.object(S, "_llm_draft",
                                return_value={"text": "Panjabi ৳1200, delivery inside Dhaka ৳60.",
                                              "confidence": 0.9}):
-            self.post_meta(mpayload("Panjabi dam?", "m.ok"))
+            self.post_meta(mpayload("Panjabi ta ki cotton?", "m.ok"))
         self.assertEqual(self.outs()[-1].status, "sent")
         self.assertFalse(Message.objects.filter(status="pending_approval").exists())
 
@@ -362,7 +365,12 @@ class HandoverTests(Base):
              "message": {"mid": "m.echo1", "text": "I'm the owner", "is_echo": True,
                          "app_id": 999}}]}]}
         self.post_meta(echo)
-        self.assertTrue(self.thread().owner_takeover)
+        # g1 correction: a human reply PAUSES the AI in this chat (resumes
+        # after the seller's timeout) — it is not a permanent takeover
+        t = self.thread()
+        self.assertFalse(t.owner_takeover)
+        self.assertGreater(t.ai_paused_until, timezone.now() + timedelta(minutes=14))
+        self.assertEqual(t.paused_by, "echo")
         # our own echo (app_id = our app) is ignored
         echo["entry"][0]["messaging"][0]["message"].update(mid="m.echo2", app_id=111)
         self.post_meta(echo)
@@ -538,21 +546,32 @@ class BillingTests(Base):
         a.save()
         self.user.ai_credits = 3         # exactly one ai_sales reply (3 credits)
         self.user.save()
-        self.post_meta(mpayload("Panjabi dam?", "b1"))
+        llm = {"text": "Panjabi is pure cotton.", "confidence": 0.9}
+        with mock.patch.object(S, "_llm_draft", return_value=llm):
+            self.post_meta(mpayload("Panjabi ta ki cotton?", "b1"))
         self.user.refresh_from_db()
         self.assertEqual(self.user.ai_credits, 0)
         self.assertEqual(self.outs()[-1].meta.get("billed"), "credits")
-        self.post_meta(mpayload("Panjabi dam abar?", "b2"))
+        self.assertEqual(self.outs()[-1].credits, 3)
+        with mock.patch.object(S, "_llm_draft", return_value=llm):
+            self.post_meta(mpayload("Panjabi ta ki soft?", "b2"))
         last = self.outs()[-1]
         self.assertFalse(last.is_ai)
         self.assertEqual(last.text, BZ.out_of_replies_customer("bn"))
         # not repeated on the next message the same day
-        self.post_meta(mpayload("hello?", "b3"))
+        with mock.patch.object(S, "_llm_draft", return_value=llm):
+            self.post_meta(mpayload("Panjabi ta ki dhoya jay?", "b3"))
         self.assertEqual(self.outs()[-1].id, last.id)
+        # rule replies still go out with no credits left (cost 0)
+        self.post_meta(mpayload("Panjabi dam koto?", "b4"))
+        self.assertEqual(self.outs()[-1].reply_source, "rule")
+        self.assertIn("1200", self.outs()[-1].text)
 
     def test_send_failure_refunds_plan_reply(self):
         self.fake.fail = True
-        self.post_meta(mpayload("Panjabi dam?", "b4"))
+        with mock.patch.object(S, "_llm_draft",
+                               return_value={"text": "Panjabi is pure cotton.", "confidence": 0.9}):
+            self.post_meta(mpayload("Panjabi ta ki cotton?", "b4"))
         self.assertEqual(self.outs()[-1].status, "failed")
         self.agent.refresh_from_db()
         self.assertEqual(self.agent.replies_used, 0)

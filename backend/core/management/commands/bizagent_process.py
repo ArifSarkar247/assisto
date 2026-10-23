@@ -13,4 +13,7 @@ class Command(BaseCommand):
     def handle(self, *args, **opts):
         from core import bizagent_service as S
         n = S.process_pending(limit=opts["limit"])
-        self.stdout.write("bizagent_process %d" % n)
+        from core import bizagent_g1_service as G1S
+        g = G1S.run_sweeps()          # g1: resume after human pause, follow-ups, morning summary
+        self.stdout.write("bizagent_process %d %s" % (n, " ".join(
+            "%s=%s" % kv for kv in sorted(g.items()))))

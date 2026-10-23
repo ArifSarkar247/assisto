@@ -107,7 +107,7 @@ def verify_handshake(params, verify_token):
 def _ev(**kw):
     base = {"source": "meta", "channel": "", "kind": "", "account_id": "",
             "user_id": "", "event_id": "", "text": "", "ts": 0, "name": "",
-            "comment_id": "", "post_id": "", "status": "", "raw": {}}
+            "comment_id": "", "post_id": "", "status": "", "raw": {}, "attachments": []}
     base.update(kw)
     return base
 
@@ -127,6 +127,15 @@ def _messaging_events(entry, channel):
             if not mid:
                 continue
             text = msg.get("text") or ""
+            atts = []
+            for a in msg.get("attachments") or []:
+                if not isinstance(a, dict):
+                    continue
+                typ = str(a.get("type") or "")
+                url = str((a.get("payload") or {}).get("url") or "")
+                if typ in ("image", "audio") and url:
+                    # data: URLs only work on self-test channels (checked later)
+                    atts.append({"type": typ, "url": url[:1_500_000]})
             if not text and msg.get("attachments"):
                 text = "[attachment]"
             if msg.get("is_echo"):
@@ -138,7 +147,7 @@ def _messaging_events(entry, channel):
             else:
                 out.append(_ev(channel=channel, kind="message",
                                account_id=recipient or acct, user_id=sender,
-                               event_id=mid, text=text, ts=ts))
+                               event_id=mid, text=text, ts=ts, attachments=atts))
             continue
         pb = m.get("postback")
         if isinstance(pb, dict):
@@ -223,11 +232,22 @@ def parse_whatsapp(payload):
                             .get("title") or "")
                 else:
                     text = "[%s]" % (typ or "message")
+                atts = []
+                if typ in ("image", "audio") and isinstance(m.get(typ), dict):
+                    media = m[typ]
+                    att = {"type": typ, "media_id": str(media.get("id") or ""),
+                           "mime": str(media.get("mime_type") or "")}
+                    if media.get("link"):          # self-test payloads (test channels only)
+                        att["url"] = str(media["link"])[:1_500_000]
+                    if att["media_id"] or att.get("url"):
+                        atts.append(att)
+                    if typ == "image" and media.get("caption"):
+                        text = str(media["caption"])
                 frm = str(m.get("from") or "")
                 events.append(_ev(source="whatsapp", channel=CH_WHATSAPP,
                                   kind="message", account_id=pnid, user_id=frm,
                                   name=names.get(frm, ""), event_id=wamid, text=text,
-                                  ts=int(m.get("timestamp") or 0)))
+                                  ts=int(m.get("timestamp") or 0), attachments=atts))
             for s in v.get("statuses") or []:
                 wamid = str(s.get("id") or "")
                 st = str(s.get("status") or "")

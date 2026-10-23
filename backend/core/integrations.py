@@ -551,6 +551,21 @@ REGISTRY = {
                                  _f("cost_per_image_usd", "ছবি প্রতি খরচ (USD)", "Cost per image (USD)", secret=False)],
                       "test": "test_gemini"},
     # ---- /h1-home ----
+    # ---- g1-bizagent ---- customer voice notes in the seller's AI agent
+    "voice_transcribe": {"name": "Voice-note transcription (Business AI agent)", "category": "AI",
+                         "unlocks_bn": "বিজনেস AI এজেন্ট: গ্রাহকের ভয়েস মেসেজ লেখায় রূপান্তর করে উত্তর দেয়।",
+                         "unlocks_en": "Business AI agent: turns a customer's voice note into text and answers it.",
+                         "guide_bn": ["platform.openai.com → API keys → Create (Audio চালু থাকতে হবে)",
+                                      "মডেল: gpt-4o-mini-transcribe (ডিফল্ট) বা whisper-1",
+                                      "মিনিট প্রতি খরচ (USD) লিখুন → Save → Test"],
+                         "guide_en": ["platform.openai.com → API keys → Create (Audio enabled)",
+                                      "Model: gpt-4o-mini-transcribe (default) or whisper-1",
+                                      "Enter cost per minute (USD) → Save → Test"],
+                         "fields": [_f("api_key", "API Key", "API Key"),
+                                    _f("model", "মডেল", "Model", secret=False),
+                                    _f("cost_per_minute_usd", "মিনিট প্রতি খরচ (USD)", "Cost per minute (USD)", secret=False)],
+                         "test": "test_openai"},
+    # ---- /g1-bizagent ----
     "news": {"name": "News", "category": "Media",
              "unlocks_bn": "সকালের ব্রিফিং-এ খবরের শিরোনাম।", "unlocks_en": "Headlines in the morning briefing.",
              "guide_bn": ["newsapi.org (বা অনুরূপ) → API key → পেস্ট → Save (key ছাড়া RSS fallback)"],

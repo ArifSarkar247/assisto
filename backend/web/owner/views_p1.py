@@ -39,7 +39,10 @@ def _rows(cfg, days=30):
         u = a.business.user
         ai = Message.objects.filter(thread__business=a.business, is_ai=True, direction="out",
                                     status__in=("sent", "delivered", "read"),
-                                    created_at__gte=since).count()
+                                    created_at__gte=since).exclude(
+            reply_source__in=("rule", "system", "fallback")).count()
+        rules = Message.objects.filter(thread__business=a.business, direction="out",
+                                       reply_source="rule", created_at__gte=since).count()
         paid = PaymentOrder.objects.filter(user=u, kind="seller", status="paid",
                                            paid_at__gte=since).aggregate(s=Sum("amount_bdt"))["s"] or 0
         spent = -(CreditLedger.objects.filter(user=u, reason="consume", note="bizagent.reply",
@@ -52,6 +55,9 @@ def _rows(cfg, days=30):
                     "user_id": u.id, "user_name": u.name or "—", "plan": st["plan"],
                     "period_end": a.period_end, "used": st["used"], "quota": st["quota"],
                     "credits": st["credits"], "ai_enabled": a.ai_enabled, "ai30": ai,
+                    "rules30": rules, "rule_pct": (round(100.0 * rules / (rules + ai), 1)
+                                                   if (rules + ai) else None),
+                    "ai_mode": a.ai_mode,
                     "cost": round(cost, 2), "revenue": round(revenue, 2),
                     "margin": (round(100 * (revenue - cost) / revenue, 1) if revenue > 0 else None),
                     "channels": list(a.business.seller_channels.order_by("kind", "id"))})
@@ -134,7 +140,14 @@ def sellers(request):
             warn.append(T["sl_w_wa_cost"])
         elif w["code"] == "seller_plan_play_margin":
             warn.append(T["sl_w_play"] % {"plan": w["plan"], "pct": w["margin_play_pct"]})
+    from core import bizagent_g1_service as G1S
+    from core.logic import pricing as PR
+    g1 = G1S.rules_stats(days=30)
+    g1["vision_credits_each"] = PR.credit_cost("ai_sales_vision", cfg)
+    g1["voice_credits_each"] = PR.credit_cost("ai_sales_voice", cfg)
+    g1["by_rule_rows"] = sorted(g1["by_rule"].items(), key=lambda kv: -kv[1])
     ctx.update({
+        "g1": g1,
         "sa": sa, "rows": _rows(cfg), "margin_rows": BZ.plan_margin_rows(cfg),
         "warn": warn, "kinds": KINDS, "wa_cats": WA_CATS,
         "kill_rows": [(k, sa["kill"].get(k)) for k in KINDS],

@@ -4,6 +4,22 @@
 {% if problems %}<div class="flash warn" role="alert"><b>{{ T.not_saved }}</b><ul>{% for p in problems %}<li>{{ p }}</li>{% endfor %}</ul></div>{% endif %}
 {% for w in warn %}<div class="flash warn" role="status">{{ w }}</div>{% endfor %}
 
+<section class="card" id="rules"><h2>{{ T.g1_rules }}</h2>
+  <p class="small">{{ T.g1_rules_note }}</p>
+  <div class="cols">
+    <div><b class="num">{{ g1.rule_pct }}%</b><br><small class="mut">{{ T.g1_rule_share }}</small></div>
+    <div><b class="num">{{ g1.rule }}</b> / <b class="num">{{ g1.ai }}</b><br><small class="mut">{{ T.g1_rule_vs_ai }}</small></div>
+    <div><b class="num">৳{{ g1.saved_provider_bdt }}</b><br><small class="mut">{{ T.g1_saved_provider }}</small></div>
+    <div><b class="num">{{ g1.saved_seller_credits }}</b> (৳{{ g1.saved_seller_bdt }})<br><small class="mut">{{ T.g1_saved_seller }}</small></div>
+  </div>
+  {% if g1.by_rule_rows %}<div class="tbl"><table><thead><tr><th>{{ T.g1_rule }}</th><th>{{ T.g1_replies }}</th></tr></thead><tbody>
+  {% for k, v in g1.by_rule_rows %}<tr><td>{{ k }}</td><td class="num">{{ v }}</td></tr>{% endfor %}</tbody></table></div>{% endif %}
+  <h3>{{ T.g1_vision }}</h3>
+  <p class="small">{{ T.g1_vision_note }}</p>
+  <p>{{ T.g1_images }}: <b class="num">{{ g1.vision_images }}</b> · {{ T.g1_cost_total }}: <b class="num">৳{{ g1.vision_cost_bdt }}</b> · {{ T.g1_cost_per_image }}: <b class="num">৳{{ g1.vision_cost_per_image }}</b> · {{ T.g1_credits_each }}: <b class="num">{{ g1.vision_credits_each }}</b> ({{ T.g1_voice_each }}: {{ g1.voice_credits_each }})
+  · <a href="/owner/pricing">{{ T.g1_edit_pricing }}</a></p>
+</section>
+
 <section class="card"><h2>{{ T.sl_list }}</h2>
   <p class="small">{{ T.sl_list_note }}</p>
   {% if rows %}<div class="tbl"><table><thead><tr>
@@ -13,7 +29,7 @@
     <td><a href="/owner/users/{{ r.user_id }}">{{ r.shop }}</a><br><small class="mut">{{ r.user_name }}{% if not r.ai_enabled %} · {{ T.sl_ai_off }}{% endif %}</small></td>
     <td>{{ r.plan }}{% if r.period_end %}<br><small class="mut">{{ r.period_end|date:"Y-m-d" }}</small>{% endif %}</td>
     <td class="num">{{ r.used }} / {{ r.quota }}<br><small class="mut">{{ T.sl_credits }} {{ r.credits }}</small></td>
-    <td class="num">{{ r.ai30 }}</td>
+    <td class="num">{{ r.ai30 }}<br><small class="mut">{{ T.g1_rules_short }} {{ r.rules30 }}{% if r.rule_pct is not None %} ({{ r.rule_pct }}%){% endif %} · {{ r.ai_mode }}</small></td>
     <td class="num">৳{{ r.cost }}</td>
     <td class="num">৳{{ r.revenue }}</td>
     <td class="num {% if r.margin is not None and r.margin < 40 %}neg{% endif %}">{% if r.margin is not None %}{{ r.margin }}%{% else %}—{% endif %}</td>
