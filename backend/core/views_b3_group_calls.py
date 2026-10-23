@@ -406,20 +406,38 @@ def _gate(user, kind, edge_rec=None, group=None):
     return False, G.group_call_upgrade_prompt("bn")
 
 
+VIDEO_SOURCES = ["microphone", "camera", "screen_share", "screen_share_audio"]
+
+
+def publish_sources(room, user):
+    """What `user` may publish in `room` (LiveKit canPublishSources, so the
+    SFU itself enforces it). A video room: everything (a free person may
+    JOIN a video call, like accepting a 1:1 video call). A voice room: the
+    mic, plus screen share only with the video entitlement (Premium, or
+    "Free calls (testing)" ON)."""
+    if room.kind == "video":
+        return list(VIDEO_SOURCES)
+    ok, _ = _gate(user, "video")
+    return ["microphone", "screen_share", "screen_share_audio"] if ok \
+        else ["microphone"]
+
+
 def token_body(room, user, lang="bn"):
     now = timezone.now()
     seat = _seat(room, user)
     host = room.host_id == user.id
+    sources = publish_sources(room, user)
     tok = SFU.access_token(
         settings.LIVEKIT_API_KEY, settings.LIVEKIT_API_SECRET,
         identity=str(user.id), name=PUSH.display_name(user), room=room.name,
-        now_ts=now.timestamp(), host=host,
+        now_ts=now.timestamp(), host=host, sources=sources,
         metadata={"role": "host" if host else "member"})
     return {"url": settings.LIVEKIT_URL, "token": tok, "room": room.name,
             "identity": str(user.id), "host": host, "kind": room.kind,
             "ttl": SFU.TOKEN_TTL_S,
             "expires_at": (now + timedelta(seconds=SFU.TOKEN_TTL_S)).isoformat(),
             "max_participants": room.max_participants,
+            "screen_share": "screen_share" in sources,
             "role": seat.role if seat else "member"}
 
 

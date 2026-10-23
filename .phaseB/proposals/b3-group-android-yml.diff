@@ -1,0 +1,28 @@
+--- a/.github/workflows/android.yml
++++ b/.github/workflows/android.yml
+@@ -257,7 +257,9 @@
+           native_components = (
+               '\n        <service'
+               ' android:name="com.pravera.flutter_foreground_task.service.ForegroundService"'
+-              ' android:foregroundServiceType="microphone|location"'
++              # b3-group B4: + mediaProjection (screen share during a call;
++              # started only after the user's MediaProjection consent)
++              ' android:foregroundServiceType="microphone|location|mediaProjection"'
+               ' android:exported="false"/>'
+               '\n        <receiver android:name=".AssistoWidgetProvider"'
+               ' android:exported="false">'
+@@ -495,6 +497,14 @@
+           if 'antitheft.AntiTheftService' not in s:
+               s = s.replace('</application>', antitheft_components + '    </application>', 1)
+           # ---- /b6-antitheft ----
++          # ---- b3-group ---- screen share in calls (B4): Android 14+ needs
++          # FOREGROUND_SERVICE_MEDIA_PROJECTION (normal, install-time) for the
++          # call service's mediaProjection type. Never started at launch.
++          if 'FOREGROUND_SERVICE_MEDIA_PROJECTION' not in s:
++              s = re.sub(r'(<manifest[^>]*>)', r'\1' +
++                  '\n    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION"/>\n',
++                  s, count=1)
++          # ---- /b3-group ----
+           open(p, "w").write(s)
+           print("manifest patched: label, permissions, queries, UCropActivity, native components, androidx.startup removed, FCM push, chat bubbles, PiP, b6 anti-theft engine")
+           PY

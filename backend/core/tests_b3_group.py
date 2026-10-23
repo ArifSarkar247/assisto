@@ -282,6 +282,18 @@ class UpgradeAndTokenTests(_Group, TestCase):
         self.assertTrue(c["video"]["roomAdmin"])
         self.assertEqual(body["join"]["url"], LK["LIVEKIT_URL"])
 
+    def test_publish_sources_follow_the_plan(self):
+        cid, body = self.upgrade()
+        c = SFU.jwt_decode(body["join"]["token"], LK["LIVEKIT_API_SECRET"])
+        # voice room, free plan: the SFU lets them publish the mic only
+        self.assertEqual(c["video"]["canPublishSources"], ["microphone"])
+        self.assertFalse(body["join"]["screen_share"])
+        with override_settings(CALLS_FREE_TESTING_DEFAULT=True):
+            r = self.cb.post(f"{V}/circle/calls/group/{body['room']}/token").json()
+            c = SFU.jwt_decode(r["token"], LK["LIVEKIT_API_SECRET"])
+            self.assertIn("screen_share", c["video"]["canPublishSources"])
+            self.assertTrue(r["screen_share"])
+
     def test_token_only_for_members(self):
         cid, body = self.upgrade()
         room = body["room"]

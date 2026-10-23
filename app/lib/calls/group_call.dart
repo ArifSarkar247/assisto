@@ -325,6 +325,7 @@ class GroupCallController extends ChangeNotifier {
     if (_disposed) return;
     selfId ??= '${join['identity'] ?? ''}';
     isHost = join['host'] == true || isHost;
+    _serverShareOk = join['screen_share'] != false;
     phase = GroupPhase.joining;
     _notify();
     _mediaSub ??= media.changes.listen((_) => _onMedia());
@@ -359,9 +360,14 @@ class GroupCallController extends ChangeNotifier {
     _notify();
   }
 
+  /// The server's word (token `screen_share`: plan + room kind) AND the
+  /// phone's ability.
+  bool _serverShareOk = true;
+
   Future<void> _checkScreenShare() async {
     try {
-      screenShareAvailable = await screenHost?.supported() ?? false;
+      screenShareAvailable =
+          _serverShareOk && (await screenHost?.supported() ?? false);
     } catch (_) {
       screenShareAvailable = false;
     }

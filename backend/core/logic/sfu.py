@@ -79,7 +79,7 @@ def jwt_decode(token: str, secret: str, now_ts=None, leeway=10) -> dict:
 
 def access_token(api_key, api_secret, *, identity, name, room, now_ts,
                  ttl=TOKEN_TTL_S, host=False, can_publish=True,
-                 can_subscribe=True, metadata=None):
+                 can_subscribe=True, metadata=None, sources=None):
     """The LiveKit JWT for one participant of `room`. `host` adds roomAdmin
     (LiveKit lets a room admin mute/remove from the client too; we still run
     host actions through OUR server so they are audited and gated)."""
@@ -90,6 +90,10 @@ def access_token(api_key, api_secret, *, identity, name, room, now_ts,
              "canPublishData": True}
     if host:
         grant["roomAdmin"] = True
+    if sources is not None:
+        # enforced BY THE SFU: e.g. a voice room for a free plan publishes
+        # the microphone only (no camera / screen share)
+        grant["canPublishSources"] = [str(x) for x in sources]
     claims = {"iss": api_key, "sub": str(identity), "nbf": now - 5,
               "exp": now + int(ttl), "name": str(name or "")[:80],
               "video": grant}
