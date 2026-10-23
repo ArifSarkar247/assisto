@@ -878,3 +878,31 @@ urlpatterns[:0] = [
     path("circle/media/dl/<str:ref>", md1.MediaBlobDownloadView.as_view()),
 ]
 # ---- /md1 ----
+
+# ---- p1-bizagent ---- Business AI Agent (webhooks are public: signature = auth)
+from . import views_bizagent as p1  # noqa: E402
+urlpatterns += [
+    path("bizagent/webhook/meta", p1.webhook_meta),
+    path("bizagent/webhook/whatsapp", p1.webhook_whatsapp),
+    path("bizagent/setup", p1.SetupView.as_view()),
+    path("bizagent/settings", p1.SettingsView.as_view()),
+    path("bizagent/channels", p1.ChannelsView.as_view()),
+    path("bizagent/channels/<int:pk>/toggle", p1.ChannelToggleView.as_view()),
+    path("bizagent/channels/<int:pk>/delete", p1.ChannelDeleteView.as_view()),
+    path("bizagent/couriers/<str:courier>", p1.CourierKeysView.as_view()),
+    path("bizagent/approvals", p1.ApprovalsView.as_view()),
+    path("bizagent/approvals/<int:pk>/approve", p1.ApprovalApproveView.as_view()),
+    path("bizagent/approvals/<int:pk>/reject", p1.ApprovalRejectView.as_view()),
+    path("bizagent/threads", p1.ThreadsView.as_view()),
+    path("bizagent/threads/<int:pk>", p1.ThreadDetailView.as_view()),
+    path("bizagent/threads/<int:pk>/handover", p1.ThreadHandoverView.as_view()),
+    path("bizagent/threads/<int:pk>/send", p1.ThreadSendView.as_view()),
+    path("bizagent/threads/<int:pk>/template", p1.ThreadTemplateView.as_view()),
+    path("bizagent/orders/<int:pk>/book", p1.OrderBookView.as_view()),
+    path("bizagent/orders/<int:pk>/status", p1.OrderStatusView.as_view()),
+    path("bizagent/reports", p1.ReportsView.as_view()),
+    path("bizagent/plan", p1.PlanView.as_view()),
+    path("bizagent/plan/trial", p1.PlanTrialView.as_view()),
+    path("bizagent/plan/checkout", p1.PlanCheckoutView.as_view()),
+]
+# ---- /p1-bizagent ----

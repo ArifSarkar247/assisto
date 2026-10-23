@@ -24,6 +24,7 @@ import 'supplier_market_screen.dart';
 import 'demand_map_screen.dart';
 import 'bargain_rules_screen.dart';
 import 'business_plans_screen.dart';
+import 'bizagent/seller_agent_screen.dart'; // p1-bizagent
 import '../../services/action_feedback.dart'; // db1
 import '../../services/error_report.dart'; // db1
 import '../../services/error_kind.dart' show honestFailText; // qa2
@@ -378,6 +379,16 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
               locked: !premium,
               lockedLabel: t.premium,
               onTap: () => _go(const AiAssistantScreen()),
+            ),
+            const SizedBox(height: Gap.md),
+            // p1-bizagent: the 24/7 AI sales agent for Page / Instagram /
+            // WhatsApp (own seller plans + trial; honest setup states).
+            _HubCard(
+              icon: Icons.support_agent_outlined,
+              tint: Brand.blue,
+              title: t.baHubTitle,
+              subtitle: t.baHubSub,
+              onTap: () => _go(const SellerAgentScreen()),
             ),
             const SizedBox(height: Gap.md),
             // Plans comparison (Free vs Premium) — informational, open to all.

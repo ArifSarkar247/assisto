@@ -1,0 +1,66 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_sellers }}{% endblock %}
+{% block content %}
+{% if problems %}<div class="flash warn" role="alert"><b>{{ T.not_saved }}</b><ul>{% for p in problems %}<li>{{ p }}</li>{% endfor %}</ul></div>{% endif %}
+{% for w in warn %}<div class="flash warn" role="status">{{ w }}</div>{% endfor %}
+
+<section class="card"><h2>{{ T.sl_list }}</h2>
+  <p class="small">{{ T.sl_list_note }}</p>
+  {% if rows %}<div class="tbl"><table><thead><tr>
+    <th>{{ T.sl_business }}</th><th>{{ T.sl_plan }}</th><th>{{ T.sl_used }}</th><th>{{ T.sl_ai30 }}</th>
+    <th>{{ T.sl_cost }}</th><th>{{ T.sl_revenue }}</th><th>{{ T.sl_margin }}</th><th>{{ T.sl_channels }}</th></tr></thead><tbody>
+  {% for r in rows %}<tr>
+    <td><a href="/owner/users/{{ r.user_id }}">{{ r.shop }}</a><br><small class="mut">{{ r.user_name }}{% if not r.ai_enabled %} · {{ T.sl_ai_off }}{% endif %}</small></td>
+    <td>{{ r.plan }}{% if r.period_end %}<br><small class="mut">{{ r.period_end|date:"Y-m-d" }}</small>{% endif %}</td>
+    <td class="num">{{ r.used }} / {{ r.quota }}<br><small class="mut">{{ T.sl_credits }} {{ r.credits }}</small></td>
+    <td class="num">{{ r.ai30 }}</td>
+    <td class="num">৳{{ r.cost }}</td>
+    <td class="num">৳{{ r.revenue }}</td>
+    <td class="num {% if r.margin is not None and r.margin < 40 %}neg{% endif %}">{% if r.margin is not None %}{{ r.margin }}%{% else %}—{% endif %}</td>
+    <td>{% for c in r.channels %}<form method="post" class="inline">{% include "owner/_csrf.html" %}
+        <input type="hidden" name="action" value="channel"><input type="hidden" name="channel" value="{{ c.id }}">
+        <span class="pill {% if c.status == 'connected' and c.enabled %}ok{% elif c.status == 'error' %}bad{% else %}off{% endif %}">{{ c.kind }}{% if c.test_mode %} (test){% endif %}: {{ c.status }}{% if not c.enabled %} · {{ T.sl_disabled }}{% endif %}</span>
+        {% if c.status_detail %}<small class="mut">{{ c.status_detail }}</small>{% endif %}
+        {% if c.enabled %}<button class="btn small">{{ T.sl_disable }}</button>{% else %}<input type="hidden" name="enabled" value="on"><button class="btn small">{{ T.sl_enable }}</button>{% endif %}
+      </form>{% empty %}<span class="mut">{{ T.sl_no_channels }}</span>{% endfor %}</td>
+  </tr>{% endfor %}</tbody></table></div>
+  {% else %}<p class="empty">{{ T.sl_none }}</p>{% endif %}
+</section>
+
+<section class="card" id="kill"><h2>{{ T.sl_kill }}</h2>
+  <p class="small">{{ T.sl_kill_note }}</p>
+  <form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="kill">
+    {% for k, on in kill_rows %}<label class="check"><input type="checkbox" name="kill_{{ k }}" {% if on %}checked{% endif %}> {{ T.sl_kill_off }}: {{ k }}</label>{% endfor %}
+    <label class="check"><input type="checkbox" name="ai_kill" {% if sa.ai_kill %}checked{% endif %}> {{ T.sl_ai_kill }}</label>
+    {% include "owner/_reason.html" %}
+  </form>
+</section>
+
+<section class="card" id="plans"><h2>{{ T.sl_plans }}</h2>
+  <p class="small">{{ T.sl_plans_note }} ({{ T.sl_per_reply }} ৳{{ per_reply }})</p>
+  <div class="tbl"><table><thead><tr><th>{{ T.sl_plan }}</th><th>{{ T.price }}</th><th>{{ T.sl_replies }}</th><th>{{ T.sl_cost }}</th><th>{{ T.sl_net_gw }}</th><th>{{ T.sl_margin }}</th><th>{{ T.sl_margin_play }}</th></tr></thead><tbody>
+  {% for m in margin_rows %}<tr><td>{{ m.plan }}</td><td class="num">৳{{ m.price }}</td><td class="num">{{ m.replies }}</td><td class="num">৳{{ m.cost }}</td><td class="num">৳{{ m.net }}</td>
+    <td class="num {% if not m.ok %}neg{% endif %}">{{ m.margin_pct }}%</td><td class="num {% if not m.ok_play %}neg{% endif %}">{{ m.margin_play_pct }}%</td></tr>{% endfor %}
+  </tbody></table></div>
+  <form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="config">
+    <div class="cols">{% for pid, p in sa.plans.items %}
+      <label>{{ pid }} — {{ T.price }} (৳)<input name="price_{{ pid }}" value="{{ p.price }}" inputmode="numeric"></label>
+      <label>{{ pid }} — {{ T.sl_replies }}<input name="replies_{{ pid }}" value="{{ p.replies }}" inputmode="numeric"></label>
+    {% endfor %}
+      <label>{{ T.sl_trial_days }}<input name="trial_days" value="{{ sa.trial_days }}" inputmode="numeric"></label>
+      <label>{{ T.sl_trial_replies }}<input name="trial_replies" value="{{ sa.trial_replies }}" inputmode="numeric"></label>
+      <label>{{ T.sl_low_stock }}<input name="low_stock_default" value="{{ sa.low_stock_default }}" inputmode="numeric"></label>
+    </div>
+    <h3>{{ T.sl_wa_cost }}</h3><p class="small">{{ T.sl_wa_cost_note }}</p>
+    <div class="cols">{% for c, v in wa_rows %}<label>{{ c }} (৳)<input name="wa_{{ c }}" value="{{ v }}" inputmode="decimal"></label>{% endfor %}</div>
+    <label class="check"><input type="checkbox" name="public_comment_reply" {% if sa.public_comment_reply %}checked{% endif %}> {{ T.sl_public_reply }}</label>
+    {% include "owner/_reason.html" %}
+  </form>
+</section>
+
+<section class="card"><h2>{{ T.sl_webhooks }}</h2>
+  <p class="small">{{ T.sl_webhooks_note }}</p>
+  <p><code>{{ webhook_meta }}</code><br><code>{{ webhook_wa }}</code></p>
+  <p class="small"><a href="/owner/integrations#i-meta_app">{{ T.nav_integrations }} → Meta app</a></p>
+</section>
+{% endblock %}

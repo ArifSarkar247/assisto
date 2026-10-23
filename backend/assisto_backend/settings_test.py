@@ -33,6 +33,7 @@ REST_FRAMEWORK = {**REST_FRAMEWORK,  # noqa: F405
 # tests, and run pushes inline (no worker thread touching the in-memory DB).
 FCM_SERVICE_ACCOUNT_FILE = ""
 PUSH_SYNC = True
+BIZAGENT_SYNC = True   # p1: process Meta webhooks inline (no worker thread in tests)
 
 # Django serves signed media itself in tests (prod uses nginx X-Accel).
 MEDIA_X_ACCEL = False

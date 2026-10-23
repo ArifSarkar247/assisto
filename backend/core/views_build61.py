@@ -4,6 +4,7 @@ gates (can_place_call video gate, allow_call ring gate, can_see_field,
 deliver_decision, send_precheck, redeem math, journey overdue/duress/expiry)
 run SERVER-SIDE here; the client cannot bypass them.
 """
+import json
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -258,6 +259,18 @@ def pricing_apply(actor_id, d):
             if isinstance(av, dict):
                 merged_costs.setdefault(aid, {}).update(av)
         merged["action_costs"] = merged_costs
+    if isinstance((patch or {}).get("seller_agent"), dict):   # p1-bizagent
+        sa = json.loads(json.dumps(old.get("seller_agent") or {}))
+        for k, v in patch["seller_agent"].items():
+            if k == "plans" and isinstance(v, dict):
+                for pid, pv in v.items():
+                    if isinstance(pv, dict):
+                        sa.setdefault("plans", {}).setdefault(pid, {}).update(pv)
+            elif isinstance(v, dict) and isinstance(sa.get(k), dict):
+                sa[k].update(v)
+            else:
+                sa[k] = v
+        merged["seller_agent"] = sa
 
     problems = P.validate_edit(merged)
     if problems:

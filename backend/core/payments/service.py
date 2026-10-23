@@ -177,7 +177,9 @@ def checkout(user, sku, *, source="app", idem="", flavour="apk", ip="", lang="bn
         raise
     from .. import plans
     product = ("Assisto " + d["plan"].title() + (" (1 year)" if d["months"] == 12 else " (1 month)")
-               if d["kind"] == "sub" else "Assisto %d credits" % d["credits"])
+               if d["kind"] == "sub" else
+               ("Assisto Seller AI " + d["plan"].title() + " (1 month)") if d["kind"] == "seller"
+               else "Assisto %d credits" % d["credits"])
     cust = {"name": (user.name or "")[:60], "email": (user.email or "")[:80],
             "phone": (user.phone or "")[:20], "ip": ip, "product": product}
     try:
@@ -256,6 +258,10 @@ def complete(order, now=None, via="return"):
         if o.kind == "sub":
             E.grant_prepaid(o.user, order=o, now=now)
             E.ledger("subs", net)
+        elif o.kind == "seller":   # p1-bizagent seller plan month
+            from .. import bizagent_service as BA
+            BA.activate_plan_for_user(o.user, o.plan, months=o.months or 1, now=now)
+            E.ledger("seller", net)
         else:
             E.grant_pack(o.user, channel="gateway", ref="gw:" + o.merchant_tx_id,
                          sku=o.sku, amount_bdt=o.amount_bdt, now=now)
@@ -331,6 +337,10 @@ def refund_order(order, actor=None, reason="", now=None):
     if o.kind == "sub":
         E.revoke_period("gateway", "gw:" + o.merchant_tx_id, "refund", now)
         E.ledger("subs", -float(net))
+    elif o.kind == "seller":   # p1-bizagent: end the refunded seller month now
+        from .. import bizagent_service as BA
+        BA.revoke_plan_for_user(o.user, now=now)
+        E.ledger("seller", -float(net))
     else:
         E.revoke_pack(o.user, channel="gateway", ref="gw:" + o.merchant_tx_id, reason="refund")
         E.ledger("packs", -float(net))

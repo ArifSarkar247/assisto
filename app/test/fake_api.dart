@@ -10,6 +10,7 @@ import 'md1_shots.dart' show fakeMd1Get;
 import 'fake_m3_circle.dart';
 import 'fake_discover.dart';
 import 'fake_vehicle.dart';
+import 'p1_bizagent_fakes.dart'; // p1-bizagent
 
 enum FakeMode { data, empty, fail, slow }
 
@@ -1362,6 +1363,12 @@ class FakeApi extends ApiClient {
     // ===== a2-cctv: Shop Box (CCTV Part 4) GET stubs =====
     final shop = _shopGet(path);
     if (shop != null) return shop;
+    // p1-bizagent: Business AI Agent stubs
+    final p1 = fakeBizAgentGet(path, _bn, mode);
+    if (p1 != null) {
+      if (mode == FakeMode.fail) _fail();
+      return p1;
+    }
     // ===== Business v2 (khata / selling / AI) GET stubs =====
     final biz = _businessGet(path);
     if (biz != null) return biz;
@@ -1707,6 +1714,8 @@ class FakeApi extends ApiClient {
       return {'counts': {'memories': 42, 'reminders': 12, 'documents': 5, 'txns': 230, 'accounts': 3, 'auth_token': 1, 'notif_events': 88},
               'export_downloaded': false, 'grace_days': 7};
     }
+    final p1P = fakeBizAgentPost(path, body, _bn); // p1-bizagent
+    if (p1P != null) return p1P;
     final vehP = fakeVehiclePost(path, body, _bn); // v1-vehicle
     if (vehP != null) return vehP;
     final c1P = fakeC1Post(path, body); // c1-contacts
