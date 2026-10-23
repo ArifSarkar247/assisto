@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 import '../api.dart';
@@ -373,6 +374,9 @@ class GroupCallController extends ChangeNotifier {
       callLog('group#poll', e);
     }
   }
+
+  @visibleForTesting
+  void debugApplyStatus(Map<String, dynamic> s) => _applyStatus(s);
 
   void _applyStatus(Map<String, dynamic> s) {
     room = '${s['room'] ?? room ?? ''}';

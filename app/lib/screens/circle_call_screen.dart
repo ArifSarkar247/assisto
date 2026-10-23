@@ -72,6 +72,18 @@ class CircleCallScreen extends StatefulWidget {
     this.resumed = false,
   });
 
+  /// b3-group TESTS ONLY: replace the My Circle picker / the group screen
+  /// push of "Add people" (widget tests have no server or LiveKit).
+  @visibleForTesting
+  static Future<List<int>?> Function(BuildContext context)? debugPickPeople;
+  @visibleForTesting
+  static void Function(
+          {int? callId,
+          required List<int> memberIds,
+          String? room,
+          required CallController handover})?
+      debugOpenGroup;
+
   /// b1: how the mini call bar re-opens a minimized call.
   static void registerReopen() {
     CallRuntime.instance.openGroupFor ??= (nav, o, room) => nav.push(
@@ -382,6 +394,15 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       CallRuntime.instance.activeCallId = null;
     }
     unawaited(CallNative.setAutoPip(false));
+    final dbg = CircleCallScreen.debugOpenGroup;
+    if (dbg != null) {
+      dbg(
+          callId: room == null ? c.callId : null,
+          memberIds: memberIds,
+          room: room,
+          handover: c);
+      return;
+    }
     unawaited(openGroupCall(context,
         room: room,
         callId: room == null ? c.callId : null,
@@ -393,13 +414,19 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   }
 
   Future<void> _addPeople(CallController c) async {
-    final app = context.read<AppState>();
-    if (!await GroupCallConfig.refresh(app.api) || !mounted) return;
-    final mid = widget.member['id'];
-    final ids = await pickCirclePeople(context,
-        api: app.api,
-        exclude: {if (mid is int) mid},
-        max: (GroupCallConfig.maxParticipants - 2).clamp(1, 14));
+    final dbg = CircleCallScreen.debugPickPeople;
+    List<int>? ids;
+    if (dbg != null) {
+      ids = await dbg(context);
+    } else {
+      final app = context.read<AppState>();
+      if (!await GroupCallConfig.refresh(app.api) || !mounted) return;
+      final mid = widget.member['id'];
+      ids = await pickCirclePeople(context,
+          api: app.api,
+          exclude: {if (mid is int) mid},
+          max: (GroupCallConfig.maxParticipants - 2).clamp(1, 14));
+    }
     if (ids == null || ids.isEmpty || !mounted || !c.isLive) return;
     _moveToGroup(c, memberIds: ids, video: c.videoOn);
   }
@@ -1158,7 +1185,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                     active: false,
                     onTap: c.switchToVoice,
                   ),
-                if (live && _owns && _hasMore(c))
+                if (live && _hasMore(c))
                   _CtlButton(
                     key: const Key('call-more'),
                     icon: Icons.more_horiz,

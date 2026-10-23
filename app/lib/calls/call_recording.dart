@@ -394,7 +394,14 @@ class RecordingSession extends ChangeNotifier {
             startedAt: started,
             length: _now().difference(started),
             people: people);
-        _notice(r == null ? RecordNotice.failed : RecordNotice.saved);
+        if (r == null) {
+          _notice(RecordNotice.failed);
+        } else if (consent.status != RecordStatus.paused &&
+            consent.status != RecordStatus.declined) {
+          // a pause / decline notice stays what people see; the agreed
+          // part is kept either way
+          _notice(RecordNotice.saved);
+        }
       }
     } catch (err) {
       callLog('recsession#stop', err);
