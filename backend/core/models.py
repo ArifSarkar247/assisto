@@ -3712,6 +3712,9 @@ class CallSession(models.Model):
     callee_seen_at = models.DateTimeField(null=True, blank=True)
     missed_notified = models.BooleanField(default=False)
     relayed = models.BooleanField(default=False)
+    # b3-group B5: consented-recording state of this 1:1 call
+    # (core.logic.sfu consent_*; both people must accept, never silent).
+    recording = models.JSONField(default=dict, blank=True)
 
 
 class RtEvent(models.Model):
@@ -4298,3 +4301,81 @@ class CircleMediaBlob(models.Model):
         indexes = [models.Index(fields=["owner", "created_at"],
                                 name="md1_blob_owner_day")]
 # ---- /md1 ----
+
+
+# ====================================================================
+# ---- b3-group ---- group calls on our self-hosted LiveKit SFU (3+ people;
+# 1:1 stays P2P), consented call recording (B5) state, SFU cost metering.
+# No media and no secrets live here: LiveKit keys are server env only.
+# ====================================================================
+class SfuConfig(models.Model):
+    """Singleton (pk=1), Owner Admin -> Call relay. `enabled` is the owner's
+    switch (the env LIVEKIT_URL/KEY/SECRET must ALSO be set, else group calls
+    stay hidden in the app). Bitrates + price feed the P&L estimate."""
+    enabled = models.BooleanField(default=True)
+    max_participants = models.IntegerField(default=8)
+    audio_kbps = models.FloatField(default=40.0)
+    video_kbps = models.FloatField(default=600.0)
+    egress_bdt_per_gb = models.FloatField(default=0.0)   # 0 = TURN USD price x usd_bdt
+    updated_at = models.DateTimeField(auto_now=True)
+
+    @classmethod
+    def load(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+
+class GroupCallRoom(models.Model):
+    """One LiveKit room. `source` = 'upgrade' (a live 1:1 call got a third
+    person: `call` is that CallRecord) or 'group' (started from a circle
+    group chat: `group`). `host` = creator (may mute / remove). Cost: stream
+    seconds accumulated on every join/leave (core.logic.sfu.tick)."""
+    name = models.CharField(max_length=40, unique=True)
+    host = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="hosted_group_calls")
+    kind = models.CharField(max_length=8, default="voice")      # voice|video
+    source = models.CharField(max_length=8, default="group")    # group|upgrade
+    call = models.ForeignKey(CallRecord, null=True, blank=True,
+                             on_delete=models.SET_NULL, related_name="sfu_rooms")
+    group = models.ForeignKey(CircleGroup, null=True, blank=True,
+                              on_delete=models.SET_NULL, related_name="call_rooms")
+    state = models.CharField(max_length=8, default="live")      # live|ended
+    max_participants = models.IntegerField(default=8)
+    free_testing = models.BooleanField(default=False)
+    audio_stream_s = models.FloatField(default=0.0)
+    video_stream_s = models.FloatField(default=0.0)
+    tick_at = models.DateTimeField(null=True, blank=True)
+    peak_participants = models.IntegerField(default=0)
+    recording = models.JSONField(default=dict, blank=True)      # consent state
+    record_seq = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class GroupCallParticipant(models.Model):
+    """A person invited to / in a room. state: invited -> joined <-> left;
+    declined / removed are final for this room (removed = the host took them
+    out; their token is refused)."""
+    room = models.ForeignKey(GroupCallRoom, on_delete=models.CASCADE,
+                             related_name="participants")
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="group_call_seats")
+    role = models.CharField(max_length=8, default="member")     # host|member
+    state = models.CharField(max_length=10, default="invited")
+    invited_by = models.ForeignKey(User, null=True, blank=True,
+                                   on_delete=models.SET_NULL, related_name="+")
+    invited_at = models.DateTimeField(auto_now_add=True)
+    joined_at = models.DateTimeField(null=True, blank=True)
+    left_at = models.DateTimeField(null=True, blank=True)
+    total_s = models.IntegerField(default=0)
+    joins = models.IntegerField(default=0)
+    video = models.BooleanField(default=False)   # publishing camera/screen now
+    seen_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = [("room", "user")]
+        ordering = ["invited_at"]
+# ---- /b3-group ----

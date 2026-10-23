@@ -56,7 +56,11 @@ KINDS = ("message", "call", "call_cancel", "reminder", "family_alert", "sos",
          "key_request", "key_ready",
          # mr1: a stranger's first message (one per sender, collapsed per
          # sender). A NOTIFICATION push (the tray draws it on any build).
-         "message_request")
+         "message_request",
+         # b3-group: "X invites you to a group call" — a NOTIFICATION push on
+         # the calls channel (old builds draw it in the tray; new builds
+         # also ring in-app from the real-time queue / incoming check).
+         "group_call")
 # Kinds that must ALWAYS be data-only + high priority (app draws the UI).
 # c3-msg: "message" is data-only too, so the DEVICE draws the WhatsApp-style
 # MessagingStyle notification (decrypted on device), acks delivery and offers
@@ -74,14 +78,15 @@ DATA_ONLY_KINDS = ("call", "call_cancel", "sos", "message", "missed_call",
 TTL_S = {"call": 30, "call_cancel": 60, "sos": 600, "message": 86400,
          "reminder": 3600, "family_alert": 86400, "owner_alert": 86400,
          "shop_alert": 3600, "missed_call": 86400, "msg_sync": 86400,
-         "key_request": 86400, "key_ready": 86400, "message_request": 86400}
+         "key_request": 86400, "key_ready": 86400, "message_request": 86400,
+         "group_call": 60}
 # Android notification channel ids the app must create.
 CHANNELS = {"message": "messages", "call": "calls", "call_cancel": "calls",
             "reminder": "reminders", "family_alert": "alerts", "sos": "sos",
             "owner_alert": "alerts", "shop_alert": "alerts",
             "missed_call": "missed_calls", "msg_sync": "messages",
             "key_request": "messages", "key_ready": "messages",
-            "message_request": "messages"}
+            "message_request": "messages", "group_call": "calls"}
 # FCM rejects these data keys.
 _RESERVED_DATA_KEYS = ("from", "notification", "message_type", "collapse_key")
 

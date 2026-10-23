@@ -810,6 +810,23 @@ urlpatterns += [
     path("circle/calls/<int:call_id>", c2calls.CallStatusView.as_view()),
 ]
 # ---- /c2-calls ----
+# ---- b3-group ---- group calls on our LiveKit SFU + consented recording
+from . import views_b3_group_calls as b3g  # noqa: E402
+urlpatterns += [
+    path("circle/calls/group/config", b3g.GroupConfigView.as_view()),
+    path("circle/calls/group/incoming", b3g.GroupIncomingView.as_view()),
+    path("circle/calls/group/start", b3g.GroupStartView.as_view()),
+    path("circle/calls/group/<str:room>", b3g.GroupStatusView.as_view()),
+    path("circle/calls/group/<str:room>/token", b3g.GroupTokenView.as_view()),
+    path("circle/calls/group/<str:room>/event", b3g.GroupEventView.as_view()),
+    path("circle/calls/group/<str:room>/invite", b3g.GroupInviteView.as_view()),
+    path("circle/calls/group/<str:room>/mute", b3g.GroupMuteView.as_view()),
+    path("circle/calls/group/<str:room>/remove", b3g.GroupRemoveView.as_view()),
+    path("circle/calls/group/<str:room>/record", b3g.GroupRecordView.as_view()),
+    path("circle/calls/<int:call_id>/record", b3g.CallRecordView.as_view()),
+    path("livekit/webhook", b3g.LiveKitWebhookView.as_view()),
+]
+# ---- /b3-group ----
 # ---- b2-badges ---- bell / Reminders-tab badge watermark (opening clears
 # the badge; items stay unread until tapped; SOS/family alerts keep counting)
 urlpatterns += [

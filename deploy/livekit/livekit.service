@@ -1,0 +1,41 @@
+# b3-group: LiveKit SFU (Apache-2.0) for Assisto group calls.
+# Installed by deploy/livekit/install.sh to /etc/systemd/system/livekit.service
+[Unit]
+Description=LiveKit SFU (Assisto group calls)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=livekit
+Group=livekit
+# LIVEKIT_KEYS="<api key>: <api secret>" — server-only, 0640 root:livekit
+EnvironmentFile=/etc/livekit/livekit.env
+ExecStart=/opt/livekit/current/livekit-server --config /etc/livekit/livekit.yaml
+Restart=on-failure
+RestartSec=5
+# --- t3.large (2 vCPU, 7.8 GB) shared with the API (MemoryMax 2500M),
+# Postgres and coturn: LiveKit gets at most ~1.2 vCPU and 1.2 GB, and yields
+# CPU to the API under contention.
+MemoryHigh=1000M
+MemoryMax=1200M
+CPUQuota=120%
+CPUWeight=50
+Nice=5
+TasksMax=512
+LimitNOFILE=65536
+# --- hardening (ports are > 1024: no capabilities needed)
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+ReadOnlyPaths=/etc/livekit /opt/livekit
+
+[Install]
+WantedBy=multi-user.target

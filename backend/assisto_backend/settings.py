@@ -81,6 +81,15 @@ TURN_RELAY_BUDGET_BYTES_S = int(os.getenv("TURN_RELAY_BUDGET_BYTES_S", "31250000
 # dl1: "Free calls (testing)" default when the owner has never flipped the
 # switch (core/calls_free.py). ON -> My Circle calls are free for every plan.
 CALLS_FREE_TESTING_DEFAULT = os.getenv("CALLS_FREE_TESTING_DEFAULT", "1") == "1"
+# b3-group: self-hosted LiveKit SFU for 3+ person calls (deploy/livekit/).
+# ALL THREE empty (default) = group calls are not configured: the app hides
+# every group-call entry. URL is what PHONES connect to (wss, through nginx);
+# LIVEKIT_HTTP_URL is how THIS server reaches LiveKit's RoomService (local).
+# Key/secret live only in the server env (never in git).
+LIVEKIT_URL = os.getenv("LIVEKIT_URL", "")
+LIVEKIT_HTTP_URL = os.getenv("LIVEKIT_HTTP_URL", "http://127.0.0.1:7880")
+LIVEKIT_API_KEY = os.getenv("LIVEKIT_API_KEY", "")
+LIVEKIT_API_SECRET = os.getenv("LIVEKIT_API_SECRET", "")
 TURN_RELAY_PORT_MIN = int(os.getenv("TURN_RELAY_PORT_MIN", "49152"))
 TURN_RELAY_PORT_MAX = int(os.getenv("TURN_RELAY_PORT_MAX", "65535"))
 TURN_RELAY_IP = os.getenv("TURN_RELAY_IP", "")              # e.g. 172.31.2.185; "" = any

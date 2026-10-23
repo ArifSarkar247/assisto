@@ -460,12 +460,22 @@ def relay_cost(days=30, now=None):
         free_now = calls_free()
     except Exception:
         free_now = False
+    # b3-group: group calls on our LiveKit SFU (egress estimate from
+    # stream-seconds x bitrate; core.views_b3_group_calls.sfu_cost).
+    try:
+        from .views_b3_group_calls import sfu_cost
+        sfu = sfu_cost(days, now)
+    except Exception:
+        sfu = None
+    sfu_bdt = (sfu or {}).get("bdt") or 0
+    sfu_free = (sfu or {}).get("free_bdt") or 0
     return {"days": days, "usd_per_gb": price, "usd_bdt": usd_bdt,
             "free_tier_note": True, "rows": rows,
-            "calls_free_now": free_now,
+            "calls_free_now": free_now, "sfu": sfu,
             "free_testing_bdt": round(rows["voice"]["free_bdt"]
-                                      + rows["video"]["free_bdt"], 2),
-            "total_bdt": round(sum(r["total_bdt"] for r in rows.values()), 2)}
+                                      + rows["video"]["free_bdt"] + sfu_free, 2),
+            "total_bdt": round(sum(r["total_bdt"] for r in rows.values())
+                               + sfu_bdt, 2)}
 
 
 def match_usage_to_call(user_id, at, window_min=20):

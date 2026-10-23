@@ -1,0 +1,3 @@
+LIVEKIT_VERSION=1.13.7
+LIVEKIT_URL=https://github.com/livekit/livekit/releases/download/v1.13.7/livekit_1.13.7_linux_amd64.tar.gz
+LIVEKIT_SHA256=6634aeeb2fb1366b6723708ae4320b9d5408106a4c63457c5e845ae3979c90e2

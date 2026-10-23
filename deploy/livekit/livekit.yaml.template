@@ -1,0 +1,71 @@
+# b3-group: LiveKit SFU for Assisto group calls (3+ people). 1:1 calls stay P2P.
+# TEMPLATE — install.sh renders it to /etc/livekit/livekit.yaml (0640
+# root:livekit). @@...@@ placeholders are filled from server-only files;
+# NOTHING secret is in git. The API key/secret come from the env file
+# /etc/livekit/livekit.env (LIVEKIT_KEYS="<key>: <secret>"), read by systemd.
+#
+# Ports (t3.large lifeassisto box, AWS security group already opens
+# UDP 49152-65535 for coturn):
+#   7880/tcp  HTTP + WebSocket signalling. NOT in the security group: phones
+#             reach it only through nginx at wss://api.lifeassisto.com/livekit
+#   7881/tcp  ICE over TCP (fallback for UDP-blocked networks). Optional SG
+#             rule; without it such phones use our coturn TURN/TLS instead.
+#   64000-65535/udp  WebRTC media. coturn is narrowed to 49152-63999
+#             (install.sh), so the two never compete for a port.
+port: 7880
+log_level: info
+
+rtc:
+  tcp_port: 7881
+  port_range_start: 64000
+  port_range_end: 65535
+  # AWS: the instance only knows its private IP; LiveKit discovers the
+  # Elastic IP with STUN and advertises it in its ICE candidates.
+  use_external_ip: true
+  # Our coturn (turn.lifeassisto.com) as the relay for strict NATs — the
+  # SAME static-auth-secret as /etc/turnserver.conf (time-limited creds are
+  # minted per participant; LiveKit's own built-in TURN stays off).
+  turn_servers:
+    - host: @@TURN_HOST@@
+      port: 3478
+      protocol: udp
+      secret: "@@TURN_STATIC_SECRET@@"
+      ttl: 14400
+    - host: @@TURN_HOST@@
+      port: 3478
+      protocol: tcp
+      secret: "@@TURN_STATIC_SECRET@@"
+      ttl: 14400
+    - host: @@TURN_HOST@@
+      port: 5349
+      protocol: tls
+      secret: "@@TURN_STATIC_SECRET@@"
+      ttl: 14400
+
+turn:
+  enabled: false
+
+room:
+  # an empty room closes after 2 min (the app also ends it); a dropped phone
+  # has 30 s to come back before it counts as left
+  empty_timeout: 120
+  departure_timeout: 30
+  # hard ceiling; the per-call limit is the owner's "max people" (default 8,
+  # Owner Admin -> Call relay) enforced by the backend token endpoint
+  max_participants: 16
+  auto_create: true
+
+# Protect the shared box (API + coturn live here too): stop admitting new
+# tracks when LiveKit's own traffic passes ~200 Mbit/s (t3.large baseline is
+# ~512 Mbit/s; coturn's budget is 250 Mbit/s).
+limit:
+  num_tracks: 400
+  bytes_per_sec: 25000000
+
+# join / leave / track events -> backend (JWT-signed with the API secret;
+# /api/v1/livekit/webhook verifies it). Keeps P&L metering right even when a
+# phone dies without saying goodbye.
+webhook:
+  api_key: "@@LIVEKIT_API_KEY@@"
+  urls:
+    - "@@WEBHOOK_URL@@"

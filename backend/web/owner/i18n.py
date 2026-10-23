@@ -559,3 +559,30 @@ BN.update({
     "ae_scrub_note": "পরিষ্কার করা: উদ্ধৃতির লেখা, ৫+ অঙ্কের সংখ্যা, ফোন নম্বর, ইমেইল, লিংক, ফাইলের পথ ও লম্বা টোকেন সংরক্ষণের আগেই সরিয়ে ফেলা হয়।",
 })
 # ---- /sc1 ----
+
+# ---- b3-group ---- Owner Admin -> Call relay: group calls (LiveKit SFU)
+EN.update({
+    "b3_sfu": "Group calls (LiveKit SFU)",
+    "b3_sfu_installed": "LiveKit configured on the server", "b3_sfu_not_installed": "LiveKit not installed",
+    "b3_sfu_note": "Calls with 3 or more people go through our own LiveKit server; 1:1 calls stay direct (or via TURN). Until LiveKit is installed (deploy/livekit/README.md) the app hides group calls. Switch off to hide them again. The \"Free calls (testing)\" switch and the video plan gate apply to group calls too.",
+    "b3_sfu_enabled": "Group calls on", "b3_sfu_max": "Max people in one call (3–16)",
+    "b3_sfu_audio_kbps": "Voice kbit/s per stream (estimate)", "b3_sfu_video_kbps": "Video kbit/s per stream (estimate)",
+    "b3_sfu_bdt_gb": "Data cost ৳ per GB (0 = AWS price × USD rate)",
+    "b3_sfu_bdt_gb_note": "The server sends every speaker's stream to each other person once: cost = participant-minutes × (people − 1) × bitrate. Incoming data is free on AWS.",
+    "b3_sfu_row": "Group calls (SFU)", "b3_rooms": "calls", "b3_pmin": "person-minutes",
+    "b3_per_min_note": "per person-minute, 3 people: voice / video",
+    "b3_sfu_saved": "Group call settings saved.",
+})
+BN.update({
+    "b3_sfu": "গ্রুপ কল (LiveKit SFU)",
+    "b3_sfu_installed": "সার্ভারে LiveKit চালু আছে", "b3_sfu_not_installed": "LiveKit বসানো হয়নি",
+    "b3_sfu_note": "৩ বা তার বেশি জনের কল আমাদের নিজস্ব LiveKit সার্ভার দিয়ে যায়; ১:১ কল আগের মতো সরাসরি (বা TURN দিয়ে) চলে। LiveKit বসানোর আগ পর্যন্ত (deploy/livekit/README.md) অ্যাপে গ্রুপ কল লুকানো থাকে। আবার লুকাতে চাইলে বন্ধ করুন। \"ফ্রি কল (টেস্টিং)\" সুইচ আর ভিডিও প্ল্যানের নিয়ম গ্রুপ কলেও খাটে।",
+    "b3_sfu_enabled": "গ্রুপ কল চালু", "b3_sfu_max": "এক কলে সর্বোচ্চ কতজন (৩–১৬)",
+    "b3_sfu_audio_kbps": "প্রতি ভয়েস স্ট্রিম kbit/s (আনুমানিক)", "b3_sfu_video_kbps": "প্রতি ভিডিও স্ট্রিম kbit/s (আনুমানিক)",
+    "b3_sfu_bdt_gb": "প্রতি GB ডেটার খরচ ৳ (০ = AWS দাম × ডলার রেট)",
+    "b3_sfu_bdt_gb_note": "সার্ভার প্রত্যেক বক্তার স্ট্রিম বাকি প্রত্যেককে একবার করে পাঠায়: খরচ = জন-মিনিট × (জন − ১) × বিটরেট। AWS-এ ভেতরে আসা ডেটা ফ্রি।",
+    "b3_sfu_row": "গ্রুপ কল (SFU)", "b3_rooms": "টি কল", "b3_pmin": "জন-মিনিট",
+    "b3_per_min_note": "প্রতি জন-মিনিট, ৩ জন: ভয়েস / ভিডিও",
+    "b3_sfu_saved": "গ্রুপ কলের সেটিং সেভ হয়েছে।",
+})
+# ---- /b3-group ----

@@ -44,6 +44,22 @@
   <p class="small">{{ T.t9_overflow_note }} <a href="/owner/integrations#i-turn_overflow">{{ T.nav_integrations }}</a></p>
 </section>
 
+<section class="card" id="sfu"><h2>{{ T.b3_sfu }}</h2>
+  <p>{% if sfu_configured %}<span class="pill ok">{{ T.b3_sfu_installed }}</span>{% else %}<span class="pill off">{{ T.b3_sfu_not_installed }}</span>{% endif %} {% if sfu.enabled %}<span class="pill ok">{{ T.t9_on }}</span>{% else %}<span class="pill off">{{ T.t9_off }}</span>{% endif %}</p>
+  <p class="small">{{ T.b3_sfu_note }}</p>
+  <form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="sfu">
+    <div class="cols">
+      <label><input type="checkbox" name="enabled" value="1"{% if sfu.enabled %} checked{% endif %}> {{ T.b3_sfu_enabled }}</label>
+      <label>{{ T.b3_sfu_max }}<input name="max_participants" value="{{ sfu.max_participants }}" inputmode="numeric"></label>
+      <label>{{ T.b3_sfu_audio_kbps }}<input name="audio_kbps" value="{{ sfu.audio_kbps }}" inputmode="decimal"></label>
+      <label>{{ T.b3_sfu_video_kbps }}<input name="video_kbps" value="{{ sfu.video_kbps }}" inputmode="decimal"></label>
+      <label>{{ T.b3_sfu_bdt_gb }}<input name="egress_bdt_per_gb" value="{{ sfu.egress_bdt_per_gb }}" inputmode="decimal"></label>
+    </div>
+    <p class="mut small">{{ T.b3_sfu_bdt_gb_note }}</p>
+    <button class="btn primary">{{ T.save }}</button>
+  </form>
+</section>
+
 {% if cost %}<section class="card"><h2>{{ T.t9_cost }}</h2>
   {% include "owner/_t9_cost.html" %}
 </section>{% endif %}

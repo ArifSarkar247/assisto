@@ -63,6 +63,36 @@ def calls(request):
                 S.audit(request, request.owner, "turn.thresholds", "turn:thresholds",
                         before=before, after=new)
                 return done("/owner/calls")
+        elif action == "sfu":
+            # b3-group: group calls (LiveKit SFU) — owner switch + limits
+            from core.logic import sfu as SFU
+            from core.models import SfuConfig
+            sc = SfuConfig.load()
+            vals, bad = {}, []
+            for k, lo, hi in (("max_participants", 3, SFU.HARD_MAX_PARTICIPANTS),
+                              ("audio_kbps", 1, 1000), ("video_kbps", 1, 10000),
+                              ("egress_bdt_per_gb", 0, 10000)):
+                v = to_num(request.POST.get(k, ""))
+                if v is None or v < lo or v > hi:
+                    bad.append(k)
+                else:
+                    vals[k] = v
+            if bad:
+                ctx["problems"] = [T["p_invalid_number"]]
+                status = 400
+            else:
+                before = {"enabled": sc.enabled, "max_participants": sc.max_participants,
+                          "audio_kbps": sc.audio_kbps, "video_kbps": sc.video_kbps,
+                          "egress_bdt_per_gb": sc.egress_bdt_per_gb}
+                sc.enabled = request.POST.get("enabled") == "1"
+                sc.max_participants = int(vals["max_participants"])
+                sc.audio_kbps = float(vals["audio_kbps"])
+                sc.video_kbps = float(vals["video_kbps"])
+                sc.egress_bdt_per_gb = float(vals["egress_bdt_per_gb"])
+                sc.save()
+                S.audit(request, request.owner, "sfu.config", "sfu:config",
+                        before=before, after={**vals, "enabled": sc.enabled})
+                return done("/owner/calls#sfu")
         else:
             from django.http import Http404
             raise Http404
@@ -101,5 +131,22 @@ def calls(request):
                           if (v or {}).get("active")],
         "overflow_active": ov["active"], "overflow_mode": ov.get("mode", ""),
         "cost": cost,
+        "sfu": _sfu_cfg(), "sfu_configured": _sfu_configured(),
     })
     return page(request, "owner/calls.html", ctx, status=status, nav="calls")
+
+
+def _sfu_cfg():
+    try:
+        from core.models import SfuConfig
+        return SfuConfig.load()
+    except Exception:
+        return None
+
+
+def _sfu_configured():
+    try:
+        from core.views_b3_group_calls import configured
+        return configured()
+    except Exception:
+        return False
