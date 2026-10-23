@@ -31,9 +31,22 @@ def pay_cfg(cfg=None):
     return _cfg(cfg)["payments"]
 
 
+SELLER_PREFIX = "seller_"   # p1-bizagent: seller_<plan>_monthly (gateway only)
+
+
+def _seller_plan(sku):
+    if not sku.startswith(SELLER_PREFIX) or not sku.endswith("_monthly"):
+        return ""
+    return sku[len(SELLER_PREFIX):-len("_monthly")]
+
+
 def base_price(sku, cfg=None):
     """Whole-taka base price of a sku, or None for an unknown sku."""
     c = _cfg(cfg)
+    sp = _seller_plan(sku)
+    if sp:
+        row = (c.get("seller_agent") or {}).get("plans", {}).get(sp)
+        return int(row["price"]) if row else None
     if sku.startswith("pack_"):
         p = pricing.pack_by_id(sku[5:], c)
         return int(p["price"]) if p else None
@@ -83,6 +96,10 @@ def describe(sku, cfg=None):
                 "pack_id": p["id"]}
     if base_price(sku, c) is None:
         return None
+    sp = _seller_plan(sku)
+    if sp:   # p1-bizagent: a prepaid month of AI replies for the seller agent
+        return {"sku": sku, "kind": "seller", "plan": sp, "period": "monthly",
+                "months": 1, "credits": 0}
     plan, period = sku.rsplit("_", 1)
     return {"sku": sku, "kind": "sub", "plan": plan, "period": period,
             "months": 1 if period == "monthly" else 12, "credits": 0}

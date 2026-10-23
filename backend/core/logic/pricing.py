@@ -29,6 +29,7 @@ from . import home_defaults as HD
 from . import photo_studio as _PS
 from . import chat_vision as _CV
 from . import payments_cfg as _PAY   # pay1
+from . import bizagent as _BA        # p1-bizagent: seller plans
 
 # --------------------------------------------------------------- currency basis
 # Prices are stored in whole TAKA (BDT), matching core/plans.py `price` (e.g. 199).
@@ -373,6 +374,9 @@ def DEFAULTS():
         "home_hero": _CV.hero_defaults(),
         # pay1: payment channels, switches, fees, per-channel prices
         "payments": _PAY.defaults(),
+        # p1-bizagent: seller AI-agent plans (monthly AI replies), trial,
+        # WhatsApp per-message cost, per-channel kill switches
+        "seller_agent": _BA.cfg_defaults(),
     }
 
 
@@ -493,6 +497,7 @@ def normalize(data):
         "chat_vision": _CV.normalize_cfg(d.get("chat_vision")),
         "home_hero": _CV.normalize_hero(d.get("home_hero")),
         "payments": _PAY.normalize(d.get("payments")),   # pay1
+        "seller_agent": _BA.cfg_normalize(d.get("seller_agent")),   # p1
     }
 
 
@@ -829,6 +834,11 @@ def validate_edit(data):
         if net > 0 and pool_face > cfg["guarantees"]["pool_cap_pct_of_net"] * net:
             problems.append("pool_exceeds_net")
             break
+
+    # p1-bizagent: every seller plan must keep the margin target after the
+    # gateway fee at worst-case AI cost (all replies used).
+    if "seller_agent" in d:
+        problems.extend(_BA.validate_cfg(d.get("seller_agent"), cfg))
 
     # NOTE: annual-plan margins are reported as WARNINGS (margin_warnings),
     # not blocking problems — owner decision pending on the annual discount.

@@ -880,6 +880,20 @@ class Order(models.Model):
     courier_live = models.BooleanField(default=False)            # False = mock booking
     channel = models.CharField(max_length=20, default="manual")  # whatsapp/messenger/manual
     created_at = models.DateTimeField(auto_now_add=True)
+    # ---- p1-bizagent ----
+    business = models.ForeignKey("BusinessProfile", null=True, blank=True,
+                                 on_delete=models.CASCADE, related_name="online_orders")
+    thread = models.ForeignKey("ChatThread", null=True, blank=True,
+                               on_delete=models.SET_NULL, related_name="orders")
+    sale = models.ForeignKey("Sale", null=True, blank=True, on_delete=models.SET_NULL,
+                             related_name="online_orders")
+    area = models.CharField(max_length=10, blank=True, default="")   # inside|outside
+    delivery_charge = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    consignment_id = models.CharField(max_length=80, blank=True, default="")
+    courier_status = models.CharField(max_length=60, blank=True, default="")
+    courier_error = models.CharField(max_length=200, blank=True, default="")
+    courier_checked_at = models.DateTimeField(null=True, blank=True)
+    invoice_sent_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["-created_at"]
@@ -1854,16 +1868,27 @@ class TagadaSchedule(models.Model):
 class ChatThread(models.Model):
     """One customer conversation on an OFFICIAL channel (Cloud API / Messenger).
     last_inbound_at → epoch for business_ai.within_service_window()."""
-    CHANNELS = [("whatsapp_cloud", "whatsapp_cloud"), ("messenger", "messenger")]
+    CHANNELS = [("whatsapp_cloud", "whatsapp_cloud"), ("messenger", "messenger"),
+                ("instagram", "instagram")]   # p1: Instagram DM
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="chat_threads")
     business = models.ForeignKey(BusinessProfile, null=True, blank=True,
                                  on_delete=models.CASCADE, related_name="chat_threads")
     customer_phone = models.CharField(max_length=40, blank=True, default="")
     channel = models.CharField(max_length=20, choices=CHANNELS, default="whatsapp_cloud")
     last_inbound_at = models.DateTimeField(null=True, blank=True)
-    owner_takeover = models.BooleanField(default=False)
+    owner_takeover = models.BooleanField(default=False)   # p1: HUMAN HANDOVER (AI paused)
     lang = models.CharField(max_length=2, default="bn")
     created_at = models.DateTimeField(auto_now_add=True)
+    # ---- p1-bizagent ----
+    seller_channel = models.ForeignKey("SellerChannel", null=True, blank=True,
+                                       on_delete=models.SET_NULL, related_name="threads")
+    external_user_id = models.CharField(max_length=80, blank=True, default="",
+                                        db_index=True)   # PSID / IGSID / wa_id
+    customer_name = models.CharField(max_length=120, blank=True, default="")
+    order_draft = models.JSONField(default=dict, blank=True)
+    ai_disclosed = models.BooleanField(default=False)
+    oor_notice_at = models.DateTimeField(null=True, blank=True)  # out-of-replies line sent
+    last_message_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["-created_at"]
@@ -1882,6 +1907,15 @@ class Message(models.Model):
     needs_human = models.BooleanField(default=False)
     handoff_reason = models.CharField(max_length=40, blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
+    # ---- p1-bizagent ----
+    # status: '' (legacy) | received | pending_approval | rejected | queued |
+    #         sent | delivered | read | failed | blocked
+    external_id = models.CharField(max_length=128, blank=True, default="", db_index=True)
+    status = models.CharField(max_length=20, blank=True, default="")
+    kind = models.CharField(max_length=20, blank=True, default="text")  # text|comment|holding|invoice|template|order
+    risk_reason = models.CharField(max_length=40, blank=True, default="")
+    send_error = models.CharField(max_length=200, blank=True, default="")
+    meta = models.JSONField(default=dict, blank=True)
 
     class Meta:
         ordering = ["created_at", "id"]
@@ -4294,3 +4328,95 @@ class CircleMediaBlob(models.Model):
         indexes = [models.Index(fields=["owner", "created_at"],
                                 name="md1_blob_owner_day")]
 # ---- /md1 ----
+
+
+# ---- p1-bizagent ---- Business AI Agent for F-commerce sellers
+# Pure logic: core/logic/bizagent.py; service: core/bizagent_service.py.
+class SellerAgent(models.Model):
+    """One per BusinessProfile: the seller's AI-agent settings + plan state.
+    Plans are admin-editable (PricingConfig['seller_agent']); nothing is
+    unlimited: plan replies first, then purchased credits (billing ai_sales)."""
+    PLANS = [("none", "none"), ("trial", "trial"), ("starter", "starter"), ("pro", "pro")]
+    business = models.OneToOneField("BusinessProfile", on_delete=models.CASCADE,
+                                    related_name="seller_agent")
+    ai_enabled = models.BooleanField(default=False)
+    tone = models.CharField(max_length=12, default="friendly")   # friendly|formal|short
+    hours = models.JSONField(default=dict, blank=True)          # {"start","end"} or {}
+    approve_all = models.BooleanField(default=False)            # seller approves every reply
+    cod_enabled = models.BooleanField(default=True)
+    payment_link_enabled = models.BooleanField(default=False)   # licensed partner only
+    low_stock_alert = models.BooleanField(default=True)
+    daily_report = models.BooleanField(default=True)
+    default_courier = models.CharField(max_length=12, blank=True, default="")
+    courier_enc = models.TextField(blank=True, default="")      # Fernet {courier: {keys}}
+    plan = models.CharField(max_length=10, choices=PLANS, default="none")
+    period_start = models.DateTimeField(null=True, blank=True)
+    period_end = models.DateTimeField(null=True, blank=True)
+    replies_used = models.IntegerField(default=0)               # this period
+    trial_started_at = models.DateTimeField(null=True, blank=True)  # once per business
+    last_report_day = models.DateField(null=True, blank=True)
+    last_low_stock_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class SellerChannel(models.Model):
+    """A seller's connected OFFICIAL channel: a Facebook Page (Messenger +
+    comments), an Instagram professional account, or a WhatsApp Cloud API
+    number. token_enc = Fernet-encrypted Page/WA access token (never returned
+    to a client). test_mode rows are for the self-test only: their own
+    test_secret_enc signs webhooks and nothing is ever sent to Graph."""
+    KINDS = [("messenger", "messenger"), ("instagram", "instagram"),
+             ("whatsapp_cloud", "whatsapp_cloud")]
+    business = models.ForeignKey("BusinessProfile", on_delete=models.CASCADE,
+                                 related_name="seller_channels")
+    kind = models.CharField(max_length=16, choices=KINDS)
+    external_id = models.CharField(max_length=64)   # page id / IG id / phone_number_id
+    display_name = models.CharField(max_length=120, blank=True, default="")
+    token_enc = models.TextField(blank=True, default="")
+    status = models.CharField(max_length=12, default="pending")  # pending|connected|error|disabled
+    status_detail = models.CharField(max_length=200, blank=True, default="")
+    enabled = models.BooleanField(default=True)
+    test_mode = models.BooleanField(default=False)
+    test_secret_enc = models.TextField(blank=True, default="")
+    connected_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["kind", "external_id"],
+                                               name="p1_channel_once")]
+
+
+class BizWebhookEvent(models.Model):
+    """Idempotency + work queue for Meta webhooks: ONE row per (source,
+    event_id) — a redelivered message id is a no-op. Processed right after the
+    fast 200 (worker thread) and swept by `manage.py bizagent_process`."""
+    source = models.CharField(max_length=12)        # meta|whatsapp
+    event_id = models.CharField(max_length=160)
+    kind = models.CharField(max_length=12, default="message")
+    payload = models.JSONField(default=dict, blank=True)
+    status = models.CharField(max_length=10, default="pending")  # pending|done|error|skipped
+    error = models.CharField(max_length=300, blank=True, default="")
+    attempts = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    processed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["source", "event_id"],
+                                               name="p1_webhook_once")]
+        indexes = [models.Index(fields=["status", "created_at"], name="p1_evt_status")]
+
+
+class BizAgentReport(models.Model):
+    """The seller's daily sales/orders summary (in-app history; push too)."""
+    business = models.ForeignKey("BusinessProfile", on_delete=models.CASCADE,
+                                 related_name="agent_reports")
+    day = models.DateField()
+    data = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-day"]
+        constraints = [models.UniqueConstraint(fields=["business", "day"],
+                                               name="p1_report_once")]
+# ---- /p1-bizagent ----
