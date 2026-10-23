@@ -7,8 +7,25 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'package:assisto/api.dart';
+import 'package:assisto/calls/call_controller.dart' show ScreenShareMedia;
 import 'package:assisto/calls/call_recording.dart';
 import 'package:assisto/calls/group_call.dart';
+
+import 'c2_calls_fakes.dart';
+
+/// 1:1 media that can share the screen.
+class ShareMedia extends FakeCallMedia implements ScreenShareMedia {
+  bool addsSender = true;
+  @override
+  Future<bool> startScreen() async {
+    log.add('screen:start');
+    return addsSender;
+  }
+
+  @override
+  Future<void> stopScreen({required bool camera}) async =>
+      log.add('screen:stop:camera=$camera');
+}
 
 class FakeGroupRoom implements GroupRoom {
   FakeGroupRoom({List<GroupMediaPeer>? peers})
@@ -291,7 +308,12 @@ GroupCallController previewGroup({
   final r = room ?? FakeGroupRoom(peers: peers);
   if (speaking != null) r.speakers = [speaking];
   final c = GroupCallController(
-      api: a, media: r, room: 'gc-1', video: video, selfId: '1');
+      api: a,
+      media: r,
+      room: 'gc-1',
+      video: video,
+      selfId: '1',
+      statusEvery: Duration.zero);
   c.phase = GroupPhase.connected;
   c.kind = video ? 'video' : 'voice';
   c.isHost = host;

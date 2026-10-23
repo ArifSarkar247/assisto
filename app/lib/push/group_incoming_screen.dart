@@ -8,6 +8,7 @@ import '../calls/call_avatar.dart';
 import '../calls/call_log.dart';
 import '../calls/call_native.dart';
 import '../calls/call_runtime.dart';
+import '../calls/group_call.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/group_call_screen.dart';
 import '../state.dart';
@@ -20,12 +21,16 @@ import 'lock_screen_guard.dart';
 /// server (the others see you are not coming). Rings 60 s at most.
 class GroupIncomingScreen extends StatefulWidget {
   const GroupIncomingScreen(
-      {super.key, required this.row, this.ring = true});
+      {super.key, required this.row, this.ring = true, this.debugController});
 
   /// circle/calls/group/incoming row: room, kind, host_name, host_photo,
   /// group_name, present.
   final Map<String, dynamic> row;
   final bool ring;
+
+  /// Gallery / widget tests: Join opens the call with this pre-built
+  /// controller (no server, no LiveKit).
+  final GroupCallController Function()? debugController;
 
   @override
   State<GroupIncomingScreen> createState() => _GroupIncomingScreenState();
@@ -65,8 +70,10 @@ class _GroupIncomingScreenState extends State<GroupIncomingScreen> {
   void _join() {
     _joined = true;
     unawaited(CallNative.stopRingtone());
+    final dbg = widget.debugController;
     Navigator.of(context).pushReplacement(MaterialPageRoute<void>(
         builder: (_) => GroupCallScreen(
+            controller: dbg?.call(),
             room: _room,
             video: _video,
             title: '${widget.row['group_name'] ?? ''}'.isNotEmpty

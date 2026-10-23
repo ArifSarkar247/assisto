@@ -93,6 +93,7 @@ const Map<String, String> _allowDead = {
   'push_settings|Open': 'A: spec uses probe: false, which disables the OS-settings calls',
   'reminders|tip:Sync': 'A: gallery repos keep the pre-stub ApiClient (no token) so sync() returns early; on device it syncs with a spinner',
   // (B) needs real device machinery
+  'b3_group_*|icon:0xef26': 'B: camera flip on the fake SFU room; the real flip is LiveKit setCameraPosition (needs a phone, B3_PROOF steps)',
   'c2_call_video_*|icon:0xef26': 'B: camera flip on the fake media stack; real flip is WebRTC (call-proof workflow)',
   'money_wrapped*|Share this card': 'B: RepaintBoundary.toImage needs a real rasterizer (never completes under fake async)',
   'referral|Share achievement card': 'B: same image-capture share as Money Wrapped',

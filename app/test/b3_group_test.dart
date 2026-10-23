@@ -53,20 +53,6 @@ GroupCallController mkGroup(FakeGroupApi a, FakeGroupRoom r,
       reconnectGiveUp: const Duration(milliseconds: 200),
     );
 
-/// 1:1 media that can share the screen.
-class ShareMedia extends FakeCallMedia implements ScreenShareMedia {
-  bool addsSender = true;
-  @override
-  Future<bool> startScreen() async {
-    log.add('screen:start');
-    return addsSender;
-  }
-
-  @override
-  Future<void> stopScreen({required bool camera}) async =>
-      log.add('screen:stop:camera=$camera');
-}
-
 class GateSig extends FakeSignaling {
   bool gate = false;
   @override

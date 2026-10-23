@@ -63,7 +63,10 @@ Widget _ended(String l, GroupEndReason r) {
 Widget _oneToOne(String l,
     {bool sharing = false, bool remoteScreen = false, Map<String, dynamic>? rec}) {
   final c = previewController(
-      video: false, outgoing: true, phase: CallPhase.connected);
+      video: false,
+      outgoing: true,
+      phase: CallPhase.connected,
+      media: ShareMedia());
   c.screenShareAvailable = true;
   c.screenSharing = sharing;
   c.remoteScreen = remoteScreen;
@@ -120,7 +123,11 @@ final Map<String, Widget Function(String)> b3Shots = {
   'b3_group_ended_unavailable': (l) =>
       _ended(l, GroupEndReason.unavailable),
   'b3_group_ended_removed': (l) => _ended(l, GroupEndReason.removed),
-  'b3_group_incoming': (l) => GroupIncomingScreen(ring: false, row: {
+  'b3_group_incoming': (l) => GroupIncomingScreen(
+          ring: false,
+          debugController: () => previewGroup(
+              video: true, names: _names(l), selfName: l == 'bn' ? 'আরিফ' : 'Arif'),
+          row: {
         'room': 'gc-1',
         'kind': 'video',
         'host_name': _names(l).first,

@@ -262,9 +262,10 @@ CallController previewController({
   VideoUpgrade upgrade = VideoUpgrade.none,
   CallNotice notice = CallNotice.none,
   AudioRoute? route,
+  CallMedia? media,
 }) {
   final c = CallController(
-    media: FakeCallMedia(),
+    media: media ?? FakeCallMedia(),
     signaling: FakeSignaling(),
     sounds: FakeSounds(),
     video: video,

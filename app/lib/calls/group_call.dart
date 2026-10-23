@@ -351,7 +351,10 @@ class GroupCallController extends ChangeNotifier {
     } catch (e) {
       callLog('group#joined', e);
     }
-    _statusTimer ??= Timer.periodic(statusEvery, (_) => unawaited(_poll()));
+    if (statusEvery > Duration.zero) {
+      _statusTimer ??=
+          Timer.periodic(statusEvery, (_) => unawaited(_poll()));
+    }
     unawaited(_checkScreenShare());
     _notify();
   }
