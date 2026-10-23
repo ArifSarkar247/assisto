@@ -13,6 +13,9 @@
     most `circle_media_max_days` after upload, once its last message was
     deleted for everyone, and 24 h after an unfinished / never-sent upload
     (owner-editable in admin pricing limits; core/circle_blobs.purge).
+  * p3: My Circle stories (CircleStatus + views) and profile Notes are deleted
+    once their 24 h life is over (views_p3_circle.purge_expired) — the reads
+    already hide them; this removes the ciphertext from the database.
 
 Idempotent, cheap, only touches Assisto's own DB. Crontab (hourly):
     25 * * * *  cd /home/ubuntu/assisto/backend && /home/ubuntu/assisto/.venv/bin/python manage.py purge_l1_retention >> /home/ubuntu/assisto/logs/purge_l1_retention.log 2>&1
@@ -46,7 +49,9 @@ class Command(BaseCommand):
         crashes = ClientErrorReport.objects.filter(
             last_at__lt=now - timedelta(days=CRASH_KEEP_DAYS))
         from core import circle_blobs
+        from core.views_p3_circle import purge_expired
         if dry:
+            self.stdout.write(f"[dry-run] stories/notes={purge_expired(now, dry=True)}")
             self.stdout.write(f"[dry-run] journey points={pts.count()} "
                               f"tickets={closed.count()} crash reports={crashes.count()} "
                               f"circle media={circle_blobs.purge(now, dry=True)}")
@@ -55,7 +60,8 @@ class Command(BaseCommand):
         n_loc = expired.filter(last_location__isnull=False).update(last_location=None)
         n_t, _ = closed.delete()
         n_c, _ = crashes.delete()
+        n_s = purge_expired(now)
         n_m = circle_blobs.purge(now)
         self.stdout.write(f"journey points deleted={n_pts} last_location cleared={n_loc} "
                           f"tickets deleted={n_t} crash reports deleted={n_c} "
-                          f"circle media deleted={n_m}")
+                          f"circle media deleted={n_m} stories/notes deleted={n_s}")
