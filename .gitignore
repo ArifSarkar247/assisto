@@ -70,3 +70,7 @@ backend/ci_reality*.sqlite3
 backend/ci_reality_seed.json
 backend/ci_media/
 reality_out/
+
+# Wake word: real voice recordings are personal data — never commit (owner_actions/WAKEWORD_RECORDING_BN.md)
+tools/wakeword/real_clips/
+*.wakeword-clips.zip

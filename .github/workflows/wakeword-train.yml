@@ -15,23 +15,40 @@ on:
         type: choice
         options: [e2e, oww]
       steps:
-        description: "Classifier training steps"
+        description: "Classifier training steps (per seed)"
         required: true
-        default: "6000"
+        default: "20000"
       n_pos_train:
         description: "Synthetic positive clips (train)"
         required: true
         default: "6000"
+      seeds:
+        description: "Classifier seeds (comma separated; >1 = per-seed variance + ensemble candidate)"
+        required: true
+        default: "1234,2025,7"
+      real_clips:
+        description: "Also use REAL recordings from the private secret WW_REAL_CLIPS_URL (never cached/uploaded)"
+        type: boolean
+        default: false
       tiny:
         description: "Tiny smoke run (fake extractor, no downloads, ~2 min)"
         type: boolean
         default: false
+      rebuild_check:
+        description: "With tiny: ALSO rebuild + verify the real e2e extractor (no dataset downloads, +~4 min)"
+        type: boolean
+        default: false
+      stage:
+        description: "all = full run | data = only download/prepare + extractor + TTS clips + embeddings (fills the caches, no training)"
+        type: choice
+        default: all
+        options: [all, data]
 
 permissions:
   contents: read
 
 concurrency:
-  group: wakeword-train
+  group: wakeword-train-${{ github.ref_name }}-${{ inputs.stage }}-${{ inputs.tiny }}
   cancel-in-progress: false
 
 jobs:
@@ -41,6 +58,7 @@ jobs:
     env:
       WORK: /mnt/ww
       WW_THREADS: "4"
+      WW_WORKERS: "4"
       PIP_DISABLE_PIP_VERSION_CHECK: "1"
     steps:
       - uses: actions/checkout@v4
@@ -61,7 +79,7 @@ jobs:
       - name: Python deps (pinned)
         run: |
           python -m pip install -q "numpy==1.26.4" "scipy==1.13.1" "onnx==1.16.2" \
-            "onnxruntime==1.18.1" "soundfile==0.12.1"
+            "onnxruntime==1.23.2" "soundfile==0.12.1"
           if [ "${{ inputs.tiny }}" != "true" ]; then
             python -m pip install -q --extra-index-url https://download.pytorch.org/whl/cpu \
               "torch==2.4.1" "kokoro==0.9.4" "misaki[en]==0.9.4"
@@ -70,55 +88,154 @@ jobs:
       - name: Unit tests (tiny synthetic data)
         run: python -m unittest discover -s tools/wakeword/tests -v
 
-      - name: Cache prepared background audio (int16 streams, not raw datasets)
-        if: ${{ !inputs.tiny }}
-        uses: actions/cache@v4
-        with:
-          path: /mnt/ww/prepared
-          key: ww-prepared-v1-${{ hashFiles('tools/wakeword/ww/datasets.py', 'tools/wakeword/config.json') }}
+      - name: Config (+ cache keys)
+        id: cfg
+        run: |
+          python - <<'PY'
+          import hashlib, json, os
+          c = json.load(open("tools/wakeword/config.json"))
+          c["features"]["backend"] = "${{ inputs.features }}"
+          c["train"]["steps"] = int("${{ inputs.steps }}")
+          c["tts"]["n_pos_train"] = int("${{ inputs.n_pos_train }}")
+          c["seeds"] = [int(x) for x in "${{ inputs.seeds }}".replace(" ", "").split(",") if x]
+          if "${{ inputs.real_clips }}" == "true":
+              c["real_clips"]["dir"] = os.environ["WORK"] + "/real_clips"
+          json.dump(c, open(os.environ["WORK"] + "/config.json", "w"), indent=1)
+          print(json.dumps(c, indent=1))
+          tts = hashlib.sha256(json.dumps(c["tts"], sort_keys=True).encode()
+                               + open("tools/wakeword/ww/synth.py", "rb").read()).hexdigest()[:24]
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"clips_key={tts}\n")
+          PY
+          echo "emb_key=$(python tools/wakeword/pipeline.py --work "$WORK" --config "$WORK/config.json" embed_key)" >> "$GITHUB_OUTPUT"
+          cat "$GITHUB_OUTPUT"
 
-      - name: Cache TTS + TF-Hub models
+      # Caches are restored here and SAVED right after the step that fills them.
+      # The expensive part is the EMBEDDINGS (frozen extractor over ~95 h of audio);
+      # with an embeddings hit no dataset is downloaded and no clip synthesized.
+      # Real recordings (emb_real/, real_clips/) are NEVER cached or uploaded.
+      - name: Restore embeddings
+        id: emb_cache
         if: ${{ !inputs.tiny }}
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
+        with:
+          path: /mnt/ww/emb
+          key: ww-emb-v3-${{ steps.cfg.outputs.emb_key }}
+
+      - name: Restore TTS + TF-Hub models
+        id: models_cache
+        if: ${{ !inputs.tiny }}
+        uses: actions/cache/restore@v4
         with:
           path: |
             ~/.cache/huggingface
             ~/.cache/tfhub_modules
-          key: ww-models-v1
+          key: ww-models-v2
+
+      - name: Restore synthesized clips
+        id: clips_cache
+        if: ${{ !inputs.tiny && steps.emb_cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/restore@v4
+        with:
+          path: /mnt/ww/clips
+          key: ww-clips-v3-${{ steps.cfg.outputs.clips_key }}
+
+      - name: Prepare real audio (FLEURS bn/hi, LibriSpeech, SLR53 x2, MUSAN, SLR26 RIRs -> int16 streams)
+        if: ${{ !inputs.tiny && steps.emb_cache.outputs.cache-hit != 'true' }}
+        run: |
+          python tools/wakeword/pipeline.py --work "$WORK" --config "$WORK/config.json" prepare
+          rm -rf "$WORK/downloads"
+          du -sh "$WORK/prepared"; df -h /mnt
 
       - name: Rebuild licence-clean feature extractor (Google speech_embedding -> ONNX)
-        if: ${{ !inputs.tiny && inputs.features == 'e2e' }}
+        if: ${{ inputs.features == 'e2e' && (!inputs.tiny || inputs.rebuild_check) }}
         run: |
-          python -m venv /mnt/ww/tfenv
-          /mnt/ww/tfenv/bin/pip install -q "tensorflow-cpu==2.15.1" "tf-keras==2.15.1" \
-            "tensorflow-hub==0.16.1" "tf2onnx==1.16.1" "onnx==1.16.2" "onnxruntime==1.18.1" "numpy==1.26.4"
-          TFHUB_CACHE_DIR=~/.cache/tfhub_modules /mnt/ww/tfenv/bin/python tools/wakeword/rebuild_features.py --out "$WORK/features"
+          python -m venv "$WORK/tfenv"
+          "$WORK/tfenv/bin/pip" install -q "tensorflow-cpu==2.15.1" "tf2onnx==1.16.1" \
+            "onnx==1.16.2" "onnxruntime==1.18.1" "numpy==1.26.4"
+          REAL=""
+          for f in eval_en eval_bn; do
+            [ -f "$WORK/prepared/$f.npy" ] && REAL="$REAL${REAL:+,}$WORK/prepared/$f.npy"
+          done
+          "$WORK/tfenv/bin/python" tools/wakeword/rebuild_features.py --out "$WORK/features" \
+            --cache ~/.cache/tfhub_modules --real-audio "$REAL" --tol 1e-3
+          rm -rf "$WORK/tfenv"
 
-      - name: Config
+      - name: Synthesize clips (Kokoro + eSpeak NG)
+        if: ${{ !inputs.tiny && steps.emb_cache.outputs.cache-hit != 'true' }}
+        run: python tools/wakeword/pipeline.py --work "$WORK" --config "$WORK/config.json" features synth
+
+      - name: Save clips cache
+        if: ${{ !inputs.tiny && steps.emb_cache.outputs.cache-hit != 'true' && steps.clips_cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: /mnt/ww/clips
+          key: ${{ steps.clips_cache.outputs.cache-primary-key }}
+
+      - name: Save models cache
+        if: ${{ !inputs.tiny && steps.models_cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cache/huggingface
+            ~/.cache/tfhub_modules
+          key: ${{ steps.models_cache.outputs.cache-primary-key }}
+
+      # OPTIONAL real voices (owner_actions/WAKEWORD_RECORDING_BN.md): a zip at a private,
+      # expiring URL stored as the repo secret WW_REAL_CLIPS_URL (+ WW_REAL_CLIPS_SHA256).
+      # The clips stay on this throw-away runner: not cached, not in the artifact, not logged.
+      - name: Fetch real recordings (private)
+        if: ${{ !inputs.tiny && inputs.real_clips }}
+        env:
+          URL: ${{ secrets.WW_REAL_CLIPS_URL }}
+          SHA: ${{ secrets.WW_REAL_CLIPS_SHA256 }}
         run: |
-          python - <<'PY'
-          import json, os
-          c = json.load(open("tools/wakeword/config.json"))
-          c["features"]["backend"] = "${{ inputs.features }}"
-          c["steps"] = int("${{ inputs.steps }}")
-          c["tts"]["n_pos_train"] = int("${{ inputs.n_pos_train }}")
-          json.dump(c, open(os.environ["WORK"] + "/config.json", "w"), indent=1)
-          print(json.dumps(c, indent=1))
-          PY
+          [ -n "$URL" ] || { echo "secret WW_REAL_CLIPS_URL is not set"; exit 1; }
+          curl -sSfL -o "$RUNNER_TEMP/rc.zip" "$URL"
+          if [ -n "$SHA" ]; then echo "$SHA  $RUNNER_TEMP/rc.zip" | sha256sum -c --quiet; fi
+          mkdir -p "$WORK/real_clips" && unzip -q "$RUNNER_TEMP/rc.zip" -d "$WORK/real_clips"
+          rm -f "$RUNNER_TEMP/rc.zip"
+          for k in pos neg; do echo "$k: $(find "$WORK/real_clips/$k" -name '*.wav' 2>/dev/null | wc -l) wav files"; done
 
-      - name: Train + evaluate
+      - name: Embeddings (parallel, once per data version)
+        if: ${{ !inputs.tiny }}
+        run: python tools/wakeword/pipeline.py --work "$WORK" --config "$WORK/config.json" features embed
+
+      - name: Save embeddings cache
+        if: ${{ !inputs.tiny && steps.emb_cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: /mnt/ww/emb
+          key: ${{ steps.emb_cache.outputs.cache-primary-key }}
+
+      - name: Train (per seed) + evaluate + package
+        if: ${{ inputs.tiny || inputs.stage == 'all' }}
         run: |
           if [ "${{ inputs.tiny }}" = "true" ]; then
             python tools/wakeword/pipeline.py --work "$WORK" --tiny all
           else
-            python tools/wakeword/pipeline.py --work "$WORK" --config "$WORK/config.json" all
+            python tools/wakeword/pipeline.py --work "$WORK" --config "$WORK/config.json" \
+              train evaluate package
           fi
           cp "$WORK/model/train_history.json" "$WORK/config.used.json" "$WORK/out/" || true
-          cp "$WORK/features/e2e_info.json" "$WORK/out/" 2>/dev/null || true
+          python - <<'PY' || true
+          import json, os
+          c = json.load(open(os.environ["WORK"] + "/out/config.used.json"))
+          if c.get("real_clips", {}).get("dir"):
+              c["real_clips"]["dir"] = "(private)"
+          json.dump(c, open(os.environ["WORK"] + "/out/config.used.json", "w"), indent=1)
+          PY
+          rm -rf "$WORK/real_clips" "$WORK/emb_real"
 
       - name: Report
         if: always()
         run: |
+          mkdir -p "$WORK/out"
+          cp "$WORK/features/e2e_info.json" "$WORK/out/" 2>/dev/null || true
+          [ -f "$WORK/out/assisto_embed_e2e.onnx" ] || cp "$WORK/features/assisto_embed_e2e.onnx" "$WORK/out/" 2>/dev/null || true
+          if [ -f "$WORK/features/e2e_info.json" ]; then
+            python -c "import json,sys; i=json.load(open(sys.argv[1])); v=i['verify']; print('### e2e extractor check\n\n| check | max abs diff vs TF |\n|---|---|'); [print(f'| {k} | {v[k]:.2e} |') for k in ('max_abs_diff_vs_tf','conv_net_only','numpy_fp64_logmel_vs_tf','streaming_11_hops')]; print(f\"\nsize {i['size']} bytes, licence field: {i['licence_check'].get('licenseName')}\n\")" "$WORK/features/e2e_info.json" >> "$GITHUB_STEP_SUMMARY" || true
+          fi
           [ -f "$WORK/out/eval_report.md" ] && cat "$WORK/out/eval_report.md" >> "$GITHUB_STEP_SUMMARY" || echo "no report" >> "$GITHUB_STEP_SUMMARY"
           ls -la "$WORK/out" || true
 
