@@ -13942,5 +13942,16 @@
   "qa2DiscoverActionUrl": "ওয়েবসাইট",
   "l3AdPrivacyTitle": "বিজ্ঞাপনের গোপনীয়তা",
   "l3AdPrivacySub": "বিজ্ঞাপন আপনার তথ্য কীভাবে ব্যবহার করবে, তা দেখুন বা বদলান",
-  "l3AdPrivacyFailed": "বিজ্ঞাপনের গোপনীয়তার পছন্দগুলো খোলা যায়নি। আবার চেষ্টা করুন।"
+  "l3AdPrivacyFailed": "বিজ্ঞাপনের গোপনীয়তার পছন্দগুলো খোলা যায়নি। আবার চেষ্টা করুন।",
+  "a1CallMissedVoice": "মিসড ভয়েস কল",
+  "a1CallMissedVideo": "মিসড ভিডিও কল",
+  "a1CallVoice": "ভয়েস কল",
+  "a1CallVideo": "ভিডিও কল",
+  "a1CallNoAnswer": "উত্তর নেই",
+  "a1CallDeclined": "প্রত্যাখ্যাত",
+  "a1CallBusy": "ব্যস্ত",
+  "a1CallFailed": "কল ব্যর্থ",
+  "a1CallBack": "আবার কল করতে চাপুন",
+  "a1NotOnAssistoYet": "এখনো Assisto খোলেননি",
+  "a1Invite": "আমন্ত্রণ জানান"
 }

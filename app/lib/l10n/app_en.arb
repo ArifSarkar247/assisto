@@ -16707,5 +16707,16 @@
   "qa2DiscoverActionUrl": "Website",
   "l3AdPrivacyTitle": "Ad privacy choices",
   "l3AdPrivacySub": "Review or change how ads may use your data",
-  "l3AdPrivacyFailed": "Couldn't open ad privacy choices. Please try again."
+  "l3AdPrivacyFailed": "Couldn't open ad privacy choices. Please try again.",
+  "a1CallMissedVoice": "Missed voice call",
+  "a1CallMissedVideo": "Missed video call",
+  "a1CallVoice": "Voice call",
+  "a1CallVideo": "Video call",
+  "a1CallNoAnswer": "No answer",
+  "a1CallDeclined": "Declined",
+  "a1CallBusy": "Busy",
+  "a1CallFailed": "Call failed",
+  "a1CallBack": "Tap to call back",
+  "a1NotOnAssistoYet": "Hasn't opened Assisto yet",
+  "a1Invite": "Invite"
 }
