@@ -16777,5 +16777,290 @@
   "b1CallRouteWired": "Headphones",
   "b1CallOngoingTap": "Tap to return to the call",
   "b1CallDebugRelay": "Path: relay (TURN)",
-  "b1CallDebugDirect": "Path: direct"
+  "b1CallDebugDirect": "Path: direct",
+  "baHubTitle": "AI sales agent",
+  "baHubSub": "24/7 replies, orders and courier on Facebook Page, Instagram and WhatsApp",
+  "baTitle": "AI sales agent",
+  "baSetupTitle": "Agent setup",
+  "baSetupSub": "Channels, delivery charges, policies, couriers",
+  "baAgentCardTitle": "Agent status",
+  "baAiSwitch": "AI replies on",
+  "baAiOnSub": "The AI answers customer messages; risky replies wait for your approval.",
+  "baAiOffSub": "AI is off. Messages are saved and you reply yourself.",
+  "baAiOnDone": "AI replies are on",
+  "baAiOffDone": "AI replies are off",
+  "baNoChannelNote": "No channel is connected yet. Open setup and connect your Facebook Page, Instagram or WhatsApp number.",
+  "baMetaPendingNote": "Assisto's Meta app is not switched on yet, so messages from Meta do not arrive for now. You can still connect your channels.",
+  "baHonestNote": "The AI only states your catalog's prices, stock and delivery charges. A reply with any other number is stopped and sent to you. The first reply tells the customer it is an AI assistant.",
+  "baApprovalsTitle": "Waiting for approval",
+  "baApprovalsPending": "{count} replies waiting for your approval",
+  "@baApprovalsPending": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "baApprovalsNone": "Nothing waiting right now",
+  "baInboxTitle": "Customer chats",
+  "baInboxSub": "Conversations from every channel; reply yourself any time",
+  "baPlanTitle": "Plan and replies",
+  "baPlanTrial": "Free trial",
+  "baPlanStarter": "Starter",
+  "baPlanPro": "Pro",
+  "baPlanNone": "No plan",
+  "baRepliesLeft": "{left} of {total} AI replies left",
+  "@baRepliesLeft": {
+    "placeholders": {
+      "left": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "baNoPlanLine": "No plan is active. With purchased credits, each AI reply uses credits; without them the AI stops and the customer is told a person will reply.",
+  "baCreditReplies": "About {count} more replies from credits",
+  "@baCreditReplies": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "baStartTrial": "Start the {days}-day free trial ({replies} replies)",
+  "@baStartTrial": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "replies": {
+        "type": "int"
+      }
+    }
+  },
+  "baTrialStarted": "Free trial started",
+  "baBuyPlan": "Get {plan} — ৳{price}/month, {replies} replies",
+  "@baBuyPlan": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      },
+      "replies": {
+        "type": "int"
+      }
+    }
+  },
+  "baBuyNotReady": "Plans can be bought here when the payment gateway is connected. For now use the trial or credits.",
+  "baCheckoutNoLink": "The payment page could not be opened. Please try again.",
+  "baTodayTitle": "Today",
+  "baStatOrders": "Orders",
+  "baStatRevenue": "Sales",
+  "baStatMessages": "Messages",
+  "baStatAiReplies": "AI replies",
+  "baLowStockTitle": "Low stock",
+  "baLowStockLine": "{name}: {stock} left",
+  "@baLowStockLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "stock": {
+        "type": "int"
+      }
+    }
+  },
+  "baChMessenger": "Facebook Page",
+  "baChInstagram": "Instagram",
+  "baChWhatsapp": "WhatsApp Business",
+  "baChannelsTitle": "Channels",
+  "baChannelsBody": "Connect the channels your customers message you on. A Facebook Page covers both Messenger and post comments.",
+  "baConnectX": "Connect {channel}",
+  "@baConnectX": {
+    "placeholders": {
+      "channel": {
+        "type": "String"
+      }
+    }
+  },
+  "baOfficialOnly": "Official Meta routes only (Messenger Platform, Instagram Messaging, WhatsApp Cloud API). A personal WhatsApp or the WhatsApp Business app is never automated — that can get the number banned.",
+  "baConnected": "Connected",
+  "baNotConnected": "Not connected",
+  "baChannelOff": "Connected, but switched off by you",
+  "baChannelPausedByAssisto": "Assisto has paused this channel for now; messages are being saved",
+  "baConnectError": "Not connected: {detail}",
+  "@baConnectError": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "baConnectedOk": "Channel connected",
+  "baDisconnect": "Disconnect",
+  "baDisconnectQ": "Disconnect this channel?",
+  "baDisconnectBody": "The token is deleted; the AI stops answering new messages on this channel.",
+  "baStepsPage": "Until Meta's app review is done, connect like this:\n1. Ask Assisto support to add your Facebook account as a tester, then accept the invite at developers.facebook.com/requests.\n2. Open developers.facebook.com/tools/explorer, choose the Assisto app and pick your Page under “User or Page”.\n3. Tick pages_messaging, pages_manage_metadata, pages_read_engagement, pages_manage_engagement and press Generate Access Token.\n4. Copy the Page ID and the token into the fields below.",
+  "baStepsInstagram": "1. The Instagram account must be professional (Business/Creator) and linked to your Facebook Page.\n2. Make a token as for the Page, also ticking instagram_basic and instagram_manage_messages.\n3. In the explorer, with the Page selected, run “me?fields=instagram_business_account” to get the Instagram account ID.\n4. Enter the ID and the token below.",
+  "baStepsWhatsapp": "1. In business.facebook.com → WhatsApp accounts, add your business number (it must not be active on the WhatsApp app).\n2. Business settings → Apps → Add → Connect an app ID — enter the App ID from Assisto support.\n3. Business settings → System users → create a system user, assign the WhatsApp account, then generate a token for the Assisto app with whatsapp_business_messaging and whatsapp_business_management.\n4. Copy the Phone number ID from WhatsApp Manager → Phone numbers. Enter both below.",
+  "baPageId": "Page ID",
+  "baIgAccountId": "Instagram account ID",
+  "baPhoneNumberId": "Phone number ID",
+  "baAccessToken": "Access token",
+  "baConnectCheck": "Check and connect",
+  "baConnectFieldsErr": "Enter both the ID (digits only) and the token.",
+  "baTokenSafe": "The token is stored encrypted on the server and is never shown in the app again.",
+  "baCatalogTitle": "Catalog check",
+  "baCatalogLine": "{count} products · {priced} with a price · {inStock} in stock",
+  "@baCatalogLine": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "priced": {
+        "type": "int"
+      },
+      "inStock": {
+        "type": "int"
+      }
+    }
+  },
+  "baCatalogEmpty": "The catalog is empty. Without products the AI cannot state any price or stock — such questions come to you.",
+  "baCatalogMissingPrice": "No price: {names}",
+  "@baCatalogMissingPrice": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "baCatalogTruth": "The AI uses only this catalog's prices and stock. To change a price, edit the product.",
+  "baDeliveryTitle": "Delivery charges",
+  "baDeliveryInside": "Inside Dhaka",
+  "baDeliveryOutside": "Outside Dhaka",
+  "baFreeOver": "Free delivery over (optional)",
+  "baPoliciesTitle": "Policies and payment",
+  "baReturnPolicy": "Return policy",
+  "baReturnPolicyHint": "e.g. Faulty items are exchanged within 3 days",
+  "baCod": "Cash on delivery",
+  "baPayLink": "Payment link",
+  "baPayLinkSub": "Only through a licensed partner. Assisto never holds money and never asks a customer for a PIN.",
+  "baAiTitle": "AI behaviour",
+  "baTone": "Tone",
+  "baToneFriendly": "Friendly",
+  "baToneFormal": "Formal",
+  "baToneShort": "Short",
+  "baHoursAlways": "Open 24 hours",
+  "baHoursSub": "The AI always answers. With shop hours set, customers are told when a person is available.",
+  "baHoursFrom": "Opens {time}",
+  "@baHoursFrom": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "baHoursTo": "Closes {time}",
+  "@baHoursTo": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "baApproveAll": "I approve every reply",
+  "baApproveAllSub": "When on, no AI reply goes out without your approval.",
+  "baLowStockAlert": "Low-stock alert",
+  "baDailyReport": "End-of-day sales summary",
+  "baRiskyNote": "A price or number not in the catalog, a discount below the minimum, complaints, refunds, unknown products and big orders always come to you for approval.",
+  "baCouriersTitle": "Couriers",
+  "baCouriersBody": "Enter the keys of your own merchant account. With keys, an order books in one tap and the customer gets tracking.",
+  "baPathao": "Pathao",
+  "baSteadfast": "Steadfast",
+  "baRedx": "RedX",
+  "baFClientId": "Client ID",
+  "baFClientSecret": "Client secret",
+  "baFUsername": "Merchant e-mail",
+  "baFPassword": "Merchant password",
+  "baFStoreId": "Store ID",
+  "baFApiKey": "API key",
+  "baFSecretKey": "Secret key",
+  "baFAccessToken": "Access token",
+  "baFPickupStore": "Pickup store ID (optional)",
+  "baSaveKeys": "Save keys",
+  "baKeysSaved": "Keys saved, encrypted",
+  "baKeysEmpty": "No key was entered",
+  "baSaveSettings": "Save setup",
+  "baSaved": "Saved",
+  "baApprovalsEmptyTitle": "All clear",
+  "baApprovalsEmptyBody": "No risky reply is waiting.",
+  "baRiskNumbers": "Number not in catalog",
+  "baRiskBelowMin": "Below minimum price",
+  "baRiskComplaint": "Complaint",
+  "baRiskRefund": "Return/refund",
+  "baRiskUnknown": "Unknown product",
+  "baRiskBigOrder": "Big order",
+  "baRiskApproveAll": "Your approval",
+  "baRiskLowConf": "AI not sure",
+  "baCustomerSaid": "Customer wrote",
+  "baNumbersNotInCatalog": "These numbers are not in your catalog: {numbers}",
+  "@baNumbersNotInCatalog": {
+    "placeholders": {
+      "numbers": {
+        "type": "String"
+      }
+    }
+  },
+  "baProposedReply": "Proposed reply",
+  "baApprove": "Approve and send",
+  "baSendEdited": "Send edited reply",
+  "baReject": "Reject",
+  "baRejected": "Rejected",
+  "baSent": "Sent",
+  "baSendFailed": "Could not send ({reason})",
+  "@baSendFailed": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "baInboxEmptyTitle": "No chats yet",
+  "baInboxEmptyBody": "Customer messages show here once a channel is connected.",
+  "baHandoverOn": "You are replying — AI paused",
+  "baHandoverOff": "AI is replying",
+  "baHandoverOnSub": "The AI stays silent on this chat until you switch it back.",
+  "baHandoverOffSub": "Switch on to reply yourself; the AI pauses.",
+  "baHandoverOnShort": "You are handling",
+  "baHandoverOnDone": "AI paused on this chat",
+  "baHandoverOffDone": "AI resumed on this chat",
+  "baOrderDraft": "Order in progress: {product} × {qty}, phone {phone}, address {address}",
+  "@baOrderDraft": {
+    "placeholders": {
+      "product": {
+        "type": "String"
+      },
+      "qty": {
+        "type": "String"
+      },
+      "phone": {
+        "type": "String"
+      },
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "baWindowClosed": "More than 24 hours since the customer's last message. Meta's rules allow no reply here until the customer writes again.",
+  "baWindowClosedWa": "More than 24 hours since the customer's last message. Only a Meta-approved template can be sent now.",
+  "baNoToken": "This channel has no token — connect it again in setup",
+  "baComposerHint": "Write your own reply",
+  "baSend": "Send",
+  "baByAi": "AI assistant",
+  "baByYou": "You",
+  "baAwaitingApproval": "Waiting for approval"
 }

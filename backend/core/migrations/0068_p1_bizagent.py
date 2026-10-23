@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0066_md1_circle_media_blobs'),
+        ('core', '0067_a1_key_history'),
     ]
 
     operations = [
