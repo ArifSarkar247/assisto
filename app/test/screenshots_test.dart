@@ -293,6 +293,10 @@ AppState _stub({required String lang, FakeMode mode = FakeMode.data}) {
   return s;
 }
 
+/// order5 (Play Store): the assistant doing two everyday tasks — an expense
+/// and a reminder (no money transfer on any store screenshot).
+List<Map<String, dynamic>> _chatStore(String lang) => _chat(lang).sublist(0, 4);
+
 List<Map<String, dynamic>> _chat(String lang) {
   final bn = lang == 'bn';
   return [
@@ -336,7 +340,8 @@ void galleryPrime(String name) {
     FakeApi.planSlug = (name.startsWith('shop_') || name == 'veh_fleet') ? 'business' : 'premium';
     FakeApi.payLive = name.contains('_paylive'); // pay1 gallery stubs
     fakeM3On = name.startsWith('m3_'); // m3-circle gallery stubs
-    fakeC3On = name.startsWith('c3_'); // c3-msg gallery stubs
+    fakeC3On = name.startsWith('c3_') || name == 'ps_circle_media'; // c3-msg gallery stubs
+    if (name == 'ps_circle_media') C3Fake.seedMediaCache(); // order5
     fakeMr1On = name.startsWith('mr1_'); // mr1 gallery stubs
     fakeMd1On = false;
     if (name.startsWith('md1_')) md1Prime(); // md1 E2E media gallery stubs
@@ -493,6 +498,7 @@ Map<String, GallerySpec> gallerySpecs() {
     'payment_ladder': (build: (_) => const PaymentLadderScreen(), mode: FakeMode.data, full: true),
     'elderly_home': (build: (_) => const ElderlyHomeScreen(), mode: FakeMode.data, full: true),
     'chat': (build: (l) => Scaffold(appBar: AppBar(title: const Text('Assisto')), body: AgentThreadScreen(debugSeed: _chat(l))), mode: FakeMode.data, full: true),
+    'ps_assistant': (build: (l) => Scaffold(appBar: AppBar(title: const Text('Assisto')), body: AgentThreadScreen(debugSeed: _chatStore(l))), mode: FakeMode.data, full: true), // order5
     'chat_voice': (build: (l) => Scaffold(appBar: AppBar(title: const Text('Assisto')), body: AgentThreadScreen(debugSeed: const [], debugListening: true)), mode: FakeMode.data, full: true),
     'drawer': (build: (_) => Scaffold(body: Row(children: [AppDrawer(onNewChat: () {})])), mode: FakeMode.data, full: true),
     // Owner order after build 146: sidebar "Assisto AI" -> one chats page.
@@ -678,6 +684,7 @@ Map<String, GallerySpec> gallerySpecs() {
     // ---- c3-msg ---- ticks, decrypted previews, typing, unread, presence
     'c3_chat_list': (build: (_) => Scaffold(appBar: AppBar(title: Builder(builder: (ctx) => Text(AppLocalizations.of(ctx).sidebarMyCircle))), body: MsgrHubChatList(identity: C3Fake.me, members: const [])), mode: FakeMode.data, full: true),
     'c3_chat': (build: (l) => CircleChatScreen(member: C3Fake.member(l == 'bn'), identity: C3Fake.me), mode: FakeMode.data, full: true),
+    'ps_circle_media': (build: (l) => CircleChatScreen(member: C3Fake.memberMedia(l == 'bn'), identity: C3Fake.me), mode: FakeMode.data, full: true), // order5
     'c3_msg_info': (build: (l) => Scaffold(appBar: AppBar(), body: Align(alignment: Alignment.bottomCenter, child: Material(elevation: 6, child: MessageInfoView(load: () async => C3Fake.info(l == 'bn'))))), mode: FakeMode.data, full: true),
     'c3_notif_settings': (build: (_) => const MsgrSetNotificationsScreen(), mode: FakeMode.data, full: true),
     // x2-ticks: new outgoing bubble + ✓ / ✓✓ / blue ✓✓, photos, receipts off
@@ -782,6 +789,22 @@ void main() {
     });
     for (var i = 0; i < 4; i++) {
       await tester.pump(const Duration(milliseconds: 60));
+    }
+    if (name.startsWith('ps_')) {
+      // order5: media bubbles add their Image.file after the first frames —
+      // decode those too so the store shot shows the real photo.
+      for (var pass = 0; pass < 6; pass++) {
+        await tester.runAsync(() async {
+          for (final el in find.byType(Image).evaluate()) {
+            final img = el.widget as Image;
+            await precacheImage(img.image, el)
+                .timeout(const Duration(seconds: 5), onTimeout: () {});
+          }
+          await Future.delayed(const Duration(milliseconds: 1500));
+        });
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
+      }
     }
     if (name.endsWith('_menu')) {
       try {
