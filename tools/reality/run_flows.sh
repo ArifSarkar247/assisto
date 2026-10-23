@@ -20,7 +20,12 @@ set -u
 OUT="${REALITY_OUT:-$PWD/reality_out}"
 PKG=com.assisto.assisto
 DEV=/sdcard/Android/data/$PKG/files/reality
-EMU_OPTS="-no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim"
+EMU_OPTS="${REALITY_EMU_OPTS:--no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim}"
+# rt2: the matrix job builds ONE debug test APK (start + its group baked in via
+# --dart-define=REALITY_ONLY) BEFORE the emulator boots; `flutter drive
+# --use-application-binary` then only installs it, so no Gradle daemon (GBs of
+# host RAM) runs next to the emulator. Unset = old behaviour (drive builds).
+APK="${REALITY_APK:-}"
 mkdir -p "$OUT/shots" "$OUT/device"
 cd app
 
@@ -44,7 +49,18 @@ prep_device() {
       fi; sleep 2; done ) &
 }
 
+host_diag() {  # why did the device go away? (host OOM kill vs emulator crash)
+  {
+    echo "== host diagnostics ($(date +%T)) after: $1"
+    free -m
+    pgrep -fa qemu-system | cut -c1-200 || echo "qemu-system: not running"
+    (sudo -n dmesg -T 2>/dev/null || dmesg -T 2>/dev/null) | grep -iE "killed process|out of memory|oom|qemu|segfault" | tail -20
+    ls -la /tmp/android-runner/ 2>/dev/null | tail -5
+  } >> "$OUT/host_diag.log" 2>&1
+}
+
 restart_emulator() {
+  host_diag "emulator gone"
   echo "== emulator is gone — restarting it ($(date +%T))" | tee -a "$OUT/drive.log"
   timeout 20 adb -s emulator-5554 emu kill >/dev/null 2>&1 || true
   pkill -f "qemu-system" 2>/dev/null || true
@@ -77,7 +93,9 @@ prep_device
       done ) &
 
 echo "== settle 60 s after boot"; sleep 60
-GROUPS_ALL="start home personal family business docs sweep"
+# rt2: a "+" joins groups into ONE drive / app process (the matrix job runs
+# "start+personal": log in, then the group, on a fresh emulator).
+GROUPS_ALL="start home personal family circle business docs sweep"
 GROUPS_RUN="${REALITY_ONLY:-$GROUPS_ALL}"
 GROUPS_RUN="${GROUPS_RUN//,/ }"
 DEADLINE=$(( $(date +%s) + ${REALITY_TOTAL_SECONDS:-4200} ))
@@ -86,17 +104,30 @@ run_group() {  # $1 = group, $2 = attempt label
   left=$(( DEADLINE - $(date +%s) ))
   [ "$left" -gt 120 ] || { echo "== out of time before group $g" | tee -a "$OUT/drive.log"; return 2; }
   if ! alive; then restart_emulator || return 2; fi
-  echo "== flutter drive group=$g$2 ($(date +%T), ${left}s left)" | tee -a "$OUT/drive.log"
+  local bin=() att="$OUT/.attempt.log"
+  [ -n "$APK" ] && [ -f "$APK" ] && [ "${3:-}" != "build" ] && bin=(--use-application-binary "$APK")
+  echo "== flutter drive group=$g$2 ($(date +%T), ${left}s left) ${bin[*]:-(builds)}" | tee -a "$OUT/drive.log"
+  : > "$att"
   REALITY_OUT="$OUT" timeout "$(( left < 1500 ? left : 1500 ))" flutter drive \
     --driver=test_driver/integration_test.dart \
     --target=integration_test/reality_all_test.dart \
     -d emulator-5554 \
+    "${bin[@]}" \
     --dart-define=REALITY_API_BASE=http://10.0.2.2:8700 \
-    --dart-define=REALITY_ONLY="$g" \
+    --dart-define=REALITY_ONLY="${g//+/,}" \
     --keep-app-running \
-    >> "$OUT/drive.log" 2>&1
+    > "$att" 2>&1
   local rc=$?
+  cat "$att" >> "$OUT/drive.log"
   echo "group $g$2 drive exit=$rc" | tee -a "$OUT/drive.log"
+  # The prebuilt binary could not even start the flows (no REALITY_RESULT
+  # printed, device still alive): fall back ONCE to a normal building drive.
+  if [ "$rc" -ne 0 ] && [ ${#bin[@]} -gt 0 ] && alive && ! grep -q "REALITY_RESULT" "$att"; then
+    echo "== prebuilt APK produced no results — retrying group $g with a building drive" | tee -a "$OUT/drive.log"
+    run_group "$g" "$2 (build)" build
+    return $?
+  fi
+  [ "$rc" -ne 0 ] && ! alive && host_diag "group $g$2 drive exit=$rc"
   return $rc
 }
 
@@ -129,4 +160,13 @@ grep -c "REALITY_RESULT" "$OUT/live_logcat.txt" 2>/dev/null || true
 pkill -f "tail -n +1 -F $OUT/live_logcat.txt" 2>/dev/null || true
 pkill -f "adb logcat -v time" 2>/dev/null || true
 jobs -p | xargs -r kill 2>/dev/null || true
+pkill -f "timeout 3000" 2>/dev/null || true
+# rt2: run 39895738392 — the flows ended at 03:48 but the step hung until it
+# was cancelled: after the action's own `adb emu kill` the emulator never
+# exited (netsim "GOAWAY"), and run 39884806316 idled 26 min the same way.
+# Stop it here, hard, so the step ends with the flows.
+timeout 20 adb emu kill >/dev/null 2>&1 || true
+sleep 5
+pkill -9 -f qemu-system 2>/dev/null || true
+pkill -9 -f netsimd 2>/dev/null || true
 exit 0

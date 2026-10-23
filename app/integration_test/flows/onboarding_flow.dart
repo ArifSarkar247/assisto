@@ -19,6 +19,12 @@ void registerOnboardingFlows() {
     });
     await f.step('left the picker; app is in English', () async {
       expect(f.app.locale?.languageCode, 'en');
+      if (f.app.loggedIn) {
+        // rt2: a retry on the same AVD (the emulator was restarted) is
+        // already past login — there is no login screen to wait for.
+        f.note('already logged in (retry on the same device)');
+        return;
+      }
       await f.waitFor(find.text(f.t.login).hitTestable(), what: 'login screen');
       await f.shot('login-screen-en');
     });

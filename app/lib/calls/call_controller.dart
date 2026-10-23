@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import '../services/error_kind.dart';
 import 'call_log.dart';
 
 /// REAL 1:1 call state machine (c2-calls). Pure Dart: media, signalling and
@@ -43,6 +44,7 @@ enum CallEndReason {
   unavailable, // callee switched off calls / blocked (neutral)
   upgrade, // video needs Premium (server gate)
   network, // could not reach our server
+  serverError, // rt2: our server ANSWERED with a 5xx (not the user's internet)
 }
 
 CallEndReason endReasonFromServer(String s) {
@@ -341,8 +343,18 @@ class CallController extends ChangeNotifier {
     } catch (e) {
       log.add('start-failed:$e');
       if (!isEnded) {
-        await _hangupWith('fail',
-            callId == null ? CallEndReason.network : CallEndReason.mediaError);
+        // rt2: a 5xx while placing/accepting is OUR server, never the user's
+        // internet (reality run 39859999833: POST /circle/1/call 500 showed
+        // "Couldn't reach Assisto. Please check your internet").
+        await _hangupWith(
+            'fail',
+            callId == null
+                ? (isServerFailure(e)
+                    ? CallEndReason.serverError
+                    : CallEndReason.network)
+                : (isServerFailure(e)
+                    ? CallEndReason.serverError
+                    : CallEndReason.mediaError));
       }
     }
   }

@@ -426,6 +426,28 @@ def new_cart():
     return {"lines": [], "_next_id": 1}
 
 
+def normalize_cart(cart):
+    """rt2: the cart the phone sends back (it is stateless, the client holds
+    it). A cart from `cart/get` or an older app may lack "_next_id" or even
+    "lines" — reality run 39895738392: POST cart/add 500 KeyError '_next_id'.
+    Returns a cart with both keys; the next id is past every existing line."""
+    if not isinstance(cart, dict) or not cart:
+        return new_cart()
+    lines = cart.get("lines")
+    if not isinstance(lines, list):
+        lines = []
+    cart["lines"] = lines
+    ids = [int(l.get("id") or 0) for l in lines if isinstance(l, dict)
+           and str(l.get("id") or "0").lstrip("-").isdigit()]
+    nxt = cart.get("_next_id")
+    try:
+        nxt = int(nxt)
+    except (TypeError, ValueError):
+        nxt = 0
+    cart["_next_id"] = max([nxt, 1] + [i + 1 for i in ids])
+    return cart
+
+
 def _price_for(variant, override):
     """Resolve a line's unit price (poisha) given an optional override.
 
@@ -451,6 +473,7 @@ def cart_add_line(cart, product, variant_key=None, qty=1, price_override=None,
     Enforces: qty>0, stock available, and price override >= variant minimum.
     If the override is below minimum the line is NOT added; reason=R_BELOW_MIN.
     """
+    cart = normalize_cart(cart)
     qty = int(qty or 0)
     if qty <= 0:
         return (cart, None, R_QTY)
