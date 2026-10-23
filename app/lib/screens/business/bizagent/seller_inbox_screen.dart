@@ -121,7 +121,13 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
   @override
   void initState() {
     super.initState();
+    _c.addListener(_onText);
     _load();
+  }
+
+  // Send is enabled only when there is text (no dead taps).
+  void _onText() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -273,7 +279,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
             const SizedBox(width: Gap.sm),
             IconButton.filled(
               tooltip: t.baSend,
-              onPressed: _busy ? null : _send,
+              onPressed: _busy || _c.text.trim().isEmpty ? null : _send,
               icon: const Icon(Icons.send),
             ),
           ]),

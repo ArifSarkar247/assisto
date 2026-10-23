@@ -155,6 +155,7 @@ void main() {
     expect(p1Posts.last.key, '/bizagent/threads/5/handover');
     expect(p1Posts.last.value['on'], isTrue);
     await tester.enterText(find.byType(TextField), 'Ami dekhchi');
+    await tester.pump(); // Send enables once there is text
     await tester.tap(find.byTooltip(t.baSend));
     await tester.pump(const Duration(milliseconds: 200));
     expect(p1Posts.last.key, '/bizagent/threads/5/send');
