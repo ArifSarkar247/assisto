@@ -11,8 +11,7 @@
   "variants": {
     "reg_h128": {"hidden": 128, "train": {"dropout": 0.2, "input_noise": 0.1, "l2": 1e-4}},
     "reg_h128_lowneg": {"hidden": 128, "train": {"dropout": 0.2, "input_noise": 0.1, "l2": 1e-4, "max_neg_weight": 10.0}},
-    "reg_h128_d3": {"hidden": 128, "train": {"dropout": 0.3, "input_noise": 0.15, "l2": 1e-4, "max_neg_weight": 20.0}},
-    "reg_lowneg": {"train": {"dropout": 0.2, "input_noise": 0.1, "l2": 1e-4, "max_neg_weight": 10.0}}
+    "reg_h128_d3": {"hidden": 128, "train": {"dropout": 0.3, "input_noise": 0.15, "l2": 1e-4, "max_neg_weight": 20.0}}
   },
 
   "ensemble": true,
@@ -27,7 +26,7 @@
            "musan_speech_files": 300, "musan_train_stream_hours": 6.0, "eval_bn_hours": 10.0,
            "eval_tv_hours": 10.0, "tv_en_train_hours": 4.0,
            "fleurs_bn_test_hours": 4.0, "fleurs_hi_dev_hours": 1.5},
-  "thresholds": {"target_fa_per_hour": 0.1, "low_offset": 1.0, "high_mult": 5.0, "margin": 0.0,
+  "thresholds": {"target_fa_per_hour": 0.05, "low_offset": 1.0, "high_mult": 5.0, "margin": 0.0,
                  "temperature_target": 3.0},
   "target_fr": 0.10,
   "target_fa_per_10h": 1.0,
