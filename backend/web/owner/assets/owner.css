@@ -77,6 +77,8 @@ table.drag tr[draggable=true]{cursor:grab}table.drag tr.dragging{opacity:.4}tabl
 .flash{margin:14px 24px 0;padding:11px 14px;border-radius:12px;background:rgba(52,195,143,.12);border:1px solid rgba(52,195,143,.35);color:#bff0dc}
 .content .flash,.auth-card .flash{margin:0 0 14px}
 .flash.warn{background:rgba(244,183,64,.10);border-color:rgba(244,183,64,.4);color:#ffe2a6}
+.flash.bad{background:rgba(255,107,125,.16);border-color:rgba(255,107,125,.55);color:#ffd0d6}
+.flash.bad small{color:#ffd0d6;opacity:.92}
 .flash ul{margin:6px 0 0;padding-left:18px}
 .empty{color:var(--mut);padding:18px;text-align:center;border:1px dashed var(--line);border-radius:12px;margin:0}
 .legend{display:flex;gap:14px;align-items:center;color:var(--mut);font-size:12px;margin-bottom:6px}

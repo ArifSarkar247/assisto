@@ -267,6 +267,8 @@ def create_job(user, data, lang="bn"):
                      "message": refusal_message(verdict["reason"], lang),
                      "flags": verdict["flags"]}
 
+    from . import billing
+    billing.ensure_monthly_pool(user)       # paid: this month's pool first
     c = _cfg()
     q = quote(user, feature, c)
     if not q.get("ok"):

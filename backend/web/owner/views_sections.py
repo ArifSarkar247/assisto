@@ -50,6 +50,19 @@ def dashboard(request):
     from core.models import DiscoverCard
     from core.views_discover import _admin_payload
     ctx = {}
+    # Owner decision: red banner while the server disk is >= limits.disk_alert_pct
+    # (default 80%); nothing under it. Same check uptime_check alerts from.
+    try:
+        from core import disk_alert
+        st = disk_alert.status()
+        ctx["disk"] = st if st["alert"] else None
+        if st["alert"] and request.owner_lang == "bn":
+            ctx["disk_txt"] = {k: disk_alert.bn_digits(st[k])
+                               for k in ("used_pct", "free_gb", "threshold")}
+        elif st["alert"]:
+            ctx["disk_txt"] = {k: st[k] for k in ("used_pct", "free_gb", "threshold")}
+    except Exception:
+        ctx["disk"] = None
     try:
         ctx["segments"] = billing.plan_segment_counts()
     except Exception:
@@ -305,6 +318,16 @@ _DICT_SECTIONS = ("guarantees", "limits", "referral", "profit_guard", "shop", "o
                   "vehicle", "photo_studio")
 
 
+# Plan-row keys the editor never shows or posts. Owner decision: nothing is
+# unlimited — the old unlimited_ai switch is gone (normalize forces False and
+# validate_edit refuses a True), so it is not offered as a control at all.
+_PLAN_HIDDEN = ("unlimited_ai",)
+
+
+def _plan_row(row):
+    return {k: v for k, v in row.items() if k not in _PLAN_HIDDEN}
+
+
 def _coerce(raw, current):
     """Form string -> the type of the current config value (None = invalid)."""
     if isinstance(current, bool):
@@ -356,7 +379,7 @@ def _pricing_patch(request, cfg):
     if sec == "scalars":
         patch = read("s", {k: cfg[k] for k in _SCALARS if k in cfg})
     elif sec == "plans":
-        patch = {"plans": {pid: read("plans.%s" % pid, row)
+        patch = {"plans": {pid: read("plans.%s" % pid, _plan_row(row))
                            for pid, row in cfg["plans"].items()}}
     elif sec == "action_costs":
         patch = {"action_costs": {aid: read("ac.%s" % aid, row)
@@ -439,8 +462,8 @@ def pricing(request):
         "cfg": cfg, "audit": (snap.get("audit") or [])[:15],
         "margin_check": snap.get("margin_check"), "warnings": snap.get("warnings") or [],
         "scalars": _fields_of({k: cfg[k] for k in _SCALARS if k in cfg}),
-        "plans": [(pid, _fields_of(row)) for pid, row in cfg["plans"].items()],
-        "plan_cols": [k for k, _, _ in _fields_of(next(iter(cfg["plans"].values())))],
+        "plans": [(pid, _fields_of(_plan_row(row))) for pid, row in cfg["plans"].items()],
+        "plan_cols": [k for k, _, _ in _fields_of(_plan_row(next(iter(cfg["plans"].values()))))],
         "actions": [(aid, _fields_of(row)) for aid, row in cfg["action_costs"].items()],
         "action_cols": [k for k, _, _ in _fields_of(next(iter(cfg["action_costs"].values())))]
         if cfg["action_costs"] else [],

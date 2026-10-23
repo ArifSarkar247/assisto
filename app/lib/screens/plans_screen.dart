@@ -236,12 +236,10 @@ class _PlansScreenState extends State<PlansScreen> {
       const SizedBox(height: Gap.lg),
       _safetyPromise(t, scheme),
       const SizedBox(height: Gap.md),
-      // Honest allowance explainer: NOTHING is unlimited. Each paid plan
-      // includes a MONTHLY credit pool; when it's used up you buy credits.
-      // qa1: the card above reads the server's own `unlimited_ai` for THIS
-      // plan; when the server says unlimited, "Nothing is unlimited" right
-      // under "Unlimited AI" contradicted it — show the note only when true.
-      if (_p?['unlimited_ai'] != true) _allowanceNote(t, scheme),
+      // Honest allowance explainer: NOTHING is unlimited (owner decision —
+      // Premium is 90 credits/month, Business 240). Always shown; the card
+      // above always shows the credit count, never "Unlimited AI".
+      _allowanceNote(t, scheme),
       const SizedBox(height: Gap.sm),
       // Entry to the Credits screen (balance / packs / usage / storage).
       OutlinedButton.icon(
@@ -376,7 +374,8 @@ class _PlansScreenState extends State<PlansScreen> {
     final p = _p!;
     final credits = p['credits'] ?? 0;
     final trial = p['trial_active'] == true;
-    final unlimited = p['unlimited_ai'] == true;
+    // Ad-free plans (paid / trial) don't offer the rewarded-ad button.
+    final showAds = p['ads'] == true;
     return Container(
       decoration: BoxDecoration(
           gradient: Brand.gradient,
@@ -403,11 +402,11 @@ class _PlansScreenState extends State<PlansScreen> {
         Row(children: [
           const Icon(Icons.bolt, color: Colors.white, size: 20),
           const SizedBox(width: 6),
-          Text(unlimited ? t.unlimitedAi : t.aiCreditsCount(credits),
+          Text(t.aiCreditsCount(credits),
               style: const TextStyle(
                   color: Colors.white, fontWeight: FontWeight.w600)),
         ]),
-        if (!unlimited) ...[
+        if (showAds) ...[
           const SizedBox(height: Gap.md),
           FilledButton.tonalIcon(
             onPressed: _busy ? null : _rewarded,

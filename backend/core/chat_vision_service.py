@@ -165,6 +165,8 @@ def create_job(user, data, lang="bn"):
     if CV.asks_identification(question):
         return 422, {"ok": False, "refused": True, "reason": "identify_person",
                      "message": funding_message("identify_person", lang)}
+    from . import billing
+    billing.ensure_monthly_pool(user)       # paid: this month's pool first
     c = S._cfg()
     q = quote(user, c)
     if not q.get("ok"):

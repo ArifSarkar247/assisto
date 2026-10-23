@@ -518,7 +518,7 @@ class FakeApi extends ApiClient {
   @override
   Future<Map<String, dynamic>> plan() async => {
         'plan': planSlug, 'name': _bn ? 'প্রিমিয়াম' : 'Premium', 'name_bn': _bn ? 'প্রিমিয়াম' : 'Premium',
-        'unlimited_ai': true, 'ads': false, 'credits': 0,
+        'unlimited_ai': false, 'ads': false, 'credits': 90,
         'trial_active': true, 'trial_until': '2026-10-20T00:00:00',
       };
 
@@ -531,17 +531,17 @@ class FakeApi extends ApiClient {
          'benefits': _bn ? ['AI: ক্রেডিট প্যাক কিনে বা বিজ্ঞাপন দেখে', 'রিমাইন্ডার, ভল্ট, হিসাব', 'জরুরি SOS ও স্ক্যাম সতর্কতা (ফ্রি)', 'ওষুধ রিমাইন্ডার (ফ্রি)'] : ['AI with credit packs or rewarded ads', 'Reminders, documents, money', 'Emergency SOS & scam alerts (free)', 'Medicine reminders (free)'],
          'unlimited_ai': false, 'ads': true, 'family': 0, 'credits': 0},
         {'id': 'premium', 'name': _bn ? 'প্রিমিয়াম' : 'Premium', 'price': 199, 'cur': 'BDT', 'period': 'mo',
-         'desc': _bn ? 'আনলিমিটেড AI, বিজ্ঞাপন নেই — পরিবারের যত্ন একসাথে।' : 'Unlimited AI, no ads — care for your family together.',
-         'benefits': _bn ? ['আনলিমিটেড AI স্ক্যান ও সহকারী', 'বিজ্ঞাপন নেই', '৫ জন পর্যন্ত কানেক্টেড সার্কেল ও কেয়ারগিভার ড্যাশবোর্ড'] : ['Unlimited AI scans & assistant', 'No ads', 'Up to 5-member Circle & caregiver dashboard'],
-         'unlimited_ai': true, 'ads': false, 'family': 5, 'credits': 90},
+         'desc': _bn ? 'প্রতি মাসে AI ক্রেডিট, বিজ্ঞাপন নেই — পরিবারের যত্ন একসাথে।' : 'Monthly AI credits, no ads — care for your family together.',
+         'benefits': _bn ? ['প্রতি মাসে ৯০ AI ক্রেডিট (স্ক্যান ও সহকারী)', 'বিজ্ঞাপন নেই', '৫ জন পর্যন্ত কানেক্টেড সার্কেল ও কেয়ারগিভার ড্যাশবোর্ড'] : ['90 AI credits / month (scans & assistant)', 'No ads', 'Up to 5-member Circle & caregiver dashboard'],
+         'unlimited_ai': false, 'ads': false, 'family': 5, 'credits': 90},
         {'id': 'business', 'name': _bn ? 'বিজনেস' : 'Business', 'price': 499, 'cur': 'BDT', 'period': 'mo',
          'desc': _bn ? 'ছোট ব্যবসা ও বিক্রয় দলের জন্য।' : 'For small businesses and sales teams.',
-         'benefits': _bn ? ['আনলিমিটেড AI', 'বিজনেস মোড: ক্যাটালগ ও অর্ডার', 'AI CRM (Axon Dynamics)'] : ['Unlimited AI', 'Business mode: catalog & orders', 'AI CRM (Axon Dynamics)'],
-         'unlimited_ai': true, 'ads': false, 'family': 0, 'credits': 240},
+         'benefits': _bn ? ['প্রতি মাসে ২৪০ AI ক্রেডিট (স্ক্যান ও সহকারী)', 'বিজনেস মোড: ক্যাটালগ ও অর্ডার', 'AI CRM (Axon Dynamics)'] : ['240 AI credits / month (scans & assistant)', 'Business mode: catalog & orders', 'AI CRM (Axon Dynamics)'],
+         'unlimited_ai': false, 'ads': false, 'family': 0, 'credits': 240},
         {'id': 'annual', 'name': _bn ? 'বার্ষিক (প্রিমিয়াম)' : 'Annual (Premium)', 'price': 1910, 'cur': 'BDT', 'period': 'yr',
          'desc': _bn ? 'প্রিমিয়াম — বছরে, ২০% সাশ্রয়।' : 'Premium — yearly, save 20%.',
-         'benefits': _bn ? ['আনলিমিটেড AI স্ক্যান ও সহকারী', 'বিজ্ঞাপন নেই'] : ['Unlimited AI scans & assistant', 'No ads'],
-         'unlimited_ai': true, 'ads': false, 'family': 5, 'credits': 0},
+         'benefits': _bn ? ['প্রতি মাসে ৯০ AI ক্রেডিট (স্ক্যান ও সহকারী)', 'বিজ্ঞাপন নেই'] : ['90 AI credits / month (scans & assistant)', 'No ads'],
+         'unlimited_ai': false, 'ads': false, 'family': 5, 'credits': 90},
       ]);
 
   @override

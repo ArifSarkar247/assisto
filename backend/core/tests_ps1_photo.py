@@ -264,13 +264,17 @@ class _Base(APITestCase):
         self.prem = User.objects.create_user(name="P", phone="01710000902", password="pw")
         self.prem.plan = "premium"
         self.prem.plan_until = timezone.now() + timedelta(days=30)
-        self.prem.ai_credits = 90
         self.prem.save()
+        # pr1: the monthly pool is a real grant now (Premium 90 / Business 240)
+        from core import billing as _b
+        _b.grant_monthly_pool(self.prem)
+        self.prem.refresh_from_db()
         self.biz = User.objects.create_user(name="B", phone="01710000903", password="pw")
         self.biz.plan = "business"
         self.biz.plan_until = timezone.now() + timedelta(days=30)
-        self.biz.ai_credits = 240
         self.biz.save()
+        _b.grant_monthly_pool(self.biz)
+        self.biz.refresh_from_db()
         self.owner = User.objects.create_user(name="O", phone="01710000904", password="pw")
         self.owner.is_superuser = True
         self.owner.save()

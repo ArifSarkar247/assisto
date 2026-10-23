@@ -59,12 +59,12 @@ _PLAN_META = {
     },
     "premium": {
         "name_bn": "প্রিমিয়াম", "name_en": "Premium",
-        "desc_bn": "আনলিমিটেড AI, বিজ্ঞাপন নেই — পরিবারের যত্ন একসাথে।",
-        "desc_en": "Unlimited AI, no ads — care for your family together.",
-        "benefits_bn": ["আনলিমিটেড AI স্ক্যান ও সহকারী", "বিজ্ঞাপন নেই",
+        "desc_bn": "প্রতি মাসে AI ক্রেডিট, বিজ্ঞাপন নেই — পরিবারের যত্ন একসাথে।",
+        "desc_en": "Monthly AI credits, no ads — care for your family together.",
+        "benefits_bn": ["প্রতি মাসে AI ক্রেডিট (স্ক্যান ও সহকারী)", "বিজ্ঞাপন নেই",
                         "৫ জন পর্যন্ত কানেক্টেড সার্কেল ও কেয়ারগিভার ড্যাশবোর্ড",
                         "স্মার্ট ব্রিফিং ও অগ্রাধিকার সাপোর্ট"],
-        "benefits_en": ["Unlimited AI scans & assistant", "No ads",
+        "benefits_en": ["Monthly AI credits (scans & assistant)", "No ads",
                         "Up to 5-member Circle & caregiver dashboard",
                         "Smart briefings & priority support"],
     },
@@ -72,9 +72,9 @@ _PLAN_META = {
         "name_bn": "বিজনেস", "name_en": "Business",
         "desc_bn": "ছোট ব্যবসা ও বিক্রয় দলের জন্য।",
         "desc_en": "For small businesses and sales teams.",
-        "benefits_bn": ["আনলিমিটেড AI", "বিজনেস মোড: ক্যাটালগ ও অর্ডার",
+        "benefits_bn": ["প্রতি মাসে AI ক্রেডিট", "বিজনেস মোড: ক্যাটালগ ও অর্ডার",
                         "AI CRM (Axon Dynamics)", "দলের আসন"],
-        "benefits_en": ["Unlimited AI", "Business mode: catalog & orders",
+        "benefits_en": ["Monthly AI credits", "Business mode: catalog & orders",
                         "AI CRM (Axon Dynamics)", "Team seats"],
     },
 }
@@ -254,14 +254,16 @@ def DEFAULTS():
         "plans": {
             # v2: Business 999 -> 499, Premium 199, Free 0. Monthly included
             # credit POOL (granted monthly, reset not accumulated — no rollover):
-            # Free 0, Premium 90, Business 240.
+            # Free 0, Premium 90, Business 240. NOTHING is unlimited in any
+            # plan (owner decision 2026-10): unlimited_ai is always False and
+            # normalize() forces it so, whatever the stored row says.
             "free":     {"price": 0,   "credits": 0,   "unlimited_ai": False,
                          "ads": True,  "family": 0,
                          "storage_bytes": 1 * GB},
-            "premium":  {"price": 199, "credits": 90,  "unlimited_ai": True,
+            "premium":  {"price": 199, "credits": 90,  "unlimited_ai": False,
                          "ads": False, "family": 5,
                          "storage_bytes": 5 * GB},
-            "business": {"price": 499, "credits": 240, "unlimited_ai": True,
+            "business": {"price": 499, "credits": 240, "unlimited_ai": False,
                          "ads": False, "family": 0,
                          "storage_bytes": 15 * GB},
         },
@@ -331,6 +333,9 @@ def DEFAULTS():
             # and the in-app feedback rate limit (per user).
             "founding_member_months": 12,
             "feedback_per_hour": 5,
+            # Owner Admin disk alert: banner + owner alert when the server's
+            # root disk is at/over this percent used (core.disk_alert).
+            "disk_alert_pct": 80,
             "feedback_per_day": 20,
             # t1-ticks: My Circle needs at least this app build (ticks,
             # receipts, calls). Older builds get "Update Assisto"; peers on an
@@ -408,7 +413,10 @@ def normalize(data):
         plans[pid] = {
             "price": max(0, _int(raw.get("price"), pdef["price"])),
             "credits": max(0, _int(raw.get("credits"), pdef["credits"])),
-            "unlimited_ai": _bool(raw.get("unlimited_ai"), pdef["unlimited_ai"]),
+            # Owner decision: no plan is ever unlimited. A stored live row may
+            # still carry unlimited_ai: true from before — it is IGNORED here,
+            # so no data migration is needed and nothing downstream can see it.
+            "unlimited_ai": False,
             "ads": _bool(raw.get("ads"), pdef["ads"]),
             "family": max(0, _int(raw.get("family"), pdef["family"])),
             "storage_bytes": max(0, _int(raw.get("storage_bytes"),
@@ -538,6 +546,8 @@ def _norm_limits(raw, base):
             raw.get("feedback_per_hour"), base.get("feedback_per_hour", 5)))),
         "feedback_per_day": max(1, min(500, _int(
             raw.get("feedback_per_day"), base.get("feedback_per_day", 20)))),
+        "disk_alert_pct": max(50, min(99, _int(
+            raw.get("disk_alert_pct"), base.get("disk_alert_pct", 80)))),
         "my_circle_min_version": max(0, min(1000000, _int(
             raw.get("my_circle_min_version"),
             base.get("my_circle_min_version", 183)))),
@@ -730,6 +740,7 @@ def validate_edit(data):
 
     Codes: 'margin_negative', 'margin_below_target', 'price_negative',
     'credits_negative', 'provider_cost_negative', 'bad_credit_basis',
+    'unlimited_not_allowed' (a plan edit tried to set unlimited_ai: true),
     'bad_fee' (fees out of [0,1) or summing >=1), 'action_breaks_margin'
     (an action charges fewer credits than the NET-margin floor requires), and
     'pool_exceeds_net' (a plan's monthly included-pool face value > 60% of its
@@ -744,6 +755,9 @@ def validate_edit(data):
             problems.append("margin_below_target")
     for pid, raw in (d.get("plans") or {}).items():
         if isinstance(raw, dict):
+            # owner decision: nothing is unlimited — refuse an edit that tries
+            if _bool(raw.get("unlimited_ai"), False):
+                problems.append("unlimited_not_allowed")
             if _num(raw.get("price"), 0) < 0:
                 problems.append("price_negative")
             if _num(raw.get("credits"), 0) < 0:
@@ -948,16 +962,18 @@ def plan_benefits(pid, lang, cfg):
     lines = list(_PLAN_META[pid]["benefits_" + ("bn" if bn else "en")])
     if pid == "free":
         n = s["credits"]
-        if s["unlimited_ai"]:
-            first = "আনলিমিটেড AI" if bn else "Unlimited AI"
-        elif n > 0:
+        if n > 0:
             first = (f"প্রতি মাসে {_bn_num(n)} AI ক্রেডিট" if bn
                      else f"{n} AI credits / month")
         else:
             first = ("AI: ক্রেডিট প্যাক কিনে বা বিজ্ঞাপন দেখে" if bn
                      else "AI with credit packs or rewarded ads")
         lines[0] = first
-    elif pid == "premium":
+    elif pid in ("premium", "business"):
+        n = s["credits"]
+        lines[0] = (f"প্রতি মাসে {_bn_num(n)} AI ক্রেডিট (স্ক্যান ও সহকারী)" if bn
+                    else f"{n} AI credits / month (scans & assistant)")
+    if pid == "premium":
         fam = s["family"]
         if fam > 0:
             lines[2] = (f"{_bn_num(fam)} জন পর্যন্ত কানেক্টেড সার্কেল ও কেয়ারগিভার ড্যাশবোর্ড"
@@ -1000,8 +1016,8 @@ def plan_public(lang, cfg):
         "desc": pick(lang, f"প্রিমিয়াম — বছরে, {disc}% সাশ্রয়।",
                      f"Premium — yearly, save {disc}%."),
         "benefits": plan_benefits("premium", lang, cfg),
-        "unlimited_ai": True, "ads": False, "family": prem["family"],
-        "credits": 0,
+        "unlimited_ai": False, "ads": False, "family": prem["family"],
+        "credits": prem["credits"],         # the same monthly pool, every month
     })
     return out
 
