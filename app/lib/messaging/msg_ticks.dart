@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'chat_decor/chat_themes.dart';
+
 /// c3-msg — WhatsApp-standard message ticks (sender view).
 ///
 ///   pending   clock      queued on this phone, not on the server yet
@@ -71,13 +73,24 @@ class MsgPalette {
 
   static bool _dark(BuildContext c) =>
       Theme.of(c).brightness == Brightness.dark;
-  static Color outBubble(BuildContext c) => _dark(c) ? outDark : outLight;
-  static Color outText(BuildContext c) => _dark(c) ? outDarkText : outLightText;
-  static Color outMeta(BuildContext c) => _dark(c) ? outDarkMeta : outLightMeta;
+  // cde-chat: inside a themed chat the theme's own bubble colours win.
+  static Color outBubble(BuildContext c) =>
+      ChatThemeScope.of(c)?.outBubble ?? (_dark(c) ? outDark : outLight);
+  static Color outText(BuildContext c) =>
+      ChatThemeScope.of(c)?.outText ?? (_dark(c) ? outDarkText : outLightText);
+  static Color outMeta(BuildContext c) =>
+      ChatThemeScope.of(c)?.outMeta ?? (_dark(c) ? outDarkMeta : outLightMeta);
 }
 
 /// The "seen" bright blue — the same hue on my bubble and on surfaces.
 Color readTickColor(BuildContext context, {bool onMyBubble = false}) {
+  // cde-chat: a themed bubble keeps the blue ticks visible on its colour
+  final th = ChatThemeScope.of(context);
+  if (th != null && onMyBubble) {
+    return th.outText.computeLuminance() > 0.5
+        ? const Color(0xFF8FE3FF)
+        : const Color(0xFF0B57D0);
+  }
   final dark = Theme.of(context).brightness == Brightness.dark;
   return dark ? MsgPalette.readDark : MsgPalette.readLight;
 }

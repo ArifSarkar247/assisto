@@ -56,6 +56,15 @@ import '../p3/assisto_intent.dart';
 import '../p3/assisto_sheet.dart';
 import '../p3/scam_banner.dart';
 import '../p3/scam_guard.dart';
+import '../messaging/chat_decor/chat_control.dart'; // cde-chat
+import '../messaging/chat_decor/chat_themes.dart';
+import '../messaging/chat_decor/decor_chat.dart';
+import '../messaging/chat_decor/decor_sheets.dart';
+import '../messaging/chat_decor/decor_store.dart';
+import '../messaging/chat_decor/system_line.dart';
+import '../messaging/media/media_prep.dart' show pickPhoto, MediaDraft;
+import '../widgets/paywall_sheet.dart';
+import '../widgets/notif_models.dart' show notifLocalizeDigits;
 
 /// End-to-end-encrypted 1:1 chat with a circle member.
 ///
@@ -146,7 +155,13 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   // Chat-menu backed state (confirmed from the server on open).
   bool _favourite = false;
   int _disappearingSec = 0;
-  String _chatTheme = 'default';
+
+  // cde-chat (order 6 D + E): the chat's shared theme + nicknames, synced by
+  // E2E control messages (+ the server copy for a reinstall).
+  late final DecorChat _decor = DecorChat(
+      api: _api, chatKey: _chatKey, chatId: _memberId ?? 0, group: false);
+  final Map<String, ChatControl?> _ctrlCache = {};
+  Future<AiThemeOffer?>? _aiOffer;
 
   // Multi-select mode (⋮ Select messages).
   bool _selecting = false;
@@ -229,6 +244,14 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       if (chat == _chatKey) unawaited(_pollMessages());
     });
     _startVisWatch();
+    // cde-chat: local theme/nicknames at once, then the server copy
+    DecorStore.instance.revision.addListener(_onDecor);
+    unawaited(DecorStore.instance.adoptMemberPayload(_chatKey, widget.member));
+    if (_memberId != null) unawaited(_decor.load());
+  }
+
+  void _onDecor() {
+    if (mounted) setState(() {});
   }
 
   /// x2-ticks: apply a live receipt (never downgrades a tick).
@@ -296,6 +319,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    DecorStore.instance.revision.removeListener(_onDecor); // cde-chat
     if (MsgActiveChat.current == _chatKey) MsgActiveChat.current = null;
     _rt.states.removeListener(_onRt);
     if (_memberId != null) _rt.typing('member', _memberId!, 'stop');
@@ -393,6 +417,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         _resolveReplyPreviews();
       });
       _rememberPreview();
+      _foldControls(); // cde-chat
     } catch (_) {
       // Silent: a failed poll just waits for the next tick.
     } finally {
@@ -546,6 +571,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         final lid = s.serverId.isNotEmpty ? s.serverId : j.id;
         if (have.contains(lid) || _serverCmids.contains(j.id)) continue;
         _sentEchoes.track(lid, j.id);
+        // cde-chat: a finished photo THEME stays a system line
+        final cc = s.control == null ? null : ChatControl.fromJson(s.control);
+        if (cc != null) _ctrlCache[lid] = cc;
         _messages = [
           ..._messages,
           CircleMessage(
@@ -641,7 +669,6 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       final s = await _api.circleChatSettings(_memberId ?? 0);
       _disappearingSec = (s['disappearing_sec'] as int?) ?? 0;
       _favourite = s['favourite'] == true;
-      _chatTheme = '${s['theme'] ?? 'default'}';
     } catch (_) {}
     if (mounted) {
       setState(() => _loading = false);
@@ -654,6 +681,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     unawaited(keyFetch);
     unawaited(_loadCalls());
     _rememberPreview();
+    _foldControls(); // cde-chat
   }
 
   /// a1-circle: GET circle/calls?member=<id> -> the call events of this chat.
@@ -679,7 +707,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       if (m.pending || int.tryParse(m.id) == null) continue;
       if (m.deleted == 'everyone' || m.decryptFailed) return;
       if (m.contentType != 'text' || m.text.isEmpty) return;
-      unawaited(PreviewCache.instance.put(_chatKey, m.id, m.text));
+      unawaited(PreviewCache.instance.put(
+          _chatKey, m.id, isControlText(m.text) ? controlFallback(m.text) : m.text));
       return;
     }
   }
@@ -955,6 +984,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
               failed = true;
             } else {
               text = media.caption;
+              // cde-chat: a photo THEME (the descriptor carries `cc1`)
+              final cc = controlInDescriptor(pt);
+              if (cc != null) _ctrlCache['${env['id'] ?? ''}'] = cc;
             }
           } else {
             text = pt;
@@ -1169,7 +1201,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       ]);
 
   ScamVerdict _scamOf(CircleMessage m) {
-    if (m.mine || m.contentType != 'text' || m.text.isEmpty || m.decryptFailed) {
+    if (m.mine || m.contentType != 'text' || m.text.isEmpty || m.decryptFailed ||
+        isControlText(m.text)) {
       return ScamVerdict.none;
     }
     // a chat I have never replied in counts as a NEW contact
@@ -1185,7 +1218,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
 
   bool _p3Readable(CircleMessage m) =>
       m.contentType == 'text' && !m.decryptFailed && m.text.isNotEmpty &&
-      m.deleted != 'everyone' && _p3Card(m) == null;
+      m.deleted != 'everyone' && _p3Card(m) == null && !isControlText(m.text);
 
   AssistoChatPort get _p3Port => AssistoChatPort(
         isGroup: false,
@@ -1305,6 +1338,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
 
     final action = await showCircleMessageActions(
       context,
+      reactions: _decor.themeDef?.reactions, // cde-chat
       mine: m.mine,
       canEdit: canEdit,
       isStarred: m.starred,
@@ -1693,7 +1727,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     _callOpening = true;
     try {
       await Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => CircleCallScreen(member: widget.member, kind: kind),
+        builder: (_) => CircleCallScreen(
+            member: {...widget.member, 'nickname': _decor.state.nick('peer')}, // cde-chat
+            kind: kind),
       ));
     } finally {
       _callOpening = false;
@@ -1735,6 +1771,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         break;
       case ChatMenuAction.chatTheme:
         await _chatThemeFlow();
+        break;
+      case ChatMenuAction.nicknames:
+        await _nicknamesFlow();
         break;
       case ChatMenuAction.addFavourite:
         await _toggleFavourite();
@@ -1822,15 +1861,144 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     }
   }
 
-  // ---- Chat theme ---------------------------------------------------------
+  // ---- Chat theme + nicknames (cde-chat, order 6 D + E) ------------------
+  /// The control message inside a decrypted message (theme / nickname).
+  ChatControl? _controlOf(CircleMessage m) {
+    if (m.deleted == 'everyone' || m.decryptFailed) return null;
+    if (m.contentType == 'photo') return _ctrlCache[m.id];
+    if (m.contentType != 'text' || !isControlText(m.text)) return null;
+    return _ctrlCache.putIfAbsent('t:${m.id}', () => decodeControl(m.text));
+  }
+
+  /// Fold every control in the loaded history into the chat state (newest
+  /// server stamp wins, so the order never matters).
+  void _foldControls() {
+    for (final m in _messages) {
+      if (m.pending) continue;
+      final c = _controlOf(m);
+      if (c == null) continue;
+      unawaited(_decor.fold(m.id, c, mine: m.mine, photo: m.media));
+    }
+  }
+
+  String get _myRealName {
+    final n = (context.read<AppState>().user?.name ?? '').trim();
+    return n.isEmpty ? _t.p3You : n;
+  }
+
+  String _describe(CircleMessage m, ChatControl c) => describeControl(_t, c,
+      mine: m.mine, actor: _memberName, peerName: _memberName);
+
+  /// Send a control as an ordinary E2E message (outbox / no-key safe).
+  Future<void> _sendControl(ChatControl c) async {
+    await _sendCard(encodeControl(
+        c, controlFallbackLine(_t, c, myName: _myRealName)));
+  }
+
+  void _decorFailed(DecorFailure f, String fallback) {
+    if (!mounted) return;
+    if (f.premium) {
+      unawaited(PaywallSheet.show(context, PaywallReason.generic));
+      return;
+    }
+    _toast(f.message.isNotEmpty ? f.message : fallback);
+  }
+
   Future<void> _chatThemeFlow() async {
-    final token = await showChatThemePicker(context, _chatTheme);
-    if (token == null || !mounted) return;
-    setState(() => _chatTheme = token);
+    _aiOffer ??= _decor.aiOffer();
+    AiThemeOffer? ai;
     try {
-      await _api.setChatTheme(_memberId ?? 0, theme: token);
+      ai = await _aiOffer!.timeout(const Duration(seconds: 3));
+    } catch (_) {
+      ai = null;
+    }
+    if (!mounted) return;
+    final cur = _decor.state.themeId;
+    final pick = await showChatThemeSheet(context,
+        currentId: cur,
+        premium: _decor.premium,
+        currentPhoto: _decor.photoFile(),
+        aiAvailable: ai != null,
+        aiCredits: ai == null ? '' : notifLocalizeDigits(context, '${ai.credits}'));
+    if (pick == null || !mounted) return;
+    if (pick.locked) {
+      await PaywallSheet.show(context, PaywallReason.generic);
+      return;
+    }
+    try {
+      if (pick.id == 'custom') {
+        final d = await pickPhoto(context, camera: false);
+        if (d == null || !mounted) return;
+        await _sendPhotoTheme(d, 'custom');
+      } else if (pick.id == 'ai') {
+        if (ai == null) return;
+        await _aiThemeFlow(ai);
+      } else {
+        if (pick.id == cur) return;
+        final c = await _decor.setPreset(pick.id);
+        if (mounted) setState(() {});
+        await _sendControl(c);
+      }
+    } on DecorFailure catch (f) {
+      _decorFailed(f, _t.cdeThemeFailed);
     } catch (e) {
-      _fail(e);
+      if (mounted) _toast(_t.cdeThemeFailed);
+    }
+  }
+
+  Future<void> _sendPhotoTheme(MediaDraft d, String id) async {
+    final job = await _decor.setPhoto(d, id: id);
+    if (!mounted) return;
+    setState(() => _mediaJobs = [..._mediaJobs.where((j) => j.id != job.id), job]);
+  }
+
+  Future<void> _aiThemeFlow(AiThemeOffer ai) async {
+    final prompt = await showAiThemePrompt(context,
+        credits: notifLocalizeDigits(context, '${ai.credits}'));
+    if (prompt == null || prompt.trim().isEmpty || !mounted) return;
+    final nav = Navigator.of(context);
+    unawaited(showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        content: Row(children: [
+          const CircularProgressIndicator(),
+          const SizedBox(width: Gap.lg),
+          Expanded(child: Text(_t.cdeThemeAiMaking)),
+        ]),
+      ),
+    ));
+    try {
+      final d = await _decor.makeAiPicture(prompt, ai);
+      nav.pop();
+      if (!mounted) return;
+      await _sendPhotoTheme(d, 'ai');
+    } on DecorFailure catch (f) {
+      nav.pop();
+      _decorFailed(f, _t.cdeThemeAiFailed);
+    } catch (_) {
+      nav.pop();
+      if (mounted) _toast(_t.cdeThemeAiFailed);
+    }
+  }
+
+  Future<void> _nicknamesFlow() async {
+    final st = _decor.state;
+    final edit = await showNicknamesSheet(context, [
+      NickRow(slot: 'peer', realName: _memberName, nick: st.nick('peer')),
+      NickRow(slot: 'me', realName: _myRealName, nick: st.nick('me'), isMe: true),
+    ]);
+    if (edit == null || !mounted) return;
+    final (row, name) = edit;
+    if (name == row.nick) return;
+    try {
+      final c = await _decor.setNick(slot: row.slot, name: name);
+      if (mounted) setState(() {});
+      await _sendControl(c);
+    } on DecorFailure catch (f) {
+      _decorFailed(f, _t.cdeNickFailed);
+    } catch (_) {
+      if (mounted) _toast(_t.cdeNickFailed);
     }
   }
 
@@ -2153,6 +2321,21 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     }
   }
 
+  /// cde-chat: the message area in the chat's shared theme (wallpaper,
+  /// bubble colours, chips) — the composer and header keep the app look.
+  Widget _themed(Widget child) {
+    final d = _decor.themeDef;
+    if (d == null) return child;
+    return ChatThemeScope(
+      def: d,
+      child: Theme(
+        data: themedChatArea(Theme.of(context), d),
+        child: ChatWallpaper(
+            def: d, photo: d.isPhoto ? _decor.photoFile() : null, child: child),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -2177,7 +2360,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                 chatId: int.parse('${widget.member['id']}')),
           if (pinned.isNotEmpty && !_searching) _pinnedStrip(pinned, scheme),
           Expanded(
-            child: _loading
+            child: _themed(_loading
                 ? const Center(child: CircularProgressIndicator())
                 : rows.isEmpty
                     ? Column(children: [ // t1-ticks: E2E notice first
@@ -2216,6 +2399,25 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                           final m = row.msg!;
                           final key =
                               _msgKeys.putIfAbsent(m.id, () => GlobalKey());
+                          // cde-chat: a theme / nickname change is a centred
+                          // system line, never a bubble
+                          if (m.mediaJob?.control != null) {
+                            return KeyedSubtree(
+                                key: key,
+                                child: ChatSystemLine(
+                                    text: _t.cdeThemeSending,
+                                    icon: Icons.palette_outlined));
+                          }
+                          final cc = _controlOf(m);
+                          if (cc != null) {
+                            return KeyedSubtree(
+                                key: key,
+                                child: ChatSystemLine(
+                                    text: _describe(m, cc),
+                                    icon: cc.isTheme
+                                        ? Icons.palette_outlined
+                                        : Icons.badge_outlined));
+                          }
                           // p3: an Assisto card (E2E like any message)
                           final p3c = _p3Card(m);
                           if (p3c != null) {
@@ -2299,7 +2501,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                           });
                         },
                       )), // t1-ticks: /ChatDateScope
-                    ),
+                    )),
           ),
           if (_peerTyping && !_searching) _typingIndicator(scheme),
           if ((_replyTo != null || _editing != null) && !_searching && !_selecting)
@@ -2440,7 +2642,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       // t1-ticks: WhatsApp-standard header (name line 1 full width, status
       // line 2, tap -> contact info). Presence hidden by privacy -> no line.
       title: ChatHeaderTitle(
-        name: _memberName,
+        // cde-chat: the nickname (the real name stays in contact info)
+        name: DecorStore.instance.peerName(_chatKey, _memberName),
         status: _presence,
         statusActive: _peerTyping,
         // mr1: a request I have not accepted shows no contact info

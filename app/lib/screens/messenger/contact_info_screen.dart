@@ -19,6 +19,7 @@ import '../../crypto/e2e.dart'; // p3: profile note
 import '../../crypto/key_service.dart';
 import '../../p3/p3_api.dart';
 import '../../p3/story_crypto.dart';
+import '../../messaging/chat_decor/decor_store.dart'; // cde-chat
 
 /// CONTACT INFO screen for a 1:1 chat (.phaseB/MESSENGER_UI_FULL.md §4).
 ///
@@ -63,6 +64,12 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
   AppLocalizations get _t => AppLocalizations.of(context);
   int get _peerId => (widget.member['id'] as int?) ?? 0;
   String get _name => '${widget.member['name'] ?? ''}';
+  String get _nick {
+    final id = widget.member['id'];
+    final st = id == null ? null : DecorStore.instance.get('member:$id');
+    if (st != null && (st.nickAt['peer'] ?? 0) > 0) return st.nick('peer');
+    return '${widget.member['nickname'] ?? ''}'.trim();
+  }
 
   @override
   void initState() {
@@ -365,6 +372,16 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
           Text(_name,
               style: Theme.of(context).textTheme.titleLarge,
               textAlign: TextAlign.center),
+          // cde-chat: the REAL name stays the title; the chat's nickname
+          // is shown under it.
+          if (_nick.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.xs),
+              child: Text(_t.cdeNickInfo(_nick),
+                  key: const Key('cde-info-nickname'),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: scheme.onSurfaceVariant)),
+            ),
           // mr1: the same full last-seen line as the chat header (live;
           // hidden by privacy -> no line).
           ValueListenableBuilder<Map<String, RtChatState>>(

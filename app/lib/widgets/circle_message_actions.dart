@@ -25,6 +25,7 @@ Future<CircleMsgAction?> showCircleMessageActions(
   required bool canDeleteEveryone,
   required ValueChanged<String> onReact,
   bool showInfo = false,
+  List<String>? reactions, // cde-chat: the chat theme's own quick emoji
 }) {
   final t = AppLocalizations.of(context);
   return showModalBottomSheet<CircleMsgAction>(
@@ -42,7 +43,7 @@ Future<CircleMsgAction?> showCircleMessageActions(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                for (final e in kQuickReactions)
+                for (final e in reactions ?? kQuickReactions)
                   InkResponse(
                     onTap: () {
                       onReact(e);

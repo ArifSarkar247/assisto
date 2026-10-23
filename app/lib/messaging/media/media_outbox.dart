@@ -40,6 +40,10 @@ class MediaJob {
   final String caption;
   final String? replyTo;
   final DateTime at;
+  /// cde-chat: a photo THEME — this control block rides inside the E2E
+  /// descriptor (`cc1`), so the photo becomes the chat wallpaper (older
+  /// versions just show the photo).
+  final Map<String, dynamic>? control;
   // progress (persisted)
   String encPath;
   String keyB64, nonceB64, sha;
@@ -65,6 +69,7 @@ class MediaJob {
     this.thumbB64 = '',
     this.caption = '',
     this.replyTo,
+    this.control,
     this.encPath = '',
     this.keyB64 = '',
     this.nonceB64 = '',
@@ -87,6 +92,7 @@ class MediaJob {
         if (thumbB64.isNotEmpty) 'thumb': thumbB64,
         if (caption.isNotEmpty) 'cap': caption,
         if (replyTo != null) 'reply_to': replyTo,
+        if (control != null) 'cc1': control,
         'at': at.toUtc().toIso8601String(),
         'enc': encPath, 'k': keyB64, 'n': nonceB64, 'sha': sha,
         'csize': cipherSize, 'ref': ref, 'state': state, 'err': error,
@@ -113,6 +119,7 @@ class MediaJob {
       thumbB64: '${j['thumb'] ?? ''}',
       caption: '${j['cap'] ?? ''}',
       replyTo: j['reply_to'] == null ? null : '${j['reply_to']}',
+      control: (j['cc1'] as Map?)?.cast<String, dynamic>(),
       at: DateTime.tryParse('${j['at'] ?? ''}')?.toLocal() ?? DateTime.now(),
       encPath: '${j['enc'] ?? ''}',
       keyB64: '${j['k'] ?? ''}',
@@ -188,8 +195,9 @@ class MediaSent {
   final MediaDescriptor? desc;
   final DateTime? at;
   final String? replyTo;
+  final Map<String, dynamic>? control; // cde-chat: a photo theme
   const MediaSent(this.jobId, this.serverId, this.chatKind, this.chatId,
-      {this.desc, this.at, this.replyTo});
+      {this.desc, this.at, this.replyTo, this.control});
 }
 
 class MediaOutbox {
@@ -227,7 +235,8 @@ class MediaOutbox {
   @visibleForTesting
   Future<void> finishSent(MediaJob job, String serverId) async {
     final s = MediaSent(job.id, serverId, job.chatKind, job.chatId,
-        desc: job.descriptor(), at: job.at, replyTo: job.replyTo);
+        desc: job.descriptor(), at: job.at, replyTo: job.replyTo,
+        control: job.control);
     recentlySent[job.id] = s;
     while (recentlySent.length > 50) {
       recentlySent.remove(recentlySent.keys.first);
@@ -447,7 +456,11 @@ class MediaOutbox {
       // 4) the E2E message
       final me = await identity?.call();
       if (me == null) return MediaStep.waiting;
-      final plain = job.descriptor().encode();
+      // cde-chat: a photo theme carries its control block inside the
+      // (E2E) descriptor — the server only ever sees the blob ref.
+      final plain = job.control == null
+          ? job.descriptor().encode()
+          : jsonEncode({...job.descriptor().toJson(), 'cc1': job.control});
       final env = <String, dynamic>{
         'content_type': job.kind,
         'blob_ref': job.ref,

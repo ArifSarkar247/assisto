@@ -1,4 +1,6 @@
 import '../p3/assisto_card.dart' show cardFallback;
+import 'chat_decor/chat_control.dart'; // cde-chat
+import 'chat_decor/system_line.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
@@ -220,20 +222,31 @@ MsgNotifModel buildMsgNotifModel(
     final mine = m['mine'] == true;
     final ct = '${m['content_type'] ?? 'text'}';
     String text;
-    if ('${m['deleted'] ?? ''}' == 'everyone') {
-      text = t.circleDeletedPlaceholder;
-    } else if (ct != 'text') {
-      text = mediaNotifText(t, ct, plaintext: decrypt(m));
-    } else {
-      final pt = decrypt(m);
-      // p3: an Assisto card notifies with its readable first line
-      text = pt == null ? t.c3NotifEncrypted : cardFallback(pt);
-    }
     final sender = mine
         ? t.c3You
         : ('${m['sender_name'] ?? ''}'.trim().isNotEmpty
             ? '${m['sender_name']}'.trim()
             : (title.isEmpty ? 'Assisto' : title));
+    if ('${m['deleted'] ?? ''}' == 'everyone') {
+      text = t.circleDeletedPlaceholder;
+    } else if (ct != 'text') {
+      final pt = decrypt(m);
+      // cde-chat: a photo theme notifies as "X changed the theme to …"
+      final cc = (ct == 'photo' && pt != null) ? controlInDescriptor(pt) : null;
+      text = cc != null
+          ? describeControl(t, cc, mine: mine, actor: sender, peerName: sender)
+          : mediaNotifText(t, ct, plaintext: pt);
+    } else {
+      final pt = decrypt(m);
+      // cde-chat: theme / nickname changes in the reader's language
+      final cc = (pt != null && isControlText(pt)) ? decodeControl(pt) : null;
+      if (cc != null && (cc.isTheme || cc.uid == null)) {
+        text = describeControl(t, cc, mine: mine, actor: sender, peerName: sender);
+      } else {
+        // p3: an Assisto card notifies with its readable first line
+        text = pt == null ? t.c3NotifEncrypted : cardFallback(pt);
+      }
+    }
     lines.add(NotifLine(
       sender: sender,
       senderKey: mine ? 'me' : 'u${m['sender_id'] ?? ''}',

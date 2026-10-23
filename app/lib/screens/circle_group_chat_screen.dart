@@ -55,6 +55,14 @@ import '../widgets/group_menu_sheet.dart';
 import '../widgets/msgr_mod_report_sheet.dart';
 import 'circle_group_info_screen.dart';
 import '../widgets/paywall_sheet.dart'; // p2-money
+import '../messaging/chat_decor/chat_control.dart'; // cde-chat
+import '../messaging/chat_decor/chat_themes.dart';
+import '../messaging/chat_decor/decor_chat.dart';
+import '../messaging/chat_decor/decor_sheets.dart';
+import '../messaging/chat_decor/decor_store.dart';
+import '../messaging/chat_decor/system_line.dart';
+import '../messaging/media/media_prep.dart' show pickPhoto, MediaDraft;
+import '../widgets/notif_models.dart' show notifLocalizeDigits;
 
 /// End-to-end-encrypted GROUP chat (M2 item 7).
 ///
@@ -136,9 +144,21 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   bool _positioned = true;
   final GlobalKey _dividerKey = GlobalKey();
 
+  // cde-chat (order 6 D + E): the group's shared theme + nicknames.
+  late final DecorChat _decor =
+      DecorChat(api: _api, chatKey: _chatKey, chatId: _gid, group: true);
+  final Map<String, ChatControl?> _ctrlCache = {};
+  Future<AiThemeOffer?>? _aiOffer;
+
+  void _onDecor() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
+    DecorStore.instance.revision.addListener(_onDecor); // cde-chat
+    if (_gid > 0) unawaited(_decor.load());
     MsgActiveChat.current = _chatKey;
     UnreadStore.instance.clear(_chatKey);
     unawaited(FlnMsgSink().cancel('group', _gid));
@@ -191,6 +211,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         if (s == null || s.desc == null) continue; // cancelled: gone
         final lid = s.serverId.isNotEmpty ? s.serverId : j.id;
         if (have.contains(lid) || have.contains(j.id)) continue;
+        if (s.control != null) _ctrlCache[lid] = ChatControl.fromJson(s.control); // cde-chat
         _addEcho({
           'id': lid,
           'client_msg_id': j.id,
@@ -356,6 +377,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
 
   @override
   void dispose() {
+    DecorStore.instance.revision.removeListener(_onDecor); // cde-chat
     if (MsgActiveChat.current == _chatKey) MsgActiveChat.current = null;
     _poll?.cancel();
     MediaOutbox.instance.changes.removeListener(_onMediaJobs);
@@ -412,6 +434,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           _messages = next;
           _pruneEchoes(); // md2: same frame as the server copy appearing
         });
+        _foldControls(); // cde-chat
       }
       if (fresh || _seenPending) unawaited(_markSeen());
     } catch (_) {
@@ -474,6 +497,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       _loadedOnce = true;
       _loadFailed = false;
       _pruneEchoes(); // md2
+      _foldControls(); // cde-chat
     } catch (_) {
       // Keep any already-loaded messages visible; only flag the error so the
       // UI can offer Retry instead of silently showing an empty chat.
@@ -858,6 +882,8 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         await _chooseDisappearing();
       case GroupMenuAction.chatTheme:
         await _chooseTheme();
+      case GroupMenuAction.nicknames:
+        await _nicknamesFlow();
       case GroupMenuAction.addToFavourites:
         await _toggleFavourite();
       case GroupMenuAction.exportChat:
@@ -946,26 +972,182 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     }
   }
 
-  Future<void> _chooseTheme() async {
-    final v = await showGroupOptionPicker(
-      context,
-      title: _t.grpMenuChatTheme,
-      current: '${widget.group['theme'] ?? 'default'}',
-      options: [
-        ('default', _t.grpThemeDefault),
-        ('ocean', _t.grpThemeOcean),
-        ('sunset', _t.grpThemeSunset),
-        ('forest', _t.grpThemeForest),
-      ],
-    );
-    if (v == null) return;
-    try {
-      await _api.groupSetTheme(_groupId, color: v);
-      setState(() => widget.group['theme'] = v);
-      _toast(_t.grpThemeSaved);
-    } catch (e) {
-      _fail(e);
+  // ---- cde-chat: shared theme + nicknames ---------------------------------
+  /// The theme / nickname control inside a message (null for normal ones).
+  ChatControl? _controlOf(Map<String, dynamic> msg) {
+    final id = '${msg['id']}';
+    if (_ctrlCache.containsKey(id)) return _ctrlCache[id];
+    if ('${msg['deleted'] ?? ''}' == 'everyone' || msg['md1_job'] != null) return null;
+    final ct = '${msg['content_type'] ?? 'text'}';
+    if (ct != 'text' && ct != 'photo') return null;
+    final raw = msg['md2_plain'] != null ? '${msg['md2_plain']}' : _decryptRaw(msg);
+    if (raw == null) return null; // not decrypted (yet) — ask again later
+    return _ctrlCache[id] = ct == 'photo'
+        ? controlInDescriptor(raw)
+        : (isControlText(raw) ? decodeControl(raw) : null);
+  }
+
+  void _foldControls() {
+    for (final m in _messages) {
+      final c = _controlOf(m);
+      if (c == null) continue;
+      unawaited(_decor.fold('${m['id']}', c,
+          mine: m['mine'] == true, photo: _mediaOf(m)));
     }
+  }
+
+  /// A member's REAL name by user id (roster), for system lines.
+  String _realNameOf(int uid) {
+    for (final m in _members) {
+      if ((m['user_id'] as num?)?.toInt() == uid) return '${m['name'] ?? ''}';
+    }
+    return '';
+  }
+
+  String _myRealName() {
+    final n = (context.read<AppState>().user?.name ?? '').trim();
+    return n.isEmpty ? _t.p3You : n;
+  }
+
+  String _describe(Map<String, dynamic> msg, ChatControl c) {
+    final sid = (msg['sender_id'] as num?)?.toInt();
+    final real = sid == null ? '' : _realNameOf(sid);
+    return describeControl(_t, c,
+        mine: msg['mine'] == true,
+        actor: real.isNotEmpty ? real : '${msg['sender_name'] ?? ''}',
+        myUid: _myUserId,
+        senderUid: sid,
+        nameOf: _realNameOf);
+  }
+
+  Future<void> _sendControl(ChatControl c, {String target = ''}) async {
+    await _sendCard(encodeControl(
+        c, controlFallbackLine(_t, c, myName: _myRealName(), targetName: target)));
+  }
+
+  void _decorFailed(DecorFailure f, String fallback) {
+    if (!mounted) return;
+    if (f.premium) {
+      unawaited(PaywallSheet.show(context, PaywallReason.generic));
+      return;
+    }
+    _toast(f.message.isNotEmpty ? f.message : fallback);
+  }
+
+  /// cde-chat: the REAL shared theme (replaces the old per-user colour
+  /// picker that nothing ever drew — see .phaseB/CDE_NOTES.md).
+  Future<void> _chooseTheme() async {
+    _aiOffer ??= _decor.aiOffer();
+    AiThemeOffer? ai;
+    try {
+      ai = await _aiOffer!.timeout(const Duration(seconds: 3));
+    } catch (_) {
+      ai = null;
+    }
+    if (!mounted) return;
+    final cur = _decor.state.themeId;
+    final pick = await showChatThemeSheet(context,
+        currentId: cur,
+        premium: _decor.premium,
+        group: true,
+        currentPhoto: _decor.photoFile(),
+        aiAvailable: ai != null,
+        aiCredits: ai == null ? '' : notifLocalizeDigits(context, '${ai.credits}'));
+    if (pick == null || !mounted) return;
+    if (pick.locked) {
+      await PaywallSheet.show(context, PaywallReason.generic);
+      return;
+    }
+    try {
+      if (pick.id == 'custom') {
+        final d = await pickPhoto(context, camera: false);
+        if (d == null || !mounted) return;
+        await _sendPhotoTheme(d, 'custom');
+      } else if (pick.id == 'ai') {
+        if (ai == null) return;
+        final prompt = await showAiThemePrompt(context,
+            credits: notifLocalizeDigits(context, '${ai.credits}'));
+        if (prompt == null || prompt.trim().isEmpty || !mounted) return;
+        final nav = Navigator.of(context);
+        unawaited(showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (ctx) => AlertDialog(
+            content: Row(children: [
+              const CircularProgressIndicator(),
+              const SizedBox(width: Gap.lg),
+              Expanded(child: Text(_t.cdeThemeAiMaking)),
+            ]),
+          ),
+        ));
+        MediaDraft d;
+        try {
+          d = await _decor.makeAiPicture(prompt, ai);
+        } finally {
+          nav.pop();
+        }
+        if (!mounted) return;
+        await _sendPhotoTheme(d, 'ai');
+      } else {
+        if (pick.id == cur) return;
+        final c = await _decor.setPreset(pick.id);
+        if (mounted) setState(() {});
+        await _sendControl(c);
+      }
+    } on DecorFailure catch (f) {
+      _decorFailed(f, pick.id == 'ai' ? _t.cdeThemeAiFailed : _t.cdeThemeFailed);
+    } catch (_) {
+      if (mounted) _toast(pick.id == 'ai' ? _t.cdeThemeAiFailed : _t.cdeThemeFailed);
+    }
+  }
+
+  Future<void> _sendPhotoTheme(MediaDraft d, String id) async {
+    final job = await _decor.setPhoto(d, id: id);
+    if (!mounted) return;
+    setState(() => _mediaJobs = [..._mediaJobs.where((j) => j.id != job.id), job]);
+  }
+
+  Future<void> _nicknamesFlow() async {
+    final st = _decor.state;
+    final rows = <NickRow>[
+      for (final m in _members)
+        if (m['user_id'] is num)
+          NickRow(
+            slot: groupSlot((m['user_id'] as num).toInt()),
+            uid: (m['user_id'] as num).toInt(),
+            realName: '${m['name'] ?? ''}',
+            nick: st.nick(groupSlot((m['user_id'] as num).toInt())),
+            isMe: m['is_self'] == true,
+          ),
+    ];
+    if (rows.isEmpty) return;
+    final edit = await showNicknamesSheet(context, rows);
+    if (edit == null || !mounted) return;
+    final (row, name) = edit;
+    if (name == row.nick) return;
+    try {
+      final c = await _decor.setNick(uid: row.uid, name: name);
+      if (mounted) setState(() {});
+      await _sendControl(c, target: row.isMe ? '' : row.realName);
+    } on DecorFailure catch (f) {
+      _decorFailed(f, _t.cdeNickFailed);
+    } catch (_) {
+      if (mounted) _toast(_t.cdeNickFailed);
+    }
+  }
+
+  /// The message area in the group's shared theme.
+  Widget _themed(Widget child) {
+    final d = _decor.themeDef;
+    if (d == null) return child;
+    return ChatThemeScope(
+      def: d,
+      child: Theme(
+        data: themedChatArea(Theme.of(context), d),
+        child: ChatWallpaper(
+            def: d, photo: d.isPhoto ? _decor.photoFile() : null, child: child),
+      ),
+    );
   }
 
   Future<void> _toggleFavourite() async {
@@ -1352,7 +1534,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                       McVersionBanner(api: _api, kind: 'group', chatId: _gid),
                     if (pinned.isNotEmpty && !_searching && !_selecting)
                       _pinnedBar(pinned),
-                    Expanded(child: _messageList()),
+                    Expanded(child: _themed(_messageList())), // cde-chat
                     if (_failedText != null && !_searching && !_selecting)
                       _failedSendBanner(),
                     if (_replyTo != null && !_searching && !_selecting)
@@ -1640,6 +1822,16 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
 
   Widget _messageItem(Map<String, dynamic> msg) {
     final job = msg['md1_job'];
+    // cde-chat: theme / nickname changes are centred system lines
+    if (job is MediaJob && job.control != null) {
+      return ChatSystemLine(text: _t.cdeThemeSending, icon: Icons.palette_outlined);
+    }
+    final cc = _controlOf(msg);
+    if (cc != null) {
+      return ChatSystemLine(
+          text: _describe(msg, cc),
+          icon: cc.isTheme ? Icons.palette_outlined : Icons.badge_outlined);
+    }
     if (job is MediaJob) {
       // md1: a send still on its way (progress ring + cancel / retry)
       return Align(
@@ -1856,7 +2048,8 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
               child: Wrap(
                 spacing: Gap.md,
                 children: [
-                  for (final e in const ['👍', '❤️', '😂', '😮', '😢', '🙏'])
+                  for (final e in _decor.themeDef?.reactions ??
+                      const ['👍', '❤️', '😂', '😮', '😢', '🙏'])
                     InkWell(
                       onTap: () {
                         Navigator.pop(ctx);
@@ -2141,6 +2334,14 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
 
   String _senderName(Map<String, dynamic> msg) {
     final sid = '${msg['sender_id'] ?? ''}';
+    // cde-chat: the group's nickname for this person first
+    final uid = int.tryParse(sid);
+    if (uid != null) {
+      final nick = _decor.state.nick(groupSlot(uid));
+      if (nick.isNotEmpty) return nick;
+      final real = _realNameOf(uid);
+      if (real.isNotEmpty) return real;
+    }
     for (final m in _members) {
       if ('${_idOf(m)}' == sid) return '${m['name'] ?? ''}';
     }

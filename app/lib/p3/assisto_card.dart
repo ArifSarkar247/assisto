@@ -97,7 +97,10 @@ AssistoCard? decodeCard(String plaintext) {
 /// The readable part of a message (the card marker and payload removed) —
 /// what previews, notifications, search and copy should use.
 String cardFallback(String plaintext) {
-  final i = plaintext.indexOf(kCardMarker);
+  var i = plaintext.indexOf(kCardMarker);
+  // cde-chat: theme / nickname control messages carry the same shape
+  // (lib/messaging/chat_decor/chat_control.dart kControlMarker)
+  if (i < 0) i = plaintext.indexOf('⁣CC1:');
   if (i < 0) return plaintext;
   return plaintext.substring(0, i).trim();
 }

@@ -167,13 +167,20 @@ def nickname_seen_by(viewer, target, group=None):
 
 
 def edge_nicknames(edge):
-    """(peer nickname, my nickname, theme id) of a 1:1 chat for its owner's
-    payloads. Never raises."""
+    """The decor fields of a 1:1 chat for its owner's payloads: the peer's
+    nickname, mine, their write stamps and the theme id. Never raises."""
+    out = {"nickname": "", "nickname_at": 0, "my_nickname": "",
+           "my_nickname_at": 0, "chat_theme": "classic", "chat_theme_at": 0}
     try:
         row, peer = member_row(edge)
         if row is None or peer is None:
-            return "", "", "classic"
-        return (nick_of(row, peer.pk), nick_of(row, edge.user_id),
-                row.theme or "classic")
+            return out
+        out.update(nickname=nick_of(row, peer.pk),
+                   nickname_at=nick_at(row, peer.pk),
+                   my_nickname=nick_of(row, edge.user_id),
+                   my_nickname_at=nick_at(row, edge.user_id),
+                   chat_theme=row.theme or "classic",
+                   chat_theme_at=ms(row.theme_at))
     except Exception:
-        return "", "", "classic"
+        pass
+    return out

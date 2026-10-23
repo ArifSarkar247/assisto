@@ -439,8 +439,7 @@ def _cde_fields(m):
     """cde-chat: the shared nickname (what I call them / they call me) + the
     chat theme id. `name` stays the REAL name (profile / info)."""
     from . import chat_decor
-    peer_nick, my_nick, theme = chat_decor.edge_nicknames(m)
-    return {"nickname": peer_nick, "my_nickname": my_nick, "chat_theme": theme}
+    return chat_decor.edge_nicknames(m)
 
 
 def _msgreq_info(m):

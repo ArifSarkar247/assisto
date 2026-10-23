@@ -13,6 +13,8 @@ import '../calls/call_keepalive.dart';
 import '../calls/call_native.dart';
 import '../calls/call_runtime.dart';
 import '../calls/call_video.dart';
+import '../calls/video_stage.dart'; // cde-chat
+import '../messaging/chat_decor/decor_store.dart';
 import '../calls/webrtc_media.dart' deferred as rtc;
 import '../l10n/app_localizations.dart';
 import '../push/lock_screen_guard.dart';
@@ -56,6 +58,10 @@ class CircleCallScreen extends StatefulWidget {
   /// [controller] back from [CallRuntime] and owns it again.
   final bool resumed;
 
+  /// cde-chat gallery / tests: open the video stage swapped / full screen.
+  final bool previewSwapped;
+  final bool previewFullscreen;
+
   const CircleCallScreen({
     super.key,
     required this.member,
@@ -65,6 +71,8 @@ class CircleCallScreen extends StatefulWidget {
     this.controller,
     this.surface,
     this.resumed = false,
+    this.previewSwapped = false,
+    this.previewFullscreen = false,
   });
 
   /// b1: how the mini call bar re-opens a minimized call.
@@ -94,6 +102,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   bool _pip = false;
   bool _pipSupported = false;
   bool _closed = false;
+  late bool _full = widget.previewFullscreen; // cde-chat: double-tap
   bool _beginning = false;
   bool _claimed = false;
 
@@ -114,7 +123,14 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
 
   /// b1: the call is in VIDEO mode right now (voice <-> video switch).
   bool get _isVideo => _c?.videoOn ?? _startsVideo;
-  String get _name => '${widget.member['name'] ?? ''}';
+  // cde-chat: the chat's nickname first (the real name stays in contact info)
+  String get _name {
+    final nick = '${widget.member['nickname'] ?? ''}'.trim();
+    if (nick.isNotEmpty) return nick;
+    final real = '${widget.member['name'] ?? ''}';
+    final id = widget.member['id'];
+    return id == null ? real : DecorStore.instance.peerName('member:$id', real);
+  }
   String get _photo =>
       '${widget.member['photo_url'] ?? widget.member['photo'] ?? widget.member['caller_photo'] ?? ''}';
   String get _photoV => '${widget.member['photo_v'] ?? ''}';
@@ -444,18 +460,10 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     }
     final live = c != null && c.isLive;
     final showSelf = _isVideo && c != null && !c.isEnded && surface != null;
-    return Scaffold(
-      backgroundColor: Brand.ink,
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          if (remoteVideo)
-            Positioned.fill(child: surface.remoteView())
-          else
-            const DecoratedBox(
-                decoration: BoxDecoration(gradient: Brand.heroDark)),
-          if (remoteVideo)
-            const Positioned.fill(
+    final full = _full && showSelf;
+    final dim = remoteVideo
+        ? const Positioned.fill(
+            child: IgnorePointer(
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -472,62 +480,91 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                 ),
               ),
             ),
-          SafeArea(
-            child: Column(
-              children: [
-                _topBar(c),
-                const Spacer(),
-                if (!remoteVideo) ...[
-                  _avatar(56),
-                  const SizedBox(height: Gap.lg),
-                ],
-                _nameAndStatus(c),
-                if (c != null && c.isEnded) _endedActions(c),
-                if (c != null &&
-                    !c.isEnded &&
-                    !c.turnAvailable &&
-                    c.phase != CallPhase.starting &&
-                    c.phase.index <= CallPhase.accepted.index)
-                  Padding(
-                    padding:
-                        const EdgeInsets.fromLTRB(Gap.xl, Gap.md, Gap.xl, 0),
-                    child: Text(_t.c2CallNoRelay,
-                        key: const Key('call-no-relay'),
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.white.withValues(alpha: 0.7))),
+          )
+        : null;
+    final column = SafeArea(
+      child: Column(
+        children: [
+          _topBar(c),
+          const Spacer(),
+          if (!remoteVideo) ...[
+            _avatar(56),
+            const SizedBox(height: Gap.lg),
+          ],
+          _nameAndStatus(c),
+          if (c != null && c.isEnded) _endedActions(c),
+          if (c != null &&
+              !c.isEnded &&
+              !c.turnAvailable &&
+              c.phase != CallPhase.starting &&
+              c.phase.index <= CallPhase.accepted.index)
+            Padding(
+              padding:
+                  const EdgeInsets.fromLTRB(Gap.xl, Gap.md, Gap.xl, 0),
+              child: Text(_t.c2CallNoRelay,
+                  key: const Key('call-no-relay'),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white.withValues(alpha: 0.7))),
+            ),
+          const Spacer(flex: 2),
+          if (live) _noticeBanner(c),
+          if (live) _upgradeCard(c),
+          if (c == null || !c.isEnded) _controls(c),
+        ],
+      ),
+    );
+    const gradient = DecoratedBox(decoration: BoxDecoration(gradient: Brand.heroDark));
+    if (showSelf) {
+      // cde-chat (order 6 C): swap / drag-to-corner / pinch-zoom /
+      // double-tap full screen.
+      final pad = MediaQuery.paddingOf(context);
+      final t = _t;
+      return Scaffold(
+        backgroundColor: Brand.ink,
+        body: VideoStage(
+          key: const Key('call-video-stage'),
+          remote: remoteVideo ? surface.remoteView() : gradient,
+          local: c.cameraOn
+              ? surface.localView(mirror: c.frontCamera)
+              : Center(
+                  key: const Key('call-self-camera-off'),
+                  child: Semantics(
+                    label: t.b1CallCameraOffSelf,
+                    child: const Icon(Icons.videocam_off_outlined,
+                        color: Colors.white70, size: 32),
                   ),
-                const Spacer(flex: 2),
-                if (live) _noticeBanner(c),
-                if (live) _upgradeCard(c),
-                if (c == null || !c.isEnded) _controls(c),
-              ],
-            ),
-          ),
-          if (showSelf)
-            Positioned(
-              right: Gap.lg,
-              top: MediaQuery.paddingOf(context).top + 64,
-              width: 104,
-              height: 150,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(14),
-                child: ColoredBox(
-                  color: Colors.black,
-                  child: c.cameraOn
-                      ? surface.localView(mirror: c.frontCamera)
-                      : Center(
-                          key: const Key('call-self-camera-off'),
-                          child: Semantics(
-                            label: _t.b1CallCameraOffSelf,
-                            child: const Icon(Icons.videocam_off_outlined,
-                                color: Colors.white70, size: 32),
-                          ),
-                        ),
                 ),
-              ),
-            ),
+          canSwap: remoteVideo,
+          initialSwapped: widget.previewSwapped,
+          fullscreen: full,
+          onToggleFullscreen: () => setState(() => _full = !_full),
+          topInset: pad.top + (full ? Gap.lg : 64),
+          bottomInset: pad.bottom + (full ? Gap.lg : 250),
+          localLabel: t.cdeCallSwapHint,
+          remoteLabel: t.cdeCallSwapHintRemote,
+          bigLabel: t.cdeCallFullHint,
+          overlay: full
+              ? null
+              : Stack(fit: StackFit.expand, children: [
+                  if (dim != null) dim,
+                  column,
+                ]),
+        ),
+      );
+    }
+    return Scaffold(
+      backgroundColor: Brand.ink,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (remoteVideo)
+            Positioned.fill(child: surface.remoteView())
+          else
+            gradient,
+          if (dim != null) dim,
+          column,
         ],
       ),
     );
