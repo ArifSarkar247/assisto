@@ -17891,5 +17891,222 @@
   },
   "uwMcqAgain": "Practise again",
   "uwMcqHistory": "Your recent scores",
-  "uwMcqOriginal": "All questions are written by Assisto for practice — not taken from any question bank."
+  "uwMcqOriginal": "All questions are written by Assisto for practice — not taken from any question bank.",
+  "d1psToolsTitle": "Photo tools",
+  "d1psToolsBody": "These run on your phone. After the one-time setup they work without internet.",
+  "d1psToolUpscale2x": "Upscale 2×",
+  "d1psToolUpscale4x": "Upscale 4×",
+  "d1psToolDenoise": "Remove noise",
+  "d1psToolLowLight": "Fix low light",
+  "d1psToolBgBlur": "Blur background",
+  "d1psAbout": "about {time}",
+  "@d1psAbout": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "d1psSeconds": "{n} s",
+  "@d1psSeconds": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "d1psMinutes": "{n} min",
+  "@d1psMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "d1psFirstDownload": "First use downloads {size}",
+  "@d1psFirstDownload": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "d1psToolsNone": "No tools are available for this photo on this phone.",
+  "d1psAiCopy": "Works on a {px} px copy · {about}",
+  "@d1psAiCopy": {
+    "placeholders": {
+      "px": {
+        "type": "String"
+      },
+      "about": {
+        "type": "String"
+      }
+    }
+  },
+  "d1psAiFull": "Output {px} px · {about}",
+  "@d1psAiFull": {
+    "placeholders": {
+      "px": {
+        "type": "String"
+      },
+      "about": {
+        "type": "String"
+      }
+    }
+  },
+  "d1psRestoreTitle": "Repair on our server",
+  "d1psRestoreBody": "Heavier repairs run on Assisto's server. Before you see the result, your phone checks the face is still you.",
+  "d1psRestoreDeblur": "Remove blur",
+  "d1psRestoreColorize": "Colour a black & white photo",
+  "d1psRestoreOld": "Restore an old photo",
+  "d1psRestoreColorizeToo": "Also add colour if it is black & white",
+  "d1psOwnerRestoreNeeds": "Owner only — to switch on {tool}: {needs}",
+  "@d1psOwnerRestoreNeeds": {
+    "placeholders": {
+      "tool": {
+        "type": "String"
+      },
+      "needs": {
+        "type": "String"
+      }
+    }
+  },
+  "d1psOwnerNoFaceModel": "Owner only — face restoration is not offered: no face model with a licence that allows commercial use was found (GFPGAN and CodeFormer are not allowed).",
+  "d1psStageDownload": "Downloading the AI model… {pct}",
+  "@d1psStageDownload": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "d1psStageAnalyse": "Looking at the photo…",
+  "d1psStageAi": "AI: part {done} of {total}",
+  "@d1psStageAi": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "d1psStageMask": "Finding the person…",
+  "d1psStageClassic": "Finishing…",
+  "d1psStageServer": "Working on our server — this can take up to a minute…",
+  "d1psStageBatch": "Photo {item} of {items}",
+  "@d1psStageBatch": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      },
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "d1psLeft": "{time} left",
+  "@d1psLeft": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "d1psAiStepFailed": "The AI step didn't run on this phone, so the safe enhance was used. The problem was reported to us.",
+  "d1psToolFailed": "That didn't work on this phone — nothing was changed. The problem was reported to us.",
+  "d1psNoSubject": "Couldn't find a clear person in this photo, so the background was not blurred.",
+  "d1psTooBig": "This photo is already too big for that size.",
+  "d1psBatchDone": "All photos are done.",
+  "d1psBatchButton": "Many photos",
+  "d1psBatchTitle": "Many photos ({n})",
+  "@d1psBatchTitle": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "d1psBatchBody": "Pick one action for all of them. They run one after another and you can stop any time. Each result is saved the normal way.",
+  "d1psBatchLimit": "Up to {n} photos at a time.",
+  "@d1psBatchLimit": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "d1psBatchEnhance": "Enhance all",
+  "d1psBatchWaiting": "Waiting",
+  "d1psBatchRunning": "Working…",
+  "d1psBatchOpen": "Done — tap to open",
+  "d1psBatchFailed": "Didn't work",
+  "d1psBatchSkipped": "Skipped",
+  "d1psBatchStopped": "Stopped",
+  "d1psBatchClear": "Clear list",
+  "d1psBatchPhoto": "Photo {n}",
+  "@d1psBatchPhoto": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "d1psFeatDeblur": "Remove blur (GPU)",
+  "d1psFeatColorize": "Colourise (server)",
+  "d1psFeatOldRestore": "Old photo restore (server)",
+  "d1psLimitReached": "Today's free limit is used — more tomorrow, or go Premium.",
+  "d1psStillWorking": "Our server is still working on it. Please try again in a few minutes — nothing extra will be charged.",
+  "d1psReported": "Thank you — we will review this image.",
+  "d1psStageQueue": "Waiting in line: you are number {n}…",
+  "@d1psStageQueue": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "d1psConsent": "They agreed to this AI edit",
+  "d1psFaceLock": "Face Lock: same person",
+  "d1psFaceLockScore": "Face Lock: same person ({score})",
+  "@d1psFaceLockScore": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "d1psFaceLockRestored": "Face Lock: your original face was put back",
+  "d1psFaceLockPromise": "Face Lock: after every AI result we check the face is still yours; if not, your original face is put back.",
+  "d1psReportAi": "Report this AI image",
+  "d1psReportFace": "The face was changed",
+  "d1psReportOffensive": "Offensive or harmful",
+  "d1psReportSexual": "Sexual content",
+  "d1psReportFake": "A fake of a real person",
+  "d1psReportChild": "Involves a child",
+  "d1psReportOther": "Something else",
+  "d1psTemplatesTitle": "One-tap looks",
+  "d1psTemplatesBody": "Ready-made edits. Heavier ones run on our server and take up to a minute.",
+  "d1psFreeHdLeft": "Free HD today: {n} left · {ads} ad each",
+  "@d1psFreeHdLeft": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "ads": {
+        "type": "String"
+      }
+    }
+  },
+  "d1psFreeAiLeft": "Free AI images left: {n}",
+  "@d1psFreeAiLeft": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "d1psFeatEnhanceServer": "HD enhance (worker)",
+  "d1psStopping": "Stopping…"
 }
