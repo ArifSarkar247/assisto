@@ -76,7 +76,8 @@ void main() {
     expect(find.text(t.baNoChannelNote), findsOneWidget);
     expect(find.text(t.baMetaPendingNote), findsOneWidget);
     expect(find.text(t.baBuyNotReady), findsOneWidget);
-    await tester.tap(find.text(t.baStartTrial(7, 100)));
+    // bn label shows Bangla digits (৭ দিন / ১০০টি) — tap by its icon
+    await tester.tap(find.byIcon(Icons.rocket_launch_outlined));
     await tester.pump(const Duration(milliseconds: 200));
     expect(p1Posts.any((e) => e.key == '/bizagent/plan/trial'), isTrue);
   });
@@ -165,6 +166,40 @@ void main() {
     final t = await _pump(tester, const SellerInboxScreen(), lang: 'bn', dark: true);
     expect(find.textContaining(t.baHandoverOnShort), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  // Strict bn: no ASCII digit may be rendered on any p1 screen in Bangla
+  // (counts, amounts, flagged numbers, times, chat text, text fields).
+  for (final entry in <String, Widget Function()>{
+    'agent home': () => const SellerAgentScreen(),
+    'setup': () => const SellerSetupScreen(),
+    'approvals': () => const ApprovalsScreen(),
+    'inbox': () => const SellerInboxScreen(),
+    'chat': () => const SellerChatScreen(threadId: 5),
+  }.entries) {
+    testWidgets('bn: no ASCII digits on ${entry.key}', (tester) async {
+      await _pump(tester, entry.value(), lang: 'bn');
+      final ascii = RegExp(r'[0-9]');
+      final bad = <String>[];
+      for (final w in tester.widgetList<Text>(find.byType(Text))) {
+        final s = w.data ?? w.textSpan?.toPlainText() ?? '';
+        if (ascii.hasMatch(s)) bad.add(s);
+      }
+      for (final w in tester.widgetList<EditableText>(find.byType(EditableText))) {
+        if (ascii.hasMatch(w.controller.text)) bad.add(w.controller.text);
+      }
+      expect(bad, isEmpty, reason: 'ASCII digits in bn UI: $bad');
+    });
+  }
+  testWidgets('bn first run: no ASCII digits on agent home', (tester) async {
+    p1Connected = false;
+    await _pump(tester, const SellerAgentScreen(), lang: 'bn');
+    final bad = tester
+        .widgetList<Text>(find.byType(Text))
+        .map((w) => w.data ?? w.textSpan?.toPlainText() ?? '')
+        .where((s) => RegExp(r'[0-9]').hasMatch(s))
+        .toList();
+    expect(bad, isEmpty, reason: 'ASCII digits in bn UI: $bad');
   });
 
   testWidgets('load failure is honest with retry', (tester) async {

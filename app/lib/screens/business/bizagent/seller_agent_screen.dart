@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../api.dart';
 import '../../../bizagent_api.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../messaging/date_separators.dart' show localDigits;
 import '../../../services/error_kind.dart' show honestFailText;
 import '../../../state.dart';
 import '../../../theme.dart';
@@ -25,6 +26,15 @@ class SellerAgentScreen extends StatefulWidget {
   @override
   State<SellerAgentScreen> createState() => _SellerAgentScreenState();
 }
+
+/// Strict bn: every number on the p1 screens is shown in Bangla digits
+/// (reuses messaging/date_separators.localDigits; a no-op for English).
+String bd(BuildContext c, Object? s) =>
+    localDigits('${s ?? ''}', Localizations.localeOf(c).languageCode);
+
+/// Back to ASCII digits before a number is sent to the server.
+String asciiDigits(String s) => s.replaceAllMapped(
+    RegExp('[০-৯]'), (m) => String.fromCharCode(m[0]!.codeUnitAt(0) - 0x09E6 + 0x30));
 
 /// A server 4xx carries an honest bn/en `detail` — show it; anything else
 /// gets the shared honest failure line.
@@ -103,7 +113,7 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
   }
 
   void _snack(String m) =>
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(m)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(bd(context, m))));
 
   Future<void> _toggleAi(bool on) async {
     final t = AppLocalizations.of(context);
@@ -207,7 +217,7 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
               Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
                 for (final c in channels)
                   BizStatusChip(
-                    label: '${baChannelLabel(t, '${c['kind']}')} · ${c['display_name'] ?? ''}',
+                    label: bd(context, '${baChannelLabel(t, '${c['kind']}')} · ${c['display_name'] ?? ''}'),
                     color: c['status'] == 'connected' && c['enabled'] == true
                         ? Brand.success
                         : (c['status'] == 'error' ? Brand.danger : Brand.warning),
@@ -227,9 +237,9 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
             ListTile(
               leading: const Icon(Icons.fact_check_outlined),
               title: Text(t.baApprovalsTitle),
-              subtitle: Text(pending > 0 ? t.baApprovalsPending(pending) : t.baApprovalsNone),
+              subtitle: Text(bd(context, pending > 0 ? t.baApprovalsPending(pending) : t.baApprovalsNone)),
               trailing: pending > 0
-                  ? Badge(label: Text('$pending'), child: const Icon(Icons.chevron_right))
+                  ? Badge(label: Text(bd(context, pending)), child: const Icon(Icons.chevron_right))
                   : const Icon(Icons.chevron_right),
               onTap: () => _open(const ApprovalsScreen()),
             ),
@@ -280,7 +290,7 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
       trailing: BizStatusChip(label: name, color: active ? Brand.success : Brand.warning),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         if (active) ...[
-          Text(t.baRepliesLeft(left, quota),
+          Text(bd(context, t.baRepliesLeft(left, quota)),
               style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: Gap.sm),
           LinearProgressIndicator(
@@ -289,15 +299,15 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
           const SizedBox(height: Gap.sm),
         ] else
           Text(t.baNoPlanLine, style: const TextStyle(height: 1.4)),
-        Text(t.baCreditReplies(creditReplies),
+        Text(bd(context, t.baCreditReplies(creditReplies)),
             style: Theme.of(context).textTheme.bodySmall),
         const SizedBox(height: Gap.md),
         if (trialOk)
           FilledButton.icon(
             onPressed: _busy ? null : _trial,
             icon: const Icon(Icons.rocket_launch_outlined),
-            label: Text(t.baStartTrial((p['trial_days'] as num?)?.toInt() ?? 7,
-                (p['trial_replies'] as num?)?.toInt() ?? 100)),
+            label: Text(bd(context, t.baStartTrial((p['trial_days'] as num?)?.toInt() ?? 7,
+                (p['trial_replies'] as num?)?.toInt() ?? 100))),
           ),
         const SizedBox(height: Gap.sm),
         if (!canBuy && !active)
@@ -307,10 +317,10 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
             padding: const EdgeInsets.only(bottom: Gap.sm),
             child: OutlinedButton(
               onPressed: _busy ? null : () => _buy('${pl['id']}'),
-              child: Text(t.baBuyPlan(
+              child: Text(bd(context, t.baBuyPlan(
                   pl['id'] == 'pro' ? t.baPlanPro : t.baPlanStarter,
                   '${pl['price']}',
-                  (pl['replies'] as num?)?.toInt() ?? 0)),
+                  (pl['replies'] as num?)?.toInt() ?? 0))),
             ),
           ),
       ]),
@@ -335,7 +345,7 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
           Text(t.baLowStockTitle, style: const TextStyle(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.xs),
           for (final x in low.take(5))
-            Text(t.baLowStockLine('${x['name']}', (x['stock'] as num?)?.toInt() ?? 0)),
+            Text(bd(context, t.baLowStockLine('${x['name']}', (x['stock'] as num?)?.toInt() ?? 0))),
         ],
       ]),
     );
@@ -344,7 +354,7 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
   Widget _stat(String label, String value) => ConstrainedBox(
         constraints: const BoxConstraints(minWidth: 120),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(value,
+          Text(bd(context, value),
               style: Theme.of(context)
                   .textTheme
                   .titleLarge
