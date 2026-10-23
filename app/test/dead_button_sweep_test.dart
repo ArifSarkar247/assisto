@@ -23,6 +23,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'app_fonts.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -741,7 +742,7 @@ void main() {
       await l.load();
     }
 
-    await font('NotoSansBengali', 'assets/fonts/NotoSansBengali.ttf');
+    await loadAppFonts(); // f1-design: Inter + Noto Sans Bengali
     final root = Platform.environment['FLUTTER_ROOT'] ??
         '${Platform.environment['HOME']}/assisto/tools/flutter';
     await font('MaterialIcons', '$root/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf');
