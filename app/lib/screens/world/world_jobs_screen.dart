@@ -22,7 +22,8 @@ class WorldJobsScreen extends StatefulWidget {
 }
 
 class _WorldJobsScreenState extends State<WorldJobsScreen> {
-  late final WorldApi api = widget.api ?? ApiWorldApi(context.read<AppState>().api);
+  late final WorldApi api =
+      widget.api ?? ApiWorldApi(context.read<AppState>().api);
   Map<String, dynamic>? _d;
   bool _loading = true;
   bool _error = false;
@@ -70,15 +71,17 @@ class _WorldJobsScreenState extends State<WorldJobsScreen> {
     final t = AppLocalizations.of(context);
     try {
       final r = await api
-          .savePrefs({'job_alerts': _alerts, 'job_types': _types})
-          .timeout(const Duration(seconds: 20));
+          .savePrefs({'job_alerts': _alerts, 'job_types': _types}).timeout(
+              const Duration(seconds: 20));
       if (worldStatus(r) != 200) throw StateError('status');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.uwSaved)));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(t.uwSaved)));
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.uwSaveFailed)));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(t.uwSaveFailed)));
       }
     }
   }
@@ -106,7 +109,9 @@ class _WorldJobsScreenState extends State<WorldJobsScreen> {
                   title: t.loadFailed,
                   message: t.uwOffline,
                   action: FilledButton.tonalIcon(
-                      onPressed: _load, icon: const Icon(Icons.refresh), label: Text(t.retry)))
+                      onPressed: _load,
+                      icon: const Icon(Icons.refresh),
+                      label: Text(t.retry)))
               : _body(t, scheme),
     );
   }
@@ -124,7 +129,10 @@ class _WorldJobsScreenState extends State<WorldJobsScreen> {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xl),
         children: [
-          UwNote(icon: Icons.shield_outlined, text: '${d['safety'] ?? ''}', warn: true),
+          UwNote(
+              icon: Icons.shield_outlined,
+              text: '${d['safety'] ?? ''}',
+              warn: true),
           const SizedBox(height: Gap.md),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
             ChoiceChip(
@@ -136,7 +144,8 @@ class _WorldJobsScreenState extends State<WorldJobsScreen> {
                 avatar: Icon(_catIcon('${c['id']}'), size: 18),
                 label: Text('${c['name']}'),
                 selected: _cat == c['id'],
-                onSelected: (_) => setState(() => _cat = _cat == c['id'] ? '' : '${c['id']}'),
+                onSelected: (_) =>
+                    setState(() => _cat = _cat == c['id'] ? '' : '${c['id']}'),
               ),
           ]),
           const SizedBox(height: Gap.md),
@@ -144,10 +153,13 @@ class _WorldJobsScreenState extends State<WorldJobsScreen> {
             Card(
               margin: const EdgeInsets.only(bottom: Gap.sm),
               child: ListTile(
-                contentPadding: const EdgeInsets.fromLTRB(Gap.lg, Gap.xs, Gap.sm, Gap.xs),
+                contentPadding:
+                    const EdgeInsets.fromLTRB(Gap.lg, Gap.xs, Gap.sm, Gap.xs),
                 leading: Icon(_catIcon('${p['cat']}'), color: scheme.primary),
-                title: Text('${p['name']}', style: const TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: Text('${p['desc']}\n${Uri.tryParse('${p['url']}')?.host.replaceFirst('www.', '') ?? ''}'),
+                title: Text('${p['name']}',
+                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: Text(
+                    '${p['desc']}\n${Uri.tryParse('${p['url']}')?.host.replaceFirst('www.', '') ?? ''}'),
                 isThreeLine: true,
                 trailing: Icon(Icons.open_in_new, color: scheme.primary),
                 onTap: () => uwOpen(context, '${p['url']}'),
@@ -169,7 +181,8 @@ class _WorldJobsScreenState extends State<WorldJobsScreen> {
               value: _alerts,
               onChanged: (v) => setState(() => _alerts = v),
             ),
-            Text(t.uwJobTypesPick, style: Theme.of(context).textTheme.labelLarge),
+            Text(t.uwJobTypesPick,
+                style: Theme.of(context).textTheme.labelLarge),
             const SizedBox(height: Gap.sm),
             Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
               for (final ty in types)
@@ -191,9 +204,17 @@ class _WorldJobsScreenState extends State<WorldJobsScreen> {
           ],
           const SizedBox(height: Gap.lg),
           Text('${d['feeds_note'] ?? ''}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
-          Text(t.uwReviewedOn(uwWhen(context, '${d['reviewed'] ?? ''}', time: false)),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: scheme.onSurfaceVariant)),
+          Text(
+              t.uwReviewedOn(
+                  uwWhen(context, '${d['reviewed'] ?? ''}', time: false)),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: scheme.onSurfaceVariant)),
         ],
       ),
     );

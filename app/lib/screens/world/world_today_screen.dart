@@ -22,11 +22,21 @@ class WorldTodayScreen extends StatefulWidget {
   State<WorldTodayScreen> createState() => _WorldTodayScreenState();
 }
 
-const _order = ['prayer', 'weather', 'currency', 'gold', 'fuel', 'news_bd',
-    'news_world', 'cricket', 'football'];
+const _order = [
+  'prayer',
+  'weather',
+  'currency',
+  'gold',
+  'fuel',
+  'news_bd',
+  'news_world',
+  'cricket',
+  'football'
+];
 
 class _WorldTodayScreenState extends State<WorldTodayScreen> {
-  late final WorldApi api = widget.api ?? ApiWorldApi(context.read<AppState>().api);
+  late final WorldApi api =
+      widget.api ?? ApiWorldApi(context.read<AppState>().api);
   Map<String, dynamic>? _data;
   Map<String, dynamic>? _config;
   bool _loading = true;
@@ -115,48 +125,73 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
             !(id == 'cricket' || id == 'football') || sports[id] == true);
         return SafeArea(
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.85),
-            child: ListView(shrinkWrap: true, padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg), children: [
-              Text(t.uwCustomizeTitle, style: Theme.of(ctx).textTheme.titleLarge),
-              const SizedBox(height: Gap.xs),
-              Text(t.uwCustomizeBody),
-              const SizedBox(height: Gap.md),
-              if (cities.isNotEmpty)
-                DropdownButtonFormField<String>(
-                  initialValue: cities.any((c) => c['id'] == city) ? city : null,
-                  isExpanded: true,
-                  decoration: InputDecoration(labelText: t.uwCity),
-                  items: [
-                    for (final c in cities)
-                      DropdownMenuItem(value: '${c['id']}', child: Text('${c['name']}')),
-                  ],
-                  onChanged: (v) => setS(() => city = v ?? city),
-                ),
-              const SizedBox(height: Gap.sm),
-              for (final id in ids)
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  secondary: Icon(_cardIcon(id)),
-                  title: Text(_cardTitle(t, id)),
-                  subtitle: hidden[id] == null
-                      ? null
-                      : Text(hidden[id] == 'not_entered' ? t.uwNotEnteredYet : t.uwNotAvailableNow),
-                  value: on[id] != false,
-                  onChanged: (v) => setS(() => on[id] = v),
-                ),
-              const SizedBox(height: Gap.md),
-              FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(t.uwSave)),
-            ]),
+            constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(ctx).size.height * 0.85),
+            child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Flexible(
+                      child: ListView(
+                          shrinkWrap: true,
+                          padding: const EdgeInsets.fromLTRB(
+                              Gap.lg, 0, Gap.lg, Gap.sm),
+                          children: [
+                        Text(t.uwCustomizeTitle,
+                            style: Theme.of(ctx).textTheme.titleLarge),
+                        const SizedBox(height: Gap.xs),
+                        Text(t.uwCustomizeBody),
+                        const SizedBox(height: Gap.md),
+                        if (cities.isNotEmpty)
+                          DropdownButtonFormField<String>(
+                            initialValue: cities.any((c) => c['id'] == city)
+                                ? city
+                                : null,
+                            isExpanded: true,
+                            decoration: InputDecoration(labelText: t.uwCity),
+                            items: [
+                              for (final c in cities)
+                                DropdownMenuItem(
+                                    value: '${c['id']}',
+                                    child: Text('${c['name']}')),
+                            ],
+                            onChanged: (v) => setS(() => city = v ?? city),
+                          ),
+                        const SizedBox(height: Gap.sm),
+                        for (final id in ids)
+                          SwitchListTile(
+                            contentPadding: EdgeInsets.zero,
+                            secondary: Icon(_cardIcon(id)),
+                            title: Text(_cardTitle(t, id)),
+                            subtitle: hidden[id] == null
+                                ? null
+                                : Text(hidden[id] == 'not_entered'
+                                    ? t.uwNotEnteredYet
+                                    : t.uwNotAvailableNow),
+                            value: on[id] != false,
+                            onChanged: (v) => setS(() => on[id] = v),
+                          ),
+                      ])),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                        Gap.lg, Gap.xs, Gap.lg, Gap.lg),
+                    child: FilledButton(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: Text(t.uwSave)),
+                  ),
+                ]),
           ),
         );
       }),
     );
     if (saved != true || !mounted) return;
     try {
-      await api.savePrefs({'cards': on, 'city': city}).timeout(const Duration(seconds: 20));
+      await api.savePrefs({'cards': on, 'city': city}).timeout(
+          const Duration(seconds: 20));
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.uwSaveFailed)));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(t.uwSaveFailed)));
       }
       return;
     }
@@ -184,7 +219,9 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
                   title: t.loadFailed,
                   message: t.uwOffline,
                   action: FilledButton.tonalIcon(
-                      onPressed: _load, icon: const Icon(Icons.refresh), label: Text(t.retry)),
+                      onPressed: _load,
+                      icon: const Icon(Icons.refresh),
+                      label: Text(t.retry)),
                 )
               : RefreshIndicator(onRefresh: _load, child: _body(t, scheme)),
     );
@@ -206,9 +243,11 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
           Padding(
             padding: const EdgeInsets.only(bottom: Gap.sm),
             child: Row(children: [
-              Icon(Icons.place_outlined, size: 18, color: scheme.onSurfaceVariant),
+              Icon(Icons.place_outlined,
+                  size: 18, color: scheme.onSurfaceVariant),
               const SizedBox(width: Gap.xs),
-              Text('${city['name']}', style: TextStyle(color: scheme.onSurfaceVariant)),
+              Text('${city['name']}',
+                  style: TextStyle(color: scheme.onSurfaceVariant)),
             ]),
           ),
         if (shown.isEmpty)
@@ -226,27 +265,29 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
               margin: EdgeInsets.zero,
               child: Padding(
                 padding: const EdgeInsets.all(Gap.lg),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Row(children: [
-                    Icon(_cardIcon(id), color: scheme.primary),
-                    const SizedBox(width: Gap.sm),
-                    Expanded(
-                        child: Text(_cardTitle(t, id),
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(fontWeight: FontWeight.w700))),
-                    if (id.startsWith('news_'))
-                      UwSpeakButton(
-                          compact: true,
-                          text: worldList(worldMap(cards[id])['items'])
-                              .take(5)
-                              .map((e) => '${e['title']}')
-                              .join('। ')),
-                  ]),
-                  const SizedBox(height: Gap.sm),
-                  _cardBody(t, scheme, id, worldMap(cards[id])),
-                ]),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(children: [
+                        Icon(_cardIcon(id), color: scheme.primary),
+                        const SizedBox(width: Gap.sm),
+                        Expanded(
+                            child: Text(_cardTitle(t, id),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.w700))),
+                        if (id.startsWith('news_'))
+                          UwSpeakButton(
+                              compact: true,
+                              text: worldList(worldMap(cards[id])['items'])
+                                  .take(5)
+                                  .map((e) => '${e['title']}')
+                                  .join('। ')),
+                      ]),
+                      const SizedBox(height: Gap.sm),
+                      _cardBody(t, scheme, id, worldMap(cards[id])),
+                    ]),
               ),
             ),
           ),
@@ -259,26 +300,37 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
         child: Row(children: [
           Expanded(child: Text(a)),
           const SizedBox(width: Gap.sm),
-          Text(b, style: TextStyle(fontWeight: strong ? FontWeight.w700 : FontWeight.w500)),
+          Text(b,
+              style: TextStyle(
+                  fontWeight: strong ? FontWeight.w700 : FontWeight.w500)),
         ]),
       );
 
-  Widget _cardBody(AppLocalizations t, ColorScheme scheme, String id, Map<String, dynamic> c) {
+  Widget _cardBody(AppLocalizations t, ColorScheme scheme, String id,
+      Map<String, dynamic> c) {
     final dg = (Object v) => uwDigits(context, v);
     switch (id) {
       case 'prayer':
         final times = worldMap(c['times']);
         final next = '${c['next'] ?? ''}';
         final names = {
-          'fajr': t.uwFajr, 'sunrise': t.uwSunrise, 'dhuhr': t.uwDhuhr,
-          'asr': t.uwAsr, 'maghrib': t.uwMaghrib, 'isha': t.uwIsha,
+          'fajr': t.uwFajr,
+          'sunrise': t.uwSunrise,
+          'dhuhr': t.uwDhuhr,
+          'asr': t.uwAsr,
+          'maghrib': t.uwMaghrib,
+          'isha': t.uwIsha,
         };
         return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           for (final k in names.keys)
-            if (times[k] != null) _row(names[k]!, dg(times[k]), strong: k == next),
+            if (times[k] != null)
+              _row(names[k]!, dg(times[k]), strong: k == next),
           const SizedBox(height: Gap.xs),
           Text('${c['note'] ?? ''}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: scheme.onSurfaceVariant)),
         ]);
       case 'weather':
         final next = worldList(c['next']);
@@ -287,7 +339,9 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
             Text('${dg((c['temp'] as num?)?.round() ?? '')}°',
                 style: Theme.of(context).textTheme.displaySmall),
             const SizedBox(width: Gap.md),
-            Expanded(child: Text('${c['label'] ?? ''}', style: Theme.of(context).textTheme.titleMedium)),
+            Expanded(
+                child: Text('${c['label'] ?? ''}',
+                    style: Theme.of(context).textTheme.titleMedium)),
           ]),
           const SizedBox(height: Gap.xs),
           Text(t.uwHumidityWind(dg((c['humidity'] as num?)?.round() ?? '-'),
@@ -296,11 +350,15 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
             const SizedBox(height: Gap.sm),
             Wrap(spacing: Gap.md, runSpacing: Gap.xs, children: [
               for (final s in next)
-                Text('${uwWhen(context, '${s['time']}')}: ${dg((s['temp'] as num?)?.round() ?? '')}° ${s['label']}',
+                Text(
+                    '${uwWhen(context, '${s['time']}')}: ${dg((s['temp'] as num?)?.round() ?? '')}° ${s['label']}',
                     style: Theme.of(context).textTheme.bodySmall),
             ]),
           ],
-          UwSourceLine(source: '${c['source']}', url: '${c['source_url'] ?? ''}', updated: '${c['updated'] ?? ''}'),
+          UwSourceLine(
+              source: '${c['source']}',
+              url: '${c['source_url'] ?? ''}',
+              updated: '${c['updated'] ?? ''}'),
         ]);
       case 'currency':
         return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -308,8 +366,14 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
             _row('${r['name']} (${r['code']})', '৳${dg(r['bdt'])}'),
           const SizedBox(height: Gap.xs),
           Text('${c['note'] ?? ''}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
-          UwSourceLine(source: '${c['source']}', url: '${c['source_url'] ?? ''}', updated: '${c['updated'] ?? ''}'),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: scheme.onSurfaceVariant)),
+          UwSourceLine(
+              source: '${c['source']}',
+              url: '${c['source_url'] ?? ''}',
+              updated: '${c['updated'] ?? ''}'),
         ]);
       case 'gold':
       case 'fuel':
@@ -317,9 +381,15 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
           for (final r in worldList(c['rows']))
             _row('${r['label']}', '৳${dg((r['bdt'] as num?)?.round() ?? '')}'),
           const SizedBox(height: Gap.xs),
-          Text(t.uwEnteredByAssisto(uwWhen(context, '${c['updated'] ?? ''}', time: false)),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
-          UwSourceLine(source: '${c['source']}', url: '${c['source_url'] ?? ''}'),
+          Text(
+              t.uwEnteredByAssisto(
+                  uwWhen(context, '${c['updated'] ?? ''}', time: false)),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: scheme.onSurfaceVariant)),
+          UwSourceLine(
+              source: '${c['source']}', url: '${c['source_url'] ?? ''}'),
         ]);
       case 'news_bd':
       case 'news_world':
@@ -329,27 +399,40 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
               onTap: () => uwOpen(context, '${it['link']}'),
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: Gap.sm),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text('${it['title']}', style: const TextStyle(fontWeight: FontWeight.w600, height: 1.35)),
-                  if ('${it['snippet'] ?? ''}'.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: Text('${it['snippet']}',
-                          style: TextStyle(color: scheme.onSurfaceVariant, height: 1.35)),
-                    ),
-                  const SizedBox(height: 2),
-                  Text(
-                    [
-                      '${it['source'] ?? ''}',
-                      if ('${it['published'] ?? ''}'.isNotEmpty) uwWhen(context, '${it['published']}'),
-                    ].join(' · '),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.primary),
-                  ),
-                ]),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('${it['title']}',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w600, height: 1.35)),
+                      if ('${it['snippet'] ?? ''}'.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Text('${it['snippet']}',
+                              style: TextStyle(
+                                  color: scheme.onSurfaceVariant,
+                                  height: 1.35)),
+                        ),
+                      const SizedBox(height: 2),
+                      Text(
+                        [
+                          '${it['source'] ?? ''}',
+                          if ('${it['published'] ?? ''}'.isNotEmpty)
+                            uwWhen(context, '${it['published']}'),
+                        ].join(' · '),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(color: scheme.primary),
+                      ),
+                    ]),
               ),
             ),
           Text(t.uwNewsNote,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: scheme.onSurfaceVariant)),
         ]);
       default:
         final m = worldList(c['matches']);
@@ -360,9 +443,11 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
               padding: const EdgeInsets.symmetric(vertical: Gap.xs),
               child: id == 'cricket'
                   ? Text('${x['name']}\n${x['score']}  ${x['status']}')
-                  : Text('${x['home']} ${dg(x['score'] ?? '')} ${x['away']}  (${x['league']})'),
+                  : Text(
+                      '${x['home']} ${dg(x['score'] ?? '')} ${x['away']}  (${x['league']})'),
             ),
-          UwSourceLine(source: '${c['source']}', updated: '${c['updated'] ?? ''}'),
+          UwSourceLine(
+              source: '${c['source']}', updated: '${c['updated'] ?? ''}'),
         ]);
     }
   }

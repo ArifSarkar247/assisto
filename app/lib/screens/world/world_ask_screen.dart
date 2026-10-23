@@ -34,7 +34,8 @@ class _Turn {
 }
 
 class _WorldAskScreenState extends State<WorldAskScreen> {
-  late final WorldApi api = widget.api ?? ApiWorldApi(context.read<AppState>().api);
+  late final WorldApi api =
+      widget.api ?? ApiWorldApi(context.read<AppState>().api);
   final _input = TextEditingController();
   late final VoiceDictation _voice = VoiceDictation();
   final List<_Turn> _turns = [];
@@ -69,7 +70,9 @@ class _WorldAskScreenState extends State<WorldAskScreen> {
     });
     Map<String, dynamic> body;
     try {
-      body = await api.ask(q, uwLang(context)).timeout(const Duration(seconds: 60));
+      body = await api
+          .ask(q, uwLang(context))
+          .timeout(const Duration(seconds: 60));
     } catch (_) {
       body = {'_status': 0, 'ok': false};
     }
@@ -92,7 +95,8 @@ class _WorldAskScreenState extends State<WorldAskScreen> {
           child: _turns.isEmpty
               ? _welcome(t, scheme)
               : ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.lg),
+                  padding:
+                      const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.lg),
                   itemCount: _turns.length,
                   itemBuilder: (_, i) => _TurnCard(turn: _turns[i]),
                 ),
@@ -115,7 +119,8 @@ class _WorldAskScreenState extends State<WorldAskScreen> {
                     hintText: t.uwAskHint,
                     counterText: '',
                     isDense: true,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(24)),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(24)),
                   ),
                 ),
               ),
@@ -146,7 +151,9 @@ class _WorldAskScreenState extends State<WorldAskScreen> {
               style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
           const SizedBox(height: Gap.md),
           if (widget.credits > 0)
-            UwNote(icon: Icons.toll_outlined, text: t.uwAskCost(uwDigits(context, widget.credits))),
+            UwNote(
+                icon: Icons.toll_outlined,
+                text: t.uwAskCost(uwDigits(context, widget.credits))),
           const SizedBox(height: Gap.md),
           Wrap(
             spacing: Gap.sm,
@@ -181,18 +188,23 @@ class _TurnCard extends StatelessWidget {
     final b = turn.body;
     final ok = b != null && b['ok'] == true;
     final sources = worldList(b?['sources']);
-    final caution = (b?['caution'] is List) ? (b!['caution'] as List).map((e) => '$e').toList() : <String>[];
+    final caution = (b?['caution'] is List)
+        ? (b!['caution'] as List).map((e) => '$e').toList()
+        : <String>[];
     return Padding(
       padding: const EdgeInsets.only(bottom: Gap.lg),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Align(
           alignment: Alignment.centerRight,
           child: Container(
-            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
-            padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
+            constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width * 0.8),
+            padding: const EdgeInsets.symmetric(
+                horizontal: Gap.md, vertical: Gap.sm),
             decoration: BoxDecoration(
                 color: scheme.primary, borderRadius: BorderRadius.circular(18)),
-            child: Text(turn.question, style: TextStyle(color: scheme.onPrimary)),
+            child:
+                Text(turn.question, style: TextStyle(color: scheme.onPrimary)),
           ),
         ),
         const SizedBox(height: Gap.sm),
@@ -202,70 +214,100 @@ class _TurnCard extends StatelessWidget {
             padding: const EdgeInsets.all(Gap.lg),
             child: turn.loading
                 ? Row(children: [
-                    const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+                    const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2)),
                     const SizedBox(width: Gap.md),
                     Expanded(child: Text(t.uwAskSearching)),
                   ])
                 : !ok
-                    ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text(_errorText(t, b ?? const {})),
-                        if (worldStatus(b ?? const {}) == 402)
-                          Padding(
-                            padding: const EdgeInsets.only(top: Gap.sm),
-                            child: FilledButton.tonal(
-                              onPressed: () => Navigator.of(context).push(
-                                  MaterialPageRoute(builder: (_) => const CreditsScreen())),
-                              child: Text(t.uwGetCredits),
-                            ),
-                          ),
-                      ])
-                    : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        SelectableText('${b['answer'] ?? ''}',
-                            style: const TextStyle(height: 1.5)),
-                        if (sources.isNotEmpty) ...[
-                          const SizedBox(height: Gap.md),
-                          Text(t.uwSources,
-                              style: Theme.of(context).textTheme.labelLarge),
-                          for (final s in sources)
-                            InkWell(
-                              onTap: () => uwOpen(context, '${s['url']}'),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: Gap.xs),
-                                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                  Text('[${uwDigits(context, s['n'] ?? '')}] ',
-                                      style: TextStyle(color: scheme.primary, fontWeight: FontWeight.w700)),
-                                  Expanded(
-                                    child: Text('${s['title']} — ${s['site']}',
-                                        style: TextStyle(
-                                            color: scheme.primary,
-                                            decoration: TextDecoration.underline,
-                                            decorationColor: scheme.primary)),
-                                  ),
-                                ]),
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                            Text(_errorText(t, b ?? const {})),
+                            if (worldStatus(b ?? const {}) == 402)
+                              Padding(
+                                padding: const EdgeInsets.only(top: Gap.sm),
+                                child: FilledButton.tonal(
+                                  onPressed: () => Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                          builder: (_) =>
+                                              const CreditsScreen())),
+                                  child: Text(t.uwGetCredits),
+                                ),
                               ),
-                            ),
-                        ],
-                        for (final c in caution) ...[
-                          const SizedBox(height: Gap.sm),
-                          UwNote(text: c, icon: Icons.health_and_safety_outlined, warn: true),
-                        ],
-                        const SizedBox(height: Gap.sm),
-                        Row(children: [
-                          Expanded(
-                            child: Text(
-                              b['cached'] == true
-                                  ? t.uwAskCached
-                                  : t.uwAskCharged(uwDigits(context, b['charged'] ?? 0)),
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: scheme.onSurfaceVariant),
-                            ),
-                          ),
-                          UwSpeakButton(text: '${b['answer'] ?? ''}', compact: true),
-                        ]),
-                        Text(t.uwAiReview,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: scheme.onSurfaceVariant)),
-                      ]),
+                          ])
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                            SelectableText('${b['answer'] ?? ''}',
+                                style: const TextStyle(height: 1.5)),
+                            if (sources.isNotEmpty) ...[
+                              const SizedBox(height: Gap.md),
+                              Text(t.uwSources,
+                                  style:
+                                      Theme.of(context).textTheme.labelLarge),
+                              for (final s in sources)
+                                InkWell(
+                                  onTap: () => uwOpen(context, '${s['url']}'),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: Gap.xs),
+                                    child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                              '[${uwDigits(context, s['n'] ?? '')}] ',
+                                              style: TextStyle(
+                                                  color: scheme.primary,
+                                                  fontWeight: FontWeight.w700)),
+                                          Expanded(
+                                            child: Text(
+                                                '${s['title']} — ${s['site']}',
+                                                style: TextStyle(
+                                                    color: scheme.primary,
+                                                    decoration: TextDecoration
+                                                        .underline,
+                                                    decorationColor:
+                                                        scheme.primary)),
+                                          ),
+                                        ]),
+                                  ),
+                                ),
+                            ],
+                            for (final c in caution) ...[
+                              const SizedBox(height: Gap.sm),
+                              UwNote(
+                                  text: c,
+                                  icon: Icons.health_and_safety_outlined,
+                                  warn: true),
+                            ],
+                            const SizedBox(height: Gap.sm),
+                            Row(children: [
+                              Expanded(
+                                child: Text(
+                                  b['cached'] == true
+                                      ? t.uwAskCached
+                                      : t.uwAskCharged(
+                                          uwDigits(context, b['charged'] ?? 0)),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                          color: scheme.onSurfaceVariant),
+                                ),
+                              ),
+                              UwSpeakButton(
+                                  text: '${b['answer'] ?? ''}', compact: true),
+                            ]),
+                            Text(t.uwAiReview,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(color: scheme.onSurfaceVariant)),
+                          ]),
           ),
         ),
       ]),

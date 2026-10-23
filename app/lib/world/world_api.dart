@@ -48,7 +48,8 @@ class ApiWorldApi implements WorldApi {
   Future<Map<String, dynamic>> hub(String id) => _get('/world/hub/$id');
   @override
   Future<Map<String, dynamic>> hubAi(String id, String question, String lang) =>
-      api.postJsonRaw('/world/hub/$id/ai', {'question': question, 'lang': lang});
+      api.postJsonRaw(
+          '/world/hub/$id/ai', {'question': question, 'lang': lang});
   @override
   Future<Map<String, dynamic>> mcq(String topic) =>
       _get('/world/mcq?topic=${Uri.encodeQueryComponent(topic)}');
@@ -65,7 +66,8 @@ class WorldCache {
   WorldCache._();
   static String _k(String id, String lang) => 'world_cache_v1_${id}_$lang';
 
-  static Future<void> save(String id, String lang, Map<String, dynamic> j) async {
+  static Future<void> save(
+      String id, String lang, Map<String, dynamic> j) async {
     try {
       final copy = Map<String, dynamic>.from(j)..remove('_status');
       await Settings.setString(_k(id, lang), jsonEncode(copy));

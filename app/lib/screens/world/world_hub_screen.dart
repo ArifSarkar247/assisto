@@ -23,7 +23,8 @@ class WorldHubScreen extends StatefulWidget {
 }
 
 class _WorldHubScreenState extends State<WorldHubScreen> {
-  late final WorldApi api = widget.api ?? ApiWorldApi(context.read<AppState>().api);
+  late final WorldApi api =
+      widget.api ?? ApiWorldApi(context.read<AppState>().api);
   bool _searchReady = false;
   int _credits = 0;
 

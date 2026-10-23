@@ -23,7 +23,8 @@ String uwWhen(BuildContext context, String iso, {bool time = true}) {
   if (s.isEmpty) return '';
   final d = DateTime.tryParse(s);
   if (d == null) return localDigits(s, uwLang(context));
-  return fmtDate(time ? 'd MMM, HH:mm' : 'd MMM yyyy', d.toLocal(), uwLang(context));
+  return fmtDate(
+      time ? 'd MMM, HH:mm' : 'd MMM yyyy', d.toLocal(), uwLang(context));
 }
 
 Future<void> uwOpen(BuildContext context, String url) async {
@@ -59,7 +60,8 @@ class UwSpeakButton extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(t.uwTtsNoVoice),
         action: SnackBarAction(
-            label: t.uwTtsSettings, onPressed: () => VaNative.openTtsSettings()),
+            label: t.uwTtsSettings,
+            onPressed: () => VaNative.openTtsSettings()),
       ));
     } else if (r == null || r == 'no_engine') {
       ScaffoldMessenger.of(context)
@@ -81,7 +83,11 @@ class UwSpeakButton extends StatelessWidget {
 
 /// A tinted note (verify / consult / AI-generated).
 class UwNote extends StatelessWidget {
-  const UwNote({super.key, required this.text, this.icon = Icons.info_outline, this.warn = false});
+  const UwNote(
+      {super.key,
+      required this.text,
+      this.icon = Icons.info_outline,
+      this.warn = false});
   final String text;
   final IconData icon;
   final bool warn;
@@ -94,7 +100,8 @@ class UwNote extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(Gap.md),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
+      decoration:
+          BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Icon(icon, size: 18, color: fg),
         const SizedBox(width: Gap.sm),
@@ -106,7 +113,8 @@ class UwNote extends StatelessWidget {
 
 /// "Source: X · Updated: Y" with the source opening its official site.
 class UwSourceLine extends StatelessWidget {
-  const UwSourceLine({super.key, required this.source, this.url = '', this.updated = ''});
+  const UwSourceLine(
+      {super.key, required this.source, this.url = '', this.updated = ''});
   final String source;
   final String url;
   final String updated;
@@ -115,14 +123,18 @@ class UwSourceLine extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final style = Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant);
+    final style = Theme.of(context)
+        .textTheme
+        .bodySmall
+        ?.copyWith(color: scheme.onSurfaceVariant);
     final when = uwWhen(context, updated);
     return InkWell(
       onTap: url.isEmpty ? null : () => uwOpen(context, url),
       child: Padding(
         padding: const EdgeInsets.only(top: Gap.sm),
         child: Text(
-          [t.uwSourceIs(source), if (when.isNotEmpty) t.uwUpdatedAt(when)].join(' · '),
+          [t.uwSourceIs(source), if (when.isNotEmpty) t.uwUpdatedAt(when)]
+              .join(' · '),
           style: style?.copyWith(
               decoration: url.isEmpty ? null : TextDecoration.underline,
               decorationColor: scheme.onSurfaceVariant),

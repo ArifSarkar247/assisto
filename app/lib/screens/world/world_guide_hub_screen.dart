@@ -32,7 +32,8 @@ import 'world_mcq_screen.dart';
 ///     Government hub it explains form fields and drafts text to copy; it
 ///     never submits anything.
 class WorldGuideHubScreen extends StatefulWidget {
-  const WorldGuideHubScreen({super.key, required this.hubId, this.api, this.cvBackend});
+  const WorldGuideHubScreen(
+      {super.key, required this.hubId, this.api, this.cvBackend});
   final String hubId;
   final WorldApi? api;
 
@@ -44,7 +45,8 @@ class WorldGuideHubScreen extends StatefulWidget {
 }
 
 class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
-  late final WorldApi api = widget.api ?? ApiWorldApi(context.read<AppState>().api);
+  late final WorldApi api =
+      widget.api ?? ApiWorldApi(context.read<AppState>().api);
   Map<String, dynamic>? _d;
   bool _loading = true;
   bool _error = false;
@@ -115,7 +117,9 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
     });
     Map<String, dynamic> r;
     try {
-      r = await api.hubAi(widget.hubId, q, uwLang(context)).timeout(const Duration(seconds: 60));
+      r = await api
+          .hubAi(widget.hubId, q, uwLang(context))
+          .timeout(const Duration(seconds: 60));
     } catch (_) {
       r = {'_status': 0, 'ok': false};
     }
@@ -126,7 +130,8 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
     });
   }
 
-  void _open(Widget w) => Navigator.of(context).push(MaterialPageRoute(builder: (_) => w));
+  void _open(Widget w) =>
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => w));
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +148,9 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
                   title: t.loadFailed,
                   message: t.uwOffline,
                   action: FilledButton.tonalIcon(
-                      onPressed: _load, icon: const Icon(Icons.refresh), label: Text(t.retry)))
+                      onPressed: _load,
+                      icon: const Icon(Icons.refresh),
+                      label: Text(t.retry)))
               : RefreshIndicator(onRefresh: _load, child: _body(t, scheme)),
     );
   }
@@ -160,10 +167,12 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
           const SizedBox(height: Gap.sm),
         ],
         Text('${d['intro'] ?? ''}',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.4)),
+            style:
+                Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.4)),
         const SizedBox(height: Gap.sm),
         UwNote(text: '${d['verify'] ?? ''}', icon: Icons.verified_outlined),
-        if (photo.isNotEmpty && d['photo_ready'] == true) _photoBlock(t, scheme, photo),
+        if (photo.isNotEmpty && d['photo_ready'] == true)
+          _photoBlock(t, scheme, photo),
         if (widget.hubId == 'students') ...[
           const SizedBox(height: Gap.md),
           FilledButton.icon(
@@ -179,20 +188,30 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
         if (d['ai_ready'] == true) _aiBlock(t, scheme, d['form_help'] == true),
         ..._screenLinks(t, d),
         const SizedBox(height: Gap.md),
-        Text(t.uwReviewedOn(uwWhen(context, '${d['reviewed'] ?? ''}', time: false)),
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+        Text(
+            t.uwReviewedOn(
+                uwWhen(context, '${d['reviewed'] ?? ''}', time: false)),
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: scheme.onSurfaceVariant)),
       ],
     );
   }
 
   List<Widget> _screenLinks(AppLocalizations t, Map<String, dynamic> d) {
-    final ids = (d['screens'] is List) ? (d['screens'] as List).map((e) => '$e').toList() : <String>[];
+    final ids = (d['screens'] is List)
+        ? (d['screens'] as List).map((e) => '$e').toList()
+        : <String>[];
     final out = <Widget>[];
     for (final id in ids) {
       final (String label, Widget Function() build)? m = switch (id) {
         'probashi' => (t.uwOpenProbashi, () => const ProbashiScreen()),
         'exam_result' => (t.uwOpenExamResult, () => const ExamResultScreen()),
-        'student_corner' => (t.uwOpenStudentCorner, () => const StudentCornerScreen()),
+        'student_corner' => (
+            t.uwOpenStudentCorner,
+            () => const StudentCornerScreen()
+          ),
         'farmer_mode' => (t.uwOpenFarmerMode, () => const FarmerModeScreen()),
         'service_guide' => (t.uwOpenServiceGuide, () => const GuideScreen()),
         // medicine price lookup only when a lawful (DGDA) list is loaded
@@ -224,7 +243,8 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
         color: scheme.secondaryContainer,
         child: Padding(
           padding: const EdgeInsets.all(Gap.lg),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Icon(crop ? Icons.eco_outlined : Icons.receipt_long_outlined,
                   color: scheme.onSecondaryContainer),
@@ -232,22 +252,27 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
               Expanded(
                 child: Text(crop ? t.uwCropTitle : t.uwRxTitle,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: scheme.onSecondaryContainer, fontWeight: FontWeight.w700)),
+                        color: scheme.onSecondaryContainer,
+                        fontWeight: FontWeight.w700)),
               ),
               ChatPhotoAttachButton(
                 onPicked: (Uint8List b) => setState(() => _photos.insert(
-                    0, ChatPhotoRequest(b, crop ? t.uwCropQuestion : t.uwRxQuestion))),
+                    0,
+                    ChatPhotoRequest(
+                        b, crop ? t.uwCropQuestion : t.uwRxQuestion))),
               ),
             ]),
             const SizedBox(height: Gap.xs),
             Text(crop ? t.uwCropBody : t.uwRxBody,
-                style: TextStyle(color: scheme.onSecondaryContainer, height: 1.4)),
+                style:
+                    TextStyle(color: scheme.onSecondaryContainer, height: 1.4)),
             for (final p in _photos)
               ChatPhotoTurn(
                 key: ObjectKey(p),
                 request: p,
                 backend: widget.cvBackend ??
-                    ApiCvBackend(context.read<AppState>().api, purpose: purpose),
+                    ApiCvBackend(context.read<AppState>().api,
+                        purpose: purpose),
               ),
           ]),
         ),
@@ -284,29 +309,41 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
       FilledButton.icon(
         onPressed: _asking ? null : _askAi,
         icon: _asking
-            ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2))
             : const Icon(Icons.auto_awesome),
         label: Text(t.uwAiAsk),
       ),
+      const SizedBox(height: Gap.xs),
       Text(t.uwAiCostNote,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+          style: Theme.of(context)
+              .textTheme
+              .bodySmall
+              ?.copyWith(color: scheme.onSurfaceVariant)),
       if (r != null)
         Card(
           margin: const EdgeInsets.only(top: Gap.md),
           child: Padding(
             padding: const EdgeInsets.all(Gap.lg),
             child: ok
-                ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    SelectableText('${r['answer'] ?? ''}', style: const TextStyle(height: 1.5)),
-                    const SizedBox(height: Gap.sm),
-                    UwNote(text: '${r['note'] ?? ''}', warn: true),
-                    Row(children: [
-                      Expanded(
-                          child: Text(t.uwAiReview,
-                              style: Theme.of(context).textTheme.bodySmall)),
-                      UwSpeakButton(text: '${r['answer'] ?? ''}', compact: true),
-                    ]),
-                  ])
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                        SelectableText('${r['answer'] ?? ''}',
+                            style: const TextStyle(height: 1.5)),
+                        const SizedBox(height: Gap.sm),
+                        UwNote(text: '${r['note'] ?? ''}', warn: true),
+                        Row(children: [
+                          Expanded(
+                              child: Text(t.uwAiReview,
+                                  style:
+                                      Theme.of(context).textTheme.bodySmall)),
+                          UwSpeakButton(
+                              text: '${r['answer'] ?? ''}', compact: true),
+                        ]),
+                      ])
                 : Text('${r['message'] ?? ''}'.isNotEmpty
                     ? '${r['message']}'
                     : (worldStatus(r) == 0 ? t.uwOffline : t.uwAskFailed)),
@@ -344,8 +381,10 @@ class _ItemCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: Gap.sm),
       clipBehavior: Clip.antiAlias,
       child: ExpansionTile(
-        leading: Icon(call ? Icons.call_outlined : Icons.article_outlined, color: scheme.primary),
-        title: Text('${item['title']}', style: const TextStyle(fontWeight: FontWeight.w600)),
+        leading: Icon(call ? Icons.call_outlined : Icons.article_outlined,
+            color: scheme.primary),
+        title: Text('${item['title']}',
+            style: const TextStyle(fontWeight: FontWeight.w600)),
         childrenPadding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.md),
         expandedCrossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -357,11 +396,17 @@ class _ItemCard extends StatelessWidget {
             for (var i = 0; i < steps.length; i++)
               Padding(
                 padding: const EdgeInsets.only(top: Gap.xs),
-                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text('${uwDigits(context, i + 1)}. ',
-                      style: TextStyle(color: scheme.primary, fontWeight: FontWeight.w700)),
-                  Expanded(child: Text(steps[i], style: const TextStyle(height: 1.4))),
-                ]),
+                child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('${uwDigits(context, i + 1)}. ',
+                          style: TextStyle(
+                              color: scheme.primary,
+                              fontWeight: FontWeight.w700)),
+                      Expanded(
+                          child: Text(steps[i],
+                              style: const TextStyle(height: 1.4))),
+                    ]),
               ),
           ],
           if (docs.isNotEmpty) ...[
@@ -370,11 +415,14 @@ class _ItemCard extends StatelessWidget {
             for (final x in docs)
               Padding(
                 padding: const EdgeInsets.only(top: Gap.xs),
-                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Icon(Icons.check_box_outline_blank, size: 18, color: scheme.onSurfaceVariant),
-                  const SizedBox(width: Gap.sm),
-                  Expanded(child: Text(x)),
-                ]),
+                child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.check_box_outline_blank,
+                          size: 18, color: scheme.onSurfaceVariant),
+                      const SizedBox(width: Gap.sm),
+                      Expanded(child: Text(x)),
+                    ]),
               ),
           ],
           if (fee.isNotEmpty) ...[
@@ -383,18 +431,30 @@ class _ItemCard extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(Gap.md),
               decoration: BoxDecoration(
-                  color: scheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(12)),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(t.uwFee, style: Theme.of(context).textTheme.labelLarge),
-                const SizedBox(height: Gap.xs),
-                Text(fee, style: const TextStyle(height: 1.4)),
-                if ('${item['fee_source'] ?? ''}'.isNotEmpty)
-                  UwSourceLine(
-                      source: Uri.tryParse('${item['fee_source']}')?.host.replaceFirst('www.', '') ?? '',
-                      url: '${item['fee_source']}'),
-                Text(t.uwReviewedOn(uwWhen(context, '${item['reviewed'] ?? ''}', time: false)),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
-              ]),
+                  color: scheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(12)),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(t.uwFee,
+                        style: Theme.of(context).textTheme.labelLarge),
+                    const SizedBox(height: Gap.xs),
+                    Text(fee, style: const TextStyle(height: 1.4)),
+                    if ('${item['fee_source'] ?? ''}'.isNotEmpty)
+                      UwSourceLine(
+                          source: Uri.tryParse('${item['fee_source']}')
+                                  ?.host
+                                  .replaceFirst('www.', '') ??
+                              '',
+                          url: '${item['fee_source']}'),
+                    Text(
+                        t.uwReviewedOn(uwWhen(
+                            context, '${item['reviewed'] ?? ''}', time: false)),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(color: scheme.onSurfaceVariant)),
+                  ]),
             ),
           ],
           if (tips.isNotEmpty) ...[
@@ -403,18 +463,25 @@ class _ItemCard extends StatelessWidget {
             for (final x in tips)
               Padding(
                 padding: const EdgeInsets.only(top: Gap.xs),
-                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Icon(Icons.lightbulb_outline, size: 18, color: scheme.tertiary),
-                  const SizedBox(width: Gap.sm),
-                  Expanded(child: Text(x, style: const TextStyle(height: 1.4))),
-                ]),
+                child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.lightbulb_outline,
+                          size: 18, color: scheme.tertiary),
+                      const SizedBox(width: Gap.sm),
+                      Expanded(
+                          child: Text(x, style: const TextStyle(height: 1.4))),
+                    ]),
               ),
           ],
           if (links.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
-            for (final l in links) UwLinkTile(label: '${l['label']}', url: '${l['url']}'),
+            for (final l in links)
+              UwLinkTile(label: '${l['label']}', url: '${l['url']}'),
           ],
-          Align(alignment: Alignment.centerRight, child: UwSpeakButton(text: _speech(), compact: true)),
+          Align(
+              alignment: Alignment.centerRight,
+              child: UwSpeakButton(text: _speech(), compact: true)),
         ],
       ),
     );
