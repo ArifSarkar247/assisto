@@ -6,6 +6,7 @@ from . import media_sign
 from . import views_module5 as m5
 from . import views_build61 as b61
 from . import views_m2 as m2
+from . import views_p3_circle as p3c
 from . import business_views as bz
 from . import views_messenger as msg
 from . import views_security as secv
@@ -375,10 +376,17 @@ urlpatterns = [
     path("circle/groups/<int:pk>/<slug:setting>",
          m2.CircleGroupSettingsView.as_view()),  # announcements | size-limit
     # --- M2: Status / Stories (item 8) ---
-    path("circle/status", m2.CircleStatusView.as_view()),
-    path("circle/status/mine", m2.CircleStatusMineView.as_view()),
+    # p3: E2E stories (per-viewer ciphertext) replace the M2 tray/author/mine
+    path("circle/status", p3c.StoryTrayView.as_view()),
+    path("circle/status/mine", p3c.StoryMineView.as_view()),
+    path("circle/status/privacy", p3c.CirclePrivacyDefaultsView.as_view()),
     path("circle/status/mute", m2.CircleStatusMuteView.as_view()),
-    path("circle/status/author/<int:uid>", m2.CircleStatusAuthorView.as_view()),
+    path("circle/status/author/<int:uid>", p3c.StoryAuthorView.as_view()),
+    path("circle/status/<int:pk>/delete", p3c.StoryDeleteView.as_view()),
+    path("circle/notes", p3c.CircleNotesView.as_view()),
+    path("circle/notes/clear", p3c.CircleNoteClearView.as_view()),
+    path("circle/assisto/quote", p3c.AssistoQuoteView.as_view()),
+    path("circle/assisto/run", p3c.AssistoRunView.as_view()),
     path("circle/status/<int:pk>/view", m2.CircleStatusViewView.as_view()),
     path("circle/status/<int:pk>/reply", m2.CircleStatusReplyView.as_view()),
     # --- M2: Extras (items 9 + 10) ---

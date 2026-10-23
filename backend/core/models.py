@@ -1379,6 +1379,27 @@ class CircleStatus(models.Model):
     blob_ref = models.CharField(max_length=256, blank=True, default="")
     meta = models.JSONField(default=dict, blank=True)  # full validated status meta
     visibility = models.JSONField(default=dict, blank=True)  # {mode,allow_ids,except_ids}
+    # p3: E2E per viewer — {str(user_id): {ciphertext, nonce}} (text body or the
+    # photo's md1 media descriptor), each sealed on the author's phone to that
+    # viewer's key. The server returns a viewer ONLY their own entry.
+    per_recipient = models.JSONField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(db_index=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class CircleNote(models.Model):
+    """p3: a profile Note (Instagram-style) — <= 60 chars, lives 24 h, shown on
+    the author's profile / contact row to the audience they chose. E2E like a
+    story: per_recipient ciphertext only; the server never sees the text."""
+    author = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name="circle_notes")
+    per_recipient = models.JSONField(default=dict, blank=True)
+    scheme = models.CharField(max_length=64, blank=True, default="")
+    sender_key_id = models.CharField(max_length=64, blank=True, default="")
+    visibility = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField(db_index=True)
 

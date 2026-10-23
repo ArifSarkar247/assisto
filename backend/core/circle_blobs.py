@@ -249,6 +249,14 @@ def can_access(user, ref):
         elif x.member is not None and uid in (x.member.user_id,
                                               x.member.peer_user_id):
             return True
+    # p3: a photo STORY's blob — its author, or a viewer the active story is
+    # visible to (same server-side audience check as the story itself).
+    try:
+        from .views_p3_circle import active_story_viewer
+        if active_story_viewer(user, ref):
+            return True
+    except Exception:  # noqa: BLE001 — never widen access on an error
+        pass
     return False
 
 
@@ -308,6 +316,9 @@ def release(ref):
     from .models import CircleMediaBlob
     if not ref or _live_messages(ref).exists():
         return False
+    from .models import CircleStatus
+    if CircleStatus.objects.filter(blob_ref=ref).exists():
+        return False   # p3: an active story still shows it
     n = 0
     for b in CircleMediaBlob.objects.filter(ref=ref):
         b.delete()   # post_delete removes the file
@@ -335,8 +346,12 @@ def purge(now=None, dry=False):
         hits.append((b, "max_age"))
     for b in qs.filter(complete=False, created_at__lt=stale):
         hits.append((b, "unfinished"))
+    from .models import CircleStatus
     for b in qs.filter(complete=True, created_at__lt=stale):
         refs = CircleMessage.objects.filter(blob_ref=b.ref)
+        # p3: a photo story still live (or awaiting the expiry sweep) keeps it
+        if CircleStatus.objects.filter(blob_ref=b.ref).exists():
+            continue
         if not refs.exists():
             hits.append((b, "unsent"))
         elif not refs.filter(~Q(deleted="everyone")).exists():
