@@ -117,10 +117,31 @@ flutter:
   generate: true
   assets:
     - assets/branding/
+  # f1-design: bundled OFL fonts (licences next to them in assets/fonts/).
+  # Latin = Inter, Bangla = Noto Sans Bengali, static 400/500/600/700 subsets.
+  # (assets/fonts/NotoSansBengali.ttf stays in the repo for the backend's
+  # card renderer but is no longer bundled into the app.)
   fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-Bold.ttf
+          weight: 700
     - family: NotoSansBengali
       fonts:
-        - asset: assets/fonts/NotoSansBengali.ttf
+        - asset: assets/fonts/NotoSansBengali-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/NotoSansBengali-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/NotoSansBengali-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/NotoSansBengali-Bold.ttf
+          weight: 700
 
 flutter_launcher_icons:
   android: true

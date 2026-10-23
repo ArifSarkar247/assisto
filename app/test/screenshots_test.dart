@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
+import 'app_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -737,7 +738,7 @@ void main() {
           return null;
       }
     });
-    await _loadFont('NotoSansBengali', 'assets/fonts/NotoSansBengali.ttf');
+    await loadAppFonts(); // f1-design: Inter + Noto Sans Bengali
     final root = Platform.environment['FLUTTER_ROOT'] ??
         '${Platform.environment['HOME']}/assisto/tools/flutter';
     final icons = '$root/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf';
