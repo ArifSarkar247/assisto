@@ -167,8 +167,9 @@ class _ApprovalCardState extends State<_ApprovalCard> {
           ? baChannelLabel(t, '${it['channel']}')
           : '${it['customer_name']} · ${baChannelLabel(t, '${it['channel']}')}',
       icon: Icons.fact_check_outlined,
-      trailing: BizStatusChip(label: baRiskLabel(t, '${it['risk_reason']}'), color: Brand.warning),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        BizStatusChip(label: baRiskLabel(t, '${it['risk_reason']}'), color: Brand.warning),
+        const SizedBox(height: Gap.md),
         if ('${it['customer_text'] ?? ''}'.isNotEmpty) ...[
           Text(t.baCustomerSaid, style: Theme.of(context).textTheme.labelMedium),
           const SizedBox(height: Gap.xs),

@@ -277,7 +277,6 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
             : ok
                 ? (c['enabled'] == true ? t.baConnected : t.baChannelOff)
                 : (detail.isNotEmpty ? t.baConnectError(detail) : t.baNotConnected),
-        maxLines: 3,
       ),
       trailing: Row(mainAxisSize: MainAxisSize.min, children: [
         Switch(

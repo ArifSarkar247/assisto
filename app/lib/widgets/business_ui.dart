@@ -113,9 +113,15 @@ class BizStatusChip extends StatelessWidget {
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
         const SizedBox(width: Gap.sm),
-        Text(label,
-            style: TextStyle(
-                fontSize: 12, fontWeight: FontWeight.w700, color: Brand.onTint(context, color))),
+        // p1: a long label ellipsizes inside its parent (Wrap/Row) instead
+        // of overflowing at 360 px
+        Flexible(
+          child: Text(label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                  fontSize: 12, fontWeight: FontWeight.w700, color: Brand.onTint(context, color))),
+        ),
       ]),
     );
   }

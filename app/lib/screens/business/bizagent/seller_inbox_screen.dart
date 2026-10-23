@@ -8,7 +8,7 @@ import '../../../theme.dart';
 import '../../../widgets/business_ui.dart';
 import '../../../widgets/skeleton.dart';
 import 'approvals_screen.dart' show baRiskLabel;
-import 'seller_agent_screen.dart' show baChannelIcon, baChannelLabel, baErrorText;
+import 'seller_agent_screen.dart' show baChannelIcon, baErrorText;
 
 /// P1 — the seller's inbox of customer chats from the connected Page,
 /// Instagram and WhatsApp number.
