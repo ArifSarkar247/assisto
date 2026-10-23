@@ -195,7 +195,7 @@ def lr_at(t: int, steps: int, lr: float, warmup: int, min_frac: float) -> float:
 
 def train(net: WakeNet, pos: FramePool, neg: FramePool, cfg: dict, val_fn=None,
           log=lambda s: None) -> dict:
-    """cfg: steps, batch, lr, warmup, lr_min_frac, max_neg_weight, ema, l2,
+    """cfg: steps, batch, lr, warmup, lr_min_frac, max_neg_weight, ema, l2, dropout, input_noise,
     mine_at (fractions of steps), mine_k, mine_frac, clip_frac, eval_every,
     select_after (fraction), seed.  val_fn(net) -> dict with key "select"
     (higher is better). The best EMA checkpoint (by val) is loaded into `net`."""
@@ -212,6 +212,8 @@ def train(net: WakeNet, pos: FramePool, neg: FramePool, cfg: dict, val_fn=None,
     clip_frac = float(g("clip_frac", 0.25))
     eval_every = int(g("eval_every", max(1, steps // 10)))
     select_after = int(float(g("select_after", 0.3)) * steps)
+    drop = float(g("dropout", 0.0))
+    in_noise = float(g("input_noise", 0.0))
     rng = np.random.default_rng(int(g("seed", 0)))
 
     # standardisation from a sample of both classes
@@ -264,14 +266,25 @@ def train(net: WakeNet, pos: FramePool, neg: FramePool, cfg: dict, val_fn=None,
         y = np.concatenate([np.ones(half, np.float32), np.zeros(len(ineg), np.float32)])
         wneg = 1.0 + (max_w - 1.0) * min(1.0, t / max(1, steps * 0.6))
         w = np.where(y > 0, 1.0, wneg).astype(np.float32)
-        logit, (z0, a1, h1, a2, h2) = net.forward(x, keep=True)
+        # forward with (optional) input noise on the standardised input + dropout
+        P = net.p
+        z0 = net._flat(x)
+        if in_noise > 0:
+            z0 = z0 + rng.standard_normal(z0.shape, dtype=np.float32) * np.float32(in_noise)
+        a1 = z0 @ P["W1"] + P["b1"]
+        m1 = ((rng.random(a1.shape, dtype=np.float32) >= drop) / np.float32(1 - drop)) if drop > 0 else 1.0
+        h1 = np.maximum(a1, 0) * m1
+        a2 = h1 @ P["W2"] + P["b2"]
+        m2 = ((rng.random(a2.shape, dtype=np.float32) >= drop) / np.float32(1 - drop)) if drop > 0 else 1.0
+        h2 = np.maximum(a2, 0) * m2
+        logit = (h2 @ P["W3"] + P["b3"])[:, 0]
         prob = _sig(logit).astype(np.float32)
         neg_score[ineg] = logit[half:]
         gl = (w * (prob - y) / w.sum())[:, None].astype(np.float32)
         grads = {"W3": h2.T @ gl, "b3": gl.sum(0)}
-        d2 = (gl @ net.p["W3"].T) * (a2 > 0)
+        d2 = (gl @ P["W3"].T) * (a2 > 0) * m2
         grads["W2"], grads["b2"] = h1.T @ d2, d2.sum(0)
-        d1 = (d2 @ net.p["W2"].T) * (a1 > 0)
+        d1 = (d2 @ P["W2"].T) * (a1 > 0) * m1
         grads["W1"], grads["b1"] = z0.T @ d1, d1.sum(0)
         lr_t = lr_at(t, steps, lr, warmup, min_frac)
         for k in net.p:

@@ -255,8 +255,8 @@ class OnnxTests(unittest.TestCase):
             self.assertTrue(os.path.exists(os.path.join(out, "eval_report.md")))
             with open(os.path.join(out, "eval_report.json")) as f:
                 rep = json.load(f)
-            self.assertIn("ensemble", rep["candidates"])
-            self.assertIn("normal", rep["seed_variance"])
+            self.assertIn("base_ensemble", rep["candidates"])
+            self.assertIn("normal", rep["seed_variance"]["base"])
 
 
 if __name__ == "__main__":

@@ -128,8 +128,15 @@ def sha256(path):
     return h.hexdigest()
 
 
+# Bump when stage_embed changes what it writes (pipeline.py is not hashed into the key,
+# so training/evaluation edits keep the expensive embeddings cache).
+EMBED_VERSION = 1
+
+
 def embed_key(cfg) -> str:
     h = hashlib.sha256()
+    if EMBED_VERSION > 1:
+        h.update(f"v{EMBED_VERSION}".encode())
     h.update(json.dumps({k: cfg.get(k) for k in EMBED_CFG_KEYS}, sort_keys=True).encode())
     for f in EMBED_CODE:
         p = os.path.join(HERE, f)
@@ -516,43 +523,64 @@ def evaluate_count(val_logits, L):
     return sum(evaluate.count_fast(v, L, 1) for v in val_logits)
 
 
+def _variants(c: Ctx) -> dict:
+    """config "variants": {name: overrides of hidden / smooth_k / train.*}; default one 'base'."""
+    out = {}
+    for name, ov in (c.cfg.get("variants") or {"base": {}}).items():
+        v = {"hidden": ov.get("hidden", c.cfg["hidden"]),
+             "smooth_k": int(ov.get("smooth_k", c.cfg.get("smooth_k", 1))),
+             "train": dict(c.cfg["train"], **(ov.get("train") or {}))}
+        out[name] = v
+    return out
+
+
+def _net_path(c: Ctx, v, s):
+    return c.p("model", f"net_{v}_seed{s}.npz")
+
+
 def stage_train(c: Ctx):
     info = _rj(c.p("emb", "info.json"))
-    sub = c.sub_frames()
     pos_sets = [_emb(c, "pos_train")]
     neg_sets = [_emb(c, "neg_clips")]
-    for nm, lst in (("pos_real.npy", pos_sets),):
-        r = _real(c, nm)
-        if r is not None:
-            lst.append(r)
+    r = _real(c, "pos_real.npy")
+    if r is not None:
+        pos_sets.append(r)
     streams = [_emb(c, n) for n in info["train_streams"]]
     r = _real(c, "neg_real.npy")
     if r is not None:
         streams.append(r)
-    pos = FramePool.from_parts(pos_sets, [], sub)
-    neg = FramePool.from_parts(neg_sets, streams, sub)
-    del streams
-    log(f"train pools: pos windows={len(pos)} neg windows={len(neg)} (sub-window {sub} frames)")
     val = Val(c)
     hists = {}
-    for s in c.cfg["seeds"]:
-        t0 = time.time()
-        net = WakeNet(sub, 96, c.cfg["hidden"], seed=int(s))
-        tc = dict(c.cfg["train"], seed=int(s))
-        h = train(net, pos, neg, tc, val_fn=val, log=lambda row, s=s: log(f"seed {s}", row))
-        h["seconds"] = round(time.time() - t0)
-        net.save_npz(c.p("model", f"net_seed{s}.npz"))
-        hists[str(s)] = h
-        log(f"seed {s}: chosen step {h['chosen_step']} in {h['seconds']}s")
+    pools = {}
+    for vname, v in _variants(c).items():
+        sub = c.cfg["frames"] - v["smooth_k"] + 1
+        if sub not in pools:
+            pools.clear()  # one pair of pools in memory at a time
+            pools[sub] = (FramePool.from_parts(pos_sets, [], sub), FramePool.from_parts(neg_sets, streams, sub))
+            log(f"train pools: pos windows={len(pools[sub][0])} neg windows={len(pools[sub][1])} "
+                f"(sub-window {sub} frames)")
+        pos, neg = pools[sub]
+        for s in c.cfg["seeds"]:
+            t0 = time.time()
+            net = WakeNet(sub, 96, int(v["hidden"]), seed=int(s))
+            tc = dict(v["train"], seed=int(s))
+            h = train(net, pos, neg, tc, val_fn=val, log=lambda row, s=s, vn=vname: log(f"{vn} seed {s}", row))
+            h["seconds"] = round(time.time() - t0)
+            h["variant"] = {"name": vname, **v}
+            net.save_npz(_net_path(c, vname, s))
+            hists[f"{vname}_seed_{s}"] = h
+            log(f"{vname} seed {s}: chosen step {h['chosen_step']} in {h['seconds']}s")
     _wj(hists, c.p("model", "train_history.json"))
 
 
 def _candidates(c: Ctx):
     fr = c.cfg["frames"]
-    members = {str(s): WakeNet.load_npz(c.p("model", f"net_seed{s}.npz")) for s in c.cfg["seeds"]}
-    cands = {f"seed_{s}": Scorer([m], fr) for s, m in members.items()}
-    if c.cfg.get("ensemble") and len(members) > 1:
-        cands["ensemble"] = Scorer(list(members.values()), fr)
+    cands = {}
+    for vname in _variants(c):
+        members = {str(s): WakeNet.load_npz(_net_path(c, vname, s)) for s in c.cfg["seeds"]}
+        cands.update({f"{vname}_seed_{s}": Scorer([m], fr) for s, m in members.items()})
+        if c.cfg.get("ensemble") and len(members) > 1:
+            cands[f"{vname}_ensemble"] = Scorer(list(members.values()), fr)
     return cands
 
 
@@ -570,6 +598,8 @@ def evaluate_candidate(c: Ctx, sc: Scorer, val: Val, tests: dict, test_hours: di
            "false_accepts": {}, "false_rejects": {}}
     vs = [sc.to_score(v) for v in vl]
     rep["validation"] = {"false_accepts": evaluate.false_accepts(vs, th, val.hours),
+                         "per_stream_fa": {n: {lv: evaluate.count_fast(v, th[lv], PATIENCE[lv]) for lv in LEVELS}
+                                           for n, v in zip(val.streams, vs)},
                          "recall_far_field_windows": {
                              lv: round(float((sc.to_score(pl) >= th[lv]).mean()), 4) for lv in LEVELS}}
     fa_examples = {}
@@ -638,9 +668,10 @@ def stage_evaluate(c: Ctx):
     def vkey(n):
         r = reps[n]["validation"]
         return (r["recall_far_field_windows"]["normal"], -r["false_accepts"]["normal"]["false_accepts"],
-                n == "ensemble")
+                n.endswith("_ensemble"))
     chosen = max(reps, key=vkey)
-    seeds_summary = _seed_summary(reps)
+    seeds_summary = {v: _seed_summary({n: r for n, r in reps.items() if n.startswith(v + "_")})
+                     for v in _variants(c)}
     report = dict(reps[chosen])
     report.update({"chosen": chosen, "chosen_by": "validation far-field recall at Normal",
                    "candidates": {n: {k: reps[n][k] for k in ("thresholds", "temperature",
@@ -655,7 +686,7 @@ def stage_evaluate(c: Ctx):
 
 
 def _seed_summary(reps: dict) -> dict:
-    seeds = [n for n in reps if n.startswith("seed_")]
+    seeds = [n for n in reps if "_seed_" in n]
     out = {}
     if not seeds:
         return out
@@ -715,9 +746,10 @@ def _report_md(rep: dict, cfg: dict) -> str:
                  + " | " + " | ".join(str(r['false_rejects'][s]['normal']['false_reject_rate'])
                                       for s in rep["false_rejects"]) + " |")
     L += ["", "## Seed variance (single-seed models; mean ± sd [min..max])", ""]
-    for lv, row in rep["seed_variance"].items():
-        L.append(f"- **{lv}**: " + "; ".join(f"{k} {v['mean']} ± {v['sd']} [{v['min']}..{v['max']}]"
-                                            for k, v in row.items()))
+    for vn, by in rep["seed_variance"].items():
+        for lv, row in by.items():
+            L.append(f"- **{vn} / {lv}**: " + "; ".join(f"{k} {v['mean']} ± {v['sd']} [{v['min']}..{v['max']}]"
+                                                       for k, v in row.items()))
     L += ["", "Embedding hours: `" + json.dumps(rep["embed_info"].get("hours", {})) + "`"]
     return "\n".join(L) + "\n"
 

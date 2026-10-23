@@ -8,6 +8,13 @@
             "mine_k": 30000, "mine_frac": 0.4, "clip_frac": 0.25, "eval_every": 1000,
             "select_after": 0.3},
   "seeds": [1234, 2025, 7],
+  "variants": {
+    "base": {},
+    "reg": {"train": {"dropout": 0.2, "input_noise": 0.1, "l2": 1e-4}},
+    "reg_h128": {"hidden": 128, "train": {"dropout": 0.2, "input_noise": 0.1, "l2": 1e-4}},
+    "reg_k3": {"smooth_k": 3, "train": {"dropout": 0.2, "input_noise": 0.1, "l2": 1e-4}},
+    "reg_lowneg": {"train": {"dropout": 0.2, "input_noise": 0.1, "l2": 1e-4, "max_neg_weight": 10.0}}
+  },
   "ensemble": true,
   "features": {"backend": "e2e"},
   "oww_feature_licence_confirmed": false,
