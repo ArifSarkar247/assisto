@@ -689,11 +689,13 @@ def placement_pnl(days=30, today=None):
               .values("placement", "date").annotate(n=Sum("count"))):
         admob[(r["placement"], r["date"])] = int(r["n"] or 0)
     # rewarded / interstitial impressions live in AdEvent (credited or not)
+    from django.db.models import Count
+    from django.db.models.functions import TruncDate
     for kind in ("rewarded", "interstitial"):
-        for ev in AdEvent.objects.filter(kind=kind, at__date__gte=d_from,
-                                         at__date__lte=today).values_list("at", flat=True):
-            k = (_ADMOB_KIND_TO_PLACE[kind], timezone.localdate(ev))
-            admob[k] = admob.get(k, 0) + 1
+        for r in (AdEvent.objects.filter(kind=kind, at__date__gte=d_from, at__date__lte=today)
+                  .annotate(d=TruncDate("at")).values("d").annotate(n=Count("id"))):
+            k = (_ADMOB_KIND_TO_PLACE[kind], r["d"])
+            admob[k] = admob.get(k, 0) + int(r["n"] or 0)
     c = ad_cfg()
     out = SP.placement_pnl(direct, admob, c.get("ecpm_bdt", 0), c.get("revenue_share", 0))
     out.update({"days": days, "from": d_from.isoformat(), "to": today.isoformat(),
@@ -710,16 +712,19 @@ def retention_impact(days=60, today=None):
     User = get_user_model()
     today = today or timezone.localdate()
     since = today - timedelta(days=days)
-    rows = []
-    for u in User.objects.filter(date_joined__date__gte=since,
-                                 is_superuser=False).only("id", "date_joined",
-                                                          "last_active")[:20000]:
-        j = timezone.localdate(u.date_joined)
-        n = (AdExposure.objects.filter(user=u, date__gte=j,
-                                       date__lte=j + timedelta(days=6))
-             .aggregate(n=Sum("count"))["n"] or 0)
-        rows.append({"joined": j, "ads_first7": int(n),
-                     "last_active": timezone.localdate(u.last_active) if u.last_active else None})
+    users = list(User.objects.filter(date_joined__date__gte=since, is_superuser=False)
+                 .values("id", "date_joined", "last_active")[:20000])
+    joined = {u["id"]: timezone.localdate(u["date_joined"]) for u in users}
+    # ONE query: every exposure row of these users since the window start
+    seen = {}
+    for r in (AdExposure.objects.filter(user_id__in=list(joined), date__gte=since)
+              .values("user_id", "date").annotate(n=Sum("count"))):
+        j = joined.get(r["user_id"])
+        if j is not None and j <= r["date"] <= j + timedelta(days=6):
+            seen[r["user_id"]] = seen.get(r["user_id"], 0) + int(r["n"] or 0)
+    rows = [{"joined": joined[u["id"]], "ads_first7": seen.get(u["id"], 0),
+             "last_active": timezone.localdate(u["last_active"]) if u["last_active"] else None}
+            for u in users]
     return {"buckets": SP.retention_by_bucket(rows, today), "days": days,
             "users": len(rows), "small_sample_n": SP.SMALL_SAMPLE,
             "bucket_defs": [(n, lo, hi if hi < 10 ** 9 else None)

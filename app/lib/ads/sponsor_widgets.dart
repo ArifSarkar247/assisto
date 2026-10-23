@@ -165,8 +165,13 @@ class SponsorAppOpenScreen extends StatefulWidget {
   final bool autoTick;
 
   static Future<void> show(BuildContext context, SponsorCreative c,
+          {int skipAfterS = 5, SponsorBackend? backend}) =>
+      push(Navigator.of(context), c, skipAfterS: skipAfterS, backend: backend);
+
+  /// From outside the widget tree (AdsService uses the app navigator key).
+  static Future<void> push(NavigatorState nav, SponsorCreative c,
       {int skipAfterS = 5, SponsorBackend? backend}) {
-    return Navigator.of(context).push(PageRouteBuilder<void>(
+    return nav.push(PageRouteBuilder<void>(
       opaque: true,
       fullscreenDialog: true,
       settings: const RouteSettings(name: 'sponsor_app_open'),
@@ -301,17 +306,21 @@ class SponsorAppOpenScreenState extends State<SponsorAppOpenScreen> {
                   label: Text(cta),
                 ),
               const SizedBox(height: Gap.sm),
-              Row(children: [
-                TextButton(
-                  onPressed: () => SponsorWhySheet.show(context, c),
-                  child: Text(t.p2WhyAd),
-                ),
-                const Spacer(),
-                TextButton(
-                  onPressed: () => PaywallSheet.show(context, PaywallReason.adFree),
-                  child: Text(t.p2RemoveAds),
-                ),
-              ]),
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                spacing: Gap.sm,
+                children: [
+                  TextButton(
+                    onPressed: () => SponsorWhySheet.show(context, c),
+                    child: Text(t.p2WhyAd),
+                  ),
+                  TextButton(
+                    onPressed: () =>
+                        PaywallSheet.show(context, PaywallReason.adFree),
+                    child: Text(t.p2RemoveAds),
+                  ),
+                ],
+              ),
             ]),
           ),
         ),

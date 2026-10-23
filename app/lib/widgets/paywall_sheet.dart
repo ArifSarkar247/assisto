@@ -135,8 +135,9 @@ class _PaywallSheetState extends State<PaywallSheet> {
   }
 
   void _plans() {
-    Navigator.pop(context, _trialOk);
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PlansScreen()));
+    final nav = Navigator.of(context);
+    nav.pop(_trialOk);
+    nav.push(MaterialPageRoute(builder: (_) => const PlansScreen()));
   }
 
   @override

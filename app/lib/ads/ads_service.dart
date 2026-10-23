@@ -163,10 +163,10 @@ class AdsService with WidgetsBindingObserver {
       if (!slot.show || currentScreen() != 'home' || AppEntry.blocked()) return;
       var shown = false;
       if (slot.isDirect) {
-        final ctx = appNavigatorKey.currentContext;
-        if (ctx == null || !ctx.mounted) return;
+        final nav = appNavigatorKey.currentState;
+        if (nav == null || !nav.mounted) return;
         await _markShown(prefs, today, count);
-        await SponsorAppOpenScreen.show(ctx, slot.creative!,
+        await SponsorAppOpenScreen.push(nav, slot.creative!,
             skipAfterS: slot.skipAfterS, backend: sb);
         return;
       }

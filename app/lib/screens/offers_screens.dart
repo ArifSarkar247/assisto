@@ -243,7 +243,7 @@ class _OffersSettingsScreenState extends State<OffersSettingsScreen> {
                   Text(t.p2OffersDivision, style: Theme.of(context).textTheme.titleSmall),
                   DropdownButton<String>(
                     isExpanded: true,
-                    value: _division,
+                    value: bdDivisions.contains(_division) ? _division : '',
                     items: [
                       DropdownMenuItem(value: '', child: Text(t.p2OffersDivisionNone)),
                       for (final d in bdDivisions)
