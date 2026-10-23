@@ -44,6 +44,8 @@ TXT = {
         "managed_by_play": "আপনার সাবস্ক্রিপশন Google Play থেকে চলছে — সেখান থেকেই পরিবর্তন করুন।",
         "gateway_error": "পেমেন্ট শুরু করা যায়নি। একটু পরে আবার চেষ্টা করুন।",
         "safety": "জরুরি SOS, স্ক্যাম সতর্কতা ও ওষুধ রিমাইন্ডার সবসময় ফ্রি।",
+        "ai_line": "প্রতি মাসে {n} AI ক্রেডিট",
+        "no_unlimited": "কোনো প্ল্যানই সীমাহীন নয় — প্রতিটি প্ল্যানে প্রতি মাসে নির্দিষ্ট AI ক্রেডিট থাকে, শেষ হলে ক্রেডিট প্যাক কিনতে পারেন।",
     },
     "en": {
         "title": "Assisto Premium", "lead": "Pay with bKash, Nagad or card — it turns on for your account instantly, in the app too.",
@@ -66,6 +68,8 @@ TXT = {
         "managed_by_play": "Your subscription runs through Google Play — change it there.",
         "gateway_error": "Could not start the payment. Please try again shortly.",
         "safety": "Emergency SOS, scam alerts and medicine reminders are always free.",
+        "ai_line": "{n} AI credits every month",
+        "no_unlimited": "No plan is unlimited — each plan includes a set number of AI credits every month; if you run out you can buy a credit pack.",
     },
 }
 
@@ -106,6 +110,17 @@ def _plans(lang):
     for r in rows:
         if r["kind"] == "sub":
             subs.setdefault(r["plan"], {"plan": r["plan"], "title": r["title"]})[r["period"]] = r
+    try:
+        from core import billing
+        from core.logic.pricing import _bn_num
+        cplans = billing.cfg()["plans"]
+        for k, sub in subs.items():
+            n = int((cplans.get(k) or {}).get("credits") or 0)
+            if n > 0:
+                sub["ai_line"] = TXT[lang]["ai_line"].format(
+                    n=_bn_num(n) if lang == "bn" else n)
+    except Exception:
+        pass
     return [subs[k] for k in ("premium", "business") if k in subs], \
         [r for r in rows if r["kind"] == "pack"]
 

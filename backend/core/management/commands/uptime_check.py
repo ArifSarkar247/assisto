@@ -1,7 +1,8 @@
 """
 On-box uptime watcher. Checks the public API (through nginx + TLS), the app
 server directly (gunicorn on 127.0.0.1:8700), the TLS certificate expiry and
-free disk. Alerts the owner ONLY on a state change (down after 2 consecutive
+free disk. Separately, disk USED >= limits.disk_alert_pct (default 80%) raises
+its own owner alert, de-duplicated to once per 6 h (core.disk_alert). Alerts the owner ONLY on a state change (down after 2 consecutive
 failed runs, and again when it recovers) so a long outage never spams.
 
 Delivery is via core.push.notify_owner: FCM push once Firebase is configured,
@@ -91,7 +92,16 @@ class Command(BaseCommand):
                 self._alert("Assisto recovered",
                             f"{now} UTC — healthy again (down since "
                             f"{state.get('down_since', '?')}).")
-            state = {"fails": 0, "alerted_down": False, "last_ok": now}
+            keep = {k: state[k] for k in ("disk_alert_at",) if k in state}
+            state = {"fails": 0, "alerted_down": False, "last_ok": now, **keep}
+
+        # Owner decision: disk at/over limits.disk_alert_pct (default 80%) ->
+        # owner alert (push/email + in-app alert row), at most once per 6 h.
+        from core import disk_alert
+        dst = disk_alert.check_and_alert(state)
+        if dst.get("alerted"):
+            self.stdout.write(f"ALERT disk {dst['used_pct']}% used, "
+                              f"{dst['free_gb']} GB free")
 
         state_path.write_text(json.dumps(state))
         self.stdout.write(f"{now} {'PROBLEM: ' + '; '.join(problems) if problems else 'OK'}")

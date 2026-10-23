@@ -3062,7 +3062,10 @@ class BusinessModelV2Tests(APITestCase):
         paid.plan = "business"
         paid.plan_until = _tz.now() + _td(days=30)
         paid.save()
-        self.assertTrue(billing.charge(paid, "ai_msg_cheap")["ok"])  # unlimited
+        r = billing.charge(paid, "ai_msg_cheap")
+        self.assertTrue(r["ok"])                  # paid: from the monthly pool
+        self.assertEqual(r["reason"], "ok")       # nothing is unlimited
+        self.assertGreater(r["charged"], 0)
 
     # ---- margin validator refuses a loss-making edit (NET basis) ----------
     def test_margin_validator_refuses_loss_making_action(self):
@@ -3332,9 +3335,10 @@ class BusinessModelV3Tests(APITestCase):
         self.client.force_authenticate(prem)
         r = self.client.get("/api/v1/me/usage-summary")
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.data["balance"], 42)
+        # 42 held + this month's Premium pool (90) granted on first touch
+        self.assertEqual(r.data["balance"], 42 + 90)
         self.assertEqual(r.data["included_pool"], 90)     # Premium monthly pool
-        self.assertTrue(r.data["unlimited_ai"])
+        self.assertFalse(r.data["unlimited_ai"])          # nothing is unlimited
         self.assertEqual(r.data["month_total"], 4)        # 3 + 1 consumed
         acts = {u["action"]: u["credits"] for u in r.data["month_usage"]}
         self.assertEqual(acts["ai_msg_medium"], 3)

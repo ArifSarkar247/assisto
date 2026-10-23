@@ -132,7 +132,8 @@ def _produce_reply(user, session, text, lang, history):
                 "model": ai.TIER_MODEL.get(eff, "cheap"),
                 "tier": eff,
                 "cost_usd": round(cost, 6),
-                "credits": credits if not billing._has_unlimited(user) else 0,
+                # every plan pays credits (nothing is unlimited)
+                "credits": credits,
                 "cards": ctx.get("cards", []),
             }
             return reply, meta, ctx.get("cards", [])

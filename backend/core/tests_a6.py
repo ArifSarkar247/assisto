@@ -256,6 +256,12 @@ class AdsApiTests(APITestCase):
 
 
 # --------------------------------------------------------------- uptime
+def _du(total, used):
+    import shutil as _sh
+    g = 10 ** 9
+    return _sh._ntuple_diskusage(total * g, used * g, (total - used) * g)
+
+
 class UptimeCheckTests(TestCase):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
@@ -267,7 +273,9 @@ class UptimeCheckTests(TestCase):
         m = "core.management.commands.uptime_check"
         with override_settings(BASE_DIR=self.tmp), \
                 mock.patch(m + "._http_ok", return_value=(ok, "200" if ok else "URLError")), \
-                mock.patch(m + "._cert_days", return_value=60):
+                mock.patch(m + "._cert_days", return_value=60), \
+                mock.patch("core.disk_alert.disk_usage",
+                           return_value=_du(100, 30)):
             out = StringIO()
             call_command("uptime_check", stdout=out)
             return out.getvalue()

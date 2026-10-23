@@ -42,7 +42,9 @@ class PlansCompareTable extends StatelessWidget {
     Map<String, dynamic> byId(String id) =>
         plans.firstWhere((p) => (p['id'] ?? '') == id, orElse: () => const {});
 
-    bool unlimited(Map<String, dynamic> p) => p['unlimited_ai'] == true;
+    // Owner decision: NOTHING is unlimited in any plan — paid plans carry a
+    // monthly credit pool. Paid-only perks key off "not the free plan".
+    bool paid(Map<String, dynamic> p) => (p['id'] ?? '') != 'free';
     int family(Map<String, dynamic> p) =>
         (p['family'] is num) ? (p['family'] as num).toInt() : 0;
     bool noAds(Map<String, dynamic> p) => p['ads'] != true;
@@ -55,11 +57,9 @@ class PlansCompareTable extends StatelessWidget {
             '$n'.codeUnits.map((c) => c >= 48 && c <= 57 ? 0x09E6 + c - 48 : c))
         : '$n';
     // AI allowance from the LIVE config pool (never a hardcoded "15 / mo").
-    String aiCell(Map<String, dynamic> p) => unlimited(p)
-        ? t.plansCmpUnlimited
-        : credits(p) > 0
-            ? t.a1CmpCreditsPerMonth(digits(credits(p)))
-            : t.a1CmpPacksOrAds;
+    String aiCell(Map<String, dynamic> p) => credits(p) > 0
+        ? t.a1CmpCreditsPerMonth(digits(credits(p)))
+        : t.a1CmpPacksOrAds;
 
     // A cell value is bool (check/dash) or a String note.
     final rows = <_Group>[
@@ -68,7 +68,7 @@ class PlansCompareTable extends StatelessWidget {
             {for (final p in cols) p['id']: aiCell(p)}),
         _Row(t.plansCmpNoAds, {for (final p in cols) p['id']: noAds(p)}),
         _Row(t.plansCmpBriefings,
-            {for (final p in cols) p['id']: unlimited(p)}),
+            {for (final p in cols) p['id']: paid(p)}),
       ]),
       _Group(t.plansCmpSafety, [
         _Row(t.plansCmpSos, {for (final p in cols) p['id']: true}),
@@ -100,7 +100,7 @@ class PlansCompareTable extends StatelessWidget {
         ]),
       _Group(t.plansCmpSupport, [
         _Row(t.plansCmpPriority,
-            {for (final p in cols) p['id']: unlimited(p)}),
+            {for (final p in cols) p['id']: paid(p)}),
       ]),
     ];
 

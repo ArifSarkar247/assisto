@@ -209,8 +209,8 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
         raise AIUnavailable("user_limit")
     # Plan credits: config-driven, per-model-tier cost, ATOMIC pre-charge.
     # Build 1: replaces the flat 1-credit plans.consume_credit (non-atomic
-    # double-spend bug) with billing.charge(ai_msg_<tier>). Unlimited plans are
-    # charged 0; a free/trial-expired user who can't cover the tier's cost is
+    # double-spend bug) with billing.charge(ai_msg_<tier>). No plan is unlimited;
+    # Premium/Business debit their monthly pool; a user who can't cover the tier's cost is
     # blocked BEFORE any provider call (fixes under-funded-start). The charge is
     # REFUNDED below if every provider fails (the existing "queued" path).
     charged = 0

@@ -452,9 +452,9 @@ class ShopCamerasView(APIView):
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
 
         # CAP: Business includes N edge cameras free; the N+1th costs credits.
-        # NOTE: this is a HARDWARE/ENTITLEMENT charge, not an AI action — so it
-        # must bite even for 'unlimited AI' plans. We debit purchased credits
-        # directly (NOT via billing.charge, which exempts unlimited-AI plans).
+        # NOTE: this is a HARDWARE/ENTITLEMENT charge, not an AI action — it is
+        # priced on its own (shop_extra_camera) and debited directly here, not
+        # via billing.charge. (No plan is unlimited any more, for AI or this.)
         included = _included_cameras(request.user)
         # the free allowance is per OWNER (across all their sites), counting
         # enabled cameras — the same ranking the monthly billing uses.
@@ -647,9 +647,9 @@ def _extra_camera_credits():
 
 def _debit_camera_credits(user, need, note=""):
     """ATOMICALLY debit `need` purchased credits for an EXTRA camera entitlement,
-    writing one CreditLedger row. Unlike billing.charge this is NOT an AI action,
-    so 'unlimited AI' plans are still charged (the included-camera count already
-    gave Business its free allowance). Returns the amount actually charged (0 if
+    writing one CreditLedger row. This is NOT an AI action (the included-camera
+    count already gave Business its free allowance), so it is debited here
+    directly rather than through billing.charge. Returns the amount actually charged (0 if
     it couldn't cover it — the balance stays untouched then)."""
     from django.db import transaction
     from django.db.models import F

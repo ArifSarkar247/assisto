@@ -88,18 +88,116 @@ def cfg():
 
 
 def _has_unlimited(user):
-    """Whether this user's effective plan includes unlimited AI (0 charged)."""
+    """Owner decision (2026-10): NOTHING is unlimited in any plan — Premium is
+    90 credits/month, Business 240, and every AI action debits credits. Kept
+    as a function (always False) so existing call sites stay readable;
+    safety-exempt actions are still free via is_exempt(), not via this."""
+    return False
+
+
+# --------------------------------------------------------------- monthly pool
+
+POOL_NOTE = "pool:"          # CreditLedger(reason="grant").note prefix
+
+
+def monthly_pool_credits(user):
+    """The monthly included credit pool this user is entitled to RIGHT NOW.
+
+    * paid plans in PricingConfig (premium / business) -> that plan's credits;
+    * annual / founder / probashi (Premium-equivalent, not config rows) -> the
+      Premium pool;
+    * free users and trial-only users -> 0 (free earns via ads/packs; the
+      trial has its own trial_credits grant)."""
     from . import plans
+    if user is None:
+        return 0
     try:
-        c = cfg()
+        if not plans.plan_active(user):
+            return 0
         p = plans.effective_plan(user)
-        row = c["plans"].get(p)
-        if row is not None:
-            return bool(row["unlimited_ai"])
-        # founder / annual / probashi etc. aren't in config plans -> fall back
-        return bool(plans.PLANS.get(p, {}).get("unlimited_ai"))
+        if p == "free":
+            return 0
+        c = cfg()
+        row = c["plans"].get(p) or c["plans"]["premium"]
+        return max(0, int(row["credits"]))
     except Exception:
-        return False
+        return 0
+
+
+def grant_monthly_pool(user, now=None):
+    """Grant this calendar month's (Asia/Dhaka) included pool to a paid user,
+    exactly once per month. Returns the credits granted (0 if not due).
+
+    No rollover (DEFAULTS: "reset not accumulated"): before the new grant, the
+    UNUSED part of the previous pool grant is expired. Pool credits are counted
+    as spent FIRST, so purchased top-up credits are never expired here:
+        unused = min(balance, prev_grant - net_spent_since_prev_grant)
+    where net_spent = consumes minus refunds ('adjust') since that grant.
+    Atomic (row lock on the user) + idempotent (one grant row per month)."""
+    from .models import User, CreditLedger
+    pool = monthly_pool_credits(user)
+    if pool <= 0:
+        return 0
+    now = now or timezone.now()
+    month = timezone.localtime(now).strftime("%Y-%m")
+    note = POOL_NOTE + month
+    with transaction.atomic():
+        locked = User.objects.select_for_update().get(pk=user.pk)
+        mine = CreditLedger.objects.filter(user=locked, reason="grant",
+                                           note__startswith=POOL_NOTE)
+        if mine.filter(note=note).exists():
+            return 0
+        bal = int(locked.ai_credits or 0)
+        prev = mine.order_by("-created_at", "-id").first()
+        if prev is not None:
+            net = CreditLedger.objects.filter(
+                user=locked, reason__in=("consume", "adjust"),
+                created_at__gte=prev.created_at).aggregate(s=Sum("delta"))["s"] or 0
+            spent = max(0, -int(net))
+            unused = max(0, min(bal, int(prev.delta) - spent))
+            if unused:
+                bal -= unused
+                CreditLedger.objects.create(
+                    user=locked, delta=-unused, reason="expire",
+                    note=("%s unused (no rollover)" % prev.note)[:120])
+        bal += pool
+        User.objects.filter(pk=locked.pk).update(ai_credits=bal)
+        CreditLedger.objects.create(user=locked, delta=pool, reason="grant",
+                                    note=note)
+    try:
+        user.ai_credits = bal
+    except Exception:
+        pass
+    return pool
+
+
+def ensure_monthly_pool(user):
+    """Best-effort wrapper used on the hot paths (charge, /me, usage) — never
+    raises, never blocks the caller."""
+    try:
+        if user is not None and getattr(user, "pk", None):
+            return grant_monthly_pool(user)
+    except Exception:
+        pass
+    return 0
+
+
+def grant_all_monthly_pools(now=None):
+    """Daily sweep (profit_guard_rollover): grant the month's pool to every
+    user with an active paid plan or lifetime founder, so balances are right
+    even for users who have not opened the app yet. Returns users granted."""
+    from django.db.models import Q
+    from .models import User
+    now = now or timezone.now()
+    n = 0
+    qs = User.objects.filter(Q(plan_until__gt=now) | Q(is_founder=True))
+    for u in qs.iterator():
+        try:
+            if grant_monthly_pool(u, now=now):
+                n += 1
+        except Exception:
+            pass
+    return n
 
 
 def _is_free(user):
@@ -447,6 +545,7 @@ def usage_summary(user, now=None):
     the storage meter. Complements /credits/history (which is the ledger view)."""
     from .models import CreditLedger
     now = now or timezone.now()
+    ensure_monthly_pool(user)
     c = cfg()
     from . import plans
     plan_id = plans.effective_plan(user)
@@ -515,9 +614,10 @@ def _owner_alert(title, body):
 def guard_can(user, action, qty=1):
     """Can this charge succeed, WITHOUT debiting? Returns (allowed, reason).
 
-    reason ∈ {"exempt", "unlimited", "ok", "insufficient", "guard_over"}.
+    reason ∈ {"exempt", "unlimited", "ok", "insufficient", "guard_over"}
+    ("unlimited" now only for the anonymous user=None path — no plan is).
 
-      * Safety-exempt actions and unlimited plans are always allowed.
+      * Safety-exempt actions are always allowed.
       * FREE users: the profit guard is consulted first — 'over' blocks a costly
         action ("guard_over") until the next local day (never a safety action).
         The spendable balance is included credits + ad-wallet credits.
@@ -526,8 +626,7 @@ def guard_can(user, action, qty=1):
         return True, "exempt"
     if user is None:
         return True, "unlimited"
-    if _has_unlimited(user):
-        return True, "unlimited"
+    ensure_monthly_pool(user)
     need = pricing.credits_for(action, qty, cfg())
     if need <= 0:
         return True, "ok"          # unpriced/unknown action -> free, never block
@@ -554,7 +653,8 @@ def charge(user, action, qty=1, note=""):
     Returns {"ok": bool, "reason": str, "charged": int, "balance": int}.
 
       * safety-exempt action -> {ok:True, reason:"exempt", charged:0}, NEVER blocked.
-      * unlimited plan / no user -> {ok:True, reason:"unlimited", charged:0}.
+      * no user -> {ok:True, reason:"unlimited", charged:0}. No PLAN is
+        unlimited: Premium/Business debit their monthly pool like anyone.
       * unpriced action -> {ok:True, reason:"ok", charged:0}.
       * else: inside transaction.atomic() + select_for_update() on the User row,
         re-read the balance (fixing the old read-modify-write race); if it can't
@@ -569,9 +669,11 @@ def charge(user, action, qty=1, note=""):
         bal = int(getattr(user, "ai_credits", 0) or 0) if user else 0
         return {"ok": True, "reason": "exempt", "charged": 0, "balance": bal}
 
-    if user is None or _has_unlimited(user):
-        bal = int(getattr(user, "ai_credits", 0) or 0) if user else 0
-        return {"ok": True, "reason": "unlimited", "charged": 0, "balance": bal}
+    if user is None:
+        return {"ok": True, "reason": "unlimited", "charged": 0, "balance": 0}
+
+    # paid plans: make sure this month's included pool has landed first
+    ensure_monthly_pool(user)
 
     need = pricing.credits_for(action, qty, cfg())
     if need <= 0:

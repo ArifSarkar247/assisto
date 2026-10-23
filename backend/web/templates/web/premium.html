@@ -55,9 +55,11 @@
 </div>
 {% endif %}
 
+{% if subs %}<p class="small">{{ P.no_unlimited }}</p>{% endif %}
 {% for s in subs %}
 <div class="plan">
   <h3>{{ s.title }}</h3>
+  {% if s.ai_line %}<p class="small">{{ s.ai_line }}</p>{% endif %}
   <div class="row2">
     {% if s.monthly %}<form method="post" action="/premium{{ qlang }}">{% csrf_token %}
       <input type="hidden" name="action" value="buy"><input type="hidden" name="sku" value="{{ s.monthly.sku }}">

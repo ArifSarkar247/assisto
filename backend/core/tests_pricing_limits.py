@@ -24,6 +24,7 @@ class LimitsLogicTests(SimpleTestCase):
                                        "founding_member_months": 12,  # f1
                                        "feedback_per_hour": 5,  # f1
                                        "feedback_per_day": 20,  # f1
+                                       "disk_alert_pct": 80,  # pr1
                                        "my_circle_min_version": 183,  # t1
                                        "message_request_max_msgs": 5,  # mr1
                                        "message_requests_per_day": 20,  # mr1
@@ -177,13 +178,21 @@ class LimitsTakeEffectTests(APITestCase):
         self._edit({"plans": {"free": {"storage_bytes": 2 * P.GB}}})
         self.assertEqual(billing.storage_quota_bytes(self.u), 2 * P.GB)
 
-    def test_free_credits_editable_and_consume_respects_config_unlimited(self):
-        self._edit({"plans": {"free": {"unlimited_ai": True}}})
+    def test_config_can_never_make_a_plan_unlimited(self):
+        # owner decision: nothing is unlimited — the edit is refused ...
+        self._edit({"plans": {"free": {"unlimited_ai": True}}}, expect=400)
+        # ... and even a stored row carrying it is ignored by normalize()
+        row = billing.get_config()
+        row.data["plans"]["free"]["unlimited_ai"] = True
+        row.data["plans"]["premium"]["unlimited_ai"] = True
+        row.save()
+        self.assertFalse(billing.cfg()["plans"]["free"]["unlimited_ai"])
+        self.assertFalse(billing.cfg()["plans"]["premium"]["unlimited_ai"])
         self.u.ai_credits = 3
         self.u.save()
         plans.consume_credit(self.u)
         self.u.refresh_from_db()
-        self.assertEqual(self.u.ai_credits, 3)     # config says unlimited -> no debit
+        self.assertEqual(self.u.ai_credits, 2)     # always debits
 
     def test_guarantee_edit_changes_floor(self):
         c0 = billing.cfg()

@@ -2,8 +2,10 @@
 Monetization (P3) — plan definitions + entitlement helpers.
 
 Prices/limits from spec §17 + owner's 23-Sept plan. Credits are consumable AI
-units; paid plans effectively have unlimited AI under the global daily budget
-kill-switch. New users get a 7-day full trial. Rewarded ads grant +1 credit
+units. NOTHING is unlimited in any plan (owner decision 2026-10): every paid
+plan carries a monthly credit POOL (Premium 90, Business 240 — live values in
+PricingConfig), granted once per calendar month by billing.grant_monthly_pool,
+and every AI action debits credits. Safety actions stay free. New users get a 7-day full trial. Rewarded ads grant +1 credit
 (daily cap). Ads only on free, non-personalized, never on sensitive screens
 (enforced in the app).
 """
@@ -23,30 +25,30 @@ PLANS = {
     # Premium by migration 0039. Live prices/credits/ads come from PricingConfig
     # (core.logic.pricing); these literals are the DEFAULT/fallback only.
     "premium":  {"name_bn": "প্রিমিয়াম", "name_en": "Premium", "price": 199, "cur": "BDT", "period": "mo",
-                 "credits": 0, "unlimited_ai": True, "ads": False, "family": 5,
-                 "desc_bn": "আনলিমিটেড AI, বিজ্ঞাপন নেই — পরিবারের যত্ন একসাথে।", "desc_en": "Unlimited AI, no ads — care for your family together.",
-                 "benefits_bn": ["আনলিমিটেড AI স্ক্যান ও সহকারী", "বিজ্ঞাপন নেই", "৫ জন পর্যন্ত কানেক্টেড সার্কেল ও কেয়ারগিভার ড্যাশবোর্ড", "স্মার্ট ব্রিফিং ও অগ্রাধিকার সাপোর্ট"],
-                 "benefits_en": ["Unlimited AI scans & assistant", "No ads", "Up to 5-member Circle & caregiver dashboard", "Smart briefings & priority support"]},
+                 "credits": 90, "unlimited_ai": False, "ads": False, "family": 5,
+                 "desc_bn": "প্রতি মাসে ৯০ AI ক্রেডিট, বিজ্ঞাপন নেই — পরিবারের যত্ন একসাথে।", "desc_en": "90 AI credits a month, no ads — care for your family together.",
+                 "benefits_bn": ["প্রতি মাসে ৯০ AI ক্রেডিট (স্ক্যান ও সহকারী)", "বিজ্ঞাপন নেই", "৫ জন পর্যন্ত কানেক্টেড সার্কেল ও কেয়ারগিভার ড্যাশবোর্ড", "স্মার্ট ব্রিফিং ও অগ্রাধিকার সাপোর্ট"],
+                 "benefits_en": ["90 AI credits / month (scans & assistant)", "No ads", "Up to 5-member Circle & caregiver dashboard", "Smart briefings & priority support"]},
     "probashi": {"name_bn": "প্রবাসী", "name_en": "Probashi", "price": 4.99, "cur": "USD", "period": "mo",
-                 "credits": 0, "unlimited_ai": True, "ads": False, "family": 5,
+                 "credits": 90, "unlimited_ai": False, "ads": False, "family": 5,
                  "desc_bn": "বিদেশ থেকে দেশের পরিবারের যত্ন।", "desc_en": "Care for your family back home, from abroad.",
                  "benefits_bn": ["প্রিমিয়ামের সব সুবিধা", "দেশের পরিবারের জন্য দূর থেকে যত্ন", "USD বিলিং"],
                  "benefits_en": ["Everything in Premium", "Remote care for family in Bangladesh", "USD billing"]},
     "business": {"name_bn": "বিজনেস", "name_en": "Business", "price": 999, "cur": "BDT", "period": "mo",
-                 "credits": 0, "unlimited_ai": True, "ads": False, "family": 0,
+                 "credits": 240, "unlimited_ai": False, "ads": False, "family": 0,
                  "desc_bn": "ছোট ব্যবসা ও বিক্রয় দলের জন্য।", "desc_en": "For small businesses and sales teams.",
-                 "benefits_bn": ["আনলিমিটেড AI", "বিজনেস মোড: ক্যাটালগ ও অর্ডার", "AI CRM (Axon Dynamics)", "দলের আসন (দাম মালিক ঠিক করবেন)"],
-                 "benefits_en": ["Unlimited AI", "Business mode: catalog & orders", "AI CRM (Axon Dynamics)", "Team seats (pricing TO REVIEW BY OWNER)"]},
+                 "benefits_bn": ["প্রতি মাসে ২৪০ AI ক্রেডিট", "বিজনেস মোড: ক্যাটালগ ও অর্ডার", "AI CRM (Axon Dynamics)", "দলের আসন (দাম মালিক ঠিক করবেন)"],
+                 "benefits_en": ["240 AI credits / month", "Business mode: catalog & orders", "AI CRM (Axon Dynamics)", "Team seats (pricing TO REVIEW BY OWNER)"]},
     "annual":   {"name_bn": "বার্ষিক (প্রিমিয়াম)", "name_en": "Annual (Premium)", "price": 1199, "cur": "BDT", "period": "yr",
-                 "credits": 0, "unlimited_ai": True, "ads": False, "family": 0,
+                 "credits": 90, "unlimited_ai": False, "ads": False, "family": 0,
                  "desc_bn": "প্রিমিয়াম — বছরে, ২ মাস সাশ্রয়।", "desc_en": "Premium — yearly, save ~2 months.",
                  "benefits_bn": ["প্রিমিয়ামের সব সুবিধা", "বছরে একবার পেমেন্ট", "প্রায় ২ মাস ফ্রি"],
                  "benefits_en": ["Everything in Premium", "Pay once a year", "About 2 months free"]},
     "founder":  {"name_bn": "ফাউন্ডার", "name_en": "Founder", "price": 0, "cur": "BDT", "period": "life",
-                 "credits": 0, "unlimited_ai": True, "ads": False, "family": 5,
+                 "credits": 90, "unlimited_ai": False, "ads": False, "family": 5,
                  "desc_bn": "আজীবন — শুরুর সমর্থকদের জন্য।", "desc_en": "Lifetime — for early supporters.",
-                 "benefits_bn": ["আজীবন আনলিমিটেড", "ফ্যামিলির সব সুবিধা"],
-                 "benefits_en": ["Lifetime unlimited", "Everything in Family"]},
+                 "benefits_bn": ["আজীবন প্রিমিয়াম — প্রতি মাসে ৯০ AI ক্রেডিট", "প্রিমিয়ামের সব সুবিধা"],
+                 "benefits_en": ["Lifetime Premium — 90 AI credits every month", "Everything in Premium"]},
 }
 
 # credit top-up packs (৳20–30 range, like mobile recharge)
@@ -131,7 +133,7 @@ def effective_plan(user):
 
 
 def _config_plan(pid):
-    """The PricingConfig view of a plan (price/credits/unlimited/ads/family), or
+    """The PricingConfig view of a plan (price/credits/ads/family), or
     None if config isn't applicable (founder/annual/probashi stay literal). The
     server is authoritative: edits in /admin/pricing show here with no app change."""
     try:
@@ -156,12 +158,16 @@ def _benefits(pid, lang, spec):
 
 def entitlements(user, lang="bn"):
     from .i18n import pick
+    try:
+        from . import billing
+        billing.ensure_monthly_pool(user)   # paid plans: this month's 90/240
+    except Exception:
+        pass
     p = effective_plan(user)
     spec = PLANS[p]
     # Prices/credits/ads/family come from PricingConfig when the plan is config-
     # backed (free/premium/business); founder/annual/probashi keep the literal.
     cp = _config_plan(p)
-    unlimited = cp["unlimited_ai"] if cp else spec["unlimited_ai"]
     ads = (cp["ads"] if cp else spec["ads"])
     max_family = cp["family"] if cp else spec["family"]
     return {
@@ -170,7 +176,7 @@ def entitlements(user, lang="bn"):
         "name_bn": spec["name_bn"],
         "desc": pick(lang, spec["desc_bn"], spec["desc_en"]),
         "benefits": _benefits(p, lang, spec),
-        "unlimited_ai": unlimited,
+        "unlimited_ai": False,        # nothing is unlimited (owner decision)
         "ads": ads and not trial_active(user),
         "max_family": max_family,
         "credits": user.ai_credits,
@@ -199,8 +205,9 @@ def plans_public(lang="bn"):
             "id": "probashi", "name": pick(lang, s["name_bn"], s["name_en"]),
             "price": c["probashi_price_usd"] if c else s["price"], "cur": s["cur"], "period": s["period"],
             "desc": pick(lang, s["desc_bn"], s["desc_en"]),
-            "benefits": s["benefits_" + lang], "unlimited_ai": s["unlimited_ai"],
+            "benefits": s["benefits_" + lang], "unlimited_ai": False,
             "ads": s["ads"], "family": s["family"],
+            "credits": (c["plans"]["premium"]["credits"] if c else s["credits"]),
         })
     return out
 
@@ -238,25 +245,17 @@ def grant_monthly_if_due(user):
 
 
 def has_ai_quota(user):
-    """True if the user may run an AI call now (unlimited plan or has credits)."""
+    """True if the user may run an AI call now (has credits — no plan is
+    unlimited)."""
     if user is None:
-        return True
-    p = effective_plan(user)
-    cp = _config_plan(p)
-    unlimited = cp["unlimited_ai"] if cp else PLANS[p]["unlimited_ai"]
-    if unlimited:
         return True
     grant_monthly_if_due(user)
     return (user.ai_credits or 0) > 0
 
 
 def consume_credit(user, note="ai"):
-    """Consume one credit for credit-limited plans. No-op for unlimited plans."""
+    """Consume one credit (every plan is credit-limited)."""
     if user is None:
-        return
-    p = effective_plan(user)
-    cp = _config_plan(p)
-    if (cp["unlimited_ai"] if cp else PLANS[p]["unlimited_ai"]):
         return
     from .models import CreditLedger
     if (user.ai_credits or 0) <= 0:

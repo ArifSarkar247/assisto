@@ -19,12 +19,12 @@ Future<void> _pump(WidgetTester t, String lang, List<Map<String, dynamic>> plans
       home: Scaffold(body: SingleChildScrollView(child: PlansCompareTable(plans: plans, current: 'free'))),
     ));
 
-Map<String, dynamic> _p(String id, {bool unl = false, int credits = 0, int family = 0}) =>
-    {'id': id, 'name': id, 'unlimited_ai': unl, 'ads': !unl, 'family': family, 'credits': credits};
+Map<String, dynamic> _p(String id, {int credits = 0, int family = 0}) =>
+    {'id': id, 'name': id, 'unlimited_ai': false, 'ads': id == 'free', 'family': family, 'credits': credits};
 
 void main() {
   testWidgets('zero pool -> packs or ads; never 15', (t) async {
-    await _pump(t, 'en', [_p('free'), _p('premium', unl: true, family: 5)]);
+    await _pump(t, 'en', [_p('free'), _p('premium', credits: 90, family: 5)]);
     expect(find.text('Packs or ads'), findsOneWidget);
     expect(find.text('15 / mo'), findsNothing);
     expect(find.text('Up to 5'), findsOneWidget);
@@ -33,8 +33,20 @@ void main() {
   testWidgets('positive pool shows the configured number (bn digits in bn)', (t) async {
     await _pump(t, 'en', [_p('free', credits: 20)]);
     expect(find.text('20 / mo'), findsOneWidget);
-    await _pump(t, 'bn', [_p('free', credits: 20), _p('premium', unl: true, family: 5)]);
+    await _pump(t, 'bn', [_p('free', credits: 20), _p('premium', credits: 90, family: 5)]);
     expect(find.text('মাসে ২০'), findsOneWidget);
     expect(find.text('৫ জন পর্যন্ত'), findsOneWidget);
+  });
+
+  testWidgets('nothing is unlimited: Premium shows its 90 credits / month', (t) async {
+    // Even a stale server row claiming unlimited_ai must not render "Unlimited".
+    final prem = _p('premium', credits: 90, family: 5)..['unlimited_ai'] = true;
+    await _pump(t, 'en', [_p('free'), prem, _p('business', credits: 240)]);
+    expect(find.text('90 / mo'), findsOneWidget);
+    expect(find.text('240 / mo'), findsOneWidget);
+    expect(find.textContaining('Unlimited'), findsNothing);
+    await _pump(t, 'bn', [_p('free'), prem]);
+    expect(find.text('মাসে ৯০'), findsOneWidget);
+    expect(find.textContaining('আনলিমিটেড'), findsNothing);
   });
 }
