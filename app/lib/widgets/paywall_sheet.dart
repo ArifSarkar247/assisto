@@ -130,7 +130,7 @@ class _PaywallSheetState extends State<PaywallSheet> {
         // refresh the user's plan everywhere (ads switch off at once)
         final app = context.read<AppState>();
         await app.api.plan();
-      } catch (_) {}
+      } catch (_) {} // best-effort: the trial already started; the plan refreshes on next load
     }
   }
 

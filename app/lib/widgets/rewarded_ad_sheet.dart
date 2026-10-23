@@ -154,7 +154,7 @@ class _RewardedAdSheetState extends State<RewardedAdSheet> {
         try {
           final st = await b.rewardTicketState(nonce);
           status = '${st['status'] ?? 'pending'}';
-        } catch (_) {}
+        } catch (_) {} // best-effort: stays "pending" -> the honest pending note
       }
       if (!mounted) return;
       if (status == 'verified') {

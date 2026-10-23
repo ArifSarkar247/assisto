@@ -24,11 +24,19 @@ bool _bn(BuildContext c) => Localizations.localeOf(c).languageCode == 'bn';
 SponsorBackend sponsorBackendOf(BuildContext context) =>
     ApiSponsorBackend(context.read<AppState>().api);
 
-Future<void> openSponsorLink(SponsorCreative c) async {
+/// Opens the sponsor's https link; says so honestly when no app can open it.
+Future<void> openSponsorLink(SponsorCreative c, [BuildContext? context]) async {
   if (!c.hasLink) return;
+  var ok = false;
   try {
-    await launchUrl(Uri.parse(c.url), mode: LaunchMode.externalApplication);
-  } catch (_) {}
+    ok = await launchUrl(Uri.parse(c.url), mode: LaunchMode.externalApplication);
+  } catch (_) {
+    ok = false;
+  }
+  if (!ok && context != null && context.mounted) {
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context).loadFailed)));
+  }
 }
 
 class SponsoredLabel extends StatelessWidget {
@@ -231,7 +239,8 @@ class SponsorAppOpenScreenState extends State<SponsorAppOpenScreen> {
 
   Future<void> _open() async {
     unawaited(_backend?.event(widget.creative.token, 'click'));
-    await openSponsorLink(widget.creative);
+    if (!mounted) return;
+    await openSponsorLink(widget.creative, context);
   }
 
   @override
@@ -412,7 +421,7 @@ class SponsoredPostCard extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: () async {
                 onClick?.call();
-                await openSponsorLink(c);
+                if (context.mounted) await openSponsorLink(c, context);
               },
               icon: const Icon(Icons.open_in_new, size: 18),
               label: Text(cta),
@@ -571,7 +580,7 @@ class SponsorHeroCard extends StatelessWidget {
                       FilledButton.tonal(
                         onPressed: () async {
                           onClick?.call();
-                          await openSponsorLink(c);
+                          if (context.mounted) await openSponsorLink(c, context);
                         },
                         child: Text(c.cta(bn).isNotEmpty ? c.cta(bn) : t.p2Learn),
                       ),

@@ -68,7 +68,7 @@ Future<void> savePendingOfferCats(List<String> cats) async {
   try {
     final p = await SharedPreferences.getInstance();
     await p.setStringList(_kPending, cats);
-  } catch (_) {}
+  } catch (_) {} // best-effort: a local cache; the Settings screen saves to the server too
 }
 
 Future<void> syncPendingOfferPrefs(SponsorBackend b) async {
