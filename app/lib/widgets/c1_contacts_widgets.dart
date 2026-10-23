@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
+import '../messaging/date_separators.dart' show localDigits;
 import '../theme.dart';
 import 'contacts_match_model.dart';
 import 'msgr_avatar.dart';
@@ -232,50 +233,56 @@ class C1AssistoUserRow extends StatelessWidget {
       if (state == C1CircleState.pending) t.mr1CallsAfterAccept, // mr1
       if (state == C1CircleState.incoming) t.c1WantsToConnect,
     ];
-    final actions = <Widget>[
-      if (state == C1CircleState.none)
-        FilledButton.icon(
+    // qa2: ONE primary action as a compact pill under the name, the
+    // secondary action as a trailing 48dp icon button with a tooltip (its
+    // semantics label). Two labelled buttons side by side wrapped onto two
+    // lines in Bangla; a status ("Requested") is a status line, not a button.
+    Widget primary;
+    Widget? secondary;
+    switch (state) {
+      case C1CircleState.none:
+        primary = FilledButton.icon(
           key: Key('c1-add-${user['id']}'),
           onPressed: busy ? null : onAdd,
           icon: const Icon(Icons.person_add_alt_1, size: 18),
           label: Text(t.c1AddToCircle),
-        ),
-      // mr1: WhatsApp-like — anyone on Assisto can be messaged at once (a
-      // message request until they accept; calls open after).
-      if (state == C1CircleState.none || state == C1CircleState.pending)
-        FilledButton.tonalIcon(
+        );
+        // mr1: WhatsApp-like — anyone on Assisto can be messaged at once (a
+        // message request until they accept; calls open after).
+        secondary = IconButton.filledTonal(
+          key: Key('mr1-msg-${user['id']}'),
+          tooltip: t.c1Message,
+          onPressed: busy ? null : onMessage,
+          icon: const Icon(Icons.chat_bubble_outline),
+        );
+      case C1CircleState.pending:
+        primary = FilledButton.tonalIcon(
           key: Key('mr1-msg-${user['id']}'),
           onPressed: busy ? null : onMessage,
           icon: const Icon(Icons.chat_bubble_outline, size: 18),
           label: Text(t.c1Message),
-        ),
-      if (state == C1CircleState.pending)
-        Chip(
-          avatar: Icon(Icons.schedule, size: 16, color: scheme.primary),
-          label: Text(t.c1Requested),
-        ),
-      if (state == C1CircleState.incoming)
-        FilledButton.icon(
+        );
+      case C1CircleState.incoming:
+        primary = FilledButton.icon(
           onPressed: busy ? null : onAccept,
           icon: const Icon(Icons.check, size: 18),
           label: Text(t.c1Accept),
-        ),
-      if (state == C1CircleState.accepted) ...[
-        FilledButton.tonalIcon(
+        );
+      case C1CircleState.accepted:
+        primary = FilledButton.tonalIcon(
           key: Key('c1-msg-${user['id']}'),
           onPressed: onMessage,
           icon: const Icon(Icons.chat_bubble_outline, size: 18),
           label: Text(t.c1Message),
-        ),
-        OutlinedButton.icon(
+        );
+        secondary = IconButton.outlined(
+          tooltip: t.c1Call,
           onPressed: onCall,
-          icon: const Icon(Icons.call_outlined, size: 18),
-          label: Text(t.c1Call),
-        ),
-      ],
-    ];
+          icon: const Icon(Icons.call_outlined),
+        );
+    }
     return Padding(
-      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, Gap.sm),
+      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.sm, Gap.sm),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         MsgrAvatar(
             name: shown,
@@ -293,10 +300,29 @@ class C1AssistoUserRow extends StatelessWidget {
               Text(s,
                   style: TextStyle(
                       color: scheme.onSurfaceVariant, fontSize: 13)),
-            const SizedBox(height: Gap.xs),
-            Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: actions),
+            if (state == C1CircleState.pending)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Row(children: [
+                  Icon(Icons.schedule, size: 16, color: scheme.primary),
+                  const SizedBox(width: Gap.xs),
+                  Flexible(
+                    child: Text(t.c1Requested,
+                        style: TextStyle(
+                            color: scheme.primary,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600)),
+                  ),
+                ]),
+              ),
+            const SizedBox(height: Gap.sm),
+            primary,
           ]),
         ),
+        if (secondary != null) ...[
+          const SizedBox(width: Gap.xs),
+          secondary,
+        ],
       ]),
     );
   }
@@ -320,13 +346,16 @@ class C1InviteRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
+    final shownNo = localDigits(
+        number, Localizations.localeOf(context).languageCode); // qa2
     return ListTile(
       leading: MsgrAvatar(name: name.isEmpty ? number : name, radius: 20),
-      title: Text(name.isEmpty ? number : name,
-          maxLines: 1, overflow: TextOverflow.ellipsis),
+      title: Text(name.isEmpty ? shownNo : name,
+          maxLines: 2, // qa2: long names were cut ("Sadia Rahman Chow…")
+          overflow: TextOverflow.ellipsis),
       subtitle: name.isEmpty
           ? null
-          : Text(number, maxLines: 1, overflow: TextOverflow.ellipsis),
+          : Text(shownNo, maxLines: 1, overflow: TextOverflow.ellipsis),
       trailing: TextButton(
         onPressed: onInvite,
         child: Text(t.c1Invite),

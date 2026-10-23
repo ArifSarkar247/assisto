@@ -89,12 +89,24 @@ Widget _separators(String l, {bool floating = false}) => Builder(builder: (ctx) 
       final msgs = [
         _Msg(_n(l, 'Did you get the tickets?', 'টিকিট পেয়েছ?'), false, at(12, 10)),
         _Msg(_n(l, 'Yes, two for Friday', 'হ্যাঁ, শুক্রবারের দুটো'), true, at(12, 11)),
+        // qa2: a longer first day so the mid-scroll shot has its inline
+        // separator scrolled away (as on a real phone), not two pills stacked
+        if (floating) ...[
+          _Msg(_n(l, 'Which show?', 'কোন শো?'), false, at(12, 12)),
+          _Msg(_n(l, 'The 7 pm one', 'সন্ধ্যা ৭টারটা'), true, at(12, 12)),
+          _Msg(_n(l, 'Great, see you there', 'দারুণ, ওখানেই দেখা হবে'), false, at(12, 13)),
+          _Msg(_n(l, 'Bring the tickets', 'টিকিট নিয়ে এসো'), false, at(12, 13)),
+          _Msg(_n(l, 'Sure', 'অবশ্যই'), true, at(12, 14)),
+          _Msg(_n(l, 'Leaving now', 'এখন বের হচ্ছি'), true, at(12, 18)),
+        ],
         _Msg(_n(l, 'Call me when free', 'ফ্রি হলে ফোন দিও'), false, at(3, 9)),
         _Msg(_n(l, 'Will do', 'ঠিক আছে'), true, at(3, 18)),
         _Msg(_n(l, 'Dinner at 8?', 'রাতে ৮টায় খাবার?'), false, at(1, 20)),
         _Msg(_n(l, 'Perfect', 'একদম ঠিক'), true, at(1, 21)),
         _Msg(_n(l, 'Good morning!', 'সুপ্রভাত!'), false, at(0, 8)),
         _Msg(_n(l, 'Morning ☀️', 'শুভ সকাল ☀️'), true, at(0, 8)),
+        if (floating)
+          _Msg(_n(l, 'Tea later?', 'পরে চা খাবে?'), false, at(0, 9)),
       ];
       final rows = insertDateSeparators<_Msg>(msgs, (m) => m.at);
       final scheme = Theme.of(ctx).colorScheme;
@@ -107,7 +119,7 @@ Widget _separators(String l, {bool floating = false}) => Builder(builder: (ctx) 
           ListView.builder(
             // mid-scroll for the floating-chip shot: the top edge is inside
             // the oldest day, so the floating chip shows that day
-            controller: ScrollController(initialScrollOffset: floating ? 150 : 0),
+            controller: ScrollController(initialScrollOffset: floating ? 180 : 0),
             padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: rows.length,
             itemBuilder: (_, i) => buildChatRow<_Msg>(

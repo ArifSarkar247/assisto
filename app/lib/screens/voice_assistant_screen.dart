@@ -85,7 +85,16 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
   void initState() {
     super.initState();
     VoiceAssistantScreen.isOpen = true;
-    if (widget.debugTurns != null) _turns.addAll(widget.debugTurns!);
+    if (widget.debugTurns != null) {
+      _turns.addAll(widget.debugTurns!);
+      // qa2: a restored conversation opens at its newest turn, like a live
+      // one (which scrolls after every answer) — not at the oldest.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _scroll.hasClients) {
+          _scroll.jumpTo(_scroll.position.maxScrollExtent);
+        }
+      });
+    }
     if (widget.debugListening) {
       _phase = _Phase.listening;
       _ctrl.text = widget.debugPartial ?? '';
@@ -676,6 +685,12 @@ class _ResultCardState extends State<_ResultCard> {
     final accent = o.danger
         ? Brand.danger
         : (o.ok ? scheme.primary : scheme.onSurfaceVariant);
+    // qa2: the spoken reply usually already names the title and time
+    // ("Reminder set: Call Ammu — today, 5:00 PM"); repeating them as a
+    // second block read as a stutter. Show the details only when they add
+    // something the reply does not say.
+    final detailsAddInfo = (o.title != null && !o.reply.contains(o.title!)) ||
+        (o.subtitle != null && !o.reply.contains(o.subtitle!));
     return Card(
       margin: const EdgeInsets.only(bottom: Gap.sm),
       elevation: 0,
@@ -702,7 +717,7 @@ class _ResultCardState extends State<_ResultCard> {
                     children: [
                       Text(o.reply,
                           style: Theme.of(context).textTheme.bodyLarge),
-                      if (o.title != null || o.subtitle != null) ...[
+                      if (detailsAddInfo) ...[
                         const SizedBox(height: Gap.sm),
                         if (o.title != null)
                           Text(o.title!,
@@ -721,8 +736,12 @@ class _ResultCardState extends State<_ResultCard> {
                 child: ChatCard(c),
               ),
             if (o.buttons.isNotEmpty) ...[
-              const SizedBox(height: Gap.sm),
-              Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+              const SizedBox(height: Gap.xs),
+              // aligned under the reply text: icon 40 + gap 12, minus the
+              // button's own 12dp start inset = 40
+              Padding(
+                padding: const EdgeInsets.only(left: 40),
+                child: Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
                 for (var i = 0; i < o.buttons.length; i++)
                   TextButton.icon(
                     onPressed: _used.contains(i)
@@ -738,6 +757,7 @@ class _ResultCardState extends State<_ResultCard> {
                     label: Text(o.buttons[i].label),
                   ),
               ]),
+              ),
             ],
           ],
         ),
