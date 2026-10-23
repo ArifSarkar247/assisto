@@ -1,0 +1,80 @@
+import 'api.dart';
+import 'payments/payments_api.dart' show payFlavour;
+
+/// P1 — Business AI Agent (F-commerce sellers) client surface.
+///
+/// An EXTENSION on [ApiClient] built only on getJson/postJson so the shared
+/// api.dart stays untouched. Server: backend/core/views_bizagent.py
+/// (/api/v1/bizagent/...). Every error is an [ApiException] whose message is
+/// the server's honest bn/en `detail` (e.g. "Connect a channel first.").
+extension BizAgentApi on ApiClient {
+  /// Everything the setup screen needs: settings, channels (no tokens ever),
+  /// catalog check, couriers, plan, meta_ready, pending_approvals, kill.
+  Future<Map<String, dynamic>> bizAgentSetup() =>
+      getJson('/bizagent/setup?flavour=${payFlavour()}');
+
+  Future<Map<String, dynamic>> bizAgentSaveSettings(Map<String, dynamic> body) =>
+      postJson('/bizagent/settings', body);
+
+  /// kind: messenger | instagram | whatsapp_cloud. external_id = Page ID /
+  /// Instagram account ID / WhatsApp phone_number_id. The server checks the
+  /// token with Meta and returns the honest status (connected / error).
+  Future<Map<String, dynamic>> bizAgentConnect(
+          String kind, String externalId, String token) =>
+      postJson('/bizagent/channels',
+          {'kind': kind, 'external_id': externalId, 'token': token});
+
+  Future<Map<String, dynamic>> bizAgentToggleChannel(int id, bool enabled) =>
+      postJson('/bizagent/channels/$id/toggle', {'enabled': enabled});
+
+  Future<Map<String, dynamic>> bizAgentDeleteChannel(int id) =>
+      postJson('/bizagent/channels/$id/delete');
+
+  Future<Map<String, dynamic>> bizAgentSaveCourier(
+          String courier, Map<String, dynamic> keys) =>
+      postJson('/bizagent/couriers/$courier', keys);
+
+  Future<List<Map<String, dynamic>>> bizAgentApprovals() async {
+    final r = await getJson('/bizagent/approvals');
+    return ((r['approvals'] ?? const []) as List).cast<Map<String, dynamic>>();
+  }
+
+  /// text == null → approve the AI draft as is (billed as one AI reply);
+  /// edited text → sent as the seller's own reply.
+  Future<Map<String, dynamic>> bizAgentApprove(int id, {String? text}) =>
+      postJson('/bizagent/approvals/$id/approve', {if (text != null) 'text': text});
+
+  Future<Map<String, dynamic>> bizAgentReject(int id) =>
+      postJson('/bizagent/approvals/$id/reject');
+
+  Future<List<Map<String, dynamic>>> bizAgentThreads() async {
+    final r = await getJson('/bizagent/threads');
+    return ((r['threads'] ?? const []) as List).cast<Map<String, dynamic>>();
+  }
+
+  Future<Map<String, dynamic>> bizAgentThread(int id) =>
+      getJson('/bizagent/threads/$id');
+
+  /// on=true: a person takes over (AI paused on this chat) / false: resume AI.
+  Future<Map<String, dynamic>> bizAgentHandover(int id, bool on) =>
+      postJson('/bizagent/threads/$id/handover', {'on': on});
+
+  Future<Map<String, dynamic>> bizAgentSend(int id, String text) =>
+      postJson('/bizagent/threads/$id/send', {'text': text});
+
+  Future<Map<String, dynamic>> bizAgentBook(int orderId, String courier) =>
+      postJson('/bizagent/orders/$orderId/book', {'courier': courier});
+
+  Future<Map<String, dynamic>> bizAgentReports() => getJson('/bizagent/reports');
+
+  Future<Map<String, dynamic>> bizAgentPlan() =>
+      getJson('/bizagent/plan?flavour=${payFlavour()}');
+
+  Future<Map<String, dynamic>> bizAgentStartTrial() =>
+      postJson('/bizagent/plan/trial');
+
+  /// Gateway checkout for a seller plan → {redirect_url}. The app shows Buy
+  /// only while plan['purchasable'] is true (gateway on + configured).
+  Future<Map<String, dynamic>> bizAgentCheckout(String plan) =>
+      postJson('/bizagent/plan/checkout', {'plan': plan, 'flavour': payFlavour()});
+}

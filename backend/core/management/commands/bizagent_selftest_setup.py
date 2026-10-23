@@ -63,16 +63,17 @@ class Command(BaseCommand):
             user.save(update_fields=["is_active"])
         biz = BusinessProfile.objects.filter(user=user).first() or \
             BusinessProfile.objects.create(user=user, shop_name="Selftest Shop")
-        if not Product.objects.filter(user=user, name="Selftest Panjabi").exists():
-            Product.objects.create(user=user, business=biz, name="Selftest Panjabi",
-                                   price=1200, min_price=1000, stock=50)
+        Product.objects.update_or_create(user=user, name="Selftest Panjabi", defaults={
+            "business": biz, "price": 1200, "min_price": 1000, "stock": 50})
         pol = biz.policies.first() or OwnerPolicy(user=user, business=biz)
         pol.delivery_inside, pol.delivery_outside = 60, 120
         pol.save()
         S.selftest_setup(biz, secret, PAGE_ID, WA_PNID)
         a = S.agent_for(biz)
         a.ai_enabled = True
-        a.plan, a.period_start = "trial", timezone.now()
+        # a paid-plan state (not the trial) so the daily Profit Guard of the
+        # free trial can never make the self-test flaky; no money is involved
+        a.plan, a.period_start = "starter", timezone.now()
         a.period_end = timezone.now() + timezone.timedelta(days=7)
         a.replies_used = 0
         a.save()

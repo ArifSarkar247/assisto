@@ -39,10 +39,9 @@ from rest_framework.views import APIView
 
 from . import bizagent_service as S
 from .business_views import _require_business, _owner_only, _err
-from .i18n import req_lang, pick
+from .i18n import req_lang
 from .logic import bizagent as BZ
 from .logic import business_ai as bai
-from .logic import business_selling as selling
 
 log = logging.getLogger(__name__)
 
@@ -108,6 +107,12 @@ def _ctx(request, owner=True):
     return prof, role, S.agent_for(prof), None
 
 
+def _flavour(request):
+    v = request.query_params.get("flavour") or (
+        request.data.get("flavour") if request.method == "POST" else "")
+    return "play" if v == "play" else "apk"
+
+
 def _channel_row(c):
     return {"id": c.id, "kind": c.kind, "external_id": c.external_id,
             "display_name": c.display_name, "status": c.status,
@@ -158,7 +163,7 @@ class SetupView(APIView):
             "kill": cfg["kill"], "ai_kill": cfg["ai_kill"],
             "catalog": _catalog_check(prof),
             "couriers": S.courier_state(a),
-            "plan": S.plan_status(a),
+            "plan": S.plan_status(a, flavour=_flavour(request)),
             "meta_ready": meta_ready(),
             "pending_approvals": prof.chat_threads.filter(
                 messages__status="pending_approval").count(),
@@ -552,7 +557,7 @@ class PlanView(APIView):
         prof, role, a, bad = _ctx(request, owner=False)
         if bad:
             return bad
-        return Response(S.plan_status(a))
+        return Response(S.plan_status(a, flavour=_flavour(request)))
 
 
 class PlanTrialView(APIView):
@@ -579,7 +584,8 @@ class PlanCheckoutView(APIView):
             return _err(lang, "অজানা প্ল্যান।", "Unknown plan.", status=422, code="bad_plan")
         try:
             o = PS.checkout(request.user, "seller_%s_monthly" % plan, source="app",
-                            idem=str(request.data.get("idem") or "")[:64], lang=lang)
+                            idem=str(request.data.get("idem") or "")[:64],
+                            flavour=_flavour(request), lang=lang)
         except PS.PayError as e:
             return Response({"ok": False, "error": e.reason,
                              "detail": PS.message(e.reason, lang)}, status=e.status)

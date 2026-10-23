@@ -155,7 +155,19 @@ def _quota(agent, cfg):
     return int(row["replies"]) if row else 0
 
 
-def plan_status(agent, now=None):
+def _purchasable(flavour):
+    """NO SHOWPIECES: seller plans are sold through the payment gateway only;
+    the app shows Buy only while the gateway is on AND configured for this
+    build (the Play build also needs the owner's gateway_on_play switch)."""
+    try:
+        from .payments import service as PS
+        return any(c["id"] == "gateway" and c["enabled"] and c["ready"]
+                   for c in PS.channel_state(flavour))
+    except Exception:
+        return False
+
+
+def plan_status(agent, now=None, flavour="apk"):
     now = now or timezone.now()
     cfg = sa_cfg()
     q = _quota(agent, cfg)
@@ -169,6 +181,7 @@ def plan_status(agent, now=None):
             "quota": q if st["active"] else 0, "used": agent.replies_used if st["active"] else 0,
             "left": st["left"], "credits": credits, "credit_replies": credits // per,
             "trial_available": trial_available(agent),
+            "purchasable": _purchasable(flavour),
             "trial_days": cfg["trial_days"], "trial_replies": cfg["trial_replies"],
             "plans": [{"id": k, "price": v["price"], "replies": v["replies"],
                        "sku": "seller_%s_monthly" % k} for k, v in cfg["plans"].items()]}
