@@ -125,7 +125,7 @@ extension BusinessSellingApi on ApiClient {
   Future<Map<String, dynamic>> cartAdd({
     required Map<String, dynamic> cart,
     required int productId,
-    int? variantId,
+    String? variantKey,
     int qty = 1,
     num? unitPriceTaka,
     int? businessId,
@@ -133,7 +133,9 @@ extension BusinessSellingApi on ApiClient {
     final res = await _postGuardMin('/business/cart/add', {
       'cart': cart,
       'product': productId,
-      if (variantId != null) 'variant': variantId,
+      // rt1: the server identifies a variant by its KEY (cart_add_line's
+      // variant_key); variants carry no numeric id.
+      if (variantKey != null) 'variant_key': variantKey,
       'qty': qty,
       if (unitPriceTaka != null) 'unit_price': '$unitPriceTaka',
       if (businessId != null) 'business': businessId,

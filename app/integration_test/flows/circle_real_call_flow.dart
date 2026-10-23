@@ -178,8 +178,14 @@ void registerCircleRealCallFlows() {
         callB = c;
         unawaited(c.start());
       });
-      await f.waitFor(find.byType(IncomingCallScreen), seconds: 20,
-          what: 'incoming call screen on A');
+      try {
+        await f.waitFor(find.byType(IncomingCallScreen), seconds: 20,
+            what: 'incoming call screen on A');
+      } catch (e) {
+        // rt1: say WHY (B's side) — "ringing" = the server never queued
+        // call.incoming for A; "ended/offline" = A looked unreachable.
+        throw TestFailure('$e (B phase=${callB?.phase}, end=${callB?.endReason})');
+      }
       await f.shot('video-incoming');
       await f.eventually('B sees "ringing" (A\'s phone acked)',
           () async => callB!.phase == CallPhase.ringing, seconds: 15);

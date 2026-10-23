@@ -53,12 +53,12 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
   }
 
   Future<void> _addToCart(Map<String, dynamic> product,
-      {int? variantId}) async {
+      {String? variantKey}) async {
     try {
       _cart = await sellApi(context).cartAdd(
         cart: _cart,
         productId: product['id'] as int,
-        variantId: variantId,
+        variantKey: variantKey,
         businessId: widget.businessId,
       );
       if (mounted) setState(() {});
@@ -71,15 +71,19 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
 
   Future<void> _tapProduct(Map<String, dynamic> product) async {
     final variants = (product['variants'] as List?) ?? const [];
-    if (variants.isEmpty) {
-      await _addToCart(product);
+    // rt1 (reality audit): every product has at least its base variant, so a
+    // one-variant product goes straight into the cart (no picker to tap).
+    if (variants.length <= 1) {
+      final only = variants.isEmpty ? null : variants.first;
+      await _addToCart(product,
+          variantKey: only is Map ? only['key']?.toString() : null);
       return;
     }
-    final chosen = await showModalBottomSheet<int>(
+    final chosen = await showModalBottomSheet<String>(
       context: context,
       builder: (_) => _VariantPicker(product: product),
     );
-    if (chosen != null) await _addToCart(product, variantId: chosen);
+    if (chosen != null) await _addToCart(product, variantKey: chosen);
   }
 
   Future<void> _setQty(Map<String, dynamic> line, int qty) async {
@@ -211,7 +215,18 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
 
   Widget _productCard(
       AppLocalizations t, ColorScheme scheme, Map<String, dynamic> p) {
-    final sell = poishaOf(p['price'] ?? p['sell_price']);
+    var sell = poishaOf(p['price'] ?? p['sell_price']);
+    // rt1 (reality audit): a product whose price lives on its variants showed
+    // "৳0" on the card while the variant sells at ৳80 — show the lowest
+    // variant price instead of a false zero.
+    final vs = (p['variants'] as List? ?? const []).whereType<Map>().toList();
+    if (sell <= 0 && vs.isNotEmpty) {
+      final prices = [
+        for (final v in vs) poishaOf(v['sell_price'] ?? v['price'])
+      ].where((x) => x > 0).toList()
+        ..sort();
+      if (prices.isNotEmpty) sell = prices.first;
+    }
     final stock = (p['stock'] ?? 0) as num;
     final oos = stock <= 0 && (p['variants'] as List? ?? const []).isEmpty;
     return InkWell(
@@ -459,7 +474,9 @@ class _VariantPicker extends StatelessWidget {
                 poishaOf(v['sell_price'] ?? v['price']).takaIn(context),
                 style: const TextStyle(fontWeight: FontWeight.w700)),
             enabled: ((v['stock'] ?? 0) as num) > 0,
-            onTap: () => Navigator.pop(context, v['id'] as int),
+            // rt1: variants have a string `key`, no `id` — the old
+            // `v['id'] as int` threw on every tap and nothing was added.
+            onTap: () => Navigator.pop(context, (v['key'] ?? '').toString()),
           ),
         const SizedBox(height: Gap.lg),
       ]),

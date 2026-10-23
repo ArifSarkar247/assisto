@@ -2,6 +2,7 @@
 // run on a CI emulator — typed fallback is exercised), settings + language.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:assisto/l10n/app_localizations.dart';
 
@@ -13,10 +14,22 @@ void registerDocsVoiceSettingsFlows() {
   realityFlow('21_documents', 'Daily life', 'Documents vault: add a document record (server)', (f) async {
     await f.home();
     final title = 'Reality NID d$_tag';
-    await f.step('open the vault', () async {
+    await f.step('open the vault (set / enter its PIN first)', () async {
+      final mark = f.httpMark;
       await f.openFeature(f.t.moduleVault, 'documents');
       await f.shot('vault');
-      f.expectHttp('GET', '/documents');
+      // Current UI (rt1): Documents is PIN-locked — the first open asks to
+      // set a PIN, later opens ask for it. Nothing loads before that.
+      const pin = '4826';
+      if (await f.appears(find.text(f.t.vaultSetPinTitle), seconds: 4)) {
+        await f.enter(pin, label: f.t.vaultPinLengthHint);
+        await f.tap(find.widgetWithText(FilledButton, f.t.vaultSetButton), settleSeconds: 3);
+      } else if (await f.appears(find.text(f.t.vaultLockedTitle), seconds: 2)) {
+        await f.enter(pin, label: f.t.vaultEnterPinHint);
+        await f.tap(find.widgetWithText(FilledButton, f.t.vaultUnlockButton), settleSeconds: 3);
+      }
+      await f.shot('unlocked');
+      f.expectHttp('GET', '/documents', since: mark);
     });
     await f.step('add a document (no file; details only)', () async {
       await f.tap(find.byType(FloatingActionButton));
@@ -42,11 +55,18 @@ void registerDocsVoiceSettingsFlows() {
     });
     await f.step('type instead -> sends to the agent', () async {
       final mark = f.httpMark;
-      final typeBtn = find.byTooltip(f.t.vaTypeInstead);
-      if (typeBtn.evaluate().isEmpty) {
-        f.note('no "Type instead" button visible (mic permission UI shown?)');
-        return;
+      // rt1: the voice screen ALWAYS has "Type instead". The old step returned
+      // quietly when it was missing — run 39859999833 marked this flow A while
+      // the drawer search never even opened the voice screen.
+      // First open auto-listens, so the app first explains the microphone
+      // (modal). A user who wants to type answers "Not now" (run 39878171841:
+      // the tap on "Type instead" only dismissed this dialog).
+      if (await f.appears(find.text(f.t.permMic), seconds: 4)) {
+        await f.tap(find.widgetWithText(TextButton, f.t.notNow), settleSeconds: 1.5);
+        await f.shot('mic-reason-not-now');
       }
+      final typeBtn = find.byTooltip(f.t.vaTypeInstead);
+      await f.waitFor(typeBtn, what: '"Type instead" on the Assisto Voice screen');
       await f.tap(typeBtn);
       await f.enter('what are my reminders today', label: f.t.vaTypeHint);
       await f.tap(find.byTooltip(f.t.vaSend), settleSeconds: 5);
@@ -83,7 +103,14 @@ void registerDocsVoiceSettingsFlows() {
       expect(f.app.locale?.languageCode, 'en');
     });
     await f.step('About shows the version', () async {
-      await f.tap(find.text(f.t.aboutTitle), settleSeconds: 2);
+      // About is the LAST Settings row (rt1: the old step looked for it
+      // without scrolling, so the lazily-built row was never found).
+      final about = find.text(f.t.aboutTitle);
+      await f.tester.scrollUntilVisible(about, 400,
+          scrollable: find.byType(Scrollable).hitTestable().first);
+      await f.tap(about, settleSeconds: 3);
+      final info = await f.net(() => PackageInfo.fromPlatform());
+      await f.waitFor(find.textContaining(info.version), what: 'version ${info.version} on About');
       await f.shot('about');
     });
   });

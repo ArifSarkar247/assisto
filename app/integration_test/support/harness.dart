@@ -237,6 +237,13 @@ void realityFlow(String id, String section, String feature, FlowBody body,
     try {
       if (boot) await h.boot(tester);
       await body(f).timeout(timeout);
+      // rt1: a Flutter framework error during the flow (e.g. run 39878171841:
+      // "markNeedsBuild() called during build" on opening Money) used to be
+      // reported only as flutter_test's "[E]" while the flow row said pass.
+      final fwErr = tester.takeException();
+      if (fwErr != null) {
+        throw TestFailure('Flutter error during the flow: ${'$fwErr'.split('\n').first}');
+      }
       if (r.status == 'running') r.status = 'pass';
     } catch (e, st) {
       r.status = r.status == 'skip' ? 'skip' : 'fail';
@@ -386,7 +393,12 @@ class RFlow {
   // ------------------------------------------------------------ actions
   Future<void> tap(Finder f, {double settleSeconds = 1.5}) async {
     await waitFor(f);
-    await tester.ensureVisible(f.first);
+    // Scroll only what is NOT already on screen. rt1: ensureVisible on the
+    // Notes tab's FAB scrolled the TabBarView (a PageView) towards To-Do, so
+    // the saved note was "missing" — the user never sees that jump.
+    if (f.hitTestable().evaluate().isEmpty) {
+      await tester.ensureVisible(f.first);
+    }
     await tester.pump();
     await tester.tap(f.first, warnIfMissed: false);
     await pumpFor(Duration(milliseconds: (settleSeconds * 1000).round()));
@@ -469,7 +481,12 @@ class RFlow {
     await waitFor(search, what: 'drawer search');
     await tester.enterText(search.first, label);
     await pumpFor(const Duration(milliseconds: 900));
-    final hit = find.descendant(of: find.byType(Drawer), matching: find.text(label));
+    // A drawer ROW (ListTile) with that text — never the search box itself,
+    // whose EditableText also "finds" the typed label (rt1: the old finder
+    // tapped the search field and reported the drawer path as working).
+    final hit = find.descendant(
+        of: find.descendant(of: find.byType(Drawer), matching: find.byType(ListTile)),
+        matching: find.text(label));
     await waitFor(hit, what: 'drawer item "$label"');
     await tester.tap(hit.last, warnIfMissed: false);
     await pumpFor(const Duration(seconds: 3));

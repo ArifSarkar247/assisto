@@ -187,6 +187,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       ),
       drawer: AppDrawer(onNewChat: _newChat, onOpenHomeChat: _openHomeChat),
       // Small in-chat new-chat action stays available on home.
+      // rt1 (reality audit): endFloat put this FAB exactly over the input
+      // bar's Send button, so tapping Send while typing started a NEW chat
+      // and threw the typed message away. Same FAB, lifted above the bar.
+      floatingActionButtonLocation: const _AboveInputBarFab(),
       floatingActionButton: _showSuggestions
           ? null
           : FloatingActionButton.small(
@@ -248,6 +252,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       ]),
     );
   }
+}
+
+/// endFloat, raised by the chat input bar's height (Gap.xs + 48 dp Send +
+/// Gap.sm, plus a small gap) so the FAB never covers Send / mic / photo.
+class _AboveInputBarFab extends StandardFabLocation
+    with FabEndOffsetX, FabFloatOffsetY {
+  const _AboveInputBarFab();
+  static const double inputBarHeight = Gap.xs + 48 + Gap.sm + Gap.sm;
+
+  @override
+  double getOffsetY(
+          ScaffoldPrelayoutGeometry scaffoldGeometry, double adjustment) =>
+      super.getOffsetY(scaffoldGeometry, adjustment) - inputBarHeight;
 }
 
 class _UpdateBanner extends StatelessWidget {

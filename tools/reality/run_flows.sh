@@ -81,11 +81,12 @@ GROUPS_ALL="start home personal family business docs sweep"
 GROUPS_RUN="${REALITY_ONLY:-$GROUPS_ALL}"
 GROUPS_RUN="${GROUPS_RUN//,/ }"
 DEADLINE=$(( $(date +%s) + ${REALITY_TOTAL_SECONDS:-4200} ))
-for g in $GROUPS_RUN; do
+run_group() {  # $1 = group, $2 = attempt label
+  local g=$1 left
   left=$(( DEADLINE - $(date +%s) ))
-  [ "$left" -gt 120 ] || { echo "== out of time before group $g" | tee -a "$OUT/drive.log"; break; }
-  if ! alive; then restart_emulator || break; fi
-  echo "== flutter drive group=$g ($(date +%T), ${left}s left)" | tee -a "$OUT/drive.log"
+  [ "$left" -gt 120 ] || { echo "== out of time before group $g" | tee -a "$OUT/drive.log"; return 2; }
+  if ! alive; then restart_emulator || return 2; fi
+  echo "== flutter drive group=$g$2 ($(date +%T), ${left}s left)" | tee -a "$OUT/drive.log"
   REALITY_OUT="$OUT" timeout "$(( left < 1500 ? left : 1500 ))" flutter drive \
     --driver=test_driver/integration_test.dart \
     --target=integration_test/reality_all_test.dart \
@@ -94,7 +95,24 @@ for g in $GROUPS_RUN; do
     --dart-define=REALITY_ONLY="$g" \
     --keep-app-running \
     >> "$OUT/drive.log" 2>&1
-  echo "group $g drive exit=$?" | tee -a "$OUT/drive.log"
+  local rc=$?
+  echo "group $g$2 drive exit=$rc" | tee -a "$OUT/drive.log"
+  return $rc
+}
+
+for g in $GROUPS_RUN; do
+  run_group "$g" ""
+  rc=$?
+  [ "$rc" -eq 2 ] && break
+  # rt1: the hosted emulator sometimes dies mid-group (run 39859999833: the
+  # business group, "Service has disappeared"). That is the device, not the
+  # app — restart it and give the group ONE more run (verdicts of the retry
+  # replace the first attempt's per flow id in summarize.py).
+  if [ "$rc" -ne 0 ] && ! alive; then
+    echo "== emulator died during group $g — one retry" | tee -a "$OUT/drive.log"
+    run_group "$g" " (retry)"
+    [ $? -eq 2 ] && break
+  fi
 done
 tail -40 "$OUT/drive.log" || true
 
