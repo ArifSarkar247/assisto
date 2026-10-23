@@ -13,6 +13,54 @@ G2. [SHIPPED 197] media follow-ups: group media forward (same blob), send-to-pol
 G. [SHIPPED build 196 + backend live (0066, nginx internal location, live blob proof)] MY CIRCLE E2E MEDIA (photo, voice note, document, video if reliable): encrypt on device, ciphertext blob via signed URLs, key inside the E2E message, quotas + retention; attach button stays hidden until each kind truly works. (from mr1 design note)
 H. [SHIPPED/IN CI] mr1: message requests like WhatsApp + full last-seen + media showpieces hidden (live smoke passed with test accounts A/C). DECISION (reversible, noted in STATUS): default 'who can message me' = My Circle now lets people with your number send a REQUEST (WhatsApp-like); 'nobody' blocks strangers.
 
+## ORDER 6 — GAME CHANGERS (owner, 23 Oct, FINAL) — CURRENT TOP PRIORITY after the Play AAB [AAB DELIVERED: 1.0.209/10209]
+Agents: A+B Photo Studio v2 [d1-photo agent, brief extended]; C+D+E video-call UI, chat themes, nicknames [next slot]; F wake every showpiece [after]; G advanced Business AI Agent [after]. Earlier queue (F design agent f1 running, group calls b3 built, P4 in checks) continues behind it.
+```
+ORDER 6 - GAME CHANGERS (FINAL, replaces any earlier order6/6b/pricing message). Start right after the Play AAB is delivered; the AAB stays first. Use parallel agents.
+
+A. PHOTO STUDIO v2 - must BEAT Remini in a blind test, not just match it. Do whatever it takes.
+ 1. ENHANCE server-side: face detect -> dedicated face restoration -> full-image upscale/denoise -> FACE LOCK identity check. Choose the best models available NOW. Every model and weight must allow commercial use - list each license in STATUS; no non-commercial weights (check CodeFormer, InsightFace etc. carefully).
+    - Runs in a SEPARATE worker process/instance with a queue; the main API must never slow down. Free tier uses the same best open models on our own worker (cost per image = 0, just slower). Premium = fast path (GPU on demand or best hosted API), up to 4K.
+    - On-device enhance stays only as an offline fallback.
+ 2. PROMPT EDIT like ChatGPT/Gemini: photo + Bangla or English prompt -> new image. Provider switchable in Owner Admin (e.g. Nano Banana 2 / GPT Image 2 / Flux 2); default = best identity preservation.
+ 3. FACE LOCK (our USP): after every AI output, measure face identity similarity vs the original with a commercial-licensed method. Below threshold -> paste the ORIGINAL face back with seamless blending + light/colour match, or re-run as masked inpainting that never touches the face. Promise: "your face stays yours". Show a Face Lock badge.
+ 4. One-tap templates: HD portrait, old photo restore + colourize, passport/visa sizes, professional/LinkedIn, Eid/Puja/wedding outfits, studio background, product photo for shops.
+ 5. PROOF: 50 licensed/consented test photos (low light, old, group, dark skin tones) -> ours vs Remini -> blind A/B vote page in Owner Admin + identity score + sharpness metrics. Report honestly. Never claim "better than Remini" anywhere until the blind test proves it.
+ 6. Safety + Play AI policy: block sexual/undressing edits, suggestive edits of minors, realistic fakes of other real people without consent; in-app "report this AI image" button (Google Play AI-generated content policy); "Edited with AI" in saved metadata.
+
+B. PHOTO STUDIO PRICING (owner decision; every number editable in Owner Admin -> Pricing):
+ - FREE ENHANCE: 3 per day, each unlocked by 1 rewarded ad. After 3 -> Premium paywall.
+ - FREE AI GENERATION (Face Lock): 2 free in the user's lifetime. After that 1 per week, unlocked only after watching at least 3 rewarded ads; use the highest-paying ad network/placement available. Profit Guard must show AI cost vs ad revenue per free user and alert me if the free tier loses money.
+ - PREMIUM: unlimited instant enhance up to 4K, no ads, monthly AI credits, extra credit packs.
+ - No ads on safety, SOS, payment, login or call screens. Credits are never withdrawable as cash.
+
+C. VIDEO CALL like WhatsApp: tap the small self-view to swap big/small, drag the small view to any corner, pinch-to-zoom, double-tap fullscreen, flip camera, camera on/off visible to the other side. Prove on 2 real phones.
+
+D. CHAT THEMES - REAL, not a showpiece (owner says the current theme does not work):
+ - Per-chat theme that BOTH sides see instantly (theme synced through the chat; system line "X changed the theme").
+ - A small curated set of really beautiful themes (about 8-10): love/romantic (hearts, roses, moon & stars), gradient, calm, dark, nature, festival (Eid, birthday, anniversary), each with matching bubble colours and quick-reaction emoji.
+ - Custom theme from the user's own photo (sent end-to-end encrypted like media; dimmed so text stays readable). AI theme from a prompt with Face Lock (credits).
+ - Free: a few themes; Premium: all + custom + AI.
+ - Proof: two real phones see the same theme, after restart, on OPPO/ColorOS too; screenshots of both phones in STATUS.
+
+E. NICKNAMES (Messenger-style), 1:1 and groups:
+ - Either person can set, change or remove a nickname for themselves or for the other person; both sides see it instantly; system line "X set the nickname for Y to ..." / "X removed the nickname".
+ - Nickname shows in the chat header, chat list, notifications and call screen; the real name stays visible in profile/info. Synced across reinstall and devices.
+
+F. WAKE UP EVERY SHOWPIECE: go through REALITY_AUDIT (all C and D items) and every screen that looks finished but does not really work. For each: make it really work end-to-end with proof, OR hide it from the UI until it does. Nothing fake visible to users. Report a Bangla table: feature -> now works / hidden / needs owner key.
+
+G. BUSINESS AI AGENT - advanced (paid Business plan):
+ - One inbox for WhatsApp Business (Cloud API), Facebook Messenger, Instagram DM and a website chat widget. Asalify's proven WhatsApp + Messenger agent is READ-ONLY reference; never touch Asalify config, services or DB.
+ - Understands Bangla, Banglish, English, voice notes (transcribe) and product photos (match to catalog).
+ - Answers only from real catalog price/stock; takes the order in chat -> creates the order in Assisto -> optional courier booking.
+ - Facebook comment-to-DM ("price?" under a post -> reply in inbox). Follow-ups for silent customers. Learns tone/FAQ from the owner's past replies. Human takeover any time. Quiet hours.
+ - Report: chats, orders, revenue the agent brought, AI cost, profit.
+ - No payment collection inside Assisto for now (Play financial declaration says the app does not move money).
+ - List exactly which parts need Meta app review or owner keys.
+
+Each part: real proof (tests + 2 real phones where relevant), Bangla 3-line STATUS, owner tasks listed clearly. Never commit secrets; DB backup before migrations.
+```
+
 ## MASTER STRATEGY 23 Oct (owner, ~/order3.txt) — INCOME FIRST; overrides the A-F order's sequence
 MERGED ORDER: 1) A My Circle bugs [agent a1 running] -> 2) P1 Business AI Agent [next free slot] -> 3) P2 monetization -> 4) P3 My Circle differentiators -> 5) P4 Unseen World -> 6) B calls [b1 batch running: wrapping up B1/B2/B6 + flow-18 fix], D Photo Studio, F design, C themes, E gaps -> 7) P5 growth. P6 BUSINESS_PLAN_BN.md written early (doc) [integrator writing now].
 Done today: pricing nothing-unlimited (Premium 90/mo) + disk alert 80% [build 203, backend LIVE]; reality audit 202 [b26ccc0]; C4 POS sale/void now A (run 39946885424).
