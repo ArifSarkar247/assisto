@@ -82,10 +82,11 @@ class ClassicParams {
       claheClip: 2.0, skin: 0, sharpen: 0.12, vibrance: 0);
 
   /// Low-light fix: full levels stretch, strong gamma lift (floor 0.40),
-  /// heavy denoise (dark photos are noisy), local contrast.
+  /// full denoise and almost no sharpening (lifting a dark photo lifts its
+  /// sensor noise — d1 eval: sharpen 0.25 doubled the grain), local contrast.
   static const lowLightTool = ClassicParams(
-      wb: 0.6, levels: 1.0, lift: 1.0, denoise: 0.85, clahe: 0.40,
-      claheClip: 2.6, skin: 0.2, sharpen: 0.25, vibrance: 0.10, gammaFloor: 0.40);
+      wb: 0.6, levels: 1.0, lift: 1.0, denoise: 1.0, clahe: 0.35,
+      claheClip: 2.4, skin: 0.2, sharpen: 0.08, vibrance: 0.10, gammaFloor: 0.40);
 }
 
 /// A face ellipse in normalised 0..1 image coordinates (same as FaceBox, but

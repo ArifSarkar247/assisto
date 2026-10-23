@@ -18,7 +18,11 @@ class PsGateSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final adsPossible = need.adsRemaining > 0;
+    // d1-photo (owner's build-202 dead end): with no ad network linked in
+    // this build a "Watch ads" button could never succeed — show credits /
+    // Premium only, plus the honest "ads aren't available yet" note.
+    final adsPossible = need.adsRemaining > 0 && need.adsLinked;
+    final adsBlocked = need.adsRemaining > 0 && !need.adsLinked;
     final n = fmtInt(context, need.adsRemaining);
     return SafeArea(
       child: SingleChildScrollView(
@@ -65,7 +69,7 @@ class PsGateSheet extends StatelessWidget {
               const SizedBox(height: Gap.md),
               _note(context, Icons.wifi_off_rounded, t.psAdUnavailable, Brand.warnInk(context)),
             ],
-            if (adsPossible && !need.adsLinked) ...[
+            if (adsBlocked) ...[
               const SizedBox(height: Gap.md),
               _note(context, Icons.info_outline, t.psGateAdsNotLinked, scheme.onSurfaceVariant),
             ],

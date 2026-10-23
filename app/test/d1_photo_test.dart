@@ -16,6 +16,8 @@ import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/photo_studio/ps_classic.dart';
 import 'package:assisto/photo_studio/ps_controller.dart';
 import 'package:assisto/photo_studio/ps_engines.dart';
+import 'package:assisto/photo_studio/ps_export.dart';
+import 'package:assisto/photo_studio/ps_gate_sheet.dart';
 import 'package:assisto/photo_studio/ps_enhance.dart';
 import 'package:assisto/photo_studio/ps_model.dart';
 import 'package:assisto/photo_studio/ps_models.dart';
@@ -585,6 +587,27 @@ void main() {
 
   // ============================================================== screen
   group('screen', () {
+    testWidgets('gate: no ad network linked -> no dead "Watch ads" button (owner build-202 dead end)',
+        (tester) async {
+      Widget sheet(bool linked) => MaterialApp(
+          locale: const Locale('en'),
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+              body: PsGateSheet(
+                  need: GateNeed(adsRemaining: 2, adsTotal: 2, credits: 2, adsLinked: linked))));
+      await tester.pumpWidget(sheet(false));
+      expect(find.byKey(const Key('psGateWatch')), findsNothing);
+      expect(find.byKey(const Key('psGateCredits')), findsOneWidget);
+      await tester.pumpWidget(sheet(true));
+      expect(find.byKey(const Key('psGateWatch')), findsOneWidget);
+    });
+
     testWidgets('progress overlay: real stage, tile counts, time left, Cancel', (tester) async {
       await tester.binding.setSurfaceSize(const Size(360, 2600));
       addTearDown(() => tester.binding.setSurfaceSize(null));

@@ -213,11 +213,40 @@ def lab_to_rgb(lab):
     return np.clip(rgb, 0, 1).astype(np.float32)
 
 
-def is_grey(rgb, thr=0.06):
-    """Black & white (or faded sepia) photo? Mean chroma below `thr`."""
+def is_grey(rgb, thr=0.06, tone_thr=3.0):
+    """Black & white or one-tone (sepia / faded) photo?
+
+    Either the chroma is tiny, or the colour is (almost) a FUNCTION of the
+    lightness — a sepia print has a/b that follow L, a real colour photo does
+    not. Residual std of a, b after a linear fit on L < `tone_thr` (Lab
+    units) = monochrome."""
     import numpy as np
     small = rgb[::4, ::4] if min(rgb.shape[:2]) > 64 else rgb
-    return float(np.mean(small.max(axis=-1) - small.min(axis=-1))) < thr
+    if float(np.mean(small.max(axis=-1) - small.min(axis=-1))) < thr:
+        return True
+    lab = rgb_to_lab(small).reshape(-1, 3).astype(np.float64)
+    X = np.stack([lab[:, 0], np.ones(len(lab))], axis=1)
+    for ch in (1, 2):
+        coef, *_ = np.linalg.lstsq(X, lab[:, ch], rcond=None)
+        if float(np.std(lab[:, ch] - X @ coef)) >= tone_thr:
+            return False
+    return True
+
+
+def restore_levels(rgb, lo_pct=1.0, hi_pct=99.0, max_gain=1.6):
+    """Faded old prints: stretch the lightness to its 1 / 99 % points (at
+    most 1.6x, never inverted). Lightness only — no geometry change."""
+    import numpy as np
+    y = luma_of(rgb)
+    lo, hi = np.percentile(y, [lo_pct, hi_pct])
+    span = max(float(hi - lo), 1.0 / max_gain)
+    gain = 1.0 / span
+    y2 = np.clip((y - lo) * gain, 0, 1)
+    return np.clip(rgb + (y2 - y)[..., None], 0, 1)
+
+
+def luma_of(rgb):
+    return 0.299 * rgb[..., 0] + 0.587 * rgb[..., 1] + 0.114 * rgb[..., 2]
 
 
 # ------------------------------------------------------------------ models
@@ -282,22 +311,29 @@ def _resize_plane(p, w, h):
                       dtype=np.float32)
 
 
-def scratch_cleanup(rgb, thr=0.10):
+def scratch_cleanup(rgb, thr=0.07):
     """Old-photo dust & scratch removal (ours): pixels that differ from their
-    5x5 median by more than `thr` in lightness, in thin structures, are
-    replaced by the median. Returns (rgb, share_of_pixels_fixed)."""
+    7x7 median by more than max(`thr`, 3 x the local texture level) in
+    lightness (thin scratches up to ~3 px and dust specks) are replaced by
+    the median. Returns (rgb, share of pixels replaced)."""
     import numpy as np
     from PIL import Image, ImageFilter
     y = 0.299 * rgb[..., 0] + 0.587 * rgb[..., 1] + 0.114 * rgb[..., 2]
     y8 = Image.fromarray((y * 255).astype(np.uint8), "L")
-    ymed = np.asarray(y8.filter(ImageFilter.MedianFilter(5)), dtype=np.float32) / 255.0
-    defect = (np.abs(y - ymed) > thr).astype(np.uint8) * 255
+    ymed = np.asarray(y8.filter(ImageFilter.MedianFilter(7)), dtype=np.float32) / 255.0
+    dev = np.abs(y - ymed)
+    # local texture level (median absolute deviation, 7x7): eyes, hair and
+    # fabric deviate a lot everywhere, a scratch only along a thin line —
+    # the threshold rises with the texture so real detail is left alone
+    dev8 = Image.fromarray(np.clip(dev * 1020.0, 0, 255).astype(np.uint8), "L")
+    mad = np.asarray(dev8.filter(ImageFilter.MedianFilter(7)), dtype=np.float32) / 1020.0
+    defect = (dev > np.maximum(thr, 3.0 * mad)).astype(np.uint8) * 255
     mask = np.asarray(Image.fromarray(defect, "L").filter(ImageFilter.MaxFilter(3))) > 0
     share = float(mask.mean())
     if share <= 0 or share > 0.25:   # nothing to fix / this is texture, not damage
-        return rgb, 0.0 if share <= 0 else share
+        return rgb, 0.0
     rgb8 = Image.fromarray((rgb * 255).astype(np.uint8), "RGB")
-    med = np.asarray(rgb8.filter(ImageFilter.MedianFilter(5)), dtype=np.float32) / 255.0
+    med = np.asarray(rgb8.filter(ImageFilter.MedianFilter(7)), dtype=np.float32) / 255.0
     out = rgb.copy()
     out[mask] = med[mask]
     return out, share
@@ -365,6 +401,7 @@ def old_restore_rgb(rgb, *, colorize=True, faces=None, up_sess=None, color_sess=
     info = {"scratch_share": 0.0, "colorized": False}
     src = _fit(rgb, RESTORE_INPUT_LONG)
     src, info["scratch_share"] = scratch_cleanup(src)
+    src = restore_levels(src)
     if colorize and is_grey(src) and color_sess is not None:
         src = colorize_rgb(src, color_sess)
         info["colorized"] = True
