@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/ladder_common.dart' show fmtInt;
 import '../widgets/paywall_sheet.dart';
 import 'app_open_gate.dart';
 import 'sponsor_api.dart';
@@ -250,13 +251,7 @@ class SponsorAppOpenScreenState extends State<SponsorAppOpenScreen> {
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Row(children: [
                 const SponsoredLabel(),
-                const SizedBox(width: Gap.sm),
-                Expanded(
-                  child: Text(c.sponsor,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: scheme.onSurfaceVariant)),
-                ),
+                const Spacer(),
                 Semantics(
                   button: true,
                   enabled: countdown.canSkip,
@@ -267,10 +262,14 @@ class SponsorAppOpenScreenState extends State<SponsorAppOpenScreen> {
                         size: 18),
                     label: Text(countdown.canSkip
                         ? t.p2Skip
-                        : t.p2SkipIn('${countdown.remaining}')),
+                        : t.p2SkipIn(fmtInt(context, countdown.remaining))),
                   ),
                 ),
               ]),
+              const SizedBox(height: Gap.xs),
+              Text(c.sponsor,
+                  style: TextStyle(
+                      color: scheme.onSurfaceVariant, fontWeight: FontWeight.w600)),
               const SizedBox(height: Gap.lg),
               Expanded(
                 child: ClipRRect(

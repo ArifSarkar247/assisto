@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,6 +11,7 @@ import '../ads/sponsor_widgets.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/bn_day_periods.dart' show appDateLocale;
 import '../widgets/ladder_common.dart' show fmtInt;
 
 /// p2-money: BRAND OFFERS BY INTEREST.
@@ -345,8 +347,10 @@ class _OffersFeedScreenState extends State<OffersFeedScreen> {
                           SponsoredPostCard(
                             creative: c,
                             compactImage: true,
-                            footer: c.endsAt.length >= 10
-                                ? Text(t.p2OffersEnds(c.endsAt.substring(0, 10)),
+                            footer: DateTime.tryParse(c.endsAt) != null
+                                ? Text(
+                                    t.p2OffersEnds(DateFormat.yMMMd(appDateLocale(context))
+                                        .format(DateTime.parse(c.endsAt).toLocal())),
                                     style: TextStyle(
                                         fontSize: 12, color: scheme.onSurfaceVariant))
                                 : null,

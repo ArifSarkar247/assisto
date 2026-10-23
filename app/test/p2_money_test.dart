@@ -187,7 +187,11 @@ void main() {
       await tester.tap(find.text(t.p2OffersNotifs));
       await tester.pumpAndSettle();
       expect(b.saved.last, {'notifs_on': false});
+      // let the "Saved" snackbar go away (it covers the bottom rows)
+      await tester.pump(const Duration(seconds: 3));
+      await tester.pumpAndSettle();
       await tester.scrollUntilVisible(find.text('Shapla Mobile'), 200);
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Shapla Mobile'));
       await tester.pumpAndSettle();
       expect(b.muted[3], isTrue);

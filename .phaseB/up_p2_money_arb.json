@@ -78,7 +78,7 @@
     },
     "p2OffersSaved": "Saved",
     "p2OnbOffersTitle": "Offers you care about",
-    "p2OnbOffersSub": "Optional: pick a few categories, or just tap Next. You can change this any time in Settings → Offers & brands.",
+    "p2OnbOffersSub": "Optional: pick a few categories, or just tap Next. You can change this any time in Settings, under “Offers & brands”.",
     "p2CatMobile": "Mobile phones",
     "p2CatElectronics": "Electronics",
     "p2CatFashion": "Fashion",
@@ -141,7 +141,7 @@
         }
       }
     },
-    "p2PayYearlyEquiv": "≈ ৳{price} a month",
+    "p2PayYearlyEquiv": "about ৳{price} a month",
     "@p2PayYearlyEquiv": {
       "placeholders": {
         "price": {
@@ -209,7 +209,7 @@
     "p2OffersEnds": "শেষ {date}",
     "p2OffersSaved": "সেভ হয়েছে",
     "p2OnbOffersTitle": "আপনার পছন্দের অফার",
-    "p2OnbOffersSub": "ঐচ্ছিক: কয়েকটি বিভাগ বাছুন, অথবা শুধু ‘পরবর্তী’ চাপুন। পরে যেকোনো সময় সেটিংস → অফার ও ব্র্যান্ড থেকে বদলাতে পারবেন।",
+    "p2OnbOffersSub": "ঐচ্ছিক: কয়েকটি বিভাগ বাছুন, অথবা শুধু ‘পরবর্তী’ চাপুন। পরে যেকোনো সময় সেটিংসের ‘অফার ও ব্র্যান্ড’ থেকে বদলাতে পারবেন।",
     "p2CatMobile": "মোবাইল ফোন",
     "p2CatElectronics": "ইলেকট্রনিক্স",
     "p2CatFashion": "পোশাক ও ফ্যাশন",
@@ -248,7 +248,7 @@
     "p2PayMonthly": "৳{price} / মাস",
     "p2PayYearly": "৳{price} / বছর · {pct}% সাশ্রয়",
     "p2PayYearlyPlain": "৳{price} / বছর",
-    "p2PayYearlyEquiv": "মাসে ≈ ৳{price}",
+    "p2PayYearlyEquiv": "মাসে প্রায় ৳{price}",
     "p2PayTrial": "{days} দিনের ফ্রি ট্রায়াল শুরু করুন",
     "p2PayTrialNote": "প্রতি অ্যাকাউন্টে একবার। কোনো কার্ড লাগবে না। নিজে থেকেই শেষ হয় — কোনো টাকা কাটা হয় না।",
     "p2PayTrialStarted": "আপনার {days} দিনের প্রিমিয়াম ট্রায়াল শুরু হয়েছে।",

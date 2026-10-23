@@ -14,8 +14,8 @@ import '../widgets/bn_day_periods.dart' show appDateLocale;
 import '../payments/checkout_sheet.dart'; // pay1
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../payments/payments_api.dart'
-import '../widgets/paywall_sheet.dart'; // p2-money
     show ApiPaymentsBackend, PayConfig, payFlavour; // pay1
+import '../widgets/paywall_sheet.dart'; // p2-money
 
 /// CREDITS screen (Business Model Build 3, item 2).
 ///
