@@ -79,3 +79,24 @@ So the identity check stays landmark geometry (ML Kit) + face-lock.
 | Google **speech_embedding** v1 (TF1 Hub module, 2.8 MB) | tfhub.dev/google/speech_embedding/1 → Kaggle Models `google/speech-embedding` (TensorFlow1 instance) | **Apache-2.0** — Kaggle Models API `GET /api/v1/models/google/speech-embedding/get` returns `"licenseName": "Apache 2.0"` for the TensorFlow1 instance; fetched by `rebuild_features.py` in CI at every build and stored verbatim in `e2e_info.json → licence_check` (the step fails if the field is not Apache) | **Yes** (keep the Apache-2.0 notice) | Rebuilt as `assisto_embed_e2e.onnx`: our own ONNX log-mel front end (parameters read from the module graph) + the module's frozen conv net (weights unchanged). A derived work of Apache-2.0 weights → ship with the Apache-2.0 notice + "modified: converted to ONNX". |
 | eSpeak NG (also a training TTS voice — see the k1-wake register) | Ubuntu package | GPL-3.0 (program); its audio output is not covered by the GPL | Yes for generated audio; the program is never shipped | Here only generates verification speech for the conversion check |
 | tensorflow-cpu 2.15.1, tf2onnx 1.16.1 (build tools only) | PyPI | Apache-2.0 | Yes | not shipped |
+
+## Wake word training data added by agent/ww3 (23 Oct 2026)
+
+Rule unchanged: Apache-2.0 / MIT / BSD / CC-BY / CC0 / public domain only; NC, ND or unclear = not used.
+Every source below is also listed in `tools/wakeword/ww/datasets.py → SOURCES` and copied into each
+build's `licences.json`.
+
+| Source | What / used for | Licence (how confirmed) | Commercial OK? |
+|---|---|---|---|
+| **OpenSLR 26** `sim_rir_16k.zip` — simulated room impulse responses (Ko et al., ICASSP 2017) | room/reverb augmentation; rooms split 80/10/10 into train / validation / test | **Apache-2.0** — stated on openslr.org/26 (read 23 Oct 2026). Image-method simulations, no third-party recordings | **Yes** |
+| OpenSLR 28 `rirs_noises.zip` | **NOT USED** — its *real* RIRs come from RWCP / REVERB / Aachen AIR, whose own terms are not restated on the page; we take only the simulated set (SLR 26) | Apache-2.0 on the page, but third-party lineage unclear | not used |
+| **FLEURS hi_in** (train split) | Hindi read speech — "Hindi serial on the TV" negatives, raw + TV-mixed | **CC BY 4.0** (same dataset card as FLEURS bn_in) | **Yes** |
+| **MUSAN speech** (LibriVox + US-government recordings, same archive as MUSAN music/noise) | broadcast-style English speech: train negatives, TV-like mixes, noise under positives ("TV on"), held-out val/test parts | MUSAN corpus CC BY 4.0; the speech files are **public domain** per MUSAN's per-folder LICENSE files; the NC/ND filter is applied to them like music/noise | **Yes** |
+| **OpenSLR 53 shard 1** (`asr_bengali_1.zip`) | speech of the 10 h **TV-like Bangla test set** (mixed with MUSAN *test* music/noise + test rooms) — **evaluation only**, never training | **CC BY-SA 4.0** (openslr.org/53); used only to measure false accepts, not in model weights | Yes (eval only) |
+| More TTS near-miss phrases ("হেই", "এসিস্ট", "হে আসিফ", "assist", "assistance", "hey assistant", …) | hard negatives | same engines as before: Kokoro-82M (Apache-2.0), eSpeak NG output | **Yes** |
+| Real voice recordings (`owner_actions/WAKEWORD_RECORDING_BN.md`) | optional; only with each speaker's written consent; never committed, cached or uploaded | consent-based, owner-held | Yes (with consent) |
+
+Model contract unchanged: `assisto_embed_e2e.onnx` ([1, 12400] → 96-d, Google speech_embedding,
+Apache-2.0) + `assisto_wake.onnx` ([N, 16, 96] → [N, 1]). The ww3 classifier graph may contain a seed
+ensemble, a 2-position min ("in-graph smoothing") and a temperature — all plain ONNX ops (Slice, Reshape,
+Sub, Div, Gemm, Relu, Sum, Mul, Min, Sigmoid; opset 13), checked in CI with ONNX Runtime 1.23.2.
