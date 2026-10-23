@@ -41,19 +41,41 @@ class CallRuntime with WidgetsBindingObserver {
   Stream<String> get endedCalls => _ended.stream;
 
   /// The shared transport (created on first use, for the signed-in user).
+  ///
+  /// ty1: the transport resolves the CURRENT AppState's ApiClient on every
+  /// request (not the one it was created with), so a re-bound AppState
+  /// ([start] with a new one) or a replaced `app.api` keeps the same event
+  /// stream — the chat screens, receipts and badges listening to it never
+  /// need to re-subscribe.
   PollRealtimeTransport transportFor(AppState app) {
     _app ??= app;
-    final t = _transport ??= PollRealtimeTransport.forApi(app.api);
+    final t = _transport ??= PollRealtimeTransport(
+        get: (p) => (_app ?? app).api.getJson(p),
+        post: (p, b) => (_app ?? app).api.postJson(p, b));
     if (!t.running) unawaited(t.connect());
     return t;
   }
 
+  @visibleForTesting
+  AppState? get boundApp => _app;
+
   Future<void> start(AppState app, GlobalKey<NavigatorState> nav,
       {bool pushAvailable = false}) async {
+    final old = _app;
     _app = app;
     _nav = nav;
     _pushAvailable = pushAvailable;
-    if (_started) return;
+    if (_started) {
+      // ty1: a NEW AppState (the reality harness re-boots the app with a
+      // fresh one per flow): follow it, or the in-app ring would keep
+      // watching the old session's sign-in state.
+      if (!identical(old, app)) {
+        old?.removeListener(_onApp);
+        app.addListener(_onApp);
+        _onApp();
+      }
+      return;
+    }
     _started = true;
     try {
       WidgetsBinding.instance.addObserver(this);

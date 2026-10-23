@@ -67,13 +67,37 @@ class PushService {
 
   static const _permAskedKey = 'push_perm_asked_v1';
 
+  /// [realtimeOnly] (ty1): STARTUP SAFE MODE (the previous launch never
+  /// reached home) and the reality harness. Firebase, the notification
+  /// permission ask and the native bubble/shortcut bridge are skipped, but
+  /// the pure-Dart real-time loop still starts — in-app incoming calls,
+  /// typing / online and live ticks. Before ty1 safe mode skipped ALL of
+  /// this, so a phone whose last launch was killed on the splash could not
+  /// ring for a My Circle call for a whole session (owner rule: calls are
+  /// never blocked).
   Future<void> start(AppState app,
-      {GlobalKey<NavigatorState>? navigatorKey}) async {
-    if (_started) return;
+      {GlobalKey<NavigatorState>? navigatorKey,
+      bool realtimeOnly = false}) async {
+    if (_started) {
+      _rebind(app);
+      return;
+    }
     _started = true;
     _app = app;
     _nav = navigatorKey ?? appNavigatorKey;
     _wasLoggedIn = app.loggedIn;
+    if (realtimeOnly) {
+      Notifications.onResponse = _onLocalResponse;
+      available.value = false;
+      _realtimeOnly = true;
+      app.addListener(_onAppChanged);
+      _onAppChanged();
+      try {
+        await CallRuntime.instance
+            .start(app, _nav ?? appNavigatorKey, pushAvailable: false);
+      } catch (_) {}
+      return;
+    }
 
     // 1) Local-notification taps / actions (UI isolate).
     Notifications.onResponse = _onLocalResponse;
@@ -128,6 +152,26 @@ class PushService {
     } catch (_) {}
   }
 
+  bool _realtimeOnly = false;
+
+  /// ty1: [start] again with a DIFFERENT AppState (the reality harness boots
+  /// a fresh one per flow, like closing and reopening the app): follow it.
+  /// The shared transport resolves the current session per request, so the
+  /// chat screens / receipts / badges keep their subscriptions.
+  void _rebind(AppState app) {
+    final old = _app;
+    if (identical(old, app)) return;
+    old?.removeListener(_onAppChanged);
+    _app = app;
+    _wasLoggedIn = app.loggedIn;
+    app.addListener(_onAppChanged);
+    _onAppChanged();
+    try {
+      unawaited(CallRuntime.instance.start(app, _nav ?? appNavigatorKey,
+          pushAvailable: available.value));
+    } catch (_) {}
+  }
+
   /// c3-msg: app foregrounded (start / resume) — tell the server this device
   /// has fetched (delivered ✓✓ for senders) and resume the realtime channel.
   /// One cheap request; silent on failure.
@@ -176,15 +220,17 @@ class PushService {
     if (now && !_wasLoggedIn) _registeredToken = null; // new session
     _wasLoggedIn = now;
     if (!now || app.loading) return;
-    unawaited(_register(null));
-    unawaited(_maybeAskPermission());
+    if (!_realtimeOnly) {
+      unawaited(_register(null));
+      unawaited(_maybeAskPermission());
+    }
     // c3-msg presence/typing ride the app's ONE real-time loop (c2-calls'
     // PollRealtimeTransport, owned by CallRuntime) + the delivered sync.
     try {
       if (!RealtimeChannel.instance.hasTransport) {
         RealtimeChannel.instance.useTransport(SharedPollTransport(
             CallRuntime.instance.transportFor(app),
-            get: (p) => app.api.getJson(p)));
+            get: (p) => (_app ?? app).api.getJson(p)));
       }
       // b2-badges: `badges.update` on the same loop refreshes the home icons.
       BadgesBus.instance.attach(CallRuntime.instance.transportFor(app).events);
@@ -192,7 +238,7 @@ class PushService {
       // (msg.new) on the same loop.
       final rt = CallRuntime.instance.transportFor(app);
       ReceiptBus.instance.attach(rt.events,
-          ack: () => ReceiptAck(token: () async => app.api.token),
+          ack: () => ReceiptAck(token: () async => (_app ?? app).api.token),
           setFast: rt.setFast);
     } catch (_) {}
     unawaited(_syncReceipts());
@@ -384,6 +430,7 @@ class PushService {
     _app?.removeListener(_onAppChanged);
     _app = null;
     _started = false;
+    _realtimeOnly = false;
     _pending = null;
     _registeredToken = null;
     available.value = false;

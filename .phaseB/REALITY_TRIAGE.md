@@ -64,3 +64,21 @@ The hosted API-33 swiftshader emulator exits a few minutes after every (re)boot 
 2. Build the test APK once and use `flutter drive --use-application-binary`. Today every group rebuilds with Gradle while the emulator runs.
 3. Try `-gpu guest` or `-gpu host` instead of `swiftshader_indirect`.
 
+
+## ty1: 19_circle_ticks typing and 18_circle_real_call in-app ring (from code and tests, no emulator)
+
+**Root cause (one cause for both): the app's real-time loop never ran.** `PushService.start` starts it in `lib/main.dart`'s deferred init. It installs the RealtimeChannel transport (typing and online), and through `CallRuntime.start` it shows the in-app incoming-call screen and acks "ringing".
+- **Reality harness:** `boot()` pumps `AssistoApp` directly, so `main()` never runs. A's app had no RealtimeChannel transport, so `typing.update` was never read and the header could not say "typing…". CallRuntime had no subscription or navigator, so `call.incoming` was polled but ignored. A's phone never said "ringing", and after `OFFLINE_ACK_S` (20 s) the server ended B's call as `offline`. That matches B's `CallPhase.ended` exactly.
+- **Real product gap (fixed):** startup SAFE MODE (the previous launch never reached home, for example when the user swiped the app away on the splash) skipped `PushService.start` completely. For that whole session the phone had no in-app ring for My Circle calls, no typing or online, and no live ticks.
+- **Server: no bug.** `core/tests_ty1_circle_live.py` replays both flows on the `seed_reality` accounts with real token auth. A gets `typing.update` with A's own chat key and TTL 8 s, "stop" clears it, and B shows online. A foreground A gets `call.incoming` at once without FCM. With the ring ack the call keeps ringing. With no ack it ends `offline` at 20 s.
+
+**Fix:**
+- `PushService.start(realtimeOnly: true)` runs the pure-Dart loop without Firebase, without the permission ask and without the native bubble bridge. `main.dart` uses it in safe mode (4 s after the first frame), and the harness uses it on every boot.
+- A second `start` with a new AppState re-binds PushService and CallRuntime. The shared transport resolves the current session's ApiClient on each request, so listeners keep their subscription.
+
+**Tests:** `app/test/ty1_live_loop_test.dart`:
+- queue `typing.update` → `ChatHeaderTitle` says "typing…", then "stop" clears it, the TTL clears a lost stop, and another chat never shows it;
+- queue `call.incoming` → `IncomingCallScreen` opens, `ringing` is POSTed, and the call is never stacked twice;
+- a re-boot polls only the new session.
+
+**Not re-run on the emulator (CI budget spent).**
