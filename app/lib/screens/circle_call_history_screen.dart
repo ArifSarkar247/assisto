@@ -4,10 +4,12 @@ import 'package:provider/provider.dart';
 
 import '../api.dart';
 import '../calls/call_avatar.dart';
+import '../calls/call_recording.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/circle_relation.dart';
+import 'call_recordings_screen.dart';
 import 'circle_call_screen.dart';
 
 /// Connected Circle call history (M1 item 5): voice/video log with missed
@@ -31,10 +33,22 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
   bool _backendReady = true;
   List<Map<String, dynamic>> _calls = [];
 
+  /// b3-group B5: consented recordings kept on this phone (entry shown only
+  /// when there is at least one).
+  int _recordings = 0;
+
   @override
   void initState() {
     super.initState();
     _load();
+    _loadRecordings();
+  }
+
+  Future<void> _loadRecordings() async {
+    try {
+      final l = await RecordingVault.instance.list();
+      if (mounted) setState(() => _recordings = l.length);
+    } catch (_) {}
   }
 
   ApiClient get _api => context.read<AppState>().api;
@@ -77,7 +91,19 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: Text(_t.circleCallHistoryTitle)),
+      appBar: AppBar(title: Text(_t.circleCallHistoryTitle), actions: [
+        if (_recordings > 0)
+          IconButton(
+            key: const Key('call-recordings'),
+            tooltip: _t.b3RecordingsTitle,
+            icon: const Icon(Icons.graphic_eq),
+            onPressed: () async {
+              await Navigator.of(context).push(MaterialPageRoute<void>(
+                  builder: (_) => const CallRecordingsScreen()));
+              _loadRecordings();
+            },
+          ),
+      ]),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(

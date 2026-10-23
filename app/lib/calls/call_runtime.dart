@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
+import '../push/group_incoming_screen.dart';
 import '../push/incoming_call_screen.dart';
 import '../push/push_notifier.dart';
 import '../push/push_payload.dart';
@@ -14,6 +15,7 @@ import 'call_native.dart';
 import 'call_sound_prefs.dart';
 import 'call_log.dart';
 import 'call_video.dart';
+import 'api_group_calls.dart';
 
 /// b1-calls: a live call that left its screen (minimized inside the app).
 class OngoingCall {
@@ -143,6 +145,8 @@ class CallRuntime with WidgetsBindingObserver {
     try {
       if (e.topic == 'call.incoming') {
         onIncoming(e.payload);
+      } else if (e.topic == 'call.group_incoming') {
+        onGroupIncoming(e.payload); // b3-group
       } else if (e.topic == 'call.state') {
         final id = '${e.payload['call_id'] ?? ''}';
         if (e.payload['side'] == 'callee' && e.payload['phase'] == 'ended') {
@@ -166,6 +170,18 @@ class CallRuntime with WidgetsBindingObserver {
       }
     } catch (e) {
       callLog('call_runtime#3', e);
+    }
+    // b3-group: a group-call invite (also after a tray-notification tap).
+    // Only asked when the SFU is installed (config cached 10 min).
+    try {
+      if (await GroupCallConfig.refresh(app.api)) {
+        final r = await app.api.getJson('/circle/calls/group/incoming');
+        for (final g in (r['rooms'] as List? ?? const [])) {
+          if (g is Map) onGroupIncoming(g.cast<String, dynamic>());
+        }
+      }
+    } catch (e) {
+      callLog('call_runtime#10', e);
     }
   }
 
@@ -241,6 +257,11 @@ class CallRuntime with WidgetsBindingObserver {
   /// the call screen library, so this file never imports it.
   void Function(NavigatorState nav, OngoingCall o)? reopenCall;
 
+  /// b3-group: a MINIMIZED 1:1 call was moved to a group room by the other
+  /// phone (sfu_move) — open the group call with it (set by the call
+  /// screen library, so this file never imports the screens).
+  void Function(NavigatorState nav, OngoingCall o, String room)? openGroupFor;
+
   /// The call screen hands its live call over (it is about to pop). The call
   /// keeps running; this runtime holds the one-call-screen lock for it.
   void minimize(OngoingCall o) {
@@ -290,7 +311,23 @@ class CallRuntime with WidgetsBindingObserver {
 
   void _onOngoing() {
     final o = ongoing.value;
-    if (o == null || !o.controller.isEnded) return;
+    if (o == null) return;
+    final room = o.controller.sfuMoveRoom;
+    final nav = _nav?.currentState;
+    if (room != null && !o.controller.isEnded && nav != null &&
+        openGroupFor != null) {
+      o.controller.removeListener(_onOngoing);
+      releaseScreen(o);
+      _setOngoing(null);
+      if (activeCallId == o.controller.callId) activeCallId = null;
+      try {
+        openGroupFor!(nav, o, room);
+      } catch (e) {
+        callLog('call_runtime#12', e);
+      }
+      return;
+    }
+    if (!o.controller.isEnded) return;
     _dropOngoing(o);
   }
 
@@ -323,6 +360,23 @@ class CallRuntime with WidgetsBindingObserver {
       unawaited(_transport?.reconnect());
     } catch (e) {
       callLog('call_runtime#7', e);
+    }
+  }
+
+  /// b3-group: a group-call ring (real-time queue / incoming check /
+  /// foreground push). Ignored while this phone is already in a call.
+  void onGroupIncoming(Map<String, dynamic> row) {
+    final room = '${row['room'] ?? ''}';
+    if (room.isEmpty || _shown.contains('g:$room')) return;
+    if (activeCallId != null) return; // in a call: it shows as missed
+    final nav = _nav?.currentState;
+    if (nav == null) return;
+    _shown.add('g:$room');
+    try {
+      nav.push(MaterialPageRoute<void>(
+          builder: (_) => GroupIncomingScreen(row: row)));
+    } catch (e) {
+      callLog('call_runtime#11', e);
     }
   }
 

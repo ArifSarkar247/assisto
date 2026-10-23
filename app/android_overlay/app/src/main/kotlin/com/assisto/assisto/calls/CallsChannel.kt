@@ -50,6 +50,19 @@ import io.flutter.plugin.common.MethodChannel
  *   enterPip(w: Int, h: Int)                         -> Bool
  *   setAutoPip(on: Bool, w: Int, h: Int)             -> Bool  (b1: Home -> PiP)
  *   Dart callback: "pipChanged"(Bool)
+ *   screenShareReady()                               -> Bool  (b3-group B4)
+ *        true only when this build can legally capture the screen: Android
+ *        5+, MediaProjection present, and (Android 10+) the
+ *        flutter_foreground_task service is DECLARED with the
+ *        mediaProjection type (+ FOREGROUND_SERVICE_MEDIA_PROJECTION on 14+).
+ *        Until the manifest proposal is applied it answers false and the app
+ *        hides "Share screen".
+ *   audioOwner(owner: "webrtc" | "livekit")          -> Bool  (b3-group)
+ *        livekit_client's Android plugin switches flutter_webrtc's own audio
+ *        session management OFF for the whole process when it attaches (at
+ *        launch). Our 1:1 calls and Shop Box live view rely on it (earpiece /
+ *        speaker / Bluetooth routing), so register() turns it back ON, and a
+ *        group call hands the audio session to LiveKit only while it runs.
  */
 object CallsChannel {
     private const val CHANNEL = "com.assisto/calls"
@@ -66,6 +79,9 @@ object CallsChannel {
 
     fun register(activity: Activity, messenger: BinaryMessenger) {
         this.activity = activity
+        // b3-group: flutter_webrtc owns the call audio session by default
+        // (livekit_client disabled it at plugin attach).
+        setWebrtcAudio(true)
         val ch = MethodChannel(messenger, CHANNEL)
         channel = ch
         ch.setMethodCallHandler { call, result ->
@@ -95,6 +111,10 @@ object CallsChannel {
                     "setProximity" -> result.success(setProximity(call.argument<Boolean>("on") == true))
                     "keepScreenOn" -> result.success(keepScreenOn(call.argument<Boolean>("on") == true))
                     "pipSupported" -> result.success(pipSupported())
+                    "screenShareReady" -> result.success(screenShareReady())
+                    "audioOwner" -> result.success(
+                        setWebrtcAudio(call.argument<String>("owner") != "livekit")
+                    )
                     "enterPip" -> result.success(
                         enterPip(call.argument<Int>("w") ?: 9, call.argument<Int>("h") ?: 16)
                     )
@@ -348,6 +368,44 @@ object CallsChannel {
                     val f = android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
                     if (on) a.window.addFlags(f) else a.window.clearFlags(f)
                 } catch (ignored: Throwable) {}
+            }
+            true
+        } catch (e: Throwable) {
+            false
+        }
+    }
+
+    // ------------------------------------------------------- audio owner
+    /** flutter_webrtc AudioSwitchManager.setAudioSessionManagementEnabled —
+     *  by reflection so a flutter_webrtc without it (older/newer) is a no-op,
+     *  never a crash. */
+    private fun setWebrtcAudio(enabled: Boolean): Boolean {
+        return try {
+            val c = Class.forName("com.cloudwebrtc.webrtc.audio.AudioSwitchManager")
+            c.getMethod("setAudioSessionManagementEnabled",
+                Boolean::class.javaPrimitiveType).invoke(null, enabled)
+            true
+        } catch (e: Throwable) {
+            false
+        }
+    }
+
+    // ------------------------------------------------------- screen share
+    private fun screenShareReady(): Boolean {
+        val a = activity ?: return false
+        return try {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return false
+            if (a.getSystemService(Context.MEDIA_PROJECTION_SERVICE) == null) return false
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val cn = android.content.ComponentName(a.packageName,
+                    "com.pravera.flutter_foreground_task.service.ForegroundService")
+                val info = a.packageManager.getServiceInfo(cn, 0)
+                val mp = android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
+                if (info.foregroundServiceType and mp == 0) return false
+            }
+            if (Build.VERSION.SDK_INT >= 34) {
+                val perm = "android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION"
+                if (a.checkSelfPermission(perm) != PackageManager.PERMISSION_GRANTED) return false
             }
             true
         } catch (e: Throwable) {

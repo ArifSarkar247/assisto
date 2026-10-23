@@ -60,6 +60,60 @@ class CallKeepAlive {
     }
   }
 
+  /// b3-group B4: Android 10+ requires a foreground service of type
+  /// mediaProjection while the screen is captured (Android 14: started only
+  /// AFTER the user's consent). The call's own service is restarted with
+  /// microphone + mediaProjection (back to microphone only when [on] is
+  /// false). Returns false when it can't (voice SOS owns the service, the
+  /// manifest lacks the type) — the caller then shows an honest error and
+  /// never captures. Crash-guarded.
+  static Future<bool> setScreenShare(bool on,
+      {required String channelName,
+      required String title,
+      required String text}) async {
+    try {
+      if (!_ours) {
+        // no call service yet (or SOS has it): only start our own
+        if (await FlutterForegroundTask.isRunningService) return !on;
+      } else {
+        _ours = false;
+        await FlutterForegroundTask.stopService();
+      }
+      FlutterForegroundTask.init(
+        androidNotificationOptions: AndroidNotificationOptions(
+          channelId: 'assisto_call_ongoing',
+          channelName: channelName,
+          channelImportance: NotificationChannelImportance.LOW,
+          priority: NotificationPriority.LOW,
+          onlyAlertOnce: true,
+        ),
+        iosNotificationOptions: const IOSNotificationOptions(),
+        foregroundTaskOptions: ForegroundTaskOptions(
+          eventAction: ForegroundTaskEventAction.nothing(),
+          autoRunOnBoot: false,
+          allowWakeLock: true,
+          allowWifiLock: true,
+        ),
+      );
+      final r = await FlutterForegroundTask.startService(
+        serviceId: serviceId,
+        serviceTypes: on
+            ? const [
+                ForegroundServiceTypes.microphone,
+                ForegroundServiceTypes.mediaProjection
+              ]
+            : const [ForegroundServiceTypes.microphone],
+        notificationTitle: title,
+        notificationText: text,
+      );
+      _ours = r is ServiceRequestSuccess;
+      return _ours;
+    } catch (e) {
+      callLog('keepalive#screen', e);
+      return false;
+    }
+  }
+
   static Future<void> stop() async {
     if (_busy) _stopAsked = true;
     if (!_ours) return;

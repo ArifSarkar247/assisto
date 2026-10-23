@@ -46,6 +46,27 @@ class CallNative {
 
   static Future<void> stopTone() => _invoke<bool>('stopTone');
 
+  /// b3-group B4: can this build/phone capture the screen at all (Android,
+  /// MediaProjection, the foreground-service type declared)? false = hide
+  /// "Share screen". Cached after the first answer.
+  static Future<bool> screenShareReady() async {
+    final c = _screenReady;
+    if (c != null) return c;
+    if (defaultTargetPlatform != TargetPlatform.android) return false;
+    return _screenReady = await _invoke<bool>('screenShareReady') == true;
+  }
+
+  static bool? _screenReady;
+
+  /// b3-group: who owns the Android call audio session — flutter_webrtc
+  /// (1:1 calls, live view; the default) or LiveKit (a group call, only while
+  /// it runs). See CallsChannel.kt `audioOwner`.
+  static Future<void> audioOwner({required bool livekit}) =>
+      _invoke<bool>('audioOwner', {'owner': livekit ? 'livekit' : 'webrtc'});
+
+  @visibleForTesting
+  static set screenShareReadyForTest(bool? v) => _screenReady = v;
+
   /// 'ring' | 'vibrate' | 'silent' | 'error' (null = no native side).
   static Future<String?> startRingtone(String? uri) =>
       _invoke<String>('startRingtone', {'uri': uri});

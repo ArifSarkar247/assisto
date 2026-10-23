@@ -47,7 +47,8 @@ class ApiCallSignaling implements CallSignaling {
           .send('call.signal', {'call_id': callId, 'kind': kind, 'data': data});
     } on ApiException catch (e) {
       // b1: the server's plan gate refused switching this call to video
-      if (kind == 'video_request' && (e.status == 402 || e.status == 403)) {
+      if ((kind == 'video_request' || kind == 'screen_start') &&
+          (e.status == 402 || e.status == 403)) {
         throw const CallUpgradeRequired();
       }
       rethrow;

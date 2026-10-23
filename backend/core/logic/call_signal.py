@@ -71,7 +71,10 @@ SIGNAL_KINDS = ("offer", "answer", "ice", "restart_offer", "restart_answer",
                 # callee asking the caller for an ICE restart.
                 "video_request", "video_accept", "video_decline",
                 "video_cancel", "video_off", "reneg_offer", "reneg_answer",
-                "reneg_request", "restart_request")
+                "reneg_request", "restart_request",
+                # b3-group B4: screen share in a 1:1 call (screen_start runs
+                # the same plan gate as video when the call is voice)
+                "screen_start", "screen_stop")
 
 # b1-calls: a side that is RECONNECTING (Wi-Fi <-> mobile data) may be silent
 # longer than HEARTBEAT_S while its new network comes up; the phones give up

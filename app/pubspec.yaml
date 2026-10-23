@@ -74,6 +74,13 @@ dependencies:
   # server and is never recorded. LAZY: only the live-view screen and Shop Box
   # mode import it (deferred); nothing at app launch.
   flutter_webrtc: ^1.6.2
+  # ---- b3-group ---- group voice/video calls (3+ people) on OUR self-hosted
+  # LiveKit SFU. livekit_client (Apache-2.0, livekit/client-sdk-flutter).
+  # EXACT pin: 2.13.1 requires flutter_webrtc 1.6.2+hotfix.4 (= our lock).
+  # LAZY: only lib/calls/livekit_room.dart imports it, as a DEFERRED library
+  # loaded when a group call starts; nothing at app launch (its Android
+  # plugin registers no ContentProvider / WorkManager / service).
+  livekit_client: 2.13.1
   # ---- pay1 ---- Google Play Billing (BSD-3-Clause, flutter/packages).
   # Exact pin. LAZY: only lib/payments/play_billing_impl.dart imports it, as a
   # DEFERRED library loaded on the first "Google Play" tap in the Play build

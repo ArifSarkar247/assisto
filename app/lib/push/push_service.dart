@@ -335,6 +335,12 @@ class PushService {
       CallRuntime.instance.onPushRing(p);
       return;
     }
+    // b3-group: a group-call invite while open -> the in-app ring screen
+    // (fetched from the server, so it never rings for an ended room).
+    if (p.isGroupCall) {
+      unawaited(CallRuntime.instance.checkIncoming());
+      return;
+    }
     // c3-msg: messages → on-device MessagingStyle (skipped for the chat that
     // is open on screen — it polls and marks seen itself).
     final chat = MsgPushHandler.chatOf(p);

@@ -42,3 +42,8 @@
 # keep file/line info and exception class names (mapping upload is off).
 -keepattributes SourceFile,LineNumberTable
 -keep public class * extends java.lang.Exception
+
+# ---- b3-group ---- LiveKit Flutter plugin (group calls) + its FFT helper
+# (JNI-bound); only used once a group call starts.
+-keep class io.livekit.plugin.** { *; }
+-keep class com.paramsen.noise.** { *; }

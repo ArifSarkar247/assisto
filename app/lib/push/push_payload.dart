@@ -34,6 +34,7 @@ class PushChannels {
     'sos': sos,
     'missed_call': missedCalls,
     'message_request': messages, // mr1
+    'group_call': calls, // b3-group: tray notification + in-app ring
   };
 }
 
@@ -92,6 +93,10 @@ class PushPayload {
   bool get isKnownKind => PushChannels.byKind.containsKey(kind);
   bool get isCall => kind == 'call';
   bool get isCallCancel => kind == 'call_cancel';
+
+  /// b3-group: "X invites you to a group call" (a NOTIFICATION push; the
+  /// app rings in-app through CallRuntime when it is open).
+  bool get isGroupCall => kind == 'group_call';
   bool get isMissedCall => kind == 'missed_call'; // c2-calls
   bool get isSos => kind == 'sos';
 

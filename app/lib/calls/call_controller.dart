@@ -4,6 +4,8 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import '../services/error_kind.dart';
 import 'call_log.dart';
+import 'call_recording.dart';
+import 'group_call.dart' show ScreenShareHost;
 
 /// REAL 1:1 call state machine (c2-calls). Pure Dart: media, signalling and
 /// sounds are injected, so it is unit-tested with fakes and driven in the app
@@ -169,6 +171,18 @@ enum CallNotice {
   cameraBlocked, // my camera permission off / camera busy
   remoteSwitchedToVoice, // they turned video off for both
   reconnected, // the network came back
+  screenShareFailed, // b3 B4: capture could not start
+}
+
+/// b3-group B4: optional media capability — share the screen in a 1:1 call
+/// (WebRtcCallMedia implements it; fakes may). The screen replaces the
+/// outgoing video (or is added as the first video, then renegotiated).
+abstract class ScreenShareMedia {
+  /// Returns true when a NEW video sender was added (renegotiation needed).
+  Future<bool> startScreen();
+
+  /// Stop sharing; back to the camera when [camera] is true, else no video.
+  Future<void> stopScreen({required bool camera});
 }
 
 /// The server refused a mid-call video request (plan gate). Thrown by
@@ -357,6 +371,21 @@ class CallController extends ChangeNotifier {
   /// b1: the audio output in use and what is available (route picker).
   late AudioRoute route = video ? AudioRoute.speaker : AudioRoute.earpiece;
   List<AudioRoute> routes = const [];
+
+  /// b3-group B4: I am sharing my screen / the other person is.
+  bool screenSharing = false;
+  bool remoteScreen = false;
+  bool screenShareAvailable = false;
+  ScreenShareHost? screenHost;
+
+  /// b3-group: the other phone added people — this 1:1 call moves to the
+  /// group room [sfuMoveRoom] (the screen switches to the group call; the
+  /// server ends this P2P call once we joined the room).
+  String? sfuMoveRoom;
+  String sfuMoveKind = 'voice';
+
+  /// b3-group B5: consented recording of this call (screen attaches it).
+  RecordingSession? recording;
 
   CallQuality quality = CallQuality.unknown;
   MediaStats lastStats = const MediaStats();
@@ -688,8 +717,25 @@ class CallController extends ChangeNotifier {
         case 'media':
           remoteCameraOn = data['camera'] != false;
           remoteMicOn = data['mic'] != false;
+          remoteScreen = data['screen'] == true;
           notifyListeners();
           break;
+        // ---- b3-group: moved to a group room / recording consent --------
+        case 'sfu_move':
+          final room = '${data['room'] ?? ''}';
+          if (room.isNotEmpty && isLive) {
+            sfuMoveKind = '${data['kind'] ?? 'voice'}';
+            sfuMoveRoom = room;
+            log.add('sfu-move:$room');
+            notifyListeners();
+          }
+          break;
+        case 'record_state':
+          await recording?.apply(data);
+          break;
+        case 'screen_start':
+        case 'screen_stop':
+          break; // the media state carries it
         // ---- b1-calls: voice <-> video + reconnect -----------------------
         case 'video_request':
           await _onVideoRequest();
@@ -1038,8 +1084,12 @@ class CallController extends ChangeNotifier {
     final id = callId;
     if (id == null || isEnded) return;
     try {
-      await signaling.signal(id, 'media',
-          {'camera': videoOn && cameraOn, 'mic': !muted, 'video': videoOn});
+      await signaling.signal(id, 'media', {
+        'camera': videoOn && cameraOn,
+        'mic': !muted,
+        'video': videoOn,
+        if (screenSharing) 'screen': true,
+      });
     } catch (e) {
       callLog('call_controller#18', e);
     }
@@ -1292,6 +1342,57 @@ class CallController extends ChangeNotifier {
     if (was) _notify(CallNotice.remoteSwitchedToVoice);
   }
 
+  // ------------------------------------------------- b3-group B4: screen
+  /// Share my screen with the other person (or stop). In a VOICE call the
+  /// server runs the same plan gate as switching to video first
+  /// (`screen_start`, 402 -> "needs Premium"; lifted by Free calls).
+  Future<void> toggleScreenShare() async {
+    final m = media;
+    if (!isLive || m is! ScreenShareMedia) return;
+    final sm = m as ScreenShareMedia;
+    if (screenSharing) {
+      screenSharing = false;
+      notifyListeners();
+      try {
+        await sm.stopScreen(camera: videoOn && cameraOn);
+      } catch (e) {
+        callLog('call_controller#40', e);
+      }
+      unawaited(signaling
+          .signal(callId!, 'screen_stop', const {})
+          .catchError((Object _) {}));
+      unawaited(_sendMediaState());
+      await screenHost?.end();
+      return;
+    }
+    final host = screenHost;
+    if (host == null || !screenShareAvailable) return;
+    try {
+      await signaling.signal(callId!, 'screen_start', const {});
+    } on CallUpgradeRequired {
+      _notify(CallNotice.videoPremium);
+      return;
+    } catch (e) {
+      callLog('call_controller#41', e);
+    }
+    if (!await host.begin()) {
+      log.add('screen:declined');
+      return;
+    }
+    try {
+      final reneg = await sm.startScreen();
+      screenSharing = true;
+      log.add('screen:on');
+      notifyListeners();
+      if (reneg) await _renegotiateOrAsk();
+      unawaited(_sendMediaState());
+    } catch (e) {
+      log.add('screen:failed:$e');
+      await host.end();
+      _notify(CallNotice.screenShareFailed);
+    }
+  }
+
   /// The red button. Before connect: caller cancels; callee hangs up.
   Future<void> hangup() => _hangupWith(
       isLive || !outgoing ? 'hangup' : 'cancel', CallEndReason.hangup);
@@ -1322,6 +1423,15 @@ class CallController extends ChangeNotifier {
       await sounds.setProximity(false);
     } catch (e) {
       callLog('call_controller#11', e);
+    }
+    try {
+      await recording?.close();
+    } catch (e) {
+      callLog('call_controller#42', e);
+    }
+    if (screenSharing) {
+      screenSharing = false;
+      unawaited(screenHost?.end());
     }
     await _closeMedia();
     if (!_disposed) notifyListeners();

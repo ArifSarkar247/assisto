@@ -568,7 +568,7 @@ def _produce_call(request, topic, payload):
     verdict = CS.validate_signal(kind, len(json.dumps(data, default=str)), sent)
     if verdict != "ok":
         return {"detail": verdict, "code": verdict}, 422
-    if kind == "video_request" and rec.kind != "video":
+    if kind in ("video_request", "screen_start") and rec.kind != "video":
         # b1-calls: switching a voice call to video runs THE SAME plan gate
         # as placing a video call, for the person asking (the one who
         # accepts may be free). "Free calls (testing)" lifts it (entitle()).

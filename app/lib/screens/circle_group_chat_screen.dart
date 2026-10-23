@@ -12,6 +12,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../api.dart';
+import '../calls/api_group_calls.dart'; // b3-group
 import '../config.dart';
 import '../crypto/e2e.dart';
 import '../crypto/key_service.dart';
@@ -40,6 +41,7 @@ import '../messaging/c3_api.dart';
 import '../messaging/msg_notify.dart';
 import '../messaging/msg_ticks.dart';
 import '../messaging/msg_widgets.dart';
+import 'group_call_screen.dart' show startGroupChatCall; // b3-group
 import '../messaging/presence_label.dart';
 import '../messaging/unread_store.dart';
 import '../realtime/realtime_channel.dart';
@@ -139,6 +141,10 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     _rt.states.addListener(_onRt);
     _scroll.addListener(_onScroll);
     _load().then((_) => _markSeen());
+    // b3-group: the call buttons appear only when group calls really work
+    GroupCallConfig.available.addListener(_onGroupCalls);
+    unawaited(GroupCallConfig.refresh(context.read<AppState>().api)
+        .catchError((Object _) => false));
     _poll = Timer.periodic(const Duration(seconds: 8), (_) => _pollMessages());
     // md1: media sends of this group (progress ring) + decrypted-file dir.
     MediaOutbox.instance.identity ??= () async => widget.identity;
@@ -347,8 +353,13 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   }
   // ---- /x2-ticks ----
 
+  void _onGroupCalls() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
+    GroupCallConfig.available.removeListener(_onGroupCalls);
     if (MsgActiveChat.current == _chatKey) MsgActiveChat.current = null;
     _poll?.cancel();
     MediaOutbox.instance.changes.removeListener(_onMediaJobs);
@@ -692,6 +703,16 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   }
 
   Future<void> _call(String kind) async {
+    // b3-group: a REAL group call on our LiveKit SFU (the server gates group
+    // video: Premium initiator unless "Free calls (testing)" is on). The
+    // buttons only exist while GroupCallConfig.available.
+    if (GroupCallConfig.available.value) {
+      await startGroupChatCall(context,
+          groupId: int.tryParse(_groupId) ?? 0,
+          name: '${widget.group['name'] ?? ''}',
+          video: kind == 'video');
+      return;
+    }
     // Group VOICE is free; group VIDEO requires a Premium initiator. The server
     // is the authority (can_place_group_call); the client shows the result.
     try {
@@ -812,7 +833,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   // -------------------------------------------------------------------------
   Future<void> _openMenu() async {
     final action =
-        await showGroupMenuSheet(context, isFavourite: _isFavourite);
+        await showGroupMenuSheet(context,
+            isFavourite: _isFavourite,
+            groupCalls: GroupCallConfig.available.value);
     if (action == null || !mounted) return;
     switch (action) {
       case GroupMenuAction.groupInfo:
@@ -842,7 +865,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       case GroupMenuAction.scheduleCall:
         await _scheduleCall();
       case GroupMenuAction.newGroupCall:
-        await _call('video'); // group video = Premium-gated at placement
+        await _call('voice'); // b3: voice for all; video from the header
       case GroupMenuAction.summarise:
         await _aiTask('summarise', _t.grpSummariseTitle);
       case GroupMenuAction.makeReminder:
@@ -1307,16 +1330,21 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           onTap: _openInfo,
         ),
         actions: [
-          IconButton(
-            tooltip: _t.circleGroupVoiceCall,
-            icon: const Icon(Icons.call_outlined),
-            onPressed: () => _call('voice'),
-          ),
-          IconButton(
-            tooltip: _t.circleGroupVideoCall,
-            icon: const Icon(Icons.videocam_outlined),
-            onPressed: () => _call('video'),
-          ),
+          // b3-group: hidden until group calls really work (SFU installed)
+          if (GroupCallConfig.available.value) ...[
+            IconButton(
+              key: const Key('group-chat-voice-call'),
+              tooltip: _t.circleGroupVoiceCall,
+              icon: const Icon(Icons.call_outlined),
+              onPressed: () => _call('voice'),
+            ),
+            IconButton(
+              key: const Key('group-chat-video-call'),
+              tooltip: _t.circleGroupVideoCall,
+              icon: const Icon(Icons.videocam_outlined),
+              onPressed: () => _call('video'),
+            ),
+          ],
           IconButton(
             tooltip: _t.grpMenuMore,
             icon: const Icon(Icons.more_vert),

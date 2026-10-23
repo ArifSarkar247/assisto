@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 import 'call_controller.dart';
+import 'call_recording.dart';
 import 'call_video.dart';
 import 'call_log.dart';
+import 'group_call.dart' show ScreenShareHost;
+import 'webrtc_extras.dart';
 
 /// [CallMedia] on flutter_webrtc — the ONLY call file that touches the
 /// plugin. Loaded with `deferred as` from the call screen, so no WebRTC code
@@ -14,7 +17,7 @@ import 'call_log.dart';
 /// Audio: Android "communication" mode (echo cancellation, earpiece by
 /// default, Bluetooth headsets routed by the plugin's audio switch). Speaker
 /// ON prefers a connected Bluetooth headset (WhatsApp behaviour).
-class WebRtcCallMedia implements CallMedia, CallVideoSurface {
+class WebRtcCallMedia implements CallMedia, CallVideoSurface, ScreenShareMedia {
   RTCPeerConnection? _pc;
   MediaStream? _local;
   final RTCVideoRenderer localRenderer = RTCVideoRenderer();
@@ -151,6 +154,61 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
       if (_renderersReady) localRenderer.srcObject = null;
     } catch (e) {
       callLog('webrtc_media#9', e);
+    }
+  }
+
+  // ------------------------------------------------ b3-group B4: screen
+  MediaStream? _screen;
+
+  /// The caller already got the MediaProjection consent + the foreground
+  /// service (NativeScreenShareHost); getDisplayMedia then reuses that
+  /// consent. The screen REPLACES the camera on the video sender (or becomes
+  /// the first video track, then the caller renegotiates).
+  @override
+  Future<bool> startScreen() async {
+    final pc = _peer;
+    final s = await navigator.mediaDevices
+        .getDisplayMedia({'video': true, 'audio': false});
+    final tracks = s.getVideoTracks();
+    if (tracks.isEmpty) {
+      await s.dispose();
+      throw MediaOpenException(false, 'no screen track');
+    }
+    await _stopScreenStream();
+    _screen = s;
+    final sender = _videoSender;
+    if (sender != null) {
+      await sender.replaceTrack(tracks.first);
+      return false;
+    }
+    final local = _local;
+    _videoSender = local != null
+        ? await pc.addTrack(tracks.first, local)
+        : await pc.addTrack(tracks.first, s);
+    return true;
+  }
+
+  @override
+  Future<void> stopScreen({required bool camera}) async {
+    try {
+      await _videoSender?.replaceTrack(camera ? _videoTrack : null);
+    } catch (e) {
+      callLog('webrtc_media#20', e);
+    }
+    await _stopScreenStream();
+  }
+
+  Future<void> _stopScreenStream() async {
+    final s = _screen;
+    _screen = null;
+    if (s == null) return;
+    try {
+      for (final t in s.getTracks()) {
+        await t.stop();
+      }
+      await s.dispose();
+    } catch (e) {
+      callLog('webrtc_media#21', e);
     }
   }
 
@@ -401,6 +459,7 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
 
   @override
   Future<void> dispose() async {
+    await _stopScreenStream();
     await _releaseCamera();
     _videoSender = null;
     try {
@@ -439,3 +498,13 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
 
 /// Factory used through the deferred import.
 CallMedia createWebRtcCallMedia() => WebRtcCallMedia();
+
+/// b3-group B4/B5 helpers, reachable only through this deferred library.
+ScreenShareHost createScreenShareHost(
+        {required String channelName,
+        required String title,
+        required String text}) =>
+    NativeScreenShareHost(channelName: channelName, title: title, text: text);
+
+CallRecorderEngine? createRecorderEngine() =>
+    recorderSupported() ? WebRtcCallRecorder() : null;

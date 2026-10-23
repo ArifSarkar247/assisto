@@ -39,6 +39,9 @@ enum GroupMenuAction {
 Future<GroupMenuAction?> showGroupMenuSheet(
   BuildContext context, {
   required bool isFavourite,
+  // b3-group: "New group call" only when group calls really work (the SFU
+  // is installed); hidden otherwise — never a dead tap.
+  bool groupCalls = true,
 }) {
   final t = AppLocalizations.of(context);
   return showModalBottomSheet<GroupMenuAction>(
@@ -80,8 +83,9 @@ Future<GroupMenuAction?> showGroupMenuSheet(
                 GroupMenuAction.sendCallLink),
             _item(ctx, Icons.schedule_outlined, t.grpMenuScheduleCall,
                 GroupMenuAction.scheduleCall),
-            _item(ctx, Icons.video_call_outlined, t.grpMenuNewGroupCall,
-                GroupMenuAction.newGroupCall),
+            if (groupCalls)
+              _item(ctx, Icons.video_call_outlined, t.grpMenuNewGroupCall,
+                  GroupMenuAction.newGroupCall),
             const Divider(height: 1),
             // Assisto extras — AI runs only on already-decrypted messages.
             _item(ctx, Icons.auto_awesome_outlined, t.grpMenuSummarise,

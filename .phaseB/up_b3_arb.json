@@ -1,0 +1,285 @@
+{
+ "en": {
+  "b3AddPeople": "Add people",
+  "b3CamOffParticipant": "Turn off {name}'s camera",
+  "@b3CamOffParticipant": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "b3Cancel": "Cancel",
+  "b3Close": "Close",
+  "b3Delete": "Delete",
+  "b3DeleteConfirm": "Delete this recording? It can't be brought back.",
+  "b3Encrypted": "Encrypted on the way · through Assisto's call server",
+  "b3EndedEnded": "The group call has ended",
+  "b3EndedFailed": "The call dropped. You can rejoin while it lasts.",
+  "b3EndedFull": "This call is full ({max} people)",
+  "@b3EndedFull": {
+   "placeholders": {
+    "max": {
+     "type": "int",
+     "format": "decimalPattern"
+    }
+   }
+  },
+  "b3EndedLeft": "You left the call",
+  "b3EndedMic": "Assisto needs the microphone for calls. Allow it in Settings.",
+  "b3EndedNetwork": "Couldn't reach Assisto. Please check your internet.",
+  "b3EndedRemoved": "The host removed you from this call",
+  "b3EndedUpgrade": "Group video calls need Premium. Group voice calls are free.",
+  "b3Grid": "Grid",
+  "b3GroupCallTitle": "Group call",
+  "b3GroupVideo": "Group video call",
+  "b3GroupVoice": "Group voice call",
+  "b3Host": "Host",
+  "b3HostActionFailed": "That didn't work. Please try again.",
+  "b3Incoming": "{name} invites you to a group call",
+  "@b3Incoming": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "b3InviteFailed": "Couldn't add them. Please try again.",
+  "b3InviteSent": "Calling them now…",
+  "b3Join": "Join",
+  "b3Joining": "Joining the call…",
+  "b3Leave": "Leave",
+  "b3LeaveConfirmBody": "The others stay in the call. You can rejoin while it lasts.",
+  "b3LeaveConfirmTitle": "Leave the call?",
+  "b3MicOff": "mic off",
+  "b3More": "More",
+  "b3MuteParticipant": "Mute {name}",
+  "@b3MuteParticipant": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "b3MutedByHost": "The host muted you. Tap the mic to talk again.",
+  "b3PeopleCount": "{n} of {max} people",
+  "@b3PeopleCount": {
+   "placeholders": {
+    "n": {
+     "type": "int",
+     "format": "decimalPattern"
+    },
+    "max": {
+     "type": "int",
+     "format": "decimalPattern"
+    }
+   }
+  },
+  "b3PickAdd": "Add to the call ({n})",
+  "@b3PickAdd": {
+   "placeholders": {
+    "n": {
+     "type": "int",
+     "format": "decimalPattern"
+    }
+   }
+  },
+  "b3PickHint": "Pick up to {n} people from My Circle. They will ring.",
+  "@b3PickHint": {
+   "placeholders": {
+    "n": {
+     "type": "int",
+     "format": "decimalPattern"
+    }
+   }
+  },
+  "b3PickLoadFailed": "Couldn't load My Circle. Please try again.",
+  "b3PickNone": "No one else in My Circle to add yet.",
+  "b3PickTitle": "Add people to the call",
+  "b3Play": "Play",
+  "b3RecordAllow": "Allow",
+  "b3RecordAskBody": "Recording starts only if everyone agrees, and everyone sees a Recording sign. Only {name}'s phone keeps the recording.",
+  "@b3RecordAskBody": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "b3RecordAskEveryone": "Ask everyone",
+  "b3RecordAskTitle": "{name} wants to record this call",
+  "@b3RecordAskTitle": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "b3RecordCall": "Record call",
+  "b3RecordConfirmBody": "Everyone in the call will be asked. Recording starts only when all of them allow it, and everyone sees a Recording sign the whole time. Only the sound is recorded, and it is kept encrypted on this phone only.",
+  "b3RecordConfirmTitle": "Record this call?",
+  "b3RecordDecline": "Don't allow",
+  "b3RecordDeclinedNotice": "Not everyone agreed, so recording is off.",
+  "b3RecordFailed": "The recording couldn't be saved.",
+  "b3RecordRequestFailed": "Couldn't reach Assisto for the recording request.",
+  "b3RecordSaved": "Recording saved on this phone (encrypted).",
+  "b3RecordWaiting": "Waiting for everyone to allow the recording…",
+  "b3RecordingBy": "Recording — {name} is recording this call (everyone agreed)",
+  "@b3RecordingBy": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "b3RecordingPaused": "Recording paused until everyone who joined allows it",
+  "b3RecordingShareText": "Call recording: {title}",
+  "@b3RecordingShareText": {
+   "placeholders": {
+    "title": {
+     "type": "String"
+    }
+   }
+  },
+  "b3RecordingTracksNote": "Your voice and the others' voices are saved as two tracks that play together.",
+  "b3RecordingWith": "With {names}",
+  "@b3RecordingWith": {
+   "placeholders": {
+    "names": {
+     "type": "String"
+    }
+   }
+  },
+  "b3RecordingYou": "Recording — everyone agreed. Only your phone keeps it.",
+  "b3RecordingsEmpty": "No recordings yet. A call is recorded only when everyone in it agrees.",
+  "b3RecordingsNote": "Kept encrypted on this phone only. Nobody else — not even Assisto — can open them.",
+  "b3RecordingsTitle": "Call recordings",
+  "b3Rejoin": "Rejoin",
+  "b3RemoteSharing": "{name} is sharing their screen",
+  "@b3RemoteSharing": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "b3Remove": "Remove",
+  "b3RemoveConfirm": "Remove {name} from the call?",
+  "@b3RemoveConfirm": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "b3RemoveParticipant": "Remove {name} from the call",
+  "@b3RemoveParticipant": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "b3Ringing": "Ringing…",
+  "b3ScreenFgsText": "Assisto call — your screen is being shared",
+  "b3ScreenFgsTitle": "Sharing your screen",
+  "b3ScreenOn": "sharing the screen",
+  "b3ScreenShareFailed": "Screen sharing couldn't start. Your call goes on.",
+  "b3ScreenSharePremium": "Screen sharing needs Premium. Your call goes on.",
+  "b3Share": "Share",
+  "b3ShareScreen": "Share screen",
+  "b3SharingBanner": "You are sharing your screen",
+  "b3SpeakerView": "Speaker view",
+  "b3Stay": "Stay",
+  "b3Stop": "Stop",
+  "b3StopRecording": "Stop recording",
+  "b3StopSharing": "Stop sharing",
+  "b3Unavailable": "Group calls are not available right now. Please try again later.",
+  "b3You": "You"
+ },
+ "bn": {
+  "b3AddPeople": "লোক যোগ করুন",
+  "b3CamOffParticipant": "{name}-এর ক্যামেরা বন্ধ করুন",
+  "b3Cancel": "বাতিল",
+  "b3Close": "বন্ধ করুন",
+  "b3Delete": "মুছুন",
+  "b3DeleteConfirm": "এই রেকর্ডিংটি মুছবেন? এটি আর ফেরত আনা যাবে না।",
+  "b3Encrypted": "পথে এনক্রিপ্টেড · Assisto-র কল সার্ভারের মাধ্যমে",
+  "b3EndedEnded": "গ্রুপ কলটি শেষ হয়েছে",
+  "b3EndedFailed": "কলটি কেটে গেছে। কল চলা পর্যন্ত আবার যোগ দিতে পারবেন।",
+  "b3EndedFull": "এই কলে আর জায়গা নেই ({max} জন)",
+  "b3EndedLeft": "আপনি কল থেকে বেরিয়ে এসেছেন",
+  "b3EndedMic": "কলের জন্য Assisto-র মাইক্রোফোন লাগবে। সেটিংসে অনুমতি দিন।",
+  "b3EndedNetwork": "Assisto-তে পৌঁছানো যায়নি। ইন্টারনেট সংযোগ দেখে নিন।",
+  "b3EndedRemoved": "হোস্ট আপনাকে এই কল থেকে সরিয়ে দিয়েছেন",
+  "b3EndedUpgrade": "গ্রুপ ভিডিও কলের জন্য প্রিমিয়াম লাগবে। গ্রুপ ভয়েস কল ফ্রি।",
+  "b3Grid": "গ্রিড",
+  "b3GroupCallTitle": "গ্রুপ কল",
+  "b3GroupVideo": "গ্রুপ ভিডিও কল",
+  "b3GroupVoice": "গ্রুপ ভয়েস কল",
+  "b3Host": "হোস্ট",
+  "b3HostActionFailed": "কাজটি হয়নি। আবার চেষ্টা করুন।",
+  "b3Incoming": "{name} আপনাকে গ্রুপ কলে ডাকছেন",
+  "b3InviteFailed": "যোগ করা যায়নি। আবার চেষ্টা করুন।",
+  "b3InviteSent": "তাঁদের কল করা হচ্ছে…",
+  "b3Join": "যোগ দিন",
+  "b3Joining": "কলে যোগ দেওয়া হচ্ছে…",
+  "b3Leave": "বেরিয়ে যান",
+  "b3LeaveConfirmBody": "অন্যরা কলে থাকবেন। কল চলা পর্যন্ত আবার যোগ দিতে পারবেন।",
+  "b3LeaveConfirmTitle": "কল থেকে বেরিয়ে যাবেন?",
+  "b3MicOff": "মাইক বন্ধ",
+  "b3More": "আরও",
+  "b3MuteParticipant": "{name}-এর মাইক বন্ধ করুন",
+  "b3MutedByHost": "হোস্ট আপনার মাইক বন্ধ করেছেন। কথা বলতে মাইকে চাপুন।",
+  "b3PeopleCount": "{max} জনের মধ্যে {n} জন",
+  "b3PickAdd": "কলে যোগ করুন ({n})",
+  "b3PickHint": "মাই সার্কেল থেকে সর্বোচ্চ {n} জন বেছে নিন। তাঁদের ফোনে রিং হবে।",
+  "b3PickLoadFailed": "মাই সার্কেল লোড করা যায়নি। আবার চেষ্টা করুন।",
+  "b3PickNone": "যোগ করার মতো আর কেউ এখনো মাই সার্কেলে নেই।",
+  "b3PickTitle": "কলে লোক যোগ করুন",
+  "b3Play": "শুনুন",
+  "b3RecordAllow": "অনুমতি দিন",
+  "b3RecordAskBody": "সবাই রাজি হলেই কেবল রেকর্ডিং শুরু হবে, আর সবাই \"রেকর্ড হচ্ছে\" চিহ্ন দেখবেন। রেকর্ডিং থাকবে শুধু {name}-এর ফোনে।",
+  "b3RecordAskEveryone": "সবার অনুমতি চান",
+  "b3RecordAskTitle": "{name} এই কলটি রেকর্ড করতে চান",
+  "b3RecordCall": "কল রেকর্ড করুন",
+  "b3RecordConfirmBody": "কলের সবার অনুমতি চাওয়া হবে। সবাই অনুমতি দিলে তবেই রেকর্ডিং শুরু হবে, আর পুরো সময় সবাই \"রেকর্ড হচ্ছে\" চিহ্ন দেখবেন। শুধু শব্দ রেকর্ড হবে, আর তা এনক্রিপ্ট করে শুধু এই ফোনেই রাখা হবে।",
+  "b3RecordConfirmTitle": "এই কলটি রেকর্ড করবেন?",
+  "b3RecordDecline": "অনুমতি দেবেন না",
+  "b3RecordDeclinedNotice": "সবাই রাজি হননি, তাই রেকর্ডিং বন্ধ।",
+  "b3RecordFailed": "রেকর্ডিং সেভ করা যায়নি।",
+  "b3RecordRequestFailed": "রেকর্ডিংয়ের অনুরোধ পাঠাতে Assisto-তে পৌঁছানো যায়নি।",
+  "b3RecordSaved": "রেকর্ডিং এই ফোনে সেভ হয়েছে (এনক্রিপ্টেড)।",
+  "b3RecordWaiting": "রেকর্ডিংয়ের জন্য সবার অনুমতির অপেক্ষা…",
+  "b3RecordingBy": "রেকর্ড হচ্ছে — {name} এই কলটি রেকর্ড করছেন (সবাই রাজি)",
+  "b3RecordingPaused": "যাঁরা যোগ দিয়েছেন তাঁরা সবাই অনুমতি না দেওয়া পর্যন্ত রেকর্ডিং থেমে আছে",
+  "b3RecordingShareText": "কল রেকর্ডিং: {title}",
+  "b3RecordingTracksNote": "আপনার কণ্ঠ আর অন্যদের কণ্ঠ দুটি আলাদা ট্র্যাকে সেভ হয়, একসাথে বাজে।",
+  "b3RecordingWith": "সাথে: {names}",
+  "b3RecordingYou": "রেকর্ড হচ্ছে — সবাই রাজি। রেকর্ডিং থাকবে শুধু আপনার ফোনে।",
+  "b3RecordingsEmpty": "এখনো কোনো রেকর্ডিং নেই। কলের সবাই রাজি হলেই কেবল কল রেকর্ড হয়।",
+  "b3RecordingsNote": "শুধু এই ফোনে এনক্রিপ্ট করে রাখা। আর কেউ — Assisto-ও না — এগুলো খুলতে পারে না।",
+  "b3RecordingsTitle": "কল রেকর্ডিং",
+  "b3Rejoin": "আবার যোগ দিন",
+  "b3RemoteSharing": "{name} স্ক্রিন শেয়ার করছেন",
+  "b3Remove": "সরিয়ে দিন",
+  "b3RemoveConfirm": "{name}-কে কল থেকে সরিয়ে দেবেন?",
+  "b3RemoveParticipant": "{name}-কে কল থেকে সরিয়ে দিন",
+  "b3Ringing": "রিং হচ্ছে…",
+  "b3ScreenFgsText": "Assisto কল — আপনার স্ক্রিন শেয়ার হচ্ছে",
+  "b3ScreenFgsTitle": "স্ক্রিন শেয়ার চলছে",
+  "b3ScreenOn": "স্ক্রিন শেয়ার করছেন",
+  "b3ScreenShareFailed": "স্ক্রিন শেয়ার শুরু করা যায়নি। আপনার কল চলছে।",
+  "b3ScreenSharePremium": "স্ক্রিন শেয়ারের জন্য প্রিমিয়াম লাগবে। আপনার কল চলছে।",
+  "b3Share": "শেয়ার",
+  "b3ShareScreen": "স্ক্রিন শেয়ার করুন",
+  "b3SharingBanner": "আপনি আপনার স্ক্রিন শেয়ার করছেন",
+  "b3SpeakerView": "বক্তার ভিউ",
+  "b3Stay": "থাকুন",
+  "b3Stop": "থামান",
+  "b3StopRecording": "রেকর্ডিং বন্ধ করুন",
+  "b3StopSharing": "শেয়ার বন্ধ করুন",
+  "b3Unavailable": "গ্রুপ কল এখন চালু নেই। পরে আবার চেষ্টা করুন।",
+  "b3You": "আপনি"
+ }
+}

@@ -7,6 +7,10 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 import '../calls/api_call_signaling.dart';
+import '../calls/api_group_calls.dart';
+import '../calls/call_banners.dart';
+import '../calls/call_recording.dart';
+import '../calls/circle_pick_sheet.dart';
 import '../calls/call_avatar.dart';
 import '../calls/call_controller.dart';
 import '../calls/call_keepalive.dart';
@@ -20,6 +24,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/robo_id.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits; // qa1
+import 'group_call_screen.dart';
 
 /// My Circle 1:1 voice / video call — REAL media (c2-calls).
 ///
@@ -69,6 +74,13 @@ class CircleCallScreen extends StatefulWidget {
 
   /// b1: how the mini call bar re-opens a minimized call.
   static void registerReopen() {
+    CallRuntime.instance.openGroupFor ??= (nav, o, room) => nav.push(
+        MaterialPageRoute<void>(
+            builder: (_) => GroupCallScreen(
+                room: room,
+                video: o.controller.sfuMoveKind == 'video',
+                title: o.name,
+                handover: o.controller)));
     CallRuntime.instance.reopenCall ??= (nav, o) => nav.push(
         MaterialPageRoute<void>(
             builder: (_) => CircleCallScreen(
@@ -102,6 +114,11 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   bool _handedOff = false;
   int _noticeSeq = 0;
   CallNotice _noticeShown = CallNotice.none;
+
+  /// b3-group: this 1:1 call is moving to a group room (add people).
+  bool _movingToGroup = false;
+  int _recSeq = 0;
+  RecordNotice _recNotice = RecordNotice.none;
   Timer? _noticeTimer;
   bool? _screenOnSent;
 
@@ -192,6 +209,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       callId: _outgoing ? null : widget.callId,
     );
     _attach(c, media is CallVideoSurface ? media as CallVideoSurface : null);
+    _wireExtras(c, app);
     if (_startsVideo) unawaited(CallNative.keepScreenOn(true));
     unawaited(CallNative.pipSupported().then((v) {
       if (mounted) setState(() => _pipSupported = v);
@@ -199,10 +217,46 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     await c.start();
   }
 
+  /// b3-group: screen share (B4) + consented recording (B5) for a REAL call
+  /// (never for gallery/test controllers, which bring their own).
+  void _wireExtras(CallController c, AppState app) {
+    final t = _t;
+    try {
+      c.screenHost = rtc.createScreenShareHost(
+          channelName: t.c2ChOngoing,
+          title: t.b3ScreenFgsTitle,
+          text: t.b3ScreenFgsText);
+      unawaited(c.screenHost!.supported().then((v) {
+        c.screenShareAvailable = v;
+        if (mounted) setState(() {});
+      }));
+    } catch (e) {
+      c.screenHost = null;
+    }
+    CallRecorderEngine? engine;
+    try {
+      engine = rtc.createRecorderEngine();
+    } catch (_) {
+      engine = null;
+    }
+    c.recording = RecordingSession(
+      send: (a) =>
+          app.api.postJson('/circle/calls/${c.callId}/record', {'action': a}),
+      engine: engine,
+      title: _name,
+      people: [_name],
+    );
+    c.recording!.addListener(_onChange);
+    unawaited(GroupCallConfig.refresh(app.api).then((_) {
+      if (mounted) setState(() {});
+    }));
+  }
+
   void _attach(CallController c, CallVideoSurface? s, {bool initial = false}) {
     _c = c;
     _surface = s;
     c.addListener(_onChange);
+    if (initial) c.recording?.addListener(_onChange);
     s?.hasRemoteVideo.addListener(_onChange);
     _ticker?.cancel();
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
@@ -258,6 +312,20 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     final c = _c;
     if (c == null || !mounted) return;
     _syncNotice(c);
+    final rec = c.recording;
+    if (rec != null && rec.noticeSeq != _recSeq) {
+      _recSeq = rec.noticeSeq;
+      _recNotice = rec.notice;
+      Timer(const Duration(seconds: 5), () {
+        if (mounted) setState(() => _recNotice = RecordNotice.none);
+      });
+    }
+    // b3-group: the other phone added people -> this call becomes that room
+    final room = c.sfuMoveRoom;
+    if (room != null && _owns && !_movingToGroup && c.isLive) {
+      _moveToGroup(c, room: room, video: c.sfuMoveKind == 'video');
+      return;
+    }
     if (_owns) {
       // b1: video mode keeps the screen on and allows Home -> PiP
       final screenOn = c.videoOn && !c.isEnded;
@@ -297,6 +365,110 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     setState(() {});
   }
 
+  /// b3-group: hand this live 1:1 call to the group call screen. The
+  /// P2P call keeps running until the room is connected, then the group
+  /// screen hangs it up (no gap where nobody hears anyone).
+  void _moveToGroup(CallController c,
+      {String? room, List<int> memberIds = const [], bool video = false}) {
+    if (_movingToGroup || !mounted) return;
+    _movingToGroup = true;
+    _handedOff = true;
+    _owns = false;
+    _closed = true;
+    c.removeListener(_onChange);
+    c.recording?.removeListener(_onChange);
+    CallRuntime.instance.releaseScreen(this);
+    if (CallRuntime.instance.activeCallId == c.callId) {
+      CallRuntime.instance.activeCallId = null;
+    }
+    unawaited(CallNative.setAutoPip(false));
+    unawaited(openGroupCall(context,
+        room: room,
+        callId: room == null ? c.callId : null,
+        memberIds: memberIds,
+        video: video,
+        title: _name,
+        replace: true,
+        handover: c));
+  }
+
+  Future<void> _addPeople(CallController c) async {
+    final app = context.read<AppState>();
+    if (!await GroupCallConfig.refresh(app.api) || !mounted) return;
+    final mid = widget.member['id'];
+    final ids = await pickCirclePeople(context,
+        api: app.api,
+        exclude: {if (mid is int) mid},
+        max: (GroupCallConfig.maxParticipants - 2).clamp(1, 14));
+    if (ids == null || ids.isEmpty || !mounted || !c.isLive) return;
+    _moveToGroup(c, memberIds: ids, video: c.videoOn);
+  }
+
+  Future<void> _more(CallController c) async {
+    final t = _t;
+    final rec = c.recording;
+    final consent = rec?.consent ?? const RecordingConsent();
+    final a = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          if (GroupCallConfig.available.value)
+            ListTile(
+              key: const Key('call-add-people'),
+              leading: const Icon(Icons.person_add_alt_1_outlined),
+              title: Text(t.b3AddPeople),
+              onTap: () => Navigator.pop(ctx, 'add'),
+            ),
+          if (c.screenShareAvailable)
+            ListTile(
+              key: const Key('call-share-screen'),
+              leading: Icon(c.screenSharing
+                  ? Icons.stop_screen_share_outlined
+                  : Icons.screen_share_outlined),
+              title:
+                  Text(c.screenSharing ? t.b3StopSharing : t.b3ShareScreen),
+              onTap: () => Navigator.pop(ctx, 'screen'),
+            ),
+          if (rec != null && rec.engine != null && !consent.open)
+            ListTile(
+              key: const Key('call-record'),
+              leading: const Icon(Icons.fiber_manual_record_outlined,
+                  color: Brand.danger),
+              title: Text(t.b3RecordCall),
+              onTap: () => Navigator.pop(ctx, 'record'),
+            ),
+          if (rec != null && consent.open)
+            ListTile(
+              key: const Key('call-record-stop'),
+              leading: const Icon(Icons.stop_circle_outlined),
+              title: Text(t.b3StopRecording),
+              onTap: () => Navigator.pop(ctx, 'record-stop'),
+            ),
+        ]),
+      ),
+    );
+    if (!mounted || a == null) return;
+    switch (a) {
+      case 'add':
+        await _addPeople(c);
+      case 'screen':
+        await c.toggleScreenShare();
+      case 'record':
+        if (await confirmRecordRequest(context)) await rec?.request();
+      case 'record-stop':
+        await rec?.stop();
+    }
+  }
+
+  /// Is anything in the "More" sheet really available (else no button).
+  bool _hasMore(CallController c) {
+    final rec = c.recording;
+    return GroupCallConfig.available.value ||
+        c.screenShareAvailable ||
+        (rec != null && (rec.engine != null || rec.consent.open));
+  }
+
   void _close() {
     if (_closed || !mounted) return;
     _closed = true;
@@ -334,6 +506,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     if (_owns) unawaited(CallNative.setAutoPip(false));
     if (c != null) {
       c.removeListener(_onChange);
+      c.recording?.removeListener(_onChange);
       if (_owns) {
         if (CallRuntime.instance.activeCallId == c.callId) {
           CallRuntime.instance.activeCallId = null;
@@ -419,12 +592,12 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       return _gateScreen(Theme.of(context).colorScheme);
     }
     final surface = _surface;
-    final remoteVideo = _isVideo &&
-        c != null &&
+    final remoteVideo = c != null &&
         c.isLive &&
-        c.remoteCameraOn &&
         surface != null &&
-        surface.hasRemoteVideo.value;
+        surface.hasRemoteVideo.value &&
+        // b3 B4: the other person's SCREEN shows even in a voice call
+        ((_isVideo && c.remoteCameraOn) || c.remoteScreen);
     if (_pip) {
       return Scaffold(
         backgroundColor: Colors.black,
@@ -443,7 +616,11 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       );
     }
     final live = c != null && c.isLive;
-    final showSelf = _isVideo && c != null && !c.isEnded && surface != null;
+    final showSelf = _isVideo &&
+        c != null &&
+        !c.isEnded &&
+        !c.screenSharing &&
+        surface != null;
     return Scaffold(
       backgroundColor: Brand.ink,
       body: Stack(
@@ -476,6 +653,22 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
             child: Column(
               children: [
                 _topBar(c),
+                if (c != null && c.screenSharing)
+                  ScreenShareBanner(
+                      onStop: () => unawaited(c.toggleScreenShare())),
+                if (c != null && live && (c.recording?.consent.open ?? false))
+                  RecordingBanner(
+                      consent: c.recording!.consent,
+                      requesterName: c.recording!.consent.iRecord
+                          ? _t.b3You
+                          : _name),
+                if (c != null && live && c.remoteScreen)
+                  Padding(
+                    padding: const EdgeInsets.only(top: Gap.xs),
+                    child: _badge(Icons.screen_share_outlined,
+                        _t.b3RemoteSharing(_name),
+                        const Key('call-remote-screen')),
+                  ),
                 const Spacer(),
                 if (!remoteVideo) ...[
                   _avatar(56),
@@ -500,6 +693,14 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                   ),
                 const Spacer(flex: 2),
                 if (live) _noticeBanner(c),
+                if (live &&
+                    (c.recording?.consent.iMustAnswer ?? false))
+                  RecordingConsentCard(
+                    requesterName: _name,
+                    busy: c.recording!.busy,
+                    onAllow: () => unawaited(c.recording!.accept()),
+                    onDecline: () => unawaited(c.recording!.decline()),
+                  ),
                 if (live) _upgradeCard(c),
                 if (c == null || !c.isEnded) _controls(c),
               ],
@@ -717,7 +918,9 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       CallNotice.cameraBlocked => t.b1CallNoticeCamera,
       CallNotice.remoteSwitchedToVoice => t.b1CallNoticeRemoteVoice(_name),
       CallNotice.reconnected => t.b1CallNoticeReconnected,
-    };
+      CallNotice.screenShareFailed => t.b3ScreenShareFailed,
+    } ??
+        recordNoticeText(t, _recNotice);
     if (text == null) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.md),
@@ -954,6 +1157,15 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                     label: t.b1CallToVoice,
                     active: false,
                     onTap: c.switchToVoice,
+                  ),
+                if (live && _owns && _hasMore(c))
+                  _CtlButton(
+                    key: const Key('call-more'),
+                    icon: Icons.more_horiz,
+                    label: t.b3More,
+                    active: c.screenSharing ||
+                        (c.recording?.consent.open ?? false),
+                    onTap: () => unawaited(_more(c)),
                   ),
                 _CtlButton(
                   key: const Key('call-mute'),
