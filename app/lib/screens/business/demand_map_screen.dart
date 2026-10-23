@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// DEMAND MAP — ADVANCED (#145, SPEC v2.1 §21).
 ///
@@ -65,6 +66,7 @@ Color _bandColor(String band) {
 class _DemandMapScreenState extends State<DemandMapScreen> {
   List<Map<String, dynamic>> _rows = [];
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   int _view = 0; // 0 product, 1 area, 2 grid
 
   @override
@@ -81,8 +83,9 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
     final api = context.read<AppState>().api;
     try {
       _rows = await api.listItems(_path);
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -154,7 +157,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
           icon: Icons.cloud_off,
           tint: scheme.error,
           title: tr.loadFailed,
-          message: tr.demandLoadError,
+          message: honestFailText(tr, _failCause, otherwise: tr.demandLoadError),
           action: FilledButton.tonalIcon(
             onPressed: _load,
             icon: const Icon(Icons.refresh),

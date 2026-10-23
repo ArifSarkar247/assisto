@@ -288,7 +288,9 @@ void main() {
     final api = _RecApi({'/circle/5/info': ApiException('down', 503)});
     await _pump(tester, api,
         const ContactInfoScreen(member: {'id': 5, 'name': 'Bilal'}));
-    expect(find.text(t.msgLoadFailed), findsOneWidget);
+    // qa2: a 503 is our server — say so, not "check your connection"
+    expect(find.text(t.m3ErrServer), findsOneWidget);
+    expect(find.text(t.msgLoadFailed), findsNothing);
     expect(find.text(t.retry), findsOneWidget);
     await _dispose(tester);
   });

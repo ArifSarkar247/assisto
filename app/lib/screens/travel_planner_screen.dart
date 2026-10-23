@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// TRAVEL PLANNER — ADVANCED, KEY-GATED (#35, SPEC v2.1 §21).
 ///
@@ -96,6 +97,7 @@ String _catLabel(AppLocalizations tr, String c) {
 class _TravelPlannerScreenState extends State<TravelPlannerScreen> {
   List<Map<String, dynamic>> _trips = [];
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -110,8 +112,9 @@ class _TravelPlannerScreenState extends State<TravelPlannerScreen> {
     });
     try {
       _trips = await context.read<AppState>().api.listItems(_tripsPath);
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -156,7 +159,7 @@ class _TravelPlannerScreenState extends State<TravelPlannerScreen> {
           icon: Icons.cloud_off,
           tint: scheme.error,
           title: tr.loadFailed,
-          message: tr.tvLoadError,
+          message: honestFailText(tr, _failCause, otherwise: tr.tvLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
               icon: const Icon(Icons.refresh),
@@ -370,6 +373,7 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
   List<Map<String, dynamic>> _budget = [];
   List<Map<String, dynamic>> _packing = [];
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   static const _daysPath = 'travel/days';
   static const _budgetPath = 'travel/budget';
@@ -397,8 +401,9 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
       _days = days.where(mine).toList();
       _budget = budget.where(mine).toList();
       _packing = packing.where(mine).toList();
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -450,7 +455,7 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
           icon: Icons.cloud_off,
           tint: scheme.error,
           title: tr.loadFailed,
-          message: tr.tvLoadError,
+          message: honestFailText(tr, _failCause, otherwise: tr.tvLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
               icon: const Icon(Icons.refresh),

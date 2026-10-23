@@ -5,6 +5,7 @@ import '../api.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 import 'ladder_common.dart' show fmtInt;
 
 /// STORAGE METER (Business Model Build 3, item 3).
@@ -39,6 +40,7 @@ class _StorageMeterState extends State<StorageMeter> {
   Map<String, dynamic>? _m;
   bool _loading = false;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -65,10 +67,11 @@ class _StorageMeterState extends State<StorageMeter> {
         _error = true;
         _loading = false;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() {
         _error = true;
+        _failCause = e;
         _loading = false;
       });
     }
@@ -129,7 +132,7 @@ class _StorageMeterState extends State<StorageMeter> {
           Icon(Icons.cloud_off_outlined, size: 20, color: scheme.onSurfaceVariant),
           const SizedBox(width: Gap.md),
           Expanded(
-              child: Text(t.storageLoadError,
+              child: Text(honestFailText(t, _failCause, otherwise: t.storageLoadError),
                   style: TextStyle(color: scheme.onSurfaceVariant))),
           TextButton(onPressed: _load, child: Text(t.retry)),
         ]),

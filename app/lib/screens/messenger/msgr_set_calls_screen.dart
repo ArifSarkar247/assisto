@@ -9,6 +9,7 @@ import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/msgr_set_tiles.dart';
 import '../circle_privacy_screen.dart';
+import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// Call preferences for the hub: turn incoming calls on/off, and silence
 /// unknown callers (ring suppressed for people outside the circle — they still
@@ -26,6 +27,7 @@ class _MsgrSetCallsScreenState extends State<MsgrSetCallsScreen> {
   bool _loading = true;
   bool _synced = true;
   bool _loadFailed = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   bool _incoming = true;
   bool _silenceUnknown = false;
 
@@ -45,8 +47,9 @@ class _MsgrSetCallsScreenState extends State<MsgrSetCallsScreen> {
       _silenceUnknown = r['silence_unknown'] == true;
       _synced = true;
       _loadFailed = false;
-    } catch (_) {
+    } catch (e) {
       _loadFailed = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -75,7 +78,7 @@ class _MsgrSetCallsScreenState extends State<MsgrSetCallsScreen> {
           : _loadFailed
               ? Center(
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    Text(t.msgLoadFailed, textAlign: TextAlign.center),
+                    Text(honestFailText(t, _failCause, otherwise: t.msgLoadFailed), textAlign: TextAlign.center),
                     const SizedBox(height: Gap.md),
                     FilledButton(
                         onPressed: () {

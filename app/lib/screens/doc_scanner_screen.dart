@@ -7,6 +7,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/permission_reason.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// DOCUMENT SCANNER / organiser — ADVANCED, KEY-GATED OCR (#29, SPEC v2.1 §21).
 ///
@@ -65,6 +66,7 @@ String _today() {
 class _DocScannerScreenState extends State<DocScannerScreen> {
   List<Map<String, dynamic>> _items = [];
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   String _filter = 'all'; // 'all' or a DOC_TYPE
   final TextEditingController _search = TextEditingController();
@@ -95,8 +97,9 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
     });
     try {
       _items = await context.read<AppState>().api.listItems(_itemsPath);
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -320,7 +323,7 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
                   icon: Icons.cloud_off,
                   tint: scheme.error,
                   title: t.loadFailed,
-                  message: t.dsLoadError,
+                  message: honestFailText(t, _failCause, otherwise: t.dsLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
                       icon: const Icon(Icons.refresh),

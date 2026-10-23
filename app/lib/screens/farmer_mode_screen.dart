@@ -6,6 +6,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/farmer_engine.dart';
 import '../widgets/skeleton.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// FARMER / VILLAGE MODE — ADVANCED (#199, SPEC v2.1 §20).
 ///
@@ -59,6 +60,7 @@ class _FarmerModeScreenState extends State<FarmerModeScreen> {
   List<Map<String, dynamic>> _livestock = const [];
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -77,8 +79,9 @@ class _FarmerModeScreenState extends State<FarmerModeScreen> {
       final l = await api.listItems(_livestockPath);
       _records = r;
       _livestock = l;
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -125,7 +128,7 @@ class _FarmerModeScreenState extends State<FarmerModeScreen> {
           icon: Icons.cloud_off,
           tint: Brand.danger,
           title: t.loadFailed,
-          message: t.farmerLoadError,
+          message: honestFailText(t, _failCause, otherwise: t.farmerLoadError),
           action: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 56),
             child: FilledButton.icon(

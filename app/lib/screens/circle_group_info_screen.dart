@@ -9,6 +9,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../widgets/circle_group_member_tile.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// Group info / settings (M2 item 7). Shows group name/photo/description, the
 /// member roster with roles, and admin controls: add members (circle-only),
@@ -44,6 +45,7 @@ class CircleGroupInfoScreen extends StatefulWidget {
 class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
   bool _loading = true;
   bool _loadFailed = false; // §21: honest error+retry on the roster fetch
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   bool _busy = false; // a destructive/edit action is in-flight (blocks taps)
   List<Map<String, dynamic>> _members = [];
   late Map<String, dynamic> _group;
@@ -76,8 +78,9 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
       final g = await _api.getJson('/circle/groups/$_groupId');
       if (g.isNotEmpty) _group = {..._group, ...g};
       _loadFailed = false;
-    } catch (_) {
+    } catch (e) {
       _loadFailed = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -425,7 +428,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
               Icon(Icons.cloud_off_outlined,
                   size: 48, color: scheme.onSurfaceVariant),
               const SizedBox(height: Gap.md),
-              Text(_t.grpInfoLoadError,
+              Text(honestFailText(_t, _failCause, otherwise: _t.grpInfoLoadError),
                   textAlign: TextAlign.center,
                   style: TextStyle(color: scheme.onSurfaceVariant)),
               const SizedBox(height: Gap.lg),

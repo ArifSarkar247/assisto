@@ -70,6 +70,7 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
   // never became false -> endless spinner. Now: guarded (15 s) and ALWAYS
   // ends in content or an error with Retry.
   bool _loadFailed = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   Future<void> _load() async {
     if (mounted && !_loading) {
@@ -85,8 +86,9 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
         await _loadConfirmations();
       }());
       _loadFailed = false;
-    } catch (_) {
+    } catch (e) {
       _loadFailed = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -259,7 +261,7 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
     if (_loadFailed) {
       return Scaffold(
         appBar: AppBar(title: Text(t.phoneSafetyTitle)),
-        body: LoadErrorRetry(onRetry: _load),
+        body: LoadErrorRetry(error: _failCause, onRetry: _load),
       );
     }
     final scheme = Theme.of(context).colorScheme;

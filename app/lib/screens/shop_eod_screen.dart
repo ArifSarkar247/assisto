@@ -10,6 +10,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/ladder_common.dart' show taka, fmtInt;
 import '../widgets/skeleton.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// END-OF-DAY CASH CHECK. The owner counts the drawer; the server compares it
 /// with today's NON-voided Assisto POS cash sales (paid - change) + the opening
@@ -31,6 +32,7 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
   final _note = TextEditingController();
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   bool _saving = false;
   List<Map<String, dynamic>> _checks = [];
   int _todayCash = 0;
@@ -66,8 +68,9 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
       _todayCash = _i(r['today_cash_sales']);
       _todayCount = _i(r['today_cash_sale_count']);
       _tolerance = r['tolerance'] is num ? _i(r['tolerance']) : 5000;
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -120,7 +123,7 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
                   icon: Icons.cloud_off,
                   tint: scheme.error,
                   title: t.loadFailed,
-                  message: t.shopEodLoadError,
+                  message: honestFailText(t, _failCause, otherwise: t.shopEodLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
                       icon: const Icon(Icons.refresh),

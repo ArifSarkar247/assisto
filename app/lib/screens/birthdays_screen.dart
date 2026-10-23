@@ -10,6 +10,7 @@ import '../widgets/bday_model.dart';
 import '../widgets/bday_upcoming_card.dart';
 import '../widgets/bday_add_sheet.dart';
 import '../widgets/bday_wish_sheet.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// Birthdays & memorable days — ADVANCED (SPEC v2.1 §21).
 ///
@@ -38,6 +39,7 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
   List<Map<String, dynamic>> _kinds = [];
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   bool _offline = false;
 
   @override
@@ -98,12 +100,13 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
         _error = false;
       });
       await _writeCache();
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       // Keep whatever we have (cache). Only hard-error if we have NOTHING.
       setState(() {
         if (_upcoming.isEmpty) {
           _error = true;
+          _failCause = e;
         } else {
           _offline = true;
         }
@@ -384,7 +387,7 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
             const SizedBox(height: 60),
             Icon(Icons.cloud_off, size: 48, color: scheme.onSurfaceVariant),
             const SizedBox(height: Gap.md),
-            Text(t.birthdaysLoadError, textAlign: TextAlign.center),
+            Text(honestFailText(t, _failCause, otherwise: t.birthdaysLoadError), textAlign: TextAlign.center),
             const SizedBox(height: Gap.md),
             OutlinedButton.icon(
               onPressed: _load,

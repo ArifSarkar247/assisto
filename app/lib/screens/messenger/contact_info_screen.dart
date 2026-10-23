@@ -14,6 +14,7 @@ import '../../widgets/circle_relation.dart';
 import '../../messaging/presence_label.dart';
 import '../../realtime/realtime_channel.dart';
 import 'starred_messages_screen.dart';
+import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// CONTACT INFO screen for a 1:1 chat (.phaseB/MESSENGER_UI_FULL.md §4).
 ///
@@ -46,6 +47,7 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
   Map<String, dynamic> _info = const {};
   bool _loading = true;
   bool _loadFailed = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   // Local mirrors (confirmed from server payload on load).
   bool _muted = false;
@@ -71,9 +73,10 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
       _disappearingSec = (r['disappearing_sec'] as int?) ?? 0;
       _blocked = r['blocked'] == true;
       _loadFailed = false;
-    } catch (_) {
+    } catch (e) {
       // Honest: show a retry, never a made-up profile.
       _loadFailed = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -188,7 +191,7 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(Gap.xl),
                     child: Column(mainAxisSize: MainAxisSize.min, children: [
-                      Text(_t.msgLoadFailed, textAlign: TextAlign.center),
+                      Text(honestFailText(_t, _failCause, otherwise: _t.msgLoadFailed), textAlign: TextAlign.center),
                       const SizedBox(height: Gap.md),
                       FilledButton.icon(
                         icon: const Icon(Icons.refresh),

@@ -8,6 +8,7 @@ import '../../l10n/app_localizations.dart';
 import '../../widgets/skeleton.dart';
 import '../../widgets/pa_engine.dart';
 import 'pa_meeting_brief_screen.dart';
+import '../../services/error_kind.dart' show serverFailText; // qa2
 
 /// PA Secretary — SCHEDULE control (SPEC v2.1 §14 #103, ADVANCED §21).
 ///
@@ -36,6 +37,7 @@ enum _Scope { day, week }
 class _PaScheduleScreenState extends State<PaScheduleScreen> {
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   bool _offline = false;
   List<Map<String, dynamic>> _slots = [];
 
@@ -90,11 +92,12 @@ class _PaScheduleScreenState extends State<PaScheduleScreen> {
       if (staleWrapperIds.isNotEmpty) {
         await _healLegacyRows(staleWrapperIds);
       }
-    } catch (_) {
+    } catch (e) {
       if (_slots.isNotEmpty) {
         _offline = true;
       } else {
         _error = true;
+        _failCause = e;
       }
     }
     if (mounted) setState(() => _loading = false);
@@ -276,6 +279,7 @@ class _PaScheduleScreenState extends State<PaScheduleScreen> {
         icon: Icons.cloud_off,
         tint: Brand.danger,
         title: t.paLoadError,
+        message: serverFailText(t, _failCause),
         action: FilledButton.tonal(onPressed: _load, child: Text(t.retry)),
       );
     }

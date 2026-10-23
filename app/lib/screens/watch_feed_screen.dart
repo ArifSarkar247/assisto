@@ -12,6 +12,7 @@ import '../widgets/watch_card.dart';
 import '../widgets/watch_sources_sheet.dart';
 import '../widgets/bn_day_periods.dart' show appDateLocale;
 import '../services/action_feedback.dart'; // db1
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// WATCH FEED (ADVANCED) — the user's single "what needs me now" digest.
 ///
@@ -38,6 +39,7 @@ class WatchFeedScreen extends StatefulWidget {
 
 class _WatchFeedScreenState extends State<WatchFeedScreen> {
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   List<WatchItem> _items = [];
   List<Map<String, dynamic>> _watchers = [];
 
@@ -68,8 +70,11 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
         _items = items;
         _loading = false;
       });
-    } catch (_) {
-      if (mounted) setState(() => _error = true);
+    } catch (e) {
+      if (mounted) setState(() {
+        _error = true;
+        _failCause = e;
+      });
       if (mounted) setState(() => _loading = false);
     }
   }
@@ -424,7 +429,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
                   icon: Icons.cloud_off,
                   tint: scheme.error,
                   title: t.watchErrorTitle,
-                  message: t.watchErrorBody,
+                  message: honestFailText(t, _failCause, otherwise: t.watchErrorBody),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
                       icon: const Icon(Icons.refresh),

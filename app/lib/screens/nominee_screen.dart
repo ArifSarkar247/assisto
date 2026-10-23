@@ -9,6 +9,7 @@ import '../widgets/nominee_release_sheet.dart';
 import '../widgets/nominee_card.dart';
 import '../widgets/nominee_consent_banner.dart';
 import '../services/action_feedback.dart'; // db1
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// Nominee / family access (feature 36) — ADVANCED.
 ///
@@ -33,6 +34,7 @@ class NomineeScreen extends StatefulWidget {
 class _NomineeScreenState extends State<NomineeScreen> {
   List<Map<String, dynamic>> _list = [];
   bool _loading = true, _error = false, _saving = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -49,8 +51,9 @@ class _NomineeScreenState extends State<NomineeScreen> {
       _list = await context.read<AppState>().api.listItems('nominees');
       _list.sort((a, b) => ((a['priority'] ?? 99) as num)
           .compareTo((b['priority'] ?? 99) as num));
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -311,7 +314,7 @@ class _NomineeScreenState extends State<NomineeScreen> {
                   icon: Icons.cloud_off,
                   tint: scheme.error,
                   title: tr.loadFailed,
-                  message: tr.checkInternetRetry,
+                  message: honestFailText(tr, _failCause, otherwise: tr.checkInternetRetry),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
                       icon: const Icon(Icons.refresh),

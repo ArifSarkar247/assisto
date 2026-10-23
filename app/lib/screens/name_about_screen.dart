@@ -7,6 +7,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/nameabout_sections.dart';
 import '../widgets/nameabout_checklist.dart';
 import '../l10n/app_localizations.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// Assisto — "About the Assisto name" (ADVANCED, SPEC v2.1 §21).
 ///
@@ -37,6 +38,7 @@ class _NameAboutScreenState extends State<NameAboutScreen> {
   Map<String, dynamic>? _data;
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   bool _offline = false;
 
   @override
@@ -55,6 +57,7 @@ class _NameAboutScreenState extends State<NameAboutScreen> {
       _data = await context.read<AppState>().api.nameAbout();
     } catch (e) {
       _error = true;
+      _failCause = e;
       // Best-effort offline hint (network-ish errors render the offline copy).
       final s = e.toString().toLowerCase();
       _offline = s.contains('socket') ||
@@ -76,7 +79,9 @@ class _NameAboutScreenState extends State<NameAboutScreen> {
               ? StateMessage(
                   icon: _offline ? Icons.wifi_off : Icons.cloud_off,
                   title: _offline ? t.nameAboutOfflineTitle : t.nameAboutErrorTitle,
-                  message: _offline ? t.nameAboutOfflineBody : t.nameAboutErrorBody,
+                  message: _offline
+                      ? t.nameAboutOfflineBody
+                      : honestFailText(t, _failCause, otherwise: t.nameAboutErrorBody),
                   tint: Brand.danger,
                   action: FilledButton.tonal(
                       onPressed: _load, child: Text(t.retry)),

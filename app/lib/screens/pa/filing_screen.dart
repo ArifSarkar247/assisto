@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// PA SECRETARY MODE · DOCUMENT FILING cabinet — ADVANCED, KEY-GATED OCR
 /// (#109, SPEC v2.1 §14 / §21).
@@ -55,6 +56,7 @@ const List<String> _kCategories = [
 class _FilingScreenState extends State<FilingScreen> {
   List<Map<String, dynamic>> _rows = [];
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   String? _fCategory; // null ⇒ all folders
   String _query = '';
@@ -78,8 +80,9 @@ class _FilingScreenState extends State<FilingScreen> {
     });
     try {
       _rows = await context.read<AppState>().api.listItems('pa/filing');
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -174,7 +177,7 @@ class _FilingScreenState extends State<FilingScreen> {
                   icon: Icons.cloud_off,
                   tint: scheme.error,
                   title: tr.loadFailed,
-                  message: tr.paFileLoadError,
+                  message: honestFailText(tr, _failCause, otherwise: tr.paFileLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
                       icon: const Icon(Icons.refresh),

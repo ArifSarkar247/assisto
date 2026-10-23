@@ -8,6 +8,7 @@ import '../../messenger_hub_api.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../circle_chat_screen.dart';
+import '../../services/error_kind.dart' show serverFailText; // qa2
 
 /// MY CIRCLE HUB ⋮ → Starred messages (SPEC §2).
 ///
@@ -31,6 +32,7 @@ class StarredMessagesScreen extends StatefulWidget {
 class _StarredMessagesScreenState extends State<StarredMessagesScreen> {
   bool _loading = true;
   bool _failed = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   List<Map<String, dynamic>> _items = [];
 
   @override
@@ -50,9 +52,10 @@ class _StarredMessagesScreenState extends State<StarredMessagesScreen> {
     try {
       _items = await _api.hubStarredMessages();
       _failed = false;
-    } catch (_) {
+    } catch (e) {
       _items = [];
       _failed = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -121,7 +124,8 @@ class _StarredMessagesScreenState extends State<StarredMessagesScreen> {
     final t = _t;
     return ListView(children: [
       const SizedBox(height: 96),
-      _centeredState(Icons.cloud_off_outlined, t.msgrHubLoadFailed, ''),
+      _centeredState(Icons.cloud_off_outlined, t.msgrHubLoadFailed,
+          serverFailText(t, _failCause) ?? ''),
       const SizedBox(height: Gap.md),
       Center(
         child: OutlinedButton.icon(

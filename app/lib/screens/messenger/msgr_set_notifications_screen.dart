@@ -8,6 +8,7 @@ import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/msgr_set_tiles.dart';
 import '../../messaging/msg_settings_section.dart';
+import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// Notification preferences for the hub. Toggles are mirrored to the server via
 /// [MessengerSettingsApi.notificationPrefs] / setNotificationPrefs so they
@@ -27,6 +28,7 @@ class _MsgrSetNotificationsScreenState
   bool _loading = true;
   bool _synced = true;
   bool _loadFailed = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   // Safe defaults — everything on, no preview suppression.
   final Map<String, bool> _v = {
@@ -55,8 +57,9 @@ class _MsgrSetNotificationsScreenState
       }
       _synced = true;
       _loadFailed = false;
-    } catch (_) {
-      _loadFailed = true; // honest retry, never fake defaults as saved
+    } catch (e) {
+      _loadFailed = true;
+      _failCause = e; // honest retry, never fake defaults as saved
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -104,7 +107,7 @@ class _MsgrSetNotificationsScreenState
           : _loadFailed
               ? Center(
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    Text(t.msgLoadFailed, textAlign: TextAlign.center),
+                    Text(honestFailText(t, _failCause, otherwise: t.msgLoadFailed), textAlign: TextAlign.center),
                     const SizedBox(height: Gap.md),
                     FilledButton(
                         onPressed: () {

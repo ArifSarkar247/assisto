@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// PA Secretary Mode · CELEBRITY tier — Personal lifestyle manager (#125, §14).
 ///
@@ -39,6 +40,7 @@ class _LifestyleScreenState extends State<LifestyleScreen>
   late final TabController _tabs = TabController(length: 3, vsync: this);
   List<Map<String, dynamic>> _rows = [];
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -59,8 +61,9 @@ class _LifestyleScreenState extends State<LifestyleScreen>
     });
     try {
       _rows = await context.read<AppState>().api.listItems('star/lifestyle');
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -170,7 +173,7 @@ class _LifestyleScreenState extends State<LifestyleScreen>
                   icon: Icons.cloud_off,
                   tint: scheme.error,
                   title: tr.loadFailed,
-                  message: tr.lifestyleLoadError,
+                  message: honestFailText(tr, _failCause, otherwise: tr.lifestyleLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
                       icon: const Icon(Icons.refresh),

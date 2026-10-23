@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// LANGUAGE-LEARNING PARTNER — ADVANCED, KEY-GATED (#132, SPEC v2.1 §21).
 ///
@@ -86,6 +87,7 @@ IconData _deckIcon(String d) {
 class _LanguagePartnerScreenState extends State<LanguagePartnerScreen> {
   List<Map<String, dynamic>> _progress = [];
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   String? _deck; // null → deck picker
   String _direction = 'bn2en';
 
@@ -102,8 +104,9 @@ class _LanguagePartnerScreenState extends State<LanguagePartnerScreen> {
     });
     try {
       _progress = await context.read<AppState>().api.listItems(_progressPath);
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -162,7 +165,7 @@ class _LanguagePartnerScreenState extends State<LanguagePartnerScreen> {
           icon: Icons.cloud_off,
           tint: scheme.error,
           title: tr.loadFailed,
-          message: tr.lpLoadError,
+          message: honestFailText(tr, _failCause, otherwise: tr.lpLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
               icon: const Icon(Icons.refresh),

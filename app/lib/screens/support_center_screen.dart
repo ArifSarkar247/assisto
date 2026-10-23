@@ -11,6 +11,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/support_widgets.dart';
 import 'legal_screen.dart';
 import '../services/action_feedback.dart'; // db1
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// IN-APP SUPPORT CENTER (#181, SPEC v2.1 §21, advanced).
 ///
@@ -280,6 +281,7 @@ class _MyTicketsTabState extends State<_MyTicketsTab> {
   List<Map<String, dynamic>> _tickets = [];
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -299,10 +301,11 @@ class _MyTicketsTabState extends State<_MyTicketsTab> {
         _tickets = rows;
         _loading = false;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() {
         _error = true;
+        _failCause = e;
         _loading = false;
       });
     }
@@ -316,7 +319,7 @@ class _MyTicketsTabState extends State<_MyTicketsTab> {
       return StateMessage(
         icon: Icons.cloud_off_outlined,
         title: t.supportTicketsErrorTitle,
-        message: t.supportTicketsErrorBody,
+        message: honestFailText(t, _failCause, otherwise: t.supportTicketsErrorBody),
         tint: Brand.warning,
         action: FilledButton.icon(
           onPressed: _load,

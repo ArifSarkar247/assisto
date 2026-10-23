@@ -14,6 +14,7 @@ import 'plans_screen.dart';
 import 'shop_box_mode_screen.dart';
 import 'shop_camera_settings.dart';
 import 'shop_eod_screen.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// SHOP BOX — CCTV loss-prevention (Part 4, Business tier). APP UI ONLY; the
 /// Django backend is already built + deployed (core/shop_views.py).
@@ -757,6 +758,7 @@ class _CamerasTab extends StatefulWidget {
 class _CamerasTabState extends State<_CamerasTab> {
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   List<Map<String, dynamic>> _cameras = [];
   int _included = 0;
   int _used = 0;
@@ -789,8 +791,9 @@ class _CamerasTabState extends State<_CamerasTab> {
       _cameras = ((r['cameras'] ?? []) as List).cast<Map<String, dynamic>>();
       _included = (r['included'] ?? 0) is int ? r['included'] as int : 0;
       _used = (r['used'] ?? 0) is int ? r['used'] as int : _cameras.length;
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -882,7 +885,7 @@ class _CamerasTabState extends State<_CamerasTab> {
         icon: Icons.cloud_off,
         tint: scheme.error,
         title: t.loadFailed,
-        message: t.shopBoxCamerasLoadError,
+        message: honestFailText(t, _failCause, otherwise: t.shopBoxCamerasLoadError),
         action: FilledButton.tonalIcon(
             onPressed: _load,
             icon: const Icon(Icons.refresh),
@@ -1035,6 +1038,7 @@ class _AlertsTab extends StatefulWidget {
 class _AlertsTabState extends State<_AlertsTab> {
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   List<Map<String, dynamic>> _events = [];
   String? _statusFilter; // null = all
 
@@ -1064,8 +1068,9 @@ class _AlertsTabState extends State<_AlertsTab> {
     try {
       final r = await api.shopEvents(site['id'] as int, status: _statusFilter);
       _events = ((r['events'] ?? []) as List).cast<Map<String, dynamic>>();
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -1110,7 +1115,7 @@ class _AlertsTabState extends State<_AlertsTab> {
                     icon: Icons.cloud_off,
                     tint: scheme.error,
                     title: t.loadFailed,
-                    message: t.shopBoxAlertsLoadError,
+                    message: honestFailText(t, _failCause, otherwise: t.shopBoxAlertsLoadError),
                     action: FilledButton.tonalIcon(
                         onPressed: _load,
                         icon: const Icon(Icons.refresh),
@@ -1299,6 +1304,7 @@ class _ReportTab extends StatefulWidget {
 class _ReportTabState extends State<_ReportTab> {
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   Map<String, dynamic> _summary = {};
   int _days = 7;
 
@@ -1327,8 +1333,9 @@ class _ReportTabState extends State<_ReportTab> {
     final api = context.read<AppState>().api;
     try {
       _summary = await api.shopSummary(site['id'] as int, days: _days);
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -1346,7 +1353,7 @@ class _ReportTabState extends State<_ReportTab> {
         icon: Icons.cloud_off,
         tint: scheme.error,
         title: t.loadFailed,
-        message: t.shopBoxReportLoadError,
+        message: honestFailText(t, _failCause, otherwise: t.shopBoxReportLoadError),
         action: FilledButton.tonalIcon(
             onPressed: _load,
             icon: const Icon(Icons.refresh),

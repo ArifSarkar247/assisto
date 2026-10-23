@@ -7,6 +7,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// PA Secretary Mode · Call & Email handling — ADVANCED (#106, §14).
 ///
@@ -59,6 +60,7 @@ const Map<String, int> _priorityRank = {_prHigh: 0, _prNormal: 1, _prLow: 2};
 class _CallEmailScreenState extends State<CallEmailScreen> {
   List<Map<String, dynamic>> _rows = [];
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   String? _fChannel; // null ⇒ any
   bool _hideDone = false;
@@ -76,8 +78,9 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
     });
     try {
       _rows = await context.read<AppState>().api.listItems('pa/callemail');
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -253,7 +256,7 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
                   icon: Icons.cloud_off,
                   tint: scheme.error,
                   title: tr.loadFailed,
-                  message: tr.paCeLoadError,
+                  message: honestFailText(tr, _failCause, otherwise: tr.paCeLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
                       icon: const Icon(Icons.refresh),

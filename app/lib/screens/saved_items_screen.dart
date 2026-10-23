@@ -5,6 +5,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/saved_logic.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// SAVED / BOOKMARKS — ADVANCED (#18, §21).
 ///
@@ -45,6 +46,7 @@ String _today() {
 class _SavedItemsScreenState extends State<SavedItemsScreen> {
   List<Map<String, dynamic>> _items = [];
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   String _query = '';
   String _tag = ''; // '' == All
   final _searchCtl = TextEditingController();
@@ -69,8 +71,9 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
     final api = context.read<AppState>().api;
     try {
       _items = await api.listItems(_savedPath);
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -96,7 +99,7 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
           icon: Icons.cloud_off,
           tint: scheme.error,
           title: tr.loadFailed,
-          message: tr.savedLoadError,
+          message: honestFailText(tr, _failCause, otherwise: tr.savedLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
               icon: const Icon(Icons.refresh),

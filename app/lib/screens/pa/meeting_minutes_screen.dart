@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// PA SECRETARY MODE · MEETING MINUTES — ADVANCED, KEY-GATED TRANSCRIPTION
 /// (#110, SPEC v2.1 §14 / §21).
@@ -50,6 +51,7 @@ const List<String> _kActionStatuses = [_acOpen, _acDoing, _acDone];
 class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
   List<Map<String, dynamic>> _rows = [];
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   // Auto-minutes is key-gated (Integrations → transcription), owner-only. The
   // honest default is LOCKED; a real auto-generate routes server-side when the
@@ -69,8 +71,9 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
     });
     try {
       _rows = await context.read<AppState>().api.listItems('pa/minutes');
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -172,7 +175,7 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
                   icon: Icons.cloud_off,
                   tint: scheme.error,
                   title: tr.loadFailed,
-                  message: tr.paMinLoadError,
+                  message: honestFailText(tr, _failCause, otherwise: tr.paMinLoadError),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
                       icon: const Icon(Icons.refresh),

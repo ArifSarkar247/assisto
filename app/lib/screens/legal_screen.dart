@@ -29,6 +29,7 @@ class _LegalScreenState extends State<LegalScreen> {
   String _query = '';
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -49,8 +50,9 @@ class _LegalScreenState extends State<LegalScreen> {
     });
     try {
       _index = await context.read<AppState>().api.legalIndex();
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -75,7 +77,7 @@ class _LegalScreenState extends State<LegalScreen> {
       body: _loading
           ? const LegalLoading()
           : _error
-              ? LegalErrorState(onRetry: _load)
+              ? LegalErrorState(error: _failCause, onRetry: _load)
               : Column(children: [
                   Padding(
                     padding: const EdgeInsets.fromLTRB(
@@ -136,6 +138,7 @@ class _LegalPageState extends State<_LegalPage> {
   String _query = '';
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -158,8 +161,9 @@ class _LegalPageState extends State<_LegalPage> {
       final json =
           await context.read<AppState>().api.legalPage(widget.pageKey);
       _page = LegalPageData.fromJson(json);
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -180,7 +184,7 @@ class _LegalPageState extends State<_LegalPage> {
       body: _loading
           ? const LegalLoading()
           : _error
-              ? LegalErrorState(onRetry: _load)
+              ? LegalErrorState(error: _failCause, onRetry: _load)
               : PopScope(
                   canPop: false,
                   onPopInvokedWithResult: (didPop, _) {

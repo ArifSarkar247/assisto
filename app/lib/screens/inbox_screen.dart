@@ -8,6 +8,7 @@ import '../widgets/inbox_mock.dart';
 import '../widgets/inbox_item_card.dart';
 import '../widgets/inbox_filter_bar.dart';
 import '../widgets/inbox_reply_sheet.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// AI Inbox (feature 22, SPEC v2.1 section 21 ADVANCED) - a unified SMART INBOX over
 /// email / notifications / messages with deterministic AI triage
@@ -29,6 +30,7 @@ class _InboxScreenState extends State<InboxScreen> {
   Map<String, dynamic>? _s;
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   List<InboxItem> _items = [];
   InboxFilter _filter = const InboxFilter();
@@ -57,8 +59,9 @@ class _InboxScreenState extends State<InboxScreen> {
       final now = DateTime.now();
       _items = <InboxItem>[];
       triage(_items, now);
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -186,7 +189,7 @@ class _InboxScreenState extends State<InboxScreen> {
       body: _loading
           ? const SkeletonList()
           : _error
-              ? _ErrorState(tr: tr, onRetry: _load)
+              ? _ErrorState(tr: tr, error: _failCause, onRetry: _load)
               : _body(tr, scheme),
     );
   }
@@ -415,7 +418,8 @@ class _EmptyState extends StatelessWidget {
 class _ErrorState extends StatelessWidget {
   final AppLocalizations tr;
   final VoidCallback onRetry;
-  const _ErrorState({required this.tr, required this.onRetry});
+  final Object? error; // qa2: a 5xx is our server, not the internet
+  const _ErrorState({required this.tr, required this.onRetry, this.error});
 
   @override
   Widget build(BuildContext context) {
@@ -430,7 +434,7 @@ class _ErrorState extends StatelessWidget {
               textAlign: TextAlign.center,
               style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
           const SizedBox(height: Gap.sm),
-          Text(tr.checkInternetRetry,
+          Text(honestFailText(tr, error, otherwise: tr.checkInternetRetry),
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
           const SizedBox(height: Gap.lg),

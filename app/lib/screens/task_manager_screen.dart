@@ -6,6 +6,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/task_manager_model.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// Task Manager (feature #21, SPEC v2.1 §21 ADVANCED).
 ///
@@ -38,6 +39,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
   List<Project> _projects = [];
   List<TaskItem> _tasks = [];
   bool _loading = true, _error = false, _offline = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -104,9 +106,9 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
       _offline = false;
       _error = false;
       await _writeCache();
-    } catch (_) {
+    } catch (e) {
       _offline = true;
-      if (_projects.isEmpty && _tasks.isEmpty) _error = true;
+      if (_projects.isEmpty && _tasks.isEmpty) _error = true; _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -254,7 +256,8 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
       return StateMessage(
         icon: Icons.cloud_off_outlined,
         title: tmStr(context, 'tmLoadFailed'),
-        message: tmStr(context, 'tmLoadFailedBody'),
+        message: honestFailText(AppLocalizations.of(context), _failCause,
+            otherwise: tmStr(context, 'tmLoadFailedBody')),
         action: FilledButton.icon(
           onPressed: _load,
           icon: const Icon(Icons.refresh),

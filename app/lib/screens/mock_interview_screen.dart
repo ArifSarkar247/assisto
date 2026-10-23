@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// MOCK INTERVIEW — ADVANCED, KEY-GATED (#131, SPEC v2.1 §21).
 ///
@@ -61,6 +62,7 @@ String _catLabel(AppLocalizations tr, String? c) {
 class _MockInterviewScreenState extends State<MockInterviewScreen> {
   List<Map<String, dynamic>> _sessions = [];
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   String? _category; // null → category picker
   final List<String> _asked = []; // ids asked this session
@@ -88,8 +90,9 @@ class _MockInterviewScreenState extends State<MockInterviewScreen> {
     });
     try {
       _sessions = await context.read<AppState>().api.listItems(_sessionsPath);
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -169,7 +172,7 @@ class _MockInterviewScreenState extends State<MockInterviewScreen> {
           icon: Icons.cloud_off,
           tint: scheme.error,
           title: tr.loadFailed,
-          message: tr.miLoadError,
+          message: honestFailText(tr, _failCause, otherwise: tr.miLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
               icon: const Icon(Icons.refresh),

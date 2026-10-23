@@ -10,6 +10,7 @@ import '../vehicle/vehicle_api.dart';
 import '../widgets/skeleton.dart';
 import 'plans_screen.dart';
 import 'vehicle_tracker_screen.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// FLEET DASHBOARD (Business plan): every owned vehicle + vehicles a fleet
 /// owner granted you, with today's distance and alerts. The server returns
@@ -24,6 +25,7 @@ class FleetDashboardScreen extends StatefulWidget {
 class _FleetDashboardScreenState extends State<FleetDashboardScreen> {
   Map<String, dynamic>? _data;
   bool _loading = true, _error = false, _notBusiness = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -44,9 +46,11 @@ class _FleetDashboardScreenState extends State<FleetDashboardScreen> {
         _notBusiness = true;
       } else {
         _error = true;
+        _failCause = e;
       }
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -74,7 +78,7 @@ class _FleetDashboardScreenState extends State<FleetDashboardScreen> {
         icon: Icons.cloud_off,
         tint: scheme.error,
         title: tr.loadFailed,
-        message: tr.vehLoadError,
+        message: honestFailText(tr, _failCause, otherwise: tr.vehLoadError),
         action: FilledButton.tonalIcon(
             onPressed: _load, icon: const Icon(Icons.refresh), label: Text(tr.retry)),
       );

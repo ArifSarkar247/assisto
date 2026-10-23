@@ -26,6 +26,7 @@ import 'bargain_rules_screen.dart';
 import 'business_plans_screen.dart';
 import '../../services/action_feedback.dart'; // db1
 import '../../services/error_report.dart'; // db1
+import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// Business HUB — the new home for Assisto Business v2 (replaces the old
 /// name/price/stock business screen). Shows the selected business, a switcher
@@ -44,6 +45,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
   Map<String, dynamic>? _selected;
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -67,8 +69,9 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
               (b) => b['id'] == selId,
               orElse: () => _businesses.first,
             );
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -210,7 +213,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
         body: StateMessage(
           icon: Icons.cloud_off_outlined,
           title: t.business,
-          message: t.businessLoadFailed,
+          message: honestFailText(t, _failCause, otherwise: t.businessLoadFailed),
           action: FilledButton(onPressed: _load, child: Text(t.retry)),
         ),
       );

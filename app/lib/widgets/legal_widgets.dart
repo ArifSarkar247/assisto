@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../services/action_feedback.dart'; // db1
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// Legal / policy centre — ADVANCED shared widgets (SPEC v2.1 §21/§22).
 ///
@@ -295,7 +296,8 @@ class LegalLoading extends StatelessWidget {
 
 class LegalErrorState extends StatelessWidget {
   final VoidCallback onRetry;
-  const LegalErrorState({super.key, required this.onRetry});
+  final Object? error; // qa2: a 5xx is our server, not the user's internet
+  const LegalErrorState({super.key, required this.onRetry, this.error});
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
@@ -305,7 +307,8 @@ class LegalErrorState extends StatelessWidget {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           const Icon(Icons.cloud_off, size: 44),
           const SizedBox(height: Gap.sm),
-          Text(t.legalOffline, textAlign: TextAlign.center),
+          Text(honestFailText(t, error, otherwise: t.legalOffline),
+              textAlign: TextAlign.center),
           const SizedBox(height: Gap.md),
           FilledButton.tonalIcon(
               onPressed: onRetry,

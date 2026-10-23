@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import '../../services/error_kind.dart' show honestFailText; // qa2
 
 /// PA SECRETARY MODE — EXPENSE VOUCHER / claim builder (#113, §14, ADVANCED).
 ///
@@ -116,6 +117,7 @@ class _ExpenseVoucherScreenState extends State<ExpenseVoucherScreen> {
   List<Map<String, dynamic>> _rows = [];
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   AppLocalizations get t => AppLocalizations.of(context);
 
@@ -132,8 +134,9 @@ class _ExpenseVoucherScreenState extends State<ExpenseVoucherScreen> {
     });
     try {
       _rows = await context.read<AppState>().api.listItems(_path);
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -213,7 +216,7 @@ class _ExpenseVoucherScreenState extends State<ExpenseVoucherScreen> {
           icon: Icons.cloud_off,
           tint: scheme.error,
           title: t.loadFailed,
-          message: t.paVoucherLoadError,
+          message: honestFailText(t, _failCause, otherwise: t.paVoucherLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
               icon: const Icon(Icons.refresh),

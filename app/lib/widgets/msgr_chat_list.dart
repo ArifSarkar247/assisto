@@ -9,6 +9,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../screens/circle_chat_screen.dart';
 import 'msgr_avatar.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// The Chats tab — a fast, familiar chat list (avatar, name, last-message
 /// preview, time, unread badge, delivery ticks) with long-press actions
@@ -29,6 +30,7 @@ class _MsgrChatListState extends State<MsgrChatList> {
   String _query = '';
   List<Map<String, dynamic>> _chats = [];
   bool _loadFailed = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   // Local UI overlays keyed by chat id (optimistic; backend persists the real
   // state). Keeps the list snappy on long-press actions.
@@ -51,9 +53,10 @@ class _MsgrChatListState extends State<MsgrChatList> {
       _chats = ((r['results'] ?? r['chats'] ?? []) as List)
           .cast<Map<String, dynamic>>();
       _loadFailed = false;
-    } catch (_) {
+    } catch (e) {
       // Honest error + retry (no synthesised rows posing as real chats).
       _loadFailed = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -200,7 +203,7 @@ class _MsgrChatListState extends State<MsgrChatList> {
     if (_loadFailed && _chats.isEmpty) {
       return Center(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Text(_t.msgLoadFailed, textAlign: TextAlign.center),
+          Text(honestFailText(_t, _failCause, otherwise: _t.msgLoadFailed), textAlign: TextAlign.center),
           const SizedBox(height: Gap.md),
           FilledButton(
               onPressed: () {

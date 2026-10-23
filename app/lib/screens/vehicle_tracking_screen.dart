@@ -11,6 +11,7 @@ import '../widgets/skeleton.dart';
 import 'car_mode_screen.dart';
 import 'fleet_dashboard_screen.dart';
 import 'vehicle_tracker_screen.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// LIVE TRACKING — the list of paired hardware trackers (v1-vehicle).
 ///
@@ -28,6 +29,7 @@ class _VehicleTrackingScreenState extends State<VehicleTrackingScreen> {
   List<Map<String, dynamic>> _trackers = [];
   int _monthCredits = 0;
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -44,8 +46,9 @@ class _VehicleTrackingScreenState extends State<VehicleTrackingScreen> {
       final r = await context.read<AppState>().api.vehTrackers();
       _trackers = vehList(r['trackers']);
       _monthCredits = vehInt(r['month_credits']) ?? 0;
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -100,7 +103,7 @@ class _VehicleTrackingScreenState extends State<VehicleTrackingScreen> {
         icon: Icons.cloud_off,
         tint: scheme.error,
         title: tr.loadFailed,
-        message: tr.vehLoadError,
+        message: honestFailText(tr, _failCause, otherwise: tr.vehLoadError),
         action: FilledButton.tonalIcon(
             onPressed: _load, icon: const Icon(Icons.refresh), label: Text(tr.retry)),
       );

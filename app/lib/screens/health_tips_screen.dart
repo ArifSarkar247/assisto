@@ -8,6 +8,7 @@ import '../widgets/htips_tip_card.dart';
 import '../widgets/htips_seasonal.dart';
 import '../widgets/htips_store.dart';
 import '../services/action_feedback.dart'; // db1
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// ADVANCED Health-tips library — trusted public-health guidance
 /// (DGHS / WHO / IEDCR), grouped by topic, every tip SOURCE-NAMED and dated.
@@ -40,6 +41,7 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
 
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   String? _emergencyAction;
   bool _emergencyChecking = false;
@@ -79,8 +81,11 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
         _disclaimer = (r['disclaimer'] ?? '').toString();
         _sources = ((r['sources'] ?? []) as List).map((e) => e.toString()).toList();
       });
-    } catch (_) {
-      if (mounted) setState(() => _error = true);
+    } catch (e) {
+      if (mounted) setState(() {
+        _error = true;
+        _failCause = e;
+      });
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -244,7 +249,7 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
             const Center(child: Padding(
                 padding: EdgeInsets.all(Gap.xl), child: CircularProgressIndicator()))
           else if (_error)
-            _ErrorRetry(message: t.healthTipsLoadError, onRetry: _load)
+            _ErrorRetry(message: honestFailText(t, _failCause, otherwise: t.healthTipsLoadError), onRetry: _load)
           else if (visibleTips.isEmpty)
             Padding(
               padding: const EdgeInsets.all(Gap.xl),

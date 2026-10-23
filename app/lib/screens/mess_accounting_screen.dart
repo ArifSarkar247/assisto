@@ -5,6 +5,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/finance_common.dart';
 import '../widgets/skeleton.dart';
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// MESS & BACHELOR ACCOUNTING — ADVANCED (#182, SPEC v2.1 §20).
 ///
@@ -53,6 +54,7 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
   List<Map<String, dynamic>> _deposits = [];
   List<Map<String, dynamic>> _charges = [];
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -79,8 +81,9 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
       _bazar = res[2];
       _deposits = res[3];
       _charges = res[4];
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -116,7 +119,7 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
           icon: Icons.cloud_off,
           tint: scheme.error,
           title: tr.loadFailed,
-          message: tr.messLoadError,
+          message: honestFailText(tr, _failCause, otherwise: tr.messLoadError),
           action: FilledButton.tonalIcon(
               onPressed: _load,
               icon: const Icon(Icons.refresh),

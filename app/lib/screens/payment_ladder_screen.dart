@@ -9,6 +9,7 @@ import '../widgets/ladder_common.dart';
 import '../widgets/ladder_cards.dart';
 import '../widgets/ladder_builder_sheet.dart';
 import '../services/action_feedback.dart'; // db1
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// PAYMENT / AUTO-PAY LADDER (SPEC v2.1 §21, advanced).
 ///
@@ -45,6 +46,7 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
   List<Map<String, dynamic>> _rows = [];
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   bool _offline = false; // loaded from cache after a failed refresh
 
   // Collection paths (generic owned endpoints — see integration md).
@@ -72,11 +74,12 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
     try {
       _rows = await context.read<AppState>().api.listItems(_path);
       _offline = false;
-    } catch (_) {
+    } catch (e) {
       // Keep any previously loaded rows visible (offline-first); only show the
       // hard error state when we have nothing cached to render.
       if (_rows.isEmpty) {
         _error = true;
+        _failCause = e;
       } else {
         _offline = true;
       }
@@ -285,7 +288,7 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
                   icon: Icons.cloud_off,
                   tint: Theme.of(context).colorScheme.error,
                   title: t.plLoadFailed,
-                  message: t.plLoadFailedBody,
+                  message: honestFailText(t, _failCause, otherwise: t.plLoadFailedBody),
                   action: FilledButton.tonalIcon(
                     onPressed: _load,
                     icon: const Icon(Icons.refresh),

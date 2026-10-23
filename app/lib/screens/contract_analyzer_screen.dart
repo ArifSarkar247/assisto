@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import '../services/error_kind.dart' show serverFailText; // qa2
 
 /// CONTRACT / AGREEMENT ANALYZER (#30, SPEC v2.1 §8, ADVANCED).
 ///
@@ -276,6 +277,7 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
 
   List<Map<String, dynamic>> _saved = [];
   bool _loading = true, _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   AppLocalizations get t => AppLocalizations.of(context);
 
@@ -305,10 +307,11 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
         _saved = list;
         _loading = false;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() {
         _error = true;
+        _failCause = e;
         _loading = false;
       });
     }
@@ -581,6 +584,7 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
         icon: Icons.cloud_off,
         tint: Brand.danger,
         title: t.caLoadError,
+        message: serverFailText(t, _failCause),
         action: FilledButton.tonal(onPressed: _load, child: Text(t.retry)),
       );
     }

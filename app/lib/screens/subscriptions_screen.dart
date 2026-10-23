@@ -9,6 +9,7 @@ import '../widgets/subs_common.dart';
 import '../widgets/subs_cards.dart';
 import '../widgets/subs_edit_sheet.dart';
 import '../services/action_feedback.dart'; // db1
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// Advanced subscription tracker (benchmarked on Bobby / Rocket Money, adapted
 /// to Bangladesh: bKash/Nagad/card/cash; Netflix/Spotify/Daraz/ISP/gym/recharge).
@@ -28,6 +29,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
   List<Map<String, dynamic>> _subs = [];
   bool _loading = true;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
   void initState() {
@@ -42,8 +44,9 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
     });
     try {
       _subs = await context.read<AppState>().api.listItems('subscriptions');
-    } catch (_) {
+    } catch (e) {
       _error = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -255,7 +258,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
                   icon: Icons.cloud_off,
                   tint: Theme.of(context).colorScheme.error,
                   title: t.loadFailed,
-                  message: t.loadFailedBody,
+                  message: honestFailText(t, _failCause, otherwise: t.loadFailedBody),
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
                       icon: const Icon(Icons.refresh),

@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/scam_result_card.dart';
 import '../widgets/scam_safety_api.dart';
 import '../services/action_feedback.dart'; // db1
+import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// Scam protection — paste a suspicious message to get a named-pattern verdict
 /// (benchmarked vs GASA / Truecaller fraud-awareness), plus a "learn the scams"
@@ -21,6 +22,7 @@ class _ScamScreenState extends State<ScamScreen> {
   Map<String, dynamic>? _result;
   bool _checking = false;
   bool _error = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   List<Map<String, dynamic>> _library = [];
   bool _libLoading = false;
@@ -46,8 +48,11 @@ class _ScamScreenState extends State<ScamScreen> {
     try {
       final r = await context.read<AppState>().api.scamDetect(text);
       setState(() => _result = r);
-    } catch (_) {
-      setState(() => _error = true);
+    } catch (e) {
+      setState(() {
+        _error = true;
+        _failCause = e;
+      });
     } finally {
       if (mounted) setState(() => _checking = false);
     }
@@ -160,7 +165,7 @@ class _ScamScreenState extends State<ScamScreen> {
         ),
         const SizedBox(height: 16),
         if (_error)
-          Text(t.scamCheckOffline,
+          Text(honestFailText(t, _failCause, otherwise: t.scamCheckOffline),
               style: TextStyle(color: Theme.of(context).colorScheme.error)),
         if (_result != null && !_error) ...[
           ScamResultCard(result: _result!),

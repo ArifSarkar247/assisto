@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import '../../messenger_hub_api.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../services/error_kind.dart' show serverFailText; // qa2
 
 /// MY CIRCLE HUB ⋮ → Linked devices (SPEC §2).
 ///
@@ -27,6 +28,7 @@ class LinkedDevicesScreen extends StatefulWidget {
 class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
   bool _loading = true;
   bool _failed = false;
+  Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
   bool _linkBusy = false;
   List<Map<String, dynamic>> _devices = [];
 
@@ -49,9 +51,10 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
           .where((d) => d['revoked'] != true)
           .toList();
       _failed = false;
-    } catch (_) {
+    } catch (e) {
       _devices = [];
       _failed = true;
+      _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -224,7 +227,8 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
     final t = _t;
     return ListView(children: [
       const SizedBox(height: 80),
-      _centeredState(Icons.cloud_off_outlined, t.msgrHubLoadFailed, ''),
+      _centeredState(Icons.cloud_off_outlined, t.msgrHubLoadFailed,
+          serverFailText(t, _failCause) ?? ''),
       const SizedBox(height: Gap.md),
       Center(
         child: OutlinedButton.icon(
