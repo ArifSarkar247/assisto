@@ -211,7 +211,18 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
 
   Widget _productCard(
       AppLocalizations t, ColorScheme scheme, Map<String, dynamic> p) {
-    final sell = poishaOf(p['price'] ?? p['sell_price']);
+    var sell = poishaOf(p['price'] ?? p['sell_price']);
+    // rt1 (reality audit): a product whose price lives on its variants showed
+    // "৳0" on the card while the variant sells at ৳80 — show the lowest
+    // variant price instead of a false zero.
+    final vs = (p['variants'] as List? ?? const []).whereType<Map>().toList();
+    if (sell <= 0 && vs.isNotEmpty) {
+      final prices = [
+        for (final v in vs) poishaOf(v['sell_price'] ?? v['price'])
+      ].where((x) => x > 0).toList()
+        ..sort();
+      if (prices.isNotEmpty) sell = prices.first;
+    }
     final stock = (p['stock'] ?? 0) as num;
     final oos = stock <= 0 && (p['variants'] as List? ?? const []).isEmpty;
     return InkWell(

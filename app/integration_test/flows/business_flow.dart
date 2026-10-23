@@ -36,7 +36,12 @@ void registerBusinessFlows() {
       await f.shot('quick-sell');
       await f.tap(find.textContaining('Rice'), settleSeconds: 2);
       final sheetTile = find.descendant(of: find.byType(BottomSheet), matching: find.byType(ListTile));
-      if (sheetTile.evaluate().isNotEmpty) await f.tap(sheetTile.first, settleSeconds: 2);
+      // Rice has a variant: the picker sheet opens; pick the (only) variant.
+      // rt1: the old one-shot check could run before the sheet was built.
+      if (await f.appears(sheetTile, seconds: 5)) {
+        await f.shot('variant-sheet');
+        await f.tap(sheetTile.first, settleSeconds: 3);
+      }
       await f.shot('in-cart');
       f.expectHttp('POST', '/business/cart/add');
     });

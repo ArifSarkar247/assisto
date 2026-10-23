@@ -53,7 +53,12 @@ class _MoneyScreenState extends State<MoneyScreen> {
   @override
   void initState() {
     super.initState();
-    _refresh();
+    // rt1 (reality audit): repo.sync() notifies AppState listeners
+    // synchronously — from initState that is "markNeedsBuild() called during
+    // build" (FlutterError on opening Money). Start after the first frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _refresh();
+    });
   }
 
   Future<void> _refresh() async {

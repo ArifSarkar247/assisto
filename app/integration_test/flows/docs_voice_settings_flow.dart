@@ -58,6 +58,13 @@ void registerDocsVoiceSettingsFlows() {
       // rt1: the voice screen ALWAYS has "Type instead". The old step returned
       // quietly when it was missing — run 39859999833 marked this flow A while
       // the drawer search never even opened the voice screen.
+      // First open auto-listens, so the app first explains the microphone
+      // (modal). A user who wants to type answers "Not now" (run 39878171841:
+      // the tap on "Type instead" only dismissed this dialog).
+      if (await f.appears(find.text(f.t.permMic), seconds: 4)) {
+        await f.tap(find.widgetWithText(TextButton, f.t.notNow), settleSeconds: 1.5);
+        await f.shot('mic-reason-not-now');
+      }
       final typeBtn = find.byTooltip(f.t.vaTypeInstead);
       await f.waitFor(typeBtn, what: '"Type instead" on the Assisto Voice screen');
       await f.tap(typeBtn);
