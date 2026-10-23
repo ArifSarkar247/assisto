@@ -315,7 +315,7 @@ _SCALARS = ("margin", "annual_discount_pct", "credit_bdt", "usd_bdt", "play_fee"
             "gateway_fee", "vat", "fixed_cost_per_day", "storage_cost_bdt_per_gb_month",
             "probashi_price_usd", "ai_daily_budget_usd", "ai_user_daily_limit")
 _DICT_SECTIONS = ("guarantees", "limits", "referral", "profit_guard", "shop", "otp",
-                  "vehicle", "photo_studio")
+                  "vehicle", "photo_studio", "world")   # p4-world
 
 
 # Plan-row keys the editor never shows or posts. Owner decision: nothing is

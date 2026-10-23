@@ -507,6 +507,58 @@ REGISTRY = {
              "guide_en": ["newsapi.org (or similar) → API key → paste → Save (RSS fallback if no key)"],
              "fields": [_f("provider", "Provider", "Provider", secret=False), _f("api_key", "API Key", "API Key")],
              "test": None},
+    # ---- p4-world ---- Unseen World: live web search answers, sports scores,
+    # job alerts. Each is HIDDEN for users until connected (no fake data).
+    "web_search": {
+        "name": "Web search (live AI answers with sources)", "category": "AI",
+        "unlocks_bn": "অদেখা দুনিয়া → “যেকোনো প্রশ্ন”: লাইভ ওয়েব সার্চ করে সূত্রসহ ([১][২]) বাংলা/ইংরেজি উত্তর। প্রতি উত্তরে ক্রেডিট কাটে (web_answer)।",
+        "unlocks_en": "Unseen World → “Ask anything”: live web search answers with numbered sources [1][2], Bangla/English. Each answer costs credits (web_answer).",
+        "guide_bn": ["প্রোভাইডার বাছুন: brave (api-dashboard.search.brave.com → API key) অথবা tavily (app.tavily.com → API key)",
+                     "provider ঘরে brave বা tavily লিখুন, ওই প্রোভাইডারের key পেস্ট করুন",
+                     "সার্চ প্রতি খরচ (USD) লিখুন — Brave ≈ 0.005, Tavily ≈ 0.008",
+                     "AI উত্তরের জন্য Anthropic key আগে থেকেই থাকতে হবে → Save → Test",
+                     "বিস্তারিত: owner_actions/UNSEEN_WORLD_KEYS_BN.md"],
+        "guide_en": ["Pick a provider: brave (api-dashboard.search.brave.com → API key) or tavily (app.tavily.com → API key)",
+                     "Type brave or tavily in Provider and paste that provider's key",
+                     "Enter cost per search (USD) — Brave ≈ 0.005, Tavily ≈ 0.008",
+                     "The Anthropic key must already be connected for the AI answer → Save → Test",
+                     "Details: owner_actions/UNSEEN_WORLD_KEYS_BN.md"],
+        "fields": [_f("provider", "প্রোভাইডার (brave / tavily)", "Provider (brave / tavily)", secret=False),
+                   _f("brave_api_key", "Brave API key", "Brave API key"),
+                   _f("tavily_api_key", "Tavily API key", "Tavily API key"),
+                   _f("cost_per_search_usd", "সার্চ প্রতি খরচ (USD)", "Cost per search (USD)", secret=False)],
+        "test": "test_web_search"},
+    "sports_football": {
+        "name": "Football live scores (API-Football)", "category": "Media",
+        "unlocks_bn": "আজকের কার্ড: ফুটবলের লাইভ স্কোর (লাইসেন্সকৃত API)। key ছাড়া কার্ডটি লুকানো থাকে।",
+        "unlocks_en": "Today cards: live football scores (licensed API). Hidden until a key is added.",
+        "guide_bn": ["dashboard.api-football.com-এ অ্যাকাউন্ট খুলুন (ফ্রি: দিনে ১০০ কল)", "API key কপি → পেস্ট",
+                     "কল প্রতি খরচ (USD) লিখুন (ফ্রি প্ল্যানে 0) → Save → Test"],
+        "guide_en": ["Create an account at dashboard.api-football.com (free: 100 calls/day)", "Copy the API key → paste",
+                     "Enter cost per call (USD) (0 on the free plan) → Save → Test"],
+        "fields": [_f("api_key", "API Key", "API Key"),
+                   _f("cost_per_call_usd", "কল প্রতি খরচ (USD)", "Cost per call (USD)", secret=False)],
+        "test": "test_sports_football"},
+    "sports_cricket": {
+        "name": "Cricket live scores (CricketData.org)", "category": "Media",
+        "unlocks_bn": "আজকের কার্ড: ক্রিকেটের লাইভ স্কোর (লাইসেন্সকৃত API)। key ছাড়া কার্ডটি লুকানো থাকে।",
+        "unlocks_en": "Today cards: live cricket scores (licensed API). Hidden until a key is added.",
+        "guide_bn": ["cricketdata.org-এ সাইন আপ → API key (ফ্রি: দিনে ১০০ হিট)", "key পেস্ট করুন",
+                     "কল প্রতি খরচ (USD) লিখুন → Save → Test"],
+        "guide_en": ["Sign up at cricketdata.org → API key (free: 100 hits/day)", "Paste the key",
+                     "Enter cost per call (USD) → Save → Test"],
+        "fields": [_f("api_key", "API Key", "API Key"),
+                   _f("cost_per_call_usd", "কল প্রতি খরচ (USD)", "Cost per call (USD)", secret=False)],
+        "test": "test_sports_cricket"},
+    "jobs_careerjet": {
+        "name": "Job alerts (Careerjet publisher API)", "category": "Media",
+        "unlocks_bn": "চাকরির হাব: ব্যবহারকারীর বেছে নেওয়া ধরনে দিনে সর্বোচ্চ ১টি চাকরির সতর্কতা (শুধু শিরোনাম + লিংক)।",
+        "unlocks_en": "Jobs hub: at most 1 job alert a day for the job types the user picked (title + link only).",
+        "guide_bn": ["careerjet.com → Partners/Publishers → অ্যাকাউন্ট খুলুন", "Publisher API key কপি → পেস্ট → Save → Test"],
+        "guide_en": ["careerjet.com → Partners/Publishers → create an account", "Copy the publisher API key → paste → Save → Test"],
+        "fields": [_f("api_key", "Publisher API key", "Publisher API key")],
+        "test": "test_jobs_careerjet"},
+    # ---- /p4-world ----
     # ---- t9-turnscale ---- managed-TURN overflow (OFF by default)
     "turn_overflow": {
         "name": "Managed TURN overflow (Cloudflare Calls)", "category": "Calls",
@@ -865,3 +917,25 @@ def test_turn_overflow(cfg):
         on = turn_pool._truthy(cfg.get("enabled"))
         return (True, "✓ credentials minted" + ("" if on else " — enabled is off, overflow stays OFF"))
     return (False, "no TURN credentials in the provider response")
+
+
+# ---- p4-world ---- each test makes ONE real provider call via world_service.
+def test_web_search(cfg):
+    from . import world_service
+    return world_service.test_search(cfg)
+
+
+def test_sports_football(cfg):
+    from . import world_service
+    return world_service.test_sports("football", cfg)
+
+
+def test_sports_cricket(cfg):
+    from . import world_service
+    return world_service.test_sports("cricket", cfg)
+
+
+def test_jobs_careerjet(cfg):
+    from . import world_service
+    return world_service.test_careerjet(cfg)
+# ---- /p4-world ----

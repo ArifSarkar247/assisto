@@ -193,7 +193,7 @@ def _flatten_history(history, prompt):
 
 
 def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
-             extra_system="", history=None):
+             extra_system="", history=None, charge_action=None):
     """Run one AI call across providers with graceful degrade. `task` is the
     trusted instruction; `data` is untrusted user content (wrapped safely).
     `history` is an optional list of prior {"role","content"} turns (chat), fed
@@ -222,6 +222,8 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
         # (strong->medium->cheap) to cut variable cost. Paid users keep the tier.
         tier = billing.effective_tier(user, tier)
         action = pricing.TIER_ACTION.get(tier, "ai_msg_cheap")
+        if charge_action:      # p4-world: e.g. web_answer prices search + LLM as one action
+            action = charge_action
         res = billing.charge(user, action, qty=1, note=feature or action)
         if not res["ok"]:
             # 'guard_over' -> free-tier costly actions are paused for today; the

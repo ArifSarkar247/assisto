@@ -4298,3 +4298,91 @@ class CircleMediaBlob(models.Model):
         indexes = [models.Index(fields=["owner", "created_at"],
                                 name="md1_blob_owner_day")]
 # ---- /md1 ----
+
+
+# ---- p4-world ---- Unseen World: shared feed cache, owner-entered values,
+# per-user Today prefs, MCQ score history, web-answer cache/log.
+class WorldFeed(models.Model):
+    """One external data source (RSS feed, weather city, currency, sports).
+    The server fetches it on a schedule (world_refresh) and every user reads
+    this cached copy, so a feed is fetched once for everyone. Holds the
+    owner-facing status: last refresh, last error, calls + cost today."""
+    slug = models.CharField(max_length=60, unique=True)
+    kind = models.CharField(max_length=20, default="news")   # news|weather|fx|sports
+    enabled = models.BooleanField(default=True)
+    payload = models.JSONField(default=dict, blank=True)
+    fetched_at = models.DateTimeField(null=True, blank=True)
+    last_ok_at = models.DateTimeField(null=True, blank=True)
+    last_error = models.CharField(max_length=300, blank=True, default="")
+    last_error_at = models.DateTimeField(null=True, blank=True)
+    ok_count = models.PositiveIntegerField(default=0)
+    error_count = models.PositiveIntegerField(default=0)
+    calls_day = models.DateField(null=True, blank=True)
+    calls_today = models.PositiveIntegerField(default=0)
+    cost_usd_today = models.FloatField(default=0.0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["kind", "slug"]
+
+
+class WorldAdminValue(models.Model):
+    """A value the OWNER types in Owner Admin because the official source has
+    no API (BAJUS gold, BPC fuel). Shown to users with "updated by Assisto on
+    <date>" and the official link. Every edit is written to OwnerAudit."""
+    key = models.CharField(max_length=40, unique=True)
+    value = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    effective_date = models.DateField(null=True, blank=True)
+    note = models.CharField(max_length=200, blank=True, default="")
+    updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                                   blank=True, related_name="+")
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class WorldPrefs(models.Model):
+    """Per-user Unseen World settings, synced across the user's phones:
+    which Today cards are on, the city for prayer/weather, job-alert types."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="world_prefs")
+    cards = models.JSONField(default=dict, blank=True)       # {card_id: bool}
+    city = models.CharField(max_length=40, blank=True, default="dhaka")
+    job_types = models.JSONField(default=list, blank=True)   # ["govt", "bank", ...]
+    job_alerts = models.BooleanField(default=False)
+    last_job_alert_at = models.DateTimeField(null=True, blank=True)
+    seen_job_ids = models.JSONField(default=list, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class WorldMcqAttempt(models.Model):
+    """One finished BCS-practice round (scored on the server)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="world_mcq_attempts")
+    topic = models.CharField(max_length=20, default="mixed")
+    total = models.PositiveIntegerField(default=0)
+    correct = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class WorldAnswer(models.Model):
+    """A web-search AI answer (question hash + language), kept for a short
+    cache window and for the owner's cost view. Holds no personal data
+    beyond the asking user."""
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                             blank=True, related_name="+")
+    qhash = models.CharField(max_length=64, db_index=True)
+    lang = models.CharField(max_length=2, default="bn")
+    question = models.CharField(max_length=300, blank=True, default="")
+    answer = models.TextField(blank=True, default="")
+    sources = models.JSONField(default=list, blank=True)
+    provider = models.CharField(max_length=20, blank=True, default="")
+    cached = models.BooleanField(default=False)
+    credits = models.PositiveIntegerField(default=0)
+    cost_usd = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+# ---- /p4-world ----

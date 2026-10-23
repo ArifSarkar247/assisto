@@ -126,8 +126,12 @@ abstract class CvBackend {
 }
 
 class ApiCvBackend implements CvBackend {
-  ApiCvBackend(this.api);
+  ApiCvBackend(this.api, {this.purpose = ''});
   final ApiClient api;
+
+  /// p4-world: '' (chat), 'crop' (Farmers hub) or 'rx' (Health hub). The
+  /// server switches the safety prompt and appends the mandatory note.
+  final String purpose;
 
   CvReply _r(Map<String, dynamic> j) {
     final st = j['_status'] is num ? (j['_status'] as num).toInt() : 200;
@@ -140,7 +144,11 @@ class ApiCvBackend implements CvBackend {
 
   @override
   Future<CvReply> create({required String via, required String question}) async =>
-      _r(await api.postJsonRaw('/chat-vision/jobs', {'via': via, 'question': question}));
+      _r(await api.postJsonRaw('/chat-vision/jobs', {
+        'via': via,
+        'question': question,
+        if (purpose.isNotEmpty) 'purpose': purpose,
+      }));
 
   @override
   Future<CvReply> job(int id) async {
@@ -170,5 +178,6 @@ class ApiCvBackend implements CvBackend {
         'question': question,
         'device_text': deviceText,
         'device_labels': deviceLabels,
+        if (purpose.isNotEmpty) 'purpose': purpose,
       }));
 }

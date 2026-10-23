@@ -208,8 +208,65 @@ SYSTEM_PROMPT = (
 )
 
 
-def system_prompt(lang):
-    return SYSTEM_PROMPT.format(lang_name="Bangla" if lang == "bn" else "English")
+def system_prompt(lang, purpose=""):
+    base = SYSTEM_PROMPT.format(lang_name="Bangla" if lang == "bn" else "English")
+    extra = PURPOSE_PROMPTS.get(purpose_of(purpose))
+    return base + ("\n" + extra if extra else "")
+
+
+# ---- p4-world ---- the SAME vision path with a purpose hint from a hub:
+# "crop" (Farmers hub: crop photo -> likely disease + general treatment) and
+# "rx" (Health hub: read a prescription, list medicines as written). The
+# safety rules above still apply; each purpose adds a mandatory closing note.
+PURPOSES = ("crop", "rx")
+
+PURPOSE_PROMPTS = {
+    "crop": (
+        "Purpose: the user is a farmer and the photo shows a crop, leaf, fruit "
+        "or field. Say what the problem most likely is (disease, pest or "
+        "nutrient shortage) with how sure you are, the signs that support it, "
+        "and general management steps (field hygiene, removing affected parts, "
+        "water/drainage, resistant varieties). If a pesticide or fungicide is "
+        "commonly used, name only its type or active ingredient and say to "
+        "follow the product label exactly — never give a dose, mix ratio or "
+        "spray amount. If the photo is unclear, say so and say what photo to "
+        "take. Use kind \"plant\"."),
+    "rx": (
+        "Purpose: the photo is a doctor's prescription. List each medicine "
+        "exactly as written (name, strength, how often, how long) — copy what "
+        "is written, put it in label_text too, and mark anything you cannot "
+        "read as unreadable instead of guessing. Do not add, change or "
+        "recommend any medicine or dose, and do not diagnose. Use kind "
+        "\"medicine\"."),
+}
+
+PURPOSE_NOTES = {
+    "crop": {
+        "bn": "নিশ্চিত হতে আপনার উপজেলা কৃষি অফিসারের সাথে কথা বলুন অথবা কৃষি কল সেন্টারে ১৬১২৩ নম্বরে ফোন করুন। কীটনাশক ব্যবহার করলে শুধু প্যাকেটের লেবেলে লেখা নিয়ম মানুন।",
+        "en": "To be sure, talk to your Upazila Agriculture Officer or call the Krishi Call Centre at 16123. If you use a pesticide, follow only the instructions on its label.",
+    },
+    "rx": {
+        "bn": "এটি প্রেসক্রিপশনে যা লেখা আছে তার পড়া মাত্র — ওষুধ খাওয়ার আগে ডাক্তার বা ফার্মাসিস্টের সাথে মিলিয়ে নিন।",
+        "en": "This only reads what is written on the prescription — check with your doctor or pharmacist before taking any medicine.",
+    },
+}
+
+
+def purpose_of(raw):
+    p = str(raw or "").strip().lower()
+    return p if p in PURPOSES else ""
+
+
+def add_purpose_note(answer, purpose, lang):
+    """Append the purpose's mandatory note once (never dropped)."""
+    p = purpose_of(purpose)
+    if not p:
+        return answer
+    note = PURPOSE_NOTES[p]["bn" if lang == "bn" else "en"]
+    if note in (answer or ""):
+        return answer
+    return ((answer or "").strip() + "\n\n" + note).strip()
+# ---- /p4-world ----
 
 
 _MED_WORDS = (

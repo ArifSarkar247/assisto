@@ -878,3 +878,17 @@ urlpatterns[:0] = [
     path("circle/media/dl/<str:ref>", md1.MediaBlobDownloadView.as_view()),
 ]
 # ---- /md1 ----
+
+# ---- p4-world ---- Unseen World: Today cards, web answers, jobs, hubs, MCQ.
+from . import views_world as p4w  # noqa: E402
+urlpatterns += [
+    path("world/config", p4w.WorldConfigView.as_view()),
+    path("world/prefs", p4w.WorldPrefsView.as_view()),
+    path("world/today", p4w.WorldTodayView.as_view()),
+    path("world/ask", p4w.WorldAskView.as_view()),
+    path("world/jobs", p4w.WorldJobsView.as_view()),
+    path("world/mcq", p4w.WorldMcqView.as_view()),
+    path("world/hub/<str:hub>", p4w.WorldHubView.as_view()),
+    path("world/hub/<str:hub>/ai", p4w.WorldHubAiView.as_view()),
+]
+# ---- /p4-world ----

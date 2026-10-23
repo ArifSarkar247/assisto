@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:media="http://search.yahoo.com/mrss/">
+  <!-- Structure recorded from feeds.bbci.co.uk (2026-10-23); text is synthetic test data. -->
+  <channel>
+    <title><![CDATA[Test Bangla - Feed]]></title>
+    <link>https://www.bbc.com/bengali</link>
+    <item>
+      <title><![CDATA[পরীক্ষার শিরোনাম এক]]></title>
+      <description><![CDATA[এটি একটি পরীক্ষামূলক সারাংশ। এতে ছোট কয়েকটি বাক্য আছে যাতে পার্সার ঠিকভাবে কাজ করে কিনা দেখা যায়।]]></description>
+      <link>https://www.bbc.com/bengali/articles/test0001?at_medium=RSS</link>
+      <guid isPermaLink="false">https://www.bbc.com/bengali/articles/test0001</guid>
+      <pubDate>Fri, 23 Oct 2026 12:47:54 GMT</pubDate>
+      <media:thumbnail width="240" height="135" url="https://ichef.bbci.co.uk/test.jpg"/>
+    </item>
+    <item>
+      <title><![CDATA[Second test headline]]></title>
+      <description><![CDATA[<p>A <b>longer</b> synthetic summary that goes on and on so that the snippet clamp has to cut it at a word boundary well before the end of this deliberately long sentence, which keeps going past two hundred characters to prove the limit holds every time.</p>]]></description>
+      <link>https://www.bbc.com/bengali/articles/test0002</link>
+      <pubDate>Fri, 23 Oct 2026 10:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Old story]]></title>
+      <description><![CDATA[Stale item.]]></description>
+      <link>https://www.bbc.com/bengali/articles/test0003</link>
+      <pubDate>Mon, 01 Jun 2026 10:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Duplicate link]]></title>
+      <link>https://www.bbc.com/bengali/articles/test0001?at_medium=RSS</link>
+    </item>
+  </channel>
+</rss>

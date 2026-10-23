@@ -83,6 +83,7 @@ import '../screens/sell_my_phone_screen.dart';
 import '../screens/shop_box_screen.dart';
 import '../screens/used_phone_check_screen.dart';
 import '../screens/unseen_world_screen.dart';
+import '../screens/world/world_hub_screen.dart'; // p4-world
 import '../screens/dictionary_screen.dart';
 import '../screens/ramadan_screen.dart';
 import '../screens/watch_feed_screen.dart';
@@ -362,6 +363,13 @@ class SidebarSections {
       SidebarItem(Icons.place_outlined, (t) => t.sidebarNearby,
           (_) => const NearbyScreen(),
           synonyms: ['nearby', 'around me', 'places']),
+      // p4-world: Unseen World — Today cards, web answers, jobs, hubs.
+      SidebarItem(Icons.public, (t) => t.uwTitle,
+          (_) => const WorldHubScreen(),
+          synonyms: ['world', 'today', 'news', 'weather', 'prayer time',
+              'currency', 'gold price', 'fuel price', 'jobs', 'expat', 'visa',
+              'bcs', 'farmer', 'crop', 'passport', 'nid', 'prescription',
+              'web search', 'ask anything']),
       SidebarItem(Icons.travel_explore_outlined, (t) => t.unseenTitle,
           (_) => const UnseenWorldScreen(),
           synonyms: ['unseen', 'travel', 'explore']),
