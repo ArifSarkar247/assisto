@@ -138,7 +138,15 @@ def quote(user, feature, c=None):
     cost_usd = 0.0
     provider_ready = True
     slug = ""
-    if feature in PS.CLOUD_FEATURES:
+    if feature in PS.RESTORE_FEATURES:
+        # d1-photo: our server CPU or the key-gated GPU API
+        from . import photo_restore
+        st = photo_restore.status(feature, "en")
+        provider_ready = st["ready"]
+        slug = "server_cpu" if st["where"] == "server" else photo_restore.GPU_SLUG
+        table = (c["action_costs"].get(PS.FEATURE_ACTION[feature]) or {})
+        cost_usd = max(st["cost_usd"], float(table.get("provider_cost") or 0)) if provider_ready else 0.0
+    elif feature in PS.CLOUD_FEATURES:
         slug, _conf, prov_cost = _active_provider(c)
         provider_ready = bool(slug)
         table = (c["action_costs"].get(PS.FEATURE_ACTION[feature]) or {})
@@ -182,6 +190,8 @@ def refusal_message(reason, lang):
 
 def funding_message(reason, lang):
     m = {
+        "busy": ("সার্ভার এখন ব্যস্ত — একটু পরে আবার চেষ্টা করুন।",
+                 "The server is busy — try again in a moment."),
         "provider_missing": ("ক্লাউড এডিট এখনো চালু হয়নি — মালিককে Integrations-এ ইমেজ প্রোভাইডার যোগ করতে হবে।",
                              "Cloud editing isn't switched on yet — the owner must connect an image provider in Integrations."),
         "unpriced": ("এই কাজের খরচ জানা নেই, তাই চালানো হবে না।",
@@ -284,9 +294,12 @@ def create_job(user, data, lang="bn"):
             return 409, {"ok": False, "reason": "choose_funding",
                          "message": funding_message(q["reason"], lang), "quote": q}
 
+    job_opts = {"options": options, "beauty": beauty, "strength": strength}
+    if feature == "old_restore":
+        job_opts["restore_colorize"] = data.get("restore_colorize") is not False
     job = PhotoStudioJob(
         user=user, feature=feature, prompt=prompt,
-        options={"options": options, "beauty": beauty, "strength": strength},
+        options=job_opts,
         flags=verdict["flags"], provider=q.get("provider", ""),
         cost_bdt=0.0, funding=opt["via"])
     note = "photo:%s" % feature
@@ -627,6 +640,8 @@ def run_cloud(user, job, image_b64, lang="bn", face_boxes=None):
             return 413, {"ok": False, "reason": "too_large"}
     if job.feature != "generate" and not raw:
         return 400, {"ok": False, "reason": "no_image"}
+    if job.feature in PS.RESTORE_FEATURES:
+        return _run_restore(user, job, raw, lang, face_boxes)
     c = _cfg()
     slug, conf, prov_cost = _active_provider(c)
     if not slug:
@@ -666,6 +681,70 @@ def run_cloud(user, job, image_b64, lang="bn", face_boxes=None):
     job.status = "done"
     job.done_at = timezone.now()
     job.error = ""
+    job.save()
+    billing.record_cost("ai", job.cost_bdt)
+    return 200, {"ok": True, "job": job_state(job, lang)}
+
+
+def _run_restore(user, job, raw, lang, face_boxes):
+    """d1-photo: a FUNDED restore job on our server CPU / the GPU API. Same
+    rules as run_cloud: funds kept for a retry on failure (max 3 runs, then
+    credits refunded), cost booked only on a real result. No server-side
+    face composite: colorize keeps the photo's own lightness, old-photo
+    restore face-locks inside the model step, and the PHONE runs the identity
+    check on every result before showing it."""
+    from . import billing
+    from . import photo_restore
+    c = _cfg()
+    st = photo_restore.status(job.feature, lang)
+    if not st["ready"]:
+        return 409, {"ok": False, "reason": "provider_missing", "message": st["needs"]}
+    table = c["action_costs"].get(PS.FEATURE_ACTION[job.feature]) or {}
+    cost_usd = max(st["cost_usd"], float(table.get("provider_cost") or 0))
+    job.status = "running"
+    job.runs += 1
+    job.provider = "server_cpu" if st["where"] == "server" else photo_restore.GPU_SLUG
+    job.save(update_fields=["status", "runs", "provider"])
+    mime = "image/png" if raw[:8] == b"\x89PNG\r\n\x1a\n" else "image/jpeg"
+    colorize = (job.options or {}).get("restore_colorize", True) is not False
+    try:
+        out, _info = photo_restore.run(job.feature, raw, face_boxes=face_boxes,
+                                       colorize=colorize, mime=mime)
+    except photo_restore.RestoreError as e:
+        busy = isinstance(e, photo_restore.RestoreBusy)
+        job.error = str(e)[:200]
+        if job.runs >= 3 and not busy:
+            job.status = "failed"
+            if job.funding in ("credits", "pool") and job.credits_charged:
+                _refund(user, job.credits_charged, "photo:refund:%d" % job.pk)
+        else:
+            if busy:
+                job.runs -= 1    # a busy server is not the user's attempt
+            job.status = "funded"
+        job.save(update_fields=["error", "status", "runs"])
+        return (503 if busy else 502), {
+            "ok": False, "reason": "busy" if busy else "provider_failed",
+            "message": pick(lang,
+                            "সার্ভার এখন ব্যস্ত — একটু পরে আবার চেষ্টা করুন (আর বিজ্ঞাপন/ক্রেডিট লাগবে না)।"
+                            if busy else
+                            "মেরামত এখন হয়নি — আবার চেষ্টা করুন (আর বিজ্ঞাপন/ক্রেডিট লাগবে না)।",
+                            "The server is busy — try again in a moment (no extra ads or credits)."
+                            if busy else
+                            "The repair didn't work this time — try again (no extra ads or credits)."),
+            "job": job_state(job, lang)}
+    ext = "png" if out[:8] == b"\x89PNG\r\n\x1a\n" else "jpg"
+    job.result_name = _save_bytes(out, ext)
+    ps = ps_cfg(c)
+    prev = make_preview(out, ps["preview_max_px"], watermark=is_free(user))
+    if prev:
+        job.preview_name = _save_bytes(prev, "png")
+    job.cost_bdt = cost_usd * float(c["usd_bdt"])
+    job.status = "done"
+    job.done_at = timezone.now()
+    job.error = ""
+    flags = dict(job.flags or {})
+    flags["ai_edited"] = True
+    job.flags = flags
     job.save()
     billing.record_cost("ai", job.cost_bdt)
     return 200, {"ok": True, "job": job_state(job, lang)}
@@ -728,7 +807,23 @@ def client_config(user, lang="bn", request=None):
         # "add an image-AI key" note when no cloud provider is connected).
         "ai_model": _ai_model(request),
         "is_owner": bool(getattr(user, "is_superuser", False)),
+        # d1-photo: heavy restore jobs — ready? (owner sees what is missing)
+        "restore": _restore_state(lang),
+        # no licence-clean face-restoration model exists: never offered
+        "face_restore": {"available": False, "reason": "no_licence_clean_model"},
     }
+
+
+def _restore_state(lang):
+    from . import photo_restore
+    out = {}
+    for f in PS.RESTORE_FEATURES:
+        try:
+            st = photo_restore.status(f, lang)
+        except Exception:
+            st = {"ready": False, "where": "", "needs": ""}
+        out[f] = {"ready": bool(st["ready"]), "where": st["where"], "needs": st["needs"]}
+    return out
 
 
 def _ai_model(request):

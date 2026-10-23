@@ -43,8 +43,12 @@ import re
 # enhance_cloud  heavy-job / weak-phone enhance on a cloud provider
 # prompt_edit    edit by prompt / ready option (cloud, generative)
 # generate       new image from a prompt (cloud, generative)
-FEATURES = ("enhance_hd", "enhance_cloud", "prompt_edit", "generate")
-CLOUD_FEATURES = ("enhance_cloud", "prompt_edit", "generate")
+# d1-photo restore jobs (no prompt, faithful, identity-checked on the phone):
+# colorize / old_restore -> OUR server CPU (core/photo_restore.py);
+# deblur -> pay-per-use GPU API behind the Admin key photo_restore_gpu.
+RESTORE_FEATURES = ("deblur", "colorize", "old_restore")
+FEATURES = ("enhance_hd", "enhance_cloud", "prompt_edit", "generate") + RESTORE_FEATURES
+CLOUD_FEATURES = ("enhance_cloud", "prompt_edit", "generate") + RESTORE_FEATURES
 TRIAL_FEATURES = ("prompt_edit", "generate")
 
 # pricing action ids (core/logic/pricing.py _ACTION_DEFAULTS)
@@ -53,6 +57,9 @@ FEATURE_ACTION = {
     "enhance_cloud": "photo_enhance_cloud",
     "prompt_edit": "photo_prompt_edit",
     "generate": "photo_generate",
+    "deblur": "photo_deblur",
+    "colorize": "photo_colorize",
+    "old_restore": "photo_old_restore",
 }
 
 # every way an image can leave the studio — each one goes through ONE gate

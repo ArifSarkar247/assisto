@@ -455,6 +455,26 @@ REGISTRY = {
                                    _f("model", "মডেল version", "Model version", secret=False),
                                    _f("cost_per_image_usd", "ছবি প্রতি খরচ (USD)", "Cost per image (USD)", secret=False)],
                         "test": "test_replicate"},
+    # ---- d1-photo ---- pay-per-use GPU for the heavy restore job that our CPU
+    # server is too slow for (NAFNet deblur: 16 s at 768x576, 69 s at 1024x768
+    # on the server). Hidden in the app until connected AND priced.
+    "photo_restore_gpu": {"name": "GPU photo repair (Replicate) — Photo Studio deblur", "category": "AI",
+                          "unlocks_bn": "ফটো স্টুডিও: ঝাপসা ছবি পরিষ্কার (NAFNet, MIT লাইসেন্স) — প্রতি কাজে টাকা।",
+                          "unlocks_en": "Photo Studio: remove blur (NAFNet, MIT licence) — pay per run.",
+                          "guide_bn": ["replicate.com → Account → API token",
+                                       "replicate.com/megvii-research/nafnet → Versions → version ID কপি করুন",
+                                       "Task: Image Debluring (GoPro) (খালি রাখলে এটাই)",
+                                       "প্রতি কাজের খরচ (USD) লিখুন (Replicate পেজে GPU সময় × দাম) → Save → Test"],
+                          "guide_en": ["replicate.com → Account → API token",
+                                       "replicate.com/megvii-research/nafnet → Versions → copy the version id",
+                                       "Task: Image Debluring (GoPro) (the default when empty)",
+                                       "Enter cost per run (USD) from Replicate's GPU time × price → Save → Test"],
+                          "fields": [_f("api_token", "API Token", "API Token"),
+                                     _f("deblur_version", "NAFNet মডেল version", "NAFNet model version", secret=False),
+                                     _f("deblur_task", "Task (ঐচ্ছিক)", "Task (optional)", secret=False),
+                                     _f("cost_per_run_usd", "প্রতি কাজের খরচ (USD)", "Cost per run (USD)", secret=False)],
+                          "test": "test_replicate"},
+    # ---- /d1-photo ----
     # ---- /ps1-photo ----
     # ---- h1-home ---- Image in chat: cloud VISION providers (read a photo and
     # answer a question about it). Switchable like Photo Studio: the active one

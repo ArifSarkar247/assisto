@@ -119,6 +119,14 @@ _ACTION_DEFAULTS = {
     "photo_enhance_cloud": {"provider_cost": 0.01, "credits": 3},
     "photo_prompt_edit":   {"provider_cost": 0.04, "credits": 9},
     "photo_generate":      {"provider_cost": 0.04, "credits": 9},
+    # d1-photo: heavy restore jobs. colorize / old_restore run on OUR server
+    # CPU (~4-15 s of a 2-vCPU box ≈ US$0.0003 at on-demand prices; the table
+    # carries a 10x safety margin so the job is always priced, never "free");
+    # deblur runs on a pay-per-use GPU API (the live job uses the larger of
+    # this and the Admin "cost per run").
+    "photo_colorize":      {"provider_cost": 0.003, "credits": 2},
+    "photo_old_restore":   {"provider_cost": 0.005, "credits": 3},
+    "photo_deblur":        {"provider_cost": 0.01, "credits": 3},
     # h1-home: one cloud vision answer about a photo in chat (Claude / OpenAI /
     # Gemini vision). The live call uses the larger of this estimate and the
     # connected provider's own "cost per image" field.
