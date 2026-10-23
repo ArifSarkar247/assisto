@@ -8,7 +8,7 @@ import '../../../theme.dart';
 import '../../../widgets/business_ui.dart';
 import '../../../widgets/skeleton.dart';
 import 'approvals_screen.dart' show baRiskLabel;
-import 'seller_agent_screen.dart' show baChannelIcon, baErrorText;
+import 'seller_agent_screen.dart' show baChannelIcon, baErrorText, bd;
 
 /// P1 — the seller's inbox of customer chats from the connected Page,
 /// Instagram and WhatsApp number.
@@ -80,15 +80,15 @@ class _SellerInboxScreenState extends State<SellerInboxScreen> {
           final pending = (th['pending'] as num?)?.toInt() ?? 0;
           return ListTile(
             leading: CircleAvatar(child: Icon(baChannelIcon('${th['channel']}'), size: 20)),
-            title: Text('${th['customer_name'] ?? ''}', maxLines: 1, overflow: TextOverflow.ellipsis),
-            subtitle: Text(
+            title: Text(bd(context, th['customer_name']), maxLines: 1, overflow: TextOverflow.ellipsis),
+            subtitle: Text(bd(context,
               th['handover'] == true
                   ? '${t.baHandoverOnShort} · ${th['last_text'] ?? ''}'
-                  : '${th['last_text'] ?? ''}',
+                  : '${th['last_text'] ?? ''}'),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-            trailing: pending > 0 ? Badge(label: Text('$pending')) : null,
+            trailing: pending > 0 ? Badge(label: Text(bd(context, pending))) : null,
             onTap: () async {
               await Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => SellerChatScreen(threadId: (th['id'] as num).toInt())));
@@ -155,7 +155,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
   }
 
   void _snack(String m) =>
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(m)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(bd(context, m))));
 
   Future<void> _handover(bool on) async {
     final t = AppLocalizations.of(context);
@@ -207,7 +207,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
     final th = (_d['thread'] as Map?) ?? const {};
     return Scaffold(
       appBar: AppBar(
-        title: Text('${th['customer_name'] ?? ''}', maxLines: 1, overflow: TextOverflow.ellipsis),
+        title: Text(bd(context, th['customer_name']), maxLines: 1, overflow: TextOverflow.ellipsis),
       ),
       body: _body(t, th),
     );
@@ -243,8 +243,8 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
         Padding(
           padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, 0),
           child: BizNote(
-            text: t.baOrderDraft('${draft['product']}', '${draft['qty'] ?? 1}',
-                '${draft['phone'] ?? '—'}', '${draft['address'] ?? '—'}'),
+            text: bd(context, t.baOrderDraft('${draft['product']}', '${draft['qty'] ?? 1}',
+                '${draft['phone'] ?? '—'}', '${draft['address'] ?? '—'}')),
             icon: Icons.shopping_bag_outlined,
           ),
         ),
@@ -318,13 +318,13 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
             border: failed ? Border.all(color: Brand.danger) : null,
           ),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('${m['text'] ?? ''}',
+            Text(bd(context, m['text']),
                 style: TextStyle(
                     height: 1.4,
                     color: out ? scheme.onPrimaryContainer : scheme.onSurface)),
             if (meta.isNotEmpty) ...[
               const SizedBox(height: Gap.xs),
-              Text(meta,
+              Text(bd(context, meta),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: out ? scheme.onPrimaryContainer : scheme.onSurfaceVariant)),
             ],

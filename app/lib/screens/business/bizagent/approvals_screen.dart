@@ -7,7 +7,7 @@ import '../../../state.dart';
 import '../../../theme.dart';
 import '../../../widgets/business_ui.dart';
 import '../../../widgets/skeleton.dart';
-import 'seller_agent_screen.dart' show baChannelLabel, baErrorText;
+import 'seller_agent_screen.dart' show baChannelLabel, baErrorText, bd;
 
 /// P1 — the seller's approval queue: risky AI replies (a number not in the
 /// catalog, discount below the minimum, complaint, refund, unknown product,
@@ -124,8 +124,9 @@ class _ApprovalCard extends StatefulWidget {
 }
 
 class _ApprovalCardState extends State<_ApprovalCard> {
+  // bn: the draft is shown (and, when edited, sent) with Bangla digits
   late final TextEditingController _c =
-      TextEditingController(text: '${widget.item['text'] ?? ''}');
+      TextEditingController(text: bd(context, widget.item['text'] ?? ''));
   bool _busy = false;
 
   @override
@@ -134,7 +135,7 @@ class _ApprovalCardState extends State<_ApprovalCard> {
     super.dispose();
   }
 
-  bool get _edited => _c.text.trim() != '${widget.item['text'] ?? ''}'.trim();
+  bool get _edited => _c.text.trim() != bd(context, widget.item['text'] ?? '').trim();
 
   Future<void> _run(Future<Map<String, dynamic>> Function() f, String ok) async {
     final t = AppLocalizations.of(context);
@@ -144,12 +145,12 @@ class _ApprovalCardState extends State<_ApprovalCard> {
       if (!mounted) return;
       final sent = r['ok'] == true;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(sent ? ok : t.baSendFailed('${r['status'] ?? ''}'))));
+          content: Text(bd(context, sent ? ok : t.baSendFailed('${r['status'] ?? ''}')))));
       await widget.onDone();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(baErrorText(t, e))));
+            .showSnackBar(SnackBar(content: Text(bd(context, baErrorText(t, e)))));
       }
     }
     if (mounted) setState(() => _busy = false);
@@ -163,9 +164,9 @@ class _ApprovalCardState extends State<_ApprovalCard> {
     final problems = ((it['problems'] as List?) ?? const []).cast<Map>();
     final api = context.read<AppState>().api;
     return BizCard(
-      title: '${it['customer_name'] ?? ''}'.isEmpty
+      title: bd(context, '${it['customer_name'] ?? ''}'.isEmpty
           ? baChannelLabel(t, '${it['channel']}')
-          : '${it['customer_name']} · ${baChannelLabel(t, '${it['channel']}')}',
+          : '${it['customer_name']} · ${baChannelLabel(t, '${it['channel']}')}'),
       icon: Icons.fact_check_outlined,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         BizStatusChip(label: baRiskLabel(t, '${it['risk_reason']}'), color: Brand.warning),
@@ -173,12 +174,12 @@ class _ApprovalCardState extends State<_ApprovalCard> {
         if ('${it['customer_text'] ?? ''}'.isNotEmpty) ...[
           Text(t.baCustomerSaid, style: Theme.of(context).textTheme.labelMedium),
           const SizedBox(height: Gap.xs),
-          Text('${it['customer_text']}', style: const TextStyle(height: 1.4)),
+          Text(bd(context, it['customer_text']), style: const TextStyle(height: 1.4)),
           const SizedBox(height: Gap.md),
         ],
         if (problems.isNotEmpty) ...[
           BizNote(
-            text: t.baNumbersNotInCatalog(problems.map((p) => '${p['value']}').join(', ')),
+            text: bd(context, t.baNumbersNotInCatalog(problems.map((p) => '${p['value']}').join(', '))),
             icon: Icons.error_outline,
             tint: Brand.danger,
           ),

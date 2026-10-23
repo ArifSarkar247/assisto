@@ -7,7 +7,8 @@ import '../../../state.dart';
 import '../../../theme.dart';
 import '../../../widgets/business_ui.dart';
 import '../../../widgets/skeleton.dart';
-import 'seller_agent_screen.dart' show baChannelIcon, baChannelLabel, baErrorText;
+import 'seller_agent_screen.dart'
+    show asciiDigits, baChannelIcon, baChannelLabel, baErrorText, bd;
 
 /// P1 — seller onboarding for the AI agent.
 ///
@@ -87,9 +88,9 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
     try {
       final s = await context.read<AppState>().api.bizAgentSetup();
       final st = (s['settings'] as Map?) ?? const {};
-      _inside.text = '${st['delivery_inside'] ?? ''}';
-      _outside.text = '${st['delivery_outside'] ?? ''}';
-      _freeOver.text = '${st['free_over'] ?? ''}';
+      _inside.text = bd(context, st['delivery_inside'] ?? '');
+      _outside.text = bd(context, st['delivery_outside'] ?? '');
+      _freeOver.text = bd(context, st['free_over'] ?? '');
       _returns.text = '${st['returns'] ?? ''}';
       _tone = '${st['tone'] ?? 'friendly'}';
       _approveAll = st['approve_all'] == true;
@@ -117,7 +118,7 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
   }
 
   void _snack(String m) =>
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(m)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(bd(context, m))));
 
   Future<void> _save() async {
     final t = AppLocalizations.of(context);
@@ -131,9 +132,9 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
         'low_stock_alert': _lowStock,
         'daily_report': _daily,
         'hours': _always ? <String, String>{} : {'start': _hm(_start), 'end': _hm(_end)},
-        'delivery_inside': _inside.text.trim().isEmpty ? '0' : _inside.text.trim(),
-        'delivery_outside': _outside.text.trim().isEmpty ? '0' : _outside.text.trim(),
-        'free_over': _freeOver.text.trim(),
+        'delivery_inside': _inside.text.trim().isEmpty ? '0' : asciiDigits(_inside.text.trim()),
+        'delivery_outside': _outside.text.trim().isEmpty ? '0' : asciiDigits(_outside.text.trim()),
+        'free_over': asciiDigits(_freeOver.text.trim()),
         'returns': _returns.text.trim(),
       });
       _snack(t.baSaved);
@@ -269,14 +270,14 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Icon(baChannelIcon('${c['kind']}')),
-      title: Text('${c['display_name'] ?? c['external_id']}', maxLines: 1,
+      title: Text(bd(context, c['display_name'] ?? c['external_id']), maxLines: 1,
           overflow: TextOverflow.ellipsis),
-      subtitle: Text(
+      subtitle: Text(bd(context,
         killed
             ? t.baChannelPausedByAssisto
             : ok
                 ? (c['enabled'] == true ? t.baConnected : t.baChannelOff)
-                : (detail.isNotEmpty ? t.baConnectError(detail) : t.baNotConnected),
+                : (detail.isNotEmpty ? t.baConnectError(detail) : t.baNotConnected)),
       ),
       trailing: Row(mainAxisSize: MainAxisSize.min, children: [
         Switch(
@@ -349,22 +350,22 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
       title: t.baCatalogTitle,
       icon: Icons.inventory_2_outlined,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(t.baCatalogLine(n, (c['priced'] as num?)?.toInt() ?? 0,
-            (c['in_stock'] as num?)?.toInt() ?? 0)),
+        Text(bd(context, t.baCatalogLine(n, (c['priced'] as num?)?.toInt() ?? 0,
+            (c['in_stock'] as num?)?.toInt() ?? 0))),
         if (n == 0) ...[
           const SizedBox(height: Gap.sm),
           BizNote(text: t.baCatalogEmpty, icon: Icons.warning_amber_outlined, tint: Brand.warning),
         ],
         if (missing.isNotEmpty) ...[
           const SizedBox(height: Gap.sm),
-          BizNote(text: t.baCatalogMissingPrice(missing.join(', ')),
+          BizNote(text: bd(context, t.baCatalogMissingPrice(missing.join(', '))),
               icon: Icons.warning_amber_outlined, tint: Brand.warning),
         ],
         if (low.isNotEmpty) ...[
           const SizedBox(height: Gap.sm),
           Text(t.baLowStockTitle, style: const TextStyle(fontWeight: FontWeight.w700)),
           for (final x in low.take(5))
-            Text(t.baLowStockLine('${x['name']}', (x['stock'] as num?)?.toInt() ?? 0)),
+            Text(bd(context, t.baLowStockLine('${x['name']}', (x['stock'] as num?)?.toInt() ?? 0))),
         ],
         const SizedBox(height: Gap.sm),
         BizNote(text: t.baCatalogTruth, icon: Icons.price_check_outlined),
@@ -401,12 +402,12 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
             OutlinedButton.icon(
               onPressed: () => _pickTime(true),
               icon: const Icon(Icons.schedule, size: 18),
-              label: Text(t.baHoursFrom(_hm(_start))),
+              label: Text(bd(context, t.baHoursFrom(_hm(_start)))),
             ),
             OutlinedButton.icon(
               onPressed: () => _pickTime(false),
               icon: const Icon(Icons.schedule, size: 18),
-              label: Text(t.baHoursTo(_hm(_end))),
+              label: Text(bd(context, t.baHoursTo(_hm(_end)))),
             ),
           ]),
         SwitchListTile(
@@ -521,7 +522,7 @@ class _CourierTileState extends State<_CourierTile> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(baErrorText(t, e))));
+            .showSnackBar(SnackBar(content: Text(bd(context, baErrorText(t, e)))));
       }
     }
     if (mounted) setState(() => _busy = false);
@@ -641,7 +642,7 @@ class _ConnectSheetState extends State<_ConnectSheet> {
           ),
           if (_err != null) ...[
             const SizedBox(height: Gap.sm),
-            Text(_err!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+            Text(bd(context, _err!), style: TextStyle(color: Theme.of(context).colorScheme.error)),
           ],
           const SizedBox(height: Gap.md),
           SizedBox(
