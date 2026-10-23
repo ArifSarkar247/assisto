@@ -15,8 +15,9 @@ sys.path.insert(0, os.path.dirname(HERE))
 
 from ww import audio  # noqa: E402
 from ww.detector import Decider, count_triggers  # noqa: E402
-from ww.evaluate import false_accepts, pick_thresholds  # noqa: E402
-from ww.model import WakeNet  # noqa: E402
+from ww.evaluate import (count_fast, false_accepts, pick_thresholds_logit,  # noqa: E402
+                         temperature_for, thresholds_from_logits)
+from ww.model import FramePool, Scorer, WakeNet  # noqa: E402
 
 HAS_ONNX = all(importlib.util.find_spec(m) for m in ("onnx", "onnxruntime"))
 
@@ -111,15 +112,51 @@ class ModelTests(unittest.TestCase):
             x = np.random.default_rng(0).standard_normal((5, 16, 96)).astype(np.float32)
             np.testing.assert_allclose(WakeNet.load_npz(p).predict(x), net.predict(x), rtol=1e-6)
 
-    def test_pick_thresholds(self):
+    def test_pick_thresholds_logit(self):
         rng = np.random.default_rng(2)
-        neg = rng.uniform(0, 0.6, 45000)  # 1 h validation
-        neg[[10, 2000]] = [0.83, 0.71]
-        pos = rng.uniform(0.7, 1.0, 300)
-        th = pick_thresholds(neg, 1.0, pos, target_fa_per_hour=0.1)["thresholds"]
-        self.assertGreater(th["normal"], 0.83)  # above every validation false accept
-        self.assertGreaterEqual(th["low"], th["normal"])
-        self.assertLessEqual(th["high"], th["normal"])
+        neg = rng.uniform(-12, -2, 45000)  # 1 h validation (logits)
+        neg[[10, 2000]] = [9.3, 6.1]
+        pos = rng.uniform(4, 20, 300)
+        p = pick_thresholds_logit([neg], 1.0, pos, target_fa_per_hour=0.1)
+        L = p["logits"]
+        self.assertGreater(L["normal"], 9.3)  # above every validation false accept
+        self.assertGreater(L["low"], L["normal"])
+        self.assertLessEqual(L["high"], L["normal"])
+        T = temperature_for(L["normal"])
+        th = thresholds_from_logits(L, T)
+        self.assertLess(th["normal"], 0.96)  # well inside float32 range on the phone
+        self.assertGreater(th["low"], th["normal"])
+
+    def test_count_fast_matches_decider(self):
+        rng = np.random.default_rng(4)
+        for p in (1, 2):
+            for _ in range(20):
+                sc = (rng.random(3000) > 0.97).astype(np.float32) * rng.uniform(0.4, 1, 3000)
+                self.assertEqual(count_fast(sc, 0.6, p), count_triggers(sc, Decider(0.6, patience=p)))
+
+    def test_stream_logits_and_scorer(self):
+        rng = np.random.default_rng(5)
+        a, b = WakeNet(15, 96, 8, seed=1), WakeNet(15, 96, 8, seed=2)
+        for n in (a, b):
+            n.mu = rng.standard_normal(15 * 96).astype(np.float32)
+            n.sd = rng.uniform(0.5, 2, 15 * 96).astype(np.float32)
+        emb = rng.standard_normal((80, 96)).astype(np.float32)
+        win = np.stack([emb[j: j + 15] for j in range(80 - 14)])
+        np.testing.assert_allclose(a.stream_logits(emb, chunk=7), a.logits(win), rtol=1e-4, atol=1e-4)
+        sc = Scorer([a, b], 16, temperature=2.5)
+        w16 = np.stack([emb[j: j + 16] for j in range(80 - 15)])
+        np.testing.assert_allclose(sc.stream_logits(emb), sc.window_logits(w16), rtol=1e-4, atol=1e-4)
+        ref = np.minimum((a.logits(w16[:, :15]) + b.logits(w16[:, :15])) / 2,
+                         (a.logits(w16[:, 1:]) + b.logits(w16[:, 1:])) / 2)
+        np.testing.assert_allclose(sc.window_logits(w16), ref, rtol=1e-5, atol=1e-5)
+
+    def test_frame_pool(self):
+        w = np.arange(2 * 16 * 96, dtype=np.float32).reshape(2, 16, 96)
+        s = np.arange(20 * 96, dtype=np.float32).reshape(20, 96)
+        p = FramePool.from_parts([w], [s], 15, dtype=np.float32)
+        self.assertEqual(len(p), 2 * 2 + 6)
+        np.testing.assert_array_equal(p.gather(np.array([1]))[0], w[0, 1:])
+        np.testing.assert_array_equal(p.gather(np.array([9]))[0], s[5:20])
 
 
 @unittest.skipUnless(HAS_ONNX, "onnx / onnxruntime not installed")
@@ -138,6 +175,49 @@ class OnnxTests(unittest.TestCase):
             np.testing.assert_allclose(got, net.predict(x), rtol=1e-4, atol=1e-5)
             got1 = s.run(None, {"input": x[:1]})[0]
             self.assertEqual(got1.shape, (1, 1))
+
+    def test_ensemble_smoothing_onnx_matches_numpy(self):
+        import onnx
+        import onnxruntime as ort
+        rng = np.random.default_rng(1)
+        ms = []
+        for sd in (1, 2, 3):
+            m = WakeNet(15, 96, 8, seed=sd)
+            m.mu = rng.standard_normal(15 * 96).astype(np.float32)
+            m.sd = rng.uniform(0.5, 2, 15 * 96).astype(np.float32)
+            ms.append(m)
+        sc = Scorer(ms, 16, temperature=3.7)
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "w.onnx")
+            sc.to_onnx(p)
+            ops = {n.op_type for n in onnx.load(p).graph.node}
+            self.assertTrue(ops <= {"Slice", "Reshape", "Sub", "Div", "Gemm", "Relu", "Sum", "Mul",
+                                    "Min", "Sigmoid"}, ops)
+            s = ort.InferenceSession(p, providers=["CPUExecutionProvider"])
+            self.assertEqual(s.get_inputs()[0].name, "input")
+            x = rng.standard_normal((9, 16, 96)).astype(np.float32)
+            got = s.run(None, {"input": x})[0][:, 0]
+            np.testing.assert_allclose(got, sc.predict(x), rtol=1e-4, atol=1e-6)
+            self.assertEqual(s.run(None, {"input": x[:1]})[0].shape, (1, 1))
+            p2 = os.path.join(d, "s.npz")
+            sc.save_npz(p2)
+            np.testing.assert_allclose(Scorer.load_npz(p2).predict(x), sc.predict(x), rtol=1e-6)
+
+    def test_parallel_stream_embeddings_equal_serial(self):
+        from ww import embed
+        from ww.features import FeatureSpec, StreamingFeatures, make_fake_e2e
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "f.onnx")
+            make_fake_e2e(p, window_samples=2560)
+            spec = FeatureSpec("e2e", e2e_path=p, window_samples=2560)
+            x = (np.random.default_rng(0).standard_normal(16000 * 7) * 3000).astype(np.int16)
+            fx = StreamingFeatures(spec)
+            ref = fx.push(x.astype(np.float32) / 32768.0)
+            ref_t = np.asarray(fx.emit_samples)
+            os.environ["WW_WORKERS"] = "3"
+            e, t = embed.stream_embeddings(spec, x, chunk_hops=7)
+            np.testing.assert_array_equal(t, ref_t)
+            np.testing.assert_allclose(e, ref, rtol=1e-5, atol=1e-6)
 
     def test_streaming_features_chunk_invariant(self):
         from ww.features import HOP, FeatureSpec, StreamingFeatures, make_fake_e2e
@@ -169,8 +249,14 @@ class OnnxTests(unittest.TestCase):
             for f in m["files"]:
                 self.assertTrue(os.path.exists(os.path.join(out, f["name"])))
                 self.assertEqual(len(f["sha256"]), 64)
+            self.assertFalse(m["ship_ready"])
             self.assertIn("eval_bn", m["eval"]["false_accepts"])
+            self.assertIn("eval_tv", m["eval"]["false_accepts"])
             self.assertTrue(os.path.exists(os.path.join(out, "eval_report.md")))
+            with open(os.path.join(out, "eval_report.json")) as f:
+                rep = json.load(f)
+            self.assertIn("ensemble", rep["candidates"])
+            self.assertIn("normal", rep["seed_variance"])
 
 
 if __name__ == "__main__":

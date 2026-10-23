@@ -46,12 +46,31 @@ SOURCES = {
         "licence": "CC BY 4.0 (corpus); per-file licences in LICENSE files", "commercial_ok": True,
         "use": "train-negative + augmentation noise (85%), eval (15%)",
     },
+    "fleurs_hi": {
+        "what": "Hindi read speech (FLEURS, hi_in, train split) - 'Hindi serial on the TV' negatives",
+        "url": "https://huggingface.co/datasets/google/fleurs/resolve/main/data/hi_in/audio/train.tar.gz",
+        "licence": "CC BY 4.0", "commercial_ok": True, "use": "train-negative",
+    },
+    "sim_rir": {
+        "what": "Simulated room impulse responses, 16 kHz (OpenSLR 26; image method, small/medium/large rooms)",
+        "url": "https://www.openslr.org/resources/26/sim_rir_16k.zip",
+        "licence": "Apache-2.0", "commercial_ok": True,
+        "use": "augmentation (rooms split train 80% / validation 10% / eval 10%)",
+    },
     "slr53_bn": {
         "what": "Bengali conversational-style ASR speech, ONE shard (~13 h) (OpenSLR 53)",
         "url": "https://www.openslr.org/resources/53/asr_bengali_0.zip",
         "licence": "CC BY-SA 4.0", "commercial_ok": True, "use": "eval only (false accepts / hour)",
     },
+    "slr53_bn_1": {
+        "what": "Bengali ASR speech, a SECOND shard (OpenSLR 53, asr_bengali_1) - speech of the TV-mix test set",
+        "url": "https://www.openslr.org/resources/53/asr_bengali_1.zip",
+        "licence": "CC BY-SA 4.0", "commercial_ok": True, "use": "eval only (TV-like test set)",
+    },
 }
+# MUSAN "speech" (LibriVox + US-government recordings, public domain per MUSAN's
+# LICENSE files; NC/ND entries filtered like music/noise) comes from the same
+# archive as "musan" above: broadcast/read English speech for TV-like mixes.
 
 AUDIO_EXT = (".wav", ".flac", ".ogg")
 _NC_ND = re.compile(r"(non-?commercial|no-?deriv|\bby-nc|\bnc\b|-nc-|-nd\b|\bnd\b|by-nd)", re.I)
@@ -140,59 +159,145 @@ def archive_to_stream(path: str, max_hours: float, seed: int = 0, prefixes=(),
     return (np.clip(y, -1, 1) * 32767).astype(np.int16)
 
 
+def _split3(names, rng, val_frac, eval_frac):
+    names = sorted(names)
+    rng.shuffle(names)
+    kv, ke = int(len(names) * val_frac), int(len(names) * eval_frac)
+    return {"val": names[:kv], "eval": names[kv: kv + ke], "train": names[kv + ke:]}
+
+
 def musan_split(path: str, out_dir: str, max_files: int = 2500, eval_frac: float = 0.15,
-                seed: int = 0) -> dict:
-    """Extract MUSAN music+noise (resampled), drop files whose LICENSE entry
-    is NonCommercial / NoDerivatives, split train/eval. Returns a report."""
+                seed: int = 0, val_frac: float = 0.10, speech_files: int = 300,
+                speech_max_s: int = 120) -> dict:
+    """Extract MUSAN music+noise AND speech (resampled), drop files whose
+    LICENSE entry is NonCommercial / NoDerivatives, split by FILE into
+    train / val / eval. Writes musan_{part}.npy (music+noise) and
+    mspeech_{part}.npy (speech). Returns a report."""
     os.makedirs(out_dir, exist_ok=True)
     rng = random.Random(seed)
-    clips, licences = {}, {}
-    for name, b in _iter_archive(path, ("musan/music", "musan/noise")):
+    clips, speech, licences = {}, {}, {}
+    for name, b in _iter_archive(path, ("musan/music", "musan/noise", "musan/speech")):
         if os.path.basename(name) == "LICENSE":
             licences[os.path.dirname(name)] = b.decode("utf-8", "replace")
             continue
-        if len(clips) >= max_files:
+        is_sp = name.startswith("musan/speech")
+        if (is_sp and len(speech) >= speech_files) or (not is_sp and len(clips) >= max_files):
             continue
         x = _decode(b)
         if x is None or len(x) < audio.SR:
             continue
-        clips[name] = (np.clip(x[: audio.SR * 60], -1, 1) * 32767).astype(np.int16)
+        cap = audio.SR * (speech_max_s if is_sp else 60)
+        (speech if is_sp else clips)[name] = (np.clip(x[:cap], -1, 1) * 32767).astype(np.int16)
     dropped = []
-    for name in list(clips):
-        lic = licences.get(os.path.dirname(name), "")
-        stem = os.path.splitext(os.path.basename(name))[0]
-        for line in lic.splitlines():
-            if stem in line and _NC_ND.search(line):
-                dropped.append(name)
-                clips.pop(name, None)
-                break
-    names = sorted(clips)
-    rng.shuffle(names)
-    k = int(len(names) * eval_frac)
-    split = {"eval": names[:k], "train": names[k:]}
-    for part, ns in split.items():
-        arr = np.concatenate([clips[n] for n in ns]) if ns else np.zeros(0, np.int16)
-        np.save(os.path.join(out_dir, f"musan_{part}.npy"), arr)
-    return {"kept": len(names), "dropped_nc_nd": len(dropped), "licence_files": len(licences),
-            "train_files": len(split["train"]), "eval_files": len(split["eval"])}
+    for pool in (clips, speech):
+        for name in list(pool):
+            lic = licences.get(os.path.dirname(name), "")
+            stem = os.path.splitext(os.path.basename(name))[0]
+            for line in lic.splitlines():
+                if stem in line and _NC_ND.search(line):
+                    dropped.append(name)
+                    pool.pop(name, None)
+                    break
+    rep = {"kept": len(clips), "speech_kept": len(speech), "dropped_nc_nd": len(dropped),
+           "licence_files": len(licences)}
+    for tag, pool in (("musan", clips), ("mspeech", speech)):
+        split = _split3(list(pool), rng, val_frac, eval_frac)
+        for part, ns in split.items():
+            arr = np.concatenate([pool[n] for n in ns]) if ns else np.zeros(0, np.int16)
+            np.save(os.path.join(out_dir, f"{tag}_{part}.npy"), arr)
+            rep[f"{tag}_{part}_files"] = len(ns)
+            rep[f"{tag}_{part}_h"] = round(len(arr) / audio.SR / 3600, 3)
+    return rep
 
 
-def tv_like_mix(speech: np.ndarray, music: np.ndarray, snr_db=(0, 12), seed: int = 0) -> np.ndarray:
-    """'TV in the room': speech with music/noise underneath at random levels,
-    through a synthetic room. int16 in, int16 out."""
+def rir_bank(path: str, out_dir: str, per_split=(1600, 200, 200), max_len: int = audio.SR,
+             seed: int = 0) -> dict:
+    """OpenSLR 26 simulated RIRs -> rir_{train,val,eval}.npy (float16 [n, max_len],
+    peak-normalised). Split by ROOM (a room's RIRs never cross splits)."""
+    rng = random.Random(seed)
+    with zipfile.ZipFile(path) as z:
+        names = [n for n in z.namelist() if n.lower().endswith(".wav")]
+        rooms = {}
+        for n in names:
+            rooms.setdefault(os.path.dirname(n), []).append(n)
+        split = _split3(list(rooms), rng, 0.10, 0.10)
+        rep = {"rooms": len(rooms), "files": len(names)}
+        for part, want in zip(("train", "val", "eval"), per_split):
+            pool = [n for r in split[part] for n in rooms[r]]
+            rng.shuffle(pool)
+            out = []
+            for n in pool[:want]:
+                x = _decode(z.read(n))
+                if x is None or len(x) < 16:
+                    continue
+                x = x[:max_len]
+                k = int(np.argmax(np.abs(x)))
+                x = x[max(0, k - 16):]  # drop leading silence before the direct path
+                x = x / (np.max(np.abs(x)) + 1e-9)
+                out.append(np.pad(x, (0, max_len - len(x))).astype(np.float16))
+            arr = np.stack(out) if out else np.zeros((0, max_len), np.float16)
+            np.save(os.path.join(out_dir, f"rir_{part}.npy"), arr)
+            rep[f"rir_{part}"] = len(arr)
+    return rep
+
+
+def pick_rir(rng: np.random.Generator, rirs: np.ndarray | None, p_real: float = 0.6,
+             distance_m: float | None = None) -> np.ndarray:
+    """A room impulse response: from the licence-clean simulated bank (OpenSLR 26)
+    with probability p_real, else our own synthetic one."""
+    if rirs is not None and len(rirs) and rng.random() < p_real:
+        h = rirs[int(rng.integers(0, len(rirs)))].astype(np.float32)
+        nz = np.nonzero(np.abs(h) > 1e-4)[0]
+        return h[: (nz[-1] + 1) if len(nz) else 1]
+    return audio.synthetic_rir(rng, distance_m=distance_m)
+
+
+def band_limit(rng: np.random.Generator, x: np.ndarray) -> np.ndarray:
+    """A TV / small-speaker colouring: random high-pass 80-350 Hz + low-pass 3.4-7.5 kHz."""
+    try:
+        from scipy.signal import butter, sosfilt
+    except ImportError:
+        return x
+    lo, hi = float(rng.uniform(80, 350)), float(rng.uniform(3400, 7500))
+    sos = butter(2, [lo, hi], btype="bandpass", fs=audio.SR, output="sos")
+    return sosfilt(sos, x).astype(np.float32)
+
+
+def tv_like_mix(speech: np.ndarray, music: np.ndarray, snr_db=(0, 20), seed: int = 0,
+                rirs: np.ndarray | None = None, p_band: float = 0.7,
+                level_db=(-38.0, -16.0)) -> np.ndarray:
+    """'TV in the room': speech with music/noise underneath at a random SNR
+    (default 0-20 dB) per 30 s segment, random TV-speaker colouring, a room
+    (simulated RIR bank or synthetic), random playback level. int16 in/out."""
     rng = np.random.default_rng(seed)
     s = speech.astype(np.float32) / 32768.0
     if len(music) == 0 or len(s) == 0:
         return speech
-    m = np.resize(music.astype(np.float32) / 32768.0, len(s))
     out = np.zeros_like(s)
     seg = audio.SR * 30
     for a in range(0, len(s), seg):
         b = min(len(s), a + seg)
-        x = audio.mix_at_snr(s[a:b], m[a:b], float(rng.uniform(*snr_db)))
-        x = audio.convolve(x, audio.synthetic_rir(rng))
-        out[a:b] = x[: b - a]
-    return (np.clip(out / (np.max(np.abs(out)) + 1e-9) * 0.7, -1, 1) * 32767).astype(np.int16)
+        m = audio.random_crop(rng, music, b - a).astype(np.float32) / 32768.0
+        x = audio.mix_at_snr(s[a:b], m, float(rng.uniform(*snr_db)))
+        if rng.random() < p_band:
+            x = band_limit(rng, x)
+        x = audio.convolve(x, pick_rir(rng, rirs))[: b - a]
+        lv = float(rng.uniform(*level_db))
+        x = x * (10 ** (lv / 20.0) / (audio.rms(x) + 1e-9))
+        out[a:b] = x
+    return (np.clip(out, -1, 1) * 32767).astype(np.int16)
+
+
+def clips_stream(clips, seed: int = 0, gap_s=(0.5, 2.0)) -> np.ndarray:
+    """Float clips -> one int16 stream with quiet gaps (e.g. TTS near-miss phrases)."""
+    rng = np.random.default_rng(seed)
+    parts = []
+    for x in clips:
+        g = rng.standard_normal(int(rng.uniform(*gap_s) * audio.SR)).astype(np.float32) * 1e-4
+        parts += [g, np.asarray(x, np.float32)]
+    if not parts:
+        return np.zeros(0, np.int16)
+    return (np.clip(np.concatenate(parts), -1, 1) * 32767).astype(np.int16)
 
 
 def licence_table() -> str:

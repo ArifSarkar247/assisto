@@ -41,13 +41,28 @@ NEGATIVE_EN = [
     "persist", "Hey Mister", "Hey Christo", "Hey Calisto", "Hey Assam", "Hey Sisko", "his toe",
     "Hey, is this it", "assist me", "a system", "Hey Kristo", "Ali's toe", "hey you", "hello",
     "Hey Alisha", "Hey Esther", "pesto", "presto", "Hey listen", "Oh, I see",
+    # ww3: phonetically confusable with "Hey Assisto" (hard negatives)
+    "assist", "assistance", "Hey assistance", "the assistant", "my assistant", "assisted",
+    "Hey Assi", "Hey Sisto", "Hey Augusto", "Hey Ernesto", "Hey Alberto", "Hey Gusto",
+    "Hey Calypso", "Hey Disco", "Hey, I insist", "Hey, a system", "Hey Asus", "Hey Aussie",
+    "Hey Assisi", "Hey, assist me", "a cyst", "Hey siesta", "Hey Rosita", "Hey, it's me",
+    "hey, a sister", "pistachio", "Hey Mustafa", "Hey Aziz", "Hey Assad", "Hey Sister Ann",
+    "Hey, is it so", "Hey, I see two", "Hey, a city", "Hey Sita", "Hey Vista", "Hey Ristretto",
 ]
 NEGATIVE_BN = [
     "হেই আসিফ", "আস্তে বলো", "অস্থির লাগছে", "সিস্টেম নষ্ট", "হাই আসমা", "ওকে ঠিক আছে",
     "হেই শোনো", "এই যে ভাই", "আসি তাহলে", "সিস্টার কোথায়", "এসিস্ট্যান্ট", "হেই রিস্তা",
     "আজকে কী বার", "ভাত খেয়েছ", "আসছি একটু পরে", "হেই মিস্টার",
+    # ww3: confusable Bangla (hard negatives)
+    "হেই", "এসিস্ট", "হে আসিফ", "এসিস্ট্যান্স", "হেই এসিস্ট্যান্ট", "হেই আসিফ ভাই",
+    "অ্যাসিস্ট করো", "হেই সিস্টেম", "আসিস না", "হেই আসো", "এই আসিস তো", "হেই রাসেল",
+    "হেই আজিজ", "হেই মিষ্টি", "হাই আশিক", "হেই আশা", "হ্যালো আসমা", "আছিস তো",
+    "হেই সুস্মিতা", "হেই বিস্কুট", "দেখিস তো", "হেই আসিস্ট", "হেই বেস্ট", "ও সিস্টার",
+    "হেই আস্তে", "হেই রাস্তা", "এই যে শুনছ", "হেই পেস্ট",
 ]
-NEGATIVE_HI = ["हे सिस्टर", "असिस्टेंट", "हाय आसिफ", "ओके ठीक है"]
+NEGATIVE_HI = ["हे सिस्टर", "असिस्टेंट", "हाय आसिफ", "ओके ठीक है",
+               "हे असिस्ट", "असिस्टेंस", "हे आसिफ भाई", "हे सिस्टम", "हे दोस्त", "अरे सुनो",
+               "हे मिस्टर", "हे आस्था"]
 
 KOKORO_VOICES = {
     "a": ["af_alloy", "af_aoede", "af_bella", "af_heart", "af_jessica", "af_kore", "af_nicole",
@@ -81,7 +96,8 @@ def espeak_clips(out_dir: str, n: int, positive: bool, rng: random.Random) -> li
         return []
     os.makedirs(out_dir, exist_ok=True)
     table = ESPEAK_LANGS if positive else ESPEAK_NEG
-    langs = list(table)
+    # negatives: Bangla weighted x2 (the users' language; only eSpeak speaks it)
+    langs = list(table) if positive else ["bn", "bn"] + list(table)
     paths = []
     with tempfile.TemporaryDirectory() as td:
         tries = 0
