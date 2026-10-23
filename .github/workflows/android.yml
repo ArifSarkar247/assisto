@@ -857,8 +857,12 @@ jobs:
           # ---- /pay1 ----
           PY
           # 2) Build the bundle (all ABIs; Play serves each phone its own split).
+          #    versionCode = 10000 + run number: always above every website APK
+          #    (owner order), still rising with every release.
+          PLAY_VC=$(( ${{ github.run_number }} + 10000 ))
+          echo "Play versionCode: $PLAY_VC"
           flutter build appbundle --release \
-            --build-number=${{ github.run_number }} \
+            --build-number=$PLAY_VC \
             --build-name=1.0.${{ github.run_number }} \
             --dart-define=API_BASE="${{ github.event.inputs.api_base || 'https://api.lifeassisto.com' }}" \
             --dart-define=BUILD_TIME="$(date -u +%Y-%m-%dT%H:%MZ)" \
