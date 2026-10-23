@@ -34,7 +34,7 @@ String bd(BuildContext c, Object? s) =>
 
 /// Back to ASCII digits before a number is sent to the server.
 String asciiDigits(String s) => s.replaceAllMapped(
-    RegExp('[০-৯]'), (m) => String.fromCharCode(m[0]!.codeUnitAt(0) - 0x09E6 + 0x30));
+    RegExp('[\u09E6-\u09EF]'), (m) => String.fromCharCode(m[0]!.codeUnitAt(0) - 0x09E6 + 0x30));
 
 /// A server 4xx carries an honest bn/en `detail` — show it; anything else
 /// gets the shared honest failure line.
