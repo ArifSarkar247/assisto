@@ -77,8 +77,20 @@ class ChatPreview {
 
   /// Build from one /circle/chats row. [identity] null = keys not loaded yet
   /// (still not "empty": a message exists → encrypted label).
+  ///
+  /// a1-circle ROOT CAUSE of "Encrypted message" (owner, build 202): the row
+  /// was decrypted ONLY with the peer's CURRENT key; after the peer
+  /// reinstalled (new key) the last message — sent under the OLD key —
+  /// failed. Now every key this phone knows for the peer is tried: the
+  /// current one, the server's `last.peer_key_history`, and [extraPeerKeys]
+  /// (this phone's PeerKeyBook history). Only when all fail, [cachedText]
+  /// (the plaintext this phone already showed for that message id) is used;
+  /// only then the honest lock label.
   static ChatPreview fromRow(Map<String, dynamic> row,
-      {required IdentityKeyPair? identity, E2E? e2e}) {
+      {required IdentityKeyPair? identity,
+      E2E? e2e,
+      List<Uint8List> extraPeerKeys = const [],
+      String? cachedText}) {
     final isGroup = row['is_group'] == true || row['kind'] == 'group';
     final last = (row['last'] as Map?)?.cast<String, dynamic>();
     final at = DateTime.tryParse('${row['at'] ?? last?['created_at'] ?? ''}')
@@ -110,27 +122,25 @@ class ChatPreview {
     if (deleted == 'everyone') return of(PreviewKind.deleted);
     final isMedia = ct != 'text';
     final self = identity;
-    final peer = _b64('${last['peer_public_key'] ?? ''}') ??
-        _b64('${((row['member'] as Map?) ?? const {})['public_key'] ?? ''}');
+    final keys = candidateKeys(row, extraPeerKeys);
     final cipher = '${last['ciphertext'] ?? ''}';
-    if (self == null || peer == null || cipher.isEmpty) {
-      return of(isMedia ? PreviewKind.media : PreviewKind.encrypted);
-    }
-    final engine = e2e ?? SoftwareE2E();
     String? pt;
-    try {
-      pt = engine.decrypt(
-        self: self,
-        senderPublicKey: peer,
-        ct: Ciphertext(
-          scheme: '${last['scheme'] ?? engine.scheme}',
-          ciphertextB64: cipher,
-          nonceB64: '${last['nonce'] ?? ''}',
-          senderKeyId: '${last['sender_key_id'] ?? ''}',
-        ),
+    if (self != null && keys.isNotEmpty && cipher.isNotEmpty) {
+      final engine = e2e ?? SoftwareE2E();
+      final ctx = Ciphertext(
+        scheme: '${last['scheme'] ?? engine.scheme}',
+        ciphertextB64: cipher,
+        nonceB64: '${last['nonce'] ?? ''}',
+        senderKeyId: '${last['sender_key_id'] ?? ''}',
       );
-    } catch (_) {
-      pt = null;
+      for (final k in keys) {
+        try {
+          pt = engine.decrypt(self: self, senderPublicKey: k, ct: ctx);
+        } catch (_) {
+          pt = null;
+        }
+        if (pt != null) break;
+      }
     }
     if (isMedia) {
       // md2: a photo's caption / a document's NAME (decrypted here - the
@@ -138,8 +148,39 @@ class ChatPreview {
       // descriptor itself (it carries the file key).
       return of(PreviewKind.media, pt == null ? '' : mediaPreviewDetail(ct, pt));
     }
-    if (pt == null) return of(PreviewKind.encrypted);
+    if (pt == null) {
+      final c = (cachedText ?? '').trim();
+      return c.isNotEmpty ? of(PreviewKind.text, c) : of(PreviewKind.encrypted);
+    }
     return of(PreviewKind.text, pt.replaceAll('\n', ' ').trim());
+  }
+
+  /// Every public key this phone knows for the row's peer, current first,
+  /// de-duplicated: last.peer_public_key, member.public_key, the server's
+  /// last.peer_key_history, then [extra] (local PeerKeyBook history).
+  static List<Uint8List> candidateKeys(
+      Map<String, dynamic> row, List<Uint8List> extra) {
+    final last = (row['last'] as Map?) ?? const {};
+    final member = (row['member'] as Map?) ?? const {};
+    final seen = <String>{};
+    final out = <Uint8List>[];
+    void add(Uint8List? k) {
+      if (k == null || k.isEmpty) return;
+      if (seen.add(base64Encode(k))) out.add(k);
+    }
+
+    add(_b64('${last['peer_public_key'] ?? ''}'));
+    add(_b64('${member['public_key'] ?? ''}'));
+    final hist = last['peer_key_history'];
+    if (hist is List) {
+      for (final h in hist) {
+        if (h is Map) add(_b64('${h['public_key'] ?? ''}'));
+      }
+    }
+    for (final k in extra) {
+      add(k);
+    }
+    return out;
   }
 
   /// Unread count for the row: the server count, or 1 for a manual

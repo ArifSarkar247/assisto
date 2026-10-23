@@ -27,13 +27,18 @@ class ChatHeaderTitle extends StatelessWidget {
   final bool statusActive;
   final Widget? avatar;
   final VoidCallback? onTap;
+
+  /// a1-circle: true (1:1) = the status is never cut (2 lines / smaller
+  /// font). false (group member list) = one line, ellipsized.
+  final bool fitStatusLine;
   const ChatHeaderTitle(
       {super.key,
       required this.name,
       this.status,
       this.statusActive = false,
       this.avatar,
-      this.onTap});
+      this.onTap,
+      this.fitStatusLine = true});
 
   static Color activeColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
@@ -58,41 +63,75 @@ class ChatHeaderTitle extends StatelessWidget {
               children: [
                 if (avatar != null) ...[avatar!, const SizedBox(width: 10)],
                 Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        name,
-                        key: const Key('t1-header-name'),
-                        maxLines: 1,
-                        softWrap: false,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontSize: 17,
-                            height: 1.2,
-                            fontWeight: FontWeight.w600,
-                            color: scheme.onSurface),
-                      ),
-                      if (s.isNotEmpty)
+                  child: LayoutBuilder(builder: (ctx, box) {
+                    final statusStyle = TextStyle(
+                        fontSize: 12.5,
+                        height: 1.2,
+                        fontWeight:
+                            statusActive ? FontWeight.w600 : FontWeight.w400,
+                        color: statusActive
+                            ? activeColor(context)
+                            : scheme.onSurfaceVariant);
+                    final fit = s.isEmpty
+                        ? null
+                        : fitStatusLine
+                            ? fitStatus(s, statusStyle, box.maxWidth,
+                                MediaQuery.textScalerOf(ctx),
+                                Directionality.of(ctx))
+                            : (fontSize: 12.5, lines: 1);
+                    final col = Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // a1-circle: the NAME gives way first (ellipsis)…
                         Text(
-                          s,
-                          key: const Key('t1-header-status'),
+                          name,
+                          key: const Key('t1-header-name'),
                           maxLines: 1,
                           softWrap: false,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                              fontSize: 12.5,
-                              height: 1.25,
-                              fontWeight: statusActive
-                                  ? FontWeight.w600
-                                  : FontWeight.w400,
-                              color: statusActive
-                                  ? activeColor(context)
-                                  : scheme.onSurfaceVariant),
+                              fontSize: fit != null && fit.lines != 1 ? 16 : 17,
+                              height: 1.2,
+                              fontWeight: FontWeight.w600,
+                              color: scheme.onSurface),
                         ),
-                    ],
-                  ),
+                        // …the status ("last seen today at 10:05 pm") is
+                        // NEVER cut: one line when it fits, else two lines,
+                        // else a slightly smaller font (see fitStatus).
+                        if (fit != null)
+                          Text(
+                            s,
+                            key: const Key('t1-header-status'),
+                            maxLines: !fitStatusLine
+                                ? 1
+                                : (fit.lines == 0 ? null : 2),
+                            softWrap: fitStatusLine,
+                            overflow: fitStatusLine
+                                ? TextOverflow.clip
+                                : TextOverflow.ellipsis,
+                            style: statusStyle.copyWith(fontSize: fit.fontSize),
+                          ),
+                      ],
+                    );
+                    // Never a vertical clip inside the toolbar either (large
+                    // system font): scale the whole block down as a last
+                    // resort rather than cutting a line.
+                    // (AppBar lays its title out with an UNBOUNDED height,
+                    // so the toolbar's own height is the bound.)
+                    if (!box.maxWidth.isFinite) return col;
+                    final maxH = box.hasBoundedHeight
+                        ? box.maxHeight
+                        : kToolbarHeight - 8; // minus the 4+4 padding
+                    return ConstrainedBox(
+                      constraints: BoxConstraints(maxHeight: maxH),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerStart,
+                        child: SizedBox(width: box.maxWidth, child: col),
+                      ),
+                    );
+                  }),
                 ),
               ],
             ),
@@ -101,6 +140,40 @@ class ChatHeaderTitle extends StatelessWidget {
       ),
     );
   }
+}
+
+/// a1-circle: how the header status line fits [width] without ever being
+/// cut (owner: "last seen today at…" was cut off at 360 dp): the largest
+/// font from 12.5 down to 10.5 at which [text] takes ONE line, else the
+/// largest at which it takes at most TWO lines (word-wrapped), else 10.5 on
+/// two lines (the caller's FittedBox scales the block as a last resort).
+({double fontSize, int lines}) fitStatus(String text, TextStyle style,
+    double width, TextScaler scaler, TextDirection dir) {
+  if (!width.isFinite || width <= 0) return (fontSize: 12.5, lines: 1);
+  const sizes = [12.5, 12.0, 11.5];
+  int linesAt(double fs, int maxLines) {
+    final tp = TextPainter(
+      text: TextSpan(text: text, style: style.copyWith(fontSize: fs)),
+      textDirection: dir,
+      textScaler: scaler,
+      maxLines: maxLines,
+    )..layout(maxWidth: width);
+    final over = tp.didExceedMaxLines;
+    final n = tp.computeLineMetrics().length;
+    tp.dispose();
+    return over ? 99 : n;
+  }
+
+  // one line at a gently smaller size first (keeps the classic look)
+  for (final fs in sizes) {
+    if (linesAt(fs, 1) == 1) return (fontSize: fs, lines: 1);
+  }
+  for (final fs in [12.5, 12.0, 11.5, 11.0, 10.5]) {
+    if (linesAt(fs, 2) <= 2) return (fontSize: fs, lines: 2);
+  }
+  // still too long (huge system font): as many lines as it needs - the
+  // caller's FittedBox scales the block into the toolbar. Never cut.
+  return (fontSize: 10.5, lines: 0);
 }
 
 /// Group line 2 when nobody is typing: other members first (roster order),
@@ -141,6 +214,8 @@ class GroupHeaderTitle extends StatelessWidget {
       statusActive: act.isNotEmpty,
       avatar: avatar,
       onTap: onTap,
+      // the member list is a long, truncatable roster (ellipsis is right)
+      fitStatusLine: false,
     );
   }
 }

@@ -3882,6 +3882,10 @@ class UserPublicKey(models.Model):
     # drives the WhatsApp-style "security code changed" note on peers' chats.
     changed_at = models.DateTimeField(null=True, blank=True)
     previous_key_id = models.CharField(max_length=64, blank=True, default="")
+    # a1-circle: the user's EARLIER public keys (newest first, capped) so a
+    # contact's phone can still decrypt history / the chat-list preview that
+    # was sent under a replaced key (reinstall / new phone). Public keys only.
+    history = models.JSONField(default=list, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

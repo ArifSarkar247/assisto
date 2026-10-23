@@ -1,0 +1,29 @@
+{
+  "_comment": "a1-circle (owner bug report on build 202): in-chat call events (WhatsApp-style chips, tap to call back) and the chat-list hint for a contact who never opened Assisto. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_a1_arb.json",
+  "en": {
+    "a1CallMissedVoice": "Missed voice call",
+    "a1CallMissedVideo": "Missed video call",
+    "a1CallVoice": "Voice call",
+    "a1CallVideo": "Video call",
+    "a1CallNoAnswer": "No answer",
+    "a1CallDeclined": "Declined",
+    "a1CallBusy": "Busy",
+    "a1CallFailed": "Call failed",
+    "a1CallBack": "Tap to call back",
+    "a1NotOnAssistoYet": "Hasn't opened Assisto yet",
+    "a1Invite": "Invite"
+  },
+  "bn": {
+    "a1CallMissedVoice": "মিসড ভয়েস কল",
+    "a1CallMissedVideo": "মিসড ভিডিও কল",
+    "a1CallVoice": "ভয়েস কল",
+    "a1CallVideo": "ভিডিও কল",
+    "a1CallNoAnswer": "উত্তর নেই",
+    "a1CallDeclined": "প্রত্যাখ্যাত",
+    "a1CallBusy": "ব্যস্ত",
+    "a1CallFailed": "কল ব্যর্থ",
+    "a1CallBack": "আবার কল করতে চাপুন",
+    "a1NotOnAssistoYet": "এখনো Assisto খোলেননি",
+    "a1Invite": "আমন্ত্রণ জানান"
+  }
+}

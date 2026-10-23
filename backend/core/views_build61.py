@@ -714,6 +714,21 @@ class CircleCallsView(APIView):
     def get(self, request):
         from . import views_c2_calls as C2
         lang = req_lang(request)
+        # a1-circle: GET circle/calls?member=<my edge id> -> the 1:1 call
+        # events with that person for the chat timeline (glare-deduped).
+        mid = request.query_params.get("member")
+        if mid not in (None, ""):
+            from . import a1_circle as A1
+            try:
+                edge = CircleMember.objects.filter(
+                    user=request.user, pk=int(mid)).first()
+            except (TypeError, ValueError):
+                edge = None
+            if edge is None:
+                return Response({"detail": "not found"},
+                                status=status.HTTP_404_NOT_FOUND)
+            return Response({"member_id": edge.id,
+                             "events": A1.call_events(request.user, edge)})
         rows = CallRecord.objects.filter(
             caller=request.user) | CallRecord.objects.filter(callee=request.user)
         out = []
