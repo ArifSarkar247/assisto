@@ -306,16 +306,19 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
         ),
       ]),
       const SizedBox(height: Gap.sm),
-      FilledButton.icon(
-        onPressed: _asking ? null : _askAi,
-        icon: _asking
-            ? const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(strokeWidth: 2))
-            : const Icon(Icons.auto_awesome),
-        label: Text(t.uwAiAsk),
-      ),
+      ValueListenableBuilder<TextEditingValue>(
+          valueListenable: _q,
+          builder: (_, v, __) => FilledButton.icon(
+                onPressed:
+                    (_asking || v.text.trim().length < 3) ? null : _askAi,
+                icon: _asking
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Icon(Icons.auto_awesome),
+                label: Text(t.uwAiAsk),
+              )),
       const SizedBox(height: Gap.xs),
       Text(t.uwAiCostNote,
           style: Theme.of(context)

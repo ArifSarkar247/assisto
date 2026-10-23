@@ -125,10 +125,13 @@ class _WorldAskScreenState extends State<WorldAskScreen> {
                 ),
               ),
               const SizedBox(width: Gap.xs),
-              IconButton.filled(
-                tooltip: t.uwAskSend,
-                onPressed: _busy ? null : _send,
-                icon: const Icon(Icons.send),
+              ValueListenableBuilder<TextEditingValue>(
+                valueListenable: _input,
+                builder: (_, v, __) => IconButton.filled(
+                  tooltip: t.uwAskSend,
+                  onPressed: (_busy || v.text.trim().length < 3) ? null : _send,
+                  icon: const Icon(Icons.send),
+                ),
               ),
             ]),
           ),

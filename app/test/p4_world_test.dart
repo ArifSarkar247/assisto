@@ -94,6 +94,7 @@ void main() {
         find.textContaining('Each new answer uses 4 credits'), findsOneWidget);
     await tester.enterText(
         find.byType(TextField), 'How do I renew an e-passport?');
+    await tester.pump();
     await tester.tap(find.byTooltip('Ask'));
     await tester.pumpAndSettle();
     expect(api.asks, 1);

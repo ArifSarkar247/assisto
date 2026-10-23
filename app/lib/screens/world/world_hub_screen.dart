@@ -43,7 +43,7 @@ class _WorldHubScreenState extends State<WorldHubScreen> {
         _credits = (c['web_answer_credits'] as num?)?.toInt() ?? 0;
       });
     } catch (_) {
-      // offline: the key-gated tile simply stays hidden
+      // best-effort: offline — the key-gated Ask tile simply stays hidden
     }
   }
 
