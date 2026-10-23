@@ -37,7 +37,7 @@ import time
 from django.conf import settings
 
 GPU_SLUG = "photo_restore_gpu"
-SERVER_FEATURES = ("colorize", "old_restore")
+SERVER_FEATURES = ("colorize", "old_restore", "enhance_server")
 GPU_FEATURES = ("deblur",)
 FEATURES = SERVER_FEATURES + GPU_FEATURES
 
@@ -91,13 +91,27 @@ def status(feature, lang="bn"):
     """{ready, where, cost_usd, needs} — honest, no side effects."""
     from .i18n import pick
     from . import photo_models as PM
+    if feature in SERVER_FEATURES + GPU_FEATURES:
+        from . import photo_worker
+        if not photo_worker.enabled():
+            return {"ready": False, "where": "worker", "cost_usd": 0.0,
+                    "needs": pick(lang, "ফটো ওয়ার্কার সার্ভিস চালু হয়নি (deploy/photo_worker/install.sh)।",
+                                  "The photo worker service is not installed (deploy/photo_worker/install.sh).")}
     if feature in SERVER_FEATURES:
         if not _runtime_ok():
             return {"ready": False, "where": "server", "cost_usd": 0.0,
                     "needs": pick(lang, "সার্ভারে onnxruntime ইনস্টল করতে হবে (pip install onnxruntime)।",
                                   "Install onnxruntime on the server (pip install onnxruntime).")}
-        need_role = "server_colorize" if feature == "colorize" else "upscale"
-        if not PM.server_model(need_role):
+        need = {"colorize": ("server_colorize",), "old_restore": ("upscale",),
+                "enhance_server": ("upscale", "server_face")}[feature]
+        if feature == "enhance_server":
+            try:
+                import cv2  # noqa: F401  (YuNet face detection + seamless paste)
+            except Exception:
+                return {"ready": False, "where": "server", "cost_usd": 0.0,
+                        "needs": pick(lang, "সার্ভারে opencv-python-headless ইনস্টল করতে হবে।",
+                                      "Install opencv-python-headless on the server.")}
+        if not all(PM.server_model(r) for r in need):
             return {"ready": False, "where": "server", "cost_usd": 0.0,
                     "needs": pick(lang, "সার্ভারে মডেল ইনস্টল হয়নি (tools/photo_model/install_d1_models.py)।",
                                   "The server model is not installed (tools/photo_model/install_d1_models.py).")}
@@ -417,6 +431,86 @@ def old_restore_rgb(rgb, *, colorize=True, faces=None, up_sess=None, color_sess=
     return merge_keep_faces(ai, base, faces), info
 
 
+# ------------------------------------------------------------------ HD enhance (v2)
+ENH_IN_CAP = {"free": 768, "premium": 1024}      # Real-ESRGAN input (30 / 48 tiles)
+ENH_OUT_CAP = {"free": 2048, "premium": 4096}
+FACE_DETAIL_MAX = 320     # faces smaller than this (px, long side) get the face pass
+FACE_DETAIL_WEIGHT = 0.6  # share of AI luminance detail inside the face ellipse
+
+
+def _norm_boxes(faces, w, h):
+    return [[f["box"][0] / w, f["box"][1] / h, f["box"][2] / w, f["box"][3] / h] for f in faces]
+
+
+def face_detail_pass(out, orig, faces, sess):
+    """No licence-clean face-RESTORATION model exists (GFPGAN / CodeFormer
+    weights are non-commercial), so the face gets the best clean thing we
+    have: Real-ESRGAN on the face crop at its NATIVE resolution (the global
+    pass may have shrunk it first), luminance only, blended inside the face
+    ellipse — geometry is the model's input geometry, and FACE LOCK checks it."""
+    import numpy as np
+    H, W = out.shape[:2]
+    sx, sy = W / orig.shape[1], H / orig.shape[0]
+    for f in faces:
+        x, y, w, h = f["box"]
+        if max(w, h) > FACE_DETAIL_MAX or min(w, h) < 12:
+            continue
+        cx, cy, r = x + w / 2, y + h / 2, max(w, h) * 0.85
+        x0, y0 = max(0, int(cx - r)), max(0, int(cy - r))
+        x1, y1 = min(orig.shape[1], int(cx + r)), min(orig.shape[0], int(cy + r))
+        crop = orig[y0:y1, x0:x1]
+        if min(crop.shape[:2]) < 16:
+            continue
+        ai = upscale_x4(crop, sess)
+        tw, th = max(1, round((x1 - x0) * sx)), max(1, round((y1 - y0) * sy))
+        tx, ty = round(x0 * sx), round(y0 * sy)
+        tw, th = min(tw, W - tx), min(th, H - ty)
+        if tw < 8 or th < 8:
+            continue
+        ai = _resize(ai, tw, th)
+        region = out[ty:ty + th, tx:tx + tw]
+        yy, xx = np.mgrid[0:th, 0:tw].astype(np.float32)
+        d = np.sqrt(((xx + 0.5 - tw / 2) / (tw * 0.40)) ** 2 + ((yy + 0.5 - th / 2) / (th * 0.48)) ** 2)
+        t = np.clip((1.0 - d) / 0.35, 0, 1)
+        wt = (t * t * (3 - 2 * t)) * FACE_DETAIL_WEIGHT
+        k = np.asarray([0.299, 0.587, 0.114], dtype=np.float32)
+        dy = ((ai @ k) - (region @ k)) * wt
+        out[ty:ty + th, tx:tx + tw] = np.clip(region + dy[..., None], 0, 1)
+    return out
+
+
+def enhance_rgb(rgb, up_sess, faces, tier="free"):
+    """HD enhance on the worker: full-image Real-ESRGAN (x4, tiled, luminance
+    detail, face-locked at 25 %) for photos that need pixels, the face detail
+    pass, a gentle fade fix. Big sharp photos keep their own pixels (no
+    downscale-then-upscale). FACE LOCK runs after this (photo_worker)."""
+    h, w = rgb.shape[:2]
+    long = max(w, h)
+    out_cap, in_cap = ENH_OUT_CAP[tier], ENH_IN_CAP[tier]
+    info = {"tier": tier, "faces": len(faces), "global_ai": False}
+    if long * 1.5 <= out_cap:
+        inp = min(long, in_cap)
+        src = _fit(rgb, inp)
+        ai = upscale_x4(src, up_sess)
+        target = min(out_cap, inp * 4)
+        tw = round(w * target / long)
+        th = round(h * target / long)
+        ai = _resize(ai, tw, th)
+        base = _resize(rgb, tw, th)
+        out = merge_keep_faces(ai, base, _norm_boxes(faces, w, h))
+        info.update(global_ai=True, tiles=math.ceil(src.shape[1] / 128) * math.ceil(src.shape[0] / 128))
+    else:
+        out = _fit(rgb, out_cap).copy()
+    out = face_detail_pass(out, rgb, faces, up_sess)
+    y = luma_of(out)
+    import numpy as np
+    lo, hi = np.percentile(y, [1, 99])
+    if hi - lo < 0.8:   # only a faded / flat photo gets the levels fix
+        out = restore_levels(out, max_gain=1.3)
+    info["out_size"] = [int(out.shape[1]), int(out.shape[0])]
+    return out, info
+
+
 def process(feature, raw, paths, *, faces=None, colorize=True, session=None):
     """The whole CPU job (runs in the isolated worker process). `paths` =
     {role: model path}; `session(path)` opens a model (tests inject fakes)."""
@@ -541,6 +635,44 @@ def gpu_deblur(raw, conf, mime="image/jpeg"):
     if g.status_code != 200 or not g.content:
         raise RestoreError("gpu_download_%d" % g.status_code)
     return g.content
+
+
+def gpu_enhance_conf():
+    """Paid fast path for HD enhance: the same GPU key + an enhance model
+    version + cost per run. None = not connected (CPU worker is used)."""
+    conf = _gpu_conf()
+    if not conf or not conf.get("api_token") or not conf.get("enhance_version"):
+        return None
+    if _num(conf.get("enhance_cost_usd")) <= 0:
+        return None
+    return {**conf, "cost_per_run_usd": conf.get("enhance_cost_usd")}
+
+
+def gpu_enhance(raw, conf):
+    """Real-ESRGAN (BSD-3) on a pay-per-use GPU (Replicate), x4 then capped
+    at 4K by the caller's FACE LOCK step; face_enhance is NEVER requested
+    (that would run GFPGAN — non-commercial weights)."""
+    rq = _http()
+    inp = {"image": "data:%s;base64,%s" % ("image/jpeg", base64.b64encode(raw).decode()),
+           "scale": 4, "face_enhance": False}
+    try:
+        r = rq.post("https://api.replicate.com/v1/predictions", timeout=GPU_TIMEOUT_S,
+                    headers={"Authorization": "Bearer %s" % conf.get("api_token", ""),
+                             "Prefer": "wait=60", "Content-Type": "application/json"},
+                    data=json.dumps({"version": conf.get("enhance_version"), "input": inp}))
+    except Exception as e:  # noqa: BLE001
+        raise RestoreError("gpu_net:%s" % type(e).__name__)
+    if r.status_code not in (200, 201):
+        raise RestoreError("gpu_http_%d" % r.status_code)
+    j = r.json()
+    out = j.get("output")
+    if j.get("status") != "succeeded" or not isinstance(out, str) or not out.startswith("https://"):
+        raise RestoreError("gpu_not_finished")
+    g = rq.get(out, timeout=GPU_TIMEOUT_S)
+    if g.status_code != 200 or not g.content:
+        raise RestoreError("gpu_download_%d" % g.status_code)
+    rgb = _fit(_decode(g.content), 4096)
+    return _encode(rgb)
 
 
 # ------------------------------------------------------------------ entry

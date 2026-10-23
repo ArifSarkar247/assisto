@@ -236,3 +236,8 @@ USE_X_FORWARDED_HOST = True
 # for a local http dev server); idle sign-out in minutes.
 OWNER_ADMIN_REQUIRE_HTTPS = env_bool("OWNER_ADMIN_REQUIRE_HTTPS", True)
 OWNER_ADMIN_IDLE_MIN = int(os.getenv("OWNER_ADMIN_IDLE_MIN", "30"))
+
+# d1-photo v2: Photo Studio worker (deploy/photo_worker/). With PHOTO_WORKER=1 the
+# API only ENQUEUES heavy photo jobs; the assisto-photo-worker service runs them.
+PHOTO_WORKER = env_bool("PHOTO_WORKER", False)
+PHOTO_WORKER_INLINE = False   # tests only: run a queued item right away

@@ -232,6 +232,7 @@ class RestoreMathTests(SimpleTestCase):
 
 
 # =========================================================================== status
+@override_settings(PHOTO_WORKER=True)
 class RestoreStatusTests(_Dir, SimpleTestCase):
     def test_server_features_need_runtime_and_model(self):
         with mock.patch.object(R, "_runtime_ok", return_value=False):
@@ -254,6 +255,12 @@ class RestoreStatusTests(_Dir, SimpleTestCase):
             st = R.status("deblur", "en")
             self.assertTrue(st["ready"])
             self.assertEqual(st["cost_usd"], 0.02)
+
+    def test_worker_required(self):
+        with override_settings(PHOTO_WORKER=False):
+            st = R.status("colorize", "en")
+            self.assertFalse(st["ready"])
+            self.assertIn("worker", st["needs"])
 
     def test_busy_lock_and_memory_gate(self):
         d = tempfile.mkdtemp()
@@ -312,6 +319,7 @@ def _png_bytes():
     return b.getvalue()
 
 
+@override_settings(PHOTO_WORKER=True, PHOTO_WORKER_INLINE=True)
 class RestoreApiTests(APITestCase):
     def setUp(self):
         self.prem = User.objects.create_user(name="P", phone="01000000201", password="pw")
@@ -374,16 +382,22 @@ class RestoreApiTests(APITestCase):
         self.assertEqual(r.status_code, 201, r.content)
         jid = r.json()["job"]["id"]
         out = _png_bytes()
-        with mock.patch.object(R, "run", return_value=(out, {"where": "server"})) as run:
+        with mock.patch.object(R, "process", return_value=(out, {"colorized": False})) as run, \
+                mock.patch("core.photo_worker._apply_face_lock",
+                           side_effect=lambda raw, o, rep: (rep.update(face_lock={
+                               "faces": 1, "kept": 1, "restored": 0, "min_score": 0.93,
+                               "action": "kept", "method": "auraface"}) or o)):
             r = self.client.post("/api/v1/photo-studio/jobs/%d/run" % jid,
                                  {"image_b64": base64.b64encode(_png_bytes()).decode(),
                                   "face_boxes": [[0.3, 0.2, 0.3, 0.4]]}, format="json")
         self.assertEqual(r.status_code, 200, r.content)
         self.assertFalse(run.call_args.kwargs["colorize"])
-        self.assertEqual(run.call_args.kwargs["face_boxes"], [[0.3, 0.2, 0.3, 0.4]])
+        self.assertEqual(run.call_args.kwargs["faces"], [[0.3, 0.2, 0.3, 0.4]])
         job = PhotoStudioJob.objects.get(pk=jid)
         self.assertEqual(job.status, "done")
         self.assertEqual(job.provider, "server_cpu")
+        self.assertEqual(r.json()["job"]["face_lock"]["action"], "kept")
+        self.assertEqual(job.work.state, "done")
         self.assertGreater(job.cost_bdt, 0)
         self.assertTrue(job.flags["ai_edited"])
         self.assertTrue(r.json()["job"]["preview"])
@@ -399,11 +413,12 @@ class RestoreApiTests(APITestCase):
         self.prem.refresh_from_db()
         before = self.prem.ai_credits
         img = {"image_b64": base64.b64encode(_png_bytes()).decode()}
-        with mock.patch.object(R, "run", side_effect=R.RestoreBusy("busy")):
+        with mock.patch.object(R, "process", side_effect=R.RestoreBusy("busy")):
             r = self.client.post("/api/v1/photo-studio/jobs/%d/run" % jid, img, format="json")
-        self.assertEqual(r.status_code, 503)
+        self.assertEqual(r.status_code, 502)
         self.assertEqual(PhotoStudioJob.objects.get(pk=jid).runs, 0)   # busy is not an attempt
-        with mock.patch.object(R, "run", side_effect=R.RestoreError("ort_run:Fail")):
+        self.assertEqual(PhotoStudioJob.objects.get(pk=jid).status, "funded")
+        with mock.patch.object(R, "process", side_effect=R.RestoreError("ort_run:Fail")):
             for _ in range(3):
                 r = self.client.post("/api/v1/photo-studio/jobs/%d/run" % jid, img, format="json")
                 self.assertEqual(r.status_code, 502)

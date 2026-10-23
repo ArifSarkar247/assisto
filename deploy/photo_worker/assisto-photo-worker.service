@@ -1,0 +1,28 @@
+# d1-photo v2 — Photo Studio worker (heavy photo jobs + FACE LOCK), a SEPARATE
+# service so the API (assisto.service / gunicorn) never slows down:
+#   * Nice=15 + CPUWeight=20: gunicorn always wins the CPU when it needs it;
+#   * CPUQuota=100%: at most ONE of the box's 2 vCPUs, ever;
+#   * MemoryMax=3G (DDColor peaks ~1.3 GB, Real-ESRGAN tiles ~0.3 GB);
+#   * one job at a time (the queue is in Postgres: core.PhotoWorkItem).
+[Unit]
+Description=Assisto Photo Studio worker (queue: PhotoWorkItem)
+After=network.target postgresql.service assisto.service
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/assisto/backend
+EnvironmentFile=-/home/ubuntu/assisto/backend/.env
+Environment=OMP_NUM_THREADS=1
+ExecStart=/home/ubuntu/assisto/.venv/bin/python manage.py photo_worker
+Restart=always
+RestartSec=5
+Nice=15
+CPUWeight=20
+CPUQuota=100%
+MemoryMax=3G
+IOSchedulingClass=idle
+TimeoutStopSec=120
+KillSignal=SIGTERM
+
+[Install]
+WantedBy=multi-user.target

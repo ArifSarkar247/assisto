@@ -9,6 +9,7 @@ from . import views_f1 as F1
 from . import views_pay1 as PAY1   # pay1
 from . import views_t9 as T9
 from . import views_sc1 as SC1   # sc1 app errors
+from . import views_d1photo as D1P   # d1-photo v2
 
 _ASSETS = {"owner.css": "text/css; charset=utf-8",
            "owner.js": "application/javascript; charset=utf-8"}
@@ -73,4 +74,6 @@ urlpatterns = [
     # ---- /f1-founders ----
     path("payments", PAY1.payments),   # pay1
     path("calls", T9.calls),          # t9-turnscale: Call relay (TURN)
+    path("photo", D1P.photo),                                   # d1-photo v2
+    path("photo/ab/<int:pk>/<str:tag>", D1P.photo_ab_image),     # d1-photo v2
 ]

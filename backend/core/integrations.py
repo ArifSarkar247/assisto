@@ -472,7 +472,11 @@ REGISTRY = {
                           "fields": [_f("api_token", "API Token", "API Token"),
                                      _f("deblur_version", "NAFNet মডেল version", "NAFNet model version", secret=False),
                                      _f("deblur_task", "Task (ঐচ্ছিক)", "Task (optional)", secret=False),
-                                     _f("cost_per_run_usd", "প্রতি কাজের খরচ (USD)", "Cost per run (USD)", secret=False)],
+                                     _f("cost_per_run_usd", "প্রতি কাজের খরচ (USD)", "Cost per run (USD)", secret=False),
+                                     _f("enhance_version", "Premium HD: Real-ESRGAN মডেল version (ঐচ্ছিক)",
+                                        "Premium HD: Real-ESRGAN model version (optional)", secret=False),
+                                     _f("enhance_cost_usd", "Premium HD: প্রতি ছবির খরচ (USD)",
+                                        "Premium HD: cost per image (USD)", secret=False)],
                           "test": "test_replicate"},
     # ---- /d1-photo ----
     # ---- /ps1-photo ----

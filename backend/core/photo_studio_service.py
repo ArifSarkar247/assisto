@@ -122,6 +122,20 @@ def trials_used_today(user):
             status__in=("refused", "expired")).count()
 
 
+def usage_of(user):
+    """d1-photo v2 usage counters for the pricing rules (no side effects)."""
+    from .models import PhotoStudioJob
+    now = timezone.now()
+    live = PhotoStudioJob.objects.filter(user=user).exclude(status__in=("refused", "expired"))
+    return {
+        "enhance_today": live.filter(feature="enhance_server",
+                                     created_at__date=timezone.localdate()).count(),
+        "gen_lifetime": live.filter(feature__in=PS.TRIAL_FEATURES, funding="gift").count(),
+        "gen_week": live.filter(feature__in=PS.TRIAL_FEATURES, funding="ads",
+                                created_at__gte=now - timedelta(days=7)).count(),
+    }
+
+
 def _guard_over():
     from . import billing
     try:
@@ -138,12 +152,12 @@ def quote(user, feature, c=None):
     cost_usd = 0.0
     provider_ready = True
     slug = ""
-    if feature in PS.RESTORE_FEATURES:
-        # d1-photo: our server CPU or the key-gated GPU API
+    if feature in PS.RESTORE_FEATURES or feature in PS.WORKER_FEATURES:
+        # d1-photo: our photo worker (CPU) or the key-gated GPU API
         from . import photo_restore
         st = photo_restore.status(feature, "en")
         provider_ready = st["ready"]
-        slug = "server_cpu" if st["where"] == "server" else photo_restore.GPU_SLUG
+        slug = photo_restore.GPU_SLUG if st["where"] == "gpu" else "server_cpu"
         table = (c["action_costs"].get(PS.FEATURE_ACTION[feature]) or {})
         cost_usd = max(st["cost_usd"], float(table.get("provider_cost") or 0)) if provider_ready else 0.0
     elif feature in PS.CLOUD_FEATURES:
@@ -160,7 +174,9 @@ def quote(user, feature, c=None):
         credit_bdt=c["credit_bdt"], ps_cfg=c.get("photo_studio"),
         ad_rewards=c["ad_rewards"], trials_used_today=trials_used_today(user),
         guard_over=_guard_over() if plan == "free" else False,
-        provider_ready=provider_ready)
+        provider_ready=provider_ready,
+        usage=usage_of(user) if (feature in PS.WORKER_FEATURES or
+                                 (plan == "free" and feature in PS.TRIAL_FEATURES)) else None)
     q["provider"] = slug
     q["feature"] = feature
     return q
@@ -183,6 +199,10 @@ def refusal_message(reason, lang):
                          "Beauty retouch is not available for children's photos."),
         "child_generation": ("শিশুর ছবি দিয়ে নতুন ছবি তৈরি করা হয় না।",
                              "We don't generate new images of children."),
+        "child_suggestive": ("শিশুর ছবিতে এমন এডিট করা হয় না।",
+                             "We don't make edits like this to photos of children."),
+        "consent_needed": ("অন্য মানুষের ছবি AI দিয়ে বদলাতে তাঁদের অনুমতি লাগবে — অনুমতি আছে তা নিশ্চিত করুন।",
+                           "Editing other people with AI needs their permission — confirm you have it."),
         "bad_option": ("অজানা অপশন।", "Unknown option."),
     }.get(reason, ("এই এডিট করা যাবে না।", "This edit isn't allowed."))
     return pick(lang, m[0], m[1])
@@ -204,6 +224,12 @@ def funding_message(reason, lang):
                          "Ads can't cover this job's cost — it needs credits or Premium."),
         "insufficient": ("যথেষ্ট ক্রেডিট নেই।", "Not enough credits."),
         "unknown_feature": ("অজানা কাজ।", "Unknown job."),
+        "daily_limit": ("আজকের ফ্রি HD এনহ্যান্স শেষ — কাল আবার পাবেন, বা প্রিমিয়াম নিন।",
+                        "Today's free HD enhances are used — more tomorrow, or go Premium."),
+        "fair_use_cap": ("আজকের ন্যায্য-ব্যবহার সীমা শেষ — কাল আবার চেষ্টা করুন।",
+                         "Today's fair-use limit is reached — try again tomorrow."),
+        "week_used": ("এই সপ্তাহের ফ্রি AI ছবি ব্যবহার হয়ে গেছে — ক্রেডিট বা প্রিমিয়াম দিয়ে চালিয়ে যান।",
+                      "This week's free AI image is used — continue with credits or Premium."),
     }.get(reason)
     return pick(lang, m[0], m[1]) if m else ""
 
@@ -259,6 +285,9 @@ def create_job(user, data, lang="bn"):
         return 400, {"ok": False, "reason": "unknown_feature",
                      "message": funding_message("unknown_feature", lang)}
     prompt = str(data.get("prompt") or "")[:500]
+    tpl = template_prompt(str(data.get("template") or ""))
+    if tpl:   # d1-photo v2: server-owned template prompts (+ the user's own words)
+        prompt = (tpl + " " + prompt).strip()[:500]
     options = [o for o in (data.get("options") or []) if isinstance(o, str)][:12]
     beauty = [b for b in (data.get("beauty") or []) if isinstance(b, str)][:12]
     strength = data.get("strength") if data.get("strength") in PS.STRENGTHS else PS.DEFAULT_STRENGTH
@@ -267,7 +296,8 @@ def create_job(user, data, lang="bn"):
                           child_in_photo=bool(data.get("child_in_photo")),
                           others_in_photo=bool(data.get("others_in_photo")),
                           own_photo=bool(data.get("own_photo", True)),
-                          feature=feature)
+                          feature=feature,
+                          consent=data.get("consent") if isinstance(data.get("consent"), bool) else None)
     if not verdict["allowed"]:
         PhotoStudioJob.objects.create(
             user=user, feature=feature, prompt="", status="refused",
@@ -303,7 +333,10 @@ def create_job(user, data, lang="bn"):
         flags=verdict["flags"], provider=q.get("provider", ""),
         cost_bdt=0.0, funding=opt["via"])
     note = "photo:%s" % feature
-    if opt["via"] == "free":
+    if opt["via"] in ("free", "gift"):
+        # gift = one of the free user's lifetime free AI generations (owner
+        # decision; its real cost is tracked by the free-tier Profit Guard)
+        job.trial = opt["via"] == "gift"
         job.status = "funded"
         job.funded_at = timezone.now()
     elif opt["via"] in ("credits", "pool"):
@@ -374,6 +407,12 @@ def job_state(job, lang="bn"):
     }
     if job.preview_name:
         out["preview"] = _signed(job.preview_name)
+    if job.status == "queued":
+        from . import photo_worker
+        out["queue_position"] = photo_worker.queue_position(job)
+    fl = (job.flags or {}).get("face_lock")
+    if isinstance(fl, dict):
+        out["face_lock"] = fl
     return out
 
 
@@ -626,7 +665,7 @@ def run_cloud(user, job, image_b64, lang="bn", face_boxes=None):
     from . import billing
     from . import photo_providers as PP
     from . import integrations
-    if job.feature not in PS.CLOUD_FEATURES:
+    if job.feature not in PS.CLOUD_FEATURES and job.feature not in PS.WORKER_FEATURES:
         return 400, {"ok": False, "reason": "not_cloud"}
     if job.status != "funded":
         return 402, {"ok": False, "reason": "not_funded", "job": job_state(job, lang)}
@@ -640,8 +679,26 @@ def run_cloud(user, job, image_b64, lang="bn", face_boxes=None):
             return 413, {"ok": False, "reason": "too_large"}
     if job.feature != "generate" and not raw:
         return 400, {"ok": False, "reason": "no_image"}
-    if job.feature in PS.RESTORE_FEATURES:
-        return _run_restore(user, job, raw, lang, face_boxes)
+    from . import photo_worker
+    if photo_worker.should_queue(job.feature):
+        # d1-photo v2: heavy work never runs in the API — the photo worker
+        # does it (and the FACE LOCK); the phone polls the job.
+        if job.feature in photo_worker.WORKER_ONLY:
+            from . import photo_restore
+            st = photo_restore.status(job.feature, lang)
+            if not st["ready"]:
+                return 409, {"ok": False, "reason": "provider_missing", "message": st["needs"]}
+        photo_worker.enqueue(job, raw, face_boxes)
+        job.refresh_from_db()
+        if job.status == "done":
+            return 200, {"ok": True, "job": job_state(job, lang)}
+        if job.status in ("queued", "running"):
+            return 202, {"ok": True, "queued": True, "job": job_state(job, lang)}
+        # processed right away (inline) and failed: funds kept unless final
+        return 502, {"ok": False, "reason": "provider_failed",
+                     "message": pick(lang, "এডিট এখন হয়নি — আবার চেষ্টা করুন (আর বিজ্ঞাপন/ক্রেডিট লাগবে না)।",
+                                     "The edit didn't work this time — try again (no extra ads or credits)."),
+                     "job": job_state(job, lang)}
     c = _cfg()
     slug, conf, prov_cost = _active_provider(c)
     if not slug:
@@ -686,70 +743,6 @@ def run_cloud(user, job, image_b64, lang="bn", face_boxes=None):
     return 200, {"ok": True, "job": job_state(job, lang)}
 
 
-def _run_restore(user, job, raw, lang, face_boxes):
-    """d1-photo: a FUNDED restore job on our server CPU / the GPU API. Same
-    rules as run_cloud: funds kept for a retry on failure (max 3 runs, then
-    credits refunded), cost booked only on a real result. No server-side
-    face composite: colorize keeps the photo's own lightness, old-photo
-    restore face-locks inside the model step, and the PHONE runs the identity
-    check on every result before showing it."""
-    from . import billing
-    from . import photo_restore
-    c = _cfg()
-    st = photo_restore.status(job.feature, lang)
-    if not st["ready"]:
-        return 409, {"ok": False, "reason": "provider_missing", "message": st["needs"]}
-    table = c["action_costs"].get(PS.FEATURE_ACTION[job.feature]) or {}
-    cost_usd = max(st["cost_usd"], float(table.get("provider_cost") or 0))
-    job.status = "running"
-    job.runs += 1
-    job.provider = "server_cpu" if st["where"] == "server" else photo_restore.GPU_SLUG
-    job.save(update_fields=["status", "runs", "provider"])
-    mime = "image/png" if raw[:8] == b"\x89PNG\r\n\x1a\n" else "image/jpeg"
-    colorize = (job.options or {}).get("restore_colorize", True) is not False
-    try:
-        out, _info = photo_restore.run(job.feature, raw, face_boxes=face_boxes,
-                                       colorize=colorize, mime=mime)
-    except photo_restore.RestoreError as e:
-        busy = isinstance(e, photo_restore.RestoreBusy)
-        job.error = str(e)[:200]
-        if job.runs >= 3 and not busy:
-            job.status = "failed"
-            if job.funding in ("credits", "pool") and job.credits_charged:
-                _refund(user, job.credits_charged, "photo:refund:%d" % job.pk)
-        else:
-            if busy:
-                job.runs -= 1    # a busy server is not the user's attempt
-            job.status = "funded"
-        job.save(update_fields=["error", "status", "runs"])
-        return (503 if busy else 502), {
-            "ok": False, "reason": "busy" if busy else "provider_failed",
-            "message": pick(lang,
-                            "সার্ভার এখন ব্যস্ত — একটু পরে আবার চেষ্টা করুন (আর বিজ্ঞাপন/ক্রেডিট লাগবে না)।"
-                            if busy else
-                            "মেরামত এখন হয়নি — আবার চেষ্টা করুন (আর বিজ্ঞাপন/ক্রেডিট লাগবে না)।",
-                            "The server is busy — try again in a moment (no extra ads or credits)."
-                            if busy else
-                            "The repair didn't work this time — try again (no extra ads or credits)."),
-            "job": job_state(job, lang)}
-    ext = "png" if out[:8] == b"\x89PNG\r\n\x1a\n" else "jpg"
-    job.result_name = _save_bytes(out, ext)
-    ps = ps_cfg(c)
-    prev = make_preview(out, ps["preview_max_px"], watermark=is_free(user))
-    if prev:
-        job.preview_name = _save_bytes(prev, "png")
-    job.cost_bdt = cost_usd * float(c["usd_bdt"])
-    job.status = "done"
-    job.done_at = timezone.now()
-    job.error = ""
-    flags = dict(job.flags or {})
-    flags["ai_edited"] = True
-    job.flags = flags
-    job.save()
-    billing.record_cost("ai", job.cost_bdt)
-    return 200, {"ok": True, "job": job_state(job, lang)}
-
-
 # ------------------------------------------------------------------ export gate
 def unlock(user, job, kind, lang="bn"):
     """THE export gate. Every way an image leaves the studio (save / share /
@@ -765,7 +758,7 @@ def unlock(user, job, kind, lang="bn"):
         return 402, {"ok": False, "reason": "locked", "job": st,
                      "message": pick(lang, "সেভ/শেয়ার করতে আগে বিজ্ঞাপন দেখুন বা ক্রেডিট ব্যবহার করুন।",
                                      "Watch the ads or use credits first to save or share.")}
-    if job.feature in PS.CLOUD_FEATURES and not job.result_name:
+    if (job.feature in PS.CLOUD_FEATURES or job.feature in PS.WORKER_FEATURES) and not job.result_name:
         return 409, {"ok": False, "reason": "no_result"}
     exp = PhotoExport.objects.create(user=user, job=job, kind=kind,
                                      token=secrets.token_urlsafe(24),
@@ -811,13 +804,97 @@ def client_config(user, lang="bn", request=None):
         "restore": _restore_state(lang),
         # no licence-clean face-restoration model exists: never offered
         "face_restore": {"available": False, "reason": "no_licence_clean_model"},
+        # d1-photo v2: one-tap templates + what is left today/this week
+        "templates": templates(lang),
+        "usage": usage_of(user),
+        "limits": {k: ps[k] for k in ("free_enhance_per_day", "free_enhance_ads",
+                                      "premium_enhance_daily_cap", "free_gen_lifetime",
+                                      "free_gen_per_week", "free_gen_min_ads")},
     }
+
+
+# ------------------------------------------------------------------ templates (v2)
+_TEMPLATES = (
+    # id, feature, prompt (sent to the provider), en label, bn label
+    ("hd_portrait", "enhance_server", "", "HD portrait", "HD পোর্ট্রেট"),
+    ("old_restore", "old_restore", "", "Old photo: restore + colour", "পুরোনো ছবি: ঠিক + রং"),
+    ("passport_bd", "prompt_edit", "Make a Bangladesh passport photo: plain white background, "
+     "head and shoulders, centred, even soft light, 40x50 mm framing.", "Passport (BD)", "পাসপোর্ট (বাংলাদেশ)"),
+    ("visa_bd", "prompt_edit", "Make a visa photo: plain white background, head and shoulders, "
+     "centred, even light, 2x2 inch framing.", "Visa photo", "ভিসা ছবি"),
+    ("linkedin", "prompt_edit", "Professional profile photo: neat business attire, soft studio "
+     "light, clean light-grey background.", "Professional / LinkedIn", "প্রফেশনাল / LinkedIn"),
+    ("eid_outfit", "prompt_edit", "Dress the person in a modest, elegant Eid outfit "
+     "(panjabi or salwar kameez / sari) with a festive background.", "Eid outfit", "ঈদের পোশাক"),
+    ("puja_outfit", "prompt_edit", "Dress the person in a modest, elegant traditional Puja outfit "
+     "(sari or dhoti-panjabi) with a festive background.", "Puja outfit", "পূজার পোশাক"),
+    ("wedding_outfit", "prompt_edit", "Dress the person in a modest, elegant traditional Bangladeshi "
+     "wedding outfit with a decorated background.", "Wedding outfit", "বিয়ের পোশাক"),
+    ("studio_bg", "prompt_edit", "Replace the background with a clean professional studio backdrop "
+     "and soft studio lighting.", "Studio background", "স্টুডিও ব্যাকগ্রাউন্ড"),
+    ("product_shop", "prompt_edit", "Product photo for an online shop: clean white background, "
+     "soft shadow, sharp and well lit; keep the product exactly as it is.", "Product photo (shop)",
+     "দোকানের পণ্যের ছবি"),
+)
+
+
+def templates(lang="bn"):
+    """One-tap templates. Generative ones go through the prompt-edit
+    provider + FACE LOCK (the face rule is prepended to every prompt)."""
+    return [{"id": t[0], "feature": t[1], "prompt": t[2],
+             "label": pick(lang, t[4], t[3])} for t in _TEMPLATES]
+
+
+def template_prompt(tid):
+    t = next((x for x in _TEMPLATES if x[0] == tid), None)
+    return t[2] if t else None
+
+
+# ------------------------------------------------------------------ AI image reports (Play policy)
+def report_ai_image(user, job, reason, note, lang="bn"):
+    from .models import PhotoAIReport
+    reason = reason if reason in dict(PhotoAIReport.REASONS) else "other"
+    if PhotoAIReport.objects.filter(user=user, created_at__gte=timezone.now() - timedelta(hours=1)).count() >= 10:
+        return 429, {"ok": False, "reason": "too_many"}
+    PhotoAIReport.objects.create(user=user, job=job, reason=reason, note=str(note or "")[:300])
+    return 201, {"ok": True, "message": pick(lang, "ধন্যবাদ — রিপোর্টটি আমরা দেখব।",
+                                             "Thank you — we will review this report.")}
+
+
+# ------------------------------------------------------------------ free-tier Profit Guard (v2)
+def free_tier_guard(days=30):
+    """AI cost vs ad revenue PER FREE USER (last `days`). alert = the free
+    tier as a whole loses money, or any single free user costs more than
+    they earned us (owner order: "alert me if the free tier loses money")."""
+    from .models import PhotoAdTicket, PhotoStudioJob
+    since = timezone.now() - timedelta(days=max(1, int(days)))
+    rows = {}
+    for j in PhotoStudioJob.objects.filter(created_at__gte=since).select_related("user"):
+        if not is_free(j.user):
+            continue
+        r = rows.setdefault(j.user_id, {"user_id": j.user_id, "cost_bdt": 0.0, "ad_bdt": 0.0,
+                                        "jobs": 0, "gifts": 0})
+        r["cost_bdt"] += float(j.cost_bdt or 0)
+        r["jobs"] += 1
+        r["gifts"] += 1 if j.funding == "gift" else 0
+    for t in PhotoAdTicket.objects.filter(status="verified", created_at__gte=since):
+        if t.user_id in rows:
+            rows[t.user_id]["ad_bdt"] += float(t.value_bdt or 0)
+    users = sorted(rows.values(), key=lambda r: r["ad_bdt"] - r["cost_bdt"])
+    cost = sum(r["cost_bdt"] for r in users)
+    ads = sum(r["ad_bdt"] for r in users)
+    losing = [r for r in users if r["cost_bdt"] > r["ad_bdt"] + 1e-9]
+    return {"days": days, "free_users": len(users), "cost_bdt": round(cost, 2),
+            "ad_bdt": round(ads, 2), "net_bdt": round(ads - cost, 2),
+            "losing_users": len(losing), "worst": [{k: (round(v, 2) if isinstance(v, float) else v)
+                                                   for k, v in r.items()} for r in losing[:20]],
+            "alert": cost > ads + 1e-9}
 
 
 def _restore_state(lang):
     from . import photo_restore
     out = {}
-    for f in PS.RESTORE_FEATURES:
+    for f in PS.RESTORE_FEATURES + PS.WORKER_FEATURES:
         try:
             st = photo_restore.status(f, lang)
         except Exception:

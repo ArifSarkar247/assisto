@@ -47,7 +47,13 @@ import re
 # colorize / old_restore -> OUR server CPU (core/photo_restore.py);
 # deblur -> pay-per-use GPU API behind the Admin key photo_restore_gpu.
 RESTORE_FEATURES = ("deblur", "colorize", "old_restore")
-FEATURES = ("enhance_hd", "enhance_cloud", "prompt_edit", "generate") + RESTORE_FEATURES
+# d1-photo v2: HD ENHANCE on OUR photo worker (face detect -> face detail
+# pass -> full-image Real-ESRGAN -> FACE LOCK). Cost to us ~0 (own CPU, just
+# slower); free users: N per day, each unlocked by 1 SSV rewarded ad; paid:
+# no ads, an admin-editable daily fair-use cap (owner asked "unlimited";
+# the standing rule is "nothing unlimited" -> high cap, default 100/day).
+WORKER_FEATURES = ("enhance_server",)
+FEATURES = ("enhance_hd", "enhance_cloud", "prompt_edit", "generate") + RESTORE_FEATURES + WORKER_FEATURES
 CLOUD_FEATURES = ("enhance_cloud", "prompt_edit", "generate") + RESTORE_FEATURES
 TRIAL_FEATURES = ("prompt_edit", "generate")
 
@@ -60,6 +66,7 @@ FEATURE_ACTION = {
     "deblur": "photo_deblur",
     "colorize": "photo_colorize",
     "old_restore": "photo_old_restore",
+    "enhance_server": "photo_enhance_server",
 }
 
 # every way an image can leave the studio — each one goes through ONE gate
@@ -110,6 +117,13 @@ _DEFAULTS = {
     "preview_max_px": 1024,             # free preview long edge
     "ticket_ttl_min": 30,               # an unwatched ad ticket expires
     "provider": "",                     # '' = first connected provider
+    # ---- d1-photo v2 pricing (owner order 6; every number editable) ----
+    "free_enhance_per_day": 3,          # free HD enhances per day ...
+    "free_enhance_ads": 1,              # ... each unlocked by this many SSV ads
+    "premium_enhance_daily_cap": 100,   # paid fair-use cap (no ads)
+    "free_gen_lifetime": 2,             # free AI generations per user, ever
+    "free_gen_per_week": 1,             # after that: this many per week ...
+    "free_gen_min_ads": 3,              # ... each after at least this many ads
 }
 _BOUNDS = {
     "entry_interstitial_gap_min": (5, 1440),
@@ -119,6 +133,12 @@ _BOUNDS = {
     "free_prompt_trials_per_day": (0, 5),
     "preview_max_px": (256, 2048),
     "ticket_ttl_min": (5, 240),
+    "free_enhance_per_day": (0, 20),
+    "free_enhance_ads": (1, 3),
+    "premium_enhance_daily_cap": (1, 1000),
+    "free_gen_lifetime": (0, 10),
+    "free_gen_per_week": (0, 7),
+    "free_gen_min_ads": (1, 5),
 }
 PROVIDERS = ("photo_gemini", "photo_openai", "photo_replicate")
 
@@ -207,7 +227,8 @@ def credits_needed(cost_bdt, table_credits, net_floor, credit_bdt):
 
 def funding_options(*, feature, plan, cost_usd, usd_bdt, table_credits,
                     net_floor, credit_bdt, ps_cfg, ad_rewards,
-                    trials_used_today=0, guard_over=False, provider_ready=True):
+                    trials_used_today=0, guard_over=False, provider_ready=True,
+                    usage=None):
     """Decide how a job can be paid for, BEFORE any work runs.
 
     Returns {ok, reason, cost_bdt, paid_plan, options:[...]} where each option is
@@ -233,6 +254,22 @@ def funding_options(*, feature, plan, cost_usd, usd_bdt, table_credits,
             {"via": "ads", "ads": ps["enhance_hd_ads"], "trial": False},
             {"via": "credits", "credits": ps["enhance_hd_credits"]}]}
 
+    # ---- d1-photo v2: HD enhance on our worker ----
+    if feature in WORKER_FEATURES:
+        u = usage or {}
+        if not provider_ready:
+            return {**base, "ok": False, "reason": "provider_missing", "options": []}
+        if paid:
+            if int(u.get("enhance_today", 0)) >= ps["premium_enhance_daily_cap"]:
+                return {**base, "ok": False, "reason": "fair_use_cap", "options": []}
+            return {**base, "ok": True, "reason": "ok", "options": [{"via": "free"}]}
+        if int(u.get("enhance_today", 0)) >= ps["free_enhance_per_day"]:
+            return {**base, "ok": False, "reason": "daily_limit", "options": [],
+                    "paywall": True}
+        return {**base, "ok": True, "reason": "ok", "options": [
+            {"via": "ads", "ads": ps["free_enhance_ads"], "trial": False}],
+            "left_today": ps["free_enhance_per_day"] - int(u.get("enhance_today", 0))}
+
     # ---- cloud features ----
     if not provider_ready:
         return {**base, "ok": False, "reason": "provider_missing", "options": []}
@@ -250,7 +287,22 @@ def funding_options(*, feature, plan, cost_usd, usd_bdt, table_credits,
     ad_val = ad_value_bdt(ps, ad_rewards)
     n = ads_needed(cost_bdt, ad_val, ps["ad_value_share"])
     ads_ok = n is not None and 0 < n <= ps["max_ads_per_job"]
-    if feature in TRIAL_FEATURES:
+    if feature in TRIAL_FEATURES and usage is not None:
+        # d1-photo v2: lifetime gifts first (an owner-approved marketing cost,
+        # tracked per free user by the free-tier Profit Guard), then N per
+        # week, each only after >= free_gen_min_ads SSV-verified ads.
+        if int(usage.get("gen_lifetime", 0)) < ps["free_gen_lifetime"]:
+            return {**base, "ok": True, "reason": "ok", "options": [
+                {"via": "gift", "trial": True},
+                {"via": "credits", "credits": credits}],
+                "gifts_left": ps["free_gen_lifetime"] - int(usage.get("gen_lifetime", 0))}
+        if int(usage.get("gen_week", 0)) >= ps["free_gen_per_week"]:
+            ads_ok = False
+            reason = "week_used"
+        elif n is not None:
+            n = max(n, ps["free_gen_min_ads"])
+            ads_ok = 0 < n <= max(ps["max_ads_per_job"], ps["free_gen_min_ads"])
+    elif feature in TRIAL_FEATURES:
         if trials_used_today >= ps["free_prompt_trials_per_day"]:
             ads_ok = False
             reason = "trial_used"
@@ -271,7 +323,7 @@ def option_revenue_bdt(option, *, ad_value, share, credit_bdt):
         return option["ads"] * ad_value * share
     if via in ("credits", "pool"):
         return option.get("credits", 0) * credit_bdt
-    return 0.0
+    return 0.0   # "free" (paid plan / on-device) and "gift" (owner-approved free AI)
 
 
 # ------------------------------------------------------------------ safety
@@ -381,9 +433,16 @@ def _skin_colour_change(text):
     return None
 
 
+_SUGGESTIVE = (
+    "hot", "sexy", "seductive", "sensual", "romantic", "bold look", "kiss",
+    "lipstick", "heavy makeup", "short dress", "mini skirt", "crop top", "flirty",
+    "বোল্ড", "হট", "রোমান্টিক", "চুমু",
+)
+
+
 def classify(prompt="", options=None, *, beauty_ops=None, photo_kind="",
              child_in_photo=False, others_in_photo=False, own_photo=True,
-             feature="prompt_edit"):
+             feature="prompt_edit", consent=None):
     """Server-side safety decision for a job. Pure.
 
     Returns {allowed, reason, matched, flags:{child_caution, consent_reminder,
@@ -440,6 +499,12 @@ def classify(prompt="", options=None, *, beauty_ops=None, photo_kind="",
             return no("child_beauty")
         if feature == "generate":
             return no("child_generation")
+        m = _hit(text, _SUGGESTIVE)
+        if m:
+            return no("child_suggestive", m)
+    # d1-photo v2: a realistic AI edit of OTHER real people needs their consent
+    if others and consent is False and feature in ("prompt_edit", "generate"):
+        return no("consent_needed")
     return {"allowed": True, "reason": "ok", "matched": None, "flags": flags}
 
 

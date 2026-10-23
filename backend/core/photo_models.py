@@ -14,6 +14,10 @@ d1-photo: a manifest may list several files by ROLE —
   upscale          Real-ESRGAN x4 (phone, required, always first for old apps)
   segment          U2-Net-p background mask (phone, optional; fixed seg_side input)
   server_colorize  DDColor-tiny (SERVER only, ~270 MB, never served to phones)
+  server_face      YuNet face detector + 5 landmarks (SERVER only, MIT, 230 KB) —
+                   FACE LOCK on the photo worker
+  server_face_id   AuraFace-v1 glintr100.onnx (SERVER only, Apache-2.0, 260 MB)
+                   — FACE LOCK identity embedding
 Each file may carry its own "licence" text. Unknown roles make the manifest
 invalid (nothing served) — same rule as any other bad entry.
 
@@ -37,7 +41,7 @@ _SHA_RE = re.compile(r"^[0-9a-f]{64}$")
 _RANGE_RE = re.compile(r"^bytes=(\d*)-(\d*)$")
 FILE_ROUTE = "/api/v1/photo-studio/model/"
 PHONE_ROLES = ("upscale", "segment")
-SERVER_ROLES = ("server_colorize",)
+SERVER_ROLES = ("server_colorize", "server_face", "server_face_id")
 ROLES = PHONE_ROLES + SERVER_ROLES
 
 

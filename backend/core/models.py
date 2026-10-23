@@ -3499,6 +3499,7 @@ class PhotoStudioJob(models.Model):
     spend credits. `status` only reaches 'funded' when that is done; cloud work
     and full-quality export both require 'funded' (or 'done')."""
     STATUSES = [("awaiting_funds", "awaiting funds"), ("funded", "funded"),
+                ("queued", "queued"),   # d1-photo v2: waiting for the photo worker
                 ("running", "running"), ("done", "done"), ("failed", "failed"),
                 ("refused", "refused"), ("expired", "expired")]
     user = models.ForeignKey(User, on_delete=models.CASCADE,
@@ -3571,6 +3572,75 @@ class PhotoExport(models.Model):
     token = models.CharField(max_length=48, unique=True)
     corner_mark = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+# ---- d1-photo v2 ----
+class PhotoWorkItem(models.Model):
+    """The photo worker's DB queue (one row per funded heavy job). The API
+    only ENQUEUES (the input image is parked in private media); the separate
+    `assisto-photo-worker` service claims rows (SELECT … FOR UPDATE SKIP
+    LOCKED, priority first, then oldest), runs the pipeline and the FACE LOCK,
+    and finishes the PhotoStudioJob. The main API never runs heavy work."""
+    STATES = [("queued", "queued"), ("running", "running"), ("done", "done"),
+              ("failed", "failed")]
+    job = models.OneToOneField(PhotoStudioJob, on_delete=models.CASCADE,
+                               related_name="work")
+    state = models.CharField(max_length=8, choices=STATES, default="queued")
+    priority = models.IntegerField(default=0)          # paid 10, free 0
+    input_name = models.CharField(max_length=200, blank=True, default="")
+    face_boxes = models.JSONField(default=list, blank=True)
+    params = models.JSONField(default=dict, blank=True)
+    attempts = models.IntegerField(default=0)
+    claimed_by = models.CharField(max_length=40, blank=True, default="")
+    claimed_at = models.DateTimeField(null=True, blank=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
+    ms = models.IntegerField(default=0)
+    error = models.CharField(max_length=200, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["state", "-priority", "created_at"])]
+
+
+class PhotoABPair(models.Model):
+    """Blind A/B test pair (Owner Admin → Photo Studio): the same damaged
+    input through Assisto and through Remini (outputs supplied by the owner).
+    Which side is shown left is random per vote; the labels stay hidden until
+    the vote is cast."""
+    name = models.CharField(max_length=80, unique=True)
+    category = models.CharField(max_length=20, blank=True, default="")
+    input_name = models.CharField(max_length=200)
+    assisto_name = models.CharField(max_length=200)
+    remini_name = models.CharField(max_length=200)
+    metrics = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class PhotoABVote(models.Model):
+    CHOICES = [("assisto", "assisto"), ("remini", "remini"), ("same", "same")]
+    pair = models.ForeignKey(PhotoABPair, on_delete=models.CASCADE, related_name="votes")
+    voter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="photo_ab_votes")
+    choice = models.CharField(max_length=8, choices=CHOICES)
+    left_was = models.CharField(max_length=8, default="assisto")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("pair", "voter")]
+
+
+class PhotoAIReport(models.Model):
+    """Google Play AI-generated-content policy: "Report this AI image" from
+    the app. Reviewed in Owner Admin → Photo Studio."""
+    REASONS = [("offensive", "offensive"), ("sexual", "sexual"), ("fake_person", "fake_person"),
+               ("face_changed", "face_changed"), ("child", "child"), ("other", "other")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="photo_ai_reports")
+    job = models.ForeignKey(PhotoStudioJob, null=True, blank=True, on_delete=models.SET_NULL,
+                            related_name="ai_reports")
+    reason = models.CharField(max_length=14, choices=REASONS, default="other")
+    note = models.CharField(max_length=300, blank=True, default="")
+    status = models.CharField(max_length=8, default="open")     # open | closed
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+# ---- /d1-photo v2 ----
 # ---- /ps1-photo ----
 
 
