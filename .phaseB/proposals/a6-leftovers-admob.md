@@ -178,3 +178,15 @@ Rewarded ads work without A3 (they start lazily from the Credits screen).
 - google_mobile_ads pulls `androidx.lifecycle:lifecycle-process` (its
   ProcessLifecycleInitializer is also disabled by the same removal). We don't
   use `AppStateEventNotifier`, so this should be harmless.
+
+## L3 — Google UMP consent (built, goes live with A1)
+- `app/lib/ads/consent.dart` (`AdConsent`) gates EVERY ad request: AdsService
+  (app-open, rewarded) before `show*`, and the hero / Photo Studio pending
+  bridges inside `_init()` before `MobileAds.initialize()`.
+- Real bridge `app/lib/ads/admob_consent_bridge.dart.pending` (UMP inside
+  google_mobile_ads 9.1.0 — no extra dependency, no extra manifest entry).
+  `a6-admob-apply.sh` now also renames it and binds it in `consent_binding.dart`.
+- No-op unless the APK's `ADMOB_APP_ID` dart-define is a REAL app id; fail
+  closed if a real app id is present but UMP is not linked.
+- Verified locally: with google_mobile_ads 9.1.0 temporarily added, all four
+  pending bridges analyze clean (reverted afterwards).

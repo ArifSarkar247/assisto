@@ -1,0 +1,13 @@
+{
+  "_comment": "l3-ump Google UMP consent for AdMob. The Settings entry is shown ONLY when Google's UMP says the privacy-options entry point is required (EEA/UK/CH users, real AdMob app id). All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_l3_arb.json",
+  "en": {
+    "l3AdPrivacyTitle": "Ad privacy choices",
+    "l3AdPrivacySub": "Review or change how ads may use your data",
+    "l3AdPrivacyFailed": "Couldn't open ad privacy choices. Please try again."
+  },
+  "bn": {
+    "l3AdPrivacyTitle": "বিজ্ঞাপনের গোপনীয়তা",
+    "l3AdPrivacySub": "বিজ্ঞাপন আপনার তথ্য কীভাবে ব্যবহার করবে, তা দেখুন বা বদলান",
+    "l3AdPrivacyFailed": "বিজ্ঞাপনের গোপনীয়তার পছন্দগুলো খোলা যায়নি। আবার চেষ্টা করুন।"
+  }
+}

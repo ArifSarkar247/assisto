@@ -7,6 +7,8 @@ import 'ads_bridge.dart';
 
 /// google_mobile_ads-backed [AdsBridge]. Non-personalized requests only.
 /// Every SDK call is wrapped: an ads failure can never crash the app.
+/// L3: AdsService passes AdConsent.allowsAds() (Google UMP) before calling
+/// any show* here, so MobileAds.initialize() and every request come after consent.
 class AdmobAdsBridge implements AdsBridge {
   bool _ready = false;
 

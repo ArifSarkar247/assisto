@@ -362,5 +362,41 @@ finance tracking only · **Health**: see §3 · **Data safety**: §5 · **Ads**:
 2. Apply `.phaseB/proposals/l1-launch.md` A (+ C), get one green CI run, download `assisto-aab`.
 3. Do Play App Signing (owner_actions/PLAY_APP_SIGNING.md).
 4. Upload the AAB to **Internal testing** first; install from Play on the Realme 9i; check: opens, sign-in, notifications prompt, Settings shows no "Update" tile, About says "updates through Google Play", Settings → Legal → Privacy → "Read the full version on lifeassisto.com" opens the site.
-5. **Distribution (owner decision 22 Oct): EXCLUDE the EEA, the UK and Switzerland** for now — Google's UMP consent flow for ads is not built yet (queued). Play Console → Production → Countries/regions: untick all EEA countries, United Kingdom and Switzerland.
+5. **Distribution (owner decision 22 Oct): EXCLUDE the EEA, the UK and Switzerland** for now. Play Console → Production → Countries/regions: untick all EEA countries, United Kingdom and Switzerland. The app side of Google's UMP consent flow is now built (L3, `app/lib/ads/consent.dart`); re-add those countries only after §8 is done.
 6. Fill §2–§6, then promote to Production.
+
+---
+
+## 8. ইউরোপ (EEA), যুক্তরাজ্য ও সুইজারল্যান্ড আবার চালু করা — AdMob সম্মতি (Google UMP)
+
+**অ্যাপে কী তৈরি আছে (L3):** ফ্রি প্ল্যানের ব্যবহারকারী প্রথমবার বিজ্ঞাপন পাওয়ার ঠিক আগে
+অ্যাপ Google-এর UMP দিয়ে সম্মতির অবস্থা জেনে নেয়। ইউরোপ/যুক্তরাজ্য/সুইজারল্যান্ডে Google-এর
+সম্মতি ফর্ম দেখায়, আর অনুমতি না মিললে কোনো বিজ্ঞাপন চাওয়াই হয় না। Google যখন বলে "প্রাইভেসি
+অপশন দেখানো বাধ্যতামূলক", কেবল তখনই Settings-এ **"বিজ্ঞাপনের গোপনীয়তা"** অপশনটি দেখা যায়;
+এতে চাপ দিলে ফর্মটি আবার খোলে। অ্যাপ চালুর সময় কিছুই চলে না। **আপনার আসল AdMob App ID
+বিল্ডে না ঢোকা পর্যন্ত পুরো ব্যবস্থাটি বন্ধ থাকে এবং কোথাও দেখা যায় না** (আজ সেটাই অবস্থা)।
+
+**দেশগুলো আবার চালুর আগে আপনাকে যা করতে হবে, ক্রমানুসারে:**
+
+1. AdMob অ্যাকাউন্ট তৈরি করে অ্যাপ যোগ করুন; App ID ও ad unit ID-গুলো Owner Admin →
+   Integrations → Google AdMob-এ সংরক্ষণ করুন, আর একই App ID GitHub secret `ADMOB_APP_ID`-এ দিন
+   (এগুলো কখনো রিপোজিটরিতে লিখবেন না — রিপো পাবলিক)।
+2. AdMob কনসোল → **Privacy & messaging** → **European regulations (GDPR)** → **Create message**।
+   - অ্যাপ হিসেবে Assisto বেছে নিন, ভাষা: English (চাইলে আরও ভাষা যোগ করুন)।
+   - Privacy policy URL: `https://lifeassisto.com/privacy`।
+   - User choices-এ **"Consent" এবং "Manage options"** দুটোই রাখুন (Google-এর সার্টিফায়েড CMP নিয়ম)।
+   - Ad partners: Google-এর ডিফল্ট তালিকা রাখুন (আমরা non-personalized বিজ্ঞাপন চাই, তবু তালিকা থাকা দরকার)।
+3. মেসেজটি **Publish** করুন। Publish না করা পর্যন্ত ইউরোপের ব্যবহারকারীর কাছে ফর্ম যাবে না,
+   আর অ্যাপ নিয়ম অনুযায়ী তাদের কোনো বিজ্ঞাপনই দেখাবে না।
+4. (ঐচ্ছিক, কিন্তু সুপারিশকৃত) একই পাতায় **US state regulations** মেসেজও তৈরি করে Publish করুন।
+5. **পরীক্ষা:** AdMob-যুক্ত বিল্ড একটি ফোনে চালান; logcat-এ
+   `addTestDeviceHashedId("…")` লাইনে যে আইডি দেখাবে, সেটি Owner Admin → Integrations →
+   Google AdMob → **"UMP test device IDs"** ঘরে লিখুন। তারপর Owner Admin → Ads → **"ইউরোপের (EEA)
+   সম্মতি ফর্ম জোর করে দেখান"** চালু করে সংরক্ষণ করুন। ফ্রি অ্যাকাউন্টে Credits → বিজ্ঞাপন দেখুন:
+   ফর্ম আসা উচিত, আর Settings-এ "বিজ্ঞাপনের গোপনীয়তা" দেখা উচিত। পরীক্ষা শেষে সুইচটি **বন্ধ** করুন।
+6. বিল্ড প্রকাশের আগে CI-র release cold-start gate সবুজ হতে হবে (AdMob/UMP চালুর বিল্ডে
+   manifest-এ APPLICATION_ID থাকে; সেটি না থাকলে SDK চালুতেই ক্র্যাশ করে)।
+7. সব ঠিক থাকলে Play Console → Production → **Countries/regions** → EEA-র সব দেশ, United Kingdom
+   ও Switzerland আবার টিক দিন → Save → নতুন রিলিজ রিভিউতে পাঠান।
+
+> সংক্ষেপে: AdMob-এ GDPR মেসেজ তৈরি ও Publish → টেস্ট ডিভাইসে যাচাই → তারপরই Play-তে দেশগুলো আবার চালু।

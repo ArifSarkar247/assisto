@@ -30,3 +30,17 @@ if old in s:
     open(p, "w").write(s)
     print("binding: AdmobAdsBridge active")
 PY
+# L3 — Google UMP consent gate goes live WITH AdMob (never one without the other).
+C=app/lib/ads/admob_consent_bridge.dart
+if [ -f "$C.pending" ]; then git mv "$C.pending" "$C" 2>/dev/null || mv "$C.pending" "$C"; fi
+python3 - <<'PY'
+p = "app/lib/ads/consent_binding.dart"
+s = open(p).read()
+old = "ConsentBridge createConsentBridge() => const NoopConsentBridge();"
+if old in s:
+    s = s.replace("import 'consent.dart';",
+                  "import 'admob_consent_bridge.dart';\nimport 'consent.dart';", 1)
+    s = s.replace(old, "ConsentBridge createConsentBridge() => AdmobConsentBridge();")
+    open(p, "w").write(s)
+    print("binding: AdmobConsentBridge (UMP) active")
+PY

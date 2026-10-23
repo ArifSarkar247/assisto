@@ -95,6 +95,18 @@ def hero_refresh_sec(value):
     return max(HERO_MIN_REFRESH_SEC, min(3600, v))
 
 
+_DEVICE_RE = re.compile(r"^[A-Za-z0-9_-]{8,64}$")
+
+
+def ump_test_devices(value):
+    """Comma/space separated UMP hashed test-device ids -> clean list (max 20)."""
+    out = []
+    for part in re.split(r"[\s,;]+", _s(value)):
+        if _DEVICE_RE.match(part) and part not in out:
+            out.append(part)
+    return out[:20]
+
+
 def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
                   flag_app_open, ad_caps, hero_refresh=90):
     """The /ads/config payload. `configured` is True only for owner-saved REAL
@@ -129,4 +141,9 @@ def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
         "hero_start_muted": bool(caps.get("hero_start_muted", True)),
         # h1-home: home hero native-ad refresh (admin: pricing home_hero)
         "hero_refresh_sec": hero_refresh_sec(hero_refresh),
+        # l3-ump: Google UMP debug knobs (Owner Admin -> Ads). The app runs
+        # the consent flow only when its APK carries a REAL AdMob app id.
+        "consent_debug_eea": bool(caps.get("consent_debug_eea", False)),
+        "consent_test_devices": ump_test_devices(admob_cfg.get("ump_test_devices"))
+                                if caps.get("consent_debug_eea") else [],
     }

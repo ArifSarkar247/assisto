@@ -52,6 +52,7 @@ import 'security_checkup_screen.dart';
 import 'delete_account_screen.dart';
 import 'voice_assistant_settings_screen.dart';
 import '../theme.dart';
+import '../ads/ad_privacy_tile.dart';
 import 'fall_detect_screen.dart';
 import '../services/action_feedback.dart'; // db1
 
@@ -383,6 +384,9 @@ class SettingsScreen extends StatelessWidget {
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const LegalScreen())),
           ),
+          // L3: Google UMP "Ad privacy choices" — renders nothing unless UMP
+          // says the privacy-options entry point is required.
+          const AdPrivacyTile(),
           // f1-founders: Send feedback / report a problem — a sheet over
           // this screen (screenshot captured first, removable).
           ListTile(
