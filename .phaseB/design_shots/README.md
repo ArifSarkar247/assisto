@@ -19,3 +19,9 @@ c2_call_connected_voice, incoming_call, c2_call_video_connected, ai_chat,
 photo_studio_free_empty, photo_studio_free_enhanced, settings, money,
 reminders, notes_tasks, family, emergency, vault, notification_centre,
 biz_hub, biz_quick_sell, biz_khata, login, otp_verify, plans.
+
+Note on app-bar titles: before this change, every app-bar title rendered at
+the 14 sp default, not a title size. `AppBarTheme.titleTextStyle` was built
+from `ThemeData.textTheme` before localization, which carries colours only
+and no font sizes. The new explicit type scale fixes this (20 sp, w700), so
+titles look larger in every "after" shot.
