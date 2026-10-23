@@ -26,7 +26,9 @@ import '../widgets/in_chat_ai_sheet.dart';
 import 'circle_call_screen.dart';
 import 'circle_extras_hub_screen.dart';
 import 'messenger/contact_info_screen.dart';
+import '../messaging/call_events.dart'; // a1-circle
 import '../messaging/chat_header.dart'; // t1-ticks
+import '../messaging/preview_cache.dart'; // a1-circle
 import '../messaging/date_separators.dart'; // t1-ticks
 import '../messaging/mc_version_gate.dart'; // t1-ticks
 import '../messaging/c3_api.dart';
@@ -154,6 +156,12 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   // of this peer still decrypt history; a change adds a security note.
   String _peerB64 = '';
   List<Uint8List> _peerHistory = const [];
+  // a1-circle: the peer's EARLIER keys from the server (key directory
+  // history) — a new phone of mine still decrypts pre-change history.
+  List<Uint8List> _serverHist = const [];
+  // a1-circle: 1:1 call events shown inside the timeline (WhatsApp-style).
+  List<CallEvent> _calls = const [];
+  int _pollTick = 0;
   List<DateTime> _keyNotes = const [];
   List<OutboxItem> _queued = const [];
   StreamSubscription<Map<String, dynamic>>? _keySub;
@@ -343,6 +351,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   Future<void> _pollMessages() async {
     if (_polling || _loading || _memberId == null) return;
     _polling = true;
+    if (++_pollTick % 3 == 0) unawaited(_loadCalls()); // a1-circle
     try {
       final peer = _peerPub;
       final r = await _api.getJson('/circle/$_memberId/messages?limit=$_pageSize');
@@ -378,6 +387,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         _messages = merged;
         _resolveReplyPreviews();
       });
+      _rememberPreview();
     } catch (_) {
       // Silent: a failed poll just waits for the next tick.
     } finally {
@@ -450,11 +460,30 @@ class _CircleChatScreenState extends State<CircleChatScreen>
           .getJson('/circle/keys/peer/$id')
           .timeout(const Duration(seconds: 6));
       final b64 = '${k['public_key'] ?? ''}';
+      _adoptServerHistory(k['history']);
       if (b64.isNotEmpty) await _adoptPeerKey(b64);
     } catch (e) {
       KeyService.instance.log.add('peer key fetch failed ${e.runtimeType}');
     }
     return _peerPub;
+  }
+
+  void _adoptServerHistory(Object? hist) {
+    if (hist is! List) return;
+    final keys = <Uint8List>[];
+    for (final h in hist) {
+      if (h is! Map) continue;
+      try {
+        final k = base64Decode('${h['public_key'] ?? ''}');
+        if (k.isNotEmpty) keys.add(Uint8List.fromList(k));
+      } catch (_) {}
+    }
+    final was = _serverHist.length;
+    _serverHist = keys;
+    // newly learned old keys may decrypt what failed before
+    if (keys.length != was && !_loading && mounted) {
+      unawaited(_pollMessages());
+    }
   }
 
   Future<void> _adoptPeerKey(String b64) async {
@@ -617,6 +646,36 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     }
     unawaited(_markSeen());
     unawaited(keyFetch);
+    unawaited(_loadCalls());
+    _rememberPreview();
+  }
+
+  /// a1-circle: GET circle/calls?member=<id> -> the call events of this chat.
+  Future<void> _loadCalls() async {
+    final id = _memberId;
+    if (id == null) return;
+    try {
+      final r = await _api.getJson('/circle/calls?member=$id');
+      final next = parseCallEvents(r);
+      if (!mounted) return;
+      final sig = (List<CallEvent> l) =>
+          l.map((e) => '${e.id}:${e.category}:${e.durationSec}').join(',');
+      if (sig(next) != sig(_calls)) setState(() => _calls = next);
+    } catch (_) {
+      // Silent: the timeline simply shows no call chips this time.
+    }
+  }
+
+  /// a1-circle: remember the newest message this phone could read, so the
+  /// chat-list preview can show it even if it later can't be re-decrypted.
+  void _rememberPreview() {
+    for (final m in _messages.reversed) {
+      if (m.pending || int.tryParse(m.id) == null) continue;
+      if (m.deleted == 'everyone' || m.decryptFailed) return;
+      if (m.contentType != 'text' || m.text.isEmpty) return;
+      unawaited(PreviewCache.instance.put(_chatKey, m.id, m.text));
+      return;
+    }
   }
 
   /// Many unread: the first frame is laid out hidden, jumped (no
@@ -861,10 +920,11 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       // Nothing to decrypt — the ciphertext was tombstoned server-side.
     } else if (contentType == 'text' || isMedia) {
       try {
-        if (peerPub == null && _peerHistory.isEmpty) {
+        if (peerPub == null && _peerHistory.isEmpty && _serverHist.isEmpty) {
           failed = true;
         } else {
-          final usePub = peerPub ?? _peerHistory.last;
+          final usePub = peerPub ??
+              (_peerHistory.isNotEmpty ? _peerHistory.last : _serverHist.first);
           final ct = Ciphertext(
             scheme: '${env['scheme'] ?? _e2e.scheme}',
             ciphertextB64: '${env['ciphertext'] ?? ''}',
@@ -874,7 +934,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
           var pt = _e2e.decrypt(self: widget.identity, senderPublicKey: usePub, ct: ct);
           // e2-keys: history from before the peer's key change still
           // decrypts with the key it was sent under.
-          for (final old in _peerHistory) {
+          for (final old in [..._peerHistory, ..._serverHist]) {
             if (pt != null) break;
             try {
               pt = _e2e.decrypt(self: widget.identity, senderPublicKey: old, ct: ct);
@@ -1482,6 +1542,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     } finally {
       _callOpening = false;
     }
+    unawaited(_loadCalls()); // a1-circle: the call appears in the chat
   }
 
   /// A second tap while the call screen is opening never stacks a 2nd call.
@@ -2045,6 +2106,17 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                           return buildChatRow<_ChatRow>(dated[ri], (row) {
                           if (row.divider) return _unreadDivider(scheme);
                           if (row.note != null) return _securityNote(scheme, row.note!);
+                          final call = row.call;
+                          if (call != null) {
+                            return CallEventChip(
+                              event: call,
+                              // a1-circle: tap = call back, same kind; no
+                              // tap at all while calls aren't open.
+                              onCallBack: _callsOpen && !_selecting
+                                  ? () => _placeCall(call.kind)
+                                  : null,
+                            );
+                          }
                           final m = row.msg!;
                           final key =
                               _msgKeys.putIfAbsent(m.id, () => GlobalKey());
@@ -2400,6 +2472,12 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                 mediaJob: j)),
       if (!searching)
         for (final n in _keyNotes) _ChatRow.note(n),
+      // a1-circle: call events by time; with older pages not loaded yet,
+      // only calls inside the loaded window (no out-of-order gap).
+      if (!searching)
+        for (final c in _calls)
+          if (!_hasMore || vis.isEmpty || !c.at.isBefore(vis.first.at))
+            _ChatRow.call(c),
     ];
     // stable chronological order (server order kept for equal stamps)
     final indexed = items.asMap().entries.toList()
@@ -2565,21 +2643,31 @@ class _ChatRow {
   final CircleMessage? msg;
   final DateTime? note; // "security code changed" at
   final bool divider;
+  final CallEvent? call; // a1-circle
   final DateTime _at;
   _ChatRow.msg(CircleMessage m)
       : msg = m,
         note = null,
         divider = false,
+        call = null,
         _at = m.at;
   _ChatRow.note(DateTime at)
       : msg = null,
         note = at,
         divider = false,
+        call = null,
         _at = at;
   _ChatRow.divider(DateTime at)
       : msg = null,
         note = null,
         divider = true,
+        call = null,
         _at = at;
+  _ChatRow.call(CallEvent c)
+      : msg = null,
+        note = null,
+        divider = false,
+        call = c,
+        _at = c.at;
   DateTime get at => _at;
 }

@@ -92,6 +92,19 @@ void registerMyCircleAddFlows() {
       await f.shot('found');
     });
 
+    // a1-circle: the reality driver RE-RUNS a flow after an emulator restart
+    // on the SAME seeded DB (no re-seed). If the interrupted first attempt
+    // already sent the request (or C already accepted), the found card shows
+    // "Request sent" / "In your circle" instead of the relation picker — the
+    // app is right, the old flow assumed a fresh DB. Continue from there.
+    final already = find.byKey(const Key('m3-already')).evaluate().isNotEmpty;
+    final pending = find.byKey(const Key('m3-pending')).evaluate().isNotEmpty;
+    if (already || pending) {
+      f.note('resumed after an interrupted attempt: A->C already '
+          '${already ? 'connected' : 'requested'} (no re-seed); request step skipped');
+    }
+
+    if (!already && !pending)
     await f.step('relation Friend -> Send request -> clear success', () async {
       await f.tap(find.byKey(const Key('m3-rel-friend')), settleSeconds: 1);
       await f.shot('relation');
@@ -102,7 +115,9 @@ void registerMyCircleAddFlows() {
       await f.shot('request-sent');
       await f.tap(find.byKey(const Key('m3-done')), settleSeconds: 2);
     });
+    if (already || pending) await f.backToHome();
 
+    if (!already)
     await f.step('C sees the request (incoming, Accept/Decline) and adds A back '
         'typing "880-1700-000001" (= accept)', () async {
       await f.eventually('C has an incoming request from A', () async {

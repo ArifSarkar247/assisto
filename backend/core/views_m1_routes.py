@@ -410,6 +410,10 @@ class CircleChatsView(APIView):
             pass
         out = C3.augment_chat_rows(request.user, out)
         out = B2.fix_chat_rows(request.user, out)
+        # a1-circle: one row per peer user, same-name hint, "hasn't opened
+        # Assisto yet", the peer's earlier keys for the preview decrypt.
+        from . import a1_circle as A1
+        out = A1.polish_chat_rows(out, edges)
         return Response({"results": out})
 
 

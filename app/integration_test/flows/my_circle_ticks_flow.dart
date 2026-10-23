@@ -132,7 +132,18 @@ void registerMyCircleTicksFlows() {
       await f.backToHome();
       await f.openRoute('circle', settleSeconds: 4);
       await f.waitFor(find.text(textB), seconds: 20, what: 'decrypted preview');
-      if (find.text(f.t.msgrNoMessagesYet).evaluate().isNotEmpty) {
+      // a1-circle: only B's OWN row is checked — another contact with really
+      // no messages (e.g. Nadia from flow 17) legitimately says "No messages
+      // yet"; the old screen-wide check failed on that row.
+      final rowB = find.ancestor(
+          of: find.text(Seed.nameB),
+          matching: find.byWidgetPredicate((w) =>
+              w.key is ValueKey<String> &&
+              '${(w.key as ValueKey<String>).value}'.startsWith('c3-row-')));
+      if (find
+          .descendant(of: rowB, matching: find.text(f.t.msgrNoMessagesYet))
+          .evaluate()
+          .isNotEmpty) {
         throw TestFailure('"No messages yet" shown while messages exist');
       }
       f.expectVisible(find.byKey(const Key('c3-tab-badge')), 'My Circle tab badge');

@@ -5,8 +5,15 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../api.dart';
+import 'dart:convert';
+import 'dart:typed_data';
+
 import '../crypto/e2e.dart';
 import '../crypto/identity_vault.dart';
+import '../crypto/key_service.dart' show PeerKeyBook;
+import '../messaging/chat_list_dedupe.dart';
+import '../messaging/preview_cache.dart';
+import 'm3_circle_widgets.dart' show m3Invite, M3InviteVia;
 import '../l10n/app_localizations.dart';
 import '../messenger_hub_api.dart';
 import '../state.dart';
@@ -84,6 +91,11 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
   /// c3-msg: decrypted previews, cached per (row id, last message id) so a
   /// reload never re-runs X25519 for an unchanged row.
   final Map<String, ChatPreview> _previews = {};
+
+  /// a1-circle: every EARLIER key this phone saw for each 1:1 peer
+  /// (PeerKeyBook), so a last message sent before the peer's key change
+  /// still decrypts here.
+  final Map<String, List<Uint8List>> _peerHist = {};
   final _e2e = SoftwareE2E();
   final _rt = RealtimeChannel.instance;
 
@@ -153,7 +165,14 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     final ck = '${_key(c)}|${last?['id']}|${last?['status']}|${last?['deleted']}'
         '|${widget.identity?.keyId}';
     return _previews.putIfAbsent(
-        ck, () => ChatPreview.fromRow(c, identity: widget.identity, e2e: _e2e));
+        ck,
+        () => ChatPreview.fromRow(c,
+            identity: widget.identity,
+            e2e: _e2e,
+            extraPeerKeys: _peerHist[_key(c)] ?? const [],
+            cachedText: last == null
+                ? null
+                : PreviewCache.instance.peek(_key(c), '${last['id']}')));
   }
 
   void _publishUnread() {
@@ -176,9 +195,12 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
   Future<void> _load() async {
     try {
       final r = await loadGuard(_api.getJson('/circle/chats'));
-      _chats = ((r['results'] ?? r['chats'] ?? const []) as List)
-          .cast<Map<String, dynamic>>();
+      // a1-circle: one row per person, always.
+      _chats = dedupeChatRows(((r['results'] ?? r['chats'] ?? const []) as List)
+          .cast<Map<String, dynamic>>());
       _loadFailed = false;
+      await _loadPeerKeys(_chats);
+      _previews.clear();
       _publishUnread();
     } catch (e) {
       // Honest error + retry (no synthesised rows posing as real chats).
@@ -191,6 +213,35 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       _lists = [];
     }
     if (mounted) setState(() => _loading = false);
+  }
+
+  /// a1-circle: record each peer's CURRENT key (so a later change keeps the
+  /// old one in the history) and load the earlier ones + cached previews.
+  Future<void> _loadPeerKeys(List<Map<String, dynamic>> rows) async {
+    try {
+      await PreviewCache.instance.warm();
+      for (final c in rows) {
+        if (_isGroup(c)) continue;
+        final k = _key(c);
+        final cur = '${_memberOf(c)['public_key'] ?? ''}';
+        if (cur.isNotEmpty) await PeerKeyBook.instance.observe(k, cur);
+        final hist = await PeerKeyBook.instance.history(k);
+        _peerHist[k] = [
+          for (final h in hist.reversed) // newest first
+            if (h != cur) ...[
+              () {
+                try {
+                  return Uint8List.fromList(base64Decode(h));
+                } catch (_) {
+                  return Uint8List(0);
+                }
+              }()
+            ]
+        ].where((x) => x.isNotEmpty).toList();
+      }
+    } catch (_) {
+      // never blocks the list: the current key still decrypts
+    }
   }
 
   Map<String, dynamic> _memberOf(Map<String, dynamic> c) =>
@@ -727,6 +778,12 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     final lang = Localizations.localeOf(context).languageCode;
     final rt = _rt.states.value[_key(c)] ?? const RtChatState();
     final activity = activityLabel(t, rt, isGroup: group);
+    final hint = sameNameHint(c, _dupNames,
+        digits: lang == 'bn' ? _bnDigits : null);
+    // a1-circle: a contact who never opened Assisto: honest hint + Invite
+    // (instead of a bare "No messages yet").
+    final notOnApp =
+        !group && pv.kind == PreviewKind.empty && c['peer_has_app'] == false;
 
     // tl1: one shared identifier (Android resource-id) on every chat row, so a
     // Test Lab Robo script can pick a row by resource-id + its name text.
@@ -754,7 +811,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(children: [
-                  Expanded(
+                  Flexible(
                     child: Text(name.isEmpty ? '?' : name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -763,6 +820,19 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
                                 unread > 0 ? FontWeight.w800 : FontWeight.w700,
                             fontSize: 15)),
                   ),
+                  // a1-circle: two DIFFERENT people with the same name get a
+                  // subtle second identifier (label / "...888"), like WhatsApp.
+                  if (hint.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 6),
+                      child: Text(hint,
+                          key: const Key('a1-same-name-hint'),
+                          maxLines: 1,
+                          style: TextStyle(
+                              fontSize: 12.5,
+                              color: scheme.onSurfaceVariant)),
+                    ),
+                  const Spacer(),
                   if (pv.at != null)
                     Padding(
                       padding: const EdgeInsets.only(left: Gap.sm),
@@ -790,7 +860,9 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                                 color: typingGreen(context)))
-                        : _previewLine(pv, scheme, t),
+                        : notOnApp
+                            ? _notOnAppLine(scheme, t)
+                            : _previewLine(pv, scheme, t),
                   ),
                   if (muted)
                     Padding(
@@ -826,6 +898,48 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       ),
       ),
     );
+  }
+
+  /// a1-circle: "Hasn't opened Assisto yet - Invite"; Invite opens the real
+  /// share sheet (m3Invite), never a dead tap.
+  Widget _notOnAppLine(ColorScheme scheme, AppLocalizations t) {
+    return Row(children: [
+      Flexible(
+        child: Text(t.a1NotOnAssistoYet,
+            key: const Key('a1-not-on-app'),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+                fontSize: 13,
+                color: scheme.onSurfaceVariant,
+                fontStyle: FontStyle.italic)),
+      ),
+      const SizedBox(width: 6),
+      InkWell(
+        key: const Key('a1-invite'),
+        borderRadius: BorderRadius.circular(Radii.pill),
+        onTap: () => m3Invite(context, M3InviteVia.share),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+          child: Text(t.a1Invite,
+              style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: scheme.primary)),
+        ),
+      ),
+    ]);
+  }
+
+  Set<String> get _dupNames => sameNameKeys(_chats);
+
+  static String _bnDigits(String ascii) {
+    const bnZero = 0x09E6;
+    final b = StringBuffer();
+    for (final cu in ascii.codeUnits) {
+      b.writeCharCode(cu >= 0x30 && cu <= 0x39 ? bnZero + (cu - 0x30) : cu);
+    }
+    return b.toString();
   }
 
   /// "✓✓ You: hi" / "Rahim: hello" / "🔒 Encrypted message" / media label —

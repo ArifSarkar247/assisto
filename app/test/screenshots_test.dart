@@ -199,6 +199,7 @@ import 'h1_home_shots.dart'; // h1-home
 import 'f1_shots.dart'; // f1-founders
 import 't1_ticks_shots.dart'; // t1-ticks
 import 'mr1_shots.dart'; // mr1
+import 'a1_shots.dart'; // a1-circle
 import 'md1_shots.dart'; // md1
 import 'pay1_shots.dart'; // pay1
 import 'tl1_shots.dart'; // tl1 OEM background guide
@@ -687,6 +688,8 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in t1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // mr1: message requests + full last seen
     for (final e in mr1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // a1-circle: header never cut, same-name rows, call events in the chat
+    for (final e in a1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // md1: E2E media (attach sheet, bubbles, chat, viewer, preview, recorder)
     for (final e in md1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
   };

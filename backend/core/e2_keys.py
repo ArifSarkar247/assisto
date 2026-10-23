@@ -92,14 +92,54 @@ def edge_key(edge):
     return key_of(edge_peer(edge))
 
 
+HISTORY_MAX = 8
+
+
+def push_history(history, public_key, key_id, until):
+    """Prepend a replaced key to `history` (newest first, de-duplicated,
+    capped at HISTORY_MAX)."""
+    out = [{"public_key": public_key, "key_id": key_id or "",
+            "until": until.isoformat() if hasattr(until, "isoformat")
+            else str(until or "")}]
+    for h in (history if isinstance(history, list) else []):
+        if (isinstance(h, dict) and h.get("public_key")
+                and h.get("public_key") != public_key):
+            out.append(h)
+    return out[:HISTORY_MAX]
+
+
+def key_history(row):
+    """[{public_key, key_id}] of the user's EARLIER keys, newest first."""
+    if row is None:
+        return []
+    hist = getattr(row, "history", None)
+    out = []
+    for h in (hist if isinstance(hist, list) else []):
+        if (isinstance(h, dict) and h.get("public_key")
+                and h.get("public_key") != row.public_key):
+            out.append({"public_key": h["public_key"],
+                        "key_id": h.get("key_id", "")})
+    return out
+
+
+def edge_key_history(edge):
+    """The earlier keys of the peer of `edge` (never raises)."""
+    try:
+        return key_history(key_row(edge_peer(edge)))
+    except Exception:
+        return []
+
+
 def key_dict(row, user_id=None):
     if row is None:
         return {"user_id": user_id, "public_key": "", "key_id": "",
-                "scheme": "", "updated_at": None, "changed_at": None}
+                "scheme": "", "updated_at": None, "changed_at": None,
+                "history": []}
     return {"user_id": row.user_id, "public_key": row.public_key,
             "key_id": row.key_id, "scheme": row.scheme,
             "updated_at": row.updated_at.isoformat() if row.updated_at else None,
-            "changed_at": row.changed_at.isoformat() if row.changed_at else None}
+            "changed_at": row.changed_at.isoformat() if row.changed_at else None,
+            "history": key_history(row)}
 
 
 # --------------------------------------------------------------- publish
@@ -136,6 +176,10 @@ def publish(user, public_key, key_id="", scheme="", now=None):
             changed = True
             row.previous_key_id = row.key_id or ""
             row.changed_at = now
+            # a1-circle: keep the replaced PUBLIC key so contacts can still
+            # decrypt what was sent under it.
+            row.history = push_history(row.history, row.public_key,
+                                       row.key_id, now)
         fresh = row.public_key != pub or row.key_id != kid or row.scheme != sch
         row.public_key, row.key_id, row.scheme = pub, kid, sch
         if fresh or changed:
