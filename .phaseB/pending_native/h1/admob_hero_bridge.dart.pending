@@ -19,6 +19,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+import 'consent.dart';
 import 'hero_ad.dart';
 
 class AdmobHeroAdBridge implements HeroAdBridge {
@@ -26,6 +27,9 @@ class AdmobHeroAdBridge implements HeroAdBridge {
   static const _request = AdRequest(nonPersonalizedAds: true);
 
   Future<bool> _init() async {
+    // L3: Google UMP consent BEFORE MobileAds init / any ad request
+    // (no-op without a real AdMob app id in this APK).
+    if (!await AdConsent.instance.allowsAds()) return false;
     if (_ready) return true;
     try {
       await MobileAds.instance.initialize();

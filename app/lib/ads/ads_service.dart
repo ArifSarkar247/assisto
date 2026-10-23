@@ -9,6 +9,7 @@ import '../state.dart';
 import 'ad_rules.dart';
 import 'ads_binding.dart';
 import 'ads_bridge.dart';
+import 'consent.dart';
 
 /// Drives AdMob under [AdRules].
 ///
@@ -16,6 +17,9 @@ import 'ads_bridge.dart';
 /// first frame (main.dart, see proposal) and itself waits for the app to be
 /// idle; the SDK is only initialised right before the first ad is shown. Every
 /// step is try/caught.
+///
+/// CONSENT (L3): every ad request first passes [AdConsent.allowsAds] (Google
+/// UMP). Without a real AdMob app id in this APK that gate is a no-op.
 ///
 /// HONEST: a reward is reported to the server ONLY after the SDK's
 /// onUserEarnedReward fired. No SDK / no config -> no ad, no reward.
@@ -72,7 +76,9 @@ class AdsService with WidgetsBindingObserver {
       return config;
     }
     try {
-      config = AdConfig.fromJson(await app.api.getJson('/ads/config'));
+      final j = await app.api.getJson('/ads/config');
+      config = AdConfig.fromJson(j);
+      AdConsent.instance.applyServerConfig(j);
       _configAt = DateTime.now();
     } catch (_) {}
     return config;
@@ -119,6 +125,8 @@ class AdsService with WidgetsBindingObserver {
           builtAppId: builtAppId, testMode: testMode);
       if (unit == null) return;
       _showing = true;
+      // UMP consent BEFORE any ad request (no-op without a real app id).
+      if (!await AdConsent.instance.allowsAds()) return;
       final shown = await bridge.showAppOpen(unit);
       if (shown) {
         await prefs.setInt(_kLast, DateTime.now().millisecondsSinceEpoch);
@@ -156,6 +164,10 @@ class AdsService with WidgetsBindingObserver {
           builtAppId: builtAppId, testMode: testMode);
       if (unit == null) return RewardOutcome.unavailable;
       _showing = true;
+      // UMP consent BEFORE any ad request (no-op without a real app id).
+      if (!await AdConsent.instance.allowsAds()) {
+        return RewardOutcome.unavailable;
+      }
       return await bridge.showRewarded(unit);
     } catch (_) {
       return RewardOutcome.unavailable;
@@ -181,12 +193,31 @@ class AdsService with WidgetsBindingObserver {
         loggedIn: app.loggedIn,
         userOptedIn: true,
       );
+      // a real app id without the UMP SDK can never pass the consent gate
+      final c = AdConsent.instance;
+      if (c.active && !c.bridge.linked) return false;
       return d.allowed &&
           cfg.unitFor(AdKind.rewarded,
                   builtAppId: builtAppId, testMode: testMode) !=
               null;
     } catch (_) {
       return false;
+    }
+  }
+
+  /// Settings (L3): for a Free user, ask UMP whether the "Ad privacy
+  /// choices" entry is required. No-op (no network, no SDK) without a real
+  /// AdMob app id in this APK. Never throws.
+  Future<void> refreshConsentStatus(AppState app) async {
+    final c = AdConsent.instance;
+    if (!c.active || !c.bridge.linked) return;
+    _app ??= app;
+    try {
+      final cfg = await refreshConfig();
+      if (cfg.paid) return;
+      await c.refreshPrivacyStatus();
+    } catch (e) {
+      if (kDebugMode) debugPrint('consent status skipped: $e');
     }
   }
 

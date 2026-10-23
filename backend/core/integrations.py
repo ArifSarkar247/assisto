@@ -157,7 +157,10 @@ REGISTRY = {
                    # h1-home: the home hero NATIVE ad (image or video, free plan only)
                    _f("native_unit", "Native unit ID (হোম হিরো)", "Native unit ID (home hero)", secret=False),
                    # l1-launch: lifeassisto.com/app-ads.txt (optional — derived from the App ID when blank)
-                   _f("publisher_id", "Publisher ID (app-ads.txt, যেমন pub-XXXXXXXXXXXXXXXX)", "Publisher ID (app-ads.txt, e.g. pub-XXXXXXXXXXXXXXXX)", secret=False)],
+                   _f("publisher_id", "Publisher ID (app-ads.txt, যেমন pub-XXXXXXXXXXXXXXXX)", "Publisher ID (app-ads.txt, e.g. pub-XXXXXXXXXXXXXXXX)", secret=False),
+                   # l3-ump: hashed device ids from logcat ("Use new ConsentDebugSettings
+                   # .Builder().addTestDeviceHashedId(...)") — testing only
+                   _f("ump_test_devices", "UMP টেস্ট ডিভাইস আইডি (কমা দিয়ে, শুধু পরীক্ষা)", "UMP test device IDs (comma-separated, testing only)", secret=False)],
         "test": "test_admob",
     },
     # pay1: Google Play Billing — server verification + RTDN (core/payments/play.py)

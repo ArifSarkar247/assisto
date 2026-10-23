@@ -296,6 +296,10 @@ def DEFAULTS():
             # /owner/ads; when shown, video starts MUTED by default.
             "hero_enabled": False,
             "hero_start_muted": True,
+            # l3-ump: force Google UMP's EEA debug geography (testing only;
+            # Google honours it only on the AdMob integration's UMP test
+            # devices). OFF = real geography.
+            "consent_debug_eea": False,
         },
         # daily profit guard thresholds (admin-editable)
         "profit_guard": {
@@ -604,6 +608,8 @@ def _norm_ad_rewards(raw, base):
         "hero_enabled": _bool(raw.get("hero_enabled"), base["hero_enabled"]),
         "hero_start_muted": _bool(raw.get("hero_start_muted"),
                                   base["hero_start_muted"]),
+        "consent_debug_eea": _bool(raw.get("consent_debug_eea"),
+                                   base["consent_debug_eea"]),
     }
 
 

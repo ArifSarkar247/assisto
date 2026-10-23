@@ -501,7 +501,7 @@ def pnl(request):
 # ====================================================================== ads
 _AD_REWARD_KEYS = ("ecpm_bdt", "revenue_share", "appopen_min_gap_sec", "appopen_daily_cap",
                    "rewarded_daily_cap", "interstitial_daily_cap", "native_daily_cap",
-                   "hero_enabled", "hero_start_muted")
+                   "hero_enabled", "hero_start_muted", "consent_debug_eea")
 _PS_AD_KEYS = ("entry_interstitial_enabled", "entry_interstitial_gap_min", "enhance_hd_ads",
                "max_ads_per_job", "free_prompt_trials_per_day", "ad_value_bdt",
                "ad_value_share", "ticket_ttl_min")
