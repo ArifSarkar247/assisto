@@ -80,3 +80,45 @@
 | Colorize (server, DDColor-tiny 512²) | model 3.4–4.5 s; whole job 6.7–13 s (worker start + 1.5 s model load) | — (server) |
 | Old-photo restore (server, ≤ 512 px → ×4, + colour) | 12–16 s whole job (worker, peak RSS 1.4 GB, one at a time) | — (server) |
 | Deblur NAFNet-w32 (server CPU, measured with random weights) | 1.6 s @256², 3.8 s @512×384, **16 s @768×576, 69 s @1024×768** | → **GPU API only** (Replicate, Admin key), hidden until connected + priced |
+
+---
+
+# v2 (owner order 6): 50 licence-clean photos, server pipeline + FACE LOCK
+
+Set: `.phaseB/d1_eval/sources_50.json` — the 20 above + 12 official 118th-Congress portraits
+(public domain) picked as the DARKEST skin tones among the candidates (YuNet face box, mean
+skin L*), 8 REAL old prints (Harris & Ewing, public domain, no synthetic damage), 6 group
+photographs (public domain), 4 CC0 photos (synthetic low light). Every licence read from
+Commons' own metadata; only "Public domain" / "CC0" accepted. Tool:
+`tools/photo_eval/run_eval_v2.py`; sheets `.phaseB/d1_eval50/sheet50_01..10.jpg`; numbers
+`.phaseB/d1_eval50/results50.json`. **Remini column still empty** (owner step), and the blind
+A/B vote page (Owner Admin → Photo Studio) is ready for it (`manage.py photo_ab_import`).
+
+Identity = AuraFace cosine (Apache-2.0) of each clean-original face vs the same face in the
+result (same person on this set ≈ 0.85–0.97; different people ≤ 0.35, median 0.09).
+
+| kind (n) | pipeline | PSNR damaged → **Assisto** | SSIM damaged → **Assisto** | identity damaged → **Assisto** (worst) | sharpness damaged → Assisto (clean) | time here | Face Lock pasted the original face |
+|---|---|---|---|---|---|---|---|
+| portrait (5) | server HD | 28.1 → **28.2** | 0.848 → **0.861** | 0.93 → **0.93** (0.91) | 10 → 152 (682) | 10.5 s | 0 / 5 |
+| dark skin (12) | server HD (6) / phone low-light (6) | 18.0 → **24.4** | 0.592 → **0.784** | 0.87 → **0.88** (0.84) | 131 → 681 (1 227) | 4.5 s | 0 / 12 |
+| low light (9) | phone low-light | 8.4 → **20.6** | 0.379 → **0.719** | 0.38 → **0.59** | 504 → 2 342 (2 092) | 0.3 s | — |
+| blurry (5) | server HD | 25.0 → 22.7 | 0.738 → 0.737 | 0.87 → 0.88 | 30 → 9 (1 208) | 17.7 s | 0 / 5 |
+| old, synthetic (5) | server old-photo restore | 15.3 → 13.5 | 0.633 → 0.613 | 0.77 → 0.71 (0.67) | 29 → 109 (2 134) | 12.9 s | 0 / 5 |
+| old, REAL prints (8) | server old-photo restore | — (no clean original) | — | vs input: **0.86** (0.76) | 788 → 417 | 18.5 s | 6 / 8 |
+| group (6) | server HD | 22.9 → 20.1 | 0.592 → 0.601 | not measurable (faces < ~40 px) | 27 → 443 (2 365) | 18.4 s | 5 / 6 (many small faces) |
+
+### Honest reading (v2)
+- **Better than the damaged input:** portraits (now slightly ABOVE the input on PSNR/SSIM, unlike
+  v1's on-device step), dark skin tones (+6.5 dB, identity kept 0.84–0.91), low light (+12 dB).
+- **Not fixed:** real blur. Real-ESRGAN on the CPU denoises but does not deblur (sharpness of the
+  noisy-blurred input even goes down because the noise is removed). True deblur = NAFNet on the
+  GPU API, which is key-gated and not connected → not evaluated.
+- **Old photos:** dust/fade fixed, colour added (a guess), but the 512-px input cap of the CPU
+  path loses fine detail on larger prints (real prints: sharpness 788 → 417). Face Lock pasted the
+  original faces back on 6 of 8 real prints — the faces stay the person's own, but un-restored.
+- **Group photos:** faces under ~40 px are too small for the identity model; Face Lock then pastes
+  every original face back (safe, never a changed face) and the identity metric is not meaningful.
+- **No face restoration model** (none is licence-clean). This is where Remini will most likely
+  look better on faces. We do not claim otherwise; the blind A/B vote decides.
+- Speeds are this 2-vCPU box with another agent's tests running; the worker is capped at one
+  vCPU (`CPUQuota=100%`), so a queue of free jobs is served one at a time (~5–25 s each).

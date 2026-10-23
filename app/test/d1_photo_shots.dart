@@ -7,7 +7,9 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 import 'package:assisto/photo_studio/ps_controller.dart';
+import 'package:assisto/photo_studio/ps_export.dart';
 import 'package:assisto/photo_studio/ps_engines.dart';
+import 'package:assisto/photo_studio/ps_models.dart';
 import 'package:assisto/photo_studio/ps_enhance.dart' show AiPlan;
 import 'package:assisto/photo_studio/ps_native.dart';
 import 'package:assisto/photo_studio/ps_report.dart';
@@ -78,6 +80,57 @@ Future<void> _withPhoto(PhotoStudioController c) async {
   c.setStrength(c.strength);
 }
 
+/// v2: server HD enhance done on the worker with a FACE LOCK report +
+/// one-tap templates.
+class _V2Backend extends FakePsBackend {
+  _V2Backend(this.lang, {super.free = true})
+      : super(entryDue: false, restoreReady: true, providerReady: true);
+  final String lang;
+  @override
+  Future<PsConfig> config() async {
+    final b = await super.config();
+    final bn = lang == 'bn';
+    String l(String en, String b) => bn ? b : en;
+    return PsConfig(
+      plan: b.plan,
+      free: b.free,
+      features: {
+        ...b.features,
+        'enhance_server': const FeatureQuote(ok: true, reason: 'ok', options: [FundingOption('free')]),
+      },
+      providerReady: true,
+      templates: [
+        PsTemplate('hd_portrait', PsFeature.enhanceServer, l('HD portrait', 'HD পোর্ট্রেট')),
+        PsTemplate('old_restore', PsFeature.oldRestore,
+            l('Old photo: restore + colour', 'পুরোনো ছবি: ঠিক + রং')),
+        PsTemplate('passport_bd', PsFeature.promptEdit, l('Passport (BD)', 'পাসপোর্ট (বাংলাদেশ)')),
+        PsTemplate('linkedin', PsFeature.promptEdit,
+            l('Professional / LinkedIn', 'প্রফেশনাল / LinkedIn')),
+        PsTemplate('eid_outfit', PsFeature.promptEdit, l('Eid outfit', 'ঈদের পোশাক')),
+        PsTemplate('studio_bg', PsFeature.promptEdit, l('Studio background', 'স্টুডিও ব্যাকগ্রাউন্ড')),
+      ],
+      limits: const {'free_enhance_per_day': 3, 'free_enhance_ads': 1, 'free_gen_lifetime': 2},
+      usage: const {'enhance_today': 1, 'gen_lifetime': 0},
+      previewMaxPx: 1024,
+    );
+  }
+
+  @override
+  Future<PsReply> run(int id, {String imageB64 = '', List<List<double>>? faceBoxes}) async {
+    await super.run(id, imageB64: imageB64, faceBoxes: faceBoxes);
+    return PsReply(200, {
+      'ok': true,
+      'job': {
+        'id': id, 'feature': 'enhance_server', 'status': 'done', 'preview': '/m/p.png',
+        'face_lock': {'faces': 1, 'kept': 1, 'restored': 0, 'min_score': 0.96, 'action': 'kept'}
+      }
+    });
+  }
+
+  @override
+  Future<Uint8List?> download(String url) async => ps1SampleAfter;
+}
+
 /// name -> builder(lang). Wired into screenshots_test.dart `specs`.
 final Map<String, Widget Function(String)> d1PhotoShots = {
   // tools card + the honest "works on a 1,280 px copy · about 7 s" AI line
@@ -102,6 +155,11 @@ final Map<String, Widget Function(String)> d1PhotoShots = {
   'photo_studio_d1_restore_owner': (_) => _studio(
       _deps(FakePsBackend(entryDue: false, providerReady: false, free: false, isOwner: true)),
       _withPhoto),
+  // v2: HD enhance on our worker + FACE LOCK badge + one-tap templates
+  'photo_studio_d1_facelock': (l) => _studio(_deps(_V2Backend(l, free: false)), (c) async {
+        await c.pick(camera: false);
+        await c.runRestore(PsFeature.enhanceServer, _NoUi());
+      }),
   // batch: several photos, one action, statuses
   'photo_studio_d1_batch': (_) =>
       _studio(_deps(FakePsBackend(entryDue: false, providerReady: false)), (c) async {
@@ -113,3 +171,8 @@ final Map<String, Widget Function(String)> d1PhotoShots = {
         c.clearNotice();
       }),
 };
+
+class _NoUi extends GateUi {
+  @override
+  Future<FundChoice?> chooseFunding(GateNeed need) async => null;
+}
