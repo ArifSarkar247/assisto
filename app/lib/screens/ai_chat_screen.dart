@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
+import '../growth/branded_share.dart'; // p5-growth
 import '../chat_vision/chat_photo.dart';
 import '../api.dart';
 import '../state.dart';
@@ -399,7 +399,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
 
   Future<void> _share(_Msg m) async {
     try {
-      await Share.share(m.text);
+      // p5-growth: branded image + text, preview first; only this answer.
+      await showBrandedShare(context, body: m.text);
     } catch (e) {
       showActionFailed(context, 'aichat.share', e, open: true); // db1
     }

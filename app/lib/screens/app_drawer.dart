@@ -9,6 +9,7 @@ import 'plans_screen.dart';
 import 'messenger/messenger_home_screen.dart';
 import 'assisto_chats_screen.dart';
 import '../widgets/robo_id.dart';
+import '../growth/invite_screen.dart';
 
 /// Left sidebar — the app's navigation hub (modern AI-chat style). The main
 /// screen is only the chat; everything else lives here.
@@ -243,6 +244,14 @@ class _AppDrawerState extends State<AppDrawer> {
                       color: scheme.onSurfaceVariant),
                   title: Text(t.sidebarPlansPoints),
                   onTap: () => _push((_) => const PlansScreen()),
+                ),
+                // p5-growth: invite friends (referral) + Founding Members
+                ListTile(
+                  key: const ValueKey('drawer_invite_friends'),
+                  leading: Icon(Icons.card_giftcard_outlined,
+                      color: scheme.onSurfaceVariant),
+                  title: Text(t.p5InviteTitle),
+                  onTap: () => _push((_) => const InviteScreen()),
                 ),
                 SizedBox(
                     height: MediaQuery.of(context).padding.bottom + Gap.sm),
