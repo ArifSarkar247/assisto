@@ -1,1 +1,1 @@
-Build 224: old group messages also come back after a reinstall; your own phone's protection alert clears as soon as you use Assisto on it, and never shows in your own urgent card.
+Build 225: incoming calls now ring natively even when Assisto is closed, swiped away or another app is open (full screen, Answer/Decline); new call setup checklist for your phone brand; the server resends a call that did not arrive.
