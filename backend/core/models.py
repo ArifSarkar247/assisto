@@ -5060,7 +5060,7 @@ class E2ResendRequest(models.Model):
     class Meta:
         unique_together = [("requester", "target", "key_id")]
 # ---- /e2e-recover ----
-=======
+
 # ---- calls-health ---- (owner 24 Oct: "Call server busy", "rang then dropped")
 # CallSession.push_sent: an FCM ring was handed to at least one registered
 # device of the callee -> the ring-ack window is the full ring time (see
