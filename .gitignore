@@ -57,6 +57,9 @@ tools/*
 !tools/ticks_proof/
 !tools/photo_model/
 !tools/photo_eval/
+!tools/photo_bench/
+!tools/photo_train/
+owner_actions/photo_bench/.media_tmp/
 !tools/testlab/
 screenshots/
 new-logo.png

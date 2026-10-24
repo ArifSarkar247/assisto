@@ -144,3 +144,60 @@ model cards via the HF API `cardData.license`). "Commercial OK" = code AND weigh
 | Google SigLIP base (patch16-224) | Apache-2.0 | candidate for later (needs onnxruntime on the server, ~200M params — not installed, not shipped) |
 | Apple MobileCLIP | Apple ML research licence (non-commercial) | **never** |
 | OpenCLIP LAION-2B checkpoints | MIT weights, LAION data-provenance concerns | not used |
+
+
+## Photo Studio FINAL — face restoration licence check (photo-final, 24 Oct 2026)
+
+Owner asked for "GFPGAN v1.4 (Apache-2.0)". Checked from primary sources on 24 Oct 2026. This is a
+summary of licence texts, **not legal advice**.
+
+### GFPGAN v1.4 — verdict: NOT clearly commercial-OK → shipped **switchable, OFF by default**
+
+| Part | Source | What it says |
+|---|---|---|
+| Code | https://raw.githubusercontent.com/TencentARC/GFPGAN/master/LICENSE | "GFPGAN is licensed under the Apache License Version 2.0 **except for the third-party components listed below**." |
+| StyleGAN2 CUDA ops (third-party, same file) | NVIDIA Source Code License | "may be used or intended for use **non-commercially**" — "research or evaluation purposes only". The *clean* v1.3/v1.4 architecture does not need these ops (README: "a clean version of GFPGAN, which does not require customized CUDA extensions"). |
+| DFDNet part (same file) | CC BY-NC-SA 4.0 | non-commercial |
+| v1.4 **weights** (`GFPGANv1.4.pth`, GitHub releases v1.3.0 / v1.3.4) | https://api.github.com/repos/TencentARC/GFPGAN/releases | **no licence statement for the weights at all**; README does not say the weights are Apache-2.0 |
+| Training data | FFHQ — https://raw.githubusercontent.com/NVlabs/ffhq-dataset/master/README.md | dataset "made available under **Creative Commons BY-NC-SA 4.0**"; individual images CC BY 2.0 / **CC BY-NC 2.0** / PD — "allow free use … for **non-commercial** purposes" |
+| facexlib (dependency, face parsing used for paste-back) | https://raw.githubusercontent.com/xinntao/facexlib/master/LICENSE + `facexlib/parsing/parsenet.py` | MIT code, but ParseNet is "Modified from PSFRGAN", whose LICENSE is **CC BY-NC-SA 4.0** |
+| Replicate page tencentarc/gfpgan | https://replicate.com/tencentarc/gfpgan | **no licence shown**; ≈ $0.0032/run, L40S, ~4 s. Hosting on Replicate does **not** change the weights' licence. |
+
+**Verdict:** code Apache-2.0 ✔, weights unlicensed + trained on a non-commercial dataset + NC
+parsing net → **legally grey / risky for a paid app**. Many companies ship it anyway (whether
+weights inherit the dataset licence is legally unsettled), but it is not clean.
+**Implementation:** `photo_studio.face_restore_gfpgan = false` (Owner Admin → Ads/Pricing,
+photo_studio block) + an empty "GFPGAN model version" field in Integrations →
+`photo_enhance_replicate`. Only when the owner turns the switch on AND pastes a version does the
+Replicate pipeline call GFPGAN (blend 55 % Natural / 70 % Strong, all faces, then FACE LOCK).
+**Owner decision needed (legal).** Real-ESRGAN's own `face_enhance=true` = GFPGAN → never sent.
+
+### Alternatives checked (24 Oct 2026)
+
+| Model | Code licence (primary URL) | Weights / data | Verdict |
+|---|---|---|---|
+| CodeFormer | S-Lab License 1.0 (github.com/sczhou/CodeFormer LICENSE) "non-commercial purpose" | — | **NO** (owner-excluded, confirmed) |
+| RestoreFormer / RestoreFormer++ | Apache-2.0 (wzhouxiff repos) | weights unlicensed; README: "trained with FFHQ" | grey (same as GFPGAN) |
+| VQFR (TencentARC) | Apache-2.0 + permissive third-party | FFHQ | grey |
+| DiffBIR | Apache-2.0 (XPixelGroup) | `v1_face.pth` "trained on FFHQ" + Stable Diffusion 2.1 base | grey |
+| DifFace, PGDiff | S-Lab License 1.0 | — | **NO** |
+| DMDNet | CC BY-NC-SA 4.0; CelebRef-HQ "non-commercial research only" | — | **NO** |
+| GPEN (Alibaba/yangxy) | no LICENSE file (404) → all rights reserved; README: model taken down "due to commercial issues" | — | **NO** |
+| FaceFusion model pack | OpenRAIL-AS app licence; HF pack only re-packages gfpgan/codeformer/gpen/restoreformer ONNX | inherits each original | no new clean option |
+| Real-ESRGAN (general SR) | BSD-3-Clause | weights released with the repo | **YES** (unchanged) |
+| U²-Net-p (portrait-blur mask) | Apache-2.0 (github.com/xuebinqin/U-2-Net LICENSE, re-read 24 Oct) | released with the repo | **YES** (already shipped) |
+| MediaPipe Selfie Segmentation | model card PDF (storage.googleapis.com/mediapipe-assets/Model Card MediaPipe Selfie Segmentation.pdf) could not be machine-read; secondary sources say Apache-2.0 | — | not used (U²-Net-p is enough); a human must read the card before use |
+
+**No open-source face restorer with weights trained on commercially-licensed face data was found.**
+Clean ways to get a "restored" face: (1) a paid API whose provider takes responsibility (e.g. fal.ai
+`fal-ai/crystal-upscaler`, marketed for faces/portraits — read fal's model terms before launch);
+(2) our own model trained only on commercial-use data (Phase 2 — on hold by owner decision 24 Oct).
+
+### Hosted providers added (photo-final)
+
+| Provider | Model | Licence position | Where |
+|---|---|---|---|
+| Replicate | `nightmareai/real-esrgan` (BSD-3 model), `face_enhance=false` | Replicate API terms | key-gated `photo_enhance_replicate`, rollout % (default 0) |
+| Replicate (optional) | `tencentarc/gfpgan` v1.4 | **grey — see above** | only with the owner's legal switch |
+| RunPod Serverless | our own handler (`tools/photo_train/serve_handler.py`) running Real-ESRGAN / later "Assisto Face" | our code + chosen weights | key-gated `photo_runpod` / `photo_assisto_face` |
+| fal.ai | `fal-ai/crystal-upscaler` (Ultra HD, Premium) | fal API terms ("Commercial use" tag on fal pages) | key-gated `photo_fal` |

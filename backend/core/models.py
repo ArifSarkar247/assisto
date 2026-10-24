@@ -3602,6 +3602,10 @@ class PhotoStudioJob(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     funded_at = models.DateTimeField(null=True, blank=True)
     done_at = models.DateTimeField(null=True, blank=True)
+    # photo-final: sha256 of the phone's stable device key (ANDROID_ID hash,
+    # survives a reinstall) — free-enhance counters are taken per account AND
+    # per device, so neither a reinstall nor a second account resets them.
+    device_key = models.CharField(max_length=64, blank=True, default="", db_index=True)
 
     class Meta:
         ordering = ["-created_at"]
@@ -3675,9 +3679,42 @@ class PhotoWorkItem(models.Model):
     ms = models.IntegerField(default=0)
     error = models.CharField(max_length=200, blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
+    # photo-final: the global daily spend cap was reached -> the item waits
+    # (honest "in queue") until this time; claim() skips it before then.
+    not_before = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         indexes = [models.Index(fields=["state", "-priority", "created_at"])]
+
+
+class PhotoProviderRun(models.Model):
+    """photo-final: one row per provider call for one image (Owner Admin →
+    Photo Studio → provider log): which provider/model version ran, real cost
+    in USD, seconds, cache hit, fallback. Also THE result cache: a later job
+    with the same `cache_key` (photo hash + preset + provider + version)
+    reuses `result_name` and costs nothing. Today's spend for the global cap
+    is the sum of `cost_usd` of today's rows."""
+    job = models.ForeignKey(PhotoStudioJob, null=True, blank=True, on_delete=models.SET_NULL,
+                            related_name="provider_runs")
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                             related_name="photo_provider_runs")
+    feature = models.CharField(max_length=16, blank=True, default="")
+    provider = models.CharField(max_length=24)
+    model_version = models.CharField(max_length=120, blank=True, default="")
+    preset = models.CharField(max_length=12, blank=True, default="")
+    ok = models.BooleanField(default=False)
+    cache_hit = models.BooleanField(default=False)
+    fallback_from = models.CharField(max_length=24, blank=True, default="")
+    cost_usd = models.FloatField(default=0.0)
+    seconds = models.FloatField(default=0.0)
+    cache_key = models.CharField(max_length=64, blank=True, default="", db_index=True)
+    result_name = models.CharField(max_length=200, blank=True, default="")
+    error = models.CharField(max_length=120, blank=True, default="")
+    steps = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-created_at"]
 
 
 class PhotoABPair(models.Model):

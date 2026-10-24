@@ -192,6 +192,10 @@ enum PsNotice {
 
   /// d1-photo v2: "Report this AI image" sent.
   reported,
+
+  /// photo-final: the job waits in the server queue for tomorrow's budget
+  /// (nothing charged; the result appears when it has run).
+  queuedBudget,
 }
 
 class PhotoStudioController extends ChangeNotifier {
@@ -739,14 +743,26 @@ class PhotoStudioController extends ChangeNotifier {
     if (!f.isRestore) return;
     if (!config.restoreReady(f)) {
       final q = config.quote(f);
-      if (q.reason == 'daily_limit' || q.reason == 'fair_use_cap') {
+      if (const {'daily_limit', 'fair_use_cap', 'week_free_used', 'premium_only', 'ultra_quota'}
+          .contains(q.reason)) {
         return _say(PsNotice.limitReached, q.message);
       }
       return _say(PsNotice.providerMissing, q.message);
     }
     await _runCloud(f, '', ui, extra: {
       if (f == PsFeature.oldRestore) 'restore_colorize': restoreColorize,
+      // photo-final: portrait background blur (only offered when the server
+      // reports it can really do it)
+      if (f == PsFeature.enhanceServer) 'bg_blur': portraitBlur && config.enhanceCap.bgBlur,
     });
+  }
+
+  /// photo-final: "Portrait blur" switch of the server HD enhance.
+  bool portraitBlur = false;
+
+  void setPortraitBlur(bool v) {
+    portraitBlur = v;
+    _notify();
   }
 
   // ------------------------------------------------------------------ prompt edit
@@ -841,6 +857,7 @@ class PhotoStudioController extends ChangeNotifier {
       // d1-photo v2: queued on the photo worker -> wait honestly (position)
       if (job.waiting) {
         final waited = await _waitForJob(job);
+        if (waited != null && waited.waitingForBudget) return _say(PsNotice.queuedBudget);
         if (waited == null) return _say(PsNotice.stillWorking);
         job = waited;
         if (job.status != 'done') return _say(PsNotice.failed, job.status);
@@ -985,6 +1002,7 @@ class PhotoStudioController extends ChangeNotifier {
     final sw = Stopwatch()..start();
     var j = job;
     while (j.waiting) {
+      if (j.waitingForBudget) return j; // honest: waits for tomorrow, not "working"
       if (_batchCancel || sw.elapsed > pollMax) return null;
       progress = PsProgress(PsStage.server, item: j.queuePosition);
       _notify();

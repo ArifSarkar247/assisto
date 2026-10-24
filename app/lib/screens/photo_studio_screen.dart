@@ -127,6 +127,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
         PsNotice.limitReached => _c.noticeText.isNotEmpty ? _c.noticeText : t.d1psLimitReached,
         PsNotice.stillWorking => t.d1psStillWorking,
         PsNotice.reported => t.d1psReported,
+        PsNotice.queuedBudget => t.pfQueuedBudget,
         PsNotice.refused || PsNotice.none => '',
       };
 
@@ -269,6 +270,10 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
             ],
             if (s != null && _c.tools.any) ...[
               _toolsCard(t),
+              const SizedBox(height: Gap.lg)
+            ],
+            if (s != null && _showServerEnhance) ...[
+              _serverEnhanceCard(t),
               const SizedBox(height: Gap.lg)
             ],
             if (s != null && _templates.isNotEmpty) ...[
@@ -432,6 +437,78 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
     ]);
   }
 
+  // ------------------------------------------------------------------ photo-final
+  /// Shown only when the server can really run it (quote ok) — or for a free
+  /// user whose free enhances are used, so the honest reason + Premium shows.
+  bool get _showServerEnhance {
+    final q = _c.config.quote(PsFeature.enhanceServer);
+    return q.ok || q.reason == 'week_free_used' || q.reason == 'daily_limit' ||
+        _c.config.restoreReady(PsFeature.ultraHd);
+  }
+
+  Widget _serverEnhanceCard(AppLocalizations t) {
+    final scheme = Theme.of(context).colorScheme;
+    final q = _c.config.quote(PsFeature.enhanceServer);
+    final uq = _c.config.quote(PsFeature.ultraHd);
+    final cap = _c.config.enhanceCap;
+    final gate = SheetGateUi(context, forRun: true, onPremium: _c.free ? _openPlans : null);
+    return _card(icon: Icons.hd_outlined, title: t.pfTitle, children: [
+      Text(t.pfBody, style: TextStyle(color: scheme.onSurfaceVariant)),
+      const SizedBox(height: Gap.md),
+      SizedBox(
+        width: double.infinity,
+        child: SegmentedButton<EditStrength>(
+          key: const Key('pfPreset'),
+          showSelectedIcon: false,
+          segments: [
+            ButtonSegment(value: EditStrength.natural, label: Text(t.pfNatural)),
+            ButtonSegment(value: EditStrength.strong, label: Text(t.pfStrong)),
+          ],
+          selected: {_c.strength == EditStrength.strong ? EditStrength.strong : EditStrength.natural},
+          onSelectionChanged: _c.busy ? null : (v) => _c.setStrength(v.first),
+        ),
+      ),
+      if (cap.bgBlur)
+        SwitchListTile(
+          key: const Key('pfBlur'),
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          title: Text(t.pfPortraitBlur),
+          value: _c.portraitBlur,
+          onChanged: _c.busy ? null : _c.setPortraitBlur,
+        ),
+      const SizedBox(height: Gap.sm),
+      if (q.ok || !_c.config.restoreReady(PsFeature.ultraHd))
+        SizedBox(
+          width: double.infinity,
+          child: FilledButton.icon(
+            key: const Key('pfEnhance'),
+            onPressed: _c.busy ? null : () => _c.runRestore(PsFeature.enhanceServer, gate),
+            icon: const Icon(Icons.auto_awesome),
+            label: Text(t.pfEnhanceButton),
+          ),
+        ),
+      if (!q.ok && q.message.isNotEmpty) _infoLine(Icons.info_outline, q.message),
+      if (q.freeLeft != null)
+        _infoLine(Icons.card_giftcard_outlined, t.pfFreeLeft(fmtInt(context, q.freeLeft!)))
+      else if (q.ads != null)
+        _infoLine(Icons.ondemand_video_outlined, t.pfAdsEach(fmtInt(context, q.ads!.ads))),
+      if (_c.config.restoreReady(PsFeature.ultraHd)) ...[
+        const SizedBox(height: Gap.sm),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            key: const Key('pfUltra'),
+            onPressed: _c.busy ? null : () => _c.runRestore(PsFeature.ultraHd, gate),
+            icon: const Icon(Icons.four_k_outlined),
+            label: Text(t.pfUltraButton(fmtInt(context, uq.leftMonth ?? 0))),
+          ),
+        ),
+      ],
+      if (cap.faceLock) _infoLine(Icons.lock_person_outlined, t.d1psFaceLockPromise),
+    ]);
+  }
+
   // ------------------------------------------------------------------ d1 v2 templates
   List<PsTemplate> get _templates => [
         for (final tp in _c.config.templates)
@@ -444,8 +521,6 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
   Widget _templatesCard(AppLocalizations t) {
     final scheme = Theme.of(context).colorScheme;
     final lim = _c.config.limits, use = _c.config.usage;
-    final perDay = lim['free_enhance_per_day'] ?? 0;
-    final left = (perDay - (use['enhance_today'] ?? 0)).clamp(0, perDay);
     final gifts = ((lim['free_gen_lifetime'] ?? 0) - (use['gen_lifetime'] ?? 0)).clamp(0, 99);
     return _card(icon: Icons.bolt_outlined, title: t.d1psTemplatesTitle, children: [
       Text(t.d1psTemplatesBody, style: TextStyle(color: scheme.onSurfaceVariant)),
@@ -469,8 +544,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
       ]),
       if (_c.free) ...[
         const SizedBox(height: Gap.sm),
-        _infoLine(Icons.hd_outlined,
-            t.d1psFreeHdLeft(fmtInt(context, left), fmtInt(context, lim['free_enhance_ads'] ?? 1))),
+        // photo-final: free HD enhance counts live in the HD enhance card
         if (gifts > 0) _infoLine(Icons.card_giftcard_outlined, t.d1psFreeAiLeft(fmtInt(context, gifts))),
       ],
       _infoLine(Icons.lock_person_outlined, t.d1psFaceLockPromise),

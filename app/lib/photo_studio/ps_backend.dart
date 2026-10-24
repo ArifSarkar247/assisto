@@ -1,11 +1,39 @@
 import 'dart:convert';
-import 'dart:typed_data';
+import 'dart:io' show Platform;
 
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
 import '../api.dart';
 import '../config.dart';
+import '../growth/install_ping.dart';
 import 'ps_models.dart';
+
+/// photo-final: a stable device key for the server's free-enhance counters
+/// (per account AND device, so a reinstall cannot reset them). Android:
+/// SHA-256 of Settings.Secure.ANDROID_ID from the native channel (stable
+/// across reinstalls of the same signed app; the raw id never leaves the
+/// phone). Fallback: the per-install id. Never throws; '' when nothing works.
+class PsDeviceKey {
+  PsDeviceKey._();
+  static const _ch = MethodChannel('com.assisto/photo_native');
+  static String? _cached;
+
+  static Future<String> get() async {
+    final c = _cached;
+    if (c != null) return c;
+    var v = '';
+    try {
+      if (Platform.isAndroid) v = await _ch.invokeMethod<String>('deviceKey') ?? '';
+    } catch (_) {}
+    if (v.isEmpty) {
+      try {
+        v = await InstallPing.installId();
+      } catch (_) {}
+    }
+    return _cached = v;
+  }
+}
 
 /// Server seam for Photo Studio. [ApiPsBackend] talks to `/photo-studio/*`;
 /// tests and the screenshot gallery use a fake.
@@ -47,8 +75,8 @@ class ApiPsBackend implements PsBackend {
       _r(await api.postJsonRaw('/photo-studio/entry-ad', {'shown': shown}));
 
   @override
-  Future<PsReply> createJob(Map<String, dynamic> body) async =>
-      _r(await api.postJsonRaw('/photo-studio/jobs', body));
+  Future<PsReply> createJob(Map<String, dynamic> body) async => _r(await api.postJsonRaw(
+      '/photo-studio/jobs', {...body, 'device_id': await PsDeviceKey.get()}));
 
   @override
   Future<PsReply> job(int id) async {

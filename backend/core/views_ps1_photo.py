@@ -56,7 +56,10 @@ class PhotoStudioEntryAdView(APIView):
 
 class PhotoStudioJobsView(APIView):
     def post(self, request):
-        code, body = S.create_job(request.user, request.data or {}, req_lang(request))
+        from .otp import device_id
+        d = dict(request.data or {})
+        d["device_id"] = device_id(request)   # photo-final: per-device free counters (header or body)
+        code, body = S.create_job(request.user, d, req_lang(request))
         return Response(body, status=code)
 
 

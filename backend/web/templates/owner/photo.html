@@ -51,6 +51,16 @@
 
 <section class="card"><h2>{{ T.ph_queue_title }}</h2>
   <p>{% if worker_on %}<span class="pill ok">{{ T.ph_worker_on }}</span>{% else %}<span class="pill off">{{ T.ph_worker_off }}</span>{% endif %}</p>
-  <p class="small">queued {{ queue.queued }} · running {{ queue.running }} · done 24h {{ queue.done_24h }} · failed 24h {{ queue.failed_24h }}</p>
+  <p class="small">queued {{ queue.queued }} · running {{ queue.running }} · done 24h {{ queue.done_24h }} · failed 24h {{ queue.failed_24h }}{% if queue.waiting_budget %} · {{ T.ph_waiting_budget }} {{ queue.waiting_budget }}{% endif %}</p>
+</section>
+
+<section class="card" id="providers"><h2>{{ T.ph_prov_title }}</h2>
+  <p class="small">{{ T.ph_prov_spent }}: ${{ spend.today|floatformat:4 }} / ${{ spend.cap|floatformat:2 }} · {{ T.ph_prov_connected }}: {% if spend.connected %}{{ spend.connected|join:", " }}{% else %}—{% endif %} · Ultra HD: {% if spend.ultra %}{{ T.ph_worker_on }}{% else %}—{% endif %}</p>
+  {% if prov_summary %}<div class="tbl"><table><thead><tr><th>provider</th><th>{{ T.ph_prov_runs }}</th><th>USD</th><th>{{ T.ph_prov_avg }}</th><th>cache</th><th>{{ T.ph_prov_failed }}</th></tr></thead><tbody>
+  {% for s in prov_summary %}<tr><td>{{ s.provider }}</td><td>{{ s.runs }}</td><td>{{ s.cost_usd }}</td><td>{{ s.avg_s }}</td><td>{{ s.cache_hits }}</td><td>{{ s.failed }}</td></tr>{% endfor %}
+  </tbody></table></div>{% endif %}
+  {% if prov_log %}<div class="tbl"><table><thead><tr><th>{{ T.time }}</th><th>job</th><th>provider</th><th>model</th><th>preset</th><th>USD</th><th>s</th><th>cache</th><th>{{ T.status }}</th></tr></thead><tbody>
+  {% for r in prov_log %}<tr><td>{{ r.created_at|date:"m-d H:i" }}</td><td>{% if r.job_id %}#{{ r.job_id }}{% else %}—{% endif %} {{ r.feature }}</td><td>{{ r.provider }}{% if r.fallback_from %} ({{ T.ph_prov_fallback }} {{ r.fallback_from }}){% endif %}</td><td>{{ r.model_version }}</td><td>{{ r.preset }}</td><td>{{ r.cost_usd|floatformat:4 }}</td><td>{{ r.seconds }}</td><td>{% if r.cache_hit %}✓{% endif %}</td><td>{% if r.ok %}ok{% else %}{{ r.error }}{% endif %}</td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<p class="empty">{{ T.ph_prov_empty }}</p>{% endif %}
 </section>
 {% endblock %}

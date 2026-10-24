@@ -53,7 +53,12 @@ RESTORE_FEATURES = ("deblur", "colorize", "old_restore")
 # no ads, an admin-editable daily fair-use cap (owner asked "unlimited";
 # the standing rule is "nothing unlimited" -> high cap, default 100/day).
 WORKER_FEATURES = ("enhance_server",)
-FEATURES = ("enhance_hd", "enhance_cloud", "prompt_edit", "generate") + RESTORE_FEATURES + WORKER_FEATURES
+# photo-final: ULTRA HD — Premium/Business only, a top hosted upscaler
+# (fal.ai), monthly per-user quota computed so its cost never exceeds the
+# owner-set share of the plan's NET price (server-enforced).
+ULTRA_FEATURE = "ultra_hd"
+FEATURES = (("enhance_hd", "enhance_cloud", "prompt_edit", "generate") + RESTORE_FEATURES
+            + WORKER_FEATURES + (ULTRA_FEATURE,))
 CLOUD_FEATURES = ("enhance_cloud", "prompt_edit", "generate") + RESTORE_FEATURES
 TRIAL_FEATURES = ("prompt_edit", "generate")
 
@@ -67,6 +72,7 @@ FEATURE_ACTION = {
     "colorize": "photo_colorize",
     "old_restore": "photo_old_restore",
     "enhance_server": "photo_enhance_server",
+    "ultra_hd": "photo_ultra_hd",
 }
 
 # every way an image can leave the studio — each one goes through ONE gate
@@ -124,6 +130,27 @@ _DEFAULTS = {
     "free_gen_lifetime": 2,             # free AI generations per user, ever
     "free_gen_per_week": 1,             # after that: this many per week ...
     "free_gen_min_ads": 3,              # ... each after at least this many ads
+    # ---- photo-final (owner 24 Oct: "beat Remini without losing money") ----
+    # FREE HD enhance, server-enforced per account AND device (reinstall-proof):
+    "free_enhance_lifetime": 3,         # free enhances per user/device, EVER
+    "enhance_unlock_ads": 2,            # then each one = this many SSV ads (AdMob live)
+    "free_enhance_per_week_no_ads": 1,  # until AdMob is live: this many free per week
+    # (free_enhance_per_day stays: the daily cap on ad-unlocked enhances)
+    # provider switch (server-side; % of users routed to each paid provider,
+    # deterministic per user; the rest + every fallback = local_worker)
+    "rollout_assisto_face": 0,
+    "rollout_runpod_serverless": 0,
+    "rollout_replicate": 0,
+    "provider_timeout_s": 120,          # then fall back to the previous provider
+    "daily_spend_cap_usd": 1.0,         # all paid photo providers together, per day
+    "cap_fallback_local": False,        # cap hit: False = job waits in the queue
+    "face_restore_gfpgan": False,       # LEGAL SWITCH (owner decision): GFPGAN weights
+    "face_blend_natural_pct": 55,       # fidelity blend of a restored face (Natural)
+    "face_blend_strong_pct": 70,        # ... (Strong)
+    "max_input_mp": 2,                  # every provider gets at most 2 MP
+    # Ultra HD (Premium only, fal.ai): monthly per-user quota so that
+    # quota x cost <= this share of the plan's NET price
+    "ultra_hd_budget_pct": 25,
 }
 _BOUNDS = {
     "entry_interstitial_gap_min": (5, 1440),
@@ -139,7 +166,19 @@ _BOUNDS = {
     "free_gen_lifetime": (0, 10),
     "free_gen_per_week": (0, 7),
     "free_gen_min_ads": (1, 5),
+    "free_enhance_lifetime": (0, 20),
+    "enhance_unlock_ads": (1, 5),
+    "free_enhance_per_week_no_ads": (0, 7),
+    "rollout_assisto_face": (0, 100),
+    "rollout_runpod_serverless": (0, 100),
+    "rollout_replicate": (0, 100),
+    "provider_timeout_s": (20, 600),
+    "face_blend_natural_pct": (0, 100),
+    "face_blend_strong_pct": (0, 100),
+    "max_input_mp": (1, 8),
+    "ultra_hd_budget_pct": (0, 60),
 }
+_BOOL_KEYS = ("entry_interstitial_enabled", "cap_fallback_local", "face_restore_gfpgan")
 PROVIDERS = ("photo_gemini", "photo_openai", "photo_replicate")
 
 
@@ -161,10 +200,11 @@ def normalize_cfg(raw):
     out = {}
     for k, (lo, hi) in _BOUNDS.items():
         out[k] = int(max(lo, min(hi, _num(raw.get(k), _DEFAULTS[k]))))
-    out["entry_interstitial_enabled"] = (
-        raw.get("entry_interstitial_enabled")
-        if isinstance(raw.get("entry_interstitial_enabled"), bool)
-        else _DEFAULTS["entry_interstitial_enabled"])
+    for k in _BOOL_KEYS:
+        out[k] = raw.get(k) if isinstance(raw.get(k), bool) else _DEFAULTS[k]
+    # photo-final: global per-day spend cap on paid photo providers (USD)
+    out["daily_spend_cap_usd"] = round(max(0.0, min(1000.0, _num(
+        raw.get("daily_spend_cap_usd"), _DEFAULTS["daily_spend_cap_usd"]))), 4)
     out["ad_value_bdt"] = max(0.0, _num(raw.get("ad_value_bdt"), 0.0))
     # never count more than 70% of the real ad value (owner order)
     out["ad_value_share"] = max(0.05, min(0.70, _num(raw.get("ad_value_share"),
@@ -182,7 +222,7 @@ def validate_cfg(raw):
         return ["photo_studio_bad"]
     problems = []
     for k, v in raw.items():
-        if k in ("entry_interstitial_enabled", "provider"):
+        if k in _BOOL_KEYS or k == "provider":
             continue
         n = _num(v, None)
         if n is None or n < 0:
@@ -254,6 +294,22 @@ def funding_options(*, feature, plan, cost_usd, usd_bdt, table_credits,
             {"via": "ads", "ads": ps["enhance_hd_ads"], "trial": False},
             {"via": "credits", "credits": ps["enhance_hd_credits"]}]}
 
+    # ---- photo-final: Ultra HD (paid plans, monthly quota) ----
+    if feature == ULTRA_FEATURE:
+        u = usage or {}
+        if not paid:
+            return {**base, "ok": False, "reason": "premium_only", "options": [],
+                    "paywall": True}
+        if not provider_ready or cost_bdt <= 0:
+            return {**base, "ok": False, "reason": "provider_missing", "options": []}
+        quota = int(u.get("ultra_quota", 0))
+        used = int(u.get("ultra_month", 0))
+        if used >= quota:
+            return {**base, "ok": False, "reason": "ultra_quota", "options": [],
+                    "quota": quota, "used": used}
+        return {**base, "ok": True, "reason": "ok", "options": [{"via": "free"}],
+                "quota": quota, "used": used, "left_month": quota - used}
+
     # ---- d1-photo v2: HD enhance on our worker ----
     if feature in WORKER_FEATURES:
         u = usage or {}
@@ -263,12 +319,7 @@ def funding_options(*, feature, plan, cost_usd, usd_bdt, table_credits,
             if int(u.get("enhance_today", 0)) >= ps["premium_enhance_daily_cap"]:
                 return {**base, "ok": False, "reason": "fair_use_cap", "options": []}
             return {**base, "ok": True, "reason": "ok", "options": [{"via": "free"}]}
-        if int(u.get("enhance_today", 0)) >= ps["free_enhance_per_day"]:
-            return {**base, "ok": False, "reason": "daily_limit", "options": [],
-                    "paywall": True}
-        return {**base, "ok": True, "reason": "ok", "options": [
-            {"via": "ads", "ads": ps["free_enhance_ads"], "trial": False}],
-            "left_today": ps["free_enhance_per_day"] - int(u.get("enhance_today", 0))}
+        return free_enhance_options(base, ps, u)
 
     # ---- cloud features ----
     if not provider_ready:
@@ -314,6 +365,38 @@ def funding_options(*, feature, plan, cost_usd, usd_bdt, table_credits,
     options.append({"via": "credits", "credits": credits})
     return {**base, "ok": True, "reason": reason, "options": options,
             "ads_if_open": n}
+
+
+def free_enhance_options(base, ps, u):
+    """photo-final (owner 24 Oct) — FREE users' HD enhance, decided on the
+    server from counters taken per account AND per device (the larger wins,
+    so a reinstall or a second account on the same phone cannot reset them):
+
+      1. `free_enhance_lifetime` (3) free enhances, ever       -> via "gift"
+      2. then, once AdMob is live: each enhance = `enhance_unlock_ads` (2)
+         SSV-verified rewarded ads, at most `free_enhance_per_day` a day
+      3. until AdMob is live: `free_enhance_per_week_no_ads` (1) free a week
+      4. otherwise -> Premium paywall.
+    `u` keys: lifetime_free, week_free, enhance_today, ads_live.
+    (`free_enhance_ads` is kept for older configs but no longer used.)"""
+    life = int(u.get("lifetime_free", 0))
+    if life < ps["free_enhance_lifetime"]:
+        return {**base, "ok": True, "reason": "ok", "free_kind": "lifetime",
+                "options": [{"via": "gift", "trial": False}],
+                "free_left": ps["free_enhance_lifetime"] - life}
+    if u.get("ads_live"):
+        if int(u.get("enhance_today", 0)) >= ps["free_enhance_per_day"]:
+            return {**base, "ok": False, "reason": "daily_limit", "options": [],
+                    "paywall": True}
+        return {**base, "ok": True, "reason": "ok", "options": [
+            {"via": "ads", "ads": ps["enhance_unlock_ads"], "trial": False}],
+            "left_today": ps["free_enhance_per_day"] - int(u.get("enhance_today", 0))}
+    week = int(u.get("week_free", 0))
+    if week < ps["free_enhance_per_week_no_ads"]:
+        return {**base, "ok": True, "reason": "ok", "free_kind": "week",
+                "options": [{"via": "gift", "trial": False}],
+                "free_left": ps["free_enhance_per_week_no_ads"] - week}
+    return {**base, "ok": False, "reason": "week_free_used", "options": [], "paywall": True}
 
 
 def option_revenue_bdt(option, *, ad_value, share, credit_bdt):
