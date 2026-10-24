@@ -191,7 +191,7 @@ Replicate pipeline call GFPGAN (blend 55 % Natural / 70 % Strong, all faces, the
 **No open-source face restorer with weights trained on commercially-licensed face data was found.**
 Clean ways to get a "restored" face: (1) a paid API whose provider takes responsibility (e.g. fal.ai
 `fal-ai/crystal-upscaler`, marketed for faces/portraits — read fal's model terms before launch);
-(2) our own model trained only on commercial-use data (Phase 2, `owner_actions/PHOTO_OWN_MODEL_PLAN_BN.md`).
+(2) our own model trained only on commercial-use data (Phase 2 — on hold by owner decision 24 Oct).
 
 ### Hosted providers added (photo-final)
 
