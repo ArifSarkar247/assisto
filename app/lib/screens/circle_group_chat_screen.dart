@@ -492,7 +492,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         await PlainCache.instance.warm(uid);
         if (!mounted) return;
         setState(() => _ring = r);
-      } catch (_) {}
+      } catch (_) {} // best-effort: key ring is optional, chat still opens
     }());
     // Spinner only on the very first load — a reload after send/react/pin
     // keeps the list on screen (no flash, no jump).

@@ -89,7 +89,12 @@ class IdentityVault {
     }
     // e2e-recover: the ring still holds the newest key -> keep using it
     // (peers see no key change, nothing to recover).
-    var ring = await _storedRing();
+    // (Only looked at when it can matter: an unreadable slot, or a new
+    // install where the restore gate is wired — keeps the plain path to the
+    // same storage round-trips as before.)
+    var ring = (raw != null || beforeCreate != null)
+        ? await _storedRing()
+        : const <IdentityKeyPair>[];
     if (ring.isEmpty && beforeCreate != null) {
       try {
         await beforeCreate!();
@@ -118,12 +123,12 @@ class IdentityVault {
     // Another isolate may have stored one meanwhile: the stored one wins.
     final again = await _s.read(slot);
     final won = (again == null ? null : _decode(again)) ?? id;
-    await _remember(won);
-    if (won.keyId == id.keyId) {
+    final hook = won.keyId == id.keyId ? onNewKey : null;
+    unawaited(_remember(won).then((_) {
       try {
-        onNewKey?.call(won);
+        hook?.call(won); // ring written first: the backup includes it
       } catch (_) {}
-    }
+    }));
     return _cached = won;
   }
 

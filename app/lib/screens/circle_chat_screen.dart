@@ -578,7 +578,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
           unawaited(_pollMessages());
         }
       }
-    } catch (_) {}
+    } catch (_) {} // best-effort: key ring is optional, chat still opens
   }
 
   bool _ringPending = false;
