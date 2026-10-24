@@ -18759,5 +18759,9 @@
   "atfaConfirmYes": "Yes, it was me",
   "atfaCleared": "Cleared. Your family was told it was a false alarm.",
   "atfaNothing": "There is no theft alert to clear.",
-  "atfaRateLimited": "Too many tries today. Please try again later."
+  "atfaRateLimited": "Too many tries today. Please try again later.",
+  "emergencyCardEmptyHintBasic": "Add your emergency contacts — this is what helps most in a crisis.",
+  "@emergencyCardEmptyHintBasic": {
+    "description": "Emergency card empty state in the Google Play build (no medical fields there): ask only for emergency contacts."
+  }
 }
