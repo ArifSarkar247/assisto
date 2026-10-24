@@ -339,9 +339,9 @@ List<Map<String, dynamic>> _chat(String lang) {
     {'user': false, 'text': bn ? 'খরচ লিখে রেখেছি।' : 'Logged your expense.', 'cards': [
       {'type': 'expense', 'title': '৳500 ${bn ? 'খাবার' : 'Food'}', 'subtitle': bn ? 'ক্যাশ' : 'Cash', 'model': 'txn', 'id': 1, 'undo': true}
     ]},
-    {'user': true, 'text': bn ? 'কাল সকাল ৮টায় ওষুধ মনে করিয়ে দিও' : 'Remind me medicine tomorrow 8am'},
+    {'user': true, 'text': bn ? 'কাল সকাল ৮টায় মাকে ফোন করতে মনে করিয়ে দিও' : 'Remind me to call mom tomorrow 8am'},
     {'user': false, 'text': bn ? 'রিমাইন্ডার সেট করেছি।' : 'Reminder set.', 'cards': [
-      {'type': 'reminder', 'title': bn ? 'ওষুধ' : 'Medicine', 'subtitle': bn ? 'কাল ৮:০০' : 'Tomorrow 8:00', 'model': 'reminder', 'id': 2, 'undo': true}
+      {'type': 'reminder', 'title': bn ? 'মাকে ফোন' : 'Call mom', 'subtitle': bn ? 'কাল ৮:০০' : 'Tomorrow 8:00', 'model': 'reminder', 'id': 2, 'undo': true}
     ]},
     {'user': true, 'text': bn ? 'রহিম ভাইকে ২০০০ টাকা bKash পাঠাও' : 'Send 2000 taka to Rahim via bKash'},
     {'user': false, 'text': bn ? 'এটা বাইরের কাজ — আপনার অনুমোদন লাগবে:' : 'This is an external action — needs your approval:', 'cards': [
