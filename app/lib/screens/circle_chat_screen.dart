@@ -39,6 +39,7 @@ import '../messaging/msg_native.dart';
 import '../messaging/msg_notify.dart';
 import '../messaging/msg_prefs.dart';
 import '../messaging/msg_request_widgets.dart'; // mr1
+import '../messaging/connect_flow.dart'; // connect-flow
 import '../messaging/msg_widgets.dart';
 import '../messaging/outbox.dart';
 import '../messaging/echo_reconcile.dart'; // md2
@@ -1175,6 +1176,13 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     // Edit path: replace an existing message within the window.
     if (_editing != null) {
       await _applyEdit(_editing!, plain);
+      return;
+    }
+
+    // connect-flow: before they accept only plain text goes — a link waits
+    // (the text stays in the box; the server refuses it too).
+    if (_reqOut && preAcceptHasLink(plain)) {
+      _toast(_t.connNoLinksYet);
       return;
     }
 
@@ -2548,6 +2556,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                           if (ri >= dated.length) return _olderLoader(scheme);
                           return buildChatRow<_ChatRow>(dated[ri], (row) {
                           if (row.divider) return _unreadDivider(scheme);
+                          if (row.connected) return const ConnectedLine();
                           if (row.note != null) return _securityNote(scheme, row.note!);
                           final call = row.call;
                           if (call != null) {
@@ -2717,6 +2726,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       (widget.member['request'] as Map?)?.cast<String, dynamic>();
   bool _reqBusy = false;
 
+  /// connect-flow: when this pair connected (server `connected_at`).
+  late DateTime? _connectedAt = connectedAtOf(widget.member);
+
   /// Someone I don't know messaged me and I have not accepted yet.
   bool get _reqIn => _edgeState == 'pending' && _edgeDir == 'incoming';
 
@@ -2735,7 +2747,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     final st = '${e['state'] ?? _edgeState}';
     final dir = '${e['direction'] ?? _edgeDir}';
     final info = (e['request'] as Map?)?.cast<String, dynamic>();
-    if (st == _edgeState && dir == _edgeDir &&
+    final conn = connectedAtOf(e) ?? _connectedAt;
+    if (st == _edgeState && dir == _edgeDir && conn == _connectedAt &&
         '${info?['can_send']}' == '${_reqInfo?['can_send']}') {
       return;
     }
@@ -2744,6 +2757,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       _edgeState = st;
       _edgeDir = dir;
       _reqInfo = info;
+      _connectedAt = conn;
     });
   }
 
@@ -2766,6 +2780,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       setState(() {
         _edgeState = 'accepted';
         _reqInfo = null;
+        _connectedAt ??= DateTime.now(); // connect-flow: the line at once
       });
       _toast(_t.mr1AcceptedToast(_memberName));
       unawaited(_markSeen()); // now it really is read
@@ -2791,7 +2806,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       _toast(switch (action) {
         'block' => _t.mr1BlockedToast,
         'report' => _t.mr1ReportedToast,
-        _ => _t.mr1DeletedToast,
+        _ => _t.connDeclinedToast, // connect-flow: Decline
       });
       Navigator.of(context).pop(true);
     } catch (e) {
@@ -2976,6 +2991,10 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         for (final c in _calls)
           if (!_hasMore || vis.isEmpty || !c.at.isBefore(vis.first.at))
             _ChatRow.call(c),
+      // connect-flow: the line sits where the request was accepted
+      if (!searching && _connectedAt != null &&
+          (!_hasMore || vis.isEmpty || !_connectedAt!.isBefore(vis.first.at)))
+        _ChatRow.connected(_connectedAt!),
     ];
     // stable chronological order (server order kept for equal stamps)
     final indexed = items.asMap().entries.toList()
@@ -3163,30 +3182,42 @@ class _ChatRow {
   final DateTime? note; // "security code changed" at
   final bool divider;
   final CallEvent? call; // a1-circle
+  final bool connected; // connect-flow: "You are now connected"
   final DateTime _at;
   _ChatRow.msg(CircleMessage m)
       : msg = m,
         note = null,
         divider = false,
         call = null,
+        connected = false,
         _at = m.at;
   _ChatRow.note(DateTime at)
       : msg = null,
         note = at,
         divider = false,
         call = null,
+        connected = false,
         _at = at;
   _ChatRow.divider(DateTime at)
       : msg = null,
         note = null,
         divider = true,
         call = null,
+        connected = false,
         _at = at;
   _ChatRow.call(CallEvent c)
       : msg = null,
         note = null,
         divider = false,
         call = c,
+        connected = false,
         _at = c.at;
+  _ChatRow.connected(DateTime at)
+      : msg = null,
+        note = null,
+        divider = false,
+        call = null,
+        connected = true,
+        _at = at;
   DateTime get at => _at;
 }

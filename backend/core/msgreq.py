@@ -8,15 +8,15 @@ can then text AND call immediately. No new table.
 
 Rules (server-enforced here, used by CircleMessagesView / the request views):
   * before accept the SENDER may send at most N messages
-    (limits.message_request_max_msgs, owner-editable, default 5);
+    (limits.message_request_max_msgs, owner-editable, default 3 — connect-flow);
   * new requests per sender per day are capped
     (limits.message_requests_per_day, default 20 — abuse);
   * the recipient's who_can_message = nobody refuses strangers outright;
   * a block (either way) wins: I blocked them -> refused; they blocked me ->
     the request is created but every message is dropped silently (WhatsApp
     semantics — a block is never revealed);
-  * the recipient's ticks: DELIVERED when their phone received it, READ only
-    after accept (views_c3_msg.mark downgrades seen on a pending request);
+  * connect-flow: NO receipts at all before accept (views_c3_msg.mark skips
+    a pending request) — the sender only sees "sent" (the server has it);
   * no calls until accept (circle_calls.can_place_call already refuses an
     unaccepted pair; the app shows no call button);
   * ONE push per sender (the first message), grouped per sender on the
@@ -31,7 +31,7 @@ from django.utils import timezone
 from .logic import circle
 from .models import CircleMember, CircleMessage, CirclePrivacy
 
-DEFAULT_MAX_MSGS = 5
+DEFAULT_MAX_MSGS = 3
 DEFAULT_PER_DAY = 20
 
 
@@ -164,8 +164,9 @@ def start(me, peer, relation="friend"):
                 sharing=circle.default_sharing(
                     circle.reciprocal_relation(theirs.relation)))
         _accept_pair(inc, theirs)
-        from . import e2_keys
+        from . import connect_flow, e2_keys
         e2_keys.ensure_pair_keys(me, peer)
+        connect_flow.on_connected(inc)   # system line + push to them
         return inc, "accepted"
     out = (CircleMember.objects.filter(user=me, peer_user=peer,
                                        direction="outgoing", state="pending")
@@ -176,6 +177,9 @@ def start(me, peer, relation="friend"):
         return None, "strangers_refused"
     if over_daily_limit(me):
         return None, "rate_limited"
+    from . import connect_flow
+    if connect_flow.recipient_over_limit(peer):
+        return None, "recipient_busy"
     rel = circle.normalize_relation(relation or "friend")
     recip = circle.reciprocal_relation(rel)
     with transaction.atomic():

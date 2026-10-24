@@ -440,8 +440,10 @@ def DEFAULTS():
             # mr1: My Circle message requests — messages a stranger may send
             # before the recipient accepts, and new requests per sender per
             # day (abuse cap).
-            "message_request_max_msgs": 5,
+            "message_request_max_msgs": 3,   # connect-flow: owner 25 Oct
             "message_requests_per_day": 20,
+            # connect-flow: new requests one person may RECEIVE per day
+            "message_requests_per_recipient_day": 50,
             # md1: My Circle E2E media (ciphertext caps per file, per-user
             # daily upload volume + uploads/hour, and blob retention: days
             # after every recipient downloaded it / absolute max days).
@@ -657,10 +659,13 @@ def _norm_limits(raw, base):
             base.get("my_circle_min_version", 183)))),
         "message_request_max_msgs": max(1, min(50, _int(
             raw.get("message_request_max_msgs"),
-            base.get("message_request_max_msgs", 5)))),
+            base.get("message_request_max_msgs", 3)))),
         "message_requests_per_day": max(1, min(500, _int(
             raw.get("message_requests_per_day"),
             base.get("message_requests_per_day", 20)))),
+        "message_requests_per_recipient_day": max(1, min(1000, _int(
+            raw.get("message_requests_per_recipient_day"),
+            base.get("message_requests_per_recipient_day", 50)))),
         # md1 (bounded: a typo can never open an unlimited upload)
         **{k: max(lo, min(hi, _int(raw.get(k), base.get(k, dv))))
            for k, lo, hi, dv in _MD1_LIMITS},

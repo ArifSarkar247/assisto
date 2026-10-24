@@ -568,8 +568,12 @@ class MsgPushHandler {
         clientMsgId = clientMsgId ??
             (() => 'nr-${DateTime.now().microsecondsSinceEpoch}');
 
+  /// The chat a push belongs to (a tap opens it). connect-flow: "X accepted
+  /// your request — say hi" (message_request, event=accepted) opens THAT chat.
   static ({String kind, int id})? chatOf(PushPayload p) {
-    if (p.kind != 'message') return null;
+    final accepted =
+        p.kind == 'message_request' && p.data['event'] == 'accepted';
+    if (p.kind != 'message' && !accepted) return null;
     final id = int.tryParse(p.chatId);
     if (id == null) return null;
     return (kind: p.data['chat_kind'] == 'group' ? 'group' : 'member', id: id);
@@ -579,6 +583,9 @@ class MsgPushHandler {
   /// Returns false when it could not (caller falls back to the plain
   /// title/body notification so a message is never silently lost).
   Future<bool> onPush(PushPayload p) async {
+    // connect-flow: only real messages become a conversation notification
+    // (an "accepted" push is drawn as its plain title/body).
+    if (p.kind != 'message') return false;
     final chat = chatOf(p);
     if (chat == null) return false;
     final t = msgL10n(p.lang);

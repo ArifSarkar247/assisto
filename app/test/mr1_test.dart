@@ -446,7 +446,7 @@ void main() {
           identity: _me));
       await _settle(tester);
       expect(find.byKey(const Key('mr1-waiting')), findsOneWidget);
-      expect(find.text(en.mr1Waiting('Nadia Rahman')), findsOneWidget);
+      expect(find.text(en.connRequestSentBanner), findsOneWidget); // connect-flow
       expect(find.byType(TextField), findsOneWidget);
       expect(find.byIcon(Icons.call_outlined), findsNothing);
       expect(find.byIcon(Icons.videocam_outlined), findsNothing);

@@ -37,6 +37,10 @@ def _user_post_save(sender, instance, created, raw=False, **kwargs):
         from .phone import sync_phone_hash
         sync_phone_hash(instance)
         instance._c1_phone_changed = False
+        # connect-flow: requests sent to this number before it joined now
+        # show in the new account's Requests box.
+        from .connect_flow import link_phone_invites
+        link_phone_invites(instance)
 
 
 def connect():

@@ -12,6 +12,7 @@ import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../../widgets/chat_menu_pickers.dart';
 import '../../widgets/circle_relation.dart';
 import '../../messaging/presence_label.dart';
+import '../../messaging/connect_flow.dart'; // connect-flow
 import '../../realtime/realtime_channel.dart';
 import 'starred_messages_screen.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
@@ -240,6 +241,20 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
               : ListView(
               children: [
                 _header(scheme, about),
+                const SizedBox(height: Gap.sm),
+                // connect-flow: Message / Audio call / Video call right here
+                // (accepted contacts; calls follow the usual free-call rules).
+                if (ConnectFlow.isAccepted(widget.member) && !_blocked)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: Gap.md),
+                    child: ConnectActions(
+                      onMessage: () => Navigator.of(context).maybePop(),
+                      onAudio: () =>
+                          ConnectFlow.call(context, widget.member, 'voice'),
+                      onVideo: () =>
+                          ConnectFlow.call(context, widget.member, 'video'),
+                    ),
+                  ),
                 const SizedBox(height: Gap.sm),
 
                 // p3: profile note (24 h)

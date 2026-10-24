@@ -146,18 +146,16 @@ def mark(user, msgs, seen=False, now=None, publish=True):
     msgs = [x for x in msgs if x.sender_id != user.id]
     if not msgs:
         return 0
-    if seen:
-        # mr1: a message REQUEST is delivered when my phone gets it, but it
-        # is READ only after I accept — no blue ticks from a request preview.
-        from . import msgreq
-        pend = msgreq.pending_senders(
-            user, {x.sender_id for x in msgs if not x.group_id})
-        if pend:
-            later = [x for x in msgs if not x.group_id and x.sender_id in pend]
-            msgs = [x for x in msgs if x not in later]
-            changed = mark(user, later, seen=False, now=now, publish=publish)
-            return changed + (mark(user, msgs, seen=True, now=now,
-                                   publish=publish) if msgs else 0)
+    # connect-flow (owner 25 Oct): a message REQUEST gets NO receipt at all
+    # before I accept — neither delivered nor read. The sender only knows
+    # the server has it. After accept the next fetch / open marks them.
+    from . import msgreq
+    pend = msgreq.pending_senders(
+        user, {x.sender_id for x in msgs if not x.group_id})
+    if pend:
+        msgs = [x for x in msgs if x.group_id or x.sender_id not in pend]
+        if not msgs:
+            return 0
     ids = [x.id for x in msgs]
     have = {r.message_id: r for r in
             CircleReceipt.objects.filter(user=user, message_id__in=ids)}
@@ -951,10 +949,14 @@ def set_typing(user, kind, chat_id, st, now=None):
         else:
             edge = ctx["edge"]
             peer = peer or _peer_user(edge)
-            if peer is not None and peer.id != user.id and not edge.blocked:
+            # connect-flow: no typing either way before the request is
+            # accepted on BOTH sides (no presence leak to a stranger).
+            if (peer is not None and peer.id != user.id and not edge.blocked
+                    and edge.state == "accepted"):
                 rev = push._reverse_edge(peer, user)
                 pm = _privacy_map([user.id, peer.id])
                 if (rev is not None and not rev.blocked
+                        and rev.state == "accepted"
                         and CP.can_see_typing(pm[peer.id], pm[user.id])):
                     rt_publish(peer, "typing.update", {
                         "chat": "member:%d" % rev.id, "activity": act,

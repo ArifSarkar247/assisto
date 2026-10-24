@@ -21,6 +21,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:assisto/api.dart';
 import 'package:assisto/l10n/app_localizations.dart';
+import 'package:assisto/messaging/connect_flow.dart';
 import 'package:assisto/models.dart';
 import 'package:assisto/screens/app_drawer.dart';
 import 'package:assisto/screens/messenger/m3_add_to_circle_screen.dart';
@@ -409,8 +410,11 @@ void main() {
 
   // ------------------------------------------------------- Add to My Circle
   group('Add to My Circle', () {
-    testWidgets('any format -> found -> relation -> Send -> success',
+    testWidgets('any format -> found -> relation -> Send -> the chat opens',
         (tester) async {
+      final opened = <Map<String, dynamic>>[];
+      ConnectFlow.chatOverride = (_, m) async => opened.add(m);
+      addTearDown(() => ConnectFlow.chatOverride = null);
       final api = _Api();
       await _pump(tester, const M3AddToCircleScreen(), api: api);
       final t = _t(tester);
@@ -427,8 +431,11 @@ void main() {
       await _tapKey(tester, 'm3-send');
       expect(api.sent.single['to_user_id'], 2);
       expect(api.sent.single['relation'], 'friend');
-      expect(find.byKey(const Key('m3-sent')), findsOneWidget);
-      expect(find.text(t.m3RequestSentTo('Nadia Rahman')), findsOneWidget);
+      // connect-flow: no dead end — the chat opens with the banner
+      // (the chat itself + banner: connect_flow_test.dart)
+      expect(opened.single['id'], 99);
+      expect(find.byKey(const Key('m3-sent')), findsNothing);
+      expect(t.connRequestSentBanner, isNotEmpty);
       await _drain(tester);
     });
 
