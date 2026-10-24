@@ -45,6 +45,14 @@ extension AntiTheftApi on ApiClient {
         if (otpProof != null && otpProof.isNotEmpty) 'otp_proof': otpProof,
       });
 
+  /// at-falsealarm: POST security/engine/false-alarm {pin} — the owner's
+  /// "It was me". Server verifies the Security PIN (wrong PIN counts toward
+  /// the lock), lifts the freeze, removes recent theft signals and sends the
+  /// family one all-clear. -> {ok, cleared} | 403 {reason:'bad_pin'|locked}
+  /// | 429 {reason:'rate_limited'}.
+  Future<Map<String, dynamic>> engineFalseAlarm({required String pin}) =>
+      postJsonRaw('/security/engine/false-alarm', {'pin': pin});
+
   /// POST security/engine/settings {pin, ...} -> {ok, config, alert_members}.
   Future<Map<String, dynamic>> engineSettings({
     required String pin,

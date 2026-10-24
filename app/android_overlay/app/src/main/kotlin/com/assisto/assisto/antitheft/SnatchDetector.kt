@@ -44,5 +44,5 @@ class SnatchDetector {
         return false
     }
 
-    private fun reset() { grabAtMs = null; followSamples = 0; movingSamples = 0 }
+    fun reset() { grabAtMs = null; followSamples = 0; movingSamples = 0 }
 }

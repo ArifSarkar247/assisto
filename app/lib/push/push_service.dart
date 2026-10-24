@@ -7,6 +7,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../alerts_fg.dart';
 import '../api.dart';
 import '../calls/call_runtime.dart';
 import '../notifications.dart';
@@ -91,6 +92,7 @@ class PushService {
       Notifications.onResponse = _onLocalResponse;
       available.value = false;
       _realtimeOnly = true;
+      unawaited(_setPushOk(false));
       app.addListener(_onAppChanged);
       _onAppChanged();
       try {
@@ -118,6 +120,7 @@ class PushService {
       ok = false;
     }
     available.value = ok;
+    if (!ok) unawaited(_setPushOk(false));
     if (ok) {
       try {
         _subs.add(bridge.onMessage.listen(_onForeground, onError: (_) {}));
@@ -268,9 +271,19 @@ class PushService {
       } catch (_) {}
       await app.api.pushRegister(token, appVersion: ver);
       _registeredToken = token;
+      await _setPushOk(true);
     } catch (e) {
+      await _setPushOk(false);
       if (kDebugMode) debugPrint('push register failed: $e');
     }
+  }
+
+  /// at-falsealarm: tells AlertPoller that FCM delivers this account's alerts
+  /// on this phone, so it must not show a second (local) copy.
+  Future<void> _setPushOk(bool v) async {
+    try {
+      await Settings.setBool(AlertPoller.pushOkKey, v);
+    } catch (_) {}
   }
 
   /// Ask for POST_NOTIFICATIONS once per install — after sign-in, a little
@@ -297,6 +310,7 @@ class PushService {
     final client = api ?? _app?.api;
     final tok = _registeredToken;
     _registeredToken = null;
+    await _setPushOk(false);
     if (client != null && tok != null) {
       try {
         await client.pushUnregister(tok).timeout(const Duration(seconds: 6));

@@ -49,6 +49,10 @@ class AntiTheftService {
     required String apiBase,
     required Map<String, dynamic> config,
     required Map<String, String> notif, // {title, body}
+    // at-falsealarm: true ONLY when the owner just switched protection on —
+    // the SIM(s) in the phone now become the silent baseline. A relaunch
+    // re-arm never passes it (it compares to the stored baseline).
+    bool rebaseline = false,
   }) async {
     if (!supported) return false;
     try {
@@ -59,6 +63,7 @@ class AntiTheftService {
             'notifTitle': notif['title'] ?? 'Protection on',
             'notifBody': notif['body'] ?? '',
             'notifOff': notif['off'] ?? 'Turn off', // play-fgs
+            'rebaseline': rebaseline,
           }) ??
           false;
     } catch (_) {
@@ -86,6 +91,16 @@ class AntiTheftService {
     } catch (_) {
       return false;
     }
+  }
+
+  /// at-falsealarm: the owner is on the protection screen (handling his own
+  /// phone) — the engine pauses snatch detection while [on]. Native side caps
+  /// it at 15 minutes in case "off" is never sent. Never throws.
+  static Future<void> setQuiet(bool on) async {
+    if (!supported) return;
+    try {
+      await _ch.invokeMethod('setQuiet', {'on': on});
+    } catch (_) {/* ignore */}
   }
 
   /// Ask the engine to try an immediate heartbeat + flush its queue now (e.g.

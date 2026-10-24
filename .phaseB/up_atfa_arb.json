@@ -1,0 +1,23 @@
+{
+  "_comment": "at-falsealarm: NEW ARB keys for the owner's 'It was me / false alarm' button (Always-on protection, Security, My lost phone screens). Merge en into app_en.arb and bn into app_bn.arb. Reused existing keys: cancel, securityBadPin, securityLockedOut, securityActionError.",
+  "en": {
+    "atfaButton": "It was me — clear false alarm",
+    "atfaHint": "If you caused this alert yourself (your own SIM, or you moving the phone), clear it with your Security PIN.",
+    "atfaConfirmTitle": "Was this you?",
+    "atfaConfirmBody": "If this theft alert was caused by you — for example your own SIM, or you moving the phone — confirm with your Security PIN. The freeze is lifted, and your family gets one short all-clear message.",
+    "atfaConfirmYes": "Yes, it was me",
+    "atfaCleared": "Cleared. Your family was told it was a false alarm.",
+    "atfaNothing": "There is no theft alert to clear.",
+    "atfaRateLimited": "Too many tries today. Please try again later."
+  },
+  "bn": {
+    "atfaButton": "এটা আমি ছিলাম — ভুল সতর্কতা মুছুন",
+    "atfaHint": "এই সতর্কতা যদি আপনার কারণেই হয়ে থাকে (আপনার নিজের সিম, বা আপনি ফোন নাড়াচাড়া করছিলেন), সিকিউরিটি পিন দিয়ে মুছে দিন।",
+    "atfaConfirmTitle": "এটা কি আপনি ছিলেন?",
+    "atfaConfirmBody": "চুরির এই সতর্কতা যদি আপনার কারণেই হয়ে থাকে — যেমন আপনার নিজের সিম, বা আপনি ফোন নাড়াচাড়া করছিলেন — সিকিউরিটি পিন দিয়ে নিশ্চিত করুন। ফ্রিজ উঠে যাবে, আর পরিবার একটি ছোট “সব ঠিক আছে” বার্তা পাবে।",
+    "atfaConfirmYes": "হ্যাঁ, আমি ছিলাম",
+    "atfaCleared": "মুছে ফেলা হয়েছে। পরিবারকে জানানো হয়েছে যে এটা ভুল সতর্কতা ছিল।",
+    "atfaNothing": "মোছার মতো কোনো চুরির সতর্কতা নেই।",
+    "atfaRateLimited": "আজ অনেকবার চেষ্টা হয়েছে। একটু পরে আবার চেষ্টা করুন।"
+  }
+}
