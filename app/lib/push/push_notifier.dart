@@ -303,25 +303,38 @@ class PushNotifier {
   /// c2-calls: "this phone is ringing" (best effort; own HTTP client so it
   /// works from the FCM background isolate). Only after this does the caller
   /// see "Ringing…" and hear ringback.
+  ///
+  /// calls-presence ("it rang, then dropped"): the ack is RETRIED (3 tries
+  /// within ~6 s; a cold background isolate's first request often fails on a
+  /// waking radio) — a lost ack used to let the server end a ringing call as
+  /// "offline" while this phone was ringing.
   static Future<void> ackRinging(String callId, {String? token}) =>
-      _callEvent(callId, 'ringing', token: token);
+      _callEvent(callId, 'ringing', token: token, tries: 3);
+
+  @visibleForTesting
+  static Duration ackRetryWait = const Duration(milliseconds: 1500);
 
   static Future<void> _callEvent(String callId, String event,
-      {String? token}) async {
+      {String? token, int tries = 1}) async {
     if (callId.isEmpty) return;
-    try {
-      token ??= await SecretStore.instance.read('token');
-      if (token == null || token.isEmpty) return;
-      await http
-          .post(AppConfig.api('/circle/calls/$callId/event'),
-              headers: {
-                'Authorization': 'Token $token',
-                'Content-Type': 'application/json',
-              },
-              body: jsonEncode({'event': event}))
-          .timeout(const Duration(seconds: 10));
-    } catch (e) {
-      callLog('push_notifier#call2', e);
+    for (var i = 0; i < tries; i++) {
+      try {
+        token ??= await SecretStore.instance.read('token');
+        if (token == null || token.isEmpty) return;
+        final r = await http
+            .post(AppConfig.api('/circle/calls/$callId/event'),
+                headers: {
+                  'Authorization': 'Token $token',
+                  'Content-Type': 'application/json',
+                },
+                body: jsonEncode({'event': event}))
+            .timeout(const Duration(seconds: 6));
+        // 2xx done; 4xx (call gone / not mine) is final — never retried
+        if (r.statusCode < 500) return;
+      } catch (e) {
+        callLog('push_notifier#call2', e);
+      }
+      if (i + 1 < tries) await Future<void>.delayed(ackRetryWait * (i + 1));
     }
   }
 

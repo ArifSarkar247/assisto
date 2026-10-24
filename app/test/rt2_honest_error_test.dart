@@ -38,6 +38,7 @@ CallController _mk(FakeSignaling s) => CallController(
       reconnectGiveUp: const Duration(milliseconds: 400),
       statusEvery: const Duration(seconds: 30),
       statsEvery: const Duration(seconds: 30),
+      setupRetryDelays: const [Duration.zero, Duration.zero],
     );
 
 void main() {
@@ -92,9 +93,12 @@ void main() {
       ));
       await tester.pump();
       final server = endReasonLabel(t, CallEndReason.serverError, outgoing: true);
-      expect(server, t.m3ErrServer);
-      expect(server, isNot(t.c2CallNetwork));
-      expect(endReasonLabel(t, CallEndReason.network, outgoing: true), t.c2CallNetwork);
+      // calls-presence: after the silent retries — "Server problem" vs
+      // "Weak network" (never the internet line for a server 5xx)
+      expect(server, t.cpCallServerProblem);
+      expect(server, isNot(t.cpCallWeakNetwork));
+      expect(endReasonLabel(t, CallEndReason.network, outgoing: true),
+          t.cpCallWeakNetwork);
       // the shared load-error view: a 5xx shows the server line
       expect(find.text(t.m3ErrServer), findsOneWidget);
       expect(find.text(t.qaLoadFailedRetry), findsNothing);

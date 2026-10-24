@@ -34,6 +34,14 @@ from datetime import datetime, timezone
 # x1-calls (owner order A1-e): stale calls die fast so nobody is ever shown
 # "Busy" or left on "Connecting…" by a dead row.
 OFFLINE_ACK_S = 20      # placed, but the callee phone never said "ringing"
+# calls-presence (owner 24 Oct "it rang, then dropped" — CallRecords 70/71
+# ended `missed` exactly 20 s after placement): when an FCM ring WAS handed to
+# a registered device, the callee's phone may be in Doze / cold-starting the
+# Dart background isolate / failing its first ack request, so its "ringing"
+# ack can arrive after 20 s while the phone is ALREADY ringing. Ending the call
+# as "offline" at 20 s then sent call_cancel and stopped that ring. With a
+# push delivered we wait the whole ring window (like WhatsApp's "Calling…").
+OFFLINE_ACK_PUSHED_S = 45
 RING_TIMEOUT_S = 45     # ringing at most 45 s from placement -> no_answer
 CONNECT_TIMEOUT_S = 20  # accepted but ICE never connected -> failed (both)
 HEARTBEAT_S = 15        # a side stopped polling during a live call -> lost
@@ -133,10 +141,12 @@ def end_reason_for_event(state, event, by_caller):
 
 
 def sweep_decision(state, now, started_at, ringing_at=None, answered_at=None,
-                   caller_seen=None, callee_seen=None, connected_at=None):
+                   caller_seen=None, callee_seen=None, connected_at=None,
+                   push_sent=False):
     """Lazy server-side timeout check.  Returns an end_reason or None.
 
       ringing, never acked, > OFFLINE_ACK_S          -> offline
+        (> OFFLINE_ACK_PUSHED_S when an FCM ring was handed to a device)
       ringing, > RING_TIMEOUT_S since placement      -> no_answer
       ringing, caller silent > HEARTBEAT_S           -> canceled
       connecting (accepted), > CONNECT_TIMEOUT_S     -> failed
@@ -149,7 +159,8 @@ def sweep_decision(state, now, started_at, ringing_at=None, answered_at=None,
     now_s = _ts(now)
     started = _ts(started_at) or now_s
     if state == "ringing":
-        if ringing_at is None and now_s - started > OFFLINE_ACK_S:
+        ack_window = OFFLINE_ACK_PUSHED_S if push_sent else OFFLINE_ACK_S
+        if ringing_at is None and now_s - started > ack_window:
             return "offline"
         if now_s - started > RING_TIMEOUT_S:
             return "no_answer"

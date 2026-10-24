@@ -212,6 +212,11 @@ class RealtimeChannel {
     _applyHeartbeat();
     if (!fg) {
       _cancelExpiry();
+      // never keep "recording audio…" alive from the background
+      for (final k in _recPulse.keys.toList()) {
+        final parts = k.split(':');
+        recordingStopped(parts.first, int.tryParse(parts.last) ?? 0);
+      }
       if (_refs > 0) {
         unawaited(_sendSafe('presence.set', {'state': 'away'}));
       }
@@ -315,14 +320,15 @@ class RealtimeChannel {
   /// I am typing / recording / stopped in chat (kind,id). Throttled: the same
   /// state is sent at most once per [typingEvery]; a change (stop, typing →
   /// recording) goes out immediately. Returns true if an event was sent.
-  bool typing(String kind, int id, String state) {
+  bool typing(String kind, int id, String state, {bool force = false}) {
     final key = rtKey(kind, id);
     final t = now();
     final prevState = _lastTypingState[key];
     final prevAt = _lastTyping[key];
     if (state == 'stop') {
       if (prevState == null || prevState == 'stop') return false;
-    } else if (prevState == state &&
+    } else if (!force &&
+        prevState == state &&
         prevAt != null &&
         t.difference(prevAt) < typingEvery) {
       return false;
@@ -333,6 +339,38 @@ class RealtimeChannel {
         {'chat_kind': kind == 'group' ? 'group' : 'member', 'chat_id': id, 'state': state}));
     return true;
   }
+
+  // calls-presence: "recording audio…" while the voice-note recorder runs.
+  final Map<String, Timer> _recPulse = {};
+
+  /// The voice-note recorder STARTED in chat (kind,id): "recording" goes out
+  /// now and is refreshed every [typingEvery] (the server's activity lives
+  /// 8 s) while the recorder runs — foreground only, never in background.
+  void recordingStarted(String kind, int id) {
+    final key = rtKey(kind, id);
+    _recPulse.remove(key)?.cancel();
+    if (!_foreground) return;
+    typing(kind, id, 'recording');
+    _recPulse[key] = Timer.periodic(typingEvery, (_) {
+      if (!_foreground) {
+        recordingStopped(kind, id);
+        return;
+      }
+      typing(kind, id, 'recording', force: true); // keep the 8 s TTL alive
+    });
+  }
+
+  /// …and stopped (sent, discarded, sheet closed): "stop" at once.
+  void recordingStopped(String kind, int id) {
+    final t = _recPulse.remove(rtKey(kind, id));
+    if (t == null) return;
+    t.cancel();
+    typing(kind, id, 'stop');
+  }
+
+  @visibleForTesting
+  bool recordingPulseActive(String kind, int id) =>
+      _recPulse.containsKey(rtKey(kind, id));
 
   Future<void> _sendSafe(String topic, Map<String, dynamic> payload) async {
     try {
@@ -347,6 +385,10 @@ class RealtimeChannel {
       t.cancel();
     }
     _typingTimers.clear();
+    for (final t in _recPulse.values) {
+      t.cancel();
+    }
+    _recPulse.clear();
     _sub?.cancel();
     _sub = null;
     _transport = null;

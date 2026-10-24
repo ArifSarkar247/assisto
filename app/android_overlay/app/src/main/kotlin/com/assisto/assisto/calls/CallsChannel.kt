@@ -13,6 +13,9 @@ import android.media.AudioManager
 import android.media.AudioTrack
 import android.media.Ringtone
 import android.media.RingtoneManager
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
@@ -50,7 +53,10 @@ import io.flutter.plugin.common.MethodChannel
  *   pipSupported()                                   -> Bool
  *   enterPip(w: Int, h: Int)                         -> Bool
  *   setAutoPip(on: Bool, w: Int, h: Int)             -> Bool  (b1: Home -> PiP)
+ *   watchNetwork(on: Bool)                           -> Bool  (calls-presence)
  *   Dart callback: "pipChanged"(Bool)
+ *   Dart callback: "networkChanged"("wifi"|"cellular"|"other"|"lost")
+ *        only while watched (one live call); never at registration time
  */
 object CallsChannel {
     private const val CHANNEL = "com.assisto/calls"
@@ -139,6 +145,7 @@ object CallsChannel {
                             call.argument<Int>("h") ?: 16
                         )
                     )
+                    "watchNetwork" -> result.success(watchNetwork(call.argument<Boolean>("on") == true))
                     else -> result.notImplemented()
                 }
             } catch (t: Throwable) {
@@ -464,6 +471,65 @@ object CallsChannel {
         } catch (ignored: Throwable) {}
     }
 
+    // ------------------------------------------------- network switch watch
+    // calls-presence: Wi-Fi <-> mobile data during a call. The callback is
+    // registered ONLY while a call screen listens (lazy) and every step is
+    // guarded; ACCESS_NETWORK_STATE is already declared (no new permission).
+    private var netCb: ConnectivityManager.NetworkCallback? = null
+    private var lastNet: Network? = null
+
+    private fun netKind(cm: ConnectivityManager, n: Network): String = try {
+        val caps = cm.getNetworkCapabilities(n)
+        when {
+            caps == null -> "other"
+            caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> "wifi"
+            caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> "cellular"
+            else -> "other"
+        }
+    } catch (_: Throwable) { "other" }
+
+    private fun emitNet(kind: String) {
+        main.post {
+            try { channel?.invokeMethod("networkChanged", kind) } catch (ignored: Throwable) {}
+        }
+    }
+
+    private fun watchNetwork(on: Boolean): Boolean {
+        val c = ctx() ?: return false
+        return try {
+            val cm = c.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            netCb?.let {
+                try { cm.unregisterNetworkCallback(it) } catch (ignored: Throwable) {}
+            }
+            netCb = null
+            lastNet = null
+            if (!on || Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return !on
+            lastNet = try { cm.activeNetwork } catch (_: Throwable) { null }
+            val cb = object : ConnectivityManager.NetworkCallback() {
+                override fun onAvailable(network: Network) {
+                    try {
+                        val prev = lastNet
+                        lastNet = network
+                        // the first callback reports the CURRENT network: no event
+                        if (prev != null && prev != network) emitNet(netKind(cm, network))
+                    } catch (ignored: Throwable) {}
+                }
+
+                override fun onLost(network: Network) {
+                    try {
+                        if (network == lastNet) emitNet("lost")
+                    } catch (ignored: Throwable) {}
+                }
+            }
+            cm.registerDefaultNetworkCallback(cb)
+            netCb = cb
+            true
+        } catch (e: Throwable) {
+            netCb = null
+            false
+        }
+    }
+
     /** MainActivity forwards onPictureInPictureModeChanged here. */
     fun onPipChanged(inPip: Boolean) {
         main.post {
@@ -473,6 +539,7 @@ object CallsChannel {
 
     fun release() {
         autoPip = false
+        try { watchNetwork(false) } catch (ignored: Throwable) {}
         stopTone()
         stopRingtone()
         setProximity(false)

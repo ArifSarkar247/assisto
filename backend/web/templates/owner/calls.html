@@ -3,6 +3,20 @@
 {% block content %}
 {% if problems %}<div class="flash warn" role="alert"><b>{{ T.not_saved }}</b><ul>{% for p in problems %}<li>{{ p }}</li>{% endfor %}</ul></div>{% endif %}
 {% if active_alerts %}<div class="flash warn" role="alert"><b>{{ T.t9_alert_active }}</b> {{ active_alerts|join:", " }}</div>{% endif %}
+{% if ch %}<section class="card" id="call-health"><h2>{{ T.ch_title }}</h2>
+  <p class="small">{{ T.ch_note }}</p>
+  <div class="tiles">
+    <div class="tile"><span>{{ T.ch_attempts }}</span><b>{{ ch.attempts }}</b><small>{{ T.ch_placed }} {{ ch.placed }} · {{ T.ch_pre_place }} {{ ch.pre_place }}</small></div>
+    <div class="tile"><span>{{ T.ch_success }}</span><b class="{% if ch_alert %}neg{% endif %}">{% if ch.success_pct is not None %}{{ ch.success_pct }}%{% else %}—{% endif %}</b><small>{{ T.ch_ok }} {{ ch.ok }} / {{ ch.attempts }}</small></div>
+    <div class="tile"><span>{{ T.ch_throttled }}</span><b class="{% if ch.throttled %}neg{% endif %}">{{ ch.throttled }}</b><small>{{ T.ch_throttled_note }}</small></div>
+  </div>
+  <div class="tbl"><table><thead><tr><th>{{ T.ch_funnel }}</th><th class="num">{{ T.ch_count }}</th></tr></thead><tbody>
+  {% for label, n in ch_funnel %}<tr><td>{{ label }}</td><td class="num">{{ n }}</td></tr>{% endfor %}
+  </tbody></table></div>
+  <div class="tbl"><table><thead><tr><th>{{ T.ch_fail_step }}</th><th class="num">{{ T.ch_count }}</th></tr></thead><tbody>
+  {% for key, label, n in ch_steps %}<tr><td>{{ label }}</td><td class="num {% if n %}neg{% endif %}">{{ n }}</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>{% endif %}
 {% if not cur %}<p class="empty">{{ T.t9_no_samples }}</p>{% else %}
 {% if summ.stale %}<div class="flash warn">{{ T.t9_stale }} {{ cur.at|date:"Y-m-d H:i" }}</div>{% endif %}
 <div class="tiles">

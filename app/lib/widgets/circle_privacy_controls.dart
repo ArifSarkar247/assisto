@@ -20,6 +20,13 @@ class CirclePrivacyCodes {
   static const visEveryone = 'everyone';
   static const visFamily = 'family';
   static const visNobody = 'nobody';
+
+  /// calls-presence: WhatsApp "My contacts" — only people I saved back.
+  static const visContacts = 'contacts';
+
+  /// Fields that offer Everyone / My contacts / Family / Nobody (presence);
+  /// the others keep My circle / Family / Nobody.
+  static const presenceFields = ['last_seen', 'active_status'];
   static const visFields = [
     'last_seen',
     'active_status',
@@ -63,9 +70,59 @@ class CircleVisibilityRow extends StatelessWidget {
     }
   }
 
+  bool get _isPresence => CirclePrivacyCodes.presenceFields.contains(field);
+
+  /// calls-presence: last seen / online — WhatsApp's Everyone / My contacts /
+  /// Nobody (+ the existing Family only). Chips WRAP on a narrow phone or a
+  /// large font, so no label is ever clipped.
+  Widget _presenceChoices(BuildContext context, AppLocalizations t) => Wrap(
+        spacing: Gap.sm,
+        runSpacing: Gap.xs,
+        children: [
+          for (final (v, l) in [
+            (CirclePrivacyCodes.visEveryone, t.cpPrivEveryone),
+            (CirclePrivacyCodes.visContacts, t.cpPrivMyContacts),
+            (CirclePrivacyCodes.visFamily, t.cpPrivFamilyOnly),
+            (CirclePrivacyCodes.visNobody, t.circlePrivacyAudienceNobody),
+          ])
+            ChoiceChip(
+              key: Key('cp-vis-$field-$v'),
+              label: Text(l),
+              selected: value == v,
+              onSelected: (_) => onChanged(v),
+            ),
+        ],
+      );
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
+    if (_isPresence) {
+      return Padding(
+        padding:
+            const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.sm),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(_fieldLabel(t),
+                style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: Gap.xs),
+            _presenceChoices(context, t),
+            if (value == CirclePrivacyCodes.visNobody)
+              Padding(
+                padding: const EdgeInsets.only(top: Gap.xs),
+                child: Text(
+                    field == 'last_seen'
+                        ? t.cpPrivLastSeenReciprocal
+                        : t.cpPrivOnlineReciprocal,
+                    key: Key('cp-recip-$field'),
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              ),
+          ],
+        ),
+      );
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.sm),
       child: Column(

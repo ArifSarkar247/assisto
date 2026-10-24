@@ -71,7 +71,12 @@ List<int> compactWave(List<int> levels, {int n = 48}) {
 }
 
 /// Opens the recorder; returns the prepared voice note, or null.
-Future<MediaDraft?> showVoiceRecorder(BuildContext context) async {
+///
+/// [onRecording] (calls-presence): true once the microphone really records,
+/// false when it stops (sent / discarded / closed) — the chat shows the other
+/// person "recording audio…" in between.
+Future<MediaDraft?> showVoiceRecorder(BuildContext context,
+    {ValueChanged<bool>? onRecording}) async {
   final t = AppLocalizations.of(context);
   final ok = await ensureMediaPermission(context, Permission.microphone,
       title: t.md1PermMicTitle, body: t.md1PermMicBody, denied: t.md1PermDeniedMic);
@@ -80,12 +85,15 @@ Future<MediaDraft?> showVoiceRecorder(BuildContext context) async {
     context: context,
     isDismissible: false,
     enableDrag: false,
-    builder: (_) => const VoiceRecorderSheet(),
+    builder: (_) => VoiceRecorderSheet(onRecording: onRecording),
   );
 }
 
 class VoiceRecorderSheet extends StatefulWidget {
-  const VoiceRecorderSheet({super.key});
+  const VoiceRecorderSheet({super.key, this.onRecording});
+
+  /// calls-presence: recording started (true) / stopped (false).
+  final ValueChanged<bool>? onRecording;
   @override
   State<VoiceRecorderSheet> createState() => _VoiceRecorderSheetState();
 }
@@ -113,6 +121,7 @@ class _VoiceRecorderSheetState extends State<VoiceRecorderSheet> {
       _path = '${(await MediaDirs.sub('out')).path}/${newMediaId()}.m4a';
       await rec.start(_path);
       _sw.start();
+      _signal(true);
       _amp = rec.amplitude().listen((db) {
         if (!mounted) return;
         setState(() => _levels.add(levelFromDb(db)));
@@ -131,7 +140,19 @@ class _VoiceRecorderSheetState extends State<VoiceRecorderSheet> {
     }
   }
 
+  bool _signalled = false;
+  void _signal(bool on) {
+    if (on == _signalled) return;
+    _signalled = on;
+    try {
+      widget.onRecording?.call(on);
+    } catch (e) {
+      reportNonFatal('cp_voice_activity', e);
+    }
+  }
+
   Future<void> _cleanup() async {
+    _signal(false);
     _tick?.cancel();
     await _amp?.cancel();
     _sw.stop();
@@ -195,6 +216,7 @@ class _VoiceRecorderSheetState extends State<VoiceRecorderSheet> {
 
   @override
   void dispose() {
+    _signal(false);
     _tick?.cancel();
     _amp?.cancel();
     super.dispose();

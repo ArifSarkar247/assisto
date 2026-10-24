@@ -57,8 +57,10 @@ void _toast(BuildContext context, String msg) =>
     ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(msg)));
 
 /// Run the picker for [kind]. null = cancelled (or an honest message shown).
+/// [onRecording]: see [showVoiceRecorder] (voice only).
 Future<MediaDraft?> pickMediaDraft(
-    BuildContext context, ApiClient api, CircleAttachKind kind) async {
+    BuildContext context, ApiClient api, CircleAttachKind kind,
+    {ValueChanged<bool>? onRecording}) async {
   final t = AppLocalizations.of(context);
   await MediaLimits.load(api);
   if (!context.mounted) return null;
@@ -70,7 +72,7 @@ Future<MediaDraft?> pickMediaDraft(
       case CircleAttachKind.camera:
         d = await pickPhoto(context, camera: true);
       case CircleAttachKind.voice:
-        d = await showVoiceRecorder(context);
+        d = await showVoiceRecorder(context, onRecording: onRecording);
       case CircleAttachKind.document:
         d = await pickDocument(MediaLimits.document);
       default:

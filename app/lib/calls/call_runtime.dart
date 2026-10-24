@@ -7,6 +7,7 @@ import '../push/incoming_call_screen.dart';
 import '../push/push_notifier.dart';
 import '../push/push_payload.dart';
 import '../realtime/realtime_transport.dart';
+import '../services/error_kind.dart';
 import '../state.dart';
 import 'call_controller.dart';
 import 'call_keepalive.dart';
@@ -361,7 +362,9 @@ class CallRuntime with WidgetsBindingObserver {
   /// In-app ring: the chosen ringtone (phone default when none), respecting
   /// silent / vibrate / Do-Not-Disturb natively; tells the caller we ring.
   Future<void> startRinging(PushPayload p) async {
-    unawaited(_event(p.callId, 'ringing'));
+    // calls-presence: retried — a lost ack let the server end the call as
+    // "offline" at 20 s while this phone rang ("rang, then dropped").
+    unawaited(_event(p.callId, 'ringing', tries: 3));
     try {
       final uri = await CallSoundPrefs.ringtoneFor(p.chatId);
       await CallNative.startRingtone(uri);
@@ -372,13 +375,21 @@ class CallRuntime with WidgetsBindingObserver {
 
   Future<void> stopRinging() => CallNative.stopRingtone();
 
-  Future<void> _event(String callId, String event) async {
-    final app = _app;
-    if (app == null) return;
-    try {
-      await app.api.postJson('/circle/calls/$callId/event', {'event': event});
-    } catch (e) {
-      callLog('call_runtime#6', e);
+  Future<void> _event(String callId, String event, {int tries = 1}) async {
+    for (var i = 0; i < tries; i++) {
+      final app = _app;
+      if (app == null) return;
+      try {
+        await app.api.postJson('/circle/calls/$callId/event', {'event': event});
+        return;
+      } catch (e) {
+        callLog('call_runtime#6', e);
+        // a 4xx (call over / not mine) is final
+        if (failKindOf(e) == FailKind.refused) return;
+      }
+      if (i + 1 < tries) {
+        await Future<void>.delayed(Duration(milliseconds: 1500 * (i + 1)));
+      }
     }
   }
 

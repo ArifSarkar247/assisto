@@ -827,12 +827,15 @@ def heartbeat(user, online=True, now=None, force=False):
 
 
 def _visible_presence(viewer, owner, owner_priv, viewer_priv, relation,
-                      blocked=False):
-    """(online: bool|None, last_seen: iso|None) the viewer may see."""
+                      blocked=False, contact=False):
+    """(online: bool|None, last_seen: iso|None) the viewer may see.
+    `contact` = the OWNER saved the viewer back (accepted edge owner->viewer),
+    for the "My contacts" policy. RECIPROCAL: a viewer whose own setting is
+    Nobody sees nobody's (WhatsApp rule)."""
     if blocked:
         return None, None
     o = {"visibility": owner_priv.get("visibility") or {}}
-    v = {"id": viewer.id, "relation": relation}
+    v = {"id": viewer.id, "relation": relation, "contact": bool(contact)}
     mine = CP.normalize_visibility(viewer_priv.get("visibility") or {})
     can_ls = (CP.can_see_field(o, v, "last_seen")
               and mine.get("last_seen") != CP.VIS_NOBODY)
@@ -848,8 +851,9 @@ def _member_entry(viewer, e, p, r, pm, now):
     rev = push._reverse_edge(p, viewer)
     blocked = bool(e.blocked or (rev is not None and rev.blocked))
     rel = rev.relation if rev is not None else ""
+    contact = rev is not None and rev.state == "accepted"
     can_on, can_ls = _visible_presence(viewer, p, pm[p.id], pm[viewer.id],
-                                       rel, blocked)
+                                       rel, blocked, contact=contact)
     online = bool(r and r.online_until and r.online_until > now)
     act = ""
     if (r and r.activity and r.activity_until and r.activity_until > now
