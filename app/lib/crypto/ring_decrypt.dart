@@ -58,6 +58,45 @@ class RingDecrypt {
     return null;
   }
 
+  /// A relayed 1:1 envelope: the ORIGINAL ciphertext first (my ring x the
+  /// peer's keys), then the peer's re-shared replacement `copy` for one of
+  /// my keys (e2e-recover). Null when neither opens on this phone.
+  static String? openEnvelope(
+    Map<String, dynamic> env, {
+    required List<IdentityKeyPair> ring,
+    required List<Uint8List> peerKeys,
+  }) {
+    String? pt;
+    final cipher = '${env['ciphertext'] ?? ''}';
+    if (cipher.isNotEmpty) {
+      pt = open(
+        ring: ring,
+        peerKeys: peerKeys,
+        ct: Ciphertext(
+          scheme: '${env['scheme'] ?? kFallbackScheme}',
+          ciphertextB64: cipher,
+          nonceB64: '${env['nonce'] ?? ''}',
+          senderKeyId: '${env['sender_key_id'] ?? ''}',
+        ),
+      );
+    }
+    final copy = env['copy'];
+    if (pt == null && copy is Map && '${copy['ciphertext'] ?? ''}'.isNotEmpty) {
+      pt = open(
+        ring: ring,
+        peerKeys: peerKeys,
+        myKeyId: '${copy['key_id'] ?? ''}',
+        ct: Ciphertext(
+          scheme: '${copy['scheme'] ?? kFallbackScheme}',
+          ciphertextB64: '${copy['ciphertext'] ?? ''}',
+          nonceB64: '${copy['nonce'] ?? ''}',
+          senderKeyId: '${copy['sender_key_id'] ?? ''}',
+        ),
+      );
+    }
+    return pt;
+  }
+
   /// Distinct non-empty keys, order kept (live key first).
   static List<Uint8List> keys(Iterable<Uint8List?> ks) {
     final out = <Uint8List>[];

@@ -112,6 +112,10 @@ class CircleMessage {
       );
 }
 
+/// e2e-recover: the one grey line for a message this phone can't open yet.
+String e2rWaitingText(AppLocalizations t, String name) =>
+    name.trim().isEmpty ? t.e2rWaitingGeneric : t.e2rWaiting(name.trim());
+
 class CircleBubble extends StatelessWidget {
   final CircleMessage msg;
   final VoidCallback? onLongPress;
@@ -128,9 +132,14 @@ class CircleBubble extends StatelessWidget {
 
   /// e-gaps: open a received view-once photo (null = can't from here).
   final VoidCallback? onOpenViewOnce;
+
+  /// e2e-recover: who to ask when this phone cannot open the message yet
+  /// ('' = "the sender").
+  final String waitingName;
   const CircleBubble(
       {super.key,
       required this.msg,
+      this.waitingName = '',
       this.onLongPress,
       this.onTapMedia,
       this.onOpenFile,
@@ -208,8 +217,9 @@ class CircleBubble extends StatelessWidget {
     final show = deleted
         ? t.circleDeletedPlaceholder
         : msg.decryptFailed
-            // e2-keys: honest — sent to another device/key of mine.
-            ? t.e2CantDecryptHere
+            // e2e-recover: never a raw error — the other phone re-shares it
+            // (resend request) once it opens Assisto.
+            ? e2rWaitingText(t, waitingName)
             : msg.text;
     if (show.isEmpty && msg.contentType != 'text') return const SizedBox.shrink();
     if (msg.decryptFailed && !deleted) {

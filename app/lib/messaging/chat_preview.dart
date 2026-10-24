@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import '../crypto/e2e.dart';
+import '../crypto/identity_vault.dart'; // e2e-recover
+import '../crypto/ring_decrypt.dart'; // e2e-recover
 import 'media/media_descriptor.dart';
 import 'msg_ticks.dart';
 import '../p3/assisto_card.dart' show cardFallback;
@@ -149,6 +151,11 @@ class ChatPreview {
           pt = null;
         }
         if (pt != null) break;
+      }
+      // e2e-recover: an older key of my key ring (restored / pre-rekey).
+      if (pt == null && IdentityVault.ringSnapshot.length > 1) {
+        pt = RingDecrypt.open(
+            ring: IdentityVault.ringSnapshot, peerKeys: keys, ct: ctx);
       }
     }
     if (isMedia && ct == 'photo' && pt != null) {

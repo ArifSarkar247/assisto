@@ -58,6 +58,9 @@ class IdentityVault {
 
   List<IdentityKeyPair>? _ringCache;
 
+  /// Last key ring this process loaded (sync, for chat-list previews).
+  static List<IdentityKeyPair> ringSnapshot = const [];
+
   /// The identity, created and stored on first use.
   Future<IdentityKeyPair> get() {
     final c = _cached;
@@ -145,6 +148,7 @@ class IdentityVault {
         final id = _decode(jsonEncode(e));
         if (id != null && !out.any((k) => k.keyId == id.keyId)) out.add(id);
       }
+      ringSnapshot = out;
       return _ringCache = out;
     } catch (_) {
       return const [];
@@ -165,6 +169,7 @@ class IdentityVault {
     final ok = await _s.write(ringSlot,
         jsonEncode([for (final k in capped) jsonDecode(_encode(k))]));
     _ringCache = ok ? List.unmodifiable(capped) : null;
+    ringSnapshot = List.unmodifiable(capped);
     return ok;
   }
 

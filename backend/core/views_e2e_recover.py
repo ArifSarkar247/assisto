@@ -184,13 +184,18 @@ class E2BackupView(APIView):
                    if isinstance(k, str)][:64]
         cur = str(d.get("current_key_id") or "")[:64]
         h = auth_hash(auth)
+        # PIN change: proof of the CURRENT backup = replace it outright (the
+        # old-PIN copy is not kept around).
+        prev = _b64(d.get("prev_auth"), 64, exact=32)
         with transaction.atomic():
             b = E2KeyBackup.objects.select_for_update().filter(
                 user=request.user).first()
             archived = False
             if b is None:
                 b = E2KeyBackup(user=request.user)
-            elif b.blob and not hmac.compare_digest(b.auth_hash, h):
+            elif (b.blob and not hmac.compare_digest(b.auth_hash, h)
+                  and not (prev is not None and hmac.compare_digest(
+                      b.auth_hash, auth_hash(prev)))):
                 # Sealed under a different PIN/salt: keep the old ring in the
                 # archive (never destroyed by a new phone that skipped restore).
                 arch = [a for a in (b.archive or []) if isinstance(a, dict)]

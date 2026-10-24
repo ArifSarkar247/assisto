@@ -11,6 +11,10 @@ import '../api.dart';
 import '../messaging/badges_bus.dart';
 import '../crypto/e2e.dart';
 import '../crypto/key_service.dart';
+import '../crypto/history_reshare.dart'; // e2e-recover
+import '../crypto/identity_vault.dart'; // e2e-recover
+import '../crypto/plain_cache.dart'; // e2e-recover
+import '../crypto/ring_decrypt.dart'; // e2e-recover
 import '../l10n/app_localizations.dart';
 import '../messenger_chat_api.dart';
 import '../state.dart';
@@ -187,6 +191,13 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   // a1-circle: the peer's EARLIER keys from the server (key directory
   // history) — a new phone of mine still decrypts pre-change history.
   List<Uint8List> _serverHist = const [];
+  // e2e-recover: every private key of this phone (key ring) — old chats and
+  // my own old sent messages open after a reinstall/restore.
+  List<IdentityKeyPair> _ring = const [];
+  List<IdentityKeyPair> get _myRing => [
+        widget.identity,
+        ..._ring.where((k) => k.keyId != widget.identity.keyId),
+      ];
   // a1-circle: 1:1 call events shown inside the timeline (WhatsApp-style).
   List<CallEvent> _calls = const [];
   int _pollTick = 0;
@@ -326,6 +337,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
 
   @override
   void dispose() {
+    unawaited(PlainCache.instance.persist()); // e2e-recover
     WidgetsBinding.instance.removeObserver(this);
     DecorStore.instance.revision.removeListener(_onDecor); // cde-chat
     if (MsgActiveChat.current == _chatKey) MsgActiveChat.current = null;
@@ -424,6 +436,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         _messages = merged;
         _resolveReplyPreviews();
       });
+      _afterDecrypt(); // e2e-recover
       _rememberPreview();
       _foldControls(); // cde-chat
       unawaited(_trackDisappearing()); // e-gaps
@@ -552,8 +565,46 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     if (was != b64 && !_loading) unawaited(_pollMessages());
   }
 
+  Future<void> _loadRing(Object? uid) async {
+    try {
+      final r = await IdentityVault.instance.ring();
+      await PlainCache.instance.warm(uid);
+      if (!mounted) return;
+      _ring = r;
+      if (_messages.any((m) => m.decryptFailed)) {
+        if (_loading) {
+          _ringPending = true;
+        } else {
+          unawaited(_pollMessages());
+        }
+      }
+    } catch (_) {}
+  }
+
+  bool _ringPending = false;
+
+  /// e2e-recover: persist newly decrypted plaintext + ask the other phone
+  /// to re-share what this phone cannot open (rate-limited; retried on the
+  /// next open). Never shown, never throws.
+  void _afterDecrypt() {
+    unawaited(PlainCache.instance.persist());
+    final id = _memberId;
+    // Only once the peer's key is known (else everything "fails" at open).
+    if (id == null || _peerPub == null) return;
+    final ids = [
+      for (final m in _messages)
+        if (m.decryptFailed && int.tryParse(m.id) != null) m.id
+    ];
+    if (ids.isNotEmpty) unawaited(HistoryReshare.instance.ask(id, ids));
+  }
+
   void _onKeyEvent(Map<String, dynamic> ev) {
     if ('${ev['chat'] ?? ''}' != _chatKey) return;
+    // e2e-recover: the peer's phone uploaded re-shared copies -> re-read.
+    if (ev['copies'] == true) {
+      unawaited(_pollMessages());
+      return;
+    }
     unawaited(_refreshPeerKey());
     unawaited(_reloadQueued());
   }
@@ -635,6 +686,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   }
 
   Future<void> _load() async {
+    // e2e-recover: key ring + the local plaintext cache load in parallel
+    // (never delays the first frame); what they open is re-read after.
+    unawaited(_loadRing(context.read<AppState>().user?.id));
     // e-gaps: this phone's record of opened view-once photos (sync reads in
     // the decrypt below) + any open-acks still owed to the server.
     await ViewOnceStore.instance.warm();
@@ -691,9 +745,14 @@ class _CircleChatScreenState extends State<CircleChatScreen>
             .addPostFrameCallback((_) => unawaited(_placeAtDivider()));
       }
     }
+    if (_ringPending) {
+      _ringPending = false;
+      unawaited(_pollMessages());
+    }
     unawaited(_markSeen());
     unawaited(keyFetch);
     unawaited(_loadCalls());
+    _afterDecrypt(); // e2e-recover
     _rememberPreview();
     _foldControls(); // cde-chat
     unawaited(_trackDisappearing()); // e-gaps
@@ -848,6 +907,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         _hasMore = r['has_more'] == true && older.isNotEmpty;
         _resolveReplyPreviews();
       });
+      _afterDecrypt(); // e2e-recover
     } catch (_) {
       // Silent: the next scroll-up retries.
     } finally {
@@ -1020,44 +1080,37 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       // Nothing to decrypt — the ciphertext was tombstoned server-side.
     } else if (contentType == 'text' || isMedia) {
       try {
-        if (peerPub == null && _peerHistory.isEmpty && _serverHist.isEmpty) {
+        // e2e-recover: my WHOLE key ring x every key of the peer (live +
+        // this phone's history + the server's history); then the peer's
+        // re-shared copy for my current key; then this phone's cache of
+        // what it already opened once. Never a raw error.
+        final mid = '${env['id'] ?? ''}';
+        final peers = RingDecrypt.keys(
+            [peerPub, ..._peerHistory.reversed, ..._serverHist]);
+        var pt = peers.isEmpty
+            ? null
+            : RingDecrypt.openEnvelope(env, ring: _myRing, peerKeys: peers);
+        if (pt == null && !viewOnce) pt = PlainCache.instance.get(mid);
+        if (pt != null && !viewOnce && !descriptorIsViewOnce(pt)) {
+          PlainCache.instance.put(mid, pt);
+        }
+        if (pt == null) {
           failed = true;
-        } else {
-          final usePub = peerPub ??
-              (_peerHistory.isNotEmpty ? _peerHistory.last : _serverHist.first);
-          final ct = Ciphertext(
-            scheme: '${env['scheme'] ?? _e2e.scheme}',
-            ciphertextB64: '${env['ciphertext'] ?? ''}',
-            nonceB64: '${env['nonce'] ?? ''}',
-            senderKeyId: '${env['sender_key_id'] ?? ''}',
-          );
-          var pt = _e2e.decrypt(self: widget.identity, senderPublicKey: usePub, ct: ct);
-          // e2-keys: history from before the peer's key change still
-          // decrypts with the key it was sent under.
-          for (final old in [..._peerHistory, ..._serverHist]) {
-            if (pt != null) break;
-            try {
-              pt = _e2e.decrypt(self: widget.identity, senderPublicKey: old, ct: ct);
-            } catch (_) {}
-          }
-          if (pt == null) {
+        } else if (isMedia) {
+          // md1: the plaintext is the media descriptor (file key, sha…).
+          media = MediaDescriptor.tryParse(pt);
+          if (media == null) {
             failed = true;
-          } else if (isMedia) {
-            // md1: the plaintext is the media descriptor (file key, sha…).
-            media = MediaDescriptor.tryParse(pt);
-            if (media == null) {
-              failed = true;
-            } else if (viewOnce || descriptorIsViewOnce(pt)) {
-              viewOnce = true; // e-gaps: no caption / file in the bubble
-            } else {
-              text = media.caption;
-              // cde-chat: a photo THEME (the descriptor carries `cc1`)
-              final cc = controlInDescriptor(pt);
-              if (cc != null) _ctrlCache['${env['id'] ?? ''}'] = cc;
-            }
+          } else if (viewOnce || descriptorIsViewOnce(pt)) {
+            viewOnce = true; // e-gaps: no caption / file in the bubble
           } else {
-            text = pt;
+            text = media.caption;
+            // cde-chat: a photo THEME (the descriptor carries `cc1`)
+            final cc = controlInDescriptor(pt);
+            if (cc != null) _ctrlCache['${env['id'] ?? ''}'] = cc;
           }
+        } else {
+          text = pt;
         }
       } catch (_) {
         failed = true;
@@ -2550,6 +2603,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                           final bubble0 = CircleBubble(
                             key: key,
                             msg: m,
+                            waitingName: _memberName, // e2e-recover
                             highlighted: _highlightId == m.id,
                             onTapReply: () => _jumpTo(m.replyToId),
                             // mr1: a request I have not accepted is read-only
