@@ -18316,5 +18316,16 @@
         "type": "String"
       }
     }
-  }
+  },
+  "f6JobsNoFeedBanner": "Live job listings need an official source, and none is connected yet. Add the jobs you find to save and track them here. We never scrape.",
+  "f6DisFeedNoKeyBody": "Live warnings appear here only from an official feed (BMD/FFWC), and it isn't connected yet. For live information call 1090.",
+  "f6ProbashiDocExpiresIn30": "Expires in 30 days. Start the renewal now.",
+  "f6ProbashiDocExpiresToday": "Expires today.",
+  "f6ProbashiDocsWelcomeBody": "Record the expiry of your passport, visa, ticket and more. The app shows the days left and reminds you 30 days before and on the expiry day.",
+  "f6ProbashiDocsNote": "You enter the expiry dates. The app shows the days left and reminds you on this phone 30 days before and on the expiry day.",
+  "f6BizPlanPriceOnPlans": "The current price is on the Plans page. Tap Upgrade to see it.",
+  "f6ExamResultDayBody": "Result day. Open the board's official result page.",
+  "f6ExamWatcherSavedReminder": "Saved. You'll get a reminder on this phone on result day.",
+  "f6QtRuleMarker": "Made by built-in rules, not AI. Review before you use it.",
+  "f6BwTemplateMarker": "Template draft (built in, not AI). Review before use."
 }
