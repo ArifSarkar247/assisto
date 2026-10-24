@@ -83,6 +83,13 @@ dependencies:
   # Android side pinned too (>= 2 weeks old; Play Billing Library inside).
   in_app_purchase_android: 0.5.3
   # ---- /pay1 ----
+  # ---- ota1 ---- Google Play In-App Updates, FLEXIBLE flow (MIT; Play Core
+  # app-update inside). Exact pin, >= 2 weeks old. LAZY: only
+  # lib/play_update_impl.dart imports it, as a DEFERRED library loaded ~15 s
+  # after the first frame and ONLY in the Play build (AppConfig.playStore).
+  # The website APK never calls it (it keeps its own updater.dart).
+  in_app_update: 4.2.5
+  # ---- /ota1 ----
   # ---- md1 ---- My Circle E2E media (see .phaseB/proposals/md1.md).
   # crypto: dart-lang (BSD-3), pure Dart, already in the tree transitively —
   # streaming SHA-256 of the ciphertext. Same version as the lock.

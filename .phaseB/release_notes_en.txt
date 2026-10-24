@@ -1,0 +1,1 @@
+Build 218: cleaner launcher icon with an even margin in every icon shape; the app now offers Google Play updates inside the app; growth features (invite friends, Founding Members, share AI answers as cards).

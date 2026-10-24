@@ -11,6 +11,7 @@ import 'alerts_fg.dart';
 import 'state.dart';
 import 'theme.dart';
 import 'updater.dart';
+import 'play_update.dart'; // ota1
 import 'notifications.dart';
 import 'calls/call_mini_bar.dart'; // b1: in-app minimized-call bar
 import 'push/push_service.dart';
@@ -253,6 +254,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _pollAlerts();
       _maybeSmokeOpen();
+      PlayUpdate.checkSoon(); // ota1: Play build only, lazy + guarded
       // Part 3: opened by the assist gesture / wake word? (lazy, guarded)
       VaLaunch.maybeOpen(context);
       // w1-webphoto: cold-start App Link (lifeassisto.com/photo/app?t=…)
@@ -319,6 +321,9 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
         PushService.instance
             .onForegroundChanged(state == AppLifecycleState.resumed);
       } catch (_) {}
+    }
+    if (state == AppLifecycleState.paused) {
+      PlayUpdate.onBackground(); // ota1: install a downloaded Play update
     }
     if (state == AppLifecycleState.resumed) {
       _pollAlerts();

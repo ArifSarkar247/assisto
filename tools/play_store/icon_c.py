@@ -59,9 +59,11 @@ def place(logo, canvas, circle_frac, under=None):
 
 icon = APP / "assets" / "icon"
 brand = APP / "assets" / "branding"
-# adaptive: gradient background + white foreground (circle 0.645 of canvas)
+# adaptive: gradient background + white foreground (circle 0.58 of canvas)
 BG.save(icon / "bg.png", optimize=True)
-fg = place(WHITE, 1024, 0.645)
+# Owner 24 Oct (OPPO): the A touched the circle at 0.645 -> 10% smaller (0.58)
+# so every mask shows a small even margin (visible circle = 0.667 of canvas).
+fg = place(WHITE, 1024, 0.58)
 fg.save(icon / "fg.png", optimize=True)
 fg.save(icon / "monochrome.png", optimize=True)          # themed icon (Android 13+)
 # legacy square/round icon: gradient + logo, round-safe
