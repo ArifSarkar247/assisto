@@ -913,3 +913,50 @@ BN.update({
     "fs_when": "তারিখ", "fs_none": "এখনো কোনো আসন নেওয়া হয়নি।",
 })
 # ---- /p5-growth ----
+
+# ---- calls-health ---- owner panel: Calls -> call setup health (last 24 h)
+EN.update({
+    "ch_title": "Call health (last 24 hours)",
+    "ch_note": "Every call attempt: placed calls plus attempts that failed before a call existed (the phone reports them after 3 quiet retries). Declined, busy, no answer and canceled are normal outcomes, not failures.",
+    "ch_attempts": "Call attempts", "ch_placed": "placed", "ch_pre_place": "failed before placing",
+    "ch_success": "Success", "ch_ok": "ok",
+    "ch_throttled": "Server busy answers", "ch_throttled_note": "GET rtc/turn refused (box overloaded)",
+    "ch_funnel": "Setup steps reached", "ch_count": "Count",
+    "ch_f_placed": "Call placed", "ch_f_push": "Ring push sent to a device",
+    "ch_f_acked": "Callee phone rang", "ch_f_answered": "Answered",
+    "ch_f_connected": "Media connected (ICE)",
+    "ch_fail_step": "Failures by step",
+    "ch_step_rtc": "Call config (rtc/turn) — busy or unreachable",
+    "ch_step_place": "Placing the call (POST) — server error / weak network",
+    "ch_step_push": "Callee phone never rang (offline)",
+    "ch_step_accept": "Accepting the call failed",
+    "ch_step_ice": "Answered, media never connected",
+    "ch_step_dropped": "Connected, then dropped",
+    "ch_alert_title": "Calls need attention:",
+    "ch_alert_throttled": "times the call server answered “busy” in the last 24 h:",
+    "ch_alert_low": "call success in the last 24 h is only",
+    "ch_alert_open": "Open call health",
+})
+BN.update({
+    "ch_title": "কল হেলথ (গত ২৪ ঘণ্টা)",
+    "ch_note": "প্রতিটি কলের চেষ্টা: যে কলগুলো করা হয়েছে, আর যেগুলো কল তৈরির আগেই ব্যর্থ হয়েছে (৩ বার নীরবে চেষ্টার পর ফোন জানায়)। প্রত্যাখ্যান, ব্যস্ত, উত্তর নেই ও বাতিল স্বাভাবিক ফল, ব্যর্থতা নয়।",
+    "ch_attempts": "কলের চেষ্টা", "ch_placed": "করা হয়েছে", "ch_pre_place": "করার আগেই ব্যর্থ",
+    "ch_success": "সফল", "ch_ok": "ঠিক আছে",
+    "ch_throttled": "সার্ভার ব্যস্ত উত্তর", "ch_throttled_note": "GET rtc/turn ফিরিয়ে দিয়েছে (সার্ভারে অতিরিক্ত চাপ)",
+    "ch_funnel": "যে ধাপ পর্যন্ত পৌঁছেছে", "ch_count": "সংখ্যা",
+    "ch_f_placed": "কল করা হয়েছে", "ch_f_push": "রিং পুশ ডিভাইসে পাঠানো হয়েছে",
+    "ch_f_acked": "যাকে কল, তার ফোন বেজেছে", "ch_f_answered": "ধরেছেন",
+    "ch_f_connected": "মিডিয়া যুক্ত হয়েছে (ICE)",
+    "ch_fail_step": "ধাপ অনুযায়ী ব্যর্থতা",
+    "ch_step_rtc": "কল কনফিগ (rtc/turn) — ব্যস্ত বা পৌঁছানো যায়নি",
+    "ch_step_place": "কল করা (POST) — সার্ভার সমস্যা / দুর্বল নেটওয়ার্ক",
+    "ch_step_push": "যাকে কল, তার ফোন বাজেনি (অফলাইন)",
+    "ch_step_accept": "কল ধরা ব্যর্থ হয়েছে",
+    "ch_step_ice": "ধরেছেন, কিন্তু মিডিয়া যুক্ত হয়নি",
+    "ch_step_dropped": "যুক্ত হওয়ার পর কেটে গেছে",
+    "ch_alert_title": "কলে মনোযোগ দরকার:",
+    "ch_alert_throttled": "গত ২৪ ঘণ্টায় কল সার্ভার যতবার “ব্যস্ত” উত্তর দিয়েছে:",
+    "ch_alert_low": "গত ২৪ ঘণ্টায় কলের সাফল্য মাত্র",
+    "ch_alert_open": "কল হেলথ খুলুন",
+})
+# ---- /calls-health ----

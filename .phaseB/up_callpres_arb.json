@@ -1,0 +1,21 @@
+{
+  "_comment": "calls-presence (owner 24 Oct): honest call-setup errors shown only after 3 silent retries (weak network vs server problem), and WhatsApp-style presence privacy (Everyone / My contacts / Family only / Nobody, reciprocal). All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_callpres_arb.json",
+  "en": {
+    "cpCallWeakNetwork": "Weak network — the call couldn't connect. Please try again.",
+    "cpCallServerProblem": "Server problem — the call couldn't be set up. Please try again in a moment.",
+    "cpPrivEveryone": "Everyone",
+    "cpPrivMyContacts": "My contacts",
+    "cpPrivFamilyOnly": "Family only",
+    "cpPrivLastSeenReciprocal": "If you don't share your last seen, you can't see other people's last seen either.",
+    "cpPrivOnlineReciprocal": "If you don't share when you're online, you can't see when others are online either."
+  },
+  "bn": {
+    "cpCallWeakNetwork": "নেটওয়ার্ক দুর্বল — কলটি যুক্ত করা যায়নি। আবার চেষ্টা করুন।",
+    "cpCallServerProblem": "সার্ভারে সমস্যা — কলটি চালু করা যায়নি। একটু পরে আবার চেষ্টা করুন।",
+    "cpPrivEveryone": "সবাই",
+    "cpPrivMyContacts": "আমার কন্টাক্ট",
+    "cpPrivFamilyOnly": "শুধু পরিবার",
+    "cpPrivLastSeenReciprocal": "আপনি শেষ দেখার সময় না দেখালে, অন্যদের শেষ দেখার সময়ও আপনি দেখতে পাবেন না।",
+    "cpPrivOnlineReciprocal": "আপনি অনলাইন থাকা না দেখালে, অন্যরা কখন অনলাইনে আছেন তা-ও আপনি দেখতে পাবেন না।"
+  }
+}

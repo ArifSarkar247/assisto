@@ -32,6 +32,7 @@ CallController mk(FakeCallMedia m, FakeSignaling s, FakeSounds snd,
       reconnectGiveUp: const Duration(milliseconds: 400),
       statusEvery: const Duration(seconds: 30),
       statsEvery: const Duration(seconds: 30),
+      setupRetryDelays: const [Duration.zero, Duration.zero],
     );
 
 void main() {

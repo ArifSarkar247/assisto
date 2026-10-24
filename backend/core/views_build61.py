@@ -623,6 +623,9 @@ class RtcTurnView(APIView):
             load1 = 0.0
         thr = RTC.throttle_decision(load1, os.cpu_count() or 1, _mem_available_mb())
         if thr["throttled"]:
+            from . import call_health
+            call_health.log_event("rtc_config", "throttled_" + thr["reason"],
+                                  user=request.user)
             return Response({"configured": True, "throttled": True,
                              "ice_servers": [], "reason": thr["reason"]})
         creds = RTC.turn_credentials(secret, request.user.id,
@@ -632,6 +635,39 @@ class RtcTurnView(APIView):
                              host, port, creds,
                              tls_port=getattr(settings, "TURN_TLS_PORT", 0)),
                          "ttl": creds["ttl"]})
+
+
+class RtcHealthView(APIView):
+    """POST /rtc/health {step, code, call_id?} — calls-health: the phone gave
+    up on a call-setup step after its silent retries (rtc config / placing /
+    accepting). Logged for Owner Admin -> Calls health; capped per user/hour.
+    Always 200 for a well-formed report (the phone never retries this)."""
+    def post(self, request):
+        from . import call_health as H
+        d = request.data or {}
+        step = str(d.get("step") or "")
+        code = str(d.get("code") or "unknown")
+        if step not in H.CLIENT_STEPS:
+            return Response({"detail": "bad step", "code": "bad_step"},
+                            status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        if code not in H.CLIENT_CODES:
+            code = "unknown"
+        try:
+            call_id = int(d.get("call_id") or 0) or None
+        except (TypeError, ValueError):
+            call_id = None
+        if call_id is not None:
+            from .models import CallRecord
+            from django.db.models import Q
+            if not CallRecord.objects.filter(
+                    Q(caller=request.user) | Q(callee=request.user),
+                    pk=call_id).exists():
+                call_id = None
+        logged = False
+        if H.client_report_allowed(request.user):
+            logged = H.log_event(step, code, user=request.user,
+                                 call_id=call_id, source="client") is not None
+        return Response({"ok": True, "logged": logged})
 
 
 class ReferralHistoryView(APIView):

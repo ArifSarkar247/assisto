@@ -132,7 +132,11 @@ def deliver_decision(sender, recipient):
 VIS_EVERYONE = "everyone"     # everyone in my circle
 VIS_FAMILY = "family"         # close-family relations only
 VIS_NOBODY = "nobody"
-VIS_POLICIES = (VIS_EVERYONE, VIS_FAMILY, VIS_NOBODY)
+# calls-presence (WhatsApp "My contacts"): only people the OWNER has saved
+# back (an accepted, unblocked edge owner -> viewer). The viewer dict carries
+# `contact` (bool); a caller that does not pass it gets False (hidden).
+VIS_CONTACTS = "contacts"
+VIS_POLICIES = (VIS_EVERYONE, VIS_FAMILY, VIS_NOBODY, VIS_CONTACTS)
 
 VIS_FIELDS = ("last_seen", "active_status", "profile_photo", "about", "status")
 
@@ -194,6 +198,8 @@ def can_see_field(owner, viewer, field):
         return True
     if pol == VIS_FAMILY:
         return is_family_relation(viewer.get("relation"))
+    if pol == VIS_CONTACTS:
+        return bool(viewer.get("contact"))
     return False
 
 
@@ -475,6 +481,7 @@ def visibility_label(policy, lang="bn"):
         VIS_EVERYONE: ("সার্কেলের সবাই", "My circle"),
         VIS_FAMILY: ("শুধু পরিবার", "Family only"),
         VIS_NOBODY: ("কেউ নয়", "Nobody"),
+        VIS_CONTACTS: ("আমার কন্টাক্ট", "My contacts"),
     }
     bn, en = labels.get(policy, labels[VIS_EVERYONE])
     return pick(lang, bn, en)

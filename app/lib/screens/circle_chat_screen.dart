@@ -1724,7 +1724,12 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     if (kind == null || !mounted) return;
     final id = _memberId;
     if (id == null) return;
-    final draft = await pickMediaDraft(context, _api, kind);
+    // calls-presence: "recording audio…" for the other person while the
+    // voice-note recorder really records
+    final draft = await pickMediaDraft(context, _api, kind,
+        onRecording: (on) => on
+            ? _rt.recordingStarted('member', id)
+            : _rt.recordingStopped('member', id));
     if (draft == null || !mounted) return;
     final job = await confirmAndQueueMedia(context, draft,
         chatKind: 'member', chatId: id, replyTo: _replyTo?.id);

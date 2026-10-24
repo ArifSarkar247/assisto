@@ -102,4 +102,27 @@ def calls(request):
         "overflow_active": ov["active"], "overflow_mode": ov.get("mode", ""),
         "cost": cost,
     })
+    # calls-health: last-24h call setup health (attempts, success %, throttles,
+    # failures by step) + the same alert as the panel-wide banner.
+    try:
+        from core import call_health as H
+        ch = H.summary(24)
+        ctx["ch"] = ch
+        ctx["ch_alert"] = H.alert(ch)
+        ctx["ch_steps"] = [
+            ("rtc_config", T["ch_step_rtc"], ch["failures"]["rtc_config"]),
+            ("place", T["ch_step_place"], ch["failures"]["place"]),
+            ("push", T["ch_step_push"], ch["failures"]["push"]),
+            ("accept", T["ch_step_accept"], ch["failures"]["accept"]),
+            ("ice", T["ch_step_ice"], ch["failures"]["ice"]),
+            ("dropped", T["ch_step_dropped"], ch["failures"]["dropped"]),
+        ]
+        f = ch["funnel"]
+        ctx["ch_funnel"] = [
+            (T["ch_f_placed"], f["placed"]), (T["ch_f_push"], f["push"]),
+            (T["ch_f_acked"], f["acked"]), (T["ch_f_answered"], f["answered"]),
+            (T["ch_f_connected"], f["connected"]),
+        ]
+    except Exception:
+        ctx["ch"] = None
     return page(request, "owner/calls.html", ctx, status=status, nav="calls")

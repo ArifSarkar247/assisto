@@ -74,6 +74,13 @@ def page(request, template, ctx=None, status=200, nav=""):
     c = {"T": strings(lang), "lang": lang, "other_lang": "en" if lang == "bn" else "bn",
          "ot": sess.csrf if sess else "", "owner": getattr(request, "owner", None),
          "nav": nav, "path": request.path, "msg": request.GET.get("m", "")}
+    if sess is not None:
+        # calls-health: a panel-wide banner while call setup is unhealthy
+        try:
+            from core import call_health
+            c["call_alert"] = call_health.cached_alert()
+        except Exception:
+            c["call_alert"] = None
     c.update(ctx or {})
     return render(request, template, c, status=status)
 

@@ -405,6 +405,7 @@ urlpatterns = [
     path("referral/history", b61.ReferralHistoryView.as_view()),
     # Self-hosted WebRTC TURN/STUN credentials (Step 6 M3)
     path("rtc/turn", b61.RtcTurnView.as_view()),
+    path("rtc/health", b61.RtcHealthView.as_view()),   # calls-health
     # Client startup crash/ANR report (device → owner-readable log)
     path("client/crash-report", b61.ClientCrashReportView.as_view()),
     # Telegram bot sandbox (Step 6) — inert until a token is set

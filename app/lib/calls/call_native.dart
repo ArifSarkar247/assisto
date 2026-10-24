@@ -24,6 +24,10 @@ class CallNative {
     try {
       _ch.setMethodCallHandler((call) async {
         if (call.method == 'pipChanged') inPip.value = call.arguments == true;
+        if (call.method == 'networkChanged') {
+          final c = _net;
+          if (c != null && !c.isClosed) c.add('${call.arguments ?? 'other'}');
+        }
         return null;
       });
     } catch (e) {
@@ -103,6 +107,26 @@ class CallNative {
   }
 
   static bool _autoPip = false;
+
+  static StreamController<String>? _net;
+
+  /// calls-presence: the phone's DEFAULT network changed during a call
+  /// ('wifi' | 'cellular' | 'other') or was lost ('lost'). The native
+  /// ConnectivityManager callback exists only while someone listens (one
+  /// call screen); without the native side the stream is simply silent.
+  /// ACCESS_NETWORK_STATE is already in the manifest (no new permission).
+  static Stream<String> networkChanges() {
+    final c = _net ??= StreamController<String>.broadcast(
+      onListen: () {
+        _ensureHandler();
+        unawaited(_invoke<bool>('watchNetwork', {'on': true}));
+      },
+      onCancel: () {
+        unawaited(_invoke<bool>('watchNetwork', {'on': false}));
+      },
+    );
+    return c.stream;
+  }
 
   /// b1-calls: Home / the recents gesture shrinks a LIVE video call into
   /// picture-in-picture (API 31+ auto-enter; 26-30 user-leave hint). Only

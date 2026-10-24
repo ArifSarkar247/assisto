@@ -136,6 +136,13 @@ def is_reachable(user, now=None):
     return bool(p and CS.is_presence_fresh(p.seen_at, now))
 
 
+def _has_push_device(user):
+    try:
+        return Device.objects.filter(user=user).exclude(push_token="").exists()
+    except Exception:
+        return False
+
+
 def is_busy(user, exclude_id=None, now=None, exclude_peer=None):
     """Is `user` REALLY in another call (x1-calls A1-f)? Only a call whose
     media connected and whose two phones both polled within HEARTBEAT_S
@@ -332,7 +339,8 @@ def sweep(rec, now=None):
     reason = CS.sweep_decision(
         rec.state, now, rec.started_at, ringing_at=sess.ringing_at,
         answered_at=rec.answered_at, caller_seen=sess.caller_seen_at,
-        callee_seen=sess.callee_seen_at, connected_at=sess.connected_at)
+        callee_seen=sess.callee_seen_at, connected_at=sess.connected_at,
+        push_sent=bool(getattr(sess, "push_sent", False)))
     if reason:
         end_call(rec, reason, "server", now, sess)
     return rec
@@ -374,7 +382,8 @@ def stale_cleanup(now=None, apply=False):
         reason = CS.sweep_decision(
             r.state, now, r.started_at, ringing_at=sess.ringing_at,
             answered_at=r.answered_at, caller_seen=sess.caller_seen_at,
-            callee_seen=sess.callee_seen_at, connected_at=sess.connected_at)
+            callee_seen=sess.callee_seen_at, connected_at=sess.connected_at,
+            push_sent=bool(getattr(sess, "push_sent", False)))
         if reason is None and (now - r.started_at).total_seconds() > CS.BUSY_WINDOW_S:
             reason = "lost" if sess.connected_at else (
                 "no_answer" if r.state == "ringing" else "failed")
@@ -748,7 +757,11 @@ def place_call(request, member, peer, kind, client_call_id=""):
                 # it is not "offline" either — it rings out as no answer.
                 sess.ringing_at = now
                 sess.save(update_fields=["ringing_at"])
-            PUSH.hook_call_placed(me, member, rec)
+            if PUSH.hook_call_placed(me, member, rec) and _has_push_device(callee):
+                # calls-health: an FCM ring went to a real device -> wait the
+                # full ring window for its ack (call_signal.OFFLINE_ACK_PUSHED_S)
+                sess.push_sent = True
+                sess.save(update_fields=["push_sent"])
     turn_ready = bool(getattr(settings, "TURN_STATIC_SECRET", "")) or \
         bool(getattr(settings, "CIRCLE_TURN_READY", False))
     push_ready = bool(getattr(settings, "CIRCLE_PUSH_READY", False)) \

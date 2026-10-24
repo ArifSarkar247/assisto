@@ -207,6 +207,16 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       outgoing: _outgoing,
       memberId: widget.member['id'] as int?,
       callId: _outgoing ? null : widget.callId,
+      // calls-presence: Wi-Fi <-> mobile data -> "Reconnecting…" + ICE
+      // restart at once; a setup step that failed after the silent retries
+      // is reported for Owner Admin -> Call health (best effort, never awaited)
+      networkEvents: CallNative.networkChanges(),
+      onSetupFailure: (step, code, id) => unawaited(app.api.postJson(
+          '/rtc/health', {
+        'step': step,
+        'code': code,
+        if (id != null) 'call_id': id,
+      }).then((_) {}, onError: (Object _) {})),
     );
     _attach(c, media is CallVideoSurface ? media as CallVideoSurface : null);
     if (_startsVideo) unawaited(CallNative.keepScreenOn(true));
@@ -1170,13 +1180,15 @@ String endReasonLabel(AppLocalizations t, CallEndReason r,
     case CallEndReason.mediaError:
       return t.c2CallMediaError;
     case CallEndReason.serverBusy:
-      return t.circleCallServerBusy;
+      // calls-presence: only after 3 silent tries — honest "server problem"
+      return t.cpCallServerProblem;
     case CallEndReason.unavailable:
       return t.c2CallUnavailable;
     case CallEndReason.network:
-      return t.c2CallNetwork;
+      // calls-presence: no answer from our server after 3 silent tries
+      return t.cpCallWeakNetwork;
     case CallEndReason.serverError:
-      return t.m3ErrServer; // "Assisto's server didn't answer properly…
+      return t.cpCallServerProblem; // 5xx after the silent retries
     case CallEndReason.upgrade:
       return t.circleCallVideoPremiumTitle;
     case CallEndReason.hangup:

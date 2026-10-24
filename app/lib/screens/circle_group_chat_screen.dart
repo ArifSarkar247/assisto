@@ -312,7 +312,11 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   Future<void> _attach() async {
     final kind = await showCircleAttachSheet(context);
     if (kind == null || !mounted) return;
-    final draft = await pickMediaDraft(context, _api, kind);
+    // calls-presence: "<name> is recording audio…" for the group
+    final draft = await pickMediaDraft(context, _api, kind,
+        onRecording: (on) => on
+            ? _rt.recordingStarted('group', _gid)
+            : _rt.recordingStopped('group', _gid));
     if (draft == null || !mounted) return;
     final job = await confirmAndQueueMedia(context, draft,
         chatKind: 'group',

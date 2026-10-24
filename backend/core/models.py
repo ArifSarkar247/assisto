@@ -4948,3 +4948,30 @@ class FoundingSeat(models.Model):
     class Meta:
         ordering = ["number"]
 # ---- /p5-growth ----
+
+
+# ---- calls-health ---- (owner 24 Oct: "Call server busy", "rang then dropped")
+# CallSession.push_sent: an FCM ring was handed to at least one registered
+# device of the callee -> the ring-ack window is the full ring time (see
+# call_signal.OFFLINE_ACK_PUSHED_S), never the 20 s "offline" cut.
+CallSession.add_to_class("push_sent", models.BooleanField(default=False))
+
+
+class CallHealthEvent(models.Model):
+    """One call-SETUP failure (lightweight; Owner Admin -> Calls health card).
+    Successful steps are read from CallRecord/CallSession; only what those
+    rows cannot show is logged here: a throttled GET rtc/turn (server) and a
+    setup step the PHONE gave up on after its silent retries (client report,
+    POST rtc/health). Pruned after 30 days by call_health.log_event."""
+    STEPS = ("rtc_config", "place", "accept", "push", "ring_ack", "ice")
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                             blank=True, related_name="+")
+    step = models.CharField(max_length=16)
+    code = models.CharField(max_length=24, blank=True, default="")
+    source = models.CharField(max_length=8, default="server")  # server|client
+    call_id = models.IntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-id"]
+# ---- /calls-health ----

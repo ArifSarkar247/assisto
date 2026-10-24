@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import '../api.dart' show ApiException;
 import '../services/error_kind.dart';
 import 'call_log.dart';
 
@@ -292,9 +293,38 @@ class CallController extends ChangeNotifier {
     this.upgradeTimeout = const Duration(seconds: 30),
     this.renegTimeout = const Duration(seconds: 15),
     this.restartEvery = const Duration(seconds: 6),
+    this.setupRetryDelays = defaultSetupRetryDelays,
+    this.networkEvents,
+    this.onSetupFailure,
     String? clientCallId,
   })  : clientCallId = clientCallId ?? newClientCallId(),
         videoOn = video;
+
+  /// calls-presence (owner 24 Oct "Call server busy — try again"): every
+  /// call-setup step (rtc config, placing, accepting) is retried SILENTLY on
+  /// a throttled answer, a 5xx or a network error / timeout — 3 tries within
+  /// ~6 s — before the user sees an honest "Weak network" / "Server problem".
+  static const defaultSetupRetryDelays = [
+    Duration(milliseconds: 1500),
+    Duration(milliseconds: 3000),
+  ];
+
+  /// Waits between setup tries (tries = length + 1). Tests pass zeros.
+  final List<Duration> setupRetryDelays;
+
+  /// calls-presence: the phone's default network changed ('wifi', 'cellular',
+  /// 'other') or was lost ('lost') — Wi-Fi <-> mobile data. A live call goes
+  /// to "Reconnecting…" and restarts ICE at once instead of waiting for ICE
+  /// to notice; it is never dropped for the switch itself.
+  final Stream<String>? networkEvents;
+
+  /// calls-presence: a setup step failed for good after its silent retries
+  /// (step: rtc_config | place | accept; code: throttled | server | network)
+  /// — the app reports it for Owner Admin -> Call health (best effort).
+  final void Function(String step, String code, int? callId)? onSetupFailure;
+
+  /// Silent setup retries used by this call (debug + tests).
+  int setupRetries = 0;
 
   final CallMedia media;
   final CallSignaling signaling;
@@ -452,9 +482,24 @@ class CallController extends ChangeNotifier {
     }
     _started = true;
     signaling.setFast(true);
+    _watchNetwork();
     try {
-      final cfg = await signaling.rtcConfig();
+      var cfg = await signaling.rtcConfig();
+      for (var i = 0;
+          cfg != null &&
+              cfg['throttled'] == true &&
+              i < setupRetryDelays.length &&
+              !isEnded;
+          i++) {
+        setupRetries++;
+        log.add('retry:rtc_config:${i + 1}');
+        await Future<void>.delayed(setupRetryDelays[i]);
+        if (isEnded) return;
+        cfg = await signaling.rtcConfig();
+      }
+      if (isEnded) return;
       if (cfg != null && cfg['throttled'] == true) {
+        _reportSetup('rtc_config', 'throttled');
         await _finish(CallEndReason.serverBusy);
         return;
       }
@@ -509,8 +554,13 @@ class CallController extends ChangeNotifier {
   }
 
   Future<void> _startOutgoing(List<Map<String, dynamic>> turnIce) async {
-    final r = await signaling.place(memberId!, video ? 'video' : 'voice',
-        clientCallId: clientCallId);
+    // the SAME client_call_id on every try: the server returns the same call
+    // for a repeated POST (x1 idempotency), so a retry never rings twice.
+    final r = await _retrying(
+        'place',
+        () => signaling.place(memberId!, video ? 'video' : 'voice',
+            clientCallId: clientCallId));
+    if (isEnded) return;
     if (r['allowed'] == false) {
       if (r['upgrade_required'] == true) {
         upgradePrompt = (r['prompt'] as Map?)?.cast<String, dynamic>() ?? {};
@@ -588,7 +638,10 @@ class CallController extends ChangeNotifier {
     final id = callId;
     if (id == null) return _finish(CallEndReason.network);
     _listen();
-    final r = accepted ?? await signaling.accept(id);
+    final Map<String, dynamic> r = accepted ??
+        await _retrying<Map<String, dynamic>>(
+            'accept', () => signaling.accept(id));
+    if (isEnded) return;
     final p = phaseFromServer('${r['phase'] ?? ''}');
     if (p == CallPhase.ended ||
         p == CallPhase.calling ||
@@ -611,6 +664,83 @@ class CallController extends ChangeNotifier {
       _early.add(s);
     }
     await _peerUp();
+  }
+
+  /// A transient setup failure worth a silent retry: our server answered 5xx
+  /// / 429, or never answered (socket, DNS, TLS, timeout). A 4xx refusal is
+  /// final (validation, gate, not found) and is never retried.
+  static bool isTransientSetupError(Object e) {
+    if (e is MediaOpenException || e is CallUpgradeRequired) return false;
+    if (failKindOf(e) == FailKind.refused) {
+      return e is ApiException && e.status == 429;
+    }
+    return true;
+  }
+
+  Future<T> _retrying<T>(String step, Future<T> Function() fn) async {
+    for (var i = 0;; i++) {
+      try {
+        return await fn();
+      } catch (e) {
+        if (isEnded || !isTransientSetupError(e)) rethrow;
+        if (i >= setupRetryDelays.length) {
+          _reportSetup(step, isServerFailure(e) ? 'server' : 'network');
+          rethrow;
+        }
+        setupRetries++;
+        log.add('retry:$step:${i + 1}');
+        await Future<void>.delayed(setupRetryDelays[i]);
+        if (isEnded) rethrow;
+      }
+    }
+  }
+
+  bool _setupReported = false;
+  void _reportSetup(String step, String code) {
+    if (_setupReported) return;
+    _setupReported = true;
+    log.add('setup-failed:$step:$code');
+    try {
+      onSetupFailure?.call(step, code, callId);
+    } catch (e) {
+      callLog('call_controller#21', e);
+    }
+  }
+
+  // ------------------------------------------------- network switch (Wi-Fi)
+  StreamSubscription<String>? _netSub;
+
+  void _watchNetwork() {
+    final s = networkEvents;
+    if (s == null || _netSub != null) return;
+    _netSub = s.listen(onNetworkChanged, onError: (Object e) {
+      callLog('call_controller#22', e);
+    });
+  }
+
+  /// The phone switched networks (or lost its network). Live call ->
+  /// "Reconnecting…" now + ICE restart (repeated every [restartEvery] until
+  /// media is back; given up only after [reconnectGiveUp]). Before connect,
+  /// the caller restarts ICE once on a NEW network (fresh candidates).
+  void onNetworkChanged(String kind) {
+    if (isEnded || _disposed) return;
+    log.add('net:$kind');
+    if (phase == CallPhase.connected) {
+      _reconnectTimer?.cancel();
+      _beginReconnect();
+      return;
+    }
+    if (phase == CallPhase.reconnecting) {
+      if (kind != 'lost') _kickRestart();
+      return;
+    }
+    if (kind != 'lost' &&
+        outgoing &&
+        phase == CallPhase.accepted &&
+        _peerReady &&
+        connectedAt == null) {
+      unawaited(restartIce());
+    }
   }
 
   void _listen() {
@@ -1360,6 +1490,8 @@ class CallController extends ChangeNotifier {
     _giveUpTimer?.cancel();
     _evSub?.cancel();
     _evSub = null;
+    _netSub?.cancel();
+    _netSub = null;
   }
 
   @override
