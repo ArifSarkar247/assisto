@@ -10,7 +10,7 @@
     {% for key, title, sub in festivals %}<option value="{{ key }}">{{ title }} — {{ sub }}</option>{% endfor %}
   </select>
   <label>{{ T.fest_name }}</label>
-  <input type="text" name="name" maxlength="40" placeholder="{% if lang == 'en' %}e.g. Arif{% else %}যেমন: আরিফ{% endif %}">
+  <input type="text" name="name" maxlength="40" placeholder="{% if lang == 'en' %}e.g. Rahim{% else %}যেমন: রহিম{% endif %}">
   <label>{{ T.fest_msg }}</label>
   <input type="text" name="message" maxlength="120" placeholder="{% if lang == 'en' %}e.g. Warm wishes to all{% else %}যেমন: সবাইকে শুভেচ্ছা{% endif %}">
   <div style="height:12px"></div>

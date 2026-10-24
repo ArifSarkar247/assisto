@@ -15,7 +15,7 @@ Public URLs the Play Console asks for (live once this branch is deployed):
 | Account / data deletion (Data safety → "Delete account URL") | https://lifeassisto.com/delete-account |
 | Website (store listing "Website") — must be the domain that serves app-ads.txt | https://lifeassisto.com |
 | app-ads.txt | https://lifeassisto.com/app-ads.txt |
-| Contact email (store listing, required) | **axonadmin001@gmail.com** (owner-approved 22 Oct; same as the privacy/grievance contact on lifeassisto.com) |
+| Contact email (store listing, required) | **assistoaiagent@gmail.com** (owner-approved 22 Oct; same as the privacy/grievance contact on lifeassisto.com) |
 
 ---
 

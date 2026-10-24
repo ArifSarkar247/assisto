@@ -37,11 +37,11 @@ _MISSING = ("(শিগগিরই যোগ করা হবে)", "(to be add
 # Owner-approved public facts (22 Oct 2026). A server setting / env var with the
 # same name still overrides them. The address is pending from the owner.
 _OWNER_DEFAULTS = {
-    "LEGAL_ENTITY_NAME": "AXON ERP Software",
-    "LEGAL_ADDRESS": "[ADDRESS]",
-    "LEGAL_CONTACT_EMAIL": "axonadmin001@gmail.com",
-    "LEGAL_GRIEVANCE_OFFICER": "Arif (owner) — axonadmin001@gmail.com",
-    "LEGAL_GOVERNING_LAW": "the laws of Bangladesh",
+    "LEGAL_ENTITY_NAME": "AXON Dynamic",
+    "LEGAL_ADDRESS": "Cha-63, Uttar Badda, Dhaka 1212, Bangladesh",
+    "LEGAL_CONTACT_EMAIL": "assistoaiagent@gmail.com",
+    "LEGAL_GRIEVANCE_OFFICER": "AXON Dynamic, assistoaiagent@gmail.com",
+    "LEGAL_GOVERNING_LAW": "Bangladesh",
     "LEGAL_HOSTING": "Amazon Web Services (AWS), ap-south-1 region (Mumbai, India)",
 }
 
@@ -588,6 +588,11 @@ DELETION = [
         "চুরি-সুরক্ষার সতর্কতা সক্রিয় থাকলে চোর যাতে আপনার ডেটা মুছতে না পারে, সেজন্য অনুরোধ আটকে থাকে।",
         "7 days after the request, an hourly clean-up permanently deletes the account. Before then you can cancel in the app — tap \"Cancel deletion\" in the notice or in Settings, or simply sign in again. "
         "While an anti-theft alert is active the request is blocked, so a thief can't wipe your data.")),
+    S("contact", "কে আপনার অনুরোধ দেখে", "Who handles your request",
+      UL(("প্রতিষ্ঠান: {entity}", "Company: {entity}"),
+         ("ঠিকানা: {address}", "Address: {address}"),
+         ("ইমেইল: {email}", "Email: {email}"),
+         ("গোপনীয়তা অনুরোধের দায়িত্বে: {officer}", "Responsible for privacy requests: {officer}"))),
     S("data_only", "শুধু কিছু তথ্য মুছতে চান?", "Want to delete only some data?",
       P("অ্যাকাউন্ট না মুছেও অ্যাপের ভেতরে যেকোনো রিমাইন্ডার, নোট, হিসাব, ভল্টের ফাইল, বার্তা বা ছবি আলাদাভাবে মুছতে পারেন; চ্যাটে ডিসঅ্যাপিয়ারিং মেসেজও চালু করতে পারেন। অ্যাপ ছাড়া এমন অনুরোধ করতে নিচের ফর্মের \"কারণ\" ঘরে লিখুন।",
         "Without deleting the account you can delete any reminder, note, record, vault file, message or photo inside the app, and you can turn on disappearing messages in a chat. To ask for this without the app, write it in the \"Reason\" box of the form below.")),
