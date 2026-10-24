@@ -1,0 +1,32 @@
+{% extends "web/base.html" %}
+{% block title %}{% if lang == 'en' %}Invitation to Assisto{% else %}Assisto-তে আমন্ত্রণ{% endif %}{% endblock %}
+{% block og %}
+<meta property="og:title" content="{% if lang == 'en' %}A friend invited you to Assisto{% else %}একজন বন্ধু আপনাকে Assisto-তে আমন্ত্রণ জানিয়েছেন{% endif %}">
+<meta property="og:description" content="{% if lang == 'en' %}AI assistant, reminders, money notes and family safety in one app.{% else %}AI সহকারী, রিমাইন্ডার, হিসাব ও পরিবারের নিরাপত্তা — এক অ্যাপে।{% endif %}">
+<meta property="og:type" content="website">
+{% endblock %}
+{% block head %}<meta name="robots" content="noindex">
+<style>.code{font-size:30px;font-weight:800;letter-spacing:4px;text-align:center;background:#eef6ff;border-radius:12px;padding:12px;margin:10px 0;color:#0A1A3D}
+ol li{margin:6px 0}</style>{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>{% if lang == 'en' %}A friend invited you to Assisto{% else %}একজন বন্ধু আপনাকে Assisto-তে আমন্ত্রণ জানিয়েছেন{% endif %}</h1>
+  {% if valid %}
+  <p>{% if lang == 'en' %}Their invite code:{% else %}আমন্ত্রণ কোড:{% endif %}</p>
+  <div class="code" id="code">{{ code }}</div>
+  <ol>
+    <li>{% if lang == 'en' %}Install Assisto:{% else %}Assisto ইনস্টল করুন:{% endif %}
+      <p><a class="btn" href="{{ play_url }}" rel="nofollow noopener">{% if lang == 'en' %}Get it on Google Play{% else %}Google Play থেকে নিন{% endif %}</a></p>
+      <p class="muted"><a href="/get{{ qlang }}">{% if lang == 'en' %}Or download the app here{% else %}অথবা এখান থেকে অ্যাপ নিন{% endif %}</a></p></li>
+    <li>{% if lang == 'en' %}Create your account, then open Menu → Invite friends → “Enter a friend's code” and type the code above (within {{ claim_days }} days of signing up).{% else %}অ্যাকাউন্ট খুলুন, তারপর মেনু → বন্ধুদের আমন্ত্রণ → “বন্ধুর কোড দিন”-এ ওপরের কোডটি লিখুন (সাইন-আপের {{ claim_days_bn }} দিনের মধ্যে)।{% endif %}</li>
+  </ol>
+  {% if inviter_credits or invitee_credits %}
+  <p class="muted">{% if lang == 'en' %}When you have used Assisto on {{ need }} different days, you get {{ invitee_credits }} AI credits and your friend gets {{ inviter_credits }}. Credits are for AI features inside the app — they are not money and cannot be withdrawn.{% else %}আপনি {{ need_bn }}টি আলাদা দিনে Assisto ব্যবহার করলে আপনি পাবেন {{ invitee_credits_bn }} AI ক্রেডিট, আর আপনার বন্ধু পাবেন {{ inviter_credits_bn }}। ক্রেডিট শুধু অ্যাপের AI সুবিধার জন্য — এটি টাকা নয়, তোলা যায় না।{% endif %}</p>
+  {% endif %}
+  {% else %}
+  <div class="err">{% if lang == 'en' %}This invite code isn't valid. You can still install Assisto.{% else %}এই আমন্ত্রণ কোডটি সঠিক নয়। তবুও আপনি Assisto ইনস্টল করতে পারেন।{% endif %}</div>
+  <p><a class="btn" href="{{ play_url }}" rel="nofollow noopener">{% if lang == 'en' %}Get it on Google Play{% else %}Google Play থেকে নিন{% endif %}</a></p>
+  {% endif %}
+  <p class="muted" style="text-align:center"><a href="?lang={% if lang == 'en' %}bn{% else %}en{% endif %}">{% if lang == 'en' %}বাংলা{% else %}English{% endif %}</a></p>
+</div>
+{% endblock %}

@@ -21,4 +21,16 @@
 <p class="mut small">{{ T.fm_revoke_note }}</p>
 {% else %}<p class="empty">{{ T.fm_none }}</p>{% endif %}
 </section>
+<section class="card" id="seats"><h2>{{ T.fs_title }}</h2>
+  <p class="mut small">{{ T.fs_note }}</p>
+  <div class="tiles">
+    <div class="tile"><span>{{ T.fs_taken }}</span><b>{{ seats.taken }} / {{ seats.total }}</b>{% if not seats.total %}<small>{{ T.fs_off }}</small>{% endif %}</div>
+    <div class="tile"><span>{{ T.fs_perk }}</span><b>{{ seats.credits }}</b><small>{{ T.fs_credits_each }}</small></div>
+    <div class="tile"><span>{{ T.fs_given }}</span><b>{{ seats.credits_given }}</b><small>{{ T.fs_cost }} ৳{{ seats.cost|floatformat:2 }}</small></div>
+  </div>
+  <p class="small"><a href="/owner/pricing#referral">{{ T.fs_edit }}</a></p>
+  {% if seats.latest %}<div class="tbl"><table><thead><tr><th>#</th><th>ID</th><th>{{ T.name }}</th><th>{{ T.fs_when }}</th><th>{{ T.fs_perk }}</th></tr></thead><tbody>
+  {% for s in seats.latest %}<tr><td class="num">{{ s.number }}</td><td>{% if s.user %}<a href="/owner/users/{{ s.user.id }}">#{{ s.user.id }}</a>{% else %}—{% endif %}</td><td>{{ s.user.name|default:"—" }}</td><td>{{ s.granted_at|date:"Y-m-d" }}</td><td class="num">{{ s.credits }}</td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<p class="empty">{{ T.fs_none }}</p>{% endif %}
+</section>
 {% endblock %}

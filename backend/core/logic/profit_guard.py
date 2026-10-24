@@ -20,7 +20,8 @@ guard — that decision lives in billing.SAFETY_EXEMPT, asserted by a test.
 """
 
 REVENUE_SOURCES = ("ads", "subs", "packs", "commissions", "sponsored")
-COST_TYPES = ("ai", "sms", "ivr", "video", "storage")
+COST_TYPES = ("ai", "sms", "ivr", "video", "storage",
+              "growth")   # p5: referral + founding-seat reward credits (estimated provider cost)
 
 # config defaults (mirrored into PricingConfig via pricing defaults if desired)
 DEFAULT_SPEND_CAP_PCT = 0.60     # variable cost must stay <= 60% of NET revenue

@@ -1,0 +1,60 @@
+{% extends "owner/base.html" %}
+{% load p5fmt %}
+{% block heading %}{{ T.nav_funnel }}{% endblock %}
+{% block content %}
+<section class="card">
+  <form method="get" class="inline">{% if lang == 'en' %}<input type="hidden" name="lang" value="en">{% endif %}
+    <label>{{ T.fn_period }} <select name="days">{% for c in day_choices %}<option value="{{ c }}" {% if c == days %}selected{% endif %}>{{ c|bnd:lang }} {{ T.fn_days }}</option>{% endfor %}</select></label>
+    <button class="btn">{{ T.fn_show }}</button>
+  </form>
+  <p class="mut small">{% if d.tracking_started %}{{ T.fn_tracking_since }} {{ d.tracking_started|date:"Y-m-d" }}.{% else %}{{ T.fn_tracking_none }}{% endif %} {{ T.fn_tracking_note }}</p>
+</section>
+
+<section class="card"><h2>{{ T.fn_steps }}</h2>
+<div class="tiles">
+  <div class="tile"><span>{{ T.fn_installs }}</span><b>{{ h.installs|bnd:lang }}</b><small>{{ T.fn_installs_def }}</small></div>
+  <div class="tile"><span>{{ T.fn_signups }}</span><b>{{ h.signups|bnd:lang }}</b><small>{{ T.fn_signups_def }}{% if h.signup_per_install is not None %} · {{ h.signup_per_install|bnd:lang }}% {{ T.fn_of_installs }}{% endif %}</small></div>
+  <div class="tile"><span>{{ T.fn_activated }}</span><b>{{ h.activated|bnd:lang }}</b><small>{{ h.activated_pct|bnd:lang }}% {{ T.fn_of_signups }} · {{ T.fn_activated_def_a }} {{ h.need|bnd:lang }} {{ T.fn_activated_def_b }}</small></div>
+  <div class="tile"><span>{{ T.fn_activated_closed }}</span><b>{{ h.closed_activated_pct|bnd:lang }}%</b><small>{{ h.closed_activated|bnd:lang }} / {{ h.closed_signups|bnd:lang }} — {{ T.fn_activated_closed_def }}</small></div>
+  <div class="tile"><span>{{ T.fn_active }}</span><b>{{ h.active_users|bnd:lang }}</b><small>{{ T.fn_active_def }}</small></div>
+  <div class="tile"><span>{{ T.fn_paying }}</span><b>{{ h.paying_users|bnd:lang }}</b><small>{{ h.paying_pct|bnd:lang }}% {{ T.fn_of_active }} · {{ T.fn_paying_def }}</small></div>
+</div>
+</section>
+
+<section class="card"><h2>{{ T.fn_money }}</h2>
+<div class="tiles">
+  <div class="tile"><span>{{ T.fn_net }}</span><b>৳{{ h.net|bnd:lang }}</b><small>{{ T.fn_gross }} ৳{{ h.gross|bnd:lang }} · {{ h.payments|bnd:lang }} {{ T.fn_payments }}</small></div>
+  <div class="tile"><span>ARPU</span><b>{% if h.arpu is not None %}৳{{ h.arpu|bnd:lang }}{% else %}—{% endif %}</b><small>{{ T.fn_arpu_def }}</small></div>
+  <div class="tile"><span>ARPPU</span><b>{% if h.arppu is not None %}৳{{ h.arppu|bnd:lang }}{% else %}—{% endif %}</b><small>{{ T.fn_arppu_def }}</small></div>
+  <div class="tile"><span>{{ T.fn_ads }}</span><b>৳{{ h.ads_revenue|bnd:lang }}</b><small>{{ T.fn_ads_def }}{% if h.arpu_ads is not None %} · ৳{{ h.arpu_ads|bnd:lang }} {{ T.fn_per_active }}{% endif %}</small></div>
+</div>
+<p class="small"><a href="/owner/pnl">{{ T.nav_pnl }}</a> · <a href="/owner/payments">{{ T.nav_payments }}</a></p>
+</section>
+
+<section class="card"><h2>{{ T.fn_daily }}</h2>
+  {% if chart %}<div class="legend"><span class="key s1"></span>{{ T.fn_installs }} <span class="key s2"></span>{{ T.fn_signups }}</div><div class="chartbox">{{ chart|safe }}</div>{% else %}<p class="empty">{{ T.empty }}</p>{% endif %}
+  {% if chart_act %}<h3>{{ T.fn_active_daily }}</h3><div class="chartbox">{{ chart_act|safe }}</div>{% endif %}
+</section>
+
+<section class="card"><h2>{{ T.fn_retention }}</h2>
+  <p class="mut small">{{ T.fn_retention_def }}</p>
+  {% if ret.rows %}<div class="tbl"><table><thead><tr><th>{{ T.fn_cohort }}</th><th>{{ T.fn_size }}</th><th>D1</th><th>D7</th><th>D30</th></tr></thead><tbody>
+  {% for row in ret.rows %}<tr><td>{{ row.week|date:"Y-m-d" }}</td><td class="num">{{ row.size|bnd:lang }}</td>
+    {% for x in row.ret %}<td class="num">{% if x.pct is None %}<span class="mut">{{ T.fn_not_yet }}</span>{% else %}{{ x.pct|bnd:lang }}% <small class="mut">({{ x.got|bnd:lang }}/{{ x.base|bnd:lang }})</small>{% endif %}</td>{% endfor %}</tr>{% endfor %}
+  </tbody></table></div>{% else %}<p class="empty">{{ T.fn_tracking_none }}</p>{% endif %}
+</section>
+
+<section class="card"><h2>{{ T.fn_referrals }}</h2>
+  <p class="mut small">{{ T.fn_referrals_def }}</p>
+  <div class="tiles">
+    <div class="tile"><span>{{ T.fn_ref_claimed }}</span><b>{{ r.claimed|bnd:lang }}</b><small>{{ T.fn_ref_pending }} {{ r.pending|bnd:lang }} · {{ T.fn_ref_rejected }} {{ r.rejected|bnd:lang }}</small></div>
+    <div class="tile"><span>{{ T.fn_ref_rewarded }}</span><b>{{ r.rewarded_period|bnd:lang }}</b><small>{{ r.conversion_pct|bnd:lang }}% {{ T.fn_ref_conv }}{% if r.capped %} · {{ T.fn_ref_capped }} {{ r.capped|bnd:lang }}{% endif %}</small></div>
+    <div class="tile"><span>{{ T.fn_ref_credits }}</span><b>{{ r.inviter_credits|bnd:lang }} + {{ r.invitee_credits|bnd:lang }}</b><small>{{ T.fn_ref_credits_def }}</small></div>
+    <div class="tile"><span>{{ T.fn_ref_cost }}</span><b>৳{{ r.cost_bdt|bnd:lang }}</b><small>{{ T.fn_ref_cost_def }}</small></div>
+    <div class="tile"><span>{{ T.fn_seats }}</span><b>{{ r.seats_taken|bnd:lang }}</b><small>{{ T.fn_seats_period }} {{ r.seats_period|bnd:lang }} · ৳{{ r.seats_cost_period|bnd:lang }} · <a href="/owner/founders#seats">{{ T.nav_founders }}</a></small></div>
+  </div>
+  {% if r.rejected_reasons %}<p class="small">{{ T.fn_ref_reasons }}: {% for x in r.rejected_reasons %}<span class="pill off">{{ x.reason|default:"—" }} {{ x.n|bnd:lang }}</span> {% endfor %}</p>{% endif %}
+  {% if r.top_inviters %}<p class="small">{{ T.fn_ref_top }}: {% for x in r.top_inviters %}<a href="/owner/users/{{ x.inviter_id }}">#{{ x.inviter_id }}</a> ({{ x.n|bnd:lang }}){% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+  <p class="small"><a href="/owner/pricing#referral">{{ T.fn_ref_edit }}</a></p>
+</section>
+{% endblock %}

@@ -114,7 +114,23 @@ def founders(request):
         else:
             raise Http404
     ctx["members"] = _members_ctx()
+    ctx["seats"] = _seats_ctx()   # p5-growth: automatic Founding seats
     return page(request, "owner/founders.html", ctx, status=status, nav="founders")
+
+
+def _seats_ctx():
+    """p5-growth: automatic numbered Founding seats (first N activated)."""
+    from django.db.models import Sum
+    from core import growth as G
+    from core.models import FoundingSeat
+    c = G.cfg()
+    agg = FoundingSeat.objects.aggregate(cr=Sum("credits"), cost=Sum("cost_bdt"))
+    return {"total": int(c["founding_auto_seats"]), "credits": int(c["founding_seat_credits"]),
+            "need": int(c["invite_activation_days"]),
+            "taken": FoundingSeat.objects.count(),
+            "credits_given": int(agg["cr"] or 0), "cost": float(agg["cost"] or 0),
+            "latest": list(FoundingSeat.objects.select_related("user")
+                           .order_by("-number")[:50])}
 
 
 # ============================================================ feedback

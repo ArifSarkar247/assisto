@@ -254,6 +254,30 @@ _REFERRAL_DEFAULTS = {
     "min_redeem_points": 25,
     "monthly_referral_cap": 20,
     "max_redeem_days": 400,
+    # p5-growth: invite-code referral (core.growth). AI credits for BOTH, only
+    # after the invitee is ACTIVATED (active on `invite_activation_days`
+    # different days within 14 days of signup + phone). Credits are never cash.
+    "invite_credits_inviter": 20,
+    "invite_credits_invitee": 10,
+    "invite_monthly_cap": 10,          # rewarded invites per inviter per month
+    "invite_claim_days": 14,           # code accepted up to N days after signup
+    "invite_activation_days": 2,
+    # p5-growth: automatic Founding Member seats — the first N activated
+    # accounts get a numbered badge + a one-time credit perk. 0 = off.
+    "founding_auto_seats": 500,
+    "founding_seat_credits": 20,
+}
+
+# p5-growth: (min, max) for the growth knobs — a typo can never open an
+# unlimited giveaway.
+_GROWTH_BOUNDS = {
+    "invite_credits_inviter": (0, 500),
+    "invite_credits_invitee": (0, 500),
+    "invite_monthly_cap": (0, 1000),
+    "invite_claim_days": (1, 90),
+    "invite_activation_days": (1, 14),
+    "founding_auto_seats": (0, 100000),
+    "founding_seat_credits": (0, 500),
 }
 
 # Storage we pay for per GB per month (৳). Used by the plan margin check: a
@@ -661,6 +685,9 @@ def _norm_referral(raw, base):
     out["points_per_premium_day"] = max(1, out["points_per_premium_day"])
     out["min_redeem_points"] = max(1, out["min_redeem_points"])
     out["max_redeem_days"] = max(1, out["max_redeem_days"])
+    for k, (lo, hi) in _GROWTH_BOUNDS.items():
+        if k in out:
+            out[k] = max(lo, min(hi, out[k]))
     return out
 
 

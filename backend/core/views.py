@@ -1418,19 +1418,16 @@ def wrapped(request):
 
 class InviteView(APIView):
     def get(self, request):
-        import secrets as _s
+        # p5-growth: one code system (core.growth) — same code, the real
+        # lifeassisto.com/i/<code> link (the old text pointed at a retired host).
+        from . import growth as _g
         lang = req_lang(request)
         u = request.user
-        if not u.referral_code:
-            u.referral_code = _s.token_urlsafe(5).replace("_", "").replace("-", "")[:8].upper()
-            u.save(update_fields=["referral_code"])
-        invited = User.objects.filter(referred_by=u.referral_code).count()
-        return Response({"code": u.referral_code, "invited": invited,
-                         "share_text": pick(lang,
-                                            f"Assisto অ্যাপে আমার রেফারেল কোড: {u.referral_code} — "
-                                            "assisto.asalify.com/get",
-                                            f"My Assisto referral code: {u.referral_code} — "
-                                            "assisto.asalify.com/get")})
+        code = _g.ensure_code(u)
+        invited = User.objects.filter(referred_by=code).count()
+        return Response({"code": code, "invited": invited,
+                         "link": _g.invite_link(code),
+                         "share_text": _g.share_text(code, lang)})
 
 
 # ---------- agent thread (conversation-first, rule-based; AI-optional) ----------
