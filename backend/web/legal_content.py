@@ -237,6 +237,20 @@ PERMISSIONS = [
         "revoke": _REVOKE_STD,
     },
     {
+        "id": "own_calls",
+        "perm": "MANAGE_OWN_CALLS",
+        "name": ("নিজের কল পরিচালনা (My Circle কল)", "Manage own calls (My Circle calls)"),
+        "why": ("My Circle-এর আসা ভয়েস/ভিডিও কল Android-এর নিজের কল ব্যবস্থায় জানানো, যাতে অ্যাপ বন্ধ বা অন্য অ্যাপ খোলা থাকলেও, "
+                "লক স্ক্রিনেও কল বাজে — WhatsApp-এর মতো। এটা শুধু Assisto-র নিজের কল; আপনার ফোনের সাধারণ কল, কল লগ বা নম্বর পড়া হয় না।",
+                "Telling Android's own call system about incoming My Circle voice/video calls, so they ring even when the app "
+                "is closed, another app is open or the screen is locked — like WhatsApp. Only Assisto's own calls; your phone's "
+                "regular calls, call log or numbers are never read."),
+        "when": ("অ্যাপ ইনস্টলের সময় Android নিজেই দেয় (সাধারণ অনুমতি, আলাদা প্রশ্ন আসে না)।",
+                 "Granted by Android at install time (a normal permission; no separate prompt)."),
+        "revoke": ("অ্যাপ আনইনস্টল করলে সরে যায়; কল বাজা বন্ধ করতে Android সেটিংস → অ্যাপ → Assisto → নোটিফিকেশন → \"Calls\" বন্ধ করুন।",
+                   "Removed when you uninstall the app; to stop call ringing turn off Android Settings → Apps → Assisto → Notifications → \"Calls\"."),
+    },
+    {
         "id": "alarm",
         "perm": "SET_ALARM",
         "name": ("অ্যালার্ম সেট করা", "Set alarms"),
