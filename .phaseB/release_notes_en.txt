@@ -1,1 +1,1 @@
-Build 219: photos and videos are now picked with the Android Photo Picker (no storage permission needed); Voice SOS, calls and Lost/Stolen protection show a clear notification with a stop button; on Android 14+ the app can ask to show incoming calls on the full screen.
+Build 220: My Circle gets disappearing messages that are really deleted, view-once photos, chat lock with a Locked chats folder, group pin/archive, search across all messages and voice-note speed; cleaner, more readable design in AI chat, Photo Studio, settings, business and money screens.

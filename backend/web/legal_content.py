@@ -273,13 +273,16 @@ PERMISSIONS = [
     },
     {
         "id": "media",
-        "perm": "READ_MEDIA_IMAGES, READ_MEDIA_VIDEO (READ_EXTERNAL_STORAGE Android 12 ও আগের / and older)",
-        "name": ("ছবি ও ভিডিও", "Photos and videos"),
-        "why": ("আপনার বেছে নেওয়া ছবি/ভিডিও ভল্ট, চ্যাট, স্ট্যাটাস বা ফটো স্টুডিওতে যোগ করা। আপনি যা বেছে নেন শুধু সেটাই।",
-                "Adding the photos/videos you pick to the vault, chats, status or Photo Studio. Only what you pick."),
-        "when": ("প্রথমবার গ্যালারি থেকে কিছু বাছাই করার সময়।",
-                 "The first time you pick something from your gallery."),
-        "revoke": _REVOKE_STD,
+        "perm": "No permission — Android Photo Picker / কোনো অনুমতি নয় — Android Photo Picker",
+        "name": ("ছবি ও ভিডিও (অনুমতি লাগে না)", "Photos and videos (no permission needed)"),
+        "why": ("ভল্ট, চ্যাট, স্ট্যাটাস বা ফটো স্টুডিওতে ছবি/ভিডিও যোগ করতে আপনি Android-এর নিজস্ব Photo Picker-এ "
+                "নিজে একটা একটা করে বেছে নেন; Assisto শুধু সেটুকুই পায়, আপনার গ্যালারি কখনো পড়ে না।",
+                "To add photos/videos to the vault, chats, status or Photo Studio you choose each one in Android's own "
+                "Photo Picker; Assisto receives only what you choose and never reads your gallery."),
+        "when": ("প্রতিবার গ্যালারি/সংযুক্ত বাটন চাপলে Photo Picker খোলে — কোনো অনুমতির প্রশ্ন নেই।",
+                 "Each time you tap Gallery/Attach the Photo Picker opens — no permission prompt."),
+        "revoke": ("বন্ধ করার কিছু নেই — Assisto-র গ্যালারিতে কোনো অনুমতি নেই।",
+                   "Nothing to turn off — Assisto has no access to your gallery."),
     },
     {
         "id": "device_admin",

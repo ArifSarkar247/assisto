@@ -68,7 +68,7 @@ class LegalPagesTests(TestCase):
                      "CALL_PHONE", "SET_ALARM", "BLUETOOTH_CONNECT", "health.READ_STEPS",
                      "health.READ_HEART_RATE", "health.READ_SLEEP",
                      "health.READ_ACTIVE_CALORIES_BURNED", "ACTIVITY_RECOGNITION",
-                     "READ_MEDIA_IMAGES", "BIND_DEVICE_ADMIN", "BIND_VOICE_INTERACTION",
+                     "Photo Picker", "BIND_DEVICE_ADMIN", "BIND_VOICE_INTERACTION",
                      "REQUEST_INSTALL_PACKAGES", "RECEIVE_BOOT_COMPLETED", "VIBRATE"):
             self.assertIn(perm, html, perm)
         # each permission card explains what / when / how to revoke
@@ -84,7 +84,8 @@ class LegalPagesTests(TestCase):
         # only REQUESTED permissions (<uses-permission ...>), not android:permission=
         # guards on components (e.g. START_VIEW_PERMISSION_USAGE on the Health
         # Connect alias, BIND_* on services), which the app never asks the user for
-        declared = set(re.findall(r'uses-permission android:name="android\.permission\.([A-Za-z_.]+)"',
+        # play-perm: lines marked tools:node="remove" take a permission AWAY
+        declared = set(re.findall(r'uses-permission android:name="android\.permission\.([A-Za-z_.]+)"(?![^>]*tools:node="remove")',
                                   wf.read_text()))
         declared |= {"SET_ALARM"} if "alarm.permission.SET_ALARM" in wf.read_text() else set()
         explained = " ".join(p["perm"] for p in LC.PERMISSIONS)
