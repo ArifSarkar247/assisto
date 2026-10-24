@@ -351,6 +351,15 @@ class FamSettleView(APIView):
 # ===========================================================================
 # CIRCLE chat list  (GET /circle/chats)
 # ===========================================================================
+def _activity_at(last, m):
+    """connect-flow: the row's activity time = the newer of the last message
+    and the moment the pair connected (iso, or None)."""
+    stamps = [t for t in (getattr(last, "created_at", None),
+                          getattr(m, "connected_at", None)) if t is not None]
+    return max(stamps).isoformat() if stamps else None
+
+
+
 class CircleChatsView(APIView):
     """GET /circle/chats -> {results:[{id, member, last (E2E envelope, the
     device decrypts), last_text:'' , unread, at, pinned, archived, muted,
@@ -389,7 +398,10 @@ class CircleChatsView(APIView):
                           "mine": last.sender_id == uid,
                           "deleted": last.deleted or ""} if last else None),
                 "unread": unread,
-                "at": last.created_at.isoformat() if last else None,
+                # connect-flow: a fresh accept tops the list (both sides)
+                "at": _activity_at(last, m),
+                "connected_at": (m.connected_at.isoformat()
+                                 if getattr(m, "connected_at", None) else None),
                 "status": "",
                 "pinned": bool(o.get("pinned")),
                 "archived": bool(o.get("archived")),

@@ -217,8 +217,12 @@ class TwoPhoneEndToEnd(TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertEqual(self._members(ca), [])
         self.assertEqual(self._members(cb), [])
-        # A's outgoing row converged to declined (no ghost "Sent")
-        self.assertEqual(ca.get("/api/v1/circle/requests").json()["results"], [])
+        # connect-flow (owner 25 Oct): a decline is never revealed — A's
+        # request still reads "Sent" (pending), nothing says "declined".
+        sent = ca.get("/api/v1/circle/requests").json()["results"]
+        self.assertEqual([(r["direction"], r["state"]) for r in sent],
+                         [("outgoing", "pending")])
+        self.assertNotIn("declined", str(sent))
 
 
 class AddEdgeCases(TestCase):

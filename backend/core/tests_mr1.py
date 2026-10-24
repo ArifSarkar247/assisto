@@ -67,7 +67,7 @@ class MessageRequests(TestCase):
         self.assertEqual((inc.direction, inc.state), ("incoming", "pending"))
         m = r.json()["member"]
         self.assertEqual(m["direction"], "outgoing")
-        self.assertEqual(m["request"]["limit"], 5)
+        self.assertEqual(m["request"]["limit"], 3)   # connect-flow
         self.assertTrue(m["request"]["can_send"])
 
     def test_start_refusals(self):
@@ -125,19 +125,19 @@ class MessageRequests(TestCase):
         self.assertEqual(cfg["limits"]["message_requests_per_day"], 9)
         d = pricing.normalize({})["limits"]
         self.assertEqual((d["message_request_max_msgs"],
-                          d["message_requests_per_day"]), (5, 20))
+                          d["message_requests_per_day"]), (3, 20))
 
     # ---- sending before accept --------------------------------------------
     def test_send_before_accept_limit_and_dedupe(self):
         mid = self._start().json()["member"]["id"]
-        for i in range(5):
+        for i in range(3):   # connect-flow: 3 before accept
             r = self._send(mid, str(i), cmid="c%d" % i)
             self.assertEqual(r.status_code, 201, r.content)
-        r = self._send(mid, "6", cmid="c6")
+        r = self._send(mid, "4", cmid="c4")
         self.assertEqual((r.status_code, r.json()["reason"]),
                          (403, "request_limit"))
         # an outbox retry of a stored one is a dedupe, not a refusal
-        r = self._send(mid, "4", cmid="c4")
+        r = self._send(mid, "2", cmid="c2")
         self.assertEqual(r.status_code, 200)
         self.assertTrue(r.json()["deduped"])
         m = self.ca.get("/api/v1/circle/members")  # not a member yet
@@ -195,7 +195,7 @@ class MessageRequests(TestCase):
         self.a.save(update_fields=["show_phone"])
         self.assertEqual(self._incoming()[0]["phone"], "+8801711000001")
 
-    def test_delivered_not_read_until_accept(self):
+    def test_no_receipt_until_accept(self):
         mid = self._start().json()["member"]["id"]
         x = self._send(mid, "hi").json()["id"]
         mb = self._incoming()[0]["id"]
@@ -203,11 +203,11 @@ class MessageRequests(TestCase):
         self.cb.get("/api/v1/circle/%s/messages" % mb)
         self.cb.post("/api/v1/circle/%s/seen" % mb)
         self.cb.post("/api/v1/circle/receipts", {"seen": [x]}, format="json")
-        rc = CircleReceipt.objects.get(message_id=x, user=self.b)
-        self.assertIsNotNone(rc.delivered_at)
-        self.assertIsNone(rc.seen_at)
+        # connect-flow: no delivered / read before accept (server-accepted only)
+        self.assertFalse(CircleReceipt.objects.filter(message_id=x,
+                                                      user=self.b).exists())
         st = self.ca.get("/api/v1/circle/%s/messages" % mid).json()
-        self.assertEqual(st["results"][0]["status"], "delivered")
+        self.assertEqual(st["results"][0]["status"], "sent")
         self.assertEqual(st["edge"]["state"], "pending")
         # accept -> read on the next open; both can text + call at once
         r = self.cb.post("/api/v1/circle/request/%s/act" % mb,

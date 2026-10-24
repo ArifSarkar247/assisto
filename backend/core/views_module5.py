@@ -432,7 +432,13 @@ def _member_dict(m):
         **_live_key_fields(m),
         "sharing": m.sharing or {},
         **_cde_fields(m),
+        **_connect_fields(m),   # connect-flow: connected_at
     }
+
+
+def _connect_fields(m):
+    from . import connect_flow
+    return connect_flow.fields(m)
 
 
 def _cde_fields(m):
@@ -799,6 +805,10 @@ class CircleRequestCreateView(APIView):
         if peer is not None and msgreq.over_daily_limit(request.user):
             from .views_mr1 import refusal
             return refusal(req_lang(request), "rate_limited")
+        from . import connect_flow   # connect-flow: per-recipient cap too
+        if peer is not None and connect_flow.recipient_over_limit(peer):
+            from .views_mr1 import refusal
+            return refusal(req_lang(request), "recipient_busy")
         # e2-keys: no key is copied onto the edge — _member_dict reads it live.
         # The SENDER's own row is OUTGOING (can only cancel it).
         m = CircleMember.objects.create(
@@ -851,10 +861,11 @@ class CircleRequestActView(APIView):
             return Response({"detail": "bad event"}, status=status.HTTP_400_BAD_REQUEST)
         m.state = new_state
         m.save(update_fields=["state"])
-        # Mirror the accept/decline onto the sender's OUTGOING row (if linked) so
-        # both sides converge: accept -> both accepted; decline -> sender's row
-        # declined too.
-        if event in ("accept", "decline") and getattr(m, "peer_user_id", None):
+        # Mirror the ACCEPT onto the sender's OUTGOING row (if linked) so both
+        # sides converge. connect-flow: a DECLINE is never mirrored — the
+        # sender sees nothing change (no "declined" leak); their pre-accept
+        # budget simply stops them, and nothing reaches the decliner.
+        if event == "accept" and getattr(m, "peer_user_id", None):
             mirror = CircleMember.objects.filter(
                 user_id=m.peer_user_id, peer_user=request.user,
                 direction="outgoing").first()
@@ -867,8 +878,11 @@ class CircleRequestActView(APIView):
         # e2-keys: an accept never dead-ends on "key missing" — whichever side
         # has not published yet gets a silent key_request push.
         if prev_state != "accepted" and new_state == "accepted":
-            from . import e2_keys
+            from . import connect_flow, e2_keys
             e2_keys.ensure_pair_keys(request.user, e2_keys.edge_peer(m))
+            # connect-flow: "You are now connected" on both phones, the chat
+            # tops both lists, the requester gets "X accepted — say hi".
+            connect_flow.on_connected(m)
         # Referral hook: award points when a relationship transitions to accepted.
         if prev_state != "accepted" and new_state == "accepted":
             try:
@@ -979,7 +993,7 @@ class CircleMessagesView(APIView):
         E2R.annotate_copies(out, msgs, request.user)
         # mr1: the chat learns live when a message request is accepted
         edge = {"state": m.state, "direction": m.direction or "outgoing",
-                "request": _msgreq_info(m)}
+                "request": _msgreq_info(m), **_connect_fields(m)}
         if meta is not None:
             chat_paging.mark_unseen(out, meta["unseen"])
             return Response({"results": out, "has_more": meta["has_more"],
@@ -1028,7 +1042,14 @@ class CircleMessagesView(APIView):
         # N messages before the recipient accepts (core/msgreq.py).
         mr1_first = None
         if m.state != "accepted" and not blocked_either:
-            from . import msgreq
+            from . import connect_flow, msgreq
+            # connect-flow: before accept — TEXT only, no links / forwards.
+            why_ct = connect_flow.pre_accept_refusal(env)
+            if why_ct and msgreq.is_request_edge(m):
+                bn, en = connect_flow.REFUSAL_TEXT[why_ct]
+                return Response({"detail": pick(req_lang(request), bn, en),
+                                 "reason": why_ct},
+                                status=status.HTTP_403_FORBIDDEN)
             ok_r, why, first = msgreq.send_gate(m)
             _cm = str(env.get("client_msg_id", ""))[:64]
             if not ok_r and why == "request_limit" and _cm:

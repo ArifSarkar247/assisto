@@ -9,6 +9,7 @@ import '../api.dart';
 import '../crypto/e2e.dart';
 import '../crypto/identity_vault.dart';
 import '../l10n/app_localizations.dart';
+import '../messaging/connect_flow.dart'; // connect-flow
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/circle_relation.dart';
@@ -504,7 +505,10 @@ class _CircleScreenState extends State<CircleScreen> {
           PopupMenuItem(value: 'report', child: Text(_t.circleReport)),
         ],
       ),
-      onTap: accepted ? () => _openChat(m) : null,
+      // connect-flow: Message / Audio call / Video call, no searching
+      onTap: accepted
+          ? () => showConnectSheet(context, m, onMessage: () => _openChat(m))
+          : null,
     );
   }
 

@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../m3_circle_api.dart';
+import '../../messaging/connect_flow.dart'; // connect-flow
 import '../../messaging/msg_request_widgets.dart'; // mr1
 import '../../services/contacts_source.dart';
 import '../../services/phone_canon.dart';
@@ -139,6 +140,21 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
       );
       if (!mounted) return;
       _changed = true;
+      // connect-flow (owner 25 Oct): no dead end — the chat with them opens
+      // at once ("Request sent — they can reply after accepting" banner);
+      // back from it returns to where the user came from.
+      if (m['id'] != null) {
+        setState(() => _sending = false);
+        await ConnectFlow.openChat(context, m);
+        if (!mounted) return;
+        final nav = Navigator.of(context);
+        if (nav.canPop()) {
+          nav.pop(true);
+        } else {
+          setState(() => _st = _St.idle);
+        }
+        return;
+      }
       setState(() {
         _accepted = '${m['state'] ?? ''}' == 'accepted';
         _st = _St.sent;
@@ -477,7 +493,8 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                       key: const Key('m3-already'),
                       style: TextStyle(color: scheme.primary)),
                   const SizedBox(height: Gap.sm),
-                  _messageButton(u),
+                  // connect-flow: Message / Audio call / Video call at once
+                  _connectedActions(u),
                 ] else if (st == 'pending') ...[
                   Text(t.m3AlreadyRequested,
                       key: const Key('m3-pending'),
@@ -540,6 +557,34 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
   }
 
   bool _opening = false;
+
+  /// connect-flow: an accepted contact — Message (the chat) plus free
+  /// audio / video calls, no searching needed.
+  Widget _connectedActions(Map<String, dynamic> u) {
+    final c = u['circle'];
+    final mid = c is Map ? (c['member_id'] as num?)?.toInt() : null;
+    final member = <String, dynamic>{
+      'id': mid,
+      'name': u['name'] ?? '',
+      'photo': u['photo_link'] ?? u['photo'] ?? '',
+      'peer_user_id': u['id'],
+      'state': 'accepted',
+    };
+    return ConnectActions(
+      onMessage: _opening
+          ? null
+          : () async {
+              setState(() => _opening = true);
+              final ok = await openMessageRequestChat(context,
+                  toUserId: (u['id'] as num?)?.toInt(), phone: _canon);
+              if (!mounted) return;
+              if (ok) _changed = true;
+              setState(() => _opening = false);
+            },
+      onAudio: mid == null ? null : () => ConnectFlow.call(context, member, 'voice'),
+      onVideo: mid == null ? null : () => ConnectFlow.call(context, member, 'video'),
+    );
+  }
 
   /// mr1: open the chat with this person — a normal chat when connected,
   /// a message request otherwise (POST /circle/message-request/start).

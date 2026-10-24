@@ -28,8 +28,9 @@ class LimitsLogicTests(SimpleTestCase):
                                        "feedback_per_day": 20,  # f1
                                        "disk_alert_pct": 80,  # pr1
                                        "my_circle_min_version": 183,  # t1
-                                       "message_request_max_msgs": 5,  # mr1
+                                       "message_request_max_msgs": 3,  # mr1 + connect-flow
                                        "message_requests_per_day": 20,  # mr1
+                                       "message_requests_per_recipient_day": 50,  # connect-flow
                                        "circle_media_photo_max_mb": 16,  # md1
                                        "circle_media_voice_max_mb": 16,
                                        "circle_media_doc_max_mb": 25,

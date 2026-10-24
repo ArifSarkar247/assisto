@@ -1084,6 +1084,9 @@ class CircleMember(models.Model):
     chat_lock = models.JSONField(default=dict, blank=True)
     archived = models.BooleanField(default=False)
     video_unlocked = models.BooleanField(default=False)  # referral-points unlock
+    # connect-flow: when this pair became connected (request accepted /
+    # invite joined) -> the "You are now connected" line + chat-list order.
+    connected_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

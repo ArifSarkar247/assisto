@@ -82,7 +82,6 @@ class MsgRequestWaitingLine extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final who = name.trim().isEmpty ? t.circleSomeone : name.trim();
     return Padding(
       key: const Key('mr1-waiting'),
       padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.xs, Gap.lg, 0),
@@ -90,7 +89,8 @@ class MsgRequestWaitingLine extends StatelessWidget {
         Icon(Icons.schedule, size: 14, color: scheme.onSurfaceVariant),
         const SizedBox(width: Gap.xs),
         Flexible(
-          child: Text(t.mr1Waiting(who),
+          // connect-flow: the owner's banner wording (25 Oct)
+          child: Text(t.connRequestSentBanner,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
         ),
@@ -196,7 +196,8 @@ class MsgRequestActionBar extends StatelessWidget {
                   danger: true),
               act(const Key('mr1-report'), Icons.flag_outlined, t.circleReport,
                   onReport, danger: true),
-              act(const Key('mr1-delete'), Icons.delete_outline, t.delete,
+              // connect-flow: Decline (silent — the sender is not told)
+              act(const Key('mr1-delete'), Icons.close, t.connDecline,
                   onDelete),
             ]),
             const SizedBox(height: Gap.xs),
@@ -229,7 +230,7 @@ Future<bool?> showMsgRequestConfirm(
   final (title, body, label) = switch (action) {
     'block' => (t.mr1BlockTitle(who), t.mr1BlockBody, t.circleBlock),
     'report' => (t.mr1ReportTitle(who), t.mr1ReportBody, t.circleReport),
-    _ => (t.mr1DeleteTitle, t.mr1DeleteBody(who), t.delete),
+    _ => (t.connDeclineTitle, t.connDeclineBody(who), t.connDecline),
   };
   return showDialog<bool>(
     context: context,

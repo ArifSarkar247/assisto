@@ -78,8 +78,9 @@ def mutual_add(me, peer, relation, custom_label=""):
                                                direction="outgoing",
                                                state="pending"):
             _accept(out)
-    from . import e2_keys  # e2-keys: never a keyless dead-end
+    from . import connect_flow, e2_keys  # e2-keys: never a keyless dead-end
     e2_keys.ensure_pair_keys(me, peer)
+    connect_flow.on_connected(inc)   # connect-flow: line + push to them
     return inc
 
 
@@ -164,8 +165,11 @@ class CircleInviteRedeemView(APIView):
             if not inv.used:
                 inv.used = True
                 inv.save(update_fields=["used"])
-        from . import e2_keys  # e2-keys: never a keyless dead-end
+        from . import connect_flow, e2_keys  # e2-keys: never a keyless dead-end
         e2_keys.ensure_pair_keys(request.user, inviter)
+        if already is None:   # connect-flow: a NEW connection -> line + push
+            connect_flow.on_connected(mine)
+            mine.refresh_from_db()
         return Response({"ok": True, "member": _member_dict(mine),
                          "inviter": {"id": inviter.id,
                                      "name": (inviter.name or "").strip()}},
