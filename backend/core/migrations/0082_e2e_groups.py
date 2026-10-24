@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core", "0080_calls_health"),
+        ("core", "0081_own_device"),
     ]
 
     operations = [

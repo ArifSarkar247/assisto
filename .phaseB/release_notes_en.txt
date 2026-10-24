@@ -1,1 +1,1 @@
-Build 223: My Circle chats recover old messages after a reinstall and keys can be backed up with your Security PIN; calls retry silently and reconnect when the network changes; online, typing, recording and last-seen status; Lost/Stolen protection restarts after updates; better Photo Studio enhance (Natural/Strong, portrait blur).
+Build 224: old group messages also come back after a reinstall; your own phone's protection alert clears as soon as you use Assisto on it, and never shows in your own urgent card.
