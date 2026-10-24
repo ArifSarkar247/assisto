@@ -5,6 +5,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../widgets/probashi_reminders.dart'; // f6
 
 /// PROBASHI CORNER — ADVANCED (#191, SPEC v2.1 §20) for Bangladeshis abroad.
 ///
@@ -80,11 +81,29 @@ class _ProbashiScreenState extends State<ProbashiScreen> {
       ]);
       _remits = res[0];
       _docs = res[1];
+      _syncDocReminders(); // f6: real expiry reminders on this phone
     } catch (e) {
       _error = true;
       _failCause = e;
     }
     if (mounted) setState(() => _loading = false);
+  }
+
+  /// f6: 30-days-before + expiry-day local notifications for every dated
+  /// document (re-planned after each load, so edits/removals stay in sync).
+  void _syncDocReminders() {
+    if (!mounted) return;
+    final tr = AppLocalizations.of(context);
+    ProbashiReminders.sync(
+      _docs,
+      title: (d) {
+        final label = (d['label'] ?? '').toString().trim();
+        return label.isEmpty ? _docKindLabel(tr, d['kind']?.toString()) : label;
+      },
+      body: (onDay) => onDay
+          ? tr.f6ProbashiDocExpiresToday
+          : tr.f6ProbashiDocExpiresIn30,
+    );
   }
 
   void _toast(String msg) {
@@ -236,6 +255,7 @@ class _ProbashiScreenState extends State<ProbashiScreen> {
     if (ok != true) return;
     try {
       await api.deleteItem(_docsPath, row['id'] as int);
+      await ProbashiReminders.cancelFor(row['id'] as int); // f6
       await _load();
       if (mounted) _toast(tr.saved);
     } catch (_) {
@@ -511,7 +531,7 @@ class _DocsTab extends StatelessWidget {
           ? StateMessage(
               icon: Icons.badge_outlined,
               title: tr.probashiDocsWelcomeTitle,
-              message: tr.probashiDocsWelcomeBody,
+              message: tr.f6ProbashiDocsWelcomeBody,
               action: FilledButton.icon(
                 onPressed: onAdd,
                 icon: const Icon(Icons.add),
@@ -538,7 +558,7 @@ class _DocsTab extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: Gap.sm),
-                _noteCard(context, tr.probashiDocsNote),
+                _noteCard(context, tr.f6ProbashiDocsNote),
                 const SizedBox(height: Gap.md),
                 ...overview.rows.map((d) => Card(
                       child: ListTile(

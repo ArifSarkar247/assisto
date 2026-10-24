@@ -5,6 +5,7 @@ import '../../api.dart';
 import '../../crypto/e2e.dart';
 import '../../l10n/app_localizations.dart';
 import '../../messenger_hub_api.dart';
+import '../../messaging/broadcast_send.dart'; // f6
 import '../../state.dart';
 import '../../theme.dart';
 import '../circle_extras_broadcast_screen.dart';
@@ -66,7 +67,22 @@ class _BroadcastListsScreenState extends State<BroadcastListsScreen> {
   void _compose() {
     Navigator.of(context)
         .push(MaterialPageRoute(
-          builder: (_) => CircleExtrasBroadcastScreen(members: widget.members),
+          // f6: the compose screen gets the REAL sender (per-recipient E2E
+          // seal + 1:1 post, outbox for keyless members). Before f6 it had
+          // none, so every broadcast failed.
+          builder: (_) => CircleExtrasBroadcastScreen(
+            members: widget.members,
+            onSend: widget.identity == null
+                ? null
+                : (ids, text) async {
+                    final r = await sendBroadcastText(
+                        _api, widget.identity!, ids, text,
+                        members: widget.members);
+                    if (r.delivered == 0) {
+                      throw StateError('broadcast: nothing was sent');
+                    }
+                  },
+          ),
         ))
         .then((_) => _load());
   }

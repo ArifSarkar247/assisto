@@ -226,7 +226,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         MsgrEmptyState(
           icon: Icons.travel_explore,
           title: t.discoverEmptyTitle,
-          body: _backendReady ? t.discoverEmptyBody : t.channelsBackendSoon,
+          body: _backendReady ? t.discoverEmptyBody : t.checkInternetRetry,
         ),
       ]);
     }

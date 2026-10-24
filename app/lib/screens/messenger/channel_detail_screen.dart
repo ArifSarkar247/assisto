@@ -14,6 +14,7 @@ import '../../widgets/msgr_channel_post_card.dart';
 import '../../widgets/msgr_mod_report_sheet.dart';
 import 'channel_admin_screen.dart';
 import '../../ads/sponsor_widgets.dart' show SponsoredPostSlot; // p2-money
+import '../../services/error_kind.dart' show honestFailText; // f6
 
 /// Assisto Messenger — CHANNEL detail (Step 3).
 ///
@@ -46,6 +47,7 @@ class ChannelDetailScreen extends StatefulWidget {
 class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
   bool _loading = true;
   bool _backendReady = true;
+  Object? _failCause; // f6: 5xx = our server, not the internet
   bool _loadError = false;
   Map<String, dynamic> _channel = {};
   List<Map<String, dynamic>> _posts = [];
@@ -73,7 +75,8 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
       _backendReady = true;
       _loadError = false;
       _recordViews();
-    } on ApiException {
+    } on ApiException catch (e) {
+      _failCause = e;
       _backendReady = true;
       _loadError = true;
     } catch (_) {
@@ -337,7 +340,7 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
         MsgrEmptyState(
           icon: Icons.cloud_off_outlined,
           title: t.channelLoadError,
-          body: t.channelsBackendSoon,
+          body: honestFailText(t, _failCause, otherwise: t.checkInternetRetry),
           action: FilledButton.icon(
             onPressed: _load,
             icon: const Icon(Icons.refresh),
@@ -380,7 +383,7 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
               title: t.channelNoPostsTitle,
               body: _backendReady
                   ? t.channelNoPostsBody
-                  : t.channelsBackendSoon,
+                  : t.checkInternetRetry,
             ),
           )
         else

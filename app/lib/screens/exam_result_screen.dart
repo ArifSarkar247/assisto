@@ -11,6 +11,7 @@ import '../widgets/exam_result_card.dart';
 import '../widgets/exam_student_watch.dart';
 import '../widgets/bn_day_periods.dart' show appDateLocale;
 import '../services/action_feedback.dart'; // db1
+import '../notifications.dart'; // f6
 
 /// ADVANCED exam-result module (SPEC v2.1 §21) for BD board/university results
 /// (SSC / HSC / JSC / PSC / Dakhil / Alim …).
@@ -120,9 +121,22 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
         'exam': _exam ?? '',
         'students': students,
       });
-      messenger.showSnackBar(SnackBar(content: Text(t.examWatcherSaved)));
+      // f6: the server keeps the watcher but never notifies, so the
+      // result-day reminder is a REAL local notification on this phone.
+      final exp = _expected;
+      if (exp != null) {
+        final label = _label.text.trim();
+        await Notifications.schedule(
+            examReminderId(url, exp),
+            label.isEmpty ? t.examTitle : label,
+            t.f6ExamResultDayBody,
+            DateTime(exp.year, exp.month, exp.day, 9));
+      }
+      messenger.showSnackBar(SnackBar(
+          content: Text(exp != null ? t.f6ExamWatcherSavedReminder : t.examWatcherSaved)));
     } catch (_) {
-      messenger.showSnackBar(SnackBar(content: Text(t.examWatcherSavedLocal)));
+      // f6: never "saved on this device" — nothing was saved.
+      messenger.showSnackBar(SnackBar(content: Text(t.saveFailed)));
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -356,3 +370,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
   Widget _sectionTitle(String s) =>
       Text(s, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15));
 }
+
+/// f6: stable local-notification id for a watcher (re-saving overwrites).
+String examReminderId(String url, DateTime expected) =>
+    'exam-${expected.year}-${expected.month}-${expected.day}-${url.hashCode & 0xffff}';

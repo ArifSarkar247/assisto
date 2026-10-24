@@ -10,6 +10,7 @@ import '../widgets/jobs_filters.dart';
 import '../widgets/jobs_detail.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/subs_common.dart' show fmtInt;
+import '../feature_gates.dart' show kJobsFeedConnected; // f6
 
 /// Job Hunter — ADVANCED (feature 37, SPEC v2.1 §21). Three tabs:
 ///   • Discover — curated sample feed + search/filters + salary insight, with an
@@ -42,7 +43,13 @@ class _JobsScreenState extends State<JobsScreen> {
   /// Discovery feed is NOT connected to a live source yet → curated sample +
   /// honest banner. A real feed is key-gated server-side (official API / owner
   /// feed); flip this when that endpoint is wired. We never scrape.
-  static const bool _feedConnected = false;
+  /// f6: while it is not connected, the made-up sample openings are NOT
+  /// shown (no showpieces) — Discover lists only the user's own jobs.
+  static const bool _feedConnected = kJobsFeedConnected;
+
+  /// Curated sample openings — only when a real feed is connected.
+  static List<Map<String, dynamic>> get _samples =>
+      _feedConnected ? kSampleJobs : const <Map<String, dynamic>>[];
 
   @override
   void initState() {
@@ -122,14 +129,14 @@ class _JobsScreenState extends State<JobsScreen> {
       minSalary: _filter.minSalary, maxSalary: _filter.maxSalary,
     );
     final all = [
-      ...kSampleJobs.map((j) => {...j, 'source': kSampleSource}),
+      ..._samples.map((j) => {...j, 'source': kSampleSource}),
       ..._jobs,
     ];
     return all.where(f.matches).toList();
   }
 
   List<Map<String, dynamic>> get _savedList {
-    final all = [...kSampleJobs, ..._jobs];
+    final all = [..._samples, ..._jobs];
     return all.where((j) => _saved.contains('${j['id']}')).toList();
   }
 
@@ -249,7 +256,7 @@ class _JobsScreenState extends State<JobsScreen> {
         child: Row(children: [
           Icon(Icons.rss_feed, size: 20, color: scheme.onTertiaryContainer),
           const SizedBox(width: Gap.sm),
-          Expanded(child: Text(tr.jobsConnectSourceBanner,
+          Expanded(child: Text(tr.f6JobsNoFeedBanner,
               style: TextStyle(fontSize: 12.5, color: scheme.onTertiaryContainer, height: 1.3))),
         ]),
       );

@@ -11,6 +11,7 @@ import '../widgets/ramadan_zakat.dart';
 import '../widgets/ramadan_fasting_tracker.dart';
 import '../widgets/ramadan_salami_tracker.dart';
 import '../widgets/ramadan_duas.dart';
+import '../widgets/ramadan_alarms.dart'; // f6
 
 /// Ramadan mode (module-5 "Life"). Benchmarked vs a SAFE subset of Muslim Pro.
 ///
@@ -36,6 +37,9 @@ class _RamadanScreenState extends State<RamadanScreen> {
 
   int _sehriPrewake = 60;
   int _iftarPrealert = 10;
+  // f6: the alarms are REAL now (saved + scheduled local notifications).
+  bool _sehriOn = false;
+  bool _iftarOn = false;
 
   // Wake-for-sehri IVR is key-gated (telephony/partner).
   static const bool _wakeIvrAvailable = false;
@@ -43,7 +47,42 @@ class _RamadanScreenState extends State<RamadanScreen> {
   @override
   void initState() {
     super.initState();
+    _loadAlarmPrefs();
     _loadTimes();
+  }
+
+  Future<void> _loadAlarmPrefs() async {
+    final p = await RamadanAlarms.load();
+    if (!mounted) return;
+    setState(() {
+      _sehriOn = p.sehriOn;
+      _sehriPrewake = p.sehriMin;
+      _iftarOn = p.iftarOn;
+      _iftarPrealert = p.iftarMin;
+    });
+    _syncAlarms(save: false);
+  }
+
+  RamadanAlarmPrefs get _alarmPrefs => RamadanAlarmPrefs(
+      sehriOn: _sehriOn,
+      sehriMin: _sehriPrewake,
+      iftarOn: _iftarOn,
+      iftarMin: _iftarPrealert);
+
+  /// Save the choice and (re)schedule today's + tomorrow's alarms.
+  Future<void> _syncAlarms({bool save = true}) async {
+    final prefs = _alarmPrefs;
+    if (save) await RamadanAlarms.save(prefs);
+    final tm = _times;
+    if (tm == null || !mounted) return;
+    final t = AppLocalizations.of(context);
+    await RamadanAlarms.sync(
+      sehriEnd: '${tm['sehri_end'] ?? ''}',
+      iftar: '${tm['iftar'] ?? ''}',
+      prefs: prefs,
+      sehriTitle: t.ramadanSehriWake,
+      iftarTitle: t.ramadanIftarAlert,
+    );
   }
 
   Future<Position?> _position() async {
@@ -82,6 +121,7 @@ class _RamadanScreenState extends State<RamadanScreen> {
       final r = await context.read<AppState>().api.getJson(
           '/ramadan/times?lat=${pos.latitude}&lon=${pos.longitude}');
       if (mounted) setState(() => _times = r);
+      _syncAlarms(save: false); // f6: follow the day's new times
     } catch (_) {
       if (mounted) setState(() => _error = 'fetch');
     } finally {
@@ -194,11 +234,17 @@ class _RamadanScreenState extends State<RamadanScreen> {
 
       // alarms
       _sectionTitle(t.ramadanAlarmsSection),
-      ListTile(
+      SwitchListTile(
+        key: const Key('ramadan-sehri-switch'),
         contentPadding: EdgeInsets.zero,
-        leading: const Icon(Icons.alarm),
+        secondary: const Icon(Icons.alarm),
         title: Text(t.ramadanSehriWake),
         subtitle: Text(t.ramadanSehriWakeValue(_sehriPrewake, _shift(sehri, -_sehriPrewake))),
+        value: _sehriOn,
+        onChanged: (v) {
+          setState(() => _sehriOn = v);
+          _syncAlarms();
+        },
       ),
       Slider(
         value: _sehriPrewake.toDouble(),
@@ -207,12 +253,19 @@ class _RamadanScreenState extends State<RamadanScreen> {
         divisions: 11,
         label: '$_sehriPrewake',
         onChanged: (v) => setState(() => _sehriPrewake = v.round()),
+        onChangeEnd: (_) => _syncAlarms(),
       ),
-      ListTile(
+      SwitchListTile(
+        key: const Key('ramadan-iftar-switch'),
         contentPadding: EdgeInsets.zero,
-        leading: const Icon(Icons.notifications_active_outlined),
+        secondary: const Icon(Icons.notifications_active_outlined),
         title: Text(t.ramadanIftarAlert),
         subtitle: Text(t.ramadanIftarAlertValue(_iftarPrealert, _shift(iftar, -_iftarPrealert))),
+        value: _iftarOn,
+        onChanged: (v) {
+          setState(() => _iftarOn = v);
+          _syncAlarms();
+        },
       ),
       Slider(
         value: _iftarPrealert.toDouble(),
@@ -221,10 +274,12 @@ class _RamadanScreenState extends State<RamadanScreen> {
         divisions: 6,
         label: '$_iftarPrealert',
         onChanged: (v) => setState(() => _iftarPrealert = v.round()),
+        onChangeEnd: (_) => _syncAlarms(),
       ),
       const SizedBox(height: Gap.sm),
-      // wake-for-sehri IVR (key-gated)
-      if (!_wakeIvrAvailable)
+      // wake-for-sehri IVR (key-gated). f6: its "available when a partner
+      // is connected" note is hidden (no coming-soon lines).
+      if (_wakeIvrAvailable)
         Container(
           padding: const EdgeInsets.all(Gap.sm),
           decoration: BoxDecoration(

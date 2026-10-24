@@ -8,6 +8,7 @@ import '../../theme.dart';
 import '../../widgets/circle_extras_backup.dart';
 import '../../widgets/circle_extras_wallpaper.dart';
 import '../../widgets/msgr_set_tiles.dart';
+import '../../feature_gates.dart' show kMsgrChatBackupWired; // f6
 
 /// Chats settings for the hub: THEME (reuses the app's ThemeMode via
 /// AppState.setThemeMode, so light/dark/system stays in lock-step with the rest
@@ -128,6 +129,11 @@ class _MsgrSetChatsScreenState extends State<MsgrSetChatsScreen> {
             onWallpaper: _setWallpaper,
             onTheme: _setTheme,
           ),
+          // f6 (no showpieces): chat backup / restore / clear-history only
+          // showed a "started"/"cleared" snackbar — nothing was sealed,
+          // uploaded or deleted. Hidden until really wired (the real
+          // encrypted backup lives in Settings -> Encrypted backup).
+          if (kMsgrChatBackupWired) ...[
           const Divider(),
           MsgrSetSection(t.msgrSetChatsBackupSection),
           MsgrSetRow(
@@ -150,6 +156,7 @@ class _MsgrSetChatsScreenState extends State<MsgrSetChatsScreen> {
             subtitle: t.msgrSetChatHistoryClearSub,
             onTap: _clearHistory,
           ),
+          ],
         ],
       ),
     );

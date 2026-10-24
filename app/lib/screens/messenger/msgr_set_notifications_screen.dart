@@ -9,6 +9,7 @@ import '../../theme.dart';
 import '../../widgets/msgr_set_tiles.dart';
 import '../../messaging/msg_settings_section.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
+import '../../feature_gates.dart' show kInAppSoundBuilt; // f6
 
 /// Notification preferences for the hub. Toggles are mirrored to the server via
 /// [MessengerSettingsApi.notificationPrefs] / setNotificationPrefs so they
@@ -129,8 +130,12 @@ class _MsgrSetNotificationsScreenState
                     t.msgrSetNotifCallsSub),
                 const Divider(),
                 MsgrSetSection(t.msgrSetNotifInAppSection),
-                _deviceOnly(Icons.volume_up_outlined, t.msgrSetNotifSound),
-                _deviceOnly(Icons.vibration, t.msgrSetNotifVibrate),
+                // f6 (no showpieces): in-app sound/vibration rows stay hidden
+                // until the app really plays them.
+                if (kInAppSoundBuilt) ...[
+                  _deviceOnly(Icons.volume_up_outlined, t.msgrSetNotifSound),
+                  _deviceOnly(Icons.vibration, t.msgrSetNotifVibrate),
+                ],
                 _toggle(Icons.remove_red_eye_outlined, 'show_preview',
                     t.msgrSetNotifPreview, t.msgrSetNotifPreviewSub),
                 if (!_synced) MsgrSetNote(t.msgrSetNotSynced),

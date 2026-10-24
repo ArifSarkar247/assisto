@@ -1,0 +1,29 @@
+{
+  "_comment": "f6-showpieces (owner order 6 part F: no showpieces). All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_f6_arb.json. Existing strings that became unused or must change are listed in .phaseB/f6_arb_changes.md.",
+  "en": {
+    "f6JobsNoFeedBanner": "Live job listings need an official source, and none is connected yet. Add the jobs you find to save and track them here. We never scrape.",
+    "f6DisFeedNoKeyBody": "Live warnings appear here only from an official feed (BMD/FFWC), and it isn't connected yet. For live information call 1090.",
+    "f6ProbashiDocExpiresIn30": "Expires in 30 days. Start the renewal now.",
+    "f6ProbashiDocExpiresToday": "Expires today.",
+    "f6ProbashiDocsWelcomeBody": "Record the expiry of your passport, visa, ticket and more. The app shows the days left and reminds you 30 days before and on the expiry day.",
+    "f6ProbashiDocsNote": "You enter the expiry dates. The app shows the days left and reminds you on this phone 30 days before and on the expiry day.",
+    "f6BizPlanPriceOnPlans": "The current price is on the Plans page. Tap Upgrade to see it.",
+    "f6ExamResultDayBody": "Result day. Open the board's official result page.",
+    "f6ExamWatcherSavedReminder": "Saved. You'll get a reminder on this phone on result day.",
+    "f6QtRuleMarker": "Made by built-in rules, not AI. Review before you use it.",
+    "f6BwTemplateMarker": "Template draft (built in, not AI). Review before use."
+  },
+  "bn": {
+    "f6JobsNoFeedBanner": "লাইভ চাকরির তালিকার জন্য একটি সরকারি বা অফিসিয়াল উৎস লাগে, যা এখনো যুক্ত হয়নি। যে চাকরি পান তা এখানে যোগ করে সেভ ও ট্র্যাক করুন। আমরা কখনো স্ক্র্যাপ করি না।",
+    "f6DisFeedNoKeyBody": "লাইভ সতর্কবার্তা শুধু অফিসিয়াল ফিড (BMD/FFWC) থেকে এখানে আসে, যা এখনো যুক্ত হয়নি। লাইভ তথ্যের জন্য ১০৯০-এ কল করুন।",
+    "f6ProbashiDocExpiresIn30": "৩০ দিন পর মেয়াদ শেষ। এখনই নবায়ন শুরু করুন।",
+    "f6ProbashiDocExpiresToday": "আজ মেয়াদ শেষ।",
+    "f6ProbashiDocsWelcomeBody": "পাসপোর্ট, ভিসা, টিকিট ইত্যাদির মেয়াদ লিখে রাখুন। অ্যাপ দেখাবে আর কত দিন বাকি, আর মেয়াদ শেষের ৩০ দিন আগে ও শেষের দিন মনে করিয়ে দেবে।",
+    "f6ProbashiDocsNote": "মেয়াদের তারিখ আপনি লেখেন। অ্যাপ দেখায় কত দিন বাকি, আর এই ফোনে মেয়াদ শেষের ৩০ দিন আগে ও শেষের দিন মনে করিয়ে দেয়।",
+    "f6BizPlanPriceOnPlans": "বর্তমান দাম প্ল্যান পাতায় আছে। দেখতে আপগ্রেড চাপুন।",
+    "f6ExamResultDayBody": "আজ ফল প্রকাশের দিন। বোর্ডের অফিসিয়াল ফলাফলের পাতা খুলুন।",
+    "f6ExamWatcherSavedReminder": "সেভ হয়েছে। ফলের দিন এই ফোনে রিমাইন্ডার পাবেন।",
+    "f6QtRuleMarker": "AI নয়, অ্যাপের নিজস্ব নিয়মে তৈরি। ব্যবহারের আগে পড়ে দেখুন।",
+    "f6BwTemplateMarker": "টেমপ্লেট খসড়া (অ্যাপের নিজস্ব, AI নয়)। ব্যবহারের আগে পড়ে দেখুন।"
+  }
+}

@@ -13,6 +13,7 @@ import '../widgets/watch_sources_sheet.dart';
 import '../widgets/bn_day_periods.dart' show appDateLocale;
 import '../services/action_feedback.dart'; // db1
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../widgets/watch_hide_store.dart'; // f6
 
 /// WATCH FEED (ADVANCED) — the user's single "what needs me now" digest.
 ///
@@ -64,6 +65,9 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
       _error = false;
     });
     try {
+      // f6: saved snoozes / dismissals survive closing the screen.
+      final hidden = await WatchHideStore.load();
+      _dismissed.addAll(hidden);
       final items = await _compose();
       if (!mounted) return;
       setState(() {
@@ -272,12 +276,18 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
         break;
       case WatchAction.dismiss:
         setState(() => _dismissed.add(it.id));
+        await WatchHideStore.hide(
+            it.id, WatchHideStore.dismissUntil(DateTime.now())); // f6
         _snack(t.watchDismissed, undo: () {
           setState(() => _dismissed.remove(it.id));
+          WatchHideStore.unhide(it.id); // f6
         });
         break;
       case WatchAction.snooze:
         setState(() => _dismissed.add(it.id));
+        // f6: really back tomorrow (saved on this phone), not just this visit.
+        await WatchHideStore.hide(
+            it.id, WatchHideStore.snoozeUntil(DateTime.now()));
         _snack(t.watchSnoozedToTomorrow);
         break;
       case WatchAction.markDone:

@@ -296,7 +296,7 @@ void main() {
   });
 
   // ------------------------------------------------------------ community ⋮
-  testWidgets('community ⋮: alerts item is honest-disabled; Leave refusal',
+  testWidgets('community ⋮: alerts item is hidden (f6 no showpieces); Leave refusal',
       (tester) async {
     final api = _RecApi({
       '/community/3/groups': {'joined': [], 'joinable': [],
@@ -312,7 +312,8 @@ void main() {
             identity: _identity));
     await tester.tap(find.byTooltip(t.grpMenuMore));
     await _settle(tester);
-    expect(find.text(t.msgCommunityAlertsNotYet), findsOneWidget);
+    expect(find.text(t.msgCommunityAlertsNotYet), findsNothing); // f6: hidden
+    expect(find.text(t.communityMuteNotifications), findsNothing);
     await tester.tap(find.text(t.communityLeave).last);
     await _settle(tester);
     await tester.tap(find.widgetWithText(FilledButton, t.communityLeave));
@@ -374,13 +375,14 @@ void main() {
   });
 
   testWidgets('notifications: toggling Groups posts only that key; in-app '
-      'sound is honest-disabled', (tester) async {
+      'sound rows are hidden (f6 no showpieces)', (tester) async {
     final api = _RecApi({
       '/circle/settings/notifications': {'messages': true, 'groups': true,
         'calls': true, 'show_preview': true, 'ok': true},
     });
     await _pump(tester, api, const MsgrSetNotificationsScreen());
-    expect(find.text(t.msgNotifInAppNotYet), findsNWidgets(2));
+    expect(find.text(t.msgNotifInAppNotYet), findsNothing); // f6: hidden
+    expect(find.text(t.msgrSetNotifSound), findsNothing);
     await tester.tap(find.text(t.msgrSetNotifGroups));
     await _settle(tester);
     expect(api.posted('/circle/settings/notifications', {'groups': false}),

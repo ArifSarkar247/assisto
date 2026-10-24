@@ -50,7 +50,7 @@ class BusinessPlansScreen extends StatelessWidget {
             tr.bizPlanBenefitInsights,
           ],
           // Price intentionally a placeholder — owner review, not invented.
-          priceLine: tr.bizPlanPriceTbd,
+          priceLine: tr.f6BizPlanPriceOnPlans, // f6: real prices live on Plans (server)
           cta: FilledButton.icon(
             onPressed: () => Navigator.of(context)
                 .push(MaterialPageRoute(builder: (_) => const PlansScreen())),

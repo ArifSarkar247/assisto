@@ -12,6 +12,7 @@ import '../widgets/disaster_warning_card.dart';
 import '../widgets/disaster_safety_sheet.dart';
 import '../services/action_feedback.dart'; // db1
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../feature_gates.dart' show kShowSampleDisasterWarnings; // f6
 
 /// DISASTER ALERTS (ADVANCED) — SPEC v2.1 §21 / Appendix-A #44 (good → advanced).
 ///
@@ -252,8 +253,13 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
       children: [
         _feedBanner(t, scheme),
         const SizedBox(height: Gap.md),
-        _warningsSection(t, scheme),
-        const SizedBox(height: Gap.lg),
+        // f6 (no showpieces): example warning cards only when explicitly
+        // enabled; with no live feed the honest banner above says so.
+        if ((_feedState == 'active' && _warnings.isNotEmpty) ||
+            kShowSampleDisasterWarnings) ...[
+          _warningsSection(t, scheme),
+          const SizedBox(height: Gap.lg),
+        ],
         _familySection(t, scheme),
         const SizedBox(height: Gap.lg),
         _safetyLibrary(t, scheme),
@@ -284,7 +290,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
         Brand.warning,
         Icons.link_off,
         t.disFeedNoKeyTitle,
-        t.disFeedNoKeyBody,
+        kShowSampleDisasterWarnings ? t.disFeedNoKeyBody : t.f6DisFeedNoKeyBody,
       );
     }
     // active

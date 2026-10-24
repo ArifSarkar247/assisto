@@ -56,6 +56,7 @@ import '../ads/ad_privacy_tile.dart';
 import 'fall_detect_screen.dart';
 import '../services/action_feedback.dart'; // db1
 import 'offers_screens.dart' show OffersSettingsScreen; // p2-money
+import '../feature_gates.dart' show kSourcePermissionsEnforced; // f6
 
 
 /// m2-reality: flip to true once the server-address override is actually
@@ -373,6 +374,9 @@ class SettingsScreen extends StatelessWidget {
           // shows the next reminder + today's count. Self-contained; a failure
           // never breaks Settings.
           const _HomeWidgetTile(),
+          // f6 (no showpieces): saved on the server but no ingest path checks
+          // these switches yet, so the tile is hidden (feature_gates.dart).
+          if (kSourcePermissionsEnforced)
           ListTile(
             leading: const Icon(Icons.tune),
             title: Text(AppLocalizations.of(context).inputSourcePermissions),
