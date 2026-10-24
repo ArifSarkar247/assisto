@@ -1073,6 +1073,9 @@ jobs:
   # gate (continue-on-error; not named launch-smoke-test).
   fsi-proof-api34:
     needs: build-apk
+    # CI minutes (repo private 25 Oct): optional proof job runs only on a
+    # manual run (gh workflow run android.yml), not on every push.
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     continue-on-error: true
@@ -1140,6 +1143,9 @@ jobs:
   # (continue-on-error; not named launch-smoke-test, so ship_watch ignores it).
   ring-proof:
     needs: build-apk
+    # CI minutes (repo private 25 Oct): optional proof job runs only on a
+    # manual run (gh workflow run android.yml), not on every push.
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 35
     continue-on-error: true
