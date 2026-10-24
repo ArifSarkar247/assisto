@@ -168,10 +168,15 @@ def feature(lang):
 
 
 if __name__ == "__main__":
+    import os
+    # ASSISTO_SLOTS=4 rebuilds only those screenshots (feature graphics kept)
+    only = {int(x) for x in os.environ.get("ASSISTO_SLOTS", "").split(",") if x.strip()}
     for lang in ("en", "bn"):
-        feature(lang)
+        if not only:
+            feature(lang)
         for i, s in enumerate(SLOTS, 1):
-            store_shot(i, s, lang)
+            if not only or i in only:
+                store_shot(i, s, lang)
     # contact sheet
     cols, tw = 8, 270
     th = round(tw * 1920 / 1080)
@@ -183,7 +188,10 @@ if __name__ == "__main__":
     for k, lang in enumerate(("en", "bn")):
         fg = Image.open(OUT / f"feature_graphic_{lang}.png").resize((512, 250), Image.LANCZOS)
         sheet.paste(fg, (12 + k * 524, 2 * th + 36))
-    ic = Image.open(OUT / "icon_512.png").convert("RGB").resize((250, 250))
+    icp = OUT / "icon_512.png"
+    if not icp.exists():
+        icp = OUT / "assisto_play_icon_512.png"
+    ic = Image.open(icp).convert("RGB").resize((250, 250))
     sheet.paste(ic, (12 + 2 * 524, 2 * th + 36))
     sheet.save(OUT / "preview.png", optimize=True)
     print("done")
