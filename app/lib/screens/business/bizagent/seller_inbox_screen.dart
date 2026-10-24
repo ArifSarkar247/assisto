@@ -157,15 +157,33 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
   void _snack(String m) =>
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(bd(context, m))));
 
-  Future<void> _handover(bool on) async {
+  /// g1 per-chat toggle: 'human' = I will reply · 'ai' = Let AI reply.
+  Future<void> _mode(String mode) async {
     final t = AppLocalizations.of(context);
     try {
-      await context.read<AppState>().api.bizAgentHandover(widget.threadId, on);
-      _snack(on ? t.baHandoverOnDone : t.baHandoverOffDone);
+      await context.read<AppState>().api.bizAgentReplyMode(widget.threadId, mode);
+      _snack(mode == 'human' ? t.baHandoverOnDone : t.baHandoverOffDone);
     } catch (e) {
       _snack(baErrorText(t, e));
     }
     await _load();
+  }
+
+  Future<void> _verify(int orderId, String status) async {
+    final t = AppLocalizations.of(context);
+    try {
+      await context.read<AppState>().api.bizAgentVerifyPayment(orderId, status);
+      _snack(status == 'verified' ? t.g1PaymentVerifiedDone : t.g1PaymentRejectedDone);
+    } catch (e) {
+      _snack(baErrorText(t, e));
+    }
+    await _load();
+  }
+
+  String _clock(String iso) {
+    final d = DateTime.tryParse(iso)?.toLocal();
+    if (d == null) return '';
+    return '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
   }
 
   Future<void> _send() async {
@@ -225,20 +243,79 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
     }
     final msgs = ((_d['messages'] as List?) ?? const []).cast<Map>();
     final handover = th['handover'] == true;
-    final inWindow = th['in_window'] == true;
+    final pausedUntil = '${th['paused_until'] ?? ''}';
+    final orders = ((_d['orders'] as List?) ?? const []).cast<Map>();
+    final inWindow = th['in_window'] == true || th['channel'] == 'website';
     final draft = (th['order_draft'] as Map?) ?? const {};
     final scheme = Theme.of(context).colorScheme;
     return Column(children: [
       Material(
-        color: handover ? Brand.warning.withValues(alpha: 0.12) : scheme.surfaceContainerHighest,
-        child: SwitchListTile(
-          value: handover,
-          secondary: Icon(handover ? Icons.support_agent : Icons.smart_toy_outlined),
-          title: Text(handover ? t.baHandoverOn : t.baHandoverOff),
-          subtitle: Text(handover ? t.baHandoverOnSub : t.baHandoverOffSub),
-          onChanged: _handover,
+        color: handover || pausedUntil.isNotEmpty
+            ? Brand.warning.withValues(alpha: 0.12)
+            : scheme.surfaceContainerHighest,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.sm),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            SegmentedButton<String>(
+              segments: [
+                ButtonSegment(
+                    value: 'ai',
+                    icon: const Icon(Icons.smart_toy_outlined),
+                    label: Text(t.g1LetAiReply)),
+                ButtonSegment(
+                    value: 'human',
+                    icon: const Icon(Icons.support_agent),
+                    label: Text(t.g1IWillReply)),
+              ],
+              selected: {handover ? 'human' : 'ai'},
+              onSelectionChanged: (v) => _mode(v.first),
+            ),
+            const SizedBox(height: Gap.xs),
+            Text(
+              bd(context, handover
+                  ? t.baHandoverOnSub
+                  : pausedUntil.isNotEmpty
+                      ? t.g1PausedNote(_clock(pausedUntil))
+                      : t.g1AiRepliesNote),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.4),
+            ),
+            if (!handover && pausedUntil.isNotEmpty)
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: TextButton(onPressed: () => _mode('ai'), child: Text(t.g1ResumeNow)),
+              ),
+          ]),
         ),
       ),
+      for (final o in orders.where((o) => o['payment_status'] == 'pending_verification'))
+        Padding(
+          padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, 0),
+          child: BizCard(
+            title: bd(context, t.g1PaymentPendingTitle('${o['id']}')),
+            icon: Icons.receipt_long_outlined,
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(t.g1PaymentPendingBody, style: const TextStyle(height: 1.4)),
+              const SizedBox(height: Gap.sm),
+              Wrap(spacing: Gap.sm, children: [
+                FilledButton.tonal(
+                    onPressed: () => _verify((o['id'] as num).toInt(), 'verified'),
+                    child: Text(t.g1PaymentVerify)),
+                TextButton(
+                    onPressed: () => _verify((o['id'] as num).toInt(), 'rejected'),
+                    child: Text(t.g1PaymentNotReceived)),
+              ]),
+            ]),
+          ),
+        ),
+      for (final o in orders.where((o) =>
+          o['courier_live'] == false && '${o['tracking'] ?? ''}'.startsWith('TEST-')))
+        Padding(
+          padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, 0),
+          child: BizNote(
+              text: bd(context, t.g1CourierTestNote('${o['id']}', '${o['tracking']}')),
+              icon: Icons.science_outlined,
+              tint: Brand.warning),
+        ),
       if (draft.isNotEmpty && draft['product'] != null)
         Padding(
           padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, 0),
@@ -295,8 +372,12 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
     final pending = status == 'pending_approval';
     final failed = status == 'failed' || status == 'blocked' || status == 'queued';
     String meta = '';
+    final kind = '${m['kind'] ?? ''}';
+    final image = '${m['image_url'] ?? ''}';
     if (out) {
-      meta = m['is_ai'] == true ? t.baByAi : t.baByYou;
+      meta = m['is_ai'] == true
+          ? (m['source'] == 'rule' ? t.g1ByRule : t.baByAi)
+          : t.baByYou;
       if (pending) meta = '${t.baAwaitingApproval} · ${baRiskLabel(t, '${m['risk_reason']}')}';
       if (status == 'rejected') meta = t.baRejected;
       if (failed) meta = '$meta · ${_sendError(t, '${m['send_error'] ?? status}')}';
@@ -318,6 +399,29 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
             border: failed ? Border.all(color: Brand.danger) : null,
           ),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            if (!out && (kind == 'image' || kind == 'voice'))
+              Padding(
+                padding: const EdgeInsets.only(bottom: Gap.xs),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(kind == 'image' ? Icons.image_outlined : Icons.mic_none_outlined,
+                      size: 16, color: scheme.onSurfaceVariant),
+                  const SizedBox(width: Gap.xs),
+                  Flexible(
+                    child: Text(kind == 'image' ? t.g1PhotoFromCustomer : t.g1VoiceFromCustomer,
+                        style: Theme.of(context).textTheme.bodySmall),
+                  ),
+                ]),
+              ),
+            if (out && image.startsWith('https://'))
+              Padding(
+                padding: const EdgeInsets.only(bottom: Gap.xs),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(Radii.sm),
+                  child: Image.network(image, height: 140, fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const Icon(Icons.broken_image_outlined)),
+                ),
+              ),
+            if ('${m['text'] ?? ''}'.isNotEmpty || kind != 'image')
             Text(bd(context, m['text']),
                 style: TextStyle(
                     height: 1.4,

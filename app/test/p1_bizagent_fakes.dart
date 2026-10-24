@@ -8,6 +8,74 @@ final List<MapEntry<String, Map<String, dynamic>>> p1Posts = [];
 /// Gallery knob: false = the "nothing connected yet" first-run state.
 bool p1Connected = true;
 
+/// g1 gallery knob: is a vision provider connected on the server?
+bool g1VisionReady = false;
+
+Map<String, dynamic> _g1ImageThread(bool bn) => {
+      'thread': {
+        'id': 7, 'channel': 'messenger', 'customer_name': bn ? 'সুমাইয়া' : 'Sumaiya',
+        'customer_phone': '01XXXXXXXXX', 'handover': false, 'reply_mode': 'ai',
+        'paused_until': null, 'paused_by': '', 'opted_out': false,
+        'last_text': '', 'last_at': '2026-10-24T01:40:00+06:00', 'pending': 0,
+        'in_window': true, 'order_draft': {},
+      },
+      'messages': [
+        {'id': 1, 'direction': 'in', 'kind': 'image', 'text': '', 'is_ai': false,
+         'status': 'received', 'source': '', 'rule': '', 'image_url': '', 'risk_reason': '',
+         'send_error': '', 'confidence': 0, 'created_at': ''},
+        {'id': 2, 'direction': 'out', 'kind': 'text', 'is_ai': true, 'status': 'sent',
+         'source': 'rule', 'rule': 'image_match', 'image_url': '', 'risk_reason': '',
+         'send_error': '', 'confidence': 1, 'created_at': '',
+         'text': bn
+             ? 'আমি দোকানের এআই সহকারী। ছবির পণ্যটি আমাদের কাছে আছে: সুতি পাঞ্জাবি — দাম ৳1200, স্টকে আছে। সাইজ: M, L। রং: সাদা, নীল। অর্ডার করতে নাম, মোবাইল নম্বর ও পূর্ণ ঠিকানা লিখুন।'
+             : "I'm the shop's AI assistant. We have the product in your photo: Cotton panjabi — ৳1200, in stock. Sizes: M, L. Colours: White, Blue. To order, send your name, mobile number and full address."},
+        {'id': 3, 'direction': 'in', 'kind': 'text', 'is_ai': false, 'status': 'received',
+         'source': '', 'rule': '', 'image_url': '', 'risk_reason': '', 'send_error': '',
+         'confidence': 0, 'created_at': '',
+         'text': bn ? 'L সাইজ ২টা। সুমাইয়া, 01XXXXXXXXX, বাসা ৫, রোড ২, মিরপুর ১০, ঢাকা' : 'Size L, 2 pieces. Sumaiya, 01XXXXXXXXX, House 5, Road 2, Mirpur 10, Dhaka'},
+        {'id': 4, 'direction': 'out', 'kind': 'order', 'is_ai': true, 'status': 'sent',
+         'source': 'rule', 'rule': '', 'image_url': '', 'risk_reason': '', 'send_error': '',
+         'confidence': 1, 'created_at': '',
+         'text': bn
+             ? 'অর্ডারের সারাংশ:\n- সুতি পাঞ্জাবি (L) × 2 = ৳2280\n- ডেলিভারি (ঢাকার ভিতরে): ৳60\n- মোট (ক্যাশ অন ডেলিভারি): ৳2340\nবান্ডেল ছাড়: 2টি বা বেশি নিলে প্রতি পিস ৳1200-এর বদলে ৳1140।\nসব ঠিক থাকলে "হ্যাঁ" লিখুন।'
+             : 'Order summary:\n- Cotton panjabi (L) × 2 = ৳2280\n- Delivery (inside Dhaka): ৳60\n- Total (cash on delivery): ৳2340\nBundle price: 2+ pieces at ৳1140 each instead of ৳1200.\nReply "yes" to confirm.'},
+        {'id': 5, 'direction': 'in', 'kind': 'text', 'text': bn ? 'হ্যাঁ' : 'yes', 'is_ai': false,
+         'status': 'received', 'source': '', 'rule': '', 'image_url': '', 'risk_reason': '',
+         'send_error': '', 'confidence': 0, 'created_at': ''},
+        {'id': 6, 'direction': 'out', 'kind': 'invoice', 'is_ai': true, 'status': 'sent',
+         'source': 'rule', 'rule': 'order_confirmed', 'image_url': '', 'risk_reason': '',
+         'send_error': '', 'confidence': 1, 'created_at': '',
+         'text': bn
+             ? 'ইনভয়েস #41 — রূপা ফ্যাশন\nমোট (ক্যাশ অন ডেলিভারি): ৳2340\nসাথে পায়জামা (৳500) দেখতে পারেন — চাইলে জানাবেন।'
+             : 'Invoice #41 — Rupa Fashion\nTotal (cash on delivery): ৳2340\nYou may also like Pajama (৳500) — tell us and we will add it.'},
+        {'id': 7, 'direction': 'in', 'kind': 'image', 'text': bn ? 'বিকাশে অগ্রিম দিয়েছি' : 'Sent advance on bKash',
+         'is_ai': false, 'status': 'received', 'source': '', 'rule': '', 'image_url': '',
+         'risk_reason': '', 'send_error': '', 'confidence': 0, 'created_at': ''},
+        {'id': 8, 'direction': 'out', 'kind': 'text', 'is_ai': true, 'status': 'sent',
+         'source': 'rule', 'rule': 'payment_proof', 'image_url': '', 'risk_reason': '',
+         'send_error': '', 'confidence': 1, 'created_at': '',
+         'text': bn
+             ? 'ধন্যবাদ, স্ক্রিনশট পেয়েছি। অর্ডার #41-এর পেমেন্ট দোকানের মালিক নিজে যাচাই করে জানাবেন — যাচাইয়ের আগে এটি পরিশোধিত ধরা হবে না।'
+             : 'Thanks, we got the screenshot. The owner will verify the payment for order #41 — it is not marked as paid until then.'},
+      ],
+      'orders': [
+        {'id': 41, 'status': 'shipped', 'total': '2340.00', 'tracking': 'TEST-STEADFAST-41',
+         'courier': 'steadfast', 'courier_live': false, 'payment_status': 'pending_verification'},
+      ],
+    };
+
+List<Map<String, dynamic>> _faqs(bool bn) => [
+      {'id': 1, 'question': bn ? 'দোকান কোথায় | dokan kothay' : 'Where is the shop | dokan kothay',
+       'answer': bn ? 'মিরপুর ১০, শাহ আলী প্লাজার পাশে।' : 'Mirpur 10, next to Shah Ali Plaza.',
+       'status': 'approved', 'source': 'manual', 'has_price': false, 'hits': 42, 'updated_at': ''},
+      {'id': 2, 'question': bn ? 'কাপড় ধোয়া যাবে?' : 'Can it be washed?',
+       'answer': bn ? 'হ্যাঁ, ঠান্ডা পানিতে হাতে ধুয়ে নিন।' : 'Yes, hand-wash in cold water.',
+       'status': 'suggested', 'source': 'learned', 'has_price': false, 'hits': 0, 'updated_at': ''},
+      {'id': 3, 'question': bn ? 'কম্বো অফার আছে?' : 'Any combo offer?',
+       'answer': bn ? 'দুইটা নিলে ৳২২০০।' : 'Two for ৳2200.',
+       'status': 'suggested', 'source': 'learned', 'has_price': true, 'hits': 0, 'updated_at': ''},
+    ];
+
 Map<String, dynamic> _setup(bool bn, FakeMode mode) {
   final empty = mode == FakeMode.empty || !p1Connected;
   return {
@@ -19,6 +87,13 @@ Map<String, dynamic> _setup(bool bn, FakeMode mode) {
       'delivery_inside': '60', 'delivery_outside': '120', 'free_over': '',
       'returns': bn ? '৩ দিনের মধ্যে ত্রুটিপূর্ণ পণ্য বদলে দেওয়া হয়' : 'Faulty items exchanged within 3 days',
       'payment_note': '',
+      // ---- g1 ----
+      'ai_mode': 'always', 'resume_minutes': 15, 'rules_enabled': true,
+      'quiet_hours': {'start': '23:00', 'end': '08:00'}, 'morning_summary': true,
+      'morning_hour': 8, 'followups_enabled': true, 'followup_after_hours': 3,
+      'followup_max': 1, 'upsell_enabled': true,
+      'bundle_rules': [{'min_qty': 2, 'off_pct': 5}], 'auto_courier': true,
+      'vision_enabled': true, 'voice_enabled': true, 'comment_dm': true,
     },
     'channels': empty
         ? []
@@ -56,6 +131,9 @@ Map<String, dynamic> _setup(bool bn, FakeMode mode) {
     },
     'meta_ready': {'app': !empty, 'secret': !empty, 'verify_token': !empty},
     'pending_approvals': empty ? 0 : 2,
+    'g1': {'vision_ready': g1VisionReady, 'voice_ready': false, 'vision_credits': 6,
+           'voice_credits': 3, 'reply_credits': 3,
+           'widget': {'enabled': true, 'has_key': true}},
   };
 }
 
@@ -112,6 +190,27 @@ Map<String, dynamic>? fakeBizAgentGet(String path, bool bn, FakeMode mode) {
        'last_text': bn ? 'টাকা ফেরত চাই' : 'I want a refund'},
     ]};
   }
+  if (p == '/bizagent/threads/7') return _g1ImageThread(bn);
+  if (p == '/bizagent/faqs') {
+    return {'faqs': mode == FakeMode.empty ? [] : _faqs(bn), 'rules_enabled': true};
+  }
+  if (p == '/bizagent/post-links') {
+    return {'links': mode == FakeMode.empty ? [] : [
+      {'id': 1, 'post_id': '1234_5678', 'product_id': 1, 'product': bn ? 'সুতি পাঞ্জাবি' : 'Cotton panjabi'},
+    ], 'comment_dm': true};
+  }
+  if (p == '/bizagent/agent-report') {
+    return {'days': 30, 'report': {
+      'chats': 186, 'orders': 23, 'revenue': 31640.0, 'gross_profit': 9120.0,
+      'ai_cost': 214.0, 'profit': 8906.0, 'rule_replies': 512, 'ai_replies': 141,
+      'rule_share': 78.4, 'images': 37, 'voice': 9, 'cost_known': true},
+      'rules': {'rule': 512, 'ai': 141, 'rule_pct': 78.4, 'saved_seller_credits': 1536,
+                'saved_seller_bdt': 1536.0, 'by_rule': {'product': 301, 'delivery': 96}}};
+  }
+  if (p == '/bizagent/widget') {
+    return {'enabled': true, 'key': 'w_demoKey123', 'origins': 'https://rupafashion.example',
+            'snippet': '<script src="https://api.lifeassisto.com/api/v1/bizagent/chat.js" data-key="w_demoKey123" async></script>'};
+  }
   if (p.startsWith('/bizagent/threads/')) {
     return {
       'thread': _thread(bn),
@@ -131,7 +230,17 @@ Map<String, dynamic>? fakeBizAgentGet(String path, bool bn, FakeMode mode) {
 Map<String, dynamic>? fakeBizAgentPost(String path, Map<String, dynamic> body, bool bn) {
   if (!path.startsWith('/bizagent/')) return null;
   p1Posts.add(MapEntry(path, Map<String, dynamic>.from(body)));
-  if (path == '/bizagent/settings') return {'ok': true, 'settings': body};
+  if (path == '/bizagent/settings') {
+    return {'ok': true, 'settings': {...(_setup(bn, FakeMode.data)['settings'] as Map<String, dynamic>), ...body}};
+  }
+  if (path.endsWith('/mode')) {
+    return {'ok': true, 'reply_mode': body['mode'], 'handover': body['mode'] == 'human'};
+  }
+  if (path == '/bizagent/faqs/learn') return {'ok': true, 'suggested': 2};
+  if (path == '/bizagent/widget') {
+    return {'ok': true, 'enabled': body['enabled'] ?? true, 'key': 'w_demoKey123',
+            'origins': body['origins'] ?? '', 'snippet': '<script src="https://api.lifeassisto.com/api/v1/bizagent/chat.js" data-key="w_demoKey123" async></script>'};
+  }
   if (path == '/bizagent/channels') {
     return {'ok': true, 'channel': {'id': 9, 'kind': body['kind'], 'external_id': body['external_id'],
       'display_name': 'Test Page', 'status': 'connected', 'status_detail': '', 'enabled': true,

@@ -115,6 +115,14 @@ def send_instagram(page_token, igsid, text, ig_account_id="me"):
         "recipient": {"id": igsid}, "message": {"text": (text or "")[:1000]}})
 
 
+def send_messenger_image(page_token, psid, url, page_id="me"):
+    """g1: one product photo (Messenger / Instagram attachment by URL)."""
+    return _post("%s/messages" % (page_id or "me"), page_token, {
+        "recipient": {"id": psid}, "messaging_type": "RESPONSE",
+        "message": {"attachment": {"type": "image",
+                                   "payload": {"url": url, "is_reusable": False}}}})
+
+
 def private_reply(page_token, comment_id, text, page_id="me"):
     """Private reply to a Page/IG comment (one per comment, within 7 days):
     recipient={comment_id}."""
@@ -158,6 +166,16 @@ def send_whatsapp_template(token, phone_number_id, to, name, lang_code="bn", par
         tmpl["components"] = comps
     return _post("%s/messages" % phone_number_id, token, {
         "messaging_product": "whatsapp", "to": to, "type": "template", "template": tmpl})
+
+
+def send_whatsapp_image(token, phone_number_id, to, url, caption=""):
+    """g1: one product photo by link (+ caption) on WhatsApp Cloud API."""
+    img = {"link": url}
+    if caption:
+        img["caption"] = caption[:1024]
+    return _post("%s/messages" % phone_number_id, token, {
+        "messaging_product": "whatsapp", "recipient_type": "individual",
+        "to": to, "type": "image", "image": img})
 
 
 def whatsapp_number_info(token, phone_number_id):

@@ -605,6 +605,31 @@ BN.update({
 })
 # ---- /p1-bizagent ----
 
+# ---- g1-bizagent ---- rule-first vs AI
+EN.update({
+    "g1_rules": "Rule-first answers vs AI (30 days)",
+    "g1_rules_note": "Price, stock, sizes, delivery charge, shop hours, payment, returns, order status and the seller's approved FAQ are answered from the seller's own data WITHOUT calling the AI: instant, cost 0, no credit used. The AI is called only when no rule matches. Every rule reply still passes the number post-check.",
+    "g1_rule_share": "of automatic replies answered by rules", "g1_rule_vs_ai": "rule replies / AI replies",
+    "g1_saved_provider": "AI provider cost we did not spend", "g1_saved_seller": "credits sellers did not spend",
+    "g1_rule": "Rule", "g1_replies": "Replies", "g1_rules_short": "rules",
+    "g1_vision": "Customer photos (vision) and voice notes",
+    "g1_vision_note": "A photo is first matched free on our server (perceptual hash of the catalog photos). Only when that is not sure and a vision key is connected does the agent call the vision model — charged to the seller as ai_sales_vision credits. Cost per image = our real provider cost booked in Profit Guard.",
+    "g1_images": "Paid image calls", "g1_cost_total": "provider cost", "g1_cost_per_image": "cost per image",
+    "g1_credits_each": "credits per image", "g1_voice_each": "credits per voice note", "g1_edit_pricing": "Edit in Pricing",
+})
+BN.update({
+    "g1_rules": "নিয়মে উত্তর বনাম AI (৩০ দিন)",
+    "g1_rules_note": "দাম, স্টক, সাইজ, ডেলিভারি চার্জ, দোকানের সময়, পেমেন্ট, রিটার্ন, অর্ডারের অবস্থা ও বিক্রেতার অনুমোদিত FAQ — এগুলোর উত্তর বিক্রেতার নিজের তথ্য থেকে AI ছাড়াই যায়: সাথে সাথে, খরচ ০, কোনো ক্রেডিট লাগে না। কোনো নিয়ম না মিললে তবেই AI ডাকা হয়। নিয়মের প্রতিটি উত্তরও সংখ্যা-যাচাই পার হয়।",
+    "g1_rule_share": "স্বয়ংক্রিয় উত্তরের যত ভাগ নিয়মে গেছে", "g1_rule_vs_ai": "নিয়মের উত্তর / AI উত্তর",
+    "g1_saved_provider": "AI প্রোভাইডারের যে খরচ বেঁচেছে", "g1_saved_seller": "বিক্রেতাদের যে ক্রেডিট বেঁচেছে",
+    "g1_rule": "নিয়ম", "g1_replies": "উত্তর", "g1_rules_short": "নিয়মে",
+    "g1_vision": "গ্রাহকের ছবি (ভিশন) ও ভয়েস মেসেজ",
+    "g1_vision_note": "ছবি আগে আমাদের সার্ভারে বিনা খরচে মেলানো হয় (ক্যাটালগের ছবির পারসেপচুয়াল হ্যাশ)। তাতে নিশ্চিত না হলে এবং ভিশন key যুক্ত থাকলে তবেই এজেন্ট ভিশন মডেল ডাকে — বিক্রেতার কাছ থেকে ai_sales_vision ক্রেডিট কাটা হয়। ছবি প্রতি খরচ = Profit Guard-এ লেখা আমাদের আসল প্রোভাইডার খরচ।",
+    "g1_images": "টাকা লাগা ছবি-কল", "g1_cost_total": "প্রোভাইডার খরচ", "g1_cost_per_image": "ছবি প্রতি খরচ",
+    "g1_credits_each": "ছবি প্রতি ক্রেডিট", "g1_voice_each": "ভয়েস মেসেজ প্রতি ক্রেডিট", "g1_edit_pricing": "Pricing-এ বদলান",
+})
+# ---- /g1-bizagent ----
+
 # ---- p2-money ---- Sponsors / campaigns / ad impact / new ad knobs
 EN.update({
     "nav_sponsors": "Sponsors", "nav_impact": "Ad impact",

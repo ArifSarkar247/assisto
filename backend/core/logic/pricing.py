@@ -136,6 +136,12 @@ _ACTION_DEFAULTS = {
     # (Brave ~$0.005 / Tavily ~$0.008) + a cheap-tier LLM (~$0.006).
     # NET floor = ceil(0.015*120/0.60) = 3; margin rule = 3; 4 keeps >=40%.
     "web_answer":          {"provider_cost": 0.015, "credits": 4},
+    # g1-bizagent: the seller's agent looks at a customer PHOTO with a cloud
+    # vision model (only when the free perceptual match is not sure) and
+    # transcribes a customer VOICE NOTE. The live call books the larger of
+    # this estimate and the provider's own cost field (Profit Guard).
+    "ai_sales_vision":     {"provider_cost": 0.012, "credits": 6},
+    "ai_sales_voice":      {"provider_cost": 0.006, "credits": 3},
 }
 
 # p4-world: Unseen World knobs (admin-editable via /admin/pricing "world").

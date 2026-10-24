@@ -133,3 +133,14 @@ model cards via the HF API `cardData.license`). "Commercial OK" = code AND weigh
 | Face RESTORATION (GAN face prior) | GFPGAN / CodeFormer / RestoreFormer … | see above: NVIDIA NC parts / S-Lab NC / FFHQ-NC training data | **NO** | **not offered**. Best clean alternative shipped: a *face detail pass* = Real-ESRGAN (BSD-3) on the face crop at native resolution, luminance only, then FACE LOCK. Honest consequence: faces get crisper but not "re-imagined" like Remini's. |
 | Premium HD fast path (optional) | Real-ESRGAN on Replicate (`face_enhance=false` — GFPGAN is never requested) | BSD-3 model; Replicate API terms | Yes | GPU API, key-gated (`photo_restore_gpu.enhance_version`) |
 | Prompt edit (“Nano Banana” / GPT Image / Flux) | Google Gemini image models, OpenAI GPT Image, Replicate-hosted models (e.g. FLUX Kontext **[pro]** only — FLUX [dev] weights are non-commercial) | provider API terms (owner accepts them when adding the key) | Yes via the paid API | cloud, key-gated, switchable in Owner Admin (`photo_studio.provider`); every result goes through FACE LOCK on the worker |
+
+## G1 — Business AI Agent: matching a customer's photo to the catalog
+
+| Option | Licence (weights) | Decision |
+|---|---|---|
+| **Perceptual hash + colour histogram** (average hash 8×8, difference hash 9×8, 64-bin RGB histogram; our own code on Pillow, `core/bizagent_media.py`) | no model weights at all | **USED** — runs on our CPU, cost 0; matches a re-sent product photo or a phone screenshot of the post (white/black bars trimmed) |
+| Cloud vision (Claude / OpenAI / Gemini — the existing "image in chat" adapters) | provider terms (commercial API) | **USED, key-gated** — only when the hash is not sure; charged `ai_sales_vision` credits; describes + reads text; the price always comes from the catalog in code |
+| OpenAI CLIP ViT-B/32 | code + weights MIT, but the model card puts deployed use out of scope | not used |
+| Google SigLIP base (patch16-224) | Apache-2.0 | candidate for later (needs onnxruntime on the server, ~200M params — not installed, not shipped) |
+| Apple MobileCLIP | Apple ML research licence (non-commercial) | **never** |
+| OpenCLIP LAION-2B checkpoints | MIT weights, LAION data-provenance concerns | not used |

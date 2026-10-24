@@ -914,6 +914,23 @@ urlpatterns += [
     path("bizagent/plan/trial", p1.PlanTrialView.as_view()),
     path("bizagent/plan/checkout", p1.PlanCheckoutView.as_view()),
 ]
+# ---- g1-bizagent ---- advanced agent: per-chat toggle, FAQ, post links, report, widget
+from . import views_bizagent_g1 as g1  # noqa: E402
+urlpatterns += [
+    path("bizagent/threads/<int:pk>/mode", g1.ThreadModeView.as_view()),
+    path("bizagent/faqs", g1.FaqsView.as_view()),
+    path("bizagent/faqs/learn", g1.FaqLearnView.as_view()),
+    path("bizagent/faqs/<int:pk>", g1.FaqDetailView.as_view()),
+    path("bizagent/faqs/<int:pk>/delete", g1.FaqDeleteView.as_view()),
+    path("bizagent/post-links", g1.PostLinksView.as_view()),
+    path("bizagent/post-links/<int:pk>/delete", g1.PostLinkDeleteView.as_view()),
+    path("bizagent/agent-report", g1.AgentReportView.as_view()),
+    path("bizagent/widget", g1.WidgetView.as_view()),
+    path("bizagent/orders/<int:pk>/payment", g1.OrderPaymentView.as_view()),
+    path("bizagent/chat.js", g1.widget_js),          # embeddable website chat script
+    path("bizagent/widget/<str:key>/send", g1.widget_send),
+    path("bizagent/widget/<str:key>/messages", g1.widget_messages),
+]
 # ---- /p1-bizagent ----
 
 # ---- p2-money ---- sponsors / app-open / offers / rewarded SSV / trial

@@ -138,6 +138,15 @@ def _settings_row(a, prof):
             "payment_link_enabled": a.payment_link_enabled,
             "low_stock_alert": a.low_stock_alert, "daily_report": a.daily_report,
             "default_courier": a.default_courier,
+            # ---- g1 ----
+            "ai_mode": a.ai_mode, "resume_minutes": a.resume_minutes,
+            "rules_enabled": a.rules_enabled, "quiet_hours": a.quiet_hours or {},
+            "morning_summary": a.morning_summary, "morning_hour": a.morning_hour,
+            "followups_enabled": a.followups_enabled,
+            "followup_after_hours": a.followup_after_hours, "followup_max": a.followup_max,
+            "upsell_enabled": a.upsell_enabled, "bundle_rules": a.bundle_rules or [],
+            "auto_courier": a.auto_courier, "vision_enabled": a.vision_enabled,
+            "voice_enabled": a.voice_enabled, "comment_dm": a.comment_dm,
             "delivery_inside": str(pol.delivery_inside) if pol else "0",
             "delivery_outside": str(pol.delivery_outside) if pol else "0",
             "free_over": str(pol.free_delivery_over) if pol and pol.free_delivery_over else "",
@@ -167,7 +176,21 @@ class SetupView(APIView):
             "meta_ready": meta_ready(),
             "pending_approvals": prof.chat_threads.filter(
                 messages__status="pending_approval").count(),
+            "g1": _g1_state(a),
         })
+
+
+def _g1_state(a):
+    """What the advanced agent can do on THIS server right now (honest)."""
+    from . import bizagent_media as M
+    from .logic import pricing
+    cfg = S.full_cfg()
+    slug, _conf, _cost = M.vision_provider()
+    return {"vision_ready": bool(slug), "voice_ready": bool(M.stt_config()),
+            "vision_credits": pricing.credit_cost("ai_sales_vision", cfg),
+            "voice_credits": pricing.credit_cost("ai_sales_voice", cfg),
+            "reply_credits": pricing.credit_cost("ai_sales", cfg),
+            "widget": {"enabled": a.widget_enabled, "has_key": bool(a.widget_key)}}
 
 
 class SettingsView(APIView):
@@ -190,6 +213,30 @@ class SettingsView(APIView):
                 return _err(lang, "সময় HH:MM আকারে দিন।", "Use HH:MM for hours.",
                             status=422, code="bad_hours")
             a.hours = {"start": h["start"], "end": h["end"]} if h else {}
+        # ---- g1: who replies, quiet hours, follow-ups, sales rules ----
+        from .logic import bizagent_g1 as G1
+        if "ai_mode" in d:
+            if d["ai_mode"] not in G1.MODES:
+                return _err(lang, "অজানা মোড।", "Unknown mode.", status=422, code="bad_mode")
+            a.ai_mode = d["ai_mode"]
+        for k, lo, hi in (("resume_minutes", 1, G1.MAX_RESUME_MIN), ("morning_hour", 0, 23),
+                          ("followup_after_hours", 1, 20), ("followup_max", 0, 3)):
+            if k in d:
+                setattr(a, k, G1.clamp_int(d.get(k), lo, hi, getattr(a, k)))
+        for k in ("rules_enabled", "morning_summary", "followups_enabled", "upsell_enabled",
+                  "auto_courier", "vision_enabled", "voice_enabled", "comment_dm"):
+            if k in d:
+                v = d.get(k)
+                setattr(a, k, v.lower() in ("1", "true", "on", "yes") if isinstance(v, str)
+                        else bool(v))
+        if "quiet_hours" in d:
+            qh = d.get("quiet_hours") or {}
+            if qh and (BZ._hm(qh.get("start")) is None or BZ._hm(qh.get("end")) is None):
+                return _err(lang, "সময় HH:MM আকারে দিন।", "Use HH:MM for hours.",
+                            status=422, code="bad_hours")
+            a.quiet_hours = {"start": qh["start"], "end": qh["end"]} if qh else {}
+        if "bundle_rules" in d:
+            a.bundle_rules = G1.normalize_bundle_rules(d.get("bundle_rules"))
         if "default_courier" in d:
             if d["default_courier"] and d["default_courier"] not in bai.COURIERS:
                 return _err(lang, "অজানা কুরিয়ার।", "Unknown courier.", status=422,
@@ -325,6 +372,8 @@ class CourierKeysView(APIView):
 
 def _msg_row(m):
     return {"id": m.id, "direction": m.direction, "text": m.text, "is_ai": m.is_ai,
+            "source": m.reply_source, "rule": (m.meta or {}).get("rule", ""),
+            "image_url": (m.meta or {}).get("image_url", ""),
             "status": m.status, "kind": m.kind, "risk_reason": m.risk_reason,
             "send_error": m.send_error, "confidence": m.confidence,
             "created_at": m.created_at.isoformat()}
@@ -332,9 +381,16 @@ def _msg_row(m):
 
 def _thread_row(t):
     last = t.messages.order_by("-created_at", "-id").first()
+    now = timezone.now()
+    paused = t.ai_paused_until if (t.ai_paused_until and t.ai_paused_until > now) else None
     return {"id": t.id, "channel": t.channel, "customer_name": t.customer_name or
             t.customer_phone or t.external_user_id[-6:],
             "customer_phone": t.customer_phone, "handover": t.owner_takeover,
+            # g1: per-chat toggle + the human pause (AI resumes at paused_until)
+            "reply_mode": "human" if t.owner_takeover else "ai",
+            "paused_until": paused.isoformat() if paused else None,
+            "paused_by": t.paused_by if paused else "",
+            "opted_out": t.opted_out,
             "last_text": last.text[:120] if last else "",
             "last_at": (t.last_message_at or t.created_at).isoformat(),
             "pending": t.messages.filter(status="pending_approval").count(),
@@ -425,7 +481,9 @@ class ThreadDetailView(APIView):
             return _err(req_lang(request), "পাওয়া যায়নি।", "Not found.", status=404)
         msgs = [_msg_row(m) for m in t.messages.order_by("created_at", "id")]
         orders = [{"id": o.id, "status": o.status, "total": str(o.total),
-                   "tracking": o.tracking, "courier": o.courier} for o in t.orders.all()]
+                   "tracking": o.tracking, "courier": o.courier,
+                   "courier_live": o.courier_live, "payment_status": o.payment_status}
+                  for o in t.orders.all()]
         return Response({"thread": _thread_row(t), "messages": msgs, "orders": orders})
 
 
@@ -437,8 +495,8 @@ class ThreadHandoverView(APIView):
         t = _thread(prof, pk)
         if not t:
             return _err(req_lang(request), "পাওয়া যায়নি।", "Not found.", status=404)
-        t.owner_takeover = bool(request.data.get("on", True))
-        t.save(update_fields=["owner_takeover"])
+        from . import bizagent_g1_service as G1S
+        G1S.set_reply_mode(t, "human" if bool(request.data.get("on", True)) else "ai")
         return Response({"ok": True, "handover": t.owner_takeover})
 
 

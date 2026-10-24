@@ -157,3 +157,68 @@ python3 ../tools/p1_webhook_selftest.py --base https://api.lifeassisto.com --sec
 > **Business AI Agent.** When a seller connects a Facebook Page, Instagram account or WhatsApp Business number, Assisto receives that seller's customers' messages and comments from Meta to draft and send replies on the seller's behalf, and stores the conversation, the order details the customer gives (name, phone, delivery address) and the delivery status. This data is used only to serve that seller, is never sold, and is deleted when the seller disconnects and asks for deletion, or on request via https://lifeassisto.com/delete-account. Access tokens are stored encrypted.
 
 বাংলা সংস্করণও একই কথায় যোগ করুন। লেখাটি আপনি অনুমোদন করলে মূল সেশন legal_content-এ বসাবে।
+
+---
+
+# G1 — উন্নত এজেন্ট ("রাতের সেলসম্যান", আসলে ২৪/৭)
+
+নতুন অংশগুলো কী চায় — ঠিক কোনটার জন্য Meta App Review, কোনটার জন্য আপনার (মালিকের) key, কোনটার জন্য বিক্রেতার key, আর কোনটা কিছু ছাড়াই চলে।
+
+## ক. এক নজরে
+
+| অংশ | কিছু ছাড়াই চলে? | আপনার (মালিকের) key | বিক্রেতার key | Meta App Review (অনুমতি) |
+|---|---|---|---|---|
+| নিয়ম-আগে উত্তর (দাম, স্টক, সাইজ, রং, ডেলিভারি, সময়, পেমেন্ট, রিটার্ন, অর্ডারের অবস্থা, FAQ) — খরচ ০ | হ্যাঁ | — | — | চ্যানেলে পাঠাতে: নিচের চ্যানেলের অনুমতি |
+| Owner Admin → Sellers: নিয়ম বনাম AI %, বাঁচানো টাকা, ছবি প্রতি খরচ | হ্যাঁ | — | — | — |
+| ২৪/৭ মোড, মানুষ উত্তর দিলে ওই চ্যাটে বিরতি + ১৫ মিনিট পর ফিরে আসা, প্রতি চ্যাটে টগল, ব্যবসা-মোড, এক-সময়ে-এক-উত্তর | হ্যাঁ | — | — | Page থেকে মানুষের উত্তর ধরতে: `pages_messaging` + webhook field `message_echoes` |
+| চ্যাটেই অর্ডার → সারাংশ → কনফার্ম → Order, স্টক কমে, অর্ডার নম্বর; বান্ডেল ছাড় (ন্যূনতম দামের নিচে নয়), ফ্রি-ডেলিভারির খোঁচা, একবার মানানসই পণ্যের পরামর্শ | হ্যাঁ | — | — | চ্যানেলের অনুমতি |
+| কুরিয়ার নিজে থেকে বুক | টেস্ট চ্যানেলে "TEST" লেখা নকল বুকিং | — (ঐচ্ছিক: owner-level fallback কুরিয়ার key) | Pathao / Steadfast / RedX মার্চেন্ট key | — |
+| পেমেন্ট স্ক্রিনশট → "পেমেন্ট যাচাই বাকি" (কখনো পরিশোধিত নয়), মালিক অ্যাপে "টাকা পেয়েছি / পাইনি" | হ্যাঁ (ক্যাপশনে বিকাশ/নগদ/TrxID থাকলে) | ভিশন key থাকলে ছবির লেখা থেকেও ধরে | — | ছবি পেতে চ্যানেলের অনুমতি |
+| ছবি → ক্যাটালগের ছবির সাথে মেলানো (perceptual hash, আমাদের সার্ভারে) | হ্যাঁ, খরচ ০ | — | বিক্রেতার পণ্যে ছবি থাকতে হবে | চ্যানেলের অনুমতি |
+| ছবি → ভিশন AI (বর্ণনা, কাছাকাছি ২–৩টি পণ্য ছবিসহ, ছবির লেখা থেকে ঠিকানা/ফোন/সাইজ চার্ট) | না | **Integrations → Claude vision / OpenAI vision / Gemini vision** — API key + ছবি প্রতি খরচ (USD) → Save → Test (পাস হলে তবেই চালু) | বিক্রেতার ক্রেডিট (ছবি প্রতি `ai_sales_vision`, ডিফল্ট ৬ ক্রেডিট) | চ্যানেলের অনুমতি |
+| ভয়েস মেসেজ → লেখা → উত্তর | না (key ছাড়া গ্রাহককে "লিখে পাঠান" বলা হয়, বিক্রেতাকে জানানো হয়) | **Integrations → "Voice-note transcription"** — OpenAI API key, মডেল (ডিফল্ট gpt-4o-mini-transcribe), মিনিট প্রতি খরচ → Save → Test | বিক্রেতার ক্রেডিট (`ai_sales_voice`, ডিফল্ট ৩) | চ্যানেলের অনুমতি |
+| কমেন্ট → ইনবক্স ("দাম?" লিখলে Messenger-এ আসল দাম; পাবলিক উত্তরে কখনো দাম নয়; প্রতি কমেন্টে একবারই) | — | — | বিক্রেতা অ্যাপে "পোস্ট → পণ্য" যুক্ত করবেন | `pages_read_engagement` + `pages_manage_metadata` (feed webhook), `pages_messaging` (private reply), `pages_manage_engagement` (ছোট পাবলিক উত্তর); Instagram: `instagram_manage_comments` + `instagram_manage_messages` |
+| চুপ হয়ে যাওয়া গ্রাহককে একবার মনে করানো (শুধু ২৪ ঘণ্টার মধ্যে, stop লিখলে বন্ধ, নীরব সময়ে নয়) | হ্যাঁ (বিক্রেতা চালু করলে) | — | — | চ্যানেলের অনুমতি (২৪ ঘণ্টার মধ্যে সাধারণ মেসেজ; কোনো message tag নয়) |
+| নীরব সময় + সকালের সারাংশ (রাতের অর্ডার, বিক্রি, অনুমোদন বাকি, উত্তর বাকি) | হ্যাঁ | — | — | — (push FCM দিয়ে, আগেই চালু) |
+| এজেন্টের হিসাব (চ্যাট, অর্ডার, এজেন্টের এনে দেওয়া বিক্রি, AI খরচ, লাভ) | হ্যাঁ | — | লাভ দেখাতে পণ্যের কেনা দাম | — |
+| আগের উত্তর থেকে FAQ শেখা (শুধু পরামর্শ, বিক্রেতা অনুমোদন না দিলে ব্যবহার হয় না; দাম লেখা থাকলে লাল সতর্কতা) | হ্যাঁ | — | — | — |
+| ওয়েবসাইট চ্যাট উইজেট (`<script src="https://api.lifeassisto.com/api/v1/bizagent/chat.js" data-key="…">`) | **হ্যাঁ — Meta ছাড়াই পুরো চলে** | — | বিক্রেতা অ্যাপে চালু করে নিজের ওয়েবসাইটের ঠিকানা দেবেন | — |
+
+**Assisto কখনো টাকা নেয় না** (Play-এর financial declaration অনুযায়ী): পেমেন্ট = ক্যাশ অন ডেলিভারি, স্ক্রিনশট শুধু "যাচাই বাকি"; বিক্রেতা নিজের বিকাশ/নগদ/ব্যাংকে মিলিয়ে অ্যাপে চিহ্ন দেন।
+
+## খ. Meta App Review — ফিচার অনুযায়ী অনুমতি (জমা দেওয়ার সময় ব্যবহারের বর্ণনায় যোগ করুন)
+
+| ফিচার | অনুমতি / webhook field | রিভিউ ভিডিওতে যা দেখাবেন |
+|---|---|---|
+| Messenger উত্তর (নিয়ম ও AI) | `pages_messaging`, `pages_manage_metadata`, `pages_show_list`; field `messages` | টেস্টার "দাম কত?" লিখছে → সাথে সাথে ক্যাটালগের দামে উত্তর, "আমি দোকানের এআই সহকারী" লেখা |
+| মানুষের উত্তরে AI বিরতি | field `message_echoes` (একই `pages_messaging`) | Page Inbox থেকে মালিক উত্তর দিচ্ছেন → Assisto অ্যাপে "একজন মানুষ উত্তর দিয়েছেন, AI থেমে আছে" |
+| ছবি/ভয়েস পাওয়া ও পণ্যের ছবি পাঠানো | `pages_messaging` (attachment) ; WhatsApp: `whatsapp_business_messaging` (media id দিয়ে ডাউনলোড) | গ্রাহক পণ্যের স্ক্রিনশট পাঠাচ্ছে → মিলে যাওয়া পণ্যের দাম/সাইজ |
+| কমেন্ট → ইনবক্স | `pages_read_engagement`, `pages_manage_engagement`, `pages_messaging`; field `feed` | পোস্টে "price?" → Messenger-এ গোপনে দাম, পাবলিকে শুধু "ইনবক্সে পাঠানো হয়েছে" |
+| Instagram DM ও কমেন্ট | `instagram_basic`, `instagram_manage_messages`, `instagram_manage_comments`; fields `messages`, `comments` | একই প্রবাহ Instagram-এ |
+| WhatsApp | `whatsapp_business_messaging`, `whatsapp_business_management`; field `messages` | WhatsApp টেস্ট নম্বরে প্রশ্ন → উত্তর; ২৪ ঘণ্টার বাইরে শুধু অনুমোদিত template |
+
+**WhatsApp-এ মানুষের উত্তর ধরা (সত্যি সীমা):** Cloud API নম্বরে বিক্রেতা Assisto অ্যাপ থেকে উত্তর দিলে AI ঠিকই থামে। কিন্তু একই নম্বর WhatsApp Business **অ্যাপ** থেকে চালালে ("coexistence") তার echo আলাদা webhook (`smb_message_echoes`)-এ আসে — সেটা এখনো ধরা হয় না; coexistence চালু করলে এটা যোগ করতে হবে।
+
+## গ. Owner Admin-এ যা বসাবেন / দেখবেন
+
+1. **Pricing**: `ai_sales_vision` (ছবি প্রতি, ডিফল্ট ৬ ক্রেডিট, provider cost $০.০১২) আর `ai_sales_voice` (ভয়েস প্রতি, ডিফল্ট ৩ ক্রেডিট) — বদলানো যায়; মার্জিন-নিয়ম আগের মতোই যাচাই হয়। আসল কলে provider-এর নিজের "cost per image"-এর সাথে টেবিলের বড়টা Profit Guard-এ লেখা হয়।
+2. **Sellers** পাতার উপরে নতুন অংশ: কত % উত্তর নিয়মে গেছে, AI-এর যে খরচ বাঁচল (৳), বিক্রেতাদের যে ক্রেডিট বাঁচল, কোন নিয়মে কতগুলো, টাকা-লাগা ছবি-কল ও ছবি প্রতি খরচ।
+3. **Integrations**: ভিশনের জন্য আগের "image in chat" কার্ডগুলোই (Claude / OpenAI / Gemini vision) ব্যবহার হয়; ভয়েসের জন্য নতুন কার্ড "Voice-note transcription"।
+
+## ঘ. সার্ভারে নতুন কিছু?
+
+- **নতুন cron লাগবে না**: প্রতি মিনিটের `bizagent_process` এখন সাথে করে চালায় — মানুষের বিরতি শেষ হলে অপেক্ষায় থাকা গ্রাহককে উত্তর, আটকে থাকা মেসেজ, ফলো-আপ, সকালের সারাংশ।
+- **নতুন web route লাগবে না**: উইজেটের script ও API `/api/v1/...`-এর ভেতরেই।
+- **মাইগ্রেশন**: `core/0076_g1_bizagent` (নতুন কলাম + BizFaq, BizPostLink, BizProductSig)।
+
+## ঙ. কী ছাড়াই লাইভ প্রমাণ (G1 self-test)
+
+```
+cd /home/ubuntu/assisto/backend
+../.venv/bin/python manage.py bizagent_g1_selftest_setup --secret "$(openssl rand -hex 24)"
+python3 ../tools/g1_selftest.py --base https://api.lifeassisto.com --secret <G1_SELFTEST_SECRET> \
+    --manage ./manage.py --python ../.venv/bin/python --html /tmp/g1_proof.html
+../.venv/bin/python manage.py bizagent_g1_selftest_setup --teardown
+```
+
+প্রায় ৮০ সেকেন্ড লাগে (১ মিনিটের বিরতি শেষ হওয়ার অপেক্ষা)। প্রমাণ করে: ভুল সই → 403; দাম ও FAQ নিয়মে, ০ ক্রেডিট; Page echo → AI থামে, গ্রাহক অপেক্ষায় → ১ মিনিট পর AI একবার উত্তর দেয়; "আমি উত্তর দেব" → AI চুপ, "AI উত্তর দিক" → আবার উত্তর; পণ্যের স্ক্রিনশট → বিনা খরচে মিল → অর্ডারের তথ্য → বান্ডেল দামসহ সারাংশ (২ × ১১৪০ + ৬০ = ২৩৪০) → "yes" → আসল Order, স্টক ২ কমে, কুরিয়ার "TEST-…" নকল বুকিং (আসল নয়, স্পষ্ট লেখা), অর্ডার নম্বর; পেমেন্ট স্ক্রিনশট → "পেমেন্ট যাচাই বাকি"। `--html` দিলে পুরো কথোপকথনের একটি প্রমাণ-পাতা তৈরি হয়। শেষে "RESULT: ALL PASSED"।

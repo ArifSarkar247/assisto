@@ -894,6 +894,10 @@ class Order(models.Model):
     courier_error = models.CharField(max_length=200, blank=True, default="")
     courier_checked_at = models.DateTimeField(null=True, blank=True)
     invoice_sent_at = models.DateTimeField(null=True, blank=True)
+    # ---- g1-bizagent ---- '' | pending_verification (customer sent a payment
+    # screenshot — NEVER treated as paid) | verified | rejected (owner decides)
+    payment_status = models.CharField(max_length=24, blank=True, default="")
+    via_agent = models.BooleanField(default=False)    # taken by the AI agent in chat
 
     class Meta:
         ordering = ["-created_at"]
@@ -1890,7 +1894,8 @@ class ChatThread(models.Model):
     """One customer conversation on an OFFICIAL channel (Cloud API / Messenger).
     last_inbound_at → epoch for business_ai.within_service_window()."""
     CHANNELS = [("whatsapp_cloud", "whatsapp_cloud"), ("messenger", "messenger"),
-                ("instagram", "instagram")]   # p1: Instagram DM
+                ("instagram", "instagram"),   # p1: Instagram DM
+                ("website", "website")]       # g1: website chat widget
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="chat_threads")
     business = models.ForeignKey(BusinessProfile, null=True, blank=True,
                                  on_delete=models.CASCADE, related_name="chat_threads")
@@ -1910,6 +1915,14 @@ class ChatThread(models.Model):
     ai_disclosed = models.BooleanField(default=False)
     oor_notice_at = models.DateTimeField(null=True, blank=True)  # out-of-replies line sent
     last_message_at = models.DateTimeField(null=True, blank=True)
+    # ---- g1-bizagent ---- human takeover per chat + single-flight
+    ai_paused_until = models.DateTimeField(null=True, blank=True)   # human replied → pause
+    paused_by = models.CharField(max_length=12, blank=True, default="")  # echo|app
+    reply_lock_until = models.DateTimeField(null=True, blank=True)  # one reply at a time
+    followups_sent = models.IntegerField(default=0)
+    last_followup_at = models.DateTimeField(null=True, blank=True)
+    opted_out = models.BooleanField(default=False)
+    upsell_done = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-created_at"]
@@ -1937,6 +1950,10 @@ class Message(models.Model):
     risk_reason = models.CharField(max_length=40, blank=True, default="")
     send_error = models.CharField(max_length=200, blank=True, default="")
     meta = models.JSONField(default=dict, blank=True)
+    # ---- g1-bizagent ---- rule | ai | fallback | human | system ('' = legacy)
+    reply_source = models.CharField(max_length=12, blank=True, default="", db_index=True)
+    credits = models.IntegerField(default=0)        # credits charged for this reply
+    cost_bdt = models.FloatField(default=0.0)       # our provider cost (Profit Guard)
 
     class Meta:
         ordering = ["created_at", "id"]
@@ -4451,6 +4468,30 @@ class SellerAgent(models.Model):
     trial_started_at = models.DateTimeField(null=True, blank=True)  # once per business
     last_report_day = models.DateField(null=True, blank=True)
     last_low_stock_at = models.DateTimeField(null=True, blank=True)
+    # ---- g1-bizagent ----
+    # who replies: always (24/7, default) | outside_hours (AI only outside the
+    # business hours) | off. A human reply pauses the AI in THAT chat for
+    # resume_minutes (then the AI answers a customer who is still waiting).
+    ai_mode = models.CharField(max_length=16, default="always")
+    resume_minutes = models.IntegerField(default=15)
+    rules_enabled = models.BooleanField(default=True)          # rule-first layer
+    quiet_hours = models.JSONField(default=dict, blank=True)   # {"start","end"}: no follow-ups/pushes
+    morning_summary = models.BooleanField(default=True)
+    morning_hour = models.IntegerField(default=8)
+    last_morning_day = models.DateField(null=True, blank=True)
+    followups_enabled = models.BooleanField(default=False)
+    followup_after_hours = models.IntegerField(default=3)
+    followup_max = models.IntegerField(default=1)
+    upsell_enabled = models.BooleanField(default=True)
+    bundle_rules = models.JSONField(default=list, blank=True)  # [{"min_qty", "off_pct"}]
+    auto_courier = models.BooleanField(default=False)          # book default courier on confirm
+    vision_enabled = models.BooleanField(default=True)
+    voice_enabled = models.BooleanField(default=True)
+    comment_dm = models.BooleanField(default=True)
+    widget_enabled = models.BooleanField(default=False)
+    widget_key = models.CharField(max_length=48, blank=True, default="", db_index=True)
+    widget_origins = models.TextField(blank=True, default="")
+    # ---- /g1-bizagent ----
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -4462,7 +4503,8 @@ class SellerChannel(models.Model):
     to a client). test_mode rows are for the self-test only: their own
     test_secret_enc signs webhooks and nothing is ever sent to Graph."""
     KINDS = [("messenger", "messenger"), ("instagram", "instagram"),
-             ("whatsapp_cloud", "whatsapp_cloud")]
+             ("whatsapp_cloud", "whatsapp_cloud"),
+             ("website", "website")]   # g1: website chat widget
     business = models.ForeignKey("BusinessProfile", on_delete=models.CASCADE,
                                  related_name="seller_channels")
     kind = models.CharField(max_length=16, choices=KINDS)
@@ -4514,6 +4556,53 @@ class BizAgentReport(models.Model):
         ordering = ["-day"]
         constraints = [models.UniqueConstraint(fields=["business", "day"],
                                                name="p1_report_once")]
+# ---- g1-bizagent ---- rule-first FAQ, comment→product links, photo signatures
+class BizFaq(models.Model):
+    """A seller FAQ the RULE-FIRST layer answers without any AI (cost 0).
+    status: approved (used) | suggested (learned from the owner's past replies,
+    waiting for the seller) | rejected. Learned entries are NEVER used until
+    the seller approves them; has_price flags an answer that states a price."""
+    business = models.ForeignKey("BusinessProfile", on_delete=models.CASCADE,
+                                 related_name="biz_faqs")
+    question = models.TextField()
+    answer = models.TextField()
+    status = models.CharField(max_length=12, default="approved")
+    source = models.CharField(max_length=10, default="manual")     # manual|learned
+    has_price = models.BooleanField(default=False)
+    hits = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-hits", "id"]
+        indexes = [models.Index(fields=["business", "status"], name="g1_faq_status")]
+
+
+class BizPostLink(models.Model):
+    """Which product a Facebook/Instagram post shows — so a "price?" comment
+    under that post gets that product's real price in the inbox."""
+    business = models.ForeignKey("BusinessProfile", on_delete=models.CASCADE,
+                                 related_name="biz_post_links")
+    post_id = models.CharField(max_length=80)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="post_links")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["business", "post_id"],
+                                               name="g1_post_once")]
+
+
+class BizProductSig(models.Model):
+    """Perceptual signature of a catalog photo (average hash + difference hash
+    + colour histogram; computed on our CPU with Pillow, no model weights) so
+    a customer's photo/screenshot of the product matches at cost 0."""
+    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="visual_sig")
+    photo_name = models.CharField(max_length=255, blank=True, default="")
+    ahash = models.CharField(max_length=16, blank=True, default="")
+    dhash = models.CharField(max_length=16, blank=True, default="")
+    hist = models.JSONField(default=list, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+# ---- /g1-bizagent ----
 # ---- /p1-bizagent ----
 # ---- p2-money ---- direct sponsors, brand offers, ad exposure (monetization)
 class Sponsor(models.Model):
