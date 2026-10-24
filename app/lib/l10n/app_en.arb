@@ -18108,5 +18108,213 @@
     }
   },
   "d1psFeatEnhanceServer": "HD enhance (worker)",
-  "d1psStopping": "Stopping…"
+  "d1psStopping": "Stopping…",
+  "g1BehaviourTitle": "Agent behaviour",
+  "g1BehaviourSub": "Who replies, quiet hours, follow-ups, sales rules, website chat",
+  "g1ModeTitle": "Who replies",
+  "g1ModeAlways": "AI always on (24/7)",
+  "g1ModeAlwaysSub": "The AI answers day and night. You or your staff can take over any chat at any time.",
+  "g1ModeOutside": "Only outside shop hours",
+  "g1ModeOutsideSub": "During your shop hours you and your staff reply; the AI answers the rest of the time.",
+  "g1ModeOff": "Off",
+  "g1ModeOffSub": "The AI does not reply. Messages are still saved here.",
+  "g1ModeNeedsHours": "Set your shop hours in Setup to use this mode.",
+  "g1ResumeTitle": "When a person replies",
+  "g1ResumeSub": "When you or your staff reply in a chat (here or straight from your Page or WhatsApp), the AI pauses in that chat only. If the customer is still waiting, the AI answers again after {minutes} minutes. Two replies never go at once.",
+  "@g1ResumeSub": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "g1ResumeLabel": "Resume after (minutes)",
+  "g1QuietTitle": "Quiet hours",
+  "g1QuietSub": "No follow-up messages to customers and no notifications to you. You get everything in the morning summary. Customer replies still go out.",
+  "g1From": "From",
+  "g1To": "To",
+  "g1MorningTitle": "Morning summary",
+  "g1MorningSub": "Every day at {hour}: overnight orders, sales, replies waiting for approval and unanswered questions.",
+  "@g1MorningSub": {
+    "placeholders": {
+      "hour": {
+        "type": "String"
+      }
+    }
+  },
+  "g1SalesTitle": "Selling",
+  "g1FollowTitle": "Remind customers who go quiet",
+  "g1FollowSub": "One polite reminder if a customer stops replying in the middle of an order — only inside Meta's 24-hour window. A customer who writes stop gets no more reminders.",
+  "g1UpsellTitle": "Suggest a matching product",
+  "g1UpsellSub": "After an order, one polite suggestion from the same category.",
+  "g1BundleTitle": "Discount for buying more",
+  "g1BundleSub": "Never below any product's minimum price. Leave empty for no bundle discount.",
+  "g1BundleQty": "From quantity",
+  "g1BundlePct": "Discount %",
+  "g1AutoCourierTitle": "Book the courier automatically",
+  "g1AutoCourierSub": "When the customer confirms, book your default courier and send the tracking number (needs that courier's keys in Setup).",
+  "g1UnderstandTitle": "Photos, voice and comments",
+  "g1VisionTitle": "Understand product photos",
+  "g1VisionSub": "A photo that matches one of your catalog photos is free. Otherwise the vision AI looks at it for {credits} credits.",
+  "@g1VisionSub": {
+    "placeholders": {
+      "credits": {
+        "type": "int"
+      }
+    }
+  },
+  "g1VisionNotReady": "Vision AI is not connected on Assisto yet — only the free photo matching works.",
+  "g1VoiceTitle": "Listen to voice messages",
+  "g1VoiceSub": "Each voice message is turned into text for {credits} credits, then answered.",
+  "@g1VoiceSub": {
+    "placeholders": {
+      "credits": {
+        "type": "int"
+      }
+    }
+  },
+  "g1VoiceNotReady": "Voice transcription is not connected on Assisto yet — the customer is asked to type, and you are told.",
+  "g1CommentTitle": "Answer comments in the inbox",
+  "g1CommentSub": "\"Price?\" under a post gets the real price privately in Messenger. The public reply never shows a price.",
+  "g1PaymentNote": "Payment screenshots are never treated as payment — fake screenshots are common. The order stays cash on delivery and waits for you to check your own wallet.",
+  "g1WidgetTitle": "Website chat",
+  "g1WidgetSub": "Put the same agent on your own website.",
+  "g1WidgetOn": "Website chat on",
+  "g1WidgetOrigins": "Your website address (https://…), one per line",
+  "g1WidgetSnippet": "Paste this before </body> on your website:",
+  "g1WidgetNewKey": "New key",
+  "g1WidgetNewKeyNote": "A new key stops the old code from working.",
+  "g1Copy": "Copy",
+  "g1Copied": "Copied",
+  "g1Save": "Save",
+  "g1Saved": "Saved",
+  "g1Cancel": "Cancel",
+  "g1Approve": "Approve",
+  "g1Reject": "Reject",
+  "g1Delete": "Delete",
+  "g1AnswersTitle": "Answers & FAQ",
+  "g1AnswersSub": "Answered free from your catalog and FAQ",
+  "g1RulesCardTitle": "Free answers vs AI",
+  "g1RuleShare": "{pct}% of replies came from your own data — no AI, no credit.",
+  "@g1RuleShare": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "g1RuleCounts": "{rule} free replies · {ai} AI replies (last 30 days)",
+  "@g1RuleCounts": {
+    "placeholders": {
+      "rule": {
+        "type": "int"
+      },
+      "ai": {
+        "type": "int"
+      }
+    }
+  },
+  "g1Saved30": "Credits saved: {credits}",
+  "@g1Saved30": {
+    "placeholders": {
+      "credits": {
+        "type": "int"
+      }
+    }
+  },
+  "g1RulesNote": "Price, stock, sizes, colours, delivery charge, shop hours, payment, returns, order status and your approved FAQ are answered instantly from your own data. The AI is used only when none of these match.",
+  "g1FaqTitle": "Your FAQ",
+  "g1FaqEmpty": "No FAQ yet. Add your common answers, or let the agent learn them from your past replies.",
+  "g1FaqAdd": "Add FAQ",
+  "g1FaqQuestion": "Customer's question",
+  "g1FaqQuestionHint": "More than one way to ask? Separate with |",
+  "g1FaqAnswer": "Your answer",
+  "g1FaqLearn": "Learn from my replies",
+  "g1FaqLearned": "{n} suggestions — check and approve them.",
+  "@g1FaqLearned": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "g1FaqLearnedNone": "No new suggestions from your replies yet.",
+  "g1FaqSuggested": "Suggested — not used until you approve it",
+  "g1FaqHasPrice": "This answer has a price — prices should come from your catalog",
+  "g1FaqUsed": "Used {n} times",
+  "@g1FaqUsed": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "g1PostLinksTitle": "Post → product",
+  "g1PostLinksSub": "Tell the agent which product a post shows, so a \"price?\" comment gets that product's price in the inbox.",
+  "g1PostLinksAdd": "Link a post",
+  "g1PostId": "Post ID (for example 1234_5678)",
+  "g1Product": "Product",
+  "g1NoProducts": "Add products to your catalog first.",
+  "g1ReportTitle": "Agent report",
+  "g1ReportSub": "Chats, orders, sales by the agent, AI cost, profit",
+  "g1ReportByAgent": "What the agent brought",
+  "g1Days": "{d} days",
+  "@g1Days": {
+    "placeholders": {
+      "d": {
+        "type": "int"
+      }
+    }
+  },
+  "g1RChats": "Chats",
+  "g1ROrders": "Orders taken",
+  "g1RRevenue": "Sales",
+  "g1RAiCost": "AI cost",
+  "g1RGross": "Gross profit",
+  "g1RProfit": "Profit after AI cost",
+  "g1RRuleReplies": "Free replies",
+  "g1RAiReplies": "AI replies",
+  "g1RImages": "Photos understood",
+  "g1RVoice": "Voice messages",
+  "g1ReportCostUnknown": "Profit needs a cost price on your products — add it in the catalog.",
+  "g1ReportNote": "Only orders the agent took in chat are counted; cancelled and returned orders are left out. Assisto never collects payments.",
+  "g1LetAiReply": "Let AI reply",
+  "g1IWillReply": "I will reply",
+  "g1AiRepliesNote": "The AI replies in this chat. Your reply pauses it here.",
+  "g1PausedNote": "A person replied, so the AI is paused in this chat. If the customer is still waiting at {time}, the AI answers.",
+  "@g1PausedNote": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "g1ResumeNow": "Let the AI reply now",
+  "g1ByRule": "Agent · instant answer from your data (no credit)",
+  "g1PhotoFromCustomer": "Photo from the customer",
+  "g1VoiceFromCustomer": "Voice message (text below)",
+  "g1PaymentPendingTitle": "Order #{id}: payment to verify",
+  "@g1PaymentPendingTitle": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "g1PaymentPendingBody": "The customer sent a payment screenshot. Check your own bKash / Nagad / bank first — a screenshot is not proof of payment.",
+  "g1PaymentVerify": "I received it",
+  "g1PaymentNotReceived": "Not received",
+  "g1PaymentVerifiedDone": "Marked as received",
+  "g1PaymentRejectedDone": "Marked as not received",
+  "g1CourierTestNote": "Order #{id}: test-mode courier booking {tracking} — not a real parcel.",
+  "@g1CourierTestNote": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      },
+      "tracking": {
+        "type": "String"
+      }
+    }
+  }
 }
