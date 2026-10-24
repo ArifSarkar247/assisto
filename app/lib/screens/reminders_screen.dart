@@ -386,6 +386,7 @@ class _ReminderCard extends StatelessWidget {
             children: [
               Checkbox(
                 value: done,
+                semanticLabel: (d['title'] ?? '').toString(),
                 onChanged: (v) {
                   // completing a recurring reminder advances it instead of killing it
                   if (v == true && rule != null) {

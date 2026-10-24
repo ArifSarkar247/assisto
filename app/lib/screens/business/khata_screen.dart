@@ -208,6 +208,7 @@ class _BookTabState extends State<_BookTab> {
               label: Text(t.tagadaSendAll),
             )
           : FloatingActionButton(
+              tooltip: _isCustomer ? t.khataAddCustomer : t.khataAddSupplier,
               onPressed: _addParty,
               child: const Icon(Icons.person_add_alt_1)),
       body: RefreshIndicator(

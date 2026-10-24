@@ -201,12 +201,15 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
       feedback: Material(color: Colors.transparent, child: SizedBox(width: 240, child: card)),
       childWhenDragging: Opacity(opacity: 0.4, child: card),
       // Tap a deal → ERP implementation hand-off (Axon); long-press still drags.
-      child: GestureDetector(
-        onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (_) => CrmErpHandoffScreen(org: widget.org, deal: d))),
-        child: card,
+      // f2: one labelled tap target (the card's texts) for screen readers.
+      child: MergeSemantics(
+        child: GestureDetector(
+          onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => CrmErpHandoffScreen(org: widget.org, deal: d))),
+          child: card,
+        ),
       ),
     );
   }

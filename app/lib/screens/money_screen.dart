@@ -117,8 +117,15 @@ class _MoneyScreenState extends State<MoneyScreen> {
             labelPadding: MediaQuery.textScalerOf(context).scale(10) > 11.5
                 ? const EdgeInsets.symmetric(horizontal: Gap.md)
                 : const EdgeInsets.symmetric(horizontal: Gap.xxs),
-            labelStyle: AType.bodySmall,
-            unselectedLabelStyle: AType.bodySmall,
+            // f2: 11 sp at 1.0x so "Transaction" fits a fifth of 360 dp
+            // instead of breaking mid-word ("Transactio/n").
+            labelStyle: MediaQuery.textScalerOf(context).scale(10) > 11.5
+                ? AType.bodySmall
+                : AType.labelSmall.copyWith(letterSpacing: 0),
+            unselectedLabelStyle:
+                MediaQuery.textScalerOf(context).scale(10) > 11.5
+                    ? AType.bodySmall
+                    : AType.labelSmall.copyWith(letterSpacing: 0),
             tabs: [
               Tab(child: _tabLabel(t.moneyTabSummary)),
               Tab(child: _tabLabel(t.moneyTabAccounts)),
