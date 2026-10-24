@@ -18650,5 +18650,93 @@
         "type": "String"
       }
     }
+  },
+  "eVoiceSpeed": "Playback speed",
+  "eTimerOnYou": "You turned on disappearing messages. New messages will disappear after {time}.",
+  "@eTimerOnYou": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "eTimerOnOther": "{name} turned on disappearing messages. New messages will disappear after {time}.",
+  "@eTimerOnOther": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "eTimerOffYou": "You turned off disappearing messages.",
+  "eTimerOffOther": "{name} turned off disappearing messages.",
+  "@eTimerOffOther": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "eVoToggle": "View once",
+  "eVoOnHint": "View once: they can open this photo one time only",
+  "eVoOffHint": "View once is off",
+  "eVoTapToView": "View once · tap to open",
+  "eVoNotOpenedYet": "View once · not opened yet",
+  "eVoOpened": "Opened",
+  "eVoOpenedByThem": "They opened this view-once photo",
+  "eVoOpenedByYou": "You opened this view-once photo",
+  "eVoAlreadyOpened": "This view-once photo was already opened",
+  "eVoOpenFailed": "Couldn't open the photo. Check the internet and try again.",
+  "eVoViewerTitle": "View once photo",
+  "eVoViewerHint": "When you close it, this photo is gone for good. Screenshots are blocked.",
+  "eVoReplyLabel": "View once photo",
+  "eLockLockChat": "Lock chat",
+  "eLockUnlockChat": "Unlock chat",
+  "eLockLocked": "Chat locked. Find it in Locked chats.",
+  "eLockUnlocked": "Chat unlocked",
+  "eLockFolder": "Locked chats",
+  "eLockBioReason": "Unlock your locked chats",
+  "eLockEnterCode": "Enter your chat lock code",
+  "eLockCodeLabel": "Code (4–8 digits)",
+  "eLockCodeConfirm": "Type the code again",
+  "eLockCodeRule": "Use 4 to 8 digits",
+  "eLockCodeMismatch": "The two codes don't match",
+  "eLockWrongCode": "Wrong code. Try again.",
+  "eLockUnlock": "Unlock",
+  "eLockSave": "Save",
+  "eLockSetCodeTitle": "Set a chat lock code",
+  "eLockSetCodeBody": "Locked chats open with your fingerprint or face, or with this code. Only this phone knows it.",
+  "eLockForgot": "Forgot code?",
+  "eLockForgotTitle": "Unlock all and clear?",
+  "eLockForgotBody": "Without the code, the locked chats can only be unlocked by clearing their messages from your view. The other person keeps theirs.",
+  "eLockForgotConfirm": "Unlock and clear",
+  "eLockForgotDone": "Locked chats were unlocked and cleared",
+  "eLockGateTitle": "This chat is locked",
+  "eLockNotifTitle": "Assisto",
+  "eLockNotifBody": "New message",
+  "eSearchMessagesFor": "Search messages for \"{query}\"",
+  "@eSearchMessagesFor": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "f2Decrease": "Decrease",
+  "f2Increase": "Increase",
+  "f2PrevDay": "Previous day",
+  "f2NextDay": "Next day",
+  "f2ClearSearch": "Clear search",
+  "f2ClearTime": "Clear time",
+  "f2RateStars": "{count} stars",
+  "@f2RateStars": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }
