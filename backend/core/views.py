@@ -1446,6 +1446,11 @@ class AgentView(APIView):
             return Response({"reply": pick(lang, "কিছু লিখুন বা বলুন।",
                                            "Type or say something."), "cards": []})
         p = agent_brain.parse(text, req_lang(request))
+        from .i18n import is_play_flavour
+        if is_play_flavour(request):
+            # play-nomed: no medicine schedules in the Play build — the same
+            # words become a plain reminder the user wrote themselves.
+            p = agent_brain.play_safe(p, text, req_lang(request))
         intent = p.get("intent")
         cards = []
         reply = ""
@@ -3348,6 +3353,11 @@ def home_suggestions(request):
     today = now.date()
     ctx = _suggestion_context(request.user, now)
     hist, st = _suggestion_history(request.user, today)
+    from .i18n import is_play_flavour, MEDICAL_SUGGESTION_KEYS
+    if is_play_flavour(request):
+        # play-nomed: the Play build has no medicine screens — never suggest them.
+        hist = dict(hist)
+        hist["suppressed"] = list(hist.get("suppressed") or []) + list(MEDICAL_SUGGESTION_KEYS)
     refresh = request.GET.get("refresh") in ("1", "true", "yes")
     prompts = _sg.suggest(lang, now, context=ctx, history=hist, refresh=refresh)
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../feature_gates.dart' show kMedicalFeaturesAllowed, kMedicalRoutes;
 
 import '../screens/money_screen.dart';
 import '../screens/money_budget_screen.dart';
@@ -113,7 +114,18 @@ class ChatNav {
   /// dl1: notice-only route (see [push]); not a chat/Discover target.
   static const accountDeleteRoute = 'account_delete';
 
-  static final Map<String, WidgetBuilder> routes = {
+  /// Canonical route -> screen builder for THIS build. play-nomed: in the
+  /// Play flavour the medical routes ([kMedicalRoutes]) are absent, so every
+  /// caller (chat, Discover, push, quick buttons, watch feed) treats them as
+  /// unknown and never opens them.
+  static Map<String, WidgetBuilder> get routes => kMedicalFeaturesAllowed
+      ? _allRoutes
+      : {
+          for (final e in _allRoutes.entries)
+            if (!kMedicalRoutes.contains(e.key)) e.key: e.value,
+        };
+
+  static final Map<String, WidgetBuilder> _allRoutes = {
     'money': (_) => const MoneyScreen(),
     'documents': (_) => const VaultScreen(),
     'family': (_) => const FamilyScreen(),
@@ -345,6 +357,24 @@ class ChatNav {
     'show', 'open', 'go to', 'take me to', 'view', 'see my', 'see ',
   ];
 
+  /// play-nomed: medicine phrases that, on the website build, open the
+  /// family-care medicine schedule. In Play they open nothing (a plain
+  /// reminder can still be written in chat).
+  static const Set<String> _medicalPhrases = {
+    "mom's medicine", "dad's medicine", 'medicines', 'medicine',
+  };
+
+  /// The local index for THIS build (medical phrases/routes dropped in Play).
+  static List<MapEntry<String, String>> get _activeIndex =>
+      kMedicalFeaturesAllowed
+          ? _index
+          : [
+              for (final e in _index)
+                if (!_medicalPhrases.contains(e.key) &&
+                    !kMedicalRoutes.contains(e.value))
+                  e,
+            ];
+
   /// Flattened (phrase -> route), longest phrase first.
   static final List<MapEntry<String, String>> _index = () {
     final list = <MapEntry<String, String>>[];
@@ -368,7 +398,7 @@ class ChatNav {
     final t = text.toLowerCase();
     final hasVerb = _openVerbs.any((v) => t.contains(v));
     if (!hasVerb) return null;
-    for (final e in _index) {
+    for (final e in _activeIndex) {
       if (e.key.isNotEmpty && t.contains(e.key)) return e.value;
     }
     return null;

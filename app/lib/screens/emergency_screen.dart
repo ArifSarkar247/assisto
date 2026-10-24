@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../state.dart';
 import '../theme.dart';
+import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../l10n/app_localizations.dart';
 import '../widgets/emergency_card_view.dart';
 import '../widgets/emergency_helplines.dart';
@@ -180,15 +181,21 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
       if (v.trim().isNotEmpty) lines.add('$label: ${v.trim()}');
     }
 
+    // play-nomed: no medical record in the Play flavour's shared card.
+    final med = kMedicalFeaturesAllowed;
     add(t.name, _name.text);
-    add(t.emergencyBloodGroup, _blood.text);
-    add(t.emergencyAllergies, _allergies.text);
-    add(t.emergencyConditions, _conditions.text);
-    add(t.emergencyMedicines, _meds.text);
-    add(t.emergencyDoctor, _doctor.text);
-    add(t.emergencyInsurance, _insurance.text);
+    if (med) {
+      add(t.emergencyBloodGroup, _blood.text);
+      add(t.emergencyAllergies, _allergies.text);
+      add(t.emergencyConditions, _conditions.text);
+      add(t.emergencyMedicines, _meds.text);
+      add(t.emergencyDoctor, _doctor.text);
+      add(t.emergencyInsurance, _insurance.text);
+    }
     add(t.emergencyNid, _nid.text);
-    if (_organDonor) lines.add('${t.emergencyOrganDonor}: ${t.emergencyYes}');
+    if (med && _organDonor) {
+      lines.add('${t.emergencyOrganDonor}: ${t.emergencyYes}');
+    }
     final callable =
         _contacts.where((c) => '${c['phone'] ?? ''}'.trim().isNotEmpty);
     if (callable.isNotEmpty) {
@@ -398,9 +405,12 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
         const Divider(height: Gap.xxl),
 
         // ---- first-aid quick cards ----
-        _sectionTitle(t.emergencyFirstAidSection),
-        const SizedBox(height: Gap.sm),
-        FirstAidList(localeDigits: _digits),
+        // play-nomed: first-aid guidance is medical advice — not in Play.
+        if (kMedicalFeaturesAllowed) ...[
+          _sectionTitle(t.emergencyFirstAidSection),
+          const SizedBox(height: Gap.sm),
+          FirstAidList(localeDigits: _digits),
+        ],
 
         const SizedBox(height: Gap.lg),
         Text(t.emergencyFooterNote,
@@ -453,32 +463,38 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       TextField(controller: _name, decoration: dec(t.name)),
       const SizedBox(height: Gap.sm),
-      TextField(controller: _blood, decoration: dec(t.emergencyBloodGroup)),
-      const SizedBox(height: Gap.sm),
-      TextField(
-          controller: _allergies,
-          maxLines: 2,
-          decoration: dec(t.emergencyAllergies)),
-      const SizedBox(height: Gap.sm),
-      TextField(
-          controller: _conditions,
-          maxLines: 2,
-          decoration: dec(t.emergencyConditions)),
-      const SizedBox(height: Gap.sm),
-      TextField(
-          controller: _meds, maxLines: 2, decoration: dec(t.emergencyMedicines)),
-      const SizedBox(height: Gap.sm),
-      TextField(controller: _doctor, decoration: dec(t.emergencyDoctor)),
-      const SizedBox(height: Gap.sm),
-      TextField(controller: _insurance, decoration: dec(t.emergencyInsurance)),
-      const SizedBox(height: Gap.sm),
+      // play-nomed: the medical-record fields (blood group .. organ donor) are
+      // edited only where medical features are allowed (not in Play). Their
+      // stored values are kept untouched on save.
+      if (kMedicalFeaturesAllowed) ...[
+        TextField(controller: _blood, decoration: dec(t.emergencyBloodGroup)),
+        const SizedBox(height: Gap.sm),
+        TextField(
+            controller: _allergies,
+            maxLines: 2,
+            decoration: dec(t.emergencyAllergies)),
+        const SizedBox(height: Gap.sm),
+        TextField(
+            controller: _conditions,
+            maxLines: 2,
+            decoration: dec(t.emergencyConditions)),
+        const SizedBox(height: Gap.sm),
+        TextField(
+            controller: _meds, maxLines: 2, decoration: dec(t.emergencyMedicines)),
+        const SizedBox(height: Gap.sm),
+        TextField(controller: _doctor, decoration: dec(t.emergencyDoctor)),
+        const SizedBox(height: Gap.sm),
+        TextField(controller: _insurance, decoration: dec(t.emergencyInsurance)),
+        const SizedBox(height: Gap.sm),
+      ],
       TextField(controller: _nid, decoration: dec(t.emergencyNid)),
-      SwitchListTile(
-        contentPadding: EdgeInsets.zero,
-        value: _organDonor,
-        onChanged: (v) => setState(() => _organDonor = v),
-        title: Text(t.emergencyOrganDonor),
-      ),
+      if (kMedicalFeaturesAllowed)
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          value: _organDonor,
+          onChanged: (v) => setState(() => _organDonor = v),
+          title: Text(t.emergencyOrganDonor),
+        ),
       const SizedBox(height: Gap.sm),
       Row(children: [
         Text(t.emergencyContactTitle,

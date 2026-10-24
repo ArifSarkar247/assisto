@@ -13,6 +13,41 @@
 ///   * kQuoteAcceptPageWired                 — CRM public quote-accept page
 library;
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
+
+import 'config.dart';
+
+/// PLAY-NOMED — Google Play: personal developer accounts may NOT publish
+/// medical / health apps (Play rejected the "Medication and treatment
+/// management" declaration). Until the owner moves the Play listing to an
+/// ORGANIZATION account, the PLAY flavour (`--dart-define=PLAY_STORE=true`)
+/// hides every dedicated medical entry point: medicine schedules, dose history
+/// and missed-dose alerts, the medicine database, the prescription reader and
+/// records, the health timeline, the doctor-serial tracker, health-tips and
+/// first-aid guidance, and the medical-record fields of the emergency card.
+/// The CODE stays; only entry points are hidden. The website APK
+/// (playStore == false) is unchanged. Wellness (Health Connect steps / heart
+/// rate / sleep, fitness, mood) and plain reminders stay in Play.
+///
+/// FLIP: when the organization account is approved, return `true` here (or
+/// delete the gate) and re-declare the health features in Play Console.
+bool get kMedicalFeaturesAllowed =>
+    debugMedicalFeaturesOverride ?? !AppConfig.playStore;
+
+/// Test-only override for [kMedicalFeaturesAllowed] (null = follow flavour).
+@visibleForTesting
+bool? debugMedicalFeaturesOverride;
+
+/// Chat / deep-link routes that open a dedicated medical screen. In Play they
+/// are not in ChatNav.routes, so no chat reply, Discover card, push, watch
+/// item or quick button can open them.
+const Set<String> kMedicalRoutes = {
+  'medicine_db',
+  'health_tips',
+  'health_timeline',
+  'doctor_serial',
+};
+
 /// In-app message sound / vibration rows (Messenger → Notifications). The app
 /// does not play its own in-app sound or vibration yet.
 const bool kInAppSoundBuilt = false;

@@ -2,6 +2,7 @@ import 'api.dart';
 import 'config.dart';
 import 'package:flutter/foundation.dart';
 import 'diag/device_facts.dart';
+import 'feature_gates.dart' show kMedicalFeaturesAllowed, kMedicalRoutes;
 
 
 /// HOME (Assisto chat) screen API surface — the top-bar badges and the
@@ -42,6 +43,11 @@ extension HomeApi on ApiClient {
         .whereType<Map>()
         .map((m) => HomeSuggestion.fromJson(m.cast<String, dynamic>()))
         .where((s) => s.text.isNotEmpty)
+        // play-nomed: no medicine prompts / medical routes in the Play flavour.
+        .where((s) =>
+            kMedicalFeaturesAllowed ||
+            (!s.key.contains('medicine') &&
+                !kMedicalRoutes.contains(s.route)))
         .take(4)
         .toList();
   }

@@ -20,6 +20,23 @@ def req_lang(request):
     return "bn"
 
 
+def is_play_flavour(request):
+    """play-nomed: True when the request comes from the Google Play build
+    (the app sends `X-Assisto-Flavour: play`). Google Play does not allow a
+    personal developer account to publish medical features, so for this
+    flavour the server never creates medicine rows from chat (it falls back to
+    a plain reminder) and never suggests medicine prompts. The website APK
+    sends no header and is unaffected."""
+    try:
+        v = (request.META.get("HTTP_X_ASSISTO_FLAVOUR") or "").strip().lower()
+    except Exception:
+        return False
+    return v == "play"
+
+
+MEDICAL_SUGGESTION_KEYS = ("onboard_medicine", "medicine_due")
+
+
 def pick(lang, bn, en):
     return en if lang == "en" else bn
 

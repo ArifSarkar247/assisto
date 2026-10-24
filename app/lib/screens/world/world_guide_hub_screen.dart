@@ -16,6 +16,7 @@ import '../exam_result_screen.dart';
 import '../farmer_mode_screen.dart';
 import '../guide_screen.dart';
 import '../medicine_db_screen.dart';
+import '../../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../probashi_screen.dart';
 import '../student_corner_screen.dart';
 import 'world_mcq_screen.dart';
@@ -171,7 +172,10 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
                 Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.4)),
         const SizedBox(height: Gap.sm),
         UwNote(text: '${d['verify'] ?? ''}', icon: Icons.verified_outlined),
-        if (photo.isNotEmpty && d['photo_ready'] == true)
+        // play-nomed: the prescription reader ('rx') is hidden in Play.
+        if (photo.isNotEmpty &&
+            d['photo_ready'] == true &&
+            (photo != 'rx' || kMedicalFeaturesAllowed))
           _photoBlock(t, scheme, photo),
         if (widget.hubId == 'students') ...[
           const SizedBox(height: Gap.md),
@@ -215,7 +219,8 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
         'farmer_mode' => (t.uwOpenFarmerMode, () => const FarmerModeScreen()),
         'service_guide' => (t.uwOpenServiceGuide, () => const GuideScreen()),
         // medicine price lookup only when a lawful (DGDA) list is loaded
-        'medicine_db' => d['medicine_price_ready'] == true
+        'medicine_db' => kMedicalFeaturesAllowed &&
+                d['medicine_price_ready'] == true
             ? (t.uwOpenMedicinePrice, () => const MedicineDbScreen())
             : null,
         _ => null,

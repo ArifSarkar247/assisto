@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 
 /// Relationship-scoped sharing editor ("who sees what"). Mirrors
 /// core/logic/circle.py SCOPES + default_sharing(). A member toggles which
@@ -67,7 +68,9 @@ class CircleSharingEditor extends StatelessWidget {
               style: TextStyle(
                   fontSize: 12, color: scheme.onSurfaceVariant, height: 1.35)),
         ),
+        // play-nomed: no "medicines" sharing scope in the Play flavour.
         for (final s in scopes)
+          if (s != 'medicines' || kMedicalFeaturesAllowed)
           SwitchListTile(
             secondary: Icon(_icon(s), color: scheme.onSurfaceVariant),
             title: Text(_label(t, s)),

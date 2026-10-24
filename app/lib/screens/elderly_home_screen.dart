@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../state.dart';
+import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/chatnav.dart';
@@ -87,12 +88,15 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
           .cast<Map<String, dynamic>>()
           .where((e) => '${e['phone'] ?? ''}'.trim().isNotEmpty)
           .toList();
-      try {
-        final meds = await app.api.medicinesToday();
-        _medsDueToday =
-            meds.where((m) => m['taken'] != true && m['skipped'] != true).length;
-      } catch (_) {
-        _medsDueToday = 0;
+      if (kMedicalFeaturesAllowed) {
+        try {
+          final meds = await app.api.medicinesToday();
+          _medsDueToday = meds
+              .where((m) => m['taken'] != true && m['skipped'] != true)
+              .length;
+        } catch (_) {
+          _medsDueToday = 0;
+        }
       }
       _offline = false;
     } catch (e) {
@@ -359,15 +363,21 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
                 color: const Color(0xFF1B5E20),
                 onTap: _callFamily,
               ),
+              // play-nomed: no medicine tile in the Play flavour — the same
+              // slot becomes a plain Reminders tile (2x2 grid unchanged).
               ElderlyTile(
-                icon: Icons.medication,
-                label: t.elderlyTileMeds,
-                sublabel: _medsDueToday > 0
-                    ? t.elderlyMedsDue(
-                        _digits(_medsDueToday))
-                    : t.elderlyMedsNoneDue,
+                icon: kMedicalFeaturesAllowed ? Icons.medication : Icons.alarm,
+                label: kMedicalFeaturesAllowed
+                    ? t.elderlyTileMeds
+                    : t.navReminders,
+                sublabel: !kMedicalFeaturesAllowed
+                    ? null
+                    : _medsDueToday > 0
+                        ? t.elderlyMedsDue(_digits(_medsDueToday))
+                        : t.elderlyMedsNoneDue,
                 color: const Color(0xFF0D47A1),
-                onTap: () => _open('medicine_db'),
+                onTap: () => _open(
+                    kMedicalFeaturesAllowed ? 'medicine_db' : 'reminders'),
               ),
               ElderlyTile(
                 icon: Icons.chat_bubble,
