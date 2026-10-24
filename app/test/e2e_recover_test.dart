@@ -430,6 +430,7 @@ void main() {
       a.reinstall(restorePin: '482915');
       final after = await a.publish();
       // the restore screen came BEFORE any key was generated
+      await Future<void>.delayed(const Duration(milliseconds: 20));
       expect(a.events.first, 'restore-screen ring=0 slot=false');
       expect(a.events, isNot(contains('new-key')));
       expect(after.keyId, before.keyId);
@@ -463,6 +464,7 @@ void main() {
       a.reinstall(); // no backup -> no restore screen, a NEW key
       final after = await a.publish();
       expect(after.keyId, isNot(before.keyId));
+      await Future<void>.delayed(const Duration(milliseconds: 20)); // hook is async
       expect(a.events, contains('new-key'));
       // without help nothing old opens — not even A's own sent messages
       expect(await a.read(), [null, null, null]);
