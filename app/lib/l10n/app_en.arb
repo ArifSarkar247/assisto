@@ -18763,5 +18763,13 @@
   "emergencyCardEmptyHintBasic": "Add your emergency contacts — this is what helps most in a crisis.",
   "@emergencyCardEmptyHintBasic": {
     "description": "Emergency card empty state in the Google Play build (no medical fields there): ask only for emergency contacts."
+  },
+  "athbResumeTitle": "Lost/Stolen protection paused",
+  "@athbResumeTitle": {
+    "description": "Quiet Android notification after a phone restart / app update when Android did not let the always-on protection restart by itself (Android 14+)."
+  },
+  "athbResumeBody": "Tap to open Assisto and protection starts again.",
+  "@athbResumeBody": {
+    "description": "Body of the 'protection paused' notification; tapping opens the app, which restarts protection."
   }
 }
