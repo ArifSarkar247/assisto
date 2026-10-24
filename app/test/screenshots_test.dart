@@ -262,6 +262,32 @@ final _outDir = Platform.environment['ASSISTO_SHOT_DIR'] ?? '/home/ubuntu/assist
 final _textScale = double.tryParse(Platform.environment['ASSISTO_SHOT_SCALE'] ?? '') ?? 1.0;
 final _scaleSuffix = _textScale == 1.0 ? '' : '_xl';
 
+// f2-design: ASSISTO_SHOT_A11Y=1 also runs the Android tap-target (48 dp) and
+// labelled-tap-target guidelines on every shot and appends each failure to
+// `$ASSISTO_SHOT_DIR/a11y.txt` (an audit — the shot itself never fails).
+final _a11y = Platform.environment['ASSISTO_SHOT_A11Y'] == '1';
+
+Future<void> _a11yAudit(WidgetTester tester, String name, String lang,
+    Brightness brightness) async {
+  final handle = tester.ensureSemantics();
+  await tester.pump();
+  final out = <String>[];
+  for (final (label, g) in [
+    ('tap-target', androidTapTargetGuideline),
+    ('label', labeledTapTargetGuideline),
+  ]) {
+    final r = await g.evaluate(tester);
+    if (!r.passed) {
+      out.add('== $name $lang ${brightness.name} $label\n${r.reason}');
+    }
+  }
+  handle.dispose();
+  if (out.isNotEmpty) {
+    File('$_outDir/a11y.txt')
+        .writeAsStringSync('${out.join('\n')}\n', mode: FileMode.append);
+  }
+}
+
 Future<void> _loadFont(String family, String path) async {
   final loader = FontLoader(family);
   loader.addFont(File(path).readAsBytes().then((b) => ByteData.view(b.buffer)));
@@ -833,6 +859,7 @@ void main() {
         if (mv.evaluate().isNotEmpty) { await tester.tap(mv.first); await tester.pumpAndSettle(const Duration(milliseconds: 300)); }
       } catch (_) {}
     }
+    if (_a11y) await _a11yAudit(tester, name, lang, brightness); // f2-design
     final boundary =
         key.currentContext!.findRenderObject() as RenderRepaintBoundary;
     final image =

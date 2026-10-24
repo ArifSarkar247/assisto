@@ -155,7 +155,7 @@ class _BargainRulesScreenState extends State<BargainRulesScreen> {
       );
 
   TextStyle _label() =>
-      TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant);
+      AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant);
 
   Future<void> _edit(AppLocalizations tr, Map<String, dynamic> r) async {
     final steps = TextEditingController(

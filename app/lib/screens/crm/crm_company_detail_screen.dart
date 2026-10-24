@@ -219,7 +219,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
             hint: t.crmTimelineAllContacts),
         for (final a in _activities)
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
+            padding: const EdgeInsets.symmetric(vertical: Gap.xs),
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Icon(activityKindIcon(a['kind']?.toString()),
                   size: 18, color: scheme.primary),
@@ -236,16 +236,14 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
                       ),
                       if ((a['body'] ?? '').toString().isNotEmpty)
                         Text(a['body'].toString(),
-                            style: TextStyle(
-                                fontSize: 12, color: scheme.onSurfaceVariant)),
+                            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                       Text(
                         [
                           if ((a['actor_name'] ?? '').toString().isNotEmpty)
                             a['actor_name'].toString(),
                           _date(a['created_at']?.toString()),
                         ].where((s) => s.isNotEmpty).join(' · '),
-                        style: TextStyle(
-                            fontSize: 11, color: scheme.onSurfaceVariant),
+                        style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant),
                       ),
                     ]),
               ),
@@ -254,9 +252,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
         Padding(
           padding: const EdgeInsets.only(top: Gap.md),
           child: Text(t.crmCompanyTimelineClientNote,
-              style: TextStyle(
-                  fontSize: 11,
-                  fontStyle: FontStyle.italic,
+              style: AType.labelSmall.copyWith(fontStyle: FontStyle.italic,
                   color: scheme.onSurfaceVariant)),
         ),
       ]),
@@ -280,9 +276,9 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
           final d = _deals[i];
           final state = d['state']?.toString();
           final tint = state == 'won'
-              ? Brand.success
+              ? AssistoTokens.of(context).success
               : state == 'lost'
-                  ? Brand.danger
+                  ? Theme.of(context).colorScheme.error
                   : scheme.primary;
           return Card(
             margin: EdgeInsets.zero,
@@ -292,7 +288,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
                   maxLines: 1, overflow: TextOverflow.ellipsis),
               subtitle: Text(
                   '${d['stage_name'] ?? ''} · ${_stateLabel(t, state)}',
-                  style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               trailing: Text(bdt(context, d['value'] as num?),
                   style: const TextStyle(fontWeight: FontWeight.w800)),
             ),
@@ -320,7 +316,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
     }
     return ListView(padding: const EdgeInsets.all(Gap.md), children: [
       Text(t.crmDocumentsClientNote,
-          style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+          style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
       const SizedBox(height: Gap.sm),
       for (final a in withDocs)
         Card(
@@ -431,8 +427,7 @@ class _ContactTile extends StatelessWidget {
                       Text(contact['title'].toString(),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                              fontSize: 12, color: scheme.onSurfaceVariant)),
+                          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                   ]),
             ),
             if (isPrimary) const PrimaryContactBadge(),

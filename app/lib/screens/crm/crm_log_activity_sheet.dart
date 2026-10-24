@@ -163,7 +163,7 @@ class _CrmLogActivitySheetState extends State<CrmLogActivitySheet> {
         padding: const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, Gap.md),
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(t.crmLogActivity,
-              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+              style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.sm),
           // ---- type chips (one tap) ----
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [

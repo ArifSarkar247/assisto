@@ -161,12 +161,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(t.biz_report_sales,
-              style: const TextStyle(color: Colors.white70, fontSize: 13)),
-          const SizedBox(height: 4),
+              style: AType.bodyMedium.copyWith(color: Colors.white70)),
+          const SizedBox(height: Gap.xs),
           Text(sales.takaIn(context),
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 28,
+              style: AType.headlineLarge.copyWith(color: Colors.white,
                   fontWeight: FontWeight.w800)),
         ]),
       ),
@@ -175,17 +173,17 @@ class _ReportsScreenState extends State<ReportsScreen> {
         Row(children: [
           Expanded(
               child: _statCard(scheme, t.biz_report_profit, profit.takaIn(context),
-                  Brand.success)),
+                  AssistoTokens.of(context).success)),
           const SizedBox(width: Gap.md),
           Expanded(
               child: _statCard(scheme, t.biz_report_expenses,
-                  expenses.takaIn(context), Brand.warning)),
+                  expenses.takaIn(context), AssistoTokens.of(context).warning)),
         ]),
         const SizedBox(height: Gap.md),
         SellCard(
           child: MoneyRow(t.biz_report_net_profit, net,
               strong: true,
-              valueColor: net >= 0 ? Brand.success : Brand.danger),
+              valueColor: net >= 0 ? AssistoTokens.of(context).success : Theme.of(context).colorScheme.error),
         ),
       ],
     ]);
@@ -195,11 +193,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
     return SellCard(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(label,
-            style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5)),
-        const SizedBox(height: 4),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+        const SizedBox(height: Gap.xs),
         Text(value,
-            style: TextStyle(
-                color: Brand.onTint(context, tint), fontSize: 18, fontWeight: FontWeight.w800)),
+            style: AType.titleLarge.copyWith(color: Brand.onTint(context, tint), fontWeight: FontWeight.w800)),
       ]),
     );
   }
@@ -245,7 +242,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
           radius: 13,
           backgroundColor: scheme.surfaceContainerHighest,
           child: Text('$rank',
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+              style: AType.labelMedium.copyWith(fontWeight: FontWeight.w700)),
         ),
         const SizedBox(width: Gap.md),
         Expanded(
@@ -256,8 +253,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
           Padding(
             padding: const EdgeInsets.only(right: Gap.sm),
             child: Text('x$count',
-                style: TextStyle(
-                    fontSize: 12, color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ),
         Text(amount.takaIn(context),
             style: const TextStyle(fontWeight: FontWeight.w700)),

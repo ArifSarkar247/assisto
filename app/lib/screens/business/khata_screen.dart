@@ -346,7 +346,7 @@ class _NetHeaderState extends State<_NetHeader> {
     final value = widget.isCustomer
         ? pair(context, np['receivable_display'], fallback: '৳0')
         : pair(context, np['payable_display'], fallback: '৳0');
-    final color = widget.isCustomer ? Brand.success : Brand.danger;
+    final color = widget.isCustomer ? AssistoTokens.of(context).success : Theme.of(context).colorScheme.error;
     return BrandBand(
       padding: const EdgeInsets.all(Gap.lg),
       child: Row(children: [
@@ -356,11 +356,10 @@ class _NetHeaderState extends State<_NetHeader> {
         const SizedBox(width: Gap.md),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(label, style: const TextStyle(fontSize: 13)),
-            const SizedBox(height: 2),
+            Text(label, style: AType.bodyMedium),
+            const SizedBox(height: Gap.xxs),
             Text(value,
-                style: const TextStyle(
-                    fontSize: 22, fontWeight: FontWeight.w700)),
+                style: AType.headlineSmall.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
           ]),
         ),
         Icon(Icons.circle, size: 10, color: color.withValues(alpha: 0.9)),
@@ -399,7 +398,7 @@ class _PartyTile extends StatelessWidget {
     // -> neutral. We colour purely by sign for a quick read.
     final color = poisha == 0
         ? scheme.onSurfaceVariant
-        : (book == 'customer' ? Brand.success : Brand.danger);
+        : (book == 'customer' ? AssistoTokens.of(context).success : Theme.of(context).colorScheme.error);
     return Card(
       margin: const EdgeInsets.only(bottom: Gap.md),
       child: ListTile(
@@ -422,7 +421,7 @@ class _PartyTile extends StatelessWidget {
           ),
           if (vip) ...[
             const SizedBox(width: Gap.xs),
-            const Icon(Icons.star, size: 14, color: Brand.warning),
+            Icon(Icons.star, size: 14, color: AssistoTokens.of(context).warning),
           ],
         ]),
         subtitle: balanceStatus.isEmpty ? null : Text(balanceStatus),
@@ -431,7 +430,7 @@ class _PartyTile extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(balanceDisplay,
-                style: TextStyle(fontWeight: FontWeight.w700, color: color)),
+                style: TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700, color: color)),
           ],
         ),
       ),
@@ -682,11 +681,10 @@ class _StatementBody extends StatelessWidget {
         BrandBand(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(balanceStatus.isEmpty ? t.khataDueLabel : balanceStatus,
-                style: const TextStyle(fontSize: 13)),
-            const SizedBox(height: 2),
+                style: AType.bodyMedium),
+            const SizedBox(height: Gap.xxs),
             Text(balanceDisplay,
-                style: const TextStyle(
-                    fontSize: 26, fontWeight: FontWeight.w700)),
+                style: AType.headlineMedium.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
           ]),
         ),
         const SizedBox(height: Gap.lg),
@@ -695,7 +693,7 @@ class _StatementBody extends StatelessWidget {
             child: ListTile(
               leading: const Icon(Icons.call_outlined),
               title: Text((party['phone'] ?? '').toString()),
-              trailing: const Icon(Icons.call, color: Brand.success),
+              trailing: Icon(Icons.call, color: AssistoTokens.of(context).success),
               onTap: () => launchUrl(Uri.parse('tel:${party['phone']}')),
             ),
           ),
@@ -737,7 +735,7 @@ class _StatementRow extends StatelessWidget {
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
           Icon(isDebit ? Icons.north_east : Icons.south_west,
-              size: 18, color: isDebit ? Brand.danger : Brand.success),
+              size: 18, color: isDebit ? Theme.of(context).colorScheme.error : AssistoTokens.of(context).success),
           const SizedBox(width: Gap.md),
           Expanded(
             child: Column(
@@ -748,22 +746,21 @@ class _StatementRow extends StatelessWidget {
                           fallback: isDebit ? t.stmtDebit : t.stmtCredit),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: Gap.xxs),
                   Text(pair(context, line['at_display'],
                       fallback: (line['at'] ?? '').toString()),
-                      style: TextStyle(
-                          fontSize: 12, color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(fontFeatures: AFonts.tabular, color: scheme.onSurfaceVariant)),
                 ]),
           ),
           const SizedBox(width: Gap.sm),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
             Text(isDebit ? debit : credit,
-                style: TextStyle(
+                style: TextStyle(fontFeatures: AFonts.tabular,
                     fontWeight: FontWeight.w700,
-                    color: isDebit ? Brand.danger : Brand.success)),
+                    color: isDebit ? Theme.of(context).colorScheme.error : AssistoTokens.of(context).success)),
             Text(pair(context, line['balance_display']),
                 style:
-                    TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+                    AType.bodySmall.copyWith(fontFeatures: AFonts.tabular, color: scheme.onSurfaceVariant)),
           ]),
         ]),
       ),

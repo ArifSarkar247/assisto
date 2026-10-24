@@ -46,7 +46,8 @@ class _MoneyNetWorthScreenState extends State<MoneyNetWorthScreen> {
     final t = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(t.moneyNetWorthTitle), actions: [
-        IconButton(onPressed: _load, icon: const Icon(Icons.sync)),
+        IconButton(
+            tooltip: AppLocalizations.of(context).refresh,onPressed: _load, icon: const Icon(Icons.sync)),
       ]),
       body: _loading
           ? const SkeletonList(count: 4)
@@ -79,28 +80,26 @@ class _MoneyNetWorthScreenState extends State<MoneyNetWorthScreen> {
               style: const TextStyle(color: Colors.white70)),
           const SizedBox(height: Gap.xs),
           Text(tkFmt(nw),
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 32,
+              style: AType.displaySmall.copyWith(fontFeatures: AFonts.tabular, color: Colors.white,
                   fontWeight: FontWeight.bold)),
         ]),
       ),
       const SizedBox(height: Gap.md),
-      statCard(context, t.moneyAssets, tkFmt(assets), Brand.success,
+      statCard(context, t.moneyAssets, tkFmt(assets), AssistoTokens.of(context).success,
           Icons.account_balance_wallet_outlined),
       const SizedBox(height: Gap.md),
       Row(children: [
         Expanded(
             child: statCard(context, t.moneyReceivable, tkFmt(receivable),
-                Brand.blue, Icons.call_received)),
+                Theme.of(context).colorScheme.primary, Icons.call_received)),
         const SizedBox(width: Gap.md),
         Expanded(
             child: statCard(context, t.moneyLiabilities, tkFmt(liabilities),
-                Brand.danger, Icons.call_made)),
+                Theme.of(context).colorScheme.error, Icons.call_made)),
       ]),
       const SizedBox(height: Gap.xl),
       Text(t.moneyNetWorthOverTime,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+          style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
       const SizedBox(height: Gap.md),
       if (series.isEmpty)
         Text(t.moneyNoTransactionsHint,
@@ -120,7 +119,7 @@ class _MoneyNetWorthScreenState extends State<MoneyNetWorthScreen> {
           title: Text(moneyMonth(context, p['month'])),
           trailing: Row(mainAxisSize: MainAxisSize.min, children: [
             Text(tkFmt(p['net_worth']),
-                style: const TextStyle(fontWeight: FontWeight.w600)),
+                style: const TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w600)),
             const SizedBox(width: Gap.md),
             deltaChip(context, dbl(p['delta']), upIsBad: false),
           ]),

@@ -101,63 +101,63 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
     final biggest = d['biggest_expense'] as Map<String, dynamic>?;
     return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
       Text(t.moneyReportFor(moneyMonth(context, d['month'])),
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
       const SizedBox(height: Gap.md),
       Row(children: [
         Expanded(
             child: statCard(context, t.moneyMonthIncome,
-                tkFmt(d['income']), Brand.success, Icons.south_west)),
+                tkFmt(d['income']), AssistoTokens.of(context).success, Icons.south_west)),
         const SizedBox(width: Gap.md),
         Expanded(
             child: statCard(context, t.moneyMonthExpense,
-                tkFmt(d['expense']), Brand.danger, Icons.north_east)),
+                tkFmt(d['expense']), Theme.of(context).colorScheme.error, Icons.north_east)),
       ]),
       const SizedBox(height: Gap.md),
       Row(children: [
         Expanded(
             child: statCard(context, t.moneyMonthNet, tkFmt(d['net']),
-                dbl(d['net']) >= 0 ? Brand.blue : Brand.danger,
+                dbl(d['net']) >= 0 ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.error,
                 Icons.savings_outlined)),
         const SizedBox(width: Gap.md),
         Expanded(
             child: statCard(context, t.moneySavingsRate,
-                '${d['savings_rate'] ?? 0}%', Brand.purple,
+                '${d['savings_rate'] ?? 0}%', Brand.onTint(context, Brand.purple),
                 Icons.percent)),
       ]),
       if (biggest != null) ...[
         const SizedBox(height: Gap.md),
         Card(
           child: ListTile(
-            leading: const Icon(Icons.local_fire_department_outlined,
-                color: Brand.warning),
+            leading: Icon(Icons.local_fire_department_outlined,
+                color: AssistoTokens.of(context).warning),
             title: Text(t.moneyBiggestExpense),
             subtitle: Text('${biggest['category']} · ${moneyDay(context, biggest['date'])}'),
             trailing: Text(tkFmt(biggest['amount']),
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: const TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
           ),
         ),
       ],
       const SizedBox(height: Gap.xl),
       Text(t.moneyExpenseBreakdown,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+          style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
       const SizedBox(height: Gap.sm),
       for (final c in byCat)
         ListTile(
           dense: true,
           title: Text('${c['category']}'),
           trailing: Text(tkFmt(c['amount']),
-              style: const TextStyle(fontWeight: FontWeight.w600)),
+              style: const TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w600)),
         ),
       if (budgets.isNotEmpty) ...[
         const SizedBox(height: Gap.xl),
         Text(t.moneyTabBudget,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: Gap.sm),
         for (final b in budgets)
           ListTile(
             dense: true,
             title: Text('${b['category']}'),
-            subtitle: Text('${tkFmt(b['spent'])} / ${tkFmt(b['limit'])}'),
+            subtitle: Text('${tkFmt(b['spent'])} / ${tkFmt(b['limit'])}', style: const TextStyle(fontFeatures: AFonts.tabular)),
             trailing: Icon(
                 b['state'] == 'over'
                     ? Icons.error_outline
@@ -165,10 +165,10 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
                         ? Icons.warning_amber_outlined
                         : Icons.check_circle_outline,
                 color: b['state'] == 'over'
-                    ? Brand.danger
+                    ? Theme.of(context).colorScheme.error
                     : b['state'] == 'near'
-                        ? Brand.warning
-                        : Brand.success),
+                        ? AssistoTokens.of(context).warning
+                        : AssistoTokens.of(context).success),
           ),
       ],
     ]);

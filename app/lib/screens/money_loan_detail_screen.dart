@@ -148,35 +148,33 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
                 children: [
                   Row(children: [
                     Icon(given ? Icons.call_made : Icons.call_received,
-                        color: given ? Brand.warning : Brand.blue),
+                        color: given ? AssistoTokens.of(context).warning : scheme.primary),
                     const SizedBox(width: Gap.sm),
                     Text(given ? t.moneyLoanGiven : t.moneyLoanTaken,
                         style: TextStyle(color: scheme.onSurfaceVariant)),
                     const Spacer(),
                     if (_settled)
                       Chip(
-                          avatar: const Icon(Icons.check_circle,
-                              color: Brand.success, size: 18),
+                          avatar: Icon(Icons.check_circle,
+                              color: AssistoTokens.of(context).success, size: 18),
                           label: Text(t.moneyLoanSettled)),
                   ]),
                   const SizedBox(height: Gap.md),
                   Text(t.moneyLoanBalance,
                       style: TextStyle(color: scheme.onSurfaceVariant)),
                   Text(tkFmt(_balance),
-                      style: const TextStyle(
-                          fontSize: 28, fontWeight: FontWeight.bold)),
+                      style: AType.headlineLarge.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.bold)),
                   const SizedBox(height: Gap.sm),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(Radii.sm),
                     child: LinearProgressIndicator(
                         value: progress,
                         minHeight: 8,
-                        color: Brand.success),
+                        color: AssistoTokens.of(context).success),
                   ),
                   const SizedBox(height: Gap.xs),
                   Text(t.moneyLoanPaidOf(tkFmt(_paid), tkFmt(principal)),
-                      style: TextStyle(
-                          fontSize: 12, color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(fontFeatures: AFonts.tabular, color: scheme.onSurfaceVariant)),
                 ]),
           ),
         ),
@@ -192,7 +190,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
           ),
         const SizedBox(height: Gap.lg),
         Text(t.moneyLoanLedger,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: Gap.sm),
         for (final e in ledger)
           Card(
@@ -203,7 +201,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
                       : Icons.payments_outlined,
                   color: e['type'] == 'principal'
                       ? scheme.primary
-                      : Brand.success),
+                      : AssistoTokens.of(context).success),
               title: Text(e['type'] == 'principal'
                   ? t.moneyLoanPrincipal
                   : t.moneyLoanRepayment),
@@ -219,10 +217,10 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(tkFmt(e['amount']),
-                        style: const TextStyle(fontWeight: FontWeight.w700)),
+                        style: const TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
                     Text(t.moneyLoanBalanceLabel(tkFmt(e['balance'])),
                         style:
-                            TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+                            AType.labelSmall.copyWith(fontFeatures: AFonts.tabular, color: scheme.onSurfaceVariant)),
                   ])),
             ),
           ),

@@ -100,7 +100,8 @@ class _MoneyScreenState extends State<MoneyScreen> {
                   MaterialPageRoute(builder: (_) => const MoneyImportScreen())),
               icon: const Icon(Icons.sms_outlined),
             ),
-            IconButton(onPressed: _refresh, icon: const Icon(Icons.sync)),
+            IconButton(
+                tooltip: AppLocalizations.of(context).refresh,onPressed: _refresh, icon: const Icon(Icons.sync)),
           ],
           // Non-scrollable so all 5 tabs always share the 360dp width and none
           // (e.g. Budget/Loans) scroll off-screen in English. Labels wrap to
@@ -114,10 +115,10 @@ class _MoneyScreenState extends State<MoneyScreen> {
                 ? TabAlignment.start
                 : null,
             labelPadding: MediaQuery.textScalerOf(context).scale(10) > 11.5
-                ? const EdgeInsets.symmetric(horizontal: 12)
-                : const EdgeInsets.symmetric(horizontal: 2),
-            labelStyle: const TextStyle(fontSize: 12),
-            unselectedLabelStyle: const TextStyle(fontSize: 12),
+                ? const EdgeInsets.symmetric(horizontal: Gap.md)
+                : const EdgeInsets.symmetric(horizontal: Gap.xxs),
+            labelStyle: AType.bodySmall,
+            unselectedLabelStyle: AType.bodySmall,
             tabs: [
               Tab(child: _tabLabel(t.moneyTabSummary)),
               Tab(child: _tabLabel(t.moneyTabAccounts)),
@@ -173,10 +174,10 @@ class _OverviewTab extends StatelessWidget {
                 style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: Gap.xs),
             Text(tk(context, s?['total_balance'] ?? nw['assets']),
-                style: const TextStyle(
+                style: AType.displaySmall.copyWith(
                     color: Colors.white,
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold)),
+                    fontWeight: FontWeight.bold,
+                    fontFeatures: AFonts.tabular)),
             const SizedBox(height: Gap.md),
             Row(children: [
               _heroPill(Icons.trending_up, t.moneyNetWorthLabel,
@@ -191,16 +192,16 @@ class _OverviewTab extends StatelessWidget {
         // income / expense / net — stacked full-width so the longer EN labels
         // ("Income This Month" / "Expenses This Month") fit without clipping.
         statCard(context, t.moneyMonthIncome,
-            tk(context, s?['month_income'] ?? '0'), Brand.success, Icons.south_west),
+            tk(context, s?['month_income'] ?? '0'), AssistoTokens.of(context).success, Icons.south_west),
         const SizedBox(height: Gap.md),
         statCard(context, t.moneyMonthExpense,
-            tk(context, s?['month_expense'] ?? '0'), Brand.danger, Icons.north_east),
+            tk(context, s?['month_expense'] ?? '0'), Theme.of(context).colorScheme.error, Icons.north_east),
         const SizedBox(height: Gap.md),
         statCard(
             context,
             t.moneyMonthNet,
             tk(context, s?['month_net'] ?? '0'),
-            (dbl(s?['month_net']) >= 0) ? scheme.secondary : Brand.danger,
+            (dbl(s?['month_net']) >= 0) ? scheme.secondary : Theme.of(context).colorScheme.error,
             Icons.savings_outlined),
         const SizedBox(height: Gap.lg),
         // quick links to drill-down screens
@@ -233,16 +234,15 @@ class _OverviewTab extends StatelessWidget {
               const SizedBox(width: Gap.xs),
               Flexible(
                   child: Text(label,
-                      style: const TextStyle(
-                          color: Colors.white70, fontSize: 11),
+                      style: AType.labelSmall.copyWith(color: Colors.white70),
                       overflow: TextOverflow.ellipsis)),
             ]),
-            const SizedBox(height: 2),
+            const SizedBox(height: Gap.xxs),
             Text(value,
-                style: const TextStyle(
+                style: AType.titleMedium.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
-                    fontSize: 15)),
+                    fontFeatures: AFonts.tabular)),
           ]),
         ),
       );
@@ -273,7 +273,7 @@ class _OverviewTab extends StatelessWidget {
     final maxVal = cats.values.fold<double>(0, (p, v) => dbl(v) > p ? dbl(v) : p);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(t.moneyExpenseBreakdown,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+          style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
       const SizedBox(height: Gap.sm),
       for (final e in cats.entries)
         Padding(
@@ -282,7 +282,9 @@ class _OverviewTab extends StatelessWidget {
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Text(e.key),
               Text(tk(context, e.value),
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontFeatures: AFonts.tabular)),
             ]),
             const SizedBox(height: Gap.xs),
             ClipRRect(
@@ -413,7 +415,8 @@ class _AccountsTab extends StatelessWidget {
                           tk(context, it['data']['opening_balance'] ??
                               it['data']['balance']),
                           style: const TextStyle(
-                              fontWeight: FontWeight.w700)),
+                              fontWeight: FontWeight.w700,
+                              fontFeatures: AFonts.tabular)),
                       onLongPress: () => confirmDelete(
                           context, () => app.accounts.remove(it)),
                     ),
@@ -629,8 +632,8 @@ class _TxnsTabState extends State<_TxnsTab> {
                                   ? Icons.arrow_downward
                                   : Icons.arrow_upward,
                               color: it['data']['kind'] == 'income'
-                                  ? Brand.success
-                                  : Brand.danger),
+                                  ? AssistoTokens.of(context).success
+                                  : Theme.of(context).colorScheme.error),
                           title: Text(
                               (it['data']['category']?.toString().isNotEmpty ==
                                       true)
@@ -663,9 +666,10 @@ class _TxnsTabState extends State<_TxnsTab> {
                               '${it['data']['kind'] == 'income' ? '+' : '-'}${tk(context, it['data']['amount'])}',
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
+                                  fontFeatures: AFonts.tabular,
                                   color: it['data']['kind'] == 'income'
-                                      ? Brand.success
-                                      : Brand.danger)),
+                                      ? AssistoTokens.of(context).success
+                                      : Theme.of(context).colorScheme.error)),
                           onLongPress: () => confirmDelete(
                               context, () => app.txns.remove(it)),
                         ),
@@ -777,7 +781,9 @@ class _BudgetsTab extends StatelessWidget {
                                         style: const TextStyle(
                                             fontWeight: FontWeight.bold)),
                                     Text(
-                                        '${tk(context, b['spent'])} / ${tk(context, b['limit'])}'),
+                                        '${tk(context, b['spent'])} / ${tk(context, b['limit'])}',
+                                        style: const TextStyle(
+                                            fontFeatures: AFonts.tabular)),
                                   ]),
                               const SizedBox(height: Gap.sm),
                               ClipRRect(
@@ -788,10 +794,10 @@ class _BudgetsTab extends StatelessWidget {
                                       100,
                                   minHeight: 8,
                                   color: b['state'] == 'over'
-                                      ? Brand.danger
+                                      ? Theme.of(context).colorScheme.error
                                       : b['state'] == 'near'
-                                          ? Brand.warning
-                                          : Brand.success,
+                                          ? AssistoTokens.of(context).warning
+                                          : AssistoTokens.of(context).success,
                                 ),
                               ),
                               if (b['state'] == 'over')
@@ -799,17 +805,13 @@ class _BudgetsTab extends StatelessWidget {
                                     padding:
                                         const EdgeInsets.only(top: Gap.xs),
                                     child: Text(t.moneyBudgetOver,
-                                        style: const TextStyle(
-                                            color: Brand.danger,
-                                            fontSize: 12)))
+                                        style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.error)))
                               else if (b['state'] == 'near')
                                 Padding(
                                     padding:
                                         const EdgeInsets.only(top: Gap.xs),
                                     child: Text(t.moneyBudgetNear,
-                                        style: const TextStyle(
-                                            color: Brand.warning,
-                                            fontSize: 12))),
+                                        style: AType.bodySmall.copyWith(color: AssistoTokens.of(context).warning))),
                             ]),
                       ),
                     ),
@@ -831,7 +833,7 @@ class _LoansSavingsTab extends StatelessWidget {
     return ListView(padding: const EdgeInsets.all(Gap.md), children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Text(t.moneyLoansHeading,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
         TextButton.icon(
             onPressed: () => _addLoan(context),
             icon: const Icon(Icons.add),
@@ -851,13 +853,13 @@ class _LoansSavingsTab extends StatelessWidget {
                     ? Icons.call_made
                     : Icons.call_received,
                 color: it['data']['kind'] == 'given'
-                    ? Brand.warning
+                    ? AssistoTokens.of(context).warning
                     : Brand.blue),
             title: Text(
                 '${it['data']['person']} · ${tk(context, it['data']['amount'])}'),
             subtitle: Text(_loanSubtitle(context, it['data'])),
             trailing: it['data']['settled'] == true
-                ? const Icon(Icons.check_circle, color: Brand.success)
+                ? Icon(Icons.check_circle, color: AssistoTokens.of(context).success)
                 : const Icon(Icons.chevron_right),
             onTap: () => Navigator.push(
                 context,
@@ -868,7 +870,7 @@ class _LoansSavingsTab extends StatelessWidget {
       const Divider(height: 28),
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Text(t.moneySavingsGoal,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
         TextButton.icon(
             onPressed: () => _addGoal(context),
             icon: const Icon(Icons.add),
@@ -886,7 +888,9 @@ class _LoansSavingsTab extends StatelessWidget {
                       children: [
                         Text(it['data']['title'] ?? ''),
                         Text(
-                            '${tk(context, it['data']['saved_amount'])} / ${tk(context, it['data']['target_amount'])}'),
+                            '${tk(context, it['data']['saved_amount'])} / ${tk(context, it['data']['target_amount'])}',
+                            style: const TextStyle(
+                                fontFeatures: AFonts.tabular)),
                       ]),
                   const SizedBox(height: Gap.sm),
                   ClipRRect(

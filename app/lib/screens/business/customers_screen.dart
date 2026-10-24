@@ -134,9 +134,9 @@ class _CustomersScreenState extends State<CustomersScreen> {
               child: Row(children: [
                 CircleAvatar(
                   backgroundColor:
-                      vip ? Brand.warning.withValues(alpha: 0.2) : scheme.surfaceContainerHighest,
+                      vip ? AssistoTokens.of(context).warning.withValues(alpha: 0.2) : scheme.surfaceContainerHighest,
                   child: Icon(vip ? Icons.star : Icons.person_outline,
-                      color: vip ? Brand.warning : scheme.onSurfaceVariant),
+                      color: vip ? AssistoTokens.of(context).warning : scheme.onSurfaceVariant),
                 ),
                 const SizedBox(width: Gap.md),
                 Expanded(
@@ -160,25 +160,22 @@ class _CustomersScreenState extends State<CustomersScreen> {
                         ]),
                         if ((c['phone'] ?? '').toString().isNotEmpty)
                           Text(c['phone'].toString(),
-                              style: TextStyle(
-                                  fontSize: 12.5,
-                                  color: scheme.onSurfaceVariant)),
+                              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                         if ((c['area'] ?? '').toString().isNotEmpty)
                           Text(c['area'].toString(),
-                              style: TextStyle(
-                                  fontSize: 12, color: scheme.onSurfaceVariant)),
+                              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                       ]),
                 ),
                 if (dues > 0)
                   Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
                     Text(t.biz_customer_dues,
-                        style: TextStyle(
-                            fontSize: 11, color: scheme.onSurfaceVariant)),
+                        style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
                     Text(dues.takaIn(context),
-                        style: const TextStyle(
-                            color: Brand.danger, fontWeight: FontWeight.w800)),
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.error, fontWeight: FontWeight.w800)),
                   ]),
                 IconButton(
+                  tooltip: AppLocalizations.of(context).edit,
                   icon: const Icon(Icons.edit_outlined),
                   onPressed: () => _openSheet(c),
                 ),
@@ -191,14 +188,12 @@ class _CustomersScreenState extends State<CustomersScreen> {
   }
 
   Widget _vipBadge(AppLocalizations t) => Builder(builder: (context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: Gap.xxs),
         decoration: BoxDecoration(
-            color: Brand.warning.withValues(alpha: 0.18),
-            borderRadius: BorderRadius.circular(999)),
+            color: AssistoTokens.of(context).warning.withValues(alpha: 0.18),
+            borderRadius: BorderRadius.circular(Radii.pill)),
         child: Text(t.biz_customer_vip,
-            style: TextStyle(
-                fontSize: 11,
-                color: Brand.onTint(context, Brand.warning),
+            style: AType.labelSmall.copyWith(color: Brand.onTint(context, AssistoTokens.of(context).warning),
                 fontWeight: FontWeight.w700)),
       ));
 }
@@ -402,7 +397,7 @@ class _CustomerHistorySheetState extends State<CustomerHistorySheet> {
           if (dues > 0)
             SellCard(
               child: MoneyRow(t.biz_customer_dues, dues,
-                  strong: true, valueColor: Brand.danger),
+                  strong: true, valueColor: Theme.of(context).colorScheme.error),
             ),
           const SizedBox(height: Gap.md),
           if (_loading)

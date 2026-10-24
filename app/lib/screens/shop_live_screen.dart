@@ -297,7 +297,7 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
           if (_phase == _Phase.live)
             Chip(
               avatar: Icon(_relayed ? Icons.cloud_sync_outlined : Icons.bolt_outlined,
-                  size: 18, color: _relayed ? scheme.tertiary : Brand.success),
+                  size: 18, color: _relayed ? scheme.tertiary : AssistoTokens.of(context).success),
               label: Text(_relayed ? t.shopLiveRelayed : t.shopLiveP2p),
             ),
           if (active)
@@ -312,11 +312,11 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
               ? t.shopLiveCostNote(fmtInt(context, _relayPerMin))
               : t.shopLiveNoRelayNote,
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant, height: 1.35),
+          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35),
         ),
         Text(t.shopLiveNoRecording,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant, height: 1.35)),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
         const SizedBox(height: Gap.sm),
         if (active)
           SizedBox(

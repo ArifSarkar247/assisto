@@ -84,7 +84,7 @@ class SettingsScreen extends StatelessWidget {
             child: SingleChildScrollView(
               child: SelectableText(
                 raw.length > 4000 ? '${raw.substring(0, 4000)}…' : raw,
-                style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
+                style: AType.labelSmall.copyWith(fontFamily: 'monospace'),
               ),
             ),
           ),
@@ -125,10 +125,10 @@ class SettingsScreen extends StatelessWidget {
         title: Text(AppLocalizations.of(context).inviteCodeTitle),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
           SelectableText(inv['code'] ?? '',
-              style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
+              style: AType.headlineMedium.copyWith(fontWeight: FontWeight.bold)),
+          const SizedBox(height: Gap.sm),
           Text(AppLocalizations.of(context).peopleJoinedCount(inv['invited'] ?? 0)),
-          const SizedBox(height: 8),
+          const SizedBox(height: Gap.sm),
           SelectableText(inv['share_text'] ?? '', textAlign: TextAlign.center),
         ]),
         actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context).ok))]));
@@ -165,12 +165,12 @@ class SettingsScreen extends StatelessWidget {
           // (photo / name / bio / phone / per-field privacy) — SPEC v2.1 §21,
           // #98 — instead of the info-only "About the name" screen.
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.sm),
             child: Card(
               clipBehavior: Clip.antiAlias,
               child: ListTile(
                 contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: 10),
                 leading: MsgrAvatar(
                   name: u?.name ?? '',
                   photoUrl: u?.photoUrl ?? '',
@@ -180,8 +180,7 @@ class SettingsScreen extends StatelessWidget {
                     u?.name.isNotEmpty == true
                         ? u!.name
                         : AppLocalizations.of(context).you,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w700, fontSize: 17),
+                    style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
                 subtitle: Column(
@@ -340,7 +339,7 @@ class SettingsScreen extends StatelessWidget {
                 MaterialPageRoute(builder: (_) => const CreditsScreen())),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+            padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.xs, Gap.lg, Gap.sm),
             child: StorageMeter(
               onBuyStorage: () => Navigator.push(context,
                   MaterialPageRoute(builder: (_) => const CreditsScreen())),
@@ -432,10 +431,10 @@ class SettingsScreen extends StatelessWidget {
             onTap: () => _invite(context),
           ),
           ListTile(
-            leading: const Icon(Icons.delete_forever_outlined,
-                color: Colors.red),
+            leading: Icon(Icons.delete_forever_outlined,
+                color: Theme.of(context).colorScheme.error),
             title: Text(AppLocalizations.of(context).delAcctTile,
-                style: const TextStyle(color: Colors.red)),
+                style: TextStyle(color: Theme.of(context).colorScheme.error)),
             subtitle: Text(AppLocalizations.of(context).delAcctTileSub),
             onTap: () => _deleteAccount(context),
           ),
@@ -447,10 +446,10 @@ class SettingsScreen extends StatelessWidget {
           ),
           const Divider(),
           Padding(
-            padding: EdgeInsets.all(16),
+            padding: EdgeInsets.all(Gap.lg),
             child: Text(
               AppLocalizations.of(context).privacyNotice,
-              style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ),
           // Version info lives ONLY here, deep in Settings → About (owner rule:
@@ -463,7 +462,7 @@ class SettingsScreen extends StatelessWidget {
               MaterialPageRoute(builder: (_) => const AboutScreen()),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: Gap.xl),
         ],
       ),
     );
@@ -514,11 +513,11 @@ class _DeletePendingBannerState extends State<_DeletePendingBanner> {
         : DateFormat.yMMMMd(Localizations.localeOf(context).toLanguageTag())
             .format(_effectiveAt!);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 0),
       child: Card(
-        color: Brand.warning.withValues(alpha: 0.14),
+        color: AssistoTokens.of(context).warning.withValues(alpha: 0.14),
         child: ListTile(
-          leading: const Icon(Icons.schedule, color: Brand.warning),
+          leading: Icon(Icons.schedule, color: AssistoTokens.of(context).warning),
           title: Text(t.delAcctScheduledTitle),
           subtitle: Text(t.delAcctScheduledBody(when)),
           trailing: TextButton(
@@ -572,7 +571,7 @@ class _MsgrSettingsSectionState extends State<_MsgrSettingsSection> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+          padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xs),
           child: Text(t.settingsMsgrSection,
               style: Theme.of(context)
                   .textTheme
@@ -683,7 +682,7 @@ class _AuditScreenState extends State<AuditScreen> {
           if (snap.hasError) {
             return Center(
                 child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(Gap.xl),
               child: Text(AppLocalizations.of(context).loadFailedOffline(snap.error ?? ''),
                   textAlign: TextAlign.center),
             ));
@@ -756,9 +755,9 @@ class _SourcesScreenState extends State<SourcesScreen> {
           : ListView(
               children: [
                 Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: EdgeInsets.all(Gap.lg),
                   child: Text(AppLocalizations.of(context).inputSourceHint,
-                      style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                      style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                 ),
                 for (final s in _sources)
                   SwitchListTile(
@@ -825,16 +824,17 @@ class _SupportScreenState extends State<SupportScreen> {
       body: _sent
           ? Center(
               child: Padding(
-                padding: EdgeInsets.all(24),
+                padding: EdgeInsets.all(Gap.xl),
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  Icon(Icons.check_circle, color: Colors.green, size: 56),
-                  SizedBox(height: 12),
+                  Icon(Icons.check_circle,
+                      color: AssistoTokens.of(context).success, size: 56),
+                  SizedBox(height: Gap.md),
                   Text(AppLocalizations.of(context).supportThanks, textAlign: TextAlign.center),
                 ]),
               ),
             )
           : ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(Gap.lg),
               children: [
                 SegmentedButton<String>(
                   segments: [
@@ -911,7 +911,7 @@ class _SafetySectionState extends State<_SafetySection> {
         : '${mins.toStringAsFixed(mins % 1 == 0 ? 0 : 1)} ${t.min}';
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, 0),
         child: Text(t.safety,
             style: const TextStyle(fontWeight: FontWeight.bold)),
       ),
@@ -925,15 +925,15 @@ class _SafetySectionState extends State<_SafetySection> {
         },
         title: Text(t.accidentFallDetection),
         subtitle: Text(t.onAStrongImpactAn,
-            style: const TextStyle(fontSize: 12)),
+            style: AType.bodySmall),
         isThreeLine: true,
       ),
       if (_fall && FallDetectScreen.engineShipped)
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.sm),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.timeToRespondValue(label),
-                style: const TextStyle(fontSize: 12)),
+                style: AType.bodySmall),
             Slider(
               value: _sec,
               min: 30,
@@ -944,15 +944,14 @@ class _SafetySectionState extends State<_SafetySection> {
               onChangeEnd: (_) => _save(),
             ),
             Text(t.n30Sec10MinDefault,
-                style: TextStyle(fontSize: 11,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ]),
         ),
       ListTile(
         leading: const Icon(Icons.medication_outlined),
         title: Text(t.medicineReminderFollowUp),
         subtitle: Text(t.setPerMedicineReRemind,
-            style: const TextStyle(fontSize: 12)),
+            style: AType.bodySmall),
         isThreeLine: true,
       ),
     ]);
@@ -1018,7 +1017,7 @@ class _HomeWidgetTileState extends State<_HomeWidgetTile> {
       value: _enabled,
       onChanged: _loaded ? _toggle : null,
       title: Text(t.hwTile),
-      subtitle: Text(t.hwTileSub, style: const TextStyle(fontSize: 12)),
+      subtitle: Text(t.hwTileSub, style: AType.bodySmall),
       isThreeLine: true,
     );
   }

@@ -218,7 +218,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
             icon: Icons.cloud_off_outlined,
             title: t.loadFailed,
             message: t.loadFailedBody,
-            tint: Brand.danger,
+            tint: Theme.of(context).colorScheme.error,
             action: FilledButton.icon(
                 onPressed: _c.init,
                 icon: const Icon(Icons.refresh),
@@ -334,7 +334,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
             if (eta != null && eta > 0) ...[
               const SizedBox(height: Gap.xs),
               Text(t.d1psLeft(_dur(t, eta)),
-                  style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             ],
             if (canCancel) ...[
               const SizedBox(height: Gap.sm),
@@ -493,7 +493,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
         child: ListView(shrinkWrap: true, children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
-            child: Text(t.d1psReportAi, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+            child: Text(t.d1psReportAi, style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
           ),
           for (final e in reasons.entries)
             ListTile(
@@ -648,7 +648,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
         if (!_c.free) ...[
           const SizedBox(height: Gap.md),
           _pill(Icons.workspace_premium_outlined, t.psPremiumClean,
-              Brand.success),
+              AssistoTokens.of(context).success),
         ],
       ]),
     );
@@ -664,7 +664,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(icon, size: 16, color: color),
           const SizedBox(width: Gap.xs),
-          Flexible(child: Text(text, style: const TextStyle(fontSize: 12.5))),
+          Flexible(child: Text(text, style: AType.bodySmall)),
         ]),
       );
 
@@ -728,7 +728,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
                     : (fl.score == null
                         ? t.d1psFaceLock
                         : t.d1psFaceLockScore('${fmtInt(context, (fl.score! * 100).round())}%')),
-                Brand.success),
+                AssistoTokens.of(context).success),
           ),
         ),
         const SizedBox(height: Gap.xs),
@@ -749,7 +749,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
           runSpacing: Gap.xs,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            _pill(Icons.verified_outlined, t.psOriginalKept, Brand.success),
+            _pill(Icons.verified_outlined, t.psOriginalKept, AssistoTokens.of(context).success),
             TextButton.icon(
               onPressed: () => _c.pick(camera: false),
               icon: const Icon(Icons.swap_horiz, size: 18),
@@ -799,9 +799,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,
-                style: TextStyle(
-                    fontSize: 12.5,
-                    color: scheme.onSurfaceVariant,
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant,
                     height: 1.35))),
       ]),
     );
@@ -827,8 +825,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(title,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w800, fontSize: 16.5))),
+                    style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800))),
           ]),
           const SizedBox(height: Gap.md),
           ...children,
@@ -886,7 +883,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
           _infoLine(Icons.face_retouching_natural, t.psEnhanceHow),
           if (_c.lastReport.aiUsed && _c.session?.edited == true) ...[
             const SizedBox(height: Gap.sm),
-            _pill(Icons.verified_user_outlined, t.psAiUsed, Brand.success),
+            _pill(Icons.verified_user_outlined, t.psAiUsed, AssistoTokens.of(context).success),
           ],
           if (_c.lastReport.aiRejected && _c.session?.edited == true)
             _infoLine(Icons.info_outline, t.psAiFellBack),
@@ -994,7 +991,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
       Expanded(
           child: Text(parts.join('  ·  '),
               style:
-                  TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant))),
+                  AType.bodySmall.copyWith(color: scheme.onSurfaceVariant))),
     ]);
   }
 
@@ -1109,7 +1106,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
             const SizedBox(height: Gap.xs),
             Text(t.psTrialsLeft(fmtInt(context, _c.config.trialsLeft!)),
                 style:
-                    TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                    AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ],
           const SizedBox(height: Gap.md),
           SizedBox(
@@ -1146,12 +1143,12 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
       key: const Key('psRefusal'),
       padding: const EdgeInsets.all(Gap.lg),
       decoration: BoxDecoration(
-        color: Brand.danger.withValues(alpha: 0.10),
+        color: Theme.of(context).colorScheme.error.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(Radii.lg),
-        border: Border.all(color: Brand.danger.withValues(alpha: 0.45)),
+        border: Border.all(color: Theme.of(context).colorScheme.error.withValues(alpha: 0.45)),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Icon(Icons.shield_outlined, color: Brand.danger),
+        Icon(Icons.shield_outlined, color: Theme.of(context).colorScheme.error),
         const SizedBox(width: Gap.md),
         Expanded(
           child:
@@ -1223,7 +1220,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
             padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
             child: Text(t.psHistory,
                 style:
-                    const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+                    AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
           ),
           for (var i = 0; i < s.versions.length; i++)
             ListTile(
@@ -1239,7 +1236,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen> {
                   ? t.psVersionOriginal
                   : t.psVersionEdit(fmtInt(context, i))),
               trailing: i == s.index
-                  ? const Icon(Icons.check_circle, color: Brand.success)
+                  ? Icon(Icons.check_circle, color: AssistoTokens.of(context).success)
                   : null,
               onTap: () {
                 s.select(i);
@@ -1288,9 +1285,7 @@ class _ExportTile extends StatelessWidget {
             Text(label,
                 textAlign: TextAlign.center,
                 maxLines: 2,
-                style: TextStyle(
-                    fontSize: 12.5,
-                    color: on ? scheme.onSurface : scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: on ? scheme.onSurface : scheme.onSurfaceVariant)),
           ]),
         ),
       ),
@@ -1318,10 +1313,8 @@ class _WatermarkPainter extends CustomPainter {
     final tp = TextPainter(
       text: TextSpan(
           text: 'Assisto preview',
-          style: TextStyle(
-              fontFamily: fontFamily,
+          style: AType.titleMedium.copyWith(fontFamily: fontFamily,
               color: const Color(0x66FFFFFF),
-              fontSize: 15,
               fontWeight: FontWeight.w700,
               shadows: const [Shadow(blurRadius: 2, color: Color(0x55000000))])),
       textDirection: TextDirection.ltr,

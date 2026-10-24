@@ -138,17 +138,16 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
                         padding: const EdgeInsets.all(Gap.md),
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Text(t.shopEodTodayCash,
-                              style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
+                              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
                           const SizedBox(height: Gap.xs),
                           Text(taka(context, _todayCash),
                               style: Theme.of(context).textTheme.headlineSmall
                                   ?.copyWith(fontWeight: FontWeight.w700)),
                           Text(t.shopEodTodayCount(fmtInt(context, _todayCount)),
-                              style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5)),
+                              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                           const SizedBox(height: Gap.sm),
                           Text(t.shopEodExplain(taka(context, _tolerance)),
-                              style: TextStyle(color: scheme.onSurfaceVariant,
-                                  fontSize: 12.5, height: 1.4)),
+                              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
                         ]),
                       ),
                     ),
@@ -213,9 +212,9 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
       case 'short':
         return (scheme.error, Icons.error_outline, t.shopEodShort);
       case 'over':
-        return (Brand.warning, Icons.info_outline, t.shopEodOver);
+        return (AssistoTokens.of(context).warning, Icons.info_outline, t.shopEodOver);
       default:
-        return (Brand.success, Icons.check_circle_outline, t.shopEodOk);
+        return (AssistoTokens.of(context).success, Icons.check_circle_outline, t.shopEodOk);
     }
   }
 

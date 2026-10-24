@@ -130,7 +130,7 @@ class _MoneyImportScreenState extends State<MoneyImportScreen> {
             label: Text(t.moneyImportParse)),
         if (_error != null) ...[
           const SizedBox(height: Gap.md),
-          Text(_error!, style: const TextStyle(color: Brand.danger)),
+          Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
         ],
         const SizedBox(height: Gap.lg),
         for (int i = 0; i < _parsed.length; i++) _reviewCard(context, t, i),
@@ -163,8 +163,8 @@ class _MoneyImportScreenState extends State<MoneyImportScreen> {
                       color: !parsed
                           ? null
                           : credit
-                              ? Brand.success
-                              : Brand.danger)),
+                              ? AssistoTokens.of(context).success
+                              : Theme.of(context).colorScheme.error)),
             ),
             if (dup)
               Chip(
@@ -192,9 +192,7 @@ class _MoneyImportScreenState extends State<MoneyImportScreen> {
             Text(p['raw'] ?? '',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                    fontSize: 11,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ]),
           isThreeLine: true,
         ),

@@ -148,7 +148,7 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
               padding: const EdgeInsets.all(Gap.xs),
               child: Row(children: [
                 Expanded(child: Text(stage['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.w800))),
-                Text('${fmtInt(context, (stage['probability'] as num?)?.toInt() ?? 0)}%', style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+                Text('${fmtInt(context, (stage['probability'] as num?)?.toInt() ?? 0)}%', style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               ]),
             ),
             Expanded(
@@ -157,7 +157,7 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
                 if (deals.isEmpty)
                   Padding(
                     padding: const EdgeInsets.all(Gap.md),
-                    child: Text(t.crmNoDealsHere, style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
+                    child: Text(t.crmNoDealsHere, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                   ),
               ]),
             ),
@@ -175,21 +175,21 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
         padding: const EdgeInsets.all(Gap.sm),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(d['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.w700), maxLines: 2, overflow: TextOverflow.ellipsis),
-          const SizedBox(height: 4),
+          const SizedBox(height: Gap.xs),
           Text(bdt(context, (d['value'] as num?)), style: const TextStyle(fontWeight: FontWeight.w800), maxLines: 1, overflow: TextOverflow.ellipsis),
           Text('${fmtInt(context, (d['probability'] as num?)?.toInt() ?? 0)}% · ${_closeDate(d['expected_close'])}',
               maxLines: 1, overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           if (stuckDays != null)
             Padding(
-              padding: const EdgeInsets.only(top: 4),
+              padding: const EdgeInsets.only(top: Gap.xs),
               child: Row(children: [
-                const Icon(Icons.warning_amber_outlined, size: 14, color: Brand.warning),
-                const SizedBox(width: 4),
+                Icon(Icons.warning_amber_outlined, size: 14, color: AssistoTokens.of(context).warning),
+                const SizedBox(width: Gap.xs),
                 Expanded(
                   child: Text('${t.crmStuck} ${fmtInt(context, stuckDays)}${t.crmDaysShort}',
                       maxLines: 1, overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 11, color: Brand.warning)),
+                      style: AType.labelSmall.copyWith(color: AssistoTokens.of(context).warning)),
                 ),
               ]),
             ),

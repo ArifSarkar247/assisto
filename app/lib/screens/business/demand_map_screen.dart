@@ -244,8 +244,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.demandManualNote,
-                style: TextStyle(
-                    fontSize: 12, height: 1.4, color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(height: 1.4, color: scheme.onSurfaceVariant)),
           ),
         ]),
       ),
@@ -285,7 +284,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
           const Divider(height: Gap.xl),
           Text(
             tr.demandSignalSummary(h.signalCount, h.productCount, h.areaCount),
-            style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
           ),
         ]),
       ),
@@ -297,15 +296,15 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [
         Icon(ic, size: 15, color: scheme.primary),
-        const SizedBox(width: 4),
+        const SizedBox(width: Gap.xs),
         Text(label,
-            style: TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
       ]),
-      const SizedBox(height: 2),
+      const SizedBox(height: Gap.xxs),
       Text(value,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+          style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
     ]);
   }
 
@@ -323,18 +322,16 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
               child: Text(b.label,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w800, fontSize: 14.5)),
+                  style: AType.titleSmall.copyWith(fontWeight: FontWeight.w800)),
             ),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.16),
                 borderRadius: BorderRadius.circular(Radii.pill),
               ),
               child: Text(_levelLabel(tr, b.band),
-                  style: TextStyle(
-                      fontSize: 12, fontWeight: FontWeight.w700, color: color)),
+                  style: AType.labelMedium.copyWith(fontWeight: FontWeight.w700, color: color)),
             ),
           ]),
           const SizedBox(height: Gap.sm),
@@ -364,7 +361,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Row(children: [
       Text('$label ',
-          style: TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant)),
+          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
       Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
     ]);
   }
@@ -433,8 +430,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
           ]),
           const SizedBox(height: 6),
           Text(tr.demandTradeSeamBody,
-              style: TextStyle(
-                  fontSize: 12.5, height: 1.4, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(height: 1.4, color: scheme.onSurfaceVariant)),
         ]),
       ),
     );
@@ -504,7 +500,7 @@ Future<Map<String, dynamic>?> _signalSheet(
               Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: Text(tr.demandFieldLevel,
-                    style: const TextStyle(fontSize: 13)),
+                    style: AType.bodyMedium),
               ),
               const SizedBox(height: Gap.sm),
               Wrap(

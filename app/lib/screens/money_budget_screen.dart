@@ -347,7 +347,7 @@ class _HistoryTabState extends State<_HistoryTab> {
                         onRefresh: _load,
                         child: ListView(
                           padding: const EdgeInsets.fromLTRB(
-                              Gap.lg, 0, Gap.lg, 24),
+                              Gap.lg, 0, Gap.lg, Gap.xl),
                           children: [
                             if (totals.isNotEmpty)
                               BudgetTotalHeader(totals: totals),
@@ -445,12 +445,10 @@ class _PlanTabState extends State<_PlanTab> {
           const SizedBox(height: Gap.md),
           Text(t.budgetPlanTitle,
               style:
-                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                  AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: Gap.xs),
           Text(t.budgetPlanBody,
-              style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           const SizedBox(height: Gap.sm),
           if (_loading)
             const SkeletonList(count: 3)
@@ -480,7 +478,7 @@ class _PlanTabState extends State<_PlanTab> {
                     children: [
                       Text(tkFmt(s['suggested_limit']),
                           style:
-                              const TextStyle(fontWeight: FontWeight.w700)),
+                              const TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
                       TextButton(
                           onPressed: () => _useSuggestion(context, s),
                           child: Text(t.budgetPlanUse)),
@@ -538,7 +536,8 @@ class _CategoryHistoryState extends State<_CategoryHistory> {
     final carry = dbl(_data?['carry_forward']);
     return Scaffold(
       appBar: AppBar(title: Text(widget.category), actions: [
-        IconButton(onPressed: _load, icon: const Icon(Icons.sync)),
+        IconButton(
+            tooltip: AppLocalizations.of(context).refresh,onPressed: _load, icon: const Icon(Icons.sync)),
       ]),
       body: _loading
           ? const SkeletonList(count: 4)
@@ -568,7 +567,7 @@ class _CategoryHistoryState extends State<_CategoryHistory> {
                             style: TextStyle(
                                 color: scheme.onSecondaryContainer)),
                         trailing: Text(tkFmt(carry),
-                            style: TextStyle(
+                            style: TextStyle(fontFeatures: AFonts.tabular,
                                 fontWeight: FontWeight.bold,
                                 color: scheme.onSecondaryContainer)),
                       ),

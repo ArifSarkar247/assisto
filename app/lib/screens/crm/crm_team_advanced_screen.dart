@@ -137,8 +137,9 @@ class _TargetsTabState extends State<_TargetsTab> {
                 child: Text(tg['member_name']?.toString() ?? t.crmWholeTeam,
                     style: const TextStyle(fontWeight: FontWeight.w800))),
             Text(tg['period']?.toString() ?? '',
-                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             IconButton(
+                tooltip: AppLocalizations.of(context).edit,
                 icon: const Icon(Icons.edit_outlined, size: 18),
                 onPressed: () => _edit(tg)),
           ]),
@@ -155,15 +156,15 @@ class _TargetsTabState extends State<_TargetsTab> {
                 Text('${pct.toStringAsFixed(1)}%',
                     style: TextStyle(
                         fontWeight: FontWeight.w800,
-                        color: pct >= 100 ? Brand.success : scheme.onSurface)),
+                        color: pct >= 100 ? AssistoTokens.of(context).success : scheme.onSurface)),
             ]),
             const SizedBox(height: Gap.xs),
             ClipRRect(
-              borderRadius: BorderRadius.circular(999),
+              borderRadius: BorderRadius.circular(Radii.pill),
               child: LinearProgressIndicator(
                 value: ((pct ?? 0) / 100).clamp(0.0, 1.0),
                 minHeight: 8,
-                color: (pct ?? 0) >= 100 ? Brand.success : scheme.primary,
+                color: (pct ?? 0) >= 100 ? AssistoTokens.of(context).success : scheme.primary,
               ),
             ),
             if (onPace != null) ...[
@@ -171,12 +172,10 @@ class _TargetsTabState extends State<_TargetsTab> {
               Row(children: [
                 Icon(onPace == true ? Icons.trending_up : Icons.trending_down,
                     size: 16,
-                    color: onPace == true ? Brand.success : Brand.warning),
-                const SizedBox(width: 4),
+                    color: onPace == true ? AssistoTokens.of(context).success : AssistoTokens.of(context).warning),
+                const SizedBox(width: Gap.xs),
                 Text(onPace == true ? t.crmOnPace : t.crmBehindPace,
-                    style: TextStyle(
-                        fontSize: 12,
-                        color: onPace == true ? Brand.success : Brand.warning)),
+                    style: AType.bodySmall.copyWith(color: onPace == true ? AssistoTokens.of(context).success : AssistoTokens.of(context).warning)),
               ]),
             ],
           ],

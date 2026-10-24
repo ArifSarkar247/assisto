@@ -227,13 +227,13 @@ class _IncomeTaxTabState extends State<_IncomeTaxTab> {
                 const Divider(),
                 FinanceResultRow(t.taxResultGross, fmtTaka(r.grossTax)),
                 FinanceResultRow(t.taxResultRebate, '-${fmtTaka(r.rebate)}',
-                    valueColor: Brand.success),
+                    valueColor: AssistoTokens.of(context).success),
                 FinanceResultRow(
                     t.taxResultAfterRebate, fmtTaka(r.taxAfterRebate)),
                 if (r.minimumTaxApplied)
                   FinanceResultRow(
                       t.taxResultMinApplied, fmtTaka(r.minimumTax),
-                      valueColor: Brand.warning),
+                      valueColor: AssistoTokens.of(context).warning),
                 FinanceResultRow(t.taxResultNet, fmtTaka(r.netTax)),
                 if (r.tdsPaid > 0)
                   FinanceResultRow(
@@ -241,10 +241,10 @@ class _IncomeTaxTabState extends State<_IncomeTaxTab> {
                 const Divider(),
                 if (r.refund > 0)
                   FinanceResultRow(t.taxResultRefund, fmtTaka(r.refund),
-                      emphasise: true, valueColor: Brand.success)
+                      emphasise: true, valueColor: AssistoTokens.of(context).success)
                 else
                   FinanceResultRow(t.taxResultPayable, fmtTaka(r.payable),
-                      emphasise: true, valueColor: Brand.blue),
+                      emphasise: true, valueColor: Theme.of(context).colorScheme.primary),
                 if (r.bands.isNotEmpty) ...[
                   const SizedBox(height: Gap.sm),
                   Align(
@@ -486,21 +486,20 @@ class _ZakatTabState extends State<_ZakatTab> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: Gap.xs),
                     child: Text(t.zakatNisabUnset,
-                        style: TextStyle(color: Brand.warning)),
+                        style: TextStyle(color: AssistoTokens.of(context).warning)),
                   ),
                 FinanceResultRow(
                     t.zakatResultAboveNisab,
                     r.aboveNisab ? t.zakatYes : t.zakatNo,
                     valueColor:
-                        r.aboveNisab ? Brand.success : scheme.onSurface),
+                        r.aboveNisab ? AssistoTokens.of(context).success : scheme.onSurface),
                 const Divider(),
                 FinanceResultRow(t.zakatResultDue, fmtTaka(r.due),
-                    emphasise: true, valueColor: Brand.blue),
+                    emphasise: true, valueColor: Theme.of(context).colorScheme.primary),
                 Padding(
                   padding: const EdgeInsets.only(top: Gap.xs),
                   child: Text(t.zakatRateNote,
-                      style: TextStyle(
-                          fontSize: 12, color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                 ),
                 const SizedBox(height: Gap.md),
                 Align(

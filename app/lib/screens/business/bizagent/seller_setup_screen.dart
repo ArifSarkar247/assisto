@@ -354,12 +354,12 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
             (c['in_stock'] as num?)?.toInt() ?? 0))),
         if (n == 0) ...[
           const SizedBox(height: Gap.sm),
-          BizNote(text: t.baCatalogEmpty, icon: Icons.warning_amber_outlined, tint: Brand.warning),
+          BizNote(text: t.baCatalogEmpty, icon: Icons.warning_amber_outlined, tint: AssistoTokens.of(context).warning),
         ],
         if (missing.isNotEmpty) ...[
           const SizedBox(height: Gap.sm),
           BizNote(text: bd(context, t.baCatalogMissingPrice(missing.join(', '))),
-              icon: Icons.warning_amber_outlined, tint: Brand.warning),
+              icon: Icons.warning_amber_outlined, tint: AssistoTokens.of(context).warning),
         ],
         if (low.isNotEmpty) ...[
           const SizedBox(height: Gap.sm),

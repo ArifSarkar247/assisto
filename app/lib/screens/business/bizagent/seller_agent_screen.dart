@@ -217,15 +217,15 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
             ),
             const SizedBox(height: Gap.sm),
             if (connected.isEmpty)
-              BizNote(text: t.baNoChannelNote, icon: Icons.link_off, tint: Brand.warning)
+              BizNote(text: t.baNoChannelNote, icon: Icons.link_off, tint: AssistoTokens.of(context).warning)
             else
               Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
                 for (final c in channels)
                   BizStatusChip(
                     label: bd(context, '${baChannelLabel(t, '${c['kind']}')} · ${c['display_name'] ?? ''}'),
                     color: c['status'] == 'connected' && c['enabled'] == true
-                        ? Brand.success
-                        : (c['status'] == 'error' ? Brand.danger : Brand.warning),
+                        ? AssistoTokens.of(context).success
+                        : (c['status'] == 'error' ? Theme.of(context).colorScheme.error : AssistoTokens.of(context).warning),
                   ),
               ]),
             if (meta['secret'] != true) ...[
@@ -316,7 +316,7 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
     return BizCard(
       title: t.baPlanTitle,
       icon: Icons.workspace_premium_outlined,
-      trailing: BizStatusChip(label: name, color: active ? Brand.success : Brand.warning),
+      trailing: BizStatusChip(label: name, color: active ? AssistoTokens.of(context).success : AssistoTokens.of(context).warning),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         if (active) ...[
           Text(bd(context, t.baRepliesLeft(left, quota)),

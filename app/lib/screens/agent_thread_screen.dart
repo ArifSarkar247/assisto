@@ -416,7 +416,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
         if (m.text.isNotEmpty)
           Text(m.text,
               style: TextStyle(
-                  color: m.user ? Colors.white : scheme.onSurface,
+                  color: m.user ? scheme.onPrimary : scheme.onSurface,
                   height: 1.4)),
         for (final c in m.cards) ChatCard(c, onUndo: _undo),
       ]),
@@ -490,6 +490,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
                       width: 22,
                       child: CircularProgressIndicator(strokeWidth: 2)))
               : IconButton.filled(
+                  tooltip: AppLocalizations.of(context).send,
                   onPressed: () => _send(),
                   icon: const Icon(Icons.arrow_upward)),
         ]),

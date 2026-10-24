@@ -72,7 +72,7 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.all(Gap.md), children: [
         if (high.isNotEmpty) ...[
-          _header(t.crmTodayHotLeads, Icons.local_fire_department_outlined, Brand.danger),
+          _header(t.crmTodayHotLeads, Icons.local_fire_department_outlined, Theme.of(context).colorScheme.error),
           for (final l in high)
             Card(
               child: ListTile(
@@ -89,7 +89,7 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
             ),
         ],
         if (fu.isNotEmpty) ...[
-          _header(t.crmTodayFollowups, Icons.event_outlined, Brand.warning),
+          _header(t.crmTodayFollowups, Icons.event_outlined, AssistoTokens.of(context).warning),
           for (final l in fu)
             Card(
               child: ListTile(
@@ -104,7 +104,7 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
             ),
         ],
         if (overdue.isNotEmpty) ...[
-          _header(t.crmTodayOverdueSteps, Icons.warning_amber_outlined, Brand.danger),
+          _header(t.crmTodayOverdueSteps, Icons.warning_amber_outlined, Theme.of(context).colorScheme.error),
           for (final s in overdue)
             Card(
               child: ListTile(
@@ -130,7 +130,7 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
             ),
         ],
         if (stuck.isNotEmpty) ...[
-          _header(t.crmTodayStuck, Icons.hourglass_bottom_outlined, Brand.warning),
+          _header(t.crmTodayStuck, Icons.hourglass_bottom_outlined, AssistoTokens.of(context).warning),
           for (final s in stuck)
             Card(
               child: ListTile(

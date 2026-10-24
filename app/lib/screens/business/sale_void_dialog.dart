@@ -5,6 +5,7 @@ import '../../api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../shop_api.dart';
 import '../../state.dart';
+import '../../theme.dart';
 
 /// VOID a sale (a2-cctv). Owner any time; staff only for today's sale (the
 /// server enforces it). A reason is required. Stock is restored where the
@@ -61,7 +62,7 @@ class _SaleVoidDialogState extends State<SaleVoidDialog> {
       content: SingleChildScrollView(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Text(t.shopVoidBody, style: const TextStyle(height: 1.4)),
-          const SizedBox(height: 12),
+          const SizedBox(height: Gap.md),
           TextField(
             controller: _reason,
             autofocus: true,

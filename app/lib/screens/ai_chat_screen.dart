@@ -699,7 +699,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
         height: 28,
         decoration: BoxDecoration(
           gradient: Brand.gradient,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(Radii.sm),
         ),
         child: const Icon(Icons.auto_awesome, color: Colors.white, size: 16),
       );
@@ -718,11 +718,9 @@ class _AiChatScreenState extends State<AiChatScreen> {
             child: Row(mainAxisSize: MainAxisSize.min, children: [
               Icon(Icons.cloud_off_outlined,
                   size: 13, color: scheme.onSecondaryContainer),
-              const SizedBox(width: 4),
+              const SizedBox(width: Gap.xs),
               Text(t.aichatOfflineAnswer,
-                  style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
+                  style: AType.labelSmall.copyWith(fontWeight: FontWeight.w600,
                       color: scheme.onSecondaryContainer)),
             ]),
           ),
@@ -763,7 +761,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
     if (m.user || !m.text.contains('```')) {
       return Text(m.text,
           style: TextStyle(
-              color: m.user ? Colors.white : scheme.onSurface, height: 1.45));
+              color: m.user ? scheme.onPrimary : scheme.onSurface,
+              height: 1.45));
     }
     // Split on fenced code blocks (``` ... ```), keeping text segments plain
     // and code segments in a mono surface.
@@ -791,8 +790,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 Border.all(color: scheme.outlineVariant.withValues(alpha: 0.6)),
           ),
           child: SelectableText(code.trimRight(),
-              style: const TextStyle(
-                  fontFamily: 'monospace', fontSize: 13, height: 1.4)),
+              style: AType.bodyMedium.copyWith(fontFamily: 'monospace', height: 1.4)),
         ));
       } else {
         widgets.add(Text(seg.trim(),
@@ -880,7 +878,7 @@ class _TypingDotsState extends State<_TypingDots>
         return Row(mainAxisSize: MainAxisSize.min, children: [
           for (var i = 0; i < 3; i++)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2),
+              padding: const EdgeInsets.symmetric(horizontal: Gap.xxs),
               child: Opacity(
                 opacity:
                     0.3 + 0.7 * ((((_c.value + i / 3) % 1) - 0.5).abs() * 2),

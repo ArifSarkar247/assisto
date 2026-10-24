@@ -81,7 +81,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
             padding: const EdgeInsets.all(Gap.md),
             child: forecast['has_data'] == true
                 ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(bdt(context, forecast['weighted'] as num?), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
+                    Text(bdt(context, forecast['weighted'] as num?), style: AType.headlineMedium.copyWith(fontWeight: FontWeight.w800)),
                     const SizedBox(height: Gap.xs),
                     _line(t.crmBestCase, bdt(context, forecast['best_case'] as num?)),
                     _line(t.crmCommit, bdt(context, forecast['commit'] as num?)),
@@ -90,7 +90,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
                     // the formula is fixed server-side; show it in the user's
                     // language (the server's text is English-only)
                     Text('${t.crmMethod}: ${t.shopQaForecastMethod}',
-                        style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+                        style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
                   ])
                 : Row(children: [
                     Icon(Icons.info_outline, color: scheme.onSurfaceVariant, size: 18),
@@ -152,15 +152,15 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
           FittedBox(
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
-              child: Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800), maxLines: 1)),
-          Text(label, style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+              child: Text(value, style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800), maxLines: 1)),
+          Text(label, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         ]),
       ),
     );
   }
 
   Widget _line(String k, String v) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
+        padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Flexible(child: Text(k, maxLines: 1, overflow: TextOverflow.ellipsis)),
           Text(v, style: const TextStyle(fontWeight: FontWeight.w700)),

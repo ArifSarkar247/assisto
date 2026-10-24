@@ -194,16 +194,20 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
     final hot = score >= 90;
     final warm = score >= 60;
     final bg = hot
-        ? Brand.danger
+        ? Theme.of(context).colorScheme.error
         : warm
-            ? Brand.warning
+            ? AssistoTokens.of(context).warning
             : scheme.primaryContainer;
-    final fg = (hot || warm) ? Colors.white : scheme.onPrimaryContainer;
+    final fg = hot
+        ? scheme.onError
+        : warm
+            ? AssistoTokens.of(context).onWarning
+            : scheme.onPrimaryContainer;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(Radii.pill)),
       child: Text('$score',
-          style: TextStyle(color: fg, fontWeight: FontWeight.w800, fontSize: 12)),
+          style: AType.labelMedium.copyWith(color: fg, fontWeight: FontWeight.w800)),
     );
   }
 

@@ -209,7 +209,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
       case _Phase.done:
         return _message(Icons.check_circle_outline, t.mvoiceDoneTitle,
             t.mvoiceDoneBody(_savedCount),
-            tint: Brand.success,
+            tint: AssistoTokens.of(context).success,
             action: Column(mainAxisSize: MainAxisSize.min, children: [
               FilledButton.icon(
                   onPressed: _reset,
@@ -273,7 +273,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
         if (listening && _transcript.isNotEmpty)
           Text('"$_transcript"',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+              style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.xl),
         if (listening)
           FilledButton.icon(
@@ -301,8 +301,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
           const SizedBox(width: Gap.sm),
           Expanded(
               child: Text(t.mvoiceReviewTitle,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w800, fontSize: 18))),
+                  style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800))),
         ]),
       ),
       Padding(
@@ -358,12 +357,11 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
                   d.note.isNotEmpty
                       ? d.note
                       : (d.counterparty ?? t.mvoiceEntryUnnamed),
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w700, fontSize: 16),
+                  style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
               Text(d.amount != null ? tkFmt(d.amount) : t.mvoiceNoAmount,
-                  style: TextStyle(
+                  style: TextStyle(fontFeatures: AFonts.tabular,
                       fontWeight: FontWeight.w800,
                       color: d.amount != null
                           ? _typeColor(d.type, scheme)
@@ -429,7 +427,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
                   Expanded(
                       child: Text(t.mvoiceNeedsInfo,
                           style:
-                              TextStyle(color: scheme.error, fontSize: 12))),
+                              AType.bodySmall.copyWith(color: scheme.error))),
                 ]),
               ),
           ]),
@@ -492,10 +490,10 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
       };
 
   Color _typeColor(MoneyVoiceType? ty, ColorScheme scheme) => switch (ty) {
-        MoneyVoiceType.income => Brand.success,
-        MoneyVoiceType.expense => Brand.danger,
+        MoneyVoiceType.income => AssistoTokens.of(context).success,
+        MoneyVoiceType.expense => Theme.of(context).colorScheme.error,
         MoneyVoiceType.dueIn => Brand.blue,
-        MoneyVoiceType.dueOut => Brand.warning,
+        MoneyVoiceType.dueOut => AssistoTokens.of(context).warning,
         null => scheme.onSurfaceVariant,
       };
 
@@ -555,7 +553,7 @@ class _ExampleCard extends StatelessWidget {
         const SizedBox(height: Gap.sm),
         for (final l in lines)
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
+            padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
             child: Row(children: [
               const Text('• '),
               Expanded(

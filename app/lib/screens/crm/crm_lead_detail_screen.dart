@@ -122,6 +122,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
         title: Text(l['name']?.toString().isNotEmpty == true ? l['name'] : (l['company'] ?? t.crmLead)),
         actions: [
           IconButton(
+            tooltip: AppLocalizations.of(context).edit,
             icon: const Icon(Icons.edit_outlined),
             onPressed: () async {
               final ok = await Navigator.push<bool>(context,
@@ -155,7 +156,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
                 const SizedBox(height: Gap.sm),
                 if ((l['score_reason'] ?? '').toString().isNotEmpty)
                   Text('${t.crmScoreReason}: ${crmScoreReasonText(context, t, '${l['score_reason']}')}',
-                      style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
+                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                 const SizedBox(height: Gap.sm),
                 Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
                   _pill(t.status, l['status_display']),
@@ -207,7 +208,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
                   onTap: _logActivity,
                   borderRadius: BorderRadius.circular(Radii.sm),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    padding: const EdgeInsets.symmetric(vertical: Gap.xs),
                     child: Row(children: [
                       const Icon(Icons.event_outlined, size: 16),
                       const SizedBox(width: Gap.xs),
@@ -228,7 +229,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
                   const SizedBox(height: Gap.xs),
                   Text(
                     _followup!['draft_source'] == 'ai' ? t.crmDraftAi : t.crmDraftTemplate,
-                    style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant),
+                    style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant),
                   ),
                 ],
               ]),
@@ -288,7 +289,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
               title: Text(a['subject']?.toString().isNotEmpty == true ? a['subject'] : (a['kind_display'] ?? '')),
               subtitle: (a['body'] ?? '').toString().isNotEmpty ? Text(a['body']) : null,
               trailing: Text((a['created_at'] ?? '').toString().split('T').first,
-                  style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+                  style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
             ),
           for (final m in msgs)
             ListTile(
@@ -410,21 +411,21 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
       OutlinedButton(
         onPressed: enabled ? onTap : null,
         style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8)),
+            padding: const EdgeInsets.symmetric(horizontal: Gap.xs, vertical: Gap.sm)),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Icon(icon, size: 18),
-          const SizedBox(height: 2),
+          const SizedBox(height: Gap.xxs),
           FittedBox(fit: BoxFit.scaleDown, child: Text(label, maxLines: 1)),
         ]),
       );
 
   Widget _pill(String k, dynamic v) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xs),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(Radii.sm),
         ),
-        child: Text('$k: $v', style: const TextStyle(fontSize: 12)),
+        child: Text('$k: $v', style: AType.bodySmall),
       );
 
   Widget _sectionTitle(String s) => Padding(

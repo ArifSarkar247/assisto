@@ -363,11 +363,9 @@ class RefCodeChip extends StatelessWidget {
         Icon(Icons.tag, size: 14, color: scheme.onSurfaceVariant),
         const SizedBox(width: 6),
         Text('${t.crmRefCode}: ',
-            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         SelectableText(code,
-            style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
+            style: AType.labelMedium.copyWith(fontWeight: FontWeight.w800,
                 letterSpacing: 1.0)),
       ]),
     );
@@ -391,16 +389,20 @@ class ScoreBadge extends StatelessWidget {
     final hot = score >= 90;
     final warm = score >= 60;
     final bg = hot
-        ? Brand.danger
+        ? Theme.of(context).colorScheme.error
         : warm
-            ? Brand.warning
+            ? AssistoTokens.of(context).warning
             : Theme.of(context).colorScheme.surfaceContainerHighest;
-    final fg = (hot || warm) ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant;
+    final fg = hot
+        ? Theme.of(context).colorScheme.onError
+        : warm
+            ? AssistoTokens.of(context).onWarning
+            : Theme.of(context).colorScheme.onSurfaceVariant;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(Radii.pill)),
       child: Text('$score',
-          style: TextStyle(color: fg, fontWeight: FontWeight.w800, fontSize: 12)),
+          style: AType.labelMedium.copyWith(color: fg, fontWeight: FontWeight.w800)),
     );
   }
 }

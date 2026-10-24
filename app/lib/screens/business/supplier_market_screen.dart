@@ -272,9 +272,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                               Padding(
                                 padding: const EdgeInsets.only(bottom: Gap.sm),
                                 child: Text(tr.supComparePick,
-                                    style: TextStyle(
-                                        fontSize: 12.5,
-                                        color: scheme.onSurfaceVariant)),
+                                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                               ),
                             ...result.suppliers.map((s) => _supplierCard(
                                 context, tr, s)),
@@ -365,7 +363,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
           alignment: AlignmentDirectional.centerStart,
           child: Text(
             tr.supMatchCount(result.matchCount, result.totalCount),
-            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
           ),
         ),
       ),
@@ -383,8 +381,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.supManualNote,
-                style: TextStyle(
-                    fontSize: 12, height: 1.4, color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(height: 1.4, color: scheme.onSurfaceVariant)),
           ),
         ]),
       ),
@@ -428,12 +425,11 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                     child: Text(s.name,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w800, fontSize: 15)),
+                        style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
                   ),
                   if (s.rating > 0) _ratingChip(context, s.rating),
                 ]),
-                const SizedBox(height: 4),
+                const SizedBox(height: Gap.xs),
                 Wrap(spacing: Gap.sm, runSpacing: 4, crossAxisAlignment: WrapCrossAlignment.center, children: [
                   _tag(context, Icons.category_outlined,
                       _catLabel(tr, s.category)),
@@ -443,19 +439,17 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                 if (s.productsDisplay.isNotEmpty) ...[
                   const SizedBox(height: Gap.sm),
                   Text(s.productsDisplay,
-                      style: TextStyle(
-                          fontSize: 13, color: scheme.onSurfaceVariant)),
+                      style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
                 ],
                 if (s.priceNote.isNotEmpty) ...[
-                  const SizedBox(height: 4),
+                  const SizedBox(height: Gap.xs),
                   Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Icon(Icons.sell_outlined,
                         size: 15, color: scheme.onSurfaceVariant),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: Gap.xs),
                     Expanded(
                       child: Text(s.priceNote,
-                          style: TextStyle(
-                              fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                     ),
                   ]),
                 ],
@@ -467,13 +461,12 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                         child: Row(children: [
                           Icon(Icons.call_outlined,
                               size: 15, color: scheme.primary),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: Gap.xs),
                           Expanded(
                             child: Text(s.contact,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                    fontSize: 12.5, color: scheme.primary)),
+                                style: AType.bodySmall.copyWith(color: scheme.primary)),
                           ),
                         ]),
                       )
@@ -493,11 +486,13 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                       ]),
                     ),
                     IconButton(
+                      tooltip: AppLocalizations.of(context).edit,
                       visualDensity: VisualDensity.compact,
                       icon: const Icon(Icons.edit_outlined, size: 18),
                       onPressed: () => _edit(s.raw),
                     ),
                     IconButton(
+                      tooltip: AppLocalizations.of(context).delete,
                       visualDensity: VisualDensity.compact,
                       icon: Icon(Icons.delete_outline,
                           size: 18, color: scheme.error),
@@ -513,19 +508,17 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
 
   Widget _ratingChip(BuildContext context, int rating) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
       decoration: BoxDecoration(
-        color: Brand.warning.withValues(alpha: 0.14),
+        color: AssistoTokens.of(context).warning.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(Radii.pill),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        const Icon(Icons.star, size: 13, color: Brand.warning),
+        Icon(Icons.star, size: 13, color: AssistoTokens.of(context).warning),
         const SizedBox(width: 3),
         Text('$rating',
-            style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: Brand.warning)),
+            style: AType.labelMedium.copyWith(fontWeight: FontWeight.w700,
+                color: AssistoTokens.of(context).warning)),
       ]),
     );
   }
@@ -533,16 +526,16 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
   Widget _tag(BuildContext context, IconData icon, String text) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(Radii.pill),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 13, color: scheme.onSurfaceVariant),
-        const SizedBox(width: 4),
+        const SizedBox(width: Gap.xs),
         Text(text,
-            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
       ]),
     );
   }
@@ -564,8 +557,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
           ]),
           const SizedBox(height: 6),
           Text(tr.supPartnerSeamBody,
-              style: TextStyle(
-                  fontSize: 12.5, height: 1.4, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(height: 1.4, color: scheme.onSurfaceVariant)),
         ]),
       ),
     );
@@ -590,7 +582,7 @@ class _CompareScreen extends StatelessWidget {
         padding: const EdgeInsets.all(Gap.lg),
         children: [
           Text(tr.supCompareIntro,
-              style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           const SizedBox(height: Gap.md),
           for (final s in cmp.suppliers)
             Card(
@@ -605,22 +597,19 @@ class _CompareScreen extends StatelessWidget {
                       Row(children: [
                         Expanded(
                           child: Text(s.name,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w800, fontSize: 16)),
+                              style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
                         ),
                         if (cmp.bestRatingId != null &&
                             cmp.bestRatingId == s.id)
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 3),
+                                horizontal: Gap.sm, vertical: 3),
                             decoration: BoxDecoration(
                               color: scheme.primary,
                               borderRadius: BorderRadius.circular(Radii.pill),
                             ),
                             child: Text(tr.supBestRated,
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
+                                style: AType.labelSmall.copyWith(color: Colors.white,
                                     fontWeight: FontWeight.w700)),
                           ),
                       ]),
@@ -645,10 +634,9 @@ class _CompareScreen extends StatelessWidget {
                           child: Row(children: [
                             Icon(Icons.shopping_cart_outlined,
                                 size: 15, color: scheme.primary),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: Gap.xs),
                             Text(tr.supOnReorderList,
-                                style: TextStyle(
-                                    fontSize: 12.5, color: scheme.primary)),
+                                style: AType.bodySmall.copyWith(color: scheme.primary)),
                           ]),
                         ),
                     ]),
@@ -667,11 +655,11 @@ class _CompareScreen extends StatelessWidget {
         SizedBox(
           width: 96,
           child: Text(label,
-              style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         ),
         Expanded(
           child: Text(value,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+              style: AType.titleSmall.copyWith(fontWeight: FontWeight.w600)),
         ),
       ]),
     );
@@ -790,15 +778,15 @@ Future<Map<String, dynamic>?> _supplierSheet(
               Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: Text(tr.supFieldRating,
-                    style: TextStyle(
-                        fontSize: 13, color: scheme.onSurfaceVariant)),
+                    style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
               ),
               Row(children: [
                 for (var i = 1; i <= 5; i++)
                   IconButton(
+                    tooltip: AppLocalizations.of(context).f2RateStars(i),
                     icon: Icon(
                         i <= rating ? Icons.star : Icons.star_border,
-                        color: Brand.warning),
+                        color: AssistoTokens.of(context).warning),
                     onPressed: () => setSheet(() {
                       rating = (rating == i) ? i - 1 : i; // tap same star clears
                     }),
@@ -812,7 +800,7 @@ Future<Map<String, dynamic>?> _supplierSheet(
                 value: reorder,
                 title: Text(tr.supReorderToggle),
                 subtitle: Text(tr.supReorderToggleSub,
-                    style: const TextStyle(fontSize: 12)),
+                    style: AType.bodySmall),
                 onChanged: (v) => setSheet(() => reorder = v),
               ),
               const SizedBox(height: Gap.md),

@@ -89,7 +89,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.all(Gap.md), children: [
         Text(t.crmReportsSubtitle,
-            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         const SizedBox(height: Gap.md),
 
         // ---- KPI strip ----
@@ -106,7 +106,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
                 label: t.crmWonValue,
                 value: bdt(context, d['won_value'] as num?),
                 icon: Icons.emoji_events_outlined,
-                tint: Brand.success),
+                tint: AssistoTokens.of(context).success),
           ),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -132,8 +132,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(bdt(context, forecast['weighted'] as num?),
-                          style: const TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.w800)),
+                          style: AType.headlineMedium.copyWith(fontWeight: FontWeight.w800)),
                       const SizedBox(height: Gap.xs),
                       _line(t.crmBestCase, bdt(context, forecast['best_case'] as num?)),
                       _line(t.crmCommitForecast, bdt(context, forecast['commit'] as num?)),
@@ -143,13 +142,10 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
                       // (the server text is English and uses a Σ glyph the
                       // Bengali font lacks)
                       Text('${t.crmMethodLabel}: ${t.shopQaForecastMethod}',
-                          style: TextStyle(
-                              fontSize: 11, color: scheme.onSurfaceVariant)),
+                          style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
                       const SizedBox(height: Gap.xs),
                       Text(t.crmForecastEstimateNote,
-                          style: TextStyle(
-                              fontSize: 11,
-                              fontStyle: FontStyle.italic,
+                          style: AType.labelSmall.copyWith(fontStyle: FontStyle.italic,
                               color: scheme.onSurfaceVariant)),
                     ],
                   )
@@ -243,18 +239,16 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
   Widget _estimateBadge(AppLocalizations t) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
       decoration: BoxDecoration(
-        color: Brand.warning.withValues(alpha: 0.18),
+        color: AssistoTokens.of(context).warning.withValues(alpha: 0.18),
         borderRadius: BorderRadius.circular(Radii.pill),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        const Icon(Icons.info_outline, size: 13, color: Brand.warning),
-        const SizedBox(width: 4),
+        Icon(Icons.info_outline, size: 13, color: AssistoTokens.of(context).warning),
+        const SizedBox(width: Gap.xs),
         Text(t.crmReportForecastEstimate,
-            style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
+            style: AType.labelSmall.copyWith(fontWeight: FontWeight.w700,
                 color: scheme.onSurface)),
       ]),
     );
@@ -285,8 +279,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
           const SizedBox(width: Gap.sm),
           Expanded(
               child: Text(message,
-                  style: TextStyle(
-                      fontSize: 12, color: scheme.onSurfaceVariant))),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant))),
         ]),
       ),
     );
@@ -404,10 +397,10 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
           Text(bdt(context, r['won_value'] as num?),
               style: const TextStyle(fontWeight: FontWeight.w800)),
         ]),
-        const SizedBox(height: 2),
+        const SizedBox(height: Gap.xxs),
         Text(
           '${t.crmOpen} ${r['open'] ?? 0} · ${t.crmWon} ${r['won'] ?? 0} · ${t.crmLost} ${r['lost'] ?? 0}',
-          style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
         ),
         if (attain != null) ...[
           const SizedBox(height: 6),
@@ -420,19 +413,19 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
                   minHeight: 8,
                   backgroundColor: scheme.surfaceContainerHighest,
                   valueColor: AlwaysStoppedAnimation(
-                      attain >= 100 ? Brand.success : Brand.blue),
+                      attain >= 100 ? AssistoTokens.of(context).success : Theme.of(context).colorScheme.primary),
                 ),
               ),
             ),
             const SizedBox(width: Gap.sm),
             Text('${t.crmAttainment} $attain%',
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                style: AType.labelSmall.copyWith(fontWeight: FontWeight.w700)),
           ]),
         ] else
           Padding(
-            padding: const EdgeInsets.only(top: 2),
+            padding: const EdgeInsets.only(top: Gap.xxs),
             child: Text(t.crmNoTarget,
-                style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+                style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
           ),
       ]),
     );
@@ -450,7 +443,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
   }
 
   Widget _line(String k, String v) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
+        padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Flexible(child: Text(k, maxLines: 1, overflow: TextOverflow.ellipsis)),
           Text(v, style: const TextStyle(fontWeight: FontWeight.w700)),

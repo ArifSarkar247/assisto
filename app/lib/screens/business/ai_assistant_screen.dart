@@ -140,7 +140,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
         const SizedBox(width: Gap.md),
         Expanded(child: Text(name, style: const TextStyle(fontWeight: FontWeight.w600))),
         if (connected)
-          BizStatusChip(label: tr.bizConnected, color: Brand.success)
+          BizStatusChip(label: tr.bizConnected, color: AssistoTokens.of(context).success)
         else
           OutlinedButton(
             // Mock: connecting needs real Meta keys; show the honest state.
@@ -208,9 +208,9 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                 style: const TextStyle(fontWeight: FontWeight.w700)),
           ),
           if (needsHuman)
-            BizStatusChip(label: tr.bizNeedsYou, color: Brand.danger)
+            BizStatusChip(label: tr.bizNeedsYou, color: Theme.of(context).colorScheme.error)
           else if (takeover)
-            BizStatusChip(label: tr.bizOwnerOn, color: Brand.warning),
+            BizStatusChip(label: tr.bizOwnerOn, color: AssistoTokens.of(context).warning),
         ]),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: Gap.xs),
@@ -420,9 +420,7 @@ class _AiThreadScreenState extends State<AiThreadScreen> {
             Padding(
               padding: const EdgeInsets.only(bottom: Gap.xs),
               child: Text(tr.bizSentByAi,
-                  style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
+                  style: AType.labelSmall.copyWith(fontWeight: FontWeight.w700,
                       color: scheme.onSecondaryContainer)),
             ),
           Text((m['text'] ?? '').toString()),
@@ -453,7 +451,7 @@ class _AiThreadScreenState extends State<AiThreadScreen> {
             BizNote(
               text: _handoffText(tr, handoffReason),
               icon: Icons.priority_high,
-              tint: Brand.danger,
+              tint: Theme.of(context).colorScheme.error,
             ),
             const SizedBox(height: Gap.sm),
           ],
@@ -463,7 +461,7 @@ class _AiThreadScreenState extends State<AiThreadScreen> {
               Icon(Icons.insights, size: 16, color: scheme.onSurfaceVariant),
               const SizedBox(width: Gap.xs),
               Text(tr.bizConfidence('${(conf * 100).round()}'),
-                  style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             ]),
             const SizedBox(height: Gap.sm),
           ],

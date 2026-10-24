@@ -143,6 +143,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
                       // Day stepper.
                       Row(children: [
                         IconButton(
+                            tooltip: AppLocalizations.of(context).f2PrevDay,
                             onPressed: () => _stepDay(-1),
                             icon: const Icon(Icons.chevron_left)),
                         Expanded(
@@ -153,6 +154,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
                               style: Theme.of(context).textTheme.titleMedium),
                         ),
                         IconButton(
+                            tooltip: AppLocalizations.of(context).f2NextDay,
                             onPressed: _isToday ? null : () => _stepDay(1),
                             icon: const Icon(Icons.chevron_right)),
                       ]),
@@ -164,14 +166,12 @@ class _CashboxScreenState extends State<CashboxScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(t.cashboxExpected,
-                                  style: const TextStyle(fontSize: 13)),
-                              const SizedBox(height: 2),
+                                  style: AType.bodyMedium),
+                              const SizedBox(height: Gap.xxs),
                               Text(
                                   pair(context, s['expected_display'],
                                       fallback: '৳0'),
-                                  style: const TextStyle(
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.w700)),
+                                  style: AType.headlineLarge.copyWith(fontWeight: FontWeight.w700)),
                             ]),
                       ),
                       const SizedBox(height: Gap.lg),
@@ -191,13 +191,13 @@ class _CashboxScreenState extends State<CashboxScreen> {
                               label: t.cashboxTotalIn,
                               value: pair(context, s['total_in_display'],
                                   fallback: '৳0'),
-                              valueColor: Brand.success),
+                              valueColor: AssistoTokens.of(context).success),
                           const Divider(height: 1),
                           _Line(
                               label: t.cashboxTotalOut,
                               value: pair(context, s['total_out_display'],
                                   fallback: '৳0'),
-                              valueColor: Brand.danger),
+                              valueColor: Theme.of(context).colorScheme.error),
                         ]),
                       ),
                       const SizedBox(height: Gap.md),
@@ -294,7 +294,7 @@ class _Line extends StatelessWidget {
       child: Row(children: [
         Expanded(child: Text(label)),
         Text(value,
-            style: TextStyle(
+            style: TextStyle(fontFeatures: AFonts.tabular,
                 fontWeight: FontWeight.w700, color: valueColor)),
         if (trailing != null) trailing!,
       ]),
@@ -310,8 +310,8 @@ class _ReconciledCard extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final variancePoisha = (summary['variance_poisha'] as num?)?.toInt() ?? 0;
     final color = variancePoisha == 0
-        ? Brand.success
-        : (variancePoisha > 0 ? Brand.warning : Brand.danger);
+        ? AssistoTokens.of(context).success
+        : (variancePoisha > 0 ? AssistoTokens.of(context).warning : Theme.of(context).colorScheme.error);
     final icon = variancePoisha == 0
         ? Icons.check_circle_outline
         : (variancePoisha > 0
@@ -357,14 +357,14 @@ class _MiniRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
       child: Row(children: [
         Expanded(
             child: Text(label,
                 style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurfaceVariant))),
         Text(value,
-            style: TextStyle(fontWeight: FontWeight.w700, color: color)),
+            style: TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700, color: color)),
       ]),
     );
   }
@@ -382,7 +382,7 @@ class _CashEntryTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: Gap.sm),
       child: ListTile(
         leading: Icon(isIn ? Icons.south_west : Icons.north_east,
-            color: isIn ? Brand.success : Brand.danger),
+            color: isIn ? AssistoTokens.of(context).success : scheme.error),
         title: Text(note.isEmpty
             ? (isIn
                 ? AppLocalizations.of(context).cashboxCashIn
@@ -392,9 +392,9 @@ class _CashEntryTile extends StatelessWidget {
             ? null
             : Text(entry['ref'].toString()),
         trailing: Text(pair(context, entry['amount_display']),
-            style: TextStyle(
+            style: TextStyle(fontFeatures: AFonts.tabular,
                 fontWeight: FontWeight.w700,
-                color: isIn ? Brand.success : Brand.danger)),
+                color: isIn ? AssistoTokens.of(context).success : scheme.error)),
       ),
     );
   }

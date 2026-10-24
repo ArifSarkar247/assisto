@@ -152,6 +152,35 @@ class AFonts {
       style?.copyWith(fontFeatures: tabular);
 }
 
+/// The ONE type scale as colour-less, weight-less metrics (size, line height,
+/// letter spacing, even leading). [AssistoTheme]'s text theme is built from
+/// these, so `AType.bodySmall` == `textTheme.bodySmall` minus colour/weight.
+///
+/// Use `Theme.of(context).textTheme.*` where a full role fits. Use `AType.*`
+/// in place of a bare `TextStyle(fontSize: n)`: it keeps inheriting colour and
+/// weight from the surrounding DefaultTextStyle (button label, ListTile
+/// subtitle, white-on-gradient…), exactly like the literal it replaces, and
+/// needs no BuildContext.
+class AType {
+  AType._();
+  static const _even = TextLeadingDistribution.even;
+  static const displayLarge = TextStyle(fontSize: 40, height: 1.35, letterSpacing: -0.5, leadingDistribution: _even);
+  static const displayMedium = TextStyle(fontSize: 34, height: 1.35, letterSpacing: -0.4, leadingDistribution: _even);
+  static const displaySmall = TextStyle(fontSize: 30, height: 1.35, letterSpacing: -0.3, leadingDistribution: _even);
+  static const headlineLarge = TextStyle(fontSize: 28, height: 1.35, letterSpacing: -0.2, leadingDistribution: _even);
+  static const headlineMedium = TextStyle(fontSize: 26, height: 1.35, letterSpacing: -0.2, leadingDistribution: _even);
+  static const headlineSmall = TextStyle(fontSize: 22, height: 1.4, letterSpacing: -0.1, leadingDistribution: _even);
+  static const titleLarge = TextStyle(fontSize: 20, height: 1.4, letterSpacing: 0, leadingDistribution: _even);
+  static const titleMedium = TextStyle(fontSize: 16, height: 1.45, letterSpacing: 0, leadingDistribution: _even);
+  static const titleSmall = TextStyle(fontSize: 14, height: 1.45, letterSpacing: 0, leadingDistribution: _even);
+  static const bodyLarge = TextStyle(fontSize: 16, height: 1.5, letterSpacing: 0, leadingDistribution: _even);
+  static const bodyMedium = TextStyle(fontSize: 14, height: 1.5, letterSpacing: 0, leadingDistribution: _even);
+  static const bodySmall = TextStyle(fontSize: 12, height: 1.5, letterSpacing: 0, leadingDistribution: _even); // caption
+  static const labelLarge = TextStyle(fontSize: 14, height: 1.45, letterSpacing: 0, leadingDistribution: _even);
+  static const labelMedium = TextStyle(fontSize: 12, height: 1.45, letterSpacing: 0, leadingDistribution: _even);
+  static const labelSmall = TextStyle(fontSize: 11, height: 1.45, letterSpacing: 0.2, leadingDistribution: _even);
+}
+
 /// Semantic colours that ColorScheme has no slot for (both themes, AA).
 @immutable
 class AssistoTokens extends ThemeExtension<AssistoTokens> {
@@ -259,33 +288,28 @@ class AssistoTheme {
   /// below (tall Bangla conjuncts and the below-base vowel signs stay inside
   /// the line box — test/f1_design_test.dart).
   static TextTheme _type(Color ink) {
-    TextStyle s(double size, FontWeight w, double h, [double ls = 0]) =>
-        TextStyle(
+    TextStyle s(TextStyle metrics, FontWeight w) => metrics.copyWith(
           fontFamily: AFonts.latin,
           fontFamilyFallback: AFonts.fallback,
-          fontSize: size,
           fontWeight: w,
-          height: h,
-          letterSpacing: ls,
-          leadingDistribution: TextLeadingDistribution.even,
           color: ink,
         );
     return TextTheme(
-      displayLarge: s(40, FontWeight.w700, 1.35, -0.5),
-      displayMedium: s(34, FontWeight.w700, 1.35, -0.4),
-      displaySmall: s(30, FontWeight.w700, 1.35, -0.3),
-      headlineLarge: s(28, FontWeight.w700, 1.35, -0.2),
-      headlineMedium: s(26, FontWeight.w700, 1.35, -0.2),
-      headlineSmall: s(22, FontWeight.w700, 1.4, -0.1),
-      titleLarge: s(20, FontWeight.w700, 1.4),
-      titleMedium: s(16, FontWeight.w600, 1.45),
-      titleSmall: s(14, FontWeight.w600, 1.45),
-      bodyLarge: s(16, FontWeight.w400, 1.5),
-      bodyMedium: s(14, FontWeight.w400, 1.5),
-      bodySmall: s(12, FontWeight.w400, 1.5), // caption
-      labelLarge: s(14, FontWeight.w600, 1.45),
-      labelMedium: s(12, FontWeight.w600, 1.45),
-      labelSmall: s(11, FontWeight.w500, 1.45, 0.2),
+      displayLarge: s(AType.displayLarge, FontWeight.w700),
+      displayMedium: s(AType.displayMedium, FontWeight.w700),
+      displaySmall: s(AType.displaySmall, FontWeight.w700),
+      headlineLarge: s(AType.headlineLarge, FontWeight.w700),
+      headlineMedium: s(AType.headlineMedium, FontWeight.w700),
+      headlineSmall: s(AType.headlineSmall, FontWeight.w700),
+      titleLarge: s(AType.titleLarge, FontWeight.w700),
+      titleMedium: s(AType.titleMedium, FontWeight.w600),
+      titleSmall: s(AType.titleSmall, FontWeight.w600),
+      bodyLarge: s(AType.bodyLarge, FontWeight.w400),
+      bodyMedium: s(AType.bodyMedium, FontWeight.w400),
+      bodySmall: s(AType.bodySmall, FontWeight.w400), // caption
+      labelLarge: s(AType.labelLarge, FontWeight.w600),
+      labelMedium: s(AType.labelMedium, FontWeight.w600),
+      labelSmall: s(AType.labelSmall, FontWeight.w500),
     );
   }
 

@@ -175,10 +175,10 @@ class _CrmCollectionsTabState extends State<CrmCollectionsTab> {
               ),
               const SizedBox(height: Gap.sm),
               CrmMoneyRow(t.crmOutstanding, bdtFromPoisha(outstanding),
-                  valueColor: outstanding > 0 ? Brand.warning : null),
+                  valueColor: outstanding > 0 ? AssistoTokens.of(context).warning : null),
               if (overdue > 0)
                 CrmMoneyRow(t.crmOverdue, bdtFromPoisha(overdue),
-                    bold: true, valueColor: Brand.danger),
+                    bold: true, valueColor: Theme.of(context).colorScheme.error),
             ]),
           ),
         ),
@@ -521,14 +521,12 @@ class _CrmComplaintsTabState extends State<CrmComplaintsTab> {
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
               child: Row(children: [
-                const Icon(Icons.timer_off_outlined,
-                    size: 16, color: Brand.danger),
-                const SizedBox(width: 4),
+                Icon(Icons.timer_off_outlined,
+                    size: 16, color: Theme.of(context).colorScheme.error),
+                const SizedBox(width: Gap.xs),
                 Text(t.crmSlaBreached,
-                    style: const TextStyle(
-                        color: Brand.danger,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 12)),
+                    style: AType.labelMedium.copyWith(color: Theme.of(context).colorScheme.error,
+                        fontWeight: FontWeight.w700)),
               ]),
             ),
           if (actions.isNotEmpty) ...[
