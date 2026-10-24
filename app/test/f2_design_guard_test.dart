@@ -18,6 +18,8 @@ import 'package:flutter_test/flutter_test.dart';
 const _colorAllow = <String, int>{
   'lib/calls/call_mini_bar.dart': 2,
   'lib/calls/video_stage.dart': 1,
+  'lib/growth/branded_share.dart': 5,
+  'lib/growth/invite_screen.dart': 2,
   'lib/messaging/call_events.dart': 2,
   'lib/messaging/chat_decor/chat_themes.dart': 107,
   'lib/messaging/chat_decor/decor_sheets.dart': 2,

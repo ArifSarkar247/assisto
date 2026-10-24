@@ -1,0 +1,104 @@
+== home_welcome bn light tap-target
+SemanticsNode#35(Rect.fromLTRB(314.9, 0.0, 328.0, 112.0), tags: [RenderViewport.twoPane], actions: [focus, tap], flags: [isFocusable], label: "চুরি-প্রতিরোধ\nফোন হারালে বা চুরি হলে সুরক্ষিত রাখুন।", textDirection: ltr, indexInParent: 1): expected tap target size of at least Size(48.0, 48.0), but found Size(13.1, 112.0)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+
+SemanticsNode#5(Rect.fromLTRB(256.3, 231.0, 344.0, 271.0), actions: [focus, tap], flags: [isButton, hasEnabledState, isEnabled, isFocusable], label: "সাজান", textDirection: ltr): expected tap target size of at least Size(48.0, 48.0), but found Size(87.7, 40.0)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+
+
+
+
+
+
+
+== home_welcome bn dark tap-target
+SemanticsNode#35(Rect.fromLTRB(314.9, 0.0, 328.0, 112.0), tags: [RenderViewport.twoPane], actions: [focus, tap], flags: [isFocusable], label: "চুরি-প্রতিরোধ\nফোন হারালে বা চুরি হলে সুরক্ষিত রাখুন।", textDirection: ltr, indexInParent: 1): expected tap target size of at least Size(48.0, 48.0), but found Size(13.1, 112.0)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+
+SemanticsNode#5(Rect.fromLTRB(256.3, 231.0, 344.0, 271.0), actions: [focus, tap], flags: [isButton, hasEnabledState, isEnabled, isFocusable], label: "সাজান", textDirection: ltr): expected tap target size of at least Size(48.0, 48.0), but found Size(87.7, 40.0)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+
+
+
+
+
+
+
+== home_welcome en light tap-target
+SemanticsNode#35(Rect.fromLTRB(314.9, 0.0, 328.0, 112.0), tags: [RenderViewport.twoPane], actions: [focus, tap], flags: [isFocusable], label: "Anti-theft\nProtect your phone if it is lost or stolen.", textDirection: ltr, indexInParent: 1): expected tap target size of at least Size(48.0, 48.0), but found Size(13.1, 112.0)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+
+SemanticsNode#5(Rect.fromLTRB(268.2, 230.0, 344.0, 270.0), actions: [focus, tap], flags: [isButton, hasEnabledState, isEnabled, isFocusable], label: "Edit", textDirection: ltr): expected tap target size of at least Size(48.0, 48.0), but found Size(75.8, 40.0)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+
+
+
+
+
+
+
+== home_welcome en dark tap-target
+SemanticsNode#35(Rect.fromLTRB(314.9, 0.0, 328.0, 112.0), tags: [RenderViewport.twoPane], actions: [focus, tap], flags: [isFocusable], label: "Anti-theft\nProtect your phone if it is lost or stolen.", textDirection: ltr, indexInParent: 1): expected tap target size of at least Size(48.0, 48.0), but found Size(13.1, 112.0)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+
+SemanticsNode#5(Rect.fromLTRB(268.2, 230.0, 344.0, 270.0), actions: [focus, tap], flags: [isButton, hasEnabledState, isEnabled, isFocusable], label: "Edit", textDirection: ltr): expected tap target size of at least Size(48.0, 48.0), but found Size(75.8, 40.0)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+
+
+
+
+
+
+
+== chat bn light tap-target
+SemanticsNode#7(Rect.fromLTRB(173.4, 101.0, 287.8, 141.0), actions: [focus, tap], flags: [isButton, hasEnabledState, isEnabled, isFocusable], label: "ফিরিয়ে নিন", textDirection: ltr): expected tap target size of at least Size(48.0, 48.0), but found Size(114.4, 40.0)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+
+SemanticsNode#10(Rect.fromLTRB(173.4, 100.0, 287.8, 140.0), actions: [focus, tap], flags: [isButton, hasEnabledState, isEnabled, isFocusable], label: "ফিরিয়ে নিন", textDirection: ltr): expected tap target size of at least Size(48.0, 48.0), but found Size(114.4, 40.0)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+
+
+
+
+
+
+
+== chat bn dark tap-target
+SemanticsNode#7(Rect.fromLTRB(173.4, 101.0, 287.8, 141.0), actions: [focus, tap], flags: [isButton, hasEnabledState, isEnabled, isFocusable], label: "ফিরিয়ে নিন", textDirection: ltr): expected tap target size of at least Size(48.0, 48.0), but found Size(114.4, 40.0)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+
+SemanticsNode#10(Rect.fromLTRB(173.4, 100.0, 287.8, 140.0), actions: [focus, tap], flags: [isButton, hasEnabledState, isEnabled, isFocusable], label: "ফিরিয়ে নিন", textDirection: ltr): expected tap target size of at least Size(48.0, 48.0), but found Size(114.4, 40.0)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+
+
+
+
+
+
+
+== chat en light tap-target
+SemanticsNode#7(Rect.fromLTRB(203.7, 100.0, 287.8, 140.0), actions: [focus, tap], flags: [isButton, hasEnabledState, isEnabled, isFocusable], label: "Undo", textDirection: ltr): expected tap target size of at least Size(48.0, 48.0), but found Size(84.1, 40.0)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+
+SemanticsNode#10(Rect.fromLTRB(203.7, 98.0, 287.8, 138.0), actions: [focus, tap], flags: [isButton, hasEnabledState, isEnabled, isFocusable], label: "Undo", textDirection: ltr): expected tap target size of at least Size(48.0, 48.0), but found Size(84.1, 40.0)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+
+
+
+
+
+
+
+== chat en dark tap-target
+SemanticsNode#7(Rect.fromLTRB(203.7, 100.0, 287.8, 140.0), actions: [focus, tap], flags: [isButton, hasEnabledState, isEnabled, isFocusable], label: "Undo", textDirection: ltr): expected tap target size of at least Size(48.0, 48.0), but found Size(84.1, 40.0)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+
+SemanticsNode#10(Rect.fromLTRB(203.7, 98.0, 287.8, 138.0), actions: [focus, tap], flags: [isButton, hasEnabledState, isEnabled, isFocusable], label: "Undo", textDirection: ltr): expected tap target size of at least Size(48.0, 48.0), but found Size(84.1, 40.0)
+See also: https://support.google.com/accessibility/android/answer/7101858?hl=en
+
+
+
+
+
+
+
