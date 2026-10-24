@@ -174,7 +174,7 @@ class _UpsellBody extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 32),
+      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xxl),
       children: [
         Icon(Icons.storefront_outlined, size: 56, color: scheme.primary),
         const SizedBox(height: Gap.md),
@@ -203,8 +203,7 @@ class _UpsellBody extends StatelessWidget {
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(t.shopBoxUpsellPlanNote,
-                    style: TextStyle(
-                        fontSize: 13, color: scheme.onSurface, height: 1.4)),
+                    style: AType.bodyMedium.copyWith(color: scheme.onSurface, height: 1.4)),
               ),
             ]),
           ),
@@ -228,7 +227,7 @@ class _UpsellBody extends StatelessWidget {
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,
-                style: TextStyle(fontSize: 13, color: scheme.onSurface))),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurface))),
       ]),
     );
   }
@@ -288,9 +287,7 @@ Widget _sitePickerBanner(BuildContext context, Map<String, dynamic>? site) {
       Expanded(
         child: Text(
           name.isEmpty ? t.shopBoxUnnamedSite : name,
-          style: TextStyle(
-              fontSize: 12.5,
-              fontWeight: FontWeight.w600,
+          style: AType.labelMedium.copyWith(fontWeight: FontWeight.w600,
               color: scheme.onSurfaceVariant),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -505,9 +502,7 @@ class _SitesTab extends StatelessWidget {
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(t.shopBoxPrivacyNote,
-                style: TextStyle(
-                    fontSize: 12.5,
-                    color: scheme.onSurfaceVariant,
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant,
                     height: 1.4)),
           ),
         ]),
@@ -559,9 +554,7 @@ class _SitesTab extends StatelessWidget {
                             t.shopBoxSiteSubtitle(
                                 fmtInt(context, cameras),
                                 fmtInt(context, retention)),
-                            style: TextStyle(
-                                fontSize: 12.5,
-                                color: scheme.onSurfaceVariant),
+                            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -624,9 +617,7 @@ class _EnrollmentSheet extends StatelessWidget {
               ),
               child: SelectableText(
                 token,
-                style: const TextStyle(
-                    fontFamily: 'monospace',
-                    fontSize: 14,
+                style: AType.titleSmall.copyWith(fontFamily: 'monospace',
                     fontWeight: FontWeight.w600),
               ),
             ),
@@ -711,8 +702,7 @@ class _SiteFormState extends State<_SiteForm> {
                 days == 0
                     ? t.shopBoxRetentionZero
                     : t.shopBoxRetentionHint,
-                style: TextStyle(
-                    fontSize: 12, color: scheme.onSurfaceVariant),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
               ),
               Slider(
                 value: _retention,
@@ -974,7 +964,7 @@ class _CamerasTabState extends State<_CamerasTab> {
               Text('$kindLabel  ·  '
                   '${enabled ? t.shopBoxCameraEnabled : t.shopBoxCameraDisabled}',
                   maxLines: 1, overflow: TextOverflow.ellipsis),
-              const SizedBox(height: 2),
+              const SizedBox(height: Gap.xxs),
               ShopSeenPill(row: c),
             ]),
         trailing: Icon(
@@ -1128,14 +1118,14 @@ class _AlertsTabState extends State<_AlertsTab> {
                             const SizedBox(height: Gap.xxl),
                             StateMessage(
                               icon: Icons.notifications_none,
-                              tint: Brand.success,
+                              tint: AssistoTokens.of(context).success,
                               title: t.shopBoxAlertsEmptyTitle,
                               message: t.shopBoxAlertsEmptyBody,
                             ),
                           ])
                         : ListView.separated(
                             padding: const EdgeInsets.fromLTRB(
-                                Gap.md, Gap.md, Gap.md, 32),
+                                Gap.md, Gap.md, Gap.md, Gap.xxl),
                             itemCount: _events.length,
                             separatorBuilder: (_, __) =>
                                 const SizedBox(height: Gap.sm),
@@ -1173,7 +1163,7 @@ class _AlertsTabState extends State<_AlertsTab> {
     String statusLabel;
     switch (status) {
       case 'checked':
-        statusColor = Brand.success;
+        statusColor = AssistoTokens.of(context).success;
         statusLabel = t.shopBoxStatusChecked;
         break;
       case 'false_alarm':
@@ -1181,7 +1171,7 @@ class _AlertsTabState extends State<_AlertsTab> {
         statusLabel = t.shopBoxStatusFalseAlarm;
         break;
       default:
-        statusColor = Brand.warning;
+        statusColor = AssistoTokens.of(context).warning;
         statusLabel = t.shopBoxStatusOpen;
     }
 
@@ -1202,13 +1192,10 @@ class _AlertsTabState extends State<_AlertsTab> {
                       children: [
                         // ALWAYS "please check camera X" wording, never theft.
                         Text((e['camera'] == null ? t.shopQaPleaseCheck : t.shopBoxAlertHeadline),
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w700, fontSize: 14.5)),
-                        const SizedBox(height: 2),
+                            style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
+                        const SizedBox(height: Gap.xxs),
                         Text(_eventTypeLabel(t, type),
-                            style: TextStyle(
-                                fontSize: 12.5,
-                                color: scheme.onSurfaceVariant)),
+                            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                       ]),
                 ),
                 _pill(statusLabel, statusColor),
@@ -1216,13 +1203,12 @@ class _AlertsTabState extends State<_AlertsTab> {
               const SizedBox(height: Gap.sm),
               Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
                 _pill(t.shopBoxConfidence(confidence), scheme.primary),
-                if (possible) _pill(t.shopBoxPossible, Brand.warning),
+                if (possible) _pill(t.shopBoxPossible, AssistoTokens.of(context).warning),
                 if (posMatched) _pill(t.shopBoxPosMatched, scheme.tertiary),
               ]),
               const SizedBox(height: Gap.xs),
               Text(_fmtDateTime(context, e['created']),
-                  style: TextStyle(
-                      fontSize: 11.5, color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               if (snapshotUrl.isNotEmpty) ...[
                 const SizedBox(height: Gap.sm),
                 ClipRRect(
@@ -1282,14 +1268,13 @@ class _AlertsTabState extends State<_AlertsTab> {
   }
 
   Widget _pill(String text, Color c) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xs),
         decoration: BoxDecoration(
           color: c.withValues(alpha: 0.14),
           borderRadius: BorderRadius.circular(Radii.pill),
         ),
         child: Text(text,
-            style: TextStyle(
-                fontSize: 11.5, color: c, fontWeight: FontWeight.w600)),
+            style: AType.labelMedium.copyWith(color: c, fontWeight: FontWeight.w600)),
       );
 }
 
@@ -1374,7 +1359,7 @@ class _ReportTabState extends State<_ReportTab> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, 32),
+        padding: const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, Gap.xxl),
         children: [
           _sitePickerBanner(context, widget.site),
           const SizedBox(height: Gap.md),
@@ -1416,7 +1401,7 @@ class _ReportTabState extends State<_ReportTab> {
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: _stat(context, t.shopBoxStatOpen,
-                    fmtInt(context, open), Brand.warning)),
+                    fmtInt(context, open), AssistoTokens.of(context).warning)),
           ]),
           const SizedBox(height: Gap.sm),
           Row(children: [
@@ -1448,9 +1433,7 @@ class _ReportTabState extends State<_ReportTab> {
                       const SizedBox(width: Gap.sm),
                       Expanded(
                         child: Text(t.shopBoxCameraOnlyNote,
-                            style: TextStyle(
-                                fontSize: 12.5,
-                                color: scheme.onSurfaceVariant,
+                            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant,
                                 height: 1.4)),
                       ),
                     ]),
@@ -1494,12 +1477,11 @@ class _ReportTabState extends State<_ReportTab> {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(value,
-              style: TextStyle(
-                  fontSize: 22, fontWeight: FontWeight.w800, color: color)),
-          const SizedBox(height: 2),
+              style: AType.headlineSmall.copyWith(fontWeight: FontWeight.w800, color: color)),
+          const SizedBox(height: Gap.xxs),
           Text(label,
               style:
-                  TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+                  AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         ]),
       ),
     );

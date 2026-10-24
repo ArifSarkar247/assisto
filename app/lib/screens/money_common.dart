@@ -93,9 +93,7 @@ Widget statCard(BuildContext context, String label, String value, Color color,
             // 2 lines: "Income This Month" must not become "Income This Mo…"
             child: Text(label,
                 maxLines: 2,
-                style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant),
+                style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                 overflow: TextOverflow.ellipsis),
           ),
         ]),
@@ -106,8 +104,10 @@ Widget statCard(BuildContext context, String label, String value, Color color,
           alignment: Alignment.centerLeft,
           child: Text(value,
               maxLines: 1,
-              style: TextStyle(
-                  fontSize: 18, fontWeight: FontWeight.bold, color: color)),
+              style: AType.titleLarge.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                  fontFeatures: AFonts.tabular)),
         ),
       ]),
     ),
@@ -125,7 +125,7 @@ Future<void> confirmDelete(BuildContext context, VoidCallback onConfirm) async {
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         const SizedBox(height: Gap.md),
         ListTile(
-          leading: const Icon(Icons.delete_outline, color: Brand.danger),
+          leading: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error),
           title: Text(t.moneyDeleteConfirm),
         ),
         Padding(
@@ -159,7 +159,7 @@ Widget deltaChip(BuildContext context, double delta, {bool upIsBad = true}) {
   final up = delta > 0;
   final color = delta == 0
       ? Theme.of(context).colorScheme.onSurfaceVariant
-      : (up == upIsBad ? Brand.danger : Brand.success);
+      : (up == upIsBad ? Theme.of(context).colorScheme.error : AssistoTokens.of(context).success);
   return Row(mainAxisSize: MainAxisSize.min, children: [
     Icon(
         delta == 0
@@ -170,6 +170,7 @@ Widget deltaChip(BuildContext context, double delta, {bool upIsBad = true}) {
         size: 13,
         color: color),
     Text(tkFmt(delta.abs()),
-        style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600)),
+        style: AType.labelMedium.copyWith(
+            color: color, fontFeatures: AFonts.tabular)),
   ]);
 }

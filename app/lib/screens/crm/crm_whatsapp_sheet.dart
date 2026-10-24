@@ -149,8 +149,7 @@ class _CrmWhatsAppSheetState extends State<CrmWhatsAppSheet> {
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text('WhatsApp · ${widget.leadName}',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w800, fontSize: 16))),
+                    style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800))),
           ]),
           const SizedBox(height: Gap.sm),
 
@@ -164,14 +163,14 @@ class _CrmWhatsAppSheetState extends State<CrmWhatsAppSheet> {
             onChanged: _setOptIn,
             title: Text(t.crmWaOptIn),
             subtitle: Text(t.crmWaOptInHint,
-                style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ),
 
           // 24h service-window note (free-form vs template).
           Align(
             alignment: Alignment.centerLeft,
             child: Text(inWindow ? t.crmWaInWindow : t.crmWaOutWindow,
-                style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ),
           const SizedBox(height: Gap.sm),
 
@@ -242,7 +241,7 @@ class _CrmWhatsAppSheetState extends State<CrmWhatsAppSheet> {
           const SizedBox(height: Gap.xs),
           Text(t.crmWaAutoLogNote,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+              style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
         ]),
       ),
     );

@@ -173,8 +173,7 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
               Row(children: [
                 Expanded(
                     child: Text(t.crmBrandedPdf,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w800, fontSize: 18))),
+                        style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800))),
                 CrmStatusPill(rendered ? t.crmPdfReady : t.crmPdfPreviewOnly,
                     tone: rendered
                         ? CrmStatusTone.success
@@ -269,8 +268,8 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
             padding: const EdgeInsets.only(top: Gap.xs),
             child: Row(children: [
               Icon(Icons.event_outlined,
-                  size: 16, color: expired ? Brand.danger : scheme.onSurfaceVariant),
-              const SizedBox(width: 4),
+                  size: 16, color: expired ? Theme.of(context).colorScheme.error : scheme.onSurfaceVariant),
+              const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text(
                   expired
@@ -278,9 +277,7 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
                       : daysLeft == null
                           ? t.crmQuoteNoExpiry
                           : t.crmQuoteDaysLeft(daysLeft.toString()),
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: expired ? Brand.danger : scheme.onSurfaceVariant,
+                  style: AType.labelMedium.copyWith(color: expired ? Theme.of(context).colorScheme.error : scheme.onSurfaceVariant,
                       fontWeight: FontWeight.w700),
                 ),
               ),
@@ -294,18 +291,16 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
               child: Row(children: [
                 Icon(Icons.verified_user_outlined,
                     size: 16,
-                    color: discountApproved ? Brand.success : Brand.warning),
-                const SizedBox(width: 4),
+                    color: discountApproved ? AssistoTokens.of(context).success : AssistoTokens.of(context).warning),
+                const SizedBox(width: Gap.xs),
                 Expanded(
                   child: Text(
                     discountApproved
                         ? t.crmDiscountApproved
                         : t.crmDiscountNeedsApproval,
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
+                    style: AType.labelMedium.copyWith(fontWeight: FontWeight.w700,
                         color:
-                            discountApproved ? Brand.success : Brand.warning),
+                            discountApproved ? AssistoTokens.of(context).success : AssistoTokens.of(context).warning),
                   ),
                 ),
               ]),
@@ -315,10 +310,8 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
               child: Text(t.crmToReview,
-                  style: const TextStyle(
-                      color: Brand.warning,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 12)),
+                  style: AType.labelMedium.copyWith(color: AssistoTokens.of(context).warning,
+                      fontWeight: FontWeight.w700)),
             ),
 
           const SizedBox(height: Gap.sm),

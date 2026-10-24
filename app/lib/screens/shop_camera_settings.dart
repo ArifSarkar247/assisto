@@ -32,7 +32,7 @@ class ShopSeenPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final on = row['online'] == true;
-    final c = on ? Brand.success : Theme.of(context).colorScheme.onSurfaceVariant;
+    final c = on ? AssistoTokens.of(context).success : Theme.of(context).colorScheme.onSurfaceVariant;
     return Row(mainAxisSize: MainAxisSize.min, children: [
       Icon(Icons.circle, size: 9, color: c),
       const SizedBox(width: Gap.xs),
@@ -40,7 +40,7 @@ class ShopSeenPill extends StatelessWidget {
         child: Text(shopSeenLabel(t, context, row),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 12, color: c, fontWeight: FontWeight.w600)),
+            style: AType.labelMedium.copyWith(color: c, fontWeight: FontWeight.w600)),
       ),
     ]);
   }
@@ -102,7 +102,7 @@ class ShopHoursField extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(top: Gap.xs),
           child: Text(emptyLabel,
-              style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         ),
     ]);
   }
@@ -362,7 +362,7 @@ class ShopWebhookCard extends StatelessWidget {
             child: Row(children: [
               Expanded(
                 child: SelectableText(u.isEmpty ? '…' : u,
-                    style: const TextStyle(fontFamily: 'monospace', fontSize: 12)),
+                    style: AType.bodySmall.copyWith(fontFamily: 'monospace')),
               ),
               IconButton(
                 tooltip: t.copy,
@@ -399,18 +399,18 @@ class ShopWebhookCard extends StatelessWidget {
           ]),
           const SizedBox(height: Gap.xs),
           Text(t.shopHookIntro,
-              style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant, height: 1.4)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
           row(t.shopHookHikvision, 'hikvision'),
           row(t.shopHookDahua, 'dahua'),
           const SizedBox(height: Gap.sm),
           Text(t.shopHookGuideHik,
-              style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant, height: 1.4)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
           const SizedBox(height: Gap.xs),
           Text(t.shopHookGuideDahua,
-              style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant, height: 1.4)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
           const SizedBox(height: Gap.xs),
           Text(t.shopHookSecret,
-              style: TextStyle(fontSize: 12.5, color: scheme.error, height: 1.4)),
+              style: AType.bodySmall.copyWith(color: scheme.error, height: 1.4)),
         ]),
       ),
     );

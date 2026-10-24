@@ -419,6 +419,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
             suffixIcon: _query.isEmpty
                 ? null
                 : IconButton(
+                    tooltip: AppLocalizations.of(context).f2ClearSearch,
                     icon: const Icon(Icons.clear),
                     onPressed: () {
                       _searchCtl.clear();
@@ -475,7 +476,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
         padding:
             const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, Gap.xs),
         child: Material(
-          color: Brand.warning.withValues(alpha: 0.14),
+          color: AssistoTokens.of(context).warning.withValues(alpha: 0.14),
           borderRadius: BorderRadius.circular(Radii.md),
           child: InkWell(
             onTap: _showReachOut,
@@ -483,7 +484,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
             child: Padding(
               padding: const EdgeInsets.all(Gap.md),
               child: Row(children: [
-                const Icon(Icons.favorite, color: Brand.warning),
+                Icon(Icons.favorite, color: AssistoTokens.of(context).warning),
                 const SizedBox(width: Gap.md),
                 Expanded(
                     child: Text(
@@ -532,7 +533,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
     ];
     final due = c.touchDue();
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4),
+      margin: const EdgeInsets.symmetric(vertical: Gap.xs),
       child: ListTile(
         onTap: () => _openDetail(c),
         leading: Stack(children: [
@@ -548,11 +549,11 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
               right: 0,
               bottom: 0,
               child: Container(
-                padding: const EdgeInsets.all(2),
+                padding: const EdgeInsets.all(Gap.xxs),
                 decoration: BoxDecoration(
                     color: Theme.of(context).cardColor, shape: BoxShape.circle),
-                child: const Icon(Icons.favorite,
-                    size: 12, color: Brand.warning),
+                child: Icon(Icons.favorite,
+                    size: 12, color: AssistoTokens.of(context).warning),
               ),
             ),
         ]),
@@ -561,8 +562,8 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
               child: Text(c.displayName(context),
                   maxLines: 1, overflow: TextOverflow.ellipsis)),
           if (c.favourite) ...[
-            const SizedBox(width: 4),
-            const Icon(Icons.star, size: 16, color: Brand.warning),
+            const SizedBox(width: Gap.xs),
+            Icon(Icons.star, size: 16, color: AssistoTokens.of(context).warning),
           ],
         ]),
         subtitle: subtitleBits.isEmpty
@@ -575,7 +576,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
                 tooltip: cStr(context, 'cFavourite'),
                 icon: Icon(
                     c.favourite ? Icons.star : Icons.star_border,
-                    color: c.favourite ? Brand.warning : scheme.outline),
+                    color: c.favourite ? AssistoTokens.of(context).warning : scheme.outline),
                 onPressed: () {
                   c.favourite = !c.favourite;
                   _upsert(c);
@@ -626,7 +627,7 @@ class _DedupeSheet extends StatelessWidget {
           padding: const EdgeInsets.all(Gap.xl),
           child: StateMessage(
             icon: Icons.verified_outlined,
-            tint: Brand.success,
+            tint: AssistoTokens.of(context).success,
             title: cStr(context, 'cNoDuplicates'),
           ),
         ),
@@ -642,7 +643,7 @@ class _DedupeSheet extends StatelessWidget {
                     .textTheme
                     .titleLarge
                     ?.copyWith(fontWeight: FontWeight.w700)),
-            const SizedBox(height: 4),
+            const SizedBox(height: Gap.xs),
             Text(cStrNum(context, 'cDuplicatesFound', groups.length),
                 style: TextStyle(color: scheme.onSurfaceVariant)),
           ]),
@@ -664,9 +665,7 @@ class _DedupeSheet extends StatelessWidget {
                           radius: 16,
                           backgroundColor: scheme.primaryContainer,
                           child: Text(c.initial(context),
-                              style: TextStyle(
-                                  color: scheme.onPrimaryContainer,
-                                  fontSize: 13)),
+                              style: AType.bodyMedium.copyWith(color: scheme.onPrimaryContainer)),
                         ),
                         title: Text(c.displayName(context)),
                         subtitle: Text(
@@ -674,8 +673,7 @@ class _DedupeSheet extends StatelessWidget {
                             maxLines: 1, overflow: TextOverflow.ellipsis),
                       ),
                     Text(cStr(context, 'cMergePreview'),
-                        style: TextStyle(
-                            fontSize: 12, color: scheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                     const SizedBox(height: Gap.sm),
                     Align(
                       alignment: AlignmentDirectional.centerEnd,

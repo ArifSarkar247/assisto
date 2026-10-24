@@ -104,7 +104,7 @@ class PsGateSheet extends StatelessWidget {
             const SizedBox(height: Gap.sm),
             Text(t.psGateNoFillNote,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ],
         ),
       ),

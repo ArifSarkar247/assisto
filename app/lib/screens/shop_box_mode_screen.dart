@@ -542,8 +542,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
               Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xs),
               Text(body,
-                  style: TextStyle(
-                      fontSize: 12.5, color: scheme.onSurfaceVariant, height: 1.4)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
             ]),
           ),
         ]),
@@ -561,7 +560,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
       Text(t.shopModePairTitle, style: Theme.of(context).textTheme.titleMedium),
       const SizedBox(height: Gap.xs),
       Text(t.shopModePairHelp,
-          style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13, height: 1.4)),
+          style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
       const SizedBox(height: Gap.md),
       TextField(
         controller: _tokenField,
@@ -592,7 +591,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
       ),
       const SizedBox(height: Gap.sm),
       Text(t.shopModeNoScan,
-          style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
+          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
     ];
   }
 
@@ -620,7 +619,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
                   Text(t.shopModePairedTo(_siteName.isEmpty ? '—' : _siteName),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                 ]),
               ),
             ]),
@@ -635,7 +634,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
             if (_status.isNotEmpty)
               Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Icon(_statusIsError ? Icons.error_outline : Icons.radio_button_checked,
-                    size: 18, color: _statusIsError ? scheme.error : Brand.success),
+                    size: 18, color: _statusIsError ? scheme.error : AssistoTokens.of(context).success),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                     child: Text(_status,
@@ -645,7 +644,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
             if (_running) ...[
               const SizedBox(height: Gap.sm),
               Text(_online ? t.shopModeServerOk : t.shopModeServerOffline,
-                  style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               Text(
                   _lastEventAt == null
                       ? t.shopModeNoEvents
@@ -653,7 +652,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
                           fmtInt(context, _sentCount),
                           MaterialLocalizations.of(context)
                               .formatTimeOfDay(TimeOfDay.fromDateTime(_lastEventAt!))),
-                  style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             ],
           ]),
         ),
@@ -676,7 +675,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
                       height: (z.bottom - z.top) * c.maxHeight,
                       child: DecoratedBox(
                           decoration: BoxDecoration(
-                              border: Border.all(color: Brand.warning, width: 2))),
+                              border: Border.all(color: AssistoTokens.of(context).warning, width: 2))),
                     ),
                   ]);
                 }),
@@ -702,7 +701,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
             t.shopModeGuideBody,
             if (!_screenOnHelper) t.shopModeScreenTimeout,
           ].join('\n\n'),
-          tint: _charging == false ? Brand.warning : null),
+          tint: _charging == false ? AssistoTokens.of(context).warning : null),
       const SizedBox(height: Gap.md),
       _infoCard(Icons.privacy_tip_outlined, t.shopModePrivacyTitle, t.shopModePrivacyBody),
       const SizedBox(height: Gap.md),
@@ -752,7 +751,7 @@ class _ZoneDialogState extends State<_ZoneDialog> {
       content: SingleChildScrollView(
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-          Text(t.shopModeZoneHelp, style: const TextStyle(fontSize: 12.5, height: 1.4)),
+          Text(t.shopModeZoneHelp, style: AType.bodySmall.copyWith(height: 1.4)),
           const SizedBox(height: Gap.sm),
           AspectRatio(
             aspectRatio: 4 / 3,
@@ -771,8 +770,8 @@ class _ZoneDialogState extends State<_ZoneDialog> {
                       height: (b - tp) * c.maxHeight,
                       child: DecoratedBox(
                           decoration: BoxDecoration(
-                              color: Brand.warning.withValues(alpha: 0.25),
-                              border: Border.all(color: Brand.warning, width: 2))),
+                              color: AssistoTokens.of(context).warning.withValues(alpha: 0.25),
+                              border: Border.all(color: AssistoTokens.of(context).warning, width: 2))),
                     ),
                 ]),
               );

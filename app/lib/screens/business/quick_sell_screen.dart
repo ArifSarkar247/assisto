@@ -261,11 +261,10 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
                 Text((p['name'] ?? '').toString(),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w600, fontSize: 13)),
-                const SizedBox(height: 2),
+                    style: AType.titleSmall.copyWith(fontWeight: FontWeight.w600)),
+                const SizedBox(height: Gap.xxs),
                 Text(oos ? t.biz_out_of_stock : sell.takaIn(context),
-                    style: TextStyle(
+                    style: TextStyle(fontFeatures: AFonts.tabular,
                         color: oos ? scheme.error : scheme.primary,
                         fontWeight: FontWeight.w800)),
               ]),
@@ -295,8 +294,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
               const SizedBox(width: Gap.md),
               Expanded(
                 child: Text('${t.biz_total}: ${total.takaIn(context)}',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w800, fontSize: 16)),
+                    style: AType.titleMedium.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w800)),
               ),
               FilledButton(
                   onPressed: _checkout, child: Text(t.biz_pay_method)),
@@ -342,7 +340,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
                     poishaOf(_cart['subtotal'] ?? _cart['total'])),
                 if (poishaOf(_cart['discount']) > 0)
                   MoneyRow(t.biz_discount, poishaOf(_cart['discount']),
-                      valueColor: Brand.danger),
+                      valueColor: Theme.of(context).colorScheme.error),
                 const Divider(),
                 MoneyRow(t.biz_total, poishaOf(_cart['total']), strong: true),
                 const SizedBox(height: Gap.lg),
@@ -390,11 +388,11 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
                   Text(name, style: const TextStyle(fontWeight: FontWeight.w600)),
                   if (variant.isNotEmpty)
                     Text(variant,
-                        style: TextStyle(
-                            fontSize: 12, color: scheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                 ]),
           ),
           IconButton(
+            tooltip: AppLocalizations.of(context).delete,
             icon: Icon(Icons.delete_outline, color: scheme.error),
             onPressed: () async {
               await _removeLine(line);
@@ -415,11 +413,11 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
               after();
             },
             icon: const Icon(Icons.edit_outlined, size: 16),
-            label: Text('${unit.takaIn(context)}'),
+            label: Text('${unit.takaIn(context)}', style: const TextStyle(fontFeatures: AFonts.tabular)),
           ),
           const SizedBox(width: Gap.sm),
           Text(lineTotal.takaIn(context),
-              style: const TextStyle(fontWeight: FontWeight.w800)),
+              style: const TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w800)),
         ]),
       ]),
     );
@@ -428,17 +426,17 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
   Widget _qtyStepper(int qty, ValueChanged<int> onChange) {
     return Row(children: [
       IconButton.filledTonal(
-        visualDensity: VisualDensity.compact,
+        tooltip: AppLocalizations.of(context).f2Decrease,
         icon: const Icon(Icons.remove, size: 18),
         onPressed: () => onChange(qty - 1),
       ),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: Gap.sm),
         child: Text('$qty',
-            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+            style: AType.titleMedium.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
       ),
       IconButton.filledTonal(
-        visualDensity: VisualDensity.compact,
+        tooltip: AppLocalizations.of(context).f2Increase,
         icon: const Icon(Icons.add, size: 18),
         onPressed: () => onChange(qty + 1),
       ),
@@ -525,7 +523,7 @@ class _PriceDialogState extends State<_PriceDialog> {
         if (_err != null) ...[
           const SizedBox(height: Gap.sm),
           Text(_err!,
-              style: const TextStyle(color: Brand.danger, fontSize: 12.5)),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.error)),
         ],
       ]),
       actions: [
@@ -733,12 +731,12 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
               Container(
                 padding: const EdgeInsets.all(Gap.sm),
                 decoration: BoxDecoration(
-                  color: Brand.warning.withValues(alpha: 0.15),
+                  color: AssistoTokens.of(context).warning.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(Radii.sm),
                 ),
                 child: Row(children: [
-                  const Icon(Icons.info_outline,
-                      color: Brand.warning, size: 18),
+                  Icon(Icons.info_outline,
+                      color: AssistoTokens.of(context).warning, size: 18),
                   const SizedBox(width: Gap.sm),
                   Expanded(child: Text(t.biz_discount_clamped)),
                 ]),
@@ -758,9 +756,9 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
                 const Divider(),
                 MoneyRow(t.biz_total, _total, strong: true),
                 if (_method != 'due')
-                  MoneyRow(t.biz_change, _change, valueColor: Brand.success),
+                  MoneyRow(t.biz_change, _change, valueColor: AssistoTokens.of(context).success),
                 if (_method == 'due' || _due > 0)
-                  MoneyRow(t.biz_due, _due, valueColor: Brand.danger),
+                  MoneyRow(t.biz_due, _due, valueColor: Theme.of(context).colorScheme.error),
               ]),
             ),
             const SizedBox(height: Gap.xl),

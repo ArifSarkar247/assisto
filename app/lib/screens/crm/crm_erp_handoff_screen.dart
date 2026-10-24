@@ -85,8 +85,7 @@ class _CrmErpHandoffScreenState extends State<CrmErpHandoffScreen> {
             Row(children: [
               Expanded(
                   child: Text((_rec['company'] ?? '').toString(),
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w800, fontSize: 16))),
+                      style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800))),
               CrmStatusPill(_stateLabel(t, state), tone: _stateTone(state)),
             ]),
             const SizedBox(height: Gap.sm),
@@ -114,9 +113,7 @@ class _CrmErpHandoffScreenState extends State<CrmErpHandoffScreen> {
       ],
       const SizedBox(height: Gap.md),
       Text(t.crmErpDesignOnlyNote,
-          style: TextStyle(
-              fontSize: 12,
-              color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
     ]);
   }
 

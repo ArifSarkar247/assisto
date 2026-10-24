@@ -1,0 +1,21 @@
+{
+  "en": {
+    "f2Decrease": "Decrease",
+    "f2Increase": "Increase",
+    "f2PrevDay": "Previous day",
+    "f2NextDay": "Next day",
+    "f2ClearSearch": "Clear search",
+    "f2ClearTime": "Clear time",
+    "f2RateStars": "{count} stars",
+    "@f2RateStars": {"placeholders": {"count": {"type": "int"}}}
+  },
+  "bn": {
+    "f2Decrease": "কমান",
+    "f2Increase": "বাড়ান",
+    "f2PrevDay": "আগের দিন",
+    "f2NextDay": "পরের দিন",
+    "f2ClearSearch": "খোঁজা মুছুন",
+    "f2ClearTime": "সময় মুছুন",
+    "f2RateStars": "{count} তারা"
+  }
+}

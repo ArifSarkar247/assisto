@@ -141,10 +141,12 @@ class _Preview extends StatelessWidget {
     }
     if (parsed.recurrence != null) {
       chips.add(_chip(
-          Icons.repeat, recurrenceLabel(t, parsed.recurrence!), Brand.purple));
+          Icons.repeat, recurrenceLabel(t, parsed.recurrence!),
+          Brand.onTint(context, Brand.purple)));
     }
     if (link != null) {
-      chips.add(_chip(Icons.link, (link!['label'] ?? '').toString(), Brand.blue));
+      chips.add(_chip(Icons.link, (link!['label'] ?? '').toString(),
+          Brand.onTint(context, Brand.blue)));
     }
     return Align(
       alignment: Alignment.centerLeft,
@@ -155,8 +157,7 @@ class _Preview extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(left: Gap.xs, bottom: Gap.xs),
               child: Text(t.remNoTimeDetected,
-                  style: TextStyle(
-                      fontSize: 12, color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             ),
           Wrap(
             spacing: Gap.sm,
@@ -178,15 +179,17 @@ class _Preview extends StatelessWidget {
   }
 
   Widget _chip(IconData icon, String label, Color tint) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xs),
         decoration: BoxDecoration(
           color: tint.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(Radii.pill),
         ),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(icon, size: 14, color: tint),
-          const SizedBox(width: 4),
-          Text(label, style: TextStyle(fontSize: 12, color: tint)),
+          const SizedBox(width: Gap.xs),
+          Text(label,
+              style: AType.bodySmall
+                  .copyWith(color: tint, fontFeatures: AFonts.tabular)),
         ]),
       );
 }
@@ -241,6 +244,7 @@ Future<Map<String, dynamic>?> pickLink(BuildContext context) async {
               ),
               const SizedBox(width: Gap.sm),
               IconButton(
+                tooltip: AppLocalizations.of(context).done,
                 icon: const Icon(Icons.check),
                 onPressed: () {
                   if (custom.text.trim().isEmpty) return;
@@ -409,6 +413,7 @@ Future<void> editReminder(BuildContext context,
               ),
               if (due != null)
                 IconButton(
+                    tooltip: AppLocalizations.of(context).f2ClearTime,
                     onPressed: () => setD(() => due = null),
                     icon: const Icon(Icons.clear)),
             ]),

@@ -205,7 +205,7 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
             ]),
           ),
           if (mode == 'outside_hours' && hours['start'] == null)
-            BizNote(text: t.g1ModeNeedsHours, icon: Icons.info_outline, tint: Brand.warning),
+            BizNote(text: t.g1ModeNeedsHours, icon: Icons.info_outline, tint: AssistoTokens.of(context).warning),
         ]),
       ),
       const SizedBox(height: Gap.md),
@@ -385,7 +385,7 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
                 borderRadius: BorderRadius.circular(Radii.sm),
               ),
               child: SelectableText(snippet,
-                  style: const TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.4)),
+                  style: AType.bodySmall.copyWith(fontFamily: 'monospace', height: 1.4)),
             ),
             TextButton.icon(
               onPressed: () {
@@ -673,7 +673,7 @@ class _AgentAnswersScreenState extends State<AgentAnswersScreen> {
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
         color: suggested
-            ? Brand.warning.withValues(alpha: 0.12)
+            ? AssistoTokens.of(context).warning.withValues(alpha: 0.12)
             : Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(Radii.sm),
       ),

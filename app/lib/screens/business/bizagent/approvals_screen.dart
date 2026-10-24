@@ -169,7 +169,7 @@ class _ApprovalCardState extends State<_ApprovalCard> {
           : '${it['customer_name']} · ${baChannelLabel(t, '${it['channel']}')}'),
       icon: Icons.fact_check_outlined,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        BizStatusChip(label: baRiskLabel(t, '${it['risk_reason']}'), color: Brand.warning),
+        BizStatusChip(label: baRiskLabel(t, '${it['risk_reason']}'), color: AssistoTokens.of(context).warning),
         const SizedBox(height: Gap.md),
         if ('${it['customer_text'] ?? ''}'.isNotEmpty) ...[
           Text(t.baCustomerSaid, style: Theme.of(context).textTheme.labelMedium),
@@ -181,7 +181,7 @@ class _ApprovalCardState extends State<_ApprovalCard> {
           BizNote(
             text: bd(context, t.baNumbersNotInCatalog(problems.map((p) => '${p['value']}').join(', '))),
             icon: Icons.error_outline,
-            tint: Brand.danger,
+            tint: Theme.of(context).colorScheme.error,
           ),
           const SizedBox(height: Gap.md),
         ],

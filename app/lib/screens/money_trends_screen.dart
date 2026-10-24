@@ -52,7 +52,8 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
             icon: const Icon(Icons.description_outlined),
             onPressed: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const MoneyReportScreen()))),
-        IconButton(onPressed: _load, icon: const Icon(Icons.sync)),
+        IconButton(
+            tooltip: AppLocalizations.of(context).refresh,onPressed: _load, icon: const Icon(Icons.sync)),
       ]),
       body: _loading
           ? const SkeletonList(count: 5)
@@ -87,7 +88,7 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
     });
     return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
       Text(t.moneyMonthlyFlow,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+          style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
       const SizedBox(height: Gap.md),
       Card(
         child: Padding(
@@ -105,12 +106,12 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
       // Wrap (not Row): the two legend chips stack on a large font instead of
       // overflowing at 360 px.
       Wrap(spacing: Gap.lg, runSpacing: Gap.xs, children: [
-        _legend(context, Brand.success, t.moneyMonthIncome),
-        _legend(context, Brand.danger, t.moneyMonthExpense),
+        _legend(context, AssistoTokens.of(context).success, t.moneyMonthIncome),
+        _legend(context, Theme.of(context).colorScheme.error, t.moneyMonthExpense),
       ]),
       const SizedBox(height: Gap.xl),
       Text(t.moneyCategoryTrends,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+          style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
       const SizedBox(height: Gap.sm),
       for (final c in cats)
         Card(
@@ -125,7 +126,7 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(tkFmt(c['current']),
-                      style: const TextStyle(fontWeight: FontWeight.w700)),
+                      style: const TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
                   deltaChip(context, dbl(c['delta'])),
                 ])),
           ),
@@ -146,9 +147,9 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                _bar(inc, Brand.success),
+                _bar(inc, AssistoTokens.of(context).success),
                 const SizedBox(width: 3),
-                _bar(exp, Brand.danger),
+                _bar(exp, Theme.of(context).colorScheme.error),
               ]),
         ),
         const SizedBox(height: Gap.xs),
@@ -157,7 +158,7 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
           // malformed value can't throw RangeError on .substring(5).
           // qa1: "Oct" / Bangla month instead of a bare "10"
           final label = moneyMonthShort(context, m['month']);
-          return Text(label, style: const TextStyle(fontSize: 11));
+          return Text(label, style: AType.labelSmall);
         }),
       ]),
     );
@@ -184,8 +185,6 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
                 BoxDecoration(color: c, borderRadius: BorderRadius.circular(3))),
         const SizedBox(width: Gap.xs),
         Text(label,
-            style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontSize: 12)),
+            style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ]);
 }

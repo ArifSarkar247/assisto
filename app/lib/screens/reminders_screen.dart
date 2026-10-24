@@ -207,11 +207,11 @@ class _RemindersScreenState extends State<RemindersScreen>
     today.sort(byNext);
     upcoming.sort(byNext);
     return [
-      _Group('overdue', overdue, Brand.danger),
+      _Group('overdue', overdue, Theme.of(context).colorScheme.error),
       _Group('today', today, Brand.blue),
       _Group('upcoming', upcoming, Brand.purple),
-      _Group('nodate', noDate, Colors.blueGrey),
-      _Group('done', done, Brand.success),
+      _Group('nodate', noDate, Theme.of(context).colorScheme.onSurfaceVariant),
+      _Group('done', done, AssistoTokens.of(context).success),
     ];
   }
 
@@ -347,7 +347,9 @@ class _SectionHeader extends StatelessWidget {
             style: Theme.of(context)
                 .textTheme
                 .labelLarge
-                ?.copyWith(fontWeight: FontWeight.w700, color: tint)),
+                ?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: Brand.onTint(context, tint))),
       ]),
     );
   }
@@ -384,6 +386,7 @@ class _ReminderCard extends StatelessWidget {
             children: [
               Checkbox(
                 value: done,
+                semanticLabel: (d['title'] ?? '').toString(),
                 onChanged: (v) {
                   // completing a recurring reminder advances it instead of killing it
                   if (v == true && rule != null) {
@@ -417,7 +420,7 @@ class _ReminderCard extends StatelessWidget {
                               color: Theme.of(context).disabledColor)
                           : Theme.of(context).textTheme.bodyLarge,
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: Gap.xxs),
                     Wrap(
                       spacing: Gap.sm,
                       runSpacing: 2,
@@ -428,45 +431,43 @@ class _ReminderCard extends StatelessWidget {
                             icon: Icons.schedule,
                             label: _whenLabel(context, next, d),
                             tint: group == 'overdue'
-                                ? Brand.danger
+                                ? Theme.of(context).colorScheme.error
                                 : Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         if (rule != null)
                           _MetaChip(
                             icon: Icons.repeat,
                             label: recurrenceLabel(t, rule),
-                            tint: Brand.purple,
+                            tint: Brand.onTint(context, Brand.purple),
                           ),
                         if (link != null)
                           _MetaChip(
                             icon: _linkIcon(link['type'] as String?),
                             label: (link['label'] ?? '').toString(),
-                            tint: Brand.blue,
+                            tint: Brand.onTint(context, Brand.blue),
                           ),
                         if ((d['priority'] ?? 'none') == 'high')
                           _MetaChip(
                             icon: Icons.flag,
                             label: t.remPriorityHigh,
-                            tint: Brand.warning,
+                            tint: AssistoTokens.of(context).warning,
                           ),
                         if ((d['category'] ?? '').toString().isNotEmpty)
                           _MetaChip(
                             icon: Icons.label_outline,
                             label: (d['category']).toString(),
-                            tint: Brand.cyan,
+                            tint: Brand.onTint(context, Brand.cyan),
                           ),
                       ],
                     ),
                     if ((d['notes'] ?? '').toString().isNotEmpty) ...[
-                      const SizedBox(height: 2),
+                      const SizedBox(height: Gap.xxs),
                       Text((d['notes']).toString(),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                              color: Theme.of(context)
+                          style: AType.bodySmall.copyWith(color: Theme.of(context)
                                   .colorScheme
-                                  .onSurfaceVariant,
-                              fontSize: 12)),
+                                  .onSurfaceVariant)),
                     ],
                   ],
                 ),
@@ -689,16 +690,13 @@ class _NotifPermBanner extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 2),
+                  const SizedBox(height: Gap.xxs),
                   Text(t.remNotifBannerTitle,
-                      style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
+                      style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700,
                           color: scheme.onErrorContainer)),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: Gap.xxs),
                   Text(t.remNotifBannerBody,
-                      style: TextStyle(
-                          fontSize: 12, color: scheme.onErrorContainer)),
+                      style: AType.bodySmall.copyWith(color: scheme.onErrorContainer)),
                   const SizedBox(height: Gap.xs),
                   Align(
                     alignment: Alignment.centerLeft,
@@ -741,7 +739,10 @@ class _MetaChip extends StatelessWidget {
     return Row(mainAxisSize: MainAxisSize.min, children: [
       Icon(icon, size: 13, color: tint),
       const SizedBox(width: 3),
-      Flexible(child: Text(label, style: TextStyle(fontSize: 12, color: tint))), // qa1
+      Flexible(
+          child: Text(label,
+              style: AType.bodySmall
+                  .copyWith(color: tint, fontFeatures: AFonts.tabular))), // qa1
     ]);
   }
 }
@@ -791,6 +792,7 @@ class _SnoozeSheet extends StatelessWidget {
             hintText: t.remSnoozeFreeHint,
             prefixIcon: const Icon(Icons.edit_calendar_outlined),
             suffixIcon: IconButton(
+              tooltip: AppLocalizations.of(context).done,
               icon: const Icon(Icons.check),
               onPressed: () {
                 final dt = snoozeReminder(current, free.text, now: DateTime.now());

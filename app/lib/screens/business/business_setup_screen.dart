@@ -115,10 +115,9 @@ class _BusinessSetupScreenState extends State<BusinessSetupScreen> {
           BrandBand(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(t.businessSetupHeroTitle,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.w700)),
+                  style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xs),
-              Text(t.businessSetupHeroBody, style: const TextStyle(fontSize: 13)),
+              Text(t.businessSetupHeroBody, style: AType.bodyMedium),
             ]),
           ),
           const SizedBox(height: Gap.xl),

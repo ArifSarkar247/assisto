@@ -147,7 +147,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
               children: [
             Text(_takaFmt(context, o['total']), style: const TextStyle(fontWeight: FontWeight.w600)),
             BizStatusChip(label: statusChipLabel(tr, status), color: statusColor(status)),
-            if (cod) BizStatusChip(label: tr.bizCod, color: Brand.warning),
+            if (cod) BizStatusChip(label: tr.bizCod, color: AssistoTokens.of(context).warning),
           ]),
         ),
         onTap: () async {
@@ -324,7 +324,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               tr.parcelTracking(
                   _courierName((_order['courier'] ?? '').toString()),
                   (_order['tracking']).toString()),
-              style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ],
           if (_order['courier_live'] == false && _status == 'shipped') ...[
@@ -356,7 +356,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           ]),
           if (cod) ...[
             const SizedBox(height: Gap.sm),
-            BizNote(text: tr.bizCodCollect(_takaFmt(context, _order['cod_amount'] ?? _order['total'])), icon: Icons.payments_outlined, tint: Brand.warning),
+            BizNote(text: tr.bizCodCollect(_takaFmt(context, _order['cod_amount'] ?? _order['total'])), icon: Icons.payments_outlined, tint: AssistoTokens.of(context).warning),
           ],
         ]),
       ),

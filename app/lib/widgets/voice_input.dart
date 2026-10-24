@@ -403,7 +403,11 @@ class VoiceMicButton extends StatelessWidget {
                 ? _MicPulse(onTap: voice.stop)
                 : IconButton(
                     onPressed: () => voice.toggle(context, input),
-                    icon: Icon(Icons.mic_none, color: scheme.onSurfaceVariant),
+                    icon: Icon(Icons.mic_none,
+                        color: scheme.onSurfaceVariant,
+                        // f2: the outer Tooltip labels the gesture, not
+                        // this button's own semantics node.
+                        semanticLabel: t.voiceHoldToTalk),
                   ),
           ),
         );

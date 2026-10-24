@@ -52,8 +52,7 @@ class StaffRedactedNote extends StatelessWidget {
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(t.biz_staff_restricted,
-              style: TextStyle(
-                  fontSize: 12.5, color: scheme.onSurfaceVariant, height: 1.3)),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.3)),
         ),
       ]),
     );
@@ -93,10 +92,10 @@ class MoneyRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final style = TextStyle(
+    final style = (strong ? AType.titleMedium : AType.bodyMedium).copyWith(
       fontWeight: strong ? FontWeight.w800 : FontWeight.w500,
-      fontSize: strong ? 16 : 14,
       color: valueColor ?? scheme.onSurface,
+      fontFeatures: AFonts.tabular,
     );
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Gap.xs),
@@ -195,15 +194,12 @@ class SellHeader extends StatelessWidget {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(title,
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
+                style: AType.titleLarge.copyWith(color: Colors.white,
                     fontWeight: FontWeight.w800)),
             if (subtitle != null) ...[
-              const SizedBox(height: 2),
+              const SizedBox(height: Gap.xxs),
               Text(subtitle!,
-                  style: const TextStyle(
-                      color: Colors.white70, fontSize: 13, height: 1.3)),
+                  style: AType.bodyMedium.copyWith(color: Colors.white70, height: 1.3)),
             ],
           ]),
         ),

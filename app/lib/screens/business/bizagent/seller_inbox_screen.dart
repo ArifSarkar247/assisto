@@ -251,7 +251,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
     return Column(children: [
       Material(
         color: handover || pausedUntil.isNotEmpty
-            ? Brand.warning.withValues(alpha: 0.12)
+            ? AssistoTokens.of(context).warning.withValues(alpha: 0.12)
             : scheme.surfaceContainerHighest,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.sm),
@@ -314,7 +314,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
           child: BizNote(
               text: bd(context, t.g1CourierTestNote('${o['id']}', '${o['tracking']}')),
               icon: Icons.science_outlined,
-              tint: Brand.warning),
+              tint: AssistoTokens.of(context).warning),
         ),
       if (draft.isNotEmpty && draft['product'] != null)
         Padding(
@@ -337,7 +337,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
           padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
           child: BizNote(
               text: th['channel'] == 'whatsapp_cloud' ? t.baWindowClosedWa : t.baWindowClosed,
-              icon: Icons.timer_off_outlined, tint: Brand.warning),
+              icon: Icons.timer_off_outlined, tint: AssistoTokens.of(context).warning),
         ),
       SafeArea(
         top: false,
@@ -391,12 +391,12 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
           padding: const EdgeInsets.all(Gap.md),
           decoration: BoxDecoration(
             color: pending
-                ? Brand.warning.withValues(alpha: 0.14)
+                ? AssistoTokens.of(context).warning.withValues(alpha: 0.14)
                 : out
                     ? scheme.primaryContainer
                     : scheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(Radii.md),
-            border: failed ? Border.all(color: Brand.danger) : null,
+            border: failed ? Border.all(color: Theme.of(context).colorScheme.error) : null,
           ),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             if (!out && (kind == 'image' || kind == 'voice'))

@@ -150,9 +150,9 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
               child: Row(children: [
-                const Icon(Icons.flag_outlined, size: 16, color: Brand.warning),
-                const SizedBox(width: 4),
-                Text(t.crmToReview, style: const TextStyle(color: Brand.warning, fontWeight: FontWeight.w700, fontSize: 12)),
+                Icon(Icons.flag_outlined, size: 16, color: AssistoTokens.of(context).warning),
+                const SizedBox(width: Gap.xs),
+                Text(t.crmToReview, style: AType.labelMedium.copyWith(color: AssistoTokens.of(context).warning, fontWeight: FontWeight.w700)),
               ]),
             ),
           if ((p['body'] ?? '').toString().isNotEmpty) ...[
@@ -176,7 +176,7 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
   }
 
   Widget _line(String k, String v, {bool bold = false}) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
+        padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Text(k),
           Text(v, style: TextStyle(fontWeight: bold ? FontWeight.w800 : FontWeight.w500)),
@@ -201,9 +201,9 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
   Widget _statusChip(String status) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(color: scheme.secondaryContainer, borderRadius: BorderRadius.circular(999)),
-      child: Text(_statusLabel(status), style: TextStyle(fontSize: 11, color: scheme.onSecondaryContainer, fontWeight: FontWeight.w700)),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
+      decoration: BoxDecoration(color: scheme.secondaryContainer, borderRadius: BorderRadius.circular(Radii.pill)),
+      child: Text(_statusLabel(status), style: AType.labelSmall.copyWith(color: scheme.onSecondaryContainer, fontWeight: FontWeight.w700)),
     );
   }
 }
@@ -353,9 +353,9 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
                       Padding(
                         padding: const EdgeInsets.only(top: Gap.xs),
                         child: Row(children: [
-                          const Icon(Icons.flag_outlined, size: 16, color: Brand.warning),
-                          const SizedBox(width: 4),
-                          Expanded(child: Text(t.crmToReview, style: const TextStyle(color: Brand.warning, fontWeight: FontWeight.w700, fontSize: 12))),
+                          Icon(Icons.flag_outlined, size: 16, color: AssistoTokens.of(context).warning),
+                          const SizedBox(width: Gap.xs),
+                          Expanded(child: Text(t.crmToReview, style: AType.labelMedium.copyWith(color: AssistoTokens.of(context).warning, fontWeight: FontWeight.w700))),
                         ]),
                       ),
                   ]),
@@ -370,7 +370,7 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
                 label: Text(t.crmCreateProposal),
               ),
               const SizedBox(height: Gap.xs),
-              Text(t.crmQuotePriceBookNote, style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+              Text(t.crmQuotePriceBookNote, style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
             ]),
     );
   }
@@ -388,17 +388,19 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(p['name']?.toString() ?? sku, style: const TextStyle(fontWeight: FontWeight.w700)),
               Text('${bdt(context, (_dec(p['unit_price'])))} · $sku',
-                  style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               if (!reviewed)
-                Text(t.crmToReview, style: const TextStyle(color: Brand.warning, fontWeight: FontWeight.w700, fontSize: 11)),
+                Text(t.crmToReview, style: AType.labelSmall.copyWith(color: AssistoTokens.of(context).warning, fontWeight: FontWeight.w700)),
             ]),
           ),
           IconButton(
+            tooltip: AppLocalizations.of(context).f2Decrease,
             icon: const Icon(Icons.remove_circle_outline),
             onPressed: q > 0 ? () => setState(() => _qty[sku] = q - 1) : null,
           ),
           Text('$q', style: const TextStyle(fontWeight: FontWeight.w800)),
           IconButton(
+            tooltip: AppLocalizations.of(context).f2Increase,
             icon: const Icon(Icons.add_circle_outline),
             onPressed: () => setState(() => _qty[sku] = q + 1),
           ),
@@ -408,7 +410,7 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
   }
 
   Widget _line(String k, String v, {bool bold = false}) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
+        padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Flexible(child: Text(k)),
           Text(v, style: TextStyle(fontWeight: bold ? FontWeight.w800 : FontWeight.w500)),

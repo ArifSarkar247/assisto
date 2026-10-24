@@ -274,11 +274,10 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
                         Text((biz['name'] ?? '').toString(),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w700, fontSize: 18)),
-                        const SizedBox(height: 2),
+                            style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700)),
+                        const SizedBox(height: Gap.xxs),
                         Text(_typeLabel(t, (biz['type'] ?? '').toString()),
-                            style: const TextStyle(fontSize: 13)),
+                            style: AType.bodyMedium),
                       ]),
                 ),
                 if (_businesses.length > 1)
@@ -324,7 +323,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
             const SizedBox(height: Gap.md),
             _HubCard(
               icon: Icons.account_balance_wallet_outlined,
-              tint: Brand.success,
+              tint: AssistoTokens.of(context).success,
               title: t.cashboxTitle,
               subtitle: t.businessCashboxSub,
               onTap: () => _go(CashboxScreen(business: biz)),
@@ -349,7 +348,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
               const SizedBox(height: Gap.md),
               _HubCard(
                 icon: Icons.insights_outlined,
-                tint: Brand.danger,
+                tint: Theme.of(context).colorScheme.error,
                 title: t.demandTitle,
                 subtitle: t.demandHubSub,
                 onTap: () => _go(const DemandMapScreen()),
@@ -499,7 +498,7 @@ class _NetPositionCardState extends State<_NetPositionCard> {
               child: _Stat(
                 label: t.netReceivable,
                 value: pair(context, np['receivable_display'], fallback: '৳0'),
-                color: Brand.success,
+                color: AssistoTokens.of(context).success,
               ),
             ),
             if (!widget.isStaff)
@@ -507,7 +506,7 @@ class _NetPositionCardState extends State<_NetPositionCard> {
                 child: _Stat(
                   label: t.netPayable,
                   value: pair(context, np['payable_display'], fallback: '৳0'),
-                  color: Brand.danger,
+                  color: Theme.of(context).colorScheme.error,
                 ),
               ),
           ]),
@@ -515,14 +514,14 @@ class _NetPositionCardState extends State<_NetPositionCard> {
             const Divider(height: Gap.xl),
             Row(children: [
               Icon(ahead ? Icons.trending_up : Icons.trending_down,
-                  color: ahead ? Brand.success : Brand.danger, size: 20),
+                  color: ahead ? AssistoTokens.of(context).success : Theme.of(context).colorScheme.error, size: 20),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(
                   '${ahead ? t.netYouAreAhead : t.netYouAreBehind} · ${pair(context, np['net_display'], fallback: '৳0')}',
                   style: TextStyle(
                       fontWeight: FontWeight.w700,
-                      color: ahead ? Brand.success : scheme.onSurface),
+                      color: ahead ? AssistoTokens.of(context).success : scheme.onSurface),
                 ),
               ),
             ]),
@@ -542,13 +541,10 @@ class _Stat extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(label,
-          style: TextStyle(
-              fontSize: 12,
-              color: Theme.of(context).colorScheme.onSurfaceVariant)),
-      const SizedBox(height: 2),
+          style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+      const SizedBox(height: Gap.xxs),
       Text(value,
-          style: TextStyle(
-              fontSize: 18, fontWeight: FontWeight.w700, color: color)),
+          style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700, color: color)),
     ]);
   }
 }
@@ -607,7 +603,7 @@ class _HubCard extends StatelessWidget {
                         const SizedBox(width: Gap.sm),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: Gap.sm, vertical: 2),
+                              horizontal: Gap.sm, vertical: Gap.xxs),
                           decoration: BoxDecoration(
                             color: Brand.purple.withValues(alpha: 0.16),
                             borderRadius: BorderRadius.circular(Radii.pill),
@@ -617,18 +613,17 @@ class _HubCard extends StatelessWidget {
                                 size: 13, color: Brand.purple),
                             const SizedBox(width: 3),
                             Text(lockedLabel ?? '',
-                                style: const TextStyle(
-                                    fontSize: 11,
+                                style: AType.labelSmall.copyWith(
                                     fontWeight: FontWeight.w700,
-                                    color: Brand.purple)),
+                                    color: Brand.onTint(
+                                        context, Brand.purple))),
                           ]),
                         ),
                       ],
                     ]),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: Gap.xxs),
                     Text(subtitle,
-                        style: TextStyle(
-                            fontSize: 13, color: scheme.onSurfaceVariant)),
+                        style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
                   ]),
             ),
             Icon(locked ? Icons.lock_outline : Icons.chevron_right,

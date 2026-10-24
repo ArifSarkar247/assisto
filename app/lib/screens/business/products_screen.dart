@@ -243,7 +243,7 @@ class _ProductTile extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.w700),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis),
-              const SizedBox(height: 4),
+              const SizedBox(height: Gap.xs),
               Wrap(spacing: Gap.sm, runSpacing: 4, children: [
                 _tag('${t.biz_sell_price}: ${sell.takaIn(context)}',
                     scheme.primaryContainer, scheme.onPrimaryContainer),
@@ -259,9 +259,7 @@ class _ProductTile extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   '${t.biz_profit}: ${profit.takaIn(context)}  ·  ${t.biz_margin}: ${margin.toStringAsFixed(0)}%',
-                  style: TextStyle(
-                      fontSize: 12.5,
-                      color: profit >= 0 ? Brand.success : Brand.danger,
+                  style: AType.labelMedium.copyWith(color: profit >= 0 ? AssistoTokens.of(context).success : Theme.of(context).colorScheme.error,
                       fontWeight: FontWeight.w600),
                 ),
               ],
@@ -291,23 +289,23 @@ class _ProductTile extends StatelessWidget {
   }
 
   Widget _tag(String s, Color bg, Color fg) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
         decoration:
-            BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
+            BoxDecoration(color: bg, borderRadius: BorderRadius.circular(Radii.pill)),
         child: Text(s,
             style:
-                TextStyle(fontSize: 11.5, color: fg, fontWeight: FontWeight.w600)),
+                AType.labelMedium.copyWith(color: fg, fontWeight: FontWeight.w600)),
       );
 
   Widget _stockTag(BuildContext ctx, AppLocalizations t, num stock, num lowAt) {
     final scheme = Theme.of(ctx).colorScheme;
     if (stock <= 0) {
       return _tag(t.biz_out_of_stock,
-          Brand.danger.withValues(alpha: 0.15), Brand.danger);
+          Theme.of(ctx).colorScheme.error.withValues(alpha: 0.15), Theme.of(ctx).colorScheme.error);
     }
     if (stock <= lowAt) {
       return _tag('${t.biz_low_stock} ($stock)',
-          Brand.warning.withValues(alpha: 0.18), Brand.warning);
+          AssistoTokens.of(ctx).warning.withValues(alpha: 0.18), AssistoTokens.of(ctx).warning);
     }
     return _tag('${t.biz_stock}: $stock', scheme.surfaceContainerHighest,
         scheme.onSurfaceVariant);
@@ -640,6 +638,7 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
             ),
           ),
           IconButton(
+            tooltip: AppLocalizations.of(context).delete,
             icon: Icon(Icons.delete_outline, color: scheme.error),
             onPressed: () => setState(() {
               _variants.removeAt(i).dispose();
@@ -818,11 +817,11 @@ class _ProductImportSheetState extends State<ProductImportSheet> {
               Container(
                 padding: const EdgeInsets.all(Gap.md),
                 decoration: BoxDecoration(
-                  color: Brand.warning.withValues(alpha: 0.15),
+                  color: AssistoTokens.of(context).warning.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(Radii.sm),
                 ),
                 child: Row(children: [
-                  const Icon(Icons.warning_amber, color: Brand.warning),
+                  Icon(Icons.warning_amber, color: AssistoTokens.of(context).warning),
                   const SizedBox(width: Gap.sm),
                   Expanded(
                     child: Text(
@@ -861,7 +860,7 @@ class _ProductImportSheetState extends State<ProductImportSheet> {
     return ListTile(
       dense: true,
       contentPadding: EdgeInsets.zero,
-      leading: Icon(Icons.check_circle_outline, color: Brand.success, size: 20),
+      leading: Icon(Icons.check_circle_outline, color: AssistoTokens.of(context).success, size: 20),
       title: Text((r['name'] ?? '').toString()),
       trailing: Text(sell.takaIn(context),
           style: const TextStyle(fontWeight: FontWeight.w600)),
@@ -875,7 +874,7 @@ class _ProductImportSheetState extends State<ProductImportSheet> {
       leading: Icon(Icons.error_outline, color: scheme.error, size: 20),
       title: Text((r['name'] ?? '').toString()),
       subtitle: Text(reason,
-          style: TextStyle(color: scheme.error, fontSize: 12)),
+          style: AType.bodySmall.copyWith(color: scheme.error)),
     );
   }
 }

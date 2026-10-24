@@ -140,7 +140,7 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(Icons.bolt,
-                color: active ? Brand.warning : scheme.onSurfaceVariant, size: 20),
+                color: active ? AssistoTokens.of(context).warning : scheme.onSurfaceVariant, size: 20),
             const SizedBox(width: Gap.xs),
             Expanded(
                 child: Text(r['name']?.toString() ?? t.crmRule,
@@ -157,8 +157,8 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
                 label: Text(t.edit)),
             TextButton.icon(
                 onPressed: () => _delete(r),
-                icon: const Icon(Icons.delete_outline, size: 16, color: Brand.danger),
-                label: Text(t.delete, style: const TextStyle(color: Brand.danger))),
+                icon: Icon(Icons.delete_outline, size: 16, color: Theme.of(context).colorScheme.error),
+                label: Text(t.delete, style: TextStyle(color: Theme.of(context).colorScheme.error))),
           ]),
         ]),
       ),
