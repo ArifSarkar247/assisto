@@ -450,6 +450,7 @@ def DEFAULTS():
             "circle_media_photo_max_mb": 16,
             "circle_media_voice_max_mb": 16,
             "circle_media_doc_max_mb": 25,
+            "circle_media_video_max_mb": 32,   # mc-media2 (sent as picked)
             "circle_media_daily_mb": 300,
             "circle_media_uploads_per_hour": 60,
             "circle_media_keep_days": 30,
@@ -677,6 +678,7 @@ _MD1_LIMITS = (
     ("circle_media_photo_max_mb", 1, 64, 16),
     ("circle_media_voice_max_mb", 1, 64, 16),
     ("circle_media_doc_max_mb", 1, 100, 25),
+    ("circle_media_video_max_mb", 1, 100, 32),
     ("circle_media_daily_mb", 10, 5000, 300),
     ("circle_media_uploads_per_hour", 5, 1000, 60),
     ("circle_media_keep_days", 1, 365, 30),

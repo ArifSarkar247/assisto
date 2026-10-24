@@ -39,9 +39,10 @@ from django.db.models import Q, Sum
 from django.utils import timezone
 
 MB = 1024 * 1024
-KINDS = ("photo", "voice", "document")
-# Chat media kinds that REALLY work end to end (md1). Video stays hidden: no
-# reliable on-phone encoder without a heavy native dependency.
+KINDS = ("photo", "voice", "document", "video")
+# Chat media kinds that REALLY work end to end (md1; mc-media2 adds VIDEO:
+# the phone sends the clip as picked — no transcoding — under its own cap,
+# played inline with an in-app player).
 CHAT_MEDIA_KINDS = KINDS
 CHUNK_MAX = 1 * MB            # one PUT body
 URL_TTL_S = 600               # signed download link lifetime
@@ -55,6 +56,7 @@ _DEFAULTS = {
     "circle_media_photo_max_mb": 16,
     "circle_media_voice_max_mb": 16,
     "circle_media_doc_max_mb": 25,
+    "circle_media_video_max_mb": 32,
     "circle_media_daily_mb": 300,
     "circle_media_uploads_per_hour": 60,
     "circle_media_keep_days": 30,
@@ -80,7 +82,8 @@ def max_bytes(kind, lim=None):
     """Ciphertext cap for one file of `kind` (plain cap + AEAD overhead)."""
     lim = lim or limits()
     mb = {"photo": lim["circle_media_photo_max_mb"],
-          "voice": lim["circle_media_voice_max_mb"]}.get(
+          "voice": lim["circle_media_voice_max_mb"],
+          "video": lim["circle_media_video_max_mb"]}.get(
         kind, lim["circle_media_doc_max_mb"])
     return int(mb) * MB + _OVERHEAD
 
@@ -93,6 +96,7 @@ def public_limits():
         "photo_max_bytes": lim["circle_media_photo_max_mb"] * MB,
         "voice_max_bytes": lim["circle_media_voice_max_mb"] * MB,
         "doc_max_bytes": lim["circle_media_doc_max_mb"] * MB,
+        "video_max_bytes": lim["circle_media_video_max_mb"] * MB,
         "daily_bytes": lim["circle_media_daily_mb"] * MB,
         "chunk_bytes": 512 * 1024,
         "keep_days": lim["circle_media_keep_days"],

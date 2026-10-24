@@ -71,6 +71,8 @@ from core.logic.circle import (
     FALLBACK_SCHEME,
     FORBIDDEN_META_KEYS,
     REQ_ACCEPTED,
+    SHARE_CT_MAX,
+    SHARE_TYPES,
     pick,
     validate_envelope as _validate_base,
 )
@@ -339,6 +341,10 @@ def validate_group_envelope(env):
                 return False, "per_recipient carries plaintext: " + ",".join(sorted(bad))
             if not sub.get("ciphertext") or not sub.get("nonce"):
                 return False, "per_recipient entry missing ciphertext/nonce"
+            # mc-media2: a location / contact card stays small per recipient
+            if env.get("content_type") in SHARE_TYPES and \
+                    len(str(sub.get("ciphertext"))) > SHARE_CT_MAX:
+                return False, "ciphertext too large"
     return True, "ok"
 
 

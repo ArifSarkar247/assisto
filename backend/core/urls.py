@@ -890,6 +890,13 @@ urlpatterns[:0] = [
 ]
 # ---- /md1 ----
 
+# ---- mc-media2 ---- live location: in-place ciphertext update (sender only)
+from . import views_mc_media2 as mc2  # noqa: E402
+urlpatterns[:0] = [
+    path("circle/live/<int:mid>", mc2.LiveLocationUpdateView.as_view()),
+]
+# ---- /mc-media2 ----
+
 # ---- p1-bizagent ---- Business AI Agent (webhooks are public: signature = auth)
 from . import views_bizagent as p1  # noqa: E402
 urlpatterns += [

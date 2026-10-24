@@ -147,7 +147,8 @@ class UploadTests(_Base):
     def test_size_caps(self):
         r = self.create(size=CB.max_bytes("photo") + 1)
         self.assertEqual((r.status_code, r.json()["reason"]), (413, "too_big"))
-        r = self.create(kind="video")
+        # mc-media2: video is a chat media kind now (own cap); unknown -> bad_kind
+        r = self.create(kind="sticker")
         self.assertEqual(r.json()["reason"], "bad_kind")
         # documents default to 25 MB
         self.assertEqual(CB.max_bytes("document"), 25 * MB + 64 * 1024)
@@ -167,7 +168,7 @@ class UploadTests(_Base):
             self.assertEqual(CB.max_bytes("document"), 40 * MB + 64 * 1024)
             lim = self.ca.get(V + "/circle/media/limits").json()
         self.assertEqual(lim["doc_max_bytes"], 40 * MB)
-        self.assertEqual(lim["kinds"], ["photo", "voice", "document"])
+        self.assertEqual(lim["kinds"], ["photo", "voice", "document", "video"])
 
     def test_daily_quota_and_rate_limit(self):
         lim = dict(CB.limits(), circle_media_daily_mb=1)

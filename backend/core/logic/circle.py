@@ -343,8 +343,15 @@ def scope_label(scope, lang="bn"):
 # reference (the encrypted file lives in object storage; still ciphertext-only).
 
 # md1: "document" (blob) and "location" (a static point, inline ciphertext).
+# mc-media2: "contact" (a contact card, inline ciphertext). A LIVE location is
+# a "location" message whose ciphertext the sender replaces in place
+# (core/views_mc_media2.py) — older apps keep showing "Location".
 CONTENT_TYPES = ("text", "voice", "photo", "video", "document", "location",
-                 "key_exchange", "system")
+                 "contact", "key_exchange", "system")
+# mc-media2: kinds whose ciphertext is INLINE and small (a point / a card):
+# no blob, and a hard cap on the base64 ciphertext so nobody parks files here.
+SHARE_TYPES = ("location", "contact")
+SHARE_CT_MAX = 8192
 
 # Metadata the server is permitted to persist on an envelope (ROUTING ONLY).
 ALLOWED_META_KEYS = {
@@ -377,11 +384,16 @@ def validate_envelope(env):
     if bad:
         return False, "forbidden plaintext/secret field(s): " + ",".join(sorted(bad))
     # Text + key_exchange carry inline ciphertext; media carry a blob reference.
-    if ct in ("text", "key_exchange", "location"):
+    if ct in ("text", "key_exchange") + SHARE_TYPES:
         if not env.get("ciphertext"):
             return False, "missing ciphertext"
         if not env.get("nonce"):
             return False, "missing nonce"
+        if ct in SHARE_TYPES:
+            if env.get("blob_ref"):
+                return False, "no blob for " + ct
+            if len(str(env.get("ciphertext"))) > SHARE_CT_MAX:
+                return False, "ciphertext too large"
     elif ct in ("voice", "photo", "video", "document"):
         if not env.get("blob_ref"):
             return False, "missing blob_ref for media"
