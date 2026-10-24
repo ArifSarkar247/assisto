@@ -172,7 +172,7 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xxl),
         children: [
-          _AiMarker(text: t.qtAiMarker, note: t.qtNeverSends),
+          _AiMarker(text: t.f6QtRuleMarker, note: t.qtNeverSends) /* f6: rule-based, not AI */,
           const SizedBox(height: Gap.lg),
 
           // the text the toolbox works over

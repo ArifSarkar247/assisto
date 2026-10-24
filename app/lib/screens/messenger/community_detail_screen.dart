@@ -15,6 +15,7 @@ import 'community_members_screen.dart';
 import 'community_message_requests_screen.dart';
 import 'community_settings_screen.dart';
 import '../../ads/sponsor_widgets.dart' show SponsoredPostSlot; // p2-money
+import '../../feature_gates.dart' show kCommunityAlertsBuilt; // f6
 
 /// Assisto Messenger — COMMUNITY detail (Step 3, item 2).
 ///
@@ -347,8 +348,10 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
               PopupMenuItem(value: 'info', child: Text(_t.communityInfo)),
               PopupMenuItem(
                   value: 'members', child: Text(_t.communityMembersTitle)),
-              // Honest disabled item: the server does not deliver or push
-              // community posts yet, so an alert switch would change nothing.
+              // The server does not deliver or push community posts yet, so
+              // an alert switch would change nothing. f6: hidden, not shown
+              // disabled with "not yet".
+              if (kCommunityAlertsBuilt)
               PopupMenuItem(
                 enabled: false,
                 value: 'notifications',

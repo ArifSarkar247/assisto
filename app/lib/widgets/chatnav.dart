@@ -78,6 +78,7 @@ import '../screens/assisto_chats_screen.dart';
 import '../feedback/feedback_capture.dart'; // f1-founders
 import '../feedback/feedback_sheet.dart'; // f1-founders
 import '../screens/offers_screens.dart' show OffersFeedScreen; // p2-money
+import '../feature_gates.dart' show kAgentStudioRunsAutomations; // f6
 
 /// open-from-chat configuration (Phase B).
 ///
@@ -180,7 +181,9 @@ class ChatNav {
     'memory': (_) => const MemoryScreen(),
     'nominee': (_) => const NomineeScreen(),
     'contacts': (_) => const CrmContactsScreen(),
-    'agent_studio': (_) => const AgentStudioScreen(),
+    // f6: hidden until automations really run (feature_gates.dart).
+    if (kAgentStudioRunsAutomations)
+      'agent_studio': (_) => const AgentStudioScreen(),
     'jobs': (_) => const JobsScreen(),
     'cv': (_) => const CvBuilderScreen(),
     'resume': (_) => const CvBuilderScreen(),

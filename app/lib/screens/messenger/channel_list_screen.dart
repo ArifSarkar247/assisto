@@ -10,6 +10,7 @@ import '../../widgets/msgr_channel_common.dart';
 import 'channel_admin_screen.dart';
 import 'channel_detail_screen.dart';
 import 'discover_screen.dart';
+import '../../services/error_kind.dart' show honestFailText; // f6
 
 /// Assisto Messenger — CHANNELS list (Step 3).
 ///
@@ -30,6 +31,7 @@ class ChannelListScreen extends StatefulWidget {
 class _ChannelListScreenState extends State<ChannelListScreen> {
   bool _loading = true;
   bool _backendReady = true;
+  Object? _failCause; // f6: 5xx = our server, not the internet
   bool _loadError = false;
   List<Map<String, dynamic>> _following = [];
   List<Map<String, dynamic>> _suggested = [];
@@ -59,7 +61,8 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
           ((j['suggested'] ?? []) as List).cast<Map<String, dynamic>>();
       _backendReady = true;
       _loadError = false;
-    } on ApiException {
+    } on ApiException catch (e) {
+      _failCause = e;
       _backendReady = true;
       _loadError = true;
       _following = [];
@@ -186,7 +189,7 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
           MsgrEmptyState(
             icon: Icons.cloud_off_outlined,
             title: t.channelLoadError,
-            body: t.channelsBackendSoon,
+            body: honestFailText(t, _failCause, otherwise: t.checkInternetRetry),
             action: FilledButton.icon(
               onPressed: _load,
               icon: const Icon(Icons.refresh),
@@ -205,7 +208,7 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
             title: t.channelsEmptyTitle,
             body: _backendReady
                 ? t.channelsEmptyBody
-                : t.channelsBackendSoon,
+                : t.checkInternetRetry,
             action: FilledButton.icon(
               onPressed: _create,
               icon: const Icon(Icons.add),

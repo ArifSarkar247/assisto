@@ -507,10 +507,9 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 48, color: scheme.primary.withValues(alpha: 0.7)),
+            // f6: no "Preview" heading — this is an honest waiting state
+            // (keys being set up), not a feature preview.
             const SizedBox(height: Gap.md),
-            Text(_t.msgrComingSoon,
-                style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: Gap.xs),
             Text(body,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),

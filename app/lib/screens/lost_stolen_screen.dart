@@ -17,6 +17,7 @@ import 'always_on_protection_screen.dart';
 import 'my_lost_phone_screen.dart';
 import 'recovery_screen.dart';
 import '../services/action_feedback.dart'; // db1
+import '../feature_gates.dart' show kLostActionSwitchesWired; // f6
 
 /// #80 — Lost / stolen phone protection (device-admin).
 ///
@@ -454,12 +455,21 @@ class _LostStolenScreenState extends State<LostStolenScreen>
                 const SizedBox(height: Gap.md),
                 _recoveryPinCard(tr, scheme),
                 const SizedBox(height: Gap.md),
-                _actionsCard(tr, scheme),
+                // f6 (no showpieces): the four action switches were saved
+                // on the phone but nothing ever read them (no remote trigger
+                // ships yet). Until one does, only the REAL tests are shown.
+                kLostActionSwitchesWired
+                    ? _actionsCard(tr, scheme)
+                    : _actionTestsCard(tr, scheme),
                 const SizedBox(height: Gap.md),
                 _lostMessageCard(tr, scheme),
                 const SizedBox(height: Gap.md),
-                _triggersCard(tr, scheme),
-                const SizedBox(height: Gap.md),
+                // f6: the remote-triggers card had nothing under it (the SMS
+                // command is not built) — hidden until a trigger ships.
+                if (kLostActionSwitchesWired) ...[
+                  _triggersCard(tr, scheme),
+                  const SizedBox(height: Gap.md),
+                ],
                 _uninstallCard(tr, scheme),
                 const SizedBox(height: Gap.xl),
               ],
@@ -769,6 +779,49 @@ class _LostStolenScreenState extends State<LostStolenScreen>
                 await Settings.setBool(_kMessage, v);
               },
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// f6: the real, working tests of each protection action (no switches
+  /// that change nothing).
+  Widget _actionTestsCard(AppLocalizations tr, ColorScheme scheme) {
+    Widget row(IconData icon, String title, String sub, String cta,
+            VoidCallback? onPressed, Key key) =>
+        ListTile(
+          leading: Icon(icon),
+          title: Text(title),
+          subtitle: Text(sub),
+          trailing: onPressed == null
+              ? null
+              : TextButton(key: key, onPressed: onPressed, child: Text(cta)),
+        );
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.sm),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(Gap.sm, Gap.sm, Gap.sm, 0),
+              child: Text(tr.lostStolenActionsTitle,
+                  style: Theme.of(context).textTheme.titleMedium),
+            ),
+            row(
+                Icons.lock_outline,
+                tr.lostStolenActionLock,
+                _adminActive ? tr.lostStolenActionLockOk : tr.lostStolenNeedsAdmin,
+                tr.lostStolenTestLock,
+                _adminActive ? _testLock : null,
+                const Key('f6-ls-test-lock')),
+            row(Icons.volume_up, tr.lostStolenActionAlarm,
+                tr.lostStolenActionAlarmBody, tr.lostStolenTestAlarm,
+                _testAlarm, const Key('f6-ls-test-alarm')),
+            row(Icons.my_location, tr.lostStolenActionLocate,
+                tr.lostStolenActionLocateBody, tr.lostStolenReportNow,
+                _reportLocation, const Key('f6-ls-report')),
           ],
         ),
       ),

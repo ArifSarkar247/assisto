@@ -203,41 +203,39 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
         _repCard(byRep, t),
         const SizedBox(height: Gap.md),
 
-        // ---- reports the backend computes but does NOT yet RETURN (gap #8) ----
-        // Rendered live if/when DashboardView adds them; honest panel until then.
-        CrmSectionHeader(t.crmReportFunnel, hint: t.crmReportFunnelHint),
-        _funnelCard(funnel),
-        const SizedBox(height: Gap.md),
-
-        CrmSectionHeader(t.crmReportSalesCycle, hint: t.crmReportSalesCycleHint),
-        _cycleCard(cycle, t),
-        const SizedBox(height: Gap.md),
-
-        CrmSectionHeader(t.crmReportWinBySource,
-            hint: t.crmReportWinBySourceHint),
-        bySource == null
-            ? _unavailable(t.crmReportUnavailable)
-            : _rowsCard(bySource,
-                (r) => _line(r['source']?.toString() ?? '—',
-                    '${bdt(context, r['value'] as num?)} · ${r['count']}')),
-        const SizedBox(height: Gap.md),
-
-        CrmSectionHeader(t.crmReportLeaderboard,
-            hint: t.crmReportLeaderboardHint),
-        leaderboard == null
-            ? _unavailable(t.crmReportUnavailable)
-            : _rowsCard(leaderboard,
-                (r) => _line(r['name']?.toString() ?? '—',
-                    '${r['activities']} ${t.crmActivitiesCount}')),
-        const SizedBox(height: Gap.md),
-
-        // ---- reports not modelled on the backend at all ----
-        CrmSectionHeader(t.crmReportBookedVsCollected),
-        _unavailable(t.crmReportUnavailableBooked),
-        const SizedBox(height: Gap.md),
-
-        CrmSectionHeader(t.crmReportRenewals),
-        _unavailable(t.crmReportUnavailableRenewals),
+        // ---- reports DashboardView returns (gap #8) ----
+        // f6: a panel whose block the server did not send is HIDDEN, never an
+        // "unavailable" placeholder.
+        if (funnel != null) ...[
+          CrmSectionHeader(t.crmReportFunnel, hint: t.crmReportFunnelHint),
+          _funnelCard(funnel),
+          const SizedBox(height: Gap.md),
+        ],
+        if (cycle != null) ...[
+          CrmSectionHeader(t.crmReportSalesCycle,
+              hint: t.crmReportSalesCycleHint),
+          _cycleCard(cycle, t),
+          const SizedBox(height: Gap.md),
+        ],
+        if (bySource != null) ...[
+          CrmSectionHeader(t.crmReportWinBySource,
+              hint: t.crmReportWinBySourceHint),
+          _rowsCard(bySource,
+              (r) => _line(r['source']?.toString() ?? '—',
+                  '${bdt(context, r['value'] as num?)} · ${r['count']}')),
+          const SizedBox(height: Gap.md),
+        ],
+        if (leaderboard != null) ...[
+          CrmSectionHeader(t.crmReportLeaderboard,
+              hint: t.crmReportLeaderboardHint),
+          _rowsCard(leaderboard,
+              (r) => _line(r['name']?.toString() ?? '—',
+                  '${r['activities']} ${t.crmActivitiesCount}')),
+          const SizedBox(height: Gap.md),
+        ],
+        // f6: "booked vs collected" and "renewals" are not modelled on the
+        // backend at all, so their placeholder panels are hidden (no
+        // showpieces) until a real report exists.
       ]),
     );
   }

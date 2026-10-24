@@ -10,6 +10,7 @@ import '../theme.dart';
 import '../widgets/imei_tools.dart';
 import 'report_stolen_screen.dart';
 import 'registry_imei.dart';
+import '../feature_gates.dart' show kNeirCheckWired, kTacSourceWired; // f6
 
 /// Used-phone check (Daily Life). Enter a phone's IMEI and check Assisto's
 /// COMMUNITY + server-side ownership registry before buying a second-hand phone.
@@ -322,24 +323,28 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
             ),
           ),
           const SizedBox(height: Gap.md),
-          // Honest NEIR placeholder.
-          Card(
-            color: scheme.surfaceContainerHighest,
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Row(children: [
-                Icon(Icons.policy_outlined,
-                    size: 20, color: scheme.onSurfaceVariant),
-                const SizedBox(width: Gap.sm),
-                Expanded(
-                  child: Text(_neirMessage ?? t.upNeirNotAvailable,
-                      style: TextStyle(
-                          fontSize: 12.5, color: scheme.onSurfaceVariant)),
-                ),
-              ]),
+          // f6 (no showpieces): the "NEIR check not available yet" card is
+          // hidden; the registry's limits stay explained in the footer. It
+          // returns when the official NEIR check is really wired.
+          if (kNeirCheckWired) ...[
+            Card(
+              color: scheme.surfaceContainerHighest,
+              child: Padding(
+                padding: const EdgeInsets.all(Gap.md),
+                child: Row(children: [
+                  Icon(Icons.policy_outlined,
+                      size: 20, color: scheme.onSurfaceVariant),
+                  const SizedBox(width: Gap.sm),
+                  Expanded(
+                    child: Text(_neirMessage ?? t.upNeirNotAvailable,
+                        style: TextStyle(
+                            fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                  ),
+                ]),
+              ),
             ),
-          ),
-          const SizedBox(height: Gap.md),
+            const SizedBox(height: Gap.md),
+          ],
           // Cross-link: if it's the user's OWN phone that's lost/stolen.
           Align(
             alignment: Alignment.centerLeft,
@@ -563,6 +568,9 @@ class _TacCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
+    // f6 (no showpieces): with no TAC data source we show nothing rather
+    // than a "not available yet" card — and we never guess a brand/model.
+    if (!available && !kTacSourceWired) return const SizedBox.shrink();
     if (!available) {
       // HONEST: no TAC data source yet — never guess a brand/model.
       return Card(

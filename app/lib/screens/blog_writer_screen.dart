@@ -671,7 +671,7 @@ class _AiMarkerCard extends StatelessWidget {
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(t.bwAiMarker,
+            Text(t.f6BwTemplateMarker, // f6: a template draft, not AI
                 style: TextStyle(
                     color: scheme.onTertiaryContainer,
                     fontWeight: FontWeight.w700,

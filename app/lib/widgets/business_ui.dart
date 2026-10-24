@@ -190,7 +190,7 @@ class BizPremiumGate extends StatelessWidget {
       ),
       const SizedBox(height: Gap.md),
       // Honest: pricing is owner-review (placeholder, no invented numbers).
-      BizNote(text: tr.bizPlanPriceTbd, icon: Icons.schedule_outlined),
+      BizNote(text: tr.f6BizPlanPriceOnPlans, icon: Icons.sell_outlined), // f6: real prices live on Plans
       const SizedBox(height: Gap.lg),
       FilledButton.icon(
         onPressed: onUpgrade,

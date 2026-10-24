@@ -97,6 +97,7 @@ import '../screens/inbox_screen.dart';
 import '../screens/pa/pa_hub_screen.dart';
 import '../screens/business_screen.dart';
 import '../screens/crm/crm_home_screen.dart';
+import '../feature_gates.dart' show kAgentStudioRunsAutomations, kAreaBoardShared; // f6
 // NOTE: the former "My Circle" sidebar group (Connected circle / Circle privacy
 // / Circle calls) was DELETED per OWNER UI FIX v2 §2 — those circle-management
 // functions now live INSIDE the Messenger hub (people icon, ⋮ hub-settings,
@@ -485,15 +486,23 @@ class SidebarSections {
       SidebarItem(Icons.lightbulb_outline, (t) => t.proTitle,
           (_) => const ProactiveAiScreen(),
           synonyms: ['proactive', 'suggestions', 'nudges', 'ai', 'digest']),
-      SidebarItem(Icons.holiday_village_outlined, (t) => t.areaCommunityTitle,
-          (_) => const AreaCommunityScreen(),
-          synonyms: ['area', 'community', 'neighbourhood', 'local', 'notice board']),
+      // f6 (no showpieces): a "neighbourhood board" whose posts no neighbour
+      // can see (per-user collection) — hidden until a moderated shared feed
+      // exists on the server.
+      if (kAreaBoardShared)
+        SidebarItem(Icons.holiday_village_outlined, (t) => t.areaCommunityTitle,
+            (_) => const AreaCommunityScreen(),
+            synonyms: ['area', 'community', 'neighbourhood', 'local', 'notice board']),
     ]),
     // 7. Work
     SidebarSection('work', Icons.work_outline, (t) => t.sidebarWork, [
-      SidebarItem(Icons.auto_awesome_outlined, (t) => t.agentStudio,
-          (_) => const AgentStudioScreen(),
-          synonyms: ['agent', 'studio', 'automation']),
+      // f6 (no showpieces): Agent Studio automations never fire yet (and its
+      // social composer labels template drafts "AI-generated"), so the entry
+      // is hidden until automations really run.
+      if (kAgentStudioRunsAutomations)
+        SidebarItem(Icons.auto_awesome_outlined, (t) => t.agentStudio,
+            (_) => const AgentStudioScreen(),
+            synonyms: ['agent', 'studio', 'automation']),
       // #21 Task manager — projects / board / assign / progress.
       SidebarItem(Icons.view_kanban_outlined, (t) => t.tmTitle,
           (_) => const TaskManagerScreen(),
