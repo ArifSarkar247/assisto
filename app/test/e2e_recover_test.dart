@@ -23,6 +23,7 @@ import 'package:assisto/crypto/scrypt.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/messaging/outbox.dart';
 import 'package:assisto/screens/circle_chat_screen.dart';
+import 'package:assisto/screens/e2_restore_screen.dart';
 import 'package:assisto/security/secret_store.dart';
 import 'package:assisto/state.dart';
 import 'package:flutter/material.dart';
@@ -534,6 +535,44 @@ void main() {
     });
   });
 
+  group('restore screen', () {
+    testWidgets('bn: wrong PIN shows Bangla digits; Skip pops false',
+        (tester) async {
+      final bn = await AppLocalizations.delegate.load(const Locale('bn'));
+      final svc = _WrongPinService();
+      bool? popped;
+      await tester.pumpWidget(MaterialApp(
+        locale: const Locale('bn'),
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        home: Builder(
+            builder: (ctx) => TextButton(
+                onPressed: () async {
+                  popped = await Navigator.of(ctx).push<bool>(
+                      MaterialPageRoute(
+                          builder: (_) => E2RestoreScreen(service: svc)));
+                },
+                child: const Text('open'))),
+      ));
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      expect(find.text(bn.e2rRestoreTitle), findsOneWidget);
+      await tester.enterText(find.byType(TextField), '123456');
+      await tester.tap(find.byKey(const Key('e2r-restore')));
+      await tester.pumpAndSettle();
+      expect(svc.tried, ['123456']);
+      expect(find.text(bn.e2rWrongPin('৪')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('e2r-skip')));
+      await tester.pumpAndSettle();
+      expect(popped, isFalse);
+    });
+  });
+
   group('chat screen', () {
     late AppLocalizations t;
     setUpAll(() async {
@@ -629,6 +668,16 @@ void main() {
       HistoryReshare.instance.resetForTests();
     });
   });
+}
+
+class _WrongPinService extends KeyBackupService {
+  final List<String> tried = [];
+  @override
+  Future<RestoreResult> restore(String pin,
+      {Map<String, dynamic>? meta, bool adoptOnly = false}) async {
+    tried.add(pin);
+    return const RestoreResult(RestoreOutcome.wrongPin, attemptsLeft: 4);
+  }
 }
 
 class _Api extends ApiClient {
