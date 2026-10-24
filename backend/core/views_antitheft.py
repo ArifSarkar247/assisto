@@ -708,7 +708,7 @@ class EngineIngestView(APIView):
         if back_online:
             te, be, tb, bb = at.back_online_text(_owner_name(phone.owner),
                                                  phone.last_lat, phone.last_lng)
-            notify(phone, "online", te, be, tb, bb,
+            notify(phone, "online", te, be, tb, bb, family_only=True,
                    meta={"lat": phone.last_lat, "lng": phone.last_lng})
 
         PhoneHeartbeat.prune(phone)

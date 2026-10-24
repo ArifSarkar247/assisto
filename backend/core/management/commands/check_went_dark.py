@@ -47,7 +47,8 @@ class Command(BaseCommand):
                         defaults={"kind": "went_dark", "at": dark_since,
                                   "lat": phone.last_lat, "lng": phone.last_lng,
                                   "alerted": True})
-                    notify(phone, "went_dark", te, be, tb, bb,
+                    # owner 24 Oct: never alert the owner about his own phone
+                    notify(phone, "went_dark", te, be, tb, bb, family_only=True,
                            meta={"went_dark_at": dark_since.isoformat(),
                                  "lat": phone.last_lat, "lng": phone.last_lng})
                     phone.went_dark_alerted = True

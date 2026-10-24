@@ -218,7 +218,9 @@ class IngestionTests(_Base):
                        "lat": 23.7, "lng": 90.4}])
         self.phone.refresh_from_db()
         self.assertFalse(self.phone.went_dark_alerted)
-        self.assertTrue(FamilyAlert.objects.filter(
+        # owner 24 Oct: the device owner never gets went-dark / back-online
+        # alerts about his own phone (only approved family members do)
+        self.assertFalse(FamilyAlert.objects.filter(
             user=self.owner, payload__antitheft_kind="online").exists())
 
     def test_old_fix_does_not_overwrite_newer_location(self):
