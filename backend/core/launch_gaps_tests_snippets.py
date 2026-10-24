@@ -195,6 +195,9 @@ def test_legal_draft_stamped_both_langs():
     for lang in ("bn", "en"):
         for key in legal.PAGES:
             p = legal.page(key, lang)
+            if key in legal.REVIEWED_PAGES:   # owner-reviewed 25 Oct: no stamp
+                assert p["draft"] is False and "lifeassisto.com" in p["stamp"]
+                continue
             assert p["draft"] is True
             assert p["stamp"] == (legal.DRAFT_STAMP_BN if lang == "bn"
                                   else legal.DRAFT_STAMP_EN)

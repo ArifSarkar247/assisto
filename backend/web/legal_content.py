@@ -18,7 +18,7 @@ from django.conf import settings
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
-LAST_UPDATED = "2026-10-22"
+LAST_UPDATED = "2026-10-25"   # AXON Dynamic details (24 Oct) + ads wording (25 Oct)
 
 # env var -> what the owner must provide. Listed in the l1-launch report and
 # in owner_actions/PLAY_STORE_PACK.md.
@@ -417,11 +417,11 @@ PRIVACY = [
         "The provider may be Anthropic (Claude), OpenAI, Google (Gemini) or, for images, Replicate — whichever we have switched on at the time. They process it under their API terms. "
         "Your end-to-end encrypted messages are never sent to AI. AI can be wrong — check before important decisions.")),
     S("ads", "বিজ্ঞাপন (Google AdMob)", "Advertising (Google AdMob)",
-      P("ফ্রি প্ল্যানে আমরা Google AdMob-এর মাধ্যমে বিজ্ঞাপন দেখাতে পারি (এই ফিচার মালিক চালু করলে)। আমরা শুধু <b>নন-পার্সোনালাইজড</b> বিজ্ঞাপন চাই — অর্থাৎ আপনার আগ্রহ বা ইতিহাস দেখে বিজ্ঞাপন বাছাই করা হয় না। "
-        "তবুও বিজ্ঞাপন দেখাতে, সংখ্যা সীমিত রাখতে, প্রতারণা ঠেকাতে ও সমষ্টিগত রিপোর্টের জন্য Google-এর SDK কিছু তথ্য সংগ্রহ করে: ডিভাইসের বিজ্ঞাপন আইডি (Advertising ID), IP ঠিকানা (আনুমানিক এলাকা), ডিভাইস ও অ্যাপের তথ্য এবং বিজ্ঞাপনে ট্যাপ/দেখার তথ্য। "
+      P("<b>এখন অ্যাপে কোনো বিজ্ঞাপন নেই এবং কোনো বিজ্ঞাপন SDK নেই</b> — Advertising ID সংগ্রহ করা হয় না। ভবিষ্যতে ফ্রি প্ল্যানে Google AdMob-এর বিজ্ঞাপন চালু হলে আগে এই নীতি নতুন তারিখসহ হালনাগাদ করা হবে; তখন আমরা শুধু <b>নন-পার্সোনালাইজড</b> বিজ্ঞাপন চাইব — অর্থাৎ আপনার আগ্রহ বা ইতিহাস দেখে বিজ্ঞাপন বাছাই করা হবে না। "
+        "তখন বিজ্ঞাপন দেখাতে, সংখ্যা সীমিত রাখতে, প্রতারণা ঠেকাতে ও সমষ্টিগত রিপোর্টের জন্য Google-এর SDK কিছু তথ্য সংগ্রহ করবে: ডিভাইসের বিজ্ঞাপন আইডি (Advertising ID), IP ঠিকানা (আনুমানিক এলাকা), ডিভাইস ও অ্যাপের তথ্য এবং বিজ্ঞাপনে ট্যাপ/দেখার তথ্য। "
         "বিস্তারিত: <a href=\"https://policies.google.com/technologies/ads\" rel=\"noopener\">Google কীভাবে বিজ্ঞাপনে তথ্য ব্যবহার করে</a>।",
-        "On the Free plan we may show ads through Google AdMob (once the owner switches this on). We request <b>non-personalised</b> ads only — ads are not chosen from your interests or history. "
-        "Even so, to show ads, limit how often they appear, prevent fraud and produce aggregate reports, Google's SDK collects some data: the device Advertising ID, IP address (approximate area), device and app information, and ad taps/views. "
+        "<b>The app shows no ads today and contains no advertising SDK</b> — no Advertising ID is collected. If Google AdMob ads are switched on for the Free plan later, this policy will be updated first, with a new date; we would then request <b>non-personalised</b> ads only — ads would not be chosen from your interests or history. "
+        "At that point, to show ads, limit how often they appear, prevent fraud and produce aggregate reports, Google's SDK would collect some data: the device Advertising ID, IP address (approximate area), device and app information, and ad taps/views. "
         "Details: <a href=\"https://policies.google.com/technologies/ads\" rel=\"noopener\">how Google uses information from ads</a>."),
       UL(("বিজ্ঞাপন কখনো SOS, নিরাপত্তা, যাত্রা, চুরি-সুরক্ষা, পেমেন্ট/প্ল্যান, লগইন/OTP বা কলের স্ক্রিনে দেখানো হয় না।",
           "Ads are never shown on SOS, safety, journey, anti-theft, payment/plan, sign-in/OTP or call screens."),

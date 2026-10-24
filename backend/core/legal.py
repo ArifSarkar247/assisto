@@ -38,7 +38,7 @@ PAGES = (
     "admin_transparency",
 )
 
-LAST_UPDATED = "2026-10-22"
+LAST_UPDATED = "2026-10-25"
 
 CONTACT_BN = "প্রশ্ন বা অনুরোধ: অ্যাপের ভেতরে সাপোর্ট থেকে আমাদের জানান।"
 CONTACT_EN = "Questions or requests: reach us from Support inside the app."
@@ -84,6 +84,16 @@ def _stamp(lang):
     return pick(lang, DRAFT_STAMP_BN, DRAFT_STAMP_EN)
 
 
+# Owner 25 Oct: the in-app privacy summary was checked against what the app
+# really collects and against lifeassisto.com/privacy -> no DRAFT stamp.
+REVIEWED_PAGES = {"privacy"}
+
+
+def _reviewed_line(lang):
+    return pick(lang, "হালনাগাদ ২৫ অক্টোবর ২০২৬ · পুরো নীতি: lifeassisto.com/privacy",
+                "Updated 25 Oct 2026 · Full policy: lifeassisto.com/privacy")
+
+
 def _contact(lang):
     return pick(lang, CONTACT_BN, CONTACT_EN)
 
@@ -109,23 +119,43 @@ def _privacy(lang):
              "lifeassisto.com/privacy"),
         _sec(lang, "আমরা কী সংগ্রহ করি", "What we collect",
              "আপনি নিজে যোগ করা তথ্য (খরচ, রিমাইন্ডার, নোট, পরিবারের তথ্য), "
-             "অ্যাকাউন্ট তথ্য (নাম, ফোন/ইমেইল), এবং সম্মতি থাকলে ব্যবহারের "
-             "বেনামি পরিসংখ্যান।",
+             "অ্যাকাউন্ট তথ্য (নাম, ফোন/ইমেইল), আর শুধু যে ফিচার আপনি ব্যবহার "
+             "করেন তার জন্য: লোকেশন (SOS, Safe Journey, হারানো/চুরি সুরক্ষা), "
+             "কন্টাক্ট (সার্কেলে পরিচিতদের খুঁজতে, আগে জানিয়ে), মাইক্রোফোন ও "
+             "ক্যামেরা (ভয়েস, কল, ভয়েস নোট, ছবি), আপনার বাছাই করা ছবি (ফটো "
+             "স্টুডিওতে আমাদের সার্ভারে প্রসেস হয়), Health Connect-এর হাঁটা/হার্ট "
+             "রেট/ঘুম (শুধু পড়া)। My Circle-এর মেসেজ ও কল এন্ড-টু-এন্ড "
+             "এনক্রিপ্টেড — সার্ভারে শুধু তালাবদ্ধ ডেটা আর সময়/প্রেরকের মতো "
+             "তথ্য থাকে। নিরাপত্তা ও কল পৌঁছানোর জন্য ফোনের মডেল, Android "
+             "সংস্করণ ও একটি লুকানো ইনস্টল-আইডি; সমস্যা ঠিক করতে ক্র্যাশ রিপোর্ট "
+             "(কোনো মেসেজ বা ব্যক্তিগত লেখা নয়); সম্মতি থাকলে বেনামি পরিসংখ্যান।",
              "Information you add yourself (expenses, reminders, notes, family "
-             "details), account info (name, phone/email), and — only with your "
-             "consent — anonymous usage statistics."),
+             "details), account info (name, phone/email), and only for the "
+             "features you use: location (SOS, Safe Journey, Lost/Stolen "
+             "protection), contacts (to find people for your circle, after an "
+             "in-app notice), microphone and camera (voice, calls, voice notes, "
+             "photos), photos you pick (processed on our server in Photo "
+             "Studio), Health Connect steps/heart rate/sleep (read only). My "
+             "Circle messages and calls are end-to-end encrypted — the server "
+             "keeps only the encrypted data plus details such as time and "
+             "sender. For security and call delivery: phone model, Android "
+             "version and a hidden install ID; crash reports to fix bugs (no "
+             "message or personal text); anonymous usage statistics only with "
+             "your consent."),
         _sec(lang, "আমরা কী করি না", "What we do NOT do",
              "আপনার ডেটা বিক্রি করি না, আপনার তথ্য দিয়ে বিজ্ঞাপনের প্রোফাইল "
              "বানাই না, এবং পরিসংখ্যান ইভেন্টে কোনো নাম/ফোন/ইমেইল রাখি না।",
              "We do not sell your data, we build no advertising profile from "
              "it, and we store no name/phone/email in an analytics event."),
         _sec(lang, "বিজ্ঞাপন", "Ads",
-             "চালু হলে শুধু ফ্রি প্ল্যানে Google AdMob-এর নন-পার্সোনালাইজড "
-             "বিজ্ঞাপন; SOS, নিরাপত্তা, পেমেন্ট, লগইন বা কলের স্ক্রিনে কখনো নয়। "
-             "Google-এর SDK বিজ্ঞাপন আইডি, IP ও ডিভাইস তথ্য সংগ্রহ করে।",
-             "When switched on: Google AdMob non-personalised ads on the Free "
-             "plan only; never on SOS, safety, payment, sign-in or call screens. "
-             "Google's SDK collects the Advertising ID, IP and device info."),
+             "এখন অ্যাপে কোনো বিজ্ঞাপন বা বিজ্ঞাপন SDK নেই, Advertising ID নেওয়া হয় না। "
+             "ভবিষ্যতে চালু হলে (শুধু ফ্রি প্ল্যানে Google AdMob-এর নন-পার্সোনালাইজড "
+             "বিজ্ঞাপন; SOS, নিরাপত্তা, পেমেন্ট, লগইন বা কলের স্ক্রিনে কখনো নয়) আগে "
+             "এই নীতি হালনাগাদ হবে।",
+             "The app shows no ads today and contains no advertising SDK; no "
+             "Advertising ID is collected. If ads are added later (Google AdMob "
+             "non-personalised ads on the Free plan only; never on SOS, safety, "
+             "payment, sign-in or call screens), this policy is updated first."),
         _sec(lang, "পরিসংখ্যান", "Analytics",
              "ব্যবহারের পরিসংখ্যান বেনামি ও সম্মতিভিত্তিক — আপনি সেটিংস থেকে "
              "যেকোনো সময় বন্ধ করতে পারেন।",
@@ -368,11 +398,12 @@ def page(key, lang="bn"):
     if not b:
         return None
     title, sections = b(lang)
+    reviewed = key in REVIEWED_PAGES
     return {
         "key": key,
         "title": title,
-        "draft": True,
-        "stamp": _stamp(lang),
+        "draft": not reviewed,
+        "stamp": _reviewed_line(lang) if reviewed else _stamp(lang),
         "last_updated": LAST_UPDATED,
         "sections": sections,
         "body": _flatten(sections),
