@@ -67,7 +67,7 @@ Your Bangla-first AI helper for reminders, money, family, safety and business.
 Assisto is a personal assistant built for Bangladesh. Speak or type in Bangla or English — Assisto remembers, reminds and keeps your life in order. You live your life; remembering is Assisto's job.
 
 EVERYTHING IN ONE CHAT
-• Say "500 taka food expense" or "remind me about medicine at 8am tomorrow" — Assisto logs it and shows a card you can undo.
+• Say "500 taka food expense" or "remind me to call mom at 8am tomorrow" — Assisto logs it and shows a card you can undo.
 • Anything that leaves the app (a call, a message, a payment note) always asks for your OK first.
 
 REMINDERS, NOTES AND TASKS
@@ -79,8 +79,7 @@ MONEY, CLEARLY
 • Monthly trends and net worth. Assisto never holds or moves your money — it is your own ledger.
 
 FAMILY CARE
-• Medicine schedules for parents and children, dose history and "please check" alerts for family.
-• An emergency card with blood group, allergies and medicines.
+• An emergency card with your emergency contacts, ready to share.
 
 SAFETY
 • One-tap SOS that alerts your trusted contacts with your location.
@@ -123,7 +122,7 @@ Privacy policy: https://lifeassisto.com/privacy
 Assisto — বাংলাদেশের জন্য তৈরি আপনার ব্যক্তিগত সহকারী। বাংলা বা ইংরেজিতে বলুন বা লিখুন — Assisto মনে রাখে, সময়মতো মনে করিয়ে দেয়, জীবন গুছিয়ে রাখে। জীবন আপনি চালান, মনে রাখার দায়িত্ব আমার।
 
 সব কাজ এক চ্যাটে
-• বলুন "৫০০ টাকা খরচ খাবার" বা "কাল সকাল ৮টায় ওষুধ মনে করিয়ে দিও" — Assisto লিখে রাখে এবং একটি কার্ড দেখায়, চাইলে ফিরিয়ে নিতে পারেন।
+• বলুন "৫০০ টাকা খরচ খাবার" বা "কাল সকাল ৮টায় মাকে ফোন করতে মনে করিয়ে দিও" — Assisto লিখে রাখে এবং একটি কার্ড দেখায়, চাইলে ফিরিয়ে নিতে পারেন।
 • অ্যাপের বাইরের কোনো কাজ (কল, মেসেজ, পেমেন্টের নোট) করার আগে সবসময় আপনার অনুমতি নেয়।
 
 রিমাইন্ডার, নোট ও কাজ
@@ -135,8 +134,7 @@ Assisto — বাংলাদেশের জন্য তৈরি আপন�
 • মাসভিত্তিক প্রবণতা ও নিট সম্পদ। Assisto কখনো আপনার টাকা রাখে বা পাঠায় না — এটি শুধু আপনার নিজের খাতা।
 
 পরিবারের যত্ন
-• বাবা-মা ও সন্তানদের ওষুধের সময়সূচি, ডোজের ইতিহাস এবং পরিবারকে "একটু দেখে নিন" সতর্কবার্তা।
-• রক্তের গ্রুপ, অ্যালার্জি ও ওষুধসহ জরুরি তথ্য কার্ড।
+• জরুরি যোগাযোগসহ জরুরি তথ্য কার্ড, এক চাপে শেয়ার।
 
 নিরাপত্তা
 • এক চাপে SOS — আপনার বিশ্বস্ত মানুষদের কাছে লোকেশনসহ সতর্কবার্তা যায়।
@@ -200,7 +198,7 @@ framed on the brand gradient with a caption):
 3. `money` — Account & Finance summary
 4. `voice_assistant` — Assisto Voice suggestions
 5. `safety` — Safe Journey, SOS, voice SOS, safe-arrival check-in
-6. `family` — today's medicines for family members
+6. `family` — family members and safety check-ins (Play build: no medicine screens)
 7. `biz_hub` — Business: khata, selling, cashbox, reports
 8. `shop_cameras` — Shop Box cameras
 
@@ -221,7 +219,7 @@ Category: **"All other app types"** (utility/productivity/communication — not 
 | Violence, blood, gore | No | — |
 | Sexual content / nudity | No | — |
 | Profanity / crude humour | No | — |
-| Drugs, alcohol, tobacco | No | Medicine reminders are health records, not drug use/promotion |
+| Drugs, alcohol, tobacco | No | No drug content |
 | Gambling / simulated gambling | No | — |
 | Fear / horror | No | — |
 | Does the app let users interact or exchange content? | **Yes** | Messenger, groups, channels, communities |
@@ -241,7 +239,7 @@ is whatever IARC returns.
 - Target age groups: **18 and over only**. Not designed for children; no child-appealing characters/themes. Do not opt into "Designed for Families".
 - "Could the app unintentionally appeal to children?" → No.
 - News app: No. COVID-19 app: No. Government app: No. Financial features: it is a personal ledger — it does **not** offer loans, payments or money transfer (answer the "Financial features" form accordingly: personal finance management only).
-- Health apps declaration (required because of Health Connect): select **Fitness / activity tracking** and **Medication reminders**; not a medical device; no diagnosis.
+- Health apps declaration (required because of Health Connect): select **Fitness / activity tracking** ONLY (steps, heart rate, sleep from Health Connect — wellness, no diagnosis). Do **NOT** select Medication and treatment management or any medical category (Play rejected it 24 Oct: personal accounts cannot publish medical apps; medicine features are hidden in the Play build until the organization account — see PLAY_ORGANIZATION_ACCOUNT_BN.md).
 
 ## 4. Ads declaration
 
@@ -285,7 +283,7 @@ End-to-end encrypted personal/group text messages are also exempt (we cannot rea
 | Personal info — Other info (family members, emergency card) | Yes | No | No | Optional | App functionality |
 | Financial info — Purchase history | Yes | No | No | Optional | Account management (plans/credits) |
 | Financial info — Other financial info (ledger, budgets, loans you type) | Yes | No | No | Optional | App functionality |
-| Health and fitness — Health info (prescriptions, medicines, dose logs you type) | Yes | No | No | Optional | App functionality |
+| Health and fitness — Fitness info (steps, heart rate, sleep via Health Connect, read only) | Yes | No | No | Optional | App functionality |
 | Messages — Other in-app messages (channels, communities, business inbox; NOT the E2E chats) | Yes | No | No | Optional | App functionality |
 | Photos and videos — Photos / Videos | Yes | No | No | Optional | App functionality (vault, profile, status, Photo Studio, intruder photo, shop snapshots) |
 | Files and docs | Yes | No | No | Optional | App functionality (vault) |
