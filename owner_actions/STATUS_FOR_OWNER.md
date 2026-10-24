@@ -1,5 +1,11 @@
 # Assisto — মালিকের জন্য স্ট্যাটাস (নতুন আপডেট উপরে)
 
+## 🚨 Closed testing আটকে আছে? — **versionCode 10219** ব্যবহার করুন (১০২১৮ বা ১০২১১ নয়) (২৪ Oct)
+- **10219 (version 1.0.219) internal track-এ আছে, status completed।** bundletool দিয়ে এই AAB আবার যাচাই করা হয়েছে: READ_MEDIA_IMAGES, READ_MEDIA_VIDEO, READ_MEDIA_AUDIO, READ_EXTERNAL_STORAGE — **একটিও নেই (০টি)**। Photo Picker + ফোরগ্রাউন্ড সার্ভিস নোটিফিকেশন এতে আছে।
+- **সমস্যা কোথায়:** Play API দেখাচ্ছে closed testing (alpha) ট্র্যাকে এখনো একটা **ড্রাফট রিলিজ আছে 10211 দিয়ে**, আর আপনি যে রিলিজ বানাচ্ছিলেন তাতে 10218 ছিল — এই দুটো পুরনো বিল্ডেই ছবির অনুমতি আছে, তাই ভুল দেখাচ্ছে।
+- **ঠিক করার ধাপ (২ মিনিট):** Play Console → Testing → **Closed testing** → আপনার ট্র্যাক → **Edit release** (বা Create new release) → App bundles অংশে 10211/10218-এর পাশে **Remove** → **Add from library** → **10219 (1.0.219)** বেছে নিন → Save → Review release → Start rollout। (বিকল্প: Testing → Internal testing → 10219 রিলিজের পাশে **Promote release → Closed testing**।) তারপর App content → Photo and video permissions-এ যদি পুরনো ঘোষণা থাকে, সেটা আর লাগবে না।
+- আমি alpha ট্র্যাক নিজে বদলাইনি — আপনার অনুমতি শুধু internal-এ স্বয়ংক্রিয় আপলোডের জন্য। চাইলে বলুন, পরের বার থেকে closed testing-এর ড্রাফটও আমি API দিয়ে 10219-এ বদলে দিতে পারি (production কখনো নয়)।
+
 ## ✅ বিল্ড ২১৯ — Play-র ৩টি ঘোষণা-ভুল ঠিক; INTERNAL-এ আপলোড সফল: **versionCode 10219** (২৪ Oct)
 - **Play:** version **1.0.219**, **versionCode 10219**, internal track-এ স্বয়ংক্রিয় আপলোড সফল (status completed)। Closed testing-এ এটাকেই promote করুন। APK: https://api.lifeassisto.com/dl/Q3ne4DkGMZXmcbaQ1pw8yNGF/assisto-part7-build219.apk
 - **bundletool দিয়ে AAB যাচাই:** READ_MEDIA_IMAGES ০, READ_MEDIA_VIDEO ০, READ_EXTERNAL_STORAGE ০ (READ_MEDIA_AUDIO-ও ০) — ছবির অনুমতি পুরো সরানো। USE_FULL_SCREEN_INTENT রাখা হয়েছে (কলের জন্য)। ফোরগ্রাউন্ড সার্ভিস শুধু ৩টি: মাইক্রোফোন+লোকেশন (Voice SOS / কল), মাইক্রোফোন ("Hey Assisto"), লোকেশন+ক্যামেরা (Lost/Stolen); না-ব্যবহৃত geolocator সার্ভিস সরানো। সব ছবি/ভিডিও বাছাই এখন Android Photo Picker দিয়ে (Play ও ওয়েবসাইট দুই বিল্ডেই) — কোনো ফিচার হারায়নি; কোনো অনুমতি আবার ঢুকলে বিল্ড নিজেই ফেল করবে।
