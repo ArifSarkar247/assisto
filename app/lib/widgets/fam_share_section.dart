@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../l10n/app_localizations.dart';
 import 'fam_sharing_strings.dart';
 
@@ -295,7 +296,9 @@ class _FamShareSectionState extends State<FamShareSection> {
                   style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
             ]),
           ),
+          // play-nomed: no "share my medicine" switch in the Play flavour.
           for (final item in kFamShareItems)
+            if (item != 'medicine' || kMedicalFeaturesAllowed)
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               dense: true,

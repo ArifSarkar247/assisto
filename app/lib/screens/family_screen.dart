@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
+import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
@@ -46,17 +47,26 @@ class _FamilyScreenState extends State<FamilyScreen> {
 
   Future<void> _load() async {
     final api = context.read<AppState>().api;
+    // play-nomed: the Play flavour has no medicine / prescription / caregiver
+    // tabs, so it never fetches that data.
+    final medical = kMedicalFeaturesAllowed;
     try {
-      today = await api.medicinesToday();
-      meds = await api.listItems('medicines');
+      if (medical) {
+        today = await api.medicinesToday();
+        meds = await api.listItems('medicines');
+      }
       members = await api.listItems('family');
       school = await api.listItems('school');
-      doctors = await api.listItems('doctors');
-      prescriptions = await api.listItems('prescriptions');
-      caregiver = await api.caregiverDashboard();
+      if (medical) {
+        doctors = await api.listItems('doctors');
+        prescriptions = await api.listItems('prescriptions');
+        caregiver = await api.caregiverDashboard();
+      }
       _failed = false;
     } catch (_) {
-      _failed = today.isEmpty && meds.isEmpty;
+      _failed = medical
+          ? today.isEmpty && meds.isEmpty
+          : members.isEmpty && school.isEmpty;
     }
     if (mounted) setState(() => loading = false);
   }
@@ -147,8 +157,11 @@ class _FamilyScreenState extends State<FamilyScreen> {
   @override
   Widget build(BuildContext context) {
     final t = _t;
+    // play-nomed: Today / Medicines / Caregiver / Prescriptions tabs exist
+    // only where medical features are allowed (not in the Play flavour).
+    final medical = kMedicalFeaturesAllowed;
     return DefaultTabController(
-        length: 10,
+        length: medical ? 10 : 6,
         child: Scaffold(
           appBar: AppBar(title: Text(t.familyCareTitle), actions: [
             IconButton(
@@ -157,10 +170,12 @@ class _FamilyScreenState extends State<FamilyScreen> {
                 tooltip: t.familyScamCheckTooltip),
             IconButton(onPressed: _load, icon: const Icon(Icons.sync)),
           ], bottom: TabBar(isScrollable: true, tabAlignment: TabAlignment.start, tabs: [
-            Tab(child: Text(t.familyTabToday, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            Tab(child: Text(t.familyTabMedicines, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            Tab(child: Text(t.medTabCaregiver, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            Tab(child: Text(t.medTabPrescriptions, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            if (medical) ...[
+              Tab(child: Text(t.familyTabToday, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+              Tab(child: Text(t.familyTabMedicines, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+              Tab(child: Text(t.medTabCaregiver, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+              Tab(child: Text(t.medTabPrescriptions, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            ],
             Tab(child: Text(t.moduleFamily, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
             // ---- FAMILY ACCOUNTING (#61, SPEC v2.1 §21) — isolated section ----
             Tab(child: Text(AppLocalizations.of(context).faTitle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
@@ -189,10 +204,12 @@ class _FamilyScreenState extends State<FamilyScreen> {
                   ),
                 )
               : TabBarView(children: [
-                  _todayTab(),
-                  _medsTab(),
-                  _caregiverTab(),
-                  _prescriptionsTab(),
+                  if (medical) ...[
+                    _todayTab(),
+                    _medsTab(),
+                    _caregiverTab(),
+                    _prescriptionsTab(),
+                  ],
                   _membersTab(),
                   // FAMILY ACCOUNTING — reuses the family/circle contacts
                   // already loaded (`members`); fully self-contained widget.

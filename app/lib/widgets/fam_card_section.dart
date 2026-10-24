@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
+import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../l10n/app_localizations.dart';
 import 'fam_sharing_strings.dart';
 import 'wrapped_share.dart';
@@ -109,7 +110,9 @@ class _FamCardSectionState extends State<FamCardSection> {
     final bg = _dark ? const Color(0xFF13161C) : Colors.white;
     final fg = _dark ? Colors.white : const Color(0xFF13161C);
     final sub = _dark ? Colors.white70 : Colors.black54;
-    final hasEmergency = _blood.text.trim().isNotEmpty ||
+    // play-nomed: blood group is a medical record — not in the Play flavour.
+    final blood = kMedicalFeaturesAllowed ? _blood.text.trim() : '';
+    final hasEmergency = blood.isNotEmpty ||
         _address.text.trim().isNotEmpty ||
         _emName.text.trim().isNotEmpty;
     return Container(
@@ -148,8 +151,8 @@ class _FamCardSectionState extends State<FamCardSection> {
               Text(famLabel(context, 'famCardEmergency'),
                   style: TextStyle(fontWeight: FontWeight.w700, color: fg)),
               const SizedBox(height: Gap.xs),
-              if (_blood.text.trim().isNotEmpty)
-                _emRow(famLabel(context, 'famCardBlood'), _blood.text.trim(), fg, sub),
+              if (blood.isNotEmpty)
+                _emRow(famLabel(context, 'famCardBlood'), blood, fg, sub),
               if (_address.text.trim().isNotEmpty)
                 _emRow(famLabel(context, 'famCardAddress'), _address.text.trim(), fg, sub),
               if (_emName.text.trim().isNotEmpty)
@@ -221,10 +224,11 @@ class _FamCardSectionState extends State<FamCardSection> {
         title: Text(famLabel(context, 'famCardEditEmergency')),
         content: SingleChildScrollView(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            TextField(
-                controller: _blood,
-                decoration:
-                    InputDecoration(labelText: famLabel(context, 'famCardBlood'))),
+            if (kMedicalFeaturesAllowed)
+              TextField(
+                  controller: _blood,
+                  decoration: InputDecoration(
+                      labelText: famLabel(context, 'famCardBlood'))),
             TextField(
                 controller: _address,
                 decoration:

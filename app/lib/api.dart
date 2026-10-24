@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'config.dart';
+import 'feature_gates.dart' show kMedicalFeaturesAllowed;
 import 'crypto/e2e.dart';
 import 'models.dart';
 
@@ -43,6 +44,10 @@ class ApiClient {
         if (json) 'Content-Type': 'application/json',
         if (token != null) 'Authorization': 'Token $token',
         'Accept-Language': lang ?? 'bn',
+        // play-nomed: tells the server this is the Play build (no medicine
+        // schedules from chat, no medicine suggestions). The website APK
+        // sends nothing extra.
+        if (AppConfig.playStore) 'X-Assisto-Flavour': 'play',
       };
 
   Never _fail(http.Response r) {
@@ -208,7 +213,11 @@ class ApiClient {
   Future<List<Map<String, dynamic>>> alertsList() async {
     final r = await _c.get(AppConfig.api('/alerts'), headers: _headers());
     if (r.statusCode == 200) {
-      return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
+      final all = (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
+      // play-nomed: no medicine refill alerts in the Play flavour (watch feed,
+      // proactive AI, chat and the foreground poller all read this list).
+      if (kMedicalFeaturesAllowed) return all;
+      return all.where((a) => '${a['type']}' != 'refill').toList();
     }
     _fail(r);
   }

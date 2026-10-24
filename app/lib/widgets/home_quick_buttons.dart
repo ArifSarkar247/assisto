@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../feature_gates.dart' show kMedicalFeaturesAllowed, kMedicalRoutes;
 import 'chatnav.dart';
 
 /// One shortcut the user can pin to home. Backed by a stable [ChatNav] route
@@ -33,8 +34,15 @@ class HomeQuickButtons {
     'documents'
   ];
 
-  /// Everything that can be pinned (a curated, everyday subset of modules).
-  static final List<QuickShortcut> catalog = [
+  /// Everything that can be pinned in THIS build. play-nomed: the medical
+  /// shortcuts (medicine database, health tips) are not offered in the Play
+  /// flavour, and [sanitize] drops them from saved/default sets there (their
+  /// routes are not in ChatNav.routes). The home layout itself is unchanged.
+  static List<QuickShortcut> get catalog => kMedicalFeaturesAllowed
+      ? _catalog
+      : [for (final s in _catalog) if (!kMedicalRoutes.contains(s.route)) s];
+
+  static final List<QuickShortcut> _catalog = [
     QuickShortcut('reminders', Icons.alarm_outlined, (t) => t.navReminders),
     QuickShortcut(
         'money', Icons.account_balance_wallet_outlined, (t) => t.moduleMoney),

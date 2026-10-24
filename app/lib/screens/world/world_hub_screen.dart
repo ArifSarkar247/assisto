@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../../world/world_api.dart';
 import 'world_ask_screen.dart';
 import 'world_guide_hub_screen.dart';
@@ -70,7 +71,10 @@ class _WorldHubScreenState extends State<WorldHubScreen> {
           () => _go(WorldGuideHubScreen(hubId: 'farmers', api: api))),
       _Tile(Icons.account_balance_outlined, t.uwHubGov, t.uwHubGovSub,
           () => _go(WorldGuideHubScreen(hubId: 'gov', api: api))),
-      _Tile(Icons.health_and_safety_outlined, t.uwHubHealth, t.uwHubHealthSub,
+      // play-nomed: the Health hub (prescription reader, medicine price) is
+      // a medical feature — hidden in the Play flavour.
+      if (kMedicalFeaturesAllowed)
+        _Tile(Icons.health_and_safety_outlined, t.uwHubHealth, t.uwHubHealthSub,
           () => _go(WorldGuideHubScreen(hubId: 'health', api: api))),
     ];
     return Scaffold(

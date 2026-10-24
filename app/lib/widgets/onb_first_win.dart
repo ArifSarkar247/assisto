@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 import 'onb_common.dart';
 import 'onb_role.dart';
 
@@ -19,7 +20,16 @@ class OnbFirstWin extends StatelessWidget {
   const OnbFirstWin({super.key, required this.role, required this.onPick});
 
   /// The recommended first win for the chosen role (mirrors the backend).
-  OnbWin get _recommended => switch (role) {
+  /// play-nomed: no medicine first-win in the Play flavour; parents/family
+  /// get Safe Journey (a real, non-medical family task) instead.
+  OnbWin get _recommended {
+    final r = _roleRecommended;
+    return (r == OnbWin.medicine && !kMedicalFeaturesAllowed)
+        ? OnbWin.journey
+        : r;
+  }
+
+  OnbWin get _roleRecommended => switch (role) {
         OnbRole.parent => OnbWin.medicine,
         OnbRole.family => OnbWin.medicine,
         OnbRole.business => OnbWin.bill,
@@ -32,12 +42,13 @@ class OnbFirstWin extends StatelessWidget {
     final t = AppLocalizations.of(context);
 
     final all = <(OnbWin, IconData, String, String)>[
-      (
-        OnbWin.medicine,
-        Icons.medication_outlined,
-        t.onbWinMedicineTitle,
-        t.onbWinMedicineSub
-      ),
+      if (kMedicalFeaturesAllowed)
+        (
+          OnbWin.medicine,
+          Icons.medication_outlined,
+          t.onbWinMedicineTitle,
+          t.onbWinMedicineSub
+        ),
       (
         OnbWin.bill,
         Icons.receipt_long_outlined,

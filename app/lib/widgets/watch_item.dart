@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
+import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 
 /// A single actionable thing in the Watch Feed. Built on the client by
 /// composing real signals from existing module endpoints (alerts, briefing,
@@ -103,6 +104,13 @@ enum WatchSource {
   family,
   watchers,
 }
+
+/// The sources THIS build offers. play-nomed: no medicine source in the Play
+/// flavour (no dose items, no refill alerts, no medicine switch).
+List<WatchSource> watchSourcesAvailable() => [
+      for (final s in WatchSource.values)
+        if (s != WatchSource.medicine || kMedicalFeaturesAllowed) s,
+    ];
 
 /// Visuals for a severity — WCAG-conscious tints taken from the brand palette.
 ({IconData icon, Color tint}) watchSeverityVisual(

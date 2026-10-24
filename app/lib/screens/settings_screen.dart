@@ -52,6 +52,7 @@ import 'security_checkup_screen.dart';
 import 'delete_account_screen.dart';
 import 'voice_assistant_settings_screen.dart';
 import '../theme.dart';
+import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../ads/ad_privacy_tile.dart';
 import 'fall_detect_screen.dart';
 import '../services/action_feedback.dart'; // db1
@@ -947,6 +948,8 @@ class _SafetySectionState extends State<_SafetySection> {
                 style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ]),
         ),
+      // play-nomed: medicine follow-up note only where medicines exist.
+      if (kMedicalFeaturesAllowed)
       ListTile(
         leading: const Icon(Icons.medication_outlined),
         title: Text(t.medicineReminderFollowUp),

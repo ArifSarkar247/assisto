@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
+import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../l10n/app_localizations.dart';
 
 /// Per-feature "what you get" comparison matrix for the Plans screen
@@ -74,7 +75,8 @@ class PlansCompareTable extends StatelessWidget {
         _Row(t.plansCmpSos, {for (final p in cols) p['id']: true}),
         _Row(t.plansCmpJourney, {for (final p in cols) p['id']: true}),
         _Row(t.plansCmpScam, {for (final p in cols) p['id']: true}),
-        _Row(t.plansCmpMedicine, {for (final p in cols) p['id']: true}),
+        if (kMedicalFeaturesAllowed) // play-nomed
+          _Row(t.plansCmpMedicine, {for (final p in cols) p['id']: true}),
       ]),
       _Group(t.plansCmpCalls, [
         _Row(t.plansCmpTextVoice, {for (final p in cols) p['id']: true}),

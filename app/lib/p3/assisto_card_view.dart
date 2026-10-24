@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../services/action_feedback.dart';
 import '../theme.dart';
+import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'assisto_card.dart';
 
@@ -179,6 +180,13 @@ class AssistoCardView extends StatelessWidget {
       case CardType.med:
         final missed = card.list('missed');
         final taken = card.list('taken');
+        // play-nomed: a medicine card received from a website-APK user shows
+        // no dose list in the Play flavour (missed-dose alert UI hidden).
+        if (!kMedicalFeaturesAllowed) {
+          return [
+            Text(t.p3MedLine(who), style: body.copyWith(fontWeight: FontWeight.w600)),
+          ];
+        }
         return [
           Text(t.p3MedLine(who), style: body.copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: Gap.xs),

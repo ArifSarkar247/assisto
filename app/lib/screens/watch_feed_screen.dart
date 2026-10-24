@@ -45,7 +45,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
   List<Map<String, dynamic>> _watchers = [];
 
   /// Which sources feed the screen (personalization). All on by default.
-  final Set<WatchSource> _enabled = {...WatchSource.values};
+  final Set<WatchSource> _enabled = {...watchSourcesAvailable()};
 
   /// Local dismiss / snooze bookkeeping (ids). Kept per-session; the real
   /// mark-done/taken calls already persist to the backend.
@@ -510,7 +510,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
   /// user has turned off, so nothing silently disappears.
   Widget _disabledSourcesHint(AppLocalizations t, ColorScheme scheme) {
     final off =
-        WatchSource.values.where((s) => !_enabled.contains(s)).toList();
+        watchSourcesAvailable().where((s) => !_enabled.contains(s)).toList();
     if (off.isEmpty) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(top: Gap.lg),

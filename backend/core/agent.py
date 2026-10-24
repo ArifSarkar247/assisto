@@ -155,6 +155,18 @@ def parse(text, lang="bn"):
     return {"intent": "ambiguous", "text": text}
 
 
+def play_safe(parsed, text, lang="bn"):
+    """play-nomed: the Google Play build has no medicine schedules. A parsed
+    'medicine' capture becomes a plain REMINDER with the user's own words as
+    the title (e.g. "take medicine at 9" -> reminder "take medicine at 9", due 9:00).
+    Every other intent is returned unchanged."""
+    if (parsed or {}).get("intent") != "medicine":
+        return parsed
+    title = (re.sub(r"\s+", " ", text or "").strip(" ।,-")[:200]
+             or pick(lang, "রিমাইন্ডার", "Reminder"))
+    return {"intent": "reminder", "title": title, "due": parsed.get("due")}
+
+
 def _timestr(text):
     t = _time(text)
     return t.isoformat() if t else None

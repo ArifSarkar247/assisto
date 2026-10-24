@@ -1,0 +1,9 @@
+{
+  "en": {
+    "emergencyCardEmptyHintBasic": "Add your emergency contacts — this is what helps most in a crisis.",
+    "@emergencyCardEmptyHintBasic": {"description": "Emergency card empty state in the Google Play build (no medical fields there): ask only for emergency contacts."}
+  },
+  "bn": {
+    "emergencyCardEmptyHintBasic": "জরুরি যোগাযোগ যোগ করুন—বিপদে সবার আগে এই তথ্য কাজে লাগে।"
+  }
+}

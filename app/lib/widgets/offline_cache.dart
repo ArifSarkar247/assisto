@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../state.dart';
+import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 
 /// Shared OFFLINE-FIRST cache helper (feature #12, SPEC v2.1 §21 —
 /// good -> advanced). A tiny, reusable write-through store on top of the
@@ -165,10 +166,13 @@ class OfflineModules {
             id: 'dictionary',
             worksOffline: true,
             cache: _cache('dictionary', ttl: Duration(days: 30))),
+        // play-nomed: medical libraries are not offered in the Play flavour.
+        if (kMedicalFeaturesAllowed)
         OfflineModule(
             id: 'medicineDb',
             worksOffline: true,
             cache: _cache('medicine_db', ttl: Duration(days: 30))),
+        if (kMedicalFeaturesAllowed)
         OfflineModule(
             id: 'healthTips',
             worksOffline: true,

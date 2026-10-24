@@ -81,7 +81,7 @@ class _WatchSourcesSheetState extends State<WatchSourcesSheet> {
             Text(t.watchSourcesHint,
                 style: TextStyle(color: scheme.onSurfaceVariant)),
             const SizedBox(height: Gap.md),
-            for (final s in WatchSource.values)
+            for (final s in watchSourcesAvailable())
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 secondary: Icon(watchSourceIcon(s)),

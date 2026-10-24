@@ -18,6 +18,7 @@ import '../notifications.dart';
 import '../screens/credits_screen.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../widgets/journey_api.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../widgets/reminders_nlp.dart' as nlp;
@@ -212,8 +213,10 @@ class AssistoMenuSheetState extends State<AssistoMenuSheet> {
                 const _Pick(safety: SafetyAction.arrived), tone: Brand.onTint(context, Brand.successFill)),
             tile(Icons.sos, t.p3SafeSos, t.p3SafeSosSub, t.p3Free,
                 const _Pick(safety: SafetyAction.sos), tone: Brand.dangerFill),
-            tile(Icons.medication_outlined, t.p3SafeMed, t.p3SafeMedSub, t.p3Free,
-                const _Pick(safety: SafetyAction.med)),
+            // play-nomed: no "medicine update" (missed-dose) card in Play.
+            if (kMedicalFeaturesAllowed)
+              tile(Icons.medication_outlined, t.p3SafeMed, t.p3SafeMedSub, t.p3Free,
+                  const _Pick(safety: SafetyAction.med)),
             tile(Icons.phonelink_erase, t.p3SafeLost, t.p3SafeLostSub, t.p3Free,
                 const _Pick(safety: SafetyAction.lost), tone: Brand.warnInk(context)),
             const SizedBox(height: Gap.sm),

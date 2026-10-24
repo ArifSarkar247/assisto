@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 
 /// A high-contrast, printable "emergency card" the user can show on a lock
 /// screen or hand to a responder. Mirrors core.logic.safety.emergency_card_text
@@ -44,7 +45,18 @@ class EmergencyCardView extends StatelessWidget {
     this.boundaryKey,
   });
 
-  bool get _empty =>
+  /// play-nomed: in the Play flavour the card carries NO medical record
+  /// (blood group, allergies, conditions, medicines, doctor, insurance, organ
+  /// donor) — only name, NID and emergency contacts.
+  static bool get showMedical => kMedicalFeaturesAllowed;
+
+  bool get _empty => showMedical ? _emptyAll : _emptyBasic;
+
+  bool get _emptyBasic =>
+      nid.trim().isEmpty &&
+      contacts.where((c) => '${c['phone'] ?? ''}'.trim().isNotEmpty).isEmpty;
+
+  bool get _emptyAll =>
       bloodGroup.trim().isEmpty &&
       allergies.trim().isEmpty &&
       conditions.trim().isEmpty &&
@@ -58,6 +70,7 @@ class EmergencyCardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
+    final med = showMedical;
     // High-contrast on purpose: a red banner + near-black text on white so it
     // is legible on a bright lock screen and when captured to an image.
     final card = Container(
@@ -76,7 +89,8 @@ class EmergencyCardView extends StatelessWidget {
                 BorderRadius.vertical(top: Radius.circular(Radii.sm)),
           ),
           child: Row(children: [
-            const Icon(Icons.medical_services, color: Colors.white),
+            Icon(med ? Icons.medical_services : Icons.emergency,
+                color: Colors.white),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.emergencyCardBanner,
@@ -90,27 +104,27 @@ class EmergencyCardView extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(Gap.lg),
           child: _empty
-              ? Text(t.emergencyCardEmptyHint,
+              ? Text(med ? t.emergencyCardEmptyHint : t.emergencyCardEmptyHintBasic,
                   style: const TextStyle(color: Colors.black54))
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if ((name ?? '').trim().isNotEmpty)
                       _row(t.name, name!),
-                    if (bloodGroup.trim().isNotEmpty)
+                    if (med && bloodGroup.trim().isNotEmpty)
                       _row(t.emergencyBloodGroup, bloodGroup, big: true),
-                    if (allergies.trim().isNotEmpty)
+                    if (med && allergies.trim().isNotEmpty)
                       _row(t.emergencyAllergies, allergies),
-                    if (conditions.trim().isNotEmpty)
+                    if (med && conditions.trim().isNotEmpty)
                       _row(t.emergencyConditions, conditions),
-                    if (medicines.trim().isNotEmpty)
+                    if (med && medicines.trim().isNotEmpty)
                       _row(t.emergencyMedicines, medicines),
-                    if (doctor.trim().isNotEmpty)
+                    if (med && doctor.trim().isNotEmpty)
                       _row(t.emergencyDoctor, doctor),
-                    if (insurance.trim().isNotEmpty)
+                    if (med && insurance.trim().isNotEmpty)
                       _row(t.emergencyInsurance, insurance),
                     if (nid.trim().isNotEmpty) _row(t.emergencyNid, nid),
-                    if (organDonor)
+                    if (med && organDonor)
                       _row(t.emergencyOrganDonor, t.emergencyYes),
                     ..._contactRows(t),
                   ],

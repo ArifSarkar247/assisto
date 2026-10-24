@@ -97,7 +97,8 @@ import '../screens/inbox_screen.dart';
 import '../screens/pa/pa_hub_screen.dart';
 import '../screens/business_screen.dart';
 import '../screens/crm/crm_home_screen.dart';
-import '../feature_gates.dart' show kAgentStudioRunsAutomations, kAreaBoardShared; // f6
+import '../feature_gates.dart'
+    show kAgentStudioRunsAutomations, kAreaBoardShared, kMedicalFeaturesAllowed; // f6 + play-nomed
 // NOTE: the former "My Circle" sidebar group (Connected circle / Circle privacy
 // / Circle calls) was DELETED per OWNER UI FIX v2 §2 — those circle-management
 // functions now live INSIDE the Messenger hub (people icon, ⋮ hub-settings,
@@ -114,8 +115,12 @@ class SidebarItem {
   /// resolved via the localized [label] directly (the gate forbids Bangla in
   /// Dart). Each synonym is matched as a substring of the query.
   final List<String> synonyms;
+
+  /// play-nomed: a dedicated medical module — hidden in the Play flavour
+  /// (see feature_gates.kMedicalFeaturesAllowed).
+  final bool medical;
   const SidebarItem(this.icon, this.label, this.builder,
-      {this.synonyms = const []});
+      {this.synonyms = const [], this.medical = false});
 }
 
 /// A collapsible, titled group of modules in the sidebar.
@@ -141,7 +146,18 @@ class SidebarSection {
 class SidebarSections {
   SidebarSections._();
 
-  static final List<SidebarSection> all = [
+  /// The sidebar for THIS build. play-nomed: in the Play flavour every
+  /// [SidebarItem.medical] module is removed (and an emptied section dropped).
+  static List<SidebarSection> get all => kMedicalFeaturesAllowed
+      ? _all
+      : [
+          for (final s in _all)
+            if (s.items.any((i) => !i.medical))
+              SidebarSection(s.id, s.icon, s.title,
+                  [for (final i in s.items) if (!i.medical) i]),
+        ];
+
+  static final List<SidebarSection> _all = [
     // ONE-ENTRY-PER-MODULE (OWNER UI FIX v2 §5): the Messenger hub ("My Circle")
     // is the single top quick-link in app_drawer.dart and is intentionally NOT
     // a sidebar section. Connected circle / Circle privacy / Circle calls are
@@ -327,7 +343,8 @@ class SidebarSections {
       // #187 Doctor serial / appointment tracker.
       SidebarItem(Icons.medical_services_outlined, (t) => t.doctorSerialTitle,
           (_) => const DoctorSerialScreen(),
-          synonyms: ['doctor', 'appointment', 'serial', 'chamber', 'hospital']),
+          synonyms: ['doctor', 'appointment', 'serial', 'chamber', 'hospital'],
+          medical: true),
     ]),
     // 4. Contacts — single-item section. Profile was REMOVED here (OWNER UI FIX
     // v2 §4–5): Profile is NOT a module, it lives as a card at the top of
@@ -351,10 +368,12 @@ class SidebarSections {
               'talk', 'speak', 'alarm', 'torch', 'flashlight']),
       SidebarItem(Icons.medication_outlined, (t) => t.medicineDbTitle,
           (_) => const MedicineDbScreen(),
-          synonyms: ['medicine', 'drug', 'pharmacy']),
+          synonyms: ['medicine', 'drug', 'pharmacy'],
+          medical: true),
       SidebarItem(Icons.tips_and_updates_outlined, (t) => t.healthTipsTitle,
           (_) => const HealthTipsScreen(),
-          synonyms: ['health', 'tips', 'wellness']),
+          synonyms: ['health', 'tips', 'wellness'],
+          medical: true),
       SidebarItem(Icons.lock_outline, (t) => t.moduleVault,
           (_) => const VaultScreen(),
           synonyms: ['document', 'vault', 'file', 'nid', 'passport']),
@@ -435,7 +454,8 @@ class SidebarSections {
       // Health §10: #69 timeline + #71 wellness; #173 challenges; #72 fitness.
       SidebarItem(Icons.timeline_outlined, (t) => t.htlTitle,
           (_) => const HealthTimelineScreen(),
-          synonyms: ['health', 'timeline', 'record', 'history', 'medical']),
+          synonyms: ['health', 'timeline', 'record', 'history', 'medical'],
+          medical: true),
       SidebarItem(Icons.local_drink_outlined, (t) => t.wellTitle,
           (_) => const WellnessTrackerScreen(),
           synonyms: ['wellness', 'water', 'sleep', 'diet', 'tracker']),
