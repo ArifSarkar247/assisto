@@ -24,6 +24,19 @@ def blocked_message(lang):
 class BlockAwareTokenAuthentication(TokenAuthentication):
     """DRF TokenAuthentication that refuses blocked accounts (401)."""
 
+    def authenticate(self, request):
+        res = super().authenticate(request)
+        if res is not None:
+            # own-device: a request FROM the user's protected phone (same
+            # X-Device-Id as its engine) resolves a went-dark latch. Cheap
+            # (no header -> nothing), never raises.
+            try:
+                from .own_device import touch as _own_touch
+                _own_touch(request, res[0])
+            except Exception:
+                pass
+        return res
+
     def authenticate_credentials(self, key):
         user, token = super().authenticate_credentials(key)
         if is_blocked(user):

@@ -185,7 +185,10 @@ def alert_rows_for(user, lang="bn", now=None, limit=10):
             body = (n.body_en if en else n.body_bn) or n.body_en or n.body_bn
             out.append({"type": "antitheft", "text": body or title,
                         "title": title, "severity": "high",
-                        "kind": m.get("antitheft_kind") or ""})
+                        "kind": m.get("antitheft_kind") or "",
+                        # own-device: lets the app's urgent card drop rows
+                        # about the user's own phone (2nd line of defence)
+                        "owner_id": m.get("owner_id")})
     except Exception:
         return out
     return out
@@ -420,6 +423,11 @@ class EngineEnableView(APIView):
         caps = request.data.get("capabilities")
         if isinstance(caps, dict):
             eng.capabilities = at.clean_data(caps)
+        try:  # own-device: the phone that turns protection on runs the engine
+            from .own_device import remember as _own_remember
+            _own_remember(eng, request)
+        except Exception:
+            pass
         raw, h = at.new_engine_token()   # rotates: any older token stops working
         eng.token_hash = h
         eng.enabled = True
@@ -782,6 +790,11 @@ class EngineIngestView(APIView):
                 back_online = True
             phone.went_dark_alerted = False
         eng.last_ingest_at = now
+        try:  # own-device: the engine reports the app's id (same phone)
+            from .own_device import remember as _own_remember
+            _own_remember(eng, request)
+        except Exception:
+            pass
         phone.save()
         eng.save()
 

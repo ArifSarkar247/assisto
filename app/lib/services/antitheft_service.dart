@@ -2,6 +2,8 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/services.dart';
 
+import '../device_id.dart';
+
 /// b6-antitheft — Dart bridge to the native always-on Lost/Stolen engine.
 ///
 /// Channel: "com.assisto/antitheft" (see
@@ -67,6 +69,8 @@ class AntiTheftService {
             'resumeTitle': notif['resumeTitle'] ?? '',
             'resumeBody': notif['resumeBody'] ?? '',
             'rebaseline': rebaseline,
+            // own-device: the engine sends the app's id with its ingest
+            'deviceId': DeviceId.now(),
           }) ??
           false;
     } catch (_) {
@@ -89,6 +93,7 @@ class AntiTheftService {
             'notifOff': notif['off'] ?? '',
             'resumeTitle': notif['resumeTitle'] ?? '',
             'resumeBody': notif['resumeBody'] ?? '',
+            'deviceId': DeviceId.now(), // own-device
           }) ??
           false;
     } catch (_) {

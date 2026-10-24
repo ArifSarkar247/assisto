@@ -1228,8 +1228,11 @@ def _build_alerts(user, lang="bn"):
         # reach his own urgent card / briefing
         if fa.kind == "antitheft" and (fa.payload or {}).get("owner_id") == user.id:
             continue
-        alerts.append({"type": fa.kind, "text": fa.body or fa.title,
-                       "title": fa.title, "severity": fa.severity or "high"})
+        row = {"type": fa.kind, "text": fa.body or fa.title,
+               "title": fa.title, "severity": fa.severity or "high"}
+        if fa.kind == "antitheft":  # own-device: app urgent-card guard
+            row["owner_id"] = (fa.payload or {}).get("owner_id")
+        alerts.append(row)
     # at-heartbeat: anti-theft alerts are ONE NotifEvent per person now (no
     # FamilyAlert twin); the foreground poll still surfaces the unseen ones.
     try:

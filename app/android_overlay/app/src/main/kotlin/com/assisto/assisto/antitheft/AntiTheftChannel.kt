@@ -43,6 +43,9 @@ object AntiTheftChannel {
                     "capabilities" -> result.success(capabilities(app))
                     "isRunning" -> result.success(AntiTheftService.running)
                     "start" -> {
+                        // own-device: the app's hashed install id, sent as
+                        // X-Device-Id with every ingest (same as the app)
+                        AntiTheftService.saveDeviceId(app, call.argument<String>("deviceId"))
                         val token = call.argument<String>("engineToken") ?: ""
                         val api = call.argument<String>("apiBase") ?: ""
                         val cfgMap = call.argument<Map<String, Any?>>("config") ?: emptyMap()
@@ -74,13 +77,16 @@ object AntiTheftChannel {
                     // at-heartbeat: app open/resume — protection ON (token in
                     // prefs) -> start(..., rebaseline = false) or kick a
                     // check-in. Protection off -> false, nothing started.
-                    "resume" -> result.success(AntiTheftService.resume(
+                    "resume" -> {
+                        AntiTheftService.saveDeviceId(app, call.argument<String>("deviceId"))
+                        result.success(AntiTheftService.resume(
                         app,
                         call.argument<String>("notifTitle"),
                         call.argument<String>("notifBody"),
                         call.argument<String>("notifOff"),
                         call.argument<String>("resumeTitle"),
                         call.argument<String>("resumeBody")))
+                    }
                     "stop" -> { AntiTheftService.stop(app); result.success(null) }
                     "flush" -> { AntiTheftService.flush(app); result.success(null) }
                     "setQuiet" -> {

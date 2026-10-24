@@ -10,6 +10,19 @@ import '../widgets/chatnav.dart';
 import '../widgets/chat_cards.dart';
 import '../widgets/voice_input.dart';
 
+/// own-device (owner 24 Oct): an /alerts row about the signed-in user's OWN
+/// protected phone (anti-theft, owner_id == me). The home urgent card never
+/// shows these — he is holding the phone. Family members' phones still show.
+@visibleForTesting
+bool isOwnDeviceAlert(Map<String, dynamic> a, int? me) {
+  if (a['own_device'] == true) return true;
+  final t = a['type'];
+  if (t != 'antitheft' && t != 'security') return false;
+  final o = a['owner_id'];
+  if (me == null || o == null) return false;
+  return '$o' == '$me';
+}
+
 class _Msg {
   final bool user;
   final String text;
@@ -212,7 +225,13 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
     final app = context.read<AppState>();
     try {
       final alerts = await app.api.alertsList();
-      final urgent = alerts.where((a) => a['severity'] == 'high').toList();
+      // own-device (owner 24 Oct): never an anti-theft item about THIS
+      // user's own phone here (he is holding it); family items still show.
+      final me = app.user?.id;
+      final urgent = alerts
+          .where((a) => a['severity'] == 'high')
+          .where((a) => !isOwnDeviceAlert(a, me))
+          .toList();
       if (urgent.isNotEmpty && mounted) {
         setState(() => _msgs.add(_Msg(
             false,

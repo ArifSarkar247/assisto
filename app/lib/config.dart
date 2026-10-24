@@ -43,6 +43,10 @@ class AppConfig {
   /// (e.g. the profile avatar served by the auth-checked `/me/avatar` view).
   static String? authToken;
 
+  /// own-device: this install's hashed id (see lib/device_id.dart), sent as
+  /// `X-Device-Id` on every API request once loaded; null until then.
+  static String? deviceId;
+
   /// Auth headers for a [NetworkImage] pointing at our own backend, or null
   /// when the URL is foreign (external avatar link) or we have no token.
   static Map<String, String>? authHeadersFor(String url) {

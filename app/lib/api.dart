@@ -48,6 +48,10 @@ class ApiClient {
         // schedules from chat, no medicine suggestions). The website APK
         // sends nothing extra.
         if (AppConfig.playStore) 'X-Assisto-Flavour': 'play',
+        // own-device: lets the server see a request comes FROM the protected
+        // phone itself (hashed install id, never a hardware id)
+        if (AppConfig.deviceId != null && AppConfig.deviceId!.isNotEmpty)
+          'X-Device-Id': AppConfig.deviceId!,
       };
 
   Never _fail(http.Response r) {

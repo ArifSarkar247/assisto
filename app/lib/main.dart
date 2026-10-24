@@ -42,6 +42,7 @@ import 'screens/web_photo_link_screen.dart';
 import 'screens/battery_guidance_screen.dart';
 import 'services/oem_guide.dart';
 import 'services/antitheft_resume.dart'; // at-heartbeat
+import 'device_id.dart'; // own-device
 import 'screens/deletion_grace_screen.dart';
 
 void main() {
@@ -101,6 +102,9 @@ void main() {
       // e2e-recover: restore-from-PIN gate + key backup hooks, BEFORE any
       // sign-in could create a new key (sync, no I/O, guarded).
       try { KeyWiring.instance.installRecoveryHooks(appState); } catch (_) {}
+      // own-device: load the hashed install id for the X-Device-Id header
+      // (SharedPreferences only, never throws, not awaited).
+      unawaited(DeviceId.get());
       final safe = await StartupGuard.isSafeMode();
       // sc1 crash reporting: 4 s after the first frame, guarded; Crashlytics
       // (Firebase) only outside safe mode, our own server sink always.

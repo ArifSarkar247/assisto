@@ -4128,6 +4128,11 @@ class AntiTheftEngine(models.Model):
     last_sim = models.JSONField(default=dict, blank=True)
     recent_ids = models.JSONField(default=list, blank=True)  # heartbeat dedupe ring
     last_ingest_at = models.DateTimeField(null=True, blank=True)
+    # own-device: sha256 of the app's X-Device-Id on the phone that runs this
+    # engine (from enable + every ingest). An authenticated request carrying
+    # the same id proves the phone is alive -> a went-dark latch is resolved.
+    device_hash = models.CharField(max_length=64, blank=True, default="",
+                                   db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 

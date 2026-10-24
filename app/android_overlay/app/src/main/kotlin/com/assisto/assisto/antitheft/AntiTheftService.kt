@@ -86,6 +86,7 @@ class AntiTheftService : Service(), SensorEventListener {
         @Volatile private var instance: AntiTheftService? = null
 
         private const val PREFS = "assisto_antitheft_engine"
+        private const val K_DEVICE_ID = "deviceId" // own-device
 
         // at-falsealarm: SIM baseline (SimBaseline.kt) in the engine prefs.
         // "sim_base" present = baseline recorded (may be "" = no SIM).
@@ -115,6 +116,24 @@ class AntiTheftService : Service(), SensorEventListener {
                 ctx.checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
                 android.content.pm.PackageManager.PERMISSION_GRANTED
         } catch (_: Throwable) { false }
+
+        /**
+         * own-device: keep the app's hashed install id (sent as X-Device-Id
+         * on every ingest/photo post, so the server knows the engine and the
+         * app are the same phone). Blank/odd values are ignored. Never throws.
+         */
+        fun saveDeviceId(ctx: Context, id: String?) {
+            try {
+                val v = (id ?: "").trim()
+                if (v.length < 8 || v.length > 128) return
+                if (!v.all { (it in 'a'..'z') || (it in 'A'..'Z') || (it in '0'..'9') ||
+                        it == '-' || it == '_' }) return
+                val p = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                if (p.getString(K_DEVICE_ID, "") != v) {
+                    p.edit().putString(K_DEVICE_ID, v).apply()
+                }
+            } catch (_: Throwable) {}
+        }
 
         fun start(ctx: Context, token: String, apiBase: String,
                   config: JSONObject, title: String, body: String,
@@ -653,6 +672,7 @@ class AntiTheftService : Service(), SensorEventListener {
                 doOutput = true
                 setRequestProperty("Content-Type", "multipart/form-data; boundary=$boundary")
                 setRequestProperty("X-Assisto-Engine", token)
+                deviceIdHeader()?.let { setRequestProperty("X-Device-Id", it) }
             }
             conn.outputStream.use { os: OutputStream ->
                 fun field(name: String, value: String) {
@@ -738,6 +758,12 @@ class AntiTheftService : Service(), SensorEventListener {
         } catch (_: Throwable) { "" }
     }
 
+    /** own-device: the stored app install id (hashed), or null. */
+    private fun deviceIdHeader(): String? = try {
+        getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getString(K_DEVICE_ID, "")?.takeIf { it.isNotBlank() }
+    } catch (_: Throwable) { null }
+
     private fun postJson(path: String, body: JSONObject): JSONObject? {
         var conn: HttpURLConnection? = null
         return try {
@@ -749,6 +775,7 @@ class AntiTheftService : Service(), SensorEventListener {
                 doOutput = true
                 setRequestProperty("Content-Type", "application/json")
                 setRequestProperty("X-Assisto-Engine", token)
+                deviceIdHeader()?.let { setRequestProperty("X-Device-Id", it) }
             }
             conn.outputStream.use { os: OutputStream ->
                 os.write(body.toString().toByteArray(Charsets.UTF_8))
