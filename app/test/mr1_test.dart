@@ -281,14 +281,19 @@ void main() {
 
   // -------------------------------------------------------------------------
   group('3. no media showpieces', () {
-    // md1: E2E photo / voice / document really send now; everything else
-    // (video, contact, location, live location) stays hidden.
+    // md1: E2E photo / voice / document; mc-media2: video, contact card,
+    // location and live location really send now (GIFs / video notes: not
+    // built, not offered).
     test('only the kinds that work end to end can be attached', () {
       expect(circleAttachKinds(), [
         CircleAttachKind.gallery,
         CircleAttachKind.camera,
         CircleAttachKind.voice,
+        CircleAttachKind.video,
         CircleAttachKind.document,
+        CircleAttachKind.contact,
+        CircleAttachKind.location,
+        CircleAttachKind.liveLocation,
       ]);
       expect(circleAttachKinds(kinds: const {}), isEmpty);
     });
@@ -320,8 +325,9 @@ void main() {
       expect(find.byKey(const Key('attach-camera')), findsOneWidget);
       expect(find.byKey(const Key('attach-voice')), findsOneWidget);
       expect(find.byKey(const Key('attach-document')), findsOneWidget);
+      // mc-media2: these really send now
       for (final k in ['video', 'contact', 'location', 'liveLocation']) {
-        expect(find.byKey(Key('attach-$k')), findsNothing, reason: k);
+        expect(find.byKey(Key('attach-$k')), findsOneWidget, reason: k);
       }
       await _dispose(tester);
     });

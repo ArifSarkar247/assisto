@@ -16,7 +16,7 @@ import 'dart:typed_data';
 ///    "thumb":<tiny PNG b64, photo>, "cap":<caption>}
 class MediaDescriptor {
   static const int version = 1;
-  static const kinds = {'photo', 'voice', 'document'};
+  static const kinds = {'photo', 'voice', 'document', 'video'}; // mc-media2: + video
 
   final String kind;
   final String ref;
@@ -150,8 +150,16 @@ class MediaDescriptor {
         return 'm4a';
       case 'application/pdf':
         return 'pdf';
+      case 'video/mp4':
+        return 'mp4';
+      case 'video/3gpp':
+        return '3gp';
+      case 'video/webm':
+        return 'webm';
+      case 'video/quicktime':
+        return 'mov';
     }
-    return kind == 'photo' ? 'jpg' : kind == 'voice' ? 'm4a' : 'bin';
+    return kind == 'photo' ? 'jpg' : kind == 'voice' ? 'm4a' : kind == 'video' ? 'mp4' : 'bin';
   }
 }
 

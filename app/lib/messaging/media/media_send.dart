@@ -12,18 +12,20 @@ import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'media_descriptor.dart';
 import 'media_outbox.dart';
 import 'media_prep.dart';
+import 'video_prep.dart';
 import 'voice_recorder_sheet.dart';
 
 /// md1 — the chat side of sending media: pick → (preview + caption) →
 /// queue in the persistent media outbox. Shared by 1:1 and group chats.
 
 /// Content types that carry an E2E media descriptor.
-const Set<String> kMd1Kinds = {'photo', 'voice', 'document'};
+const Set<String> kMd1Kinds = {'photo', 'voice', 'document', 'video'}; // mc-media2: + video
 
 /// "Photo" / "Voice message" / the document's name — for reply quotes.
 String md1KindLabel(AppLocalizations t, MediaDescriptor d) => switch (d.kind) {
       'photo' => t.circlePhoto,
       'voice' => t.circleVoiceNote,
+      'video' => t.circleVideo,
       _ => d.name.isEmpty ? t.circleAttachDocument : d.name,
     };
 
@@ -32,7 +34,7 @@ String md1KindLabel(AppLocalizations t, MediaDescriptor d) => switch (d.kind) {
 class MediaLimits {
   MediaLimits._();
   static const int _mb = 1024 * 1024;
-  static int photo = 16 * _mb, voice = 16 * _mb, document = 25 * _mb;
+  static int photo = 16 * _mb, voice = 16 * _mb, document = 25 * _mb, video = 32 * _mb;
   static bool _loaded = false;
 
   static Future<void> load(ApiClient api) async {
@@ -43,14 +45,20 @@ class MediaLimits {
       photo = v('photo_max_bytes', photo);
       voice = v('voice_max_bytes', voice);
       document = v('doc_max_bytes', document);
+      video = v('video_max_bytes', video); // mc-media2
       _loaded = true;
     } catch (e) {
       reportNonFatal('md1_limits', e); // defaults stay; the server re-checks
     }
   }
 
-  static int of(String kind) =>
-      kind == 'photo' ? photo : kind == 'voice' ? voice : document;
+  static int of(String kind) => kind == 'photo'
+      ? photo
+      : kind == 'voice'
+          ? voice
+          : kind == 'video'
+              ? video
+              : document;
 }
 
 void _toast(BuildContext context, String msg) =>
@@ -75,6 +83,8 @@ Future<MediaDraft?> pickMediaDraft(
         d = await showVoiceRecorder(context, onRecording: onRecording);
       case CircleAttachKind.document:
         d = await pickDocument(MediaLimits.document);
+      case CircleAttachKind.video: // mc-media2: sent as picked (no transcoding)
+        d = await pickVideo(MediaLimits.video);
       default:
         return null; // not offered (circleAttachKinds)
     }
@@ -93,7 +103,8 @@ Future<MediaDraft?> pickMediaDraft(
       _toast(
           context,
           e.code == 'too_big'
-              ? t.md1TooBig(notifLocalizeDigits(context, '${MediaLimits.document ~/ (1024 * 1024)}'))
+              ? t.md1TooBig(notifLocalizeDigits(context,
+                  '${(kind == CircleAttachKind.video ? MediaLimits.video : MediaLimits.document) ~/ (1024 * 1024)}'))
               : t.md1PickFailed);
     }
     return null;
@@ -129,17 +140,20 @@ Future<MediaJob?> confirmAndQueueMedia(BuildContext context, MediaDraft d,
     }
     caption = c.caption;
     viewOnce = c.viewOnce;
-  } else if (d.kind == 'document') {
+  } else if (d.kind == 'document' || d.kind == 'video') {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) {
         final t = AppLocalizations.of(ctx);
         return AlertDialog(
-          title: Text(t.md1DocSendTitle),
+          title: Text(d.kind == 'video' ? t.mc2VideoSendTitle : t.md1DocSendTitle),
           content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(d.name, style: const TextStyle(fontWeight: FontWeight.w600)),
             const SizedBox(height: Gap.xs),
-            Text(t.md1DocSendBody(notifLocalizeDigits(ctx, mediaSizeLabel(d.size)))),
+            Text(d.kind == 'video'
+                ? t.mc2VideoSendBody(notifLocalizeDigits(ctx,
+                    '${mediaSizeLabel(d.size)}${d.durationMs == null ? '' : ' · ${mediaDurationLabel(d.durationMs!)}'}'))
+                : t.md1DocSendBody(notifLocalizeDigits(ctx, mediaSizeLabel(d.size)))),
           ]),
           actions: [
             TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.md1Cancel)),

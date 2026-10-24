@@ -507,11 +507,11 @@ void main() {
               onPressed: () => showCircleAttachSheet(c), child: const Text('go')))));
       await tester.tap(find.text('go'));
       await tester.pumpAndSettle();
-      for (final k in ['gallery', 'camera', 'voice', 'document']) {
+      // mc-media2: video, contact, location and live location really send too
+      for (final k in [
+        'gallery', 'camera', 'voice', 'document', 'video', 'contact', 'location', 'liveLocation',
+      ]) {
         expect(find.byKey(Key('attach-$k')), findsOneWidget, reason: k);
-      }
-      for (final k in ['video', 'contact', 'location', 'liveLocation']) {
-        expect(find.byKey(Key('attach-$k')), findsNothing, reason: k);
       }
     });
 

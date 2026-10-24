@@ -29,7 +29,7 @@ class _MsgrSetStorageScreenState extends State<MsgrSetStorageScreen> {
   Map<String, dynamic> _usage = {};
   // md1: device-level media auto-download (WhatsApp-like defaults).
   bool _wifi = true;
-  final Map<String, bool> _mobile = {'photo': false, 'voice': false, 'document': false};
+  final Map<String, bool> _mobile = {'photo': false, 'voice': false, 'document': false, 'video': false};
 
   ApiClient get _api => context.read<AppState>().api;
   AppLocalizations get _t => AppLocalizations.of(context);
@@ -125,6 +125,7 @@ class _MsgrSetStorageScreenState extends State<MsgrSetStorageScreen> {
                   ('photo', Icons.photo_outlined, t.md1SetMobilePhotos),
                   ('voice', Icons.mic_none_outlined, t.md1SetMobileVoice),
                   ('document', Icons.description_outlined, t.md1SetMobileDocs),
+                  ('video', Icons.videocam_outlined, t.mc2SetMobileVideo), // mc-media2
                 ])
                   SwitchListTile(
                     key: Key('md1-auto-mobile-$k'),

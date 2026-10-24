@@ -7,9 +7,9 @@ import '../theme.dart';
 /// The "+" attach sheet for a circle chat.
 ///
 /// NO SHOWPIECES: [circleAttachKinds] lists ONLY kinds that really send end
-/// to end (md1: photo from the gallery or camera, voice message, document —
-/// [kCircleChatMediaKinds]); video, contact and location stay hidden until
-/// each is really built. The chat hides the "+" button when the list is empty
+/// to end (md1: photo from the gallery or camera, voice message, document;
+/// mc-media2: video, contact card, location, live location —
+/// [kCircleChatMediaKinds]); anything else stays hidden until really built. The chat hides the "+" button when the list is empty
 /// (and during a message request: media only after acceptance).
 enum CircleAttachKind { gallery, camera, voice, video, document, contact, location, liveLocation }
 

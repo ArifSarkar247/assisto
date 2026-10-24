@@ -109,6 +109,14 @@ dependencies:
   # tap; no startup ContentProvider.
   audioplayers: 6.8.1
   # ---- /md1 ----
+  # ---- mc-media2 ---- inline E2E VIDEO playback in My Circle chats
+  # (BSD-3, flutter/packages; Android = media3 ExoPlayer). Exact pins, >= 2
+  # weeks old. LAZY: only lib/messaging/media/video_player_impl.dart imports
+  # it, as a DEFERRED library loaded on the first Play tap of a video; the
+  # plugin registers no ContentProvider / initializer and needs no permission.
+  video_player: 2.14.1
+  video_player_android: 2.12.2
+  # ---- /mc-media2 ----
   # workmanager REMOVED — its androidx.work startup ContentProvider crashed on
   # launch (ColorOS/Realme) and background exec is throttled there anyway.
   # Family alerts now poll on app open/resume (see AppState). FCM later.

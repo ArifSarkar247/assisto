@@ -71,6 +71,10 @@ import '../messaging/disappear_sweep.dart'; // e-gaps
 import '../messaging/view_once.dart'; // e-gaps
 import '../messaging/chat_lock.dart'; // e-gaps
 import '../messaging/media/media_prep.dart' show pickPhoto, MediaDraft;
+import '../messaging/media/video_player_screen.dart' show openVideoPlayer; // mc-media2
+import '../messaging/share/share_flow.dart' show isShareAttach, runShareAttach, wireLiveLocation;
+import '../messaging/share/share_payload.dart'
+    show kShareKinds, mc2ForwardKind, mc2ForwardText, shareFallback;
 import '../widgets/paywall_sheet.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 
@@ -236,6 +240,11 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     _rt.acquire();
     _rt.states.addListener(_onRt);
     unawaited(_loadBubblePref());
+    // mc-media2: a live location shared from this phone keeps updating
+    // while Assisto is open (lazy wiring; nothing at launch)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) wireLiveLocation(_api);
+    });
     _peerB64 = '${widget.member['public_key'] ?? ''}';
     Outbox.instance.changes.addListener(_onOutbox);
     _keySub = KeyService.instance.keyEvents.stream.listen(_onKeyEvent);
@@ -1079,7 +1088,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       // nothing to decrypt: opened / the sender's own copy
     } else if (deleted == 'everyone') {
       // Nothing to decrypt — the ciphertext was tombstoned server-side.
-    } else if (contentType == 'text' || isMedia) {
+    } else if (contentType == 'text' || isMedia || kShareKinds.contains(contentType)) {
       try {
         // e2e-recover: my WHOLE key ring x every key of the peer (live +
         // this phone's history + the server's history); then the peer's
@@ -1134,8 +1143,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       starred: ((env['starred_by'] as List?) ?? const []).contains(context.read<AppState>().user?.id),
       pinned: env['pinned'] == true,
       contentType: contentType,
-      // md1: photo / voice / document really work; other kinds stay gated
-      mediaGated: contentType != 'text' && !isMedia,
+      // md1: photo / voice / document really work; mc-media2: location /
+      // contact cards too; other kinds stay gated
+      mediaGated: contentType != 'text' && !isMedia && !kShareKinds.contains(contentType),
       media: media,
       viewOnce: viewOnce,
       viewOnceOpened: voOpened,
@@ -1692,8 +1702,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   /// same blob + key (no re-upload).
   Future<void> _forwardTo(CircleMessage m, ForwardTarget target) async {
     final payload = ForwardPayload(
-        plaintext: m.media?.encode() ?? m.text,
-        contentType: m.media?.kind ?? 'text',
+        plaintext: m.media?.encode() ?? mc2ForwardText(m.contentType, m.text),
+        contentType: m.media?.kind ?? mc2ForwardKind(m.contentType),
         blobRef: m.media?.ref,
         hops: m.forwardHops + 1);
     try {
@@ -1717,11 +1727,11 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       final item = OutboxItem(
           id: 'local-${DateTime.now().microsecondsSinceEpoch}',
           chatId: id,
-          text: m.media?.encode() ?? m.text,
+          text: m.media?.encode() ?? mc2ForwardText(m.contentType, m.text),
           at: DateTime.now(),
           forwarded: true,
           forwardHops: m.forwardHops + 1,
-          contentType: m.media?.kind ?? 'text',
+          contentType: m.media?.kind ?? mc2ForwardKind(m.contentType),
           blobRef: m.media?.ref);
       await Outbox.instance.add(item);
       if (mounted) setState(() => _queued = [..._queued, item]);
@@ -1731,7 +1741,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     final ct = _e2e.encrypt(
         self: widget.identity,
         recipientPublicKey: peer,
-        plaintext: m.media?.encode() ?? m.text);
+        plaintext: m.media?.encode() ?? mc2ForwardText(m.contentType, m.text));
     final clientMsgId = 'local-${DateTime.now().microsecondsSinceEpoch}';
     final echo = CircleMessage(
       id: clientMsgId,
@@ -1742,14 +1752,14 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       pending: true,
       forwarded: true,
       forwardHops: m.forwardHops + 1,
-      contentType: m.media?.kind ?? 'text',
+      contentType: m.media?.kind ?? mc2ForwardKind(m.contentType),
       media: m.media,
     );
     setState(() => _messages = [..._messages, echo]);
     _scrollToEnd();
     try {
       await _api.postJson('/circle/$_memberId/messages', {
-        'content_type': m.media?.kind ?? 'text',
+        'content_type': m.media?.kind ?? mc2ForwardKind(m.contentType),
         if (m.media != null) 'blob_ref': m.media!.ref,
         'client_msg_id': clientMsgId,
         'forwarded': true,
@@ -1785,6 +1795,15 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     if (kind == null || !mounted) return;
     final id = _memberId;
     if (id == null) return;
+    if (isShareAttach(kind)) {
+      // mc-media2: location / live location / contact card (inline E2E)
+      final sent = await runShareAttach(context, kind, chatKind: 'member', chatId: id);
+      if (sent != null && mounted) {
+        unawaited(_pollMessages());
+        _scrollToEnd();
+      }
+      return;
+    }
     // calls-presence: "recording audio…" for the other person while the
     // voice-note recorder really records
     final draft = await pickMediaDraft(context, _api, kind,
@@ -1810,11 +1829,14 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       unawaited(openPhotoViewer(context, f, d));
     } else if (d.kind == 'document') {
       unawaited(openDocumentSheet(context, f, d));
+    } else if (d.kind == 'video') {
+      unawaited(openVideoPlayer(context, f, caption: d.caption)); // mc-media2
     }
   }
 
-  String _previewOf(CircleMessage m) =>
-      m.text.isNotEmpty ? m.text : (m.media != null ? md1KindLabel(_t, m.media!) : m.text);
+  String _previewOf(CircleMessage m) => m.text.isNotEmpty
+      ? shareFallback(m.text)
+      : (m.media != null ? md1KindLabel(_t, m.media!) : m.text);
 
   void _openMedia(CircleMessage m) {
     // When storage is enabled, decrypted bytes flow here. For now, show the

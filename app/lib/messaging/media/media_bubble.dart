@@ -11,6 +11,7 @@ import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'media_descriptor.dart';
 import 'media_outbox.dart';
 import 'media_store.dart';
+import 'video_tile.dart';
 import 'voice_bubble.dart';
 
 /// md1 — the media part of a My Circle bubble (photo / voice / document),
@@ -101,6 +102,15 @@ class _MediaBubbleBodyState extends State<MediaBubbleBody> {
             return _photo(context, d, file, st);
           case 'voice':
             return _voice(context, d, file, st);
+          case 'video': // mc-media2
+            return VideoTile(
+              desc: d,
+              file: file,
+              box: _box(d.width, d.height),
+              thumb: _thumb(d.thumb),
+              control: file == null ? _dlControl(context, d, st, onImage: true) : null,
+              onPlay: file == null ? null : () => widget.onOpen?.call(file, d),
+            );
           default:
             return _document(context, d, file, st);
         }
@@ -402,8 +412,8 @@ class _MediaBubbleBodyState extends State<MediaBubbleBody> {
             : _ring(
                 key: Key('md1-send-cancel-${job.id}'),
                 progress: p == null || p < 0 ? null : p,
-                fg: job.kind == 'photo' ? Colors.white : widget.fg,
-                bg: job.kind == 'photo' ? Colors.black54 : widget.fg.withValues(alpha: 0.12),
+                fg: job.kind == 'photo' || job.kind == 'video' ? Colors.white : widget.fg,
+                bg: job.kind == 'photo' || job.kind == 'video' ? Colors.black54 : widget.fg.withValues(alpha: 0.12),
                 tooltip: t.md1CancelSend,
                 onTap: () => MediaOutbox.instance.cancel(job.id));
         final status = job.failed
@@ -427,6 +437,13 @@ class _MediaBubbleBodyState extends State<MediaBubbleBody> {
                       : _thumb(job.thumbB64.isEmpty ? null : base64Decode(job.thumbB64)),
                   if (ring != null) Center(child: ring),
                 ]));
+          case 'video': // mc-media2
+            body = VideoTile(
+              box: _box(job.width, job.height),
+              thumb: _thumb(job.thumbB64.isEmpty ? null : base64Decode(job.thumbB64)),
+              durationMs: job.durationMs,
+              control: ring,
+            );
           case 'voice':
             body = VoiceNoteBody(
               path: File(job.srcPath).existsSync() ? job.srcPath : null,

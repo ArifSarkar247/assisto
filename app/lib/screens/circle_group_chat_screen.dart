@@ -69,6 +69,11 @@ import '../messaging/chat_decor/decor_sheets.dart';
 import '../messaging/chat_decor/decor_store.dart';
 import '../messaging/chat_decor/system_line.dart';
 import '../messaging/media/media_prep.dart' show pickPhoto, MediaDraft;
+import '../messaging/media/video_player_screen.dart' show openVideoPlayer; // mc-media2
+import '../messaging/share/share_flow.dart'
+    show isShareAttach, runShareAttach, shareBubbleBody, wireLiveLocation;
+import '../messaging/share/share_payload.dart'
+    show kShareKinds, mc2ForwardKind, mc2ForwardText, shareFallback;
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 
 /// End-to-end-encrypted GROUP chat (M2 item 7).
@@ -172,6 +177,10 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     _rt.acquire();
     _rt.states.addListener(_onRt);
     _scroll.addListener(_onScroll);
+    // mc-media2: live locations from this phone update while Assisto is open
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) wireLiveLocation(_api);
+    });
     _load().then((_) => _markSeen());
     _poll = Timer.periodic(const Duration(seconds: 8), (_) => _pollMessages());
     // md1: media sends of this group (progress ring) + decrypted-file dir.
@@ -238,7 +247,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   /// group). Media reuses the same blob + key — no re-upload.
   Future<void> _forward(Map<String, dynamic> msg) async {
     final media = _mediaOf(msg);
-    final plain = media != null ? media.encode() : _decryptForMe(msg);
+    final ct0 = '${msg['content_type'] ?? 'text'}';
+    final dec0 = media != null ? media.encode() : _decryptForMe(msg);
+    final plain = dec0 == null || media != null ? dec0 : mc2ForwardText(ct0, dec0); // mc-media2
     if (plain == null || plain.isEmpty) return;
     List<ForwardTarget> targets;
     try {
@@ -257,7 +268,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     final hops = (msg['forward_hops'] is int ? msg['forward_hops'] as int : 0) + 1;
     final payload = ForwardPayload(
         plaintext: plain,
-        contentType: media?.kind ?? 'text',
+        contentType: media?.kind ?? mc2ForwardKind(ct0),
         blobRef: media?.ref,
         hops: hops);
     final cmid = 'fwd-${DateTime.now().microsecondsSinceEpoch}';
@@ -317,6 +328,12 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   Future<void> _attach() async {
     final kind = await showCircleAttachSheet(context);
     if (kind == null || !mounted) return;
+    if (isShareAttach(kind)) {
+      // mc-media2: location / live location / contact card (inline E2E)
+      final sent = await runShareAttach(context, kind, chatKind: 'group', chatId: _gid);
+      if (sent != null && mounted) unawaited(_pollMessages());
+      return;
+    }
     // calls-presence: "<name> is recording audio…" for the group
     final draft = await pickMediaDraft(context, _api, kind,
         onRecording: (on) => on
@@ -349,6 +366,8 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       unawaited(openPhotoViewer(context, f, d));
     } else if (d.kind == 'document') {
       unawaited(openDocumentSheet(context, f, d));
+    } else if (d.kind == 'video') {
+      unawaited(openVideoPlayer(context, f, caption: d.caption)); // mc-media2
     }
   }
 
@@ -450,7 +469,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
               '${next[i]['status']}' != '${_messages[i]['status']}' ||
               // e2e-groups: a re-shared copy arrived for an old message
               '${(next[i]['copy'] as Map?)?['ciphertext']}' !=
-                  '${(_messages[i]['copy'] as Map?)?['ciphertext']}');
+                  '${(_messages[i]['copy'] as Map?)?['ciphertext']}' ||
+              // mc-media2: a live location's newest point (in place)
+              '${next[i]['nonce']}' != '${_messages[i]['nonce']}');
       if (changed && mounted) {
         setState(() {
           _messages = next;
@@ -1993,7 +2014,8 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     final announcement = msg['announcement'] == true;
     final selected = _selecting && _selected.contains('${msg['id']}');
     // p3: on-device scam warning under an incoming message
-    final scam = (msg['mine'] == true || media != null || text.isEmpty)
+    final scam = (msg['mine'] == true || media != null || text.isEmpty ||
+            kShareKinds.contains('${msg['content_type']}')) // mc-media2
         ? ScamVerdict.none
         : _p3Scam.putIfAbsent('${msg['id']}', () => checkScam(text));
     final bubble = GestureDetector(
@@ -2066,7 +2088,12 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                         fontStyle: FontStyle.italic,
                         color: Theme.of(context).colorScheme.onSurfaceVariant))
               else
-                _highlightMentions(text),
+                // mc-media2: a location / contact card instead of raw text
+                shareBubbleBody('${msg['content_type'] ?? 'text'}', text,
+                        mine: msg['mine'] == true,
+                        fg: Theme.of(context).colorScheme.onSurface,
+                        messageId: int.tryParse('${msg['id']}') == null ? null : '${msg['id']}') ??
+                    _highlightMentions(text),
               _reactionRow(msg),
               // c3-msg: ticks on my own messages (all members delivered /
               // read → ✓✓ / blue ✓✓; long-press → Info per member).
@@ -2177,7 +2204,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
               title: Text(_t.copy),
               onTap: () {
                 Clipboard.setData(
-                    ClipboardData(text: _decryptForMe(msg) ?? ''));
+                    ClipboardData(text: shareFallback(_decryptForMe(msg) ?? '')));
                 Navigator.pop(ctx);
               },
             ),
@@ -2497,7 +2524,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         }
         if (m['kind'] == 'poll' || m['poll'] != null) continue;
         final kind = '${m['content_type'] ?? 'text'}';
-        if (kind != 'text' && !kMd1Kinds.contains(kind)) continue;
+        if (kind != 'text' && !kMd1Kinds.contains(kind) && !kShareKinds.contains(kind)) continue;
         if (_decryptRaw(m) == null) ids.add(id);
       }
       if (ids.isNotEmpty) {
@@ -2507,7 +2534,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   }
 
   String? _decryptRaw(Map<String, dynamic> msg) {
-    final ck = '${msg['id']}|${msg['deleted'] ?? ''}';
+    // mc-media2: a live location changes in place -> its nonce is in the key
+    final ck = '${msg['id']}|${msg['deleted'] ?? ''}'
+        '${'${msg['content_type']}' == 'location' ? '|${msg['nonce']}' : ''}';
     final hit = _ptCache[ck];
     if (hit != null) return hit;
     // e2e-recover: every key of my key ring (old keys after a restore),

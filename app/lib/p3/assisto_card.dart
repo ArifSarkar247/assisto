@@ -101,6 +101,8 @@ String cardFallback(String plaintext) {
   // cde-chat: theme / nickname control messages carry the same shape
   // (lib/messaging/chat_decor/chat_control.dart kControlMarker)
   if (i < 0) i = plaintext.indexOf('⁣CC1:');
+  // mc-media2: location / contact cards (messaging/share/share_payload.dart)
+  if (i < 0) i = plaintext.indexOf('\u2063SH1:');
   if (i < 0) return plaintext;
   return plaintext.substring(0, i).trim();
 }

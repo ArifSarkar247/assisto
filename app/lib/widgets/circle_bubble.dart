@@ -11,6 +11,8 @@ import '../messaging/media/media_bubble.dart';
 import '../messaging/media/media_descriptor.dart';
 import '../messaging/media/media_outbox.dart';
 import '../messaging/view_once.dart';
+import '../messaging/share/share_flow.dart' show shareBubbleBody; // mc-media2
+import '../messaging/share/share_payload.dart' show decodeShare, kShareKinds;
 
 /// One decrypted message in the circle chat. The plaintext here NEVER came from
 /// the server — it was decrypted on-device (see crypto/e2e.dart). The server
@@ -222,6 +224,11 @@ class CircleBubble extends StatelessWidget {
             ? e2rWaitingText(t, waitingName)
             : msg.text;
     if (show.isEmpty && msg.contentType != 'text') return const SizedBox.shrink();
+    // mc-media2: a location / contact card draws itself (no raw text)
+    if (!deleted && !msg.decryptFailed && kShareKinds.contains(msg.contentType) &&
+        decodeShare(msg.text) != null) {
+      return const SizedBox.shrink();
+    }
     if (msg.decryptFailed && !deleted) {
       final muted = Theme.of(context).colorScheme.onSurfaceVariant;
       return Row(mainAxisSize: MainAxisSize.min, children: [
@@ -247,6 +254,14 @@ class CircleBubble extends StatelessWidget {
   }
 
   Widget _mediaBody(BuildContext context, AppLocalizations t, Color fg) {
+    // mc-media2: location / live location / contact card
+    final share = msg.decryptFailed
+        ? null
+        : shareBubbleBody(msg.contentType, msg.text,
+            mine: msg.mine, fg: fg, messageId: msg.pending ? null : msg.id);
+    if (share != null) {
+      return Padding(padding: const EdgeInsets.only(bottom: Gap.xs), child: share);
+    }
     if (msg.viewOnce && msg.mediaJob == null) {
       return Padding(
         padding: const EdgeInsets.only(bottom: Gap.xs),

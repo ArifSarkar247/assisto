@@ -37,6 +37,10 @@ import io.flutter.plugin.common.MethodChannel
  *                             main thread) into cacheDir/md1_pick
  *   saveToPhone({path,mime,name}) -> "ok" | "unsupported" (< Android 10) | "error"
  *                             images -> Pictures/Assisto, other -> Download/Assisto
+ *   mc-media2:
+ *   videoMeta({path})      -> {w,h,ms,png} | null   size (rotation applied),
+ *                             duration and a tiny first-frame PNG (32 px) of
+ *                             an app-owned clip, read off the main thread
  * Native → Dart: "openChat"(key) when a shortcut/bubble intent arrives while
  * the app is already running.
  */
@@ -79,6 +83,7 @@ object C3MessagingChannel {
                         call.argument<String>("mime") ?: "application/octet-stream",
                         call.argument<String>("name") ?: "file",
                         result)
+                    "videoMeta" -> videoMeta(call.argument<String>("path") ?: "", result)
                     else -> result.notImplemented()
                 }
             } catch (t: Throwable) {
@@ -333,5 +338,60 @@ object C3MessagingChannel {
         } catch (t: Throwable) {
             false
         }
+    }
+
+    // mc-media2: metadata + a tiny thumbnail of a picked video (sender side).
+    private fun videoMeta(path: String, result: MethodChannel.Result) {
+        Thread {
+            var out: Map<String, Any>? = null
+            val r = android.media.MediaMetadataRetriever()
+            try {
+                if (path.isNotEmpty() && File(path).isFile) {
+                    r.setDataSource(path)
+                    var w = r.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)?.toIntOrNull() ?: 0
+                    var h = r.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)?.toIntOrNull() ?: 0
+                    val rot = r.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)?.toIntOrNull() ?: 0
+                    if (rot == 90 || rot == 270) {
+                        val t = w
+                        w = h
+                        h = t
+                    }
+                    val ms = r.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull() ?: 0L
+                    val m = HashMap<String, Any>()
+                    m["w"] = w
+                    m["h"] = h
+                    m["ms"] = ms
+                    try {
+                        val frame = r.getFrameAtTime(0L)
+                        if (frame != null && frame.width > 0 && frame.height > 0) {
+                            val tw = 32
+                            val th = maxOf(1, (frame.height.toLong() * tw / frame.width).toInt())
+                            val small = android.graphics.Bitmap.createScaledBitmap(frame, tw, th, true)
+                            val bos = java.io.ByteArrayOutputStream()
+                            small.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, bos)
+                            m["png"] = bos.toByteArray()
+                            if (small != frame) small.recycle()
+                            frame.recycle()
+                        }
+                    } catch (t: Throwable) {
+                    }
+                    out = m
+                }
+            } catch (t: Throwable) {
+                out = null
+            } finally {
+                try {
+                    r.release()
+                } catch (t: Throwable) {
+                }
+            }
+            val res = out
+            main.post {
+                try {
+                    result.success(res)
+                } catch (t: Throwable) {
+                }
+            }
+        }.start()
     }
 }

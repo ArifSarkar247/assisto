@@ -74,4 +74,11 @@ class MsgNative {
   static Future<String> saveToPhone(String path, String mime, String name) async =>
       (await _call<String>('saveToPhone', {'path': path, 'mime': mime, 'name': name})) ??
       'error';
+
+  /// mc-media2: {w, h, ms, png} of an app-owned video clip (png = a 32 px
+  /// first frame, may be missing); null when the phone can't read it.
+  static Future<Map<String, dynamic>?> videoMeta(String path) async {
+    final r = await _call<Map<Object?, Object?>>('videoMeta', {'path': path});
+    return r?.map((k, v) => MapEntry('$k', v));
+  }
 }
