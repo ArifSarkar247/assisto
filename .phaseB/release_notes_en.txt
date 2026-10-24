@@ -1,1 +1,1 @@
-Build 220: My Circle gets disappearing messages that are really deleted, view-once photos, chat lock with a Locked chats folder, group pin/archive, search across all messages and voice-note speed; cleaner, more readable design in AI chat, Photo Studio, settings, business and money screens.
+Build 221: Lost/Stolen protection no longer reports your own SIM as a SIM change when you turn it on (dual-SIM aware); alerts arrive once; new "It was me / false alarm" button (Security PIN) clears a false theft signal and tells your family all is well.
