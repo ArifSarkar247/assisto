@@ -18751,5 +18751,13 @@
   "fsiAllow": "Allow",
   "@fsiAllow": {},
   "fsiLater": "Not now",
-  "@fsiLater": {}
+  "@fsiLater": {},
+  "atfaButton": "It was me — clear false alarm",
+  "atfaHint": "If you caused this alert yourself (your own SIM, or you moving the phone), clear it with your Security PIN.",
+  "atfaConfirmTitle": "Was this you?",
+  "atfaConfirmBody": "If this theft alert was caused by you — for example your own SIM, or you moving the phone — confirm with your Security PIN. The freeze is lifted, and your family gets one short all-clear message.",
+  "atfaConfirmYes": "Yes, it was me",
+  "atfaCleared": "Cleared. Your family was told it was a false alarm.",
+  "atfaNothing": "There is no theft alert to clear.",
+  "atfaRateLimited": "Too many tries today. Please try again later."
 }
