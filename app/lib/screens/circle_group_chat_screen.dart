@@ -21,6 +21,8 @@ import '../api.dart';
 import '../config.dart';
 import '../crypto/e2e.dart';
 import '../widgets/circle_bubble.dart' show e2rWaitingText; // e2e-recover
+import '../crypto/group_decrypt.dart'; // e2e-groups
+import '../crypto/history_reshare.dart'; // e2e-groups
 import '../crypto/identity_vault.dart'; // e2e-recover
 import '../crypto/plain_cache.dart'; // e2e-recover
 import '../crypto/key_service.dart';
@@ -387,6 +389,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   @override
   void dispose() {
     unawaited(PlainCache.instance.persist()); // e2e-recover
+    _ringWait?.cancel(); // e2e-groups
     DecorStore.instance.revision.removeListener(_onDecor); // cde-chat
     if (MsgActiveChat.current == _chatKey) MsgActiveChat.current = null;
     _poll?.cancel();
@@ -443,13 +446,18 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       final changed = next.length != _messages.length ||
           fresh ||
           [for (var i = 0; i < next.length && i < _messages.length; i++) i]
-              .any((i) => '${next[i]['status']}' != '${_messages[i]['status']}');
+              .any((i) =>
+              '${next[i]['status']}' != '${_messages[i]['status']}' ||
+              // e2e-groups: a re-shared copy arrived for an old message
+              '${(next[i]['copy'] as Map?)?['ciphertext']}' !=
+                  '${(_messages[i]['copy'] as Map?)?['ciphertext']}');
       if (changed && mounted) {
         setState(() {
           _messages = next;
           _pruneEchoes(); // md2: same frame as the server copy appearing
         });
         _foldControls(); // cde-chat
+        _askMissing(); // e2e-groups
       }
       if (fresh || _seenPending) unawaited(_markSeen());
     } catch (_) {
@@ -490,14 +498,25 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     // e2e-recover: key ring + local plaintext cache, in parallel (never
     // delays the first frame); a rebuild re-opens what they unlock.
     final uid = context.read<AppState>().user?.id;
+    final ringF = IdentityVault.instance.ring();
     unawaited(() async {
       try {
-        final r = await IdentityVault.instance.ring();
+        final r = await ringF;
         await PlainCache.instance.warm(uid);
         if (!mounted) return;
         setState(() => _ring = r);
       } catch (_) {} // best-effort: key ring is optional, chat still opens
     }());
+    // e2e-groups: "cannot open" is only trusted once the key ring was tried
+    // (or a slow keystore gave up); then ask the other members' phones.
+    void ready() {
+      _ringWait?.cancel();
+      if (_ringReady) return;
+      _ringReady = true;
+      if (mounted) _askMissing();
+    }
+    _ringWait ??= Timer(const Duration(seconds: 4), ready);
+    unawaited(ringF.then((_) => ready(), onError: (_) => ready()));
     // Spinner only on the very first load — a reload after send/react/pin
     // keeps the list on screen (no flash, no jump).
     if (mounted && !_loading && !_loadedOnce) setState(() => _loading = true);
@@ -524,6 +543,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       _loadFailed = false;
       _pruneEchoes(); // md2
       _foldControls(); // cde-chat
+      _askMissing(); // e2e-groups
     } catch (_) {
       // Keep any already-loaded messages visible; only flag the error so the
       // UI can offer Retry instead of silently showing an empty chat.
@@ -2452,6 +2472,39 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
 
   // e2e-recover: every private key of this phone (current first).
   List<IdentityKeyPair> _ring = const [];
+  bool _ringReady = false; // e2e-groups
+  Timer? _ringWait; // e2e-groups: a slow keystore never blocks the ask
+
+  /// e2e-groups: group messages this phone cannot open (not the original,
+  /// not a re-shared copy, not the local cache) are reported to the other
+  /// members' phones — they re-share them to my current key. Only once the
+  /// key ring and the roster keys are known (else everything "fails" at
+  /// open). Rate-limited in HistoryReshare; never shown, never throws.
+  void _askMissing() {
+    try {
+      if (!_ringReady || !mounted) return;
+      if (!_members.any((m) =>
+          m['is_self'] != true && '${m['public_key'] ?? ''}'.isNotEmpty)) {
+        return;
+      }
+      final ids = <String>[];
+      for (final m in _messages) {
+        final id = '${m['id'] ?? ''}';
+        if (int.tryParse(id) == null) continue; // local echo
+        if (m['md2_plain'] != null || m['md1_desc'] != null) continue;
+        if ('${m['deleted'] ?? ''}' == 'everyone' || m['view_once'] == true) {
+          continue;
+        }
+        if (m['kind'] == 'poll' || m['poll'] != null) continue;
+        final kind = '${m['content_type'] ?? 'text'}';
+        if (kind != 'text' && !kMd1Kinds.contains(kind)) continue;
+        if (_decryptRaw(m) == null) ids.add(id);
+      }
+      if (ids.isNotEmpty) {
+        unawaited(HistoryReshare.instance.askGroup(_gid, ids));
+      }
+    } catch (_) {}
+  }
 
   String? _decryptRaw(Map<String, dynamic> msg) {
     final ck = '${msg['id']}|${msg['deleted'] ?? ''}';
@@ -2470,6 +2523,18 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     final mid = '${msg['id'] ?? ''}';
     final gone = '${msg['deleted'] ?? ''}' == 'everyone' ||
         msg['view_once'] == true;
+    // e2e-groups: the sender's / recipients' EARLIER keys (server history),
+    // then the copy another member's phone re-shared to my current key.
+    if (pt == null && !gone) {
+      pt = GroupDecrypt.open(msg,
+          ring: [
+            widget.identity,
+            ..._ring.where((k) => k.keyId != widget.identity.keyId),
+          ],
+          myMemberId: '${msg['my_member_id'] ?? _myMemberId}',
+          myUserId: '$_myUserId',
+          roster: _members);
+    }
     if (pt == null && !gone) pt = PlainCache.instance.get(mid);
     if (pt != null && !gone && !descriptorIsViewOnce(pt)) {
       PlainCache.instance.put(mid, pt);

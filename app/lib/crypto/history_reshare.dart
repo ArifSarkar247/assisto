@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'e2e.dart';
+import 'group_decrypt.dart';
 import 'identity_vault.dart';
 import 'key_service.dart' show KeyLog;
 import 'plain_cache.dart';
@@ -25,6 +26,14 @@ import 'ring_decrypt.dart';
 ///
 /// ASK (this phone needs help): messages we cannot open are reported to the
 /// sender's phone (POST circle/<chat>/e2/resend), rate-limited per chat.
+///
+/// GROUPS (e2e-groups): the same for group chats. A group message is
+/// sealed per member, so when a co-member's key changed (or they asked) this
+/// phone opens ITS OWN per-member copy (or, for its own sent message, any
+/// recipient's), re-encrypts it to the co-member's NEW key and uploads it
+/// (POST circle/groups/<g>/e2/copies). The server keeps the FIRST copy per
+/// (message, member), so several helpers never produce duplicates, and only
+/// lists the ids still missing that this phone received.
 ///
 /// Capped (last [maxMessages] messages / [windowDays] days), throttled,
 /// idempotent (the server upserts one copy per message+recipient), single-
@@ -96,6 +105,14 @@ class HistoryReshare {
         log.add('reshare chat failed ${e.runtimeType}');
       }
     }
+    for (final req in ((r['groups'] as List?) ?? const [])) {
+      if (req is! Map) continue;
+      try {
+        total += await _serveGroup(req.cast<String, dynamic>(), g, p);
+      } catch (e) {
+        log.add('reshare group failed ${e.runtimeType}');
+      }
+    }
     served += total;
     return total;
   }
@@ -126,7 +143,8 @@ class HistoryReshare {
       _b64('${keys['public_key'] ?? ''}'),
     ]);
 
-    final envs = await _history(g, chatId, since, whole ? null : wanted);
+    final envs = await _history(
+        g, '/circle/$chatId/messages', since, whole ? null : wanted);
     final copies = <Map<String, dynamic>>[];
     var n = 0;
     for (final env in envs) {
@@ -178,14 +196,93 @@ class HistoryReshare {
     return stored;
   }
 
-  /// Oldest-first envelopes of the chat, newest [maxMessages], back to
-  /// [since] (or until every [only] id was seen).
-  Future<List<Map<String, dynamic>>> _history(ReshareGet g, int chatId,
+  /// e2e-groups: re-share the group messages the server listed (only ids
+  /// still missing that THIS phone received) to the co-member's new key.
+  Future<int> _serveGroup(
+      Map<String, dynamic> req, ReshareGet g, ResharePost p) async {
+    final gid = (req['group_id'] as num?)?.toInt();
+    final forUid = (req['user_id'] as num?)?.toInt();
+    final forKid = '${req['key_id'] ?? ''}';
+    final newPub = _b64('${req['public_key'] ?? ''}');
+    final wanted = <String>{
+      for (final i in (req['message_ids'] as List? ?? const [])) '$i'
+    };
+    if (gid == null || forUid == null || forKid.isEmpty || newPub == null ||
+        wanted.isEmpty) {
+      return 0;
+    }
+    final since = DateTime.tryParse('${req['since'] ?? ''}') ??
+        now().subtract(const Duration(days: windowDays));
+    final ring = await vault.ring();
+    if (ring.isEmpty) return 0;
+    final me = ring.first;
+    final mem = await g('/circle/groups/$gid/members')
+        .timeout(const Duration(seconds: 10));
+    final roster = ((mem['results'] ?? mem['members'] ?? const []) as List)
+        .whereType<Map>()
+        .map((e) => e.cast<String, dynamic>())
+        .toList();
+    var myMid = '${req['my_member_id'] ?? ''}';
+    var myUid = '';
+    for (final r in roster) {
+      if (r['is_self'] == true) {
+        myUid = '${r['user_id'] ?? ''}';
+        if (myMid.isEmpty) myMid = '${r['member_id'] ?? ''}';
+      }
+    }
+    final envs =
+        await _history(g, '/circle/groups/$gid/messages', since, wanted);
+    final copies = <Map<String, dynamic>>[];
+    var n = 0;
+    for (final env in envs) {
+      if (++n % 20 == 0) await Future<void>.delayed(Duration.zero); // no jank
+      final id = '${env['id'] ?? ''}';
+      if (!wanted.contains(id)) continue;
+      final kind = '${env['content_type'] ?? 'text'}';
+      if (kind != 'text' && !mediaKinds.contains(kind)) continue;
+      if ('${env['deleted'] ?? ''}' == 'everyone') continue;
+      if (env['view_once'] == true) continue;
+      // MY copy only (never the copy the server keeps for someone else).
+      final pt = GroupDecrypt.openOriginal({...env}..remove('copy'),
+              ring: ring, myMemberId: myMid, myUserId: myUid,
+              roster: roster) ??
+          PlainCache.instance.get(id);
+      if (pt == null) continue;
+      final out =
+          _e2e.encrypt(self: me, recipientPublicKey: newPub, plaintext: pt);
+      copies.add({
+        'message_id': int.tryParse(id) ?? id,
+        'ciphertext': out.ciphertextB64,
+        'nonce': out.nonceB64,
+        'sender_key_id': out.senderKeyId,
+        'scheme': out.scheme,
+      });
+    }
+    var stored = 0;
+    for (var i = 0; i < copies.length || i == 0; i += batch) {
+      final part = copies.sublist(i, (i + batch).clamp(0, copies.length));
+      final last = i + batch >= copies.length;
+      final r = await p('/circle/groups/$gid/e2/copies', {
+        'for_user_id': forUid,
+        'for_key_id': forKid,
+        'copies': part,
+        'done': last,
+      }).timeout(const Duration(seconds: 20));
+      stored += (r['stored'] as num?)?.toInt() ?? 0;
+      if (last) break;
+    }
+    log.add('reshare group=$gid copies=$stored');
+    return stored;
+  }
+
+  /// Oldest-first envelopes of the chat at [base], newest [maxMessages],
+  /// back to [since] (or until every [only] id was seen).
+  Future<List<Map<String, dynamic>>> _history(ReshareGet g, String base,
       DateTime since, Set<String>? only) async {
     final out = <Map<String, dynamic>>[];
     String? before;
     for (var page = 0; page < 10 && out.length < maxMessages; page++) {
-      final r = await g('/circle/$chatId/messages?limit=100'
+      final r = await g('$base?limit=100'
               '${before == null ? '' : '&before=$before'}')
           .timeout(const Duration(seconds: 15));
       final rows = ((r['results'] ?? r['messages'] ?? const []) as List)
@@ -228,7 +325,16 @@ class HistoryReshare {
   /// phone to re-share them to our current key. Ids already asked are not
   /// re-sent for [askEvery] (then retried — e.g. on the next app open).
   /// Returns true when a request was sent.
-  Future<bool> ask(int chatId, Iterable<String> messageIds) async {
+  Future<bool> ask(int chatId, Iterable<String> messageIds) =>
+      _ask('$chatId', '/circle/$chatId/e2/resend', messageIds);
+
+  /// e2e-groups: group messages this phone cannot open (original + copy):
+  /// ask the other members' phones. Same rate limit as [ask].
+  Future<bool> askGroup(int groupId, Iterable<String> messageIds) =>
+      _ask('g$groupId', '/circle/groups/$groupId/e2/resend', messageIds);
+
+  Future<bool> _ask(
+      String slot, String path, Iterable<String> messageIds) async {
     final p = post;
     if (p == null) return false;
     try {
@@ -240,7 +346,7 @@ class HistoryReshare {
         asked = (jsonDecode(prefs.getString(_askedKey) ?? '{}') as Map)
             .cast<String, dynamic>();
       } catch (_) {}
-      final mine = (asked['$chatId'] as Map?)?.cast<String, dynamic>() ?? {};
+      final mine = (asked[slot] as Map?)?.cast<String, dynamic>() ?? {};
       final at = DateTime.tryParse('${mine['at'] ?? ''}');
       final before = {
         for (final i in (mine['ids'] as List? ?? const [])) '$i'
@@ -249,16 +355,16 @@ class HistoryReshare {
       final todo = fresh ? ids : ids.difference(before);
       if (todo.isEmpty) return false;
       final list = todo.take(HistoryReshare.maxMessages).toList();
-      await p('/circle/$chatId/e2/resend', {
+      await p(path, {
         'message_ids': [for (final i in list) int.parse(i)],
       }).timeout(const Duration(seconds: 10));
       final keep = {...(fresh ? <String>{} : before), ...list}.toList();
-      asked['$chatId'] = {
+      asked[slot] = {
         'at': (fresh ? now() : at).toIso8601String(),
         'ids': keep.length > 1000 ? keep.sublist(keep.length - 1000) : keep,
       };
       await prefs.setString(_askedKey, jsonEncode(asked));
-      log.add('reshare asked chat=$chatId n=${list.length}');
+      log.add('reshare asked $slot n=${list.length}');
       return true;
     } catch (e) {
       log.add('reshare ask failed ${e.runtimeType}');

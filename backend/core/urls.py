@@ -1004,3 +1004,12 @@ urlpatterns[:0] = [
     path("circle/<int:pk>/e2/copies", e2r.E2CopiesView.as_view()),
 ]
 # ---- /e2e-recover ----
+
+# ---- e2e-groups ---- (peer-assisted re-share for group chats). PREPENDED
+# so the literal paths win over circle/groups/<pk>/<slug:setting>.
+from . import views_e2e_groups as e2g  # noqa: E402
+urlpatterns[:0] = [
+    path("circle/groups/<int:pk>/e2/resend", e2g.E2GroupResendAskView.as_view()),
+    path("circle/groups/<int:pk>/e2/copies", e2g.E2GroupCopiesView.as_view()),
+]
+# ---- /e2e-groups ----
