@@ -1,0 +1,63 @@
+<!doctype html><meta charset=utf-8><title>G1 self-test proof</title><style>body{font:15px/1.5 'Noto Sans Bengali',system-ui,sans-serif;max-width:720px;margin:24px auto;padding:0 16px;background:#f5f7fb;color:#111}h2{margin-top:28px}.m{max-width:80%;padding:8px 12px;border-radius:12px;margin:6px 0;white-space:pre-wrap}.in{background:#fff;border:1px solid #dde}.out{background:#2347D9;color:#fff;margin-left:auto}.meta{font-size:12px;opacity:.8}.ok{color:#1E7A50}.bad{color:#C62839}</style>
+<h1>Assisto G1 self-test — <span class=ok>ALL PASSED</span></h1>
+<h2>1. Rule-first (no AI, 0 credits)</h2>
+<div class='m in'>Selftest Panjabi dam koto?<div class=meta>text</div></div>
+<div class='m out'>আমি দোকানের এআই সহকারী। Selftest Panjabi — দাম ৳1200, স্টকে আছে। অর্ডার করতে নাম, মোবাইল নম্বর ও পূর্ণ ঠিকানা লিখুন।<div class=meta>rule · product · 0 credits</div></div>
+<div class='m in'>apnader dokan kothay?<div class=meta>text</div></div>
+<div class='m out'>Selftest shop: Mirpur 10, Dhaka.<div class=meta>rule · faq · 0 credits</div></div>
+<h2>2. Human reply pauses AI, resumes</h2>
+<div class='m in'>hello<div class=meta>text</div></div>
+<div class='m out'>I&#x27;m the shop&#x27;s AI assistant. Hello! Welcome to G1 Selftest Shop. Tell me which product you are looking for — I&#x27;ll share the price, sizes and stock.<div class=meta>rule · greeting · 0 credits</div></div>
+<div class='m out'>Ami owner, dekhchi<div class=meta>human · 0 credits</div></div>
+<div class='m in'>delivery charge koto?<div class=meta>text</div></div>
+<div class='m out'>ডেলিভারি চার্জ: ঢাকার ভিতরে ৳60, ঢাকার বাইরে ৳120।<div class=meta>rule · delivery · 0 credits</div></div>
+<h2>3. Per-chat toggle</h2>
+<div class='m in'>hello<div class=meta>text</div></div>
+<div class='m out'>I&#x27;m the shop&#x27;s AI assistant. Hello! Welcome to G1 Selftest Shop. Tell me which product you are looking for — I&#x27;ll share the price, sizes and stock.<div class=meta>rule · greeting · 0 credits</div></div>
+<div class='m in'>Selftest Panjabi dam koto?<div class=meta>text</div></div>
+<div class='m in'>Selftest Panjabi dam koto?<div class=meta>text</div></div>
+<div class='m out'>Selftest Panjabi — দাম ৳1200, স্টকে আছে। অর্ডার করতে নাম, মোবাইল নম্বর ও পূর্ণ ঠিকানা লিখুন।<div class=meta>rule · product · 0 credits</div></div>
+<h2>4. Photo → match → order → TEST courier → payment pending</h2>
+<div class='m in'>[image]<div class=meta>image</div></div>
+<div class='m out'>আমি দোকানের এআই সহকারী। ছবির পণ্যটি আমাদের কাছে আছে: Selftest Panjabi — দাম ৳1200, স্টকে আছে। অর্ডার করতে নাম, মোবাইল নম্বর ও পূর্ণ ঠিকানা লিখুন।<div class=meta>rule · image_match · 0 credits</div></div>
+<div class='m in'>2 ta nibo. Name: Selftest Buyer, phone 01900000000, address: House 1, Road 2, Mirpur, Dhaka<div class=meta>text</div></div>
+<div class='m out'>অর্ডারের সারাংশ:
+- Selftest Panjabi × 2 = ৳2280
+- ডেলিভারি (ঢাকার ভিতরে): ৳60
+- মোট (ক্যাশ অন ডেলিভারি): ৳2340
+- নাম: Selftest Buyer, ফোন: 01900000000
+- ঠিকানা: House 1, Road 2, Mirpur, Dhaka
+সব ঠিক থাকলে &quot;হ্যাঁ&quot; লিখুন, বাতিল করতে &quot;না&quot;।
+বান্ডেল ছাড়: 2টি বা বেশি নিলে প্রতি পিস ৳1200-এর বদলে ৳1140।<div class=meta>rule · 0 credits</div></div>
+<div class='m in'>yes<div class=meta>text</div></div>
+<div class='m out'>Invoice #3 — G1 Selftest Shop
+- Selftest Panjabi × 2 = ৳2280
+Delivery: ৳60
+Total (cash on delivery): ৳2340
+Thank you! We&#x27;ll send the tracking once the parcel ships.
+You may also like Selftest Pajama (৳500) — tell us and we&#x27;ll add it to the same parcel.<div class=meta>rule · order_confirmed · 0 credits</div></div>
+<div class='m out'>Order #3: courier booked (steadfast tracking: TEST-STEADFAST-3) — TEST MODE, not a real courier.<div class=meta>system · 0 credits</div></div>
+<div class='m in'>bkash e advance diyechi<div class=meta>image</div></div>
+<div class='m out'>ধন্যবাদ, স্ক্রিনশট পেয়েছি। অর্ডার #3-এর পেমেন্ট দোকানের মালিক নিজে যাচাই করে জানাবেন — যাচাইয়ের আগে এটি পরিশোধিত ধরা হবে না।<div class=meta>rule · payment_proof · 0 credits</div></div>
+<h2>Orders</h2><pre>[
+ {
+  &quot;id&quot;: 3,
+  &quot;status&quot;: &quot;shipped&quot;,
+  &quot;total&quot;: &quot;2340.00&quot;,
+  &quot;via_agent&quot;: true,
+  &quot;payment&quot;: &quot;cod&quot;,
+  &quot;payment_status&quot;: &quot;pending_verification&quot;,
+  &quot;courier&quot;: &quot;steadfast&quot;,
+  &quot;tracking&quot;: &quot;TEST-STEADFAST-3&quot;,
+  &quot;courier_live&quot;: false,
+  &quot;items&quot;: [
+   {
+    &quot;qty&quot;: 2,
+    &quot;name&quot;: &quot;Selftest Panjabi&quot;,
+    &quot;price&quot;: &quot;1140.00&quot;,
+    &quot;variant&quot;: &quot;&quot;,
+    &quot;product_id&quot;: 3
+   }
+  ]
+ }
+]</pre>
